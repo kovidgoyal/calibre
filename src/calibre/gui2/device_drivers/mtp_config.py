@@ -73,8 +73,13 @@ class FormatsConfig(QWidget):  # {{{
 
     @property
     def format_map(self):
-        return [str(self.f.item(i).data(Qt.ItemDataRole.UserRole) or '') for i in
-                range(self.f.count()) if self.f.item(i).checkState()==Qt.CheckState.Checked]
+        result = []
+        for i in range(self.f.count()):
+            item = self.f.item(i)
+            assert item is not None
+            if item.checkState() == Qt.CheckState.Checked:
+                result.append(str(item.data(Qt.ItemDataRole.UserRole) or ''))
+        return result
 
     def validate(self):
         if not self.format_map:
@@ -209,12 +214,18 @@ class IgnoredDevices(QWidget):  # {{{
 
     @property
     def blacklist(self):
-        return [str(self.f.item(i).data(Qt.ItemDataRole.UserRole) or '') for i in
-                range(self.f.count()) if self.f.item(i).checkState()==Qt.CheckState.Checked]
+        result = []
+        for i in range(self.f.count()):
+            item = self.f.item(i)
+            assert item is not None
+            if item.checkState() == Qt.CheckState.Checked:
+                result.append(str(item.data(Qt.ItemDataRole.UserRole) or ''))
+        return result
 
     def ignore_device(self, snum):
         for i in range(self.f.count()):
             i = self.f.item(i)
+            assert i is not None
             c = str(i.data(Qt.ItemDataRole.UserRole) or '')
             if c == snum:
                 i.setCheckState(Qt.CheckState.Checked)
@@ -339,7 +350,9 @@ class FormatRules(QGroupBox):
         self.widgets.append(r)
         self.w.l.addWidget(r)
         r.remove.connect(self.remove_rule)
-        self.sa.verticalScrollBar().setValue(self.sa.verticalScrollBar().maximum())
+        scrollbar = self.sa.verticalScrollBar()
+        assert scrollbar is not None
+        scrollbar.setValue(scrollbar.maximum())
 
     def remove_rule(self, rule):
         rule.setVisible(False)
@@ -511,8 +524,13 @@ class MTPConfig(QTabWidget):
         bb.rejected.connect(d.reject)
         l.addWidget(bb)
         bb.addButton(_('Copy to clipboard'), QDialogButtonBox.ButtonRole.ActionRole)
-        bb.clicked.connect(lambda:
-                QApplication.clipboard().setText(v.toPlainText()))
+
+        def _copy_debug_to_clipboard():
+            clipboard = QApplication.clipboard()
+            assert clipboard is not None
+            clipboard.setText(v.toPlainText())
+
+        bb.clicked.connect(_copy_debug_to_clipboard)
         d.exec()
 
     def change_ignored_folders(self):

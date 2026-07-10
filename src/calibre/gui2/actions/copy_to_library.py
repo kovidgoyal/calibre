@@ -253,9 +253,11 @@ class ChooseLibrary(Dialog):  # {{{
         bb.setStandardButtons(QDialogButtonBox.StandardButton.Cancel)
         self.delete_after_copy = False
         b = bb.addButton(_('&Copy'), QDialogButtonBox.ButtonRole.AcceptRole)
+        assert b is not None
         b.setIcon(QIcon.ic('edit-copy.png'))
         b.setToolTip(_('Copy to the specified library'))
         b2 = bb.addButton(_('&Move'), QDialogButtonBox.ButtonRole.AcceptRole)
+        assert b2 is not None
         connect_lambda(b2.clicked, self, lambda self: setattr(self, 'delete_after_copy', True))
         b2.setIcon(QIcon.ic('edit-cut.png'))
         b2.setToolTip(_('Copy to the specified library and delete from the current library'))
@@ -309,10 +311,13 @@ class DuplicatesQuestion(QDialog):  # {{{
         bb.accepted.connect(self.accept)
         bb.rejected.connect(self.reject)
         self.a = b = bb.addButton(_('Select &all'), QDialogButtonBox.ButtonRole.ActionRole)
+        assert b is not None
         b.clicked.connect(self.select_all), b.setIcon(QIcon.ic('plus.png'))
         self.n = b = bb.addButton(_('Select &none'), QDialogButtonBox.ButtonRole.ActionRole)
+        assert b is not None
         b.clicked.connect(self.select_none), b.setIcon(QIcon.ic('minus.png'))
         self.ctc = b = bb.addButton(_('&Copy to clipboard'), QDialogButtonBox.ButtonRole.ActionRole)
+        assert b is not None
         b.clicked.connect(self.copy_to_clipboard), b.setIcon(QIcon.ic('edit-copy.png'))
         l.addWidget(bb)
         self.resize(600, 400)
@@ -320,7 +325,9 @@ class DuplicatesQuestion(QDialog):  # {{{
     def copy_to_clipboard(self):
         items = [('✓' if item.checkState() == Qt.CheckState.Checked else '✗') + ' ' + str(item.text())
                  for item in self.items]
-        QApplication.clipboard().setText('\n'.join(items))
+        _clipboard = QApplication.clipboard()
+        assert _clipboard is not None
+        _clipboard.setText('\n'.join(items))
 
     def select_all(self):
         for i in self.items:

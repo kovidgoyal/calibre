@@ -168,6 +168,7 @@ class ScanStatus(QWidget):
         bb.clear()
         bb.addButton(QDialogButtonBox.StandardButton.Close)
         b = bb.addButton(_('Re-index'), QDialogButtonBox.ButtonRole.ActionRole)
+        assert b is not None
         b.setIcon(QIcon.ic('view-refresh.png'))
         b.setToolTip(_('Re-index all books in this library'))
         b.clicked.connect(self.reindex)

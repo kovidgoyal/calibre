@@ -58,7 +58,9 @@ class TOCView(QTreeView):
         self.delegate = Delegate(self)
         self.setItemDelegate(self.delegate)
         self.setMinimumWidth(80)
-        self.header().close()
+        header = self.header()
+        assert header is not None
+        header.close()
         self.setMouseTracking(True)
         self.set_style_sheet()
         self.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
@@ -152,7 +154,9 @@ class TOCView(QTreeView):
 
     def copy_to_clipboard(self):
         m = self.model()
-        QApplication.clipboard().setText(getattr(m, 'as_plain_text', ''))
+        cb = QApplication.clipboard()
+        assert cb is not None
+        cb.setText(getattr(m, 'as_plain_text', ''))
 
     def update_current_toc_nodes(self, families):
         self.model().update_current_toc_nodes(families)

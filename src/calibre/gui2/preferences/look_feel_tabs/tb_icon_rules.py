@@ -479,10 +479,13 @@ class TbIconRulesTab(LazyConfigWidgetBase, Ui_Form):
 
         # Make the minimum section size smaller so the icon column icons don't
         # have a lot of space on the right
-        self.rules_table.horizontalHeader().setMinimumSectionSize(20)
+        hdr = self.rules_table.horizontalHeader()
+        assert hdr is not None
+        hdr.setMinimumSectionSize(20)
 
         for i in range(HEADER_SECTION_COUNT):
             item = self.rules_table.horizontalHeaderItem(i)
+            assert item is not None
             if i == DELETED_COLUMN:
                 item.setIcon(QIcon.cached_icon('trash.png'))
                 item.setToolTip(_('This icon shows in the row if the rule is deleted'))
@@ -507,6 +510,7 @@ class TbIconRulesTab(LazyConfigWidgetBase, Ui_Form):
 
         # Capture clicks on the horizontal header to sort the table columns
         hh = self.rules_table.horizontalHeader()
+        assert hh is not None
         hh.sectionResized.connect(self.table_column_resized)
         hh.setSectionsClickable(True)
         hh.sectionClicked.connect(self.do_sort)
@@ -638,21 +642,29 @@ class TbIconRulesTab(LazyConfigWidgetBase, Ui_Form):
         m = QMenu(self)
         if column == CATEGORY_COLUMN:
             ac = m.addAction(_('Delete this rule'), partial(self.context_menu_handler, 'delete', item))
+            assert ac is not None
             ac.setEnabled(not item.is_deleted)
             ac = m.addAction(_('Undo delete'), partial(self.context_menu_handler, 'undo_delete', item))
+            assert ac is not None
             ac.setEnabled(item.is_deleted)
         elif column in (ICON_COLUMN, FOR_CHILDREN_COLUMN):
             ac = m.addAction(_('Modify this value'), partial(self.context_menu_handler, 'modify', item))
+            assert ac is not None
             ac.setEnabled(not item.is_modified)
             ac = m.addAction(_('Undo modification'), partial(self.context_menu_handler, 'undo_modification', item))
+            assert ac is not None
             ac.setEnabled(item.is_modified)
         m.addSeparator()
         m.addAction(_('Copy'), partial(self.context_menu_handler, 'copy', item))
-        m.exec(self.rules_table.viewport().mapToGlobal(point))
+        vp = self.rules_table.viewport()
+        assert vp is not None
+        m.exec(vp.mapToGlobal(point))
 
     def context_menu_handler(self, action, item):
         if action == 'copy':
-            QApplication.clipboard().setText(item.text())
+            cb = QApplication.clipboard()
+            assert cb is not None
+            cb.setText(item.text())
             return
         if action == 'delete':
             self.delete_rule()
@@ -674,6 +686,7 @@ class TbIconRulesTab(LazyConfigWidgetBase, Ui_Form):
     def check_button_state(self, item):
         if item is None:
             item = self.rules_table.currentItem()
+        assert item is not None
         self.delete_button.setEnabled(False)
         self.edit_button.setEnabled(False)
         self.undo_button.setEnabled(False)
@@ -749,7 +762,9 @@ class TbIconRulesTab(LazyConfigWidgetBase, Ui_Form):
             # Assume that a button is 60 wide. Assume that the 3 icon columns
             # are 25 wide. None of this really matters because user-changed
             # column widths will be remembered.
-            w = self.tb_icon_rules_groupbox.width() - (4*25) - 60 - self.rules_table.verticalHeader().width()
+            vh = self.rules_table.verticalHeader()
+            assert vh is not None
+            w = self.tb_icon_rules_groupbox.width() - (4*25) - 60 - vh.width()
             w //= (self.rules_table.columnCount() - 3)
             for c in range(self.rules_table.columnCount()):
                 if c in (DELETED_COLUMN, ICON_MODIFIED_COLUMN, FOR_CHILDREN_MODIFIED_COLUMN):
@@ -772,13 +787,14 @@ class TbIconRulesTab(LazyConfigWidgetBase, Ui_Form):
             cat_item = self.rules_table.item(r, CATEGORY_COLUMN)
             value_item = self.rules_table.item(r, VALUE_COLUMN)
             icon_item = self.rules_table.item(r, ICON_COLUMN)
+            assert icon_item is not None
             child_item = self.rules_table.item(r, FOR_CHILDREN_COLUMN)
             value_text = value_item.original_name
 
             if cat_item.is_deleted:
                 if not value_item.is_template:
                     # Need to delete the icon file to clean up
-                    icon_file = self.rules_table.item(r, ICON_COLUMN).text()
+                    icon_file = icon_item.text()
                     path = os.path.join(config_dir, 'tb_icons', icon_file)
                     try:
                         os.remove(path)

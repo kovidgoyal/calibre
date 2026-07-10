@@ -930,7 +930,9 @@ class GenericRulesTable(QTableWidget):
         self.layout.addWidget(self)
 
         self.last_row_selected = self.currentRow()
-        self.last_rows_selected = self.selectionModel().selectedRows()
+        _init_sel_model = self.selectionModel()
+        assert _init_sel_model is not None
+        self.last_rows_selected = _init_sel_model.selectedRows()
 
         # Add the controls
         self._init_controls()
@@ -981,7 +983,9 @@ class GenericRulesTable(QTableWidget):
         self.select_and_scroll_to_row(row)
         self.resizeColumnsToContents()
         # In case table was empty
-        self.horizontalHeader().setStretchLastSection(True)
+        _hdr = self.horizontalHeader()
+        assert _hdr is not None
+        _hdr.setStretchLastSection(True)
 
     def clearLayout(self):
         if self.layout is not None:
@@ -1037,7 +1041,9 @@ class GenericRulesTable(QTableWidget):
     def focusOutEvent(self, e):
         # Override of QTableWidget method - clear selection when table loses focus
         self.last_row_selected = self.currentRow()
-        self.last_rows_selected = self.selectionModel().selectedRows()
+        _focus_out_sel_model = self.selectionModel()
+        assert _focus_out_sel_model is not None
+        self.last_rows_selected = _focus_out_sel_model.selectedRows()
         self.clearSelection()
         if self.DEBUG:
             print(f'{self.objectName()}:focusOutEvent(): self.last_row_selected: {self.last_row_selected}')
@@ -1135,7 +1141,9 @@ class GenericRulesTable(QTableWidget):
         self.selectRow(row)
         self.scrollToItem(self.currentItem())
         self.last_row_selected = self.currentRow()
-        self.last_rows_selected = self.selectionModel().selectedRows()
+        _scroll_sel_model = self.selectionModel()
+        assert _scroll_sel_model is not None
+        self.last_rows_selected = _scroll_sel_model.selectedRows()
 
     def settings_changed(self, source):
         if not self.parent.blocking_all_signals:
@@ -1215,13 +1223,17 @@ class ExclusionRules(GenericRulesTable):
         self.populate_table()
         self.resizeColumnsToContents()
         self.resize_name()
-        self.horizontalHeader().setStretchLastSection(True)
+        _excl_hdr = self.horizontalHeader()
+        assert _excl_hdr is not None
+        _excl_hdr.setStretchLastSection(True)
         self.clearSelection()
 
     def convert_row_to_data(self, row):
         data = self.create_blank_row_data()
         data['ordinal'] = row
-        data['enabled'] = self.item(row, self.COLUMNS['ENABLED']['ordinal']).checkState() == Qt.CheckState.Checked
+        _excl_item = self.item(row, self.COLUMNS['ENABLED']['ordinal'])
+        assert _excl_item is not None
+        data['enabled'] = _excl_item.checkState() == Qt.CheckState.Checked
         data['name'] = str(self.cellWidget(row, self.COLUMNS['NAME']['ordinal']).text()).strip()
         data['field'] = str(self.cellWidget(row, self.COLUMNS['FIELD']['ordinal']).currentText()).strip()
         data['pattern'] = str(self.cellWidget(row, self.COLUMNS['PATTERN']['ordinal']).currentText()).strip()
@@ -1309,13 +1321,17 @@ class PrefixRules(GenericRulesTable):
         self.populate_table()
         self.resizeColumnsToContents()
         self.resize_name()
-        self.horizontalHeader().setStretchLastSection(True)
+        _prefix_hdr = self.horizontalHeader()
+        assert _prefix_hdr is not None
+        _prefix_hdr.setStretchLastSection(True)
         self.clearSelection()
 
     def convert_row_to_data(self, row):
         data = self.create_blank_row_data()
         data['ordinal'] = row
-        data['enabled'] = self.item(row, self.COLUMNS['ENABLED']['ordinal']).checkState() == Qt.CheckState.Checked
+        _prefix_item = self.item(row, self.COLUMNS['ENABLED']['ordinal'])
+        assert _prefix_item is not None
+        data['enabled'] = _prefix_item.checkState() == Qt.CheckState.Checked
         data['name'] = str(self.cellWidget(row, self.COLUMNS['NAME']['ordinal']).text()).strip()
         data['prefix'] = str(self.cellWidget(row, self.COLUMNS['PREFIX']['ordinal']).currentText()).strip()
         data['field'] = str(self.cellWidget(row, self.COLUMNS['FIELD']['ordinal']).currentText()).strip()

@@ -193,6 +193,7 @@ class MOBIFile:
                     continue
                 container = ContainerHeader(payload)
             elif sig == b'CRES':
+                assert container is not None
                 container.resources.append(payload)
                 if container.is_image_container:
                     payload = payload[12:]

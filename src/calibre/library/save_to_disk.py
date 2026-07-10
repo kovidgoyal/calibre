@@ -151,7 +151,9 @@ class Formatter(TemplateFormatter):
         try:
             key = key.lower()
             try:
-                b = self.book.get_user_metadata(key, False)
+                book = self.book
+                assert book is not None
+                b = book.get_user_metadata(key, False)
             except Exception:
                 traceback.print_exc()
                 b = None

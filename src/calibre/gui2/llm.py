@@ -292,6 +292,7 @@ class ConverseWidget(QWidget):
 
     @property
     def assistant_name(self) -> str:
+        assert self.ai_provider_plugin is not None
         return self.ai_provider_plugin.human_readable_model_name(self.conversation_history.model_used) or _('Assistant')
 
     def show_ai_conversation(self):
@@ -438,20 +439,26 @@ class ConverseWidget(QWidget):
 
     def show_reasoning(self, message_index: int) -> None:
         h = self.get_conversation_history_for_specific_response(message_index)
+        assert h is not None
         m = h.at(len(h)-1)
         if m.reasoning:
             show_reasoning(m.reasoning, self)
 
     def copy_specific_note(self, message_index: int) -> None:
         history_for_record = self.get_conversation_history_for_specific_response(message_index)
+        assert history_for_record is not None
         text = history_for_record.format_llm_note(self.assistant_name, self.NOTE_TITLE)
         if text:
-            qapplication_or_fail().clipboard().setText(text)
+            clip = qapplication_or_fail().clipboard()
+            assert clip is not None
+            clip.setText(text)
 
     def copy_to_clipboard(self) -> None:
         text = self.conversation_history.format_llm_note(self.assistant_name, self.NOTE_TITLE)
         if text:
-            qapplication_or_fail().clipboard().setText(text)
+            clip = qapplication_or_fail().clipboard()
+            assert clip is not None
+            clip.setText(text)
 
     def on_chat_link_clicked(self, qurl: QUrl):
         if qurl.scheme() not in ('http', 'https'):
@@ -725,6 +732,7 @@ class LLMActionsSettingsWidget(QWidget):
         custom_actions = {}
         for i in range(self.actions_list.count()):
             item = self.actions_list.item(i)
+            assert item is not None
             action:ActionData = item.data(Qt.ItemDataRole.UserRole)
             action = action._replace(is_disabled=item.checkState() == Qt.CheckState.Unchecked)
             if action.is_builtin:

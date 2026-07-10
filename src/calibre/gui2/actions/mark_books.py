@@ -160,6 +160,7 @@ class MarkBooksAction(InterfaceActionWithLibraryDrop):
             self.show_marked_with_text.setEnabled(True)
             for t in labs:
                 ac = self.show_marked_with_text.addAction(self.search_icon, f'{t} ({counts[t]})')
+                assert ac is not None
                 ac.triggered.connect(partial(self.show_marked_text, txt=t))
             if len(labs) < len(labels):
                 self.show_marked_with_text.addAction(

@@ -134,10 +134,14 @@ class TOLINO(EB600):
         return self.EBOOK_DIR_MAIN
 
     def isEpos(self):
-        return self.detected_device.idProduct in self.EPOS_PRODUCT_ID
+        detected_device = self.detected_device
+        assert detected_device is not None
+        return detected_device.idProduct in self.EPOS_PRODUCT_ID
 
     def isVision6(self):
-        return self.detected_device.idProduct in self.VISION6_PRODUCT_ID
+        detected_device = self.detected_device
+        assert detected_device is not None
+        return detected_device.idProduct in self.VISION6_PRODUCT_ID
 
     def set_device_name(self):
         device_name = self.gui_name

@@ -42,7 +42,9 @@ class TableView(MomentumScrollMixin, QTableView):
             return
         current = self.currentIndex()
         hdr = self.horizontalHeader()
+        assert hdr is not None
         m = self.model()
+        assert m is not None
         row = current.row()
         vdx = hdr.visualIndex(current.column())  # must work with visual indices, not logical indices
         if vdx < 0:
@@ -185,7 +187,9 @@ class PinTableView(TableView):
     def __init__(self, books_view, parent=None):
         QTableView.__init__(self, parent)
         self.books_view = books_view
-        self.verticalHeader().close()
+        vh = self.verticalHeader()
+        assert vh is not None
+        vh.close()
         self.splitter = None
 
     @property

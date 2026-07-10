@@ -94,7 +94,9 @@ class ResultsList(QTreeWidget):
         nd = current_db().notes_data_for(field, item_id)
         if nd:
             for category in (self.topLevelItem(i) for i in range(self.topLevelItemCount())):
+                assert category is not None
                 for item in (category.child(c) for c in range(category.childCount())):
+                    assert item is not None
                     r = item.data(0, Qt.ItemDataRole.UserRole)
                     if r['id'] == nd['id']:
                         r['text'] = nd['searchable_text']
@@ -185,6 +187,7 @@ class ResultsList(QTreeWidget):
         if item is not None:
             ans['current'] = item.data(0, Qt.ItemDataRole.UserRole)
         for item in (self.topLevelItem(i) for i in range(self.topLevelItemCount())):
+            assert item is not None
             if not item.isExpanded():
                 ans['closed'].add(item.data(0, Qt.ItemDataRole.UserRole))
         return ans
@@ -193,6 +196,7 @@ class ResultsList(QTreeWidget):
     def tree_state(self, state):
         closed = state['closed']
         for item in (self.topLevelItem(i) for i in range(self.topLevelItemCount())):
+            assert item is not None
             if item.data(0, Qt.ItemDataRole.UserRole) in closed:
                 item.setExpanded(False)
 
@@ -328,8 +332,10 @@ class SearchInput(QWidget):
         self.search_box = sb = SearchBox(self)
         sb.initialize('library-notes-browser-search-box')
         sb.cleared.connect(self.cleared, type=Qt.ConnectionType.QueuedConnection)
-        sb.lineEdit().returnPressed.connect(self.search_changed)
-        sb.lineEdit().setPlaceholderText(_('Enter words to search for'))
+        sb_le = sb.lineEdit()
+        assert sb_le is not None
+        sb_le.returnPressed.connect(self.search_changed)
+        sb_le.setPlaceholderText(_('Enter words to search for'))
         h.addWidget(sb)
 
         self.next_button = nb = QToolButton(self)
@@ -352,8 +358,10 @@ class SearchInput(QWidget):
 
     @property
     def current_query(self):
+        sb_le = self.search_box.lineEdit()
+        assert sb_le is not None
         return {
-            'fts_engine_query': self.search_box.lineEdit().text().strip(),
+            'fts_engine_query': sb_le.text().strip(),
             'restrict_to_fields': tuple(self.restrict.restricted_fields),
             'use_stemming': bool(self.parent().use_stemmer.isChecked()),
         }
@@ -468,6 +476,7 @@ class NotesBrowser(Dialog):
         h = QHBoxLayout()
         l.addLayout(h)
         b = self.bb.addButton(_('Export'), QDialogButtonBox.ButtonRole.ActionRole)
+        assert b is not None
         b.setIcon(QIcon.ic('save.png'))
         b.clicked.connect(self.export_selected)
         b.setToolTip(_('Export the selected notes as HTML files'))
@@ -476,6 +485,7 @@ class NotesBrowser(Dialog):
         gui = get_gui()
         if gui is not None:
             b = self.bb.addButton(_('Search books'), QDialogButtonBox.ButtonRole.ActionRole)
+            assert b is not None
             b.setToolTip(_('Search the calibre library for books in the currently selected categories'))
             b.clicked.connect(self.search_books)
             b.setIcon(QIcon.ic('search.png'))

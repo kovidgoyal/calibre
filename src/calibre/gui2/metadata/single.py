@@ -144,7 +144,9 @@ class MetadataSingleDialogBase(QDialog):
         self.button_box.addButton(self.prev_button, QDialogButtonBox.ButtonRole.ActionRole)
         self.button_box.addButton(self.next_button, QDialogButtonBox.ButtonRole.ActionRole)
         bb.setStandardButtons(QDialogButtonBox.StandardButton.Ok|QDialogButtonBox.StandardButton.Cancel)
-        bb.button(QDialogButtonBox.StandardButton.Ok).setDefault(True)
+        ok_btn = bb.button(QDialogButtonBox.StandardButton.Ok)
+        assert ok_btn is not None
+        ok_btn.setDefault(True)
 
         self.central_widget = QTabWidget(self)
 
@@ -172,7 +174,9 @@ class MetadataSingleDialogBase(QDialog):
     # }}}
 
     def sizeHint(self):
-        geom = self.screen().availableSize()
+        screen = self.screen()
+        assert screen is not None
+        geom = screen.availableSize()
         nh, nw = max(300, geom.height()-50), max(400, geom.width()-70)
         return QSize(nw, nh)
 
@@ -349,6 +353,7 @@ class MetadataSingleDialogBase(QDialog):
 
     def update_paste_identifiers_menu(self):
         m = self.paste_isbn_button.menu()
+        assert m is not None
         m.clear()
         m.addAction(_('Edit list of prefixes'), self.edit_prefix_list)
         m.addSeparator()
@@ -425,7 +430,9 @@ class MetadataSingleDialogBase(QDialog):
         self.edit_format.emit(self.book_id, fmt)
 
     def copy_fmt(self, fmt, f):
-        self.db.copy_format_to(self.book_id, fmt, f, index_is_id=True)
+        db = self.db
+        assert db is not None
+        db.copy_format_to(self.book_id, fmt, f, index_is_id=True)
 
     def do_layout(self):
         raise NotImplementedError()
@@ -462,7 +469,9 @@ class MetadataSingleDialogBase(QDialog):
 
     # Miscellaneous interaction methods {{{
     def update_data_files_button(self):
-        num_files = len(self.db.new_api.list_extra_files(self.book_id, pattern=DATA_FILE_PATTERN))
+        db = self.db
+        assert db is not None
+        num_files = len(db.new_api.list_extra_files(self.book_id, pattern=DATA_FILE_PATTERN))
         self.data_files_button.setText(_('{} Data &files').format(num_files))
 
     def update_window_title(self, *args):
@@ -728,7 +737,9 @@ class MetadataSingleDialogBase(QDialog):
     # Dialog use methods {{{
     def start(self, row_list, current_row, view_slot=None, edit_slot=None,
             set_current_callback=None):
-        self.id_list = list(map(self.db.id, row_list))
+        db = self.db
+        assert db is not None
+        self.id_list = list(map(db.id, row_list))
         self.current_row = current_row
         if view_slot is not None:
             self.view_format.connect(view_slot)
@@ -774,10 +785,12 @@ class MetadataSingleDialogBase(QDialog):
         self.current_row += delta
         self.update_window_title()
         prev = next_ = None
+        do_one_db = self.db
+        assert do_one_db is not None
         if self.current_row > 0:
-            prev = self.db.new_api.field_for('title', self.id_list[self.current_row-1])
+            prev = do_one_db.new_api.field_for('title', self.id_list[self.current_row-1])
         if self.current_row < len(self.id_list) - 1:
-            next_ = self.db.new_api.field_for('title', self.id_list[self.current_row+1])
+            next_ = do_one_db.new_api.field_for('title', self.id_list[self.current_row+1])
 
         if next_ is not None:
             tip = _('Save changes and edit the metadata of {0} [{1}]').format(
@@ -789,8 +802,10 @@ class MetadataSingleDialogBase(QDialog):
                 prev, self.prev_action.shortcut().toString(QKeySequence.SequenceFormat.NativeText))
             self.prev_button.setToolTip(tip)
         self.prev_button.setEnabled(prev is not None)
-        self.button_box.button(QDialogButtonBox.StandardButton.Ok).setDefault(True)
-        self.button_box.button(QDialogButtonBox.StandardButton.Ok).setFocus(Qt.FocusReason.OtherFocusReason)
+        ok_button = self.button_box.button(QDialogButtonBox.StandardButton.Ok)
+        assert ok_button is not None
+        ok_button.setDefault(True)
+        ok_button.setFocus(Qt.FocusReason.OtherFocusReason)
         self(self.id_list[self.current_row])
         for w, state in self.comments_edit_state_at_apply.items():
             if state == 'code':
@@ -838,8 +853,12 @@ class MetadataSingleDialog(MetadataSingleDialogBase):  # {{{
         return gprefs['edit_metadata_single_use_2_cols_for_custom_fields']
 
     def do_layout(self):
-        if len(self.db.custom_column_label_map) == 0:
-            self.central_widget.tabBar().setVisible(False)
+        do_layout_db = self.db
+        assert do_layout_db is not None
+        if len(do_layout_db.custom_column_label_map) == 0:
+            tab_bar = self.central_widget.tabBar()
+            assert tab_bar is not None
+            tab_bar.setVisible(False)
         self.central_widget.clear()
         self.tabs = []
         self.labels = []
@@ -1168,7 +1187,9 @@ class MetadataSingleDialogAlt2(MetadataSingleDialogBase):  # {{{
         # right, separated by another splitter.
 
         main_splitter = self.main_splitter = Splitter(Qt.Orientation.Horizontal, self)
-        self.central_widget.tabBar().setVisible(False)
+        alt2_tab_bar = self.central_widget.tabBar()
+        assert alt2_tab_bar is not None
+        alt2_tab_bar.setVisible(False)
         self.central_widget.addTab(ScrollArea(main_splitter, self), _('&Metadata'))
 
         # Left side (metadata & comments)

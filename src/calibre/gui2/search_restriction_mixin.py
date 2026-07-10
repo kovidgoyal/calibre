@@ -151,14 +151,18 @@ class CreateVirtualLibrary(QDialog):  # {{{
         gl.addWidget(la1, 0, 0)
         self.vl_name = QComboBox()
         self.vl_name.setEditable(True)
-        self.vl_name.lineEdit().setMaxLength(MAX_VIRTUAL_LIBRARY_NAME_LENGTH)
-        self.vl_name.lineEdit().setClearButtonEnabled(True)
+        vl_le = self.vl_name.lineEdit()
+        assert vl_le is not None
+        vl_le.setMaxLength(MAX_VIRTUAL_LIBRARY_NAME_LENGTH)
+        vl_le.setClearButtonEnabled(True)
         la1.setBuddy(self.vl_name)
         gl.addWidget(self.vl_name, 0, 1)
         self.editing = editing
 
         self.saved_searches_label = sl = QTextBrowser(self)
-        sl.viewport().setAutoFillBackground(False)
+        sl_vp = sl.viewport()
+        assert sl_vp is not None
+        sl_vp.setAutoFillBackground(False)
         gl.addWidget(sl, 2, 0, 1, 2)
 
         self.la2 = la2 = QLabel(_('&Search expression:'))
@@ -222,7 +226,9 @@ class CreateVirtualLibrary(QDialog):  # {{{
             self.search_expression = self.original_search
             self.new_name = editing
             self.vl_name.currentIndexChanged.connect(self.name_index_changed)
-            self.vl_name.lineEdit().textEdited.connect(self.name_text_edited)
+            vl_le2 = self.vl_name.lineEdit()
+            assert vl_le2 is not None
+            vl_le2.textEdited.connect(self.name_text_edited)
 
         self.resize(self.sizeHint()+QSize(150, 25))
         self.restore_geometry(gprefs, 'create-virtual-library-dialog')
@@ -272,7 +278,9 @@ class CreateVirtualLibrary(QDialog):  # {{{
                          default_yes=False):
                 self.vl_name.blockSignals(True)
                 self.vl_name.setCurrentIndex(self.original_index)
-                self.vl_name.lineEdit().setText(self.new_name)
+                vl_le3 = self.vl_name.lineEdit()
+                assert vl_le3 is not None
+                vl_le3.setText(self.new_name)
                 self.vl_name.blockSignals(False)
                 return
         self.new_name = self.editing = self.vl_name.currentText()
@@ -296,8 +304,10 @@ class CreateVirtualLibrary(QDialog):  # {{{
                 search = ['{}:"={}"'.format(prefix, x.replace('"', '\\"')) for x in d.names]
             if search:
                 if not self.editing:
-                    self.vl_name.lineEdit().setText(next(d.names))
-                    self.vl_name.lineEdit().setCursorPosition(0)
+                    vl_le4 = self.vl_name.lineEdit()
+                    assert vl_le4 is not None
+                    vl_le4.setText(next(d.names))
+                    vl_le4.setCursorPosition(0)
                 self.search_expression = d.match_type.join(search)
                 self.vl_text.moveCursor(QTextCursor.MoveOperation.Start)
 

@@ -709,7 +709,9 @@ class ThemeEditor(Dialog):
             self.show_theme()
 
     def sizeHint(self):
-        g = self.screen().availableSize()
+        screen = self.screen()
+        assert screen is not None
+        g = screen.availableSize()
         return QSize(min(1500, g.width() - 25), 650)
 # }}}
 

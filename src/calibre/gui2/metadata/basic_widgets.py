@@ -198,8 +198,12 @@ def make_undoable(spinbox):
                             lambda: self.setDateTime(self.minimumDateTime()))
                 m.addAction(_('Set date to today') + '\t' + QKeySequence(Qt.Key.Key_Equal).toString(QKeySequence.SequenceFormat.NativeText),
                             lambda: self.setDateTime(QDateTime.currentDateTime()))
-            m.addAction(_('&Undo') + access_key(QKeySequence.StandardKey.Undo), self.undo).setEnabled(self.undo_stack.canUndo())
-            m.addAction(_('&Redo') + access_key(QKeySequence.StandardKey.Redo), self.redo).setEnabled(self.undo_stack.canRedo())
+            undo_ac = m.addAction(_('&Undo') + access_key(QKeySequence.StandardKey.Undo), self.undo)
+            assert undo_ac is not None
+            undo_ac.setEnabled(self.undo_stack.canUndo())
+            redo_ac = m.addAction(_('&Redo') + access_key(QKeySequence.StandardKey.Redo), self.redo)
+            assert redo_ac is not None
+            redo_ac.setEnabled(self.undo_stack.canRedo())
             m.addSeparator()
             populate_standard_spinbox_context_menu(self, m)
             m.popup(ev.globalPos())
@@ -377,11 +381,14 @@ class AuthorsEdit(EditWithComplete, ToMetadataMixin):
         self.setSizeAdjustPolicy(QComboBox.SizeAdjustPolicy.AdjustToMinimumContentsLengthWithIcon)
         self.manage_authors_signal = manage_authors
         manage_authors.triggered.connect(self.manage_authors)
-        self.lineEdit().createStandardContextMenu = self.createStandardContextMenu
-        self.lineEdit().textChanged.connect(self.data_changed)
+        le = self.lineEdit()
+        assert le is not None
+        le.createStandardContextMenu = self.createStandardContextMenu
+        le.textChanged.connect(self.data_changed)
 
     def createStandardContextMenu(self):
         menu = QLineEdit.createStandardContextMenu(self.lineEdit())
+        assert menu is not None
         menu.addSeparator()
         menu.addAction(_('&Edit authors'), self.edit_authors)
         return menu
@@ -395,6 +402,8 @@ class AuthorsEdit(EditWithComplete, ToMetadataMixin):
             self.set_value(d.authors)
 
     def manage_authors(self):
+        db = self.db
+        assert db is not None
         if self.original_val != self.current_val:
             d = save_dialog(self, _('Authors changed'),
                     _('You have changed the authors for this book. You must save '
@@ -408,17 +417,19 @@ class AuthorsEdit(EditWithComplete, ToMetadataMixin):
                 except OSError as e:
                     e.locking_violation_msg = _("Could not change on-disk location of this book's files.")
                     raise
-                self.db.commit()
+                db.commit()
                 self.original_val = self.current_val
             else:
                 self.current_val = self.original_val
         first_author = self.current_val[0] if len(self.current_val) else None
-        first_author_id = self.db.get_author_id(first_author) if first_author else None
-        self.dialog.parent().do_author_sort_edit(self, first_author_id,
+        first_author_id = db.get_author_id(first_author) if first_author else None
+        dialog = self.dialog
+        assert dialog is not None
+        dialog.parent().do_author_sort_edit(self, first_author_id,
                                         select_sort=False)
         self.initialize(self.db, self.id_)
-        self.dialog.author_sort.initialize(self.db, self.id_)
-        self.dialog.author_sort.update_state()
+        dialog.author_sort.initialize(self.db, self.id_)
+        dialog.author_sort.update_state()
 
     def get_default(self):
         return _('Unknown')
@@ -463,7 +474,9 @@ class AuthorsEdit(EditWithComplete, ToMetadataMixin):
         if not val:
             val = [self.get_default()]
         self.set_edit_text(' & '.join([x.strip() for x in val]))
-        self.lineEdit().setCursorPosition(0)
+        le = self.lineEdit()
+        assert le is not None
+        le.setCursorPosition(0)
 
     def break_cycles(self):
         self.db = self.dialog = None
@@ -532,17 +545,23 @@ class AuthorSortEdit(EnLineEdit, ToMetadataMixin, LineEditIndicators):
 
     def update_state_and_val(self):
         # Handle case change if the authors box changed
-        aus = authors_to_sort_string(self.authors_edit.current_val)
+        authors_edit = self.authors_edit
+        assert authors_edit is not None
+        aus = authors_to_sort_string(authors_edit.current_val)
         if not self.first_time and strcmp(aus, self.current_val) == 0:
             self.current_val = aus
         self.first_time = False
         self.update_state()
 
     def author_sort_from_authors(self, authors):
-        return self.db.new_api.author_sort_from_authors(authors, key_func=lambda x: x)
+        db = self.db
+        assert db is not None
+        return db.new_api.author_sort_from_authors(authors, key_func=lambda x: x)
 
     def update_state(self, *args):
-        au = str(self.authors_edit.text())
+        authors_edit = self.authors_edit
+        assert authors_edit is not None
+        au = str(authors_edit.text())
         au = re.sub(r'\s+et al\.$', '', au)
         au = self.author_sort_from_authors(string_to_authors(au))
 
@@ -565,16 +584,22 @@ class AuthorSortEdit(EnLineEdit, ToMetadataMixin, LineEditIndicators):
                     if meth in ('invert', 'nocomma', 'comma'):
                         one = rest.strip() + ' ' + ln.strip()
                 ans.append(one)
-            self.authors_edit.set_value(ans)
+            authors_edit = self.authors_edit
+            assert authors_edit is not None
+            authors_edit.set_value(ans)
 
     def auto_generate(self, *args):
-        au = str(self.authors_edit.text())
+        authors_edit = self.authors_edit
+        assert authors_edit is not None
+        au = str(authors_edit.text())
         au = re.sub(r'\s+et al\.$', '', au).strip()
         authors = string_to_authors(au)
         self.set_value(self.author_sort_from_authors(authors))
 
     def author_to_sort(self, *args):
-        au = str(self.authors_edit.text())
+        authors_edit = self.authors_edit
+        assert authors_edit is not None
+        au = str(authors_edit.text())
         au = re.sub(r'\s+et al\.$', '', au).strip()
         if au:
             self.set_value(au)
@@ -582,7 +607,9 @@ class AuthorSortEdit(EnLineEdit, ToMetadataMixin, LineEditIndicators):
     def sort_to_author(self, *args):
         aus = self.current_val
         if aus:
-            self.authors_edit.set_value([aus])
+            authors_edit = self.authors_edit
+            assert authors_edit is not None
+            authors_edit.set_value([aus])
 
     def initialize(self, db, id_):
         self.current_val = db.author_sort(id_, index_is_id=True)
@@ -591,14 +618,18 @@ class AuthorSortEdit(EnLineEdit, ToMetadataMixin, LineEditIndicators):
 
     def commit(self, db, id_):
         aus = self.current_val
-        if aus != self.original_val or self.authors_edit.original_val != self.authors_edit.current_val:
+        authors_edit = self.authors_edit
+        assert authors_edit is not None
+        if aus != self.original_val or authors_edit.original_val != authors_edit.current_val:
             db.set_author_sort(id_, aus, notify=False, commit=False)
         return True
 
     def break_cycles(self):
         self.db = None
         try:
-            self.authors_edit.editTextChanged.disconnect()
+            authors_edit = self.authors_edit
+            assert authors_edit is not None
+            authors_edit.editTextChanged.disconnect()
         except Exception:
             pass
         try:
@@ -643,7 +674,9 @@ class SeriesEdit(EditWithComplete, ToMetadataMixin):
         self.setWhatsThis(self.TOOLTIP)
         self.setEditable(True)
         self.books_to_refresh = set()
-        self.lineEdit().textChanged.connect(self.data_changed)
+        le = self.lineEdit()
+        assert le is not None
+        le.textChanged.connect(self.data_changed)
 
     @property
     def current_val(self):
@@ -655,7 +688,9 @@ class SeriesEdit(EditWithComplete, ToMetadataMixin):
         if not val:
             val = ''
         self.set_edit_text(val.strip())
-        self.lineEdit().setCursorPosition(0)
+        le = self.lineEdit()
+        assert le is not None
+        le.setCursorPosition(0)
 
     def initialize(self, db, id_):
         self.books_to_refresh = set()
@@ -890,6 +925,7 @@ class FormatList(_FormatList):
                 action.edit_fmt.connect(self.edit_fmt, type=Qt.ConnectionType.QueuedConnection)
                 cm.addAction(action)
             ac = cm.addAction(QIcon.ic('trash.png'), _('&Remove {} format').format(item.ext.upper()))
+            assert ac is not None
             ac.setObjectName(item.ext)
             ac.triggered.connect(self.remove_cm_fmt)
 
@@ -907,7 +943,9 @@ class FormatList(_FormatList):
         a0.accept()
 
     def remove_cm_fmt(self):
-        self.remove_format(self.sender().objectName())
+        sender = self.sender()
+        assert sender is not None
+        self.remove_format(sender.objectName())
 
     def remove_format(self, fmt):
         for i in range(self.count()):
@@ -1038,8 +1076,10 @@ class FormatsManager(QWidget):
         self.changed = False
 
     def add_format(self, *args):
+        dialog = self.dialog
+        assert dialog is not None
         files = choose_files_and_remember_all_files(
-                self, 'add formats dialog', _('Choose formats for ') + self.dialog.title.current_val,
+                self, 'add formats dialog', _('Choose formats for ') + dialog.title.current_val,
                 [(_('Books'), BOOK_EXTENSIONS)])
         self._add_formats(files)
 
@@ -1097,21 +1137,29 @@ class FormatsManager(QWidget):
             event.accept()
 
     def remove_format(self, *args):
-        rows = self.formats.selectionModel().selectedRows(0)
+        selection_model = self.formats.selectionModel()
+        assert selection_model is not None
+        rows = selection_model.selectedRows(0)
         for row in rows:
             self.formats.takeItem(row.row())
             self.changed = True
 
     def show_format(self, item, *args):
-        self.dialog.do_view_format(item.path, item.ext)
+        dialog = self.dialog
+        assert dialog is not None
+        dialog.do_view_format(item.path, item.ext)
 
     def open_book_folder(self, *a):
-        self.dialog.do_open_book_folder()
+        dialog = self.dialog
+        assert dialog is not None
+        dialog.do_open_book_folder()
 
     def edit_format(self, item, *args):
         from calibre.gui2.widgets import BusyCursor
+        dialog = self.dialog
+        assert dialog is not None
         with BusyCursor():
-            self.dialog.do_edit_format(item.path, item.ext)
+            dialog.do_edit_format(item.path, item.ext)
 
     def get_selected_format(self):
         row = self.formats.currentRow()
@@ -1301,8 +1349,10 @@ class Cover(ImageView):  # {{{
         return sz
 
     def select_cover(self, *args):
+        dialog = self.dialog
+        assert dialog is not None
         files = choose_images(
-            self, 'change cover dialog', _('Choose cover for ') + self.dialog.title.current_val)
+            self, 'change cover dialog', _('Choose cover for ') + dialog.title.current_val)
         if not files:
             return
         _file = files[0]
@@ -1355,14 +1405,18 @@ class Cover(ImageView):  # {{{
 
     def generate_cover(self, *args):
         from calibre.ebooks.covers import generate_cover
-        mi = self.dialog.to_book_metadata()
+        dialog = self.dialog
+        assert dialog is not None
+        mi = dialog.to_book_metadata()
         self.cdata_before_generate = self.current_val
         self.current_val = generate_cover(mi)
 
     def custom_cover(self):
         from calibre.ebooks.covers import generate_cover
         from calibre.gui2.covers import CoverSettingsDialog
-        mi = self.dialog.to_book_metadata()
+        dialog = self.dialog
+        assert dialog is not None
+        mi = dialog.to_book_metadata()
         d = CoverSettingsDialog(mi=mi, parent=self)
         if d.exec() == QDialog.DialogCode.Accepted:
             self.current_val = generate_cover(mi, prefs=d.prefs_for_rendering)
@@ -1519,7 +1573,9 @@ class TagsEdit(EditWithComplete, ToMetadataMixin):  # {{{
         self.set_clear_button_enabled(False)
         self.set_elide_mode(Qt.TextElideMode.ElideMiddle)
         self.currentTextChanged.connect(self.data_changed)
-        self.lineEdit().setMaxLength(655360)  # see https://bugs.launchpad.net/bugs/1630944
+        le = self.lineEdit()
+        assert le is not None
+        le.setMaxLength(655360)  # see https://bugs.launchpad.net/bugs/1630944
         self.books_to_refresh = set()
         self.setToolTip(self.TOOLTIP)
         self.setWhatsThis(self.TOOLTIP)
@@ -1704,6 +1760,7 @@ class IdentifiersEdit(QLineEdit, ToMetadataMixin, LineEditIndicators):
 
     def contextMenuEvent(self, a0):
         m = self.createStandardContextMenu()
+        assert m is not None
         first = m.actions()[0]
         ac = m.addAction(_('Edit identifiers in a dedicated window'), self.edit_identifiers)
         m.insertAction(first, ac)
@@ -1784,7 +1841,9 @@ class IdentifiersEdit(QLineEdit, ToMetadataMixin, LineEditIndicators):
         identifier_found = self.parse_clipboard_for_identifier()
         if identifier_found:
             return
-        text = str(QApplication.clipboard().text()).strip()
+        clipboard = QApplication.clipboard()
+        assert clipboard is not None
+        text = str(clipboard.text()).strip()
         if text.startswith(('http://', 'https://')):
             return self.paste_prefix('url')
         try:
@@ -1797,14 +1856,18 @@ class IdentifiersEdit(QLineEdit, ToMetadataMixin, LineEditIndicators):
         if prefix == 'isbn':
             self.paste_isbn()
         else:
-            text = str(QApplication.clipboard().text()).strip()
+            clipboard = QApplication.clipboard()
+            assert clipboard is not None
+            text = str(clipboard.text()).strip()
             if text:
                 vals = self.current_val
                 vals[prefix] = text
                 self.current_val = vals
 
     def paste_isbn(self):
-        text = str(QApplication.clipboard().text()).strip()
+        clipboard = QApplication.clipboard()
+        assert clipboard is not None
+        text = str(clipboard.text()).strip()
         if not text or not check_isbn(text):
             d = ISBNDialog(self, text)
             if not d.exec():
@@ -1824,7 +1887,9 @@ class IdentifiersEdit(QLineEdit, ToMetadataMixin, LineEditIndicators):
     def parse_clipboard_for_identifier(self):
         from calibre.ebooks.metadata.sources.prefs import msprefs
         from calibre.utils.formatter import EvalFormatter
-        text = str(QApplication.clipboard().text()).strip()
+        clipboard = QApplication.clipboard()
+        assert clipboard is not None
+        text = str(clipboard.text()).strip()
         if not text:
             return False
 
@@ -1967,7 +2032,9 @@ class PublisherEdit(EditWithComplete, ToMetadataMixin):  # {{{
         if not val:
             val = ''
         self.set_edit_text(val.strip())
-        self.lineEdit().setCursorPosition(0)
+        le = self.lineEdit()
+        assert le is not None
+        le.setCursorPosition(0)
 
     def initialize(self, db, id_):
         self.books_to_refresh = set()

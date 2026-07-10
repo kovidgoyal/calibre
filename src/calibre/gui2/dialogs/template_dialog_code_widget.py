@@ -72,7 +72,9 @@ class CodeEditor(QPlainTextEdit):
             self.line_number_area.scroll(0, dy)
         else:
             self.line_number_area.update(0, rect.y(), self.line_number_area.width(), rect.height())
-        if rect.contains(self.viewport().rect()):
+        vp = self.viewport()
+        assert vp is not None
+        if rect.contains(vp.rect()):
             self.update_line_number_area_width()
 
     def resizeEvent(self, e):
@@ -174,7 +176,9 @@ class CodeEditor(QPlainTextEdit):
 
             def select_block(block_number, curs):
                 # Note the side effect: 'curs' is changed to select the line
-                blk = self.document().findBlockByNumber(block_number)
+                doc = self.document()
+                assert doc is not None
+                blk = doc.findBlockByNumber(block_number)
                 txt = blk.text()
                 pos = blk.position()
                 curs.setPosition(pos)

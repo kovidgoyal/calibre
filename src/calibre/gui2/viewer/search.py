@@ -464,7 +464,9 @@ class SearchInput(QWidget):  # {{{
         sb.history_saved.connect(self.history_saved)
         sb.history_cleared.connect(self.history_cleared)
         sb.cleared.connect(self.cleared)
-        sb.lineEdit().returnPressed.connect(self.find_next)
+        le_sb = sb.lineEdit()
+        assert le_sb is not None
+        le_sb.returnPressed.connect(self.find_next)
         h.addWidget(sb)
 
         self.next_button = nb = QToolButton(self)
@@ -591,6 +593,7 @@ class SearchInput(QWidget):  # {{{
             self.case_sensitive.setChecked(bool(case_sensitive))
         self.search_box.setFocus(Qt.FocusReason.OtherFocusReason)
         le = self.search_box.lineEdit()
+        assert le is not None
         le.end(False)
         le.selectAll()
 
@@ -682,6 +685,7 @@ class Results(QTreeWidget):  # {{{
             self.section_map[section_key] = section
             for s in range(self.topLevelItemCount()):
                 ti = self.topLevelItem(s)
+                assert ti is not None
                 if ti.data(0, SPINE_IDX_ROLE) > spine_idx:
                     self.insertTopLevelItem(s, section)
                     break
@@ -941,7 +945,9 @@ class SearchPanel(QWidget):  # {{{
 
     def show_no_results_found(self):
         msg = _('No matches were found for:')
-        warning_dialog(self, _('No matches found'), msg + f'  <b>{self.current_search.text}</b>', show=True)
+        current_search = self.current_search
+        assert current_search is not None
+        warning_dialog(self, _('No matches found'), msg + f'  <b>{current_search.text}</b>', show=True)
 
     def keyPressEvent(self, a0):
         if a0.key() == Qt.Key.Key_Escape:

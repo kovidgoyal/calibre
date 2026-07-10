@@ -377,7 +377,9 @@ class WebPage(QWebEnginePage):
             md.setText(text)
             if html:
                 md.setHtml(html)
-            qapplication_or_fail().clipboard().setMimeData(md)
+            cb = qapplication_or_fail().clipboard()
+            assert cb is not None
+            cb.setMimeData(md)
 
     def javaScriptConsoleMessage(self, level, message, lineNumber, sourceID):
         prefix = {
@@ -440,8 +442,14 @@ class Inspector(QWidget):
     def visibility_changed(self, visible):
         if visible and self.view is None:
             self.view = QWebEngineView(self.view_to_debug)
-            setup_profile(self.view.page().profile())
-            self.view_to_debug.page().setDevToolsPage(self.view.page())
+            view_page = self.view.page()
+            assert view_page is not None
+            setup_profile(view_page.profile())
+            view_to_debug = self.view_to_debug
+            assert view_to_debug is not None
+            debug_page = view_to_debug.page()
+            assert debug_page is not None
+            debug_page.setDevToolsPage(view_page)
             self.layout.addWidget(self.view)
 
     def sizeHint(self):
@@ -520,7 +528,9 @@ class WebView(QWebEngineView):
         self.tts.configured.connect(self.redraw_tts_bar)
         self.dead_renderer_error_shown = False
         self.renderProcessTerminated.connect(self.render_process_died)
-        w = self.screen().availableSize().width()
+        screen = self.screen()
+        assert screen is not None
+        w = screen.availableSize().width()
         qapplication_or_fail().palette_changed.connect(self.palette_changed)
         self.show_home_page_on_ready = True
         self._size_hint = QSize(int(w/3), int(w/2))
@@ -588,7 +598,9 @@ class WebView(QWebEngineView):
         if parent is not None:
             self.inspector = Inspector(parent.inspector_dock.toggleViewAction(), self)
             parent.inspector_dock.setWidget(self.inspector)
-        self.focusProxy().installEventFilter(self)
+        focus_proxy = self.focusProxy()
+        assert focus_proxy is not None
+        focus_proxy.installEventFilter(self)
 
     def eventFilter(self, a0, a1):
         match a1.type():
@@ -663,7 +675,9 @@ class WebView(QWebEngineView):
         return self._size_hint
 
     def refresh(self):
-        self.pageAction(QWebEnginePage.WebAction.ReloadAndBypassCache).trigger()
+        page_action = self.pageAction(QWebEnginePage.WebAction.ReloadAndBypassCache)
+        assert page_action is not None
+        page_action.trigger()
 
     @property
     def bridge(self):
@@ -819,10 +833,14 @@ class WebView(QWebEngineView):
         self.execute_when_ready('goto_frac', frac)
 
     def clear_history(self):
-        self._page.history().clear()
+        history = self._page.history()
+        assert history is not None
+        history.clear()
 
     def clear_caches(self):
-        self._page.profile().clearHttpCache()
+        profile = self._page.profile()
+        assert profile is not None
+        profile.clearHttpCache()
 
     def trigger_shortcut(self, which):
         if which:

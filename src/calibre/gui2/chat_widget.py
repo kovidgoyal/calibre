@@ -39,7 +39,9 @@ class Browser(QTextBrowser):
         self.setMinimumHeight(150)
         self.setFrameShape(QFrame.Shape.NoFrame)
         self.setContentsMargins(0, 0, 0, 0)
-        self.document().setDocumentMargin(0)
+        doc = self.document()
+        assert doc is not None
+        doc.setDocumentMargin(0)
         self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
         if tweaks['change_ai_chat_font_size_by']:
             font = QFont(self.font())
@@ -51,10 +53,14 @@ class Browser(QTextBrowser):
 
     def setHtml(self, text: str) -> None:
         super().setHtml(text)
-        self.document().setDocumentMargin(0)
+        doc = self.document()
+        assert doc is not None
+        doc.setDocumentMargin(0)
 
     def scroll_to_bottom(self) -> None:
-        self.verticalScrollBar().setValue(self.verticalScrollBar().maximum())
+        vsb = self.verticalScrollBar()
+        assert vsb is not None
+        vsb.setValue(vsb.maximum())
 
 
 class Button(NamedTuple):
@@ -102,7 +108,9 @@ class InputEdit(QTextEdit):
         return ceil(line_height + self.height_for_frame)
 
     def adjust_height(self) -> None:
-        doc_height = ceil(self.document().size().height())
+        doc = self.document()
+        assert doc is not None
+        doc_height = ceil(doc.size().height())
         self.setFixedHeight(max(self.min_height, min(doc_height + self.height_for_frame, self.maximum_height)))
         self.ensureCursorVisible()
 

@@ -54,7 +54,9 @@ class LanguagesEdit(EditWithComplete):
 
     @property
     def vals(self):
-        raw = str(self.lineEdit().text())
+        line_edit = self.lineEdit()
+        assert line_edit is not None
+        raw = str(line_edit.text())
         for k, v in self.comma_map.items():
             raw = raw.replace(k, v)
         parts = [x.strip() for x in raw.split(',')]
@@ -86,7 +88,9 @@ class LanguagesEdit(EditWithComplete):
         if allow_undo:
             orig, self.disable_popup = self.disable_popup, True
             try:
-                self.lineEdit().selectAll(), self.lineEdit().insert(ans)
+                _le = self.lineEdit()
+                assert _le is not None
+                _le.selectAll(), _le.insert(ans)
             finally:
                 self.disable_popup = orig
         else:

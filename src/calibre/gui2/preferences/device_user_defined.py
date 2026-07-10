@@ -91,7 +91,9 @@ class UserDefinedDevice(QDialog):
             self.bbox.setEnabled(True)
 
     def copy_to_clipboard(self):
-        QApplication.clipboard().setText(self.log.toPlainText())
+        cb = QApplication.clipboard()
+        assert cb is not None
+        cb.setText(self.log.toPlainText())
 
 
 if __name__ == '__main__':

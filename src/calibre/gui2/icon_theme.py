@@ -315,6 +315,7 @@ class ThemeCreateDialog(Dialog):
         self.description = QTextEdit(self)
         l.addRow(self.description)
         self.refresh_button = rb = self.bb.addButton(_('&Refresh'), QDialogButtonBox.ButtonRole.ActionRole)
+        assert rb is not None
         rb.setIcon(QIcon.ic('view-refresh.png'))
         rb.clicked.connect(self.refresh)
 
@@ -824,7 +825,9 @@ class ChooseTheme(Dialog):
         self.dialog_closed = True
 
     def sizeHint(self):
-        h = self.screen().availableSize().height()
+        screen = self.screen()
+        assert screen is not None
+        h = screen.availableSize().height()
         return QSize(900, h - 75)
 
     def setup_ui(self):
@@ -833,6 +836,7 @@ class ChooseTheme(Dialog):
         self.pi = pi = ProgressIndicator(self, 256)
         vl.addLayout(l), vl.addWidget(self.bb)
         self.restore_defs_button = b = self.bb.addButton(_('Restore &default icons'), QDialogButtonBox.ButtonRole.ActionRole)
+        assert b is not None
         b.clicked.connect(self.restore_defaults)
         b.setIcon(QIcon.ic('view-refresh.png'))
         self.c = c = QWidget(self)

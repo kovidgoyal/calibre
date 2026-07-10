@@ -119,7 +119,9 @@ class Central(QWidget):
 
     @property
     def profile(self):
-        return self.view.page().profile()
+        page = self.view.page()
+        assert page is not None
+        return page.profile()
 
     def load_started(self):
         self.progress_bar.setValue(0)

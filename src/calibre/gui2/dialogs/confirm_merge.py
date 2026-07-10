@@ -32,7 +32,9 @@ class Target(QTextBrowser):
         cover_html = has_cover_row = ''
         if mi.cover:
             cover_html = f'<img src="{QUrl.fromLocalFile(mi.cover).toString()}">'.format()
-            self.document().setDefaultStyleSheet(
+            doc = self.document()
+            assert doc is not None
+            doc.setDefaultStyleSheet(
                 'img { max-width: 100%; width: 100%; height: auto; display: block; }'
             )
         else:

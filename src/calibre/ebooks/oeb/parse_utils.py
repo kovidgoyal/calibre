@@ -258,29 +258,28 @@ def parse_html(data, log=None, decoder=None, preprocessor=None,
     if not namespace(data.tag):
         log.warn('Forcing', filename, 'into XHTML namespace')
         data.attrib['xmlns'] = XHTML_NS
-        data = etree.tostring(data, encoding='unicode')
+        sdata = etree.tostring(data, encoding='unicode')
 
         try:
-            data = safe_xml_fromstring(data, recover=False)
+            data = safe_xml_fromstring(sdata, recover=False)
         except Exception:
-            data = data.replace(':=', '=').replace(':>', '>')
-            data = data.replace('<http:/>', '')
+            sdata = sdata.replace(':=', '=').replace(':>', '>')
+            sdata = sdata.replace('<http:/>', '')
             try:
-                data = safe_xml_fromstring(data, recover=False)
+                data = safe_xml_fromstring(sdata, recover=False)
             except etree.XMLSyntaxError:
                 log.warn(f'Stripping comments from {filename}')
-                data = re.compile(r'<!--.*?-->', re.DOTALL).sub('',
-                        data)
-                data = data.replace(
+                sdata = re.compile(r'<!--.*?-->', re.DOTALL).sub('', sdata)
+                sdata = sdata.replace(
                     "<?xml version='1.0' encoding='utf-8'?><o:p></o:p>",
                     '')
-                data = data.replace("<?xml version='1.0' encoding='utf-8'??>", '')
+                sdata = sdata.replace("<?xml version='1.0' encoding='utf-8'??>", '')
                 try:
-                    data = safe_xml_fromstring(data)
+                    data = safe_xml_fromstring(sdata)
                 except etree.XMLSyntaxError:
                     log.warn(f'Stripping meta tags from {filename}')
-                    data = re.sub(r'<meta\s+[^>]+?>', '', data)
-                    data = safe_xml_fromstring(data)
+                    sdata = re.sub(r'<meta\s+[^>]+?>', '', sdata)
+                    data = safe_xml_fromstring(sdata)
     elif namespace(data.tag) != XHTML_NS:
         # OEB_DOC_NS, but possibly others
         ns = namespace(data.tag)

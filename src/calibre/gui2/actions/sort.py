@@ -193,7 +193,9 @@ class SortByAction(InterfaceAction):
         d.resize(d.sizeHint() + QSize(50, 100))
         if d.exec() == QDialog.DialogCode.Accepted:
             hidden = []
-            for i in (items.item(x) for x in range(items.count())):
+            for x in range(items.count()):
+                i = items.item(x)
+                assert i is not None
                 if not i.isSelected():
                     hidden.append(i.data(Qt.ItemDataRole.UserRole))
             db.new_api.set_pref(SORT_HIDDEN_PREF, tuple(hidden))

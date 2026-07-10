@@ -362,6 +362,7 @@ class Device(DeviceConfig, DevicePlugin):
         drives = self.osx_get_usb_drives()
         matches = []
         d = self.detected_device
+        assert d is not None
         if d.serial:
             for path, vid, pid, bcd, ven, prod, serial in drives:
                 if d.match_serial(serial):
@@ -709,6 +710,7 @@ class Device(DeviceConfig, DevicePlugin):
         # this gives us access to the S/N, etc. of the reader that the scanner has found
         # and the match routines for some of that data, like s/n, vendor ID, etc.
         d=self.detected_device
+        assert d is not None
 
         if not d.serial:
             raise DeviceError("Device has no S/N.  Can't continue")

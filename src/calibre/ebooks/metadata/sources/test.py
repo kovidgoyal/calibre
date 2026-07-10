@@ -223,6 +223,7 @@ def test_identify_plugin(name, tests, modify_plugin=lambda plugin:None,  # {{{
             plugin = x
             break
     modify_plugin(plugin)
+    assert plugin is not None
     prints('Testing the identify function of', plugin.name)
     prints('Using extra headers:', plugin.browser.addheaders)
 

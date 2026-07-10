@@ -105,6 +105,7 @@ class Config(QDialog):
         self.groups.setSpacing(5)
         self.groups.entered[(QModelIndex)].connect(self.show_group_help)
         rb = self.buttonBox.button(QDialogButtonBox.StandardButton.RestoreDefaults)
+        assert rb is not None
         rb.setText(_('Restore &defaults'))
         rb.setIcon(QIcon.ic('clear_left.png'))
         rb.clicked.connect(self.restore_defaults)
@@ -195,7 +196,9 @@ class Config(QDialog):
         self.buttonBox.rejected.connect(self.reject)
 
     def sizeHint(self):
-        geom = self.screen().availableSize()
+        screen = self.screen()
+        assert screen is not None
+        geom = screen.availableSize()
         nh, nw = max(300, geom.height()-100), max(400, geom.width()-70)
         return QSize(nw, nh)
 
@@ -264,7 +267,9 @@ class Config(QDialog):
         idx = oidx if -1 < oidx < self._groups_model.rowCount() else 0
         self.groups.setCurrentIndex(self._groups_model.index(idx))
         self.show_pane(idx)
-        self.groups.selectionModel().currentChanged.connect(self.current_group_changed)
+        sel_model = self.groups.selectionModel()
+        assert sel_model is not None
+        sel_model.currentChanged.connect(self.current_group_changed)
         try:
             shutil.rmtree(self.plumber.archive_input_tdir, ignore_errors=True)
         except Exception:

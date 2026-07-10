@@ -964,8 +964,10 @@ class CustomList(QWidget):  # {{{
         t.textChanged.connect(self.changed_signal)
         self.imex = bb = QDialogButtonBox(self)
         b = bb.addButton(_('&Import template'), QDialogButtonBox.ButtonRole.ActionRole)
+        assert b is not None
         b.clicked.connect(self.import_template)
         b = bb.addButton(_('E&xport template'), QDialogButtonBox.ButtonRole.ActionRole)
+        assert b is not None
         b.clicked.connect(self.export_template)
         l.addRow(bb)
 
@@ -1051,6 +1053,7 @@ class URLItem(QWidget):
 
     def __init__(self, as_dict, parent=None):
         QWidget.__init__(self, parent)
+        assert parent is not None
         self.changed_signal.connect(parent.changed_signal)
         self.l = l = QFormLayout(self)
         self.type_widget = t = QComboBox(self)
@@ -1379,6 +1382,7 @@ class ConfigWidget(ConfigWidgetBase):
         layout.addWidget(bx)
         bx.accepted.connect(d.accept)
         b = bx.addButton(_('&Clear logs'), QDialogButtonBox.ButtonRole.ActionRole)
+        assert b is not None
 
         def clear_logs():
             if getattr(self.server, 'is_running', False):

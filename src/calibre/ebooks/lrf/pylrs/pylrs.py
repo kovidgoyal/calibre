@@ -535,6 +535,7 @@ class Book(Delegator):
                 main = obj
                 break
 
+        assert main is not None
         fonts = {}
         for text in main.get_all(lambda x: isinstance(x, Text)):
             fs = base_font_size
@@ -776,6 +777,7 @@ class BookInfo:
                 'freetext', 'label', 'category', 'classification']
 
     def _appendISBN(self, bi):
+        assert self.isbn is not None
         pi = Element('ProductIdentifier')
         isbnElement = ElementWithText('ISBNPrintable', self.isbn)
         isbnValueElement = ElementWithText('ISBNValue',
@@ -1964,13 +1966,16 @@ class CharButton(LrsSimpleChar1, LrsContainer):
         self.button = button
 
     def appendReferencedObjects(self, parent):
+        assert self.button is not None
         if self.button.parent is None:
             parent.append(self.button)
 
     def getReferencedObjIds(self):
+        assert self.button is not None
         return [self.button.objId]
 
     def toLrfContainer(self, lrfWriter, container):
+        assert self.button is not None
         container.appendLrfTag(LrfTag('CharButton', self.button.objId))
 
         for content in self.contents:
@@ -1979,6 +1984,7 @@ class CharButton(LrsSimpleChar1, LrsContainer):
         container.appendLrfTag(LrfTag('CharButtonEnd'))
 
     def toElement(self, se):
+        assert self.button is not None
         cb = Element('CharButton', refobj=str(self.button.objId))
         appendTextElements(cb, self.contents, se)
         return cb

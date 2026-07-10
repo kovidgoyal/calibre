@@ -136,10 +136,12 @@ def handle_control_request(request, data_conn):
         fingerprint = hash(items)
         if fingerprint != _current_matcher[0] or matcher_kwargs != _current_matcher[1]:
             _current_matcher = (fingerprint, matcher_kwargs, Matcher(items, **matcher_kwargs))
+        matcher = _current_matcher[-1]
+        assert matcher is not None
         if request.query:
-            items = _current_matcher[-1](request.query, limit=50)
+            items = matcher(request.query, limit=50)
         else:
-            items = OrderedDict((i, ()) for i in _current_matcher[-1].items)
+            items = OrderedDict((i, ()) for i in matcher.items)
         ans = items, descriptions
     return ans
 

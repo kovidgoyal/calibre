@@ -555,6 +555,7 @@ class RuleEditor(QDialog):  # {{{
         l.addLayout(bbl, 9, 0, 1, 8)
         if self.rule_kind in kind_icons:
             self.remove_button = b = bb.addButton(_('&Remove icons'), QDialogButtonBox.ButtonRole.ActionRole)
+            assert b is not None
             b.setIcon(QIcon.ic('minus.png'))
             b.clicked.connect(self.remove_icon_file_dialog)
             b.setToolTip('<p>' + _('Remove previously added icons. Note that removing an '
@@ -563,7 +564,9 @@ class RuleEditor(QDialog):  # {{{
         self.conditions_widget = QWidget(self)
         sa.setWidget(self.conditions_widget)
         self.conditions_widget.setLayout(QVBoxLayout())
-        self.conditions_widget.layout().setAlignment(Qt.AlignmentFlag.AlignTop)
+        conditions_widget_layout = self.conditions_widget.layout()
+        assert conditions_widget_layout is not None
+        conditions_widget_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
         self.conditions = []
 
         if self.rule_kind in kind_colors:
@@ -753,7 +756,9 @@ class RuleEditor(QDialog):  # {{{
     def add_blank_condition(self):
         c = ConditionEditor(self.fm, parent=self.conditions_widget)
         self.conditions.append(c)
-        self.conditions_widget.layout().addWidget(c)
+        conditions_widget_layout = self.conditions_widget.layout()
+        assert conditions_widget_layout is not None
+        conditions_widget_layout.addWidget(c)
 
     def apply_rule(self, kind, col, rule):
         if kind in kind_colors:
@@ -780,7 +785,9 @@ class RuleEditor(QDialog):  # {{{
         for c in rule.conditions:
             ce = ConditionEditor(self.fm, parent=self.conditions_widget)
             self.conditions.append(ce)
-            self.conditions_widget.layout().addWidget(ce)
+            conditions_widget_layout = self.conditions_widget.layout()
+            assert conditions_widget_layout is not None
+            conditions_widget_layout.addWidget(ce)
             try:
                 ce.condition = c
             except Exception:
@@ -1047,7 +1054,9 @@ class RulesView(ListViewWithMoveByKeyPress):  # {{{
 
     def currentChanged(self, current, previous):
         if self.model() and current.isValid():
-            _, _, rule = self.model().data(current, Qt.ItemDataRole.UserRole)
+            model = self.model()
+            assert model is not None
+            _, _, rule = model.data(current, Qt.ItemDataRole.UserRole)
             self.enable_convert_buttons_function(isinstance(rule, Rule))
         return super().currentChanged(current, previous)
 # }}}
@@ -1227,6 +1236,7 @@ class EditRules(QWidget):  # {{{
 
     def convert_to_advanced(self):
         sm = self.rules_view.selectionModel()
+        assert sm is not None
         rows = list(sm.selectedRows())
         if not rows or len(rows) != 1:
             error_dialog(self, _('Select one rule'),
@@ -1247,6 +1257,7 @@ class EditRules(QWidget):  # {{{
 
     def duplicate_rule(self):
         sm = self.rules_view.selectionModel()
+        assert sm is not None
         rows = list(sm.selectedRows())
         if not rows or len(rows) != 1:
             error_dialog(self, _('Select one rule'),
@@ -1318,6 +1329,7 @@ class EditRules(QWidget):  # {{{
 
     def get_selected_row(self, txt, show_error=True):
         sm = self.rules_view.selectionModel()
+        assert sm is not None
         rows = list(sm.selectedRows())
         if not rows:
             if show_error:
@@ -1333,9 +1345,15 @@ class EditRules(QWidget):  # {{{
             self.changed.emit()
 
     def move_rows(self, moving_up=True, use_kbd_modifiers=True):
-        count = get_move_count(self.rules_view.model().rowCount()) if use_kbd_modifiers else 1
+        if use_kbd_modifiers:
+            _rvm = self.rules_view.model()
+            assert _rvm is not None
+            count = get_move_count(_rvm.rowCount())
+        else:
+            count = 1
         for _x in range(count):
             sm = self.rules_view.selectionModel()
+            assert sm is not None
             rows = sorted(sm.selectedRows(), reverse=not moving_up)
             if rows:
                 if rows[0].row() == (0 if moving_up else self.model.rowCount() - 1):

@@ -337,10 +337,12 @@ class MomentumScrollMixin:
 
     def wheelEvent(self, event: QWheelEvent):
         self._ensure_momentum_scroller()
-        if (not self._momentum_scroller.settings.enable_x and event.angleDelta().x() != 0) or (
-                not self._momentum_scroller.settings.enable_y and event.angleDelta().y() != 0):
+        scroller = self._momentum_scroller
+        assert scroller is not None
+        if (not scroller.settings.enable_x and event.angleDelta().x() != 0) or (
+                not scroller.settings.enable_y and event.angleDelta().y() != 0):
             return self.default_wheel_event_handler(event)
-        if not self._momentum_scroller.handle_wheel_event(event):
+        if not scroller.handle_wheel_event(event):
             return self.default_wheel_event_handler(event)
         event.accept()
 
@@ -351,7 +353,9 @@ class MomentumScrollMixin:
 
     def update_momentum_scroll_settings(self, **kw) -> None:
         self._ensure_momentum_scroller()
-        self._momentum_scroller.settings = self._momentum_scroller.settings._replace(**kw)
+        scroller = self._momentum_scroller
+        assert scroller is not None
+        scroller.settings = scroller.settings._replace(**kw)
 
 
 # Demo {{{

@@ -55,6 +55,7 @@ class QueryEdit(QLineEdit):
 
     def contextMenuEvent(self, a0):
         menu = self.createStandardContextMenu()
+        assert menu is not None
         self.parent().specialise_context_menu(menu)
         menu.exec(a0.globalPos())
 
@@ -332,7 +333,9 @@ class Rules(QWidget):
         r.doubleClicked.connect(self.edit_rule)
         h.addWidget(r)
         r.setDragEnabled(True)
-        r.viewport().setAcceptDrops(True)
+        viewport = r.viewport()
+        assert viewport is not None
+        viewport.setAcceptDrops(True)
         r.setDropIndicatorShown(True)
         r.setDragDropMode(QAbstractItemView.DragDropMode.InternalMove)
         r.setDefaultDropAction(Qt.DropAction.MoveAction)
@@ -390,6 +393,7 @@ class Rules(QWidget):
             self.rule_list.takeItem(row)
             self.rule_list.insertItem(nrow, item)
         sm = self.rule_list.selectionModel()
+        assert sm is not None
         for item in items:
             sm.select(self.rule_list.indexFromItem(item), QItemSelectionModel.SelectionFlag.Select)
         sm.setCurrentIndex(self.rule_list.indexFromItem(current_item), QItemSelectionModel.SelectionFlag.Current)
@@ -405,7 +409,9 @@ class Rules(QWidget):
     def rules(self):
         ans = []
         for r in range(self.rule_list.count()):
-            ans.append(self.rule_list.item(r).data(DATA_ROLE))
+            rule_item = self.rule_list.item(r)
+            assert rule_item is not None
+            ans.append(rule_item.data(DATA_ROLE))
         return ans
 
     @rules.setter
@@ -546,14 +552,17 @@ class RulesDialog(Dialog, SaveLoadMixin):
             l.addLayout(h)
             h.addWidget(ebw), h.addStretch(10), h.addWidget(self.bb)
         self.save_button = b = self.bb.addButton(_('&Save'), QDialogButtonBox.ButtonRole.ActionRole)
+        assert b is not None
         b.setToolTip(_('Save this ruleset for later re-use'))
         b.clicked.connect(self.save_ruleset)
         self.load_button = b = self.bb.addButton(_('&Load'), QDialogButtonBox.ButtonRole.ActionRole)
+        assert b is not None
         b.setToolTip(_('Load a previously saved ruleset'))
         self.load_menu = QMenu(self)
         b.setMenu(self.load_menu)
         self.build_load_menu()
         self.test_button = b = self.bb.addButton(_('&Test rules'), QDialogButtonBox.ButtonRole.ActionRole)
+        assert b is not None
         b.clicked.connect(self.test_rules)
         self.ruleset_changed.connect(self.update_title_bar)
 

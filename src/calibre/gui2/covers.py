@@ -417,7 +417,9 @@ class CoverSettingsWidget(QWidget):
             self.colors_map = cm
             li.setSelected(True)
             for i in range(1, self.colors_list.count()):
-                self.colors_list.item(i).setSelected(False)
+                list_item = self.colors_list.item(i)
+                assert list_item is not None
+                list_item.setSelected(False)
 
     def create_color_scheme(self):
         cs = self.current_colors
@@ -458,12 +460,15 @@ class CoverSettingsWidget(QWidget):
                 'Cannot remove a builtin color scheme.'), show=True)
         for i in range(self.colors_list.count()):
             item = self.colors_list.item(i)
+            assert item is not None
             if item.isSelected():
                 with self:
                     del self.colors_map[item.text()]
                     self.colors_list.takeItem(i)
                     i = i % self.colors_list.count()
-                    self.colors_list.item(i).setSelected(True)
+                    next_item = self.colors_list.item(i)
+                    assert next_item is not None
+                    next_item.setSelected(True)
                 self.emit_changed()
                 self.original_prefs['color_themes'] = self.current_prefs['color_themes']
                 return
@@ -565,11 +570,14 @@ class CoverSettingsDialog(QDialog):
         l.addWidget(bb)
         bb.accepted.connect(self.accept), bb.rejected.connect(self.reject)
         bb.b = b = bb.addButton(_('Restore &defaults'), QDialogButtonBox.ButtonRole.ActionRole)
+        assert b is not None
         b.clicked.connect(self.restore_defaults)
         bb.ld = b = bb.addButton(_('&Save'), QDialogButtonBox.ButtonRole.ActionRole)
+        assert b is not None
         b.clicked.connect(self.export_settings)
         b.setToolTip(_('Save the current cover generation settings for later re-use'))
         bb.sd = b = bb.addButton(_('&Load'), QDialogButtonBox.ButtonRole.ActionRole)
+        assert b is not None
         self.load_menu = QMenu(b)
         self.load_menu.aboutToShow.connect(self.populate_load_menu)
         b.setMenu(self.load_menu)

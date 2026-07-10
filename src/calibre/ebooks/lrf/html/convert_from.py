@@ -553,6 +553,7 @@ class HTMLConverter:
                 except ValueError:
                     self.log.warning(_('%s is an empty file')%self.file_name)
                     tb = self.book.create_text_block()
+                    assert self.current_page is not None
                     self.current_page.append(tb)
                     return tb
                 for page in list(self.book.pages()[index+1:]):
@@ -699,8 +700,10 @@ class HTMLConverter:
         if self.current_block.has_text() or self.current_block.must_append:
             self.current_block.append_to(self.current_page)
             self.current_block = self.book.create_text_block()
-        if self.current_page.has_text():
-            self.book.append(self.current_page)
+        current_page = self.current_page
+        assert current_page is not None
+        if current_page.has_text():
+            self.book.append(current_page)
             self.current_page = self.book.create_page()
 
     def add_image_page(self, path):
@@ -917,8 +920,10 @@ class HTMLConverter:
         if self.current_para.contents:
             self.current_block.append(self.current_para)
             self.current_para = Paragraph()
+        current_page = self.current_page
+        assert current_page is not None
         if self.current_block.contents or self.current_block.must_append:
-            self.current_page.append(self.current_block)
+            current_page.append(self.current_block)
             self.current_block = self.book.create_text_block(textStyle=self.current_block.textStyle,
                                                          blockStyle=self.current_block.blockStyle)
 
@@ -967,8 +972,10 @@ class HTMLConverter:
                 return
 
         factor = 720./self.profile.dpi
-        pheight = int(self.current_page.pageStyle.attrs['textheight'])
-        pwidth  = int(self.current_page.pageStyle.attrs['textwidth'])
+        current_page = self.current_page
+        assert current_page is not None
+        pheight = int(current_page.pageStyle.attrs['textheight'])
+        pwidth  = int(current_page.pageStyle.attrs['textwidth'])
 
         if dropcaps:
             scale = False
@@ -1035,19 +1042,23 @@ class HTMLConverter:
             self.current_para.append(Plot(im, xsize=width*factor,
                                           ysize=height*factor))
             self.current_block.append(self.current_para)
-            self.current_page.append(self.current_block)
+            current_page = self.current_page
+            assert current_page is not None
+            current_page.append(self.current_block)
             self.current_block = self.book.create_text_block(
                                             textStyle=pb.textStyle,
                                             blockStyle=pb.blockStyle)
             self.current_para = Paragraph()
         else:
             self.end_page()
-            if len(self.current_page.contents) == 1 and not self.current_page.has_text():
-                self.current_page.contents[0:1] = []
-            self.current_page.append(Canvas(width=pwidth,
+            current_page = self.current_page
+            assert current_page is not None
+            if len(current_page.contents) == 1 and not current_page.has_text():
+                current_page.contents[0:1] = []
+            current_page.append(Canvas(width=pwidth,
                                             height=height))
             left = floor((pwidth - width)/2)
-            self.current_page.contents[-1].put_object(
+            current_page.contents[-1].put_object(
                             ImageBlock(self.images[path], xsize=width,
                                        ysize=height, x1=width, y1=height,
                                        blockwidth=width, blockheight=height),
@@ -1072,9 +1083,11 @@ class HTMLConverter:
             self.end_page()
             self.page_break_found = True
         if not self.page_break_found and self.page_break.match(tagname):
+            current_page = self.current_page
+            assert current_page is not None
             number_of_paragraphs = sum(
                 len([1 for i in block.contents if isinstance(i, Paragraph)])
-                for block in self.current_page.contents if isinstance(block, TextBlock)
+                for block in current_page.contents if isinstance(block, TextBlock)
             )
 
             if number_of_paragraphs > 2:
@@ -1422,7 +1435,9 @@ class HTMLConverter:
                 target = self.current_block
             else:
                 found = False
-                for item in self.current_page.contents:
+                current_page = self.current_page
+                assert current_page is not None
+                for item in current_page.contents:
                     if item == previous:
                         found = True
                         continue
@@ -1434,10 +1449,10 @@ class HTMLConverter:
                         target = self.book.create_text_block(textStyle=self.current_block.textStyle,
                                                      blockStyle=self.current_block.blockStyle)
                         target.Paragraph(' ')
-                        self.current_page.append(target)
+                        current_page.append(target)
                     else:
                         target = BlockSpace()
-                        self.current_page.append(target)
+                        current_page.append(target)
                 if target is None:
                     if self.current_block.has_text():
                         target = self.current_block
@@ -1722,7 +1737,9 @@ class HTMLConverter:
             elif tagname in ['hr', 'tr']:  # tr needed for nested tables
                 self.end_current_block()
                 if tagname == 'hr' and not tag_css.get('width', '').strip().startswith('0'):
-                    self.current_page.RuledLine(linelength=int(self.current_page.pageStyle.attrs['textwidth']))
+                    current_page = self.current_page
+                    assert current_page is not None
+                    current_page.RuledLine(linelength=int(current_page.pageStyle.attrs['textwidth']))
                 self.previous_text = '\n'
                 self.process_children(tag, tag_css, tag_pseudo_css)
             elif tagname == 'td':  # Needed for nested tables
@@ -1755,12 +1772,14 @@ class HTMLConverter:
         rowpad = 10
         table = Table(self, tag, tag_css, rowpad=rowpad, colpad=10)
         canvases = []
-        ps = self.current_page.pageStyle.attrs
+        current_page = self.current_page
+        assert current_page is not None
+        ps = current_page.pageStyle.attrs
         for block, xpos, ypos, delta, targets in table.blocks(int(ps['textwidth']), int(ps['textheight'])):
             if not block:
                 if ypos > int(ps['textheight']):
                     raise Exception(_('Table has cell that is too large'))
-                canvases.append(Canvas(int(self.current_page.pageStyle.attrs['textwidth']), ypos+rowpad,
+                canvases.append(Canvas(int(current_page.pageStyle.attrs['textwidth']), ypos+rowpad,
                         blockrule='block-fixed'))
                 for name in targets:
                     self.targets[self.target_prefix+name] = canvases[-1]
@@ -1769,7 +1788,7 @@ class HTMLConverter:
                 canvases[-1].put_object(block, xpos + int(delta/2), ypos)
 
         for canvas in canvases:
-            self.current_page.append(canvas)
+            current_page.append(canvas)
         self.end_current_block()
 
     def remove_unused_target_blocks(self):

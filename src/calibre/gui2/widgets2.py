@@ -235,6 +235,7 @@ class CenteredToolButton(RightClickButton):
         opt.text = ''
         opt.icon = QIcon()
         s = painter.style()
+        assert s is not None
         painter.drawComplexControl(QStyle.ComplexControl.CC_ToolButton, opt)
         if s.styleHint(QStyle.StyleHint.SH_UnderlineShortcut, opt, self):
             flags = self.text_flags | Qt.TextFlag.TextShowMnemonic
@@ -346,8 +347,10 @@ class RatingEditor(QComboBox):
         self.allow_undo = False
         self.is_half_star = is_half_star
         self.delegate = RatingItemDelegate(self)
-        self.view().setItemDelegate(self.delegate)
-        self.view().setStyleSheet('QListView { background: palette(window) }\nQListView::item { padding: 6px }')
+        view = self.view()
+        assert view is not None
+        view.setItemDelegate(self.delegate)
+        view.setStyleSheet('QListView { background: palette(window) }\nQListView::item { padding: 6px }')
         self.setMaxVisibleItems(self.count())
         self.currentIndexChanged.connect(self.update_font)
 
@@ -632,7 +635,9 @@ class HTMLDisplay(QTextBrowser):
 
     def setDefaultStyleSheet(self, css=''):
         self.external_css = css
-        self.document().setDefaultStyleSheet(self.default_css + self.process_external_css(self.external_css))
+        doc = self.document()
+        assert doc is not None
+        doc.setDefaultStyleSheet(self.default_css + self.process_external_css(self.external_css))
 
     def palette_changed(self):
         app = qapplication_or_fail()
@@ -642,7 +647,9 @@ class HTMLDisplay(QTextBrowser):
             self.default_css = f'a {{ color: {col.name(QColor.NameFormat.HexRgb)} }}\n\n'
         else:
             self.default_css = ''
-        self.document().setDefaultStyleSheet(self.default_css + self.process_external_css(self.external_css))
+        palette_doc = self.document()
+        assert palette_doc is not None
+        palette_doc.setDefaultStyleSheet(self.default_css + self.process_external_css(self.external_css))
         self.setHtml(self.last_set_html)
 
     def process_external_css(self, css):
@@ -670,12 +677,16 @@ class HTMLDisplay(QTextBrowser):
                     '0500010d0a2db40000000049454e44ae'
                     '426082'))
                 if self.save_resources_in_document:
-                    self.document().addResource(rtype, qurl, r)
+                    res_doc = self.document()
+                    assert res_doc is not None
+                    res_doc.addResource(rtype, qurl, r)
                 return r
         else:
             r = QByteArray(data)
             if self.save_resources_in_document:
-                self.document().addResource(rtype, qurl, r)
+                res_doc2 = self.document()
+                assert res_doc2 is not None
+                res_doc2.addResource(rtype, qurl, r)
             return r
         return super().loadResource(rtype, qurl)
 
@@ -685,7 +696,9 @@ class HTMLDisplay(QTextBrowser):
             return self.load_local_file_resource(type, name, path)
         if name.scheme() == 'calibre-icon':
             r = QIcon.icon_as_png(name.path().lstrip('/'), as_bytearray=True)
-            self.document().addResource(type, name, r)
+            icon_doc = self.document()
+            assert icon_doc is not None
+            icon_doc.addResource(type, name, r)
             return r
         if self.notes_resource_scheme and name.scheme() == self.notes_resource_scheme and int(type) == int(QTextDocument.ResourceType.ImageResource):
             from calibre.gui2.ui import get_gui
@@ -696,7 +709,9 @@ class HTMLDisplay(QTextBrowser):
                 if resource is not None:
                     r = QByteArray(resource['data'])
                     if self.save_resources_in_document:
-                        self.document().addResource(type, name, r)
+                        notes_doc = self.document()
+                        assert notes_doc is not None
+                        notes_doc.addResource(type, name, r)
                     return r
         else:
             return super().loadResource(type, name)
@@ -803,25 +818,38 @@ class DateTimeEdit(QDateTimeEdit):
     @property
     def mime_data_for_copy(self):
         md = QMimeData()
-        text = self.lineEdit().selectedText()
+        dte_le = self.lineEdit()
+        assert dte_le is not None
+        text = dte_le.selectedText()
         md.setText(text or self.dateTime().toString())
         md.setData(self.MIME_TYPE, self.dateTime().toString(Qt.DateFormat.ISODate).encode('ascii'))
         return md
 
     def copy(self):
-        qapplication_or_fail().clipboard().setMimeData(self.mime_data_for_copy)
+        clipboard = qapplication_or_fail().clipboard()
+        assert clipboard is not None
+        clipboard.setMimeData(self.mime_data_for_copy)
 
     def cut(self):
         md = self.mime_data_for_copy
-        self.lineEdit().cut()
-        qapplication_or_fail().clipboard().setMimeData(md)
+        cut_le = self.lineEdit()
+        assert cut_le is not None
+        cut_le.cut()
+        cut_clipboard = qapplication_or_fail().clipboard()
+        assert cut_clipboard is not None
+        cut_clipboard.setMimeData(md)
 
     def paste(self):
-        md = qapplication_or_fail().clipboard().mimeData()
+        paste_clipboard = qapplication_or_fail().clipboard()
+        assert paste_clipboard is not None
+        md = paste_clipboard.mimeData()
+        assert md is not None
         if md.hasFormat(self.MIME_TYPE):
             self.setDateTime(QDateTime.fromString(md.data(self.MIME_TYPE).data().decode('ascii'), Qt.DateFormat.ISODate))
         else:
-            self.lineEdit().paste()
+            paste_le = self.lineEdit()
+            assert paste_le is not None
+            paste_le.paste()
 
     def create_context_menu(self):
         m = QMenu(self)

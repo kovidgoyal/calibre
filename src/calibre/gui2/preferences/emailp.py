@@ -280,7 +280,9 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
     def remove_email_account(self, *args):
         rows = set()
-        for idx in self.email_view.selectionModel().selectedIndexes():
+        sm = self.email_view.selectionModel()
+        assert sm is not None
+        for idx in sm.selectedIndexes():
             rows.add(idx.row())
         self._email_accounts.remove_rows(*rows)
         self.changed_signal.emit()

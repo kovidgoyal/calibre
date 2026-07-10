@@ -184,7 +184,9 @@ class Completer(QListView):  # {{{
         if not self.isVisible():
             return
         self.hide()
-        text = self.model().data(index, Qt.ItemDataRole.UserRole)
+        m = self.model()
+        assert m is not None
+        text = m.data(index, Qt.ItemDataRole.UserRole)
         self.item_selected.emit(str(text))
 
     def set_items(self, items):
@@ -199,12 +201,14 @@ class Completer(QListView):  # {{{
 
     def next_match(self, previous=False):
         c = self.currentIndex()
+        m = self.model()
+        assert m is not None
         if c.isValid():
             r = c.row()
         else:
-            r = self.model().rowCount() if previous else -1
+            r = m.rowCount() if previous else -1
         r = r + (-1 if previous else 1)
-        index = self.model().index(r % self.model().rowCount())
+        index = m.index(r % m.rowCount())
         self.setCurrentIndex(index)
 
     def scroll_to(self, orig):
@@ -218,6 +222,7 @@ class Completer(QListView):  # {{{
             return
         p = self
         m = p.model()
+        assert m is not None
         widget = self.parent()
         if widget is None:
             return
@@ -248,8 +253,8 @@ class Completer(QListView):  # {{{
         p.setGeometry(pos.x(), pos.y(), w, h)
 
         if (tweaks['preselect_first_completion'] and select_first and not
-                self.currentIndex().isValid() and self.model().rowCount() > 0):
-            self.setCurrentIndex(self.model().index(0))
+                self.currentIndex().isValid() and m.rowCount() > 0):
+            self.setCurrentIndex(m.index(0))
 
         if not p.isVisible():
             p.show()
@@ -343,7 +348,9 @@ class Completer(QListView):  # {{{
                 # arrow of the combobox closes the popup
                 opt = QStyleOptionComboBox()
                 widget.initStyleOption(opt)
-                sc = widget.style().hitTestComplexControl(QStyle.ComplexControl.CC_ComboBox, opt, widget.mapFromGlobal(event.globalPos()), widget)
+                widget_style = widget.style()
+                assert widget_style is not None
+                sc = widget_style.hitTestComplexControl(QStyle.ComplexControl.CC_ComboBox, opt, widget.mapFromGlobal(event.globalPos()), widget)
                 if sc == QStyle.SubControl.SC_ComboBoxArrow:
                     QTimer.singleShot(0, self.hide)
                     event.accept()
@@ -561,7 +568,9 @@ class EditWithComplete(EnComboBox):
             self.disable_popup = orig
 
     def keyPressEvent(self, e):
-        if e.key() in (Qt.Key.Key_Down, Qt.Key.Key_Up) and not self.lineEdit().text() and not self.disable_popup:
+        le = self.lineEdit()
+        assert le is not None
+        if e.key() in (Qt.Key.Key_Down, Qt.Key.Key_Up) and not le.text() and not self.disable_popup:
             e.accept()
             self.showPopup()
             return
@@ -585,7 +594,9 @@ class EditWithComplete(EnComboBox):
     def show_initial_value(self, what):
         what = str(what) if what else ''
         self.setText(what)
-        self.lineEdit().selectAll()
+        le = self.lineEdit()
+        assert le is not None
+        le.selectAll()
 
     @property
     def all_items(self):
@@ -607,11 +618,15 @@ class EditWithComplete(EnComboBox):
         self.lineEdit().set_elide_mode(val)
 
     def set_clear_button_enabled(self, val=True):
-        self.lineEdit().setClearButtonEnabled(bool(val))
+        le = self.lineEdit()
+        assert le is not None
+        le.setClearButtonEnabled(bool(val))
     # }}}
 
     def text(self):
-        return self.lineEdit().text()
+        le = self.lineEdit()
+        assert le is not None
+        return le.text()
 
     def set_current_text(self, text):
         self.setText(text)
@@ -623,26 +638,37 @@ class EditWithComplete(EnComboBox):
     current_text = pyqtProperty(str, fget=text, fset=set_current_text, user=True)
 
     def selectAll(self):
-        self.lineEdit().selectAll()
+        le = self.lineEdit()
+        assert le is not None
+        le.selectAll()
 
     def setText(self, text):
         le = self.lineEdit()
+        assert le is not None
         le.no_popup = True
         le.setText(text)
         le.no_popup = False
 
     def home(self, mark=False):
-        self.lineEdit().home(mark)
+        le = self.lineEdit()
+        assert le is not None
+        le.home(mark)
 
     def setCursorPosition(self, *args):
-        self.lineEdit().setCursorPosition(*args)
+        le = self.lineEdit()
+        assert le is not None
+        le.setCursorPosition(*args)
 
     @property
     def textChanged(self):
-        return self.lineEdit().textChanged
+        le = self.lineEdit()
+        assert le is not None
+        return le.textChanged
 
     def clear(self):
-        self.lineEdit().clear()
+        le = self.lineEdit()
+        assert le is not None
+        le.clear()
         EnComboBox.clear(self)
 
     def eventFilter(self, a0, a1):
@@ -666,7 +692,9 @@ if __name__ == '__main__':
     d.setLayout(QVBoxLayout())
     get_completion_mode.override = 'word-prefix'
     le = EditWithComplete(d)
-    d.layout().addWidget(le)
+    layout = d.layout()
+    assert layout is not None
+    layout.addWidget(le)
     items = ['oane\n line2\n line3', 'otwo', 'othree', 'ooone', 'ootwo', 'other', 'odd', 'over', 'orc', 'oven', 'owe',
         'oothree', 'a1', 'a2','Edgas', 'Èdgar', 'Édgaq', 'Edgar', 'Édgar', 'Asimov', 'Isaac Asimov', 'Quasimodo',
         'Fiction.Cozy Mystery', 'Fiction.Mystery',

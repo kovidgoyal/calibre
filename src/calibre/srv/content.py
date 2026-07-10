@@ -515,6 +515,7 @@ def set_note(ctx, rd, field, item_id, library_id):
                 fname = img['filename']
             else:
                 m = res_pat.search(img['data'])
+                assert m is not None
                 scheme, digest = m.group(1), m.group(2)
                 resources.append(f'{scheme}:{digest}')
         except Exception as err:

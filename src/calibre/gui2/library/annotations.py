@@ -1070,9 +1070,11 @@ class Export(Dialog):  # {{{
         self.bb.clear()
         self.bb.addButton(QDialogButtonBox.StandardButton.Cancel)
         b = self.bb.addButton(_('Copy to clipboard'), QDialogButtonBox.ButtonRole.ActionRole)
+        assert b is not None
         b.clicked.connect(self.copy_to_clipboard)
         b.setIcon(QIcon.ic('edit-copy.png'))
         b = self.bb.addButton(_('Save to file'), QDialogButtonBox.ButtonRole.ActionRole)
+        assert b is not None
         b.clicked.connect(self.save_to_file)
         b.setIcon(QIcon.ic('save.png'))
 
@@ -1080,7 +1082,9 @@ class Export(Dialog):  # {{{
         self.prefs[self.pref_name] = self.export_format.currentData()
 
     def copy_to_clipboard(self):
-        qapplication_or_fail().clipboard().setText(self.exported_data())
+        cb = qapplication_or_fail().clipboard()
+        assert cb is not None
+        cb.setText(self.exported_data())
         self.accept()
 
     def save_to_file(self):
@@ -1541,6 +1545,7 @@ class ResultsList(QTreeWidget):
         if item is not None:
             ans['current'] = item.data(0, Qt.ItemDataRole.UserRole)
         for item in (self.topLevelItem(i) for i in range(self.topLevelItemCount())):
+            assert item is not None
             if not item.isExpanded():
                 ans['closed'].add(item.data(0, Qt.ItemDataRole.UserRole))
         return ans
@@ -1549,6 +1554,7 @@ class ResultsList(QTreeWidget):
     def tree_state(self, state):
         closed = state['closed']
         for item in (self.topLevelItem(i) for i in range(self.topLevelItemCount())):
+            assert item is not None
             if item.data(0, Qt.ItemDataRole.UserRole) in closed:
                 item.setExpanded(False)
 
@@ -1657,6 +1663,7 @@ class Restrictions(QWidget):
             dpr = self.devicePixelRatioF()
             is_dark = is_dark_theme()
             model = tb.model()
+            assert model is not None
             highlight_color_row = 1
             all_styles = self.annotation_style_cache.get(db.library_id)
             if all_styles is None:
@@ -1785,8 +1792,10 @@ class BrowsePanel(QWidget):
         self.search_box = sb = SearchBox(self)
         sb.initialize('library-annotations-browser-search-box')
         sb.cleared.connect(self.cleared, type=Qt.ConnectionType.QueuedConnection)
-        sb.lineEdit().returnPressed.connect(self.show_next)
-        sb.lineEdit().setPlaceholderText(_('Enter words to search for'))
+        le = sb.lineEdit()
+        assert le is not None
+        le.returnPressed.connect(self.show_next)
+        le.setPlaceholderText(_('Enter words to search for'))
         h.addWidget(sb)
 
         self.next_button = nb = QToolButton(self)
@@ -1844,7 +1853,9 @@ class BrowsePanel(QWidget):
 
     @property
     def effective_query(self):
-        text = self.search_box.lineEdit().text().strip()
+        le = self.search_box.lineEdit()
+        assert le is not None
+        text = le.text().strip()
         data = self.restrictions.types_box.currentData()
         atype, style = '', None
         if isinstance(data, dict):
@@ -2147,10 +2158,12 @@ class AnnotationsBrowser(Dialog):
         l.addLayout(h)
         h.addWidget(us), h.addStretch(10), h.addWidget(self.bb)
         self.delete_button = b = self.bb.addButton(_('&Delete all selected'), QDialogButtonBox.ButtonRole.ActionRole)
+        assert b is not None
         b.setToolTip(_('Delete the selected annotations'))
         b.setIcon(QIcon.ic('trash.png'))
         b.clicked.connect(self.delete_selected)
         self.export_button = b = self.bb.addButton(_('&Export all selected'), QDialogButtonBox.ButtonRole.ActionRole)
+        assert b is not None
         b.setToolTip(_('Export the selected annotations'))
         b.setIcon(QIcon.ic('save.png'))
         b.clicked.connect(self.export_selected)
@@ -2159,7 +2172,9 @@ class AnnotationsBrowser(Dialog):
         b.setText(_('&Refresh'))
         b.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
         self.refresh_menu = m = QMenu(self)
-        m.addAction(_('Rebuild search index')).triggered.connect(self.rebuild)
+        act = m.addAction(_('Rebuild search index'))
+        assert act is not None
+        act.triggered.connect(self.rebuild)
         b.setMenu(m)
         b.setToolTip(_('Refresh annotations in case they have been changed since this window was opened'))
         b.setIcon(QIcon.ic('restart.png'))

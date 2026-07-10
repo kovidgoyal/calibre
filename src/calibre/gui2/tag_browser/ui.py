@@ -605,7 +605,9 @@ class FindBox(HistoryLineEdit):  # {{{
         if k not in (Qt.Key.Key_Up, Qt.Key.Key_Down):
             return HistoryLineEdit.keyPressEvent(self, e)
         self.blockSignals(True)
-        if k == Qt.Key.Key_Down and self.currentIndex() == 0 and not self.lineEdit().text():
+        line_edit = self.lineEdit()
+        assert line_edit is not None
+        if k == Qt.Key.Key_Down and self.currentIndex() == 0 and not line_edit.text():
             self.setCurrentIndex(1), self.setCurrentIndex(0)
             e.accept()
         else:
@@ -642,7 +644,9 @@ class TagBrowserBar(QWidget):  # {{{
         self.item_search.setMinimumContentsLength(5)
         self.item_search.setSizeAdjustPolicy(QComboBox.SizeAdjustPolicy.AdjustToMinimumContentsLengthWithIcon)
         self.item_search.initialize('tag_browser_search')
-        self.item_search.completer().setCaseSensitivity(Qt.CaseSensitivity.CaseSensitive)
+        item_search_completer = self.item_search.completer()
+        assert item_search_completer is not None
+        item_search_completer.setCaseSensitivity(Qt.CaseSensitivity.CaseSensitive)
         self.item_search.setToolTip(
             _('<p>'
                 'Search for items in the Tag browser. If the search text begins '
@@ -682,7 +686,10 @@ class TagBrowserBar(QWidget):  # {{{
 
         self.toggle_search_button = b = QToolButton(self)
         le = self.item_search.lineEdit()
-        le.addAction(QIcon.ic('window-close.png'), QLineEdit.ActionPosition.LeadingPosition).triggered.connect(self.close_find_box)
+        assert le is not None
+        close_action = le.addAction(QIcon.ic('window-close.png'), QLineEdit.ActionPosition.LeadingPosition)
+        assert close_action is not None
+        close_action.triggered.connect(self.close_find_box)
         b.setText(_('Find')), b.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
         b.setCursor(Qt.CursorShape.PointingHandCursor)
         b.setIcon(QIcon.ic('search.png'))
@@ -702,12 +709,15 @@ class TagBrowserBar(QWidget):  # {{{
     def set_focus_to_find_box(self):
         self.toggle_search_button.setChecked(True)
         self.item_search.setFocus()
-        self.item_search.lineEdit().selectAll()
+        le_focus = self.item_search.lineEdit()
+        assert le_focus is not None
+        le_focus.selectAll()
 
     def update_searchbar_state(self):
         find_shown = self.toggle_search_button.isChecked()
         self.toggle_search_button.setVisible(not find_shown)
         l = self.layout()
+        assert l is not None
         while l.count():
             l.takeAt(0)
         if find_shown:
@@ -750,7 +760,9 @@ class TagBrowserWidget(QFrame):  # {{{
 
         self.current_find_position = None
         self.search_button.clicked.connect(self.find)
-        self.item_search.lineEdit().textEdited.connect(self.find_text_changed)
+        item_search_le_init = self.item_search.lineEdit()
+        assert item_search_le_init is not None
+        item_search_le_init.textEdited.connect(self.find_text_changed)
         self.item_search.textActivated.connect(self.do_find)
 
         # The tags view
@@ -830,6 +842,7 @@ class TagBrowserWidget(QFrame):  # {{{
         for i, x in enumerate((_('Name'), _('Number of books'),
                   _('Average rating'))):
             a = sb.m.addAction(x)
+            assert a is not None
             parent.keyboard.register_shortcut(
                     f"tag browser sort by {('notes', 'number of books', 'average rating')[i]}",
                     (_('Sort by name'), _('Sort by number of books'), _('Sort by average rating'))[i],
@@ -850,6 +863,7 @@ class TagBrowserWidget(QFrame):  # {{{
         # Must be in the same order as db2.MATCH_TYPE
         for i, x in enumerate((_('Match any of the items'), _('Match all of the items'))):
             a = ma.m.addAction(x)
+            assert a is not None
             ma.ag.addAction(a)
             a.setCheckable(True)
             if i == 0:
@@ -983,7 +997,9 @@ class TagBrowserWidget(QFrame):  # {{{
                 tb.setFocus()
                 idx = tb.currentIndex()
                 if not idx.isValid():
-                    idx = tb.model().createIndex(0, 0)
+                    tb_model = tb.model()
+                    assert tb_model is not None
+                    idx = tb_model.createIndex(0, 0)
                     tb.setCurrentIndex(idx)
 
     def set_pane_is_visible(self, to_what):
@@ -1056,9 +1072,11 @@ class TagBrowserWidget(QFrame):  # {{{
         if not txt:
             return
 
-        self.item_search.lineEdit().blockSignals(True)
+        item_search_le_find = self.item_search.lineEdit()
+        assert item_search_le_find is not None
+        item_search_le_find.blockSignals(True)
         self.search_button.setFocus(Qt.FocusReason.OtherFocusReason)
-        self.item_search.lineEdit().blockSignals(False)
+        item_search_le_find.blockSignals(False)
 
         if txt.startswith('='):
             equals_match = True
@@ -1073,8 +1091,10 @@ class TagBrowserWidget(QFrame):  # {{{
             self.tags_view.show_item_at_path(self.current_find_position, box=True)
         elif self.item_search.text():
             self.not_found_label.setVisible(True)
-            if self.tags_view.verticalScrollBar().isVisible():
-                sbw = self.tags_view.verticalScrollBar().width()
+            vsb = self.tags_view.verticalScrollBar()
+            assert vsb is not None
+            if vsb.isVisible():
+                sbw = vsb.width()
             else:
                 sbw = 0
             width = self.width() - 8 - sbw

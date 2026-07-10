@@ -94,6 +94,7 @@ def create_match_kind(self):
 def create_button_box(self):
     self.bb = bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)
     self.clear_button = bb.addButton(_('&Clear'), QDialogButtonBox.ButtonRole.ResetRole)
+    assert self.clear_button is not None
     self.clear_button.clicked.connect(self.clear_button_pushed)
     bb.accepted.connect(self.accept)
     bb.rejected.connect(self.reject)
@@ -142,7 +143,9 @@ def create_simple_tab(self, db):
     l.addRow(_('&Title:'), le)
 
     self.authors_box = le = EditWithComplete(self)
-    le.lineEdit().setPlaceholderText(_('The author to search for'))
+    authors_le = le.lineEdit()
+    assert authors_le is not None
+    authors_le.setPlaceholderText(_('The author to search for'))
     le.setObjectName('authors_box')
     le.setEditText('')
     le.set_separator('&')
@@ -152,7 +155,9 @@ def create_simple_tab(self, db):
     l.addRow(_('&Author:'), le)
 
     self.series_box = le = EditWithComplete(self)
-    le.lineEdit().setPlaceholderText(_('The series to search for'))
+    series_le = le.lineEdit()
+    assert series_le is not None
+    series_le.setPlaceholderText(_('The series to search for'))
     le.setObjectName('series_box')
     le.set_separator(None)
     le.update_items_cache(db.new_api.all_field_names('series'))
@@ -161,7 +166,9 @@ def create_simple_tab(self, db):
 
     self.tags_box = le = EditWithComplete(self)
     le.setObjectName('tags_box')
-    le.lineEdit().setPlaceholderText(_('The tags to search for'))
+    tags_le = le.lineEdit()
+    assert tags_le is not None
+    tags_le.setPlaceholderText(_('The tags to search for'))
     self.tags_box.update_items_cache(db.new_api.all_field_names('tags'))
     l.addRow(_('Ta&gs:'), le)
 

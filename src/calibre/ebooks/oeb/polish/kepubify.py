@@ -234,6 +234,7 @@ def add_kobo_spans(inner, root_lang, prefer_justification=False):
         paranum += 1
         segnum = 0
         node = child.getparent()
+        assert node is not None
         idx = node.index(child)
         w = kobo_span(node)
         node[idx] = w
@@ -266,6 +267,7 @@ def add_kobo_spans(inner, root_lang, prefer_justification=False):
 
 def unwrap(span: etree.Element) -> None:
     p = span.getparent()
+    assert p is not None
     idx = p.index(span)
     del p[idx]
     if len(span):

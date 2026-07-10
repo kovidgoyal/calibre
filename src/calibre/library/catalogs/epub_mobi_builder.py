@@ -57,9 +57,11 @@ class Formatter(TemplateFormatter):
             return ''
         if key in kwargs:
             return kwargs[key]
-        if key not in self.book.all_field_keys():
+        book = self.book
+        assert book is not None
+        if key not in book.all_field_keys():
             raise Exception(_('column not in book: ') + key)
-        return self.book.format_field(key, series_with_index=False)[1]
+        return book.format_field(key, series_with_index=False)[1]
 
 
 class CatalogBuilder:
@@ -1502,9 +1504,11 @@ class CatalogBuilder:
                 aTag.insert(0, NavigableString(current_author))
                 pAuthorTag.insert(0, aTag)
                 if author_count == 1:
+                    assert divOpeningTag is not None
                     divOpeningTag.insert(dotc, pAuthorTag)
                     dotc += 1
                 else:
+                    assert divRunningTag is not None
                     divRunningTag.insert(drtc, pAuthorTag)
                     drtc += 1
 
@@ -1525,6 +1529,7 @@ class CatalogBuilder:
                     pSeriesTag.insert(0, NavigableString('{}'.format(book['series'])))
 
                 if author_count == 1:
+                    assert divOpeningTag is not None
                     divOpeningTag.insert(dotc, pSeriesTag)
                     dotc += 1
                 elif divRunningTag is not None:
@@ -1572,6 +1577,7 @@ class CatalogBuilder:
             ptc += 1
 
             if author_count == 1:
+                assert divOpeningTag is not None
                 divOpeningTag.insert(dotc, pBookTag)
                 dotc += 1
             elif divRunningTag:
@@ -2990,6 +2996,7 @@ class CatalogBuilder:
 
     def generate_ncx_section_header(self, section_id, section_header, content_src):
         root = self.ncx_root
+        assert root is not None
         if self.generate_for_kindle_mobi:
             body = root.xpath('//*[local-name()="navPoint"]')[0]
         else:

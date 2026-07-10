@@ -93,8 +93,11 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
     def commit(self):
         input_map = prefs['input_format_order']
-        input_cols = [str(self.opt_input_order.item(i).data(Qt.ItemDataRole.UserRole) or '') for
-                i in range(self.opt_input_order.count())]
+        input_cols = []
+        for i in range(self.opt_input_order.count()):
+            _item = self.opt_input_order.item(i)
+            assert _item is not None
+            input_cols.append(str(_item.data(Qt.ItemDataRole.UserRole) or ''))
         if input_map != input_cols:
             prefs['input_format_order'] = input_cols
         fmts = self.current_internally_viewed_formats
@@ -130,6 +133,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         for ext in sorted(exts):
             viewer.addItem(ext.upper())
             item = viewer.item(viewer.count()-1)
+            assert item is not None
             item.setFlags(Qt.ItemFlag.ItemIsEnabled|Qt.ItemFlag.ItemIsUserCheckable)
             item.setCheckState(Qt.CheckState.Checked if
                     ext.upper() in fmts else Qt.CheckState.Unchecked)
@@ -140,8 +144,10 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         fmts = []
         viewer = self.opt_internally_viewed_formats
         for i in range(viewer.count()):
-            if viewer.item(i).checkState() == Qt.CheckState.Checked:
-                fmts.append(str(viewer.item(i).text()))
+            _item = viewer.item(i)
+            assert _item is not None
+            if _item.checkState() == Qt.CheckState.Checked:
+                fmts.append(str(_item.text()))
         return fmts
     # }}}
 

@@ -122,7 +122,9 @@ class HistoryBox(HistoryComboBox):
         self.disable_popup = tprefs['disable_completion_popup_for_search']
         self.clear_msg = clear_msg
         self.ignore_snip_expansion = False
-        self.lineEdit().setClearButtonEnabled(True)
+        le = self.lineEdit()
+        assert le is not None
+        le.setClearButtonEnabled(True)
         self.set_uniform_item_sizes(False)
 
     def event(self, event):
@@ -136,7 +138,10 @@ class HistoryBox(HistoryComboBox):
         return HistoryComboBox.event(self, event)
 
     def contextMenuEvent(self, e):
-        menu = self.lineEdit().createStandardContextMenu()
+        ctx_le = self.lineEdit()
+        assert ctx_le is not None
+        menu = ctx_le.createStandardContextMenu()
+        assert menu is not None
         menu.addSeparator()
         menu.addAction(self.clear_msg, self.clear_history)
         menu.addAction((_('Enable completion based on search history') if self.disable_popup else _(
@@ -281,7 +286,9 @@ class SearchWidget(QWidget):
         ft.save_search.connect(self.save_search)
         ft.show_saved_searches.connect(self.show_saved_searches)
         ft.initialize('tweak_book_find_edit')
-        connect_lambda(ft.lineEdit().returnPressed, self, lambda self: self.search_triggered.emit('find'))
+        ft_le = ft.lineEdit()
+        assert ft_le is not None
+        connect_lambda(ft_le.returnPressed, self, lambda self: self.search_triggered.emit('find'))
         fl.setBuddy(ft)
         l.addWidget(fl, 0, 0)
         l.addWidget(ft, 0, 1)
@@ -472,7 +479,9 @@ class SearchWidget(QWidget):
         if self.mode in ('regex', 'function'):
             text = regex.escape(text, special_only=True, literal_spaces=True)
         self.find = text
-        self.find_text.lineEdit().setSelection(0, len(text)+10)
+        find_text_le = self.find_text.lineEdit()
+        assert find_text_le is not None
+        find_text_le.setSelection(0, len(text)+10)
 
     def paste_saved_search(self, s):
         self.case_sensitive = s.get('case_sensitive') or False
@@ -504,6 +513,7 @@ class SearchPanel(QWidget):  # {{{
         t.setMovable(False)
         t.setFloatable(False)
         t.cl = ac = t.addAction(QIcon.ic('window-close.png'), _('Close search panel'))
+        assert ac is not None
         ac.triggered.connect(self.hide_panel)
         self.widget = SearchWidget(self)
         l.addWidget(self.widget)
@@ -523,6 +533,7 @@ class SearchPanel(QWidget):  # {{{
         self.setVisible(True)
         self.widget.find_text.setFocus(Qt.FocusReason.OtherFocusReason)
         le = self.widget.find_text.lineEdit()
+        assert le is not None
         le.setSelection(0, le.maxLength())
 
     @property
@@ -936,7 +947,9 @@ class SavedSearches(QWidget):
         self.model = SearchesModel(self.searches)
         self.model.dataChanged.connect(self.show_details)
         searches.setModel(self.model)
-        searches.selectionModel().currentChanged.connect(self.show_details)
+        searches_sel_model = searches.selectionModel()
+        assert searches_sel_model is not None
+        searches_sel_model.currentChanged.connect(self.show_details)
         searches.setSelectionMode(QAbstractItemView.SelectionMode.ExtendedSelection)
         self.delegate = SearchDelegate(searches)
         searches.setItemDelegate(self.delegate)
@@ -1127,7 +1140,9 @@ class SavedSearches(QWidget):
             searches.append(search)
         else:
             seen = set()
-            for index in self.searches.selectionModel().selectedIndexes():
+            sel_model = self.searches.selectionModel()
+            assert sel_model is not None
+            for index in sel_model.selectedIndexes():
                 if index.row() in seen:
                     continue
                 seen.add(index.row())
@@ -1152,6 +1167,7 @@ class SavedSearches(QWidget):
         if self.editing_search:
             return
         sm = self.searches.selectionModel()
+        assert sm is not None
         rows = {index.row() for index in sm.selectedIndexes()} - {-1}
         if rows:
             searches = [self.model.search_for_index(index) for index in sm.selectedIndexes()]
@@ -1196,7 +1212,9 @@ class SavedSearches(QWidget):
             return
         if confirm(_('Are you sure you want to permanently delete the selected saved searches?'),
                    'confirm-remove-editor-saved-search', config_set=tprefs):
-            rows = {index.row() for index in self.searches.selectionModel().selectedIndexes()} - {-1}
+            remove_sm = self.searches.selectionModel()
+            assert remove_sm is not None
+            rows = {index.row() for index in remove_sm.selectedIndexes()} - {-1}
             self.model.remove_searches(rows)
             self.show_details()
 
@@ -1212,6 +1230,7 @@ class SavedSearches(QWidget):
         index = self.model.index(self.model.rowCount() - 1)
         self.searches.scrollTo(index)
         sm = self.searches.selectionModel()
+        assert sm is not None
         sm.setCurrentIndex(index, QItemSelectionModel.SelectionFlag.ClearAndSelect)
         self.show_details()
 
@@ -1263,12 +1282,15 @@ class SavedSearches(QWidget):
                 count = len(searches)
                 self.model.add_searches(count=count)
                 sm = self.searches.selectionModel()
+                assert sm is not None
                 top, bottom = self.model.index(self.model.rowCount() - count), self.model.index(self.model.rowCount() - 1)
                 sm.select(QItemSelection(top, bottom), QItemSelectionModel.SelectionFlag.ClearAndSelect)
                 self.searches.scrollTo(bottom)
 
     def copy_to_search_panel(self):
-        ci = self.searches.selectionModel().currentIndex()
+        copy_sm = self.searches.selectionModel()
+        assert copy_sm is not None
+        ci = copy_sm.currentIndex()
         if ci and ci.isValid():
             search = ci.data(Qt.ItemDataRole.UserRole)[-1]
             self.copy_search_to_search_panel.emit(search)
@@ -1281,7 +1303,9 @@ class SavedSearches(QWidget):
                     'No searches available to be saved'), show=True)
         else:
             searches = []
-            for index in self.searches.selectionModel().selectedIndexes():
+            export_sm = self.searches.selectionModel()
+            assert export_sm is not None
+            for index in export_sm.selectedIndexes():
                 search = index.data(Qt.ItemDataRole.UserRole)[-1]
                 searches.append(search.copy())
             if not searches:
@@ -1520,6 +1544,7 @@ def run_search(
                 d = MessageBox(MessageBox.INFO, _('Searching done'), '<p>'+msg, parent=gui_parent, show_copy_button=False, det_msg=det_msg)
                 d.diffb = b = d.bb.addButton(_('See what &changed'), QDialogButtonBox.ButtonRole.AcceptRole)
                 d.show_changes = False
+                assert b is not None
                 b.setIcon(QIcon.ic('diff.png')), b.clicked.connect(d.accept)
                 connect_lambda(b.clicked, d, lambda d: setattr(d, 'show_changes', True))
                 d.exec()

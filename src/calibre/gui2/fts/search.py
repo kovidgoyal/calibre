@@ -635,8 +635,10 @@ class SearchInputPanel(QWidget):
         self.search_box = sb = SearchBox(self)
         sb.cleared.connect(self.clear_search)
         sb.initialize('library-fts-search-box')
-        sb.lineEdit().returnPressed.connect(self.search_requested)
-        sb.lineEdit().setPlaceholderText(_('Enter words to search for'))
+        _sb_line_edit = sb.lineEdit()
+        assert _sb_line_edit is not None
+        _sb_line_edit.returnPressed.connect(self.search_requested)
+        _sb_line_edit.setPlaceholderText(_('Enter words to search for'))
         self.search_button = sb = QPushButton(QIcon.ic('search.png'), _('&Search'), self)
         sb.clicked.connect(self.search_requested)
         self.restrict = r = QCheckBox(_('&Restrict searched books'))
@@ -700,7 +702,9 @@ class SearchInputPanel(QWidget):
 
     def do_layout(self):
         QVBoxLayout(self)
-        self.layout().setContentsMargins(0, 0, 0, 0)
+        _sip_layout = self.layout()
+        assert _sip_layout is not None
+        _sip_layout.setContentsMargins(0, 0, 0, 0)
         self.hsb = hsb = QHBoxLayout()
         self.layout().addLayout(hsb)
         hsb.addWidget(self.switch_view_button)
@@ -790,6 +794,7 @@ class ResultDetails(QWidget):
         self.pixmap_label.setGeometry(QRect(0, 0, nw, nh))
         w = g.width() - nw - 8
         d = self.book_info.document()
+        assert d is not None
         d.setDocumentMargin(0)
         d.setTextWidth(float(w))
         ph = self.pixmap_label.height()
@@ -930,7 +935,9 @@ class SplitView(QSplitter):
         self.left_panel = lp = LeftPanel(self)
         self.addWidget(lp)
         self.results_view = rv = ResultsView(model, parent=self)
-        lp.layout().addWidget(rv)
+        _lp_layout = lp.layout()
+        assert _lp_layout is not None
+        _lp_layout.addWidget(rv)
         self.details = d = DetailsPanel(parent=self)
         self.addWidget(d)
         model.result_with_context_found.connect(d.result_with_context_found)
@@ -953,7 +960,9 @@ class SplitView(QSplitter):
 
     def matches_found(self, num):
         self.results_view.expandAll()
-        self.results_view.setCurrentIndex(self.results_view.model().index(0, 0))
+        _rv_model = self.results_view.model()
+        assert _rv_model is not None
+        self.results_view.setCurrentIndex(_rv_model.index(0, 0))
 
     def current_result(self):
         idx = self.results_view.currentIndex()
@@ -1008,10 +1017,12 @@ class ResultsPanel(QWidget):
         sv.show_in_viewer.connect(self.show_in_viewer)
         sv.remove_book_from_results.connect(self.remove_book_from_results)
         QStackedLayout(self)
-        self.layout().addWidget(sv)
+        _results_panel_layout = self.layout()
+        assert _results_panel_layout is not None
+        _results_panel_layout.addWidget(sv)
         self.card_view = cv = CardsView(self.results_model, self)
         cv.link_activated.connect(self._cards_link_activated)
-        self.layout().addWidget(cv)
+        _results_panel_layout.addWidget(cv)
         self.set_view_mode(gprefs['fts_visualisation'])
 
     def set_view_mode(self, mode: str = 'compact'):

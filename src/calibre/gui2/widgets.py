@@ -103,22 +103,26 @@ class FilenamePattern(QWidget, Ui_Form):  # {{{
             pass  # link already localized
 
         self.test_button.clicked.connect(self.do_test)
-        self.re.lineEdit().returnPressed[()].connect(self.do_test)
+        re_line_edit = self.re.lineEdit()
+        assert re_line_edit is not None
+        re_line_edit.returnPressed[()].connect(self.do_test)
         self.filename.returnPressed[()].connect(self.do_test)
-        connect_lambda(self.re.lineEdit().textChanged, self, lambda self, x: self.changed_signal.emit())
+        connect_lambda(re_line_edit.textChanged, self, lambda self, x: self.changed_signal.emit())
 
     def initialize(self, defaults=False):
         # Get all items in the combobox. If we are resetting
         # to defaults we don't want to lose what the user
         # has added.
-        val_hist = [str(self.re.lineEdit().text())] + [str(self.re.itemText(i)) for i in range(self.re.count())]
+        re_line_edit = self.re.lineEdit()
+        assert re_line_edit is not None
+        val_hist = [str(re_line_edit.text())] + [str(self.re.itemText(i)) for i in range(self.re.count())]
         self.re.clear()
 
         if defaults:
             val = prefs.defaults['filename_pattern']
         else:
             val = prefs['filename_pattern']
-        self.re.lineEdit().setText(val)
+        re_line_edit.setText(val)
 
         val_hist += gprefs.get('filename_pattern_history', [
                                '(?P<title>.+)', r'(?P<author>[^_-]+) -?\s*(?P<series>[^_0-9-]*)(?P<series_index>[0-9]*)\s*-\s*(?P<title>[^_].+) ?'])
@@ -182,7 +186,9 @@ class FilenamePattern(QWidget, Ui_Form):  # {{{
         self.comments.setText(mi.comments or _('No match'))
 
     def pattern(self):
-        pat = str(self.re.lineEdit().text())
+        re_line_edit = self.re.lineEdit()
+        assert re_line_edit is not None
+        pat = str(re_line_edit.text())
         return re.compile(pat)
 
     def commit(self):
@@ -190,7 +196,9 @@ class FilenamePattern(QWidget, Ui_Form):  # {{{
         prefs['filename_pattern'] = pat
 
         history = []
-        history_pats = [str(self.re.lineEdit().text())] + [str(self.re.itemText(i)) for i in range(self.re.count())]
+        re_line_edit = self.re.lineEdit()
+        assert re_line_edit is not None
+        history_pats = [str(re_line_edit.text())] + [str(self.re.itemText(i)) for i in range(self.re.count())]
         for p in history_pats[:24]:
             # Ensure we don't have duplicate items.
             if p and p not in history:
@@ -303,8 +311,14 @@ class ImageDropMixin:  # {{{
     def build_context_menu(self):
         cm = QMenu(self)
         paste = cm.addAction(QIcon.ic('edit-paste.png'), _('Paste cover'))
+        assert paste is not None
         copy = cm.addAction(QIcon.ic('edit-copy.png'), _('Copy cover'))
-        if not qapplication_or_fail().clipboard().mimeData().hasImage():
+        assert copy is not None
+        _cb = qapplication_or_fail().clipboard()
+        assert _cb is not None
+        _mime = _cb.mimeData()
+        assert _mime is not None
+        if not _mime.hasImage():
             paste.setEnabled(False)
         copy.triggered.connect(self.copy_to_clipboard)
         paste.triggered.connect(self.paste_from_clipboard)
@@ -314,10 +328,13 @@ class ImageDropMixin:  # {{{
         self.build_context_menu().exec(ev.globalPos())
 
     def copy_to_clipboard(self):
-        qapplication_or_fail().clipboard().setPixmap(self.get_pixmap())
+        _cb = qapplication_or_fail().clipboard()
+        assert _cb is not None
+        _cb.setPixmap(self.get_pixmap())
 
     def paste_from_clipboard(self):
         cb = qapplication_or_fail().clipboard()
+        assert cb is not None
         pmap = cb.pixmap()
         if pmap.isNull() and cb.supportsSelection():
             pmap = cb.pixmap(QClipboard.Mode.Selection)
@@ -469,6 +486,7 @@ class CoverView(QGraphicsView, ImageDropMixin):
         QGraphicsView.paintEvent(self, event)
         if self.show_size:
             v = self.viewport()
+            assert v is not None
             p = QPainter(v)
             draw_size(p, v.rect(), *self.pixmap_size)
 
@@ -526,7 +544,11 @@ class LineEditECM:  # {{{
         action_swap_case = case_menu.addAction(_('Swap case'))
         action_title_case = case_menu.addAction(_('Title case'))
         action_capitalize = case_menu.addAction(_('Capitalize'))
-
+        assert action_upper_case is not None
+        assert action_lower_case is not None
+        assert action_swap_case is not None
+        assert action_title_case is not None
+        assert action_capitalize is not None
         action_upper_case.triggered.connect(self.upper_case)
         action_lower_case.triggered.connect(self.lower_case)
         action_swap_case.triggered.connect(self.swap_case)
@@ -598,6 +620,8 @@ def setup_status_actions(self: QLineEdit):
     self.status_actions = (
         self.addAction(QIcon.ic('ok.png'), QLineEdit.ActionPosition.TrailingPosition),
         self.addAction(QIcon.ic('dialog_error.png'), QLineEdit.ActionPosition.TrailingPosition))
+    assert self.status_actions[0] is not None
+    assert self.status_actions[1] is not None
     self.status_actions[0].setVisible(False)
     self.status_actions[1].setVisible(False)
 
@@ -730,7 +754,9 @@ class EnComboBox(QComboBox):  # {{{
     def __init__(self, *args):
         QComboBox.__init__(self, *args)
         self.setLineEdit(EnLineEdit(self))
-        self.completer().setCaseSensitivity(Qt.CaseSensitivity.CaseInsensitive)
+        _completer = self.completer()
+        assert _completer is not None
+        _completer.setCaseSensitivity(Qt.CaseSensitivity.CaseInsensitive)
         self.setMinimumContentsLength(20)
 
     def text(self):
@@ -773,14 +799,21 @@ class HistoryLineEdit(QComboBox):  # {{{
         self.setEditable(True)
         self.setInsertPolicy(QComboBox.InsertPolicy.NoInsert)
         self.setMaxCount(10)
-        self.setClearButtonEnabled = self.lineEdit().setClearButtonEnabled
+        _line_edit = self.lineEdit()
+        assert _line_edit is not None
+        self.setClearButtonEnabled = _line_edit.setClearButtonEnabled
         self.textChanged = self.editTextChanged
 
     def setPlaceholderText(self, placeholderText):
-        return self.lineEdit().setPlaceholderText(placeholderText)
+        line_edit = self.lineEdit()
+        assert line_edit is not None
+        return line_edit.setPlaceholderText(placeholderText)
 
     def contextMenuEvent(self, e):
-        menu = self.lineEdit().createStandardContextMenu()
+        _line_edit = self.lineEdit()
+        assert _line_edit is not None
+        menu = _line_edit.createStandardContextMenu()
+        assert menu is not None
         menu.addSeparator()
         menu.addAction(_('Clear history'), self.clear_history_default_impl)
         menu.exec(e.globalPos())
@@ -797,7 +830,9 @@ class HistoryLineEdit(QComboBox):  # {{{
         self._name = name
         self.addItems(history.get(self.store_name, []))
         self.setEditText('')
-        self.lineEdit().editingFinished.connect(self.save_history)
+        _line_edit = self.lineEdit()
+        assert _line_edit is not None
+        _line_edit.editingFinished.connect(self.save_history)
 
     def save_history(self):
         items = []
@@ -825,14 +860,18 @@ class HistoryLineEdit(QComboBox):  # {{{
 
     def setText(self, t):
         self.setEditText(t)
-        self.lineEdit().setCursorPosition(0)
+        line_edit = self.lineEdit()
+        assert line_edit is not None
+        line_edit.setCursorPosition(0)
 
     def text(self):
         return self.currentText()
 
     def focusOutEvent(self, e):
         QComboBox.focusOutEvent(self, e)
-        if not (self.hasFocus() or self.view().hasFocus()):
+        view = self.view()
+        assert view is not None
+        if not (self.hasFocus() or view.hasFocus()):
             self.lost_focus.emit()
 
 # }}}
@@ -1093,7 +1132,9 @@ class SplitterHandle(QSplitterHandle):
 
     def splitter_moved(self, *args):
         oh = self.highlight
-        self.highlight = 0 in self.splitter().sizes()
+        splitter = self.splitter()
+        assert splitter is not None
+        self.highlight = 0 in splitter.sizes()
         if oh != self.highlight:
             self.update()
 

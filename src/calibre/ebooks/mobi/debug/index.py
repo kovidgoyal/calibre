@@ -222,7 +222,9 @@ class NCXIndex(Index):
                                 71:'author', 72:'image_caption',
                                 73:'image_attribution'}.items():
                             if tag == which:
-                                entry[name] = self.cncx.get(fieldvalue,
+                                cncx = self.cncx
+                                assert cncx is not None
+                                entry[name] = cncx.get(fieldvalue,
                                         default_entry[name])
 
                 def refindx(e, name):

@@ -276,7 +276,9 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.highlight_index(idx)
 
     def highlight_index(self, idx):
-        self.plugin_view.selectionModel().select(idx, QItemSelectionModel.SelectionFlag.ClearAndSelect)
+        sm = self.plugin_view.selectionModel()
+        assert sm is not None
+        sm.select(idx, QItemSelectionModel.SelectionFlag.ClearAndSelect)
         self.plugin_view.setCurrentIndex(idx)
         self.plugin_view.setFocus(Qt.FocusReason.OtherFocusReason)
         self.plugin_view.scrollTo(idx, QAbstractItemView.ScrollHint.EnsureVisible)

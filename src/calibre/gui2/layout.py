@@ -58,6 +58,7 @@ class LocationManager(QObject):  # {{{
         def ac(name, text, icon, tooltip):
             icon = QIcon.ic(icon)
             ac = self.location_actions.addAction(icon, text)
+            assert ac is not None
             setattr(self, 'location_'+name, ac)
             ac.setAutoRepeat(False)
             ac.setCheckable(True)
@@ -68,16 +69,20 @@ class LocationManager(QObject):  # {{{
             m = QMenu(parent)
             self._mem.append(m)
             a = m.addAction(icon, tooltip)
+            assert a is not None
             a.triggered.connect(receiver)
             if name != 'library':
                 self._mem.append(a)
                 a = m.addAction(QIcon.ic('eject.png'), _('Eject this device'))
+                assert a is not None
                 a.triggered.connect(self._eject_requested)
                 self._mem.append(a)
                 a = m.addAction(QIcon.ic('config.png'), _('Configure this device'))
+                assert a is not None
                 a.triggered.connect(self._configure_requested)
                 self._mem.append(a)
                 a = m.addAction(QIcon.ic('sync.png'), _('Update cached metadata on device'))
+                assert a is not None
                 a.triggered.connect(lambda x: self.update_device_metadata.emit())
                 self._mem.append(a)
 
@@ -236,7 +241,9 @@ class SearchBar(QFrame):  # {{{
         sb.setText(_('Sort'))
         sb.setIcon(QIcon.ic('sort.png'))
         sb.setMenu(QMenu(sb))
-        sb.menu().aboutToShow.connect(self.populate_sort_menu)
+        sb_menu = sb.menu()
+        assert sb_menu is not None
+        sb_menu.aboutToShow.connect(self.populate_sort_menu)
         sb.setVisible(False)
         l.addWidget(sb)
 
@@ -255,7 +262,9 @@ class SearchBar(QFrame):  # {{{
         gb.setText(_('Group by'))
         gb.setIcon(QIcon.ic('bookshelf.png'))
         gb.setMenu(QMenu(gb))
-        gb.menu().aboutToShow.connect(self.populate_group_by_menu)
+        gb_menu = gb.menu()
+        assert gb_menu is not None
+        gb_menu.aboutToShow.connect(self.populate_group_by_menu)
         gb.setVisible(False)
         l.addWidget(gb)
 

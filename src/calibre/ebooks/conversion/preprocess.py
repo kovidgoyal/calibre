@@ -490,6 +490,7 @@ class HTMLPreProcessor:
                 rules.insert(0, (search_re, replace_txt))
                 user_sr_rules[(search_re, replace_txt)] = search_pattern
             except Exception as e:
+                assert self.log is not None
                 self.log.error(f'Failed to parse {search!r} regexp because {as_unicode(e)}')
 
         # search / replace using the sr?_search / sr?_replace options
@@ -566,6 +567,7 @@ class HTMLPreProcessor:
                 html = rule[0].sub(rule[1], html)
             except Exception as e:
                 if rule in user_sr_rules:
+                    assert self.log is not None
                     self.log.error(
                         f'User supplied search & replace rule: {user_sr_rules[rule]} -> {rule[1]} '
                         f'failed with error: {e}, ignoring.')
@@ -574,6 +576,7 @@ class HTMLPreProcessor:
 
         if is_pdftohtml and length > -1:
             # Dehyphenate
+            assert self.extra_opts is not None
             dehyphenator = Dehyphenator(self.extra_opts.verbose, self.log)
             html = dehyphenator(html,'html', length)
 
@@ -615,6 +618,7 @@ class HTMLPreProcessor:
         if getattr(self.extra_opts, 'smarten_punctuation', False):
             html = smarten_punctuation(html, self.log)
 
+        assert self.extra_opts is not None
         try:
             unsupported_unicode_chars = self.extra_opts.output_profile.unsupported_unicode_chars
         except AttributeError:

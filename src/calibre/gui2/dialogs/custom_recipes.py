@@ -233,14 +233,20 @@ class RecipeList(QWidget):  # {{{
         l.addWidget(b)
 
         self.select_row()
-        v.selectionModel().currentRowChanged.connect(self.recipe_selected)
+        sel_model = v.selectionModel()
+        assert sel_model is not None
+        sel_model.currentRowChanged.connect(self.recipe_selected)
 
     def select_row(self, row=0):
         v = self.view
-        if v.model().rowCount() > 0:
-            idx = v.model().index(row)
+        m = v.model()
+        assert m is not None
+        if m.rowCount() > 0:
+            idx = m.index(row)
             if idx.isValid():
-                v.selectionModel().select(idx, QItemSelectionModel.SelectionFlag.ClearAndSelect)
+                sel_model = v.selectionModel()
+                assert sel_model is not None
+                sel_model.select(idx, QItemSelectionModel.SelectionFlag.ClearAndSelect)
                 v.setCurrentIndex(idx)
                 self.recipe_selected(idx)
 
@@ -443,7 +449,11 @@ class BasicRecipe(QWidget):  # {{{
     def recipe_source(self):
 
         title = self.title.text().strip()
-        feeds = [self.feeds.item(i).data(Qt.ItemDataRole.UserRole) for i in range(self.feeds.count())]
+        feeds = []
+        for i in range(self.feeds.count()):
+            feed_item = self.feeds.item(i)
+            assert feed_item is not None
+            feeds.append(feed_item.data(Qt.ItemDataRole.UserRole))
         return options_to_recipe_source(title, self.oldest_article.value(), self.max_articles.value(), feeds)
 
     @recipe_source.setter
@@ -508,7 +518,9 @@ class AdvancedRecipe(QWidget):  # {{{
 class ChooseBuiltinRecipeModel(QSortFilterProxyModel):
 
     def filterAcceptsRow(self, source_row, source_parent):
-        idx = self.sourceModel().index(source_row, 0, source_parent)
+        src_model = self.sourceModel()
+        assert src_model is not None
+        idx = src_model.index(source_row, 0, source_parent)
         urn = idx.data(Qt.ItemDataRole.UserRole)
         if not urn or urn in ('::category::0', '::category::1'):
             return False
@@ -621,6 +633,7 @@ class CustomRecipes(Dialog):
                 tooltip = _('Edit this recipe in advanced mode')
                 receiver = self.switch_to_advanced
                 b = bb.addButton(text, QDialogButtonBox.ButtonRole.ActionRole)
+                assert b is not None
                 b.setToolTip(tooltip)
                 b.clicked.connect(receiver)
 

@@ -259,7 +259,9 @@ def split_tag(cursor, opening_tag, closing_tag):
         open_text = select_tag(cursor, opening_tag)
         open_text = re.sub(r'''\bid\s*=\s*['"].*?['"]''', '', open_text)
         open_text = re.sub(r'\s+', ' ', open_text)
-        tag_name = re.search(r'<\s*(\S+)', open_text).group(1).lower()
+        m = re.search(r'<\s*(\S+)', open_text)
+        assert m is not None
+        tag_name = m.group(1).lower()
         is_block = tag_name in BLOCK_TAG_NAMES
         prefix = ''
         if is_block:

@@ -291,6 +291,7 @@ class Text(Element):
                 # and the font size is reduced.
                 # These need to be fixed manually.
                 m_self = re.match(r'^(.+em">)(.+)$', self.raw)
+                assert m_self is not None
                 self.raw = m_self.group(1) \
                   + '<span style="float:left"><span style="line-height:0.5">' \
                   + m_self.group(2) + '</span></span>'
@@ -796,6 +797,7 @@ class Page:
                     text.indented = 1
                     w = round(s * text.average_character_width/2.0)  # Spaces < avg width
                     matchObj = re.match(r'^\s*(<[^>]+>)?\s*(.*)$', text.raw)
+                    assert matchObj is not None
                     t1 = matchObj.group(1)
                     t2 = matchObj.group(2)
                     if t1 is None:
@@ -2035,6 +2037,8 @@ class PDFDocument:
             if merge_done:
                 # We now need to skip to the next page number
                 # The text has been appended to this page, so coalesce the paragraph
+                assert merged_page is not None
+                assert candidate is not None
                 left_margin = merged_page.stats_left_min
                 right_margin = merged_page.stats_right
                 candidate.texts[-1].coalesce(merged_text, candidate.number, left_margin, right_margin)
@@ -2071,6 +2075,7 @@ class PDFDocument:
                 for i, block in enumerate(region.boxes):
                     if merge_first_block:
                         merge_first_block = False
+                        assert last_block is not None
                         if not page_number_inserted:
                             last_block.append(page.number)
                             page_number_inserted = True

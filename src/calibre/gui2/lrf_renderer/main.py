@@ -35,7 +35,9 @@ class RenderWorker(QThread):
         try:
             self.lrf = LRFDocument(self.stream)
             self.lrf.parse()
-            self.stream.close()
+            stream = self.stream
+            assert stream is not None
+            stream.close()
             self.stream = None
             if self.aborted:
                 self.lrf = None
@@ -160,30 +162,34 @@ class Main(MainWindow, Ui_MainWindow):
         self.a0.search_done(True)
 
     def parsed(self):
-        if not self.renderer.aborted and self.renderer.lrf is not None:
-            width, height = self.renderer.lrf.device_info.width, \
-                                            self.renderer.lrf.device_info.height
+        renderer = self.renderer
+        assert renderer is not None
+        if not renderer.aborted and renderer.lrf is not None:
+            width, height = renderer.lrf.device_info.width, \
+                                            renderer.lrf.device_info.height
             hdelta = self.tool_bar.height()+3
 
             s = QScrollBar(self)
             scrollbar_adjust = min(s.width(), s.height())
             self.graphics_view.resize_for(width+scrollbar_adjust, height+scrollbar_adjust)
 
-            screen_height = self.screen().availableSize().height() - 25
+            screen = self.screen()
+            assert screen is not None
+            screen_height = screen.availableSize().height() - 25
             height = min(screen_height, height+hdelta+scrollbar_adjust)
             self.resize(width+scrollbar_adjust, height)
-            self.setWindowTitle(self.renderer.lrf.metadata.title + ' - ' + __appname__)
-            self.document_title = self.renderer.lrf.metadata.title
+            self.setWindowTitle(renderer.lrf.metadata.title + ' - ' + __appname__)
+            self.document_title = renderer.lrf.metadata.title
             if self.opts.profile:
                 import cProfile
-                lrf = self.renderer.lrf
+                lrf = renderer.lrf
                 cProfile.runctx('self.document.render(lrf)', globals(), locals(), lrf.metadata.title+'.stats')
-                print('Stats written to', self.renderer.lrf.metadata.title+'.stats')
+                print('Stats written to', renderer.lrf.metadata.title+'.stats')
             else:
                 start = time.time()
-                self.document.render(self.renderer.lrf)
+                self.document.render(renderer.lrf)
                 print('Layout time:', time.time()-start, 'seconds')
-            self.renderer.lrf = None
+            renderer.lrf = None
 
             self.graphics_view.setScene(self.document)
             self.graphics_view.show()
@@ -193,15 +199,15 @@ class Main(MainWindow, Ui_MainWindow):
             self.spin_box.updateGeometry()
             self.stack.setCurrentIndex(0)
             self.graphics_view.setFocus(Qt.FocusReason.OtherFocusReason)
-        elif self.renderer.exception is not None:
-            exception = self.renderer.exception
+        elif renderer.exception is not None:
+            exception = renderer.exception
             print('Error rendering document', file=sys.stderr)
             print(exception, file=sys.stderr)
-            print(self.renderer.formatted_traceback, file=sys.stderr)
+            print(renderer.formatted_traceback, file=sys.stderr)
             msg = f'<p><b>{exception.__class__.__name__}</b>: ' + as_unicode(exception) + '</p>'
             msg += '<p>Failed to render document</p>'
             msg += '<p>Detailed <b>traceback</b>:<pre>'
-            msg += self.renderer.formatted_traceback + '</pre>'
+            msg += renderer.formatted_traceback + '</pre>'
             d = ConversionErrorDialog(self, 'Error while rendering file', msg)
             d.exec()
 

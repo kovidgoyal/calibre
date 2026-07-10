@@ -28,7 +28,9 @@ class MobileReadStoreDialog(QDialog, Ui_Dialog):
 
         self._model = BooksModel(self.plugin.get_book_list())
         self.results_view.setModel(self._model)
-        self.total.setText('%s' % self.results_view.model().rowCount())
+        model = self.results_view.model()
+        assert model is not None
+        self.total.setText('%s' % model.rowCount())
 
         self.search_button.clicked.connect(self.do_search)
         self.adv_search_button.clicked.connect(self.build_adv_search)
@@ -55,31 +57,37 @@ class MobileReadStoreDialog(QDialog, Ui_Dialog):
             self.search_query.setText(adv.search_string())
 
     def restore_state(self):
+        model = self.results_view.model()
+        assert model is not None
         self.restore_geometry(self.plugin.config, 'dialog_geometry')
         results_cwidth = self.plugin.config.get('dialog_results_view_column_width')
         if results_cwidth:
             for i, x in enumerate(results_cwidth):
-                if i >= self.results_view.model().columnCount():
+                if i >= model.columnCount():
                     break
                 self.results_view.setColumnWidth(i, x)
         else:
-            for i in range(self.results_view.model().columnCount()):
+            for i in range(model.columnCount()):
                 self.results_view.resizeColumnToContents(i)
 
-        self.results_view.model().sort_col = self.plugin.config.get('dialog_sort_col', 0)
+        model.sort_col = self.plugin.config.get('dialog_sort_col', 0)
         try:
             so = Qt.SortOrder(self.plugin.config.get('dialog_sort_order', Qt.SortOrder.AscendingOrder))
         except Exception:
             so = Qt.SortOrder.AscendingOrder
-        self.results_view.model().sort_order = so
-        self.results_view.model().sort(self.results_view.model().sort_col, so)
-        self.results_view.header().setSortIndicator(self.results_view.model().sort_col, so)
+        model.sort_order = so
+        model.sort(model.sort_col, so)
+        header = self.results_view.header()
+        assert header is not None
+        header.setSortIndicator(model.sort_col, so)
 
     def save_state(self):
+        model = self.results_view.model()
+        assert model is not None
         self.save_geometry(self.plugin.config, 'dialog_geometry')
-        self.plugin.config['dialog_results_view_column_width'] = [self.results_view.columnWidth(i) for i in range(self.results_view.model().columnCount())]
-        self.plugin.config['dialog_sort_col'] = self.results_view.model().sort_col
-        self.plugin.config['dialog_sort_order'] = self.results_view.model().sort_order
+        self.plugin.config['dialog_results_view_column_width'] = [self.results_view.columnWidth(i) for i in range(model.columnCount())]
+        self.plugin.config['dialog_sort_col'] = model.sort_col
+        self.plugin.config['dialog_sort_order'] = model.sort_order
 
     def dialog_closed(self, result):
         self.save_state()

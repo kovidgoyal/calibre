@@ -284,11 +284,15 @@ class FileList(QTreeWidget, OpenWithHandler):
         self.setTextElideMode(Qt.TextElideMode.ElideMiddle)
         self.setItemDelegate(self.delegate)
         self.setIconSize(QSize(16, 16))
-        self.header().close()
+        header = self.header()
+        assert header is not None
+        header.close()
         self.setDragEnabled(True)
         self.setEditTriggers(QAbstractItemView.EditTrigger.EditKeyPressed)
         self.setSelectionMode(QAbstractItemView.SelectionMode.ExtendedSelection)
-        self.viewport().setAcceptDrops(True)
+        viewport = self.viewport()
+        assert viewport is not None
+        viewport.setAcceptDrops(True)
         self.setDropIndicatorShown(True)
         self.setDragDropMode(QAbstractItemView.DragDropMode.InternalMove)
         self.setAutoScroll(True)
@@ -319,6 +323,7 @@ class FileList(QTreeWidget, OpenWithHandler):
             self.pending_renames[old] = new
             QTimer.singleShot(10, self.dispatch_pending_renames)
             item = self.itemFromIndex(index)
+            assert item is not None
             item.setData(0, TEMP_NAME_ROLE, item.text(0))
             item.setText(0, new)
 
@@ -354,6 +359,7 @@ class FileList(QTreeWidget, OpenWithHandler):
 
     def mimeData(self, items):
         ans = QTreeWidget.mimeData(self, items)
+        assert ans is not None
         names = (idx.data(0, NAME_ROLE) for idx in items if idx.data(0, MIME_ROLE))
         ans.setData(CONTAINER_DND_MIMETYPE, '\n'.join(filter(None, names)).encode('utf-8'))
         return ans
@@ -426,7 +432,9 @@ class FileList(QTreeWidget, OpenWithHandler):
         return ''
 
     def get_state(self):
-        s = {'pos':self.verticalScrollBar().value()}
+        vsb = self.verticalScrollBar()
+        assert vsb is not None
+        s = {'pos':vsb.value()}
         s['expanded'] = {c for c, item in self.categories.items() if item.isExpanded()}
         s['selected'] = {str(i.data(0, NAME_ROLE) or '') for i in self.selectedItems()}
         return s
@@ -434,7 +442,9 @@ class FileList(QTreeWidget, OpenWithHandler):
     def set_state(self, state):
         for category, item in self.categories.items():
             item.setExpanded(category in state['expanded'])
-        self.verticalScrollBar().setValue(state['pos'])
+        vsb = self.verticalScrollBar()
+        assert vsb is not None
+        vsb.setValue(state['pos'])
         for parent in self.categories.values():
             for c in (parent.child(i) for i in range(parent.childCount())):
                 name = str(c.data(0, NAME_ROLE) or '')
@@ -464,6 +474,7 @@ class FileList(QTreeWidget, OpenWithHandler):
             if q == current_name:
                 self.scrollToItem(c)
                 s = self.selectionModel()
+                assert s is not None
                 s.setCurrentIndex(self.indexFromItem(c), QItemSelectionModel.SelectionFlag.NoUpdate)
 
     def mark_name_as_current(self, name):
@@ -496,6 +507,7 @@ class FileList(QTreeWidget, OpenWithHandler):
             state = self.get_state()
         self.clear()
         self.root = self.invisibleRootItem()
+        assert self.root is not None
         self.root.setFlags(Qt.ItemFlag.ItemIsDragEnabled)
         self.categories = {}
         for category, text, __ in category_defs():
@@ -751,7 +763,10 @@ class FileList(QTreeWidget, OpenWithHandler):
                 '&Copy the selected file to another editor instance',
                 '&Copy the {} selected files to another editor instance', num).format(num), self.copy_selected_files)
             m.addSeparator()
-        md = qapplication_or_fail().clipboard().mimeData()
+        _cb = qapplication_or_fail().clipboard()
+        assert _cb is not None
+        md = _cb.mimeData()
+        assert md is not None
         if md.hasUrls() and md.hasFormat(FILE_COPY_MIME):
             import json
             name_map = json.loads(bytes(md.data(FILE_COPY_MIME)))
@@ -925,8 +940,13 @@ class FileList(QTreeWidget, OpenWithHandler):
     @property
     def selected_names_in_order(self):
         root = self.invisibleRootItem()
-        for category_item in (root.child(i) for i in range(root.childCount())):
-            for child in (category_item.child(i) for i in range(category_item.childCount())):
+        assert root is not None
+        for i in range(root.childCount()):
+            category_item = root.child(i)
+            assert category_item is not None
+            for j in range(category_item.childCount()):
+                child = category_item.child(j)
+                assert child is not None
                 if child.isSelected():
                     name = child.data(0, NAME_ROLE)
                     if name:
@@ -1002,6 +1022,7 @@ class FileList(QTreeWidget, OpenWithHandler):
         # is at the bottom and the delete happens to cause the scrollbar to
         # update
         b = self.verticalScrollBar()
+        assert b is not None
         if b.value() == b.maximum():
             b.setValue(b.minimum())
             QTimer.singleShot(0, lambda: b.setValue(b.maximum()))
@@ -1156,7 +1177,12 @@ class FileList(QTreeWidget, OpenWithHandler):
         l.addWidget(bb)
         if d.exec() == QDialog.DialogCode.Accepted:
             tprefs['remove_existing_links_when_linking_sheets'] = r.isChecked()
-            sheets = [str(s.item(il).text()) for il in range(s.count()) if s.item(il).checkState() == Qt.CheckState.Checked]
+            sheets = []
+            for il in range(s.count()):
+                item_il = s.item(il)
+                assert item_il is not None
+                if item_il.checkState() == Qt.CheckState.Checked:
+                    sheets.append(str(item_il.text()))
             if sheets:
                 self.link_stylesheets_requested.emit(names, sheets, r.isChecked())
 
@@ -1187,6 +1213,7 @@ class NewFileDialog(QDialog):  # {{{
         bb.accepted.connect(self.accept)
         bb.rejected.connect(self.reject)
         self.imp_button = b = bb.addButton(_('Import resource file (image/font/etc.)'), QDialogButtonBox.ButtonRole.ActionRole)
+        assert b is not None
         b.setIcon(QIcon.ic('view-image.png'))
         b.setToolTip(_('Import a file from your computer as a new'
                        ' file into the book.'))
@@ -1218,14 +1245,18 @@ class NewFileDialog(QDialog):  # {{{
         self.name.setText(name)
         self.la.setText(_('Choose a name for the imported file'))
         if hide_button:
-            self.imp_button.setVisible(False)
+            imp_button = self.imp_button
+            assert imp_button is not None
+            imp_button.setVisible(False)
 
     @property
     def name_is_ok(self):
         return name_is_ok(str(self.name.text()), self.show_error)
 
     def update_ok(self, *args):
-        self.ok_button.setEnabled(self.name_is_ok)
+        ok_button = self.ok_button
+        assert ok_button is not None
+        ok_button.setEnabled(self.name_is_ok)
 
     def accept(self):
         if not self.name_is_ok:
@@ -1296,8 +1327,10 @@ class FileListWidget(QWidget):
         QWidget.__init__(self, parent)
         self.setLayout(QGridLayout(self))
         self.file_list = FileList(self)
-        self.layout().addWidget(self.file_list)
-        self.layout().setContentsMargins(0, 0, 0, 0)
+        layout = self.layout()
+        assert layout is not None
+        layout.addWidget(self.file_list)
+        layout.setContentsMargins(0, 0, 0, 0)
         self.forwarded_signals = {k for k, o in vars(self.file_list.__class__).items() if isinstance(o, pyqtSignal) and '_' in k and not hasattr(self, k)}
         for x in ('delete_done', 'select_name', 'select_names', 'request_edit', 'mark_name_as_current', 'clear_currently_edited_name'):
             setattr(self, x, getattr(self.file_list, x))

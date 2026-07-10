@@ -148,10 +148,12 @@ class UpdateNotification(QDialog):
         self.cb.stateChanged.connect(self.show_future)
         self.bb = QDialogButtonBox(self)
         b = self.bb.addButton(_('&Get update'), QDialogButtonBox.ButtonRole.AcceptRole)
+        assert b is not None
         b.setDefault(True)
         b.setIcon(QIcon.ic('arrow-down.png'))
         if plugin_updates > 0:
             b = self.bb.addButton(_('Update &plugins'), QDialogButtonBox.ButtonRole.ActionRole)
+            assert b is not None
             b.setIcon(QIcon.ic('plugins/plugin_updater.png'))
             b.clicked.connect(self.get_plugins, type=Qt.ConnectionType.QueuedConnection)
         self.bb.addButton(QDialogButtonBox.StandardButton.Cancel)

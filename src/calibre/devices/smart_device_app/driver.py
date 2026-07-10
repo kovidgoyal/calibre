@@ -163,6 +163,7 @@ class ConnectionListener(Thread):
                         pass
                     except OSError:
                         x = sys.exc_info()[1]
+                        assert x is not None
                         self.driver._debug('unexpected socket exception', x.args[0])
                         self._close_socket(device_socket)
                         device_socket = None
@@ -570,7 +571,9 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
 
     def _read_binary_from_net(self, length):
         try:
-            v = self.device_socket.recv(length)
+            device_socket = self.device_socket
+            assert device_socket is not None
+            v = device_socket.recv(length)
             return v
         except Exception:
             self._close_device_socket()
@@ -1198,7 +1201,9 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                     # the device.
                     raise OpenFailed('')
             try:
-                peer = self.device_socket.getpeername()[0]
+                device_socket = self.device_socket
+                assert device_socket is not None
+                peer = device_socket.getpeername()[0]
                 self.connection_attempts[peer] = 0
             except Exception:
                 pass
@@ -1208,6 +1213,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             self._close_device_socket()
         except OSError:
             x = sys.exc_info()[1]
+            assert x is not None
             self._debug('unexpected socket exception', x.args[0])
             self._close_device_socket()
             raise

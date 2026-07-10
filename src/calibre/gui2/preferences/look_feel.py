@@ -18,7 +18,9 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.gui = gui
 
         self.tabWidget.setCurrentIndex(0)
-        self.tabWidget.tabBar().setVisible(False)
+        tab_bar = self.tabWidget.tabBar()
+        assert tab_bar is not None
+        tab_bar.setVisible(False)
         keys = [QKeySequence('F11', QKeySequence.SequenceFormat.PortableText), QKeySequence(
             'Ctrl+Shift+F', QKeySequence.SequenceFormat.PortableText)]
         keys = [str(x.toString(QKeySequence.SequenceFormat.NativeText)) for x in keys]

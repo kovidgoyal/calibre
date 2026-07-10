@@ -555,10 +555,13 @@ class EditSnippet(QWidget):
         ftypes = snip.get('syntaxes', ())
         for i in range(self.types.count()):
             i = self.types.item(i)
+            assert i is not None
             ftype = i.data(Qt.ItemDataRole.UserRole)
             i.setCheckState(Qt.CheckState.Checked if ftype in ftypes else Qt.CheckState.Unchecked)
         if self.creating_snippet and not ftypes:
-            self.types.item(0).setCheckState(Qt.CheckState.Checked)
+            _first_type_item = self.types.item(0)
+            assert _first_type_item is not None
+            _first_type_item.setCheckState(Qt.CheckState.Checked)
         (self.name if self.creating_snippet else self.template).setFocus(Qt.FocusReason.OtherFocusReason)
 
     @property
@@ -566,6 +569,7 @@ class EditSnippet(QWidget):
         ftypes = []
         for i in range(self.types.count()):
             i = self.types.item(i)
+            assert i is not None
             if i.checkState() == Qt.CheckState.Checked:
                 ftypes.append(i.data(Qt.ItemDataRole.UserRole))
         return {'description':self.name.text().strip(), 'trigger':self.trig.text(), 'template':self.template.toPlainText(), 'syntaxes':ftypes}
@@ -671,6 +675,7 @@ class UserSnippets(Dialog):
                     item = self.snip_to_item(self.edit_snip.snip)
                 else:
                     item = self.snip_list.currentItem()
+                    assert item is not None
                     snip = self.edit_snip.snip
                     item.setText(self.snip_to_text(snip))
                     item.setData(Qt.ItemDataRole.UserRole, snip)
@@ -679,7 +684,12 @@ class UserSnippets(Dialog):
             else:
                 error_dialog(self, _('Invalid snippet'), err, show=True)
             return
-        user_snippets['snippets'] = [self.snip_list.item(i).data(Qt.ItemDataRole.UserRole) for i in range(self.snip_list.count())]
+        _snippets_data = []
+        for i in range(self.snip_list.count()):
+            _snip_item = self.snip_list.item(i)
+            assert _snip_item is not None
+            _snippets_data.append(_snip_item.data(Qt.ItemDataRole.UserRole))
+        user_snippets['snippets'] = _snippets_data
         snippets(refresh=True)
         return Dialog.accept(self)
 
@@ -735,7 +745,9 @@ class UserSnippets(Dialog):
         bb.accepted.connect(d.accept), bb.rejected.connect(d.reject)
         if d.exec() == QDialog.DialogCode.Accepted and lw.currentItem() is not None:
             self.stack.setCurrentIndex(1)
-            self.edit_snip.apply_snip(lw.currentItem().data(Qt.ItemDataRole.UserRole), creating_snippet=True)
+            _lw_current_item = lw.currentItem()
+            assert _lw_current_item is not None
+            self.edit_snip.apply_snip(_lw_current_item.data(Qt.ItemDataRole.UserRole), creating_snippet=True)
 # }}}
 
 

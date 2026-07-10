@@ -282,10 +282,12 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
                    file=sys.stderr, flush=True)
         self.system_tray_menu = QMenu(self)
         self.toggle_to_tray_action = self.system_tray_menu.addAction(QIcon.ic('page.png'), '')
+        assert self.toggle_to_tray_action is not None
         self.toggle_to_tray_action.triggered.connect(self.system_tray_icon_activated)
         self.system_tray_menu.addAction(self.donate_action)
         self.eject_action = self.system_tray_menu.addAction(
                 QIcon.ic('eject.png'), _('&Eject connected device'))
+        assert self.eject_action is not None
         self.eject_action.setEnabled(False)
         self.addAction(self.quit_action)
         self.system_tray_menu.addAction(self.iactions['Restart'].menuless_qaction)
@@ -346,7 +348,9 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         self.location_manager.unmount_device.connect(self.device_manager.umount_device)
         self.location_manager.configure_device.connect(self.configure_connected_device)
         self.location_manager.update_device_metadata.connect(self.update_metadata_on_device)
-        self.eject_action.triggered.connect(self.device_manager.umount_device)
+        eject_action = self.eject_action
+        assert eject_action is not None
+        eject_action.triggered.connect(self.device_manager.umount_device)
 
         # ################### Update notification ###################
         UpdateMixin.init_update_mixin(self, opts)
@@ -607,7 +611,9 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
 
     def update_toggle_to_tray_action(self, *args):
         if hasattr(self, 'toggle_to_tray_action'):
-            self.toggle_to_tray_action.setText(
+            toggle_to_tray_action = self.toggle_to_tray_action
+            assert toggle_to_tray_action is not None
+            toggle_to_tray_action.setText(
                 _('Hide main window') if self.isVisible() else _('Show main window'))
 
     def hide_windows(self):

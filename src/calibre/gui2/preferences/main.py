@@ -176,6 +176,7 @@ class Category(QWidget):  # {{{
             sc = iac.action_map.get(p.name).shortcut().toString(QKeySequence.SequenceFormat.NativeText)
             target = partial(self.triggered, p)
             ac = self.bar.addAction(QIcon.ic(p.icon), p.gui_name.replace('&', '&&'), target)
+            assert ac is not None
             tt = '<p>' + p.description
             if sc:
                 tt += '<br>' + _('Shortcut: <i>{}').format(sc)
@@ -184,6 +185,7 @@ class Category(QWidget):  # {{{
             ac.setStatusTip(p.description)
             self.actions.append(ac)
             w = self.bar.widgetForAction(ac)
+            assert w is not None
             w.setText(wrap_preference_button_text(p.gui_name.replace('&', '&&')))
             w.setCursor(Qt.CursorShape.PointingHandCursor)
             if hasattr(w, 'setAutoRaise'):
@@ -273,7 +275,9 @@ class Preferences(QDialog):
             QDialogButtonBox.StandardButton.Close | QDialogButtonBox.StandardButton.Apply |
             QDialogButtonBox.StandardButton.Cancel
         )
-        self.bb.button(QDialogButtonBox.StandardButton.Apply).clicked.connect(self.accept)
+        apply_button = self.bb.button(QDialogButtonBox.StandardButton.Apply)
+        assert apply_button is not None
+        apply_button.clicked.connect(self.accept)
         self.wizard_button = QPushButton(QIcon.ic('wizard.png'), _('Run Welcome &wizard'))
         self.wizard_button.clicked.connect(self.run_wizard, type=Qt.ConnectionType.QueuedConnection)
         self.wizard_button.setAutoDefault(False)
@@ -293,7 +297,9 @@ class Preferences(QDialog):
         self.title_bar = TitleBar(self)
         for ac, tt in [(QDialogButtonBox.StandardButton.Apply, _('Save changes')),
                 (QDialogButtonBox.StandardButton.Cancel, _('Cancel and return to overview'))]:
-            self.bb.button(ac).setToolTip(tt)
+            btn = self.bb.button(ac)
+            assert btn is not None
+            btn.setToolTip(tt)
 
         l.addWidget(self.title_bar), l.addWidget(self.stack)
         h = self.button_bar_layout = QHBoxLayout()
@@ -332,7 +338,9 @@ class Preferences(QDialog):
         height = self.title_bar.sizeHint().height() + browser_size.height() + self.button_bar_layout.sizeHint().height() + frame + 2 * spacing
         width += margins.left() + margins.right() + PREFERENCES_OVERVIEW_PADDING
         height += margins.top() + margins.bottom() + PREFERENCES_OVERVIEW_PADDING
-        available = self.screen().availableGeometry().size()
+        screen = self.screen()
+        assert screen is not None
+        available = screen.availableGeometry().size()
         max_width = max(640, available.width() - PREFERENCES_SCREEN_MARGIN)
         max_height = max(480, available.height() - PREFERENCES_SCREEN_MARGIN)
         calculated = QSize(min(width, max_width), min(height, max_height))
@@ -389,14 +397,19 @@ class Preferences(QDialog):
         self.title_bar.show_plugin(plugin)
         self.setWindowIcon(QIcon.ic(plugin.icon))
 
-        self.bb.button(QDialogButtonBox.StandardButton.Close).setVisible(False)
+        close_btn = self.bb.button(QDialogButtonBox.StandardButton.Close)
+        assert close_btn is not None
+        close_btn.setVisible(False)
         self.wizard_button.setVisible(False)
         for button in (QDialogButtonBox.StandardButton.Apply, QDialogButtonBox.StandardButton.Cancel):
             button = self.bb.button(button)
+            assert button is not None
             button.setVisible(True)
 
-        self.bb.button(QDialogButtonBox.StandardButton.Apply).setEnabled(False)
-        self.bb.button(QDialogButtonBox.StandardButton.Apply).setDefault(False), self.bb.button(QDialogButtonBox.StandardButton.Apply).setDefault(True)
+        apply_btn = self.bb.button(QDialogButtonBox.StandardButton.Apply)
+        assert apply_btn is not None
+        apply_btn.setEnabled(False)
+        apply_btn.setDefault(False), apply_btn.setDefault(True)
         self.restore_defaults_button.setEnabled(self.showing_widget.supports_restoring_to_defaults)
         self.restore_defaults_button.setVisible(self.showing_widget.supports_restoring_to_defaults)
         self.restore_defaults_button.setToolTip(
@@ -408,6 +421,7 @@ class Preferences(QDialog):
 
     def changed_signal(self):
         b = self.bb.button(QDialogButtonBox.StandardButton.Apply)
+        assert b is not None
         b.setEnabled(True)
 
     def hide_plugin(self):
@@ -425,11 +439,14 @@ class Preferences(QDialog):
 
         for button in (QDialogButtonBox.StandardButton.Apply, QDialogButtonBox.StandardButton.Cancel):
             button = self.bb.button(button)
+            assert button is not None
             button.setVisible(False)
         self.restore_defaults_button.setVisible(False)
 
-        self.bb.button(QDialogButtonBox.StandardButton.Close).setVisible(True)
-        self.bb.button(QDialogButtonBox.StandardButton.Close).setDefault(False), self.bb.button(QDialogButtonBox.StandardButton.Close).setDefault(True)
+        close_button = self.bb.button(QDialogButtonBox.StandardButton.Close)
+        assert close_button is not None
+        close_button.setVisible(True)
+        close_button.setDefault(False), close_button.setDefault(True)
         self.wizard_button.setVisible(True)
 
     def restart_now(self):

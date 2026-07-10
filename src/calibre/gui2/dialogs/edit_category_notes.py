@@ -228,14 +228,18 @@ class NoteEditorWidget(EditorWidget):
         return f'{alg}:{digest}'
 
     def get_resource(self, digest):
-        ir = self.images.get(digest)
+        images = self.images
+        assert images is not None
+        ir = images.get(digest)
         if ir is not None:
             if ir.data:
                 return {'name': ir.name, 'data': ir.data}
             elif ir.path:
                 with open(ir.path, 'rb') as f:
                     return {'name': ir.name, 'data': f.read()}
-        return self.db.get_notes_resource(digest)
+        db = self.db
+        assert db is not None
+        return db.get_notes_resource(digest)
 
     def add_resource(self, path_or_data, name):
         if isinstance(path_or_data, str):
@@ -256,7 +260,9 @@ class NoteEditorWidget(EditorWidget):
         ans = self.get_resource(digest)
         if ans is not None:
             r = QByteArray(ans['data'])
-            self.document().addResource(type, name, r)  # cache the resource
+            doc = self.document()
+            assert doc is not None
+            doc.addResource(type, name, r)  # cache the resource
             return r
 
     def commit_downloaded_image(self, data, suggested_filename):
@@ -271,7 +277,9 @@ class NoteEditorWidget(EditorWidget):
     def get_html_callback(self, root, text):
         self.searchable_text = text.replace(OBJECT_REPLACEMENT_CHAR, '')
         self.referenced_resources = set()
-        for fmt in self.document().allFormats():
+        doc = self.document()
+        assert doc is not None
+        for fmt in doc.allFormats():
             if fmt.isImageFormat():
                 name = QUrl(fmt.toImageFormat().name())
                 if name.scheme() == RESOURCE_URL_SCHEME:
@@ -368,8 +376,12 @@ class EditNoteDialog(Dialog):
         self.l = l = QVBoxLayout(self)
         self.edit_note_widget = EditNoteWidget(self.db, self.field, self.item_id, self.item_val, self)
         l.addWidget(self.edit_note_widget)
-        self.bb.addButton(_('E&xport'), QDialogButtonBox.ButtonRole.ActionRole).clicked.connect(self.export_note)
-        self.bb.addButton(_('&Import'), QDialogButtonBox.ButtonRole.ActionRole).clicked.connect(self.import_note)
+        export_btn = self.bb.addButton(_('E&xport'), QDialogButtonBox.ButtonRole.ActionRole)
+        assert export_btn is not None
+        export_btn.clicked.connect(self.export_note)
+        import_btn = self.bb.addButton(_('&Import'), QDialogButtonBox.ButtonRole.ActionRole)
+        assert import_btn is not None
+        import_btn.clicked.connect(self.import_note)
 
         l.addWidget(self.bb)
 

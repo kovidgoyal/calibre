@@ -308,7 +308,9 @@ def normal(state, text, i, formats, user_data):
     if ch == '>':
         return [(1, formats['>'])]
 
-    t = normal_pat.search(text, i).group()
+    nm = normal_pat.search(text, i)
+    assert nm is not None
+    t = nm.group()
     return process_text(state, t, formats['nbsp'], formats['spell'], user_data)
 
 

@@ -138,7 +138,9 @@ class ImageView(QDialog):
         self.maximized_at_last_fullscreen = False
         self.setWindowFlag(Qt.WindowType.WindowMinimizeButtonHint)
         self.setWindowFlag(Qt.WindowType.WindowMaximizeButtonHint)
-        self.avail_geom = self.screen().availableGeometry()
+        screen = self.screen()
+        assert screen is not None
+        self.avail_geom = screen.availableGeometry()
         self.current_img = current_img
         self.current_url = current_url
         self.transformed = False
@@ -185,6 +187,12 @@ class ImageView(QDialog):
         self.copy_button = co = bb.addButton(self.copy_action.text(), QDialogButtonBox.ButtonRole.ActionRole)
         self.rotate_button = ro = bb.addButton(self.rotate_action.text(), QDialogButtonBox.ButtonRole.ActionRole)
         self.fullscreen_button = fo = bb.addButton(_('F&ull screen'), QDialogButtonBox.ButtonRole.ActionRole)
+        assert zi is not None
+        assert zo is not None
+        assert so is not None
+        assert co is not None
+        assert ro is not None
+        assert fo is not None
         zi.setIcon(self.zoom_in_action.icon())
         zo.setIcon(self.zoom_out_action.icon())
         so.setIcon(QIcon.ic('save.png'))
@@ -260,7 +268,11 @@ class ImageView(QDialog):
         return 1.0
 
     def zoom_requested(self, zoom_out):
-        if (zoom_out and self.zo_button.isEnabled()) or (not zoom_out and self.zi_button.isEnabled()):
+        zo_button = self.zo_button
+        assert zo_button is not None
+        zi_button = self.zi_button
+        assert zi_button is not None
+        if (zoom_out and zo_button.isEnabled()) or (not zoom_out and zi_button.isEnabled()):
             (self.zoom_out if zoom_out else self.zoom_in)()
 
     def reset_zoom(self):
@@ -302,7 +314,9 @@ class ImageView(QDialog):
 
     def copy_image(self):
         if self.current_img and not self.current_img.isNull():
-            qapplication_or_fail().clipboard().setPixmap(self.current_img)
+            clipboard = qapplication_or_fail().clipboard()
+            assert clipboard is not None
+            clipboard.setPixmap(self.current_img)
 
     def fit_changed(self):
         fitted = bool(self.fit_image.isChecked())
@@ -327,16 +341,21 @@ class ImageView(QDialog):
             self.set_to_viewport_size()
             return
         self.label.resize(self.factor * self.current_img.size())
-        self.zi_button.setEnabled(self.factor <= 3)
-        self.zo_button.setEnabled(self.factor >= 0.3333)
-        self.zoom_in_action.setEnabled(self.zi_button.isEnabled())
-        self.zoom_out_action.setEnabled(self.zo_button.isEnabled())
+        zi_button = self.zi_button
+        assert zi_button is not None
+        zo_button = self.zo_button
+        assert zo_button is not None
+        zi_button.setEnabled(self.factor <= 3)
+        zo_button.setEnabled(self.factor >= 0.3333)
+        self.zoom_in_action.setEnabled(zi_button.isEnabled())
+        self.zoom_out_action.setEnabled(zo_button.isEnabled())
         self.reset_zoom_action.setEnabled(self.factor != 1)
         self.adjust_scrollbars(factor)
 
     def adjust_scrollbars(self, factor):
         for sb in (self.scrollarea.horizontalScrollBar(),
                 self.scrollarea.verticalScrollBar()):
+            assert sb is not None
             sb.setValue(int(factor*sb.value()) + int((factor - 1) * sb.pageStep()/2))
 
     def rotate_image(self):

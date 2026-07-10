@@ -119,7 +119,9 @@ class TagCategories(QDialog, Ui_TagCategories):
 
     def copy_category_name_to_clipboard_clicked(self):
         t = self.category_box.itemText(self.category_box.currentIndex())
-        QApplication.clipboard().setText(t)
+        cb = QApplication.clipboard()
+        assert cb is not None
+        cb.setText(t)
 
     def item_tuple(self, key, val):
         return self.ItemTuple(val, key)

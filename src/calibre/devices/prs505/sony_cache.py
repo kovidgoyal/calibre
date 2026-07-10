@@ -429,11 +429,12 @@ class XMLCache:
                     book.device_collections = []
                 book.device_collections = playlist_map.get(book.lpath, [])
 
-                if created and ext_root is not None and \
-                        ext_lpath_map.get(book.lpath, None) is None:
-                    ext_record = self.create_ext_text_record(ext_root, i,
-                            book.lpath, book.thumbnail)
-                    self.periodicalize_book(book, ext_record)
+                if created and ext_root is not None:
+                    assert ext_lpath_map is not None
+                    if ext_lpath_map.get(book.lpath, None) is None:
+                        ext_record = self.create_ext_text_record(ext_root, i,
+                                book.lpath, book.thumbnail)
+                        self.periodicalize_book(book, ext_record)
 
             debug_print(f'Timezone votes: {gtz_count} GMT, {ltz_count} LTZ, use_tz_var={use_tz_var}')
             self.update_playlists(i, root, booklist, collections_attributes)

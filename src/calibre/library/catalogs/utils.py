@@ -94,6 +94,7 @@ class NumberToText:  # {{{
             if self.verbose:
                 self.log(f'Ordinal: {ordinal_number}')
             self.number_as_float = ordinal_number
+            assert ordinal_suffix is not None
             self.suffix = self.number[ordinal_suffix.start():]
             if int(ordinal_number) > 9:
                 # Some typos (e.g., 'twentyth'), acceptable
@@ -154,8 +155,12 @@ class NumberToText:  # {{{
             if self.verbose:
                 self.log(f'Hybrid: {self.number}')
             # Split the token into number/text
-            number_position = re.search(r'\d',self.number).start()
-            text_position = re.search(r'\D',self.number).start()
+            _num_m = re.search(r'\d', self.number)
+            assert _num_m is not None
+            number_position = _num_m.start()
+            _txt_m = re.search(r'\D', self.number)
+            assert _txt_m is not None
+            text_position = _txt_m.start()
             if number_position < text_position:
                 number = self.number[:text_position]
                 text = self.number[text_position:]

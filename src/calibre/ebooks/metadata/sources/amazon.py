@@ -666,6 +666,7 @@ class Worker(Thread):  # Get details {{{
         def parse_ratings_text(text):
             try:
                 m = self.ratings_pat.match(text)
+                assert m is not None
                 return float(m.group(1).replace(',', '.')) / float(m.group(3)) * 5
             except Exception:
                 pass

@@ -340,17 +340,21 @@ class Editor(QMainWindow):
 
     def create_toolbars(self):
         self.action_bar = b = self.addToolBar(_('Edit actions tool bar'))
+        assert b is not None
         b.setObjectName('action_bar')  # Needed for saveState
         self.tools_bar = b = self.addToolBar(_('Editor tools'))
+        assert b is not None
         b.setObjectName('tools_bar')
         self.bars = [self.action_bar, self.tools_bar]
         if self.syntax == 'html':
             self.format_bar = b = self.addToolBar(_('Format text'))
+            assert b is not None
             b.setObjectName('html_format_bar')
             self.bars.append(self.format_bar)
         self.insert_tag_menu = QMenu(self)
         self.populate_toolbars()
         for x in self.bars:
+            assert x is not None
             x.setFloatable(False)
             x.topLevelChanged.connect(self.toolbar_floated)
             x.setIconSize(QSize(tprefs['toolbar_icon_size'], tprefs['toolbar_icon_size']))
@@ -364,6 +368,7 @@ class Editor(QMainWindow):
 
     def save_state(self):
         for bar in self.bars:
+            assert bar is not None
             if bar.isFloating():
                 return
         tprefs[f'{self.syntax}-editor-state'] = bytearray(self.saveState())
@@ -373,9 +378,12 @@ class Editor(QMainWindow):
         if state is not None:
             self.restoreState(state)
         for bar in self.bars:
+            assert bar is not None
             bar.setVisible(len(bar.actions()) > 0)
 
     def populate_toolbars(self):
+        assert self.action_bar is not None
+        assert self.tools_bar is not None
         self.action_bar.clear(), self.tools_bar.clear()
 
         def add_action(name, bar):
@@ -417,6 +425,7 @@ class Editor(QMainWindow):
             add_action(name, self.tools_bar)
 
         if self.syntax == 'html':
+            assert self.format_bar is not None
             self.format_bar.clear()
             for name in tprefs['editor_format_toolbar']:
                 add_action(name, self.format_bar)
@@ -548,6 +557,7 @@ class Editor(QMainWindow):
                 if suggestions:
                     for suggestion in suggestions:
                         ac = m.addAction(suggestion, partial(self.editor.simple_replace, suggestion, cursor=spell_cursor))
+                        assert ac is not None
                         f = ac.font()
                         f.setBold(True), ac.setFont(f)
                     m.addSeparator()
@@ -560,6 +570,7 @@ class Editor(QMainWindow):
                             self._nuke_word, dics[0].name, word, locale))
                     else:
                         ac = m.addAction(_('Add this word to the dictionary'))
+                        assert ac is not None
                         dmenu = QMenu(m)
                         ac.setMenu(dmenu)
                         for dic in sorted(dics, key=lambda x: primary_sort_key(x.name)):
@@ -604,7 +615,9 @@ class Editor(QMainWindow):
             m.addMenu(cm)
         if self.syntax == 'html':
             m.addAction(actions['multisplit'])
-        m.exec(self.editor.viewport().mapToGlobal(pos))
+        viewport = self.editor.viewport()
+        assert viewport is not None
+        m.exec(viewport.mapToGlobal(pos))
 
     def goto_sourceline(self, *args, **kwargs):
         return self.editor.goto_sourceline(*args, **kwargs)

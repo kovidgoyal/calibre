@@ -224,7 +224,9 @@ class CheckpointView(QWidget):
     def data_changed(self, *args):
         self.view.clearSelection()
         m = self.view.model()
+        assert m is not None
         sm = self.view.selectionModel()
+        assert sm is not None
         sm.select(m.index(m.pos), QItemSelectionModel.SelectionFlag.ClearAndSelect)
         self.view.setCurrentIndex(m.index(m.pos))
 

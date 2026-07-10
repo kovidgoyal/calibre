@@ -355,7 +355,9 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
     def __init__(self, parent=None):
         QTextEdit.__init__(self, parent)
         self.setTabChangesFocus(True)
-        self.document().setDefaultStyleSheet(resolved_css() + '\n\nli { margin-top: 0.5ex; margin-bottom: 0.5ex; }')
+        doc = self.document()
+        assert doc is not None
+        doc.setDefaultStyleSheet(resolved_css() + '\n\nli { margin-top: 0.5ex; margin-bottom: 0.5ex; }')
         font = self.font()
         f = QFontInfo(font)
         delta = tweaks['change_book_details_font_size_by'] + 1
@@ -621,13 +623,15 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
 
     def do_paste(self):
         images_before = set()
-        for fmt in self.document().allFormats():
+        doc = self.document()
+        assert doc is not None
+        for fmt in doc.allFormats():
             if fmt.isImageFormat():
                 images_before.add(fmt.toImageFormat().name())
         self.paste()
         if self.can_store_images:
             added = set()
-            for fmt in self.document().allFormats():
+            for fmt in doc.allFormats():
                 if fmt.isImageFormat():
                     name = fmt.toImageFormat().name()
                     if name not in images_before and name.partition(':')[0] in ('https', 'http'):
@@ -642,6 +646,7 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
         from calibre.web import get_download_filename_from_response
         br = browser()
         d = self.document()
+        assert d is not None
         c = self.textCursor()
         c.setPosition(0)
         pos_map = {}
@@ -702,7 +707,9 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
                 'Some images could not be downloaded, click "Show details" to see which ones'), det_msg=m, show=True)
 
     def do_paste_and_match_style(self):
-        text = qapplication_or_fail().clipboard().text()
+        clipboard = qapplication_or_fail().clipboard()
+        assert clipboard is not None
+        text = clipboard.text()
         if text:
             self.setText(text)
 
@@ -1000,7 +1007,9 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
                                 '426082')
             if data is not None:
                 r = QByteArray(data)
-                self.document().addResource(type, name, r)
+                doc = self.document()
+                assert doc is not None
+                doc.addResource(type, name, r)
                 return r
 
     def set_html(self, val, allow_undo=True):
@@ -1028,6 +1037,7 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
 
     def createMimeDataFromSelection(self):
         ans = super().createMimeDataFromSelection()
+        assert ans is not None
         html, txt = ans.html(), ans.text()
         html = fix_html(html, txt, remove_comments=False)
         # Qt has a bug where copying from the start of a paragraph does not
@@ -1111,13 +1121,16 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
                 ff = f.frameFormat()
                 ff.setPosition(alignment)
                 f.setFrameFormat(ff)
-                self.document().markContentsDirty(cursor_pos-2, 5)
+                doc = self.document()
+                assert doc is not None
+                doc.markContentsDirty(cursor_pos-2, 5)
             else:
                 c.deleteChar()
                 c.insertImage(fmt.toImageFormat(), alignment)
 
     def first_image_replacement_char_position_for(self, image_name):
         d = self.document()
+        assert d is not None
         c = self.textCursor()
         c.setPosition(0)
         while True:
@@ -1145,7 +1158,11 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
 
     def contextMenuEvent(self, e):
         menu = QMenu(self)
-        img_name = self.document().documentLayout().imageAt(QPointF(e.pos()))
+        doc = self.document()
+        assert doc is not None
+        doc_layout = doc.documentLayout()
+        assert doc_layout is not None
+        img_name = doc_layout.imageAt(QPointF(e.pos()))
         if img_name:
             pos = self.first_image_replacement_char_position_for(img_name)
             if pos > -1:
@@ -1157,6 +1174,7 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
                 if ff is not None:
                     pos = ff.frameFormat().position()
                 align_menu = menu.addMenu(QIcon.ic('view-image.png'), _('Image...'))
+                assert align_menu is not None
                 def a(text, epos):
                     ac = align_menu.addAction(text)
                     ac.setCheckable(True)
@@ -1164,14 +1182,17 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
                     if pos == epos:
                         ac.setChecked(True)
                 cs = align_menu.addAction(QIcon.ic('resize.png'), _('Change size'))
+                assert cs is not None
                 cs.triggered.connect(partial(self.resize_image_at, c.position()))
                 align_menu.addSeparator()
                 a(_('Float to the left'), QTextFrameFormat.Position.FloatLeft)
                 a(_('Inline with text'), QTextFrameFormat.Position.InFlow)
                 a(_('Float to the right'), QTextFrameFormat.Position.FloatRight)
                 align_menu.addSeparator()
-                align_menu.addAction(QIcon.ic('trash.png'), _('Remove this image')).triggered.connect(partial(self.remove_image_at, c.position()))
-        link_name = self.document().documentLayout().anchorAt(QPointF(e.pos()))
+                trash_action = align_menu.addAction(QIcon.ic('trash.png'), _('Remove this image'))
+                assert trash_action is not None
+                trash_action.triggered.connect(partial(self.remove_image_at, c.position()))
+        link_name = doc_layout.anchorAt(QPointF(e.pos()))
         if link_name:
             menu.addAction(QIcon.ic('insert-link.png'), _('Open link'), partial(self.open_link, link_name))
         for ac in 'undo redo -- cut copy paste paste_and_match_style -- select_all'.split():
@@ -1194,6 +1215,7 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
             m.addAction(self.action_capitalize)
             menu.addMenu(m)
         parent = self._parent()
+        assert parent is not None
         if hasattr(parent, 'toolbars_visible'):
             vis = parent.toolbars_visible
             menu.addAction(_('%s toolbars') % (_('Hide') if vis else _('Show')), parent.toggle_toolbars)
@@ -1579,7 +1601,9 @@ class Editor(QWidget):  # {{{
         self.tabs.addTab(self.code_edit, _('&HTML source'))
         self.tabs.currentChanged[int].connect(self.change_tab)
         self.highlighter = Highlighter(self.code_edit.document())
-        self.layout().setContentsMargins(0, 0, 0, 0)
+        layout = self.layout()
+        assert layout is not None
+        layout.setContentsMargins(0, 0, 0, 0)
         if self.toolbar_prefs_name is not None:
             hidden = gprefs.get(self.toolbar_prefs_name)
             if hidden:
@@ -1694,7 +1718,9 @@ class Editor(QWidget):  # {{{
         self.editor.set_readonly(what)
 
     def hide_tabs(self):
-        self.tabs.tabBar().setVisible(False)
+        tab_bar = self.tabs.tabBar()
+        assert tab_bar is not None
+        tab_bar.setVisible(False)
 
     def smarten_punctuation(self):
         from calibre.ebooks.conversion.preprocess import smarten_punctuation

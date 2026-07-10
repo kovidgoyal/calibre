@@ -83,6 +83,7 @@ class Sendmail:
             start_time = time.time()
             while worker.is_alive():
                 worker.join(0.2)
+                assert abort is not None
                 if abort.is_set():
                     log('Sending aborted by user')
                     return
@@ -93,6 +94,7 @@ class Sendmail:
             if worker.exception is None:
                 log('Email successfully sent')
                 return
+            assert log is not None
             log.error('\nSending failed...\n')
             log.debug(worker.tb)
             try_count += 1

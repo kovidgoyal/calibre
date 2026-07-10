@@ -63,6 +63,7 @@ class ResultsView(QTreeView):
 
         menu = QMenu(self)
         da = menu.addAction(_('Download...'), partial(self.download_requested.emit, result))
+        assert da is not None
         if not result.downloads:
             da.setEnabled(False)
         menu.addSeparator()

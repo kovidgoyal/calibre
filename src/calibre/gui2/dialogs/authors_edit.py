@@ -97,14 +97,18 @@ class List(QListWidget):
     def mark_as_editable(self):
         for i in range(self.count()):
             item = self.item(i)
+            assert item is not None
             item.setFlags(item.flags() | Qt.ItemFlag.ItemIsEditable)
 
     def edited(self, i):
         item = self.item(i)
+        assert item is not None
         q = str(item.text())
         remove = []
         for j in range(self.count()):
-            if i != j and str(self.item(j).text()) == q:
+            jitem = self.item(j)
+            assert jitem is not None
+            if i != j and str(jitem.text()) == q:
                 remove.append(j)
         for x in sorted(remove, reverse=True):
             self.takeItem(x)
@@ -148,7 +152,9 @@ class AuthorsEdit(QDialog):
 
         self.author = a = Edit(self)
         init_line_edit(a, all_authors)
-        a.lineEdit().setPlaceholderText(_('Enter an author to add'))
+        a_le = a.lineEdit()
+        assert a_le is not None
+        a_le.setPlaceholderText(_('Enter an author to add'))
         a.returnPressed.connect(self.add_author)
         l.addWidget(a, 2, 0)
 
@@ -184,7 +190,9 @@ class AuthorsEdit(QDialog):
     def authors(self):
         ans = []
         for i in range(self.al.count()):
-            ans.append(str(self.al.item(i).text()))
+            al_item = self.al.item(i)
+            assert al_item is not None
+            ans.append(str(al_item.text()))
         return ans or [_('Unknown')]
 
     def add_author(self):
@@ -197,7 +205,9 @@ class AuthorsEdit(QDialog):
                     # Case change
                     i = authors[la][0]
                     authors[la] = (i, author)
-                    self.al.item(i).setText(author)
+                    al_it = self.al.item(i)
+                    assert al_it is not None
+                    al_it.setText(author)
                 else:
                     self.al.addItem(author)
                     authors[la] = author

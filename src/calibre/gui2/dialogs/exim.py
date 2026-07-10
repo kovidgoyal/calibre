@@ -142,7 +142,9 @@ class RunAction(QDialog):
 
     def reject(self):
         self.abort.set()
-        self.bb.button(QDialogButtonBox.StandardButton.Cancel).setEnabled(False)
+        cancel_btn = self.bb.button(QDialogButtonBox.StandardButton.Cancel)
+        assert cancel_btn is not None
+        cancel_btn.setEnabled(False)
 
     def finish_processing(self):
         if self.abort.is_set():
@@ -227,13 +229,18 @@ class EximDialog(Dialog):
             i.setData(Qt.ItemDataRole.UserRole+1, lpaths[lpath])
             i.setIcon(QIcon.ic('lt.png'))
             i.setSelected(True)
-        self.update_disk_usage.connect((
-            lambda i, sz: self.lib_list.item(i).setText(self.export_lib_text(
-                self.lib_list.item(i).data(Qt.ItemDataRole.UserRole), sz))), type=Qt.ConnectionType.QueuedConnection)
+        def _on_disk_usage_update(i, sz):
+            item = self.lib_list.item(i)
+            assert item is not None
+            item.setText(self.export_lib_text(
+                item.data(Qt.ItemDataRole.UserRole), sz))
+        self.update_disk_usage.connect(_on_disk_usage_update, type=Qt.ConnectionType.QueuedConnection)
 
     def get_lib_sizes(self):
         for i in range(self.lib_list.count()):
-            path = self.lib_list.item(i).data(Qt.ItemDataRole.UserRole)
+            lib_list_item = self.lib_list.item(i)
+            assert lib_list_item is not None
+            path = lib_list_item.data(Qt.ItemDataRole.UserRole)
             try:
                 sz = disk_usage(path, abort=self.abort_disk_usage)
             except Exception:
@@ -293,6 +300,7 @@ class EximDialog(Dialog):
         self.imported_lib_widgets = []
         self.frames = []
         l = self.slp.layout()
+        assert l is not None
         for lpath in sorted(self.importer.metadata['libraries'], key=lambda x: numeric_sort_key(os.path.basename(x))):
             f = QFrame(self)
             self.frames.append(f)

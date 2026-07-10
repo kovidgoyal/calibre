@@ -314,6 +314,7 @@ class ChooseProgram(Dialog):  # {{{
         la.setBuddy(pl)
 
         b = self.bb.addButton(_('&Browse computer for program'), QDialogButtonBox.ButtonRole.ActionRole)
+        assert b is not None
         b.clicked.connect(self.manual)
         l.addWidget(self.bb)
 
@@ -404,10 +405,13 @@ class EditPrograms(Dialog):  # {{{
 
         self.bb.clear(), self.bb.setStandardButtons(QDialogButtonBox.StandardButton.Close)
         self.rb = b = self.bb.addButton(_('&Remove'), QDialogButtonBox.ButtonRole.ActionRole)
+        assert b is not None
         b.clicked.connect(self.remove), b.setIcon(QIcon.ic('list_remove.png'))
         self.cb = b = self.bb.addButton(_('Change &icon'), QDialogButtonBox.ButtonRole.ActionRole)
+        assert b is not None
         b.clicked.connect(self.change_icon), b.setIcon(QIcon.ic('icon_choose.png'))
         self.cb = b = self.bb.addButton(_('Change &name'), QDialogButtonBox.ButtonRole.ActionRole)
+        assert b is not None
         b.clicked.connect(self.change_name), b.setIcon(QIcon.ic('modified.png'))
         l.addWidget(self.bb)
 
@@ -466,7 +470,11 @@ class EditPrograms(Dialog):  # {{{
         register_keyboard_shortcuts(finalize=True)
 
     def update_stored_config(self):
-        entries = [self.plist.item(i).data(ENTRY_ROLE) for i in range(self.plist.count())]
+        entries = []
+        for i in range(self.plist.count()):
+            plist_item = self.plist.item(i)
+            assert plist_item is not None
+            entries.append(plist_item.data(ENTRY_ROLE))
         oprefs['entries'][self.file_type] = entries
         oprefs['entries'] = oprefs['entries']
 

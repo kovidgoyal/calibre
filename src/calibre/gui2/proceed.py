@@ -139,24 +139,34 @@ class ProceedQuestion(QWidget):
         self.bb.accepted.connect(self.accept)
         self.bb.rejected.connect(self.reject)
         self.log_button = self.bb.addButton(_('View log'), QDialogButtonBox.ButtonRole.ActionRole)
-        self.log_button.setIcon(QIcon.ic('debug.png'))
-        self.log_button.clicked.connect(self.show_log)
+        log_button = self.log_button
+        assert log_button is not None
+        log_button.setIcon(QIcon.ic('debug.png'))
+        log_button.clicked.connect(self.show_log)
         self.copy_button = self.bb.addButton(_('&Copy to clipboard'),
                 QDialogButtonBox.ButtonRole.ActionRole)
-        self.copy_button.clicked.connect(self.copy_to_clipboard)
+        copy_button = self.copy_button
+        assert copy_button is not None
+        copy_button.clicked.connect(self.copy_to_clipboard)
         self.action_button = self.bb.addButton('', QDialogButtonBox.ButtonRole.ActionRole)
-        self.action_button.clicked.connect(self.action_clicked)
+        action_button = self.action_button
+        assert action_button is not None
+        action_button.clicked.connect(self.action_clicked)
         self.show_det_msg = _('Show &details')
         self.hide_det_msg = _('Hide &details')
         self.det_msg_toggle = self.bb.addButton(self.show_det_msg, QDialogButtonBox.ButtonRole.ActionRole)
-        self.det_msg_toggle.clicked.connect(self.toggle_det_msg)
-        self.det_msg_toggle.setToolTip(
+        det_msg_toggle = self.det_msg_toggle
+        assert det_msg_toggle is not None
+        det_msg_toggle.clicked.connect(self.toggle_det_msg)
+        det_msg_toggle.setToolTip(
                 _('Show detailed information about this error'))
         self.det_msg = PlainTextEdit(self)
         self.det_msg.setReadOnly(True)
         self.bb.setStandardButtons(
             QDialogButtonBox.StandardButton.Yes | QDialogButtonBox.StandardButton.No | QDialogButtonBox.StandardButton.Ok)
-        self.bb.button(QDialogButtonBox.StandardButton.Yes).setDefault(True)
+        yes_button_init = self.bb.button(QDialogButtonBox.StandardButton.Yes)
+        assert yes_button_init is not None
+        yes_button_init.setDefault(True)
         self.title_label = title = QLabel('A dummy title')
         f = title.font()
         f.setBold(True)
@@ -193,9 +203,13 @@ class ProceedQuestion(QWidget):
             self.do_resize()
 
     def copy_to_clipboard(self, *args):
-        QApplication.clipboard().setText(
+        clipboard = QApplication.clipboard()
+        assert clipboard is not None
+        clipboard.setText(
                 f'calibre, version {__version__}\n{self.windowTitle()!s}: {self.msg_label.text()!s}\n\n{self.det_msg.toPlainText()!s}')
-        self.copy_button.setText(_('Copied'))
+        copy_button = self.copy_button
+        assert copy_button is not None
+        copy_button.setText(_('Copied'))
 
     def action_clicked(self):
         if self.questions:
@@ -234,8 +248,10 @@ class ProceedQuestion(QWidget):
         self.show_question()
 
     def toggle_det_msg(self, *args):
-        vis = str(self.det_msg_toggle.text()) == self.hide_det_msg
-        self.det_msg_toggle.setText(self.show_det_msg if vis else
+        det_msg_toggle = self.det_msg_toggle
+        assert det_msg_toggle is not None
+        vis = str(det_msg_toggle.text()) == self.hide_det_msg
+        det_msg_toggle.setText(self.show_det_msg if vis else
                 self.hide_det_msg)
         self.det_msg.setVisible(not vis)
         self.do_resize()
@@ -262,32 +278,46 @@ class ProceedQuestion(QWidget):
             self.msg_label.setText(question.msg)
             self.icon.set_icon(question.icon)
             self.title_label.setText(question.title)
-            self.log_button.setVisible(bool(question.html_log))
-            self.copy_button.setText(_('&Copy to clipboard'))
+            log_button = self.log_button
+            assert log_button is not None
+            copy_button = self.copy_button
+            assert copy_button is not None
+            action_button = self.action_button
+            assert action_button is not None
+            det_msg_toggle = self.det_msg_toggle
+            assert det_msg_toggle is not None
+            ok_button = self.bb.button(QDialogButtonBox.StandardButton.Ok)
+            assert ok_button is not None
+            yes_button = self.bb.button(QDialogButtonBox.StandardButton.Yes)
+            assert yes_button is not None
+            no_button = self.bb.button(QDialogButtonBox.StandardButton.No)
+            assert no_button is not None
+            log_button.setVisible(bool(question.html_log))
+            copy_button.setText(_('&Copy to clipboard'))
             if question.action_callback is not None:
-                self.action_button.setText(question.action_label or '')
-                self.action_button.setIcon(
+                action_button.setText(question.action_label or '')
+                action_button.setIcon(
                     QIcon() if question.action_icon is None else question.action_icon)
             # Force the button box to relayout its buttons, as button text
             # might have changed
             self.bb.setOrientation(Qt.Orientation.Vertical), self.bb.setOrientation(Qt.Orientation.Horizontal)
             self.det_msg.setPlainText(question.det_msg or '')
             self.det_msg.setVisible(False)
-            self.det_msg_toggle.setVisible(bool(question.det_msg))
-            self.det_msg_toggle.setText(self.show_det_msg)
+            det_msg_toggle.setVisible(bool(question.det_msg))
+            det_msg_toggle.setText(self.show_det_msg)
             self.checkbox.setVisible(question.checkbox_msg is not None)
             if question.checkbox_msg is not None:
                 self.checkbox.setText(question.checkbox_msg)
                 self.checkbox.setChecked(question.checkbox_checked)
-            self.bb.button(QDialogButtonBox.StandardButton.Ok).setVisible(question.show_ok)
-            self.bb.button(QDialogButtonBox.StandardButton.Yes).setVisible(not question.show_ok)
-            self.bb.button(QDialogButtonBox.StandardButton.No).setVisible(not question.show_ok)
-            self.copy_button.setVisible(bool(question.show_copy_button))
-            self.action_button.setVisible(question.action_callback is not None)
+            ok_button.setVisible(question.show_ok)
+            yes_button.setVisible(not question.show_ok)
+            no_button.setVisible(not question.show_ok)
+            copy_button.setVisible(bool(question.show_copy_button))
+            action_button.setVisible(question.action_callback is not None)
             self.toggle_det_msg() if question.show_det else self.do_resize()
             self.show_widget()
-            button = self.action_button if question.focus_action and question.action_callback is not None else \
-                (self.bb.button(QDialogButtonBox.StandardButton.Ok) if question.show_ok else self.bb.button(QDialogButtonBox.StandardButton.Yes))
+            button = action_button if question.focus_action and question.action_callback is not None else \
+                (ok_button if question.show_ok else yes_button)
             button.setDefault(True)
             self.raise_without_focus()
             self.start_show_animation()

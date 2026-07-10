@@ -92,6 +92,7 @@ class ConfigWidget(ConfigWidgetBase):
         devs = {}
         for i in range(self.devices.count()):
             e = self.devices.item(i)
+            assert e is not None
             dev, uid = e.data(Qt.ItemDataRole.UserRole)
             if dev not in devs:
                 devs[dev] = []
@@ -103,6 +104,7 @@ class ConfigWidget(ConfigWidgetBase):
 
         for i in range(self.device_plugins.count()):
             e = self.device_plugins.item(i)
+            assert e is not None
             dev = e.data(Qt.ItemDataRole.UserRole)
             if e.checkState() == Qt.CheckState.Unchecked:
                 enable_plugin(dev)

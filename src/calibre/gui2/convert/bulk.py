@@ -53,6 +53,7 @@ class BulkConfig(Config):
         self.groups.clicked[(QModelIndex)].connect(self.show_pane)
         self.groups.entered[(QModelIndex)].connect(self.show_group_help)
         rb = self.buttonBox.button(QDialogButtonBox.StandardButton.RestoreDefaults)
+        assert rb is not None
         rb.setVisible(False)
         self.groups.setMouseTracking(True)
         if not has_saved_settings:

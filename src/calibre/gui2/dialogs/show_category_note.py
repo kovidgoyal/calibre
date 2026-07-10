@@ -21,7 +21,9 @@ class Display(HTMLDisplay):
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.document().setDefaultStyleSheet(resolved_css() + '\n\nli { margin-top: 0.5ex; margin-bottom: 0.5ex; }')
+        doc = self.document()
+        assert doc is not None
+        doc.setDefaultStyleSheet(resolved_css() + '\n\nli { margin-top: 0.5ex; margin-bottom: 0.5ex; }')
         self.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         self.anchor_clicked.connect(self.handle_link_click)
 
@@ -89,10 +91,12 @@ class ShowNoteDialog(Dialog):
         self.bb.clear()
         self.bb.addButton(QDialogButtonBox.StandardButton.Close)
         b = self.bb.addButton(_('&Edit'), QDialogButtonBox.ButtonRole.ActionRole)
+        assert b is not None
         b.setIcon(QIcon.ic('edit_input.png'))
         b.clicked.connect(self.edit)
         b.setToolTip(_('Edit this note'))
         b = self.bb.addButton(_('Find &books'), QDialogButtonBox.ButtonRole.ActionRole)
+        assert b is not None
         b.setIcon(QIcon.ic('search.png'))
         b.clicked.connect(self.find_books)
         if self.field == 'authors':
@@ -100,6 +104,7 @@ class ShowNoteDialog(Dialog):
         else:
             b.setToolTip(_('Search the calibre library for books with: {}').format(self.item_val))
         b = self.bb.addButton(_('Copy &URL'), QDialogButtonBox.ButtonRole.ActionRole)
+        assert b is not None
         b.setIcon(QIcon.ic('insert-link.png'))
         b.clicked.connect(self.copy_url)
         b.setToolTip(_('Copy a calibre:// URL to the clipboard that can be used to link to this note from other programs'))
@@ -118,6 +123,7 @@ class ShowNoteDialog(Dialog):
             f = '_' + f[1:]
         url = f'calibre://show-note/{self.db.server_library_id}/{f}/id_{self.item_id}'
         cb = qapplication_or_fail().clipboard()
+        assert cb is not None
         md = QMimeData()
         md.setText(url)
         md.setUrls([QUrl(url)])

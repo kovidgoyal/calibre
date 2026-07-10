@@ -165,8 +165,10 @@ class MovedDialog(QDialog):  # {{{
         l.addWidget(self.cd, l.rowCount() - 1, 1, 1, 1)
         self.bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Abort)
         b = self.bb.addButton(_('Library moved'), QDialogButtonBox.ButtonRole.AcceptRole)
+        assert b is not None
         b.setIcon(QIcon.ic('ok.png'))
         b = self.bb.addButton(_('Forget library'), QDialogButtonBox.ButtonRole.RejectRole)
+        assert b is not None
         b.setIcon(QIcon.ic('edit-clear.png'))
         b.clicked.connect(self.forget_library)
         self.bb.accepted.connect(self.accept)
@@ -208,6 +210,7 @@ class BackupStatus(QDialog):  # {{{
         bb.accepted.connect(self.accept)
         bb.rejected.connect(self.reject)
         b = bb.addButton(_('Queue &all books for backup'), QDialogButtonBox.ButtonRole.ActionRole)
+        assert b is not None
         b.clicked.connect(self.mark_all_dirty)
         b.setIcon(QIcon.ic('lt.png'))
         l.addWidget(bb)
@@ -504,6 +507,7 @@ class ChooseLibraryAction(InterfaceAction):
             name = name.replace('&', '&&')
             ac = self.quick_menu.addAction(ic, name, Dispatcher(partial(self.switch_requested,
                 loc)))
+            assert ac is not None
             ac.setStatusTip(_('Switch to: %s') % loc)
             if is_prev_lib:
                 f = ac.font()
@@ -513,10 +517,12 @@ class ChooseLibraryAction(InterfaceAction):
             ac = self.rename_menu.addAction(name, Dispatcher(partial(self.rename_requested,
                 name, loc)))
             rename_actions.append(ac)
+            assert ac is not None
             ac.setStatusTip(_('Rename: %s') % loc)
             ac = self.delete_menu.addAction(name, Dispatcher(partial(self.delete_requested,
                 name, loc)))
             delete_actions.append(ac)
+            assert ac is not None
             ac.setStatusTip(_('Remove: %s') % loc)
             if is_prev_lib:
                 ac.setFont(f)

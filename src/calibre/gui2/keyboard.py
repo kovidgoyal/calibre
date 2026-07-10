@@ -616,7 +616,9 @@ class Delegate(QStyledItemDelegate):  # {{{
         painter.save()
         painter.setClipRect(QRectF(option.rect))
         if hasattr(QStyle, 'CE_ItemViewItem'):
-            QApplication.style().drawControl(QStyle.ControlElement.CE_ItemViewItem, option, painter)
+            app_style = QApplication.style()
+            assert app_style is not None
+            app_style.drawControl(QStyle.ControlElement.CE_ItemViewItem, option, painter)
         elif option.state & QStyle.StateFlag.State_Selected:
             painter.fillRect(option.rect, option.palette.highlight())
         painter.translate(option.rect.topLeft())
@@ -761,7 +763,9 @@ class ShortcutConfig(QWidget):  # {{{
 
     def highlight_index(self, idx):
         self.view.scrollTo(idx)
-        self.view.selectionModel().select(idx, QItemSelectionModel.SelectionFlag.ClearAndSelect)
+        sel_model = self.view.selectionModel()
+        assert sel_model is not None
+        sel_model.select(idx, QItemSelectionModel.SelectionFlag.ClearAndSelect)
         self.view.setCurrentIndex(idx)
         self.view.setFocus(Qt.FocusReason.OtherFocusReason)
 
@@ -786,7 +790,9 @@ class ShortcutConfig(QWidget):  # {{{
         if idx is not None:
             self.view.expand(idx)
             self.view.scrollTo(idx, QAbstractItemView.ScrollHint.PositionAtTop)
-            self.view.selectionModel().select(idx, QItemSelectionModel.SelectionFlag.ClearAndSelect)
+            group_sel_model = self.view.selectionModel()
+            assert group_sel_model is not None
+            group_sel_model.select(idx, QItemSelectionModel.SelectionFlag.ClearAndSelect)
             self.view.setCurrentIndex(idx)
             self.view.setFocus(Qt.FocusReason.OtherFocusReason)
 

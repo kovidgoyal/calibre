@@ -599,7 +599,9 @@ class CheckLibraryDialog(QDialog):
         self.run_the_check()
 
     def copy_to_clipboard(self):
-        QApplication.clipboard().setText(self.text_results)
+        cb = QApplication.clipboard()
+        assert cb is not None
+        cb.setText(self.text_results)
 
 
 if __name__ == '__main__':

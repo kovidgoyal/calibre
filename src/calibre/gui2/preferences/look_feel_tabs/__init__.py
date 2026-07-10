@@ -446,8 +446,12 @@ class BackgroundConfig(QGroupBox, LazyConfigWidgetBase):
 
         def commit(self):
             s = gprefs[self.config_name].copy()
-            s['light'] = tuple(self.bcol_light.getRgb())[:3]
-            s['dark'] = tuple(self.bcol_dark.getRgb())[:3]
+            bcol_light = self.bcol_light
+            assert bcol_light is not None
+            bcol_dark = self.bcol_dark
+            assert bcol_dark is not None
+            s['light'] = tuple(bcol_light.getRgb())[:3]
+            s['dark'] = tuple(bcol_dark.getRgb())[:3]
             s['light_texture'] = self.btex_light
             s['dark_texture'] = self.btex_dark
             gprefs[self.config_name] = s
@@ -598,6 +602,7 @@ def export_layout(in_widget, model=None):
             filters=[(_('Column list'), ['json'])])
     if filename:
         try:
+            assert model is not None
             with open(filename, 'w') as f:
                 json.dump(model.fields, f, indent=1)
         except Exception as err:
@@ -613,6 +618,7 @@ def import_layout(in_widget, model=None):
         try:
             with open(filename[0]) as f:
                 fields = json.load(f)
+            assert model is not None
             model.initialize(pref_data_override=fields)
             in_widget.changed_signal.emit()
         except Exception as err:
@@ -621,6 +627,7 @@ def import_layout(in_widget, model=None):
 
 
 def reset_layout(in_widget, model=None):
+    assert model is not None
     model.initialize(use_defaults=True)
     if hasattr(in_widget, 'changed_signal'):
         in_widget.changed_signal.emit()

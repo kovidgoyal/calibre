@@ -102,16 +102,22 @@ class Base:
 
     @property
     def field_name(self) -> str:
-        return self.db.field_metadata.label_to_key(self.col_metadata['label'], prefer_custom=True)
+        db = self.db
+        assert db is not None
+        return db.field_metadata.label_to_key(self.col_metadata['label'], prefer_custom=True)
 
     @property
     def hierarchy_separator(self) -> str:
-        return '.' if self.field_name in self.db.new_api.pref('categories_using_hierarchy', default=()) else ''
+        db = self.db
+        assert db is not None
+        return '.' if self.field_name in db.new_api.pref('categories_using_hierarchy', default=()) else ''
 
     def finish_ui_setup(self, parent, edit_widget):
         self.was_none = False
         w = QWidget(parent)
-        self.widgets.append(w)
+        widgets = self.widgets
+        assert widgets is not None
+        widgets.append(w)
         l = QHBoxLayout()
         l.setContentsMargins(0, 0, 0, 0)
         w.setLayout(l)
@@ -125,7 +131,9 @@ class Base:
 
     def initialize(self, book_id):
         self.book_id = book_id
-        val = self.db.get_custom(book_id, num=self.col_id, index_is_id=True)
+        db = self.db
+        assert db is not None
+        val = db.get_custom(book_id, num=self.col_id, index_is_id=True)
         val = self.normalize_db_val(val)
         self.setter(val)
         self.initial_val = self.current_val  # self.current_val might be different from val thanks to normalization
@@ -141,7 +149,9 @@ class Base:
     def commit(self, book_id, notify=False):
         val = self.current_val
         if val != self.initial_val:
-            return self.db.set_custom(book_id, val, num=self.col_id,
+            db = self.db
+            assert db is not None
+            return db.set_custom(book_id, val, num=self.col_id,
                             notify=notify, commit=False, allow_case_change=True)
         else:
             return set()
@@ -177,7 +187,9 @@ class Base:
                 return
             if d == QMessageBox.StandardButton.Yes:
                 self.commit(self.book_id)
-                self.db.commit()
+                db = self.db
+                assert db is not None
+                db.commit()
                 self.initial_val = self.current_val
             else:
                 self.setter(self.initial_val)
@@ -255,7 +267,9 @@ class Bool(Base):
         l.addWidget(c)
         c.clicked.connect(self.set_to_no)
 
-        if self.db.new_api.pref('bools_are_tristate'):
+        db = self.db
+        assert db is not None
+        if db.new_api.pref('bools_are_tristate'):
             c = QToolButton(parent)
             c.setIcon(QIcon.ic('trash.png'))
             c.setToolTip(_('Clear {}').format(name))
@@ -265,7 +279,7 @@ class Bool(Base):
         w = self.combobox
         items = [_('Yes'), _('No'), _('Undefined')]
         icons = ['ok.png', 'list_remove.png', 'blank.png']
-        if not self.db.new_api.pref('bools_are_tristate'):
+        if not db.new_api.pref('bools_are_tristate'):
             items = items[:-1]
             icons = icons[:-1]
         for icon, text in zip(icons, items):
@@ -273,7 +287,9 @@ class Bool(Base):
 
     def setter(self, val):
         val = {None: 2, False: 1, True: 0}[val]
-        if not self.db.new_api.pref('bools_are_tristate') and val == 2:
+        db = self.db
+        assert db is not None
+        if not db.new_api.pref('bools_are_tristate') and val == 2:
             val = 1
         self.combobox.setCurrentIndex(val)
 
@@ -462,7 +478,9 @@ class Comments(Base):
         self.widgets = [self._box]
 
     def initialize(self, book_id):
-        path = self.db.abspath(book_id, index_is_id=True)
+        db = self.db
+        assert db is not None
+        path = db.abspath(book_id, index_is_id=True)
         if path:
             self._tb.set_base_url(QUrl.fromLocalFile(os.path.join(path, 'metadata.html')))
         return Base.initialize(self, book_id)
@@ -508,7 +526,9 @@ class Markdown(Base):
         self.widgets = [self._box]
 
     def initialize(self, book_id):
-        path = self.db.abspath(book_id, index_is_id=True)
+        db = self.db
+        assert db is not None
+        path = db.abspath(book_id, index_is_id=True)
         if path:
             self._tb.set_base_url(QUrl.fromLocalFile(os.path.join(path, 'metadata.html')))
         return super().initialize(book_id)
@@ -607,7 +627,9 @@ class Text(Base):
 
     def setup_ui(self, parent):
         self.sep = self.col_metadata['multiple_seps']
-        self.key = self.db.field_metadata.label_to_key(self.col_metadata['label'],
+        db = self.db
+        assert db is not None
+        self.key = db.field_metadata.label_to_key(self.col_metadata['label'],
                                                        prefer_custom=True)
         self.parent = parent
 
@@ -629,12 +651,14 @@ class Text(Base):
         self.finish_ui_setup(parent, lambda parent: w)
 
     def initialize(self, book_id):
-        values = list(self.db.all_custom(num=self.col_id))
+        db = self.db
+        assert db is not None
+        values = list(db.all_custom(num=self.col_id))
         values.sort(key=sort_key)
         self.book_id = book_id
         self.editor.clear()
         self.editor.update_items_cache(values)
-        val = self.db.get_custom(book_id, num=self.col_id, index_is_id=True)
+        val = db.get_custom(book_id, num=self.col_id, index_is_id=True)
         if isinstance(val, list):
             if not self.col_metadata.get('display', {}).get('is_names', False):
                 val.sort(key=sort_key)
@@ -675,7 +699,9 @@ class Text(Base):
                 return
             if d == QMessageBox.StandardButton.Yes:
                 self.commit(self.book_id)
-                self.db.commit()
+                db = self.db
+                assert db is not None
+                db.commit()
                 self.initial_val = self.current_val
             else:
                 self.setter(self.initial_val)
@@ -698,7 +724,9 @@ class Series(Base):
 
     def setup_ui(self, parent):
         self.parent = parent
-        self.key = self.db.field_metadata.label_to_key(self.col_metadata['label'],
+        db = self.db
+        assert db is not None
+        self.key = db.field_metadata.label_to_key(self.col_metadata['label'],
                                                        prefer_custom=True)
         w = MultipleWidget(parent, only_manage_items=True, name=self.col_metadata['name'])
         w.get_editor_button().clicked.connect(self.edit)
@@ -728,10 +756,12 @@ class Series(Base):
 
     def initialize(self, book_id):
         self.book_id = book_id
-        values = list(self.db.all_custom(num=self.col_id))
+        db = self.db
+        assert db is not None
+        values = list(db.all_custom(num=self.col_id))
         values.sort(key=sort_key)
-        val = self.db.get_custom(book_id, num=self.col_id, index_is_id=True)
-        s_index = self.db.get_custom_extra(book_id, num=self.col_id, index_is_id=True)
+        val = db.get_custom(book_id, num=self.col_id, index_is_id=True)
+        s_index = db.get_custom_extra(book_id, num=self.col_id, index_is_id=True)
         try:
             s_index = float(s_index)
         except (ValueError, TypeError):
@@ -756,7 +786,9 @@ class Series(Base):
         elif tweaks['series_index_auto_increment'] == 'const':
             s_index = 1.0
         else:
-            s_index = self.db.get_next_cc_series_num_for(val,
+            db = self.db
+            assert db is not None
+            s_index = db.get_next_cc_series_num_for(val,
                                                      num=self.col_id)
         self.idx_widget.setValue(s_index)
 
@@ -775,7 +807,9 @@ class Series(Base):
         if val != self.initial_val or s_index != self.initial_index:
             if not val:
                 val = s_index = None
-            return self.db.set_custom(book_id, val, extra=s_index, num=self.col_id,
+            db = self.db
+            assert db is not None
+            return db.set_custom(book_id, val, extra=s_index, num=self.col_id,
                                notify=notify, commit=False, allow_case_change=True)
         else:
             return set()
@@ -794,7 +828,9 @@ class Enumeration(Base):
 
     def setup_ui(self, parent):
         self.parent = parent
-        self.key = self.db.field_metadata.label_to_key(self.col_metadata['label'],
+        db = self.db
+        assert db is not None
+        self.key = db.field_metadata.label_to_key(self.col_metadata['label'],
                                                        prefer_custom=True)
         w = MultipleWidget(parent, only_manage_items=True, widget=QComboBox, name=self.col_metadata['name'])
         w.set_hierarchy_separator(self.hierarchy_separator)
@@ -810,7 +846,9 @@ class Enumeration(Base):
 
     def initialize(self, book_id):
         self.book_id = book_id
-        val = self.db.get_custom(book_id, num=self.col_id, index_is_id=True)
+        db = self.db
+        assert db is not None
+        val = db.get_custom(book_id, num=self.col_id, index_is_id=True)
         val = self.normalize_db_val(val)
         idx = self.editor.findText(val)
         if idx < 0:
@@ -947,7 +985,9 @@ def populate_metadata_page(layout, db, book_id, bulk=False, two_column=False, pa
     elide_pos = gprefs['edit_metadata_elision_point']
     elide_pos = elide_pos if elide_pos in {'left', 'middle', 'right'} else 'right'
     # make room on the right side for the scrollbar
-    sb_width = qapplication_or_fail().style().pixelMetric(QStyle.PixelMetric.PM_ScrollBarExtent)
+    app_style = qapplication_or_fail().style()
+    assert app_style is not None
+    sb_width = app_style.pixelMetric(QStyle.PixelMetric.PM_ScrollBarExtent)
     layout.setContentsMargins(0, 0, sb_width, 0)
     for key in cols:
         if not fm[key]['is_editable']:
@@ -1041,8 +1081,10 @@ class BulkBase(Base):
 
     def get_initial_value(self, book_ids):
         values = set()
+        db = self.db
+        assert db is not None
         for book_id in book_ids:
-            val = self.db.get_custom(book_id, num=self.col_id, index_is_id=True)
+            val = db.get_custom(book_id, num=self.col_id, index_is_id=True)
             if isinstance(val, list):
                 val = frozenset(val)
             values.add(val)
@@ -1093,7 +1135,9 @@ class BulkBase(Base):
             return
         val = self.gui_val
         val = self.normalize_ui_val(val)
-        self.db.set_custom_bulk(book_id, val, num=self.col_id, notify=notify)
+        db = self.db
+        assert db is not None
+        db.set_custom_bulk(book_id, val, num=self.col_id, notify=notify)
 
     def make_widgets(self, parent, main_widget_class):
         w = QWidget(parent)
@@ -1137,9 +1181,11 @@ class BulkBool(BulkBase, Bool):
 
     def get_initial_value(self, book_ids):
         value = None
+        db = self.db
+        assert db is not None
         for book_id in book_ids:
-            val = self.db.get_custom(book_id, num=self.col_id, index_is_id=True)
-            if not self.db.new_api.pref('bools_are_tristate') and val is None:
+            val = db.get_custom(book_id, num=self.col_id, index_is_id=True)
+            if not db.new_api.pref('bools_are_tristate') and val is None:
                 val = False
             if value is not None and value != val:
                 return None
@@ -1149,7 +1195,9 @@ class BulkBool(BulkBase, Bool):
     def setup_ui(self, parent):
         self.make_widgets(parent, QComboBox)
         items = [_('Yes'), _('No')]
-        self.bools_are_tristate = self.db.new_api.pref('bools_are_tristate')
+        db = self.db
+        assert db is not None
+        self.bools_are_tristate = db.new_api.pref('bools_are_tristate')
         if not self.bools_are_tristate:
             items.append('')
         else:
@@ -1184,7 +1232,9 @@ class BulkBool(BulkBase, Bool):
         val = self.normalize_ui_val(val)
         if not self.bools_are_tristate and val is None:
             val = False
-        self.db.set_custom_bulk(book_id, val, num=self.col_id, notify=notify)
+        db = self.db
+        assert db is not None
+        db.set_custom_bulk(book_id, val, num=self.col_id, notify=notify)
 
     def a_c_checkbox_changed(self):
         if not self.ignore_change_signals:
@@ -1315,11 +1365,15 @@ class BulkSeries(BulkBase):
 
     def setup_ui(self, parent):
         self.make_widgets(parent, partial(EditWithComplete, sort_func=title_sort))
-        values = self.all_values = list(self.db.all_custom(num=self.col_id))
+        db = self.db
+        assert db is not None
+        values = self.all_values = list(db.all_custom(num=self.col_id))
         values.sort(key=sort_key)
         self.main_widget.setSizeAdjustPolicy(QComboBox.SizeAdjustPolicy.AdjustToMinimumContentsLengthWithIcon)
         self.main_widget.setMinimumContentsLength(25)
-        self.widgets.append(QLabel('', parent))
+        widgets = self.widgets
+        assert widgets is not None
+        widgets.append(QLabel('', parent))
         w = QWidget(parent)
         layout = QHBoxLayout(w)
         layout.setContentsMargins(0, 0, 0, 0)
@@ -1359,7 +1413,7 @@ class BulkSeries(BulkBase):
         self.series_increment.setPrefix('+')
         layout.addWidget(self.series_increment)
         layout.addItem(QSpacerItem(20, 10, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum))
-        self.widgets.append(w)
+        widgets.append(w)
         self.idx_widget.stateChanged.connect(self.a_c_checkbox_changed)
         self.force_number.stateChanged.connect(self.a_c_checkbox_changed)
         self.series_start_number.valueChanged.connect(self.a_c_checkbox_changed)
@@ -1427,6 +1481,8 @@ class BulkSeries(BulkBase):
             return
         val, update_indices, force_start, at_value, clear, increment = self.gui_val
         val = None if clear else self.normalize_ui_val(val)
+        db = self.db
+        assert db is not None
         if clear or val != '':
             extras = []
             for bid in book_id:
@@ -1438,14 +1494,14 @@ class BulkSeries(BulkBase):
                         s_index = at_value
                         at_value += increment
                     elif tweaks['series_index_auto_increment'] != 'const':
-                        s_index = self.db.get_next_cc_series_num_for(val, num=self.col_id)
+                        s_index = db.get_next_cc_series_num_for(val, num=self.col_id)
                     else:
                         s_index = 1.0
                 else:
-                    s_index = self.db.get_custom_extra(bid, num=self.col_id,
+                    s_index = db.get_custom_extra(bid, num=self.col_id,
                                                        index_is_id=True)
                 extras.append(s_index)
-            self.db.set_custom_bulk(book_id, val, extras=extras,
+            db.set_custom_bulk(book_id, val, extras=extras,
                                    num=self.col_id, notify=notify)
 
 
@@ -1455,8 +1511,10 @@ class BulkEnumeration(BulkBase, Enumeration):
         value = None
         first = True
         dialog_shown = False
+        db = self.db
+        assert db is not None
         for book_id in book_ids:
-            val = self.db.get_custom(book_id, num=self.col_id, index_is_id=True)
+            val = db.get_custom(book_id, num=self.col_id, index_is_id=True)
             if val and val not in self.col_metadata['display']['enum_values']:
                 if not dialog_shown:
                     error_dialog(self.parent, '',
@@ -1530,7 +1588,9 @@ class RemoveTags(QWidget):
 class BulkText(BulkBase):
 
     def setup_ui(self, parent):
-        values = self.all_values = list(self.db.all_custom(num=self.col_id))
+        db = self.db
+        assert db is not None
+        values = self.all_values = list(db.all_custom(num=self.col_id))
         values.sort(key=sort_key)
         is_tags = False
         if self.col_metadata['is_multiple']:
@@ -1546,9 +1606,11 @@ class BulkText(BulkBase):
                                            _('tags to remove'), parent)
                 tt = get_tooltip(self.col_metadata) + ': ' + _('tags to remove')
                 l.setToolTip(tt)
-                self.widgets.append(l)
+                bulk_text_widgets = self.widgets
+                assert bulk_text_widgets is not None
+                bulk_text_widgets.append(l)
                 w.setToolTip(tt)
-                self.widgets.append(w)
+                bulk_text_widgets.append(w)
                 self.removing_widget = w
                 self.main_widget.set_separator(',')
                 w.tags_box.textChanged.connect(self.a_c_checkbox_changed)
@@ -1585,17 +1647,19 @@ class BulkText(BulkBase):
     def commit(self, book_id, notify=False):
         if not self.a_c_checkbox.isChecked():
             return
+        db = self.db
+        assert db is not None
         if self.col_metadata['is_multiple']:
             ism = self.col_metadata['multiple_seps']
             if self.col_metadata['display'].get('is_names', False):
                 val = self.gui_val
                 add = [v.strip() for v in val.split(ism['ui_to_list']) if v.strip()]
-                self.db.set_custom_bulk(book_id, add, num=self.col_id)
+                db.set_custom_bulk(book_id, add, num=self.col_id)
             else:
                 remove_all, adding, rtext = self.gui_val
                 remove = set()
                 if remove_all:
-                    remove = set(self.db.all_custom(num=self.col_id))
+                    remove = set(db.all_custom(num=self.col_id))
                 else:
                     txt = rtext
                     if txt:
@@ -1605,12 +1669,12 @@ class BulkText(BulkBase):
                     add = {v.strip() for v in txt.split(ism['ui_to_list'])}
                 else:
                     add = set()
-                self.db.set_custom_bulk_multiple(book_id, add=add,
+                db.set_custom_bulk_multiple(book_id, add=add,
                                             remove=remove, num=self.col_id)
         else:
             val = self.gui_val
             val = self.normalize_ui_val(val)
-            self.db.set_custom_bulk(book_id, val, num=self.col_id, notify=notify)
+            db.set_custom_bulk(book_id, val, num=self.col_id, notify=notify)
 
     def getter(self):
         if self.col_metadata['is_multiple']:

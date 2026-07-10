@@ -173,7 +173,9 @@ class ToolBar(QToolBar):  # {{{
         style = self.get_text_style()
         self.setToolButtonStyle(style)
         if self.showing_donate:
-            self.donate_button.setToolButtonStyle(style)
+            donate_button = self.donate_button
+            assert donate_button is not None
+            donate_button.setToolButtonStyle(style)
 
     def get_text_style(self):
         style = Qt.ToolButtonStyle.ToolButtonTextUnderIcon
@@ -375,6 +377,7 @@ if ismacos:
 
         def clone_menu(self):
             m = self.menu()
+            assert m is not None
             m.clear()
             for ac in QMenu.actions(self.clone.menu()):
                 if ac.isSeparator():

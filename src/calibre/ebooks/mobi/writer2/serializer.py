@@ -200,7 +200,11 @@ class Serializer:
         item = hrefs[path] if path else None
         if item and item.spine_position is None:
             return False
-        path = item.href if item else base.href
+        if item is not None:
+            path = item.href
+        else:
+            assert base is not None
+            path = base.href
         href = '#'.join((path, frag)) if frag else path
         buf.write(b'filepos=')
         self.href_offsets[href].append(buf.tell())

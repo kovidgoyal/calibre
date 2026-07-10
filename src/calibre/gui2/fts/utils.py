@@ -79,6 +79,8 @@ def help_panel(parent=None) -> HTMLDisplay:
     hp.setDefaultStyleSheet('a { text-decoration: none; }')
     hp.setHtml(help_html())
     hp.setFocusPolicy(Qt.FocusPolicy.NoFocus)
-    hp.document().setDocumentMargin(0)
+    doc = hp.document()
+    assert doc is not None
+    doc.setDocumentMargin(0)
     hp.anchor_clicked.connect(safe_open_url)
     return hp

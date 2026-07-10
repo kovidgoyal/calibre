@@ -219,6 +219,7 @@ class EPUBInput(InputFormatPlugin):
         raster_cover = opf.raster_cover
 
         # Set the cover guide entry
+        assert guide_elem is not None
         if raster_cover is not None:
             guide_elem.set('href', raster_cover)
         else:

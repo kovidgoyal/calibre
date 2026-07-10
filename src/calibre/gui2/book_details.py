@@ -123,6 +123,7 @@ def resolved_css():
 def copy_all(text_browser):
     mf = getattr(text_browser, 'details', text_browser)
     c = QApplication.clipboard()
+    assert c is not None
     md = QMimeData()
     html = mf.toHtml()
     md.setHtml(html)
@@ -168,9 +169,15 @@ def create_search_internet_menu(callback, author=None):
         if author is not None else
         _('Search the internet for this book')
     )
-    m.menuAction().setIcon(QIcon.ic('search.png'))
+    ma = m.menuAction()
+    assert ma is not None
+    ma.setIcon(QIcon.ic('search.png'))
     items = all_book_searches() if author is None else all_author_searches()
-    for k in sorted(items, key=lambda k: name_for(k).lower()):
+    def _sort_key(k):
+        nfk = name_for(k)
+        assert nfk is not None
+        return nfk.lower()
+    for k in sorted(items, key=_sort_key):
         m.addAction(QIcon.ic('search.png'), name_for(k), partial(callback, InternetSearch(author, k)))
     return m
 
@@ -485,6 +492,7 @@ def add_format_entries(menu, data, book_info, copy_menu, search_menu):
 def add_link_submenu(menu: QMenu, link, book_info, field='', item_name=''):
     if field and item_name:
         m = menu.addMenu(QIcon.ic('external-link'), _('Associated link'))
+        assert m is not None
         m.addAction(QIcon.ic('reference'), _('Open: {}').format(link), lambda: book_info.link_clicked.emit(link))
         m.addAction(QIcon.ic('minus'), _('Remove the link').format(link), lambda: book_info.link_removal_requested.emit(field, item_name))
     else:
@@ -498,7 +506,11 @@ def add_item_specific_entries(menu, data, book_info, copy_menu, search_menu):
     dt = data['type']
 
     def add_copy_action(name):
-        copy_menu.addAction(QIcon.ic('edit-copy.png'), _('The text: {}').format(name), lambda: qapplication_or_fail().clipboard().setText(name))
+        def _do_copy():
+            cb = qapplication_or_fail().clipboard()
+            assert cb is not None
+            cb.setText(name)
+        copy_menu.addAction(QIcon.ic('edit-copy.png'), _('The text: {}').format(name), _do_copy)
 
     if dt == 'format':
         add_format_entries(menu, data, book_info, copy_menu, search_menu)
@@ -581,8 +593,11 @@ def add_item_specific_entries(menu, data, book_info, copy_menu, search_menu):
                 init_find_in_grouped_search(search_menu, field, value, book_info)
             else:
                 v = data.get('original_value') or data.get('value')
-                copy_menu.addAction(QIcon.ic('edit-copy.png'), _('The text: {}').format(v),
-                                        lambda: qapplication_or_fail().clipboard().setText(v))
+                def _copy_v():
+                    cb = qapplication_or_fail().clipboard()
+                    assert cb is not None
+                    cb.setText(v)
+                copy_menu.addAction(QIcon.ic('edit-copy.png'), _('The text: {}').format(v), _copy_v)
             if field not in ('size', 'id', 'last_modified', 'sort', 'series_sort', 'uuid', 'author_sort', 'pages'):
                 fm = get_gui().current_db.new_api.field_metadata.get(field) or {}
                 if fm.get('datatype') != 'composite':
@@ -598,8 +613,11 @@ def add_item_specific_entries(menu, data, book_info, copy_menu, search_menu):
         else:
             v = data.get('original_value') or data.get('value')
             if v:
-                copy_menu.addAction(QIcon.ic('edit-copy.png'), _('The text: {}').format(v),
-                                        lambda: qapplication_or_fail().clipboard().setText(v))
+                def _copy_v2():
+                    cb = qapplication_or_fail().clipboard()
+                    assert cb is not None
+                    cb.setText(v)
+                copy_menu.addAction(QIcon.ic('edit-copy.png'), _('The text: {}').format(v), _copy_v2)
     return search_internet_added
 
 
@@ -614,7 +632,9 @@ def create_copy_links(menu, data=None):
 
     def copy_to_clipboard_action(menu_text, value_text, before_action=None):
         def doit():
-            qapplication_or_fail().clipboard().setText(value_text)
+            cb = qapplication_or_fail().clipboard()
+            assert cb is not None
+            cb.setText(value_text)
         if before_action is not None:
             action = QWidget(menu).addAction(QIcon.ic('edit-copy.png'), menu_text, doit)
             menu.insertAction(before_action, action)
@@ -704,6 +724,7 @@ def details_context_menu_event(view, ev, book_info, add_popup_action=False, edit
                 f'has url: {bool(url)}')
     menu = QMenu(view)
     copy_menu = menu.addMenu(QIcon.ic('edit-copy.png'), _('Copy'))
+    assert copy_menu is not None
     copy_menu.addAction(QIcon.ic('edit-copy.png'), _('All book details'), partial(copy_all, view))
     if view.textCursor().hasSelection():
         copy_menu.addAction(QIcon.ic('edit-copy.png'), _('Selected text'), view.copy)
@@ -767,11 +788,13 @@ def details_context_menu_event(view, ev, book_info, add_popup_action=False, edit
     menu.addSeparator()
     book_id = get_gui().library_view.current_id
     if not reindex_fmt_added:
-        menu.addAction(_(
-            'Re-index this book for full text searching'), partial(book_info.reindex_fmt, book_id, '')).setIcon(
-                QIcon.ic('fts.png'))
-    menu.addAction(_('Re-count the pages in this book'), partial(book_info.recount_pages, book_id)).setIcon(
-            QIcon.ic('bookshelf.png'))
+        ac_fts = menu.addAction(_(
+            'Re-index this book for full text searching'), partial(book_info.reindex_fmt, book_id, ''))
+        assert ac_fts is not None
+        ac_fts.setIcon(QIcon.ic('fts.png'))
+    ac_pages = menu.addAction(_('Re-count the pages in this book'), partial(book_info.recount_pages, book_id))
+    assert ac_pages is not None
+    ac_pages.setIcon(QIcon.ic('bookshelf.png'))
     if len(menu.actions()) > 0:
         menu.exec(ev.globalPos())
 # }}}
@@ -915,6 +938,12 @@ class CoverView(QWidget):  # {{{
         save = cm.addAction(QIcon.ic('save.png'), _('Save cover to disk'))
         remove = cm.addAction(QIcon.ic('trash.png'), _('Remove cover'))
         gc = cm.addAction(QIcon.ic('default_cover.png'), _('Generate cover from metadata'))
+        assert paste is not None
+        assert download is not None
+        assert copy is not None
+        assert save is not None
+        assert remove is not None
+        assert gc is not None
         cm.addSeparator()
         if self.pixmap is not self.default_pixmap and self.data.get('id'):
             book_id = self.data['id']
@@ -922,10 +951,16 @@ class CoverView(QWidget):  # {{{
             cm.tc.addAction(QIcon.ic('trim.png'), _('Automatically trim borders'), self.trim_cover)
             cm.tc.addAction(_('Trim borders manually'), self.manual_trim_cover)
             cm.tc.addSeparator()
-            cm.tc.addAction(QIcon.ic('edit-undo.png'), _('Undo last trim'), self.undo_last_trim).setEnabled(self.last_trim_id == book_id)
+            ac_undo = cm.tc.addAction(QIcon.ic('edit-undo.png'), _('Undo last trim'), self.undo_last_trim)
+            assert ac_undo is not None
+            ac_undo.setEnabled(self.last_trim_id == book_id)
             cm.addMenu(cm.tc)
             cm.addSeparator()
-        if not qapplication_or_fail().clipboard().mimeData().hasImage():
+        _cb = qapplication_or_fail().clipboard()
+        assert _cb is not None
+        _mime = _cb.mimeData()
+        assert _mime is not None
+        if not _mime.hasImage():
             paste.setEnabled(False)
         copy.triggered.connect(self.copy_to_clipboard)
         paste.triggered.connect(self.paste_from_clipboard)
@@ -983,11 +1018,14 @@ class CoverView(QWidget):  # {{{
             self.open_with(entry)
 
     def copy_to_clipboard(self):
-        qapplication_or_fail().clipboard().setPixmap(self.pixmap)
+        cb = qapplication_or_fail().clipboard()
+        assert cb is not None
+        cb.setPixmap(self.pixmap)
 
     def paste_from_clipboard(self, pmap=None):
         if not isinstance(pmap, QPixmap):
             cb = qapplication_or_fail().clipboard()
+            assert cb is not None
             pmap = cb.pixmap()
             if pmap.isNull() and cb.supportsSelection():
                 pmap = cb.pixmap(QClipboard.Mode.Selection)
@@ -1203,6 +1241,7 @@ class BookInfo(HTMLDisplay):
 
     def mouseDoubleClickEvent(self, e):
         v = self.viewport()
+        assert v is not None
         if v.rect().contains(self.mapFromGlobal(e.globalPos())):
             e.ignore()
         else:

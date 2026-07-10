@@ -65,6 +65,7 @@ class TOCEditor(QDialog):
         bb.accepted.connect(self.accept)
         bb.rejected.connect(self.reject)
         self.undo_button = b = bb.addButton(_('&Undo'), QDialogButtonBox.ButtonRole.ActionRole)
+        assert b is not None
         b.setToolTip(_('Undo the last action, if any'))
         b.setIcon(QIcon.ic('edit-undo.png'))
         b.clicked.connect(self.toc_view.undo)

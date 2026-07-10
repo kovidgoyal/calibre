@@ -86,7 +86,9 @@ class RemotePdb(pdb.Pdb):
 
 
 def set_trace(port=4444, skip=None):
-    frame = inspect.currentframe().f_back
+    frame_obj = inspect.currentframe()
+    assert frame_obj is not None
+    frame = frame_obj.f_back
 
     try:
         debugger = RemotePdb(port=port, skip=skip)

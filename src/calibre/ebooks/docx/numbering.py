@@ -143,8 +143,10 @@ class Level:
         return ans
 
     def char_css(self):
+        character_style = self.character_style
+        assert character_style is not None
         try:
-            css = self.character_style.css
+            css = character_style.css
         except AttributeError:
             css = {}
         css.pop('font-family', None)

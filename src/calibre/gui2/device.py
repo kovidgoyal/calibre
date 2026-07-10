@@ -293,8 +293,10 @@ class DeviceManager(Thread):  # {{{
                 job.abort(Exception(_('Device no longer connected.')))
             except queue.Empty:
                 break
+        connected_device = self.connected_device
+        assert connected_device is not None
         try:
-            self.connected_device.post_yank_cleanup()
+            connected_device.post_yank_cleanup()
         except Exception:
             pass
         if self.connected_device in self.ejected_devices:
@@ -307,7 +309,7 @@ class DeviceManager(Thread):  # {{{
             # to handle this connection, probably as a mounted device. We are
             # now abandoning the instance that we created, so we tell it that it
             # is being shut down.
-            self.connected_device.shutdown()
+            connected_device.shutdown()
             self.call_shutdown_on_disconnect = False
 
         device_prefs.set_overrides()
@@ -318,14 +320,17 @@ class DeviceManager(Thread):  # {{{
 
     def detect_device(self):
         if self.is_device_connected and self.connected_device_kind in {'folder', 'folder-as-device'}:
+            assert self.connected_device is not None
             if not self.connected_device.is_folder_still_available():
                 self.connected_device_removed()
             return
         self.scanner.scan()
 
         if self.is_device_connected:
-            if self.connected_device.MANAGES_DEVICE_PRESENCE:
-                cd = self.connected_device.detect_managed_devices(self.scanner.devices)
+            connected_device = self.connected_device
+            assert connected_device is not None
+            if connected_device.MANAGES_DEVICE_PRESENCE:
+                cd = connected_device.detect_managed_devices(self.scanner.devices)
                 if cd is None:
                     self.connected_device_removed()
             else:
@@ -400,6 +405,7 @@ class DeviceManager(Thread):  # {{{
     def umount_device(self, *args):
         if self.is_device_connected and not self.job_manager.has_device_jobs():
             if self.connected_device_kind in {'unmanaged-device', 'device'}:
+                assert self.connected_device is not None
                 self.connected_device.eject()
                 if self.connected_device_kind != 'unmanaged-device':
                     self.ejected_devices.add(self.connected_device)
@@ -875,6 +881,7 @@ class DeviceMenu(QMenu):  # {{{
         self.addSeparator()
 
         mitem = self.addAction(QIcon.ic('eject.png'), _('Eject device'))
+        assert mitem is not None
         mitem.setEnabled(False)
         connect_lambda(mitem.triggered, self, lambda self, x: self.disconnect_mounted_device.emit())
         self.disconnect_mounted_device_action = mitem
@@ -887,6 +894,7 @@ class DeviceMenu(QMenu):  # {{{
         self.addSeparator()
 
         annot = self.addAction(_('Fetch annotations (experimental)'))
+        assert annot is not None
         annot.setEnabled(False)
         connect_lambda(annot.triggered, self, lambda self, x: self.fetch_annotations.emit())
         self.annotation_action = annot
@@ -926,6 +934,7 @@ class DeviceMenu(QMenu):  # {{{
                         action.setEnabled(False)
 
         annot_enable = enable and getattr(device, 'SUPPORTS_ANNOTATIONS', False)
+        assert self.annotation_action is not None
         self.annotation_action.setEnabled(annot_enable)
 
     # }}}
@@ -1038,7 +1047,7 @@ class DeviceMixin:  # {{{
                     _('Cannot configure the device while there are running'
                         ' device jobs.'), show=True)
         dev = self.device_manager.connected_device
-
+        assert dev is not None
         cw = dev.config_widget()
         config_dialog = QDialog(self)
 
@@ -1104,10 +1113,12 @@ class DeviceMixin:  # {{{
         self._sync_menu.disconnect_mounted_device.connect(self.disconnect_mounted_device)
         self.iactions['Connect Share'].set_state(self.device_connected,
                 None)
+        dma = self._sync_menu.disconnect_mounted_device_action
+        assert dma is not None
         if self.device_connected:
-            self._sync_menu.disconnect_mounted_device_action.setEnabled(True)
+            dma.setEnabled(True)
         else:
-            self._sync_menu.disconnect_mounted_device_action.setEnabled(False)
+            dma.setEnabled(False)
 
     def device_job_exception(self, job):
         '''
@@ -1149,14 +1160,16 @@ class DeviceMixin:  # {{{
     def set_device_menu_items_state(self, connected):
         self.iactions['Connect Share'].set_state(connected,
                 self.device_manager.device)
+        dma = self._sync_menu.disconnect_mounted_device_action
+        assert dma is not None
         if connected:
-            self._sync_menu.disconnect_mounted_device_action.setEnabled(True)
+            dma.setEnabled(True)
             self._sync_menu.enable_device_actions(True,
                     self.device_manager.device.card_prefix(),
                     self.device_manager.device)
             self.eject_action.setEnabled(True)
         else:
-            self._sync_menu.disconnect_mounted_device_action.setEnabled(False)
+            dma.setEnabled(False)
             self._sync_menu.enable_device_actions(False)
             self.eject_action.setEnabled(False)
 
@@ -1829,6 +1842,7 @@ class DeviceMixin:  # {{{
         for i, l in enumerate(self.booklists()):
             if id in self.book_db_id_cache[i]:
                 loc[i] = True
+                assert self.book_db_id_counts is not None
                 loc[3] = self.book_db_id_counts.get(id, 0)
                 loc[4] |= self.book_db_uuid_path_map[id]
         return loc

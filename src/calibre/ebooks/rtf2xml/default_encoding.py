@@ -159,10 +159,12 @@ class DefaultEncoding:
                 fenccp = re.compile(r'\\ansicpg(\d+)[\\ \{\}\t\n]+')
 
                 for line in read_obj:
-                    if fenc.search(line):
-                        enc = fenc.search(line).group(1)
-                    if fenccp.search(line):
-                        cp = fenccp.search(line).group(1)
+                    _fenc_m = fenc.search(line)
+                    if _fenc_m:
+                        enc = _fenc_m.group(1)
+                    _fenccp_m = fenccp.search(line)
+                    if _fenccp_m:
+                        cp = _fenccp_m.group(1)
                         if not int(cp):
                             self.__code_page = cp
                         cpfound = True

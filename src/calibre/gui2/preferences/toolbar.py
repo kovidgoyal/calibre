@@ -288,11 +288,15 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.current_actions.entered.connect(self.current_entered)
 
     def all_entered(self, index):
-        tt = self.all_actions.model().data(index, Qt.ItemDataRole.ToolTipRole) or ''
+        all_model = self.all_actions.model()
+        assert all_model is not None
+        tt = all_model.data(index, Qt.ItemDataRole.ToolTipRole) or ''
         self.help_text.setText(tt)
 
     def current_entered(self, index):
-        tt = self.current_actions.model().data(index, Qt.ItemDataRole.ToolTipRole) or ''
+        cur_model = self.current_actions.model()
+        assert cur_model is not None
+        tt = cur_model.data(index, Qt.ItemDataRole.ToolTipRole) or ''
         self.help_text.setText(tt)
 
     def what_changed(self, idx):
@@ -307,7 +311,9 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             self.current_actions.setModel(self.models[key][1])
 
     def add_action(self, *args):
-        self._add_action(self.all_actions.selectionModel().selectedIndexes())
+        all_sm = self.all_actions.selectionModel()
+        assert all_sm is not None
+        self._add_action(all_sm.selectedIndexes())
 
     def add_single_action(self, index):
         self._add_action([index])
@@ -326,12 +332,16 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                         show=True)
             if added:
                 ca = self.current_actions
-                idx = ca.model().index(ca.model().rowCount(None)-1)
+                ca_model = ca.model()
+                assert ca_model is not None
+                idx = ca_model.index(ca_model.rowCount(None)-1)
                 ca.scrollTo(idx)
                 self.changed_signal.emit()
 
     def remove_action(self, *args):
-        self._remove_action(self.current_actions.selectionModel().selectedIndexes())
+        cur_sm = self.current_actions.selectionModel()
+        assert cur_sm is not None
+        self._remove_action(cur_sm.selectedIndexes())
 
     def remove_single_action(self, index):
         self._remove_action([index])
@@ -353,6 +363,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
     def move(self, delta, *args):
         sm = self.current_actions.selectionModel()
+        assert sm is not None
         x = sm.selectedIndexes()
         if x and len(x):
             i = sm.currentIndex().row()

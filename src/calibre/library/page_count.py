@@ -233,7 +233,9 @@ class Server:
         if self.worker is not None:
             w, self.worker = self.worker, None
             self.read_pipe.close()
-            w.stdin.close()
+            w_stdin = w.stdin
+            assert w_stdin is not None
+            w_stdin.close()
             if w.wait(1) is None:
                 w.kill()
                 w.wait()
@@ -241,8 +243,12 @@ class Server:
     def count_pages(self, path: str) -> int | tuple[str, str]:
         self.ensure_worker()
         encoded_path = path.encode().hex() + os.linesep
-        self.worker.stdin.write(encoded_path.encode())
-        self.worker.stdin.flush()
+        worker = self.worker
+        assert worker is not None
+        stdin = worker.stdin
+        assert stdin is not None
+        stdin.write(encoded_path.encode())
+        stdin.flush()
         self.tasks_run_by_worker += 1
         try:
             return eintr_retry_call(self.read_pipe.recv)

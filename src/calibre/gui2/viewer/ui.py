@@ -471,7 +471,9 @@ class EbookViewer(MainWindow):
         md = QMimeData()
         md.setImageData(img)
         md.setUrls([url])
-        qapplication_or_fail().clipboard().setMimeData(md)
+        cb = qapplication_or_fail().clipboard()
+        assert cb is not None
+        cb.setMimeData(md)
 
     def dock_visibility_changed(self):
         vmap = {dock.objectName().partition('-')[0]: dock.toggleViewAction().isChecked() for dock in self.dock_widgets}

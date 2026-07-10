@@ -181,12 +181,16 @@ class FetchBackend(QNetworkAccessManager):
     def excepthook(self, cls: type, exc: Exception, tb) -> None:
         if not isinstance(exc, KeyboardInterrupt):
             sys.__excepthook__(cls, exc, tb)
-        QApplication.instance().exit(1)
+        app = QApplication.instance()
+        assert app is not None
+        app.exit(1)
 
     def on_input_finished(self, error_msg: str) -> None:
         if error_msg:
             self.send_response({'action': 'input_error', 'error': error_msg})
-        QApplication.instance().exit(1)
+        app = QApplication.instance()
+        assert app is not None
+        app.exit(1)
 
     def enforce_timeouts(self):
         now = monotonic()
@@ -320,6 +324,7 @@ def read_commands(backend: FetchBackend, tdir: str) -> None:
 
 def worker(tdir: str, user_agent: str, verify_ssl_certificates: bool, backend_class: type = FetchBackend) -> None:
     app = QApplication.instance()
+    assert app is not None
     sys.stdout = sys.stderr
     backend = backend_class(parent=app, user_agent=user_agent, output_dir=tdir, verify_ssl_certificates=verify_ssl_certificates)
     try:
@@ -335,6 +340,7 @@ def develop(url: str) -> None:
     from calibre.gui2 import must_use_qt, setup_unix_signals
     must_use_qt()
     app = QApplication.instance()
+    assert app is not None
     app.signal_received = lambda: app.exit(1)
     setup_unix_signals(app)
     backend = FetchBackend()

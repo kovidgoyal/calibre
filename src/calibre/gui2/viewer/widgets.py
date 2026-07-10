@@ -117,9 +117,11 @@ class SearchBox(HistoryComboBox):  # {{{
     def __init__(self, parent=None):
         HistoryComboBox.__init__(self, parent, strip_completion_entries=False)
         self.suppress_history = False
-        self.lineEdit().setPlaceholderText(_('Search'))
-        self.lineEdit().setClearButtonEnabled(True)
-        ac = self.lineEdit().findChild(QAction, QT_HIDDEN_CLEAR_ACTION)
+        le = self.lineEdit()
+        assert le is not None
+        le.setPlaceholderText(_('Search'))
+        le.setClearButtonEnabled(True)
+        ac = le.findChild(QAction, QT_HIDDEN_CLEAR_ACTION)
         if ac is not None:
             ac.triggered.connect(self.cleared)
 
@@ -136,7 +138,10 @@ class SearchBox(HistoryComboBox):  # {{{
         self.history_cleared.emit()
 
     def contextMenuEvent(self, e):
-        menu = self.lineEdit().createStandardContextMenu()
+        ctx_le = self.lineEdit()
+        assert ctx_le is not None
+        menu = ctx_le.createStandardContextMenu()
+        assert menu is not None
         menu.addSeparator()
         menu.addAction(_('Clear search history'), self.clear_history)
         menu.exec(e.globalPos())

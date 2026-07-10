@@ -127,7 +127,9 @@ class FileOrFolder:
 
     @property
     def id_map(self) -> dict[int, FileOrFolder]:
-        return self.fs_cache().id_maps[self.storage_id]
+        fs_cache = self.fs_cache()
+        assert fs_cache is not None
+        return fs_cache.id_maps[self.storage_id]
 
     @property
     def parent(self):
@@ -135,7 +137,9 @@ class FileOrFolder:
             return self.id_map[self.parent_id]
         if self.is_storage or self.parent_id is None:
             return None
-        return self.fs_cache().storage(self.storage_id)
+        fs_cache2 = self.fs_cache()
+        assert fs_cache2 is not None
+        return fs_cache2.storage(self.storage_id)
 
     @property
     def in_root(self):
@@ -143,7 +147,9 @@ class FileOrFolder:
 
     @property
     def storage(self):
-        return self.fs_cache().storage(self.storage_id)
+        fs_cache3 = self.fs_cache()
+        assert fs_cache3 is not None
+        return fs_cache3.storage(self.storage_id)
 
     @property
     def full_path(self) -> tuple[str, ...]:

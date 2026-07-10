@@ -95,11 +95,13 @@ class DocViewer(Dialog):
         bl.addWidget(self.bb)
 
         b = self.back_button = self.bb.addButton(_('&Back'), QDialogButtonBox.ButtonRole.ActionRole)
+        assert b is not None
         b.clicked.connect(self.back)
         b.setToolTip(_('Displays the previously viewed function'))
         b.setEnabled(False)
 
         b = self.bb.addButton(_('Show &all functions'), QDialogButtonBox.ButtonRole.ActionRole)
+        assert b is not None
         b.clicked.connect(self.show_all_functions_button_clicked)
         b.setToolTip(_('Shows a list of all built-in functions in alphabetic order'))
 
@@ -108,12 +110,18 @@ class DocViewer(Dialog):
             info_dialog(self, _('Go back'), _('No function to go back to'), show=True)
         else:
             place = self.back_stack.pop()
-            self.back_button.setEnabled(bool(self.back_stack))
+            back_button = self.back_button
+            assert back_button is not None
+            back_button.setEnabled(bool(self.back_stack))
             if isinstance(place, int):
                 self.show_all_functions()
                 # For reasons known only to Qt, I can't set the scroll bar position
                 # until some time has passed.
-                QTimer.singleShot(10, lambda: self.doc_viewer_widget.verticalScrollBar().setValue(place))
+                def _do_scroll(val=place):
+                    vsb = self.doc_viewer_widget.verticalScrollBar()
+                    assert vsb is not None
+                    vsb.setValue(val)
+                QTimer.singleShot(10, _do_scroll)
             else:
                 self._show_function(place)
 
@@ -121,8 +129,12 @@ class DocViewer(Dialog):
         if self.last_function is not None:
             self.back_stack.append(self.last_function)
         elif self.last_operation is not None:
-            self.back_stack.append(self.doc_viewer_widget.verticalScrollBar().value())
-        self.back_button.setEnabled(bool(self.back_stack))
+            vsb = self.doc_viewer_widget.verticalScrollBar()
+            assert vsb is not None
+            self.back_stack.append(vsb.value())
+        back_button = self.back_button
+        assert back_button is not None
+        back_button.setEnabled(bool(self.back_stack))
 
     def url_clicked(self, qurl):
         if qurl.scheme().startswith('http'):
@@ -635,8 +647,12 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
             text = ''
         self.original_text = text
 
-        self.buttonBox.button(QDialogButtonBox.StandardButton.Ok).setText(_('&OK'))
-        self.buttonBox.button(QDialogButtonBox.StandardButton.Cancel).setText(_('&Cancel'))
+        ok_btn = self.buttonBox.button(QDialogButtonBox.StandardButton.Ok)
+        assert ok_btn is not None
+        ok_btn.setText(_('&OK'))
+        cancel_btn = self.buttonBox.button(QDialogButtonBox.StandardButton.Cancel)
+        assert cancel_btn is not None
+        cancel_btn.setText(_('&Cancel'))
 
         self.color_copy_button.clicked.connect(self.color_to_clipboard)
         self.filename_button.clicked.connect(self.filename_button_clicked)
@@ -740,12 +756,14 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
         tv.clear()
         tv.setColumnCount(3)
         tv.setHorizontalHeaderLabels((_('Book title'), '', _('Template value')))
-        tv.horizontalHeader().setStretchLastSection(True)
-        tv.horizontalHeader().sectionResized.connect(self.table_column_resized)
+        hh = tv.horizontalHeader()
+        assert hh is not None
+        hh.setStretchLastSection(True)
+        hh.sectionResized.connect(self.table_column_resized)
         tv.setRowCount(len(mi))
         # Set the height of the table
         h = tv.rowHeight(0) * min(row_count, 5)
-        h += 2 * tv.frameWidth() + tv.horizontalHeader().height()
+        h += 2 * tv.frameWidth() + hh.height()
         tv.setMinimumHeight(h)
         tv.setMaximumHeight(h)
         # Set the size of the title column
@@ -810,11 +828,13 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
 
     def show_code_context_menu(self, point):
         m = self.source_code.createStandardContextMenu()
+        assert m is not None
         name = self.current_function_name
         if (name and self.all_functions[name].object_type in
                 (StoredObjectType.StoredPythonTemplate, StoredObjectType.StoredGPMTemplate)):
             m.addSeparator()
             ca = m.addAction(_('Copy stored template source to editor'))
+            assert ca is not None
             ca.triggered.connect(self.copy_source_code_to_editor)
         m.exec(self.source_code.mapToGlobal(point))
 
@@ -828,26 +848,33 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
 
     def show_context_menu(self, point):
         m = self.textbox.createStandardContextMenu()
+        assert m is not None
         m.addSeparator()
         word_wrapping = gprefs['gpm_template_editor_word_wrap_mode']
         if word_wrapping:
             ca = m.addAction(_('Disable word wrap'))
+            assert ca is not None
             ca.setIcon(QIcon.ic('list_remove.png'))
         else:
             ca = m.addAction(_('Enable word wrap'))
+            assert ca is not None
             ca.setIcon(QIcon.ic('ok.png'))
         ca.triggered.connect(partial(self.set_word_wrap, not word_wrapping))
         m.addSeparator()
         ca = m.addAction(_('Add Python template definition text'))
+        assert ca is not None
         ca.triggered.connect(self.add_python_template_header_text)
         m.addSeparator()
         ca = m.addAction(_('Load template from the Template tester'))
+        assert ca is not None
         m.addSeparator()
         ca.triggered.connect(self.load_last_template_text)
         ca = m.addAction(_('Load template from file'))
+        assert ca is not None
         ca.setIcon(QIcon.ic('document_open.png'))
         ca.triggered.connect(self.load_template_from_file)
         ca = m.addAction(_('Save template to file'))
+        assert ca is not None
         ca.setIcon(QIcon.ic('save.png'))
         ca.triggered.connect(self.save_template)
         m.exec(self.textbox.mapToGlobal(point))
@@ -1002,7 +1029,9 @@ def evaluate(book, context):
             self.textbox.set_clicked_line_numbers(cln)
 
     def break_reporter(self, txt, val, locals_={}, line_number=0):
-        l = self.template_value.selectionModel().selectedRows()
+        sel_model = self.template_value.selectionModel()
+        assert sel_model is not None
+        l = sel_model.selectedRows()
         mi_to_use = self.mi[0 if len(l) == 0 else l[0].row()]
         if self.break_box.isChecked():
             if line_number is None or line_number not in self.textbox.clicked_line_numbers:
@@ -1053,11 +1082,13 @@ def evaluate(book, context):
     def color_to_clipboard(self):
         app = qapplication_or_fail()
         c = app.clipboard()
+        assert c is not None
         c.setText(str(self.color_name.color))
 
     def icon_to_clipboard(self):
         app = qapplication_or_fail()
         c = app.clipboard()
+        assert c is not None
         c.setText(str(self.icon_files.currentText()))
 
     @property
@@ -1093,7 +1124,9 @@ def evaluate(book, context):
         # Check that there is a breakpoint at the line
         if frame.f_lineno not in self.textbox.clicked_line_numbers:
             return
-        l = self.template_value.selectionModel().selectedRows()
+        sel_model = self.template_value.selectionModel()
+        assert sel_model is not None
+        l = sel_model.selectedRows()
         mi_to_use = self.mi[0 if len(l) == 0 else l[0].row()]
         self.break_reporter_dialog = PythonBreakReporter(self, mi_to_use, frame)
         if not self.break_reporter_dialog.exec():
@@ -1109,7 +1142,9 @@ def evaluate(book, context):
 
     def display_values(self, txt):
         tv = self.template_value
-        l = self.template_value.selectionModel().selectedRows()
+        sel_model = self.template_value.selectionModel()
+        assert sel_model is not None
+        l = sel_model.selectedRows()
         break_on_mi = 0 if len(l) == 0 else l[0].row()
         from calibre.gui2.ui import get_gui
         db = get_gui().current_db
@@ -1234,6 +1269,7 @@ def evaluate(book, context):
                 if hasattr(parent, 'reject'):
                     parent.reject()
                     break
+                assert parent is not None
                 parent = parent.parent()
                 if parent is None:
                     break
@@ -1271,16 +1307,20 @@ class BreakReporterBase(QDialog):
             t.setColumnWidth(0, self.table_column_widths[0])
         except Exception:
             t.setColumnWidth(0, t.fontMetrics().averageCharWidth() * 20)
-        t.horizontalHeader().sectionResized.connect(self.table_column_resized)
-        t.horizontalHeader().setStretchLastSection(True)
+        hh = t.horizontalHeader()
+        assert hh is not None
+        hh.sectionResized.connect(self.table_column_resized)
+        hh.setStretchLastSection(True)
 
         bb = QDialogButtonBox()
         b = bb.addButton(_('&Continue'), QDialogButtonBox.ButtonRole.AcceptRole)
+        assert b is not None
         b.setIcon(QIcon.ic('sync-right.png'))
         b.setToolTip(_('Continue running the template'))
         b.setDefault(True)
         l.addWidget(bb)
         b = bb.addButton(_('&Stop'), QDialogButtonBox.ButtonRole.RejectRole)
+        assert b is not None
         b.setIcon(QIcon.ic('list_remove.png'))
         b.setToolTip(_('Stop running the template'))
         l.addWidget(bb)
@@ -1349,7 +1389,9 @@ class BreakReporter(BreakReporterBase):
         super().__init__(parent)
         self.setup_ui(mi, line_number, locals_, leading_rows=2)
         self.table.setItem(0, 0, BreakReporterItem(op_label))
-        self.table.item(0,0).setToolTip(_('The name of the template language operation'))
+        item_0_0 = self.table.item(0, 0)
+        assert item_0_0 is not None
+        item_0_0.setToolTip(_('The name of the template language operation'))
         self.table.setItem(0, 1, BreakReporterItem(op_value))
 
     def setup_locals(self, locals_):

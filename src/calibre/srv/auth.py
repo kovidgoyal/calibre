@@ -253,7 +253,9 @@ class AuthController:
             raise ValueError('Double-quotes are not allowed in the authentication realm')
 
     def check(self, un, pw):
-        return pw and self.user_credentials.get(un) == pw
+        uc = self.user_credentials
+        assert uc is not None
+        return pw and uc.get(un) == pw
 
     def __call__(self, data, endpoint):
         path = encode_path(*data.path)
@@ -282,7 +284,9 @@ class AuthController:
             if scheme == 'digest':
                 da = DigestAuth(rest.strip())
                 if validate_nonce(self.key_order, da.nonce, self.realm, self.secret):
-                    pw = self.user_credentials.get(da.username)
+                    uc = self.user_credentials
+                    assert uc is not None
+                    pw = uc.get(da.username)
                     if pw and da.validate_request(pw, data, self.log):
                         nonce_is_stale = is_nonce_stale(da.nonce, self.max_age_seconds)
                         if not nonce_is_stale:

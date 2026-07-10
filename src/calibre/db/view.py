@@ -69,6 +69,7 @@ class TableRow:
 
     def __getitem__(self, obj):
         view = self.view()
+        assert view is not None
         if isinstance(obj, slice):
             return [view._field_getters[c](self.book_id)
                     for c in range(*obj.indices(len(view._field_getters)))]

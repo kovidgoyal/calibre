@@ -648,6 +648,7 @@ class CentralContainer(QWidget):
 
     def do_wide_layout(self):
         s = self.style()
+        assert s is not None
         normal_handle_width = int(s.pixelMetric(QStyle.PixelMetric.PM_SplitterWidth, widget=self))
         available_width = self.width()
         for h in (self.left_handle, self.right_handle):
@@ -784,6 +785,7 @@ class CentralContainer(QWidget):
 
     def do_narrow_layout_with_cb_on_top(self):
         s = self.style()
+        assert s is not None
         normal_handle_width = int(s.pixelMetric(QStyle.PixelMetric.PM_SplitterWidth, widget=self))
         available_height = self.height()
         for handle in (self.bottom_handle, self.right_handle):
@@ -836,6 +838,7 @@ class CentralContainer(QWidget):
         if self.narrow_cb_on_top:
             return self.do_narrow_layout_with_cb_on_top()
         s = self.style()
+        assert s is not None
         normal_handle_width = int(s.pixelMetric(QStyle.PixelMetric.PM_SplitterWidth, widget=self))
         available_height = self.height()
         hs = self.bottom_handle.state

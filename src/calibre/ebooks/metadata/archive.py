@@ -278,6 +278,7 @@ def get_comic_images(path, tdir, first=1, last=0):  # first and last use 1 based
                     return True
                 return False
             if isinstance(x, bytes):
+                assert current is not None
                 current.write(x)
         extract_members(path, callback)
         if current is not None:

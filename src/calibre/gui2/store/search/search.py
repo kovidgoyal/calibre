@@ -36,6 +36,7 @@ class SearchDialog(QDialog, Ui_Dialog):
         QDialog.__init__(self, parent)
         self.setupUi(self)
         s = self.style()
+        assert s is not None
         self.close.setIcon(s.standardIcon(QStyle.StandardPixmap.SP_DialogCloseButton))
 
         self.config = JSONConfig('store/search')
@@ -263,7 +264,9 @@ class SearchDialog(QDialog, Ui_Dialog):
     def save_state(self):
         self.save_geometry(self.config, 'geometry')
         self.config['store_splitter_state'] = bytearray(self.store_splitter.saveState())
-        self.config['results_view_column_width'] = [self.results_view.columnWidth(i) for i in range(self.results_view.model().columnCount())]
+        rv_model = self.results_view.model()
+        assert rv_model is not None
+        self.config['results_view_column_width'] = [self.results_view.columnWidth(i) for i in range(rv_model.columnCount())]
         self.config['sort_col'] = self.results_view.model().sort_col
         self.config['sort_order'] = self.results_view.model().sort_order.value
         self.config['open_external'] = self.open_external.isChecked()
@@ -282,7 +285,9 @@ class SearchDialog(QDialog, Ui_Dialog):
         results_cwidth = self.config.get('results_view_column_width', None)
         if results_cwidth:
             for i, x in enumerate(results_cwidth):
-                if i >= self.results_view.model().columnCount():
+                rv_model2 = self.results_view.model()
+                assert rv_model2 is not None
+                if i >= rv_model2.columnCount():
                     break
                 self.results_view.setColumnWidth(i, x)
         else:
@@ -301,7 +306,9 @@ class SearchDialog(QDialog, Ui_Dialog):
         if isinstance(so, int):
             so = Qt.SortOrder(so)
         self.results_view.model().sort_order = so
-        self.results_view.header().setSortIndicator(self.results_view.model().sort_col, so)
+        rv_header = self.results_view.header()
+        assert rv_header is not None
+        rv_header.setSortIndicator(self.results_view.model().sort_col, so)
 
     def load_settings(self):
         # Seconds

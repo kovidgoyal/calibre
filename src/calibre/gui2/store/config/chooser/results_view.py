@@ -32,8 +32,12 @@ class ResultsView(QTreeView):
         for i in range(self._model.columnCount()):
             self.resizeColumnToContents(i)
 
-        self.model().sort(1, Qt.SortOrder.AscendingOrder)
-        self.header().setSortIndicator(self.model().sort_col, self.model().sort_order)
+        _model = self.model()
+        assert _model is not None
+        _model.sort(1, Qt.SortOrder.AscendingOrder)
+        _header = self.header()
+        assert _header is not None
+        _header.setSortIndicator(_model.sort_col, _model.sort_order)
 
     def contextMenuEvent(self, a0):
         index = self.indexAt(a0.pos())
@@ -46,6 +50,7 @@ class ResultsView(QTreeView):
         menu = QMenu(self)
         ca = menu.addAction(_('Configure...'), partial(self.configure_plugin, plugin))
         if not plugin.is_customizable():
+            assert ca is not None
             ca.setEnabled(False)
         menu.exec(a0.globalPos())
 

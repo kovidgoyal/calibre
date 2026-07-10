@@ -29,10 +29,20 @@ def get_metadata(stream, extract_cover=True):
 
         if meta is not None:
             meta = safe_xml_fromstring(meta)
-            mi.title = meta.find('.//head/name').text
-            mi.authors = [meta.find('.//head/author').text]
-            mi.language = meta.find('.//head/language').text.lower().replace('_', '-')
-            mi.publisher = meta.find('.//head/publisher').text
+            _name = meta.find('.//head/name')
+            assert _name is not None
+            mi.title = _name.text
+            _author = meta.find('.//head/author')
+            assert _author is not None
+            mi.authors = [_author.text]
+            _language = meta.find('.//head/language')
+            assert _language is not None
+            lang_text = _language.text
+            assert lang_text is not None
+            mi.language = lang_text.lower().replace('_', '-')
+            _publisher = meta.find('.//head/publisher')
+            assert _publisher is not None
+            mi.publisher = _publisher.text
 
             if extract_cover:
                 cover = meta.find('.//head/cover')

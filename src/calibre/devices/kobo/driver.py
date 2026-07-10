@@ -3377,6 +3377,7 @@ class KOBOTOUCH(KOBO):
             if template is None or template == '':
                 new_value = None
             else:
+                assert new_value is not None
                 new_value = new_value if len(new_value.strip()) else None
                 if new_value is not None and new_value.startswith('PLUGBOARD TEMPLATE ERROR'):
                     debug_print(f"KoboTouch:generate_update_from_template  template error - template='{template}'")
@@ -3735,83 +3736,131 @@ class KOBOTOUCH(KOBO):
         )
 
     def is2024Device(self):
-        return self.detected_device.idProduct in self.LIBRA_COLOR_PRODUCT_ID
+        detected_device = self.detected_device
+        assert detected_device is not None
+        return detected_device.idProduct in self.LIBRA_COLOR_PRODUCT_ID
 
     def isColorDevice(self):
         # may be useful at some point
         return self.isClaraColor() or self.isLibraColor()
 
     def isAura(self):
-        return self.detected_device.idProduct in self.AURA_PRODUCT_ID
+        detected_device = self.detected_device
+        assert detected_device is not None
+        return detected_device.idProduct in self.AURA_PRODUCT_ID
 
     def isAuraEdition2(self):
-        return self.detected_device.idProduct in self.AURA_EDITION2_PRODUCT_ID
+        detected_device = self.detected_device
+        assert detected_device is not None
+        return detected_device.idProduct in self.AURA_EDITION2_PRODUCT_ID
 
     def isAuraHD(self):
-        return self.detected_device.idProduct in self.AURA_HD_PRODUCT_ID
+        detected_device = self.detected_device
+        assert detected_device is not None
+        return detected_device.idProduct in self.AURA_HD_PRODUCT_ID
 
     def isAuraH2O(self):
-        return self.detected_device.idProduct in self.AURA_H2O_PRODUCT_ID
+        detected_device = self.detected_device
+        assert detected_device is not None
+        return detected_device.idProduct in self.AURA_H2O_PRODUCT_ID
 
     def isAuraH2OEdition2(self):
-        return self.detected_device.idProduct in self.AURA_H2O_EDITION2_PRODUCT_ID
+        detected_device = self.detected_device
+        assert detected_device is not None
+        return detected_device.idProduct in self.AURA_H2O_EDITION2_PRODUCT_ID
 
     def isAuraOne(self):
-        return self.detected_device.idProduct in self.AURA_ONE_PRODUCT_ID
+        detected_device = self.detected_device
+        assert detected_device is not None
+        return detected_device.idProduct in self.AURA_ONE_PRODUCT_ID
 
     def isClaraHD(self):
-        return self.detected_device.idProduct in self.CLARA_HD_PRODUCT_ID
+        detected_device = self.detected_device
+        assert detected_device is not None
+        return detected_device.idProduct in self.CLARA_HD_PRODUCT_ID
 
     def isClara2E(self):
-        return self.detected_device.idProduct in self.CLARA_2E_PRODUCT_ID
+        detected_device = self.detected_device
+        assert detected_device is not None
+        return detected_device.idProduct in self.CLARA_2E_PRODUCT_ID
 
     def isClaraBW(self):
-        return self.device_model_id.endswith('391') or self.detected_device.idProduct in self.CLARA_BW_PRODUCT_ID
+        detected_device = self.detected_device
+        assert detected_device is not None
+        return self.device_model_id.endswith('391') or detected_device.idProduct in self.CLARA_BW_PRODUCT_ID
 
     def isClaraColor(self):
-        return self.device_model_id.endswith('393') or self.detected_device.idProduct in self.CLARA_COLOR_PRODUCT_ID
+        detected_device = self.detected_device
+        assert detected_device is not None
+        return self.device_model_id.endswith('393') or detected_device.idProduct in self.CLARA_COLOR_PRODUCT_ID
 
     def isElipsa2E(self):
-        return self.detected_device.idProduct in self.ELIPSA_2E_PRODUCT_ID
+        detected_device = self.detected_device
+        assert detected_device is not None
+        return detected_device.idProduct in self.ELIPSA_2E_PRODUCT_ID
 
     def isElipsa(self):
-        return self.detected_device.idProduct in self.ELIPSA_PRODUCT_ID
+        detected_device = self.detected_device
+        assert detected_device is not None
+        return detected_device.idProduct in self.ELIPSA_PRODUCT_ID
 
     def isForma(self):
-        return self.detected_device.idProduct in self.FORMA_PRODUCT_ID
+        detected_device = self.detected_device
+        assert detected_device is not None
+        return detected_device.idProduct in self.FORMA_PRODUCT_ID
 
     def isGlo(self):
-        return self.detected_device.idProduct in self.GLO_PRODUCT_ID
+        detected_device = self.detected_device
+        assert detected_device is not None
+        return detected_device.idProduct in self.GLO_PRODUCT_ID
 
     def isGloHD(self):
-        return self.detected_device.idProduct in self.GLO_HD_PRODUCT_ID
+        detected_device = self.detected_device
+        assert detected_device is not None
+        return detected_device.idProduct in self.GLO_HD_PRODUCT_ID
 
     def isLibraH2O(self):
-        return self.detected_device.idProduct in self.LIBRA_H2O_PRODUCT_ID
+        detected_device = self.detected_device
+        assert detected_device is not None
+        return detected_device.idProduct in self.LIBRA_H2O_PRODUCT_ID
 
     def isLibra2(self):
-        return self.detected_device.idProduct in self.LIBRA2_PRODUCT_ID
+        detected_device = self.detected_device
+        assert detected_device is not None
+        return detected_device.idProduct in self.LIBRA2_PRODUCT_ID
 
     def isLibraColor(self):
         return self.device_model_id.endswith('390')
 
     def isMini(self):
-        return self.detected_device.idProduct in self.MINI_PRODUCT_ID
+        detected_device = self.detected_device
+        assert detected_device is not None
+        return detected_device.idProduct in self.MINI_PRODUCT_ID
 
     def isNia(self):
-        return self.detected_device.idProduct in self.NIA_PRODUCT_ID
+        detected_device = self.detected_device
+        assert detected_device is not None
+        return detected_device.idProduct in self.NIA_PRODUCT_ID
 
     def isSage(self):
-        return self.detected_device.idProduct in self.SAGE_PRODUCT_ID
+        detected_device = self.detected_device
+        assert detected_device is not None
+        return detected_device.idProduct in self.SAGE_PRODUCT_ID
 
     def isShine5(self):
-        return self.device_model_id.endswith('691') or self.detected_device.idProduct in self.TOLINO_SHINE_5THGEN_PRODUCT_ID
+        detected_device = self.detected_device
+        assert detected_device is not None
+        return self.device_model_id.endswith('691') or detected_device.idProduct in self.TOLINO_SHINE_5THGEN_PRODUCT_ID
 
     def isShineColor(self):
-        return self.device_model_id.endswith('693') or self.detected_device.idProduct in self.TOLINO_SHINE_COLOR_PRODUCT_ID
+        detected_device = self.detected_device
+        assert detected_device is not None
+        return self.device_model_id.endswith('693') or detected_device.idProduct in self.TOLINO_SHINE_COLOR_PRODUCT_ID
 
     def detected_product_id(self):
-        ans = self.detected_device.idProduct
+        detected_device = self.detected_device
+        assert detected_device is not None
+        ans = detected_device.idProduct
         if ans in self.LIBRA_COLOR_PRODUCT_ID:
             mid = self.device_model_id[-3:]
             match mid:
@@ -3826,13 +3875,19 @@ class KOBOTOUCH(KOBO):
         return ans
 
     def isTouch(self):
-        return self.detected_device.idProduct in self.TOUCH_PRODUCT_ID
+        detected_device = self.detected_device
+        assert detected_device is not None
+        return detected_device.idProduct in self.TOUCH_PRODUCT_ID
 
     def isTouch2(self):
-        return self.detected_device.idProduct in self.TOUCH2_PRODUCT_ID
+        detected_device = self.detected_device
+        assert detected_device is not None
+        return detected_device.idProduct in self.TOUCH2_PRODUCT_ID
 
     def isVisionColor(self):
-        return self.device_model_id.endswith('690') or self.detected_device.idProduct in self.TOLINO_VISION_COLOR_PRODUCT_ID
+        detected_device = self.detected_device
+        assert detected_device is not None
+        return self.device_model_id.endswith('690') or detected_device.idProduct in self.TOLINO_VISION_COLOR_PRODUCT_ID
 
     def isTolinoDevice(self):
         return self.isShine5() or self.isShineColor() or self.isVisionColor()
@@ -4009,10 +4064,12 @@ class KOBOTOUCH(KOBO):
     @property
     def ignore_collections_names(self):
         # Cache the collection from the options string.
-        if not hasattr(self.opts, '_ignore_collections_names'):
+        opts = self.opts
+        assert opts is not None
+        if not hasattr(opts, '_ignore_collections_names'):
             icn = self.get_pref('ignore_collections_names')
-            self.opts._ignore_collections_names = [x.strip() for x in icn.split(',')] if icn else []
-        return self.opts._ignore_collections_names
+            opts._ignore_collections_names = [x.strip() for x in icn.split(',')] if icn else []
+        return opts._ignore_collections_names
 
     @property
     def create_bookshelves(self):

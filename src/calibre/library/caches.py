@@ -56,7 +56,9 @@ class MetadataBackup(Thread):  # {{{
         while self.keep_running:
             try:
                 time.sleep(2)  # Limit to one book per two seconds
-                id_, sequence = self.db.get_a_dirtied_book()
+                db = self.db
+                assert db is not None
+                id_, sequence = db.get_a_dirtied_book()
                 if id_ is None:
                     continue
                 # print('writer thread', id_, sequence)
@@ -391,9 +393,11 @@ class ResultCache(SearchQueryParser):  # {{{
             return matches
 
         relop = None
-        for k in self.date_search_relops.keys():
+        date_relops = self.date_search_relops
+        assert date_relops is not None
+        for k in date_relops.keys():
             if query.startswith(k):
-                p, relop = self.date_search_relops[k]
+                p, relop = date_relops[k]
                 query = query[p:]
         if relop is None:
             p, relop = self.date_search_relops['=']
@@ -474,9 +478,11 @@ class ResultCache(SearchQueryParser):  # {{{
                     return (x is not None)
         else:
             relop = None
-            for k in self.numeric_search_relops.keys():
+            numeric_relops = self.numeric_search_relops
+            assert numeric_relops is not None
+            for k in numeric_relops.keys():
                 if query.startswith(k):
-                    p, relop = self.numeric_search_relops[k]
+                    p, relop = numeric_relops[k]
                     query = query[p:]
             if relop is None:
                 p, relop = self.numeric_search_relops['=']
@@ -630,7 +636,9 @@ class ResultCache(SearchQueryParser):  # {{{
                     local_empty, local_blank, '_empty')
 
     def get_bool_matches(self, location, query, candidates):
-        bools_are_tristate = self.db_prefs.get('bools_are_tristate')
+        db_prefs = self.db_prefs
+        assert db_prefs is not None
+        bools_are_tristate = db_prefs.get('bools_are_tristate')
         loc = self.field_metadata[location]['rec_index']
         matches = set()
         query = icu_lower(query)
@@ -678,7 +686,9 @@ class ResultCache(SearchQueryParser):  # {{{
             # get metadata key associated with the search term. Eliminates
             # dealing with plurals and other aliases
             original_location = location
-            location = self.field_metadata.search_term_to_field_key(icu_lower(location.strip()))
+            field_metadata = self.field_metadata
+            assert field_metadata is not None
+            location = field_metadata.search_term_to_field_key(icu_lower(location.strip()))
             # grouped search terms
             if isinstance(location, list):
                 if allow_recursion:
@@ -1036,7 +1046,9 @@ class ResultCache(SearchQueryParser):  # {{{
     def books_added(self, ids, db):
         if not ids:
             return
-        self._data.extend(repeat(None, max(ids)-len(self._data)+2))
+        _data = self._data
+        assert _data is not None
+        _data.extend(repeat(None, max(ids)-len(_data)+2))
         for id in ids:
             self._data[id] = CacheRow(db, self.composites, self.datetimes,
                         db.conn.get('SELECT * from meta2 WHERE id=?', (id,))[0],
@@ -1100,7 +1112,9 @@ class ResultCache(SearchQueryParser):  # {{{
     # Sorting functions {{{
 
     def sanitize_sort_field_name(self, field):
-        field = self.field_metadata.search_term_to_field_key(field.lower().strip())
+        field_meta = self.field_metadata
+        assert field_meta is not None
+        field = field_meta.search_term_to_field_key(field.lower().strip())
         # translate some fields to their hidden equivalent
         if field == 'title':
             field = 'sort'
@@ -1120,7 +1134,9 @@ class ResultCache(SearchQueryParser):  # {{{
         of the internal mapping of ids.
         '''
         fields = [(self.sanitize_sort_field_name(x), bool(y)) for x, y in fields]
-        keys = self.field_metadata.sortable_field_keys()
+        field_meta = self.field_metadata
+        assert field_meta is not None
+        keys = field_meta.sortable_field_keys()
         fields = [x for x in fields if x[0] in keys]
         if subsort and 'sort' not in [x[0] for x in fields]:
             fields += [('sort', True)]

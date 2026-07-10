@@ -649,7 +649,9 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         self.prepare_search_and_replace()
 
         self.button_box.clicked.connect(self.button_clicked)
-        self.button_box.button(QDialogButtonBox.StandardButton.Apply).setToolTip(_(
+        apply_btn = self.button_box.button(QDialogButtonBox.StandardButton.Apply)
+        assert apply_btn is not None
+        apply_btn.setToolTip(_(
             'Immediately make all changes without closing the dialog. '
             'This operation cannot be canceled or undone'))
         self.do_again = False
@@ -689,7 +691,9 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         self.button_clear_series_rules.setVisible(bool(self.series_map_rules))
 
     def clear_transform_rules_for(self):
-        n = self.sender().objectName()
+        sender = self.sender()
+        assert sender is not None
+        n = sender.objectName()
         if 'tags' in n:
             self.tag_map_rules = ()
         elif 'authors' in n:
@@ -728,7 +732,9 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         self._change_transform_rules(RulesDialog, 'series')
 
     def sizeHint(self):
-        geom = self.screen().availableSize()
+        screen = self.screen()
+        assert screen is not None
+        geom = screen.availableSize()
         nh, nw = max(300, geom.height()-50), max(400, geom.width()-70)
         return QSize(nw, nh)
 
@@ -889,9 +895,15 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         self.s_r_dst_ident.textChanged.connect(self.s_r_paint_results)
         self.central_widget.setCurrentIndex(0)
 
-        self.search_for.completer().setCaseSensitivity(Qt.CaseSensitivity.CaseSensitive)
-        self.replace_with.completer().setCaseSensitivity(Qt.CaseSensitivity.CaseSensitive)
-        self.s_r_template.completer().setCaseSensitivity(Qt.CaseSensitivity.CaseSensitive)
+        sf_completer = self.search_for.completer()
+        assert sf_completer is not None
+        sf_completer.setCaseSensitivity(Qt.CaseSensitivity.CaseSensitive)
+        rw_completer = self.replace_with.completer()
+        assert rw_completer is not None
+        rw_completer.setCaseSensitivity(Qt.CaseSensitivity.CaseSensitive)
+        sr_completer = self.s_r_template.completer()
+        assert sr_completer is not None
+        sr_completer.setCaseSensitivity(Qt.CaseSensitivity.CaseSensitive)
 
         self.s_r_search_mode_changed(self.search_mode.currentIndex())
         self.multiple_separator.setFixedWidth(30)
@@ -1079,6 +1091,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         src = self.s_r_get_field(mi, src_field)
         result = []
         rfunc = self.s_r_functions[str(self.replace_func.currentText())]
+        assert self.s_r_obj is not None
         for s in src:
             t = self.s_r_obj.sub(self.s_r_func, s)
             if self.search_mode.currentIndex() == 0:

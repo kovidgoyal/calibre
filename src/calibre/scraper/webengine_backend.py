@@ -31,6 +31,7 @@ def create_base_profile(cache_name='', allow_js=False):
     ans.setHttpUserAgent(random_common_chrome_user_agent())
     ans.setHttpCacheMaximumSize(0)  # managed by webengine
     s = ans.settings()
+    assert s is not None
     a = s.setAttribute
     a(QWebEngineSettings.WebAttribute.PluginsEnabled, False)
     a(QWebEngineSettings.WebAttribute.JavascriptEnabled, allow_js)
@@ -152,16 +153,18 @@ class Worker(QWebEnginePage):
         self.working_on_request.last_activity_at = monotonic()
         for m in messages:
             t = m['type']
+            wor = self.working_on_request
+            assert wor is not None
             if t == 'metadata_received':
-                self.working_on_request.metadata_received(m)
+                wor.metadata_received(m)
             elif t == 'chunk_received':
-                self.working_on_request.chunk_received(m['chunk'])
+                wor.chunk_received(m['chunk'])
             elif t == 'finished':
-                result = self.working_on_request.as_result()
+                result = wor.as_result()
                 self.working_on_request = None
                 self.result_received.emit(result)
             elif t == 'error':
-                result = self.working_on_request.as_result(m)
+                result = wor.as_result(m)
                 self.working_on_request = None
                 self.result_received.emit(result)
 
@@ -199,12 +202,16 @@ class FetchBackend(QObject):
     def excepthook(self, cls: type, exc: Exception, tb) -> None:
         if not isinstance(exc, KeyboardInterrupt):
             sys.__excepthook__(cls, exc, tb)
-        QApplication.instance().exit(1)
+        app = QApplication.instance()
+        assert app is not None
+        app.exit(1)
 
     def on_input_finished(self, error_msg: str) -> None:
         if error_msg:
             self.send_response({'action': 'input_error', 'error': error_msg})
-        QApplication.instance().exit(1)
+        app = QApplication.instance()
+        assert app is not None
+        app.exit(1)
 
     def enforce_timeouts(self):
         now = monotonic()

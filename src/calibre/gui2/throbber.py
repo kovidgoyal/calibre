@@ -86,6 +86,7 @@ class ThrobbingButton(QToolButton):
         opt = QStyleOptionToolButton()
         self.initStyleOption(opt)
         s = self.style()
+        assert s is not None
         opt.iconSize = QSize(size, size)
         s.drawComplexControl(QStyle.ComplexControl.CC_ToolButton, opt, p, self)
 
@@ -97,7 +98,9 @@ if __name__ == '__main__':
     w.setLayout(QHBoxLayout())
     b = ThrobbingButton()
     b.setIcon(QIcon.ic('donate.png'))
-    w.layout().addWidget(b)
+    wl = w.layout()
+    assert wl is not None
+    wl.addWidget(b)
     w.show()
     b.set_normal_icon_size(64, 64)
     b.start_animation()

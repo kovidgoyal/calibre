@@ -132,7 +132,9 @@ class TrashList(QListWidget):
             return
         m = QMenu(self)
         entry = item.data(Qt.ItemDataRole.UserRole)
-        m.addAction(QIcon.ic('save.png'), _('Save "{}" to disk').format(entry.title)).triggered.connect(self.save_current_item)
+        _save_action = m.addAction(QIcon.ic('save.png'), _('Save "{}" to disk').format(entry.title))
+        assert _save_action is not None
+        _save_action.triggered.connect(self.save_current_item)
         m.exec(self.mapToGlobal(pos))
 
     def save_current_item(self):
@@ -201,17 +203,22 @@ class TrashView(Dialog):
         h = QHBoxLayout()
         l.addWidget(self.bb)
         self.restore_button = b = self.bb.addButton(_('&Restore selected'), QDialogButtonBox.ButtonRole.ActionRole)
+        assert b is not None
         b.clicked.connect(self.restore_selected)
         b.setIcon(QIcon.ic('edit-undo.png'))
         self.delete_button = b = self.bb.addButton(_('Permanently &delete selected'), QDialogButtonBox.ButtonRole.ActionRole)
+        assert b is not None
         b.setToolTip(_('Remove the selected entries from the trash bin, thereby deleting them permanently'))
         b.setIcon(QIcon.ic('edit-clear.png'))
         b.clicked.connect(self.delete_selected)
         self.clear_button = b = self.bb.addButton(_('&Clear'), QDialogButtonBox.ButtonRole.ResetRole)
+        assert b is not None
         b.clicked.connect(self.clear_all)
         b.setIcon(QIcon.ic('dialog_warning.png'))
         self.update_titles()
-        self.bb.button(QDialogButtonBox.StandardButton.Close).setFocus(Qt.FocusReason.OtherFocusReason)
+        _close_btn = self.bb.button(QDialogButtonBox.StandardButton.Close)
+        assert _close_btn is not None
+        _close_btn.setFocus(Qt.FocusReason.OtherFocusReason)
 
     def clear_all(self):
         if not confirm('<p>'+_('All books and formats will be <b>permanently deleted</b>! Are you sure?'), 'clear_trash_bin', self):

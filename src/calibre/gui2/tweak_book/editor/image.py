@@ -141,11 +141,15 @@ class Editor(QMainWindow):
 
     @property
     def undo_available(self):
-        return self.canvas.undo_action.isEnabled()
+        undo_action = self.canvas.undo_action
+        assert undo_action is not None
+        return undo_action.isEnabled()
 
     @property
     def redo_available(self):
-        return self.canvas.redo_action.isEnabled()
+        redo_action = self.canvas.redo_action
+        assert redo_action is not None
+        return redo_action.isEnabled()
 
     @property
     def current_line(self):
@@ -188,6 +192,7 @@ class Editor(QMainWindow):
 
     def save_state(self):
         for bar in self.bars:
+            assert bar is not None
             if bar.isFloating():
                 return
         tprefs['image-editor-state'] = bytearray(self.saveState())
@@ -201,10 +206,14 @@ class Editor(QMainWindow):
         self.canvas.setFocus(Qt.FocusReason.OtherFocusReason)
 
     def undo(self):
-        self.canvas.undo_action.trigger()
+        undo_action = self.canvas.undo_action
+        assert undo_action is not None
+        undo_action.trigger()
 
     def redo(self):
-        self.canvas.redo_action.trigger()
+        redo_action = self.canvas.redo_action
+        assert redo_action is not None
+        redo_action.trigger()
 
     def copy(self):
         self.canvas.copy()
@@ -244,6 +253,7 @@ class Editor(QMainWindow):
         self.modification_state_changed.emit(True)
         self.fmt_label.setText(' ' + (self.canvas.original_image_format or '').upper())
         im = self.canvas.current_image
+        assert im is not None
         self.size_label.setText('{} x {}{}'.format(im.width(), im.height(), ' px'))
 
     def break_cycles(self):
@@ -263,10 +273,12 @@ class Editor(QMainWindow):
 
     def create_toolbars(self):
         self.action_bar = b = self.addToolBar(_('File actions tool bar'))
+        assert b is not None
         b.setObjectName('action_bar')  # Needed for saveState
         for x in ('undo', 'redo'):
             b.addAction(getattr(self.canvas, f'{x}_action'))
         self.edit_bar = b = self.addToolBar(_('Edit actions tool bar'))
+        assert b is not None
         b.setObjectName('edit-actions-bar')
         for x in ('copy', 'paste'):
             ac = actions[f'editor-{x}']
@@ -279,6 +291,7 @@ class Editor(QMainWindow):
         self.action_resize = ac = b.addAction(QIcon.ic('resize.png'), _('Resize image'), self.resize_image)
         b.addSeparator()
         self.action_filters = ac = b.addAction(QIcon.ic('filter.png'), _('Image filters'))
+        assert ac is not None
         b.widgetForAction(ac).setPopupMode(QToolButton.ToolButtonPopupMode.InstantPopup)
         self.filters_menu = m = QMenu(self)
         ac.setMenu(m)
@@ -290,6 +303,7 @@ class Editor(QMainWindow):
         m.addAction(_('Make image look like an oil painting'), self.oilify_image)
 
         self.info_bar = b = self.addToolBar(_('Image information bar'))
+        assert b is not None
         b.setObjectName('image_info_bar')
         self.fmt_label = QLabel('')
         b.addWidget(self.fmt_label)
@@ -298,6 +312,7 @@ class Editor(QMainWindow):
         b.addWidget(self.size_label)
         self.bars = [self.action_bar, self.edit_bar, self.info_bar]
         for x in self.bars:
+            assert x is not None
             x.setFloatable(False)
             x.topLevelChanged.connect(self.toolbar_floated)
             x.setIconSize(QSize(tprefs['toolbar_icon_size'], tprefs['toolbar_icon_size']))
@@ -320,6 +335,7 @@ class Editor(QMainWindow):
 
     def resize_image(self):
         im = self.canvas.current_image
+        assert im is not None
         d = ResizeDialog(im.width(), im.height(), self)
         if d.exec() == QDialog.DialogCode.Accepted:
             self.canvas.resize_image(d.width, d.height)

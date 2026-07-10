@@ -58,11 +58,15 @@ class MultiDeleter(QObject):  # {{{
             import traceback
             self.failures.append((id_, title, traceback.format_exc()))
         single_shot(self.delete_one)
-        self.pd.value += 1
-        self.pd.set_msg(_('Deleted') + ' ' + title)
+        pd = self.pd
+        assert pd is not None
+        pd.value += 1
+        pd.set_msg(_('Deleted') + ' ' + title)
 
     def cleanup(self):
-        self.pd.hide()
+        pd = self.pd
+        assert pd is not None
+        pd.hide()
         self.pd = None
         self.model.db.commit()
         self.model.db.clean()

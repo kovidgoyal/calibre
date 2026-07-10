@@ -158,8 +158,12 @@ class MetadataSettings(QWidget):
             item.setCheckState(Qt.CheckState.Checked if field_name in allowed else Qt.CheckState.Unchecked)
             item.setData(Qt.ItemDataRole.UserRole, field_name)
         bb = QDialogButtonBox(self)
-        bb.addButton(_('Select &all'), QDialogButtonBox.ButtonRole.ActionRole).clicked.connect(self.select_all)
-        bb.addButton(_('Select &none'), QDialogButtonBox.ButtonRole.ActionRole).clicked.connect(self.select_none)
+        btn_all = bb.addButton(_('Select &all'), QDialogButtonBox.ButtonRole.ActionRole)
+        assert btn_all is not None
+        btn_all.clicked.connect(self.select_all)
+        btn_none = bb.addButton(_('Select &none'), QDialogButtonBox.ButtonRole.ActionRole)
+        assert btn_none is not None
+        btn_none.clicked.connect(self.select_none)
         l.addWidget(bb)
 
     def __iter__(self):

@@ -130,6 +130,7 @@ def fix_fullscreen_images(container):
                     if name == 'svg':
                         svg = elem
             if is_svg_fs_markup(names, svg):
+                assert svg is not None
                 svg.set('width', '100vw')
                 svg.set('height', '100vh')
                 container.dirty(file_name)
@@ -241,6 +242,7 @@ class Renderer(QWebEnginePage):
         self.settle_time = 0
         self.wait_for_title = None
         s = self.settings()
+        assert s is not None
         s.setAttribute(QWebEngineSettings.WebAttribute.JavascriptEnabled, True)
         s.setFontSize(QWebEngineSettings.FontSize.DefaultFontSize, int(opts.pdf_default_font_size))
         s.setFontSize(QWebEngineSettings.FontSize.DefaultFixedFontSize, int(opts.pdf_mono_font_size))
@@ -362,6 +364,7 @@ class RenderManager(QObject):
         ua = 'calibre-pdf-output ' + __version__
         ans.setHttpUserAgent(ua)
         s = ans.settings()
+        assert s is not None
         s.setDefaultTextEncoding('utf-8')
         ans.setUrlRequestInterceptor(self.interceptor)
         self.profile = ans

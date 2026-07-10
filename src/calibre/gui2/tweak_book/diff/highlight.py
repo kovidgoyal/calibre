@@ -39,8 +39,10 @@ class QtHighlighter(QTextDocument):
                 cursor.insertText(block.text())
                 dest_block = cursor.block()
                 c = QTextCursor(dest_block)
+                layout = block.layout()
+                assert layout is not None
                 try:
-                    afs = block.layout().formats()
+                    afs = layout.formats()
                 except AttributeError:
                     afs = ()
                 for af in afs:

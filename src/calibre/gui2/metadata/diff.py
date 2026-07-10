@@ -145,8 +145,10 @@ class LanguagesEdit(LE):
         self.metadata = metadata
         self.textChanged.connect(self.changed)
         if not is_new:
-            self.lineEdit().setReadOnly(True)
-            self.lineEdit().setClearButtonEnabled(False)
+            line_edit = self.lineEdit()
+            assert line_edit is not None
+            line_edit.setReadOnly(True)
+            line_edit.setClearButtonEnabled(False)
 
     @property
     def current_val(self):
@@ -476,6 +478,7 @@ class CompareSingle(QWidget):
             neww = cls(field, True, self, m, extra)
             neww.setObjectName(field)
             connect_lambda(neww.changed, self, lambda self: self.changed(self.sender().objectName()))
+            assert db is not None
             if isinstance(neww, EditWithComplete):
                 try:
                     neww.update_items_cache(db.new_api.all_field_names(field))
@@ -495,25 +498,37 @@ class CompareSingle(QWidget):
                 button.m = m = QMenu(button)
                 button.setMenu(m)
                 button.setPopupMode(QToolButton.ToolButtonPopupMode.DelayedPopup)
-                m.addAction(button.toolTip()).triggered.connect(button.click)
+                a1 = m.addAction(button.toolTip())
+                assert a1 is not None
+                a1.triggered.connect(button.click)
                 m.actions()[0].setIcon(button.icon())
-                m.addAction(_('Merge identifiers')).triggered.connect(self.merge_identifiers)
+                a2 = m.addAction(_('Merge identifiers'))
+                assert a2 is not None
+                a2.triggered.connect(self.merge_identifiers)
                 m.actions()[1].setIcon(QIcon.ic('merge.png'))
             elif field == 'tags':
                 button.m = m = QMenu(button)
                 button.setMenu(m)
                 button.setPopupMode(QToolButton.ToolButtonPopupMode.DelayedPopup)
-                m.addAction(button.toolTip()).triggered.connect(button.click)
+                a1 = m.addAction(button.toolTip())
+                assert a1 is not None
+                a1.triggered.connect(button.click)
                 m.actions()[0].setIcon(button.icon())
-                m.addAction(_('Merge tags')).triggered.connect(self.merge_tags)
+                a2 = m.addAction(_('Merge tags'))
+                assert a2 is not None
+                a2.triggered.connect(self.merge_tags)
                 m.actions()[1].setIcon(QIcon.ic('merge.png'))
             elif field == 'comments':
                 button.m = m = QMenu(button)
                 button.setMenu(m)
                 button.setPopupMode(QToolButton.ToolButtonPopupMode.DelayedPopup)
-                m.addAction(button.toolTip()).triggered.connect(button.click)
+                a1 = m.addAction(button.toolTip())
+                assert a1 is not None
+                a1.triggered.connect(button.click)
                 m.actions()[0].setIcon(button.icon())
-                m.addAction(_('Merge Comments')).triggered.connect(self.merge_comments)
+                a2 = m.addAction(_('Merge Comments'))
+                assert a2 is not None
+                a2.triggered.connect(self.merge_comments)
                 m.actions()[1].setIcon(QIcon.ic('merge.png'))
 
             if cls is CoverView:
@@ -587,13 +602,15 @@ class CompareSingle(QWidget):
             if val != self.initial_vals[field]:
                 widgets.new.to_mi(self.current_mi)
                 changed = True
-        if changed and not self.current_mi.languages:
+        current_mi = self.current_mi
+        assert current_mi is not None
+        if changed and not current_mi.languages:
             # this is needed because blank language setting
             # causes current UI language to be set
             widgets = self.widgets['languages']
             neww, oldw = widgets[:2]
             if oldw.current_val:
-                self.current_mi.languages = oldw.current_val
+                current_mi.languages = oldw.current_val
         return changed
 
 
@@ -684,22 +701,27 @@ class CompareMany(QDialog):
         self.compare_widget.zoom_requested.connect(self.show_zoomed_cover)
 
         self.bb = bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Cancel)
-        bb.button(QDialogButtonBox.StandardButton.Cancel).setAutoDefault(False)
+        cancel_btn = bb.button(QDialogButtonBox.StandardButton.Cancel)
+        assert cancel_btn is not None
+        cancel_btn.setAutoDefault(False)
         bb.rejected.connect(self.reject)
 
         if self.total > 1:
 
             self.aarb = b = bb.addButton(_('&Accept all remaining'), QDialogButtonBox.ButtonRole.YesRole)
+            assert b is not None
             b.setIcon(QIcon.ic('ok.png')), b.setAutoDefault(False)
             if accept_all_tooltip:
                 b.setToolTip(accept_all_tooltip)
             b.clicked.connect(self.accept_all_remaining)
             self.rarb = b = bb.addButton(_('Re&ject all remaining'), QDialogButtonBox.ButtonRole.ActionRole)
+            assert b is not None
             b.setIcon(QIcon.ic('minus.png')), b.setAutoDefault(False)
             if reject_all_tooltip:
                 b.setToolTip(reject_all_tooltip)
             b.clicked.connect(self.reject_all_remaining)
             self.sb = b = bb.addButton(_('R&eject'), QDialogButtonBox.ButtonRole.ActionRole)
+            assert b is not None
             ac = QAction(self)
             ac.setShortcut(QKeySequence(Qt.KeyboardModifier.AltModifier | Qt.KeyboardModifier.ShiftModifier | Qt.Key.Key_Right))
             ac.triggered.connect(b.click)
@@ -726,6 +748,7 @@ class CompareMany(QDialog):
         self.addAction(self.back_action)
         # create the back button, set it's name, tooltip, icon and action to call the previous_item method
         self.back_button = bb.addButton(_('P&revious'), QDialogButtonBox.ButtonRole.ActionRole)
+        assert self.back_button is not None
         self.back_button.setToolTip(_('Move to previous [{}]').format(self.back_action.shortcut().toString(QKeySequence.SequenceFormat.NativeText)))
         self.back_button.setIcon(QIcon.ic('back.png'))
         self.back_button.clicked.connect(self.previous_item)
@@ -733,6 +756,7 @@ class CompareMany(QDialog):
         self.back_button.setAutoDefault(False)
 
         self.nb = b = bb.addButton(_('&Next') if self.total > 1 else _('&OK'), QDialogButtonBox.ButtonRole.ActionRole)
+        assert b is not None
         if self.total > 1:
             b.setToolTip(_('Move to next [{}]').format(self.next_action.shortcut().toString(QKeySequence.SequenceFormat.NativeText)))
             self.next_action.triggered.connect(b.click)
@@ -750,7 +774,9 @@ class CompareMany(QDialog):
 
         self.next_item(True)
 
-        geom = (parent or self).screen().availableSize()
+        screen = (parent or self).screen()
+        assert screen is not None
+        geom = screen.availableSize()
         width = max(700, min(950, geom.width()-50))
         height = max(650, min(1000, geom.height()-100))
         self.resize(QSize(width, height))
@@ -800,7 +826,9 @@ class CompareMany(QDialog):
     def update_back_button_state(self):
         enabled = bool(self.previous_items)
         self.back_action.setEnabled(enabled)
-        self.back_button.setEnabled(enabled)
+        back_button = self.back_button
+        assert back_button is not None
+        back_button.setEnabled(enabled)
 
     def next_item(self, accept):
         self.next_called = True

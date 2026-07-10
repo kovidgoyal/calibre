@@ -113,6 +113,7 @@ class TTSEmbed(Dialog):
         s.addWidget(p)
 
         self.remove_media_button = b = self.bb.addButton(_('&Remove existing audio'), QDialogButtonBox.ButtonRole.ActionRole)
+        assert b is not None
         b.setToolTip(_('Remove any existing audio overlays, such as a previously created Text-to-speech narration from this book'))
         b.setIcon(QIcon.ic('trash.png'))
         b.clicked.connect(self.remove_media)
@@ -121,12 +122,14 @@ class TTSEmbed(Dialog):
         self.stack.currentChanged.connect(self.update_button_box)
 
     def update_button_box(self):
+        remove_media_button = self.remove_media_button
+        assert remove_media_button is not None
         if self.stack.currentIndex() == 0:
             self.bb.setStandardButtons(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)
-            self.remove_media_button.setVisible(True)
+            remove_media_button.setVisible(True)
         else:
             self.bb.setStandardButtons(QDialogButtonBox.StandardButton.Cancel)
-            self.remove_media_button.setVisible(False)
+            remove_media_button.setVisible(False)
 
     def remove_media(self):
         from calibre.ebooks.oeb.polish.tts import remove_embedded_tts

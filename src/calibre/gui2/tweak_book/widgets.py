@@ -129,10 +129,14 @@ class ManageTagList(Dialog):  # {{{
     def open_menu(self, position):
         menu = QMenu(self)
         expand_action = menu.addAction('Expand All')
+        assert expand_action is not None
         expand_action.triggered.connect(self.tree.expandAll)
         collapse_action = menu.addAction('Collapse All')
+        assert collapse_action is not None
         collapse_action.triggered.connect(self.tree.collapseAll)
-        menu.exec(self.tree.viewport().mapToGlobal(position))
+        tree_vp = self.tree.viewport()
+        assert tree_vp is not None
+        menu.exec(tree_vp.mapToGlobal(position))
 
     def sizeHint(self):
         return QSize(400, 500)
@@ -246,8 +250,10 @@ class ManageTagList(Dialog):  # {{{
 
     def _save_expanded_state(self):
         root = self.tree.invisibleRootItem()
+        assert root is not None
         for i in range(root.childCount()):
             item = root.child(i)
+            assert item is not None
             if item.isExpanded():
                 self._collapsed_tags.discard(item.text(0))
             else:
@@ -864,7 +870,9 @@ class InsertLink(Dialog):
         t.setPlaceholderText(_('The (optional) text for the link'))
 
         self.template_edit = t = HistoryComboBox(self)
-        t.lineEdit().setClearButtonEnabled(True)
+        le = t.lineEdit()
+        assert le is not None
+        le.setClearButtonEnabled(True)
         t.initialize('edit_book_insert_link_template_history')
         tl.addRow(_('Tem&plate:'), t)
         from calibre.gui2.tweak_book.editor.smarts.html import DEFAULT_LINK_TEMPLATE
@@ -1358,6 +1366,7 @@ class AddCover(Dialog):
 
         l.addWidget(self.bb)
         b = self.bb.addButton(_('Import &image'), QDialogButtonBox.ButtonRole.ActionRole)
+        assert b is not None
         b.clicked.connect(self.import_image)
         b.setIcon(QIcon.ic('document_open.png'))
         self.names.setFocus(Qt.FocusReason.OtherFocusReason)
@@ -1436,6 +1445,7 @@ class PlainTextEdit(QPlainTextEdit):  # {{{
 
     def createMimeDataFromSelection(self):
         ans = super().createMimeDataFromSelection()
+        assert ans is not None
         for format in ans.formats():
             if format.startswith('text/'):
                 val = bytes(ans.data(format)).decode()

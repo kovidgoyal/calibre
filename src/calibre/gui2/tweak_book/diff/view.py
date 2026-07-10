@@ -152,7 +152,9 @@ class TextBrowser(PlainTextEdit):  # {{{
         pal.setColor(QPalette.ColorRole.Highlight, theme_color(theme, 'Visual', 'bg'))
         pal.setColor(QPalette.ColorRole.HighlightedText, theme_color(theme, 'Visual', 'fg'))
         self.setPalette(pal)
-        self.viewport().setCursor(Qt.CursorShape.ArrowCursor)
+        vp = self.viewport()
+        assert vp is not None
+        vp.setCursor(Qt.CursorShape.ArrowCursor)
         self.line_number_area = LineNumbers(self)
         self.blockCountChanged[int].connect(self.update_line_number_area_width)
         self.updateRequest.connect(self.update_line_number_area)
@@ -192,7 +194,9 @@ class TextBrowser(PlainTextEdit):  # {{{
         a = m.addAction
         i = str(self.textCursor().selectedText()).rstrip('\0')
         if i:
-            a(QIcon.ic('edit-copy.png'), _('Copy to clipboard'), self.copy).setShortcut(QKeySequence.StandardKey.Copy)
+            copy_ac = a(QIcon.ic('edit-copy.png'), _('Copy to clipboard'), self.copy)
+            assert copy_ac is not None
+            copy_ac.setShortcut(QKeySequence.StandardKey.Copy)
 
         if len(self.changes) > 0:
             a(QIcon.ic('arrow-up.png'), _('Previous change'), partial(self.next_change.emit, -1))
@@ -259,7 +263,9 @@ class TextBrowser(PlainTextEdit):  # {{{
             length = end - start
             if text is postfix:
                 start += cpos
-            c = QTextCursor(self.document().findBlockByNumber(num))
+            doc = self.document()
+            assert doc is not None
+            c = QTextCursor(doc.findBlockByNumber(num))
             c.setPosition(c.position() + start)
             if num in headers:
                 self.search_header_pos = start + length
@@ -304,7 +310,9 @@ class TextBrowser(PlainTextEdit):  # {{{
             self.line_number_area.scroll(0, dy)
         else:
             self.line_number_area.update(0, rect.y(), self.line_number_area.width(), rect.height())
-        if rect.contains(self.viewport().rect()):
+        vp = self.viewport()
+        assert vp is not None
+        if rect.contains(vp.rect()):
             self.update_line_number_area_width()
 
     def resizeEvent(self, e):
@@ -354,8 +362,10 @@ class TextBrowser(PlainTextEdit):  # {{{
             num += 1
 
     def paintEvent(self, e):
-        w = self.viewport().rect().width()
-        painter = QPainter(self.viewport())
+        vp = self.viewport()
+        assert vp is not None
+        w = vp.rect().width()
+        painter = QPainter(vp)
         painter.setClipRect(e.rect())
         painter.setRenderHint(QPainter.RenderHint.SmoothPixmapTransform, True)
         floor = e.rect().bottom()
@@ -363,6 +373,7 @@ class TextBrowser(PlainTextEdit):  # {{{
         fv = self.firstVisibleBlock().blockNumber()
         origin = self.contentOffset()
         doc = self.document()
+        assert doc is not None
         lines = []
 
         for num, text in self.headers:
@@ -377,6 +388,7 @@ class TextBrowser(PlainTextEdit):  # {{{
                 break
             painter.setFont(self.heading_font)
             br = painter.drawText(3, int(y_top), int(w), int(y_bot - y_top - 5), Qt.TextFlag.TextSingleLine, text)
+            assert br is not None
             painter.setPen(QPen(self.palette().text(), 2))
             painter.drawLine(0, int(br.bottom()+3), w, int(br.bottom()+3))
 
@@ -659,7 +671,9 @@ class DiffSplit(QSplitter):  # {{{
 
             for i, lines, delta, img, w in changes:
                 top, bot, kind = v.changes[i]
-                c = QTextCursor(v.document().findBlockByNumber(top+1))
+                vdoc = v.document()
+                assert vdoc is not None
+                c = QTextCursor(vdoc.findBlockByNumber(top+1))
                 c.beginEditBlock()
                 c.movePosition(QTextCursor.MoveOperation.StartOfBlock)
                 if delta > 0:
@@ -681,7 +695,9 @@ class DiffSplit(QSplitter):  # {{{
                 v.changes = [(mapnum(t), mapnum(b), k) for t, b, k in v.changes]
                 v.headers = [(mapnum(x), name) for x, name in v.headers]
                 v.images = OrderedDict((mapnum(x), v) for x, v in v.images.items())
-            v.viewport().update()
+            v_vp = v.viewport()
+            assert v_vp is not None
+            v_vp.update()
 
     def get_lines_for_image(self, img, view):
         if img.isNull():
@@ -895,13 +911,19 @@ class DiffSplit(QSplitter):  # {{{
         l, r = '\n'.join(self.left_lines[alo:ahi]), '\n'.join(self.right_lines[blo:bhi])
         ll, rl = self.split_words.findall(l), self.split_words.findall(r)
         cruncher = get_sequence_matcher()(None, ll, rl)
-        lsb, rsb = self.left.document().findBlockByNumber(lsb), self.right.document().findBlockByNumber(rsb)
+        left_doc = self.left.document()
+        assert left_doc is not None
+        right_doc = self.right.document()
+        assert right_doc is not None
+        lsb, rsb = left_doc.findBlockByNumber(lsb), right_doc.findBlockByNumber(rsb)
 
         def do_tag(block, words, lo, hi, pos, fmts):
             for word in words[lo:hi]:
                 if word == '\n':
                     if fmts:
-                        block.layout().setFormats(fmts)
+                        block_layout = block.layout()
+                        assert block_layout is not None
+                        block_layout.setFormats(fmts)
                     pos, block, fmts = 0, block.next(), []
                     continue
 
@@ -919,7 +941,9 @@ class DiffSplit(QSplitter):  # {{{
             rsb, rpos, rfmts = do_tag(rsb, rl, rlo, rhi, rpos, rfmts)
         for block, fmts in ((lsb, lfmts), (rsb, rfmts)):
             if fmts:
-                block.layout().setFormats(fmts)
+                bl = block.layout()
+                assert bl is not None
+                bl.setFormats(fmts)
     # }}}
 
 # }}}
@@ -960,6 +984,7 @@ class DiffView(QWidget):  # {{{
         self.resize_timer.setSingleShot(True)
         self.resize_timer.timeout.connect(self.resize_debounced)
         for bar in (self.scrollbar, self.view.left.verticalScrollBar(), self.view.right.verticalScrollBar()):
+            assert bar is not None
             self.bars.append(bar)
             bar.scroll_idx = len(self.bars) - 1
             connect_lambda(bar.valueChanged[int], self, lambda self: self.scrolled(self.sender().scroll_idx))
@@ -1007,7 +1032,9 @@ class DiffView(QWidget):  # {{{
         self.view.resized()
         self.calculate_length()
         self.adjust_range()
-        self.view.handle(1).update()
+        handle = self.view.handle(1)
+        assert handle is not None
+        handle.update()
 
     def get_position_from_scrollbar(self, which):
         changes = self.changes[which]
@@ -1054,7 +1081,9 @@ class DiffView(QWidget):  # {{{
         with self:
             for x in {0, 1, 2} - {which}:
                 self.scroll_to(x, position)
-        self.view.handle(1).update()
+        handle = self.view.handle(1)
+        assert handle is not None
+        handle.update()
 
     def __enter__(self):
         self.syncing = True
@@ -1070,11 +1099,18 @@ class DiffView(QWidget):  # {{{
             self.scrollbar.setRange(0, 0)
 
     def adjust_range(self):
-        ls, rs = self.view.left.verticalScrollBar(), self.view.right.verticalScrollBar()
+        ls = self.view.left.verticalScrollBar()
+        assert ls is not None
+        rs = self.view.right.verticalScrollBar()
+        assert rs is not None
         self.scrollbar.setPageStep(min(ls.pageStep(), rs.pageStep()))
         self.scrollbar.setSingleStep(min(ls.singleStep(), rs.singleStep()))
         self.scrollbar.setRange(0, ls.maximum() + self.delta)
-        self.scrollbar.setVisible(self.view.left.document().lineCount() > ls.pageStep() or self.view.right.document().lineCount() > rs.pageStep())
+        left_doc = self.view.left.document()
+        assert left_doc is not None
+        right_doc = self.view.right.document()
+        assert right_doc is not None
+        self.scrollbar.setVisible(left_doc.lineCount() > ls.pageStep() or right_doc.lineCount() > rs.pageStep())
         self.syncpos = ceil(self.scrollbar.pageStep() * self.SYNC_POSITION)
 
     def finalize(self):
@@ -1087,13 +1123,19 @@ class DiffView(QWidget):  # {{{
         delta = 0
         line_number_changes = ([], [])
         for v, lmap, changes in zip((self.view.left, self.view.right), ({}, {}), line_number_changes):
-            b = v.document().firstBlock()
-            ebl = v.document().documentLayout().ensureBlockLayout
+            v_doc = v.document()
+            assert v_doc is not None
+            b = v_doc.firstBlock()
+            v_doc_layout = v_doc.documentLayout()
+            assert v_doc_layout is not None
+            ebl = v_doc_layout.ensureBlockLayout
             last_line_count = 0
             while b.isValid():
                 ebl(b)
                 lmap[b.blockNumber()] = last_line_count
-                last_line_count += b.layout().lineCount()
+                b_layout = b.layout()
+                assert b_layout is not None
+                last_line_count += b_layout.lineCount()
                 b = b.next()
             for top, bot, kind in v.changes:
                 changes.append((lmap[top], lmap[bot], kind))

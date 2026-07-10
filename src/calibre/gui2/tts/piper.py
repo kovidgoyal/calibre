@@ -387,8 +387,10 @@ class Piper(TTSBackend):
         elif state is QAudio.State.SuspendedState:
             self._set_state(QTextToSpeech.State.Paused)
         elif state is QAudio.State.StoppedState:
-            if self._audio_sink.error() not in (QAudio.Error.NoError, QAudio.Error.UnderrunError):
-                self._set_error(f'Audio playback failed with error: {self._audio_sink.error()}')
+            _audio_sink = self._audio_sink
+            assert _audio_sink is not None
+            if _audio_sink.error() not in (QAudio.Error.NoError, QAudio.Error.UnderrunError):
+                self._set_error(f'Audio playback failed with error: {_audio_sink.error()}')
             elif self._state is not QTextToSpeech.State.Error:
                 self._set_state(QTextToSpeech.State.Ready)
         elif state is QAudio.State.IdleState:
@@ -414,7 +416,9 @@ class Piper(TTSBackend):
         self._load_voice_metadata()
         lang = get_lang()
         lang = canonicalize_lang(lang) or lang
-        return self._voice_for_lang.get(lang) or self._voice_for_lang['eng']
+        _voice_for_lang = self._voice_for_lang
+        assert _voice_for_lang is not None
+        return _voice_for_lang.get(lang) or _voice_for_lang['eng']
 
     @property
     def cache_dir(self) -> str:

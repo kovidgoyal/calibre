@@ -271,16 +271,19 @@ class InsertImage(Dialog):
             self.bb.clear()
             self.bb.addButton(QDialogButtonBox.StandardButton.Close)
             b = self.refresh_button = self.bb.addButton(_('&Refresh'), QDialogButtonBox.ButtonRole.ActionRole)
+            assert b is not None
             b.clicked.connect(self.refresh)
             b.setIcon(QIcon.ic('view-refresh.png'))
             b.setToolTip(_('Refresh the displayed images'))
             self.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose, False)
         else:
             b = self.import_button = self.bb.addButton(_('&Import image'), QDialogButtonBox.ButtonRole.ActionRole)
+            assert b is not None
             b.clicked.connect(self.import_image)
             b.setIcon(QIcon.ic('view-image.png'))
             b.setToolTip(_('Import an image from elsewhere in your computer'))
             b = self.paste_button = self.bb.addButton(_('&Paste image'), QDialogButtonBox.ButtonRole.ActionRole)
+            assert b is not None
             b.clicked.connect(self.paste_image)
             b.setIcon(QIcon.ic('edit-paste.png'))
             b.setToolTip(_('Paste an image from the clipboard'))
@@ -297,9 +300,11 @@ class InsertImage(Dialog):
             l.addLayout(h, 3, 0, 1, -1)
             h.addWidget(f), h.addStretch(10), h.addWidget(a)
         b = self.bb.addButton(_('&Zoom in'), QDialogButtonBox.ButtonRole.ActionRole)
+        assert b is not None
         b.clicked.connect(self.zoom_in)
         b.setIcon(QIcon.ic('plus.png'))
         b = self.bb.addButton(_('Zoom &out'), QDialogButtonBox.ButtonRole.ActionRole)
+        assert b is not None
         b.clicked.connect(self.zoom_out)
         b.setIcon(QIcon.ic('minus.png'))
         l.addWidget(self.bb, 4, 0, 1, 2)
@@ -338,6 +343,7 @@ class InsertImage(Dialog):
 
     def paste_image(self):
         c = qapplication_or_fail().clipboard()
+        assert c is not None
         img = c.image()
         if img.isNull():
             img = c.image(QClipboard.Mode.Selection)
@@ -492,8 +498,10 @@ class NewBook(Dialog):  # {{{
         bb.clear()
         bb.addButton(QDialogButtonBox.StandardButton.Cancel)
         b = bb.addButton('&EPUB', QDialogButtonBox.ButtonRole.AcceptRole)
+        assert b is not None
         connect_lambda(b.clicked, self, lambda self: self.set_fmt('epub'))
         b = bb.addButton('&AZW3', QDialogButtonBox.ButtonRole.AcceptRole)
+        assert b is not None
         connect_lambda(b.clicked, self, lambda self: self.set_fmt('azw3'))
 
     def set_fmt(self, fmt):

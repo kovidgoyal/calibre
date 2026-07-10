@@ -176,7 +176,9 @@ class SourcesEditor(Dialog):
         self.entries = e = QListWidget(self)
         e.setDragEnabled(True)
         e.itemDoubleClicked.connect(self.edit_source)
-        e.viewport().setAcceptDrops(True)
+        vp = e.viewport()
+        assert vp is not None
+        vp.setAcceptDrops(True)
         e.setDropIndicatorShown(True)
         e.setDragDropMode(QAbstractItemView.DragDropMode.InternalMove)
         e.setDefaultDropAction(Qt.DropAction.MoveAction)
@@ -185,12 +187,15 @@ class SourcesEditor(Dialog):
         self.build_entries(vprefs['lookup_locations'])
 
         self.add_button = b = self.bb.addButton(_('Add'), QDialogButtonBox.ButtonRole.ActionRole)
+        assert b is not None
         b.setIcon(QIcon.ic('plus.png'))
         b.clicked.connect(self.add_source)
         self.remove_button = b = self.bb.addButton(_('Remove'), QDialogButtonBox.ButtonRole.ActionRole)
+        assert b is not None
         b.setIcon(QIcon.ic('minus.png'))
         b.clicked.connect(self.remove_source)
         self.restore_defaults_button = b = self.bb.addButton(_('Restore defaults'), QDialogButtonBox.ButtonRole.ActionRole)
+        assert b is not None
         b.clicked.connect(self.restore_defaults)
 
     def add_entry(self, entry, prepend=False):
@@ -224,7 +229,12 @@ class SourcesEditor(Dialog):
 
     @property
     def all_entries(self):
-        return [self.entries.item(r).data(Qt.ItemDataRole.UserRole) for r in range(self.entries.count())]
+        result = []
+        for r in range(self.entries.count()):
+            item = self.entries.item(r)
+            assert item is not None
+            result.append(item.data(Qt.ItemDataRole.UserRole))
+        return result
 
     def accept(self):
         entries = self.all_entries
@@ -247,8 +257,10 @@ def create_profile():
         js = P('lookup.js', data=True, allow_user_override=True)
         insert_scripts(ans, create_script('lookup.js', js, injection_point=QWebEngineScript.InjectionPoint.DocumentCreation))
         s = ans.settings()
+        assert s is not None
         s.setDefaultTextEncoding('utf-8')
         cs = ans.cookieStore()
+        assert cs is not None
         for c in google_consent_cookies():
             cookie = QNetworkCookie()
             cookie.setName(c['name'].encode())
@@ -301,6 +313,7 @@ class View(QWebEngineView):
 
     def contextMenuEvent(self, a0):
         menu = self.createStandardContextMenu()
+        assert menu is not None
         menu.addSeparator()
         menu.addAction(_('Zoom in'), self.page().zoom_in)
         menu.addAction(_('Zoom out'), self.page().zoom_out)
@@ -419,7 +432,9 @@ class Lookup(QTabWidget):
         start_worker()  # needed for live loading of AI backends
         from calibre.gui2.viewer.llm import LLMPanel
         self.llm_panel = LLMPanel(self)
-        self.llm_container.layout().addWidget(self.llm_panel)
+        llm_layout = self.llm_container.layout()
+        assert llm_layout is not None
+        llm_layout.addWidget(self.llm_panel)
         if self.current_book_metadata:
             self.llm_panel.update_book_metadata(self.current_book_metadata)
         self.llm_panel.add_note_requested.connect(self.add_note_requested)

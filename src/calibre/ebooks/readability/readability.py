@@ -148,6 +148,7 @@ class Document:
                     continue
                 else:
                     self.log.debug('Ruthless and lenient parsing did not work. Returning raw html')
+                    assert self.html is not None
                     article = self.html.find('body')
                     if article is None:
                         article = self.html
@@ -306,6 +307,7 @@ class Document:
         self.log.debug(*a)
 
     def remove_unlikely_candidates(self):
+        assert self.html is not None
         for elem in self.html.iter():
             if elem in self.keep_elements:
                 continue
@@ -500,6 +502,7 @@ def main():
     with open(args[0], 'rb') as f:
         raw = f.read()
 
+    assert sys.__stdout__ is not None
     enc = sys.__stdout__.encoding or 'utf-8'
     if options.verbose:
         default_log.filter_level = default_log.DEBUG

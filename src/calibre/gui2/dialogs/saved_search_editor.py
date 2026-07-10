@@ -99,14 +99,17 @@ class SavedSearchEditor(Dialog):
         db = get_gui().current_db
         self.l = l = QVBoxLayout(self)
         b = self.bb.addButton(_('&Add search'), QDialogButtonBox.ButtonRole.ActionRole)
+        assert b is not None
         b.setIcon(QIcon.ic('search_add_saved.png'))
         b.clicked.connect(self.add_search)
 
         b = self.bb.addButton(_('&Remove search'), QDialogButtonBox.ButtonRole.ActionRole)
+        assert b is not None
         b.setIcon(QIcon.ic('search_delete_saved.png'))
         b.clicked.connect(self.del_search)
 
         b = self.bb.addButton(_('&Edit search'), QDialogButtonBox.ButtonRole.ActionRole)
+        assert b is not None
         b.setIcon(QIcon.ic('modified.png'))
         b.clicked.connect(self.edit_search)
 
@@ -185,7 +188,9 @@ class SavedSearchEditor(Dialog):
         if d.exec() != QDialog.DialogCode.Accepted:
             return
         name, expression = d.accepted_data
-        self.slist.currentItem().setText(name)
+        current_item = self.slist.currentItem()
+        assert current_item is not None
+        current_item.setText(name)
         del self.searches[n]
         self.searches[name] = expression
         self.current_index_changed(self.slist.currentItem())

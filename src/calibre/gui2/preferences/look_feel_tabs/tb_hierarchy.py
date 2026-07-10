@@ -125,7 +125,9 @@ class TbHierarchyTab(LazyConfigWidgetBase, Ui_Form):
         # the option order
         node = 0
         for i in range(4):
-            v = self.tb_search_order.item(i).data(Qt.ItemDataRole.UserRole)
+            item = self.tb_search_order.item(i)
+            assert item is not None
+            v = item.data(Qt.ItemDataRole.UserRole)
             # JSON dumps converts integer keys to strings, so do it explicitly
             t[str(node)] = v
             node = v
@@ -139,10 +141,12 @@ class TbHierarchyTab(LazyConfigWidgetBase, Ui_Form):
         self.changed_signal.emit()
 
     def reset_layout(self, model=None):
+        assert model is not None
         model.initialize(use_defaults=True)
         self.changed_signal.emit()
 
     def export_layout(self, model=None):
+        assert model is not None
         filename = choose_save_file(self, 'em_import_export_field_list',
                 _('Save column list to file'),
                 filters=[(_('Column list'), ['json'])])
@@ -155,6 +159,7 @@ class TbHierarchyTab(LazyConfigWidgetBase, Ui_Form):
                              _('<p>Could not write field list. Error:<br>%s')%err, show=True)
 
     def import_layout(self, model=None):
+        assert model is not None
         filename = choose_files(self, 'em_import_export_field_list',
                 _('Load column list from file'),
                 filters=[(_('Column list'), ['json'])])

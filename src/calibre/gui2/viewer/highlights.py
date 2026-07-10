@@ -192,6 +192,7 @@ def decoration_for_style(palette, style, icon_size, device_pixel_ratio, is_dark,
             lw * 2
         pen.setWidth(fm.lineWidth())
         q = style.get('text-decoration-line') or 'underline'
+        assert text_rect is not None
         pos = text_rect.bottom()
         height = irect.bottom() - pos
         if q == 'overline':
@@ -223,7 +224,10 @@ class SwatchList(QListWidget):
         super().__init__(parent)
         self.setSelectionMode(QAbstractItemView.SelectionMode.NoSelection)
         self.setViewMode(QListView.ViewMode.IconMode)
-        icon_size = parent.style().pixelMetric(QStyle.PixelMetric.PM_IconViewIconSize, None, self)
+        assert parent is not None
+        parent_style = parent.style()
+        assert parent_style is not None
+        icon_size = parent_style.pixelMetric(QStyle.PixelMetric.PM_IconViewIconSize, None, self)
         self.setIconSize(QSize(icon_size, icon_size))
         self.setSpacing(20)
         dpr = self.devicePixelRatioF()
@@ -248,16 +252,21 @@ class SwatchList(QListWidget):
     def selected_styles(self):
         for i in range(self.count()):
             item = self.item(i)
+            assert item is not None
             if item.checkState() == Qt.CheckState.Checked:
                 yield item.data(Qt.ItemDataRole.UserRole + 1)
 
     def select_all(self):
         for i in range(self.count()):
-            self.item(i).setCheckState(Qt.CheckState.Checked)
+            item = self.item(i)
+            assert item is not None
+            item.setCheckState(Qt.CheckState.Checked)
 
     def select_none(self):
         for i in range(self.count()):
-            self.item(i).setCheckState(Qt.CheckState.Unchecked)
+            item = self.item(i)
+            assert item is not None
+            item.setCheckState(Qt.CheckState.Unchecked)
 
 
 class FilterDialog(Dialog):
@@ -278,8 +287,12 @@ class FilterDialog(Dialog):
         self.swatches = s = SwatchList(self.all_styles, self.show_only_styles, self)
         l.addWidget(s)
         l.addWidget(self.bb)
-        self.bb.addButton(_('Select &all'), QDialogButtonBox.ButtonRole.ActionRole).clicked.connect(s.select_all)
-        self.bb.addButton(_('Select &none'), QDialogButtonBox.ButtonRole.ActionRole).clicked.connect(s.select_none)
+        btn_all = self.bb.addButton(_('Select &all'), QDialogButtonBox.ButtonRole.ActionRole)
+        assert btn_all is not None
+        btn_all.clicked.connect(s.select_all)
+        btn_none = self.bb.addButton(_('Select &none'), QDialogButtonBox.ButtonRole.ActionRole)
+        assert btn_none is not None
+        btn_none.clicked.connect(s.select_none)
 
     @property
     def selected_styles(self):
@@ -390,11 +403,14 @@ class Highlights(QTreeWidget):
 
     def load(self, highlights, preserve_state=False):
         s = self.style()
+        assert s is not None
         expanded_chapters = set()
         if preserve_state:
             root = self.invisibleRootItem()
+            assert root is not None
             for i in range(root.childCount()):
                 chapter = root.child(i)
+                assert chapter is not None
                 if chapter.isExpanded():
                     expanded_chapters.add(chapter.data(0, section_role))
         icon_size = s.pixelMetric(QStyle.PixelMetric.PM_SmallIconSize, None, self)
@@ -500,8 +516,10 @@ class Highlights(QTreeWidget):
 
     def iteritems(self):
         root = self.invisibleRootItem()
+        assert root is not None
         for i in range(root.childCount()):
             sec = root.child(i)
+            assert sec is not None
             for k in range(sec.childCount()):
                 yield sec.child(k)
 
@@ -594,10 +612,14 @@ class Highlights(QTreeWidget):
                 hidden = skey not in q
             item.setHidden(hidden)
         root = self.invisibleRootItem()
+        assert root is not None
         for i in range(root.childCount()):
             sec = root.child(i)
+            assert sec is not None
             for k in range(sec.childCount()):
-                if not sec.child(k).isHidden():
+                child_k = sec.child(k)
+                assert child_k is not None
+                if not child_k.isHidden():
                     sec.setHidden(False)
                     break
             else:
@@ -653,8 +675,10 @@ class NotesDisplay(Details):
         self.current_notes = text
         html = '\n'.join(render_notes(text))
         self.setHtml('<div><a href="edit://moo">{}</a></div>{}'.format(_('Edit notes'), html))
-        self.document().setDefaultStyleSheet('a[href] { text-decoration: none }')
-        h = self.document().size().height() + 2
+        doc = self.document()
+        assert doc is not None
+        doc.setDefaultStyleSheet('a[href] { text-decoration: none }')
+        h = doc.size().height() + 2
         self.setMaximumHeight(int(h))
 
     def anchor_clicked(self, qurl):

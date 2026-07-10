@@ -442,15 +442,13 @@ class VLTabs(QTabBar):  # {{{
         # ensure no button on the All books tab since it is not closeable
         for idx in range(self.count()):
             if not self.tabData(idx):
-                try:
-                    self.tabButton(idx, QTabBar.ButtonPosition.RightSide).setVisible(False)
-                except AttributeError:
-                    try:
-                        self.tabButton(idx, QTabBar.ButtonPosition.LeftSide).setVisible(False)
-                    except AttributeError:
-                        # On some OS X machines (using native style) the tab button is
-                        # on the left
-                        pass
+                btn = self.tabButton(idx, QTabBar.ButtonPosition.RightSide)
+                if btn is not None:
+                    btn.setVisible(False)
+                else:
+                    btn = self.tabButton(idx, QTabBar.ButtonPosition.LeftSide)
+                    if btn is not None:
+                        btn.setVisible(False)
                 break
 
     def tab_changed(self, idx):
@@ -511,15 +509,13 @@ class VLTabs(QTabBar):  # {{{
         self.setCurrentIndex(all_idx if current_idx is None else current_idx)
         if current_idx is None and current_lib:
             self.setTabText(all_idx, current_lib)
-        try:
-            self.tabButton(all_idx, QTabBar.ButtonPosition.RightSide).setVisible(False)
-        except AttributeError:
-            try:
-                self.tabButton(all_idx, QTabBar.ButtonPosition.LeftSide).setVisible(False)
-            except AttributeError:
-                # On some OS X machines (using native style) the tab button is
-                # on the left
-                pass
+        btn = self.tabButton(all_idx, QTabBar.ButtonPosition.RightSide)
+        if btn is not None:
+            btn.setVisible(False)
+        else:
+            btn = self.tabButton(all_idx, QTabBar.ButtonPosition.LeftSide)
+            if btn is not None:
+                btn.setVisible(False)
         self.update_visibility()
 
     def update_current(self):
@@ -531,6 +527,7 @@ class VLTabs(QTabBar):  # {{{
         hidden = self.current_db.new_api.pref('virt_libs_hidden')
         if hidden:
             s = m._s = m.addMenu(_('Restore hidden tabs'))
+            assert s is not None
             for x in hidden:
                 s.addAction(x, partial(self.restore, x))
         m.addAction(_('Hide Virtual library tabs'), self.disable_bar)
@@ -731,6 +728,7 @@ class LayoutMixin:  # {{{
         self.book_details.compare_specific_format.connect(self.compare_format)
 
         m = self.library_view.model()
+        assert m is not None
         if m.rowCount(None) > 0:
             QTimer.singleShot(0, self.library_view.set_current_row)
             m.current_changed(self.library_view.currentIndex(),
@@ -780,7 +778,9 @@ class LayoutMixin:  # {{{
         if field and value:
             tb = self.tb_widget
             tb.set_focus_to_find_box()
-            tb.item_search.lineEdit().setText(field + ':=' + value)
+            le = tb.item_search.lineEdit()
+            assert le is not None
+            le.setText(field + ':=' + value)
             tb.do_find()
 
     def toggle_search_bar(self, show):
@@ -841,7 +841,9 @@ class LayoutMixin:  # {{{
 
     def bd_copy_link(self, url):
         if url:
-            QApplication.clipboard().setText(url)
+            clipboard = QApplication.clipboard()
+            assert clipboard is not None
+            clipboard.setText(url)
 
     def compare_format(self, book_id, fmt):
         db = self.current_db.new_api

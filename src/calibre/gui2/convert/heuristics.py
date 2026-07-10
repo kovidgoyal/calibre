@@ -74,7 +74,9 @@ class HeuristicsWidget(Widget, Ui_Form):
         val = str(self.opt_replace_scene_breaks.currentText())
 
         self.opt_replace_scene_breaks.clear()
-        self.opt_replace_scene_breaks.lineEdit().setText('')
+        _rsb_le = self.opt_replace_scene_breaks.lineEdit()
+        assert _rsb_le is not None
+        _rsb_le.setText('')
 
         rssb_hist = gprefs.get('replace_scene_breaks_history', self.rssb_defaults)
         if val in rssb_hist:
@@ -88,7 +90,9 @@ class HeuristicsWidget(Widget, Ui_Form):
 
     def save_histories(self):
         rssb_history = []
-        history_pats = [str(self.opt_replace_scene_breaks.lineEdit().text())] + [str(self.opt_replace_scene_breaks.itemText(i))
+        _rsb_le2 = self.opt_replace_scene_breaks.lineEdit()
+        assert _rsb_le2 is not None
+        history_pats = [str(_rsb_le2.text())] + [str(self.opt_replace_scene_breaks.itemText(i))
                                 for i in range(self.opt_replace_scene_breaks.count())]
         for p in history_pats[:10]:
             # Ensure we don't have duplicate items.

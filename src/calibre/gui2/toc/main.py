@@ -85,8 +85,10 @@ class XPathDialog(QDialog):  # {{{
         bb.accepted.connect(self.accept)
         bb.rejected.connect(self.reject)
         self.ssb = b = bb.addButton(_('&Save settings'), QDialogButtonBox.ButtonRole.ActionRole)
+        assert b is not None
         b.clicked.connect(self.save_settings)
         self.load_button = b = bb.addButton(_('&Load settings'), QDialogButtonBox.ButtonRole.ActionRole)
+        assert b is not None
         self.load_menu = QMenu(b)
         b.setMenu(self.load_menu)
         self.setup_load_button()
@@ -125,7 +127,9 @@ class XPathDialog(QDialog):  # {{{
             a(m.addAction(name, partial(self.load_settings, name)))
         m.addSeparator()
         a(m.addAction(_('Remove saved settings'), self.clear_settings))
-        self.load_button.setEnabled(bool(saved))
+        load_button = self.load_button
+        assert load_button is not None
+        load_button.setEnabled(bool(saved))
 
     def clear_settings(self):
         self.prefs.set('xpath_toc_settings', {})
@@ -397,6 +401,7 @@ class ItemView(QStackedWidget):  # {{{
 
     def populate_item_pane(self):
         item = self.current_item
+        assert item is not None
         name = str(item.data(0, Qt.ItemDataRole.DisplayRole) or '')
         self.item_pane.heading.setText(f'<h2>{name}</h2>')
         self.icon_label.setPixmap(item.data(0, Qt.ItemDataRole.DecorationRole
@@ -431,7 +436,9 @@ class TreeWidget(QTreeWidget):  # {{{
         self.setIconSize(QSize(ICON_SIZE, ICON_SIZE))
         self.setDragEnabled(True)
         self.setSelectionMode(QAbstractItemView.SelectionMode.ExtendedSelection)
-        self.viewport().setAcceptDrops(True)
+        viewport = self.viewport()
+        assert viewport is not None
+        viewport.setAcceptDrops(True)
         self.setDropIndicatorShown(True)
         self.setDragDropMode(QAbstractItemView.DragDropMode.InternalMove)
         self.setAutoScroll(True)
@@ -461,6 +468,7 @@ class TreeWidget(QTreeWidget):  # {{{
     def iter_items(self, parent=None):
         if parent is None:
             parent = self.invisibleRootItem()
+        assert parent is not None
         for i in range(parent.childCount()):
             child = parent.child(i)
             yield child
@@ -489,6 +497,7 @@ class TreeWidget(QTreeWidget):  # {{{
             }
 
         node = self.invisibleRootItem()
+        assert node is not None
         return {'children': list(map(serialize_node, (node.child(i) for i in range(node.childCount()))))}
 
     def unserialize_tree(self, serialized):
@@ -507,6 +516,7 @@ class TreeWidget(QTreeWidget):  # {{{
                 unserialize_node(c, n)
 
         i = self.invisibleRootItem()
+        assert i is not None
         i.takeChildren()
         for child in serialized['children']:
             unserialize_node(child, i)
@@ -574,6 +584,7 @@ class TreeWidget(QTreeWidget):  # {{{
             was_expanded = item.isExpanded() or item.childCount() == 0
 
             new_parent = old_parent.parent() or self.invisibleRootItem()
+            assert new_parent is not None
             new_index = new_parent.indexOfChild(old_parent) + 1
 
             # all former lower siblings become children of indented item
@@ -599,6 +610,7 @@ class TreeWidget(QTreeWidget):  # {{{
         for item in items:
             # indent right == become child of upper sibling
             old_parent = item.parent() or self.invisibleRootItem()
+            assert old_parent is not None
             old_idx = old_parent.indexOfChild(item)
             was_expanded = item.isExpanded()
 
@@ -614,6 +626,7 @@ class TreeWidget(QTreeWidget):  # {{{
                 failed_parent = None
 
             new_parent = old_parent.child(old_idx-1)
+            assert new_parent is not None
             old_parent.removeChild(item)
             new_parent.addChild(item)
 
@@ -681,6 +694,7 @@ class TreeWidget(QTreeWidget):  # {{{
 
         for item in reversed(items_):
             old_parent = item.parent() or self.invisibleRootItem()
+            assert old_parent is not None
             old_index = old_parent.indexOfChild(item)
             was_expanded = item.isExpanded() or item.childCount() == 0
 
@@ -692,6 +706,7 @@ class TreeWidget(QTreeWidget):  # {{{
             elif old_parent is not self.invisibleRootItem():
                 # move down past bottom of parent, become child of grandparent
                 new_parent = old_parent.parent() or self.invisibleRootItem()
+                assert new_parent is not None
                 old_parent.removeChild(item)
                 new_index = new_parent.indexOfChild(old_parent) + 1
                 new_parent.insertChild(new_index, item)
@@ -725,6 +740,7 @@ class TreeWidget(QTreeWidget):  # {{{
 
         for item in items_:
             old_parent = item.parent() or self.invisibleRootItem()
+            assert old_parent is not None
             old_index = old_parent.indexOfChild(item)
             was_expanded = item.isExpanded() or item.childCount() == 0
 
@@ -736,6 +752,7 @@ class TreeWidget(QTreeWidget):  # {{{
             elif old_parent is not self.invisibleRootItem():
                 # move up past top of parent, become upper sibling of parent
                 new_parent = old_parent.parent() or self.invisibleRootItem()
+                assert new_parent is not None
                 old_parent.removeChild(item)
                 new_index = new_parent.indexOfChild(old_parent)
                 new_parent.insertChild(new_index, item)
@@ -759,6 +776,7 @@ class TreeWidget(QTreeWidget):  # {{{
         self.push_history()
         for item in self.selectedItems():
             p = item.parent() or self.root
+            assert p is not None
             p.removeChild(item)
 
     def title_case(self):
@@ -841,6 +859,7 @@ class TreeWidget(QTreeWidget):  # {{{
             m.addSeparator()
             ci = str(item.data(0, Qt.ItemDataRole.DisplayRole) or '')
             p = item.parent() or self.invisibleRootItem()
+            assert p is not None
             idx = p.indexOfChild(item)
             if idx > 0:
                 m.addAction(QIcon.ic('arrow-up.png'), (_('Move "%s" up')%ci)+key(Qt.Key.Key_Up), self.move_up)
@@ -955,6 +974,7 @@ class TOCView(QWidget):  # {{{
         if item is not None:
             self.tocw.push_history()
             p = item.parent() or self.root
+            assert p is not None
             p.removeChild(item)
 
     def iter_items(self, parent=None):
@@ -978,6 +998,7 @@ class TOCView(QWidget):  # {{{
     def _flatten_item(self, item):
         if item is not None:
             p = item.parent() or self.root
+            assert p is not None
             idx = p.indexOfChild(item)
             children = [item.child(i) for i in range(item.childCount())]
             for child in reversed(children):
@@ -997,8 +1018,10 @@ class TOCView(QWidget):  # {{{
         self.tocw.move_down()
 
     def data_changed(self, top_left, bottom_right):
+        model = self.tocw.model()
+        assert model is not None
         for r in range(top_left.row(), bottom_right.row()+1):
-            idx = self.tocw.model().index(r, 0, top_left.parent())
+            idx = model.index(r, 0, top_left.parent())
             new_title = str(idx.data(Qt.ItemDataRole.DisplayRole) or '').strip()
             toc = idx.data(Qt.ItemDataRole.UserRole)
             if toc is not None:
@@ -1048,9 +1071,12 @@ class TOCView(QWidget):  # {{{
                 process_item(child, c)
 
         root = self.root = self.tocw.invisibleRootItem()
+        assert root is not None
         root.setData(0, Qt.ItemDataRole.UserRole, self.toc)
         process_item(self.toc, root)
-        self.tocw.model().dataChanged.connect(self.data_changed)
+        toc_model = self.tocw.model()
+        assert toc_model is not None
+        toc_model.dataChanged.connect(self.data_changed)
         self.tocw.currentItemChanged.connect(self.current_item_changed)
         self.tocw.setCurrentItem(None)
 
@@ -1077,6 +1103,7 @@ class TOCView(QWidget):  # {{{
                 idx = -1
             else:
                 parent = item.parent() or self.root
+                assert parent is not None
                 idx = parent.indexOfChild(item)
                 if where == 'after':
                     idx += 1
@@ -1191,6 +1218,7 @@ class TOCEditor(QDialog):  # {{{
         bb.accepted.connect(self.accept)
         bb.rejected.connect(self.reject)
         self.undo_button = b = bb.addButton(_('&Undo'), QDialogButtonBox.ButtonRole.ActionRole)
+        assert b is not None
         b.setToolTip(_('Undo the last action, if any'))
         b.setIcon(QIcon.ic('edit-undo.png'))
         b.clicked.connect(self.toc_view.undo)
@@ -1206,8 +1234,10 @@ class TOCEditor(QDialog):  # {{{
         return QSize(900, 600)
 
     def update_history_buttons(self):
-        self.undo_button.setVisible(self.stacks.currentIndex() == 1)
-        self.undo_button.setEnabled(bool(self.toc_view.tocw.history))
+        undo_button = self.undo_button
+        assert undo_button is not None
+        undo_button.setVisible(self.stacks.currentIndex() == 1)
+        undo_button.setEnabled(bool(self.toc_view.tocw.history))
 
     def add_new_item(self, item, where):
         self.item_edit(item, where)

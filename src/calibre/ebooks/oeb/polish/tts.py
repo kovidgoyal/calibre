@@ -199,6 +199,7 @@ def mark_sentences_in_html(root, lang: str = '', voice: str = '') -> list[Senten
             ans.attrib.pop('name', None)
             ans.text, ans.tail = elem.text, elem.tail
             p = elem.getparent()
+            assert p is not None
             idx = p.index(elem)
             p.insert(idx + 1, ans)
             self.replace_reference_to_child(elem, ans)

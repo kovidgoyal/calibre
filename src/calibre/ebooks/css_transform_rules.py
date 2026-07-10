@@ -183,10 +183,12 @@ class Rule:
             self.property_matches = lambda x: True
         elif 'matches' in match_type:
             self.match_pat = compile_pat(query)
+            _match_pat = self.match_pat
+            assert _match_pat is not None
             if match_type.startswith('not_'):
-                self.property_matches = lambda x: self.match_pat.match(x) is None
+                self.property_matches = lambda x: _match_pat.match(x) is None
             else:
-                self.property_matches = lambda x: self.match_pat.match(x) is not None
+                self.property_matches = lambda x: _match_pat.match(x) is not None
         else:
             value, unit = parse_css_length_or_number(query)
             op = getattr(operator, operator_map[match_type])

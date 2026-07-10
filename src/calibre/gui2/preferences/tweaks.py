@@ -479,6 +479,7 @@ class ConfigWidget(ConfigWidgetBase):
 
     def copy_item_to_clipboard(self, val):
         cb = QApplication.clipboard()
+        assert cb is not None
         cb.clear()
         cb.setText(val)
 
@@ -517,7 +518,9 @@ class ConfigWidget(ConfigWidgetBase):
     def initialize(self):
         self.tweaks = self._model = Tweaks()
         self.tweaks_view.setModel(self.tweaks)
-        self.tweaks_view.setCurrentIndex(self.tweaks_view.model().index(0))
+        tweaks_model = self.tweaks_view.model()
+        assert tweaks_model is not None
+        self.tweaks_view.setCurrentIndex(tweaks_model.index(0))
 
     def restore_to_default(self, *args):
         idx = self.tweaks_view.currentIndex()
@@ -587,7 +590,9 @@ class ConfigWidget(ConfigWidgetBase):
         if not idx.isValid():
             return
         self.view.scrollTo(idx)
-        self.view.selectionModel().select(idx, QItemSelectionModel.SelectionFlag.ClearAndSelect)
+        sel_model = self.view.selectionModel()
+        assert sel_model is not None
+        sel_model.select(idx, QItemSelectionModel.SelectionFlag.ClearAndSelect)
         self.view.setCurrentIndex(idx)
 
     def find_next(self, *args):

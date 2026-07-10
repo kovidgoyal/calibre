@@ -96,7 +96,9 @@ def create_profile():
             s.setName(name)
             s.setSourceCode(code)
             s.setWorldId(QWebEngineScript.ScriptWorldId.ApplicationWorld)
-            ans.scripts().insert(s)
+            _scripts = ans.scripts()
+            assert _scripts is not None
+            _scripts.insert(s)
     return ans
 
 
@@ -167,6 +169,7 @@ class Pool:
         self.working = True
         self.assign_work()
         app = QApplication.instance()
+        assert app is not None
         while self.working:
             app.processEvents(QEventLoop.ProcessEventsFlag.WaitForMoreEvents | QEventLoop.ProcessEventsFlag.ExcludeUserInputEvents)
         return self.results

@@ -296,16 +296,19 @@ class DBThread(Thread):
             while True:
                 func, args, kwargs = self.requests.get()
                 if func == self.CLOSE:
+                    assert self.conn is not None
                     self.conn.close()
                     break
                 if func == 'dump':
                     try:
+                        assert self.conn is not None
                         ok, res = True, tuple(self.conn.iterdump())
                     except Exception as err:
                         ok, res = False, (err, traceback.format_exc())
                 elif func == 'create_dynamic_filter':
                     try:
                         f = DynamicFilter(args[0])
+                        assert self.conn is not None
                         self.conn.create_function(args[0], 1, f)
                         ok, res = True, f
                     except Exception as err:

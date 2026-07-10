@@ -294,8 +294,10 @@ class Box(QWidget):
         self.widgets = []
 
     def show_data(self, data):
+        layout = self.layout()
+        assert layout is not None
         for w in self.widgets:
-            self.layout().removeWidget(w)
+            layout.removeWidget(w)
             for x in ('toggled', 'hyperlink_activated', 'context_menu_requested'):
                 if hasattr(w, x):
                     try:
@@ -312,19 +314,19 @@ class Box(QWidget):
                 title = _('Matched CSS rules for %s') % node_name
             h = Heading(title, parent=self)
             h.toggled.connect(self.heading_toggled)
-            self.widgets.append(h), self.layout().addWidget(h)
+            self.widgets.append(h), layout.addWidget(h)
             for i, declaration in enumerate(node['css']):
                 d = Declaration(data['html_name'], declaration, is_first=i == 0, parent=self)
                 d.hyperlink_activated.connect(self.hyperlink_activated)
-                self.widgets.append(d), self.layout().addWidget(d)
+                self.widgets.append(d), layout.addWidget(d)
 
         h = Heading(_('Computed final style'), parent=self)
         h.toggled.connect(self.heading_toggled)
-        self.widgets.append(h), self.layout().addWidget(h)
+        self.widgets.append(h), layout.addWidget(h)
         ccss = data['computed_css']
         declaration = {'properties':[Property([k, ccss[k][0], '', ccss[k][1]]) for k in sorted(ccss)]}
         d = Declaration(None, declaration, is_first=True, parent=self)
-        self.widgets.append(d), self.layout().addWidget(d)
+        self.widgets.append(d), layout.addWidget(d)
         for w in self.widgets:
             w.context_menu_requested.connect(self.context_menu_requested)
 
@@ -375,13 +377,17 @@ class Box(QWidget):
             return
         block = '\n'.join(lines).replace('\xa0', ' ')
         heading = lines[0]
+        def _copy_to_clipboard(text):
+            cb = qapplication_or_fail().clipboard()
+            assert cb is not None
+            cb.setText(text)
         m = QMenu(self)
-        m.addAction(QIcon.ic('edit-copy.png'), _('Copy') + ' ' + heading.replace('\xa0', ' '), lambda: qapplication_or_fail().clipboard().setText(block))
+        m.addAction(QIcon.ic('edit-copy.png'), _('Copy') + ' ' + heading.replace('\xa0', ' '), lambda: _copy_to_clipboard(block))
         all_lines = []
         for w in self.widgets:
             all_lines += w.lines_for_copy
         all_text = '\n'.join(all_lines).replace('\xa0', ' ')
-        m.addAction(QIcon.ic('edit-copy.png'), _('Copy everything'), lambda: qapplication_or_fail().clipboard().setText(all_text))
+        m.addAction(QIcon.ic('edit-copy.png'), _('Copy everything'), lambda: _copy_to_clipboard(all_text))
         m.exec(ev.globalPos())
 
 

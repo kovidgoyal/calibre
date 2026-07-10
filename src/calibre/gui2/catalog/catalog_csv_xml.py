@@ -91,11 +91,13 @@ class PluginWidget(QWidget):
     def select_all(self):
         for row in range(self.db_fields.count()):
             item = self.db_fields.item(row)
+            assert item is not None
             item.setCheckState(Qt.CheckState.Checked)
 
     def select_none(self):
         for row in range(self.db_fields.count()):
             item = self.db_fields.item(row)
+            assert item is not None
             item.setCheckState(Qt.CheckState.Unchecked)
 
     def select_visible(self):
@@ -103,6 +105,7 @@ class PluginWidget(QWidget):
         hidden = frozenset(state['hidden_columns'])
         for row in range(self.db_fields.count()):
             item = self.db_fields.item(row)
+            assert item is not None
             field = item.data(Qt.ItemDataRole.UserRole)
             item.setCheckState(Qt.CheckState.Unchecked if field in hidden else Qt.CheckState.Checked)
 
@@ -145,6 +148,7 @@ class PluginWidget(QWidget):
         # Restore the activated fields from last use
         for x in range(self.db_fields.count()):
             item = self.db_fields.item(x)
+            assert item is not None
             item.setCheckState(Qt.CheckState.Checked if str(item.data(Qt.ItemDataRole.UserRole)) in fields else Qt.CheckState.Unchecked)
 
     def options(self):
@@ -152,6 +156,7 @@ class PluginWidget(QWidget):
         fields, all_fields = [], []
         for x in range(self.db_fields.count()):
             item = self.db_fields.item(x)
+            assert item is not None
             all_fields.append(str(item.data(Qt.ItemDataRole.UserRole)))
             if item.checkState() == Qt.CheckState.Checked:
                 fields.append(str(item.data(Qt.ItemDataRole.UserRole)))

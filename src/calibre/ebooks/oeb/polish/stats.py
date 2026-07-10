@@ -253,7 +253,9 @@ class StatsCollector:
         if resolve_pseudo_property(elem, 'first-letter', 'font-family', check_if_pseudo_applies=True):
             font = get_font_dict(elem, resolve_pseudo_property, pseudo='first-letter')
             text = get_element_text(elem, resolve_property, resolve_pseudo_property, self.capitalize_pat, for_pseudo='first-letter')
-            m = self.first_letter_pat.search(text.lstrip())
+            first_letter_pat = self.first_letter_pat
+            assert first_letter_pat is not None
+            m = first_letter_pat.search(text.lstrip())
             if m is not None:
                 chars = frozenset(ord_string(m.group())) - exclude_chars
                 update_usage_for_embed(font, chars)

@@ -52,6 +52,7 @@ class ProgressBar(QWidget):
             req.setHeader(QNetworkRequest.KnownHeaders.IfModifiedSinceHeader, fi.lastModified(QTimeZone(QTimeZone.Initialization.UTC)))
 
         self.reply = reply = nam.get(req)
+        assert reply is not None
         self.over_reported = False
         reply.downloadProgress.connect(self.on_download)
         reply.errorOccurred.connect(self.on_error)
@@ -60,12 +61,16 @@ class ProgressBar(QWidget):
 
     def data_received(self):
         try:
-            self.file_obj.write(self.reply.readAll())
+            reply = self.reply
+            assert reply is not None
+            self.file_obj.write(reply.readAll())
         except Exception as e:
             self.on_over(_('Failed to write downloaded data with error: {}').format(e))
 
     def on_error(self, ec: QNetworkReply.NetworkError) -> None:
-        self.on_over(_('Failed to write downloaded data with error: {}').format(self.reply.errorString()))
+        reply = self.reply
+        assert reply is not None
+        self.on_over(_('Failed to write downloaded data with error: {}').format(reply.errorString()))
 
     def on_over(self, err_msg: str = '') -> None:
         if self.over_reported:
@@ -77,7 +82,9 @@ class ProgressBar(QWidget):
             with suppress(OSError):
                 os.remove(self.file_obj.name)
         else:
-            code = self.reply.attribute(QNetworkRequest.Attribute.HttpStatusCodeAttribute)
+            reply = self.reply
+            assert reply is not None
+            code = reply.attribute(QNetworkRequest.Attribute.HttpStatusCodeAttribute)
             if code == 200:
                 os.replace(self.file_obj.name, self.path)
             else:
@@ -158,7 +165,9 @@ class DownloadResources(QDialog):
     def reject(self):
         for pb in self.bars:
             pb.blockSignals(True)
-            pb.reply.abort()
+            pb_reply = pb.reply
+            assert pb_reply is not None
+            pb_reply.abort()
         super().reject()
 
 

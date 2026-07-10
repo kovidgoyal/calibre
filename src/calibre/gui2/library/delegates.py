@@ -71,6 +71,7 @@ class UpdateEditorGeometry:
         opt.showDecorationSelected = True
         opt.decorationSize = QSize(0, 0)  # We want the editor to cover the decoration
         style = QApplication.style()
+        assert style is not None
         initial_geometry = style.subElementRect(QStyle.SubElement.SE_ItemViewItemText, opt, None)
         orig_width = initial_geometry.width()
 
@@ -615,6 +616,7 @@ class CcMarkdownDelegate(StyledItemDelegate):  # {{{
     def paint(self, painter, option, index):
         self.initStyleOption(option, index)
         style = QApplication.style() if option.widget is None else option.widget.style()
+        assert style is not None
         option.text = markdown(option.text)
         self.document.setHtml(option.text)
         style.drawPrimitive(QStyle.PrimitiveElement.PE_PanelItemViewItem, option, painter, widget=option.widget)
@@ -631,7 +633,9 @@ class CcMarkdownDelegate(StyledItemDelegate):  # {{{
         painter.save()
         painter.translate(textRect.topLeft())
         painter.setClipRect(textRect.translated(-textRect.topLeft()))
-        self.document.documentLayout().draw(painter, ctx)
+        doc_layout = self.document.documentLayout()
+        assert doc_layout is not None
+        doc_layout.draw(painter, ctx)
         painter.restore()
 
     def create_editor(self, parent, option, index):
@@ -766,6 +770,7 @@ class CcCommentsDelegate(StyledItemDelegate):  # {{{
         self.initStyleOption(option, index)
         style = QApplication.style() if option.widget is None \
                                                 else option.widget.style()
+        assert style is not None
         self.document.setHtml(option.text)
         style.drawPrimitive(QStyle.PrimitiveElement.PE_PanelItemViewItem, option, painter, widget=option.widget)
         rect = style.subElementRect(QStyle.SubElement.SE_ItemViewItemDecoration, option, self.parent())
@@ -781,7 +786,9 @@ class CcCommentsDelegate(StyledItemDelegate):  # {{{
         painter.save()
         painter.translate(textRect.topLeft())
         painter.setClipRect(textRect.translated(-textRect.topLeft()))
-        self.document.documentLayout().draw(painter, ctx)
+        doc_layout = self.document.documentLayout()
+        assert doc_layout is not None
+        doc_layout.draw(painter, ctx)
         painter.restore()
 
     def create_editor(self, parent, option, index):
@@ -871,6 +878,7 @@ class CcBoolDelegate(StyledItemDelegate, UpdateEditorGeometry):  # {{{
         super().paint(painter, option, index)
         self.nuke_option_data = False
         style = option.styleObject.style() if option.styleObject else qapplication_or_fail().style()
+        assert style is not None
         style.drawItemPixmap(painter, option.rect, Qt.AlignmentFlag.AlignCenter, icon)
 
 # }}}

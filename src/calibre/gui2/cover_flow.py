@@ -281,7 +281,9 @@ class CBDialog(QDialog):
         self._layout = QStackedLayout()
         self.setLayout(self._layout)
         self.setWindowTitle(_('Browse by covers'))
-        self.layout().addWidget(cover_flow)
+        _layout = self.layout()
+        assert _layout is not None
+        _layout.addWidget(cover_flow)
 
         self.restore_geometry(gprefs, 'cover_browser_dialog_geometry')
         self.action_fs_toggle = a = QAction(self)
@@ -325,7 +327,9 @@ class CBDialog(QDialog):
         a.triggered.connect(iactions['Send To Device'].menuless_qaction.trigger)
 
     def sizeHint(self):
-        sz = self.screen().availableSize()
+        _screen = self.screen()
+        assert _screen is not None
+        sz = _screen.availableSize()
         sz.setHeight(sz.height()-60)
         sz.setWidth(int(sz.width()/1.5))
         return sz

@@ -135,8 +135,10 @@ class IgnoredFolders(QDialog):
         self.bb.accepted.connect(self.accept)
         self.bb.rejected.connect(self.reject)
         self.sab = self.bb.addButton(_('Select &all'), QDialogButtonBox.ButtonRole.ActionRole)
+        assert self.sab is not None
         self.sab.clicked.connect(self.select_all)
         self.snb = self.bb.addButton(_('Select &none'), QDialogButtonBox.ButtonRole.ActionRole)
+        assert self.snb is not None
         self.snb.clicked.connect(self.select_none)
         l.addWidget(self.bb)
         self.setWindowTitle(_('Choose folders to scan'))

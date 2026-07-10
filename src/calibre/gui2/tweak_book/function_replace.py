@@ -84,7 +84,9 @@ class Function:
         self.match_index += 1
         oo, oe, sys.stdout, sys.stderr = sys.stdout, sys.stderr, self.debug_buf, self.debug_buf
         try:
-            return self.func(match, self.match_index, self.context_name, self.boss.current_metadata, dictionaries, self.data, self.functions)
+            boss = self.boss
+            assert boss is not None
+            return self.func(match, self.match_index, self.context_name, boss.current_metadata, dictionaries, self.data, self.functions)
         finally:
             sys.stdout, sys.stderr = oo, oe
 
@@ -99,7 +101,9 @@ class Function:
         if getattr(self.func, 'call_after_last_match', False):
             oo, oe, sys.stdout, sys.stderr = sys.stdout, sys.stderr, self.debug_buf, self.debug_buf
             try:
-                return self.func(None, self.match_index, self.context_name, self.boss.current_metadata, dictionaries, self.data, self.functions)
+                boss = self.boss
+                assert boss is not None
+                return self.func(None, self.match_index, self.context_name, boss.current_metadata, dictionaries, self.data, self.functions)
             finally:
                 sys.stdout, sys.stderr = oo, oe
         self.data, self.boss, self.functions = {}, None, {}
@@ -119,6 +123,7 @@ class DebugOutput(Dialog):
         l.addWidget(self.bb)
         self.bb.setStandardButtons(QDialogButtonBox.StandardButton.Close)
         self.cb = b = self.bb.addButton(_('&Copy to clipboard'), QDialogButtonBox.ButtonRole.ActionRole)
+        assert b is not None
         b.clicked.connect(self.copy_to_clipboard)
         b.setIcon(QIcon.ic('edit-copy.png'))
 
@@ -136,7 +141,9 @@ class DebugOutput(Dialog):
         return QSize(fm.averageCharWidth() * 120, 400)
 
     def copy_to_clipboard(self):
-        qapplication_or_fail().clipboard().setText(self.log_text)
+        clipboard = qapplication_or_fail().clipboard()
+        assert clipboard is not None
+        clipboard.setText(self.log_text)
 
 
 def builtin_functions():
@@ -207,7 +214,10 @@ class FunctionBox(EditWithComplete):
         self.update_items_cache(set(functions()))
 
     def contextMenuEvent(self, e):
-        menu = self.lineEdit().createStandardContextMenu()
+        le = self.lineEdit()
+        assert le is not None
+        menu = le.createStandardContextMenu()
+        assert menu is not None
         if self.show_saved_search_actions:
             menu.addSeparator()
             menu.addAction(_('Save current search'), self.save_search.emit)

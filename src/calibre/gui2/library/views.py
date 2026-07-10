@@ -112,7 +112,9 @@ class HeaderView(QHeaderView):  # {{{
                 pass
         if self.isSortIndicatorShown():
             opt.sortIndicator = QStyleOptionHeader.SortIndicator.SortDown
-        return self.style().sizeFromContents(QStyle.ContentsType.CT_HeaderSection, opt, QSize(), self)
+        style = self.style()
+        assert style is not None
+        return style.sizeFromContents(QStyle.ContentsType.CT_HeaderSection, opt, QSize(), self)
 
     def paintSection(self, painter, rect, logicalIndex):
         opt = QStyleOptionHeader()
@@ -124,6 +126,7 @@ class HeaderView(QHeaderView):  # {{{
         opt.fontMetrics = self.fm
         model = self.parent().model()
         style = self.style()
+        assert style is not None
         margin = 2 * style.pixelMetric(QStyle.PixelMetric.PM_HeaderMargin, None, self)
         if self.isSortIndicatorShown() and self.sortIndicatorSection() == logicalIndex:
             opt.sortIndicator = QStyleOptionHeader.SortIndicator.SortDown if \
@@ -134,11 +137,14 @@ class HeaderView(QHeaderView):  # {{{
             opt.text = opt.fontMetrics.elidedText(opt.text, Qt.TextElideMode.ElideRight, rect.width() - margin)
         if self.isEnabled():
             opt.state |= QStyle.StateFlag.State_Enabled
-            if self.window().isActiveWindow():
+            win = self.window()
+            assert win is not None
+            if win.isActiveWindow():
                 opt.state |= QStyle.StateFlag.State_Active
                 if self.hover == logicalIndex:
                     opt.state |= QStyle.StateFlag.State_MouseOver
         sm = self.selectionModel()
+        assert sm is not None
         if opt.orientation == Qt.Orientation.Vertical:
             try:
                 val = model.headerData(logicalIndex, opt.orientation, Qt.ItemDataRole.DecorationRole)
@@ -155,7 +161,7 @@ class HeaderView(QHeaderView):  # {{{
                 (opt.orientation == Qt.Orientation.Horizontal and sm.currentIndex().column() == logicalIndex) or (
                     opt.orientation == Qt.Orientation.Vertical and sm.currentIndex().row() == logicalIndex)):
             painter.setFont(self.current_font)
-        self.style().drawControl(QStyle.ControlElement.CE_Header, opt, painter, self)
+        style.drawControl(QStyle.ControlElement.CE_Header, opt, painter, self)
         painter.restore()
 # }}}
 
@@ -359,7 +365,9 @@ class BooksView(TableView):  # {{{
         QTableView.__init__(self, parent)
         self.pin_view = PinTableView(self, parent)
         self.gesture_manager = GestureManager(self)
-        self.default_row_height = self.verticalHeader().defaultSectionSize()
+        _init_vh = self.verticalHeader()
+        assert _init_vh is not None
+        self.default_row_height = _init_vh.defaultSectionSize()
         self.gui = parent
         self.setProperty('highlight_current_item', 150)
         self.pin_view.setProperty('highlight_current_item', 150)
@@ -413,8 +421,10 @@ class BooksView(TableView):  # {{{
         for wv in self, self.pin_view:
             wv.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
             wv.setSortingEnabled(True)
-        self.selectionModel().currentRowChanged.connect(self.on_current_row_change)
-        self.selectionModel().selectionChanged.connect(self.selection_changed.emit)
+        _init_sm = self.selectionModel()
+        assert _init_sm is not None
+        _init_sm.currentRowChanged.connect(self.on_current_row_change)
+        _init_sm.selectionChanged.connect(self.selection_changed.emit)
         self.preserve_state = partial(PreserveViewState, self)
         self.marked_changed_listener = FunctionDispatcher(self.marked_changed)
 
@@ -447,6 +457,7 @@ class BooksView(TableView):  # {{{
 
         self._model.database_changed.connect(self.database_changed)
         hv = self.verticalHeader()
+        assert hv is not None
         hv.setSectionsClickable(True)
         hv.setCursor(Qt.CursorShape.PointingHandCursor)
         self.set_row_header_visibility()
@@ -454,10 +465,14 @@ class BooksView(TableView):  # {{{
         if self.is_library_view:
             self.set_pin_view_visibility(gprefs['book_list_split'])
             for wv in self, self.pin_view:
-                wv.selectionModel().currentRowChanged.connect(partial(self.mirror_selection_between_views, wv))
-                wv.selectionModel().selectionChanged.connect(partial(self.mirror_selection_between_views, wv))
-                wv.verticalScrollBar().valueChanged.connect(partial(self.mirror_vscroll, wv))
-                wv.verticalScrollBar().rangeChanged.connect(partial(self.mirror_vscroll, wv))
+                wv_sm = wv.selectionModel()
+                assert wv_sm is not None
+                wv_vsb = wv.verticalScrollBar()
+                assert wv_vsb is not None
+                wv_sm.currentRowChanged.connect(partial(self.mirror_selection_between_views, wv))
+                wv_sm.selectionChanged.connect(partial(self.mirror_selection_between_views, wv))
+                wv_vsb.valueChanged.connect(partial(self.mirror_vscroll, wv))
+                wv_vsb.rangeChanged.connect(partial(self.mirror_vscroll, wv))
         else:
             self.pin_view.setVisible(False)
 
@@ -473,15 +488,23 @@ class BooksView(TableView):  # {{{
             if dest is self.pin_view and not dest.isVisible():
                 return
             self.allow_mirroring = False
-            dest.selectionModel().select(src.selectionModel().selection(), QItemSelectionModel.SelectionFlag.ClearAndSelect)
+            dest_sm = dest.selectionModel()
+            assert dest_sm is not None
+            src_sm = src.selectionModel()
+            assert src_sm is not None
+            dest_hsb = dest.horizontalScrollBar()
+            assert dest_hsb is not None
+            dest_sm.select(src_sm.selection(), QItemSelectionModel.SelectionFlag.ClearAndSelect)
             ci = dest.currentIndex()
-            nci = src.selectionModel().currentIndex()
+            nci = src_sm.currentIndex()
             # Save/restore horz scroll.  ci column may be scrolled out of view.
-            hpos = dest.horizontalScrollBar().value()
+            hpos = dest_hsb.value()
             if ci.isValid():
-                nci = dest.model().index(nci.row(), ci.column())
-            dest.selectionModel().setCurrentIndex(nci, QItemSelectionModel.SelectionFlag.NoUpdate)
-            dest.horizontalScrollBar().setValue(hpos)
+                dest_model = dest.model()
+                assert dest_model is not None
+                nci = dest_model.index(nci.row(), ci.column())
+            dest_sm.setCurrentIndex(nci, QItemSelectionModel.SelectionFlag.NoUpdate)
+            dest_hsb.setValue(hpos)
             self.allow_mirroring = True
 
     def mirror_vscroll(self, src, *a):
@@ -491,6 +514,8 @@ class BooksView(TableView):  # {{{
                 return
             self.allow_mirroring = False
             s, d = src.verticalScrollBar(), dest.verticalScrollBar()
+            assert s is not None
+            assert d is not None
             d.setRange(s.minimum(), s.maximum()), d.setValue(s.value())
             self.allow_mirroring = True
     # }}}
@@ -554,11 +579,15 @@ class BooksView(TableView):  # {{{
             from calibre.gui2.actions.show_quickview import get_quickview_action_plugin
             qv = get_quickview_action_plugin()
             if qv:
-                rows = self.selectionModel().selectedRows()
+                qv_sm = self.selectionModel()
+                assert qv_sm is not None
+                rows = qv_sm.selectedRows()
                 if len(rows) > 0:
                     current_row = rows[0].row()
                     current_col = self.column_map.index(column)
-                    index = self.model().index(current_row, current_col)
+                    qv_model = self.model()
+                    assert qv_model is not None
+                    index = qv_model.index(current_row, current_col)
                     qv.change_quickview_column(index)
         elif action == 'remember_ondevice_width':
             gprefs.set('ondevice_column_width', self.columnWidth(idx))
@@ -569,11 +598,18 @@ class BooksView(TableView):  # {{{
             EnumValuesEdit(self, self._model.db, column).exec()
         elif action == 'tt_template':
             db = self._model.db
-            rows = self.selectionModel().selectedRows()
+            assert db is not None
+            tt_sm = self.selectionModel()
+            assert tt_sm is not None
+            rows = tt_sm.selectedRows()
             mi = []
-            tt_dict = db.new_api.pref('column_tooltip_templates', {})
+            db_new_api = db.new_api
+            assert db_new_api is not None
+            db_data = db.data
+            assert db_data is not None
+            tt_dict = db_new_api.pref('column_tooltip_templates', {})
             for i in range(min(len(rows), 10)):
-                mi.append(db.new_api.get_proxy_metadata(db.data.index_to_id(i)))
+                mi.append(db_new_api.get_proxy_metadata(db_data.index_to_id(i)))
             template = tt_dict.get(column, '')
             text_is_placeholder = False
             if not template:
@@ -583,7 +619,7 @@ class BooksView(TableView):  # {{{
             d = TemplateDialog(self, template, mi=mi, text_is_placeholder=text_is_placeholder)
             if d.exec():
                 tt_dict[column] = d.rule[1]
-                db.new_api.set_pref('column_tooltip_templates', tt_dict)
+                db_new_api.set_pref('column_tooltip_templates', tt_dict)
         self.save_state()
 
     def create_context_menu(self, col, name, view):
@@ -631,23 +667,31 @@ class BooksView(TableView):  # {{{
             if self.can_add_columns and self.model().is_custom_column(col):
                 act = ans.addAction(QIcon.ic('edit_input.png'), _('Edit column definition for %s') % name,
                                     partial(handler, action='editcustcol'))
+                assert act is not None
                 if col_manager.must_restart():
                     act.setEnabled(False)
-            db = self._model.db.new_api
+            _ccm_db = self._model.db
+            assert _ccm_db is not None
+            db = _ccm_db.new_api
             tt_prefs = db.pref('column_tooltip_templates', {})
             ans.addAction(QIcon.ic('edit_input.png'),
                           (_('Define tooltip template for "%s"') if col not in tt_prefs
                             else _('Edit tooltip template for "%s"')) % name,
                           partial(handler, action='tt_template', ))
         if self.is_library_view:
-            if self._model.db.field_metadata[col]['datatype'] == 'enumeration':
+            _lib_db = self._model.db
+            assert _lib_db is not None
+            if _lib_db.field_metadata[col]['datatype'] == 'enumeration':
                 ans.addAction(QIcon.ic('edit_input.png'), _('Edit permissible values for %s') % name,
                               partial(handler, action='edit_enum'))
-            if self._model.db.field_metadata[col]['is_category']:
+            if _lib_db.field_metadata[col]['is_category']:
                 ans.addSeparator()
                 act = ans.addAction(QIcon.ic('quickview.png'), _('Quickview column %s') % name,
                                     partial(handler, action='quickview'))
-                rows = self.selectionModel().selectedRows()
+                assert act is not None
+                _ccm_sm = self.selectionModel()
+                assert _ccm_sm is not None
+                rows = _ccm_sm.selectedRows()
                 if len(rows) > 1:
                     act.setEnabled(False)
 
@@ -659,8 +703,11 @@ class BooksView(TableView):  # {{{
             ans.addAction(QIcon.ic('minus.png'), _('Hide column %s') % name, partial(handler, action='hide'))
         if hidden_cols:
             m = ans.addMenu(_('Show column'))
+            assert m is not None
             m.setIcon(QIcon.ic('plus.png'))
-            hcols = [(hcol, str(self.model().headerData(hidx, Qt.Orientation.Horizontal, Qt.ItemDataRole.DisplayRole) or ''))
+            _schcm_model = self.model()
+            assert _schcm_model is not None
+            hcols = [(hcol, str(_schcm_model.headerData(hidx, Qt.Orientation.Horizontal, Qt.ItemDataRole.DisplayRole) or ''))
                      for hcol, hidx in hidden_cols.items()]
             name_counts = Counter(hname for _, hname in hcols)
             hcols.sort(key=lambda x: primary_sort_key(x[1]))
@@ -677,6 +724,7 @@ class BooksView(TableView):  # {{{
         if self.can_add_columns:
             act = ans.addAction(QIcon.ic('column.png'), _('Add your own columns'),
                                 partial(handler, action='addcustcol'))
+            assert act is not None
             col_manager = CreateNewCustomColumn(self.gui)
             act.setEnabled(not col_manager.must_restart())
         return ans
@@ -691,15 +739,18 @@ class BooksView(TableView):  # {{{
         else:
             menu.addAction(_('Show row numbers'), partial(self.hide_row_numbers, show=True))
         db = self._model.db
+        assert db is not None
         row = self.row_header.logicalIndexAt(pos)
         if row >= 0 and row < len(db.data):
             book_id_col = db.field_metadata['id']['rec_index']
             book_id = db.data[row][book_id_col]
             m = menu.addAction(_('Toggle mark for book'), lambda: db.data.toggle_marked_ids({book_id,}))
+            assert m is not None
             ic = QIcon.cached_icon('marked.png')
             m.setIcon(ic)
             from calibre.gui2.actions.mark_books import mark_books_with_text
             m = menu.addAction(_('Mark book with text label'), partial(mark_books_with_text, {book_id,}))
+            assert m is not None
             m.setIcon(ic)
         menu.popup(self.mapToGlobal(pos))
 
@@ -714,7 +765,9 @@ class BooksView(TableView):  # {{{
                 p = QPoint(self.column_header.sectionViewportPosition(self.currentIndex().column()), 10)
                 self.show_column_header_context_menu(p, view=self)
             elif self.pin_view.hasFocus():
-                p = QPoint(self.pin_view.horizontalHeader().sectionViewportPosition(self.pin_view.currentIndex().column()), 10)
+                _pvhh = self.pin_view.horizontalHeader()
+                assert _pvhh is not None
+                p = QPoint(_pvhh.sectionViewportPosition(self.pin_view.currentIndex().column()), 10)
                 self.show_column_header_context_menu(p, view=self.pin_view)
             # else some other widget has the focus, such as the tag browser or quickview
 
@@ -724,7 +777,9 @@ class BooksView(TableView):  # {{{
         col = None
         if idx > -1 and idx < len(self.column_map):
             col = self.column_map[idx]
-            name = str(self.model().headerData(idx, Qt.Orientation.Horizontal, Qt.ItemDataRole.DisplayRole) or '')
+            _schcm_model = self.model()
+            assert _schcm_model is not None
+            name = str(_schcm_model.headerData(idx, Qt.Orientation.Horizontal, Qt.ItemDataRole.DisplayRole) or '')
             view.column_header_context_menu = self.create_context_menu(col, name, view)
         has_context_menu = hasattr(view, 'column_header_context_menu')
         if self.is_library_view and has_context_menu:
@@ -765,7 +820,9 @@ class BooksView(TableView):  # {{{
         self.column_header.setSortIndicator(col, order)
         self.column_header.blockSignals(False)
         with self.preserve_state(preserve_vpos=False, require_selected_ids=False):
-            self.model().sort(col, order)
+            _sbcao_model = self.model()
+            assert _sbcao_model is not None
+            _sbcao_model.sort(col, order)
         if self.is_library_view:
             self.set_sort_indicator(col, ascending)
 
@@ -823,8 +880,10 @@ class BooksView(TableView):  # {{{
             if ret:
                 return
 
+        _ms_db = self._model.db
+        assert _ms_db is not None
         for n,d in reversed(fields):
-            if n in list(self._model.db.field_metadata.keys()):
+            if n in list(_ms_db.field_metadata.keys()):
                 sh.insert(0, (n, d))
         sh = self.cleanup_sort_history(sh, ignore_column_map=True)
         self._model.sort_history = [tuple(x) for x in sh]
@@ -1093,12 +1152,17 @@ class BooksView(TableView):  # {{{
 
     def do_row_sizing(self):
         # Resize all rows to have the correct height
-        if not self.row_sizing_done and self.model().rowCount(QModelIndex()) > 0:
+        _drs_model = self.model()
+        assert _drs_model is not None
+        if not self.row_sizing_done and _drs_model.rowCount(QModelIndex()) > 0:
             vh = self.verticalHeader()
+            assert vh is not None
             h = max(vh.minimumSectionSize(), self.default_row_height + gprefs['book_list_extra_row_spacing'])
             vh.setDefaultSectionSize(h)
             if self.is_library_view:
-                self.pin_view.verticalHeader().setDefaultSectionSize(h)
+                _pin_vh = self.pin_view.verticalHeader()
+                assert _pin_vh is not None
+                _pin_vh.setDefaultSectionSize(h)
             self._model.set_row_height(self.rowHeight(0))
             self.row_sizing_done = True
 
@@ -1138,7 +1202,9 @@ class BooksView(TableView):  # {{{
                 self.row_header.headerDataChanged(Qt.Orientation.Vertical, min(sections), max(sections))
                 # This is needed otherwise Qt does not always update the
                 # viewport correctly. See https://bugs.launchpad.net/bugs/1404697
-                self.row_header.viewport().update()
+                _rh_vp = self.row_header.viewport()
+                assert _rh_vp is not None
+                _rh_vp.update()
                 # refresh the rows because there might be a composite that uses marked_books()
                 self.model().refresh_rows(sections)
         else:
@@ -1156,7 +1222,9 @@ class BooksView(TableView):  # {{{
 
     def database_changed(self, db):
         db.data.add_marked_listener(self.marked_changed_listener)
-        for i in range(self.model().columnCount(None)):
+        _dc_model = self.model()
+        assert _dc_model is not None
+        for i in range(_dc_model.columnCount(None)):
             for vw in self, self.pin_view:
                 if vw.itemDelegateForColumn(i) in (
                         self.rating_delegate, self.timestamp_delegate, self.pubdate_delegate,
@@ -1211,6 +1279,7 @@ class BooksView(TableView):  # {{{
             clicked_row = index.row()
             current_row = ci.row()
             sm = self.selectionModel()
+            assert sm is not None
             if clicked_row == current_row:
                 sm.setCurrentIndex(index, QItemSelectionModel.SelectionFlag.NoUpdate)
                 return
@@ -1223,6 +1292,7 @@ class BooksView(TableView):  # {{{
                 return
 
             m = self.model()
+            assert m is not None
 
             def new_selection(upper, lower):
                 top_left = m.index(upper, 0)
@@ -1266,6 +1336,7 @@ class BooksView(TableView):  # {{{
             last_press, self.last_mouse_press_on_row = getattr(self, 'last_mouse_press_on_row', -111), -112
             if index.row() == last_press:
                 sm = self.selectionModel()
+                assert sm is not None
                 if index.isValid() and sm.isSelected(index):
                     self.select_rows((index,), using_ids=False, change_current=False, scroll=False)
         QTableView.mouseReleaseEvent(self, ev)
@@ -1277,12 +1348,15 @@ class BooksView(TableView):  # {{{
     @property
     def visible_columns(self):
         h = self.horizontalHeader()
+        assert h is not None
         return (key for lidx,key in enumerate(self.column_map) if not h.isSectionHidden(lidx))
 
     def refresh_book_details(self, force=False):
         idx = self.currentIndex()
         if not idx.isValid() and force:
-            idx = self.model().index(0, 0)
+            _rbd_model = self.model()
+            assert _rbd_model is not None
+            idx = _rbd_model.index(0, 0)
         if idx.isValid():
             self._model.current_changed(idx, idx)
             return True
@@ -1293,7 +1367,9 @@ class BooksView(TableView):  # {{{
             return self.alternate_views.current_view.rows_for_merge(resolved=True)
         ans = []
         seen = set()
-        for idx in self.selectionModel().selectedRows():
+        _rfm_sm = self.selectionModel()
+        assert _rfm_sm is not None
+        for idx in _rfm_sm.selectedRows():
             row = idx.row()
             if row not in seen:
                 seen.add(row)
@@ -1307,11 +1383,16 @@ class BooksView(TableView):  # {{{
             self.column_header.update()
 
     def scroll_to_row(self, row):
-        row = min(row, self.model().rowCount(QModelIndex())-1)
+        _str_model = self.model()
+        assert _str_model is not None
+        row = min(row, _str_model.rowCount(QModelIndex())-1)
         if row > -1:
             # taken from Qt implementation of scrollTo but this ensured horizontal position is not affected
             vh = self.verticalHeader()
-            viewport_height = self.viewport().height()
+            assert vh is not None
+            _str_vp = self.viewport()
+            assert _str_vp is not None
+            viewport_height = _str_vp.height()
             vertical_offset = vh.offset()
             vertical_position = vh.sectionPosition(row)
             cell_height = vh.sectionSize(row)
@@ -1321,6 +1402,7 @@ class BooksView(TableView):  # {{{
             elif vertical_position - vertical_offset + cell_height > viewport_height:
                 pos = 'bottom'
             vsb = self.verticalScrollBar()
+            assert vsb is not None
 
             if self.verticalScrollMode() == QAbstractItemView.ScrollMode.ScrollPerPixel:
                 if pos == 'top':
@@ -1355,7 +1437,11 @@ class BooksView(TableView):  # {{{
                 pass
 
     def current_book_state(self):
-        return self.current_book, self.horizontalScrollBar().value(), self.pin_view.horizontalScrollBar().value()
+        _cbs_hsb = self.horizontalScrollBar()
+        assert _cbs_hsb is not None
+        _cbs_pv_hsb = self.pin_view.horizontalScrollBar()
+        assert _cbs_pv_hsb is not None
+        return self.current_book, _cbs_hsb.value(), _cbs_pv_hsb.value()
 
     def restore_current_book_state(self, state):
         book_id, hpos, pv_hpos = state
@@ -1365,16 +1451,25 @@ class BooksView(TableView):  # {{{
             return
         self.set_current_row(row)
         self.scroll_to_row(row)
-        self.horizontalScrollBar().setValue(hpos)
+        _rcbs_hsb = self.horizontalScrollBar()
+        assert _rcbs_hsb is not None
+        _rcbs_hsb.setValue(hpos)
         if self.pin_view.isVisible():
-            self.pin_view.horizontalScrollBar().setValue(pv_hpos)
+            _rcbs_pv_hsb = self.pin_view.horizontalScrollBar()
+            assert _rcbs_pv_hsb is not None
+            _rcbs_pv_hsb.setValue(pv_hpos)
 
     def set_current_row(self, row=0, select=True, for_sync=False, book_id=None):
         if book_id is not None:
             row = self.model().db.data.id_to_index(book_id)
-        if row > -1 and row < self.model().rowCount(QModelIndex()):
+        _scr_model = self.model()
+        assert _scr_model is not None
+        if row > -1 and row < _scr_model.rowCount(QModelIndex()):
             h = self.horizontalHeader()
-            hpos = self.horizontalScrollBar().value()
+            assert h is not None
+            _scr_hsb = self.horizontalScrollBar()
+            assert _scr_hsb is not None
+            hpos = _scr_hsb.value()
             logical_indices = list(range(h.count()))
             logical_indices = [x for x in logical_indices if not
                     h.isSectionHidden(x)]
@@ -1384,25 +1479,30 @@ class BooksView(TableView):  # {{{
                 pairs = [(0, 0)]
             pairs.sort(key=lambda x: x[1])
             i = pairs[0][0]
-            index = self.model().index(row, i)
+            index = _scr_model.index(row, i)
             ci = self.currentIndex()
             if ci.isValid():
-                index = self.model().index(row, ci.column())
+                index = _scr_model.index(row, ci.column())
             if for_sync:
                 sm = self.selectionModel()
+                assert sm is not None
                 sm.setCurrentIndex(index, QItemSelectionModel.SelectionFlag.NoUpdate)
             else:
                 self.setCurrentIndex(index)
                 if select:
                     sm = self.selectionModel()
+                    assert sm is not None
                     sm.select(index, QItemSelectionModel.SelectionFlag.ClearAndSelect|QItemSelectionModel.SelectionFlag.Rows)
-            self.horizontalScrollBar().setValue(hpos)
+            _scr_hsb.setValue(hpos)
 
     def select_cell(self, row_number=0, logical_column=0):
-        if row_number > -1 and row_number < self.model().rowCount(QModelIndex()):
-            index = self.model().index(row_number, logical_column)
+        _sc_model = self.model()
+        assert _sc_model is not None
+        if row_number > -1 and row_number < _sc_model.rowCount(QModelIndex()):
+            index = _sc_model.index(row_number, logical_column)
             self.setCurrentIndex(index)
             sm = self.selectionModel()
+            assert sm is not None
             sm.select(index, QItemSelectionModel.SelectionFlag.ClearAndSelect|QItemSelectionModel.SelectionFlag.Rows)
             sm.select(index, QItemSelectionModel.SelectionFlag.Current)
             self.clicked.emit(index)
@@ -1416,7 +1516,9 @@ class BooksView(TableView):  # {{{
             pos += 5
 
     def row_at_bottom(self):
-        pos = self.viewport().height()
+        _rab_vp = self.viewport()
+        assert _rab_vp is not None
+        pos = _rab_vp.height()
         limit = pos - 100
         while pos > limit:
             ans = self.rowAt(pos)
@@ -1428,6 +1530,8 @@ class BooksView(TableView):  # {{{
         orig = self.currentIndex()
         cursorAction = QAbstractItemView.CursorAction(cursorAction)
         index = QTableView.moveCursor(self, cursorAction, modifiers)
+        _mc_model = self.model()
+        assert _mc_model is not None
         if cursorAction == QAbstractItemView.CursorAction.MovePageDown:
             moved = index.row() - orig.row()
             try:
@@ -1435,7 +1539,7 @@ class BooksView(TableView):  # {{{
             except TypeError:
                 rows = moved
             if moved > rows:
-                index = self.model().index(orig.row() + rows, index.column())
+                index = _mc_model.index(orig.row() + rows, index.column())
         elif cursorAction == QAbstractItemView.CursorAction.MovePageUp:
             moved = orig.row() - index.row()
             try:
@@ -1443,11 +1547,11 @@ class BooksView(TableView):  # {{{
             except TypeError:
                 rows = moved
             if moved > rows:
-                index = self.model().index(orig.row() - rows, index.column())
+                index = _mc_model.index(orig.row() - rows, index.column())
         elif cursorAction == QAbstractItemView.CursorAction.MoveHome and modifiers & Qt.KeyboardModifier.ControlModifier:
-            return self.model().index(0, orig.column())
+            return _mc_model.index(0, orig.column())
         elif cursorAction == QAbstractItemView.CursorAction.MoveEnd and modifiers & Qt.KeyboardModifier.ControlModifier:
-            return self.model().index(self.model().rowCount(QModelIndex()) - 1, orig.column())
+            return _mc_model.index(_mc_model.rowCount(QModelIndex()) - 1, orig.column())
         return index
 
     def selectionCommand(self, index, event):
@@ -1465,6 +1569,7 @@ class BooksView(TableView):  # {{{
         row_map = OrderedDict()
         ids = frozenset(ids)
         m = self.model()
+        assert m is not None
         for row in range(m.rowCount(QModelIndex())):
             if len(row_map) >= len(ids):
                 break
@@ -1485,6 +1590,7 @@ class BooksView(TableView):  # {{{
             rows = set()
             identifiers = set(identifiers)
             m = self.model()
+            assert m is not None
             for row in range(m.rowCount(QModelIndex())):
                 if m.id(row) in identifiers:
                     rows.add(row)
@@ -1496,8 +1602,10 @@ class BooksView(TableView):  # {{{
             if scroll:
                 self.scroll_to_row(row)
         sm = self.selectionModel()
+        assert sm is not None
         sel = QItemSelection()
         m = self.model()
+        assert m is not None
         max_col = m.columnCount(QModelIndex()) - 1
         # Create a range based selector for each set of contiguous rows
         # as supplying selectors for each individual row causes very poor
@@ -1534,6 +1642,7 @@ class BooksView(TableView):  # {{{
         if val is None:
             return
         m = self.model()
+        assert m is not None
         for row in range(m.rowCount(QModelIndex())):
             if m.id(row) == val:
                 self.set_current_row(row, select=False)
@@ -1544,7 +1653,9 @@ class BooksView(TableView):  # {{{
         if not ci.isValid():
             self.set_current_row()
             return
-        n = (ci.row() + 1) % self.model().rowCount(QModelIndex())
+        _snb_model = self.model()
+        assert _snb_model is not None
+        n = (ci.row() + 1) % _snb_model.rowCount(QModelIndex())
         self.set_current_row(n)
 
     @property
@@ -1559,12 +1670,14 @@ class BooksView(TableView):  # {{{
         selected_rows = frozenset(i.row() for i in self.selectedIndexes() if
             i.isValid())
         column = ci.column()
+        _ni_model = self.model()
+        assert _ni_model is not None
 
         for i in range(ci.row()+1, self.row_count()):
             if i in selected_rows:
                 continue
             try:
-                return self.model().id(self.model().index(i, column))
+                return _ni_model.id(_ni_model.index(i, column))
             except Exception:
                 pass
 
@@ -1573,7 +1686,7 @@ class BooksView(TableView):  # {{{
             if i in selected_rows:
                 continue
             try:
-                return self.model().id(self.model().index(i, column))
+                return _ni_model.id(_ni_model.index(i, column))
             except Exception:
                 pass
         return None
@@ -1588,7 +1701,9 @@ class BooksView(TableView):  # {{{
         self._model.set_editable(editable)
 
     def move_highlighted_row(self, forward):
-        rows = self.selectionModel().selectedRows()
+        _mhr_sm = self.selectionModel()
+        assert _mhr_sm is not None
+        rows = _mhr_sm.selectedRows()
         if len(rows) > 0:
             current_row = rows[0].row()
         else:
@@ -1668,7 +1783,9 @@ class DeviceBooksView(BooksView):  # {{{
 
     def drag_data(self):
         m = self.model()
-        rows = self.selectionModel().selectedRows()
+        _dd_sm = self.selectionModel()
+        assert _dd_sm is not None
+        rows = _dd_sm.selectedRows()
         paths = [force_unicode(p, enc=filesystem_encoding) for p in m.paths(rows) if p]
         md = QMimeData()
         md.setData('application/calibre+from_device', b'dummy')
@@ -1682,8 +1799,10 @@ class DeviceBooksView(BooksView):  # {{{
         return drag
 
     def contextMenuEvent(self, a0):
-        edit_collections = callable(getattr(self._model.db, 'supports_collections', None)) and \
-            self._model.db.supports_collections() and \
+        _cme_db = self._model.db
+        assert _cme_db is not None
+        edit_collections = callable(getattr(_cme_db, 'supports_collections', None)) and \
+            _cme_db.supports_collections() and \
             prefs['manage_device_metadata'] == 'manual'
 
         self.edit_collections_action.setVisible(edit_collections)
@@ -1723,10 +1842,14 @@ class DeviceBooksView(BooksView):  # {{{
 
     def resort(self):
         h = self.horizontalHeader()
-        self.model().sort(h.sortIndicatorSection(), h.sortIndicatorOrder())
+        assert h is not None
+        _rs_model = self.model()
+        assert _rs_model is not None
+        _rs_model.sort(h.sortIndicatorSection(), h.sortIndicatorOrder())
 
     def reverse_sort(self):
         h = self.horizontalHeader()
+        assert h is not None
         h.setSortIndicator(
             h.sortIndicatorSection(), Qt.SortOrder.AscendingOrder if h.sortIndicatorOrder() == Qt.SortOrder.DescendingOrder else Qt.SortOrder.DescendingOrder)
 # }}}

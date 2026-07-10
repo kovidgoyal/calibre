@@ -643,31 +643,41 @@ class DevicePage(QWizardPage, DeviceUI):
         if idx is None:
             idx = self.man_model.index_of(Device.manufacturer)
             previous = Device
-        self.manufacturer_view.selectionModel().select(idx,
+        man_sel_model = self.manufacturer_view.selectionModel()
+        assert man_sel_model is not None
+        man_sel_model.select(idx,
                 QItemSelectionModel.SelectionFlag.Select)
         self.dev_model = DeviceModel(self.man_model.data(idx, Qt.ItemDataRole.UserRole))
         idx = self.dev_model.index_of(previous)
         self.device_view.setModel(self.dev_model)
-        self.device_view.selectionModel().select(idx,
+        dev_sel_model = self.device_view.selectionModel()
+        assert dev_sel_model is not None
+        dev_sel_model.select(idx,
                 QItemSelectionModel.SelectionFlag.Select)
-        self.manufacturer_view.selectionModel().selectionChanged[(QItemSelection, QItemSelection)].connect(self.manufacturer_changed)
+        man_sel_model.selectionChanged[(QItemSelection, QItemSelection)].connect(self.manufacturer_changed)
 
     def manufacturer_changed(self, current, previous):
         new = list(current.indexes())[0]
         man = self.man_model.data(new, Qt.ItemDataRole.UserRole)
         self.dev_model = DeviceModel(man)
         self.device_view.setModel(self.dev_model)
-        self.device_view.selectionModel().select(self.dev_model.index(0),
+        dev_sel_model = self.device_view.selectionModel()
+        assert dev_sel_model is not None
+        dev_sel_model.select(self.dev_model.index(0),
                 QItemSelectionModel.SelectionFlag.Select)
 
     def commit(self):
-        idx = list(self.device_view.selectionModel().selectedIndexes())[0]
+        dev_sel_model = self.device_view.selectionModel()
+        assert dev_sel_model is not None
+        idx = list(dev_sel_model.selectedIndexes())[0]
         dev = self.dev_model.data(idx, Qt.ItemDataRole.UserRole)
         dev.commit()
         dynamic.set('welcome_wizard_device', dev.id)
 
     def nextId(self):
-        idx = list(self.device_view.selectionModel().selectedIndexes())[0]
+        dev_sel_model = self.device_view.selectionModel()
+        assert dev_sel_model is not None
+        idx = list(dev_sel_model.selectedIndexes())[0]
         dev = self.dev_model.data(idx, Qt.ItemDataRole.UserRole)
         if dev in (Kindle, KindleDX, KindleFire, KindlePW, KindleVoyage, KindleScribe):
             return KindlePage.ID

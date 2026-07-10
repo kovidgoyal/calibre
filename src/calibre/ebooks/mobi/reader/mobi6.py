@@ -156,7 +156,9 @@ class MobiReader:
     def check_for_drm(self):
         if self.book_header.encryption_type != 0:
             try:
-                name = self.book_header.exth.mi.title
+                exth = self.book_header.exth
+                assert exth is not None
+                name = exth.mi.title
             except Exception:
                 name = self.name
             if not name:
@@ -230,8 +232,11 @@ class MobiReader:
             self.log.warn('File does not have opening <html> tag')
             nroot = safe_html_fromstring('<html><head></head><body></body></html>')
             bod = nroot.find('body')
+            assert bod is not None
             for child in list(root):
-                child.getparent().remove(child)
+                parent = child.getparent()
+                assert parent is not None
+                parent.remove(child)
                 bod.append(child)
             root = nroot
 
@@ -295,6 +300,7 @@ class MobiReader:
             elem.getparent().remove(elem)
         htmlfile = os.path.join(output_dir, 'index.html')
         try:
+            assert guide is not None
             for ref in guide.xpath('descendant::reference'):
                 if 'href' in ref.attrib:
                     ref.attrib['href'] = os.path.basename(htmlfile) + ref.attrib['href']
@@ -701,6 +707,7 @@ class MobiReader:
         ncx_manifest_entry = None
         if toc:
             ncx_manifest_entry = 'toc.ncx'
+            assert root is not None
             elems = root.xpath('//*[@id="{}"]'.format(toc.partition('#')[-1]))
             tocobj = None
             if elems:

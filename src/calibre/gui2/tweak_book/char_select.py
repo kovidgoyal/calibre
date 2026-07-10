@@ -626,21 +626,25 @@ class CharView(QListView):
 
     def item_activated(self, index):
         try:
-            char_code = int(self.model().data(index, Qt.ItemDataRole.UserRole))
+            m = self.model()
+            assert m is not None
+            char_code = int(m.data(index, Qt.ItemDataRole.UserRole))
         except (TypeError, ValueError):
             pass
         else:
             self.char_selected.emit(chr(char_code))
 
     def set_allow_drag_and_drop(self, enabled):
+        vp = self.viewport()
+        assert vp is not None
         if not enabled:
             self.setDragEnabled(False)
-            self.viewport().setAcceptDrops(False)
+            vp.setAcceptDrops(False)
             self.setDropIndicatorShown(True)
             self._model.allow_dnd = False
         else:
             self.setSelectionMode(QAbstractItemView.SelectionMode.ExtendedSelection)
-            self.viewport().setAcceptDrops(True)
+            vp.setAcceptDrops(True)
             self.setDragEnabled(True)
             self.setAcceptDrops(True)
             self.setDropIndicatorShown(False)
@@ -660,7 +664,9 @@ class CharView(QListView):
             if row != self.last_mouse_idx:
                 self.last_mouse_idx = row
                 try:
-                    char_code = int(self.model().data(index, Qt.ItemDataRole.UserRole))
+                    m = self.model()
+                    assert m is not None
+                    char_code = int(m.data(index, Qt.ItemDataRole.UserRole))
                 except (TypeError, ValueError):
                     pass
                 else:
@@ -676,7 +682,9 @@ class CharView(QListView):
         index = self.indexAt(pos)
         if index.isValid():
             try:
-                char_code = int(self.model().data(index, Qt.ItemDataRole.UserRole))
+                m = self.model()
+                assert m is not None
+                char_code = int(m.data(index, Qt.ItemDataRole.UserRole))
             except (TypeError, ValueError):
                 pass
             else:
@@ -691,12 +699,15 @@ class CharView(QListView):
 
     def restore_defaults(self):
         del tprefs['charmap_favorites']
-        self.model().beginResetModel()
-        self.model().chars = list(tprefs['charmap_favorites'])
-        self.model().endResetModel()
+        m = self.model()
+        assert m is not None
+        m.beginResetModel()
+        m.chars = list(tprefs['charmap_favorites'])
+        m.endResetModel()
 
     def copy_to_clipboard(self, char_code):
         c = QApplication.clipboard()
+        assert c is not None
         c.setText(chr(char_code))
 
     def remove_from_favorites(self, char_code):
@@ -707,9 +718,11 @@ class CharView(QListView):
         elif char_code in existing:
             existing.remove(char_code)
             tprefs['charmap_favorites'] = existing
-            self.model().beginResetModel()
-            self.model().chars.remove(char_code)
-            self.model().endResetModel()
+            m = self.model()
+            assert m is not None
+            m.beginResetModel()
+            m.chars.remove(char_code)
+            m.endResetModel()
 
 
 class CharSelect(Dialog):
@@ -726,6 +739,7 @@ class CharSelect(Dialog):
 
         self.bb.setStandardButtons(QDialogButtonBox.StandardButton.Close)
         self.rearrange_button = b = self.bb.addButton(_('Re-arrange favorites'), QDialogButtonBox.ButtonRole.ActionRole)
+        assert b is not None
         b.setCheckable(True)
         b.setChecked(False)
         b.setVisible(False)
@@ -759,6 +773,7 @@ class CharSelect(Dialog):
         l.addWidget(s, 1, 0, 1, 3)
         self.char_view = CharView(self)
         self.char_view.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+        assert self.rearrange_button is not None
         self.rearrange_button.toggled[bool].connect(self.set_allow_drag_and_drop)
         self.category_view.category_selected.connect(self.show_chars)
         self.char_view.show_name.connect(self.show_char_info)
@@ -807,6 +822,7 @@ class CharSelect(Dialog):
 
     def show_chars(self, name, codes):
         b = self.rearrange_button
+        assert b is not None
         b.setVisible(name == _('Favorites'))
         b.blockSignals(True)
         b.setChecked(False)
@@ -837,7 +853,9 @@ class CharSelect(Dialog):
         if QApplication.keyboardModifiers() & Qt.KeyboardModifier.ControlModifier:
             self.hide()
         if self.parent() is None or self.parent().focusWidget() is None:
-            QApplication.clipboard().setText(c)
+            cb = QApplication.clipboard()
+            assert cb is not None
+            cb.setText(c)
             return
         self.parent().activateWindow()
         w = self.parent().focusWidget()

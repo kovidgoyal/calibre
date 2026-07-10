@@ -114,8 +114,10 @@ class DeleteMatchingFromDeviceDialog(QDialog, Ui_DeleteMatchingFromDeviceDialog)
     def accepted(self):
         self.result = []
         for row in range(self.table.rowCount()):
-            if self.table.item(row, 0).checkState() == Qt.CheckState.Unchecked:
+            item_0 = self.table.item(row, 0)
+            assert item_0 is not None
+            if item_0.checkState() == Qt.CheckState.Unchecked:
                 continue
-            model, id, path = self.table.item(row, 0).data(Qt.ItemDataRole.UserRole)
+            model, id, path = item_0.data(Qt.ItemDataRole.UserRole)
             path = str(path)
             self.result.append((model, id, path))

@@ -91,10 +91,12 @@ class Command(QUndoCommand):
 
     def undo(self):
         canvas = self.canvas_ref()
+        assert canvas is not None
         canvas.set_image(self.before_image)
 
     def redo(self):
         canvas = self.canvas_ref()
+        assert canvas is not None
         canvas.set_image(self.after_image)
 
 
@@ -307,8 +309,10 @@ class Canvas(QWidget):
         self.target = QRectF(0, 0, 0, 0)
 
         self.undo_action = a = self.undo_stack.createUndoAction(self, _('Undo') + ' ')
+        assert a is not None
         a.setIcon(QIcon.ic('edit-undo.png'))
         self.redo_action = a = self.undo_stack.createRedoAction(self, _('Redo') + ' ')
+        assert a is not None
         a.setIcon(QIcon.ic('edit-redo.png'))
 
     def load_image(self, data, only_if_different=False):
@@ -357,6 +361,7 @@ class Canvas(QWidget):
         if not self.is_valid:
             return
         clipboard = QApplication.clipboard()
+        assert clipboard is not None
         if not self.has_selection or self.selection_state.rect is None:
             clipboard.setImage(self.current_image)
         else:
@@ -366,7 +371,9 @@ class Canvas(QWidget):
 
     def paste(self):
         clipboard = QApplication.clipboard()
+        assert clipboard is not None
         md = clipboard.mimeData()
+        assert md is not None
         if md.hasImage():
             img = QImage(md.imageData())
             if not img.isNull():
@@ -380,7 +387,11 @@ class Canvas(QWidget):
         self.original_image_data = self.current_image = self.current_scaled_pixmap = None
 
     def emit_undo_redo_state(self):
-        self.undo_redo_state_changed.emit(self.undo_action.isEnabled(), self.redo_action.isEnabled())
+        undo_action = self.undo_action
+        assert undo_action is not None
+        redo_action = self.redo_action
+        assert redo_action is not None
+        self.undo_redo_state_changed.emit(undo_action.isEnabled(), redo_action.isEnabled())
 
     @imageop
     def trim_image(self):
@@ -435,6 +446,7 @@ class Canvas(QWidget):
     @property
     def dc_size(self):
         sr = self.selection_state.rect
+        assert sr is not None
         dx = min(75, sr.width() / 4)
         dy = min(75, sr.height() / 4)
         return dx, dy
@@ -442,6 +454,7 @@ class Canvas(QWidget):
     def get_drag_corner(self, pos):
         dx, dy = self.dc_size
         sr = self.selection_state.rect
+        assert sr is not None
         x, y = pos.x(), pos.y()
         hedge = 'left' if x < sr.x() + dx else 'right' if x > sr.right() - dx else None
         vedge = 'top' if y < sr.y() + dy else 'bottom' if y > sr.bottom() - dy else None
@@ -452,6 +465,7 @@ class Canvas(QWidget):
         dc = self.selection_state.drag_corner
         if None in (sr, dc):
             return
+        assert sr is not None
         dx, dy = self.dc_size
         if None in dc:
             # An edge
@@ -484,6 +498,7 @@ class Canvas(QWidget):
 
     def move_edge(self, edge, dp):
         sr = self.selection_state.rect
+        assert sr is not None
         horiz = edge in {'left', 'right'}
         func = getattr(sr, 'set' + capitalize(edge))
         delta = getattr(dp, 'x' if horiz else 'y')()
@@ -498,6 +513,7 @@ class Canvas(QWidget):
 
     def move_selection_rect(self, x, y):
         sr = self.selection_state.rect
+        assert sr is not None
         half_width = sr.width() / 2.0
         half_height = sr.height() / 2.0
         c = sr.center()
@@ -512,6 +528,7 @@ class Canvas(QWidget):
 
     def preserve_aspect_ratio_after_move(self, orig_rect, hedge, vedge):
         r = self.selection_state.rect
+        assert r is not None
 
         def is_equal(a, b):
             return abs(a - b) < 0.001
@@ -598,11 +615,14 @@ class Canvas(QWidget):
         if self.selection_state.current_mode == 'selected':
             left, top, width, height = self.rect_for_trim()
             return QRect(0, 0, int(width), int(height))
-        return self.current_image.rect()
+        current_image = self.current_image
+        assert current_image is not None
+        return current_image.rect()
 
     def set_selection_size_in_image_coords(self, width, height):
         self.selection_state.reset()
         i = self.current_image
+        assert i is not None
         self.selection_state.rect = QRectF(self.target.left(), self.target.top(),
                                            width * self.target.width() / i.width(), height * self.target.height() / i.height())
         self.selection_state.current_mode = 'selected'
@@ -703,6 +723,7 @@ class Canvas(QWidget):
         if self.current_scaled_pixmap is None:
             pwidth, pheight = self.last_canvas_size
             i = self.current_image
+            assert i is not None
             width, height = i.width(), i.height()
             scaled, width, height = fit_image(width, height, pwidth, pheight)
             try:
@@ -710,13 +731,14 @@ class Canvas(QWidget):
             except AttributeError:
                 dpr = self.devicePixelRatio()
             if scaled:
-                i = self.current_image.scaled(int(dpr * width), int(dpr * height), transformMode=Qt.TransformationMode.SmoothTransformation)
+                i = i.scaled(int(dpr * width), int(dpr * height), transformMode=Qt.TransformationMode.SmoothTransformation)
             self.current_scaled_pixmap = QPixmap.fromImage(i)
             self.current_scaled_pixmap.setDevicePixelRatio(dpr)
 
     @painter
     def draw_pixmap(self, painter):
         p = self.current_scaled_pixmap
+        assert p is not None
         try:
             dpr = self.devicePixelRatioF()
         except AttributeError:
@@ -731,6 +753,7 @@ class Canvas(QWidget):
     @painter
     def draw_selection_rect(self, painter):
         cr, sr = self.target, self.selection_state.rect
+        assert sr is not None
         painter.setPen(self.SELECT_PEN)
         painter.setRenderHint(QPainter.RenderHint.Antialiasing, False)
         if self.selection_state.current_mode == 'selected':

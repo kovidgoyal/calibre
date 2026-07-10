@@ -112,7 +112,10 @@ class AddAction(InterfaceAction):
         ids = self._check_add_formats_ok()
         if not ids:
             return
-        md = qapplication_or_fail().clipboard().mimeData()
+        _clipboard = qapplication_or_fail().clipboard()
+        assert _clipboard is not None
+        md = _clipboard.mimeData()
+        assert md is not None
         files_to_add = []
         images = []
         if md.hasUrls():
@@ -664,6 +667,7 @@ class AddAction(InterfaceAction):
         # set the in-library flags, and as a consequence send the library's
         # metadata for this book to the device. This sets the uuid to the
         # correct value. Note that set_books_in_library might sync_booklists
+        assert model is not None
         self.gui.set_books_in_library(booklists=[model.db], reset=True)
         self.gui.refresh_ondevice()
 
@@ -711,7 +715,9 @@ class AddAction(InterfaceAction):
             self.bpd.show()
 
     def books_prepared(self, view, job):
-        self.bpd.hide()
+        bpd = self.bpd
+        assert bpd is not None
+        bpd.hide()
         self.bpd = None
         if job.exception is not None:
             self.gui.device_job_exception(job)

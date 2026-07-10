@@ -125,6 +125,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         for ext in sorted(exts):
             viewer.addItem(ext)
             item = viewer.item(viewer.count()-1)
+            assert item is not None
             item.setFlags(Qt.ItemFlag.ItemIsEnabled|Qt.ItemFlag.ItemIsUserCheckable)
             item.setCheckState(Qt.CheckState.Checked if
                     ext in fmts else Qt.CheckState.Unchecked)
@@ -139,8 +140,10 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             existing.add(fmt)
             self.set_blocked_auto_formats(existing)
             for i in range(viewer.count()):
-                if viewer.item(i).text() == fmt:
-                    viewer.scrollToItem(viewer.item(i))
+                _vi = viewer.item(i)
+                assert _vi is not None
+                if _vi.text() == fmt:
+                    viewer.scrollToItem(_vi)
                     break
             self.changed_signal.emit()
 
@@ -149,8 +152,10 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         fmts = []
         viewer = self.opt_blocked_auto_formats
         for i in range(viewer.count()):
-            if viewer.item(i).checkState() == Qt.CheckState.Checked:
-                fmts.append(str(viewer.item(i).text()))
+            _item = viewer.item(i)
+            assert _item is not None
+            if _item.checkState() == Qt.CheckState.Checked:
+                fmts.append(str(_item.text()))
         return fmts
     # }}}
 

@@ -153,8 +153,10 @@ class SyntaxHighlighter:
                 return
             formats, force_next_highlight = self.parse_single_block(block)
             self.apply_format_changes(block, formats)
+            doc = self.doc
+            assert doc is not None
             try:
-                self.doc.markContentsDirty(block.position(), block.length())
+                doc.markContentsDirty(block.position(), block.length())
             except AttributeError:
                 self.requests.clear()
                 return
@@ -242,6 +244,7 @@ class SyntaxHighlighter:
 
     def formats_for_line(self, block: QTextBlock, start, length):
         layout = block.layout()
+        assert layout is not None
         start_in_block = start - block.position()
         limit = start_in_block + length
         for f in layout.formats():

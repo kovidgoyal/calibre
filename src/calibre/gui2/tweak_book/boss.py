@@ -948,8 +948,11 @@ class Boss(QObject):
         bb.accepted.connect(d.accept)
         bb.rejected.connect(d.reject)
         d.b = b = bb.addButton(_('See what &changed'), QDialogButtonBox.ButtonRole.AcceptRole)
+        assert b is not None
         b.setIcon(QIcon.ic('diff.png')), b.setAutoDefault(False)
-        bb.button(QDialogButtonBox.StandardButton.Close).setDefault(True)
+        close_btn = bb.button(QDialogButtonBox.StandardButton.Close)
+        assert close_btn is not None
+        close_btn.setDefault(True)
         if d.exec() == QDialog.DialogCode.Accepted:
             self.show_current_diff(allow_revert=allow_revert, to_container=to_container)
 
@@ -1502,6 +1505,7 @@ class Boss(QObject):
                 error_dialog(self.gui, _('File deleted'), _(
                     'The file {} has already been deleted, re-run Check Book to update the results.').format(name), show=True)
         if getattr(editor, 'has_line_numbers', False):
+            assert editor is not None
             if is_mult:
                 editor.go_to_line(*(item.all_locations[item.current_location_index][1:3]))
             else:
@@ -1615,11 +1619,16 @@ class Boss(QObject):
         md.setData(FILE_COPY_MIME, as_bytes(json.dumps({
             name: (url_map[name], container.mime_map.get(name)) for name in names
         })))
-        qapplication_or_fail().clipboard().setMimeData(md)
+        _clipboard = qapplication_or_fail().clipboard()
+        assert _clipboard is not None
+        _clipboard.setMimeData(md)
 
     @in_thread_job
     def paste_files_from_clipboard(self):
-        md = qapplication_or_fail().clipboard().mimeData()
+        _clipboard = qapplication_or_fail().clipboard()
+        assert _clipboard is not None
+        md = _clipboard.mimeData()
+        assert md is not None
         if md.hasUrls() and md.hasFormat(FILE_COPY_MIME):
             import json
             self.commit_all_editors_to_container()
@@ -2011,9 +2020,11 @@ class Boss(QObject):
                 d.do_save = x
                 d.accept()
             b = d.bb.addButton(_('&Save and Quit'), QDialogButtonBox.ButtonRole.ActionRole)
+            assert b is not None
             b.setIcon(QIcon.ic('save.png'))
             connect_lambda(b.clicked, d, lambda d: endit(d, True))
             b = d.bb.addButton(_('&Quit without saving'), QDialogButtonBox.ButtonRole.ActionRole)
+            assert b is not None
             connect_lambda(b.clicked, d, lambda d: endit(d, False))
             d.resize(d.sizeHint())
             if d.exec() != QDialog.DialogCode.Accepted or d.do_save is None:

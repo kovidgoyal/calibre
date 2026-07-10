@@ -142,19 +142,24 @@ def show_report(changed, title, report, parent, show_current_diff):
     d.show_changes = False
     if changed:
         b = d.b = d.bb.addButton(_('See what &changed'), QDialogButtonBox.ButtonRole.AcceptRole)
+        assert b is not None
         b.setIcon(QIcon.ic('diff.png')), b.setAutoDefault(False)
         connect_lambda(b.clicked, d, lambda d: setattr(d, 'show_changes', True))
     b = d.bb.addButton(_('&Copy to clipboard'), QDialogButtonBox.ButtonRole.ActionRole)
+    assert b is not None
     b.setIcon(QIcon.ic('edit-copy.png')), b.setAutoDefault(False)
 
     def copy_report():
         text = re.sub(r'</.+?>', '\n', report)
         text = re.sub(r'<.+?>', '', text)
         cp = qapplication_or_fail().clipboard()
+        assert cp is not None
         cp.setText(text)
 
     b.clicked.connect(copy_report)
-    d.bb.button(QDialogButtonBox.StandardButton.Close).setDefault(True)
+    close_btn = d.bb.button(QDialogButtonBox.StandardButton.Close)
+    assert close_btn is not None
+    close_btn.setDefault(True)
     d.l.addWidget(d.bb)
     d.bb.rejected.connect(d.reject)
     d.bb.accepted.connect(d.accept)
@@ -376,7 +381,9 @@ class CompressImagesProgress(Dialog):
 
     def reject(self):
         self.keep_going = False
-        self.bb.button(QDialogButtonBox.StandardButton.Cancel).setEnabled(False)
+        cancel_btn = self.bb.button(QDialogButtonBox.StandardButton.Cancel)
+        assert cancel_btn is not None
+        cancel_btn.setEnabled(False)
         Dialog.reject(self)
 
     def progress_callback(self, num, total, name):

@@ -587,7 +587,10 @@ class Table:
                 if len(run) > 1:
                     self.style_map[run[0]].row_span = len(run)
                     for tc in run[1:]:
-                        tc.getparent().remove(tc)
+                        assert tc is not None
+                        parent = tc.getparent()
+                        assert parent is not None
+                        parent.remove(tc)
 
         # Handle hMerge
         for cells in self.cell_map:

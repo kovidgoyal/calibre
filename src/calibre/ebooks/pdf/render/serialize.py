@@ -296,7 +296,9 @@ class PDFStream:
         self.links = Links(self, mark_links, page_size)
         i = QImage(1, 1, QImage.Format.Format_ARGB32)
         i.fill(qRgba(0, 0, 0, 255))
-        self.alpha_bit = i.constBits().asstring(4).find(b'\xff')
+        i_bits = i.constBits()
+        assert i_bits is not None
+        self.alpha_bit = i_bits.asstring(4).find(b'\xff')
         self.bw_image_color_table = frozenset((QColor(Qt.GlobalColor.black).rgba(), QColor(Qt.GlobalColor.white).rgba()))
 
     @property
@@ -436,14 +438,18 @@ class PDFStream:
 
         if fmt == QImage.Format.Format_Mono:
             bytes_per_line = (w + 7) >> 3
-            data = image.constBits().asstring(bytes_per_line * h)
+            mono_bits = image.constBits()
+            assert mono_bits is not None
+            data = mono_bits.asstring(bytes_per_line * h)
             return self.write_image(data, w, h, d, cache_key=cache_key)
 
         has_alpha = False
         soft_mask = None
 
         if fmt == QImage.Format.Format_ARGB32:
-            tmask = image.constBits().asstring(4*w*h)[self.alpha_bit::4]
+            argb_bits = image.constBits()
+            assert argb_bits is not None
+            tmask = argb_bits.asstring(4*w*h)[self.alpha_bit::4]
             sdata = bytearray(tmask)
             vals = set(sdata)
             vals.discard(255)  # discard opaque pixels

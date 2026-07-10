@@ -317,6 +317,7 @@ class MobiMLizer:
             bstate.inline = inline
         bstate.istate = istate
         inline = bstate.inline
+        assert inline is not None
         content = self.preize_text(text, pre_wrap=istate.pre_wrap) if istate.preserve or istate.pre_wrap else [text]
         for item in content:
             if isinstance(item, (str, bytes)):

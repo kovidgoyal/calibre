@@ -472,13 +472,15 @@ class Graphics:
         if not hasattr(self, 'last_fill') or not self.current_state.do_fill:
             return
 
-        if isinstance(self.last_fill.brush, TexturePattern):
+        last_fill = self.last_fill
+        assert last_fill is not None
+        if isinstance(last_fill.brush, TexturePattern):
             tl = rect.topLeft()
-            if tl == self.last_fill.origin:
+            if tl == last_fill.origin:
                 return
 
             matrix = (QTransform.fromTranslate(tl.x(), tl.y()) * pdf_system * qt_system.inverted()[0])
 
-            pat = TexturePattern(None, matrix, self.pdf, clone=self.last_fill.brush)
+            pat = TexturePattern(None, matrix, self.pdf, clone=last_fill.brush)
             pattern = self.pdf.add_pattern(pat)
-            self.pdf.apply_fill(self.last_fill.color, pattern)
+            self.pdf.apply_fill(last_fill.color, pattern)

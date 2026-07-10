@@ -139,6 +139,7 @@ class CompletionWorker(Thread):
         self.main_queue.put(None)
         for conn in (getattr(self, 'control_conn', None), getattr(self, 'data_conn', None)):
             try:
+                assert conn is not None
                 conn.close()
             except Exception:
                 pass

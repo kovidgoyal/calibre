@@ -334,8 +334,10 @@ class DisplayPluginSortFilterModel(QSortFilterProxyModel):
         self.filter_by_category = ''
 
     def filterAcceptsRow(self, source_row, source_parent):
-        index = self.sourceModel().index(source_row, 0, source_parent)
-        display_plugin = self.sourceModel().display_plugins[index.row()]
+        source_model = self.sourceModel()
+        assert source_model is not None
+        index = source_model.index(source_row, 0, source_parent)
+        display_plugin = source_model.display_plugins[index.row()]
         matches_filters = display_plugin.name_matches_filter(self.filter_text) and display_plugin.category_matches_filter(self.filter_by_category)
         if self.filter_criteria == FILTER_ALL:
             return (
@@ -570,8 +572,12 @@ class PluginUpdaterDialog(SizePersistedDialog):
             self.proxy_model.setSourceModel(self.model)
             self.plugin_view.setModel(self.proxy_model)
             self.plugin_view.resizeColumnsToContents()
-            self.plugin_view.selectionModel().currentRowChanged.connect(self._plugin_current_changed)
-            self.plugin_view.doubleClicked.connect(self.install_button.click)
+            sel_model = self.plugin_view.selectionModel()
+            assert sel_model is not None
+            sel_model.currentRowChanged.connect(self._plugin_current_changed)
+            install_btn = self.install_button
+            assert install_btn is not None
+            self.plugin_view.doubleClicked.connect(install_btn.click)
             self.filter_combo.setCurrentIndex(initial_filter)
             if initial_category:
                 self.category_combo.set_category(initial_category)
@@ -618,7 +624,9 @@ class PluginUpdaterDialog(SizePersistedDialog):
         header_layout.addWidget(self.filter_by_name_lineedit)
 
         self.plugin_view = QTableView(self)
-        self.plugin_view.horizontalHeader().setStretchLastSection(True)
+        horiz_header = self.plugin_view.horizontalHeader()
+        assert horiz_header is not None
+        horiz_header.setStretchLastSection(True)
         self.plugin_view.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
         self.plugin_view.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
         self.plugin_view.setAlternatingRowColors(True)
@@ -646,13 +654,17 @@ class PluginUpdaterDialog(SizePersistedDialog):
         self.button_box.rejected.connect(self.reject)
         self.finished.connect(self._finished)
         self.install_button = self.button_box.addButton(_('&Install'), QDialogButtonBox.ButtonRole.AcceptRole)
-        self.install_button.setToolTip(_('Install the selected plugin'))
-        self.install_button.clicked.connect(self._install_clicked)
-        self.install_button.setEnabled(False)
+        install_button = self.install_button
+        assert install_button is not None
+        install_button.setToolTip(_('Install the selected plugin'))
+        install_button.clicked.connect(self._install_clicked)
+        install_button.setEnabled(False)
         self.configure_button = self.button_box.addButton(' '+_('&Customize plugin ')+' ', QDialogButtonBox.ButtonRole.ResetRole)
-        self.configure_button.setToolTip(_('Customize the options for this plugin'))
-        self.configure_button.clicked.connect(self._configure_clicked)
-        self.configure_button.setEnabled(False)
+        configure_button = self.configure_button
+        assert configure_button is not None
+        configure_button.setToolTip(_('Customize the options for this plugin'))
+        configure_button.clicked.connect(self._configure_clicked)
+        configure_button.setEnabled(False)
         layout.addWidget(self.button_box)
 
     def update_forum_label(self):
@@ -761,18 +773,24 @@ class PluginUpdaterDialog(SizePersistedDialog):
         self.description.setText(src)
 
     def _plugin_current_changed(self, current, previous):
+        model = self.model
+        assert model is not None
+        install_button = self.install_button
+        assert install_button is not None
+        configure_button = self.configure_button
+        assert configure_button is not None
         if current.isValid():
             actual_idx = self.proxy_model.mapToSource(current)
-            display_plugin = self.model.display_plugins[actual_idx.row()]
+            display_plugin = model.display_plugins[actual_idx.row()]
             self.set_description(display_plugin.description)
             self.forum_link = display_plugin.forum_link
             self.zip_url = display_plugin.zip_url
             self.forum_action.setEnabled(bool(self.forum_link))
-            self.install_button.setEnabled(display_plugin.is_valid_to_install())
-            self.install_action.setEnabled(self.install_button.isEnabled())
+            install_button.setEnabled(display_plugin.is_valid_to_install())
+            self.install_action.setEnabled(install_button.isEnabled())
             self.uninstall_action.setEnabled(display_plugin.is_installed())
-            self.configure_button.setEnabled(display_plugin.is_installed())
-            self.configure_action.setEnabled(self.configure_button.isEnabled())
+            configure_button.setEnabled(display_plugin.is_installed())
+            self.configure_action.setEnabled(configure_button.isEnabled())
             self.toggle_enabled_action.setEnabled(display_plugin.is_installed())
             self.donate_enabled_action.setEnabled(bool(display_plugin.donation_link))
         else:
@@ -780,10 +798,10 @@ class PluginUpdaterDialog(SizePersistedDialog):
             self.forum_link = None
             self.zip_url = None
             self.forum_action.setEnabled(False)
-            self.install_button.setEnabled(False)
+            install_button.setEnabled(False)
             self.install_action.setEnabled(False)
             self.uninstall_action.setEnabled(False)
-            self.configure_button.setEnabled(False)
+            configure_button.setEnabled(False)
             self.configure_action.setEnabled(False)
             self.toggle_enabled_action.setEnabled(False)
             self.donate_enabled_action.setEnabled(False)
@@ -795,10 +813,14 @@ class PluginUpdaterDialog(SizePersistedDialog):
             open_url(QUrl(plugin.donation_link))
 
     def _select_and_focus_view(self, change_selection=True):
-        if change_selection and self.plugin_view.model().rowCount() > 0:
+        pv_model = self.plugin_view.model()
+        assert pv_model is not None
+        if change_selection and pv_model.rowCount() > 0:
             self.plugin_view.selectRow(0)
         else:
-            idx = self.plugin_view.selectionModel().currentIndex()
+            pv_sel_model = self.plugin_view.selectionModel()
+            assert pv_sel_model is not None
+            idx = pv_sel_model.currentIndex()
             self._plugin_current_changed(idx, 0)
         self.plugin_view.setFocus()
 
@@ -824,9 +846,13 @@ class PluginUpdaterDialog(SizePersistedDialog):
             open_url(QUrl(self.forum_link))
 
     def _selected_display_plugin(self):
-        idx = self.plugin_view.selectionModel().currentIndex()
+        sel_model = self.plugin_view.selectionModel()
+        assert sel_model is not None
+        idx = sel_model.currentIndex()
         actual_idx = self.proxy_model.mapToSource(idx)
-        return self.model.display_plugins[actual_idx.row()]
+        model = self.model
+        assert model is not None
+        return model.display_plugins[actual_idx.row()]
 
     def _uninstall_plugin(self, name_to_remove):
         if DEBUG:
@@ -834,7 +860,9 @@ class PluginUpdaterDialog(SizePersistedDialog):
         remove_plugin(name_to_remove)
         # Make sure that any other plugins that required this plugin
         # to be uninstalled first have the requirement removed
-        for display_plugin in self.model.display_plugins:
+        model = self.model
+        assert model is not None
+        for display_plugin in model.display_plugins:
             # Make sure we update the status and display of the
             # plugin we just uninstalled
             if name_to_remove in display_plugin.uninstall_plugins:
@@ -848,7 +876,7 @@ class PluginUpdaterDialog(SizePersistedDialog):
                 display_plugin.plugin = None
                 display_plugin.uninstall_plugins = []
                 if self.proxy_model.filter_criteria not in [FILTER_INSTALLED, FILTER_UPDATE_AVAILABLE]:
-                    self.model.refresh_plugin(display_plugin)
+                    model.refresh_plugin(display_plugin)
 
     def _uninstall_clicked(self):
         display_plugin = self._selected_display_plugin()
@@ -858,7 +886,9 @@ class PluginUpdaterDialog(SizePersistedDialog):
             return
         self._uninstall_plugin(display_plugin.qname)
         if self.proxy_model.filter_criteria in [FILTER_INSTALLED, FILTER_UPDATE_AVAILABLE]:
-            self.model.beginResetModel(), self.model.endResetModel()
+            uninstall_model = self.model
+            assert uninstall_model is not None
+            uninstall_model.beginResetModel(), uninstall_model.endResetModel()
             self._select_and_focus_view()
         else:
             self._select_and_focus_view(change_selection=False)
@@ -928,11 +958,13 @@ class PluginUpdaterDialog(SizePersistedDialog):
             display_plugin.plugin = None
 
         display_plugin.uninstall_plugins = []
+        install_model = self.model
+        assert install_model is not None
         if self.proxy_model.filter_criteria in [FILTER_NOT_INSTALLED, FILTER_UPDATE_AVAILABLE]:
-            self.model.beginResetModel(), self.model.endResetModel()
+            install_model.beginResetModel(), install_model.endResetModel()
             self._select_and_focus_view()
         else:
-            self.model.refresh_plugin(display_plugin)
+            install_model.refresh_plugin(display_plugin)
             self._select_and_focus_view(change_selection=False)
         if do_restart:
             self.do_restart = True
@@ -962,7 +994,9 @@ class PluginUpdaterDialog(SizePersistedDialog):
             enable_plugin(plugin)
         else:
             disable_plugin(plugin)
-        self.model.refresh_plugin(display_plugin)
+        toggle_model = self.model
+        assert toggle_model is not None
+        toggle_model.refresh_plugin(display_plugin)
 
     def _download_zip(self, plugin_zip_url):
         from calibre.ptempfile import PersistentTemporaryFile

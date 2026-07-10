@@ -170,6 +170,7 @@ class Page(QWebEnginePage):  # {{{
         current_container.profile_memory = profile
         profile.installUrlSchemeHandler(QByteArray(FAKE_PROTOCOL.encode('ascii')), current_container.url_handler)
         s = profile.settings()
+        assert s is not None
         s.setDefaultTextEncoding('utf-8')
         profile.setUrlRequestInterceptor(current_container.interceptor)
         QWebEnginePage.__init__(self, profile, parent)
@@ -268,10 +269,12 @@ class ItemEdit(QWidget):
 
         self.la = la = QLabel('<b>'+_(
             'Select a destination for the Table of Contents entry'))
-        self.layout().addWidget(la)
+        _layout = self.layout()
+        assert _layout is not None
+        _layout.addWidget(la)
         self.splitter = sp = QSplitter(self)
-        self.layout().addWidget(sp)
-        self.layout().setStretch(1, 10)
+        _layout.addWidget(sp)
+        _layout.setStretch(1, 10)
         sp.setOpaqueResize(False)
         sp.setChildrenCollapsible(False)
 
@@ -368,9 +371,13 @@ class ItemEdit(QWidget):
                     _('No match found for: %s')%text, show=True)
 
             delta = 1 if forwards else -1
-            current = str(d.currentItem().data(Qt.ItemDataRole.DisplayRole) or '')
+            current_item = d.currentItem()
+            assert current_item is not None
+            current = str(current_item.data(Qt.ItemDataRole.DisplayRole) or '')
             next_index = (d.currentRow() + delta)%d.count()
-            next = str(d.item(next_index).data(Qt.ItemDataRole.DisplayRole) or '')
+            next_item = d.item(next_index)
+            assert next_item is not None
+            next = str(next_item.data(Qt.ItemDataRole.DisplayRole) or '')
             msg = '<p>'+_('No matches for %(text)s found in the current file [%(current)s].'
                           ' Do you want to search in the %(which)s file [%(next)s]?')
             msg = msg%dict(text=text, current=current, next=next,
@@ -427,6 +434,7 @@ class ItemEdit(QWidget):
             if toc.dest:
                 for i in range(self.dest_list.count()):
                     litem = self.dest_list.item(i)
+                    assert litem is not None
                     if str(litem.data(Qt.ItemDataRole.DisplayRole) or '') == toc.dest:
                         dest_index = i
                         frag = toc.frag

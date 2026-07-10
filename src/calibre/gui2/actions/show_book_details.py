@@ -62,6 +62,7 @@ class ShowBookDetailsAction(InterfaceAction):
                 # between closing the existing window and opening the new one,
                 # so do all the work here
                 d = self.dialogs[dn]
+                assert d is not None
                 d.closed.disconnect(self.closed)
                 d.done(0)
                 self.dialogs[dn] = None

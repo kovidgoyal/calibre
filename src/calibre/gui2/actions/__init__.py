@@ -214,7 +214,9 @@ class InterfaceAction(QObject):
     def unique_name(self):
         bn = self.__class__.__name__
         if getattr(self.interface_action_base_plugin, 'name'):
-            bn = self.interface_action_base_plugin.name
+            plugin = self.interface_action_base_plugin
+            assert plugin is not None
+            bn = plugin.name
         return f'Interface Action: {bn} ({self.name})'
 
     def create_action(self, spec=None, attr='qaction', shortcut_name=None, persist_shortcut=False):

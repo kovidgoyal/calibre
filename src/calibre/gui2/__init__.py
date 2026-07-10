@@ -704,11 +704,15 @@ def available_heights():
 
 
 def available_height():
-    return qapplication_or_fail().primaryScreen().availableSize().height()
+    screen = qapplication_or_fail().primaryScreen()
+    assert screen is not None
+    return screen.availableSize().height()
 
 
 def available_width():
-    return qapplication_or_fail().primaryScreen().availableSize().width()
+    screen = qapplication_or_fail().primaryScreen()
+    assert screen is not None
+    return screen.availableSize().width()
 
 
 def max_available_height():
@@ -721,6 +725,7 @@ def min_available_height():
 
 def get_screen_dpi():
     s = qapplication_or_fail().primaryScreen()
+    assert s is not None
     return s.logicalDotsPerInchX(), s.logicalDotsPerInchY()
 
 
@@ -1139,7 +1144,9 @@ class ResizableDialog(QDialog):
     def __init__(self, *args, **kwargs):
         QDialog.__init__(self, *args)
         self.setupUi(self)
-        geom = self.screen().availableSize()
+        screen = self.screen()
+        assert screen is not None
+        geom = screen.availableSize()
         nh, nw = max(550, geom.height()-25), max(700, geom.width()-10)
         nh = min(self.height(), nh)
         nw = min(self.width(), nw)
@@ -1409,7 +1416,9 @@ class Application(QApplication):
 
     def flush_clipboard(self):
         try:
-            if self.clipboard().ownsClipboard():
+            cb = self.clipboard()
+            assert cb is not None
+            if cb.ownsClipboard():
                 import ctypes
                 ctypes.WinDLL('ole32.dll').OleFlushClipboard()
         except Exception:

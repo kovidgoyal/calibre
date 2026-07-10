@@ -72,13 +72,16 @@ class Dialog(QDialog):
         self.config_set = config_set
 
         self.resize(self.sizeHint())
-        bb.button(standard_button).setFocus(Qt.FocusReason.OtherFocusReason)
+        standard_btn = bb.button(standard_button)
+        assert standard_btn is not None
+        standard_btn.setFocus(Qt.FocusReason.OtherFocusReason)
 
     def on_extra_button_click(self):
         self.extra_button_clicked = True
 
     def on_extra_choice_click(self):
         ac = self.sender()
+        assert ac is not None
         self.extra_button_choice = ac.objectName()
         self.accept()
 

@@ -902,6 +902,7 @@ class CaseItem:
             return True
         if (x := self._get_x_for_item(lc.divider_width, lc)) is None:
             return False
+        assert self.items is not None
         s = ShelfItem(start_x=x, group_name=group_name, width=lc.divider_width, case_start_y=self.start_y,
                       idx=len(self.items), case_idx=self.idx)
         self.items.append(s)
@@ -911,6 +912,7 @@ class CaseItem:
     def add_book(self, book_id: int, width: int, group_name: str, lc: LayoutConstraints, reduce_height_by: int) -> bool:
         if (x := self._get_x_for_item(width, lc)) is None:
             return False
+        assert self.items is not None
         s = ShelfItem(
             start_x=x, book_id=book_id, reduce_height_by=reduce_height_by,
             width=width, group_name=group_name, case_start_y=self.start_y, idx=len(self.items), case_idx=self.idx)
@@ -942,6 +944,7 @@ class CaseItem:
             else:
                 right_shift += extra
         if gprefs['bookshelf_hover'] == 'shift':
+            assert ans.items is not None
             for i, item in enumerate(self.items):
                 if i < shelf_item.idx:
                     if left_shift:
@@ -1286,6 +1289,7 @@ class BookCase(QObject):
                     book_id, group_height_reduction, height_reduction_is_per_group) if height_reduction_required else 0
                 if not current_case_item.add_book(book_id, spine_width, group_name, lc, book_height_reduction):
                     case_end_divider = ''
+                    assert current_case_item.items is not None
                     if current_case_item.items[-1].is_divider:
                         case_end_divider = current_case_item.items.pop(-1).group_name
                     y = commit_case_item(current_case_item)
@@ -1462,7 +1466,9 @@ class ExpandedCover(QObject):  # {{{
         self.updated.emit()
 
     def shift_items(self) -> None:
-        self.modified_case_item = self.case_item.shift_for_expanded_cover(
+        case_item = self.case_item
+        assert case_item is not None
+        self.modified_case_item = case_item.shift_for_expanded_cover(
                 self.shelf_item, self.layout_constraints, self.size.width())
 
     @property
@@ -1475,12 +1481,21 @@ class ExpandedCover(QObject):  # {{{
         return case_item
 
     def is_expanded(self, book_id: int) -> bool:
-        return self.expanded_cover_should_be_displayed and self.shelf_item.book_id == book_id
+        if not self.expanded_cover_should_be_displayed:
+            return False
+        shelf_item = self.shelf_item
+        assert shelf_item is not None
+        return shelf_item.book_id == book_id
 
     def draw_expanded_cover(
         self, painter: QPainter, scroll_y: int, lc: LayoutConstraints, selection_highlight_color: QColor
     ) -> None:
-        shelf_item = self.modified_case_item.items[self.shelf_item.idx]
+        modified_case_item = self.modified_case_item
+        assert modified_case_item is not None
+        assert modified_case_item.items is not None
+        si = self.shelf_item
+        assert si is not None
+        shelf_item = modified_case_item.items[si.idx]
         cover_rect = shelf_item.rect(lc)
         cover_rect.translate(0, -scroll_y)
         pmap, margin = self.cover_renderer.as_pixmap(cover_rect.size(), self.opacity, self.parent())
@@ -1553,8 +1568,10 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         qapplication_or_fail().palette_changed.connect(self.palette_changed)
 
         # Ensure viewport receives mouse events
-        self.viewport().setMouseTracking(True)
-        self.viewport().setAttribute(Qt.WidgetAttribute.WA_MouseTracking, True)
+        viewport = self.viewport()
+        assert viewport is not None
+        viewport.setMouseTracking(True)
+        viewport.setAttribute(Qt.WidgetAttribute.WA_MouseTracking, True)
 
         # Cover template caching
         self.template_inited = False
@@ -1667,7 +1684,9 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
     def render_emblem(self, book_id: int) -> str:
         if not (m := self.model()):
             return
-        db = m.db.new_api
+        mdb = m.db
+        assert mdb is not None
+        db = mdb.new_api
         self.init_template(db)
         if not self.emblem_rules:
             return ''
@@ -1766,7 +1785,9 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
     def dbref(self) -> Cache:
         '''Return the current database.'''
         if m := self.model():
-            return m.db.new_api
+            mdb = m.db
+            assert mdb is not None
+            return mdb.new_api
         return self.gui.current_db.new_api
 
     def book_id_from_row(self, row: int) -> int | None:
@@ -1781,7 +1802,9 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
 
     @property
     def has_transient_scrollbar(self) -> bool:
-        return self.style().styleHint(QStyle.StyleHint.SH_ScrollBar_Transient, widget=self) != 0
+        style = self.style()
+        assert style is not None
+        return style.styleHint(QStyle.StyleHint.SH_ScrollBar_Transient, widget=self) != 0
 
     def resizeEvent(self, a0: QResizeEvent) -> None:
         self.resize_debounce_timer.start()
@@ -1795,10 +1818,14 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
     def update_scrollbar_ranges(self):
         '''Update scrollbar ranges based on the current shelf layouts.'''
         total_height = self.bookcase.max_possible_height
-        viewport_height = self.viewport().height()
-        self.verticalScrollBar().setRange(0, max(0, total_height - viewport_height))
-        self.verticalScrollBar().setPageStep(viewport_height)
-        self.verticalScrollBar().setSingleStep(self.layout_constraints.step_height)
+        vp = self.viewport()
+        assert vp is not None
+        viewport_height = vp.height()
+        vsb = self.verticalScrollBar()
+        assert vsb is not None
+        vsb.setRange(0, max(0, total_height - viewport_height))
+        vsb.setPageStep(viewport_height)
+        vsb.setSingleStep(self.layout_constraints.step_height)
         self.update_ram_cache_size()
 
     def get_available_width(self) -> int:
@@ -1807,7 +1834,9 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         # will be some extra space on the right. This is an acceptable
         # compromise since, layouting is expensive and we cannot know if the
         # scrollbar is needed till we do layouting once.
-        sw = 0 if self.has_transient_scrollbar else self.verticalScrollBar().width()
+        vsb = self.verticalScrollBar()
+        assert vsb is not None
+        sw = 0 if self.has_transient_scrollbar else vsb.width()
         return self.width() - (2 * self.layout_constraints.side_margin) - sw
 
     def invalidate(
@@ -1849,14 +1878,20 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
             if books is not None and shelf is not None:
                 y = books.start_y
                 height = books.height + shelf.height
-                r = self.viewport().rect()
-                r.moveTop(self.verticalScrollBar().value())
+                vp = self.viewport()
+                assert vp is not None
+                vsb = self.verticalScrollBar()
+                assert vsb is not None
+                r = vp.rect()
+                r.moveTop(vsb.value())
                 if self.bookcase.layout_finished or r.intersects(QRect(r.left(), y, r.width(), height)):
                     self.update_viewport()
 
     @property
     def shelves_per_screen(self) -> int:
-        viewport_height = self.viewport().height()
+        vp = self.viewport()
+        assert vp is not None
+        viewport_height = vp.height()
         lc = self.layout_constraints
         return max(1, math.ceil(viewport_height / lc.step_height))
 
@@ -1880,7 +1915,9 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         '''Update viewport only if the bookshelf view is visible.'''
         if not self.view_is_visible():
             return
-        self.viewport().update()
+        vp = self.viewport()
+        assert vp is not None
+        vp.update()
 
     def draw_emblems(self, painter: QPainter, item: ShelfItem, scroll_y: int) -> tuple[int, int]:
         book_id = item.book_id
@@ -1890,6 +1927,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         if m := self.model():
             from calibre.gui2.ui import get_gui
             db = m.db
+            assert db is not None
             marked = db.data.get_marked(book_id)
             if marked:
                 below.append(m.marked_icon if marked == 'true' else m.marked_text_icon_for(marked))
@@ -1970,8 +2008,12 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
     def do_paint(self, painter: QPainter) -> None:
         painter.setRenderHint(QPainter.RenderHint.Antialiasing | QPainter.RenderHint.SmoothPixmapTransform)
         # Get visible area
-        scroll_y = self.verticalScrollBar().value()
-        viewport_rect = self.viewport().rect()
+        vsb = self.verticalScrollBar()
+        assert vsb is not None
+        scroll_y = vsb.value()
+        vp = self.viewport()
+        assert vp is not None
+        viewport_rect = vp.rect()
         visible_rect = viewport_rect.translated(0, scroll_y)
         hovered_item: ShelfItem | None = None
         sm = self.selectionModel()
@@ -2000,6 +2042,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
             # Draw books and inline dividers on it
             if has_expanded:
                 hovered_item = shelf.expanded_item
+                assert hovered_item is not None
             for item in shelf.items:
                 if item.is_divider:
                     self.draw_inline_divider(painter, item, scroll_y)
@@ -2007,6 +2050,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
                 if item is not shelf.expanded_item:
                     # Draw a book spine at this position
                     should_draw_emblems = not has_expanded or gprefs['bookshelf_hover'] != 'above' \
+                        or hovered_item is None \
                         or (item.start_x + (item.width / 2) < hovered_item.start_x) \
                         or (item.start_x + (item.width / 2) > hovered_item.start_x + hovered_item.width)
                     row = self.bookcase.book_id_to_row_map[item.book_id]
@@ -2141,6 +2185,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         painter.rotate(90 if gprefs['bookshelf_up_to_down'] else -90)
         alignment = Qt.AlignmentFlag.AlignRight if text_right else Qt.AlignmentFlag.AlignLeft
         sized_rect = painter.drawText(text_rect, alignment | Qt.AlignmentFlag.AlignVCenter, elided_text)
+        assert sized_rect is not None
         # Calculate line dimensions
         line_rect = text_rect.adjusted(sized_rect.width(), 0, 0, 0)
         overflow = (line_rect.height() - self.DIVIDER_LINE_WIDTH) // 2
@@ -2364,13 +2409,16 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
 
     def selectAll(self):
         m = self.model()
+        assert m is not None
         sm = self.selectionModel()
         sel = QItemSelection(m.index(0, 0), m.index(m.rowCount(QModelIndex())-1, 0))
         sm.select(sel, QItemSelectionModel.SelectionFlag.ClearAndSelect | QItemSelectionModel.SelectionFlag.Rows)
 
     def set_current_row(self, row):
         sm = self.selectionModel()
-        sm.setCurrentIndex(self.model().index(row, 0), QItemSelectionModel.SelectionFlag.NoUpdate)
+        m = self.model()
+        assert m is not None
+        sm.setCurrentIndex(m.index(row, 0), QItemSelectionModel.SelectionFlag.NoUpdate)
 
     def set_database(self, newdb, stage=0):
         if stage == 0:
@@ -2390,6 +2438,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
 
         def add(field: str, name: str) -> None:
             action = grouping_menu.addAction(name)
+            assert action is not None
             action.setCheckable(True)
             action.setChecked(self.grouping_mode == field)
             action.triggered.connect(partial(self.set_grouping_mode, field))
@@ -2431,7 +2480,9 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         m = self.model()
         if not state or not m:
             return
-        id_to_index = m.db.data.safe_id_to_index
+        db = m.db
+        assert db is not None
+        id_to_index = db.data.safe_id_to_index
         selected_rows = set(map(id_to_index, state.selected_book_ids))
         selected_rows.discard(-1)
         orig_auto_scroll, self.auto_scroll = self.auto_scroll, self.bookcase.layout_finished
@@ -2535,7 +2586,11 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         si = self.bookcase.book_id_to_item_map.get(self.book_id_from_row(index.row()))
         if si is None:
             return
-        viewport_height = self.viewport().height()
+        vp = self.viewport()
+        assert vp is not None
+        viewport_height = vp.height()
+        vsb = self.verticalScrollBar()
+        assert vsb is not None
         shelf_height = self.layout_constraints.step_height
         match hint:
             case QAbstractItemView.ScrollHint.PositionAtTop:
@@ -2545,11 +2600,11 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
             case QAbstractItemView.ScrollHint.PositionAtCenter:
                 y = max(0, (viewport_height - shelf_height)//2)
             case QAbstractItemView.ScrollHint.EnsureVisible:
-                top = si.case_start_y - self.verticalScrollBar().value()
+                top = si.case_start_y - vsb.value()
                 if top >= 0 and top + shelf_height <= viewport_height:
                     return
                 y = 0 if top < 0 else max(0, viewport_height - shelf_height)
-        self.verticalScrollBar().setValue(si.case_start_y - y)
+        vsb.setValue(si.case_start_y - y)
         self.update_viewport()
 
     def on_current_changed(self, current: QModelIndex, previous: QModelIndex) -> None:
@@ -2621,7 +2676,9 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
     # }}}
 
     def item_at_position(self, x: int, y: int) -> tuple[CaseItem|None, CaseItem|None, ShelfItem|None]:
-        scroll_y = self.verticalScrollBar().value()
+        vsb = self.verticalScrollBar()
+        assert vsb is not None
+        scroll_y = vsb.value()
         content_y = y + scroll_y
         lc = self.layout_constraints
         x -= lc.side_margin

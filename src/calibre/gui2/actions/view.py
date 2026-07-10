@@ -190,6 +190,7 @@ class ViewAction(InterfaceAction):
             else:
                 if iswindows:
                     from calibre_extensions import winutil
+                    assert name is not None
                     ext = name.rpartition('.')[-1]
                     if ext:
                         try:

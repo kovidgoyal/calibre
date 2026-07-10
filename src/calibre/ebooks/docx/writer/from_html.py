@@ -72,7 +72,9 @@ class TextRun:
 
     def add_text(self, text, preserve_whitespace, bookmark=None, link=None):
         if not preserve_whitespace:
-            text = self.ws_pat.sub(' ', text)
+            ws_pat = self.ws_pat
+            assert ws_pat is not None
+            text = ws_pat.sub(' ', text)
             if text.strip() != text:
                 # If preserve_whitespace is False, Word ignores leading and
                 # trailing whitespace
@@ -92,7 +94,9 @@ class TextRun:
         r = makeelement(parent, 'w:r')
         rpr = makeelement(r, 'w:rPr', append=False)
         if getattr(self.descendant_style, 'id', None) is not None:
-            makeelement(rpr, 'w:rStyle', w_val=self.descendant_style.id)
+            ds = self.descendant_style
+            assert ds is not None
+            makeelement(rpr, 'w:rStyle', w_val=ds.id)
         if self.lang:
             makeelement(rpr, 'w:lang', w_bidi=self.lang, w_val=self.lang, w_eastAsia=self.lang)
         if len(rpr) > 0:
@@ -113,7 +117,9 @@ class TextRun:
             elif hasattr(text, 'xpath'):
                 r.append(text)
             elif text:
-                for x in self.soft_hyphen_pat.split(text):
+                soft_hyphen_pat = self.soft_hyphen_pat
+                assert soft_hyphen_pat is not None
+                for x in soft_hyphen_pat.split(text):
                     if x == '\u00ad':
                         # trailing spaces in <w:t> before a soft hyphen are
                         # ignored, so put them in a preserve whitespace
@@ -324,11 +330,13 @@ class Blocks:
     def start_new_row(self, html_tag, tag_style):
         if self.current_table is None:
             self.start_new_table(html_tag)
+        assert self.current_table is not None
         self.current_table.start_new_row(html_tag, tag_style)
 
     def start_new_cell(self, html_tag, tag_style):
         if self.current_table is None:
             self.start_new_table(html_tag)
+        assert self.current_table is not None
         self.current_table.start_new_cell(html_tag, tag_style)
 
     def finish_tag(self, html_tag):
@@ -420,9 +428,6 @@ class Blocks:
                 if bl == default_lang:
                     block.block_lang = None
 
-    def __repr__(self):
-        return f'Block({self.runs!r})'
-
 
 class Convert:
 
@@ -487,6 +492,9 @@ class Convert:
         self.styles_manager.finalize(all_blocks)
         self.write()
 
+    def abshref(self, x: str) -> str:
+        return x
+
     def process_item(self, item):
         self.current_item = item
         stylizer = self.svg_rasterizer.stylizer(item)
@@ -519,7 +527,7 @@ class Convert:
                 float_spec = FloatSpec(self.docx.namespace, html_tag, tag_style)
 
             if display in {'inline', 'inline-block'} or tagname == 'br':  # <br> has display:block but we don't want to start a new paragraph
-                if is_float and float_spec.is_dropcaps:
+                if is_float and float_spec is not None and float_spec.is_dropcaps:
                     self.add_block_tag(tagname, html_tag, tag_style, stylizer, float_spec=float_spec)
                     float_spec = None
                 else:

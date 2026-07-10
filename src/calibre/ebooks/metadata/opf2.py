@@ -747,11 +747,13 @@ class OPF:  # {{{
             if toc is None:
                 return
             self.toc = TOC(base_path=self.base_dir)
-            is_ncx = getattr(self, 'manifest', None) is not None and \
-                     self.manifest.type_for_id(toc) is not None and \
-                     'dtbncx' in self.manifest.type_for_id(toc)
+            _manifest = getattr(self, 'manifest', None)
+            is_ncx = _manifest is not None and \
+                     _manifest.type_for_id(toc) is not None and \
+                     'dtbncx' in _manifest.type_for_id(toc)
             if is_ncx or toc.lower() in ('ncx', 'ncxtoc'):
-                path = self.manifest.path_for_id(toc)
+                assert _manifest is not None
+                path = _manifest.path_for_id(toc)
                 if path:
                     self.toc.read_ncx_toc(path)
                 else:
@@ -988,6 +990,7 @@ class OPF:  # {{{
             if least_val is None:
                 least_elem = self.create_metadata_element('date')
 
+            assert least_elem is not None
             least_elem.attrib.clear()
             least_elem.text = isoformat(val)
 
@@ -1274,7 +1277,9 @@ class OPF:  # {{{
                     if 'html' in mt.lower():
                         mid = item.get('id')
                         if mid:
-                            path = self.manifest.path_for_id(mid)
+                            manifest = self.manifest
+                            assert manifest is not None
+                            path = manifest.path_for_id(mid)
                             if path and os.path.exists(path):
                                 return path
 
@@ -1300,7 +1305,9 @@ class OPF:  # {{{
             self.guide.set_cover(path)
             etree.SubElement(g, 'opf:reference', nsmap=self.NAMESPACES,
                                 attrib={'type':'cover', 'href':self.guide[-1].href()})
-        id = self.manifest.id_for_path(self.cover)
+        manifest = self.manifest
+        assert manifest is not None
+        id = manifest.id_for_path(self.cover)
         if id is None:
             for t in ('cover', 'other.ms-coverimage-standard', 'other.ms-coverimage'):
                 for item in self.guide:

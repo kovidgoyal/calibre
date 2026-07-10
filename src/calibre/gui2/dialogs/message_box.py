@@ -134,13 +134,16 @@ class MessageBox(QDialog):  # {{{
         if show_copy_button:
             self.ctc_button = self.bb.addButton(_('&Copy to clipboard'),
                     QDialogButtonBox.ButtonRole.ActionRole)
+            assert self.ctc_button is not None
             self.ctc_button.clicked.connect(self.copy_to_clipboard)
 
         self.show_det_msg = _('Show &details')
         self.hide_det_msg = _('Hide &details')
         self.det_msg_toggle = self.bb.addButton(self.show_det_msg, QDialogButtonBox.ButtonRole.ActionRole)
-        self.det_msg_toggle.clicked.connect(self.toggle_det_msg)
-        self.det_msg_toggle.setToolTip(
+        det_msg_toggle = self.det_msg_toggle
+        assert det_msg_toggle is not None
+        det_msg_toggle.clicked.connect(self.toggle_det_msg)
+        det_msg_toggle.setToolTip(
                 _('Show detailed information about this error'))
 
         self.copy_action = QAction(self)
@@ -151,25 +154,38 @@ class MessageBox(QDialog):  # {{{
         self.is_question = type_ == self.QUESTION
         if self.is_question:
             self.bb.setStandardButtons(QDialogButtonBox.StandardButton.Yes|QDialogButtonBox.StandardButton.No)
-            self.bb.button(QDialogButtonBox.StandardButton.Yes if default_yes else QDialogButtonBox.StandardButton.No
-                    ).setDefault(True)
+            default_btn = self.bb.button(QDialogButtonBox.StandardButton.Yes if default_yes else QDialogButtonBox.StandardButton.No)
+            assert default_btn is not None
+            default_btn.setDefault(True)
             self.default_yes = default_yes
             if yes_text is not None:
-                self.bb.button(QDialogButtonBox.StandardButton.Yes).setText(yes_text)
+                yes_btn = self.bb.button(QDialogButtonBox.StandardButton.Yes)
+                assert yes_btn is not None
+                yes_btn.setText(yes_text)
             if no_text is not None:
-                self.bb.button(QDialogButtonBox.StandardButton.No).setText(no_text)
+                no_btn = self.bb.button(QDialogButtonBox.StandardButton.No)
+                assert no_btn is not None
+                no_btn.setText(no_text)
             if yes_icon is not None:
-                self.bb.button(QDialogButtonBox.StandardButton.Yes).setIcon(yes_icon if isinstance(yes_icon, QIcon) else QIcon.ic(yes_icon))
+                yes_icon_btn = self.bb.button(QDialogButtonBox.StandardButton.Yes)
+                assert yes_icon_btn is not None
+                yes_icon_btn.setIcon(yes_icon if isinstance(yes_icon, QIcon) else QIcon.ic(yes_icon))
             if no_icon is not None:
-                self.bb.button(QDialogButtonBox.StandardButton.No).setIcon(no_icon if isinstance(no_icon, QIcon) else QIcon.ic(no_icon))
+                no_icon_btn = self.bb.button(QDialogButtonBox.StandardButton.No)
+                assert no_icon_btn is not None
+                no_icon_btn.setIcon(no_icon if isinstance(no_icon, QIcon) else QIcon.ic(no_icon))
         else:
-            self.bb.button(QDialogButtonBox.StandardButton.Ok).setDefault(True)
+            ok_btn = self.bb.button(QDialogButtonBox.StandardButton.Ok)
+            assert ok_btn is not None
+            ok_btn.setDefault(True)
 
         if add_abort_button:
-            self.bb.addButton(QDialogButtonBox.StandardButton.Abort).clicked.connect(self.on_abort)
+            abort_btn = self.bb.addButton(QDialogButtonBox.StandardButton.Abort)
+            assert abort_btn is not None
+            abort_btn.clicked.connect(self.on_abort)
 
         if not det_msg:
-            self.det_msg_toggle.setVisible(False)
+            det_msg_toggle.setVisible(False)
 
         self.resize_needed.connect(self.do_resize)
         self.do_resize()
@@ -180,7 +196,9 @@ class MessageBox(QDialog):  # {{{
     def toggle_det_msg(self, *args):
         vis = self.det_msg.isVisible()
         self.det_msg.setVisible(not vis)
-        self.det_msg_toggle.setText(self.show_det_msg if vis else self.hide_det_msg)
+        det_msg_toggle = self.det_msg_toggle
+        assert det_msg_toggle is not None
+        det_msg_toggle.setText(self.show_det_msg if vis else self.hide_det_msg)
         self.resize_needed.emit()
 
     def do_resize(self):
@@ -194,18 +212,25 @@ class MessageBox(QDialog):  # {{{
         text = self.det_msg.toPlainText()
         if not self.only_copy_details:
             text = f'calibre, version {__version__}\n{self.windowTitle()}: {self.msg.text()}\n\n{text}'
-        QApplication.clipboard().setText(text)
+        clipboard = QApplication.clipboard()
+        assert clipboard is not None
+        clipboard.setText(text)
         if hasattr(self, 'ctc_button'):
-            self.ctc_button.setText(_('Copied'))
+            ctc_button = self.ctc_button
+            assert ctc_button is not None
+            ctc_button.setText(_('Copied'))
 
     def showEvent(self, a0):
         ret = QDialog.showEvent(self, a0)
         if self.is_question:
             with suppress(Exception):
-                self.bb.button(QDialogButtonBox.StandardButton.Yes if self.default_yes else QDialogButtonBox.StandardButton.No
-                        ).setFocus(Qt.FocusReason.OtherFocusReason)
+                focus_btn = self.bb.button(QDialogButtonBox.StandardButton.Yes if self.default_yes else QDialogButtonBox.StandardButton.No)
+                assert focus_btn is not None
+                focus_btn.setFocus(Qt.FocusReason.OtherFocusReason)
         else:
-            self.bb.button(QDialogButtonBox.StandardButton.Ok).setFocus(Qt.FocusReason.OtherFocusReason)
+            ok_btn = self.bb.button(QDialogButtonBox.StandardButton.Ok)
+            assert ok_btn is not None
+            ok_btn.setFocus(Qt.FocusReason.OtherFocusReason)
         return ret
 
     def set_details(self, msg):
@@ -215,8 +240,10 @@ class MessageBox(QDialog):  # {{{
             self.det_msg.setHtml(msg)
         else:
             self.det_msg.setPlainText(msg)
-        self.det_msg_toggle.setText(self.show_det_msg)
-        self.det_msg_toggle.setVisible(bool(msg))
+        det_msg_toggle = self.det_msg_toggle
+        assert det_msg_toggle is not None
+        det_msg_toggle.setText(self.show_det_msg)
+        det_msg_toggle.setVisible(bool(msg))
         self.det_msg.setVisible(False)
         self.resize_needed.emit()
 # }}}
@@ -238,6 +265,7 @@ class ViewLog(QDialog):  # {{{
         self.bb.rejected.connect(self.reject)
         self.copy_button = self.bb.addButton(_('Copy to clipboard'),
                 QDialogButtonBox.ButtonRole.ActionRole)
+        assert self.copy_button is not None
         self.copy_button.setIcon(QIcon.ic('edit-copy.png'))
         self.copy_button.clicked.connect(self.copy_to_clipboard)
         l.addWidget(self.bb)
@@ -256,7 +284,9 @@ class ViewLog(QDialog):  # {{{
 
     def copy_to_clipboard(self):
         txt = self.tb.toPlainText()
-        QApplication.clipboard().setText(txt)
+        clipboard = QApplication.clipboard()
+        assert clipboard is not None
+        clipboard.setText(txt)
 
     def dialog_closing(self, result):
         self.save_geometry(gprefs, self.unique_name)
@@ -304,9 +334,12 @@ class ProceedNotification(MessageBox):  # {{{
         self.log_viewer_title = log_viewer_title
 
         self.vlb = self.bb.addButton(_('&View log'), QDialogButtonBox.ButtonRole.ActionRole)
+        assert self.vlb is not None
         self.vlb.setIcon(QIcon.ic('debug.png'))
         self.vlb.clicked.connect(self.show_log)
-        self.det_msg_toggle.setVisible(bool(det_msg))
+        det_msg_toggle = self.det_msg_toggle
+        assert det_msg_toggle is not None
+        det_msg_toggle.setVisible(bool(det_msg))
         self.setModal(False)
         self.callback, self.cancel_callback = callback, cancel_callback
         _proceed_memory.append(self)
@@ -326,7 +359,9 @@ class ProceedNotification(MessageBox):  # {{{
         gui = get_gui()
         gui.proceed_requested.emit(func, self.payload)
         # Ensure this notification is garbage collected
-        self.vlb.clicked.disconnect()
+        vlb = self.vlb
+        assert vlb is not None
+        vlb.clicked.disconnect()
         self.callback = self.cancel_callback = self.payload = None
         self.setParent(None)
         _proceed_memory.remove(self)
@@ -360,9 +395,12 @@ class ErrorNotification(MessageBox):  # {{{
         self.finished.connect(self.do_close, type=Qt.ConnectionType.QueuedConnection)
 
         self.vlb = self.bb.addButton(_('&View log'), QDialogButtonBox.ButtonRole.ActionRole)
+        assert self.vlb is not None
         self.vlb.setIcon(QIcon.ic('debug.png'))
         self.vlb.clicked.connect(self.show_log)
-        self.det_msg_toggle.setVisible(bool(det_msg))
+        det_msg_toggle = self.det_msg_toggle
+        assert det_msg_toggle is not None
+        det_msg_toggle.setVisible(bool(det_msg))
         self.setModal(False)
         _proceed_memory.append(self)
 
@@ -374,7 +412,9 @@ class ErrorNotification(MessageBox):  # {{{
         # Ensure this notification is garbage collected
         self.setParent(None)
         self.finished.disconnect()
-        self.vlb.clicked.disconnect()
+        vlb = self.vlb
+        assert vlb is not None
+        vlb.clicked.disconnect()
         _proceed_memory.remove(self)
 # }}}
 
@@ -418,7 +458,9 @@ class AutoCloseNotification(MessageBox):  # {{{
 
     def update_texts(self):
         time = self.timer.remainingTime() // 1000
-        self.bb.button(QDialogButtonBox.StandardButton.Yes).setText(_('Close now ({}s)').format(time))
+        yes_btn = self.bb.button(QDialogButtonBox.StandardButton.Yes)
+        assert yes_btn is not None
+        yes_btn.setText(_('Close now ({}s)').format(time))
 # }}}
 
 
@@ -451,15 +493,19 @@ class JobError(QDialog):  # {{{
         self.bb.rejected.connect(self.reject)
         self.ctc_button = self.bb.addButton(_('&Copy to clipboard'),
                 QDialogButtonBox.ButtonRole.ActionRole)
+        assert self.ctc_button is not None
         self.ctc_button.clicked.connect(self.copy_to_clipboard)
         self.retry_button = self.bb.addButton(_('&Retry'), QDialogButtonBox.ButtonRole.ActionRole)
+        assert self.retry_button is not None
         self.retry_button.clicked.connect(self.retry)
         self.retry_func = None
         self.show_det_msg = _('Show &details')
         self.hide_det_msg = _('Hide &details')
         self.det_msg_toggle = self.bb.addButton(self.show_det_msg, QDialogButtonBox.ButtonRole.ActionRole)
-        self.det_msg_toggle.clicked.connect(self.toggle_det_msg)
-        self.det_msg_toggle.setToolTip(
+        det_msg_toggle = self.det_msg_toggle
+        assert det_msg_toggle is not None
+        det_msg_toggle.clicked.connect(self.toggle_det_msg)
+        det_msg_toggle.setToolTip(
                 _('Show detailed information about this error'))
         self.suppress = QCheckBox(self)
 
@@ -489,15 +535,21 @@ class JobError(QDialog):  # {{{
     def copy_to_clipboard(self, *args):
         d = QTextDocument()
         d.setHtml(self.msg_label.text())
-        QApplication.clipboard().setText(
+        clipboard = QApplication.clipboard()
+        assert clipboard is not None
+        clipboard.setText(
                 f'calibre, version {__version__} ({sys.platform}, embedded-python: {isfrozen})\n'
                 f'{self.windowTitle()!s}: {d.toPlainText()!s}\n\n{self.det_msg.toPlainText()!s}')
         if hasattr(self, 'ctc_button'):
-            self.ctc_button.setText(_('Copied'))
+            ctc_button = self.ctc_button
+            assert ctc_button is not None
+            ctc_button.setText(_('Copied'))
 
     def toggle_det_msg(self, *args):
-        vis = str(self.det_msg_toggle.text()) == self.hide_det_msg
-        self.det_msg_toggle.setText(self.show_det_msg if vis else
+        det_msg_toggle = self.det_msg_toggle
+        assert det_msg_toggle is not None
+        vis = str(det_msg_toggle.text()) == self.hide_det_msg
+        det_msg_toggle.setText(self.show_det_msg if vis else
                 self.hide_det_msg)
         self.det_msg.setVisible(not vis)
         self.do_resize()
@@ -512,7 +564,9 @@ class JobError(QDialog):  # {{{
 
     def showEvent(self, a0):
         ret = QDialog.showEvent(self, a0)
-        self.bb.button(QDialogButtonBox.StandardButton.Close).setFocus(Qt.FocusReason.OtherFocusReason)
+        close_btn = self.bb.button(QDialogButtonBox.StandardButton.Close)
+        assert close_btn is not None
+        close_btn.setFocus(Qt.FocusReason.OtherFocusReason)
         return ret
 
     def show_error(self, title, msg, det_msg='', retry_func=None):
@@ -528,13 +582,17 @@ class JobError(QDialog):  # {{{
         self.msg_label.setText(msg)
         self.det_msg.setPlainText(det_msg)
         self.det_msg.setVisible(False)
-        self.det_msg_toggle.setText(self.show_det_msg)
-        self.det_msg_toggle.setVisible(True)
+        det_msg_toggle = self.det_msg_toggle
+        assert det_msg_toggle is not None
+        det_msg_toggle.setText(self.show_det_msg)
+        det_msg_toggle.setVisible(True)
         self.suppress.setChecked(False)
         self.update_suppress_state()
         if not det_msg:
-            self.det_msg_toggle.setVisible(False)
-        self.retry_button.setVisible(retry_func is not None)
+            det_msg_toggle.setVisible(False)
+        retry_button = self.retry_button
+        assert retry_button is not None
+        retry_button.setVisible(retry_func is not None)
         self.retry_func = retry_func
         self.do_resize()
         self.show()

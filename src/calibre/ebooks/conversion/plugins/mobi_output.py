@@ -207,6 +207,7 @@ class MOBIOutput(OutputFormatPlugin):
         kf8 = self.create_kf8(resources, for_joint=mobi_type=='both'
                 ) if create_kf8 else None
         if mobi_type == 'new':
+            assert kf8 is not None
             kf8.write(output_path)
             extract_mobi(output_path, opts)
             return

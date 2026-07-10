@@ -213,9 +213,13 @@ class Browser:
     def _send_command(self, cmd):
         with self.lock:
             self._ensure_state()
-            self.worker.stdin.write(json.dumps(cmd).encode())
-            self.worker.stdin.write(b'\n')
-            self.worker.stdin.flush()
+            _worker = self.worker
+            assert _worker is not None
+            _w_stdin = _worker.stdin
+            assert _w_stdin is not None
+            _w_stdin.write(json.dumps(cmd).encode())
+            _w_stdin.write(b'\n')
+            _w_stdin.flush()
 
     def _ensure_state(self):
         with self.lock:
@@ -230,7 +234,11 @@ class Browser:
 
     def _dispatch(self):
         try:
-            for line in self.worker.stdout:
+            _dispatch_worker = self.worker
+            assert _dispatch_worker is not None
+            _dispatch_stdout = _dispatch_worker.stdout
+            assert _dispatch_stdout is not None
+            for line in _dispatch_stdout:
                 cmd = json.loads(line)
                 if cmd.get('action') == 'finished':
                     with self.lock:
@@ -248,9 +256,13 @@ class Browser:
         if self.worker:
             w, self.worker = self.worker, None
             with suppress(OSError):
-                w.stdin.close()
+                _w_stdin_s = w.stdin
+                assert _w_stdin_s is not None
+                _w_stdin_s.close()
             with suppress(OSError):
-                w.stdout.close()
+                _w_stdout_s = w.stdout
+                assert _w_stdout_s is not None
+                _w_stdout_s.close()
             give_up_at = time.monotonic() + 1.5
             while time.monotonic() < give_up_at and w.poll() is None:
                 time.sleep(0.01)

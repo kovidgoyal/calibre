@@ -269,17 +269,20 @@ class Screen(_Canvas):
         self.page = None
 
     def set_page(self, page):
+        scene = self.scene()
+        assert scene is not None
         if self.page is not None and self.page.scene():
-            self.scene().removeItem(self.page)
+            scene.removeItem(self.page)
         self.page = page
         self.page.setPos(self.content_x, self.text_y)
-        self.scene().addItem(self.page)
+        scene.addItem(self.page)
 
     def remove(self):
-        if self.scene():
+        scene = self.scene()
+        if scene is not None:
             if self.page is not None and self.page.scene():
-                self.scene().removeItem(self.page)
-            self.scene().removeItem(self)
+                scene.removeItem(self.page)
+            scene.removeItem(self)
 
 
 class Page(_Canvas):

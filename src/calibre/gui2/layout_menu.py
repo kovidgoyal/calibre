@@ -75,6 +75,7 @@ class LayoutItem(QWidget):
             tool.state = QStyle.StateFlag.State_Raised | QStyle.StateFlag.State_Active | QStyle.StateFlag.State_MouseOver
             painter.drawPrimitive(QStyle.PrimitiveElement.PE_PanelButtonTool, tool)
         br = painter.drawText(0, 0, self.width(), ls, Qt.AlignmentFlag.AlignCenter | Qt.TextFlag.TextSingleLine, self.text)
+        assert br is not None
         top = br.bottom()
         bottom = self.height() - ls
         text = _('Hide') if shown else _('Show')
@@ -100,7 +101,9 @@ class LayoutMenuInner(QWidget):
 
     @property
     def gui(self):
-        return self.parent().parent()
+        _parent = self.parent()
+        assert _parent is not None
+        return _parent.parent()
 
     def delayed_init(self):
         if not self.initialized:
@@ -116,6 +119,7 @@ class LayoutMenuInner(QWidget):
             else:
                 buttons = gui.layout_buttons
             l = self.layout()
+            assert l is not None
             for b in buttons:
                 self.items.append(LayoutItem(b, self))
                 l.addWidget(self.items[-1], alignment=Qt.AlignmentFlag.AlignBottom)

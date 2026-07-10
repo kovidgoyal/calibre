@@ -18,7 +18,9 @@ class Separator(QWidget):
         return opt
 
     def sizeHint(self):
-        width = self.style().pixelMetric(QStyle.PixelMetric.PM_ToolBarSeparatorExtent, self.style_option(), self)
+        style = self.style()
+        assert style is not None
+        width = style.pixelMetric(QStyle.PixelMetric.PM_ToolBarSeparatorExtent, self.style_option(), self)
         return QSize(width, int(self.devicePixelRatioF() * self.desired_height))
 
     def paintEvent(self, a0):

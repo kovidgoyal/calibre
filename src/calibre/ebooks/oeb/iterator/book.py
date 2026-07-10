@@ -165,7 +165,9 @@ class EbookIterator(BookmarksMixin):
                 spath = i.path
                 mt = None
                 if i.idref is not None:
-                    mt = self.opf.manifest.type_for_id(i.idref)
+                    manifest = self.opf.manifest
+                    assert manifest is not None
+                    mt = manifest.type_for_id(i.idref)
                 if mt is None:
                     mt = guess_type(spath)[0]
                 try:

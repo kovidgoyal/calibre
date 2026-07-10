@@ -398,6 +398,7 @@ class SchedulerDialog(QDialog):
         self.bb = bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel, self)
         bb.accepted.connect(self.accept), bb.rejected.connect(self.reject)
         self.download_button = b = bb.addButton(_('&Download now'), QDialogButtonBox.ButtonRole.ActionRole)
+        assert b is not None
         b.setIcon(QIcon.ic('arrow-down.png')), b.setVisible(False)
         b.clicked.connect(self.download_clicked)
         self.l.addWidget(bb, 3, 1, 1, 1)
@@ -423,8 +424,10 @@ class SchedulerDialog(QDialog):
 
     def break_cycles(self):
         try:
-            self.recipe_model.searched.disconnect(self.search_done)
-            self.recipe_model.searched.disconnect(self.search.search_done)
+            rm = self.recipe_model
+            assert rm is not None
+            rm.searched.disconnect(self.search_done)
+            rm.searched.disconnect(self.search.search_done)
             self.search.search.disconnect()
             self.download.disconnect()
         except Exception:
@@ -432,7 +435,9 @@ class SchedulerDialog(QDialog):
         self.recipe_model = None
 
     def search_done(self, *args):
-        if self.recipe_model.showing_count < 20:
+        rm = self.recipe_model
+        assert rm is not None
+        if rm.showing_count < 20:
             self.recipes.expandAll()
 
     def toggle_schedule_info(self, *args):
@@ -482,6 +487,8 @@ class SchedulerDialog(QDialog):
         if not self.detail_box.isVisible() or urn is None:
             return True
 
+        recipe_model = self.recipe_model
+        assert recipe_model is not None
         if self.account.isVisible():
             un, pw = map(str, (self.username.text(), self.password.text()))
             un, pw = un.strip(), pw.strip()
@@ -492,16 +499,16 @@ class SchedulerDialog(QDialog):
                                 'use this news source.'), show=True)
                     return False
             if un or pw:
-                self.recipe_model.set_account_info(urn, un, pw)
+                recipe_model.set_account_info(urn, un, pw)
             else:
-                self.recipe_model.clear_account_info(urn)
+                recipe_model.clear_account_info(urn)
 
         if self.schedule.isChecked():
             schedule_type, schedule = \
                     self.schedule_stack.currentWidget().schedule
-            self.recipe_model.schedule_recipe(urn, schedule_type, schedule)
+            recipe_model.schedule_recipe(urn, schedule_type, schedule)
         else:
-            self.recipe_model.un_schedule_recipe(urn)
+            recipe_model.un_schedule_recipe(urn)
 
         add_title_tag = self.add_title_tag.isChecked()
         keep_issues = '0'
@@ -513,23 +520,27 @@ class SchedulerDialog(QDialog):
         recipe_specific_options = None
         if self.recipe_specific_widgets:
             recipe_specific_options = {name: w.text().strip() for name, w in self.recipe_specific_widgets.items() if w.text().strip()}
-        self.recipe_model.customize_recipe(urn, RecipeCustomization(add_title_tag, custom_tags, keep_issues, recipe_specific_options))
+        recipe_model.customize_recipe(urn, RecipeCustomization(add_title_tag, custom_tags, keep_issues, recipe_specific_options))
         return True
 
     def initialize_detail_box(self, urn):
         self.previous_urn = urn
         self.detail_box.setVisible(True)
-        self.download_button.setVisible(True)
+        download_button = self.download_button
+        assert download_button is not None
+        download_button.setVisible(True)
         self.detail_box.setCurrentIndex(0)
-        recipe = self.recipe_model.recipe_from_urn(urn)
+        recipe_model = self.recipe_model
+        assert recipe_model is not None
+        recipe = recipe_model.recipe_from_urn(urn)
         try:
-            schedule_info = self.recipe_model.schedule_info_from_urn(urn)
+            schedule_info = recipe_model.schedule_info_from_urn(urn)
         except Exception:
             # Happens if user does something stupid like unchecking all the
             # days of the week
             schedule_info = None
-        account_info = self.recipe_model.account_info_from_urn(urn)
-        customize_info = self.recipe_model.get_customize_info(urn)
+        account_info = recipe_model.account_info_from_urn(urn)
+        customize_info = recipe_model.get_customize_info(urn)
 
         ns = recipe.get('needs_subscription', '')
         self.account.setVisible(ns in ('yes', 'optional'))
@@ -558,7 +569,7 @@ class SchedulerDialog(QDialog):
         '''.format(**dict(title=recipe.get('title'), cb=_('Created by: '),
             author=recipe.get('author', _('Unknown')),
             description=recipe.get('description', ''))))
-        self.download_button.setToolTip(
+        download_button.setToolTip(
                 _('Download %s now')%recipe.get('title'))
         scheduled = schedule_info is not None
         self.schedule.setChecked(scheduled)

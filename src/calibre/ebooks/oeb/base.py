@@ -1901,8 +1901,10 @@ class OEBBook:
         Returns a dictionary in which the keys are MIME types and the values
         are tuples of (default) filenames and lxml.etree element structures.
         '''
+        _uid = self.uid
+        assert _uid is not None
         package = etree.Element('package',
-            attrib={'unique-identifier': self.uid.id})
+            attrib={'unique-identifier': _uid.id})
         self.metadata.to_opf1(package)
         self.manifest.to_opf1(package)
         self.spine.to_opf1(package)
@@ -1981,8 +1983,10 @@ class OEBBook:
         are tuples of (default) filenames and lxml.etree element structures.
         '''
         results = {}
+        _uid2 = self.uid
+        assert _uid2 is not None
         package = etree.Element(OPF('package'),
-            attrib={'version': '2.0', 'unique-identifier': self.uid.id},
+            attrib={'version': '2.0', 'unique-identifier': _uid2.id},
             nsmap={None: OPF2_NS})
         self.metadata.to_opf2(package)
         manifest = self.manifest.to_opf2(package)

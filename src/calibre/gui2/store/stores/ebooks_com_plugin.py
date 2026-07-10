@@ -31,7 +31,9 @@ def search_ec(query, max_results=10, timeout=60, write_html_to=''):
     if write_html_to:
         with open(write_html_to, 'wb') as d:
             d.write(raw)
-    api = re.search(r'data-endpoint="(/api/search/.+?)"', raw.decode('utf-8')).group(1)
+    m = re.search(r'data-endpoint="(/api/search/.+?)"', raw.decode('utf-8'))
+    assert m is not None
+    api = m.group(1)
     counter = max_results
     url = absolutize(api)
     cc = parse_qs(urlparse(url).query)['CountryCode'][0]

@@ -176,7 +176,9 @@ class FileDialog(QObject):
 
     def get_files(self):
         if self.selected_files is None:
-            return tuple(os.path.abspath(str(i)) for i in self.fd.selectedFiles())
+            fd = self.fd
+            assert fd is not None
+            return tuple(os.path.abspath(str(i)) for i in fd.selectedFiles())
         return tuple(self.selected_files)
 
 

@@ -113,6 +113,7 @@ class ProxyModel(QSortFilterProxyModel):
         if not self._filter_text:
             return True
         sm = self.sourceModel()
+        assert sm is not None
         for item in (sm.data(sm.index(source_row, c, source_parent)) or '' for c in range(sm.columnCount())):
             if item and primary_contains(self._filter_text, item):
                 return True
@@ -186,13 +187,17 @@ class FilesView(QTableView):
         pass
 
     def resize_rows(self):
-        if self.model().rowCount() > 0:
-            num = min(5, self.model().rowCount())
+        model = self.model()
+        assert model is not None
+        if model.rowCount() > 0:
+            num = min(5, model.rowCount())
             h = 1000000
             for i in range(num):
                 self.resizeRowToContents(i)
                 h = min(h, self.rowHeight(i))
-            self.verticalHeader().setDefaultSectionSize(h)
+            vh = self.verticalHeader()
+            assert vh is not None
+            vh.setDefaultSectionSize(h)
 
     def _double_clicked(self, index):
         index = self.proxy.mapToSource(index)
@@ -213,11 +218,15 @@ class FilesView(QTableView):
 
     @property
     def selected_locations(self):
-        return list(filter(None, (self.proxy.sourceModel().location(self.proxy.mapToSource(index)) for index in self.selectionModel().selectedIndexes())))
+        sel_model = self.selectionModel()
+        assert sel_model is not None
+        return list(filter(None, (self.proxy.sourceModel().location(self.proxy.mapToSource(index)) for index in sel_model.selectedIndexes())))
 
     @property
     def current_location(self):
-        index = self.selectionModel().currentIndex()
+        cur_sel_model = self.selectionModel()
+        assert cur_sel_model is not None
+        index = cur_sel_model.currentIndex()
         return self.proxy.sourceModel().location(self.proxy.mapToSource(index))
 
     def delete_selected(self):
@@ -231,7 +240,9 @@ class FilesView(QTableView):
                 self.delete_requested.emit(spine_items, other_items)
 
     def show_context_menu(self, pos):
-        pos = self.viewport().mapToGlobal(pos)
+        vp = self.viewport()
+        assert vp is not None
+        pos = vp.mapToGlobal(pos)
         locations = self.selected_locations
         m = QMenu(self)
         if locations:
@@ -251,10 +262,13 @@ class FilesView(QTableView):
         return buf.getvalue()
 
     def save_table(self, name):
-        save_state(name, bytearray(self.horizontalHeader().saveState()))
+        hh = self.horizontalHeader()
+        assert hh is not None
+        save_state(name, bytearray(hh.saveState()))
 
     def restore_table(self, name, sort_column=0, sort_order=Qt.SortOrder.AscendingOrder):
         h = self.horizontalHeader()
+        assert h is not None
         try:
             h.restoreState(read_state(name))
         except TypeError:
@@ -422,6 +436,7 @@ class ImagesDelegate(QStyledItemDelegate):
 
     def sizeHint(self, option, index):
         style = (option.styleObject or self.parent() or qapplication_or_fail()).style()
+        assert style is not None
         self.initStyleOption(option, index)
         ans = style.sizeFromContents(QStyle.ContentsType.CT_ItemViewItem, option, QSize(), option.styleObject or self.parent())
         entry = index.data(Qt.ItemDataRole.UserRole)
@@ -438,6 +453,7 @@ class ImagesDelegate(QStyledItemDelegate):
 
     def paint(self, painter, option, index):
         style = (option.styleObject or self.parent() or qapplication_or_fail()).style()
+        assert style is not None
         self.initStyleOption(option, index)
         option.text = ''
         style.drawControl(QStyle.ControlElement.CE_ItemViewItem, option, painter, option.styleObject or self.parent())
@@ -539,7 +555,9 @@ class ImagesWidget(QWidget):
         self.to_csv = f.to_csv
         f.customize_context_menu = self.customize_context_menu
         f.delete_requested.connect(self.delete_requested)
-        f.horizontalHeader().sortIndicatorChanged.connect(self.resize_to_contents)
+        fhh = f.horizontalHeader()
+        assert fhh is not None
+        fhh.sortIndicatorChanged.connect(self.resize_to_contents)
         self.delegate = ImagesDelegate(self)
         f.setItemDelegateForColumn(0, self.delegate)
         f.double_clicked.connect(self.double_clicked)
@@ -1075,6 +1093,7 @@ class CSSProxyModel(QSortFilterProxyModel):
         if not self._filter_text:
             return True
         sm = self.sourceModel()
+        assert sm is not None
         entry = sm.index_to_entry(sm.index(source_row, 0, source_parent))
         if not isinstance(entry, CSSEntry):
             return True
@@ -1291,6 +1310,7 @@ class ClassProxyModel(CSSProxyModel):
         if not self._filter_text:
             return True
         sm = self.sourceModel()
+        assert sm is not None
         entry = sm.index_to_entry(sm.index(source_row, 0, source_parent))
         if not isinstance(entry, ClassEntry):
             return True
@@ -1352,7 +1372,9 @@ class ReportsWidget(QWidget):
         self.l = QVBoxLayout(self)
         self.splitter = l = QSplitter(self)
         l.setChildrenCollapsible(False)
-        self.layout().addWidget(l)
+        rw_layout = self.layout()
+        assert rw_layout is not None
+        rw_layout.addWidget(l)
         self.reports = r = QListWidget(self)
         l.addWidget(r)
         self.stack = s = QStackedWidget(self)
@@ -1399,9 +1421,15 @@ class ReportsWidget(QWidget):
         current_page = read_state('report-page')
         if current_page is not None:
             self.reports.setCurrentRow(current_page)
-        self.layout().setContentsMargins(0, 0, 0, 0)
+        rw_layout2 = self.layout()
+        assert rw_layout2 is not None
+        rw_layout2.setContentsMargins(0, 0, 0, 0)
         for i in range(self.stack.count()):
-            self.stack.widget(i).layout().setContentsMargins(0, 0, 0, 0)
+            stack_w = self.stack.widget(i)
+            assert stack_w is not None
+            stack_w_layout = stack_w.layout()
+            assert stack_w_layout is not None
+            stack_w_layout.setContentsMargins(0, 0, 0, 0)
 
     def __call__(self, data):
         jump.clear()
@@ -1409,7 +1437,9 @@ class ReportsWidget(QWidget):
             st = time.time()
             self.stack.widget(i)(data)
             if DEBUG:
-                category = self.reports.item(i).data(Qt.ItemDataRole.DisplayRole)
+                report_item = self.reports.item(i)
+                assert report_item is not None
+                category = report_item.data(Qt.ItemDataRole.DisplayRole)
                 print(f'Widget time for {category:12}: {time.time() - st:.2f}s seconds')
 
     def save(self):
@@ -1420,7 +1450,9 @@ class ReportsWidget(QWidget):
 
     def to_csv(self):
         w = self.stack.currentWidget()
-        category = self.reports.currentItem().data(Qt.ItemDataRole.DisplayRole)
+        cur_item = self.reports.currentItem()
+        assert cur_item is not None
+        category = cur_item.data(Qt.ItemDataRole.DisplayRole)
         if not hasattr(w, 'to_csv'):
             return error_dialog(self, _('Not supported'), _(
                 'Export of %s data is not supported') % category, show=True)
@@ -1465,9 +1497,11 @@ class Reports(Dialog):
 
         self.bb.setStandardButtons(QDialogButtonBox.StandardButton.Close)
         self.refresh_button = b = self.bb.addButton(_('&Refresh'), QDialogButtonBox.ButtonRole.ActionRole)
+        assert b is not None
         b.clicked.connect(self.refresh)
         b.setIcon(QIcon.ic('view-refresh.png'))
         self.save_button = b = self.bb.addButton(_('&Save'), QDialogButtonBox.ButtonRole.ActionRole)
+        assert b is not None
         b.clicked.connect(self.reports.to_csv)
         b.setIcon(QIcon.ic('save.png'))
         b.setToolTip(_('Export the currently shown report as a CSV file'))

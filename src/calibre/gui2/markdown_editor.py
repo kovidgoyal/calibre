@@ -37,6 +37,7 @@ class MarkdownEdit(QPlainTextEdit):
 
     def contextMenuEvent(self, e):
         m = self.createStandardContextMenu()
+        assert m is not None
         m.addSeparator()
         m.addAction(_('Smarten punctuation'), self.smarten_punctuation.emit)
         m.exec(e.globalPos())
@@ -113,7 +114,9 @@ class Editor(QWidget):  # {{{
         self.tabs.addTab(self.preview, _('&Preview'))
 
         self.tabs.currentChanged[int].connect(self.change_tab)
-        self.layout().setContentsMargins(0, 0, 0, 0)
+        _layout = self.layout()
+        assert _layout is not None
+        _layout.setContentsMargins(0, 0, 0, 0)
 
     def link_clicked(self, qurl):
         safe_open_url(qurl)
@@ -162,7 +165,9 @@ class Editor(QWidget):  # {{{
         self.editor.setReadOnly(bool(val))
 
     def hide_tabs(self):
-        self.tabs.tabBar().setVisible(False)
+        tab_bar = self.tabs.tabBar()
+        assert tab_bar is not None
+        tab_bar.setVisible(False)
 
     def smarten_punctuation(self):
         from calibre.ebooks.conversion.preprocess import smarten_punctuation

@@ -813,14 +813,18 @@ class HeuristicProcessor:
             if hardbreaks or unwrap_factor < 0.4:
                 self.log.debug('Unwrapping required, unwrapping Lines')
                 # Dehyphenate with line length limiters
-                dehyphenator = Dehyphenator(self.extra_opts.verbose, self.log)
+                _extra_opts = self.extra_opts
+                assert _extra_opts is not None
+                dehyphenator = Dehyphenator(_extra_opts.verbose, self.log)
                 html = dehyphenator(html,'html', length)
                 html = self.punctuation_unwrap(length, html, 'html')
 
         if getattr(self.extra_opts, 'dehyphenate', False):
             # dehyphenate in cleanup mode to fix anything previous conversions/editing missed
             self.log.debug('Fixing hyphenated content')
-            dehyphenator = Dehyphenator(self.extra_opts.verbose, self.log)
+            _extra_opts2 = self.extra_opts
+            assert _extra_opts2 is not None
+            dehyphenator = Dehyphenator(_extra_opts2.verbose, self.log)
             html = dehyphenator(html,'html_cleanup', length)
             html = dehyphenator(html, 'individual_words', length)
 

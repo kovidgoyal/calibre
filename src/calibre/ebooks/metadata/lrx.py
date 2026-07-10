@@ -69,10 +69,13 @@ def get_metadata(f):
             raise ValueError('LRX file has malformed metadata section')
         root = safe_xml_fromstring(info)
         bi = root.find('BookInfo')
+        assert bi is not None
         title = bi.find('Title')
+        assert title is not None
         title_sort = title.get('reading', None)
         title = title.text
         author = bi.find('Author')
+        assert author is not None
         author_sort = author.get('reading', None)
         mi = MetaInformation(title, string_to_authors(author.text))
         mi.title_sort, mi.author_sort = title_sort, author_sort
@@ -80,7 +83,11 @@ def get_metadata(f):
         publisher = bi.find('Publisher')
         mi.publisher = getattr(publisher, 'text', None)
         mi.tags = [x.text for x in bi.findall('Category')]
-        mi.language = root.find('DocInfo').find('Language').text
+        docinfo = root.find('DocInfo')
+        assert docinfo is not None
+        lang_elem = docinfo.find('Language')
+        assert lang_elem is not None
+        mi.language = lang_elem.text
         return mi
 
     elif buf[4:8] == b'LRX':

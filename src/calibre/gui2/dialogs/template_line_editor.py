@@ -39,11 +39,14 @@ class TemplateLineEditor(QLineEdit):
 
     def contextMenuEvent(self, a0):
         menu = self.createStandardContextMenu()
+        assert menu is not None
         menu.addSeparator()
 
         action_clear_field = menu.addAction(_('Remove any template from the box'))
+        assert action_clear_field is not None
         action_clear_field.triggered.connect(self.clear_field)
         action_open_editor = menu.addAction(_('Open template editor'))
+        assert action_open_editor is not None
         action_open_editor.triggered.connect(self.open_editor)
         menu.exec(a0.globalPos())
 

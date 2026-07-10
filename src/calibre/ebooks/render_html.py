@@ -114,7 +114,9 @@ class Render(QWebEnginePage):
             ''', QWebEngineScript.ScriptWorldId.ApplicationWorld, self.start_print)
         else:
             self.hang_timer.stop()
-            QApplication.instance().exit(1)
+            app = QApplication.instance()
+            assert app is not None
+            app.exit(1)
 
     def javaScriptConsoleMessage(self, level, message, lineNumber, sourceID):
         pass
@@ -127,13 +129,15 @@ class Render(QWebEnginePage):
         self.hang_timer.start()
 
     def hang_check(self):
+        app = QApplication.instance()
+        assert app is not None
         if self.printing_started:
             if monotonic() - self.start_time > PRINT_TIMEOUT:
                 self.hang_timer.stop()
-                QApplication.instance().exit(4)
+                app.exit(4)
         elif monotonic() - self.start_time > LOAD_TIMEOUT:
             self.hang_timer.stop()
-            QApplication.instance().exit(3)
+            app.exit(3)
 
     def start_print(self, data):
         margins = QMarginsF(0, 0, 0, 0)
@@ -159,7 +163,9 @@ class Render(QWebEnginePage):
         self.start_time = monotonic()
 
     def print_finished(self, path, ok):
-        QApplication.instance().exit(0 if ok else 2)
+        app = QApplication.instance()
+        assert app is not None
+        app.exit(0 if ok else 2)
         self.hang_timer.stop()
 
 
@@ -179,7 +185,9 @@ def main(path_to_html, tdir, image_format='jpeg', root=''):
     os.chdir(tdir)
     renderer = Render(profile)
     renderer.start_load(path_to_html, url_handler.root)
-    ret = QApplication.instance().exec()
+    app = QApplication.instance()
+    assert app is not None
+    ret = app.exec()
     renderer.break_cycles()
     del renderer
     if ret == 0:

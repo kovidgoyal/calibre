@@ -110,6 +110,7 @@ class AddEmptyBookDialog(QDialog):
         self._layout.addWidget(button_box, 11, 0, 1, -1)
         if dup_title:
             self.dup_button = b = button_box.addButton(_('&Duplicate current book'), QDialogButtonBox.ButtonRole.ActionRole)
+            assert b is not None
             b.clicked.connect(self.do_duplicate_book)
             b.setIcon(QIcon.ic('edit-copy.png'))
             b.setToolTip(_(

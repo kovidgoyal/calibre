@@ -44,9 +44,13 @@ class SearchLineEdit(QLineEdit):  # {{{
     def contextMenuEvent(self, a0):
         self.parent().normalize_state()
         menu = self.createStandardContextMenu()
+        assert menu is not None
         menu.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose)
         ac = menu.addAction(_('Paste and &search'))
-        ac.setEnabled(bool(QApplication.clipboard().text()))
+        assert ac is not None
+        clipboard = QApplication.clipboard()
+        assert clipboard is not None
+        ac.setEnabled(bool(clipboard.text()))
         ac.setIcon(QIcon.ic('search.png'))
         ac.triggered.connect(self.paste_and_search)
         for action in menu.actions():
@@ -57,6 +61,7 @@ class SearchLineEdit(QLineEdit):  # {{{
             menu.addAction(ac)
         menu.addSeparator()
         ac = menu.addAction(_('Invert current search'))
+        assert ac is not None
         ac.setEnabled(bool(self.text().strip()))
         ac.setIcon(QIcon.ic('search.png'))
         ac.triggered.connect(self.invert_search)
@@ -65,8 +70,14 @@ class SearchLineEdit(QLineEdit):  # {{{
         if self.as_url is not None:
             url = self.as_url(self.text())
             if url:
-                menu.addAction(_('Copy search as URL'), lambda: QApplication.clipboard().setText(url))
-        menu.addAction(_('&Clear search history')).triggered.connect(self.clear_history)
+                def copy_as_url():
+                    cb = QApplication.clipboard()
+                    assert cb is not None
+                    cb.setText(url)
+                menu.addAction(_('Copy search as URL'), copy_as_url)
+        clear_ac = menu.addAction(_('&Clear search history'))
+        assert clear_ac is not None
+        clear_ac.triggered.connect(self.clear_history)
         menu.exec(a0.globalPos())
 
     def invert_search(self):
@@ -134,12 +145,15 @@ class SearchBox2(QComboBox):  # {{{
         self.setLineEdit(self.line_edit)
         self.line_edit.clear_history.connect(self.clear_history)
         if add_clear_action:
-            self.lineEdit().setClearButtonEnabled(True)
+            le = self.lineEdit()
+            assert le is not None
+            le.setClearButtonEnabled(True)
             ac = self.findChild(QAction, QT_HIDDEN_CLEAR_ACTION)
             if ac is not None:
                 ac.triggered.connect(self.clear_clicked)
 
         c = self.line_edit.completer()
+        assert c is not None
         c.setCompletionMode(QCompleter.CompletionMode.PopupCompletion)
         c.highlighted[str].connect(self.completer_used)
 
@@ -162,7 +176,9 @@ class SearchBox2(QComboBox):  # {{{
     def add_action(self, icon, position=QLineEdit.ActionPosition.TrailingPosition):
         if not isinstance(icon, QIcon):
             icon = QIcon.ic(icon)
-        return self.lineEdit().addAction(icon, position)
+        le = self.lineEdit()
+        assert le is not None
+        return le.addAction(icon, position)
 
     def initialize(self, opt_name, colorize=False, help_text=_('Search'), as_you_type=None):
         self.as_you_type = config['search_as_you_type'] if as_you_type is None else as_you_type
@@ -183,7 +199,13 @@ class SearchBox2(QComboBox):  # {{{
 
     def hide_completer_popup(self):
         try:
-            self.lineEdit().completer().popup().setVisible(False)
+            le = self.lineEdit()
+            assert le is not None
+            comp = le.completer()
+            assert comp is not None
+            pop = comp.popup()
+            assert pop is not None
+            pop.setVisible(False)
         except Exception:
             pass
 
@@ -255,7 +277,9 @@ class SearchBox2(QComboBox):  # {{{
             return QComboBox.keyPressEvent(self, e)
         self.blockSignals(True)
         self.normalize_state()
-        if k == Qt.Key.Key_Down and self.currentIndex() == 0 and not self.lineEdit().text():
+        le = self.lineEdit()
+        assert le is not None
+        if k == Qt.Key.Key_Down and self.currentIndex() == 0 and not le.text():
             self.setCurrentIndex(1), self.setCurrentIndex(0)
             e.accept()
         else:
@@ -318,13 +342,15 @@ class SearchBox2(QComboBox):  # {{{
                 self.normalize_state()
                 # must turn on case sensitivity here so that tag browser strings
                 # are not case-insensitively replaced from history
-                self.line_edit.completer().setCaseSensitivity(Qt.CaseSensitivity.CaseSensitive)
+                line_edit_completer = self.line_edit.completer()
+                assert line_edit_completer is not None
+                line_edit_completer.setCaseSensitivity(Qt.CaseSensitivity.CaseSensitive)
                 self.setEditText(txt)
                 self.line_edit.end(False)
                 if emit_changed:
                     self.changed.emit()
                 self._do_search(store_in_history=store_in_history)
-                self.line_edit.completer().setCaseSensitivity(Qt.CaseSensitivity.CaseInsensitive)
+                line_edit_completer.setCaseSensitivity(Qt.CaseSensitivity.CaseInsensitive)
             self.focus_to_library.emit()
         finally:
             if not store_in_history:
@@ -339,7 +365,9 @@ class SearchBox2(QComboBox):  # {{{
 
     @property
     def current_text(self):
-        return str(self.lineEdit().text())
+        le = self.lineEdit()
+        assert le is not None
+        return str(le.text())
 
     # }}}
 

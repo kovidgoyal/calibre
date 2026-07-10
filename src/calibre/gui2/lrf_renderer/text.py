@@ -224,6 +224,7 @@ class TextBlock:
     def create_link(self, refobj):
         if self.current_line is None:
             self.create_line()
+        assert self.current_line is not None
         self.current_line.start_link(refobj, self.link_activated)
         self.link_activated(refobj, on_creation=True)
 
@@ -276,9 +277,11 @@ class TextBlock:
                 plot = Plot(i, self.font_loader.dpi)
                 if self.current_line is None:
                     self.create_line()
+                assert self.current_line is not None
                 if not self.current_line.can_add_plot(plot):
                     self.end_line()
                     self.create_line()
+                assert self.current_line is not None
                 self.current_line.add_plot(plot)
             elif i.name in ['Sup', 'Sub']:
                 if self.current_line is None:
@@ -324,6 +327,7 @@ class TextBlock:
         while len(raw) > 0:
             if self.current_line is None:
                 self.create_line()
+            assert self.current_line is not None
             pos, line_filled = self.current_line.populate(raw, self.current_style)
             raw = raw[pos:]
             if line_filled:
@@ -356,11 +360,15 @@ class Link(QGraphicsRectItem):
 
     def hoverEnterEvent(self, event):
         self.brush = self.__class__.active_brush
-        self.parentItem().update()
+        parent_item = self.parentItem()
+        assert parent_item is not None
+        parent_item.update()
 
     def hoverLeaveEvent(self, event):
         self.brush = self.__class__.inactive_brush
-        self.parentItem().update()
+        parent_item = self.parentItem()
+        assert parent_item is not None
+        parent_item.update()
 
     def mousePressEvent(self, event):
         self.hoverLeaveEvent(None)

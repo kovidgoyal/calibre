@@ -29,9 +29,11 @@ class APNXBuilder:
     Create an APNX file using a pseudo page mapping.
     '''
 
+    _accurate_gen = AccuratePageGenerator.instance
+    assert _accurate_gen is not None
     generators: dict[str, IPageGenerator] = {
         FastPageGenerator.instance.name(): FastPageGenerator.instance,
-        AccuratePageGenerator.instance.name(): AccuratePageGenerator.instance,
+        _accurate_gen.name(): _accurate_gen,
         PagebreakPageGenerator.instance.name(): PagebreakPageGenerator.instance,
         # ExactPageGenerator.instance.name(): ExactPageGenerator.instance,
     }

@@ -201,6 +201,7 @@ class Voices(QTreeWidget):
                 p = item.parent()
                 if p is not None:
                     for child in (p.child(i) for i in range(p.childCount())):
+                        assert child is not None
                         if child is not item and child.checkState(0) == Qt.CheckState.Checked:
                             self.ignore_item_changes = True
                             child.setCheckState(0, Qt.CheckState.Unchecked)
@@ -212,13 +213,16 @@ class Voices(QTreeWidget):
     def mousePressEvent(self, e):
         item = self.itemAt(e.pos())
         if self.for_embedding and self.is_voice_item(item):
+            assert item is not None
             rect = self.visualItemRect(item)
             x = e.pos().x() - (rect.x() + self.frameWidth())
             option = QStyleOptionViewItem()
             self.initViewItemOption(option)
             option.rect = rect
             option.features |= QStyleOptionViewItem.ViewItemFeature.HasCheckIndicator
-            checkbox_rect = self.style().subElementRect(QStyle.SubElement.SE_ItemViewItemCheckIndicator, option, self)
+            style = self.style()
+            assert style is not None
+            checkbox_rect = style.subElementRect(QStyle.SubElement.SE_ItemViewItemCheckIndicator, option, self)
             if x > checkbox_rect.width():
                 item.setCheckState(0, Qt.CheckState.Checked if item.checkState(0) != Qt.CheckState.Checked else Qt.CheckState.Unchecked)
         super().mousePressEvent(e)
@@ -273,8 +277,10 @@ class Voices(QTreeWidget):
                 parent.setData(0, Qt.ItemDataRole.UserRole, langcode)
             for voice in vmap[langcode]:
                 v = qv(parent, voice)
-                if self.for_embedding and voice.name and preferred_voices.get(langcode) == voice.name:
-                    v.setCheckState(0, Qt.CheckState.Checked)
+                if self.for_embedding and voice.name:
+                    assert preferred_voices is not None
+                    if preferred_voices.get(langcode) == voice.name:
+                        v.setCheckState(0, Qt.CheckState.Checked)
         if current_item is not None:
             self.setCurrentItem(current_item)
 
@@ -286,10 +292,13 @@ class Voices(QTreeWidget):
     @property
     def preferred_voices(self) -> dict[str, str] | None:
         r = self.invisibleRootItem()
+        assert r is not None
         ans = {}
         for parent in (r.child(i) for i in range(r.childCount())):
+            assert parent is not None
             langcode = parent.data(0, Qt.ItemDataRole.UserRole)
             for child in (parent.child(i) for i in range(parent.childCount())):
+                assert child is not None
                 if child.checkState(0) == Qt.CheckState.Checked:
                     voice = child.data(0, Qt.ItemDataRole.UserRole)
                     if voice.name:
@@ -538,6 +547,7 @@ class ConfigDialog(Dialog):
         l.addLayout(h)
         h.addWidget(b), h.addStretch(10), h.addWidget(self.bb)
         self.restore_defaults_button = b = self.bb.addButton(_('Restore &defaults'), QDialogButtonBox.ButtonRole.ActionRole)
+        assert b is not None
         b.setToolTip(_('Restore all Read aloud settings to their defaults'))
         b.clicked.connect(self.restore_defaults)
         self.initial_engine_choice = ec.value
