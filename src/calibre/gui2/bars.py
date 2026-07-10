@@ -330,7 +330,7 @@ class ToolBar(QToolBar):  # {{{
                 a0.accept()
                 return
 
-        # Give added_actions an opportunity to process the drag&drop a0
+        # Give added_actions an opportunity to process the drag&drop event
         if self.check_iactions_for_drag(a0, md, 'drop_event'):
             a0.accept()
         else:
