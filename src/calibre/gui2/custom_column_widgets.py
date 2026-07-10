@@ -1100,7 +1100,6 @@ class BulkBase(Base):
     def finish_ui_setup(self, parent, edit_widget=False, add_edit_tags_button=(False,)):
         self.was_none = False
         l = self.widgets[1].layout()
-        assert l is not None
         assert isinstance(l, QHBoxLayout)
         if not edit_widget or self.bools_are_tristate:
             self.clear_button = QToolButton(parent)
@@ -1318,7 +1317,6 @@ class BulkDateTime(BulkBase):
         cm = self.col_metadata
         self.make_widgets(parent, DateTimeEdit)
         l = self.widgets[1].layout()
-        assert l is not None
         assert isinstance(l, QHBoxLayout)
         self.today_button = QToolButton(parent)
         self.today_button.setText(_('Today'))
