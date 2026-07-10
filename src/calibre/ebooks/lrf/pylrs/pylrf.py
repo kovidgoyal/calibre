@@ -471,14 +471,14 @@ class LrfTagStream(LrfStreamBase):
     def appendLrfTag(self, tag):
         self.tags.append(tag)
 
-    def getStreamTags(self, optimize,
+    def getStreamTags(self, encoding,  # ty: ignore[invalid-method-override]
             optimizeTags=False, optimizeCompression=False):
         stream = io.BytesIO()
         if optimizeTags:
             tagListOptimizer(self.tags)
 
         for tag in self.tags:
-            tag.write(stream, optimize)
+            tag.write(stream, encoding)
 
         self.streamData = stream.getvalue()
         stream.close()
