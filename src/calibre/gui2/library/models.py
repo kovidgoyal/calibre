@@ -1311,7 +1311,8 @@ class BooksModel(QAbstractTableModel):  # {{{
 
     def headerData(self, section, orientation, role=...):
         db = self.db
-        assert db is not None
+        if db is None:
+            return None
         if orientation == Qt.Orientation.Horizontal:
             if section >= len(self.column_map):  # same problem as in data, the column_map can be wrong
                 return None

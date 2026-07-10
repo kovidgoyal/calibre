@@ -592,10 +592,16 @@ def fsync(fileobj):
             traceback.print_exc()
 
 
-def timed_print(*a, **kw):
-    if not is_debugging():
-        return
-    from time import monotonic
-    if not hasattr(timed_print, 'startup_time'):
-        timed_print.startup_time = monotonic()
-    print(f'[{monotonic() - timed_print.startup_time:.2f}]', *a, **kw)
+class TimedPrint:
+    startup_time: float = -1
+
+    def __call__(self, *a, **kw) -> None:
+        if not is_debugging():
+            return
+        from time import monotonic
+        if self.startup_time == -1:
+            self.startup_time = monotonic()
+        print(f'[{monotonic() - self.startup_time:.2f}]', *a, **kw)
+
+
+timed_print = TimedPrint()
