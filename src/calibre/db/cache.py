@@ -12,9 +12,10 @@ import random
 import shutil
 import sys
 import traceback
+import types
 import weakref
 from collections import defaultdict
-from collections.abc import Iterable, Iterator, MutableSet, Set
+from collections.abc import Callable, Iterable, Iterator, MutableSet, Set
 from contextlib import contextmanager
 from datetime import datetime
 from functools import partial, wraps
@@ -35,7 +36,7 @@ from calibre.db.errors import NoSuchBook, NoSuchFormat
 from calibre.db.fields import IDENTITY, InvalidLinkTable, create_field
 from calibre.db.lazy import FormatMetadata, FormatsList, ProxyMetadata
 from calibre.db.listeners import EventDispatcher, EventType
-from calibre.db.locking import DowngradeLockError, LockingError, SafeReadLock, create_locks, try_lock
+from calibre.db.locking import DowngradeLockError, LockingError, RWLockWrapper, SafeReadLock, create_locks, try_lock
 from calibre.db.notes.connect import copy_marked_up_text
 from calibre.db.page_count import MaintainPageCounts
 from calibre.db.search import Search
@@ -64,26 +65,27 @@ class ExtraFile(NamedTuple):
     stat_result: os.stat_result
 
 
-def api(f):
-    f.is_cache_api = True
+cache_api: dict[str, bool | None] = {}
+
+
+def api[T: types.FunctionType](f: T) -> T:
+    cache_api[f.__name__] = None
     return f
 
 
-def read_api(f):
-    f = api(f)
-    f.is_read_api = True
+def read_api[T: types.FunctionType](f: T) -> T:
+    cache_api[f.__name__] = False
     return f
 
 
-def write_api(f):
-    f = api(f)
-    f.is_read_api = False
+def write_api[T: types.FunctionType](f: T) -> T:
+    cache_api[f.__name__] = True
     return f
 
 
-def wrap_simple(lock, func):
+def wrap_simple[**P, R](lock: RWLockWrapper, func: Callable[P, R]) -> Callable[P, R]:
     @wraps(func)
-    def call_func_with_lock(*args, **kwargs):
+    def call_func_with_lock(*args: P.args, **kwargs: P.kwargs) -> R:
         try:
             with lock:
                 return func(*args, **kwargs)
@@ -184,12 +186,12 @@ class Cache:
         # with a leading underscore. Use the unlocked versions when the lock
         # has already been acquired.
         for name in dir(self):
-            func = getattr(self, name)
-            if (ira := getattr(func, 'is_read_api', None)) is not None:
+            if (is_write_api := cache_api.get(name)) is not None:
+                func = getattr(self, name)
                 # Save original function
                 setattr(self, '_'+name, func)
                 # Wrap it in a lock
-                lock = self.read_lock if ira else self.write_lock
+                lock = self.write_lock if is_write_api else self.read_lock
                 setattr(self, name, wrap_simple(lock, func))
 
         self._search_api = Search(self, 'saved_searches', self.field_metadata.get_search_terms())
@@ -232,6 +234,7 @@ class Cache:
     def ensure_has_search_category(self, fail_on_existing=True):
         if len(self._search_api.saved_searches.names()) > 0:
             self.field_metadata.add_search_category(label='search', name=_('Saved searches'), fail_on_existing=fail_on_existing)
+    _ensure_has_search_category = ensure_has_search_category
 
     def _initialize_dynamic_categories(self):
         # Reconstruct the user categories, putting them into field_metadata
