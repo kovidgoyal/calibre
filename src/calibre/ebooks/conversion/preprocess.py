@@ -616,11 +616,11 @@ class HTMLPreProcessor:
                 unsupported_unicode_chars = self.extra_opts.output_profile.unsupported_unicode_chars
             except AttributeError:
                 unsupported_unicode_chars = ''
-        if unsupported_unicode_chars:
-            from calibre.utils.localization import get_udc
-            unihandecoder = get_udc()
-            for char in unsupported_unicode_chars:
-                asciichar = unihandecoder.decode(char)
-                html = html.replace(char, asciichar)
+            if unsupported_unicode_chars:
+                from calibre.utils.localization import get_udc
+                unihandecoder = get_udc()
+                for char in unsupported_unicode_chars:
+                    asciichar = unihandecoder.decode(char)
+                    html = html.replace(char, asciichar)
 
         return html
