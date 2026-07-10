@@ -185,8 +185,7 @@ class Cache:
         # has already been acquired.
         for name in dir(self):
             func = getattr(self, name)
-            ira = getattr(func, 'is_read_api', None)
-            if ira is not None:
+            if (ira := getattr(func, 'is_read_api', None)) is not None:
                 # Save original function
                 setattr(self, '_'+name, func)
                 # Wrap it in a lock
