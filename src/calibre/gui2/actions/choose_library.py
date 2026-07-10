@@ -30,7 +30,7 @@ from qt.core import (
     pyqtSignal,
 )
 
-from calibre import isbytestring, sanitize_file_name
+from calibre import sanitize_file_name
 from calibre.constants import config_dir, filesystem_encoding, get_portable_base, isportable, iswindows
 from calibre.gui2 import (
     Dispatcher,
@@ -102,7 +102,7 @@ class LibraryUsageStats:  # {{{
         self.write_stats()
 
     def canonicalize_path(self, lpath):
-        if isbytestring(lpath):
+        if isinstance(lpath, bytes):
             lpath = lpath.decode(filesystem_encoding)
         lpath = lpath.replace(os.sep, '/')
         return lpath
@@ -441,7 +441,7 @@ class ChooseLibraryAction(InterfaceAction):
     def library_name(self):
         db = self.gui.library_view.model().db
         path = db.library_path
-        if isbytestring(path):
+        if isinstance(path, bytes):
             path = path.decode(filesystem_encoding)
         path = path.replace(os.sep, '/')
         return self.stats.pretty(path)

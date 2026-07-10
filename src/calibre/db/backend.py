@@ -21,7 +21,7 @@ from functools import partial
 
 import apsw
 
-from calibre import as_unicode, force_unicode, isbytestring, prints
+from calibre import as_unicode, force_unicode, prints
 from calibre.constants import builtin_colors_light, builtin_decorations, filesystem_encoding, iswindows, plugins, preferred_encoding
 from calibre.db import SPOOL_SIZE, FTSQueryError
 from calibre.db.annotations import annot_db_data, unicode_normalize
@@ -208,12 +208,12 @@ class DBPrefs(dict):  # {{{
 # Extra collators {{{
 
 def pynocase(one, two, encoding='utf-8'):
-    if isbytestring(one):
+    if isinstance(one, bytes):
         try:
             one = one.decode(encoding, 'replace')
         except Exception:
             pass
-    if isbytestring(two):
+    if isinstance(two, bytes):
         try:
             two = two.decode(encoding, 'replace')
         except Exception:
@@ -484,7 +484,7 @@ class DB:
                  restore_all_prefs=False, progress_callback=lambda x, y:True,
                  load_user_formatter_functions=True, temp_db_path=None):
         self.is_closed = False
-        if isbytestring(library_path):
+        if isinstance(library_path, bytes):
             library_path = library_path.decode(filesystem_encoding)
         self.field_metadata = FieldMetadata()
 

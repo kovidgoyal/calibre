@@ -23,7 +23,7 @@ import traceback
 import uuid
 from collections import defaultdict, namedtuple
 
-from calibre import force_unicode, isbytestring, prints
+from calibre import force_unicode, prints
 from calibre.constants import filesystem_encoding, iswindows, preferred_encoding
 from calibre.customize.ui import run_plugins_on_import, run_plugins_on_postimport
 from calibre.db import _get_next_series_num_for_list, _get_series_values, get_data_as_dict
@@ -155,7 +155,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                              "library.database2. Use db.legacy.LibraryDatabase instead")
         self.is_second_db = is_second_db
         try:
-            if isbytestring(library_path):
+            if isinstance(library_path, bytes):
                 library_path = library_path.decode(filesystem_encoding)
         except Exception:
             traceback.print_exc()
@@ -2555,7 +2555,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
     def set_title_sort(self, id, title_sort_, notify=True, commit=True):
         if not title_sort_:
             return False
-        if isbytestring(title_sort_):
+        if isinstance(title_sort_, bytes):
             title_sort_ = title_sort_.decode(preferred_encoding, 'replace')
         self.conn.execute('UPDATE books SET sort=? WHERE id=?', (title_sort_, id))
         self.data.set(id, self.FIELD_MAP['sort'], title_sort_, row_is_id=True)
@@ -2569,7 +2569,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
     def _set_title(self, id, title):
         if not title:
             return False
-        if isbytestring(title):
+        if isinstance(title, bytes):
             title = title.decode(preferred_encoding, 'replace')
         old_title = self.title(id, index_is_id=True)
         # We cannot check if old_title == title as previous code might have
@@ -3006,7 +3006,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
     def cleanup_tags(cls, tags):
         tags = [x.strip().replace(',', ';') for x in tags if x.strip()]
         tags = [x.decode(preferred_encoding, 'replace')
-                    if isbytestring(x) else x for x in tags]
+                    if isinstance(x, bytes) else x for x in tags]
         tags = [' '.join(x.split()) for x in tags]
         ans, seen = [], set()
         for tag in tags:
@@ -3465,9 +3465,9 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                     if mi.series_index is None else mi.series_index
         aus = mi.author_sort or self.author_sort_from_authors(mi.authors)
         title = mi.title
-        if isbytestring(aus):
+        if isinstance(aus, bytes):
             aus = aus.decode(preferred_encoding, 'replace')
-        if isbytestring(title):
+        if isinstance(title, bytes):
             title = title.decode(preferred_encoding, 'replace')
         if force_id is None:
             obj = self.conn.execute('INSERT INTO books(title, series_index, author_sort) VALUES (?, ?, ?)',

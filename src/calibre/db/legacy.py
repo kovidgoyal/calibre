@@ -9,7 +9,7 @@ import traceback
 import weakref
 from collections.abc import MutableMapping
 
-from calibre import force_unicode, isbytestring
+from calibre import force_unicode
 from calibre.constants import preferred_encoding
 from calibre.db import _get_next_series_num_for_list, _get_series_values, get_data_as_dict
 from calibre.db.adding import add_catalog, add_news, find_books_in_directory, import_book_directory, import_book_directory_multiple, recursive_import
@@ -28,7 +28,7 @@ from calibre.utils.search_query_parser import set_saved_searches
 def cleanup_tags(tags):
     tags = [x.strip().replace(',', ';') for x in tags if x.strip()]
     tags = [x.decode(preferred_encoding, 'replace')
-                if isbytestring(x) else x for x in tags]
+                if isinstance(x, bytes) else x for x in tags]
     tags = [' '.join(x.split()) for x in tags]
     ans, seen = [], set()
     for tag in tags:

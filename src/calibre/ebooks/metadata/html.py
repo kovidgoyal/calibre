@@ -14,7 +14,7 @@ from collections import defaultdict
 from html5_parser import parse
 from lxml.etree import Comment
 
-from calibre import isbytestring, replace_entities
+from calibre import replace_entities
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.ebooks.metadata import authors_to_string, string_to_authors
 from calibre.ebooks.metadata.book.base import Metadata
@@ -131,7 +131,7 @@ def get_metadata_(src, encoding=None):
     # Meta data definitions as in
     # https://www.mobileread.com/forums/showpost.php?p=712544&postcount=9
 
-    if isbytestring(src):
+    if isinstance(src, bytes):
         if not encoding:
             src = xml_to_unicode(src)[0]
         else:

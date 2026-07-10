@@ -11,7 +11,7 @@ from threading import Event, Thread
 
 from qt.core import QDialog, Qt, QTimer, pyqtSignal
 
-from calibre import force_unicode, isbytestring, patheq
+from calibre import force_unicode, patheq
 from calibre.constants import filesystem_encoding, get_portable_base, iswindows
 from calibre.gui2 import choose_dir, error_dialog
 from calibre.gui2.dialogs.choose_library_ui import Ui_Dialog
@@ -56,7 +56,7 @@ class ChooseLibrary(QDialog, Ui_Dialog):
         self.location.initialize('choose_library_dialog')
 
         lp = db.library_path
-        if isbytestring(lp):
+        if isinstance(lp, bytes):
             lp = lp.decode(filesystem_encoding)
         loc = str(self.old_location.text()).format(lp)
         self.old_location.setText(loc)

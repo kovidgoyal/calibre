@@ -5,7 +5,6 @@ __docformat__ = 'restructuredtext en'
 import os
 import time
 
-from calibre import isbytestring
 from calibre.constants import DEBUG, preferred_encoding
 from calibre.devices.usbms.books import Book as Book_
 from calibre.devices.usbms.books import CollectionsBookList
@@ -234,7 +233,7 @@ class KTCollectionsBookList(CollectionsBookList):
 
                 if not val:
                     continue
-                if isbytestring(val):
+                if isinstance(val, bytes):
                     val = val.decode(preferred_encoding, 'replace')
                 if isinstance(val, (list, tuple)):
                     val = list(val)

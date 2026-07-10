@@ -9,7 +9,7 @@ import os
 import time
 from datetime import date
 
-from calibre import fsync, guess_type, isbytestring, prints
+from calibre import fsync, guess_type, prints
 from calibre.constants import DEBUG, preferred_encoding
 from calibre.devices.errors import DeviceError
 from calibre.ebooks.chardet import xml_to_unicode
@@ -624,7 +624,7 @@ class XMLCache:
         rec_date = record.get('date', None)
 
         def clean(x):
-            if isbytestring(x):
+            if isinstance(x, bytes):
                 x = x.decode(preferred_encoding, 'replace')
             x.replace('\0', '')
             return x

@@ -16,7 +16,7 @@ import css_parser
 from css_parser.css import CSSRule
 from lxml import etree
 
-from calibre import force_unicode, isbytestring
+from calibre import force_unicode
 from calibre.ebooks.compression.palmdoc import compress_doc
 from calibre.ebooks.mobi.utils import create_text_record, is_guide_ref_start, to_base
 from calibre.ebooks.mobi.writer8.index import ChunkIndex, GuideIndex, NCXIndex, NonLinearNCXIndex, SkelIndex
@@ -142,7 +142,7 @@ class KF8Writer:
                         css_parser.replaceUrls(sheet, replacer,
                                 ignoreImportRules=True)
                         repl = sheet.cssText
-                        if isbytestring(repl):
+                        if isinstance(repl, bytes):
                             repl = repl.decode('utf-8')
                         tag.text = '\n'+ repl + '\n'
 

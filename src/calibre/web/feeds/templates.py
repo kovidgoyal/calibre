@@ -11,7 +11,7 @@ from lxml import etree, html
 from lxml.html.builder import BODY, BR, DIV, H2, H3, HEAD, HR, HTML, IMG, LI, SPAN, STRONG, STYLE, TABLE, TD, TITLE, TR, UL, A
 from lxml.html.builder import P as PT
 
-from calibre import isbytestring, strftime
+from calibre import strftime
 from calibre.utils.localization import _
 
 
@@ -37,13 +37,13 @@ class Template:
         if 'style' not in kwargs:
             kwargs['style'] = ''
         for key, val in kwargs.items():
-            if isbytestring(val):
+            if isinstance(val, bytes):
                 kwargs[key] = val.decode('utf-8', 'replace')
             if kwargs[key] is None:
                 kwargs[key] = ''
         args = list(args)
         for i in range(len(args)):
-            if isbytestring(args[i]):
+            if isinstance(args[i], bytes):
                 args[i] = args[i].decode('utf-8', 'replace')
             if args[i] is None:
                 args[i] = ''
@@ -72,7 +72,7 @@ class EmbeddedContent(Template):
         if extra_css:
             head.append(STYLE(extra_css, type='text/css'))
 
-        if isbytestring(text):
+        if isinstance(text, bytes):
             text = text.decode('utf-8', 'replace')
         elements = html.fragments_fromstring(text)
         self.root = HTML(head,

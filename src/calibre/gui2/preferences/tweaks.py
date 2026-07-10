@@ -32,7 +32,7 @@ from qt.core import (
     pyqtSignal,
 )
 
-from calibre import isbytestring, prepare_string_for_xml
+from calibre import prepare_string_for_xml
 from calibre.gui2 import error_dialog, info_dialog
 from calibre.gui2.preferences import AbortCommit, ConfigWidgetBase, test_widget
 from calibre.gui2.search_box import SearchBox2
@@ -279,7 +279,7 @@ class Tweaks(QAbstractListModel, AdaptSQP):  # {{{
         for key, val in self.plugin_tweaks.items():
             ans.extend([f'{key} = {val!r}', '', ''])
         ans = '\n'.join(ans)
-        if isbytestring(ans):
+        if isinstance(ans, bytes):
             ans = ans.decode('utf-8')
         return ans
 

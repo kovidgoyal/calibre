@@ -13,7 +13,7 @@ import os
 import shutil
 from itertools import cycle
 
-from calibre import fsync, isbytestring, prints
+from calibre import fsync, prints
 from calibre.constants import filesystem_encoding, ismacos, numeric_version
 from calibre.devices.usbms.books import Book, BookList
 from calibre.devices.usbms.cli import CLI
@@ -478,7 +478,7 @@ class USBMS(CLI, Device):
 
     @classmethod
     def path_to_unicode(cls, path):
-        if isbytestring(path):
+        if isinstance(path, bytes):
             path = path.decode(filesystem_encoding)
         return path
 

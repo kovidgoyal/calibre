@@ -29,7 +29,7 @@ from qt.core import (
     pyqtSignal,
 )
 
-from calibre import isbytestring, prints
+from calibre import prints
 from calibre.constants import cache_dir, islinux, ismacos, iswindows
 from calibre.ebooks.oeb.base import urlnormalize
 from calibre.ebooks.oeb.polish.container import OEB_DOCS, OEB_STYLES, clone_container, guess_type
@@ -1817,7 +1817,7 @@ class Boss(QObject):
             syntax = syntax or syntax_from_mime(name, guess_type(name))
             if use_template is None:
                 data = current_container().raw_data(name)
-                if isbytestring(data) and syntax in {'html', 'css', 'text', 'xml', 'javascript'}:
+                if isinstance(data, bytes) and syntax in {'html', 'css', 'text', 'xml', 'javascript'}:
                     try:
                         data = data.decode('utf-8')
                     except UnicodeDecodeError:

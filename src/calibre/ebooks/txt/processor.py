@@ -10,7 +10,7 @@ Read content from txt file.
 import os
 import re
 
-from calibre import isbytestring, prepare_string_for_xml
+from calibre import prepare_string_for_xml
 from calibre.ebooks.conversion.preprocess import DocAnalysis
 from calibre.ebooks.metadata.opf2 import OPFCreator
 from calibre.utils.cleantext import clean_ascii_chars
@@ -24,7 +24,7 @@ def clean_txt(txt):
     Run transformations on the text to put it into
     consistent state.
     '''
-    if isbytestring(txt):
+    if isinstance(txt, bytes):
         txt = txt.decode('utf-8', 'replace')
     # Strip whitespace from the end of the line. Also replace
     # all line breaks with \n.
@@ -69,7 +69,7 @@ def split_txt(txt, epub_split_size_kb=0):
                 txt = b'\n\n'.join(
                     split_string_separator(line, chunk_size) for line in parts
                 )
-    if isbytestring(txt):
+    if isinstance(txt, bytes):
         txt = txt.decode('utf-8')
 
     return txt

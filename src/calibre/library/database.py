@@ -10,7 +10,6 @@ import re
 import sqlite3 as sqlite
 from zlib import compress, decompress
 
-from calibre import isbytestring
 from calibre.ebooks.metadata import MetaInformation, string_to_authors
 from calibre.utils.localization import _
 from calibre.utils.serialize import pickle_dumps, pickle_loads
@@ -1399,9 +1398,9 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
         self.conn.commit()
 
     def add_feed(self, title, script):
-        if isbytestring(title):
+        if isinstance(title, bytes):
             title = title.decode('utf-8')
-        if isbytestring(script):
+        if isinstance(script, bytes):
             script = script.decode('utf-8')
         self.conn.execute('INSERT INTO feeds(title, script) VALUES (?, ?)',
                                   (title, script))

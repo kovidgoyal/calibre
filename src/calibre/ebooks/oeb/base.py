@@ -19,7 +19,7 @@ from urllib.parse import urldefrag, urljoin, urlparse, urlunparse
 
 from lxml import etree, html
 
-from calibre import as_unicode, force_unicode, get_types_map, isbytestring
+from calibre import as_unicode, force_unicode, get_types_map
 from calibre.constants import __version__, filesystem_encoding
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.ebooks.conversion.preprocess import CSSPreProcessor
@@ -567,7 +567,7 @@ class DirContainer:
 
     def __init__(self, path, log, ignore_opf=False):
         self.log = log
-        if isbytestring(path):
+        if isinstance(path, bytes):
             path = path.decode(filesystem_encoding)
         self.opfname = None
         ext = os.path.splitext(path)[1].lower()

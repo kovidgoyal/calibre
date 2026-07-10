@@ -25,7 +25,7 @@ from threading import Lock
 from time import mktime, monotonic, time
 from typing import NamedTuple
 
-from calibre import as_unicode, detect_ncpus, isbytestring
+from calibre import as_unicode, detect_ncpus
 from calibre.constants import iswindows, preferred_encoding
 from calibre.customize.ui import run_plugins_on_import, run_plugins_on_postadd, run_plugins_on_postdelete, run_plugins_on_postimport
 from calibre.db import SPOOL_SIZE, _get_next_series_num_for_list
@@ -2539,7 +2539,7 @@ class Cache:
         See also :meth:`data_for_has_book`.  '''
         title = mi.title
         if title:
-            if isbytestring(title):
+            if isinstance(title, bytes):
                 title = title.decode(preferred_encoding, 'replace')
             q = icu_lower(title).strip()
             for title in self.fields['title'].table.book_col_map.values():
@@ -2579,7 +2579,7 @@ class Cache:
         mi.title = mi.title or _('Unknown')
         if mi.is_null('title_sort'):
             mi.title_sort = title_sort(mi.title, lang=mi.languages[0] if mi.languages else None)
-        if isbytestring(aus):
+        if isinstance(aus, bytes):
             aus = aus.decode(preferred_encoding, 'replace')
         if isinstance(mi.title, bytes):
             mi.title = mi.title.decode(preferred_encoding, 'replace')

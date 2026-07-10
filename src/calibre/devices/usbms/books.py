@@ -8,7 +8,7 @@ import sys
 import time
 from functools import cmp_to_key
 
-from calibre import force_unicode, isbytestring
+from calibre import force_unicode
 from calibre.constants import preferred_encoding
 from calibre.devices.interface import BookList as _BookList
 from calibre.devices.mime import mime_type_ext
@@ -232,7 +232,7 @@ class CollectionsBookList(BookList):
 
                 if not val:
                     continue
-                if isbytestring(val):
+                if isinstance(val, bytes):
                     val = val.decode(preferred_encoding, 'replace')
                 if isinstance(val, (list, tuple)):
                     val = list(val)

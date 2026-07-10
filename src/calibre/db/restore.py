@@ -15,7 +15,7 @@ from contextlib import closing, suppress
 from operator import itemgetter
 from threading import Thread
 
-from calibre import force_unicode, isbytestring
+from calibre import force_unicode
 from calibre.constants import filesystem_encoding, iswindows
 from calibre.db.backend import DB, DBPrefs
 from calibre.db.cache import Cache
@@ -71,7 +71,7 @@ class Restore(Thread):
 
     def __init__(self, library_path, progress_callback=None):
         super().__init__()
-        if isbytestring(library_path):
+        if isinstance(library_path, bytes):
             library_path = library_path.decode(filesystem_encoding)
         self.src_library_path = os.path.abspath(library_path)
         self.progress_callback = progress_callback

@@ -9,7 +9,7 @@ import shutil
 import sys
 from functools import partial
 
-from calibre import filesystem_encoding, get_types_map, isbytestring
+from calibre import filesystem_encoding, get_types_map
 from calibre.constants import __version__
 from calibre.customize.conversion import DummyReporter, OptionRecommendation
 from calibre.customize.ui import (
@@ -94,9 +94,9 @@ class Plumber:
         :param input: Path to input file.
         :param output: Path to output file/folder
         '''
-        if isbytestring(input):
+        if isinstance(input, bytes):
             input = input.decode(filesystem_encoding)
-        if isbytestring(output):
+        if isinstance(output, bytes):
             output = output.decode(filesystem_encoding)
         self.original_input_arg = input
         self.for_regex_wizard = for_regex_wizard

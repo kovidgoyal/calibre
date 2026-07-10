@@ -33,7 +33,7 @@ from qt.core import (
     pyqtSignal,
 )
 
-from calibre import fit_image, human_readable, isbytestring, prepare_string_for_xml, strftime
+from calibre import fit_image, human_readable, prepare_string_for_xml, strftime
 from calibre.constants import DEBUG, config_dir, dark_link_color, filesystem_encoding
 from calibre.db.search import CONTAINS_MATCH, EQUALS_MATCH, REGEXP_MATCH, _match
 from calibre.db.utils import force_to_bool
@@ -865,7 +865,7 @@ class BooksModel(QAbstractTableModel):  # {{{
                 pt.close()
 
                 def to_uni(x):
-                    if isbytestring(x):
+                    if isinstance(x, bytes):
                         x = x.decode(filesystem_encoding)
                     return x
                 ans.append(to_uni(os.path.abspath(pt.name)))

@@ -11,7 +11,7 @@ import time
 from contextlib import closing, suppress
 from math import ceil
 
-from calibre import force_unicode, isbytestring, prints, sanitize_file_name
+from calibre import force_unicode, prints, sanitize_file_name
 from calibre.constants import filesystem_encoding, ismacos, iswindows, preferred_encoding
 from calibre.utils.localization import _, get_udc
 
@@ -157,7 +157,7 @@ def case_ignoring_open_file(path, mode='r'):
                 continue
         raise original_err
 
-    if isbytestring(path):
+    if isinstance(path, bytes):
         path = path.decode(filesystem_encoding)
     if path.endswith(os.sep):
         path = path[:-1]
@@ -187,7 +187,7 @@ def case_preserving_open_file(path, mode='wb', mkdir_mode=0o777):
     mkdir_mode specifies the mode with which any missing directories in path
     are created.
     '''
-    if isbytestring(path):
+    if isinstance(path, bytes):
         path = path.decode(filesystem_encoding)
 
     path = os.path.abspath(path)
@@ -261,7 +261,7 @@ def windows_get_fileid(path):
     ''' The fileid uniquely identifies actual file contents (it is the same for
     all hardlinks to a file). Similar to inode number on linux. '''
     from calibre_extensions.winutil import get_file_id
-    if isbytestring(path):
+    if isinstance(path, bytes):
         path = path.decode(filesystem_encoding)
     with suppress(OSError):
         return get_file_id(path)
@@ -311,7 +311,7 @@ def windows_get_size(path):
     not in the directory entry (which could be out of date). So we open the
     file, and get the actual size. '''
     from calibre_extensions import winutil
-    if isbytestring(path):
+    if isinstance(path, bytes):
         path = path.decode(filesystem_encoding)
     with closing(winutil.create_file(
         path, 0, winutil.FILE_SHARE_READ | winutil.FILE_SHARE_WRITE | winutil.FILE_SHARE_DELETE,
@@ -353,7 +353,7 @@ def windows_fast_hardlink(src, dest):
 
 def windows_nlinks(path):
     from calibre_extensions import winutil
-    if isbytestring(path):
+    if isinstance(path, bytes):
         path = path.decode(filesystem_encoding)
     return winutil.nlinks(path)
 
@@ -373,7 +373,7 @@ class WindowsAtomicFolderMove:
         from calibre_extensions import winutil
         self.handle_map = {}
 
-        if isbytestring(path):
+        if isinstance(path, bytes):
             path = path.decode(filesystem_encoding)
 
         if not os.path.exists(path):

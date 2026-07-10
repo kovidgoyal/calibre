@@ -10,7 +10,6 @@ import shutil
 import sys
 import time
 
-from calibre import isbytestring
 from calibre.constants import filesystem_encoding, islinux, ismacos, iswindows
 
 recycle = None
@@ -94,7 +93,7 @@ elif ismacos:
     from calibre_extensions.cocoa import send2trash
 
     def osx_recycle(path):
-        if isbytestring(path):
+        if isinstance(path, bytes):
             path = path.decode(filesystem_encoding)
         send2trash(path)
     recycle = osx_recycle
@@ -102,7 +101,7 @@ elif islinux:
     from calibre.utils.linux_trash import send2trash
 
     def fdo_recycle(path):
-        if isbytestring(path):
+        if isinstance(path, bytes):
             path = path.decode(filesystem_encoding)
         path = os.path.abspath(path)
         send2trash(path)

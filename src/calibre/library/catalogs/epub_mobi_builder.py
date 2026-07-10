@@ -14,7 +14,7 @@ from xml.sax.saxutils import escape
 
 from lxml import etree
 
-from calibre import as_unicode, force_unicode, isbytestring, prepare_string_for_xml, replace_entities, strftime, xml_replace_entities
+from calibre import as_unicode, force_unicode, prepare_string_for_xml, replace_entities, strftime, xml_replace_entities
 from calibre.constants import cache_dir, ismacos
 from calibre.customize.conversion import DummyReporter
 from calibre.customize.ui import output_profiles
@@ -2657,7 +2657,7 @@ class CatalogBuilder:
                 xmlns=XHTML_NS,
             )
             for k, v in args.items():
-                if isbytestring(v):
+                if isinstance(v, bytes):
                     args[k] = v.decode('utf-8')
                 elif isinstance(v, Tag):
                     args[k] = str(v)

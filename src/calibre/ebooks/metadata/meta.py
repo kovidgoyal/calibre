@@ -6,7 +6,6 @@ import os
 
 import regex
 
-from calibre import isbytestring
 from calibre.constants import filesystem_encoding
 from calibre.customize.ui import get_file_type_metadata, set_file_type_metadata
 from calibre.ebooks.metadata import MetaInformation, string_to_authors
@@ -129,7 +128,7 @@ def set_metadata(stream, mi, stream_type='lrf', report_error=None):
 
 
 def metadata_from_filename(name, pat=None, fallback_pat=None):
-    if isbytestring(name):
+    if isinstance(name, bytes):
         name = name.decode(filesystem_encoding, 'replace')
     name = name.rpartition('.')[0]
     mi = MetaInformation(None, None)
