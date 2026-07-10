@@ -974,7 +974,6 @@ class GenericRulesTable(QTableWidget):
         vbl.addWidget(self.move_rule_down_tb)
 
         _lay = self._group_layout
-        assert _lay is not None
         assert isinstance(_lay, QBoxLayout)
         _lay.addLayout(vbl)
 
@@ -1020,7 +1019,6 @@ class GenericRulesTable(QTableWidget):
         last = rows[-1].row() + 1
 
         _name_widget = self.cellWidget(first-1, self.COLUMNS['NAME']['ordinal'])
-        assert _name_widget is not None
         assert isinstance(_name_widget, QLineEdit)
         first_rule_name = str(_name_widget.text()).strip()
         message = _("Are you sure you want to delete '%s'?") % (first_rule_name)
@@ -1142,7 +1140,6 @@ class GenericRulesTable(QTableWidget):
 
         current_row = self.currentRow()
         _rn_widget = self.cellWidget(current_row, 1)
-        assert _rn_widget is not None
         assert isinstance(_rn_widget, QLineEdit)
         _rn_widget.home(False)
         self.select_and_scroll_to_row(current_row)
