@@ -373,9 +373,10 @@ class SearchQueryParser:
         return self._parse(query, candidates=candidates)
 
     def _get_tree(self, query):
-        try:
-            res = self.sqp_parse_cache.get(query, None)
-        except AttributeError:
+        sqp_cache = self.sqp_parse_cache
+        if sqp_cache is not None:
+            res = sqp_cache.get(query, None)
+        else:
             res = None
         if res is not None:
             return res

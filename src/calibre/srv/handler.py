@@ -39,12 +39,15 @@ class Context:
             self._notify_changes(library_path, change_event)
 
     def start_job(self, name, module, func, args=(), kwargs=None, job_done_callback=None, job_data=None):
+        assert self.jobs_manager is not None
         return self.jobs_manager.start_job(name, module, func, args, kwargs, job_done_callback, job_data)
 
     def job_status(self, job_id):
+        assert self.jobs_manager is not None
         return self.jobs_manager.job_status(job_id)
 
     def abort_job(self, job_id):
+        assert self.jobs_manager is not None
         return self.jobs_manager.abort_job(job_id)
 
     def is_field_displayable(self, field):
@@ -207,6 +210,7 @@ class Handler:
             self.router.load_routes(vars(module).values())
         self._load_content_server_plugin_routes()
         self.router.finalize()
+        assert self.router.ctx is not None
         self.router.ctx.url_for = self.router.url_for
         self.dispatch = self.router.dispatch
 
@@ -226,14 +230,18 @@ class Handler:
                     pass
 
     def set_log(self, log):
+        assert self.router.ctx is not None
         self.router.ctx.log = log
         if self.auth_controller is not None:
             self.auth_controller.log = log
 
     def set_jobs_manager(self, jobs_manager):
+        assert self.router.ctx is not None
         self.router.ctx.jobs_manager = jobs_manager
 
     def close(self):
+        assert self.router is not None
+        assert self.router.ctx is not None
         self.router.ctx.library_broker.close()
 
     @property

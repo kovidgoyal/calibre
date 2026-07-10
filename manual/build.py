@@ -53,6 +53,7 @@ def build_manual(language, base):
 
         def run_cmd(cmd):
             p = subprocess.Popen(cmd, stdout=open(os.devnull, 'wb'), stdin=subprocess.PIPE)
+            assert p.stdin is not None
             p.stdin.close()
             return p.wait()
         try:

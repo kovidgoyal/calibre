@@ -612,11 +612,13 @@ class IdentifiersField(ManyToManyField):
         ids = self.table.book_col_map.get(book_id, None)
         if ids:
             ids = ids.copy()
-        else:
+        elif default_value is not None:
             try:
                 ids = default_value.copy()  # in case default_value is a mutable dict
             except AttributeError:
                 ids = default_value
+        else:
+            ids = default_value
         return ids
 
     def sort_keys_for_books(self, get_metadata, lang_map):

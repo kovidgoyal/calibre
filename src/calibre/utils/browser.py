@@ -20,6 +20,7 @@ class ModernHTTPSHandler(HTTPSHandler):
             key_file, cert_file = self.client_cert_manager.find_key_cert(
                 req.get_full_url())
             if cert_file:
+                assert self.ssl_context is not None
                 self.ssl_context.load_cert_chain(cert_file, key_file)
 
         def conn_factory(hostport, **kw):

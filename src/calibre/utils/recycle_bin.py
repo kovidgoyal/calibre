@@ -62,6 +62,9 @@ if iswindows:
             raise ValueError(f'Cannot recycle paths that have newlines in them ({path!r})')
         with rlock:
             start_recycler()
+            assert recycler is not None
+            assert recycler.stdin is not None
+            assert recycler.stdout is not None
             recycler.stdin.write(path.encode('utf-8'))
             recycler.stdin.write(b'\n')
             recycler.stdin.flush()

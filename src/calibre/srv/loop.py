@@ -525,6 +525,7 @@ class ServerLoop:
         from calibre.utils.network import format_addr_for_url
 
         self.connection_map = {}
+        assert self.socket is not None
         if not self.socket_was_preactivated:
             self.socket.listen(min(socket.SOMAXCONN, 128))
         self.bound_address = ba = self.socket.getsockname()
@@ -558,6 +559,7 @@ class ServerLoop:
         self.serve()
 
     def setup_socket(self):
+        assert self.socket is not None
         self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.socket.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
 
@@ -618,6 +620,7 @@ class ServerLoop:
         if readable:
             writable = []
         else:
+            assert self.socket is not None
             try:
                 readable, writable, _ = select.select([self.socket.fileno(), self.control_out.fileno()] + read_needed, write_needed, [], self.opts.timeout)
             except ValueError:  # self.socket.fileno() == -1
@@ -706,6 +709,7 @@ class ServerLoop:
         conn.close()
 
     def get_actions(self, readable, writable):
+        assert self.socket is not None
         listener = self.socket.fileno()
         control = self.control_out.fileno()
         for s in readable:
@@ -747,6 +751,7 @@ class ServerLoop:
             yield s, conn, WRITE
 
     def accept(self):
+        assert self.socket is not None
         try:
             sock, addr = self.socket.accept()
             set_socket_inherit(sock, False), sock.setblocking(False)
@@ -762,6 +767,7 @@ class ServerLoop:
         self.jobs_manager.shutdown()
         with suppress(socket.error):
             if getattr(self, 'socket', None):
+                assert self.socket is not None
                 self.socket.close()
                 self.socket = None
         for s, conn in tuple(self.connection_map.items()):

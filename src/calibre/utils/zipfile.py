@@ -596,6 +596,7 @@ class ZipExtFile(io.BufferedIOBase):
             # separate newlines - '\r', '\n' due to coincidental readaheads.
             #
             match = self.PATTERN.search(readahead)
+            assert match is not None
             newline = match.group('newline')
             if newline is not None:
                 if self.newlines is None:
@@ -605,6 +606,7 @@ class ZipExtFile(io.BufferedIOBase):
                 self._offset += len(newline)
                 return line + b'\n'
 
+            assert match is not None
             chunk = match.group('chunk')
             if limit >= 0:
                 chunk = chunk[: limit - len(line)]
@@ -844,12 +846,14 @@ class ZipFile:
             self._RealGetContents()
         except BadZipfile:
             if not self._filePassed:
+                assert self.fp is not None
                 self.fp.close()
                 self.fp = None
             raise
 
     def _RealGetContents(self):
         '''Read in the table of contents for the ZIP file.'''
+        assert self.fp is not None
         fp = self.fp
         try:
             endrec = _EndRecData(fp)
@@ -916,6 +920,7 @@ class ZipFile:
                 print('total', total)
 
     def _calculate_file_offsets(self):
+        assert self.fp is not None
         for zip_info in self.filelist:
             self.fp.seek(zip_info.header_offset, 0)
             fheader = self.fp.read(30)
@@ -955,6 +960,7 @@ class ZipFile:
     def delete(self, name):
         '''Delete the file from the archive. If it appears multiple
         times only the first instance will be deleted.'''
+        assert self.fp is not None
         for i in range(len(self.filelist)):
             if self.filelist[i].filename == name:
                 if self.debug:
@@ -1052,6 +1058,7 @@ class ZipFile:
         if not self.fp:
             raise RuntimeError(
                   'Attempt to read ZIP archive that was already closed')
+        assert self.fp is not None
 
         # Make sure we have an info object
         if isinstance(name, ZipInfo):
@@ -1069,9 +1076,11 @@ class ZipFile:
                 pos += len(ans)
                 return ans
         else:
+            assert self.fp is not None
             self.fp.seek(zinfo.header_offset, os.SEEK_SET)
             def read(n):
                 nonlocal pos
+                assert self.fp is not None
                 ans = self.fp.read(n)
                 pos += len(ans)
                 return ans

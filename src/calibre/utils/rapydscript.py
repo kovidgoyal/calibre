@@ -144,7 +144,9 @@ document.title = 'compiler initialized';
                 self.spin_loop()
 
         def spin_loop(self):
-            QApplication.instance().processEvents(QEventLoop.ProcessEventsFlag.ExcludeUserInputEvents)
+            app = QApplication.instance()
+            assert app is not None
+            app.processEvents(QEventLoop.ProcessEventsFlag.ExcludeUserInputEvents)
 
         def javaScriptConsoleMessage(self, level, message, lineNumber, sourceID):
             if level == QWebEnginePage.JavaScriptConsoleMessageLevel.ErrorMessageLevel:
@@ -418,7 +420,9 @@ def run_rapydscript_tests():
 
         def spin_loop(self):
             while self.working:
-                QApplication.instance().processEvents(QEventLoop.ProcessEventsFlag.ExcludeUserInputEvents)
+                app = QApplication.instance()
+                assert app is not None
+                app.processEvents(QEventLoop.ProcessEventsFlag.ExcludeUserInputEvents)
             return self.result
 
         def callback(self, result):
@@ -501,16 +505,24 @@ def compile_srv():
         base_css = f.read()
     with open(os.path.join(base, 'src', 'pyj', 'book_list', 'constants.pyj')) as f:
         constants = f.read()
-    cs_top_bar_host_id = re.search(r"^cs_top_bar_host_id = '(.+?)'", constants, flags=re.M).group(1)
-    book_list_container_id = re.search(r"^book_list_container_id = '(.+?)'", constants, flags=re.M).group(1)
-    read_book_container_id = re.search(r"^read_book_container_id = '(.+?)'", constants, flags=re.M).group(1)
+    m = re.search(r"^cs_top_bar_host_id = '(.+?)'", constants, flags=re.M)
+    assert m is not None
+    cs_top_bar_host_id = m.group(1)
+    m = re.search(r"^book_list_container_id = '(.+?)'", constants, flags=re.M)
+    assert m is not None
+    book_list_container_id = m.group(1)
+    m = re.search(r"^read_book_container_id = '(.+?)'", constants, flags=re.M)
+    assert m is not None
+    read_book_container_id = m.group(1)
     base_css = base_css.replace('CS_TOP_BAR_HOST_ID', cs_top_bar_host_id)
     base_css = base_css.replace('BOOK_LIST_CONTAINER_ID', book_list_container_id)
     base_css = base_css.replace('READ_BOOK_CONTAINER_ID', read_book_container_id)
     rapydscript_dir = os.path.join(base, 'src', 'pyj')
     rb = os.path.join(base, 'src', 'calibre', 'srv', 'render_book.py')
     with open(rb, 'rb') as f:
-        rv = str(int(re.search(br'^RENDER_VERSION\s+=\s+(\d+)', f.read(), re.M).group(1)))
+        rv_m = re.search(br'^RENDER_VERSION\s+=\s+(\d+)', f.read(), re.M)
+        assert rv_m is not None
+        rv = str(int(rv_m.group(1)))
     mathjax_version = json.loads(P('mathjax/manifest.json', data=True, allow_user_override=False))['etag']
     base = os.path.join(base, 'resources', 'content-server')
     fname = os.path.join(rapydscript_dir, 'srv.pyj')

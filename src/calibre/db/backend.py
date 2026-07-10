@@ -1133,18 +1133,26 @@ class DB:
 
     @property
     def fts_has_idle_workers(self):
-        return self.fts_enabled and self.fts.pool.num_of_idle_workers > 0
+        if not self.fts_enabled:
+            return False
+        assert self.fts is not None
+        return self.fts.pool.num_of_idle_workers > 0
 
     @property
     def fts_num_of_workers(self):
-        return self.fts.pool.num_of_workers if self.fts_enabled else 0
+        if not self.fts_enabled:
+            return 0
+        assert self.fts is not None
+        return self.fts.pool.num_of_workers
 
     @fts_num_of_workers.setter
     def fts_num_of_workers(self, num):
         if self.fts_enabled:
+            assert self.fts is not None
             self.fts.pool.num_of_workers = num
 
     def get_next_fts_job(self):
+        assert self.fts is not None
         return self.fts.get_next_fts_job()
 
     def reindex_fts(self):
@@ -1154,9 +1162,11 @@ class DB:
             self.conn.fts_dbpath = None
 
     def remove_dirty_fts(self, book_id, fmt):
+        assert self.fts is not None
         return self.fts.remove_dirty(book_id, fmt)
 
     def queue_fts_job(self, book_id, fmt, path, fmt_size, fmt_hash, start_time):
+        assert self.fts is not None
         return self.fts.queue_job(book_id, fmt, path, fmt_size, fmt_hash, start_time)
 
     def commit_fts_result(self, book_id, fmt, fmt_size, fmt_hash, text, err_msg):
@@ -1164,19 +1174,23 @@ class DB:
             return self.fts.commit_result(book_id, fmt, fmt_size, fmt_hash, text, err_msg)
 
     def fts_unindex(self, book_id, fmt=None):
+        assert self.fts is not None
         self.fts.unindex(book_id, fmt=fmt)
 
     def reindex_fts_book(self, book_id, *fmts):
+        assert self.fts is not None
         return self.fts.dirty_book(book_id, *fmts)
 
     def fts_search(self,
         fts_engine_query, use_stemming, highlight_start, highlight_end, snippet_size, restrict_to_book_ids, return_text, process_each_result
     ):
+        assert self.fts is not None
         yield from self.fts.search(
             fts_engine_query, use_stemming, highlight_start, highlight_end, snippet_size, restrict_to_book_ids, return_text, process_each_result)
 
     def shutdown_fts(self):
         if self.fts_enabled:
+            assert self.fts is not None
             self.fts.shutdown()
 
     def join_fts(self):
@@ -1438,6 +1452,7 @@ class DB:
                     unload_user_template_functions(self.library_id)
                 except Exception:
                     pass
+            assert self._conn is not None
             self._conn.close(force)
             del self._conn
             self.is_closed = True
@@ -1486,6 +1501,7 @@ class DB:
             self.execute('INSERT INTO annotations_fts(annotations_fts) VALUES("rebuild");')
             self.execute('INSERT INTO annotations_fts_stemmed(annotations_fts_stemmed) VALUES("rebuild");')
         if self.fts_enabled and include_fts_db:
+            assert self.fts is not None
             self.fts.vacuum()
         if include_notes_db:
             self.notes.vacuum(self.conn)

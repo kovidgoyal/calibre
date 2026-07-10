@@ -80,6 +80,8 @@ class Server:
 
     @property
     def user_manager(self):
+        assert self.handler.router is not None
+        assert self.handler.router.ctx is not None
         return self.handler.router.ctx.user_manager
 
     def start(self):
@@ -131,6 +133,7 @@ class Server:
                 pass
         reset_caches()  # we reset the cache as the server tdir has changed
         try:
+            assert self.loop is not None
             self.loop.serve_forever()
         except BaseException as e:
             self.exception = e

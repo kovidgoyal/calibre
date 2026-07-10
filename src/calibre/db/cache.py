@@ -1831,10 +1831,12 @@ class Cache:
             self.backend.execute(f'INSERT INTO books_pages_link(book,needs_scan) VALUES ({book_id},1)')
         else:
             self.backend.execute(f'UPDATE books_pages_link SET needs_scan=1 WHERE book={book_id}')
+        assert self.maintain_page_counts is not None
         self.maintain_page_counts.queue_scan(book_id)
 
     @property
     def page_count_failures_log_path(self) -> str:
+        assert self.maintain_page_counts is not None
         return self.maintain_page_counts.failure_log_path
 
     @write_api

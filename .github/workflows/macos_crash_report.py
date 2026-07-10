@@ -232,6 +232,7 @@ class CrashReportBase:
     @cached_property
     def timestamp(self) -> datetime:
         timestamp = self._metadata.get('timestamp')
+        assert timestamp is not None
         timestamp_without_timezone = timestamp.rsplit(' ', 1)[0]
         return datetime.strptime(timestamp_without_timezone, '%Y-%m-%d %H:%M:%S.%f')
 

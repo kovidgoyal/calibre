@@ -316,9 +316,12 @@ class ChooseModel(Dialog):
         s.addWidget(m)
         self.details = d = ModelDetails(self)
         s.addWidget(d)
-        m.selectionModel().currentChanged.connect(self.current_changed)
+        sm = m.selectionModel()
+        assert sm is not None
+        sm.currentChanged.connect(self.current_changed)
 
         b = self.bb.addButton(_('Clear choice'), QDialogButtonBox.ButtonRole.ActionRole)
+        assert b is not None
         b.setIcon(QIcon.ic('trash.png'))
         b.clicked.connect(lambda : setattr(self, 'model_id', ''))
         b.setToolTip(_('Let the AI model be chosen dynamically based on the query being made'))
@@ -330,7 +333,9 @@ class ChooseModel(Dialog):
         self.update_sorts()
 
     def current_changed(self):
-        idx = self.models.selectionModel().currentIndex()
+        sm = self.models.selectionModel()
+        assert sm is not None
+        idx = sm.currentIndex()
         if idx.isValid():
             model = idx.data(Qt.ItemDataRole.UserRole)
             self.details.show_model_details(model)
@@ -366,7 +371,9 @@ class ChooseModel(Dialog):
             filters.append(lambda m: not m.is_moderated)
         self.proxy_model.set_filters(*filters)
         num_showing = self.proxy_model.rowCount(QModelIndex())
-        total = self.proxy_model.sourceModel().rowCount(QModelIndex())
+        src_model = self.proxy_model.sourceModel()
+        assert src_model is not None
+        total = src_model.rowCount(QModelIndex())
         if num_showing == total:
             self.counts.setText(_('{} models').format(num_showing))
         else:

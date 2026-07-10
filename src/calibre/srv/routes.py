@@ -212,6 +212,7 @@ class Route:
         args = {k:'' for k in self.defaults}
         args.update(kwargs)
         args = {k:quoted(v) for k, v in args.items()}
+        assert self.var_pat is not None
         route = self.var_pat.sub(lambda m:'{{{}}}'.format(m.group(1).partition('=')[0].lstrip('+')), self.endpoint.route)
         return route.format(**args).rstrip('/')
 
@@ -312,6 +313,7 @@ class Router:
 
         self.init_session(endpoint_, data)
         if endpoint_.needs_db_write:
+            assert self.ctx is not None
             self.ctx.check_for_write_access(data)
         ans = endpoint_(self.ctx, data, *args)
         self.finalize_session(endpoint_, data, ans)

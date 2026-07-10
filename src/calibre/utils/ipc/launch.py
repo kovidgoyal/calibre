@@ -229,6 +229,7 @@ class Worker:
                 for fd in pass_fds:
                     os.set_handle_inheritable(fd, False)
         if 'stdin' in args:
+            assert self.child.stdin is not None
             self.child.stdin.close()
 
         self.log_path = ret

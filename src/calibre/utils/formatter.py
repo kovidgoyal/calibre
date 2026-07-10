@@ -1851,6 +1851,7 @@ class TemplateFormatter(string.Formatter):
         try:
             db = get_database(self.book, None)
             db = db if db is not None else self.database
+            assert self.python_context_object is not None
             self.python_context_object.set_values(
                          db=db,
                          globals=self.global_vars,

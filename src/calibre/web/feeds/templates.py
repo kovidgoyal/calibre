@@ -77,7 +77,10 @@ class EmbeddedContent(Template):
         elements = html.fragments_fromstring(text)
         self.root = HTML(head,
                 BODY(H2(article.title), DIV()))
-        div = self.root.find('body').find('div')
+        body = self.root.find('body')
+        assert body is not None
+        div = body.find('div')
+        assert div is not None
         if elements and isinstance(elements[0], str):
             div.text = elements[0]
             elements = list(elements)[1:]

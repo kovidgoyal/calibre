@@ -572,8 +572,11 @@ def run_optimizer(file_path, cmd, as_filter=False, input_data=None):
         stderr = subprocess.PIPE if as_filter else subprocess.STDOUT
         creationflags = subprocess.DETACHED_PROCESS if iswindows else 0
         p = subprocess.Popen(cmd, cwd=cwd, stdout=subprocess.PIPE, stderr=stderr, stdin=stdin, creationflags=creationflags)
-        stderr = p.stderr if as_filter else p.stdout
         if as_filter:
+            assert p.stderr is not None
+            assert p.stdout is not None
+            assert p.stdin is not None
+            stderr = p.stderr
             src = input_data or open(file_path, 'rb')
 
             def copy(src, dest):
@@ -587,15 +590,22 @@ def run_optimizer(file_path, cmd, as_filter=False, input_data=None):
             outw = Thread(name='CopyOutput', target=copy, args=(p.stdout, outf))
             outw.daemon = True
             outw.start()
+        else:
+            assert p.stdout is not None
+            stderr = p.stdout
         raw = force_unicode(stderr.read())
         if p.wait() != 0:
             p.stdout.close()
             if as_filter:
+                assert p.stderr is not None
+                assert p.stdin is not None
                 p.stderr.close()
                 p.stdin.close()
             return raw
         else:
             if as_filter:
+                assert p.stdin is not None
+                assert p.stderr is not None
                 outw.join(60.0), inw.join(60.0)
                 p.stdin.close()
                 p.stderr.close()

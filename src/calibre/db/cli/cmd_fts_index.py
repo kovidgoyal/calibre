@@ -32,6 +32,7 @@ def implementation(db, notify_changes, action, adata=None):
             a = Exception(_('Full text indexing is not enabled on this library'))
             a.suppress_traceback = True
             raise a
+        assert adata is not None
         items = adata.get('items')
         if items:
             for item in items:
@@ -46,6 +47,7 @@ def implementation(db, notify_changes, action, adata=None):
             a = Exception(_('Full text indexing is not enabled on this library'))
             a.suppress_traceback = True
             raise a
+        assert adata is not None
         if 'measure_state' in adata:
             db.fts_start_measuring_rate(measure=adata['measure_state'])
         if adata.get('speed'):

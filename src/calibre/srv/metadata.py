@@ -347,6 +347,7 @@ def create_toplevel_tree(category_data, items, field_metadata, opts, db):
                     node_id_map[last_category_node] = category_node_map[path] = node = {'id':last_category_node, 'children':[]}
                     category_nodes.append(last_category_node)
                     recount_nodes.append(node)
+                    assert current_root['children'] is not None
                     current_root['children'].append(node)
                     current_root = node
                 else:
@@ -359,6 +360,7 @@ def create_toplevel_tree(category_data, items, field_metadata, opts, db):
                 tooltip=tooltip
             )
             category_node_map[category] = node_id_map[last_category_node] = node = {'id':last_category_node, 'children':[]}
+            assert root['children'] is not None
             root['children'].append(node)
             category_nodes.append(last_category_node)
             recount_nodes.append(node)

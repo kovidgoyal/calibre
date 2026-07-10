@@ -597,6 +597,7 @@ class FFMLProcessor:
         raise ValueError(f'{message} on line {self.input_line} in "{self.document_name}"')
 
     def find(self, for_what, at_pos=-1):
+        assert self.input is not None
         pos = at_pos if at_pos >= 0 else self.input_pos
         p = self.input.find(for_what, pos)
         return -1 if p < 0 else p - pos
@@ -623,6 +624,7 @@ class FFMLProcessor:
         return txt
 
     def startswith(self, txt):
+        assert self.input is not None
         return self.input.startswith(txt, self.input_pos)
 
     def find_one_of(self, at_pos=-1):

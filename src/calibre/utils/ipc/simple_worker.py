@@ -71,10 +71,12 @@ class OffloadWorker:
         t.daemon = True
 
     def __call__(self, module, func, *args, **kwargs):
+        assert self.conn is not None
         eintr_retry_call(self.conn.send, (module, func, args, kwargs))
         return eintr_retry_call(self.conn.recv)
 
     def shutdown(self):
+        assert self.conn is not None
         try:
             eintr_retry_call(self.conn.send, None)
         except OSError:

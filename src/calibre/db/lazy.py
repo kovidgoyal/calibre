@@ -82,6 +82,7 @@ class FormatMetadata(MutableBase, MutableMapping):
 
     def _resolve(self):
         db = self._dbwref()
+        assert db is not None
         self._values = {}
         for f in self._formats:
             try:

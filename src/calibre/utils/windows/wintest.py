@@ -22,6 +22,7 @@ class TestWinutil(unittest.TestCase):
 
     def test_file_association(self):
         q = self.winutil.file_association('.txt')
+        assert q is not None
         self.assertIn('notepad.exe', q.lower())
         self.assertNotIn('\0', q)
         q = self.winutil.friendly_name(None, 'notepad.exe')

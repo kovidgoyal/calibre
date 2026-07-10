@@ -876,6 +876,7 @@ dl.notes dd:last-of-type { page-break-after: avoid }
     def generate_stylesheet(self):
         for name in self.stylestack:
             styles = self.styledict.get(name)
+            assert styles is not None
             # Preload with the family's default style
             if '__style-family' in styles and styles['__style-family'] in self.styledict:
                 familystyle = self.styledict[styles['__style-family']].copy()

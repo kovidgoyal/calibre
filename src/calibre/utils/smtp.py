@@ -99,6 +99,7 @@ def create_mail(from_, to, subject, text=None, attachment_data=None,
 
     if attachment_data is not None:
         assert attachment_data and attachment_name
+        assert attachment_type is not None
         try:
             maintype, subtype = attachment_type.split('/', 1)
         except Exception:

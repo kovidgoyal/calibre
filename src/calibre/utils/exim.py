@@ -105,9 +105,11 @@ class Exporter:
         while len(data) > 0:
             if self.current_part is None:
                 self.new_part()
+            assert self.current_part is not None
             max_size = self.part_size - self.tail_sz - self.current_part.tell()
             if max_size <= 0:
                 self.new_part()
+                assert self.current_part is not None
                 max_size = self.part_size - self.tail_sz
             chunk = data[:max_size]
             w = self.current_part.write(chunk)
@@ -333,21 +335,28 @@ class FileSource:
         return False
 
     def seek(self, amt, whence=os.SEEK_SET):
+        assert self.pos is not None
         return self.pos.seek(amt, whence)
 
     def tell(self):
+        assert self.pos is not None
         return self.pos.tell()
 
     def read(self, size=None):
+        assert self.pos is not None
         ans = self.pos.read(size)
         if self.check_hash and ans:
+            assert self.hasher is not None
             self.hasher.update(ans)
         return ans
 
     def close(self):
-        if self.check_hash and self.hasher.hexdigest() != self.digest:
-            self.importer.corrupted_files.append(self.description)
+        if self.check_hash:
+            assert self.hasher is not None
+            if self.hasher.hexdigest() != self.digest:
+                self.importer.corrupted_files.append(self.description)
         self.hasher = None
+        assert self.pos is not None
         self.pos.close()
         self.pos = None
 

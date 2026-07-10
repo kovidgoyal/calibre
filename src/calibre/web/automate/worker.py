@@ -77,6 +77,7 @@ class SingleObjectProtocol(asyncio.Protocol):
     def eof_received(self):
         if self.task is None:
             payload = {'exception': 'Complete message not received from client'}
+            assert self.transport is not None
             self.transport.write(msgpack_dumps(payload))
         return False  # Returning False closes the transport
 
@@ -90,6 +91,7 @@ class SingleObjectProtocol(asyncio.Protocol):
             import traceback
             payload = {'exception': str(e), 'traceback': traceback.format_exc()}
         finally:
+            assert self.transport is not None
             self.transport.write(msgpack_dumps(payload))
             self.transport.close()
 
@@ -207,6 +209,7 @@ async def async_main(
     stdout_is_tty = sys.stdout.isatty()
     try:
         path, server = await start_server(wh)
+        assert sys.__stdout__ is not None
         sys.__stdout__.write(json.dumps(path))
         sys.__stdout__.flush()
         if stdout_is_tty:
