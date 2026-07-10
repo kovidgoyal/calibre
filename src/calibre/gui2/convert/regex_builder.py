@@ -239,7 +239,8 @@ class RegexEdit(XPathEdit):
     def doc(self):
         return self.doc_cache
 
-    def setObjectName(self, *args):
+    def setObjectName(self, name=None):
+        args = (name,)
         super().setObjectName(*args)
         if hasattr(self, 'edit'):
             self.edit.initialize('regex_edit_'+str(self.objectName()))

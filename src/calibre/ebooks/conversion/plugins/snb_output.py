@@ -46,7 +46,8 @@ class SNBOutput(OutputFormatPlugin):
             help=_('Resize all the images for full screen mode. ')),
      }
 
-    def convert(self, oeb_book, output_path, input_plugin, opts, log):
+    def convert(self, oeb_book, output, input_plugin, opts, log):
+        output_path = output
         from lxml import etree
 
         from calibre.ebooks.snb.snbfile import SNBFile

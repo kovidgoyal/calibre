@@ -454,7 +454,8 @@ class BookInfo(QDialog, DropMixin):
         assert mi is not None
         self.refresh(mi.row_number, mi)
 
-    def move(self, a0=1):
+    def move(self, *args, **kwargs):
+        a0 = args[0] if args else 1
         view = self.view
         assert view is not None
         idx = view.currentIndex()

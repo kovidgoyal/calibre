@@ -20,10 +20,10 @@ class ProfileModel(QAbstractListModel):
         QAbstractListModel.__init__(self)
         self.profiles = list(profiles)
 
-    def rowCount(self, *args):
+    def rowCount(self, parent=...):
         return len(self.profiles)
 
-    def data(self, index, role):
+    def data(self, index, role=...):
         profile = self.profiles[index.row()]
         if role == Qt.ItemDataRole.DisplayRole:
             if profile.name.startswith('Default '):

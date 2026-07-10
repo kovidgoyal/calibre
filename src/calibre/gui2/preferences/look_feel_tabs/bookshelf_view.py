@@ -63,7 +63,7 @@ class BookshelfTab(QTabWidget, LazyConfigWidgetBase, Ui_Form):
         self.current_font_choice = gprefs.defaults['bookshelf_font'].copy()
         super().__init__(parent)
 
-    def restore_defaults(self):
+    def restore_defaults(self, *args):
         super().restore_defaults()
         self.current_font_choice = gprefs.defaults['bookshelf_font'].copy()
         self.update_font_display()

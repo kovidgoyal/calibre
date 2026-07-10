@@ -291,7 +291,8 @@ class INotifyTreeWatcher(INotify):
         self.watched_rmap[wd] = path
         return True
 
-    def process_event(self, wd, mask, cookie, name):
+    def process_event(self, *args):
+        wd, mask, cookie, name = args
         if wd == -1 and (mask & self.Q_OVERFLOW):
             # We missed some INOTIFY events, so we don't
             # know the state of any tracked dirs.

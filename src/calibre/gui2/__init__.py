@@ -1017,14 +1017,15 @@ class FileIconProvider(QFileIconProvider):
             key = self.key_from_ext(ext)
         return self.cached_icon(key)
 
-    def icon(self, arg):
+    def icon(self, *args, **kwargs):
+        arg = args[0] if args else None
         if isinstance(arg, QFileInfo):
             return self.load_icon(arg)
         if arg == QFileIconProvider.IconType.Folder:
             return self.icons['dir']
         if arg == QFileIconProvider.IconType.File:
             return self.icons['default']
-        return QFileIconProvider.icon(self, arg)
+        return QFileIconProvider.icon(self, *args, **kwargs)
 
 
 _file_icon_provider = None
@@ -1524,7 +1525,7 @@ class Application(QApplication):
     def __enter__(self):
         self.setQuitOnLastWindowClosed(False)
 
-    def __exit__(self, *args):
+    def __exit__(self, type, value, traceback):
         self.setQuitOnLastWindowClosed(True)
 
     def setup_unix_signals(self):

@@ -95,7 +95,7 @@ class GutenbergStore(StorePlugin):
         for result in search(query, max_results, timeout):
             yield result
 
-    def open(self, parent=None, detail_item=None, external=False):
+    def open(self, gui=None, parent=None, detail_item=None, external=False):
         url = detail_item or absurl('/')
         if external:
             open_url(url)

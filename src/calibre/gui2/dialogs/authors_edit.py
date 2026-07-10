@@ -38,8 +38,8 @@ class ItemDelegate(QStyledItemDelegate):
         QStyledItemDelegate.__init__(self, parent)
         self.all_authors = all_authors
 
-    def sizeHint(self, *args):
-        return QStyledItemDelegate.sizeHint(self, *args) + QSize(0, 15)
+    def sizeHint(self, option, index):
+        return QStyledItemDelegate.sizeHint(self, option, index) + QSize(0, 15)
 
     def setEditorData(self, editor, index):
         name = str(index.data(Qt.ItemDataRole.DisplayRole) or '')
@@ -82,13 +82,14 @@ class List(QListWidget):
             return
         return QListWidget.keyPressEvent(self, e)
 
-    def addItem(self, *args):
+    def addItem(self, *args, **kwargs):
         try:
-            return QListWidget.addItem(self, *args)
+            return QListWidget.addItem(self, *args, **kwargs)
         finally:
             self.mark_as_editable()
 
-    def addItems(self, *args):
+    def addItems(self, labels):
+        args = (labels,) if labels is not None else ()
         try:
             return QListWidget.addItems(self, *args)
         finally:

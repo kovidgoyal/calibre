@@ -51,7 +51,7 @@ class Browser(QTextBrowser):
     def sizeHint(self) -> QSize:
         return QSize(600, 500)
 
-    def setHtml(self, text: str) -> None:
+    def setHtml(self, text) -> None:
         super().setHtml(text)
         doc = self.document()
         assert doc is not None
@@ -154,7 +154,7 @@ class Input(QWidget):
         b.clicked.connect(self.send_requested)
         l.addWidget(b, alignment=Qt.AlignmentFlag.AlignCenter)
 
-    def setFocus(self, reason) -> None:
+    def setFocus(self, reason=...) -> None:
         self.text_input.setFocus(reason)
 
     @property
@@ -206,7 +206,7 @@ class ChatWidget(QWidget):
         self.line_spacing = self.browser.fontMetrics().lineSpacing()
         self.disclaimer_label.setVisible(False)
 
-    def setFocus(self, reason) -> None:
+    def setFocus(self, reason=...) -> None:
         self.input.setFocus(reason)
 
     def wrap_content_in_padding_table(self, html: str, background_color: str = '') -> str:

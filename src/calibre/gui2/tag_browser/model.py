@@ -1564,10 +1564,10 @@ class TagsModel(QAbstractItemModel):  # {{{
             if category.category_key == name:
                 return self.index(row, 0, QModelIndex())
 
-    def columnCount(self, parent):
+    def columnCount(self, parent=...):
         return 1
 
-    def data(self, index, role):
+    def data(self, index, role=...):
         if not index.isValid():
             return None
         item = self.get_node(index)
@@ -1816,7 +1816,7 @@ class TagsModel(QAbstractItemModel):  # {{{
                 all_cats[cat] = new_cat
         ciuc_db.new_api.set_pref('user_categories', all_cats)
 
-    def headerData(self, *args):
+    def headerData(self, section, orientation, role=...):
         return None
 
     def flags(self, index, *args):
@@ -1893,7 +1893,7 @@ class TagsModel(QAbstractItemModel):  # {{{
             parent = tparent
         return parent
 
-    def index(self, row, column, parent):
+    def index(self, row, column, parent=...):
         if not self.hasIndex(row, column, parent):
             return QModelIndex()
 
@@ -1910,7 +1910,7 @@ class TagsModel(QAbstractItemModel):  # {{{
         ans = self.createIndex(row, column, child_item)
         return ans
 
-    def parent(self, child):
+    def parent(self, child=..., index=...):
         if not child.isValid():
             return QModelIndex()
 
@@ -1925,7 +1925,7 @@ class TagsModel(QAbstractItemModel):  # {{{
             return QModelIndex()
         return ans
 
-    def rowCount(self, parent):
+    def rowCount(self, parent=...):
         if parent.column() > 0:
             return 0
 

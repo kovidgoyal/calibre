@@ -84,7 +84,8 @@ class TXTOutput(OutputFormatPlugin):
                    'color displayed by the reader (generally this is black).')),
      }
 
-    def convert(self, oeb_book, output_path, input_plugin, opts, log):
+    def convert(self, oeb_book, output, input_plugin, opts, log):
+        output_path = output
         from calibre.ebooks.txt.newlines import TxtNewlines, specified_newlines
         from calibre.ebooks.txt.txtml import TXTMLizer
         from calibre.utils.cleantext import clean_ascii_chars
@@ -127,7 +128,8 @@ class TXTZOutput(TXTOutput):
     author = 'John Schember'
     file_type = 'txtz'
 
-    def convert(self, oeb_book, output_path, input_plugin, opts, log):
+    def convert(self, oeb_book, output, input_plugin, opts, log):
+        output_path = output
         from calibre.ebooks.oeb.base import OEB_IMAGES, xml2str
         from calibre.utils.zipfile import ZipFile
 

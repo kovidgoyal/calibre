@@ -173,11 +173,11 @@ class TbHierarchyTab(LazyConfigWidgetBase, Ui_Form):
                 error_dialog(self, _('Import layout'),
                              _('<p>Could not read field list. Error:<br>%s')%err, show=True)
 
-    def restore_defaults(self):
+    def restore_defaults(self, *args):
         self.tb_hierarchical_cats_model.restore_defaults()
         self.reset_tb_search_order()
 
-    def commit(self):
+    def commit(self, *args):
         self.tb_search_order_commit()
         self.tb_hierarchical_cats_model.commit()
         return LazyConfigWidgetBase.commit(self)

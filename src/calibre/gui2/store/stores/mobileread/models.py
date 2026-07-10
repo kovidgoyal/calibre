@@ -54,18 +54,18 @@ class BooksModel(QAbstractItemModel):
     def index(self, row, column, parent=QModelIndex()):
         return self.createIndex(row, column)
 
-    def parent(self, child):
+    def parent(self, child=...):
         if not child.isValid() or child.internalId() == 0:
             return QModelIndex()
         return self.createIndex(0, 0)
 
-    def rowCount(self, *args):
+    def rowCount(self, parent=...):
         return len(self.books)
 
-    def columnCount(self, *args):
+    def columnCount(self, parent=...):
         return len(self.HEADERS)
 
-    def headerData(self, section, orientation, role):
+    def headerData(self, section, orientation, role=...):
         if role != Qt.ItemDataRole.DisplayRole:
             return None
         text = ''
@@ -76,7 +76,7 @@ class BooksModel(QAbstractItemModel):
         else:
             return (section+1)
 
-    def data(self, index, role):
+    def data(self, index, role=...):
         row, col = index.row(), index.column()
         result = self.books[row]
         if role == Qt.ItemDataRole.DisplayRole:
@@ -98,7 +98,7 @@ class BooksModel(QAbstractItemModel):
             text = result.formats
         return text
 
-    def sort(self, column, order, reset=True):
+    def sort(self, column, order=..., reset=True):
         self.sort_col = column
         self.sort_order = order
         if not self.books:
@@ -127,7 +127,7 @@ class SearchFilter(SearchQueryParser):
     def universal_set(self):
         return self.srs
 
-    def get_matches(self, location, query):
+    def get_matches(self, location, query, candidates=None):
         location = location.lower().strip()
         if location == 'authors':
             location = 'author'

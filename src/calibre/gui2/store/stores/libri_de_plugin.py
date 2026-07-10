@@ -31,7 +31,7 @@ except ImportError:
 
 class LibreDEStore(BasicStoreConfig, StorePlugin):
 
-    def open(self, parent=None, detail_item=None, external=False):
+    def open(self, gui=None, parent=None, detail_item=None, external=False):
         url = 'https://clk.tradedoubler.com/click?p=324630&a=3252627'
         url_details = ('https://clk.tradedoubler.com/click?p=324630&a=3252627'
                        '&url=https%3A%2F%2Fwww.ebook.de%2Fshop%2Faction%2FproductDetails%3FartiId%3D{0}')

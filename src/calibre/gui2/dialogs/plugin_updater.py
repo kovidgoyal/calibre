@@ -372,18 +372,18 @@ class DisplayPluginModel(QAbstractTableModel):
         self.headers = list(map(str, [_('Plugin name'), _('Donate'), _('Status'), _('Installed'),
                                       _('Available'), _('Released'), _('calibre'), _('Author')]))
 
-    def rowCount(self, *args):
+    def rowCount(self, parent=...):
         return len(self.display_plugins)
 
-    def columnCount(self, *args):
+    def columnCount(self, parent=...):
         return len(self.headers)
 
-    def headerData(self, section, orientation, role):
+    def headerData(self, section, orientation, role=...):
         if role == Qt.ItemDataRole.DisplayRole and orientation == Qt.Orientation.Horizontal:
             return self.headers[section]
         return None
 
-    def data(self, index, role):
+    def data(self, index, role=...):
         if not index.isValid():
             return None
         row, col = index.row(), index.column()

@@ -451,7 +451,8 @@ class Document(QGraphicsScene):
         self.chapters.append(Chapter(oddscreen, evenscreen, pages, object_to_page_map))
         self.chapter_map[chapter.id] = len(self.chapters)-1
 
-    def render(self, lrf, load_substitutions=True):
+    def render(self, painter=None, target=None, source=None, mode=None, load_substitutions=True):
+        lrf = painter
         self.dpi = lrf.device_info.dpi/10.
         self.ruby_tags = dict(**lrf.ruby_tags)
         self.load_fonts(lrf, load_substitutions)

@@ -203,10 +203,10 @@ class Images(QAbstractListModel):
         self.build()
         self.endResetModel()
 
-    def rowCount(self, *args):
+    def rowCount(self, parent=None):
         return len(self.image_names)
 
-    def data(self, index, role):
+    def data(self, index, role=None):
         try:
             name = self.image_names[index.row()]
         except IndexError:

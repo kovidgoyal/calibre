@@ -331,7 +331,7 @@ class RecipeModel(QAbstractItemModel, AdaptSQP):
     def get_recipe_specific_option_metadata(self, urn):
         return self.scheduler_config.get_recipe_specific_option_metadata(urn)
 
-    def get_matches(self, location, query):
+    def get_matches(self, location, query, candidates=None):
         query = query.strip().lower()
         if not query:
             return self.universal_set()
@@ -363,16 +363,16 @@ class RecipeModel(QAbstractItemModel, AdaptSQP):
         self.do_refresh(restrict_to_urns=results)
         self.searched.emit(True)
 
-    def columnCount(self, parent):
+    def columnCount(self, parent=...):
         return 1
 
-    def data(self, index, role):
+    def data(self, index, role=...):
         if not index.isValid():
             return None
         item = index.internalPointer()
         return item.data(role)
 
-    def headerData(self, *args):
+    def headerData(self, section, orientation, role=...):
         return None
 
     def flags(self, index):
@@ -384,7 +384,7 @@ class RecipeModel(QAbstractItemModel, AdaptSQP):
     def resort(self):
         self.do_refresh()
 
-    def index(self, row, column, parent):
+    def index(self, row, column, parent=...):
         if not self.hasIndex(row, column, parent):
             return QModelIndex()
 
@@ -401,7 +401,7 @@ class RecipeModel(QAbstractItemModel, AdaptSQP):
         ans = self.createIndex(row, column, child_item)
         return ans
 
-    def parent(self, child):
+    def parent(self, child=..., index=...):
         if not child.isValid():
             return QModelIndex()
 
@@ -414,7 +414,7 @@ class RecipeModel(QAbstractItemModel, AdaptSQP):
         ans = self.createIndex(parent_item.row(), 0, parent_item)
         return ans
 
-    def rowCount(self, parent):
+    def rowCount(self, parent=...):
         if parent.column() > 0:
             return 0
 

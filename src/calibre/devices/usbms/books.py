@@ -127,7 +127,7 @@ class BookList(_BookList):
     def remove_book(self, book):
         self.remove(book)
 
-    def get_collections(self):
+    def get_collections(self, collection_attributes=None):
         return {}
 
 
@@ -158,7 +158,7 @@ class CollectionsBookList(BookList):
                         error_value='GET_CATEGORY', book=None)
         return cat_name.strip()
 
-    def get_collections(self, collection_attributes):
+    def get_collections(self, collection_attributes=None):
         from calibre.utils.config import device_prefs
         debug_print('Starting get_collections:', device_prefs['manage_device_metadata'])
         debug_print('Renaming rules:', tweaks['sony_collection_renaming_rules'])

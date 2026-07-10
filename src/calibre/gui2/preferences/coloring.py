@@ -882,10 +882,10 @@ class RulesModel(QAbstractListModel):  # {{{
                 if rule is not None:
                     self.rules.append((kind, col, rule))
 
-    def rowCount(self, *args):
+    def rowCount(self, parent=...):
         return len(self.rules)
 
-    def data(self, index, role):
+    def data(self, index, role=...):
         row = index.row()
         try:
             kind, col, rule = self.rules[row]

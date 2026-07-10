@@ -109,15 +109,15 @@ class Worker(QWebEnginePage):
     def javaScriptPrompt(self, securityOrigin, msg, defaultValue):
         return True, defaultValue
 
-    def javaScriptConsoleMessage(self, level: QWebEnginePage.JavaScriptConsoleMessageLevel, message: str, line_num: int, source_id: str) -> None:
-        if source_id == 'userscript:scraper.js':
-            if level == QWebEnginePage.JavaScriptConsoleMessageLevel.InfoMessageLevel and message.startswith(self.token):
+    def javaScriptConsoleMessage(self, level: QWebEnginePage.JavaScriptConsoleMessageLevel, message: str | None, lineNumber: int, sourceID: str | None) -> None:
+        if sourceID == 'userscript:scraper.js':
+            if level == QWebEnginePage.JavaScriptConsoleMessageLevel.InfoMessageLevel and message is not None and message.startswith(self.token):
                 msg = json.loads(message.partition(' ')[2])
                 t = msg.get('type')
                 if t == 'messages_available':
                     self.runjs('window.get_messages()', self.dispatch_messages)
             else:
-                print(f'{source_id}:{line_num}:{message}')
+                print(f'{sourceID}:{lineNumber}:{message}')
 
     def dispatch_messages(self, messages: list) -> None:
         if not sip.isdeleted(self):

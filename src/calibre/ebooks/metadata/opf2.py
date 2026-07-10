@@ -346,11 +346,12 @@ class Spine(ResourceCollection):  # {{{
         ResourceCollection.__init__(self)
         self.manifest = manifest
 
-    def replace(self, start, end, ids):
+    def replace(self, start, end, items):
         '''
         Replace the items between start (inclusive) and end (not inclusive) with
         with the items identified by ids. ids can be a list of any length.
         '''
+        ids = items
         items = []
         for id in ids:
             path = self.manifest.path_for_id(id)

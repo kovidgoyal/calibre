@@ -83,7 +83,7 @@ def search_google(query, max_results=10, timeout=60, write_html_to=None):
 
 class GoogleBooksStore(BasicStoreConfig, StorePlugin):
 
-    def open(self, parent=None, detail_item=None, external=False):
+    def open(self, gui=None, parent=None, detail_item=None, external=False):
         url = 'https://books.google.com/books'
         if True or external or self.config.get('open_external', False):
             open_url(QUrl(url_slash_cleaner(detail_item or url)))
@@ -97,7 +97,7 @@ class GoogleBooksStore(BasicStoreConfig, StorePlugin):
         for result in search_google(query, max_results=max_results, timeout=timeout):
             yield result
 
-    def get_details(self, search_result, timeout):
+    def get_details(self, search_result, timeout=60):
         br = browser()
         with closing(br.open(search_result.detail_item, timeout=timeout)) as nf:
             doc = parse_html(nf.read())

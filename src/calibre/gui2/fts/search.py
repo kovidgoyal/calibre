@@ -434,7 +434,7 @@ class ResultsModel(QAbstractItemModel):
             return self.createIndex(row, column, parent.row() + 1)
         return self.createIndex(row, column, 0)
 
-    def parent(self, child):
+    def parent(self, child=...):
         q = child.internalId()
         if q:
             return self.index(q - 1, 0)

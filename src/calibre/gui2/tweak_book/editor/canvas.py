@@ -492,7 +492,7 @@ class Canvas(QWidget):
             ans = Qt.CursorShape.SizeBDiagCursor if dc in {('left', 'bottom'), ('right', 'top')} else Qt.CursorShape.SizeFDiagCursor
         return ans
 
-    def update(self):
+    def update(self, *args, **kwargs):
         super().update()
         self.selection_area_changed.emit(self.selection_state.rect)
 

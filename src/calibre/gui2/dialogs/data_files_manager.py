@@ -164,7 +164,7 @@ class Files(QAbstractListModel):
                 return i
         return -1
 
-    def data(self, index, role):
+    def data(self, index, role=None):
         row = index.row()
         if row >= len(self.files):
             return None
@@ -204,11 +204,11 @@ class ListView(QListView):
                         return True
         return False
 
-    def dragEnterEvent(self, e: QDropEvent):
+    def dragEnterEvent(self, e=None):
         if self.is_drop_event_ok(e):
             e.accept()
 
-    def dragMoveEvent(self, e: QDropEvent):
+    def dragMoveEvent(self, e=None):
         e.accept()
 
     def dropEvent(self, e):

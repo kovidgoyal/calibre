@@ -189,7 +189,7 @@ class EPUB_MOBI(CatalogPlugin):
                           ]
     # }}}
 
-    def run(self, path_to_output, opts, db, notification=DummyReporter()):
+    def run(self, path_to_output, opts, db, ids=None, notification=DummyReporter()):
         from calibre.library.catalogs.epub_mobi_builder import CatalogBuilder
         from calibre.utils.config import JSONConfig
         from calibre.utils.logging import default_log as log

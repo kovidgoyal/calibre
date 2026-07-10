@@ -684,7 +684,7 @@ class FormatsTable(ManyToManyTable):
 
         return {book_id:zero_max(book_id) for book_id in formats_map}
 
-    def remove_items(self, item_ids, db):
+    def remove_items(self, item_ids, db, restrict_to_book_ids=None):
         raise NotImplementedError('Cannot delete a format directly')
 
     def rename_item(self, item_id, new_name, db):
@@ -744,7 +744,7 @@ class IdentifiersTable(ManyToManyTable):
                         clean.add(item_id)
         return clean
 
-    def remove_items(self, item_ids, db):
+    def remove_items(self, item_ids, db, restrict_to_book_ids=None):
         raise NotImplementedError('Direct deletion of identifiers is not implemented')
 
     def rename_item(self, item_id, new_name, db):

@@ -148,7 +148,7 @@ class Main(MainWindow, Ui_MainWindow):
         self.slider.setValue(num)
         self.spin_box.setValue(num)
 
-    def render(self):
+    def render(self, *args, **kwargs):  # type: ignore[override]
         if self.renderer is not None:
             self.stack.setCurrentIndex(1)
             self.renderer.start()

@@ -1352,8 +1352,8 @@ class DetailsLayout(QSplitter):  # {{{
             self.restoreState(s)
         self.setOrientation(Qt.Orientation.Vertical if self.vertical else Qt.Orientation.Horizontal)
 
-    def setGeometry(self, *a):
-        super().setGeometry(*a)
+    def setGeometry(self, *args, **kwargs):
+        super().setGeometry(*args, **kwargs)
         self.do_layout(self.geometry())
 
     def do_splitter_moved(self, *args):

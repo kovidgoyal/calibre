@@ -49,7 +49,7 @@ class RemotePdb(pdb.Pdb):
         self.handle.flush()
         return self.handle.readline()
 
-    def end_session(self, *args):
+    def end_session(self, arg=None):
         self.clear_all_breaks()
         self.reset()
         self.handle.close()

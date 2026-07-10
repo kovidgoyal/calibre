@@ -144,10 +144,10 @@ class Tweaks(QAbstractListModel, AdaptSQP):  # {{{
         SearchQueryParser.__init__(self, ['all'])
         self.parse_tweaks()
 
-    def rowCount(self, *args):
+    def rowCount(self, parent=...):
         return len(self.tweaks)
 
-    def data(self, index, role):
+    def data(self, index, role=...):
         row = index.row()
         try:
             tweak = self.tweaks[row]
@@ -530,7 +530,7 @@ class ConfigWidget(ConfigWidgetBase):
             self.set_edit_text(tweak.edit_text)
             self.changed()
 
-    def restore_defaults(self):
+    def restore_defaults(self, *args):
         ConfigWidgetBase.restore_defaults(self)
         self.tweaks.restore_to_defaults()
         idx = self.tweaks_view.currentIndex()
@@ -554,7 +554,7 @@ class ConfigWidget(ConfigWidgetBase):
                 self.changed()
         self.edit_tweak.setStyleSheet(stylesheet_for_lineedit(ok, 'QPlainTextEdit'))
 
-    def commit(self):
+    def commit(self, *args):
         raw = self.tweaks.to_string()
         try:
             custom_tweaks = parse_python_tweaks(raw)

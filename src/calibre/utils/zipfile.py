@@ -656,9 +656,9 @@ class ZipExtFile(io.BufferedIOBase):
         if eof and self._running_crc != self._expected_crc:
             raise BadZipfile(f'Bad CRC-32 for file {self.name!r}')
 
-    def read1(self, n):
-        '''Read up to n bytes with at most one read() system call.'''
-
+    def read1(self, size: int = -1, /):
+        '''Read up to size bytes with at most one read() system call.'''
+        n = size
         # Simplify algorithm (branching) by transforming negative n to large n.
         if n < 0 or n is None:
             n = self.MAX_N

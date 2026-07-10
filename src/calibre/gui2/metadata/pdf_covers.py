@@ -115,7 +115,7 @@ class PDFCovers(QDialog):
         except OSError:
             pass
 
-    def render(self):
+    def render(self, *args, **kwargs):
         self.current_tdir = os.path.join(self.tdir, str(self.first))
         self.error = None
         try:

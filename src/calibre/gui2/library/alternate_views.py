@@ -1378,7 +1378,7 @@ class GridView(MomentumScrollMixin, QListView):
                     index = cursor_m.index(nr, 0)
         return index
 
-    def selectionCommand(self, index, event):
+    def selectionCommand(self, index, event=None):
         if event and event.type() == QEvent.Type.KeyPress and event.key() in (Qt.Key.Key_Home, Qt.Key.Key_End
                                     ) and event.modifiers() & Qt.KeyboardModifier.ControlModifier:
             return QItemSelectionModel.SelectionFlag.ClearAndSelect | QItemSelectionModel.SelectionFlag.Rows

@@ -386,13 +386,13 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                 self.existing_plugboards.addItem(item)
         self.refilling = False
 
-    def restore_defaults(self):
+    def restore_defaults(self, *args):
         ConfigWidgetBase.restore_defaults(self)
         self.current_plugboards = {}
         self.refill_all_boxes()
         self.changed_signal.emit()
 
-    def commit(self):
+    def commit(self, *args):
         self.db.new_api.set_pref('plugboards', self.current_plugboards)
         return ConfigWidgetBase.commit(self)
 

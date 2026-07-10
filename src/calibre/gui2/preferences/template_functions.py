@@ -596,7 +596,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         if d.exec() == QDialog.DialogCode.Accepted:
             self.template_editor.new_doc.setPlainText(d.document_text())
 
-    def commit(self):
+    def commit(self, *args):
         pref_value = []
         for name, cls in self.funcs.items():
             if name not in self.builtins:

@@ -61,7 +61,7 @@ class SourcesModel(QAbstractTableModel):  # {{{
     def columnCount(self, parent=None):
         return 2
 
-    def headerData(self, section, orientation, role):
+    def headerData(self, section, orientation, role=...):
         if orientation == Qt.Orientation.Horizontal and role == Qt.ItemDataRole.DisplayRole:
             if section == 0:
                 return _('Source')
@@ -69,7 +69,7 @@ class SourcesModel(QAbstractTableModel):  # {{{
                 return _('Cover priority')
         return None
 
-    def data(self, index, role):
+    def data(self, index, role=...):
         try:
             plugin = self.plugins[index.row()]
         except Exception:
@@ -97,7 +97,7 @@ class SourcesModel(QAbstractTableModel):  # {{{
             return base + _('This source needs configuration')
         return None
 
-    def setData(self, index, value, role):
+    def setData(self, index, value, role=...):
         try:
             plugin = self.plugins[index.row()]
         except Exception:
@@ -207,7 +207,7 @@ class FieldsModel(QAbstractListModel):  # {{{
         return (Qt.CheckState.Unchecked if field in src['ignore_fields']
                     else Qt.CheckState.Checked)
 
-    def data(self, index, role):
+    def data(self, index, role=...):
         try:
             field = self.fields[index.row()]
         except Exception:
@@ -237,7 +237,7 @@ class FieldsModel(QAbstractListModel):  # {{{
         self.overrides = {f: Qt.CheckState.Unchecked for f in self.fields}
         self.endResetModel()
 
-    def setData(self, index, value, role):
+    def setData(self, index, value, role=...):
         try:
             field = self.fields[index.row()]
         except Exception:
@@ -454,13 +454,13 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.fields_model.initialize()
         self.tag_map_rules = self.author_map_rules = self.publisher_map_rules = None
 
-    def restore_defaults(self):
+    def restore_defaults(self, *args):
         ConfigWidgetBase.restore_defaults(self)
         self.sources_model.restore_defaults()
         self.fields_model.restore_defaults()
         self.changed_signal.emit()
 
-    def commit(self):
+    def commit(self, *args):
         self.sources_model.commit()
         self.fields_model.commit()
         if self.tag_map_rules is not None:

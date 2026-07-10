@@ -15,7 +15,6 @@ from qt.core import (
     QListWidget,
     QListWidgetItem,
     QMenu,
-    QPainter,
     QPalette,
     QPixmap,
     QRectF,
@@ -60,7 +59,7 @@ class TrashItemDelegate(QStyledItemDelegate):
     def sizeHint(self, option, index):
         return QSize(THUMBNAIL_SIZE[0] + MARGIN_SIZE + 256, THUMBNAIL_SIZE[1] + MARGIN_SIZE)
 
-    def paint(self, painter: QPainter, option, index):
+    def paint(self, painter, option, index):
         super().paint(painter, option, index)
         painter.save()
         entry: TrashEntry = index.data(Qt.ItemDataRole.UserRole)

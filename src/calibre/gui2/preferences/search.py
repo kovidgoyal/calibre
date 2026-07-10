@@ -239,7 +239,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             self.gst_value.setText(','.join(self.gst[name]))
         self.gst_value.blockSignals(False)
 
-    def commit(self):
+    def commit(self, *args):
         if self.opt_case_sensitive.isChecked() and self.opt_use_primary_find_in_search.isChecked():
             error_dialog(self, _('Incompatible options'), _(
                 'The option to have un-accented characters match accented characters has no effect'

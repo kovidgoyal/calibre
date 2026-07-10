@@ -169,7 +169,7 @@ class ResultsModel(QAbstractTableModel):  # {{{
     def columnCount(self, parent=None):
         return len(self.COLUMNS)
 
-    def headerData(self, section, orientation, role):
+    def headerData(self, section, orientation, role=...):
         if orientation == Qt.Orientation.Horizontal and role == Qt.ItemDataRole.DisplayRole:
             try:
                 return (self.COLUMNS[section])
@@ -189,7 +189,7 @@ class ResultsModel(QAbstractTableModel):  # {{{
             p = book.publisher or ''
             return f'<b>{d}</b><br><i>{p}</i>'
 
-    def data(self, index, role):
+    def data(self, index, role=...):
         row, col = index.row(), index.column()
         try:
             book = self.results[row]
@@ -545,11 +545,11 @@ class IdentifyWidget(QWidget):  # {{{
 
         self.worker.start()
 
-        QTimer.singleShot(50, self.update)
+        QTimer.singleShot(50, self.poll_results)
 
-    def update(self):
+    def poll_results(self):
         if self.worker.is_alive():
-            QTimer.singleShot(50, self.update)
+            QTimer.singleShot(50, self.poll_results)
         else:
             self.process_results()
 
@@ -699,7 +699,7 @@ class CoversModel(QAbstractListModel):  # {{{
     def rowCount(self, parent=None):
         return len(self.covers)
 
-    def data(self, index, role):
+    def data(self, index, role=...):
         try:
             text, pmap, cover, waiting = self.covers[index.row()]
         except Exception:

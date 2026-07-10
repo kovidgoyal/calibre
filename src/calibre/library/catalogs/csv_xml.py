@@ -51,7 +51,7 @@ class CSV_XML(CatalogPlugin):
                 "Default: '%default'\n"
                 "Applies to: CSV, XML output formats"))]
 
-    def run(self, path_to_output, opts, db, notification=DummyReporter()):
+    def run(self, path_to_output, opts, db, ids=None, notification=DummyReporter()):
         from lxml import etree
 
         from calibre.ebooks.metadata import authors_to_string

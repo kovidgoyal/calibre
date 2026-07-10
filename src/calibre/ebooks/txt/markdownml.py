@@ -100,7 +100,7 @@ class MarkdownMLizer(OEB2HTML):
             new_text.append('    ' + l)
         return '\n'.join(new_text)
 
-    def dump_text(self, elem, stylizer):
+    def dump_text(self, elem, stylizer, page=None):
         '''
         @elem: The element in the etree that we are working on.
         @stylizer: The style information attached to the element.

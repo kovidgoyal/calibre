@@ -83,7 +83,9 @@ class DOCXOutput(OutputFormatPlugin):
         oeb.metadata.to_opf2(package)
         self.mi = ReadOPF(BytesIO(etree.tostring(package, encoding='utf-8')), populate_spine=False, try_to_guess_cover=False).to_book_metadata()
 
-    def convert(self, oeb, output_path, input_plugin, opts, log):
+    def convert(self, oeb_book, output, input_plugin, opts, log):
+        oeb = oeb_book
+        output_path = output
         from calibre.ebooks.docx.writer.container import DOCX
         from calibre.ebooks.docx.writer.from_html import Convert
         docx = DOCX(opts, log)

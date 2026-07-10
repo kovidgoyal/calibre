@@ -85,7 +85,8 @@ class HTMLOutput(OutputFormatPlugin):
         return etree.tostring(root, pretty_print=True, encoding='unicode',
                 xml_declaration=False)
 
-    def convert(self, oeb_book, output_path, input_plugin, opts, log):
+    def convert(self, oeb_book, output, input_plugin, opts, log):
+        output_path = output
         import pystache
         from lxml import etree
 

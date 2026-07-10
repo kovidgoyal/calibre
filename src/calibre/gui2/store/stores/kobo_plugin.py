@@ -97,7 +97,7 @@ class KoboStore(BasicStoreConfig, StorePlugin):
 
     minimum_calibre_version = (5, 40, 1)
 
-    def open(self, parent=None, detail_item=None, external=False):
+    def open(self, gui=None, parent=None, detail_item=None, external=False):
         if detail_item:
             purl = detail_item
             url = purl
@@ -117,7 +117,7 @@ class KoboStore(BasicStoreConfig, StorePlugin):
         for result in search_kobo(query, max_results=max_results, timeout=timeout):
             yield result
 
-    def get_details(self, search_result, timeout):
+    def get_details(self, search_result, timeout=60):
         raw = read_url(search_result.detail_item, timeout=timeout)
         idata = safe_html_fromstring(raw)
         if idata.xpath('boolean(//div[@class="bookitem-secondary-metadata"]//li[contains(text(), "Download options")])'):

@@ -418,8 +418,8 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
         for c in range(self.table.columnCount()):
             self.table_column_widths.append(self.table.columnWidth(c))
 
-    def resizeEvent(self, *args):
-        QDialog.resizeEvent(self, *args)
+    def resizeEvent(self, a0=...):
+        QDialog.resizeEvent(self, a0)
         if self.table_column_widths is not None:
             for c,w in enumerate(self.table_column_widths):
                 self.table.setColumnWidth(c, w)

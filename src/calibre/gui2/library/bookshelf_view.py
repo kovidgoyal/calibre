@@ -23,7 +23,6 @@ from qt.core import (
     QBrush,
     QBuffer,
     QColor,
-    QContextMenuEvent,
     QEasingCurve,
     QEvent,
     QFont,
@@ -34,7 +33,6 @@ from qt.core import (
     QImage,
     QItemSelection,
     QItemSelectionModel,
-    QKeyEvent,
     QKeySequence,
     QLinearGradient,
     QLocale,
@@ -44,7 +42,6 @@ from qt.core import (
     QObject,
     QPainter,
     QPainterPath,
-    QPaintEvent,
     QPalette,
     QParallelAnimationGroup,
     QPen,
@@ -55,7 +52,6 @@ from qt.core import (
     QPropertyAnimation,
     QRect,
     QRectF,
-    QResizeEvent,
     QSize,
     QSizeF,
     QStyle,
@@ -639,7 +635,8 @@ class PixmapWithDominantColor(QPixmap):
     dominant_color: QColor = QColor()
 
     @staticmethod
-    def fromImage(img: QImage) -> PixmapWithDominantColor:
+    def fromImage(image: QImage, flags=None) -> PixmapWithDominantColor:
+        img = image
         ans = PixmapWithDominantColor(QPixmap.fromImage(img))
         if not hasattr(img, 'dominant_color'):
             img = ImageWithDominantColor(img)
@@ -664,7 +661,7 @@ class ThumbnailerWithDominantColor(Thumbnailer):
             ans = ImageWithDominantColor(ans)
         return ans
 
-    def serialize_img(self, x: ImageWithDominantColor, buf: QBuffer) -> bool:
+    def serialize_img(self, x, buf: QBuffer) -> bool:
         buf.write(struct.pack('@fff', x.dominant_color.redF(), x.dominant_color.greenF(), x.dominant_color.blueF()))
         return super().serialize_img(x, buf)
 
@@ -1810,7 +1807,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         assert style is not None
         return style.styleHint(QStyle.StyleHint.SH_ScrollBar_Transient, widget=self) != 0
 
-    def resizeEvent(self, a0: QResizeEvent) -> None:
+    def resizeEvent(self, a0) -> None:
         self.resize_debounce_timer.start()
         return super().resizeEvent(a0)
 
@@ -1998,7 +1995,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         draw_horizontal(bottom, 'bottom')
         return top_size, bottom_size
 
-    def paintEvent(self, a0: QPaintEvent) -> None:
+    def paintEvent(self, a0) -> None:
         '''Paint the bookshelf view.'''
         if not self.view_is_visible():
             return
@@ -2451,7 +2448,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         for k, name in iter_all_groups(fm):
             add(k, name)
 
-    def contextMenuEvent(self, a0: QContextMenuEvent):
+    def contextMenuEvent(self, a0):
         if self.context_menu:
             self.context_menu.popup(a0.globalPos())
             a0.accept()
@@ -2516,7 +2513,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
 
     # Mouse and keyboard events {{{
 
-    def keyPressEvent(self, a0: QKeyEvent) -> None:
+    def keyPressEvent(self, a0) -> None:
         if handle_enter_press(self, a0, has_edit_cell=False):
             return
         if a0.matches(QKeySequence.StandardKey.SelectAll):
@@ -2659,7 +2656,8 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
     def handle_mouse_release_event(self, ev: QMouseEvent) -> None:
         self.click_start_data = None
 
-    def mouseDoubleClickEvent(self, ev: QMouseEvent) -> bool:
+    def mouseDoubleClickEvent(self, a0) -> None:
+        ev = a0
         '''Handle mouse double-click events on the viewport.'''
         index = self.indexAt(ev.pos())
         self.click_start_data = None
@@ -2669,7 +2667,8 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
             ev.accept()
             double_click_action(index)
 
-    def viewportEvent(self, ev: QEvent) -> None:
+    def viewportEvent(self, a0):
+        ev = a0
         if ev.type() == QEvent.Type.Leave:
             # Clear hover when mouse leaves viewport
             self.expanded_cover.invalidate()

@@ -753,8 +753,8 @@ class Quickview(QDialog, Ui_Quickview):
 
     # Deal with sizing the table columns. Done here because the numbers are not
     # correct until the first paint.
-    def resizeEvent(self, *args):
-        QDialog.resizeEvent(self, *args)
+    def resizeEvent(self, a0=...):
+        QDialog.resizeEvent(self, a0)
 
         if self.books_table_column_widths is not None:
             for c,w in enumerate(self.books_table_column_widths):

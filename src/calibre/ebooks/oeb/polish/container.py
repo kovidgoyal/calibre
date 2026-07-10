@@ -66,7 +66,7 @@ OEB_FONTS  # for plugin compat
 
 class CSSPreProcessor(cssp):
 
-    def __call__(self, data):
+    def __call__(self, data, add_namespace=False):
         return self.MS_PAT.sub(self.ms_sub, data)
 
 

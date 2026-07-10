@@ -701,12 +701,12 @@ class BooksModel(QAbstractTableModel):  # {{{
     def research(self, reset=True):
         self.search(self.last_search, reset=reset)
 
-    def columnCount(self, parent):
+    def columnCount(self, parent=...):
         if parent and parent.isValid():
             return 0
         return len(self.column_map)
 
-    def rowCount(self, parent):
+    def rowCount(self, parent=...):
         if parent and parent.isValid():
             return 0
         return len(self.db.data) if self.db else 0
@@ -1179,7 +1179,7 @@ class BooksModel(QAbstractTableModel):  # {{{
         self.column_to_tc_map = [tc[col] for col in self.column_map]
         self.column_to_dc_decorator_map = [self.dc_decorator.get(col, None) for col in self.column_map]
 
-    def data(self, index, role):
+    def data(self, index, role=...):
         db = self.db
         assert db is not None
         if db.new_api.is_doing_rebuild_or_vacuum:
@@ -1309,7 +1309,7 @@ class BooksModel(QAbstractTableModel):  # {{{
         #         return (_("Double click to <b>edit</b> me<br><br>"))
         return None
 
-    def headerData(self, section, orientation, role):
+    def headerData(self, section, orientation, role=...):
         db = self.db
         assert db is not None
         if orientation == Qt.Orientation.Horizontal:
@@ -1441,7 +1441,7 @@ class BooksModel(QAbstractTableModel):  # {{{
         self.refresh_ids(list(books_to_refresh), current_row=row)
         return True
 
-    def setData(self, index, value, role):
+    def setData(self, index, value, role=...):
         from calibre.gui2.ui import get_gui
         if get_gui().shutting_down:
             return False
@@ -1556,7 +1556,7 @@ class OnDeviceSearch(SearchQueryParser):  # {{{
     def universal_set(self):
         return set(range(len(self.model.db)))
 
-    def get_matches(self, location, query):
+    def get_matches(self, location, query, candidates=None):
         location = location.lower().strip()
         if location == 'authors':
             location = 'author'
@@ -1794,7 +1794,7 @@ class DeviceBooksModel(BooksModel):  # {{{
     def research(self, reset=True):
         self.search(self.last_search, reset)
 
-    def sort(self, column, order, reset=True):
+    def sort(self, column, order=..., reset=True):
         if not isinstance(order, Qt.SortOrder):
             order = Qt.SortOrder.AscendingOrder if order else Qt.SortOrder.DescendingOrder
         descending = order != Qt.SortOrder.AscendingOrder
@@ -1846,12 +1846,12 @@ class DeviceBooksModel(BooksModel):  # {{{
         if reset:
             self.beginResetModel(), self.endResetModel()
 
-    def columnCount(self, parent):
+    def columnCount(self, parent=...):
         if parent and parent.isValid():
             return 0
         return len(self.column_map)
 
-    def rowCount(self, parent):
+    def rowCount(self, parent=...):
         if parent and parent.isValid():
             return 0
         return len(self.map)
@@ -1989,7 +1989,7 @@ class DeviceBooksModel(BooksModel):  # {{{
         '''
         return [self.map[r.row()] for r in rows]
 
-    def data(self, index, role):
+    def data(self, index, role=...):
         row, column = index.row(), index.column()
         cname = self.column_map[column]
         if role in (Qt.ItemDataRole.DisplayRole, Qt.ItemDataRole.EditRole):
@@ -2047,7 +2047,7 @@ class DeviceBooksModel(BooksModel):  # {{{
             return int(ans)  # https://bugreports.qt.io/browse/PYSIDE-1974
         return None
 
-    def headerData(self, section, orientation, role):
+    def headerData(self, section, orientation, role=...):
         if role == Qt.ItemDataRole.ToolTipRole and orientation == Qt.Orientation.Horizontal:
             cname = self.column_map[section]
             text = self.headers[cname]
@@ -2065,7 +2065,7 @@ class DeviceBooksModel(BooksModel):  # {{{
         else:
             return (section+1)
 
-    def setData(self, index, value, role):
+    def setData(self, index, value, role=...):
         from calibre.gui2.ui import get_gui
         if get_gui().shutting_down:
             return False

@@ -89,7 +89,7 @@ class ShowBookDetailsAction(InterfaceAction):
         for dialog in [d for d in self.dialogs if d is not None]:
             dialog.done(0)
 
-    def library_about_to_change(self, *args):
+    def library_about_to_change(self, olddb, db):
         for dialog in [d for d in self.dialogs[1:] if d is not None]:
             dialog.done(0)
 

@@ -238,17 +238,17 @@ class ConfigModel(SearchQueryParser, QAbstractItemModel):
         group_map = {group:sorted(names, key=lambda x:
                 sort_key(shortcut_map[x]['name'])) for group, names in self.keyboard.groups.items()}
 
-        self.data = [Node(group_map, shortcut_map, group) for group in groups]
+        self.root_nodes = [Node(group_map, shortcut_map, group) for group in groups]
 
     @property
     def all_shortcuts(self):
-        for group in self.data:
+        for group in self.root_nodes:
             yield from group
 
     def rowCount(self, parent=ROOT):
         ip = parent.internalPointer()
         if ip is None:
-            return len(self.data)
+            return len(self.root_nodes)
         return len(ip)
 
     def columnCount(self, parent=ROOT):
@@ -257,24 +257,24 @@ class ConfigModel(SearchQueryParser, QAbstractItemModel):
     def index(self, row, column, parent=ROOT):
         ip = parent.internalPointer()
         if ip is None:
-            ip = self.data
+            ip = self.root_nodes
         try:
             return self.createIndex(row, column, ip[row])
         except Exception:
             pass
         return ROOT
 
-    def parent(self, child):
+    def parent(self, child=...):
         ip = child.internalPointer()
         if ip is None or not ip.is_shortcut:
             return ROOT
         group = ip.data['group']
-        for i, g in enumerate(self.data):
+        for i, g in enumerate(self.root_nodes):
             if g.data == group:
                 return self.index(i, 0)
         return ROOT
 
-    def data(self, index, role=Qt.ItemDataRole.DisplayRole):
+    def data(self, index, role: int = Qt.ItemDataRole.DisplayRole):
         ip = index.internalPointer()
         if ip is not None and role == Qt.ItemDataRole.UserRole:
             return ip
@@ -333,7 +333,7 @@ class ConfigModel(SearchQueryParser, QAbstractItemModel):
 
     def universal_set(self):
         ans = set()
-        for i, group in enumerate(self.data):
+        for i, group in enumerate(self.root_nodes):
             ans.add((i, -1))
             for j, sc in enumerate(group.children):
                 ans.add((i, j))
@@ -348,11 +348,11 @@ class ConfigModel(SearchQueryParser, QAbstractItemModel):
         query = lower(query)
         for c, p in candidates:
             if p < 0:
-                if query in lower(self.data[c].data):
+                if query in lower(self.root_nodes[c].data):
                     ans.add((c, p))
             else:
                 try:
-                    sc = self.data[c].children[p].data
+                    sc = self.root_nodes[c].children[p].data
                 except Exception:
                     continue
                 if query in lower(sc['name']) or query in lower(sc.get('desc') or ''):
@@ -407,14 +407,14 @@ class ConfigModel(SearchQueryParser, QAbstractItemModel):
 
     def index_for_group(self, name):
         for i in range(self.rowCount()):
-            node = self.data[i]
+            node = self.root_nodes[i]
             if node.data == name:
                 return self.index(i, 0)
 
     @property
     def group_names(self):
         for i in range(self.rowCount()):
-            node = self.data[i]
+            node = self.root_nodes[i]
             yield node.data
 
 # }}}

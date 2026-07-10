@@ -151,12 +151,12 @@ class PluginModel(QAbstractItemModel, AdaptSQP):  # {{{
         else:
             return self.createIndex(row, column, 0)
 
-    def parent(self, child):
+    def parent(self, child=...):
         if not child.isValid() or child.internalId() == 0:
             return QModelIndex()
         return self.createIndex(child.internalId()-1, 0, 0)
 
-    def rowCount(self, parent):
+    def rowCount(self, parent=None):
         if not parent.isValid():
             return len(self.categories)
         if parent.internalId() == 0:
@@ -164,7 +164,7 @@ class PluginModel(QAbstractItemModel, AdaptSQP):  # {{{
             return len(self._data[category])
         return 0
 
-    def columnCount(self, parent):
+    def columnCount(self, parent=None):
         return 1
 
     def index_to_plugin(self, index):
@@ -199,7 +199,7 @@ class PluginModel(QAbstractItemModel, AdaptSQP):  # {{{
             return Qt.ItemFlag.NoItemFlags
         return Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
 
-    def data(self, index, role):
+    def data(self, index, role=None):
         if not index.isValid():
             return None
         if index.internalId() == 0:

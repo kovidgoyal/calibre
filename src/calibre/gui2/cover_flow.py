@@ -334,7 +334,7 @@ class CBDialog(QDialog):
         sz.setWidth(int(sz.width()/1.5))
         return sz
 
-    def closeEvent(self, *args):
+    def closeEvent(self, a0=...):
         if not self.isFullScreen():
             self.save_geometry(gprefs, 'cover_browser_dialog_geometry')
         self.closed.emit()

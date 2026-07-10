@@ -201,7 +201,7 @@ class UtteranceAudioQueue(QIODevice):
     def seek(self, pos):
         return False
 
-    def readData(self, maxlen: int) -> QByteArray:
+    def readData(self, maxlen: int) -> bytes:
         if maxlen < 1:
             debug(f'Audio data sent to output: {maxlen=}')
             return QByteArray()

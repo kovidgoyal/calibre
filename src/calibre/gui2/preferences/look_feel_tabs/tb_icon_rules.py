@@ -769,8 +769,8 @@ class TbIconRulesTab(LazyConfigWidgetBase, Ui_Form):
             self.table_column_widths.append(self.rules_table.columnWidth(c))
         gprefs['tag_browser_rules_dialog_table_widths'] = self.table_column_widths
 
-    def resizeEvent(self, *args):
-        super().resizeEvent(*args)
+    def resizeEvent(self, a0=...):
+        super().resizeEvent(a0)
         if self.table_column_widths is not None:
             for c,w in enumerate(self.table_column_widths):
                 self.rules_table.setColumnWidth(c, w)
@@ -798,7 +798,7 @@ class TbIconRulesTab(LazyConfigWidgetBase, Ui_Form):
         self.last_section_sorted = section
         self.rules_table.sortByColumn(section, Qt.SortOrder(order))
 
-    def commit(self):
+    def commit(self, *args):
         tbvip = copy.deepcopy(gprefs['tags_browser_value_icons'])
 
         for r in range(self.rules_table.rowCount()):

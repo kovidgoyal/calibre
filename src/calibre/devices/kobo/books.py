@@ -133,7 +133,7 @@ class KTCollectionsBookList(CollectionsBookList):
         super().__init__(oncard, prefix, settings)
         self.set_device_managed_collections([])
 
-    def get_collections(self, collection_attributes, collections_template=None, template_globals=None):
+    def get_collections(self, collection_attributes=None, collections_template=None, template_globals=None):
         debug_print('KTCollectionsBookList:get_collections - start - collection_attributes=', collection_attributes)
 
         collections = {}

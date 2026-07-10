@@ -468,13 +468,13 @@ class ManufacturerModel(QAbstractListModel):
         QAbstractListModel.__init__(self)
         self.manufacturers = get_manufacturers()
 
-    def rowCount(self, parent):
+    def rowCount(self, parent=...):
         return len(self.manufacturers)
 
-    def columnCount(self, parent):
+    def columnCount(self, parent=...):
         return 1
 
-    def data(self, index, role):
+    def data(self, index, role=...):
         if role == Qt.ItemDataRole.DisplayRole:
             ans = self.manufacturers[index.row()]
             if ans == Device.manufacturer:
@@ -496,13 +496,13 @@ class DeviceModel(QAbstractListModel):
         QAbstractListModel.__init__(self)
         self.devices = get_devices_of(manufacturer)
 
-    def rowCount(self, parent):
+    def rowCount(self, parent=...):
         return len(self.devices)
 
-    def columnCount(self, parent):
+    def columnCount(self, parent=...):
         return 1
 
-    def data(self, index, role):
+    def data(self, index, role=...):
         if role == Qt.ItemDataRole.DisplayRole:
             return (self.devices[index.row()].name)
         if role == Qt.ItemDataRole.UserRole:

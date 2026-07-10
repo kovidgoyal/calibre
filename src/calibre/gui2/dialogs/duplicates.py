@@ -88,7 +88,7 @@ class DuplicatesQuestion(QDialog):
         self.save_geometry()
         QDialog.accept(self)
 
-    def save_geometry(self):
+    def save_geometry(self, prefs=None, name=None):
         super().save_geometry(gprefs, 'duplicates-question-dialog-geometry')
 
     def process_duplicates(self, db, duplicates):

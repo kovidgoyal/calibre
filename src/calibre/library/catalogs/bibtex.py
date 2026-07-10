@@ -109,7 +109,7 @@ class BIBTEX(CatalogPlugin):
                 "Default: '%default'\n"
                 "Applies to: BIBTEX output format"))]
 
-    def run(self, path_to_output, opts, db, notification=DummyReporter()):
+    def run(self, path_to_output, opts, db, ids=None, notification=DummyReporter()):
         from calibre.library.save_to_disk import preprocess_template
         from calibre.utils.bibtex import BibTeX
         from calibre.utils.date import isoformat

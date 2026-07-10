@@ -1907,7 +1907,7 @@ class CustomIndexRecipe(BasicNewsRecipe):
         '''
         raise NotImplementedError
 
-    def create_opf(self):
+    def create_opf(self, feeds=None, dir=None):
         mi = MetaInformation(self.title + strftime(self.timefmt), [__appname__])
         mi.publisher = __appname__
         mi.author_sort = __appname__

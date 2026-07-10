@@ -186,8 +186,8 @@ class GlobalUndoHistory(QAbstractListModel):
 
 class SpacedDelegate(QStyledItemDelegate):
 
-    def sizeHint(self, *args):
-        ans = QStyledItemDelegate.sizeHint(self, *args)
+    def sizeHint(self, option=None, index=None):
+        ans = QStyledItemDelegate.sizeHint(self, option, index)
         ans.setHeight(ans.height() + 4)
         return ans
 

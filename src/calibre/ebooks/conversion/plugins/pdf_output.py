@@ -164,7 +164,8 @@ class PDFOutput(OutputFormatPlugin):
             # Prevent the conversion pipeline from overwriting document margins
             opts.margin_left = opts.margin_right = opts.margin_top = opts.margin_bottom = -1
 
-    def convert(self, oeb_book, output_path, input_plugin, opts, log):
+    def convert(self, oeb_book, output, input_plugin, opts, log):
+        output_path = output
         self.stored_page_margins = getattr(opts, '_stored_page_margins', {})
 
         self.oeb = oeb_book

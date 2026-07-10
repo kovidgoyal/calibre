@@ -163,7 +163,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         return fmts
     # }}}
 
-    def restore_defaults(self):
+    def restore_defaults(self, *args):
         ConfigWidgetBase.restore_defaults(self)
         self.filename_pattern.initialize(defaults=True)
         self.init_blocked_auto_formats(defaults=True)
@@ -171,7 +171,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.author_map_rules = []
         self.add_filter_rules = []
 
-    def commit(self):
+    def commit(self, *args):
         path = str(self.opt_auto_add_path.text()).strip()
         if path != gprefs['auto_add_path']:
             if path:

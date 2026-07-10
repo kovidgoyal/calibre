@@ -57,10 +57,10 @@ class BaseModel(QAbstractListModel):
         except Exception:
             return None
 
-    def rowCount(self, parent):
+    def rowCount(self, parent=...):
         return len(self._data)
 
-    def data(self, index, role):
+    def data(self, index, role=...):
         row = index.row()
         action = self._data[row].action_spec
         if role == Qt.ItemDataRole.DisplayRole:
@@ -280,8 +280,8 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
         self.add_action_button.clicked.connect(self.add_action)
         self.remove_action_button.clicked.connect(self.remove_action)
-        connect_lambda(self.action_up_button.clicked, self, lambda self: self.move(-1))
-        connect_lambda(self.action_down_button.clicked, self, lambda self: self.move(1))
+        connect_lambda(self.action_up_button.clicked, self, lambda self: self._move_action(-1))
+        connect_lambda(self.action_down_button.clicked, self, lambda self: self._move_action(1))
         self.all_actions.setMouseTracking(True)
         self.current_actions.setMouseTracking(True)
         self.all_actions.entered.connect(self.all_entered)
@@ -369,7 +369,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             else:
                 self.changed_signal.emit()
 
-    def move(self, delta, *args):
+    def _move_action(self, delta: int) -> None:
         sm = self.current_actions.selectionModel()
         assert sm is not None
         x = sm.selectedIndexes()
@@ -388,7 +388,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                 self.current_actions.scrollTo(newci, QAbstractItemView.ScrollHint.EnsureVisible)
             self.changed_signal.emit()
 
-    def commit(self):
+    def commit(self, *args):
         # Ensure preferences are showing in either the toolbar or
         # the menubar.
         pref_in_toolbar = self.models['toolbar'][1].has_action('Preferences')
@@ -409,7 +409,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             cm.commit()
         return False
 
-    def restore_defaults(self):
+    def restore_defaults(self, *args):
         for am, cm in self.models.values():
             cm.restore_defaults()
             am.restore_defaults()

@@ -173,18 +173,18 @@ class Matches(QAbstractItemModel):
     def index(self, row, column, parent=QModelIndex()):
         return self.createIndex(row, column)
 
-    def parent(self, child):
+    def parent(self, child=...):
         if not child.isValid() or child.internalId() == 0:
             return QModelIndex()
         return self.createIndex(0, 0)
 
-    def rowCount(self, *args):
+    def rowCount(self, parent=...):
         return len(self.matches)
 
-    def columnCount(self, *args):
+    def columnCount(self, parent=...):
         return len(self.HEADERS)
 
-    def headerData(self, section, orientation, role):
+    def headerData(self, section, orientation, role=...):
         if role != Qt.ItemDataRole.DisplayRole:
             return None
         text = ''
@@ -195,7 +195,7 @@ class Matches(QAbstractItemModel):
         else:
             return (section+1)
 
-    def data(self, index, role):
+    def data(self, index, role=...):
         row, col = index.row(), index.column()
         if row >= len(self.matches):
             return None
@@ -286,7 +286,7 @@ class Matches(QAbstractItemModel):
                 text = 'b'
         return text
 
-    def sort(self, column, order, reset=True):
+    def sort(self, column, order=..., reset=True):
         self.sort_col = column
         self.sort_order = order
         if not self.matches:
@@ -368,7 +368,7 @@ class SearchFilter(SearchQueryParser):
                 pass
         return False
 
-    def get_matches(self, location, query):
+    def get_matches(self, location, query, candidates=None):
         query = query.strip()
         location = location.lower().strip()
         if location == 'authors':

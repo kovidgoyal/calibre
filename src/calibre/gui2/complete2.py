@@ -124,10 +124,10 @@ class CompleteModel(QAbstractListModel):  # {{{
             self.current_items = tuple(sorted(self.current_items, key=skey))
         self.endResetModel()
 
-    def rowCount(self, *args):
+    def rowCount(self, parent=...):
         return len(self.current_items)
 
-    def data(self, index, role):
+    def data(self, index, role=...):
         if role == Qt.ItemDataRole.DisplayRole:
             with suppress(IndexError):
                 ans = self.current_items[index.row()].replace('\n', ' ')

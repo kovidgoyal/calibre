@@ -51,8 +51,8 @@ class PluginWidget(Widget, Ui_Form):
         self.opt_custom_size.setEnabled(enabled)
         self.opt_unit.setEnabled(enabled)
 
-    def setupUi(self, *a):
-        Ui_Form.setupUi(self, *a)
+    def setupUi(self, Form):
+        Ui_Form.setupUi(self, Form)
         v = self.page_margins_box.v = QVBoxLayout(self.page_margins_box)
         self.opt_pdf_use_document_margins = c = QCheckBox(_('Use page margins from the &document being converted'))
         v.addWidget(c)

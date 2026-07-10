@@ -32,7 +32,8 @@ class PDBOutput(OutputFormatPlugin):
             help=_('Add Table of Contents to beginning of the book.')),
     }
 
-    def convert(self, oeb_book, output_path, input_plugin, opts, log):
+    def convert(self, oeb_book, output, input_plugin, opts, log):
+        output_path = output
         close = False
         if not hasattr(output_path, 'write'):
             close = True

@@ -288,7 +288,8 @@ class AlternateViewsButtons(LayoutButton):  # {{{
     def is_visible(self):
         return self.isChecked()
 
-    def update_state(self, checked):
+    def update_state(self, *args):
+        checked = args[0] if args else None
         if checked:
             self.set_state_to_hide()
         else:
@@ -365,7 +366,8 @@ class SearchBarButton(LayoutButton):  # {{{
     def is_visible(self):
         return self.isChecked()
 
-    def update_state(self, checked):
+    def update_state(self, *args):
+        checked = args[0] if args else None
         if checked:
             self.set_state_to_hide()
         else:

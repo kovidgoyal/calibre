@@ -194,7 +194,9 @@ class EPUBOutput(OutputFormatPlugin):
 
     # }}}
 
-    def convert(self, oeb, output_path, input_plugin, opts, log):
+    def convert(self, oeb_book, output, input_plugin, opts, log):
+        oeb = oeb_book
+        output_path = output
         self.log, self.opts, self.oeb = log, opts, oeb
 
         if self.opts.epub_inline_toc:
@@ -650,7 +652,9 @@ class KEPUBOutput(OutputFormatPlugin):
 
     recommendations = set(EPUBOutput.recommendations)
 
-    def convert(self, oeb, output_path, input_plugin, opts, log):
+    def convert(self, oeb_book, output, input_plugin, opts, log):
+        oeb = oeb_book
+        output_path = output
         from calibre.customize.ui import plugin_for_output_format
         from calibre.ebooks.oeb.polish.kepubify import kepubify_container, make_options
 

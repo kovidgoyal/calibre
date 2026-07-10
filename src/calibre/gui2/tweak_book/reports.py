@@ -1040,7 +1040,7 @@ class CSSRulesModel(QAbstractItemModel):
             except IndexError:
                 pass
 
-    def parent(self, child):
+    def parent(self, child=...):
         if not child.isValid():
             return ROOT
         parent = child.internalPointer()

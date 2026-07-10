@@ -40,7 +40,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
     def initial_tab_changed(self):
         self.sections_view.setCurrentRow(self.tabWidget.currentIndex())
 
-    def restore_defaults(self):
+    def restore_defaults(self, *args):
         ConfigWidgetBase.restore_defaults(self)
         for w in self.tabWidget.all_widgets:
             if hasattr(w, 'restore_defaults'):

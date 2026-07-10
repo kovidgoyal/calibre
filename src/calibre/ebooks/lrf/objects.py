@@ -120,7 +120,7 @@ class LRFContentObject(LRFObject):
         self.stream.seek(pos)
         return size
 
-    def handle_tag(self, tag):
+    def handle_tag(self, tag, stream=None, tag_map=None):
         if tag.id in self.tag_map:
             action = self.tag_map[tag.id]
             if isinstance(action, str):
@@ -1020,8 +1020,8 @@ class ImageStream(LRFStream):
 
     encoding = property(fget=lambda self: self.imgext[self.stream_flags & 0xFF].upper())
 
-    def end_stream(self, *args):
-        LRFStream.end_stream(self, *args)
+    def end_stream(self, tag, stream):
+        LRFStream.end_stream(self, tag, stream)
         self.file = str(self.id) + '.' + self.encoding.lower()
         if self._document is not None:
             self._document.image_map[self.id] = self
@@ -1146,8 +1146,8 @@ class Font(LRFStream):
     tag_map.update(LRFStream.tag_map)
     data = property(fget=lambda self: self.stream)
 
-    def end_stream(self, *args):
-        LRFStream.end_stream(self, *args)
+    def end_stream(self, tag, stream):
+        LRFStream.end_stream(self, tag, stream)
         self._document.font_map[self.fontfacename] = self
         self.file = self.fontfacename + '.ttf'
 

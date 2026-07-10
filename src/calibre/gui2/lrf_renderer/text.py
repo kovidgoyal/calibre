@@ -506,7 +506,7 @@ class Line(QGraphicsItem):
     def boundingRect(self):
         return QRectF(0, 0, self.width, self.height)
 
-    def paint(self, painter, option, widget):
+    def paint(self, painter, option, widget=None):
         x, y = 0, 0+self.height-self.descent
         if self.vdebug:
             painter.save()

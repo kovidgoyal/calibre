@@ -1093,7 +1093,7 @@ class CatalogBuilder:
 
         class BookmarkDevice(Device):
 
-            def initialize(self, save_template):
+            def initialize(self, save_template=None):
                 self._save_template = save_template
                 self.SUPPORTS_SUB_DIRS = True
 

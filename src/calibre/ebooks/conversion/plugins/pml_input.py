@@ -58,7 +58,7 @@ class PMLInput(InputFormatPlugin):
 
         return hizer.get_toc()
 
-    def get_images(self, stream, tdir, top_level=False):
+    def get_images(self, stream=None, tdir=None, top_level=False):
         images = []
         imgs = []
 

@@ -100,7 +100,7 @@ class JobManager(QAbstractTableModel, AdaptSQP):  # {{{
     def rowCount(self, parent=QModelIndex()):
         return len(self.jobs)
 
-    def headerData(self, section, orientation, role):
+    def headerData(self, section, orientation, role=None):
         if role == Qt.ItemDataRole.DisplayRole:
             if orientation == Qt.Orientation.Horizontal:
                 try:
@@ -132,7 +132,7 @@ class JobManager(QAbstractTableModel, AdaptSQP):  # {{{
             lines.append(desc)
         return '\n'.join(['calibre', '']+ lines)
 
-    def data(self, index, role):
+    def data(self, index, role=None):
         try:
             if role not in (Qt.ItemDataRole.DisplayRole, Qt.ItemDataRole.DecorationRole):
                 return None
@@ -493,7 +493,7 @@ class DetailView(Dialog):  # {{{
             assert v is not None
             v.setValue(v.maximum())
 
-    def update(self):
+    def update(self, *args, **kwargs):
         if self.html_view:
             html = self.job.html_details
             if len(html) > self.next_pos:

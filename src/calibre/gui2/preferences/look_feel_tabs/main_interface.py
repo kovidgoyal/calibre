@@ -158,7 +158,7 @@ class MainInterfaceTab(LazyConfigWidgetBase, Ui_Form):
         self.font_display.setFont(font)
         self.font_display.setText(name + f' [{fi.pointSize()}pt]')
 
-    def commit(self):
+    def commit(self, *args):
         rr = LazyConfigWidgetBase.commit(self)
         with BusyCursor():
             if self.current_font != self.initial_font:
@@ -172,7 +172,7 @@ class MainInterfaceTab(LazyConfigWidgetBase, Ui_Form):
             self.gui.layout_container.change_layout(self.gui, self.opt_gui_layout.currentIndex() == 0)
         return rr
 
-    def restore_defaults(self):
+    def restore_defaults(self, *args):
         LazyConfigWidgetBase.restore_defaults(self)
         ofont = self.current_font
         self.current_font = None

@@ -72,7 +72,10 @@ class ScanProgress(QWidget):
         db = get_db()
         db.set_fts_speed(slow=not self.fast_button.isChecked())
 
-    def update(self, complete, left, total):
+    def update(self, *args, **kwargs):
+        if len(args) < 3:
+            return
+        complete, left, total = args[0], args[1], args[2]
         if complete:
             t = _('All book files indexed')
             self.warn_label.setVisible(False)

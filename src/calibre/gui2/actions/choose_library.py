@@ -220,7 +220,7 @@ class BackupStatus(QDialog):  # {{{
         self.update()
         self.resize(self.sizeHint() + QSize(50, 15))
 
-    def update(self):
+    def update(self, *args, **kwargs):
         db = self.db()
         if db is None:
             return

@@ -30,7 +30,7 @@ class Model(QStringListModel):
         self.widgets = widgets
         self.setStringList([w.TITLE for w in widgets])
 
-    def data(self, index, role):
+    def data(self, index, role=...):
         if role == Qt.ItemDataRole.DecorationRole:
             w = self.widgets[index.row()]
             if w.ICON:
@@ -114,7 +114,7 @@ class Base(ConfigWidgetBase):
     def initialize(self):
         ConfigWidgetBase.initialize(self)
 
-    def restore_defaults(self):
+    def restore_defaults(self, *args):
         ConfigWidgetBase.restore_defaults(self)
         sa = self.stack.currentWidget()
         assert isinstance(sa, QScrollArea)
@@ -123,7 +123,7 @@ class Base(ConfigWidgetBase):
         inner.restore_defaults(self.plumber.get_option_by_name)
         self.changed_signal.emit()
 
-    def commit(self):
+    def commit(self, *args):
         for widget in self.model.widgets:
             if not widget.pre_commit_check():
                 raise AbortCommit('abort')

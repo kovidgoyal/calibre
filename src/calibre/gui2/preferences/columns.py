@@ -64,12 +64,12 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         ConfigWidgetBase.initialize(self)
         self.init_columns()
 
-    def restore_defaults(self):
+    def restore_defaults(self, *args):
         ConfigWidgetBase.restore_defaults(self)
         self.init_columns(defaults=True)
         self.changed_signal.emit()
 
-    def commit(self):
+    def commit(self, *args):
         rr = ConfigWidgetBase.commit(self)
         return self.apply_custom_column_changes() or rr
 
@@ -106,7 +106,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         header.setSectionsMovable(True)
         header.setFirstSectionMovable(False)
         header.sectionMoved.connect(self.header_moved)
-        header.sectionResized.connect(self.save_geometry)
+        header.sectionResized.connect(lambda *a: self.save_geometry())
         vheader = self.opt_columns.verticalHeader()
         assert vheader is not None
         vheader.hide()
@@ -164,7 +164,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
     def row_double_clicked(self, r, c):
         self.edit_custcol()
 
-    def save_geometry(self):
+    def save_geometry(self, prefs=None, name=None):
         # Save both the column widths and the column order
         widths = []
         for i in range(self.opt_columns.columnCount()):
@@ -172,15 +172,16 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         gprefs.set('custcol-prefs-table-geometry', widths)
         gprefs.set('custcol-prefs-column_order', self.column_positions)
 
-    def restore_geometry(self):
+    def restore_geometry(self, prefs=None, name=None, get_legacy_saved_geometry=None) -> bool:  # type: ignore[override]
         # restore the column widths. Order is done when the table is created.
         geom = gprefs.get('custcol-prefs-table-geometry', None)
         if geom is not None and len(geom) == self.opt_columns.columnCount():
             with suppress(Exception):
                 for i in range(self.opt_columns.columnCount()):
                     self.opt_columns.setColumnWidth(i, geom[i])
-                return
+                return True
         self.opt_columns.resizeColumnsToContents()
+        return False
 
     def hide_all(self):
         for row in range(self.opt_columns.rowCount()):

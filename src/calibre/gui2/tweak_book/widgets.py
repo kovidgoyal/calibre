@@ -737,7 +737,7 @@ class NamesModel(QAbstractListModel):
     def rowCount(self, parent=ROOT):
         return len(self.items)
 
-    def data(self, index, role):
+    def data(self, index, role=None):
         if role == Qt.ItemDataRole.UserRole:
             return self.items[index.row()]
         if role == Qt.ItemDataRole.DisplayRole:
@@ -795,7 +795,7 @@ class AnchorsModel(QAbstractListModel):
     def rowCount(self, parent=ROOT):
         return len(self.items)
 
-    def data(self, index, role):
+    def data(self, index, role=None):
         if role == Qt.ItemDataRole.UserRole:
             return self.items[index.row()]
         if role == Qt.ItemDataRole.DisplayRole:

@@ -85,13 +85,13 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.init_input_order()
         self.init_internally_viewed_formats()
 
-    def restore_defaults(self):
+    def restore_defaults(self, *args):
         ConfigWidgetBase.restore_defaults(self)
         self.init_input_order(defaults=True)
         self.init_internally_viewed_formats(defaults=True)
         self.changed_signal.emit()
 
-    def commit(self):
+    def commit(self, *args):
         input_map = prefs['input_format_order']
         input_cols = []
         for i in range(self.opt_input_order.count()):

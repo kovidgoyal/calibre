@@ -90,7 +90,7 @@ class TbPartitioningTab(LazyConfigWidgetBase, Ui_Form):
     def lazy_initialize(self):
         self.tb_categories_to_part_model.initialize()
 
-    def commit(self):
+    def commit(self, *args):
         self.tb_categories_to_part_model.commit()
         return LazyConfigWidgetBase.commit(self)
 

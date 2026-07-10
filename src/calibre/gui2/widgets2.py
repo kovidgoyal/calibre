@@ -784,7 +784,7 @@ class ScrollingTabWidget(QTabWidget):
         assert isinstance(w, QScrollArea)
         return w.widget()
 
-    def addTab(self, widget, *args):
+    def addTab(self, widget, a1=None, *args, **kwargs):
         return QTabWidget.addTab(self, self.wrap_widget(widget), *args)
 
 

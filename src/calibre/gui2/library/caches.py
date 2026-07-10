@@ -69,7 +69,7 @@ class RAMCache(MutableMapping[int, T]):
             if val is not None and current_thread() is not self.gui_thread:
                 self.pixmap_staging.append(val)
 
-    def __getitem__(self, book_id: int) -> None | T:
+    def __getitem__(self, book_id: int) -> T:
         with self.lock:
             if current_thread() is self.gui_thread:
                 self.pixmap_staging = []
@@ -436,11 +436,11 @@ class ThumbnailRendererForTest(ThumbnailRenderer):
         self.signal_queue = Queue()
         self.rendered_items = []
 
-    def emit_cover_rendered(self, *a) -> None:
-        self.signal_queue.put(partial(self.on_cover_rendered, *a))
+    def emit_cover_rendered(self, library_id, book_id, width, height, thumb) -> None:
+        self.signal_queue.put(partial(self.on_cover_rendered, library_id, book_id, width, height, thumb))
 
-    def emit_rendered(self, *a) -> None:
-        self.rendered_items.append(a)
+    def emit_rendered(self, book_id, thumb) -> None:
+        self.rendered_items.append((book_id, thumb))
 
     def pump_signals(self, block=False, timeout=None):
         count = 0

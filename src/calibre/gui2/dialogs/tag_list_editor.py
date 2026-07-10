@@ -903,8 +903,8 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         for c in range(table.columnCount()):
             self.table_column_widths.append(table.columnWidth(c))
 
-    def resizeEvent(self, *args):
-        QDialog.resizeEvent(self, *args)
+    def resizeEvent(self, a0=...):
+        QDialog.resizeEvent(self, a0)
         table = self.table
         assert table is not None
         if self.table_column_widths is not None:
@@ -1185,7 +1185,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         setattr(self, sort_order_attr, 1 - getattr(self, sort_order_attr))
         self.last_sorted_by = sort_name
 
-    def save_geometry(self):
+    def save_geometry(self, prefs=None, name=None):
         table = self.table
         assert table is not None
         vh = table.verticalHeader()

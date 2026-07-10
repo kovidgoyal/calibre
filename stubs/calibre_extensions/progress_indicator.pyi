@@ -163,5 +163,5 @@ class QProgressIndicator(QWidget):
         'Set the recommended size for the widget'
         pass
 
-    def paintEvent(self, a0: QPaintEvent) -> None:
+    def paintEvent(self, a0: QPaintEvent | None) -> None:
         pass

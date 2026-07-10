@@ -80,13 +80,13 @@ class CustomRecipeModel(QAbstractListModel):  # {{{
             urn = self.recipe_model.custom_recipe_collection[row].get('id')
             return self.recipe_model.get_recipe(urn)
 
-    def rowCount(self, *args):
+    def rowCount(self, parent=...):
         try:
             return len(self.recipe_model.custom_recipe_collection)
         except Exception:
             return 0
 
-    def data(self, index, role):
+    def data(self, index, role=...):
         if role == Qt.ItemDataRole.DisplayRole:
             return self.title(index)
 
@@ -254,7 +254,7 @@ class RecipeList(QWidget):  # {{{
         row = self.model.add(title, src)
         self.select_row(row)
 
-    def update(self, row, title, src):
+    def update_recipe(self, row, title, src):
         self.model.update(row, title, src)
         self.select_row(row)
 
@@ -691,7 +691,7 @@ class CustomRecipes(Dialog):
             # Adding a new recipe
             self.recipe_list.add(recipe.title, src)
         else:
-            self.recipe_list.update(row, recipe.title, src)
+            self.recipe_list.update_recipe(row, recipe.title, src)
         self.stack.setCurrentIndex(0)
 
     def customize_recipe(self):

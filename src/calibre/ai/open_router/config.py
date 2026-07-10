@@ -99,10 +99,10 @@ class ModelsModel(QAbstractListModel):
     def generate_sorts(self, *sorts):
         self.sorts = tuple(tuple(f(m) for f in sorts) for m in self.all_models)
 
-    def rowCount(self, parent):
+    def rowCount(self, parent=...):
         return len(self.all_models)
 
-    def data(self, index, role):
+    def data(self, index, role=...):
         try:
             m = self.all_models[index.row()]
         except IndexError:

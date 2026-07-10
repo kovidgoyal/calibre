@@ -714,7 +714,7 @@ class ReadingTest(BaseTest):
         # Check the unimplemented methods
         self.assertRaises(NotImplementedError, lambda: 'foo' in pmi)
         self.assertRaises(NotImplementedError, pmi.set, 'a', 'a')
-        self.assertRaises(NotImplementedError, pmi.set_identifiers, 'a', 'a')
+        self.assertRaises(NotImplementedError, pmi.set_identifiers, 'a')
         self.assertRaises(NotImplementedError, pmi.set_identifier, 'a', 'a')
         self.assertRaises(NotImplementedError, pmi.all_non_none_fields)
         self.assertRaises(NotImplementedError, pmi.set_all_user_metadata, {})

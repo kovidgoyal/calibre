@@ -144,8 +144,8 @@ FRAG_ROLE = DEST_ROLE + 1
 
 class Delegate(QStyledItemDelegate):
 
-    def sizeHint(self, *args):
-        ans = QStyledItemDelegate.sizeHint(self, *args)
+    def sizeHint(self, option=None, index=None):
+        ans = QStyledItemDelegate.sizeHint(self, option, index)
         return ans + QSize(0, 10)
 
 

@@ -101,8 +101,8 @@ class XPathEdit(QWidget):
         if wiz.exec() == QDialog.DialogCode.Accepted:
             self.edit.setText(wiz.xpath)
 
-    def setObjectName(self, *args):
-        QWidget.setObjectName(self, *args)
+    def setObjectName(self, name):
+        QWidget.setObjectName(self, name)
         if hasattr(self, 'edit'):
             self.edit.initialize('xpath_edit_'+str(self.objectName()))
 

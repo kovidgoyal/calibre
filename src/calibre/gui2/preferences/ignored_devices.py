@@ -84,11 +84,11 @@ class ConfigWidget(ConfigWidgetBase):
         self.device_plugins.sortItems()
         self.device_plugins.blockSignals(False)
 
-    def restore_defaults(self):
+    def restore_defaults(self, *args):
         if self.devices.count() > 0:
             self.devices.clear()
 
-    def commit(self):
+    def commit(self, *args):
         devs = {}
         for i in range(self.devices.count()):
             e = self.devices.item(i)

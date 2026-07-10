@@ -33,7 +33,7 @@ import json
 
 class WolneLekturyStore(BasicStoreConfig, StorePlugin):
 
-    def open(self, parent=None, detail_item=None, external=False):
+    def open(self, gui=None, parent=None, detail_item=None, external=False):
 
         url = 'https://wolnelektury.pl'
         detail_url = None

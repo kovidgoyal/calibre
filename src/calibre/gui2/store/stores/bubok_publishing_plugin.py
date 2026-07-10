@@ -31,7 +31,7 @@ except ImportError:
 
 class BubokPublishingStore(BasicStoreConfig, StorePlugin):
 
-    def open(self, parent=None, detail_item=None, external=False):
+    def open(self, gui=None, parent=None, detail_item=None, external=False):
         url = 'https://www.bubok.es/tienda'
         if external or self.config.get('open_external', False):
             open_url(QUrl(url_slash_cleaner(detail_item or url)))
@@ -77,5 +77,5 @@ class BubokPublishingStore(BasicStoreConfig, StorePlugin):
                 s.cover_url = cover.strip()
                 yield s
 
-    def get_details(self, search_result, timeout):
+    def get_details(self, search_result, timeout=60):
         return True

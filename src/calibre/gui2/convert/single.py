@@ -56,10 +56,10 @@ class GroupModel(QAbstractListModel):
         self.widgets = widgets
         QAbstractListModel.__init__(self)
 
-    def rowCount(self, *args):
+    def rowCount(self, parent=...):
         return len(self.widgets)
 
-    def data(self, index, role):
+    def data(self, index, role=...):
         try:
             widget = self.widgets[index.row()]
         except Exception:

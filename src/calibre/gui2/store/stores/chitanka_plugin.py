@@ -71,7 +71,7 @@ def parse_book_page(doc, base_url, counter):
 
 class ChitankaStore(BasicStoreConfig, StorePlugin):
 
-    def open(self, parent=None, detail_item=None, external=False):
+    def open(self, gui=None, parent=None, detail_item=None, external=False):
         url = 'http://chitanka.info'
 
         if external or self.config.get('open_external', False):

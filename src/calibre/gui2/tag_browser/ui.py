@@ -1029,7 +1029,7 @@ class TagBrowserWidget(QFrame):  # {{{
             self.tags_view.recount()
             self.current_find_position = None
 
-    def find(self):
+    def find(self, a0=None):
         model = self.tags_view._model
         model.clear_boxed()
 

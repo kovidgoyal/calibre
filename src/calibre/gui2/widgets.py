@@ -529,7 +529,7 @@ class BasicList(QListWidget):
         for item in self.selectedItems():
             self.takeItem(self.row(item))
 
-    def items(self):
+    def items(self, data=None):
         for i in range(self.count()):
             yield self.item(i)
 # }}}

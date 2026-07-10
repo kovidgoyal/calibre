@@ -259,7 +259,7 @@ class Source(Plugin):
     def is_customizable(self):
         return True
 
-    def customization_help(self):
+    def customization_help(self, gui=False):
         return 'This plugin can only be customized using the GUI'
 
     def config_widget(self):

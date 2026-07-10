@@ -786,7 +786,7 @@ class KOBO(USBMS):
         return USBMS.get_file(self, path, outfile, end_session=end_session)
 
     @classmethod
-    def book_from_path(cls, prefix, lpath, title, authors, mime, date, ContentType, ImageID):
+    def book_from_path(cls, prefix, lpath, title=None, authors=None, mime=None, date=None, ContentType=None, ImageID=None):
         # debug_print("KOBO:book_from_path - title=%s"%title)
         from calibre.ebooks.metadata import MetaInformation
 
@@ -2165,7 +2165,7 @@ class KOBOTOUCH(KOBO):
         return bl
 
     @classmethod
-    def book_from_path(cls, prefix, lpath, title, authors, mime, date, ContentType, ImageID):
+    def book_from_path(cls, prefix, lpath, title=None, authors=None, mime=None, date=None, ContentType=None, ImageID=None):
         debug_print(f'KoboTouch:book_from_path - title={title}')
         book = super().book_from_path(prefix, lpath, title, authors, mime, date, ContentType, ImageID)
 

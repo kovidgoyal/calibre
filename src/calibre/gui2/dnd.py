@@ -100,7 +100,7 @@ class DownloadDialog(QDialog):  # {{{
                     url=self.worker.url, err=self.worker.err),
                 det_msg=self.worker.tb, show=True)
 
-    def update(self):
+    def update(self, *args, **kwargs):
         if self.rejected:
             return
 

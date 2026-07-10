@@ -1217,7 +1217,7 @@ def evaluate(book, context):
         for c in range(self.template_value.columnCount()):
             self.table_column_widths.append(self.template_value.columnWidth(c))
 
-    def save_geometry(self):
+    def save_geometry(self, prefs=None, name=None):
         gprefs[self.geometry_string('template_editor_table_widths')] = self.table_column_widths
         super().save_geometry(gprefs, self.geometry_string('template_editor_dialog_geometry'))
 
@@ -1375,7 +1375,7 @@ class BreakReporterBase(QDialog):
         keys.add('date')
         return sorted(keys)
 
-    def save_geometry(self):
+    def save_geometry(self, prefs=None, name=None):
         super().save_geometry(gprefs, 'template_editor_break_geometry')
         gprefs['template_editor_break_table_widths'] = self.table_column_widths
 

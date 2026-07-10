@@ -236,7 +236,7 @@ class EnumValuesEdit(QDialog):
         self.make_was_item(row)
         self.make_count_item(row, '')
 
-    def save_geometry(self):
+    def save_geometry(self, prefs=None, name=None):
         super().save_geometry(gprefs, 'enum-values-edit-geometry')
 
     def accept(self):

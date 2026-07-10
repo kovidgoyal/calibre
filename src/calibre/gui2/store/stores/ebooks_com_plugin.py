@@ -89,7 +89,7 @@ def ec_details(search_result, timeout=30, write_data_to=''):
 
 class EbookscomStore(BasicStoreConfig, StorePlugin):
 
-    def open(self, parent=None, detail_item=None, external=False):
+    def open(self, gui=None, parent=None, detail_item=None, external=False):
         if detail_item:
             purl = detail_item
             url = purl
@@ -108,7 +108,7 @@ class EbookscomStore(BasicStoreConfig, StorePlugin):
     def search(self, query, max_results=10, timeout=60):
         yield from search_ec(query, max_results, timeout)
 
-    def get_details(self, search_result, timeout):
+    def get_details(self, search_result, timeout=60):
         ec_details(search_result, timeout)
         return True
 

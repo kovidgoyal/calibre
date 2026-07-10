@@ -30,7 +30,7 @@ except ImportError:
 
 class EBookShoppeUKStore(BasicStoreConfig, StorePlugin):
 
-    def open(self, parent=None, detail_item=None, external=False):
+    def open(self, gui=None, parent=None, detail_item=None, external=False):
         url_details = 'http://www.awin1.com/cread.php?awinmid=1414&awinaffid=120917&clickref=&p={0}'
         url = 'http://www.awin1.com/awclick.php?mid=2666&id=120917'
 

@@ -33,7 +33,7 @@ class LitResStore(BasicStoreConfig, StorePlugin):
     shop_url = u'http://www.litres.ru'
     # http://robot.litres.ru/pages/biblio_book/?art=174405
 
-    def open(self, parent=None, detail_item=None, external=False):
+    def open(self, gui=None, parent=None, detail_item=None, external=False):
 
         aff_id = u'?' + _get_affiliate_id()
 

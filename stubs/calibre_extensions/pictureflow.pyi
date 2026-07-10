@@ -106,7 +106,7 @@ class PictureFlow(QWidget):
         'Make index the currently centered slide, without animation'
         pass
 
-    def render(self) -> None:
+    def render(self, *args, **kwargs) -> None:
         'Re-render the widget'
         pass
 
@@ -126,23 +126,23 @@ class PictureFlow(QWidget):
         'Call this slot when the underlying FlowImages data has changed'
         pass
 
-    def paintEvent(self, a0: QPaintEvent) -> None:
+    def paintEvent(self, a0: QPaintEvent | None) -> None:
         pass
 
-    def keyPressEvent(self, a0: QKeyEvent) -> None:
+    def keyPressEvent(self, a0: QKeyEvent | None) -> None:
         pass
 
-    def mouseMoveEvent(self, a0: QMouseEvent) -> None:
+    def mouseMoveEvent(self, a0: QMouseEvent | None) -> None:
         pass
 
-    def mousePressEvent(self, a0: QMouseEvent) -> None:
+    def mousePressEvent(self, a0: QMouseEvent | None) -> None:
         pass
 
-    def mouseReleaseEvent(self, a0: QMouseEvent) -> None:
+    def mouseReleaseEvent(self, a0: QMouseEvent | None) -> None:
         pass
 
-    def resizeEvent(self, a0: QResizeEvent) -> None:
+    def resizeEvent(self, a0: QResizeEvent | None) -> None:
         pass
 
-    def timerEvent(self, a0: QTimerEvent) -> None:
+    def timerEvent(self, a0: QTimerEvent | None) -> None:
         pass

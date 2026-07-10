@@ -63,7 +63,7 @@ def search(query, max_results=15, timeout=60):
 
 class OzonRUStore(StorePlugin):
 
-    def open(self, parent=None, detail_item=None, external=False):
+    def open(self, gui=None, parent=None, detail_item=None, external=False):
         url = detail_item or shop_url
         if external or self.config.get('open_external', False):
             open_url(QUrl(url_slash_cleaner(url)))

@@ -402,8 +402,7 @@ class Connection(apsw.Connection):  # {{{
         self.createscalarfunction('title_sort', title_sort, 1)
         self.createscalarfunction('author_to_author_sort',
                 _author_to_author_sort, 1)
-        self.createscalarfunction('uuid4', lambda: str(uuid.uuid4()),
-                0)
+        self.createscalarfunction('uuid4', lambda *a: str(uuid.uuid4()), 0)
 
         # Dummy functions for dynamically created filters
         self.createscalarfunction('books_list_filter', lambda x: 1, 1)
@@ -447,11 +446,11 @@ class Connection(apsw.Connection):  # {{{
             ans = as_dict(ans)
         return ans
 
-    def execute(self, statements, bindings=None):
+    def execute(self, statements, bindings=None, *, can_cache=True, prepare_flags=0, explain=-1):
         cursor = self.cursor()
         return cursor.execute(statements, bindings)
 
-    def executemany(self, statements, sequenceofbindings):
+    def executemany(self, statements, sequenceofbindings, *, can_cache=True, prepare_flags=0, explain=-1):
         with self:  # Disable autocommit mode, for performance
             return self.cursor().executemany(statements, sequenceofbindings)
 
@@ -469,7 +468,7 @@ def rmtree_with_retry(path, sleep_time=1):
     except OSError as e:
         if e.errno == errno.ENOENT and not os.path.exists(path):
             return
-        if iswindows and e.winerror == winutil.ERROR_SHARING_VIOLATION:
+        if iswindows and getattr(e, 'winerror') == winutil.ERROR_SHARING_VIOLATION:
             time.sleep(sleep_time)  # In case something has temporarily locked a file
         shutil.rmtree(path)
 
@@ -1464,9 +1463,7 @@ class DB:
         self.notes.reopen(self)
 
     def dump_and_restore(self, callback=None, sql=None):
-        import codecs
-
-        from apsw import Shell
+        from apsw import Shell  # type: ignore
         if callback is None:
             def callback(x):
                 return x
@@ -1475,7 +1472,7 @@ class DB:
         with TemporaryFile(suffix='.sql') as fname:
             if sql is None:
                 callback(_('Dumping database to SQL') + '...')
-                with codecs.open(fname, 'wb', encoding='utf-8') as buf:
+                with open(fname, 'wb', encoding='utf-8') as buf:
                     shell = Shell(db=self.conn, stdout=buf)
                     shell.process_command('.dump')
             else:
@@ -2175,6 +2172,7 @@ class DB:
                         os.remove(make_long_path_useable(path))
                 else:
                     from calibre.utils.recycle_bin import recycle
+                    assert recycle is not None
                     recycle(make_long_path_useable(path))
             except Exception as e:
                 import traceback
@@ -2416,7 +2414,8 @@ class DB:
                         else:
                             formats.add(f.name.upper())
                 if formats:
-                    files.append(TrashEntry(book_id, metadata.get('title') or unknown, (metadata.get('authors') or au)[0], '', mtime, tuple(formats)))
+                    ttitle: str = str(metadata.get('title') or unknown)
+                    files.append(TrashEntry(book_id, ttitle, (metadata.get('authors') or au)[0], '', mtime, tuple(formats)))
         return books, files
 
     def remove_books(self, path_map, permanent=False):

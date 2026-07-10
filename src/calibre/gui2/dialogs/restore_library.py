@@ -60,7 +60,7 @@ class DBRestore(QDialog):
             default_yes=False, override_icon='dialog_warning.png'):
             self.reject()
 
-    def update(self):
+    def update(self, *args, **kwargs):
         if self.restorer.is_alive():
             QTimer.singleShot(10, self.update)
         else:

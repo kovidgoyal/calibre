@@ -418,7 +418,7 @@ class CategoryModel(QAbstractItemModel):
         except IndexError:
             return ROOT
 
-    def parent(self, child):
+    def parent(self, child=...):
         if not child.isValid():
             return ROOT
         pid = child.internalId()
@@ -522,7 +522,7 @@ class CharModel(QAbstractListModel):
     def rowCount(self, parent=ROOT):
         return len(self.chars)
 
-    def data(self, index, role):
+    def data(self, index, role=None):
         if role == Qt.ItemDataRole.UserRole and -1 < index.row() < len(self.chars):
             return self.chars[index.row()]
         return None

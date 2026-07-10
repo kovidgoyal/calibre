@@ -238,7 +238,7 @@ class BookDetailsTab(LazyConfigWidgetBase, Ui_Form):
         if IdLinksEditor(self).exec() == QDialog.DialogCode.Accepted:
             self.changed_signal.emit()
 
-    def commit(self):
+    def commit(self, *args):
         with BusyCursor():
             self.display_model.commit()
             self.bd_vertical_cats_model.commit()
@@ -250,7 +250,7 @@ class BookDetailsTab(LazyConfigWidgetBase, Ui_Form):
             set_data('templates/book_details.css', bcss)
         return LazyConfigWidgetBase.commit(self)
 
-    def restore_defaults(self):
+    def restore_defaults(self, *args):
         LazyConfigWidgetBase.restore_defaults(self)
         self.default_author_link.restore_defaults()
         self.display_model.restore_defaults()

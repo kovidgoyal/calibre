@@ -605,8 +605,8 @@ class MultipleWidget(QWidget):
     def set_space_before_sep(self, v):
         self.edit_widget.set_space_before_sep(v)
 
-    def setSizePolicy(self, a0, v2):
-        self.edit_widget.setSizePolicy(a0, v2)
+    def setSizePolicy(self, *args, **kwargs):
+        self.edit_widget.setSizePolicy(*args, **kwargs)
 
     def setText(self, v):
         self.edit_widget.setText(v)
@@ -1252,7 +1252,7 @@ class BulkInt(BulkBase):
         self.main_widget.setRange(-1000000, 100000000)
         self.finish_ui_setup(parent)
 
-    def finish_ui_setup(self, parent):
+    def finish_ui_setup(self, parent, edit_widget=False, add_edit_tags_button=(False,)):
         BulkBase.finish_ui_setup(self, parent)
         self.main_widget.setSpecialValueText(_('Undefined'))
         self.main_widget.setSingleStep(1)
@@ -1696,7 +1696,9 @@ class BulkText(BulkBase):
     def edit_add(self):
         self.edit(widget=self.main_widget)
 
-    def edit(self, widget):
+    def edit(self, widget=None):
+        if widget is None:
+            return
         if widget.text():
             d = _save_dialog(self.parent, _('Values changed'),
                     _('You have entered values. In order to use this '

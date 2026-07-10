@@ -1282,7 +1282,7 @@ class ConfigWidget(ConfigWidgetBase):
     def server(self):
         return self.gui.content_server
 
-    def restore_defaults(self):
+    def restore_defaults(self, *args):
         ConfigWidgetBase.restore_defaults(self)
         for tab in self.tabs:
             if hasattr(tab, 'restore_defaults'):
@@ -1441,7 +1441,7 @@ class ConfigWidget(ConfigWidgetBase):
         UserManager().user_data = users
         return True
 
-    def commit(self):
+    def commit(self, *args):
         if not self.save_changes():
             raise AbortCommit()
         warning_dialog(

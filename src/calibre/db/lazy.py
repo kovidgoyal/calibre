@@ -395,7 +395,7 @@ class ProxyMetadata(Metadata):
     def has_key(self, key):
         return key in STANDARD_METADATA_FIELDS or key in ga(self, '_user_metadata')
 
-    def deepcopy(self, **kwargs):
+    def deepcopy(self, class_generator=lambda: Metadata(None)):
         self._unimplemented_exception('deepcopy', add_txt=False)
 
     def deepcopy_metadata(self):
@@ -420,10 +420,10 @@ class ProxyMetadata(Metadata):
         res = self.get('identifiers')
         return {} if res is None else res
 
-    def set_identifiers(self, *args):
+    def set_identifiers(self, identifiers):
         self._unimplemented_exception('set_identifiers', add_txt=True)
 
-    def set_identifier(self, *args):
+    def set_identifier(self, typ, val):
         self._unimplemented_exception('set_identifier', add_txt=True)
 
     def has_identifier(self, typ):
@@ -477,16 +477,16 @@ class ProxyMetadata(Metadata):
                 ans = deepcopy(ans)
             return ans
 
-    def set_all_user_metadata(self, *args):
+    def set_all_user_metadata(self, metadata):
         self._unimplemented_exception('set_all_user_metadata', add_txt=True)
 
-    def set_user_metadata(self, *args):
+    def set_user_metadata(self, field, metadata):
         self._unimplemented_exception('set_user_metadata', add_txt=True)
 
-    def remove_stale_user_metadata(self, *args):
+    def remove_stale_user_metadata(self, other_mi):
         self._unimplemented_exception('remove_stale_user_metadata', add_txt=True)
 
-    def template_to_attribute(self, *args):
+    def template_to_attribute(self, other, ops):
         self._unimplemented_exception('template_to_attribute', add_txt=True)
 
     def smart_update(self, *args, **kwargs):

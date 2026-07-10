@@ -1560,7 +1560,7 @@ class BooksView(TableView):  # {{{
             return _mc_model.index(_mc_model.rowCount(QModelIndex()) - 1, orig.column())
         return index
 
-    def selectionCommand(self, index, event):
+    def selectionCommand(self, index, event=...):
         if event and event.type() == QEvent.Type.KeyPress:
             key = event.key()
             mods = event.modifiers() & (
@@ -1840,7 +1840,7 @@ class DeviceBooksView(BooksView):  # {{{
     def connect_upload_collections_signal(self, func=None, oncard=None):
         self._model.upload_collections.connect(partial(func, view=self, oncard=oncard))
 
-    def dropEvent(self, *args):
+    def dropEvent(self, event=...):
         error_dialog(self, _('Not allowed'),
         _('Dropping onto a device is not supported. First add the book to the calibre library.')).exec()
 

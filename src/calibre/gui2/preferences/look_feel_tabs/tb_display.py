@@ -81,11 +81,11 @@ class TbDisplayTab(LazyConfigWidgetBase, Ui_Form):
         self.tb_display_model.initialize()
         self.tb_focus_label.setVisible(self.opt_tag_browser_allow_keyboard_focus.isChecked())
 
-    def restore_defaults(self):
+    def restore_defaults(self, *args):
         LazyConfigWidgetBase.restore_defaults(self)
         self.tb_display_model.restore_defaults()
 
-    def commit(self):
+    def commit(self, *args):
         self.tb_display_model.commit()
         return LazyConfigWidgetBase.commit(self)
 

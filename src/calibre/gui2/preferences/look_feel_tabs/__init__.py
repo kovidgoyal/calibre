@@ -161,10 +161,10 @@ class DisplayedFields(QAbstractListModel):
         self.endResetModel()
         self.changed = True
 
-    def rowCount(self, *args):
+    def rowCount(self, parent=...):
         return len(self.fields)
 
-    def data(self, index, role):
+    def data(self, index, role=...):
         try:
             field, visible = self.fields[index.row()]
         except Exception:
@@ -202,7 +202,7 @@ class DisplayedFields(QAbstractListModel):
         ans = QAbstractListModel.flags(self, index)
         return ans | Qt.ItemFlag.ItemIsUserCheckable
 
-    def setData(self, index, value, role):
+    def setData(self, index, value, role=...):
         ret = False
         if role == Qt.ItemDataRole.CheckStateRole:
             self.fields[index.row()][1] = value in (Qt.CheckState.Checked, Qt.CheckState.Checked.value)
@@ -440,11 +440,11 @@ class BackgroundConfig(QGroupBox, LazyConfigWidgetBase):
             dotex(self.btex_light, self.light_brush)
             dotex(self.btex_dark, self.dark_brush)
 
-        def restore_defaults(self):
+        def restore_defaults(self, *args):
             self.load_from_gprefs(use_defaults=True)
             self.changed_signal.emit()
 
-        def commit(self):
+        def commit(self, *args):
             s = gprefs[self.config_name].copy()
             bcol_light = self.bcol_light
             assert bcol_light is not None
