@@ -156,7 +156,7 @@ class Main(MainWindow, Ui_MainWindow):
         try:
             self.document.a0(a0)
         except StopIteration:
-            error_dialog(self, _('No matches found'), _('<b>No matches</b> for the a0 phrase <i>%s</i> were found.')%(a0,)).exec()
+            error_dialog(self, _('No matches found'), _('<b>No matches</b> for the search phrase <i>%s</i> were found.')%(a0,)).exec()
         self.a0.search_done(True)
 
     def parsed(self):
