@@ -208,7 +208,9 @@ class EditorSettings(BasicSettings):  # {{{
         h = QHBoxLayout()
         h.addWidget(theme), h.addWidget(b)
         l.addRow(_('&Color scheme:'), h)
-        l.labelForField(h).setBuddy(theme)
+        lf = l.labelForField(h)
+        assert lf is not None
+        lf.setBuddy(theme)
 
         tw = self('editor_tab_stop_width')
         tw.setMinimum(2), tw.setSuffix(_(' characters')), tw.setMaximum(20)
@@ -873,10 +875,13 @@ class Preferences(QDialog):
     def restore_all_defaults(self):
         for i in range(self.stacks.count()):
             w = self.stacks.widget(i)
+            assert isinstance(w, (BasicSettings, ToolbarSettings, ShortcutConfig))
             w.restore_defaults()
 
     def restore_current_defaults(self):
-        self.stacks.currentWidget().restore_defaults()
+        cw = self.stacks.currentWidget()
+        assert isinstance(cw, (BasicSettings, ToolbarSettings, ShortcutConfig))
+        cw.restore_defaults()
 
     def restore_confirmations(self):
         changed = 0
@@ -901,6 +906,7 @@ class Preferences(QDialog):
         self.save_geometry(tprefs, 'preferences_geom')
         for i in range(self.stacks.count()):
             w = self.stacks.widget(i)
+            assert isinstance(w, (BasicSettings, ToolbarSettings, ShortcutConfig))
             w.commit()
         QDialog.accept(self)
 

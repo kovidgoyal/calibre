@@ -292,7 +292,9 @@ class Editor(QMainWindow):
         b.addSeparator()
         self.action_filters = ac = b.addAction(QIcon.ic('filter.png'), _('Image filters'))
         assert ac is not None
-        b.widgetForAction(ac).setPopupMode(QToolButton.ToolButtonPopupMode.InstantPopup)
+        wfa = b.widgetForAction(ac)
+        assert isinstance(wfa, QToolButton)
+        wfa.setPopupMode(QToolButton.ToolButtonPopupMode.InstantPopup)
         self.filters_menu = m = QMenu(self)
         ac.setMenu(m)
         m.addAction(_('Auto-trim image'), self.canvas.autotrim_image)

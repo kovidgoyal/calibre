@@ -30,7 +30,7 @@ from calibre.gui2.tweak_book.editor.smarts.utils import (
     smart_home,
     smart_tab,
 )
-from calibre.gui2.tweak_book.editor.syntax.html import ATTR_END, ATTR_NAME, ATTR_START, ATTR_VALUE
+from calibre.gui2.tweak_book.editor.syntax.html import ATTR_END, ATTR_NAME, ATTR_START, ATTR_VALUE, HTMLUserData
 from calibre.utils.icu import utf16_length
 from calibre.utils.localization import _
 
@@ -838,7 +838,9 @@ class Smarts(NullSmarts):
             # Check if we are in comment/PI/etc.
             pb = block.previous()
             while pb.isValid():
-                boundaries = pb.userData().non_tag_structures
+                pud = pb.userData()
+                assert isinstance(pud, HTMLUserData)
+                boundaries = pud.non_tag_structures
                 if boundaries:
                     if boundaries[-1].is_start:
                         in_text = False
@@ -859,6 +861,7 @@ class Smarts(NullSmarts):
 
         while block.isValid() and block.position() <= cend:
             ud = block.userData()
+            assert isinstance(ud, HTMLUserData)
             boundaries = sorted(chain(ud.tags, ud.non_tag_structures), key=get_offset)
             if not boundaries:
                 # Add the whole line

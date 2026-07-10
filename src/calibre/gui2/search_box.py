@@ -38,11 +38,17 @@ class SearchLineEdit(QLineEdit):  # {{{
         QLineEdit.keyPressEvent(self, a0)
 
     def dropEvent(self, a0):
-        self.parent().normalize_state()
+        p = self.parent()
+        assert p is not None
+        assert isinstance(p, SearchBox2)
+        p.normalize_state()
         return QLineEdit.dropEvent(self, a0)
 
     def contextMenuEvent(self, a0):
-        self.parent().normalize_state()
+        p = self.parent()
+        assert p is not None
+        assert isinstance(p, SearchBox2)
+        p.normalize_state()
         menu = self.createStandardContextMenu()
         assert menu is not None
         menu.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose)
@@ -98,7 +104,10 @@ class SearchLineEdit(QLineEdit):  # {{{
 
     @pyqtSlot()
     def paste(self, *args):
-        self.parent().normalize_state()
+        p = self.parent()
+        assert p is not None
+        assert isinstance(p, SearchBox2)
+        p.normalize_state()
         return QLineEdit.paste(self)
 
     def focusInEvent(self, a0):

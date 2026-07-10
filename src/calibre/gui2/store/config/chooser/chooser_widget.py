@@ -6,6 +6,7 @@ from qt.core import QComboBox, QDialog, QIcon, QLineEdit, QWidget
 
 from calibre.gui2.store.config.chooser.adv_search_builder import AdvSearchBuilderDialog
 from calibre.gui2.store.config.chooser.chooser_widget_ui import Ui_Form
+from calibre.gui2.store.config.chooser.models import Matches
 from calibre.utils.localization import _
 
 
@@ -25,13 +26,19 @@ class StoreChooserWidget(QWidget, Ui_Form):
         ac.triggered.connect(self.build_adv_search)
         ac.setToolTip(_('Advanced search'))
         self.search.clicked.connect(self.do_search)
-        self.enable_all.clicked.connect(self.results_view.model().enable_all)
-        self.enable_none.clicked.connect(self.results_view.model().enable_none)
-        self.enable_invert.clicked.connect(self.results_view.model().enable_invert)
-        self.results_view.activated.connect(self.results_view.model().toggle_plugin)
+        _m = self.results_view.model()
+        assert _m is not None
+        assert isinstance(_m, Matches)
+        self.enable_all.clicked.connect(_m.enable_all)
+        self.enable_none.clicked.connect(_m.enable_none)
+        self.enable_invert.clicked.connect(_m.enable_invert)
+        self.results_view.activated.connect(_m.toggle_plugin)
 
     def do_search(self):
-        self.results_view.model().search(str(self.query.text()))
+        _m = self.results_view.model()
+        assert _m is not None
+        assert isinstance(_m, Matches)
+        _m.search(str(self.query.text()))
 
     def build_adv_search(self):
         adv = AdvSearchBuilderDialog(self)

@@ -37,8 +37,12 @@ class PluginWidget(Widget, Ui_Form):
             self.opt_pdf_standard_font.addItem(x)
 
         self.initialize_options(get_option, get_help, db, book_id)
-        self.layout().setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.ExpandingFieldsGrow)
-        self.template_box.layout().setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.AllNonFixedFieldsGrow)
+        lay = self.layout()
+        assert isinstance(lay, QFormLayout)
+        lay.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.ExpandingFieldsGrow)
+        tbl = self.template_box.layout()
+        assert isinstance(tbl, QFormLayout)
+        tbl.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.AllNonFixedFieldsGrow)
         self.profile_size_toggled()
 
     def profile_size_toggled(self):

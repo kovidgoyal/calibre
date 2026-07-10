@@ -69,9 +69,11 @@ class Delegate(QStyledItemDelegate):
 
     def initStyleOption(self, option, index):
         super().initStyleOption(option, index)
-        if index.row() == self.parent().currentRow():
+        p = self.parent()
+        assert isinstance(p, QListWidget)
+        if index.row() == p.currentRow():
             option.font.setBold(True)
-            option.backgroundBrush = self.parent().palette().brush(QPalette.ColorRole.AlternateBase)
+            option.backgroundBrush = p.palette().brush(QPalette.ColorRole.AlternateBase)
 
 
 class Check(QSplitter):

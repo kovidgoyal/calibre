@@ -230,6 +230,7 @@ class PaletteConfig(Dialog):
     def setup_ui(self):
         self.l = l = QVBoxLayout(self)
         app = Application.instance()
+        assert isinstance(app, Application)
         if not app.palette_manager.using_calibre_style:
             self.wla = la = QLabel('<p>' + _('<b>WARNING:</b> You have configured calibre to use "System" user interface style.'
                                         ' The settings below will be ignored unless you switch back to using the "calibre" interface style.'))
@@ -295,7 +296,9 @@ class PaletteConfig(Dialog):
             gprefs['color_palette'] = str(self.palette.currentData())
             self.light_tab.apply_settings()
             self.dark_tab.apply_settings()
-        Application.instance().palette_manager.refresh_palette()
+        app = Application.instance()
+        assert isinstance(app, Application)
+        app.palette_manager.refresh_palette()
 
     def restore_defaults(self):
         self.light_tab.restore_defaults()

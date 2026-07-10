@@ -36,6 +36,7 @@ from qt.core import (
 
 from calibre.ebooks import BOOK_EXTENSIONS as EBOOK_EXTENSIONS
 from calibre.gui2 import error_dialog
+from calibre.gui2.device import DeviceMixin
 from calibre.gui2.device_drivers.mtp_folder_browser import Browser, IgnoredFolders
 from calibre.gui2.dialogs.template_dialog import TemplateDialog
 from calibre.utils.date import parse_date
@@ -627,9 +628,11 @@ class SendError(QDialog):
 
     def accept(self):
         QDialog.accept(self)
-        dev = self.parent().device_manager.connected_device
+        p = self.parent()
+        assert isinstance(p, DeviceMixin)
+        dev = p.device_manager.connected_device
         dev.highlight_ignored_folders = True
-        self.parent().configure_connected_device()
+        p.configure_connected_device()
         dev.highlight_ignored_folders = False
 
 

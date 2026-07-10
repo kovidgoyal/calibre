@@ -1062,7 +1062,9 @@ class WordsView(QTableView):
 
     def contextMenuEvent(self, a0):
         m = QMenu(self)
-        w = self.model().word_for_row(self.currentIndex().row())
+        wv_model = self.model()
+        assert isinstance(wv_model, WordsModel)
+        w = wv_model.word_for_row(self.currentIndex().row())
         if w is not None:
             a = m.addAction(_('Change %s to') % w[0])
             cm = QMenu(self)
@@ -1086,7 +1088,9 @@ class WordsView(QTableView):
 
     def copy_to_clipboard(self):
         rows = {i.row() for i in self.selectedIndexes()}
-        words = {self.model().word_for_row(r) for r in rows}
+        wv_model2 = self.model()
+        assert isinstance(wv_model2, WordsModel)
+        words = {wv_model2.word_for_row(r) for r in rows}
         words.discard(None)
         words = sorted({w[0] for w in words}, key=sort_key)
         if words:
@@ -1099,7 +1103,9 @@ class WordsView(QTableView):
 
     @property
     def current_word(self):
-        return self.model().word_for_row(self.currentIndex().row())
+        wv_model3 = self.model()
+        assert isinstance(wv_model3, WordsModel)
+        return wv_model3.word_for_row(self.currentIndex().row())
 
 
 class ManageExcludedFiles(Dialog):
@@ -1160,7 +1166,7 @@ class SpellCheck(Dialog):
 
     def __init__(self, parent=None):
         self.__current_word = None
-        self.thread = None
+        self.refresh_thread: Thread | None = None
         self.cancel = False
         dictionaries.initialize()
         self.current_word_changed_timer = t = QTimer()
@@ -1376,7 +1382,9 @@ class SpellCheck(Dialog):
         dest = choose_save_file(self, 'spellcheck-csv-export', _('CSV file'), filters=[(_('CSV file'), ['csv'])],
                                all_files=False, initial_filename=_('Words') + '.csv')
         if dest:
-            csv = self.words_view.model().to_csv()
+            wv_m = self.words_view.model()
+            assert isinstance(wv_m, WordsModel)
+            csv = wv_m.to_csv()
             with open(dest, 'wb') as f:
                 f.write(csv.encode())
 
@@ -1590,15 +1598,15 @@ class SpellCheck(Dialog):
         if not self.isVisible():
             return
         self.cancel = True
-        if (t := self.thread) is not None:
+        if (t := self.refresh_thread) is not None:
             t.join()
         self.stack.setCurrentIndex(0)
         self.progress_indicator.startAnimation()
         self.refresh_requested.emit()
-        self.thread = Thread(target=partial(self.get_words, change_request=change_request))
-        self.thread.daemon = True
+        self.refresh_thread = Thread(target=partial(self.get_words, change_request=change_request))
+        self.refresh_thread.daemon = True
         self.cancel = False
-        self.thread.start()
+        self.refresh_thread.start()
 
     def get_words(self, change_request=None):
         try:

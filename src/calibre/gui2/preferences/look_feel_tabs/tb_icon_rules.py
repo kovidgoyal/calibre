@@ -354,7 +354,7 @@ class AddItemDialog(QDialog):
 
     def __init__(self, parent):
         super().__init__(parent)
-        self.parent = parent
+        self._owner = parent
         self.pref_name = 'tb_icons_add_item_dialog'
         self.restore_geometry(gprefs, self.pref_name + '-geometry')
         self.setWindowTitle(_('Add icon rule'))
@@ -414,7 +414,7 @@ class AddItemDialog(QDialog):
 
     def category_box_changed(self, to_what):
         txt = self.category_box.currentText()
-        item_values = sorted(self.parent.all_values[txt], key=sort_key)
+        item_values = sorted(self._owner.all_values[txt], key=sort_key)
         self.value_box.blockSignals(True)
         self.value_box.clear()
         self.value_box.addItem(TEMPLATE_DISPLAY_STRING)
@@ -431,7 +431,7 @@ class AddItemDialog(QDialog):
             item = self.value_box.currentText()
             self.icon_box.setText(f'icon_{sanitize_file_name(category)}@@'
                                   f'{sanitize_file_name(item)}_'
-                                  f'{self.parent.db.get_item_id(category, item)}.png')
+                                  f'{self._owner.db.get_item_id(category, item)}.png')
             self.icon_chooser.setEnabled(True)
 
     def choose_icon(self):
@@ -620,12 +620,23 @@ class TbIconRulesTab(LazyConfigWidgetBase, Ui_Form):
                 # Edit the rule already in the table
                 rt = self.rules_table
                 for i in range(rt.rowCount()):
-                    if rt.item(i, CATEGORY_COLUMN).lookup_name == category:
-                        if rt.item(i, VALUE_COLUMN).original_name == value:
+                    cat_cell = rt.item(i, CATEGORY_COLUMN)
+                    assert cat_cell is not None
+                    assert isinstance(cat_cell, CategoryTableWidgetItem)
+                    if cat_cell.lookup_name == category:
+                        val_cell = rt.item(i, VALUE_COLUMN)
+                        assert val_cell is not None
+                        assert isinstance(val_cell, ValueTableWidgetItem)
+                        if val_cell.original_name == value:
                             if d.icon is not None:
                                 icon_item = rt.item(i, ICON_COLUMN)
+                                assert icon_item is not None
+                                assert isinstance(icon_item, IconFileTableWidgetItem)
                                 icon_item.new_icon = d.icon
-                            rt.item(i, FOR_CHILDREN_COLUMN).set_value(for_children)
+                            child_cell = rt.item(i, FOR_CHILDREN_COLUMN)
+                            assert child_cell is not None
+                            assert isinstance(child_cell, ChildrenTableWidgetItem)
+                            child_cell.set_value(for_children)
                             break
             self.changed_signal.emit()
 
@@ -692,9 +703,12 @@ class TbIconRulesTab(LazyConfigWidgetBase, Ui_Form):
         self.undo_button.setEnabled(False)
         column = item.column()
         self.delete_button.setEnabled(column == CATEGORY_COLUMN)
-        if column == CATEGORY_COLUMN and item.is_deleted:
-            self.undo_button.setEnabled(True)
+        if column == CATEGORY_COLUMN:
+            assert isinstance(item, CategoryTableWidgetItem)
+            if item.is_deleted:
+                self.undo_button.setEnabled(True)
         if column in (ICON_COLUMN, FOR_CHILDREN_COLUMN):
+            assert isinstance(item, (IconFileTableWidgetItem, ChildrenTableWidgetItem))
             if item.is_modified:
                 self.undo_button.setEnabled(True)
             self.edit_button.setEnabled(True)
@@ -733,6 +747,8 @@ class TbIconRulesTab(LazyConfigWidgetBase, Ui_Form):
         idx = self.rules_table.currentIndex()
         if idx.isValid():
             item = self.rules_table.item(idx.row(), CATEGORY_COLUMN)
+            assert item is not None
+            assert isinstance(item, CategoryTableWidgetItem)
             item.undo()
             self.changed_signal.emit()
             self.check_button_state(item)
@@ -741,6 +757,8 @@ class TbIconRulesTab(LazyConfigWidgetBase, Ui_Form):
         idx = self.rules_table.currentIndex()
         if idx.isValid():
             item = self.rules_table.item(idx.row(), idx.column())
+            assert item is not None
+            assert isinstance(item, (IconFileTableWidgetItem, ChildrenTableWidgetItem))
             item.undo()
             self.changed_signal.emit()
             self.check_button_state(item)
@@ -785,10 +803,17 @@ class TbIconRulesTab(LazyConfigWidgetBase, Ui_Form):
 
         for r in range(self.rules_table.rowCount()):
             cat_item = self.rules_table.item(r, CATEGORY_COLUMN)
+            assert cat_item is not None
+            assert isinstance(cat_item, CategoryTableWidgetItem)
             value_item = self.rules_table.item(r, VALUE_COLUMN)
+            assert value_item is not None
+            assert isinstance(value_item, ValueTableWidgetItem)
             icon_item = self.rules_table.item(r, ICON_COLUMN)
             assert icon_item is not None
+            assert isinstance(icon_item, IconFileTableWidgetItem)
             child_item = self.rules_table.item(r, FOR_CHILDREN_COLUMN)
+            assert child_item is not None
+            assert isinstance(child_item, ChildrenTableWidgetItem)
             value_text = value_item.original_name
 
             if cat_item.is_deleted:

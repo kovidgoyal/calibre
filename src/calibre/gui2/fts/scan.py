@@ -64,7 +64,9 @@ class ScanProgress(QWidget):
 
     @property
     def indexing_progress(self):
-        return self.parent().indexing_progress
+        parent = self.parent()
+        assert parent is not None
+        return parent.indexing_progress
 
     def change_speed(self):
         db = get_db()

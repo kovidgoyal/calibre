@@ -57,8 +57,10 @@ class Heading(QWidget):  # {{{
 
     def do_layout(self):
         try:
-            f = self.parent().font()
-        except AttributeError:
+            p = self.parent()
+            assert isinstance(p, QWidget)
+            f = p.font()
+        except (AttributeError, AssertionError):
             return
         f.setBold(True)
         self.setFont(f)

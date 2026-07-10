@@ -315,7 +315,9 @@ class SearchBar(QFrame):  # {{{
         l.addWidget(x)
 
         # Add the searchbar tool buttons to the bar
-        l.addLayout(self.parent().bars_manager.search_tool_bar)
+        p = self.parent()
+        assert p is not None
+        l.addLayout(p.bars_manager.search_tool_bar)
 
     def populate_sort_menu(self):
         from calibre.gui2.ui import get_gui

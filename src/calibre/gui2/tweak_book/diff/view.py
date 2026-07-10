@@ -442,7 +442,9 @@ class DiffSplitHandle(QSplitterHandle):  # {{{
 
     def paintEvent(self, a0):
         QSplitterHandle.paintEvent(self, a0)
-        left, right = self.parent().left, self.parent().right
+        p = self.parent()
+        assert isinstance(p, DiffSplit)
+        left, right = p.left, p.right
         painter = QPainter(self)
         painter.setClipRect(a0.rect())
         w = self.width()
@@ -463,6 +465,7 @@ class DiffSplitHandle(QSplitterHandle):  # {{{
             return line
 
         ldoc, rdoc = left.document(), right.document()
+        assert ldoc is not None and rdoc is not None
         lorigin, rorigin = left.contentOffset(), right.contentOffset()
         lfv, rfv = left.firstVisibleBlock().blockNumber(), right.firstVisibleBlock().blockNumber()
         lines = []
@@ -989,7 +992,9 @@ class DiffView(QWidget):  # {{{
             bar.scroll_idx = len(self.bars) - 1
             connect_lambda(bar.valueChanged[int], self, lambda self: self.scrolled(self.sender().scroll_idx))
         self.view.left.resized.connect(self.resized)
-        for v in (self.view.left, self.view.right, self.view.handle(1)):
+        handle1 = self.view.handle(1)
+        assert isinstance(handle1, DiffSplitHandle)
+        for v in (self.view.left, self.view.right, handle1):
             v.wheel_event.connect(self.scrollbar.wheelEvent)
             if v is self.view.left or v is self.view.right:
                 v.next_change.connect(self.next_change)

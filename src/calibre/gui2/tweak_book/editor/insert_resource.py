@@ -36,6 +36,7 @@ from qt.core import (
     QTreeWidget,
     QTreeWidgetItem,
     QVBoxLayout,
+    QWidget,
     pyqtSignal,
 )
 
@@ -118,10 +119,12 @@ class ImageDelegate(QStyledItemDelegate):
     def set_dimensions(self):
         width, height = self.current_basic_size
         self.cover_size = QSize(width, height)
-        f = self.parent().font()
+        p = self.parent()
+        assert isinstance(p, QWidget)
+        f = p.font()
         sz = f.pixelSize()
         if sz < 5:
-            sz = int(f.pointSize() * self.parent().logicalDpiY() / 72.0)
+            sz = int(f.pointSize() * p.logicalDpiY() / 72.0)
         self.title_height = max(25, sz + 10)
         self.item_size = self.cover_size + QSize(2 * self.MARGIN, (2 * self.MARGIN) + self.title_height)
         self.calculate_spacing()

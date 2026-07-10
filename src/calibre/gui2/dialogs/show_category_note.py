@@ -32,7 +32,9 @@ class Display(HTMLDisplay):
 
     def loadResource(self, type, name):
         if name.scheme() == RESOURCE_URL_SCHEME and int(type) == int(QTextDocument.ResourceType.ImageResource):
-            db = self.parent().db
+            parent = self.parent()
+            assert parent is not None
+            db = parent.db
             resource = db.get_notes_resource(f'{name.host()}:{name.path()[1:]}')
             if resource is not None:
                 return QByteArray(resource['data'])

@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 from qt.core import QComboBox
 
 from calibre.gui2 import gui_prefs
-from calibre.gui2.complete2 import EditWithComplete
+from calibre.gui2.complete2 import EditWithComplete, LineEdit
 from calibre.utils.icu import lower, sort_key
 from calibre.utils.localization import lang_map_for_ui
 
@@ -29,7 +29,9 @@ class LanguagesEdit(EditWithComplete):
         self._rmap = {lower(v):k for k,v in self._lang_map.items()}
         self.init_langs(db)
         self.item_selected.connect(self.update_recently_used)
-        self.lineEdit().set_use_startswith_search(False)
+        line_edit = self.lineEdit()
+        assert isinstance(line_edit, LineEdit)
+        line_edit.set_use_startswith_search(False)
 
     def init_langs(self, db):
         self.update_items_cache(self._lang_map.values())

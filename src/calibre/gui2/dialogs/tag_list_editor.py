@@ -450,7 +450,9 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         m = menu
         table = self.table
         assert table is not None
-        is_deleted = bool(table.item(item.row(), VALUE_COLUMN).is_deleted)
+        col_zero_item = table.item(item.row(), VALUE_COLUMN)
+        assert isinstance(col_zero_item, NameTableWidgetItem)
+        is_deleted = bool(col_zero_item.is_deleted)
         item_id = self.get_item_id(item)
 
         ca = m.addAction(_('Copy'))
@@ -1075,6 +1077,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         table = self.table
         assert table is not None
         for col_zero_item in (table.item(item.row(), VALUE_COLUMN) for item in table.selectedItems()):
+            assert isinstance(col_zero_item, NameTableWidgetItem)
             if col_zero_item.is_deleted:
                 if show_error:
                     error_dialog(self, _('Selection contains deleted items'),

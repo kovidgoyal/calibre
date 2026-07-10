@@ -69,6 +69,7 @@ class ProgressIndicator(QWidget):  # {{{
 
     def start(self, msg=''):
         view = self.parent()
+        assert isinstance(view, QWidget)
         pwidth, pheight = view.size().width(), view.size().height()
         self.resize(pwidth, min(pheight, 250))
         if self.pos is None:
@@ -465,19 +466,22 @@ class CoverView(QGraphicsView, ImageDropMixin):
         QGraphicsView.__init__(self, *args, **kwargs)
         ImageDropMixin.__init__(self)
         self.pixmap_size = 0, 0
+        self._pixmap_scene: QGraphicsScene | None = None
         if self.show_size:
             self.setViewportUpdateMode(QGraphicsView.ViewportUpdateMode.FullViewportUpdate)
         self.set_background()
 
     def get_pixmap(self):
-        for item in self.scene.items():
+        if self._pixmap_scene is None:
+            return None
+        for item in self._pixmap_scene.items():
             if hasattr(item, 'pixmap'):
                 return item.pixmap()
 
     def set_pixmap(self, pmap):
-        self.scene = QGraphicsScene()
-        self.scene.addItem(RoundedPixmap(pmap))
-        self.setScene(self.scene)
+        self._pixmap_scene = QGraphicsScene()
+        self._pixmap_scene.addItem(RoundedPixmap(pmap))
+        self.setScene(self._pixmap_scene)
 
     def set_background(self, brush=None):
         self.setBackgroundBrush(brush or self.palette().color(QPalette.ColorRole.Window))
@@ -697,15 +701,15 @@ class CompleteLineEdit(EnLineEdit):  # {{{
 
         self.textChanged.connect(self.text_changed)
 
-        self.completer = ItemsCompleter(self, complete_items)
-        self.completer.setCaseSensitivity(Qt.CaseSensitivity.CaseInsensitive)
+        self.items_completer = ItemsCompleter(self, complete_items)
+        self.items_completer.setCaseSensitivity(Qt.CaseSensitivity.CaseInsensitive)
 
-        self.completer.activated[str].connect(self.complete_text)
+        self.items_completer.activated[str].connect(self.complete_text)
 
-        self.completer.setWidget(self)
+        self.items_completer.setWidget(self)
 
     def update_items_cache(self, complete_items):
-        self.completer.update_items_cache(complete_items)
+        self.items_completer.update_items_cache(complete_items)
 
     def set_separator(self, sep):
         self.separator = sep
@@ -724,7 +728,7 @@ class CompleteLineEdit(EnLineEdit):  # {{{
             if t1:
                 text_items.append(t)
         text_items = list(set(text_items))
-        self.completer.update(text_items, prefix)
+        self.items_completer.update(text_items, prefix)
 
     def complete_text(self, text):
         cursor_pos = self.cursorPosition()
@@ -779,13 +783,22 @@ class CompleteComboBox(EnComboBox):  # {{{
         self.setLineEdit(CompleteLineEdit(self))
 
     def update_items_cache(self, complete_items):
-        self.lineEdit().update_items_cache(complete_items)
+        le = self.lineEdit()
+        assert le is not None
+        assert isinstance(le, CompleteLineEdit)
+        le.update_items_cache(complete_items)
 
     def set_separator(self, sep):
-        self.lineEdit().set_separator(sep)
+        le = self.lineEdit()
+        assert le is not None
+        assert isinstance(le, CompleteLineEdit)
+        le.set_separator(sep)
 
     def set_space_before_sep(self, space_before):
-        self.lineEdit().set_space_before_sep(space_before)
+        le = self.lineEdit()
+        assert le is not None
+        assert isinstance(le, CompleteLineEdit)
+        le.set_space_before_sep(space_before)
 
 # }}}
 

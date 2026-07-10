@@ -51,7 +51,7 @@ from calibre.gui2.viewer.highlights import HighlightsPanel, style_definition_for
 from calibre.gui2.viewer.integration import get_book_library_details, load_annotations_map_from_library
 from calibre.gui2.viewer.overlay import LoadingOverlay
 from calibre.gui2.viewer.search import SearchPanel
-from calibre.gui2.viewer.toc import TOC, TOCSearch, TOCView
+from calibre.gui2.viewer.toc import TOC, TOCItem, TOCSearch, TOCView
 from calibre.gui2.viewer.toolbars import ActionsToolBar
 from calibre.gui2.viewer.web_view import WebView, get_path_for_name, set_book_path
 from calibre.live import async_stop_worker
@@ -401,6 +401,8 @@ class EbookViewer(MainWindow):
         if self.check_for_read_aloud(_('Table of Contents locations')):
             return
         item = self.toc_model.itemFromIndex(index)
+        assert item is not None
+        assert isinstance(item, TOCItem)
         self.web_view.goto_toc_node(item.node_id)
         self.force_focus_on_web_view()
 
@@ -410,6 +412,8 @@ class EbookViewer(MainWindow):
 
     def toc_searched(self, index):
         item = self.toc_model.itemFromIndex(index)
+        assert item is not None
+        assert isinstance(item, TOCItem)
         self.web_view.goto_toc_node(item.node_id)
 
     def bookmarks_edited(self, bookmarks):

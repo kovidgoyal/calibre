@@ -882,9 +882,11 @@ class CoversView(QListView):  # {{{
     @property
     def current_pixmap(self):
         idx = self.currentIndex()
-        pmap = self.model().cover_pixmap(idx)
+        m = self.model()
+        assert m is not None
+        pmap = m.cover_pixmap(idx)
         if pmap is None and idx.row() == 0:
-            pmap = self.model().cc
+            pmap = m.cc
         return pmap
 
     def show_cover(self):
@@ -1029,7 +1031,9 @@ class CoversWidget(QWidget):  # {{{
         if not self.continue_processing:
             return
         plugin_name, width, height, fmt, data = result
-        self.covers_view.model().update_result(plugin_name, width, height, data)
+        cv_model = self.covers_view.model()
+        assert cv_model is not None
+        cv_model.update_result(plugin_name, width, height, data)
 
     def cleanup(self):
         self.covers_view.delegate.stop_animation()
@@ -1049,7 +1053,9 @@ class CoversWidget(QWidget):  # {{{
                 break
         if idx is None:
             idx = self.covers_view.currentIndex()
-        return self.covers_view.model().cover_pixmap(idx)
+        cv_model = self.covers_view.model()
+        assert cv_model is not None
+        return cv_model.cover_pixmap(idx)
 
 # }}}
 

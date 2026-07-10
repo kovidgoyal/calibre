@@ -180,22 +180,26 @@ class Completer(QListView):  # {{{
         self.setCurrentIndex(QModelIndex())
         QListView.hide(self)
 
+    def _complete_model(self) -> CompleteModel:
+        m = self.model()
+        assert isinstance(m, CompleteModel)
+        return m
+
     def item_chosen(self, index):
         if not self.isVisible():
             return
         self.hide()
-        m = self.model()
-        assert m is not None
+        m = self._complete_model()
         text = m.data(index, Qt.ItemDataRole.UserRole)
         self.item_selected.emit(str(text))
 
     def set_items(self, items):
-        self.model().set_items(items)
+        self._complete_model().set_items(items)
         if self.isVisible():
             self.relayout_needed.emit()
 
     def set_completion_prefix(self, prefix, hierarchy_separator: str = ''):
-        self.model().set_completion_prefix(prefix, hierarchy_separator=hierarchy_separator)
+        self._complete_model().set_completion_prefix(prefix, hierarchy_separator=hierarchy_separator)
         if self.isVisible():
             self.relayout_needed.emit()
 
@@ -213,7 +217,7 @@ class Completer(QListView):  # {{{
 
     def scroll_to(self, orig):
         if orig:
-            index = self.model().index_for_prefix(orig)
+            index = self._complete_model().index_for_prefix(orig)
             if index is not None and index.isValid():
                 self.setCurrentIndex(index)
 
@@ -401,10 +405,10 @@ class LineEdit(QLineEdit, LineEditECM):
 
     # Interface {{{
     def set_use_startswith_search(self, yes: bool) -> None:
-        self.mcompleter.model().use_startswith_search = yes
+        self.mcompleter._complete_model().use_startswith_search = yes
 
     def set_sort_func(self, sort_func):
-        self.mcompleter.model().sort_func = sort_func
+        self.mcompleter._complete_model().sort_func = sort_func
 
     def update_items_cache(self, complete_items):
         self.all_items = complete_items
@@ -423,11 +427,11 @@ class LineEdit(QLineEdit, LineEditECM):
 
     @property
     def all_items(self):
-        return self.mcompleter.model().all_items
+        return self.mcompleter._complete_model().all_items
 
     @all_items.setter
     def all_items(self, items):
-        self.mcompleter.model().set_items(items)
+        self.mcompleter._complete_model().set_items(items)
 
     @property
     def disable_popup(self):
@@ -454,10 +458,11 @@ class LineEdit(QLineEdit, LineEditECM):
 
     def complete(self, show_all=False, select_first=True):
         orig = None
+        cm = self.mcompleter._complete_model()
         if show_all:
-            orig = self.mcompleter.model().current_prefix
+            orig = cm.current_prefix
             self.mcompleter.set_completion_prefix('', self.hierarchy_separator)
-        if not self.mcompleter.model().current_items:
+        if not cm.current_items:
             self.mcompleter.hide()
             return
         self.mcompleter.popup(select_first=select_first)
@@ -481,7 +486,7 @@ class LineEdit(QLineEdit, LineEditECM):
 
     def _update_and_complete(self):
         self.update_completions()
-        select_first = len(self.mcompleter.model().current_prefix) > 0
+        select_first = len(self.mcompleter._complete_model().current_prefix) > 0
         if not select_first:
             self.mcompleter.setCurrentIndex(QModelIndex())
         self.complete(select_first=select_first)
@@ -549,27 +554,31 @@ class EditWithComplete(EnComboBox):
         self.setLineEdit(LineEdit(
             self, completer_widget=self, sort_func=kwargs.get('sort_func', sort_key),
             strip_completion_entries=kwargs.get('strip_completion_entries', False)))
-        self.lineEdit().item_selected.connect(self.item_selected)
+        self._line_edit().item_selected.connect(self.item_selected)
         self.setCompleter(None)
         self.eat_focus_out = True
         self.installEventFilter(self)
 
+    def _line_edit(self) -> LineEdit:
+        le = self.lineEdit()
+        assert isinstance(le, LineEdit)
+        return le
+
     # Interface {{{
 
     def set_sort_func(self, sort_func):
-        self.lineEdit().set_sort_func(sort_func)
+        self._line_edit().set_sort_func(sort_func)
 
     def showPopup(self):
         orig = self.disable_popup
         self.disable_popup = False
         try:
-            self.lineEdit().complete(show_all=True)
+            self._line_edit().complete(show_all=True)
         finally:
             self.disable_popup = orig
 
     def keyPressEvent(self, e):
-        le = self.lineEdit()
-        assert le is not None
+        le = self._line_edit()
         if e.key() in (Qt.Key.Key_Down, Qt.Key.Key_Up) and not le.text() and not self.disable_popup:
             e.accept()
             self.showPopup()
@@ -577,56 +586,50 @@ class EditWithComplete(EnComboBox):
         super().keyPressEvent(e)
 
     def update_items_cache(self, complete_items):
-        self.lineEdit().update_items_cache(complete_items)
+        self._line_edit().update_items_cache(complete_items)
 
     def set_separator(self, sep):
-        self.lineEdit().set_separator(sep)
+        self._line_edit().set_separator(sep)
 
     def set_hierarchy_separator(self, sep):
-        self.lineEdit().set_hierarchy_separator(sep)
+        self._line_edit().set_hierarchy_separator(sep)
 
     def set_space_before_sep(self, space_before):
-        self.lineEdit().set_space_before_sep(space_before)
+        self._line_edit().set_space_before_sep(space_before)
 
     def set_add_separator(self, what):
-        self.lineEdit().set_add_separator(what)
+        self._line_edit().set_add_separator(what)
 
     def show_initial_value(self, what):
         what = str(what) if what else ''
         self.setText(what)
-        le = self.lineEdit()
-        assert le is not None
-        le.selectAll()
+        self._line_edit().selectAll()
 
     @property
     def all_items(self):
-        return self.lineEdit().all_items
+        return self._line_edit().all_items
 
     @all_items.setter
     def all_items(self, val):
-        self.lineEdit().all_items = val
+        self._line_edit().all_items = val
 
     @property
     def disable_popup(self):
-        return self.lineEdit().disable_popup
+        return self._line_edit().disable_popup
 
     @disable_popup.setter
     def disable_popup(self, val):
-        self.lineEdit().disable_popup = bool(val)
+        self._line_edit().disable_popup = bool(val)
 
     def set_elide_mode(self, val):
-        self.lineEdit().set_elide_mode(val)
+        self._line_edit().set_elide_mode(val)
 
     def set_clear_button_enabled(self, val=True):
-        le = self.lineEdit()
-        assert le is not None
-        le.setClearButtonEnabled(bool(val))
+        self._line_edit().setClearButtonEnabled(bool(val))
     # }}}
 
     def text(self):
-        le = self.lineEdit()
-        assert le is not None
-        return le.text()
+        return self._line_edit().text()
 
     def set_current_text(self, text):
         self.setText(text)
@@ -638,42 +641,31 @@ class EditWithComplete(EnComboBox):
     current_text = pyqtProperty(str, fget=text, fset=set_current_text, user=True)
 
     def selectAll(self):
-        le = self.lineEdit()
-        assert le is not None
-        le.selectAll()
+        self._line_edit().selectAll()
 
     def setText(self, text):
-        le = self.lineEdit()
-        assert le is not None
+        le = self._line_edit()
         le.no_popup = True
         le.setText(text)
         le.no_popup = False
 
     def home(self, mark=False):
-        le = self.lineEdit()
-        assert le is not None
-        le.home(mark)
+        self._line_edit().home(mark)
 
     def setCursorPosition(self, *args):
-        le = self.lineEdit()
-        assert le is not None
-        le.setCursorPosition(*args)
+        self._line_edit().setCursorPosition(*args)
 
     @property
     def textChanged(self):
-        le = self.lineEdit()
-        assert le is not None
-        return le.textChanged
+        return self._line_edit().textChanged
 
     def clear(self):
-        le = self.lineEdit()
-        assert le is not None
-        le.clear()
+        self._line_edit().clear()
         EnComboBox.clear(self)
 
     def eventFilter(self, a0, a1):
         try:
-            c = self.lineEdit().mcompleter
+            c = self._line_edit().mcompleter
         except AttributeError:
             return False
         etype = a1.type()

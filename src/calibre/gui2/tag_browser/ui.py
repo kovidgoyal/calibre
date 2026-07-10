@@ -936,12 +936,12 @@ class TagBrowserWidget(QFrame):  # {{{
         ac.setIcon(QIcon.ic('minus.png' if p else 'plus.png'))
 
         ac = self.alter_tb.m.show_empty_categories_action
-        p = self.tags_view.model().prefs['tag_browser_hide_empty_categories']
+        p = self.tags_view._model.prefs['tag_browser_hide_empty_categories']
         ac.setText(_('Show empty categories (columns)') if p else _('Hide empty categories (columns)'))
         ac.setIcon(QIcon.ic('plus.png' if p else 'minus.png'))
 
     def filter_book_list(self):
-        self.tags_view.model().set_in_tag_browser()
+        self.tags_view._model.set_in_tag_browser()
         self._parent.search.set_search_string('in_tag_browser:true')
 
     def toggle_counts(self):
@@ -961,7 +961,7 @@ class TagBrowserWidget(QFrame):  # {{{
         self.tags_view.recount_with_position_based_index()
 
     def toggle_show_empty_categories(self):
-        self.tags_view.model().prefs['tag_browser_hide_empty_categories'] ^= True
+        self.tags_view._model.prefs['tag_browser_hide_empty_categories'] ^= True
         self.tags_view.recount_with_position_based_index()
 
     def save_state(self, gprefs_local=None):
@@ -1022,7 +1022,7 @@ class TagBrowserWidget(QFrame):  # {{{
         return str(self.item_search.currentText()).strip()
 
     def reset_find(self):
-        model = self.tags_view.model()
+        model = self.tags_view._model
         model.clear_boxed()
         if model.get_categories_filter():
             model.set_categories_filter(None)
@@ -1030,7 +1030,7 @@ class TagBrowserWidget(QFrame):  # {{{
             self.current_find_position = None
 
     def find(self):
-        model = self.tags_view.model()
+        model = self.tags_view._model
         model.clear_boxed()
 
         # When a key is specified don't use the auto-collapsing search.

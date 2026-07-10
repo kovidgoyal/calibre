@@ -268,7 +268,9 @@ class ChooseModel(Dialog):
 
     @model_id.setter
     def model_id(self, val):
-        self.models.setCurrentIndex(self.models.model().index_for_model_id(val))
+        pm = self.models.model()
+        assert isinstance(pm, ProxyModels)
+        self.models.setCurrentIndex(pm.index_for_model_id(val))
 
     @property
     def model_name(self) -> str:

@@ -126,14 +126,22 @@ class TOCView(QTreeView):
             self.expand_tree(child)
 
     def collapse_at_level(self, index):
-        item = self.model().itemFromIndex(index)
-        for x in self.model().items_at_depth(item.depth):
-            self.collapse(self.model().indexFromItem(x))
+        m = self.model()
+        assert m is not None
+        assert isinstance(m, TOC)
+        item = m.itemFromIndex(index)
+        assert isinstance(item, TOCItem)
+        for x in m.items_at_depth(item.depth):
+            self.collapse(m.indexFromItem(x))
 
     def expand_at_level(self, index):
-        item = self.model().itemFromIndex(index)
-        for x in self.model().items_at_depth(item.depth):
-            self.expand(self.model().indexFromItem(x))
+        m = self.model()
+        assert m is not None
+        assert isinstance(m, TOC)
+        item = m.itemFromIndex(index)
+        assert isinstance(item, TOCItem)
+        for x in m.items_at_depth(item.depth):
+            self.expand(m.indexFromItem(x))
 
     def show_context_menu(self, pos):
         index = self.indexAt(pos)
@@ -159,11 +167,17 @@ class TOCView(QTreeView):
         cb.setText(getattr(m, 'as_plain_text', ''))
 
     def update_current_toc_nodes(self, families):
-        self.model().update_current_toc_nodes(families)
+        m = self.model()
+        assert m is not None
+        assert isinstance(m, TOC)
+        m.update_current_toc_nodes(families)
 
     def scroll_to_current_toc_node(self):
+        m = self.model()
+        if m is None or not isinstance(m, TOC):
+            return
         try:
-            nodes = self.model().viewed_nodes()
+            nodes = m.viewed_nodes()
         except AttributeError:
             nodes = ()
         if nodes:
@@ -213,7 +227,7 @@ class TOCItem(QStandardItem):
         if text:
             text = re.sub(r'\s', ' ', text)
         self.title = text
-        self.parent = parent
+        self.toc_parent = parent
         self.node_id = toc['id']
         QStandardItem.__init__(self, text)
         all_items.append(self)
@@ -233,10 +247,10 @@ class TOCItem(QStandardItem):
 
     @property
     def ancestors(self):
-        parent = self.parent
+        parent = self.toc_parent
         while parent is not None:
             yield parent
-            parent = parent.parent
+            parent = parent.toc_parent
 
     @classmethod
     def type(cls):

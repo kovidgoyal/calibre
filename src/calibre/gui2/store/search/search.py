@@ -15,6 +15,7 @@ from calibre.gui2.store.config.chooser.chooser_widget import StoreChooserWidget
 from calibre.gui2.store.config.search.search_widget import StoreConfigWidget
 from calibre.gui2.store.search.adv_search_builder import AdvSearchBuilderDialog
 from calibre.gui2.store.search.download_thread import CacheUpdateThreadPool, SearchThreadPool
+from calibre.gui2.store.search.models import Matches
 from calibre.gui2.store.search.search_ui import Ui_Dialog
 from calibre.utils.filenames import ascii_filename
 from calibre.utils.localization import _
@@ -57,8 +58,11 @@ class SearchDialog(QDialog, Ui_Dialog):
         # Setup our worker threads.
         self.search_pool = SearchThreadPool(self.search_thread_count)
         self.cache_pool = CacheUpdateThreadPool(self.cache_thread_count)
-        self.results_view.model().cover_pool.set_thread_count(self.cover_thread_count)
-        self.results_view.model().details_pool.set_thread_count(self.details_thread_count)
+        _rv_model = self.results_view.model()
+        assert _rv_model is not None
+        assert isinstance(_rv_model, Matches)
+        _rv_model.cover_pool.set_thread_count(self.cover_thread_count)
+        _rv_model.details_pool.set_thread_count(self.details_thread_count)
         self.results_view.setCursor(Qt.CursorShape.PointingHandCursor)
         # needed for live updates of amazon_live.py
         from calibre.live import start_worker
@@ -105,7 +109,7 @@ class SearchDialog(QDialog, Ui_Dialog):
         self.results_view.activated.connect(self.result_item_activated)
         self.results_view.download_requested.connect(self.download_book)
         self.results_view.open_requested.connect(self.open_store)
-        self.results_view.model().total_changed.connect(self.update_book_total)
+        _rv_model.total_changed.connect(self.update_book_total)
         self.select_all_stores.clicked.connect(self.stores_select_all)
         self.select_invert_stores.clicked.connect(self.stores_select_invert)
         self.select_none_stores.clicked.connect(self.stores_select_none)
@@ -176,6 +180,8 @@ class SearchDialog(QDialog, Ui_Dialog):
         if self.searching:
             self.search_pool.abort()
             m = self.results_view.model()
+            assert m is not None
+            assert isinstance(m, Matches)
             m.details_pool.abort()
             m.cover_pool.abort()
             self.search.setText(self.SEARCH_TEXT)
@@ -193,7 +199,10 @@ class SearchDialog(QDialog, Ui_Dialog):
         self.checker.stop()
         self.search_pool.abort()
         # Clear the visible results.
-        self.results_view.model().clear_results()
+        _m = self.results_view.model()
+        assert _m is not None
+        assert isinstance(_m, Matches)
+        _m.clear_results()
 
         # Don't start a search if there is nothing to search for.
         query = []
@@ -213,7 +222,7 @@ class SearchDialog(QDialog, Ui_Dialog):
         self.search.setText(self.STOP_TEXT)
         # Give the query to the results model so it can do
         # further filtering.
-        self.results_view.model().set_query(query)
+        _m.set_query(query)
 
         # Plugins are in random order that does not change.
         # Randomize the order of the plugin names every time
@@ -266,9 +275,10 @@ class SearchDialog(QDialog, Ui_Dialog):
         self.config['store_splitter_state'] = bytearray(self.store_splitter.saveState())
         rv_model = self.results_view.model()
         assert rv_model is not None
+        assert isinstance(rv_model, Matches)
         self.config['results_view_column_width'] = [self.results_view.columnWidth(i) for i in range(rv_model.columnCount())]
-        self.config['sort_col'] = self.results_view.model().sort_col
-        self.config['sort_order'] = self.results_view.model().sort_order.value
+        self.config['sort_col'] = rv_model.sort_col
+        self.config['sort_order'] = rv_model.sort_order.value
         self.config['open_external'] = self.open_external.isChecked()
 
         store_check = {}
@@ -301,14 +311,17 @@ class SearchDialog(QDialog, Ui_Dialog):
                 if n in self.store_checks:
                     self.store_checks[n].setChecked(store_check[n])
 
-        self.results_view.model().sort_col = self.config.get('sort_col', 2)
+        _rv_m = self.results_view.model()
+        assert _rv_m is not None
+        assert isinstance(_rv_m, Matches)
+        _rv_m.sort_col = self.config.get('sort_col', 2)
         so = self.config.get('sort_order', Qt.SortOrder.AscendingOrder)
         if isinstance(so, int):
             so = Qt.SortOrder(so)
-        self.results_view.model().sort_order = so
+        _rv_m.sort_order = so
         rv_header = self.results_view.header()
         assert rv_header is not None
-        rv_header.setSortIndicator(self.results_view.model().sort_col, so)
+        rv_header.setSortIndicator(_rv_m.sort_col, so)
 
     def load_settings(self):
         # Seconds
@@ -375,8 +388,11 @@ class SearchDialog(QDialog, Ui_Dialog):
         self.open_external.setChecked(self.should_open_external)
         self.search_pool.set_thread_count(self.search_thread_count)
         self.cache_pool.set_thread_count(self.cache_thread_count)
-        self.results_view.model().cover_pool.set_thread_count(self.cover_thread_count)
-        self.results_view.model().details_pool.set_thread_count(self.details_thread_count)
+        _cc_m = self.results_view.model()
+        assert _cc_m is not None
+        assert isinstance(_cc_m, Matches)
+        _cc_m.cover_pool.set_thread_count(self.cover_thread_count)
+        _cc_m.details_pool.set_thread_count(self.details_thread_count)
 
     def get_results(self):
         # We only want the search plugins to run
@@ -389,19 +405,25 @@ class SearchDialog(QDialog, Ui_Dialog):
         elif not self.search_pool.threads_running() and not self.search_pool.has_tasks():
             self.checker.stop()
 
+        _gr_m = self.results_view.model()
+        assert _gr_m is not None
+        assert isinstance(_gr_m, Matches)
         while self.search_pool.has_results():
             res, store_plugin = self.search_pool.get_result()
             if res:
-                self.results_view.model().add_result(res, store_plugin)
+                _gr_m.add_result(res, store_plugin)
 
-        if not self.search_pool.threads_running() and not self.results_view.model().has_results():
+        if not self.search_pool.threads_running() and not _gr_m.has_results():
             info_dialog(self, _('No matches'), _("Couldn't find any books matching your query."), show=True, show_copy_button=False)
 
     def update_book_total(self, total):
         self.total.setText(f'{total}')
 
     def result_item_activated(self, index):
-        result = self.results_view.model().get_result(index)
+        _ria_m = self.results_view.model()
+        assert _ria_m is not None
+        assert isinstance(_ria_m, Matches)
+        result = _ria_m.get_result(index)
 
         if result.downloads:
             self.download_book(result)
@@ -422,6 +444,8 @@ class SearchDialog(QDialog, Ui_Dialog):
 
     def check_progress(self):
         m = self.results_view.model()
+        assert m is not None
+        assert isinstance(m, Matches)
         if not self.search_pool.threads_running() and not m.cover_pool.threads_running() and not m.details_pool.threads_running():
             self.pi.stopAnimation()
             self.search.setText(self.SEARCH_TEXT)
@@ -446,7 +470,10 @@ class SearchDialog(QDialog, Ui_Dialog):
             check.setChecked(False)
 
     def dialog_closed(self, result):
-        self.results_view.model().closing()
+        _dc_m = self.results_view.model()
+        assert _dc_m is not None
+        assert isinstance(_dc_m, Matches)
+        _dc_m.closing()
         self.search_pool.abort()
         self.cache_pool.abort()
         self.save_state()

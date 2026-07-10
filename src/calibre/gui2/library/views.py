@@ -100,7 +100,10 @@ class HeaderView(QHeaderView):  # {{{
         opt.section = logicalIndex
         opt.orientation = self.orientation()
         opt.fontMetrics = self.fm
-        model = self.parent().model()
+        _ssfc_p = self.parent()
+        assert isinstance(_ssfc_p, QAbstractItemView)
+        model = _ssfc_p.model()
+        assert model is not None
         opt.text = str(model.headerData(logicalIndex, opt.orientation, Qt.ItemDataRole.DisplayRole) or '')
         if opt.orientation == Qt.Orientation.Vertical:
             try:
@@ -124,7 +127,10 @@ class HeaderView(QHeaderView):  # {{{
         opt.orientation = self.orientation()
         opt.textAlignment = Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignVCenter
         opt.fontMetrics = self.fm
-        model = self.parent().model()
+        _ps_p = self.parent()
+        assert isinstance(_ps_p, QAbstractItemView)
+        model = _ps_p.model()
+        assert model is not None
         style = self.style()
         assert style is not None
         margin = 2 * style.pixelMetric(QStyle.PixelMetric.PM_HeaderMargin, None, self)
@@ -634,7 +640,7 @@ class BooksView(TableView):  # {{{
             ac.setCheckable(True)
             ac.setChecked(True)
         if col not in ('ondevice', 'inlibrary') and \
-                (not self.model().is_custom_column(col) or
+                (not self._model.is_custom_column(col) or
                  (self._model.custom_columns[col]['datatype'] != 'bool' or
                   self._model.custom_columns[col]['display'].get('bools_show_text', False))):
             m = ans.addMenu(_('Change text alignment for %s') % name)
@@ -664,7 +670,7 @@ class BooksView(TableView):  # {{{
 
         if not isinstance(view, DeviceBooksView):
             col_manager = CreateNewCustomColumn(self.gui)
-            if self.can_add_columns and self.model().is_custom_column(col):
+            if self.can_add_columns and self._model.is_custom_column(col):
                 act = ans.addAction(QIcon.ic('edit_input.png'), _('Edit column definition for %s') % name,
                                     partial(handler, action='editcustcol'))
                 assert act is not None
@@ -839,7 +845,7 @@ class BooksView(TableView):  # {{{
     def intelligent_sort(self, field, ascending):
         if isinstance(ascending, Qt.SortOrder):
             ascending = ascending == Qt.SortOrder.AscendingOrder
-        m = self.model()
+        m = self._model
         pname = 'previous_sort_order_' + self.__class__.__name__
         previous = gprefs.get(pname, {})
         if field == m.sorted_on[0] or field not in previous:
@@ -902,7 +908,7 @@ class BooksView(TableView):  # {{{
             self._model.resort(reset=True)
 
     def reverse_sort(self):
-        m = self.model()
+        m = self._model
         try:
             sort_col, order = m.sorted_on
         except TypeError:
@@ -935,7 +941,7 @@ class BooksView(TableView):  # {{{
         for f in ('last_modified', 'languages', 'formats', 'id', 'path', 'pages'):
             state[f+'_injected'] = True
         state['sort_history'] = \
-            self.cleanup_sort_history(self.model().sort_history, ignore_column_map=self.is_library_view)
+            self.cleanup_sort_history(self._model.sort_history, ignore_column_map=self.is_library_view)
         state['column_positions'] = {}
         state['column_sizes'] = {}
         state['column_alignment'] = self._model.alignment_map
@@ -997,7 +1003,7 @@ class BooksView(TableView):  # {{{
             cmap[c] = i
             if c != 'ondevice':
                 h.setSectionHidden(i, c in hidden)
-        if db := getattr(self.model().db, 'new_api', None):
+        if db := getattr(self._model.db, 'new_api', None):
             pages_shown_in_book_details = False
             if dbf := db.new_api.pref('book_display_fields'):
                 for fname, shown in dbf:
@@ -1190,7 +1196,7 @@ class BooksView(TableView):  # {{{
         self.alternate_views.marked_changed(old_marked, current_marked)
         if bool(old_marked) == bool(current_marked):
             changed = old_marked | current_marked
-            i = self.model().db.data.id_to_index
+            i = self._model.db.data.id_to_index
 
             def f(x):
                 try:
@@ -1206,18 +1212,18 @@ class BooksView(TableView):  # {{{
                 assert _rh_vp is not None
                 _rh_vp.update()
                 # refresh the rows because there might be a composite that uses marked_books()
-                self.model().refresh_rows(sections)
+                self._model.refresh_rows(sections)
         else:
             # Marked items have either appeared or all been removed
-            self.model().set_row_decoration(current_marked)
+            self._model.set_row_decoration(current_marked)
             self.row_header.headerDataChanged(Qt.Orientation.Vertical, 0, self.row_header.count()-1)
             self.row_header.geometriesChanged.emit()
             self.set_row_header_visibility()
             # refresh rows for the ids because there might be a composite that uses marked_books()
-            self.model().refresh_ids(current_marked)
+            self._model.refresh_ids(current_marked)
 
     def set_row_header_visibility(self):
-        visible = self.model().row_decoration is not None or gprefs['row_numbers_in_book_list']
+        visible = self._model.row_decoration is not None or gprefs['row_numbers_in_book_list']
         self.row_header.setVisible(visible)
 
     def database_changed(self, db):
@@ -1236,7 +1242,7 @@ class BooksView(TableView):  # {{{
         self.restore_state()
         self.set_ondevice_column_visibility()
         # in case there were marked books
-        self.model().set_row_decoration(set())
+        self._model.set_row_decoration(set())
         self.row_header.headerDataChanged(Qt.Orientation.Vertical, 0, self.row_header.count()-1)
         self.row_header.geometriesChanged.emit()
         # }}}
@@ -1432,7 +1438,7 @@ class BooksView(TableView):  # {{{
         ci = self.currentIndex()
         if ci.isValid():
             try:
-                return self.model().db.data.index_to_id(ci.row())
+                return self._model.db.data.index_to_id(ci.row())
             except (IndexError, ValueError, KeyError, TypeError, AttributeError):
                 pass
 
@@ -1446,7 +1452,7 @@ class BooksView(TableView):  # {{{
     def restore_current_book_state(self, state):
         book_id, hpos, pv_hpos = state
         try:
-            row = self.model().db.data.id_to_index(book_id)
+            row = self._model.db.data.id_to_index(book_id)
         except (IndexError, ValueError, KeyError, TypeError, AttributeError):
             return
         self.set_current_row(row)
@@ -1461,7 +1467,7 @@ class BooksView(TableView):  # {{{
 
     def set_current_row(self, row=0, select=True, for_sync=False, book_id=None):
         if book_id is not None:
-            row = self.model().db.data.id_to_index(book_id)
+            row = self._model.db.data.id_to_index(book_id)
         _scr_model = self.model()
         assert _scr_model is not None
         if row > -1 and row < _scr_model.rowCount(QModelIndex()):
@@ -1620,7 +1626,7 @@ class BooksView(TableView):  # {{{
     def get_selected_ids(self, as_set=False):
         ans = []
         seen = set()
-        m = self.model()
+        m = self._model
         for idx in self.selectedIndexes():
             r = idx.row()
             i = m.id(r)
@@ -1632,7 +1638,7 @@ class BooksView(TableView):  # {{{
     @property
     def current_id(self):
         try:
-            return self.model().id(self.currentIndex())
+            return self._model.id(self.currentIndex())
         except Exception:
             pass
         return None
@@ -1783,6 +1789,8 @@ class DeviceBooksView(BooksView):  # {{{
 
     def drag_data(self):
         m = self.model()
+        assert m is not None
+        assert isinstance(m, DeviceBooksModel)
         _dd_sm = self.selectionModel()
         assert _dd_sm is not None
         rows = _dd_sm.selectedRows()

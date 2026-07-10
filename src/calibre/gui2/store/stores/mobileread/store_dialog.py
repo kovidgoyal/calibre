@@ -35,16 +35,22 @@ class MobileReadStoreDialog(QDialog, Ui_Dialog):
         self.search_button.clicked.connect(self.do_search)
         self.adv_search_button.clicked.connect(self.build_adv_search)
         self.results_view.activated.connect(self.open_store)
-        self.results_view.model().total_changed.connect(self.update_book_total)
+        self._model.total_changed.connect(self.update_book_total)
         self.finished.connect(self.dialog_closed)
 
         self.restore_state()
 
     def do_search(self):
-        self.results_view.model().search(type(u'')(self.search_query.text()))
+        _m = self.results_view.model()
+        assert _m is not None
+        assert isinstance(_m, BooksModel)
+        _m.search(type(u'')(self.search_query.text()))
 
     def open_store(self, index):
-        result = self.results_view.model().get_book(index)
+        _m = self.results_view.model()
+        assert _m is not None
+        assert isinstance(_m, BooksModel)
+        result = _m.get_book(index)
         if result:
             self.plugin.open(self, result.detail_item)
 

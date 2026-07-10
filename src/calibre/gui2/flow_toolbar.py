@@ -66,6 +66,7 @@ class SingleLineToolBar(QToolBar):
     def add_action(self, ac, popup_mode=QToolButton.ToolButtonPopupMode.DelayedPopup):
         self.addAction(ac)
         w = self.widgetForAction(ac)
+        assert isinstance(w, QToolButton)
         w.setPopupMode(popup_mode)
 
     def add_separator(self):

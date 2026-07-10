@@ -76,7 +76,9 @@ class TrashItemDelegate(QStyledItemDelegate):
             text += '\n' + ', '.join(sorted(entry.formats))
         r = QRectF(option.rect)
         if entry.cover_path:
-            dp = self.parent().devicePixelRatioF()
+            par = self.parent()
+            assert par is not None
+            dp = par.devicePixelRatioF()
             p = self.pixmap_cache.get(entry.cover_path)
             if p is None:
                 p = QPixmap()
@@ -84,7 +86,7 @@ class TrashItemDelegate(QStyledItemDelegate):
                 scaled, w, h = fit_image(p.width(), p.height(), int(THUMBNAIL_SIZE[0] * dp), int(THUMBNAIL_SIZE[1] * dp))
                 if scaled:
                     p = p.scaled(w, h, transformMode=Qt.TransformationMode.SmoothTransformation)
-                p.setDevicePixelRatio(self.parent().devicePixelRatioF())
+                p.setDevicePixelRatio(par.devicePixelRatioF())
                 self.pixmap_cache[entry.cover_path] = p
             w, h = p.width() / dp, p.height() / dp
             width, height = THUMBNAIL_SIZE[0] + MARGIN_SIZE, THUMBNAIL_SIZE[1] + MARGIN_SIZE
@@ -245,7 +247,9 @@ class TrashView(Dialog):
 
     def do_operation_on_selected(self, func):
         ok_items, failed_items = [], []
-        for i in self.tabs.currentWidget().selectedItems():
+        cw = self.tabs.currentWidget()
+        assert isinstance(cw, TrashList)
+        for i in cw.selectedItems():
             entry = i.data(Qt.ItemDataRole.UserRole)
             try:
                 func(entry)
@@ -292,6 +296,7 @@ class TrashView(Dialog):
 
     def remove_entries(self, remove):
         w = self.tabs.currentWidget()
+        assert isinstance(w, TrashList)
         for i in remove:
             w.takeItem(w.row(i))
         self.update_titles()

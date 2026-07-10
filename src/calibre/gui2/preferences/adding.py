@@ -46,7 +46,9 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
         self.filename_pattern = FilenamePattern(self)
         self.metadata_box.l = QVBoxLayout(self.metadata_box)
-        self.metadata_box.layout().insertWidget(0, self.filename_pattern)
+        mb_layout = self.metadata_box.layout()
+        assert mb_layout is not None
+        mb_layout.insertWidget(0, self.filename_pattern)
         self.filename_pattern.changed_signal.connect(self.changed_signal.emit)
         self.auto_add_browse_button.clicked.connect(self.choose_aa_path)
         for signal in ('Activated', 'Changed', 'DoubleClicked', 'Clicked'):
@@ -57,7 +59,9 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.author_map_rules_button.clicked.connect(self.change_author_map_rules)
         self.add_filter_rules_button.clicked.connect(self.change_add_filter_rules)
         self.tabWidget.setCurrentIndex(0)
-        self.actions_tab.layout().setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.AllNonFixedFieldsGrow)
+        at_layout = self.actions_tab.layout()
+        assert at_layout is not None
+        at_layout.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.AllNonFixedFieldsGrow)
         self.ignore_another_button.clicked.connect(self.add_another_ignored_format)
 
     def change_tag_map_rules(self):

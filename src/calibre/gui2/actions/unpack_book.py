@@ -236,7 +236,9 @@ class UnpackBook(QDialog):
     def do_preview(self):
         rebuilt = self.rebuild_it()
         if rebuilt is not None:
-            self.parent().iactions['View']._view_file(rebuilt)
+            from calibre.gui2.ui import get_gui
+            g = get_gui()
+            g.iactions['View']._view_file(rebuilt)
 
     def rebuild(self):
         self.show_msg(_('Rebuilding, please wait...'))

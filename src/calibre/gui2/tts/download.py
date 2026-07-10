@@ -146,6 +146,8 @@ class DownloadResources(QDialog):
 
     def on_done(self, err_msg: str):
         pb = self.sender()
+        assert pb is not None
+        assert isinstance(pb, ProgressBar)
         self.todo.discard(pb.qurl)
         if err_msg:
             self.failures.append(_('Failed to download {0} with error: {1}').format(pb.desc, err_msg))

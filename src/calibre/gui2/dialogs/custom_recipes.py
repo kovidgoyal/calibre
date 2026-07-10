@@ -679,6 +679,7 @@ class CustomRecipes(Dialog):
 
     def editing_finished(self):
         w = self.stack.currentWidget()
+        assert isinstance(w, (BasicRecipe, AdvancedRecipe))
         if not w.validate():
             return
         src = w.recipe_source

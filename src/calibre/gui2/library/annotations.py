@@ -2235,8 +2235,10 @@ class AnnotationsBrowser(Dialog):
             QTimer.singleShot(80, self.browse_panel.effective_query_changed)
 
     def selection_changed(self):
-        if self.isVisible() and self.parent():
-            gui = self.parent()
+        gui = self.parent()
+        if self.isVisible() and gui is not None:
+            from calibre.gui2.ui import Main
+            assert isinstance(gui, Main)
             self.browse_panel.selection_changed(gui.library_view.get_selected_ids(as_set=True))
 
     def reinitialize(self, restrict_to_book_ids=None):

@@ -181,15 +181,23 @@ class IgnoredFolders(QDialog):
         return ans
 
     def select_all(self):
-        w = self.tabs.currentWidget()
-        for i in range(w.invisibleRootItem().childCount()):
-            c = w.invisibleRootItem().child(i)
+        tw = self.tabs.currentWidget()
+        assert isinstance(tw, QTreeWidget)
+        root = tw.invisibleRootItem()
+        assert root is not None
+        for i in range(root.childCount()):
+            c = root.child(i)
+            assert c is not None
             c.setCheckState(0, Qt.CheckState.Checked)
 
     def select_none(self):
-        w = self.tabs.currentWidget()
-        for i in range(w.invisibleRootItem().childCount()):
-            c = w.invisibleRootItem().child(i)
+        tw = self.tabs.currentWidget()
+        assert isinstance(tw, QTreeWidget)
+        root = tw.invisibleRootItem()
+        assert root is not None
+        for i in range(root.childCount()):
+            c = root.child(i)
+            assert c is not None
             c.setCheckState(0, Qt.CheckState.Unchecked)
 
     @property

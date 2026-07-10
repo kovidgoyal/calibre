@@ -319,12 +319,16 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self._add_action([index])
 
     def _add_action(self, indices):
-        names = self.all_actions.model().names(indices)
+        all_model = self.all_actions.model()
+        assert all_model is not None
+        names = all_model.names(indices)
         if names:
-            not_added = self.current_actions.model().add(names)
+            cur_model = self.current_actions.model()
+            assert cur_model is not None
+            not_added = cur_model.add(names)
             ns = {y.name for y in not_added}
             added = set(names) - ns
-            self.all_actions.model().remove(indices, added)
+            all_model.remove(indices, added)
             if not_added:
                 warning_dialog(self, _('Cannot add'),
                         _('Cannot add the actions %s to this location') %
@@ -347,12 +351,16 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self._remove_action([index])
 
     def _remove_action(self, indices):
-        names = self.current_actions.model().names(indices)
+        cur_model = self.current_actions.model()
+        assert cur_model is not None
+        names = cur_model.names(indices)
         if names:
-            not_removed = self.current_actions.model().remove(indices)
+            not_removed = cur_model.remove(indices)
             ns = {y.name for y in not_removed}
             removed = set(names) - ns
-            self.all_actions.model().add(removed)
+            all_model = self.all_actions.model()
+            assert all_model is not None
+            all_model.add(removed)
             if not_removed:
                 warning_dialog(self, _('Cannot remove'),
                         _('Cannot remove the actions %s from this location') %
@@ -368,6 +376,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         if x and len(x):
             i = sm.currentIndex().row()
             m = self.current_actions.model()
+            assert m is not None
             idx_map = m.move_many(x, delta)
             newci = idx_map.get(i)
             sm.clear()

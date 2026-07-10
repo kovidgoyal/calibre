@@ -396,6 +396,8 @@ class FilterModel(QSortFilterProxyModel):  # {{{
                 self.search_filter):
             return False
         m = self.sourceModel()
+        assert m is not None
+        assert isinstance(m, JobManager)
         try:
             job = m.row_to_job(source_row)
         except Exception:
@@ -407,7 +409,10 @@ class FilterModel(QSortFilterProxyModel):  # {{{
         val = None
         if query:
             try:
-                val = self.sourceModel().parse(query)
+                sm = self.sourceModel()
+                assert sm is not None
+                assert isinstance(sm, JobManager)
+                val = sm.parse(query)
             except ParseException:
                 ok = False
         self.search_filter = val
@@ -626,7 +631,10 @@ class JobsButton(QWidget):  # {{{
     def no_more_jobs(self):
         if self.is_running:
             self.stop()
-            QCoreApplication.instance().alert(self, 5000)
+            app = QCoreApplication.instance()
+            assert app is not None
+            assert isinstance(app, QApplication)
+            app.alert(self, 5000)
 
     def paintEvent(self, a0):
         if self.mouse_over:

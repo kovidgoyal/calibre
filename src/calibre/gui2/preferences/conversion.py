@@ -116,7 +116,11 @@ class Base(ConfigWidgetBase):
 
     def restore_defaults(self):
         ConfigWidgetBase.restore_defaults(self)
-        self.stack.currentWidget().widget().restore_defaults(self.plumber.get_option_by_name)
+        sa = self.stack.currentWidget()
+        assert isinstance(sa, QScrollArea)
+        inner = sa.widget()
+        assert inner is not None
+        inner.restore_defaults(self.plumber.get_option_by_name)
         self.changed_signal.emit()
 
     def commit(self):

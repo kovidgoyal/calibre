@@ -784,6 +784,7 @@ class LLMSettingsDialogBase(Dialog):
     def accept(self):
         for i in range(self.tabs.count()):
             w = self.tabs.widget(i)
+            assert w is not None
             if not w.commit():
                 self.tabs.setCurrentWidget(w)
                 return
@@ -806,7 +807,9 @@ class StreamingDemoWidget(ConverseWidget):
         self.render_count = 0
         super().__init__(parent)
         self.render_count_label = QLabel('', self)
-        self.layout.insertWidget(0, self.render_count_label)
+        layout_ = self.layout
+        assert isinstance(layout_, QVBoxLayout)
+        layout_.insertWidget(0, self.render_count_label)
         self.settings_button.setVisible(False)
         self.result_display.input.setEnabled(False)
         self.original_re_render = self.result_display.re_render

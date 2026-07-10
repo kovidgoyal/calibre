@@ -59,10 +59,12 @@ class BlockingJob(QWidget):
         self.setFocusPolicy(Qt.FocusPolicy.NoFocus)
 
     def start(self):
-        self.setGeometry(0, 0, self.parent().width(), self.parent().height())
+        p = self.parent()
+        assert isinstance(p, QWidget)
+        self.setGeometry(0, 0, p.width(), p.height())
         self.setVisible(True)
         # Prevent any actions from being triggered by key presses
-        self.parent().setEnabled(False)
+        p.setEnabled(False)
         self.raise_and_focus()
         self.setFocus(Qt.FocusReason.OtherFocusReason)
         self.pi.startAnimation()
@@ -72,11 +74,13 @@ class BlockingJob(QWidget):
         QApplication.restoreOverrideCursor()
         self.pi.stopAnimation()
         self.setVisible(False)
-        self.parent().setEnabled(True)
+        p = self.parent()
+        assert isinstance(p, QWidget)
+        p.setEnabled(True)
         # The following line is needed on OS X, because of this bug:
         # https://bugreports.qt-project.org/browse/QTBUG-34371 it causes
         # keyboard events to no longer work
-        self.parent().setFocus(Qt.FocusReason.OtherFocusReason)
+        p.setFocus(Qt.FocusReason.OtherFocusReason)
 
     def job_done(self, callback, job):
         del job.callback

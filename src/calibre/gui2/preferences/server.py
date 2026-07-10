@@ -990,9 +990,11 @@ class CustomList(QWidget):  # {{{
 
     def thumbnail_state_changed(self):
         is_enabled = bool(self.thumbnail.isChecked())
+        layout_ = self.layout()
+        assert layout_ is not None
         for w, x in [(self.thumbnail_height, True), (self.entry_height, False)]:
             w.setVisible(is_enabled is x)
-            self.layout().labelForField(w).setVisible(is_enabled is x)
+            layout_.labelForField(w).setVisible(is_enabled is x)
 
     def genesis(self):
         self.current_template = custom_list_template() or self.default_template

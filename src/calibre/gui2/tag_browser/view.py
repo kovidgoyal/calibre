@@ -407,7 +407,7 @@ class TagsView(QTreeView):  # {{{
     def get_state(self):
         state_map = {}
         expanded_categories = []
-        hide_empty_categories = self.model().prefs['tag_browser_hide_empty_categories']
+        hide_empty_categories = self._model.prefs['tag_browser_hide_empty_categories']
         crmap = self._model.category_row_map()
         for category in self._model.category_nodes:
             if (category.category_key in self.hidden_categories or (
@@ -486,13 +486,13 @@ class TagsView(QTreeView):  # {{{
                         QTreeView.keyPressEvent(self, event)
                     return
                 if key == Qt.Key.Key_Backtab:
-                    if self.model().get_node(self.currentIndex()) != self._model.root_item.children[0]:
+                    if self._model.get_node(self.currentIndex()) != self._model.root_item.children[0]:
                         QTreeView.keyPressEvent(self, event)
                     return
             # If this is an edit request, mark the node to request whether to use VLs
             # As far as I can tell, F2 is used across all platforms
             if key == Qt.Key.Key_F2:
-                node = self.model().get_node(self.currentIndex())
+                node = self._model.get_node(self.currentIndex())
                 if node.type == TagTreeItem.TAG:
                     # Saved search nodes don't use the VL test/dialog
                     node.use_vl = None
@@ -803,13 +803,13 @@ class TagsView(QTreeView):  # {{{
                 return
 
             if action == 'edit_item_no_vl':
-                item = self.model().get_node(index)
+                item = self._model.get_node(index)
                 item.use_vl = False
                 item.ignore_vl = ignore_vl
                 self.edit(index)
                 return
             if action == 'edit_item_in_vl':
-                item = self.model().get_node(index)
+                item = self._model.get_node(index)
                 item.use_vl = True
                 item.ignore_vl = ignore_vl
                 self.edit(index)
@@ -820,7 +820,7 @@ class TagsView(QTreeView):  # {{{
                 id_ = tag.id if tag.is_editable else None
                 children = index.child_tags()
                 self.tag_item_delete.emit(key, id_, tag.original_name,
-                                          self.model().get_book_ids_to_use(),
+                                          self._model.get_book_ids_to_use(),
                                           children)
                 return
             if action == 'delete_item_no_vl':
@@ -879,7 +879,7 @@ class TagsView(QTreeView):  # {{{
                     skip_dialog_msg=_('Show this confirmation again')
                 ):
                     return
-                self.model().db.saved_search_delete(key)
+                self._model.db.saved_search_delete(key)
                 self.rebuild_saved_searches.emit()
                 return
             if action == 'delete_item_from_user_category':
@@ -930,12 +930,12 @@ class TagsView(QTreeView):  # {{{
             elif action == 'defaults':
                 self.hidden_categories.clear()
             elif action == 'add_tag':
-                item = self.model().get_node(index)
+                item = self._model.get_node(index)
                 if item is not None:
                     self.apply_to_selected_books(item)
                 return
             elif action == 'remove_tag':
-                item = self.model().get_node(index)
+                item = self._model.get_node(index)
                 if item is not None:
                     self.apply_to_selected_books(item, True)
                 return
@@ -1000,7 +1000,7 @@ class TagsView(QTreeView):  # {{{
                     name = self.db.field_metadata[col]['name']
                     name = name.partition('.')[0] if col.startswith('@') else name
                     ac = m.addAction(name, partial(self.context_menu_handler, action='show', category=col))
-                    ic = self.model().category_custom_icons.get(col)
+                    ic = self._model.category_custom_icons.get(col)
                     if ic:
                         assert ac is not None
                         ac.setIcon(QIcon.ic(ic))
@@ -1041,7 +1041,7 @@ class TagsView(QTreeView):  # {{{
                             key != 'search'):
                         # Add the 'rename' items to both interior and leaf nodes
                         if fm['datatype'] != 'enumeration':
-                            if self.model().get_in_vl():
+                            if self._model.get_in_vl():
                                 self.context_menu.addAction(self.rename_icon,
                                         _('Rename %s in Virtual library')%display_name(tag),
                                         partial(self.context_menu_handler, action='edit_item_in_vl',
@@ -1054,7 +1054,7 @@ class TagsView(QTreeView):  # {{{
                         assert _fmdb is not None
                         if key in ('tags', 'series', 'publisher') or \
                                 _fmdb.field_metadata.is_custom_field(key):
-                            if self.model().get_in_vl():
+                            if self._model.get_in_vl():
                                 self.context_menu.addAction(self.delete_icon,
                                                     _('Delete %s in Virtual library')%display_name(tag),
                                 partial(self.context_menu_handler, action='delete_item_in_vl',
@@ -1111,7 +1111,7 @@ class TagsView(QTreeView):  # {{{
                                                    _('Children of %s')%n)
                                     add_node_tree(tree_dict[k], tm, p)
                                 p.pop()
-                        add_node_tree(self.model().user_category_node_tree, m, [])
+                        add_node_tree(self._model.user_category_node_tree, m, [])
                         if added[0]:
                             self.context_menu.addMenu(m)
 
@@ -1137,7 +1137,7 @@ class TagsView(QTreeView):  # {{{
                                 partial(self.context_menu_handler,
                                         action='delete_search', key=tag.original_name))
                     elif key == 'identifiers':
-                        if self.model().get_in_vl():
+                        if self._model.get_in_vl():
                             self.context_menu.addAction(self.delete_icon,
                                     _('Delete %s in Virtual Library')%display_name(tag),
                                     partial(self.context_menu_handler,
@@ -1261,7 +1261,7 @@ class TagsView(QTreeView):  # {{{
                                     category=tag.original_name if tag else None,
                                     key=key))
                     assert ac is not None
-                    ic = self.model().category_custom_icons.get(key)
+                    ic = self._model.category_custom_icons.get(key)
                     if ic:
                         ac.setIcon(QIcon.ic(ic))
                     if fm['datatype'] == 'enumeration':
@@ -1283,7 +1283,7 @@ class TagsView(QTreeView):  # {{{
                             partial(self.context_menu_handler, action='edit_authors',
                                     index=tag.id))
                     assert ac is not None
-                    ic = self.model().category_custom_icons.get(key)
+                    ic = self._model.category_custom_icons.get(key)
                     if ic:
                         ac.setIcon(QIcon.ic(ic))
                 elif key == 'search':
@@ -1599,8 +1599,7 @@ class TagsView(QTreeView):  # {{{
                         self.setDropIndicatorShown(True)
 
     def clear(self):
-        if self.model():
-            self.model().clear_state()
+        self._model.clear_state()
 
     def is_visible(self, idx):
         item = idx.data(Qt.ItemDataRole.UserRole)

@@ -362,6 +362,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         series_action.triggered.connect(self.change_series_map_rules)
         self.map_rules_button.setMenu(m)
         l = self.page.layout()
+        assert l is not None
         l.setStretch(0, 1)
         l.setStretch(1, 1)
         self.add_new_source_button.clicked.connect(self.add_new_source)

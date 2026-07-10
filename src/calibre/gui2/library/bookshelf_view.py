@@ -1406,7 +1406,9 @@ class ExpandedCover(QObject):  # {{{
 
     @property
     def layout_constraints(self) -> LayoutConstraints:
-        return self.parent().layout_constraints
+        _lc_p = self.parent()
+        assert isinstance(_lc_p, BookshelfView)
+        return _lc_p.layout_constraints
 
     def shelf_item_hovered(self, case_item: CaseItem | None = None, shelf_item: ShelfItem | None = None) -> None:
         self.pending_shelf_item, self.pending_case_item = shelf_item, case_item
@@ -1428,7 +1430,9 @@ class ExpandedCover(QObject):  # {{{
             lc = self.layout_constraints
             sz = QSize(self.shelf_item.width, lc.spine_height - self.shelf_item.reduce_height_by)
             self.modified_case_item = self.case_item
-            pixmap, final_sz = self.parent().load_hover_cover(self.shelf_item)
+            _start_p = self.parent()
+            assert isinstance(_start_p, BookshelfView)
+            pixmap, final_sz = _start_p.load_hover_cover(self.shelf_item)
             self.cover_renderer.set_pixmap(pixmap)
             self.size_animation.setStartValue(sz)
             self.size_animation.setEndValue(final_sz)

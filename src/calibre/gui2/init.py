@@ -36,6 +36,7 @@ from calibre.gui2.central import CentralContainer, LayoutButton
 from calibre.gui2.layout_menu import LayoutMenu
 from calibre.gui2.library.alternate_views import GridView
 from calibre.gui2.library.bookshelf_view import BookshelfView
+from calibre.gui2.library.models import BooksModel
 from calibre.gui2.library.views import BooksView, DeviceBooksView
 from calibre.gui2.notify import get_notifier
 from calibre.gui2.tag_browser.ui import TagBrowserWidget
@@ -789,7 +790,10 @@ class LayoutMixin:  # {{{
             self.search.setFocus(Qt.FocusReason.OtherFocusReason)
 
     def bd_cover_changed(self, id_, cdata):
-        self.library_view.model().db.set_cover(id_, cdata)
+        lv_model = self.library_view.model()
+        assert lv_model is not None
+        assert isinstance(lv_model, BooksModel)
+        lv_model.db.set_cover(id_, cdata)
         self.refresh_cover_browser()
 
     def bd_open_cover_with(self, book_id, entry):
@@ -835,8 +839,10 @@ class LayoutMixin:  # {{{
                 self.bd_open_fmt_with(book_id, fmt, entry)
 
     def bd_cover_removed(self, id_):
-        self.library_view.model().db.remove_cover(id_, commit=True,
-                notify=False)
+        lv_model = self.library_view.model()
+        assert lv_model is not None
+        assert isinstance(lv_model, BooksModel)
+        lv_model.db.remove_cover(id_, commit=True, notify=False)
         self.refresh_cover_browser()
 
     def bd_copy_link(self, url):

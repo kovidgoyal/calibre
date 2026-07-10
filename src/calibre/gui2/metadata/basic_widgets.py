@@ -394,7 +394,9 @@ class AuthorsEdit(EditWithComplete, ToMetadataMixin):
         return menu
 
     def edit_authors(self):
-        all_authors = self.lineEdit().all_items
+        le = self.lineEdit()
+        assert le is not None
+        all_authors = le.all_items
         current_authors = self.current_val
         from calibre.gui2.dialogs.authors_edit import AuthorsEdit
         d = AuthorsEdit(all_authors, current_authors, self)
@@ -910,7 +912,11 @@ class FormatList(_FormatList):
     def contextMenuEvent(self, a0):
         from calibre.ebooks.oeb.polish.main import SUPPORTED as EDIT_SUPPORTED
         item = self.itemFromIndex(self.currentIndex())
-        originals = [self.item(x).ext.upper() for x in range(self.count())]
+        originals = []
+        for x in range(self.count()):
+            it = self.item(x)
+            assert it is not None
+            originals.append(it.ext.upper())
         originals = [x for x in originals if x.startswith('ORIGINAL_')]
 
         self.cm = cm = QMenu(self)
@@ -950,6 +956,7 @@ class FormatList(_FormatList):
     def remove_format(self, fmt):
         for i in range(self.count()):
             f = self.item(i)
+            assert f is not None
             if f.ext.upper() == fmt.upper():
                 self.takeItem(i)
                 break
@@ -1051,6 +1058,7 @@ class FormatsManager(QWidget):
         old_extensions, new_extensions, paths = set(), set(), {}
         for row in range(self.formats.count()):
             fmt = self.formats.item(row)
+            assert fmt is not None
             ext, path = fmt.ext.lower(), fmt.path
             if 'unknown' in ext.lower():
                 ext = None
@@ -1118,6 +1126,7 @@ class FormatsManager(QWidget):
             timestamp = utcfromtimestamp(stat.st_mtime)
             for row in range(self.formats.count()):
                 fmt = self.formats.item(row)
+                assert fmt is not None
                 if fmt.ext.lower() == ext:
                     self.formats.takeItem(row)
                     break
@@ -1176,6 +1185,7 @@ class FormatsManager(QWidget):
     def get_format_path(self, db, id_, fmt):
         for i in range(self.formats.count()):
             f = self.formats.item(i)
+            assert f is not None
             ext = f.ext.lower()
             if ext == fmt:
                 if f.path is None:

@@ -133,7 +133,10 @@ class HistoryComboBox(EditWithComplete, HistoryMixin):
         EditWithComplete.__init__(self, parent, sort_func=lambda x:b'', strip_completion_entries=strip_completion_entries)
 
     def set_uniform_item_sizes(self, on=False):
-        self.lineEdit().mcompleter.setUniformItemSizes(on)
+        le = self.lineEdit()
+        assert le is not None
+        assert isinstance(le, LineEdit)
+        le.mcompleter.setUniformItemSizes(on)
 
 
 class ColorButton(QPushButton):
@@ -328,7 +331,12 @@ class RatingItemDelegate(QStyledItemDelegate):
 
     def initStyleOption(self, option, index):
         QStyledItemDelegate.initStyleOption(self, option, index)
-        option.font = qapplication_or_fail().font() if index.row() <= 0 else self.parent().rating_font
+        if index.row() <= 0:
+            option.font = qapplication_or_fail().font()
+        else:
+            p = self.parent()
+            assert isinstance(p, RatingEditor)
+            option.font = p.rating_font
         option.fontMetrics = QFontMetrics(option.font)
 
 
@@ -756,17 +764,25 @@ class ScrollingTabWidget(QTabWidget):
     @property
     def all_widgets(self):
         for i in range(self.count()):
-            yield self.widget(i).widget()
+            w = self.widget(i)
+            assert w is not None
+            assert isinstance(w, QScrollArea)
+            yield w.widget()
 
     def indexOf(self, widget):
         for i in range(self.count()):
             t = self.widget(i)
+            assert t is not None
+            assert isinstance(t, QScrollArea)
             if t.widget() is widget:
                 return i
         return -1
 
     def currentWidget(self):
-        return QTabWidget.currentWidget(self).widget()
+        w = QTabWidget.currentWidget(self)
+        assert w is not None
+        assert isinstance(w, QScrollArea)
+        return w.widget()
 
     def addTab(self, widget, *args):
         return QTabWidget.addTab(self, self.wrap_widget(widget), *args)
@@ -944,6 +960,7 @@ class MessagePopup(QLabel):
 
     def position_in_parent(self):
         p = self.parent()
+        assert isinstance(p, QWidget)
         self.move((p.width() - self.width()) // 2, self.OFFSET_FROM_TOP)
 
 

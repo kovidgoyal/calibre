@@ -370,7 +370,9 @@ class ExtraCustomization(DeviceConfigTab):  # {{{
                     else:
                         ec.append(str(_ec_item.text()).strip())
             else:
-                ec = str(self.opt_extra_customization.text()).strip()
+                oec = self.opt_extra_customization
+                assert isinstance(oec, QLineEdit)
+                ec = str(oec.text()).strip()
                 if not ec:
                     ec = None
 

@@ -262,6 +262,7 @@ class FetchBackend(QObject):
         self.download_finished.emit(result)
         if self.pending_requests:
             w = self.sender()
+            assert isinstance(w, Worker)
             req, data = self.pending_requests.popleft()
             w.start_download(self.output_dir, req, data)
             self.timeout_timer.start()

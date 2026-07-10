@@ -60,14 +60,14 @@ class Message(QWidget):
 
     def __init__(self, parent):
         QWidget.__init__(self, parent)
-        self.layout = QTextLayout()
-        self.layout.setFont(self.font())
-        self.layout.setCacheEnabled(True)
+        self.text_layout = QTextLayout()
+        self.text_layout.setFont(self.font())
+        self.text_layout.setCacheEnabled(True)
         self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred)
         self.last_layout_rect = None
 
     def setText(self, text):
-        self.layout.setText(text)
+        self.text_layout.setText(text)
         self.last_layout_rect = None
         self.update()
 
@@ -75,7 +75,7 @@ class Message(QWidget):
         return QSize(10, 10)
 
     def do_layout(self):
-        ly = self.layout
+        ly = self.text_layout
         ly.beginLayout()
         w = self.width() - 5
         height = 0
@@ -94,11 +94,11 @@ class Message(QWidget):
         if self.last_layout_rect != self.rect():
             self.do_layout()
         p = QPainter(self)
-        br = self.layout.boundingRect()
+        br = self.text_layout.boundingRect()
         y = 0
         if br.height() < self.height():
             y = (self.height() - br.height()) / 2
-        self.layout.draw(p, QPointF(0, y))
+        self.text_layout.draw(p, QPointF(0, y))
 
 
 class TitleBar(QWidget):

@@ -567,8 +567,10 @@ class Adder(QObject):
             d(self.pd, _('Errors while adding'), msg, det_msg='\n'.join(self.report), show=True)
 
         potentially_convertible = self.added_book_ids | self.merged_formats_added_to
-        if gprefs['manual_add_auto_convert'] and potentially_convertible and self.parent() is not None:
-            self.parent().iactions['Convert Books'].auto_convert_auto_add(potentially_convertible)
+        from calibre.gui2.ui import get_gui
+        g = get_gui()
+        if gprefs['manual_add_auto_convert'] and potentially_convertible and g is not None:
+            g.iactions['Convert Books'].auto_convert_auto_add(potentially_convertible)
 
         try:
             if callable(self.callback):

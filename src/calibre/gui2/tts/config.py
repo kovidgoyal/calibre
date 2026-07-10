@@ -163,7 +163,10 @@ class Volume(QWidget):
         self.update_state()
 
     def update_state(self):
-        self.layout().setRowVisible(self.vol, not self.system.isChecked())
+        lay = self.layout()
+        assert lay is not None
+        assert isinstance(lay, QFormLayout)
+        lay.setRowVisible(self.vol, not self.system.isChecked())
 
     @property
     def val(self):
@@ -380,21 +383,24 @@ class EngineSpecificConfig(QWidget):
         self.initialize_widgets_from_settings()
 
     def initialize_widgets_from_settings(self):
+        lay = self.layout()
+        assert lay is not None
+        assert isinstance(lay, QFormLayout)
         tts = create_tts_backend(force_engine=self.engine_name)
         metadata = available_engines()[self.engine_name]
         self.output_module.blockSignals(True)
         self.output_module.clear()
         if metadata.has_multiple_output_modules:
-            self.layout().setRowVisible(self.output_module, True)
+            lay.setRowVisible(self.output_module, True)
             self.output_module.addItem(_('System default (currently {})').format(tts.default_output_module), '')
             for om in self.voice_data[self.engine_name]:
                 self.output_module.addItem(om, om)
             if (idx := self.output_module.findData(self.engine_specific_settings[self.engine_name].output_module)) > -1:
                 self.output_module.setCurrentIndex(idx)
         else:
-            self.layout().setRowVisible(self.output_module, False)
+            lay.setRowVisible(self.output_module, False)
         self.output_module.blockSignals(False)
-        self.layout().setRowVisible(self.sentence_delay, metadata.has_sentence_delay)
+        lay.setRowVisible(self.sentence_delay, metadata.has_sentence_delay)
         try:
             s = self.engine_specific_settings[self.engine_name]
         except KeyError:
@@ -402,16 +408,16 @@ class EngineSpecificConfig(QWidget):
         self.rate.val = s.rate
         if metadata.can_change_pitch:
             self.pitch.val = s.pitch
-            self.layout().setRowVisible(self.pitch, True)
+            lay.setRowVisible(self.pitch, True)
         else:
             self.pitch.val = 0
-            self.layout().setRowVisible(self.pitch, False)
-        self.layout().setRowVisible(self.pitch, metadata.can_change_pitch)
+            lay.setRowVisible(self.pitch, False)
+        lay.setRowVisible(self.pitch, metadata.can_change_pitch)
         if metadata.can_change_volume and not self.for_embedding:
-            self.layout().setRowVisible(self.volume, True)
+            lay.setRowVisible(self.volume, True)
             self.volume.val = s.volume
         else:
-            self.layout().setRowVisible(self.volume, False)
+            lay.setRowVisible(self.volume, False)
             self.volume.val = None
         if metadata.has_sentence_delay:
             self.sentence_delay.val = s.sentence_delay
@@ -423,9 +429,9 @@ class EngineSpecificConfig(QWidget):
             if cad := self.engine_specific_settings[self.engine_name].audio_device_id:
                 if (idx := self.audio_device.findData(cad.id.hex())):
                     self.audio_device.setCurrentIndex(idx)
-            self.layout().setRowVisible(self.audio_device, True)
+            lay.setRowVisible(self.audio_device, True)
         else:
-            self.layout().setRowVisible(self.audio_device, False)
+            lay.setRowVisible(self.audio_device, False)
         self.rebuild_voices()
         return metadata
 

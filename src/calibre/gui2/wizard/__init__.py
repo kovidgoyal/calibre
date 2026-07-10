@@ -9,6 +9,7 @@ import os
 import re
 import traceback
 from contextlib import closing, suppress
+from typing import Protocol, runtime_checkable
 
 from qt.core import QAbstractListModel, QDir, QIcon, QItemSelection, QItemSelectionModel, Qt, QWizard, QWizardPage, pyqtSignal
 
@@ -902,6 +903,12 @@ class FinishPage(QWizardPage, FinishUI):
         pass
 
 
+@runtime_checkable
+class _WizardPageWithMethods(Protocol):
+    def commit(self) -> None: ...
+    def retranslateUi(self, page: object) -> None: ...
+
+
 class Wizard(QWizard):
 
     BUTTON_TEXTS = {
@@ -948,6 +955,8 @@ class Wizard(QWizard):
     def retranslate(self):
         for pid in self.pageIds():
             page = self.page(pid)
+            assert page is not None
+            assert isinstance(page, _WizardPageWithMethods)
             page.retranslateUi(page)
         self.set_button_texts()
         self.set_finish_text()
@@ -955,6 +964,8 @@ class Wizard(QWizard):
     def accept(self):
         pages = map(self.page, self.visitedIds())
         for page in pages:
+            assert page is not None
+            assert isinstance(page, _WizardPageWithMethods)
             page.commit()
         QWizard.accept(self)
 

@@ -328,6 +328,10 @@ def fix_html(original_html, original_txt, remove_comments=True, callback=None):
     return xml_replace_entities(ans)
 
 
+class BlockAction(QAction):
+    block_name: str = ''
+
+
 class EditorWidget(QTextEdit, LineEditECM):  # {{{
 
     data_changed = pyqtSignal()
@@ -442,7 +446,7 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
             (h.format(6), 'h6'),
             (_('Blockquote'), 'blockquote'),
         ):
-            ac = QAction(text, self)
+            ac = BlockAction(text, self)
             self.block_style_menu.addAction(ac)
             ac.block_name = name
             ac.setCheckable(True)
@@ -741,7 +745,9 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
         return {q: i for i, q in enumerate('p h1 h2 h3 h4 h5 h6'.split())}[name]
 
     def do_format_block(self):
-        name = self.sender().block_name
+        sender = self.sender()
+        assert isinstance(sender, BlockAction)
+        name = sender.block_name
         with self.editing_cursor() as c:
             bf = QTextBlockFormat()
             cf = QTextCharFormat()

@@ -786,7 +786,9 @@ class ShortcutConfig(QWidget):  # {{{
         self.highlight_index(idx)
 
     def highlight_group(self, group_name):
-        idx = self.view.model().index_for_group(group_name)
+        model = self.view.model()
+        assert isinstance(model, ConfigModel)
+        idx = model.index_for_group(group_name)
         if idx is not None:
             self.view.expand(idx)
             self.view.scrollTo(idx, QAbstractItemView.ScrollHint.PositionAtTop)

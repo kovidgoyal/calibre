@@ -53,6 +53,7 @@ from calibre.gui2.job_indicator import Pointer
 from calibre.gui2.jobs import JobManager, JobsButton, JobsDialog
 from calibre.gui2.keyboard import Manager
 from calibre.gui2.layout import MainWindowMixin
+from calibre.gui2.library.models import BooksModel
 from calibre.gui2.listener import Listener
 from calibre.gui2.main_window import MainWindow
 from calibre.gui2.open_with import register_keyboard_shortcuts
@@ -71,7 +72,7 @@ from calibre.utils.resources import get_image_path as I
 from calibre.utils.resources import get_path as P
 
 
-def get_gui():
+def get_gui() -> Main | None:
     return getattr(get_gui, 'ans', None)
 
 
@@ -363,7 +364,10 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         LibraryViewMixin.init_library_view_mixin(self, db)
         SearchBoxMixin.init_search_box_mixin(self)  # Requires current_db
 
-        self.library_view.model().count_changed_signal.connect(
+        lv_model = self.library_view.model()
+        assert lv_model is not None
+        assert isinstance(lv_model, BooksModel)
+        lv_model.count_changed_signal.connect(
                 self.iactions['Choose Library'].count_changed)
         if not gprefs.get('quick_start_guide_added', False):
             try:
@@ -376,14 +380,14 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
             v.selectionModel().selectionChanged.connect(self.update_status_bar)
             v.model().count_changed_signal.connect(self.update_status_bar)
 
-        self.library_view.model().count_changed()
-        self.bars_manager.database_changed(self.library_view.model().db)
-        self.library_view.model().database_changed.connect(self.bars_manager.database_changed,
+        lv_model.count_changed()
+        self.bars_manager.database_changed(lv_model.db)
+        lv_model.database_changed.connect(self.bars_manager.database_changed,
                 type=Qt.ConnectionType.QueuedConnection)
 
         # ########################## Tags Browser ##############################
         TagBrowserMixin.init_tag_browser_mixin(self, db)
-        self.library_view.model().database_changed.connect(self.populate_tb_manage_menu, type=Qt.ConnectionType.QueuedConnection)
+        lv_model.database_changed.connect(self.populate_tb_manage_menu, type=Qt.ConnectionType.QueuedConnection)
 
         # ######################## Search Restriction ##########################
         if db.new_api.pref('virtual_lib_on_startup'):
@@ -650,10 +654,15 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
 
     @property
     def current_db(self):
-        return self.library_view.model().db
+        m = self.library_view.model()
+        assert m is not None
+        assert isinstance(m, BooksModel)
+        return m.db
 
     def refresh_all(self):
         m = self.library_view.model()
+        assert m is not None
+        assert isinstance(m, BooksModel)
         m.db.data.refresh(clear_caches=False, do_search=False)
         self.saved_searches_changed(recount=False)
         m.resort()
@@ -905,7 +914,10 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
                         current_row = -1
                         if lv.current_id == book_id:
                             current_row = lv.currentIndex().row()
-                        self.library_view.model().refresh_ids((book_id,), current_row)
+                        lv_m = self.library_view.model()
+                        assert lv_m is not None
+                        assert isinstance(lv_m, BooksModel)
+                        lv_m.refresh_ids((book_id,), current_row)
                 else:
                     print('Failed to update annotations for book from viewer, book or library not found.', file=sys.stderr)
             except Exception:
@@ -919,6 +931,8 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
                 book_id, fmt, library_id = parts[:3]
                 book_id = int(book_id)
                 m = self.library_view.model()
+                assert m is not None
+                assert isinstance(m, BooksModel)
                 db = m.db.new_api
                 if m.db.library_id == library_id and db.has_id(book_id):
                     db.format_metadata(book_id, fmt, allow_cache=False, update_db=True)
@@ -969,7 +983,16 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         self.location_manager.library_action.trigger()
 
     def booklists(self):
-        return self.memory_view.model().db, self.card_a_view.model().db, self.card_b_view.model().db
+        mem_model = self.memory_view.model()
+        assert mem_model is not None
+        assert isinstance(mem_model, BooksModel)
+        card_a_model = self.card_a_view.model()
+        assert card_a_model is not None
+        assert isinstance(card_a_model, BooksModel)
+        card_b_model = self.card_b_view.model()
+        assert card_b_model is not None
+        assert isinstance(card_b_model, BooksModel)
+        return mem_model.db, card_a_model.db, card_b_model.db
 
     def library_moved(self, newloc, copy_structure=False, allow_rebuild=False):
         if newloc is None:
@@ -977,7 +1000,10 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         with self.library_broker:
             default_prefs = None
             try:
-                olddb = self.library_view.model().db
+                _lv_model = self.library_view.model()
+                assert _lv_model is not None
+                assert isinstance(_lv_model, BooksModel)
+                olddb = _lv_model.db
                 if copy_structure:
                     default_prefs = dict(olddb.prefs)
             except Exception:
@@ -1021,12 +1047,15 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
             db.set_book_on_device_func(self.book_on_device)
             self.library_view.set_database(db)
             self.tags_view.set_database(db, self.alter_tb)
-            self.library_view.model().set_book_on_device_func(self.book_on_device)
+            lv_model = self.library_view.model()
+            assert lv_model is not None
+            assert isinstance(lv_model, BooksModel)
+            lv_model.set_book_on_device_func(self.book_on_device)
             self.status_bar.clear_message()
             self.search.clear()
             self.book_details.reset_info()
-            # self.library_view.model().count_changed()
-            db = self.library_view.model().db
+            # lv_model.count_changed()
+            db = lv_model.db
             self.iactions['Choose Library'].count_changed(db.count())
             self.set_window_title()
             self.apply_named_search_restriction('')  # reset restriction to null
@@ -1213,7 +1242,10 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
     def write_settings(self):
         with gprefs:  # Only write to gprefs once
             self.save_geometry(gprefs, 'calibre_main_window_geometry')
-            dynamic.set('sort_history', self.library_view.model().sort_history)
+            _m = self.library_view.model()
+            assert _m is not None
+            assert isinstance(_m, BooksModel)
+            dynamic.set('sort_history', _m.sort_history)
             self.save_layout_state()
             self._save_tb_state(gprefs)
 
@@ -1323,7 +1355,10 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         timed_print('Bookshelf view shutdown')
         db = None
         try:
-            db = self.library_view.model().db
+            _shutdown_model = self.library_view.model()
+            assert _shutdown_model is not None
+            assert isinstance(_shutdown_model, BooksModel)
+            db = _shutdown_model.db
             cf = db.clean
         except Exception:
             pass
@@ -1358,12 +1393,15 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
                 pass
         sys.excepthook = eh
 
-        mb = self.library_view.model().metadata_backup
+        _close_model = self.library_view.model()
+        assert _close_model is not None
+        assert isinstance(_close_model, BooksModel)
+        mb = _close_model.metadata_backup
         if mb is not None:
             mb.stop()
         timed_print('Metadata backup shutdown')
 
-        self.library_view.model().close()
+        _close_model.close()
         timed_print('Current database closed')
 
         try:

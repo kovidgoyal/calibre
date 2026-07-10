@@ -428,8 +428,8 @@ class Inspector(QWidget):
         QWidget.__init__(self, parent=parent)
         self.view_to_debug = parent
         self.view = None
-        self.layout = QHBoxLayout(self)
-        self.layout.setContentsMargins(0, 0, 0, 0)
+        h = QHBoxLayout(self)
+        h.setContentsMargins(0, 0, 0, 0)
         self.dock_action = dock_action
         QTimer.singleShot(0, self.connect_to_dock)
 
@@ -450,7 +450,9 @@ class Inspector(QWidget):
             debug_page = view_to_debug.page()
             assert debug_page is not None
             debug_page.setDevToolsPage(view_page)
-            self.layout.addWidget(self.view)
+            h = self.layout()
+            assert h is not None
+            h.addWidget(self.view)
 
     def sizeHint(self):
         return QSize(600, 1200)

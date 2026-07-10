@@ -221,14 +221,18 @@ class FilesView(QTableView):
     def selected_locations(self):
         sel_model = self.selectionModel()
         assert sel_model is not None
-        return list(filter(None, (self.proxy.sourceModel().location(self.proxy.mapToSource(index)) for index in sel_model.selectedIndexes())))
+        src_model = self.proxy.sourceModel()
+        assert isinstance(src_model, FileCollection)
+        return list(filter(None, (src_model.location(self.proxy.mapToSource(index)) for index in sel_model.selectedIndexes())))
 
     @property
     def current_location(self):
         cur_sel_model = self.selectionModel()
         assert cur_sel_model is not None
         index = cur_sel_model.currentIndex()
-        return self.proxy.sourceModel().location(self.proxy.mapToSource(index))
+        src_model = self.proxy.sourceModel()
+        assert isinstance(src_model, FileCollection)
+        return src_model.location(self.proxy.mapToSource(index))
 
     def delete_selected(self):
         if self.DELETE_POSSIBLE:
@@ -255,7 +259,9 @@ class FilesView(QTableView):
     def to_csv(self):
         buf = StringIO(newline='')
         w = csv_writer(buf)
-        w.writerow(self.proxy.sourceModel().COLUMN_HEADERS)
+        src_model = self.proxy.sourceModel()
+        assert isinstance(src_model, FileCollection)
+        w.writerow(src_model.COLUMN_HEADERS)
         cols = self.proxy.columnCount()
         for r in range(self.proxy.rowCount()):
             items = [self.proxy.index(r, c).data(Qt.ItemDataRole.DisplayRole) for c in range(cols)]
@@ -1464,7 +1470,9 @@ class ReportsWidget(QWidget):
         save_state('splitter-state', bytearray(self.splitter.saveState()))
         save_state('report-page', self.reports.currentRow())
         for i in range(self.stack.count()):
-            self.stack.widget(i).save()
+            widget = self.stack.widget(i)
+            assert isinstance(widget, (FilesWidget, WordsWidget, ImagesWidget, CSSWidget, CharsWidget, LinksWidget))
+            widget.save()
 
     def to_csv(self):
         w = self.stack.currentWidget()

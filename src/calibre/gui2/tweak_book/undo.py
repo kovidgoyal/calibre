@@ -235,6 +235,7 @@ class CheckpointView(QWidget):
 
     def revert_clicked(self):
         m = self.view.model()
+        assert isinstance(m, GlobalUndoHistory)
         row = self.view.currentIndex().row()
         if row < 0:
             return
@@ -245,6 +246,7 @@ class CheckpointView(QWidget):
 
     def compare_clicked(self):
         m = self.view.model()
+        assert isinstance(m, GlobalUndoHistory)
         row = self.view.currentIndex().row()
         if row < 0:
             return

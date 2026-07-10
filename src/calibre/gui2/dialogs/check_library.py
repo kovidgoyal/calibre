@@ -110,7 +110,9 @@ class DBCheck(QDialog):  # {{{
 
     def start(self):
         self.setWindowTitle(_('Vacuuming...'))
-        self.layout().setCurrentIndex(1)
+        sl = self.layout()
+        assert isinstance(sl, QStackedLayout)
+        sl.setCurrentIndex(1)
         QApplication.setOverrideCursor(QCursor(Qt.CursorShape.WaitCursor))
         self.vacuum_started = True
         db = self.db()

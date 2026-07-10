@@ -73,7 +73,9 @@ class TableView(MomentumScrollMixin, QTableView):
             if not idx.isValid():
                 continue
             if m.is_custom_column(colname):
-                if self.itemDelegateForIndex(idx).is_editable_with_tab:
+                delegate_for_idx = self.itemDelegateForIndex(idx)
+                assert delegate_for_idx is not None
+                if delegate_for_idx.is_editable_with_tab:
                     # Don't try to open editors implemented by dialogs such as
                     # markdown, composites and comments
                     break
@@ -114,14 +116,16 @@ class TableView(MomentumScrollMixin, QTableView):
 
     def set_delegates(self):
         cm = self.column_map
+        m = self.model()
+        assert m is not None
 
         def set_item_delegate(colhead, delegate):
             idx = self.column_map.index(colhead)
             self.setItemDelegateForColumn(idx, delegate)
 
         for colhead in cm:
-            if self.model().is_custom_column(colhead):
-                cc = self.model().custom_columns[colhead]
+            if m.is_custom_column(colhead):
+                cc = m.custom_columns[colhead]
                 if cc['datatype'] == 'datetime':
                     delegate = CcDateDelegate(self)
                     delegate.set_format(cc['display'].get('date_format',''))
@@ -167,7 +171,9 @@ class TableView(MomentumScrollMixin, QTableView):
 
     def allow_one_edit_for_f2(self):
         key = self.column_map[self.currentIndex().column()]
-        db = self.model().db
+        m = self.model()
+        assert m is not None
+        db = m.db
         if hasattr(db, 'field_metadata') and db.field_metadata[key]['datatype'] == 'composite':
             self.cc_template_delegate.allow_one_edit()
 

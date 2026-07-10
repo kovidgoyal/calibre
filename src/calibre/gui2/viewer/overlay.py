@@ -42,7 +42,9 @@ class LoadingOverlay(QWidget):
 
     def __call__(self, msg=''):
         self.label.setText(msg)
-        self.resize(self.parent().size())
+        par = self.parent()
+        assert isinstance(par, QWidget)
+        self.resize(par.size())
         self.move(0, 0)
         self.setVisible(True)
         self.raise_()
@@ -50,7 +52,9 @@ class LoadingOverlay(QWidget):
         self.update()
 
     def hide(self):
-        self.parent().web_view.setFocus(Qt.FocusReason.OtherFocusReason)
+        par = self.parent()
+        assert isinstance(par, QWidget)
+        par.web_view.setFocus(Qt.FocusReason.OtherFocusReason)
         self.pi.stop()
         return QWidget.hide(self)
 

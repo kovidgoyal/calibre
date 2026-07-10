@@ -360,10 +360,12 @@ class SearchInput(QWidget):
     def current_query(self):
         sb_le = self.search_box.lineEdit()
         assert sb_le is not None
+        _cq_p = self.parent()
+        assert isinstance(_cq_p, NotesBrowser)
         return {
             'fts_engine_query': sb_le.text().strip(),
             'restrict_to_fields': tuple(self.restrict.restricted_fields),
-            'use_stemming': bool(self.parent().use_stemmer.isChecked()),
+            'use_stemming': bool(_cq_p.use_stemmer.isChecked()),
         }
 
     def cleared(self):

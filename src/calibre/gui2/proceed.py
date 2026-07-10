@@ -18,6 +18,7 @@ from qt.core import (
     QIcon,
     QImage,
     QLabel,
+    QMainWindow,
     QPainter,
     QPainterPath,
     QPalette,
@@ -258,9 +259,14 @@ class ProceedQuestion(QWidget):
 
     def do_resize(self):
         sz = self.sizeHint()
-        sz.setWidth(min(self.parent().width(), sz.width()))
-        sb = self.parent().statusBar().height() + 10
-        sz.setHeight(min(self.parent().height() - sb, sz.height()))
+        p = self.parent()
+        assert p is not None
+        assert isinstance(p, QMainWindow)
+        sz.setWidth(min(p.width(), sz.width()))
+        p_sb = p.statusBar()
+        assert p_sb is not None
+        sb = p_sb.height() + 10
+        sz.setHeight(min(p.height() - sb, sz.height()))
         self.resize(sz)
         self.position_widget()
 
@@ -365,9 +371,12 @@ class ProceedQuestion(QWidget):
                 child.viewport().update()
 
     def position_widget(self):
-        geom = self.parent().geometry()
+        pw = self.parent()
+        assert pw is not None
+        assert isinstance(pw, QMainWindow)
+        geom = pw.geometry()
         x = geom.width() - self.width() - 5
-        sb = self.parent().statusBar()
+        sb = pw.statusBar()
         if sb is None:
             y = geom.height() - self.height()
         else:

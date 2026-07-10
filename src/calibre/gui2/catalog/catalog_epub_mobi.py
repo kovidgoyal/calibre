@@ -11,6 +11,7 @@ from functools import partial
 
 from qt.core import (
     QAbstractItemView,
+    QBoxLayout,
     QCheckBox,
     QComboBox,
     QDoubleSpinBox,
@@ -909,13 +910,14 @@ class GenericRulesTable(QTableWidget):
     NAME_FIELD_WIDTH = 225
 
     def __init__(self, parent, parent_gb, object_name, rules):
-        self.parent = parent
+        self._plugin_widget = parent
         self.rules = rules
         self.eligible_custom_fields = parent.eligible_custom_fields
         self.db = parent.db
         QTableWidget.__init__(self)
         self.setObjectName(object_name)
-        self.layout = parent_gb.layout()
+        self._group_layout = parent_gb.layout()
+        assert self._group_layout is not None
 
         # Add ourselves to the layout
         sizePolicy = QSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
@@ -927,7 +929,7 @@ class GenericRulesTable(QTableWidget):
 
         self.setColumnCount(0)
         self.setRowCount(0)
-        self.layout.addWidget(self)
+        self._group_layout.addWidget(self)
 
         self.last_row_selected = self.currentRow()
         _init_sel_model = self.selectionModel()
@@ -971,7 +973,10 @@ class GenericRulesTable(QTableWidget):
         self.move_rule_down_tb.clicked.connect(self.move_row_down)
         vbl.addWidget(self.move_rule_down_tb)
 
-        self.layout.addLayout(vbl)
+        _lay = self._group_layout
+        assert _lay is not None
+        assert isinstance(_lay, QBoxLayout)
+        _lay.addLayout(vbl)
 
     def add_row(self):
         self.setFocus()
@@ -988,8 +993,9 @@ class GenericRulesTable(QTableWidget):
         _hdr.setStretchLastSection(True)
 
     def clearLayout(self):
-        if self.layout is not None:
-            old_layout = self.layout
+        _lay = self._group_layout
+        if _lay is not None:
+            old_layout = _lay
 
             for child in old_layout.children():
                 for i in reversed(range(child.count())):
@@ -1013,7 +1019,10 @@ class GenericRulesTable(QTableWidget):
         first = rows[0].row() + 1
         last = rows[-1].row() + 1
 
-        first_rule_name = str(self.cellWidget(first-1, self.COLUMNS['NAME']['ordinal']).text()).strip()
+        _name_widget = self.cellWidget(first-1, self.COLUMNS['NAME']['ordinal'])
+        assert _name_widget is not None
+        assert isinstance(_name_widget, QLineEdit)
+        first_rule_name = str(_name_widget.text()).strip()
         message = _("Are you sure you want to delete '%s'?") % (first_rule_name)
         if len(rows) > 1:
             message = _('Are you sure you want to delete rules #%(first)d-%(last)d?') % dict(first=first, last=last)
@@ -1132,7 +1141,10 @@ class GenericRulesTable(QTableWidget):
             print(f'{self.objectName()}:rule_name_edited()')
 
         current_row = self.currentRow()
-        self.cellWidget(current_row, 1).home(False)
+        _rn_widget = self.cellWidget(current_row, 1)
+        assert _rn_widget is not None
+        assert isinstance(_rn_widget, QLineEdit)
+        _rn_widget.home(False)
         self.select_and_scroll_to_row(current_row)
         self.settings_changed('rule_name_edited')
 
@@ -1146,8 +1158,8 @@ class GenericRulesTable(QTableWidget):
         self.last_rows_selected = _scroll_sel_model.selectedRows()
 
     def settings_changed(self, source):
-        if not self.parent.blocking_all_signals:
-            self.parent.settings_changed(source)
+        if not self._plugin_widget.blocking_all_signals:
+            self._plugin_widget.settings_changed(source)
 
     def _source_index_changed(self, combo):
         # Figure out which row we're in
@@ -1231,12 +1243,18 @@ class ExclusionRules(GenericRulesTable):
     def convert_row_to_data(self, row):
         data = self.create_blank_row_data()
         data['ordinal'] = row
-        _excl_item = self.item(row, self.COLUMNS['ENABLED']['ordinal'])
+        _excl_item = self.item(row, int(self.COLUMNS['ENABLED']['ordinal']))
         assert _excl_item is not None
         data['enabled'] = _excl_item.checkState() == Qt.CheckState.Checked
-        data['name'] = str(self.cellWidget(row, self.COLUMNS['NAME']['ordinal']).text()).strip()
-        data['field'] = str(self.cellWidget(row, self.COLUMNS['FIELD']['ordinal']).currentText()).strip()
-        data['pattern'] = str(self.cellWidget(row, self.COLUMNS['PATTERN']['ordinal']).currentText()).strip()
+        _excl_name_w = self.cellWidget(row, int(self.COLUMNS['NAME']['ordinal']))
+        assert isinstance(_excl_name_w, QLineEdit)
+        data['name'] = str(_excl_name_w.text()).strip()
+        _excl_field_w = self.cellWidget(row, int(self.COLUMNS['FIELD']['ordinal']))
+        assert isinstance(_excl_field_w, QComboBox)
+        data['field'] = str(_excl_field_w.currentText()).strip()
+        _excl_pattern_w = self.cellWidget(row, int(self.COLUMNS['PATTERN']['ordinal']))
+        assert isinstance(_excl_pattern_w, QComboBox)
+        data['pattern'] = str(_excl_pattern_w.currentText()).strip()
         return data
 
     def create_blank_row_data(self):
@@ -1329,13 +1347,21 @@ class PrefixRules(GenericRulesTable):
     def convert_row_to_data(self, row):
         data = self.create_blank_row_data()
         data['ordinal'] = row
-        _prefix_item = self.item(row, self.COLUMNS['ENABLED']['ordinal'])
-        assert _prefix_item is not None
+        _prefix_item = self.item(row, int(self.COLUMNS['ENABLED']['ordinal']))
+        assert isinstance(_prefix_item, QCheckBox)
         data['enabled'] = _prefix_item.checkState() == Qt.CheckState.Checked
-        data['name'] = str(self.cellWidget(row, self.COLUMNS['NAME']['ordinal']).text()).strip()
-        data['prefix'] = str(self.cellWidget(row, self.COLUMNS['PREFIX']['ordinal']).currentText()).strip()
-        data['field'] = str(self.cellWidget(row, self.COLUMNS['FIELD']['ordinal']).currentText()).strip()
-        data['pattern'] = str(self.cellWidget(row, self.COLUMNS['PATTERN']['ordinal']).currentText()).strip()
+        _pfx_name_w = self.cellWidget(row, int(self.COLUMNS['NAME']['ordinal']))
+        assert isinstance(_pfx_name_w, QLineEdit)
+        data['name'] = str(_pfx_name_w.text()).strip()
+        _pfx_prefix_w = self.cellWidget(row, int(self.COLUMNS['PREFIX']['ordinal']))
+        assert isinstance(_pfx_prefix_w, QComboBox)
+        data['prefix'] = str(_pfx_prefix_w.currentText()).strip()
+        _pfx_field_w = self.cellWidget(row, int(self.COLUMNS['FIELD']['ordinal']))
+        assert isinstance(_pfx_field_w, QComboBox)
+        data['field'] = str(_pfx_field_w.currentText()).strip()
+        _pfx_pattern_w = self.cellWidget(row, int(self.COLUMNS['PATTERN']['ordinal']))
+        assert isinstance(_pfx_pattern_w, QComboBox)
+        data['pattern'] = str(_pfx_pattern_w.currentText()).strip()
         return data
 
     def create_blank_row_data(self):

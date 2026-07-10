@@ -35,6 +35,7 @@ from qt.core import (
     Qt,
     QToolButton,
     QTreeView,
+    QWidget,
     pyqtSignal,
 )
 
@@ -840,7 +841,9 @@ class CharSelect(Dialog):
     def show_char_info(self, char_code):
         text = '\xa0'
         if char_code > 0:
-            category_name, subcategory_name, character_name = self.category_view.model().get_char_info(char_code)
+            m = self.category_view.model()
+            assert m is not None
+            category_name, subcategory_name, character_name = m.get_char_info(char_code)
             text = _('{character_name} (U+{char_code:04X}) in {category_name} - {subcategory_name}').format(**locals())
         self.char_info.setText(text)
 
@@ -852,13 +855,14 @@ class CharSelect(Dialog):
     def char_selected(self, c):
         if QApplication.keyboardModifiers() & Qt.KeyboardModifier.ControlModifier:
             self.hide()
-        if self.parent() is None or self.parent().focusWidget() is None:
+        p = self.parent()
+        if not isinstance(p, QWidget) or p.focusWidget() is None:
             cb = QApplication.clipboard()
             assert cb is not None
             cb.setText(c)
             return
-        self.parent().activateWindow()
-        w = self.parent().focusWidget()
+        p.activateWindow()
+        w = p.focusWidget()
         e = QInputMethodEvent('', [])
         e.setCommitString(unicodedata.normalize('NFC', c))
         if hasattr(w, 'no_popup'):

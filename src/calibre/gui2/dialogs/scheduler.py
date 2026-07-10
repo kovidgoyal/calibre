@@ -90,7 +90,9 @@ class RecipesView(QTreeView):
 
     def currentChanged(self, current, previous):
         QTreeView.currentChanged(self, current, previous)
-        self.parent().current_changed(current, previous)
+        p = self.parent()
+        assert isinstance(p, SchedulerDialog)
+        p.current_changed(current, previous)
 
 
 # Time/date widgets {{{
@@ -504,8 +506,9 @@ class SchedulerDialog(QDialog):
                 recipe_model.clear_account_info(urn)
 
         if self.schedule.isChecked():
-            schedule_type, schedule = \
-                    self.schedule_stack.currentWidget().schedule
+            csw = self.schedule_stack.currentWidget()
+            assert isinstance(csw, Base)
+            schedule_type, schedule = csw.schedule
             recipe_model.schedule_recipe(urn, schedule_type, schedule)
         else:
             recipe_model.un_schedule_recipe(urn)
@@ -595,13 +598,16 @@ class SchedulerDialog(QDialog):
         rb = getattr(self, list(self.SCHEDULE_TYPES)[sch_widget])
         rb.setChecked(True)
         self.schedule_stack.setCurrentIndex(sch_widget)
-        self.schedule_stack.currentWidget().initialize(typ, sch)
+        csw = self.schedule_stack.currentWidget()
+        assert isinstance(csw, Base)
+        csw.initialize(typ, sch)
         self.add_title_tag.setChecked(customize_info.add_title_tag)
         self.custom_tags.setText(', '.join(customize_info.custom_tags))
         self.last_downloaded.setText(_('Last downloaded:') + ' ' + ld_text)
         self.keep_issues.setValue(customize_info.keep_issues)
         self.keep_issues.setEnabled(self.add_title_tag.isChecked())
         g = self.tab2.layout()
+        assert isinstance(g, QFormLayout)
         for x in self.recipe_specific_widgets.values():
             g.removeRow(x)
         self.recipe_specific_widgets = {}

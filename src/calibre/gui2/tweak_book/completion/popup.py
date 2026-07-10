@@ -6,8 +6,12 @@ __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import textwrap
 from math import ceil
+from typing import TYPE_CHECKING, cast
 
 from qt.core import QEvent, QPainter, QPalette, QSize, QStaticText, Qt, QTextCursor, QTextOption, QTimer, QWidget
+
+if TYPE_CHECKING:
+    from calibre.gui2.tweak_book.editor.text import TextEdit
 
 from calibre import prepare_string_for_xml, prints
 from calibre.gui2 import error_dialog
@@ -74,7 +78,9 @@ class ChoosePopupWidget(QWidget):
             st = self.rendered_text_cache[otext] = QStaticText(text)
             st.setTextOption(self.text_option)
             st.setTextFormat(Qt.TextFormat.RichText)
-            st.prepare(font=self.parent().font())
+            parent_widget = self.parent()
+            assert isinstance(parent_widget, QWidget)
+            st.prepare(font=parent_widget.font())
         return st
 
     def sizeHint(self):
@@ -111,7 +117,9 @@ class ChoosePopupWidget(QWidget):
         crect = self.rect().adjusted(1, 1, -1, -1)
         painter.fillRect(crect, pal.color(QPalette.ColorRole.Base))
         painter.setClipRect(crect)
-        painter.setFont(self.parent().font())
+        parent_widget = self.parent()
+        assert isinstance(parent_widget, QWidget)
+        painter.setFont(parent_widget.font())
         width = self.rect().width()
         for i, st, y, height in self.iter_visible_items():
             painter.save()
@@ -128,11 +136,14 @@ class ChoosePopupWidget(QWidget):
             QTimer.singleShot(0, self.layout)
 
     def layout(self, cursor_rect=None):
-        p = self.parent()
+        p_raw = self.parent()
+        assert p_raw is not None
+        p = cast('TextEdit', p_raw)
         if cursor_rect is None:
             cursor_rect = p.cursorRect().adjusted(0, 0, 0, 2)
         gutter_width = p.gutter_width
         vp = p.viewport()
+        assert vp is not None
         above = cursor_rect.top() > vp.height() - cursor_rect.bottom()
         max_height = min(self.max_height, (cursor_rect.top() if above else vp.height() - cursor_rect.bottom()) - 15)
         max_width = vp.width() - 25 - gutter_width

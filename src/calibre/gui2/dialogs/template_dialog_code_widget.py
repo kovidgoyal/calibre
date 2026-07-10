@@ -17,7 +17,9 @@ class LineNumberArea(LineNumbers):
 
     def mouseDoubleClickEvent(self, a0):
         super().mousePressEvent(a0)
-        self.parent().line_area_doubleclick_event(a0)
+        p = self.parent()
+        assert isinstance(p, CodeEditor)
+        p.line_area_doubleclick_event(a0)
 
 
 class CodeEditor(QPlainTextEdit):

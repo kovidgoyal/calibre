@@ -7,6 +7,7 @@ from contextlib import suppress
 from copy import deepcopy
 
 from qt.core import (
+    QAction,
     QCheckBox,
     QColor,
     QColorDialog,
@@ -616,7 +617,9 @@ class CoverSettingsDialog(QDialog):
             m.addAction(name, self.import_settings)
 
     def import_settings(self):
-        fname = self.sender().text() + '.json'
+        act = self.sender()
+        assert isinstance(act, QAction)
+        fname = act.text() + '.json'
         base = os.path.join(config_dir, 'cover-generation-themes')
         with open(os.path.join(base, fname), 'rb') as f:
             raw = f.read()

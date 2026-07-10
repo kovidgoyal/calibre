@@ -45,7 +45,9 @@ class ResultsView(QTreeView):
         if not index.isValid():
             return
 
-        plugin = self.model().get_plugin(index)
+        _m = self.model()
+        assert isinstance(_m, Matches)
+        plugin = _m.get_plugin(index)
 
         menu = QMenu(self)
         ca = menu.addAction(_('Configure...'), partial(self.configure_plugin, plugin))

@@ -511,7 +511,9 @@ class ResultsView(QTreeView):
         return ret
 
     def currentChanged(self, current, previous):
-        results, individual_match = self.model().data_for_index(current)
+        _model = self.model()
+        assert isinstance(_model, ResultsModel)
+        results, individual_match = _model.data_for_index(current)
         if individual_match is not None:
             individual_match = current.row()
         self.current_changed.emit(results, individual_match)
@@ -521,7 +523,9 @@ class ResultsView(QTreeView):
 
     def show_context_menu(self, pos):
         index = self.indexAt(pos)
-        results, match = self.model().data_for_index(index)
+        _model = self.model()
+        assert isinstance(_model, ResultsModel)
+        results, match = _model.data_for_index(index)
         m = QMenu(self)
         if results:
             m.addAction(QIcon.ic('lt.png'), _('Jump to this book in the library'), partial(jump_to_book, results.book_id, self))
@@ -703,15 +707,15 @@ class SearchInputPanel(QWidget):
     def do_layout(self):
         QVBoxLayout(self)
         _sip_layout = self.layout()
-        assert _sip_layout is not None
+        assert isinstance(_sip_layout, QVBoxLayout)
         _sip_layout.setContentsMargins(0, 0, 0, 0)
         self.hsb = hsb = QHBoxLayout()
-        self.layout().addLayout(hsb)
+        _sip_layout.addLayout(hsb)
         hsb.addWidget(self.switch_view_button)
         hsb.addWidget(self.search_box, stretch=10)
         hsb.addWidget(self.search_button)
         self.h1 = h1 = QHBoxLayout()
-        self.layout().addLayout(h1)
+        _sip_layout.addLayout(h1)
         h1.addWidget(self.restrict), h1.addWidget(self.related), h1.addWidget(self.sort_button), h1.addStretch(), h1.addWidget(self.summary)
 
     def clear_history(self):
@@ -967,7 +971,9 @@ class SplitView(QSplitter):
     def current_result(self):
         idx = self.results_view.currentIndex()
         if idx.isValid():
-            results, match = self.results_view.model().data_for_index(idx)
+            _rv_model = self.results_view.model()
+            assert isinstance(_rv_model, ResultsModel)
+            results, match = _rv_model.data_for_index(idx)
             if match is not None:
                 match = idx.row()
             return results, match
@@ -1018,7 +1024,7 @@ class ResultsPanel(QWidget):
         sv.remove_book_from_results.connect(self.remove_book_from_results)
         QStackedLayout(self)
         _results_panel_layout = self.layout()
-        assert _results_panel_layout is not None
+        assert isinstance(_results_panel_layout, QStackedLayout)
         _results_panel_layout.addWidget(sv)
         self.card_view = cv = CardsView(self.results_model, self)
         cv.link_activated.connect(self._cards_link_activated)
@@ -1026,16 +1032,24 @@ class ResultsPanel(QWidget):
         self.set_view_mode(gprefs['fts_visualisation'])
 
     def set_view_mode(self, mode: str = 'compact'):
+        _stacked = self.layout()
+        assert isinstance(_stacked, QStackedLayout)
         if mode == 'compact':
-            self.split_view.left_panel.layout().insertWidget(0, self.sip)
-            self.layout().setCurrentIndex(0)
+            _lp_layout = self.split_view.left_panel.layout()
+            assert isinstance(_lp_layout, QVBoxLayout)
+            _lp_layout.insertWidget(0, self.sip)
+            _stacked.setCurrentIndex(0)
         else:
-            self.card_view.layout().insertWidget(0, self.sip)
-            self.layout().setCurrentIndex(1)
+            _cv_layout = self.card_view.layout()
+            assert isinstance(_cv_layout, QVBoxLayout)
+            _cv_layout.insertWidget(0, self.sip)
+            _stacked.setCurrentIndex(1)
 
     @property
     def current_view(self):
-        return self.layout().currentWidget()
+        _stacked = self.layout()
+        assert isinstance(_stacked, QStackedLayout)
+        return _stacked.currentWidget()
 
     def search(self, text: str):
         gui = get_gui()

@@ -157,7 +157,10 @@ class LayoutMenuInner(QWidget):
         item = self.item_for_ev(a0)
         if item is not None and item is self.current_item:
             a0.accept()
-            self.parent().hide()
+            menu_parent = self.parent()
+            assert menu_parent is not None
+            assert isinstance(menu_parent, QWidget)
+            menu_parent.hide()
             item.button.click()
 
     def handle_key_press(self, ev):
@@ -169,7 +172,10 @@ class LayoutMenuInner(QWidget):
             else:
                 sc = QKeySequence.fromString(sc)
             if sc.matches(q) == QKeySequence.SequenceMatch.ExactMatch:
-                self.parent().hide()
+                menu_parent = self.parent()
+                assert menu_parent is not None
+                assert isinstance(menu_parent, QWidget)
+                menu_parent.hide()
                 item.button.click()
                 ev.accept()
                 break
@@ -192,6 +198,8 @@ class LayoutMenu(QWidget):
     def show(self):
         self.inner.delayed_init()
         parent = self.parent()
+        assert parent is not None
+        assert isinstance(parent, QWidget)
         self.move(0, 0)
         self.resize(parent.rect().size())
         r = parent.rect()

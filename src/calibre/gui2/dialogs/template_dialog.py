@@ -822,9 +822,12 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
     def set_waiting_message(self):
         if not self.run_as_you_type_box.isChecked():
             for i in range(self.template_value.rowCount()):
-                self.template_value.cellWidget(i, 2).setText('')
-            self.template_value.cellWidget(0, 2).setText(
-                _("*** Waiting for the 'Go' button to be pressed"))
+                cw = self.template_value.cellWidget(i, 2)
+                assert isinstance(cw, QLineEdit)
+                cw.setText('')
+            cw0 = self.template_value.cellWidget(0, 2)
+            assert isinstance(cw0, QLineEdit)
+            cw0.setText(_("*** Waiting for the 'Go' button to be pressed"))
 
     def show_code_context_menu(self, point):
         m = self.source_code.createStandardContextMenu()
@@ -1150,6 +1153,7 @@ def evaluate(book, context):
         db = get_gui().current_db
         for r,mi in enumerate(self.mi):
             w = tv.cellWidget(r, 0)
+            assert isinstance(w, QLineEdit)
             w.setText(mi.get('title', _('No title provided')))
             w.setCursorPosition(0)
             if self.break_box.isChecked() and r == break_on_mi and self.is_python:
@@ -1162,9 +1166,10 @@ def evaluate(book, context):
                                  template_functions=self.all_functions,
                                  break_reporter=self.break_reporter if r == break_on_mi else None,
                                  python_context_object=self.python_context_object, database=db)
-                w = tv.cellWidget(r, 2)
-                w.setText(v.translate(translate_table))
-                w.setCursorPosition(0)
+                w2 = tv.cellWidget(r, 2)
+                assert isinstance(w2, QLineEdit)
+                w2.setText(v.translate(translate_table))
+                w2.setCursorPosition(0)
             finally:
                 sys.settrace(None)
             if not gprefs.get('template_editor_show_all_selected_books', True):

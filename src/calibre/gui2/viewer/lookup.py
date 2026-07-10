@@ -315,9 +315,12 @@ class View(QWebEngineView):
         menu = self.createStandardContextMenu()
         assert menu is not None
         menu.addSeparator()
-        menu.addAction(_('Zoom in'), self.page().zoom_in)
-        menu.addAction(_('Zoom out'), self.page().zoom_out)
-        menu.addAction(_('Default zoom'), self.page().default_zoom)
+        p = self.page()
+        assert p is not None
+        assert isinstance(p, Page)
+        menu.addAction(_('Zoom in'), p.zoom_in)
+        menu.addAction(_('Zoom out'), p.zoom_out)
+        menu.addAction(_('Default zoom'), p.default_zoom)
         menu.addAction(_('Inspect'), self.do_inspect_element)
         menu.exec(a0.globalPos())
 

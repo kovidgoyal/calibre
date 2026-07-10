@@ -56,7 +56,9 @@ class QueryEdit(QLineEdit):
     def contextMenuEvent(self, a0):
         menu = self.createStandardContextMenu()
         assert menu is not None
-        self.parent().specialise_context_menu(menu)
+        _p = self.parent()
+        assert _p is not None
+        _p.specialise_context_menu(menu)
         menu.exec(a0.globalPos())
 
 
@@ -278,8 +280,10 @@ class Delegate(QStyledItemDelegate):
 
     def sizeHint(self, option, index):
         st = QStaticText(index.data(RENDER_ROLE))
-        st.prepare(font=self.parent().font())
-        width = max(option.rect.width(), self.parent().width() - 50)
+        _p = self.parent()
+        assert isinstance(_p, QWidget)
+        st.prepare(font=_p.font())
+        width = max(option.rect.width(), _p.width() - 50)
         if width and width != st.textWidth():
             st.setTextWidth(width)
         br = st.size()

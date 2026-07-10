@@ -182,7 +182,9 @@ class EnumValuesEdit(QDialog):
 
     def move_row(self, row, direction):
         t = self.table.takeItem(row, self.VALUE_COLUMN)
-        c = self.table.cellWidget(row, self.COLOR_COLUMN).currentIndex()
+        cw = self.table.cellWidget(row, self.COLOR_COLUMN)
+        assert isinstance(cw, QComboBox)
+        c = cw.currentIndex()
         was = self.table.takeItem(row, self.WAS_COLUMN)
         count = self.table.takeItem(row, self.COUNT_COLUMN)
         self.table.removeRow(row)
@@ -255,7 +257,9 @@ class EnumValuesEdit(QDialog):
                 fid = self.db.new_api.get_item_id(self.key, ov)
                 id_map[fid] = v
             values.append(v)
-            c = str(self.table.cellWidget(i, self.COLOR_COLUMN).currentText())
+            ccw = self.table.cellWidget(i, self.COLOR_COLUMN)
+            assert isinstance(ccw, QComboBox)
+            c = str(ccw.currentText())
             if c:
                 colors.append(c)
         l_lower = [v.lower() for v in values]

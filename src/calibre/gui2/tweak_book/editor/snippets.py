@@ -10,6 +10,7 @@ import weakref
 from collections import OrderedDict, namedtuple
 from itertools import groupby
 from operator import attrgetter, itemgetter
+from typing import TYPE_CHECKING, cast
 
 from qt.core import (
     QDialog,
@@ -42,6 +43,9 @@ from calibre.gui2.tweak_book.widgets import Dialog, PlainTextEdit
 from calibre.utils.config import JSONConfig
 from calibre.utils.icu import string_length as strlen
 from calibre.utils.localization import _, localize_user_manual_link
+
+if TYPE_CHECKING:
+    from calibre.gui2.tweak_book.editor.text import TextEdit
 
 
 def string_length(x):
@@ -426,7 +430,9 @@ class SnippetManager(QObject):
         return at
 
     def handle_key_press(self, ev):
-        editor = self.parent()
+        editor_raw = self.parent()
+        assert editor_raw is not None
+        editor = cast('TextEdit', editor_raw)
         if ev.key() == KEY and ev.modifiers() & MODIFIER:
             at = self.get_active_template(editor.textCursor())
             if at is not None:

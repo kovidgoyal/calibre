@@ -627,6 +627,8 @@ class CoverDelegate(QStyledItemDelegate):
         self.set_dimensions()
 
     def set_dimensions(self):
+        p = self.parent()
+        assert isinstance(p, GridView)
         width = self.original_width = gprefs['cover_grid_width']
         height = self.original_height = gprefs['cover_grid_height']
         self.original_show_title = show_title = gprefs['cover_grid_show_title']
@@ -641,21 +643,21 @@ class CoverDelegate(QStyledItemDelegate):
             self.gutter_position = self.TOP
 
         if height < 0.1:
-            height = auto_height(self.parent())
+            height = auto_height(p)
         else:
-            height *= self.parent().logicalDpiY() * CM_TO_INCH
+            height *= p.logicalDpiY() * CM_TO_INCH
 
         if width < 0.1:
             width = 0.75 * height
         else:
-            width *= self.parent().logicalDpiX() * CM_TO_INCH
+            width *= p.logicalDpiX() * CM_TO_INCH
         self.cover_size = QSize(int(width), int(height))
         self.title_height = 0
         if show_title:
-            f = self.parent().font()
+            f = p.font()
             sz = f.pixelSize()
             if sz < 5:
-                sz = f.pointSize() * self.parent().logicalDpiY() / 72.0
+                sz = f.pointSize() * p.logicalDpiY() / 72.0
             self.title_height = int(max(25, sz + 10))
         self.item_size = self.cover_size + QSize(2 * self.MARGIN, (2 * self.MARGIN) + self.title_height)
         if self.emblem_size > 0 and self.original_emblem_style == 'gutter':
@@ -665,7 +667,7 @@ class CoverDelegate(QStyledItemDelegate):
         self.animation.setStartValue(1.0)
         self.animation.setKeyValueAt(0.5, 0.5)
         self.animation.setEndValue(1.0)
-        dpr = self.parent().device_pixel_ratio
+        dpr = p.device_pixel_ratio
         w, h = int(dpr * self.cover_size.width()), int(dpr * self.cover_size.height())
         if hasattr(self, 'cover_cache'):
             self.cover_cache.set_thumbnail_size(w, h)
@@ -675,11 +677,13 @@ class CoverDelegate(QStyledItemDelegate):
             )
 
     def calculate_spacing(self):
+        _cs_p = self.parent()
+        assert isinstance(_cs_p, GridView)
         spc = self.original_spacing = gprefs['cover_grid_spacing']
         if spc < 0.01:
             self.spacing = max(10, min(50, int(0.1 * self.original_width)))
         else:
-            self.spacing = int(self.parent().logicalDpiX() * CM_TO_INCH * spc)
+            self.spacing = int(_cs_p.logicalDpiX() * CM_TO_INCH * spc)
 
     def sizeHint(self, option, index):
         return self.item_size
@@ -725,7 +729,9 @@ class CoverDelegate(QStyledItemDelegate):
             return  # dont draw uncached to avoid flicker
         marked = db.data.get_marked(book_id)
         db = db.new_api
-        device_connected = self.parent().gui.device_connected is not None
+        _paint_p = self.parent()
+        assert isinstance(_paint_p, GridView)
+        device_connected = _paint_p.gui.device_connected is not None
         on_device = device_connected and db.field_for('ondevice', book_id)
 
         emblem_rules = db.pref('cover_grid_icon_rules', default=())
@@ -909,7 +915,9 @@ class CoverDelegate(QStyledItemDelegate):
             except (ValueError, IndexError, KeyError):
                 return False
             db = db.new_api
-            device_connected = self.parent().gui.device_connected
+            _hev_p = self.parent()
+            assert isinstance(_hev_p, GridView)
+            device_connected = _hev_p.gui.device_connected
             on_device = device_connected is not None and db.field_for('ondevice', book_id)
             p = prepare_string_for_xml
             title = db.field_for('title', book_id)
@@ -1209,6 +1217,7 @@ class GridView(MomentumScrollMixin, QListView):
 
     def get_selected_ids(self):
         m = self.model()
+        assert m is not None
         sm = self.selectionModel()
         assert sm is not None
         return [m.id(i) for i in sm.selectedIndexes()]
@@ -1322,7 +1331,9 @@ class GridView(MomentumScrollMixin, QListView):
         ci = self.currentIndex()
         if ci.isValid():
             try:
-                return self.model().db.data.index_to_id(ci.row())
+                _cb_m = self.model()
+                assert _cb_m is not None
+                return _cb_m.db.data.index_to_id(ci.row())
             except (IndexError, ValueError, KeyError, TypeError, AttributeError):
                 pass
 
@@ -1333,7 +1344,9 @@ class GridView(MomentumScrollMixin, QListView):
         book_id = state
         self.setFocus(Qt.FocusReason.OtherFocusReason)
         try:
-            row = self.model().db.data.id_to_index(book_id)
+            _rcbs_m = self.model()
+            assert _rcbs_m is not None
+            row = _rcbs_m.db.data.id_to_index(book_id)
         except (IndexError, ValueError, KeyError, TypeError, AttributeError):
             return
         self.set_current_row(row)
