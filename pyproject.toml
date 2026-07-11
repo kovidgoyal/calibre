@@ -290,6 +290,7 @@ exclude = [
 [tool.ty.environment]
 root = ['./src']
 extra-paths = ['./stubs']
+python-platform = "all"
 
 [tool.ty.src]
 exclude = [
