@@ -76,7 +76,7 @@ QImage oil_paint(const QImage &image, const float radius=-1, const bool high_qua
         IMAGEOPS_SUFFIX
 %End
 
-QColor dominant_color(const QImage &image) /ReleaseGIL/;
+QColor* dominant_color(const QImage &image) /ReleaseGIL/;
 
 QImage quantize(const QImage &image, unsigned int maximum_colors, bool dither, const QList<QRgb> &palette);
 %MethodCode

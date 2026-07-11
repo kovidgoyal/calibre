@@ -638,8 +638,8 @@ void overlay(const QImage &image, QImage &canvas, unsigned int left, unsigned in
 
 } // }}}
 
-QColor dominant_color(const QImage &image) { // {{{
-    if (image.isNull()) return QColor();
+QColor* dominant_color(const QImage &image) { // {{{
+    if (image.isNull()) return new QColor();
     QImage img;
     // Resize the image to a thumbnail for improved performance
     int max_dim = std::max(image.width(), image.height());
@@ -659,7 +659,7 @@ QColor dominant_color(const QImage &image) { // {{{
             colorCounts[c]++;
         }
     }
-    if (colorCounts.size() < 1) return QColor();
+    if (colorCounts.size() < 1) return new QColor();
     struct ColorCount {
         QRgb color;
         int count;
@@ -691,7 +691,7 @@ QColor dominant_color(const QImage &image) { // {{{
             }
         }
     }
-    return QColor(ans);
+    return new QColor(ans);
 } // }}}
 
 QImage normalize(const QImage &image) { // {{{
