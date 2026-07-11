@@ -54,12 +54,12 @@ class ConfigWidget(QWidget):
 
         self.model_combo = mc = QComboBox(w)
         mc.setEditable(True)
-        mc.setInsertPolicy(QComboBox.NoInsert)
+        mc.setInsertPolicy(QComboBox.InsertPolicy.NoInsert)
         mc.setView(QListView(mc))
-        mc.setSizeAdjustPolicy(QComboBox.AdjustToContentsOnFirstShow)
+        mc.setSizeAdjustPolicy(QComboBox.SizeAdjustPolicy.AdjustToContentsOnFirstShow)
 
         completer = QCompleter(mc)
-        completer.setCaseSensitivity(Qt.CaseInsensitive)
+        completer.setCaseSensitivity(Qt.CaseSensitivity.CaseInsensitive)
         mc.setCompleter(completer)
 
         saved_model = pref('text_model') or ''

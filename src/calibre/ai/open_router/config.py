@@ -21,6 +21,7 @@ from qt.core import (
     QListView,
     QLocale,
     QModelIndex,
+    QObject,
     QPushButton,
     QSize,
     QSortFilterProxyModel,
@@ -83,7 +84,7 @@ class Model(QWidget):
 
 class ModelsModel(QAbstractListModel):
 
-    def __init__(self, capabilities, parent: QWidget | None = None):
+    def __init__(self, capabilities, parent: QObject | None = None):
         super().__init__(parent)
         for plugin in available_ai_provider_plugins():
             if plugin.name == OpenRouterAI.name:
@@ -147,7 +148,7 @@ class ProxyModels(QSortFilterProxyModel):
         self.source_model.generate_sorts(*sorts)
         self.invalidate()
 
-    def index_for_model_id(self, model_id: str) -> QModelIndex():
+    def index_for_model_id(self, model_id: str) -> QModelIndex:
         for i in range(self.rowCount(QModelIndex())):
             ans = self.index(i, 0)
             if ans.data(Qt.ItemDataRole.UserRole).id == model_id:
@@ -208,8 +209,9 @@ class ModelDetails(QTextBrowser):
 
     def open_link(self, url: QUrl):
         if url.host() == '':
-            url = 'https://openrouter.ai/' + url.path().lstrip('/')
-        safe_open_url(url)
+            safe_open_url('https://openrouter.ai/' + url.path().lstrip('/'))
+        else:
+            safe_open_url(url)
 
 
 class SortLoc(QComboBox):

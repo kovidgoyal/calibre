@@ -384,7 +384,7 @@ class RecipeModel(QAbstractItemModel, AdaptSQP):
     def resort(self):
         self.do_refresh()
 
-    def index(self, row, column, parent=...):
+    def index(self, row, column, parent: QModelIndex = QModelIndex()):
         if not self.hasIndex(row, column, parent):
             return QModelIndex()
 
@@ -401,7 +401,7 @@ class RecipeModel(QAbstractItemModel, AdaptSQP):
         ans = self.createIndex(row, column, child_item)
         return ans
 
-    def parent(self, child=..., index=...):
+    def parent(self, child: QModelIndex = QModelIndex(), index: QModelIndex = QModelIndex()):
         if not child.isValid():
             return QModelIndex()
 
@@ -414,7 +414,7 @@ class RecipeModel(QAbstractItemModel, AdaptSQP):
         ans = self.createIndex(parent_item.row(), 0, parent_item)
         return ans
 
-    def rowCount(self, parent=...):
+    def rowCount(self, parent: QModelIndex = QModelIndex()):
         if parent.column() > 0:
             return 0
 

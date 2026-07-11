@@ -42,7 +42,7 @@ def decoded_api_key() -> str:
 
 
 @lru_cache(2)
-def headers() -> tuple[tuple[str, str]]:
+def headers() -> tuple[tuple[str, str], ...]:
     api_key = decoded_api_key()
     return (
         ('Authorization', f'Bearer {api_key}'),
@@ -53,12 +53,12 @@ def headers() -> tuple[tuple[str, str]]:
 class Model(NamedTuple):
     # See https://platform.openai.com/docs/api-reference/models/retrieve
     id: str
-    id_parts: Sequence[str, ...]
+    id_parts: Sequence[str]
     created: datetime.datetime
     version: float
 
     @classmethod
-    def from_dict(cls, x: dict[str, object]) -> Model:
+    def from_dict(cls, x: dict[str, Any]) -> Model:
         id_parts = tuple(x['id'].split('-'))
         try:
             version = float(id_parts[1])
@@ -90,7 +90,7 @@ def get_available_models() -> dict[str, Model]:
 def find_models_matching_name(name: str) -> Iterator[str]:
     name = name.strip().lower()
     for model in get_available_models().values():
-        q = model.name.strip().lower()
+        q = model.id.strip().lower()
         if name in q:
             yield model.id
 

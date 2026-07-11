@@ -265,7 +265,7 @@ def add_live_item(item, item_type, lines):
             return
         raise Exception(f'Unknown item: {b}')
     else:
-        raise Exception(f'Unknown item: {b}')
+        raise Exception(f'Unknown item: {item}')
 
 
 def live_json_to_html(data):

@@ -29,9 +29,13 @@ def attrs(*args, **kw):
 class Template:
 
     IS_HTML = True
+    root: html.HtmlElement
 
     def __init__(self, lang=None):
         self.html_lang = lang
+
+    def _generate(self, *args, **kwargs) -> None:
+        raise NotImplementedError
 
     def generate(self, *args, **kwargs):
         if 'style' not in kwargs:
@@ -85,11 +89,13 @@ class EmbeddedContent(Template):
             div.text = elements[0]
             elements = list(elements)[1:]
         for elem in elements:
-            if hasattr(elem, 'getparent'):
-                elem.getparent().remove(elem)
+            if isinstance(elem, str):
+                div.append(SPAN(elem))
             else:
-                elem = SPAN(elem)
-            div.append(elem)
+                parent = elem.getparent()
+                if parent is not None:
+                    parent.remove(elem)
+                div.append(elem)
 
 
 class IndexTemplate(Template):

@@ -147,7 +147,7 @@ def add_citation(text: str, citation: Citation, web_links: Sequence[WebLink], es
     return text[:citation.end_offset] + '<sup>' + ', '.join(citation_links) + '</sup>' + text[citation.end_offset:]
 
 
-def add_citations(text: str, metadata: ChatMessage) -> str:
+def add_citations(text: str, metadata: ChatResponse) -> str:
     citations, web_links = metadata.citations, metadata.web_links
     if not citations or not web_links:
         return text
@@ -352,7 +352,7 @@ def model_choice_strategy_config_widget(current_val: str = 'medium', parent: Any
     return ms
 
 
-def find_tests() -> None:
+def find_tests():
     import unittest
     class TestAIUtils(unittest.TestCase):
 

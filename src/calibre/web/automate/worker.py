@@ -168,6 +168,7 @@ async def start_server(
             if not exists:
                 raise
             random_suffix = ''
+    raise RuntimeError(f'Failed to start {name!r} server after {num_attempts} attempts due to name collisions')
 
 
 async def no_setup() -> None:
@@ -188,11 +189,11 @@ async def handler_with_setup(
 
 async def async_main(
     # async handler that is called to handle each connection
-    handler: Handler = echo,
+    handler: Callable[..., Awaitable[Any]] = echo,
     # global setup called exactly once when first connection arrives
-    delayed_setup: Callable[[], Awaitable[None]] = no_setup,
+    delayed_setup: Callable[..., Awaitable[None]] = no_setup,
     # called after server is shutdown
-    finalizer: Callable[[], None] = lambda: None,
+    finalizer: Callable[..., Any] = lambda: None,
     read_input_data: bool = False,
 ) -> None:
     input_data = None
@@ -243,7 +244,7 @@ def start_worker(
     '''
     from calibre.utils.ipc.simple_worker import start_pipe_worker
 
-    def parse(x: str) -> tuple[str, str, str]:
+    def parse(x: str) -> tuple[str, str]:
         module, _, func = x.partition(':')
         return module, func
 

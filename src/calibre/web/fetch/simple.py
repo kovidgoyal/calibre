@@ -288,8 +288,9 @@ class RecursiveFetcher:
                 data = response(f.read()+f.read())
                 data.newurl = f.geturl()
         except URLError as err:
-            if hasattr(err, 'code') and err.code in responses:
-                raise FetchError(responses[err.code])
+            err_code = getattr(err, 'code', None)
+            if isinstance(err_code, int) and err_code in responses:
+                raise FetchError(responses[err_code])
             is_temp = getattr(err, 'worth_retry', False)
             reason = getattr(err, 'reason', None)
             if isinstance(reason, socket.gaierror):

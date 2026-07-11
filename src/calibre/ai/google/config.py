@@ -65,7 +65,7 @@ class ConfigWidget(QWidget):
         return self._allow_web_searches.isChecked()
 
     @property
-    def settings(self) -> dict[str, str]:
+    def settings(self) -> dict[str, str | bool]:
         return {
             'api_key': encode_secret(self.api_key), 'model_choice_strategy': self.model_choice_strategy,
             'reasoning_strategy': self.reasoning_strategy, 'allow_web_searches': self.allow_web_searches,

@@ -1275,7 +1275,7 @@ class BasicNewsRecipe(Recipe):
         remove = []
         for f in feeds:
             for article in f:
-                for key in self.ignore_duplicate_articles:
+                for key in (self.ignore_duplicate_articles or ()):
                     val = getattr(article, key)
                     seen = seen_keys[key]
                     if val:

@@ -278,7 +278,7 @@ class Feed:
         return -1
 
     def remove(self, article):
-        i = self.index(article)
+        i = self.find(article)
         if i > -1:
             self.articles[i:i+1] = []
 
