@@ -197,6 +197,7 @@ IGNORED_DEPENDENCY_CVES = [
     'CVE-2026-3276',  # DoS in unicodedata.normalize()
     'CVE-2026-7774',  # tarfile.data_filter path traversal bypass
     'CVE-2026-12003',  # bug in release builds irrelevant to us
+    'CVE-2026-15308',  # bug in stdlib html parser unused by us
     # nodejs used only at build time CVEs are irrelevant
     'CVE-2026-21710',
     'CVE-2026-21717',
