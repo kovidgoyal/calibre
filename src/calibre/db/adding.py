@@ -10,6 +10,7 @@ import time
 from collections import defaultdict
 from contextlib import contextmanager, suppress
 from functools import partial
+from typing import Any
 
 from calibre import prints
 from calibre.constants import filesystem_encoding, ismacos, iswindows
@@ -132,7 +133,7 @@ def allow_path(path, ext, compiled_rules):
     return ans
 
 
-import_ctx = None
+import_ctx: dict[str, Any] | None = None
 
 
 @contextmanager
@@ -145,6 +146,7 @@ def run_import_plugins_before_metadata(tdir, group_id=0):
 
 def run_import_plugins(formats):
     from calibre.ebooks.metadata.worker import run_import_plugins
+    assert import_ctx is not None
     import_ctx['group_id'] += 1
     ans = run_import_plugins(formats, import_ctx['group_id'], import_ctx['tdir'])
     fm = import_ctx['format_map']
@@ -284,7 +286,7 @@ def add_catalog(cache, path, title, dbapi=None):
                 db_id = cache._create_book_entry(mi, apply_import_tags=False)
                 new_book_added = True
             else:
-                tags = list(cache._field_for('tags', db_id) or ())
+                tags: list[str] = list(cache._field_for('tags', db_id) or ())
                 if _('Catalog') not in tags:
                     tags.append(_('Catalog'))
                 mi.tags = tags

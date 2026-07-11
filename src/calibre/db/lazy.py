@@ -9,6 +9,7 @@ import weakref
 from collections.abc import MutableMapping, MutableSequence
 from copy import deepcopy
 from functools import wraps
+from typing import Any
 
 from calibre.ebooks.metadata.book import STANDARD_METADATA_FIELDS
 from calibre.ebooks.metadata.book.base import ALL_METADATA_FIELDS, NULL_VALUES, SIMPLE_GET, TOP_LEVEL_IDENTIFIERS, Metadata
@@ -35,6 +36,7 @@ def resolved(f):
 
 
 class MutableBase:
+    _values: Any
 
     @resolved
     def __str__(self):
@@ -399,7 +401,7 @@ class ProxyMetadata(Metadata):
         self._unimplemented_exception('deepcopy', add_txt=False)
 
     def deepcopy_metadata(self):
-        return deepcopy(ga('_user_metadata'))
+        return deepcopy(ga(self, '_user_metadata'))
 
     # def get(self, field, default=None)
 

@@ -6,6 +6,7 @@ import os
 import sys
 from contextlib import contextmanager
 from optparse import OptionGroup, OptionValueError
+from typing import Any
 
 from calibre import prints
 from calibre.db.adding import cdb_find_in_dir, cdb_recursive_find, compile_rule, create_format_map, run_import_plugins, run_import_plugins_before_metadata
@@ -31,12 +32,15 @@ def empty(db, notify_changes, is_remote, args):
     return ids, bool(duplicates)
 
 
-def cached_identical_book_data(db, request_id):
+_cache: tuple[tuple[str, str], Any] = (('', ''), None)
+
+
+def cached_identical_book_data(db, request_id: str):
+    global _cache
     key = db.library_id, request_id
-    if getattr(cached_identical_book_data, 'key', None) != key:
-        cached_identical_book_data.key = key
-        cached_identical_book_data.ans = db.data_for_find_identical_books()
-    return cached_identical_book_data.ans
+    if _cache[0] != key:
+        _cache = key, db.data_for_find_identical_books()
+    return _cache[1]
 
 
 def do_adding(db, request_id, notify_changes, is_remote, mi, format_map, add_duplicates, oautomerge):

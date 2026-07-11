@@ -10,6 +10,10 @@ class NoSuchFormat(ValueError):
     pass
 
 
+class NoTracebackException(Exception):
+    suppress_traceback: bool = True
+
+
 class NoSuchBook(KeyError):
 
     def __init__(self, book_id):

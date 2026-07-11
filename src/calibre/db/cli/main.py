@@ -206,6 +206,7 @@ class DBCtx:
         from mechanize import HTTPError, Request
 
         from calibre.utils.serialize import msgpack_dumps, msgpack_loads
+        assert self.url is not None
         url = self.url + '/cdb/cmd/{}/{}'.format(name, getattr(m, 'version', 0))
         if self.library_id:
             url += '?' + urlencode({'library_id':self.library_id})
@@ -225,6 +226,7 @@ class DBCtx:
 
     def list_libraries(self):
         from mechanize import HTTPError
+        assert self.url is not None
         url = self.url + '/ajax/library-info'
         try:
             res = self.br.open_novisit(url, timeout=self.timeout)

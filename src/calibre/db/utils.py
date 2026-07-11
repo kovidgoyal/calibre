@@ -92,6 +92,8 @@ def find_identical_books(mi, data):
             return set()
 
     ans = set()
+    if found_books is None:
+        return ans
     titleq = fuzzy_title(mi.title)
     for book_id in found_books:
         title = title_map.get(book_id, '')
@@ -138,14 +140,13 @@ class ThumbnailCache:
         self.size_changed = False
         self.lock = RLock()
         self.min_disk_cache = min_disk_cache
-        if test_mode:
-            self.log = self.fail_on_error
+        self.log = self.fail_on_error if test_mode else self._log
 
-    def log(self, *args, **kwargs):
+    def _log(self, *args, **kwargs) -> None:
         kwargs['file'] = sys.stderr
         prints(*args, **kwargs)
 
-    def fail_on_error(self, *args, **kwargs):
+    def fail_on_error(self, *args, **kwargs) -> None:
         msg = ' '.join(args)
         raise CacheError(msg)
 
