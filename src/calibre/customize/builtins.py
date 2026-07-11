@@ -124,7 +124,7 @@ class ComicMetadataReader(MetadataReaderPlugin):
             stream = zf.open(fcn)
             type = fcn.split('.')[-1].lower()
             if oname:
-                stream.name = oname
+                setattr(stream, 'name', oname)
         if hasattr(stream, 'seek') and hasattr(stream, 'tell'):
             pos = stream.tell()
             id_ = stream.read(3)

@@ -519,6 +519,7 @@ class MetadataWriterPlugin(Plugin):  # {{{
     def __init__(self, *args, **kwargs):
         Plugin.__init__(self, *args, **kwargs)
         self.apply_null = False
+        self.force_identifiers = False
 
     def set_metadata(self, stream, mi, type):
         '''

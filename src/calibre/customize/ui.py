@@ -428,7 +428,7 @@ def available_stores():
 # Metadata read/write {{{
 
 _metadata_readers = {}
-_metadata_writers = {}
+_metadata_writers: dict[str, list[MetadataWriterPlugin]] = {}
 
 
 def reread_metadata_plugins():
@@ -504,8 +504,7 @@ apply_null_metadata = ApplyNullMetadata()
 
 class ForceIdentifiers:
 
-    def __init__(self):
-        self.force_identifiers = False
+    force_identifiers: bool = False
 
     def __enter__(self):
         self.force_identifiers = True
