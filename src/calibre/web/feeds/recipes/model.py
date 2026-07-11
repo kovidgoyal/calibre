@@ -328,9 +328,6 @@ class RecipeModel(QAbstractItemModel, AdaptSQP):
     def get_customize_info(self, urn):
         return self.scheduler_config.get_customize_info(urn)
 
-    def get_recipe_specific_option_metadata(self, urn):
-        return self.scheduler_config.get_recipe_specific_option_metadata(urn)
-
     def get_matches(self, location, query, candidates=None):
         query = query.strip().lower()
         if not query:
@@ -428,8 +425,7 @@ class RecipeModel(QAbstractItemModel, AdaptSQP):
     def update_recipe_schedule(self, urn, schedule_type, schedule,
             add_title_tag=True, custom_tags=[]):
         recipe = self.recipe_from_urn(urn)
-        self.scheduler_config.schedule_recipe(recipe, schedule_type, schedule,
-                add_title_tag=add_title_tag, custom_tags=custom_tags)
+        self.scheduler_config.schedule_recipe(recipe, schedule_type, schedule)
 
     def update_last_downloaded(self, urn):
         self.scheduler_config.update_last_downloaded(urn)
