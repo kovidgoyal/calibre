@@ -28,14 +28,14 @@ class BanList:
     def __init__(self, ban_time_in_minutes=0, max_failures_before_ban=5):
         self.interval = max(0, ban_time_in_minutes) * 60
         self.max_failures_before_ban = max(0, max_failures_before_ban)
-        if not self.interval or not self.max_failures_before_ban:
-            self.is_banned = lambda *a: False
-            self.failed = lambda *a: None
-        else:
+        self._active = bool(self.interval and self.max_failures_before_ban)
+        if self._active:
             self.items = OrderedDict()
             self.lock = Lock()
 
     def is_banned(self, key):
+        if not self._active:
+            return False
         with self.lock:
             x = self.items.get(key)
         if x is None:
@@ -46,6 +46,8 @@ class BanList:
         return monotonic() - previous_fail < self.interval
 
     def failed(self, key):
+        if not self._active:
+            return
         with self.lock:
             x = self.items.pop(key, None)
             fail_count = 0 if x is None else x[1]

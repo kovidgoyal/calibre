@@ -36,16 +36,16 @@ def read_json(path):
         return json.loads(raw)
 
 
-def custom_list_template():
-    return read_json(custom_list_template.path)
+class _JsonFileFunction:
+    def __init__(self, filename):
+        self.path = os.path.join(config_dir, filename)
+
+    def __call__(self):
+        return read_json(self.path)
 
 
-def search_the_net_urls():
-    return read_json(search_the_net_urls.path)
-
-
-custom_list_template.path = os.path.join(config_dir, 'server-custom-list-template.json')
-search_the_net_urls.path = os.path.join(config_dir, 'server-search-the-net.json')
+custom_list_template = _JsonFileFunction('server-custom-list-template.json')
+search_the_net_urls = _JsonFileFunction('server-search-the-net.json')
 
 
 class Server:
@@ -71,8 +71,10 @@ class Server:
         self.opts = opts
         self.log, self.access_log = log, access_log
         self.handler.set_log(self.log)
-        self.handler.router.ctx.custom_list_template = custom_list_template()
-        self.handler.router.ctx.search_the_net_urls = search_the_net_urls()
+        ctx = self.handler.router.ctx
+        assert ctx is not None
+        ctx.custom_list_template = custom_list_template()
+        ctx.search_the_net_urls = search_the_net_urls()
 
     @property
     def ctx(self):

@@ -2,7 +2,6 @@
 # License: GPLv3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
 
 import sys
-from functools import partial
 
 from calibre import prints
 from calibre.constants import iswindows, preferred_encoding
@@ -429,7 +428,7 @@ def manage_users_cli(path=None, args=()):
             3: change_restriction,
             4: change_set_password,
         }[c](username)
-        actions.append(partial(edit_user, username=username))
+        actions.append(lambda: edit_user(username=username))
 
     def toplevel():
         {

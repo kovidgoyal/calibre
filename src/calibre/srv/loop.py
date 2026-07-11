@@ -14,6 +14,7 @@ from contextlib import suppress
 from functools import lru_cache, partial
 from io import BytesIO
 from queue import Empty, Full
+from typing import Any
 
 from calibre import as_unicode
 from calibre.constants import iswindows
@@ -221,7 +222,7 @@ class Connection:  # {{{
         self.wait_for = wait_for
         if args or kwargs:
             pfunc = partial(func, *args, **kwargs)
-            pfunc.__name__ = func.__name__
+            setattr(pfunc, '__name__', func.__name__)
             func = pfunc
         self.handle_event = func
 
@@ -390,12 +391,14 @@ def parsed_trusted_ips(raw):
 
 class ServerLoop:
 
-    LISTENING_MSG = 'calibre server listening on'
+    LISTENING_MSG: str | None = 'calibre server listening on'
+    control_in: Any
+    control_out: Any
 
     def __init__(
         self,
         handler,
-        opts=None,
+        opts: Options | None = None,
         plugins=(),
         # A calibre logging object. If None, a default log that logs to
         # stdout is used
@@ -406,7 +409,7 @@ class ServerLoop:
     ):
         self.ready = False
         self.handler = handler
-        self.opts = opts or Options()
+        self.opts: Options = opts if opts is not None else Options()
         self.log = log or ThreadSafeLog(level=ThreadSafeLog.DEBUG)
         self.jobs_manager = JobsManager(self.opts, self.log)
         self.access_log = access_log
@@ -440,7 +443,7 @@ class ServerLoop:
 
     def on_ssl_servername(self, socket, server_name, ssl_context):
         c = self.connection_map.get(socket.fileno())
-        if getattr(c, 'ssl_handshake_done', False):
+        if c is not None and getattr(c, 'ssl_handshake_done', False):
             c.ready = False
             c.ssl_terminated = True
             # We do not allow client initiated SSL renegotiation
@@ -473,6 +476,7 @@ class ServerLoop:
     def do_bind(self):
         # Get the correct address family for our host (allows IPv6 addresses)
         host, port = self.bind_address
+        assert host is not None
         try:
             info = socket.getaddrinfo(
                 host, port, socket.AF_UNSPEC,
@@ -573,7 +577,7 @@ class ServerLoop:
                 # Apparently, the socket option is not available in
                 # this machine's TCP stack
                 pass
-        self.socket.setblocking(0)
+        self.socket.setblocking(False)
 
     def bind(self, family, atype, proto=0):
         '''Create (or recreate) the actual socket object.'''

@@ -2,6 +2,7 @@
 # License: GPLv3 Copyright: 2018, Kovid Goyal <kovid at kovidgoyal.net>
 
 
+import json as stdlib_json
 import os
 import shutil
 import tempfile
@@ -158,7 +159,7 @@ def start_conversion(ctx, rd, book_id):
     db, library_id = get_library_data(ctx, rd)[:2]
     if not ctx.has_id(rd, db, book_id):
         raise BookNotFound(book_id, db)
-    data = json.loads(rd.request_body_file.read())
+    data = stdlib_json.loads(rd.request_body_file.read())
     input_fmt = data['input_fmt']
     job_id = queue_job(ctx, rd, library_id, db, input_fmt, book_id, data)
     return job_id
@@ -208,11 +209,20 @@ def get_conversion_options(input_fmt, output_fmt, book_id, db):
     from calibre.ebooks.conversion.plumber import create_dummy_plumber
     plumber = create_dummy_plumber(input_fmt, output_fmt)
     specifics = load_specifics(db, book_id)
-    ans = {'options': {}, 'disabled': set(), 'defaults': {}, 'help': {}}
-    ans['input_plugin_name'] = plumber.input_plugin.commit_name
-    ans['output_plugin_name'] = plumber.output_plugin.commit_name
-    ans['input_ui_data'] = plumber.input_plugin.ui_data
-    ans['output_ui_data'] = plumber.output_plugin.ui_data
+    options_dict: dict = {}
+    disabled_set: set = set()
+    defaults_dict: dict = {}
+    help_dict: dict = {}
+    ans = {
+        'options': options_dict,
+        'disabled': disabled_set,
+        'defaults': defaults_dict,
+        'help': help_dict,
+        'input_plugin_name': plumber.input_plugin.commit_name,
+        'output_plugin_name': plumber.output_plugin.commit_name,
+        'input_ui_data': plumber.input_plugin.ui_data,
+        'output_ui_data': plumber.output_plugin.ui_data,
+    }
 
     def merge_group(group_name, option_names):
         if not group_name or group_name in ('debug', 'metadata'):
@@ -227,9 +237,9 @@ def get_conversion_options(input_fmt, output_fmt, book_id, db):
             if k in specifics:
                 defs[k] = specifics[k]
         defs = defs.as_dict()
-        ans['options'].update(defs['options'])
-        ans['disabled'] |= set(defs['disabled'])
-        ans['defaults'].update(defaults)
+        options_dict.update(defs['options'])
+        disabled_set.update(defs['disabled'])
+        defaults_dict.update(defaults)
         ans['help'] = plumber.get_all_help()
 
     for group_name, option_names in OPTIONS['pipe'].items():
@@ -240,13 +250,16 @@ def get_conversion_options(input_fmt, output_fmt, book_id, db):
     group_name, option_names = options_for_output_fmt(output_fmt)
     merge_group(group_name, option_names)
 
-    ans['disabled'] = tuple(ans['disabled'])
+    ans['disabled'] = tuple(disabled_set)
     return ans
 
 
+_profiles_cache: dict | None = None
+
+
 def profiles():
-    ans = getattr(profiles, 'ans', None)
-    if ans is None:
+    global _profiles_cache
+    if _profiles_cache is None:
         def desc(profile):
             w, h = profile.screen_size
             if w >= 10000:
@@ -256,10 +269,10 @@ def profiles():
             ss = _('Screen size: %s') % ss
             return {'name': profile.name, 'description': (f'{profile.description} [{ss}]')}
 
-        ans = profiles.ans = {}
-        ans['input'] = {p.short_name: desc(p) for p in input_profiles()}
-        ans['output'] = {p.short_name: desc(p) for p in output_profiles()}
-    return ans
+        _profiles_cache = {}
+        _profiles_cache['input'] = {p.short_name: desc(p) for p in input_profiles()}
+        _profiles_cache['output'] = {p.short_name: desc(p) for p in output_profiles()}
+    return _profiles_cache
 
 
 @endpoint('/conversion/book-data/{book_id}', postprocess=json, types={'book_id': int})

@@ -64,12 +64,14 @@ class Server:
         if opts.access_log:
             access_log = RotatingLog(opts.access_log, max_size=log_size)
         self.handler = Handler(libraries, opts)
+        ctx = self.handler.router.ctx
+        assert ctx is not None
         if opts.custom_list_template:
             with open(os.path.expanduser(opts.custom_list_template), 'rb') as f:
-                self.handler.router.ctx.custom_list_template = json.load(f)
+                ctx.custom_list_template = json.load(f)
         if opts.search_the_net_urls:
             with open(os.path.expanduser(opts.search_the_net_urls), 'rb') as f:
-                self.handler.router.ctx.search_the_net_urls = json.load(f)
+                ctx.search_the_net_urls = json.load(f)
         plugins = []
         if opts.use_bonjour:
             plugins.append(BonJour(wait_for_stop=max(0, opts.shutdown_timeout - 0.2)))

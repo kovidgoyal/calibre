@@ -34,6 +34,7 @@ class NoAutoReload(EnvironmentError):
 
 # Filesystem watcher {{{
 
+
 class WatcherBase:
 
     EXTENSIONS_TO_WATCH = frozenset('py pyj svg js css'.split())
@@ -61,8 +62,9 @@ class WatcherBase:
         self.worker.restart(forced=True)
         self.last_restart_time = monotonic()
 
-    def file_is_watched(self, fname):
-        return fname and fname.rpartition('.')[-1] in self.EXTENSIONS_TO_WATCH
+    @classmethod
+    def file_is_watched(cls, fname):
+        return fname and fname.rpartition('.')[-1] in cls.EXTENSIONS_TO_WATCH
 
 
 if islinux:
@@ -134,7 +136,7 @@ elif iswindows:
                             winutil.FILE_NOTIFY_CHANGE_SECURITY,
                         )
                         for action, filename in results:
-                            if self.file_is_watched(filename):
+                            if WatcherBase.file_is_watched(filename):
                                 self.modified_queue.put(os.path.join(self.path_to_watch, filename))
                     except OverflowError:
                         pass  # the buffer overflowed, there are unknown changes
@@ -168,13 +170,13 @@ elif iswindows:
                         self.handle_modified({path})
 
 elif ismacos:
-    from fsevents import Observer, Stream
+    from fsevents import Observer, Stream  # type: ignore
 
     class Watcher(WatcherBase):
 
         def __init__(self, root_dirs, worker, log):
             WatcherBase.__init__(self, worker, log)
-            self.stream = Stream(self.notify, *(x.encode('utf-8') for x in root_dirs), file_events=True)
+            self.stream = Stream(self.notify, *root_dirs, file_events=True)
             self.wait_queue = Queue()
 
         def wakeup(self):
@@ -188,9 +190,7 @@ elif ismacos:
             try:
                 while True:
                     try:
-                        # Cannot use blocking get() as it is not interrupted by
-                        # Ctrl-C
-                        if self.wait_queue.get(10000) is True:
+                        if self.wait_queue.get() is True:
                             self.force_restart()
                     except Empty:
                         pass
@@ -323,7 +323,10 @@ class Worker:
             s.settimeout(5)
             try:
                 if self.uses_ssl:
-                    s = ssl._create_stdlib_context().wrap_socket(s)
+                    ctx = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
+                    ctx.check_hostname = False
+                    ctx.verify_mode = ssl.CERT_NONE
+                    s = ctx.wrap_socket(s)
                 s.connect(('localhost', self.port))
                 return
             except OSError:
@@ -389,6 +392,7 @@ class ReloadServer(Thread):
     def __enter__(self):
         while not self.loop.ready and self.is_alive():
             time.sleep(0.01)
+        assert self.loop.bound_address is not None
         self.address = self.loop.bound_address[:2]
         os.environ['CALIBRE_AUTORELOAD_PORT'] = str(self.address[1])
         return self
