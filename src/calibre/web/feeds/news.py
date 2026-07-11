@@ -14,6 +14,7 @@ import time
 import traceback
 from collections import defaultdict
 from contextlib import closing
+from typing import cast
 from urllib.parse import urlparse, urlsplit
 
 from calibre import __appname__, as_unicode, browser, force_unicode, iswindows, preferred_encoding, random_user_agent, strftime
@@ -439,6 +440,8 @@ class BasicNewsRecipe(Recipe):
 
     # See the built-in recipes for examples of these settings.
 
+    calibre_most_common_ua: str = ''
+
     def short_title(self):
         return force_unicode(self.title, preferred_encoding)
 
@@ -781,7 +784,7 @@ class BasicNewsRecipe(Recipe):
         Extracts main article content from 'html', cleans up and returns as a (article_html, extracted_title) tuple.
         Based on the original readability algorithm by Arc90.
         '''
-        from lxml.html import tostring
+        from lxml.html import HtmlElement, tostring
 
         from calibre.ebooks.readability import readability
         from calibre.utils.xml_parse import document_fromstring, fragment_fromstring
@@ -818,7 +821,7 @@ class BasicNewsRecipe(Recipe):
             heading.text = extracted_title
             body.insert(0, heading)
 
-        raw_html = tostring(root, encoding='unicode')
+        raw_html = tostring(cast(HtmlElement, root), encoding='unicode')
 
         return raw_html
 
@@ -1578,7 +1581,7 @@ class BasicNewsRecipe(Recipe):
         mp = getattr(self, 'masthead_path', None)
         if mp is not None and os.access(mp, os.R_OK):
             from calibre.ebooks.metadata.opf2 import Guide
-            ref = Guide.Reference(os.path.basename(self.masthead_path), os.getcwd())
+            ref = Guide.Reference(os.path.basename(mp), os.getcwd())
             ref.type = 'masthead'
             ref.title = 'Masthead Image'
             opf.guide.append(ref)
@@ -1957,7 +1960,7 @@ class CalibrePeriodical(BasicNewsRecipe):
                     ' the calibre Periodicals service.'))
 
         return br
-    get_browser.is_base_class_implementation = True
+    get_browser.is_base_class_implementation = True  # type: ignore
 
     def download(self):
         self.log('Fetching downloaded recipe')
@@ -1966,7 +1969,7 @@ class CalibrePeriodical(BasicNewsRecipe):
                 f'https://news.calibre-ebook.com/subscribed_files/{self.calibre_periodicals_slug}/0/temp.downloaded_recipe'
                     ).read()
         except Exception as e:
-            if hasattr(e, 'getcode') and e.getcode() == 403:
+            if (gc := getattr(e, 'getcode', None)) and gc() == 403:
                 raise DownloadDenied(
                         _('You do not have permission to download this issue.'
                         ' Either your subscription has expired or you have'

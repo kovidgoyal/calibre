@@ -381,6 +381,9 @@ class Guide(ResourceCollection):  # {{{
 
     class Reference(Resource):
 
+        title: str
+        type: str
+
         @staticmethod
         def from_opf_resource_item(ref, basedir):
             title, href, type = ref.get('title', ''), ref.get('href'), ref.get('type')

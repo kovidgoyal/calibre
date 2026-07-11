@@ -12,7 +12,7 @@ import struct
 import sys
 from collections.abc import Awaitable, Callable
 from functools import partial
-from typing import Any, NamedTuple
+from typing import Any, NamedTuple, cast
 
 from calibre.constants import islinux, ismacos, iswindows
 from calibre.ptempfile import base_dir
@@ -144,7 +144,10 @@ async def start_server(
         path = get_random_socket_path(name, random_suffix)
         try:
             if iswindows:
-                server = await loop.start_serving_pipe(protocol_factory, path)
+                from asyncio import Transport
+                from asyncio.windows_events import ProactorEventLoop
+                wserver = await cast(ProactorEventLoop, loop).start_serving_pipe(protocol_factory, path)
+                server = cast(list[Transport], wserver)
             else:
                 sock = None
                 if path.startswith('/'):

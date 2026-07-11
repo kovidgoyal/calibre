@@ -13,7 +13,7 @@ from calibre.utils.localization import _
 
 class ConfigureAI(QWidget):
 
-    def __init__(self, purpose: AICapabilities = AICapabilities.text_to_text, parent: Any = None):
+    def __init__(self, purpose: AICapabilities = AICapabilities.text_to_text, parent: QWidget | None = None):
         super().__init__(parent)
         plugins = tuple(plugins_for_purpose(purpose))
         self.available_plugins = plugins
