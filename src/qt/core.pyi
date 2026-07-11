@@ -19,6 +19,7 @@ QBasicTimer = PyQt6.QtCore.QBasicTimer
 QBitArray = PyQt6.QtCore.QBitArray
 QBluetoothPermission = PyQt6.QtCore.QBluetoothPermission
 QBuffer = PyQt6.QtCore.QBuffer
+QByteArray = PyQt6.QtCore.QByteArray
 QByteArrayMatcher = PyQt6.QtCore.QByteArrayMatcher
 QCalendar = PyQt6.QtCore.QCalendar
 QCalendarPermission = PyQt6.QtCore.QCalendarPermission
@@ -274,6 +275,7 @@ QGuiApplication = PyQt6.QtGui.QGuiApplication
 QHelpEvent = PyQt6.QtGui.QHelpEvent
 QHideEvent = PyQt6.QtGui.QHideEvent
 QHoverEvent = PyQt6.QtGui.QHoverEvent
+QIcon = PyQt6.QtGui.QIcon
 QIconDragEvent = PyQt6.QtGui.QIconDragEvent
 QIconEngine = PyQt6.QtGui.QIconEngine
 QImage = PyQt6.QtGui.QImage
@@ -439,6 +441,7 @@ QDataWidgetMapper = PyQt6.QtWidgets.QDataWidgetMapper
 QDateEdit = PyQt6.QtWidgets.QDateEdit
 QDateTimeEdit = PyQt6.QtWidgets.QDateTimeEdit
 QDial = PyQt6.QtWidgets.QDial
+QDialog = PyQt6.QtWidgets.QDialog
 QDialogButtonBox = PyQt6.QtWidgets.QDialogButtonBox
 QDockWidget = PyQt6.QtWidgets.QDockWidget
 QDoubleSpinBox = PyQt6.QtWidgets.QDoubleSpinBox
@@ -596,6 +599,7 @@ QUndoView = PyQt6.QtWidgets.QUndoView
 QVBoxLayout = PyQt6.QtWidgets.QVBoxLayout
 QWIDGETSIZE_MAX = PyQt6.QtWidgets.QWIDGETSIZE_MAX
 QWhatsThis = PyQt6.QtWidgets.QWhatsThis
+QWidget = PyQt6.QtWidgets.QWidget
 QWidgetAction = PyQt6.QtWidgets.QWidgetAction
 QWidgetItem = PyQt6.QtWidgets.QWidgetItem
 QWizard = PyQt6.QtWidgets.QWizard
@@ -786,9 +790,6 @@ QVoice = PyQt6.QtTextToSpeech.QVoice
 import PyQt6.sip
 sip = PyQt6.sip
 
-class QByteArray(PyQt6.QtCore.QByteArray):
-    def __buffer__(self, flags: int, /) -> memoryview: ...
-
 _T = TypeVar('_T')
 _R = TypeVar('_R')
 
@@ -841,32 +842,3 @@ class pyqtProperty:
 
     def setter(self, fset: Callable[[_T, _R], None]) -> pyqtProperty: ...
     def deleter(self, fdel: Callable[[_T], None]) -> pyqtProperty: ...
-
-class QIcon(PyQt6.QtGui.QIcon):
-
-    @classmethod
-    def ic(cls, name: str, fallback: bytes = b'') -> QIcon: ...
-
-    @classmethod
-    def icon_as_png(cls, name: str, as_bytearray: bool = False, compression_level: int = 9) -> QIcon: ...
-
-    @classmethod
-    def cached_icon(cls, name: str) -> QIcon: ...
-
-    def is_ok(self) -> bool: ...
-
-class QDialog(PyQt6.QtWidgets.QDialog):
-
-    def save_geometry(self, prefs: Prefs, name: str) -> None: ...
-    def restore_geometry(self, prefs: Prefs, name: str, get_legacy_saved_geometry: typing.Callable[[], bytes] | None = None) -> bool: ...
-    def saveGeometry(self) -> QByteArray: ...
-    def raise_and_focus(self) -> None: ...
-    def raise_without_focus(self) -> None: ...
-
-class QWidget(PyQt6.QtWidgets.QWidget):
-
-    def save_geometry(self, prefs: Prefs, name: str) -> None: ...
-    def restore_geometry(self, prefs: Prefs, name: str, get_legacy_saved_geometry: typing.Callable[[], bytes] | None = None) -> bool: ...
-    def saveGeometry(self) -> QByteArray: ...
-    def raise_and_focus(self) -> None: ...
-    def raise_without_focus(self) -> None: ...

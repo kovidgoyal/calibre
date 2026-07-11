@@ -33,42 +33,7 @@ module_lists = {
 }
 
 
-def qwidget_special_case(name: str = 'QWidget') -> str:
-    return f'''
-class {name}({QT_WRAPPER}.QtWidgets.{name}):
-
-    def save_geometry(self, prefs: Prefs, name: str) -> None: ...
-    def restore_geometry(self, prefs: Prefs, name: str, get_legacy_saved_geometry: typing.Callable[[], bytes] | None = None) -> bool: ...
-    def saveGeometry(self) -> QByteArray: ...
-    def raise_and_focus(self) -> None: ...
-    def raise_without_focus(self) -> None: ...
-    '''
-
-
 special_case = {
-    'QIcon': f'''
-class QIcon({QT_WRAPPER}.QtGui.QIcon):
-
-    @classmethod
-    def ic(cls, name: str, fallback: bytes = b'') -> QIcon: ...
-
-    @classmethod
-    def icon_as_png(cls, name: str, as_bytearray: bool = False, compression_level: int = 9) -> QIcon: ...
-
-    @classmethod
-    def cached_icon(cls, name: str) -> QIcon: ...
-
-    def is_ok(self) -> bool: ...
-''',
-
-    'QWidget': qwidget_special_case(),
-    'QDialog': qwidget_special_case('QDialog'),
-
-    'QByteArray': f'''
-class QByteArray({QT_WRAPPER}.QtCore.QByteArray):
-    def __buffer__(self, flags: int, /) -> memoryview: ...
-''',
-
     'pyqtProperty': '''
 
 _T = TypeVar('_T')
