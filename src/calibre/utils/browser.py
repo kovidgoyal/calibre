@@ -39,7 +39,7 @@ class Browser(B):
     '''
 
     handler_classes = B.handler_classes.copy()
-    handler_classes['https'] = ModernHTTPSHandler
+    handler_classes['https'] = ModernHTTPSHandler  # type: ignore
 
     def __init__(self, *args, **kwargs):
         self._clone_actions = {}
@@ -49,13 +49,13 @@ class Browser(B):
 
         B.__init__(self, *args, **kwargs)
         self.set_cookiejar(CookieJar())
-        self._ua_handlers['https'].ssl_context = sc
+        self._ua_handlers['https'].ssl_context = sc  # type: ignore
 
     @property
     def https_handler(self):
-        return self._ua_handlers['https']
+        return self._ua_handlers['https']  # type: ignore
 
-    def set_current_header(self, header, value=None):
+    def set_current_header(self, header: str, value: str | None=None):
         found = False
         q = header.lower()
         remove = []
@@ -67,7 +67,7 @@ class Browser(B):
                 else:
                     remove.append(i)
         if not found:
-            self.addheaders.append((header, value))
+            self.addheaders.append((header, value or ''))
         if remove:
             for i in reversed(remove):
                 del self.addheaders[i]

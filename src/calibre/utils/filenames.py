@@ -678,8 +678,8 @@ def path_from_root(
 def is_existing_subpath(child: str, parent: str) -> bool:
     ' Check if child is under parent. If either child or parent dont exist, returns False. '
     try:
-        parent = os.path.realpath(parent, strict=True)  # resolve symlinks
-        child = os.path.realpath(child, strict=True)
+        parent = os.path.realpath(parent, strict=True)  # resolve symlinks  # type: ignore
+        child = os.path.realpath(child, strict=True)  # type: ignore
     except OSError:
         return False
     return is_path_inside(parent, child)
@@ -748,10 +748,12 @@ def clone_file_metadata(src_fd: int, dest_fd: int, dest_name: str = '') -> None:
         try:
             os.fchmod(dest_fd, st.st_mode | stat.S_IWUSR)
         except OSError as err:
-            if err.errno != errno.EPERM:
+            code = err.errno
+            if code != errno.EPERM:
                 raise
+            assert code is not None
             raise OSError(f'Failed to change permissions of {dest_name} to {oct(st.st_mode)} ({format_permissions(st.st_mode)}), '
-                        f'with error: {errno.errorcode[err.errno]}. Most likely the directory it is in has a restrictive umask')
+                        f'with error: {os.strerror(code)}. Most likely the directory it is in has a restrictive umask')
         try:
             os.fchown(dest_fd, st.st_uid, st.st_gid)
         except OSError as err:
