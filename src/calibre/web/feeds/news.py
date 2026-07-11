@@ -603,7 +603,7 @@ class BasicNewsRecipe(Recipe):
 
     @property
     def cloned_browser(self):
-        if hasattr(self.get_browser, 'is_base_class_implementation') and self.browser_type == 'mechanize':
+        if self.get_browser.__func__ is BasicNewsRecipe.get_browser and self.browser_type == 'mechanize':
             # We are using the default get_browser, which means no need to
             # clone
             br = BasicNewsRecipe.get_browser(self)
@@ -1220,13 +1220,7 @@ class BasicNewsRecipe(Recipe):
                               extra_css=css).render(doctype='xhtml')
 
     def _fetch_article(self, url, dir_, f, a, num_of_feeds, preloaded=None):
-        br = self.browser
-        if hasattr(self.get_browser, 'is_base_class_implementation'):
-            # We are using the default get_browser, which means no need to
-            # clone
-            br = BasicNewsRecipe.get_browser(self)
-        else:
-            br = self.clone_browser(self.browser)
+        br = self.cloned_browser
         self.web2disk_options.browser = br
         fetcher = RecursiveFetcher(self.web2disk_options, self.log,
                 self.image_map, self.css_map,
@@ -1960,7 +1954,6 @@ class CalibrePeriodical(BasicNewsRecipe):
                     ' the calibre Periodicals service.'))
 
         return br
-    get_browser.is_base_class_implementation = True  # type: ignore
 
     def download(self):
         self.log('Fetching downloaded recipe')
