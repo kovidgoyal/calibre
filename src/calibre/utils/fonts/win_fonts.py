@@ -157,7 +157,7 @@ def test():
     pluginsd = os.path.join(d(d(d(base))), 'plugins')
     if os.path.exists(os.path.join(pluginsd, 'winfonts.pyd')):
         sys.path.insert(0, pluginsd)
-        import winfonts
+        import winfonts  # type: ignore
         w = WinFonts(winfonts)
     else:
         w = load_winfonts()

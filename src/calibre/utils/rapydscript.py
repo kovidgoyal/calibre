@@ -235,8 +235,8 @@ def forked_compile():
     options = json.loads(sys.argv[-1])
     result = c(data, options)
     stdout = getattr(sys.stdout, 'buffer', sys.stdout)
-    stdout.write(OUTPUT_SENTINEL)
-    stdout.write(as_bytes(result))
+    stdout.write(OUTPUT_SENTINEL)  # type: ignore
+    stdout.write(as_bytes(result))  # type: ignore
     stdout.close()
 
 

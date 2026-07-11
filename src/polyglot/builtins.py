@@ -14,7 +14,7 @@ def hasenv(x):
     return getenv(x) is not None
 
 
-def as_bytes(x, encoding='utf-8'):
+def as_bytes(x, encoding='utf-8') -> bytes:
     if isinstance(x, unicode_type):
         return x.encode(encoding)
     if isinstance(x, bytes):

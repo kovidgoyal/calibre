@@ -77,11 +77,11 @@ def png_data_to_gif_data(data):
     elif img.mode in ('rgba', 'RGBA'):
         alpha = img.split()[3]
         mask = Image.eval(alpha, lambda a: 255 if a <=128 else 0)
-        img = img.convert('RGB').convert('P', palette=Image.ADAPTIVE, colors=255)
+        img = img.convert('RGB').convert('P', palette=Image.ADAPTIVE, colors=255)  # type: ignore
         img.paste(255, mask)
         img.save(buf, 'gif', transparency=255)
     else:
-        img = img.convert('P', palette=Image.ADAPTIVE)
+        img = img.convert('P', palette=Image.ADAPTIVE)  # type: ignore
         img.save(buf, 'gif')
     return buf.getvalue()
 
@@ -94,7 +94,7 @@ def gif_data_to_png_data(data, discard_animation=False):
     from PIL import Image
     img = Image.open(BytesIO(data))
     try:
-        is_animated = img.is_animated
+        is_animated = img.is_animated  # type: ignore
     except Exception:
         is_animated = False
     if is_animated and not discard_animation:
@@ -725,7 +725,7 @@ def convert_PIL_image_to_pixmap(im, device_pixel_ratio=1.0):
     elif im.mode == 'P':
         fmt = QImage.Format.Format_Indexed8
         palette = im.getpalette()
-        colortable = [qRgba(*palette[i : i + 3], 255) & 0xFFFFFFFF for i in range(0, len(palette), 3)]
+        colortable = [qRgba(*palette[i : i + 3], 255) & 0xFFFFFFFF for i in range(0, len(palette), 3)]  # type: ignore
     elif im.mode == 'I;16':
         im = im.point(lambda i: i * 256)
         fmt = QImage.Format.Format_Grayscale16

@@ -112,7 +112,7 @@ class Description:
 
         # other possible rss type
         if self.get_url_by_type('text/xml'):
-            return self.get_url_by_Type('text/xml').template
+            return self.get_url_by_type('text/xml').template
 
         # otherwise just the first one
         if len(self.urls) > 0:

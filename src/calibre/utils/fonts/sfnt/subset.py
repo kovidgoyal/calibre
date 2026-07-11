@@ -298,7 +298,7 @@ def main(args):
 
 if __name__ == '__main__':
     try:
-        import init_calibre  # noqa: F401
+        import init_calibre  # noqa: F401  # type: ignore
     except ImportError:
         pass
     import sys

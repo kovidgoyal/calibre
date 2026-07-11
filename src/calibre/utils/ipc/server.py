@@ -283,7 +283,7 @@ class Server(Thread):
         except Exception:
             pass
         try:
-            self.listener.close()
+            getattr(self, 'listener').close()
         except Exception:
             pass
         time.sleep(0.2)

@@ -1002,14 +1002,14 @@ class FormatterFuncsCaller:
                     e = e.__class__(_('Error in function {0} :: {1}').format(
                             name,
                             re.sub(r'\w+\.evaluate\(\)\s*', '', str(e), 1)))  # remove UserFunction.evaluate() | Builtin*.evaluate()
-                    e.is_internal = True
+                    setattr(e, 'is_internal', True)
                     raise e
                 return rslt
 
             return call
 
         e = AttributeError(_('No function named {!r} exists').format(name))
-        e.is_internal = True
+        setattr(e, 'is_internal', True)
         raise e
 
     def __dir__(self):
@@ -1700,8 +1700,8 @@ class _Interpreter:
 
 
 @lru_cache(maxsize=2)
-def args_scanner() -> re.Scanner:
-    return re.Scanner([
+def args_scanner() -> re.Scanner:  # type: ignore
+    return re.Scanner([  # type: ignore
         (r',', lambda x,t: ''),
         (r'.*?(?:(?<!\\),)', lambda x,t: t[:-1]),
         (r'.*?\)', lambda x,t: t[:-1]),
@@ -1709,8 +1709,8 @@ def args_scanner() -> re.Scanner:
 
 
 @lru_cache(maxsize=2)
-def cached_lex_scanner() -> re.Scanner:
-    return re.Scanner([
+def cached_lex_scanner() -> re.Scanner:  # type: ignore
+    return re.Scanner([  # type: ignore
         (r'(?:==#|!=#|<=#|<#|>=#|>#)', lambda x,t: (_Parser.LEX_NUMERIC_INFIX, t)),
         (r'(?:==|!=|<=|<|>=|>)',       lambda x,t: (_Parser.LEX_STRING_INFIX, t)),
         (r'(?:if|then|else|elif|fi)\b',lambda x,t: (_Parser.LEX_KEYWORD, t)),

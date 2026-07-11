@@ -7,7 +7,6 @@ import json
 import os
 import tarfile
 from functools import lru_cache
-from io import BytesIO
 
 from calibre.constants import cache_dir
 from calibre.ptempfile import TemporaryDirectory
@@ -61,17 +60,7 @@ def expected_hash():
 def extract_dicts(cache_path):
     dict_tarball = P('hyphenation/dictionaries.tar.xz', allow_user_override=False)
     with TemporaryDirectory(dir=cache_path) as tdir:
-        try:
-            from calibre_lzma.xz import decompress
-        except ImportError:
-            tf = tarfile.open(dict_tarball)
-        else:
-            buf = BytesIO()
-            with open(dict_tarball, 'rb') as f:
-                data = f.read()
-            decompress(data, outfile=buf)
-            buf.seek(0)
-            tf = tarfile.TarFile(fileobj=buf)
+        tf = tarfile.open(dict_tarball)
         with tf:
             try:
                 tf.extractall(tdir, filter='data')

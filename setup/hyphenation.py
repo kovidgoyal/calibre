@@ -69,13 +69,8 @@ def process_dictionaries(src, output_dir):
 
 def compress_tar(buf, outf):
     buf.seek(0)
-    try:
-        from calibre_lzma.xz import compress
-    except ImportError:
-        import lzma
-        outf.write(lzma.compress(buf.getvalue(), preset=9 | lzma.PRESET_EXTREME))
-    else:
-        compress(buf, outf)
+    import lzma
+    outf.write(lzma.compress(buf.getvalue(), preset=9 | lzma.PRESET_EXTREME))
 
 
 class Hyphenation(ReVendor):

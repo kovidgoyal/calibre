@@ -27,7 +27,7 @@ def split_range(start_code, end_code, cmap):  # {{{
     last_code = start_code
     in_order = False
     ordered_begin = None
-    sub_ranges = []
+    sub_ranges: list[tuple[int, int]] = []
 
     # Gather subranges in which the glyph IDs are consecutive.
     for code in range(start_code + 1, end_code + 1):
@@ -39,6 +39,7 @@ def split_range(start_code, end_code, cmap):  # {{{
                 ordered_begin = last_code
         elif in_order:
             in_order = False
+            assert ordered_begin is not None
             sub_ranges.append((ordered_begin, last_code))
             ordered_begin = None
 
@@ -46,6 +47,7 @@ def split_range(start_code, end_code, cmap):  # {{{
         last_code = code
 
     if in_order:
+        assert ordered_begin is not None
         sub_ranges.append((ordered_begin, last_code))
     assert last_code == end_code
 
@@ -286,8 +288,8 @@ class CmapTable(UnknownTable):
 
         length = calcsize(fmt) + len(data)
         header = pack(fmt, 4, length, 0, 2*seg_count, search_range, entry_selector, range_shift)
-        self.bmp_table = header + data
+        bmp_table = header + data
 
         fmt = b'>4HL'
         offset = calcsize(fmt)
-        self.raw = pack(fmt, self.version, self.num_tables, 3, 1, offset) + self.bmp_table
+        self.raw = pack(fmt, self.version, self.num_tables, 3, 1, offset) + bmp_table

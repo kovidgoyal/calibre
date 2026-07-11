@@ -16,7 +16,7 @@ _MmapType = mmap.mmap
 if iswindows:
     import _winapi
 else:
-    import _posixshmem
+    import _posixshmem  # type: ignore
 
 
 def make_filename(prefix: str) -> str:
@@ -85,7 +85,7 @@ class SharedMemory:
                     last_error_code = _winapi.GetLastError()
                     if last_error_code == _winapi.ERROR_ALREADY_EXISTS:
                         continue
-                    self._mmap = mmap.mmap(-1, size, tagname=q, access=access)
+                    self._mmap = mmap.mmap(-1, size, tagname=q, access=access)  # type: ignore
                     name = q
                 finally:
                     _winapi.CloseHandle(h_map)
@@ -116,7 +116,7 @@ class SharedMemory:
             finally:
                 _winapi.CloseHandle(h_map)
             size = _winapi.VirtualQuerySize(p_buf)
-            self._mmap = mmap.mmap(-1, size, tagname=name)
+            self._mmap = mmap.mmap(-1, size, tagname=name)  # type: ignore
         if not iswindows:
             if not create:
                 self._fd = _posixshmem.shm_open(name, flags, mode)
@@ -153,7 +153,7 @@ class SharedMemory:
         return self.mmap.tell()
 
     def seek(self, pos: int, whence: int = os.SEEK_SET) -> None:
-        self.mmap.seek(pos, whence)
+        self.mmap.seek(pos, whence)  # type: ignore
 
     def flush(self) -> None:
         self.mmap.flush()

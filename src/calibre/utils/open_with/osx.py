@@ -43,7 +43,7 @@ def generate_public_uti_map():
         r = ("'" + ext + "':").ljust(16)
         lines.append((' ' * 4) + r + "'" + data[ext] + "',")
     lines.append('}')
-    with open(__file__, 'r+b') as f:
+    with open(__file__, 'r+') as f:
         raw = f.read()
         f.seek(0)
         nraw = re.sub(r'^PUBLIC_UTI_MAP = .+?}', '\n'.join(lines), raw, flags=re.MULTILINE | re.DOTALL)
@@ -341,6 +341,7 @@ def get_icon(path, pixmap_to_data=None, as_data=False, size=64):
             return
     ans = ans.scaled(size, size, transformMode=Qt.TransformationMode.SmoothTransformation)
     if as_data:
+        assert pixmap_to_data is not None
         ans = pixmap_to_data(ans)
     return ans
 
