@@ -54,14 +54,16 @@ def merge_truetype_fonts_for_pdf(fonts, log=None):
                     if old_val is None:
                         hmetrics_map[glyph_id] = m
                     elif m != old_val:
-                        log(f'Metrics mismatch for glyph id: {glyph_id} prev: {hmetrics_map[glyph_id]} cur: {m}')
+                        if log is not None:
+                            log(f'Metrics mismatch for glyph id: {glyph_id} prev: {hmetrics_map[glyph_id]} cur: {m}')
                 if vhea is not None:
                     m = vhea.metrics_for(glyph_id)
                     old_val = vmetrics_map.get(glyph_id)
                     if old_val is None:
                         vmetrics_map[glyph_id] = m
                     elif m != vmetrics_map[glyph_id]:
-                        log(f'Vertical metrics mismatch for glyph id: {glyph_id} prev: {vmetrics_map[glyph_id]} cur: {m}')
+                        if log is not None:
+                            log(f'Vertical metrics mismatch for glyph id: {glyph_id} prev: {vmetrics_map[glyph_id]} cur: {m}')
 
     glyf = ans[b'glyf']
     head = ans[b'head']

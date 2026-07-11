@@ -25,7 +25,7 @@ def create_parser(recover: bool, encoding: str | None = None) -> etree.XMLParser
     return parser
 
 
-def create_html_parser(recover: bool, encoding: str | None = None) -> etree.HTMLParser:
+def create_html_parser(recover: bool, encoding: str | None = None) -> html.HTMLParser:
     parser = html.HTMLParser(recover=recover, no_network=True, encoding=encoding)
     parser.resolvers.add(Resolver())
     return parser

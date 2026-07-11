@@ -98,6 +98,9 @@ def retry_lock_tdir(path, timeout=30, sleep=0.1):
             time.sleep(sleep)
 
 
+_tdir_in_cache_scanned: set[str] = set()
+
+
 def tdir_in_cache(base):
     ''' Create a temp dir inside cache_dir/base. The created dir is robust
     against application crashes. i.e. it will be cleaned up the next time the
@@ -110,8 +113,8 @@ def tdir_in_cache(base):
             raise
     global_lock = retry_lock_tdir(b)
     try:
-        if b not in tdir_in_cache.scanned:
-            tdir_in_cache.scanned.add(b)
+        if b not in _tdir_in_cache_scanned:
+            _tdir_in_cache_scanned.add(b)
             try:
                 clean_tdirs_in(b)
             except Exception:
@@ -125,6 +128,3 @@ def tdir_in_cache(base):
         return tdir
     finally:
         unlock_file(global_lock)
-
-
-tdir_in_cache.scanned = set()

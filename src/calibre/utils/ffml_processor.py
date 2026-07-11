@@ -40,6 +40,7 @@ class NodeKinds(IntEnum):
 
 
 class Node:
+    _text: str
 
     def __init__(self, node_kind: NodeKinds):
         self._node_kind = node_kind
@@ -193,6 +194,7 @@ class FFMLProcessor:
       documentation editor". How to access the editor is described in "General
       information" dialog mentioned above.
     '''
+
 
 # ====== API ======
 
@@ -590,14 +592,15 @@ class FFMLProcessor:
 
     def __init__(self):
         self.document = DocumentNode()
-        self.input = None
-        self.input_pos = 0
+        self.input: str = ''
+        self.input_pos: int = 0
+        self.input_line: int = 0
+        self.document_name: str = ''
 
     def error(self, message):
         raise ValueError(f'{message} on line {self.input_line} in "{self.document_name}"')
 
     def find(self, for_what, at_pos=-1):
-        assert self.input is not None
         pos = at_pos if at_pos >= 0 else self.input_pos
         p = self.input.find(for_what, pos)
         return -1 if p < 0 else p - pos
@@ -624,7 +627,6 @@ class FFMLProcessor:
         return txt
 
     def startswith(self, txt):
-        assert self.input is not None
         return self.input.startswith(txt, self.input_pos)
 
     def find_one_of(self, at_pos=-1):

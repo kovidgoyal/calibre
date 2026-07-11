@@ -64,10 +64,10 @@ def espeak_data_dir() -> str:
     if not getattr(sys, 'frozen', False):
         return os.environ.get('CALIBRE_ESPEAK_DATA_DIR', '')
     if iswindows:
-        return os.path.join(os.path.dirname(sys.executables_location), 'share', 'espeak-ng-data')
+        return os.path.join(os.path.dirname(getattr(sys, 'executables_location')), 'share', 'espeak-ng-data')
     if ismacos:
-        return os.path.join(os.path.dirname(sys.frameworks_dir), 'Resources', 'espeak-ng-data')
-    return os.path.join(sys.executables_location, 'share', 'espeak-ng-data')
+        return os.path.join(os.path.dirname(getattr(sys, 'frameworks_dir')), 'Resources', 'espeak-ng-data')
+    return os.path.join(getattr(sys, 'executables_location'), 'share', 'espeak-ng-data')
 
 
 def create_voice_config(config_path: str, length_scale_multiplier: float = 0, sentence_delay: float = 0.2) -> VoiceConfig:

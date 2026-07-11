@@ -121,7 +121,7 @@ def restore_recyle():
 
 
 def delete_file(path, permanent=False):
-    if not permanent and can_recycle:
+    if not permanent and can_recycle and recycle is not None:
         try:
             recycle(path)
             return
@@ -144,7 +144,7 @@ def delete_tree(path, permanent=False):
             time.sleep(1)
             shutil.rmtree(path)
     else:
-        if can_recycle:
+        if can_recycle and recycle is not None:
             try:
                 recycle(path)
                 return

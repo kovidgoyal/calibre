@@ -144,7 +144,7 @@ class Parser:
 
     def __init__(self):
         self.current_token = 0
-        self.tokens = None
+        self.tokens: list[tuple[int, str]] = []
 
     OPCODE = 1
     WORD = 2
@@ -156,7 +156,7 @@ class Parser:
     docstring_sep = '□ༀ؆'  # Unicode white square, Tibetan Om, Arabic-Indic Cube Root
 
     # Had to translate named constants to numeric values
-    lex_scanner = re.Scanner([
+    lex_scanner = re.Scanner([  # type: ignore
         (r'[()]',             lambda x,t: (Parser.OPCODE, t)),
         (r'@.+?:[^")\s]+',    lambda x,t: (Parser.WORD, str(t))),
         (r'[^"()\s]+',        lambda x,t: (Parser.WORD, str(t))),

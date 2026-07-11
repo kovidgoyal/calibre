@@ -38,7 +38,7 @@ class Face:
             try:
                 val = val.decode('utf-8')
             except UnicodeDecodeError:
-                val = repr(val).decode('utf-8')
+                val = repr(val)
             setattr(self, x, val)
 
     @same_thread

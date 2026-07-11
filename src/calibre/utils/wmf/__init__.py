@@ -21,6 +21,20 @@ class DIBHeader:
     See http://en.wikipedia.org/wiki/BMP_file_format
     '''
 
+    header_size: int
+    width: int
+    height: int
+    color_planes: int
+    bits_per_pixel: int
+    compression: int
+    image_size: int
+    hres: int
+    vres: int
+    ncols: int
+    nimpcols: int
+    bitmasks_size: int
+    color_table_size: int
+
     def __init__(self, raw):
         hsize = struct.unpack(b'<I', raw[:4])[0]
         if hsize == 40:

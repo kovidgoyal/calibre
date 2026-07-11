@@ -12,6 +12,7 @@ import struct
 from calibre.constants import ismacos, iswindows
 
 SHM_NAME_MAX = 30 if ismacos else 254
+_MmapType = mmap.mmap
 if iswindows:
     import _winapi
 else:
@@ -43,7 +44,7 @@ class SharedMemory:
     '''
     _fd: int = -1
     _name: str = ''
-    _mmap: mmap.mmap | None = None
+    _mmap: _MmapType | None = None
     _size: int = 0
     size_fmt = '!I'
     num_bytes_for_size = struct.calcsize(size_fmt)
@@ -138,7 +139,7 @@ class SharedMemory:
         address = ctypes.c_void_p()
         length = ctypes.c_ssize_t()
         ctypes.pythonapi.PyObject_AsReadBuffer(obj, ctypes.byref(address), ctypes.byref(length))
-        return address.value
+        return address.value or 0
 
     def read(self, sz: int = 0) -> bytes:
         if sz <= 0:
@@ -189,7 +190,7 @@ class SharedMemory:
         return self._name
 
     @property
-    def mmap(self) -> mmap.mmap:
+    def mmap(self) -> _MmapType:
         ans = self._mmap
         if ans is None:
             raise RuntimeError('Cannot access the mmap of a closed shared memory object')

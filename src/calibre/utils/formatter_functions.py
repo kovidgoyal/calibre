@@ -59,6 +59,14 @@ GUI_FUNCTIONS = _('GUI functions')
 
 # Class and method to save an untranslated copy of translated strings
 class TranslatedStringWithRaw(str):
+    raw_english: str
+    raw_other: str
+    formatted_english: str
+    formatted_other: str
+    msgid: str
+    did_format: bool
+    saved_args: tuple
+    saved_kwargs: dict
 
     def __new__(cls, raw_english, raw_other, formatted_english, formatted_other, msgid):
         instance = super().__new__(cls, formatted_other)
@@ -2703,7 +2711,10 @@ on a device has its own device name. The ``storage_location_key`` names are
             # Do the import here so that we don't entangle the GUI when using
             # command line functions
             from calibre.gui2.ui import get_gui
-            info = get_gui().device_manager.get_current_device_information()
+            gui = get_gui()
+            if gui is None:
+                return ''
+            info = gui.device_manager.get_current_device_information()
             if info is None:
                 return ''
             try:
@@ -2741,7 +2752,10 @@ only in the GUI.
             # Do the import here so that we don't entangle the GUI when using
             # command line functions
             from calibre.gui2.ui import get_gui
-            info = get_gui().device_manager.get_current_device_information()
+            gui = get_gui()
+            if gui is None:
+                return ''
+            info = gui.device_manager.get_current_device_information()
             if info is None:
                 return ''
             try:
@@ -3833,6 +3847,8 @@ This function can be used only in the GUI.
     def evaluate(self, formatter, kwargs, mi, locals, *args):
         from calibre.gui2.ui import get_gui
         g = get_gui()
+        if g is None:
+            return ''
         book_ids = g.current_view().get_selected_ids()
         return ', '.join([str(book_id) for book_id in book_ids])
 
@@ -3857,6 +3873,8 @@ This function can be used only in the GUI.
         book_ids, *args = args
         from calibre.gui2.ui import get_gui
         g = get_gui()
+        if g is None:
+            return ''
         bids = [int(b.strip()) for b in book_ids.split(',')]
         if len(args) < 2:
             raise ValueError(_('The sort_book_ids function requires at least 3 arguments'))
@@ -3885,7 +3903,10 @@ This function can be used only in the GUI.
 
     def evaluate(self, formatter, kwargs, mi, locals, *args):
         from calibre.gui2.ui import get_gui
-        v = get_gui().current_view()
+        g = get_gui()
+        if g is None:
+            return ''
+        v = g.current_view()
         idx = v.currentIndex()
         if idx.isValid():
             key = v.column_map[idx.column()]

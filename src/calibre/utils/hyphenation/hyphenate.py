@@ -63,11 +63,14 @@ def barename(x):
     return x.split('}', 1)[-1]
 
 
+_words_pat_cache = None
+
+
 def words_pat():
-    ans = getattr(words_pat, 'ans', None)
-    if ans is None:
-        ans = words_pat.ans = regex.compile(r'\w+', REGEX_FLAGS)
-    return ans
+    global _words_pat_cache
+    if _words_pat_cache is None:
+        _words_pat_cache = regex.compile(r'\w+', REGEX_FLAGS)
+    return _words_pat_cache
 
 
 def add_soft_hyphens_to_words(words, dictionary, hyphen_char='\u00ad'):

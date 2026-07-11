@@ -9,6 +9,8 @@ Manage application-wide preferences.
 import optparse
 import os
 from copy import deepcopy
+from types import TracebackType
+from typing import Any
 
 from calibre.constants import CONFIG_DIR_MODE, __appname__, __author__, config_dir, get_version, iswindows
 from calibre.utils.config_base import (
@@ -34,7 +36,7 @@ from calibre.utils.localization import _
 
 # optparse uses gettext.gettext instead of _ from builtins, so we
 # monkey patch it.
-optparse._ = _
+setattr(optparse, '_', _)
 
 if False:
     # Make pyflakes happy
@@ -365,7 +367,7 @@ class XMLConfig(dict):
     def has_key(self, key):
         return dict.__contains__(self, key)
 
-    def __getitem__(self, key):
+    def __getitem__(self, key: str) -> Any:
         try:
             return dict.__getitem__(self, key)
         except KeyError:
@@ -402,7 +404,7 @@ class XMLConfig(dict):
     def __enter__(self):
         self.no_commit = True
 
-    def __exit__(self, *args):
+    def __exit__(self, exc_type: type[BaseException] | None, exc_val: BaseException | None, exc_tb: TracebackType | None) -> bool | None:
         self.no_commit = False
         self.commit()
 
@@ -417,7 +419,7 @@ class JSONConfig(XMLConfig):
     def to_raw(self):
         return json_dumps(self)
 
-    def __getitem__(self, key):
+    def __getitem__(self, key: str) -> Any:
         try:
             return dict.__getitem__(self, key)
         except KeyError:

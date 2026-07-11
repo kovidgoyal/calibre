@@ -16,6 +16,7 @@ import traceback
 from collections import OrderedDict
 from functools import lru_cache, partial
 from math import modf
+from typing import NoReturn
 
 from calibre.constants import DEBUG
 from calibre.ebooks.metadata.book.base import field_metadata
@@ -1012,13 +1013,13 @@ class FormatterFuncsCaller:
         raise e
 
     def __dir__(self):
-        return list(set(object.__dir__(self) +
+        return list(set(list(object.__dir__(self)) +
                         list(self.__formatter__.funcs.keys()) +
                         [f+'_' for f in self.__formatter__.funcs.keys()]))
 
 
 class _Interpreter:
-    def error(self, message, line_number):
+    def error(self, message, line_number) -> NoReturn:
         m = _('Interpreter: {0} - line number {1}').format(message, line_number)
         raise ValueError(m)
 

@@ -121,9 +121,9 @@ def find_icons():
         with open(cache_file, 'rb') as f:
             cache = f.read()
         cache = msgpack_loads(cache)
-        mtimes, cache = defaultdict(int, cache['mtimes']), defaultdict(dict, cache['data'])
+        mtimes, cache = defaultdict(float, cache['mtimes']), defaultdict(dict, cache['data'])
     except Exception:
-        mtimes, cache = defaultdict(int), defaultdict(dict)
+        mtimes, cache = defaultdict(float), defaultdict(dict)
 
     seen_dirs = set()
     changed = False

@@ -18,7 +18,7 @@ user_dir = os.path.join(config_dir, 'resources')
 class PathResolver:
 
     def __init__(self):
-        self.locations = [sys.resources_location]
+        self.locations = [getattr(sys, 'resources_location')]
         self.cache = {}
 
         def suitable(path):
@@ -29,7 +29,7 @@ class PathResolver:
                 pass
             return False
 
-        self.default_path = sys.resources_location
+        self.default_path = getattr(sys, 'resources_location')
 
         dev_path = os.environ.get('CALIBRE_DEVELOP_FROM', None)
         self.using_develop_from = False

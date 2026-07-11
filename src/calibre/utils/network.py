@@ -99,15 +99,19 @@ class DummyNetworkStatus:
         return True
 
 
+_internet_checker: WindowsNetworkStatus | LinuxNetworkStatus | DummyNetworkStatus | None = None
+
+
 def internet_connected():
+    global _internet_checker
     if tweaks['skip_network_check']:
         return True
-    if not hasattr(internet_connected, 'checker'):
-        internet_connected.checker = WindowsNetworkStatus() if iswindows else \
+    if _internet_checker is None:
+        _internet_checker = WindowsNetworkStatus() if iswindows else \
         LinuxNetworkStatus() if (islinux or isbsd) else \
         DummyNetworkStatus()
 
-    return internet_connected.checker()
+    return _internet_checker()
 
 
 def is_ipv6_addr(addr):

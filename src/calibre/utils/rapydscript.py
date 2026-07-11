@@ -56,11 +56,14 @@ def to_dict(obj):
     return dict(zip(list(obj.keys()), list(obj.values())))
 
 
+_compiler_instance = None
+
+
 def compiler():
+    global _compiler_instance
     import lzma
-    ans = getattr(compiler, 'ans', None)
-    if ans is not None:
-        return ans
+    if _compiler_instance is not None:
+        return _compiler_instance
     from qt.core import QApplication, QEventLoop
     from qt.webengine import QWebEnginePage, QWebEngineScript
 
@@ -187,8 +190,8 @@ document.title = 'compiler initialized';
             self.working = False
             self.compiler_result = js
 
-    compiler.ans = Compiler()
-    return compiler.ans
+    _compiler_instance = Compiler()
+    return _compiler_instance
 
 
 class CompileFailure(ValueError):
@@ -227,7 +230,8 @@ OUTPUT_SENTINEL = b'-----RS webengine compiler output starts here------'
 def forked_compile():
     c = compiler()
     stdin = getattr(sys.stdin, 'buffer', sys.stdin)
-    data = stdin.read().decode('utf-8')
+    raw = stdin.read()
+    data = raw.decode('utf-8') if isinstance(raw, bytes) else raw
     options = json.loads(sys.argv[-1])
     result = c(data, options)
     stdout = getattr(sys.stdout, 'buffer', sys.stdout)

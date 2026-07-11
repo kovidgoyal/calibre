@@ -60,7 +60,7 @@ class Query:
 
         # copy the url parts and substitute in our new query string
         url_parts = list(self.url_parts)
-        url_parts[4] = urlencode(query_string, 1)
+        url_parts[4] = urlencode(query_string, True)
 
         # recompose and return url
         return urlunparse(tuple(url_parts))

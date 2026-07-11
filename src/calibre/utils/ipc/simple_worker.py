@@ -201,7 +201,7 @@ def two_part_fork_job(env=None, priority='normal', cwd=None):
         if not no_output:
             ans['stdout_stderr'] = w.log_path
         return ans
-    run_job.worker = w
+    setattr(run_job, 'worker', w)
 
     return run_job
 
@@ -293,17 +293,17 @@ def main():
     with Connection(int(os.environ['CALIBRE_WORKER_FD'])) as conn:
         args = eintr_retry_call(conn.recv)
         try:
-            mod, func, args, kwargs, module_is_source_code = args
+            mod_name, func, args, kwargs, module_is_source_code = args
             if module_is_source_code:
                 importlib.import_module('calibre.customize.ui')  # Load plugins
-                mod = compile_code(mod)
+                mod = compile_code(mod_name)
                 func = mod[func]
             else:
                 try:
-                    mod = importlib.import_module(mod)
+                    mod = importlib.import_module(mod_name)
                 except ImportError:
                     importlib.import_module('calibre.customize.ui')  # Load plugins
-                    mod = importlib.import_module(mod)
+                    mod = importlib.import_module(mod_name)
                 func = getattr(mod, func)
             res = {'result':func(*args, **kwargs)}
         except Exception:

@@ -15,12 +15,14 @@ from calibre.utils.localization import lang_as_iso639_1
 from calibre.utils.lock import ExclusiveFile
 from calibre.utils.resources import get_path as P
 
+_locale_map_cache: dict | None = None
+
 
 def locale_map():
-    ans = getattr(locale_map, 'ans', None)
-    if ans is None:
-        ans = locale_map.ans = {k.lower(): v for k, v in json.loads(P('hyphenation/locales.json', data=True)).items()}
-    return ans
+    global _locale_map_cache
+    if _locale_map_cache is None:
+        _locale_map_cache = {k.lower(): v for k, v in json.loads(P('hyphenation/locales.json', data=True)).items()}
+    return _locale_map_cache
 
 
 @lru_cache
@@ -88,18 +90,24 @@ def extract_dicts(cache_path):
     is_cache_up_to_date.updated = True
 
 
-def is_cache_up_to_date(cache_path):
-    if getattr(is_cache_up_to_date, 'updated', False):
-        return True
-    try:
-        with open(os.path.join(cache_path, 'f', 'sha1sum'), 'rb') as f:
-            actual_hash = f.read()
-        if actual_hash == expected_hash():
-            is_cache_up_to_date.updated = True
+class _IsCacheUpToDate:
+    updated: bool = False
+
+    def __call__(self, cache_path: str) -> bool:
+        if self.updated:
             return True
-    except OSError:
-        pass
-    return False
+        try:
+            with open(os.path.join(cache_path, 'f', 'sha1sum'), 'rb') as f:
+                actual_hash = f.read()
+            if actual_hash == expected_hash():
+                self.updated = True
+                return True
+        except OSError:
+            pass
+        return False
+
+
+is_cache_up_to_date = _IsCacheUpToDate()
 
 
 @lru_cache

@@ -100,7 +100,7 @@ from_js = pyqtSignal
 class to_js(str):
 
     def __call__(self, *a):
-        print(f'WARNING: Calling {self.name}() before the javascript bridge is ready')
+        print(f'WARNING: Calling {self}() before the javascript bridge is ready')
     emit = __call__
 
 

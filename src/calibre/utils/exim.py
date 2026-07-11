@@ -83,7 +83,7 @@ class Exporter:
         self.current_part = None
         self.file_metadata = {}
         self.tail_sz = self.tail_size()
-        self.metadata = {'file_metadata': self.file_metadata}
+        self.metadata: dict[str, object] = {'file_metadata': self.file_metadata}
 
     def set_metadata(self, key, val):
         if key in self.metadata:
@@ -101,8 +101,8 @@ class Exporter:
 
     def write(self, data: bytes) -> int:
         written = 0
-        data = memoryview(data)
-        while len(data) > 0:
+        mv = memoryview(data)
+        while len(mv) > 0:
             if self.current_part is None:
                 self.new_part()
             assert self.current_part is not None
@@ -111,9 +111,9 @@ class Exporter:
                 self.new_part()
                 assert self.current_part is not None
                 max_size = self.part_size - self.tail_sz
-            chunk = data[:max_size]
+            chunk = mv[:max_size]
             w = self.current_part.write(chunk)
-            data = data[w:]
+            mv = mv[w:]
             written += w
         return written
 

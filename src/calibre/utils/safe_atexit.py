@@ -136,15 +136,16 @@ def main():
         signal.signal(signal.SIGINT, signal.SIG_IGN)
     from calibre.constants import sanitize_env_vars
     with sanitize_env_vars():
-        ac_map = {RMTREE_ACTION: remove_dir, UNLINK_ACTION: unlink}
         for line in sys.stdin.buffer:
             if line:
                 try:
                     cmd = json.loads(line)
                     if cmd['action'] == RUN_PROGRAM_ACTION:
                         run_program(cmd['payload'])
-                    else:
-                        atexit.register(ac_map[cmd['action']], cmd['payload'])
+                    elif cmd['action'] == RMTREE_ACTION:
+                        atexit.register(remove_dir, cmd['payload'])
+                    elif cmd['action'] == UNLINK_ACTION:
+                        atexit.register(unlink, cmd['payload'])
                 except Exception:
                     import traceback
                     traceback.print_exc()

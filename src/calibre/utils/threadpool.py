@@ -118,6 +118,7 @@ class WorkRequest:
     where you want to build several WorkRequests for the same callable
     but with different arguments for each call.
     '''
+
     # these are used by the recipe download system
     feed: Any
     article: Any
