@@ -7,7 +7,11 @@ __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 from calibre.ebooks.metadata.sources.base import Source
-from calibre.utils.localization import _
+
+try:
+    from calibre.utils.localization import _
+except ImportError:
+    pass
 
 
 class OpenLibrary(Source):

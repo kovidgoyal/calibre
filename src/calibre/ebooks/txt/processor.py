@@ -107,9 +107,7 @@ def create_markdown_object(extensions=DEFAULT_MD_EXTENSIONS):
     # Need to load markdown extensions without relying on pkg_resources
     import importlib
 
-    from markdown import Extension
-
-    from calibre.ebooks.markdown import Markdown
+    from markdown import Extension, Markdown
 
     class NotBrainDeadMarkdown(Markdown):
         def build_extension(self, ext_name, configs):

@@ -12,12 +12,15 @@ import time
 
 import regex
 
-from calibre.utils.localization import _
+try:
+    from calibre.utils.localization import _
+except ImportError:
+    pass
 
 try:
     from queue import Empty, Queue
 except ImportError:
-    from Queue import Empty, Queue
+    from Queue import Empty, Queue  # type: ignore
 
 from calibre import as_unicode, prepare_string_for_xml, replace_entities
 from calibre.ebooks.chardet import xml_to_unicode
@@ -238,7 +241,7 @@ class GoogleBooks(Source):
         try:
             from urllib.parse import urlencode
         except ImportError:
-            from urllib import urlencode
+            from urllib import urlencode  # type: ignore
         BASE_URL = 'https://books.google.com/books/feeds/volumes?'
         isbn = check_isbn(identifiers.get('isbn', None))
         q = ''

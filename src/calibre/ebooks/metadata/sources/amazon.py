@@ -9,19 +9,22 @@ import string
 import time
 from functools import partial
 
-from calibre.utils.localization import _
+try:
+    from calibre.utils.localization import _
+except ImportError:
+    pass
 
 try:
     from queue import Empty, Queue
 except ImportError:
-    from Queue import Empty, Queue
+    from Queue import Empty, Queue  # type: ignore
 
 from threading import Thread
 
 try:
     from urllib.parse import urlparse
 except ImportError:
-    from urlparse import urlparse
+    from urlparse import urlparse  # type: ignore
 
 from mechanize import HTTPError
 
@@ -749,7 +752,7 @@ class Worker(Thread):  # Get details {{{
         try:
             from urllib.parse import unquote
         except ImportError:
-            from urllib import unquote
+            from urllib import unquote  # type: ignore
         ans = ''
         ovr = tuple(self.selector('#drengr_MobileTabbedDescriptionOverviewContent_feature_div')) or tuple(
             self.selector('#drengr_DesktopTabbedDescriptionOverviewContent_feature_div'))
@@ -799,7 +802,8 @@ class Worker(Thread):  # Get details {{{
             m = re.search(br'var\s+iframeContent\s*=\s*"([^"]+)"', raw)
             if m is not None:
                 try:
-                    text = unquote(m.group(1)).decode('utf-8')
+                    xtext = unquote(m.group(1))
+                    text = xtext.decode('utf-8') if isinstance(xtext, bytes) else xtext
                     nr = parse_html(text)
                     desc = nr.xpath(
                         '//div[@id="productDescription"]/*[@class="content"]')
@@ -1365,7 +1369,7 @@ class Amazon(Source):
         try:
             from urllib.parse import unquote_plus, urlencode
         except ImportError:
-            from urllib import unquote_plus, urlencode
+            from urllib import unquote_plus, urlencode  # type: ignore
         if domain is None:
             domain = self.domain
 
