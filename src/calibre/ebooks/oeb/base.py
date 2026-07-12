@@ -1836,6 +1836,7 @@ class OEBBook:
         self.pages = PageList()
         self.auto_generated_toc = True
         self._temp_files = []
+        self.removed_items_to_ignore: tuple = ()
 
     def set_page_progression_direction_if_needed(self):
         if not self.spine.page_progression_direction:

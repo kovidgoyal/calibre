@@ -159,7 +159,7 @@ class ContainerBase:  # {{{
 
     def guess_type(self, name):
         ' Return the expected mimetype for the specified file name based on its extension. '
-        return adjust_mime_for_epub(filename=name, opf_version=self.opf_version_parsed)
+        return adjust_mime_for_epub(filename=name, opf_version=getattr(self, 'opf_version_parsed', None))
 
     def decode(self, data, normalize_to_nfc=True):
         '''

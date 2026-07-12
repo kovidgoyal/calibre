@@ -59,7 +59,11 @@ def supported_input_formats():
 
 
 class OptionValues:
-    pass
+    def __getattr__(self, name: str) -> object:
+        raise AttributeError(name)
+
+    def __setattr__(self, name: str, value: object) -> None:
+        object.__setattr__(self, name, value)
 
 
 class CompositeProgressReporter:
@@ -806,7 +810,6 @@ OptionRecommendation(name='search_replace',
         if merge_plugin_recs:
             self.merge_plugin_recommendations()
 
-    @classmethod
     def get_all_options(self):
         ans = {}
         for group in (self.input_options, self.pipeline_options,

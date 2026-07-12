@@ -251,7 +251,7 @@ class LrsContainer:
     def has_text(self):
         ''' Return True iff this container has non whitespace text '''
         if hasattr(self, 'text'):
-            if self.text.strip():
+            if isinstance(self.text, str) and self.text.strip():
                 return True
         if hasattr(self, 'contents'):
             for child in self.contents:
@@ -1086,6 +1086,8 @@ class BookSetting(LrsAttributes):
 class LrsStyle(LrsObject, LrsAttributes, LrsContainer):
     ''' A mixin class for styles. '''
 
+    validSettings: list
+
     def __init__(self, elementName, defaults=None, alsoAllow=None, **overrides):
         if defaults is None:
             defaults = {}
@@ -1528,10 +1530,7 @@ class LrsTextTag(LrsContainer):
             self.append(text)
 
     def toLrfContainer(self, lrfWriter, parent):
-        if hasattr(self, 'tagName'):
-            tagName = self.tagName
-        else:
-            tagName = self.__class__.__name__
+        tagName: str = getattr(self, 'tagName', None) or self.__class__.__name__
 
         parent.appendLrfTag(LrfTag(tagName))
 
@@ -1541,10 +1540,7 @@ class LrsTextTag(LrsContainer):
         parent.appendLrfTag(LrfTag(tagName + 'End'))
 
     def toElement(self, se):
-        if hasattr(self, 'tagName'):
-            tagName = self.tagName
-        else:
-            tagName = self.__class__.__name__
+        tagName: str = getattr(self, 'tagName', None) or self.__class__.__name__
 
         p = Element(tagName)
         appendTextElements(p, self.contents, se)
@@ -1552,6 +1548,8 @@ class LrsTextTag(LrsContainer):
 
 
 class LrsSimpleChar1:
+    contents: list
+    parent: LrsContainer | None
 
     def isEmpty(self):
         for content in self.contents:
@@ -1561,6 +1559,8 @@ class LrsSimpleChar1:
 
     def hasFollowingContent(self):
         foundSelf = False
+        if self.parent is None:
+            return False
         for content in self.parent.contents:
             if content == self:
                 foundSelf = True
@@ -1571,6 +1571,7 @@ class LrsSimpleChar1:
 
 
 class DropCaps(LrsTextTag):
+    text: str | None = None
 
     def __init__(self, line=1):
         LrsTextTag.__init__(self, None, [LrsSimpleChar1])
@@ -1674,7 +1675,7 @@ class Plot(LrsSimpleChar1, LrsContainer):
         self.xsize = int(xsize)
         self.ysize = int(ysize)
         if adjustment and adjustment not in Plot.ADJUSTMENT_VALUES.keys():
-            raise LrsError('adjustment must be one of' + Plot.ADJUSTMENT_VALUES.keys())
+            raise LrsError('adjustment must be one of ' + str(list(Plot.ADJUSTMENT_VALUES.keys())))
         self.adjustment = adjustment
 
     def setObj(self, obj):
@@ -2251,6 +2252,8 @@ class ImageStream(LrsObject, LrsContainer):
     def __init__(self, file=None, encoding=None, comment=None):
         LrsObject.__init__(self)
         LrsContainer.__init__(self, [])
+        if file is None:
+            raise LrsError('file must be specified')
         _checkExists(file)
         self.filename = file
         self.comment = comment
@@ -2395,7 +2398,7 @@ class ImageBlock(LrsObject, LrsContainer, LrsAttributes):
         ib.appendLrfTag(LrfTag('ImageSize', (self.xsize, self.ysize)))
         ib.appendLrfTag(LrfTag('RefObjId', self.refstream.objId))
         if self.alttext:
-            ib.appendLrfTag('Comment', self.alttext)
+            ib.appendLrfTag(LrfTag('Comment', self.alttext))
 
         lrfWriter.append(ib)
         self.extraId = extraId
@@ -2443,6 +2446,8 @@ class Font(LrsContainer):
         lrfWriter.append(font)
 
     def toElement(self, se):
-        element = Element('RegistFont', encoding='TTF', fontname=self.fontname,
-                file=self.file, fontfilename=self.file)
+        element = Element('RegistFont', encoding='TTF',
+                fontname=self.fontname or '',
+                file=self.file or '',
+                fontfilename=self.file or '')
         return element

@@ -79,6 +79,6 @@ class LRFInput(InputFormatPlugin):
             result = transform(doc)
 
         with open('content.opf', 'wb') as f:
-            f.write(result)
+            f.write(etree.tostring(result))
         styles.write()
         return os.path.abspath('content.opf')

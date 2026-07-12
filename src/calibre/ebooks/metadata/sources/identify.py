@@ -6,6 +6,7 @@ __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import re
+import sys
 import time
 import unicodedata
 from datetime import datetime
@@ -82,7 +83,7 @@ class xISBN(Thread):
         except Exception as e:
             import traceback
             self.exception = e
-            self.tb = traceback.format_exception()
+            self.tb = traceback.format_exception(*sys.exc_info())
 
 
 class ISBNMerge:

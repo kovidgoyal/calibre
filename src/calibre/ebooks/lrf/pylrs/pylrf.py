@@ -439,6 +439,7 @@ class LrfStreamBase:
 
         flags = self.streamFlags
         streamBuffer = self.streamData
+        assert streamBuffer is not None
 
         # implement scramble?  I never scramble anything...
 
@@ -502,6 +503,7 @@ class LrfObject:
         self.name = name
         self.objId = objId
         self.tags = []
+        self.saveStreamTags = None
         try:
             self.type = OBJECT_TYPE_ENCODING[name]
         except KeyError:
