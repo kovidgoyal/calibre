@@ -247,7 +247,7 @@ def resolve_base_href(root):
         b.drop_tree()
     if not base_href:
         return
-    make_links_absolute(root, base_href, resolve_base_href=False)
+    make_links_absolute(root, base_href)
 
 
 def rewrite_links(root, link_repl_func, resolve_base_href=False):
@@ -467,17 +467,20 @@ def urlquote(href):
     ''' Quote URL-unsafe characters, allowing IRI-safe characters.
     That is, this function returns valid IRIs not valid URIs. In particular,
     IRIs can contain non-ascii characters.  '''
-    result = []
     isbytes = isinstance(href, bytes)
     unsafe = URL_UNSAFE[int(isbytes)]
-    esc, join = '%%%02x', ''
     if isbytes:
-        esc, join = esc.encode('ascii'), b''
-    for char in href:
-        if char in unsafe:
-            char = esc % ord(char)
-        result.append(char)
-    return join.join(result)
+        esc = b'%%%02x'
+        result: list[bytes] = []
+        for char in href:
+            result.append(esc % ord(char) if char in unsafe else char)
+        return b''.join(result)
+    else:
+        esc_str = '%%%02x'
+        str_result: list[str] = []
+        for char in href:
+            str_result.append(esc_str % ord(char) if char in unsafe else char)
+        return ''.join(str_result)
 
 
 def urlnormalize(href):
@@ -1038,7 +1041,7 @@ class Manifest:
         # }}}
 
         @property
-        def data_as_bytes_or_none(self) -> bytes | None:
+        def data_as_bytes_or_none(self):
             if self._loader is None:
                 return None
             return self._loader(getattr(self, 'html_input_href', self.href))
@@ -1777,6 +1780,8 @@ class OEBBook:
 
     COVER_SVG_XP    = XPath('h:body//svg:svg[position() = 1]')
     COVER_OBJECT_XP = XPath('h:body//h:object[@data][position() = 1]')
+    # Set dynamically by calibre.ebooks.oeb.transforms.jacket when a metadata jacket is inserted
+    inserted_metadata_jacket: Manifest.Item
 
     def __init__(self, logger,
             html_preprocessor,

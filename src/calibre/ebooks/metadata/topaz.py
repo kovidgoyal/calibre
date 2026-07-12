@@ -271,7 +271,7 @@ class MetadataUpdater:
 
     def get_original_metadata(self):
         offset = self.base + self.topaz_headers['metadata']['blocks'][0]['offset']
-        self.md_header = {}
+        self.md_header: dict = {}
         taglen, consumed = self.decode_vwi(self.data[offset:offset+4])
         offset += consumed
         self.md_header['tag'] = self.data[offset:offset+taglen]

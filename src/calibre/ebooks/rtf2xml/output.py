@@ -73,11 +73,13 @@ class Output:
             Create a file within the output directory.
             Read one file at a time. Output line to the newly-created file.
         '''
+        assert self.__output_dir is not None
         base_name = os.path.basename(self.__orig_file)
         base_name, ext  = os.path.splitext(base_name)
         output_file = os.path.join(self.__output_dir, f'{base_name}.xml')
         # change if user wants to output to a specific file
         if self.__out_file:
+            assert self.__out_file is not None
             output_file = os.path.join(self.__output_dir, self.__out_file)
         user_response = 'o'
         if os.path.isfile(output_file) and not self.__no_ask:
@@ -88,7 +90,7 @@ class Output:
             user_response = input()
         if user_response == 'o':
             with open_for_read(self.__file) as read_obj:
-                with open_for_write(self.output_file) as write_obj:
+                with open_for_write(output_file) as write_obj:
                     for line in read_obj:
                         write_obj.write(line)
         else:

@@ -244,7 +244,7 @@ class DOCX:
         cp = E.coreProperties(E.revision('1'), E.lastModifiedBy('calibre'))
         ts = utcnow().isoformat('T').rpartition('.')[0] + 'Z'
         for x in 'created modified'.split():
-            x = cp.makeelement('{{{}}}{}'.format(namespaces['dcterms'], x), **{'{{{}}}type'.format(namespaces['xsi']):'dcterms:W3CDTF'})
+            x = cp.makeelement('{{{}}}{}'.format(namespaces['dcterms'], x), attrib={'{{{}}}type'.format(namespaces['xsi']):'dcterms:W3CDTF'})
             x.text = ts
             cp.append(x)
         self.mi = mi

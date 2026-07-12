@@ -14,7 +14,6 @@ from calibre import guess_type as guess_mimetype
 from calibre.constants import filesystem_encoding, iswindows
 from calibre.ebooks.BeautifulSoup import BeautifulSoup, NavigableString
 from calibre.ebooks.chardet import xml_to_unicode
-from calibre.ebooks.metadata.toc import TOC
 from calibre.utils.filenames import make_long_path_useable
 from polyglot.builtins import as_unicode
 
@@ -73,6 +72,7 @@ class CHMReader(CHMFile):
 
         # location of '.hhc' file, which is the CHM TOC.
         base = self.topics or self.home
+        assert isinstance(base, str)
         self.root = os.path.splitext(base.lstrip('/'))[0]
         self.hhc_path = self.root + '.hhc'
 
@@ -131,26 +131,6 @@ class CHMReader(CHMFile):
 
     def get_encoding(self):
         return self.encoding_from_system_file or self.encoding_from_lcid or 'cp1252'
-
-    def _parse_toc(self, ul, basedir=os.getcwd()):
-        toc = TOC(play_order=self._playorder, base_path=basedir, text='')
-        self._playorder += 1
-        for li in ul('li', recursive=False):
-            href = li.object('param', {'name': 'Local'})[0]['value']
-            if href.count('#'):
-                href, frag = href.split('#')
-            else:
-                frag = None
-            name = self._deentity(li.object('param', {'name': 'Name'})[0]['value'])
-            # print('========>', name)
-            toc.add_item(href, frag, name, play_order=self._playorder)
-            self._playorder += 1
-            if li.ul:
-                child = self._parse_toc(li.ul)
-                child.parent = toc
-                toc.append(child)
-        # print(toc)
-        return toc
 
     def ResolveObject(self, document):
         # filenames are utf-8 encoded in the chm index as far as I can

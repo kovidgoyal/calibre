@@ -279,7 +279,7 @@ class StatsCollector:
                         self.font_usage_map[spine_name], self.font_spec_map[spine_name])
 
     def collect_font_stats(self, container, do_embed=False):
-        self.font_stats = {}
+        self.font_stats: dict = {}
         self.font_usage_map = {}
         self.font_spec_map = {}
         self.font_rule_map = {}

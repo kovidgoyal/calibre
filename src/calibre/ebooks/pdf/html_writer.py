@@ -38,7 +38,7 @@ from calibre.utils.fonts.sfnt.errors import NoGlyphs
 from calibre.utils.fonts.sfnt.merge import merge_truetype_fonts_for_pdf
 from calibre.utils.fonts.sfnt.subset import pdf_subset
 from calibre.utils.localization import _
-from calibre.utils.logging import default_log
+from calibre.utils.logging import Log, default_log
 from calibre.utils.monotonic import monotonic
 from calibre.utils.podofo import add_image_page, dedup_type3_fonts, get_podofo, remove_unused_fonts, set_metadata_implementation
 from calibre.utils.resources import get_path as P
@@ -60,11 +60,14 @@ def data_as_pdf_doc(data):
     return ans
 
 
-def preprint_js():
-    ans = getattr(preprint_js, 'ans', None)
-    if ans is None:
-        ans = preprint_js.ans = P('pdf-preprint.js', data=True).decode('utf-8').replace('HYPHEN_CHAR', 'true' if ismacos else 'false', 1)
-    return ans
+_preprint_js_cache: str | None = None
+
+
+def preprint_js() -> str:
+    global _preprint_js_cache
+    if _preprint_js_cache is None:
+        _preprint_js_cache = P('pdf-preprint.js', data=True).decode('utf-8').replace('HYPHEN_CHAR', 'true' if ismacos else 'false', 1)
+    return _preprint_js_cache
 
 
 def last_tag(root):
@@ -336,6 +339,7 @@ class Renderer(QWebEnginePage):
 
 
 class RequestInterceptor(QWebEngineUrlRequestInterceptor):
+    log: Log
 
     def interceptRequest(self, info):
         method = bytes(info.requestMethod())
@@ -569,45 +573,56 @@ def add_all_links(container, margin_files):
     return uuid
 
 
-def make_anchors_unique(container, log):
-    mapping = {}
-    count = 0
-    base = None
-    spine_names = set()
+class _AnchorReplacer:
+    file_type: str
+    replaced: bool
 
-    def replacer(url):
-        if replacer.file_type not in ('text', 'ncx'):
+    def __init__(self, container: ContainerBase, mapping: dict[tuple[str, str], str], spine_names: set[str], log: Log) -> None:
+        self.container = container
+        self.mapping = mapping
+        self.spine_names = spine_names
+        self.log = log
+        self.file_type = ''
+        self.replaced = False
+        self.base = ''
+
+    def __call__(self, url: str) -> str:
+        if self.file_type not in ('text', 'ncx'):
             return url
         if not url:
             return url
         if '#' not in url:
             url += '#'
         if url.startswith('#'):
-            href, frag = base, url[1:]
-            name = base
+            href, frag = self.base, url[1:]
+            name: str | None = self.base
         else:
             href, frag = url.partition('#')[::2]
-            name = container.href_to_name(href, base)
+            name = self.container.href_to_name(href, self.base)
         if not name:
             return url.rstrip('#')
-        if not frag and name in spine_names:
-            replacer.replaced = True
+        if not frag and name in self.spine_names:
+            self.replaced = True
             return 'https://calibre-pdf-anchor.n#' + name
         key = name, frag
-        new_frag = mapping.get(key)
+        new_frag = self.mapping.get(key)
         if new_frag is None:
-            if name in spine_names:
-                log.warn(f'Link anchor: {name}#{frag} not found, linking to top of file instead')
-                replacer.replaced = True
+            if name in self.spine_names:
+                self.log.warn(f'Link anchor: {name}#{frag} not found, linking to top of file instead')
+                self.replaced = True
                 return 'https://calibre-pdf-anchor.n#' + name
             return url.rstrip('#')
-        replacer.replaced = True
+        self.replaced = True
         return 'https://calibre-pdf-anchor.a#' + new_frag
-        if url.startswith('#'):
-            return '#' + new_frag
-        return href + '#' + new_frag
 
-    name_anchor_map = {}
+
+def make_anchors_unique(container: ContainerBase, log: Log) -> dict[str, str | None]:
+    mapping: dict[tuple[str, str], str] = {}
+    count = 0
+    spine_names: set[str] = set()
+    replacer = _AnchorReplacer(container, mapping, spine_names, log)
+
+    name_anchor_map: dict[str, str | None] = {}
     for spine_name, is_linear in container.spine_names:
         spine_names.add(spine_name)
         root = container.parsed(spine_name)
@@ -624,7 +639,7 @@ def make_anchors_unique(container, log):
         name_anchor_map[spine_name] = body.get('id')
 
     for name in container.mime_map:
-        base = name
+        replacer.base = name
         replacer.replaced = False
         container.replace_links(name, replacer)
     return name_anchor_map

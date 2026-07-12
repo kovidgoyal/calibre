@@ -56,7 +56,7 @@ def read_ncx(sections, index, codec):
 
         for num, x in enumerate(table.items()):
             text, tag_map = x
-            entry = default_entry.copy()
+            entry: dict = default_entry.copy()
             entry['name'] = text
             entry['num'] = num
 

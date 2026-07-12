@@ -324,7 +324,7 @@ def main(args=sys.argv, logger=None):
     opts.output = os.path.abspath(opts.output)
     if opts.verbose:
         import warnings
-        warnings.defaultaction = 'error'
+        setattr(warnings, 'defaultaction', 'error')
 
     logger.info('Parsing LRS file...')
     converter = LrsParser(open(args[1], 'rb'), logger)

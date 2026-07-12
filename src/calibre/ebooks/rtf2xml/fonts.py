@@ -53,7 +53,7 @@ class Fonts:
         '''
         Initiate all values.
         '''
-        self.__special_font_dict = {
+        self.__special_font_dict: dict = {
         'Symbol'        : 0,
         'Wingdings'     : 0,
         'Zapf Dingbats' : 0,
@@ -213,7 +213,8 @@ class Fonts:
                     action = self.__state_dict.get(self.__state)
                     if action is None:
                         sys.stderr.write('no matching state in module fonts.py\n' + self.__state + '\n')
-                    action(line)
+                    else:
+                        action(line)
         default_font_name = self.__font_table.get(self.__default_font_num)
         if not default_font_name:
             default_font_name = 'Not Defined'

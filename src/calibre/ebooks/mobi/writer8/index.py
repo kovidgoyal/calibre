@@ -97,6 +97,7 @@ class Index:  # {{{
     control_byte_count = 1
     cncx = CNCX()
     tag_types = (EndTagTable,)
+    entries: list
 
     HEADER_LENGTH = IndexHeader.HEADER_LENGTH
 

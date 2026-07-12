@@ -83,7 +83,7 @@ def build_exth(metadata, prefer_author_sort=False, is_periodical=False,
             if term == 'identifier':
                 if data.lower().startswith('urn:isbn:'):
                     data = data[9:]
-                elif item.scheme.lower() == 'isbn':
+                elif getattr(item, 'scheme', '').lower() == 'isbn':
                     pass
                 else:
                     continue

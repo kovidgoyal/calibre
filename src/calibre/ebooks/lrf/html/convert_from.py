@@ -8,6 +8,7 @@ import re
 import sys
 import tempfile
 from collections import deque
+from collections.abc import Callable
 from itertools import chain
 from math import ceil, floor
 from urllib.parse import urlparse
@@ -183,7 +184,7 @@ class HTMLConverter:
     def __hasattr__(self, attr):
         if hasattr(self.options, attr):
             return True
-        return object.__hasattr__(self, attr)
+        raise AttributeError(attr)
 
     def __getattr__(self, attr):
         if hasattr(self.options, attr):
@@ -348,7 +349,7 @@ class HTMLConverter:
         if self.book_designer:
             nmassage.extend(HTMLConverter.BOOK_DESIGNER)
         if isinstance(raw, bytes):
-            raw = xml_to_unicode(raw, replace_entities=True)[0]
+            raw = xml_to_unicode(raw, resolve_entities=True)[0]
         for pat, repl in nmassage:
             raw = pat.sub(repl, raw)
         soup = BeautifulSoup(raw)
@@ -825,8 +826,7 @@ class HTMLConverter:
             for x, y in [('\xad', ''), ('\xa0', ' '), ('ﬀ', 'ff'), ('ﬁ', 'fi'), ('ﬂ', 'fl'), ('ﬃ', 'ffi'), ('ﬄ', 'ffl')]:
                 src = src.replace(x, y)
 
-            def valigner(x):
-                return x
+            valigner: Callable[..., object] = lambda x: x  # noqa: E731
             if 'vertical-align' in css:
                 valign = css['vertical-align']
                 if valign in ('sup', 'super', 'sub'):
@@ -929,8 +929,8 @@ class HTMLConverter:
 
     def process_image(self, path, tag_css, width=None, height=None,
                       dropcaps=False, rescale=False):
-        def detect_encoding(im):
-            fmt = im.format
+        def detect_encoding(im) -> str:
+            fmt = im.format or 'JPEG'
             if fmt == 'JPG':
                 fmt = 'JPEG'
             return fmt
@@ -955,7 +955,7 @@ class HTMLConverter:
             pt = PersistentTemporaryFile(suffix='_html2lrf_scaled_image_.'+encoding.lower())
             self.image_memory.append(pt)  # Necessary, trust me ;-)
             try:
-                im.resize((int(width), int(height)), PILImage.Resampling.LANCZOS).save(pt, encoding)
+                im.resize((int(width), int(height)), PILImage.Resampling.LANCZOS).save(pt.name, encoding)
                 pt.close()
                 self.scaled_images[path] = pt
                 return pt.name
@@ -989,14 +989,14 @@ class HTMLConverter:
                 path = scale_image(width, height)
             if path not in self.images:
                 self.images[path] = ImageStream(path)
-            im = Image(self.images[path], x0=0, y0=0, x1=width, y1=height,
+            lrf_im = Image(self.images[path], x0=0, y0=0, x1=width, y1=height,
                                xsize=width, ysize=height)
             line_height = (int(self.current_block.textStyle.attrs['baselineskip']) +
                             int(self.current_block.textStyle.attrs['linespace']))//10
             line_height *= self.profile.dpi/72
             lines = ceil(height/line_height)
             dc = DropCaps(lines)
-            dc.append(Plot(im, xsize=ceil(width*factor), ysize=ceil(height*factor)))
+            dc.append(Plot(lrf_im, xsize=ceil(width*factor), ysize=ceil(height*factor)))
             self.current_para.append(dc)
             return
 
@@ -1004,7 +1004,7 @@ class HTMLConverter:
             pt = PersistentTemporaryFile(suffix='_html2lrf_rotated_image_.'+encoding.lower())
             try:
                 im = im.rotate(90)
-                im.save(pt, encoding)
+                im.save(pt.name, encoding)
                 path = pt.name
                 self.rotated_images[path] = pt
                 width, height = im.size
@@ -1027,19 +1027,19 @@ class HTMLConverter:
                 self.log.warning(f'Could not process image: {original_path}\n{err}')
                 return
 
-        im = Image(self.images[path], x0=0, y0=0, x1=width, y1=height,
+        lrf_im = Image(self.images[path], x0=0, y0=0, x1=width, y1=height,
                                xsize=width, ysize=height)
 
         self.process_alignment(tag_css)
 
         if max(width, height) <= min(pwidth, pheight)/5:
-            self.current_para.append(Plot(im, xsize=ceil(width*factor),
+            self.current_para.append(Plot(lrf_im, xsize=ceil(width*factor),
                                           ysize=ceil(height*factor)))
         elif height <= floor((2/3)*pheight):
             pb = self.current_block
             self.end_current_para()
             self.process_alignment(tag_css)
-            self.current_para.append(Plot(im, xsize=width*factor,
+            self.current_para.append(Plot(lrf_im, xsize=width*factor,
                                           ysize=height*factor))
             self.current_block.append(self.current_para)
             current_page = self.current_page
@@ -1828,7 +1828,7 @@ def process_file(path, options, logger):
 
             scaled, width, height = fit_image(width, height, pwidth, pheight)
             try:
-                cim = im.resize((width, height), PILImage.BICUBIC).convert('RGB') if \
+                cim = im.resize((width, height), PILImage.Resampling.BICUBIC).convert('RGB') if \
                       scaled else im
                 cf = PersistentTemporaryFile(prefix=__appname__+'_', suffix='.jpg')
                 cf.close()
@@ -1969,8 +1969,9 @@ def try_opf(path, options, logger):
                         pass
             if not getattr(options, 'cover', None) and orig_cover is not None:
                 options.cover = orig_cover
-        if getattr(opf, 'spine', False):
-            options.spine = [i.path for i in opf.spine if i.path]
+        spine = getattr(opf, 'spine', None)
+        if spine:
+            options.spine = [i.path for i in spine if i.path]
         if not getattr(options, 'toc', None):
             options.toc   = opf.toc
     except Exception:

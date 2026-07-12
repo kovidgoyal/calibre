@@ -262,6 +262,7 @@ class HeuristicProcessor:
         def recurse_patterns(html, analyze):
             # Start with most typical chapter headings, get more aggressive until one works
             for [chapter_type, n_lookahead_req, strict_title, ignorecase, title_req, log_message, type_name] in chapter_types:
+                assert isinstance(chapter_type, str) and isinstance(log_message, str)
                 n_lookahead = ''
                 hits = 0
                 self.chapters_no_title = 0
@@ -681,7 +682,7 @@ class HeuristicProcessor:
                             text_indent = indented_text
                         else:
                             text_indent = style+':'+str(setting)+'pt;'
-                    if style == 'padding':
+                    if style == 'padding' and isinstance(setting, str):
                         setting = setting.replace('pt', '').split(' ')
                         if int(setting[1]) < 16 and int(setting[3]) < 16:
                             if self.in_blockquote:

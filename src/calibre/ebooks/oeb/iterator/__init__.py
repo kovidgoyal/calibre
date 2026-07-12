@@ -42,7 +42,7 @@ def get_preprocess_html(path_to_ebook, output=None):
         pl.run()
         items = [raw[item.href] for item in pl.oeb.spine if item.href in raw]
 
-    with (sys.stdout if output is None else open(output, 'wb')) as out:
+    with (sys.stdout.buffer if output is None else open(output, 'wb')) as out:
         for html in items:
             out.write(html.encode('utf-8'))
             out.write(b'\n\n' + b'-'*80 + b'\n\n')

@@ -21,7 +21,25 @@ from calibre.utils.localization import _
 class LRFDocument(LRFMetaFile):
 
     class temp:
-        pass
+        title: str
+        title_reading: str
+        author: str
+        author_reading: str
+        book_id: str
+        classification: str
+        free_text: str
+        publisher: str
+        label: str
+        category: str
+        thumbnail: bytes | None
+        language: str
+        creator: str
+        producer: str
+        page: str
+        thumbnail_extension: str
+        dpi: int
+        width: int
+        height: int
 
     def __init__(self, stream):
         LRFMetaFile.__init__(self, stream)
@@ -74,7 +92,7 @@ class LRFDocument(LRFMetaFile):
             self.ruby_tags = {}
             for h in ruby_tags.values():
                 attr = h[0]
-                if hasattr(obj, attr):
+                if isinstance(attr, str) and hasattr(obj, attr):
                     self.ruby_tags[attr] = getattr(obj, attr)
 
     def __iter__(self):

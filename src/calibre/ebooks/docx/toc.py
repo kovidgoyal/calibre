@@ -38,6 +38,7 @@ def from_headings(body, log, namespace, num_levels=3):
         if lvl is None:
             continue
         parent = None
+        assert isinstance(plvl, int)
         while parent is None:
             plvl -= 1
             parent = level_prev[plvl]

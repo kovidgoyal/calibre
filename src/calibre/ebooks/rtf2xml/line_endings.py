@@ -36,6 +36,7 @@ class FixLineEndings:
 
     def fix_endings(self):
         # read
+        assert self.__file is not None
         with open(self.__file, 'rb') as read_obj:
             input_file = read_obj.read()
         # calibre go from win and mac to unix

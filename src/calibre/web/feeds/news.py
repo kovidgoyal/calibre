@@ -90,18 +90,18 @@ class BasicNewsRecipe(Recipe):
     #: Maximum number of articles to download from each feed. This is primarily
     #: useful for feeds that don't have article dates. For most feeds, you should
     #: use :attr:`BasicNewsRecipe.oldest_article`
-    max_articles_per_feed  = 100
+    max_articles_per_feed: int  = 100
 
     #: Oldest article to download from this news source. In days.
-    oldest_article         = 7.0
+    oldest_article: float | int  = 7.0
 
     #: Number of levels of links to follow on article webpages
-    recursions             = 0
+    recursions: int             = 0
 
     #: The default delay between consecutive downloads in seconds. The argument may be a
     #: floating point number to indicate a more precise time. See :meth:`get_url_specific_delay`
     #: to implement per URL delays.
-    delay                  = 0
+    delay: float | int                  = 0
 
     #: Publication type
     #: Set to newspaper, magazine or blog. If set to None, no publication type
@@ -110,7 +110,7 @@ class BasicNewsRecipe(Recipe):
 
     #: Number of simultaneous downloads. Set to 1 if the server is picky.
     #: Automatically reduced to 1 if :attr:`BasicNewsRecipe.delay` > 0
-    simultaneous_downloads = 5
+    simultaneous_downloads: int = 5
 
     #: Timeout for fetching files from server in seconds
     timeout                = 120.0

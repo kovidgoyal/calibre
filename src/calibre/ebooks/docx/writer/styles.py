@@ -172,7 +172,7 @@ class DOCXStyle:
         return not self == other
 
     def __repr__(self):
-        return etree.tostring(self.serialize(etree.Element(self.__class__.__name__, nsmap={'w':self.namespace.namespaces['w']})), pretty_print=True)
+        return etree.tostring(self.serialize(etree.Element(self.__class__.__name__, nsmap={'w':self.namespace.namespaces['w']}), self), pretty_print=True)
     __str__ = __repr__
 
     def serialize(self, styles, normal_style):

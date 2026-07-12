@@ -13,6 +13,7 @@ import re
 import sys
 import uuid
 from collections import defaultdict
+from typing import cast
 from urllib.parse import urldefrag, urlparse
 
 from lxml import etree
@@ -150,7 +151,7 @@ class OEBReader:
                 opf = safe_xml_fromstring(data)
                 self.logger.warn('OPF contains invalid tours section')
 
-        ns = namespace(opf.tag)
+        ns = namespace(cast(str, opf.tag))
         if ns not in ('', OPF1_NS, OPF2_NS):
             raise OEBError(f'Invalid namespace {ns!r} for OPF document')
         opf = self._clean_opf(opf)

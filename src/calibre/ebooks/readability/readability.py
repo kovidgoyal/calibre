@@ -220,7 +220,7 @@ class Document:
         return float(link_length) / max(total_length, 1)
 
     def score_paragraphs(self, ):
-        MIN_LEN = self.options.get('min_text_length', self.TEXT_LENGTH_THRESHOLD)
+        MIN_LEN = self.options.get('min_text_length') or self.TEXT_LENGTH_THRESHOLD
         candidates = {}
         # self.debug(str([describe(node) for node in self.tags(self.html, "div")]))
 
@@ -353,7 +353,7 @@ class Document:
             yield from reversed(node.findall(f'.//{tag_name}'))
 
     def sanitize(self, node, candidates):
-        MIN_LEN = self.options.get('min_text_length', self.TEXT_LENGTH_THRESHOLD)
+        MIN_LEN = self.options.get('min_text_length') or self.TEXT_LENGTH_THRESHOLD
         for header in self.tags(node, 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'):
             if self.class_weight(header) < 0 or self.get_link_density(header) > 0.33:
                 header.drop_tree()

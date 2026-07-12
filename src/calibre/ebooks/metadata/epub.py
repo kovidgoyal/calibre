@@ -11,6 +11,7 @@ import io
 import os
 import posixpath
 from contextlib import closing, contextmanager, suppress
+from typing import IO
 
 from calibre import CurrentDir
 from calibre.ebooks.metadata.opf import get_metadata as get_metadata_from_opf
@@ -91,6 +92,10 @@ class Encryption:
 
 
 class OCFReader(OCF):
+    root: str
+
+    def open(self, name: str) -> IO[bytes]:
+        raise NotImplementedError()
 
     def __init__(self):
         try:
@@ -150,10 +155,11 @@ class OCFZipReader(OCFReader):
                 self.archive = ZipFile(stream, mode=mode)
             except BadZipfile:
                 raise EPubException('not a ZIP .epub OCF container')
-        self.root = root
-        if self.root is None:
-            name = getattr(stream, 'name', False)
-            if name:
+        if root is not None:
+            self.root = root
+        else:
+            name = getattr(stream, 'name', None)
+            if isinstance(name, str) and name:
                 self.root = os.path.abspath(os.path.dirname(name))
             else:
                 self.root = os.getcwd()
@@ -190,8 +196,8 @@ class OCFDirReader(OCFReader):
         self.root = path
         super().__init__()
 
-    def open(self, path):
-        return open(os.path.join(self.root, path), 'rb')
+    def open(self, name: str) -> IO[bytes]:
+        return open(os.path.join(self.root, name), 'rb')
 
     def read_bytes(self, name):
         with self.open(name) as f:

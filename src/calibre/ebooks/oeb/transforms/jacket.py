@@ -17,7 +17,7 @@ from calibre.constants import iswindows
 from calibre.ebooks.chardet import strip_encoding_declarations
 from calibre.ebooks.metadata import fmt_sidx, rating_to_stars
 from calibre.ebooks.metadata.sources.identify import urls_from_identifiers
-from calibre.ebooks.oeb.base import XHTML, XHTML_NS, XPath, urldefrag, urlnormalize, xml2text
+from calibre.ebooks.oeb.base import XHTML, XHTML_NS, OEBBook, XPath, urldefrag, urlnormalize, xml2text
 from calibre.library.comments import comments_to_html, markdown
 from calibre.utils.config import tweaks
 from calibre.utils.date import as_local_time, format_date, is_date_undefined
@@ -38,6 +38,7 @@ class SafeFormatter(Formatter):
 
 
 class Base:
+    oeb: OEBBook
 
     def remove_images(self, item, limit=1):
         path = XPath('//h:img[@src]')
@@ -218,6 +219,8 @@ class Timestamp:
 
 
 class Tags(str):
+    tags_list: list[str]
+    alphabetical: str
 
     def __new__(cls, tags, output_profile):
         tags = [escape(x) for x in tags or ()]
@@ -273,7 +276,7 @@ class Identifiers:
             name, id_typ, id_val, url = (prepare_string_for_xml(e, True) for e in x)
             links.append(f'<a href="{url}" title="{id_typ}:{id_val}">{name}</a>')
         self.links = ', '.join(links)
-        self.display.links = 'initial' if self.links else 'none'
+        setattr(self.display, 'links', 'initial' if self.links else 'none')
 
     def __getattr__(self, name):
         return self.identifiers.get(name, '')
@@ -407,9 +410,9 @@ def render_jacket(mi, output_profile,
         has_data['publisher'] = bool(publisher)
         for k, v in has_data.items():
             setattr(display, k, 'initial' if v else 'none')
-        display.title = 'initial'
+        setattr(display, 'title', 'initial')
         if mi.identifiers:
-            display.identifiers = 'initial'
+            setattr(display, 'identifiers', 'initial')
 
         formatter = SafeFormatter()
         generated_html = formatter.format(template, **args)

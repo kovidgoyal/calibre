@@ -235,7 +235,11 @@ class Container(ContainerBase):  # {{{
 
     def __init__(self, rootpath=None, opfpath=None, log=default_log, clone_data=None):
         super().__init__(log=log)
-        self.root = clone_data['root'] if clone_data is not None else os.path.abspath(rootpath)
+        if clone_data is not None:
+            self.root = clone_data['root']
+        else:
+            assert rootpath is not None
+            self.root = os.path.abspath(rootpath)
 
         self.name_path_map = {}
         self.dirtied = set()
@@ -252,6 +256,7 @@ class Container(ContainerBase):  # {{{
 
         # Map of relative paths with '/' separators from root of unzipped ePub
         # to absolute paths on filesystem with os-specific separators
+        assert opfpath is not None
         opfpath = os.path.abspath(os.path.realpath(opfpath))
         all_opf_files = []
         for dirpath, _dirnames, filenames in os.walk(self.root):
@@ -1168,6 +1173,7 @@ class EpubContainer(Container):
                 setattr(self, x, clone_data[x])
             return
 
+        assert pathtoepub is not None
         self.pathtoepub = pathtoepub
         if tdir is None:
             tdir = PersistentTemporaryDirectory('_epub_container')
@@ -1388,6 +1394,7 @@ class EpubContainer(Container):
                 f.write(decrypt_font_data(key, data, alg))
         if outpath is None:
             outpath = self.pathtoepub
+        assert outpath is not None
         self.commit_epub(outpath)
         for name, data in restore_fonts.items():
             with self.open(name, 'wb') as f:
@@ -1395,6 +1402,7 @@ class EpubContainer(Container):
 
     def commit_epub(self, outpath: str) -> None:
         if self.is_dir:
+            assert self.pathtoepub is not None
             # First remove items from the source dir that do not exist any more
             for is_root, dirpath, fname in walk_dir(self.pathtoepub):
                 if fname is not None:
@@ -1548,6 +1556,7 @@ class AZW3Container(Container):
                 setattr(self, x, clone_data[x])
             return
 
+        assert pathtoazw3 is not None
         self.pathtoazw3 = pathtoazw3
         if tdir is None:
             tdir = PersistentTemporaryDirectory('_azw3_container')
@@ -1637,6 +1646,7 @@ def get_container(path, log=None, tdir=None, tweak_mode=False, ebook_cls=None) -
         ebook.tweak_mode = tweak_mode
     except BaseException:
         if own_tdir:
+            assert tdir is not None
             shutil.rmtree(tdir, ignore_errors=True)
         raise
     return ebook

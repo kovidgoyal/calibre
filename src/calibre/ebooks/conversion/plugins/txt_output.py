@@ -155,8 +155,9 @@ class TXTZOutput(TXTOutput):
                 if item.media_type in OEB_IMAGES:
                     if hasattr(self.writer, 'images'):
                         path = os.path.join(tdir, 'images')
-                        if item.href in self.writer.images:
-                            href = self.writer.images[item.href]
+                        writer_images = getattr(self.writer, 'images')
+                        if item.href in writer_images:
+                            href = writer_images[item.href]
                         else:
                             continue
                     else:

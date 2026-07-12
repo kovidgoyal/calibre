@@ -121,6 +121,7 @@ def parse_text_formatting(text):
             elif tag in {'b', 'strong', 'i', 'em'}:
                 open_ranges.append([tag, offset, -1])
         else:
+            assert isinstance(tok, str)
             offset += len(tok.replace('&amp;', '&'))
             text.append(tok)
     text = ''.join(text)
@@ -146,7 +147,7 @@ def parse_text_formatting(text):
 class Block:
 
     def __init__(self, text='', width=0, font=None, img=None, max_height=100, align=Qt.AlignmentFlag.AlignCenter):
-        self.layouts = []
+        self.layouts: list[int | QTextLayout] = []
         self._position = Point(0, 0)
         self.leading = self.line_spacing = 0
         if font is not None:
@@ -155,6 +156,7 @@ class Block:
             self.line_spacing = fm.lineSpacing()
         for text in text.split('<br>') if text else ():
             text, formats = parse_text_formatting(sanitize(text))
+            assert isinstance(font, QFont)
             l = QTextLayout(unescape_formatting(text), font, img)
             l.setFormats(formats)
             to = QTextOption(align)
@@ -183,7 +185,7 @@ class Block:
 
     @property
     def height(self):
-        return ceil(sum(l if isinstance(l, numbers.Number) else l.boundingRect().height() for l in self.layouts))
+        return ceil(sum(l if not isinstance(l, QTextLayout) else l.boundingRect().height() for l in self.layouts))
 
     @property
     def position(self):
@@ -194,18 +196,21 @@ class Block:
         x, y = new_pos
         self._position = Point(x, y)
         if self.layouts:
+            assert isinstance(self.layouts[0], QTextLayout)
             self.layouts[0].setPosition(QPointF(x, y))
             y += self.layouts[0].boundingRect().height()
             for l in self.layouts[1:]:
                 if isinstance(l, numbers.Number):
                     y += l
                 else:
+                    assert isinstance(l, QTextLayout)
                     l.setPosition(QPointF(x, y))
                     y += l.boundingRect().height()
 
     def draw(self, painter):
         for l in self.layouts:
             if hasattr(l, 'draw'):
+                assert isinstance(l, QTextLayout)
                 # Etch effect for the text
                 painter.save()
                 painter.setRenderHints(QPainter.RenderHint.TextAntialiasing | QPainter.RenderHint.Antialiasing)

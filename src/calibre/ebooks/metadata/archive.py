@@ -242,7 +242,7 @@ def get_comic_images(path, tdir, first=1, last=0):  # first and last use 1 based
         fmt = archive_type(f)
         if fmt not in ('zip', 'rar'):
             return 0
-    items = {}
+    items: dict = {}
     if fmt == 'rar':
         from calibre.utils.unrar import headers
         for h in headers(path):

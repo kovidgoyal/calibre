@@ -107,7 +107,7 @@ class Level:
                 self.is_numbered = False
                 cs = self.character_style
                 if lt in {'\uf0a7', 'o'} or (
-                    cs is not None and cs.font_family is not inherit and cs.font_family.lower() in {'wingdings', 'symbol'}):
+                    cs is not None and cs.font_family is not inherit and isinstance(cs.font_family, str) and cs.font_family.lower() in {'wingdings', 'symbol'}):
                     self.fmt = {'\uf0a7':'square', 'o':'circle'}.get(lt, 'disc')
                 else:
                     self.bullet_template = lt

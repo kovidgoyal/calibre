@@ -141,7 +141,7 @@ class mssha1:
         'Initialize the message-digest and set all fields to zero.'
 
         self.length = 0
-        self.input = []
+        self.input = bytearray()
 
         # Initial 160 bit message digest (5 times 32 bit).
         # Also changed by Microsoft from standard.

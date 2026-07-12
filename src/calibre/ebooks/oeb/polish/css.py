@@ -296,7 +296,7 @@ def remove_unused_css(
     return num_changes > 0
 
 
-def filter_declaration(style, properties=()):
+def filter_declaration(style, properties=frozenset()):
     changed = False
     for prop in properties:
         if style.removeProperty(prop) != '':
@@ -366,7 +366,7 @@ def transform_css(container, transform_sheet=None, transform_style=None, names=(
         mt = container.mime_map[name]
         if mt in OEB_STYLES:
             sheet = container.parsed(name)
-            if transform_sheet(sheet):
+            if transform_sheet is not None and transform_sheet(sheet):
                 container.dirty(name)
                 doc_changed = True
         elif mt in OEB_DOCS:

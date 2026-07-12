@@ -63,7 +63,7 @@ class Writer(FormatWriter):
         txt_length = len(txt)
 
         txt_records = []
-        for i in range((len(txt) / MAX_RECORD_SIZE) + 1):
+        for i in range((len(txt) // MAX_RECORD_SIZE) + 1):
             txt_records.append(txt[i * MAX_RECORD_SIZE : (i * MAX_RECORD_SIZE) + MAX_RECORD_SIZE])
 
         return txt_records, txt_length

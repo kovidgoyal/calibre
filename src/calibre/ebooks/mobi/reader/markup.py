@@ -80,6 +80,7 @@ def remove_kindlegen_markup(parts, aid_anchor_suffix, linked_aids):
                         aid = None
                     replacement = ''
                     if aid in linked_aids:
+                        assert isinstance(aid, str)
                         replacement = f' id="{aid + "-" + aid_anchor_suffix}"'
                     tag = within_tag_aid_position_pattern.sub(replacement, tag, 1)
                 srcpieces[j] = tag

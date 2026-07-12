@@ -51,7 +51,7 @@ class KF8Writer:
         self.toc_adder = TOCAdder(oeb, opts)
         self.used_images = set()
         self.resources = resources
-        self.flows = [None]  # First flow item is reserved for the text
+        self.flows: list[str | bytes] = [b'']  # First flow item is reserved for the text
         self.records = [None]  # Placeholder for zeroth record
 
         self.log('\tGenerating KF8 markup...')
@@ -325,15 +325,19 @@ class KF8Writer:
             placeholder_map[placeholder] = aid
         chunker = Chunker(self.oeb, self.data, placeholder_map)
 
-        for x in ('skel_table', 'chunk_table', 'aid_offset_map'):
-            setattr(self, x, getattr(chunker, x))
+        self.skel_table = chunker.skel_table
+        self.chunk_table = chunker.chunk_table
+        self.aid_offset_map = chunker.aid_offset_map
 
         self.flows[0] = chunker.text
 
     def create_text_records(self):
-        self.flows = [x.encode('utf-8') if isinstance(x, str) else x for x
-                in self.flows]
-        text = b''.join(self.flows)
+        encoded_flows: list[bytes] = [
+            x.encode('utf-8') if isinstance(x, str) else x for x in self.flows
+        ]
+        self.flows.clear()
+        self.flows.extend(encoded_flows)
+        text = b''.join(encoded_flows)
         self.text_length = len(text)
         text = BytesIO(text)
         nrecords = 0
@@ -364,7 +368,7 @@ class KF8Writer:
             self.first_non_text_record_idx += 1
 
     def create_fdst_records(self):
-        FDST = namedtuple('Flow', 'start end')
+        FDST = namedtuple('FDST', 'start end')
         entries = []
         self.fdst_table = []
         for i, flow in enumerate(self.flows):
@@ -446,8 +450,9 @@ class KF8Writer:
 
         # Write the hierarchical information
         for entry in entries:
-            children = entry.pop('children')
+            children = entry.pop('children', ())
             if children:
+                assert isinstance(children, (list, tuple))
                 entry['first_child'] = id_to_index[children[0]]
                 entry['last_child'] = id_to_index[children[-1]]
             if 'parent_id' in entry:

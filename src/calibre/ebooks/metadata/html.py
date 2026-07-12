@@ -65,10 +65,14 @@ rmap_meta = {v:k for k, l in META_NAMES.items() for v in l}
 attr_pat = r'''(?:(?P<sq>')|(?P<dq>"))(?P<content>(?(sq)[^']+|[^"]+))(?(sq)'|")'''
 
 
+_handle_comment_pat: re.Pattern[str] | None = None
+
+
 def handle_comment(data, comment_tags):
-    if not hasattr(handle_comment, 'pat'):
-        handle_comment.pat = re.compile(rf'''(?P<name>\S+)\s*=\s*{attr_pat}''')
-    for match in handle_comment.pat.finditer(data):
+    global _handle_comment_pat
+    if _handle_comment_pat is None:
+        _handle_comment_pat = re.compile(rf'''(?P<name>\S+)\s*=\s*{attr_pat}''')
+    for match in _handle_comment_pat.finditer(data):
         x = match.group('name')
         field = None
         try:

@@ -124,12 +124,6 @@ def download_one(tdir, timeout, progress_report, data_uri_map, url):
                     payload = from_base64_bytes(payload)
                 else:
                     payload = payload.encode('utf-8')
-                seen_before = data_uri_map.get(payload)
-                if seen_before is not None:
-                    return True, (url, filename, seen_before, guess_type(seen_before))
-                data_url_key = payload
-                src = BytesIO(payload)
-                sz = len(payload)
                 ext = 'unknown'
                 for x in parts:
                     if '=' not in x and '/' in x:
@@ -138,6 +132,12 @@ def download_one(tdir, timeout, progress_report, data_uri_map, url):
                             ext = exts[0]
                             break
                 filename = 'data-uri.' + ext
+                seen_before = data_uri_map.get(payload)
+                if seen_before is not None:
+                    return True, (url, filename, seen_before, guess_type(seen_before))
+                data_url_key = payload
+                src = BytesIO(payload)
+                sz = len(payload)
             else:
                 src = browser().open(url, timeout=timeout)
                 filename = get_filename(purl, src)
@@ -178,13 +178,15 @@ def download_external_resources(container, urls, timeout=60, progress_report=lam
     return replacements, failures
 
 
-def replacer(url_map):
-    def replace(url):
-        r = url_map.get(url)
-        replace.replaced |= r != url
+class replacer:
+    def __init__(self, url_map):
+        self.url_map = url_map
+        self.replaced = False
+
+    def __call__(self, url):
+        r = self.url_map.get(url)
+        self.replaced |= r != url
         return url if r is None else r
-    replace.replaced = False
-    return replace
 
 
 def replace_resources(container, urls, replacements):

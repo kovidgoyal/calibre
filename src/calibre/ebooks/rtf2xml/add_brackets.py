@@ -217,7 +217,8 @@ class AddBrackets:
                         sys.stderr.write(
                             'No matching state in module add_brackets.py\n'
                             f'{self.__state}\n')
-                    action(line)
+                    else:
+                        action(line)
         # Check bad brackets
         if self.__check_brackets(self.__write_to):
             copy_obj = copy.Copy(bug_handler=self.__bug_handler)

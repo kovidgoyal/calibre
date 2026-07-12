@@ -275,7 +275,7 @@ def add_pipeline_options(parser, plumber):
         if group:
             group = OptionGroup(parser, group, desc)
             parser.add_option_group(group)
-        add_option = group.add_option if group != '' else parser.add_option
+        add_option = group.add_option if not isinstance(group, str) else parser.add_option
 
         for name in options:
             rec = plumber.get_option_by_name(name)
@@ -430,7 +430,7 @@ def main(args=sys.argv):
                 'error':log.error}.get(e.level, log.info)
         ll(e.title)
         if e.det_msg:
-            log.debug(e.detmsg)
+            log.debug(e.det_msg)
         ll(e.msg)
         raise SystemExit(1)
 

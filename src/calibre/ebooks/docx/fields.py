@@ -40,7 +40,7 @@ class Field:
 
 
 WORD, FLAG = 0, 1
-scanner = re.Scanner([
+scanner = re.Scanner([  # type: ignore
     (r'\\\S{1}', lambda s, t: (t, FLAG)),  # A flag of the form \x
     (r'"[^"]*"', lambda s, t: (t[1:-1], WORD)),  # Quoted word
     (r'[^\s\\"]\S*', lambda s, t: (t, WORD)),  # A non-quoted word, must not start with a backslash or a space or a quote
@@ -103,6 +103,9 @@ class Fields:
         self.fields = []
         self.index_bookmark_counter = 0
         self.index_bookmark_prefix = 'index-'
+        self.hyperlink_fields: list = []
+        self.xe_fields: list = []
+        self.index_fields: list = []
 
     def __call__(self, doc, log):
         all_ids = frozenset(self.namespace.XPath('//*/@w:id')(doc))

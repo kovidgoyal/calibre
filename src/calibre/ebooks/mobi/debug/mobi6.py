@@ -10,9 +10,10 @@ import struct
 import sys
 from collections import OrderedDict, defaultdict
 
-from lxml import html
+from lxml import etree
 
 from calibre.ebooks.mobi.debug import format_bytes
+from calibre.ebooks.mobi.debug.headers import MOBIFile as HeadersMOBIFile
 from calibre.ebooks.mobi.debug.headers import TextRecord
 from calibre.ebooks.mobi.reader.headers import NULL_INDEX
 from calibre.ebooks.mobi.reader.index import parse_index_record, parse_tagx_section
@@ -416,8 +417,8 @@ class IndexRecord:  # {{{
         for entry in self.indices:
             offset = entry.offset
             a(str(entry))
-            t = self.alltext
             if offset is not None and self.alltext is not None:
+                t = self.alltext
                 a(f'\tHTML before offset: {t[offset-50:offset]!r}')
                 a(f'\tHTML after offset: {t[offset:offset+50]!r}')
                 p = offset+entry.size
@@ -537,22 +538,22 @@ class TBSIndexing:  # {{{
             start = pos
             pos += len(r.raw)
             end = pos - 1
-            self.record_indices[r] = x = {'starts':[], 'ends':[],
-                    'complete':[], 'geom': (start, end)}
+            starts: list[IndexEntry] = []
+            ends: list[IndexEntry] = []
+            complete: list[IndexEntry] = []
+            self.record_indices[r] = {'starts': starts, 'ends': ends,
+                    'complete': complete, 'geom': (start, end)}
             for entry in indices:
                 istart, sz = entry.offset, entry.size
                 iend = istart + sz - 1
                 has_start = istart >= start and istart <= end
                 has_end = iend >= start and iend <= end
-                rec = None
                 if has_start and has_end:
-                    rec = 'complete'
+                    complete.append(entry)
                 elif has_start and not has_end:
-                    rec = 'starts'
+                    starts.append(entry)
                 elif not has_start and has_end:
-                    rec = 'ends'
-                if rec:
-                    x[rec].append(entry)
+                    ends.append(entry)
 
     def get_index(self, idx):
         for i in self.indices:
@@ -707,10 +708,13 @@ class TBSIndexing:  # {{{
 
 class MOBIFile:  # {{{
 
-    def __init__(self, mf):
-        for x in ('raw', 'palmdb', 'record_headers', 'records', 'mobi_header',
-                'huffman_record_nums',):
-            setattr(self, x, getattr(mf, x))
+    def __init__(self, mf: HeadersMOBIFile):
+        self.raw = mf.raw
+        self.palmdb = mf.palmdb
+        self.record_headers = mf.record_headers
+        self.records = mf.records
+        self.mobi_header = mf.mobi_header
+        self.huffman_record_nums = mf.huffman_record_nums
 
         self.index_header = self.index_record = None
         self.indexing_record_nums = set()
@@ -795,11 +799,12 @@ def inspect_mobi(mobi_file, ddir):
 
     root = safe_html_fromstring(alltext.decode(f.mobi_header.encoding))
     with open(os.path.join(ddir, 'pretty.html'), 'wb') as of:
-        of.write(html.tostring(root, pretty_print=True, encoding='utf-8',
-            include_meta_content_type=True))
+        of.write(etree.tostring(root, pretty_print=True, encoding='utf-8',
+            method='html'))
 
     if f.index_header is not None:
-        f.index_record.alltext = alltext
+        if f.index_record is not None:
+            f.index_record.alltext = alltext
         with open(os.path.join(ddir, 'index.txt'), 'wb') as out:
             print = print_to_binary_file(out)
             print(str(f.index_header), file=out)

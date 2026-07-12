@@ -9,6 +9,7 @@ import io
 import random
 import time
 from struct import pack
+from typing import cast
 
 from calibre.ebooks import normalize
 from calibre.ebooks.compression.palmdoc import compress_doc
@@ -70,7 +71,7 @@ class MobiWriter:
     def dump_stream(self, oeb, stream):
         self.oeb = oeb
         self.stream = stream
-        self.records = [None]
+        self.records: list[bytes | None] = [None]
         self.generate_content()
         self.generate_joint_record0() if self.for_joint else self.generate_record0()
         self.write_header()
@@ -96,7 +97,7 @@ class MobiWriter:
             return
         try:
             self.indexer = Indexer(self.serializer, self.last_text_record_idx,
-                    len(self.records[self.last_text_record_idx]),
+                    len(cast(bytes, self.records[self.last_text_record_idx])),
                     self.masthead_offset, self.is_periodical,
                     self.opts, self.oeb)
         except Exception:
@@ -468,7 +469,7 @@ class MobiWriter:
         offset = self.tell() + (8 * nrecords) + 2
         for i, record in enumerate(self.records):
             self.write(pack(b'>I', offset), b'\0', pack(b'>I', 2*i)[1:])
-            offset += len(record)
+            offset += len(cast(bytes, record))
         self.write(b'\0\0')
     # }}}
 

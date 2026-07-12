@@ -105,9 +105,11 @@ class Serializer:
             except Exception:
                 prev_item = None
             if in_art and item.is_article_start is True:
+                assert prev_item is not None
                 prev_item.is_article_end = True
                 in_art = False
             if in_sec and item.is_section_start is True:
+                assert prev_item is not None
                 prev_item.is_section_end = True
                 in_sec = False
             if item.is_section_start:

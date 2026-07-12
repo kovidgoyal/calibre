@@ -38,9 +38,9 @@ def import_book_as_epub(srcpath, destpath, log=default_log):
         plumber = Plumber(srcpath, tdir, log)
         plumber.setup_options()
         if srcpath.lower().endswith('.opf'):
-            plumber.opts.dont_package = True
+            setattr(plumber.opts, 'dont_package', True)
         if hasattr(plumber.opts, 'no_process'):
-            plumber.opts.no_process = True
+            setattr(plumber.opts, 'no_process', True)
         plumber.input_plugin.for_viewer = True
         with plumber.input_plugin, open(plumber.input, 'rb') as inf:
             pathtoopf = plumber.input_plugin(inf, plumber.opts, plumber.input_fmt, log, {}, tdir)

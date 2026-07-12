@@ -101,6 +101,7 @@ class Chunk:
 
 
 class Skeleton:
+    start_pos: int
 
     def __init__(self, file_number, item, root, chunks):
         self.file_number, self.item = file_number, item

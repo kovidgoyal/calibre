@@ -200,7 +200,7 @@ class DeleteInfo:
                     if not action:
                         sys.stderr.write(f'No action in dictionary state is "{self.__state}" \n')
                     # Print if allowed by action
-                    if action(line):
+                    elif action(line):
                         self.__write_obj.write(line)
         copy_obj = copy.Copy(bug_handler=self.__bug_handler)
         if self.__copy:

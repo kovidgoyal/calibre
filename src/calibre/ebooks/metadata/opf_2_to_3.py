@@ -28,7 +28,8 @@ from calibre.ebooks.metadata.utils import parse_opf, pretty_print_opf
 
 
 class Data:
-    pass
+    prefixes: object
+    refines: object
 
 
 def upgrade_identifiers(root, data):

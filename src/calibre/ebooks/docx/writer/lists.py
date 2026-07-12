@@ -74,11 +74,13 @@ class NumberingDefinition:
         return hash(self.levels)
 
     def link_blocks(self):
+        assert self.num_id is not None
         for ilvl, items in self.level_map.items():
             for container, list_tag, block, list_type, tag_style in items:
                 block.numbering_id = (self.num_id + 1, ilvl)
 
     def serialize(self, parent):
+        assert self.num_id is not None
         makeelement = self.namespace.makeelement
         an = makeelement(parent, 'w:abstractNum', w_abstractNumId=str(self.num_id))
         makeelement(an, 'w:multiLevelType', w_val='hybridMultilevel')

@@ -124,12 +124,14 @@ class OldRtf:
                 if self.__state == 'after_body':
                     return False
                 action = self.__action_dict.get(self.__state)
+                result = None
                 if action is None:
                     try:
                         sys.stderr.write('No action for this state!\n')
                     except Exception:
                         pass
-                result = action(line)
+                else:
+                    result = action(line)
                 if result == 'new_rtf':
                     return False
                 elif result == 'old_rtf':

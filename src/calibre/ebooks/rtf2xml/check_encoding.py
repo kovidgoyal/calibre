@@ -6,7 +6,7 @@ import sys
 
 class CheckEncoding:
 
-    def __init__(self, bug_handler):
+    def __init__(self, bug_handler=RuntimeError):
         self.__bug_handler = bug_handler
 
     def __get_position_error(self, line, encoding, line_num):

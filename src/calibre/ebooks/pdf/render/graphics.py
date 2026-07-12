@@ -402,6 +402,7 @@ class Graphics:
     def apply_stroke(self, state, pdf_system, painter):
         # TODO: Support miter limit by using QPainterPathStroker
         pen = state.stroke
+        assert self.pending_state is not None
         self.pending_state.do_stroke = True
         pdf = self.pdf
 
@@ -445,6 +446,7 @@ class Graphics:
             self.pending_state.do_stroke = False
 
     def apply_fill(self, state, pdf_system, painter):
+        assert self.pending_state is not None
         self.pending_state.do_fill = True
         color, opacity, pattern, self.pending_state.do_fill = self.convert_brush(
             state.fill, state.brush_origin, state.opacity, pdf_system,

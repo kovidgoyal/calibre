@@ -119,8 +119,10 @@ class HTMLFile:
                         pass
                 self.is_binary = False
                 if level > 0:
-                    pat = self.HTML_PAT_BIN if isinstance(header, bytes) else self.HTML_PAT
-                    self.is_binary = not bool(pat.search(header))
+                    if isinstance(header, bytes):
+                        self.is_binary = not bool(self.HTML_PAT_BIN.search(header))
+                    else:
+                        self.is_binary = not bool(self.HTML_PAT.search(header))
                 if not self.is_binary:
                     src += f.read()
         except OSError as err:

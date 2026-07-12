@@ -198,10 +198,18 @@ class RunStyle:
     toggle_properties = {
         'b', 'bCs', 'caps', 'emboss', 'i', 'iCs', 'imprint', 'shadow', 'smallCaps', 'strike', 'vanish',
     }
+    linked_style = None
+    b = bCs = caps = cs = dstrike = inherit
+    emboss = i = iCs = imprint = rtl = inherit
+    shadow = smallCaps = strike = vanish = webHidden = inherit
+    border_color = border_style = border_width = padding = inherit
+    color = highlight = background_color = inherit
+    letter_spacing = font_size = text_decoration = vert_align = inherit
+    lang = font_family = position = inherit
+    cs_font_size = cs_font_family = inherit
 
     def __init__(self, namespace, rPr=None):
         self.namespace = namespace
-        self.linked_style = None
         if rPr is None:
             for p in self.all_properties:
                 setattr(self, p, inherit)
@@ -261,8 +269,9 @@ class RunStyle:
         if self._css is None:
             c = self._css = OrderedDict()
             td = set()
-            if self.text_decoration is not inherit:
-                td.add(self.text_decoration)
+            text_dec = self.text_decoration
+            if isinstance(text_dec, str):
+                td.add(text_dec)
             if self.strike and self.strike is not inherit:
                 td.add('line-through')
             if self.dstrike and self.dstrike is not inherit:

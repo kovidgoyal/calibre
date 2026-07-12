@@ -23,11 +23,11 @@ class Reader(FormatReader):
         self.log.info('Extracting PDF...')
 
         pdf = PersistentTemporaryFile('.pdf')
+        pdf_path = pdf.name
         pdf.close()
-        pdf = open(pdf, 'wb')
-        for x in range(self.header.section_count()):
-            pdf.write(self.header.section_data(x))
-        pdf.close()
+        with open(pdf_path, 'wb') as pdf_out:
+            for x in range(self.header.section_count()):
+                pdf_out.write(self.header.section_data(x))
 
         from calibre.customize.ui import plugin_for_input_format
 
@@ -36,4 +36,4 @@ class Reader(FormatReader):
             if not hasattr(self.options, opt.option.name):
                 setattr(self.options, opt.option.name, opt.recommended_value)
 
-        return pdf_plugin.convert(open(pdf, 'rb'), self.options, 'pdf', self.log, {})
+        return pdf_plugin.convert(open(pdf_path, 'rb'), self.options, 'pdf', self.log, {})

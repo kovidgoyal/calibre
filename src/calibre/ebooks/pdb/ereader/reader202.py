@@ -22,6 +22,8 @@ class HeaderRecord:
     in the file. This is used in conjunction with the sections
     defined in the file header.
     '''
+    num_image_pages: int
+    image_data_offset: int
 
     def __init__(self, raw):
         self.version, = struct.unpack('>H', raw[0:2])

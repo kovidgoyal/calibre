@@ -149,7 +149,7 @@ def test(title='Star Trek: Section 31: Control', authors=('David Mack',)):
 
     from calibre.utils.logging import default_log
     p = GoogleImages(None)
-    p.log = default_log
+    setattr(p, 'log', default_log)
     rq = Queue()
     p.download_cover(default_log, rq, Event(), title=title, authors=authors)
     print('Downloaded', rq.qsize(), 'covers')

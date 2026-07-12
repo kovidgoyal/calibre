@@ -190,7 +190,8 @@ class ListNumbers:
             if self.__token_info == 'cb<nu<clos-brack':
                 self.__cb_count = line[-5:-1]
             action = self.__state_dict.get(self.__state)
-            action(line)
+            if action is not None:
+                action(line)
         read_obj.close()
         self.__write_obj.close()
         copy_obj = copy.Copy(bug_handler=self.__bug_handler)

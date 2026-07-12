@@ -365,10 +365,25 @@ class ParagraphStyle:
         'numbering_id', 'numbering_level', 'font_family', 'font_size', 'color', 'frame',
         'cs_font_size', 'cs_font_family',
     )
+    adjustRightInd = autoSpaceDE = autoSpaceDN = bidi = inherit
+    contextualSpacing = keepLines = keepNext = mirrorIndents = inherit
+    pageBreakBefore = snapToGrid = suppressLineNumbers = inherit
+    suppressOverlap = topLinePunct = widowControl = wordWrap = inherit
+    border_left_width = border_left_style = border_left_color = padding_left = inherit
+    border_top_width = border_top_style = border_top_color = padding_top = inherit
+    border_right_width = border_right_style = border_right_color = padding_right = inherit
+    border_bottom_width = border_bottom_style = border_bottom_color = padding_bottom = inherit
+    border_between_width = border_between_style = border_between_color = padding_between = inherit
+    margin_left = margin_top = margin_right = margin_bottom = inherit
+    text_indent = text_align = line_height = background_color = inherit
+    numbering_id = numbering_level = font_family = font_size = inherit
+    color = frame = cs_font_size = cs_font_family = inherit
+
+    linked_style = None
+    style_name: str | None = None
 
     def __init__(self, namespace, pPr=None):
         self.namespace = namespace
-        self.linked_style = None
         if pPr is None:
             for p in self.all_properties:
                 setattr(self, p, inherit)

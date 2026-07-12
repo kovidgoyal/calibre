@@ -11,13 +11,20 @@ from calibre import guess_type
 
 
 class FileStream:
+    attr: int
+    fileNameOffset: int
+    fileSize: int
+    fileName: str
+    fileBody: bytes
+    contentOffset: int
+    blockIndex: int
 
     def IsBinary(self):
         return self.attr & 0x41000000 != 0x41000000
 
 
 class BlockData:
-    pass
+    Offset: int
 
 
 class SNBFile:

@@ -140,6 +140,7 @@ def convert_markdown_with_metadata(txt, title='', extensions=DEFAULT_MD_EXTENSIO
     from calibre.db.write import get_series_values
     from calibre.ebooks.metadata.book.base import Metadata
     from calibre.utils.date import parse_only_date
+    extensions = list(extensions)
     if 'meta' not in extensions:
         extensions.append('meta')
     md = create_markdown_object(extensions)

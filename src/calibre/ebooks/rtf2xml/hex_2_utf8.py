@@ -291,9 +291,8 @@ class Hex2Utf8:
                     self.__token_info = line[:16]
                     action = self.__preamble_state_dict.get(self.__state)
                     if action is None:
-                        sys.stderr.write('error no state found in hex_2_utf8',
-                        self.__state
-                        )
+                        sys.stderr.write(f'error no state found in hex_2_utf8: {self.__state}\n')
+                    assert action is not None
                     action(line)
         copy_obj = copy.Copy(bug_handler=self.__bug_handler)
         if self.__copy:
@@ -549,9 +548,8 @@ class Hex2Utf8:
                     self.__token_info = line[:16]
                     action = self.__body_state_dict.get(self.__state)
                     if action is None:
-                        sys.stderr.write('error no state found in hex_2_utf8',
-                        self.__state
-                        )
+                        sys.stderr.write(f'error no state found in hex_2_utf8: {self.__state}\n')
+                    assert action is not None
                     action(line)
         copy_obj = copy.Copy(bug_handler=self.__bug_handler)
         if self.__copy:

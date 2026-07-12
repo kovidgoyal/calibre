@@ -337,6 +337,7 @@ class CSSFlattener:
         return sbase
 
     def clean_edges(self, cssdict, style, fsize):
+        assert self.sbase is not None
         slineh = self.sbase * 1.26
         dlineh = self.lineh
         for kind in ('margin', 'padding'):

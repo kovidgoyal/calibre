@@ -37,7 +37,7 @@ class PdbHeaderReader:
             raise ValueError(f'Not a valid section number {number}')
 
         self.stream.seek(78 + number * 8)
-        offset, a1, a2, a3, a4 = struct.unpack('>LBBBB', self.stream.read(8))[0]
+        offset, a1, a2, a3, a4 = struct.unpack('>LBBBB', self.stream.read(8))
         flags, val = a1, a2 << 16 | a3 << 8 | a4
         return offset, flags, val
 
