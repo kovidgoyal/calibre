@@ -40,12 +40,19 @@ class TypeCheck(Command):
             raw = sentinel + '\n' + raw
             prefix = '\n    '
             for cls, lines in changes.items():
+                if cls.startswith('!'):
+                    raw = re.sub(cls[1:], lines[0], raw)
+                    continue
                 body = prefix.join(lines)
                 raw = re.sub(rf'(class {cls}\(.+)', rf'\1{prefix}{body}', raw)
             os.unlink(core)  # uv uses hard links apparently
             with open(core, 'w') as f:
                 f.write(raw)
-        patch('QtCore', {'QByteArray': ['def __buffer__(self, flags: int, /) -> memoryview: ...']})
+        patch('QtCore', {
+            'QByteArray': ['def __buffer__(self, flags: int, /) -> memoryview: ...'],
+            '!' + re.escape("def connect(self, slot: 'PYQT_SLOT') -> 'QMetaObject.Connection': ..."):
+            ["def connect(self, slot: 'PYQT_SLOT', type: Qt.ConnectionType = ...) -> 'QMetaObject.Connection': ..."],
+        })
         patch('QtGui', {'QIcon': '''\
 @classmethod
 def ic(cls, name: str, fallback: bytes = b'') -> QIcon: ...
