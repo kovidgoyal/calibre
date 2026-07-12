@@ -17,7 +17,7 @@ import textwrap
 from collections import OrderedDict, deque
 from io import BytesIO
 from queue import Empty, Queue
-from typing import overload, Literal
+from typing import Literal, overload
 
 import apsw
 from qt.core import QAction, QApplication, QDialog, QDialogButtonBox, QEvent, QFont, QIcon, QMenu, QSystemTrayIcon, Qt, QTimer, QUrl, pyqtSignal
