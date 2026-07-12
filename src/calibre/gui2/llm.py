@@ -808,7 +808,7 @@ class StreamingDemoWidget(ConverseWidget):
         self.render_count = 0
         super().__init__(parent)
         self.render_count_label = QLabel('', self)
-        layout_ = self.layout
+        layout_ = self.layout()
         assert isinstance(layout_, QVBoxLayout)
         layout_.insertWidget(0, self.render_count_label)
         self.settings_button.setVisible(False)
