@@ -121,12 +121,8 @@ COMPILED_TOKEN_INDEXES = {}  # {name: i}  helper for the C speedups
 TOKEN_DISPATCH = []
 
 
-try:
-    unichr
-except NameError:
-    # Python 3
-    unichr = chr
-    unicode = str
+unichr = chr
+unicode = str
 
 
 def _init():
