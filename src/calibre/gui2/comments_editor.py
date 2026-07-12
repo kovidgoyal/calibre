@@ -1327,7 +1327,7 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
             else:
                 # subsequent blocks -> always insert a new block with the original format
                 editcur.insertBlock(blk_fmt)
-            if list_fmt is not None:
+            if isinstance(list_fmt, QTextListFormat):
                 editcur.createList(list_fmt)
 
             fragment_text = func(blk['fragment_text'])

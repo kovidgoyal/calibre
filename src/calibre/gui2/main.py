@@ -471,6 +471,7 @@ def run_gui_(opts, args, app, gui_debug=None):
         if iswindows:
             # detach the stdout/stderr/stdin handles
             winutil.prepare_for_restart()
+            assert isinstance(debugfile, str)
             with open(debugfile, 'r+b') as f:
                 raw = f.read()
                 raw = re.sub(br'(?<!\r)\n', b'\r\n', raw)
@@ -622,7 +623,7 @@ if __name__ == '__main__':
         logfile = os.path.join(os.path.expanduser('~'), 'calibre.log')
         if os.path.exists(logfile):
             with open(logfile) as f:
-                log = f.read().decode('utf-8', 'ignore')
+                log = f.read()
             d = QErrorMessage()
             d.showMessage(('<b>Error:</b>{}<br><b>Traceback:</b><br>'
                 '{}<b>Log:</b><br>{}').format(str(err),

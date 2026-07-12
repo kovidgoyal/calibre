@@ -147,7 +147,7 @@ class AllFonts(QAbstractTableModel):
         reverse = not self.sorted_on[1]
         self.items = sorted(self.font_data, key=sort_key, reverse=reverse)
         if self.sorted_on[0] != 'name':
-            self.items.sort(key=self.font_data.get, reverse=reverse)
+            self.items.sort(key=self.font_data.__getitem__, reverse=reverse)
 
     def data(self, index, role=Qt.ItemDataRole.DisplayRole):
         if role == Qt.ItemDataRole.DisplayRole:
@@ -284,7 +284,7 @@ class ManageFonts(Dialog):
         fv.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
         fv_hh.setSortIndicator(1, Qt.SortOrder.AscendingOrder)
         self.container = c = QWidget()
-        l = c.l = QVBoxLayout(c)
+        l = QVBoxLayout(c)
         c.setLayout(l)
         s.addWidget(fv), s.addWidget(c)
 

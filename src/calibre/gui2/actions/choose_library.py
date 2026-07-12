@@ -61,12 +61,21 @@ def library_icon_path(lib_name=''):
     return os.path.join(config_dir, 'library_icons', sanitize_file_name(lib_name or current_library_name()) + '.png')
 
 
-@lru_cache(maxsize=512)
-def library_qicon(lib_name=''):
-    q = library_icon_path(lib_name)
-    if os.path.exists(q):
-        return QIcon(q)
-    return getattr(library_qicon, 'default_icon', None) or QIcon.ic('lt.png')
+class LibraryIcon:
+    default_icon: QIcon | None = None
+
+    @lru_cache(maxsize=512)
+    def __call__(self, lib_name='') -> QIcon:
+        q = library_icon_path(lib_name)
+        if os.path.exists(q):
+            return QIcon(q)
+        return self.default_icon or QIcon.ic('lt.png')
+
+    def cache_clear(self) -> None:
+        self.__call__.cache_clear()
+
+
+library_qicon = LibraryIcon()
 
 
 class LibraryUsageStats:  # {{{
@@ -121,7 +130,7 @@ class LibraryUsageStats:  # {{{
         if lpath in locs:
             locs.remove(lpath)
         limit = tweaks['many_libraries'] if limit is None else limit
-        key = (lambda x: sort_key(os.path.basename(x))) if len(locs) > limit else self.stats.get
+        key = (lambda x: sort_key(os.path.basename(x))) if len(locs) > limit else lambda x: self.stats.get(x, 0)
         locs.sort(key=key, reverse=len(locs)<=limit)
         for loc in locs:
             yield self.pretty(loc), loc
@@ -283,6 +292,7 @@ class ChooseLibraryAction(InterfaceAction):
             self.qaction.triggered.connect(self.choose_library)
 
         self.choose_menu = self.qaction.menu()
+        assert self.choose_menu is not None
 
         ac = self.create_action(spec=(_('Pick a random book'), 'random.png',
             None, None), attr='action_pick_random')
@@ -786,6 +796,7 @@ class ChooseLibraryAction(InterfaceAction):
         ref = self.dbref
         for i in range(3):
             gc.collect()
+        assert ref is not None
         if ref() is not None:
             print('DB object alive:', ref())
             for r in gc.get_referrers(ref())[:10]:

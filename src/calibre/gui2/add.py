@@ -402,6 +402,7 @@ class Adder(QObject):
 
         self.pd.msg = mi.title
 
+        assert self.tdir is not None
         cover_path = os.path.join(self.tdir, f'{group_id}.cdata') if has_cover else None
 
         if self.db is None:

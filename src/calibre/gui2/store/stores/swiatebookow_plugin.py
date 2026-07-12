@@ -9,11 +9,7 @@ __docformat__ = 'restructuredtext en'
 
 from base64 import b64encode
 from contextlib import closing
-
-try:
-    from urllib.parse import quote
-except ImportError:
-    from urllib import quote
+from urllib.parse import quote
 
 from qt.core import QUrl
 
@@ -23,11 +19,7 @@ from calibre.gui2.store import StorePlugin
 from calibre.gui2.store.basic_config import BasicStoreConfig
 from calibre.gui2.store.search_result import SearchResult
 from calibre.gui2.store.web_store_dialog import WebStoreDialog
-
-try:
-    from calibre.xml_parse import safe_html_fromstring
-except ImportError:
-    from lxml.html import fromstring as safe_html_fromstring
+from calibre.utils.xml_parse import safe_html_fromstring
 
 
 def as_base64(data):

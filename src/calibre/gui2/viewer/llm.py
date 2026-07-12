@@ -97,7 +97,7 @@ class LLMSettingsDialog(LLMSettingsDialogBase):
     def __init__(self, parent=None):
         super().__init__(title=_('AI Settings'), name='llm-settings-dialog', prefs=vprefs, parent=parent)
 
-    def custom_tabs(self) -> Iterator[str, str, QWidget]:
+    def custom_tabs(self) -> Iterator[tuple[str, str, QWidget]]:
         yield 'config.png', _('Actions and &highlights'), LLMSettingsWidget(self)
 
 

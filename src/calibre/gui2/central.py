@@ -213,7 +213,7 @@ class SplitterHandle(QWidget):
     drag_start = None
     COLLAPSED_SIZE = 2  # pixels
 
-    def __init__(self, parent: QWidget=None, orientation: Qt.Orientation = Qt.Orientation.Vertical):
+    def __init__(self, parent: QWidget | None = None, orientation: Qt.Orientation = Qt.Orientation.Vertical):
         super().__init__(parent)
         self.set_orientation(orientation)
 

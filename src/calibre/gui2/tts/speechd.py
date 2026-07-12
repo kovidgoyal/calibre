@@ -61,7 +61,7 @@ class SpeechdTTSBackend(TTSBackend):
     @property
     def default_output_module(self) -> str:
         if self._ensure_state():
-            return self._system_default_output_module
+            return self._system_default_output_module or ''
         return ''
 
     @property
@@ -203,7 +203,7 @@ class SpeechdTTSBackend(TTSBackend):
             self._set_error(str(e))
             return False
 
-    def _get_all_voices_for_all_output_modules(self) -> dict[str, Voice]:
+    def _get_all_voices_for_all_output_modules(self) -> dict[str, tuple[Voice, ...]]:
         ans = {}
         def v(x) -> Voice:
             name, langcode, variant = x

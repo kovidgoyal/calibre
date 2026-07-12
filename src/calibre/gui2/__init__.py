@@ -56,6 +56,7 @@ from qt.core import (
     QWidget,
     pyqtSignal,
     pyqtSlot,
+    sip,
 )
 
 import calibre.gui2.pyqt6_compat as pqc
@@ -225,22 +226,23 @@ class IconResourceManager:
 
     def overriden_icon_paths(self, name: str) -> tuple[str, str, str]:
         either = light = dark = ''
+        p: str = self.override_icon_path or ''
         parts = name.replace(os.sep, '/').split('/')
-        sq = os.path.join(self.override_icon_path, name)
+        sq = os.path.join(p, name)
         if len(parts) == 1:
             base, ext = os.path.splitext(parts[0])
             if os.path.basename(sq) in self.override_items['']:
                 either = sq
             if (sq := f'{base}-for-light-theme{ext}') in self.override_items['']:
-                light = os.path.join(self.override_icon_path, sq)
+                light = os.path.join(p, sq)
             if (sq := f'{base}-for-dark-theme{ext}') in self.override_items['']:
-                dark = os.path.join(self.override_icon_path, sq)
+                dark = os.path.join(p, sq)
         else:
             subfolder = '/'.join(parts[:-1])
             entries = self.override_items.get(subfolder)
-            if entries is None and self.override_icon_path:
+            if entries is None and p:
                 try:
-                    self.override_items[subfolder] = entries = frozenset(os.listdir(os.path.join(self.override_icon_path, subfolder)))
+                    self.override_items[subfolder] = entries = frozenset(os.listdir(os.path.join(p, subfolder)))
                 except OSError:
                     self.override_items[subfolder] = entries = frozenset()
             if entries:
@@ -248,9 +250,9 @@ class IconResourceManager:
                     either = sq
                 base, ext = os.path.splitext(parts[-1])
                 if (sq := f'{base}-for-light-theme{ext}') in entries:
-                    light = os.path.join(self.override_icon_path, subfolder, sq)
+                    light = os.path.join(p, subfolder, sq)
                 if (sq := f'{base}-for-dark-theme{ext}') in entries:
-                    dark = os.path.join(self.override_icon_path, subfolder, sq)
+                    dark = os.path.join(p, subfolder, sq)
         return either, light, dark
 
     def cached_icon(self, name=''):
@@ -302,10 +304,10 @@ class IconResourceManager:
 
 
 icon_resource_manager = IconResourceManager()
-QIcon.ic = icon_resource_manager
-QIcon.icon_as_png = icon_resource_manager.icon_as_png
+QIcon.ic = icon_resource_manager  # type: ignore
+QIcon.icon_as_png = icon_resource_manager.icon_as_png  # type: ignore
 QIcon.is_ok = lambda self: not self.isNull() and len(self.availableSizes()) > 0
-QIcon.cached_icon = icon_resource_manager.cached_icon
+QIcon.cached_icon = icon_resource_manager.cached_icon  # type: ignore
 qtb_init = QToolBar.__init__
 
 
@@ -315,7 +317,7 @@ def configure_toolbar_extension_button(self, parent=None):
         teb.setToolTip(_('Show more buttons'))
 
 
-QToolBar.__init__ = configure_toolbar_extension_button
+QToolBar.__init__ = configure_toolbar_extension_button  # type: ignore
 
 
 # Setup gprefs {{{
@@ -969,13 +971,14 @@ class GetMetadata(QObject):
 class FileIconProvider(QFileIconProvider):
 
     ICONS = EXT_MAP
+    icons: dict[str, str | QIcon]
 
     def __init__(self):
         super().__init__()
         self.icons = {k:f'mimetypes/{v}.png' for k, v in self.ICONS.items()}
         self.icons['calibre'] = I('lt.png', allow_user_override=False)
         for i in ('dir', 'default', 'zero'):
-            self.icons[i] = QIcon.ic(self.icons[i])
+            self.icons[i] = QIcon.ic(str(self.icons[i]))
 
     def key_from_ext(self, ext):
         key = ext if ext in self.icons else 'default'
@@ -1082,7 +1085,7 @@ def choose_files_and_remember_all_files(
 
 
 def is_dark_theme():
-    app = QApplication.instance()
+    app = cast(QApplication, QApplication.instance())
     if app is not None:
         pal = app.palette()
         return pal.is_dark_theme()
@@ -1144,7 +1147,8 @@ class ResizableDialog(QDialog):
 
     def __init__(self, *args, **kwargs):
         QDialog.__init__(self, *args)
-        self.setupUi(self)
+        if s := getattr(self, 'setupUi', None):
+            s(self)
         screen = self.screen()
         assert screen is not None
         geom = screen.availableSize()
@@ -1156,6 +1160,7 @@ class ResizableDialog(QDialog):
 
 gui_thread = None
 qt_app = None
+builtin_fonts_loaded = False
 
 
 def calibre_font_files():
@@ -1167,9 +1172,9 @@ def load_builtin_fonts():
     global _rating_font, builtin_fonts_loaded
     # Load the builtin fonts and any fonts added to calibre by the user to
     # Qt
-    if hasattr(load_builtin_fonts, 'done'):
+    if builtin_fonts_loaded:
         return
-    load_builtin_fonts.done = True
+    builtin_fonts_loaded = True
     for ff in calibre_font_files():
         if ff.rpartition('.')[-1].lower() in {'ttf', 'otf'}:
             with open(ff, 'rb') as s:
@@ -1218,7 +1223,7 @@ def setup_unix_signals(self):
         original_handlers[sig] = signal.signal(sig, lambda x, y: None)
         signal.siginterrupt(sig, False)
     signal.set_wakeup_fd(write_fd)
-    self.signal_notifier = QSocketNotifier(read_fd, QSocketNotifier.Type.Read, self)
+    self.signal_notifier = QSocketNotifier(sip.voidptr(read_fd), QSocketNotifier.Type.Read, self)
     self.signal_notifier.setEnabled(True)
     self.signal_notifier.activated.connect(self.signal_received, type=Qt.ConnectionType.QueuedConnection)
     return original_handlers
@@ -1238,6 +1243,8 @@ class Application(QApplication):
 
     shutdown_signal_received = pyqtSignal()
     palette_changed = pyqtSignal()
+    if not iswindows:
+        signal_notifier: QSocketNotifier
 
     def __init__(
         self, args=(), force_calibre_style=False, override_program_name=None, headless=False, color_prefs=gprefs, windows_app_uid=None,
@@ -1374,7 +1381,7 @@ class Application(QApplication):
     def emphasis_window_background_color(self):
         return (builtin_colors_dark if self.is_dark_theme else builtin_colors_light)['yellow']
 
-    @pyqtSlot(int, result=QIcon)
+    @pyqtSlot(int, result='QIcon')
     def get_qt_standard_icon(self, standard_pixmap):
         return self.palette_manager.get_qt_standard_icon(standard_pixmap)
 

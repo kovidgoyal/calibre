@@ -1442,8 +1442,9 @@ def show_function_debug_output(func):
 
 def reorder_files(names, order):
     reverse = order in {'spine-reverse', 'reverse-spine'}
-    spine_order = {name:i for i, (name, is_linear) in enumerate(current_container().spine_names)}
-    return sorted(frozenset(names), key=spine_order.get, reverse=reverse)
+    spine_order = {name:i for i, (name, _is_linear) in enumerate(current_container().spine_names)}
+    last = len(spine_order)
+    return sorted(frozenset(names), key=lambda n: spine_order.get(n, last), reverse=reverse)
 
 
 def run_search(

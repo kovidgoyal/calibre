@@ -52,7 +52,7 @@ class Progress(QWidget):
     current_stage: str = ''
     stage_start_at: float = 0
 
-    def __init__(self, parent: QWidget = None):
+    def __init__(self, parent: QWidget | None = None):
         super().__init__(parent)
         self.v = v = QVBoxLayout(self)
         v.setContentsMargins(0, 0, 0, 0)

@@ -730,11 +730,11 @@ class PluginUpdaterDialog(SizePersistedDialog):
         if url.partition(':')[0] in ('http', 'https'):
             safe_open_url(url)
 
-    def set_description(self, src: str) -> str:
+    def set_description(self, src: str) -> None:
         import html
         _URL_RE = re.compile(r'https?://[^\s<>"\'`]+', re.IGNORECASE)
 
-        def _trim_trailing_punctuation(url: str) -> (str, str):
+        def _trim_trailing_punctuation(url: str) -> tuple[str, str]:
             trailing = ''
             # Characters we generally don't want to include at the end of a URL
             bad_trail_chars = set('.,:;!?\'"<>')

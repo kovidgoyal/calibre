@@ -11,6 +11,7 @@ from contextlib import suppress
 from dataclasses import dataclass
 from itertools import count
 from time import monotonic
+from typing import cast
 
 from qt.core import QAudio, QAudioFormat, QAudioSink, QByteArray, QIODevice, QIODeviceBase, QMediaDevices, QObject, Qt, QTextToSpeech, QWidget, pyqtSignal, sip
 
@@ -204,7 +205,7 @@ class UtteranceAudioQueue(QIODevice):
     def readData(self, maxlen: int) -> bytes:
         if maxlen < 1:
             debug(f'Audio data sent to output: {maxlen=}')
-            return QByteArray()
+            return cast(bytes, QByteArray())
         if maxlen >= len(self.current_audio_data):
             ans = self.current_audio_data
             self.current_audio_data = QByteArray()
@@ -212,7 +213,7 @@ class UtteranceAudioQueue(QIODevice):
             ans = self.current_audio_data.first(maxlen)
             self.current_audio_data = self.current_audio_data.last(len(self.current_audio_data) - maxlen)
         debug(f'Audio sent to output: {maxlen=} {len(ans)=}')
-        return ans
+        return cast(bytes, ans)
 
 
 def split_into_utterances(text: str, counter: count, lang: str = 'en'):
@@ -250,7 +251,7 @@ class Piper(TTSBackend):
     @property
     def available_voices(self) -> dict[str, tuple[Voice, ...]]:
         self._load_voice_metadata()
-        return {'': self._voices}
+        return {'': self._voices or ()}
 
     def say(self, text: str) -> None:
         if self._last_error:
@@ -522,7 +523,7 @@ class PiperEmbedded:
                 raw_data = resample_raw_audio_16bit(raw_data, self._current_audio_rate, sample_rate)
             yield raw_data, duration_of_raw_audio_data(raw_data, sample_rate)
 
-    def ensure_voices_downloaded(self, specs: Iterable[tuple[str, str]], parent: QObject = None) -> bool:
+    def ensure_voices_downloaded(self, specs: Iterable[tuple[str, str]], parent: QObject | None = None) -> bool:
         for lang, voice_name in specs:
             voice = self.resolve_voice(lang, voice_name)
             m, c = download_voice(voice, parent=parent, headless=parent is None)

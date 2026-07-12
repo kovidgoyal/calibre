@@ -10,14 +10,9 @@ __docformat__ = 'restructuredtext en'
 import random
 import re
 from contextlib import closing
+from urllib.parse import quote
 
 from lxml import html
-
-try:
-    from urllib.parse import quote
-except ImportError:
-    from urllib import quote
-
 from qt.core import QUrl
 
 from calibre import browser, url_slash_cleaner

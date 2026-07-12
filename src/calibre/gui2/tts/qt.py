@@ -20,9 +20,9 @@ class QtTTSBackend(TTSBackend):
 
     @property
     def available_voices(self) -> dict[str, tuple[Voice, ...]]:
-        if self._voices is None:
-            self._voices = tuple(map(qvoice_to_voice, self.tts.availableVoices()))
-        return {'': self._voices}
+        if (voices := self._voices) is None:
+            voices = self._voices = tuple(map(qvoice_to_voice, self.tts.availableVoices()))
+        return {'': voices}
 
     @property
     def engine_name(self) -> str:

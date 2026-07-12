@@ -7,12 +7,8 @@ __license__ = 'GPL 3'
 __copyright__ = '2012, Alex Stanev <alex@stanev.org>'
 __docformat__ = 'restructuredtext en'
 
-try:
-    from urllib.parse import quote_plus
-except ImportError:
-    from urllib import quote_plus
-
 from contextlib import closing
+from urllib.parse import quote_plus
 
 from calibre import browser
 from calibre.gui2 import open_url

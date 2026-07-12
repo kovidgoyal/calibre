@@ -16,6 +16,7 @@ from qt.core import (
     QPainter,
     QPainterPath,
     QPalette,
+    QPixmap,
     QPointF,
     QRect,
     QScrollArea,
@@ -76,7 +77,7 @@ def default_cover():
 
 
 @lru_cache(maxsize=8)
-def icon_resource_provider(qurl: QUrl) -> QVariant:
+def icon_resource_provider(qurl: QUrl) -> QVariant | QPixmap:
     if qurl.scheme() == 'calibre-icon':
         ic = QIcon.cached_icon(qurl.path().lstrip('/'))
         if ic.is_ok():
@@ -147,6 +148,7 @@ class CardData:
 
     def ensure_renderable(self, dpr) -> QTextDocument:
         self.height
+        assert self.doc is not None
         return self.doc
 
     @property
@@ -317,7 +319,7 @@ class VirtualCardContainer(QWidget):
 
     def __init__(self, model, parent=None):
         super().__init__(parent)
-        self.cover_render_queue: Queue[int] = Queue()
+        self.cover_render_queue: Queue[tuple[int, int]] = Queue()
         self.model = model
         model.matches_found.connect(self.matches_found)
         model.result_with_context_found.connect(self.result_with_context_found)
@@ -388,7 +390,7 @@ class VirtualCardContainer(QWidget):
             w.hide()
         self._live_widgets.clear()
 
-    def render_covers(self, queue: Queue[int], dpr: float, lc: Layout, default_cover: QImage, db_ref: weakref.ref[Cache], generation: int):
+    def render_covers(self, queue: Queue[tuple[int, int]], dpr: float, lc: Layout, default_cover: QImage, db_ref: weakref.ref[Cache], generation: int):
         while True:
             try:
                 book_id, idx = queue.get()

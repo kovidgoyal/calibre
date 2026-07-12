@@ -9,13 +9,8 @@ __docformat__ = 'restructuredtext en'
 
 import random
 import re
-
-try:
-    from urllib.parse import quote
-except ImportError:
-    from urllib import quote
-
 from contextlib import closing
+from urllib.parse import quote
 
 from qt.core import QUrl
 

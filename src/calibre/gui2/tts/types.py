@@ -5,7 +5,7 @@ import os
 from contextlib import suppress
 from enum import Enum, auto
 from functools import lru_cache
-from typing import Literal, NamedTuple
+from typing import Any, Literal, NamedTuple
 
 from qt.core import QApplication, QLocale, QObject, QTextToSpeech, QVoice, QWidget, pyqtSignal
 
@@ -28,9 +28,9 @@ def load_config(config_name=CONFIG_NAME) -> JSONConfig:
 
 
 class TrackingCapability(Enum):
-    NoTracking: int = auto()
-    WordByWord: int = auto()
-    Sentence: int = auto()
+    NoTracking = auto()
+    WordByWord = auto()
+    Sentence = auto()
 
 
 class EngineMetadata(NamedTuple):
@@ -49,10 +49,10 @@ class EngineMetadata(NamedTuple):
 
 
 class Quality(Enum):
-    High: int = auto()
-    Medium: int = auto()
-    Low: int = auto()
-    ExtraLow: int = auto()
+    High = auto()
+    Medium = auto()
+    Low = auto()
+    ExtraLow = auto()
 
     @classmethod
     def from_piper_quality(self, x: str) -> Quality:
@@ -105,11 +105,11 @@ class Voice(NamedTuple):
             ans.append(_('Gender: {}').format(QVoice.genderName(self.gender)))
         return '\n'.join(ans)
 
-    def sort_key(self) -> tuple[Quality, str]:
+    def sort_key(self) -> tuple[int, str]:
         return (self.quality.value, self.basic_name.lower())
 
 
-def qvoice_to_voice(v: QVoice) -> QVoice:
+def qvoice_to_voice(v: QVoice) -> Voice:
     lang = canonicalize_lang(QLocale.languageToCode(v.language())) or 'und'
     country = QLocale.territoryToString(v.locale().territory())
     return Voice(v.name(), lang, country, gender=v.gender(), age=v.age())
@@ -132,7 +132,7 @@ class EngineSpecificSettings(NamedTuple):
     preferred_voices: dict[str, str] | None = None
 
     @classmethod
-    def create_from_prefs(cls, engine_name: str, prefs: dict[str, object] | None = None) -> EngineSpecificSettings:
+    def create_from_prefs(cls, engine_name: str, prefs: dict[str, Any] | None = None) -> EngineSpecificSettings:
         prefs = prefs or {}
         adev = prefs.get('audio_device_id')
         audio_device_id = None
@@ -276,9 +276,10 @@ def default_engine_name() -> str:
 
 
 def widget_parent(p: QObject) -> QWidget | None:
-    while p is not None and not isinstance(p, QWidget):
-        p = p.parent()
-    return p
+    q: QObject | None = p
+    while q is not None and not isinstance(q, QWidget):
+        q = q.parent()
+    return q if isinstance(q, QWidget) else None
 
 
 class TTSBackend(QObject):

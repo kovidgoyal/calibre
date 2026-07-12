@@ -17,6 +17,7 @@ import textwrap
 from collections import OrderedDict, deque
 from io import BytesIO
 from queue import Empty, Queue
+from typing import overload, Literal
 
 import apsw
 from qt.core import QAction, QApplication, QDialog, QDialogButtonBox, QEvent, QFont, QIcon, QMenu, QSystemTrayIcon, Qt, QTimer, QUrl, pyqtSignal
@@ -72,8 +73,18 @@ from calibre.utils.resources import get_image_path as I
 from calibre.utils.resources import get_path as P
 
 
-def get_gui() -> Main | None:
-    return getattr(get_gui, 'ans', None)
+@overload
+def get_gui(fail_if_absent: Literal[False] = False) -> Main | None: ...
+
+@overload
+def get_gui(fail_if_absent: Literal[True] = True) -> Main: ...
+
+
+def get_gui(fail_if_absent: bool = False) -> Main | None:
+    ans = getattr(get_gui, 'ans', None)
+    if ans is None and fail_if_absent:
+        raise RuntimeError('GUI object has not yet been created')
+    return ans
 
 
 def add_quick_start_guide(library_view, refresh_cover_browser=None):

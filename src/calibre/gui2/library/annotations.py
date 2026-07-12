@@ -111,7 +111,7 @@ def get_annotation_style_classes(style):
         color = 'default'
 
     if is_decoration:
-        safe = re.sub(r'[^a-zA-Z0-9-]', '', fname).lower()
+        safe = re.sub(r'[^a-zA-Z0-9-]', '', fname or '').lower()
         return 'span', f'decor-{safe}'
     else:
         safe_color = sanitize_color(color) if color else 'default'

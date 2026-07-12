@@ -5,11 +5,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 store_version = 10  # Needed for dynamic plugin loading
 
 import mimetypes
-
-try:
-    from urllib.parse import quote_plus
-except ImportError:
-    from urllib import quote_plus
+from urllib.parse import quote_plus
 
 from css_selectors import Select
 from html5_parser import parse

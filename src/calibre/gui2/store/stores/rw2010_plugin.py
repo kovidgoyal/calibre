@@ -9,11 +9,7 @@ __docformat__ = 'restructuredtext en'
 
 import re
 from contextlib import closing
-
-try:
-    from urllib.parse import urlencode
-except ImportError:
-    from urllib import urlencode
+from urllib.parse import urlencode
 
 from qt.core import QUrl
 

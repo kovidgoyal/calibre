@@ -33,7 +33,7 @@ from calibre.utils.resources import get_image_path
 
 class Browser(QTextBrowser):
 
-    def __init__(self, parent: QWidget = None):
+    def __init__(self, parent: QWidget | None = None):
         super().__init__(parent)
         self.setOpenLinks(False)
         self.setMinimumHeight(150)
@@ -93,7 +93,7 @@ class InputEdit(QTextEdit):
 
     returnPressed = pyqtSignal()
 
-    def __init__(self, parent: QWidget = None, placeholder_text: str = ''):
+    def __init__(self, parent: QWidget | None = None, placeholder_text: str = ''):
         super().__init__(parent)
         self.setPlaceholderText(placeholder_text)
         self.height_for_frame = 2 * self.frameWidth() + self.contentsMargins().top() + self.contentsMargins().bottom()
@@ -141,7 +141,7 @@ class Input(QWidget):
 
     send_requested = pyqtSignal()
 
-    def __init__(self, parent: QWidget = None, placeholder_text: str = ''):
+    def __init__(self, parent: QWidget | None = None, placeholder_text: str = ''):
         super().__init__(parent)
         l = QHBoxLayout(self)
         l.setContentsMargins(0, 0, 0, 0)
@@ -154,7 +154,7 @@ class Input(QWidget):
         b.clicked.connect(self.send_requested)
         l.addWidget(b, alignment=Qt.AlignmentFlag.AlignCenter)
 
-    def setFocus(self, reason=...) -> None:
+    def setFocus(self, reason=Qt.FocusReason.OtherFocusReason) -> None:
         self.text_input.setFocus(reason)
 
     @property
@@ -174,7 +174,7 @@ class ChatWidget(QWidget):
     link_clicked = pyqtSignal(QUrl)
     input_from_user = pyqtSignal(str)
 
-    def __init__(self, parent: QWidget = None, placeholder_text: str = '', disclaimer_text: str | None = None):
+    def __init__(self, parent: QWidget | None = None, placeholder_text: str = '', disclaimer_text: str | None = None):
         super().__init__(parent)
         if disclaimer_text is None:
             disclaimer_text = _(

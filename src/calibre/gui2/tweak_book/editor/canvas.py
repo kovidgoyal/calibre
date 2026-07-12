@@ -58,6 +58,7 @@ def painter(func):
 
 
 class SelectionState:
+    rect: QRectF | None
 
     __slots__ = ('current_mode', 'drag_corner', 'dragging', 'in_selection', 'last_drag_pos', 'last_press_point', 'rect')
 
@@ -581,7 +582,9 @@ class Canvas(QWidget):
         if dm is None:
             self.move_selection_rect(dp.x(), dp.y())
         else:
-            orig = QRectF(self.selection_state.rect)
+            rect = self.selection_state.rect
+            assert rect is not None
+            orig = QRectF(rect)
             for edge in dm:
                 if edge is not None:
                     self.move_edge(edge, dp)

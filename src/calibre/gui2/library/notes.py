@@ -221,7 +221,9 @@ class ResultsList(QTreeWidget):
         for field, entry in field_map.items():
             if not entry['matches']:
                 continue
-            section = QTreeWidgetItem([entry['title']], 1)
+            title = entry['title']
+            assert isinstance(title, str)
+            section = QTreeWidgetItem([title], 1)
             section.setFlags(Qt.ItemFlag.ItemIsEnabled)
             section.setFont(0, self.section_font)
             section.setData(0, Qt.ItemDataRole.UserRole, field)
@@ -271,7 +273,7 @@ class RestrictFields(QWidget):
         def field_name(field):
             return fm[field].get('name') or field
         self.field_names = {f:field_name(f) for f in db.field_supports_notes()}
-        self.field_labels = {f: QLabel(self.field_names[f], self) for f in sorted(self.field_names, key=self.field_names.get)}
+        self.field_labels = {f: QLabel(self.field_names[f], self) for f in sorted(self.field_names, key=self.field_names.__getitem__)}
         for l in self.field_labels.values():
             l.setVisible(False)
 

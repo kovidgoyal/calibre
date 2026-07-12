@@ -8,11 +8,7 @@ __copyright__ = '2011-2013, Roman Mukhin <ramses_ru at hotmail.com>'
 __docformat__ = 'restructuredtext en'
 
 from contextlib import closing
-
-try:
-    from urllib.parse import quote_plus
-except ImportError:
-    from urllib import quote_plus
+from urllib.parse import quote_plus
 
 from qt.core import QUrl
 

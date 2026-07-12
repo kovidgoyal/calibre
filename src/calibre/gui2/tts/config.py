@@ -96,7 +96,7 @@ class SentenceDelay(QDoubleSpinBox):
         self.setSingleStep(0.05)
 
     @property
-    def val(self) -> str:
+    def val(self) -> float:
         return max(0.0, self.value())
 
     @val.setter
@@ -326,7 +326,7 @@ class EngineSpecificConfig(QWidget):
 
     voice_changed = pyqtSignal()
 
-    def __init__(self, parent: QWidget = None, for_embedding: bool = False):
+    def __init__(self, parent: QWidget | None = None, for_embedding: bool = False):
         super().__init__(parent)
         self.for_embedding = for_embedding
         self.engine_name = ''

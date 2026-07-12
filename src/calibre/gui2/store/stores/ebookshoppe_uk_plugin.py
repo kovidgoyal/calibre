@@ -7,11 +7,8 @@ __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
-try:
-    from urllib.parse import quote
-except ImportError:
-    from urllib2 import quote
 from contextlib import closing
+from urllib.parse import quote
 
 from qt.core import QUrl
 

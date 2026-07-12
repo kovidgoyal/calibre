@@ -13,7 +13,7 @@ from collections.abc import Iterable
 from functools import wraps
 from textwrap import wrap
 from threading import Event
-from typing import NamedTuple
+from typing import NamedTuple, Protocol
 
 from qt.core import (
     QAbstractItemModel,
@@ -118,9 +118,16 @@ class ClickStartData(NamedTuple):
     max_row: int
 
 
+class ItemView(Protocol):
+
+    def model(self) -> QAbstractItemModel | None: ...
+    def selectionModel(self) -> QItemSelectionModel | None: ...
+    def currentIndex(self) -> QModelIndex: ...
+
+
 def double_click_action(index: QModelIndex) -> None:
     from calibre.gui2.ui import get_gui
-    gui = get_gui()
+    gui = get_gui(fail_if_absent=True)
     tval = tweaks['doubleclick_on_library_view']
     if tval == 'open_viewer':
         gui.iactions['View'].view_triggered(index)
@@ -131,9 +138,9 @@ def double_click_action(index: QModelIndex) -> None:
 
 
 def handle_selection_drag(
-    self: QAbstractItemView, index: QModelIndex, start_data: ClickStartData | None,
+    self: ItemView, index: QModelIndex, start_data: ClickStartData | None,
     row_cmp=cmp, selection_between=QItemSelection
-) -> None:
+) -> bool | None:
     if not index.isValid() or start_data is None:
         return
     m = self.model()
@@ -163,7 +170,7 @@ def handle_selection_drag(
     sm.select(selection_between(m.index(top, 0), m.index(bottom, 0)), QItemSelectionModel.SelectionFlag.ClearAndSelect | flags)
 
 
-def get_click_start_data(self: QAbstractItemView, index: QModelIndex, row_cmp) -> ClickStartData:
+def get_click_start_data(self: ItemView, index: QModelIndex, row_cmp) -> ClickStartData:
     m = self.model()
     assert m is not None
     min_row = m.rowCount(QModelIndex())
@@ -177,7 +184,7 @@ def get_click_start_data(self: QAbstractItemView, index: QModelIndex, row_cmp) -
     return ClickStartData(index.row(), min_row, max_row)
 
 
-def handle_selection_click(self: QAbstractItemView, index: QModelIndex, row_cmp=cmp, selection_between=QItemSelection) -> ClickStartData | None:
+def handle_selection_click(self: ItemView, index: QModelIndex, row_cmp=cmp, selection_between=QItemSelection) -> ClickStartData | None:
     if not index.isValid():
         return None
     sm = self.selectionModel()
@@ -215,7 +222,7 @@ def handle_enter_press(self, ev, special_action=None, has_edit_cell=True):
             from calibre.gui2.ui import get_gui
             ev.ignore()
             tweak = tweaks['enter_key_behavior']
-            gui = get_gui()
+            gui = get_gui(fail_if_absent=True)
             if tweak == 'edit_cell':
                 if has_edit_cell:
                     self.edit(self.currentIndex(), QAbstractItemView.EditTrigger.EditKeyPressed, ev)

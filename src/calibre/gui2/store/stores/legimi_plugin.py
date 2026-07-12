@@ -9,11 +9,7 @@ __docformat__ = 'restructuredtext en'
 
 from base64 import b64encode
 from contextlib import closing
-
-try:
-    from urllib.parse import quote_plus
-except ImportError:
-    from urllib import quote_plus
+from urllib.parse import quote_plus
 
 from qt.core import QUrl
 

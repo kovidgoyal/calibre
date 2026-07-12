@@ -6,11 +6,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 store_version = 16  # Needed for dynamic plugin loading
 
 from contextlib import closing
-
-try:
-    from urllib.parse import urlencode
-except ImportError:
-    from urllib import urlencode
+from urllib.parse import urlencode
 
 from qt.core import QUrl
 

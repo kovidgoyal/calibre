@@ -154,6 +154,7 @@ class Saver(QObject):
 
     def collection_finished(self):
         self.do_one = self.do_one_write
+        assert self.collected_data is not None
         ensure_unique_components(self.collected_data)
         self.ids_to_write = iter(self.collected_data)
         self.pd.title = _('Copying files and writing metadata...') if self.opts.update_metadata else _(

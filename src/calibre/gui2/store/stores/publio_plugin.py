@@ -7,12 +7,9 @@ __license__ = 'GPL 3'
 __copyright__ = '2012-2017, Tomasz Długosz <tomek3d@gmail.com>'
 __docformat__ = 'restructuredtext en'
 
-try:
-    from urllib.parse import quote
-except ImportError:
-    from urllib import quote
 from base64 import b64encode
 from contextlib import closing
+from urllib.parse import quote
 
 from qt.core import QUrl
 

@@ -42,8 +42,8 @@ def serialize_palette(self):
     return bytes(ba)
 
 
-def unserialize_palette(self, data: bytes):
-    QDataStream(QByteArray(data)) >> self
+def unserialize_palette(self, b: bytes) -> None:
+    QDataStream(QByteArray(b)) >> self
 
 
 def serialize_palette_as_python(self):
@@ -312,7 +312,7 @@ class PaletteManager(QObject):
         app.cached_qimage.cache_clear()
         app.cached_qpixmap.cache_clear()
         self.is_dark_theme = app.palette().is_dark_theme()
-        QIcon.ic.set_theme()
+        QIcon.ic.set_theme()  # type: ignore
         app.setProperty('is_dark_theme', self.is_dark_theme)
         if self.using_calibre_style:
             ss = 'QTabBar::tab:selected { font-style: italic }\n\n'
