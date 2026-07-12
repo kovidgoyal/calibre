@@ -173,7 +173,7 @@ def itercsslinks(raw):
         yield match.group(1), match.start(1)
 
 
-_link_attrs = set(html.defs.link_attrs) | {XLINK('href'), 'poster', 'altimg'}
+_link_attrs = set(html.defs.link_attrs) | {XLINK('href'), 'poster', 'altimg'}  # type: ignore
 
 
 def iterlinks(root, find_links_in_css=True):
@@ -1784,7 +1784,7 @@ class OEBBook:
     inserted_metadata_jacket: Manifest.Item
 
     def __init__(self, logger,
-            html_preprocessor,
+            html_preprocessor=lambda x: x,
             css_preprocessor=CSSPreProcessor(),
             encoding='utf-8', pretty_print=False,
             input_encoding='utf-8'):
@@ -1859,7 +1859,8 @@ class OEBBook:
         '''Generate an OEBBook instance from command-line options.'''
         encoding = opts.encoding
         pretty_print = opts.pretty_print
-        return cls(encoding=encoding, pretty_print=pretty_print)
+        from calibre.utils.logging import default_log
+        return cls(default_log, lambda x: x, encoding=encoding, pretty_print=pretty_print)
 
     def translate(self, text):
         '''Translate :param:`text` into the book's primary language.'''

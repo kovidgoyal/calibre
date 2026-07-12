@@ -11,7 +11,7 @@ from struct import pack
 from calibre.ebooks.mobi.utils import CNCX, align_block, encint
 from calibre.ebooks.mobi.writer8.header import Header
 
-TagMeta_ = namedtuple('TagMeta', 'name number values_per_entry bitmask end_flag')
+TagMeta_ = namedtuple('TagMeta_', 'name number values_per_entry bitmask end_flag')
 
 
 def TagMeta(x):

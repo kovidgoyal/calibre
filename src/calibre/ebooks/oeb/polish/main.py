@@ -342,7 +342,7 @@ def gui_polish(data):
     file_map = {x:x for x in files}
     opts = ALL_OPTS.copy()
     opts.update(data)
-    O = namedtuple('Options', ' '.join(ALL_OPTS))
+    O = namedtuple('O', ' '.join(ALL_OPTS))
     opts = O(**opts)
     log = Log(level=Log.DEBUG)
     report = []
@@ -357,7 +357,7 @@ def gui_polish(data):
 def tweak_polish(container, actions, customization=None):
     opts = ALL_OPTS.copy()
     opts.update(actions)
-    O = namedtuple('Options', ' '.join(ALL_OPTS))
+    O = namedtuple('O', ' '.join(ALL_OPTS))
     opts = O(**opts)
     report = []
     changed = polish_one(container, opts, report.append, customization=customization)
@@ -416,7 +416,7 @@ def main(args=None):
     for k, v in popts.items():
         popts[k] = getattr(opts, k, None)
 
-    O = namedtuple('Options', ' '.join(popts))
+    O = namedtuple('O', ' '.join(popts))
     popts = O(**popts)
     report = []
     if not tuple(filter(None, (getattr(popts, name) for name in ALL_OPTS))):

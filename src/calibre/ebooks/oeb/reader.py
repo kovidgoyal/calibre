@@ -732,9 +732,10 @@ class OEBReader:
 
 
 def main(argv=sys.argv):
+    from calibre.utils.logging import default_log
     reader = OEBReader()
     for arg in argv[1:]:
-        oeb = reader(OEBBook(), arg)
+        oeb = reader(OEBBook(default_log), arg)
         for name, doc in oeb.to_opf1().values():
             print(etree.tostring(doc, pretty_print=True))
         for name, doc in oeb.to_opf2(page_map=True).values():

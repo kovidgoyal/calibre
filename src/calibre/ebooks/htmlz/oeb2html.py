@@ -100,7 +100,7 @@ class OEB2HTML:
         for item in oeb_book.spine:
             self.get_link_id(item.href)
             root = item.data.find(XHTML('body'))
-            link_attrs = set(html.defs.link_attrs)
+            link_attrs = set(html.defs.link_attrs)  # type: ignore
             link_attrs.add(XLINK('href'))
             for el in root.iter():
                 attribs = el.attrib

@@ -130,7 +130,7 @@ class FB2Input(InputFormatPlugin):
             if not has_block_elements(divp):
                 divp.tag = 'p'
 
-        index = transform.tostring(result)
+        index = str(result)
         with open('index.xhtml', 'wb') as f:
             f.write(index.encode('utf-8'))
         with open('inline-styles.css', 'wb') as f:

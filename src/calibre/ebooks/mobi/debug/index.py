@@ -15,7 +15,7 @@ from calibre.ebooks.mobi.reader.ncx import default_entry, tag_fieldname_map
 File = namedtuple('File',
     'file_number name divtbl_count start_position length')
 
-Elem = namedtuple('Chunk',
+Elem = namedtuple('Elem',
     'insert_pos toc_text file_number sequence_number start_pos '
     'length')
 

@@ -397,7 +397,7 @@ class LrfTag:
         # print('   Writing tag', self.name)
         for f in self.format:
             if isinstance(f, dict):
-                p = f[p]
+                p = f[p]  # type: ignore
             elif isinstance(f, (str, bytes)):
                 if isinstance(p, tuple):
                     writeString(lrf, struct.pack(f, *p))
@@ -406,9 +406,9 @@ class LrfTag:
             elif f in [writeUnicode, writeRaw, writeEmpDots]:
                 if encoding is None:
                     raise LrfError('Tag requires encoding')
-                f(lrf, p, encoding)
+                f(lrf, p, encoding)  # type: ignore
             else:
-                f(lrf, p)
+                f(lrf, p)  # type: ignore
 
 
 STREAM_SCRAMBLED = 0x200

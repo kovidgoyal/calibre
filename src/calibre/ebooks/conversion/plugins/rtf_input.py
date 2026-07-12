@@ -292,7 +292,7 @@ class RTFInput(InputFormatPlugin):
         result = transform(doc)
         html = 'index.xhtml'
         with open(html, 'wb') as f:
-            res = as_bytes(transform.tostring(result))
+            res = as_bytes(str(result))
             # res = res[:100].replace('xmlns:html', 'xmlns') + res[100:]
             # clean multiple \n
             res = re.sub(br'\n+', b'\n', res)

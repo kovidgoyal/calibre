@@ -162,7 +162,7 @@ class LrsParser:
         if toc:
             for tag in toc.findAll('toclabel'):
                 label = self.tag_to_string(tag)
-                self.book.addTocEntry(label, self.parsed_objects[tag.get('refobj')])
+                self.book.addTocEntry(label, self.parsed_objects[tag.get('refobj')])  # type: ignore
 
     def third_pass(self):
         map = {

@@ -21,7 +21,7 @@ class LinearGradientPattern(Dictionary):
     def __init__(self, brush, matrix, pdf, pixel_page_width, pixel_page_height):
         self.matrix = (matrix.m11(), matrix.m12(), matrix.m21(), matrix.m22(),
                        matrix.dx(), matrix.dy())
-        gradient = sip.cast(brush.gradient(), QLinearGradient)
+        gradient = sip.cast(brush.gradient(), QLinearGradient)  # type: ignore
 
         start, stop, stops = self.spread_gradient(gradient, pixel_page_width,
                                                   pixel_page_height, matrix)

@@ -36,7 +36,6 @@
 #                           Plot, Image (outside of ImageBlock),
 #                           EmpLine, EmpDots
 
-import codecs
 import io
 import operator
 import os
@@ -586,7 +585,7 @@ class Book(Delegator):
 
     def renderLrs(self, lrsFile, encoding='UTF-8'):
         if isinstance(lrsFile, (str, bytes)):
-            lrsFile = codecs.open(lrsFile, 'wb', encoding=encoding)
+            lrsFile = open(lrsFile, 'w', encoding=encoding)
         self.render(lrsFile, outputEncodingName=encoding)
         lrsFile.close()
 
