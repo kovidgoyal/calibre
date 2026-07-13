@@ -1643,37 +1643,39 @@ def simple_excepthook(t, v, tb):
 def ensure_app(headless=True) -> QApplication:
     global _store_app
     with _ea_lock:
-        if _store_app is None and QApplication.instance() is None:
-            args = sys.argv[:1]
-            if not headless:
-                _store_app = Application([])
-                sys.excepthook = simple_excepthook
-                return _store_app
-            has_headless = ismacos or islinux or isbsd
-            if headless and has_headless:
-                args += ['-platformpluginpath', plugins_loc, '-platform', os.environ.get('CALIBRE_HEADLESS_PLATFORM', 'headless')]
-                # WebEngine GPU not needed in headless mode
-                args += ['--webEngineArgs', '--disable-gpu']
-                if ismacos:
-                    os.environ['QT_MAC_DISABLE_FOREGROUND_APPLICATION_TRANSFORM'] = '1'
-            if headless and iswindows:
-                QApplication.setAttribute(Qt.ApplicationAttribute.AA_UseSoftwareOpenGL, True)
-            QApplication.setAttribute(Qt.ApplicationAttribute.AA_ShareOpenGLContexts)
-            _store_app = QApplication(args)
-            set_image_allocation_limit()
-            if headless and has_headless:
-                setattr(_store_app, 'headless', True)
+        if _store_app is None:
+            if QApplication.instance() is None:
+                args = sys.argv[:1]
+                if not headless:
+                    _store_app = Application([])
+                    sys.excepthook = simple_excepthook
+                    return _store_app
+                has_headless = ismacos or islinux or isbsd
+                if headless and has_headless:
+                    args += ['-platformpluginpath', plugins_loc, '-platform', os.environ.get('CALIBRE_HEADLESS_PLATFORM', 'headless')]
+                    # WebEngine GPU not needed in headless mode
+                    args += ['--webEngineArgs', '--disable-gpu']
+                    if ismacos:
+                        os.environ['QT_MAC_DISABLE_FOREGROUND_APPLICATION_TRANSFORM'] = '1'
+                if headless and iswindows:
+                    QApplication.setAttribute(Qt.ApplicationAttribute.AA_UseSoftwareOpenGL, True)
+                QApplication.setAttribute(Qt.ApplicationAttribute.AA_ShareOpenGLContexts)
+                _store_app = QApplication(args)
+                set_image_allocation_limit()
+                if headless and has_headless:
+                    setattr(_store_app, 'headless', True)
 
-            # This is needed because as of PyQt 5.4 if sys.execpthook ==
-            # sys.__excepthook__ PyQt will abort the application on an
-            # unhandled python exception in a slot or virtual method. Since ensure_app()
-            # is used in worker processes for background work like rendering html
-            # or running a headless browser, we circumvent this as I really
-            # don't feel like going through all the code and making sure no
-            # unhandled exceptions ever occur. All the actual GUI apps already
-            # override sys.excepthook with a proper error handler.
-            sys.excepthook = simple_excepthook
-    assert _store_app is not None
+                # This is needed because as of PyQt 5.4 if sys.execpthook ==
+                # sys.__excepthook__ PyQt will abort the application on an
+                # unhandled python exception in a slot or virtual method. Since ensure_app()
+                # is used in worker processes for background work like rendering html
+                # or running a headless browser, we circumvent this as I really
+                # don't feel like going through all the code and making sure no
+                # unhandled exceptions ever occur. All the actual GUI apps already
+                # override sys.excepthook with a proper error handler.
+                sys.excepthook = simple_excepthook
+            else:
+                _store_app = qapplication_or_fail()
     return _store_app
 
 
