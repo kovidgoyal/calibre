@@ -51,7 +51,7 @@ class LoadParser(handler.ContentHandler):
     def characters(self, content):
         if self.parse is False:
             return
-        self.content.append(content)
+        self.data.append(content)
 
     def startElementNS(self, name, qname, attrs):
         if name in self.triggers:

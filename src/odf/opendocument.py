@@ -105,6 +105,15 @@ class OpenDocument:
         fd.write(d.xml())
     '''
     thumbnail = None
+    # Optional content-type-specific elements set by factory functions or load()
+    text: element.Node
+    graphics: element.Node
+    presentation: element.Node
+    spreadsheet: element.Node
+    chart: element.Node
+    image: element.Node
+    formula: element.Node
+    drawing: element.Node
 
     def __init__(self, mimetype, add_generator=True):
         self.mimetype = mimetype
@@ -419,7 +428,7 @@ class OpenDocument:
             If the filename is '-' then save to stdout
         '''
         if outputfile == '-':
-            outputfp = zipfile.ZipFile(sys.stdout, 'w')
+            outputfp = zipfile.ZipFile(sys.stdout.buffer, 'w')
         else:
             if addsuffix:
                 outputfile = outputfile + odmimetypes.get(self.mimetype, '.xxx')

@@ -23,11 +23,15 @@
 #
 
 import xml.dom
+from typing import TYPE_CHECKING
 from xml.dom.minicompat import EmptyNodeList, defproperty
 
 from . import grammar
 from .attrconverters import AttrConverters
 from .namespaces import nsdict
+
+if TYPE_CHECKING:
+    from .opendocument import OpenDocument
 
 # The following code is pasted form xml.sax.saxutils
 # Tt makes it possible to run the code without the xml sax package installed
@@ -101,6 +105,14 @@ class Node(xml.dom.Node):
     parentNode = None
     nextSibling = None
     previousSibling = None
+    childNodes: list[Node]
+    _child_node_types: tuple[int, ...]
+    tagName: str
+    ownerDocument: OpenDocument | None
+    nodeType: int
+
+    def toXml(self, level: int, f: object) -> None:
+        raise NotImplementedError
 
     def hasChildNodes(self):
         ''' Tells whether this element has any children; text nodes,
@@ -214,6 +226,7 @@ class Childless:
 
     attributes = None
     childNodes = EmptyNodeList()
+    tagName: str
     firstChild = None
     lastChild = None
 
@@ -309,7 +322,7 @@ class Element(Node):
             self.addCDATA(cdata)
 
         allowed_attrs = self.allowed_attributes()
-        self.attributes={}
+        self.attributes: dict[tuple[str | None, str] | str, object] = {}
         # Load the attributes from the 'attributes' argument
         if attributes:
             for attr, value in attributes.items():
@@ -500,7 +513,7 @@ class Element(Node):
         if self.qname == obj.qname:
             accumulator.append(self)
         for e in self.childNodes:
-            if e.nodeType == Node.ELEMENT_NODE:
+            if isinstance(e, Element):
                 accumulator = e._getElementsByObj(obj, accumulator)
         return accumulator
 

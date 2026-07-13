@@ -91,7 +91,7 @@ def styleFromList(styleName, specArray, spacing, showAllLevels):
                 lls.setAttribute('numsuffix', numSuffix)
             lls.setAttribute('displaylevels', displayLevels)
         else:
-            lls = ListLevelStyleBullet(level=(i+1),bulletchar=bullet[0])
+            lls = ListLevelStyleBullet(level=(i+1),bulletchar=(bullet or '•')[0])
         llp = ListLevelProperties()
         llp.setAttribute('spacebefore', str(cssLengthNum * (i+1)) + cssLengthUnits)
         llp.setAttribute('minlabelwidth', str(cssLengthNum) + cssLengthUnits)
