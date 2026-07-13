@@ -21,13 +21,6 @@ from calibre.utils.filenames import ascii_filename
 from calibre.utils.localization import _
 
 
-def add_items_to_context_menu(self, menu):
-    menu.addSeparator()
-    ac = menu.addAction(_('Clear search &history'))
-    ac.triggered.connect(self.clear_history)
-    return menu
-
-
 class SearchDialog(QDialog, Ui_Dialog):
 
     SEARCH_TEXT = _('&Search')
@@ -44,9 +37,15 @@ class SearchDialog(QDialog, Ui_Dialog):
         self.search_title.initialize('store_search_search_title')
         self.search_author.initialize('store_search_search_author')
         self.search_edit.initialize('store_search_search')
-        self.search_title.add_items_to_context_menu = add_items_to_context_menu
-        self.search_author.add_items_to_context_menu = add_items_to_context_menu
-        self.search_edit.add_items_to_context_menu = add_items_to_context_menu
+        for widget in (self.search_title, self.search_author, self.search_edit):
+            def make_ctx_menu(w):
+                def add_items_to_context_menu(menu):
+                    menu.addSeparator()
+                    ac = menu.addAction(_('Clear search &history'))
+                    ac.triggered.connect(w.clear_history)
+                    return menu
+                return add_items_to_context_menu
+            widget.add_items_to_context_menu = make_ctx_menu(widget)
 
         # Loads variables that store various settings.
         # This needs to be called soon in __init__ because
