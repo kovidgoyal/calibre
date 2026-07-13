@@ -63,7 +63,7 @@ class GenericDownloadThreadPool:
         return self.results.get_nowait()
 
     def result_count(self):
-        return len(self.results)
+        return self.results.qsize()
 
     def has_results(self):
         return not self.results.empty()

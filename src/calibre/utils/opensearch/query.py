@@ -21,6 +21,14 @@ class Query:
     standard_macros = ['searchTerms', 'count', 'startIndex', 'startPage',
         'language', 'outputEncoding', 'inputEncoding']
 
+    searchTerms: str
+    count: int
+    startIndex: int
+    startPage: int
+    language: str
+    outputEncoding: str
+    inputEncoding: str
+
     def __init__(self, format):
         '''
         Create a query object by passing it the url format obtained

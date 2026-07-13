@@ -63,37 +63,33 @@ class MobileReadStoreDialog(QDialog, Ui_Dialog):
             self.search_query.setText(adv.search_string())
 
     def restore_state(self):
-        model = self.results_view.model()
-        assert model is not None
         self.restore_geometry(self.plugin.config, 'dialog_geometry')
         results_cwidth = self.plugin.config.get('dialog_results_view_column_width')
         if results_cwidth:
             for i, x in enumerate(results_cwidth):
-                if i >= model.columnCount():
+                if i >= self._model.columnCount():
                     break
                 self.results_view.setColumnWidth(i, x)
         else:
-            for i in range(model.columnCount()):
+            for i in range(self._model.columnCount()):
                 self.results_view.resizeColumnToContents(i)
 
-        model.sort_col = self.plugin.config.get('dialog_sort_col', 0)
+        self._model.sort_col = self.plugin.config.get('dialog_sort_col', 0)
         try:
             so = Qt.SortOrder(self.plugin.config.get('dialog_sort_order', Qt.SortOrder.AscendingOrder))
         except Exception:
             so = Qt.SortOrder.AscendingOrder
-        model.sort_order = so
-        model.sort(model.sort_col, so)
+        self._model.sort_order = so
+        self._model.sort(self._model.sort_col, so)
         header = self.results_view.header()
         assert header is not None
-        header.setSortIndicator(model.sort_col, so)
+        header.setSortIndicator(self._model.sort_col, so)
 
     def save_state(self):
-        model = self.results_view.model()
-        assert model is not None
         self.save_geometry(self.plugin.config, 'dialog_geometry')
-        self.plugin.config['dialog_results_view_column_width'] = [self.results_view.columnWidth(i) for i in range(model.columnCount())]
-        self.plugin.config['dialog_sort_col'] = model.sort_col
-        self.plugin.config['dialog_sort_order'] = model.sort_order
+        self.plugin.config['dialog_results_view_column_width'] = [self.results_view.columnWidth(i) for i in range(self._model.columnCount())]
+        self.plugin.config['dialog_sort_col'] = self._model.sort_col
+        self.plugin.config['dialog_sort_order'] = self._model.sort_order
 
     def dialog_closed(self, result):
         self.save_state()

@@ -32,12 +32,10 @@ class ResultsView(QTreeView):
         for i in range(self._model.columnCount()):
             self.resizeColumnToContents(i)
 
-        _model = self.model()
-        assert _model is not None
-        _model.sort(1, Qt.SortOrder.AscendingOrder)
+        self._model.sort(1, Qt.SortOrder.AscendingOrder)
         _header = self.header()
         assert _header is not None
-        _header.setSortIndicator(_model.sort_col, _model.sort_order)
+        _header.setSortIndicator(self._model.sort_col, self._model.sort_order)
 
     def contextMenuEvent(self, a0):
         index = self.indexAt(a0.pos())

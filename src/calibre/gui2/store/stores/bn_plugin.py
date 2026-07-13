@@ -20,7 +20,8 @@ from calibre.gui2.store.web_store_dialog import WebStoreDialog
 try:
     from calibre.utils.xml_parse import safe_html_fromstring
 except ImportError:
-    safe_html_fromstring = html.fromstring
+    def safe_html_fromstring(string_or_bytes, recover=True):
+        return html.fromstring(string_or_bytes)
 
 
 def search_bn(query, max_results=10, timeout=60, write_html_to=''):

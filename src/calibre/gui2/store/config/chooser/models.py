@@ -3,7 +3,9 @@ __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
 
-from qt.core import QAbstractItemModel, QIcon, QModelIndex, QStyledItemDelegate, Qt
+from typing import overload
+
+from qt.core import QAbstractItemModel, QIcon, QModelIndex, QObject, QStyledItemDelegate, Qt
 
 from calibre import fit_image
 from calibre.customize.ui import disable_plugin, enable_plugin, is_disabled
@@ -95,7 +97,11 @@ class Matches(QAbstractItemModel):
     def index(self, row, column, parent=QModelIndex()):
         return self.createIndex(row, column)
 
-    def parent(self, child=...):
+    @overload
+    def parent(self, child: QModelIndex) -> QModelIndex: ...
+    @overload
+    def parent(self) -> QObject | None: ...
+    def parent(self, child: QModelIndex = QModelIndex()):
         if not child.isValid() or child.internalId() == 0:
             return QModelIndex()
         return self.createIndex(0, 0)
@@ -196,7 +202,7 @@ class Matches(QAbstractItemModel):
             text = 'a' if getattr(match, 'affiliate', False) else 'b'
         return text
 
-    def sort(self, column, order=..., reset=True):
+    def sort(self, column, order: Qt.SortOrder = Qt.SortOrder.AscendingOrder, reset=True):
         self.sort_col = column
         self.sort_order = order
         if not self.matches:
@@ -292,7 +298,7 @@ class SearchFilter(SearchQueryParser):
                         m = matchkind
 
                     if locvalue == 'format':
-                        vals = accessor(sr).split(',')
+                        vals = str(accessor(sr)).split(',')
                     else:
                         vals = [accessor(sr)]
                     if _match(query, vals, m, use_primary_find_in_search=upf):

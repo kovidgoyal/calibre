@@ -6,8 +6,9 @@ __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
 from operator import attrgetter
+from typing import overload
 
-from qt.core import QAbstractItemModel, QModelIndex, Qt, pyqtSignal
+from qt.core import QAbstractItemModel, QModelIndex, QObject, Qt, pyqtSignal
 
 from calibre.db.search import CONTAINS_MATCH, EQUALS_MATCH, REGEXP_MATCH, _match
 from calibre.utils.config_base import prefs
@@ -54,7 +55,11 @@ class BooksModel(QAbstractItemModel):
     def index(self, row, column, parent=QModelIndex()):
         return self.createIndex(row, column)
 
-    def parent(self, child=...):
+    @overload
+    def parent(self, child: QModelIndex) -> QModelIndex: ...
+    @overload
+    def parent(self) -> 'QObject | None': ...
+    def parent(self, child: QModelIndex = QModelIndex()):
         if not child.isValid() or child.internalId() == 0:
             return QModelIndex()
         return self.createIndex(0, 0)
@@ -98,7 +103,7 @@ class BooksModel(QAbstractItemModel):
             text = result.formats
         return text
 
-    def sort(self, column, order=..., reset=True):
+    def sort(self, column, order: Qt.SortOrder = Qt.SortOrder.AscendingOrder, reset=True):
         self.sort_col = column
         self.sort_order = order
         if not self.books:

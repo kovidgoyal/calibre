@@ -5,8 +5,9 @@ __docformat__ = 'restructuredtext en'
 import re
 import string
 from operator import attrgetter
+from typing import overload
 
-from qt.core import QAbstractItemModel, QIcon, QModelIndex, QPixmap, QSize, Qt, pyqtSignal
+from qt.core import QAbstractItemModel, QIcon, QModelIndex, QObject, QPixmap, QSize, Qt, pyqtSignal
 
 from calibre import force_unicode
 from calibre.gui2 import FunctionDispatcher, qapplication_or_fail
@@ -174,7 +175,11 @@ class Matches(QAbstractItemModel):
     def index(self, row, column, parent=QModelIndex()):
         return self.createIndex(row, column)
 
-    def parent(self, child=...):
+    @overload
+    def parent(self, child: QModelIndex) -> QModelIndex: ...
+    @overload
+    def parent(self) -> QObject | None: ...
+    def parent(self, child: QModelIndex = QModelIndex()):
         if not child.isValid() or child.internalId() == 0:
             return QModelIndex()
         return self.createIndex(0, 0)
@@ -287,7 +292,7 @@ class Matches(QAbstractItemModel):
                 text = 'b'
         return text
 
-    def sort(self, column, order=..., reset=True):
+    def sort(self, column, order: Qt.SortOrder = Qt.SortOrder.AscendingOrder, reset=True):
         self.sort_col = column
         self.sort_order = order
         if not self.matches:

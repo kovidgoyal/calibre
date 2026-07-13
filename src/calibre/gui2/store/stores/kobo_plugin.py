@@ -22,17 +22,18 @@ from calibre.gui2.store.web_store_dialog import WebStoreDialog
 try:
     from calibre.utils.xml_parse import safe_html_fromstring
 except ImportError:
-    safe_html_fromstring = html.fromstring
+    def safe_html_fromstring(string_or_bytes, recover=True):
+        return html.fromstring(string_or_bytes)
+
+
+_storage: list = []
 
 
 def read_url(url, timeout=60):
     # Kobo uses Akamai which has some bot detection that uses network/tls
     # protocol data. So use the Chromium network stack to make the request
     from calibre.scraper.simple import read_url as ru
-    return ru(read_url.storage, url, timeout=timeout)
-
-
-read_url.storage = []
+    return ru(_storage, url, timeout=timeout)
 
 
 def search_kobo(query, max_results=10, timeout=60, write_html_to=None):
@@ -78,11 +79,11 @@ def search_kobo(query, max_results=10, timeout=60, write_html_to=None):
 
         if title and authors and url:
             s = SearchResult()
-            s.cover_url = cover_url
+            s.cover_url = cover_url or ''
             s.store_name = 'Kobo'
             s.title = title
             s.author = authors
-            s.price = price
+            s.price = price or ''
             s.detail_item = url
             s.formats = 'EPUB'
             s.drm = SearchResult.DRM_UNKNOWN

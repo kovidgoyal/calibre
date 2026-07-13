@@ -47,7 +47,8 @@ def search(query, max_results=15, timeout=60):
                 break
             counter -= 1
 
-            s = SearchResult(store_name='OZON.ru')
+            s = SearchResult()
+            s.store_name = 'OZON.ru'
             s.detail_item = shop_url + tile.xpath('descendant::a[@class="eShelfTile_Link"]/@href')[0]
             s.title = tile.xpath('descendant::span[@class="eShelfTile_ItemNameText"]/@title')[0]
             s.author = tile.xpath('descendant::span[@class="eShelfTile_ItemPerson"]/@title')[0]
