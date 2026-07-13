@@ -105,7 +105,7 @@ def generate():
     try:
         output += array.array('i', offsets).tobytes()
     except AttributeError:
-        output += array.array('i', offsets).tostring()
+        output += array.array('i', offsets).tostring()  # type: ignore
     output += ids
     output += strs
     return output

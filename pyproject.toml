@@ -297,5 +297,6 @@ exclude = [
 	'**/*_ui.py', '**/*_test.py', '**/test_*.py',
 	'setup/*.py', 'setup.py',
 	'**/tests/**',
-	'src/calibre/library/database2.py'
+	'src/calibre/library/database2.py',
+	'src/calibre/library/schema_upgrades.py',
 ]

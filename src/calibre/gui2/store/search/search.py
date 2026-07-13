@@ -3,9 +3,10 @@ __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
 import re
+from functools import partial
 from random import shuffle
 
-from qt.core import QCheckBox, QDialog, QDialogButtonBox, QGridLayout, QIcon, QLabel, QSize, QStyle, Qt, QTabWidget, QTimer, QVBoxLayout, QWidget
+from qt.core import QCheckBox, QDialog, QDialogButtonBox, QGridLayout, QIcon, QLabel, QMenu, QSize, QStyle, Qt, QTabWidget, QTimer, QVBoxLayout, QWidget
 
 from calibre.gui2 import JSONConfig, error_dialog, info_dialog
 from calibre.gui2.dialogs.choose_format import ChooseFormatDialog
@@ -17,15 +18,16 @@ from calibre.gui2.store.search.adv_search_builder import AdvSearchBuilderDialog
 from calibre.gui2.store.search.download_thread import CacheUpdateThreadPool, SearchThreadPool
 from calibre.gui2.store.search.models import Matches
 from calibre.gui2.store.search.search_ui import Ui_Dialog
+from calibre.gui2.widgets2 import HistoryLineEdit2
 from calibre.utils.filenames import ascii_filename
 from calibre.utils.localization import _
 
 
-def add_items_to_context_menu(self, menu):
+def add_items_to_context_menu(widget: HistoryLineEdit2, menu: QMenu) -> None:
     menu.addSeparator()
     ac = menu.addAction(_('Clear search &history'))
-    ac.triggered.connect(self.clear_history)
-    return menu
+    assert ac is not None
+    ac.triggered.connect(widget.clear_history)
 
 
 class SearchDialog(QDialog, Ui_Dialog):
@@ -38,15 +40,15 @@ class SearchDialog(QDialog, Ui_Dialog):
         self.setupUi(self)
         s = self.style()
         assert s is not None
-        self.close.setIcon(s.standardIcon(QStyle.StandardPixmap.SP_DialogCloseButton))
+        self.close_button.setIcon(s.standardIcon(QStyle.StandardPixmap.SP_DialogCloseButton))
 
         self.config = JSONConfig('store/search')
         self.search_title.initialize('store_search_search_title')
         self.search_author.initialize('store_search_search_author')
         self.search_edit.initialize('store_search_search')
-        self.search_title.add_items_to_context_menu = add_items_to_context_menu
-        self.search_author.add_items_to_context_menu = add_items_to_context_menu
-        self.search_edit.add_items_to_context_menu = add_items_to_context_menu
+        self.search_title.add_items_to_context_menu_callback = partial(add_items_to_context_menu, self.search_title)
+        self.search_author.add_items_to_context_menu_callback = partial(add_items_to_context_menu, self.search_author)
+        self.search_edit.add_items_to_context_menu_callback = partial(add_items_to_context_menu, self.search_edit)
 
         # Loads variables that store various settings.
         # This needs to be called soon in __init__ because

@@ -39,6 +39,7 @@ def comparable_price(text):
 class Matches(QAbstractItemModel):
 
     total_changed = pyqtSignal(int)
+    sort_order: Qt.SortOrder
 
     HEADERS = [_('Cover'), _('Title'), _('Price'), _('DRM'), pgettext('book store in the Get books calibre feature', 'Store'), _('Download'), _('Affiliate')]
     HTML_COLS = (1, 4)

@@ -5,12 +5,7 @@
 store_version = 1  # Needed for dynamic plugin loading
 
 from calibre.gui2.store import StorePlugin
-
-try:
-    from calibre.gui2.store.amazon_base import AmazonStore
-except ImportError:
-    class AmazonStore:
-        minimum_calibre_version = 9999, 0, 0
+from calibre.gui2.store.amazon_base import AmazonStore
 
 
 class Base(AmazonStore):

@@ -12,7 +12,7 @@ from calibre.scraper.simple import read_url
 try:
     from calibre.utils.xml_parse import safe_html_fromstring
 except ImportError:
-    safe_html_fromstring = html.fromstring
+    safe_html_fromstring = html.fromstring  # type: ignore
 
 module_version = 2  # needed for live updates
 
