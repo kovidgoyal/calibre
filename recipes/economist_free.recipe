@@ -282,13 +282,21 @@ class Economist(BasicNewsRecipe):
 
     def publication_date(self):
         edition_date = self.recipe_specific_options.get('date')
+        if isinstance(edition_date, str):
+            edition_date = edition_date.strip()
+        if edition_date:
+            return datetime.strptime(edition_date, '%Y-%m-%d').replace(tzinfo=local_tz)
         try:
-            if not isinstance(edition_date, str):
-                edition_date = None
-            edition = self.economist_get_edition(edition_date)
+            url = self.browser.open('https://www.economist.com/printedition').geturl()
+            date_str = url.split('/')[-1]
+            return datetime.strptime(date_str, '%Y-%m-%d').replace(tzinfo=local_tz)
+        except Exception as e:
+            self.log('Failed to fetch publication date from website with error: ' + str(e))
+        try:
+            edition = self.economist_get_edition()
             return datetime.strptime(edition['issueDate'][:10], '%Y-%m-%d').replace(tzinfo=local_tz)
         except Exception as e:
-            self.log('Failed to fetch publication date with error: ' + str(e))
+            self.log('Failed to fetch publication date from GraphQL with error: ' + str(e))
             return super().publication_date()
 
     def economist_get_edition(self, edition_date=None):
@@ -317,12 +325,100 @@ class Economist(BasicNewsRecipe):
     def parse_index(self):
         # return self.economist_test_article()
         edition_date = self.recipe_specific_options.get('date')
-        if not isinstance(edition_date, str):
+        if isinstance(edition_date, str):
+            edition_date = edition_date.strip()
+        if edition_date:
+            url = 'https://www.economist.com/weeklyedition/' + edition_date
+            self.timefmt = ' [' + edition_date + ']'
+        else:
             edition_date = None
-        ans = self.economist_parse_index(self.economist_get_edition(edition_date))
+            url = 'https://www.economist.com/weeklyedition'
+        try:
+            ans = self.economist_parse_index(url)
+        except Exception as e:
+            self.log('Failed to get index from website with error:', e)
+            ans = []
+        if not ans:
+            self.log('Falling back to GraphQL for the edition index')
+            try:
+                ans = self.economist_parse_graphql_index(
+                    self.economist_get_edition(edition_date)
+                )
+            except Exception as e:
+                self.log('Failed to get index from GraphQL with error:', e)
+                ans = []
         return self.economist_return_index(ans)
 
-    def economist_parse_index(self, edition):
+    def economist_parse_index(self, url):
+        soup = self.index_to_soup(url)
+        script_tag = soup.find('script', id='__NEXT_DATA__')
+        if script_tag is None:
+            self.log('Failed to get index with UA:', self.last_used_ua)
+            from calibre.utils.random_ua import random_common_chrome_user_agent
+            user_agent = random_common_chrome_user_agent()
+            self.log('Retrying with UA:', user_agent)
+            time.sleep(1)
+            self.browser = self.get_browser(user_agent=user_agent)
+            soup = self.index_to_soup(url)
+            script_tag = soup.find('script', id='__NEXT_DATA__')
+        if script_tag is None:
+            return []
+        data = json.loads(script_tag.string)
+        # open('/t/raw.json', 'w').write(json.dumps(data, indent=2, sort_keys=True))
+
+        self.description = safe_dict(
+            data, 'props', 'pageProps', 'content', 'headline'
+        )
+        self.timefmt = (
+            ' ['
+            + safe_dict(data, 'props', 'pageProps', 'content', 'formattedIssueDate')
+            + ']'
+        )
+        self.cover_url = (
+            safe_dict(data, 'props', 'pageProps', 'content', 'cover', 'url')
+            .replace(
+                'economist.com/',
+                'economist.com/cdn-cgi/image/width=960,quality=80,format=auto/',
+            )
+            .replace('SQ_', '').replace('_AS', '_AP')
+        )
+        self.log('Got cover:', self.cover_url)
+
+        feeds = []
+        seen = set()
+        for component in safe_dict(data, 'props', 'pageProps', 'content', 'components'):
+            match component.get('type'):
+                case 'AD':
+                    continue
+                case 'COLLECTION':
+                    articles = []
+                    section = component['name']
+                    self.log(section)
+                    for article in component['articles']:
+                        for article in component['articles']:
+                            if article['id'] in seen:
+                                continue
+                            seen.add(article['id'])
+                            title = article['headline']
+                            url = process_url(article['url'])
+                            sub = article.get('flyTitle') or ''
+                            desc = article.get('rubric') or ''
+                            if sub and section != sub:
+                                desc = sub + ' :: ' + desc
+                            self.log('\t', title, '\n\t', desc, '\n\t\t', url)
+                            articles.append({'title': title, 'url': url, 'description': desc})
+                    if articles:
+                        feeds.append((section, articles))
+
+        d = self.recipe_specific_options.get('de')
+        if d and isinstance(d, str):
+            if d.lower().strip() == 'yes':
+                self.from_web = True
+            else:
+                self.from_web = False
+        return feeds
+
+    def economist_parse_graphql_index(self, edition):
         if not edition:
             return []
         self.description = edition.get('headline') or self.description
