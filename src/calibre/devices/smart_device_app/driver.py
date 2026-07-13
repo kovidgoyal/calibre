@@ -967,6 +967,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             if (self.noop_counter > self.SEND_NOOP_EVERY_NTH_PROBE and
                     (self.noop_counter % self.SEND_NOOP_EVERY_NTH_PROBE) != 1):
                 try:
+                    assert self.device_socket is not None
                     ans = select.select((self.device_socket,), (), (), 0)
                     if len(ans[0]) == 0:
                         return self
@@ -1489,6 +1490,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             sanity_check(on_card='', files=files, card_prefixes=[],
                          free_space=self.free_space())
         paths = []
+        assert metadata is not None
         names = iter(names)
         metadata = iter(metadata)
 

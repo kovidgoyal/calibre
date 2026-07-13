@@ -587,7 +587,10 @@ class CollectionsGroupBox(DeviceOptionsGroupBox):
 
     def validate_collections_columns(self):
         from calibre.gui2.ui import get_gui
-        db = get_gui().current_db
+        gui = get_gui()
+        if gui is None:
+            return True
+        db = gui.current_db
         fm = db.field_metadata
         bad_names = []
         for l in [v.strip() for v in self.collections_columns.split(',') if v.strip()]:
@@ -1053,12 +1056,6 @@ class MetadataGroupBox(DeviceOptionsGroupBox):
         self.bookstats_timetoread_upper_template_edit.setEnabled(checked and self.update_bookstats and self.update_core_metadata)
         self.bookstats_timetoread_lower_template_edit.setEnabled(checked and self.update_bookstats and self.update_core_metadata)
 
-    def edit_template(self):
-        t = TemplateDialog(self, self.template)
-        t.setWindowTitle(_('Edit template'))
-        if t.exec():
-            self.t.setText(t.rule[1])
-
     def validate(self):
         if self.update_subtitle and not self.subtitle_template_edit.validate():
             return False
@@ -1195,11 +1192,11 @@ if __name__ == '__main__':
     # dev.open(cd, 'test')
     cw = dev.config_widget()
     d = QDialog()
-    d.l = QVBoxLayout()
-    d.setLayout(d.l)
-    d.l.addWidget(cw)
+    layout = QVBoxLayout()
+    d.setLayout(layout)
+    layout.addWidget(cw)
     bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok|QDialogButtonBox.StandardButton.Cancel)
-    d.l.addWidget(bb)
+    layout.addWidget(bb)
     bb.accepted.connect(d.accept)
     bb.rejected.connect(d.reject)
     if d.exec() == QDialog.DialogCode.Accepted:

@@ -73,7 +73,7 @@ class Book(Book_):
         self.kobo_bookstats     = {}
 
         if thumbnail_name is not None:
-            self.thumbnail = ImageWrapper(thumbnail_name)
+            self._thumbnail_value = ImageWrapper(thumbnail_name)
 
         if show_debug:
             debug_print('Book::__init__ end - self=', self)
@@ -115,9 +115,7 @@ class Book(Book_):
 
         ans.append(str(self.kobo_metadata))
 
-        ans = '\n'.join(ans)
-
-        return super().__str__() + '\n' + ans
+        return super().__str__() + '\n' + '\n'.join(ans)
 
 
 class ImageWrapper:
@@ -138,7 +136,7 @@ class KTCollectionsBookList(CollectionsBookList):
         collections = {}
 
         ca = []
-        for c in collection_attributes:
+        for c in (collection_attributes or []):
             ca.append(c.lower())
         collection_attributes = ca
         debug_print('KTCollectionsBookList:get_collections - collection_attributes=', collection_attributes)

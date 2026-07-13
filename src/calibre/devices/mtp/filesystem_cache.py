@@ -26,7 +26,8 @@ bexts = frozenset(BOOK_EXTENSIONS) - {'mbp', 'tan', 'rar', 'zip', 'xml'}
 def convert_timestamp(md):
     try:
         if isinstance(md, tuple):
-            return datetime(*(list(md)+[local_tz]))
+            year, month, day, hour, minute, second, microsecond = md
+            return datetime(year, month, day, hour, minute, second, microsecond, local_tz)
         else:
             return datetime.fromtimestamp(md, local_tz)
     except Exception:
@@ -166,7 +167,9 @@ class FileOrFolder:
         yield from self.files
 
     def add_child(self, entry):
-        ans = FileOrFolder(entry, self.fs_cache())
+        cache = self.fs_cache()
+        assert cache is not None
+        ans = FileOrFolder(entry, cache)
         t = self.folders if ans.is_folder else self.files
         t.append(ans)
         return ans

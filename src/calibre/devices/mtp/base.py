@@ -6,6 +6,7 @@ __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 from functools import wraps
+from typing import Any
 
 from calibre import prints
 from calibre.constants import DEBUG
@@ -33,6 +34,7 @@ class MTPDeviceBase(DevicePlugin):
     description = _('Communicate with MTP devices')
     author = 'Kovid Goyal'
     version = (1, 0, 0)
+    prefs: dict[str, Any]
 
     def __init__(self, *args, **kwargs):
         DevicePlugin.__init__(self, *args, **kwargs)
@@ -55,6 +57,16 @@ class MTPDeviceBase(DevicePlugin):
             only_presence=False):
         # We manage device presence ourselves, so this method should always
         # return False
+        return False
+
+    @property
+    def save_template(self) -> str:
+        raise NotImplementedError
+
+    def filesystem_callback(self, msg: str) -> None:
+        pass
+
+    def is_folder_ignored(self, storage_or_storage_id, path) -> bool:
         return False
 
     def build_template_regexp(self):

@@ -50,6 +50,8 @@ def none_cmp(xx, yy):
 
 class Book(Metadata):
 
+    _thumbnail_value = None
+
     def __init__(self, prefix, lpath, size=None, other=None):
         from calibre.ebooks.metadata.meta import path_to_ext
 
@@ -92,7 +94,7 @@ class Book(Metadata):
 
     @property
     def thumbnail(self):
-        return None
+        return self._thumbnail_value
 
 
 class BookList(_BookList):
@@ -153,7 +155,7 @@ class CollectionsBookList(BookList):
             else:
                 field_name = ''
         cat_name = EvalFormatter().safe_format(
-                        fmt=tweaks['sony_collection_name_template'],
+                        tweaks['sony_collection_name_template'],
                         kwargs={'category':field_name, 'value':field_value},
                         error_value='GET_CATEGORY', book=None)
         return cat_name.strip()
@@ -177,7 +179,7 @@ class CollectionsBookList(BookList):
         all_by_title = ''
         ca = []
         all_by_something = []
-        for c in collection_attributes:
+        for c in (collection_attributes or []):
             if c.startswith('aba:') and c[4:].strip():
                 all_by_author = c[4:].strip()
             elif c.startswith('abt:') and c[4:].strip():

@@ -2,11 +2,15 @@ __license__ = 'GPL 3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
+from typing import ClassVar
+
 from calibre.utils.config_base import Config, ConfigProxy
 from calibre.utils.localization import _
 
 
 class DeviceConfig:
+
+    FORMATS: ClassVar[list[str]]
 
     HELP_MESSAGE = _('Configure device')
 

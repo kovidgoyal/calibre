@@ -157,7 +157,7 @@ class PRS505(USBMS):
         if self._card_b_prefix is not None:
             if not write_cache(self._card_b_prefix):
                 self._card_b_prefix = None
-        self.booklist_class.rebuild_collections = self.rebuild_collections
+        setattr(self.booklist_class, 'rebuild_collections', self.rebuild_collections)
         # Set the thumbnail width to the theoretical max if the user has asked
         # that we do not preserve aspect ratio
         if not self.settings().extra_customization[self.OPT_PRESERVE_ASPECT_RATIO]:
@@ -232,6 +232,7 @@ class PRS505(USBMS):
             for idx,bl in blists.items():
                 prefix = self._card_a_prefix if idx == 1 else \
                                 self._card_b_prefix if idx == 2 else self._main_prefix
+                assert prefix is not None
                 for book in bl:
                     try:
                         p = os.path.join(prefix, book.lpath)

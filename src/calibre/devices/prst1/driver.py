@@ -161,9 +161,10 @@ class PRST1(USBMS):
             return dummy_bl
 
         prefix = self._card_a_prefix if oncard == 'carda' else self._main_prefix
+        assert prefix is not None
 
         # Let parent driver get the books
-        self.booklist_class.rebuild_collections = self.rebuild_collections
+        setattr(self.booklist_class, 'rebuild_collections', self.rebuild_collections)
         bl = USBMS.books(self, oncard=oncard, end_session=end_session)
 
         dbpath = self.normalize_path(prefix + DBPATH)
@@ -209,7 +210,7 @@ class PRST1(USBMS):
                     time_offsets[offset] = time_offsets[offset] + 1
 
                 try:
-                    device_offset = max(time_offsets, key=time_offsets.get)
+                    device_offset = max(time_offsets, key=lambda k: time_offsets.get(k) or 0)
                     debug_print(f'Device Offset: {device_offset} ms')
                     self.device_offset = device_offset
                 except ValueError:
@@ -723,6 +724,7 @@ class PRST1(USBMS):
             prefix = self._card_a_prefix
             source_id = 1
 
+        assert prefix is not None
         metadata.lpath = filepath.partition(prefix)[2]
         metadata.lpath = metadata.lpath.replace('\\', '/')
         dbpath = self.normalize_path(prefix + DBPATH)
@@ -758,6 +760,7 @@ class PRST1(USBMS):
         thumbnail_path = THUMBPATH%book.bookId
 
         prefix = self._main_prefix if source_id == 0 else self._card_a_prefix
+        assert prefix is not None
         thumbnail_file_path = os.path.join(prefix, *thumbnail_path.split('/'))
         thumbnail_dir_path = os.path.dirname(thumbnail_file_path)
         if not os.path.exists(thumbnail_dir_path):

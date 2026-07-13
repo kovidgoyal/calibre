@@ -5,8 +5,8 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
+import builtins
 import datetime
-import importlib
 import json
 import os
 import posixpath
@@ -14,7 +14,7 @@ import sys
 import traceback
 from collections.abc import Sequence
 from io import BytesIO
-from typing import NamedTuple
+from typing import TYPE_CHECKING, NamedTuple
 
 from calibre import prints
 from calibre.constants import iswindows, numeric_version
@@ -28,7 +28,13 @@ from calibre.utils.icu import lower as icu_lower
 from calibre.utils.localization import _
 from polyglot.builtins import as_bytes
 
-BASE = importlib.import_module('calibre.devices.mtp.{}.driver'.format('windows' if iswindows else 'unix')).MTP_DEVICE
+if TYPE_CHECKING:
+    from calibre.devices.mtp.windows.driver import MTP_DEVICE as BASE
+else:  # noqa
+    if iswindows:
+        from calibre.devices.mtp.windows.driver import MTP_DEVICE as BASE
+    else:
+        from calibre.devices.mtp.unix.driver import MTP_DEVICE as BASE
 DEFAULT_THUMBNAIL_HEIGHT = 320
 
 
@@ -151,8 +157,9 @@ class MTP_DEVICE(BASE):
             for x in ('format_map', 'send_template', 'send_to'):
                 del self.prefs[x]
 
-    def open(self, device, library_uuid):
+    def open(self, connected_device, library_uuid):
         from calibre.utils.date import isoformat, utcnow
+        device = connected_device
         self.current_library_uuid = library_uuid
         self.location_paths = None
         self.driveinfo = {}
@@ -205,7 +212,7 @@ class MTP_DEVICE(BASE):
         if self.is_mtp_device_connected:
             self.eject()
 
-    def find_calibre_file_path(self, storage, key) -> list[str]:
+    def find_calibre_file_path(self, storage, key) -> builtins.list[str]:
         paths = self.calibre_file_paths[key]
         if isinstance(paths, str):
             paths = (paths,)
@@ -538,6 +545,7 @@ class MTP_DEVICE(BASE):
 
         routing = dict(self.get_pref('rules'))
 
+        assert metadata is not None
         for infile, fname, mi in zip(files, names, metadata):
             path = self.create_upload_path(prefix, mi, fname, routing)
             if path and self.is_folder_ignored(storage, path):
@@ -705,7 +713,8 @@ class MTP_DEVICE(BASE):
             os.remove(apnx_local_path)
         debug('upload_apnx() ended')
 
-    def add_books_to_metadata(self, mtp_files, metadata, booklists):
+    def add_books_to_metadata(self, locations, metadata, booklists):
+        mtp_files = locations
         debug('add_books_to_metadata() called')
         from calibre.devices.mtp.books import Book
 
@@ -788,8 +797,8 @@ class MTP_DEVICE(BASE):
         from calibre.gui2.device_drivers.mtp_config import MTPConfig
         return MTPConfig(self, highlight_ignored_folders=self.highlight_ignored_folders)
 
-    def save_settings(self, cw):
-        cw.commit()
+    def save_settings(self, config_widget):
+        config_widget.commit()
 
     def settings(self):
         class Opts:
@@ -811,8 +820,8 @@ class MTP_DEVICE(BASE):
                 ans[dev] = name
         return ans
 
-    def set_user_blacklisted_devices(self, devs):
-        self.prefs['blacklist'] = list(devs)
+    def set_user_blacklisted_devices(self, devices):
+        self.prefs['blacklist'] = list(devices)
 
     # }}}
 

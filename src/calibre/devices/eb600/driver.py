@@ -124,7 +124,9 @@ class TOLINO(EB600):
 
     def post_open_callback(self):
         # The tolino vision only handles books inside the Books folder
-        product_id, bcd = self.device_being_opened[1], self.device_being_opened[2]
+        device_info = self.device_being_opened
+        product_id = device_info[1] if device_info is not None else 0
+        bcd = device_info[2] if device_info is not None else 0
         is_tolino = product_id in (0x6033, 0x6052, 0x6053) or (product_id == 0x1688 and bcd == 0x226)
         self.ebook_dir_for_upload = 'Books' if is_tolino else ''
 

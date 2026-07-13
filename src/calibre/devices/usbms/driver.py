@@ -213,6 +213,7 @@ class USBMS(CLI, Device):
         prefix = self._card_a_prefix if oncard == 'carda' else \
                                      self._card_b_prefix if oncard == 'cardb' \
                                                          else self._main_prefix
+        assert prefix is not None
 
         ebook_dirs = self.get_carda_ebook_dir() if oncard == 'carda' else \
             self.EBOOK_DIR_CARD_B if oncard == 'cardb' else \
@@ -225,7 +226,7 @@ class USBMS(CLI, Device):
         need_sync = self.parse_metadata_cache(bl, prefix, self.METADATA_CACHE)
 
         # make a dict cache of paths so the lookup in the loop below is faster.
-        bl_cache = {}
+        bl_cache: dict[str, int | None] = {}
         for idx, b in enumerate(bl):
             bl_cache[b.lpath] = idx
 
@@ -316,6 +317,7 @@ class USBMS(CLI, Device):
 
         path = self._sanity_check(on_card, files)
 
+        assert metadata is not None
         paths = []
         names = iter(names)
         metadata = iter(metadata)

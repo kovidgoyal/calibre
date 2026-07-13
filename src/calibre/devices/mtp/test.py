@@ -255,6 +255,7 @@ class TestDeviceInteraction(unittest.TestCase):
                 'Memory consumption during get_file:')
 
         # Test get_filesystem
+        assert dev.dev is not None
         used_by_one = self.measure_memory_usage(1,
                 dev.dev.get_filesystem, storage.object_id,
                                                 lambda x, l:True)

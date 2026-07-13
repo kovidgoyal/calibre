@@ -30,7 +30,7 @@ def fingerprint(d):
             d.serial, d.manufacturer, d.product)
 
 
-def sorted_storage(storage_info):
+def sorted_storage(storage_info: list[dict[str, object]]) -> list[dict[str, object]]:
     storage = sorted(storage_info, key=operator.itemgetter('id'))
     if len(storage) > 1 and storage[0].get('removable', False):
         for i in range(1, len(storage)):
@@ -51,7 +51,7 @@ class MTP_DEVICE(MTPDeviceBase):
     def __init__(self, *args, **kwargs):
         MTPDeviceBase.__init__(self, *args, **kwargs)
         self.libmtp = None
-        self.known_devices = None
+        self.known_devices: frozenset[tuple[int, int]] = frozenset()
         self.detect_cache = {}
 
         self.dev = None

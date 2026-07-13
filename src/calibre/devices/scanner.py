@@ -33,11 +33,13 @@ if iswindows:
                     time.sleep(0.2)
             return False
 
-_USBDevice = namedtuple('USBDevice',
+_USBDevice = namedtuple('_USBDevice',
     'vendor_id product_id bcd manufacturer product serial')
 
 
 class USBDevice(_USBDevice):
+    busnum: int
+    devnum: int
 
     def __new__(cls, *args, **kwargs):
         self = super().__new__(cls, *args)
@@ -190,7 +192,8 @@ class DeviceScanner:
 
     def scan(self):
         '''Fetch list of connected USB devices from operating system'''
-        self.devices = self.scanner()
+        if self.scanner is not None:
+            self.devices = self.scanner()
 
     def is_device_connected(self, device, debug=False, only_presence=False):
         ''' If only_presence is True don't perform any expensive checks '''

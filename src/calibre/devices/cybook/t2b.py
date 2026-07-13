@@ -5,6 +5,7 @@ Write a t2b file to disk.
 '''
 
 import io
+from typing import cast
 
 from polyglot.builtins import int_to_byte
 
@@ -42,7 +43,7 @@ def write_t2b(t2bfile, coverdata=None):
         t2bcover.paste(cover, ((96-x)//2, (144-y)//2))
 
         px = []
-        pxs = t2bcover.getdata()
+        pxs = cast(list, t2bcover.getdata())
         for i in range(len(pxs)):
             px.append(pxs[i])
             if len(px) >= 4:
