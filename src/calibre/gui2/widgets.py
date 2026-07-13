@@ -688,7 +688,7 @@ def update_status_actions(self: LineEditIndicatorsProtocol, ok, tooltip: str = '
 
 
 class LineEditIndicators:
-    status_actions: tuple[QAction, QAction] = QAction(), QAction()
+    status_actions: tuple[QAction, QAction]
 
     def setup_status_actions(self: LineEditIndicatorsProtocol):
         setup_status_actions(self)
