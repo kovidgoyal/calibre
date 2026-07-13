@@ -951,7 +951,13 @@ class FormatList(_FormatList):
     def remove_cm_fmt(self):
         sender = self.sender()
         assert sender is not None
-        self.remove_format(sender.objectName())
+        fmt = sender.objectName()
+        for i in range(self.count()):
+            item = self.item(i)
+            if item is not None and item.ext.upper() == fmt.upper():
+                self.setCurrentItem(item)
+                self.delete_format.emit()
+                break
 
     def remove_format(self, fmt):
         for i in range(self.count()):
