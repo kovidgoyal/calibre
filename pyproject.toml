@@ -90,7 +90,7 @@ requires = [
 dev = [
     "ruff >= 0.15.0",
     "types-lxml >= 2026.2.16",
-    "ty >= 0.0.56",
+    "ty >= 0.0.59",
 ]
 
 [tool.ruff]

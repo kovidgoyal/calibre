@@ -4,10 +4,9 @@
 import glob
 import os
 import re
-import shutil
 import subprocess
 
-from setup import Command, is_ci
+from setup import Command
 
 
 class TypeCheck(Command):
@@ -83,9 +82,8 @@ def raise_without_focus(self) -> None: ...
 '''.splitlines()})
 
     def run(self, opts):
-        if not is_ci:
-            self.ensure_venv()
-        ty = shutil.which('ty') or '.venv/bin/ty'
+        self.ensure_venv()
+        ty = os.path.abspath('.venv/bin/ty')
         self.patch_qt_stubs()
         cp = subprocess.run([ty, 'check'] + list(opts.cli_args), cwd=self.project_root)
         if cp.returncode != 0:
