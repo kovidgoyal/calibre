@@ -956,8 +956,8 @@ class FormatList(_FormatList):
             item = self.item(i)
             if item is not None and item.ext.upper() == fmt.upper():
                 self.setCurrentItem(item)
+                self.delete_format.emit()
                 break
-        self.delete_format.emit()
 
     def remove_format(self, fmt):
         for i in range(self.count()):
