@@ -154,6 +154,7 @@ class Cache:
     '''
     EventType = EventType
     fts_indexing_sleep_time: float = 4  # seconds
+    server_library_id: str = ''
 
     def __init__(self, backend, library_database_instance=None):
         self.shutting_down = False

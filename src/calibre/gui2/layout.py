@@ -6,6 +6,7 @@ __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 from functools import partial
+from typing import TYPE_CHECKING
 
 from qt.core import (
     QAction,
@@ -33,8 +34,6 @@ from calibre.gui2.bars import BarsManager
 from calibre.gui2.search_box import SearchBox2
 from calibre.utils.config_base import tweaks
 from calibre.utils.localization import _, pgettext
-from typing import TYPE_CHECKING
-
 
 if TYPE_CHECKING:
     from calibre.gui2.ui import Main
@@ -196,7 +195,7 @@ class LocationManager(QObject):  # {{{
 def search_as_url(text):
     if text:
         from calibre.gui2.ui import get_gui
-        db = get_gui().current_db
+        db = get_gui(fail_if_absent=True).current_db
         lid = db.new_api.server_library_id
         lid = lid.encode('utf-8').hex()
         eq = text.encode('utf-8').hex()
@@ -210,7 +209,7 @@ def search_as_url(text):
 
 class SearchBar(QFrame):  # {{{
 
-    def __init__(self, parent: 'Main'):
+    def __init__(self, parent: 'Main'):  # ruff: ignore[quoted-annotation]
         QFrame.__init__(self, parent)
         self.setFrameStyle(QFrame.Shape.NoFrame)
         self.setObjectName('search_bar')
