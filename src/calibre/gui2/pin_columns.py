@@ -36,7 +36,6 @@ class TableView(MomentumScrollMixin, QTableView):
 
     column_header: QHeaderView
     column_header_context_menu: ColumnHeaderMenu | None = None
-    column_mouse_move_action: QAction | None = None
 
     def closeEditor(self, editor, hint):
         # We want to implement our own go to next/previous cell behavior

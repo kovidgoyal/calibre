@@ -12,6 +12,7 @@ from functools import partial
 
 from qt.core import (
     QAbstractItemView,
+    QAction,
     QDialog,
     QDialogButtonBox,
     QDrag,
@@ -801,15 +802,15 @@ class BooksView(TableView):  # {{{
             else:
                 m.bl_split_action.setText(_('Split the book list'))
 
-            if self.column_mouse_move_action is None:
-                ac = m.addAction(_('Allow moving columns with the mouse'),
+            if (cmma := m.findChild(QAction, 'column_mouse_move_action')) is None:
+                cmma = m.addAction(_('Allow moving columns with the mouse'),
                           partial(self.column_header_context_handler, action='lock', column=col, view=view))
-                assert ac is not None
-                self.column_mouse_move_action = ac
-                ac.setCheckable(True)
-            self.column_mouse_move_action.setChecked(view.column_header.sectionsMovable())
+                assert cmma is not None
+                cmma.setObjectName('column_mouse_move_action')
+                cmma.setCheckable(True)
+            cmma.setChecked(view.column_header.sectionsMovable())
         if view is not None and view.column_header_context_menu is not None:
-            m.popup(view.column_header.mapToGlobal(pos))
+            view.column_header_context_menu.popup(view.column_header.mapToGlobal(pos))
     # }}}
 
     # Sorting {{{

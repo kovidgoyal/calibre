@@ -155,7 +155,6 @@ class StyledItemDelegate(QStyledItemDelegate):
         else:
             max_width = new_width
 
-        max_width = getattr(self.parent(), 'viewport')().rect().width()
         # What we have to display might not fit. If so, adjust down
         new_width = min(max_width, new_width)
 
