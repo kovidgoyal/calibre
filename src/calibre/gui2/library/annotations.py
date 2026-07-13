@@ -29,6 +29,7 @@ from qt.core import (
     QSize,
     QSplitter,
     QStandardItem,
+    QStandardItemModel,
     Qt,
     QTextBrowser,
     QTimer,
@@ -43,6 +44,7 @@ from qt.core import (
 from calibre import prepare_string_for_xml
 from calibre.constants import builtin_colors_dark, builtin_colors_light, builtin_decorations
 from calibre.db.backend import FTSQueryError
+from calibre.db.cache import Cache
 from calibre.ebooks.metadata import authors_to_sort_string, authors_to_string, fmt_sidx, rating_to_stars
 from calibre.gui2 import UNDEFINED_QDATETIME, Application, choose_save_file, config, error_dialog, gprefs, is_dark_theme, qapplication_or_fail, safe_open_url
 from calibre.gui2.dialogs.confirm_delete import confirm
@@ -1169,9 +1171,12 @@ class Export(Dialog):  # {{{
 # }}}
 
 
-def current_db():
+def current_db() -> Cache:
     from calibre.gui2.ui import get_gui
-    return (getattr(current_db, 'ans', None) or get_gui().current_db).new_api
+    ans = getattr(current_db, 'ans', None)
+    if ans is not None:
+        return ans.new_api
+    return get_gui(fail_if_absent=True).current_db.new_api
 
 
 def annotation_only_groupings() -> dict[str, str]:
@@ -1566,6 +1571,17 @@ class ResultsList(QTreeWidget):
                     break
 
 
+class ComboBox(QComboBox):
+
+    def __init__(self, parent: QWidget, label: QLabel):
+        super().__init__(parent)
+        self.la = label
+
+    def setVisible(self, visible: bool) -> None:
+        super().setVisible(visible)
+        self.la.setVisible(visible)
+
+
 class Restrictions(QWidget):
 
     restrictions_changed = pyqtSignal()
@@ -1584,8 +1600,7 @@ class Restrictions(QWidget):
         h.addWidget(self.rla)
         la = QLabel(_('Type:'))
         h.addWidget(la)
-        self.types_box = tb = QComboBox(self)
-        tb.la = la
+        self.types_box = tb = ComboBox(self, la)
         tb.currentIndexChanged.connect(self.restrictions_changed)
         connect_lambda(tb.currentIndexChanged, tb, lambda tb: gprefs.set('browse_annots_restrict_to_type', tb.currentData()))
         la.setBuddy(tb)
@@ -1595,8 +1610,7 @@ class Restrictions(QWidget):
         h.addWidget(tb)
         la = QLabel(_('User:'))
         h.addWidget(la)
-        self.user_box = ub = QComboBox(self)
-        ub.la = la
+        self.user_box = ub = ComboBox(self, la)
         ub.currentIndexChanged.connect(self.restrictions_changed)
         connect_lambda(ub.currentIndexChanged, ub, lambda ub: gprefs.set('browse_annots_restrict_to_user', ub.currentData()))
         la.setBuddy(ub)
@@ -1663,7 +1677,7 @@ class Restrictions(QWidget):
             dpr = self.devicePixelRatioF()
             is_dark = is_dark_theme()
             model = tb.model()
-            assert model is not None
+            assert isinstance(model, QStandardItemModel)
             highlight_color_row = 1
             all_styles = self.annotation_style_cache.get(db.library_id)
             if all_styles is None:
@@ -1686,7 +1700,7 @@ class Restrictions(QWidget):
 
         tb.blockSignals(False)
         tb_is_visible = tb.count() > 2
-        tb.setVisible(tb_is_visible), tb.la.setVisible(tb_is_visible)
+        tb.setVisible(tb_is_visible)
         tb = self.user_box
         before = tb.currentData()
         if not before:
@@ -1703,7 +1717,7 @@ class Restrictions(QWidget):
                 tb.setCurrentIndex(row)
         tb.blockSignals(False)
         ub_is_visible = tb.count() > 2
-        tb.setVisible(ub_is_visible), tb.la.setVisible(ub_is_visible)
+        tb.setVisible(ub_is_visible)
         self.rla.setVisible(tb_is_visible or ub_is_visible)
         self.setVisible(True)
 
@@ -2260,7 +2274,7 @@ class AnnotationsBrowser(Dialog):
 if __name__ == '__main__':
     from calibre.library import db
     app = Application([])
-    current_db.ans = db(os.path.expanduser('~/test library'))
+    setattr(current_db, 'ans', db(os.path.expanduser('~/test library')))
     br = AnnotationsBrowser()
     br.reinitialize()
     br.show_dialog()

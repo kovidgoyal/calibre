@@ -11,6 +11,7 @@ from contextlib import suppress
 from datetime import datetime
 
 from qt.core import (
+    QAbstractScrollArea,
     QAbstractTextDocumentLayout,
     QApplication,
     QComboBox,
@@ -22,6 +23,7 @@ from qt.core import (
     QEvent,
     QFont,
     QFontInfo,
+    QFontMetrics,
     QIcon,
     QKeySequence,
     QLineEdit,
@@ -38,6 +40,7 @@ from qt.core import (
     Qt,
     QTextDocument,
     QUrl,
+    QWidget,
 )
 
 from calibre.constants import iswindows
@@ -58,7 +61,53 @@ from calibre.utils.icu import sort_key
 from calibre.utils.localization import _
 
 
-class UpdateEditorGeometry:
+class StyledItemDelegate(QStyledItemDelegate):
+    '''
+    Set the flag ignore_kb_mods_on_edit before opening an editor if you don't
+    want keyboard modifiers taken into account, for example when using Shift-Tab
+    as a backtab when editing cells. This prevents opening dialogs by mistake.
+    See gui2.library.views.closeEditor() for an example.
+    '''
+    is_editable_with_tab = True  # sub-classes set to False is needed
+    ignore_kb_mods_on_edit = False
+
+    def createEditor(self, parent, option, index):
+        e = self.create_editor(parent, option, index)
+        if e is not None and (book_id := index.data(Qt.ItemDataRole.UserRole)) and isinstance(book_id, int):
+            setattr(e, 'underlying_book_id', book_id)
+        return e
+
+    def setModelData(self, editor, model, index):
+        # Refresh the index using the underlying book_id in case the book list
+        # was changed while the editor was open, for example, by auto add
+        if book_id := getattr(editor, 'underlying_book_id', 0):
+            if (db := getattr(model, 'db', None)) and callable(getattr(db, 'row', None)):
+                with suppress(Exception):
+                    row = db.row(book_id)
+                    index = model.index(row, index.column(), index.parent())
+        super().setModelData(editor, model, index)
+
+    def set_editor_data(self, editor, index):
+        raise NotImplementedError()
+
+    def setEditorData(self, editor, index):
+        # This method exists because of the ignore_kb_mods_on_edit flag. The
+        # flag is cleared after the editor data is set, in set_editor_data. It
+        # is possible that the subclass doesn't implement set_editor_data(). I
+        # can't find a case where this is true, but just in case call the
+        # default.
+        try:
+            self.set_editor_data(editor, index)
+        except NotImplementedError:
+            super().setEditorData(editor, index)
+        self.ignore_kb_mods_on_edit = False
+
+    def create_editor(self, parent, option, index):
+        # Must be overridden by the "real" createEditor
+        raise NotImplementedError
+
+    def get_required_width(self, editor: QWidget, style: QStyle, fm: QFontMetrics):
+        return -1
 
     def updateEditorGeometry(self, editor, option, index):
         if editor is None:
@@ -76,9 +125,8 @@ class UpdateEditorGeometry:
         orig_width = initial_geometry.width()
 
         # Compute the required width: the width that can show all of the current value
-        if hasattr(self, 'get_required_width'):
-            new_width = self.get_required_width(editor, style, fm)
-        else:
+        new_width = self.get_required_width(editor, style, fm)
+        if new_width < 0:
             # The line edit box seems to extend by the space consumed by an 'M'.
             # So add that to the text
             text = self.displayText(index.data(Qt.ItemDataRole.DisplayRole), QLocale()) + 'M'
@@ -96,7 +144,18 @@ class UpdateEditorGeometry:
             new_width += r.width()
 
         # Compute the maximum we can show if we consume the entire viewport
-        max_width = self.parent().viewport().rect().width()
+        p = self.parent()
+        assert p is not None
+        if isinstance(p, QAbstractScrollArea):
+            vp = p.viewport()
+            assert vp is not None
+            max_width = vp.rect().width()
+        elif isinstance(p, QWidget):
+            max_width = p.rect().width()
+        else:
+            max_width = new_width
+
+        max_width = getattr(self.parent(), 'viewport')().rect().width()
         # What we have to display might not fit. If so, adjust down
         new_width = min(max_width, new_width)
 
@@ -199,50 +258,7 @@ def get_val_for_textlike_columns(index_):
 # }}}
 
 
-class StyledItemDelegate(QStyledItemDelegate):
-    '''
-    Set the flag ignore_kb_mods_on_edit before opening an editor if you don't
-    want keyboard modifiers taken into account, for example when using Shift-Tab
-    as a backtab when editing cells. This prevents opening dialogs by mistake.
-    See gui2.library.views.closeEditor() for an example.
-    '''
-    is_editable_with_tab = True  # sub-classes set to False is needed
-    ignore_kb_mods_on_edit = False
-
-    def createEditor(self, parent, option, index):
-        e = self.create_editor(parent, option, index)
-        if e is not None and (book_id := index.data(Qt.ItemDataRole.UserRole)) and isinstance(book_id, int):
-            setattr(e, 'underlying_book_id', book_id)
-        return e
-
-    def setModelData(self, editor, model, index):
-        # Refresh the index using the underlying book_id in case the book list
-        # was changed while the editor was open, for example, by auto add
-        if book_id := getattr(editor, 'underlying_book_id', 0):
-            if (db := getattr(model, 'db', None)) and callable(getattr(db, 'row', None)):
-                with suppress(Exception):
-                    row = db.row(book_id)
-                    index = model.index(row, index.column(), index.parent())
-        super().setModelData(editor, model, index)
-
-    def setEditorData(self, editor, index):
-        # This method exists because of the ignore_kb_mods_on_edit flag. The
-        # flag is cleared after the editor data is set, in set_editor_data. It
-        # is possible that the subclass doesn't implement set_editor_data(). I
-        # can't find a case where this is true, but just in case call the
-        # default.
-        if hasattr(self, 'set_editor_data'):
-            self.set_editor_data(editor, index)
-        else:
-            super().setEditorData(editor, index)
-        self.ignore_kb_mods_on_edit = False
-
-    def create_editor(self, parent, option, index):
-        # Must be overridden by the "real" createEditor
-        raise NotImplementedError
-
-
-class RatingDelegate(StyledItemDelegate, UpdateEditorGeometry):  # {{{
+class RatingDelegate(StyledItemDelegate):  # {{{
 
     def __init__(self, *args, **kwargs):
         StyledItemDelegate.__init__(self, *args)
@@ -287,7 +303,7 @@ class RatingDelegate(StyledItemDelegate, UpdateEditorGeometry):  # {{{
 # }}}
 
 
-class DateDelegate(StyledItemDelegate, UpdateEditorGeometry):  # {{{
+class DateDelegate(StyledItemDelegate):  # {{{
 
     def __init__(self, parent, tweak_name='gui_timestamp_display_format',
             default_format='dd MMM yyyy'):
@@ -322,7 +338,7 @@ class DateDelegate(StyledItemDelegate, UpdateEditorGeometry):  # {{{
 # }}}
 
 
-class PubDateDelegate(StyledItemDelegate, UpdateEditorGeometry):  # {{{
+class PubDateDelegate(StyledItemDelegate):  # {{{
 
     def __init__(self, *args, **kwargs):
         StyledItemDelegate.__init__(self, *args, **kwargs)
@@ -354,7 +370,7 @@ class PubDateDelegate(StyledItemDelegate, UpdateEditorGeometry):  # {{{
 # }}}
 
 
-class TextDelegate(StyledItemDelegate, UpdateEditorGeometry, EditableTextDelegate):  # {{{
+class TextDelegate(StyledItemDelegate, EditableTextDelegate):  # {{{
 
     use_title_sort = False
     auto_complete_function_name = ''
@@ -406,7 +422,7 @@ class SeriesDelegate(TextDelegate):  # {{{
 # }}}
 
 
-class CompleteDelegate(StyledItemDelegate, UpdateEditorGeometry, EditableTextDelegate):  # {{{
+class CompleteDelegate(StyledItemDelegate, EditableTextDelegate):  # {{{
 
     def __init__(self, parent, sep, items_func_name, space_before_sep=False):
         StyledItemDelegate.__init__(self, parent)
@@ -455,7 +471,7 @@ class CompleteDelegate(StyledItemDelegate, UpdateEditorGeometry, EditableTextDel
 # }}}
 
 
-class LanguagesDelegate(StyledItemDelegate, UpdateEditorGeometry):  # {{{
+class LanguagesDelegate(StyledItemDelegate):  # {{{
 
     def __init__(self, parent):
         StyledItemDelegate.__init__(self, parent)
@@ -475,7 +491,7 @@ class LanguagesDelegate(StyledItemDelegate, UpdateEditorGeometry):  # {{{
 # }}}
 
 
-class CcDateDelegate(StyledItemDelegate, UpdateEditorGeometry):  # {{{
+class CcDateDelegate(StyledItemDelegate):  # {{{
 
     '''
     Delegate for custom columns dates. Because this delegate stores the
@@ -525,7 +541,7 @@ class CcDateDelegate(StyledItemDelegate, UpdateEditorGeometry):  # {{{
 # }}}
 
 
-class CcTextDelegate(StyledItemDelegate, UpdateEditorGeometry, EditableTextDelegate):  # {{{
+class CcTextDelegate(StyledItemDelegate, EditableTextDelegate):  # {{{
 
     '''
     Delegate for text data.
@@ -620,7 +636,7 @@ class CcMarkdownDelegate(StyledItemDelegate):  # {{{
         option.text = markdown(option.text)
         self.document.setHtml(option.text)
         style.drawPrimitive(QStyle.PrimitiveElement.PE_PanelItemViewItem, option, painter, widget=option.widget)
-        rect = style.subElementRect(QStyle.SubElement.SE_ItemViewItemDecoration, option, self.parent())
+        rect = style.subElementRect(QStyle.SubElement.SE_ItemViewItemDecoration, option, option.widget)
         ic = option.icon
         if rect.isValid() and not ic.isNull():
             sz = ic.actualSize(option.decorationSize)
@@ -629,7 +645,7 @@ class CcMarkdownDelegate(StyledItemDelegate):  # {{{
         ctx.palette = option.palette
         if option.state & QStyle.StateFlag.State_Selected:
             ctx.palette.setColor(QPalette.ColorRole.Text, ctx.palette.color(QPalette.ColorRole.HighlightedText))
-        textRect = style.subElementRect(QStyle.SubElement.SE_ItemViewItemText, option, self.parent())
+        textRect = style.subElementRect(QStyle.SubElement.SE_ItemViewItemText, option, option.widget)
         painter.save()
         painter.translate(textRect.topLeft())
         painter.setClipRect(textRect.translated(-textRect.topLeft()))
@@ -658,7 +674,7 @@ class CcMarkdownDelegate(StyledItemDelegate):  # {{{
 # }}}
 
 
-class CcNumberDelegate(StyledItemDelegate, UpdateEditorGeometry):  # {{{
+class CcNumberDelegate(StyledItemDelegate):  # {{{
 
     '''
     Delegate for text/int/float data.
@@ -708,7 +724,7 @@ class CcNumberDelegate(StyledItemDelegate, UpdateEditorGeometry):  # {{{
 # }}}
 
 
-class CcEnumDelegate(StyledItemDelegate, UpdateEditorGeometry):  # {{{
+class CcEnumDelegate(StyledItemDelegate):  # {{{
 
     '''
     Delegate for text/int/float data.
@@ -773,7 +789,7 @@ class CcCommentsDelegate(StyledItemDelegate):  # {{{
         assert style is not None
         self.document.setHtml(option.text)
         style.drawPrimitive(QStyle.PrimitiveElement.PE_PanelItemViewItem, option, painter, widget=option.widget)
-        rect = style.subElementRect(QStyle.SubElement.SE_ItemViewItemDecoration, option, self.parent())
+        rect = style.subElementRect(QStyle.SubElement.SE_ItemViewItemDecoration, option, option.widget)
         ic = option.icon
         if rect.isValid() and not ic.isNull():
             sz = ic.actualSize(option.decorationSize)
@@ -782,7 +798,7 @@ class CcCommentsDelegate(StyledItemDelegate):  # {{{
         ctx.palette = option.palette
         if option.state & QStyle.StateFlag.State_Selected:
             ctx.palette.setColor(QPalette.ColorRole.Text, ctx.palette.color(QPalette.ColorRole.HighlightedText))
-        textRect = style.subElementRect(QStyle.SubElement.SE_ItemViewItemText, option, self.parent())
+        textRect = style.subElementRect(QStyle.SubElement.SE_ItemViewItemText, option, option.widget)
         painter.save()
         painter.translate(textRect.topLeft())
         painter.setClipRect(textRect.translated(-textRect.topLeft()))
@@ -820,7 +836,7 @@ class DelegateCB(QComboBox):  # {{{
 # }}}
 
 
-class CcBoolDelegate(StyledItemDelegate, UpdateEditorGeometry):  # {{{
+class CcBoolDelegate(StyledItemDelegate):  # {{{
 
     def __init__(self, parent):
         '''

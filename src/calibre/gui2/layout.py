@@ -33,6 +33,11 @@ from calibre.gui2.bars import BarsManager
 from calibre.gui2.search_box import SearchBox2
 from calibre.utils.config_base import tweaks
 from calibre.utils.localization import _, pgettext
+from typing import TYPE_CHECKING
+
+
+if TYPE_CHECKING:
+    from calibre.gui2.ui import Main
 
 
 class LocationManager(QObject):  # {{{
@@ -205,7 +210,7 @@ def search_as_url(text):
 
 class SearchBar(QFrame):  # {{{
 
-    def __init__(self, parent):
+    def __init__(self, parent: 'Main'):
         QFrame.__init__(self, parent)
         self.setFrameStyle(QFrame.Shape.NoFrame)
         self.setObjectName('search_bar')

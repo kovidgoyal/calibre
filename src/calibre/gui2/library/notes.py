@@ -42,7 +42,10 @@ from calibre.utils.localization import _, ngettext
 
 def current_db() -> Cache:
     from calibre.gui2.ui import get_gui
-    return (getattr(current_db, 'ans', None) or get_gui().current_db).new_api
+    ans = getattr(current_db, 'ans', None)
+    if ans is not None:
+        return ans.new_api
+    return get_gui(fail_if_absent=True).current_db.new_api
 
 
 class NotesResultsDelegate(ResultsDelegate):
@@ -73,6 +76,7 @@ class ResultsList(QTreeWidget):
     current_result_changed = pyqtSignal(object)
     note_edited = pyqtSignal(object, object)
     export_requested = pyqtSignal()
+    delete_requested = pyqtSignal()
 
     def __init__(self, parent):
         QTreeWidget.__init__(self, parent)
@@ -215,7 +219,9 @@ class ResultsList(QTreeWidget):
         self.fi_map = {}
         db = current_db()
         fm = db.field_metadata
-        field_map = {f: {'title': fm[f].get('name') or f, 'matches': []} for f in db.field_supports_notes()}
+        fields_with_notes = db.field_supports_notes()
+        assert not isinstance(fields_with_notes, bool)
+        field_map = {f: {'title': fm[f].get('name') or f, 'matches': []} for f in fields_with_notes}
         for result in results:
             field_map[result['field']]['matches'].append(result)
         for field, entry in field_map.items():
@@ -272,7 +278,9 @@ class RestrictFields(QWidget):
         fm = db.field_metadata
         def field_name(field):
             return fm[field].get('name') or field
-        self.field_names = {f:field_name(f) for f in db.field_supports_notes()}
+        _fsn = db.field_supports_notes()
+        assert not isinstance(_fsn, bool)
+        self.field_names = {f:field_name(f) for f in _fsn}
         self.field_labels = {f: QLabel(self.field_names[f], self) for f in sorted(self.field_names, key=self.field_names.__getitem__)}
         for l in self.field_labels.values():
             l.setVisible(False)
@@ -505,7 +513,7 @@ class NotesBrowser(Dialog):
         if vals:
             search_expression = ' OR '.join(f'{r["field"]}:"={ival}"' for ival in vals)
             from calibre.gui2.ui import get_gui
-            get_gui().search.set_search_string(search_expression)
+            get_gui(fail_if_absent=True).search.set_search_string(search_expression)
 
     def export_selected(self):
         results = tuple(self.results_list.selected_results())
@@ -568,7 +576,7 @@ class NotesBrowser(Dialog):
 if __name__ == '__main__':
     from calibre.library import db
     app = Application([])
-    current_db.ans = db(os.path.expanduser('~/test library'))
+    setattr(current_db, 'ans', db(os.path.expanduser('~/test library')))
     br = NotesBrowser()
     br.exec()
     del br

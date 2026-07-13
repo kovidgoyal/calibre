@@ -2,7 +2,7 @@
 # License: GPLv3 Copyright: 2018, Kovid Goyal <kovid at kovidgoyal.net>
 
 
-from qt.core import QAbstractItemDelegate, QModelIndex, QSplitter, Qt, QTableView
+from qt.core import QAbstractItemDelegate, QAction, QHeaderView, QMenu, QModelIndex, QSplitter, Qt, QTableView
 
 from calibre.gui2 import gprefs
 from calibre.gui2.library import DEFAULT_SORT
@@ -28,7 +28,15 @@ from calibre.gui2.library.delegates import (
 from calibre.gui2.momentum_scroll import MomentumScrollMixin
 
 
+class ColumnHeaderMenu(QMenu):
+    bl_split_action: QAction | None = None
+
+
 class TableView(MomentumScrollMixin, QTableView):
+
+    column_header: QHeaderView
+    column_header_context_menu: ColumnHeaderMenu | None = None
+    column_mouse_move_action: QAction | None = None
 
     def closeEditor(self, editor, hint):
         # We want to implement our own go to next/previous cell behavior

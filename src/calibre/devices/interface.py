@@ -769,7 +769,7 @@ class BookList(list):
     __getslice__ = None
     __setslice__ = None
 
-    def __init__(self, oncard, prefix, settings):
+    def __init__(self, oncard=None, prefix=None, settings=None):
         pass
 
     def supports_collections(self):

@@ -23,7 +23,7 @@ from io import DEFAULT_BUFFER_SIZE, BytesIO
 from queue import Queue, ShutDown
 from threading import Lock
 from time import mktime, monotonic, time
-from typing import NamedTuple
+from typing import Any, NamedTuple
 
 from calibre import as_unicode, detect_ncpus
 from calibre.constants import iswindows, preferred_encoding
@@ -746,7 +746,7 @@ class Cache:
     _notes_for = notes_for
 
     @read_api
-    def notes_data_for(self, field, item_id) -> str:
+    def notes_data_for(self, field, item_id) -> dict[str, Any] | None:
         ' Return all notes data as a dict or None if note does not exist '
         return self.backend.notes_data_for(field, item_id)
 
@@ -760,7 +760,7 @@ class Cache:
     _get_all_items_that_have_notes = get_all_items_that_have_notes
 
     @read_api
-    def field_supports_notes(self, field=None) -> bool:
+    def field_supports_notes(self, field=None) -> bool | frozenset:
         ' Return True iff the specified field supports notes. If field is None return frozenset of all fields that support notes. '
         if field is None:
             return self.backend.notes.allowed_fields

@@ -59,7 +59,7 @@ from calibre.gui2.listener import Listener
 from calibre.gui2.main_window import MainWindow
 from calibre.gui2.open_with import register_keyboard_shortcuts
 from calibre.gui2.proceed import ProceedQuestion
-from calibre.gui2.search_box import SavedSearchBoxMixin, SearchBoxMixin
+from calibre.gui2.search_box import SavedSearchBoxMixin, SearchBox2, SearchBoxMixin
 from calibre.gui2.search_restriction_mixin import SearchRestrictionMixin
 from calibre.gui2.tag_browser.ui import TagBrowserMixin
 from calibre.gui2.update import UpdateMixin
@@ -133,6 +133,8 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
     shutdown_completed = pyqtSignal()
     shutting_down = False
 
+    search: SearchBox2
+
     def __init__(self, opts, parent=None, gui_debug=None):
         MainWindow.__init__(self, opts, parent=parent, disable_automatic_gc=True)
         self.setVisible(False)
@@ -145,7 +147,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         self.proceed_question = ProceedQuestion(self)
         self.job_error_dialog = JobError(self)
         self.keyboard = Manager(self)
-        get_gui.ans = self
+        setattr(get_gui, 'ans', self)
         self.opts = opts
         self.device_connected = None
         self.gui_debug = gui_debug
@@ -664,17 +666,15 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
                          str(self.content_server.exception)).exec()
 
     @property
-    def current_db(self):
+    def current_db(self) -> LibraryDatabase:
         m = self.library_view.model()
-        assert m is not None
-        assert isinstance(m, BooksModel)
+        assert isinstance(m, BooksModel) and m.db is not None
         return m.db
 
     def refresh_all(self):
         m = self.library_view.model()
-        assert m is not None
         assert isinstance(m, BooksModel)
-        m.db.data.refresh(clear_caches=False, do_search=False)
+        self.current_db.data.refresh(clear_caches=False, do_search=False)
         self.saved_searches_changed(recount=False)
         m.resort()
         m.research()

@@ -23,6 +23,7 @@ from qt.core import (
     QIcon,
     QItemSelection,
     QItemSelectionModel,
+    QKeyEvent,
     QLabel,
     QMenu,
     QMimeData,
@@ -49,7 +50,7 @@ from calibre.gui2.library import DEFAULT_SORT
 from calibre.gui2.library.alternate_views import AlternateViews, setup_dnd_interface
 from calibre.gui2.library.delegates import TextDelegate
 from calibre.gui2.library.models import BooksModel, DeviceBooksModel
-from calibre.gui2.pin_columns import PinTableView, TableView
+from calibre.gui2.pin_columns import ColumnHeaderMenu, PinTableView, TableView
 from calibre.gui2.preferences.create_custom_column import CreateNewCustomColumn
 from calibre.utils.config import prefs, tweaks
 from calibre.utils.icu import primary_sort_key
@@ -267,34 +268,32 @@ class AdjustColumnSize(QDialog):  # {{{
                 l.addWidget(b, r, 1, 1, 1)
                 if isinstance(a, QLabel):
                     a.setBuddy(b)
-        l.addRow = add_row
-
         original_size = self.original_size = view.horizontalHeader().sectionSize(column)
         label = QLabel(_('{0} pixels').format(str(original_size)))
         label.setToolTip('<p>' + _('The original size can be larger than the maximum if the window has been resized') + '</p>')
-        l.addRow(_('Original size:'), label)
+        add_row(_('Original size:'), label)
 
         self.minimum_size = self.view.horizontalHeader().minimumSectionSize()
-        l.addRow(_('Minimum size:'), QLabel(_('{0} pixels').format(str(self.minimum_size))))
+        add_row(_('Minimum size:'), QLabel(_('{0} pixels').format(str(self.minimum_size))))
 
         self.maximum_size = max_permitted_column_width(self.view, self.column)
-        l.addRow(_('Maximum size:'), QLabel(_('{0} pixels').format(str(self.maximum_size))))
+        add_row(_('Maximum size:'), QLabel(_('{0} pixels').format(str(self.maximum_size))))
 
         la = QLabel(_('You can also adjust column widths by dragging the divider between column headers'))
         la.setWordWrap(True)
-        l.addRow(la)
+        add_row(la)
 
         self.shrink_button = QPushButton(_('&Shrink 10%'))
         b = self.expand_button = QPushButton(_('&Expand 10%'))
-        l.addRow(self.shrink_button, b)
+        add_row(self.shrink_button, b)
 
         b = self.set_minimum_button = QPushButton(_('Set to mi&nimum'))
         b = self.set_maximum_button = QPushButton(_('Set to ma&ximum'))
-        l.addRow(self.set_minimum_button, b)
+        add_row(self.set_minimum_button, b)
 
         b = self.resize_to_fit_button = QPushButton(_('&Resize column to fit contents'))
         b.setToolTip('<p>' + _('The width will be set to the size of the widest entry or the maximum size, whichever is smaller') + '</p>')
-        l.addRow(b)
+        add_row(b)
 
         sb = self.spin_box = QSpinBox()
         sb.setMinimum(self.view.horizontalHeader().minimumSectionSize())
@@ -302,11 +301,11 @@ class AdjustColumnSize(QDialog):  # {{{
         sb.setValue(original_size)
         sb.setSuffix(' ' + _('pixels'))
         sb.setToolTip(_('This box shows the current width after using the above buttons'))
-        l.addRow(_('Set width &to:'), sb)
+        add_row(_('Set width &to:'), sb)
 
         bb = self.button_box = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok |
                                                 QDialogButtonBox.StandardButton.Cancel)
-        l.addRow(bb)
+        add_row(bb)
 
         self.shrink_button.clicked.connect(self.shrink_button_clicked)
         self.expand_button.clicked.connect(self.expand_button_clicked)
@@ -357,6 +356,7 @@ class BooksView(TableView):  # {{{
     selection_changed = pyqtSignal()
     add_column_signal = pyqtSignal()
     is_library_view = True
+    _model: BooksModel
 
     def viewportEvent(self, e):
         if (e.type() == QEvent.Type.ToolTip and not gprefs['book_list_tooltips']):
@@ -628,8 +628,8 @@ class BooksView(TableView):  # {{{
                 db_new_api.set_pref('column_tooltip_templates', tt_dict)
         self.save_state()
 
-    def create_context_menu(self, col, name, view):
-        ans = QMenu(view)
+    def create_context_menu(self, col, name, view) -> ColumnHeaderMenu:
+        ans = ColumnHeaderMenu(view)
         handler = partial(self.column_header_context_handler, view=view, column=col)
         m = ans.addMenu(_('Sort on %s')  % name)
         m.setIcon(QIcon.ic('sort.png'))
@@ -755,6 +755,7 @@ class BooksView(TableView):  # {{{
             ic = QIcon.cached_icon('marked.png')
             m.setIcon(ic)
             from calibre.gui2.actions.mark_books import mark_books_with_text
+            assert mark_books_with_text is not None
             m = menu.addAction(_('Mark book with text label'), partial(mark_books_with_text, {book_id,}))
             assert m is not None
             m.setIcon(ic)
@@ -777,8 +778,9 @@ class BooksView(TableView):  # {{{
                 self.show_column_header_context_menu(p, view=self.pin_view)
             # else some other widget has the focus, such as the tag browser or quickview
 
-    def show_column_header_context_menu(self, pos, view=None):
-        view = view or self
+    def show_column_header_context_menu(self, pos, view: TableView | None = None):
+        if view is None:
+            view = self
         idx = view.column_header.logicalIndexAt(pos)
         col = None
         if idx > -1 and idx < len(self.column_map):
@@ -787,27 +789,27 @@ class BooksView(TableView):  # {{{
             assert _schcm_model is not None
             name = str(_schcm_model.headerData(idx, Qt.Orientation.Horizontal, Qt.ItemDataRole.DisplayRole) or '')
             view.column_header_context_menu = self.create_context_menu(col, name, view)
-        has_context_menu = hasattr(view, 'column_header_context_menu')
-        if self.is_library_view and has_context_menu:
+        if self.is_library_view and view.column_header_context_menu is not None:
             m = view.column_header_context_menu
             m.addSeparator()
-            if not hasattr(m, 'bl_split_action'):
+            if m.bl_split_action is None:
                 m.bl_split_action = m.addAction(QIcon.ic('split.png'), 'xxx',
                             partial(self.column_header_context_handler, action='split', column='title'))
-            ac = m.bl_split_action
+                assert m.bl_split_action is not None
             if self.pin_view.isVisible():
-                ac.setText(_('Un-split the book list'))
+                m.bl_split_action.setText(_('Un-split the book list'))
             else:
-                ac.setText(_('Split the book list'))
+                m.bl_split_action.setText(_('Split the book list'))
 
-            ac = getattr(m, 'column_mouse_move_action', None)
-            if ac is None:
-                ac = m.column_mouse_move_action = m.addAction(_('Allow moving columns with the mouse'),
+            if self.column_mouse_move_action is None:
+                ac = m.addAction(_('Allow moving columns with the mouse'),
                           partial(self.column_header_context_handler, action='lock', column=col, view=view))
+                assert ac is not None
+                self.column_mouse_move_action = ac
                 ac.setCheckable(True)
-            ac.setChecked(view.column_header.sectionsMovable())
-        if has_context_menu:
-            view.column_header_context_menu.popup(view.column_header.mapToGlobal(pos))
+            self.column_mouse_move_action.setChecked(view.column_header.sectionsMovable())
+        if view is not None and view.column_header_context_menu is not None:
+            m.popup(view.column_header.mapToGlobal(pos))
     # }}}
 
     # Sorting {{{
@@ -1174,7 +1176,7 @@ class BooksView(TableView):  # {{{
 
     def manually_adjust_column_size(self, view, column, name):
         col = self.column_map.index(column)
-        AdjustColumnSize(view, col, name).exec_()
+        AdjustColumnSize(view, col, name).exec()
 
     def column_resized(self, col, old_size, new_size):
         restrict_column_width(self, col, old_size, new_size)
@@ -1196,7 +1198,9 @@ class BooksView(TableView):  # {{{
         self.alternate_views.marked_changed(old_marked, current_marked)
         if bool(old_marked) == bool(current_marked):
             changed = old_marked | current_marked
-            i = self._model.db.data.id_to_index
+            m = self._model
+            assert m is not None and m.db is not None
+            i = m.db.data.id_to_index
 
             def f(x):
                 try:
@@ -1230,7 +1234,7 @@ class BooksView(TableView):  # {{{
         db.data.add_marked_listener(self.marked_changed_listener)
         _dc_model = self.model()
         assert _dc_model is not None
-        for i in range(_dc_model.columnCount(None)):
+        for i in range(_dc_model.columnCount(QModelIndex())):
             for vw in self, self.pin_view:
                 if vw.itemDelegateForColumn(i) in (
                         self.rating_delegate, self.timestamp_delegate, self.pubdate_delegate,
@@ -1302,7 +1306,7 @@ class BooksView(TableView):  # {{{
 
             def new_selection(upper, lower):
                 top_left = m.index(upper, 0)
-                bottom_right = m.index(lower, m.columnCount(None) - 1)
+                bottom_right = m.index(lower, m.columnCount(QModelIndex()) - 1)
                 return QItemSelection(top_left, bottom_right)
 
             currently_selected = tuple(x.row() for x in sr)
@@ -1436,9 +1440,9 @@ class BooksView(TableView):  # {{{
     @property
     def current_book(self):
         ci = self.currentIndex()
-        if ci.isValid():
+        if ci.isValid() and (m := self._model) is not None and (m.db is not None):
             try:
-                return self._model.db.data.index_to_id(ci.row())
+                return m.db.data.index_to_id(ci.row())
             except (IndexError, ValueError, KeyError, TypeError, AttributeError):
                 pass
 
@@ -1452,7 +1456,7 @@ class BooksView(TableView):  # {{{
     def restore_current_book_state(self, state):
         book_id, hpos, pv_hpos = state
         try:
-            row = self._model.db.data.id_to_index(book_id)
+            row = getattr(self._model, 'db').data.id_to_index(book_id)
         except (IndexError, ValueError, KeyError, TypeError, AttributeError):
             return
         self.set_current_row(row)
@@ -1467,6 +1471,7 @@ class BooksView(TableView):  # {{{
 
     def set_current_row(self, row=0, select=True, for_sync=False, book_id=None):
         if book_id is not None:
+            assert self._model is not None and self._model.db is not None
             row = self._model.db.data.id_to_index(book_id)
         _scr_model = self.model()
         assert _scr_model is not None
@@ -1560,8 +1565,8 @@ class BooksView(TableView):  # {{{
             return _mc_model.index(_mc_model.rowCount(QModelIndex()) - 1, orig.column())
         return index
 
-    def selectionCommand(self, index, event=...):
-        if event and event.type() == QEvent.Type.KeyPress:
+    def selectionCommand(self, index, event: QEvent | None = None):
+        if event and event.type() == QEvent.Type.KeyPress and isinstance(event, QKeyEvent):
             key = event.key()
             mods = event.modifiers() & (
                 Qt.KeyboardModifier.ControlModifier | Qt.KeyboardModifier.ShiftModifier | Qt.KeyboardModifier.AltModifier | Qt.KeyboardModifier.MetaModifier)
@@ -1574,7 +1579,7 @@ class BooksView(TableView):  # {{{
     def ids_to_rows(self, ids):
         row_map = OrderedDict()
         ids = frozenset(ids)
-        m = self.model()
+        m = self._model
         assert m is not None
         for row in range(m.rowCount(QModelIndex())):
             if len(row_map) >= len(ids):
@@ -1598,7 +1603,7 @@ class BooksView(TableView):  # {{{
             m = self.model()
             assert m is not None
             for row in range(m.rowCount(QModelIndex())):
-                if m.id(row) in identifiers:
+                if getattr(m, 'id')(row) in identifiers:
                     rows.add(row)
         rows = list(sorted(rows))
         if rows:
@@ -1650,7 +1655,7 @@ class BooksView(TableView):  # {{{
         m = self.model()
         assert m is not None
         for row in range(m.rowCount(QModelIndex())):
-            if m.id(row) == val:
+            if getattr(m, 'id')(row) == val:
                 self.set_current_row(row, select=False)
                 break
 
@@ -1683,7 +1688,7 @@ class BooksView(TableView):  # {{{
             if i in selected_rows:
                 continue
             try:
-                return _ni_model.id(_ni_model.index(i, column))
+                return getattr(_ni_model, 'id')(_ni_model.index(i, column))
             except Exception:
                 pass
 
@@ -1692,7 +1697,7 @@ class BooksView(TableView):  # {{{
             if i in selected_rows:
                 continue
             try:
-                return _ni_model.id(_ni_model.index(i, column))
+                return getattr(_ni_model, 'id')(_ni_model.index(i, column))
             except Exception:
                 pass
         return None
@@ -1704,7 +1709,7 @@ class BooksView(TableView):  # {{{
         self._model.current_changed(current, previous)
 
     def set_editable(self, editable, supports_backloading):
-        self._model.set_editable(editable)
+        getattr(self._model, 'set_editable')(editable)
 
     def move_highlighted_row(self, forward):
         _mhr_sm = self.selectionModel()
@@ -1762,12 +1767,16 @@ class BooksView(TableView):  # {{{
     def row_count(self):
         return self._model.count()
 
+    def drag_icon(self, cover, multiple):
+        raise NotImplementedError
+
 # }}}
 
 
 class DeviceBooksView(BooksView):  # {{{
 
     is_library_view = False
+    _model: DeviceBooksModel
 
     def __init__(self, parent):
         BooksView.__init__(self, parent, DeviceBooksModel,
@@ -1809,8 +1818,8 @@ class DeviceBooksView(BooksView):  # {{{
     def contextMenuEvent(self, a0):
         _cme_db = self._model.db
         assert _cme_db is not None
-        edit_collections = callable(getattr(_cme_db, 'supports_collections', None)) and \
-            _cme_db.supports_collections() and \
+        _cme_sc = getattr(_cme_db, 'supports_collections', None)
+        edit_collections = callable(_cme_sc) and _cme_sc() and \
             prefs['manage_device_metadata'] == 'manual'
 
         self.edit_collections_action.setVisible(edit_collections)
@@ -1838,6 +1847,7 @@ class DeviceBooksView(BooksView):  # {{{
         self._model.booklist_dirtied.connect(slot)
 
     def connect_upload_collections_signal(self, func=None, oncard=None):
+        assert func is not None
         self._model.upload_collections.connect(partial(func, view=self, oncard=oncard))
 
     def dropEvent(self, event=...):

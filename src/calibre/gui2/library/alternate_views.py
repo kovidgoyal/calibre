@@ -66,7 +66,7 @@ from calibre.gui2 import clip_border_radius, config, empty_index, gprefs, qappli
 from calibre.gui2.dnd import path_from_qurl
 from calibre.gui2.gestures import GestureManager
 from calibre.gui2.library.caches import CoverThumbnailCache
-from calibre.gui2.library.models import themed_icon_name
+from calibre.gui2.library.models import BooksModel, themed_icon_name
 from calibre.gui2.momentum_scroll import MomentumScrollMixin
 from calibre.gui2.palette import dark_palette, light_palette
 from calibre.gui2.pin_columns import PinContainer
@@ -257,7 +257,7 @@ def render_emblem(book_id, rule, rule_index, cache, mi, db, formatter, template_
     return ans, mi
 
 
-def cached_emblem(sz: int, cache: dict[str, QPixmap | QIcon], name: str, raw_icon=None):
+def cached_emblem(sz: int, cache: dict[str, QPixmap | QIcon | None], name: str, raw_icon=None):
     ans = cache.get(name, False)
     if ans is not False:
         return ans
@@ -297,6 +297,11 @@ def image_to_data(image):  # {{{
 
 
 # Drag 'n Drop {{{
+
+
+class _BooksDragMimeData(QMimeData):
+    column_name: str
+
 
 def qt_item_view_base_class(self):
     for q in (QTableView, QListView, QTreeView):
@@ -366,7 +371,7 @@ def drag_data(self):
     db = m.db
     selected = self.get_selected_ids()
     ids = ' '.join(map(str, selected))
-    md = QMimeData()
+    md = _BooksDragMimeData()
     md.setData('application/calibre+from_library', ids.encode('utf-8'))
     fmt = prefs['output_format']
 
@@ -910,7 +915,7 @@ class CoverDelegate(QStyledItemDelegate):
         drect.setTop(drect.bottom() - ph)
         painter.drawPixmap(drect, pixmap)
 
-    @pyqtSlot(QHelpEvent, QAbstractItemView, QStyleOptionViewItem, QModelIndex, result=bool)
+    @pyqtSlot(QHelpEvent, QAbstractItemView, QStyleOptionViewItem, QModelIndex, result='bool')
     def helpEvent(self, event, view, option, index):
         if event is not None and view is not None and event.type() == QEvent.Type.ToolTip:
             try:
@@ -1054,7 +1059,7 @@ class GridView(MomentumScrollMixin, QListView):
         self.update_timer.stop()
         m = self.model()
         assert m is not None
-        for r in range(self.first_visible_row or 0, self.last_visible_row or (m.count() - 1)):
+        for r in range(self.first_visible_row or 0, self.last_visible_row or (m.rowCount() - 1)):
             self.update(m.index(r, 0))
 
     def start_view_animation(self, index):
@@ -1171,7 +1176,7 @@ class GridView(MomentumScrollMixin, QListView):
 
     def re_render(self, book_id, thumb):
         m = self.model()
-        assert m is not None
+        assert isinstance(m, BooksModel) and m.db is not None
         try:
             index = m.db.row(book_id)
         except (IndexError, ValueError, KeyError, AttributeError):
@@ -1187,7 +1192,9 @@ class GridView(MomentumScrollMixin, QListView):
             self.delegate.cover_cache.set_database(newdb)
 
     def select_rows(self, rows):
-        sel = selection_for_rows(self.model(), rows)
+        m = self.model()
+        assert m is not None
+        sel = selection_for_rows(m, rows)
         sm = self.selectionModel()
         assert sm is not None
         sm.select(sel, QItemSelectionModel.SelectionFlag.ClearAndSelect | QItemSelectionModel.SelectionFlag.Rows)
@@ -1227,6 +1234,7 @@ class GridView(MomentumScrollMixin, QListView):
         assert m is not None
         sm = self.selectionModel()
         assert sm is not None
+        assert isinstance(m, BooksModel) and m.db is not None
         return [m.id(i) for i in sm.selectedIndexes()]
 
     def restore_vpos(self, vpos):
@@ -1338,9 +1346,9 @@ class GridView(MomentumScrollMixin, QListView):
         ci = self.currentIndex()
         if ci.isValid():
             try:
-                _cb_m = self.model()
-                assert _cb_m is not None
-                return _cb_m.db.data.index_to_id(ci.row())
+                m = self.model()
+                assert isinstance(m, BooksModel) and m.db is not None
+                return m.db.data.index_to_id(ci.row())
             except (IndexError, ValueError, KeyError, TypeError, AttributeError):
                 pass
 
@@ -1351,9 +1359,9 @@ class GridView(MomentumScrollMixin, QListView):
         book_id = state
         self.setFocus(Qt.FocusReason.OtherFocusReason)
         try:
-            _rcbs_m = self.model()
-            assert _rcbs_m is not None
-            row = _rcbs_m.db.data.id_to_index(book_id)
+            m = self.model()
+            assert isinstance(m, BooksModel) and m.db is not None
+            row = m.db.data.id_to_index(book_id)
         except (IndexError, ValueError, KeyError, TypeError, AttributeError):
             return
         self.set_current_row(row)
@@ -1365,7 +1373,7 @@ class GridView(MomentumScrollMixin, QListView):
     def marked_changed(self, old_marked, current_marked):
         changed = old_marked | current_marked
         m = self.model()
-        assert m is not None
+        assert isinstance(m, BooksModel) and m.db is not None
         for book_id in changed:
             try:
                 self.update(m.index(m.db.data.id_to_index(book_id), 0))

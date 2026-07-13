@@ -13,7 +13,9 @@ import sys
 import time
 import traceback
 from collections import defaultdict, namedtuple
+from collections.abc import Callable
 from itertools import groupby
+from typing import cast
 
 from qt.core import (
     QAbstractTableModel,
@@ -37,6 +39,7 @@ from calibre import fit_image, human_readable, prepare_string_for_xml, strftime
 from calibre.constants import DEBUG, config_dir, dark_link_color, filesystem_encoding
 from calibre.db.search import CONTAINS_MATCH, EQUALS_MATCH, REGEXP_MATCH, _match
 from calibre.db.utils import force_to_bool
+from calibre.devices.interface import BookList
 from calibre.ebooks.metadata import authors_to_string, fmt_sidx, string_to_authors, title_sort
 from calibre.ebooks.metadata.book.formatter import SafeFormat
 from calibre.gui2 import error_dialog, is_dark_theme, qapplication_or_fail, simple_excepthook
@@ -538,7 +541,7 @@ class BooksModel(QAbstractTableModel):  # {{{
 
     def row_indices(self, index):
         ''' Return list indices of all cells in index.row()'''
-        return [self.index(index.row(), c) for c in range(self.columnCount(None))]
+        return [self.index(index.row(), c) for c in range(self.columnCount())]
 
     @property
     def by_author(self):
@@ -701,13 +704,13 @@ class BooksModel(QAbstractTableModel):  # {{{
     def research(self, reset=True):
         self.search(self.last_search, reset=reset)
 
-    def columnCount(self, parent=...):
-        if parent and parent.isValid():
+    def columnCount(self, parent: QModelIndex = QModelIndex()):
+        if parent is not None and parent.isValid():
             return 0
         return len(self.column_map)
 
-    def rowCount(self, parent=...):
-        if parent and parent.isValid():
+    def rowCount(self, parent: QModelIndex = QModelIndex()):
+        if parent is not None and parent.isValid():
             return 0
         return len(self.db.data) if self.db else 0
 
@@ -717,7 +720,7 @@ class BooksModel(QAbstractTableModel):  # {{{
         return db.data._map_filtered
 
     def count(self):
-        return self.rowCount(None)
+        return self.rowCount()
 
     def get_book_display_info(self, idx):
         db = self.db
@@ -754,7 +757,7 @@ class BooksModel(QAbstractTableModel):  # {{{
             except Exception as e:
                 if sys.excepthook is simple_excepthook or sys.excepthook is sys.__excepthook__:
                     return  # ignore failures during startup/shutdown
-                e.locking_violation_msg = _('Failed to read cover file for this book from the calibre library.')
+                setattr(e, 'locking_violation_msg', _('Failed to read cover file for this book from the calibre library.'))
                 raise
             else:
                 if emit_signal:
@@ -849,7 +852,7 @@ class BooksModel(QAbstractTableModel):  # {{{
                         mi = db.get_metadata(id, get_cover=True,
                                                   index_is_id=True,
                                                   cover_as_data=True)
-                        if use_plugboard and format.lower() in plugboard_formats:
+                        if use_plugboard and plugboard_formats is not None and format.lower() in plugboard_formats:
                             plugboards = db.new_api.pref('plugboards', {})
                             cpb = find_plugboard(use_plugboard, format.lower(),
                                                  plugboards)
@@ -1444,7 +1447,8 @@ class BooksModel(QAbstractTableModel):  # {{{
 
     def setData(self, index, value, role=...):
         from calibre.gui2.ui import get_gui
-        if get_gui().shutting_down:
+        gui = get_gui()
+        if gui is not None and gui.shutting_down:
             return False
         if role == Qt.ItemDataRole.EditRole:
             from calibre.gui2.ui import get_gui
@@ -1455,6 +1459,7 @@ class BooksModel(QAbstractTableModel):  # {{{
                 traceback.print_exc()
                 det_msg = traceback.format_exc()
                 gui = get_gui()
+                assert gui is not None
                 if gui.show_possible_sharing_violation(err, det_msg):
                     return False
                 error_dialog(get_gui(), _('Failed to set data'),
@@ -1488,7 +1493,7 @@ class BooksModel(QAbstractTableModel):  # {{{
                 val = max(0, min(int(val or 0), 10))
                 db.set_rating(id, val)
             elif column == 'series':
-                val = val.strip()
+                val = str(val).strip()
                 if not val:
                     books_to_refresh |= db.set_series(id, val,
                                                     allow_case_change=True)
@@ -1509,15 +1514,15 @@ class BooksModel(QAbstractTableModel):  # {{{
                         books_to_refresh |= db.set_series(id, val,
                                                     allow_case_change=True)
             elif column == 'timestamp':
-                if val is None or not val.isValid():
+                if not isinstance(val, QDateTime) or not val.isValid():
                     return False
                 db.set_timestamp(id, qt_to_dt(val, as_utc=False))
             elif column == 'pubdate':
-                if val is None or not val.isValid():
+                if not isinstance(val, QDateTime) or not val.isValid():
                     return False
                 db.set_pubdate(id, qt_to_dt(val, as_utc=False))
             elif column == 'languages':
-                val = val.split(',')
+                val = str(val).split(',')
                 db.set_languages(id, val)
             else:
                 if column == 'authors' and val:
@@ -1635,7 +1640,7 @@ class DeviceDBSortKeyGen:  # {{{
         self.db = db
         self.keyfunc = keyfunc
 
-    def __call__(self, x):
+    def __call__(self, x) -> bytes | str:
         try:
             ans = self.keyfunc(getattr(self.db[x], self.attr))
         except Exception:
@@ -1649,10 +1654,13 @@ class DeviceBooksModel(BooksModel):  # {{{
     booklist_dirtied = pyqtSignal()
     upload_collections = pyqtSignal(object)
     resize_rows = pyqtSignal()
+    db: BookList
+    map: list[int]
+    sorted_map: list[int]
 
     def __init__(self, parent):
         BooksModel.__init__(self, parent)
-        self.db  = []
+        self.db  = BookList()
         self.map = []
         self.sorted_map = []
         self.sorted_on = DEFAULT_SORT
@@ -1827,16 +1835,17 @@ class DeviceBooksModel(BooksModel):  # {{{
                 }[cname]
         keygen = keygen if callable(keygen) else DeviceDBSortKeyGen(
             keygen[0], keygen[1], self.db)
-        self.map.sort(key=keygen, reverse=descending)
+        keygen_fn = cast(Callable[[int], bytes | str], keygen)
+        self.map.sort(key=keygen_fn, reverse=descending)
         if len(self.map) == len(self.db):
             self.sorted_map = list(self.map)
         else:
             self.sorted_map = list(range(len(self.db)))
-            self.sorted_map.sort(key=keygen, reverse=descending)
+            self.sorted_map.sort(key=keygen_fn, reverse=descending)
         self.sorted_on = (self.column_map[column], not descending)
         self.sort_history.insert(0, self.sorted_on)
         if hasattr(keygen, 'db'):
-            keygen.db = None
+            setattr(keygen, 'db', None)
         if reset:
             self.beginResetModel(), self.endResetModel()
 
@@ -1847,13 +1856,13 @@ class DeviceBooksModel(BooksModel):  # {{{
         if reset:
             self.beginResetModel(), self.endResetModel()
 
-    def columnCount(self, parent=...):
-        if parent and parent.isValid():
+    def columnCount(self, parent: QModelIndex = QModelIndex()):
+        if parent is not None and parent.isValid():
             return 0
         return len(self.column_map)
 
-    def rowCount(self, parent=...):
-        if parent and parent.isValid():
+    def rowCount(self, parent: QModelIndex = QModelIndex()):
+        if parent is not None and parent.isValid():
             return 0
         return len(self.map)
 
@@ -1946,12 +1955,13 @@ class DeviceBooksModel(BooksModel):  # {{{
 
     def paths_for_db_ids(self, db_ids, as_map=False):
         res = defaultdict(list) if as_map else []
-        for r,b in enumerate(self.db):
+        for r, b in enumerate(self.db):
             if b.application_id in db_ids:
                 if as_map:
                     res[b.application_id].append(b)
                 else:
-                    res.append((r,b))
+                    assert isinstance(res, list)
+                    res.append((r, b))
         return res
 
     def get_collections_with_ids(self):
@@ -2068,7 +2078,8 @@ class DeviceBooksModel(BooksModel):  # {{{
 
     def setData(self, index, value, role=...):
         from calibre.gui2.ui import get_gui
-        if get_gui().shutting_down:
+        gui = get_gui()
+        if gui is not None and gui.shutting_down:
             return False
         done = False
         if role == Qt.ItemDataRole.EditRole:
