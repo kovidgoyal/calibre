@@ -5,8 +5,11 @@ Miscellaneous widgets used in the GUI
 '''
 import os
 import re
+from collections.abc import Callable
+from typing import Any, Protocol
 
 from qt.core import (
+    QAction,
     QApplication,
     QClipboard,
     QColor,
@@ -65,17 +68,17 @@ class ProgressIndicator(QWidget):  # {{{
         self.status.setWordWrap(True)
         self.status.setAlignment(Qt.AlignmentFlag.AlignHCenter|Qt.AlignmentFlag.AlignTop)
         self.setVisible(False)
-        self.pos = None
+        self.current_pos: tuple[int, int] | None = None
 
     def start(self, msg=''):
         view = self.parent()
         assert isinstance(view, QWidget)
         pwidth, pheight = view.size().width(), view.size().height()
         self.resize(pwidth, min(pheight, 250))
-        if self.pos is None:
+        if self.current_pos is None:
             self.move(0, int((pheight-self.size().height())/2))
         else:
-            self.move(self.pos[0], self.pos[1])
+            self.move(self.current_pos[0], self.current_pos[1])
         self.pi.resize(self.pi.sizeHint())
         self.pi.move(int((self.size().width()-self.pi.size().width())/2), 0)
         self.status.resize(self.size().width(), self.size().height()-self.pi.size().height()-10)
@@ -252,14 +255,25 @@ class FormatList(QListWidget):  # {{{
 # }}}
 
 
-class ImageDropMixin:  # {{{
+class ImageDropWidgetProtocol(Protocol):  # {{{
+
+    def setAcceptDrops(self, on: bool) -> None: ...
+    def pixmap(self) -> QPixmap: ...
+    def get_pixmap(self) -> QPixmap: ...
+    def setPixmap(self, pixmap: QPixmap) -> None: ...
+    def set_pixmap(self, pixmap: QPixmap) -> None: ...
+    def handle_image_drop(self, pmap: QPixmap, data: bytes | None = None) -> None: ...
+    cover_changed: Any
+
+
+class ImageDropMixin:
     '''
     Adds support for dropping images onto widgets and a context menu for
     copy/pasting images.
     '''
     DROPABBLE_EXTENSIONS = None
 
-    def __init__(self):
+    def __init__(self: ImageDropWidgetProtocol):
         self.setAcceptDrops(True)
 
     def dragEnterEvent(self, event):
@@ -269,7 +283,7 @@ class ImageDropMixin:  # {{{
                 dnd_has_image(md):
             event.acceptProposedAction()
 
-    def dropEvent(self, event):
+    def dropEvent(self: ImageDropWidgetProtocol, event):
         event.setDropAction(Qt.DropAction.CopyAction)
         md = event.mimeData()
         pmap, data = dnd_get_local_image_and_pixmap(md)
@@ -296,21 +310,21 @@ class ImageDropMixin:  # {{{
                     if not pmap.isNull():
                         self.handle_image_drop(pmap, data=data)
 
-    def handle_image_drop(self, pmap, data=None):
+    def handle_image_drop(self: ImageDropWidgetProtocol, pmap, data=None):
         self.set_pixmap(pmap)
         self.cover_changed.emit(data or pixmap_to_data(pmap, format='PNG'))
 
     def dragMoveEvent(self, event):
         event.acceptProposedAction()
 
-    def get_pixmap(self):
+    def get_pixmap(self: ImageDropWidgetProtocol):
         return self.pixmap()
 
-    def set_pixmap(self, pmap):
-        self.setPixmap(pmap)
+    def set_pixmap(self: ImageDropWidgetProtocol, pixmap):
+        self.setPixmap(pixmap)
 
     def build_context_menu(self):
-        cm = QMenu(self)
+        cm = QMenu(self)  # type: ignore
         paste = cm.addAction(QIcon.ic('edit-paste.png'), _('Paste cover'))
         assert paste is not None
         copy = cm.addAction(QIcon.ic('edit-copy.png'), _('Copy cover'))
@@ -328,12 +342,12 @@ class ImageDropMixin:  # {{{
     def contextMenuEvent(self, ev):
         self.build_context_menu().exec(ev.globalPos())
 
-    def copy_to_clipboard(self):
+    def copy_to_clipboard(self: ImageDropWidgetProtocol):
         _cb = qapplication_or_fail().clipboard()
         assert _cb is not None
         _cb.setPixmap(self.get_pixmap())
 
-    def paste_from_clipboard(self):
+    def paste_from_clipboard(self: ImageDropWidgetProtocol):
         cb = qapplication_or_fail().clipboard()
         assert cb is not None
         pmap = cb.pixmap()
@@ -475,13 +489,15 @@ class CoverView(QGraphicsView, ImageDropMixin):
         if self._pixmap_scene is None:
             return None
         for item in self._pixmap_scene.items():
-            if hasattr(item, 'pixmap'):
+            if isinstance(item, QGraphicsPixmapItem):
                 return item.pixmap()
+    pixmap = get_pixmap
 
-    def set_pixmap(self, pmap):
+    def set_pixmap(self, pixmap):
         self._pixmap_scene = QGraphicsScene()
-        self._pixmap_scene.addItem(RoundedPixmap(pmap))
+        self._pixmap_scene.addItem(RoundedPixmap(pixmap))
         self.setScene(self._pixmap_scene)
+    setPixmap = set_pixmap
 
     def set_background(self, brush=None):
         self.setBackgroundBrush(brush or self.palette().color(QPalette.ColorRole.Window))
@@ -535,11 +551,24 @@ class BasicList(QListWidget):
 # }}}
 
 
+class LineEditECMProtocol(Protocol):
+    def createStandardContextMenu(self) -> QMenu: ...
+    def create_change_case_menu(self, menu: QMenu) -> None: ...
+    def add_items_to_context_menu(self, menu: QMenu) -> QMenu: ...
+    def hasSelectedText(self) -> bool: ...
+    def selectedText(self) -> str: ...
+    def text(self) -> str: ...
+    def insert(self, text: str) -> None: ...
+    def setText(self, text: str) -> None: ...
+    def modify_case_operation(self, func: Callable[[str], str]) -> None: ...
+
+
 class LineEditECM:  # {{{
 
     '''
     Extend the context menu of a QLineEdit to include more actions.
     '''
+    add_items_to_context_menu_callback: Callable[[QMenu], None] | None = None
 
     def create_change_case_menu(self, menu):
         case_menu = QMenu(_('Change case'), menu)
@@ -561,38 +590,42 @@ class LineEditECM:  # {{{
         menu.addMenu(case_menu)
         return case_menu
 
-    def contextMenuEvent(self, event):
+    def add_items_to_context_menu(self, menu):
+        if self.add_items_to_context_menu_callback is not None:
+            self.add_items_to_context_menu_callback(menu)
+        return menu
+
+    def contextMenuEvent(self: LineEditECMProtocol, event):
         menu = self.createStandardContextMenu()
         menu.addSeparator()
         self.create_change_case_menu(menu)
-        if callable(getattr(self, 'add_items_to_context_menu', None)):
-            menu = self.add_items_to_context_menu(self, menu)
+        menu = self.add_items_to_context_menu(menu)
         menu.exec(event.globalPos())
 
-    def modify_case_operation(self, func):
+    def modify_case_operation(self: LineEditECMProtocol, func):
         has_selection = self.hasSelectedText()
         text = self.selectedText() if has_selection else self.text()
         ntext = func(text)
         if ntext != text:
             self.insert(ntext) if has_selection else self.setText(ntext)
 
-    def upper_case(self):
+    def upper_case(self: LineEditECMProtocol):
         from calibre.utils.icu import upper
         self.modify_case_operation(upper)
 
-    def lower_case(self):
+    def lower_case(self: LineEditECMProtocol):
         from calibre.utils.icu import lower
         self.modify_case_operation(lower)
 
-    def swap_case(self):
+    def swap_case(self: LineEditECMProtocol):
         from calibre.utils.icu import swapcase
         self.modify_case_operation(swapcase)
 
-    def title_case(self):
+    def title_case(self: LineEditECMProtocol):
         from calibre.utils.titlecase import titlecase
         self.modify_case_operation(titlecase)
 
-    def capitalize(self):
+    def capitalize(self: LineEditECMProtocol):
         from calibre.utils.icu import capitalize
         self.modify_case_operation(capitalize)
 
@@ -620,12 +653,17 @@ class EnLineEdit(LineEditECM, QLineEdit):  # {{{
 
 # LineEditIndicators {{{
 
-def setup_status_actions(self: QLineEdit):
-    self.status_actions = (
-        self.addAction(QIcon.ic('ok.png'), QLineEdit.ActionPosition.TrailingPosition),
-        self.addAction(QIcon.ic('dialog_error.png'), QLineEdit.ActionPosition.TrailingPosition))
-    assert self.status_actions[0] is not None
-    assert self.status_actions[1] is not None
+class LineEditIndicatorsProtocol(Protocol):
+    status_actions: tuple[QAction, QAction]
+    def addAction(self, icon: QIcon, position: QLineEdit.ActionPosition) -> QAction | None: ...
+    def setStyleSheet(self, styleSheet: str) -> None: ...
+
+
+def setup_status_actions(self: LineEditIndicatorsProtocol):
+    ok = self.addAction(QIcon.ic('ok.png'), QLineEdit.ActionPosition.TrailingPosition)
+    err = self.addAction(QIcon.ic('dialog_error.png'), QLineEdit.ActionPosition.TrailingPosition)
+    assert ok is not None and err is not None
+    self.status_actions = ok, err
     self.status_actions[0].setVisible(False)
     self.status_actions[1].setVisible(False)
 
@@ -637,7 +675,7 @@ def stylesheet_for_lineedit(ok, selector='QLineEdit') -> str:
     return f'{selector} {{ border: 2px solid {col}; border-radius: 3px }}'
 
 
-def update_status_actions(self: QLineEdit, ok, tooltip: str = ''):
+def update_status_actions(self: LineEditIndicatorsProtocol, ok, tooltip: str = ''):
     self.status_actions[0].setVisible(bool(ok))
     self.status_actions[1].setVisible(not ok)
     if ok:
@@ -650,11 +688,12 @@ def update_status_actions(self: QLineEdit, ok, tooltip: str = ''):
 
 
 class LineEditIndicators:
+    status_actions: tuple[QAction, QAction] = QAction(), QAction()
 
-    def setup_status_actions(self):
+    def setup_status_actions(self: LineEditIndicatorsProtocol):
         setup_status_actions(self)
 
-    def update_status_actions(self, ok, tooltip=''):
+    def update_status_actions(self: LineEditIndicatorsProtocol, ok, tooltip=''):
         update_status_actions(self, ok, tooltip)
 # }}}
 
@@ -1166,7 +1205,8 @@ class PaperSizes(QComboBox):  # {{{
             if iswindows or ismacos:
                 # On Linux, this can cause Qt to load the system cups plugin
                 # which can crash: https://bugs.launchpad.net/calibre/+bug/1861741
-                PaperSizes.system_default_paper_size = 'letter' if QPrinter().pageLayout().pageSize().id() == QPageSize.PageSizeId.Letter else 'a4'
+                ps_id = QPrinter().pageLayout().pageSize().id()  # type: ignore
+                PaperSizes.system_default_paper_size = 'letter' if ps_id == QPageSize.PageSizeId.Letter else 'a4'
         if not choices:
             from calibre.ebooks.conversion.plugins.pdf_output import PAPER_SIZES
             choices = PAPER_SIZES

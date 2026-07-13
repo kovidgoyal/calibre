@@ -3,6 +3,7 @@
 
 
 import weakref
+from collections.abc import Callable
 from functools import lru_cache
 
 from qt.core import (
@@ -73,8 +74,12 @@ class HistoryMixin:
     max_history_items = None
     min_history_entry_length = 3
 
-    def __init__(self, *args, **kwargs):
-        pass
+    _name: str
+    history: list[str]
+    text: Callable[[], str]
+    setText: Callable[[str], None]
+    update_items_cache: Callable[[list[str]], None]
+    set_separator: Callable[[str | None], None]
 
     @property
     def store_name(self):
@@ -87,9 +92,9 @@ class HistoryMixin:
         self.update_items_cache(self.history)
         self.setText('')
         try:
-            self.editingFinished.connect(self.save_history)
+            self.editingFinished.connect(self.save_history)  # type: ignore
         except AttributeError:
-            self.lineEdit().editingFinished.connect(self.save_history)
+            self.lineEdit().editingFinished.connect(self.save_history)  # type: ignore
 
     def load_history(self):
         return history.get(self.store_name, [])
@@ -122,7 +127,7 @@ class HistoryLineEdit2(LineEdit, HistoryMixin):
         if hasattr(self.mcompleter, 'setUniformItemSizes'):
             self.mcompleter.setUniformItemSizes(on)
 
-    def add_items_to_context_menu(self, s, menu):
+    def add_items_to_context_menu(self, menu):
         menu.addAction(QIcon.ic('trash.png'), _('Clear history')).triggered.connect(self.clear_history)
         return menu
 
@@ -268,6 +273,8 @@ class Dialog(QDialog):
     for the first time.
     '''
 
+    splitter: QSplitter | None = None
+
     def __init__(
             self, title,
             name, parent=None, prefs=gprefs,
@@ -284,20 +291,20 @@ class Dialog(QDialog):
         self.setup_ui()
 
         self.restore_geometry(self.prefs_for_persistence, self.name + '-geometry')
-        if hasattr(self, 'splitter'):
+        if self.splitter is not None:
             state = self.prefs_for_persistence.get(self.name + '-splitter-state', None)
             if state is not None:
                 self.splitter.restoreState(state)
 
     def accept(self):
         self.save_geometry(self.prefs_for_persistence, self.name + '-geometry')
-        if hasattr(self, 'splitter'):
+        if self.splitter is not None:
             self.prefs_for_persistence.set(self.name + '-splitter-state', bytearray(self.splitter.saveState()))
         QDialog.accept(self)
 
     def reject(self):
         self.save_geometry(self.prefs_for_persistence, self.name + '-geometry')
-        if hasattr(self, 'splitter'):
+        if self.splitter is not None:
             self.prefs_for_persistence.set(self.name + '-splitter-state', bytearray(self.splitter.saveState()))
         QDialog.reject(self)
 
@@ -368,7 +375,7 @@ class RatingEditor(QComboBox):
 
     @null_text.setter
     def null_text(self, val):
-        self.setItemtext(0, val)
+        self.setItemText(0, val)
 
     def update_font(self):
         if self.currentIndex() == 0:
@@ -489,9 +496,12 @@ class FlowLayout(QLayout):  # {{{
         if p is None:
             return -1
         if p.isWidgetType():
+            assert isinstance(p, QWidget)
             which = QStyle.PixelMetric.PM_LayoutHorizontalSpacing if horizontal else QStyle.PixelMetric.PM_LayoutVerticalSpacing
-            return p.style().pixelMetric(which, None, p)
-        return p.spacing()
+            s = p.style()
+            assert s is not None
+            return s.pixelMetric(which, None, p)
+        return self.spacing()
 
     def do_layout(self, rect, apply_geometry=False):
         left, top, right, bottom = self.getContentsMargins()
@@ -549,8 +559,10 @@ class FlowLayout(QLayout):  # {{{
         h = QSplitter()
         h.setOrientation(Qt.Orientation.Vertical)
         def filler():
-            la = QLabel(' filler')
-            la.sizeHint = lambda *a: QSize(10000, 10000)
+            class Label(QLabel):
+                def sizeHint(self):
+                    return QSize(10000, 10000)
+            la = Label(' filler')
             la.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
             return la
         w = QWidget()

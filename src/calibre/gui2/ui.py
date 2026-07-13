@@ -272,7 +272,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         DeviceMixin.init_device_mixin(self)
 
         self.progress_indicator = ProgressIndicator(self)
-        self.progress_indicator.pos = (0, 20)
+        self.progress_indicator.current_pos = (0, 20)
         self.verbose = opts.verbose
         self.get_metadata = GetMetadata()
         self.upload_memory = {}
