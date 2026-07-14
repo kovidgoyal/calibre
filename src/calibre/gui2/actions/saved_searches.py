@@ -20,6 +20,7 @@ class SavedSearchesAction(InterfaceAction):
 
     def genesis(self):
         self.menu = m = self.qaction.menu()
+        assert m is not None
         m.aboutToShow.connect(self.about_to_show_menu)
 
         # Create a "hidden" menu that can have a shortcut.
@@ -48,5 +49,6 @@ class SavedSearchesAction(InterfaceAction):
     def location_selected(self, loc):
         enabled = loc == 'library'
         self.qaction.setEnabled(enabled)
+        assert self.menu is not None
         for action in self.menu.actions():
             action.setEnabled(enabled)

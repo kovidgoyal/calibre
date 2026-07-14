@@ -66,6 +66,7 @@ class AddAction(InterfaceAction):
     def genesis(self):
         self._add_filesystem_book = self.Dispatcher(self.__add_filesystem_book)
         self.add_menu = self.qaction.menu()
+        assert self.add_menu is not None
         ma = partial(self.create_menu_action, self.add_menu)
         ma('recursive-add', _('Add from folders and sub-folders'), icon='mimetypes/dir.png').triggered.connect(self.add_recursive_question)
         ma('archive-add-book', _('Add multiple books from archive (ZIP/RAR/7z)'), icon='mimetypes/zip.png').triggered.connect(self.add_from_archive)
@@ -89,6 +90,7 @@ class AddAction(InterfaceAction):
 
     def location_selected(self, loc):
         enabled = loc == 'library'
+        assert self.add_menu is not None
         for action in list(self.add_menu.actions())[1:]:
             action.setEnabled(enabled)
 

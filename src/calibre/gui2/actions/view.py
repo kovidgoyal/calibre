@@ -60,6 +60,7 @@ class ViewAction(InterfaceAction):
         self.qaction.triggered.connect(self.view_book)
         self.view_action = self.menuless_qaction
         self.view_menu = self.qaction.menu()
+        assert self.view_menu is not None
         cm = partial(self.create_menu_action, self.view_menu)
         self.view_specific_action = cm('specific', _('View specific format'),
                 shortcut='Alt+V', triggered=self.view_specific_format)
@@ -90,6 +91,7 @@ class ViewAction(InterfaceAction):
         self.llm_action.setText(t + '\t' + sc.toString(QKeySequence.SequenceFormat.NativeText))
 
     def build_menus(self, db):
+        assert self.view_menu is not None
         for ac in self.history_actions:
             self.view_menu.removeAction(ac)
         self.history_actions = []
@@ -126,6 +128,7 @@ class ViewAction(InterfaceAction):
 
     def location_selected(self, loc):
         enabled = loc == 'library'
+        assert self.view_menu is not None
         for action in list(self.view_menu.actions())[1:]:
             action.setEnabled(enabled)
 

@@ -22,6 +22,7 @@ class StoreAction(InterfaceAction):
     def genesis(self):
         self.qaction.triggered.connect(self.do_search)
         self.store_menu = self.qaction.menu()
+        assert self.store_menu is not None
         cm = partial(self.create_menu_action, self.store_menu)
         for x, t in [('author', _('this author')), ('title', _('this title')), ('book', _('this book'))]:
             func = getattr(self, 'search_{}'.format('author_title' if x == 'book' else x))

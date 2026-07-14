@@ -20,6 +20,7 @@ from qt.core import (
     QGridLayout,
     QHBoxLayout,
     QIcon,
+    QKeyCombination,
     QKeySequence,
     QLabel,
     QMenu,
@@ -235,7 +236,7 @@ class SeriesEdit(LineEdit):
 
     def __init__(self, *args, **kwargs):
         LineEdit.__init__(self, *args, **kwargs)
-        self.dbref = None
+        self.dbref = lambda : None
         self.item_selected.connect(self.insert_series_index)
 
     def from_mi(self, mi):
@@ -261,8 +262,7 @@ class SeriesEdit(LineEdit):
         self.dbref = weakref.ref(db)
 
     def insert_series_index(self, series):
-        db = self.dbref()
-        if db is None or not series:
+        if (db := self.dbref()) is None or not series:
             return
         num = db.get_next_series_num_for(series)
         sidx = fmt_sidx(num)
@@ -495,7 +495,7 @@ class CompareSingle(QWidget):
             connect_lambda(button.clicked, self, lambda self: self.revert(self.sender().objectName()))
             button.setToolTip(revert_tooltip % m['name'])
             if field == 'identifiers':
-                button.m = m = QMenu(button)
+                m = QMenu(button)
                 button.setMenu(m)
                 button.setPopupMode(QToolButton.ToolButtonPopupMode.DelayedPopup)
                 a1 = m.addAction(button.toolTip())
@@ -507,7 +507,7 @@ class CompareSingle(QWidget):
                 a2.triggered.connect(self.merge_identifiers)
                 m.actions()[1].setIcon(QIcon.ic('merge.png'))
             elif field == 'tags':
-                button.m = m = QMenu(button)
+                m = QMenu(button)
                 button.setMenu(m)
                 button.setPopupMode(QToolButton.ToolButtonPopupMode.DelayedPopup)
                 a1 = m.addAction(button.toolTip())
@@ -519,7 +519,7 @@ class CompareSingle(QWidget):
                 a2.triggered.connect(self.merge_tags)
                 m.actions()[1].setIcon(QIcon.ic('merge.png'))
             elif field == 'comments':
-                button.m = m = QMenu(button)
+                m = QMenu(button)
                 button.setMenu(m)
                 button.setPopupMode(QToolButton.ToolButtonPopupMode.DelayedPopup)
                 a1 = m.addAction(button.toolTip())
@@ -532,6 +532,7 @@ class CompareSingle(QWidget):
                 m.actions()[1].setIcon(QIcon.ic('merge.png'))
 
             if cls is CoverView:
+                assert isinstance(neww, CoverView) and isinstance(oldw, CoverView)
                 neww.zoom_requested.connect(self.zoom_requested)
                 oldw.zoom_requested.connect(self.zoom_requested)
             self.widgets[field] = Widgets(neww, oldw, newl, button)
@@ -681,7 +682,7 @@ class CompareMany(QDialog):
         self.get_metadata = get_metadata
         self.ids = list(ids)
         self.total = len(self.ids)
-        self.accepted = OrderedDict()
+        self.accepted_map: OrderedDict = OrderedDict()
         self.rejected_ids = set()
         self.window_title = window_title or _('Compare metadata')
 
@@ -723,7 +724,7 @@ class CompareMany(QDialog):
             self.sb = b = bb.addButton(_('R&eject'), QDialogButtonBox.ButtonRole.ActionRole)
             assert b is not None
             ac = QAction(self)
-            ac.setShortcut(QKeySequence(Qt.KeyboardModifier.AltModifier | Qt.KeyboardModifier.ShiftModifier | Qt.Key.Key_Right))
+            ac.setShortcut(QKeySequence(QKeyCombination(Qt.KeyboardModifier.AltModifier | Qt.KeyboardModifier.ShiftModifier, Qt.Key.Key_Right)))
             ac.triggered.connect(b.click)
             self.addAction(ac)
             b.setToolTip(_('Reject changes and move to next [{}]').format(ac.shortcut().toString(QKeySequence.SequenceFormat.NativeText)))
@@ -732,7 +733,7 @@ class CompareMany(QDialog):
             if reject_button_tooltip:
                 b.setToolTip(reject_button_tooltip)
             self.next_action = ac = QAction(self)
-            ac.setShortcut(QKeySequence(Qt.KeyboardModifier.AltModifier | Qt.Key.Key_Right))
+            ac.setShortcut(QKeySequence(QKeyCombination(Qt.KeyboardModifier.AltModifier, Qt.Key.Key_Right)))
             self.addAction(ac)
         if action_button is not None:
             self.acb = b = bb.addButton(action_button[0], QDialogButtonBox.ButtonRole.ActionRole)
@@ -743,7 +744,7 @@ class CompareMany(QDialog):
         # Add a Back button, which allows the user to go back to the previous book cancel any reject/edit/accept that was done to it, and review it again
         # create a Back action that will be triggered when the user presses the back button or the back shortcut
         self.back_action = QAction(self)
-        self.back_action.setShortcut(QKeySequence(Qt.KeyboardModifier.AltModifier | Qt.Key.Key_Left))
+        self.back_action.setShortcut(QKeySequence(QKeyCombination(Qt.KeyboardModifier.AltModifier, Qt.Key.Key_Left)))
         self.back_action.triggered.connect(self.previous_item)
         self.addAction(self.back_action)
         # create the back button, set it's name, tooltip, icon and action to call the previous_item method
@@ -846,7 +847,7 @@ class CompareMany(QDialog):
 
             if not accept:
                 self.rejected_ids.add(old_id)
-            self.accepted[old_id] = (changed, self.current_mi) if accept else (False, None)
+            self.accepted_map[old_id] = (changed, self.current_mi) if accept else (False, None)
         if not self.ids:
             return self.accept()
         self.show_current_item()
@@ -863,7 +864,7 @@ class CompareMany(QDialog):
                 self.markq.setChecked(False)
             # if this book id was accepted, remove it from the accepted dictionary
             elif last_previous_item in self.accepted:
-                self.accepted.pop(last_previous_item)
+                self.accepted_map.pop(last_previous_item)
 
             # move the last previous item to the beginning of the pending list
             self.ids.insert(0, last_previous_item)
@@ -873,7 +874,7 @@ class CompareMany(QDialog):
         self.next_item(True)
         for id_ in self.ids:
             oldmi, newmi = self.get_metadata(id_)
-            self.accepted[id_] = (False, newmi)
+            self.accepted_map[id_] = (False, newmi)
         self.ids = []
         self.accept()
 
@@ -888,7 +889,7 @@ class CompareMany(QDialog):
         for id_ in self.ids:
             self.rejected_ids.add(id_)
             oldmi, newmi = self.get_metadata(id_)
-            self.accepted[id_] = (False, None)
+            self.accepted_map[id_] = (False, None)
         self.ids = []
         self.accept()
 
@@ -912,6 +913,6 @@ if __name__ == '__main__':
         return list(map(gm, ids[x]))
     d = CompareMany(list(range(len(ids))), get_metadata, db.field_metadata, db=db)
     d.exec()
-    for changed, mi in d.accepted.values():
+    for changed, mi in d.accepted_map.values():
         if changed and mi is not None:
             print(mi)

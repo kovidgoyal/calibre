@@ -238,6 +238,7 @@ class UnpackBook(QDialog):
         if rebuilt is not None:
             from calibre.gui2.ui import get_gui
             g = get_gui()
+            assert g is not None
             g.iactions['View']._view_file(rebuilt)
 
     def rebuild(self):

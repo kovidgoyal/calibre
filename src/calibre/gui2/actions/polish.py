@@ -239,7 +239,7 @@ class Polish(QDialog):  # {{{
         return False
 
     def accept(self):
-        self.actions = ac = {}
+        self.chosen_actions = ac = {}
         saved_prefs = {}
         gprefs['polish_show_reports'] = bool(self.show_reports.isChecked())
         something = False
@@ -255,7 +255,9 @@ class Polish(QDialog):  # {{{
                   ' the book files. Do you want to select it?')):
                 return
             ac['metadata'] = saved_prefs['metadata'] = True
-            self.opt_metadata.setChecked(True)
+            opt_metadata = self.findChild(QCheckBox, 'metadata')
+            assert opt_metadata is not None
+            opt_metadata.setChecked(True)
         if ac['jacket'] and ac['remove_jacket']:
             if not question_dialog(self, _('Add or remove jacket?'), _(
                     'You have chosen to both add and remove the metadata jacket.'
@@ -310,7 +312,7 @@ class Polish(QDialog):  # {{{
         with open(opf, 'wb') as opf_file:
             mi = create_opf_file(db, book_id, opf_file=opf_file)[0]
         data = {'opf':opf, 'files':[]}
-        for action in self.actions:
+        for action in self.chosen_actions:
             data[action] = bool(getattr(self, 'opt_'+action).isChecked())
         cover = os.path.join(base, 'cover.jpg')
         if db.copy_cover_to(book_id, cover, index_is_id=True):
@@ -390,7 +392,7 @@ class Report(QDialog):  # {{{
             self.show_next()
 
     def show_report(self, book_title, book_id, fmts, job, report):
-        from calibre.ebooks.markdown import markdown
+        from markdown import markdown
         self.current_log = job.details
         self.setWindowTitle(_('Polishing of %s')%book_title)
         self.view.setText(markdown(f'# {book_title}\n\n' + report,

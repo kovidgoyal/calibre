@@ -26,6 +26,7 @@ class PreferencesAction(InterfaceAction):
 
     def genesis(self):
         pm = self.qaction.menu()
+        assert pm is not None
         cm = partial(self.create_menu_action, pm)
         if ismacos:
             pm.addAction(QIcon.ic('config.png'), _('Preferences'), self.do_config)
@@ -52,6 +53,7 @@ class PreferencesAction(InterfaceAction):
                          key=lambda p: p.category_order * 100 + p.name_order)
 
         pm = self.preferences_menu
+        assert pm is not None
         # The space pushes the separator a bit away from the text
         pm.addSection(_('Sections') + ' ')
 

@@ -50,6 +50,7 @@ class EditMetadataAction(InterfaceActionWithLibraryDrop):
 
     def genesis(self):
         md = self.qaction.menu()
+        assert md is not None
         cm = partial(self.create_menu_action, md)
         cm('individual', _('Edit metadata individually'), icon=self.qaction.icon(),
                 triggered=partial(self.edit_metadata, False, bulk=False))
@@ -386,7 +387,7 @@ class EditMetadataAction(InterfaceActionWithLibraryDrop):
                     failed_ids |= d.rejected_ids
                     restrict_to_failed = True
                 nid_map = {}
-                for book_id, (changed, mi) in d.accepted.items():
+                for book_id, (changed, mi) in d.accepted_map.items():
                     if mi is None:  # discarded
                         continue
                     if changed:

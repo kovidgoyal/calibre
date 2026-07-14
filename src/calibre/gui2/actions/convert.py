@@ -32,7 +32,9 @@ class ConvertAction(InterfaceActionWithLibraryDrop):
         self.do_convert(book_ids)
 
     def genesis(self):
-        m = self.convert_menu = self.qaction.menu()
+        self.convert_menu = self.qaction.menu()
+        assert self.convert_menu is not None
+        m = self.convert_menu
         cm = partial(self.create_menu_action, self.convert_menu)
         cm('convert-individual', _('Convert individually'),
                 icon=self.qaction.icon(), triggered=partial(self.convert_ebook,
@@ -51,6 +53,7 @@ class ConvertAction(InterfaceActionWithLibraryDrop):
         enabled = loc == 'library'
         self.qaction.setEnabled(enabled)
         self.menuless_qaction.setEnabled(enabled)
+        assert self.convert_menu is not None
         for action in list(self.convert_menu.actions()):
             action.setEnabled(enabled)
 

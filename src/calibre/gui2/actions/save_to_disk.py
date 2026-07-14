@@ -27,6 +27,7 @@ class SaveToDiskAction(InterfaceAction):
     def genesis(self):
         self.qaction.triggered.connect(self.save_to_disk)
         self.save_menu = self.qaction.menu()
+        assert self.save_menu is not None
         cm = partial(self.create_menu_action, self.save_menu)
         cm('single dir', _('Save to disk in a single folder'),
                 triggered=partial(self.save_to_single_dir, False))
@@ -42,10 +43,12 @@ class SaveToDiskAction(InterfaceAction):
 
     def location_selected(self, loc):
         enabled = loc == 'library'
+        assert self.save_menu is not None
         for action in list(self.save_menu.actions())[1:]:
             action.setEnabled(enabled)
 
     def reread_prefs(self):
+        assert self.save_menu is not None
         self.save_menu.actions()[2].setText(
             _('Save only %s format to disk')%
             prefs['output_format'].upper())

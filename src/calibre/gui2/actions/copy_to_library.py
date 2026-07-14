@@ -57,25 +57,25 @@ def ask_about_cc_mismatch(gui, db, newdb, missing_cols, incompatible_cols):  # {
     l = QFormLayout()
     tl = QVBoxLayout()
     d.setLayout(tl)
-    d.s = QScrollArea(d)
-    tl.addWidget(d.s)
-    d.w = QWidget(d)
-    d.s.setWidget(d.w)
-    d.s.setWidgetResizable(True)
-    d.w.setLayout(l)
+    s = QScrollArea(d)
+    tl.addWidget(s)
+    w = QWidget(d)
+    s.setWidget(w)
+    s.setWidgetResizable(True)
+    w.setLayout(l)
     d.setMinimumWidth(600)
     d.setMinimumHeight(500)
-    d.bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok|QDialogButtonBox.StandardButton.Cancel)
+    bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok|QDialogButtonBox.StandardButton.Cancel)
 
     msg = _('The custom columns in the <i>{0}</i> library are different from the '
         'custom columns in the <i>{1}</i> library. As a result, some metadata might not be copied.').format(
         os.path.basename(db.library_path), ndbname)
-    d.la = la = QLabel(msg)
+    la = QLabel(msg)
     la.setWordWrap(True)
     la.setStyleSheet('QLabel { margin-bottom: 1.5ex }')
     l.addRow(la)
     if incompatible_cols:
-        la = d.la2 = QLabel(_('The following columns are incompatible - they have the same name'
+        la = QLabel(_('The following columns are incompatible - they have the same name'
                 ' but different data types. They will be ignored: ') +
                     ', '.join(sorted(incompatible_cols, key=sort_key)))
         la.setWordWrap(True)
@@ -84,7 +84,7 @@ def ask_about_cc_mismatch(gui, db, newdb, missing_cols, incompatible_cols):  # {
 
     missing_widgets = []
     if missing_cols:
-        la = d.la3 = QLabel(_('The following columns are missing in the <i>{0}</i> library.'
+        la = QLabel(_('The following columns are missing in the <i>{0}</i> library.'
                                 ' You can choose to add them automatically below.').format(
                                     ndbname))
         la.setWordWrap(True)
@@ -93,13 +93,13 @@ def ask_about_cc_mismatch(gui, db, newdb, missing_cols, incompatible_cols):  # {
             widgets = (k, QCheckBox(_('Add to the %s library') % ndbname))
             l.addRow(QLabel(k), widgets[1])
             missing_widgets.append(widgets)
-    d.la4 = la = QLabel(_('This warning is only shown once per library, per session'))
+    la = QLabel(_('This warning is only shown once per library, per session'))
     la.setWordWrap(True)
     tl.addWidget(la)
 
-    tl.addWidget(d.bb)
-    d.bb.accepted.connect(d.accept)
-    d.bb.rejected.connect(d.reject)
+    tl.addWidget(bb)
+    bb.accepted.connect(d.accept)
+    bb.rejected.connect(d.reject)
     d.resize(d.sizeHint())
     if d.exec() == QDialog.DialogCode.Accepted:
         changes_made = False
@@ -360,6 +360,7 @@ class CopyToLibraryAction(InterfaceAction):
 
     def genesis(self):
         self.menu = self.qaction.menu()
+        assert self.menu is not None
 
     @property
     def stats(self):
@@ -377,6 +378,7 @@ class CopyToLibraryAction(InterfaceAction):
         self.menuless_qaction.setEnabled(enabled)
 
     def build_menus(self):
+        assert self.menu is not None
         self.menu.clear()
         if os.environ.get('CALIBRE_OVERRIDE_DATABASE_PATH', None):
             self.menu.addAction('disabled', self.cannot_do_dialog)

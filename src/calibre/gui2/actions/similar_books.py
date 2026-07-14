@@ -25,6 +25,7 @@ class SimilarBooksAction(InterfaceAction):
 
     def genesis(self):
         m = self.qaction.menu()
+        assert m is not None
         for text, icon, target, shortcut in [
             (_('Books by same author'), 'user_profile.png', 'authors', 'Alt+A'),
             (_('Books in this series'), 'books_in_series.png', 'series',
@@ -101,7 +102,7 @@ class SimilarBooksAction(InterfaceAction):
             def remove_et_al(au):
                 return re.sub(r'\s+et al\.$', '', au)
             val = list(map(remove_et_al, val))
-        search = [col + ':"='+t.replace('"', '\\"')+'"' for t in val]
+        search = [col + ':"='+str(t).replace('"', '\\"')+'"' for t in val]
         if search:
             self.gui.search.set_search_string(join.join(search),
                     store_in_history=True)

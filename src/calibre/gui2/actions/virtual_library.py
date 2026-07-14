@@ -21,6 +21,7 @@ class VirtualLibraryAction(InterfaceAction):
 
     def genesis(self):
         self.menu = m = self.qaction.menu()
+        assert m is not None
         m.aboutToShow.connect(self.about_to_show_menu)
         self.qs_action = QAction(self.gui)
         self.gui.addAction(self.qs_action)

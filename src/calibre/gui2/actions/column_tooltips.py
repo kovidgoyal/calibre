@@ -50,6 +50,7 @@ class ColumnTooltipsAction(InterfaceAction):
     def genesis(self):
         self.qaction.triggered.connect(self.show_template_editor)
         m = self.qaction.menu()
+        assert m is not None
         ac = self.create_menu_action(m, 'tooltip_in_dialog_box', _('Show item tooltip in a dialog'),
             icon='dialog_information.png', triggered=self.show_tooltip_in_dialog, shortcut=None)
         m.addAction(ac)

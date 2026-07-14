@@ -5,11 +5,15 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
+from qt.core import QAction
+
 from calibre.gui2.actions import InterfaceAction
 from calibre.utils.localization import _
 
 
 class NextMatchAction(InterfaceAction):
+
+    p_action: QAction
     name = 'Move to next highlighted book'
     action_spec = (_('Move to next match'), 'arrow-down.png',
             _('Move to next highlighted match'), [_('N'), _('F3')])

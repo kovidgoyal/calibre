@@ -112,7 +112,7 @@ class DeleteMatchingFromDeviceDialog(QDialog, Ui_DeleteMatchingFromDeviceDialog)
             self.table.setCurrentCell(row, 1)
 
     def accepted(self):
-        self.result = []
+        self.result_val = []
         for row in range(self.table.rowCount()):
             item_0 = self.table.item(row, 0)
             assert item_0 is not None
@@ -120,4 +120,4 @@ class DeleteMatchingFromDeviceDialog(QDialog, Ui_DeleteMatchingFromDeviceDialog)
                 continue
             model, id, path = item_0.data(Qt.ItemDataRole.UserRole)
             path = str(path)
-            self.result.append((model, id, path))
+            self.result_val.append((model, id, path))

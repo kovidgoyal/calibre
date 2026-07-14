@@ -97,6 +97,7 @@ class DeleteAction(InterfaceActionWithLibraryDrop):
     def genesis(self):
         self.qaction.triggered.connect(self.delete_books)
         self.delete_menu = self.qaction.menu()
+        assert self.delete_menu is not None
         m = partial(self.create_menu_action, self.delete_menu)
         m('delete-specific',
                 _('Remove files of a specific format from selected books'),
@@ -122,6 +123,7 @@ class DeleteAction(InterfaceActionWithLibraryDrop):
 
     def location_selected(self, loc):
         enabled = loc == 'library'
+        assert self.delete_menu is not None
         for action in list(self.delete_menu.actions())[1:]:
             action.setEnabled(enabled)
 
@@ -291,7 +293,7 @@ class DeleteAction(InterfaceActionWithLibraryDrop):
         if d.exec():
             paths = {}
             ids = {}
-            for (model, id, path) in d.result:
+            for (model, id, path) in d.result_val:
                 if model not in paths:
                     paths[model] = []
                     ids[model] = []
@@ -442,7 +444,7 @@ class DeleteAction(InterfaceActionWithLibraryDrop):
             try:
                 view.model().delete_books_by_id(to_delete_ids)
             except OSError as err:
-                err.locking_violation_msg = _("Could not change on-disk location of this book's files.")
+                setattr(err, 'locking_violation_msg', _("Could not change on-disk location of this book's files."))
                 raise
             self.library_ids_deleted2(to_delete_ids, next_id=next_id, can_undo=True)
         else:

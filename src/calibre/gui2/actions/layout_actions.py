@@ -80,6 +80,7 @@ class LayoutActions(InterfaceAction):
     def genesis(self):
         self.layout_icon = QIcon.ic('layout.png')
         self.menu = m = self.qaction.menu()
+        assert m is not None
         m.aboutToShow.connect(self.about_to_show_menu)
 
         # Create a "hidden" menu that can have a shortcut.
@@ -109,6 +110,7 @@ class LayoutActions(InterfaceAction):
 
     def gui_layout_complete(self):
         m = self.qaction.menu()
+        assert m is not None
         m.aboutToShow.connect(self.about_to_show_menu)
 
     def initialization_complete(self):
@@ -119,6 +121,7 @@ class LayoutActions(InterfaceAction):
 
     def populate_menu(self):
         m = self.qaction.menu()
+        assert m is not None
         m.clear()
         lm = m.addMenu(self.layout_icon, _('Restore saved layout'))
         layouts = gprefs['saved_layouts']
