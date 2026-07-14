@@ -299,4 +299,5 @@ exclude = [
 	'**/tests/**',
 	'src/calibre/library/database2.py',
 	'src/calibre/library/schema_upgrades.py',
+    'src/calibre/gui2/pyqt6_compat.py',
 ]

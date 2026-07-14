@@ -154,7 +154,7 @@ class Browser:
         if isinstance(data, dict):
             headers.append(('Content-Type', 'application/x-www-form-urlencoded'))
             data = urlencode(data)  # type: ignore
-        elif isinstance(data, str):
+        if isinstance(data, str):
             data = data.encode('utf-8')
             if not has_header('Content-Type'):
                 headers.append(('Content-Type', 'text/plain'))
