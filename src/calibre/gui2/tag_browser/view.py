@@ -12,6 +12,7 @@ from collections import defaultdict
 from contextlib import suppress
 from functools import partial
 from math import ceil
+from typing import TYPE_CHECKING
 
 from qt.core import (
     QAbstractItemView,
@@ -39,6 +40,7 @@ from qt.core import (
     QTimer,
     QToolTip,
     QTreeView,
+    QWidget,
     pyqtSignal,
 )
 
@@ -73,6 +75,9 @@ from calibre.gui2.widgets import EnLineEdit
 from calibre.utils.icu import sort_key
 from calibre.utils.localization import _
 from calibre.utils.serialize import json_loads
+
+if TYPE_CHECKING:
+    from calibre.gui2.tag_browser.ui import AlterTagBrowser
 
 
 class TagDelegate(QStyledItemDelegate):  # {{{
@@ -217,7 +222,7 @@ class TagDelegate(QStyledItemDelegate):  # {{{
     def paint(self, painter, option, index):
         QStyledItemDelegate.paint(self, painter, option, empty_index)
         widget = self.parent()
-        style = QApplication.style() if widget is None else widget.style()
+        style = widget.style() if isinstance(widget, QWidget) else qapplication_or_fail().style()
         assert style is not None
         self.initStyleOption(option, index)
         item = index.data(Qt.ItemDataRole.UserRole)
@@ -226,6 +231,7 @@ class TagDelegate(QStyledItemDelegate):  # {{{
         self.draw_text(style, painter, option, widget, index, item)
         painter.restore()
         if item.boxed:
+            assert widget is None or isinstance(widget, QWidget)
             r = style.subElementRect(QStyle.SubElement.SE_ItemViewItemFocusRect, option,
                     widget)
             painter.drawLine(r.bottomLeft(), r.bottomRight())
@@ -257,7 +263,7 @@ class TagDelegate(QStyledItemDelegate):  # {{{
         if key:
             from calibre.gui2.ui import get_gui
             with suppress(Exception):
-                completion_data = get_gui().current_db.new_api.all_field_names(key)
+                completion_data = get_gui(fail_if_absent=True).current_db.new_api.all_field_names(key)
         if completion_data:
             editor = EditWithComplete(parent)
             editor.set_separator(None)
@@ -296,7 +302,7 @@ class TagsView(QTreeView):  # {{{
         self.possible_drag_start = None
         self.setProperty('frame_for_focus', True)
         self.setMouseTracking(True)
-        self.alter_tb = None
+        self.alter_tb: AlterTagBrowser | None = None
         self.disable_recounting = False
         self.setUniformRowHeights(True)
         self.setIconSize(QSize(20, 20))
@@ -343,7 +349,7 @@ class TagsView(QTreeView):  # {{{
 
     def convert_requested(self, book_ids, to_fmt):
         from calibre.gui2.ui import get_gui
-        get_gui().iactions['Convert Books'].convert_ebooks_to_format(book_ids, to_fmt)
+        get_gui(fail_if_absent=True).iactions['Convert Books'].convert_ebooks_to_format(book_ids, to_fmt)
 
     def set_style_sheet(self):
         stylish_tb = '''
@@ -368,7 +374,9 @@ class TagsView(QTreeView):  # {{{
     def set_look_and_feel(self, first=False):
         self.set_style_sheet()
         self.setAlternatingRowColors(gprefs['tag_browser_old_look'])
-        self.itemDelegate().old_look = gprefs['tag_browser_old_look']
+        d = self.itemDelegate()
+        assert isinstance(d, TagDelegate)
+        d.old_look = gprefs['tag_browser_old_look']
 
         if gprefs['tag_browser_allow_keyboard_focus']:
             self.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
@@ -382,7 +390,7 @@ class TagsView(QTreeView):  # {{{
         if not first:
             try:
                 from calibre.gui2.ui import get_gui
-                get_gui().shift_esc()
+                get_gui(fail_if_absent=True).shift_esc()
             except Exception:
                 traceback.print_exc()
 
@@ -426,14 +434,16 @@ class TagsView(QTreeView):  # {{{
     def reread_collapse_parameters(self):
         self._model.reread_collapse_model(self.get_state()[1])
 
-    def set_database(self, db, alter_tb):
+    def set_database(self, db, alter_tb: AlterTagBrowser):
         self._model.set_database(db)
         self.alter_tb = alter_tb
         self.pane_is_visible = True  # because TagsModel.set_database did a recount
         self.setModel(self._model)
         self.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         pop = self.db.CATEGORY_SORTS.index(config['sort_tags_by'])
-        self.alter_tb.sort_menu.actions()[pop].setChecked(True)
+        sort_menu: QMenu | None = self.alter_tb.m.named_action('sort_menu').menu()
+        assert sort_menu is not None
+        sort_menu.actions()[pop].setChecked(True)
         try:
             match_pop = self.db.MATCH_TYPE.index(config['match_tags_type'])
         except ValueError:
@@ -443,7 +453,7 @@ class TagsView(QTreeView):  # {{{
             self.clicked.connect(self.toggle_on_mouse_click)
             self.customContextMenuRequested.connect(self.show_context_menu)
             self.refresh_required.connect(self.recount, type=Qt.ConnectionType.QueuedConnection)
-            self.alter_tb.sort_menu.triggered.connect(self.sort_changed)
+            sort_menu.triggered.connect(self.sort_changed)
             self.alter_tb.match_menu.triggered.connect(self.match_changed)
             self.made_connections = True
         self.refresh_signal_processed = True
@@ -525,7 +535,9 @@ class TagsView(QTreeView):  # {{{
     def sort_changed(self, action):
         alter_tb = self.alter_tb
         assert alter_tb is not None
-        for i, ac in enumerate(alter_tb.sort_menu.actions()):
+        sort_menu = alter_tb.m.named_action('sort_menu').menu()
+        assert sort_menu is not None
+        for i, ac in enumerate(sort_menu.actions()):
             if ac is action:
                 config.set('sort_tags_by', self.db.CATEGORY_SORTS[i])
                 self.recount()
@@ -613,7 +625,7 @@ class TagsView(QTreeView):  # {{{
     def toggle_on_mouse_click(self, index):
         # Check if one of the link or note icons was clicked. If so, deal with
         # it here and don't do the real toggle
-        t = self._model.data(index, Qt.UserRole)
+        t = self._model.data(index, Qt.ItemDataRole.UserRole)
         if t.type == TagTreeItem.TAG:
             _model_db = self._model.db
             assert _model_db is not None
@@ -677,7 +689,7 @@ class TagsView(QTreeView):  # {{{
         try:
             if action == 'edit_note':
                 if EditNoteDialog(category, extra, self.db).exec() == QDialog.DialogCode.Accepted:
-                    get_gui().do_field_item_value_changed()
+                    get_gui(fail_if_absent=True).do_field_item_value_changed()
                 return
             if action == 'dont_collapse_category':
                 assert extra is not None
@@ -733,7 +745,7 @@ class TagsView(QTreeView):  # {{{
                                        # python_context_object=None, dialog_number=None,
                                        formatter=EvalFormatter, icon_dir='tb_icons/template_icons')
                     if d.exec() == QDialog.DialogCode.Accepted:
-                        self._model.set_value_icon(key, TEMPLATE_ICON_INDICATOR, d.rule[2], False)
+                        self._model.set_value_icon(key, TEMPLATE_ICON_INDICATOR, d.rule[1], False)
                         self.recount()
                     return
                 icon_file_name, for_children = extra if extra is not None else (None, None)
@@ -806,12 +818,14 @@ class TagsView(QTreeView):  # {{{
                 item = self._model.get_node(index)
                 item.use_vl = False
                 item.ignore_vl = ignore_vl
+                assert index is not None
                 self.edit(index)
                 return
             if action == 'edit_item_in_vl':
                 item = self._model.get_node(index)
                 item.use_vl = True
                 item.ignore_vl = ignore_vl
+                assert index is not None
                 self.edit(index)
                 return
             if action == 'delete_item_in_vl':
@@ -849,7 +863,8 @@ class TagsView(QTreeView):  # {{{
                 self._toggle(index, set_to=search_state)
                 return
             if action == 'raw_search':
-                get_gui().get_saved_search_text(search_name='search:' + key)
+                assert key is not None
+                get_gui(fail_if_absent=True).get_saved_search_text(search_name='search:' + key)
                 return
             if action == 'add_to_category':
                 assert index is not None
@@ -879,7 +894,9 @@ class TagsView(QTreeView):  # {{{
                     skip_dialog_msg=_('Show this confirmation again')
                 ):
                     return
-                self._model.db.saved_search_delete(key)
+                db = self._model.db
+                assert db is not None
+                db.saved_search_delete(key)
                 self.rebuild_saved_searches.emit()
                 return
             if action == 'delete_item_from_user_category':
@@ -904,8 +921,7 @@ class TagsView(QTreeView):  # {{{
                 self.author_sort_edit.emit(self, index, False, True, False)
                 return
             if action == 'remove_format':
-                gui = get_gui()
-                gui.iactions['Remove Books'].remove_format_from_selected_books(key)
+                get_gui(fail_if_absent=True).iactions['Remove Books'].remove_format_from_selected_books(key)
                 return
             if action == 'edit_open_with_apps':
                 from calibre.gui2.open_with import edit_programs
@@ -1001,9 +1017,9 @@ class TagsView(QTreeView):  # {{{
                     name = name.partition('.')[0] if col.startswith('@') else name
                     ac = m.addAction(name, partial(self.context_menu_handler, action='show', category=col))
                     ic = self._model.category_custom_icons.get(col)
-                    if ic:
+                    if ic is not None:
                         assert ac is not None
-                        ac.setIcon(QIcon.ic(ic))
+                        ac.setIcon(ic if isinstance(ic, QIcon) else QIcon.ic(ic))
                 m.addSeparator()
                 _all_ac = m.addAction(_('All categories'),
                         partial(self.context_menu_handler, action='defaults'))
@@ -1262,7 +1278,7 @@ class TagsView(QTreeView):  # {{{
                                     key=key))
                     assert ac is not None
                     ic = self._model.category_custom_icons.get(key)
-                    if ic:
+                    if ic is not None:
                         ac.setIcon(QIcon.ic(ic))
                     if fm['datatype'] == 'enumeration':
                         self.context_menu.addAction(_('Edit permissible values for %s')%category,
@@ -1476,7 +1492,7 @@ class TagsView(QTreeView):  # {{{
         # Ask plugins if they have any actions to add to the context menu
         from calibre.gui2.ui import get_gui
         first = True
-        for ac in get_gui().iactions.values():
+        for ac in get_gui(fail_if_absent=True).iactions.values():
             try:
                 for context_action in ac.tag_browser_context_action(index):
                     if first:

@@ -61,7 +61,8 @@ from calibre.gui2.open_with import register_keyboard_shortcuts
 from calibre.gui2.proceed import ProceedQuestion
 from calibre.gui2.search_box import SavedSearchBoxMixin, SearchBox2, SearchBoxMixin
 from calibre.gui2.search_restriction_mixin import SearchRestrictionMixin
-from calibre.gui2.tag_browser.ui import TagBrowserMixin
+from calibre.gui2.tag_browser.ui import AlterTagBrowser, TagBrowserMixin
+from calibre.gui2.tag_browser.view import TagsView
 from calibre.gui2.update import UpdateMixin
 from calibre.gui2.widgets import BusyCursor, ProgressIndicator
 from calibre.library import current_library_name
@@ -132,6 +133,8 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
     shutdown_started = pyqtSignal()
     shutdown_completed = pyqtSignal()
     shutting_down = False
+    tags_view: TagsView
+    alter_tb: AlterTagBrowser
 
     search: SearchBox2
 
@@ -667,9 +670,9 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
 
     @property
     def current_db(self) -> LibraryDatabase:
-        m = self.library_view.model()
-        assert isinstance(m, BooksModel) and m.db is not None
-        return m.db
+        db = self.library_view._model.db
+        assert db is not None
+        return db
 
     def refresh_all(self):
         m = self.library_view.model()
@@ -942,10 +945,9 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
                 book_id, fmt, library_id = parts[:3]
                 book_id = int(book_id)
                 m = self.library_view.model()
-                assert m is not None
                 assert isinstance(m, BooksModel)
-                db = m.db.new_api
-                if m.db.library_id == library_id and db.has_id(book_id):
+                db = self.current_db.new_api
+                if db.library_id == library_id and db.has_id(book_id):
                     db.format_metadata(book_id, fmt, allow_cache=False, update_db=True)
                     db.reindex_fts_book(book_id, fmt)
                     db.update_last_modified((book_id,))
@@ -1012,9 +1014,9 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
             default_prefs = None
             try:
                 _lv_model = self.library_view.model()
-                assert _lv_model is not None
                 assert isinstance(_lv_model, BooksModel)
                 olddb = _lv_model.db
+                assert olddb is not None
                 if copy_structure:
                     default_prefs = dict(olddb.prefs)
             except Exception:
@@ -1067,6 +1069,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
             self.book_details.reset_info()
             # lv_model.count_changed()
             db = lv_model.db
+            assert db is not None
             self.iactions['Choose Library'].count_changed(db.count())
             self.set_window_title()
             self.apply_named_search_restriction('')  # reset restriction to null

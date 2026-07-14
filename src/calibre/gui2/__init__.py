@@ -268,7 +268,7 @@ class IconResourceManager:
             icon = self.icon_cache[name] = self(name)
         return icon
 
-    def __call__(self, name: str, fallback: bytes = b'') -> QIcon:
+    def __call__(self, name: str | QIcon | None, fallback: bytes = b'') -> QIcon:
         if isinstance(name, QIcon):
             return name
         if not name:

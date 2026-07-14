@@ -703,9 +703,9 @@ class Scheduler(QObject):
     def db(self):
         from calibre.gui2.ui import get_gui
         gui = get_gui()
-        with suppress(AttributeError):
-            ans = gui.current_db
-            if not ans.new_api.is_doing_rebuild_or_vacuum:
+        if gui is not None:
+            ans = gui.library_view._model.db
+            if ans is not None and not ans.new_api.is_doing_rebuild_or_vacuum:
                 return ans
 
     def oldest_check(self):

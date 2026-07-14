@@ -51,7 +51,7 @@ class TagTreeItem:  # {{{
     category_custom_icons = {}
     value_icons = {}
     value_icon_cache = {}
-    icon_config_dir = {}
+    icon_config_dir = ''
     file_icon_provider = None
     eval_formatter = EvalFormatter()
 
@@ -68,7 +68,7 @@ class TagTreeItem:  # {{{
         self.boxed = False
         self.temporary = False
         self.can_be_edited = False
-        self.icon_state_map = list(icon_map)
+        self.icon_state_map = list(icon_map or ())
         if self.parent is not None:
             self.parent.append(self)
 
@@ -78,9 +78,9 @@ class TagTreeItem:  # {{{
             self.type = self.CATEGORY if is_category else self.TAG
 
         if self.type == self.CATEGORY:
-            self.name = data
+            self.name = data or ''
             self.py_name = data
-            self.category_key = category_key
+            self.category_key = category_key or ''
             self.temporary = temporary
             self.tag = Tag(data, category=category_key,
                    is_editable=category_key not in
@@ -305,7 +305,7 @@ class TagTreeItem:  # {{{
                     if tag.category != 'search':
                         tt.append(_('Number of books: %s') % self.item_count)
                     from calibre.gui2.ui import get_gui
-                    db = get_gui().current_db.new_api
+                    db = get_gui(fail_if_absent=True).current_db.new_api
                     link = (None if not db.has_link_map(tag.category)
                                  else db.get_link_map(tag.category).get(tag.original_name))
                     if link:
@@ -1893,7 +1893,7 @@ class TagsModel(QAbstractItemModel):  # {{{
             parent = tparent
         return parent
 
-    def index(self, row, column, parent=...):
+    def index(self, row, column, parent=QModelIndex()):
         if not self.hasIndex(row, column, parent):
             return QModelIndex()
 
@@ -1910,7 +1910,7 @@ class TagsModel(QAbstractItemModel):  # {{{
         ans = self.createIndex(row, column, child_item)
         return ans
 
-    def parent(self, child=..., index=...):
+    def parent(self, child=QModelIndex(), index=QModelIndex()):
         if not child.isValid():
             return QModelIndex()
 
@@ -1925,7 +1925,7 @@ class TagsModel(QAbstractItemModel):  # {{{
             return QModelIndex()
         return ans
 
-    def rowCount(self, parent=...):
+    def rowCount(self, parent=QModelIndex()):
         if parent.column() > 0:
             return 0
 

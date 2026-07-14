@@ -307,7 +307,7 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
         self.table.setRowCount(len(auts_to_show))
         row = 0
         from calibre.gui2.ui import get_gui
-        all_items_that_have_notes = get_gui().current_db.new_api.get_all_items_that_have_notes('authors')
+        all_items_that_have_notes = get_gui(fail_if_absent=True).current_db.new_api.get_all_items_that_have_notes('authors')
         for id_, v in self.authors.items():
             if id_ not in auts_to_show:
                 continue
@@ -418,7 +418,7 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
         for c in range(self.table.columnCount()):
             self.table_column_widths.append(self.table.columnWidth(c))
 
-    def resizeEvent(self, a0=...):
+    def resizeEvent(self, a0=None):
         QDialog.resizeEvent(self, a0)
         if self.table_column_widths is not None:
             for c,w in enumerate(self.table_column_widths):
@@ -532,7 +532,7 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
         row = context_item.row()
         au_item = self.table.item(row, AUTHOR_COLUMN)
         assert au_item is not None
-        get_gui().search.set_search_string('authors:="{}"'.format(str(au_item.text()).replace(r'"', r'\"')))
+        get_gui(fail_if_absent=True).search.set_search_string('authors:="{}"'.format(str(au_item.text()).replace(r'"', r'\"')))
 
     def copy_to_clipboard(self):
         context_item = self.context_item
@@ -662,13 +662,14 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
         self.notes_order = 1 - self.notes_order
         self.table.sortByColumn(NOTES_COLUMN, Qt.SortOrder(self.notes_order))
 
+    result_val: list[tuple[int, str, str, str, str]] = []
     def accepted(self):
         self.save_state()
-        self.result = []
+        self.result_val = []
         for id_, v in self.authors.items():
             orig = self.original_authors[id_]
             if orig != v:
-                self.result.append((id_, orig['name'], v['name'], v['sort'], v['link']))
+                self.result_val.append((id_, orig['name'], v['name'], v['sort'], v['link']))
 
     def rejected(self):
         self.notes_utilities.restore_all_notes()
@@ -719,8 +720,7 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
         if item.column() == NOTES_COLUMN:
             raise ValueError('got set_icon on notes column')
         modified = self.item_is_modified(item, id_)
-        item.setIcon(QIcon.cached_icon('modified.png') if modified
-                     else QIcon.cached_icon())
+        item.setIcon(QIcon.cached_icon('modified.png') if modified else QIcon())
 
     def cell_changed(self, row, col):
         if self.ignore_cell_changed:
@@ -730,6 +730,7 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
             assert _au_item is not None
             id_ = int(_au_item.data(Qt.ItemDataRole.UserRole))
             if col == AUTHOR_COLUMN:
+                assert isinstance(_au_item, TableItem)
                 item = _au_item
                 aut  = str(item.text()).strip()
                 aut_list = string_to_authors(aut)
@@ -752,6 +753,7 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
                 assert item is not None
                 name = self.get_column_name(col)
                 if name != 'notes':
+                    assert isinstance(item, TableItem)
                     item.set_sort_key()
                     self.set_icon(item, id_)
                     self.authors[id_][self.get_column_name(col)] = str(item.text())
