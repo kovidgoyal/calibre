@@ -25,6 +25,7 @@ from qt.core import (
     Qt,
     QTabWidget,
     QVBoxLayout,
+    QWidget,
     pyqtSignal,
 )
 
@@ -76,7 +77,7 @@ class TrashItemDelegate(QStyledItemDelegate):
         r = QRectF(option.rect)
         if entry.cover_path:
             par = self.parent()
-            assert par is not None
+            assert isinstance(par, QWidget)
             dp = par.devicePixelRatioF()
             p = self.pixmap_cache.get(entry.cover_path)
             if p is None:

@@ -102,7 +102,7 @@ if __name__ == '__main__':
     assert wl is not None
     wl.addWidget(b)
     w.show()
-    b.set_normal_icon_size(64, 64)
+    # b.set_normal_icon_size(64, 64)
     b.start_animation()
 
     app.exec()

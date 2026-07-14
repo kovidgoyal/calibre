@@ -229,7 +229,7 @@ class Tester(Dialog):  # {{{
         self.test_button = b = QPushButton(_('&Test'), self)
         b.clicked.connect(self.do_test)
         h.addWidget(b)
-        self.result = la = TextEdit(self)
+        self.result_widget = la = TextEdit(self)
         la.setReadOnly(True)
         l.addWidget(la)
         l.addWidget(self.bb)
@@ -247,7 +247,7 @@ class Tester(Dialog):  # {{{
         self.set_result(css)
 
     def set_result(self, css):
-        self.result.load_text(self.RESULTS + css, self.SYNTAX)
+        self.result_widget.load_text(self.RESULTS + css, self.SYNTAX)
 
     def sizeHint(self):
         return QSize(800, 600)

@@ -80,8 +80,10 @@ class ThreadedJob(BaseJob):
 
     def start_work(self):
         self.start_time = time.time()
+        assert self.log is not None
         self.log('Starting job:', self.description)
         try:
+            assert self.func is not None and self.args is not None and self.kwargs is not None
             self.result = self.func(*self.args, **self.kwargs)
         except Exception as e:
             self.exception = e
@@ -120,6 +122,7 @@ class ThreadedJob(BaseJob):
             self.duration = time.time() - self.start_time
             self.abort.set()
 
+        assert self.log is not None
         self.log('Aborted job:', self.description)
         self.killed = True
         self.failed = True

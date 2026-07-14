@@ -163,18 +163,7 @@ class FlowToolBar(QWidget):
         super().paintEvent(a0)
 
     def do_layout(self, rect, apply_geometry=False):
-        x, y = rect.x(), rect.y()
-
         line_height = 0
-
-        def layout_spacing(wid, horizontal=True):
-            ans = self.smart_spacing(horizontal)
-            if ans != -1:
-                return ans
-            return wid.style().layoutSpacing(
-                QSizePolicy.ControlType.ToolButton,
-                QSizePolicy.ControlType.ToolButton,
-                Qt.Orientation.Horizontal if horizontal else Qt.Orientation.Vertical)
 
         lines, current_line = [], []
         gmap = {}

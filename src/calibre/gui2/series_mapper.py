@@ -114,7 +114,7 @@ class Tester(TesterBase):
     def do_test(self):
         series = self.value.strip()
         ans = map_tags([series], self.rules, separator='')
-        self.result.setText((ans or ('',))[0])
+        self.result_widget.setText((ans or ('',))[0])
 
 
 class RulesDialog(RulesDialogBase):

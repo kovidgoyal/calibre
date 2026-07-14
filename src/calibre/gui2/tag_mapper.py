@@ -4,6 +4,7 @@
 
 import textwrap
 from collections import OrderedDict
+from typing import TYPE_CHECKING
 
 from qt.core import (
     QAbstractItemView,
@@ -57,7 +58,7 @@ class QueryEdit(QLineEdit):
         menu = self.createStandardContextMenu()
         assert menu is not None
         _p = self.parent()
-        assert _p is not None
+        assert isinstance(_p, RuleEdit)
         _p.specialise_context_menu(menu)
         menu.exec(a0.globalPos())
 
@@ -452,7 +453,7 @@ class Tester(Dialog):
         self.test_button = b = QPushButton(_('&Test'), self)
         b.clicked.connect(self.do_test)
         h.addWidget(b)
-        self.result = la = QLabel(self)
+        self.result_widget = la = QLabel(self)
         la.setWordWrap(True)
         la.setText(self.EMPTY_RESULT)
         l.addWidget(la)
@@ -465,7 +466,7 @@ class Tester(Dialog):
     def do_test(self):
         tags = [x.strip() for x in self.value.split(',')]
         tags = map_tags(tags, self.rules)
-        self.result.setText(_('<b>Resulting tags:</b> %s') % ', '.join(tags))
+        self.result_widget.setText(_('<b>Resulting tags:</b> %s') % ', '.join(tags))
 
     def sizeHint(self):
         ans = Dialog.sizeHint(self)
@@ -478,7 +479,7 @@ class SaveLoadMixin:
     ruleset_changed = pyqtSignal()
     base_window_title = ''
 
-    def save_ruleset(self):
+    def save_ruleset(self: SaveLoadSelf):
         if not self.rules:
             error_dialog(self, _('No rules'), _(
                 'Cannot save as no rules have been created'), show=True)
@@ -503,7 +504,7 @@ class SaveLoadMixin:
                     self.ruleset_changed.emit()
             self.build_load_menu()
 
-    def build_load_menu(self):
+    def build_load_menu(self: SaveLoadSelf):
         self.load_menu.clear()
         if len(self.PREFS_OBJECT):
             for name, rules in self.PREFS_OBJECT.items():
@@ -512,6 +513,7 @@ class SaveLoadMixin:
                 connect_lambda(ac.triggered, self, lambda self: self.load_ruleset(self.sender().objectName()))
             self.load_menu.addSeparator()
             m = self.load_menu.addMenu(_('Delete saved rulesets'))
+            assert m is not None
             for name, rules in self.PREFS_OBJECT.items():
                 ac = m.addAction(name)
                 ac.setObjectName(name)
@@ -519,12 +521,12 @@ class SaveLoadMixin:
         else:
             self.load_menu.addAction(_('No saved rulesets available'))
 
-    def load_ruleset(self, name):
+    def load_ruleset(self: SaveLoadSelf, name):
         self.rules = self.PREFS_OBJECT[name]
         self.loaded_ruleset = name
         self.ruleset_changed.emit()
 
-    def delete_ruleset(self, name):
+    def delete_ruleset(self: SaveLoadSelf, name):
         del self.PREFS_OBJECT[name]
         if self.loaded_ruleset == name:
             self.loaded_ruleset = ''
@@ -600,6 +602,10 @@ class RulesDialog(Dialog, SaveLoadMixin):
         ans.setWidth(ans.width() + 100)
         return ans
 
+
+if TYPE_CHECKING:
+    from calibre.gui2.css_transform_rules import RulesWidget
+    SaveLoadSelf = RulesWidget | RulesDialog
 
 if __name__ == '__main__':
     app = Application([])
