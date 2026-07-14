@@ -410,7 +410,7 @@ class MetadataSingleDialogBase(QDialog):
 
     def do_open_book_folder(self):
         from calibre.gui2.ui import get_gui
-        get_gui().iactions['View'].view_folder_for_id(self.book_id)
+        get_gui(fail_if_absent=True).iactions['View'].view_folder_for_id(self.book_id)
 
     def do_edit_format(self, path, fmt):
         if self.was_data_edited:

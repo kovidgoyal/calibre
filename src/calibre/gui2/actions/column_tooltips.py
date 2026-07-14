@@ -82,7 +82,7 @@ class ColumnTooltipsAction(InterfaceAction):
         if view is None:
             return
         from calibre.gui2.ui import get_gui
-        db = get_gui().current_db.new_api
+        db = get_gui(fail_if_absent=True).current_db.new_api
         fm = db.field_metadata.get(column)
         col_name = fm['name']
         d = ToolTipDialog(

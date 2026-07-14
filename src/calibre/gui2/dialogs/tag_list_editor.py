@@ -165,7 +165,7 @@ class NotesUtilities:
 
     def get_db(self):
         from calibre.gui2.ui import get_gui
-        return get_gui().current_db.new_api
+        return get_gui(fail_if_absent=True).current_db.new_api
 
     def restore_all_notes(self):
         # should only be called from reject()
@@ -259,7 +259,7 @@ class NotesUtilities:
         m = menu
         item_id = self.item_id_getter(item)
         from calibre.gui2.ui import get_gui
-        db = get_gui().current_db.new_api
+        db = get_gui(fail_if_absent=True).current_db.new_api
         has_note = bool(db.notes_for(self.category, item_id))
 
         ac = m.addAction(QIcon.cached_icon('edit-undo.png'), _('Undo'))
@@ -349,10 +349,10 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         self.setupUi(self)
 
         from calibre.gui2.ui import get_gui
-        self.supports_notes = bool(category and get_gui().current_db.new_api.field_supports_notes(category))
+        self.supports_notes = bool(category and get_gui(fail_if_absent=True).current_db.new_api.field_supports_notes(category))
         self.search_box.setMinimumContentsLength(25)
         if category is not None:
-            item_map = get_gui().current_db.new_api.get_item_name_map(category)
+            item_map = get_gui(fail_if_absent=True).current_db.new_api.get_item_name_map(category)
             assert link_map is not None
             self.original_links = {item_map[k]:v for k,v in link_map.items() if k in item_map}
             self.current_links = copy.copy(self.original_links)
@@ -576,12 +576,12 @@ class TagListEditor(QDialog, Ui_TagListEditor):
 
     def search_for_books(self, item):
         from calibre.gui2.ui import get_gui
-        get_gui().search.set_search_string('{}:"={}"'.format(self.category,
+        get_gui(fail_if_absent=True).search.set_search_string('{}:"={}"'.format(self.category,
                                    str(item.text()).replace(r'"', r'\"')))
 
         qv = get_quickview_action_plugin()
         if qv:
-            view = get_gui().library_view
+            view = get_gui(fail_if_absent=True).library_view
             rows = view.selectionModel().selectedRows()
             if len(rows) > 0:
                 current_row = rows[0].row()
@@ -805,7 +805,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
             table.setRowCount(len(tags))
             if self.supports_notes:
                 from calibre.gui2.ui import get_gui
-                all_items_that_have_notes = get_gui().current_db.new_api.get_all_items_that_have_notes(self.category)
+                all_items_that_have_notes = get_gui(fail_if_absent=True).current_db.new_api.get_all_items_that_have_notes(self.category)
             for row,tag in enumerate(tags):
                 item = NameTableWidgetItem(self.sorter)
                 is_deleted = self.all_tags[tag]['is_deleted']

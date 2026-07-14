@@ -312,7 +312,7 @@ class RecipeList(QWidget):  # {{{
             urn = self.model.urn(idx)
             title = self.model.title(idx)
             from calibre.gui2.ui import get_gui
-            gui = get_gui()
+            gui = get_gui(fail_if_absent=True)
             gui.iactions['Fetch News'].download_custom_recipe(title, urn)
 
     def has_title(self, title):

@@ -374,7 +374,7 @@ class SearchDialog(QDialog):
         # Get metadata of some of the selected books to give to the template
         # dialog to help test the template
         from calibre.gui2.ui import get_gui
-        view = get_gui().library_view
+        view = get_gui(fail_if_absent=True).library_view
         rows = view.selectionModel().selectedRows()[0:10]  # Maximum of 10 books
         mi = [db.new_api.get_proxy_metadata(db.data.index_to_id(x.row())) for x in rows]
         self.template_program_box.set_mi(mi)
@@ -394,7 +394,7 @@ class SearchDialog(QDialog):
                       gprefs.get('advanced_search_template_tab_value_field', ''))
             self.template_test_type_box.setCurrentIndex(
                       int(gprefs.get('advanced_search_template_tab_test_field', '0')))
-        self.current_search_text = get_gui().search.current_text
+        self.current_search_text = get_gui(fail_if_absent=True).search.current_text
         if self.current_search_text.startswith('template:'):
             self.current_search_text = self.current_search_text[len('template:'):]
             if self.current_search_text.startswith('"""'):

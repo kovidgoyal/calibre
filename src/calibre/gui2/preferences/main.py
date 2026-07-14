@@ -171,7 +171,7 @@ class Category(QWidget):  # {{{
         self._layout.addWidget(self.bar)
         self.actions = []
         from calibre.gui2.ui import get_gui
-        iac = get_gui().iactions['Preferences']
+        iac = get_gui(fail_if_absent=True).iactions['Preferences']
         for p in plugins:
             sc = iac.action_map.get(p.name).shortcut().toString(QKeySequence.SequenceFormat.NativeText)
             target = partial(self.triggered, p)

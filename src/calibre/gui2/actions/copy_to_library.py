@@ -115,7 +115,7 @@ def ask_about_cc_mismatch(gui, db, newdb, missing_cols, incompatible_cols):  # {
             # Unload the db so that the changes are available
             # when it is next accessed
             from calibre.gui2.ui import get_gui
-            library_broker = get_gui().library_broker
+            library_broker = get_gui(fail_if_absent=True).library_broker
             library_broker.unload_library(dest_library_path)
         return True
     return False
@@ -160,7 +160,7 @@ class Worker(Thread):  # {{{
 
     def doit(self):
         from calibre.gui2.ui import get_gui
-        library_broker = get_gui().library_broker
+        library_broker = get_gui(fail_if_absent=True).library_broker
         newdb = library_broker.get_library(self.loc)
         self.find_identical_books_data = None
         try:

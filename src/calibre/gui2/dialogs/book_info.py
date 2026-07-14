@@ -286,7 +286,7 @@ class BookInfo(QDialog, DropMixin):
         t.timeout.connect(self.do_update_book_details)
         if library_path is not None:
             self.view = None
-            db = get_gui().library_broker.get_library(library_path)
+            db = get_gui(fail_if_absent=True).library_broker.get_library(library_path)
             dbn = db.new_api
             if not dbn.has_id(book_id):
                 raise ValueError(_("Book {} doesn't exist").format(book_id))
@@ -305,7 +305,7 @@ class BookInfo(QDialog, DropMixin):
                 self.slave_connected = True
                 self.view.model().new_bookdisplay_data.connect(self.slave)
             if book_id:
-                db = get_gui().current_db
+                db = get_gui(fail_if_absent=True).current_db
                 dbn = db.new_api
                 mi = dbn.get_metadata(book_id, get_cover=False)
                 mi.cover_data = [None, dbn.cover(book_id, as_image=True)]
@@ -317,12 +317,12 @@ class BookInfo(QDialog, DropMixin):
             else:
                 self.refresh(row)
 
-            ema = get_gui().iactions['Edit Metadata'].menuless_qaction
+            ema = get_gui(fail_if_absent=True).iactions['Edit Metadata'].menuless_qaction
             a = self.ema = QAction('edit metadata', self)
             a.setShortcut(ema.shortcut())
             self.addAction(a)
             a.triggered.connect(self.edit_metadata)
-            vb = get_gui().iactions['View'].menuless_qaction
+            vb = get_gui(fail_if_absent=True).iactions['View'].menuless_qaction
             a = self.vba = QAction('view book', self)
             a.setShortcut(vb.shortcut())
             a.triggered.connect(self.view_book)
@@ -333,7 +333,7 @@ class BookInfo(QDialog, DropMixin):
             hl.addWidget(self.clabel)
         self.fit_cover.stateChanged.connect(self.toggle_cover_fit)
         if dialog_number == DialogNumbers.Locked:
-            get_gui().current_db.new_api.add_listener(book_metatada_changed, check_already_added=True)
+            get_gui(fail_if_absent=True).current_db.new_api.add_listener(book_metatada_changed, check_already_added=True)
             listener_object.metadata_changed.connect(self.do_update_book_details_debounce, type=Qt.ConnectionType.QueuedConnection)
         self.restore_geometry(gprefs, self.geometry_string('book_info_dialog_geometry'))
         try:
@@ -353,11 +353,11 @@ class BookInfo(QDialog, DropMixin):
                 self.refresh(self.current_row, mi=mi)
 
     def on_files_dropped(self, event, paths):
-        gui = get_gui()
+        gui = get_gui(fail_if_absent=True)
         gui.iactions['Add Books'].files_dropped_on_book(event, paths)
 
     def on_remote_file_dropped(self, event, url):
-        gui = get_gui()
+        gui = get_gui(fail_if_absent=True)
         gui.iactions['Add Books'].remote_file_dropped_on_book(event, url)
 
     def geometry_string(self, txt):
@@ -381,19 +381,19 @@ class BookInfo(QDialog, DropMixin):
             view = self.view
             assert view is not None
             book_id = view.model().id(self.current_row)
-            get_gui().iactions['View']._view_calibre_books((book_id,))
+            get_gui(fail_if_absent=True).iactions['View']._view_calibre_books((book_id,))
 
     def edit_metadata(self):
         if self.current_row is not None:
             view = self.view
             assert view is not None
             book_id = view.model().id(self.current_row)
-            em = get_gui().iactions['Edit Metadata']
+            em = get_gui(fail_if_absent=True).iactions['Edit Metadata']
             with em.different_parent(self):
                 em.edit_metadata_for([self.current_row], [book_id], bulk=False)
 
     def configure(self):
-        d = Configure(get_gui().current_db, self)
+        d = Configure(get_gui(fail_if_absent=True).current_db, self)
         if d.exec() == QDialog.DialogCode.Accepted:
             if self.current_row is not None:
                 view = self.view

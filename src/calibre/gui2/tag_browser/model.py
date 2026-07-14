@@ -156,7 +156,7 @@ class TagTreeItem:  # {{{
                              'count': getattr(tag, 'count', ''),
                              'avg_rating': getattr(tag, 'avg_rating', '')}
                         from calibre.gui2.ui import get_gui
-                        db = get_gui().current_db
+                        db = get_gui(fail_if_absent=True).current_db
                         t = self.eval_formatter.safe_format(
                             self.value_icons[category][TEMPLATE_ICON_INDICATOR][0], v, 'VALUE_ICON_TEMPLATE_ERROR', {}, database=db)
                         if t:

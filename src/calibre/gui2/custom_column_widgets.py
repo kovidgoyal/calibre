@@ -194,7 +194,7 @@ class Base:
             else:
                 self.setter(self.initial_val)
         from calibre.gui2.ui import get_gui
-        get_gui().do_tags_list_edit(None, self.key)
+        get_gui(fail_if_absent=True).do_tags_list_edit(None, self.key)
         self.initialize(self.book_id)
 
 
@@ -707,7 +707,7 @@ class Text(Base):
                 self.setter(self.initial_val)
         if ctrl_or_shift_pressed:
             from calibre.gui2.ui import get_gui
-            get_gui().do_tags_list_edit(None, self.key)
+            get_gui(fail_if_absent=True).do_tags_list_edit(None, self.key)
             self.initialize(self.book_id)
         else:
             d = TagEditor(self.parent, self.db, self.book_id, self.key)

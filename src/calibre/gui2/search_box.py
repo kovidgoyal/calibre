@@ -575,5 +575,5 @@ class SavedSearchBoxMixin:  # {{{
             self.search.set_search_string(current_search)
         except Exception:
             from calibre.gui2.ui import get_gui
-            get_gui().status_bar.show_message(_('Current search is not a saved search'), 3000)
+            get_gui(fail_if_absent=True).status_bar.show_message(_('Current search is not a saved search'), 3000)
     # }}}

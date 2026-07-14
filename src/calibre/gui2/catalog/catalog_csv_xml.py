@@ -16,7 +16,7 @@ from calibre.utils.localization import _
 
 
 def get_saved_field_data(name, all_fields):
-    db = get_gui().current_db
+    db = get_gui(fail_if_absent=True).current_db
     val = db.new_api.pref('catalog-field-data-for-' + name)
     if val is None:
         sort_order = gprefs.get(name + '_db_fields_sort_order', {})
@@ -28,7 +28,7 @@ def get_saved_field_data(name, all_fields):
 
 
 def set_saved_field_data(name, fields, sort_order):
-    db = get_gui().current_db
+    db = get_gui(fail_if_absent=True).current_db
     db.new_api.set_pref('catalog-field-data-for-' + name, {'fields': fields, 'sort_order': sort_order})
     gprefs.set(name+'_db_fields', fields)
     gprefs.set(name + '_db_fields_sort_order', sort_order)
@@ -101,7 +101,7 @@ class PluginWidget(QWidget):
             item.setCheckState(Qt.CheckState.Unchecked)
 
     def select_visible(self):
-        state = get_gui().library_view.get_state()
+        state = get_gui(fail_if_absent=True).library_view.get_state()
         hidden = frozenset(state['hidden_columns'])
         for row in range(self.db_fields.count()):
             item = self.db_fields.item(row)
@@ -115,7 +115,7 @@ class PluginWidget(QWidget):
     def initialize(self, catalog_name, db):
         self.name = catalog_name
         from calibre.library.catalogs import FIELDS
-        db = get_gui().current_db
+        db = get_gui(fail_if_absent=True).current_db
         self.all_fields = {x for x in FIELDS if x != 'all'} | set(db.custom_field_keys())
         sort_order, fields = get_saved_field_data(self.name, self.all_fields)
         fm = db.field_metadata
@@ -129,7 +129,7 @@ class PluginWidget(QWidget):
                 return name(x[:-len('_index')]) + ' ' + _('Number')
             return fm[x].get('name') or x
 
-        state = get_gui().library_view.get_state()
+        state = get_gui(fail_if_absent=True).library_view.get_state()
         cpos = state['column_positions']
 
         def key(x):

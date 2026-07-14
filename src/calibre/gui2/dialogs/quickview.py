@@ -330,7 +330,7 @@ class Quickview(QDialog, Ui_Quickview):
 
     def focus_booklist(self):
         from calibre.gui2.ui import get_gui
-        gui = get_gui()
+        gui = get_gui(fail_if_absent=True)
         gui.activateWindow()
         gui.focus_current_view()
 
@@ -939,7 +939,7 @@ class Quickview(QDialog, Ui_Quickview):
 
 def get_qv_field_list(fm, use_defaults=False):
     from calibre.gui2.ui import get_gui
-    db = get_gui().current_db
+    db = get_gui(fail_if_absent=True).current_db
     if use_defaults:
         src = db.prefs.defaults
     else:

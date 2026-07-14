@@ -178,7 +178,7 @@ class LayoutButton(QToolButton):
     def mouseReleaseEvent(self, a0):
         if a0.button() == Qt.MouseButton.RightButton:
             from calibre.gui2.ui import get_gui
-            gui = get_gui()
+            gui = get_gui(fail_if_absent=True)
             if self.name == 'search':
                 gui.iactions['Preferences'].do_config(initial_plugin=('Interface', 'Search'), close_after_initial=True)
                 a0.accept()

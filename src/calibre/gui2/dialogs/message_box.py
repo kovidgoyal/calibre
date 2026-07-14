@@ -356,7 +356,7 @@ class ProceedNotification(MessageBox):  # {{{
         from calibre.gui2.ui import get_gui
         func = (self.callback if result == QDialog.DialogCode.Accepted else
                 self.cancel_callback)
-        gui = get_gui()
+        gui = get_gui(fail_if_absent=True)
         gui.proceed_requested.emit(func, self.payload)
         # Ensure this notification is garbage collected
         vlb = self.vlb

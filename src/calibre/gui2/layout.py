@@ -325,11 +325,11 @@ class SearchBar(QFrame):  # {{{
 
     def populate_sort_menu(self):
         from calibre.gui2.ui import get_gui
-        get_gui().iactions['Sort By'].update_menu(self.sort_button.menu())
+        get_gui(fail_if_absent=True).iactions['Sort By'].update_menu(self.sort_button.menu())
 
     def populate_group_by_menu(self):
         from calibre.gui2.ui import get_gui
-        get_gui().bookshelf_view.populate_group_by_menu(self.group_by_button.menu())
+        get_gui(fail_if_absent=True).bookshelf_view.populate_group_by_menu(self.group_by_button.menu())
 
     def show_group_by_menu(self):
         if self.group_by_button.isVisible():
@@ -337,7 +337,7 @@ class SearchBar(QFrame):  # {{{
 
     def do_fts(self):
         from calibre.gui2.ui import get_gui
-        get_gui().iactions['Full Text Search'].show_fts()
+        get_gui(fail_if_absent=True).iactions['Full Text Search'].show_fts()
 
 # }}}
 

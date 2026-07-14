@@ -20,7 +20,7 @@ class TBDisplayedFields(DisplayedFields):
     def __init__(self, db, parent=None, category_icons=None):
         DisplayedFields.__init__(self, db, parent, category_icons=category_icons)
         from calibre.gui2.ui import get_gui
-        self.gui = get_gui()
+        self.gui = get_gui(fail_if_absent=True)
 
     def initialize(self, use_defaults=False, pref_data_override=None):
         tv = self.gui.tags_view

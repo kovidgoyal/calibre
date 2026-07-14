@@ -79,8 +79,8 @@ def db_for_mi(mi):
     from calibre.gui2.ui import get_gui
     lp = getattr(mi, 'external_library_path', None)
     if lp:
-        return get_gui().library_broker.get_library(lp), True
-    return get_gui().current_db, False
+        return get_gui(fail_if_absent=True).library_broker.get_library(lp), True
+    return get_gui(fail_if_absent=True).current_db, False
 
 
 def set_html(mi, html, text_browser):
@@ -185,14 +185,14 @@ def create_search_internet_menu(callback, author=None):
 def is_category(field):
     from calibre.db.categories import find_categories
     from calibre.gui2.ui import get_gui
-    gui = get_gui()
+    gui = get_gui(fail_if_absent=True)
     fm = gui.current_db.field_metadata
     return field in {x[0] for x in find_categories(fm) if fm.is_custom_field(x[0])}
 
 
 def is_boolean(field):
     from calibre.gui2.ui import get_gui
-    gui = get_gui()
+    gui = get_gui(fail_if_absent=True)
     fm = gui.current_db.field_metadata
     return fm.get(field, {}).get('datatype') == 'bool'
 
@@ -212,13 +212,13 @@ def init_manage_action(ac, field, value):
 
 def add_notes_context_menu_actions(menu, book_info, field, value):
     from calibre.gui2.ui import get_gui
-    db = get_gui().current_db.new_api
+    db = get_gui(fail_if_absent=True).current_db.new_api
     if db.field_supports_notes(field):
         item_id = db.get_item_id(field, value)
         if item_id is not None:
             val = escape_for_menu(value)
             def edit_note():
-                gui = get_gui()
+                gui = get_gui(fail_if_absent=True)
                 from calibre.gui2.dialogs.edit_category_notes import EditNoteDialog
                 d = EditNoteDialog(field, item_id, gui.current_db.new_api, parent=book_info)
                 if d.exec() == QDialog.DialogCode.Accepted:
@@ -228,7 +228,7 @@ def add_notes_context_menu_actions(menu, book_info, field, value):
             ac.setIcon(QIcon.ic('edit_input.png'))
 
             def delete_note():
-                gui = get_gui()
+                gui = get_gui(fail_if_absent=True)
                 if question_dialog(gui, _('Are you sure?'),
                         _('Are you sure you want to delete the note for {} from this library? '
                           'There is no undo.').format(val),
@@ -243,7 +243,7 @@ def add_notes_context_menu_actions(menu, book_info, field, value):
 
 def init_find_in_tag_browser(menu, ac, field, value):
     from calibre.gui2.ui import get_gui
-    hidden_cats = get_gui().tags_view.model().hidden_categories
+    hidden_cats = get_gui(fail_if_absent=True).tags_view.model().hidden_categories
     if field not in hidden_cats:
         ac.setIcon(QIcon.ic('search.png'))
         ac.setText(_('Find %s in the Tag browser') % escape_for_menu(value))
@@ -256,7 +256,7 @@ def download_cover(parent, book_id, current_cover_pixmap):
     from calibre.gui2.ui import get_gui
     update_sources()
     from calibre.gui2.metadata.single_download import CoverFetch
-    db = get_gui().current_db.new_api
+    db = get_gui(fail_if_absent=True).current_db.new_api
     title = db.field_for('title', book_id)
     authors = db.field_for('authors', book_id)
     identifiers = db.field_for('identifiers', book_id, default_value={})
@@ -280,7 +280,7 @@ def get_icon_path(f, prefix):
 
 def init_find_in_grouped_search(menu, field, value, book_info):
     from calibre.gui2.ui import get_gui
-    db = get_gui().current_db
+    db = get_gui(fail_if_absent=True).current_db
     fm = db.field_metadata
     field_name = fm.get(field, {}).get('name', None)
     if field_name is None:
@@ -431,7 +431,7 @@ def add_format_entries(menu, data, book_info, copy_menu, search_menu):
     fmt = data['fmt']
     init_find_in_tag_browser(search_menu, book_info.find_in_tag_browser_action, 'formats', fmt)
     init_find_in_grouped_search(search_menu, 'formats', fmt, book_info)
-    db = get_gui().current_db.new_api
+    db = get_gui(fail_if_absent=True).current_db.new_api
     ofmt = fmt.upper() if fmt.startswith('ORIGINAL_') else 'ORIGINAL_' + fmt
     nfmt = ofmt[len('ORIGINAL_'):]
     fmts = {x.upper() for x in db.formats(book_id)}
@@ -536,12 +536,12 @@ def add_item_specific_entries(menu, data, book_info, copy_menu, search_menu):
             search_internet_added = True
         if hasattr(book_info, 'remove_item_action'):
             ac = book_info.remove_item_action
-            book_id = get_gui().library_view.current_id
+            book_id = get_gui(fail_if_absent=True).library_view.current_id
             ac.data = ('authors', author, book_id)
             ac.setText(_('Remove %s from this book') % escape_for_menu(author))
             menu.addAction(ac)
         # See if we need to add a click associated link menu line for the author
-        link_map = get_gui().current_db.new_api.get_all_link_maps_for_book(data.get('book_id', -1))
+        link_map = get_gui(fail_if_absent=True).current_db.new_api.get_all_link_maps_for_book(data.get('book_id', -1))
         link = link_map.get('authors', {}).get(author)
         if link:
             add_link_submenu(menu, link, book_info, 'authors', author)
@@ -549,14 +549,14 @@ def add_item_specific_entries(menu, data, book_info, copy_menu, search_menu):
         path = data['loc']
         ac = book_info.copy_link_action
         if isinstance(path, int):
-            path = get_gui().library_view.model().db.abspath(path, index_is_id=True)
+            path = get_gui(fail_if_absent=True).library_view.model().db.abspath(path, index_is_id=True)
         ac.current_url = path
         ac.setText(_('The location of the book'))
         copy_menu.addAction(ac)
     elif dt == 'data-path':
         path = data['loc']
         ac = book_info.copy_link_action
-        path = get_gui().library_view.model().db.abspath(data['loc'], index_is_id=True)
+        path = get_gui(fail_if_absent=True).library_view.model().db.abspath(data['loc'], index_is_id=True)
         if path:
             path = os.path.join(path, DATA_DIR_NAME)
             ac.current_url = path
@@ -599,14 +599,14 @@ def add_item_specific_entries(menu, data, book_info, copy_menu, search_menu):
                     cb.setText(v)
                 copy_menu.addAction(QIcon.ic('edit-copy.png'), _('The text: {}').format(v), _copy_v)
             if field not in ('size', 'id', 'last_modified', 'sort', 'series_sort', 'uuid', 'author_sort', 'pages'):
-                fm = get_gui().current_db.new_api.field_metadata.get(field) or {}
+                fm = get_gui(fail_if_absent=True).current_db.new_api.field_metadata.get(field) or {}
                 if fm.get('datatype') != 'composite':
                     ac = book_info.remove_item_action
                     ac.data = (field, remove_value, book_id)
                     ac.setText(_('Remove %s from this book') % escape_for_menu(remove_name or data.get('original_value') or value))
                     menu.addAction(ac)
             # See if we need to add a click associated link menu line
-            link_map = get_gui().current_db.new_api.get_all_link_maps_for_book(data.get('book_id', -1))
+            link_map = get_gui(fail_if_absent=True).current_db.new_api.get_all_link_maps_for_book(data.get('book_id', -1))
             link = link_map.get(field, {}).get(value)
             if link:
                 add_link_submenu(menu, link, book_info, field, value)
@@ -623,12 +623,12 @@ def add_item_specific_entries(menu, data, book_info, copy_menu, search_menu):
 
 def create_copy_links(menu, data=None):
     from calibre.gui2.ui import get_gui
-    db = get_gui().current_db.new_api
+    db = get_gui(fail_if_absent=True).current_db.new_api
     library_id = getattr(db, 'server_library_id', None)
     if not library_id:
         return
     library_id = '_hex_-' + library_id.encode('utf-8').hex()
-    book_id = get_gui().library_view.current_id
+    book_id = get_gui(fail_if_absent=True).library_view.current_id
 
     def copy_to_clipboard_action(menu_text, value_text, before_action=None):
         def doit():
@@ -779,14 +779,14 @@ def details_context_menu_event(view, ev, book_info, add_popup_action=False, edit
     menu.addSeparator()
     from calibre.gui2.ui import get_gui
     if add_popup_action:
-        menu.addMenu(get_gui().iactions['Show Book Details'].qaction.menu())
+        menu.addMenu(get_gui(fail_if_absent=True).iactions['Show Book Details'].qaction.menu())
     # We can't open edit metadata from a locked window because EM expects to
     # be editing the current book, which this book probably isn't
     elif edit_metadata is not None:
-        ema = get_gui().iactions['Edit Metadata'].menuless_qaction
+        ema = get_gui(fail_if_absent=True).iactions['Edit Metadata'].menuless_qaction
         menu.addAction(_('Open the Edit metadata window') + '\t' + ema.shortcut().toString(QKeySequence.SequenceFormat.NativeText), edit_metadata)
     menu.addSeparator()
-    book_id = get_gui().library_view.current_id
+    book_id = get_gui(fail_if_absent=True).library_view.current_id
     if not reindex_fmt_added:
         ac_fts = menu.addAction(_(
             'Re-index this book for full text searching'), partial(book_info.reindex_fmt, book_id, ''))
@@ -1042,7 +1042,7 @@ class CoverView(QWidget):  # {{{
     def save_cover(self):
         from calibre.gui2.ui import get_gui
         book_id = self.data.get('id')
-        db = get_gui().current_db.new_api
+        db = get_gui(fail_if_absent=True).current_db.new_api
         path = choose_save_file(
             self, 'save-cover-from-book-details', _('Choose cover save location'),
             filters=[(_('JPEG images'), ['jpg', 'jpeg'])], all_files=False,
@@ -1074,7 +1074,7 @@ class CoverView(QWidget):  # {{{
         if book_id is None:
             return
         from calibre.gui2.ui import get_gui
-        mi = get_gui().current_db.new_api.get_metadata(book_id)
+        mi = get_gui(fail_if_absent=True).current_db.new_api.get_metadata(book_id)
         if not mi.has_cover or confirm(
                 _('Are you sure you want to replace the cover? The existing cover will be permanently lost.'), 'book_details_generate_cover'):
             from calibre.ebooks.covers import generate_cover
@@ -1264,7 +1264,7 @@ class BookInfo(HTMLDisplay):
 
     def reindex_fmt(self, book_id, fmt):
         from calibre.gui2.ui import get_gui
-        db = get_gui().current_db.new_api
+        db = get_gui(fail_if_absent=True).current_db.new_api
         if fmt:
             db.reindex_fts_book(book_id, fmt)
         else:
@@ -1272,7 +1272,7 @@ class BookInfo(HTMLDisplay):
 
     def recount_pages(self, book_id):
         from calibre.gui2.ui import get_gui
-        db = get_gui().current_db.new_api
+        db = get_gui(fail_if_absent=True).current_db.new_api
         for fmt in db.formats(book_id) or ():
             db.format_metadata(book_id, fmt, allow_cache=False, update_db=True)
         db.queue_pages_scan(book_id)
@@ -1280,13 +1280,13 @@ class BookInfo(HTMLDisplay):
 
     def check_for_recount(self, start_time: float, library_id: str, book_id: int) -> None:
         from calibre.gui2.ui import get_gui
-        db = get_gui().current_db.new_api
+        db = get_gui(fail_if_absent=True).current_db.new_api
         if db.library_id != library_id or monotonic() - start_time > 10:
             return
         if db.pages_needs_scan((book_id,)):
             QTimer.singleShot(100, partial(self.check_for_recount, start_time, db.library_id, book_id))
             return
-        lv = get_gui().library_view
+        lv = get_gui(fail_if_absent=True).library_view
         current_row = lv.currentIndex().row()
         if lv.current_id != book_id:
             current_row = -1
@@ -1542,7 +1542,7 @@ class BookDetails(DetailsLayout, DropMixin):  # {{{
         parent = parent or self
         typ, val = link.partition(':')[::2]
         from calibre.gui2.ui import get_gui
-        db = get_gui().current_db.new_api
+        db = get_gui(fail_if_absent=True).current_db.new_api
 
         def search_term(field, val):
             append = ''
@@ -1558,7 +1558,7 @@ class BookDetails(DetailsLayout, DropMixin):  # {{{
 
         def browse(url):
             if url.startswith(DATA_DIR_NAME + '/') and self.last_data.get('book_id'):
-                base = get_gui().current_db.abspath(self.last_data['book_id'], index_is_id=True)
+                base = get_gui(fail_if_absent=True).current_db.abspath(self.last_data['book_id'], index_is_id=True)
                 path = os.path.join(base, url)
                 qurl = QUrl.fromLocalFile(path)
             else:
@@ -1615,7 +1615,7 @@ class BookDetails(DetailsLayout, DropMixin):  # {{{
 
     def remove_link(self, field, item_value):
         from calibre.gui2.ui import get_gui
-        gui = get_gui()
+        gui = get_gui(fail_if_absent=True)
         db = gui.current_db.new_api
         db.set_link_map(field, {item_value: ''})
         m = gui.library_view.model()
@@ -1626,7 +1626,7 @@ class BookDetails(DetailsLayout, DropMixin):  # {{{
     def show_notes(self, field, item_id, parent=None):
         from calibre.gui2.dialogs.show_category_note import ShowNoteDialog
         from calibre.gui2.ui import get_gui
-        ShowNoteDialog(field, item_id, get_gui().current_db.new_api, parent=parent or self).show()
+        ShowNoteDialog(field, item_id, get_gui(fail_if_absent=True).current_db.new_api, parent=parent or self).show()
 
     def mouseDoubleClickEvent(self, a0):
         a0.accept()

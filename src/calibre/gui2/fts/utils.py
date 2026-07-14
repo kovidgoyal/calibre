@@ -16,7 +16,7 @@ from calibre.utils.localization import _
 def get_db():
     if hasattr(get_db, 'db'):
         return get_db.db.new_api
-    return get_gui().current_db.new_api
+    return get_gui(fail_if_absent=True).current_db.new_api
 
 
 def markup_text(text: str, open_tag: str = '<b><i>', close_tag: str = '</i></b>') -> str:

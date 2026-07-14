@@ -114,7 +114,7 @@ class DefaultAuthorLink(QWidget):
         self.choices.setCurrentIndex(i)
 
     def open_template_tester(self):
-        gui = get_gui()
+        gui = get_gui(fail_if_absent=True)
         db = gui.current_db.new_api
         lv = gui.library_view
         rows = lv.selectionModel().selectedRows()
@@ -276,7 +276,7 @@ class EditRulesWidget(QWidget):
             return
         self.initialized = True
         from calibre.gui2.ui import get_gui
-        db = get_gui().current_db
+        db = get_gui(fail_if_absent=True).current_db
         mi = selected_rows_metadatas()
         self.rules_editor.initialize(db.field_metadata, db.prefs, mi, self.rule_set_name)
 
@@ -287,7 +287,7 @@ class EditRulesWidget(QWidget):
     def commit(self):
         self.initialize()
         from calibre.gui2.ui import get_gui
-        db = get_gui().current_db
+        db = get_gui(fail_if_absent=True).current_db
         self.rules_editor.commit(db.prefs)
 
     def showEvent(self, a0):

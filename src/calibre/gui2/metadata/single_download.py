@@ -915,7 +915,7 @@ class CoversView(QListView):  # {{{
         pmap = self.current_pixmap
         if pmap:
             from calibre.gui2.ui import get_gui
-            db = get_gui().current_db.new_api
+            db = get_gui(fail_if_absent=True).current_db.new_api
             existing = {x[0] for x in db.list_extra_files(self.book_id)}
             h, ext = os.path.splitext(COVER_FILE_NAME)
             template = f'{DATA_DIR_NAME}/{h}-{{:03d}}{ext}'
