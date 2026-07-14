@@ -125,9 +125,9 @@ class Tester(TesterBase):
         filename = self.value.strip()
         allowed = filter_filename(map(compile_rule, self.rules), filename)
         if allowed is None:
-            self.result.setText(_('The filename %s did not match any rules') % filename)
+            self.result_widget.setText(_('The filename %s did not match any rules') % filename)
         else:
-            self.result.setText(_('The filename {0} will be {1}').format(filename, _('added' if allowed else 'ignored')))
+            self.result_widget.setText(_('The filename {0} will be {1}').format(filename, _('added' if allowed else 'ignored')))
 
 
 class RulesDialog(RulesDialogBase):
