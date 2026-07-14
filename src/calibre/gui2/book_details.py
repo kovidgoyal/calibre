@@ -1140,6 +1140,8 @@ class BookInfo(HTMLDisplay):
     edit_book = pyqtSignal(int, object)
     edit_identifiers = pyqtSignal()
     find_in_tag_browser = pyqtSignal(object, object)
+    search_internet = pyqtSignal(object)
+    search_requested = pyqtSignal(object, object)
     find_in_tag_browser_action: FormatAction
     notes_resource_scheme = RESOURCE_URL_SCHEME
 
@@ -1532,6 +1534,8 @@ class BookDetails(DetailsLayout, DropMixin):  # {{{
         self.book_info.manage_category.connect(self.manage_category)
         self.book_info.find_in_tag_browser.connect(self.find_in_tag_browser)
         self.book_info.edit_identifiers.connect(self.edit_identifiers)
+        self.book_info.search_internet.connect(self.search_internet)
+        self.book_info.search_requested.connect(self.search_requested)
         self.setCursor(Qt.CursorShape.PointingHandCursor)
 
     def change_layout(self, vertical):
