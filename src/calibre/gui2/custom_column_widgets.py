@@ -7,7 +7,9 @@ __docformat__ = 'restructuredtext en'
 
 import os
 from collections import OrderedDict
+from collections.abc import Callable
 from functools import partial
+from typing import TYPE_CHECKING, Any, cast
 
 from qt.core import (
     QApplication,
@@ -83,20 +85,38 @@ def get_tooltip(col_metadata, add_index=False):
 
 class Base:
 
+    if TYPE_CHECKING:
+        key: str
+        parent: QWidget | None
+
+    def setup_ui(self, parent):
+        raise NotImplementedError
+
+    def setter(self, val):
+        raise NotImplementedError
+
+    def getter(self):
+        raise NotImplementedError
+
+    def set_to_undefined(self):
+        raise NotImplementedError
+
     def __init__(self, db, col_id, parent=None):
         self.db, self.col_id = db, col_id
         self.book_id = None
         self.col_metadata = db.custom_column_num_map[col_id]
-        self.initial_val = self.widgets = None
+        self.initial_val = None
+        self.widgets: list[QWidget] | None = None
         self.signals_to_disconnect = []
         self.setup_ui(parent)
         description = get_tooltip(self.col_metadata)
+        widgets = cast(list[QWidget], self.widgets)
         try:
-            self.widgets[0].setToolTip(description)
-            self.widgets[1].setToolTip(description)
+            widgets[0].setToolTip(description)
+            widgets[1].setToolTip(description)
         except Exception:
             try:
-                self.widgets[1].setToolTip(description)
+                widgets[1].setToolTip(description)
             except Exception:
                 pass
 
@@ -166,7 +186,8 @@ class Base:
         return val
 
     def break_cycles(self):
-        self.db = self.widgets = self.initial_val = None
+        self.db = self.initial_val = None
+        self.widgets = None
         for signal in self.signals_to_disconnect:
             safe_disconnect(signal)
         self.signals_to_disconnect = []
@@ -245,7 +266,7 @@ class Bool(Base):
 
     def setup_ui(self, parent):
         name = self.col_metadata['name']
-        self.widgets = [QLabel(label_string(name), parent)]
+        self.widgets: list[QWidget] = [QLabel(label_string(name), parent)]
         w = QWidget(parent)
         self.widgets.append(w)
 
@@ -401,7 +422,7 @@ class DateTime(Base):
 
     def setup_ui(self, parent):
         cm = self.col_metadata
-        self.widgets = [QLabel(label_string(cm['name']), parent)]
+        self.widgets: list[QWidget] = [QLabel(label_string(cm['name']), parent)]
         w = QWidget(parent)
         self.widgets.append(w)
         l = QHBoxLayout()
@@ -586,8 +607,8 @@ class MultipleWidget(QWidget):
     def clear(self):
         self.edit_widget.clear()
 
-    def setEditText(self):
-        self.edit_widget.setEditText()
+    def setEditText(self, text: str = '') -> None:
+        self.edit_widget.setEditText(text)
 
     def addItem(self, itm):
         self.edit_widget.addItem(itm)
@@ -625,6 +646,9 @@ def _save_dialog(parent, title, msg, det_msg=''):
 
 class Text(Base):
 
+    def set_to_undefined(self):
+        self.editor.clear()
+
     def setup_ui(self, parent):
         self.sep = self.col_metadata['multiple_seps']
         db = self.db
@@ -646,7 +670,6 @@ class Text(Base):
             w.get_editor_button().clicked.connect(super().edit)
         w.set_hierarchy_separator(self.hierarchy_separator)
         w.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Fixed)
-        self.set_to_undefined = w.clear
         self.widgets = [QLabel(label_string(self.col_metadata['name']), parent)]
         self.finish_ui_setup(parent, lambda parent: w)
 
@@ -731,7 +754,6 @@ class Series(Base):
         w = MultipleWidget(parent, only_manage_items=True, name=self.col_metadata['name'])
         w.get_editor_button().clicked.connect(self.edit)
         w.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Fixed)
-        self.set_to_undefined = w.clear
         w.set_separator(None)
         w.set_hierarchy_separator(self.hierarchy_separator)
         self.name_widget = w.edit_widget
@@ -751,6 +773,7 @@ class Series(Base):
         self.widgets.append(w)
 
     def set_to_undefined(self):
+        self.editor.clear()
         self.name_widget.clearEditText()
         self.idx_widget.setValue(1.0)
 
@@ -912,6 +935,7 @@ widgets = {
 
 
 def field_sort_key(y, fm=None):
+    assert fm is not None
     m1 = fm[y]
     name = icu_lower(m1['name'])
     n1 = 'zzzzz' + name if column_is_comments(y, fm) else name
@@ -1073,6 +1097,9 @@ def populate_metadata_page(layout, db, book_id, bulk=False, two_column=False, pa
 
 class BulkBase(Base):
 
+    if TYPE_CHECKING:
+        bools_are_tristate: bool
+
     @property
     def gui_val(self):
         if not hasattr(self, '_cached_gui_val_'):
@@ -1097,9 +1124,11 @@ class BulkBase(Base):
             ans = list(ans)
         return ans
 
-    def finish_ui_setup(self, parent, edit_widget=False, add_edit_tags_button=(False,)):
+    def finish_ui_setup(self, parent, edit_widget: bool = False, add_edit_tags_button: tuple[bool, Callable] | tuple[bool] = (False,), is_bool: bool = False):
         self.was_none = False
-        l = self.widgets[1].layout()
+        widgets = self.widgets
+        assert widgets is not None
+        l = widgets[1].layout()
         assert isinstance(l, QHBoxLayout)
         if not edit_widget or self.bools_are_tristate:
             self.clear_button = QToolButton(parent)
@@ -1122,7 +1151,7 @@ class BulkBase(Base):
             self.edit_tags_button = QToolButton(parent)
             self.edit_tags_button.setToolTip(_('Open Item editor'))
             self.edit_tags_button.setIcon(QIcon.ic('chapters.png'))
-            self.edit_tags_button.clicked.connect(add_edit_tags_button[1])
+            self.edit_tags_button.clicked.connect(cast(Any, add_edit_tags_button)[1])
             l.insertWidget(1, self.edit_tags_button)
         l.insertStretch(2)
 
@@ -1252,7 +1281,7 @@ class BulkInt(BulkBase):
         self.main_widget.setRange(-1000000, 100000000)
         self.finish_ui_setup(parent)
 
-    def finish_ui_setup(self, parent, edit_widget=False, add_edit_tags_button=(False,)):
+    def finish_ui_setup(self, parent, edit_widget: bool = False, add_edit_tags_button: tuple[bool, Callable] | tuple[bool] = (False,), is_bool: bool = False):
         BulkBase.finish_ui_setup(self, parent)
         self.main_widget.setSpecialValueText(_('Undefined'))
         self.main_widget.setSingleStep(1)
@@ -1316,7 +1345,9 @@ class BulkDateTime(BulkBase):
     def setup_ui(self, parent):
         cm = self.col_metadata
         self.make_widgets(parent, DateTimeEdit)
-        l = self.widgets[1].layout()
+        widgets = self.widgets
+        assert widgets is not None
+        l = widgets[1].layout()
         assert isinstance(l, QHBoxLayout)
         self.today_button = QToolButton(parent)
         self.today_button.setText(_('Today'))

@@ -24,6 +24,7 @@ from qt.core import (
     QStyleOptionComboBox,
     Qt,
     QTimer,
+    QWidget,
     pyqtProperty,
     pyqtSignal,
     sip,
@@ -48,8 +49,11 @@ def word_prefix_matcher(collator, it, x, prefix):
     return word_prefix_find(collator, it, x, prefix) >= 0
 
 
+_completion_mode_override: str | None = None
+
+
 def get_completion_mode() -> str:
-    return getattr(get_completion_mode, 'override', None) or tweaks['completion_mode']
+    return _completion_mode_override or tweaks['completion_mode']
 
 
 class CompleteModel(QAbstractListModel):  # {{{
@@ -212,7 +216,7 @@ class Completer(QListView):  # {{{
         else:
             r = m.rowCount() if previous else -1
         r = r + (-1 if previous else 1)
-        index = m.index(r % m.rowCount())
+        index = m.index(r % m.rowCount(), 0)
         self.setCurrentIndex(index)
 
     def scroll_to(self, orig):
@@ -228,9 +232,11 @@ class Completer(QListView):  # {{{
         m = p.model()
         assert m is not None
         widget = self.parent()
-        if widget is None:
+        if not isinstance(widget, QWidget):
             return
-        screen = widget.screen().availableGeometry()
+        s = widget.screen()
+        assert s is not None
+        screen = s.availableGeometry()
         h = (p.sizeHintForRow(0) * min(self.max_visible_items, m.rowCount()) + 3) + 3
         hsb = p.horizontalScrollBar()
         if hsb and hsb.isVisible():
@@ -258,7 +264,7 @@ class Completer(QListView):  # {{{
 
         if (tweaks['preselect_first_completion'] and select_first and not
                 self.currentIndex().isValid() and m.rowCount() > 0):
-            self.setCurrentIndex(m.index(0))
+            self.setCurrentIndex(m.index(0, 0))
 
         if not p.isVisible():
             p.show()
@@ -280,7 +286,7 @@ class Completer(QListView):  # {{{
     def eventFilter(self, object, event):
         'Redirect key presses from the popup to the widget'
         widget = self.parent()
-        if widget is None or sip.isdeleted(widget):
+        if widget is None or sip.isdeleted(widget) or not isinstance(widget, QWidget):
             return False
         etype = event.type()
         if object is not self:
@@ -330,9 +336,9 @@ class Completer(QListView):  # {{{
                 event.accept()
                 return True
             # Send to widget
-            widget.eat_focus_out = False
+            setattr(widget, 'eat_focus_out', False)
             widget.keyPressEvent(event)
-            widget.eat_focus_out = True
+            setattr(widget, 'eat_focus_out', True)
             if not widget.hasFocus():
                 # Widget lost focus hide the popup
                 self.hide()
@@ -682,7 +688,7 @@ if __name__ == '__main__':
     app = Application([])
     d = QDialog()
     d.setLayout(QVBoxLayout())
-    get_completion_mode.override = 'word-prefix'
+    _completion_mode_override = 'word-prefix'
     le = EditWithComplete(d)
     layout = d.layout()
     assert layout is not None

@@ -48,7 +48,7 @@ class FakeResponse:
         self._headers = res['headers']
         if 'error' in res:
             ex = URLError(res['error'])
-            ex.worth_retry = bool(res.get('worth_retry'))
+            setattr(ex, 'worth_retry', bool(res.get('worth_retry')))
             raise ex
         with suppress(FileNotFoundError):
             self._data = open(res['output'], 'rb')
@@ -131,10 +131,11 @@ class Browser:
         if start_worker:
             self._ensure_state()
 
-    def _open(self, url_or_request: Request, data=None, timeout=None, visit: bool = True):
+    def _open(self, url_or_request: Request | str, data=None, timeout=None, visit: bool = True):
         method = 'POST' if data else 'GET'
         headers = []
         if hasattr(url_or_request, 'get_method'):
+            assert isinstance(url_or_request, Request)
             r = url_or_request
             method = r.get_method()
             data = data or r.data
@@ -152,8 +153,8 @@ class Browser:
 
         if isinstance(data, dict):
             headers.append(('Content-Type', 'application/x-www-form-urlencoded'))
-            data = urlencode(data)
-        if isinstance(data, str):
+            data = urlencode(data)  # type: ignore
+        elif isinstance(data, str):
             data = data.encode('utf-8')
             if not has_header('Content-Type'):
                 headers.append(('Content-Type', 'text/plain'))
@@ -170,9 +171,9 @@ class Browser:
             if data:
                 with open(os.path.join(self.tdir, f'i{self.id_counter}'), 'wb') as f:
                     if hasattr(data, 'read'):
-                        shutil.copyfileobj(data, f)
+                        shutil.copyfileobj(data, f)  # type: ignore
                     else:
-                        f.write(data)
+                        f.write(data)  # type: ignore
                 cmd['data_path'] = f.name
                 for k, v in cmd['headers']:
                     if k.lower() == 'content-type':
@@ -184,7 +185,7 @@ class Browser:
             self._send_command(cmd)
         return res
 
-    def open(self, url_or_request: Request, data=None, timeout=None):
+    def open(self, url_or_request: Request | str, data=None, timeout=None):
         return self._open(url_or_request, data, timeout)
 
     def open_novisit(self, url_or_request: Request, data=None, timeout=None):

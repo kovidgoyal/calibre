@@ -91,6 +91,11 @@ class ColorButton(QToolButton):
 
 class CreateColorScheme(QDialog):
 
+    color1: ColorButton
+    color2: ColorButton
+    contrast_color1: ColorButton
+    contrast_color2: ColorButton
+
     def __init__(self, scheme_name, scheme, existing_names, edit_scheme=False, parent=None):
         QDialog.__init__(self, parent)
         self.existing_names, self.is_editing, self.scheme_name = existing_names, edit_scheme, scheme_name
@@ -151,7 +156,7 @@ class CoverSettingsWidget(QWidget):
 
         self.colors_page = cp = QWidget(st)
         st.addTab(cp, _('&Colors'))
-        cp.l = l = QGridLayout()
+        l = QGridLayout()
         cp.setLayout(l)
         if for_global_prefs:
             msg = _('When generating covers, a color scheme for the cover is chosen at random from the'
@@ -161,7 +166,7 @@ class CoverSettingsWidget(QWidget):
             msg = _('Choose a color scheme to be used for this generated cover.') + '<p>' + _(
                 'In normal cover generation, the color scheme is chosen at random from the list of color schemes below. You'
                 ' can prevent an individual color scheme from being chosen by unchecking it here.')
-        cp.la = la = QLabel('<p>' + msg)
+        la = QLabel('<p>' + msg)
         la.setWordWrap(True)
         l.addWidget(la, 0, 0, 1, -1)
         self.colors_list = cl = QListWidget(cp)
@@ -179,7 +184,7 @@ class CoverSettingsWidget(QWidget):
 
         self.styles_page = sp = QWidget(st)
         st.addTab(sp, _('&Styles'))
-        sp.l = l = QVBoxLayout()
+        l = QVBoxLayout()
         sp.setLayout(l)
         if for_global_prefs:
             msg = _('When generating covers, a style for the cover is chosen at random from the'
@@ -189,7 +194,7 @@ class CoverSettingsWidget(QWidget):
             msg = _('Choose a style to be used for this generated cover.') + '<p>' + _(
                 'In normal cover generation, the style is chosen at random from the list of styles below. You'
                 ' can prevent an individual style from being chosen by unchecking it here.')
-        sp.la = la = QLabel('<p>' + msg)
+        la = QLabel('<p>' + msg)
         la.setWordWrap(True)
         l.addWidget(la)
         self.styles_list = sl = QListWidget(sp)
@@ -198,15 +203,15 @@ class CoverSettingsWidget(QWidget):
 
         self.font_page = fp = QWidget(st)
         st.addTab(fp, _('&Fonts and sizes'))
-        fp.l = l = QFormLayout()
+        fp_l = l = QFormLayout()
         fp.setLayout(l)
-        fp.f = []
+        fp_frames: list[QFrame] = []
 
         def add_hline():
             f = QFrame()
-            fp.f.append(f)
+            fp_frames.append(f)
             f.setFrameShape(QFrame.Shape.HLine)
-            l.addRow(f)
+            fp_l.addRow(f)
 
         for x, label, size_label in (
                 ('title', _('&Title font family:'), _('&Title font size:')),
@@ -232,13 +237,13 @@ class CoverSettingsWidget(QWidget):
         def create_sz(label):
             ans = QSpinBox(self)
             ans.setSuffix(' px'), ans.setMinimum(100), ans.setMaximum(10000)
-            l.addRow(label, ans)
+            fp_l.addRow(label, ans)
             ans.valueChanged.connect(self.changed_timer.start)
             return ans
 
         self.cover_width = create_sz(_('Cover &width:'))
         self.cover_height = create_sz(_('Cover &height:'))
-        fp.cla = la = QLabel(_(
+        la = QLabel(_(
             'Note that the preview to the side is of fixed aspect ratio, so changing the cover'
             ' width above will not have any effect. If you change the height, you should also change the width nevertheless'
             ' as it will be used in actual cover generation.'))
@@ -247,9 +252,9 @@ class CoverSettingsWidget(QWidget):
 
         self.templates_page = tp = QWidget(st)
         st.addTab(tp, _('&Text'))
-        tp.l = l = QVBoxLayout()
+        l = QVBoxLayout()
         tp.setLayout(l)
-        tp.la = la = QLabel(_(
+        la = QLabel(_(
             'The text on the generated cover is taken from the metadata of the book.'
             ' This is controlled via templates. You can use the <b>, <i> and <br> tags'
             ' in the templates for bold, italic and line breaks, respectively. The'
@@ -570,14 +575,14 @@ class CoverSettingsDialog(QDialog):
         self.bb = bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)
         l.addWidget(bb)
         bb.accepted.connect(self.accept), bb.rejected.connect(self.reject)
-        bb.b = b = bb.addButton(_('Restore &defaults'), QDialogButtonBox.ButtonRole.ActionRole)
+        b = bb.addButton(_('Restore &defaults'), QDialogButtonBox.ButtonRole.ActionRole)
         assert b is not None
         b.clicked.connect(self.restore_defaults)
-        bb.ld = b = bb.addButton(_('&Save'), QDialogButtonBox.ButtonRole.ActionRole)
+        b = bb.addButton(_('&Save'), QDialogButtonBox.ButtonRole.ActionRole)
         assert b is not None
         b.clicked.connect(self.export_settings)
         b.setToolTip(_('Save the current cover generation settings for later re-use'))
-        bb.sd = b = bb.addButton(_('&Load'), QDialogButtonBox.ButtonRole.ActionRole)
+        b = bb.addButton(_('&Load'), QDialogButtonBox.ButtonRole.ActionRole)
         assert b is not None
         self.load_menu = QMenu(b)
         self.load_menu.aboutToShow.connect(self.populate_load_menu)

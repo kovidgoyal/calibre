@@ -10,6 +10,7 @@ from collections import defaultdict
 from contextlib import contextmanager
 from functools import partial
 from threading import Thread
+from typing import cast
 
 from html5_parser import parse
 from lxml import html
@@ -338,6 +339,41 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
     insert_images_separately = False
     can_store_images = False
 
+    action_bold: QAction
+    action_italic: QAction
+    action_underline: QAction
+    action_strikethrough: QAction
+    action_superscript: QAction
+    action_subscript: QAction
+    action_ordered_list: QAction
+    action_unordered_list: QAction
+    action_align_left: QAction
+    action_align_center: QAction
+    action_align_right: QAction
+    action_align_justified: QAction
+    action_undo: QAction
+    action_redo: QAction
+    action_remove_format: QAction
+    action_copy: QAction
+    action_paste: QAction
+    action_paste_and_match_style: QAction
+    action_cut: QAction
+    action_indent: QAction
+    action_outdent: QAction
+    action_select_all: QAction
+    action_color: QAction
+    action_background: QAction
+    action_insert_link: QAction
+    action_insert_image: QAction
+    action_insert_hr: QAction
+    action_clear: QAction
+    action_upper_case: QAction
+    action_lower_case: QAction
+    action_capitalize: QAction
+    action_swap_case: QAction
+    action_title_case: QAction
+    action_block_style: QAction
+
     @property
     def readonly(self):
         return self.isReadOnly()
@@ -646,6 +682,9 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
                 self.download_images(added)
         self.focus_self()
 
+    def commit_downloaded_image(self, data: bytes, suggested_filename: str) -> str:
+        raise NotImplementedError
+
     def download_images(self, urls):
         from calibre.web import get_download_filename_from_response
         br = browser()
@@ -860,6 +899,15 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
     def ask_link(self):
 
         class Ask(QDialog):
+
+            url: QLineEdit
+            name: QLineEdit
+            treat_as_image: QCheckBox
+            bb: QDialogButtonBox
+            br: QPushButton
+            brdf: QPushButton
+            brd: QPushButton
+            la: QLabel
 
             def accept(self):
                 if self.treat_as_image.isChecked():
@@ -1085,14 +1133,14 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
         l.addLayout(h)
         la = QLabel(_('&Width:'))
         h.addWidget(la)
-        d.width = w = QSpinBox(self)
+        width_spinbox = w = QSpinBox(self)
         w.setRange(0, 10000), w.setSuffix(' px')
         w.setValue(int(fmt.width()))
         h.addWidget(w), la.setBuddy(w)
         w.setSpecialValueText(' ')
         la = QLabel(_('&Height:'))
         h.addWidget(la)
-        d.height = w = QSpinBox(self)
+        height_spinbox = w = QSpinBox(self)
         w.setRange(0, 10000), w.setSuffix(' px')
         w.setValue(int(fmt.height()))
         h.addWidget(w), la.setBuddy(w)
@@ -1105,7 +1153,7 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
         d.resize(d.sizeHint())
 
         if d.exec() == QDialog.DialogCode.Accepted:
-            page_width, page_height = (d.width.value() or sys.maxsize), (d.height.value() or sys.maxsize)
+            page_width, page_height = (width_spinbox.value() or sys.maxsize), (height_spinbox.value() or sys.maxsize)
             w, h = int(img.width()), int(img.height())
             resized, nw, nh = fit_image(w, h, page_width, page_height)
             if resized:
@@ -1317,7 +1365,7 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
 
         # Insert blocks and fragments. Handle first block specially to avoid unwanted new block
         for idx, blk in enumerate(blocks):
-            blk_fmt = blk['blockFormat']
+            blk_fmt = cast(QTextBlockFormat, blk['blockFormat'])
             list_fmt = blk['listFormat']
 
             # Determine if original first block was partial (selection started mid-block).
@@ -1332,7 +1380,7 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
 
             fragment_text = func(blk['fragment_text'])
             # insert the fragments for this block, preserving char formats
-            for start_pos, length, ch_fmt in blk['fragments']:
+            for start_pos, length, ch_fmt in cast(list[tuple[int, int, QTextCharFormat]], blk['fragments']):
                 if start_pos >= len(fragment_text):
                     break
                 # Convert selected fragment text
@@ -1596,7 +1644,7 @@ class Editor(QWidget):  # {{{
         self.wyswyg_dirty = True
 
         self._layout = QVBoxLayout(self)
-        self.wyswyg.layout = l = QVBoxLayout(self.wyswyg)
+        l = QVBoxLayout(self.wyswyg)
         self.setLayout(self._layout)
         l.setContentsMargins(0, 0, 0, 0)
 

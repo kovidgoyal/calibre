@@ -528,7 +528,7 @@ class JobsButton(QWidget):  # {{{
         self.pi = ProgressIndicator(self, widget_style.pixelMetric(QStyle.PixelMetric.PM_ToolBarIconSize))
         self.pi.setVisible(False)
         self._jobs = QLabel('')
-        self._jobs.mouseReleaseEvent = self.mouseReleaseEvent
+        setattr(self._jobs, 'mouseReleaseEvent', self.mouseReleaseEvent)
         self.update_label()
         self.shortcut = 'Alt+Shift+J'
 

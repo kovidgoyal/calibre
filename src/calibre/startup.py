@@ -10,6 +10,7 @@ import builtins
 import locale
 import os
 import sys
+from typing import Any
 
 # Default translation is NOOP
 builtins.__dict__['_'] = lambda s: s
@@ -33,7 +34,7 @@ def get_debug_executable(headless=False, exe_name='calibre-debug'):
             return [headless_exe_path(exe_name)]
         return [os.path.join(base, 'MacOS', exe_name)]
     if getattr(sys, 'run_local', None):
-        return [sys.run_local, exe_name]
+        return [sys.run_local, exe_name]  # type: ignore
     nearby = os.path.join(os.path.dirname(os.path.abspath(sys.executable)), exe_name)
     if getattr(sys, 'frozen', False):
         return [nearby]
@@ -65,10 +66,14 @@ def connect_lambda(bound_signal, self, func, **kw):
     bound_signal.connect(slot, **kw)
 
 
+_calibre_initialized = False
+
+
 def initialize_calibre():
-    if hasattr(initialize_calibre, 'initialized'):
+    global _calibre_initialized
+    if _calibre_initialized:
         return
-    initialize_calibre.initialized = True
+    _calibre_initialized = True
     # Ensure that all temp files/dirs are created under a calibre tmp dir
     from calibre.ptempfile import fix_tempfile_module
     fix_tempfile_module()
@@ -96,18 +101,18 @@ def initialize_calibre():
     def get_executable() -> list[str]:
         return get_debug_executable(headless=True, exe_name='calibre-parallel')
 
-    def get_command_line(**kwds):
+    def get_command_line(**kwds: Any) -> list[str]:
         prog = ', '.join('{}={!r}'.format(*item) for item in kwds.items())
         prog = f'from multiprocessing.spawn import spawn_main; spawn_main({prog})'
         return get_executable() + ['__multiprocessing__', prog]
-    spawn.get_command_line = get_command_line
-    spawn._fixup_main_from_path = lambda *a: None
+    spawn.get_command_line = get_command_line  # type: ignore
+    spawn._fixup_main_from_path = lambda *a: None  # type: ignore
     if iswindows:
         # On windows multiprocessing does not run the result of
         # get_command_line directly, see popen_spawn_win32.py
         spawn.set_executable(get_executable()[-1])
     orig_spawn_passfds = util.spawnv_passfds
-    orig_remove_temp_dir = util._remove_temp_dir
+    orig_remove_temp_dir = util._remove_temp_dir  # type: ignore
 
     def safe_rmtree(rmtree):
         def r(tdir, *a, **kw):
@@ -130,8 +135,8 @@ def initialize_calibre():
             return wrapped_orig_spawn_fds(args, passfds)
         patched_args = get_executable() + ['__multiprocessing__'] + args[idx + 1:]
         return wrapped_orig_spawn_fds(patched_args, passfds)
-    util.spawnv_passfds = spawnv_passfds
-    util._remove_temp_dir = safe_remove_temp_dir
+    util.spawnv_passfds = spawnv_passfds  # type: ignore
+    util._remove_temp_dir = safe_remove_temp_dir  # type: ignore
 
     #
     # Setup resources

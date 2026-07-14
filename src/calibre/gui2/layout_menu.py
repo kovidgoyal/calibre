@@ -2,7 +2,10 @@
 # License: GPLv3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
 
 
+from typing import cast
+
 from qt.core import (
+    QBoxLayout,
     QEvent,
     QFontMetrics,
     QHBoxLayout,
@@ -115,14 +118,14 @@ class LayoutMenuInner(QWidget):
                     for i in 'search tags cover_flow grid book'.split()]
                 for b in buttons:
                     b.setVisible(False), b.setCheckable(True), b.setChecked(b.text() in 'tags grid')
-                    b.label = b.text().capitalize()
+                    setattr(b, 'label', b.text().capitalize())
             else:
                 buttons = gui.layout_buttons
             l = self.layout()
             assert l is not None
             for b in buttons:
                 self.items.append(LayoutItem(b, self))
-                l.addWidget(self.items[-1], alignment=Qt.AlignmentFlag.AlignBottom)
+                cast(QBoxLayout, l).addWidget(self.items[-1], alignment=Qt.AlignmentFlag.AlignBottom)
         self.current_item = None
         for x in self.items:
             x.update_tips()
@@ -205,7 +208,7 @@ class LayoutMenu(QWidget):
         r = parent.rect()
         y = r.height()
         if hasattr(parent, 'layout_button'):
-            lb = parent.layout_button
+            lb = cast(QWidget, parent.layout_button)
             y = lb.mapTo(parent, lb.rect().topLeft()).y()
         self.inner.move(r.width() - self.inner.size().width(), y - self.inner.size().height())
         super().show()

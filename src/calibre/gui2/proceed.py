@@ -6,8 +6,10 @@ __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 from collections import namedtuple
+from typing import cast
 
 from qt.core import (
+    QAbstractScrollArea,
     QApplication,
     QCheckBox,
     QDialogButtonBox,
@@ -190,7 +192,7 @@ class ProceedQuestion(QWidget):
         self.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         for child in self.findChildren(QWidget):
             child.setFocusPolicy(Qt.FocusPolicy.NoFocus)
-        self.setFocusProxy(self.parent())
+        self.setFocusProxy(cast(QWidget | None, self.parent()))
         self.resize_timer = t = QTimer(self)
         t.setSingleShot(True), t.setInterval(100), t.timeout.connect(self.parent_resized)
 
@@ -368,7 +370,9 @@ class ProceedQuestion(QWidget):
         for child in self.findChildren(QWidget):
             child.update()
             if hasattr(child, 'viewport'):
-                child.viewport().update()
+                vp = cast(QAbstractScrollArea, child).viewport()
+                if vp is not None:
+                    vp.update()
 
     def position_widget(self):
         pw = self.parent()

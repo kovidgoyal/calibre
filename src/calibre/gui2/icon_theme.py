@@ -284,13 +284,13 @@ class ThemeCreateDialog(Dialog):
         l.addLayout(h)
         self.w = w = QGroupBox(_('Theme Metadata'), self)
         self.splitter.addWidget(w)
-        l = w.l = QFormLayout(w)
+        l = QFormLayout(w)
         l.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.ExpandingFieldsGrow)
         self.missing_icons_group = mg = QGroupBox(self)
         self.missing_icons = mi = QListWidget(mg)
         mi.setSelectionMode(QAbstractItemView.SelectionMode.NoSelection)
-        mg.l = QVBoxLayout(mg)
-        mg.l.addWidget(mi)
+        mg_l = QVBoxLayout(mg)
+        mg_l.addWidget(mi)
         self.splitter.addWidget(mg)
         self.title = QLineEdit(self)
         l.addRow(_('&Title:'), self.title)
@@ -504,6 +504,7 @@ def create_theme(folder=None, parent=None):
     if d.wasCanceled() or d.raw is None:
         return
     raw, prefix = d.raw, d.prefix
+    assert isinstance(prefix, str)
     dest = choose_save_file(parent, 'create-icon-theme-dest', _(
         'Choose destination for icon theme'),
         [(_('ZIP files'), ['zip'])], initial_filename=prefix + '.zip')
@@ -840,7 +841,7 @@ class ChooseTheme(Dialog):
         b.clicked.connect(self.restore_defaults)
         b.setIcon(QIcon.ic('view-refresh.png'))
         self.c = c = QWidget(self)
-        self.c.v = v = QVBoxLayout(self.c)
+        v = QVBoxLayout(self.c)
         v.addStretch(), v.addWidget(pi, 0, Qt.AlignmentFlag.AlignCenter)
         self.wait_msg = m = QLabel(self)
         v.addWidget(m, 0, Qt.AlignmentFlag.AlignCenter), v.addStretch()

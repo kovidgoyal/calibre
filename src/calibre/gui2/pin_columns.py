@@ -2,10 +2,15 @@
 # License: GPLv3 Copyright: 2018, Kovid Goyal <kovid at kovidgoyal.net>
 
 
+from typing import TYPE_CHECKING, cast
+
 from qt.core import QAbstractItemDelegate, QAction, QHeaderView, QMenu, QModelIndex, QSplitter, Qt, QTableView
 
 from calibre.gui2 import gprefs
 from calibre.gui2.library import DEFAULT_SORT
+
+if TYPE_CHECKING:
+    from calibre.gui2.library.models import BooksModel
 from calibre.gui2.library.delegates import (
     CcBoolDelegate,
     CcCommentsDelegate,
@@ -36,6 +41,7 @@ class TableView(MomentumScrollMixin, QTableView):
 
     column_header: QHeaderView
     column_header_context_menu: ColumnHeaderMenu | None = None
+    column_map: list[str]
 
     def closeEditor(self, editor, hint):
         # We want to implement our own go to next/previous cell behavior
@@ -79,10 +85,10 @@ class TableView(MomentumScrollMixin, QTableView):
             idx = m.index(row, ldx, current.parent())
             if not idx.isValid():
                 continue
-            if m.is_custom_column(colname):
+            if cast('BooksModel', m).is_custom_column(colname):
                 delegate_for_idx = self.itemDelegateForIndex(idx)
                 assert delegate_for_idx is not None
-                if delegate_for_idx.is_editable_with_tab:
+                if getattr(delegate_for_idx, 'is_editable_with_tab', True):
                     # Don't try to open editors implemented by dialogs such as
                     # markdown, composites and comments
                     break
@@ -93,7 +99,7 @@ class TableView(MomentumScrollMixin, QTableView):
             # Tell the delegate to ignore keyboard modifiers in case
             # Shift-Tab is being used to move the cell.
             if (d := self.itemDelegateForIndex(idx)) is not None:
-                d.ignore_kb_mods_on_edit = True
+                setattr(d, 'ignore_kb_mods_on_edit', True)
             self.setCurrentIndex(idx)
             self.edit(idx)
 
@@ -125,14 +131,15 @@ class TableView(MomentumScrollMixin, QTableView):
         cm = self.column_map
         m = self.model()
         assert m is not None
+        bm = cast('BooksModel', m)
 
         def set_item_delegate(colhead, delegate):
             idx = self.column_map.index(colhead)
             self.setItemDelegateForColumn(idx, delegate)
 
         for colhead in cm:
-            if m.is_custom_column(colhead):
-                cc = m.custom_columns[colhead]
+            if bm.is_custom_column(colhead):
+                cc = bm.custom_columns[colhead]
                 if cc['datatype'] == 'datetime':
                     delegate = CcDateDelegate(self)
                     delegate.set_format(cc['display'].get('date_format',''))
@@ -180,7 +187,7 @@ class TableView(MomentumScrollMixin, QTableView):
         key = self.column_map[self.currentIndex().column()]
         m = self.model()
         assert m is not None
-        db = m.db
+        db = cast('BooksModel', m).db
         if hasattr(db, 'field_metadata') and db.field_metadata[key]['datatype'] == 'composite':
             self.cc_template_delegate.allow_one_edit()
 

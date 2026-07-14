@@ -292,10 +292,10 @@ class ChooseProgram(Dialog):  # {{{
     def setup_ui(self):
         self.stacks = s = QStackedLayout(self)
         self.w = w = QWidget(self)
-        self.w.l = l = QVBoxLayout(w)
+        l = QVBoxLayout(w)
         self.pi = pi = ProgressIndicator(self, 256)
         l.addStretch(1), l.addWidget(pi, alignment=Qt.AlignmentFlag.AlignHCenter), l.addSpacing(10)
-        w.la = la = QLabel(_('Gathering data, please wait...'))
+        la = QLabel(_('Gathering data, please wait...'))
         f = la.font()
         f.setBold(True), f.setPointSize(28), la.setFont(f)
         l.addWidget(la, alignment=Qt.AlignmentFlag.AlignHCenter), l.addStretch(1)
