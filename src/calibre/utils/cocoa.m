@@ -356,7 +356,7 @@ get_appearance(PyObject *self, PyObject *args) {
 
 
 static PyMethodDef module_methods[] = {
-    {"close_finder_window", (PyCFunction)close_finder_window, METH_VARARGS, ""},
+    {"close_finder_window", (PyCFunction)close_finder_window, METH_VARARGS, "close_finder_window(name) -> None -- Close a Finder window whose title matches name."},
     {"get_appearance", (PyCFunction)get_appearance, METH_VARARGS, ""},
     {"set_appearance", (PyCFunction)set_appearance, METH_VARARGS, ""},
     {"set_requires_aqua_system_appearance", (PyCFunction)set_requires_aqua_system_appearance, METH_O, ""},
