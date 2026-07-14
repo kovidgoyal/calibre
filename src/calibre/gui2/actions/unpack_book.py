@@ -259,7 +259,7 @@ class UnpackBook(QDialog):
     def cleanup(self):
         if ismacos and self._exploded:
             try:
-                import appscript
+                import appscript  # type: ignore
                 self.finder = appscript.app('Finder')
                 self.finder.Finder_windows[os.path.basename(self._exploded)].close()
             except Exception:
