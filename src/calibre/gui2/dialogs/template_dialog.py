@@ -671,7 +671,7 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
             self.function.addItem(f'{f}  --  {self.function_type_string(f, longform=False)}', f)
         self.function.setCurrentIndex(0)
         self.function.currentIndexChanged.connect(self.function_changed)
-        self.rule = (None, '')
+        self.rule: tuple[str | None, str] | tuple[str | None, str, str] = (None, '')
 
         tt = _('Template language tutorial')
         self.template_tutorial.setText(
@@ -798,12 +798,12 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
         id_ = mi.get('id', -1)
         if id_ > 0:
             from calibre.gui2.ui import get_gui
-            db = get_gui().current_db
+            db = get_gui(fail_if_absent=True).current_db
             try:
                 idx = db.data.id_to_index(id_)
-                em = get_gui().iactions['Edit Metadata']
+                em = get_gui(fail_if_absent=True).iactions['Edit Metadata']
                 from calibre.gui2.library.views import PreserveViewState
-                with PreserveViewState(get_gui().current_view(), require_selected_ids=False):
+                with PreserveViewState(get_gui(fail_if_absent=True).current_view(), require_selected_ids=False):
                     with em.different_parent(self):
                         em.edit_metadata_for([idx], [id_], bulk=False)
             except Exception:
@@ -1150,7 +1150,7 @@ def evaluate(book, context):
         l = sel_model.selectedRows()
         break_on_mi = 0 if len(l) == 0 else l[0].row()
         from calibre.gui2.ui import get_gui
-        db = get_gui().current_db
+        db = get_gui(fail_if_absent=True).current_db
         for r,mi in enumerate(self.mi):
             w = tv.cellWidget(r, 0)
             assert isinstance(w, QLineEdit)
@@ -1265,14 +1265,18 @@ def evaluate(book, context):
         if self.doc_viewer is not None:
             self.doc_viewer.close()
 
+    @property
+    def template_rule_text(self) -> str:
+        return self.rule[-1]
+
     def reject(self):
         self.save_geometry()
         QDialog.reject(self)
         if self.dialog_is_st_editor:
             parent = self.parent()
             while True:
-                if hasattr(parent, 'reject'):
-                    parent.reject()
+                if parent is not None and hasattr(parent, 'reject'):
+                    parent.reject()  # type: ignore
                     break
                 assert parent is not None
                 parent = parent.parent()
@@ -1368,7 +1372,7 @@ class BreakReporterBase(QDialog):
 
     def get_field_keys(self):
         from calibre.gui2.ui import get_gui
-        keys = set(get_gui().current_db.new_api.field_metadata.displayable_field_keys())
+        keys = set(get_gui(fail_if_absent=True).current_db.new_api.field_metadata.displayable_field_keys())
         keys.discard('sort')
         keys.discard('timestamp')
         keys.add('title_sort')

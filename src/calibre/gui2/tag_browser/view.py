@@ -745,7 +745,7 @@ class TagsView(QTreeView):  # {{{
                                        # python_context_object=None, dialog_number=None,
                                        formatter=EvalFormatter, icon_dir='tb_icons/template_icons')
                     if d.exec() == QDialog.DialogCode.Accepted:
-                        self._model.set_value_icon(key, TEMPLATE_ICON_INDICATOR, d.rule[1], False)
+                        self._model.set_value_icon(key, TEMPLATE_ICON_INDICATOR, d.template_rule_text, False)
                         self.recount()
                     return
                 icon_file_name, for_children = extra if extra is not None else (None, None)
