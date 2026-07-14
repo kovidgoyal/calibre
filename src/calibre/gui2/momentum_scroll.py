@@ -2,7 +2,7 @@
 # License: GPLv3 Copyright: 2025, Kovid Goyal <kovid at kovidgoyal.net>
 
 from collections import deque
-from typing import NamedTuple
+from typing import TYPE_CHECKING, NamedTuple
 
 from qt.core import (
     QAbstractScrollArea,
@@ -314,7 +314,7 @@ class MomentumScroller:
         self._in_scroll_gesture = False
 
 
-class MomentumScrollMixin:
+class MomentumScrollMixin(QAbstractScrollArea if TYPE_CHECKING else object):
     '''
     Mixin class to add momentum scrolling to any QAbstractScrollArea subclass.
 
@@ -335,7 +335,9 @@ class MomentumScrollMixin:
     def default_wheel_event_handler(self, event: QWheelEvent):
         super().wheelEvent(event)
 
-    def wheelEvent(self, event: QWheelEvent):
+    def wheelEvent(self, a0: QWheelEvent | None):
+        assert a0 is not None
+        event = a0
         self._ensure_momentum_scroller()
         scroller = self._momentum_scroller
         assert scroller is not None
@@ -402,7 +404,7 @@ if __name__ == '__main__':
             friction_row.addWidget(QLabel('Friction:'))
             self.friction_slider = QSlider(Qt.Orientation.Horizontal)
             self.friction_slider.setRange(0, 100)
-            self.friction_slider.setValue(int(MomentumSettings.friction * 100))
+            self.friction_slider.setValue(int(MomentumSettings._field_defaults['friction'] * 100))
             self.friction_slider.valueChanged.connect(self._update_friction)
             friction_row.addWidget(self.friction_slider)
             self.friction_label = QLabel('0.92')
