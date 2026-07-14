@@ -114,7 +114,7 @@ class Tester(TesterBase):
     def do_test(self):
         authors = string_to_authors(self.value.strip())
         ans = map_authors(authors, compile_rules(self.rules))
-        self.result.setText(authors_to_string(ans))
+        self.result_widget.setText(authors_to_string(ans))
 
 
 class RulesDialog(RulesDialogBase):
