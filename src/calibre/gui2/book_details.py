@@ -5,11 +5,12 @@
 import os
 import re
 from collections import namedtuple
+from collections.abc import Callable
 from contextlib import suppress
 from functools import lru_cache, partial
 from math import ceil
 from time import monotonic
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from qt.core import (
     QAction,
@@ -171,7 +172,7 @@ def copy_all(text_browser):
     c.setMimeData(md)
 
 
-def create_search_internet_menu(callback, author=None):
+def create_search_internet_menu(callback: Callable[[Any], None], author=None):
     m = QMenu(
         _('Search the internet for the author {}').format(author)
         if author is not None else
@@ -307,19 +308,19 @@ def init_find_in_grouped_search(menu, field, value, book_info):
         menu.addMenu(m)
         m.addAction(QIcon.ic(get_icon_path(field, '')),
                     _('in category %s')%escape_for_menu(field_name),
-                    lambda g=field: book_info.search_requested(
+                    lambda g=field: book_info.search_requested.emit(
                             '{}:"={}"'.format(g, value.replace('"', r'\"')), ''))
         for gst in gsts_to_show:
             icon_path = get_icon_path(gst, '@')
             m.addAction(QIcon.ic(icon_path),
                         _('in grouped search %s')%gst,
-                        lambda g=gst: book_info.search_requested(
+                        lambda g=gst: book_info.search_requested.emit(
                                 '{}:"={}"'.format(g, value.replace('"', r'\"')), ''))
     else:
         menu.addAction(QIcon.ic('search.png'),
             _('Search calibre for {val} in category {name}').format(
                     val=escape_for_menu(value), name=escape_for_menu(field_name)),
-            lambda g=field: book_info.search_requested(
+            lambda g=field: book_info.search_requested.emit(
                     '{}:"={}"'.format(g, value.replace('"', r'\"')), ''))
 
 
@@ -537,7 +538,7 @@ def add_item_specific_entries(menu, data, book_info, copy_menu, search_menu):
         add_notes_context_menu_actions(menu, book_info, 'authors', author)
         if hasattr(book_info, 'search_internet'):
             search_menu.addSeparator()
-            search_menu.sim = create_search_internet_menu(book_info.search_internet, author)
+            search_menu.sim = create_search_internet_menu(book_info.search_internet.emit, author)
             for ac in search_menu.sim.actions():
                 search_menu.addAction(ac)
                 ac.setText(_('Search {0} for {1}').format(ac.text(), author))
@@ -771,7 +772,7 @@ def details_context_menu_event(view, ev, book_info, add_popup_action=False, edit
         create_copy_links(copy_menu)
 
     if not search_internet_added and hasattr(book_info, 'search_internet'):
-        sim = create_search_internet_menu(book_info.search_internet)
+        sim = create_search_internet_menu(book_info.search_internet.emit)
         if search_menu.isEmpty():
             search_menu = sim
         else:
@@ -1140,6 +1141,8 @@ class BookInfo(HTMLDisplay):
     edit_book = pyqtSignal(int, object)
     edit_identifiers = pyqtSignal()
     find_in_tag_browser = pyqtSignal(object, object)
+    search_internet = pyqtSignal(object)
+    search_requested = pyqtSignal(object, object)
     find_in_tag_browser_action: FormatAction
     notes_resource_scheme = RESOURCE_URL_SCHEME
 
@@ -1532,6 +1535,8 @@ class BookDetails(DetailsLayout, DropMixin):  # {{{
         self.book_info.manage_category.connect(self.manage_category)
         self.book_info.find_in_tag_browser.connect(self.find_in_tag_browser)
         self.book_info.edit_identifiers.connect(self.edit_identifiers)
+        self.book_info.search_internet.connect(self.search_internet)
+        self.book_info.search_requested.connect(self.search_requested)
         self.setCursor(Qt.CursorShape.PointingHandCursor)
 
     def change_layout(self, vertical):
