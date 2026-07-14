@@ -863,7 +863,7 @@ class CompareMany(QDialog):
                 self.rejected_ids.remove(last_previous_item)
                 self.markq.setChecked(False)
             # if this book id was accepted, remove it from the accepted dictionary
-            elif last_previous_item in self.accepted:
+            elif last_previous_item in self.accepted_map:
                 self.accepted_map.pop(last_previous_item)
 
             # move the last previous item to the beginning of the pending list
