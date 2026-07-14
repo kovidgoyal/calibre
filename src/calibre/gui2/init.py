@@ -6,6 +6,7 @@ __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import functools
+from typing import TYPE_CHECKING
 
 from qt.core import (
     QAction,
@@ -15,6 +16,7 @@ from qt.core import (
     QIcon,
     QLabel,
     QMenu,
+    QModelIndex,
     QPixmap,
     QStackedWidget,
     QStatusBar,
@@ -36,13 +38,15 @@ from calibre.gui2.central import CentralContainer, LayoutButton
 from calibre.gui2.layout_menu import LayoutMenu
 from calibre.gui2.library.alternate_views import GridView
 from calibre.gui2.library.bookshelf_view import BookshelfView
-from calibre.gui2.library.models import BooksModel
 from calibre.gui2.library.views import BooksView, DeviceBooksView
 from calibre.gui2.notify import get_notifier
 from calibre.gui2.tag_browser.ui import TagBrowserWidget
 from calibre.utils.config import prefs
 from calibre.utils.icu import sort_key
 from calibre.utils.localization import _, localize_website_link, ngettext
+
+if TYPE_CHECKING:
+    from calibre.gui2.ui import Main
 
 _keep_refs = []
 
@@ -55,10 +59,9 @@ def partial(*args, **kwargs):
 
 class LibraryViewMixin:  # {{{
 
-    def __init__(self, *args, **kwargs):
-        pass
+    library_view: BooksView
 
-    def init_library_view_mixin(self, db):
+    def init_library_view_mixin(self: Main, db):
         self.library_view.files_dropped.connect(self.iactions['Add Books'].files_dropped, type=Qt.ConnectionType.QueuedConnection)
         self.library_view.books_dropped.connect(self.iactions['Edit Metadata'].books_dropped, type=Qt.ConnectionType.QueuedConnection)
         self.library_view.add_column_signal.connect(partial(self.iactions['Preferences'].do_config,
@@ -85,19 +88,19 @@ class LibraryViewMixin:  # {{{
         self.book_on_device(None, reset=True)
         db.set_book_on_device_func(self.book_on_device)
         self.library_view.set_database(db)
-        self.library_view.model().set_book_on_device_func(self.book_on_device)
+        self.library_view._model.set_book_on_device_func(self.book_on_device)
         prefs['library_path'] = self.library_path
 
         for view in ('library', 'memory', 'card_a', 'card_b'):
             view = getattr(self, view+'_view')
             view.verticalHeader().sectionDoubleClicked.connect(self.iactions['View'].view_specific_book)
 
-        self.library_view.model().set_highlight_only(config['highlight_search_matches'])
+        self.library_view._model.set_highlight_only(config['highlight_search_matches'])
 
     def context_menu_action_hovered(self, ac):
         ac.showStatusText(self)
 
-    def build_context_menus(self):
+    def build_context_menus(self: Main):
         from calibre.gui2.bars import populate_menu
         def connect_hovered(menu):
             menu.hovered.connect(self.context_menu_action_hovered)
@@ -126,7 +129,7 @@ class LibraryViewMixin:  # {{{
             connect_hovered(cm)
             self.cover_flow.set_context_menu(cm)
 
-    def search_done(self, view, ok):
+    def search_done(self: Main, view, ok):
         if view is self.current_view():
             self.search.search_done(ok)
             self.set_number_of_books_shown()
@@ -262,8 +265,8 @@ class AlternateViewsButtons(LayoutButton):  # {{{
     ignore_toggles = False
     needs_group_by = False
 
-    def __init__(self, name: str, icon: str, label: str, view_name: str, gui: CentralContainer, shortcut=None, config_key=None):
-        super().__init__(name, icon, label, gui, shortcut=shortcut)
+    def __init__(self, name: str, icon: str, label: str, view_name: str, gui: Main, shortcut=None, config_key=None):
+        super().__init__(name, icon, label, gui.layout_container, shortcut=shortcut)
         self.set_state_to_show()
         self.action_toggle = QAction(self.icon(), _('Toggle') + ' ' + self.label, self)
         self.gui = gui
@@ -509,6 +512,7 @@ class VLTabs(QTabBar):  # {{{
                 current_idx = i
             if not vl:
                 all_idx = i
+        assert all_idx is not None
         self.setCurrentIndex(all_idx if current_idx is None else current_idx)
         if current_idx is None and current_lib:
             self.setTabText(all_idx, current_lib)
@@ -529,7 +533,7 @@ class VLTabs(QTabBar):  # {{{
         m.addAction(QIcon.ic('sort.png'), _('Sort tabs alphabetically'), self.sort_alphabetically)
         hidden = self.current_db.new_api.pref('virt_libs_hidden')
         if hidden:
-            s = m._s = m.addMenu(_('Restore hidden tabs'))
+            s = m.addMenu(_('Restore hidden tabs'))
             assert s is not None
             for x in hidden:
                 s.addAction(x, partial(self.restore, x))
@@ -585,10 +589,7 @@ class StatusBarButton(QToolButton):
 
 class LayoutMixin:  # {{{
 
-    def __init__(self, *args, **kwargs):
-        pass
-
-    def place_layout_buttons(self):
+    def place_layout_buttons(self: Main):
         if getattr(self, 'layout_buttons', None):
             for x in self.layout_buttons:
                 self.status_bar.removeWidget(x)
@@ -597,7 +598,9 @@ class LayoutMixin:  # {{{
         else:
             self.button_order = 'sb', 'tb', 'bd', 'gv', 'cb', 'bs', 'qv'
         self.layout_buttons = []
-        stylename = str(self.style().objectName())
+        s = self.style()
+        assert s is not None
+        stylename = str(s.objectName())
         for x in self.button_order:
             if x == 'gv':
                 button = self.grid_view_button
@@ -623,11 +626,13 @@ class LayoutMixin:  # {{{
             self.status_bar.insertPermanentWidget(2, button)
         self.layout_button.setVisible(not gprefs['show_layout_buttons'])
 
-    def init_layout_mixin(self):
+    def init_layout_mixin(self: Main):
         self.vl_tabs = VLTabs(self)
-        self.centralwidget.layout().addWidget(self.vl_tabs)
+        cl = self.centralwidget.layout()
+        assert cl is not None
+        cl.addWidget(self.vl_tabs)
         self.layout_container = CentralContainer(self)
-        self.centralwidget.layout().addWidget(self.layout_container)
+        cl.addWidget(self.layout_container)
         self.book_details = BookDetails(self.layout_container.is_wide, self)
         self.stack = QStackedWidget(self)
         self.library_view = BooksView(self)
@@ -690,7 +695,7 @@ class LayoutMixin:  # {{{
         self.setStatusBar(self.status_bar)
         self.status_bar.update_label.linkActivated.connect(self.update_link_clicked)
 
-    def finalize_layout(self):
+    def finalize_layout(self: Main):
         self.status_bar.initialize(self.system_tray_icon)
         self.book_details.show_book_info.connect(self.iactions['Show Book Details'].show_book_info)
         self.book_details.files_dropped.connect(self.iactions['Add Books'].files_dropped_on_book)
@@ -730,9 +735,9 @@ class LayoutMixin:  # {{{
         self.book_details.edit_identifiers.connect(self.edit_identifiers_triggerred)
         self.book_details.compare_specific_format.connect(self.compare_format)
 
-        m = self.library_view.model()
+        m = self.library_view._model
         assert m is not None
-        if m.rowCount(None) > 0:
+        if m.rowCount(QModelIndex()) > 0:
             QTimer.singleShot(0, self.library_view.set_current_row)
             m.current_changed(self.library_view.currentIndex(),
                     self.library_view.currentIndex())
@@ -750,7 +755,7 @@ class LayoutMixin:  # {{{
             return
         self.layout_container.hide_panel(name)
 
-    def set_search_string_with_append(self, expression, append=''):
+    def set_search_string_with_append(self: Main, expression, append=''):
         current = self.search.text().strip()
         if append:
             expr = f'{current} {append} {expression}' if current else expression
@@ -758,7 +763,7 @@ class LayoutMixin:  # {{{
             expr = expression
         self.search.set_search_string(expr)
 
-    def edit_identifiers_triggerred(self):
+    def edit_identifiers_triggerred(self: Main):
         book_id = self.library_view.current_book
         db = self.current_db.new_api
         identifiers = db.field_for('identifiers', book_id, default_value={})
@@ -769,7 +774,7 @@ class LayoutMixin:  # {{{
             db.set_field('identifiers', {book_id: identifiers})
             self.iactions['Edit Metadata'].refresh_books_after_metadata_edit({book_id})
 
-    def manage_category_triggerred(self, field, value):
+    def manage_category_triggerred(self: Main, field, value):
         if field and value:
             if field == 'authors':
                 self.do_author_sort_edit(self, value, select_sort=False,
@@ -777,7 +782,7 @@ class LayoutMixin:  # {{{
             elif field:
                 self.do_tags_list_edit(value, field)
 
-    def find_in_tag_browser_triggered(self, field, value):
+    def find_in_tag_browser_triggered(self: Main, field, value):
         if field and value:
             tb = self.tb_widget
             tb.set_focus_to_find_box()
@@ -786,19 +791,16 @@ class LayoutMixin:  # {{{
             le.setText(field + ':=' + value)
             tb.do_find()
 
-    def toggle_search_bar(self, show):
+    def toggle_search_bar(self: Main, show):
         self.search_bar.setVisible(show)
         if show:
             self.search.setFocus(Qt.FocusReason.OtherFocusReason)
 
-    def bd_cover_changed(self, id_, cdata):
-        lv_model = self.library_view.model()
-        assert lv_model is not None
-        assert isinstance(lv_model, BooksModel)
-        lv_model.db.set_cover(id_, cdata)
+    def bd_cover_changed(self: Main, id_, cdata):
+        self.current_db.set_cover(id_, cdata)
         self.refresh_cover_browser()
 
-    def bd_open_cover_with(self, book_id, entry):
+    def bd_open_cover_with(self: Main, book_id, entry):
         cpath = self.current_db.new_api.format_abspath(book_id, '__COVER_INTERNAL__')
         if cpath:
             if entry is None:
@@ -815,7 +817,7 @@ class LayoutMixin:  # {{{
             from calibre.gui2.open_with import run_program
             run_program(entry, cpath, self)
 
-    def bd_open_fmt_with(self, book_id, fmt, entry):
+    def bd_open_fmt_with(self: Main, book_id, fmt, entry):
         path = self.current_db.new_api.format_abspath(book_id, fmt)
         if path:
             from calibre.gui2.open_with import run_program
@@ -827,12 +829,12 @@ class LayoutMixin:  # {{{
                     self.current_db.new_api.field_for('title', book_id, default_value=_('Unknown')),
                     fmt), show=True)
 
-    def bd_edit_book(self, book_id, fmt):
+    def bd_edit_book(self: Main, book_id, fmt):
         from calibre.gui2.widgets import BusyCursor
         with BusyCursor():
             self.iactions['Tweak ePub'].ebook_edit_format(book_id, fmt)
 
-    def open_with_action_triggerred(self, fmt, entry, *args):
+    def open_with_action_triggerred(self: Main, fmt, entry, *args):
         book_id = self.library_view.current_book
         if book_id is not None:
             if fmt == 'cover_image':
@@ -840,11 +842,8 @@ class LayoutMixin:  # {{{
             else:
                 self.bd_open_fmt_with(book_id, fmt, entry)
 
-    def bd_cover_removed(self, id_):
-        lv_model = self.library_view.model()
-        assert lv_model is not None
-        assert isinstance(lv_model, BooksModel)
-        lv_model.db.remove_cover(id_, commit=True, notify=False)
+    def bd_cover_removed(self: Main, id_):
+        self.current_db.remove_cover(id_, commit=True, notify=False)
         self.refresh_cover_browser()
 
     def bd_copy_link(self, url):
@@ -853,7 +852,7 @@ class LayoutMixin:  # {{{
             assert clipboard is not None
             clipboard.setText(url)
 
-    def compare_format(self, book_id, fmt):
+    def compare_format(self: Main, book_id, fmt):
         db = self.current_db.new_api
         ofmt = fmt
         if fmt.startswith('ORIGINAL_'):
@@ -865,15 +864,17 @@ class LayoutMixin:  # {{{
         compare_books(path1, path2, parent=self, revert_msg=_('Restore %s') % ofmt, revert_callback=partial(
             self.iactions['Remove Books'].restore_format, book_id, ofmt), names=(ofmt, fmt))
 
-    def save_layout_state(self):
-        for x in ('library', 'memory', 'card_a', 'card_b'):
-            getattr(self, x+'_view').save_state()
+    def save_layout_state(self: Main):
+        self.library_view.save_state()
+        self.memory_view.save_state()
+        self.card_a_view.save_state()
+        self.card_b_view.save_state()
         self.layout_container.write_settings()
         self.grid_view_button.save_state()
         self.bookshelf_view_button.save_state()
         self.search_bar_button.save_state()
 
-    def read_layout_settings(self):
+    def read_layout_settings(self: Main):
         # View states are restored automatically when set_database is called
         self.layout_container.read_settings()
         self.book_details.change_layout(self.layout_container.is_wide)
@@ -882,7 +883,7 @@ class LayoutMixin:  # {{{
         self.bookshelf_view_button.restore_state()
         self.search_bar_button.restore_state()
 
-    def update_status_bar(self, *args):
+    def update_status_bar(self: Main, *args):
         v = self.current_view()
         selected = len(v.selectionModel().selectedRows())
         try:

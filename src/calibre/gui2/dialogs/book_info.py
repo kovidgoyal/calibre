@@ -3,6 +3,7 @@
 
 
 import textwrap
+from collections.abc import Callable
 from contextlib import suppress
 from enum import IntEnum
 
@@ -52,9 +53,18 @@ class Cover(CoverView):
     choose_open_with_requested = pyqtSignal()
     copy_to_clipboard_requested = pyqtSignal()
     download_cover = pyqtSignal()
+    resize_requested = pyqtSignal(object)
+    size_hint_callback: Callable[[QSize], QSize] = lambda x: x
 
     def __init__(self, parent, show_size=False):
         CoverView.__init__(self, parent, show_size=show_size)
+
+    def resizeEvent(self, event) -> None:
+        super().resizeEvent(event)
+        self.resize_requested.emit(event)
+
+    def sizeHint(self):
+        return self.size_hint_callback(super().sizeHint())
 
     def copy_to_clipboard(self):
         self.copy_to_clipboard_requested.emit()
@@ -225,12 +235,12 @@ class BookInfo(QDialog, DropMixin):
         self.cover = Cover(self, show_size=gprefs['bd_overlay_cover_size'])
         self.cover.copy_to_clipboard_requested.connect(self.copy_cover_to_clipboard)
         self.cover.download_cover.connect(self.download_cover)
-        self.cover.resizeEvent = self.cover_view_resized
+        self.cover.resize_requested.connect(self.cover_view_resized)
         self.cover.cover_changed.connect(self.cover_changed)
         self.cover.open_with_requested.connect(self.open_with)
         self.cover.choose_open_with_requested.connect(self.choose_open_with)
         self.cover_pixmap = None
-        self.cover.sizeHint = self.details_size_hint
+        self.cover.size_hint_callback = self.details_size_hint
         self.splitter.addWidget(self.cover)
 
         self.details = Details(parent.book_details.book_info, self,
@@ -245,7 +255,7 @@ class BookInfo(QDialog, DropMixin):
         self.details.setPalette(palette)
 
         self.c = QWidget(self)
-        self.c.l = l2 = QGridLayout(self.c)
+        l2 = QGridLayout(self.c)
         l2.setContentsMargins(0, 0, 0, 0)
         self.c.setLayout(l2)
         l2.addWidget(self.details, 0, 0, 1, -1)
@@ -404,7 +414,8 @@ class BookInfo(QDialog, DropMixin):
 
     def on_link_clicked(self, qurl):
         link = str(qurl.toString(NO_URL_FORMATTING))
-        self.link_delegate(link, self)
+        if self.link_delegate is not None:
+            self.link_delegate(link, self)
 
     def done(self, a0):
         self.save_geometry(gprefs, self.geometry_string('book_info_dialog_geometry'))
@@ -435,7 +446,7 @@ class BookInfo(QDialog, DropMixin):
         if ci.isValid():
             view.model().current_changed(ci, ci)
 
-    def details_size_hint(self):
+    def details_size_hint(self, sz: QSize=QSize()) -> QSize:
         return QSize(350, 550)
 
     def toggle_cover_fit(self, state):
@@ -577,9 +588,10 @@ if __name__ == '__main__':
     from calibre.gui2 import Application
     from calibre.library import db
     app = Application([])
-    app.current_db = db()
-    get_gui.ans = app
-    d = Configure(app.current_db)
+    dbx = db()
+    setattr(app, 'current_db', dbx)
+    setattr(get_gui, 'ans', app)
+    d = Configure(dbx)
     d.exec()
     del d
     del app

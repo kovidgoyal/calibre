@@ -483,6 +483,11 @@ class BooksView(TableView):  # {{{
         else:
             self.pin_view.setVisible(False)
 
+    def selectionModel(self) -> QItemSelectionModel:
+        ans = super().selectionModel()
+        assert ans is not None
+        return ans
+
     # Pin view {{{
     def set_pin_view_visibility(self, visible=False):
         self.pin_view.setVisible(visible)

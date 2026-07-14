@@ -242,8 +242,8 @@ class ToolBar(QToolBar):  # {{{
 
     def setup_tool_button(self, bar, ac, menu_mode=None):
         ch = bar.widgetForAction(ac)
-        if ch is None:
-            ch = self.child_bar.widgetForAction(ac)
+        # if ch is None:
+        #     ch = self.child_bar.widgetForAction(ac)
         ch.setCursor(Qt.CursorShape.PointingHandCursor)
         if hasattr(ch, 'setText') and hasattr(ch, 'text'):
             self.all_widgets.append(ch)
@@ -315,7 +315,7 @@ class ToolBar(QToolBar):  # {{{
             for ac in self.location_manager.available_actions:
                 w = self.widgetForAction(ac)
                 if w is not None and w.geometry().contains(a0.pos()):
-                    tgt = ac.calibre_name
+                    tgt = ac.property('calibre_name') or ''
             if tgt is not None:
                 if tgt == 'main':
                     tgt = None
@@ -407,7 +407,9 @@ if ismacos:
                 if not self.is_top_level:
                     self.setMenu(None)
             else:
-                m = QMenu(self.text(), self.parent())
+                p = self.parent()
+                assert p is None or isinstance(p, QWidget)
+                m = QMenu(self.text(), p)
                 m.aboutToShow.connect(self.about_to_show)
                 self.setMenu(m)
                 self.clone_menu()
@@ -567,7 +569,7 @@ else:
         def __init__(self, location_manager, parent):
             QObject.__init__(self, parent)
             self.menu_bar = QMenuBar(parent)
-            self.menu_bar.is_native_menubar = False
+            setattr(self.menu_bar, 'is_native_menubar', False)
             parent.setMenuBar(self.menu_bar)
             self.gui = parent
 

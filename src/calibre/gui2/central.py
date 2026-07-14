@@ -5,6 +5,7 @@ from contextlib import suppress
 from copy import copy
 from dataclasses import asdict, dataclass, fields
 from enum import Enum, auto
+from typing import TYPE_CHECKING
 
 from qt.core import (
     QAction,
@@ -31,6 +32,9 @@ from qt.core import (
 from calibre.gui2 import Application, config, gprefs
 from calibre.gui2.cover_flow import MIN_SIZE
 from calibre.utils.localization import _
+
+if TYPE_CHECKING:
+    from calibre.gui2.ui import Main
 
 HIDE_THRESHOLD = 10
 SHOW_THRESHOLD = 50
@@ -120,6 +124,7 @@ class Placeholder(QLabel):
 class LayoutButton(QToolButton):
 
     on_action_trigger = pyqtSignal(bool)
+    shortcut: str | None
 
     def __init__(self, name: str, icon: str, label: str, central: CentralContainer, shortcut=None):
         super().__init__(central)
@@ -134,7 +139,7 @@ class LayoutButton(QToolButton):
         if isinstance(central, CentralContainer):
             self.toggled.connect(central.layout_button_toggled)
 
-    def initialize_with_gui(self, gui):
+    def initialize_with_gui(self, gui: Main):
         if self.shortcut is not None:
             self.action_toggle = QAction(self.icon(), _('Toggle') + ' ' + self.label, self)
             self.action_toggle.changed.connect(self.update_shortcut)
@@ -213,7 +218,7 @@ class SplitterHandle(QWidget):
     drag_start = None
     COLLAPSED_SIZE = 2  # pixels
 
-    def __init__(self, parent: QWidget | None = None, orientation: Qt.Orientation = Qt.Orientation.Vertical):
+    def __init__(self, parent: CentralContainer | None = None, orientation: Qt.Orientation = Qt.Orientation.Vertical):
         super().__init__(parent)
         self.set_orientation(orientation)
 
@@ -228,6 +233,7 @@ class SplitterHandle(QWidget):
     def state(self) -> HandleState:
         p = self.parent()
         if p is not None:
+            assert isinstance(p, CentralContainer)
             try:
                 return p.handle_state(self)
             except AttributeError as err:
@@ -300,10 +306,10 @@ class WideDesires:
 
 @dataclass
 class NarrowDesires:
-    book_details_height: int = 0.3
-    quick_view_height: int = 0.2
-    tag_browser_width: int = 0.25
-    cover_browser_width: int = 0.35
+    book_details_height: float = 0.3
+    quick_view_height: float = 0.2
+    tag_browser_width: float = 0.25
+    cover_browser_width: float = 0.35
 
     def serialize(self):
         return {k: v for k, v in asdict(self).items() if v > 0}
@@ -586,6 +592,7 @@ class CentralContainer(QWidget):
 
     def splitter_handle_dragged(self, pos):
         handle = self.sender()
+        assert isinstance(handle, SplitterHandle)
         bv = copy(self.is_visible)
         if self.layout is Layout.wide:
             bd = copy(self.wide_desires)
@@ -923,7 +930,6 @@ class CentralContainer(QWidget):
                 w = min(available_width, self.width() - x - self.right_handle.width())
                 if w < HIDE_THRESHOLD:
                     self.is_visible.cover_browser = False
-                    self.narrow_desires.book_details_width = 0
                 else:
                     self.narrow_desires.cover_browser_width = max(self.cover_browser.minimumWidth(), w) / self.width()
         elif handle is self.bottom_handle:
@@ -1005,11 +1011,11 @@ def develop():
             elif a0.key() == Qt.Key.Key_Escape:
                 self.reject()
 
-    d = d()
-    d.central.read_settings()
-    d.show()
+    dx = d()
+    dx.central.read_settings()
+    dx.show()
     app.exec()
-    d.central.write_settings()
+    dx.central.write_settings()
 
 
 if __name__ == '__main__':

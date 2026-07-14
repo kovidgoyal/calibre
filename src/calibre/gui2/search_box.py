@@ -8,6 +8,7 @@ __docformat__ = 'restructuredtext en'
 import re
 import time
 from functools import partial
+from typing import TYPE_CHECKING
 
 from qt.core import QAction, QApplication, QComboBox, QCompleter, QDialog, QEvent, QIcon, QKeyEvent, QKeySequence, QLineEdit, Qt, QTimer, pyqtSignal, pyqtSlot
 
@@ -17,6 +18,9 @@ from calibre.gui2.dialogs.search import SearchDialog
 from calibre.gui2.widgets import stylesheet_for_lineedit
 from calibre.utils.icu import primary_sort_key
 from calibre.utils.localization import _, pgettext
+
+if TYPE_CHECKING:
+    from calibre.gui2.ui import Main
 
 
 class AsYouType(str):
@@ -383,10 +387,7 @@ class SearchBox2(QComboBox):  # {{{
 
 class SearchBoxMixin:  # {{{
 
-    def __init__(self, *args, **kwargs):
-        pass
-
-    def init_search_box_mixin(self):
+    def init_search_box_mixin(self: Main):
         self.search.initialize('main_search_history',
                 help_text=_('Search (For advanced search click the gear icon to the left)'))
         self.search.cleared.connect(self.search_box_cleared)
@@ -417,7 +418,7 @@ class SearchBoxMixin:  # {{{
         self.keyboard.register_shortcut('highlight search results', _('Highlight search results'), action=self.highlight_only_action)
         self.refresh_search_bar_widgets()
 
-    def refresh_search_bar_widgets(self):
+    def refresh_search_bar_widgets(self: Main):
         self.set_highlight_only_button_icon()
         if gprefs['search_tool_bar_shows_text']:
             self.search_bar.search_button.setText(_('Search'))
@@ -426,7 +427,7 @@ class SearchBoxMixin:  # {{{
             self.search_bar.search_button.setText(None)
             self.search_bar.search_button.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonIconOnly)
 
-    def highlight_only_clicked(self, state):
+    def highlight_only_clicked(self: Main, state):
         if not config['highlight_search_matches'] and not question_dialog(self, _('Are you sure?'),
             _('This will change how searching works. When you search, instead of showing only the '
                 'matching books, all books will be shown with the matching books highlighted. '
@@ -437,7 +438,7 @@ class SearchBoxMixin:  # {{{
         self.search.do_search()
         self.focus_to_library()
 
-    def set_highlight_only_button_icon(self):
+    def set_highlight_only_button_icon(self: Main):
         b = self.highlight_only_button
         if config['highlight_search_matches']:
             b.setIcon(QIcon.ic('highlight_only_on.png'))
@@ -456,29 +457,31 @@ class SearchBoxMixin:  # {{{
                 b.setText(None)
                 b.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonIconOnly)
         self.highlight_only_button.setVisible(gprefs['show_highlight_toggle_button'])
-        self.library_view.model().set_highlight_only(config['highlight_search_matches'])
+        self.library_view._model.set_highlight_only(config['highlight_search_matches'])
 
-    def focus_search_box(self, *args):
+    def focus_search_box(self: Main, *args):
         self.search.setFocus(Qt.FocusReason.OtherFocusReason)
-        self.search.lineEdit().selectAll()
+        le = self.search.lineEdit()
+        if le:
+            le.selectAll()
 
-    def search_box_cleared(self):
+    def search_box_cleared(self: Main):
         self.tags_view.clear()
         self.set_number_of_books_shown()
 
-    def search_box_changed(self):
+    def search_box_changed(self: Main):
         self.tags_view.conditional_clear(self.search.current_text)
 
-    def do_advanced_search(self, *args):
-        d = SearchDialog(self, self.library_view.model().db)
+    def do_advanced_search(self: Main, *args):
+        d = SearchDialog(self, self.current_db)
         if d.exec() == QDialog.DialogCode.Accepted:
             self.search.set_search_string(d.search_string(), store_in_history=True)
 
-    def do_search_button(self):
+    def do_search_button(self: Main):
         self.search.do_search()
         self.focus_to_library()
 
-    def focus_to_library(self):
+    def focus_to_library(self: Main):
         self.focus_current_view()
 
     # }}}
@@ -486,13 +489,10 @@ class SearchBoxMixin:  # {{{
 
 class SavedSearchBoxMixin:  # {{{
 
-    def __init__(self, *args, **kwargs):
+    def init_saved_seach_box_mixin(self: Main):
         pass
 
-    def init_saved_seach_box_mixin(self):
-        pass
-
-    def add_saved_searches_to_menu(self, menu, db, add_action_func=None):
+    def add_saved_searches_to_menu(self: Main, menu, db, add_action_func=None):
         def add_action(current_menu, whole_name, last_component, func=None):
             if add_action_func is None:
                 return current_menu.addAction(last_component, func)
@@ -526,7 +526,7 @@ class SavedSearchBoxMixin:  # {{{
             if ac.icon().isNull():
                 ac.setIcon(search_icon)
 
-    def populate_add_saved_search_menu(self, to_menu):
+    def populate_add_saved_search_menu(self: Main, to_menu):
         m = to_menu
         m.clear()
         m.addAction(QIcon.ic('search_add_saved.png'), _('Add Saved search'), self.add_saved_search)
@@ -537,30 +537,30 @@ class SavedSearchBoxMixin:  # {{{
         m.addSeparator()
         self.add_saved_searches_to_menu(m, self.current_db)
 
-    def saved_searches_changed(self, set_restriction=None, recount=True):
+    def saved_searches_changed(self: Main, set_restriction=None, recount=True):
         self.build_search_restriction_list()
         if recount:
             self.tags_view.recount()
         if set_restriction:  # redo the search restriction if there was one
             self.apply_named_search_restriction(set_restriction)
 
-    def do_saved_search_edit(self, search):
+    def do_saved_search_edit(self: Main, search):
         d = SavedSearchEditor(self, search)
         d.exec()
         if d.result() == QDialog.DialogCode.Accepted:
             self.do_rebuild_saved_searches()
 
-    def do_rebuild_saved_searches(self):
+    def do_rebuild_saved_searches(self: Main):
         self.saved_searches_changed()
 
-    def add_saved_search(self):
+    def add_saved_search(self: Main):
         from calibre.gui2.dialogs.saved_search_editor import AddSavedSearch
         d = AddSavedSearch(parent=self, search=self.search.current_text)
         if d.exec() == QDialog.DialogCode.Accepted:
             self.current_db.new_api.ensure_has_search_category(fail_on_existing=False)
             self.do_rebuild_saved_searches()
 
-    def get_saved_search_text(self, search_name=None):
+    def get_saved_search_text(self: Main, search_name=None):
         db = self.current_db
         try:
             current_search = search_name or self.search.currentText()

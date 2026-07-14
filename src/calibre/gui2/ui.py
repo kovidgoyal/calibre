@@ -1367,12 +1367,11 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         timed_print('Grid view shutdown')
         self.bookshelf_view.shutdown()
         timed_print('Bookshelf view shutdown')
-        db = None
         try:
             _shutdown_model = self.library_view.model()
-            assert _shutdown_model is not None
             assert isinstance(_shutdown_model, BooksModel)
             db = _shutdown_model.db
+            assert db is not None
             cf = db.clean
         except Exception:
             pass

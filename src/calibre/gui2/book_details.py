@@ -9,6 +9,7 @@ from contextlib import suppress
 from functools import lru_cache, partial
 from math import ceil
 from time import monotonic
+from typing import TYPE_CHECKING
 
 from qt.core import (
     QAction,
@@ -74,6 +75,9 @@ from polyglot.binary import from_hex_bytes
 
 InternetSearch = namedtuple('InternetSearch', 'author where')
 
+if TYPE_CHECKING:
+    from calibre.gui2.dialogs.book_info import BookInfo as DialogBookInfo
+
 
 def db_for_mi(mi):
     from calibre.gui2.ui import get_gui
@@ -98,16 +102,20 @@ def set_html(mi, html, text_browser):
     text_browser.setHtml(html)
 
 
-def css(reset=False):
+_css_cache = {}
+
+
+def css(reset=False) -> str:
     if reset:
-        del css.ans
-    if not hasattr(css, 'ans'):
+        _css_cache.clear()
+    if (ans := _css_cache.get('ans')) is None:
         val = P('templates/book_details.css', data=True).decode('utf-8')
-        css.ans = re.sub(r'/\*.*?\*/', '', val, flags=re.DOTALL)
+        ans = re.sub(r'/\*.*?\*/', '', val, flags=re.DOTALL)
         if iswindows:
             # On Windows the default monospace font family is Courier which is ugly
-            css.ans = 'pre { font-family: "Segoe UI Mono", "Consolas", monospace; }\n\n' + css.ans
-    return css.ans
+            ans = 'pre { font-family: "Segoe UI Mono", "Consolas", monospace; }\n\n' + ans
+        _css_cache['ans'] = ans
+    return ans
 
 
 def resolve_colors(css):
@@ -243,7 +251,7 @@ def add_notes_context_menu_actions(menu, book_info, field, value):
 
 def init_find_in_tag_browser(menu, ac, field, value):
     from calibre.gui2.ui import get_gui
-    hidden_cats = get_gui(fail_if_absent=True).tags_view.model().hidden_categories
+    hidden_cats = get_gui(fail_if_absent=True).tags_view._model.hidden_categories
     if field not in hidden_cats:
         ac.setIcon(QIcon.ic('search.png'))
         ac.setText(_('Find %s in the Tag browser') % escape_for_menu(value))
@@ -549,14 +557,14 @@ def add_item_specific_entries(menu, data, book_info, copy_menu, search_menu):
         path = data['loc']
         ac = book_info.copy_link_action
         if isinstance(path, int):
-            path = get_gui(fail_if_absent=True).library_view.model().db.abspath(path, index_is_id=True)
+            path = get_gui(fail_if_absent=True).current_db.abspath(path, index_is_id=True)
         ac.current_url = path
         ac.setText(_('The location of the book'))
         copy_menu.addAction(ac)
     elif dt == 'data-path':
         path = data['loc']
         ac = book_info.copy_link_action
-        path = get_gui(fail_if_absent=True).library_view.model().db.abspath(data['loc'], index_is_id=True)
+        path = get_gui(fail_if_absent=True).current_db.abspath(data['loc'], index_is_id=True)
         if path:
             path = os.path.join(path, DATA_DIR_NAME)
             ac.current_url = path
@@ -947,14 +955,14 @@ class CoverView(QWidget):  # {{{
         cm.addSeparator()
         if self.pixmap is not self.default_pixmap and self.data.get('id'):
             book_id = self.data['id']
-            cm.tc = QMenu(_('Trim cover'))
-            cm.tc.addAction(QIcon.ic('trim.png'), _('Automatically trim borders'), self.trim_cover)
-            cm.tc.addAction(_('Trim borders manually'), self.manual_trim_cover)
-            cm.tc.addSeparator()
-            ac_undo = cm.tc.addAction(QIcon.ic('edit-undo.png'), _('Undo last trim'), self.undo_last_trim)
+            tc = QMenu(_('Trim cover'))
+            tc.addAction(QIcon.ic('trim.png'), _('Automatically trim borders'), self.trim_cover)
+            tc.addAction(_('Trim borders manually'), self.manual_trim_cover)
+            tc.addSeparator()
+            ac_undo = tc.addAction(QIcon.ic('edit-undo.png'), _('Undo last trim'), self.undo_last_trim)
             assert ac_undo is not None
             ac_undo.setEnabled(self.last_trim_id == book_id)
-            cm.addMenu(cm.tc)
+            cm.addMenu(tc)
             cm.addSeparator()
         _cb = qapplication_or_fail().clipboard()
         assert _cb is not None
@@ -969,7 +977,7 @@ class CoverView(QWidget):  # {{{
         gc.triggered.connect(self.generate_cover)
         save.triggered.connect(self.save_cover)
         create_open_cover_with_menu(self, cm)
-        cm.si = m = create_search_internet_menu(self.search_internet.emit)
+        m = create_search_internet_menu(self.search_internet.emit)
         cm.addMenu(m)
         cm.exec(a0.globalPos())
 
@@ -1110,6 +1118,12 @@ class CoverView(QWidget):  # {{{
 
 # Book Info {{{
 
+class FormatAction(QAction):
+    current_fmt: tuple[str | int, str] | None = None
+    current_url: str | None = None
+    data: tuple[str | None, str | None, str | None] = None, None, None
+
+
 class BookInfo(HTMLDisplay):
 
     link_clicked = pyqtSignal(object)
@@ -1126,6 +1140,7 @@ class BookInfo(HTMLDisplay):
     edit_book = pyqtSignal(int, object)
     edit_identifiers = pyqtSignal()
     find_in_tag_browser = pyqtSignal(object, object)
+    find_in_tag_browser_action: FormatAction
     notes_resource_scheme = RESOURCE_URL_SCHEME
 
     def __init__(self, vertical, parent=None):
@@ -1141,22 +1156,18 @@ class BookInfo(HTMLDisplay):
             ('set_cover_format', 'default_cover.png'),
             ('find_in_tag_browser', 'search.png')
         ]:
-            ac = QAction(QIcon.ic(icon), '', self)
-            ac.current_fmt = None
-            ac.current_url = None
+            ac = FormatAction(QIcon.ic(icon), '', self)
             ac.triggered.connect(getattr(self, f'{x}_triggerred'))
             setattr(self, f'{x}_action', ac)
-        self.manage_action = QAction(self)
-        self.manage_action.current_fmt = self.manage_action.current_url = None
+        self.manage_action = FormatAction(self)
         self.manage_action.triggered.connect(self.manage_action_triggered)
         self.edit_identifiers_action = QAction(QIcon.ic('identifiers.png'), _('Edit identifiers for this book'), self)
         self.edit_identifiers_action.triggered.connect(self.edit_identifiers)
-        self.remove_item_action = ac = QAction(QIcon.ic('minus.png'), '...', self)
+        self.remove_item_action = ac = FormatAction(QIcon.ic('minus.png'), '...', self)
         ac.data = (None, None, None)
         ac.triggered.connect(self.remove_item_triggered)
-        self.copy_identifiers_url_action = ac = QAction(QIcon.ic('edit-copy.png'), _('Identifier &URL'), self)
+        self.copy_identifiers_url_action = ac = FormatAction(QIcon.ic('edit-copy.png'), _('Identifier &URL'), self)
         ac.triggered.connect(self.copy_id_url_triggerred)
-        ac.current_url = ac.current_fmt = None
         self.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         self.setDefaultStyleSheet(css())
         if iswindows and not qapplication_or_fail().using_calibre_style:
@@ -1290,7 +1301,7 @@ class BookInfo(HTMLDisplay):
         current_row = lv.currentIndex().row()
         if lv.current_id != book_id:
             current_row = -1
-        lv.model().refresh_ids((book_id,), current_row)
+        lv._model.refresh_ids((book_id,), current_row)
 # }}}
 
 
@@ -1417,16 +1428,16 @@ class DropMixin:
     files_dropped = pyqtSignal(object, object)
     remote_file_dropped = pyqtSignal(object, object)
 
-    def __init__(self):
+    def __init__(self: DropMixinSelf):
         self.setAcceptDrops(True)
 
-    def dragEnterEvent(self, event):
+    def dragEnterEvent(self: DropMixinSelf, event):
         md = event.mimeData()
         if dnd_has_extension(md, image_extensions() + BOOK_EXTENSIONS, allow_all_extensions=True, allow_remote=True) or \
                 dnd_has_image(md):
             event.acceptProposedAction()
 
-    def dropEvent(self, event):
+    def dropEvent(self: DropMixinSelf, event):
         event.setDropAction(Qt.DropAction.CopyAction)
         md = event.mimeData()
 
@@ -1437,8 +1448,11 @@ class DropMixin:
             event.accept()
             if y is None:
                 # Local image
-                self.cover_view.paste_from_clipboard(x)
-                self.update_layout()
+                if isinstance(self, DialogBookInfo):
+                    self.cover.set_pixmap(x)
+                else:
+                    self.cover_view.paste_from_clipboard(x)
+                    self.update_layout()
             else:
                 self.remote_file_dropped.emit(x, y)
                 # We do not support setting cover *and* adding formats for
@@ -1503,9 +1517,6 @@ class BookDetails(DetailsLayout, DropMixin):  # {{{
         self.cover_view.cover_removed.connect(self.cover_removed.emit)
         self._layout.addWidget(self.cover_view)
         self.book_info = BookInfo(vertical, self)
-        self.book_info.show_book_info = self.show_book_info
-        self.book_info.search_internet = self.search_internet
-        self.book_info.search_requested = self.search_requested.emit
         self._layout.addWidget(self.book_info)
         self.book_info.link_clicked.connect(self.handle_click)
         self.book_info.link_removal_requested.connect(self.remove_link)
@@ -1533,7 +1544,9 @@ class BookDetails(DetailsLayout, DropMixin):  # {{{
     def search_internet(self, data):
         if self.last_data:
             if data.author is None:
-                url = url_for_book_search(data.where, title=self.last_data['title'], author=self.last_data['authors'][0])
+                a = self.last_data['authors']
+                assert a is not None
+                url = url_for_book_search(data.where, title=self.last_data['title'], author=a[0])
             else:
                 url = url_for_author_search(data.where, author=data.author)
             safe_open_url(url)
@@ -1618,7 +1631,7 @@ class BookDetails(DetailsLayout, DropMixin):  # {{{
         gui = get_gui(fail_if_absent=True)
         db = gui.current_db.new_api
         db.set_link_map(field, {item_value: ''})
-        m = gui.library_view.model()
+        m = gui.library_view._model
         current = gui.library_view.currentIndex()
         m.current_changed(current, current)
         gui.tags_view.recount()
@@ -1653,5 +1666,9 @@ class BookDetails(DetailsLayout, DropMixin):  # {{{
 
     def reset_info(self):
         self.show_data(Metadata(_('Unknown')))
+
+
+if TYPE_CHECKING:
+    DropMixinSelf = BookDetails | DialogBookInfo
 
 # }}}

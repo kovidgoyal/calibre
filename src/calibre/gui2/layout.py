@@ -59,13 +59,13 @@ class LocationManager(QObject):  # {{{
 
         self.all_actions = []
 
-        def ac(name, text, icon, tooltip):
+        def ac(name, text, icon, tooltip) -> QAction:
             icon = QIcon.ic(icon)
             ac = self.location_actions.addAction(icon, text)
             assert ac is not None
-            setattr(self, 'location_'+name, ac)
             ac.setAutoRepeat(False)
             ac.setCheckable(True)
+            ac.setProperty('calibre_name', name)
             receiver = partial(self._location_selected, name)
             ac.triggered.connect(receiver)
             self.tooltips[name] = tooltip
@@ -93,19 +93,18 @@ class LocationManager(QObject):  # {{{
             else:
                 ac.setToolTip(tooltip)
             ac.setMenu(m)
-            ac.calibre_name = name
 
             self.all_actions.append(ac)
             return ac
 
-        self.library_action = ac('library', _('Library'), 'lt.png',
-                _('Show books in calibre library'))
-        ac('main', _('Device'), 'reader.png',
-                _('Show books in the main memory of the device'))
-        ac('carda', _('Card A'), 'sd.png',
-                _('Show books in storage card A'))
-        ac('cardb', _('Card B'), 'sd.png',
-                _('Show books in storage card B'))
+        self.library_action = self.location_library = ac(
+                'library', _('Library'), 'lt.png', _('Show books in calibre library'))
+        self.location_main = ac(
+                'main', _('Device'), 'reader.png', _('Show books in the main memory of the device'))
+        self.location_carda = ac(
+                'carda', _('Card A'), 'sd.png', _('Show books in storage card A'))
+        self.location_cardb = ac(
+                'cardb', _('Card B'), 'sd.png', _('Show books in storage card B'))
 
     def set_switch_actions(self, quick_actions, rename_actions, delete_actions,
             switch_actions, choose_action):
@@ -319,9 +318,7 @@ class SearchBar(QFrame):  # {{{
         l.addWidget(x)
 
         # Add the searchbar tool buttons to the bar
-        p = self.parent()
-        assert p is not None
-        l.addLayout(p.bars_manager.search_tool_bar)
+        l.addLayout(parent.bars_manager.search_tool_bar)
 
     def populate_sort_menu(self):
         from calibre.gui2.ui import get_gui
@@ -329,7 +326,9 @@ class SearchBar(QFrame):  # {{{
 
     def populate_group_by_menu(self):
         from calibre.gui2.ui import get_gui
-        get_gui(fail_if_absent=True).bookshelf_view.populate_group_by_menu(self.group_by_button.menu())
+        m = self.group_by_button.menu()
+        assert m is not None
+        get_gui(fail_if_absent=True).bookshelf_view.populate_group_by_menu(m)
 
     def show_group_by_menu(self):
         if self.group_by_button.isVisible():
@@ -354,10 +353,15 @@ class Spacer(QWidget):  # {{{
 
 class MainWindowMixin:  # {{{
 
-    def __init__(self, *args, **kwargs):
-        pass
+    virtual_library: QToolButton
+    clear_vl: QToolButton
+    sort_button: QToolButton
+    group_by_button: QToolButton
+    highlight_only_button: QToolButton
+    full_text_search_action: QAction
+    advanced_search_toggle_action: QAction
 
-    def init_main_window_mixin(self):
+    def init_main_window_mixin(self: Main):
         self.setObjectName('MainWindow')
         self.setWindowIcon(QIcon.ic('lt.png'))
         self.setWindowTitle(__appname__)
@@ -402,7 +406,7 @@ class MainWindowMixin:  # {{{
         smw.setVisible(False)
         smw.setAutoFillBackground(True)
 
-    def show_shutdown_message(self, message=''):
+    def show_shutdown_message(self: Main, message=''):
         smw = self.shutdown_message_widget
         bg, fg = 200, 'black'
         if qapplication_or_fail().is_dark_theme:
@@ -415,7 +419,7 @@ class MainWindowMixin:  # {{{
         # Force processing the events needed to show the message
         QCoreApplication.processEvents()
 
-    def show_sort_button_for_alternate_view(self, show: bool = True) -> None:
+    def show_sort_button_for_alternate_view(self: Main, show: bool = True) -> None:
         if self.bars_manager.search_tool_bar.has_sort_by_button:
             show = False
         self.sort_button.setVisible(show)

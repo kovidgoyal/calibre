@@ -47,9 +47,6 @@ if TYPE_CHECKING:
 
 class TagBrowserMixin:  # {{{
 
-    def __init__(self, *args, **kwargs):
-        pass
-
     def populate_tb_manage_menu(self: Main, db):
         self.populate_manage_categories_menu(db, self.alter_tb.manage_menu, add_column_items=False)
 

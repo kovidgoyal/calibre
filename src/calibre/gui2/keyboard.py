@@ -264,7 +264,7 @@ class ConfigModel(SearchQueryParser, QAbstractItemModel):
             pass
         return ROOT
 
-    def parent(self, child=...):
+    def parent(self, child=QModelIndex()):
         ip = child.internalPointer()
         if ip is None or not ip.is_shortcut:
             return ROOT
@@ -423,6 +423,8 @@ class ConfigModel(SearchQueryParser, QAbstractItemModel):
 class Editor(QFrame):  # {{{
 
     editing_done = pyqtSignal(object)
+    button1: QPushButton
+    button2: QPushButton
 
     def __init__(self, parent=None):
         QFrame.__init__(self, parent)
@@ -455,7 +457,10 @@ class Editor(QFrame):  # {{{
             button.setObjectName(_('None'))
             button.clicked.connect(partial(self.capture_clicked, which=which))
             button.installEventFilter(self)
-            setattr(self, f'button{which}', button)
+            if which == 1:
+                self.button1 = button
+            else:
+                self.button2 = button
             clear = QToolButton(self)
             clear.setIcon(QIcon.ic('clear_left.png'))
             clear.clicked.connect(partial(self.clear_clicked, which=which))
