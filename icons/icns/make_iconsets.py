@@ -90,7 +90,7 @@ def get_svg_viewbox(file_path: str) -> tuple[float, ...]:
         return tuple(float(x) for x in viewbox.split())
     width = root.get('width')
     height = root.get('height')
-    return [0.0, 0.0, float(width or 0), float(height or 0)]
+    return (0.0, 0.0, float(width or 0), float(height or 0))
 
 
 def create_icon(name: str, svg_path: str, output_path: str) -> str:
@@ -103,9 +103,12 @@ def create_icon(name: str, svg_path: str, output_path: str) -> str:
     os.mkdir(icon_dir)
     s = deepcopy(icon_settings)
     for group in s['groups']:
+        assert isinstance(group, dict)
         for layer in group['layers']:
+            assert isinstance(layer, dict)
             layer['image-name'] = os.path.basename(svg_path)
             layer['name'] = name
+            assert isinstance(layer['position'], dict)
             layer['position']['scale'] = scale
     with open(os.path.join(icon_dir, 'icon.json'), 'w') as f:
         json.dump(s, f, indent=2)

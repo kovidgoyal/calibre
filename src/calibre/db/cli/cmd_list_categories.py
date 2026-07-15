@@ -4,7 +4,9 @@
 
 import csv
 import sys
+from collections.abc import Callable
 from textwrap import TextWrapper
+from typing import IO, cast
 
 from calibre import prints
 from calibre.utils.localization import _
@@ -124,11 +126,11 @@ def do_list(fields, data, opts):
 class StdoutWriter:
 
     def __init__(self):
-        self.do_write = getattr(sys.stdout, 'buffer', sys.stdout).write
+        f: IO[bytes] = getattr(sys.stdout, 'buffer', cast(IO[bytes], sys.stdout))
+        self.do_write: Callable[[bytes], int] = f.write
 
     def write(self, x):
-        x = as_bytes(x)
-        self.do_write(x)
+        self.do_write(as_bytes(x))
 
 
 def do_csv(fields, data, opts):

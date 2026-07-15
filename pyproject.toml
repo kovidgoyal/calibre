@@ -295,8 +295,9 @@ python-platform = "all"
 [tool.ty.src]
 exclude = [
 	'**/*_ui.py', '**/*_test.py', '**/test_*.py',
-	'setup/*.py', 'setup.py',
+	'setup/*.py', 'setup.py', 'manual/**/*.py', 'bypy/**/*.py',
 	'**/tests/**',
+    '.github/workflows/*.py',
 	'src/calibre/library/add_to_library.py',
 	'src/calibre/library/database.py',
 	'src/calibre/library/database2.py',
