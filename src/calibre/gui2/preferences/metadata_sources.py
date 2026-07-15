@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 from qt.core import (
     QAbstractListModel,
     QAbstractTableModel,
-    QCursor,
+    QBoxLayout,
     QDialog,
     QDialogButtonBox,
     QFrame,
@@ -119,7 +119,7 @@ class SourcesModel(QAbstractTableModel):  # {{{
             ret = True
         if col == 1 and role == Qt.ItemDataRole.EditRole:
             try:
-                self.cover_overrides[plugin] = max(1, int(value))
+                self.cover_overrides[plugin] = max(1, int(str(value)))
                 ret = True
             except (ValueError, TypeError):
                 pass
@@ -168,7 +168,7 @@ class SourcesModel(QAbstractTableModel):  # {{{
 class FieldsModel(QAbstractListModel):  # {{{
 
     def __init__(self, parent=None):
-        QAbstractTableModel.__init__(self, parent)
+        QAbstractListModel.__init__(self, parent)
 
         self.fields = []
         self.descs = {
@@ -362,7 +362,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         series_action.triggered.connect(self.change_series_map_rules)
         self.map_rules_button.setMenu(m)
         l = self.page.layout()
-        assert l is not None
+        assert isinstance(l, QBoxLayout)
         l.setStretch(0, 1)
         l.setStretch(1, 1)
         self.add_new_source_button.clicked.connect(self.add_new_source)
@@ -382,7 +382,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         m.addAction(_('Select none'), self.fields_model.clear_all)
         m.addAction(_('Set as default'), self.fields_model.commit_user_defaults)
         m.addAction(_('Select default'), self.fields_model.select_user_defaults)
-        m.exec(QCursor.pos())
+        m.exec(self.mapToGlobal(pos))
 
     def configure_plugin(self):
         selection_model = self.sources_view.selectionModel()

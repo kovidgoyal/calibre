@@ -23,9 +23,12 @@ class TBDisplayedFields(DisplayedFields):
         self.gui = get_gui(fail_if_absent=True)
 
     def initialize(self, use_defaults=False, pref_data_override=None):
+        from calibre.gui2.tag_browser.model import TagsModel
         tv = self.gui.tags_view
-        cat_ord = tv.model().get_ordered_categories(use_defaults=use_defaults,
-                                                    pref_data_override=pref_data_override)
+        model = tv.model()
+        assert isinstance(model, TagsModel)
+        cat_ord = model.get_ordered_categories(use_defaults=use_defaults,
+                                               pref_data_override=pref_data_override)
         if use_defaults:
             hc = []
             self.changed = True

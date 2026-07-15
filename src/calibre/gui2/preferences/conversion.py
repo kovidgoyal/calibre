@@ -30,7 +30,7 @@ class Model(QStringListModel):
         self.widgets = widgets
         self.setStringList([w.TITLE for w in widgets])
 
-    def data(self, index, role=...):
+    def data(self, index, role=Qt.ItemDataRole.DisplayRole):
         if role == Qt.ItemDataRole.DecorationRole:
             w = self.widgets[index.row()]
             if w.ICON:
@@ -59,9 +59,12 @@ class ListView(QListView):
 
 class Base(ConfigWidgetBase):
 
+    conversion_widgets: list
     restore_defaults_desc = _('Restore settings to default values. '
             'Only settings for the currently selected section '
             'are restored.')
+
+    def load_conversion_widgets(self) -> None: ...
 
     def setupUi(self, x):
         self.resize(720, 603)
@@ -120,7 +123,9 @@ class Base(ConfigWidgetBase):
         assert isinstance(sa, QScrollArea)
         inner = sa.widget()
         assert inner is not None
-        inner.restore_defaults(self.plumber.get_option_by_name)
+        restore = getattr(inner, 'restore_defaults', None)
+        if restore is not None:
+            restore(self.plumber.get_option_by_name)
         self.changed_signal.emit()
 
     def commit(self, *args):

@@ -45,9 +45,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         r('auto_convert_same_fmt', gprefs)
 
         self.filename_pattern = FilenamePattern(self)
-        self.metadata_box.l = QVBoxLayout(self.metadata_box)
-        mb_layout = self.metadata_box.layout()
-        assert mb_layout is not None
+        mb_layout = QVBoxLayout(self.metadata_box)
         mb_layout.insertWidget(0, self.filename_pattern)
         self.filename_pattern.changed_signal.connect(self.changed_signal.emit)
         self.auto_add_browse_button.clicked.connect(self.choose_aa_path)
@@ -60,7 +58,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.add_filter_rules_button.clicked.connect(self.change_add_filter_rules)
         self.tabWidget.setCurrentIndex(0)
         at_layout = self.actions_tab.layout()
-        assert at_layout is not None
+        assert isinstance(at_layout, QFormLayout)
         at_layout.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.AllNonFixedFieldsGrow)
         self.ignore_another_button.clicked.connect(self.add_another_ignored_format)
 

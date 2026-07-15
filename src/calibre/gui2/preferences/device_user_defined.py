@@ -6,8 +6,6 @@ __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 
-import numbers
-
 from qt.core import QApplication, QDialog, QDialogButtonBox, QIcon, QMessageBox, QPlainTextEdit, QPushButton, QTimer, QVBoxLayout
 
 from calibre.utils.localization import _
@@ -66,8 +64,9 @@ class UserDefinedDevice(QDialog):
             if len(new_devices) == 1:
                 def fmtid(x):
                     x = x or 0
-                    if isinstance(x, numbers.Integral):
+                    if isinstance(x, int):
                         x = hex(x)
+                    x = str(x)
                     if not x.startswith('0x'):
                         x = '0x' + x
                     return x

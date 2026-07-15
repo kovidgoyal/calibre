@@ -31,6 +31,7 @@ from qt.core import (
     QTabWidget,
     QTextLayout,
     QToolBar,
+    QToolButton,
     QVBoxLayout,
     QWidget,
     pyqtSignal,
@@ -40,7 +41,7 @@ from calibre.constants import __appname__, __version__
 from calibre.customize.ui import preferences_plugins
 from calibre.gui2 import gprefs, show_restart_warning
 from calibre.gui2.dialogs.message_box import Icon
-from calibre.gui2.preferences import AbortCommit, AbortInitialize, get_plugin, init_gui
+from calibre.gui2.preferences import AbortCommit, AbortInitialize, ConfigWidgetBase, get_plugin, init_gui
 from calibre.utils.localization import _
 
 ICON_SIZE = 32
@@ -169,7 +170,7 @@ class Category(QWidget):  # {{{
         self.bar.setFloatable(False)
         self.bar.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
         self._layout.addWidget(self.bar)
-        self.actions = []
+        self._actions = []
         from calibre.gui2.ui import get_gui
         iac = get_gui(fail_if_absent=True).iactions['Preferences']
         for p in plugins:
@@ -183,13 +184,12 @@ class Category(QWidget):  # {{{
             ac.setToolTip(tt)
             ac.setWhatsThis(textwrap.fill(p.description))
             ac.setStatusTip(p.description)
-            self.actions.append(ac)
+            self._actions.append(ac)
             w = self.bar.widgetForAction(ac)
-            assert w is not None
+            assert isinstance(w, QToolButton)
             w.setText(wrap_preference_button_text(p.gui_name.replace('&', '&&')))
             w.setCursor(Qt.CursorShape.PointingHandCursor)
-            if hasattr(w, 'setAutoRaise'):
-                w.setAutoRaise(True)
+            w.setAutoRaise(True)
             w.setFixedWidth(PREFERENCE_BUTTON_WIDTH)
             w.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Preferred)
 
@@ -254,6 +254,7 @@ must_restart_message = _('The changes you have made require calibre be '
 class Preferences(QDialog):
 
     run_wizard_requested = pyqtSignal()
+    showing_widget: ConfigWidgetBase
 
     def __init__(self, gui, initial_plugin=None, close_after_initial=False):
         QDialog.__init__(self, gui)
@@ -431,8 +432,8 @@ class Preferences(QDialog):
             except Exception:
                 pass
         self.stack.setCurrentIndex(0)
-        self.showing_widget = QWidget(self.scroll_area)
-        self.scroll_area.setWidget(self.showing_widget)
+        self.showing_widget_placeholder = QWidget(self.scroll_area)
+        self.scroll_area.setWidget(self.showing_widget_placeholder)
         self.setWindowTitle(__appname__ + ' - ' + _('Preferences'))
         self.title_bar.show_plugin()
         self.setWindowIcon(QIcon.ic('config.png'))

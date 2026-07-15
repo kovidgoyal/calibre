@@ -35,6 +35,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
     def genesis(self, gui):
         self.gui = gui
+        self.cc_column_key: str | None = None
         db = self.gui.library_view.model().db
         self.custcols = copy.deepcopy(db.field_metadata.custom_field_metadata())
         for k, cc in self.custcols.items():
@@ -258,8 +259,8 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                     coltype = self.column_desc['*' + dt]
             else:
                 coltype = self.column_desc[dt]
-        item = QTableWidgetItem(coltype)
-        item.setToolTip(coltype)
+        item = QTableWidgetItem(str(coltype))
+        item.setToolTip(str(coltype))
         item.setFlags(flags)
         self.opt_columns.setItem(row, self.TYPE_COLUMN, item)
 

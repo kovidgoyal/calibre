@@ -69,5 +69,5 @@ class DebugDevice(QDialog):
 
 if __name__ == '__main__':
     app = QApplication([])
-    d = DebugDevice()
+    d = DebugDevice(None)
     d.exec()

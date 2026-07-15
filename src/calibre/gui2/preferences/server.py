@@ -119,6 +119,8 @@ def init_opt(widget, opt, layout):
 
 class Bool(QCheckBox):
 
+    name: str
+    default_val: object
     changed_signal = pyqtSignal()
 
     def __init__(self, name, layout):
@@ -136,6 +138,8 @@ class Bool(QCheckBox):
 
 class Int(QSpinBox):
 
+    name: str
+    default_val: object
     changed_signal = pyqtSignal()
 
     def __init__(self, name, layout):
@@ -154,6 +158,8 @@ class Int(QSpinBox):
 
 class Float(QDoubleSpinBox):
 
+    name: str
+    default_val: object
     changed_signal = pyqtSignal()
 
     def __init__(self, name, layout):
@@ -173,6 +179,8 @@ class Float(QDoubleSpinBox):
 
 class Text(QLineEdit):
 
+    name: str
+    default_val: object
     changed_signal = pyqtSignal()
 
     def __init__(self, name, layout):
@@ -191,6 +199,8 @@ class Text(QLineEdit):
 
 class Path(QWidget):
 
+    name: str
+    default_val: object
     changed_signal = pyqtSignal()
 
     def __init__(self, name, layout):
@@ -227,6 +237,8 @@ class Path(QWidget):
 
 class Choices(QComboBox):
 
+    name: str
+    default_val: object
     changed_signal = pyqtSignal()
 
     def __init__(self, name, layout):
@@ -311,6 +323,9 @@ class MainTab(QWidget):  # {{{
     stop_server = pyqtSignal()
     test_server = pyqtSignal()
     show_logs = pyqtSignal()
+    start_server_button: QPushButton
+    stop_server_button: QPushButton
+    test_server_button: QPushButton
 
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
@@ -379,6 +394,7 @@ class MainTab(QWidget):  # {{{
         l.addStretch(10)
 
     def set_run_at_start_text(self):
+        assert is_set_to_run_at_startup is not None
         is_autostarted = is_set_to_run_at_startup()
         self.run_at_start_button.setText(
             _('Do not start calibre automatically when computer is started') if is_autostarted else
@@ -390,6 +406,8 @@ class MainTab(QWidget):  # {{{
             _('''Start calibre in the system tray automatically when the computer starts''')))
 
     def toggle_run_at_startup(self):
+        assert set_run_at_startup is not None
+        assert is_set_to_run_at_startup is not None
         set_run_at_startup(not is_set_to_run_at_startup())
         self.set_run_at_start_text()
 
@@ -397,7 +415,7 @@ class MainTab(QWidget):  # {{{
         from calibre.gui2.ui import get_gui
         gui = get_gui()
         if gui is not None:
-            t = get_gui().iactions['Connect Share'].share_conn_menu.ip_text
+            t = gui.iactions['Connect Share'].share_conn_menu.ip_text
             t = t.strip().strip('[]')
             self.ip_info.setText(_('Content server listening at: %s') % t)
 
@@ -605,7 +623,7 @@ class ChangeRestriction(QDialog):
 
         self.libraries = t = QWidget(self)
         t.setObjectName('libraries')
-        t.l = QVBoxLayout(self.libraries)
+        self.libraries_layout = QVBoxLayout(self.libraries)
         self.atype = a = QComboBox(self)
         a.addItems([_('All libraries'), _('Only the specified libraries'), _('All except the specified libraries')])
         self.library_restrictions = restriction['library_restrictions'].copy()
@@ -649,7 +667,7 @@ class ChangeRestriction(QDialog):
 
     def clear(self):
         for c in self:
-            self.libraries.l.removeWidget(c)
+            self.libraries_layout.removeWidget(c)
             c.setParent(None)
             c.restriction_changed.disconnect()
             sip.delete(c)
@@ -679,7 +697,7 @@ class ChangeRestriction(QDialog):
                 enable_on_checked=enable_on_checked
             )
             l.restriction_changed.connect(self.restriction_changed)
-            self.libraries.l.addWidget(l)
+            self.libraries_layout.addWidget(l)
             self._items.append(l)
 
     def restriction_changed(self, name, val):
@@ -760,21 +778,25 @@ class User(QWidget):
         self.show_user()
 
     def change_password(self):
+        assert self.user_data is not None
         d = NewUser(self.user_data, self, self.username)
         if d.exec() == QDialog.DialogCode.Accepted:
             self.user_data[self.username]['pw'] = d.password
             self.changed_signal.emit()
 
     def readonly_changed(self):
+        assert self.user_data is not None
         self.user_data[self.username]['readonly'] = not self.rw.isChecked()
         self.changed_signal.emit()
 
     def cpw_changed(self):
+        assert self.user_data is not None
         self.user_data[self.username]['allow_change_password_via_http'] = bool(self.cpw.isChecked())
         self.changed_signal.emit()
 
     def update_restriction(self):
         username, user_data = self.username, self.user_data
+        assert user_data is not None
         r = user_data[username]['restriction']
         if r['allowed_library_names']:
             libs = r['allowed_library_names']
@@ -803,6 +825,7 @@ class User(QWidget):
         self.cpb.setVisible(username is not None)
         self.username_label.setText(('<h2>' + username) if username else '')
         if username:
+            assert user_data is not None
             self.rw.setText(self.ro_text.format(username))
             self.rw.setVisible(True)
             self.rw.blockSignals(True), self.rw.setChecked(
@@ -823,6 +846,7 @@ class User(QWidget):
             self.restrict_button.setVisible(False)
 
     def change_restriction(self):
+        assert self.user_data is not None
         d = ChangeRestriction(
             self.username,
             self.user_data[self.username]['restriction'].copy(),
@@ -991,10 +1015,12 @@ class CustomList(QWidget):  # {{{
     def thumbnail_state_changed(self):
         is_enabled = bool(self.thumbnail.isChecked())
         layout_ = self.layout()
-        assert layout_ is not None
+        assert isinstance(layout_, QFormLayout)
         for w, x in [(self.thumbnail_height, True), (self.entry_height, False)]:
             w.setVisible(is_enabled is x)
-            layout_.labelForField(w).setVisible(is_enabled is x)
+            lbl = layout_.labelForField(w)
+            if lbl is not None:
+                lbl.setVisible(is_enabled is x)
 
     def genesis(self):
         self.current_template = custom_list_template() or self.default_template

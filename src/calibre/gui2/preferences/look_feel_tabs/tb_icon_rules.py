@@ -94,7 +94,7 @@ class CategoryTableWidgetItem(QTableWidgetItem):
     def setText(self, atext):
         self._lookup_name = atext
         if in_library := (self._lookup_name in self._field_metadata):
-            txt = f"{self._field_metadata[self.atext]['name']} ({self._lookup_name})"
+            txt = f"{self._field_metadata[self._lookup_name]['name']} ({self._lookup_name})"
         else:
             txt =  f"{atext} ({_('Not in library')})"
         super().setText(txt)
@@ -242,7 +242,7 @@ class IconColumnDelegate(QStyledItemDelegate):
             d = TemplateDialog(parent=self.parent(), text=self._table.item(row, ICON_COLUMN).text(),
                            mi=v, doing_emblem=True, formatter=EvalFormatter, icon_dir='tb_icons/template_icons')
             if d.exec() == QDialog.DialogCode.Accepted:
-                icon_item.set_text(d.rule[2])
+                icon_item.set_text(d.rule[-1])
                 icon_item.is_modified = True
                 self._changed_signal.emit()
             return
@@ -612,9 +612,11 @@ class TbIconRulesTab(LazyConfigWidgetBase, Ui_Form):
                 self.add_table_row(row, category, value, icon_name, for_children)
                 if d.icon is not None:
                     icon_item = self.rules_table.item(row, ICON_COLUMN)
+                    assert isinstance(icon_item, IconFileTableWidgetItem)
                     icon_item.new_icon = d.icon
                     icon_item.is_modified = True
                 category_item = self.rules_table.item(row, CATEGORY_COLUMN)
+                assert isinstance(category_item, CategoryTableWidgetItem)
                 category_item.is_new = True
             else:
                 # Edit the rule already in the table
@@ -652,6 +654,7 @@ class TbIconRulesTab(LazyConfigWidgetBase, Ui_Form):
             return
         m = QMenu(self)
         if column == CATEGORY_COLUMN:
+            assert isinstance(item, CategoryTableWidgetItem)
             ac = m.addAction(_('Delete this rule'), partial(self.context_menu_handler, 'delete', item))
             assert ac is not None
             ac.setEnabled(not item.is_deleted)
@@ -659,6 +662,7 @@ class TbIconRulesTab(LazyConfigWidgetBase, Ui_Form):
             assert ac is not None
             ac.setEnabled(item.is_deleted)
         elif column in (ICON_COLUMN, FOR_CHILDREN_COLUMN):
+            assert isinstance(item, (IconFileTableWidgetItem, ChildrenTableWidgetItem))
             ac = m.addAction(_('Modify this value'), partial(self.context_menu_handler, 'modify', item))
             assert ac is not None
             ac.setEnabled(not item.is_modified)
@@ -739,6 +743,7 @@ class TbIconRulesTab(LazyConfigWidgetBase, Ui_Form):
         idx = self.rules_table.currentIndex()
         if idx.isValid() and idx.column() == CATEGORY_COLUMN:
             item = self.rules_table.item(idx.row(), idx.column())
+            assert isinstance(item, CategoryTableWidgetItem)
             item.is_deleted = True
             self.changed_signal.emit()
             self.check_button_state(item)
@@ -769,7 +774,7 @@ class TbIconRulesTab(LazyConfigWidgetBase, Ui_Form):
             self.table_column_widths.append(self.rules_table.columnWidth(c))
         gprefs['tag_browser_rules_dialog_table_widths'] = self.table_column_widths
 
-    def resizeEvent(self, a0=...):
+    def resizeEvent(self, a0):
         super().resizeEvent(a0)
         if self.table_column_widths is not None:
             for c,w in enumerate(self.table_column_widths):

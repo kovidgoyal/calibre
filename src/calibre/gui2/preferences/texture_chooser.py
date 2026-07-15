@@ -140,7 +140,7 @@ class TextureChooser(QDialog):
         with open(path, 'rb') as s, open(dest, 'wb') as f:
             shutil.copyfileobj(s, f)
         if fname in existing:
-            self.takeItem(existing[fname])
+            self.images.takeItem(self.images.row(existing[fname]))
         data = {'fname': fname, 'path': dest, 'name': name}
         i = self.create_item(data)
         i.setSelected(True)

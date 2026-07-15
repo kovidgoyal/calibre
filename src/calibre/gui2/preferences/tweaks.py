@@ -396,7 +396,7 @@ class ConfigWidget(ConfigWidgetBase):
         l.addWidget(s, 10)
 
         self.lv = lv = QWidget(self)
-        lv.l = l2 = QVBoxLayout(lv)
+        l2 = QVBoxLayout(lv)
         l2.setContentsMargins(0, 0, 0, 0)
         self.tweaks_view = tv = TweaksView(self)
         l2.addWidget(tv)
@@ -520,7 +520,7 @@ class ConfigWidget(ConfigWidgetBase):
         self.tweaks_view.setModel(self.tweaks)
         tweaks_model = self.tweaks_view.model()
         assert tweaks_model is not None
-        self.tweaks_view.setCurrentIndex(tweaks_model.index(0))
+        self.tweaks_view.setCurrentIndex(tweaks_model.index(0, 0))
 
     def restore_to_default(self, *args):
         idx = self.tweaks_view.currentIndex()

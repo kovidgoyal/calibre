@@ -30,9 +30,12 @@ class TBHierarchicalFields(DisplayedFields):
         self.gui = get_gui(fail_if_absent=True)
 
     def initialize(self, use_defaults=False, pref_data_override=None):
+        from calibre.gui2.tag_browser.model import TagsModel
         tv = self.gui.tags_view
-        cats = [k for k in tv.model().categories.keys() if (not k.startswith('@') and
-                                                            k not in self.cant_make_hierarical)]
+        model = tv.model()
+        assert isinstance(model, TagsModel)
+        cats = [k for k in model.categories.keys() if (not k.startswith('@') and
+                                                        k not in self.cant_make_hierarical)]
         ans = []
         if use_defaults:
             ans = [[k, False] for k in cats]

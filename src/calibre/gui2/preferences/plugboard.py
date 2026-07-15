@@ -49,7 +49,9 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             n = device_name_for_plugboards(device)
             self.device_to_formats_map[n] = set(device.settings().format_map)
             if getattr(device, 'CAN_DO_DEVICE_DB_PLUGBOARD', False):
-                self.device_to_formats_map[n].add('device_db')
+                fmts = self.device_to_formats_map[n]
+                assert isinstance(fmts, set)
+                fmts.add('device_db')
             if n not in self.devices:
                 self.devices.append(n)
 

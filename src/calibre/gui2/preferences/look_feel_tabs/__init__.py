@@ -123,7 +123,10 @@ class DefaultAuthorLink(QWidget):
         else:
             vals = []
             for row in rows:
-                book_id = lv.model().id(row)
+                from calibre.gui2.library.models import BooksModel as _BooksModel
+                lv_model = lv.model()
+                assert isinstance(lv_model, _BooksModel)
+                book_id = lv_model.id(row)
                 mi = db.new_api.get_proxy_metadata(book_id)
                 vals.append({'author': qquote(mi.authors[0]),
                              'title': qquote(mi.title),
@@ -239,9 +242,8 @@ class DisplayedFields(QAbstractListModel):
 class RulesSetting(Setting):
 
     def __init__(self, name, config_obj, widget, gui_name=None, **kw):
-        self.name, self.gui_name = name, gui_name
-        if gui_name is None:
-            self.gui_name = 'opt_'+name
+        self.name = name
+        self.gui_name = gui_name or 'opt_' + name
         self.widget = widget
         self.edit_rules: EditRulesWidget = getattr(widget, self.gui_name)
         self.edit_rules.changed_signal.connect(self.widget.changed_signal)
@@ -356,6 +358,7 @@ class BackgroundConfig(QGroupBox, LazyConfigWidgetBase):
             self.load_from_gprefs()
 
         def load_from_gprefs(self, use_defaults=False):
+            assert self.config_name is not None
             rs = resolve_custom_background
             self.bcol_dark = QColor(*rs(self.config_name, for_dark=True, use_defaults=use_defaults))
             self.bcol_light = QColor(*rs(self.config_name, for_dark=False, use_defaults=use_defaults))
@@ -389,8 +392,9 @@ class BackgroundConfig(QGroupBox, LazyConfigWidgetBase):
 
         def change_color(self, light=False):
             which = _('light') if light else _('dark')
-            col = QColorDialog.getColor(self.bcol_light if light else self.bcol_dark,
-                    self, _('Choose {} background color').format(which))
+            bcol = self.bcol_light if light else self.bcol_dark
+            assert bcol is not None
+            col = QColorDialog.getColor(bcol, self, _('Choose {} background color').format(which))
 
             if col.isValid():
                 if light:
@@ -445,6 +449,7 @@ class BackgroundConfig(QGroupBox, LazyConfigWidgetBase):
             self.changed_signal.emit()
 
         def commit(self, *args):
+            assert self.config_name is not None
             s = gprefs[self.config_name].copy()
             bcol_light = self.bcol_light
             assert bcol_light is not None
@@ -658,8 +663,10 @@ def move_field_down(widget, model, *args, use_kbd_modifiers=True):
 def selected_rows_metadatas():
     rslt = []
     try:
-        db = get_gui().current_db
-        rows = get_gui().current_view().selectionModel().selectedRows()
+        gui = get_gui()
+        assert gui is not None
+        db = gui.current_db
+        rows = gui.current_view().selectionModel().selectedRows()
         for row in rows:
             if row.isValid():
                 rslt.append(db.new_api.get_proxy_metadata(db.data.index_to_id(row.row())))

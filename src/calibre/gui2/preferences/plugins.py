@@ -151,12 +151,12 @@ class PluginModel(QAbstractItemModel, AdaptSQP):  # {{{
         else:
             return self.createIndex(row, column, 0)
 
-    def parent(self, child=...):
+    def parent(self, child=QModelIndex()):
         if not child.isValid() or child.internalId() == 0:
             return QModelIndex()
         return self.createIndex(child.internalId()-1, 0, 0)
 
-    def rowCount(self, parent=None):
+    def rowCount(self, parent=QModelIndex()):
         if not parent.isValid():
             return len(self.categories)
         if parent.internalId() == 0:

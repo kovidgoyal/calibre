@@ -37,6 +37,8 @@ class FakeAction:
 
 class BaseModel(QAbstractListModel):
 
+    _data: list
+
     def name_to_action(self, name, gui):
         if name == 'Donate':
             return FakeAction(
@@ -320,11 +322,11 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
     def _add_action(self, indices):
         all_model = self.all_actions.model()
-        assert all_model is not None
+        assert isinstance(all_model, AllModel)
         names = all_model.names(indices)
         if names:
             cur_model = self.current_actions.model()
-            assert cur_model is not None
+            assert isinstance(cur_model, CurrentModel)
             not_added = cur_model.add(names)
             ns = {y.name for y in not_added}
             added = set(names) - ns
@@ -337,8 +339,8 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             if added:
                 ca = self.current_actions
                 ca_model = ca.model()
-                assert ca_model is not None
-                idx = ca_model.index(ca_model.rowCount(None)-1)
+                assert isinstance(ca_model, CurrentModel)
+                idx = ca_model.index(ca_model.rowCount()-1, 0)
                 ca.scrollTo(idx)
                 self.changed_signal.emit()
 
@@ -352,14 +354,14 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
     def _remove_action(self, indices):
         cur_model = self.current_actions.model()
-        assert cur_model is not None
+        assert isinstance(cur_model, CurrentModel)
         names = cur_model.names(indices)
         if names:
             not_removed = cur_model.remove(indices)
             ns = {y.name for y in not_removed}
             removed = set(names) - ns
             all_model = self.all_actions.model()
-            assert all_model is not None
+            assert isinstance(all_model, AllModel)
             all_model.add(removed)
             if not_removed:
                 warning_dialog(self, _('Cannot remove'),
@@ -376,7 +378,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         if x and len(x):
             i = sm.currentIndex().row()
             m = self.current_actions.model()
-            assert m is not None
+            assert isinstance(m, CurrentModel)
             idx_map = m.move_many(x, delta)
             newci = idx_map.get(i)
             sm.clear()

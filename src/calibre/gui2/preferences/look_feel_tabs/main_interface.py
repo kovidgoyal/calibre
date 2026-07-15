@@ -137,7 +137,7 @@ class MainInterfaceTab(LazyConfigWidgetBase, Ui_Form):
     def build_font_obj(self):
         font_info = qapplication_or_fail().original_font if self.current_font is None else self.current_font
         font = QFont(*(font_info[:4]))
-        font.setStretch(font_info[4])
+        font.setStretch(int(font_info[4]))
         return font
 
     def change_font(self, *args):
