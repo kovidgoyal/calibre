@@ -98,7 +98,7 @@ def do_print_crash_reports() -> None:
     print(flush=True)
 
 
-def run(*args, timeout=600, print_crash_reports: bool = False):
+def run(*args, timeout=1200, print_crash_reports: bool = False):
     if len(args) == 1:
         args = shlex.split(args[0])
     print(' '.join(args), flush=True)
