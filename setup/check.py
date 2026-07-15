@@ -85,15 +85,19 @@ class Check(Command):
     def save_cache(self, cache):
         dump_json(cache, self.cache_file)
 
-    def file_has_errors(self, f):
-        ext = os.path.splitext(f)[1]
+    def _ruff_executable(self):
         ruff = self.j(self.d(self.SRC), '.venv', 'bin', 'ruff')
         if iswindows:
             ruff += '.exe'
         if not os.path.exists(ruff):
             import shutil
             ruff = shutil.which('ruff') or 'ruff'
+        return ruff
+
+    def file_has_errors(self, f):
+        ext = os.path.splitext(f)[1]
         if ext in {'.py', '.pyi', '.recipe'}:
+            ruff = self._ruff_executable()
             if self.auto_fix:
                 p = subprocess.Popen([ruff, 'check', '-q', '--fix', f])
             else:
@@ -124,21 +128,64 @@ class Check(Command):
             if err.errno != errno.ENOENT:
                 raise
         if self.files:
-            dirty_files = tuple(self.files)
+            all_files = tuple(self.files)
         else:
-            dirty_files = tuple(f for f in self.get_files() if not self.is_cache_valid(f, cache))
+            all_files = tuple(f for f in self.get_files() if not self.is_cache_valid(f, cache))
+
+        python_exts = {'.py', '.pyi', '.recipe'}
+        python_files = [f for f in all_files if os.path.splitext(f)[1] in python_exts]
+        other_files = [f for f in all_files if os.path.splitext(f)[1] not in python_exts]
+
         try:
-            for i, f in enumerate(dirty_files):
+            # Check all Python files with a single ruff invocation.
+            bad_python_files = set()
+            if python_files:
+                ruff = self._ruff_executable()
+                ruff_cmd = [ruff, 'check', '-q', '--output-format=json']
+                if self.auto_fix:
+                    ruff_cmd.insert(3, '--fix')
+                p = subprocess.run(
+                    ruff_cmd + python_files,
+                    capture_output=True, text=True,
+                )
+                if p.returncode != 0:
+                    try:
+                        diagnostics = json.loads(p.stdout)
+                        bad_python_files = {d['filename'] for d in diagnostics}
+                    except (json.JSONDecodeError, KeyError):
+                        bad_python_files = set(python_files)
+            for f in python_files:
+                if f not in bad_python_files:
+                    cache[f] = self.file_hash(f)
+
+            # For each Python file that has errors, open editor and re-check individually.
+            bad_list = list(bad_python_files)
+            for i, f in enumerate(bad_list):
+                self.info('\tErrors in', f)
+                self.info(f'{len(bad_list) - i - 1} bad Python files remaining')
+                e = SystemExit(1)
+                if self.no_editor:
+                    raise e
+                try:
+                    edit_file(f)
+                except FileNotFoundError:
+                    raise e
+                if self.file_has_errors(f):
+                    raise e
+                cache[f] = self.file_hash(f)
+
+            # Check non-Python files one by one as before.
+            for i, f in enumerate(other_files):
                 self.info('\tChecking', f)
                 if self.file_has_errors(f):
-                    self.info(f'{len(dirty_files) - i - 1} files left to check')
+                    self.info(f'{len(other_files) - i - 1} files left to check')
                     e = SystemExit(1)
                     if self.no_editor:
                         raise e
                     try:
                         edit_file(f)
                     except FileNotFoundError:
-                        raise e  # raise immediately to skip second check
+                        raise e
                     if self.file_has_errors(f):
                         raise e
                 cache[f] = self.file_hash(f)
