@@ -98,12 +98,20 @@ class RecipesView(QTreeView):
 # Time/date widgets {{{
 
 class Base(QWidget):
+    HELP: str = ''
 
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
         self.l = QGridLayout()
         self.setLayout(self.l)
         self.setToolTip(textwrap.dedent(self.HELP))
+
+    def initialize(self, typ=None, val=None):
+        pass
+
+    @property
+    def schedule(self) -> tuple[str, object]:
+        return '', None
 
 
 class DaysOfWeek(Base):
@@ -142,8 +150,10 @@ class DaysOfWeek(Base):
             val = (-1, 6, 0)
         if typ == 'day/time':
             val = convert_day_time_schedule(val)
+        assert val is not None
 
         days_of_week, hour, minute = val
+        assert isinstance(days_of_week, (tuple, list))
         for i, d in enumerate(self.days):
             d.setChecked(i in days_of_week)
 
@@ -294,7 +304,7 @@ class SchedulerDialog(QDialog):
         # Right Panel
         self.scroll_area_contents = sac = QWidget(self)
         self.l.addWidget(sac, 0, 1, 2, 1)
-        sac.v = v = QVBoxLayout(sac)
+        v = QVBoxLayout(sac)
         v.setContentsMargins(0, 0, 0, 0)
         self.detail_box = QTabWidget(self)
         self.detail_box.setVisible(False)
@@ -305,7 +315,7 @@ class SchedulerDialog(QDialog):
         # First Tab (scheduling)
         self.tab = QWidget()
         self.detail_box.addTab(self.tab, _('&Schedule'))
-        self.tab.v = vt = QVBoxLayout(self.tab)
+        vt = QVBoxLayout(self.tab)
         self.blurb = la = QLabel('blurb')
         la.setWordWrap(True), la.setOpenExternalLinks(True)
         vt.addWidget(la)
@@ -313,11 +323,11 @@ class SchedulerDialog(QDialog):
         vt.addWidget(f)
         f.setFrameShape(QFrame.Shape.StyledPanel)
         f.setFrameShadow(QFrame.Shadow.Raised)
-        f.v = vf = QVBoxLayout(f)
+        vf = QVBoxLayout(f)
         self.schedule = s = QCheckBox(_('&Schedule for download:'), f)
         self.schedule.stateChanged[int].connect(self.toggle_schedule_info)
         vf.addWidget(s)
-        f.h = h = QHBoxLayout()
+        h = QHBoxLayout()
         vf.addLayout(h)
         self.days_of_week = QRadioButton(_('&Days of  week'), f)
         self.days_of_month = QRadioButton(_('Da&ys of month'), f)
@@ -339,12 +349,12 @@ class SchedulerDialog(QDialog):
         self.account = acc = QGroupBox(self.tab)
         acc.setTitle(_('&Account'))
         vt.addWidget(acc)
-        acc.g = g = QGridLayout(acc)
-        acc.unla = la = QLabel(_('&Username:'))
+        g = QGridLayout(acc)
+        la = QLabel(_('&Username:'))
         self.username = un = QLineEdit(self)
         la.setBuddy(un)
         g.addWidget(la), g.addWidget(un, 0, 1)
-        acc.pwla = la = QLabel(_('&Password:'))
+        la = QLabel(_('&Password:'))
         self.password = pw = QLineEdit(self)
         pw.setEchoMode(QLineEdit.EchoMode.Password), la.setBuddy(pw)
         g.addWidget(la), g.addWidget(pw, 1, 1)
@@ -359,7 +369,7 @@ class SchedulerDialog(QDialog):
         # Second tab (advanced settings)
         self.tab2 = t2 = QWidget()
         self.detail_box.addTab(self.tab2, _('&Advanced'))
-        self.tab2.g = g = QFormLayout(t2)
+        g = QFormLayout(t2)
         g.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.AllNonFixedFieldsGrow)
         self.add_title_tag = tt = QCheckBox(_('Add &title as tag'), t2)
         g.addRow(tt)
@@ -514,9 +524,9 @@ class SchedulerDialog(QDialog):
             recipe_model.un_schedule_recipe(urn)
 
         add_title_tag = self.add_title_tag.isChecked()
-        keep_issues = '0'
+        keep_issues = 0
         if self.keep_issues.isEnabled():
-            keep_issues = str(self.keep_issues.value())
+            keep_issues = self.keep_issues.value()
         custom_tags = str(self.custom_tags.text()).strip()
         custom_tags = [x.strip() for x in custom_tags.split(',')]
         from calibre.web.feeds.recipes.collection import RecipeCustomization

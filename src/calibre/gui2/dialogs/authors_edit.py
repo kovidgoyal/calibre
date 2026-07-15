@@ -89,9 +89,9 @@ class List(QListWidget):
             self.mark_as_editable()
 
     def addItems(self, labels):
-        args = (labels,) if labels is not None else ()
         try:
-            return QListWidget.addItems(self, *args)
+            if labels is not None:
+                return QListWidget.addItems(self, labels)
         finally:
             self.mark_as_editable()
 

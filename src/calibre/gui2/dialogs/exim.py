@@ -9,6 +9,7 @@ from threading import Event, Thread
 
 from qt.core import (
     QAbstractItemView,
+    QBoxLayout,
     QDialog,
     QDialogButtonBox,
     QFrame,
@@ -183,8 +184,8 @@ class EximDialog(Dialog):
         l.addWidget(self.bb)
         self.welcome = w = QWidget(self)
         s.addWidget(w)
-        w.l = l = QVBoxLayout(w)
-        w.la = la = QLabel('<p>' + _(
+        l = QVBoxLayout(w)
+        la = QLabel('<p>' + _(
             'You can export all calibre data, including your books, settings and plugins'
             ' into a single folder. Then, you can use this tool to re-import all that'
             ' data into a different calibre install, for example, on another computer.') + '<p>' +
@@ -214,8 +215,8 @@ class EximDialog(Dialog):
     def setup_export_panel(self):
         self.export_panel = w = QWidget(self)
         self.stack.addWidget(w)
-        w.l = l = QVBoxLayout(w)
-        w.la = la = QLabel(_('Select which libraries you want to export below'))
+        l = QVBoxLayout(w)
+        la = QLabel(_('Select which libraries you want to export below'))
         la.setWordWrap(True), l.addWidget(la)
         self.lib_list = ll = QListWidget(self)
         l.addWidget(ll)
@@ -251,14 +252,14 @@ class EximDialog(Dialog):
     def setup_import_panel(self):
         self.import_panel = w = QWidget(self)
         self.stack.addWidget(w)
-        w.stack = s = QStackedLayout(w)
+        self.import_panel_stack = s = QStackedLayout(w)
         self.ig = w = QWidget()
         s.addWidget(w)
-        w.l = l = QVBoxLayout(w)
-        w.wla = la = QLabel(_('<b style="color: red">WARNING</b>: do not import calibre data you get from an untrusted source, as that is a security risk.'))
+        l = QVBoxLayout(w)
+        la = QLabel(_('<b style="color: red">WARNING</b>: do not import calibre data you get from an untrusted source, as that is a security risk.'))
         la.setWordWrap(True)
         l.addWidget(la)
-        w.la = la = QLabel(_('Specify the folder containing the previously exported calibre data that you'
+        la = QLabel(_('Specify the folder containing the previously exported calibre data that you'
                              ' wish to import.'))
         la.setWordWrap(True)
         l.addWidget(la)
@@ -271,8 +272,8 @@ class EximDialog(Dialog):
         s.addWidget(w)
         self.slp = w = QWidget(self)
         self.select_libraries_panel.setWidget(w)
-        w.l = l = QVBoxLayout(w)
-        w.la = la = QLabel(_('Specify locations for the libraries you want to import. A location must be an empty folder'
+        l = QVBoxLayout(w)
+        la = QLabel(_('Specify locations for the libraries you want to import. A location must be an empty folder'
                              ' on your computer. If you leave any blank, those libraries will not be imported.'))
         la.setWordWrap(True)
         l.addWidget(la)
@@ -294,13 +295,13 @@ class EximDialog(Dialog):
             return error_dialog(self, _('Not valid'), _(
                 'The folder {0} is not valid: {1}').format(path, as_unicode(e)), det_msg=traceback.format_exc(), show=True)
         self.setup_select_libraries_panel()
-        self.import_panel.stack.setCurrentIndex(1)
+        self.import_panel_stack.setCurrentIndex(1)
 
     def setup_select_libraries_panel(self):
         self.imported_lib_widgets = []
         self.frames = []
         l = self.slp.layout()
-        assert l is not None
+        assert isinstance(l, QBoxLayout)
         for lpath in sorted(self.importer.metadata['libraries'], key=lambda x: numeric_sort_key(os.path.basename(x))):
             f = QFrame(self)
             self.frames.append(f)
@@ -320,7 +321,7 @@ class EximDialog(Dialog):
                     'Cannot import while the Content server is running, shut it down first by clicking the'
                     ' "Connect/share" button on the calibre toolbar'), show=True)
                 return False
-        if self.import_panel.stack.currentIndex() == 0:
+        if self.import_panel_stack.currentIndex() == 0:
             error_dialog(self, _('No folder selected'), _(
                 'You must select a folder containing the previously exported data that you wish to import'), show=True)
             return False

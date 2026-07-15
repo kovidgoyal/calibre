@@ -149,13 +149,13 @@ class AskImage(Dialog):
         vr.addLayout(h)
         la = QLabel(_('&Width:'))
         h.addWidget(la)
-        self.width = w = QSpinBox(self)
+        self.width_spin = w = QSpinBox(self)
         w.setRange(0, 10000), w.setSuffix(' px')
         h.addWidget(w), la.setBuddy(w)
         w.setSpecialValueText(' ')
         la = QLabel(_('&Height:'))
         h.addWidget(la)
-        self.height = w = QSpinBox(self)
+        self.height_spin = w = QSpinBox(self)
         w.setRange(0, 10000), w.setSuffix(' px')
         h.addWidget(w), la.setBuddy(w)
         w.setSpecialValueText(' ')
@@ -211,7 +211,7 @@ class AskImage(Dialog):
 
     @property
     def bounding_size(self) -> tuple[int, int]:
-        return (self.width.value() or sys.maxsize), (self.height.value() or sys.maxsize)
+        return (self.width_spin.value() or sys.maxsize), (self.height_spin.value() or sys.maxsize)
 # }}}
 
 
@@ -219,7 +219,9 @@ class NoteEditorWidget(EditorWidget):
 
     insert_images_separately = True
     db = field = item_id = item_val = None
-    images = None
+    images: dict[str, ImageResource] | None = None
+    searchable_text: str = ''
+    referenced_resources: set[str]
     can_store_images = True
 
     def resource_digest_from_qurl(self, qurl):
@@ -242,6 +244,7 @@ class NoteEditorWidget(EditorWidget):
         return db.get_notes_resource(digest)
 
     def add_resource(self, path_or_data, name):
+        assert self.images is not None
         if isinstance(path_or_data, str):
             with open(path_or_data, 'rb') as f:
                 data = f.read()
@@ -266,6 +269,7 @@ class NoteEditorWidget(EditorWidget):
             return r
 
     def commit_downloaded_image(self, data, suggested_filename):
+        assert self.images is not None
         digest = hash_data(data)
         if digest in self.images:
             ir = self.images[digest]
@@ -297,6 +301,7 @@ class NoteEditorWidget(EditorWidget):
     def do_insert_image(self):
         # See https://bugreports.qt.io/browse/QTBUG-118537
         # for why we can't have a nice margin for floating images
+        assert self.images is not None
         d = AskImage(self.images, self.db)
         if d.exec() == QDialog.DialogCode.Accepted and d.current_digest:
             ir = self.images[d.current_digest]
@@ -317,6 +322,7 @@ class NoteEditorWidget(EditorWidget):
 class NoteEditor(Editor):
 
     editor_class = NoteEditorWidget
+    editor: NoteEditorWidget
 
     def get_doc(self):
         self.editor.referenced_resources = set()
@@ -325,6 +331,7 @@ class NoteEditor(Editor):
         self.tabs.setCurrentIndex(0)
         html = self.editor.html
         self.tabs.setCurrentIndex(idx)
+        assert self.editor.images is not None
         return html, self.editor.searchable_text, self.editor.referenced_resources, self.editor.images.values()
 
     def export_note(self):
@@ -357,9 +364,11 @@ class EditNoteWidget(QWidget):
     def commit(self):
         doc, searchable_text, resources, resources_to_add = self.editor.get_doc()
         s = self.editor.editor
+        db = s.db
+        assert db is not None
         for ir in resources_to_add:
-            s.db.add_notes_resource(ir.data or ir.path, ir.name)
-        s.db.set_notes_for(s.field, s.item_id, doc, searchable_text, resources)
+            db.add_notes_resource(ir.data or ir.path, ir.name)
+        db.set_notes_for(s.field, s.item_id, doc, searchable_text, resources)
         return True
 
 

@@ -19,7 +19,7 @@ class ChooseMultiSort(Dialog):
 
     def __init__(self, db, is_device_connected=False, parent=None, hidden_pref=SORT_HIDDEN_PREF):
         self.db = db.new_api
-        self.hidden_fields = set(self.db.pref(SORT_HIDDEN_PREF, default=()) or ())
+        self.hidden_fields: set[str] = set(self.db.pref(SORT_HIDDEN_PREF, default=()) or ())
         if not is_device_connected:
             self.hidden_fields.add('ondevice')
         fm = self.db.field_metadata

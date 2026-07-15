@@ -274,10 +274,12 @@ class DisplayPlugin:
         self.forum_link = plugin['thread_url']
         self.zip_url = SERVER + plugin['file']
         self.installed_version = None
+        self.plugin = None
         self.description = plugin['description']
         self.donation_link = plugin['donate']
         self.available_version = tuple(plugin['version'])
-        self.release_date = datetime.datetime(*tuple(map(int, re.split(r'\D', plugin['last_modified'])))[:6]).date()
+        _dp = [int(x) for x in re.split(r'\D', plugin['last_modified'])]
+        self.release_date = datetime.date(_dp[0], _dp[1], _dp[2])
         self.calibre_required_version = tuple(plugin['minimum_calibre_version'])
         self.author = plugin['author']
         self.category = plugin.get('category', '')
@@ -307,7 +309,7 @@ class DisplayPlugin:
     def is_upgrade_available(self):
         if isinstance(self.installed_version, str):
             return True
-        return self.is_installed() and (self.installed_version < self.available_version or self.is_deprecated)
+        return self.is_installed() and self.installed_version is not None and (self.installed_version < self.available_version or self.is_deprecated)
 
     def is_valid_platform(self):
         if iswindows:
@@ -335,7 +337,7 @@ class DisplayPluginSortFilterModel(QSortFilterProxyModel):
 
     def filterAcceptsRow(self, source_row, source_parent):
         source_model = self.sourceModel()
-        assert source_model is not None
+        assert isinstance(source_model, DisplayPluginModel)
         index = source_model.index(source_row, 0, source_parent)
         display_plugin = source_model.display_plugins[index.row()]
         matches_filters = display_plugin.name_matches_filter(self.filter_text) and display_plugin.category_matches_filter(self.filter_by_category)
@@ -507,6 +509,7 @@ class DisplayPluginModel(QAbstractTableModel):
             return (_('You can install this plugin')+'\n\n'+
                             _('Right-click to see more options'))
         try:
+            assert display_plugin.installed_version is not None
             if display_plugin.installed_version < display_plugin.available_version:
                 return (_('A new version of this plugin is available')+'\n\n'+
                                 _('Right-click to see more options'))

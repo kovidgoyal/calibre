@@ -190,7 +190,7 @@ class MatchBooks(QDialog, Ui_MatchBooks):
 
     # Deal with sizing the table columns. Done here because the numbers are not
     # correct until the first paint.
-    def resizeEvent(self, a0=...):
+    def resizeEvent(self, a0=None):
         QDialog.resizeEvent(self, a0)
         if self.books_table_column_widths is not None:
             for c,w in enumerate(self.books_table_column_widths):
@@ -246,6 +246,7 @@ class MatchBooks(QDialog, Ui_MatchBooks):
         mi = self.library_db.get_metadata(self.current_library_book_id,
                               index_is_id=True, get_user_categories=False,
                               get_cover=True)
+        assert self.device_db is not None
         book = self.device_db[self.current_device_book_id]
         book.smart_update(mi, replace_metadata=True)
         gui = self.gui

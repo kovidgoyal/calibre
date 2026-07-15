@@ -130,7 +130,7 @@ class ConnectToFolder(Dialog):
         fe.setClearButtonEnabled(True)
         l.addWidget(dg)
         l.addWidget(self.bb)
-        dg.l = l = QVBoxLayout(dg)
+        l = QVBoxLayout(dg)
         self.devices = d = QTreeView(self)
         self.devices_model = m = Model(d)
         self.proxy_model = p = QSortFilterProxyModel(d)

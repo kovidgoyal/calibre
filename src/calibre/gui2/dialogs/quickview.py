@@ -335,6 +335,7 @@ class Quickview(QDialog, Ui_Quickview):
         gui.focus_current_view()
 
     def delayed_slave(self, current, func=None, dex=None):
+        assert func is not None and dex is not None
         self.slave_timers[dex].stop()
         t = self.slave_timers[dex] = QTimer(self)
         t.timeout.connect(partial(func, current))
@@ -347,7 +348,8 @@ class Quickview(QDialog, Ui_Quickview):
         assert gui is not None
         tb = gui.tb_widget
         tb.set_focus_to_find_box()
-        tb.item_search.lineEdit().setText(self.current_key + ':=' + item.text())
+        if self.current_key is not None:
+            tb.item_search.lineEdit().setText(self.current_key + ':=' + item.text())
         tb.do_find()
 
     def show_item_context_menu(self, point):
@@ -534,7 +536,8 @@ class Quickview(QDialog, Ui_Quickview):
         if self.no_valid_items:
             return
         self.fill_in_books_box(str(txt))
-        self.set_search_text(self.current_key + ':"=' + txt.replace('"', '\\"') + '"')
+        if self.current_key is not None:
+            self.set_search_text(self.current_key + ':"=' + txt.replace('"', '\\"') + '"')
 
     def vl_box_changed(self):
         gprefs['qv_respects_vls'] = self.apply_vls.isChecked()
@@ -669,6 +672,7 @@ class Quickview(QDialog, Ui_Quickview):
             sv = '.' + selected_item
         else:
             sv = selected_item
+        assert self.current_key is not None
         sv = self.current_key + ':"=' + sv.replace('"', r'\"') + '"'
         db = self.db
         assert db is not None
@@ -753,7 +757,7 @@ class Quickview(QDialog, Ui_Quickview):
 
     # Deal with sizing the table columns. Done here because the numbers are not
     # correct until the first paint.
-    def resizeEvent(self, a0=...):
+    def resizeEvent(self, a0=None):
         QDialog.resizeEvent(self, a0)
 
         if self.books_table_column_widths is not None:

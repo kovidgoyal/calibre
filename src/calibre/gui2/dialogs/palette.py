@@ -238,7 +238,7 @@ class PaletteConfig(Dialog):
             l.addWidget(la)
         h = QHBoxLayout()
         self.la = la = QLabel(_('Color &palette'))
-        self.palette = p = QComboBox(self)
+        self.palette_combo = p = QComboBox(self)
         p.addItem(_('System default'), 'system')
         p.addItem(_('Light'), 'light')
         p.addItem(_('Dark'), 'dark')
@@ -293,7 +293,7 @@ class PaletteConfig(Dialog):
 
     def apply_settings(self):
         with gprefs:
-            gprefs['color_palette'] = str(self.palette.currentData())
+            gprefs['color_palette'] = str(self.palette_combo.currentData())
             self.light_tab.apply_settings()
             self.dark_tab.apply_settings()
         app = Application.instance()

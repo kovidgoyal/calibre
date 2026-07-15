@@ -22,7 +22,7 @@ class TemplateLineEditor(QLineEdit):
         QLineEdit.__init__(self, parent)
         try:
             from calibre.gui2.ui import get_gui
-            gui = get_gui()
+            gui = get_gui(fail_if_absent=True)
             view = gui.library_view
             db = gui.current_db
             mi = []

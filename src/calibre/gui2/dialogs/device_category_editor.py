@@ -45,7 +45,7 @@ class ListWidgetItem(QListWidgetItem):
 
     def setText(self, atext):
         self.current_value = atext
-        QListWidgetItem.setText(atext)
+        QListWidgetItem.setText(self, atext)
 
 
 class DeviceCategoryEditor(QDialog, Ui_DeviceCategoryEditor):

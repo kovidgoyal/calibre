@@ -42,21 +42,41 @@ class Icon(QWidget):
         QWidget.__init__(self, parent)
         self.pixmap = None
         self.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
-        self.size = size or 64
+        self.icon_size = size or 64
 
     def set_icon(self, qicon):
-        self.pixmap = qicon.pixmap(self.size, self.size)
+        self.pixmap = qicon.pixmap(self.icon_size, self.icon_size)
         self.update()
 
     def sizeHint(self):
-        return QSize(self.size, self.size)
+        return QSize(self.icon_size, self.icon_size)
 
     def paintEvent(self, a0):
         if self.pixmap is not None:
-            x = (self.width() - self.size) // 2
-            y = (self.height() - self.size) // 2
+            x = (self.width() - self.icon_size) // 2
+            y = (self.height() - self.icon_size) // 2
             p = QPainter(self)
-            p.drawPixmap(x, y, self.size, self.size, self.pixmap)
+            p.drawPixmap(x, y, self.icon_size, self.icon_size, self.pixmap)
+
+
+def might_be_rich_text(text: str) -> bool:
+    import re
+    if not text:
+        return False
+
+    # Qt looks at the text before the first line break
+    first_line = text.split('\n', 1)[0]
+
+    # 1. Check for common HTML entity references (e.g., &amp;, &#123;)
+    if '&' in first_line and re.search(r'&#?[a-zA-Z0-9]+;', first_line):
+        return True
+
+    # 2. Check for an HTML tag sequence: <tag...>, </tag>, or <tag/>
+    # Qt looks for '<' followed by an alphanumeric character, '/' or '!'
+    if '<' in first_line and re.search(r'<[a-zA-Z!/]', first_line):
+        return True
+
+    return False
 
 
 class MessageBox(QDialog):  # {{{
@@ -124,7 +144,7 @@ class MessageBox(QDialog):  # {{{
         self.setWindowIcon(self.icon)
         self.icon_widget.set_icon(self.icon)
         self.msg.setText(msg)
-        if det_msg and Qt.mightBeRichText(det_msg):
+        if det_msg and might_be_rich_text(det_msg):
             self.det_msg.setHtml(det_msg)
         else:
             self.det_msg.setPlainText(det_msg)
@@ -236,7 +256,7 @@ class MessageBox(QDialog):  # {{{
     def set_details(self, msg):
         if not msg:
             msg = ''
-        if Qt.mightBeRichText(msg):
+        if might_be_rich_text(msg):
             self.det_msg.setHtml(msg)
         else:
             self.det_msg.setPlainText(msg)

@@ -51,7 +51,7 @@ class DBCheck(QDialog):  # {{{
         self.vacuum_started = False
         self.finished_vacuum.connect(self.accept, type=Qt.ConnectionType.QueuedConnection)
         self.error = None
-        self.rejected = False
+        self.was_rejected = False
 
         s = QStackedLayout(self)
         s.setContentsMargins(0, 0, 0, 0)
@@ -116,7 +116,7 @@ class DBCheck(QDialog):  # {{{
         QApplication.setOverrideCursor(QCursor(Qt.CursorShape.WaitCursor))
         self.vacuum_started = True
         db = self.db()
-        t = self.thread = Thread(target=self.vacuum, args=(
+        self._worker = t = Thread(target=self.vacuum, args=(
             db, self.fts.isChecked(), self.notes.isChecked(), self.annots.isChecked()), daemon=True, name='VacuumDB')
         t.start()
 
@@ -129,7 +129,7 @@ class DBCheck(QDialog):  # {{{
         self.finished_vacuum.emit()
 
     def reject(self):
-        self.rejected = True
+        self.was_rejected = True
         if self.vacuum_started:
             return
         return QDialog.reject(self)
@@ -143,7 +143,7 @@ class DBCheck(QDialog):  # {{{
     def break_cycles(self):
         if self.vacuum_started:
             QApplication.restoreOverrideCursor()
-        self.thread = None
+        self._worker = None
 
 # }}}
 

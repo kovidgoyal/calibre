@@ -16,7 +16,6 @@ from calibre.constants import filesystem_encoding, get_portable_base, iswindows
 from calibre.gui2 import choose_dir, error_dialog
 from calibre.gui2.dialogs.choose_library_ui import Ui_Dialog
 from calibre.gui2.dialogs.progress import ProgressDialog as PD
-from calibre.gui2.init import LibraryViewMixin
 from calibre.utils.localization import _, localize_user_manual_link
 
 
@@ -140,9 +139,8 @@ class ChooseLibrary(QDialog, Ui_Dialog):
             abort_move = Event()
             pd = ProgressDialog(_('Moving library, please wait...'), _('Scanning...'), max=0, min=0, icon='lt.png', parent=self)
             pd.canceled_signal.connect(abort_move.set)
-            p = self.parent()
-            assert isinstance(p, LibraryViewMixin)
-            p.library_view.model().stop_metadata_backup()
+            from calibre.gui2.ui import get_gui
+            get_gui(fail_if_absent=True).library_view._model.stop_metadata_backup()
             move_error = []
 
             def do_move():

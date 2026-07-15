@@ -19,8 +19,9 @@ from calibre.utils.localization import _
 class Display(HTMLDisplay):
     notes_resource_scheme = RESOURCE_URL_SCHEME
 
-    def __init__(self, parent=None):
+    def __init__(self, parent: ShowNoteDialog):
         super().__init__(parent)
+        self._parent = parent
         doc = self.document()
         assert doc is not None
         doc.setDefaultStyleSheet(resolved_css() + '\n\nli { margin-top: 0.5ex; margin-bottom: 0.5ex; }')
@@ -32,9 +33,7 @@ class Display(HTMLDisplay):
 
     def loadResource(self, type, name):
         if name.scheme() == RESOURCE_URL_SCHEME and int(type) == int(QTextDocument.ResourceType.ImageResource):
-            parent = self.parent()
-            assert parent is not None
-            db = parent.db
+            db = self._parent.db
             resource = db.get_notes_resource(f'{name.host()}:{name.path()[1:]}')
             if resource is not None:
                 return QByteArray(resource['data'])

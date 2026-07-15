@@ -6,6 +6,7 @@ import numbers
 from collections import defaultdict, namedtuple
 from io import BytesIO
 from threading import Thread
+from typing import cast
 
 import regex
 from qt.core import (
@@ -38,7 +39,7 @@ from calibre.gui2.custom_column_widgets import populate_metadata_page
 from calibre.gui2.dialogs.metadata_bulk_ui import Ui_MetadataBulkDialog
 from calibre.gui2.dialogs.tag_editor import TagEditor
 from calibre.gui2.dialogs.template_dialog import TemplateDialog
-from calibre.gui2.widgets import LineEditECM, setup_status_actions, update_status_actions
+from calibre.gui2.widgets import LineEditECM, LineEditIndicatorsProtocol, setup_status_actions, update_status_actions
 from calibre.startup import connect_lambda
 from calibre.utils.config import JSONConfig, dynamic, prefs, tweaks
 from calibre.utils.date import internal_iso_format_string, qt_to_dt
@@ -117,9 +118,9 @@ class MyBlockingBusy(QDialog):  # {{{
             print(options)
 
         self.msg = QLabel(_('Processing %d books, please wait...') % len(ids))
-        self.font = QFont()
-        self.font.setPointSize(self.font.pointSize() + 8)
-        self.msg.setFont(self.font)
+        self._label_font = QFont()
+        self._label_font.setPointSize(self._label_font.pointSize() + 8)
+        self.msg.setFont(self._label_font)
         self.current_step_pb = QProgressBar(self)
         self.current_step_pb.setFormat(_('Current step progress: %p %'))
         if self.selected_options > 1:
@@ -188,8 +189,8 @@ class MyBlockingBusy(QDialog):  # {{{
         QDialog.accept(self)
 
     def exec(self):
-        self.thread = Thread(target=self.do_it)
-        self.thread.start()
+        self._worker = Thread(target=self.do_it)
+        self._worker.start()
         return QDialog.exec(self)
     exec_ = exec
 
@@ -555,6 +556,8 @@ class MyBlockingBusy(QDialog):  # {{{
 
 class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
 
+    book_1_text: QLineEdit
+
     s_r_functions = {
         '': lambda x: x,
         _('Lower Case'): icu_lower,
@@ -575,7 +578,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
     def __init__(self, window, rows, model, starting_tab, refresh_books):
         QDialog.__init__(self, window)
         self.setupUi(self)
-        setup_status_actions(self.test_result)
+        setup_status_actions(cast(LineEditIndicatorsProtocol, self.test_result))
         self.series.set_sort_func(title_sort)
         self.model = model
         self.db = model.db
@@ -962,6 +965,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
             elif not fm['is_multiple']:
                 val = [val]
             elif fm['datatype'] == 'composite':
+                assert isinstance(val, str)
                 val = [v2.strip() for v2 in val.split(fm['is_multiple']['ui_to_list'])]
             elif field == 'authors':
                 val = [v2.replace('|', ',') for v2 in val]
@@ -1076,7 +1080,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         if self.s_r_error is not None:
             tt = error_message(self.s_r_error)
             self.test_result.setText(tt)
-        update_status_actions(self.test_result, self.s_r_error is None, tt)
+        update_status_actions(cast(LineEditIndicatorsProtocol, self.test_result), self.s_r_error is None, tt)
         for i in range(self.s_r_number_of_books):
             getattr(self, f'book_{i + 1}_result').setText('')
 
@@ -1263,6 +1267,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         if not val and dfm['datatype'] == 'datetime':
             val = None
         if dfm['datatype'] == 'rating':
+            assert val is not None and not isinstance(val, dict)
             if (not val or int(val) == 0):
                 val = None
             if dest == 'rating' and val:
@@ -1437,7 +1442,8 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         finally:
             self.model.start_metadata_backup()
 
-        bb.thread = bb.db = bb.cc_widgets = None
+        bb.db = bb.cc_widgets = None
+        del bb._worker
 
         if bb.error is not None:
             return error_dialog(self, _('Failed'),

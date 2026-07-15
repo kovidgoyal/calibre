@@ -204,12 +204,13 @@ class ListView(QListView):
                         return True
         return False
 
-    def dragEnterEvent(self, e=None):
-        if self.is_drop_event_ok(e):
+    def dragEnterEvent(self, e: QDropEvent | None = None):
+        if e is not None and self.is_drop_event_ok(e):
             e.accept()
 
-    def dragMoveEvent(self, e=None):
-        e.accept()
+    def dragMoveEvent(self, e: QDropEvent | None = None):
+        if e is not None:
+            e.accept()
 
     def dropEvent(self, e):
         files = []

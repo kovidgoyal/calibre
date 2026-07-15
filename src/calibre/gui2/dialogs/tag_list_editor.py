@@ -68,7 +68,7 @@ class NameTableWidgetItem(QTableWidgetItem):
         if to_what:
             self.setIcon(QIcon.cached_icon('trash.png'))
         else:
-            self.setIcon(QIcon.cached_icon())
+            self.setIcon(QIcon.cached_icon(''))
             self.current_value = self.initial_value
         self.is_deleted = to_what
 
@@ -181,7 +181,7 @@ class NotesUtilities:
         with block_signals(self.table):
             if id_ not in self.modified_notes:
                 if not has_value:
-                    item.setIcon(QIcon.cached_icon())
+                    item.setIcon(QIcon.cached_icon(''))
                     item.set_sort_val(NotesTableWidgetItem.EMPTY)
                 else:
                     item.setIcon(QIcon.cached_icon('notes.png'))
@@ -190,7 +190,7 @@ class NotesUtilities:
                 item.setIcon(QIcon.cached_icon('modified.png'))
                 item.set_sort_val(NotesTableWidgetItem.EDITED)
             elif not bool(self.modified_notes[id_]):
-                item.setIcon(QIcon.cached_icon())
+                item.setIcon(QIcon.cached_icon(''))
                 item.set_sort_val(NotesTableWidgetItem.EMPTY)
             else:
                 item.setIcon(QIcon.cached_icon('trash.png'))
@@ -483,6 +483,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         ca.setEnabled(not is_deleted)
 
     def value_context_menu(self, menu, item):
+        assert isinstance(item, NameTableWidgetItem)
         m = menu
         table = self.table
         assert table is not None
@@ -586,7 +587,9 @@ class TagListEditor(QDialog, Ui_TagListEditor):
             if len(rows) > 0:
                 current_row = rows[0].row()
                 current_col = view.column_map.index(self.category)
-                index = view.model().index(current_row, current_col)
+                vm = view.model()
+                assert vm is not None
+                index = vm.index(current_row, current_col)
                 qv.change_quickview_column(index, show=False)
 
     def copy_to_clipboard(self, item):
@@ -675,7 +678,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         self.central_layout.addWidget(self.table)
 
         self.table.setAlternatingRowColors(True)
-        self.table.setSelectionMode(QAbstractItemView.ExtendedSelection)
+        self.table.setSelectionMode(QAbstractItemView.SelectionMode.ExtendedSelection)
         self.table.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectItems)
 
         hh = self.table.horizontalHeader()
@@ -753,7 +756,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
             if self.link_is_edited(id_):
                 item.setIcon(QIcon.cached_icon('modified.png'))
             else:
-                item.setIcon(QIcon.cached_icon())
+                item.setIcon(QIcon.cached_icon(''))
 
     def fill_in_table(self, tags, tag_to_match, ttm_is_first_letter):
         self.create_table()
@@ -903,7 +906,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         for c in range(table.columnCount()):
             self.table_column_widths.append(table.columnWidth(c))
 
-    def resizeEvent(self, a0=...):
+    def resizeEvent(self, a0=None):
         QDialog.resizeEvent(self, a0)
         table = self.table
         assert table is not None
@@ -935,6 +938,8 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         with block_signals(table):
             table.setSortingEnabled(False)
             for item in items:
+                if not isinstance(item, NameTableWidgetItem):
+                    continue
                 if item.row() != on_row:
                     item.set_placeholder(_('Editing...'))
                 else:
@@ -948,7 +953,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         items = table.selectedItems()
         with block_signals(table):
             for item in items:
-                if item.row() != on_row and item.is_placeholder:
+                if isinstance(item, NameTableWidgetItem) and item.row() != on_row and item.is_placeholder:
                     item.reset_placeholder()
             table.setSortingEnabled(True)
 
@@ -989,6 +994,8 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         items = table.selectedItems()
         with block_signals(table):
             for item in items:
+                if not isinstance(item, NameTableWidgetItem):
+                    continue
                 id_ = int(item.data(Qt.ItemDataRole.UserRole))
                 self.to_rename[id_] = new_text
                 orig = table.item(item.row(), WAS_COLUMN)
@@ -998,7 +1005,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
                     item.setIcon(QIcon.cached_icon('modified.png'))
                     orig.setData(Qt.ItemDataRole.DisplayRole, item.initial_text())
                 else:
-                    item.setIcon(QIcon.cached_icon())
+                    item.setIcon(QIcon.cached_icon(''))
                     orig.setData(Qt.ItemDataRole.DisplayRole, '')
 
     def undo_link_edit(self, item, item_id):
@@ -1013,9 +1020,10 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         assert link_item is not None
         link_item.setFlags(link_item.flags() | Qt.ItemFlag.ItemIsEditable | Qt.ItemFlag.ItemIsSelectable)
         link_item.setText(link_txt)
-        link_item.setIcon(QIcon.cached_icon())
+        link_item.setIcon(QIcon.cached_icon(''))
 
     def undo_value_edit(self, item, item_id):
+        assert isinstance(item, NameTableWidgetItem)
         with block_signals(self.table):
             item.setText(item.initial_text())
             self.to_rename.pop(item_id, None)
@@ -1025,7 +1033,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
             was_item = table.item(row, WAS_COLUMN)
             assert was_item is not None
             was_item.setData(Qt.ItemDataRole.DisplayRole, '')
-            item.setIcon(QIcon.cached_icon('modified.png') if item.text_is_modified() else QIcon.cached_icon())
+            item.setIcon(QIcon.cached_icon('modified.png') if item.text_is_modified() else QIcon.cached_icon(''))
 
     def undo_edit(self):
         table = self.table
@@ -1042,7 +1050,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
             return
         with block_signals(table):
             for col_zero_item in col_zero_items:
-                assert col_zero_item is not None
+                assert isinstance(col_zero_item, NameTableWidgetItem)
                 id_ = self.get_item_id(col_zero_item)
                 row = col_zero_item.row()
 
@@ -1059,7 +1067,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
                 notes_item.setFlags(notes_item.flags() | Qt.ItemFlag.ItemIsEditable | Qt.ItemFlag.ItemIsSelectable)
                 if id_ in self.notes_utilities.modified_notes:
                     self.notes_utilities.undo_note_edit(notes_item)
-                    notes_item.setIcon(QIcon.cached_icon())
+                    notes_item.setIcon(QIcon.cached_icon(''))
 
     def selection_changed(self):
         table = self.table
@@ -1107,7 +1115,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         with block_signals(table):
             for col_zero_item in (table.item(item.row(), VALUE_COLUMN)
                                   for item in table.selectedItems()):
-                assert col_zero_item is not None
+                assert isinstance(col_zero_item, NameTableWidgetItem)
                 # undelete any deleted items
                 if col_zero_item.is_deleted:
                     col_zero_item.set_is_deleted(False)
@@ -1147,6 +1155,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
             return
         to_del = []
         for item in deletes:
+            assert isinstance(item, NameTableWidgetItem)
             if not item.is_deleted:
                 to_del.append(item)
 
@@ -1160,6 +1169,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         row = table.row(deletes[0])
         with block_signals(table):
             for item in deletes:
+                assert isinstance(item, NameTableWidgetItem)
                 id_ = int(item.data(Qt.ItemDataRole.UserRole))
                 self.to_delete.add(id_)
                 item.set_is_deleted(True)

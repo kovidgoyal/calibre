@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2020, Charles Haley
 
+from typing import cast
+
 from qt.core import (
     QAbstractItemView,
     QColor,
@@ -129,7 +131,7 @@ class EnumValuesEdit(QDialog):
             item = self.table.item(row, self.COUNT_COLUMN)
             if item is not None:
                 count = self.name_to_count.get(lower(val_item.text()))
-                item.set_count(count)
+                cast(CountTableWidgetItem, item).set_count(count)
             txt = val_item.text()
             orig_txt = str(val_item.data(Qt.ItemDataRole.UserRole))
             was_item = self.table.item(row, self.WAS_COLUMN)
