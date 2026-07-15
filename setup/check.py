@@ -11,7 +11,7 @@ import json
 import os
 import subprocess
 
-from setup import Command, build_cache_dir, dump_json, edit_file
+from setup import Command, build_cache_dir, dump_json, edit_file, iswindows
 
 
 class Message:
@@ -87,11 +87,17 @@ class Check(Command):
 
     def file_has_errors(self, f):
         ext = os.path.splitext(f)[1]
+        ruff = self.j(self.d(self.SRC), '.venv', 'bin', 'ruff')
+        if iswindows:
+            ruff += '.exe'
+        if not os.path.exists(ruff):
+            import shutil
+            ruff = shutil.which('ruff') or 'ruff'
         if ext in {'.py', '.pyi', '.recipe'}:
             if self.auto_fix:
-                p = subprocess.Popen(['ruff', 'check', '-q', '--fix', f])
+                p = subprocess.Popen([ruff, 'check', '-q', '--fix', f])
             else:
-                p = subprocess.Popen(['ruff', 'check', '-q', f])
+                p = subprocess.Popen([ruff, 'check', '-q', f])
             return p.wait() != 0
         if ext == '.pyj':
             p = subprocess.Popen(['rapydscript', 'lint', f])

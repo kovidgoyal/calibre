@@ -67,6 +67,9 @@ jobs:
             - name: Bootstrap calibre
               run: runuser -u ci -- python setup.py bootstrap --ephemeral --debug --sanitize
 
+            - name: Run type checker
+              run: ./setup.py type_check
+
             - name: Run linter
               run: ./setup.py check
 

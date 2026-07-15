@@ -88,7 +88,7 @@ requires = [
 ]
 [dependency-groups]
 dev = [
-    "ruff >= 0.15.0",
+    "ruff >= 0.15.21",
     "types-lxml >= 2026.2.16",
     "ty >= 0.0.59",
 ]
