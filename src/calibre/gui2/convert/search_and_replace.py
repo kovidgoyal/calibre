@@ -135,7 +135,7 @@ class SearchAndReplaceWidget(Widget, Ui_Form):
                     (_('calibre search-replace definitions file'), ['csr'])
                     ])
         if filename:
-            with open(filename, 'w') as f:
+            with open(filename, 'w', encoding='utf-8') as f:
                 for search, replace in self.get_definitions():
                     f.write(escape(search) + '\n' + escape(replace) + '\n\n')
 
