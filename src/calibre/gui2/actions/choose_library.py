@@ -704,7 +704,7 @@ class ChooseLibraryAction(InterfaceAction):
         finally:
             d.break_cycles()
         self.gui.library_moved(library_path)
-        if d.rejected:
+        if d.was_rejected:
             return
         if d.error is None:
             after = self.gui.current_db.new_api.size_stats()

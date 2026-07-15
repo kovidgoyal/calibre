@@ -45,13 +45,13 @@ from calibre.utils.recycle_bin import delete_file, delete_tree
 class DBCheck(QDialog):  # {{{
 
     finished_vacuum = pyqtSignal()
+    was_rejected = False
 
     def __init__(self, parent, db):
         QDialog.__init__(self, parent)
         self.vacuum_started = False
         self.finished_vacuum.connect(self.accept, type=Qt.ConnectionType.QueuedConnection)
         self.error = None
-        self.was_rejected = False
 
         s = QStackedLayout(self)
         s.setContentsMargins(0, 0, 0, 0)
