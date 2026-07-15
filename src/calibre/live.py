@@ -286,7 +286,8 @@ def find_tests():
 
         def tearDown(self):
             global db_path, fetcher, old_interval
-            os.remove(db_path)
+            if db_path:
+                os.remove(db_path)
             db_path = fetcher = None
             old_interval = self.orig_old_interval
 

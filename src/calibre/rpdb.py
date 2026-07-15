@@ -60,7 +60,7 @@ class RemotePdb(pdb.Pdb):
             self.sock.close()
         except OSError:
             pass
-        return pdb.Pdb.do_continue(self, None)
+        return pdb.Pdb.do_continue(self, arg or '')
 
     def do_clear(self, arg):
         if not arg:
@@ -130,7 +130,7 @@ def cli(port=4444):
             pass
         atexit.register(readline.write_history_file, histfile)
         p = pdb.Pdb()
-        readline.set_completer(p.complete)
+        readline.set_completer(p.complete)  # type: ignore
         readline.parse_and_bind('tab: complete')
 
     sock.setblocking(True)

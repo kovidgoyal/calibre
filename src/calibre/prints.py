@@ -74,7 +74,8 @@ def debug_print(*args, **kw):
     base_time = getattr(debug_print, 'base_time', None)
     if base_time is None:
         # Set base_time to the current monotonic time if it hasn't been set
-        debug_print.base_time = base_time = time.monotonic()
+        base_time = time.monotonic()
+        setattr(debug_print, 'base_time', base_time)
 
     # Check if debugging is enabled
     if is_debugging():
