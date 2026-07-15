@@ -75,8 +75,9 @@ class Folders(QTabWidget):
     @property
     def current_item(self):
         w = self.currentWidget()
-        if w is not None:
+        if isinstance(w, Storage):
             return w.current_item
+        return None
 
 
 class Browser(QDialog):

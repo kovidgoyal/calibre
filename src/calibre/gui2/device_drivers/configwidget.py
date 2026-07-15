@@ -86,9 +86,8 @@ class ConfigWidget(QWidget, Ui_ConfigWidget):
                         self.opt_extra_customization.append(None)
                         continue
                     if isinstance(settings.extra_customization[i], bool):
-                        self.opt_extra_customization.append(QCheckBox(label_text))
-                        opt_ec = self.opt_extra_customization[-1]
-                        assert opt_ec is not None
+                        opt_ec = QCheckBox(label_text)
+                        self.opt_extra_customization.append(opt_ec)
                         opt_ec.setToolTip(tt)
                         opt_ec.setChecked(bool(settings.extra_customization[i]))
                     elif i in extra_customization_choices:
@@ -96,15 +95,12 @@ class ConfigWidget(QWidget, Ui_ConfigWidget):
                         self.opt_extra_customization.append(cb)
                         l = QLabel(label_text)
                         l.setToolTip(tt), cb.setToolTip(tt), l.setBuddy(cb), cb.setToolTip(tt)
-                        opt_ec_i = self.opt_extra_customization[i]
-                        assert opt_ec_i is not None
                         for li in sorted(extra_customization_choices[i]):
-                            opt_ec_i.addItem(li)
+                            cb.addItem(li)
                         cb.setCurrentIndex(max(0, cb.findText(settings.extra_customization[i])))
                     else:
-                        self.opt_extra_customization.append(QLineEdit(self))
-                        opt_ec_i = self.opt_extra_customization[i]
-                        assert opt_ec_i is not None
+                        opt_ec_i = QLineEdit(self)
+                        self.opt_extra_customization.append(opt_ec_i)
                         l = QLabel(label_text)
                         l.setToolTip(tt)
                         opt_ec_i.setToolTip(tt)

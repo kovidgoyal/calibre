@@ -6,6 +6,7 @@ __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import weakref
+from typing import TYPE_CHECKING, cast
 
 from qt.core import (
     QApplication,
@@ -37,6 +38,9 @@ from qt.core import (
 from calibre.ebooks import BOOK_EXTENSIONS as EBOOK_EXTENSIONS
 from calibre.gui2 import error_dialog
 from calibre.gui2.device import DeviceMixin
+
+if TYPE_CHECKING:
+    from calibre.gui2.ui import Main
 from calibre.gui2.device_drivers.mtp_folder_browser import Browser, IgnoredFolders
 from calibre.gui2.dialogs.template_dialog import TemplateDialog
 from calibre.utils.date import parse_date
@@ -323,15 +327,15 @@ class FormatRules(QGroupBox):
         self.sa = sa = QScrollArea(self)
         sa.setWidgetResizable(True)
         self.w = w = QWidget(self)
-        w.l = QVBoxLayout()
-        w.setLayout(w.l)
+        self.wl = wl = QVBoxLayout()
+        w.setLayout(wl)
         sa.setWidget(w)
         l.addWidget(sa)
         self.widgets = []
         for rule in rules:
             r = Rule(device, rule)
             self.widgets.append(r)
-            w.l.addWidget(r)
+            wl.addWidget(r)
             r.remove.connect(self.remove_rule)
 
         if not self.widgets:
@@ -349,7 +353,7 @@ class FormatRules(QGroupBox):
     def add_rule(self):
         r = Rule(self.device)
         self.widgets.append(r)
-        self.w.l.addWidget(r)
+        self.wl.addWidget(r)
         r.remove.connect(self.remove_rule)
         scrollbar = self.sa.verticalScrollBar()
         assert scrollbar is not None
@@ -375,10 +379,10 @@ class APNX(QWidget):  # {{{
         from calibre.devices.kindle.driver import KINDLE2, get_apnx_opts
         apnx_opts = get_apnx_opts()
         QWidget.__init__(self)
-        self.layout = l = QVBoxLayout()
+        self.l = l = QVBoxLayout()
         self.setLayout(l)
 
-        self.layout.setAlignment(Qt.AlignTop)
+        l.setAlignment(Qt.AlignmentFlag.AlignTop)
 
         self.send = f1 = QCheckBox(_('Send page number information when sending books'))
         f1.setChecked(bool(apnx_opts.send_apnx))
@@ -460,7 +464,7 @@ class MTPConfig(QTabWidget):
         else:
             self.base = QWidget(self)
             self.insertTab(0, self.base, _('Configure %s')%self.device.current_friendly_name)
-            l = self.base.l = QGridLayout(self.base)
+            l = QGridLayout(self.base)
             self.base.setLayout(l)
 
             self.rules = r = FormatRules(self.device, self.get_pref('rules'))
@@ -468,10 +472,10 @@ class MTPConfig(QTabWidget):
                     self.get_pref('format_map'))
             self.send_to = SendToConfig(self.get_pref('send_to'), self.device)
             self.template = TemplateConfig(self.get_pref('send_template'))
-            self.base.la = la = QLabel(_(
+            la = QLabel(_(
                 'Choose the formats to send to the %s')%self.device.current_friendly_name)
             la.setWordWrap(True)
-            self.base.b = b = QPushButton(QIcon.ic('list_remove.png'),
+            self._base_b = b = QPushButton(QIcon.ic('list_remove.png'),
                 _('&Ignore the %s in calibre')%device.current_friendly_name,
                 self.base)
             b.clicked.connect(self.ignore_device)
@@ -512,15 +516,15 @@ class MTPConfig(QTabWidget):
     def show_debug_info(self):
         info = self.device.device_debug_info()
         d = QDialog(self)
-        d.l = l = QVBoxLayout()
+        l = QVBoxLayout()
         d.setLayout(l)
-        d.v = v = QPlainTextEdit()
+        v = QPlainTextEdit()
         d.setWindowTitle(self.device.get_gui_name())
         v.setPlainText(info)
         v.setMinimumWidth(400)
         v.setMinimumHeight(350)
         l.addWidget(v)
-        bb = d.bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Close)
+        bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Close)
         bb.accepted.connect(d.accept)
         bb.rejected.connect(d.reject)
         l.addWidget(bb)
@@ -542,10 +546,10 @@ class MTPConfig(QTabWidget):
 
     def ignore_device(self):
         self.igntab.ignore_device(self.device.current_serial_num)
-        self.base.b.setEnabled(False)
-        self.base.b.setText(_('The %s will be ignored in calibre')%
+        self._base_b.setEnabled(False)
+        self._base_b.setText(_('The %s will be ignored in calibre')%
                 self.device.current_friendly_name)
-        self.base.b.setStyleSheet('QPushButton { font-weight: bold }')
+        self._base_b.setStyleSheet('QPushButton { font-weight: bold }')
         self.base.setEnabled(False)
 
     def get_pref(self, key):
@@ -631,8 +635,9 @@ class SendError(QDialog):
         p = self.parent()
         assert isinstance(p, DeviceMixin)
         dev = p.device_manager.connected_device
+        assert dev is not None
         dev.highlight_ignored_folders = True
-        p.configure_connected_device()
+        cast('Main', p).configure_connected_device()
         dev.highlight_ignored_folders = False
 
 
@@ -649,11 +654,11 @@ if __name__ == '__main__':
     dev.open(cd, 'test')
     cw = dev.config_widget()
     d = QDialog()
-    d.l = QVBoxLayout()
-    d.setLayout(d.l)
-    d.l.addWidget(cw)
+    dl = QVBoxLayout()
+    d.setLayout(dl)
+    dl.addWidget(cw)
     bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok|QDialogButtonBox.StandardButton.Cancel)
-    d.l.addWidget(bb)
+    dl.addWidget(bb)
     bb.accepted.connect(d.accept)
     bb.rejected.connect(d.reject)
     if d.exec() == QDialog.DialogCode.Accepted:
