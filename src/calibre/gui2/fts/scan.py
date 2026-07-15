@@ -17,8 +17,9 @@ class ScanProgress(QWidget):
 
     switch_to_search_panel = pyqtSignal()
 
-    def __init__(self, parent):
+    def __init__(self, parent: ScanStatus):
         super().__init__(parent)
+        self._parent = parent
         self.l = l = QVBoxLayout(self)
         l.setContentsMargins(0, 0, 0, 0)
         self.status_label = la = QLabel('\xa0')
@@ -64,9 +65,7 @@ class ScanProgress(QWidget):
 
     @property
     def indexing_progress(self):
-        parent = self.parent()
-        assert parent is not None
-        return parent.indexing_progress
+        return self._parent.indexing_progress
 
     def change_speed(self):
         db = get_db()
@@ -219,7 +218,7 @@ if __name__ == '__main__':
     l = QVBoxLayout(d)
     bb = QDialogButtonBox(d)
     bb.accepted.connect(d.accept), bb.rejected.connect(d.reject)
-    get_db.db = db(os.path.expanduser('~/test library'))
+    setattr(get_db, 'db', db(os.path.expanduser('~/test library')))
     w = ScanStatus(parent=d)
     l.addWidget(w)
     l.addWidget(bb)

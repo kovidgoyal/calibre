@@ -142,7 +142,7 @@ class FTSDialog(Dialog):
 if __name__ == '__main__':
     from calibre.gui2 import Application
     from calibre.library import db
-    get_db.db = db(os.path.expanduser('~/test library'))
+    setattr(get_db, 'db', db(os.path.expanduser('~/test library')))
     app = Application([])
     d = FTSDialog()
     d.exec()

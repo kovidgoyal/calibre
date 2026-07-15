@@ -434,7 +434,7 @@ class ResultsModel(QAbstractItemModel):
             return self.createIndex(row, column, parent.row() + 1)
         return self.createIndex(row, column, 0)
 
-    def parent(self, child=...):
+    def parent(self, child=QModelIndex()):
         q = child.internalId()
         if q:
             return self.index(q - 1, 0)
@@ -580,7 +580,7 @@ class Summary(QLabel):
         self.frame %= len(self.frames)
         frame = self.frames[self.frame]
         base = ngettext('One book', '{num} books', self.num_matches_found).format(num=self.num_matches_found)
-        dim_color = self.palette().color(QPalette.Disabled, QPalette.Text).name()
+        dim_color = self.palette().color(QPalette.ColorGroup.Disabled, QPalette.ColorRole.Text).name()
         duration = (self.stopped_at or time.monotonic()) - self.started_at
         if duration < 60:
             if self.stopped_at:
@@ -1055,7 +1055,7 @@ class ResultsPanel(QWidget):
         gui = get_gui()
         restrict = None
         if gui and gprefs['fts_library_restrict_books']:
-            restrict = frozenset(gui.library_view.model().all_current_book_ids())
+            restrict = frozenset(gui.library_view._model.all_current_book_ids())
         with BusyCursor():
             self.results_model.search(text, restrict_to_book_ids=restrict, use_stemming=gprefs['fts_library_use_stemmer'])
 
@@ -1173,12 +1173,14 @@ def develop(view='cards'):
     from calibre.gui2 import Application
     from calibre.library import db
     app = Application([])
-    d = QDialog()
-    d.sizeHint = lambda: QSize(1000, 680)
+    class Dialog(QDialog):
+        def sizeHint(self):
+            return QSize(1000, 680)
+    d = Dialog()
     l = QVBoxLayout(d)
     bb = QDialogButtonBox(d)
     bb.accepted.connect(d.accept), bb.rejected.connect(d.reject)
-    get_db.db = db(os.path.expanduser('~/test library'))
+    setattr(get_db, 'db', db(os.path.expanduser('~/test library')))
     w = ResultsPanel(parent=d)
     w.set_view_mode(view)
     l.addWidget(w)
