@@ -57,21 +57,32 @@ SANDBOX_HOST = FAKE_HOST.rpartition('.')[0] + '.sandbox'
 
 # Override network access to load data from the book {{{
 
+_book_path: str | None = None
+_book_pathtoebook: str | None = None
+_book_metadata: bytes | None = None
+_book_manifest: bytes | None = None
+_book_manifest_mime: str | None = None
+_book_parsed_metadata: object = None
+_book_parsed_manifest: object = None
+
+
 def set_book_path(path, pathtoebook):
-    set_book_path.pathtoebook = pathtoebook
-    set_book_path.path = os.path.abspath(path)
-    set_book_path.metadata = get_data('calibre-book-metadata.json')[0]
-    set_book_path.manifest, set_book_path.manifest_mime = get_data('calibre-book-manifest.json')
-    set_book_path.parsed_metadata = json_loads(set_book_path.metadata)
-    set_book_path.parsed_manifest = json_loads(set_book_path.manifest)
+    global _book_path, _book_pathtoebook, _book_metadata, _book_manifest
+    global _book_manifest_mime, _book_parsed_metadata, _book_parsed_manifest
+    _book_pathtoebook = pathtoebook
+    _book_path = os.path.abspath(path)
+    _book_metadata = get_data('calibre-book-metadata.json')[0]
+    _book_manifest, _book_manifest_mime = get_data('calibre-book-manifest.json')
+    _book_parsed_metadata = json_loads(_book_metadata)
+    _book_parsed_manifest = json_loads(_book_manifest)
 
 
 def get_manifest():
-    return getattr(set_book_path, 'parsed_manifest', None)
+    return _book_parsed_manifest
 
 
 def get_path_for_name(name):
-    bdir = getattr(set_book_path, 'path', None)
+    bdir = _book_path
     if bdir is None:
         return
     try:
@@ -187,8 +198,8 @@ class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
                 traceback.print_exc()
                 return self.fail_request(a0, QWebEngineUrlRequestJob.Error.RequestFailed)
         elif name == 'manifest':
-            data = b'[' + set_book_path.manifest + b',' + set_book_path.metadata + b']'
-            send_reply(a0, set_book_path.manifest_mime, data)
+            data = b'[' + (_book_manifest or b'') + b',' + (_book_metadata or b'') + b']'
+            send_reply(a0, _book_manifest_mime, data)
         elif name == 'reader-background':
             mt, data = background_image()
             send_reply(a0, mt, data) if data else a0.fail(QWebEngineUrlRequestJob.Error.UrlNotFound)
@@ -236,7 +247,7 @@ def create_profile():
         s = ans.settings()
         s.setDefaultTextEncoding('utf-8')
         s.setAttribute(QWebEngineSettings.WebAttribute.LinksIncludedInFocusChain, False)
-        create_profile.ans = ans
+        setattr(create_profile, 'ans', ans)
     return ans
 
 
@@ -315,6 +326,7 @@ class ViewerBridge(Bridge):
     viewer_font_size_changed = to_js()
     tts_event = to_js()
     profile_response = to_js()
+    go_to_anchor = to_js()
 
 
 def apply_font_settings(page_or_view):
@@ -415,11 +427,14 @@ class WebPage(QWebEnginePage):
             self.runJavaScript(src, QWebEngineScript.ScriptWorldId.ApplicationWorld, callback)
 
 
-def viewer_html():
-    ans = getattr(viewer_html, 'ans', None)
-    if ans is None:
-        ans = viewer_html.ans = P('viewer.html', data=True, allow_user_override=False)
-    return ans
+_viewer_html: bytes | None = None
+
+
+def viewer_html() -> bytes:
+    global _viewer_html
+    if _viewer_html is None:
+        _viewer_html = P('viewer.html', data=True, allow_user_override=False)
+    return _viewer_html
 
 
 class Inspector(QWidget):
@@ -719,11 +734,11 @@ class WebView(QWebEngineView):
         self.content_file_changed.emit(self.current_content_file)
 
     def start_book_load(self, initial_position=None, highlights=None, current_book_data=None, reading_rates=None):
-        key = (set_book_path.path,)
+        key = (_book_path,)
         book_url = link_prefix_for_location_links(add_open_at=False)
         book_in_library_url = url_for_book_in_library()
         self.execute_when_ready(
-            'start_book_load', key, initial_position, set_book_path.pathtoebook, highlights or [], book_url,
+            'start_book_load', key, initial_position, _book_pathtoebook, highlights or [], book_url,
             reading_rates, book_in_library_url)
 
     def execute_when_ready(self, action, *args):
@@ -827,7 +842,7 @@ class WebView(QWebEngineView):
             os.makedirs(d, exist_ok=True)
             fname = os.path.basename(img)
             shutil.copyfile(img, os.path.join(d, fname))
-            background_image.ans = None
+            background_image.cache_clear()
             encoded = fname.encode().hex()
             self.execute_when_ready('background_image_changed', img_id, f'{FAKE_PROTOCOL}://{FAKE_HOST}/reader-background-{encoded}')
 
@@ -871,7 +886,9 @@ class WebView(QWebEngineView):
         self.execute_when_ready('tts_event', 'configured', ui_settings)
 
     def show_book_folder(self):
-        path = os.path.dirname(os.path.abspath(set_book_path.pathtoebook))
+        if _book_pathtoebook is None:
+            return
+        path = os.path.dirname(os.path.abspath(_book_pathtoebook))
         safe_open_url(QUrl.fromLocalFile(path))
 
     def show_help(self, which):

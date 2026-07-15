@@ -54,7 +54,9 @@ class LoadingOverlay(QWidget):
     def hide(self):
         par = self.parent()
         assert isinstance(par, QWidget)
-        par.web_view.setFocus(Qt.FocusReason.OtherFocusReason)
+        web_view = getattr(par, 'web_view', None)
+        if web_view is not None:
+            web_view.setFocus(Qt.FocusReason.OtherFocusReason)
         self.pi.stop()
         return QWidget.hide(self)
 

@@ -86,6 +86,8 @@ class BookmarksList(QListWidget):
         items = [self.item(r) for r in range(self.count())]
         row = self.currentRow()
         current_item = items[row]
+        if current_item is None:
+            return
         items = [i for i in items if i is not None and not i.isHidden()]
         count = len(items)
         if not count:

@@ -4,6 +4,7 @@
 
 import re
 from functools import partial
+from typing import TypedDict
 
 from qt.core import (
     QAbstractItemView,
@@ -30,6 +31,12 @@ from calibre.gui2.gestures import GestureManager
 from calibre.gui2.search_box import SearchBox2
 from calibre.utils.icu import primary_contains
 from calibre.utils.localization import _
+
+
+class _SearchQuery(TypedDict):
+    text: str
+    index: int
+    items: tuple
 
 
 class Delegate(QStyledItemDelegate):
@@ -254,7 +261,7 @@ class TOCItem(QStandardItem):
 
     @classmethod
     def type(cls):
-        return QStandardItem.ItemType.UserType+10
+        return QStandardItem.ItemType.UserType.value + 10
 
     def set_current_search_result(self, yes):
         if yes and not self.is_current_search_result:
@@ -278,7 +285,7 @@ class TOC(QStandardItemModel):
 
     def __init__(self, toc=None):
         QStandardItemModel.__init__(self)
-        self.current_query = {'text':'', 'index':-1, 'items':()}
+        self.current_query: _SearchQuery = {'text': '', 'index': -1, 'items': ()}
         self.all_items = depth_first = []
         normal_font = qapplication_or_fail().font()
         emphasis_font = QFont(normal_font)

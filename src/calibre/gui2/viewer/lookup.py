@@ -271,7 +271,7 @@ def create_profile():
             cookie.setHttpOnly(False)
             cookie.setExpirationDate(QDateTime())
             cs.setCookie(cookie)
-        create_profile.ans = ans
+        setattr(create_profile, 'ans', ans)
     return ans
 
 
@@ -377,7 +377,7 @@ class Lookup(QTabWidget):
         self.setTabVisible(self.llm_tab_index, not tweaks['hide_ai_features'])
 
         self.currentChanged.connect(self._tab_changed)
-        set_sync_override.instance = self
+        setattr(set_sync_override, 'instance', self)
 
     def book_loaded(self, book_data):
         self.current_book_metadata = book_data.get('metadata', {})
@@ -469,9 +469,9 @@ class Lookup(QTabWidget):
             d.setWindowTitle('Inspect Lookup page')
             v = QVBoxLayout(d)
             v.addWidget(self._devtools_view)
-            d.bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Close)
-            d.bb.rejected.connect(d.reject)
-            v.addWidget(d.bb)
+            bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Close)
+            bb.rejected.connect(d.reject)
+            v.addWidget(bb)
             d.resize(QSize(800, 600))
             d.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose, False)
         self._devtools_dialog.show()
