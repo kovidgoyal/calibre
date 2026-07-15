@@ -325,7 +325,7 @@ class Plugins(Mapping):
 
     def __iter__(self):
         from importlib.resources import files
-        return files('calibre_extensions').iterdir()
+        return (x.name for x in files('calibre_extensions').iterdir())
 
     def __len__(self):
         from importlib.resources import files
@@ -337,7 +337,7 @@ class Plugins(Mapping):
     def __contains__(self, name):
         from importlib.resources import files
         for x in files('calibre_extensions').iterdir():
-            if x == name:
+            if x.name == name:
                 return True
         return False
 
