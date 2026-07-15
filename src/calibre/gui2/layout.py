@@ -208,7 +208,7 @@ def search_as_url(text):
 
 class SearchBar(QFrame):  # {{{
 
-    def __init__(self, parent: 'Main'):  # ruff: ignore[quoted-annotation]
+    def __init__(self, parent: Main):
         QFrame.__init__(self, parent)
         self.setFrameStyle(QFrame.Shape.NoFrame)
         self.setObjectName('search_bar')
