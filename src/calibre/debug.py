@@ -176,7 +176,8 @@ def print_basic_debug_info(out=None):
         elif ismacos:
             out('OSX:', platform.mac_ver())
         else:
-            out('Linux:', platform.freedesktop_os_release()['PRETTY_NAME'])
+            r = platform.freedesktop_os_release()
+            out('Linux:', r.get('PRETTY_NAME', r.get('ID', _('Unknown'))))
     except Exception:
         pass
     out('Interface language:', str(set_translators.lang))
