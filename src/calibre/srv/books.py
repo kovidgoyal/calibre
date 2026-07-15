@@ -274,7 +274,7 @@ def get_annotations(ctx, rd, library_id, which):
     return ans
 
 
-@endpoint('/book-update-annotations/{library_id}/{book_id}/{+fmt}', types={'book_id': int}, methods=('POST',))
+@endpoint('/book-update-annotations/{library_id}/{book_id}/{+fmt}', types={'book_id': int}, methods=('POST',), needs_db_write=True)
 def update_annotations(ctx, rd, library_id, book_id, fmt):
     db = get_db(ctx, rd, library_id)
     user = rd.username or '*'
