@@ -318,7 +318,7 @@ class Voices(QTreeWidget):
 
     def refresh_current_item(self) -> None:
         ci = self.currentItem()
-        if self.is_voice_item(ci):
+        if ci is not None and self.is_voice_item(ci):
             self.set_item_downloaded_state(ci)
 
 
@@ -340,7 +340,7 @@ class EngineSpecificConfig(QWidget):
         self.engine_name = ''
         om.currentIndexChanged.connect(self.rebuild_voices)
         self.default_output_modules = {}
-        self.voice_data = {}
+        self.voice_data: dict[str, dict[str, tuple[Voice, ...]]] = {}
         self.engine_specific_settings = {}
         self.rate = r = FloatSlider(parent=self)
         l.addRow(_('&Speed of speech:'), r)
@@ -449,7 +449,7 @@ class EngineSpecificConfig(QWidget):
         except Exception:
             import traceback
             traceback.print_exc()
-            all_voices = []
+            all_voices: tuple[Voice, ...] = ()
         self.voices.set_voices(all_voices, s.voice_name, metadata, s.preferred_voices)
 
     def as_settings(self) -> EngineSpecificSettings:

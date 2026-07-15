@@ -2,8 +2,12 @@
 # License: GPLv3 Copyright: 2023, Kovid Goyal <kovid at kovidgoyal.net>
 
 import os
+from typing import TYPE_CHECKING
 
 from qt.core import QByteArray, QDialog, QDialogButtonBox, QIcon, QLabel, QMimeData, QSize, Qt, QTextDocument, QUrl, QVBoxLayout
+
+if TYPE_CHECKING:
+    from calibre.gui2.library.notes import NoteDisplay
 
 from calibre import prepare_string_for_xml
 from calibre.db.constants import RESOURCE_URL_SCHEME
@@ -19,7 +23,7 @@ from calibre.utils.localization import _
 class Display(HTMLDisplay):
     notes_resource_scheme = RESOURCE_URL_SCHEME
 
-    def __init__(self, parent: ShowNoteDialog):
+    def __init__(self, parent: ShowNoteDialog | NoteDisplay):
         super().__init__(parent)
         self._parent = parent
         doc = self.document()

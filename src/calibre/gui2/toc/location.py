@@ -10,6 +10,7 @@ from functools import lru_cache
 
 from qt.core import (
     QApplication,
+    QBoxLayout,
     QByteArray,
     QFrame,
     QGridLayout,
@@ -153,26 +154,32 @@ class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
         print(f'Blocking FAKE_PROTOCOL request: {rq.requestUrl().toString()} with code: {fail_code}', file=sys.stderr)
 
 
+url_handler: UrlSchemeHandler | None = None
+interceptor: RequestInterceptor | None = None
+profile_memory: QWebEngineProfile | None = None
+
+
 class Page(QWebEnginePage):  # {{{
 
     elem_clicked = pyqtSignal(object, object, object, object, object)
     frag_shown = pyqtSignal(object)
 
     def __init__(self, parent, prefs):
+        global url_handler, interceptor, profile_memory
         self.log = default_log
         self.current_frag = None
         self.com_id = str(uuid4())
         profile = QWebEngineProfile(QApplication.instance())
         setup_profile(profile)
         # store these globally as they need to be destructed after the QWebEnginePage
-        current_container.url_handler = UrlSchemeHandler(parent=profile)
-        current_container.interceptor = RequestInterceptor(profile)
-        current_container.profile_memory = profile
-        profile.installUrlSchemeHandler(QByteArray(FAKE_PROTOCOL.encode('ascii')), current_container.url_handler)
+        url_handler = UrlSchemeHandler(parent=profile)
+        interceptor = RequestInterceptor(profile)
+        profile_memory = profile
+        profile.installUrlSchemeHandler(QByteArray(FAKE_PROTOCOL.encode('ascii')), url_handler)
         s = profile.settings()
         assert s is not None
         s.setDefaultTextEncoding('utf-8')
-        profile.setUrlRequestInterceptor(current_container.interceptor)
+        profile.setUrlRequestInterceptor(interceptor)
         QWebEnginePage.__init__(self, profile, parent)
         secure_webengine(self, for_viewer=True)
         self.titleChanged.connect(self.title_changed)
@@ -265,6 +272,7 @@ class ItemEdit(QWidget):
         self.prefs = prefs or gprefs
         self.pending_search = None
         self.current_frag = None
+        self.current_name: str = ''
         self.setLayout(QVBoxLayout())
 
         self.la = la = QLabel('<b>'+_(
@@ -274,6 +282,7 @@ class ItemEdit(QWidget):
         _layout.addWidget(la)
         self.splitter = sp = QSplitter(self)
         _layout.addWidget(sp)
+        assert isinstance(_layout, QBoxLayout)
         _layout.setStretch(1, 10)
         sp.setOpaqueResize(False)
         sp.setChildrenCollapsible(False)
@@ -284,8 +293,7 @@ class ItemEdit(QWidget):
         sp.addWidget(dl)
 
         w = self.w = QWidget(self)
-        l = w.l = QGridLayout()
-        w.setLayout(l)
+        l = QGridLayout(w)
         self.view = WebView(self, self.prefs)
         self.view.elem_clicked.connect(self.elem_clicked)
         self.view.frag_shown.connect(self.update_dest_label, type=Qt.ConnectionType.QueuedConnection)
@@ -307,11 +315,11 @@ class ItemEdit(QWidget):
         self.f = f = QFrame()
         f.setFrameShape(QFrame.Shape.StyledPanel)
         f.setMinimumWidth(250)
-        l = f.l = QVBoxLayout()
+        l = QVBoxLayout()
         f.setLayout(l)
         sp.addWidget(f)
 
-        f.la = la = QLabel('<p>'+_(
+        la = QLabel('<p>'+_(
             "Here you can choose a destination for the Table of Contents' entry"
             ' to point to. First choose a file from the book in the left-most panel. The'
             ' file will open in the central panel.<p>'
@@ -325,7 +333,7 @@ class ItemEdit(QWidget):
         la.setWordWrap(True)
         l.addWidget(la)
 
-        f.la2 = la = QLabel('<b>'+_('Na&me of the ToC entry:'))
+        la = QLabel('<b>'+_('Na&me of the ToC entry:'))
         l.addWidget(la)
         self.name = QLineEdit(self)
         self.name.setPlaceholderText(_('(Untitled)'))
@@ -394,7 +402,7 @@ class ItemEdit(QWidget):
 
     def load(self, container):
         self.container = container
-        current_container.ans = weakref.ref(container)
+        setattr(current_container, 'ans', weakref.ref(container))
         spine_names = [container.abspath_to_name(p) for p in
                        container.spine_items]
         spine_names = [n for n in spine_names if container.has_name(n)]
@@ -422,7 +430,7 @@ class ItemEdit(QWidget):
 
     def __call__(self, item, where):
         self.current_item, self.current_where = item, where
-        self.current_name = None
+        self.current_name = ''
         self.current_frag = None
         self.name.setText('')
         dest_index, frag = 0, None

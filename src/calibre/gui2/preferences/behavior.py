@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 import re
 from functools import partial
 
-from qt.core import QListWidgetItem, Qt
+from qt.core import QDropEvent, QListWidget, QListWidgetItem, Qt
 
 from calibre.constants import iswindows
 from calibre.customize.ui import all_input_formats, available_output_formats
@@ -21,13 +21,6 @@ from calibre.gui2.preferences.behavior_ui import Ui_Form
 from calibre.utils.config import prefs
 from calibre.utils.icu import sort_key
 from calibre.utils.localization import _
-
-
-def input_order_drop_event(self, ev):
-    ret = self.opt_input_order.__class__.dropEvent(self.opt_input_order, ev)
-    if ev.isAccepted():
-        self.changed_signal.emit()
-    return ret
 
 
 class OutputFormatSetting(Setting):
@@ -72,13 +65,18 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.input_down_button.clicked.connect(partial(self.down_input, use_kbd_modifiers=True))
         self.opt_input_order.set_movement_functions(partial(self.up_input, use_kbd_modifiers=False),
                                                     partial(self.down_input, use_kbd_modifiers=False))
-        self.opt_input_order.dropEvent = partial(input_order_drop_event, self)
+        self.opt_input_order.handle_drop_event = self.input_order_drop_event
         for signal in ('Activated', 'Changed', 'DoubleClicked', 'Clicked'):
             signal = getattr(self.opt_internally_viewed_formats, 'item'+signal)
             signal.connect(self.internally_viewed_formats_changed)
 
         r('bools_are_tristate', db.prefs, restart_required=True)
         r('numeric_collation', prefs, restart_required=True)
+
+    def input_order_drop_event(self, ev: QDropEvent | None) -> None:
+        QListWidget.dropEvent(self.opt_input_order, ev)
+        if ev is not None and ev.isAccepted():
+            self.changed_signal.emit()
 
     def initialize(self):
         ConfigWidgetBase.initialize(self)

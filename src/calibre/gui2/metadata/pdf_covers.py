@@ -66,7 +66,7 @@ class PDFCovers(QDialog):
         self.stack = WaitLayout(_('Rendering {} pages, please wait...').format('PDF' if self.is_pdf else _('comic book')), parent=self)
         self.container = self.stack.after
 
-        self.container.l = l = QVBoxLayout(self.container)
+        l = QVBoxLayout(self.container)
         self.la = la = QLabel(_('Choose a cover from the list of pages below'))
         l.addWidget(la)
         self.covers = c = QListWidget(self)
@@ -97,8 +97,8 @@ class PDFCovers(QDialog):
 
     def start_rendering(self):
         self.hide_pages()
-        self.thread = Thread(target=self.render, daemon=True, name='RenderPages')
-        self.thread.start()
+        self._render_thread = Thread(target=self.render, daemon=True, name='RenderPages')
+        self._render_thread.start()
 
     @property
     def cover_path(self):

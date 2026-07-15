@@ -4,7 +4,7 @@
 import atexit
 
 from qt.core import QObject, Qt, QTextToSpeech, pyqtSignal
-from speechd.client import CallbackType, DataMode, Priority, SpawnError, SSIPClient, SSIPCommunicationError
+from speechd.client import CallbackType, DataMode, Priority, SpawnError, SSIPClient, SSIPCommunicationError  # type: ignore
 
 from calibre import prepare_string_for_xml
 from calibre.gui2.tts.types import EngineSpecificSettings, TTSBackend, Voice
@@ -44,11 +44,11 @@ class SpeechdTTSBackend(TTSBackend):
     _event_signal = pyqtSignal(object, object)
 
     def __init__(self, engine_name: str = '', parent: QObject|None = None):
-        super().__init__(parent)
+        super().__init__(engine_name, parent)
         self._last_error = ''
         self._state = QTextToSpeech.State.Ready
         self._voices = None
-        self._system_default_output_module = None
+        self._system_default_output_module: str | None = None
         self._status = {'synthesizing': False, 'paused': False}
         self._ssip_client: SSIPClient | None = None
         self._voice_lang = 'en'
@@ -185,6 +185,8 @@ class SpeechdTTSBackend(TTSBackend):
         assert apply_ssip_client is not None
         try:
             om = settings.output_module or self._system_default_output_module
+            if om is None:
+                om = ''
             apply_ssip_client.set_output_module(om)
             if settings.voice_name:
                 for v in self.available_voices[om]:

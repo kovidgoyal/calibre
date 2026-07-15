@@ -13,7 +13,6 @@ from time import monotonic
 from qt.core import (
     QAbstractItemView,
     QCheckBox,
-    QCursor,
     QDialog,
     QDialogButtonBox,
     QEvent,
@@ -161,6 +160,10 @@ class XPathDialog(QDialog):  # {{{
 # }}}
 
 
+class ItemPane(QWidget):
+    heading: QLabel
+
+
 class ItemView(QStackedWidget):  # {{{
 
     add_new_item = pyqtSignal(object, object)
@@ -177,7 +180,7 @@ class ItemView(QStackedWidget):  # {{{
         self.prefs = prefs
         self.setMinimumWidth(250)
         self.root_pane = rp = QWidget(self)
-        self.item_pane = ip = QWidget(self)
+        self.item_pane = ip = ItemPane(self)
         self.current_item = None
         sa = QScrollArea(self)
         sa.setWidgetResizable(True)
@@ -196,7 +199,7 @@ class ItemView(QStackedWidget):  # {{{
             ' to be fixed.'))
         la.setStyleSheet('QLabel { margin-bottom: 20px }')
         la.setWordWrap(True)
-        l = rp.l = QVBoxLayout()
+        l = QVBoxLayout()
         rp.setLayout(l)
         l.addWidget(la)
         self.add_new_to_root_button = b = QPushButton(_('Create a &new entry'))
@@ -263,19 +266,19 @@ class ItemView(QStackedWidget):  # {{{
         la.setWordWrap(True)
         l.addWidget(la)
 
-        l = ip.l = QGridLayout()
+        l = QGridLayout()
         ip.setLayout(l)
         la = ip.heading = QLabel('')
         l.addWidget(la, 0, 0, 1, 2)
         la.setWordWrap(True)
-        la = ip.la = QLabel(_(
+        la = QLabel(_(
             'You can move this entry around the Table of Contents by drag '
             'and drop or using the up and down buttons to the left'))
         la.setWordWrap(True)
         l.addWidget(la, 1, 0, 1, 2)
 
         # Item status
-        ip.hl1 = hl = QFrame()
+        hl = QFrame()
         hl.setFrameShape(QFrame.Shape.HLine)
         l.addWidget(hl, l.rowCount(), 0, 1, 2)
         self.icon_label = QLabel()
@@ -283,51 +286,51 @@ class ItemView(QStackedWidget):  # {{{
         self.status_label.setWordWrap(True)
         l.addWidget(self.icon_label, l.rowCount(), 0)
         l.addWidget(self.status_label, l.rowCount()-1, 1)
-        ip.hl2 = hl = QFrame()
+        hl = QFrame()
         hl.setFrameShape(QFrame.Shape.HLine)
         l.addWidget(hl, l.rowCount(), 0, 1, 2)
 
         # Edit/remove item
         rs = l.rowCount()
-        ip.b1 = b = QPushButton(QIcon.ic('edit_input.png'),
+        b = QPushButton(QIcon.ic('edit_input.png'),
             _('Change the &location this entry points to'), self)
         b.clicked.connect(self.edit_item)
         l.addWidget(b, l.rowCount()+1, 0, 1, 2)
-        ip.b2 = b = QPushButton(QIcon.ic('trash.png'),
+        b = QPushButton(QIcon.ic('trash.png'),
             _('&Remove this entry'), self)
         l.addWidget(b, l.rowCount(), 0, 1, 2)
         b.clicked.connect(self.delete_item)
-        ip.hl3 = hl = QFrame()
+        hl = QFrame()
         hl.setFrameShape(QFrame.Shape.HLine)
         l.addWidget(hl, l.rowCount(), 0, 1, 2)
         l.setRowMinimumHeight(rs, 20)
 
         # Add new item
         rs = l.rowCount()
-        ip.b3 = b = QPushButton(QIcon.ic('plus.png'), _('New entry &inside this entry'))
+        b = QPushButton(QIcon.ic('plus.png'), _('New entry &inside this entry'))
         connect_lambda(b.clicked, self, lambda self: self.add_new('inside'))
         l.addWidget(b, l.rowCount()+1, 0, 1, 2)
-        ip.b4 = b = QPushButton(QIcon.ic('plus.png'), _('New entry &above this entry'))
+        b = QPushButton(QIcon.ic('plus.png'), _('New entry &above this entry'))
         connect_lambda(b.clicked, self, lambda self: self.add_new('before'))
         l.addWidget(b, l.rowCount(), 0, 1, 2)
-        ip.b5 = b = QPushButton(QIcon.ic('plus.png'), _('New entry &below this entry'))
+        b = QPushButton(QIcon.ic('plus.png'), _('New entry &below this entry'))
         connect_lambda(b.clicked, self, lambda self: self.add_new('after'))
         l.addWidget(b, l.rowCount(), 0, 1, 2)
         # Flatten entry
-        ip.b3 = b = QPushButton(QIcon.ic('heuristics.png'), _('&Flatten this entry'))
+        b = QPushButton(QIcon.ic('heuristics.png'), _('&Flatten this entry'))
         b.clicked.connect(self.flatten_item)
         b.setToolTip(_('All children of this entry are brought to the same '
                        'level as this entry.'))
         l.addWidget(b, l.rowCount()+1, 0, 1, 2)
 
-        ip.hl4 = hl = QFrame()
+        hl = QFrame()
         hl.setFrameShape(QFrame.Shape.HLine)
         l.addWidget(hl, l.rowCount(), 0, 1, 2)
         l.setRowMinimumHeight(rs, 20)
 
         # Return to welcome
         rs = l.rowCount()
-        ip.b4 = b = QPushButton(QIcon.ic('back.png'), _('&Return to welcome screen'))
+        b = QPushButton(QIcon.ic('back.png'), _('&Return to welcome screen'))
         b.clicked.connect(self.go_to_root)
         b.setToolTip(_('Go back to the top level view'))
         l.addWidget(b, l.rowCount()+1, 0, 1, 2)
@@ -879,7 +882,7 @@ class TreeWidget(QTreeWidget):  # {{{
             case_menu.addAction(_('Capitalize'), self.capitalize)
             m.addMenu(case_menu)
 
-            m.exec(QCursor.pos())
+            m.exec(self.mapToGlobal(point))
 # }}}
 
 
@@ -1375,6 +1378,7 @@ def main(shm_name=None):
         # prevents them from being grouped with viewer/editor process when
         # launched from within calibre, as both use calibre-parallel.exe
         set_app_uid(TOC_DIALOG_APP_UID)
+    assert shm_name is not None
     with SharedMemory(name=shm_name) as shm:
         pos = struct.calcsize('>II')
         state, ok = struct.unpack('>II', shm.read(pos))

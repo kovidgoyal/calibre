@@ -48,7 +48,7 @@ class ProgressBar(QWidget):
         self.file_obj = tempfile.NamedTemporaryFile('wb', dir=os.path.dirname(self.path), delete=False)
         req = QNetworkRequest(qurl)
         fi = QFileInfo(self.path)
-        if fi.exists():
+        if fi.exists():  # type: ignore
             req.setHeader(QNetworkRequest.KnownHeaders.IfModifiedSinceHeader, fi.lastModified(QTimeZone(QTimeZone.Initialization.UTC)))
 
         self.reply = reply = nam.get(req)
@@ -122,7 +122,7 @@ class DownloadResources(QDialog):
         sa.setWidgetResizable(True)
         l.addWidget(sa)
         self.central = central = QWidget(sa)
-        central.l = QVBoxLayout(central)
+        central_l = QVBoxLayout(central)
         sa.setWidget(central)
 
         self.todo = set()
@@ -134,10 +134,10 @@ class DownloadResources(QDialog):
             self.todo.add(qurl)
             pb = ProgressBar(qurl, path, nam, desc, self)
             pb.done.connect(self.on_done, type=Qt.ConnectionType.QueuedConnection)
-            central.l.addWidget(pb)
+            central_l.addWidget(pb)
             self.bars.append(pb)
 
-        self.bb = bb = QDialogButtonBox(QDialogButtonBox.Cancel, self)
+        self.bb = bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Cancel, self)
         bb.rejected.connect(self.reject)
         l.addWidget(bb)
         sz = self.sizeHint()

@@ -25,6 +25,8 @@ from calibre.utils.localization import _, ngettext
 class Job(ThreadedJob):
 
     ignore_html_details = True
+    metadata_and_covers: tuple[bool, bool]
+    download_debug_log: str
 
     def consolidate_log(self):
         log = self.log

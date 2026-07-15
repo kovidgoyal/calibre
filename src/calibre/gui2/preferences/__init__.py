@@ -6,6 +6,7 @@ __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import textwrap
+from collections.abc import Callable
 from functools import partial
 
 from qt.core import (
@@ -15,6 +16,7 @@ from qt.core import (
     QComboBox,
     QDialog,
     QDialogButtonBox,
+    QDropEvent,
     QEvent,
     QGroupBox,
     QIcon,
@@ -508,6 +510,8 @@ class ListViewWithMoveByKeyPress(QListView):
 
 class ListWidgetWithMoveByKeyPress(QListWidget):
 
+    handle_drop_event: Callable[[QDropEvent | None], None] | None = None
+
     def set_movement_functions(self, up_function, down_function):
         self.up_function = partial(up_function, use_kbd_modifiers=False)
         self.down_function = partial(down_function, use_kbd_modifiers=False)
@@ -521,6 +525,12 @@ class ListWidgetWithMoveByKeyPress(QListWidget):
                 self.down_function()
             return True
         return QListWidget.event(self, e)
+
+    def dropEvent(self, event: QDropEvent | None):
+        if self.handle_drop_event is not None:
+            self.handle_drop_event(event)
+        else:
+            super().dropEvent(event)
 
 
 class TableWidgetWithMoveByKeyPress(QTableWidget):

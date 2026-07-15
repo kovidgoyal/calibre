@@ -156,10 +156,10 @@ class Main(MainWindow, Ui_MainWindow):
     def find(self, a0):
         self.last_search = a0
         try:
-            self.document.a0(a0)
+            self.document.search(a0)
         except StopIteration:
             error_dialog(self, _('No matches found'), _('<b>No matches</b> for the search phrase <i>%s</i> were found.')%(a0,)).exec()
-        self.a0.search_done(True)
+        self.search.search_done(True)
 
     def parsed(self):
         renderer = self.renderer

@@ -5,7 +5,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-from qt.core import QKeySequence, QListWidgetItem, QMenu, QPoint, Qt
+from qt.core import QListWidgetItem, QMenu, QPoint, Qt
 
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget
 from calibre.gui2.preferences.look_feel_ui import Ui_Form
@@ -18,12 +18,8 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.gui = gui
 
         self.tabWidget.setCurrentIndex(0)
-        tab_bar = self.tabWidget.tabBar()
-        assert tab_bar is not None
-        tab_bar.setVisible(False)
-        keys = [QKeySequence('F11', QKeySequence.SequenceFormat.PortableText), QKeySequence(
-            'Ctrl+Shift+F', QKeySequence.SequenceFormat.PortableText)]
-        keys = [str(x.toString(QKeySequence.SequenceFormat.NativeText)) for x in keys]
+        if (tab_bar := self.tabWidget.tabBar()):
+            tab_bar.setVisible(False)
 
         for i in range(self.tabWidget.count()):
             self.sections_view.addItem(QListWidgetItem(self.tabWidget.tabIcon(i), self.tabWidget.tabText(i).replace('&', '')))
@@ -59,7 +55,8 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             menu.addAction(_('Restore defaults for {}').format(item.data(Qt.ItemDataRole.DisplayRole)))
             num = self.sections_view.indexFromItem(item).row()
             widget = tuple(self.tabWidget.all_widgets)[num]
-            if hasattr(widget, 'restore_defaults') and menu.exec(self.sections_view.mapToGlobal(pos)):
+            pos = self.sections_view.mapToGlobal(pos)
+            if hasattr(widget, 'restore_defaults') and menu.exec(pos):  # type: ignore
                 widget.restore_defaults()
                 self.changed_signal.emit()
 

@@ -22,7 +22,6 @@ from qt.core import (
     QAbstractListModel,
     QAbstractTableModel,
     QApplication,
-    QCursor,
     QDialog,
     QDialogButtonBox,
     QGridLayout,
@@ -230,7 +229,7 @@ class ResultsModel(QAbstractTableModel):  # {{{
             key = dategetter
         elif column == 3:
             key = attrgetter('has_cached_cover_url')
-        elif key == 4:
+        elif column == 4:
             def key(x):
                 return bool(x.comments)
         else:
@@ -838,14 +837,14 @@ class CoversView(QListView):  # {{{
         m = self.model()
         assert m is not None
         for r in range(m.rowCount()):
-            idx = m.index(r)
+            idx = m.index(r, 0)
             if bool(m.data(idx, Qt.ItemDataRole.UserRole)):
                 m.dataChanged.emit(idx, idx)
 
     def select(self, num):
         model = self.model()
         assert model is not None
-        current = model.index(num)
+        current = model.index(num, 0)
         sm = self.selectionModel()
         assert sm is not None
         sm.select(current, QItemSelectionModel.SelectionFlag.SelectCurrent)
@@ -877,13 +876,12 @@ class CoversView(QListView):  # {{{
             m.addAction(QIcon.ic('save.png'), _('Save this cover to disk'), self.save_to_disk)
             if self.book_id:
                 m.addAction(QIcon.ic('save.png'), _('Save this cover in the book extra files'), self.save_alternate_cover)
-            m.exec(QCursor.pos())
+            m.exec(self.mapToGlobal(point))
 
     @property
     def current_pixmap(self):
         idx = self.currentIndex()
-        m = self.model()
-        assert m is not None
+        m = self.m
         pmap = m.cover_pixmap(idx)
         if pmap is None and idx.row() == 0:
             pmap = m.cc
@@ -1031,8 +1029,7 @@ class CoversWidget(QWidget):  # {{{
         if not self.continue_processing:
             return
         plugin_name, width, height, fmt, data = result
-        cv_model = self.covers_view.model()
-        assert cv_model is not None
+        cv_model = self.covers_view.m
         cv_model.update_result(plugin_name, width, height, data)
 
     def cleanup(self):
@@ -1053,8 +1050,7 @@ class CoversWidget(QWidget):  # {{{
                 break
         if idx is None:
             idx = self.covers_view.currentIndex()
-        cv_model = self.covers_view.model()
-        assert cv_model is not None
+        cv_model = self.covers_view.m
         return cv_model.cover_pixmap(idx)
 
 # }}}

@@ -617,7 +617,7 @@ if __name__ == '__main__':
     from calibre.gui2.ui import get_gui
     from calibre.library import db
     app = Application([])
-    app.current_db = db()
-    get_gui.ans = app
+    setattr(app, 'current_db', db())
+    setattr(get_gui, 'ans', app)
     test_widget('Advanced', 'TemplateFunctions')
     del app
