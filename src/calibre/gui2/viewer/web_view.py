@@ -842,7 +842,6 @@ class WebView(QWebEngineView):
             os.makedirs(d, exist_ok=True)
             fname = os.path.basename(img)
             shutil.copyfile(img, os.path.join(d, fname))
-            background_image.cache_clear()
             encoded = fname.encode().hex()
             self.execute_when_ready('background_image_changed', img_id, f'{FAKE_PROTOCOL}://{FAKE_HOST}/reader-background-{encoded}')
 
