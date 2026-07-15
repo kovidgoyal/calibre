@@ -111,7 +111,9 @@ class BulkConfig(Config):
         self.groups.setCurrentIndex(self._groups_model.index(idx))
         self.show_pane(idx)
         try:
-            shutil.rmtree(self.plumber.archive_input_tdir, ignore_errors=True)
+            aitdir = self.plumber.archive_input_tdir
+            assert aitdir is not None
+            shutil.rmtree(aitdir, ignore_errors=True)
         except Exception:
             pass
 

@@ -261,7 +261,7 @@ class MetadataWidget(Widget, Ui_Form):
             if self.cover_changed and self.cover_data is not None:
                 self.db.set_cover(self.book_id, self.cover_data)
         except OSError as err:
-            err.locking_violation_msg = _("Failed to change on disk location of this book's files.")
+            setattr(err, 'locking_violation_msg', _("Failed to change on disk location of this book's files."))
             raise
         publisher = self.publisher.text().strip()
         if publisher != db.field_for('publisher', self.book_id):

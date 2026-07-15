@@ -79,7 +79,8 @@ class Widget(QWidget):
     def __init__(self, parent, options):
         options = list(options)
         QWidget.__init__(self, parent)
-        self.setupUi(self)
+        if hasattr(self, 'setupUi'):
+            self.setupUi(self)  # type: ignore
         self._options = options
         self._name = self.commit_name = self.COMMIT_NAME
         assert self._name is not None
@@ -165,8 +166,9 @@ class Widget(QWidget):
         if isinstance(g, (QSpinBox, QDoubleSpinBox)):
             return g.value()
         elif isinstance(g, (QLineEdit, QTextEdit, QPlainTextEdit)):
-            func = getattr(g, 'toPlainText', getattr(g, 'text', None))()
-            ans = str(func)
+            func = getattr(g, 'toPlainText', getattr(g, 'text', None))
+            assert func is not None
+            ans = str(func())
             if self.STRIP_TEXT_FIELDS:
                 ans = ans.strip()
             if not ans:
@@ -242,7 +244,9 @@ class Widget(QWidget):
         elif isinstance(g, (QLineEdit, QTextEdit, QPlainTextEdit)):
             if not val:
                 val = ''
-            getattr(g, 'setPlainText', getattr(g, 'setText', None))(val)
+            func = getattr(g, 'setPlainText', getattr(g, 'setText', None))
+            assert func is not None
+            func(val)
             getattr(g, 'setCursorPosition', lambda x: x)(0)
         elif isinstance(g, QFontComboBox):
             g.setCurrentFont(QFont(val or ''))

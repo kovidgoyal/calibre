@@ -2,7 +2,6 @@ __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>, 2012 Eli Algranti <idea00@hotmail.com>'
 __docformat__ = 'restructuredtext en'
 
-import codecs
 import json
 from contextlib import suppress
 
@@ -136,7 +135,7 @@ class SearchAndReplaceWidget(Widget, Ui_Form):
                     (_('calibre search-replace definitions file'), ['csr'])
                     ])
         if filename:
-            with codecs.open(filename, 'w', 'utf-8') as f:
+            with open(filename, 'w') as f:
                 for search, replace in self.get_definitions():
                     f.write(escape(search) + '\n' + escape(replace) + '\n\n')
 
@@ -306,8 +305,8 @@ class SearchAndReplaceWidget(Widget, Ui_Form):
 
     def setup_help_handler(self, g, help):
         if g is self.opt_search_replace:
-            self.search_replace._help = _(
+            setattr(self.search_replace, '_help', _(
                 'The list of search/replace definitions that will be applied '
-                'to this conversion.')
+                'to this conversion.'))
             self.setup_widget_help(self.search_replace)
         return True

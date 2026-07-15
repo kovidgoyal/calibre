@@ -52,7 +52,7 @@ def gui_catalog(library_path, temp_db_path, fmt, title, dbspec, ids, out_file_na
     from calibre.db.legacy import LibraryDatabase
     db = LibraryDatabase(library_path, temp_db_path=temp_db_path)
     try:
-        db.catalog_plugin_on_device_temp_mapping = dbspec
+        setattr(db, 'catalog_plugin_on_device_temp_mapping', dbspec)
 
         # Create a minimal OptionParser that we can append to
         parser = OptionParser()

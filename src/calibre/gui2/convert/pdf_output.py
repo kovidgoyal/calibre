@@ -53,12 +53,12 @@ class PluginWidget(Widget, Ui_Form):
 
     def setupUi(self, Form):
         Ui_Form.setupUi(self, Form)
-        v = self.page_margins_box.v = QVBoxLayout(self.page_margins_box)
+        v = QVBoxLayout(self.page_margins_box)
         self.opt_pdf_use_document_margins = c = QCheckBox(_('Use page margins from the &document being converted'))
         v.addWidget(c)
-        h = self.page_margins_box.h = QHBoxLayout()
-        l = self.page_margins_box.l = QFormLayout()
-        r = self.page_margins_box.r = QFormLayout()
+        h = QHBoxLayout()
+        l = QFormLayout()
+        r = QFormLayout()
         h.addLayout(l), h.addLayout(r)
         v.addLayout(h)
 
