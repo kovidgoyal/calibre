@@ -137,23 +137,41 @@ class Check(Command):
         other_files = [f for f in all_files if os.path.splitext(f)[1] not in python_exts]
 
         try:
-            # Check all Python files with a single ruff invocation.
+            # Check all Python files with ruff, splitting into safe chunks to
+            # avoid hitting the kernel ARG_MAX limit on command-line length.
             bad_python_files = set()
             if python_files:
                 ruff = self._ruff_executable()
                 ruff_cmd = [ruff, 'check', '-q', '--output-format=json']
                 if self.auto_fix:
                     ruff_cmd.insert(3, '--fix')
-                p = subprocess.run(
-                    ruff_cmd + python_files,
-                    capture_output=True, text=True,
-                )
-                if p.returncode != 0:
-                    try:
-                        diagnostics = json.loads(p.stdout)
-                        bad_python_files = {d['filename'] for d in diagnostics}
-                    except (json.JSONDecodeError, KeyError):
-                        bad_python_files = set(python_files)
+                # Keep each chunk well under typical ARG_MAX (128 KiB on Linux,
+                # 256 KiB on macOS).  We budget 64 KiB for the file-list portion.
+                chunk_limit = 64 * 1024
+                chunk: list[str] = []
+                chunk_len = 0
+                chunks: list[list[str]] = []
+                for f in python_files:
+                    flen = len(f.encode()) + 1  # +1 for the NUL separator
+                    if chunk and chunk_len + flen > chunk_limit:
+                        chunks.append(chunk)
+                        chunk = []
+                        chunk_len = 0
+                    chunk.append(f)
+                    chunk_len += flen
+                if chunk:
+                    chunks.append(chunk)
+                for batch in chunks:
+                    p = subprocess.run(
+                        ruff_cmd + batch,
+                        capture_output=True, text=True,
+                    )
+                    if p.returncode != 0:
+                        try:
+                            diagnostics = json.loads(p.stdout)
+                            bad_python_files.update(d['filename'] for d in diagnostics)
+                        except (json.JSONDecodeError, KeyError):
+                            bad_python_files.update(batch)
             for f in python_files:
                 if f not in bad_python_files:
                     cache[f] = self.file_hash(f)
