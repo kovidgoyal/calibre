@@ -111,6 +111,8 @@ class MetadataSingleDialogBase(QDialog):
             QKeySequence.SequenceFormat.PortableText))
         p = self.parent()
         if hasattr(p, 'keyboard'):
+            from calibre.gui2.ui import Main
+            assert isinstance(p, Main)
             kname = 'Interface Action: Edit Metadata (Edit Metadata) : menu action : download'
             sc = p.keyboard.keys_map.get(kname, None)
             if sc:
@@ -215,9 +217,9 @@ class MetadataSingleDialogBase(QDialog):
                     if ac is not None:
                         ac.trigger()
                     return QMenu.mouseReleaseEvent(self, a0)
-            b.m = m = Menu(b)
+            m = Menu(b)
         else:
-            b.m = m = QMenu(b)
+            m = QMenu(b)
         ac = m.addAction(QIcon.ic('forward.png'), _('Set author sort from author'))
         ac2 = m.addAction(QIcon.ic('back.png'), _('Set author from author sort'))
         ac3 = m.addAction(QIcon.ic('user_profile.png'), _('Manage authors'))
@@ -525,7 +527,7 @@ class MetadataSingleDialogBase(QDialog):
         try:
             mi, ext = self.formats_manager.get_selected_format_metadata(self.db, self.book_id)
         except OSError as e:
-            e.locking_violation_msg = _('Could not read from book file.')
+            setattr(e, 'locking_violation_msg', _('Could not read from book file.'))
             raise
         if mi is None:
             return
@@ -677,8 +679,8 @@ class MetadataSingleDialogBase(QDialog):
             return True
         self.comments_edit_state_at_apply = {w:w.tab for w in self.comments_edit_state_at_apply}
         for widget in self.basic_metadata_widgets:
-            if hasattr(widget, 'validate_for_commit'):
-                title, msg, det_msg = widget.validate_for_commit()
+            if callable(vfc := getattr(widget, 'validate_for_commit', None)):
+                title, msg, det_msg = vfc()
                 if title is not None:
                     error_dialog(self, title, msg, det_msg=det_msg, show=True)
                     return False
@@ -686,7 +688,7 @@ class MetadataSingleDialogBase(QDialog):
                 widget.commit(self.db, self.book_id)
                 self.books_to_refresh |= getattr(widget, 'books_to_refresh', set())
             except OSError as e:
-                e.locking_violation_msg = _("Could not change on-disk location of this book's files.")
+                setattr(e, 'locking_violation_msg', _("Could not change on-disk location of this book's files."))
                 raise
         for widget in getattr(self, 'custom_metadata_widgets', []):
             self.books_to_refresh |= widget.commit(self.book_id)
@@ -864,8 +866,8 @@ class MetadataSingleDialog(MetadataSingleDialogBase):  # {{{
         self.labels = []
         self.tabs.append(QWidget(self))
         self.central_widget.addTab(ScrollArea(self.tabs[0], self), _('&Basic metadata'))
-        self.tabs[0].l = l = QVBoxLayout()
-        self.tabs[0].tl = tl = QGridLayout()
+        l = QVBoxLayout()
+        tl = QGridLayout()
         self.tabs[0].setLayout(l)
         w = getattr(self, 'custom_metadata_widgets_parent', None)
         if w is not None:
@@ -915,21 +917,20 @@ class MetadataSingleDialog(MetadataSingleDialogBase):  # {{{
         self.splitter.addWidget(self.cover)
         self.splitter.frame_resized.connect(self.cover.frame_resized)
         l.addWidget(self.splitter)
-        self.tabs[0].gb = gb = QGroupBox(_('Change cover'), self)
-        gb.l = l = QGridLayout()
-        gb.setLayout(l)
+        gb = QGroupBox(_('Change cover'), self)
+        gb_l = QGridLayout()
+        gb.setLayout(gb_l)
         for i, b in enumerate(self.cover.buttons[:3]):
-            l.addWidget(b, 0, i, 1, 1)
+            gb_l.addWidget(b, 0, i, 1, 1)
             sto(b, self.cover.buttons[i+1])
-        gb.hl = QHBoxLayout()
+        gb_hl = QHBoxLayout()
         for b in self.cover.buttons[3:]:
-            gb.hl.addWidget(b)
+            gb_hl.addWidget(b)
         sto(self.cover.buttons[-2], self.cover.buttons[-1])
-        l.addLayout(gb.hl, 1, 0, 1, 3)
-        self.tabs[0].middle = w = QWidget(self)
-        w.l = l = QGridLayout()
-        w.setLayout(w.l)
-        self.splitter.addWidget(w)
+        gb_l.addLayout(gb_hl, 1, 0, 1, 3)
+        middle = QWidget(self)
+        middle_l = QGridLayout(middle)
+        self.splitter.addWidget(middle)
 
         def create_row2(row, widget, button=None, front_button=None):
             row += 1
@@ -938,19 +939,18 @@ class MetadataSingleDialog(MetadataSingleDialogBase):  # {{{
                 ltl = QHBoxLayout()
                 ltl.addWidget(front_button)
                 ltl.addWidget(ql)
-                l.addLayout(ltl, row, 0, 1, 1)
+                middle_l.addLayout(ltl, row, 0, 1, 1)
             else:
-                l.addWidget(ql, row, 0, 1, 1)
-            l.addWidget(widget, row, 1, 1, 2 if button is None else 1)
+                middle_l.addWidget(ql, row, 0, 1, 1)
+            middle_l.addWidget(widget, row, 1, 1, 2 if button is None else 1)
             if button is not None:
-                l.addWidget(button, row, 2, 1, 1)
+                middle_l.addWidget(button, row, 2, 1, 1)
             if button is not None:
                 sto(widget, button)
 
-        l.addWidget(gb, 0, 0, 1, 3)
-        self.tabs[0].spc_one = QSpacerItem(10, 10, QSizePolicy.Policy.Expanding,
-                QSizePolicy.Policy.Expanding)
-        l.addItem(self.tabs[0].spc_one, 1, 0, 1, 3)
+        middle_l.addWidget(gb, 0, 0, 1, 3)
+        spc_one = QSpacerItem(10, 10, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
+        middle_l.addItem(spc_one, 1, 0, 1, 3)
         sto(self.cover.buttons[-1], self.rating)
         create_row2(1, self.rating, self.clear_ratings_button)
         sto(self.rating, self.clear_ratings_button)
@@ -970,18 +970,16 @@ class MetadataSingleDialog(MetadataSingleDialogBase):  # {{{
         create_row2(6, self.publisher, self.publisher.clear_button, front_button=self.publisher_editor_button)
         sto(self.publisher.clear_button, self.languages)
         create_row2(7, self.languages)
-        self.tabs[0].spc_two = QSpacerItem(10, 10, QSizePolicy.Policy.Expanding,
-                QSizePolicy.Policy.Expanding)
-        l.addItem(self.tabs[0].spc_two, 9, 0, 1, 3)
-        l.addWidget(self.fetch_metadata_button, 10, 0, 1, 2)
-        l.addWidget(self.config_metadata_button, 10, 2, 1, 1)
+        spc_two = QSpacerItem(10, 10, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
+        middle_l.addItem(spc_two, 9, 0, 1, 3)
+        middle_l.addWidget(self.fetch_metadata_button, 10, 0, 1, 2)
+        middle_l.addWidget(self.config_metadata_button, 10, 2, 1, 1)
 
-        self.tabs[0].gb2 = gb = QGroupBox(_('Co&mments'), self)
-        gb.l = l = QVBoxLayout()
-        l.setContentsMargins(0, 0, 0, 0)
-        gb.setLayout(l)
-        l.addWidget(self.comments)
-        self.splitter.addWidget(gb)
+        gb2 = QGroupBox(_('Co&mments'), self)
+        gb2_l = QVBoxLayout(gb2)
+        gb2_l.setContentsMargins(0, 0, 0, 0)
+        gb2_l.addWidget(self.comments)
+        self.splitter.addWidget(gb2)
 
         self.set_custom_metadata_tab_order()
 
@@ -1029,13 +1027,11 @@ class MetadataSingleDialogAlt1(MetadataSingleDialogBase):  # {{{
         self.on_drag_enter.connect(self.handle_drag_enter)
         self.tabs.append(DragTrackingWidget(self, self.on_drag_enter))
         self.central_widget.addTab(ScrollArea(self.tabs[0], self), _('&Metadata'))
-        self.tabs[0].l = QGridLayout()
-        self.tabs[0].setLayout(self.tabs[0].l)
+        zero_l = QGridLayout(self.tabs[0])
 
         self.tabs.append(QWidget(self))
         self.central_widget.addTab(ScrollArea(self.tabs[1], self), _('&Cover and formats'))
-        self.tabs[1].l = QGridLayout()
-        self.tabs[1].setLayout(self.tabs[1].l)
+        one_l = QGridLayout(self.tabs[1])
 
         # accept drop events so we can automatically switch to the second tab to
         # drop covers and formats
@@ -1046,7 +1042,7 @@ class MetadataSingleDialogAlt1(MetadataSingleDialogBase):  # {{{
 
         tl = QGridLayout()
         gb = QGroupBox(_('&Basic metadata'), self.tabs[0])
-        self.tabs[0].l.addWidget(gb, 0, 0, 1, 1)
+        zero_l.addWidget(gb, 0, 0, 1, 1)
         gb.setLayout(tl)
 
         self.button_box_layout.insertWidget(1, self.fetch_metadata_button)
@@ -1117,7 +1113,7 @@ class MetadataSingleDialogAlt1(MetadataSingleDialogBase):  # {{{
             sr.setFrameStyle(QFrame.Shape.NoFrame)
             sr.setWidget(w)
             gbl.addWidget(sr)
-            self.tabs[0].l.addWidget(gb, 0, 1, 1, 1)
+            zero_l.addWidget(gb, 0, 1, 1, 1)
             sto(self.identifiers, gb)
 
         w = QGroupBox(_('&Comments'), tab0)
@@ -1129,7 +1125,7 @@ class MetadataSingleDialogAlt1(MetadataSingleDialogBase):  # {{{
         l = QHBoxLayout()
         w.setLayout(l)
         l.addWidget(self.comments)
-        tab0.l.addWidget(w, 1, 0, 1, 2)
+        zero_l.addWidget(w, 1, 0, 1, 2)
 
         # Tab 1
         tab1 = self.tabs[1]
@@ -1158,7 +1154,7 @@ class MetadataSingleDialogAlt1(MetadataSingleDialogBase):  # {{{
         wgl.addWidget(self.formats_manager)
 
         self.splitter = Splitter(Qt.Orientation.Horizontal, tab1)
-        tab1.l.addWidget(self.splitter)
+        one_l.addWidget(self.splitter)
         self.splitter.addWidget(self.cover)
         self.splitter.addWidget(wsp)
 

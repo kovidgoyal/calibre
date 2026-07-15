@@ -1524,6 +1524,7 @@ class Cover(ImageView):  # {{{
 class CommentsEdit(Editor, ToMetadataMixinLineEdit):  # {{{
 
     FIELD_NAME = 'comments'
+    LABEL = _('&Comments')
     toolbar_prefs_name = 'metadata-comments-editor-widget-hidden-toolbars'
 
     @property
