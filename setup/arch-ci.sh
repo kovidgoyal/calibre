@@ -13,6 +13,7 @@ cd espeak-ng
 cmake -B build -S . -DCMAKE_INSTALL_PREFIX=/usr -DBUILD_SHARED_LIBS=ON -DESPEAK_COMPAT=ON
 cmake --build build
 cmake --install build
+cd .. && rm -rf espeak-ng
 
 useradd -m ci
 chown -R ci:users $GITHUB_WORKSPACE
