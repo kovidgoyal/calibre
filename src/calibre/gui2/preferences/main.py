@@ -14,12 +14,12 @@ from qt.core import (
     QDialog,
     QDialogButtonBox,
     QFont,
+    QFrame,
     QHBoxLayout,
     QIcon,
     QKeySequence,
     QLabel,
     QPainter,
-    QPalette,
     QPointF,
     QPushButton,
     QScrollArea,
@@ -39,20 +39,12 @@ from qt.core import (
 
 from calibre.constants import __appname__, __version__
 from calibre.customize.ui import preferences_plugins
-from calibre.gui2 import gprefs, show_restart_warning
+from calibre.gui2 import gprefs, qapplication_or_fail, show_restart_warning
 from calibre.gui2.dialogs.message_box import Icon
 from calibre.gui2.preferences import AbortCommit, AbortInitialize, ConfigWidgetBase, get_plugin, init_gui
 from calibre.utils.localization import _
 
 ICON_SIZE = 32
-PREFERENCE_BUTTON_WIDTH = 112
-PREFERENCE_BUTTON_TEXT_WIDTH = 13
-PREFERENCES_OVERVIEW_PADDING = 12
-PREFERENCES_SCREEN_MARGIN = 80
-
-
-def wrap_preference_button_text(text):
-    return textwrap.fill(text, PREFERENCE_BUTTON_TEXT_WIDTH, break_long_words=False)
 
 
 # Title Bar {{{
@@ -131,41 +123,30 @@ class TitleBar(QWidget):
 # }}}
 
 
-class SectionSeparator(QWidget):
-
-    def sizeHint(self):
-        return QSize(1, 1)
-
-    def paintEvent(self, a0):
-        p = QPainter(self)
-        p.fillRect(self.rect(), self.palette().color(QPalette.ColorRole.Midlight))
-
-
 class Category(QWidget):  # {{{
 
     plugin_activated = pyqtSignal(object)
 
-    def __init__(self, name, plugins, gui_name, parent=None, add_separator=True):
+    def __init__(self, name, plugins, gui_name, parent=None):
         QWidget.__init__(self, parent)
         self._layout = QVBoxLayout()
-        self._layout.setContentsMargins(0, 0, 0, 4)
-        self._layout.setSpacing(2)
         self.setLayout(self._layout)
-        if add_separator:
-            self._layout.addWidget(SectionSeparator(self))
         self.label = QLabel(gui_name)
+        self.sep = QFrame(self)
         self.bf = QFont()
         self.bf.setBold(True)
         self.label.setFont(self.bf)
+        self.sep.setFrameShape(QFrame.Shape.HLine)
         self._layout.addWidget(self.label)
+        self._layout.addWidget(self.sep)
 
         self.plugins = plugins
 
         self.bar = QToolBar(self)
         self.bar.setStyleSheet(
-                'QToolBar { border: none; background: none } QToolButton { padding-top: 2px; padding-bottom: 2px }')
-        self.bar.setContentsMargins(0, 0, 0, 0)
-        self.bar.setIconSize(QSize(ICON_SIZE, ICON_SIZE))
+                'QToolBar { border: none; background: none }')
+        lh = qapplication_or_fail().line_height
+        self.bar.setIconSize(QSize(2*lh, 2*lh))
         self.bar.setMovable(False)
         self.bar.setFloatable(False)
         self.bar.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
@@ -187,11 +168,9 @@ class Category(QWidget):  # {{{
             self._actions.append(ac)
             w = self.bar.widgetForAction(ac)
             assert isinstance(w, QToolButton)
-            w.setText(wrap_preference_button_text(p.gui_name.replace('&', '&&')))
             w.setCursor(Qt.CursorShape.PointingHandCursor)
             w.setAutoRaise(True)
-            w.setFixedWidth(PREFERENCE_BUTTON_WIDTH)
-            w.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Preferred)
+            w.setMinimumWidth(100)
 
     def triggered(self, plugin, *args):
         self.plugin_activated.emit(plugin)
@@ -236,8 +215,8 @@ class Browser(QScrollArea):  # {{{
         self.container.setLayout(self._layout)
         self.setWidget(self.container)
 
-        for i, (name, plugins) in enumerate(self.category_map.items()):
-            w = Category(name, plugins, self.category_names[name], parent=self, add_separator=i > 0)
+        for name, plugins in self.category_map.items():
+            w = Category(name, plugins, self.category_names[name], parent=self)
             self.widgets.append(w)
             self._layout.addWidget(w)
             w.plugin_activated.connect(self.show_plugin.emit)
@@ -303,7 +282,7 @@ class Preferences(QDialog):
             btn.setToolTip(tt)
 
         l.addWidget(self.title_bar), l.addWidget(self.stack)
-        h = self.button_bar_layout = QHBoxLayout()
+        h = QHBoxLayout()
         l.addLayout(h)
         h.addWidget(self.wizard_button), h.addWidget(self.restore_defaults_button), h.addStretch(10), h.addWidget(self.bb)
 
@@ -327,28 +306,6 @@ class Preferences(QDialog):
                                     break
         else:
             self.hide_plugin()
-            self.resize(self.optimal_overview_size())
-
-    def optimal_overview_size(self):
-        self.browser.container.adjustSize()
-        browser_size = self.browser.container.sizeHint()
-        margins = self.l.contentsMargins()
-        spacing = self.l.spacing()
-        frame = 2 * self.browser.frameWidth()
-        width = max(browser_size.width() + frame, self.title_bar.sizeHint().width(), self.button_bar_layout.sizeHint().width())
-        height = self.title_bar.sizeHint().height() + browser_size.height() + self.button_bar_layout.sizeHint().height() + frame + 2 * spacing
-        width += margins.left() + margins.right() + PREFERENCES_OVERVIEW_PADDING
-        height += margins.top() + margins.bottom() + PREFERENCES_OVERVIEW_PADDING
-        screen = self.screen()
-        assert screen is not None
-        available = screen.availableGeometry().size()
-        max_width = max(640, available.width() - PREFERENCES_SCREEN_MARGIN)
-        max_height = max(480, available.height() - PREFERENCES_SCREEN_MARGIN)
-        calculated = QSize(min(width, max_width), min(height, max_height))
-        saved = self.size()
-        w = min(max(calculated.width(), saved.width()), max_width)
-        h = min(max(calculated.height(), saved.height()), max_height)
-        return QSize(w, h)
 
     def sizeHint(self):
         return QSize(930, 720)
