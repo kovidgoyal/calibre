@@ -5,7 +5,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-from qt.core import QListWidgetItem, QMenu, QPoint, Qt
+from qt.core import QListWidgetItem, QMenu, QPoint, QTabWidget, Qt
 
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget
 from calibre.gui2.preferences.look_feel_ui import Ui_Form
@@ -41,6 +41,11 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         for w in self.tabWidget.all_widgets:
             if hasattr(w, 'restore_defaults'):
                 w.restore_defaults()
+            elif isinstance(w, QTabWidget):
+                for i in range(w.count()):
+                    sw = w.widget(i)
+                    if sw is not None and hasattr(sw, 'restore_defaults'):
+                        sw.restore_defaults()
         self.changed_signal.emit()
 
     def refresh_gui(self, gui):
@@ -56,8 +61,15 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             num = self.sections_view.indexFromItem(item).row()
             widget = tuple(self.tabWidget.all_widgets)[num]
             pos = self.sections_view.mapToGlobal(pos)
-            if hasattr(widget, 'restore_defaults') and menu.exec(pos):  # type: ignore
-                widget.restore_defaults()
+            can_restore = hasattr(widget, 'restore_defaults') or isinstance(widget, QTabWidget)
+            if can_restore and menu.exec(pos):  # type: ignore
+                if hasattr(widget, 'restore_defaults'):
+                    widget.restore_defaults()
+                else:
+                    for i in range(widget.count()):
+                        sw = widget.widget(i)
+                        if sw is not None and hasattr(sw, 'restore_defaults'):
+                            sw.restore_defaults()
                 self.changed_signal.emit()
 
 
