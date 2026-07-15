@@ -5,7 +5,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-from qt.core import QListWidgetItem, QMenu, QPoint, QTabWidget, Qt
+from qt.core import QListWidgetItem, QMenu, QPoint, Qt, QTabWidget
 
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget
 from calibre.gui2.preferences.look_feel_ui import Ui_Form
