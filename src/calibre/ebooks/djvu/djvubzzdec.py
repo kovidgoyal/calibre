@@ -395,10 +395,10 @@ class BZZDecoder:
         self.inptr = 0
         self.outf = outfile
         self.ieof = False
-        self.bptr = None
-        self.xsize = None
+        self.bptr: int = 0
+        self.xsize: int = 0
         self.outbuf = [0] * (MAXBLOCK * 1024)
-        self.byte = None
+        self.byte: int = 0
         self.scount = 0
         self.delay = 25
         self.a = 0

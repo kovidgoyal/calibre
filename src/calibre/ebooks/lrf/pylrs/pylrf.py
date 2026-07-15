@@ -397,7 +397,7 @@ class LrfTag:
         # print('   Writing tag', self.name)
         for f in self.format:
             if isinstance(f, dict):
-                p = f[p]
+                p = f[p]  # type: ignore
             elif isinstance(f, (str, bytes)):
                 if isinstance(p, tuple):
                     writeString(lrf, struct.pack(f, *p))
@@ -406,9 +406,9 @@ class LrfTag:
             elif f in [writeUnicode, writeRaw, writeEmpDots]:
                 if encoding is None:
                     raise LrfError('Tag requires encoding')
-                f(lrf, p, encoding)
+                f(lrf, p, encoding)  # type: ignore
             else:
-                f(lrf, p)
+                f(lrf, p)  # type: ignore
 
 
 STREAM_SCRAMBLED = 0x200
@@ -439,6 +439,7 @@ class LrfStreamBase:
 
         flags = self.streamFlags
         streamBuffer = self.streamData
+        assert streamBuffer is not None
 
         # implement scramble?  I never scramble anything...
 
@@ -471,7 +472,7 @@ class LrfTagStream(LrfStreamBase):
     def appendLrfTag(self, tag):
         self.tags.append(tag)
 
-    def getStreamTags(self, encoding,
+    def getStreamTags(self, encoding,  # ty: ignore[invalid-method-override]
             optimizeTags=False, optimizeCompression=False):
         stream = io.BytesIO()
         if optimizeTags:
@@ -502,6 +503,7 @@ class LrfObject:
         self.name = name
         self.objId = objId
         self.tags = []
+        self.saveStreamTags = None
         try:
             self.type = OBJECT_TYPE_ENCODING[name]
         except KeyError:

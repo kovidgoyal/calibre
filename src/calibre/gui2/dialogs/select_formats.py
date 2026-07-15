@@ -20,10 +20,10 @@ class Formats(QAbstractListModel):
         self.counts = fmt_count
         self.fi = file_icon_provider()
 
-    def rowCount(self, parent):
+    def rowCount(self, parent=...):
         return len(self.fmts)
 
-    def data(self, index, role):
+    def data(self, index, role=...):
         row = index.row()
         if role == Qt.ItemDataRole.DisplayRole:
             fmt = self.fmts[row]

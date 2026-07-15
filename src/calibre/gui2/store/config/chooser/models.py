@@ -3,7 +3,9 @@ __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
 
-from qt.core import QAbstractItemModel, QIcon, QModelIndex, QStyledItemDelegate, Qt
+from typing import overload
+
+from qt.core import QAbstractItemModel, QIcon, QModelIndex, QObject, QStyledItemDelegate, Qt
 
 from calibre import fit_image
 from calibre.customize.ui import disable_plugin, enable_plugin, is_disabled
@@ -95,18 +97,22 @@ class Matches(QAbstractItemModel):
     def index(self, row, column, parent=QModelIndex()):
         return self.createIndex(row, column)
 
-    def parent(self, index):
-        if not index.isValid() or index.internalId() == 0:
+    @overload
+    def parent(self, child: QModelIndex) -> QModelIndex: ...
+    @overload
+    def parent(self) -> QObject | None: ...
+    def parent(self, child: QModelIndex = QModelIndex()):
+        if not child.isValid() or child.internalId() == 0:
             return QModelIndex()
         return self.createIndex(0, 0)
 
-    def rowCount(self, *args):
+    def rowCount(self, parent=...):
         return len(self.matches)
 
-    def columnCount(self, *args):
+    def columnCount(self, parent=...):
         return len(self.HEADERS)
 
-    def headerData(self, section, orientation, role):
+    def headerData(self, section, orientation, role=...):
         if role != Qt.ItemDataRole.DisplayRole:
             return None
         text = ''
@@ -117,7 +123,7 @@ class Matches(QAbstractItemModel):
         else:
             return (section+1)
 
-    def data(self, index, role):
+    def data(self, index, role=...):
         row, col = index.row(), index.column()
         result = self.matches[row]
         if role in (Qt.ItemDataRole.DisplayRole, Qt.ItemDataRole.EditRole):
@@ -165,12 +171,12 @@ class Matches(QAbstractItemModel):
                 return ('<p>' + _('This store distributes e-books in the following formats: %s') % ', '.join(result.formats) + '</p>')
         return None
 
-    def setData(self, index, data, role):
+    def setData(self, index, value, role=...):
         if not index.isValid():
             return False
         col = index.column()
         if col == 0:
-            if data in (Qt.CheckState.Checked, Qt.CheckState.Checked.value):
+            if value in (Qt.CheckState.Checked, Qt.CheckState.Checked.value):
                 enable_plugin(self.get_plugin(index))
             else:
                 disable_plugin(self.get_plugin(index))
@@ -196,13 +202,13 @@ class Matches(QAbstractItemModel):
             text = 'a' if getattr(match, 'affiliate', False) else 'b'
         return text
 
-    def sort(self, col, order, reset=True):
-        self.sort_col = col
+    def sort(self, column, order: Qt.SortOrder = Qt.SortOrder.AscendingOrder, reset=True):
+        self.sort_col = column
         self.sort_order = order
         if not self.matches:
             return
         descending = order == Qt.SortOrder.DescendingOrder
-        self.matches.sort(key=lambda x: sort_key(str(self.data_as_text(x, col))), reverse=descending)
+        self.matches.sort(key=lambda x: sort_key(str(self.data_as_text(x, column))), reverse=descending)
         if reset:
             self.beginResetModel(), self.endResetModel()
 
@@ -228,7 +234,7 @@ class SearchFilter(SearchQueryParser):
     def universal_set(self):
         return self.srs
 
-    def get_matches(self, location, query):
+    def get_matches(self, location, query, candidates=None):
         location = location.lower().strip()
         if location == 'formats':
             location = 'format'
@@ -292,7 +298,7 @@ class SearchFilter(SearchQueryParser):
                         m = matchkind
 
                     if locvalue == 'format':
-                        vals = accessor(sr).split(',')
+                        vals = str(accessor(sr)).split(',')
                     else:
                         vals = [accessor(sr)]
                     if _match(query, vals, m, use_primary_find_in_search=upf):

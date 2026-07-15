@@ -8,11 +8,7 @@ __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
 from contextlib import closing
-
-try:
-    from urllib.parse import quote
-except ImportError:
-    from urllib import quote
+from urllib.parse import quote
 
 from qt.core import QUrl
 
@@ -31,7 +27,7 @@ except ImportError:
 
 class EBookNLStore(BasicStoreConfig, StorePlugin):
 
-    def open(self, parent=None, detail_item=None, external=False):
+    def open(self, gui=None, parent=None, detail_item=None, external=False):
         url = 'http://www.ebook.nl/'
         url_details = ('http://www.ebook.nl/store/{0}')
 
@@ -80,7 +76,7 @@ class EBookNLStore(BasicStoreConfig, StorePlugin):
 
                 yield s
 
-    def get_details(self, search_result, timeout):
+    def get_details(self, search_result, timeout=60):
         br = browser()
         with closing(br.open(search_result.detail_item, timeout=timeout)) as nf:
             idata = safe_html_fromstring(nf.read())

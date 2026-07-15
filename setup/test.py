@@ -8,7 +8,7 @@ import sys
 
 from setup import Command, is_ci, ismacos, iswindows
 
-TEST_MODULES = frozenset('srv db polish opf css docx cfi matcher icu smartypants build misc dbcli ebooks'.split())
+TEST_MODULES = frozenset('ai fork scraper srv db polish opf css docx cfi matcher icu smartypants build misc dbcli ebooks'.split())
 
 
 class BaseTest(Command):
@@ -51,9 +51,6 @@ class Test(BaseTest):
 
     def run(self, opts):
         super().run(opts)
-        # cgi is used by feedparser and possibly other dependencies
-        import warnings
-        warnings.filterwarnings('ignore', message="'cgi' is deprecated and slated for removal in Python 3.13")
 
         if is_ci and (SW := os.environ.get('SW')):
             if ismacos:

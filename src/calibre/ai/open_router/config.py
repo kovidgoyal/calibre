@@ -4,7 +4,7 @@
 import datetime
 import textwrap
 from functools import partial
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, cast
 
 from qt.core import (
     QAbstractItemView,
@@ -21,6 +21,7 @@ from qt.core import (
     QListView,
     QLocale,
     QModelIndex,
+    QObject,
     QPushButton,
     QSize,
     QSortFilterProxyModel,
@@ -83,7 +84,7 @@ class Model(QWidget):
 
 class ModelsModel(QAbstractListModel):
 
-    def __init__(self, capabilities, parent: QWidget | None = None):
+    def __init__(self, capabilities, parent: QObject | None = None):
         super().__init__(parent)
         for plugin in available_ai_provider_plugins():
             if plugin.name == OpenRouterAI.name:
@@ -99,10 +100,10 @@ class ModelsModel(QAbstractListModel):
     def generate_sorts(self, *sorts):
         self.sorts = tuple(tuple(f(m) for f in sorts) for m in self.all_models)
 
-    def rowCount(self, parent):
+    def rowCount(self, parent=...):
         return len(self.all_models)
 
-    def data(self, index, role):
+    def data(self, index, role=...):
         try:
             m = self.all_models[index.row()]
         except IndexError:
@@ -147,7 +148,7 @@ class ProxyModels(QSortFilterProxyModel):
         self.source_model.generate_sorts(*sorts)
         self.invalidate()
 
-    def index_for_model_id(self, model_id: str) -> QModelIndex():
+    def index_for_model_id(self, model_id: str) -> QModelIndex:
         for i in range(self.rowCount(QModelIndex())):
             ans = self.index(i, 0)
             if ans.data(Qt.ItemDataRole.UserRole).id == model_id:
@@ -208,8 +209,9 @@ class ModelDetails(QTextBrowser):
 
     def open_link(self, url: QUrl):
         if url.host() == '':
-            url = 'https://openrouter.ai/' + url.path().lstrip('/')
-        safe_open_url(url)
+            safe_open_url('https://openrouter.ai/' + url.path().lstrip('/'))
+        else:
+            safe_open_url(url)
 
 
 class SortLoc(QComboBox):
@@ -268,7 +270,9 @@ class ChooseModel(Dialog):
 
     @model_id.setter
     def model_id(self, val):
-        self.models.setCurrentIndex(self.models.model().index_for_model_id(val))
+        pm = self.models.model()
+        assert isinstance(pm, ProxyModels)
+        self.models.setCurrentIndex(pm.index_for_model_id(val))
 
     @property
     def model_name(self) -> str:
@@ -316,9 +320,12 @@ class ChooseModel(Dialog):
         s.addWidget(m)
         self.details = d = ModelDetails(self)
         s.addWidget(d)
-        m.selectionModel().currentChanged.connect(self.current_changed)
+        sm = m.selectionModel()
+        assert sm is not None
+        sm.currentChanged.connect(self.current_changed)
 
         b = self.bb.addButton(_('Clear choice'), QDialogButtonBox.ButtonRole.ActionRole)
+        assert b is not None
         b.setIcon(QIcon.ic('trash.png'))
         b.clicked.connect(lambda : setattr(self, 'model_id', ''))
         b.setToolTip(_('Let the AI model be chosen dynamically based on the query being made'))
@@ -330,7 +337,9 @@ class ChooseModel(Dialog):
         self.update_sorts()
 
     def current_changed(self):
-        idx = self.models.selectionModel().currentIndex()
+        sm = self.models.selectionModel()
+        assert sm is not None
+        idx = sm.currentIndex()
         if idx.isValid():
             model = idx.data(Qt.ItemDataRole.UserRole)
             self.details.show_model_details(model)
@@ -366,7 +375,9 @@ class ChooseModel(Dialog):
             filters.append(lambda m: not m.is_moderated)
         self.proxy_model.set_filters(*filters)
         num_showing = self.proxy_model.rowCount(QModelIndex())
-        total = self.proxy_model.sourceModel().rowCount(QModelIndex())
+        src_model = self.proxy_model.sourceModel()
+        assert src_model is not None
+        total = src_model.rowCount(QModelIndex())
         if num_showing == total:
             self.counts.setText(_('{} models').format(num_showing))
         else:
@@ -435,7 +446,7 @@ class ConfigWidget(QWidget):
         l.addRow(_('Model for &text tasks:'), tm)
 
     def select_model(self, model_id: str, for_text: bool) -> None:
-        model_choice_target: Model = self.sender()
+        model_choice_target = cast(Model, self.sender())
         caps = AICapabilities.text_to_text if for_text else AICapabilities.text_to_image
         d = ChooseModel(model_id, caps, self)
         if d.exec() == QDialog.DialogCode.Accepted:

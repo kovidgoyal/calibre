@@ -164,7 +164,7 @@ class Files(QAbstractListModel):
                 return i
         return -1
 
-    def data(self, index, role):
+    def data(self, index, role=None):
         row = index.row()
         if row >= len(self.files):
             return None
@@ -197,23 +197,25 @@ class ListView(QListView):
     def is_drop_event_ok(self, ev: QDropEvent):
         if ev.proposedAction() in (Qt.DropAction.CopyAction, Qt.DropAction.MoveAction, Qt.DropAction.TargetMoveAction):
             md = ev.mimeData()
+            assert md is not None
             if md.hasUrls():
                 for url in md.urls():
                     if url.isLocalFile() and os.access(url.toLocalFile(), os.R_OK):
                         return True
         return False
 
-    def dragEnterEvent(self, ev: QDropEvent):
-        if self.is_drop_event_ok(ev):
-            ev.accept()
+    def dragEnterEvent(self, e: QDropEvent | None = None):
+        if e is not None and self.is_drop_event_ok(e):
+            e.accept()
 
-    def dragMoveEvent(self, ev: QDropEvent):
-        ev.accept()
+    def dragMoveEvent(self, e: QDropEvent | None = None):
+        if e is not None:
+            e.accept()
 
-    def dropEvent(self, ev):
+    def dropEvent(self, e):
         files = []
-        if self.is_drop_event_ok(ev):
-            md = ev.mimeData()
+        if self.is_drop_event_ok(e):
+            md = e.mimeData()
             for url in md.urls():
                 if url.isLocalFile() and os.access(url.toLocalFile(), os.R_OK):
                     files.append(url.toLocalFile())
@@ -265,7 +267,9 @@ class DataFilesManager(Dialog):
         v.setSelectionMode(QAbstractItemView.SelectionMode.ExtendedSelection)
         if self.files.rowCount():
             v.setCurrentIndex(self.files.index(0))
-        v.selectionModel().currentChanged.connect(self.current_changed)
+        sm = v.selectionModel()
+        assert sm is not None
+        sm.currentChanged.connect(self.current_changed)
 
         self.current_label = la = QLabel(self)
         la.setWordWrap(True)
@@ -312,7 +316,9 @@ class DataFilesManager(Dialog):
         if not idx.isValid():
             return
         e = self.files.item_at(idx.row())
-        m.addAction(QIcon.ic('modified.png'), _('Rename this file')).triggered.connect(lambda: self.fview.edit(idx))
+        rename_ac = m.addAction(QIcon.ic('modified.png'), _('Rename this file'))
+        assert rename_ac is not None
+        rename_ac.triggered.connect(lambda: self.fview.edit(idx))
         if e:
             om = self.open_with_menu(e.file_path)
             if len(om.actions()) == 1:
@@ -322,10 +328,10 @@ class DataFilesManager(Dialog):
 
         m.exec(self.fview.mapToGlobal(pos))
 
-    def keyPressEvent(self, ev):
-        if ev.key() in (Qt.Key.Key_Return, Qt.Key.Key_Enter):
+    def keyPressEvent(self, a0):
+        if a0.key() in (Qt.Key.Key_Return, Qt.Key.Key_Enter):
             return
-        return super().keyPressEvent(ev)
+        return super().keyPressEvent(a0)
 
     def sort_changed(self):
         idx = max(0, self.sort_by.currentIndex())
@@ -386,8 +392,11 @@ class DataFilesManager(Dialog):
     def preserve_state(self):
         selected = set()
         vs = self.fview.verticalScrollBar()
+        assert vs is not None
         pos = vs.value()
-        for idx in self.fview.selectionModel().selectedRows():
+        sel_model = self.fview.selectionModel()
+        assert sel_model is not None
+        for idx in sel_model.selectedRows():
             e = self.files.item_at(idx.row())
             selected.add(e.relpath)
         current = self.current_item
@@ -395,6 +404,7 @@ class DataFilesManager(Dialog):
             yield
         finally:
             sm = self.fview.selectionModel()
+            assert sm is not None
             sm.clearSelection()
             current_idx = None
             s = QItemSelection()
@@ -441,7 +451,9 @@ class DataFilesManager(Dialog):
 
     def remove_files(self):
         files = []
-        for idx in self.fview.selectionModel().selectedRows():
+        sel_model = self.fview.selectionModel()
+        assert sel_model is not None
+        for idx in sel_model.selectedRows():
             files.append(self.files.item_at(idx.row()))
         if not files:
             return error_dialog(self, _('Cannot delete'), _('No files selected to remove'), show=True)
@@ -471,7 +483,9 @@ class DataFilesManager(Dialog):
         if row > -1:
             idx = self.files.index(row)
             self.fview.setCurrentIndex(idx)
-            self.fview.selectionModel().select(idx, QItemSelectionModel.SelectionFlag.SelectCurrent)
+            fview_sel_model = self.fview.selectionModel()
+            assert fview_sel_model is not None
+            fview_sel_model.select(idx, QItemSelectionModel.SelectionFlag.SelectCurrent)
             self.fview.scrollTo(idx)
 
     def activated(self, idx):

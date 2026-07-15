@@ -25,9 +25,13 @@ from calibre.utils.localization import _, ngettext
 class Job(ThreadedJob):
 
     ignore_html_details = True
+    metadata_and_covers: tuple[bool, bool]
+    download_debug_log: str
 
     def consolidate_log(self):
-        self.consolidated_log = self.log.plain_text
+        log = self.log
+        assert log is not None
+        self.consolidated_log = log.plain_text
         self.log = None
 
     def read_consolidated_log(self):
@@ -36,7 +40,9 @@ class Job(ThreadedJob):
     @property
     def details(self):
         if self.consolidated_log is None:
-            return self.log.plain_text
+            log = self.log
+            assert log is not None
+            return log.plain_text
         return self.read_consolidated_log()
 
     @property
@@ -87,18 +93,22 @@ class ConfirmDialog(QDialog):
         self.bb.rejected.connect(self.reject)
         b = self.bb.addButton(_('Download only &metadata'),
                 QDialogButtonBox.ButtonRole.AcceptRole)
+        assert b is not None
         b.clicked.connect(self.only_metadata)
         b.setIcon(QIcon.ic('edit_input.png'))
         b = self.bb.addButton(_('Download only &covers'),
                 QDialogButtonBox.ButtonRole.AcceptRole)
+        assert b is not None
         b.clicked.connect(self.only_covers)
         b.setIcon(QIcon.ic('default_cover.png'))
         b = self.b = self.bb.addButton(_('&Configure download'), QDialogButtonBox.ButtonRole.ActionRole)
+        assert b is not None
         b.setIcon(QIcon.ic('config.png'))
         connect_lambda(b.clicked, self, lambda self: show_config(self))  # noqa: PLW0108
         l.addWidget(self.bb, 1, 0, 1, 2)
         b = self.bb.addButton(_('Download &both'),
                 QDialogButtonBox.ButtonRole.AcceptRole)
+        assert b is not None
         b.clicked.connect(self.accept)
         b.setDefault(True)
         b.setAutoDefault(True)
@@ -129,7 +139,9 @@ def split_jobs(ids, batch_size=100):
 def start_download(gui, ids, callback, ensure_fields=None):
     d = ConfirmDialog(ids, gui)
     ret = d.exec()
-    d.b.clicked.disconnect()
+    d_b = d.b
+    assert d_b is not None
+    d_b.clicked.disconnect()
     if ret != QDialog.DialogCode.Accepted:
         return
     tf = PersistentTemporaryFile('_metadata_bulk.log')
@@ -232,6 +244,8 @@ def download(all_ids, tf, db, do_identify, covers, ensure_fields,
     count = 0
     notifier = Notifier(notifications, title_map, tdir, len(all_ids))
     notifier.start()
+    assert abort is not None
+    assert log is not None
 
     try:
         for ids in batches:

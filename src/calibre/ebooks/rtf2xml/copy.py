@@ -18,7 +18,7 @@ class Copy:
     '''Copy each changed file to a directory for debugging purposes'''
     __dir = ''
 
-    def __init__(self, bug_handler, file=None, deb_dir=None, ):
+    def __init__(self, bug_handler=RuntimeError, file=None, deb_dir=None, ):
         self.__file = file
         self.__bug_handler = bug_handler
 

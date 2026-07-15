@@ -34,6 +34,7 @@ elif ismacos:
     try:
         from calibre_extensions.usbobserver import date_format
         date_fmt = date_format()
+        assert date_fmt is not None
         parse_date_day_first = date_fmt.index('d') < date_fmt.index('M')
     except Exception:
         parse_date_day_first = False

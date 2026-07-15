@@ -97,7 +97,9 @@ class NewsCategory(NewsTreeItem):
         elif role == Qt.ItemDataRole.FontRole:
             return self.bold_font
         elif role == Qt.ItemDataRole.ForegroundRole and self.category == _('Scheduled'):
-            return QApplication.instance().palette().color(QPalette.ColorRole.Link)
+            app = QApplication.instance()
+            assert isinstance(app, QApplication)
+            return app.palette().color(QPalette.ColorRole.Link)
         elif role == Qt.ItemDataRole.UserRole:
             return f'::category::{self.sortq[0]}'
         return None
@@ -326,10 +328,7 @@ class RecipeModel(QAbstractItemModel, AdaptSQP):
     def get_customize_info(self, urn):
         return self.scheduler_config.get_customize_info(urn)
 
-    def get_recipe_specific_option_metadata(self, urn):
-        return self.scheduler_config.get_recipe_specific_option_metadata(urn)
-
-    def get_matches(self, location, query):
+    def get_matches(self, location, query, candidates=None):
         query = query.strip().lower()
         if not query:
             return self.universal_set()
@@ -361,16 +360,16 @@ class RecipeModel(QAbstractItemModel, AdaptSQP):
         self.do_refresh(restrict_to_urns=results)
         self.searched.emit(True)
 
-    def columnCount(self, parent):
+    def columnCount(self, parent=...):
         return 1
 
-    def data(self, index, role):
+    def data(self, index, role=...):
         if not index.isValid():
             return None
         item = index.internalPointer()
         return item.data(role)
 
-    def headerData(self, *args):
+    def headerData(self, section, orientation, role=...):
         return None
 
     def flags(self, index):
@@ -382,7 +381,7 @@ class RecipeModel(QAbstractItemModel, AdaptSQP):
     def resort(self):
         self.do_refresh()
 
-    def index(self, row, column, parent):
+    def index(self, row, column, parent: QModelIndex = QModelIndex()):
         if not self.hasIndex(row, column, parent):
             return QModelIndex()
 
@@ -399,11 +398,11 @@ class RecipeModel(QAbstractItemModel, AdaptSQP):
         ans = self.createIndex(row, column, child_item)
         return ans
 
-    def parent(self, index):
-        if not index.isValid():
+    def parent(self, child: QModelIndex = QModelIndex(), index: QModelIndex = QModelIndex()):
+        if not child.isValid():
             return QModelIndex()
 
-        child_item = index.internalPointer()
+        child_item = child.internalPointer()
         parent_item = child_item.parent
 
         if parent_item is self.root or parent_item is None:
@@ -412,7 +411,7 @@ class RecipeModel(QAbstractItemModel, AdaptSQP):
         ans = self.createIndex(parent_item.row(), 0, parent_item)
         return ans
 
-    def rowCount(self, parent):
+    def rowCount(self, parent: QModelIndex = QModelIndex()):
         if parent.column() > 0:
             return 0
 
@@ -426,8 +425,7 @@ class RecipeModel(QAbstractItemModel, AdaptSQP):
     def update_recipe_schedule(self, urn, schedule_type, schedule,
             add_title_tag=True, custom_tags=[]):
         recipe = self.recipe_from_urn(urn)
-        self.scheduler_config.schedule_recipe(recipe, schedule_type, schedule,
-                add_title_tag=add_title_tag, custom_tags=custom_tags)
+        self.scheduler_config.schedule_recipe(recipe, schedule_type, schedule)
 
     def update_last_downloaded(self, urn):
         self.scheduler_config.update_last_downloaded(urn)

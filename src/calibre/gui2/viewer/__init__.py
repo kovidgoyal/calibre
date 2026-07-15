@@ -14,10 +14,14 @@ def get_current_book_data(set_val=False):
     return getattr(get_current_book_data, 'ans', {})
 
 
+_boss = None
+
+
 def get_boss(set_val=False):
+    global _boss
     if set_val:
-        get_boss.ans = set_val
-    return get_boss.ans
+        _boss = set_val
+    return _boss
 
 
 def link_prefix_for_location_links(add_open_at=True):

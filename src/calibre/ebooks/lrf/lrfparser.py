@@ -3,7 +3,6 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 ''''''
 
 import array
-import codecs
 import logging
 import os
 import re
@@ -21,7 +20,25 @@ from calibre.utils.localization import _
 class LRFDocument(LRFMetaFile):
 
     class temp:
-        pass
+        title: str
+        title_reading: str
+        author: str
+        author_reading: str
+        book_id: str
+        classification: str
+        free_text: str
+        publisher: str
+        label: str
+        category: str
+        thumbnail: bytes | None
+        language: str
+        creator: str
+        producer: str
+        page: str
+        thumbnail_extension: str
+        dpi: int
+        width: int
+        height: int
 
     def __init__(self, stream):
         LRFMetaFile.__init__(self, stream)
@@ -74,7 +91,7 @@ class LRFDocument(LRFMetaFile):
             self.ruby_tags = {}
             for h in ruby_tags.values():
                 attr = h[0]
-                if hasattr(obj, attr):
+                if isinstance(attr, str) and hasattr(obj, attr):
                     self.ruby_tags[attr] = getattr(obj, attr)
 
     def __iter__(self):
@@ -168,7 +185,7 @@ def main(args=sys.argv, logger=None):
     d = LRFDocument(open(args[1], 'rb'))
     d.parse()
     logger.info(_('Creating XML...'))
-    with codecs.open(os.path.abspath(os.path.expanduser(opts.out)), 'wb', 'utf-8') as f:
+    with open(os.path.abspath(os.path.expanduser(opts.out)), 'w', encoding='utf-8') as f:
         f.write('<?xml version="1.0" encoding="UTF-8"?>\n')
         f.write(d.to_xml(write_files=opts.output_resources))
     logger.info(_('LRS written to ')+opts.out)

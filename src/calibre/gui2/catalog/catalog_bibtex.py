@@ -50,6 +50,7 @@ class PluginWidget(QWidget, Ui_Form):
         # Restore the activated db_fields from last use
         for x in range(self.db_fields.count()):
             item = self.db_fields.item(x)
+            assert item is not None
             item.setSelected(str(item.text()) in fields)
         self.bibfile_enc.clear()
         self.bibfile_enc.addItems(['utf-8', 'cp1252', 'ascii/LaTeX'])
@@ -74,11 +75,13 @@ class PluginWidget(QWidget, Ui_Form):
         fields = []
         for x in range(self.db_fields.count()):
             item = self.db_fields.item(x)
+            assert item is not None
             if item.isSelected():
                 fields.append(str(item.text()))
         gprefs.set(self.name+'_db_fields', fields)
 
         # Dictionary currently activated fields
+        opts_dict: dict[str, list[str] | int | bool | str]
         if len(self.db_fields.selectedItems()):
             opts_dict = {'fields':[str(i.text()) for i in self.db_fields.selectedItems()]}
         else:

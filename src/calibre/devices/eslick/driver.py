@@ -38,8 +38,8 @@ class ESLICK(USBMS):
     SUPPORTS_SUB_DIRS = True
 
     @classmethod
-    def can_handle(cls, dev, debug=False):
-        return (dev[3], dev[4]) != ('philips', 'Philips d')
+    def can_handle(cls, device_info, debug=False):
+        return (device_info[3], device_info[4]) != ('philips', 'Philips d')
 
 
 class EBK52(ESLICK):
@@ -57,5 +57,5 @@ class EBK52(ESLICK):
     STORAGE_CARD_VOLUME_LABEL = 'Sigmatek Storage Card'
 
     @classmethod
-    def can_handle(cls, dev, debug=False):
-        return (dev[3], dev[4]) == ('philips', 'Philips d')
+    def can_handle(cls, device_info, debug=False):
+        return (device_info[3], device_info[4]) == ('philips', 'Philips d')

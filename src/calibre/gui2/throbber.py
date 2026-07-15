@@ -53,10 +53,10 @@ class ThrobbingButton(QToolButton):
     def animation_finished(self):
         self.icon_size = self.iconSize().width()
 
-    def enterEvent(self, ev):
+    def enterEvent(self, a0):
         self.start_animation()
 
-    def leaveEvent(self, ev):
+    def leaveEvent(self, a0):
         self.stop_animation()
 
     def value_changed(self, val):
@@ -79,13 +79,14 @@ class ThrobbingButton(QToolButton):
         self.animation.stop()
         self.animation_finished()
 
-    def paintEvent(self, ev):
+    def paintEvent(self, a0):
         size = self._icon_size if self._icon_size > 10 else self.iconSize().width()
         size = size or max(0, self.width() - 4)
         p = QPainter(self)
         opt = QStyleOptionToolButton()
         self.initStyleOption(opt)
         s = self.style()
+        assert s is not None
         opt.iconSize = QSize(size, size)
         s.drawComplexControl(QStyle.ComplexControl.CC_ToolButton, opt, p, self)
 
@@ -97,9 +98,11 @@ if __name__ == '__main__':
     w.setLayout(QHBoxLayout())
     b = ThrobbingButton()
     b.setIcon(QIcon.ic('donate.png'))
-    w.layout().addWidget(b)
+    wl = w.layout()
+    assert wl is not None
+    wl.addWidget(b)
     w.show()
-    b.set_normal_icon_size(64, 64)
+    # b.set_normal_icon_size(64, 64)
     b.start_animation()
 
     app.exec()

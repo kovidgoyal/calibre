@@ -30,7 +30,7 @@ from qt.core import (
     pyqtSignal,
 )
 
-from calibre import isbytestring, sanitize_file_name
+from calibre import sanitize_file_name
 from calibre.constants import config_dir, filesystem_encoding, get_portable_base, isportable, iswindows
 from calibre.gui2 import (
     Dispatcher,
@@ -61,12 +61,21 @@ def library_icon_path(lib_name=''):
     return os.path.join(config_dir, 'library_icons', sanitize_file_name(lib_name or current_library_name()) + '.png')
 
 
-@lru_cache(maxsize=512)
-def library_qicon(lib_name=''):
-    q = library_icon_path(lib_name)
-    if os.path.exists(q):
-        return QIcon(q)
-    return getattr(library_qicon, 'default_icon', None) or QIcon.ic('lt.png')
+class LibraryIcon:
+    default_icon: QIcon | None = None
+
+    @lru_cache(maxsize=512)
+    def __call__(self, lib_name='') -> QIcon:
+        q = library_icon_path(lib_name)
+        if os.path.exists(q):
+            return QIcon(q)
+        return self.default_icon or QIcon.ic('lt.png')
+
+    def cache_clear(self) -> None:
+        self.__call__.cache_clear()
+
+
+library_qicon = LibraryIcon()
 
 
 class LibraryUsageStats:  # {{{
@@ -102,7 +111,7 @@ class LibraryUsageStats:  # {{{
         self.write_stats()
 
     def canonicalize_path(self, lpath):
-        if isbytestring(lpath):
+        if isinstance(lpath, bytes):
             lpath = lpath.decode(filesystem_encoding)
         lpath = lpath.replace(os.sep, '/')
         return lpath
@@ -121,7 +130,7 @@ class LibraryUsageStats:  # {{{
         if lpath in locs:
             locs.remove(lpath)
         limit = tweaks['many_libraries'] if limit is None else limit
-        key = (lambda x: sort_key(os.path.basename(x))) if len(locs) > limit else self.stats.get
+        key = (lambda x: sort_key(os.path.basename(x))) if len(locs) > limit else lambda x: self.stats.get(x, 0)
         locs.sort(key=key, reverse=len(locs)<=limit)
         for loc in locs:
             yield self.pretty(loc), loc
@@ -165,8 +174,10 @@ class MovedDialog(QDialog):  # {{{
         l.addWidget(self.cd, l.rowCount() - 1, 1, 1, 1)
         self.bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Abort)
         b = self.bb.addButton(_('Library moved'), QDialogButtonBox.ButtonRole.AcceptRole)
+        assert b is not None
         b.setIcon(QIcon.ic('ok.png'))
         b = self.bb.addButton(_('Forget library'), QDialogButtonBox.ButtonRole.RejectRole)
+        assert b is not None
         b.setIcon(QIcon.ic('edit-clear.png'))
         b.clicked.connect(self.forget_library)
         self.bb.accepted.connect(self.accept)
@@ -208,6 +219,7 @@ class BackupStatus(QDialog):  # {{{
         bb.accepted.connect(self.accept)
         bb.rejected.connect(self.reject)
         b = bb.addButton(_('Queue &all books for backup'), QDialogButtonBox.ButtonRole.ActionRole)
+        assert b is not None
         b.clicked.connect(self.mark_all_dirty)
         b.setIcon(QIcon.ic('lt.png'))
         l.addWidget(bb)
@@ -217,7 +229,7 @@ class BackupStatus(QDialog):  # {{{
         self.update()
         self.resize(self.sizeHint() + QSize(50, 15))
 
-    def update(self):
+    def update(self, *args, **kwargs):
         db = self.db()
         if db is None:
             return
@@ -280,6 +292,7 @@ class ChooseLibraryAction(InterfaceAction):
             self.qaction.triggered.connect(self.choose_library)
 
         self.choose_menu = self.qaction.menu()
+        assert self.choose_menu is not None
 
         ac = self.create_action(spec=(_('Pick a random book'), 'random.png',
             None, None), attr='action_pick_random')
@@ -438,7 +451,7 @@ class ChooseLibraryAction(InterfaceAction):
     def library_name(self):
         db = self.gui.library_view.model().db
         path = db.library_path
-        if isbytestring(path):
+        if isinstance(path, bytes):
             path = path.decode(filesystem_encoding)
         path = path.replace(os.sep, '/')
         return self.stats.pretty(path)
@@ -504,6 +517,7 @@ class ChooseLibraryAction(InterfaceAction):
             name = name.replace('&', '&&')
             ac = self.quick_menu.addAction(ic, name, Dispatcher(partial(self.switch_requested,
                 loc)))
+            assert ac is not None
             ac.setStatusTip(_('Switch to: %s') % loc)
             if is_prev_lib:
                 f = ac.font()
@@ -513,10 +527,12 @@ class ChooseLibraryAction(InterfaceAction):
             ac = self.rename_menu.addAction(name, Dispatcher(partial(self.rename_requested,
                 name, loc)))
             rename_actions.append(ac)
+            assert ac is not None
             ac.setStatusTip(_('Rename: %s') % loc)
             ac = self.delete_menu.addAction(name, Dispatcher(partial(self.delete_requested,
                 name, loc)))
             delete_actions.append(ac)
+            assert ac is not None
             ac.setStatusTip(_('Remove: %s') % loc)
             if is_prev_lib:
                 ac.setFont(f)
@@ -688,7 +704,7 @@ class ChooseLibraryAction(InterfaceAction):
         finally:
             d.break_cycles()
         self.gui.library_moved(library_path)
-        if d.rejected:
+        if d.was_rejected:
             return
         if d.error is None:
             after = self.gui.current_db.new_api.size_stats()
@@ -780,6 +796,7 @@ class ChooseLibraryAction(InterfaceAction):
         ref = self.dbref
         for i in range(3):
             gc.collect()
+        assert ref is not None
         if ref() is not None:
             print('DB object alive:', ref())
             for r in gc.get_referrers(ref())[:10]:

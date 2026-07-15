@@ -7,7 +7,6 @@ import json
 import os
 import tarfile
 from functools import lru_cache
-from io import BytesIO
 
 from calibre.constants import cache_dir
 from calibre.ptempfile import TemporaryDirectory
@@ -15,12 +14,14 @@ from calibre.utils.localization import lang_as_iso639_1
 from calibre.utils.lock import ExclusiveFile
 from calibre.utils.resources import get_path as P
 
+_locale_map_cache: dict | None = None
+
 
 def locale_map():
-    ans = getattr(locale_map, 'ans', None)
-    if ans is None:
-        ans = locale_map.ans = {k.lower(): v for k, v in json.loads(P('hyphenation/locales.json', data=True)).items()}
-    return ans
+    global _locale_map_cache
+    if _locale_map_cache is None:
+        _locale_map_cache = {k.lower(): v for k, v in json.loads(P('hyphenation/locales.json', data=True)).items()}
+    return _locale_map_cache
 
 
 @lru_cache
@@ -59,17 +60,7 @@ def expected_hash():
 def extract_dicts(cache_path):
     dict_tarball = P('hyphenation/dictionaries.tar.xz', allow_user_override=False)
     with TemporaryDirectory(dir=cache_path) as tdir:
-        try:
-            from calibre_lzma.xz import decompress
-        except ImportError:
-            tf = tarfile.open(dict_tarball)
-        else:
-            buf = BytesIO()
-            with open(dict_tarball, 'rb') as f:
-                data = f.read()
-            decompress(data, outfile=buf)
-            buf.seek(0)
-            tf = tarfile.TarFile(fileobj=buf)
+        tf = tarfile.open(dict_tarball)
         with tf:
             try:
                 tf.extractall(tdir, filter='data')
@@ -88,18 +79,24 @@ def extract_dicts(cache_path):
     is_cache_up_to_date.updated = True
 
 
-def is_cache_up_to_date(cache_path):
-    if getattr(is_cache_up_to_date, 'updated', False):
-        return True
-    try:
-        with open(os.path.join(cache_path, 'f', 'sha1sum'), 'rb') as f:
-            actual_hash = f.read()
-        if actual_hash == expected_hash():
-            is_cache_up_to_date.updated = True
+class _IsCacheUpToDate:
+    updated: bool = False
+
+    def __call__(self, cache_path: str) -> bool:
+        if self.updated:
             return True
-    except OSError:
-        pass
-    return False
+        try:
+            with open(os.path.join(cache_path, 'f', 'sha1sum'), 'rb') as f:
+                actual_hash = f.read()
+            if actual_hash == expected_hash():
+                self.updated = True
+                return True
+        except OSError:
+            pass
+        return False
+
+
+is_cache_up_to_date = _IsCacheUpToDate()
 
 
 @lru_cache

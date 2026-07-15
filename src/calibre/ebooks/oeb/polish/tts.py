@@ -135,7 +135,9 @@ def mark_sentences_in_html(root, lang: str = '', voice: str = '') -> list[Senten
                         before = self.elem.tail[:start]
                     span = self.make_wrapper(text, p)
                     spans.append(span)
-                    ans.append(Sentence(span.get('id'), text, self.parent_lang, self.parent_voice))
+                    sid = span.get('id')
+                    assert sid is not None
+                    ans.append(Sentence(sid, text, self.parent_lang, self.parent_voice))
                     after = self.elem.tail[end:]
                 self.elem.tail = before
                 if after and spans:
@@ -156,9 +158,10 @@ def mark_sentences_in_html(root, lang: str = '', voice: str = '') -> list[Senten
         def make_wrapper(self, text: str | None, elem: Element | None = None) -> Element:
             if elem is None:
                 elem = self.elem
-            try:
-                ns, sep, _ = elem.tag.partition('}')
-            except AttributeError:
+            tag = elem.tag
+            if isinstance(tag, str):
+                ns, sep, _ = tag.partition('}')
+            else:
                 ns, sep = root_ns, root_sep
             ans = elem.makeelement(ns + sep + 'span')
             ans.text = text
@@ -199,6 +202,7 @@ def mark_sentences_in_html(root, lang: str = '', voice: str = '') -> list[Senten
             ans.attrib.pop('name', None)
             ans.text, ans.tail = elem.text, elem.tail
             p = elem.getparent()
+            assert p is not None
             idx = p.index(elem)
             p.insert(idx + 1, ans)
             self.replace_reference_to_child(elem, ans)
@@ -235,10 +239,13 @@ def mark_sentences_in_html(root, lang: str = '', voice: str = '') -> list[Senten
                         self.texts[self.pos] = Chunk(w, after, end, is_tail=True)
                     else:
                         self.pos += 1
-                    return w.get('id')
+                    wid = w.get('id')
+                    assert wid is not None
+                    return wid
                 if e.is_tail:  # ending in the tail of a child
                     before_start, after_start = s.text[:start_offset], s.text[start_offset:]
                     included, after = e.text[:end_offset], e.text[end_offset:]
+                    assert e.child is not None
                     e.child.tail = included
                     self.elem.text = after_start
                     w = self.wrap_contents(None, e.child)
@@ -248,10 +255,13 @@ def mark_sentences_in_html(root, lang: str = '', voice: str = '') -> list[Senten
                         self.texts[self.pos] = Chunk(w, after, end, is_tail=True)
                     else:
                         self.pos += 1
-                    return w.get('id')
+                    wid = w.get('id')
+                    assert wid is not None
+                    return wid
                 # ending inside a child
                 before_start, after_start = s.text[:start_offset], s.text[start_offset:]
                 included, after = e.text[:end_offset], e.text[end_offset:]
+                assert e.child is not None
                 e.child.text = included
                 c = self.clone_simple_element(e.child)
                 c.text = after
@@ -260,10 +270,12 @@ def mark_sentences_in_html(root, lang: str = '', voice: str = '') -> list[Senten
                 w = self.wrap_contents(None, e.child)
                 self.elem.text = before_start
                 if after:
-                    self.texts[self.pos] = Chunk(c, c.text, end)
+                    self.texts[self.pos] = Chunk(c, after, end)
                 else:
                     self.pos += 1
-                return w.get('id')
+                wid = w.get('id')
+                assert wid is not None
+                return wid
             # starting in a child text or tail
             if s.is_tail:
                 if e.is_tail:
@@ -278,7 +290,10 @@ def mark_sentences_in_html(root, lang: str = '', voice: str = '') -> list[Senten
                             self.texts[self.pos] = Chunk(w, after, end, is_tail=True)
                         else:
                             self.pos += 1
-                        return w.get('id')
+                        wid = w.get('id')
+                        assert wid is not None
+                        return wid
+                    assert e.child is not None
                     s.child.tail, after_start = s.text[:start_offset], s.text[start_offset:]
                     e.child.tail, after_end = e.text[:end_offset], e.text[end_offset:]
                     idx = self.elem.index(s.child)
@@ -288,9 +303,12 @@ def mark_sentences_in_html(root, lang: str = '', voice: str = '') -> list[Senten
                         self.texts[self.pos] = Chunk(w, after_end, end, is_tail=True)
                     else:
                         self.pos += 1
-                    return w.get('id')
+                    wid = w.get('id')
+                    assert wid is not None
+                    return wid
                 # end inside some subsequent simple element
                 s.child.tail, after_start = s.text[:start_offset], s.text[start_offset:]
+                assert e.child is not None
                 e.child.text, after_end = e.text[:end_offset], e.text[end_offset:]
                 c = self.clone_simple_element(e.child)
                 c.text = after_end
@@ -301,7 +319,9 @@ def mark_sentences_in_html(root, lang: str = '', voice: str = '') -> list[Senten
                     self.texts[self.pos] = Chunk(c, after_end, end)
                 else:
                     self.pos += 1
-                return w.get('id')
+                wid = w.get('id')
+                assert wid is not None
+                return wid
             # start is in the text of a simple child
             if s.child is e.child:
                 if e.is_tail:  # ending in tail of element we start in
@@ -316,7 +336,9 @@ def mark_sentences_in_html(root, lang: str = '', voice: str = '') -> list[Senten
                         self.texts[self.pos] = Chunk(w, after_end, end, is_tail=True)
                     else:
                         self.pos += 1
-                    return w.get('id')
+                    wid = w.get('id')
+                    assert wid is not None
+                    return wid
                 # start and end in text of element
                 before, sentence, after = s.text[:start_offset], s.text[start_offset:end_offset], s.text[end_offset:]
                 c = self.clone_simple_element(s.child)
@@ -329,12 +351,15 @@ def mark_sentences_in_html(root, lang: str = '', voice: str = '') -> list[Senten
                     self.texts[self.pos] = Chunk(c2, after, end)
                 else:
                     self.pos += 1
-                return c.get('id')
+                cid = c.get('id')
+                assert cid is not None
+                return cid
             # end is in a subsequent simple child or tail of one
             s.child.text, after_start = s.text[:start_offset], s.text[start_offset:]
             c = self.clone_simple_element(s.child)
             c.text, s.child.tail = after_start, None
             if e.is_tail:
+                assert e.child is not None
                 e.child.tail, after_end = e.text[:end_offset], e.text[end_offset:]
                 w = self.wrap_contents(c, e.child)
                 w.tail = after_end
@@ -342,8 +367,11 @@ def mark_sentences_in_html(root, lang: str = '', voice: str = '') -> list[Senten
                     self.texts[self.pos] = Chunk(w, after_end, end, is_tail=True)
                 else:
                     self.pos += 1
-                return w.get('id')
+                wid = w.get('id')
+                assert wid is not None
+                return wid
             # end is in text of subsequent simple child
+            assert e.child is not None
             e.child.text, after_end = e.text[:end_offset], e.text[end_offset:]
             c2 = self.clone_simple_element(e.child)
             c2.text, e.child.tail = after_end, None
@@ -352,7 +380,9 @@ def mark_sentences_in_html(root, lang: str = '', voice: str = '') -> list[Senten
                 self.texts[self.pos] = Chunk(c2, after_end, end)
             else:
                 self.pos += 1
-            return w.get('id')
+            wid = w.get('id')
+            assert wid is not None
+            return wid
 
     stack_of_parents = [Parent(elem, 'body', root_lang, root_voice) for elem in root.iterchildren('*') if barename(elem.tag).lower() == 'body']
     while stack_of_parents:

@@ -20,12 +20,15 @@ class TBDisplayedFields(DisplayedFields):
     def __init__(self, db, parent=None, category_icons=None):
         DisplayedFields.__init__(self, db, parent, category_icons=category_icons)
         from calibre.gui2.ui import get_gui
-        self.gui = get_gui()
+        self.gui = get_gui(fail_if_absent=True)
 
     def initialize(self, use_defaults=False, pref_data_override=None):
+        from calibre.gui2.tag_browser.model import TagsModel
         tv = self.gui.tags_view
-        cat_ord = tv.model().get_ordered_categories(use_defaults=use_defaults,
-                                                    pref_data_override=pref_data_override)
+        model = tv.model()
+        assert isinstance(model, TagsModel)
+        cat_ord = model.get_ordered_categories(use_defaults=use_defaults,
+                                               pref_data_override=pref_data_override)
         if use_defaults:
             hc = []
             self.changed = True
@@ -81,11 +84,11 @@ class TbDisplayTab(LazyConfigWidgetBase, Ui_Form):
         self.tb_display_model.initialize()
         self.tb_focus_label.setVisible(self.opt_tag_browser_allow_keyboard_focus.isChecked())
 
-    def restore_defaults(self):
+    def restore_defaults(self, *args):
         LazyConfigWidgetBase.restore_defaults(self)
         self.tb_display_model.restore_defaults()
 
-    def commit(self):
+    def commit(self, *args):
         self.tb_display_model.commit()
         return LazyConfigWidgetBase.commit(self)
 

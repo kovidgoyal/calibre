@@ -17,8 +17,9 @@ class ScanProgress(QWidget):
 
     switch_to_search_panel = pyqtSignal()
 
-    def __init__(self, parent):
+    def __init__(self, parent: ScanStatus):
         super().__init__(parent)
+        self._parent = parent
         self.l = l = QVBoxLayout(self)
         l.setContentsMargins(0, 0, 0, 0)
         self.status_label = la = QLabel('\xa0')
@@ -64,13 +65,16 @@ class ScanProgress(QWidget):
 
     @property
     def indexing_progress(self):
-        return self.parent().indexing_progress
+        return self._parent.indexing_progress
 
     def change_speed(self):
         db = get_db()
         db.set_fts_speed(slow=not self.fast_button.isChecked())
 
-    def update(self, complete, left, total):
+    def update(self, *args, **kwargs):
+        if len(args) < 3:
+            return
+        complete, left, total = args[0], args[1], args[2]
         if complete:
             t = _('All book files indexed')
             self.warn_label.setVisible(False)
@@ -168,6 +172,7 @@ class ScanStatus(QWidget):
         bb.clear()
         bb.addButton(QDialogButtonBox.StandardButton.Close)
         b = bb.addButton(_('Re-index'), QDialogButtonBox.ButtonRole.ActionRole)
+        assert b is not None
         b.setIcon(QIcon.ic('view-refresh.png'))
         b.setToolTip(_('Re-index all books in this library'))
         b.clicked.connect(self.reindex)
@@ -213,7 +218,7 @@ if __name__ == '__main__':
     l = QVBoxLayout(d)
     bb = QDialogButtonBox(d)
     bb.accepted.connect(d.accept), bb.rejected.connect(d.reject)
-    get_db.db = db(os.path.expanduser('~/test library'))
+    setattr(get_db, 'db', db(os.path.expanduser('~/test library')))
     w = ScanStatus(parent=d)
     l.addWidget(w)
     l.addWidget(bb)

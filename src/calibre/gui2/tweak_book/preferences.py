@@ -119,13 +119,15 @@ class BasicSettings(QWidget):  # {{{
         widget.addItems(prefs.defaults[name])
         widget.setDragEnabled(True)
         widget.setDragDropMode(QAbstractItemView.DragDropMode.InternalMove)
-        widget.viewport().setAcceptDrops(True)
+        viewport = widget.viewport()
+        assert viewport is not None
+        viewport.setAcceptDrops(True)
         widget.setDropIndicatorShown(True)
         widget.indexesMoved.connect(self.emit_changed)
         widget.setDefaultDropAction(Qt.DropAction.MoveAction)
         widget.setMovement(QListView.Movement.Snap)
         widget.setSpacing(5)
-        widget.defaults = prefs.defaults[name]
+        setattr(widget, 'defaults', prefs.defaults[name])
 
         def getter(w):
             return list(map(str, (w.item(i).text() for i in range(w.count()))))
@@ -206,7 +208,9 @@ class EditorSettings(BasicSettings):  # {{{
         h = QHBoxLayout()
         h.addWidget(theme), h.addWidget(b)
         l.addRow(_('&Color scheme:'), h)
-        l.labelForField(h).setBuddy(theme)
+        lf = l.labelForField(h)
+        assert isinstance(lf, QLabel)
+        lf.setBuddy(theme)
 
         tw = self('editor_tab_stop_width')
         tw.setMinimum(2), tw.setSuffix(_(' characters')), tw.setMaximum(20)
@@ -380,6 +384,7 @@ class PreviewSettings(BasicSettings):  # {{{
                 from qt.webengine import QWebEnginePage, QWebEngineSettings
                 page = QWebEnginePage()
                 s = page.settings()
+                assert s is not None
                 self.default_font_settings = {
                     'serif': s.fontFamily(QWebEngineSettings.FontFamily.SerifFont),
                     'sans': s.fontFamily(QWebEngineSettings.FontFamily.SansSerifFont),
@@ -442,7 +447,8 @@ class PreviewSettings(BasicSettings):  # {{{
         b('auto', _('Theme based'), _('When using a dark theme force dark colors, otherwise same as "No change"'))
         b('manual', _('Custom'), _('Choose a custom color'))
 
-        c = w.color_button = ColorButton(parent=w)
+        c = ColorButton(parent=w)
+        setattr(w, 'color_button', c)
         l.addWidget(c)
         connect_lambda(c.clicked, w, lambda w: w.manual.setChecked(True))
 
@@ -619,7 +625,7 @@ class ToolbarSettings(QWidget):
         for x in ('gb1', 'gb2', 'lb', 'rb'):
             getattr(self, x).setVisible(visible)
 
-    def move(self, up=True):
+    def move(self, up=True):  # ty: ignore[invalid-method-override]
         r = self.current.currentRow()
         v = self.current
         if r < 0 or (r < 1 and up) or (r > v.count() - 2 and not up):
@@ -736,6 +742,7 @@ class TemplatesDialog(Dialog):  # {{{
         self.bb.clear()
         self.bb.addButton(QDialogButtonBox.StandardButton.Close)
         self.rd = b = self.bb.addButton(QDialogButtonBox.StandardButton.RestoreDefaults)
+        assert b is not None
         b.clicked.connect(self.restore_defaults)
         l.addWidget(self.bb)
 
@@ -799,12 +806,15 @@ class Preferences(QDialog):
         bb.accepted.connect(self.accept)
         bb.rejected.connect(self.reject)
         self.rdb = b = bb.addButton(_('Restore all &defaults'), QDialogButtonBox.ButtonRole.ResetRole)
+        assert b is not None
         b.setToolTip(_('Restore defaults for all preferences'))
         b.clicked.connect(self.restore_all_defaults)
         self.rcdb = b = bb.addButton(_('Restore &current defaults'), QDialogButtonBox.ButtonRole.ResetRole)
+        assert b is not None
         b.setToolTip(_('Restore defaults for currently displayed preferences'))
         b.clicked.connect(self.restore_current_defaults)
         self.rconfs = b = bb.addButton(_('Restore c&onfirmations'), QDialogButtonBox.ButtonRole.ResetRole)
+        assert b is not None
         b.setToolTip(_('Restore all disabled confirmation prompts'))
         b.clicked.connect(self.restore_confirmations)
 
@@ -834,11 +844,15 @@ class Preferences(QDialog):
             self.stacks.addWidget(getattr(self, panel + '_panel'))
 
         cl.setCurrentRow(0)
-        cl.item(0).setSelected(True)
+        item0 = cl.item(0)
+        assert item0 is not None
+        item0.setSelected(True)
         w, h = cl.sizeHintForColumn(0), 0
         for i in range(cl.count()):
             h = cl.sizeHintForRow(i)
-            cl.item(i).setSizeHint(QSize(w, h))
+            item_i = cl.item(i)
+            assert item_i is not None
+            item_i.setSizeHint(QSize(w, h))
 
         cl.setMaximumWidth(cl.sizeHintForColumn(0) + 35)
         cl.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
@@ -862,10 +876,13 @@ class Preferences(QDialog):
     def restore_all_defaults(self):
         for i in range(self.stacks.count()):
             w = self.stacks.widget(i)
+            assert isinstance(w, (BasicSettings, ToolbarSettings, ShortcutConfig))
             w.restore_defaults()
 
     def restore_current_defaults(self):
-        self.stacks.currentWidget().restore_defaults()
+        cw = self.stacks.currentWidget()
+        assert isinstance(cw, (BasicSettings, ToolbarSettings, ShortcutConfig))
+        cw.restore_defaults()
 
     def restore_confirmations(self):
         changed = 0
@@ -890,6 +907,7 @@ class Preferences(QDialog):
         self.save_geometry(tprefs, 'preferences_geom')
         for i in range(self.stacks.count()):
             w = self.stacks.widget(i)
+            assert isinstance(w, (BasicSettings, ToolbarSettings, ShortcutConfig))
             w.commit()
         QDialog.accept(self)
 

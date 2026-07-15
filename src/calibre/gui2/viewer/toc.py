@@ -4,6 +4,7 @@
 
 import re
 from functools import partial
+from typing import TypedDict
 
 from qt.core import (
     QAbstractItemView,
@@ -32,20 +33,26 @@ from calibre.utils.icu import primary_contains
 from calibre.utils.localization import _
 
 
+class _SearchQuery(TypedDict):
+    text: str
+    index: int
+    items: tuple
+
+
 class Delegate(QStyledItemDelegate):
 
-    def helpEvent(self, ev, view, option, index):
+    def helpEvent(self, event, view, option, index):
         # Show a tooltip only if the item is truncated
-        if not ev or not view:
+        if not event or not view:
             return False
-        if ev.type() == QEvent.Type.ToolTip:
+        if event.type() == QEvent.Type.ToolTip:
             rect = view.visualRect(index)
             size = self.sizeHint(option, index)
             if rect.width() < size.width():
                 tooltip = index.data(Qt.ItemDataRole.DisplayRole)
-                QToolTip.showText(ev.globalPos(), tooltip, view)
+                QToolTip.showText(event.globalPos(), tooltip, view)
                 return True
-        return QStyledItemDelegate.helpEvent(self, ev, view, option, index)
+        return QStyledItemDelegate.helpEvent(self, event, view, option, index)
 
 
 class TOCView(QTreeView):
@@ -58,7 +65,9 @@ class TOCView(QTreeView):
         self.delegate = Delegate(self)
         self.setItemDelegate(self.delegate)
         self.setMinimumWidth(80)
-        self.header().close()
+        header = self.header()
+        assert header is not None
+        header.close()
         self.setMouseTracking(True)
         self.set_style_sheet()
         self.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
@@ -68,12 +77,12 @@ class TOCView(QTreeView):
         self.setVerticalScrollMode(QAbstractItemView.ScrollMode.ScrollPerPixel)
         self.gesture_manager = GestureManager(self)
 
-    def viewportEvent(self, ev):
+    def viewportEvent(self, event):
         if hasattr(self, 'gesture_manager'):
-            ret = self.gesture_manager.handle_event(ev)
+            ret = self.gesture_manager.handle_event(event)
             if ret is not None:
                 return ret
-        return super().viewportEvent(ev)
+        return super().viewportEvent(event)
 
     def setModel(self, model):
         QTreeView.setModel(self, model)
@@ -106,12 +115,12 @@ class TOCView(QTreeView):
         ''' + qapplication_or_fail().palette_manager.tree_view_hover_style())
         self.setProperty('hovered_item_is_highlighted', True)
 
-    def mouseMoveEvent(self, ev):
-        if self.indexAt(ev.pos()).isValid():
+    def mouseMoveEvent(self, event):
+        if self.indexAt(event.pos()).isValid():
             self.setCursor(Qt.CursorShape.PointingHandCursor)
         else:
             self.unsetCursor()
-        return QTreeView.mouseMoveEvent(self, ev)
+        return QTreeView.mouseMoveEvent(self, event)
 
     def expand_tree(self, index):
         self.expand(index)
@@ -124,14 +133,22 @@ class TOCView(QTreeView):
             self.expand_tree(child)
 
     def collapse_at_level(self, index):
-        item = self.model().itemFromIndex(index)
-        for x in self.model().items_at_depth(item.depth):
-            self.collapse(self.model().indexFromItem(x))
+        m = self.model()
+        assert m is not None
+        assert isinstance(m, TOC)
+        item = m.itemFromIndex(index)
+        assert isinstance(item, TOCItem)
+        for x in m.items_at_depth(item.depth):
+            self.collapse(m.indexFromItem(x))
 
     def expand_at_level(self, index):
-        item = self.model().itemFromIndex(index)
-        for x in self.model().items_at_depth(item.depth):
-            self.expand(self.model().indexFromItem(x))
+        m = self.model()
+        assert m is not None
+        assert isinstance(m, TOC)
+        item = m.itemFromIndex(index)
+        assert isinstance(item, TOCItem)
+        for x in m.items_at_depth(item.depth):
+            self.expand(m.indexFromItem(x))
 
     def show_context_menu(self, pos):
         index = self.indexAt(pos)
@@ -152,14 +169,22 @@ class TOCView(QTreeView):
 
     def copy_to_clipboard(self):
         m = self.model()
-        QApplication.clipboard().setText(getattr(m, 'as_plain_text', ''))
+        cb = QApplication.clipboard()
+        assert cb is not None
+        cb.setText(getattr(m, 'as_plain_text', ''))
 
     def update_current_toc_nodes(self, families):
-        self.model().update_current_toc_nodes(families)
+        m = self.model()
+        assert m is not None
+        assert isinstance(m, TOC)
+        m.update_current_toc_nodes(families)
 
     def scroll_to_current_toc_node(self):
+        m = self.model()
+        if m is None or not isinstance(m, TOC):
+            return
         try:
-            nodes = self.model().viewed_nodes()
+            nodes = m.viewed_nodes()
         except AttributeError:
             nodes = ()
         if nodes:
@@ -209,7 +234,7 @@ class TOCItem(QStandardItem):
         if text:
             text = re.sub(r'\s', ' ', text)
         self.title = text
-        self.parent = parent
+        self.toc_parent = parent
         self.node_id = toc['id']
         QStandardItem.__init__(self, text)
         all_items.append(self)
@@ -229,14 +254,14 @@ class TOCItem(QStandardItem):
 
     @property
     def ancestors(self):
-        parent = self.parent
+        parent = self.toc_parent
         while parent is not None:
             yield parent
-            parent = parent.parent
+            parent = parent.toc_parent
 
     @classmethod
     def type(cls):
-        return QStandardItem.ItemType.UserType+10
+        return QStandardItem.ItemType.UserType.value + 10
 
     def set_current_search_result(self, yes):
         if yes and not self.is_current_search_result:
@@ -260,7 +285,7 @@ class TOC(QStandardItemModel):
 
     def __init__(self, toc=None):
         QStandardItemModel.__init__(self)
-        self.current_query = {'text':'', 'index':-1, 'items':()}
+        self.current_query: _SearchQuery = {'text': '', 'index': -1, 'items': ()}
         self.all_items = depth_first = []
         normal_font = qapplication_or_fail().font()
         emphasis_font = QFont(normal_font)

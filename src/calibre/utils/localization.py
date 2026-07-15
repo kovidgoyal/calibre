@@ -40,7 +40,7 @@ def getlangcode_from_envvars(envvars=default_envvars_for_langcode):
             break
     else:
         localename = 'C'
-    return locale._parse_localename(localename)[0]
+    return getattr(locale, '_parse_localename')(localename)[0]
 
 
 def get_system_locale():
@@ -303,34 +303,37 @@ def pgettext(context: str, msg: str) -> str:
     return default_translator.pgettext(context, msg)
 
 
-def set_translators():
-    global _lang_trans, _country_trans, lcdata, default_translator
-    # To test different translations invoke as
-    # CALIBRE_OVERRIDE_LANG=de_DE.utf8 program
-    lang = get_lang()
+class _SetTranslators:
+    lang: str | None = None
 
-    if lang:
-        q = translator_for_lang(lang)
-        default_translator = q['translator']
-        _lang_trans = q['iso639_translator']
-        _country_trans = q['iso3166_translator']
-        if q['lcdata']:
-            lcdata = q['lcdata']
-    else:
-        default_translator = Translator()
-    try:
-        set_translators.lang = default_translator.info().get('language')
-    except Exception:
-        pass
-    default_translator.install(names=('ngettext',))
-    # Now that we have installed a translator, we have to retranslate the help
-    # for the global prefs object as it was instantiated in get_lang(), before
-    # the translator was installed.
-    from calibre.utils.config_base import prefs
-    prefs.retranslate_help()
+    def __call__(self) -> None:
+        global _lang_trans, _country_trans, lcdata, default_translator
+        # To test different translations invoke as
+        # CALIBRE_OVERRIDE_LANG=de_DE.utf8 program
+        lang = get_lang()
+
+        if lang:
+            q = translator_for_lang(lang)
+            default_translator = q['translator']
+            _lang_trans = q['iso639_translator']
+            _country_trans = q['iso3166_translator']
+            if q['lcdata']:
+                lcdata = q['lcdata']
+        else:
+            default_translator = Translator()
+        try:
+            self.lang = default_translator.info().get('language')
+        except Exception:
+            pass
+        default_translator.install(names=('ngettext',))
+        # Now that we have installed a translator, we have to retranslate the help
+        # for the global prefs object as it was instantiated in get_lang(), before
+        # the translator was installed.
+        from calibre.utils.config_base import prefs
+        prefs.retranslate_help()
 
 
-set_translators.lang = None
+set_translators = _SetTranslators()
 
 
 _iso639 = None
@@ -391,12 +394,15 @@ def _load_iso639():
     return _iso639
 
 
+_iso3166_cache = None
+
+
 def load_iso3166():
-    ans = getattr(load_iso3166, 'ans', None)
-    if ans is None:
+    global _iso3166_cache
+    if _iso3166_cache is None:
         from calibre.utils.serialize import msgpack_loads
-        ans = load_iso3166.ans = msgpack_loads(P('localization/iso3166.calibre_msgpack', allow_user_override=False, data=True))
-    return ans
+        _iso3166_cache = msgpack_loads(P('localization/iso3166.calibre_msgpack', allow_user_override=False, data=True))
+    return _iso3166_cache
 
 
 def get_iso_language(lang_trans, lang):
@@ -494,21 +500,25 @@ def lang_map():
     return _lang_map
 
 
+_lang_map_for_ui_cache: dict | None = None
+_reverse_lang_map_for_ui_cache: dict | None = None
+
+
 def lang_map_for_ui():
-    ans = getattr(lang_map_for_ui, 'ans', None)
-    if ans is None:
+    global _lang_map_for_ui_cache
+    if _lang_map_for_ui_cache is None:
         ans = lang_map().copy()
         for x in ('zxx', 'mis', 'mul'):
             ans.pop(x, None)
-        lang_map_for_ui.ans = ans
-    return ans
+        _lang_map_for_ui_cache = ans
+    return _lang_map_for_ui_cache
 
 
 def reverse_lang_map_for_ui():
-    ans = getattr(reverse_lang_map_for_ui, 'ans', None)
-    if ans is None:
-        ans = reverse_lang_map_for_ui.ans = {v: k for k, v in lang_map_for_ui().items()}
-    return ans
+    global _reverse_lang_map_for_ui_cache
+    if _reverse_lang_map_for_ui_cache is None:
+        _reverse_lang_map_for_ui_cache = {v: k for k, v in lang_map_for_ui().items()}
+    return _reverse_lang_map_for_ui_cache
 
 
 def langnames_to_langcodes(names):
@@ -555,16 +565,18 @@ def get_udc():
     return _udc
 
 
+_user_manual_stats_cache: dict | None = None
+
+
 def user_manual_stats():
-    stats = getattr(user_manual_stats, 'stats', None)
-    if stats is None:
+    global _user_manual_stats_cache
+    if _user_manual_stats_cache is None:
         import json
         try:
-            stats = json.loads(P('user-manual-translation-stats.json', allow_user_override=False, data=True))
+            _user_manual_stats_cache = json.loads(P('user-manual-translation-stats.json', allow_user_override=False, data=True))
         except OSError:
-            stats = {}
-        user_manual_stats.stats = stats
-    return stats
+            _user_manual_stats_cache = {}
+    return _user_manual_stats_cache
 
 
 def lang_code_for_user_manual():
@@ -590,15 +602,17 @@ def localize_user_manual_link(url):
     return urlunparse(parts)
 
 
+_website_languages_cache: frozenset | None = None
+
+
 def website_languages():
-    stats = getattr(website_languages, 'stats', None)
-    if stats is None:
+    global _website_languages_cache
+    if _website_languages_cache is None:
         try:
-            stats = frozenset(P('localization/website-languages.txt', allow_user_override=False, data=True).decode('utf-8').split())
+            _website_languages_cache = frozenset(P('localization/website-languages.txt', allow_user_override=False, data=True).decode('utf-8').split())
         except OSError:
-            stats = frozenset()
-        website_languages.stats = stats
-    return stats
+            _website_languages_cache = frozenset()
+    return _website_languages_cache
 
 
 def localize_website_link(url):

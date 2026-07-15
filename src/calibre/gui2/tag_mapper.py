@@ -4,6 +4,7 @@
 
 import textwrap
 from collections import OrderedDict
+from typing import TYPE_CHECKING
 
 from qt.core import (
     QAbstractItemView,
@@ -53,10 +54,13 @@ def intelligent_strip(action, val):
 
 class QueryEdit(QLineEdit):
 
-    def contextMenuEvent(self, ev):
+    def contextMenuEvent(self, a0):
         menu = self.createStandardContextMenu()
-        self.parent().specialise_context_menu(menu)
-        menu.exec(ev.globalPos())
+        assert menu is not None
+        _p = self.parent()
+        assert isinstance(_p, RuleEdit)
+        _p.specialise_context_menu(menu)
+        menu.exec(a0.globalPos())
 
 
 class SingleTagEdit(EditWithComplete):
@@ -185,7 +189,7 @@ class RuleEdit(QWidget):
 
     def edit_tags(self):
         from calibre.gui2.dialogs.tag_editor import TagEditor
-        d = TagEditor(self, get_gui().current_db, current_tags=list(filter(None, [x.strip() for x in self.query.text().split(',')])))
+        d = TagEditor(self, get_gui(fail_if_absent=True).current_db, current_tags=list(filter(None, [x.strip() for x in self.query.text().split(',')])))
         if d.exec() == QDialog.DialogCode.Accepted:
             self.query.setText(', '.join(d.tags))
 
@@ -277,8 +281,10 @@ class Delegate(QStyledItemDelegate):
 
     def sizeHint(self, option, index):
         st = QStaticText(index.data(RENDER_ROLE))
-        st.prepare(font=self.parent().font())
-        width = max(option.rect.width(), self.parent().width() - 50)
+        _p = self.parent()
+        assert isinstance(_p, QWidget)
+        st.prepare(font=_p.font())
+        width = max(option.rect.width(), _p.width() - 50)
         if width and width != st.textWidth():
             st.setTextWidth(width)
         br = st.size()
@@ -332,7 +338,9 @@ class Rules(QWidget):
         r.doubleClicked.connect(self.edit_rule)
         h.addWidget(r)
         r.setDragEnabled(True)
-        r.viewport().setAcceptDrops(True)
+        viewport = r.viewport()
+        assert viewport is not None
+        viewport.setAcceptDrops(True)
         r.setDropIndicatorShown(True)
         r.setDragDropMode(QAbstractItemView.DragDropMode.InternalMove)
         r.setDefaultDropAction(Qt.DropAction.MoveAction)
@@ -390,6 +398,7 @@ class Rules(QWidget):
             self.rule_list.takeItem(row)
             self.rule_list.insertItem(nrow, item)
         sm = self.rule_list.selectionModel()
+        assert sm is not None
         for item in items:
             sm.select(self.rule_list.indexFromItem(item), QItemSelectionModel.SelectionFlag.Select)
         sm.setCurrentIndex(self.rule_list.indexFromItem(current_item), QItemSelectionModel.SelectionFlag.Current)
@@ -405,7 +414,9 @@ class Rules(QWidget):
     def rules(self):
         ans = []
         for r in range(self.rule_list.count()):
-            ans.append(self.rule_list.item(r).data(DATA_ROLE))
+            rule_item = self.rule_list.item(r)
+            assert rule_item is not None
+            ans.append(rule_item.data(DATA_ROLE))
         return ans
 
     @rules.setter
@@ -442,7 +453,7 @@ class Tester(Dialog):
         self.test_button = b = QPushButton(_('&Test'), self)
         b.clicked.connect(self.do_test)
         h.addWidget(b)
-        self.result = la = QLabel(self)
+        self.result_widget = la = QLabel(self)
         la.setWordWrap(True)
         la.setText(self.EMPTY_RESULT)
         l.addWidget(la)
@@ -455,7 +466,7 @@ class Tester(Dialog):
     def do_test(self):
         tags = [x.strip() for x in self.value.split(',')]
         tags = map_tags(tags, self.rules)
-        self.result.setText(_('<b>Resulting tags:</b> %s') % ', '.join(tags))
+        self.result_widget.setText(_('<b>Resulting tags:</b> %s') % ', '.join(tags))
 
     def sizeHint(self):
         ans = Dialog.sizeHint(self)
@@ -468,7 +479,7 @@ class SaveLoadMixin:
     ruleset_changed = pyqtSignal()
     base_window_title = ''
 
-    def save_ruleset(self):
+    def save_ruleset(self: SaveLoadSelf):
         if not self.rules:
             error_dialog(self, _('No rules'), _(
                 'Cannot save as no rules have been created'), show=True)
@@ -493,7 +504,7 @@ class SaveLoadMixin:
                     self.ruleset_changed.emit()
             self.build_load_menu()
 
-    def build_load_menu(self):
+    def build_load_menu(self: SaveLoadSelf):
         self.load_menu.clear()
         if len(self.PREFS_OBJECT):
             for name, rules in self.PREFS_OBJECT.items():
@@ -502,6 +513,7 @@ class SaveLoadMixin:
                 connect_lambda(ac.triggered, self, lambda self: self.load_ruleset(self.sender().objectName()))
             self.load_menu.addSeparator()
             m = self.load_menu.addMenu(_('Delete saved rulesets'))
+            assert m is not None
             for name, rules in self.PREFS_OBJECT.items():
                 ac = m.addAction(name)
                 ac.setObjectName(name)
@@ -509,12 +521,12 @@ class SaveLoadMixin:
         else:
             self.load_menu.addAction(_('No saved rulesets available'))
 
-    def load_ruleset(self, name):
+    def load_ruleset(self: SaveLoadSelf, name):
         self.rules = self.PREFS_OBJECT[name]
         self.loaded_ruleset = name
         self.ruleset_changed.emit()
 
-    def delete_ruleset(self, name):
+    def delete_ruleset(self: SaveLoadSelf, name):
         del self.PREFS_OBJECT[name]
         if self.loaded_ruleset == name:
             self.loaded_ruleset = ''
@@ -546,14 +558,17 @@ class RulesDialog(Dialog, SaveLoadMixin):
             l.addLayout(h)
             h.addWidget(ebw), h.addStretch(10), h.addWidget(self.bb)
         self.save_button = b = self.bb.addButton(_('&Save'), QDialogButtonBox.ButtonRole.ActionRole)
+        assert b is not None
         b.setToolTip(_('Save this ruleset for later re-use'))
         b.clicked.connect(self.save_ruleset)
         self.load_button = b = self.bb.addButton(_('&Load'), QDialogButtonBox.ButtonRole.ActionRole)
+        assert b is not None
         b.setToolTip(_('Load a previously saved ruleset'))
         self.load_menu = QMenu(self)
         b.setMenu(self.load_menu)
         self.build_load_menu()
         self.test_button = b = self.bb.addButton(_('&Test rules'), QDialogButtonBox.ButtonRole.ActionRole)
+        assert b is not None
         b.clicked.connect(self.test_rules)
         self.ruleset_changed.connect(self.update_title_bar)
 
@@ -587,6 +602,10 @@ class RulesDialog(Dialog, SaveLoadMixin):
         ans.setWidth(ans.width() + 100)
         return ans
 
+
+if TYPE_CHECKING:
+    from calibre.gui2.css_transform_rules import RulesWidget
+    SaveLoadSelf = RulesWidget | RulesDialog
 
 if __name__ == '__main__':
     app = Application([])

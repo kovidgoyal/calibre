@@ -39,6 +39,7 @@ class LogViewer(QDialog):  # {{{
         bb.rejected.connect(self.reject)
         l.addWidget(bb)
         self.clear_button = b = self.bb.addButton(_('&Clear'), QDialogButtonBox.ButtonRole.ResetRole)
+        assert b is not None
         b.clicked.connect(self.clear_log)
         b.setIcon(QIcon.ic('trash.png'))
         self.resize(600, 500)
@@ -62,7 +63,7 @@ class BookshelfTab(QTabWidget, LazyConfigWidgetBase, Ui_Form):
         self.current_font_choice = gprefs.defaults['bookshelf_font'].copy()
         super().__init__(parent)
 
-    def restore_defaults(self):
+    def restore_defaults(self, *args):
         super().restore_defaults()
         self.current_font_choice = gprefs.defaults['bookshelf_font'].copy()
         self.update_font_display()

@@ -56,17 +56,17 @@ def load_inotify():  # {{{
 
         # inotify_add_watch()
         prototype = ctypes.CFUNCTYPE(ctypes.c_int, ctypes.c_int, ctypes.c_char_p, ctypes.c_uint32, use_errno=True)
-        add_watch = prototype(('inotify_add_watch', libc), (
+        add_watch = prototype(('inotify_add_watch', libc), (  # type: ignore
             (1, 'fd'), (1, 'pathname'), (1, 'mask')), use_errno=True)
 
         # inotify_rm_watch()
         prototype = ctypes.CFUNCTYPE(ctypes.c_int, ctypes.c_int, ctypes.c_int, use_errno=True)
-        rm_watch = prototype(('inotify_rm_watch', libc), (
+        rm_watch = prototype(('inotify_rm_watch', libc), (  # type: ignore
             (1, 'fd'), (1, 'wd')), use_errno=True)
 
         # read()
         prototype = ctypes.CFUNCTYPE(ctypes.c_ssize_t, ctypes.c_int, ctypes.c_void_p, ctypes.c_size_t, use_errno=True)
-        read = prototype(('read', libc), (
+        read = prototype(('read', libc), (  # type: ignore
             (1, 'fd'), (1, 'buf'), (1, 'count')), use_errno=True)
         _inotify = (init1, add_watch, rm_watch, read)
     return _inotify
@@ -291,7 +291,8 @@ class INotifyTreeWatcher(INotify):
         self.watched_rmap[wd] = path
         return True
 
-    def process_event(self, wd, mask, cookie, name):
+    def process_event(self, *args):
+        wd, mask, cookie, name = args
         if wd == -1 and (mask & self.Q_OVERFLOW):
             # We missed some INOTIFY events, so we don't
             # know the state of any tracked dirs.

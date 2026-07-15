@@ -20,10 +20,10 @@ class ProfileModel(QAbstractListModel):
         QAbstractListModel.__init__(self)
         self.profiles = list(profiles)
 
-    def rowCount(self, *args):
+    def rowCount(self, parent=...):
         return len(self.profiles)
 
-    def data(self, index, role):
+    def data(self, index, role=...):
         profile = self.profiles[index.row()]
         if role == Qt.ItemDataRole.DisplayRole:
             if profile.name.startswith('Default '):
@@ -69,10 +69,10 @@ class PageSetupWidget(Widget, Ui_Form):
         desc = str(index.model().data(index, Qt.ItemDataRole.StatusTipRole) or '')
         self.profile_description.setText(desc)
 
-    def connect_gui_obj_handler(self, g, slot):
-        if g not in (self.opt_input_profile, self.opt_output_profile):
+    def connect_gui_obj_handler(self, gui_obj, slot):
+        if gui_obj not in (self.opt_input_profile, self.opt_output_profile):
             raise NotImplementedError()
-        self.__connections.append((g, slot))
+        self.__connections.append((gui_obj, slot))
 
     def set_value_handler(self, g, val):
         if g in (self.opt_input_profile, self.opt_output_profile):

@@ -247,6 +247,7 @@ class MetadataUpdater:
 
         # Update drm_offset(0xa8), title_offset(0x54)
         if self.encryption_type != 0:
+            assert self.drm_block is not None
             self.record0[0xa8:0xac] = pack('>L', 0x10 + mobi_header_length + len(exth))
             self.record0[0xb0:0xb4] = pack('>L', len(self.drm_block))
             self.record0[0x54:0x58] = pack('>L', 0x10 + mobi_header_length + len(exth) + len(self.drm_block))
@@ -261,6 +262,7 @@ class MetadataUpdater:
         new_record0.write(self.record0[:0x10 + mobi_header_length])
         new_record0.write(exth)
         if self.encryption_type != 0:
+            assert self.drm_block is not None
             new_record0.write(self.drm_block)
         new_record0.write(new_title or title_in_file)
 
@@ -455,12 +457,14 @@ class MetadataUpdater:
                 pass
             else:
                 if is_image(self.cover_record):
+                    assert self.cover_record is not None
                     size = len(self.cover_record)
                     cover = rescale_image(data, size)
                     if len(cover) <= size:
                         cover += b'\0' * (size - len(cover))
                         self.cover_record[:] = cover
                 if is_image(self.thumbnail_record):
+                    assert self.thumbnail_record is not None
                     size = len(self.thumbnail_record)
                     thumbnail = rescale_image(data, size, dimen=MAX_THUMB_DIMEN)
                     if len(thumbnail) <= size:

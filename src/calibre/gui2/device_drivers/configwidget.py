@@ -86,26 +86,28 @@ class ConfigWidget(QWidget, Ui_ConfigWidget):
                         self.opt_extra_customization.append(None)
                         continue
                     if isinstance(settings.extra_customization[i], bool):
-                        self.opt_extra_customization.append(QCheckBox(label_text))
-                        self.opt_extra_customization[-1].setToolTip(tt)
-                        self.opt_extra_customization[i].setChecked(bool(settings.extra_customization[i]))
+                        opt_ec = QCheckBox(label_text)
+                        self.opt_extra_customization.append(opt_ec)
+                        opt_ec.setToolTip(tt)
+                        opt_ec.setChecked(bool(settings.extra_customization[i]))
                     elif i in extra_customization_choices:
                         cb = QComboBox(self)
                         self.opt_extra_customization.append(cb)
                         l = QLabel(label_text)
                         l.setToolTip(tt), cb.setToolTip(tt), l.setBuddy(cb), cb.setToolTip(tt)
                         for li in sorted(extra_customization_choices[i]):
-                            self.opt_extra_customization[i].addItem(li)
+                            cb.addItem(li)
                         cb.setCurrentIndex(max(0, cb.findText(settings.extra_customization[i])))
                     else:
-                        self.opt_extra_customization.append(QLineEdit(self))
+                        opt_ec_i = QLineEdit(self)
+                        self.opt_extra_customization.append(opt_ec_i)
                         l = QLabel(label_text)
                         l.setToolTip(tt)
-                        self.opt_extra_customization[i].setToolTip(tt)
-                        l.setBuddy(self.opt_extra_customization[i])
+                        opt_ec_i.setToolTip(tt)
+                        l.setBuddy(opt_ec_i)
                         l.setWordWrap(True)
-                        self.opt_extra_customization[i].setText(settings.extra_customization[i])
-                        self.opt_extra_customization[i].setCursorPosition(0)
+                        opt_ec_i.setText(settings.extra_customization[i])
+                        opt_ec_i.setCursorPosition(0)
                         self.extra_layout.addWidget(l, row_func(i, 0), col_func(i))
                     self.extra_layout.addWidget(self.opt_extra_customization[i],
                                                 row_func(i, 1), col_func(i))
@@ -137,11 +139,12 @@ class ConfigWidget(QWidget, Ui_ConfigWidget):
             self.columns.setCurrentRow(idx+1)
 
     def format_map(self):
-        formats = [
-                str(self.columns.item(i).data(Qt.ItemDataRole.UserRole) or '')
-                for i in range(self.columns.count())
-                if self.columns.item(i).checkState()==Qt.CheckState.Checked
-        ]
+        formats = []
+        for i in range(self.columns.count()):
+            col_item = self.columns.item(i)
+            assert col_item is not None
+            if col_item.checkState() == Qt.CheckState.Checked:
+                formats.append(str(col_item.data(Qt.ItemDataRole.UserRole) or ''))
         return formats
 
     def use_subdirs(self):

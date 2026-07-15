@@ -10,7 +10,7 @@ class PageGroup:
     '''Simulate constructor overloading'''
     def __init__(self, page_locations: int | list[int], page_number_type: PageNumberTypes, first_value: int,
                  page_labels: str | list[str] | None = None):
-        if page_locations.__class__ is int:
+        if isinstance(page_locations, int):
             self.page_locations: list[int] = [page_locations]
         else:
             self.page_locations: list[int] = page_locations
@@ -18,7 +18,7 @@ class PageGroup:
         self.__first_value = first_value
         if page_number_type == PageNumberTypes.Custom:
             assert page_labels is not None
-            if page_labels.__class__ is str:
+            if isinstance(page_labels, str):
                 assert 1 == len(self.page_locations) and len(page_labels) > 0
                 self.__page_number_labels: list[str] = [page_labels]
             else:
@@ -27,13 +27,14 @@ class PageGroup:
                 self.__page_number_labels: list[str] = page_labels
 
     def append(self, page_location: int | tuple[int, str]) -> None:
-        if page_location.__class__ is int:
+        if isinstance(page_location, int):
             assert self.__page_number_type != PageNumberTypes.Custom
             self.page_locations.append(page_location)
         else:
             assert self.__page_number_type == PageNumberTypes.Custom
-            self.page_locations.append(page_location[0])
-            self.__page_number_labels.append(page_location[1])
+            loc = page_location
+            self.page_locations.append(loc[0])
+            self.__page_number_labels.append(loc[1])
 
     @property
     def page_number_types(self) -> PageNumberTypes:

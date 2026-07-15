@@ -27,11 +27,12 @@ from qt.core import (
 )
 from qt.webengine import QWebEnginePage
 
+import calibre.gui2.viewer.web_view as _web_view_module
 from calibre.constants import ismacos
 from calibre.gui2 import elided_text
 from calibre.gui2.viewer.config import get_session_pref
 from calibre.gui2.viewer.shortcuts import index_to_key_sequence
-from calibre.gui2.viewer.web_view import set_book_path, vprefs
+from calibre.gui2.viewer.web_view import vprefs
 from calibre.gui2.widgets2 import Dialog
 from calibre.startup import connect_lambda
 from calibre.utils.icu import primary_sort_key
@@ -52,9 +53,16 @@ class Actions:
         self.__dict__.update(a)
         self.all_action_names = frozenset(a)
 
+    def __getattr__(self, name: str) -> Action:
+        raise AttributeError(name)
 
-def all_actions():
-    if not hasattr(all_actions, 'ans'):
+
+_all_actions: Actions | None = None
+
+
+def all_actions() -> Actions:
+    global _all_actions
+    if _all_actions is None:
         amap = {
             'color_scheme': Action('format-fill-color.png', _('Switch color scheme')),
             'profiles': Action('auto-reload.png', _('Apply settings from a saved profile')),
@@ -87,8 +95,8 @@ def all_actions():
             'edit_book': Action('edit_book.png', _('Edit this book'), 'edit_book'),
             'reload_book': Action('view-refresh.png', _('Reload this book'), 'reload_book'),
         }
-        all_actions.ans = Actions(amap)
-    return all_actions.ans
+        _all_actions = Actions(amap)
+    return _all_actions
 
 
 DEFAULT_ACTIONS = (
@@ -147,8 +155,10 @@ class ActionsToolBar(ToolBar):
     def show_context_menu(self, pos):
         m = QMenu(self)
         a = m.addAction(_('Customize this toolbar'))
+        assert a is not None
         a.triggered.connect(self.customize)
         a = m.addAction(_('Hide this toolbar'))
+        assert a is not None
         a.triggered.connect(self.hide_toolbar)
         m.exec(self.mapToGlobal(pos))
 
@@ -268,7 +278,7 @@ class ActionsToolBar(ToolBar):
                     pass
         for x in (self.color_scheme_action, self.profiles_action):
             w = self.widgetForAction(x)
-            if w:
+            if isinstance(w, QToolButton):
                 w.setPopupMode(QToolButton.ToolButtonPopupMode.InstantPopup)
 
     def update_mode_action(self):
@@ -348,7 +358,7 @@ class ActionsToolBar(ToolBar):
                     path = os.path.abspath(entry['pathtoebook'])
                 except Exception:
                     continue
-                if hasattr(set_book_path, 'pathtoebook') and path == os.path.abspath(set_book_path.pathtoebook):
+                if _web_view_module._book_pathtoebook is not None and path == os.path.abspath(_web_view_module._book_pathtoebook):
                     continue
                 if os.path.exists(path):
                     m.addAction('{}\t {}'.format(
@@ -384,9 +394,12 @@ class ActionsToolBar(ToolBar):
                 continue
             a(profile_name)
         m.addSeparator()
-        m.addAction(_('Save current settings as a profile')).triggered.connect(self.save_profile)
+        save_profile_action = m.addAction(_('Save current settings as a profile'))
+        assert save_profile_action is not None
+        save_profile_action.triggered.connect(self.save_profile)
         if len(self.profiles) > 1:
             s = m.addMenu(_('Delete saved profile...'))
+            assert s is not None
             for pname in self.profiles:
                 if pname != '__default__':
                     a = s.addAction(pname)
@@ -394,12 +407,16 @@ class ActionsToolBar(ToolBar):
                     a.triggered.connect(self.profile_delete_triggerred)
 
     def profile_switch_triggered(self):
-        key = self.sender().objectName().partition(':')[-1]
+        sender = self.sender()
+        assert sender is not None
+        key = sender.objectName().partition(':')[-1]
         profile = self.profiles[key]
         self.web_view.profile_op('apply-profile', key, profile)
 
     def profile_delete_triggerred(self):
-        key = self.sender().objectName().partition(':')[-1]
+        sender = self.sender()
+        assert sender is not None
+        key = sender.objectName().partition(':')[-1]
         from calibre.gui2.viewer.config import save_viewer_profile
         save_viewer_profile(key, None, 'viewer:')
 
@@ -429,7 +446,9 @@ class ActionsToolBar(ToolBar):
             add_action(key, self.default_color_schemes)
 
     def color_switch_triggerred(self):
-        key = self.sender().objectName().partition(':')[-1]
+        sender = self.sender()
+        assert sender is not None
+        key = sender.objectName().partition(':')[-1]
         self.action_triggered.emit('switch_color_scheme:' + key)
 
     def update_visibility(self):
@@ -451,7 +470,9 @@ class ActionsList(QListWidget):
         QListWidget.__init__(self, parent)
         self.setSelectionMode(QAbstractItemView.SelectionMode.ExtendedSelection)
         self.setDragEnabled(True)
-        self.viewport().setAcceptDrops(True)
+        viewport = self.viewport()
+        assert viewport is not None
+        viewport.setAcceptDrops(True)
         self.setDropIndicatorShown(True)
         self.setDragDropMode(QAbstractItemView.DragDropMode.InternalMove)
         self.setDefaultDropAction(Qt.DropAction.CopyAction if ismacos else Qt.DropAction.MoveAction)
@@ -508,6 +529,7 @@ class ActionsList(QListWidget):
     def names(self):
         for i in range(self.count()):
             item = self.item(i)
+            assert item is not None
             yield item.data(Qt.ItemDataRole.UserRole)
 
 
@@ -541,15 +563,16 @@ class ConfigureToolBar(Dialog):
         self.h = h = QHBoxLayout()
         l.addLayout(h)
         self.lg = lg = QGroupBox(_('A&vailable actions'), self)
-        lg.v = v = QVBoxLayout(lg)
+        v = QVBoxLayout(lg)
         v.addWidget(self.available_actions)
         h.addWidget(lg)
         self.rg = rg = QGroupBox(_('&Current actions'), self)
-        rg.v = v = QVBoxLayout(rg)
+        v = QVBoxLayout(rg)
         v.addWidget(self.current_actions)
         h.addLayout(bv), h.addWidget(rg)
         l.addWidget(self.bb)
         self.rdb = b = self.bb.addButton(_('Restore defaults'), QDialogButtonBox.ButtonRole.ActionRole)
+        assert b is not None
         b.clicked.connect(self.restore_defaults)
 
     def remove_actions(self):

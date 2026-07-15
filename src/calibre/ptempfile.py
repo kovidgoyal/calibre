@@ -6,7 +6,9 @@ being closed.
 '''
 import os
 import tempfile
+from collections.abc import Buffer, Iterable, Iterator
 from contextlib import contextmanager
+from typing import IO
 
 from calibre.constants import __appname__, filesystem_encoding, get_windows_temp_path, ismacos, iswindows
 from calibre.utils.safe_atexit import remove_dir, remove_file_atexit, remove_folder_atexit, unlink
@@ -96,9 +98,9 @@ def fix_tempfile_module():
     # want to call base_dir() now as it will possibly create a tempdir, do that
     # only on demand.
     global get_default_tempdir
-    if tempfile._gettempdir is not base_dir:
-        get_default_tempdir = tempfile._gettempdir
-        tempfile._gettempdir = base_dir
+    if tempfile._gettempdir is not base_dir:  # type: ignore
+        get_default_tempdir = tempfile._gettempdir  # type: ignore
+        tempfile._gettempdir = base_dir  # type: ignore
 
 
 def reset_base_dir():
@@ -107,7 +109,7 @@ def reset_base_dir():
 
 
 @contextmanager
-def override_base_dir(newval: str) -> None:
+def override_base_dir(newval: str) -> Iterator[None]:
     global _base_dir
     before, _base_dir = _base_dir, newval
     try:
@@ -139,7 +141,7 @@ class PersistentTemporaryFile:
     A file-like object that is a temporary file that is available even after being closed on
     all platforms. It is automatically deleted on normal program termination.
     '''
-    _file = None
+    _file: IO[bytes]
 
     def __init__(self, suffix='', prefix='', dir=None, mode='w+b'):
         if prefix is None:
@@ -153,10 +155,68 @@ class PersistentTemporaryFile:
         self._fd = fd
         remove_file_atexit(name)
 
-    def __getattr__(self, name):
-        if name == 'name':
-            return self.__dict__['_name']
-        return getattr(self.__dict__['_file'], name)
+    @property
+    def name(self) -> str:
+        return self._name
+
+    @name.setter
+    def name(self, val: str) -> None:
+        self._name = val
+
+    def read(self, size: int = -1, /) -> bytes:
+        return self._file.read(size)
+
+    def readline(self, size: int = -1, /) -> bytes:
+        return self._file.readline(size)
+
+    def readlines(self, hint: int = -1, /) -> list[bytes]:
+        return self._file.readlines(hint)
+
+    def write(self, data: Buffer, /) -> int:
+        return self._file.write(data)
+
+    def writelines(self, lines: Iterable[Buffer], /) -> None:
+        self._file.writelines(lines)
+
+    def seek(self, offset: int, whence: int = os.SEEK_SET, /) -> int:
+        return self._file.seek(offset, whence)
+
+    def tell(self) -> int:
+        return self._file.tell()
+
+    def truncate(self, size: int | None = None, /) -> int:
+        return self._file.truncate(size)
+
+    def flush(self) -> None:
+        self._file.flush()
+
+    def close(self) -> None:
+        self._file.close()
+
+    def fileno(self) -> int:
+        return self._file.fileno()
+
+    def isatty(self) -> bool:
+        return self._file.isatty()
+
+    def readable(self) -> bool:
+        return self._file.readable()
+
+    def writable(self) -> bool:
+        return self._file.writable()
+
+    def seekable(self) -> bool:
+        return self._file.seekable()
+
+    @property
+    def closed(self) -> bool:
+        return self._file.closed
+
+    def __iter__(self) -> Iterator[bytes]:
+        return iter(self._file)
+
+    def __next__(self) -> bytes:
+        return next(self._file)
 
     def __enter__(self):
         return self

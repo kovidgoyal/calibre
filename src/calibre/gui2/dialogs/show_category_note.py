@@ -2,8 +2,12 @@
 # License: GPLv3 Copyright: 2023, Kovid Goyal <kovid at kovidgoyal.net>
 
 import os
+from typing import TYPE_CHECKING
 
 from qt.core import QByteArray, QDialog, QDialogButtonBox, QIcon, QLabel, QMimeData, QSize, Qt, QTextDocument, QUrl, QVBoxLayout
+
+if TYPE_CHECKING:
+    from calibre.gui2.library.notes import NoteDisplay
 
 from calibre import prepare_string_for_xml
 from calibre.db.constants import RESOURCE_URL_SCHEME
@@ -19,23 +23,26 @@ from calibre.utils.localization import _
 class Display(HTMLDisplay):
     notes_resource_scheme = RESOURCE_URL_SCHEME
 
-    def __init__(self, parent=None):
+    def __init__(self, parent: ShowNoteDialog | NoteDisplay):
         super().__init__(parent)
-        self.document().setDefaultStyleSheet(resolved_css() + '\n\nli { margin-top: 0.5ex; margin-bottom: 0.5ex; }')
+        self._parent = parent
+        doc = self.document()
+        assert doc is not None
+        doc.setDefaultStyleSheet(resolved_css() + '\n\nli { margin-top: 0.5ex; margin-bottom: 0.5ex; }')
         self.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         self.anchor_clicked.connect(self.handle_link_click)
 
     def handle_link_click(self, qurl):
         safe_open_url(qurl)
 
-    def loadResource(self, rtype, qurl):
-        if qurl.scheme() == RESOURCE_URL_SCHEME and int(rtype) == int(QTextDocument.ResourceType.ImageResource):
-            db = self.parent().db
-            resource = db.get_notes_resource(f'{qurl.host()}:{qurl.path()[1:]}')
+    def loadResource(self, type, name):
+        if name.scheme() == RESOURCE_URL_SCHEME and int(type) == int(QTextDocument.ResourceType.ImageResource):
+            db = self._parent.db
+            resource = db.get_notes_resource(f'{name.host()}:{name.path()[1:]}')
             if resource is not None:
                 return QByteArray(resource['data'])
             return
-        return super().loadResource(rtype, qurl)
+        return super().loadResource(type, name)
 
 
 class ShowNoteDialog(Dialog):
@@ -89,10 +96,12 @@ class ShowNoteDialog(Dialog):
         self.bb.clear()
         self.bb.addButton(QDialogButtonBox.StandardButton.Close)
         b = self.bb.addButton(_('&Edit'), QDialogButtonBox.ButtonRole.ActionRole)
+        assert b is not None
         b.setIcon(QIcon.ic('edit_input.png'))
         b.clicked.connect(self.edit)
         b.setToolTip(_('Edit this note'))
         b = self.bb.addButton(_('Find &books'), QDialogButtonBox.ButtonRole.ActionRole)
+        assert b is not None
         b.setIcon(QIcon.ic('search.png'))
         b.clicked.connect(self.find_books)
         if self.field == 'authors':
@@ -100,6 +109,7 @@ class ShowNoteDialog(Dialog):
         else:
             b.setToolTip(_('Search the calibre library for books with: {}').format(self.item_val))
         b = self.bb.addButton(_('Copy &URL'), QDialogButtonBox.ButtonRole.ActionRole)
+        assert b is not None
         b.setIcon(QIcon.ic('insert-link.png'))
         b.clicked.connect(self.copy_url)
         b.setToolTip(_('Copy a calibre:// URL to the clipboard that can be used to link to this note from other programs'))
@@ -118,6 +128,7 @@ class ShowNoteDialog(Dialog):
             f = '_' + f[1:]
         url = f'calibre://show-note/{self.db.server_library_id}/{f}/id_{self.item_id}'
         cb = qapplication_or_fail().clipboard()
+        assert cb is not None
         md = QMimeData()
         md.setText(url)
         md.setUrls([QUrl(url)])

@@ -165,10 +165,10 @@ class Bookmark:  # {{{
         A string representation of this object, suitable for printing to
         console
         '''
-        ans = ['Kobo bookmark:']
+        parts = ['Kobo bookmark:']
 
         def fmt(x, y):
-            ans.append(f'{x:<20}: {y}')
+            parts.append(f'{x:<20}: {y}')
 
         if self.contentId:
             fmt('ContentID', self.contentId)
@@ -181,8 +181,6 @@ class Bookmark:  # {{{
         if self.user_notes:
             fmt('User Notes', self.user_notes)
 
-        ans = '\n'.join(ans) + '\n'
-
-        return ans
+        return '\n'.join(parts) + '\n'
 
 # }}}

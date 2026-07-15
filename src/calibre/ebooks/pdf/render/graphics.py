@@ -402,6 +402,7 @@ class Graphics:
     def apply_stroke(self, state, pdf_system, painter):
         # TODO: Support miter limit by using QPainterPathStroker
         pen = state.stroke
+        assert self.pending_state is not None
         self.pending_state.do_stroke = True
         pdf = self.pdf
 
@@ -445,6 +446,7 @@ class Graphics:
             self.pending_state.do_stroke = False
 
     def apply_fill(self, state, pdf_system, painter):
+        assert self.pending_state is not None
         self.pending_state.do_fill = True
         color, opacity, pattern, self.pending_state.do_fill = self.convert_brush(
             state.fill, state.brush_origin, state.opacity, pdf_system,
@@ -472,13 +474,15 @@ class Graphics:
         if not hasattr(self, 'last_fill') or not self.current_state.do_fill:
             return
 
-        if isinstance(self.last_fill.brush, TexturePattern):
+        last_fill = self.last_fill
+        assert last_fill is not None
+        if isinstance(last_fill.brush, TexturePattern):
             tl = rect.topLeft()
-            if tl == self.last_fill.origin:
+            if tl == last_fill.origin:
                 return
 
             matrix = (QTransform.fromTranslate(tl.x(), tl.y()) * pdf_system * qt_system.inverted()[0])
 
-            pat = TexturePattern(None, matrix, self.pdf, clone=self.last_fill.brush)
+            pat = TexturePattern(None, matrix, self.pdf, clone=last_fill.brush)
             pattern = self.pdf.add_pattern(pat)
-            self.pdf.apply_fill(self.last_fill.color, pattern)
+            self.pdf.apply_fill(last_fill.color, pattern)

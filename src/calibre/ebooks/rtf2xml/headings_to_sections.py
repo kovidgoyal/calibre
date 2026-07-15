@@ -12,6 +12,7 @@
 #########################################################################
 import os
 import re
+from collections.abc import Callable
 
 from calibre.ebooks.rtf2xml import copy
 from calibre.ptempfile import better_mktemp
@@ -86,6 +87,11 @@ class HeadingsToSections:
         ]
         self.__section_num = [0]
         self.__id_regex = re.compile(r'\<list-id\>(\d+)')
+        # Attributes used by __close_lists (currently unused path)
+        self.__left_indent: int = 0
+        self.__all_lists: list[dict] = []
+        self.__write_end_item: Callable[[], None] = self.__write_end_section
+        self.__write_end_list: Callable[[], None] = self.__write_end_section
 
     def __close_lists(self):
         '''
@@ -106,7 +112,7 @@ class HeadingsToSections:
         num_levels_closed = 0
         for the_dict in self.__all_lists:
             list_indent = the_dict.get('left-indent')
-            if current_indent <= list_indent:
+            if list_indent is not None and current_indent <= list_indent:
                 self.__write_end_item()
                 self.__write_end_list()
                 num_levels_closed += 1
@@ -218,6 +224,7 @@ class HeadingsToSections:
             line = line_to_read
             self.__token_info = line[:16]
             action = self.__state_dict.get(self.__state)
+            assert action is not None
             action(line)
         read_obj.close()
         self.__write_obj.close()

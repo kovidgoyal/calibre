@@ -75,8 +75,9 @@ class Folders(QTabWidget):
     @property
     def current_item(self):
         w = self.currentWidget()
-        if w is not None:
+        if isinstance(w, Storage):
             return w.current_item
+        return None
 
 
 class Browser(QDialog):
@@ -135,8 +136,10 @@ class IgnoredFolders(QDialog):
         self.bb.accepted.connect(self.accept)
         self.bb.rejected.connect(self.reject)
         self.sab = self.bb.addButton(_('Select &all'), QDialogButtonBox.ButtonRole.ActionRole)
+        assert self.sab is not None
         self.sab.clicked.connect(self.select_all)
         self.snb = self.bb.addButton(_('Select &none'), QDialogButtonBox.ButtonRole.ActionRole)
+        assert self.snb is not None
         self.snb.clicked.connect(self.select_none)
         l.addWidget(self.bb)
         self.setWindowTitle(_('Choose folders to scan'))
@@ -179,15 +182,23 @@ class IgnoredFolders(QDialog):
         return ans
 
     def select_all(self):
-        w = self.tabs.currentWidget()
-        for i in range(w.invisibleRootItem().childCount()):
-            c = w.invisibleRootItem().child(i)
+        tw = self.tabs.currentWidget()
+        assert isinstance(tw, QTreeWidget)
+        root = tw.invisibleRootItem()
+        assert root is not None
+        for i in range(root.childCount()):
+            c = root.child(i)
+            assert c is not None
             c.setCheckState(0, Qt.CheckState.Checked)
 
     def select_none(self):
-        w = self.tabs.currentWidget()
-        for i in range(w.invisibleRootItem().childCount()):
-            c = w.invisibleRootItem().child(i)
+        tw = self.tabs.currentWidget()
+        assert isinstance(tw, QTreeWidget)
+        root = tw.invisibleRootItem()
+        assert root is not None
+        for i in range(root.childCount()):
+            c = root.child(i)
+            assert c is not None
             c.setCheckState(0, Qt.CheckState.Unchecked)
 
     @property

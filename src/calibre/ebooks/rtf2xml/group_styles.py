@@ -245,7 +245,8 @@ class GroupStyles:
             self.__token_info = line[:16]
             self.__get_style_name(line)
             action = self.__state_dict.get(self.__state)
-            action(line)
+            if action is not None:
+                action(line)
         read_obj.close()
         self.__write_obj.close()
         copy_obj = copy.Copy(bug_handler=self.__bug_handler)

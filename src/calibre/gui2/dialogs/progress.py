@@ -129,12 +129,12 @@ class ProgressDialog(QDialog):
             return
         QDialog.reject(self)
 
-    def keyPressEvent(self, ev):
-        if ev.key() == Qt.Key.Key_Escape:
+    def keyPressEvent(self, a0):
+        if a0.key() == Qt.Key.Key_Escape:
             if self.cancelable:
                 self._canceled()
         else:
-            QDialog.keyPressEvent(self, ev)
+            QDialog.keyPressEvent(self, a0)
 
 
 class BlockingBusy(QDialog):
@@ -146,9 +146,9 @@ class BlockingBusy(QDialog):
         self.setLayout(self._layout)
         self.msg = QLabel(msg)
         # self.msg.setWordWrap(True)
-        self.font = QFont()
-        self.font.setPointSize(self.font.pointSize() + 8)
-        self.msg.setFont(self.font)
+        self._label_font = QFont()
+        self._label_font.setPointSize(self._label_font.pointSize() + 8)
+        self.msg.setFont(self._label_font)
         self.pi = ProgressIndicator(self)
         self.pi.setDisplaySize(QSize(100, 100))
         self._layout.addWidget(self.pi, 0, Qt.AlignmentFlag.AlignHCenter)

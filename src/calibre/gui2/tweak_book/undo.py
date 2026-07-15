@@ -186,8 +186,9 @@ class GlobalUndoHistory(QAbstractListModel):
 
 class SpacedDelegate(QStyledItemDelegate):
 
-    def sizeHint(self, *args):
-        ans = QStyledItemDelegate.sizeHint(self, *args)
+    def sizeHint(self, option=None, index=None):
+        assert option is not None and index is not None
+        ans = QStyledItemDelegate.sizeHint(self, option, index)
         ans.setHeight(ans.height() + 4)
         return ans
 
@@ -224,15 +225,18 @@ class CheckpointView(QWidget):
     def data_changed(self, *args):
         self.view.clearSelection()
         m = self.view.model()
+        assert isinstance(m, GlobalUndoHistory)
         sm = self.view.selectionModel()
-        sm.select(m.index(m.pos), QItemSelectionModel.SelectionFlag.ClearAndSelect)
-        self.view.setCurrentIndex(m.index(m.pos))
+        assert sm is not None
+        sm.select(m.index(m.pos, 0), QItemSelectionModel.SelectionFlag.ClearAndSelect)
+        self.view.setCurrentIndex(m.index(m.pos, 0))
 
     def double_clicked(self, index):
         pass  # Too much danger of accidental double click
 
     def revert_clicked(self):
         m = self.view.model()
+        assert isinstance(m, GlobalUndoHistory)
         row = self.view.currentIndex().row()
         if row < 0:
             return
@@ -243,6 +247,7 @@ class CheckpointView(QWidget):
 
     def compare_clicked(self):
         m = self.view.model()
+        assert isinstance(m, GlobalUndoHistory)
         row = self.view.currentIndex().row()
         if row < 0:
             return

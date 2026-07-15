@@ -64,10 +64,10 @@ def espeak_data_dir() -> str:
     if not getattr(sys, 'frozen', False):
         return os.environ.get('CALIBRE_ESPEAK_DATA_DIR', '')
     if iswindows:
-        return os.path.join(os.path.dirname(sys.executables_location), 'share', 'espeak-ng-data')
+        return os.path.join(os.path.dirname(getattr(sys, 'executables_location')), 'share', 'espeak-ng-data')
     if ismacos:
-        return os.path.join(os.path.dirname(sys.frameworks_dir), 'Resources', 'espeak-ng-data')
-    return os.path.join(sys.executables_location, 'share', 'espeak-ng-data')
+        return os.path.join(os.path.dirname(getattr(sys, 'frameworks_dir')), 'Resources', 'espeak-ng-data')
+    return os.path.join(getattr(sys, 'executables_location'), 'share', 'espeak-ng-data')
 
 
 def create_voice_config(config_path: str, length_scale_multiplier: float = 0, sentence_delay: float = 0.2) -> VoiceConfig:
@@ -101,6 +101,9 @@ def simple_test():
         raise AssertionError('No phonemes returned by phonemize()')
 
 
+ResultCallback = Callable[[SynthesisResult | None, Exception|None, str|None], None]
+
+
 class Piper(Thread):
 
     def __init__(self):
@@ -110,7 +113,7 @@ class Piper(Thread):
         self.as_16bit_samples = True
         self._voice_id = 0
         self.lock = Lock()
-        self.result_callback = lambda *a: None
+        self.result_callback: ResultCallback = lambda *a: None
         self.start()
 
     @property
@@ -144,7 +147,7 @@ class Piper(Thread):
         self.join()
 
     def set_voice(
-        self, result_callback: Callable[[SynthesisResult, Exception|None, str|None], None],
+        self, result_callback: ResultCallback,
         config_path: str, model_path:str, length_scale_multiplier: float = 0, sentence_delay: float = 0.2,
         as_16bit_samples: bool = True,
     ) -> int:

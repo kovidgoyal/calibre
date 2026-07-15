@@ -31,7 +31,10 @@ ns['lower-case'] = lambda c, x: x.lower() if hasattr(x, 'lower') else x
 
 class TOC:
 
-    toc_title = None
+    toc_title: str | None = None
+    lang: str | None = None
+    uid: str | None = None
+    toc_file_name: str | None = None
 
     def __init__(self, title=None, dest=None, frag=None):
         self.title, self.dest, self.frag = title, dest, frag

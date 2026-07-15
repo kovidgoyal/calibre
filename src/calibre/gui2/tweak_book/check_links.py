@@ -55,13 +55,17 @@ class CheckExternalLinks(Dialog):
         self.progress_made.connect(self.on_progress_made, type=Qt.ConnectionType.QueuedConnection)
 
     def show(self):
-        if self.rb.isEnabled():
+        rb = self.rb
+        assert rb is not None
+        if rb.isEnabled():
             self.refresh()
         return Dialog.show(self)
 
     def refresh(self):
         self.stack.setCurrentIndex(0)
-        self.rb.setEnabled(False)
+        rb = self.rb
+        assert rb is not None
+        rb.setEnabled(False)
         t = Thread(name='CheckLinksMaster', target=self.run)
         t.daemon = True
         t.start()
@@ -72,9 +76,9 @@ class CheckExternalLinks(Dialog):
         pb.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
         pb.setRange(0, 0)
         self.w = w = QWidget(self)
-        self.w.l = l = QVBoxLayout(w)
+        l = QVBoxLayout(w)
         l.addStretch(), l.addWidget(pb)
-        self.w.la = la = QLabel(_('Checking external links, please wait...'))
+        la = QLabel(_('Checking external links, please wait...'))
         la.setStyleSheet('QLabel { font-size: 20px; font-weight: bold }')
         l.addWidget(la, 0, Qt.AlignmentFlag.AlignCenter), l.addStretch()
 
@@ -95,6 +99,7 @@ class CheckExternalLinks(Dialog):
         l.addLayout(h)
         self.bb.setStandardButtons(QDialogButtonBox.StandardButton.Close)
         self.rb = b = self.bb.addButton(_('&Refresh'), QDialogButtonBox.ButtonRole.ActionRole)
+        assert b is not None
         b.setIcon(QIcon.ic('view-refresh.png'))
         b.clicked.connect(self.refresh)
 
@@ -123,7 +128,9 @@ class CheckExternalLinks(Dialog):
             self.results.setText('')
             self.stack.setCurrentIndex(1)
             self.fixed_errors = set()
-            self.rb.setEnabled(True)
+            rb = self.rb
+            assert rb is not None
+            rb.setEnabled(True)
             if self.tb is not None:
                 return error_dialog(self, _('Checking failed'), _(
                     'There was an error while checking links, click "Show details" for more information'),

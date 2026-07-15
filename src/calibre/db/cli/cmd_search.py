@@ -16,7 +16,7 @@ def implementation(db, notify_changes, query):
         return db.search(query, allow_templates=not is_remote)
     except ParseException as err:
         e = ValueError(_('Failed to parse search query: ({0}) with error: {1}').format(query, err))
-        e.suppress_traceback = True
+        setattr(e, 'suppress_traceback', True)
         raise e from err
 
 

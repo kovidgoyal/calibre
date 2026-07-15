@@ -7,11 +7,8 @@ __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
-try:
-    from urllib.parse import quote
-except ImportError:
-    from urllib2 import quote
 from contextlib import closing
+from urllib.parse import quote
 
 from qt.core import QUrl
 
@@ -30,7 +27,7 @@ except ImportError:
 
 class EBookShoppeUKStore(BasicStoreConfig, StorePlugin):
 
-    def open(self, parent=None, detail_item=None, external=False):
+    def open(self, gui=None, parent=None, detail_item=None, external=False):
         url_details = 'http://www.awin1.com/cread.php?awinmid=1414&awinaffid=120917&clickref=&p={0}'
         url = 'http://www.awin1.com/awclick.php?mid=2666&id=120917'
 

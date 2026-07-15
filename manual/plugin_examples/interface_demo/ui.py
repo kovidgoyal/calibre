@@ -55,6 +55,7 @@ class InterfacePlugin(InterfaceAction):
         # The config dialog can also be shown from within
         # Preferences->Plugins, which is why the do_user_config
         # method is defined on the base plugin class
+        assert base_plugin_object is not None
         do_user_config = base_plugin_object.do_user_config
 
         # self.gui is the main calibre GUI. It acts as the gateway to access

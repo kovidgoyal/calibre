@@ -4,13 +4,15 @@ class Error(Exception):
     pass
 
 class PDFOutlineItem:
-
     def __init__(self) -> None:
         'PDF Outline items'
         pass
 
     def create(self, title: str, pagenum: int, as_child: object = False, left: float = 0, top: float = 0, zoom: float = 0) -> PDFOutlineItem:
-        "create(title, pagenum, as_child=False) -> Create a new outline item with title 'title', pointing to page number pagenum. If as_child is True the new item will be a child of this item otherwise it will be a sibling. Returns the newly created item."
+        (
+            "create(title, pagenum, as_child=False) -> Create a new outline item with title 'title', pointing to page number pagenum. If as_child is True the"
+            ' new item will be a child of this item otherwise it will be a sibling. Returns the newly created item.'
+        )
         pass
 
     def erase(self) -> None:
@@ -18,7 +20,6 @@ class PDFOutlineItem:
         pass
 
 class PDFDoc:
-
     title: str
     author: str
     subject: str
@@ -129,7 +130,10 @@ class PDFDoc:
         pass
 
     def set_box(self, page_num: int, box: str, left: float, bottom: float, width: float, height: float) -> None:
-        'set_box(page_num, box, left, bottom, width, height) -> Set the PDF bounding box for the page numbered nu, box must be one of: MediaBox, CropBox, TrimBox, BleedBox, ArtBox. The numbers are interpreted as pts.'
+        (
+            'set_box(page_num, box, left, bottom, width, height) -> Set the PDF bounding box for the page numbered nu, box must be one of: MediaBox, CropBox,'
+            ' TrimBox, BleedBox, ArtBox. The numbers are interpreted as pts.'
+        )
         pass
 
     def create_outline(self, title: str, pagenum: int, left: float = 0, top: float = 0, zoom: float = 0) -> PDFOutlineItem:
@@ -148,6 +152,19 @@ class PDFDoc:
         'set_xmp_metadata(raw) -> Set the XMP metadata to the raw bytes (which must be a valid XML packet)'
         pass
 
-    def add_image_page(self, image_data: bytes, page_x: float, page_y: float, page_width: float, page_height: float, image_x: float, image_y: float, image_canvas_width: float, image_canvas_height: float, page_num: int = 1, preserve_aspect_ratio: bool = True) -> tuple[float, float]:
+    def add_image_page(
+        self,
+        image_data: bytes,
+        page_x: float,
+        page_y: float,
+        page_width: float,
+        page_height: float,
+        image_x: float,
+        image_y: float,
+        image_canvas_width: float,
+        image_canvas_height: float,
+        page_num: int = 1,
+        preserve_aspect_ratio: bool = True,
+    ) -> tuple[float, float]:
         'add_image_page(image_data, page_idx=0) -> Add the specified image as a full page image, will use the size of the first existing page as page size.'
         pass

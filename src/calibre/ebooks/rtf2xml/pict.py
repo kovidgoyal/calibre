@@ -63,13 +63,15 @@ class Pict:
 
     def __make_dir(self):
         ''' Make a directory to put the image data in'''
-        base_name = os.path.basename(getattr(self.__orig_file, 'name',
-            self.__orig_file))
+        _orig_path = getattr(self.__orig_file, 'name', self.__orig_file)
+        assert isinstance(_orig_path, (str, bytes, os.PathLike))
+        base_name = os.path.basename(_orig_path)
         base_name = os.path.splitext(base_name)[0]
         if self.__out_file:
             dir_name = os.path.dirname(getattr(self.__out_file, 'name',
                 self.__out_file))
         else:
+            assert isinstance(self.__orig_file, (str, bytes, os.PathLike))
             dir_name = os.path.dirname(self.__orig_file)
         self.__dir_name = base_name + '_rtf_pict_dir/'
         self.__dir_name = os.path.join(dir_name, self.__dir_name)

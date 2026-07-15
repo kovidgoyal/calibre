@@ -124,11 +124,8 @@ def comments_to_html(comments):
 
 
 def markdown(val):
-    try:
-        md = markdown.Markdown
-    except AttributeError:
-        from calibre.ebooks.markdown import Markdown
-        md = markdown.Markdown = Markdown()
+    from markdown import Markdown
+    md = Markdown()
     val = md.convert(val)
     # The Qt Rich text widgets display <p><br></p> as two blank lines instead
     # of one so fix that here.
@@ -140,7 +137,7 @@ def merge_comments(one, two):
 
 
 def sanitize_comments_html(html):
-    from calibre.ebooks.markdown import Markdown
+    from markdown import Markdown
     text = html2text(html, single_line_break=False)
     md = Markdown()
     html = md.convert(text)

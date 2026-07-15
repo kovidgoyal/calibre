@@ -129,10 +129,14 @@ class ManageTagList(Dialog):  # {{{
     def open_menu(self, position):
         menu = QMenu(self)
         expand_action = menu.addAction('Expand All')
+        assert expand_action is not None
         expand_action.triggered.connect(self.tree.expandAll)
         collapse_action = menu.addAction('Collapse All')
+        assert collapse_action is not None
         collapse_action.triggered.connect(self.tree.collapseAll)
-        menu.exec(self.tree.viewport().mapToGlobal(position))
+        tree_vp = self.tree.viewport()
+        assert tree_vp is not None
+        menu.exec(tree_vp.mapToGlobal(position))
 
     def sizeHint(self):
         return QSize(400, 500)
@@ -246,8 +250,10 @@ class ManageTagList(Dialog):  # {{{
 
     def _save_expanded_state(self):
         root = self.tree.invisibleRootItem()
+        assert root is not None
         for i in range(root.childCount()):
             item = root.child(i)
+            assert item is not None
             if item.isExpanded():
                 self._collapsed_tags.discard(item.text(0))
             else:
@@ -502,23 +508,23 @@ class Results(QWidget):
                 break
         return -1
 
-    def mouseMoveEvent(self, ev):
-        y = ev.pos().y()
+    def mouseMoveEvent(self, a0):
+        y = a0.pos().y()
         prev = self.mouse_hover_result
         self.mouse_hover_result = self.item_from_y(y)
         if prev != self.mouse_hover_result:
             self.update()
 
-    def mousePressEvent(self, ev):
-        if ev.button() == 1:
-            i = self.item_from_y(ev.pos().y())
+    def mousePressEvent(self, a0):
+        if a0.button() == 1:
+            i = self.item_from_y(a0.pos().y())
             if i != -1:
-                ev.accept()
+                a0.accept()
                 self.current_result = i
                 self.update()
                 self.item_selected.emit()
                 return
-        return QWidget.mousePressEvent(self, ev)
+        return QWidget.mousePressEvent(self, a0)
 
     def change_current(self, delta=1):
         if not self.results:
@@ -549,10 +555,10 @@ class Results(QWidget):
         text.setTextFormat(Qt.TextFormat.RichText)
         return text
 
-    def paintEvent(self, ev):
+    def paintEvent(self, a0):
         offset = QPoint(0, 0)
         p = QPainter(self)
-        p.setClipRect(ev.rect())
+        p.setClipRect(a0.rect())
         bottom = self.rect().bottom()
 
         if self.results:
@@ -650,12 +656,12 @@ class QuickOpen(Dialog):
         self.results(matches)
         self.matches = tuple(matches)
 
-    def keyPressEvent(self, ev):
-        if ev.key() in (Qt.Key.Key_Up, Qt.Key.Key_Down):
-            ev.accept()
-            self.results.change_current(delta=-1 if ev.key() == Qt.Key.Key_Up else 1)
+    def keyPressEvent(self, a0):
+        if a0.key() in (Qt.Key.Key_Up, Qt.Key.Key_Down):
+            a0.accept()
+            self.results.change_current(delta=-1 if a0.key() == Qt.Key.Key_Up else 1)
             return
-        return Dialog.keyPressEvent(self, ev)
+        return Dialog.keyPressEvent(self, a0)
 
     def accept(self):
         self.selected_result = self.results.selected_result
@@ -731,7 +737,7 @@ class NamesModel(QAbstractListModel):
     def rowCount(self, parent=ROOT):
         return len(self.items)
 
-    def data(self, index, role):
+    def data(self, index, role=None):
         if role == Qt.ItemDataRole.UserRole:
             return self.items[index.row()]
         if role == Qt.ItemDataRole.DisplayRole:
@@ -761,12 +767,12 @@ class NamesModel(QAbstractListModel):
 
 def create_filterable_names_list(names, filter_text=None, parent=None, model=NamesModel):
     nl = QListView(parent)
-    nl.m = m = model(names, parent=nl)
+    m = model(names, parent=nl)
     connect_lambda(m.filtered, nl, lambda nl, all_items: nl.scrollTo(m.index(0)))
     nl.setModel(m)
     if model is NamesModel:
-        nl.d = NamesDelegate(nl)
-        nl.setItemDelegate(nl.d)
+        d = NamesDelegate(nl)
+        nl.setItemDelegate(d)
     f = QLineEdit(parent)
     f.setPlaceholderText(filter_text or '')
     f.textEdited.connect(m.filter)
@@ -789,7 +795,7 @@ class AnchorsModel(QAbstractListModel):
     def rowCount(self, parent=ROOT):
         return len(self.items)
 
-    def data(self, index, role):
+    def data(self, index, role=None):
         if role == Qt.ItemDataRole.UserRole:
             return self.items[index.row()]
         if role == Qt.ItemDataRole.DisplayRole:
@@ -864,7 +870,9 @@ class InsertLink(Dialog):
         t.setPlaceholderText(_('The (optional) text for the link'))
 
         self.template_edit = t = HistoryComboBox(self)
-        t.lineEdit().setClearButtonEnabled(True)
+        le = t.lineEdit()
+        assert le is not None
+        le.setClearButtonEnabled(True)
         t.initialize('edit_book_insert_link_template_history')
         tl.addRow(_('Tem&plate:'), t)
         from calibre.gui2.tweak_book.editor.smarts.html import DEFAULT_LINK_TEMPLATE
@@ -1190,13 +1198,19 @@ class InsertSemantics(Dialog):  # {{{
         d = cls(c)
         if d.exec() == QDialog.DialogCode.Accepted:
             import pprint
-            pprint.pprint(d.changed_type_map)
+            pprint.pprint(d.changes)
             d.apply_changes(d.container)
 
 # }}}
 
 
 class FilterCSS(Dialog):  # {{{
+
+    opt_fonts: QCheckBox
+    opt_margins: QCheckBox
+    opt_padding: QCheckBox
+    opt_floats: QCheckBox
+    opt_colors: QCheckBox
 
     def __init__(self, current_name=None, parent=None):
         self.current_name = current_name
@@ -1281,7 +1295,7 @@ class CoverView(QWidget):
         self.current_pixmap_size = self.pixmap.size()
         self.update()
 
-    def paintEvent(self, event):
+    def paintEvent(self, a0):
         if self.pixmap.isNull():
             return
         canvas_size = self.rect()
@@ -1358,6 +1372,7 @@ class AddCover(Dialog):
 
         l.addWidget(self.bb)
         b = self.bb.addButton(_('Import &image'), QDialogButtonBox.ButtonRole.ActionRole)
+        assert b is not None
         b.clicked.connect(self.import_image)
         b.setIcon(QIcon.ic('document_open.png'))
         self.names.setFocus(Qt.FocusReason.OtherFocusReason)
@@ -1436,6 +1451,7 @@ class PlainTextEdit(QPlainTextEdit):  # {{{
 
     def createMimeDataFromSelection(self):
         ans = super().createMimeDataFromSelection()
+        assert ans is not None
         for format in ans.formats():
             if format.startswith('text/'):
                 val = bytes(ans.data(format)).decode()
@@ -1457,19 +1473,19 @@ class PlainTextEdit(QPlainTextEdit):  # {{{
         s = winutil.get_async_key_state(winutil.VK_RMENU)  # VK_RMENU == R_ALT
         return s & 0x8000
 
-    def event(self, ev):
-        et = ev.type()
+    def event(self, e):
+        et = e.type()
         if et == QEvent.Type.ToolTip:
-            self.show_tooltip(ev)
+            self.show_tooltip(e)
             return True
         if et == QEvent.Type.ShortcutOverride:
-            ret = self.override_shortcut(ev)
+            ret = self.override_shortcut(e)
             if ret:
                 return True
-        return QPlainTextEdit.event(self, ev)
+        return QPlainTextEdit.event(self, e)
 
-    def mouseDoubleClickEvent(self, ev):
-        super().mouseDoubleClickEvent(ev)
+    def mouseDoubleClickEvent(self, e):
+        super().mouseDoubleClickEvent(e)
         c = self.textCursor()
         # Workaround for QTextCursor considering smart quotes as word
         # characters https://bugreports.qt.io/browse/QTBUG-101372

@@ -209,7 +209,7 @@ def _set_metadata(raw, mi):
 
     def add_user_metadata(name, val):
         if not hasattr(add_user_metadata, 'sentinel_added'):
-            add_user_metadata.sentinel_added = True
+            setattr(add_user_metadata, 'sentinel_added', True)
             remove_user_metadata('opf.metadata')
             add_um('opf.metadata', 'true', 'boolean')
         val_type = 'string'

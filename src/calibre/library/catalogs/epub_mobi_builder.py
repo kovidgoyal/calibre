@@ -10,11 +10,12 @@ import time
 import unicodedata
 from compression import zlib
 from copy import deepcopy
+from typing import Any
 from xml.sax.saxutils import escape
 
 from lxml import etree
 
-from calibre import as_unicode, force_unicode, isbytestring, prepare_string_for_xml, replace_entities, strftime, xml_replace_entities
+from calibre import as_unicode, force_unicode, prepare_string_for_xml, replace_entities, strftime, xml_replace_entities
 from calibre.constants import cache_dir, ismacos
 from calibre.customize.conversion import DummyReporter
 from calibre.customize.ui import output_profiles
@@ -57,9 +58,11 @@ class Formatter(TemplateFormatter):
             return ''
         if key in kwargs:
             return kwargs[key]
-        if key not in self.book.all_field_keys():
+        book = self.book
+        assert book is not None
+        if key not in book.all_field_keys():
             raise Exception(_('column not in book: ') + key)
-        return self.book.format_field(key, series_with_index=False)[1]
+        return book.format_field(key, series_with_index=False)[1]
 
 
 class CatalogBuilder:
@@ -158,27 +161,27 @@ class CatalogBuilder:
                                               _opts.output_profile.startswith('kindle')) else False
 
         self.all_series = set()
-        self.authors = None
-        self.bookmarked_books = None
-        self.bookmarked_books_by_date_read = None
-        self.books_by_author = None
-        self.books_by_date_range = None
-        self.books_by_description = []
-        self.books_by_month = None
-        self.books_by_series = None
-        self.books_by_title = None
-        self.books_by_title_no_series_prefix = None
-        self.books_to_catalog = None
+        self.authors: list[tuple[str, str, int]] | None = None
+        self.bookmarked_books: dict[int, Any] | None = None
+        self.bookmarked_books_by_date_read: list[dict[str, Any]] | None = None
+        self.books_by_author: list[dict[str, Any]] | None = None
+        self.books_by_date_range: list[dict[str, Any]] | None = None
+        self.books_by_description: list[dict[str, Any]] = []
+        self.books_by_month: list[dict[str, Any]] | None = None
+        self.books_by_series: list[dict[str, Any]] | None = None
+        self.books_by_title: list[dict[str, Any]] | None = None
+        self.books_by_title_no_series_prefix: list[dict[str, Any]] | None = None
+        self.books_to_catalog: list[dict[str, Any]] | None = None
         self.current_step = 0.0
         self.error = []
         self.generate_recently_read = False
-        self.genres = []
-        self.genre_tags_dict = \
+        self.genres: list[dict[str, Any]] = []
+        self.genre_tags_dict: dict[str, str] | None = \
             self.filter_genre_tags(max_len=245 - len(f'{self.content_dir}/Genre_.html')) \
             if self.opts.generate_genres else None
         self.html_filelist_1 = []
         self.html_filelist_2 = []
-        self.individual_authors = None
+        self.individual_authors: list[str] | None = None
         self.merge_comments_rule = dict(zip(['field', 'position', 'hr'],
                                             _opts.merge_comments_rule.split(':')))
         self.ncx_root = None
@@ -189,10 +192,23 @@ class CatalogBuilder:
         self.progress_string = ''
         self.thumb_height = 0
         self.thumb_width = 0
-        self.thumbs = None
+        self.thumbs: list[str] | None = None
         self.thumbs_path = os.path.join(self.cache_dir, 'thumbs.zip')
         self.total_steps = 6.0
         self.use_series_prefix_in_titles_section = False
+
+        # Template attributes populated by load_section_templates()
+        self.by_authors_normal_title_template: str = ''
+        self.by_authors_series_title_template: str = ''
+        self.by_genres_normal_title_template: str = ''
+        self.by_genres_series_title_template: str = ''
+        self.by_month_added_normal_title_template: str = ''
+        self.by_month_added_series_title_template: str = ''
+        self.by_recently_added_normal_title_template: str = ''
+        self.by_recently_added_series_title_template: str = ''
+        self.by_series_title_template: str = ''
+        self.by_titles_normal_title_template: str = ''
+        self.by_titles_series_title_template: str = ''
 
         self.dump_custom_fields()
         self.books_to_catalog = self.fetch_books_to_catalog()
@@ -756,12 +772,14 @@ class CatalogBuilder:
 
         self.update_progress_full_step(_('Sorting database'))
 
+        assert self.books_to_catalog is not None
         books_by_author = list(self.books_to_catalog)
         self.detect_author_sort_mismatches(books_by_author)
 
         # Assumes books_by_title already populated
         # init books_by_description before relisting multiple authors
         if self.opts.generate_descriptions:
+            assert self.books_by_title is not None
             books_by_description = list(books_by_author) if self.opts.sort_descriptions_by_author \
                 else list(self.books_by_title)
 
@@ -856,6 +874,7 @@ class CatalogBuilder:
         '''
         self.update_progress_full_step(_('Sorting titles'))
         # Re-sort based on title_sort
+        assert self.books_to_catalog is not None
         if len(self.books_to_catalog):
             self.books_by_title = sorted(self.books_to_catalog, key=lambda x: sort_key(x['title_sort'].upper()))
 
@@ -1091,7 +1110,7 @@ class CatalogBuilder:
 
         class BookmarkDevice(Device):
 
-            def initialize(self, save_template):
+            def initialize(self, save_template=None):
                 self._save_template = save_template
                 self.SUPPORTS_SUB_DIRS = True
 
@@ -1145,6 +1164,7 @@ class CatalogBuilder:
             d.initialize(self.opts.connected_device['save_template'])
 
             bookmarks = {}
+            assert self.books_to_catalog is not None
             for book in self.books_to_catalog:
                 if 'formats' in book:
                     path_map = {}
@@ -1162,7 +1182,9 @@ class CatalogBuilder:
                         bookmark_ext = path_map[id].rpartition('.')[2]
                         myBookmark = Bookmark(path_map[id], id, book_ext[id], bookmark_ext)
                         try:
-                            book['percent_read'] = min(float(100 * myBookmark.last_read / myBookmark.book_length), 100)
+                            book_length = myBookmark.book_length
+                            assert isinstance(book_length, int)
+                            book['percent_read'] = min(float(100 * myBookmark.last_read / book_length), 100)
                         except Exception:
                             book['percent_read'] = 0
                         dots = int((book['percent_read'] + 5) // 10)
@@ -1435,6 +1457,7 @@ class CatalogBuilder:
         current_letter = ''
         current_series = None
         # Establish initial letter equivalencies
+        assert self.books_by_author is not None
         sort_equivalents = self.establish_equivalencies(self.books_by_author, key='author_sort')
 
         for idx, book in enumerate(self.books_by_author):
@@ -1502,9 +1525,11 @@ class CatalogBuilder:
                 aTag.insert(0, NavigableString(current_author))
                 pAuthorTag.insert(0, aTag)
                 if author_count == 1:
+                    assert divOpeningTag is not None
                     divOpeningTag.insert(dotc, pAuthorTag)
                     dotc += 1
                 else:
+                    assert divRunningTag is not None
                     divRunningTag.insert(drtc, pAuthorTag)
                     drtc += 1
 
@@ -1525,6 +1550,7 @@ class CatalogBuilder:
                     pSeriesTag.insert(0, NavigableString('{}'.format(book['series'])))
 
                 if author_count == 1:
+                    assert divOpeningTag is not None
                     divOpeningTag.insert(dotc, pSeriesTag)
                     dotc += 1
                 elif divRunningTag is not None:
@@ -1572,6 +1598,7 @@ class CatalogBuilder:
             ptc += 1
 
             if author_count == 1:
+                assert divOpeningTag is not None
                 divOpeningTag.insert(dotc, pBookTag)
                 dotc += 1
             elif divRunningTag:
@@ -1824,6 +1851,7 @@ class CatalogBuilder:
         dtc = 0
 
         # >>> Books by date range <<<
+        assert self.books_to_catalog is not None
         if self.use_series_prefix_in_titles_section:
             self.books_by_date_range = sorted(self.books_to_catalog,
                                 key=lambda x: (x['timestamp'], x['timestamp']), reverse=True)
@@ -1853,6 +1881,7 @@ class CatalogBuilder:
 
         # >>>> Books by month <<<<
         # Sort titles case-insensitive for by month using series prefix
+        # self.books_to_catalog is not None (asserted above at start of date range block)
         self.books_by_month = sorted(self.books_to_catalog,
                                 key=lambda x: (x['timestamp'], x['timestamp']), reverse=True)
 
@@ -2022,7 +2051,9 @@ class CatalogBuilder:
             # print('bm_book: %s' % bm_book)
             book[1]['bookmark_timestamp'] = book[0].timestamp
             try:
-                book[1]['percent_read'] = min(float(100 * book[0].last_read / book[0].book_length), 100)
+                bm_book_length = book[0].book_length
+                assert isinstance(bm_book_length, int)
+                book[1]['percent_read'] = min(float(100 * book[0].last_read / bm_book_length), 100)
             except Exception:
                 book[1]['percent_read'] = 0
             bookmarked_books.append(book[1])
@@ -2072,6 +2103,9 @@ class CatalogBuilder:
 
         # Extract books matching filtered_tags
         genre_list = []
+        assert self.genre_tags_dict is not None
+        assert self.books_by_author is not None
+        assert self.books_to_catalog is not None
         for friendly_tag in sorted(self.genre_tags_dict, key=sort_key):
             # print("\ngenerate_html_by_genres(): looking for books with friendly_tag '%s'" % friendly_tag)
             # tag_list => { normalized_genre_tag : [{book},{},{}],
@@ -2324,6 +2358,7 @@ class CatalogBuilder:
         self.opts.sort_by = 'series'
 
         # *** Convert the existing database, resort by series/index ***
+        assert self.books_to_catalog is not None
         self.books_by_series = [i for i in self.books_to_catalog if i['series']]
         self.books_by_series = sorted(self.books_by_series, key=lambda x: sort_key(self._kf_books_by_series_sorter(x)))
 
@@ -2502,6 +2537,8 @@ class CatalogBuilder:
 
         # Re-sort title list without leading series/series_index
         # Incoming title <series> <series_index>: <title>
+        assert self.books_to_catalog is not None
+        assert self.books_by_title is not None
         if not self.use_series_prefix_in_titles_section:
             nspt = deepcopy(self.books_to_catalog)
             nspt = sorted(nspt, key=lambda x: sort_key(x['title_sort'].upper()))
@@ -2514,8 +2551,9 @@ class CatalogBuilder:
         # Generate one divRunningTag per initial letter for the purposes of
         # minimizing widows and orphans on readers that can handle large
         # <divs> styled as inline-block
-        title_list = self.books_by_title
+        title_list: list[dict[str, Any]] = self.books_by_title
         if not self.use_series_prefix_in_titles_section:
+            assert self.books_by_title_no_series_prefix is not None
             title_list = self.books_by_title_no_series_prefix
         drtc = 0
         divRunningTag = None
@@ -2627,6 +2665,7 @@ class CatalogBuilder:
         '''
 
         from calibre.ebooks.oeb.base import XHTML_NS
+        assert self.bookmarked_books is not None
 
         def _generate_html():
             args = dict(
@@ -2651,7 +2690,7 @@ class CatalogBuilder:
                 xmlns=XHTML_NS,
             )
             for k, v in args.items():
-                if isbytestring(v):
+                if isinstance(v, bytes):
                     args[k] = v.decode('utf-8')
                 elif isinstance(v, Tag):
                     args[k] = str(v)
@@ -2693,6 +2732,7 @@ class CatalogBuilder:
             for i, tag in enumerate(sorted(book.get('genres', []))):
                 aTag = _soup.new_tag('a')
                 if self.opts.generate_genres:
+                    assert self.genre_tags_dict is not None
                     try:
                         aTag['href'] = f'Genre_{self.genre_tags_dict[tag]}.html'
                     except KeyError:
@@ -2827,6 +2867,7 @@ class CatalogBuilder:
 
         self.update_progress_full_step(_('Descriptions HTML'))
 
+        assert self.books_by_title is not None
         for title_num, title in enumerate(self.books_by_title):
             self.update_progress_micro_step(f"{_('Description HTML')} {title_num} of {len(self.books_by_title)}",
                                             float(title_num * 100 / len(self.books_by_title)) / 100)
@@ -2934,7 +2975,9 @@ class CatalogBuilder:
             self.opts.log.error(f"     Failed to load user-specifed font '{font_path}'")
             font = ImageFont.truetype(default_font, 48)
         text = self.opts.catalog_title.encode('utf-8')
-        width, height = draw.textsize(text, font=font)
+        bbox = draw.textbbox((0, 0), text, font=font)
+        width = bbox[2] - bbox[0]
+        height = bbox[3] - bbox[1]
         left = max(int((MI_WIDTH - width) / 2), 0)
         top = max(int((MI_HEIGHT - height) / 2), 0)
         draw.text((left, top), text, fill=(0, 0, 0), font=font)
@@ -2990,6 +3033,7 @@ class CatalogBuilder:
 
     def generate_ncx_section_header(self, section_id, section_header, content_src):
         root = self.ncx_root
+        assert root is not None
         if self.generate_for_kindle_mobi:
             body = root.xpath('//*[local-name()="navPoint"]')[0]
         else:
@@ -3042,7 +3086,7 @@ class CatalogBuilder:
         # --- Construct the 'Descriptions' section ---
         # Add the section navPoint
         # Loop over the titles
-
+        assert self.bookmarked_books is not None
         for book in self.books_by_description:
             sec_id = 'book{}ID'.format(int(book['id']))
             if book['series']:
@@ -3117,6 +3161,7 @@ class CatalogBuilder:
 
         series_by_letter = []
         # Establish initial letter equivalencies
+        assert self.books_by_series is not None
         sort_equivalents = self.establish_equivalencies(self.books_by_series, key='series_sort')
 
         # Loop over the series titles, find start of each letter, add description_preview_count books
@@ -3190,6 +3235,7 @@ class CatalogBuilder:
             books_by_letter.append(current_book_list)
 
         # --- Construct the 'Books By Title' section ---
+        assert self.books_by_title is not None
         section_header = f'{tocTitle} [{len(self.books_by_title)}]'
         if self.generate_for_kindle_mobi:
             section_header = tocTitle
@@ -3204,8 +3250,9 @@ class CatalogBuilder:
         # Loop over the titles, find start of each letter, add description_preview_count books
         # Special switch for using different title list
         if self.use_series_prefix_in_titles_section:
-            title_list = self.books_by_title
+            title_list: list[dict[str, Any]] = self.books_by_title
         else:
+            assert self.books_by_title_no_series_prefix is not None
             title_list = self.books_by_title_no_series_prefix
 
         # Prime the list
@@ -3277,6 +3324,7 @@ class CatalogBuilder:
         # --- Construct the 'Books By Author' *section* ---
         file_ID = f'{tocTitle.lower()}'
         file_ID = file_ID.replace(' ', '')
+        assert self.individual_authors is not None
         section_header = f'{tocTitle} [{len(self.individual_authors)}]'
         if self.generate_for_kindle_mobi:
             section_header = tocTitle
@@ -3289,6 +3337,7 @@ class CatalogBuilder:
         # (<friendly name>, author_sort, book_count)
 
         # Need to extract a list of author_sort, generate sort_equivalents from that
+        assert self.authors is not None
         sort_equivalents = self.establish_equivalencies([x[1] for x in self.authors])
 
         master_author_list = []
@@ -3373,6 +3422,7 @@ class CatalogBuilder:
             else:
                 date_range = f'Last {self.DATE_RANGE[i]} days'
             date_range_limit = self.DATE_RANGE[i]
+            assert self.books_by_date_range is not None
             for book in self.books_by_date_range:
                 book_time = datetime.datetime(book['timestamp'].year, book['timestamp'].month, book['timestamp'].day)
                 if (today_time - book_time).days <= date_range_limit:
@@ -3402,6 +3452,7 @@ class CatalogBuilder:
         # master_month_list(list, date, count)
         current_titles_list = []
         master_month_list = []
+        assert self.books_by_month is not None
         current_date = self.books_by_month[0]['timestamp']
 
         for book in self.books_by_month:
@@ -3559,23 +3610,27 @@ class CatalogBuilder:
             section_header = tocTitle
         navPointTag = self.generate_ncx_section_header(f'{file_ID}-ID', section_header, 'content/Genre_{}.html#section_start'.format(self.genres[0]['tag']))
 
+        assert self.genre_tags_dict is not None
         for genre in self.genres:
             # Add an article for each genre
             sec_id = 'genre-{}-ID'.format(genre['tag'])
             # GwR *** Can this be optimized?
             normalized_tag = None
-            for friendly_tag in self.genre_tags_dict:
-                if self.genre_tags_dict[friendly_tag] == genre['tag']:
-                    normalized_tag = self.genre_tags_dict[friendly_tag]
+            genre_tags_dict = self.genre_tags_dict
+            for friendly_tag in genre_tags_dict:
+                if genre_tags_dict[friendly_tag] == genre['tag']:
+                    normalized_tag = genre_tags_dict[friendly_tag]
                     break
             sec_text = self.format_ncx_text(NavigableString(friendly_tag), dest='description')
             content_src = f'content/Genre_{normalized_tag}.html#Genre_{normalized_tag}'
-            if len(genre['titles_spanned']) > 1:
-                author_range = '{} - {}'.format(genre['titles_spanned'][0][0], genre['titles_spanned'][1][0])
+            titles_spanned: list[tuple[str, str]] = genre['titles_spanned']
+            if len(titles_spanned) > 1:
+                author_range = f'{titles_spanned[0][0]} - {titles_spanned[1][0]}'
             else:
-                author_range = '{}'.format(genre['titles_spanned'][0][0])
+                author_range = f'{titles_spanned[0][0]}'
             titles = []
-            for title in genre['books']:
+            genre_books: list[dict[str, Any]] = genre['books']
+            for title in genre_books:
                 titles.append(title['title'])
             titles = sorted(titles, key=lambda x: (self.generate_sort_title(x), self.generate_sort_title(x)))
             titles_list = self.generate_short_description(' • '.join(titles), dest='description')
@@ -3644,6 +3699,7 @@ class CatalogBuilder:
 
         # Write the thumbnail images, descriptions to the manifest
         if self.opts.generate_descriptions:
+            assert self.thumbs is not None
             for thumb in self.thumbs:
                 end = thumb.find('.jpg')
                 manifest_item(f'{thumb[:end]}-image', f'images/{thumb}', 'image/jpeg')
@@ -3908,6 +3964,7 @@ class CatalogBuilder:
         self.update_progress_full_step(_('Thumbnails'))
         thumbs = ['thumbnail_default.jpg']
         image_dir = f'{self.catalog_path}/images'
+        assert self.books_by_title is not None
         for i, title in enumerate(self.books_by_title):
             # Update status
             self.update_progress_micro_step(f"{_('Thumbnail')} {i} of {len(self.books_by_title)}",
@@ -4030,6 +4087,7 @@ class CatalogBuilder:
          friendly_tag (str): friendly_tag matching genre
         '''
         # Find the first instance of friendly_tag matching genre
+        assert self.genre_tags_dict is not None
         for friendly_tag in self.genre_tags_dict:
             if self.genre_tags_dict[friendly_tag] == genre:
                 return friendly_tag
@@ -4338,6 +4396,7 @@ class CatalogBuilder:
         '''
 
         self.update_progress_full_step(_('Saving NCX'))
+        assert self.ncx_root is not None
         pretty_xml_tree(self.ncx_root)
         ncx = etree.tostring(self.ncx_root, encoding='utf-8')
         with open(f'{self.catalog_path}/{self.opts.basename}.ncx', 'wb') as outfile:

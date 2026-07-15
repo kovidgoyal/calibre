@@ -62,10 +62,10 @@ class ByteCode(dict):
             nibble1 = b & 0x0f
             if nibble0 == 0xf:
                 break
-            number = number + real_nibbles[nibble0]
+            number = number + (real_nibbles[nibble0] or '')
             if nibble1 == 0xf:
                 break
-            number = number + real_nibbles[nibble1]
+            number = number + (real_nibbles[nibble1] or '')
         return float(number), index
 
     def write_float(self, f, encoding='ignored'):
@@ -141,7 +141,7 @@ class Dict(ByteCode):
         while index < len(data):
             b0 = ord(data[index:index+1])
             index += 1
-            handler = getattr(self, self.operand_encoding[b0])
+            handler = getattr(self, str(self.operand_encoding[b0]))
             value, index = handler(b0, data, index)
             if value is not None:
                 self.stack.append(value)
@@ -203,7 +203,7 @@ class Dict(ByteCode):
                     for typ, v in zip(arg, val):
                         if typ == 'SID':
                             val = strings(val)
-                        data.append(getattr(self, 'encode_'+typ)(v))
+                        data.append(getattr(self, 'encode_'+str(typ))(v))
                 else:
                     if arg == 'SID':
                         val = strings(val)

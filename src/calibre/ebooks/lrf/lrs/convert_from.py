@@ -162,7 +162,7 @@ class LrsParser:
         if toc:
             for tag in toc.findAll('toclabel'):
                 label = self.tag_to_string(tag)
-                self.book.addTocEntry(label, self.parsed_objects[tag.get('refobj')])
+                self.book.addTocEntry(label, self.parsed_objects[tag.get('refobj')])  # type: ignore
 
     def third_pass(self):
         map = {
@@ -324,7 +324,7 @@ def main(args=sys.argv, logger=None):
     opts.output = os.path.abspath(opts.output)
     if opts.verbose:
         import warnings
-        warnings.defaultaction = 'error'
+        setattr(warnings, 'defaultaction', 'error')
 
     logger.info('Parsing LRS file...')
     converter = LrsParser(open(args[1], 'rb'), logger)

@@ -44,7 +44,7 @@ def decoded_api_key() -> str:
 
 
 @lru_cache(2)
-def headers() -> tuple[tuple[str, str]]:
+def headers() -> tuple[tuple[str, str], ...]:
     api_key = decoded_api_key()
     return (
         ('Authorization', f'Bearer {api_key}'),
@@ -68,7 +68,7 @@ class Model(NamedTuple):
     publisher: str
 
     @classmethod
-    def from_dict(cls, x: dict[str, object]) -> Model:
+    def from_dict(cls, x: dict[str, Any]) -> Model:
         mid = x['id']
         caps = AICapabilities.none
         if 'embedding' in x['capabilities'] or 'embeddings' in x['supported_output_modalities']:

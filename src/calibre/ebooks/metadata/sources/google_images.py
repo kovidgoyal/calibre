@@ -10,7 +10,11 @@ from collections import OrderedDict
 
 from calibre import random_user_agent
 from calibre.ebooks.metadata.sources.base import Option, Source
-from calibre.utils.localization import _
+
+try:
+    from calibre.utils.localization import _
+except ImportError:
+    pass
 
 
 def parse_html(raw):
@@ -103,7 +107,7 @@ class GoogleImages(Source):
         try:
             from urllib.parse import urlencode
         except ImportError:
-            from urllib import urlencode
+            from urllib import urlencode  # type: ignore
         br = self.browser
         q = urlencode({'as_q': ('%s %s'%(title, author)).encode('utf-8')})
         if isinstance(q, bytes):
@@ -144,12 +148,12 @@ def test(title='Star Trek: Section 31: Control', authors=('David Mack',)):
     try:
         from queue import Queue
     except ImportError:
-        from Queue import Queue
+        from Queue import Queue  # type: ignore
     from threading import Event
 
     from calibre.utils.logging import default_log
     p = GoogleImages(None)
-    p.log = default_log
+    setattr(p, 'log', default_log)
     rq = Queue()
     p.download_cover(default_log, rq, Event(), title=title, authors=authors)
     print('Downloaded', rq.qsize(), 'covers')

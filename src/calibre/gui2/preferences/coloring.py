@@ -257,7 +257,7 @@ class ConditionEditor(QWidget):  # {{{
             dt = m['datatype']
             if dt == 'bool':
                 from calibre.gui2.ui import get_gui
-                if not get_gui().current_db.new_api.pref('bools_are_tristate'):
+                if not get_gui(fail_if_absent=True).current_db.new_api.pref('bools_are_tristate'):
                     dt = 'bool2'
             if dt in self.action_map:
                 actions = self.action_map[dt]
@@ -435,6 +435,10 @@ def get_template_dialog(parent, rule, field=None, kind=None):
 
 class RuleEditor(QDialog):  # {{{
 
+    filename_box: QComboBox
+    filenamebox_view: QListView
+    orig_filenamebox_view: QAbstractItemView
+
     @property
     def doing_multiple(self):
         return hasattr(self, 'multiple_icon_cb') and self.multiple_icon_cb.isChecked()
@@ -487,7 +491,9 @@ class RuleEditor(QDialog):  # {{{
             self.filenamebox_view = v = QListView()
             v.setIconSize(QSize(32, 32))
             self.filename_box.setView(v)
-            self.orig_filenamebox_view = f.view()
+            view = f.view()
+            assert isinstance(view, QAbstractItemView)
+            self.orig_filenamebox_view = view
             f.setMinimumContentsLength(20), f.setSizeAdjustPolicy(QComboBox.SizeAdjustPolicy.AdjustToMinimumContentsLengthWithIcon)
             self.populate_icon_filenames()
 
@@ -555,6 +561,7 @@ class RuleEditor(QDialog):  # {{{
         l.addLayout(bbl, 9, 0, 1, 8)
         if self.rule_kind in kind_icons:
             self.remove_button = b = bb.addButton(_('&Remove icons'), QDialogButtonBox.ButtonRole.ActionRole)
+            assert b is not None
             b.setIcon(QIcon.ic('minus.png'))
             b.clicked.connect(self.remove_icon_file_dialog)
             b.setToolTip('<p>' + _('Remove previously added icons. Note that removing an '
@@ -563,7 +570,9 @@ class RuleEditor(QDialog):  # {{{
         self.conditions_widget = QWidget(self)
         sa.setWidget(self.conditions_widget)
         self.conditions_widget.setLayout(QVBoxLayout())
-        self.conditions_widget.layout().setAlignment(Qt.AlignmentFlag.AlignTop)
+        conditions_widget_layout = self.conditions_widget.layout()
+        assert conditions_widget_layout is not None
+        conditions_widget_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
         self.conditions = []
 
         if self.rule_kind in kind_colors:
@@ -711,10 +720,11 @@ class RuleEditor(QDialog):  # {{{
     def get_filenames_from_box(self):
         if self.doing_multiple:
             model = self.filename_box.model()
+            assert isinstance(model, QStandardItemModel)
             fnames = []
             for i in range(1, model.rowCount()):
                 item = model.item(i, 0)
-                if item.checkState() == Qt.CheckState.Checked:
+                if item is not None and item.checkState() == Qt.CheckState.Checked:
                     fnames.append(lower(str(item.text())))
             fname = ' : '.join(fnames)
         else:
@@ -731,11 +741,13 @@ class RuleEditor(QDialog):  # {{{
                     self.filename_box.setCurrentIndex(0)
             else:
                 model = self.filename_box.model()
+                assert isinstance(model, QStandardItemModel)
                 for icon in self.rule_icon_files:
                     idx = self.filename_box.findText(icon)
                     if idx >= 0:
                         item = model.item(idx)
-                        item.setCheckState(Qt.CheckState.Checked)
+                        if item is not None:
+                            item.setCheckState(Qt.CheckState.Checked)
 
     def remove_icon_file_dialog(self):
         d = RemoveIconFileDialog(self, self.icon_file_names, self.icon_folder)
@@ -753,7 +765,9 @@ class RuleEditor(QDialog):  # {{{
     def add_blank_condition(self):
         c = ConditionEditor(self.fm, parent=self.conditions_widget)
         self.conditions.append(c)
-        self.conditions_widget.layout().addWidget(c)
+        conditions_widget_layout = self.conditions_widget.layout()
+        assert conditions_widget_layout is not None
+        conditions_widget_layout.addWidget(c)
 
     def apply_rule(self, kind, col, rule):
         if kind in kind_colors:
@@ -780,7 +794,9 @@ class RuleEditor(QDialog):  # {{{
         for c in rule.conditions:
             ce = ConditionEditor(self.fm, parent=self.conditions_widget)
             self.conditions.append(ce)
-            self.conditions_widget.layout().addWidget(ce)
+            conditions_widget_layout = self.conditions_widget.layout()
+            assert conditions_widget_layout is not None
+            conditions_widget_layout.addWidget(ce)
             try:
                 ce.condition = c
             except Exception:
@@ -875,10 +891,10 @@ class RulesModel(QAbstractListModel):  # {{{
                 if rule is not None:
                     self.rules.append((kind, col, rule))
 
-    def rowCount(self, *args):
+    def rowCount(self, parent=...):
         return len(self.rules)
 
-    def data(self, index, role):
+    def data(self, index, role=...):
         row = index.row()
         try:
             kind, col, rule = self.rules[row]
@@ -1045,11 +1061,13 @@ class RulesView(ListViewWithMoveByKeyPress):  # {{{
         ListViewWithMoveByKeyPress.__init__(self, parent)
         self.enable_convert_buttons_function = enable_convert_buttons_function
 
-    def currentChanged(self, new, prev):
-        if self.model() and new.isValid():
-            _, _, rule = self.model().data(new, Qt.ItemDataRole.UserRole)
+    def currentChanged(self, current, previous):
+        if self.model() and current.isValid():
+            model = self.model()
+            assert model is not None
+            _, _, rule = model.data(current, Qt.ItemDataRole.UserRole)
             self.enable_convert_buttons_function(isinstance(rule, Rule))
-        return super().currentChanged(new, prev)
+        return super().currentChanged(current, previous)
 # }}}
 
 
@@ -1207,7 +1225,7 @@ class EditRules(QWidget):  # {{{
             case _:
                 choice_map = None
                 pref_key = None
-        if choice_map:
+        if choice_map and pref_key is not None:
             self.choices_label.setVisible(True)
             self.choices.setVisible(True)
             for idx, (text, data) in enumerate(choice_map):
@@ -1227,6 +1245,7 @@ class EditRules(QWidget):  # {{{
 
     def convert_to_advanced(self):
         sm = self.rules_view.selectionModel()
+        assert sm is not None
         rows = list(sm.selectedRows())
         if not rows or len(rows) != 1:
             error_dialog(self, _('Select one rule'),
@@ -1247,6 +1266,7 @@ class EditRules(QWidget):  # {{{
 
     def duplicate_rule(self):
         sm = self.rules_view.selectionModel()
+        assert sm is not None
         rows = list(sm.selectedRows())
         if not rows or len(rows) != 1:
             error_dialog(self, _('Select one rule'),
@@ -1302,9 +1322,10 @@ class EditRules(QWidget):  # {{{
             d = get_template_dialog(self, rule, field=col, kind=kind)
 
         if d.exec() == QDialog.DialogCode.Accepted:
-            if len(d.rule) == 2:  # Convert template dialog rules to a triple
-                d.rule = ('color', d.rule[0], d.rule[1])
-            kind, col, r = d.rule
+            _rule = d.rule
+            if len(_rule) == 2:  # Convert template dialog rules to a triple
+                _rule = ('color', _rule[0], _rule[1])
+            kind, col, r = _rule
             if kind and r is not None and col:
                 self.model.replace_rule(index, kind, col, r)
                 self.rules_view.scrollTo(index)
@@ -1318,6 +1339,7 @@ class EditRules(QWidget):  # {{{
 
     def get_selected_row(self, txt, show_error=True):
         sm = self.rules_view.selectionModel()
+        assert sm is not None
         rows = list(sm.selectedRows())
         if not rows:
             if show_error:
@@ -1333,9 +1355,15 @@ class EditRules(QWidget):  # {{{
             self.changed.emit()
 
     def move_rows(self, moving_up=True, use_kbd_modifiers=True):
-        count = get_move_count(self.rules_view.model().rowCount()) if use_kbd_modifiers else 1
+        if use_kbd_modifiers:
+            _rvm = self.rules_view.model()
+            assert _rvm is not None
+            count = get_move_count(_rvm.rowCount())
+        else:
+            count = 1
         for _x in range(count):
             sm = self.rules_view.selectionModel()
+            assert sm is not None
             rows = sorted(sm.selectedRows(), reverse=not moving_up)
             if rows:
                 if rows[0].row() == (0 if moving_up else self.model.rowCount() - 1):

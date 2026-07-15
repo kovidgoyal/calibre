@@ -9,7 +9,9 @@ import numbers
 import operator
 import sys
 import weakref
+from collections.abc import Callable
 from functools import partial
+from typing import Any
 
 from calibre.db.write import uniq
 from calibre.ebooks.metadata import title_sort
@@ -69,6 +71,7 @@ class TableRow:
 
     def __getitem__(self, obj):
         view = self.view()
+        assert view is not None
         if isinstance(obj, slice):
             return [view._field_getters[c](self.book_id)
                     for c in range(*obj.indices(len(view._field_getters)))]
@@ -109,7 +112,7 @@ class View:
         self.search_restriction_book_count = 0
         self.search_restriction = self.base_restriction = ''
         self.search_restriction_name = self.base_restriction_name = ''
-        self._field_getters = {}
+        self._field_getters: dict[int, Callable[..., Any]] = {}
         self.column_count = len(cache.backend.FIELD_MAP)
         for col, idx in cache.backend.FIELD_MAP.items():
             label, fmt = col, lambda x:x
@@ -148,7 +151,10 @@ class View:
                 if sep not in {'&','|'}:
                     sep = '|'
                 fmt = partial(format_is_multiple, sep=sep)
-            self._field_getters[idx] = partial(func, label, fmt=fmt) if func == self._get else func
+            if func == self._get:
+                self._field_getters[idx] = partial(self._get, label, fmt=fmt)
+            else:
+                self._field_getters[idx] = func
 
         self._real_map_filtered = ()
         self._real_map_filtered_id_to_row = {}
@@ -471,7 +477,7 @@ class View:
         if clear_caches:
             self.cache.clear_caches()
         if field is not None:
-            self.sort(field, ascending)
+            self.multisort([(field, ascending)])
         if do_search and (self.search_restriction or self.base_restriction):
             self.search('', return_matches=False)
 

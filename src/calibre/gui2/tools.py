@@ -170,7 +170,6 @@ class QueueBulk(QProgressDialog):
         self.setWindowTitle(_('Queueing books for bulk conversion'))
         self.book_ids, self.output_format, self.queue, self.db, self.args, self.user_recs = \
                 book_ids, output_format, queue, db, args, user_recs
-        self.parent = parent
         self.use_saved_single_settings = use_saved_single_settings
         self.i, self.bad, self.jobs, self.changed = 0, [], [], False
         QTimer.singleShot(0, self.do_book)
@@ -265,11 +264,10 @@ class QueueBulk(QProgressDialog):
                 res.append(f'{title}')
 
             msg = '{}'.format('\n'.join(res))
-            warning_dialog(self.parent, _('Could not convert some books'),
+            warning_dialog(self.parent(), _('Could not convert some books'),
                 _('Could not convert %(num)d of %(tot)d books, because no suitable '
                 'source format was found.') % dict(num=len(res), tot=len(self.book_ids)),
                 msg).exec()
-        self.parent = None
         self.jobs.reverse()
         self.queue(self.jobs, self.changed, self.bad, *self.args)
 

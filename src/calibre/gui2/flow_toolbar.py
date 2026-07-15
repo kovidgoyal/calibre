@@ -18,10 +18,12 @@ class Separator(QWidget):
         return opt
 
     def sizeHint(self):
-        width = self.style().pixelMetric(QStyle.PixelMetric.PM_ToolBarSeparatorExtent, self.style_option(), self)
+        style = self.style()
+        assert style is not None
+        width = style.pixelMetric(QStyle.PixelMetric.PM_ToolBarSeparatorExtent, self.style_option(), self)
         return QSize(width, int(self.devicePixelRatioF() * self.desired_height))
 
-    def paintEvent(self, ev):
+    def paintEvent(self, a0):
         p = QStylePainter(self)
         p.drawPrimitive(QStyle.PrimitiveElement.PE_IndicatorToolBarSeparator, self.style_option())
 
@@ -64,6 +66,7 @@ class SingleLineToolBar(QToolBar):
     def add_action(self, ac, popup_mode=QToolButton.ToolButtonPopupMode.DelayedPopup):
         self.addAction(ac)
         w = self.widgetForAction(ac)
+        assert isinstance(w, QToolButton)
         w.setPopupMode(popup_mode)
 
     def add_separator(self):
@@ -144,8 +147,8 @@ class FlowToolBar(QWidget):
     def hasHeightForWidth(self):
         return True
 
-    def heightForWidth(self, width):
-        return self.do_layout(QRect(0, 0, width, 0), apply_geometry=False)
+    def heightForWidth(self, a0):
+        return self.do_layout(QRect(0, 0, a0, 0), apply_geometry=False)
 
     def minimumSize(self):
         size = QSize()
@@ -154,24 +157,13 @@ class FlowToolBar(QWidget):
         return size
     sizeHint = minimumSize
 
-    def paintEvent(self, ev):
+    def paintEvent(self, a0):
         if self.applied_geometry != self.rect():
             self.do_layout(self.rect(), apply_geometry=True)
-        super().paintEvent(ev)
+        super().paintEvent(a0)
 
     def do_layout(self, rect, apply_geometry=False):
-        x, y = rect.x(), rect.y()
-
         line_height = 0
-
-        def layout_spacing(wid, horizontal=True):
-            ans = self.smart_spacing(horizontal)
-            if ans != -1:
-                return ans
-            return wid.style().layoutSpacing(
-                QSizePolicy.ControlType.ToolButton,
-                QSizePolicy.ControlType.ToolButton,
-                Qt.Orientation.Horizontal if horizontal else Qt.Orientation.Vertical)
 
         lines, current_line = [], []
         gmap = {}

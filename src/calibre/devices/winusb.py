@@ -38,7 +38,7 @@ from calibre import as_unicode, prints
 try:
     import winreg
 except ImportError:
-    import _winreg as winreg
+    import _winreg as winreg  # type: ignore
 
 
 # Data and function type definitions {{{
@@ -227,6 +227,11 @@ class USB_STRING_DESCRIPTOR(Structure):
 class USB_DESCRIPTOR_REQUEST(Structure):
 
     class SetupPacket(Structure):
+        bmRequest: int
+        bRequest: int
+        wValue: list[int]
+        wIndex: int
+        wLength: int
         _fields_ = (
             ('bmRequest', UCHAR),
             ('bRequest', UCHAR),
@@ -702,7 +707,7 @@ def get_volume_pathnames(volume_id, buf=None):
 
 # def scan_usb_devices(): {{{
 
-_USBDevice = namedtuple('USBDevice', 'vendor_id product_id bcd devid devinst')
+_USBDevice = namedtuple('_USBDevice', 'vendor_id product_id bcd devid devinst')
 
 
 class USBDevice(_USBDevice):
@@ -770,13 +775,14 @@ def get_drive_letters_for_device(usbdev, storage_number_map=None, debug=False): 
                 a = get_drive_letters_for_device_single(c, sn_map, debug=debug)
                 if debug:
                     prints('Drive letters for:', c.devid, ':', a['drive_letters'])
-                for m in ('pnp_id_map', 'sort_map'):
-                    ans[m].update(a[m])
+                ans['pnp_id_map'].update(a['pnp_id_map'])
+                ans['sort_map'].update(a['sort_map'])
                 ans['readonly_drives'] |= a['readonly_drives']
                 for x in a['drive_letters']:
                     if x not in dl:
                         dl.append(x)
-        ans['drive_letters'].sort(key=ans['sort_map'].get)
+        _sort_map = ans['sort_map']
+        ans['drive_letters'].sort(key=lambda x: _sort_map.get(x) or (0, 0))
         return ans
     else:
         return get_drive_letters_for_device_single(usbdev, sn_map, debug=debug)
@@ -810,7 +816,8 @@ def get_drive_letters_for_device_single(usbdev, storage_number_map, debug=False)
                     for dl in drive_letters:
                         ans['pnp_id_map'][dl] = devpath
                         ans['drive_letters'].append(dl)
-    ans['drive_letters'].sort(key=ans['sort_map'].get)
+    _sm = ans['sort_map']
+    ans['drive_letters'].sort(key=lambda x: _sm.get(x) or (0, 0))
     for dl in ans['drive_letters']:
         try:
             if is_readonly(dl):

@@ -258,7 +258,7 @@ def read_theme(raw):
     return ans
 
 
-THEMES = {k:read_theme(raw) for k, raw in THEMES.items()}
+THEMES: dict[str, dict[str, Highlight]] = {k:read_theme(raw) for k, raw in THEMES.items()}
 
 
 def u(x):
@@ -268,7 +268,7 @@ def u(x):
     return x + 'Underline'
 
 
-underline_styles = {x:getattr(QTextCharFormat.UnderlineStyle, u(x)) for x in underline_styles}
+underline_styles: dict[str, QTextCharFormat.UnderlineStyle] = {x:getattr(QTextCharFormat.UnderlineStyle, u(x)) for x in underline_styles}
 
 
 def to_highlight(data):
@@ -601,7 +601,7 @@ class ThemeEditor(Dialog):
         h.addWidget(b)
         h.addStretch(1)
 
-        self.scroll = s = QScrollArea(self)
+        s = QScrollArea(self)
         self.w = w = QWidget(self)
         s.setWidget(w), s.setWidgetResizable(True)
         self.cl = cl = QVBoxLayout()
@@ -709,7 +709,9 @@ class ThemeEditor(Dialog):
             self.show_theme()
 
     def sizeHint(self):
-        g = self.screen().availableSize()
+        screen = self.screen()
+        assert screen is not None
+        g = screen.availableSize()
         return QSize(min(1500, g.width() - 25), 650)
 # }}}
 

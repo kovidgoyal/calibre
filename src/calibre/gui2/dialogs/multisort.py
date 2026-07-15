@@ -19,7 +19,7 @@ class ChooseMultiSort(Dialog):
 
     def __init__(self, db, is_device_connected=False, parent=None, hidden_pref=SORT_HIDDEN_PREF):
         self.db = db.new_api
-        self.hidden_fields = set(self.db.pref(SORT_HIDDEN_PREF, default=()) or ())
+        self.hidden_fields: set[str] = set(self.db.pref(SORT_HIDDEN_PREF, default=()) or ())
         if not is_device_connected:
             self.hidden_fields.add('ondevice')
         fm = self.db.field_metadata
@@ -62,19 +62,24 @@ class ChooseMultiSort(Dialog):
         cl.itemDoubleClicked.connect(self.item_double_clicked)
         cl.setCurrentRow(0)
         cl.itemChanged.connect(self.update_order_label)
-        cl.model().rowsMoved.connect(self.update_order_label)
+        cl_model = cl.model()
+        assert cl_model is not None
+        cl_model.rowsMoved.connect(self.update_order_label)
 
         self.clear_button = b = self.bb.addButton(_('&Clear'), QDialogButtonBox.ButtonRole.ActionRole)
+        assert b is not None
         b.setToolTip(_('Clear all selected columns'))
         b.setAutoDefault(False)
         b.clicked.connect(self.clear)
 
         self.save_button = b = self.bb.addButton(_('&Save'), QDialogButtonBox.ButtonRole.ActionRole)
+        assert b is not None
         b.setToolTip(_('Save this sort order for easy re-use'))
         b.clicked.connect(self.save)
         b.setAutoDefault(False)
 
         self.load_button = b = self.bb.addButton(_('&Load'), QDialogButtonBox.ButtonRole.ActionRole)
+        assert b is not None
         b.setToolTip(_('Load previously saved settings'))
         b.setAutoDefault(False)
         self.load_menu = QMenu(b)
@@ -165,20 +170,27 @@ class ChooseMultiSort(Dialog):
             return
         for name in sorted(specs, key=primary_sort_key):
             ac = m.addAction(name, self.load_spec)
+            assert ac is not None
             ac.setObjectName(name)
         m.addSeparator()
         m = m.addMenu(_('Remove saved sort'))
+        assert m is not None
         for name in sorted(specs, key=primary_sort_key):
             ac = m.addAction(name, self.remove_spec)
+            assert ac is not None
             ac.setObjectName(name)
 
     def load_spec(self):
-        name = self.sender().objectName()
+        sender = self.sender()
+        assert sender is not None
+        name = sender.objectName()
         spec = self.saved_specs[name]
         self.apply_spec(spec)
 
     def remove_spec(self):
-        name = self.sender().objectName()
+        sender = self.sender()
+        assert sender is not None
+        name = sender.objectName()
         q = self.saved_specs
         if q.pop(name, None):
             self.saved_specs = q
@@ -195,6 +207,7 @@ class ChooseMultiSort(Dialog):
             item = imap.get(key)
             if item is not None:
                 item = cl.takeItem(cl.row(item))
+                assert item is not None
                 cl.insertItem(0, item)
                 self.sort_order_map[key] = ascending
                 item.setCheckState(Qt.CheckState.Checked)

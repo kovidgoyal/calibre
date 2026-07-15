@@ -8,7 +8,6 @@ import json
 import traceback
 from datetime import datetime, time
 
-from calibre import isbytestring
 from calibre.constants import filesystem_encoding, preferred_encoding
 from calibre.ebooks.metadata.book import SERIALIZABLE_FIELDS
 from calibre.library.field_metadata import FieldMetadata
@@ -74,10 +73,10 @@ def object_to_unicode(obj, enc=preferred_encoding):
     def dec(x):
         return x.decode(enc, 'replace')
 
-    if isbytestring(obj):
+    if isinstance(obj, bytes):
         return dec(obj)
     if isinstance(obj, (list, tuple)):
-        return [dec(x) if isbytestring(x) else object_to_unicode(x) for x in obj]
+        return [dec(x) if isinstance(x, bytes) else object_to_unicode(x) for x in obj]
     if isinstance(obj, dict):
         ans = {}
         for k, v in obj.items():
@@ -164,7 +163,7 @@ class JsonCodec:
         value = book.get(key)
         if key == 'thumbnail':
             return encode_thumbnail(value)
-        elif isbytestring(value):  # str includes bytes
+        elif isinstance(value, bytes):  # str includes bytes
             enc = filesystem_encoding if key == 'lpath' else preferred_encoding
             return object_to_unicode(value, enc=enc)
         elif datatype == 'datetime':

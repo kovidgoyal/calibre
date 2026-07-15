@@ -4,6 +4,10 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import copy
 import re
 from datetime import date
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from calibre.gui2.dialogs.template_line_editor import TemplateLineEditor
 
 from qt.core import (
     QComboBox,
@@ -63,8 +67,8 @@ def create_msg_label(self):
     self.frame = f = QFrame(self)
     f.setFrameShape(QFrame.Shape.StyledPanel)
     f.setFrameShadow(QFrame.Shadow.Raised)
-    f.l = l = QVBoxLayout(f)
-    f.um_label = la = QLabel(_(
+    l = QVBoxLayout(f)
+    la = QLabel(_(
         '<p>You can also perform other kinds of advanced searches, for example checking'
         ' for books that have no covers, combining multiple search expression using Boolean'
         ' operators and so on. See <a href="%s">The search interface</a> for more information.'
@@ -94,6 +98,7 @@ def create_match_kind(self):
 def create_button_box(self):
     self.bb = bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)
     self.clear_button = bb.addButton(_('&Clear'), QDialogButtonBox.ButtonRole.ResetRole)
+    assert self.clear_button is not None
     self.clear_button.clicked.connect(self.clear_button_pushed)
     bb.accepted.connect(self.accept)
     bb.rejected.connect(self.reject)
@@ -104,12 +109,12 @@ def create_adv_tab(self):
     self.adv_tab = w = QWidget(self.tab_widget)
     self.tab_widget.addTab(w, _('A&dvanced search'))
 
-    w.g1 = QGroupBox(_('Find entries that have...'), w)
-    w.g2 = QGroupBox(_("But don't show entries that have..."), w)
-    w.l = l = QVBoxLayout(w)
-    l.addWidget(w.g1), l.addWidget(w.g2), l.addStretch(10)
+    g1 = QGroupBox(_('Find entries that have...'), w)
+    g2 = QGroupBox(_("But don't show entries that have..."), w)
+    l = QVBoxLayout(w)
+    l.addWidget(g1), l.addWidget(g2), l.addStretch(10)
 
-    w.g1.l = l = QFormLayout(w.g1)
+    l = QFormLayout(g1)
     l.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.AllNonFixedFieldsGrow)
     for key, text in (
             ('all', _('A&ll these words:')),
@@ -121,7 +126,7 @@ def create_adv_tab(self):
         setattr(self, key, le)
         l.addRow(text, le)
 
-    w.g2.l = l = QFormLayout(w.g2)
+    l = QFormLayout(g2)
     l.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.AllNonFixedFieldsGrow)
     self.none = le = QLineEdit(w)
     le.setClearButtonEnabled(True)
@@ -132,7 +137,7 @@ def create_simple_tab(self, db):
     self.simple_tab = w = QWidget(self.tab_widget)
     self.tab_widget.addTab(w, _('Titl&e/author/series...'))
 
-    w.l = l = QFormLayout(w)
+    l = QFormLayout(w)
     l.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.AllNonFixedFieldsGrow)
 
     self.title_box = le = QLineEdit(w)
@@ -142,7 +147,9 @@ def create_simple_tab(self, db):
     l.addRow(_('&Title:'), le)
 
     self.authors_box = le = EditWithComplete(self)
-    le.lineEdit().setPlaceholderText(_('The author to search for'))
+    authors_le = le.lineEdit()
+    assert authors_le is not None
+    authors_le.setPlaceholderText(_('The author to search for'))
     le.setObjectName('authors_box')
     le.setEditText('')
     le.set_separator('&')
@@ -152,7 +159,9 @@ def create_simple_tab(self, db):
     l.addRow(_('&Author:'), le)
 
     self.series_box = le = EditWithComplete(self)
-    le.lineEdit().setPlaceholderText(_('The series to search for'))
+    series_le = le.lineEdit()
+    assert series_le is not None
+    series_le.setPlaceholderText(_('The series to search for'))
     le.setObjectName('series_box')
     le.set_separator(None)
     le.update_items_cache(db.new_api.all_field_names('series'))
@@ -161,7 +170,9 @@ def create_simple_tab(self, db):
 
     self.tags_box = le = EditWithComplete(self)
     le.setObjectName('tags_box')
-    le.lineEdit().setPlaceholderText(_('The tags to search for'))
+    tags_le = le.lineEdit()
+    assert tags_le is not None
+    tags_le.setPlaceholderText(_('The tags to search for'))
     self.tags_box.update_items_cache(db.new_api.all_field_names('tags'))
     l.addRow(_('Ta&gs:'), le)
 
@@ -184,7 +195,7 @@ def create_simple_tab(self, db):
 
 
 def toggle_date_conditions_visibility(self):
-    dcl = self.date_tab.date_condition_layouts
+    dcl = self.date_condition_layouts
     op = current_dateop(self.dateop_date)
     visible = op not in 'su'
     for l in dcl:
@@ -197,21 +208,21 @@ def toggle_date_conditions_visibility(self):
 
 def create_date_tab(self, db):
     self.date_tab = w = QWidget(self.tab_widget)
-    w.date_condition_layouts = dcl = []
+    self.date_condition_layouts = dcl = []
     self.tab_widget.addTab(w, _('&Date search'))
-    w.l = l = QVBoxLayout(w)
+    l = QVBoxLayout(w)
 
-    def a(w):
-        h.addWidget(w)
-        return w
+    def a(widget):
+        h.addWidget(widget)
+        return widget
 
-    def add(text, w):
-        w.la = la = QLabel(text)
-        h.addWidget(la), h.addWidget(w)
-        la.setBuddy(w)
-        return w
+    def add(text, widget):
+        la = QLabel(text)
+        h.addWidget(la), h.addWidget(widget)
+        la.setBuddy(widget)
+        return widget
 
-    w.h1 = h = QHBoxLayout()
+    h = QHBoxLayout()
     l.addLayout(h)
     self.date_field = df = add(_('&Search the'), QComboBox(w))
     vals = [((v['search_terms'] or [k])[0], v['name'] or k)
@@ -225,11 +236,11 @@ def create_date_tab(self, db):
     self.dateop_date = dd = add(_('date column for books whose &date is '), QComboBox(w))
     init_dateop(dd)
     connect_lambda(dd.currentIndexChanged, self, toggle_date_conditions_visibility)
-    w.la3 = la = QLabel('...')
-    h.addWidget(la)
+    la3 = QLabel('...')
+    h.addWidget(la3)
     h.addStretch(10)
 
-    w.h2 = h = QHBoxLayout()
+    h = QHBoxLayout()
     dcl.append(h)
     l.addLayout(h)
     self.sel_date = a(QRadioButton(_('&year'), w))
@@ -244,7 +255,7 @@ def create_date_tab(self, db):
     dd.setSpecialValueText(' \xa0')
     h.addStretch(10)
 
-    w.h3 = h = QHBoxLayout()
+    h = QHBoxLayout()
     dcl.append(h)
     l.addLayout(h)
     self.sel_daysago = a(QRadioButton('', w))
@@ -252,10 +263,10 @@ def create_date_tab(self, db):
     da.setRange(0, 9999999)
     self.date_ago_type = dt = a(QComboBox(w))
     dt.addItems([_('days'), _('weeks'), _('months'), _('years')])
-    w.la4 = a(QLabel(' ' + _('ago')))
+    a(QLabel(' ' + _('ago')))
     h.addStretch(10)
 
-    w.h4 = h = QHBoxLayout()
+    h = QHBoxLayout()
     l.addLayout(h)
     dcl.append(h)
     self.sel_human = a(QRadioButton('', w))
@@ -278,7 +289,7 @@ def create_template_tab(self):
     self.simple_tab = w = QWidget(self.tab_widget)
     self.tab_widget.addTab(w, _('&Template search'))
 
-    w.l = l = QFormLayout(w)
+    l = QFormLayout(w)
     l.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.AllNonFixedFieldsGrow)
 
     self.template_value_box = le = QLineEdit(w)
@@ -358,7 +369,39 @@ def setup_ui(self, db):
 
 class SearchDialog(QDialog):
 
-    mc = ''
+    mc: str = ''
+    tab_widget: QTabWidget
+    matchkind: QComboBox
+    template_program_box: TemplateLineEditor
+    template_value_box: QLineEdit
+    template_test_type_box: QComboBox
+    current_search_text: str
+    copy_current_template_search_button: QPushButton
+    edit_template_button: QToolButton
+    date_tab: QWidget
+    date_condition_layouts: list
+    sel_date: QRadioButton
+    date_year: QSpinBox
+    date_month: QComboBox
+    date_day: QSpinBox
+    sel_daysago: QRadioButton
+    date_daysago: QSpinBox
+    date_ago_type: QComboBox
+    date_field: QComboBox
+    dateop_date: QComboBox
+    sel_human: QRadioButton
+    date_human: QComboBox
+    title_box: QLineEdit
+    authors_box: EditWithComplete
+    series_box: EditWithComplete
+    tags_box: EditWithComplete
+    general_box: QLineEdit
+    general_combo: QComboBox
+    box_last_values: dict[str, str]
+    all: QLineEdit
+    phrase: QLineEdit
+    any: QLineEdit
+    none: QLineEdit
 
     def __init__(self, parent, db):
         QDialog.__init__(self, parent)
@@ -367,7 +410,7 @@ class SearchDialog(QDialog):
         # Get metadata of some of the selected books to give to the template
         # dialog to help test the template
         from calibre.gui2.ui import get_gui
-        view = get_gui().library_view
+        view = get_gui(fail_if_absent=True).library_view
         rows = view.selectionModel().selectedRows()[0:10]  # Maximum of 10 books
         mi = [db.new_api.get_proxy_metadata(db.data.index_to_id(x.row())) for x in rows]
         self.template_program_box.set_mi(mi)
@@ -387,7 +430,7 @@ class SearchDialog(QDialog):
                       gprefs.get('advanced_search_template_tab_value_field', ''))
             self.template_test_type_box.setCurrentIndex(
                       int(gprefs.get('advanced_search_template_tab_test_field', '0')))
-        self.current_search_text = get_gui().search.current_text
+        self.current_search_text = get_gui(fail_if_absent=True).search.current_text
         if self.current_search_text.startswith('template:'):
             self.current_search_text = self.current_search_text[len('template:'):]
             if self.current_search_text.startswith('"""'):
@@ -443,6 +486,7 @@ class SearchDialog(QDialog):
 
     def clear_button_pushed(self):
         w = self.tab_widget.currentWidget()
+        assert w is not None
         for c in w.findChildren(QComboBox):
             c.setCurrentIndex(0)
         if w is self.date_tab:
@@ -527,16 +571,6 @@ class SearchDialog(QDialog):
             else:
                 ans = any
         return ans
-
-    def token(self):
-        txt = str(self.text.text()).strip()
-        if txt:
-            if self.negate.isChecked():
-                txt = '!'+txt
-            tok = self.FIELDS[str(self.field.currentText())]+txt
-            if re.search(r'\s', tok):
-                tok = f'"{tok}"'
-            return tok
 
     def box_search_string(self):
         mk = self.matchkind.currentIndex()

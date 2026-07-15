@@ -39,11 +39,11 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                     _('Changes will not appear in the template editor until you press the apply button.') + '</p>')
         self.save_template.blockSignals(False)
 
-    def restore_defaults(self):
+    def restore_defaults(self, *args):
         ConfigWidgetBase.restore_defaults(self)
         self.save_template.set_value(self.proxy.defaults['template'])
 
-    def commit(self):
+    def commit(self, *args):
         if not self.save_template.validate():
             raise AbortCommit('abort')
         self.save_template.save_settings(self.proxy, 'template')

@@ -3,6 +3,8 @@ __copyright__ = '2022, Vaso Peras-Likodric <vaso at vipl.in.rs>'
 __docformat__ = 'restructuredtext en'
 
 
+from typing import ClassVar
+
 from calibre.devices.kindle.apnx_page_generator.generators.fast_page_generator import FastPageGenerator
 from calibre.devices.kindle.apnx_page_generator.i_page_generator import IPageGenerator, mobi_html_length
 from calibre.devices.kindle.apnx_page_generator.pages import Pages
@@ -10,7 +12,7 @@ from calibre.devices.kindle.apnx_page_generator.pages import Pages
 
 class ExactPageGenerator(IPageGenerator):
 
-    instance = None
+    instance: ClassVar[ExactPageGenerator]
 
     def name(self) -> str:
         return 'exact'
@@ -24,6 +26,7 @@ class ExactPageGenerator(IPageGenerator):
         create our array of pages for the apnx file by dividing by
         the content size of the book.
         '''
+        assert real_count is not None
         pages = []
         count = 0
 

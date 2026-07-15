@@ -31,16 +31,18 @@ def clean(x):
     return x
 
 
-def E(tag, *children, **attribs):
-    children = list(map(clean, children))
-    attribs = {k.rstrip('_').replace('_', '-'):clean(v) for k, v in attribs.items()}
-    return getattr(E_, tag)(*children, **attribs)
+class _EBuilder:
+
+    def __call__(self, tag, *children, **attribs):
+        children = list(map(clean, children))
+        attribs = {k.rstrip('_').replace('_', '-'):clean(v) for k, v in attribs.items()}
+        return getattr(E_, tag)(*children, **attribs)
+
+    def __getattr__(self, tag):
+        return partial(self, tag)
 
 
-for tag in 'HTML HEAD TITLE LINK DIV IMG BODY OPTION SELECT INPUT FORM SPAN TABLE TR TD A HR META'.split():
-    setattr(E, tag, partial(E, tag))
-    tag = tag.lower()
-    setattr(E, tag, partial(E, tag))
+E = _EBuilder()
 
 
 def html(ctx, rd, endpoint, output):

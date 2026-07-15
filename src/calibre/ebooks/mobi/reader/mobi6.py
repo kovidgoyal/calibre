@@ -11,6 +11,7 @@ import re
 import shutil
 import struct
 import textwrap
+from typing import cast
 
 from lxml import etree, html
 
@@ -105,13 +106,15 @@ class MobiReader:
             flags, val = a1, a2 << 16 | a3 << 8 | a4
             self.section_headers.append((offset, flags, val))
 
+        raw_bytes: bytes = raw
+
         def section(section_number):
             if section_number == self.num_sections - 1:
-                end_off = len(raw)
+                end_off = len(raw_bytes)
             else:
                 end_off = self.section_headers[section_number + 1][0]
             off = self.section_headers[section_number][0]
-            return raw[off:end_off]
+            return raw_bytes[off:end_off]
 
         for i in range(self.num_sections):
             self.sections.append((section(i), self.section_headers[i]))
@@ -156,7 +159,9 @@ class MobiReader:
     def check_for_drm(self):
         if self.book_header.encryption_type != 0:
             try:
-                name = self.book_header.exth.mi.title
+                exth = self.book_header.exth
+                assert exth is not None
+                name = exth.mi.title
             except Exception:
                 name = self.name
             if not name:
@@ -170,7 +175,7 @@ class MobiReader:
         if self.debug is not None:
             parse_cache['calibre_raw_mobi_markup'] = self.mobi_html
         self.add_anchors()
-        self.processed_html = self.processed_html.decode(self.book_header.codec,
+        self.processed_html = cast(bytes, self.processed_html).decode(self.book_header.codec,
             'ignore')
         self.processed_html = self.processed_html.replace('</</', '</')
         self.processed_html = re.sub(r'</([a-zA-Z]+)<', r'</\1><',
@@ -230,8 +235,11 @@ class MobiReader:
             self.log.warn('File does not have opening <html> tag')
             nroot = safe_html_fromstring('<html><head></head><body></body></html>')
             bod = nroot.find('body')
+            assert bod is not None
             for child in list(root):
-                child.getparent().remove(child)
+                parent = child.getparent()
+                assert parent is not None
+                parent.remove(child)
                 bod.append(child)
             root = nroot
 
@@ -295,6 +303,7 @@ class MobiReader:
             elem.getparent().remove(elem)
         htmlfile = os.path.join(output_dir, 'index.html')
         try:
+            assert guide is not None
             for ref in guide.xpath('descendant::reference'):
                 if 'href' in ref.attrib:
                     ref.attrib['href'] = os.path.basename(htmlfile) + ref.attrib['href']
@@ -361,7 +370,7 @@ class MobiReader:
 
     def cleanup_html(self):
         self.log.debug('Cleaning up HTML...')
-        self.processed_html = re.sub(r'<div height="0(pt|px|ex|em|%){0,1}"></div>', '', self.processed_html)
+        self.processed_html = re.sub(r'<div height="0(pt|px|ex|em|%){0,1}"></div>', '', cast(str, self.processed_html))
         if self.book_header.ancient and b'<html' not in self.mobi_html[:300].lower():
             self.processed_html = '<html><p>' + self.processed_html.replace('\n\n', '<p>') + '</html>'
         self.processed_html = self.processed_html.replace('\r\n', '\n')
@@ -701,6 +710,7 @@ class MobiReader:
         ncx_manifest_entry = None
         if toc:
             ncx_manifest_entry = 'toc.ncx'
+            assert root is not None
             elems = root.xpath('//*[@id="{}"]'.format(toc.partition('#')[-1]))
             tocobj = None
             if elems:
@@ -842,7 +852,7 @@ class MobiReader:
     def replace_page_breaks(self):
         self.processed_html = self.PAGE_BREAK_PAT.sub(
             r'<div \1 class="mbp_pagebreak" />',
-            self.processed_html)
+            cast(str, self.processed_html))
 
     def add_anchors(self):
         self.log.debug('Adding anchors...')

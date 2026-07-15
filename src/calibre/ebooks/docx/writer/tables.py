@@ -243,6 +243,7 @@ class Row:
     def add_block(self, block):
         if self.current_cell is None:
             self.start_new_cell(self.html_tag, self.orig_tag_style)
+        assert self.current_cell is not None
         self.current_cell.add_block(block)
 
     def add_table(self, table):
@@ -337,10 +338,13 @@ class Table:
     def start_new_cell(self, html_tag, html_style):
         if self.current_row is None:
             self.start_new_row(html_tag, None)
+        assert self.current_row is not None
         self.current_row.start_new_cell(html_tag, html_style)
 
     def add_block(self, block):
-        self.current_row.add_block(block)
+        current_row = self.current_row
+        assert current_row is not None
+        current_row.add_block(block)
 
     def add_table(self, table):
         if self.current_row is None:

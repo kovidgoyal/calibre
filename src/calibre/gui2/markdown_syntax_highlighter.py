@@ -195,7 +195,9 @@ class MarkdownHighlighter(QSyntaxHighlighter):
                 formatRange.format = self.MARKDOWN_KWS_FORMAT['Header']
                 formatRange.length = prevCursor.block().length()
                 formatRange.start = 0
-                prevCursor.block().layout().setFormats([formatRange])
+                layout = prevCursor.block().layout()
+                assert layout is not None
+                layout.setFormats([formatRange])
                 self.setFormat(self.offset+ mo.start(), mo.end() - mo.start(), self.MARKDOWN_KWS_FORMAT['HeaderLine'])
                 return True
 

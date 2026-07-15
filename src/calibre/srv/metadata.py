@@ -6,8 +6,7 @@ import os
 from collections import namedtuple
 from copy import copy
 from datetime import datetime, time
-from functools import partial
-from threading import Lock
+from functools import lru_cache, partial
 from urllib.parse import quote
 
 from calibre.constants import config_dir
@@ -158,12 +157,14 @@ def category_item_as_json(x, clear_rating=False):
     return ans
 
 
+@lru_cache(maxsize=2)
+def get_gprefs():
+    from calibre.utils.config import JSONConfig
+    return JSONConfig('gui')
+
+
 def get_gpref(name: str, defval=None):
-    gprefs = getattr(get_gpref, 'gprefs', None)
-    if gprefs is None:
-        from calibre.utils.config import JSONConfig
-        gprefs = get_gpref.gprefs = JSONConfig('gui')
-    return gprefs.get(name, defval)
+    return get_gprefs().get(name, defval)
 
 
 def web_search_link(db, book_id: int, field: str, item_val: str) -> tuple[str, str]:
@@ -252,24 +253,20 @@ class GroupedSearchTerms:
             return False
 
 
-_icon_map = None
-_icon_map_lock = Lock()
-
-
+@lru_cache(maxsize=2)  # this is thread safe supposedly
 def icon_map():
-    global _icon_map
-    with _icon_map_lock:
-        if _icon_map is None:
-            from calibre.gui2 import gprefs
-            _icon_map = category_icon_map.copy()
-            custom_icons = gprefs.get('tags_browser_category_icons', {})
-            for k, v in custom_icons.items():
-                if os.access(os.path.join(config_dir, 'tb_icons', v), os.R_OK):
-                    _icon_map[k] = '_' + quote(v)
-            _icon_map['file_type_icons'] = {
-                k:f'mimetypes/{v}.png' for k, v in EXT_MAP.items()
-            }
-        return _icon_map
+    _icon_map: dict[str, str | dict[str, str]]  = {}
+    from calibre.gui2 import gprefs
+    _icon_map = {}
+    _icon_map.update(category_icon_map)
+    custom_icons = gprefs.get('tags_browser_category_icons', {})
+    for k, v in custom_icons.items():
+        if os.access(os.path.join(config_dir, 'tb_icons', v), os.R_OK):
+            _icon_map[k] = '_' + quote(v)
+    _icon_map['file_type_icons'] = {
+        k:f'mimetypes/{v}.png' for k, v in EXT_MAP.items()
+    }
+    return _icon_map
 
 
 def categories_settings(query, db, gst_container=GroupedSearchTerms):
@@ -347,6 +344,7 @@ def create_toplevel_tree(category_data, items, field_metadata, opts, db):
                     node_id_map[last_category_node] = category_node_map[path] = node = {'id':last_category_node, 'children':[]}
                     category_nodes.append(last_category_node)
                     recount_nodes.append(node)
+                    assert current_root['children'] is not None
                     current_root['children'].append(node)
                     current_root = node
                 else:
@@ -359,6 +357,7 @@ def create_toplevel_tree(category_data, items, field_metadata, opts, db):
                 tooltip=tooltip
             )
             category_node_map[category] = node_id_map[last_category_node] = node = {'id':last_category_node, 'children':[]}
+            assert root['children'] is not None
             root['children'].append(node)
             category_nodes.append(last_category_node)
             recount_nodes.append(node)

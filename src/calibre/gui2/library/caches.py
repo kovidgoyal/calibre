@@ -46,7 +46,7 @@ class RAMCache(MutableMapping[int, T]):
     '''
 
     def __init__(self, limit=100):
-        self.items = OrderedDict[int, T]()
+        self.cached_items = OrderedDict[int, T]()
         self.lock = RLock()
         self.limit = limit
         self.pixmap_staging: list[T] = []
@@ -56,64 +56,61 @@ class RAMCache(MutableMapping[int, T]):
         with self.lock:
             needs_staging = current_thread() is not self.gui_thread
             for book_id in book_ids:
-                v = self.items.pop(book_id, None)
+                v = self.cached_items.pop(book_id, None)
                 if v is not None and needs_staging:
                     self.pixmap_staging.append(v)
 
     def _make_most_recent(self, book_id: int) -> None:
-        self.items.move_to_end(book_id)
+        self.cached_items.move_to_end(book_id)
 
     def __delitem__(self, book_id: int) -> None:
         with self.lock:
-            val = self.items.pop(book_id, None)
+            val = self.cached_items.pop(book_id, None)
             if val is not None and current_thread() is not self.gui_thread:
                 self.pixmap_staging.append(val)
 
-    def __getitem__(self, book_id: int) -> None | T:
+    def __getitem__(self, book_id: int) -> T:
         with self.lock:
             if current_thread() is self.gui_thread:
                 self.pixmap_staging = []
-            ans = self.items.get(book_id, self)
-            if ans is self:
-                ans = None
-            else:
-                self._make_most_recent(book_id)
+            ans = self.cached_items[book_id]
+            self._make_most_recent(book_id)
         return ans
 
     def __setitem__(self, key: int, val: T) -> None:
         with self.lock:
-            self.items[key] = val
+            self.cached_items[key] = val
             self._make_most_recent(key)
-            if len(self.items) > self.limit:
-                val = self.items.popitem(last=False)
+            if len(self.cached_items) > self.limit:
+                _book_id, val = self.cached_items.popitem(last=False)
                 if isinstance(val, QPixmap) and current_thread() is not self.gui_thread:
                     self.pixmap_staging.append(val)
 
     def __iter__(self) -> Iterator[int]:
         with self.lock:
-            items = tuple(self.items)
+            items = tuple(self.cached_items)
         return iter(items)
 
     def __len__(self) -> int:
         with self.lock:
-            return len(self.items)
+            return len(self.cached_items)
 
     def clear(self) -> None:
         with self.lock:
             if current_thread() is not self.gui_thread:
-                pixmaps = (x for x in self.items.values() if x is not None)
+                pixmaps = (x for x in self.cached_items.values() if x is not None)
                 self.pixmap_staging.extend(pixmaps)
             else:
                 self.pixmap_staging = []
-            self.items.clear()
+            self.cached_items.clear()
 
     def set_limit(self, limit):
         with self.lock:
             self.limit = max(0, int(limit))
             needs_staging = current_thread() is not self.gui_thread
-            while len(self.items) > self.limit:
-                val = self.items.popitem(last=False)
-                if needs_staging and val is not None:
+            while len(self.cached_items) > self.limit:
+                _book_id, val = self.cached_items.popitem(last=False)
+                if needs_staging:
                     self.pixmap_staging.append(val)
 
 
@@ -181,7 +178,7 @@ class ThumbnailRenderer(QObject):
     def emit_rendered(self, book_id: int, thumb: QPixmap) -> None:
         self.rendered.emit(book_id, thumb)
 
-    def __init__(self, disk_cache: ThumbnailCache, ram_cache: RAMCache, thumbnailer: Thumbnailer, parent: QObject):
+    def __init__(self, disk_cache: ThumbnailCache, ram_cache: RAMCache, thumbnailer: Thumbnailer, parent: QObject | None):
         super().__init__(parent)
         self.dbref = lambda: None
         self.thumbnailer = thumbnailer
@@ -247,7 +244,7 @@ class ThumbnailRenderer(QObject):
         If the book has no cover or loading the cover fails, returns null QImage.
         '''
         if not (db := self.dbref()) or self.ignore_render_requests.is_set():
-            return None
+            return QImage()
         tc = self.disk_cache
         thumbnail_as_bytes, timestamp = tc[book_id]  # None, None if not cached.
         thumbnail: QImage = QImage()
@@ -342,9 +339,10 @@ class ThumbnailRenderer(QObject):
             self.ignore_render_requests.clear()
 
     def cached_or_none(self, book_id: int) -> QPixmap | None:
-        ans = self.ram_cache[book_id]
-        if ans is not None:
-            return ans
+        try:
+            return self.ram_cache[book_id]
+        except KeyError:
+            pass
         if not (db := self.dbref()) or self.shutting_down:
             return None
         thumbnail_as_bytes, cached_timestamp = self.disk_cache[book_id]
@@ -436,11 +434,11 @@ class ThumbnailRendererForTest(ThumbnailRenderer):
         self.signal_queue = Queue()
         self.rendered_items = []
 
-    def emit_cover_rendered(self, *a) -> None:
-        self.signal_queue.put(partial(self.on_cover_rendered, *a))
+    def emit_cover_rendered(self, library_id, book_id, width, height, thumb) -> None:
+        self.signal_queue.put(partial(self.on_cover_rendered, library_id, book_id, width, height, thumb))
 
-    def emit_rendered(self, *a) -> None:
-        self.rendered_items.append(a)
+    def emit_rendered(self, book_id, thumb) -> None:
+        self.rendered_items.append((book_id, thumb))
 
     def pump_signals(self, block=False, timeout=None):
         count = 0
@@ -553,7 +551,7 @@ def run_test(self, t: ThumbnailRendererForTest):
     data = ThumbnailerForTest().serialize(cimg)
     i, data = th.make_thumbnail(data, *t.disk_cache.thumbnail_size)
     q = th.unserialize(data)
-    ae(i.dominant_color.name(), q.dominant_color.name())
+    ae(i.dominant_color.name(), q.dominant_color.name())  # type: ignore
 
 
 def test_cover_cache(self):

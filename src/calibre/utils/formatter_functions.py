@@ -59,6 +59,14 @@ GUI_FUNCTIONS = _('GUI functions')
 
 # Class and method to save an untranslated copy of translated strings
 class TranslatedStringWithRaw(str):
+    raw_english: str
+    raw_other: str
+    formatted_english: str
+    formatted_other: str
+    msgid: str
+    did_format: bool
+    saved_args: tuple
+    saved_kwargs: dict
 
     def __new__(cls, raw_english, raw_other, formatted_english, formatted_other, msgid):
         instance = super().__new__(cls, formatted_other)
@@ -311,7 +319,8 @@ r'''
 operators (``==``, ``>``, ``<``, etc.)
 ''')
 
-    def evaluate(self, formatter, kwargs, mi, locals, x, y, lt, eq, gt):
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
+        x, y, lt, eq, gt = args
         v = strcmp(x, y)
         if v < 0:
             return lt
@@ -335,7 +344,8 @@ lexical comparison operators (``==``, ``>``, ``<``, etc.). This function could
 cause unexpected results, preferably use ``strcmp()`` whenever possible.
 ''')
 
-    def evaluate(self, formatter, kwargs, mi, locals, x, y, lt, eq, gt):
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
+        x, y, lt, eq, gt = args
         from calibre.utils.icu import case_sensitive_strcmp as case_strcmp
         v = case_strcmp(x, y)
         if v < 0:
@@ -357,7 +367,8 @@ This function can usually be replaced with one of the numeric compare operators
 (``==#``, ``<#``, ``>#``, etc).
 ''')
 
-    def evaluate(self, formatter, kwargs, mi, locals, value, y, lt, eq, gt):
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
+        value, y, lt, eq, gt = args
         value = float(value if value and value != 'None' else 0)
         y = float(y if y and y != 'None' else 0)
         if value < y:
@@ -424,7 +435,8 @@ r'''
 ``strlen(value)`` -- Returns the length of the string ``value``.
 ''')
 
-    def evaluate(self, formatter, kwargs, mi, locals, a):
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
+        a, = args
         try:
             return len(a)
         except Exception:
@@ -461,7 +473,8 @@ r'''
 operator.
 ''')
 
-    def evaluate(self, formatter, kwargs, mi, locals, x, y):
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
+        x, y = args
         x = float(x if x and x != 'None' else 0)
         y = float(y if y and y != 'None' else 0)
         return str(x - y)
@@ -497,7 +510,8 @@ r'''
 operator.
 ''')
 
-    def evaluate(self, formatter, kwargs, mi, locals, x, y):
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
+        x, y = args
         x = float(x if x and x != 'None' else 0)
         y = float(y if y and y != 'None' else 0)
         return str(x / y)
@@ -513,7 +527,8 @@ r'''
 Throws an exception if ``value`` is not a number.
 ''')
 
-    def evaluate(self, formatter, kwargs, mi, locals, value):
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
+        value, = args
         value = float(value if value and value != 'None' else 0)
         return str(ceil(value))
 
@@ -528,7 +543,8 @@ r'''
 an exception if ``value`` is not a number.
 ''')
 
-    def evaluate(self, formatter, kwargs, mi, locals, value):
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
+        value, = args
         value = float(value if value and value != 'None' else 0)
         return str(floor(value))
 
@@ -543,7 +559,8 @@ r'''
 ``value`` is not a number.
 ''')
 
-    def evaluate(self, formatter, kwargs, mi, locals, value):
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
+        value, = args
         value = float(value if value and value != 'None' else 0)
         return str(round(value))
 
@@ -558,7 +575,8 @@ r'''
 exception if either ``value`` or ``y`` is not a number.
 ''')
 
-    def evaluate(self, formatter, kwargs, mi, locals, value, y):
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
+        value, y = args
         value = float(value if value and value != 'None' else 0)
         y = float(y if y and y != 'None' else 0)
         return str(int(value % y))
@@ -575,7 +593,8 @@ point.[/] For example, ``fractional_part(3.14)`` returns ``0.14``. Throws an
 exception if ``value`` is not a number.
 ''')
 
-    def evaluate(self, formatter, kwargs, mi, locals, value):
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
+        value, = args
         value = float(value if value and value != 'None' else 0)
         return str(modf(value)[0])
 
@@ -598,7 +617,8 @@ cannot be used in the argument to this function when using template program
 mode.
 ''')
 
-    def evaluate(self, formatter, kwargs, mi, locals, template):
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
+        template, = args
         template = template.replace('[[', '{').replace(']]', '}')
         return formatter.__class__().safe_format(template, kwargs, 'TEMPLATE', mi)
 
@@ -621,7 +641,8 @@ suffixes (the ``|prefix|suffix`` syntax) cannot be used in the argument to this
 function when using Template Program Mode.
 ''')
 
-    def evaluate(self, formatter, kwargs, mi, locals, template):
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
+        template, = args
         from calibre.utils.formatter import EvalFormatter
         template = template.replace('[[', '{').replace(']]', '}')
         return EvalFormatter().safe_format(template, locals, 'EVAL', None)
@@ -638,7 +659,8 @@ must be an identifier, not an expression. In most cases you can use the ``=``
 operator instead of this function.
 ''')
 
-    def evaluate(self, formatter, kwargs, mi, locals, target, value):
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
+        target, value = args
         locals[target] = value
         return value
 
@@ -666,7 +688,8 @@ is equivalent to:
 [/CODE]
 ''')
 
-    def evaluate(self, formatter, kwargs, mi, locals, list_val, sep, id_prefix):
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
+        list_val, sep, id_prefix = args
         l = [v.strip() for v in list_val.split(sep)]
         res = ''
         for i,v in enumerate(l):
@@ -700,7 +723,8 @@ r'''
 The ``$`` prefix can be used instead of the function, as in ``$tags``.
 ''')
 
-    def evaluate(self, formatter, kwargs, mi, locals, name):
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
+        name, = args
         return formatter.get_value(name, [], kwargs)
 
 
@@ -717,7 +741,9 @@ is undefined (``None``). The ``$$`` prefix can be used instead of the function,
 as in ``$$pubdate``.
 ''')
 
-    def evaluate(self, formatter, kwargs, mi, locals, name, default=None):
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
+        name = args[0]
+        default = args[1] if len(args) > 1 else None
         res = getattr(mi, name, None)
         if res is None and default is not None:
             return default
@@ -740,7 +766,8 @@ r'''
 separated by ``separator``.
 ''')
 
-    def evaluate(self, formatter, kwargs, mi, locals, name, separator):
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
+        name, separator = args
         res = getattr(mi, name, None)
         if not isinstance(res, list):
             return f'{name} is not a list'
@@ -761,7 +788,8 @@ right. If ``end`` is zero, then it indicates the last character. For example,
 returns ``'234'``.
 ''')
 
-    def evaluate(self, formatter, kwargs, mi, locals, value, start_, end_):
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
+        value, start_, end_ = args
         return value[int(start_): len(value) if int(end_) == 0 else int(end_)]
 
 
@@ -777,7 +805,8 @@ the ``value`` in order.[/] If a ``pattern`` matches then the value of the field 
 ``else_key`` is returned. See also the :ref:`switch` function.
 ''')
 
-    def evaluate(self, formatter, kwargs, mi, locals, val, *args):
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
+        val, *args = args
         if len(args) == 2:  # here for backwards compatibility
             if val:
                 return formatter.vformat('{'+args[0].strip()+'}', [], kwargs)
@@ -804,7 +833,8 @@ r'''
 the value is not empty, otherwise return ``text_if_empty``.
 ''')
 
-    def evaluate(self, formatter, kwargs, mi, locals, val, value_if_set, value_not_set):
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
+        val, value_if_set, value_not_set = args
         if val:
             return value_if_set
         else:
@@ -822,8 +852,8 @@ is matched by the regular expression ``pattern``.[/] Returns ``text_if_match`` i
 the pattern matches the value, otherwise returns ``text_if_not_match``.
 ''')
 
-    def evaluate(self, formatter, kwargs, mi, locals,
-                 val, test, value_if_present, value_if_not):
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
+        val, test, value_if_present, value_if_not = args
         if re.search(test, val, flags=re.I):
             return value_if_present
         else:
@@ -843,7 +873,8 @@ returned. You can have as many ``patternN, valueN`` pairs as you wish. The first
 match is returned.
 ''')
 
-    def evaluate(self, formatter, kwargs, mi, locals, val, *args):
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
+        val, *args = args
         if (len(args) % 2) != 1:
             raise ValueError(_('switch requires an even number of arguments'))
         i = 0
@@ -938,7 +969,8 @@ Aliases: in_list(), list_contains()
 
     aliases = ['in_list']
 
-    def evaluate(self, formatter, kwargs, mi, locals, val, sep, *args):
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
+        val, sep, *args = args
         if (len(args) % 2) != 1:
             raise ValueError(_('in_list requires an odd number of arguments'))
         l = [v.strip() for v in val.split(sep) if v.strip()]
@@ -973,7 +1005,8 @@ depending on string's value. If none of the strings match then
 match is returned.
 ''')
 
-    def evaluate(self, formatter, kwargs, mi, locals, val, sep, *args):
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
+        val, sep, *args = args
         if (len(args) % 2) != 1:
             raise ValueError(_('str_in_list requires an odd number of arguments'))
         l = [v.strip() for v in val.split(sep) if v.strip()]
@@ -1010,7 +1043,8 @@ return ``found_val``, otherwise return ``not_found_val``. If ``found_val`` and
 ``identifier:value`` pair, otherwise the empty string (``''``).
 ''')
 
-    def evaluate(self, formatter, kwargs, mi, locals, val, ident, *args):
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
+        val, ident, *args = args
         if len(args) == 0:
             fv_is_id = True
             nfv = ''
@@ -1046,7 +1080,8 @@ expression.[/] All instances of ``pattern`` in the value are replaced with
 expressions[/URL].
 ''')
 
-    def evaluate(self, formatter, kwargs, mi, locals, val, pattern, replacement):
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
+        val, pattern, replacement = args
         return re.sub(pattern, replacement, val, flags=re.I)
 
 
@@ -1069,7 +1104,8 @@ program: re_group(field('series'), "(\S* )(.*)", "{$:uppercase()}", "{$}")'}
 [/CODE]
 ''')
 
-    def evaluate(self, formatter, kwargs, mi, locals, val, pattern, *args):
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
+        val, pattern, *args = args
         from calibre.utils.formatter import EvalFormatter
 
         def repl(mo):
@@ -1100,7 +1136,8 @@ This is most useful for converting names in LN, FN format to FN LN. If there is
 no comma in the ``value`` then the function returns the value unchanged.
 ''')
 
-    def evaluate(self, formatter, kwargs, mi, locals, val):
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
+        val, = args
         return re.sub(r'^(.*?),\s*(.*$)', r'\2 \1', val, flags=re.I).strip()
 
 
@@ -1114,7 +1151,8 @@ r'''
 otherwise return ``text_if_empty``.
 ''')
 
-    def evaluate(self, formatter, kwargs, mi, locals, val, value_if_empty):
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
+        val, value_if_empty = args
         if val:
             return val
         else:
@@ -1143,8 +1181,8 @@ then the value will be returned unchanged. For example, the title `The
 Dome` would not be changed.
 ''')
 
-    def evaluate(self, formatter, kwargs, mi, locals,
-                 val, leading, center_string, trailing):
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
+        val, leading, center_string, trailing = args
         l = max(0, int(leading))
         t = max(0, int(trailing))
         if len(val) > l + len(center_string) + t:
@@ -1170,7 +1208,8 @@ Examples: ``{tags:list_count(,)}``, ``{authors:list_count(&)}``.
 Aliases: ``count()``, ``list_count()``
 ''')
 
-    def evaluate(self, formatter, kwargs, mi, locals, val, sep):
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
+        val, sep = args
         return str(len([v for v in val.split(sep) if v]))
 
 
@@ -1189,7 +1228,8 @@ list that match the regular expression ``pattern``.[/]
 Aliases: ``list_count_matching()``, ``count_matching()``
 ''')
 
-    def evaluate(self, formatter, kwargs, mi, locals, value, pattern, sep):
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
+        value, pattern, sep = args
         res = 0
         for v in [x.strip() for x in value.split(sep) if x.strip()]:
             if re.search(pattern, v, flags=re.I):
@@ -1211,7 +1251,8 @@ string is returned. The separator has the same meaning as in the count function,
 usually comma but is ampersand for author-like lists.
 ''')
 
-    def evaluate(self, formatter, kwargs, mi, locals, val, index, sep):
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
+        val, index, sep = args
         if not val:
             return ''
         index = int(index)
@@ -1235,7 +1276,8 @@ corresponding ``id_value``. If no id matches then the function returns the empty
 string.
 ''')
 
-    def evaluate(self, formatter, kwargs, mi, locals, val, key):
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
+        val, key = args
         if not val:
             return ''
         vals = [v.strip() for v in val.split(',')]
@@ -1265,7 +1307,7 @@ other columns", use the function in that column's template, and use that
 column's value in your save/send templates.
 ''')
 
-    def evaluate(self, formatter, kwargs, mi, locals):
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
         if hasattr(mi, '_proxy_metadata'):
             fmt_data = mi._proxy_metadata.db_approx_formats
             if not fmt_data:
@@ -1289,7 +1331,8 @@ the :ref:`select` function to get the modification time for a specific format. N
 that format names are always uppercase, as in EPUB.
 ''')
 
-    def evaluate(self, formatter, kwargs, mi, locals, fmt):
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
+        fmt, = args
         fmt_data = mi.get('format_metadata', {})
         try:
             data = sorted(fmt_data.items(), key=lambda x:x[1]['mtime'], reverse=True)
@@ -1312,7 +1355,7 @@ use the ``select()`` function to get the size for a specific format. Note that
 format names are always uppercase, as in EPUB.
 ''')
 
-    def evaluate(self, formatter, kwargs, mi, locals):
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
         fmt_data = mi.get('format_metadata', {})
         try:
             return ','.join(k.upper()+':'+str(v['size']) for k,v in fmt_data.items())
@@ -1334,7 +1377,8 @@ use the ``select()`` function to get the path for a specific format. Note that
 format names are always uppercase, as in EPUB.
 ''')
 
-    def evaluate(self, formatter, kwargs, mi, locals, sep=','):
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
+        sep = args[0] if args else ','
         fmt_data = mi.get('format_metadata', {})
         try:
             return sep.join(k.upper()+':'+str(v['path']) for k,v in fmt_data.items())
@@ -1385,7 +1429,8 @@ The following shows what is returned for various parameters:
 [/LIST]
 ''')
 
-    def evaluate(self, formatter, kwargs, mi, locals, with_author, with_title, with_format, with_ext, sep):
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
+        with_author, with_title, with_format, with_ext, sep = args
         fmt_metadata = mi.get('format_metadata', {})
         if fmt_metadata:
             for v in fmt_metadata.values():
@@ -1417,7 +1462,8 @@ r'''
 representing that number in KB, MB, GB, etc.
 ''')
 
-    def evaluate(self, formatter, kwargs, mi, locals, val):
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
+        val, = args
         try:
             return human_readable(round(float(val)))
         except Exception:
@@ -1441,7 +1487,8 @@ Template Language[/URL] and the
 Python[/URL] documentation for more examples. Returns the empty string if formatting fails.
 ''')
 
-    def evaluate(self, formatter, kwargs, mi, locals, val, template):
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
+        val, template = args
         if val in {'', 'None'}:
             return ''
         if '{' not in template:
@@ -1483,7 +1530,8 @@ Examples assuming that the tags column (which is comma-separated) contains "A, B
 [/LIST]
 ''')
 
-    def evaluate(self, formatter, kwargs, mi, locals, val, start_index, end_index, sep):
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
+        val, start_index, end_index, sep = args
         if not val:
             return ''
         si = int(start_index)
@@ -1535,7 +1583,8 @@ Examples:
 
     period_pattern = re.compile(r'(?<=[^\.\s])\.(?=[^\.\s])', re.U)
 
-    def evaluate(self, formatter, kwargs, mi, locals, val, start_index, end_index):
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
+        val, start_index, end_index = args
         if not val:
             return ''
         si = int(start_index)
@@ -1608,7 +1657,8 @@ localized month names, which can happen if you changed the date format to
 contain ``MMMM``. Using ``format_date_field()`` avoids this problem.
 ''')
 
-    def evaluate(self, formatter, kwargs, mi, locals, val, format_string):
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
+        val, format_string = args
         if not val or val == 'None':
             return ''
         try:
@@ -1645,7 +1695,8 @@ format_date_field('#date_read', 'MMM dd, yyyy')
 [/CODE]
 ''')
 
-    def evaluate(self, formatter, kwargs, mi, locals, field, format_string):
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
+        field, format_string = args
         try:
             field = field_metadata.search_term_to_field_key(field)
             if field not in mi.all_field_keys():
@@ -1681,7 +1732,8 @@ r'''
 ``uppercase(value)`` -- returns the ``value`` in upper case.
 ''')
 
-    def evaluate(self, formatter, kwargs, mi, locals, val):
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
+        val, = args
         return val.upper()
 
 
@@ -1694,7 +1746,8 @@ r'''
 ``lowercase(value)`` -- returns the ``value`` in lower case.
 ''')
 
-    def evaluate(self, formatter, kwargs, mi, locals, val):
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
+        val, = args
         return val.lower()
 
 
@@ -1707,7 +1760,8 @@ r'''
 ``titlecase(value)`` -- returns the ``value`` in title case.
 ''')
 
-    def evaluate(self, formatter, kwargs, mi, locals, val):
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
+        val, = args
         return titlecase(val)
 
 
@@ -1720,7 +1774,8 @@ r'''
 ``capitalize(value)`` -- returns the ``value`` with the first letter in upper case and the rest lower case.
 ''')
 
-    def evaluate(self, formatter, kwargs, mi, locals, val):
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
+        val, = args
         return capitalize(val)
 
 
@@ -1738,7 +1793,7 @@ other columns", use the function in that column's template, and use that
 column's value in your save/send templates
 ''')
 
-    def evaluate(self, formatter, kwargs, mi, locals):
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
         if hasattr(mi, '_proxy_metadata'):
             try:
                 v = mi._proxy_metadata.book_size
@@ -1764,7 +1819,7 @@ custom "Column built from other columns", use the function in that column\'s
 template, and use that column\'s value in your save/send templates.
 ''')
 
-    def evaluate(self, formatter, kwargs, mi, locals):
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
         if hasattr(mi, '_proxy_metadata'):
             if mi._proxy_metadata.ondevice_col:
                 return _('Yes')
@@ -1783,7 +1838,7 @@ attached to the current book.[/] This function works only in the GUI and the
 content server.
 ''')
 
-    def evaluate(self, formatter, kwargs, mi, locals):
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
         c = self.get_database(mi, formatter=formatter).new_api.annotation_count_for_book(mi.id)
         return '' if c == 0 else str(c)
 
@@ -1800,7 +1855,7 @@ list of named marks. Returns ``''`` (the empty string) if the book is
 not marked. This function works only in the GUI.
 ''')
 
-    def evaluate(self, formatter, kwargs, mi, locals):
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
         c = self.get_database(mi, formatter=formatter).data.get_marked(mi.id)
         return c or ''
 
@@ -1814,7 +1869,7 @@ r'''
 ``series_sort()`` -- returns the series sort value.
 ''')
 
-    def evaluate(self, formatter, kwargs, mi, locals):
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
         if mi.series:
             langs = mi.languages
             lang = langs[0] if langs else None
@@ -1831,7 +1886,7 @@ r'''
 ``has_cover()`` -- return ``'Yes'`` if the book has a cover, otherwise the empty string.
 ''')
 
-    def evaluate(self, formatter, kwargs, mi, locals):
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
         if mi.has_cover:
             return _('Yes')
         return ''
@@ -1913,7 +1968,8 @@ returns the empty string.[/] This function can usually be replaced with the unar
 not (``!``) operator.
 ''')
 
-    def evaluate(self, formatter, kwargs, mi, locals, val):
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
+        val, = args
         return '' if val else '1'
 
 
@@ -1956,7 +2012,8 @@ program:
 ''')  # not translated as \1 gets mistranslated as a control char in transifex
     # for some reason. And yes, the double backslash is required, for some reason.
 
-    def evaluate(self, formatter, kwargs, mi, locals, with_separator, *args):
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
+        with_separator, *args = args
         if len(args) % 2 != 0:
             raise ValueError(
                 _("Invalid 'List, separator' pairs. Every list must have one "
@@ -1988,7 +2045,8 @@ Aliases: ``merge_lists()``, ``list_union()``
 ''')
     aliases = ['merge_lists']
 
-    def evaluate(self, formatter, kwargs, mi, locals, list1, list2, separator):
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
+        list1, list2, separator = args
         res = {icu_lower(l.strip()): l.strip() for l in list2.split(separator) if l.strip()}
         res.update({icu_lower(l.strip()): l.strip() for l in list1.split(separator) if l.strip()})
         if separator == ',':
@@ -2061,7 +2119,8 @@ returned. The items in ``list`` are separated by ``separator``, as are the items
 in the returned list.
 ''')
 
-    def evaluate(self, formatter, kwargs, mi, locals, list_, separator):
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
+        list_, separator = args
         res = {icu_lower(l.strip()): l.strip() for l in list_.split(separator) if l.strip()}
         if separator == ',':
             separator = ', '
@@ -2080,7 +2139,8 @@ The items in ``list1`` and ``list2`` are separated by ``separator``, as are the
 items in the returned list.
 ''')
 
-    def evaluate(self, formatter, kwargs, mi, locals, list1, list2, separator):
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
+        list1, list2, separator = args
         l1 = [l.strip() for l in list1.split(separator) if l.strip()]
         l2 = {icu_lower(l.strip()) for l in list2.split(separator) if l.strip()}
 
@@ -2105,7 +2165,8 @@ comparison. The items in ``list1`` and ``list2`` are separated by ``separator``,
 are the items in the returned list.
 ''')
 
-    def evaluate(self, formatter, kwargs, mi, locals, list1, list2, separator):
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
+        list1, list2, separator = args
         l1 = [l.strip() for l in list1.split(separator) if l.strip()]
         l2 = {icu_lower(l.strip()) for l in list2.split(separator) if l.strip()}
 
@@ -2130,7 +2191,8 @@ case-insensitive lexical sort.[/] If ``direction`` is zero (number or character)
 by ``separator``, as are the items in the returned list.
 ''')
 
-    def evaluate(self, formatter, kwargs, mi, locals, value, direction, separator):
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
+        value, direction, separator = args
         res = [l.strip() for l in value.split(separator) if l.strip()]
         if separator == ',':
             return ', '.join(sorted(res, key=sort_key, reverse=direction != '0'))
@@ -2150,7 +2212,8 @@ character (``sep1`` or ``sep2``). The order of items in the lists is not
 relevant. The comparison is case-insensitive.
 ''')
 
-    def evaluate(self, formatter, kwargs, mi, locals, list1, sep1, list2, sep2, yes_val, no_val):
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
+        list1, sep1, list2, sep2, yes_val, no_val = args
         s1 = {icu_lower(l.strip()) for l in list1.split(sep1) if l.strip()}
         s2 = {icu_lower(l.strip()) for l in list2.split(sep2) if l.strip()}
         if s1 == s2:
@@ -2171,7 +2234,8 @@ it to the list to be returned. If ``opt_replace`` is not the empty string then
 apply the replacement before adding the item to the returned list.
 ''')
 
-    def evaluate(self, formatter, kwargs, mi, locals, src_list, separator, include_re, opt_replace):
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
+        src_list, separator, include_re, opt_replace = args
         l = [l.strip() for l in src_list.split(separator) if l.strip()]
         res = []
         for item in l:
@@ -2197,8 +2261,8 @@ r'''
 uses ``re_group(item, search_re, template ...)`` when doing the replacements.
 ''')
 
-    def evaluate(self, formatter, kwargs, mi, locals, src_list, separator, include_re,
-                 search_re, *args):
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
+        src_list, separator, include_re, search_re, *args = args
         from calibre.utils.formatter import EvalFormatter
 
         l = [l.strip() for l in src_list.split(separator) if l.strip()]
@@ -2240,7 +2304,7 @@ other string. The date is in [URL href="https://en.wikipedia.org/wiki/ISO_8601"]
 date/time format.
 ''')
 
-    def evaluate(self, formatter, kwargs, mi, locals):
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
         return format_date(now(), 'iso')
 
 
@@ -2256,7 +2320,8 @@ otherwise negative. If either ``date1`` or ``date2`` are not dates, the function
 returns the empty string.
 ''')
 
-    def evaluate(self, formatter, kwargs, mi, locals, date1, date2):
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
+        date1, date2 = args
         try:
             d1 = parse_date(date1)
             if d1 == UNDEFINED_DATE:
@@ -2301,7 +2366,9 @@ Example: ``'1s3d-1m'`` will add 1 second, add 3 days, and subtract 1 minute from
         'y': lambda v: timedelta(days=v * 365),
     }
 
-    def evaluate(self, formatter, kwargs, mi, locals, value, calc_spec, fmt=None):
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
+        value, calc_spec = args[0], args[1]
+        fmt = args[2] if len(args) > 2 else None
         try:
             d = parse_date(value)
             if d == UNDEFINED_DATE:
@@ -2337,7 +2404,8 @@ If ``localize`` is zero, return the strings in English. If ``localize`` is not z
 return the strings in the language of the current locale. ``lang_codes`` is a comma-separated list.
 ''')
 
-    def evaluate(self, formatter, kwargs, mi, locals, lang_codes, localize):
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
+        lang_codes, localize = args
         retval = []
         for c in [c.strip() for c in lang_codes.split(',') if c.strip()]:
             try:
@@ -2361,7 +2429,8 @@ names passed in ``lang_strings``.[/] The strings must be in the language of the
 current locale. ``lang_strings`` is a comma-separated list.
 ''')
 
-    def evaluate(self, formatter, kwargs, mi, locals, lang_strings):
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
+        lang_strings, = args
         retval = []
         for c in [c.strip() for c in lang_strings.split(',') if c.strip()]:
             try:
@@ -2382,7 +2451,7 @@ r'''
 ``current_library_name()`` -- return the last name on the path to the current calibre library.
 ''')
 
-    def evaluate(self, formatter, kwargs, mi, locals):
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
         from calibre.library import current_library_name
         return current_library_name()
 
@@ -2397,7 +2466,7 @@ r'''
 library.
 ''')
 
-    def evaluate(self, formatter, kwargs, mi, locals):
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
         from calibre.library import current_library_path
         return current_library_path()
 
@@ -2432,7 +2501,9 @@ program:
 [/CODE]
 ''')
 
-    def evaluate(self, formatter, kwargs, mi, locals_, val, fmt, prefix, suffix):
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
+        _, *args = args
+        val, fmt, prefix, suffix = args
         if not val:
             return val
         return prefix + formatter._do_format(val, fmt) + suffix
@@ -2451,7 +2522,8 @@ values in save-to-disk or send-to-device templates then you must make a custom
 and use that column's value in your save/send templates.
 ''')
 
-    def evaluate(self, formatter, kwargs, mi, locals_):
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
+        _, *args = args
         db = self.get_database(mi, formatter=formatter)
         try:
             a = db.data.get_virtual_libraries_for_books((mi.id,))
@@ -2475,7 +2547,7 @@ program: current_virtual_library_name()
 This function works only in the GUI.
 ''')
 
-    def evaluate(self, formatter, kwargs, mi, locals):
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
         return self.get_database(mi, formatter=formatter).data.get_base_restriction_name()
 
 
@@ -2492,7 +2564,8 @@ values in save-to-disk or send-to-device templates then you must make a custom
 and use that column's value in your save/send templates
 ''')
 
-    def evaluate(self, formatter, kwargs, mi, locals_):
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
+        _, *args = args
         if hasattr(mi, '_proxy_metadata'):
             cats = {k for k, v in mi._proxy_metadata.user_categories.items() if v}
             cats = sorted(cats, key=sort_key)
@@ -2511,7 +2584,8 @@ approximating the sound of the words in ``value``.[/] For example, if ``value``
 is ``{0}`` this function returns ``{1}``.
 ''').format('Фёдор Миха́йлович Достоевский', 'Fiodor Mikhailovich Dostoievskii')
 
-    def evaluate(self, formatter, kwargs, mi, locals, source):
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
+        source, = args
         from calibre.utils.filenames import ascii_text
         return ascii_text(source)
 
@@ -2547,7 +2621,8 @@ ans
 This function works only in the GUI and the content server.
 ''')
 
-    def evaluate(self, formatter, kwargs, mi, locals, field_name, field_value):
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
+        field_name, field_value = args
         db = self.get_database(mi, formatter=formatter).new_api
         try:
             link = None
@@ -2578,7 +2653,8 @@ choose separators that do not occur in author names or links. An author
 is included even if the author link is empty.
 ''')
 
-    def evaluate(self, formatter, kwargs, mi, locals, val_sep, pair_sep):
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
+        val_sep, pair_sep = args
         if hasattr(mi, '_proxy_metadata'):
             link_data = mi._proxy_metadata.link_maps
             if not link_data:
@@ -2606,7 +2682,8 @@ order as the authors of the book. If you want spaces around ``val_separator``
 then include them in the ``val_separator`` string.
 ''')
 
-    def evaluate(self, formatter, kwargs, mi, locals, val_sep):
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
+        val_sep, = args
         sort_data = mi.author_sort_map
         if not sort_data:
             return ''
@@ -2626,14 +2703,18 @@ on a device has its own device name. The ``storage_location_key`` names are
 ``'main'``, ``'carda'`` and ``'cardb'``. This function works only in the GUI.
 ''')
 
-    def evaluate(self, formatter, kwargs, mi, locals, storage_location):
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
+        storage_location, = args
         # We can't use get_database() here because we need the device manager.
         # In other words, the function really does need the GUI
         with suppress(Exception):
             # Do the import here so that we don't entangle the GUI when using
             # command line functions
             from calibre.gui2.ui import get_gui
-            info = get_gui().device_manager.get_current_device_information()
+            gui = get_gui()
+            if gui is None:
+                return ''
+            info = gui.device_manager.get_current_device_information()
             if info is None:
                 return ''
             try:
@@ -2663,14 +2744,18 @@ location names are ``'main'``, ``'carda'`` and ``'cardb'``. This function works
 only in the GUI.
 ''')
 
-    def evaluate(self, formatter, kwargs, mi, locals, storage_location):
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
+        storage_location, = args
         # We can't use get_database() here because we need the device manager.
         # In other words, the function really does need the GUI
         with suppress(Exception):
             # Do the import here so that we don't entangle the GUI when using
             # command line functions
             from calibre.gui2.ui import get_gui
-            info = get_gui().device_manager.get_current_device_information()
+            gui = get_gui()
+            if gui is None:
+                return ''
+            info = gui.device_manager.get_current_device_information()
             if info is None:
                 return ''
             try:
@@ -2706,7 +2791,8 @@ Example: ``check_yes_no("#bool", 1, 0, 1)`` returns ``'Yes'`` if the yes/no fiel
 More than one of ``is_undefined``, ``is_false``, or ``is_true`` can be set to 1.
 ''')
 
-    def evaluate(self, formatter, kwargs, mi, locals, field, is_undefined, is_false, is_true):
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
+        field, is_undefined, is_false, is_true = args
         res = getattr(mi, field, None)
         # Missing fields will return None. Oh well, this lets it be used everywhere,
         # not just in the GUI.
@@ -2735,7 +2821,8 @@ r'''
 available with custom ratings columns.
 ''').format('★')
 
-    def evaluate(self, formatter, kwargs, mi, locals, value, use_half_stars):
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
+        value, use_half_stars = args
         if not value:
             return ''
         err_msg = translate_ffml('The rating must be a number between 0 and 5')
@@ -2763,7 +2850,8 @@ single value, not a list. The `articles` are those used by calibre to generate
 the ``title_sort``.
 ''')
 
-    def evaluate(self, formatter, kwargs, mi, locals, val, separator):
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
+        val, separator = args
         if not val:
             return ''
         if not separator:
@@ -2845,7 +2933,8 @@ r'''
 ``lookup_name`` exists, returning ``'1'`` if so and the empty string if not.
 ''')
 
-    def evaluate(self, formatter, kwargs, mi, locals, field_name):
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
+        field_name, = args
         if field_name.lower() in mi.all_field_keys():
             return '1'
         return ''
@@ -2864,7 +2953,8 @@ The supported character names are ``newline``, ``return``, ``tab``, and
 of templates.
 ''')
 
-    def evaluate(self, formatter, kwargs, mi, locals, character_name):
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
+        character_name, = args
         # The globals function is implemented in-line in the formatter
         raise NotImplementedError()
 
@@ -2879,7 +2969,8 @@ r'''
 when constructing calibre URLs.
 ''')
 
-    def evaluate(self, formatter, kwargs, mi, locals, val):
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
+        val, = args
         return val.encode().hex()
 
 
@@ -2898,7 +2989,8 @@ name. The URLs are generated in the same way as the built-in identifiers column
 when shown in Book Details.
 ''')
 
-    def evaluate(self, formatter, kwargs, mi, locals, identifiers, sort_results):
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
+        identifiers, sort_results = args
         from calibre.ebooks.metadata.sources.identify import urls_from_identifiers
         try:
             v = {}
@@ -2967,7 +3059,8 @@ expressions.
 This function can be used only in the GUI and the content server.
 ''')
 
-    def evaluate(self, formatter, kwargs, mi, locals, query, use_vl):
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
+        query, use_vl = args
         from calibre.db.fields import rendering_composite_name
         if (not tweaks.get('allow_template_database_functions_in_composites', False) and
                 formatter.global_vars.get(rendering_composite_name, None)):
@@ -3002,7 +3095,8 @@ with only one book. It cannot be used in composite columns unless the tweak
 can be used only in the GUI and the content server.
 ''')
 
-    def evaluate(self, formatter, kwargs, mi, locals, column, query, sep, use_vl):
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
+        column, query, sep, use_vl = args
         from calibre.db.fields import rendering_composite_name
         if (not tweaks.get('allow_template_database_functions_in_composites', False) and
                 formatter.global_vars.get(rendering_composite_name, None)):
@@ -3073,7 +3167,8 @@ the functions :ref:`has_extra_files`, :ref:`extra_file_modtime` and
 content server.
 ''')
 
-    def evaluate(self, formatter, kwargs, mi, locals, sep, *args):
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
+        sep, *args = args
         if len(args) > 1:
             raise ValueError(_('Incorrect number of arguments for function {0}').format('has_extra_files'))
         pattern = args[0] if len(args) == 1 else None
@@ -3103,7 +3198,8 @@ also the functions :ref:`has_extra_files`, :ref:`extra_file_names` and
 content server.
 ''')
 
-    def evaluate(self, formatter, kwargs, mi, locals, file_name):
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
+        file_name, = args
         db = self.get_database(mi, formatter=formatter).new_api
         try:
             q = posixpath.join(DATA_DIR_NAME, file_name)
@@ -3132,7 +3228,8 @@ since the epoch.  See also the functions :ref:`has_extra_files`,
 This function can be used only in the GUI and the content server.
 ''')
 
-    def evaluate(self, formatter, kwargs, mi, locals, file_name, format_string):
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
+        file_name, format_string = args
         db = self.get_database(mi, formatter=formatter).new_api
         try:
             q = posixpath.join(DATA_DIR_NAME, file_name)
@@ -3174,7 +3271,8 @@ program:
 This function works only in the GUI and the content server.
 ''')
 
-    def evaluate(self, formatter, kwargs, mi, locals, field_name, field_value, plain_text):
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
+        field_name, field_value, plain_text = args
         db = self.get_database(mi, formatter=formatter).new_api
         try:
             note = None
@@ -3246,7 +3344,8 @@ values in ``field_name``. Example:
 This function works only in the GUI and the content server.
 ''')
 
-    def evaluate(self, formatter, kwargs, mi, locals, field_name, field_value):
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
+        field_name, field_value = args
         db = self.get_database(mi, formatter=formatter).new_api
         if field_value:
             note = None
@@ -3309,7 +3408,8 @@ Some examples:
 [/CODE]
 ''')
 
-    def evaluate(self, formatter, kwargs, mi, locals, book_id, *args):
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
+        book_id, *args = args
         if len(args) > 4:
             raise ValueError(_('Incorrect number of arguments for function {0}').format('reading_progress'))
         book_id = int(book_id)
@@ -3359,7 +3459,7 @@ icon rules to choose different colors/icons according to the mode. Example:
 [/CODE]
 ''')
 
-    def evaluate(self, formatter, kwargs, mi, locals):
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
         try:
             # Import this here so that Qt isn't referenced unless this function is used.
             from calibre.gui2 import is_dark_theme
@@ -3419,7 +3519,8 @@ make_url('https://en.wikipedia.org/w/index.php', 'search', $item_name)
 See also the functions :ref:`make_url_extended`, :ref:`query_string` and :ref:`encode_for_url`.
 ''').format('Niccolò Machiavelli')  # not translated ans gettext wants pure ascii msgid
 
-    def evaluate(self, formatter, kwargs, mi, locals, path, *args):
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
+        path, *args = args
         if (len(args) % 2) != 0:
             raise ValueError(_('{} requires an odd number of arguments').format('make_url'))
         if len(args) < 2:
@@ -3479,7 +3580,8 @@ make_url_extended('https', 'en.wikipedia.org', '/w/index.php', 'search', $item_n
 See also the functions :ref:`make_url`, :ref:`query_string` and :ref:`encode_for_url`.
 ''').format('Niccolò Machiavelli')  # not translated as gettext wants pure ASCII msgid
 
-    def evaluate(self, formatter, kwargs, mi, locals, scheme, authority, path, *args):
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
+        scheme, authority, path, *args = args
         if len(args) != 1:
             if (len(args) % 2) != 0:
                 raise ValueError(_('{} requires an odd number of arguments').format('make_url_extended'))
@@ -3578,7 +3680,8 @@ If you do not want the value to be encoding but to have spaces replaced then use
 See also the functions :ref:`make_url`, :ref:`make_url_extended` and :ref:`query_string`.
 ''')
 
-    def evaluate(self, formatter, kwargs, mi, locals, value, use_plus):
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
+        value, use_plus = args
         if use_plus not in ('0', '1'):
             raise ValueError(
                 _('In {} the second argument must be 0, or 1, not {}').format('quote_for_url', use_plus))
@@ -3651,7 +3754,9 @@ This can be useful to truncate a value.
 ``format_duration(176420, '[h][m][s]', 'd')`` will return the value ``1h 0m 20s`` instead of ``49h 0m 20s``.
 ''')
 
-    def evaluate(self, formatter, kwargs, mi, locals, value, template, largest_unit=''):
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
+        value, template = args[0], args[1]
+        largest_unit = args[2] if len(args) > 2 else ''
         if largest_unit not in 'wdhms':
             raise ValueError(_('the {0} parameter must be one of {1}').format('largest_unit', 'wdhms'))
 
@@ -3742,6 +3847,8 @@ This function can be used only in the GUI.
     def evaluate(self, formatter, kwargs, mi, locals, *args):
         from calibre.gui2.ui import get_gui
         g = get_gui()
+        if g is None:
+            return ''
         book_ids = g.current_view().get_selected_ids()
         return ', '.join([str(book_id) for book_id in book_ids])
 
@@ -3762,9 +3869,12 @@ ascending order, otherwise in descending order. You can have multiple pairs of
 This function can be used only in the GUI.
 ''')
 
-    def evaluate(self, formatter, kwargs, mi, locals, book_ids, *args):
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
+        book_ids, *args = args
         from calibre.gui2.ui import get_gui
         g = get_gui()
+        if g is None:
+            return ''
         bids = [int(b.strip()) for b in book_ids.split(',')]
         if len(args) < 2:
             raise ValueError(_('The sort_book_ids function requires at least 3 arguments'))
@@ -3791,9 +3901,12 @@ selected cell. It returns ``''`` if no cell is selected.
 This function can be used only in the GUI.
 ''')
 
-    def evaluate(self, formatter, kwargs, mi, locals):
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
         from calibre.gui2.ui import get_gui
-        v = get_gui().current_view()
+        g = get_gui()
+        if g is None:
+            return ''
+        v = g.current_view()
         idx = v.currentIndex()
         if idx.isValid():
             key = v.column_map[idx.column()]
@@ -3819,7 +3932,8 @@ arguments control how the width is calculated.
 [/LIST]
 ''')
 
-    def evaluate(self, formatter, kwargs, mi, locals, val, *args):
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
+        val, *args = args
         from calibre.gui2.library.bookshelf_view import width_from_pages
         num_of_pages_for_max_width = 1500
         logarithmic_factor = 2
@@ -3853,7 +3967,8 @@ function returns ``'1'`` if the user presses OK, ``''`` if Cancel.
 This function can be used only in the GUI.
 ''')
 
-    def evaluate(self, formatter, kwargs, mi, locals, html):
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
+        html, = args
         from qt.core import QDialog, QVBoxLayout
 
         from calibre.gui2.widgets2 import Dialog, HTMLDisplay
@@ -3917,7 +4032,8 @@ returns `Foo, book 3 of 5`
 [/LIST]
 ''')
 
-    def evaluate(self, formatter, kwargs, mi, locals, fstring):
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
+        fstring, = args
         raise ValueError(_('This function cannot be called directly. It is built into the formatter'))
 
 

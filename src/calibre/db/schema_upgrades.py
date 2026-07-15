@@ -41,6 +41,7 @@ class SchemaUpgrade:
         '''
         Normalize indices.
         '''
+        assert self.db is not None
         self.db.execute('''\
         DROP INDEX IF EXISTS authors_idx;
         CREATE INDEX authors_idx ON books (author_sort COLLATE NOCASE, sort COLLATE NOCASE);
@@ -52,6 +53,7 @@ class SchemaUpgrade:
 
     def upgrade_version_2(self):
         ''' Fix Foreign key constraints for deleting from link tables. '''
+        assert self.db is not None
         script = '''\
         DROP TRIGGER IF EXISTS fkc_delete_books_%(ltable)s_link;
         CREATE TRIGGER fkc_delete_on_%(table)s
@@ -71,6 +73,7 @@ class SchemaUpgrade:
 
     def upgrade_version_3(self):
         ' Add path to result cache '
+        assert self.db is not None
         self.db.execute('''
         DROP VIEW IF EXISTS meta;
         CREATE VIEW meta AS
@@ -94,6 +97,7 @@ class SchemaUpgrade:
 
     def upgrade_version_4(self):
         'Rationalize books table'
+        assert self.db is not None
         self.db.execute('''
         CREATE TEMPORARY TABLE
         books_backup(id,title,sort,timestamp,series_index,author_sort,isbn,path);
@@ -141,6 +145,7 @@ class SchemaUpgrade:
 
     def upgrade_version_5(self):
         'Update indexes/triggers for new books table'
+        assert self.db is not None
         self.db.execute('''
         CREATE INDEX authors_idx ON books (author_sort COLLATE NOCASE);
         CREATE INDEX books_idx ON books (sort COLLATE NOCASE);
@@ -173,6 +178,7 @@ class SchemaUpgrade:
 
     def upgrade_version_6(self):
         'Show authors in order'
+        assert self.db is not None
         self.db.execute('''
         DROP VIEW IF EXISTS meta;
         CREATE VIEW meta AS
@@ -199,6 +205,7 @@ class SchemaUpgrade:
 
     def upgrade_version_7(self):
         'Add uuid column'
+        assert self.db is not None
         self.db.execute('''
         ALTER TABLE books ADD COLUMN uuid TEXT;
         DROP TRIGGER IF EXISTS books_insert_trg;
@@ -241,7 +248,9 @@ class SchemaUpgrade:
 
     def upgrade_version_8(self):
         'Add Tag Browser views'
+        assert self.db is not None
         def create_tag_browser_view(table_name, column_name):
+            assert self.db is not None
             self.db.execute(f'''
                 DROP VIEW IF EXISTS tag_browser_{table_name};
                 CREATE VIEW tag_browser_{table_name} AS SELECT
@@ -259,6 +268,7 @@ class SchemaUpgrade:
 
     def upgrade_version_9(self):
         'Add custom columns'
+        assert self.db is not None
         self.db.execute('''
                 CREATE TABLE custom_columns (
                     id       INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -278,6 +288,8 @@ class SchemaUpgrade:
 
     def upgrade_version_10(self):
         'Add restricted Tag Browser views'
+        assert self.db is not None
+        assert self.field_metadata is not None
         def create_tag_browser_view(table_name, column_name, view_column_name):
             script = (f'''
                 DROP VIEW IF EXISTS tag_browser_{table_name};
@@ -294,6 +306,7 @@ class SchemaUpgrade:
                         {column_name}={table_name}.id AND books_list_filter(book)) count
                 FROM {table_name};
                 ''')
+            assert self.db is not None
             self.db.execute(script)
 
         for field in self.field_metadata.values():
@@ -306,6 +319,8 @@ class SchemaUpgrade:
 
     def upgrade_version_11(self):
         'Add average rating to tag browser views'
+        assert self.db is not None
+        assert self.field_metadata is not None
         def create_std_tag_browser_view(table_name, column_name,
                                         view_column_name, sort_column_name):
             script = (f'''
@@ -335,6 +350,7 @@ class SchemaUpgrade:
                 FROM {table_name};
 
                 ''')
+            assert self.db is not None
             self.db.execute(script)
 
         def create_cust_tag_browser_view(table_name, link_table_name):
@@ -369,6 +385,7 @@ class SchemaUpgrade:
                      value AS sort
                 FROM {table_name};
                 '''
+            assert self.db is not None
             self.db.execute(script)
 
         for field in self.field_metadata.values():
@@ -395,6 +412,7 @@ class SchemaUpgrade:
 
     def upgrade_version_12(self):
         'DB based preference store'
+        assert self.db is not None
         script = '''
         DROP TABLE IF EXISTS preferences;
         CREATE TABLE preferences(id INTEGER PRIMARY KEY,
@@ -406,6 +424,7 @@ class SchemaUpgrade:
 
     def upgrade_version_13(self):
         'Dirtied table for OPF metadata backups'
+        assert self.db is not None
         script = '''
         DROP TABLE IF EXISTS metadata_dirtied;
         CREATE TABLE metadata_dirtied(id INTEGER PRIMARY KEY,
@@ -417,6 +436,7 @@ class SchemaUpgrade:
 
     def upgrade_version_14(self):
         'Cache has_cover'
+        assert self.db is not None
         self.db.execute('ALTER TABLE books ADD COLUMN has_cover BOOL DEFAULT 0')
         data = self.db.get('SELECT id,path FROM books', all=True)
 
@@ -432,11 +452,13 @@ class SchemaUpgrade:
 
     def upgrade_version_15(self):
         'Remove commas from tags'
+        assert self.db is not None
         self.db.execute("UPDATE OR IGNORE tags SET name=REPLACE(name, ',', ';')")
         self.db.execute("UPDATE OR IGNORE tags SET name=REPLACE(name, ',', ';;')")
         self.db.execute("UPDATE OR IGNORE tags SET name=REPLACE(name, ',', '')")
 
     def upgrade_version_16(self):
+        assert self.db is not None
         self.db.execute('''
         DROP TRIGGER IF EXISTS books_update_trg;
         CREATE TRIGGER books_update_trg
@@ -449,6 +471,7 @@ class SchemaUpgrade:
 
     def upgrade_version_17(self):
         'custom book data table (for plugins)'
+        assert self.db is not None
         script = '''
         DROP TABLE IF EXISTS books_plugin_data;
         CREATE TABLE books_plugin_data(id INTEGER PRIMARY KEY,
@@ -482,6 +505,7 @@ class SchemaUpgrade:
         NOTE: You cannot downgrade after this update, if you do
         any changes you make to book isbns will be lost.
         '''
+        assert self.db is not None
         script = '''
         DROP TABLE IF EXISTS library_id;
         CREATE TABLE library_id ( id   INTEGER PRIMARY KEY,
@@ -586,6 +610,7 @@ class SchemaUpgrade:
         self.db.execute(script)
 
     def upgrade_version_19(self):
+        assert self.db is not None
         recipes = self.db.get('SELECT id,title,script FROM feeds')
         if recipes:
             from calibre.web.feeds.recipes import custom_recipe_filename, custom_recipes
@@ -606,7 +631,7 @@ class SchemaUpgrade:
         '''
         Add a link column to the authors table.
         '''
-
+        assert self.db is not None
         script = '''
         ALTER TABLE authors ADD COLUMN link TEXT NOT NULL DEFAULT "";
         '''
@@ -616,7 +641,7 @@ class SchemaUpgrade:
         '''
         Write the series sort into the existing sort column in the series table
         '''
-
+        assert self.db is not None
         script = '''
         DROP TRIGGER IF EXISTS series_insert_trg;
         DROP TRIGGER IF EXISTS series_update_trg;
@@ -639,6 +664,7 @@ class SchemaUpgrade:
 
     def upgrade_version_22(self):
         ''' Create the last_read_positions table '''
+        assert self.db is not None
         self.db.execute('''
 DROP TABLE IF EXISTS last_read_positions;
 CREATE TABLE last_read_positions ( id INTEGER PRIMARY KEY,
@@ -695,6 +721,7 @@ CREATE TRIGGER fkc_lrp_update
 
     def upgrade_version_23(self):
         ''' Create the annotations table '''
+        assert self.db is not None
         self.db.execute('''
 DROP TABLE IF EXISTS annotations_dirtied;
 CREATE TABLE annotations_dirtied(id INTEGER PRIMARY KEY,
@@ -789,9 +816,11 @@ CREATE TRIGGER fkc_annot_update
         ''')
 
     def upgrade_version_24(self):
+        assert self.db is not None
         self.db.reindex_annotations()
 
     def upgrade_version_25(self):
+        assert self.db is not None
         alters = []
         for record in self.db.execute(
                 'SELECT label,name,datatype,editable,display,normalized,id,is_multiple FROM custom_columns'):
@@ -820,6 +849,7 @@ CREATE TRIGGER fkc_annot_update
 
     def upgrade_version_26(self):
         ' Drop unused columns from books and create pages table '
+        assert self.db is not None
         columns = {x[0] for x in self.db.execute('SELECT name FROM pragma_table_info("books")')}
         statements = [
             '''

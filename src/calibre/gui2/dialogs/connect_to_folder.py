@@ -66,6 +66,7 @@ class Model(QStandardItemModel):
     def __init__(self, parent=None):
         super().__init__(parent=parent)
         root = self.invisibleRootItem()
+        assert root is not None
         man_map = {}
         for cls in usbms_plugins():
             for model in cls.model_metadata():
@@ -84,8 +85,10 @@ class Model(QStandardItemModel):
 
     def itermodels(self):
         root = self.invisibleRootItem()
+        assert root is not None
         for i in range(root.rowCount()):
             m = root.child(i, 0)
+            assert m is not None
             for j in range(m.rowCount()):
                 yield m.child(j, 0)
 
@@ -127,7 +130,7 @@ class ConnectToFolder(Dialog):
         fe.setClearButtonEnabled(True)
         l.addWidget(dg)
         l.addWidget(self.bb)
-        dg.l = l = QVBoxLayout(dg)
+        l = QVBoxLayout(dg)
         self.devices = d = QTreeView(self)
         self.devices_model = m = Model(d)
         self.proxy_model = p = QSortFilterProxyModel(d)
@@ -150,10 +153,14 @@ class ConnectToFolder(Dialog):
         if selected_device is not None:
             idx = m.indexFromItem(selected_device)
             idx = p.mapFromSource(idx)
-            d.selectionModel().select(idx, QItemSelectionModel.SelectionFlag.ClearAndSelect)
+            sm = d.selectionModel()
+            assert sm is not None
+            sm.select(idx, QItemSelectionModel.SelectionFlag.ClearAndSelect)
             d.scrollTo(idx)
         self.device_selection_changed()
-        d.selectionModel().selectionChanged.connect(self.device_selection_changed)
+        sm2 = d.selectionModel()
+        assert sm2 is not None
+        sm2.selectionChanged.connect(self.device_selection_changed)
 
     def update_filter(self):
         q = self.filter_edit.text().strip()

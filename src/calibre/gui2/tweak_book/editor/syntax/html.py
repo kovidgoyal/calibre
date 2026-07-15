@@ -308,7 +308,9 @@ def normal(state, text, i, formats, user_data):
     if ch == '>':
         return [(1, formats['>'])]
 
-    t = normal_pat.search(text, i).group()
+    nm = normal_pat.search(text, i)
+    assert nm is not None
+    t = nm.group()
     return process_text(state, t, formats['nbsp'], formats['spell'], user_data)
 
 
@@ -507,7 +509,7 @@ class Highlighter(SyntaxHighlighter):
     spell_attributes = ('alt', 'title')
     user_data_factory = HTMLUserData
 
-    def tag_ok_for_spell(self, name):
+    def tag_ok_for_spell(x, name=None):
         return HTMLUserData.tag_ok_for_spell(name)
 
 
@@ -517,10 +519,11 @@ class XMLHighlighter(Highlighter):
     spell_attributes = ('opf:file-as',)
     user_data_factory = XMLUserData
 
-    def create_formats_func(self):
+    def create_formats_func(highlighter, add_css=True):
+        self = highlighter
         return create_formats(self, add_css=False)
 
-    def tag_ok_for_spell(self, name):
+    def tag_ok_for_spell(x, name=None):
         return XMLUserData.tag_ok_for_spell(name)
 
 

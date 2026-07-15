@@ -82,18 +82,18 @@ class EmailAccounts(QAbstractTableModel):  # {{{
             finally:
                 self.endResetModel()
 
-    def rowCount(self, *args):
+    def rowCount(self, parent=...):
         return len(self.account_order)
 
-    def columnCount(self, *args):
+    def columnCount(self, parent=...):
         return len(self.headers)
 
-    def headerData(self, section, orientation, role):
+    def headerData(self, section, orientation, role=...):
         if role == Qt.ItemDataRole.DisplayRole and orientation == Qt.Orientation.Horizontal:
             return self.headers[section]
         return None
 
-    def data(self, index, role):
+    def data(self, index, role=...):
         row, col = index.row(), index.column()
         if row < 0 or row >= self.rowCount():
             return None
@@ -127,7 +127,7 @@ class EmailAccounts(QAbstractTableModel):  # {{{
         else:
             return QAbstractTableModel.flags(self, index)|Qt.ItemFlag.ItemIsEditable
 
-    def setData(self, index, value, role):
+    def setData(self, index, value, role=...):
         if not index.isValid():
             return False
         row, col = index.row(), index.column()
@@ -248,11 +248,11 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         ConfigWidgetBase.initialize(self)
         # Initializing all done in genesis
 
-    def restore_defaults(self):
+    def restore_defaults(self, *args):
         ConfigWidgetBase.restore_defaults(self)
         # No defaults to restore to
 
-    def commit(self):
+    def commit(self, *args):
         if self.email_view.state() == QAbstractItemView.State.EditingState:
             # Ensure that the cell being edited is committed by switching focus
             # to some other widget, which automatically closes the open editor
@@ -280,7 +280,9 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
     def remove_email_account(self, *args):
         rows = set()
-        for idx in self.email_view.selectionModel().selectedIndexes():
+        sm = self.email_view.selectionModel()
+        assert sm is not None
+        for idx in sm.selectedIndexes():
             rows.add(idx.row())
         self._email_accounts.remove_rows(*rows)
         self.changed_signal.emit()

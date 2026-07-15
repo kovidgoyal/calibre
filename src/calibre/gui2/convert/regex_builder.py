@@ -30,6 +30,7 @@ class RegexBuilder(QDialog, Ui_RegexBuilder):
 
         if not db or not book_id:
             button = self.button_box.addButton(QDialogButtonBox.StandardButton.Open)
+            assert button is not None
             button.clicked.connect(self.open_clicked)
         elif not doc and not self.select_format(db, book_id):
             self.cancelled = True
@@ -212,7 +213,9 @@ class RegexEdit(XPathEdit):
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.edit.completer().setCaseSensitivity(Qt.CaseSensitivity.CaseSensitive)
+        _completer = self.edit.completer()
+        assert _completer is not None
+        _completer.setCaseSensitivity(Qt.CaseSensitivity.CaseSensitive)
         self.book_id = None
         self.db = None
         self.doc_cache = None
@@ -236,7 +239,8 @@ class RegexEdit(XPathEdit):
     def doc(self):
         return self.doc_cache
 
-    def setObjectName(self, *args):
+    def setObjectName(self, name=None):
+        args = (name,)
         super().setObjectName(*args)
         if hasattr(self, 'edit'):
             self.edit.initialize('regex_edit_'+str(self.objectName()))

@@ -44,6 +44,7 @@ class CoverDelegate(QStyledItemDelegate):
     def paint(self, painter, option, index):
         QStyledItemDelegate.paint(self, painter, option, index)
         style = QApplication.style()
+        assert style is not None
         # Ensure the cover is rendered over any selection rect
         style.drawItemPixmap(painter, option.rect, Qt.AlignmentFlag.AlignTop|Qt.AlignmentFlag.AlignHCenter,
             QPixmap(index.data(Qt.ItemDataRole.DecorationRole)))
@@ -65,7 +66,7 @@ class PDFCovers(QDialog):
         self.stack = WaitLayout(_('Rendering {} pages, please wait...').format('PDF' if self.is_pdf else _('comic book')), parent=self)
         self.container = self.stack.after
 
-        self.container.l = l = QVBoxLayout(self.container)
+        l = QVBoxLayout(self.container)
         self.la = la = QLabel(_('Choose a cover from the list of pages below'))
         l.addWidget(la)
         self.covers = c = QListWidget(self)
@@ -83,6 +84,7 @@ class PDFCovers(QDialog):
         bb.accepted.connect(self.accept)
         bb.rejected.connect(self.reject)
         self.more_pages = b = bb.addButton(_('&More pages'), QDialogButtonBox.ButtonRole.ActionRole)
+        assert b is not None
         b.clicked.connect(self.start_rendering)
         l.addWidget(bb)
         self.rendering_done.connect(self.show_pages, type=Qt.ConnectionType.QueuedConnection)
@@ -95,15 +97,17 @@ class PDFCovers(QDialog):
 
     def start_rendering(self):
         self.hide_pages()
-        self.thread = Thread(target=self.render, daemon=True, name='RenderPages')
-        self.thread.start()
+        self._render_thread = Thread(target=self.render, daemon=True, name='RenderPages')
+        self._render_thread.start()
 
     @property
     def cover_path(self):
         for item in self.covers.selectedItems():
             return str(item.data(Qt.ItemDataRole.UserRole) or '')
         if self.covers.count() > 0:
-            return str(self.covers.item(0).data(Qt.ItemDataRole.UserRole) or '')
+            _item = self.covers.item(0)
+            assert _item is not None
+            return str(_item.data(Qt.ItemDataRole.UserRole) or '')
 
     def cleanup(self):
         try:
@@ -111,7 +115,7 @@ class PDFCovers(QDialog):
         except OSError:
             pass
 
-    def render(self):
+    def render(self, *args, **kwargs):
         self.current_tdir = os.path.join(self.tdir, str(self.first))
         self.error = None
         try:
@@ -130,7 +134,9 @@ class PDFCovers(QDialog):
 
     def hide_pages(self):
         self.stack.start()
-        self.more_pages.setVisible(False)
+        more_pages = self.more_pages
+        assert more_pages is not None
+        more_pages.setVisible(False)
 
     def show_pages(self):
         if self.error is not None:
@@ -163,7 +169,9 @@ class PDFCovers(QDialog):
             self.covers.addItem(i)
         self.first += len(files)
         if len(files) == PAGES_PER_RENDER:
-            self.more_pages.setVisible(True)
+            more_pages = self.more_pages
+            assert more_pages is not None
+            more_pages.setVisible(True)
 
 
 if __name__ == '__main__':

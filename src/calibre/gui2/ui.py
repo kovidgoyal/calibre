@@ -17,6 +17,7 @@ import textwrap
 from collections import OrderedDict, deque
 from io import BytesIO
 from queue import Empty, Queue
+from typing import Literal, overload
 
 import apsw
 from qt.core import QAction, QApplication, QDialog, QDialogButtonBox, QEvent, QFont, QIcon, QMenu, QSystemTrayIcon, Qt, QTimer, QUrl, pyqtSignal
@@ -53,13 +54,15 @@ from calibre.gui2.job_indicator import Pointer
 from calibre.gui2.jobs import JobManager, JobsButton, JobsDialog
 from calibre.gui2.keyboard import Manager
 from calibre.gui2.layout import MainWindowMixin
+from calibre.gui2.library.models import BooksModel
 from calibre.gui2.listener import Listener
 from calibre.gui2.main_window import MainWindow
 from calibre.gui2.open_with import register_keyboard_shortcuts
 from calibre.gui2.proceed import ProceedQuestion
-from calibre.gui2.search_box import SavedSearchBoxMixin, SearchBoxMixin
+from calibre.gui2.search_box import SavedSearchBoxMixin, SearchBox2, SearchBoxMixin
 from calibre.gui2.search_restriction_mixin import SearchRestrictionMixin
-from calibre.gui2.tag_browser.ui import TagBrowserMixin
+from calibre.gui2.tag_browser.ui import AlterTagBrowser, TagBrowserMixin
+from calibre.gui2.tag_browser.view import TagsView
 from calibre.gui2.update import UpdateMixin
 from calibre.gui2.widgets import BusyCursor, ProgressIndicator
 from calibre.library import current_library_name
@@ -71,8 +74,18 @@ from calibre.utils.resources import get_image_path as I
 from calibre.utils.resources import get_path as P
 
 
-def get_gui():
-    return getattr(get_gui, 'ans', None)
+@overload
+def get_gui(fail_if_absent: Literal[False] = False) -> Main | None: ...
+
+@overload
+def get_gui(fail_if_absent: Literal[True] = True) -> Main: ...
+
+
+def get_gui(fail_if_absent: bool = False) -> Main | None:
+    ans = getattr(get_gui, 'ans', None)
+    if ans is None and fail_if_absent:
+        raise RuntimeError('GUI object has not yet been created')
+    return ans
 
 
 def add_quick_start_guide(library_view, refresh_cover_browser=None):
@@ -120,6 +133,10 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
     shutdown_started = pyqtSignal()
     shutdown_completed = pyqtSignal()
     shutting_down = False
+    tags_view: TagsView
+    alter_tb: AlterTagBrowser
+
+    search: SearchBox2
 
     def __init__(self, opts, parent=None, gui_debug=None):
         MainWindow.__init__(self, opts, parent=parent, disable_automatic_gc=True)
@@ -133,7 +150,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         self.proceed_question = ProceedQuestion(self)
         self.job_error_dialog = JobError(self)
         self.keyboard = Manager(self)
-        get_gui.ans = self
+        setattr(get_gui, 'ans', self)
         self.opts = opts
         self.device_connected = None
         self.gui_debug = gui_debug
@@ -258,7 +275,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         DeviceMixin.init_device_mixin(self)
 
         self.progress_indicator = ProgressIndicator(self)
-        self.progress_indicator.pos = (0, 20)
+        self.progress_indicator.current_pos = (0, 20)
         self.verbose = opts.verbose
         self.get_metadata = GetMetadata()
         self.upload_memory = {}
@@ -282,10 +299,12 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
                    file=sys.stderr, flush=True)
         self.system_tray_menu = QMenu(self)
         self.toggle_to_tray_action = self.system_tray_menu.addAction(QIcon.ic('page.png'), '')
+        assert self.toggle_to_tray_action is not None
         self.toggle_to_tray_action.triggered.connect(self.system_tray_icon_activated)
         self.system_tray_menu.addAction(self.donate_action)
         self.eject_action = self.system_tray_menu.addAction(
                 QIcon.ic('eject.png'), _('&Eject connected device'))
+        assert self.eject_action is not None
         self.eject_action.setEnabled(False)
         self.addAction(self.quit_action)
         self.system_tray_menu.addAction(self.iactions['Restart'].menuless_qaction)
@@ -346,7 +365,9 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         self.location_manager.unmount_device.connect(self.device_manager.umount_device)
         self.location_manager.configure_device.connect(self.configure_connected_device)
         self.location_manager.update_device_metadata.connect(self.update_metadata_on_device)
-        self.eject_action.triggered.connect(self.device_manager.umount_device)
+        eject_action = self.eject_action
+        assert eject_action is not None
+        eject_action.triggered.connect(self.device_manager.umount_device)
 
         # ################### Update notification ###################
         UpdateMixin.init_update_mixin(self, opts)
@@ -359,7 +380,10 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         LibraryViewMixin.init_library_view_mixin(self, db)
         SearchBoxMixin.init_search_box_mixin(self)  # Requires current_db
 
-        self.library_view.model().count_changed_signal.connect(
+        lv_model = self.library_view.model()
+        assert lv_model is not None
+        assert isinstance(lv_model, BooksModel)
+        lv_model.count_changed_signal.connect(
                 self.iactions['Choose Library'].count_changed)
         if not gprefs.get('quick_start_guide_added', False):
             try:
@@ -372,14 +396,14 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
             v.selectionModel().selectionChanged.connect(self.update_status_bar)
             v.model().count_changed_signal.connect(self.update_status_bar)
 
-        self.library_view.model().count_changed()
-        self.bars_manager.database_changed(self.library_view.model().db)
-        self.library_view.model().database_changed.connect(self.bars_manager.database_changed,
+        lv_model.count_changed()
+        self.bars_manager.database_changed(lv_model.db)
+        lv_model.database_changed.connect(self.bars_manager.database_changed,
                 type=Qt.ConnectionType.QueuedConnection)
 
         # ########################## Tags Browser ##############################
         TagBrowserMixin.init_tag_browser_mixin(self, db)
-        self.library_view.model().database_changed.connect(self.populate_tb_manage_menu, type=Qt.ConnectionType.QueuedConnection)
+        lv_model.database_changed.connect(self.populate_tb_manage_menu, type=Qt.ConnectionType.QueuedConnection)
 
         # ######################## Search Restriction ##########################
         if db.new_api.pref('virtual_lib_on_startup'):
@@ -558,8 +582,8 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
                 _('Could not start the Content server. Error:\n\n%s')%msg,
                 show=True)
 
-    def resizeEvent(self, ev):
-        MainWindow.resizeEvent(self, ev)
+    def resizeEvent(self, a0):
+        MainWindow.resizeEvent(self, a0)
         self.search.setMaximumWidth(self.width()-150)
 
     def create_spare_pool(self, *args):
@@ -607,7 +631,9 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
 
     def update_toggle_to_tray_action(self, *args):
         if hasattr(self, 'toggle_to_tray_action'):
-            self.toggle_to_tray_action.setText(
+            toggle_to_tray_action = self.toggle_to_tray_action
+            assert toggle_to_tray_action is not None
+            toggle_to_tray_action.setText(
                 _('Hide main window') if self.isVisible() else _('Show main window'))
 
     def hide_windows(self):
@@ -625,16 +651,16 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
                 setattr(window, '__systray_minimized', False)
         self.update_toggle_to_tray_action()
 
-    def changeEvent(self, ev):
+    def changeEvent(self, a0):
         # Handle bug in Qt 6 that causes the window to be shown as blank if it was first
         # maximized and then closed to system tray, when remote desktop is
         # reconnected: https://bugreports.qt.io/browse/QTBUG-124177
         if (
-                iswindows and ev.type() == QEvent.Type.ActivationChange and self.is_minimized_to_tray and self.isMaximized() and
+                iswindows and a0.type() == QEvent.Type.ActivationChange and self.is_minimized_to_tray and self.isMaximized() and
                 self.isActiveWindow() and not self.isVisible()
         ):
             QTimer.singleShot(0, self.show_windows)
-        return super().changeEvent(ev)
+        return super().changeEvent(a0)
 
     def test_server(self, *args):
         if self.content_server is not None and \
@@ -643,12 +669,15 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
                          str(self.content_server.exception)).exec()
 
     @property
-    def current_db(self):
-        return self.library_view.model().db
+    def current_db(self) -> LibraryDatabase:
+        db = self.library_view._model.db
+        assert db is not None
+        return db
 
     def refresh_all(self):
         m = self.library_view.model()
-        m.db.data.refresh(clear_caches=False, do_search=False)
+        assert isinstance(m, BooksModel)
+        self.current_db.data.refresh(clear_caches=False, do_search=False)
         self.saved_searches_changed(recount=False)
         m.resort()
         m.research()
@@ -899,7 +928,10 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
                         current_row = -1
                         if lv.current_id == book_id:
                             current_row = lv.currentIndex().row()
-                        self.library_view.model().refresh_ids((book_id,), current_row)
+                        lv_m = self.library_view.model()
+                        assert lv_m is not None
+                        assert isinstance(lv_m, BooksModel)
+                        lv_m.refresh_ids((book_id,), current_row)
                 else:
                     print('Failed to update annotations for book from viewer, book or library not found.', file=sys.stderr)
             except Exception:
@@ -913,8 +945,9 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
                 book_id, fmt, library_id = parts[:3]
                 book_id = int(book_id)
                 m = self.library_view.model()
-                db = m.db.new_api
-                if m.db.library_id == library_id and db.has_id(book_id):
+                assert isinstance(m, BooksModel)
+                db = self.current_db.new_api
+                if db.library_id == library_id and db.has_id(book_id):
                     db.format_metadata(book_id, fmt, allow_cache=False, update_db=True)
                     db.reindex_fts_book(book_id, fmt)
                     db.update_last_modified((book_id,))
@@ -963,7 +996,16 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         self.location_manager.library_action.trigger()
 
     def booklists(self):
-        return self.memory_view.model().db, self.card_a_view.model().db, self.card_b_view.model().db
+        mem_model = self.memory_view.model()
+        assert mem_model is not None
+        assert isinstance(mem_model, BooksModel)
+        card_a_model = self.card_a_view.model()
+        assert card_a_model is not None
+        assert isinstance(card_a_model, BooksModel)
+        card_b_model = self.card_b_view.model()
+        assert card_b_model is not None
+        assert isinstance(card_b_model, BooksModel)
+        return mem_model.db, card_a_model.db, card_b_model.db
 
     def library_moved(self, newloc, copy_structure=False, allow_rebuild=False):
         if newloc is None:
@@ -971,7 +1013,10 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         with self.library_broker:
             default_prefs = None
             try:
-                olddb = self.library_view.model().db
+                _lv_model = self.library_view.model()
+                assert isinstance(_lv_model, BooksModel)
+                olddb = _lv_model.db
+                assert olddb is not None
                 if copy_structure:
                     default_prefs = dict(olddb.prefs)
             except Exception:
@@ -1015,12 +1060,16 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
             db.set_book_on_device_func(self.book_on_device)
             self.library_view.set_database(db)
             self.tags_view.set_database(db, self.alter_tb)
-            self.library_view.model().set_book_on_device_func(self.book_on_device)
+            lv_model = self.library_view.model()
+            assert lv_model is not None
+            assert isinstance(lv_model, BooksModel)
+            lv_model.set_book_on_device_func(self.book_on_device)
             self.status_bar.clear_message()
             self.search.clear()
             self.book_details.reset_info()
-            # self.library_view.model().count_changed()
-            db = self.library_view.model().db
+            # lv_model.count_changed()
+            db = lv_model.db
+            assert db is not None
             self.iactions['Choose Library'].count_changed(db.count())
             self.set_window_title()
             self.apply_named_search_restriction('')  # reset restriction to null
@@ -1207,7 +1256,10 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
     def write_settings(self):
         with gprefs:  # Only write to gprefs once
             self.save_geometry(gprefs, 'calibre_main_window_geometry')
-            dynamic.set('sort_history', self.library_view.model().sort_history)
+            _m = self.library_view.model()
+            assert _m is not None
+            assert isinstance(_m, BooksModel)
+            dynamic.set('sort_history', _m.sort_history)
             self.save_layout_state()
             self._save_tb_state(gprefs)
 
@@ -1315,9 +1367,11 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         timed_print('Grid view shutdown')
         self.bookshelf_view.shutdown()
         timed_print('Bookshelf view shutdown')
-        db = None
         try:
-            db = self.library_view.model().db
+            _shutdown_model = self.library_view.model()
+            assert isinstance(_shutdown_model, BooksModel)
+            db = _shutdown_model.db
+            assert db is not None
             cf = db.clean
         except Exception:
             pass
@@ -1352,12 +1406,15 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
                 pass
         sys.excepthook = eh
 
-        mb = self.library_view.model().metadata_backup
+        _close_model = self.library_view.model()
+        assert _close_model is not None
+        assert isinstance(_close_model, BooksModel)
+        mb = _close_model.metadata_backup
         if mb is not None:
             mb.stop()
         timed_print('Metadata backup shutdown')
 
-        self.library_view.model().close()
+        _close_model.close()
         timed_print('Current database closed')
 
         try:
@@ -1415,7 +1472,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
                 pass
             qapplication_or_fail().quit()
 
-    def closeEvent(self, e):
+    def closeEvent(self, a0):
         if self.shutting_down:
             return
         self.write_settings()
@@ -1427,15 +1484,15 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
                         'system tray.'), show_copy_button=False).exec()
                 dynamic['systray_msg'] = True
             self.hide_windows()
-            e.ignore()
+            a0.ignore()
         elif self.confirm_quit():
             try:
                 self.shutdown(write_settings=False)
             except Exception:
                 import traceback
                 traceback.print_exc()
-            e.accept()
+            a0.accept()
         else:
-            e.ignore()
+            a0.ignore()
 
     # }}}

@@ -96,7 +96,7 @@ class SentenceDelay(QDoubleSpinBox):
         self.setSingleStep(0.05)
 
     @property
-    def val(self) -> str:
+    def val(self) -> float:
         return max(0.0, self.value())
 
     @val.setter
@@ -163,7 +163,10 @@ class Volume(QWidget):
         self.update_state()
 
     def update_state(self):
-        self.layout().setRowVisible(self.vol, not self.system.isChecked())
+        lay = self.layout()
+        assert lay is not None
+        assert isinstance(lay, QFormLayout)
+        lay.setRowVisible(self.vol, not self.system.isChecked())
 
     @property
     def val(self):
@@ -201,6 +204,7 @@ class Voices(QTreeWidget):
                 p = item.parent()
                 if p is not None:
                     for child in (p.child(i) for i in range(p.childCount())):
+                        assert child is not None
                         if child is not item and child.checkState(0) == Qt.CheckState.Checked:
                             self.ignore_item_changes = True
                             child.setCheckState(0, Qt.CheckState.Unchecked)
@@ -209,19 +213,22 @@ class Voices(QTreeWidget):
     def is_voice_item(self, item):
         return item is not None and isinstance(item.data(0, Qt.ItemDataRole.UserRole), Voice)
 
-    def mousePressEvent(self, event):
-        item = self.itemAt(event.pos())
+    def mousePressEvent(self, e):
+        item = self.itemAt(e.pos())
         if self.for_embedding and self.is_voice_item(item):
+            assert item is not None
             rect = self.visualItemRect(item)
-            x = event.pos().x() - (rect.x() + self.frameWidth())
+            x = e.pos().x() - (rect.x() + self.frameWidth())
             option = QStyleOptionViewItem()
             self.initViewItemOption(option)
             option.rect = rect
             option.features |= QStyleOptionViewItem.ViewItemFeature.HasCheckIndicator
-            checkbox_rect = self.style().subElementRect(QStyle.SubElement.SE_ItemViewItemCheckIndicator, option, self)
+            style = self.style()
+            assert style is not None
+            checkbox_rect = style.subElementRect(QStyle.SubElement.SE_ItemViewItemCheckIndicator, option, self)
             if x > checkbox_rect.width():
                 item.setCheckState(0, Qt.CheckState.Checked if item.checkState(0) != Qt.CheckState.Checked else Qt.CheckState.Unchecked)
-        super().mousePressEvent(event)
+        super().mousePressEvent(e)
 
     def sizeHint(self) -> QSize:
         return QSize(400, 500)
@@ -273,8 +280,10 @@ class Voices(QTreeWidget):
                 parent.setData(0, Qt.ItemDataRole.UserRole, langcode)
             for voice in vmap[langcode]:
                 v = qv(parent, voice)
-                if self.for_embedding and voice.name and preferred_voices.get(langcode) == voice.name:
-                    v.setCheckState(0, Qt.CheckState.Checked)
+                if self.for_embedding and voice.name:
+                    assert preferred_voices is not None
+                    if preferred_voices.get(langcode) == voice.name:
+                        v.setCheckState(0, Qt.CheckState.Checked)
         if current_item is not None:
             self.setCurrentItem(current_item)
 
@@ -286,10 +295,13 @@ class Voices(QTreeWidget):
     @property
     def preferred_voices(self) -> dict[str, str] | None:
         r = self.invisibleRootItem()
+        assert r is not None
         ans = {}
         for parent in (r.child(i) for i in range(r.childCount())):
+            assert parent is not None
             langcode = parent.data(0, Qt.ItemDataRole.UserRole)
             for child in (parent.child(i) for i in range(parent.childCount())):
+                assert child is not None
                 if child.checkState(0) == Qt.CheckState.Checked:
                     voice = child.data(0, Qt.ItemDataRole.UserRole)
                     if voice.name:
@@ -306,7 +318,7 @@ class Voices(QTreeWidget):
 
     def refresh_current_item(self) -> None:
         ci = self.currentItem()
-        if self.is_voice_item(ci):
+        if ci is not None and self.is_voice_item(ci):
             self.set_item_downloaded_state(ci)
 
 
@@ -314,7 +326,7 @@ class EngineSpecificConfig(QWidget):
 
     voice_changed = pyqtSignal()
 
-    def __init__(self, parent: QWidget = None, for_embedding: bool = False):
+    def __init__(self, parent: QWidget | None = None, for_embedding: bool = False):
         super().__init__(parent)
         self.for_embedding = for_embedding
         self.engine_name = ''
@@ -328,7 +340,7 @@ class EngineSpecificConfig(QWidget):
         self.engine_name = ''
         om.currentIndexChanged.connect(self.rebuild_voices)
         self.default_output_modules = {}
-        self.voice_data = {}
+        self.voice_data: dict[str, dict[str, tuple[Voice, ...]]] = {}
         self.engine_specific_settings = {}
         self.rate = r = FloatSlider(parent=self)
         l.addRow(_('&Speed of speech:'), r)
@@ -371,21 +383,24 @@ class EngineSpecificConfig(QWidget):
         self.initialize_widgets_from_settings()
 
     def initialize_widgets_from_settings(self):
+        lay = self.layout()
+        assert lay is not None
+        assert isinstance(lay, QFormLayout)
         tts = create_tts_backend(force_engine=self.engine_name)
         metadata = available_engines()[self.engine_name]
         self.output_module.blockSignals(True)
         self.output_module.clear()
         if metadata.has_multiple_output_modules:
-            self.layout().setRowVisible(self.output_module, True)
+            lay.setRowVisible(self.output_module, True)
             self.output_module.addItem(_('System default (currently {})').format(tts.default_output_module), '')
             for om in self.voice_data[self.engine_name]:
                 self.output_module.addItem(om, om)
             if (idx := self.output_module.findData(self.engine_specific_settings[self.engine_name].output_module)) > -1:
                 self.output_module.setCurrentIndex(idx)
         else:
-            self.layout().setRowVisible(self.output_module, False)
+            lay.setRowVisible(self.output_module, False)
         self.output_module.blockSignals(False)
-        self.layout().setRowVisible(self.sentence_delay, metadata.has_sentence_delay)
+        lay.setRowVisible(self.sentence_delay, metadata.has_sentence_delay)
         try:
             s = self.engine_specific_settings[self.engine_name]
         except KeyError:
@@ -393,16 +408,16 @@ class EngineSpecificConfig(QWidget):
         self.rate.val = s.rate
         if metadata.can_change_pitch:
             self.pitch.val = s.pitch
-            self.layout().setRowVisible(self.pitch, True)
+            lay.setRowVisible(self.pitch, True)
         else:
             self.pitch.val = 0
-            self.layout().setRowVisible(self.pitch, False)
-        self.layout().setRowVisible(self.pitch, metadata.can_change_pitch)
+            lay.setRowVisible(self.pitch, False)
+        lay.setRowVisible(self.pitch, metadata.can_change_pitch)
         if metadata.can_change_volume and not self.for_embedding:
-            self.layout().setRowVisible(self.volume, True)
+            lay.setRowVisible(self.volume, True)
             self.volume.val = s.volume
         else:
-            self.layout().setRowVisible(self.volume, False)
+            lay.setRowVisible(self.volume, False)
             self.volume.val = None
         if metadata.has_sentence_delay:
             self.sentence_delay.val = s.sentence_delay
@@ -414,9 +429,9 @@ class EngineSpecificConfig(QWidget):
             if cad := self.engine_specific_settings[self.engine_name].audio_device_id:
                 if (idx := self.audio_device.findData(cad.id.hex())):
                     self.audio_device.setCurrentIndex(idx)
-            self.layout().setRowVisible(self.audio_device, True)
+            lay.setRowVisible(self.audio_device, True)
         else:
-            self.layout().setRowVisible(self.audio_device, False)
+            lay.setRowVisible(self.audio_device, False)
         self.rebuild_voices()
         return metadata
 
@@ -434,7 +449,7 @@ class EngineSpecificConfig(QWidget):
         except Exception:
             import traceback
             traceback.print_exc()
-            all_voices = []
+            all_voices: tuple[Voice, ...] = ()
         self.voices.set_voices(all_voices, s.voice_name, metadata, s.preferred_voices)
 
     def as_settings(self) -> EngineSpecificSettings:
@@ -538,6 +553,7 @@ class ConfigDialog(Dialog):
         l.addLayout(h)
         h.addWidget(b), h.addStretch(10), h.addWidget(self.bb)
         self.restore_defaults_button = b = self.bb.addButton(_('Restore &defaults'), QDialogButtonBox.ButtonRole.ActionRole)
+        assert b is not None
         b.setToolTip(_('Restore all Read aloud settings to their defaults'))
         b.clicked.connect(self.restore_defaults)
         self.initial_engine_choice = ec.value

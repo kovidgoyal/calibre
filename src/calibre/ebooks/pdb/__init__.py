@@ -90,6 +90,7 @@ def get_reader(identity):
     global FORMAT_READERS
     if FORMAT_READERS is None:
         _import_readers()
+    assert FORMAT_READERS is not None
     return FORMAT_READERS.get(identity, None)
 
 
@@ -100,4 +101,5 @@ def get_writer(extension):
     global FORMAT_WRITERS
     if FORMAT_WRITERS is None:
         _import_writers()
+    assert FORMAT_WRITERS is not None
     return FORMAT_WRITERS.get(extension, None)

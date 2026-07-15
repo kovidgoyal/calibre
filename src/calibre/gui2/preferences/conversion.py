@@ -30,7 +30,7 @@ class Model(QStringListModel):
         self.widgets = widgets
         self.setStringList([w.TITLE for w in widgets])
 
-    def data(self, index, role):
+    def data(self, index, role=Qt.ItemDataRole.DisplayRole):
         if role == Qt.ItemDataRole.DecorationRole:
             w = self.widgets[index.row()]
             if w.ICON:
@@ -52,16 +52,19 @@ class ListView(QListView):
         self.setFlow(QListView.Flow.TopToBottom)
         self.setSpacing(10)
 
-    def currentChanged(self, cur, prev):
-        QListView.currentChanged(self, cur, prev)
-        self.current_changed.emit(cur, prev)
+    def currentChanged(self, current, previous):
+        QListView.currentChanged(self, current, previous)
+        self.current_changed.emit(current, previous)
 
 
 class Base(ConfigWidgetBase):
 
+    conversion_widgets: list
     restore_defaults_desc = _('Restore settings to default values. '
             'Only settings for the currently selected section '
             'are restored.')
+
+    def load_conversion_widgets(self) -> None: ...
 
     def setupUi(self, x):
         self.resize(720, 603)
@@ -114,12 +117,18 @@ class Base(ConfigWidgetBase):
     def initialize(self):
         ConfigWidgetBase.initialize(self)
 
-    def restore_defaults(self):
+    def restore_defaults(self, *args):
         ConfigWidgetBase.restore_defaults(self)
-        self.stack.currentWidget().widget().restore_defaults(self.plumber.get_option_by_name)
+        sa = self.stack.currentWidget()
+        assert isinstance(sa, QScrollArea)
+        inner = sa.widget()
+        assert inner is not None
+        restore = getattr(inner, 'restore_defaults', None)
+        if restore is not None:
+            restore(self.plumber.get_option_by_name)
         self.changed_signal.emit()
 
-    def commit(self):
+    def commit(self, *args):
         for widget in self.model.widgets:
             if not widget.pre_commit_check():
                 raise AbortCommit('abort')

@@ -223,7 +223,7 @@ class TextileMLizer(OEB2HTML):
             return f' =={txt}== '
         return txt
 
-    def dump_text(self, elem, stylizer):
+    def dump_text(self, elem, stylizer, page=None):
         '''
         @elem: The element in the etree that we are working on.
         @stylizer: The style information attached to the element.

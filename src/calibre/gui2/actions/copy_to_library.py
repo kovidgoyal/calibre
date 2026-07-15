@@ -57,25 +57,25 @@ def ask_about_cc_mismatch(gui, db, newdb, missing_cols, incompatible_cols):  # {
     l = QFormLayout()
     tl = QVBoxLayout()
     d.setLayout(tl)
-    d.s = QScrollArea(d)
-    tl.addWidget(d.s)
-    d.w = QWidget(d)
-    d.s.setWidget(d.w)
-    d.s.setWidgetResizable(True)
-    d.w.setLayout(l)
+    s = QScrollArea(d)
+    tl.addWidget(s)
+    w = QWidget(d)
+    s.setWidget(w)
+    s.setWidgetResizable(True)
+    w.setLayout(l)
     d.setMinimumWidth(600)
     d.setMinimumHeight(500)
-    d.bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok|QDialogButtonBox.StandardButton.Cancel)
+    bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok|QDialogButtonBox.StandardButton.Cancel)
 
     msg = _('The custom columns in the <i>{0}</i> library are different from the '
         'custom columns in the <i>{1}</i> library. As a result, some metadata might not be copied.').format(
         os.path.basename(db.library_path), ndbname)
-    d.la = la = QLabel(msg)
+    la = QLabel(msg)
     la.setWordWrap(True)
     la.setStyleSheet('QLabel { margin-bottom: 1.5ex }')
     l.addRow(la)
     if incompatible_cols:
-        la = d.la2 = QLabel(_('The following columns are incompatible - they have the same name'
+        la = QLabel(_('The following columns are incompatible - they have the same name'
                 ' but different data types. They will be ignored: ') +
                     ', '.join(sorted(incompatible_cols, key=sort_key)))
         la.setWordWrap(True)
@@ -84,7 +84,7 @@ def ask_about_cc_mismatch(gui, db, newdb, missing_cols, incompatible_cols):  # {
 
     missing_widgets = []
     if missing_cols:
-        la = d.la3 = QLabel(_('The following columns are missing in the <i>{0}</i> library.'
+        la = QLabel(_('The following columns are missing in the <i>{0}</i> library.'
                                 ' You can choose to add them automatically below.').format(
                                     ndbname))
         la.setWordWrap(True)
@@ -93,13 +93,13 @@ def ask_about_cc_mismatch(gui, db, newdb, missing_cols, incompatible_cols):  # {
             widgets = (k, QCheckBox(_('Add to the %s library') % ndbname))
             l.addRow(QLabel(k), widgets[1])
             missing_widgets.append(widgets)
-    d.la4 = la = QLabel(_('This warning is only shown once per library, per session'))
+    la = QLabel(_('This warning is only shown once per library, per session'))
     la.setWordWrap(True)
     tl.addWidget(la)
 
-    tl.addWidget(d.bb)
-    d.bb.accepted.connect(d.accept)
-    d.bb.rejected.connect(d.reject)
+    tl.addWidget(bb)
+    bb.accepted.connect(d.accept)
+    bb.rejected.connect(d.reject)
     d.resize(d.sizeHint())
     if d.exec() == QDialog.DialogCode.Accepted:
         changes_made = False
@@ -115,7 +115,7 @@ def ask_about_cc_mismatch(gui, db, newdb, missing_cols, incompatible_cols):  # {
             # Unload the db so that the changes are available
             # when it is next accessed
             from calibre.gui2.ui import get_gui
-            library_broker = get_gui().library_broker
+            library_broker = get_gui(fail_if_absent=True).library_broker
             library_broker.unload_library(dest_library_path)
         return True
     return False
@@ -160,7 +160,7 @@ class Worker(Thread):  # {{{
 
     def doit(self):
         from calibre.gui2.ui import get_gui
-        library_broker = get_gui().library_broker
+        library_broker = get_gui(fail_if_absent=True).library_broker
         newdb = library_broker.get_library(self.loc)
         self.find_identical_books_data = None
         try:
@@ -253,9 +253,11 @@ class ChooseLibrary(Dialog):  # {{{
         bb.setStandardButtons(QDialogButtonBox.StandardButton.Cancel)
         self.delete_after_copy = False
         b = bb.addButton(_('&Copy'), QDialogButtonBox.ButtonRole.AcceptRole)
+        assert b is not None
         b.setIcon(QIcon.ic('edit-copy.png'))
         b.setToolTip(_('Copy to the specified library'))
         b2 = bb.addButton(_('&Move'), QDialogButtonBox.ButtonRole.AcceptRole)
+        assert b2 is not None
         connect_lambda(b2.clicked, self, lambda self: setattr(self, 'delete_after_copy', True))
         b2.setIcon(QIcon.ic('edit-cut.png'))
         b2.setToolTip(_('Copy to the specified library and delete from the current library'))
@@ -309,10 +311,13 @@ class DuplicatesQuestion(QDialog):  # {{{
         bb.accepted.connect(self.accept)
         bb.rejected.connect(self.reject)
         self.a = b = bb.addButton(_('Select &all'), QDialogButtonBox.ButtonRole.ActionRole)
+        assert b is not None
         b.clicked.connect(self.select_all), b.setIcon(QIcon.ic('plus.png'))
         self.n = b = bb.addButton(_('Select &none'), QDialogButtonBox.ButtonRole.ActionRole)
+        assert b is not None
         b.clicked.connect(self.select_none), b.setIcon(QIcon.ic('minus.png'))
         self.ctc = b = bb.addButton(_('&Copy to clipboard'), QDialogButtonBox.ButtonRole.ActionRole)
+        assert b is not None
         b.clicked.connect(self.copy_to_clipboard), b.setIcon(QIcon.ic('edit-copy.png'))
         l.addWidget(bb)
         self.resize(600, 400)
@@ -320,7 +325,9 @@ class DuplicatesQuestion(QDialog):  # {{{
     def copy_to_clipboard(self):
         items = [('✓' if item.checkState() == Qt.CheckState.Checked else '✗') + ' ' + str(item.text())
                  for item in self.items]
-        QApplication.clipboard().setText('\n'.join(items))
+        _clipboard = QApplication.clipboard()
+        assert _clipboard is not None
+        _clipboard.setText('\n'.join(items))
 
     def select_all(self):
         for i in self.items:
@@ -353,6 +360,7 @@ class CopyToLibraryAction(InterfaceAction):
 
     def genesis(self):
         self.menu = self.qaction.menu()
+        assert self.menu is not None
 
     @property
     def stats(self):
@@ -370,6 +378,7 @@ class CopyToLibraryAction(InterfaceAction):
         self.menuless_qaction.setEnabled(enabled)
 
     def build_menus(self):
+        assert self.menu is not None
         self.menu.clear()
         if os.environ.get('CALIBRE_OVERRIDE_DATABASE_PATH', None):
             self.menu.addAction('disabled', self.cannot_do_dialog)

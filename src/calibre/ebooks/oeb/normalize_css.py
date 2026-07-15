@@ -120,6 +120,7 @@ def normalize_font(cssvalue, font_family_as_list=False):
     # See https://developer.mozilla.org/en-US/docs/Web/CSS/font
     composition = font_composition
     val = css_text(cssvalue)
+    ans: dict
     if val == 'inherit':
         ans = {k:'inherit' for k in composition}
     elif val in {'caption', 'icon', 'menu', 'message-box', 'small-caption', 'status-bar'}:
@@ -354,7 +355,7 @@ def test_normalization(return_tests=False):  # {{{
 
         def test_list_style_normalization(self):
             def ls_dict(expected):
-                ans = {f'list-style-{x}': DEFAULTS[f'list-style-{x}'] for x in ('type', 'image', 'position')}
+                ans: dict = {f'list-style-{x}': DEFAULTS[f'list-style-{x}'] for x in ('type', 'image', 'position')}
                 for k, v in expected.items():
                     ans[f'list-style-{k}'] = v
                 return ans

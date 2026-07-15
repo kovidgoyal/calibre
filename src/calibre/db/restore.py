@@ -11,11 +11,13 @@ import shutil
 import sys
 import time
 import traceback
+from collections.abc import Callable
 from contextlib import closing, suppress
 from operator import itemgetter
 from threading import Thread
+from typing import Any
 
-from calibre import force_unicode, isbytestring
+from calibre import force_unicode
 from calibre.constants import filesystem_encoding, iswindows
 from calibre.db.backend import DB, DBPrefs
 from calibre.db.cache import Cache
@@ -69,15 +71,13 @@ class Restorer(Cache):
 
 class Restore(Thread):
 
-    def __init__(self, library_path, progress_callback=None):
+    def __init__(self, library_path, progress_callback: Callable[..., Any] | None = None):
         super().__init__()
-        if isbytestring(library_path):
+        if isinstance(library_path, bytes):
             library_path = library_path.decode(filesystem_encoding)
         self.src_library_path = os.path.abspath(library_path)
-        self.progress_callback = progress_callback
         self.db_id_regexp = re.compile(r'^.* \((\d+)\)$')
-        if not callable(self.progress_callback):
-            self.progress_callback = lambda x, y: x
+        self.progress_callback: Callable[..., Any] = progress_callback if callable(progress_callback) else (lambda x, y: x)
         self.dirs = []
         self.failed_dirs = []
         self.books = []
@@ -283,7 +283,7 @@ class Restore(Thread):
         if len(self.custom_columns):
             for i, args in enumerate(self.custom_columns.values()):
                 db.create_custom_column(*args)
-                self.progress_callback(_('Creating custom column ')+args[0], i+1)
+                self.progress_callback(_('Creating custom column ') + str(args[0]), i+1)
         db.close()
 
     def restore_books(self):

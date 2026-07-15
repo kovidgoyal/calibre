@@ -12,10 +12,11 @@ import struct
 from calibre.constants import ismacos, iswindows
 
 SHM_NAME_MAX = 30 if ismacos else 254
+_MmapType = mmap.mmap
 if iswindows:
     import _winapi
 else:
-    import _posixshmem
+    import _posixshmem  # type: ignore
 
 
 def make_filename(prefix: str) -> str:
@@ -43,7 +44,7 @@ class SharedMemory:
     '''
     _fd: int = -1
     _name: str = ''
-    _mmap: mmap.mmap | None = None
+    _mmap: _MmapType | None = None
     _size: int = 0
     size_fmt = '!I'
     num_bytes_for_size = struct.calcsize(size_fmt)
@@ -84,7 +85,7 @@ class SharedMemory:
                     last_error_code = _winapi.GetLastError()
                     if last_error_code == _winapi.ERROR_ALREADY_EXISTS:
                         continue
-                    self._mmap = mmap.mmap(-1, size, tagname=q, access=access)
+                    self._mmap = mmap.mmap(-1, size, tagname=q, access=access)  # type: ignore
                     name = q
                 finally:
                     _winapi.CloseHandle(h_map)
@@ -115,7 +116,7 @@ class SharedMemory:
             finally:
                 _winapi.CloseHandle(h_map)
             size = _winapi.VirtualQuerySize(p_buf)
-            self._mmap = mmap.mmap(-1, size, tagname=name)
+            self._mmap = mmap.mmap(-1, size, tagname=name)  # type: ignore
         if not iswindows:
             if not create:
                 self._fd = _posixshmem.shm_open(name, flags, mode)
@@ -138,7 +139,7 @@ class SharedMemory:
         address = ctypes.c_void_p()
         length = ctypes.c_ssize_t()
         ctypes.pythonapi.PyObject_AsReadBuffer(obj, ctypes.byref(address), ctypes.byref(length))
-        return address.value
+        return address.value or 0
 
     def read(self, sz: int = 0) -> bytes:
         if sz <= 0:
@@ -152,7 +153,7 @@ class SharedMemory:
         return self.mmap.tell()
 
     def seek(self, pos: int, whence: int = os.SEEK_SET) -> None:
-        self.mmap.seek(pos, whence)
+        self.mmap.seek(pos, whence)  # type: ignore
 
     def flush(self) -> None:
         self.mmap.flush()
@@ -189,7 +190,7 @@ class SharedMemory:
         return self._name
 
     @property
-    def mmap(self) -> mmap.mmap:
+    def mmap(self) -> _MmapType:
         ans = self._mmap
         if ans is None:
             raise RuntimeError('Cannot access the mmap of a closed shared memory object')

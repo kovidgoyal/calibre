@@ -7,6 +7,7 @@ __docformat__ = 'restructuredtext en'
 
 import numbers
 import os
+from collections.abc import MutableMapping
 from io import BytesIO
 
 from calibre.utils.zipfile import safe_replace
@@ -45,6 +46,9 @@ def parse_bookmarks(raw):
 
 
 class BookmarksMixin:
+    config: MutableMapping[str, object]
+    pathtoebook: str
+    base: str
 
     def __init__(self, copy_bookmarks_to_file=True):
         self.copy_bookmarks_to_file = copy_bookmarks_to_file

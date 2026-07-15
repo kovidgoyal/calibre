@@ -7,8 +7,9 @@ __docformat__ = 'restructuredtext en'
 
 import numbers
 from collections import defaultdict
-from collections.abc import Iterable
+from collections.abc import Callable, Iterable
 from datetime import datetime, timedelta
+from typing import cast
 
 from calibre.ebooks.metadata import author_to_author_sort
 from calibre.utils.date import UNDEFINED_DATE, parse_date, utc_tz
@@ -22,7 +23,7 @@ def identity(x):
 
 def c_parse(val):
     try:
-        year, month, day, hour, minutes, seconds, tzsecs = _c_speedup(val)
+        year, month, day, hour, minutes, seconds, tzsecs = _c_speedup(val)  # ty: ignore[not-iterable]
     except (AttributeError, TypeError):
         # If a value like 2001 is stored in the column, apsw will return it as
         # an int
@@ -262,7 +263,7 @@ class ManyToOneTable(Table):
                     tuple((main_id, x) for x in v))
                 db.delete_category_items(self.name, self.metadata['table'], item_map)
 
-    def item_ids_for_names(self, db, item_names: Iterable[str], case_sensitive: bool = False) -> dict[str, int]:
+    def item_ids_for_names(self, db, item_names: Iterable[str], case_sensitive: bool = False) -> dict[str, int | None]:
         item_names = tuple(item_names)
         if case_sensitive:
             colname = self.metadata['column']
@@ -271,10 +272,11 @@ class ManyToOneTable(Table):
                 iid = db.get(f'SELECT id FROM {self.metadata["table"]} WHERE {colname} = ?', ((serialized_names[0],)), all=False)
                 return {item_names[0]: iid}
             inq = ('?,' * len(item_names))[:-1]
-            ans = dict.fromkeys(item_names)
-            res = db.get(f'SELECT {colname}, id FROM {self.metadata["table"]} WHERE {colname} IN ({inq})', serialized_names)
-            if self.unserialize:
-                res = ((self.unserialize(name), iid) for name, iid in res)
+            ans: dict[str, int | None] = {name: None for name in item_names}
+            res: Iterable[tuple[str, int]] = db.get(f'SELECT {colname}, id FROM {self.metadata["table"]} WHERE {colname} IN ({inq})', serialized_names)
+            if self.unserialize is not None:
+                unserialize = cast(Callable[[str], str], self.unserialize)
+                res = ((unserialize(name), iid) for name, iid in res)
             ans.update(res)
             return ans
         if len(item_names) == 1:
@@ -444,8 +446,8 @@ class ManyToManyTable(ManyToOneTable):
                 try:
                     self.col_book_map[item_id].discard(book_id)
                 except KeyError:
-                    if self.id_map.pop(item_id, null) is not null:
-                        clean.add(item_id)
+                    if (val := self.id_map.pop(item_id, null)) is not null:
+                        clean[item_id] = val
                 else:
                     if not self.col_book_map[item_id]:
                         del self.col_book_map[item_id]
@@ -580,6 +582,7 @@ class AuthorsTable(ManyToManyTable):
         self.asort_map = sm = {}
         self.id_map = im = {}
         us = self.unserialize
+        assert us is not None
         for aid, name, sort, link in db.execute(
                 'SELECT id, name, sort, link FROM authors'):
             name = us(name)
@@ -665,7 +668,7 @@ class FormatsTable(ManyToManyTable):
 
     def remove_formats(self, formats_map, db):
         for book_id, fmts in formats_map.items():
-            self.book_col_map[book_id] = [fmt for fmt in self.book_col_map.get(book_id, []) if fmt not in fmts]
+            self.book_col_map[book_id] = tuple(fmt for fmt in self.book_col_map.get(book_id, ()) if fmt not in fmts)
             for m in (self.fname_map, self.size_map):
                 m[book_id] = {k:v for k, v in m[book_id].items() if k not in fmts}
             for fmt in fmts:
@@ -684,7 +687,7 @@ class FormatsTable(ManyToManyTable):
 
         return {book_id:zero_max(book_id) for book_id in formats_map}
 
-    def remove_items(self, item_ids, db):
+    def remove_items(self, item_ids, db, restrict_to_book_ids=None):
         raise NotImplementedError('Cannot delete a format directly')
 
     def rename_item(self, item_id, new_name, db):
@@ -744,7 +747,7 @@ class IdentifiersTable(ManyToManyTable):
                         clean.add(item_id)
         return clean
 
-    def remove_items(self, item_ids, db):
+    def remove_items(self, item_ids, db, restrict_to_book_ids=None):
         raise NotImplementedError('Direct deletion of identifiers is not implemented')
 
     def rename_item(self, item_id, new_name, db):

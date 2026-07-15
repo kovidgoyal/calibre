@@ -139,7 +139,7 @@ def create_indexing_data(spine, toc):
     index_entries.sort(key=attrgetter('sort_key'))
     [i.find_end(index_entries) for i in index_entries]
 
-    ie = namedtuple('IndexEntry', 'entry start_anchor end_anchor')
+    ie = namedtuple('ie', 'entry start_anchor end_anchor')
 
     for spine_pos, spine_item in enumerate(spine):
         for i in index_entries:

@@ -5,7 +5,6 @@ __license__ = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import codecs
 import os
 import re
 from collections import namedtuple
@@ -51,7 +50,7 @@ class CSV_XML(CatalogPlugin):
                 "Default: '%default'\n"
                 "Applies to: CSV, XML output formats"))]
 
-    def run(self, path_to_output, opts, db, notification=DummyReporter()):
+    def run(self, path_to_output, opts, db, ids=None, notification=DummyReporter()):
         from lxml import etree
 
         from calibre.ebooks.metadata import authors_to_string
@@ -106,7 +105,7 @@ class CSV_XML(CatalogPlugin):
         fm = {x: db.field_metadata.get(x, {}) for x in fields}
 
         if self.fmt == 'csv':
-            outfile = codecs.open(path_to_output, 'w', 'utf8')
+            outfile = open(path_to_output, 'w', encoding='utf8')
 
             # Write a UTF-8 BOM
             outfile.write('\ufeff')

@@ -174,6 +174,8 @@ class InterfaceAction(QObject):
     #: :meth`:accept_drag_move_event`, :meth:`drop_event` for details.
     accepts_drops = False
 
+    qaction: QAction
+
     def __init__(self, parent, site_customization):
         QObject.__init__(self, parent)
         self.setObjectName(self.name)
@@ -214,7 +216,9 @@ class InterfaceAction(QObject):
     def unique_name(self):
         bn = self.__class__.__name__
         if getattr(self.interface_action_base_plugin, 'name'):
-            bn = self.interface_action_base_plugin.name
+            plugin = self.interface_action_base_plugin
+            assert plugin is not None
+            bn = plugin.name
         return f'Interface Action: {bn} ({self.name})'
 
     def create_action(self, spec=None, attr='qaction', shortcut_name=None, persist_shortcut=False):
@@ -363,10 +367,11 @@ class InterfaceAction(QObject):
                  dictionary.
 
         '''
-        if self.plugin_path is None:
+        pp = getattr(self, 'plugin_path', None)
+        if pp is None:
             raise ValueError('This plugin was not loaded from a ZIP file')
         ans = {}
-        with ZipFile(self.plugin_path, 'r') as zf:
+        with ZipFile(pp, 'r') as zf:
             for candidate in zf.namelist():
                 if candidate in names:
                     ans[candidate] = zf.read(candidate)

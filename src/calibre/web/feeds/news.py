@@ -14,6 +14,7 @@ import time
 import traceback
 from collections import defaultdict
 from contextlib import closing
+from typing import cast
 from urllib.parse import urlparse, urlsplit
 
 from calibre import __appname__, as_unicode, browser, force_unicode, iswindows, preferred_encoding, random_user_agent, strftime
@@ -89,18 +90,18 @@ class BasicNewsRecipe(Recipe):
     #: Maximum number of articles to download from each feed. This is primarily
     #: useful for feeds that don't have article dates. For most feeds, you should
     #: use :attr:`BasicNewsRecipe.oldest_article`
-    max_articles_per_feed  = 100
+    max_articles_per_feed: int  = 100
 
     #: Oldest article to download from this news source. In days.
-    oldest_article         = 7.0
+    oldest_article: float | int  = 7.0
 
     #: Number of levels of links to follow on article webpages
-    recursions             = 0
+    recursions: int             = 0
 
     #: The default delay between consecutive downloads in seconds. The argument may be a
     #: floating point number to indicate a more precise time. See :meth:`get_url_specific_delay`
     #: to implement per URL delays.
-    delay                  = 0
+    delay: float | int                  = 0
 
     #: Publication type
     #: Set to newspaper, magazine or blog. If set to None, no publication type
@@ -109,7 +110,7 @@ class BasicNewsRecipe(Recipe):
 
     #: Number of simultaneous downloads. Set to 1 if the server is picky.
     #: Automatically reduced to 1 if :attr:`BasicNewsRecipe.delay` > 0
-    simultaneous_downloads = 5
+    simultaneous_downloads: int = 5
 
     #: Timeout for fetching files from server in seconds
     timeout                = 120.0
@@ -439,6 +440,8 @@ class BasicNewsRecipe(Recipe):
 
     # See the built-in recipes for examples of these settings.
 
+    calibre_most_common_ua: str = ''
+
     def short_title(self):
         return force_unicode(self.title, preferred_encoding)
 
@@ -600,7 +603,7 @@ class BasicNewsRecipe(Recipe):
 
     @property
     def cloned_browser(self):
-        if hasattr(self.get_browser, 'is_base_class_implementation') and self.browser_type == 'mechanize':
+        if self.get_browser.__func__ is BasicNewsRecipe.get_browser and self.browser_type == 'mechanize':
             # We are using the default get_browser, which means no need to
             # clone
             br = BasicNewsRecipe.get_browser(self)
@@ -781,7 +784,7 @@ class BasicNewsRecipe(Recipe):
         Extracts main article content from 'html', cleans up and returns as a (article_html, extracted_title) tuple.
         Based on the original readability algorithm by Arc90.
         '''
-        from lxml.html import tostring
+        from lxml.html import HtmlElement, tostring
 
         from calibre.ebooks.readability import readability
         from calibre.utils.xml_parse import document_fromstring, fragment_fromstring
@@ -818,7 +821,7 @@ class BasicNewsRecipe(Recipe):
             heading.text = extracted_title
             body.insert(0, heading)
 
-        raw_html = tostring(root, encoding='unicode')
+        raw_html = tostring(cast(HtmlElement, root), encoding='unicode')
 
         return raw_html
 
@@ -1217,13 +1220,7 @@ class BasicNewsRecipe(Recipe):
                               extra_css=css).render(doctype='xhtml')
 
     def _fetch_article(self, url, dir_, f, a, num_of_feeds, preloaded=None):
-        br = self.browser
-        if hasattr(self.get_browser, 'is_base_class_implementation'):
-            # We are using the default get_browser, which means no need to
-            # clone
-            br = BasicNewsRecipe.get_browser(self)
-        else:
-            br = self.clone_browser(self.browser)
+        br = self.cloned_browser
         self.web2disk_options.browser = br
         fetcher = RecursiveFetcher(self.web2disk_options, self.log,
                 self.image_map, self.css_map,
@@ -1275,7 +1272,7 @@ class BasicNewsRecipe(Recipe):
         remove = []
         for f in feeds:
             for article in f:
-                for key in self.ignore_duplicate_articles:
+                for key in (self.ignore_duplicate_articles or ()):
                     val = getattr(article, key)
                     seen = seen_keys[key]
                     if val:
@@ -1578,7 +1575,7 @@ class BasicNewsRecipe(Recipe):
         mp = getattr(self, 'masthead_path', None)
         if mp is not None and os.access(mp, os.R_OK):
             from calibre.ebooks.metadata.opf2 import Guide
-            ref = Guide.Reference(os.path.basename(self.masthead_path), os.getcwd())
+            ref = Guide.Reference(os.path.basename(mp), os.getcwd())
             ref.type = 'masthead'
             ref.title = 'Masthead Image'
             opf.guide.append(ref)
@@ -1907,7 +1904,7 @@ class CustomIndexRecipe(BasicNewsRecipe):
         '''
         raise NotImplementedError
 
-    def create_opf(self):
+    def create_opf(self, feeds=None, dir=None):
         mi = MetaInformation(self.title + strftime(self.timefmt), [__appname__])
         mi.publisher = __appname__
         mi.author_sort = __appname__
@@ -1957,7 +1954,6 @@ class CalibrePeriodical(BasicNewsRecipe):
                     ' the calibre Periodicals service.'))
 
         return br
-    get_browser.is_base_class_implementation = True
 
     def download(self):
         self.log('Fetching downloaded recipe')
@@ -1966,7 +1962,7 @@ class CalibrePeriodical(BasicNewsRecipe):
                 f'https://news.calibre-ebook.com/subscribed_files/{self.calibre_periodicals_slug}/0/temp.downloaded_recipe'
                     ).read()
         except Exception as e:
-            if hasattr(e, 'getcode') and e.getcode() == 403:
+            if (gc := getattr(e, 'getcode', None)) and gc() == 403:
                 raise DownloadDenied(
                         _('You do not have permission to download this issue.'
                         ' Either your subscription has expired or you have'

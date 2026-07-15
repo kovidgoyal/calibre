@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2020, Charles Haley
 
+from typing import cast
+
 from qt.core import (
     QAbstractItemView,
     QColor,
@@ -104,7 +106,9 @@ class EnumValuesEdit(QDialog):
             self.make_was_item(i)
             self.make_count_item(i, v)
 
-        t.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
+        header = t.horizontalHeader()
+        assert header is not None
+        header.setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
 
         self.setLayout(l)
 
@@ -126,8 +130,8 @@ class EnumValuesEdit(QDialog):
                 return
             item = self.table.item(row, self.COUNT_COLUMN)
             if item is not None:
-                count = self.name_to_count.get(lower(self.table.item(row, self.VALUE_COLUMN).text()))
-                item.set_count(count)
+                count = self.name_to_count.get(lower(val_item.text()))
+                cast(CountTableWidgetItem, item).set_count(count)
             txt = val_item.text()
             orig_txt = str(val_item.data(Qt.ItemDataRole.UserRole))
             was_item = self.table.item(row, self.WAS_COLUMN)
@@ -180,7 +184,9 @@ class EnumValuesEdit(QDialog):
 
     def move_row(self, row, direction):
         t = self.table.takeItem(row, self.VALUE_COLUMN)
-        c = self.table.cellWidget(row, self.COLOR_COLUMN).currentIndex()
+        cw = self.table.cellWidget(row, self.COLOR_COLUMN)
+        assert isinstance(cw, QComboBox)
+        c = cw.currentIndex()
         was = self.table.takeItem(row, self.WAS_COLUMN)
         count = self.table.takeItem(row, self.COUNT_COLUMN)
         self.table.removeRow(row)
@@ -205,7 +211,9 @@ class EnumValuesEdit(QDialog):
     def del_line(self):
         row = self.table.currentRow()
         if row >= 0:
-            txt = self.table.item(row, self.VALUE_COLUMN).text()
+            _item = self.table.item(row, self.VALUE_COLUMN)
+            assert _item is not None
+            txt = _item.text()
             count = self.name_to_count.get(lower(txt), 0)
             if count > 0:
                 r = question_dialog(self,
@@ -230,7 +238,7 @@ class EnumValuesEdit(QDialog):
         self.make_was_item(row)
         self.make_count_item(row, '')
 
-    def save_geometry(self):
+    def save_geometry(self, prefs=None, name=None):
         super().save_geometry(gprefs, 'enum-values-edit-geometry')
 
     def accept(self):
@@ -240,6 +248,7 @@ class EnumValuesEdit(QDialog):
         id_map = {}
         for i in range(self.table.rowCount()):
             it = self.table.item(i, self.VALUE_COLUMN)
+            assert it is not None
             v = str(it.text())
             if not v:
                 error_dialog(self, _('Empty value'),
@@ -250,7 +259,9 @@ class EnumValuesEdit(QDialog):
                 fid = self.db.new_api.get_item_id(self.key, ov)
                 id_map[fid] = v
             values.append(v)
-            c = str(self.table.cellWidget(i, self.COLOR_COLUMN).currentText())
+            ccw = self.table.cellWidget(i, self.COLOR_COLUMN)
+            assert isinstance(ccw, QComboBox)
+            c = str(ccw.currentText())
             if c:
                 colors.append(c)
         l_lower = [v.lower() for v in values]

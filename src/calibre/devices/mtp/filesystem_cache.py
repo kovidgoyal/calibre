@@ -26,7 +26,8 @@ bexts = frozenset(BOOK_EXTENSIONS) - {'mbp', 'tan', 'rar', 'zip', 'xml'}
 def convert_timestamp(md):
     try:
         if isinstance(md, tuple):
-            return datetime(*(list(md)+[local_tz]))
+            year, month, day, hour, minute, second, microsecond = md
+            return datetime(year, month, day, hour, minute, second, microsecond, local_tz)
         else:
             return datetime.fromtimestamp(md, local_tz)
     except Exception:
@@ -127,7 +128,9 @@ class FileOrFolder:
 
     @property
     def id_map(self) -> dict[int, FileOrFolder]:
-        return self.fs_cache().id_maps[self.storage_id]
+        fs_cache = self.fs_cache()
+        assert fs_cache is not None
+        return fs_cache.id_maps[self.storage_id]
 
     @property
     def parent(self):
@@ -135,7 +138,9 @@ class FileOrFolder:
             return self.id_map[self.parent_id]
         if self.is_storage or self.parent_id is None:
             return None
-        return self.fs_cache().storage(self.storage_id)
+        fs_cache2 = self.fs_cache()
+        assert fs_cache2 is not None
+        return fs_cache2.storage(self.storage_id)
 
     @property
     def in_root(self):
@@ -143,7 +148,9 @@ class FileOrFolder:
 
     @property
     def storage(self):
-        return self.fs_cache().storage(self.storage_id)
+        fs_cache3 = self.fs_cache()
+        assert fs_cache3 is not None
+        return fs_cache3.storage(self.storage_id)
 
     @property
     def full_path(self) -> tuple[str, ...]:
@@ -160,7 +167,9 @@ class FileOrFolder:
         yield from self.files
 
     def add_child(self, entry):
-        ans = FileOrFolder(entry, self.fs_cache())
+        cache = self.fs_cache()
+        assert cache is not None
+        ans = FileOrFolder(entry, cache)
         t = self.folders if ans.is_folder else self.files
         t.append(ans)
         return ans

@@ -334,6 +334,7 @@ class Reader(FormatReader):
         # to make access easier.
         if self.metadata_section_number:
             mdata_section = self.sections[self.metadata_section_number][1]
+            assert isinstance(mdata_section, SectionMetadata)
             self.default_encoding = mdata_section.default_encoding
             self.owner_id = mdata_section.owner_id
 
@@ -372,6 +373,7 @@ class Reader(FormatReader):
                 section_header, section_data = self.sections[num]
                 if section_data:
                     idata = None
+                    assert isinstance(section_data, bytes)
                     if section_header.type == DATATYPE_TBMP:
                         idata = section_data
                     elif section_header.type == DATATYPE_TBMP_COMPRESSED:
@@ -395,6 +397,7 @@ class Reader(FormatReader):
                     # Get the final width and height.
                     width = 0
                     height = 0
+                    assert isinstance(section_data, SectionCompositeImage)
                     for row in section_data.layout:
                         row_width = 0
                         col_height = 0
@@ -441,7 +444,7 @@ class Reader(FormatReader):
         try:
             home_html = self.header_record.home_html
             if not home_html:
-                home_html = self.uid_text_secion_number.items()[0][0]
+                home_html = next(iter(self.uid_text_secion_number))
         except Exception:
             raise Exception('Could not determine home.html')
         # Generate oeb from html conversion.

@@ -174,7 +174,9 @@ class LRFOutput(OutputFormatPlugin):
             nroot.add(x.title, x.href)
         self.oeb.toc = nroot
 
-    def convert(self, oeb, output_path, input_plugin, opts, log):
+    def convert(self, oeb_book, output, input_plugin, opts, log):
+        oeb = oeb_book
+        output_path = output
         self.log, self.opts, self.oeb = log, opts, oeb
 
         lrf_opts = LRFOptions(output_path, opts, oeb)

@@ -203,7 +203,7 @@ raw_options = (
 )
 assert len(raw_options) % 4 == 0
 
-options = []
+_options_list: list[Option] = []
 
 
 def grouper(n, iterable, fillvalue=None):
@@ -217,14 +217,49 @@ for shortdoc, name, default, doc in grouper(4, raw_options):
     if isinstance(default, Choices):
         choices = sorted(default)
         default = default.default
-    options.append(Option(name, default, doc, shortdoc, choices))
-options = OrderedDict([(o.name, o) for o in sorted(options, key=attrgetter('name'))])
-del raw_options
+    _options_list.append(Option(name, default, doc, shortdoc, choices))
+options: OrderedDict[str, Option] = OrderedDict([(o.name, o) for o in sorted(_options_list, key=attrgetter('name'))])
+del raw_options, _options_list
 
 
 class Options:
 
     __slots__ = tuple(name for name in options)
+
+    # Type annotations for all options (for static analysis)
+    ssl_certfile: str | None
+    ssl_keyfile: str | None
+    timeout: float
+    ajax_timeout: float
+    shutdown_timeout: float
+    allow_socket_preallocation: bool
+    max_header_line_size: float
+    max_request_body_size: float
+    compress_min_size: int
+    worker_count: int
+    max_jobs: int
+    max_job_time: int
+    port: int
+    url_prefix: str | None
+    num_per_page: int
+    use_bonjour: bool
+    max_opds_items: int
+    max_opds_ungrouped_items: int
+    listen_on: str | None
+    fallback_to_detected_interface: bool
+    use_sendfile: bool
+    max_log_size: int
+    log_not_found: bool
+    auth: bool
+    local_write: bool
+    trusted_ips: str | None
+    userdb: str | None
+    auth_mode: str
+    ban_for: int
+    ban_after: int
+    ignored_fields: str | None
+    displayed_fields: str | None
+    book_list_mode: str
 
     def __init__(self, **kwargs):
         for opt in options.values():
@@ -321,19 +356,25 @@ def write_config_file(opts, path=DEFAULT_CONFIG):
         f.write(raw)
 
 
+_server_config_cache: Options | None = None
+
+
 def server_config(refresh=False):
-    if refresh or not hasattr(server_config, 'ans'):
-        server_config.ans = parse_config_file()
-    return server_config.ans
+    global _server_config_cache
+    if refresh or _server_config_cache is None:
+        _server_config_cache = parse_config_file()
+    return _server_config_cache
 
 
 def change_settings(**kwds):
-    new_opts = {}
+    global _server_config_cache
+    new_opts: dict[str, object] = {}
     opts = server_config()
     for name in options:
         if name in kwds:
             new_opts[name] = kwds[name]
         else:
             new_opts[name] = getattr(opts, name)
-    new_opts = server_config.ans = Options(**new_opts)
-    write_config_file(new_opts)
+    new_opts_obj = Options(**new_opts)
+    _server_config_cache = new_opts_obj
+    write_config_file(new_opts_obj)

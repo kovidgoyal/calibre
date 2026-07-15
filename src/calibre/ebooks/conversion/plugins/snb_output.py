@@ -46,7 +46,8 @@ class SNBOutput(OutputFormatPlugin):
             help=_('Resize all the images for full screen mode. ')),
      }
 
-    def convert(self, oeb_book, output_path, input_plugin, opts, log):
+    def convert(self, oeb_book, output, input_plugin, opts, log):
+        output_path = output
         from lxml import etree
 
         from calibre.ebooks.snb.snbfile import SNBFile
@@ -179,6 +180,7 @@ class SNBOutput(OutputFormatPlugin):
                         mergeLast = True
                     elif oldTree is not None and mergeLast:
                         log.debug(f'Output the modified chapter again: {lastName}')
+                        assert lastName is not None
                         with open(os.path.join(snbcDir, lastName), 'wb') as f:
                             f.write(etree.tostring(oldTree, pretty_print=True, encoding='utf-8'))
                         mergeLast = False
@@ -203,6 +205,7 @@ class SNBOutput(OutputFormatPlugin):
             # Output the last one if needed
             log.debug(f'Output the last modified chapter again: {lastName}')
             if oldTree is not None and mergeLast:
+                assert lastName is not None
                 with open(os.path.join(snbcDir, lastName), 'wb') as f:
                     f.write(etree.tostring(oldTree, pretty_print=True, encoding='utf-8'))
                 mergeLast = False
@@ -251,7 +254,7 @@ if __name__ == '__main__':
     from calibre.ebooks.oeb.reader import OEBReader
 
     class OptionValues:
-        pass
+        output_profile: HanlinV3Output
 
     opts = OptionValues()
     opts.output_profile = HanlinV3Output(None)

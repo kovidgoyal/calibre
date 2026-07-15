@@ -21,7 +21,8 @@ class TCROutput(OutputFormatPlugin):
             help=_('Specify the character encoding of the output document. '
             'The default is utf-8.'))}
 
-    def convert(self, oeb_book, output_path, input_plugin, opts, log):
+    def convert(self, oeb_book, output, input_plugin, opts, log):
+        output_path = output
         from calibre.ebooks.compression.tcr import compress
         from calibre.ebooks.txt.txtml import TXTMLizer
 

@@ -9,8 +9,10 @@ import importlib
 import os
 import time
 import traceback
+from collections.abc import Iterable
 from multiprocessing import Pipe
 from threading import Thread
+from typing import Any
 
 from calibre.constants import iswindows
 from calibre.utils.ipc import eintr_retry_call
@@ -69,10 +71,12 @@ class OffloadWorker:
         t.daemon = True
 
     def __call__(self, module, func, *args, **kwargs):
+        assert self.conn is not None
         eintr_retry_call(self.conn.send, (module, func, args, kwargs))
         return eintr_retry_call(self.conn.recv)
 
     def shutdown(self):
+        assert self.conn is not None
         try:
             eintr_retry_call(self.conn.send, None)
         except OSError:
@@ -142,13 +146,13 @@ def create_worker(env, priority='normal', cwd=None, func='main'):
 def start_pipe_worker(command, env=None, priority='normal', **process_args):
     import subprocess
     w = Worker(env or {})
-    args = {'stdout':subprocess.PIPE, 'stdin':subprocess.PIPE, 'env':w.env, 'close_fds': True}
+    args: dict[str, Any] = {'stdout':subprocess.PIPE, 'stdin':subprocess.PIPE, 'env':w.env, 'close_fds': True}
     args.update(process_args)
-    pass_fds = None
+    pass_fds: Iterable[int] | None = None
     try:
         if iswindows:
             args['creationflags'] = windows_creationflags_for_worker_process(priority)
-            pass_fds = args.pop('pass_fds', None)
+            pass_fds = args.pop('pass_fds', ())
             if pass_fds:
                 for fd in pass_fds:
                     os.set_handle_inheritable(fd, True)
@@ -197,7 +201,7 @@ def two_part_fork_job(env=None, priority='normal', cwd=None):
         if not no_output:
             ans['stdout_stderr'] = w.log_path
         return ans
-    run_job.worker = w
+    setattr(run_job, 'worker', w)
 
     return run_job
 
@@ -289,17 +293,17 @@ def main():
     with Connection(int(os.environ['CALIBRE_WORKER_FD'])) as conn:
         args = eintr_retry_call(conn.recv)
         try:
-            mod, func, args, kwargs, module_is_source_code = args
+            mod_name, func, args, kwargs, module_is_source_code = args
             if module_is_source_code:
                 importlib.import_module('calibre.customize.ui')  # Load plugins
-                mod = compile_code(mod)
+                mod = compile_code(mod_name)
                 func = mod[func]
             else:
                 try:
-                    mod = importlib.import_module(mod)
+                    mod = importlib.import_module(mod_name)
                 except ImportError:
                     importlib.import_module('calibre.customize.ui')  # Load plugins
-                    mod = importlib.import_module(mod)
+                    mod = importlib.import_module(mod_name)
                 func = getattr(mod, func)
             res = {'result':func(*args, **kwargs)}
         except Exception:

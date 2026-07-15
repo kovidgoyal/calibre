@@ -30,7 +30,7 @@ def fingerprint(d):
             d.serial, d.manufacturer, d.product)
 
 
-def sorted_storage(storage_info):
+def sorted_storage(storage_info: list[dict[str, object]]) -> list[dict[str, object]]:
     storage = sorted(storage_info, key=operator.itemgetter('id'))
     if len(storage) > 1 and storage[0].get('removable', False):
         for i in range(1, len(storage)):
@@ -51,7 +51,7 @@ class MTP_DEVICE(MTPDeviceBase):
     def __init__(self, *args, **kwargs):
         MTPDeviceBase.__init__(self, *args, **kwargs)
         self.libmtp = None
-        self.known_devices = None
+        self.known_devices: frozenset[tuple[int, int]] = frozenset()
         self.detect_cache = {}
 
         self.dev = None
@@ -74,8 +74,10 @@ class MTP_DEVICE(MTPDeviceBase):
         is able to probe the device successfully. '''
         if self._is_device_mtp is None:
             return False
+        libmtp = self.libmtp
+        assert libmtp is not None
         return (self._is_device_mtp(d, debug=debug) and
-                self.libmtp.is_mtp_device(d.busnum, d.devnum))
+                libmtp.is_mtp_device(d.busnum, d.devnum))
 
     def osx_is_device_mtp(self, d, debug=None):
         if not d.serial:
@@ -93,7 +95,9 @@ class MTP_DEVICE(MTPDeviceBase):
         return bool(ans)
 
     def set_debug_level(self, lvl):
-        self.libmtp.set_debug_level(lvl)
+        libmtp = self.libmtp
+        assert libmtp is not None
+        libmtp.set_debug_level(lvl)
 
     @synchronous
     def detect_managed_devices(self, devices_on_system, force_refresh=False):
@@ -167,6 +171,7 @@ class MTP_DEVICE(MTPDeviceBase):
             else:
                 p('Opened', self.current_friendly_name, 'successfully')
                 p('Storage info:')
+                assert self.dev is not None
                 p(pprint.pformat(self.dev.storage_info))
                 self.post_yank_cleanup()
                 return True
@@ -178,7 +183,9 @@ class MTP_DEVICE(MTPDeviceBase):
         man, prod = d.manufacturer, d.product
         man = force_unicode(man, 'utf-8') if isinstance(man, bytes) else man
         prod = force_unicode(prod, 'utf-8') if isinstance(prod, bytes) else prod
-        return self.libmtp.Device(d.busnum, d.devnum, d.vendor_id,
+        libmtp = self.libmtp
+        assert libmtp is not None
+        return libmtp.Device(d.busnum, d.devnum, d.vendor_id,
                 d.product_id, man, prod, d.serial)
 
     @synchronous
@@ -231,9 +238,11 @@ class MTP_DEVICE(MTPDeviceBase):
             self.blacklisted_devices.add(connected_device)
             raise OpenFailed(f'Failed to open {connected_device}: Error: {as_unicode(e)}')
 
+        libmtp = self.libmtp
+        assert libmtp is not None
         try:
             storage = sorted_storage(self.dev.storage_info)
-        except self.libmtp.MTPError as e:
+        except libmtp.MTPError as e:
             if 'The device has no storage information.' in str(e):
                 # This happens on newer Android devices while waiting for
                 # the user to allow access. Apparently what happens is
@@ -282,12 +291,14 @@ class MTP_DEVICE(MTPDeviceBase):
     def device_debug_info(self):
         ans = self.get_gui_name()
         ans += f'\nSerial number: {self.current_serial_num}'
-        ans += f'\nManufacturer: {self.dev.manufacturer_name}'
-        ans += f'\nModel: {self.dev.model_name}'
-        ans += f'\nids: {self.dev.ids}'
-        ans += f'\nDevice version: {self.dev.device_version}'
+        dev = self.dev
+        assert dev is not None
+        ans += f'\nManufacturer: {dev.manufacturer_name}'
+        ans += f'\nModel: {dev.model_name}'
+        ans += f'\nids: {dev.ids}'
+        ans += f'\nDevice version: {dev.device_version}'
         ans += '\nStorage:\n'
-        storage = sorted_storage(self.dev.storage_info)
+        storage = sorted_storage(dev.storage_info)
         ans += pprint.pformat(storage)
         return ans
 
@@ -316,13 +327,15 @@ class MTP_DEVICE(MTPDeviceBase):
             debug('Loading filesystem metadata...')
             from calibre.devices.mtp.filesystem_cache import FilesystemCache
             with self.lock:
+                dev = self.dev
+                assert dev is not None
                 storage, all_items, all_errs = [], [], []
                 for sid, capacity in zip([self._main_id, self._carda_id,
                     self._cardb_id], self.total_space()):
                     if sid is None:
                         continue
                     name = _('Unknown')
-                    for x in self.dev.storage_info:
+                    for x in dev.storage_info:
                         if x['id'] == sid:
                             name = x['name']
                             break
@@ -330,7 +343,7 @@ class MTP_DEVICE(MTPDeviceBase):
                         'is_folder':True, 'name':name, 'can_delete':False,
                         'is_system':True})
                     self._currently_getting_sid = str(sid)
-                    items, errs = self.dev.get_filesystem(sid,
+                    items, errs = dev.get_filesystem(sid,
                             partial(self._filesystem_callback, {}))
                     all_items.extend(items), all_errs.extend(errs)
                 if not all_items and all_errs:
@@ -346,11 +359,13 @@ class MTP_DEVICE(MTPDeviceBase):
     @synchronous
     def get_basic_device_information(self):
         d = self.dev
+        assert d is not None
         return (self.current_friendly_name, d.device_version, d.device_version, '')
 
     @synchronous
     def total_space(self, end_session=True):
         ans = [0, 0, 0]
+        assert self.dev is not None
         for s in self.dev.storage_info:
             i = {self._main_id:0, self._carda_id:1,
                     self._cardb_id:2}.get(s['id'], None)
@@ -360,9 +375,11 @@ class MTP_DEVICE(MTPDeviceBase):
 
     @synchronous
     def free_space(self, end_session=True):
-        self.dev.update_storage_info()
+        dev = self.dev
+        assert dev is not None
+        dev.update_storage_info()
         ans = [0, 0, 0]
-        for s in self.dev.storage_info:
+        for s in dev.storage_info:
             i = {self._main_id:0, self._carda_id:1,
                     self._cardb_id:2}.get(s['id'], None)
             if i is not None:
@@ -379,6 +396,7 @@ class MTP_DEVICE(MTPDeviceBase):
         sid, pid = parent.storage_id, parent.object_id
         if pid == sid:
             pid = 0
+        assert self.dev is not None
         ans, errs = self.dev.create_folder(sid, pid, name)
         if ans is None:
             raise DeviceError(
@@ -399,6 +417,7 @@ class MTP_DEVICE(MTPDeviceBase):
         if pid == sid:
             pid = 0xFFFFFFFF
 
+        assert self.dev is not None
         ans, errs = self.dev.put_file(sid, pid, name, stream, size, callback)
         if ans is None:
             raise DeviceError(f'Failed to upload file named: {name} to {parent.full_path}: {self.format_errorstack(errs)}')
@@ -411,6 +430,7 @@ class MTP_DEVICE(MTPDeviceBase):
         set_name = stream is None
         if stream is None:
             stream = SpooledTemporaryFile(5*1024*1024, '_wpd_receive_file.dat')
+        assert self.dev is not None
         ok, errs = self.dev.get_file(f.object_id, stream, callback)
         if not ok:
             raise DeviceError(f'Failed to get file: {f.full_path} with errors: {self.format_errorstack(errs)}')
@@ -423,7 +443,10 @@ class MTP_DEVICE(MTPDeviceBase):
     def list_mtp_folder_by_name(self, parent, *names: str):
         if not parent.is_folder:
             raise ValueError(f'{parent.full_path} is not a folder')
-        parent_id = self.libmtp.LIBMTP_FILES_AND_FOLDERS_ROOT if parent.is_storage else parent.object_id
+        libmtp = self.libmtp
+        assert libmtp is not None
+        assert self.dev is not None
+        parent_id = libmtp.LIBMTP_FILES_AND_FOLDERS_ROOT if parent.is_storage else parent.object_id
         x = self.dev.list_folder_by_name(parent.storage_id, parent_id, names)
         if x is None:
             raise FileNotFoundError(f'Could not find folder named: {"/".join(names)} in {parent.full_path}')
@@ -433,7 +456,10 @@ class MTP_DEVICE(MTPDeviceBase):
     def get_mtp_metadata_by_name(self, parent, *names: str):
         if not parent.is_folder:
             raise ValueError(f'{parent.full_path} is not a folder')
-        parent_id = self.libmtp.LIBMTP_FILES_AND_FOLDERS_ROOT if parent.is_storage else parent.object_id
+        libmtp = self.libmtp
+        assert libmtp is not None
+        assert self.dev is not None
+        parent_id = libmtp.LIBMTP_FILES_AND_FOLDERS_ROOT if parent.is_storage else parent.object_id
         x = self.dev.get_metadata_by_name(parent.storage_id, parent_id, names)
         if x is None:
             raise DeviceError(f'Could not find file named: {"/".join(names)} in {parent.full_path}')
@@ -449,7 +475,10 @@ class MTP_DEVICE(MTPDeviceBase):
         set_name = stream is None
         if stream is None:
             stream = SpooledTemporaryFile(5*1024*1024, '_wpd_receive_file.dat')
-        parent_id = self.libmtp.LIBMTP_FILES_AND_FOLDERS_ROOT if parent.is_storage else parent.object_id
+        libmtp = self.libmtp
+        assert libmtp is not None
+        assert self.dev is not None
+        parent_id = libmtp.LIBMTP_FILES_AND_FOLDERS_ROOT if parent.is_storage else parent.object_id
         x = self.dev.get_file_by_name(parent.storage_id, parent_id, names, stream, callback)
         if x is None:
             raise FileNotFoundError(f'Could not find file named: {"/".join(names)} in {parent.full_path}')
@@ -472,6 +501,7 @@ class MTP_DEVICE(MTPDeviceBase):
         if obj.files or obj.folders:
             raise ValueError(f'Cannot delete {obj.full_path} as it is not empty')
         parent = obj.parent
+        assert self.dev is not None
         ok, errs = self.dev.delete_object(obj.object_id)
         if not ok:
             raise DeviceError(f'Failed to delete {obj.full_path} with error: {self.format_errorstack(errs)}')

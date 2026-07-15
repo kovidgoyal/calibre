@@ -9,11 +9,7 @@ __docformat__ = 'restructuredtext en'
 
 import re
 from contextlib import closing
-
-try:
-    from urllib.parse import urlencode
-except ImportError:
-    from urllib import urlencode
+from urllib.parse import urlencode
 
 from qt.core import QUrl
 
@@ -32,7 +28,7 @@ except ImportError:
 
 class RW2010Store(BasicStoreConfig, StorePlugin):
 
-    def open(self, parent=None, detail_item=None, external=False):
+    def open(self, gui=None, parent=None, detail_item=None, external=False):
         url = 'http://www.rw2010.pl/'
 
         if external or self.config.get('open_external', False):

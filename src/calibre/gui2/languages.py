@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 from qt.core import QComboBox
 
 from calibre.gui2 import gui_prefs
-from calibre.gui2.complete2 import EditWithComplete
+from calibre.gui2.complete2 import EditWithComplete, LineEdit
 from calibre.utils.icu import lower, sort_key
 from calibre.utils.localization import lang_map_for_ui
 
@@ -29,7 +29,9 @@ class LanguagesEdit(EditWithComplete):
         self._rmap = {lower(v):k for k,v in self._lang_map.items()}
         self.init_langs(db)
         self.item_selected.connect(self.update_recently_used)
-        self.lineEdit().set_use_startswith_search(False)
+        line_edit = self.lineEdit()
+        assert isinstance(line_edit, LineEdit)
+        line_edit.set_use_startswith_search(False)
 
     def init_langs(self, db):
         self.update_items_cache(self._lang_map.values())
@@ -54,7 +56,9 @@ class LanguagesEdit(EditWithComplete):
 
     @property
     def vals(self):
-        raw = str(self.lineEdit().text())
+        line_edit = self.lineEdit()
+        assert line_edit is not None
+        raw = str(line_edit.text())
         for k, v in self.comma_map.items():
             raw = raw.replace(k, v)
         parts = [x.strip() for x in raw.split(',')]
@@ -86,7 +90,9 @@ class LanguagesEdit(EditWithComplete):
         if allow_undo:
             orig, self.disable_popup = self.disable_popup, True
             try:
-                self.lineEdit().selectAll(), self.lineEdit().insert(ans)
+                _le = self.lineEdit()
+                assert _le is not None
+                _le.selectAll(), _le.insert(ans)
             finally:
                 self.disable_popup = orig
         else:

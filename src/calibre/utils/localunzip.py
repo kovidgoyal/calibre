@@ -83,7 +83,7 @@ def find_local_header(f):
 
 def find_data_descriptor(f):
     pos = f.tell()
-    DD = namedtuple('DataDescriptor', 'crc32 compressed_size uncompressed_size')
+    DD = namedtuple('DD', 'crc32 compressed_size uncompressed_size')
     raw = b'a'*16
     try:
         while len(raw) >= 16:

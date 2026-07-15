@@ -17,6 +17,7 @@ def compile_qrc(output_path, *qrc_file_paths):
     err_device = QFile()
 
     try:
+        assert sys.__stderr__ is not None
         fd = sys.__stderr__.fileno()
     except io.UnsupportedOperation:
         fd = 2

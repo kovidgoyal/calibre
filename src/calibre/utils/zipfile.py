@@ -22,7 +22,6 @@ from calibre.constants import filesystem_encoding
 from calibre.ebooks.chardet import detect
 from calibre.ptempfile import SpooledTemporaryFile
 from calibre_extensions.speedup import pread_all
-from polyglot.builtins import as_bytes
 
 __all__ = [
     'ZIP_DEFLATED',
@@ -307,6 +306,8 @@ def _EndRecData(fpin):
 
 class ZipInfo:
     '''Class with attributes describing each file in the ZIP archive.'''
+    CRC: int
+    _raw_time: int
 
     __slots__ = (
         'CRC',
@@ -331,23 +332,25 @@ class ZipInfo:
         'volume',
     )
 
-    def __init__(self, filename='NoName', date_time=(1980,1,1,0,0,0)):
+    def __init__(self, filename: str | bytes = 'NoName', date_time=(1980,1,1,0,0,0)):
         self.orig_filename = filename   # Original file name in archive
 
         # Terminate the file name at the first null byte.  Null bytes in file
         # names are used as tricks by viruses in archives.
-        null_byte = filename.find(b'\0' if isinstance(filename, bytes) else '\0')
+        if isinstance(filename, bytes):
+            null_byte = filename.find(b'\0')
+        else:
+            null_byte = filename.find('\0')
         if null_byte >= 0:
             filename = filename[0:null_byte]
         # This is used to ensure paths in generated ZIP files always use
         # forward slashes as the directory separator, as required by the
         # ZIP format specification.
         if os.sep != '/':
-            os_sep, sep = os.sep, '/'
             if isinstance(filename, bytes):
-                os_sep, sep = as_bytes(os_sep), b'/'
-            if os_sep in filename:
-                filename = filename.replace(os_sep, sep)
+                filename = filename.replace(os.sep.encode(), b'/')
+            else:
+                filename = filename.replace(os.sep, '/')
 
         self.filename = filename        # Normalized file name
         self.date_time = date_time      # year, month, day, hour, min, sec
@@ -431,21 +434,23 @@ class ZipInfo:
                 elif ln == 0:
                     counts = ()
                 else:
-                    raise RuntimeError(f'Corrupt extra field {ln}')
+                    raise ValueError(f'Corrupt extra field {ln}')
 
                 idx = 0
 
                 # ZIP64 extension (large files and/or large archives)
                 if self.file_size in (0xffffffffffffffff, 0xffffffff):
+                    if not counts:
+                        raise ValueError(f'Corrupt extra field {ln}')
                     self.file_size = counts[idx]
                     idx += 1
 
                 if self.compress_size == 0xFFFFFFFF:
-                    self.compress_size = counts[idx]
+                    self.compress_size = list(counts)[idx]
                     idx += 1
 
                 if self.header_offset == 0xffffffff:
-                    self.header_offset = counts[idx]
+                    self.header_offset = list(counts)[idx]
                     idx+=1
 
             extra = extra[ln+4:]
@@ -501,7 +506,7 @@ class _ZipDecrypter:
         self.key1 = (self.key1 * 134775813 + 1) & 4294967295
         self.key2 = self._crc32(((self.key1 >> 24) & 255), self.key2)
 
-    def __call__(self, c):
+    def __call__(self, c: int) -> int:
         '''Decrypt a single byte.'''
         k = self.key2 | 2
         c = c ^ (((k * (k^1)) >> 8) & 255)
@@ -509,10 +514,7 @@ class _ZipDecrypter:
         return c
 
     def decrypt_bytes(self, raw: bytes) -> bytes:
-        ba = bytearray(raw)
-        for i, b in ba:
-            ba[i] = self(b)
-        return bytes(ba)
+        return bytes(map(self, raw))
 
 
 class ZipExtFile(io.BufferedIOBase):
@@ -596,6 +598,7 @@ class ZipExtFile(io.BufferedIOBase):
             # separate newlines - '\r', '\n' due to coincidental readaheads.
             #
             match = self.PATTERN.search(readahead)
+            assert match is not None
             newline = match.group('newline')
             if newline is not None:
                 if self.newlines is None:
@@ -605,6 +608,7 @@ class ZipExtFile(io.BufferedIOBase):
                 self._offset += len(newline)
                 return line + b'\n'
 
+            assert match is not None
             chunk = match.group('chunk')
             if limit >= 0:
                 chunk = chunk[: limit - len(line)]
@@ -654,9 +658,9 @@ class ZipExtFile(io.BufferedIOBase):
         if eof and self._running_crc != self._expected_crc:
             raise BadZipfile(f'Bad CRC-32 for file {self.name!r}')
 
-    def read1(self, n):
-        '''Read up to n bytes with at most one read() system call.'''
-
+    def read1(self, size: int = -1, /):
+        '''Read up to size bytes with at most one read() system call.'''
+        n = size
         # Simplify algorithm (branching) by transforming negative n to large n.
         if n < 0 or n is None:
             n = self.MAX_N
@@ -844,12 +848,14 @@ class ZipFile:
             self._RealGetContents()
         except BadZipfile:
             if not self._filePassed:
+                assert self.fp is not None
                 self.fp.close()
                 self.fp = None
             raise
 
     def _RealGetContents(self):
         '''Read in the table of contents for the ZIP file.'''
+        assert self.fp is not None
         fp = self.fp
         try:
             endrec = _EndRecData(fp)
@@ -916,6 +922,7 @@ class ZipFile:
                 print('total', total)
 
     def _calculate_file_offsets(self):
+        assert self.fp is not None
         for zip_info in self.filelist:
             self.fp.seek(zip_info.header_offset, 0)
             fheader = self.fp.read(30)
@@ -955,6 +962,7 @@ class ZipFile:
     def delete(self, name):
         '''Delete the file from the archive. If it appears multiple
         times only the first instance will be deleted.'''
+        assert self.fp is not None
         for i in range(len(self.filelist)):
             if self.filelist[i].filename == name:
                 if self.debug:
@@ -1052,6 +1060,7 @@ class ZipFile:
         if not self.fp:
             raise RuntimeError(
                   'Attempt to read ZIP archive that was already closed')
+        assert self.fp is not None
 
         # Make sure we have an info object
         if isinstance(name, ZipInfo):
@@ -1069,9 +1078,11 @@ class ZipFile:
                 pos += len(ans)
                 return ans
         else:
+            assert self.fp is not None
             self.fp.seek(zinfo.header_offset, os.SEEK_SET)
             def read(n):
                 nonlocal pos
+                assert self.fp is not None
                 ans = self.fp.read(n)
                 pos += len(ans)
                 return ans
@@ -1174,7 +1185,10 @@ class ZipFile:
 
         # Sanitize path, changing absolute paths to relative paths
         # and removing .. and . (changed by Kovid)
-        fname = member.filename.replace(os.sep, '/')
+        fname = member.filename
+        if isinstance(fname, bytes):
+            fname = fname.decode()
+        fname = fname.replace(os.sep, '/')
         fname = os.path.splitdrive(fname)[1]
         fname = '/'.join(x for x in fname.split('/') if x not in {'', os.path.curdir, os.path.pardir})
         if not fname:
@@ -1223,6 +1237,7 @@ class ZipFile:
             target = open(targetpath, 'wb')
 
         with target:
+            assert lock is not None
             if max(member.compress_size, member.file_size) > 256*1024*1024:
                 with lock, closing(self.open(member, pwd=pwd)) as source:
                     shutil.copyfileobj(source, target)

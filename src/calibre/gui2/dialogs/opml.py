@@ -8,7 +8,7 @@ from collections import defaultdict, namedtuple
 from operator import itemgetter
 
 from lxml import etree
-from qt.core import QCheckBox, QDialog, QDialogButtonBox, QFormLayout, QHBoxLayout, QIcon, QLineEdit, QSpinBox, Qt, QToolButton
+from qt.core import QCheckBox, QDialog, QDialogButtonBox, QFormLayout, QHBoxLayout, QIcon, QLabel, QLineEdit, QSpinBox, Qt, QToolButton
 
 from calibre.gui2 import choose_files, error_dialog
 from calibre.utils.icu import sort_key
@@ -69,7 +69,9 @@ class ImportOPML(QDialog):
         b.clicked.connect(self.choose_file)
         h.addWidget(b)
         l.addRow(_('&OPML file:'), h)
-        l.labelForField(h).setBuddy(p)
+        lbl = l.labelForField(h)
+        assert isinstance(lbl, QLabel)
+        lbl.setBuddy(p)
         b.setFocus(Qt.FocusReason.OtherFocusReason)
 
         self._articles_per_feed = a = QSpinBox(self)

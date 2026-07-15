@@ -20,10 +20,10 @@ class Preview(HTMLDisplay):
         self.setTabChangesFocus(True)
         self.base_url = None
 
-    def loadResource(self, rtype, qurl):
-        if self.base_url is not None and qurl.isRelative():
-            qurl = self.base_url.resolved(qurl)
-        return super().loadResource(rtype, qurl)
+    def loadResource(self, type, name):
+        if self.base_url is not None and name.isRelative():
+            name = self.base_url.resolved(name)
+        return super().loadResource(type, name)
 
 
 class MarkdownEdit(QPlainTextEdit):
@@ -35,11 +35,12 @@ class MarkdownEdit(QPlainTextEdit):
         from calibre.gui2.markdown_syntax_highlighter import MarkdownHighlighter
         self.highlighter = MarkdownHighlighter(self.document())
 
-    def contextMenuEvent(self, ev):
+    def contextMenuEvent(self, e):
         m = self.createStandardContextMenu()
+        assert m is not None
         m.addSeparator()
         m.addAction(_('Smarten punctuation'), self.smarten_punctuation.emit)
-        m.exec(ev.globalPos())
+        m.exec(e.globalPos())
 
 
 class MarkdownEditDialog(QDialog):
@@ -79,9 +80,9 @@ class MarkdownEditDialog(QDialog):
         self.save_geometry(gprefs, 'markdown_edit_dialog_geom')
         QDialog.reject(self)
 
-    def closeEvent(self, ev):
+    def closeEvent(self, a0):
         self.save_geometry(gprefs, 'markdown_edit_dialog_geom')
-        return QDialog.closeEvent(self, ev)
+        return QDialog.closeEvent(self, a0)
 
     @property
     def text(self):
@@ -113,7 +114,9 @@ class Editor(QWidget):  # {{{
         self.tabs.addTab(self.preview, _('&Preview'))
 
         self.tabs.currentChanged[int].connect(self.change_tab)
-        self.layout().setContentsMargins(0, 0, 0, 0)
+        _layout = self.layout()
+        assert _layout is not None
+        _layout.setContentsMargins(0, 0, 0, 0)
 
     def link_clicked(self, qurl):
         safe_open_url(qurl)
@@ -162,7 +165,9 @@ class Editor(QWidget):  # {{{
         self.editor.setReadOnly(bool(val))
 
     def hide_tabs(self):
-        self.tabs.tabBar().setVisible(False)
+        tab_bar = self.tabs.tabBar()
+        assert tab_bar is not None
+        tab_bar.setVisible(False)
 
     def smarten_punctuation(self):
         from calibre.ebooks.conversion.preprocess import smarten_punctuation

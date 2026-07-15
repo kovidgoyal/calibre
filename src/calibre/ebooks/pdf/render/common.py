@@ -236,10 +236,11 @@ class Reference:
 # }}}
 
 
+_current_log_ans: object = None
+
+
 def current_log(newlog=None):
+    global _current_log_ans
     if newlog:
-        current_log.ans = newlog
-    return current_log.ans or default_log
-
-
-current_log.ans = None
+        _current_log_ans = newlog
+    return _current_log_ans or default_log

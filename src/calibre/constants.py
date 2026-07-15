@@ -90,7 +90,7 @@ def get_osx_version():
         try:
             ver = platform.mac_ver()[0].split('.')
             if len(ver) == 2:
-                ver.append(0)
+                ver.append('0')
             _osx_ver = OSX(*map(int, ver))  # no2to3
         except Exception:
             _osx_ver = OSX(0, 0, 0)
@@ -126,6 +126,7 @@ def is_debugging():
 
 def _get_cache_dir():
     import errno
+    assert config_dir is not None
     confcache = os.path.join(config_dir, 'caches')
     try:
         os.makedirs(confcache)
@@ -171,25 +172,27 @@ def _get_cache_dir():
 def cache_dir():
     ans = getattr(cache_dir, 'ans', None)
     if ans is None:
-        ans = cache_dir.ans = os.path.realpath(_get_cache_dir())
+        ans = os.path.realpath(_get_cache_dir())
+        setattr(cache_dir, 'ans', ans)
     return ans
 
 
 # plugins {{{
-plugins_loc = sys.extensions_location
+plugins_loc = getattr(sys, 'extensions_location')
 system_plugins_loc = getattr(sys, 'system_plugins_location', None)
 
 from importlib import import_module
+from importlib.abc import Loader
 from importlib.machinery import EXTENSION_SUFFIXES, ExtensionFileLoader, ModuleSpec
 from importlib.util import find_spec
 
 
-class DeVendorLoader:
+class DeVendorLoader(Loader):
 
     def __init__(self, aliased_name):
         self.aliased_module = import_module(aliased_name)
         try:
-            self.path = self.aliased_module.__loader__.path
+            self.path = self.aliased_module.__loader__.path  # type: ignore
         except Exception:
             self.path = aliased_name
 
@@ -221,7 +224,7 @@ class DeVendor:
             return ModuleSpec(fullname, DeVendorLoader(fullname.replace('dome', '', 1)))
 
 
-class ExtensionsPackageLoader:
+class ExtensionsPackageLoader(Loader):
 
     def __init__(self, calibre_extensions):
         self.calibre_extensions = calibre_extensions
@@ -241,7 +244,7 @@ class ExtensionsPackageLoader:
     def create_module(self, spec):
         pass
 
-    def exec_module(self, spec):
+    def exec_module(self, module):
         pass
 
 
@@ -321,20 +324,20 @@ if iswindows:
 class Plugins(Mapping):
 
     def __iter__(self):
-        from importlib.resources import contents
-        return contents('calibre_extensions')
+        from importlib.resources import files
+        return (x.name for x in files('calibre_extensions').iterdir())
 
     def __len__(self):
-        from importlib.resources import contents
+        from importlib.resources import files
         ans = 0
-        for x in contents('calibre_extensions'):
+        for _ in files('calibre_extensions').iterdir():
             ans += 1
         return ans
 
     def __contains__(self, name):
-        from importlib.resources import contents
-        for x in contents('calibre_extensions'):
-            if x == name:
+        from importlib.resources import files
+        for x in files('calibre_extensions').iterdir():
+            if x.name == name:
                 return True
         return False
 
@@ -406,6 +409,7 @@ else:
         def cleanup_cdir():
             try:
                 import shutil
+                assert config_dir
                 shutil.rmtree(config_dir)
             except Exception:
                 pass
@@ -415,7 +419,7 @@ else:
 is_running_from_develop = False
 if getattr(sys, 'frozen', False):
     try:
-        from bypy_importer import running_in_develop_mode
+        from bypy_importer import running_in_develop_mode  # type: ignore
     except ImportError:
         pass
     else:
@@ -451,8 +455,8 @@ def get_appname_for_display():
 
 def get_portable_base():
     'Return path to the directory that contains calibre-portable.exe or None'
-    if isportable:
-        return os.path.dirname(os.path.dirname(os.getenv('CALIBRE_PORTABLE_BUILD')))
+    if isportable and (cpb := os.getenv('CALIBRE_PORTABLE_BUILD')):
+        return os.path.dirname(os.path.dirname(cpb))
 
 
 def get_windows_username():
@@ -477,7 +481,8 @@ def get_windows_number_formats():
     if ans is None:
         d = winutil.localeconv()
         thousands_sep, decimal_point = d['thousands_sep'], d['decimal_point']
-        ans = get_windows_number_formats.ans = thousands_sep, decimal_point
+        ans = thousands_sep, decimal_point
+        setattr(get_windows_number_formats, 'ans', ans)
     return ans
 
 
@@ -508,7 +513,7 @@ def bundled_binaries_dir() -> str:
         base = sys.extensions_location if hasattr(sys, 'new_app_layout') else os.path.dirname(sys.executable)
         return base
     if (islinux or isbsd) and getattr(sys, 'frozen', False):
-        return os.path.join(sys.executables_location, 'bin')
+        return os.path.join(getattr(sys, 'executables_location'), 'bin')
     return ''
 
 
@@ -537,7 +542,7 @@ def sanitize_env_vars():
     changed = {x:False for x in env_vars}
     for var, suffix in env_vars.items():
         paths = [x for x in originals[var].split(os.pathsep) if x]
-        npaths = [] if suffix is None else [x for x in paths if x != (sys.frozen_path + suffix)]
+        npaths = [] if suffix is None else [x for x in paths if x != (getattr(sys, 'frozen_path') + suffix)]
         if len(npaths) < len(paths):
             if npaths:
                 os.environ[var] = os.pathsep.join(npaths)

@@ -26,11 +26,11 @@ class ConfigWidget(ConfigWidgetBase):
         ConfigWidgetBase.initialize(self)
         self.conf_widget.initialize(self.gui.keyboard)
 
-    def restore_defaults(self):
+    def restore_defaults(self, *args):
         ConfigWidgetBase.restore_defaults(self)
         self.conf_widget.restore_defaults()
 
-    def commit(self):
+    def commit(self, *args):
         self.conf_widget.commit()
         return ConfigWidgetBase.commit(self)
 

@@ -43,7 +43,7 @@ def merge():
             )
         )
         symbol = ans.makeelement('{%s}symbol' % SVG_NS)  # noqa: UP031
-        symbol.set('viewBox', svg.get('viewBox'))
+        symbol.set('viewBox', svg.get('viewBox') or '')
         symbol.set('id', 'icon-' + f.rpartition('.')[0])
         for child in svg.iterchildren('*'):
             clone_node(child, symbol)

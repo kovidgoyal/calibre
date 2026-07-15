@@ -14,7 +14,7 @@ import hashlib
 import json
 import os
 import re
-from typing import NamedTuple
+from typing import NamedTuple, cast
 
 from calibre import fsync, prints, strftime
 from calibre.constants import DEBUG, filesystem_encoding
@@ -472,6 +472,7 @@ class KINDLE2(KINDLE):
     def books(self, oncard=None, end_session=True):
         bl = USBMS.books(self, oncard=oncard, end_session=end_session)
         # Read collections information
+        assert self._main_prefix is not None
         collections = os.path.join(self._main_prefix, 'system', 'collections.json')
         if os.access(collections, os.R_OK):
             try:
@@ -509,8 +510,11 @@ class KINDLE2(KINDLE):
             traceback.print_exc()
 
         # Detect if the product family needs .apnx files uploaded to sidecar folder
-        product_id = self.device_being_opened[1]
         self.sidecar_apnx = False
+        device_info = self.device_being_opened
+        if device_info is None:
+            return
+        product_id = device_info[1]
         if product_id > 0x3:
             # Check if we need to put the apnx into a sidecar dir
             for _, dirnames, _ in os.walk(self._main_prefix):
@@ -533,6 +537,7 @@ class KINDLE2(KINDLE):
         self.upload_apnx(path, filename, metadata, filepath)
 
     def amazon_system_thumbnails_dir(self):
+        assert self._main_prefix is not None
         return os.path.join(self._main_prefix, 'system', 'thumbnails')
 
     def thumbpath_from_filepath(self, filepath):
@@ -545,7 +550,7 @@ class KINDLE2(KINDLE):
 
     def amazon_cover_bug_cache_dir(self):
         # see https://www.mobileread.com/forums/showthread.php?t=329945
-        return os.path.join(self._main_prefix, 'amazon-cover-bug')
+        return os.path.join(cast(str, self._main_prefix), 'amazon-cover-bug')
 
     def upload_kindle_thumbnail(self, metadata, filepath):
         coverdata = getattr(metadata, 'thumbnail', None)

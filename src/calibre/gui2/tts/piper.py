@@ -11,6 +11,7 @@ from contextlib import suppress
 from dataclasses import dataclass
 from itertools import count
 from time import monotonic
+from typing import cast
 
 from qt.core import QAudio, QAudioFormat, QAudioSink, QByteArray, QIODevice, QIODeviceBase, QMediaDevices, QObject, Qt, QTextToSpeech, QWidget, pyqtSignal, sip
 
@@ -29,10 +30,10 @@ HIGH_QUALITY_SAMPLE_RATE = 22050
 def debug(*a, **kw):
     if is_debugging():
         if not hasattr(debug, 'first'):
-            debug.first = monotonic()
+            setattr(debug, 'first', monotonic())
         kw['end'] = kw.get('end', '\r\n')
         kw['flush'] = True
-        print(f'[{monotonic() - debug.first:.2f}]', *a, **kw)
+        print(f'[{monotonic() - getattr(debug, 'first'):.2f}]', *a, **kw)
 
 
 def audio_format(audio_rate: int = HIGH_QUALITY_SAMPLE_RATE) -> QAudioFormat:
@@ -46,6 +47,7 @@ def audio_format(audio_rate: int = HIGH_QUALITY_SAMPLE_RATE) -> QAudioFormat:
 def piper_process_metadata(callback, model_path, config_path, s: EngineSpecificSettings, voice: Voice) -> int:
     if not model_path:
         raise Exception('Could not download voice data')
+    assert voice.engine_data is not None
     if 'metadata' not in voice.engine_data:
         with open(config_path) as f:
             voice.engine_data['metadata'] = json.load(f)
@@ -58,7 +60,9 @@ def piper_cache_dir() -> str:
 
 
 def paths_for_voice(voice: Voice) -> tuple[str, str]:
+    assert voice.engine_data is not None
     fname = voice.engine_data['model_filename']
+    assert isinstance(fname, str)
     model_path = os.path.join(piper_cache_dir(), fname)
     config_path = os.path.join(os.path.dirname(model_path), fname + '.json')
     return model_path, config_path
@@ -111,11 +115,12 @@ def download_voice(voice: Voice, download_even_if_exists: bool = False, parent: 
         if not download_even_if_exists:
             return model_path, config_path
     os.makedirs(os.path.dirname(model_path), exist_ok=True)
+    assert voice.engine_data is not None
     from calibre.gui2.tts.download import download_resources
     ok = download_resources(_('Downloading voice for Read aloud'), _('Downloading neural network for the {} voice').format(voice.human_name), {
-            voice.engine_data['model_url']: (model_path, _('Neural network data')),
-            voice.engine_data['config_url']: (config_path, _('Neural network metadata')),
-        }, parent=widget_parent(parent), headless=headless,
+            cast(str, voice.engine_data['model_url']): (model_path, _('Neural network data')),
+            cast(str, voice.engine_data['config_url']): (config_path, _('Neural network metadata')),
+        }, parent=widget_parent(parent) if parent is not None else None, headless=headless,
     )
     voice.engine_data['is_downloaded'] = bool(ok)
     return (model_path, config_path) if ok else ('', '')
@@ -201,10 +206,10 @@ class UtteranceAudioQueue(QIODevice):
     def seek(self, pos):
         return False
 
-    def readData(self, maxlen: int) -> QByteArray:
+    def readData(self, maxlen: int) -> bytes:
         if maxlen < 1:
             debug(f'Audio data sent to output: {maxlen=}')
-            return QByteArray()
+            return cast(bytes, QByteArray())
         if maxlen >= len(self.current_audio_data):
             ans = self.current_audio_data
             self.current_audio_data = QByteArray()
@@ -212,7 +217,7 @@ class UtteranceAudioQueue(QIODevice):
             ans = self.current_audio_data.first(maxlen)
             self.current_audio_data = self.current_audio_data.last(len(self.current_audio_data) - maxlen)
         debug(f'Audio sent to output: {maxlen=} {len(ans)=}')
-        return ans
+        return cast(bytes, ans)
 
 
 def split_into_utterances(text: str, counter: count, lang: str = 'en'):
@@ -229,7 +234,7 @@ class Piper(TTSBackend):
     _synthesis_done = pyqtSignal(object, object, object)
 
     def __init__(self, engine_name: str = '', parent: QObject | None = None):
-        super().__init__(parent)
+        super().__init__(engine_name, parent)
         self._audio_sink: QAudioSink | None = None
 
         self._current_voice: Voice | None = None
@@ -250,7 +255,7 @@ class Piper(TTSBackend):
     @property
     def available_voices(self) -> dict[str, tuple[Voice, ...]]:
         self._load_voice_metadata()
-        return {'': self._voices}
+        return {'': self._voices or ()}
 
     def say(self, text: str) -> None:
         if self._last_error:
@@ -387,8 +392,10 @@ class Piper(TTSBackend):
         elif state is QAudio.State.SuspendedState:
             self._set_state(QTextToSpeech.State.Paused)
         elif state is QAudio.State.StoppedState:
-            if self._audio_sink.error() not in (QAudio.Error.NoError, QAudio.Error.UnderrunError):
-                self._set_error(f'Audio playback failed with error: {self._audio_sink.error()}')
+            _audio_sink = self._audio_sink
+            assert _audio_sink is not None
+            if _audio_sink.error() not in (QAudio.Error.NoError, QAudio.Error.UnderrunError):
+                self._set_error(f'Audio playback failed with error: {_audio_sink.error()}')
             elif self._state is not QTextToSpeech.State.Error:
                 self._set_state(QTextToSpeech.State.Ready)
         elif state is QAudio.State.IdleState:
@@ -414,7 +421,9 @@ class Piper(TTSBackend):
         self._load_voice_metadata()
         lang = get_lang()
         lang = canonicalize_lang(lang) or lang
-        return self._voice_for_lang.get(lang) or self._voice_for_lang['eng']
+        _voice_for_lang = self._voice_for_lang
+        assert _voice_for_lang is not None
+        return _voice_for_lang.get(lang) or _voice_for_lang['eng']
 
     @property
     def cache_dir(self) -> str:
@@ -434,6 +443,7 @@ class Piper(TTSBackend):
         for path in paths_for_voice(v):
             with suppress(FileNotFoundError):
                 os.remove(path)
+        assert v.engine_data is not None
         v.engine_data['is_downloaded'] = False
 
     def _download_voice(self, voice: Voice, download_even_if_exists: bool = False) -> tuple[str, str]:
@@ -518,7 +528,7 @@ class PiperEmbedded:
                 raw_data = resample_raw_audio_16bit(raw_data, self._current_audio_rate, sample_rate)
             yield raw_data, duration_of_raw_audio_data(raw_data, sample_rate)
 
-    def ensure_voices_downloaded(self, specs: Iterable[tuple[str, str]], parent: QObject = None) -> bool:
+    def ensure_voices_downloaded(self, specs: Iterable[tuple[str, str]], parent: QObject | None = None) -> bool:
         for lang, voice_name in specs:
             voice = self.resolve_voice(lang, voice_name)
             m, c = download_voice(voice, parent=parent, headless=parent is None)
@@ -540,6 +550,7 @@ class PiperEmbedded:
     def ensure_started(self):
         if self._current_audio_rate == 0:
             from queue import Queue
+            assert self._current_voice is not None
             model_path, config_path = download_voice(self._current_voice, headless=True)
             self._queue = Queue()
             self._current_audio_rate = piper_process_metadata(
@@ -614,22 +625,22 @@ def develop():
     p.saying.connect(saying)
     if iswindows:
         from threading import Thread
-        current_input = b''
         class Dispatcher(QObject):
             dispatch = pyqtSignal(object)
         o = Dispatcher(app)
         o.dispatch.connect(handle_input)
         def poll_input():
-            nonlocal current_input
             import msvcrt
             while True:
                 o.dispatch.emit(msvcrt.getch())
         Thread(target=poll_input, daemon=True).start()
     else:
         import tty
+
+        from qt.core import sip
         attr = tty.setraw(sys.stdin.fileno())
         os.set_blocking(sys.stdin.fileno(), False)
-        sn = QSocketNotifier(sys.stdin.fileno(), QSocketNotifier.Type.Read, p)
+        sn = QSocketNotifier(sip.voidptr(sys.stdin.fileno()), QSocketNotifier.Type.Read, p)
         sn.activated.connect(lambda: handle_input(sys.stdin.buffer.read()))
     try:
         p.say(text)

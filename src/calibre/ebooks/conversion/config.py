@@ -67,6 +67,7 @@ def delete_specifics(db, book_id):
 
 
 class GuiRecommendations(dict):
+    disabled_options: set
 
     def __new__(cls, *args):
         dict.__new__(cls)

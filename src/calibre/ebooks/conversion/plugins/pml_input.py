@@ -42,8 +42,9 @@ class PMLInput(InputFormatPlugin):
         ienc = getattr(pml_stream, 'encoding', None)
         if ienc is None:
             ienc = 'cp1252'
-        if self.options.input_encoding:
-            ienc = self.options.input_encoding
+        enc_opt = getattr(self.options, 'input_encoding', None)
+        if enc_opt:
+            ienc = enc_opt
 
         self.log.debug('Converting PML to HTML...')
         hizer = PML_HTMLizer()
@@ -58,19 +59,20 @@ class PMLInput(InputFormatPlugin):
 
         return hizer.get_toc()
 
-    def get_images(self, stream, tdir, top_level=False):
+    def get_images(self, stream=None, tdir: str | None = None, top_level=False):
         images = []
         imgs = []
 
         if top_level:
+            assert tdir is not None
             imgs = glob.glob(os.path.join(tdir, '*.png'))
         # Images not in top level try bookname_img directory because
         # that's where Dropbook likes to see them.
         if not imgs:
-            if hasattr(stream, 'name'):
+            if hasattr(stream, 'name') and tdir is not None:
                 imgs = glob.glob(os.path.join(tdir, os.path.splitext(os.path.basename(stream.name))[0] + '_img', '*.png'))
         # No images in Dropbook location try generic images directory
-        if not imgs:
+        if not imgs and tdir is not None:
             imgs = glob.glob(os.path.join(os.path.join(tdir, 'images'), '*.png'))
         if imgs:
             os.makedirs(os.path.join(os.getcwd(), 'images'))

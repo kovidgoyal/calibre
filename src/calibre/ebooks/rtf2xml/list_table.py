@@ -97,7 +97,8 @@ class ListTable:
             action = self.__state_dict.get(self.__state)
             if action is None:
                 print(self.__state)
-            action(line)
+            else:
+                action(line)
         self.__write_final_string()
         # self.__add_to_final_line()
 

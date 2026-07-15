@@ -55,8 +55,8 @@ class SaveTemplate(QWidget, Ui_Form):
     def do_open_editor(self):
         # Try to get selected books
         from calibre.gui2.ui import get_gui
-        db = get_gui().current_db
-        view = get_gui().library_view
+        db = get_gui(fail_if_absent=True).current_db
+        view = get_gui(fail_if_absent=True).library_view
         mi = tuple(map(db.new_api.get_metadata, view.get_selected_ids()[:10]))
         if not mi:
             error_dialog(self, _('Must select books'),

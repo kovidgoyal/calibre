@@ -167,11 +167,13 @@ class ShowQuickviewAction(InterfaceAction):
         '''
         if show or (self.current_instance and not self.current_instance.is_closed):
             self.focus_quickview()
-            self.current_instance.slave(idx)
+            _cur_inst = self.current_instance
+            assert _cur_inst is not None
+            _cur_inst.slave(idx)
             # This is needed because if this method is invoked from the library
             # view header context menu, the library view takes back the focus. I
             # don't know if this happens for any context menu.
-            QTimer.singleShot(0, self.current_instance.set_focus)
+            QTimer.singleShot(0, _cur_inst.set_focus)
 
     def library_changed(self, db):
         '''

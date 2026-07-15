@@ -33,7 +33,8 @@ class PMLOutput(OutputFormatPlugin):
                    'own such as Dropbook.')),
     }
 
-    def convert(self, oeb_book, output_path, input_plugin, opts, log):
+    def convert(self, oeb_book, output, input_plugin, opts, log):
+        output_path = output
         from calibre.ebooks.pml.pmlml import PMLMLizer
         from calibre.utils.zipfile import ZipFile
 

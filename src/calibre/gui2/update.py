@@ -4,6 +4,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import re
 import ssl
 from threading import Event, Thread
+from typing import TYPE_CHECKING
 
 from qt.core import QCheckBox, QDialog, QDialogButtonBox, QGridLayout, QIcon, QLabel, QObject, Qt, QUrl, pyqtSignal
 
@@ -21,6 +22,8 @@ URL = 'https://code.calibre-ebook.com/latest'
 FALLBACK_URL = 'https://calibre-ebook.com/latest-version'
 # URL = 'http://localhost:8000/latest'
 NO_CALIBRE_UPDATE = (0, 0, 0)
+if TYPE_CHECKING:
+    from calibre.gui2.ui import Main
 
 
 def get_download_url():
@@ -148,10 +151,12 @@ class UpdateNotification(QDialog):
         self.cb.stateChanged.connect(self.show_future)
         self.bb = QDialogButtonBox(self)
         b = self.bb.addButton(_('&Get update'), QDialogButtonBox.ButtonRole.AcceptRole)
+        assert b is not None
         b.setDefault(True)
         b.setIcon(QIcon.ic('arrow-down.png'))
         if plugin_updates > 0:
             b = self.bb.addButton(_('Update &plugins'), QDialogButtonBox.ButtonRole.ActionRole)
+            assert b is not None
             b.setIcon(QIcon.ic('plugins/plugin_updater.png'))
             b.clicked.connect(self.get_plugins, type=Qt.ConnectionType.QueuedConnection)
         self.bb.addButton(QDialogButtonBox.StandardButton.Cancel)
@@ -183,10 +188,7 @@ class UpdateNotification(QDialog):
 
 class UpdateMixin:
 
-    def __init__(self, *args, **kw):
-        pass
-
-    def init_update_mixin(self, opts):
+    def init_update_mixin(self: Main, opts):
         self.last_newest_calibre_version = NO_CALIBRE_UPDATE
         if not opts.no_update_check:
             self.update_checker = CheckForUpdates(self)
@@ -194,10 +196,10 @@ class UpdateMixin:
                     type=Qt.ConnectionType.QueuedConnection)
             self.update_checker.start()
 
-    def recalc_update_label(self, number_of_plugin_updates):
+    def recalc_update_label(self: Main, number_of_plugin_updates):
         self.update_found(self.last_newest_calibre_version, number_of_plugin_updates)
 
-    def update_found(self, calibre_version, number_of_plugin_updates, force=False, no_show_popup=False):
+    def update_found(self: Main, calibre_version, number_of_plugin_updates, force=False, no_show_popup=False):
         self.last_newest_calibre_version = calibre_version
         has_calibre_update = calibre_version != NO_CALIBRE_UPDATE and calibre_version[0] > 0
         has_plugin_updates = number_of_plugin_updates > 0
@@ -231,14 +233,14 @@ class UpdateMixin:
             if force:
                 self.show_plugin_update_dialog()
 
-    def show_plugin_update_dialog(self):
+    def show_plugin_update_dialog(self: Main):
         from calibre.gui2.dialogs.plugin_updater import FILTER_UPDATE_AVAILABLE, PluginUpdaterDialog
         d = PluginUpdaterDialog(self, initial_filter=FILTER_UPDATE_AVAILABLE)
         d.exec()
         if d.do_restart:
             self.quit(restart=True)
 
-    def plugin_update_found(self, number_of_updates):
+    def plugin_update_found(self: Main, number_of_updates):
         # Change the plugin icon to indicate there are updates available
         plugin = self.iactions.get('Plugin Updater', None)
         if not plugin:
@@ -254,7 +256,7 @@ class UpdateMixin:
             plugin.qaction.setIcon(QIcon.ic('plugins/plugin_updater.png'))
             plugin.qaction.setToolTip(_('Install and configure user plugins'))
 
-    def update_link_clicked(self, url):
+    def update_link_clicked(self: Main, url):
         url = str(url)
         if url.startswith('update:'):
             calibre_version, number_of_plugin_updates = msgpack_loads(from_hex_bytes(url[len('update:'):]))

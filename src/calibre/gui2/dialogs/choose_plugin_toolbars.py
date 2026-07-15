@@ -37,8 +37,9 @@ class ChoosePluginToolbarsDialog(QDialog):
         for key, text in locations:
             self._locations_list.addItem(text)
             if key in {'toolbar', 'toolbar-device'}:
-                self._locations_list.item(self._locations_list.count()-1
-                        ).setSelected(True)
+                _loc_item = self._locations_list.item(self._locations_list.count()-1)
+                assert _loc_item is not None
+                _loc_item.setSelected(True)
         self._layout.addWidget(self._locations_list)
 
         self._footer_label = QLabel(
@@ -55,6 +56,8 @@ class ChoosePluginToolbarsDialog(QDialog):
 
     def selected_locations(self):
         selected = []
-        for row in self._locations_list.selectionModel().selectedRows():
+        _sel_model = self._locations_list.selectionModel()
+        assert _sel_model is not None
+        for row in _sel_model.selectedRows():
             selected.append(self.locations[row.row()])
         return selected

@@ -69,9 +69,11 @@ class Delegate(QStyledItemDelegate):
 
     def initStyleOption(self, option, index):
         super().initStyleOption(option, index)
-        if index.row() == self.parent().currentRow():
+        p = self.parent()
+        assert isinstance(p, QListWidget)
+        if index.row() == p.currentRow():
             option.font.setBold(True)
-            option.backgroundBrush = self.parent().palette().brush(QPalette.ColorRole.AlternateBase)
+            option.backgroundBrush = p.palette().brush(QPalette.ColorRole.AlternateBase)
 
 
 class Check(QSplitter):
@@ -120,11 +122,14 @@ class Check(QSplitter):
     def copy_to_clipboard(self):
         items = []
         for item in (self.items.item(i) for i in range(self.items.count())):
+            assert item is not None
             err = item.data(Qt.ItemDataRole.UserRole)
             msg = build_error_message(err, with_level=True, with_line_numbers=True)
             items.append(msg)
         if items:
-            QApplication.clipboard().setText('\n'.join(items))
+            cb = QApplication.clipboard()
+            assert cb is not None
+            cb.setText('\n'.join(items))
 
     def save_state(self):
         tprefs.set('check-book-splitter-state', bytearray(self.saveState()))
@@ -142,11 +147,17 @@ class Check(QSplitter):
         elif url == 'run:check':
             self.check_requested.emit()
         elif url == 'fix:errors':
-            errors = [self.items.item(i).data(Qt.ItemDataRole.UserRole) for i in range(self.items.count())]
+            errors = []
+            for i in range(self.items.count()):
+                it = self.items.item(i)
+                assert it is not None
+                errors.append(it.data(Qt.ItemDataRole.UserRole))
             self.fix_requested.emit(errors)
         elif url.startswith('fix:error,'):
             num = int(url.rpartition(',')[-1])
-            errors = [self.items.item(num).data(Qt.ItemDataRole.UserRole)]
+            it_num = self.items.item(num)
+            assert it_num is not None
+            errors = [it_num.data(Qt.ItemDataRole.UserRole)]
             self.fix_requested.emit(errors)
         elif url.startswith('activate:item:'):
             index = int(url.rpartition(':')[-1])
@@ -257,10 +268,10 @@ class Check(QSplitter):
         self.help.setText('')
         self.items.clear()
 
-    def keyPressEvent(self, ev):
-        if ev.key() in (Qt.Key.Key_Enter, Qt.Key.Key_Return):
+    def keyPressEvent(self, a0):
+        if a0.key() in (Qt.Key.Key_Enter, Qt.Key.Key_Return):
             self.current_item_activated()
-        return super().keyPressEvent(ev)
+        return super().keyPressEvent(a0)
 
     def clear(self):
         self.items.clear()

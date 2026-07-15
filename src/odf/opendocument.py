@@ -105,6 +105,15 @@ class OpenDocument:
         fd.write(d.xml())
     '''
     thumbnail = None
+    # Optional content-type-specific elements set by factory functions or load()
+    text: element.Node
+    graphics: element.Node
+    presentation: element.Node
+    spreadsheet: element.Node
+    chart: element.Node
+    image: element.Node
+    formula: element.Node
+    drawing: element.Node
 
     def __init__(self, mimetype, add_generator=True):
         self.mimetype = mimetype
@@ -368,15 +377,11 @@ class OpenDocument:
         self.Pictures[manifestfn] = (IS_IMAGE, content, mediatype)
         return manifestfn
 
-    def addThumbnail(self, filecontent=None):
+    def addThumbnail(self, filecontent):
         ''' Add a fixed thumbnail
             The thumbnail in the library is big, so this is pretty useless.
         '''
-        if filecontent is None:
-            import thumbnail
-            self.thumbnail = thumbnail.thumbnail()
-        else:
-            self.thumbnail = filecontent
+        self.thumbnail = filecontent
 
     def addObject(self, document, objectname=None):
         ''' Adds an object (subdocument). The object must be an OpenDocument class
@@ -423,7 +428,7 @@ class OpenDocument:
             If the filename is '-' then save to stdout
         '''
         if outputfile == '-':
-            outputfp = zipfile.ZipFile(sys.stdout, 'w')
+            outputfp = zipfile.ZipFile(sys.stdout.buffer, 'w')
         else:
             if addsuffix:
                 outputfile = outputfile + odmimetypes.get(self.mimetype, '.xxx')

@@ -111,7 +111,9 @@ def smart_tab_all_blocks_in_selection(editor, backwards):
         c.movePosition(QTextCursor.MoveOperation.StartOfBlock, QTextCursor.MoveMode.KeepAnchor)
         c.movePosition(QTextCursor.MoveOperation.StartOfBlock)
         # select leading whitespace
-        while not c.atEnd() and c.document().characterAt(c.position()).isspace():
+        cdoc = c.document()
+        assert cdoc is not None
+        while not c.atEnd() and cdoc.characterAt(c.position()).isspace():
             c.movePosition(QTextCursor.MoveOperation.NextCharacter, QTextCursor.MoveMode.KeepAnchor)
         text = expand_tabs(editor.selected_text_from_cursor(c), tab_width)
         leading = len(text)

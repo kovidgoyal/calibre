@@ -647,9 +647,10 @@ class Metadata:
         from calibre.ebooks.metadata import fmt_sidx
         v = self.series_index if val is None else val
         try:
+            assert v is not None
             x = float(v)
         except Exception:
-            x = 1
+            x = 1.0
         return fmt_sidx(x)
 
     def authors_from_string(self, raw):
@@ -850,9 +851,8 @@ class Metadata:
             if val:
                 name, val = self.format_field(key)
                 ans += [(name, val)]
-        for i, x in enumerate(ans):
-            ans[i] = '<tr><td><b>{}</b></td><td>{}</td></tr>'.format(*x)
-        return '<table>{}</table>'.format('\n'.join(ans))
+        rows = '\n'.join('<tr><td><b>{}</b></td><td>{}</td></tr>'.format(*x) for x in ans)
+        return f'<table>{rows}</table>'
 
     __str__ = __unicode__representation__
 
@@ -921,7 +921,9 @@ def get_model_metadata_instance():
     mi.id = -1
     from calibre.gui2.ui import get_gui
     from calibre.utils.date import DEFAULT_DATE
-    fm = get_gui().current_db.new_api.field_metadata
+    gui = get_gui()
+    assert gui is not None
+    fm = gui.current_db.new_api.field_metadata
     mi.set_all_user_metadata(fm.custom_field_metadata())
     for col in mi.get_all_user_metadata(False):
         if fm[col]['datatype'] == 'datetime':

@@ -717,7 +717,8 @@ def write_completion(self, bash_comp_dest, zsh):
 class PostInstall:
 
     def task_failed(self, msg):
-        self.warn(msg, 'with error:')
+        if self.warn:
+            self.warn(msg, 'with error:')
         import traceback
         tb = '\n\t'.join(traceback.format_exc().splitlines())
         self.info('\t'+tb)
@@ -804,8 +805,8 @@ class PostInstall:
 
     def create_uninstaller(self):
         base = self.opts.staging_bindir
-        if not os.access(base, os.W_OK) and getattr(sys, 'frozen_path', False):
-            base = sys.frozen_path
+        if not os.access(base, os.W_OK) and getattr(sys, 'frozen_path', ''):
+            base = getattr(sys, 'frozen_path')
         dest = os.path.join(base, 'calibre-uninstall')
         self.info('Creating un-installer:', dest)
         raw = UNINSTALL.format(
@@ -864,10 +865,10 @@ class PostInstall:
     def do_setup_desktop_integration(self):
         env = os.environ.copy()
         cc = check_call
-        if getattr(sys, 'frozen_path', False) and 'LD_LIBRARY_PATH' in env:
+        if getattr(sys, 'frozen_path', '') and 'LD_LIBRARY_PATH' in env:
             paths = env.get('LD_LIBRARY_PATH', '').split(os.pathsep)
             paths = [x for x in paths if x]
-            npaths = [x for x in paths if x != sys.frozen_path+'/lib']
+            npaths = [x for x in paths if x != getattr(sys, 'frozen_path')+'/lib']
             env['LD_LIBRARY_PATH'] = os.pathsep.join(npaths)
             cc = partial(check_call, env=env)
 

@@ -34,6 +34,7 @@ from calibre.gui2.widgets2 import Dialog
 from calibre.startup import connect_lambda
 from calibre.utils.icu import sort_key
 from calibre.utils.localization import _
+from calibre.utils.resources import get_path as P
 from calibre.utils.resources import set_data
 
 
@@ -106,7 +107,9 @@ class IdLinksEditor(Dialog):
             t.setItem(r, 1, QTableWidgetItem(val))
             t.setItem(r, 2, QTableWidgetItem(template))
         l.addWidget(t)
-        t.horizontalHeader().setSectionResizeMode(2, QHeaderView.ResizeMode.Stretch)
+        _t_header = t.horizontalHeader()
+        assert _t_header is not None
+        _t_header.setSectionResizeMode(2, QHeaderView.ResizeMode.Stretch)
         self.cb = b = QPushButton(QIcon.ic('plus.png'), _('&Add rule'), self)
         connect_lambda(b.clicked, self, lambda self: self.edit_rule())
         self.bb.addButton(b, QDialogButtonBox.ButtonRole.ActionRole)
@@ -125,7 +128,9 @@ class IdLinksEditor(Dialog):
         rules = defaultdict(list)
         for r in range(self.table.rowCount()):
             def item(c):
-                return self.table.item(r, c).text()
+                _it = self.table.item(r, c)
+                assert _it is not None
+                return _it.text()
             rules[item(0)].append([item(1), item(2)])
         msprefs['id_link_rules'] = dict(rules)
         Dialog.accept(self)
@@ -133,7 +138,11 @@ class IdLinksEditor(Dialog):
     def edit_rule(self, r=-1):
         key = name = template = ''
         if r > -1:
-            key, name, template = (self.table.item(r, c).text() for c in range(3))
+            _i0 = self.table.item(r, 0)
+            _i1 = self.table.item(r, 1)
+            _i2 = self.table.item(r, 2)
+            assert _i0 is not None and _i1 is not None and _i2 is not None
+            key, name, template = _i0.text(), _i1.text(), _i2.text()
         d = IdLinksRuleEdit(key, name, template, self)
         if d.exec() == QDialog.DialogCode.Accepted:
             if r < 0:
@@ -230,7 +239,7 @@ class BookDetailsTab(LazyConfigWidgetBase, Ui_Form):
         if IdLinksEditor(self).exec() == QDialog.DialogCode.Accepted:
             self.changed_signal.emit()
 
-    def commit(self):
+    def commit(self, *args):
         with BusyCursor():
             self.display_model.commit()
             self.bd_vertical_cats_model.commit()
@@ -242,7 +251,7 @@ class BookDetailsTab(LazyConfigWidgetBase, Ui_Form):
             set_data('templates/book_details.css', bcss)
         return LazyConfigWidgetBase.commit(self)
 
-    def restore_defaults(self):
+    def restore_defaults(self, *args):
         LazyConfigWidgetBase.restore_defaults(self)
         self.default_author_link.restore_defaults()
         self.display_model.restore_defaults()

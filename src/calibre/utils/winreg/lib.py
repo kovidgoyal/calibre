@@ -15,7 +15,7 @@ from calibre_extensions import winutil
 try:
     import winreg
 except ImportError:
-    import _winreg as winreg
+    import _winreg as winreg  # type: ignore
 
 # Binding to C library {{{
 advapi32 = ctypes.windll.advapi32
@@ -124,7 +124,7 @@ def convert_to_registry_data(value, has_expansions=False):
         try:
             raw, dtype = struct.pack('L', value), winreg.REG_DWORD
         except struct.error:
-            raw = struct.pack('Q', value), winutil.REG_QWORD
+            raw, dtype = struct.pack('Q', value), winutil.REG_QWORD
         buf = ctypes.create_string_buffer(raw)
         return buf, dtype, len(buf)
     if isinstance(value, bytes):

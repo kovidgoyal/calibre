@@ -17,9 +17,9 @@ from threading import Lock
 try:
     from urllib.parse import parse_qs, quote, quote_plus, urlencode, urlparse
 except ImportError:
-    from urllib import quote, quote_plus, urlencode
+    from urllib import quote, quote_plus, urlencode  # type: ignore
 
-    from urlparse import parse_qs, urlparse
+    from urlparse import parse_qs, urlparse  # type: ignore
 
 from lxml import etree
 
@@ -80,7 +80,10 @@ def browser():
 
 def encode_query(**query):
     q = {k.encode('utf-8'): v.encode('utf-8') for k, v in query.items()}
-    return urlencode(q).decode('utf-8')
+    ans = urlencode(q)
+    if isinstance(ans, bytes):
+        return ans.decode('utf-8')
+    return ans
 
 
 def parse_html(raw):

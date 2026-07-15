@@ -709,7 +709,8 @@ class Styles:
             if action is None:
                 sys.stderr.write('no matching state in module styles.py\n')
                 sys.stderr.write(self.__state + '\n')
-            action(line)
+            else:
+                action(line)
         read_obj.close()
         self.__write_obj.close()
         copy_obj = copy.Copy(bug_handler=self.__bug_handler)

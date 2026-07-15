@@ -40,8 +40,8 @@ def dictdata(dbfile: str):
     return q.read_bytes()
 
 
-def jisyo_init(self, dbname):
-    self._dict = pickle.loads(dictdata(dbname))
+def jisyo_init(self, dictname):
+    self._dict = pickle.loads(dictdata(dictname))
 
 
 def itaiji_init(self):

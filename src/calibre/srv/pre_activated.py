@@ -6,7 +6,7 @@ __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
 # Support server pre-activation, such as with systemd's socket activation
 
-import errno
+import os
 import socket
 
 from calibre.constants import islinux
@@ -31,7 +31,8 @@ if islinux:
         addr = SOCKADDR_NL(0, 0, 0, 0)
         sz = ctypes.c_int(ctypes.sizeof(addr))
         if ctypes.CDLL(None, use_errno=True).getsockname(fd, ctypes.pointer(addr), ctypes.pointer(sz)) != 0:
-            raise OSError(errno.errcode[ctypes.get_errno()])
+            err = ctypes.get_errno()
+            raise OSError(err, os.strerror(err))
         return addr.nl_family
 
     try:

@@ -99,6 +99,11 @@ class DownloadRequest(QObject):
         self.reply.uploadProgress.connect(self.on_upload_progress, type=Qt.ConnectionType.QueuedConnection)
         # self.reply.readyRead.connect(self.on_data_available)
 
+    def free_reply(self):
+        self.reply.downloadProgress.disconnect()
+        self.reply.uploadProgress.disconnect()
+        del self.reply
+
     def on_download_progress(self, bytes_received: int, bytes_total: int) -> None:
         self.bytes_received = bytes_received
         self.last_activity_at = monotonic()
@@ -115,7 +120,7 @@ class DownloadRequest(QObject):
     def on_ssl_errors(self, err) -> None:
         pass
 
-    def as_result(self) -> dict[str, str]:
+    def as_result(self) -> dict[str, Any]:
         self.save_data()
         e = self.reply.error()
         result = {
@@ -157,7 +162,9 @@ class FetchBackend(QNetworkAccessManager):
     set_user_agent_signal = pyqtSignal(str)
     download_finished = pyqtSignal(object)
 
-    def __init__(self, output_dir: str = '', cache_name: str = '', parent: QObject = None, user_agent: str = '', verify_ssl_certificates: bool = True) -> None:
+    def __init__(
+            self, output_dir: str = '', cache_name: str = '',
+            parent: QObject | None = None, user_agent: str = '', verify_ssl_certificates: bool = True) -> None:
         super().__init__(parent)
         self.cookie_jar = CookieJar(self)
         self.verify_ssl_certificates = verify_ssl_certificates
@@ -178,15 +185,19 @@ class FetchBackend(QNetworkAccessManager):
         t.setInterval(50)
         t.timeout.connect(self.enforce_timeouts)
 
-    def excepthook(self, cls: type, exc: Exception, tb) -> None:
+    def excepthook(self, cls: type[BaseException], exc: BaseException, tb) -> None:
         if not isinstance(exc, KeyboardInterrupt):
             sys.__excepthook__(cls, exc, tb)
-        QApplication.instance().exit(1)
+        app = QApplication.instance()
+        assert app is not None
+        app.exit(1)
 
     def on_input_finished(self, error_msg: str) -> None:
         if error_msg:
             self.send_response({'action': 'input_error', 'error': error_msg})
-        QApplication.instance().exit(1)
+        app = QApplication.instance()
+        assert app is not None
+        app.exit(1)
 
     def enforce_timeouts(self):
         now = monotonic()
@@ -224,11 +235,12 @@ class FetchBackend(QNetworkAccessManager):
         elif qmethod == 'put':
             reply = self.put(rq, data)
         elif qmethod == 'head':
-            reply = self.head(rq, data)
+            reply = self.head(rq)
         elif qmethod == 'delete':
-            reply = self.deleteRequest(rq)
+            reply = self.deleteResource(rq)
         else:
             reply = self.sendCustomRequest(rq, req['method'].encode(), data)
+        assert reply is not None
         dr = DownloadRequest(req['url'], os.path.join(self.output_dir, filename), reply, timeout, req['id'], self)
         self.live_requests.add(dr)
         if not self.timeout_timer.isActive():
@@ -244,7 +256,7 @@ class FetchBackend(QNetworkAccessManager):
             if x.reply is reply:
                 self.live_requests.discard(x)
                 self.report_finish(x)
-                x.reply = None
+                x.free_reply()
                 break
 
     def report_finish(self, dr: DownloadRequest) -> None:
@@ -320,6 +332,7 @@ def read_commands(backend: FetchBackend, tdir: str) -> None:
 
 def worker(tdir: str, user_agent: str, verify_ssl_certificates: bool, backend_class: type = FetchBackend) -> None:
     app = QApplication.instance()
+    assert app is not None
     sys.stdout = sys.stderr
     backend = backend_class(parent=app, user_agent=user_agent, output_dir=tdir, verify_ssl_certificates=verify_ssl_certificates)
     try:
@@ -335,7 +348,8 @@ def develop(url: str) -> None:
     from calibre.gui2 import must_use_qt, setup_unix_signals
     must_use_qt()
     app = QApplication.instance()
-    app.signal_received = lambda: app.exit(1)
+    assert app is not None
+    app.signal_received = lambda: app.exit(1)  # type: ignore
     setup_unix_signals(app)
     backend = FetchBackend()
     num_left = 0

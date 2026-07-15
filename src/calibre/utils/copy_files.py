@@ -92,14 +92,14 @@ class WindowsFileCopier:
         with suppress(OSError):
             # Ensure the file is not read-only
             winutil.set_file_attributes(make_long_path_useable(path), winutil.FILE_ATTRIBUTE_NORMAL)
-        self.path_to_fileid_map[path] = winutil.get_file_id(make_long_path_useable(path))
+        self.path_to_fileid_map[path] = winutil.get_file_id(make_long_path_useable(path)) or (0, 0, 0)
         self.copy_map[path] = dest
 
     def register_folder(self, path: str) -> None:
         with suppress(OSError):
             # Ensure the folder is not read-only
             winutil.set_file_attributes(make_long_path_useable(path), winutil.FILE_ATTRIBUTE_NORMAL)
-        self.path_to_fileid_map[path] = winutil.get_file_id(make_long_path_useable(path))
+        self.path_to_fileid_map[path] = winutil.get_file_id(make_long_path_useable(path)) or (0, 0, 0)
         self.folders.append(path)
 
     def _open_file(self, path: str, retry_on_sharing_violation: bool = True, is_folder: bool = False) -> winutil.Handle:

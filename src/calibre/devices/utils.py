@@ -50,6 +50,7 @@ def build_template_regexp(template):
         if v in ['authors', 'author_sort']:
             v = 'author'
         if v in ('title', 'series', 'series_index', 'isbn', 'author'):
+            assert seen is not None
             if v not in seen:
                 seen.add(v)
                 return '(?P<' + v + '>.+?)'

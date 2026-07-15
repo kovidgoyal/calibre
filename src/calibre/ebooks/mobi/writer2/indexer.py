@@ -166,6 +166,7 @@ class IndexEntry:
         if isinstance(self.index, numbers.Integral):
             buf.write(encode_number_as_hex(self.index))
         else:
+            assert isinstance(self.index, str)
             raw = bytearray(self.index.encode('ascii'))
             raw.insert(0, len(raw))
             buf.write(bytes(raw))

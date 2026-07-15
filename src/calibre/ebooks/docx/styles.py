@@ -9,7 +9,6 @@ from collections import Counter, OrderedDict
 
 from calibre.ebooks.docx.block_styles import ParagraphStyle, inherit, twips
 from calibre.ebooks.docx.char_styles import RunStyle
-from calibre.ebooks.docx.tables import TableStyle
 
 
 class PageProperties:
@@ -60,6 +59,7 @@ class Style:
 
         if self.style_type in {'paragraph', 'character', 'table'}:
             if self.style_type == 'table':
+                from calibre.ebooks.docx.tables import TableStyle
                 for tblPr in namespace.XPath('./w:tblPr')(elem):
                     ts = TableStyle(namespace, tblPr)
                     if self.table_style is None:
@@ -89,6 +89,7 @@ class Style:
     def resolve_based_on(self, parent):
         if parent.table_style is not None:
             if self.table_style is None:
+                from calibre.ebooks.docx.tables import TableStyle
                 self.table_style = TableStyle(self.namespace)
             self.table_style.resolve_based_on(parent.table_style)
         if parent.paragraph_style is not None:

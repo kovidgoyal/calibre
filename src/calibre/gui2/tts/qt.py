@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2024, Kovid Goyal <kovid at kovidgoyal.net>
 
+from typing import Any, cast
 from unicodedata import normalize
 
 from qt.core import QMediaDevices, QObject, QTextToSpeech
@@ -11,7 +12,7 @@ from calibre.gui2.tts.types import EngineSpecificSettings, TTSBackend, Voice, qv
 class QtTTSBackend(TTSBackend):
 
     def __init__(self, engine_name: str = '', parent: QObject|None = None):
-        super().__init__(parent)
+        super().__init__(engine_name, parent)
         self.speaking_text = ''
         self.last_word_offset = 0
         self.last_spoken_word = None
@@ -20,9 +21,9 @@ class QtTTSBackend(TTSBackend):
 
     @property
     def available_voices(self) -> dict[str, tuple[Voice, ...]]:
-        if self._voices is None:
-            self._voices = tuple(map(qvoice_to_voice, self.tts.availableVoices()))
-        return {'': self._voices}
+        if (voices := self._voices) is None:
+            voices = self._voices = tuple(map(qvoice_to_voice, self.tts.availableVoices()))
+        return {'': voices}
 
     @property
     def engine_name(self) -> str:
@@ -85,9 +86,9 @@ class QtTTSBackend(TTSBackend):
                         s['audioDevice'] = x
                         break
             if new_backend:
-                self.tts = QTextToSpeech(engine_name, s, self)
+                self.tts = QTextToSpeech(engine_name, cast(dict[str | None, Any], s), self)
             else:
-                self.tts.setEngine(engine_name, s)
+                self.tts.setEngine(engine_name, cast(dict[str | None, Any], s))
         else:
             if new_backend:
                 self.tts = QTextToSpeech(self)
@@ -97,9 +98,9 @@ class QtTTSBackend(TTSBackend):
             settings = EngineSpecificSettings.create_from_config(engine_name)
             if settings.audio_device_id:
                 for x in QMediaDevices.audioOutputs():
-                    if bytes(x.id) == settings.audio_device_id.id:
+                    if bytes(x.id()) == settings.audio_device_id.id:
                         s['audioDevice'] = x
-                        self.tts = QTextToSpeech(engine_name, s, self)
+                        self.tts = QTextToSpeech(engine_name, cast(dict[str | None, Any], s), self)
                         break
         if new_backend:
             self.tts.sayingWord.connect(self._saying_word)

@@ -29,6 +29,7 @@ from qt.core import (
     QSize,
     QSplitter,
     QStandardItem,
+    QStandardItemModel,
     Qt,
     QTextBrowser,
     QTimer,
@@ -43,6 +44,7 @@ from qt.core import (
 from calibre import prepare_string_for_xml
 from calibre.constants import builtin_colors_dark, builtin_colors_light, builtin_decorations
 from calibre.db.backend import FTSQueryError
+from calibre.db.cache import Cache
 from calibre.ebooks.metadata import authors_to_sort_string, authors_to_string, fmt_sidx, rating_to_stars
 from calibre.gui2 import UNDEFINED_QDATETIME, Application, choose_save_file, config, error_dialog, gprefs, is_dark_theme, qapplication_or_fail, safe_open_url
 from calibre.gui2.dialogs.confirm_delete import confirm
@@ -111,7 +113,7 @@ def get_annotation_style_classes(style):
         color = 'default'
 
     if is_decoration:
-        safe = re.sub(r'[^a-zA-Z0-9-]', '', fname).lower()
+        safe = re.sub(r'[^a-zA-Z0-9-]', '', fname or '').lower()
         return 'span', f'decor-{safe}'
     else:
         safe_color = sanitize_color(color) if color else 'default'
@@ -1070,9 +1072,11 @@ class Export(Dialog):  # {{{
         self.bb.clear()
         self.bb.addButton(QDialogButtonBox.StandardButton.Cancel)
         b = self.bb.addButton(_('Copy to clipboard'), QDialogButtonBox.ButtonRole.ActionRole)
+        assert b is not None
         b.clicked.connect(self.copy_to_clipboard)
         b.setIcon(QIcon.ic('edit-copy.png'))
         b = self.bb.addButton(_('Save to file'), QDialogButtonBox.ButtonRole.ActionRole)
+        assert b is not None
         b.clicked.connect(self.save_to_file)
         b.setIcon(QIcon.ic('save.png'))
 
@@ -1080,7 +1084,9 @@ class Export(Dialog):  # {{{
         self.prefs[self.pref_name] = self.export_format.currentData()
 
     def copy_to_clipboard(self):
-        qapplication_or_fail().clipboard().setText(self.exported_data())
+        cb = qapplication_or_fail().clipboard()
+        assert cb is not None
+        cb.setText(self.exported_data())
         self.accept()
 
     def save_to_file(self):
@@ -1165,9 +1171,12 @@ class Export(Dialog):  # {{{
 # }}}
 
 
-def current_db():
+def current_db() -> Cache:
     from calibre.gui2.ui import get_gui
-    return (getattr(current_db, 'ans', None) or get_gui().current_db).new_api
+    ans = getattr(current_db, 'ans', None)
+    if ans is not None:
+        return ans.new_api
+    return get_gui(fail_if_absent=True).current_db.new_api
 
 
 def annotation_only_groupings() -> dict[str, str]:
@@ -1521,18 +1530,18 @@ class ResultsList(QTreeWidget):
                 ans[key] = x[key]
             yield ans
 
-    def keyPressEvent(self, ev):
-        if ev.matches(QKeySequence.StandardKey.Delete):
+    def keyPressEvent(self, event):
+        if event.matches(QKeySequence.StandardKey.Delete):
             self.delete_requested.emit()
-            ev.accept()
+            event.accept()
             return
-        if ev.key() == Qt.Key.Key_F2:
+        if event.key() == Qt.Key.Key_F2:
             item = self.currentItem()
             if item:
                 self.edit_notes(item)
-                ev.accept()
+                event.accept()
                 return
-        return QTreeWidget.keyPressEvent(self, ev)
+        return QTreeWidget.keyPressEvent(self, event)
 
     @property
     def tree_state(self):
@@ -1541,6 +1550,7 @@ class ResultsList(QTreeWidget):
         if item is not None:
             ans['current'] = item.data(0, Qt.ItemDataRole.UserRole)
         for item in (self.topLevelItem(i) for i in range(self.topLevelItemCount())):
+            assert item is not None
             if not item.isExpanded():
                 ans['closed'].add(item.data(0, Qt.ItemDataRole.UserRole))
         return ans
@@ -1549,6 +1559,7 @@ class ResultsList(QTreeWidget):
     def tree_state(self, state):
         closed = state['closed']
         for item in (self.topLevelItem(i) for i in range(self.topLevelItemCount())):
+            assert item is not None
             if item.data(0, Qt.ItemDataRole.UserRole) in closed:
                 item.setExpanded(False)
 
@@ -1558,6 +1569,17 @@ class ResultsList(QTreeWidget):
                 if item.data(0, Qt.ItemDataRole.UserRole) == cur:
                     self.setCurrentItem(item)
                     break
+
+
+class ComboBox(QComboBox):
+
+    def __init__(self, parent: QWidget, label: QLabel):
+        super().__init__(parent)
+        self.la = label
+
+    def setVisible(self, visible: bool) -> None:
+        super().setVisible(visible)
+        self.la.setVisible(visible)
 
 
 class Restrictions(QWidget):
@@ -1578,8 +1600,7 @@ class Restrictions(QWidget):
         h.addWidget(self.rla)
         la = QLabel(_('Type:'))
         h.addWidget(la)
-        self.types_box = tb = QComboBox(self)
-        tb.la = la
+        self.types_box = tb = ComboBox(self, la)
         tb.currentIndexChanged.connect(self.restrictions_changed)
         connect_lambda(tb.currentIndexChanged, tb, lambda tb: gprefs.set('browse_annots_restrict_to_type', tb.currentData()))
         la.setBuddy(tb)
@@ -1589,8 +1610,7 @@ class Restrictions(QWidget):
         h.addWidget(tb)
         la = QLabel(_('User:'))
         h.addWidget(la)
-        self.user_box = ub = QComboBox(self)
-        ub.la = la
+        self.user_box = ub = ComboBox(self, la)
         ub.currentIndexChanged.connect(self.restrictions_changed)
         connect_lambda(ub.currentIndexChanged, ub, lambda ub: gprefs.set('browse_annots_restrict_to_user', ub.currentData()))
         la.setBuddy(ub)
@@ -1657,6 +1677,7 @@ class Restrictions(QWidget):
             dpr = self.devicePixelRatioF()
             is_dark = is_dark_theme()
             model = tb.model()
+            assert isinstance(model, QStandardItemModel)
             highlight_color_row = 1
             all_styles = self.annotation_style_cache.get(db.library_id)
             if all_styles is None:
@@ -1679,7 +1700,7 @@ class Restrictions(QWidget):
 
         tb.blockSignals(False)
         tb_is_visible = tb.count() > 2
-        tb.setVisible(tb_is_visible), tb.la.setVisible(tb_is_visible)
+        tb.setVisible(tb_is_visible)
         tb = self.user_box
         before = tb.currentData()
         if not before:
@@ -1696,7 +1717,7 @@ class Restrictions(QWidget):
                 tb.setCurrentIndex(row)
         tb.blockSignals(False)
         ub_is_visible = tb.count() > 2
-        tb.setVisible(ub_is_visible), tb.la.setVisible(ub_is_visible)
+        tb.setVisible(ub_is_visible)
         self.rla.setVisible(tb_is_visible or ub_is_visible)
         self.setVisible(True)
 
@@ -1785,8 +1806,10 @@ class BrowsePanel(QWidget):
         self.search_box = sb = SearchBox(self)
         sb.initialize('library-annotations-browser-search-box')
         sb.cleared.connect(self.cleared, type=Qt.ConnectionType.QueuedConnection)
-        sb.lineEdit().returnPressed.connect(self.show_next)
-        sb.lineEdit().setPlaceholderText(_('Enter words to search for'))
+        le = sb.lineEdit()
+        assert le is not None
+        le.returnPressed.connect(self.show_next)
+        le.setPlaceholderText(_('Enter words to search for'))
         h.addWidget(sb)
 
         self.next_button = nb = QToolButton(self)
@@ -1844,7 +1867,9 @@ class BrowsePanel(QWidget):
 
     @property
     def effective_query(self):
-        text = self.search_box.lineEdit().text().strip()
+        le = self.search_box.lineEdit()
+        assert le is not None
+        text = le.text().strip()
         data = self.restrictions.types_box.currentData()
         atype, style = '', None
         if isinstance(data, dict):
@@ -2109,9 +2134,9 @@ class AnnotationsBrowser(Dialog):
             x = 2 * (annot['spine_index'] + 1)
             self.open_annotation.emit(book_id, fmt, 'epubcfi(/{}{})'.format(x, annot['start_cfi']))
 
-    def keyPressEvent(self, ev):
-        if ev.key() not in (Qt.Key.Key_Enter, Qt.Key.Key_Return):
-            return Dialog.keyPressEvent(self, ev)
+    def keyPressEvent(self, a0):
+        if a0.key() not in (Qt.Key.Key_Enter, Qt.Key.Key_Return):
+            return Dialog.keyPressEvent(self, a0)
 
     def setup_ui(self):
         self.use_stemmer = us = QCheckBox(_('&Match on related words'))
@@ -2147,10 +2172,12 @@ class AnnotationsBrowser(Dialog):
         l.addLayout(h)
         h.addWidget(us), h.addStretch(10), h.addWidget(self.bb)
         self.delete_button = b = self.bb.addButton(_('&Delete all selected'), QDialogButtonBox.ButtonRole.ActionRole)
+        assert b is not None
         b.setToolTip(_('Delete the selected annotations'))
         b.setIcon(QIcon.ic('trash.png'))
         b.clicked.connect(self.delete_selected)
         self.export_button = b = self.bb.addButton(_('&Export all selected'), QDialogButtonBox.ButtonRole.ActionRole)
+        assert b is not None
         b.setToolTip(_('Export the selected annotations'))
         b.setIcon(QIcon.ic('save.png'))
         b.clicked.connect(self.export_selected)
@@ -2159,7 +2186,9 @@ class AnnotationsBrowser(Dialog):
         b.setText(_('&Refresh'))
         b.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
         self.refresh_menu = m = QMenu(self)
-        m.addAction(_('Rebuild search index')).triggered.connect(self.rebuild)
+        act = m.addAction(_('Rebuild search index'))
+        assert act is not None
+        act.triggered.connect(self.rebuild)
         b.setMenu(m)
         b.setToolTip(_('Refresh annotations in case they have been changed since this window was opened'))
         b.setIcon(QIcon.ic('restart.png'))
@@ -2220,8 +2249,10 @@ class AnnotationsBrowser(Dialog):
             QTimer.singleShot(80, self.browse_panel.effective_query_changed)
 
     def selection_changed(self):
-        if self.isVisible() and self.parent():
-            gui = self.parent()
+        gui = self.parent()
+        if self.isVisible() and gui is not None:
+            from calibre.gui2.ui import Main
+            assert isinstance(gui, Main)
             self.browse_panel.selection_changed(gui.library_view.get_selected_ids(as_set=True))
 
     def reinitialize(self, restrict_to_book_ids=None):
@@ -2243,7 +2274,7 @@ class AnnotationsBrowser(Dialog):
 if __name__ == '__main__':
     from calibre.library import db
     app = Application([])
-    current_db.ans = db(os.path.expanduser('~/test library'))
+    setattr(current_db, 'ans', db(os.path.expanduser('~/test library')))
     br = AnnotationsBrowser()
     br.reinitialize()
     br.show_dialog()

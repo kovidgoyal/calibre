@@ -84,15 +84,20 @@ class ThreadPool:
         return sum(int(not w.working) for w in self.workers)
 
 
+class PluginThread(Thread):
+
+    def __init__(self, plugin, target, name):
+        super().__init__(target=target, args=(plugin,), name=name, daemon=True)
+        self.plugin = plugin
+
+
 class PluginPool:
 
     def __init__(self, loop, plugins):
-        self.workers = []
+        self.workers: list[PluginThread] = []
         self.loop = loop
         for plugin in plugins:
-            w = Thread(target=self.run_plugin, args=(plugin,), name=self.plugin_name(plugin))
-            w.daemon = True
-            w.plugin = plugin
+            w = PluginThread(plugin, target=self.run_plugin, name=self.plugin_name(plugin))
             self.workers.append(w)
 
     def plugin_name(self, plugin):

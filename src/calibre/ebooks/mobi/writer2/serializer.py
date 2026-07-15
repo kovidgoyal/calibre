@@ -105,9 +105,11 @@ class Serializer:
             except Exception:
                 prev_item = None
             if in_art and item.is_article_start is True:
+                assert prev_item is not None
                 prev_item.is_article_end = True
                 in_art = False
             if in_sec and item.is_section_start is True:
+                assert prev_item is not None
                 prev_item.is_section_end = True
                 in_sec = False
             if item.is_section_start:
@@ -200,7 +202,11 @@ class Serializer:
         item = hrefs[path] if path else None
         if item and item.spine_position is None:
             return False
-        path = item.href if item else base.href
+        if item is not None:
+            path = item.href
+        else:
+            assert base is not None
+            path = base.href
         href = '#'.join((path, frag)) if frag else path
         buf.write(b'filepos=')
         self.href_offsets[href].append(buf.tell())

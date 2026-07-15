@@ -67,7 +67,7 @@ class Model(NamedTuple):
     name: str
     id: str
     slug: str
-    created: int
+    created: datetime.datetime
     description: str
     context_length: int
     pricing: Pricing
@@ -96,7 +96,7 @@ class Model(NamedTuple):
         return re.sub(r' \(free\)$', '', self.name.partition(':')[-1].strip()).strip()
 
     @classmethod
-    def from_dict(cls, x: dict[str, object]) -> Model:
+    def from_dict(cls, x: dict[str, Any]) -> Model:
         arch = x['architecture']
         capabilities = AICapabilities.none
         if 'text' in arch['input_modalities']:
@@ -185,7 +185,7 @@ def free_model_choice(
     return tuple(sorted(only(gemini_paid, gpt5_paid, grok_paid, claude_paid, deep_seek_paid), key=lambda m: m.pricing.output_token))
 
 
-def model_choice_for_text() -> Iterator[Model, ...]:
+def model_choice_for_text() -> Iterator[Model]:
     model_id, model_name = pref('text_model', ('', ''))
     if m := get_available_models().get(model_id):
         yield m

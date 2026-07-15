@@ -12,7 +12,7 @@ import struct
 import sys
 from collections.abc import Awaitable, Callable
 from functools import partial
-from typing import Any, NamedTuple
+from typing import Any, NamedTuple, cast
 
 from calibre.constants import islinux, ismacos, iswindows
 from calibre.ptempfile import base_dir
@@ -77,6 +77,7 @@ class SingleObjectProtocol(asyncio.Protocol):
     def eof_received(self):
         if self.task is None:
             payload = {'exception': 'Complete message not received from client'}
+            assert self.transport is not None
             self.transport.write(msgpack_dumps(payload))
         return False  # Returning False closes the transport
 
@@ -90,6 +91,7 @@ class SingleObjectProtocol(asyncio.Protocol):
             import traceback
             payload = {'exception': str(e), 'traceback': traceback.format_exc()}
         finally:
+            assert self.transport is not None
             self.transport.write(msgpack_dumps(payload))
             self.transport.close()
 
@@ -142,7 +144,10 @@ async def start_server(
         path = get_random_socket_path(name, random_suffix)
         try:
             if iswindows:
-                server = await loop.start_serving_pipe(protocol_factory, path)
+                from asyncio import Transport
+                from asyncio.windows_events import ProactorEventLoop
+                wserver = await cast(ProactorEventLoop, loop).start_serving_pipe(protocol_factory, path)
+                server = cast(list[Transport], wserver)
             else:
                 sock = None
                 if path.startswith('/'):
@@ -166,6 +171,7 @@ async def start_server(
             if not exists:
                 raise
             random_suffix = ''
+    raise RuntimeError(f'Failed to start {name!r} server after {num_attempts} attempts due to name collisions')
 
 
 async def no_setup() -> None:
@@ -186,11 +192,11 @@ async def handler_with_setup(
 
 async def async_main(
     # async handler that is called to handle each connection
-    handler: Handler = echo,
+    handler: Callable[..., Awaitable[Any]] = echo,
     # global setup called exactly once when first connection arrives
-    delayed_setup: Callable[[], Awaitable[None]] = no_setup,
+    delayed_setup: Callable[..., Awaitable[None]] = no_setup,
     # called after server is shutdown
-    finalizer: Callable[[], None] = lambda: None,
+    finalizer: Callable[..., Any] = lambda: None,
     read_input_data: bool = False,
 ) -> None:
     input_data = None
@@ -207,6 +213,7 @@ async def async_main(
     stdout_is_tty = sys.stdout.isatty()
     try:
         path, server = await start_server(wh)
+        assert sys.__stdout__ is not None
         sys.__stdout__.write(json.dumps(path))
         sys.__stdout__.flush()
         if stdout_is_tty:
@@ -240,7 +247,7 @@ def start_worker(
     '''
     from calibre.utils.ipc.simple_worker import start_pipe_worker
 
-    def parse(x: str) -> tuple[str, str, str]:
+    def parse(x: str) -> tuple[str, str]:
         module, _, func = x.partition(':')
         return module, func
 

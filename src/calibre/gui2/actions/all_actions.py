@@ -27,6 +27,7 @@ class AllGUIActions(InterfaceAction):
     def genesis(self):
         self.layout_icon = QIcon.ic('wizard.png')
         self.menu = m = self.qaction.menu()
+        assert m is not None
         m.aboutToShow.connect(self.about_to_show_menu)
 
         # Create a "hidden" menu that can have a shortcut.
@@ -51,7 +52,9 @@ class AllGUIActions(InterfaceAction):
         show_menu_under_widget(self.gui, self.menu, self.qaction, self.name)
 
     def gui_layout_complete(self):
-        self.qaction.menu().aboutToShow.connect(self.about_to_show_menu)
+        m = self.qaction.menu()
+        assert m is not None
+        m.aboutToShow.connect(self.about_to_show_menu)
 
     def initialization_complete(self):
         self.populate_menu()
@@ -62,6 +65,7 @@ class AllGUIActions(InterfaceAction):
     def populate_menu(self):
         # Need to do this on every invocation because shortcuts can change
         m = self.qaction.menu()
+        assert m is not None
         m.clear()
 
         name_data = {}  # A dict of display names to actions data

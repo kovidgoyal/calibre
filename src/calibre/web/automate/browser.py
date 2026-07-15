@@ -40,6 +40,7 @@ class Warmup:
             def is_not_excluded(x: str) -> bool:
                 p = urlparse(x)
                 for q in disallow:
+                    assert p.hostname is not None
                     if p.hostname.endswith(q):
                         return False
                 return True

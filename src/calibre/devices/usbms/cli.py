@@ -34,6 +34,14 @@ def check_transfer(infile, dest):
 
 class CLI:
 
+    _main_prefix: str | None = None
+    _card_a_prefix: str | None = None
+    _card_b_prefix: str | None = None
+    SUPPORTS_SUB_DIRS: bool = False
+
+    def delete_books(self, paths, end_session=True):
+        raise NotImplementedError
+
     def get_file(self, path, outfile, end_session=True):
         path = self.munge_path(path)
         with open(path, 'rb') as src:
@@ -67,14 +75,15 @@ class CLI:
         return actual_path
 
     def munge_path(self, path):
-        if path.startswith('/') and not (path.startswith(self._main_prefix) or
+        main = self._main_prefix or ''
+        if path.startswith('/') and not (path.startswith(main) or
             (self._card_a_prefix and path.startswith(self._card_a_prefix)) or
             (self._card_b_prefix and path.startswith(self._card_b_prefix))):
-            path = self._main_prefix + path[1:]
+            path = main + path[1:]
         elif path.startswith('carda:'):
-            path = path.replace('carda:', self._card_a_prefix[:-1])
+            path = path.replace('carda:', (self._card_a_prefix or '')[:-1])
         elif path.startswith('cardb:'):
-            path = path.replace('cardb:', self._card_b_prefix[:-1])
+            path = path.replace('cardb:', (self._card_b_prefix or '')[:-1])
         return path
 
     def list(self, path, recurse=False, end_session=True, munge=True):

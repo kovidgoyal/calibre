@@ -77,11 +77,11 @@ def png_data_to_gif_data(data):
     elif img.mode in ('rgba', 'RGBA'):
         alpha = img.split()[3]
         mask = Image.eval(alpha, lambda a: 255 if a <=128 else 0)
-        img = img.convert('RGB').convert('P', palette=Image.ADAPTIVE, colors=255)
+        img = img.convert('RGB').convert('P', palette=Image.ADAPTIVE, colors=255)  # type: ignore
         img.paste(255, mask)
         img.save(buf, 'gif', transparency=255)
     else:
-        img = img.convert('P', palette=Image.ADAPTIVE)
+        img = img.convert('P', palette=Image.ADAPTIVE)  # type: ignore
         img.save(buf, 'gif')
     return buf.getvalue()
 
@@ -94,7 +94,7 @@ def gif_data_to_png_data(data, discard_animation=False):
     from PIL import Image
     img = Image.open(BytesIO(data))
     try:
-        is_animated = img.is_animated
+        is_animated = img.is_animated  # type: ignore
     except Exception:
         is_animated = False
     if is_animated and not discard_animation:
@@ -572,8 +572,11 @@ def run_optimizer(file_path, cmd, as_filter=False, input_data=None):
         stderr = subprocess.PIPE if as_filter else subprocess.STDOUT
         creationflags = subprocess.DETACHED_PROCESS if iswindows else 0
         p = subprocess.Popen(cmd, cwd=cwd, stdout=subprocess.PIPE, stderr=stderr, stdin=stdin, creationflags=creationflags)
-        stderr = p.stderr if as_filter else p.stdout
         if as_filter:
+            assert p.stderr is not None
+            assert p.stdout is not None
+            assert p.stdin is not None
+            stderr = p.stderr
             src = input_data or open(file_path, 'rb')
 
             def copy(src, dest):
@@ -587,15 +590,22 @@ def run_optimizer(file_path, cmd, as_filter=False, input_data=None):
             outw = Thread(name='CopyOutput', target=copy, args=(p.stdout, outf))
             outw.daemon = True
             outw.start()
+        else:
+            assert p.stdout is not None
+            stderr = p.stdout
         raw = force_unicode(stderr.read())
         if p.wait() != 0:
             p.stdout.close()
             if as_filter:
+                assert p.stderr is not None
+                assert p.stdin is not None
                 p.stderr.close()
                 p.stdin.close()
             return raw
         else:
             if as_filter:
+                assert p.stdin is not None
+                assert p.stderr is not None
                 outw.join(60.0), inw.join(60.0)
                 p.stdin.close()
                 p.stderr.close()
@@ -715,7 +725,7 @@ def convert_PIL_image_to_pixmap(im, device_pixel_ratio=1.0):
     elif im.mode == 'P':
         fmt = QImage.Format.Format_Indexed8
         palette = im.getpalette()
-        colortable = [qRgba(*palette[i : i + 3], 255) & 0xFFFFFFFF for i in range(0, len(palette), 3)]
+        colortable = [qRgba(*palette[i : i + 3], 255) & 0xFFFFFFFF for i in range(0, len(palette), 3)]  # type: ignore
     elif im.mode == 'I;16':
         im = im.point(lambda i: i * 256)
         fmt = QImage.Format.Format_Grayscale16

@@ -8,7 +8,7 @@ import math
 import random
 import struct
 import weakref
-from collections.abc import Iterable, Iterator
+from collections.abc import Callable, Iterable, Iterator
 from contextlib import suppress
 from functools import lru_cache, partial
 from operator import attrgetter
@@ -23,7 +23,6 @@ from qt.core import (
     QBrush,
     QBuffer,
     QColor,
-    QContextMenuEvent,
     QEasingCurve,
     QEvent,
     QFont,
@@ -34,7 +33,6 @@ from qt.core import (
     QImage,
     QItemSelection,
     QItemSelectionModel,
-    QKeyEvent,
     QKeySequence,
     QLinearGradient,
     QLocale,
@@ -44,7 +42,6 @@ from qt.core import (
     QObject,
     QPainter,
     QPainterPath,
-    QPaintEvent,
     QPalette,
     QParallelAnimationGroup,
     QPen,
@@ -55,7 +52,6 @@ from qt.core import (
     QPropertyAnimation,
     QRect,
     QRectF,
-    QResizeEvent,
     QSize,
     QSizeF,
     QStyle,
@@ -92,6 +88,7 @@ from calibre.utils.icu import numeric_sort_key
 from calibre.utils.img import resize_to_fit
 from calibre.utils.iso8601 import UNDEFINED_DATE
 from calibre.utils.localization import _, lang_map
+from calibre.utils.resources import get_image_path as I
 from calibre_extensions.imageops import dominant_color
 from calibre_extensions.progress_indicator import contrast_ratio, utf16_slice
 
@@ -134,7 +131,7 @@ def render_spine_text_as_pixmap(
     key = f'{font.key()}{ss.width()}{ss.height()}{int(vertical_alignment)}{int(downwards)}{outline_width}{text_color.rgb()}{outline_color.rgb()}{text}'
     if pmap := QPixmapCache.find(key):
         return pmap
-    ans = QImage(ss.height(), ss.width(), QImage.Format_ARGB32_Premultiplied)
+    ans = QImage(ss.height(), ss.width(), QImage.Format.Format_ARGB32_Premultiplied)
     ans.fill(Qt.GlobalColor.transparent)
     ans.setDevicePixelRatio(device_pixel_ratio)
     with QPainter(ans) as painter:
@@ -306,7 +303,7 @@ class ColorTheme(NamedTuple):
     selected_color: QColor
 
     @classmethod
-    def _from_palette(cls, palette: QPalette) -> dict[str, QColor]:
+    def _from_palette(cls, palette: QPalette) -> ColorTheme:
         return ColorTheme(
             text_color_for_dark_background=dark_palette().color(QPalette.ColorRole.WindowText),
             text_color_for_light_background=light_palette().color(QPalette.ColorRole.WindowText),
@@ -391,7 +388,7 @@ class RenderCase:
             return self.last_rendered_background
         self.last_rendered_background_at = q
         self.ensure_theme(is_dark)
-        ans = QImage(width, height, QImage.Format_ARGB32_Premultiplied)
+        ans = QImage(width, height, QImage.Format.Format_ARGB32_Premultiplied)
         with QPainter(ans) as painter:
             painter.setRenderHint(QPainter.RenderHint.Antialiasing)
             if gprefs['bookshelf_use_custom_background']:
@@ -473,7 +470,7 @@ class RenderCase:
         if ans := self.shelf_cache.get(instance):
             return ans
         self.ensure_theme(is_dark)
-        ans = QImage(width, height, QImage.Format_ARGB32_Premultiplied)
+        ans = QImage(width, height, QImage.Format.Format_ARGB32_Premultiplied)
         with QPainter(ans) as painter:
             painter.setRenderHint(QPainter.RenderHint.Antialiasing)
             self.draw_shelf_body(painter, rect)
@@ -606,7 +603,7 @@ class RenderCase:
         if self.last_rendered_divider_at == q:
             return self.last_rendered_divider
         self.last_rendered_divider_at = q
-        ans = QImage(width, height + offset, QImage.Format_ARGB32_Premultiplied)
+        ans = QImage(width, height + offset, QImage.Format.Format_ARGB32_Premultiplied)
         ans.fill(Qt.GlobalColor.transparent)
         with QPainter(ans) as painter:
             painter.setRenderHint(QPainter.RenderHint.Antialiasing)
@@ -639,12 +636,19 @@ class PixmapWithDominantColor(QPixmap):
     dominant_color: QColor = QColor()
 
     @staticmethod
-    def fromImage(img: QImage) -> PixmapWithDominantColor:
-        ans = PixmapWithDominantColor(QPixmap.fromImage(img))
-        if not hasattr(img, 'dominant_color'):
-            img = ImageWithDominantColor(img)
-        ans.dominant_color = img.dominant_color
+    def fromImage(image: QImage | ImageWithDominantColor, flags: Qt.ImageConversionFlag = Qt.ImageConversionFlag.AutoColor) -> PixmapWithDominantColor:
+        ans: PixmapWithDominantColor = PixmapWithDominantColor(QPixmap.fromImage(image))
+        if not hasattr(image, 'dominant_color'):
+            image = ImageWithDominantColor(image)
+        assert isinstance(image, ImageWithDominantColor)
+        ans.dominant_color = image.dominant_color
         return ans
+
+    def copy_as_same_class(self, x, y, width, height) -> PixmapWithDominantColor:
+        ans = super().copy(x, y, width, height)
+        q = PixmapWithDominantColor(ans)
+        q.dominant_color = self.dominant_color
+        return q
 
 
 @lru_cache(maxsize=2)
@@ -664,7 +668,7 @@ class ThumbnailerWithDominantColor(Thumbnailer):
             ans = ImageWithDominantColor(ans)
         return ans
 
-    def serialize_img(self, x: ImageWithDominantColor, buf: QBuffer) -> bool:
+    def serialize_img(self, x, buf: QBuffer) -> bool:
         buf.write(struct.pack('@fff', x.dominant_color.redF(), x.dominant_color.greenF(), x.dominant_color.blueF()))
         return super().serialize_img(x, buf)
 
@@ -696,7 +700,7 @@ def draw_pixmap_with_shadow(
         total_height += margin * 2 + abs(shadow_offset_y)
 
     # Create shadow image
-    shadow_image = QImage(total_width, total_height, QImage.Format_ARGB32_Premultiplied)
+    shadow_image = QImage(total_width, total_height, QImage.Format.Format_ARGB32_Premultiplied)
     shadow_image.fill(Qt.GlobalColor.transparent)
 
     with QPainter(shadow_image) as shadow_painter:
@@ -776,7 +780,7 @@ def iter_all_groups(fm) -> Iterator[tuple[str, str]]:
             cf[field] = numeric_sort_key(m['name'])
     for k in all_groupings():
         cf[k] = numeric_sort_key(fm[k]['name'])
-    for k in sorted(cf, key=cf.get):
+    for k in sorted(cf, key=cf.__getitem__):
         yield k, fm[k]['name']
 
 
@@ -882,6 +886,7 @@ class CaseItem:
         return None
 
     def closest_book_to(self, idx: int) -> ShelfItem | None:
+        assert self.items is not None
         q = self.items[idx]
         if not q.is_divider:
             return q
@@ -902,6 +907,7 @@ class CaseItem:
             return True
         if (x := self._get_x_for_item(lc.divider_width, lc)) is None:
             return False
+        assert self.items is not None
         s = ShelfItem(start_x=x, group_name=group_name, width=lc.divider_width, case_start_y=self.start_y,
                       idx=len(self.items), case_idx=self.idx)
         self.items.append(s)
@@ -911,6 +917,7 @@ class CaseItem:
     def add_book(self, book_id: int, width: int, group_name: str, lc: LayoutConstraints, reduce_height_by: int) -> bool:
         if (x := self._get_x_for_item(width, lc)) is None:
             return False
+        assert self.items is not None
         s = ShelfItem(
             start_x=x, book_id=book_id, reduce_height_by=reduce_height_by,
             width=width, group_name=group_name, case_start_y=self.start_y, idx=len(self.items), case_idx=self.idx)
@@ -925,6 +932,7 @@ class CaseItem:
     def shift_for_expanded_cover(self, shelf_item: ShelfItem, lc: LayoutConstraints, width: int) -> CaseItem:
         if (extra := width - shelf_item.width) <= 0:
             return self
+        assert self.items is not None
         ans = CaseItem(y=self.start_y, height=self.height, idx=self.idx)
         space_at_right_edge = max(0, lc.width - self.width)
         left_shift = 0
@@ -942,6 +950,7 @@ class CaseItem:
             else:
                 right_shift += extra
         if gprefs['bookshelf_hover'] == 'shift':
+            assert ans.items is not None
             for i, item in enumerate(self.items):
                 if i < shelf_item.idx:
                     if left_shift:
@@ -959,12 +968,12 @@ class CaseItem:
         return ans
 
 
-def get_grouped_iterator(db: Cache, book_ids_iter: Iterable[int], field_name: str = '') -> Iterator[tuple[str, Iterable[int]]]:
+def get_grouped_iterator(db: Cache, book_ids_iter: Iterable[int], field_name: str = '') -> Iterator[tuple[str, int | Iterable[int]]]:
     formatter = lambda x: x  # noqa: E731
     fm = db.field_metadata
     sort_key = numeric_sort_key
-    get_books_in_group = lambda group: db.books_for_field(field_name, group)  # noqa: E731
-    get_field_id_map = lambda: db.get_id_map(field_name)  # noqa: E731
+    get_books_in_group: Callable[[int], set[int]] | Callable[[tuple[int, int]], set[int]] = lambda group: db.books_for_field(field_name, group)  # noqa: E731
+    get_field_id_map: Callable[[], dict[int | tuple[int, int], str | tuple[int, int] | int]] = lambda: db.get_id_map(field_name)  # noqa: E731
     sort_map = {book_id: i for i, book_id in enumerate(book_ids_iter)}
     all_book_ids = frozenset(sort_map)
     ungrouped_name = all_groupings().get(field_name, _('Unknown'))
@@ -1014,7 +1023,7 @@ def get_grouped_iterator(db: Cache, book_ids_iter: Iterable[int], field_name: st
     yield '', len(field_id_map)
     seen = set()
     for group in sorted(field_id_map, key=lambda fid: sort_key(field_id_map[fid])):
-        books_in_group = (get_books_in_group(group) & all_book_ids) - seen
+        books_in_group = (get_books_in_group(group) & all_book_ids) - seen  # type: ignore
         if books_in_group:
             seen |= books_in_group
             yield formatter(field_id_map[group]), sorted(books_in_group,  key=sort_map.__getitem__)
@@ -1093,7 +1102,7 @@ class BookCase(QObject):
     shelf_added = pyqtSignal(object, object)
     num_of_groups_changed = pyqtSignal()
 
-    def __init__(self, parent: QObject = None):
+    def __init__(self, parent: QObject | None = None):
         super().__init__(parent)
         self.worker: Thread | None = None
         self.row_to_book_id: tuple[int, ...] = ()
@@ -1247,6 +1256,7 @@ class BookCase(QObject):
         template_cache = {}
         group_iter = get_grouped_iterator(db, row_to_book_id, group_field_name)
         _, num_of_groups = next(group_iter)
+        assert isinstance(num_of_groups, int)
         with self.lock:
             if invalidate.is_set():
                 return
@@ -1274,6 +1284,7 @@ class BookCase(QObject):
                 current_case_item = CaseItem(y=y, height=lc.spine_height, idx=len(self.items))
                 current_case_item.add_group_divider(group_name, lc)
             group_height_reduction = random_from_group_name(group_name) if height_reduction_is_per_group else 0
+            assert not isinstance(book_ids_in_group, int)
             for book_id in book_ids_in_group:
                 if invalidate.is_set():
                     return
@@ -1286,6 +1297,7 @@ class BookCase(QObject):
                     book_id, group_height_reduction, height_reduction_is_per_group) if height_reduction_required else 0
                 if not current_case_item.add_book(book_id, spine_width, group_name, lc, book_height_reduction):
                     case_end_divider = ''
+                    assert current_case_item.items is not None
                     if current_case_item.items[-1].is_divider:
                         case_end_divider = current_case_item.items.pop(-1).group_name
                     y = commit_case_item(current_case_item)
@@ -1298,6 +1310,7 @@ class BookCase(QObject):
                     if not current_case_item.add_book(book_id, spine_width, group_name, lc, book_height_reduction):
                         raise ValueError(
                             f'Failed to add a single book to a new shelf: {book_id=} {spine_width=} {lc.width=} {lc.max_spine_width=}')
+                assert current_case_item.items is not None
                 book_id_to_item_map[book_id] = current_case_item.items[-1]
                 book_id_visual_order_map[book_id] = len(book_id_visual_order_map)
                 book_ids_in_visual_order.append(book_id)
@@ -1338,7 +1351,7 @@ class BookCase(QObject):
         if allow_wrap:
             nidx = (nidx + len(self.book_ids_in_visual_order)) % len(self.book_ids_in_visual_order)
         if in_bound:
-            nidx = max(0, min(len(self.book_ids_in_visual_order)-1), nidx)
+            nidx = max(0, min(len(self.book_ids_in_visual_order)-1, nidx))
         if 0 <= nidx < len(self.book_ids_in_visual_order):
             return self.book_ids_in_visual_order[nidx]
         return 0
@@ -1349,13 +1362,13 @@ class BookCase(QObject):
         return None
 
     def end_book_on_shelf_of(self, book_id: int, first: bool = False) -> int:
-        if ci := self.shelf_of_book(book_id):
+        if (ci := self.shelf_of_book(book_id)) and ci.items:
             return ci.items[0 if first else -1].book_id
         return 0
 
     def book_in_column_of(self, book_id: int, delta: int = 1, allow_wrap: bool = False, in_bound: bool = False) -> int:
         if not (si := self.book_id_to_item_map.get(book_id)):
-            return
+            return 0
         if not (ci := self.shelf_of_book(book_id)):
             return 0
         shelf_idx = ci.idx // 2 + delta
@@ -1402,7 +1415,9 @@ class ExpandedCover(QObject):  # {{{
 
     @property
     def layout_constraints(self) -> LayoutConstraints:
-        return self.parent().layout_constraints
+        _lc_p = self.parent()
+        assert isinstance(_lc_p, BookshelfView)
+        return _lc_p.layout_constraints
 
     def shelf_item_hovered(self, case_item: CaseItem | None = None, shelf_item: ShelfItem | None = None) -> None:
         self.pending_shelf_item, self.pending_case_item = shelf_item, case_item
@@ -1424,7 +1439,9 @@ class ExpandedCover(QObject):  # {{{
             lc = self.layout_constraints
             sz = QSize(self.shelf_item.width, lc.spine_height - self.shelf_item.reduce_height_by)
             self.modified_case_item = self.case_item
-            pixmap, final_sz = self.parent().load_hover_cover(self.shelf_item)
+            _start_p = self.parent()
+            assert isinstance(_start_p, BookshelfView)
+            pixmap, final_sz = _start_p.load_hover_cover(self.shelf_item)
             self.cover_renderer.set_pixmap(pixmap)
             self.size_animation.setStartValue(sz)
             self.size_animation.setEndValue(final_sz)
@@ -1462,28 +1479,41 @@ class ExpandedCover(QObject):  # {{{
         self.updated.emit()
 
     def shift_items(self) -> None:
-        self.modified_case_item = self.case_item.shift_for_expanded_cover(
-                self.shelf_item, self.layout_constraints, self.size.width())
+        case_item, shelf_item = self.case_item, self.shelf_item
+        assert case_item is not None and shelf_item is not None
+        self.modified_case_item = case_item.shift_for_expanded_cover(
+                shelf_item, self.layout_constraints, self.size.width())
 
     @property
     def expanded_cover_should_be_displayed(self) -> bool:
         return self.shelf_item is not None and self.modified_case_item is not None and self.is_showing_cover
 
     def modify_shelf_layout(self, case_item: CaseItem) -> CaseItem:
-        if self.expanded_cover_should_be_displayed and case_item is self.case_item:
+        if self.expanded_cover_should_be_displayed and case_item is self.case_item and self.modified_case_item is not None:
             case_item = self.modified_case_item
         return case_item
 
     def is_expanded(self, book_id: int) -> bool:
-        return self.expanded_cover_should_be_displayed and self.shelf_item.book_id == book_id
+        if not self.expanded_cover_should_be_displayed:
+            return False
+        shelf_item = self.shelf_item
+        assert shelf_item is not None
+        return shelf_item.book_id == book_id
 
     def draw_expanded_cover(
         self, painter: QPainter, scroll_y: int, lc: LayoutConstraints, selection_highlight_color: QColor
     ) -> None:
-        shelf_item = self.modified_case_item.items[self.shelf_item.idx]
+        modified_case_item = self.modified_case_item
+        assert modified_case_item is not None
+        assert modified_case_item.items is not None
+        si = self.shelf_item
+        assert si is not None
+        shelf_item = modified_case_item.items[si.idx]
         cover_rect = shelf_item.rect(lc)
         cover_rect.translate(0, -scroll_y)
-        pmap, margin = self.cover_renderer.as_pixmap(cover_rect.size(), self.opacity, self.parent())
+        p = self.parent()
+        assert isinstance(p, QWidget)
+        pmap, margin = self.cover_renderer.as_pixmap(cover_rect.size(), self.opacity, p)
         painter.drawPixmap(cover_rect.topLeft() - QPoint(margin, margin), pmap)
         if selection_highlight_color.isValid():
             pen = QPen(selection_highlight_color)
@@ -1526,7 +1556,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         self.first_painted_at = 0
         self.auto_scroll = True
         self.scroll_to_current_after_layout: bool = False
-        self.theme: ColorTheme = None
+        self.theme: ColorTheme | None = None
         self.palette_changed()
 
         self.spine_font = self.default_spine_font = QFont(self.font())
@@ -1553,8 +1583,10 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         qapplication_or_fail().palette_changed.connect(self.palette_changed)
 
         # Ensure viewport receives mouse events
-        self.viewport().setMouseTracking(True)
-        self.viewport().setAttribute(Qt.WidgetAttribute.WA_MouseTracking, True)
+        viewport = self.viewport()
+        assert viewport is not None
+        viewport.setMouseTracking(True)
+        viewport.setAttribute(Qt.WidgetAttribute.WA_MouseTracking, True)
 
         # Cover template caching
         self.template_inited = False
@@ -1666,8 +1698,10 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
 
     def render_emblem(self, book_id: int) -> str:
         if not (m := self.model()):
-            return
-        db = m.db.new_api
+            return ''
+        mdb = m.db
+        assert mdb is not None
+        db = mdb.new_api
         self.init_template(db)
         if not self.emblem_rules:
             return ''
@@ -1766,7 +1800,9 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
     def dbref(self) -> Cache:
         '''Return the current database.'''
         if m := self.model():
-            return m.db.new_api
+            mdb = m.db
+            assert mdb is not None
+            return mdb.new_api
         return self.gui.current_db.new_api
 
     def book_id_from_row(self, row: int) -> int | None:
@@ -1781,11 +1817,13 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
 
     @property
     def has_transient_scrollbar(self) -> bool:
-        return self.style().styleHint(QStyle.StyleHint.SH_ScrollBar_Transient, widget=self) != 0
+        style = self.style()
+        assert style is not None
+        return style.styleHint(QStyle.StyleHint.SH_ScrollBar_Transient, widget=self) != 0
 
-    def resizeEvent(self, ev: QResizeEvent) -> None:
+    def resizeEvent(self, a0) -> None:
         self.resize_debounce_timer.start()
-        return super().resizeEvent(ev)
+        return super().resizeEvent(a0)
 
     def resize_debounced(self) -> None:
         if self.layout_constraints.width != (new_width := self.get_available_width()) and new_width > 20:
@@ -1795,10 +1833,14 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
     def update_scrollbar_ranges(self):
         '''Update scrollbar ranges based on the current shelf layouts.'''
         total_height = self.bookcase.max_possible_height
-        viewport_height = self.viewport().height()
-        self.verticalScrollBar().setRange(0, max(0, total_height - viewport_height))
-        self.verticalScrollBar().setPageStep(viewport_height)
-        self.verticalScrollBar().setSingleStep(self.layout_constraints.step_height)
+        vp = self.viewport()
+        assert vp is not None
+        viewport_height = vp.height()
+        vsb = self.verticalScrollBar()
+        assert vsb is not None
+        vsb.setRange(0, max(0, total_height - viewport_height))
+        vsb.setPageStep(viewport_height)
+        vsb.setSingleStep(self.layout_constraints.step_height)
         self.update_ram_cache_size()
 
     def get_available_width(self) -> int:
@@ -1807,7 +1849,9 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         # will be some extra space on the right. This is an acceptable
         # compromise since, layouting is expensive and we cannot know if the
         # scrollbar is needed till we do layouting once.
-        sw = 0 if self.has_transient_scrollbar else self.verticalScrollBar().width()
+        vsb = self.verticalScrollBar()
+        assert vsb is not None
+        sw = 0 if self.has_transient_scrollbar else vsb.width()
         return self.width() - (2 * self.layout_constraints.side_margin) - sw
 
     def invalidate(
@@ -1817,7 +1861,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
             self.bookcase.clear_spine_width_cache()
         self.bookcase.invalidate(
             self.layout_constraints, model=self.model() if set_of_books_changed else None,
-            group_field_name=self.grouping_mode, min_line_height=self.min_line_height)
+            group_field_name=self.grouping_mode, min_line_height=int(self.min_line_height))
         if set_of_books_changed:
             self.expanded_cover.invalidate()
         self.update_scrollbar_ranges()
@@ -1849,14 +1893,20 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
             if books is not None and shelf is not None:
                 y = books.start_y
                 height = books.height + shelf.height
-                r = self.viewport().rect()
-                r.moveTop(self.verticalScrollBar().value())
+                vp = self.viewport()
+                assert vp is not None
+                vsb = self.verticalScrollBar()
+                assert vsb is not None
+                r = vp.rect()
+                r.moveTop(vsb.value())
                 if self.bookcase.layout_finished or r.intersects(QRect(r.left(), y, r.width(), height)):
                     self.update_viewport()
 
     @property
     def shelves_per_screen(self) -> int:
-        viewport_height = self.viewport().height()
+        vp = self.viewport()
+        assert vp is not None
+        viewport_height = vp.height()
         lc = self.layout_constraints
         return max(1, math.ceil(viewport_height / lc.step_height))
 
@@ -1880,7 +1930,9 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         '''Update viewport only if the bookshelf view is visible.'''
         if not self.view_is_visible():
             return
-        self.viewport().update()
+        vp = self.viewport()
+        assert vp is not None
+        vp.update()
 
     def draw_emblems(self, painter: QPainter, item: ShelfItem, scroll_y: int) -> tuple[int, int]:
         book_id = item.book_id
@@ -1890,11 +1942,12 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         if m := self.model():
             from calibre.gui2.ui import get_gui
             db = m.db
+            assert db is not None
             marked = db.data.get_marked(book_id)
             if marked:
                 below.append(m.marked_icon if marked == 'true' else m.marked_text_icon_for(marked))
             db = db.new_api
-            device_connected = get_gui().device_connected is not None
+            device_connected = get_gui(fail_if_absent=True).device_connected is not None
             on_device = device_connected and db.field_for('ondevice', book_id)
             if on_device:
                 which = above if below else below
@@ -1956,7 +2009,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         draw_horizontal(bottom, 'bottom')
         return top_size, bottom_size
 
-    def paintEvent(self, ev: QPaintEvent) -> None:
+    def paintEvent(self, a0) -> None:
         '''Paint the bookshelf view.'''
         if not self.view_is_visible():
             return
@@ -1970,8 +2023,12 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
     def do_paint(self, painter: QPainter) -> None:
         painter.setRenderHint(QPainter.RenderHint.Antialiasing | QPainter.RenderHint.SmoothPixmapTransform)
         # Get visible area
-        scroll_y = self.verticalScrollBar().value()
-        viewport_rect = self.viewport().rect()
+        vsb = self.verticalScrollBar()
+        assert vsb is not None
+        scroll_y = vsb.value()
+        vp = self.viewport()
+        assert vp is not None
+        viewport_rect = vp.rect()
         visible_rect = viewport_rect.translated(0, scroll_y)
         hovered_item: ShelfItem | None = None
         sm = self.selectionModel()
@@ -2000,6 +2057,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
             # Draw books and inline dividers on it
             if has_expanded:
                 hovered_item = shelf.expanded_item
+                assert hovered_item is not None
             for item in shelf.items:
                 if item.is_divider:
                     self.draw_inline_divider(painter, item, scroll_y)
@@ -2007,6 +2065,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
                 if item is not shelf.expanded_item:
                     # Draw a book spine at this position
                     should_draw_emblems = not has_expanded or gprefs['bookshelf_hover'] != 'above' \
+                        or hovered_item is None \
                         or (item.start_x + (item.width / 2) < hovered_item.start_x) \
                         or (item.start_x + (item.width / 2) > hovered_item.start_x + hovered_item.width)
                     row = self.bookcase.book_id_to_row_map[item.book_id]
@@ -2019,7 +2078,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
             )
             self.draw_emblems(painter, hovered_item, scroll_y)
 
-    def draw_shelf_base(self, painter: QPainter, shelf: ShelfItem, scroll_y: int, width: int, instance: int) -> None:
+    def draw_shelf_base(self, painter: QPainter, shelf: CaseItem, scroll_y: int, width: int, instance: int) -> None:
         p = self.case_renderer.shelf_as_pixmap(width, self.layout_constraints.shelf_height, instance)
         shelf_rect = QRect(0, shelf.start_y, width, self.layout_constraints.shelf_height)
         shelf_rect.translate(0, -scroll_y)
@@ -2109,14 +2168,16 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         rect = divider.rect(lc).translated(0, -scroll_y)
         divider_rect = QRect(-rect.height() // 2, -rect.width() // 2, rect.height(), rect.width())
         text_right = gprefs['bookshelf_divider_text_right']
+        theme = self.theme
+        assert theme is not None
 
         def draw_rounded_divider(corner_radius: int, offset: int):
-            p = self.case_renderer.divider_as_pixmap(rect.width(), rect.height(), self.theme.divider_background_color, corner_radius, offset)
+            p = self.case_renderer.divider_as_pixmap(rect.width(), rect.height(), theme.divider_background_color, corner_radius, offset)
             painter.drawPixmap(rect.adjusted(0, -offset, 0, 0), p)
 
         match gprefs['bookshelf_divider_style']:
             case 'block':
-                painter.fillRect(rect, self.theme.divider_background_color)
+                painter.fillRect(rect, theme.divider_background_color)
             case 'gravestone':
                 radius = rect.width() // 2
                 offset = radius // 4
@@ -2136,11 +2197,12 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         elided_text, _, font, _, _ = self.get_text_metrics(divider.group_name, '', text_rect.size(), for_divider=True)
         painter.save()
         painter.setFont(font)
-        painter.setPen(self.theme.divider_text_color)
+        painter.setPen(theme.divider_text_color)
         painter.translate(rect.left() + rect.width() // 2, rect.top() + rect.height() // 2)
         painter.rotate(90 if gprefs['bookshelf_up_to_down'] else -90)
         alignment = Qt.AlignmentFlag.AlignRight if text_right else Qt.AlignmentFlag.AlignLeft
         sized_rect = painter.drawText(text_rect, alignment | Qt.AlignmentFlag.AlignVCenter, elided_text)
+        assert sized_rect is not None
         # Calculate line dimensions
         line_rect = text_rect.adjusted(sized_rect.width(), 0, 0, 0)
         overflow = (line_rect.height() - self.DIVIDER_LINE_WIDTH) // 2
@@ -2150,7 +2212,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         if line_rect.width() > 8:
             if text_right:
                 line_rect.translate(-sized_rect.width(), 0)
-            color1 = self.theme.divider_line_color.toRgb()
+            color1 = theme.divider_line_color.toRgb()
             color2 = color1.toRgb()
             color1.setAlphaF(0.0)  # Transparent at top/bottom
             color2.setAlphaF(0.75)  # Visible in middle
@@ -2188,6 +2250,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         else:
             if thumbnail.isNull():
                 thumbnail = self.default_cover_pixmap()
+            assert isinstance(thumbnail, PixmapWithDominantColor)
             spine_color = thumbnail.dominant_color
             if not spine_color.isValid():
                 spine_color = self.default_cover_pixmap().dominant_color
@@ -2214,12 +2277,14 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         self.draw_spine_title(painter, spine_rect, spine_color, spine.book_id, top_emblem_size, bottom_emblem_size)
 
     def selection_highlight_color(self, is_selected: bool, is_current: bool) -> QColor:
+        theme = self.theme
+        assert theme is not None
         if is_current and is_selected:
-            return self.theme.current_selected_color
+            return theme.current_selected_color
         if is_current:
-            return self.theme.current_color
+            return theme.current_color
         if is_selected:
-            return self.theme.selected_color
+            return theme.selected_color
         return QColor()
 
     def draw_spine_background(self, painter: QPainter, rect: QRect, spine_color: QColor):
@@ -2300,10 +2365,10 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
                 return
             # Adjust size
             case 'crops':
-                thumbnail = thumbnail.copy(0, 0, rect.width(), thumbnail.height())
+                thumbnail = thumbnail.copy_as_same_class(0, 0, rect.width(), thumbnail.height())
             case 'edge':
                 width = round(max(10, rect.width() * 0.2))
-                thumbnail = thumbnail.copy(0, 0, width, thumbnail.height())
+                thumbnail = thumbnail.copy_as_same_class(0, 0, width, thumbnail.height())
                 rect = QRect(rect.x(), rect.y(), width, rect.height())
         # Draw with opacity
         painter.save()
@@ -2332,19 +2397,21 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
             _, cover_img = resize_to_fit(cover_img, sz.width(), sz.height())
             cover_pixmap = PixmapWithDominantColor.fromImage(cover_img)
             tb = self.cover_cache.thumbnail_as_pixmap(si.book_id)
-            if tb and tb.dominant_color.isValid():
+            if isinstance(tb, PixmapWithDominantColor) and tb.dominant_color.isValid():
                 # ensure that the hover color is the same than the thumbnail/spine
                 cover_pixmap.dominant_color = tb.dominant_color
         final_sz = (QSizeF(cover_pixmap.size()) / dpr).toSize()
         return cover_pixmap, final_sz
 
     def get_contrasting_text_color(self, background_color: QColor) -> tuple[QColor, QColor]:
+        theme = self.theme
+        assert theme is not None
         if not background_color or not background_color.isValid():
-            return self.theme.text_color_for_light_background, self.theme.outline_color_for_light_background
-        if (contrast_ratio(background_color, self.theme.text_color_for_dark_background)
-            > contrast_ratio(background_color, self.theme.text_color_for_light_background)):
-            return self.theme.text_color_for_dark_background, self.theme.outline_color_for_dark_background
-        return self.theme.text_color_for_light_background, self.theme.outline_color_for_light_background
+            return theme.text_color_for_light_background, theme.outline_color_for_light_background
+        if (contrast_ratio(background_color, theme.text_color_for_dark_background)
+            > contrast_ratio(background_color, theme.text_color_for_light_background)):
+            return theme.text_color_for_dark_background, theme.outline_color_for_dark_background
+        return theme.text_color_for_light_background, theme.outline_color_for_light_background
 
     # Selection methods (required for AlternateViews integration)
 
@@ -2364,13 +2431,16 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
 
     def selectAll(self):
         m = self.model()
+        assert m is not None
         sm = self.selectionModel()
         sel = QItemSelection(m.index(0, 0), m.index(m.rowCount(QModelIndex())-1, 0))
         sm.select(sel, QItemSelectionModel.SelectionFlag.ClearAndSelect | QItemSelectionModel.SelectionFlag.Rows)
 
     def set_current_row(self, row):
         sm = self.selectionModel()
-        sm.setCurrentIndex(self.model().index(row, 0), QItemSelectionModel.SelectionFlag.NoUpdate)
+        m = self.model()
+        assert m is not None
+        sm.setCurrentIndex(m.index(row, 0), QItemSelectionModel.SelectionFlag.NoUpdate)
 
     def set_database(self, newdb, stage=0):
         if stage == 0:
@@ -2390,6 +2460,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
 
         def add(field: str, name: str) -> None:
             action = grouping_menu.addAction(name)
+            assert action is not None
             action.setCheckable(True)
             action.setChecked(self.grouping_mode == field)
             action.triggered.connect(partial(self.set_grouping_mode, field))
@@ -2398,10 +2469,10 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         for k, name in iter_all_groups(fm):
             add(k, name)
 
-    def contextMenuEvent(self, ev: QContextMenuEvent):
+    def contextMenuEvent(self, a0):
         if self.context_menu:
-            self.context_menu.popup(ev.globalPos())
-            ev.accept()
+            self.context_menu.popup(a0.globalPos())
+            a0.accept()
 
     def set_grouping_mode(self, mode: str):
         '''Set the grouping mode and refresh display.'''
@@ -2411,7 +2482,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
             self.invalidate()
 
     def get_selected_ids(self) -> list[int]:
-        return [self.book_id_from_row(index.row()) for index in self.selectionModel().selectedRows() if index.isValid()]
+        return [bid for index in self.selectionModel().selectedRows() if index.isValid() and (bid := self.book_id_from_row(index.row())) is not None]
 
     def current_book_state(self) -> SavedState:
         '''Get current book state for restoration.'''
@@ -2431,7 +2502,9 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         m = self.model()
         if not state or not m:
             return
-        id_to_index = m.db.data.safe_id_to_index
+        db = m.db
+        assert db is not None
+        id_to_index = db.data.safe_id_to_index
         selected_rows = set(map(id_to_index, state.selected_book_ids))
         selected_rows.discard(-1)
         orig_auto_scroll, self.auto_scroll = self.auto_scroll, self.bookcase.layout_finished
@@ -2461,29 +2534,29 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
 
     # Mouse and keyboard events {{{
 
-    def keyPressEvent(self, ev: QKeyEvent) -> None:
-        if handle_enter_press(self, ev, has_edit_cell=False):
+    def keyPressEvent(self, a0) -> None:
+        if handle_enter_press(self, a0, has_edit_cell=False):
             return
-        if ev.matches(QKeySequence.StandardKey.SelectAll):
+        if a0.matches(QKeySequence.StandardKey.SelectAll):
             self.selectAll()
-            ev.accept()
+            a0.accept()
             return
-        if (key := ev.key()) not in (
+        if (key := a0.key()) not in (
             Qt.Key.Key_Left, Qt.Key.Key_Right, Qt.Key.Key_Up, Qt.Key.Key_Down, Qt.Key.Key_PageDown,
             Qt.Key.Key_PageUp, Qt.Key.Key_Home, Qt.Key.Key_End, Qt.Key.Key_Space,
         ):
-            return super().keyPressEvent(ev)
+            return super().keyPressEvent(a0)
         if not self.bookcase.book_ids_in_visual_order or not (m := self.model()):
             return
-        ev.accept()
+        a0.accept()
         target_book_id = 0
         current_row = self.selectionModel().currentIndex().row()
         try:
             current_book_id = self.bookcase.row_to_book_id[current_row]
         except Exception:
             current_book_id = self.bookcase.book_ids_in_visual_order[0]
-        has_ctrl = bool(ev.modifiers() & Qt.KeyboardModifier.ControlModifier)
-        has_shift = bool(ev.modifiers() & Qt.KeyboardModifier.ShiftModifier)
+        has_ctrl = bool(a0.modifiers() & Qt.KeyboardModifier.ControlModifier)
+        has_shift = bool(a0.modifiers() & Qt.KeyboardModifier.ShiftModifier)
         ctrl_action = QItemSelectionModel.SelectionFlag.Toggle
         no_mods_action = QItemSelectionModel.SelectionFlag.ClearAndSelect
         match key:
@@ -2535,7 +2608,11 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         si = self.bookcase.book_id_to_item_map.get(self.book_id_from_row(index.row()))
         if si is None:
             return
-        viewport_height = self.viewport().height()
+        vp = self.viewport()
+        assert vp is not None
+        viewport_height = vp.height()
+        vsb = self.verticalScrollBar()
+        assert vsb is not None
         shelf_height = self.layout_constraints.step_height
         match hint:
             case QAbstractItemView.ScrollHint.PositionAtTop:
@@ -2545,11 +2622,11 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
             case QAbstractItemView.ScrollHint.PositionAtCenter:
                 y = max(0, (viewport_height - shelf_height)//2)
             case QAbstractItemView.ScrollHint.EnsureVisible:
-                top = si.case_start_y - self.verticalScrollBar().value()
+                top = si.case_start_y - vsb.value()
                 if top >= 0 and top + shelf_height <= viewport_height:
                     return
                 y = 0 if top < 0 else max(0, viewport_height - shelf_height)
-        self.verticalScrollBar().setValue(si.case_start_y - y)
+        vsb.setValue(si.case_start_y - y)
         self.update_viewport()
 
     def on_current_changed(self, current: QModelIndex, previous: QModelIndex) -> None:
@@ -2600,7 +2677,8 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
     def handle_mouse_release_event(self, ev: QMouseEvent) -> None:
         self.click_start_data = None
 
-    def mouseDoubleClickEvent(self, ev: QMouseEvent) -> bool:
+    def mouseDoubleClickEvent(self, a0) -> None:
+        ev = a0
         '''Handle mouse double-click events on the viewport.'''
         index = self.indexAt(ev.pos())
         self.click_start_data = None
@@ -2610,7 +2688,8 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
             ev.accept()
             double_click_action(index)
 
-    def viewportEvent(self, ev: QEvent) -> None:
+    def viewportEvent(self, a0):
+        ev = a0
         if ev.type() == QEvent.Type.Leave:
             # Clear hover when mouse leaves viewport
             self.expanded_cover.invalidate()
@@ -2621,7 +2700,9 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
     # }}}
 
     def item_at_position(self, x: int, y: int) -> tuple[CaseItem|None, CaseItem|None, ShelfItem|None]:
-        scroll_y = self.verticalScrollBar().value()
+        vsb = self.verticalScrollBar()
+        assert vsb is not None
+        scroll_y = vsb.value()
         content_y = y + scroll_y
         lc = self.layout_constraints
         x -= lc.side_margin

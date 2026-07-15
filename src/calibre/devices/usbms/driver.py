@@ -13,7 +13,7 @@ import os
 import shutil
 from itertools import cycle
 
-from calibre import fsync, isbytestring, prints
+from calibre import fsync, prints
 from calibre.constants import filesystem_encoding, ismacos, numeric_version
 from calibre.devices.usbms.books import Book, BookList
 from calibre.devices.usbms.cli import CLI
@@ -213,6 +213,7 @@ class USBMS(CLI, Device):
         prefix = self._card_a_prefix if oncard == 'carda' else \
                                      self._card_b_prefix if oncard == 'cardb' \
                                                          else self._main_prefix
+        assert prefix is not None
 
         ebook_dirs = self.get_carda_ebook_dir() if oncard == 'carda' else \
             self.EBOOK_DIR_CARD_B if oncard == 'cardb' else \
@@ -225,7 +226,7 @@ class USBMS(CLI, Device):
         need_sync = self.parse_metadata_cache(bl, prefix, self.METADATA_CACHE)
 
         # make a dict cache of paths so the lookup in the loop below is faster.
-        bl_cache = {}
+        bl_cache: dict[str, int | None] = {}
         for idx, b in enumerate(bl):
             bl_cache[b.lpath] = idx
 
@@ -316,6 +317,7 @@ class USBMS(CLI, Device):
 
         path = self._sanity_check(on_card, files)
 
+        assert metadata is not None
         paths = []
         names = iter(names)
         metadata = iter(metadata)
@@ -478,7 +480,7 @@ class USBMS(CLI, Device):
 
     @classmethod
     def path_to_unicode(cls, path):
-        if isbytestring(path):
+        if isinstance(path, bytes):
             path = path.decode(filesystem_encoding)
         return path
 

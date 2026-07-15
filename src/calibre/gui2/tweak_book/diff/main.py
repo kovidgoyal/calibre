@@ -63,9 +63,9 @@ class BusyWidget(QWidget):  # {{{
         l.addStretch(10)
         self.text = _('Calculating differences, please wait...')
 
-    def paintEvent(self, ev):
-        br = ev.region().boundingRect()
-        QWidget.paintEvent(self, ev)
+    def paintEvent(self, a0):
+        br = a0.region().boundingRect()
+        QWidget.paintEvent(self, a0)
         p = QPainter(self)
         p.setClipRect(br)
         f = p.font()
@@ -142,13 +142,15 @@ def get_decoded_raw(name):
                 enc = force_encoding(raw, verbose=True)
             if isinstance(enc, bytes):
                 enc = enc.decode('utf-8', 'ignore')
-            try:
-                raw = raw.decode(enc)
-            except (LookupError, ValueError):
+            if isinstance(raw, bytes):
                 try:
-                    raw = raw.decode('utf-8')
-                except ValueError:
-                    pass
+                    raw = raw.decode(enc)
+                except (LookupError, ValueError):
+                    if isinstance(raw, bytes):
+                        try:
+                            raw = raw.decode('utf-8')
+                        except ValueError:
+                            pass
     return raw, syntax
 
 
@@ -239,10 +241,13 @@ class Diff(Dialog):
         self.revert_button_msg = revert_button_msg
         self.show_as_window = show_as_window
         Dialog.__init__(self, _('Differences between books'), 'diff-dialog', parent=parent)
+        assert self.view is not None
         self.view.line_activated.connect(self.line_activated)
 
     def sizeHint(self):
-        geom = self.screen().availableSize()
+        screen = self.screen()
+        assert screen is not None
+        geom = screen.availableSize()
         return QSize(int(0.9 * geom.width()), int(0.8 * geom.height()))
 
     def setup_ui(self):
@@ -334,7 +339,9 @@ class Diff(Dialog):
             b.setIcon(QIcon.ic('edit-undo.png')), b.setAutoDefault(False)
             b.clicked.connect(self.revert_requested)
             b.clicked.connect(self.reject)
-        self.bb.button(QDialogButtonBox.StandardButton.Close).setDefault(True)
+        close_btn = self.bb.button(QDialogButtonBox.StandardButton.Close)
+        assert close_btn is not None
+        close_btn.setDefault(True)
         self.hl.addWidget(self.bb)
 
         self.view.setFocus(Qt.FocusReason.OtherFocusReason)
@@ -351,6 +358,7 @@ class Diff(Dialog):
         text = str(self.search.text())
         if not text.strip():
             return
+        assert self.view is not None
         v = self.view.view.left if self.lb.isChecked() else self.view.view.right
         v.search(text, reverse=reverse)
 
@@ -361,13 +369,15 @@ class Diff(Dialog):
         self.refresh()
 
     def refresh(self):
+        view = self.view
+        assert view is not None
         with self:
-            self.view.clear()
+            view.clear()
             for args, kwargs in self.apply_diff_calls:
                 kwargs['context'] = self.context
                 kwargs['beautify'] = self.beautify
-                self.view.add_diff(*args, **kwargs)
-            self.view.finalize()
+                view.add_diff(*args, **kwargs)
+            view.finalize()
 
     def toggle_beautify(self):
         self.beautify = not self.beautify
@@ -375,6 +385,7 @@ class Diff(Dialog):
         self.refresh()
 
     def set_beautify_action_text(self):
+        assert self.beautify_action is not None
         self.beautify_action.setText(
             _('Beautify files before comparing them') if not self.beautify else
             _('Do not beautify files before comparing'))
@@ -401,6 +412,7 @@ class Diff(Dialog):
         self.set_names(names)
         with self:
             identical = self.apply_diff(_('The books are identical'), *ebook_diff(path1, path2))
+            assert self.view is not None
             self.view.finalize()
         if identical:
             self.reject()
@@ -409,6 +421,7 @@ class Diff(Dialog):
         self.set_names(names)
         with self:
             identical = self.apply_diff(identical_msg or _('No changes found'), *container_diff(left, right))
+            assert self.view is not None
             self.view.finalize()
         if identical:
             self.reject()
@@ -416,6 +429,7 @@ class Diff(Dialog):
     def file_diff(self, left, right, identical_msg=None):
         with self:
             identical = self.apply_diff(identical_msg or _('The files are identical'), *file_diff(left, right))
+            assert self.view is not None
             self.view.finalize()
         if identical:
             self.reject()
@@ -423,6 +437,7 @@ class Diff(Dialog):
     def string_diff(self, left, right, **kw):
         with self:
             identical = self.apply_diff(kw.pop('identical_msg', None) or _('No differences found'), *string_diff(left, right, **kw))
+            assert self.view is not None
             self.view.finalize()
         if identical:
             self.reject()
@@ -430,16 +445,19 @@ class Diff(Dialog):
     def dir_diff(self, left, right, identical_msg=None):
         with self:
             identical = self.apply_diff(identical_msg or _('The folders are identical'), *dir_diff(left, right))
+            assert self.view is not None
             self.view.finalize()
         if identical:
             self.reject()
 
     def apply_diff(self, identical_msg, cache, syntax_map, changed_names, renamed_names, removed_names, added_names):
-        self.view.clear()
+        view = self.view
+        assert view is not None
+        view.clear()
         self.apply_diff_calls = calls = []
 
         def add(args, kwargs):
-            self.view.add_diff(*args, **kwargs)
+            view.add_diff(*args, **kwargs)
             calls.append((args, kwargs))
 
         if len(changed_names) + len(renamed_names) + len(removed_names) + len(added_names) < 1:
@@ -472,29 +490,34 @@ class Diff(Dialog):
             args = (name, new_name, None, None)
             add(args, kwargs(name))
 
-    def keyPressEvent(self, ev):
-        if not self.view.handle_key(ev):
-            if ev.key() in (Qt.Key.Key_Enter, Qt.Key.Key_Return):
+    def keyPressEvent(self, a0):
+        view = self.view
+        assert view is not None
+        if not view.handle_key(a0):
+            if a0.key() in (Qt.Key.Key_Enter, Qt.Key.Key_Return):
                 return  # The enter key is used by the search box, so prevent it closing the dialog
-            if ev.key() == Qt.Key.Key_Slash:
+            if a0.key() == Qt.Key.Key_Slash:
                 return self.search.setFocus(Qt.FocusReason.OtherFocusReason)
-            if ev.matches(QKeySequence.StandardKey.Copy):
-                text = self.view.view.left.selected_text + self.view.view.right.selected_text
+            if a0.matches(QKeySequence.StandardKey.Copy):
+                text = view.view.left.selected_text + view.view.right.selected_text
                 if text:
-                    QApplication.clipboard().setText(text)
+                    cb = QApplication.clipboard()
+                    assert cb is not None
+                    cb.setText(text)
                 return
-            if ev.matches(QKeySequence.StandardKey.FindNext):
+            if a0.matches(QKeySequence.StandardKey.FindNext):
                 self.sbn.click()
                 return
-            if ev.matches(QKeySequence.StandardKey.FindPrevious):
+            if a0.matches(QKeySequence.StandardKey.FindPrevious):
                 self.sbp.click()
                 return
-            return Dialog.keyPressEvent(self, ev)
+            return Dialog.keyPressEvent(self, a0)
 
 
 def compare_books(path1, path2, revert_msg=None, revert_callback=None, parent=None, names=None):
     d = Diff(parent=parent, revert_button_msg=revert_msg)
     if revert_msg is not None:
+        assert revert_callback is not None
         d.revert_requested.connect(revert_callback)
     QTimer.singleShot(0, partial(d.ebook_diff, path1, path2, names=names))
     d.exec()

@@ -8,12 +8,8 @@ __copyright__ = '2011, Alex Stanev <alex@stanev.org>'
 __docformat__ = 'restructuredtext en'
 
 from contextlib import closing
-
-try:
-    from urllib.error import HTTPError
-    from urllib.parse import quote
-except ImportError:
-    from urllib2 import HTTPError, quote
+from urllib.error import HTTPError
+from urllib.parse import quote
 
 from qt.core import QUrl
 
@@ -71,7 +67,7 @@ def parse_book_page(doc, base_url, counter):
 
 class ChitankaStore(BasicStoreConfig, StorePlugin):
 
-    def open(self, parent=None, detail_item=None, external=False):
+    def open(self, gui=None, parent=None, detail_item=None, external=False):
         url = 'http://chitanka.info'
 
         if external or self.config.get('open_external', False):

@@ -163,6 +163,7 @@ class ConnectionListener(Thread):
                         pass
                     except OSError:
                         x = sys.exc_info()[1]
+                        assert x is not None
                         self.driver._debug('unexpected socket exception', x.args[0])
                         self._close_socket(device_socket)
                         device_socket = None
@@ -570,7 +571,9 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
 
     def _read_binary_from_net(self, length):
         try:
-            v = self.device_socket.recv(length)
+            device_socket = self.device_socket
+            assert device_socket is not None
+            v = device_socket.recv(length)
             return v
         except Exception:
             self._close_device_socket()
@@ -964,6 +967,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             if (self.noop_counter > self.SEND_NOOP_EVERY_NTH_PROBE and
                     (self.noop_counter % self.SEND_NOOP_EVERY_NTH_PROBE) != 1):
                 try:
+                    assert self.device_socket is not None
                     ans = select.select((self.device_socket,), (), (), 0)
                     if len(ans[0]) == 0:
                         return self
@@ -1198,7 +1202,9 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                     # the device.
                     raise OpenFailed('')
             try:
-                peer = self.device_socket.getpeername()[0]
+                device_socket = self.device_socket
+                assert device_socket is not None
+                peer = device_socket.getpeername()[0]
                 self.connection_attempts[peer] = 0
             except Exception:
                 pass
@@ -1208,6 +1214,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             self._close_device_socket()
         except OSError:
             x = sys.exc_info()[1]
+            assert x is not None
             self._debug('unexpected socket exception', x.args[0])
             self._close_device_socket()
             raise
@@ -1483,6 +1490,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             sanity_check(on_card='', files=files, card_prefixes=[],
                          free_space=self.free_space())
         paths = []
+        assert metadata is not None
         names = iter(names)
         metadata = iter(metadata)
 
@@ -2032,12 +2040,12 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             return self.settings().extra_customization[opt]
         return default
 
-    def set_option(self, opt_string, value):
+    def set_option(self, opt_string, opt_value):
         opt = self.OPTNAME_TO_NUMBER_MAP.get(opt_string)
         if opt is not None:
             config = self._configProxy()
             ec = config['extra_customization']
-            ec[opt] = value
+            ec[opt] = opt_value
             config['extra_customization'] = ec
 
     def is_running(self):

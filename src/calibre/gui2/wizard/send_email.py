@@ -118,23 +118,25 @@ class RelaySetup(QDialog):
         l.addWidget(self.tl, 0, 0, 3, 0)
         self.tl.setWordWrap(True)
         self.tl.setOpenExternalLinks(True)
-        for name, label in (
-                ['from_', _('Your %s &email address:')],
-                ['password', _('Your %s &password:')],
-                ):
+        self.ptoggle = QCheckBox(_('&Show password'), self)
+        self.ptoggle.stateChanged.connect(self.update_pssword_visibility)
+
+        def make_le(name, label) -> QLineEdit:
             la = QLabel(label%service['name'])
             le = QLineEdit(self)
-            setattr(self, name, le)
             setattr(self, name+'_label', la)
             r = l.rowCount()
             l.addWidget(la, r, 0)
             l.addWidget(le, r, 1)
             la.setBuddy(le)
             if name == 'password':
-                self.ptoggle = QCheckBox(_('&Show password'), self)
                 l.addWidget(self.ptoggle, r, 2)
-                self.ptoggle.stateChanged.connect(
-                        lambda s: self.password.setEchoMode(QLineEdit.EchoMode.Normal if s == Qt.CheckState.Checked else QLineEdit.EchoMode.Password))
+            return le
+
+        self.from_ = make_le('from_', _('Your %s &email address:'))
+        self.password = make_le('password', _('Your %s &password:'))
+        self.update_pssword_visibility()
+
         self.password.setEchoMode(QLineEdit.EchoMode.Password)
         self.bl = QLabel('<p>' + _(
             'If you plan to use email to send books to your Kindle, remember to'
@@ -146,6 +148,9 @@ class RelaySetup(QDialog):
         self.setWindowTitle(_('Setup') + ' ' + service['name'])
         self.resize(self.sizeHint())
         self.service = service
+
+    def update_pssword_visibility(self):
+        self.password.setEchoMode(QLineEdit.EchoMode.Normal if self.ptoggle.isChecked() else QLineEdit.EchoMode.PasswordEchoOnEdit)
 
     @property
     def service_username(self):
@@ -248,7 +253,7 @@ class SendEmail(QWidget, Ui_Form):
         return tb
 
     def create_service_relay(self, service, *args):
-        service = {
+        rservice = {
                 'gmx': {
                     'name': 'GMX',
                     'relay': 'mail.gmx.com',
@@ -288,14 +293,14 @@ class SendEmail(QWidget, Ui_Form):
                     'at_in_username': True,
                 }
         }[service]
-        d = RelaySetup(service, self)
+        d = RelaySetup(rservice, self)
         if d.exec() != QDialog.DialogCode.Accepted:
             return
         self.relay_username.setText(d.service_username)
         self.relay_password.setText(d.password.text())
         self.email_from.setText(d.from_.text())
-        self.relay_host.setText(service['relay'])
-        self.relay_port.setValue(service['port'])
+        self.relay_host.setText(str(rservice['relay']))
+        self.relay_port.setValue(int(rservice['port']))
         self.relay_tls.setChecked(True)
 
     def set_email_settings(self, to_set):

@@ -67,7 +67,9 @@ class MetadataWidget(Widget, Ui_Form):
         self.comment.hide_toolbars()
         self.cover.cover_changed.connect(self.change_cover)
         self.series.currentTextChanged.connect(self.series_changed)
-        cuh = self.db.new_api.pref('categories_using_hierarchy', default=())
+        db = self.db
+        assert db is not None
+        cuh = db.new_api.pref('categories_using_hierarchy', default=())
         if 'series' in cuh:
             self.series.set_hierarchy_separator('.')
         if 'tags' in cuh:
@@ -82,21 +84,25 @@ class MetadataWidget(Widget, Ui_Form):
         au = str(self.author.currentText())
         au = re.sub(r'\s+et al\.$', '', au)
         authors = string_to_authors(au)
-        self.author_sort.setText(self.db.author_sort_from_authors(authors))
+        db = self.db
+        assert db is not None
+        self.author_sort.setText(db.author_sort_from_authors(authors))
         self.author_sort.home(False)
 
     def initialize_metadata_options(self):
+        db = self.db
+        assert db is not None
         self.initialize_combos()
         self.author.editTextChanged.connect(self.deduce_author_sort)
 
-        mi = self.db.get_metadata(self.book_id, index_is_id=True)
+        mi = db.get_metadata(self.book_id, index_is_id=True)
         self.title.setText(mi.title), self.title.home(False)
         self.publisher.show_initial_value(mi.publisher or '')
         self.publisher.home(False)
         self.author_sort.setText(mi.author_sort or '')
         self.author_sort.home(False)
         self.tags.setText(', '.join(mi.tags or []))
-        self.tags.update_items_cache(self.db.new_api.all_field_names('tags'))
+        self.tags.update_items_cache(db.new_api.all_field_names('tags'))
         self.tags.home(False)
         self.comment.html = comments_to_html(mi.comments) if mi.comments else ''
         self.series.show_initial_value(mi.series or '')
@@ -107,7 +113,7 @@ class MetadataWidget(Widget, Ui_Form):
             except Exception:
                 self.series_index.setValue(1.0)
 
-        cover = self.db.cover(self.book_id, index_is_id=True)
+        cover = db.cover(self.book_id, index_is_id=True)
         if cover:
             pm = QPixmap()
             pm.loadFromData(cover)
@@ -139,14 +145,16 @@ class MetadataWidget(Widget, Ui_Form):
         self.initialize_publisher()
 
     def initalize_authors(self):
-        all_authors = self.db.all_authors()
+        db = self.db
+        assert db is not None
+        all_authors = db.all_authors()
         all_authors.sort(key=lambda x: sort_key(x[1]))
         self.author.set_separator('&')
         self.author.set_space_before_sep(True)
         self.author.set_add_separator(tweaks['authors_completer_append_separator'])
-        self.author.update_items_cache(self.db.new_api.all_field_names('authors'))
+        self.author.update_items_cache(db.new_api.all_field_names('authors'))
 
-        au = self.db.authors(self.book_id, True)
+        au = db.authors(self.book_id, True)
         if not au:
             au = _('Unknown')
         au = ' & '.join([a.strip().replace('|', ',') for a in au.split(',')])
@@ -154,12 +162,16 @@ class MetadataWidget(Widget, Ui_Form):
         self.author.home(False)
 
     def initialize_series(self):
+        db = self.db
+        assert db is not None
         self.series.set_separator(None)
-        self.series.update_items_cache(self.db.new_api.all_field_names('series'))
+        self.series.update_items_cache(db.new_api.all_field_names('series'))
 
     def initialize_publisher(self):
+        db = self.db
+        assert db is not None
         self.publisher.set_separator(None)
-        self.publisher.update_items_cache(self.db.new_api.all_field_names('publisher'))
+        self.publisher.update_items_cache(db.new_api.all_field_names('publisher'))
 
     def get_title_and_authors(self):
         title = str(self.title.text()).strip()
@@ -249,7 +261,7 @@ class MetadataWidget(Widget, Ui_Form):
             if self.cover_changed and self.cover_data is not None:
                 self.db.set_cover(self.book_id, self.cover_data)
         except OSError as err:
-            err.locking_violation_msg = _("Failed to change on disk location of this book's files.")
+            setattr(err, 'locking_violation_msg', _("Failed to change on disk location of this book's files."))
             raise
         publisher = self.publisher.text().strip()
         if publisher != db.field_for('publisher', self.book_id):

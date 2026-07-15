@@ -4,7 +4,7 @@ __docformat__ = 'restructuredtext en'
 
 import re
 
-from qt.core import QDialog, QDialogButtonBox
+from qt.core import QCheckBox, QComboBox, QDialog, QDialogButtonBox, QLineEdit
 
 from calibre.gui2.store.config.chooser.adv_search_builder_ui import Ui_Dialog
 from calibre.library.caches import CONTAINS_MATCH, EQUALS_MATCH
@@ -12,6 +12,10 @@ from calibre.utils.localization import localize_user_manual_link
 
 
 class AdvSearchBuilderDialog(QDialog, Ui_Dialog):
+    FIELDS: dict[str, str]
+    text: QLineEdit
+    negate: QCheckBox
+    field: QComboBox
 
     def __init__(self, parent):
         QDialog.__init__(self, parent)
@@ -35,9 +39,13 @@ class AdvSearchBuilderDialog(QDialog, Ui_Dialog):
 
     def tab_changed(self, idx):
         if idx == 1:
-            self.tab_2_button_box.button(QDialogButtonBox.StandardButton.Ok).setDefault(True)
+            btn = self.tab_2_button_box.button(QDialogButtonBox.StandardButton.Ok)
+            assert btn is not None
+            btn.setDefault(True)
         else:
-            self.buttonBox.button(QDialogButtonBox.StandardButton.Ok).setDefault(True)
+            btn = self.buttonBox.button(QDialogButtonBox.StandardButton.Ok)
+            assert btn is not None
+            btn.setDefault(True)
 
     def advanced_search_button_pushed(self):
         self.adv_search_used = True

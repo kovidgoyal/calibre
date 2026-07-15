@@ -284,13 +284,13 @@ class ThemeCreateDialog(Dialog):
         l.addLayout(h)
         self.w = w = QGroupBox(_('Theme Metadata'), self)
         self.splitter.addWidget(w)
-        l = w.l = QFormLayout(w)
+        l = QFormLayout(w)
         l.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.ExpandingFieldsGrow)
         self.missing_icons_group = mg = QGroupBox(self)
         self.missing_icons = mi = QListWidget(mg)
         mi.setSelectionMode(QAbstractItemView.SelectionMode.NoSelection)
-        mg.l = QVBoxLayout(mg)
-        mg.l.addWidget(mi)
+        mg_l = QVBoxLayout(mg)
+        mg_l.addWidget(mi)
         self.splitter.addWidget(mg)
         self.title = QLineEdit(self)
         l.addRow(_('&Title:'), self.title)
@@ -315,6 +315,7 @@ class ThemeCreateDialog(Dialog):
         self.description = QTextEdit(self)
         l.addRow(self.description)
         self.refresh_button = rb = self.bb.addButton(_('&Refresh'), QDialogButtonBox.ButtonRole.ActionRole)
+        assert rb is not None
         rb.setIcon(QIcon.ic('view-refresh.png'))
         rb.clicked.connect(self.refresh)
 
@@ -503,6 +504,7 @@ def create_theme(folder=None, parent=None):
     if d.wasCanceled() or d.raw is None:
         return
     raw, prefix = d.raw, d.prefix
+    assert isinstance(prefix, str)
     dest = choose_save_file(parent, 'create-icon-theme-dest', _(
         'Choose destination for icon theme'),
         [(_('ZIP files'), ['zip'])], initial_filename=prefix + '.zip')
@@ -824,7 +826,9 @@ class ChooseTheme(Dialog):
         self.dialog_closed = True
 
     def sizeHint(self):
-        h = self.screen().availableSize().height()
+        screen = self.screen()
+        assert screen is not None
+        h = screen.availableSize().height()
         return QSize(900, h - 75)
 
     def setup_ui(self):
@@ -833,10 +837,11 @@ class ChooseTheme(Dialog):
         self.pi = pi = ProgressIndicator(self, 256)
         vl.addLayout(l), vl.addWidget(self.bb)
         self.restore_defs_button = b = self.bb.addButton(_('Restore &default icons'), QDialogButtonBox.ButtonRole.ActionRole)
+        assert b is not None
         b.clicked.connect(self.restore_defaults)
         b.setIcon(QIcon.ic('view-refresh.png'))
         self.c = c = QWidget(self)
-        self.c.v = v = QVBoxLayout(self.c)
+        v = QVBoxLayout(self.c)
         v.addStretch(), v.addWidget(pi, 0, Qt.AlignmentFlag.AlignCenter)
         self.wait_msg = m = QLabel(self)
         v.addWidget(m, 0, Qt.AlignmentFlag.AlignCenter), v.addStretch()
@@ -861,7 +866,9 @@ class ChooseTheme(Dialog):
         t.start()
 
     def sync_sorts(self, idx):
-        for tab in (self.tabs.widget(i) for i in range(self.tabs.count())):
+        for i in range(self.tabs.count()):
+            tab = self.tabs.widget(i)
+            assert isinstance(tab, ChooseThemeWidget)
             tab.sync_sort(idx)
 
     def start_spinner(self, msg=None):
@@ -908,9 +915,13 @@ class ChooseTheme(Dialog):
         self.setWindowTitle(_('Choose from {} available icon themes').format(len(self.themes)))
         for theme in self.themes:
             theme['usage'] = self.usage.get(theme['name'], 0)
-        for tab in (self.tabs.widget(i) for i in range(self.tabs.count())):
+        for i in range(self.tabs.count()):
+            tab = self.tabs.widget(i)
+            assert isinstance(tab, ChooseThemeWidget)
             tab.show_themes(self.themes)
-        self.tabs.currentWidget().theme_list.setFocus(Qt.FocusReason.OtherFocusReason)
+        _current_tab = self.tabs.currentWidget()
+        assert isinstance(_current_tab, ChooseThemeWidget)
+        _current_tab.theme_list.setFocus(Qt.FocusReason.OtherFocusReason)
         get_covers(self.themes, self)
 
     def set_cover(self, theme, cdata):
@@ -919,17 +930,23 @@ class ChooseTheme(Dialog):
         if isinstance(cdata, bytes):
             p.loadFromData(cdata)
             p.setDevicePixelRatio(dpr)
-        for tab in (self.tabs.widget(i) for i in range(self.tabs.count())):
+        for i in range(self.tabs.count()):
+            tab = self.tabs.widget(i)
+            assert isinstance(tab, ChooseThemeWidget)
             tab.set_cover(theme['name'], p)
 
     def restore_defaults(self):
-        for tab in (self.tabs.widget(i) for i in range(self.tabs.count())):
+        for i in range(self.tabs.count()):
+            tab = self.tabs.widget(i)
+            assert isinstance(tab, ChooseThemeWidget)
             tab.set_current_theme(default_theme()['name'])
 
     def accept(self):
         themes_to_download = {}
         themes_to_remove = set()
-        for tab in (self.tabs.widget(i) for i in range(self.tabs.count())):
+        for i in range(self.tabs.count()):
+            tab = self.tabs.widget(i)
+            assert isinstance(tab, ChooseThemeWidget)
             t = tab.current_theme
             if is_default_theme(t):
                 themes_to_remove.add(tab.for_theme)
@@ -986,7 +1003,11 @@ class ChooseTheme(Dialog):
             order = 'dark', 'any', 'light'
         else:
             order = 'light', 'any', 'dark'
-        tm = {tab.for_theme: tab for tab in (self.tabs.widget(i) for i in range(self.tabs.count()))}
+        tm: dict[str, ChooseThemeWidget] = {}
+        for i in range(self.tabs.count()):
+            _w = self.tabs.widget(i)
+            assert isinstance(_w, ChooseThemeWidget)
+            tm[_w.for_theme] = _w
         for x in order:
             tab = tm[x]
             t = tab.current_theme

@@ -151,13 +151,17 @@ class Polish(QDialog):  # {{{
         bb.accepted.connect(self.accept)
         bb.rejected.connect(self.reject)
         self.save_button = sb = bb.addButton(_('&Save settings'), QDialogButtonBox.ButtonRole.ActionRole)
+        assert sb is not None
         sb.clicked.connect(self.save_settings)
         self.load_button = lb = bb.addButton(_('&Load settings'), QDialogButtonBox.ButtonRole.ActionRole)
+        assert lb is not None
         self.load_menu = QMenu(lb)
         lb.setMenu(self.load_menu)
         self.all_button = b = bb.addButton(_('Select &all'), QDialogButtonBox.ButtonRole.ActionRole)
+        assert b is not None
         connect_lambda(b.clicked, self, lambda self: self.select_all(True))
         self.none_button = b = bb.addButton(_('Select &none'), QDialogButtonBox.ButtonRole.ActionRole)
+        assert b is not None
         connect_lambda(b.clicked, self, lambda self: self.select_all(False))
         l.addWidget(bb, count+1, 1, 1, -1)
         bb.setFocus()
@@ -202,7 +206,9 @@ class Polish(QDialog):  # {{{
             a(m.addAction(name, partial(self.load_settings, name)))
         m.addSeparator()
         a(m.addAction(_('Remove saved settings'), self.clear_settings))
-        self.load_button.setEnabled(bool(saved))
+        load_button = self.load_button
+        assert load_button is not None
+        load_button.setEnabled(bool(saved))
 
     def clear_settings(self):
         gprefs.set('polish_settings', {})
@@ -233,7 +239,7 @@ class Polish(QDialog):  # {{{
         return False
 
     def accept(self):
-        self.actions = ac = {}
+        self.chosen_actions = ac = {}
         saved_prefs = {}
         gprefs['polish_show_reports'] = bool(self.show_reports.isChecked())
         something = False
@@ -249,7 +255,9 @@ class Polish(QDialog):  # {{{
                   ' the book files. Do you want to select it?')):
                 return
             ac['metadata'] = saved_prefs['metadata'] = True
-            self.opt_metadata.setChecked(True)
+            opt_metadata = self.findChild(QCheckBox, 'metadata')
+            assert opt_metadata is not None
+            opt_metadata.setChecked(True)
         if ac['jacket'] and ac['remove_jacket']:
             if not question_dialog(self, _('Add or remove jacket?'), _(
                     'You have chosen to both add and remove the metadata jacket.'
@@ -299,11 +307,12 @@ class Polish(QDialog):  # {{{
         base = os.path.join(self.tdir, str(book_id))
         os.mkdir(base)
         db = self.db()
+        assert db is not None
         opf = os.path.join(base, 'metadata.opf')
         with open(opf, 'wb') as opf_file:
             mi = create_opf_file(db, book_id, opf_file=opf_file)[0]
         data = {'opf':opf, 'files':[]}
-        for action in self.actions:
+        for action in self.chosen_actions:
             data[action] = bool(getattr(self, 'opt_'+action).isChecked())
         cover = os.path.join(base, 'cover.jpg')
         if db.copy_cover_to(book_id, cover, index_is_id=True):
@@ -359,8 +368,11 @@ class Report(QDialog):  # {{{
         bb.accepted.connect(self.accept)
         bb.rejected.connect(self.reject)
         b = self.log_button = bb.addButton(_('View full &log'), QDialogButtonBox.ButtonRole.ActionRole)
+        assert b is not None
         b.clicked.connect(self.view_log)
-        bb.button(QDialogButtonBox.StandardButton.Close).setDefault(True)
+        close_button = bb.button(QDialogButtonBox.StandardButton.Close)
+        assert close_button is not None
+        close_button.setDefault(True)
         l.addWidget(bb, 2, 1)
 
         self.finished.connect(self.show_next, type=Qt.ConnectionType.QueuedConnection)
@@ -380,12 +392,14 @@ class Report(QDialog):  # {{{
             self.show_next()
 
     def show_report(self, book_title, book_id, fmts, job, report):
-        from calibre.ebooks.markdown import markdown
+        from markdown import markdown
         self.current_log = job.details
         self.setWindowTitle(_('Polishing of %s')%book_title)
         self.view.setText(markdown(f'# {book_title}\n\n' + report,
                                    output_format='html4'))
-        self.bb.button(QDialogButtonBox.StandardButton.Close).setFocus(Qt.FocusReason.OtherFocusReason)
+        close_btn = self.bb.button(QDialogButtonBox.StandardButton.Close)
+        assert close_btn is not None
+        close_btn.setFocus(Qt.FocusReason.OtherFocusReason)
         self.backup_msg.setVisible(bool(fmts))
         if fmts:
             m = ngettext('The original file has been saved as %s.',
@@ -398,7 +412,9 @@ class Report(QDialog):  # {{{
 
     def view_log(self):
         self.view.setPlainText(self.current_log)
-        self.view.verticalScrollBar().setValue(0)
+        vsb = self.view.verticalScrollBar()
+        assert vsb is not None
+        vsb.setValue(0)
 
     def show_next(self, *args):
         if not self.reports:

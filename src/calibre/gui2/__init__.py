@@ -56,6 +56,7 @@ from qt.core import (
     QWidget,
     pyqtSignal,
     pyqtSlot,
+    sip,
 )
 
 import calibre.gui2.pyqt6_compat as pqc
@@ -225,22 +226,23 @@ class IconResourceManager:
 
     def overriden_icon_paths(self, name: str) -> tuple[str, str, str]:
         either = light = dark = ''
+        p: str = self.override_icon_path or ''
         parts = name.replace(os.sep, '/').split('/')
-        sq = os.path.join(self.override_icon_path, name)
+        sq = os.path.join(p, name)
         if len(parts) == 1:
             base, ext = os.path.splitext(parts[0])
             if os.path.basename(sq) in self.override_items['']:
                 either = sq
             if (sq := f'{base}-for-light-theme{ext}') in self.override_items['']:
-                light = os.path.join(self.override_icon_path, sq)
+                light = os.path.join(p, sq)
             if (sq := f'{base}-for-dark-theme{ext}') in self.override_items['']:
-                dark = os.path.join(self.override_icon_path, sq)
+                dark = os.path.join(p, sq)
         else:
             subfolder = '/'.join(parts[:-1])
             entries = self.override_items.get(subfolder)
-            if entries is None and self.override_icon_path:
+            if entries is None and p:
                 try:
-                    self.override_items[subfolder] = entries = frozenset(os.listdir(os.path.join(self.override_icon_path, subfolder)))
+                    self.override_items[subfolder] = entries = frozenset(os.listdir(os.path.join(p, subfolder)))
                 except OSError:
                     self.override_items[subfolder] = entries = frozenset()
             if entries:
@@ -248,9 +250,9 @@ class IconResourceManager:
                     either = sq
                 base, ext = os.path.splitext(parts[-1])
                 if (sq := f'{base}-for-light-theme{ext}') in entries:
-                    light = os.path.join(self.override_icon_path, subfolder, sq)
+                    light = os.path.join(p, subfolder, sq)
                 if (sq := f'{base}-for-dark-theme{ext}') in entries:
-                    dark = os.path.join(self.override_icon_path, subfolder, sq)
+                    dark = os.path.join(p, subfolder, sq)
         return either, light, dark
 
     def cached_icon(self, name=''):
@@ -266,7 +268,7 @@ class IconResourceManager:
             icon = self.icon_cache[name] = self(name)
         return icon
 
-    def __call__(self, name: str, fallback: bytes = b'') -> QIcon:
+    def __call__(self, name: str | QIcon | None, fallback: bytes = b'') -> QIcon:
         if isinstance(name, QIcon):
             return name
         if not name:
@@ -302,10 +304,10 @@ class IconResourceManager:
 
 
 icon_resource_manager = IconResourceManager()
-QIcon.ic = icon_resource_manager
-QIcon.icon_as_png = icon_resource_manager.icon_as_png
+QIcon.ic = icon_resource_manager  # type: ignore
+QIcon.icon_as_png = icon_resource_manager.icon_as_png  # type: ignore
 QIcon.is_ok = lambda self: not self.isNull() and len(self.availableSizes()) > 0
-QIcon.cached_icon = icon_resource_manager.cached_icon
+QIcon.cached_icon = icon_resource_manager.cached_icon  # type: ignore
 qtb_init = QToolBar.__init__
 
 
@@ -315,7 +317,7 @@ def configure_toolbar_extension_button(self, parent=None):
         teb.setToolTip(_('Show more buttons'))
 
 
-QToolBar.__init__ = configure_toolbar_extension_button
+QToolBar.__init__ = configure_toolbar_extension_button  # type: ignore
 
 
 # Setup gprefs {{{
@@ -704,11 +706,15 @@ def available_heights():
 
 
 def available_height():
-    return qapplication_or_fail().primaryScreen().availableSize().height()
+    screen = qapplication_or_fail().primaryScreen()
+    assert screen is not None
+    return screen.availableSize().height()
 
 
 def available_width():
-    return qapplication_or_fail().primaryScreen().availableSize().width()
+    screen = qapplication_or_fail().primaryScreen()
+    assert screen is not None
+    return screen.availableSize().width()
 
 
 def max_available_height():
@@ -721,6 +727,7 @@ def min_available_height():
 
 def get_screen_dpi():
     s = qapplication_or_fail().primaryScreen()
+    assert s is not None
     return s.logicalDotsPerInchX(), s.logicalDotsPerInchY()
 
 
@@ -964,13 +971,14 @@ class GetMetadata(QObject):
 class FileIconProvider(QFileIconProvider):
 
     ICONS = EXT_MAP
+    icons: dict[str, str | QIcon]
 
     def __init__(self):
         super().__init__()
         self.icons = {k:f'mimetypes/{v}.png' for k, v in self.ICONS.items()}
         self.icons['calibre'] = I('lt.png', allow_user_override=False)
         for i in ('dir', 'default', 'zero'):
-            self.icons[i] = QIcon.ic(self.icons[i])
+            self.icons[i] = QIcon.ic(str(self.icons[i]))
 
     def key_from_ext(self, ext):
         key = ext if ext in self.icons else 'default'
@@ -1012,14 +1020,15 @@ class FileIconProvider(QFileIconProvider):
             key = self.key_from_ext(ext)
         return self.cached_icon(key)
 
-    def icon(self, arg):
+    def icon(self, *args, **kwargs):
+        arg = args[0] if args else None
         if isinstance(arg, QFileInfo):
             return self.load_icon(arg)
         if arg == QFileIconProvider.IconType.Folder:
             return self.icons['dir']
         if arg == QFileIconProvider.IconType.File:
             return self.icons['default']
-        return QFileIconProvider.icon(self, arg)
+        return QFileIconProvider.icon(self, *args, **kwargs)
 
 
 _file_icon_provider = None
@@ -1076,7 +1085,7 @@ def choose_files_and_remember_all_files(
 
 
 def is_dark_theme():
-    app = QApplication.instance()
+    app = cast(QApplication, QApplication.instance())
     if app is not None:
         pal = app.palette()
         return pal.is_dark_theme()
@@ -1138,8 +1147,11 @@ class ResizableDialog(QDialog):
 
     def __init__(self, *args, **kwargs):
         QDialog.__init__(self, *args)
-        self.setupUi(self)
-        geom = self.screen().availableSize()
+        if s := getattr(self, 'setupUi', None):
+            s(self)
+        screen = self.screen()
+        assert screen is not None
+        geom = screen.availableSize()
         nh, nw = max(550, geom.height()-25), max(700, geom.width()-10)
         nh = min(self.height(), nh)
         nw = min(self.width(), nw)
@@ -1148,6 +1160,7 @@ class ResizableDialog(QDialog):
 
 gui_thread = None
 qt_app = None
+builtin_fonts_loaded = False
 
 
 def calibre_font_files():
@@ -1159,9 +1172,9 @@ def load_builtin_fonts():
     global _rating_font, builtin_fonts_loaded
     # Load the builtin fonts and any fonts added to calibre by the user to
     # Qt
-    if hasattr(load_builtin_fonts, 'done'):
+    if builtin_fonts_loaded:
         return
-    load_builtin_fonts.done = True
+    builtin_fonts_loaded = True
     for ff in calibre_font_files():
         if ff.rpartition('.')[-1].lower() in {'ttf', 'otf'}:
             with open(ff, 'rb') as s:
@@ -1210,7 +1223,7 @@ def setup_unix_signals(self):
         original_handlers[sig] = signal.signal(sig, lambda x, y: None)
         signal.siginterrupt(sig, False)
     signal.set_wakeup_fd(write_fd)
-    self.signal_notifier = QSocketNotifier(read_fd, QSocketNotifier.Type.Read, self)
+    self.signal_notifier = QSocketNotifier(sip.voidptr(read_fd), QSocketNotifier.Type.Read, self)
     self.signal_notifier.setEnabled(True)
     self.signal_notifier.activated.connect(self.signal_received, type=Qt.ConnectionType.QueuedConnection)
     return original_handlers
@@ -1230,6 +1243,8 @@ class Application(QApplication):
 
     shutdown_signal_received = pyqtSignal()
     palette_changed = pyqtSignal()
+    if not iswindows:
+        signal_notifier: QSocketNotifier
 
     def __init__(
         self, args=(), force_calibre_style=False, override_program_name=None, headless=False, color_prefs=gprefs, windows_app_uid=None,
@@ -1366,7 +1381,7 @@ class Application(QApplication):
     def emphasis_window_background_color(self):
         return (builtin_colors_dark if self.is_dark_theme else builtin_colors_light)['yellow']
 
-    @pyqtSlot(int, result=QIcon)
+    @pyqtSlot(int, result='QIcon')
     def get_qt_standard_icon(self, standard_pixmap):
         return self.palette_manager.get_qt_standard_icon(standard_pixmap)
 
@@ -1409,7 +1424,9 @@ class Application(QApplication):
 
     def flush_clipboard(self):
         try:
-            if self.clipboard().ownsClipboard():
+            cb = self.clipboard()
+            assert cb is not None
+            if cb.ownsClipboard():
                 import ctypes
                 ctypes.WinDLL('ole32.dll').OleFlushClipboard()
         except Exception:
@@ -1458,11 +1475,11 @@ class Application(QApplication):
     def load_translations(self):
         install_qt_translator()
 
-    def event(self, e):
-        etype = e.type()
+    def event(self, a0):
+        etype = a0.type()
         if etype == QEvent.Type.FileOpen:
             added_event = False
-            qurl = e.url()
+            qurl = a0.url()
             if qurl.isLocalFile():
                 with self._file_open_lock:
                     path = qurl.toLocalFile()
@@ -1478,7 +1495,7 @@ class Application(QApplication):
         else:
             if etype == QEvent.Type.ApplicationPaletteChange:
                 self.palette_manager.on_qt_palette_change()
-            return QApplication.event(self, e)
+            return QApplication.event(self, a0)
 
     @pyqtSlot(QUrl)
     def handle_calibre_url(self, qurl):
@@ -1515,7 +1532,7 @@ class Application(QApplication):
     def __enter__(self):
         self.setQuitOnLastWindowClosed(False)
 
-    def __exit__(self, *args):
+    def __exit__(self, type, value, traceback):
         self.setQuitOnLastWindowClosed(True)
 
     def setup_unix_signals(self):
@@ -1529,7 +1546,7 @@ class Application(QApplication):
         self.shutdown_signal_received.emit()
 
 
-_store_app = None
+_store_app: QApplication | None = None
 
 
 SanitizeLibraryPath = sanitize_env_vars  # For old plugins
@@ -1623,39 +1640,42 @@ def simple_excepthook(t, v, tb):
     return sys.__excepthook__(t, v, tb)
 
 
-def ensure_app(headless=True):
+def ensure_app(headless=True) -> QApplication:
     global _store_app
     with _ea_lock:
-        if _store_app is None and QApplication.instance() is None:
-            args = sys.argv[:1]
-            if not headless:
-                _store_app = Application([])
-                sys.excepthook = simple_excepthook
-                return
-            has_headless = ismacos or islinux or isbsd
-            if headless and has_headless:
-                args += ['-platformpluginpath', plugins_loc, '-platform', os.environ.get('CALIBRE_HEADLESS_PLATFORM', 'headless')]
-                # WebEngine GPU not needed in headless mode
-                args += ['--webEngineArgs', '--disable-gpu']
-                if ismacos:
-                    os.environ['QT_MAC_DISABLE_FOREGROUND_APPLICATION_TRANSFORM'] = '1'
-            if headless and iswindows:
-                QApplication.setAttribute(Qt.ApplicationAttribute.AA_UseSoftwareOpenGL, True)
-            QApplication.setAttribute(Qt.ApplicationAttribute.AA_ShareOpenGLContexts)
-            _store_app = QApplication(args)
-            set_image_allocation_limit()
-            if headless and has_headless:
-                _store_app.headless = True
+        if _store_app is None:
+            if QApplication.instance() is None:
+                args = sys.argv[:1]
+                if not headless:
+                    _store_app = Application([])
+                    sys.excepthook = simple_excepthook
+                    return _store_app
+                has_headless = ismacos or islinux or isbsd
+                if headless and has_headless:
+                    args += ['-platformpluginpath', plugins_loc, '-platform', os.environ.get('CALIBRE_HEADLESS_PLATFORM', 'headless')]
+                    # WebEngine GPU not needed in headless mode
+                    args += ['--webEngineArgs', '--disable-gpu']
+                    if ismacos:
+                        os.environ['QT_MAC_DISABLE_FOREGROUND_APPLICATION_TRANSFORM'] = '1'
+                if headless and iswindows:
+                    QApplication.setAttribute(Qt.ApplicationAttribute.AA_UseSoftwareOpenGL, True)
+                QApplication.setAttribute(Qt.ApplicationAttribute.AA_ShareOpenGLContexts)
+                _store_app = QApplication(args)
+                set_image_allocation_limit()
+                if headless and has_headless:
+                    setattr(_store_app, 'headless', True)
 
-            # This is needed because as of PyQt 5.4 if sys.execpthook ==
-            # sys.__excepthook__ PyQt will abort the application on an
-            # unhandled python exception in a slot or virtual method. Since ensure_app()
-            # is used in worker processes for background work like rendering html
-            # or running a headless browser, we circumvent this as I really
-            # don't feel like going through all the code and making sure no
-            # unhandled exceptions ever occur. All the actual GUI apps already
-            # override sys.excepthook with a proper error handler.
-            sys.excepthook = simple_excepthook
+                # This is needed because as of PyQt 5.4 if sys.execpthook ==
+                # sys.__excepthook__ PyQt will abort the application on an
+                # unhandled python exception in a slot or virtual method. Since ensure_app()
+                # is used in worker processes for background work like rendering html
+                # or running a headless browser, we circumvent this as I really
+                # don't feel like going through all the code and making sure no
+                # unhandled exceptions ever occur. All the actual GUI apps already
+                # override sys.excepthook with a proper error handler.
+                sys.excepthook = simple_excepthook
+            else:
+                _store_app = qapplication_or_fail()
     return _store_app
 
 

@@ -7,12 +7,8 @@ __license__ = 'GPL 3'
 __copyright__ = '2012, Alex Stanev <alex@stanev.org>'
 __docformat__ = 'restructuredtext en'
 
-try:
-    from urllib.parse import quote_plus
-except ImportError:
-    from urllib import quote_plus
-
 from contextlib import closing
+from urllib.parse import quote_plus
 
 from calibre import browser
 from calibre.gui2 import open_url
@@ -31,7 +27,7 @@ class BiblioStore(BasicStoreConfig, StorePlugin):
 
     web_url = 'https://biblio.bg'
 
-    def open(self, parent=None, detail_item=None, external=False):
+    def open(self, gui=None, parent=None, detail_item=None, external=False):
         if external or self.config.get('open_external', False):
             open_url(detail_item)
         else:
@@ -51,7 +47,7 @@ class BiblioStore(BasicStoreConfig, StorePlugin):
         url = '{}/книги?query={}&search_by=0'.format(self.web_url, quote_plus(query))
         yield from self._do_search(url, max_results, timeout)
 
-    def get_details(self, search_result, timeout):
+    def get_details(self, search_result, timeout=60):
         br = browser()
         with closing(br.open(search_result.detail_item, timeout=timeout)) as nf:
             idata = safe_html_fromstring(nf.read())

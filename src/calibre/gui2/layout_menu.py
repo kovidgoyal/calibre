@@ -2,7 +2,10 @@
 # License: GPLv3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
 
 
+from typing import cast
+
 from qt.core import (
+    QBoxLayout,
     QEvent,
     QFontMetrics,
     QHBoxLayout,
@@ -45,14 +48,14 @@ class LayoutItem(QWidget):
     def dull_icon(self, height):
         return self.button.icon().pixmap(height, height, mode=QIcon.Mode.Disabled)
 
-    def enterEvent(self, ev):
-        super().enterEvent(ev)
+    def enterEvent(self, event):
+        super().enterEvent(event)
         if not self.mouse_over:
             self.mouse_over = True
             self.update()
 
-    def leaveEvent(self, ev):
-        super().leaveEvent(ev)
+    def leaveEvent(self, a0):
+        super().leaveEvent(a0)
         if self.mouse_over:
             self.mouse_over = False
             self.update()
@@ -64,7 +67,7 @@ class LayoutItem(QWidget):
         h = 2 * self.fm.lineSpacing() + ICON_SZ + 2 * self.VMARGIN
         return QSize(w, h)
 
-    def paintEvent(self, ev):
+    def paintEvent(self, a0):
         shown = self.button.isChecked()
         ls = self.fm.lineSpacing()
         painter = QStylePainter(self)
@@ -75,6 +78,7 @@ class LayoutItem(QWidget):
             tool.state = QStyle.StateFlag.State_Raised | QStyle.StateFlag.State_Active | QStyle.StateFlag.State_MouseOver
             painter.drawPrimitive(QStyle.PrimitiveElement.PE_PanelButtonTool, tool)
         br = painter.drawText(0, 0, self.width(), ls, Qt.AlignmentFlag.AlignCenter | Qt.TextFlag.TextSingleLine, self.text)
+        assert br is not None
         top = br.bottom()
         bottom = self.height() - ls
         text = _('Hide') if shown else _('Show')
@@ -100,7 +104,9 @@ class LayoutMenuInner(QWidget):
 
     @property
     def gui(self):
-        return self.parent().parent()
+        _parent = self.parent()
+        assert _parent is not None
+        return _parent.parent()
 
     def delayed_init(self):
         if not self.initialized:
@@ -112,48 +118,52 @@ class LayoutMenuInner(QWidget):
                     for i in 'search tags cover_flow grid book'.split()]
                 for b in buttons:
                     b.setVisible(False), b.setCheckable(True), b.setChecked(b.text() in 'tags grid')
-                    b.label = b.text().capitalize()
+                    setattr(b, 'label', b.text().capitalize())
             else:
                 buttons = gui.layout_buttons
             l = self.layout()
+            assert l is not None
             for b in buttons:
                 self.items.append(LayoutItem(b, self))
-                l.addWidget(self.items[-1], alignment=Qt.AlignmentFlag.AlignBottom)
+                cast(QBoxLayout, l).addWidget(self.items[-1], alignment=Qt.AlignmentFlag.AlignBottom)
         self.current_item = None
         for x in self.items:
             x.update_tips()
         self.resize(self.sizeHint())
 
-    def paintEvent(self, ev):
+    def paintEvent(self, a0):
         painter = QPainter(self)
         col = self.palette().window().color()
         col.setAlphaF(0.9)
         painter.fillRect(self.rect(), col)
-        super().paintEvent(ev)
+        super().paintEvent(a0)
 
     def item_for_ev(self, ev):
         for item in self.items:
             if item.geometry().contains(ev.pos()):
                 return item
 
-    def mousePressEvent(self, ev):
-        if ev.button() != Qt.MouseButton.LeftButton:
-            ev.ignore()
+    def mousePressEvent(self, a0):
+        if a0.button() != Qt.MouseButton.LeftButton:
+            a0.ignore()
             return
-        self.current_item = self.item_for_ev(ev)
+        self.current_item = self.item_for_ev(a0)
         if self.current_item is not None:
-            ev.accept()
+            a0.accept()
         else:
-            ev.ignore()
+            a0.ignore()
 
-    def mouseReleaseEvent(self, ev):
-        if ev.button() != Qt.MouseButton.LeftButton:
-            ev.ignore()
+    def mouseReleaseEvent(self, a0):
+        if a0.button() != Qt.MouseButton.LeftButton:
+            a0.ignore()
             return
-        item = self.item_for_ev(ev)
+        item = self.item_for_ev(a0)
         if item is not None and item is self.current_item:
-            ev.accept()
-            self.parent().hide()
+            a0.accept()
+            menu_parent = self.parent()
+            assert menu_parent is not None
+            assert isinstance(menu_parent, QWidget)
+            menu_parent.hide()
             item.button.click()
 
     def handle_key_press(self, ev):
@@ -165,7 +175,10 @@ class LayoutMenuInner(QWidget):
             else:
                 sc = QKeySequence.fromString(sc)
             if sc.matches(q) == QKeySequence.SequenceMatch.ExactMatch:
-                self.parent().hide()
+                menu_parent = self.parent()
+                assert menu_parent is not None
+                assert isinstance(menu_parent, QWidget)
+                menu_parent.hide()
                 item.button.click()
                 ev.accept()
                 break
@@ -188,35 +201,37 @@ class LayoutMenu(QWidget):
     def show(self):
         self.inner.delayed_init()
         parent = self.parent()
+        assert parent is not None
+        assert isinstance(parent, QWidget)
         self.move(0, 0)
         self.resize(parent.rect().size())
         r = parent.rect()
         y = r.height()
         if hasattr(parent, 'layout_button'):
-            lb = parent.layout_button
+            lb = cast(QWidget, parent.layout_button)
             y = lb.mapTo(parent, lb.rect().topLeft()).y()
         self.inner.move(r.width() - self.inner.size().width(), y - self.inner.size().height())
         super().show()
         self.raise_()
         self.setFocus(Qt.FocusReason.OtherFocusReason)
 
-    def event(self, ev):
-        if ev.type() == QEvent.Type.ShortcutOverride and self.isVisible():
-            ev.accept()
-        return super().event(ev)
+    def event(self, a0):
+        if a0.type() == QEvent.Type.ShortcutOverride and self.isVisible():
+            a0.accept()
+        return super().event(a0)
 
-    def keyPressEvent(self, ev):
-        if ev.matches(QKeySequence.StandardKey.Cancel):
+    def keyPressEvent(self, a0):
+        if a0.matches(QKeySequence.StandardKey.Cancel):
             self.hide()
         else:
-            self.inner.handle_key_press(ev)
+            self.inner.handle_key_press(a0)
 
-    def mousePressEvent(self, ev):
-        if ev.button() != Qt.MouseButton.LeftButton:
-            ev.ignore()
+    def mousePressEvent(self, a0):
+        if a0.button() != Qt.MouseButton.LeftButton:
+            a0.ignore()
             return
-        if self.inner.rect().contains(ev.pos()):
-            ev.ignore()
+        if self.inner.rect().contains(a0.pos()):
+            a0.ignore()
         else:
             self.hide()
 

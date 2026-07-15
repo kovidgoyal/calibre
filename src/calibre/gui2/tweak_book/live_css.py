@@ -57,20 +57,22 @@ class Heading(QWidget):  # {{{
 
     def do_layout(self):
         try:
-            f = self.parent().font()
-        except AttributeError:
+            p = self.parent()
+            assert isinstance(p, QWidget)
+            f = p.font()
+        except (AttributeError, AssertionError):
             return
         f.setBold(True)
         self.setFont(f)
 
-    def mousePressEvent(self, ev):
-        if ev.button() == Qt.MouseButton.LeftButton:
-            ev.accept()
+    def mousePressEvent(self, a0):
+        if a0.button() == Qt.MouseButton.LeftButton:
+            a0.accept()
             self.expanded ^= True
             self.toggled.emit(self)
             self.update()
         else:
-            return QWidget.mousePressEvent(self, ev)
+            return QWidget.mousePressEvent(self, a0)
 
     @property
     def rendered_text(self):
@@ -81,9 +83,9 @@ class Heading(QWidget):  # {{{
         sz = fm.boundingRect(self.rendered_text).size()
         return sz
 
-    def paintEvent(self, ev):
+    def paintEvent(self, a0):
         p = QPainter(self)
-        p.setClipRect(ev.rect())
+        p.setClipRect(a0.rect())
         bg = self.palette().color(QPalette.ColorRole.AlternateBase)
         if self.hovering:
             bg = bg.lighter(115)
@@ -93,18 +95,18 @@ class Heading(QWidget):  # {{{
         finally:
             p.end()
 
-    def enterEvent(self, ev):
+    def enterEvent(self, event):
         self.hovering = True
         self.update()
-        return QWidget.enterEvent(self, ev)
+        return QWidget.enterEvent(self, event)
 
-    def leaveEvent(self, ev):
+    def leaveEvent(self, a0):
         self.hovering = False
         self.update()
-        return QWidget.leaveEvent(self, ev)
+        return QWidget.leaveEvent(self, a0)
 
-    def contextMenuEvent(self, ev):
-        self.context_menu_requested.emit(self, ev)
+    def contextMenuEvent(self, a0):
+        self.context_menu_requested.emit(self, a0)
 # }}}
 
 
@@ -203,9 +205,9 @@ class Declaration(QWidget):
     def sizeHint(self):
         return QSize(self.width_hint, self.height_hint)
 
-    def paintEvent(self, ev):
+    def paintEvent(self, a0):
         p = QPainter(self)
-        p.setClipRect(ev.rect())
+        p.setClipRect(a0.rect())
         palette = self.palette()
         p.setPen(palette.color(QPalette.ColorRole.WindowText))
         if not self.is_first:
@@ -228,9 +230,9 @@ class Declaration(QWidget):
         finally:
             p.end()
 
-    def mouseMoveEvent(self, ev):
+    def mouseMoveEvent(self, a0):
         if hasattr(self, 'hyperlink_rect'):
-            pos = ev.pos()
+            pos = a0.pos()
             hovering = self.hyperlink_rect.contains(pos)
             self.update_hover(hovering)
             cursor = Qt.CursorShape.ArrowCursor
@@ -243,14 +245,14 @@ class Declaration(QWidget):
                 if cursor != Qt.CursorShape.ArrowCursor:
                     break
             self.setCursor(cursor)
-        return QWidget.mouseMoveEvent(self, ev)
+        return QWidget.mouseMoveEvent(self, a0)
 
-    def mousePressEvent(self, ev):
-        if hasattr(self, 'hyperlink_rect') and ev.button() == Qt.MouseButton.LeftButton:
-            pos = ev.pos()
+    def mousePressEvent(self, a0):
+        if hasattr(self, 'hyperlink_rect') and a0.button() == Qt.MouseButton.LeftButton:
+            pos = a0.pos()
             if self.hyperlink_rect.contains(pos):
                 self.emit_hyperlink_activated()
-        return QWidget.mousePressEvent(self, ev)
+        return QWidget.mousePressEvent(self, a0)
 
     def emit_hyperlink_activated(self):
         dt = self.data['type']
@@ -266,10 +268,10 @@ class Declaration(QWidget):
             data['syntax'] = 'css'
         self.hyperlink_activated.emit(data)
 
-    def leaveEvent(self, ev):
+    def leaveEvent(self, a0):
         self.update_hover(False)
         self.setCursor(Qt.CursorShape.ArrowCursor)
-        return QWidget.leaveEvent(self, ev)
+        return QWidget.leaveEvent(self, a0)
 
     def update_hover(self, hovering):
         cell = self.rows[0][0]
@@ -278,8 +280,8 @@ class Declaration(QWidget):
             cell.override_color = QColor(Qt.GlobalColor.red) if hovering else None
             self.update()
 
-    def contextMenuEvent(self, ev):
-        self.context_menu_requested.emit(self, ev)
+    def contextMenuEvent(self, a0):
+        self.context_menu_requested.emit(self, a0)
 
 
 class Box(QWidget):
@@ -294,8 +296,10 @@ class Box(QWidget):
         self.widgets = []
 
     def show_data(self, data):
+        layout = self.layout()
+        assert layout is not None
         for w in self.widgets:
-            self.layout().removeWidget(w)
+            layout.removeWidget(w)
             for x in ('toggled', 'hyperlink_activated', 'context_menu_requested'):
                 if hasattr(w, x):
                     try:
@@ -312,19 +316,19 @@ class Box(QWidget):
                 title = _('Matched CSS rules for %s') % node_name
             h = Heading(title, parent=self)
             h.toggled.connect(self.heading_toggled)
-            self.widgets.append(h), self.layout().addWidget(h)
+            self.widgets.append(h), layout.addWidget(h)
             for i, declaration in enumerate(node['css']):
                 d = Declaration(data['html_name'], declaration, is_first=i == 0, parent=self)
                 d.hyperlink_activated.connect(self.hyperlink_activated)
-                self.widgets.append(d), self.layout().addWidget(d)
+                self.widgets.append(d), layout.addWidget(d)
 
         h = Heading(_('Computed final style'), parent=self)
         h.toggled.connect(self.heading_toggled)
-        self.widgets.append(h), self.layout().addWidget(h)
+        self.widgets.append(h), layout.addWidget(h)
         ccss = data['computed_css']
         declaration = {'properties':[Property([k, ccss[k][0], '', ccss[k][1]]) for k in sorted(ccss)]}
         d = Declaration(None, declaration, is_first=True, parent=self)
-        self.widgets.append(d), self.layout().addWidget(d)
+        self.widgets.append(d), layout.addWidget(d)
         for w in self.widgets:
             w.context_menu_requested.connect(self.context_menu_requested)
 
@@ -375,13 +379,17 @@ class Box(QWidget):
             return
         block = '\n'.join(lines).replace('\xa0', ' ')
         heading = lines[0]
+        def _copy_to_clipboard(text):
+            cb = qapplication_or_fail().clipboard()
+            assert cb is not None
+            cb.setText(text)
         m = QMenu(self)
-        m.addAction(QIcon.ic('edit-copy.png'), _('Copy') + ' ' + heading.replace('\xa0', ' '), lambda: qapplication_or_fail().clipboard().setText(block))
+        m.addAction(QIcon.ic('edit-copy.png'), _('Copy') + ' ' + heading.replace('\xa0', ' '), lambda: _copy_to_clipboard(block))
         all_lines = []
         for w in self.widgets:
             all_lines += w.lines_for_copy
         all_text = '\n'.join(all_lines).replace('\xa0', ' ')
-        m.addAction(QIcon.ic('edit-copy.png'), _('Copy everything'), lambda: qapplication_or_fail().clipboard().setText(all_text))
+        m.addAction(QIcon.ic('edit-copy.png'), _('Copy everything'), lambda: _copy_to_clipboard(all_text))
         m.exec(ev.globalPos())
 
 
@@ -433,7 +441,7 @@ class LiveCSS(QWidget):
 
         self.box = box = Box(self)
         box.hyperlink_activated.connect(self.goto_declaration, type=Qt.ConnectionType.QueuedConnection)
-        self.scroll = sc = QScrollArea(self)
+        sc = QScrollArea(self)
         sc.setWidget(box)
         sc.setWidgetResizable(True)
         s.addWidget(sc)
@@ -508,6 +516,7 @@ class LiveCSS(QWidget):
         selector = rule['selector']
         sheet_index = rule['sheet_index']
         rule_address = rule['rule_address'] or ()
+        specificity: list[object]
         if selector is not None:
             try:
                 specificity = [0] + list(parse(selector)[0].specificity())
@@ -540,10 +549,10 @@ class LiveCSS(QWidget):
     def is_visible(self):
         return self.isVisible()
 
-    def showEvent(self, ev):
+    def showEvent(self, a0):
         self.update_timer.start()
         actions['auto-reload-preview'].setEnabled(True)
-        return QWidget.showEvent(self, ev)
+        return QWidget.showEvent(self, a0)
 
     def sync_to_editor(self):
         self.update_data()

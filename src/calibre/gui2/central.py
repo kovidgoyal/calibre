@@ -5,6 +5,7 @@ from contextlib import suppress
 from copy import copy
 from dataclasses import asdict, dataclass, fields
 from enum import Enum, auto
+from typing import TYPE_CHECKING
 
 from qt.core import (
     QAction,
@@ -31,6 +32,9 @@ from qt.core import (
 from calibre.gui2 import Application, config, gprefs
 from calibre.gui2.cover_flow import MIN_SIZE
 from calibre.utils.localization import _
+
+if TYPE_CHECKING:
+    from calibre.gui2.ui import Main
 
 HIDE_THRESHOLD = 10
 SHOW_THRESHOLD = 50
@@ -120,6 +124,7 @@ class Placeholder(QLabel):
 class LayoutButton(QToolButton):
 
     on_action_trigger = pyqtSignal(bool)
+    shortcut: str | None
 
     def __init__(self, name: str, icon: str, label: str, central: CentralContainer, shortcut=None):
         super().__init__(central)
@@ -134,7 +139,7 @@ class LayoutButton(QToolButton):
         if isinstance(central, CentralContainer):
             self.toggled.connect(central.layout_button_toggled)
 
-    def initialize_with_gui(self, gui):
+    def initialize_with_gui(self, gui: Main):
         if self.shortcut is not None:
             self.action_toggle = QAction(self.icon(), _('Toggle') + ' ' + self.label, self)
             self.action_toggle.changed.connect(self.update_shortcut)
@@ -175,13 +180,13 @@ class LayoutButton(QToolButton):
     def update_state(self, *args):
         self.set_state_to_show() if self.is_visible else self.set_state_to_hide()
 
-    def mouseReleaseEvent(self, ev):
-        if ev.button() == Qt.MouseButton.RightButton:
+    def mouseReleaseEvent(self, a0):
+        if a0.button() == Qt.MouseButton.RightButton:
             from calibre.gui2.ui import get_gui
-            gui = get_gui()
+            gui = get_gui(fail_if_absent=True)
             if self.name == 'search':
                 gui.iactions['Preferences'].do_config(initial_plugin=('Interface', 'Search'), close_after_initial=True)
-                ev.accept()
+                a0.accept()
                 return
             tab_name = {
                 'book_details':'book_details',
@@ -194,9 +199,9 @@ class LayoutButton(QToolButton):
             if tab_name:
                 if gui is not None:
                     gui.iactions['Preferences'].do_config(initial_plugin=('Interface', 'Look & Feel', tab_name+'_tab'), close_after_initial=True)
-                    ev.accept()
+                    a0.accept()
                     return
-        return QToolButton.mouseReleaseEvent(self, ev)
+        return QToolButton.mouseReleaseEvent(self, a0)
 
 
 class HandleState(Enum):
@@ -213,7 +218,7 @@ class SplitterHandle(QWidget):
     drag_start = None
     COLLAPSED_SIZE = 2  # pixels
 
-    def __init__(self, parent: QWidget=None, orientation: Qt.Orientation = Qt.Orientation.Vertical):
+    def __init__(self, parent: CentralContainer | None = None, orientation: Qt.Orientation = Qt.Orientation.Vertical):
         super().__init__(parent)
         self.set_orientation(orientation)
 
@@ -228,36 +233,37 @@ class SplitterHandle(QWidget):
     def state(self) -> HandleState:
         p = self.parent()
         if p is not None:
+            assert isinstance(p, CentralContainer)
             try:
                 return p.handle_state(self)
             except AttributeError as err:
                 raise Exception(str(err)) from err
         return HandleState.both_visible
 
-    def mousePressEvent(self, ev):
-        super().mousePressEvent(ev)
-        if ev.button() is Qt.MouseButton.LeftButton:
-            self.drag_start = ev.position()
+    def mousePressEvent(self, a0):
+        super().mousePressEvent(a0)
+        if a0.button() is Qt.MouseButton.LeftButton:
+            self.drag_start = a0.position()
 
-    def mouseReleaseEvent(self, ev):
-        super().mouseReleaseEvent(ev)
-        if ev.button() is Qt.MouseButton.LeftButton:
+    def mouseReleaseEvent(self, a0):
+        super().mouseReleaseEvent(a0)
+        if a0.button() is Qt.MouseButton.LeftButton:
             self.drag_start = None
 
-    def mouseDoubleClickEvent(self, ev):
-        if ev.button() == Qt.MouseButton.LeftButton:
+    def mouseDoubleClickEvent(self, a0):
+        if a0.button() == Qt.MouseButton.LeftButton:
             self.toggle_requested.emit()
-            ev.accept()
+            a0.accept()
             return
-        return super().mouseDoubleClickEvent(ev)
+        return super().mouseDoubleClickEvent(a0)
 
-    def mouseMoveEvent(self, ev):
-        super().mouseMoveEvent(ev)
+    def mouseMoveEvent(self, a0):
+        super().mouseMoveEvent(a0)
         if self.drag_start is not None:
-            pos = ev.position() - self.drag_start
+            pos = a0.position() - self.drag_start
             self.dragged_to.emit(self.mapToParent(pos))
 
-    def paintEvent(self, ev):
+    def paintEvent(self, a0):
         p = QStylePainter(self)
         opt = QStyleOption()
         opt.initFrom(self)
@@ -300,10 +306,10 @@ class WideDesires:
 
 @dataclass
 class NarrowDesires:
-    book_details_height: int = 0.3
-    quick_view_height: int = 0.2
-    tag_browser_width: int = 0.25
-    cover_browser_width: int = 0.35
+    book_details_height: float = 0.3
+    quick_view_height: float = 0.2
+    tag_browser_width: float = 0.25
+    cover_browser_width: float = 0.35
 
     def serialize(self):
         return {k: v for k, v in asdict(self).items() if v > 0}
@@ -474,6 +480,7 @@ class CentralContainer(QWidget):
     def layout_button_toggled(self):
         if not self.ignore_button_toggles:
             b = self.sender()
+            assert isinstance(b, LayoutButton)
             if b.name == 'quick_view':
                 return
             self.set_visibility_of(b.name, b.isChecked())
@@ -585,6 +592,7 @@ class CentralContainer(QWidget):
 
     def splitter_handle_dragged(self, pos):
         handle = self.sender()
+        assert isinstance(handle, SplitterHandle)
         bv = copy(self.is_visible)
         if self.layout is Layout.wide:
             bd = copy(self.wide_desires)
@@ -599,8 +607,8 @@ class CentralContainer(QWidget):
                 self.update_button_states_from_visibility()
             self.relayout()
 
-    def resizeEvent(self, ev):
-        super().resizeEvent(ev)
+    def resizeEvent(self, a0):
+        super().resizeEvent(a0)
         self.relayout()
 
     def relayout(self):
@@ -648,6 +656,7 @@ class CentralContainer(QWidget):
 
     def do_wide_layout(self):
         s = self.style()
+        assert s is not None
         normal_handle_width = int(s.pixelMetric(QStyle.PixelMetric.PM_SplitterWidth, widget=self))
         available_width = self.width()
         for h in (self.left_handle, self.right_handle):
@@ -784,6 +793,7 @@ class CentralContainer(QWidget):
 
     def do_narrow_layout_with_cb_on_top(self):
         s = self.style()
+        assert s is not None
         normal_handle_width = int(s.pixelMetric(QStyle.PixelMetric.PM_SplitterWidth, widget=self))
         available_height = self.height()
         for handle in (self.bottom_handle, self.right_handle):
@@ -836,6 +846,7 @@ class CentralContainer(QWidget):
         if self.narrow_cb_on_top:
             return self.do_narrow_layout_with_cb_on_top()
         s = self.style()
+        assert s is not None
         normal_handle_width = int(s.pixelMetric(QStyle.PixelMetric.PM_SplitterWidth, widget=self))
         available_height = self.height()
         hs = self.bottom_handle.state
@@ -919,7 +930,6 @@ class CentralContainer(QWidget):
                 w = min(available_width, self.width() - x - self.right_handle.width())
                 if w < HIDE_THRESHOLD:
                     self.is_visible.cover_browser = False
-                    self.narrow_desires.book_details_width = 0
                 else:
                     self.narrow_desires.cover_browser_width = max(self.cover_browser.minimumWidth(), w) / self.width()
         elif handle is self.bottom_handle:
@@ -985,27 +995,27 @@ def develop():
             h.addWidget(self.central.quick_view_button)
             l.addWidget(self.central)
             self.resize(self.sizeHint())
-        def keyPressEvent(self, ev):
-            if ev.key() == Qt.Key.Key_Q:
+        def keyPressEvent(self, a0):
+            if a0.key() == Qt.Key.Key_Q:
                 self.central.toggle_quick_view()
-            elif ev.key() == Qt.Key.Key_T:
+            elif a0.key() == Qt.Key.Key_T:
                 self.central.toggle_tag_browser()
-            elif ev.key() == Qt.Key.Key_C:
+            elif a0.key() == Qt.Key.Key_C:
                 self.central.toggle_cover_browser()
-            elif ev.key() == Qt.Key.Key_D:
+            elif a0.key() == Qt.Key.Key_D:
                 self.central.toggle_book_details()
-            elif ev.key() == Qt.Key.Key_L:
+            elif a0.key() == Qt.Key.Key_L:
                 self.central.toggle_layout()
-            elif ev.key() == Qt.Key.Key_R:
+            elif a0.key() == Qt.Key.Key_R:
                 self.central.reset_to_defaults()
-            elif ev.key() == Qt.Key.Key_Escape:
+            elif a0.key() == Qt.Key.Key_Escape:
                 self.reject()
 
-    d = d()
-    d.central.read_settings()
-    d.show()
+    dx = d()
+    dx.central.read_settings()
+    dx.show()
     app.exec()
-    d.central.write_settings()
+    dx.central.write_settings()
 
 
 if __name__ == '__main__':

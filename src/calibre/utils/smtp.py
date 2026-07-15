@@ -14,7 +14,6 @@ import sys
 import traceback
 from encodings import idna
 
-from calibre import isbytestring
 from calibre.constants import iswindows
 from calibre.utils.localization import _
 from polyglot.builtins import as_unicode
@@ -93,12 +92,13 @@ def create_mail(from_, to, subject, text=None, attachment_data=None,
     outer.preamble = 'You will not see this in a MIME-aware mail reader.\n'
 
     if text is not None:
-        if isbytestring(text):
+        if isinstance(text, bytes):
             text = text.decode('utf-8', 'replace')
         outer.set_content(text)
 
     if attachment_data is not None:
         assert attachment_data and attachment_name
+        assert attachment_type is not None
         try:
             maintype, subtype = attachment_type.split('/', 1)
         except Exception:

@@ -48,7 +48,7 @@ class RuleEdit(QWidget):  # {{{
             if clause == '{preamble}':
                 self.preamble = w = QLabel(_('If the &property:'))
             elif clause == '{property}':
-                self.property = w = QLineEdit(self)
+                self.property_widget = w = QLineEdit(self)
                 w.setToolTip(_('The name of a CSS property, for example: font-size\n'
                                'Do not use shorthand properties, they will not work.\n'
                                'For instance use margin-top, not margin.'))
@@ -62,7 +62,7 @@ class RuleEdit(QWidget):  # {{{
             h.addWidget(w)
             if clause is not parts[-1]:
                 h.addWidget(QLabel('\xa0'))
-        self.preamble.setBuddy(self.property)
+        self.preamble.setBuddy(self.property_widget)
 
         self.h2 = h = QHBoxLayout()
         l.addLayout(h)
@@ -127,7 +127,7 @@ class RuleEdit(QWidget):  # {{{
     @property
     def rule(self):
         return {
-            'property':self.property.text().strip().lower(),
+            'property':self.property_widget.text().strip().lower(),
             'match_type': self.match_type.currentData(),
             'query': self.query.text().strip(),
             'action': self.action.currentData(),
@@ -142,7 +142,7 @@ class RuleEdit(QWidget):  # {{{
             idx = max(idx, 0)
             c.setCurrentIndex(idx)
         sc('action'), sc('match_type')
-        self.property.setText(str(rule.get('property', '')).strip())
+        self.property_widget.setText(str(rule.get('property', '')).strip())
         self.query.setText(str(rule.get('query', '')).strip())
         self.action_data.setText(str(rule.get('action_data', '')).strip())
         self.update_state()
@@ -229,7 +229,7 @@ class Tester(Dialog):  # {{{
         self.test_button = b = QPushButton(_('&Test'), self)
         b.clicked.connect(self.do_test)
         h.addWidget(b)
-        self.result = la = TextEdit(self)
+        self.result_widget = la = TextEdit(self)
         la.setReadOnly(True)
         l.addWidget(la)
         l.addWidget(self.bb)
@@ -247,7 +247,7 @@ class Tester(Dialog):  # {{{
         self.set_result(css)
 
     def set_result(self, css):
-        self.result.load_text(self.RESULTS + css, self.SYNTAX)
+        self.result_widget.load_text(self.RESULTS + css, self.SYNTAX)
 
     def sizeHint(self):
         return QSize(800, 600)

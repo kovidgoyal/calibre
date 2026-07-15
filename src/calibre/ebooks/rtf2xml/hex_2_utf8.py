@@ -164,7 +164,7 @@ class Hex2Utf8:
         self.__def_dict.update(up_128_dict)
         self.__def_dict.update(bt_128_dict)
         self.__def_dict.update(ms_standard_dict)
-        self.__current_dict = self.__def_dict
+        self.__current_dict = self.__def_dict.copy()
         self.__current_dict_name = 'default'
         self.__in_caps = 0
         self.__special_fonts_found = 0
@@ -291,9 +291,8 @@ class Hex2Utf8:
                     self.__token_info = line[:16]
                     action = self.__preamble_state_dict.get(self.__state)
                     if action is None:
-                        sys.stderr.write('error no state found in hex_2_utf8',
-                        self.__state
-                        )
+                        sys.stderr.write(f'error no state found in hex_2_utf8: {self.__state}\n')
+                    assert action is not None
                     action(line)
         copy_obj = copy.Copy(bug_handler=self.__bug_handler)
         if self.__copy:
@@ -342,16 +341,16 @@ class Hex2Utf8:
         self.__font_list.append(face)
         if face == 'Symbol' and self.__convert_symbol:
             self.__current_dict_name = 'Symbol'
-            self.__current_dict = self.__symbol_dict
+            self.__current_dict = self.__symbol_dict.copy()
         elif face == 'Wingdings' and self.__convert_wingdings:
             self.__current_dict_name = 'Wingdings'
-            self.__current_dict = self.__wingdings_dict
+            self.__current_dict = self.__wingdings_dict.copy()
         elif face == 'Zapf Dingbats' and self.__convert_zapf:
             self.__current_dict_name = 'Zapf Dingbats'
-            self.__current_dict = self.__dingbats_dict
+            self.__current_dict = self.__dingbats_dict.copy()
         else:
             self.__current_dict_name = 'default'
-            self.__current_dict = self.__def_dict
+            self.__current_dict = self.__def_dict.copy()
 
     def __end_font_func(self, line):
         '''
@@ -371,16 +370,16 @@ class Hex2Utf8:
         face = self.__font_list[-1]
         if face == 'Symbol' and self.__convert_symbol:
             self.__current_dict_name = 'Symbol'
-            self.__current_dict = self.__symbol_dict
+            self.__current_dict = self.__symbol_dict.copy()
         elif face == 'Wingdings' and self.__convert_wingdings:
             self.__current_dict_name = 'Wingdings'
-            self.__current_dict = self.__wingdings_dict
+            self.__current_dict = self.__wingdings_dict.copy()
         elif face == 'Zapf Dingbats' and self.__convert_zapf:
             self.__current_dict_name = 'Zapf Dingbats'
-            self.__current_dict = self.__dingbats_dict
+            self.__current_dict = self.__dingbats_dict.copy()
         else:
             self.__current_dict_name = 'default'
-            self.__current_dict = self.__def_dict
+            self.__current_dict = self.__def_dict.copy()
 
     def __start_special_font_func_old(self, line):
         '''
@@ -393,15 +392,15 @@ class Hex2Utf8:
         '''
         # for error checking
         if self.__token_info == 'mi<mk<font-symbo':
-            self.__current_dict.append(self.__symbol_dict)
+            self.__current_dict.update(self.__symbol_dict)
             self.__special_fonts_found += 1
             self.__current_dict_name = 'Symbol'
         elif self.__token_info == 'mi<mk<font-wingd':
             self.__special_fonts_found += 1
-            self.__current_dict.append(self.__wingdings_dict)
+            self.__current_dict.update(self.__wingdings_dict)
             self.__current_dict_name = 'Wingdings'
         elif self.__token_info == 'mi<mk<font-dingb':
-            self.__current_dict.append(self.__dingbats_dict)
+            self.__current_dict.update(self.__dingbats_dict)
             self.__special_fonts_found += 1
             self.__current_dict_name = 'Zapf Dingbats'
 
@@ -420,7 +419,7 @@ class Hex2Utf8:
             sys.stderr.write("less than two dictionaries --can't pop\n")
             self.__special_fonts_found -= 1
         else:
-            self.__current_dict.pop()
+            self.__current_dict = self.__def_dict.copy()
             self.__special_fonts_found -= 1
             self.__dict_name = 'default'
 
@@ -549,9 +548,8 @@ class Hex2Utf8:
                     self.__token_info = line[:16]
                     action = self.__body_state_dict.get(self.__state)
                     if action is None:
-                        sys.stderr.write('error no state found in hex_2_utf8',
-                        self.__state
-                        )
+                        sys.stderr.write(f'error no state found in hex_2_utf8: {self.__state}\n')
+                    assert action is not None
                     action(line)
         copy_obj = copy.Copy(bug_handler=self.__bug_handler)
         if self.__copy:

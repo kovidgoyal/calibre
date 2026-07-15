@@ -456,15 +456,22 @@ def run_gui_(opts, args, app, gui_debug=None):
         after_quit_actions['no_plugins_on_restart'] = getattr(runner.main, 'no_plugins_on_restart', False)
     elif iswindows:
         try:
-            runner.main.system_tray_icon.hide()
+            _main = runner.main
+            assert _main is not None
+            _tray = _main.system_tray_icon
+            assert _tray is not None
+            _tray.hide()
         except Exception:
             pass
     if getattr(runner.main, 'gui_debug', None) is not None:
-        debugfile = runner.main.gui_debug
+        _main_ref = runner.main
+        assert _main_ref is not None
+        debugfile = _main_ref.gui_debug
         from calibre.gui2 import open_local_file
         if iswindows:
             # detach the stdout/stderr/stdin handles
             winutil.prepare_for_restart()
+            assert isinstance(debugfile, str)
             with open(debugfile, 'r+b') as f:
                 raw = f.read()
                 raw = re.sub(br'(?<!\r)\n', b'\r\n', raw)
@@ -616,7 +623,7 @@ if __name__ == '__main__':
         logfile = os.path.join(os.path.expanduser('~'), 'calibre.log')
         if os.path.exists(logfile):
             with open(logfile) as f:
-                log = f.read().decode('utf-8', 'ignore')
+                log = f.read()
             d = QErrorMessage()
             d.showMessage(('<b>Error:</b>{}<br><b>Traceback:</b><br>'
                 '{}<b>Log:</b><br>{}').format(str(err),

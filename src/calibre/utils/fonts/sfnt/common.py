@@ -6,6 +6,7 @@ __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 from collections import OrderedDict, namedtuple
+from collections.abc import Callable
 from struct import calcsize, unpack_from
 
 from calibre.utils.fonts.sfnt.errors import UnsupportedFont
@@ -29,7 +30,7 @@ class Unpackable:
 class SimpleListTable(list):
     'A table that contains a list of subtables'
 
-    child_class = None
+    child_class: Callable[..., object] | None = None
 
     def __init__(self, raw, offset):
         list.__init__(self)
@@ -40,7 +41,8 @@ class SimpleListTable(list):
         count = data.unpack('H')
         for i in range(count):
             offset = data.unpack('H')
-            self.append(self.child_class(raw, data.start_pos + offset))
+            if self.child_class is not None:
+                self.append(self.child_class(raw, data.start_pos + offset))
         self.read_extra_footer(data)
 
     def read_extra_header(self, data):
@@ -53,7 +55,7 @@ class SimpleListTable(list):
 class ListTable(OrderedDict):
     'A table that contains an ordered mapping of table tag to subtable'
 
-    child_class = None
+    child_class: Callable[..., object] | None = None
 
     def __init__(self, raw, offset):
         OrderedDict.__init__(self)
@@ -64,7 +66,8 @@ class ListTable(OrderedDict):
         count = data.unpack('H')
         for i in range(count):
             tag, coffset = data.unpack('4sH')
-            self[tag] = self.child_class(raw, data.start_pos + coffset)
+            if self.child_class is not None:
+                self[tag] = self.child_class(raw, data.start_pos + coffset)
 
         self.read_extra_footer(data)
 
@@ -221,6 +224,9 @@ class UnknownLookupSubTable:
     def has_initial_coverage(self):
         return True
 
+    def initialize(self, data):
+        raise NotImplementedError()
+
     def all_substitutions(self, glyph_ids):
         ''' Return a set of all glyph ids that could be substituted for any
         subset of the specified glyph ids (which must be a set)'''
@@ -240,7 +246,7 @@ class UnknownLookupSubTable:
                 data.offset = offset + start_pos
                 if set_is_index:
                     items.append(offset)
-                else:
+                elif read_item is not None:
                     items.append(read_item(data))
             coverage_to_items_map.append(items)
         return coverage_to_items_map

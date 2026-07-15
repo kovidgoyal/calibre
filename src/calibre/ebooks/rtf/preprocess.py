@@ -259,9 +259,8 @@ class RtfTokenParser:
 class RtfTokenizer:
 
     def __init__(self, rtfData):
-        self.rtfData = []
-        self.tokens = []
         self.rtfData = rtfData
+        self.tokens = []
         self.tokenize()
 
     def tokenize(self):

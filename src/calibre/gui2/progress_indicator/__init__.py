@@ -101,7 +101,7 @@ def develop():
             self.a = SpinAnimator(self)
             self.a.updated.connect(self.update)
 
-        def paintEvent(self, ev):
+        def paintEvent(self, a0):
             p = QPainter(self)
             pal = self.palette()
             self.a.draw(p, self.rect(), pal.color(QPalette.ColorRole.WindowText))

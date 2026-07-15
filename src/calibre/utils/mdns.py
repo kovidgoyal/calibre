@@ -22,7 +22,7 @@ class AllIpAddressesGetter(Thread):
         ''' Return a mapping of interface names to the configuration of the
         interface, which includes the ip address, netmask and broadcast addresses
         '''
-        import netifaces
+        import netifaces  # type: ignore
         all_ips = defaultdict(list)
         if hasattr(netifaces, 'AF_INET'):
             for x in netifaces.interfaces():

@@ -8,11 +8,7 @@ __copyright__ = '2011-2013, Roman Mukhin <ramses_ru at hotmail.com>'
 __docformat__ = 'restructuredtext en'
 
 from contextlib import closing
-
-try:
-    from urllib.parse import quote_plus
-except ImportError:
-    from urllib import quote_plus
+from urllib.parse import quote_plus
 
 from qt.core import QUrl
 
@@ -51,7 +47,8 @@ def search(query, max_results=15, timeout=60):
                 break
             counter -= 1
 
-            s = SearchResult(store_name='OZON.ru')
+            s = SearchResult()
+            s.store_name = 'OZON.ru'
             s.detail_item = shop_url + tile.xpath('descendant::a[@class="eShelfTile_Link"]/@href')[0]
             s.title = tile.xpath('descendant::span[@class="eShelfTile_ItemNameText"]/@title')[0]
             s.author = tile.xpath('descendant::span[@class="eShelfTile_ItemPerson"]/@title')[0]
@@ -63,7 +60,7 @@ def search(query, max_results=15, timeout=60):
 
 class OzonRUStore(StorePlugin):
 
-    def open(self, parent=None, detail_item=None, external=False):
+    def open(self, gui=None, parent=None, detail_item=None, external=False):
         url = detail_item or shop_url
         if external or self.config.get('open_external', False):
             open_url(QUrl(url_slash_cleaner(url)))

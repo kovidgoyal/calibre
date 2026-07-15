@@ -147,7 +147,9 @@ def parse_types(x):
         yield '\n'.join(parse_header(x))
 
     elif typename.startswith('Heading'):
-        htag = 'h' + re.match(r'Heading([1-6])Block', typename).group(1)
+        m = re.match(r'Heading([1-6])Block', typename)
+        assert m is not None
+        htag = 'h' + m.group(1)
         yield f'<{htag}{align}>{"".join(parse_cnt(x))}</{htag}>'
 
     elif typename == 'ParagraphBlock':
@@ -263,7 +265,7 @@ def add_live_item(item, item_type, lines):
             return
         raise Exception(f'Unknown item: {b}')
     else:
-        raise Exception(f'Unknown item: {b}')
+        raise Exception(f'Unknown item: {item}')
 
 
 def live_json_to_html(data):

@@ -55,9 +55,9 @@ def extract_book(pathtoebook, tdir, log=None, view_kepub=False, processed=False,
     plumber = Plumber(pathtoebook, tdir, log, view_kepub=view_kepub)
     plumber.setup_options()
     if pathtoebook.lower().endswith('.opf'):
-        plumber.opts.dont_package = True
+        setattr(plumber.opts, 'dont_package', True)
     if hasattr(plumber.opts, 'no_process'):
-        plumber.opts.no_process = True
+        setattr(plumber.opts, 'no_process', True)
 
     plumber.input_plugin.for_viewer = True
     with plumber.input_plugin, open(plumber.input, 'rb') as inf:
@@ -158,14 +158,20 @@ class EbookIterator(BookmarksMixin):
         if input_fmt.lower() == 'htmlz':
             self.spine.append(Spiny(os.path.join(os.path.dirname(self.pathtoopf), 'index.html'), mime_type='text/html'))
         else:
-            ordered = [i for i in self.opf.spine if i.is_linear] + \
-                    [i for i in self.opf.spine if not i.is_linear]
+            spine = self.opf.spine
+            if spine is not None:
+                ordered = [i for i in spine if i.is_linear] + \
+                        [i for i in spine if not i.is_linear]
+            else:
+                ordered = []
             is_comic = input_fmt.lower() in {'cbc', 'cbz', 'cbr', 'cb7'}
             for i in ordered:
                 spath = i.path
                 mt = None
                 if i.idref is not None:
-                    mt = self.opf.manifest.type_for_id(i.idref)
+                    manifest = self.opf.manifest
+                    assert manifest is not None
+                    mt = manifest.type_for_id(i.idref)
                 if mt is None:
                     mt = guess_type(spath)[0]
                 try:

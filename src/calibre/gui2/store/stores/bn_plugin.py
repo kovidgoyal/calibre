@@ -5,11 +5,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 store_version = 5  # Needed for dynamic plugin loading
 
 from contextlib import closing
-
-try:
-    from urllib.parse import quote_plus
-except ImportError:
-    from urllib import quote_plus
+from urllib.parse import quote_plus
 
 from lxml import html
 from qt.core import QUrl
@@ -24,7 +20,8 @@ from calibre.gui2.store.web_store_dialog import WebStoreDialog
 try:
     from calibre.utils.xml_parse import safe_html_fromstring
 except ImportError:
-    safe_html_fromstring = html.fromstring
+    def safe_html_fromstring(string_or_bytes, recover=True):
+        return html.fromstring(string_or_bytes)
 
 
 def search_bn(query, max_results=10, timeout=60, write_html_to=''):
@@ -87,7 +84,7 @@ def search_bn(query, max_results=10, timeout=60, write_html_to=''):
 
 class BNStore(BasicStoreConfig, StorePlugin):
 
-    def open(self, parent=None, detail_item=None, external=False):
+    def open(self, gui=None, parent=None, detail_item=None, external=False):
         url = 'https://bn.com'
 
         if external or self.config.get('open_external', False):

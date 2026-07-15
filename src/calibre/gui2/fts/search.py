@@ -434,8 +434,8 @@ class ResultsModel(QAbstractItemModel):
             return self.createIndex(row, column, parent.row() + 1)
         return self.createIndex(row, column, 0)
 
-    def parent(self, index):
-        q = index.internalId()
+    def parent(self, child=QModelIndex()):
+        q = child.internalId()
         if q:
             return self.index(q - 1, 0)
         return ROOT
@@ -503,15 +503,17 @@ class ResultsView(QTreeView):
         self.setItemDelegate(self.delegate)
         self.setUniformRowHeights(True)
 
-    def keyPressEvent(self, ev):
+    def keyPressEvent(self, event):
         i = self.currentIndex()
-        ret = super().keyPressEvent(ev)
+        ret = super().keyPressEvent(event)
         if self.currentIndex() != i:
             self.scrollTo(self.currentIndex())
         return ret
 
     def currentChanged(self, current, previous):
-        results, individual_match = self.model().data_for_index(current)
+        _model = self.model()
+        assert isinstance(_model, ResultsModel)
+        results, individual_match = _model.data_for_index(current)
         if individual_match is not None:
             individual_match = current.row()
         self.current_changed.emit(results, individual_match)
@@ -521,7 +523,9 @@ class ResultsView(QTreeView):
 
     def show_context_menu(self, pos):
         index = self.indexAt(pos)
-        results, match = self.model().data_for_index(index)
+        _model = self.model()
+        assert isinstance(_model, ResultsModel)
+        results, match = _model.data_for_index(index)
         m = QMenu(self)
         if results:
             m.addAction(QIcon.ic('lt.png'), _('Jump to this book in the library'), partial(jump_to_book, results.book_id, self))
@@ -576,7 +580,7 @@ class Summary(QLabel):
         self.frame %= len(self.frames)
         frame = self.frames[self.frame]
         base = ngettext('One book', '{num} books', self.num_matches_found).format(num=self.num_matches_found)
-        dim_color = self.palette().color(QPalette.Disabled, QPalette.Text).name()
+        dim_color = self.palette().color(QPalette.ColorGroup.Disabled, QPalette.ColorRole.Text).name()
         duration = (self.stopped_at or time.monotonic()) - self.started_at
         if duration < 60:
             if self.stopped_at:
@@ -635,8 +639,10 @@ class SearchInputPanel(QWidget):
         self.search_box = sb = SearchBox(self)
         sb.cleared.connect(self.clear_search)
         sb.initialize('library-fts-search-box')
-        sb.lineEdit().returnPressed.connect(self.search_requested)
-        sb.lineEdit().setPlaceholderText(_('Enter words to search for'))
+        _sb_line_edit = sb.lineEdit()
+        assert _sb_line_edit is not None
+        _sb_line_edit.returnPressed.connect(self.search_requested)
+        _sb_line_edit.setPlaceholderText(_('Enter words to search for'))
         self.search_button = sb = QPushButton(QIcon.ic('search.png'), _('&Search'), self)
         sb.clicked.connect(self.search_requested)
         self.restrict = r = QCheckBox(_('&Restrict searched books'))
@@ -700,14 +706,16 @@ class SearchInputPanel(QWidget):
 
     def do_layout(self):
         QVBoxLayout(self)
-        self.layout().setContentsMargins(0, 0, 0, 0)
+        _sip_layout = self.layout()
+        assert isinstance(_sip_layout, QVBoxLayout)
+        _sip_layout.setContentsMargins(0, 0, 0, 0)
         self.hsb = hsb = QHBoxLayout()
-        self.layout().addLayout(hsb)
+        _sip_layout.addLayout(hsb)
         hsb.addWidget(self.switch_view_button)
         hsb.addWidget(self.search_box, stretch=10)
         hsb.addWidget(self.search_button)
         self.h1 = h1 = QHBoxLayout()
-        self.layout().addLayout(h1)
+        _sip_layout.addLayout(h1)
         h1.addWidget(self.restrict), h1.addWidget(self.related), h1.addWidget(self.sort_button), h1.addStretch(), h1.addWidget(self.summary)
 
     def clear_history(self):
@@ -779,7 +787,7 @@ class ResultDetails(QWidget):
             book_id, result_num = int(book_id), int(result_num)
             self.show_in_viewer.emit(int(book_id), int(result_num), fmt)
 
-    def resizeEvent(self, ev):
+    def resizeEvent(self, a0):
         self.do_layout()
 
     def do_layout(self):
@@ -790,6 +798,7 @@ class ResultDetails(QWidget):
         self.pixmap_label.setGeometry(QRect(0, 0, nw, nh))
         w = g.width() - nw - 8
         d = self.book_info.document()
+        assert d is not None
         d.setDocumentMargin(0)
         d.setTextWidth(float(w))
         ph = self.pixmap_label.height()
@@ -930,7 +939,9 @@ class SplitView(QSplitter):
         self.left_panel = lp = LeftPanel(self)
         self.addWidget(lp)
         self.results_view = rv = ResultsView(model, parent=self)
-        lp.layout().addWidget(rv)
+        _lp_layout = lp.layout()
+        assert _lp_layout is not None
+        _lp_layout.addWidget(rv)
         self.details = d = DetailsPanel(parent=self)
         self.addWidget(d)
         model.result_with_context_found.connect(d.result_with_context_found)
@@ -953,12 +964,16 @@ class SplitView(QSplitter):
 
     def matches_found(self, num):
         self.results_view.expandAll()
-        self.results_view.setCurrentIndex(self.results_view.model().index(0, 0))
+        _rv_model = self.results_view.model()
+        assert _rv_model is not None
+        self.results_view.setCurrentIndex(_rv_model.index(0, 0))
 
     def current_result(self):
         idx = self.results_view.currentIndex()
         if idx.isValid():
-            results, match = self.results_view.model().data_for_index(idx)
+            _rv_model = self.results_view.model()
+            assert isinstance(_rv_model, ResultsModel)
+            results, match = _rv_model.data_for_index(idx)
             if match is not None:
                 match = idx.row()
             return results, match
@@ -1008,29 +1023,39 @@ class ResultsPanel(QWidget):
         sv.show_in_viewer.connect(self.show_in_viewer)
         sv.remove_book_from_results.connect(self.remove_book_from_results)
         QStackedLayout(self)
-        self.layout().addWidget(sv)
+        _results_panel_layout = self.layout()
+        assert isinstance(_results_panel_layout, QStackedLayout)
+        _results_panel_layout.addWidget(sv)
         self.card_view = cv = CardsView(self.results_model, self)
         cv.link_activated.connect(self._cards_link_activated)
-        self.layout().addWidget(cv)
+        _results_panel_layout.addWidget(cv)
         self.set_view_mode(gprefs['fts_visualisation'])
 
     def set_view_mode(self, mode: str = 'compact'):
+        _stacked = self.layout()
+        assert isinstance(_stacked, QStackedLayout)
         if mode == 'compact':
-            self.split_view.left_panel.layout().insertWidget(0, self.sip)
-            self.layout().setCurrentIndex(0)
+            _lp_layout = self.split_view.left_panel.layout()
+            assert isinstance(_lp_layout, QVBoxLayout)
+            _lp_layout.insertWidget(0, self.sip)
+            _stacked.setCurrentIndex(0)
         else:
-            self.card_view.layout().insertWidget(0, self.sip)
-            self.layout().setCurrentIndex(1)
+            _cv_layout = self.card_view.layout()
+            assert isinstance(_cv_layout, QVBoxLayout)
+            _cv_layout.insertWidget(0, self.sip)
+            _stacked.setCurrentIndex(1)
 
     @property
     def current_view(self):
-        return self.layout().currentWidget()
+        _stacked = self.layout()
+        assert isinstance(_stacked, QStackedLayout)
+        return _stacked.currentWidget()
 
     def search(self, text: str):
         gui = get_gui()
         restrict = None
         if gui and gprefs['fts_library_restrict_books']:
-            restrict = frozenset(gui.library_view.model().all_current_book_ids())
+            restrict = frozenset(gui.library_view._model.all_current_book_ids())
         with BusyCursor():
             self.results_model.search(text, restrict_to_book_ids=restrict, use_stemming=gprefs['fts_library_use_stemmer'])
 
@@ -1148,12 +1173,14 @@ def develop(view='cards'):
     from calibre.gui2 import Application
     from calibre.library import db
     app = Application([])
-    d = QDialog()
-    d.sizeHint = lambda: QSize(1000, 680)
+    class Dialog(QDialog):
+        def sizeHint(self):
+            return QSize(1000, 680)
+    d = Dialog()
     l = QVBoxLayout(d)
     bb = QDialogButtonBox(d)
     bb.accepted.connect(d.accept), bb.rejected.connect(d.reject)
-    get_db.db = db(os.path.expanduser('~/test library'))
+    setattr(get_db, 'db', db(os.path.expanduser('~/test library')))
     w = ResultsPanel(parent=d)
     w.set_view_mode(view)
     l.addWidget(w)

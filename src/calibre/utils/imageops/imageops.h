@@ -24,7 +24,7 @@ bool has_transparent_pixels(const QImage &image);
 QImage set_opacity(const QImage &image, double alpha);
 QImage texture_image(const QImage &image, const QImage &texturei);
 QImage ordered_dither(const QImage &image);
-QColor dominant_color(const QImage &image);
+QColor* dominant_color(const QImage &image);
 bool load_from_data_without_gil(QImage &image, const char *data, size_t len);
 
 class ScopedGILRelease {

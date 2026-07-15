@@ -7,7 +7,9 @@ __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 import http.client
 import re
 import reprlib
+from collections.abc import Callable
 from io import DEFAULT_BUFFER_SIZE, BytesIO
+from typing import Any
 
 from calibre import as_unicode, force_unicode
 from calibre.ptempfile import SpooledTemporaryFile
@@ -222,7 +224,7 @@ def parse_content_length(values):
 
 class HTTPRequest(Connection):
 
-    request_handler = None
+    request_handler: Callable[..., Any] | None = None
     static_cache = None
     translator_cache = None
 

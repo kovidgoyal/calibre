@@ -9,6 +9,7 @@ import copy
 import numbers
 import re
 from contextlib import suppress
+from typing import cast
 
 from lxml import etree
 
@@ -173,7 +174,7 @@ class MobiMLizer:
         text = text.replace('\r\n', '\n')
         text = text.replace('\r', '\n')
         lines = text.split('\n')
-        result = lines[:1]
+        result: list[str | etree._Element] = list(lines[:1])
         for line in lines[1:]:
             result.append(etree.Element(XHTML('br')))
             if line:
@@ -290,7 +291,7 @@ class MobiMLizer:
             if not href:
                 bstate.anchor = None
             elif pstate and pstate.href == href:
-                inline = bstate.anchor
+                inline = cast(etree._Element, bstate.anchor)
             else:
                 inline = etree.SubElement(inline, XHTML('a'), href=href)
                 bstate.anchor = inline
@@ -317,6 +318,7 @@ class MobiMLizer:
             bstate.inline = inline
         bstate.istate = istate
         inline = bstate.inline
+        assert inline is not None
         content = self.preize_text(text, pre_wrap=istate.pre_wrap) if istate.preserve or istate.pre_wrap else [text]
         for item in content:
             if isinstance(item, (str, bytes)):

@@ -250,7 +250,7 @@ class Device(DeviceConfig, DevicePlugin):
         return drives
 
     def can_handle_windows(self, usbdevice, debug=False):
-        if hasattr(self.can_handle, 'is_base_class_implementation'):
+        if self.can_handle.__func__ is DevicePlugin.can_handle:
             # No custom can_handle implementation
             return True
         # Delegate to the unix can_handle function, creating a unix like
@@ -362,6 +362,7 @@ class Device(DeviceConfig, DevicePlugin):
         drives = self.osx_get_usb_drives()
         matches = []
         d = self.detected_device
+        assert d is not None
         if d.serial:
             for path, vid, pid, bcd, ven, prod, serial in drives:
                 if d.match_serial(serial):
@@ -392,7 +393,7 @@ class Device(DeviceConfig, DevicePlugin):
             g = m.groupdict()
             if g['p'] is None:
                 g['p'] = 0
-            return list(map(int, (g.get('m'), g.get('p'))))
+            return [int(g.get('m') or '0'), int(g.get('p') or 0)]
 
         def cmp_key(x):
             '''
@@ -467,7 +468,9 @@ class Device(DeviceConfig, DevicePlugin):
                         drives[x] = main
                         break
 
-        self._main_prefix = drives['main']+os.sep
+        main_drive = drives['main']
+        assert main_drive is not None
+        self._main_prefix = main_drive + os.sep
 
         def get_card_prefix(c):
             ans = drives.get(c, None)
@@ -709,6 +712,7 @@ class Device(DeviceConfig, DevicePlugin):
         # this gives us access to the S/N, etc. of the reader that the scanner has found
         # and the match routines for some of that data, like s/n, vendor ID, etc.
         d=self.detected_device
+        assert d is not None
 
         if not d.serial:
             raise DeviceError("Device has no S/N.  Can't continue")

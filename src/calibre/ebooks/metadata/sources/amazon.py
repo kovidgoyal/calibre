@@ -9,19 +9,22 @@ import string
 import time
 from functools import partial
 
-from calibre.utils.localization import _
+try:
+    from calibre.utils.localization import _
+except ImportError:
+    pass
 
 try:
     from queue import Empty, Queue
 except ImportError:
-    from Queue import Empty, Queue
+    from Queue import Empty, Queue  # type: ignore
 
 from threading import Thread
 
 try:
     from urllib.parse import urlparse
 except ImportError:
-    from urlparse import urlparse
+    from urlparse import urlparse  # type: ignore
 
 from mechanize import HTTPError
 
@@ -113,7 +116,8 @@ def parse_details_page(url, log, timeout, browser, domain):
         try:
             raw = browser.open_novisit(url, timeout=timeout).read().strip()
         except Exception as e:
-            if callable(getattr(e, 'getcode', None)) and e.getcode() == 404:
+            _getcode = getattr(e, 'getcode', None)
+            if callable(_getcode) and _getcode() == 404:
                 log.error('URL not found: %r' % url)
                 raise UrlNotFound(url)
             attr = getattr(e, 'args', [None])
@@ -666,6 +670,7 @@ class Worker(Thread):  # Get details {{{
         def parse_ratings_text(text):
             try:
                 m = self.ratings_pat.match(text)
+                assert m is not None
                 return float(m.group(1).replace(',', '.')) / float(m.group(3)) * 5
             except Exception:
                 pass
@@ -747,7 +752,7 @@ class Worker(Thread):  # Get details {{{
         try:
             from urllib.parse import unquote
         except ImportError:
-            from urllib import unquote
+            from urllib import unquote  # type: ignore
         ans = ''
         ovr = tuple(self.selector('#drengr_MobileTabbedDescriptionOverviewContent_feature_div')) or tuple(
             self.selector('#drengr_DesktopTabbedDescriptionOverviewContent_feature_div'))
@@ -797,7 +802,8 @@ class Worker(Thread):  # Get details {{{
             m = re.search(br'var\s+iframeContent\s*=\s*"([^"]+)"', raw)
             if m is not None:
                 try:
-                    text = unquote(m.group(1)).decode('utf-8')
+                    xtext = unquote(m.group(1))
+                    text = xtext.decode('utf-8') if isinstance(xtext, bytes) else xtext
                     nr = parse_html(text)
                     desc = nr.xpath(
                         '//div[@id="productDescription"]/*[@class="content"]')
@@ -1363,7 +1369,7 @@ class Amazon(Source):
         try:
             from urllib.parse import unquote_plus, urlencode
         except ImportError:
-            from urllib import unquote_plus, urlencode
+            from urllib import unquote_plus, urlencode  # type: ignore
         if domain is None:
             domain = self.domain
 
@@ -1430,8 +1436,8 @@ class Amazon(Source):
         url_query = urlencode(encoded_q)
         # amazon's servers want IRIs with unicode characters not percent esaped
         parts = []
-        for x in url_query.split(b'&' if isinstance(url_query, bytes) else '&'):
-            k, v = x.split(b'=' if isinstance(x, bytes) else '=', 1)
+        for x in (url_query.split(b'&') if isinstance(url_query, bytes) else url_query.split('&')):
+            k, v = (x.split(b'=', 1) if isinstance(x, bytes) else x.split('=', 1))
             parts.append('{}={}'.format(iri_quote_plus(unquote_plus(k)), iri_quote_plus(unquote_plus(v))))
         url_query = '&'.join(parts)
         url = 'https://www.amazon.%s/s/?' % self.get_website_domain(
@@ -1541,8 +1547,9 @@ class Amazon(Source):
         try:
             raw = br.open_novisit(query, timeout=timeout).read().strip()
         except Exception as e:
-            if callable(getattr(e, 'getcode', None)) and \
-                    e.getcode() == 404:
+            _getcode = getattr(e, 'getcode', None)
+            if callable(_getcode) and \
+                    _getcode() == 404:
                 log.error('Query malformed: %r' % query)
                 raise SearchFailed()
             attr = getattr(e, 'args', [None])

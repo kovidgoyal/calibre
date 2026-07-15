@@ -10,6 +10,7 @@ import copy
 import re
 from enum import Enum
 from functools import partial
+from typing import Any
 
 from qt.core import (
     QCheckBox,
@@ -39,6 +40,8 @@ from calibre.utils.localization import _, ngettext
 
 
 class CreateCustomColumn(QDialog):
+
+    cc_column_key: str | None
 
     # Note: in this class, we are treating is_multiple as the boolean that
     # custom_columns expects to find in its structure. It does not use the dict
@@ -130,7 +133,7 @@ class CreateCustomColumn(QDialog):
         self.standard_colheads = standard_colheads
         self.column_type_box.setMaxVisibleItems(len(self.column_types))
         for t in self.column_types:
-            self.column_type_box.addItem(self.column_types[t]['text'])
+            self.column_type_box.addItem(str(self.column_types[t]['text']))
         self.column_type_box.currentIndexChanged.connect(self.datatype_changed)
         self.composite_in_comments_box.stateChanged.connect(self.composite_show_in_comments_clicked)
 
@@ -744,7 +747,7 @@ class CreateCustomColumn(QDialog):
                     'because these names are reserved for the index of a series column.'))
         col_heading = str(self.column_heading_box.text()).strip()
         coldef = self.column_types[self.column_type_box.currentIndex()]
-        col_type = coldef['datatype']
+        col_type = str(coldef['datatype'])
         if col_type[0] == '*':
             col_type = col_type[1:]
             is_multiple = True
@@ -775,7 +778,7 @@ class CreateCustomColumn(QDialog):
                 default_yes=False, override_icon='dialog_warning.png'):
                 return
 
-        display_dict = {}
+        display_dict: dict[str, Any] = {}
 
         default_val = (str(self.default_value.text()).strip()
                         if col_type != 'composite' else None)
@@ -1039,6 +1042,8 @@ class CreateNewCustomColumn:
     been blocked. You can check for this situation in advance by calling
     must_restart().
     '''
+
+    cc_column_key: str | None
 
     class Result(Enum):
         COLUMN_ADDED = 0

@@ -322,7 +322,7 @@ def test(return_tests=False):
 
     class TestRunner(unittest.main):
 
-        def createTests(self):
+        def createTests(self, from_discovery=False, Loader=None):
             tl = unittest.TestLoader()
             self.test = tl.loadTestsFromTestCase(Test)
 

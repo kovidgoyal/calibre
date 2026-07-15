@@ -195,8 +195,8 @@ class Log:
 
     def close(self):
         for o in self.outputs:
-            if hasattr(o, 'close'):
-                o.close()
+            if (close := getattr(o, 'close', None)) is not None:
+                close()
 
 
 class DevNull(Log):
@@ -248,6 +248,8 @@ class GUILog(ThreadSafeLog):
     '''
     Logs in HTML and plain text as unicode. Ideal for display in a GUI context.
     '''
+
+    outputs: list[UnicodeHTMLStream]
 
     def __init__(self):
         ThreadSafeLog.__init__(self, level=self.DEBUG)

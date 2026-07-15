@@ -3,8 +3,8 @@
 # License: GPL v3 Copyright: 2019, Eli Schwartz <eschwartz@archlinux.org>
 
 from http.client import (
-    _CS_IDLE,
-    _CS_REQ_SENT,
+    _CS_IDLE,  # type: ignore
+    _CS_REQ_SENT,  # type: ignore
     BAD_REQUEST,
     FORBIDDEN,
     FOUND,

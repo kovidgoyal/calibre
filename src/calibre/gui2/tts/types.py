@@ -5,7 +5,7 @@ import os
 from contextlib import suppress
 from enum import Enum, auto
 from functools import lru_cache
-from typing import Literal, NamedTuple
+from typing import Any, Literal, NamedTuple
 
 from qt.core import QApplication, QLocale, QObject, QTextToSpeech, QVoice, QWidget, pyqtSignal
 
@@ -28,9 +28,9 @@ def load_config(config_name=CONFIG_NAME) -> JSONConfig:
 
 
 class TrackingCapability(Enum):
-    NoTracking: int = auto()
-    WordByWord: int = auto()
-    Sentence: int = auto()
+    NoTracking = auto()
+    WordByWord = auto()
+    Sentence = auto()
 
 
 class EngineMetadata(NamedTuple):
@@ -49,10 +49,10 @@ class EngineMetadata(NamedTuple):
 
 
 class Quality(Enum):
-    High: int = auto()
-    Medium: int = auto()
-    Low: int = auto()
-    ExtraLow: int = auto()
+    High = auto()
+    Medium = auto()
+    Low = auto()
+    ExtraLow = auto()
 
     @classmethod
     def from_piper_quality(self, x: str) -> Quality:
@@ -80,7 +80,7 @@ class Voice(NamedTuple):
     age: QVoice.Age = QVoice.Age.Other
     quality: Quality = Quality.High
 
-    engine_data: dict[str, str] | None = None
+    engine_data: dict[str, str | bool] | None = None
 
     @property
     def basic_name(self) -> str:
@@ -105,11 +105,11 @@ class Voice(NamedTuple):
             ans.append(_('Gender: {}').format(QVoice.genderName(self.gender)))
         return '\n'.join(ans)
 
-    def sort_key(self) -> tuple[Quality, str]:
+    def sort_key(self) -> tuple[int, str]:
         return (self.quality.value, self.basic_name.lower())
 
 
-def qvoice_to_voice(v: QVoice) -> QVoice:
+def qvoice_to_voice(v: QVoice) -> Voice:
     lang = canonicalize_lang(QLocale.languageToCode(v.language())) or 'und'
     country = QLocale.territoryToString(v.locale().territory())
     return Voice(v.name(), lang, country, gender=v.gender(), age=v.age())
@@ -132,7 +132,7 @@ class EngineSpecificSettings(NamedTuple):
     preferred_voices: dict[str, str] | None = None
 
     @classmethod
-    def create_from_prefs(cls, engine_name: str, prefs: dict[str, object] | None = None) -> EngineSpecificSettings:
+    def create_from_prefs(cls, engine_name: str, prefs: dict[str, Any] | None = None) -> EngineSpecificSettings:
         prefs = prefs or {}
         adev = prefs.get('audio_device_id')
         audio_device_id = None
@@ -143,17 +143,19 @@ class EngineSpecificSettings(NamedTuple):
                 audio_device_id = AudioDeviceId(aid, description)
         rate = 0
         with suppress(Exception):
-            rate = max(-1, min(float(prefs.get('rate')), 1))
+            rate = max(-1, min(float(prefs.get('rate', 0)), 1))
         pitch = 0
         with suppress(Exception):
-            pitch = max(-1, min(float(prefs.get('pitch')), 1))
-        volume = None
+            pitch = max(-1, min(float(prefs.get('pitch', 0)), 1))
+        volume: float | None = None
         with suppress(Exception):
-            volume = max(0, min(float(prefs.get('volume')), 1))
+            sv = prefs.get('volume')
+            if sv is not None:
+                volume = max(0, min(float(sv), 1))
         om = str(prefs.get('output_module', ''))
         sentence_delay = 0.
         with suppress(Exception):
-            sentence_delay = max(0, float(prefs.get('sentence_delay')))
+            sentence_delay = max(0, float(prefs.get('sentence_delay', 0)))
         with suppress(Exception):
             preferred_voices = prefs.get('preferred_voices')
         return EngineSpecificSettings(
@@ -203,7 +205,10 @@ def available_engines() -> dict[str, EngineMetadata]:
     ans = {}
     e = QTextToSpeech()
 
-    def qt_engine_metadata(name: str, human_name: str, desc: str, allows_choosing_audio_device: bool = False) -> EngineMetadata:
+    def qt_engine_metadata(
+        name: Literal['winrt', 'darwin', 'sapi', 'flite', 'speechd', 'piper'],
+        human_name: str, desc: str, allows_choosing_audio_device: bool = False
+    ) -> EngineMetadata:
         e.setEngine(name)
         cap = int(e.engineCapabilities().value)
         return EngineMetadata(name, human_name, desc,
@@ -249,7 +254,7 @@ def available_engines() -> dict[str, EngineMetadata]:
 
     if islinux:
         try:
-            from speechd.paths import SPD_SPAWN_CMD
+            from speechd.paths import SPD_SPAWN_CMD  # type: ignore
         except ImportError:
             pass
         else:
@@ -276,9 +281,10 @@ def default_engine_name() -> str:
 
 
 def widget_parent(p: QObject) -> QWidget | None:
-    while p is not None and not isinstance(p, QWidget):
-        p = p.parent()
-    return p
+    q: QObject | None = p
+    while q is not None and not isinstance(q, QWidget):
+        q = q.parent()
+    return q if isinstance(q, QWidget) else None
 
 
 class TTSBackend(QObject):
@@ -308,6 +314,9 @@ class TTSBackend(QObject):
         raise NotImplementedError()
 
     def reload_after_configure(self) -> None:
+        raise NotImplementedError()
+
+    def _qt_reload_after_configure(self, engine_name: str) -> None:
         raise NotImplementedError()
 
     def validate_settings(self, s: EngineSpecificSettings, parent: QWidget | None) -> bool:

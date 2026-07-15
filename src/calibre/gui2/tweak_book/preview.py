@@ -5,7 +5,7 @@
 import json
 import time
 from collections import defaultdict
-from functools import partial
+from functools import lru_cache, partial
 from queue import Empty, Queue
 from threading import Thread
 from urllib.parse import urlparse
@@ -184,27 +184,27 @@ class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
         QWebEngineUrlSchemeHandler.__init__(self, parent)
         self.requests = defaultdict(list)
 
-    def requestStarted(self, rq):
-        if bytes(rq.requestMethod()) != b'GET':
-            rq.fail(QWebEngineUrlRequestJob.Error.RequestDenied)
+    def requestStarted(self, a0):
+        if bytes(a0.requestMethod()) != b'GET':
+            a0.fail(QWebEngineUrlRequestJob.Error.RequestDenied)
             return
-        url = rq.requestUrl()
+        url = a0.requestUrl()
         if url.host() != FAKE_HOST or url.scheme() != FAKE_PROTOCOL:
-            rq.fail(QWebEngineUrlRequestJob.Error.UrlNotFound)
+            a0.fail(QWebEngineUrlRequestJob.Error.UrlNotFound)
             return
         name = url.path()[1:]
         try:
             if name.startswith('calibre_internal-mathjax/'):
-                handle_mathjax_request(rq, name.partition('-')[-1])
+                handle_mathjax_request(a0, name.partition('-')[-1])
                 return
             c = current_container()
             if not c.has_name(name):
-                rq.fail(QWebEngineUrlRequestJob.Error.UrlNotFound)
+                a0.fail(QWebEngineUrlRequestJob.Error.UrlNotFound)
                 return
             mime_type = c.mime_map.get(name, 'application/octet-stream')
             if mime_type in OEB_DOCS:
                 mime_type = XHTML_MIME
-                self.requests[name].append((mime_type, rq))
+                self.requests[name].append((mime_type, a0))
                 QTimer.singleShot(0, self.check_for_parse)
             else:
                 data = get_data(name)
@@ -216,11 +216,11 @@ class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
                     'application/x-font-truetype':'application/x-font-ttf',
                     'application/font-sfnt': 'application/x-font-ttf',
                 }.get(mime_type, mime_type)
-                send_reply(rq, mime_type, data)
+                send_reply(a0, mime_type, data)
         except Exception:
             import traceback
             traceback.print_exc()
-            rq.fail(QWebEngineUrlRequestJob.Error.RequestFailed)
+            a0.fail(QWebEngineUrlRequestJob.Error.RequestFailed)
 
     def check_for_parse(self):
         remove = []
@@ -304,31 +304,30 @@ def create_dark_mode_script():
     injection_point=QWebEngineScript.InjectionPoint.DocumentCreation)
 
 
+@lru_cache(maxsize=2)
 def create_profile():
-    ans = getattr(create_profile, 'ans', None)
-    if ans is None:
-        ans = QWebEngineProfile(QApplication.instance())
-        setup_profile(ans)
-        ua = 'calibre-editor-preview ' + __version__
-        ans.setHttpUserAgent(ua)
-        if is_running_from_develop:
-            from calibre.utils.rapydscript import compile_editor
-            compile_editor()
-        js = P('editor.js', data=True, allow_user_override=False)
-        cparser = P('csscolorparser.js', data=True, allow_user_override=False)
+    ans = QWebEngineProfile(QApplication.instance())
+    setup_profile(ans)
+    ua = 'calibre-editor-preview ' + __version__
+    ans.setHttpUserAgent(ua)
+    if is_running_from_develop:
+        from calibre.utils.rapydscript import compile_editor
+        compile_editor()
+    js = P('editor.js', data=True, allow_user_override=False)
+    cparser = P('csscolorparser.js', data=True, allow_user_override=False)
 
-        insert_scripts(ans,
-            create_script('csscolorparser.js', cparser),
-            create_script('editor.js', js),
-            create_dark_mode_script(),
-        )
-        url_handler = UrlSchemeHandler(ans)
-        ans.installUrlSchemeHandler(QByteArray(FAKE_PROTOCOL.encode('ascii')), url_handler)
-        s = ans.settings()
-        s.setDefaultTextEncoding('utf-8')
-        s.setAttribute(QWebEngineSettings.WebAttribute.FullScreenSupportEnabled, False)
-        s.setAttribute(QWebEngineSettings.WebAttribute.LinksIncludedInFocusChain, False)
-        create_profile.ans = ans
+    insert_scripts(ans,
+        create_script('csscolorparser.js', cparser),
+        create_script('editor.js', js),
+        create_dark_mode_script(),
+    )
+    url_handler = UrlSchemeHandler(ans)
+    ans.installUrlSchemeHandler(QByteArray(FAKE_PROTOCOL.encode('ascii')), url_handler)
+    s = ans.settings()
+    assert s is not None
+    s.setDefaultTextEncoding('utf-8')
+    s.setAttribute(QWebEngineSettings.WebAttribute.FullScreenSupportEnabled, False)
+    s.setAttribute(QWebEngineSettings.WebAttribute.LinksIncludedInFocusChain, False)
     return ans
 
 
@@ -351,15 +350,15 @@ class WebPage(QWebEnginePage):
         secure_webengine(self, for_viewer=True)
         self.bridge = PreviewBridge(self)
 
-    def javaScriptConsoleMessage(self, level, msg, linenumber, source_id):
-        prints(f'{source_id}:{linenumber}: {msg}')
+    def javaScriptConsoleMessage(self, level, message, lineNumber, sourceID):
+        prints(f'{sourceID}:{lineNumber}: {message}')
 
-    def acceptNavigationRequest(self, url, req_type, is_main_frame):
-        if req_type in (QWebEnginePage.NavigationType.NavigationTypeReload, QWebEnginePage.NavigationType.NavigationTypeBackForward):
+    def acceptNavigationRequest(self, url, type, isMainFrame):
+        if type in (QWebEnginePage.NavigationType.NavigationTypeReload, QWebEnginePage.NavigationType.NavigationTypeBackForward):
             return True
         if url.scheme() in (FAKE_PROTOCOL, 'data'):
             return True
-        if url.scheme() in ('http', 'https', 'calibre') and req_type == QWebEnginePage.NavigationType.NavigationTypeLinkClicked:
+        if url.scheme() in ('http', 'https', 'calibre') and type == QWebEnginePage.NavigationType.NavigationTypeLinkClicked:
             safe_open_url(url)
         prints('Blocking navigation request to:', url.toString())
         return False
@@ -394,8 +393,8 @@ class Inspector(QWidget):
         QWidget.__init__(self, parent=parent)
         self.view_to_debug = parent
         self.view = None
-        self.layout = QHBoxLayout(self)
-        self.layout.setContentsMargins(0, 0, 0, 0)
+        h = QHBoxLayout(self)
+        h.setContentsMargins(0, 0, 0, 0)
 
     def connect_to_dock(self):
         ac = actions['inspector-dock']
@@ -406,9 +405,17 @@ class Inspector(QWidget):
     def visibility_changed(self, visible):
         if visible and self.view is None:
             self.view = QWebEngineView(self.view_to_debug)
-            setup_profile(self.view.page().profile())
-            self.view_to_debug.page().setDevToolsPage(self.view.page())
-            self.layout.addWidget(self.view)
+            view_page = self.view.page()
+            assert view_page is not None
+            setup_profile(view_page.profile())
+            view_to_debug = self.view_to_debug
+            assert view_to_debug is not None
+            vtd_page = view_to_debug.page()
+            assert vtd_page is not None
+            vtd_page.setDevToolsPage(view_page)
+            h = self.layout()
+            assert h is not None
+            h.addWidget(self.view)
 
     def sizeHint(self):
         return QSize(1280, 600)
@@ -419,7 +426,9 @@ class WebView(QWebEngineView, OpenWithHandler):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.inspector = Inspector(self)
-        w = self.screen().availableSize().width()
+        screen = self.screen()
+        assert screen is not None
+        w = screen.availableSize().width()
         self._size_hint = QSize(int(w/3), int(w/2))
         self._page = WebPage(self)
         self.setPage(self._page)
@@ -443,12 +452,15 @@ class WebView(QWebEngineView, OpenWithHandler):
     def update_settings(self):
         settings = get_editor_settings(tprefs)
         p = self._page.profile()
+        assert p is not None
         ua = p.httpUserAgent().split('|')[0] + '|' + json.dumps(settings)
         p.setHttpUserAgent(ua)
 
     def refresh(self):
         self.update_settings()
-        self.pageAction(QWebEnginePage.WebAction.ReloadAndBypassCache).trigger()
+        reload_action = self.pageAction(QWebEnginePage.WebAction.ReloadAndBypassCache)
+        assert reload_action is not None
+        reload_action.trigger()
 
     def set_url(self, qurl):
         self.update_settings()
@@ -472,18 +484,24 @@ class WebView(QWebEngineView, OpenWithHandler):
         self.setZoomFactor(1.0)
 
     def inspect(self):
-        self.inspector.parent().show()
-        self.inspector.parent().raise_and_focus()
-        self.pageAction(QWebEnginePage.WebAction.InspectElement).trigger()
+        p = self.inspector.parent()
+        assert isinstance(p, QWidget)
+        p.show()
+        p.raise_and_focus()
+        inspect_action = self.pageAction(QWebEnginePage.WebAction.InspectElement)
+        assert inspect_action is not None
+        inspect_action.trigger()
 
-    def contextMenuEvent(self, ev):
+    def contextMenuEvent(self, a0):
         menu = QMenu(self)
         data = self.lastContextMenuRequest()
+        assert data is not None
         url = data.linkUrl()
         url = str(url.toString(NO_URL_FORMATTING)).strip()
         text = data.selectedText()
         if text:
             ca = self.pageAction(QWebEnginePage.WebAction.Copy)
+            assert ca is not None
             if ca.isEnabled():
                 menu.addAction(ca)
         menu.addAction(actions['reload-preview'])
@@ -505,13 +523,17 @@ class WebView(QWebEngineView, OpenWithHandler):
                             mime = c.mime_map[resource_name]
                             if mime.startswith('image/'):
                                 menu.addAction(_('Edit %s') % resource_name, partial(self.edit_image, resource_name))
-        menu.exec(ev.globalPos())
+        menu.exec(a0.globalPos())
 
     def open_with(self, file_name, fmt, entry):
-        self.parent().open_file_with.emit(file_name, fmt, entry)
+        p = self.parent()
+        assert isinstance(p, Preview)
+        p.open_file_with.emit(file_name, fmt, entry)
 
     def edit_image(self, resource_name):
-        self.parent().edit_file.emit(resource_name)
+        p = self.parent()
+        assert isinstance(p, Preview)
+        p.edit_file.emit(resource_name)
 
 
 class Preview(QWidget):
@@ -614,10 +636,10 @@ class Preview(QWidget):
     def clear_clicked(self):
         self.view._page.findText('')
 
-    def find(self, direction):
+    def find(self, a0):
         text = str(self.search.text())
         self.view._page.findText(text, (
-            QWebEnginePage.FindFlag.FindBackward if direction == 'prev' else QWebEnginePage.FindFlag(0)))
+            QWebEnginePage.FindFlag.FindBackward if a0 == 'prev' else QWebEnginePage.FindFlag(0)))
 
     def find_next(self):
         self.find('next')
@@ -677,12 +699,14 @@ class Preview(QWidget):
                 'Failed to launch the worker process used for rendering the preview'), det_msg=tb, show=True)
 
     def name_to_qurl(self, name=None):
-        name = name or self.current_name
+        name = str(name or self.current_name)
         qurl = QUrl()
         qurl.setScheme(FAKE_PROTOCOL), qurl.setAuthority(FAKE_HOST), qurl.setPath('/' + name)
         return qurl
 
-    def show(self, name):
+    def show(self, name: str = ''):
+        if not name:
+            return
         if name != self.current_name:
             self.refresh_timer.stop()
             self.current_name = name
@@ -788,6 +812,7 @@ class Preview(QWidget):
 
     def apply_settings(self):
         s = self.view.settings()
+        assert s is not None
         s.setFontSize(QWebEngineSettings.FontSize.DefaultFontSize, int(tprefs['preview_base_font_size']))
         s.setFontSize(QWebEngineSettings.FontSize.DefaultFixedFontSize, int(tprefs['preview_mono_font_size']))
         s.setFontSize(QWebEngineSettings.FontSize.MinimumLogicalFontSize, int(tprefs['preview_minimum_font_size']))

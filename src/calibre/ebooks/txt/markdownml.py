@@ -21,7 +21,7 @@ class MarkdownMLizer(OEB2HTML):
         self.opts = opts
         self.in_code = False
         self.in_pre = False
-        self.list = []
+        self.list: list = []
         self.blockquotes = 0
         self.remove_space_after_newline = False
         self.base_hrefs = [item.href for item in oeb_book.spine]
@@ -100,7 +100,7 @@ class MarkdownMLizer(OEB2HTML):
             new_text.append('    ' + l)
         return '\n'.join(new_text)
 
-    def dump_text(self, elem, stylizer):
+    def dump_text(self, elem, stylizer, page=None):
         '''
         @elem: The element in the etree that we are working on.
         @stylizer: The style information attached to the element.
@@ -207,6 +207,7 @@ class MarkdownMLizer(OEB2HTML):
             self.list.append({'name': tag, 'num': 0})
         elif tag == 'li':
             # Get the last list from our list of lists
+            li: dict
             if self.list:
                 li = self.list[-1]
             else:

@@ -37,6 +37,8 @@ class FakeAction:
 
 class BaseModel(QAbstractListModel):
 
+    _data: list
+
     def name_to_action(self, name, gui):
         if name == 'Donate':
             return FakeAction(
@@ -57,10 +59,10 @@ class BaseModel(QAbstractListModel):
         except Exception:
             return None
 
-    def rowCount(self, parent):
+    def rowCount(self, parent=...):
         return len(self._data)
 
-    def data(self, index, role):
+    def data(self, index, role=...):
         row = index.row()
         action = self._data[row].action_spec
         if role == Qt.ItemDataRole.DisplayRole:
@@ -280,19 +282,23 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
         self.add_action_button.clicked.connect(self.add_action)
         self.remove_action_button.clicked.connect(self.remove_action)
-        connect_lambda(self.action_up_button.clicked, self, lambda self: self.move(-1))
-        connect_lambda(self.action_down_button.clicked, self, lambda self: self.move(1))
+        connect_lambda(self.action_up_button.clicked, self, lambda self: self._move_action(-1))
+        connect_lambda(self.action_down_button.clicked, self, lambda self: self._move_action(1))
         self.all_actions.setMouseTracking(True)
         self.current_actions.setMouseTracking(True)
         self.all_actions.entered.connect(self.all_entered)
         self.current_actions.entered.connect(self.current_entered)
 
     def all_entered(self, index):
-        tt = self.all_actions.model().data(index, Qt.ItemDataRole.ToolTipRole) or ''
+        all_model = self.all_actions.model()
+        assert all_model is not None
+        tt = all_model.data(index, Qt.ItemDataRole.ToolTipRole) or ''
         self.help_text.setText(tt)
 
     def current_entered(self, index):
-        tt = self.current_actions.model().data(index, Qt.ItemDataRole.ToolTipRole) or ''
+        cur_model = self.current_actions.model()
+        assert cur_model is not None
+        tt = cur_model.data(index, Qt.ItemDataRole.ToolTipRole) or ''
         self.help_text.setText(tt)
 
     def what_changed(self, idx):
@@ -307,18 +313,24 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             self.current_actions.setModel(self.models[key][1])
 
     def add_action(self, *args):
-        self._add_action(self.all_actions.selectionModel().selectedIndexes())
+        all_sm = self.all_actions.selectionModel()
+        assert all_sm is not None
+        self._add_action(all_sm.selectedIndexes())
 
     def add_single_action(self, index):
         self._add_action([index])
 
     def _add_action(self, indices):
-        names = self.all_actions.model().names(indices)
+        all_model = self.all_actions.model()
+        assert isinstance(all_model, AllModel)
+        names = all_model.names(indices)
         if names:
-            not_added = self.current_actions.model().add(names)
+            cur_model = self.current_actions.model()
+            assert isinstance(cur_model, CurrentModel)
+            not_added = cur_model.add(names)
             ns = {y.name for y in not_added}
             added = set(names) - ns
-            self.all_actions.model().remove(indices, added)
+            all_model.remove(indices, added)
             if not_added:
                 warning_dialog(self, _('Cannot add'),
                         _('Cannot add the actions %s to this location') %
@@ -326,23 +338,31 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                         show=True)
             if added:
                 ca = self.current_actions
-                idx = ca.model().index(ca.model().rowCount(None)-1)
+                ca_model = ca.model()
+                assert isinstance(ca_model, CurrentModel)
+                idx = ca_model.index(ca_model.rowCount()-1, 0)
                 ca.scrollTo(idx)
                 self.changed_signal.emit()
 
     def remove_action(self, *args):
-        self._remove_action(self.current_actions.selectionModel().selectedIndexes())
+        cur_sm = self.current_actions.selectionModel()
+        assert cur_sm is not None
+        self._remove_action(cur_sm.selectedIndexes())
 
     def remove_single_action(self, index):
         self._remove_action([index])
 
     def _remove_action(self, indices):
-        names = self.current_actions.model().names(indices)
+        cur_model = self.current_actions.model()
+        assert isinstance(cur_model, CurrentModel)
+        names = cur_model.names(indices)
         if names:
-            not_removed = self.current_actions.model().remove(indices)
+            not_removed = cur_model.remove(indices)
             ns = {y.name for y in not_removed}
             removed = set(names) - ns
-            self.all_actions.model().add(removed)
+            all_model = self.all_actions.model()
+            assert isinstance(all_model, AllModel)
+            all_model.add(removed)
             if not_removed:
                 warning_dialog(self, _('Cannot remove'),
                         _('Cannot remove the actions %s from this location') %
@@ -351,12 +371,14 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             else:
                 self.changed_signal.emit()
 
-    def move(self, delta, *args):
+    def _move_action(self, delta: int) -> None:
         sm = self.current_actions.selectionModel()
+        assert sm is not None
         x = sm.selectedIndexes()
         if x and len(x):
             i = sm.currentIndex().row()
             m = self.current_actions.model()
+            assert isinstance(m, CurrentModel)
             idx_map = m.move_many(x, delta)
             newci = idx_map.get(i)
             sm.clear()
@@ -368,7 +390,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                 self.current_actions.scrollTo(newci, QAbstractItemView.ScrollHint.EnsureVisible)
             self.changed_signal.emit()
 
-    def commit(self):
+    def commit(self, *args):
         # Ensure preferences are showing in either the toolbar or
         # the menubar.
         pref_in_toolbar = self.models['toolbar'][1].has_action('Preferences')
@@ -389,7 +411,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             cm.commit()
         return False
 
-    def restore_defaults(self):
+    def restore_defaults(self, *args):
         for am, cm in self.models.values():
             cm.restore_defaults()
             am.restore_defaults()

@@ -170,13 +170,13 @@ class Subset:
 
         # Calculate real offsets
         pos = len(fixed_prefix)
-        pos += len(top_dict.raw)
-        pos += len(strings.raw)
-        pos += len(global_subrs.raw)
+        pos += len(top_dict.raw or b'')
+        pos += len(strings.raw or b'')
+        pos += len(global_subrs.raw or b'')
         t['charset'] = pos
         pos += len(charsets.raw)
         t['CharStrings'] = pos
-        pos += len(char_strings.raw)
+        pos += len(char_strings.raw or b'')
         if private_dict is not None:
             t['Private'] = (len(private_dict.raw), pos)
         top_dict.compile()

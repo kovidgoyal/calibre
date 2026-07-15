@@ -222,7 +222,7 @@ class Table:
         Logic:
             ?
         '''
-        self.__close_table(self, line)
+        self.__close_table(line)
 
     def __end_row_def_func(self, line):
         '''
@@ -277,7 +277,7 @@ class Table:
         elif self.__token_info == 'mi<mk<pard-start':
             self.__end_row_def_func(line)
             # if already in the table, start a row, then cell.
-            if (self.__state) > 0 and self.__state[-1] == 'in_table':
+            if len(self.__state) > 0 and self.__state[-1] == 'in_table':
                 self.__start_row_func(line)
                 self.__start_cell_func(line)
             self.__write_obj.write(line)
@@ -559,6 +559,7 @@ class Table:
             if action is None:
                 sys.stderr.write('No matching state in module table.py\n')
                 sys.stderr.write(self.__state[-1] + '\n')
+            assert action is not None
             action(line)
         read_obj.close()
         self.__write_obj.close()

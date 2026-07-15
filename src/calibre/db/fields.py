@@ -175,7 +175,7 @@ class Field:
             return ans
 
         id_map = self.table.id_map
-        special_sort = hasattr(self, 'category_sort_value')
+        sort_fn = getattr(self, 'category_sort_value', None)
         for item_id, item_book_ids in self.table.col_book_map.items():
             if book_ids is not None:
                 item_book_ids = item_book_ids.intersection(book_ids)
@@ -190,8 +190,8 @@ class Field:
                     # id table, for example, see
                     # https://bugs.launchpad.net/bugs/1218783
                     raise InvalidLinkTable(self.name)
-                sval = (self.category_sort_value(item_id, item_book_ids, lang_map)
-                    if special_sort else name)
+                sval = (sort_fn(item_id, item_book_ids, lang_map)
+                    if sort_fn is not None else name)
                 c = tag_class(name, id=item_id, sort=sval, avg=avg,
                               id_set=item_book_ids, count=len(item_book_ids))
                 ans.append(c)
@@ -534,7 +534,7 @@ class ManyToOneField(Field):
         except KeyError:
             raise InvalidLinkTable(self.name)
 
-    def item_ids_for_names(self, db, item_names: Iterable[str], case_sensitive: bool = False) -> dict[str, int]:
+    def item_ids_for_names(self, db, item_names: Iterable[str], case_sensitive: bool = False) -> dict[str, int | None]:
         return self.table.item_ids_for_names(db, item_names, case_sensitive)
 
 
@@ -546,7 +546,7 @@ class ManyToManyField(Field):
     def __init__(self, *args, **kwargs):
         Field.__init__(self, *args, **kwargs)
 
-    def item_ids_for_names(self, db, item_names: Iterable[str], case_sensitive: bool = False) -> dict[str, int]:
+    def item_ids_for_names(self, db, item_names: Iterable[str], case_sensitive: bool = False) -> dict[str, int | None]:
         return self.table.item_ids_for_names(db, item_names, case_sensitive)
 
     def for_book(self, book_id, default_value=None):
@@ -612,11 +612,13 @@ class IdentifiersField(ManyToManyField):
         ids = self.table.book_col_map.get(book_id, None)
         if ids:
             ids = ids.copy()
-        else:
+        elif default_value is not None:
             try:
                 ids = default_value.copy()  # in case default_value is a mutable dict
             except AttributeError:
                 ids = default_value
+        else:
+            ids = default_value
         return ids
 
     def sort_keys_for_books(self, get_metadata, lang_map):
@@ -645,6 +647,7 @@ class IdentifiersField(ManyToManyField):
 
 
 class AuthorsField(ManyToManyField):
+    author_sort_field: Field
 
     def author_data(self, author_id):
         return {

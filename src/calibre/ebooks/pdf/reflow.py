@@ -9,6 +9,7 @@ import re
 import sys
 from html import escape
 from operator import attrgetter
+from typing import cast
 
 from lxml import etree
 
@@ -119,6 +120,7 @@ class Font:
 class Element:
 
     def __init__(self):
+        self.id: int = 0
         self.starts_block = None
         self.block_style = None
 
@@ -132,9 +134,21 @@ class Element:
 class DocStats:
 
     def __init__(self):
-        self.top = self.bottom = self.left_min_odd = self.left_min_even = self.right \
-          = self.line_space = self.para_space = self.indent_min_odd = self.indent_min_even = 0
-        self.font_size = 0
+        self.top: float = 0
+        self.bottom: float = 0
+        self.left_min_odd: float = 0
+        self.left_min_even: float = 0
+        self.right: float = 0
+        self.line_space: float = 0
+        self.para_space: float = 0
+        self.indent_min_odd: float = 0
+        self.indent_min_even: float = 0
+        self.font_size: float = 0
+        self.margin_px: float = 0.0
+        self.left_max_odd: float = 0
+        self.left_max_even: float = 0
+        self.indent_max_odd: float = 0
+        self.indent_max_even: float = 0
 
 
 class Image(Element):
@@ -189,6 +203,7 @@ class Text(Element):
         self.blank_line_before = 0
         self.blank_line_after = 0
 
+        self.font: Font
         if self.font_map:
             self.font = self.font_map[text.get('font')]
             self.font_size = self.font.size
@@ -196,7 +211,7 @@ class Text(Element):
             self.color = self.font.color
             self.font_family = self.font.family
         else:
-            self.font = {}
+            self.font = cast(Font, {})
             self.font_size = 0.0
             self.font_size_em = 0.0
             # self.color = 0
@@ -291,6 +306,7 @@ class Text(Element):
                 # and the font size is reduced.
                 # These need to be fixed manually.
                 m_self = re.match(r'^(.+em">)(.+)$', self.raw)
+                assert m_self is not None
                 self.raw = m_self.group(1) \
                   + '<span style="float:left"><span style="line-height:0.5">' \
                   + m_self.group(2) + '</span></span>'
@@ -393,7 +409,7 @@ class Text(Element):
 class Paragraph(Text):
 
     def __init__(self, text, font_map, opts, log, idc):
-        Text.__init__(self)
+        Element.__init__(self)
         self.id = next(idc)
         self.opts, self.log = opts, log
         self.font_map = font_map
@@ -401,13 +417,14 @@ class Paragraph(Text):
             ('top', 'left', 'width', 'height')))
         self.bottom  = self.top + self.height
         self.right = self.left + self.width
+        self.font: Font
         if self.font_map:
             self.font = self.font_map[text.get('font')]
             self.font_size = self.font.size
             self.color = self.font.color
             self.font_family = self.font.family
         else:
-            self.font = {}
+            self.font = cast(Font, {})
             self.font_size = 0
             # self.color = 0
 
@@ -463,7 +480,7 @@ class Interval:
         return self.left == other.left and self.right == other.right
 
     def __hash__(self):
-        return hash('({:f},{:f})'.format(*self.left), self.right)
+        return hash(f'({self.left:f},{self.right:f})')
 
 
 class Column:
@@ -494,7 +511,7 @@ class Column:
         self.elements.sort(key=attrgetter('bottom'))
         self.top = self.elements[0].top
         self.bottom = self.elements[-1].bottom
-        self.left, self.right = sys.maxint, 0
+        self.left, self.right = sys.maxsize, 0
         for x in self:
             self.left = min(self.left, x.left)
             self.right = max(self.right, x.right)
@@ -759,8 +776,10 @@ class Page:
         self.id = f'page{self.number}'
         self.page_break_after = False
 
-        self.texts = []
-        self.imgs = []
+        self.texts: list[Text] = []
+        self.imgs: list[Image] = []
+        self.elements: list[Text | Image] = []
+        self.document_font_stats: FontSizeStats | None = None
         # Set margins to values that will get adjusted
         self.left_margin = self.width
         self.right_margin = 0
@@ -796,6 +815,7 @@ class Page:
                     text.indented = 1
                     w = round(s * text.average_character_width/2.0)  # Spaces < avg width
                     matchObj = re.match(r'^\s*(<[^>]+>)?\s*(.*)$', text.raw)
+                    assert matchObj is not None
                     t1 = matchObj.group(1)
                     t2 = matchObj.group(2)
                     if t1 is None:
@@ -1217,7 +1237,7 @@ class Page:
     def dump_regions(self, fname):
         fname = 'regions-'+fname+'.txt'
         with open(os.path.join(self.debug_dir, fname), 'wb') as f:
-            f.write(f'Page #{self.number}\n\n')
+            f.write(f'Page #{self.number}\n\n'.encode('utf-8'))
             for region in self.regions:
                 region.dump(f)
 
@@ -1260,6 +1280,7 @@ class Page:
                         else:
                             absorb_into = None
                     else:
+                        assert prev_region is not None and next_region is not None
                         absorb_into = prev_region
                         if self.regions[next_region].line_count >= self.regions[prev_region].line_count:
                             avg_column_count = sum(len(r.columns) for r in regions)/float(len(regions))
@@ -1462,7 +1483,7 @@ class PDFDocument:
 
         # Create lines for pages and remove headers/footers etc.
         for page in self.pages:
-            page.document_font_stats = self.font_size_stats
+            page.document_font_stats = cast(FontSizeStats, self.font_size_stats)
             # This processes user-supplied regex for header/footer
             page.create_page_format(self.stats, self.opts)
 
@@ -2035,6 +2056,8 @@ class PDFDocument:
             if merge_done:
                 # We now need to skip to the next page number
                 # The text has been appended to this page, so coalesce the paragraph
+                assert merged_page is not None
+                assert candidate is not None
                 left_margin = merged_page.stats_left_min
                 right_margin = merged_page.stats_right
                 candidate.texts[-1].coalesce(merged_text, candidate.number, left_margin, right_margin)
@@ -2071,6 +2094,7 @@ class PDFDocument:
                 for i, block in enumerate(region.boxes):
                     if merge_first_block:
                         merge_first_block = False
+                        assert last_block is not None
                         if not page_number_inserted:
                             last_block.append(page.number)
                             page_number_inserted = True

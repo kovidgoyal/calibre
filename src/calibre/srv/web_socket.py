@@ -413,6 +413,7 @@ class WebSocketConnection(HTTPConnection):
             with self.cf_lock:
                 self.control_frames.append(f)
         elif opcode == PONG:
+            assert self.websocket_handler is not None
             try:
                 self.websocket_handler.handle_websocket_pong(self.websocket_connection_id, data)
             except Exception:
@@ -456,6 +457,7 @@ class WebSocketConnection(HTTPConnection):
 
     def close(self):
         if self.in_websocket_mode:
+            assert self.websocket_handler is not None
             try:
                 self.websocket_handler.handle_websocket_close(self.websocket_connection_id)
             except Exception:
@@ -507,6 +509,7 @@ class WebSocketConnection(HTTPConnection):
         complete message in the handler. Note that for binary data, data is a
         mutable object. If you intend to keep it around after this method
         returns, create a bytestring from it, using tobytes(). '''
+        assert self.websocket_handler is not None
         self.websocket_handler.handle_websocket_data(self.websocket_connection_id, data, message_starting, message_finished)
 
 

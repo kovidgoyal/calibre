@@ -118,7 +118,9 @@ class TagEditor(QDialog, Ui_TagEditor):
 
     def delete_tags(self):
         confirms, deletes = [], []
-        row_indices = list(self.available_tags.selectionModel().selectedRows())
+        _avail_sel_model = self.available_tags.selectionModel()
+        assert _avail_sel_model is not None
+        row_indices = list(_avail_sel_model.selectedRows())
 
         if not row_indices:
             error_dialog(self, _('No tags selected'), _('You must select at least one tag from the list of Available tags.')).exec()
@@ -127,7 +129,9 @@ class TagEditor(QDialog, Ui_TagEditor):
             _('Deleting tags is done immediately and there is no undo.'),
             'tag_editor_delete'):
             return
-        pos = self.available_tags.verticalScrollBar().value()
+        _avail_vsb = self.available_tags.verticalScrollBar()
+        assert _avail_vsb is not None
+        pos = _avail_vsb.value()
         for ri in row_indices:
             tag = ri.data()
             used = self.db.is_tag_used(tag) \
@@ -144,6 +148,8 @@ class TagEditor(QDialog, Ui_TagEditor):
                     'Are you certain you want to delete them?')+'<br>'+ct):
                 deletes += confirms
 
+        _avail_model = self.available_tags.model()
+        assert _avail_model is not None
         for item in sorted(deletes, key=lambda r: r.row(), reverse=True):
             tag = item.data()
             if self.key is None:
@@ -151,11 +157,13 @@ class TagEditor(QDialog, Ui_TagEditor):
             else:
                 bks = self.db.delete_item_from_multiple(tag, label=self.key)
                 self.db.refresh_ids(bks)
-            self.available_tags.model().removeRows(item.row(), 1)
-        self.available_tags.verticalScrollBar().setValue(pos)
+            _avail_model.removeRows(item.row(), 1)
+        _avail_vsb.setValue(pos)
 
     def apply_tags(self, item=None):
-        row_indices = list(self.available_tags.selectionModel().selectedRows())
+        _avail_sel_model2 = self.available_tags.selectionModel()
+        assert _avail_sel_model2 is not None
+        row_indices = list(_avail_sel_model2.selectedRows())
         row_indices.sort(key=lambda r: r.row(), reverse=True)
         if not row_indices:
             text = self.available_filter_input.text()
@@ -163,13 +171,17 @@ class TagEditor(QDialog, Ui_TagEditor):
                 self.add_tag_input.setText(text)
                 self.add_tag_input.setFocus(Qt.FocusReason.OtherFocusReason)
             return
-        pos = self.available_tags.verticalScrollBar().value()
+        _avail_vsb2 = self.available_tags.verticalScrollBar()
+        assert _avail_vsb2 is not None
+        pos = _avail_vsb2.value()
         tags = self._get_applied_tags_box_contents()
+        _avail_model2 = self.available_tags.model()
+        assert _avail_model2 is not None
         for item in row_indices:
             tag = item.data()
             tags.append(tag)
-            self.available_tags.model().removeRows(item.row(), 1)
-        self.available_tags.verticalScrollBar().setValue(pos)
+            _avail_model2.removeRows(item.row(), 1)
+        _avail_vsb2.setValue(pos)
 
         if not self.is_names:
             tags.sort(key=sort_key)
@@ -179,7 +191,9 @@ class TagEditor(QDialog, Ui_TagEditor):
         return list(self.applied_model.stringList())
 
     def unapply_tags(self, item=None):
-        row_indices = list(self.applied_tags.selectionModel().selectedRows())
+        _appl_sel_model = self.applied_tags.selectionModel()
+        assert _appl_sel_model is not None
+        row_indices = list(_appl_sel_model.selectedRows())
         tags = [r.data() for r in row_indices]
         row_indices.sort(key=lambda r: r.row(), reverse=True)
         for item in row_indices:

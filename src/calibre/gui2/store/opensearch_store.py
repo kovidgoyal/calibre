@@ -83,7 +83,7 @@ class OpenSearchOPDSStore(StorePlugin):
     open_search_url = ''
     web_url = ''
 
-    def open(self, parent=None, detail_item=None, external=False):
+    def open(self, gui=None, parent=None, detail_item=None, external=False):
         if not hasattr(self, 'web_url'):
             return
 

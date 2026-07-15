@@ -53,6 +53,7 @@ class BulkConfig(Config):
         self.groups.clicked[(QModelIndex)].connect(self.show_pane)
         self.groups.entered[(QModelIndex)].connect(self.show_group_help)
         rb = self.buttonBox.button(QDialogButtonBox.StandardButton.RestoreDefaults)
+        assert rb is not None
         rb.setVisible(False)
         self.groups.setMouseTracking(True)
         if not has_saved_settings:
@@ -110,7 +111,9 @@ class BulkConfig(Config):
         self.groups.setCurrentIndex(self._groups_model.index(idx))
         self.show_pane(idx)
         try:
-            shutil.rmtree(self.plumber.archive_input_tdir, ignore_errors=True)
+            aitdir = self.plumber.archive_input_tdir
+            assert aitdir is not None
+            shutil.rmtree(aitdir, ignore_errors=True)
         except Exception:
             pass
 
@@ -135,7 +138,7 @@ class BulkConfig(Config):
         self._recommendations = recs
         QDialog.accept(self)
 
-    def done(self, r):
+    def done(self, a0):
         if self.isVisible():
             self.save_geometry(gprefs, 'convert_bulk_dialog_geom')
-        return QDialog.done(self, r)
+        return QDialog.done(self, a0)

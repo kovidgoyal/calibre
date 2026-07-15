@@ -42,8 +42,8 @@ def serialize_palette(self):
     return bytes(ba)
 
 
-def unserialize_palette(self, data: bytes):
-    QDataStream(QByteArray(data)) >> self
+def unserialize_palette(self, b: bytes) -> None:
+    QDataStream(QByteArray(b)) >> self
 
 
 def serialize_palette_as_python(self):
@@ -251,7 +251,9 @@ class PaletteManager(QObject):
         from calibre.gui2 import qapplication_or_fail
         app = qapplication_or_fail()
         self.setParent(app)
-        if not self.using_calibre_style and app.style().objectName() == 'fusion':
+        app_style = app.style()
+        assert app_style is not None
+        if not self.using_calibre_style and app_style.objectName() == 'fusion':
             # Since Qt is using the fusion style anyway, specialize it
             self.using_calibre_style = True
 
@@ -259,14 +261,18 @@ class PaletteManager(QObject):
     def use_dark_palette(self):
         from calibre.gui2 import qapplication_or_fail
         app = qapplication_or_fail()
-        system_is_dark = app.styleHints().colorScheme() == Qt.ColorScheme.Dark
+        hints = app.styleHints()
+        assert hints is not None
+        system_is_dark = hints.colorScheme() == Qt.ColorScheme.Dark
         return self.color_palette == 'dark' or (self.color_palette == 'system' and system_is_dark)
 
     def setup_styles(self):
         from calibre.gui2 import qapplication_or_fail
         if self.using_calibre_style:
             app = qapplication_or_fail()
-            app.styleHints().colorSchemeChanged.connect(self.color_scheme_changed)
+            style_hints = app.styleHints()
+            assert style_hints is not None
+            style_hints.colorSchemeChanged.connect(self.color_scheme_changed)
             self.set_dark_mode_palette() if self.use_dark_palette else self.set_light_mode_palette()
             app.setAttribute(Qt.ApplicationAttribute.AA_SetPalette, True)
 
@@ -306,7 +312,7 @@ class PaletteManager(QObject):
         app.cached_qimage.cache_clear()
         app.cached_qpixmap.cache_clear()
         self.is_dark_theme = app.palette().is_dark_theme()
-        QIcon.ic.set_theme()
+        QIcon.ic.set_theme()  # type: ignore
         app.setProperty('is_dark_theme', self.is_dark_theme)
         if self.using_calibre_style:
             ss = 'QTabBar::tab:selected { font-style: italic }\n\n'
@@ -407,7 +413,10 @@ QTabBar::tab:only-one {
         if ismacos:
             from calibre_extensions.cocoa import set_appearance
             set_appearance(self.color_palette)
-        system_is_dark = qapplication_or_fail().styleHints().colorScheme() == Qt.ColorScheme.Dark
+        refresh_app = qapplication_or_fail()
+        refresh_hints = refresh_app.styleHints()
+        assert refresh_hints is not None
+        system_is_dark = refresh_hints.colorScheme() == Qt.ColorScheme.Dark
         is_dark = self.color_palette == 'dark' or (self.color_palette == 'system' and system_is_dark)
         pal = dark_palette() if is_dark else light_palette()
         self.set_palette(pal)

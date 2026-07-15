@@ -32,8 +32,10 @@ class SchemaUpgrade:
 
     @property
     def user_version(self):
+        assert self.conn is not None
         return self.conn.get('PRAGMA fts_db.user_version', all=False) or 0
 
     @user_version.setter
     def user_version(self, val):
+        assert self.conn is not None
         self.conn.execute(f'PRAGMA fts_db.user_version={val}')

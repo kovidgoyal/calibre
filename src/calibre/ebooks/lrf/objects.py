@@ -6,6 +6,7 @@ import io
 import re
 import struct
 from compression import zlib
+from typing import ClassVar
 
 from calibre import prepare_string_for_xml
 from calibre.ebooks.html_entities import entity_to_unicode_in_python
@@ -120,7 +121,7 @@ class LRFContentObject(LRFObject):
         self.stream.seek(pos)
         return size
 
-    def handle_tag(self, tag):
+    def handle_tag(self, tag, stream=None, tag_map=None):
         if tag.id in self.tag_map:
             action = self.tag_map[tag.id]
             if isinstance(action, str):
@@ -143,6 +144,8 @@ class LRFStream(LRFObject):
         0xF506: ['', 'end_stream'],
       }
     tag_map.update(LRFObject.tag_map)
+    stream_flags: int  # set via tag_map[0xF554]
+    stream: str | bytes | None
 
     def __init__(self, document, stream, id, scramble_key, boundary):
         self.stream = ''
@@ -194,12 +197,14 @@ class PageTree(LRFObject):
 
 
 class StyleObject:
+    tag_map: ClassVar[dict]
+    id: int
 
     def _tags_to_xml(self):
         s = ''
         for h in self.tag_map.values():
             attr = h[0]
-            if hasattr(self, attr):
+            if isinstance(attr, str) and hasattr(self, attr):
                 s += f'{attr}="{getattr(self, attr)}" '
         return s
 
@@ -213,7 +218,7 @@ class StyleObject:
         d = {}
         for h in self.tag_map.values():
             attr = h[0]
-            if hasattr(self, attr):
+            if isinstance(attr, str) and hasattr(self, attr):
                 d[attr] = getattr(self, attr)
         return d
 
@@ -280,7 +285,7 @@ class PageDiv(EmptyPageElement):
         self.linecolor = Color(linecolor)
 
     def __str__(self):
-        return f'\n<PageDiv pain="{self.pain}" spacesize="{self.spacesize}" linewidth="{self.linewidth}" linecolor="{self.color}" />\n'
+        return f'\n<PageDiv pain="{self.pain}" spacesize="{self.spacesize}" linewidth="{self.linewidth}" linecolor="{self.linecolor}" />\n'
 
 
 class RuledLine(EmptyPageElement):
@@ -335,6 +340,7 @@ class Page(LRFStream):
       }
     tag_map.update(PageAttr.tag_map)
     tag_map.update(LRFStream.tag_map)
+    style_id: int  # set via tag_map[0xF503]
     style = property(fget=lambda self: self._document.objects[self.style_id])
     evenheader = property(fget=lambda self: self._document.objects[self.style.evenheaderid])
     evenfooter = property(fget=lambda self: self._document.objects[self.style.evenfooterid])
@@ -483,6 +489,7 @@ class BlockAttr(StyleObject, LRFObject):
 
 
 class TextCSS:
+    FONT_MAP: ClassVar[collections.defaultdict[str, str]]
 
     @classmethod
     def to_css(cls, obj, inline=False):
@@ -565,15 +572,17 @@ class Block(LRFStream, TextCSS):
     tag_map.update(BlockAttr.tag_map)
     tag_map.update(TextAttr.tag_map)
     tag_map.update(LRFStream.tag_map)
-    extra_attrs = [i[0] for i in BlockAttr.tag_map.values()]
-    extra_attrs.extend([i[0] for i in TextAttr.tag_map.values()])
+    style_id: int  # set via tag_map[0xF503]
+    extra_attrs: ClassVar[list[str]] = [str(i[0]) for i in BlockAttr.tag_map.values()]
+    extra_attrs = extra_attrs + [str(i[0]) for i in TextAttr.tag_map.values()]
 
     style = property(fget=lambda self: self._document.objects[self.style_id])
     textstyle = property(fget=lambda self: self._document.objects[self.textstyle_id])
 
     def initialize(self):
         self.attrs = {}
-        stream = io.BytesIO(self.stream)
+        raw = self.stream if isinstance(self.stream, bytes) else b''
+        stream = io.BytesIO(raw)
         tag = Tag(stream)
         if tag.id != 0xF503:
             raise LRFParseError('Bad block content')
@@ -679,6 +688,7 @@ class Text(LRFStream):
         }
 
     class TextTag:
+        refobj: object  # set for Plot tags only
 
         def __init__(self, name, attrs={}, self_closing=False):
             self.name = name
@@ -802,7 +812,7 @@ class Text(LRFStream):
 
     def initialize(self):
         self.content = collections.deque()
-        s = self.stream or b''
+        s: bytes = self.stream if isinstance(self.stream, bytes) else b''
         stream = io.BytesIO(s)
         length = len(s)
         style = self.style.as_dict()
@@ -920,6 +930,7 @@ class Image(LRFObject):
         0xF54C: ['refstream', 'D'],
         0xF555: ['comment', 'P'],
       }
+    refstream: int  # set via tag_map[0xF54C]
 
     def parse_image_rect(self, tag, f):
         self.x0, self.y0, self.x1, self.y1 = struct.unpack('<HHHH', tag.contents)
@@ -973,7 +984,7 @@ class Canvas(LRFStream):
             if hasattr(self, attr):
                 self.attrs[attr] = getattr(self, attr)
         self._contents = []
-        s = self.stream or b''
+        s: bytes = self.stream if isinstance(self.stream, bytes) else b''
         stream = io.BytesIO(s)
         while stream.tell() < len(s):
             tag = Tag(stream)
@@ -1020,8 +1031,8 @@ class ImageStream(LRFStream):
 
     encoding = property(fget=lambda self: self.imgext[self.stream_flags & 0xFF].upper())
 
-    def end_stream(self, *args):
-        LRFStream.end_stream(self, *args)
+    def end_stream(self, tag, stream):
+        LRFStream.end_stream(self, tag, stream)
         self.file = str(self.id) + '.' + self.encoding.lower()
         if self._document is not None:
             self._document.image_map[self.id] = self
@@ -1055,6 +1066,7 @@ class Button(LRFObject):
         0xF5F9: ['','parse_run'],  # Run
       }
     tag_map.update(LRFObject.tag_map)
+    button_flags: int  # set via tag_map[0xF561]
 
     def __init__(self, document, stream, id, scramble_key, boundary):
         self.xml = ''
@@ -1144,10 +1156,12 @@ class Font(LRFStream):
         0xF55D: ['fontfacename', 'P'],
       }
     tag_map.update(LRFStream.tag_map)
+    fontfilename: str  # set via tag_map[0xF559]
+    fontfacename: str  # set via tag_map[0xF55D]
     data = property(fget=lambda self: self.stream)
 
-    def end_stream(self, *args):
-        LRFStream.end_stream(self, *args)
+    def end_stream(self, tag, stream):
+        LRFStream.end_stream(self, tag, stream)
         self._document.font_map[self.fontfacename] = self
         self.file = self.fontfacename + '.ttf'
 
@@ -1205,7 +1219,7 @@ class TocLabel:
 class TOCObject(LRFStream):
 
     def initialize(self):
-        stream = io.BytesIO(self.stream or b'')
+        stream = io.BytesIO(self.stream if isinstance(self.stream, bytes) else b'')
         c = struct.unpack('<H', stream.read(2))[0]
         stream.seek(4*(c+1))
         self._contents = []
@@ -1269,7 +1283,9 @@ def get_object(document, stream, id, offset, size, scramble_key):
     if start_tag.id != 0xF500:
         raise LRFParseError('Bad object start')
     obj_id, obj_type = struct.unpack('<IH', start_tag.contents)
-    if obj_type < len(object_map) and object_map[obj_type] is not None:
-        return object_map[obj_type](document, stream, obj_id, scramble_key, offset+size-Tag.tags[0][0])
+    if obj_type < len(object_map):
+        obj_cls = object_map[obj_type]
+        if obj_cls is not None:
+            return obj_cls(document, stream, obj_id, scramble_key, offset+size-Tag.tags[0][0])
 
     raise LRFParseError(f'Unknown object type: {obj_type:02X}!')

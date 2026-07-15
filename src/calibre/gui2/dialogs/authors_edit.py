@@ -38,8 +38,8 @@ class ItemDelegate(QStyledItemDelegate):
         QStyledItemDelegate.__init__(self, parent)
         self.all_authors = all_authors
 
-    def sizeHint(self, *args):
-        return QStyledItemDelegate.sizeHint(self, *args) + QSize(0, 15)
+    def sizeHint(self, option, index):
+        return QStyledItemDelegate.sizeHint(self, option, index) + QSize(0, 15)
 
     def setEditorData(self, editor, index):
         name = str(index.data(Qt.ItemDataRole.DisplayRole) or '')
@@ -75,36 +75,41 @@ class List(QListWidget):
         for item in self.selectedItems():
             self.takeItem(self.row(item))
 
-    def keyPressEvent(self, ev):
-        if ev.key() == Qt.Key.Key_Delete:
+    def keyPressEvent(self, e):
+        if e.key() == Qt.Key.Key_Delete:
             self.delete_selected()
-            ev.accept()
+            e.accept()
             return
-        return QListWidget.keyPressEvent(self, ev)
+        return QListWidget.keyPressEvent(self, e)
 
-    def addItem(self, *args):
+    def addItem(self, *args, **kwargs):
         try:
-            return QListWidget.addItem(self, *args)
+            return QListWidget.addItem(self, *args, **kwargs)
         finally:
             self.mark_as_editable()
 
-    def addItems(self, *args):
+    def addItems(self, labels):
         try:
-            return QListWidget.addItems(self, *args)
+            if labels is not None:
+                return QListWidget.addItems(self, labels)
         finally:
             self.mark_as_editable()
 
     def mark_as_editable(self):
         for i in range(self.count()):
             item = self.item(i)
+            assert item is not None
             item.setFlags(item.flags() | Qt.ItemFlag.ItemIsEditable)
 
     def edited(self, i):
         item = self.item(i)
+        assert item is not None
         q = str(item.text())
         remove = []
         for j in range(self.count()):
-            if i != j and str(self.item(j).text()) == q:
+            jitem = self.item(j)
+            assert jitem is not None
+            if i != j and str(jitem.text()) == q:
                 remove.append(j)
         for x in sorted(remove, reverse=True):
             self.takeItem(x)
@@ -114,12 +119,12 @@ class Edit(EditWithComplete):
 
     returnPressed = pyqtSignal()
 
-    def keyPressEvent(self, ev):
-        if ev.key() in (Qt.Key.Key_Return, Qt.Key.Key_Enter):
-            ev.accept()
+    def keyPressEvent(self, e):
+        if e.key() in (Qt.Key.Key_Return, Qt.Key.Key_Enter):
+            e.accept()
             self.returnPressed.emit()
             return
-        return EditWithComplete.keyPressEvent(self, ev)
+        return EditWithComplete.keyPressEvent(self, e)
 
 
 def init_line_edit(a, all_authors):
@@ -148,7 +153,9 @@ class AuthorsEdit(QDialog):
 
         self.author = a = Edit(self)
         init_line_edit(a, all_authors)
-        a.lineEdit().setPlaceholderText(_('Enter an author to add'))
+        a_le = a.lineEdit()
+        assert a_le is not None
+        a_le.setPlaceholderText(_('Enter an author to add'))
         a.returnPressed.connect(self.add_author)
         l.addWidget(a, 2, 0)
 
@@ -184,7 +191,9 @@ class AuthorsEdit(QDialog):
     def authors(self):
         ans = []
         for i in range(self.al.count()):
-            ans.append(str(self.al.item(i).text()))
+            al_item = self.al.item(i)
+            assert al_item is not None
+            ans.append(str(al_item.text()))
         return ans or [_('Unknown')]
 
     def add_author(self):
@@ -197,7 +206,9 @@ class AuthorsEdit(QDialog):
                     # Case change
                     i = authors[la][0]
                     authors[la] = (i, author)
-                    self.al.item(i).setText(author)
+                    al_it = self.al.item(i)
+                    assert al_it is not None
+                    al_it.setText(author)
                 else:
                     self.al.addItem(author)
                     authors[la] = author

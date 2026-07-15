@@ -4,7 +4,7 @@
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
-from pygments.lexers import PythonLexer
+from pygments.lexers.python import PythonLexer
 
 from calibre.gui2.tweak_book.editor.syntax.pygments_highlighter import create_highlighter
 

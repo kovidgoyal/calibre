@@ -8,8 +8,9 @@ import pprint
 import shutil
 import sys
 from functools import partial
+from typing import Any
 
-from calibre import filesystem_encoding, get_types_map, isbytestring
+from calibre import filesystem_encoding, get_types_map
 from calibre.constants import __version__
 from calibre.customize.conversion import DummyReporter, OptionRecommendation
 from calibre.customize.ui import (
@@ -59,7 +60,11 @@ def supported_input_formats():
 
 
 class OptionValues:
-    pass
+    def __getattr__(self, name: str) -> Any:
+        raise AttributeError(name)
+
+    def __setattr__(self, name: str, value: object) -> None:
+        object.__setattr__(self, name, value)
 
 
 class CompositeProgressReporter:
@@ -94,9 +99,9 @@ class Plumber:
         :param input: Path to input file.
         :param output: Path to output file/folder
         '''
-        if isbytestring(input):
+        if isinstance(input, bytes):
             input = input.decode(filesystem_encoding)
-        if isbytestring(output):
+        if isinstance(output, bytes):
             output = output.decode(filesystem_encoding)
         self.original_input_arg = input
         self.for_regex_wizard = for_regex_wizard
@@ -806,7 +811,6 @@ OptionRecommendation(name='search_replace',
         if merge_plugin_recs:
             self.merge_plugin_recommendations()
 
-    @classmethod
     def get_all_options(self):
         ans = {}
         for group in (self.input_options, self.pipeline_options,
@@ -923,9 +927,8 @@ OptionRecommendation(name='search_replace',
         from calibre.ebooks.metadata import MetaInformation
         from calibre.ebooks.metadata.opf2 import OPF
         mi = MetaInformation(None, [])
-        if self.opts.read_metadata_from_opf is not None:
-            self.opts.read_metadata_from_opf = os.path.abspath(
-                                            self.opts.read_metadata_from_opf)
+        if isinstance((rpt := self.opts.read_metadata_from_opf), str):
+            self.opts.read_metadata_from_opf = os.path.abspath(rpt)
             with open(self.opts.read_metadata_from_opf, 'rb') as stream:
                 opf = OPF(stream, os.path.dirname(self.opts.read_metadata_from_opf))
             mi = opf.to_book_metadata()
@@ -1193,6 +1196,7 @@ OptionRecommendation(name='search_replace',
             self.opts.insert_blank_line = False
             self.opts.remove_paragraph_spacing = False
         line_height = self.opts.line_height
+        assert isinstance(line_height, (int, float))
         if line_height < 1e-4:
             line_height = None
 

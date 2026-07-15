@@ -2205,14 +2205,14 @@ def find_tests():
 def generate_entity_lists():
     import re
     from html import entities as e
-    entities = {k.rstrip(';'): e.name2codepoint[k] for k in e.name2codepoint}
+    entities: dict = {k.rstrip(';'): e.name2codepoint[k] for k in e.name2codepoint}
     entities.update({k.rstrip(';'): e.html5[k] for k in e.html5})
     # common misspelled entity names
     for k, v in {'squot': "'", 'hellips': entities['hellip']}.items():
         if k not in entities:
             entities[k] = v
     lines = []
-    native_lines = '''\
+    native_lines: list = '''\
 struct html_entity { const char *name, *val; }
 %%
 '''.splitlines()

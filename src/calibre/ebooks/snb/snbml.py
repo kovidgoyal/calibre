@@ -100,6 +100,7 @@ class SNBMLizer:
 
         subitem = ''
         bodyTree = trees[subitem].find('.//body')
+        assert bodyTree is not None
         for line in output.splitlines():
             pos = line.find(CALIBRE_SNB_PRE_TAG)
             if pos == -1:
@@ -120,6 +121,7 @@ class SNBMLizer:
                 elif line.find(CALIBRE_SNB_BM_TAG) == 0:
                     subitem = line[len(CALIBRE_SNB_BM_TAG):]
                     bodyTree = trees[subitem].find('.//body')
+                    assert bodyTree is not None
                 else:
                     if self.opts and not self.opts.snb_dont_indent_first_line:
                         prefix = '\u3000\u3000'

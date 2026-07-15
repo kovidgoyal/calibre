@@ -189,7 +189,7 @@ class EPUB_MOBI(CatalogPlugin):
                           ]
     # }}}
 
-    def run(self, path_to_output, opts, db, notification=DummyReporter()):
+    def run(self, path_to_output, opts, db, ids=None, notification=DummyReporter()):
         from calibre.library.catalogs.epub_mobi_builder import CatalogBuilder
         from calibre.utils.config import JSONConfig
         from calibre.utils.logging import default_log as log
@@ -244,13 +244,16 @@ class EPUB_MOBI(CatalogPlugin):
         if op is None:
             op = 'default'
 
-        if opts.connected_device['name'] and 'kindle' in opts.connected_device['name'].lower():
-            opts.connected_kindle = True
-            if opts.connected_device['serial'] and \
-               opts.connected_device['serial'][:4] in ['B004', 'B005']:
-                op = 'kindle_dx'
-            else:
-                op = 'kindle'
+        connected_device = opts.connected_device
+        if isinstance(connected_device, dict):
+            cd_name = connected_device['name']
+            if isinstance(cd_name, str) and 'kindle' in cd_name.lower():
+                opts.connected_kindle = True
+                cd_serial = connected_device['serial']
+                if isinstance(cd_serial, str) and cd_serial[:4] in ['B004', 'B005']:
+                    op = 'kindle_dx'
+                else:
+                    op = 'kindle'
 
         opts.description_clip = 380 if op.endswith('dx') or 'kindle' not in op else 100
         opts.author_clip = 100 if op.endswith('dx') or 'kindle' not in op else 60
@@ -278,21 +281,27 @@ class EPUB_MOBI(CatalogPlugin):
             # build_log.append(" converting empty exclude_genre to '\[^.\]'")
             opts.exclude_genre = 'a^'
             build_log.append(" converting empty exclude_genre to 'a^'")
-        if opts.connected_device['is_device_connected'] and \
-           opts.connected_device['kind'] == 'device':
-            if opts.connected_device['serial']:
-                build_log.append(" connected_device: '{}' #{}{} ".format(opts.connected_device['name'],
-                     opts.connected_device['serial'][0:4],
-                     'x' * (len(opts.connected_device['serial']) - 4)))
-                for storage in opts.connected_device['storage']:
-                    if storage:
-                        build_log.append(f'  mount point: {storage}')
-            else:
-                build_log.append(" connected_device: '{}'".format(opts.connected_device['name']))
-                try:
-                    for storage in opts.connected_device['storage']:
+        if isinstance(connected_device, dict) and \
+           connected_device['is_device_connected'] and \
+           connected_device['kind'] == 'device':
+            serial = connected_device['serial']
+            if isinstance(serial, str) and serial:
+                build_log.append(" connected_device: '{}' #{}{} ".format(connected_device['name'],
+                     serial[0:4],
+                     'x' * (len(serial) - 4)))
+                storage_list = connected_device['storage']
+                if isinstance(storage_list, list):
+                    for storage in storage_list:
                         if storage:
                             build_log.append(f'  mount point: {storage}')
+            else:
+                build_log.append(" connected_device: '{}'".format(connected_device['name']))
+                try:
+                    storage_list = connected_device['storage']
+                    if isinstance(storage_list, list):
+                        for storage in storage_list:
+                            if storage:
+                                build_log.append(f'  mount point: {storage}')
                 except Exception:
                     build_log.append('  (no mount points)')
         else:
@@ -352,7 +361,7 @@ class EPUB_MOBI(CatalogPlugin):
             opts.thumb_width = '1.0'
 
         # parse prefix_rules if passed from command line
-        if type(opts.prefix_rules) is not tuple:
+        if isinstance(opts.prefix_rules, str):
             try:
                 import ast
                 opts.prefix_rules = ast.literal_eval(opts.prefix_rules)
@@ -364,7 +373,7 @@ class EPUB_MOBI(CatalogPlugin):
                     log.error(f'incorrect number of args for --prefix-rules: {rule!r}')
 
         # parse exclusion_rules if passed from command line
-        if type(opts.exclusion_rules) is not tuple:
+        if isinstance(opts.exclusion_rules, str):
             try:
                 import ast
                 opts.exclusion_rules = ast.literal_eval(opts.exclusion_rules)
@@ -476,10 +485,11 @@ class EPUB_MOBI(CatalogPlugin):
             plumber.merge_ui_recommendations(recommendations)
             plumber.run()
 
-            try:
-                os.remove(cpath)
-            except Exception:
-                pass
+            if cpath is not None:
+                try:
+                    os.remove(cpath)
+                except Exception:
+                    pass
 
             if GENERATE_DEBUG_EPUB:
                 from calibre.ebooks.epub import initialize_container

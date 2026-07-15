@@ -17,7 +17,7 @@ import re
 import sys
 from concurrent.futures import ThreadPoolExecutor
 from functools import lru_cache
-from typing import NamedTuple
+from typing import NamedTuple, cast
 
 from css_parser import CSSParser
 from css_parser.css import CSSComment, CSSPageRule, CSSRule
@@ -36,6 +36,7 @@ from calibre.spell.break_iterator import sentence_positions
 from calibre.srv.render_book import Profiler, calculate_number_of_workers
 from calibre.utils.filenames import make_long_path_useable
 from calibre.utils.localization import canonicalize_lang, get_lang
+from calibre.utils.resources import get_path as P
 from calibre.utils.short_uuid import uuid4
 
 KOBO_CSS_ID = 'kobostylehacks'  # kepubify uses class, actual books from Kobo use id
@@ -117,7 +118,7 @@ def add_style_and_script(root, kobo_js_href: str, opts: Options) -> bool:
 
 
 def is_href_to_fname(href: str | None, fname: str) -> bool:
-    return href and href.rpartition('/')[-1] == fname
+    return bool(href and href.rpartition('/')[-1] == fname)
 
 
 def remove_kobo_styles_and_scripts(root):
@@ -185,13 +186,16 @@ def add_kobo_spans(inner, root_lang, prefer_justification=False):
         segnum += 1
         return parent.makeelement(span_tag_name, attrib={'class': KOBO_SPAN_CLASS, 'id': f'kobo.{paranum}.{segnum}'})
 
-    def wrap_text_in_spans(text: str, parent: etree.Element, after_child: etree.ElementBase, lang: str) -> str | None:
+    def wrap_text_in_spans(text: str, parent: etree.Element, after_child: etree.ElementBase | None, lang: str) -> str | None:
         nonlocal increment_next_para, paranum, segnum
         text_with_leading_whitespace_removed = lstrip(text)
         try:
             at = 0 if after_child is None else parent.index(after_child) + 1
         except ValueError:  # wrapped child
-            at = parent.index(after_child.getparent()) + 1
+            assert after_child is not None
+            gp = after_child.getparent()
+            assert gp is not None
+            at = parent.index(gp) + 1
 
         if increment_next_para:
             paranum += 1
@@ -234,6 +238,7 @@ def add_kobo_spans(inner, root_lang, prefer_justification=False):
         paranum += 1
         segnum = 0
         node = child.getparent()
+        assert node is not None
         idx = node.index(child)
         w = kobo_span(node)
         node[idx] = w
@@ -266,6 +271,7 @@ def add_kobo_spans(inner, root_lang, prefer_justification=False):
 
 def unwrap(span: etree.Element) -> None:
     p = span.getparent()
+    assert p is not None
     idx = p.index(span)
     del p[idx]
     if len(span):
@@ -304,7 +310,7 @@ def remove_kobo_markup_from_html(root):
 
 def serialize_html(root) -> bytes:
     escape_cdata(root)
-    ans = etree.tostring(root, encoding='unicode', xml_declaration=False, pretty_print=False, with_tail=False)
+    ans = cast(str, etree.tostring(root, encoding='unicode', pretty_print=False, with_tail=False, xml_declaration=False))
     ans = ans.replace('\xa0', '&#160;')
     return b"<?xml version='1.0' encoding='utf-8'?>\n" + ans.encode('utf-8')
 
@@ -479,7 +485,7 @@ def process_stylesheet_path(path: str, opts: Options) -> None:
             if ncss is not css:
                 f.seek(0)
                 f.truncate()
-                f.write(ncss)
+                f.write(ncss if isinstance(ncss, bytes) else ncss.encode())
 
 
 def process_path(path: str, kobo_js_href: str, metadata_lang: str, opts: Options, media_type: str) -> None:
@@ -602,7 +608,7 @@ def unkepubify_path(path, outpath='', max_workers=0, allow_overwrite=False):
     return outpath
 
 
-def check_if_css_needs_modification(extra_css: str) -> tuple[bool, bool]:
+def check_if_css_needs_modification(extra_css: str) -> tuple[object, bool, bool]:
     remove_widows_and_orphans = remove_at_page_rules = False
     sheet = None
     if extra_css:

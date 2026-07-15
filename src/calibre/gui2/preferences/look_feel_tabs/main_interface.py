@@ -137,7 +137,7 @@ class MainInterfaceTab(LazyConfigWidgetBase, Ui_Form):
     def build_font_obj(self):
         font_info = qapplication_or_fail().original_font if self.current_font is None else self.current_font
         font = QFont(*(font_info[:4]))
-        font.setStretch(font_info[4])
+        font.setStretch(int(font_info[4]))
         return font
 
     def change_font(self, *args):
@@ -158,7 +158,7 @@ class MainInterfaceTab(LazyConfigWidgetBase, Ui_Form):
         self.font_display.setFont(font)
         self.font_display.setText(name + f' [{fi.pointSize()}pt]')
 
-    def commit(self):
+    def commit(self, *args):
         rr = LazyConfigWidgetBase.commit(self)
         with BusyCursor():
             if self.current_font != self.initial_font:
@@ -172,7 +172,7 @@ class MainInterfaceTab(LazyConfigWidgetBase, Ui_Form):
             self.gui.layout_container.change_layout(self.gui, self.opt_gui_layout.currentIndex() == 0)
         return rr
 
-    def restore_defaults(self):
+    def restore_defaults(self, *args):
         LazyConfigWidgetBase.restore_defaults(self)
         ofont = self.current_font
         self.current_font = None

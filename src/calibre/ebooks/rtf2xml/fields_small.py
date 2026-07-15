@@ -448,7 +448,8 @@ file.
                     if action is None:
                         sys.stderr.write('No matching state in module fields_small.py\n')
                         sys.stderr.write(self.__state + '\n')
-                    action(line)
+                    else:
+                        action(line)
         copy_obj = copy.Copy(bug_handler=self.__bug_handler)
         if self.__copy:
             copy_obj.copy_file(self.__write_to, 'fields_small.data')

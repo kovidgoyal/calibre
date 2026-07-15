@@ -96,7 +96,7 @@ class TabbedDeviceConfig(QTabWidget):
         self.base = QWidget(self)
         # self.insertTab(0, self.base, _('Configure %s') % self.device.current_friendly_name)
         self.insertTab(0, self.base, _('File formats'))
-        l = self.base.l = QGridLayout(self.base)
+        l = QGridLayout(self.base)
         self.base.setLayout(l)
 
         self.formats = FormatsConfig(self.all_formats, device_settings.format_map)
@@ -121,7 +121,7 @@ class TabbedDeviceConfig(QTabWidget):
                                              device_settings.read_metadata
                                              )
         self.opt_use_author_sort.setObjectName('opt_use_author_sort')
-        self.base.la = la = QLabel(_(
+        la = QLabel(_(
             'Choose the formats to send to the %s')%self.device_name)
         la.setWordWrap(True)
 
@@ -168,16 +168,13 @@ class TabbedDeviceConfig(QTabWidget):
 
     def __getattr__(self, attr_name):
         "If the object doesn't have an attribute, then check each tab."
-        try:
-            return super().__getattr__(attr_name)
-        except AttributeError as ae:
-            for i in range(self.count()):
-                atab = self.widget(i)
-                try:
-                    return getattr(atab, attr_name)
-                except AttributeError:
-                    pass
-            raise ae
+        for i in range(self.count()):
+            atab = self.widget(i)
+            try:
+                return getattr(atab, attr_name)
+            except AttributeError:
+                pass
+        raise AttributeError(attr_name)
 
     @property
     def device(self):
@@ -242,23 +239,18 @@ class DeviceConfigTab(QWidget):  # {{{
 
     def __init__(self, parent=None):
         QWidget.__init__(self)
-        self.parent = parent
-
         self.device_widgets = []
 
     def addDeviceWidget(self, widget):
         self.device_widgets.append(widget)
 
     def __getattr__(self, attr_name):
-        try:
-            return super().__getattr__(attr_name)
-        except AttributeError as ae:
-            for awidget in self.device_widgets:
-                try:
-                    return getattr(awidget, attr_name)
-                except AttributeError:
-                    pass
-            raise ae
+        for awidget in self.device_widgets:
+            try:
+                return getattr(awidget, attr_name)
+            except AttributeError:
+                pass
+        raise AttributeError(attr_name)
 
 
 class ExtraCustomization(DeviceConfigTab):  # {{{
@@ -307,26 +299,28 @@ class ExtraCustomization(DeviceConfigTab):  # {{{
                         self.opt_extra_customization.append(None)
                         continue
                     if isinstance(device_settings.extra_customization[i], bool):
-                        self.opt_extra_customization.append(QCheckBox(label_text))
-                        self.opt_extra_customization[-1].setToolTip(tt)
-                        self.opt_extra_customization[i].setChecked(bool(device_settings.extra_customization[i]))
+                        _opt_item = QCheckBox(label_text)
+                        self.opt_extra_customization.append(_opt_item)
+                        _opt_item.setToolTip(tt)
+                        _opt_item.setChecked(bool(device_settings.extra_customization[i]))
                     elif i in extra_customization_choices:
                         cb = QComboBox(self)
                         self.opt_extra_customization.append(cb)
                         l = QLabel(label_text)
                         l.setToolTip(tt), cb.setToolTip(tt), l.setBuddy(cb), cb.setToolTip(tt)
                         for li in sorted(extra_customization_choices[i]):
-                            self.opt_extra_customization[i].addItem(li)
+                            cb.addItem(li)
                         cb.setCurrentIndex(max(0, cb.findText(device_settings.extra_customization[i])))
                     else:
-                        self.opt_extra_customization.append(QLineEdit(self))
+                        _opt_line_item = QLineEdit(self)
+                        self.opt_extra_customization.append(_opt_line_item)
                         l = QLabel(label_text)
                         l.setToolTip(tt)
-                        self.opt_extra_customization[i].setToolTip(tt)
-                        l.setBuddy(self.opt_extra_customization[i])
+                        _opt_line_item.setToolTip(tt)
+                        l.setBuddy(_opt_line_item)
                         l.setWordWrap(True)
-                        self.opt_extra_customization[i].setText(device_settings.extra_customization[i])
-                        self.opt_extra_customization[i].setCursorPosition(0)
+                        _opt_line_item.setText(device_settings.extra_customization[i])
+                        _opt_line_item.setCursorPosition(0)
                         self.extra_layout.addWidget(l, row_func(i + 2, 0), col_func(i))
                     self.extra_layout.addWidget(self.opt_extra_customization[i],
                                                 row_func(i + 2, 1), col_func(i))
@@ -351,18 +345,24 @@ class ExtraCustomization(DeviceConfigTab):  # {{{
         ec = []
         if self.extra_customization_message:
             if isinstance(self.extra_customization_message, list):
+                oec = self.opt_extra_customization
+                assert isinstance(oec, list)
                 for i in range(len(self.extra_customization_message)):
-                    if self.opt_extra_customization[i] is None:
+                    if oec[i] is None:
                         ec.append(None)
                         continue
-                    if hasattr(self.opt_extra_customization[i], 'isChecked'):
-                        ec.append(self.opt_extra_customization[i].isChecked())
-                    elif hasattr(self.opt_extra_customization[i], 'currentText'):
-                        ec.append(str(self.opt_extra_customization[i].currentText()).strip())
-                    else:
-                        ec.append(str(self.opt_extra_customization[i].text()).strip())
+                    _ec_item = oec[i]
+                    assert _ec_item is not None
+                    if isinstance(_ec_item, QCheckBox):
+                        ec.append(_ec_item.isChecked())
+                    elif isinstance(_ec_item, QComboBox):
+                        ec.append(str(_ec_item.currentText()).strip())
+                    elif isinstance(_ec_item, QLineEdit):
+                        ec.append(str(_ec_item.text()).strip())
             else:
-                ec = str(self.opt_extra_customization.text()).strip()
+                oec = self.opt_extra_customization
+                assert isinstance(oec, QLineEdit)
+                ec = str(oec.text()).strip()
                 if not ec:
                     ec = None
 
@@ -402,11 +402,11 @@ if __name__ == '__main__':
     # dev.open(cd, 'test')
     cw = dev.config_widget()
     d = QDialog()
-    d.l = QVBoxLayout()
-    d.setLayout(d.l)
-    d.l.addWidget(cw)
+    dl = QVBoxLayout()
+    d.setLayout(dl)
+    dl.addWidget(cw)
     bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok|QDialogButtonBox.StandardButton.Cancel)
-    d.l.addWidget(bb)
+    dl.addWidget(bb)
     bb.accepted.connect(d.accept)
     bb.rejected.connect(d.reject)
     if d.exec() == QDialog.DialogCode.Accepted:

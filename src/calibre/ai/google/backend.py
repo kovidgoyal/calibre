@@ -81,7 +81,7 @@ class Pricing(NamedTuple):
             cost = self.input_audio
         return cost.get_cost(mtc['tokenCount'])
 
-    def get_cost(self, usage_metadata: dict[str, int]) -> tuple[float, str]:
+    def get_cost(self, usage_metadata: dict[str, Any]) -> tuple[float, str]:
         prompt_tokens = usage_metadata['promptTokenCount']
         cached_tokens = usage_metadata.get('cachedContentTokenCount', 0)
         input_tokens = prompt_tokens - cached_tokens
@@ -139,7 +139,7 @@ class Model(NamedTuple):
     pricing: Pricing | None
 
     @classmethod
-    def from_dict(cls, x: dict[str, object]) -> Model:
+    def from_dict(cls, x: dict[str, Any]) -> Model:
         caps = AICapabilities.text_to_text
         mid = x['name']
         if 'embedContent' in x['supportedGenerationMethods']:
@@ -174,7 +174,7 @@ class Model(NamedTuple):
         return self.pricing.get_cost(usage_metadata)
 
 
-def parse_models_list(entries: list[dict[str, Any]]) -> dict[str, Model]:
+def parse_models_list(entries: dict[str, Any]) -> dict[str, Model]:
     ans = {}
     for entry in entries['models']:
         e = Model.from_dict(entry)
@@ -358,7 +358,7 @@ def text_chat_implementation(messages: Iterable[ChatMessage], use_model: str = '
     for m in messages:
         d = system_instructions if m.type is ChatMessageType.system else contents
         d.append(for_assistant(m))
-    data = {
+    data: dict[str, Any] = {
         # See https://ai.google.dev/api/generate-content#v1beta.GenerationConfig
         'generationConfig': {
             'thinkingConfig': {
@@ -367,7 +367,8 @@ def text_chat_implementation(messages: Iterable[ChatMessage], use_model: str = '
         },
     }
     if (tb := thinking_budget(model)) is not None:
-        data['generationConfig']['thinkingConfig']['thinkingBudget'] = tb
+        thinking_config: dict[str, Any] = data['generationConfig']['thinkingConfig']
+        thinking_config['thinkingBudget'] = tb
     if system_instructions:
         data['system_instruction'] = {'parts': system_instructions}
     if contents:

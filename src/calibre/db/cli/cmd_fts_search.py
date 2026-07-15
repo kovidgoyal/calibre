@@ -3,6 +3,7 @@
 
 import re
 
+from calibre.db.errors import NoTracebackException
 from calibre.utils.localization import _
 
 readonly = True
@@ -14,14 +15,11 @@ def implementation(db, notify_changes, query, adata):
     restrict_to = None
     is_remote = notify_changes is not None
     if not db.is_fts_enabled():
-        err = Exception(_('Full text searching is not enabled on this library. Use the calibredb fts_index enable --wait-until-complete command to enable it'))
-        err.suppress_traceback = True
-        raise err
+        raise NoTracebackException(_(
+            'Full text searching is not enabled on this library. Use the calibredb fts_index enable --wait-until-complete command to enable it'))
     l, t = db.fts_indexing_progress()[:2]
     if l/t > (1 - adata['threshold']):
-        err = Exception(_('{0} files out of {1} are not yet indexed, searching is disabled').format(l, t))
-        err.suppress_traceback = True
-        raise err
+        raise NoTracebackException(_('{0} files out of {1} are not yet indexed, searching is disabled').format(l, t))
     if rto:
         if isinstance(rto, str):
             restrict_to = db.search(rto, allow_templates=not is_remote)
@@ -49,7 +47,7 @@ def implementation(db, notify_changes, query, adata):
             process_each_result=add_metadata, snippet_size=64
         ), metadata_cache
     except FTSQueryError as e:
-        e.suppress_traceback = True
+        setattr(e, 'suppress_traceback', True)
         raise e
 
 

@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # License: GPL v3 Copyright: 2022, Kovid Goyal <kovid at kovidgoyal.net>
 
+import json as stdlib_json
 import re
 
 from calibre.ebooks.metadata import authors_to_string
@@ -78,7 +79,7 @@ def fts_reindex(ctx, rd):
         raise HTTPPreconditionRequired('Full text searching is not enabled on this library')
     data = rd.request_body_file.read()
     try:
-        book_ids = json.loads(data)
+        book_ids = stdlib_json.loads(data)
     except Exception:
         raise HTTPBadRequest('Invalid book ids')
     if book_ids == 'all':
@@ -93,7 +94,7 @@ def fts_reindex(ctx, rd):
 def fts_indexing(ctx, rd):
     data = rd.request_body_file.read()
     try:
-        enable = json.loads(data)
+        enable = stdlib_json.loads(data)
     except Exception:
         raise HTTPBadRequest('Invalid boolean')
     if not isinstance(enable, bool):

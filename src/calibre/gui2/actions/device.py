@@ -50,6 +50,7 @@ class ShareConnMenu(QMenu):  # {{{
         QMenu.__init__(self, parent)
         self.ip_text = ''
         mitem = self.addAction(QIcon.ic('devices/folder.png'), _('Connect to folder'))
+        assert mitem is not None
         mitem.setEnabled(True)
         connect_lambda(mitem.triggered, self, lambda self: self.connect_to_folder.emit())
         self.connect_to_folder_action = mitem
@@ -58,15 +59,21 @@ class ShareConnMenu(QMenu):  # {{{
         self.toggle_server_action = \
             self.addAction(QIcon.ic('network-server.png'),
             _('Start Content server'))
-        connect_lambda(self.toggle_server_action.triggered, self, lambda self: self.toggle_server.emit())
+        toggle_server_action = self.toggle_server_action
+        assert toggle_server_action is not None
+        connect_lambda(toggle_server_action.triggered, self, lambda self: self.toggle_server.emit())
         self.open_server_in_browser_action = self.addAction(
             QIcon.ic('forward.png'), _('Visit Content server in browser'))
-        connect_lambda(self.open_server_in_browser_action.triggered, self, lambda self: open_in_browser())
-        self.open_server_in_browser_action.setVisible(False)
+        open_server_in_browser_action = self.open_server_in_browser_action
+        assert open_server_in_browser_action is not None
+        connect_lambda(open_server_in_browser_action.triggered, self, lambda self: open_in_browser())
+        open_server_in_browser_action.setVisible(False)
         self.control_smartdevice_action = \
             self.addAction(QIcon.ic('dot_red.png'),
             self.DEVICE_MSGS[0])
-        connect_lambda(self.control_smartdevice_action.triggered, self, lambda self: self.control_smartdevice.emit())
+        control_smartdevice_action = self.control_smartdevice_action
+        assert control_smartdevice_action is not None
+        connect_lambda(control_smartdevice_action.triggered, self, lambda self: self.control_smartdevice.emit())
         self.addSeparator()
 
         self.email_actions = []
@@ -81,7 +88,7 @@ class ShareConnMenu(QMenu):  # {{{
                         group=gr)
             r(prefix+' content server', _('Start/stop Content server'),
                     action=self.toggle_server_action, group=gr)
-            r(prefix + ' open server in browser', self.open_server_in_browser_action.text(), action=self.open_server_in_browser_action, group=gr)
+            r(prefix + ' open server in browser', open_server_in_browser_action.text(), action=open_server_in_browser_action, group=gr)
 
     def server_state_changed(self, running):
         from calibre.utils.mdns import get_external_ip, verify_ip_address
@@ -101,11 +108,17 @@ class ShareConnMenu(QMenu):  # {{{
             text = _('Stop Content server') + ip_text
         else:
             self.ip_text = ''
-        self.toggle_server_action.setText(text)
-        self.open_server_in_browser_action.setVisible(running)
+        toggle_server_action = self.toggle_server_action
+        assert toggle_server_action is not None
+        open_server_in_browser_action = self.open_server_in_browser_action
+        assert open_server_in_browser_action is not None
+        toggle_server_action.setText(text)
+        open_server_in_browser_action.setVisible(running)
 
     def hide_smartdevice_menus(self):
-        self.control_smartdevice_action.setVisible(False)
+        control_smartdevice_action = self.control_smartdevice_action
+        assert control_smartdevice_action is not None
+        control_smartdevice_action.setVisible(False)
 
     def build_email_entries(self, sync_menu):
         from calibre.gui2.device import DeviceAction
@@ -167,6 +180,7 @@ class ShareConnMenu(QMenu):  # {{{
             action2.a_s.connect(sync_menu.action_triggered)
         else:
             ac = self.addAction(QIcon.ic('mail.png'), _('Setup email based sharing of books'))
+            assert ac is not None
             self.email_actions.append(ac)
             ac.triggered.connect(self.setup_email)
 
@@ -174,7 +188,9 @@ class ShareConnMenu(QMenu):  # {{{
         self.config_email.emit()
 
     def set_state(self, device_connected, device):
-        self.connect_to_folder_action.setEnabled(not device_connected)
+        connect_to_folder_action = self.connect_to_folder_action
+        assert connect_to_folder_action is not None
+        connect_to_folder_action.setEnabled(not device_connected)
 
 # }}}
 
@@ -307,5 +323,6 @@ class ConnectShareAction(InterfaceAction):
 
         icon = 'green' if running else 'red'
         ac = self.share_conn_menu.control_smartdevice_action
+        assert ac is not None
         ac.setIcon(QIcon.ic(f'dot_{icon}.png'))
         ac.setText(text)

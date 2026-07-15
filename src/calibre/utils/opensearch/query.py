@@ -21,6 +21,14 @@ class Query:
     standard_macros = ['searchTerms', 'count', 'startIndex', 'startPage',
         'language', 'outputEncoding', 'inputEncoding']
 
+    searchTerms: str
+    count: int
+    startIndex: int
+    startPage: int
+    language: str
+    outputEncoding: str
+    inputEncoding: str
+
     def __init__(self, format):
         '''
         Create a query object by passing it the url format obtained
@@ -60,7 +68,7 @@ class Query:
 
         # copy the url parts and substitute in our new query string
         url_parts = list(self.url_parts)
-        url_parts[4] = urlencode(query_string, 1)
+        url_parts[4] = urlencode(query_string, True)
 
         # recompose and return url
         return urlunparse(tuple(url_parts))

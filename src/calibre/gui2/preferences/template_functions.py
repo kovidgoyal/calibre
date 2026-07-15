@@ -596,7 +596,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         if d.exec() == QDialog.DialogCode.Accepted:
             self.template_editor.new_doc.setPlainText(d.document_text())
 
-    def commit(self):
+    def commit(self, *args):
         pref_value = []
         for name, cls in self.funcs.items():
             if name not in self.builtins:
@@ -617,7 +617,7 @@ if __name__ == '__main__':
     from calibre.gui2.ui import get_gui
     from calibre.library import db
     app = Application([])
-    app.current_db = db()
-    get_gui.ans = app
+    setattr(app, 'current_db', db())
+    setattr(get_gui, 'ans', app)
     test_widget('Advanced', 'TemplateFunctions')
     del app

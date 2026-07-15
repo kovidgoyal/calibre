@@ -49,7 +49,9 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             n = device_name_for_plugboards(device)
             self.device_to_formats_map[n] = set(device.settings().format_map)
             if getattr(device, 'CAN_DO_DEVICE_DB_PLUGBOARD', False):
-                self.device_to_formats_map[n].add('device_db')
+                fmts = self.device_to_formats_map[n]
+                assert isinstance(fmts, set)
+                fmts.add('device_db')
             if n not in self.devices:
                 self.devices.append(n)
 
@@ -386,13 +388,13 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                 self.existing_plugboards.addItem(item)
         self.refilling = False
 
-    def restore_defaults(self):
+    def restore_defaults(self, *args):
         ConfigWidgetBase.restore_defaults(self)
         self.current_plugboards = {}
         self.refill_all_boxes()
         self.changed_signal.emit()
 
-    def commit(self):
+    def commit(self, *args):
         self.db.new_api.set_pref('plugboards', self.current_plugboards)
         return ConfigWidgetBase.commit(self)
 

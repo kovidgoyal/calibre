@@ -53,10 +53,18 @@ class MetadataBackup(Thread):  # {{{
             self.set_dirtied = self.db = None
 
     def run(self):
+        get_metadata_for_dump = self.get_metadata_for_dump
+        assert get_metadata_for_dump is not None
+        clear_dirtied = self.clear_dirtied
+        assert clear_dirtied is not None
+        do_write = self.do_write
+        assert do_write is not None
         while self.keep_running:
             try:
                 time.sleep(2)  # Limit to one book per two seconds
-                id_, sequence = self.db.get_a_dirtied_book()
+                db = self.db
+                assert db is not None
+                id_, sequence = db.get_a_dirtied_book()
                 if id_ is None:
                     continue
                 # print('writer thread', id_, sequence)
@@ -67,20 +75,20 @@ class MetadataBackup(Thread):  # {{{
                 break
 
             try:
-                path, mi, sequence = self.get_metadata_for_dump(id_)
+                path, mi, sequence = get_metadata_for_dump(id_)
             except Exception:
                 prints('Failed to get backup metadata for id:', id_, 'once')
                 traceback.print_exc()
                 time.sleep(2)
                 try:
-                    path, mi, sequence = self.get_metadata_for_dump(id_)
+                    path, mi, sequence = get_metadata_for_dump(id_)
                 except Exception:
                     prints('Failed to get backup metadata for id:', id_, 'again, giving up')
                     traceback.print_exc()
                     continue
 
             if mi is None:
-                self.clear_dirtied(id_, sequence)
+                clear_dirtied(id_, sequence)
                 continue
             if not self.keep_running:
                 break
@@ -101,18 +109,18 @@ class MetadataBackup(Thread):  # {{{
 
             time.sleep(0.1)  # Give the GUI thread a chance to do something
             try:
-                self.do_write(path, raw)
+                do_write(path, raw)
             except Exception:
                 prints('Failed to write backup metadata for id:', id_, 'once')
                 time.sleep(2)
                 try:
-                    self.do_write(path, raw)
+                    do_write(path, raw)
                 except Exception:
                     prints('Failed to write backup metadata for id:', id_,
                             'again, giving up')
                     continue
 
-            self.clear_dirtied(id_, sequence)
+            clear_dirtied(id_, sequence)
         self.break_cycles()
 
     def write(self, path, raw):
@@ -257,29 +265,39 @@ class ResultCache(SearchQueryParser):  # {{{
         self.sqp_change_locations([])
 
     def __getitem__(self, row):
-        return self._data[self._map_filtered[row]]
+        data = self._data
+        assert data is not None
+        return data[self._map_filtered[row]]
 
     def __len__(self):
         return len(self._map_filtered)
 
     def __iter__(self):
+        data = self._data
+        assert data is not None
         for id in self._map_filtered:
-            yield self._data[id]
+            yield data[id]
 
     def iterall(self):
-        for x in self._data:
+        data = self._data
+        assert data is not None
+        for x in data:
             if x is not None:
                 yield x
 
     def iterallids(self):
-        idx = self.FIELD_MAP['id']
+        field_map = self.FIELD_MAP
+        assert field_map is not None
+        idx = field_map['id']
         for x in self.iterall():
             yield x[idx]
 
     # Search functions {{{
 
     def universal_set(self):
-        return {i[0] for i in self._data if i is not None}
+        data = self._data
+        assert data is not None
+        return {i[0] for i in data if i is not None}
 
     def change_search_locations(self, locations):
         self.sqp_change_locations(locations)
@@ -342,12 +360,12 @@ class ResultCache(SearchQueryParser):  # {{{
             return not relop_gt(db, query, field_count)
 
         self.date_search_relops = {
-                            '=' :[1, relop_eq],
-                            '>' :[1, relop_gt],
-                            '<' :[1, relop_lt],
-                            '!=':[2, relop_ne],
-                            '>=':[2, relop_ge],
-                            '<=':[2, relop_le]
+                            '=' :(1, relop_eq),
+                            '>' :(1, relop_gt),
+                            '<' :(1, relop_lt),
+                            '!=':(2, relop_ne),
+                            '>=':(2, relop_ge),
+                            '<=':(2, relop_le)
                         }
 
     local_today         = ('_today', icu_lower(_('today')))
@@ -365,11 +383,15 @@ class ResultCache(SearchQueryParser):  # {{{
 
         if location == 'date':
             location = 'timestamp'
-        loc = self.field_metadata[location]['rec_index']
+        field_metadata = self.field_metadata
+        assert field_metadata is not None
+        data = self._data
+        assert data is not None
+        loc = field_metadata[location]['rec_index']
 
         if query == 'false':
             for id_ in candidates:
-                item = self._data[id_]
+                item = data[id_]
                 if item is None:
                     continue
                 v = item[loc]
@@ -380,7 +402,7 @@ class ResultCache(SearchQueryParser):  # {{{
             return matches
         if query == 'true':
             for id_ in candidates:
-                item = self._data[id_]
+                item = data[id_]
                 if item is None:
                     continue
                 v = item[loc]
@@ -391,12 +413,14 @@ class ResultCache(SearchQueryParser):  # {{{
             return matches
 
         relop = None
-        for k in self.date_search_relops.keys():
+        date_relops = self.date_search_relops
+        assert date_relops is not None
+        for k in date_relops.keys():
             if query.startswith(k):
-                p, relop = self.date_search_relops[k]
+                p, relop = date_relops[k]
                 query = query[p:]
         if relop is None:
-            p, relop = self.date_search_relops['=']
+            p, relop = date_relops['=']
 
         if query in self.local_today:
             qd = now()
@@ -424,7 +448,7 @@ class ResultCache(SearchQueryParser):  # {{{
             else:
                 field_count = query.count('/') + 1
         for id_ in candidates:
-            item = self._data[id_]
+            item = data[id_]
             if item is None or item[loc] is None:
                 continue
             v = item[loc]
@@ -436,12 +460,12 @@ class ResultCache(SearchQueryParser):  # {{{
 
     def build_numeric_relop_dict(self):
         self.numeric_search_relops = {
-                        '=':[1, lambda r, q: r == q],
-                        '>':[1, lambda r, q: r is not None and r > q],
-                        '<':[1, lambda r, q: r is not None and r < q],
-                        '!=':[2, lambda r, q: r != q],
-                        '>=':[2, lambda r, q: r is not None and r >= q],
-                        '<=':[2, lambda r, q: r is not None and r <= q]
+                        '=':(1, lambda r, q: r == q),
+                        '>':(1, lambda r, q: r is not None and r > q),
+                        '<':(1, lambda r, q: r is not None and r < q),
+                        '!=':(2, lambda r, q: r != q),
+                        '>=':(2, lambda r, q: r is not None and r >= q),
+                        '<=':(2, lambda r, q: r is not None and r <= q)
                     }
 
     def get_numeric_matches(self, location, query, candidates, val_func=None):
@@ -449,14 +473,18 @@ class ResultCache(SearchQueryParser):  # {{{
         if len(query) == 0:
             return matches
 
+        field_metadata = self.field_metadata
+        assert field_metadata is not None
+        data = self._data
+        assert data is not None
         if val_func is None:
-            loc = self.field_metadata[location]['rec_index']
+            loc = field_metadata[location]['rec_index']
 
             def val_func(item, loc=loc):
                 return item[loc]
         q = ''
         cast = adjust = lambda x: x
-        dt = self.field_metadata[location]['datatype']
+        dt = field_metadata[location]['datatype']
 
         if query == 'false':
             if dt == 'rating' or location == 'cover':
@@ -474,12 +502,14 @@ class ResultCache(SearchQueryParser):  # {{{
                     return (x is not None)
         else:
             relop = None
-            for k in self.numeric_search_relops.keys():
+            numeric_relops = self.numeric_search_relops
+            assert numeric_relops is not None
+            for k in numeric_relops.keys():
                 if query.startswith(k):
-                    p, relop = self.numeric_search_relops[k]
+                    p, relop = numeric_relops[k]
                     query = query[p:]
             if relop is None:
-                p, relop = self.numeric_search_relops['=']
+                p, relop = numeric_relops['=']
 
             if dt == 'int':
                 def cast(x):
@@ -510,7 +540,7 @@ class ResultCache(SearchQueryParser):  # {{{
                 raise ParseException(_('Non-numeric value in query: {0}').format(query))
 
         for id_ in candidates:
-            item = self._data[id_]
+            item = data[id_]
             if item is None:
                 continue
             try:
@@ -560,11 +590,15 @@ class ResultCache(SearchQueryParser):  # {{{
             keyq = keyq_mkind = ''
             valq_mkind, valq = self._matchkind(query)
 
-        loc = self.field_metadata[location]['rec_index']
-        split_char = self.field_metadata[location]['is_multiple'].get(
+        field_metadata = self.field_metadata
+        assert field_metadata is not None
+        data = self._data
+        assert data is not None
+        loc = field_metadata[location]['rec_index']
+        split_char = field_metadata[location]['is_multiple'].get(
                 'cache_to_list', ',')
         for id_ in candidates:
-            item = self._data[id_]
+            item = data[id_]
             if item is None:
                 continue
 
@@ -630,14 +664,20 @@ class ResultCache(SearchQueryParser):  # {{{
                     local_empty, local_blank, '_empty')
 
     def get_bool_matches(self, location, query, candidates):
-        bools_are_tristate = self.db_prefs.get('bools_are_tristate')
-        loc = self.field_metadata[location]['rec_index']
+        db_prefs = self.db_prefs
+        assert db_prefs is not None
+        field_metadata = self.field_metadata
+        assert field_metadata is not None
+        data = self._data
+        assert data is not None
+        bools_are_tristate = db_prefs.get('bools_are_tristate')
+        loc = field_metadata[location]['rec_index']
         matches = set()
         query = icu_lower(query)
         if query not in self.local_bool_values:
             raise ParseException(_('Invalid boolean query "{0}"').format(query))
         for id_ in candidates:
-            item = self._data[id_]
+            item = data[id_]
             if item is None:
                 continue
 
@@ -662,15 +702,18 @@ class ResultCache(SearchQueryParser):  # {{{
             allow_recursion=True):
         # If candidates is not None, it must not be modified. Changing its
         # value will break query optimization in the search parser
+        all_search_locations = self.all_search_locations
+        assert all_search_locations is not None
         matches = set()
         if candidates is None:
             candidates = self.universal_set()
         if len(candidates) == 0:
             return matches
-        if location not in self.all_search_locations:
+        if location not in all_search_locations:
             return matches
 
         if len(location) > 2 and location.startswith('@') and \
+                    self.db_prefs is not None and \
                     location[1:] in self.db_prefs['grouped_search_terms']:
             location = location[1:]
 
@@ -678,7 +721,9 @@ class ResultCache(SearchQueryParser):  # {{{
             # get metadata key associated with the search term. Eliminates
             # dealing with plurals and other aliases
             original_location = location
-            location = self.field_metadata.search_term_to_field_key(icu_lower(location.strip()))
+            field_metadata = self.field_metadata
+            assert field_metadata is not None
+            location = field_metadata.search_term_to_field_key(icu_lower(location.strip()))
             # grouped search terms
             if isinstance(location, list):
                 if allow_recursion:
@@ -706,7 +751,7 @@ class ResultCache(SearchQueryParser):  # {{{
                 terms = set()
                 for l in prefs['limit_search_columns_to']:
                     l = icu_lower(l.strip())
-                    if l and l != 'all' and l in self.all_search_locations:
+                    if l and l != 'all' and l in all_search_locations:
                         terms.add(l)
                 if terms:
                     c = candidates.copy()
@@ -722,8 +767,8 @@ class ResultCache(SearchQueryParser):  # {{{
                             pass
                     return matches
 
-            if location in self.field_metadata:
-                fm = self.field_metadata[location]
+            if location in field_metadata:
+                fm = field_metadata[location]
                 # take care of dates special case
                 if fm['datatype'] == 'datetime' or \
                         (fm['datatype'] == 'composite' and
@@ -766,23 +811,27 @@ class ResultCache(SearchQueryParser):  # {{{
             if not isinstance(query, str):
                 query = query.decode('utf-8')
 
+            field_map = self.FIELD_MAP
+            assert field_map is not None
+            data = self._data
+            assert data is not None
             db_col = {}
             exclude_fields = []  # fields to not check when matching against text.
             col_datatype = []
             is_multiple_cols = {}
-            for x in range(len(self.FIELD_MAP)):
+            for x in range(len(field_map)):
                 col_datatype.append('')
-            for x in self.field_metadata:
+            for x in field_metadata:
                 if x.startswith('@'):
                     continue
-                if len(self.field_metadata[x]['search_terms']):
-                    db_col[x] = self.field_metadata[x]['rec_index']
-                    if self.field_metadata[x]['datatype'] not in \
+                if len(field_metadata[x]['search_terms']):
+                    db_col[x] = field_metadata[x]['rec_index']
+                    if field_metadata[x]['datatype'] not in \
                             ['composite', 'text', 'comments', 'series', 'enumeration']:
                         exclude_fields.append(db_col[x])
-                    col_datatype[db_col[x]] = self.field_metadata[x]['datatype']
+                    col_datatype[db_col[x]] = field_metadata[x]['datatype']
                     is_multiple_cols[db_col[x]] = \
-                        self.field_metadata[x]['is_multiple'].get('cache_to_list', None)
+                        field_metadata[x]['is_multiple'].get('cache_to_list', None)
 
             try:
                 rating_query = int(query) * 2
@@ -811,7 +860,7 @@ class ResultCache(SearchQueryParser):  # {{{
                     q = query
 
                 for id_ in current_candidates:
-                    item = self._data[id_]
+                    item = data[id_]
                     if item is None:
                         continue
 
@@ -894,7 +943,9 @@ class ResultCache(SearchQueryParser):  # {{{
                 self.search_restriction_book_count = len(self._map)
             return list(self._map)
         matches = self.parse(q)
-        tmap = list(repeat(False, len(self._data)))
+        data = self._data
+        assert data is not None
+        tmap = list(repeat(False, len(data)))
         for x in matches:
             tmap[x] = True
         rv = [x for x in self._map if tmap[x]]
@@ -950,14 +1001,18 @@ class ResultCache(SearchQueryParser):  # {{{
             self.marked_ids_dict = dict(zip(iter(id_dict), map(str, id_dict.values())))
 
         # Set the values in the cache
-        marked_col = self.FIELD_MAP['marked']
-        in_tag_browser_col = self.FIELD_MAP['in_tag_browser']
+        field_map = self.FIELD_MAP
+        assert field_map is not None
+        data = self._data
+        assert data is not None
+        marked_col = field_map['marked']
+        in_tag_browser_col = field_map['in_tag_browser']
         for r in self.iterall():
             r[marked_col] = r[in_tag_browser_col] = None
 
         for id_, val in self.marked_ids_dict.items():
             with suppress(Exception):
-                self._data[id_][marked_col] = val
+                data[id_][marked_col] = val
 
     def get_marked(self, idx, index_is_id=True, default_value=None):
         id_ = idx if index_is_id else self[idx][0]
@@ -966,12 +1021,14 @@ class ResultCache(SearchQueryParser):  # {{{
     # }}}
 
     def remove(self, id):
+        data = self._data
+        assert data is not None
         try:
-            self._uuid_map.pop(self._data[id][self._uuid_column_index], None)
+            self._uuid_map.pop(data[id][self._uuid_column_index], None)
         except (IndexError, TypeError):
             pass  # id is out of bounds -- no uuid in the map to remove
         try:
-            self._data[id] = None
+            data[id] = None
         except IndexError:
             pass  # id is out of bounds, no point setting it to None anyway
         try:
@@ -984,8 +1041,10 @@ class ResultCache(SearchQueryParser):  # {{{
             pass
 
     def set(self, row, col, val, row_is_id=False):
+        data = self._data
+        assert data is not None
         id = row if row_is_id else self._map_filtered[row]
-        d = self._data[id]
+        d = data[id]
         if col == self._uuid_column_index:
             self._uuid_map.pop(d[col], None)
         d[col] = val
@@ -994,8 +1053,10 @@ class ResultCache(SearchQueryParser):  # {{{
         d.refresh_composites()
 
     def get(self, row, col, row_is_id=False):
+        data = self._data
+        assert data is not None
         id = row if row_is_id else self._map_filtered[row]
-        return self._data[id][col]
+        return data[id][col]
 
     def index(self, id, cache=False):
         x = self._map if cache else self._map_filtered
@@ -1005,8 +1066,10 @@ class ResultCache(SearchQueryParser):  # {{{
         return self.index(id)
 
     def has_id(self, id):
+        data = self._data
+        assert data is not None
         try:
-            return self._data[id] is not None
+            return data[id] is not None
         except IndexError:
             pass
         return False
@@ -1016,15 +1079,17 @@ class ResultCache(SearchQueryParser):  # {{{
         Refresh the data in the cache for books identified by ids.
         Returns a list of affected rows or None if the rows are filtered.
         '''
+        data = self._data
+        assert data is not None
         for id in ids:
             try:
-                self._data[id] = CacheRow(db, self.composites, self.datetimes,
+                data[id] = CacheRow(db, self.composites, self.datetimes,
                         db.conn.get('SELECT * from meta2 WHERE id=?', (id,))[0],
                         self.series_col, self.series_sort_col)
-                self._data[id].append(db.book_on_device_string(id))
-                self._data[id].append(self.marked_ids_dict.get(id, None))
-                self._data[id].append(None)
-                self._uuid_map[self._data[id][self._uuid_column_index]] = id
+                data[id].append(db.book_on_device_string(id))
+                data[id].append(self.marked_ids_dict.get(id, None))
+                data[id].append(None)
+                self._uuid_map[data[id][self._uuid_column_index]] = id
             except IndexError:
                 return None
         try:
@@ -1036,15 +1101,17 @@ class ResultCache(SearchQueryParser):  # {{{
     def books_added(self, ids, db):
         if not ids:
             return
-        self._data.extend(repeat(None, max(ids)-len(self._data)+2))
+        _data = self._data
+        assert _data is not None
+        _data.extend(repeat(None, max(ids)-len(_data)+2))
         for id in ids:
-            self._data[id] = CacheRow(db, self.composites, self.datetimes,
+            _data[id] = CacheRow(db, self.composites, self.datetimes,
                         db.conn.get('SELECT * from meta2 WHERE id=?', (id,))[0],
                         self.series_col, self.series_sort_col)
-            self._data[id].append(db.book_on_device_string(id))
-            self._data[id].append(self.marked_ids_dict.get(id, None))
-            self._data[id].append(None)  # Series sort column
-            self._uuid_map[self._data[id][self._uuid_column_index]] = id
+            _data[id].append(db.book_on_device_string(id))
+            _data[id].append(self.marked_ids_dict.get(id, None))
+            _data[id].append(None)  # Series sort column
+            self._uuid_map[_data[id][self._uuid_column_index]] = id
         self._map[0:0] = ids
         self._map_filtered[0:0] = ids
 
@@ -1056,8 +1123,12 @@ class ResultCache(SearchQueryParser):  # {{{
         return len(self._map)
 
     def refresh_ondevice(self, db):
-        ondevice_col = self.FIELD_MAP['ondevice']
-        for item in self._data:
+        field_map = self.FIELD_MAP
+        assert field_map is not None
+        data = self._data
+        assert data is not None
+        ondevice_col = field_map['ondevice']
+        for item in data:
             if item is not None:
                 item[ondevice_col] = db.book_on_device_string(item[0])
                 item.refresh_composites()
@@ -1079,14 +1150,16 @@ class ResultCache(SearchQueryParser):  # {{{
                 # Temp mark and series_sort columns
                 item.extend((None, None, None))
 
-        marked_col = self.FIELD_MAP['marked']
+        field_map = self.FIELD_MAP
+        assert field_map is not None
+        marked_col = field_map['marked']
         for id_,val in self.marked_ids_dict.items():
             try:
                 self._data[id_][marked_col] = val
             except Exception:
                 pass
 
-        in_tag_browser_col = self.FIELD_MAP['in_tag_browser']
+        in_tag_browser_col = field_map['in_tag_browser']
         for r in self.iterall():
             r[in_tag_browser_col] = None
 
@@ -1100,7 +1173,9 @@ class ResultCache(SearchQueryParser):  # {{{
     # Sorting functions {{{
 
     def sanitize_sort_field_name(self, field):
-        field = self.field_metadata.search_term_to_field_key(field.lower().strip())
+        field_meta = self.field_metadata
+        assert field_meta is not None
+        field = field_meta.search_term_to_field_key(field.lower().strip())
         # translate some fields to their hidden equivalent
         if field == 'title':
             field = 'sort'
@@ -1120,18 +1195,22 @@ class ResultCache(SearchQueryParser):  # {{{
         of the internal mapping of ids.
         '''
         fields = [(self.sanitize_sort_field_name(x), bool(y)) for x, y in fields]
-        keys = self.field_metadata.sortable_field_keys()
+        field_meta = self.field_metadata
+        assert field_meta is not None
+        keys = field_meta.sortable_field_keys()
         fields = [x for x in fields if x[0] in keys]
         if subsort and 'sort' not in [x[0] for x in fields]:
             fields += [('sort', True)]
         if not fields:
             fields = [('timestamp', False)]
 
-        keyg = SortKeyGenerator(fields, self.field_metadata, self._data, self.db_prefs)
+        data = self._data
+        assert data is not None
+        keyg = SortKeyGenerator(fields, field_meta, data, self.db_prefs)
         if only_ids is None:
             self._map.sort(key=keyg)
 
-            tmap = list(repeat(False, len(self._data)))
+            tmap = list(repeat(False, len(data)))
             for x in self._map_filtered:
                 tmap[x] = True
             self._map_filtered = [x for x in self._map if tmap[x]]
@@ -1247,7 +1326,7 @@ class SortKeyGenerator:
 
             elif dt in ('text', 'comments', 'composite', 'enumeration'):
                 if val:
-                    if fm['is_multiple']:
+                    if fm['is_multiple'] and isinstance(val, str):
                         jv = fm['is_multiple']['list_to_ui']
                         sv = fm['is_multiple']['cache_to_list']
                         if '&' in jv:
@@ -1259,7 +1338,8 @@ class SortKeyGenerator:
                 val = self.string_sort_key(val)
 
             elif dt == 'bool':
-                if not self.db_prefs.get('bools_are_tristate'):
+                db_prefs = self.db_prefs
+                if db_prefs is None or not db_prefs.get('bools_are_tristate'):
                     val = {True: 1, False: 2, None: 2}.get(val, 2)
                 else:
                     val = {True: 1, False: 2, None: 3}.get(val, 3)

@@ -2,7 +2,6 @@ __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>, 2012 Eli Algranti <idea00@hotmail.com>'
 __docformat__ = 'restructuredtext en'
 
-import codecs
 import json
 from contextlib import suppress
 
@@ -78,10 +77,14 @@ class SearchAndReplaceWidget(Widget, Ui_Form):
     def sr_add_row(self, search, replace):
         row = self.search_replace.rowCount()
         self.search_replace.setRowCount(row + 1)
-        newItem = self.search_replace.itemPrototype().clone()
+        proto = self.search_replace.itemPrototype()
+        assert proto is not None
+        newItem = proto.clone()
+        assert newItem is not None
         newItem.setText(search)
         self.search_replace.setItem(row, 0, newItem)
-        newItem = self.search_replace.itemPrototype().clone()
+        newItem = proto.clone()
+        assert newItem is not None
         newItem.setText(replace)
         self.search_replace.setItem(row, 1, newItem)
         return row
@@ -89,8 +92,12 @@ class SearchAndReplaceWidget(Widget, Ui_Form):
     def sr_change_clicked(self):
         row = self.search_replace.currentRow()
         if row >= 0:
-            self.search_replace.item(row, 0).setText(self.sr_search.regex)
-            self.search_replace.item(row, 1).setText(self.sr_replace.text())
+            item0 = self.search_replace.item(row, 0)
+            assert item0 is not None
+            item0.setText(self.sr_search.regex)
+            item1 = self.search_replace.item(row, 1)
+            assert item1 is not None
+            item1.setText(self.sr_replace.text())
             self.search_replace.setCurrentCell(row, 0)
 
     def sr_remove_clicked(self):
@@ -128,7 +135,7 @@ class SearchAndReplaceWidget(Widget, Ui_Form):
                     (_('calibre search-replace definitions file'), ['csr'])
                     ])
         if filename:
-            with codecs.open(filename, 'w', 'utf-8') as f:
+            with open(filename, 'w', encoding='utf-8') as f:
                 for search, replace in self.get_definitions():
                     f.write(escape(search) + '\n' + escape(replace) + '\n\n')
 
@@ -143,6 +150,8 @@ class SearchAndReplaceWidget(Widget, Ui_Form):
         for col in range(self.search_replace.columnCount()):
             item1 = self.search_replace.item(row, col)
             item2 = self.search_replace.item(row+i, col)
+            assert item1 is not None
+            assert item2 is not None
             value = item1.text()
             item1.setText(item2.text())
             item2.setText(value)
@@ -153,8 +162,12 @@ class SearchAndReplaceWidget(Widget, Ui_Form):
             self.sr_change.setEnabled(True)
             self.sr_remove.setEnabled(True)
             self.sr_save.setEnabled(True)
-            self.sr_search.set_regex(self.search_replace.item(row, 0).text())
-            self.sr_replace.setText(self.search_replace.item(row, 1).text())
+            sr_item0 = self.search_replace.item(row, 0)
+            assert sr_item0 is not None
+            sr_item1 = self.search_replace.item(row, 1)
+            assert sr_item1 is not None
+            self.sr_search.set_regex(sr_item0.text())
+            self.sr_replace.setText(sr_item1.text())
             # set the up/down buttons
             self.sr_up.setEnabled(row > 0)
             self.sr_down.setEnabled(row < self.search_replace.rowCount()-1)
@@ -211,8 +224,8 @@ class SearchAndReplaceWidget(Widget, Ui_Form):
 
     # Options handling
 
-    def connect_gui_obj_handler(self, g, slot):
-        if g is self.opt_search_replace:
+    def connect_gui_obj_handler(self, gui_obj, slot):
+        if gui_obj is self.opt_search_replace:
             self.search_replace.cellChanged.connect(slot)
 
     def get_value_handler(self, g):
@@ -225,7 +238,9 @@ class SearchAndReplaceWidget(Widget, Ui_Form):
         for row in range(self.search_replace.rowCount()):
             colItems = []
             for col in range(self.search_replace.columnCount()):
-                colItems.append(str(self.search_replace.item(row, col).text()))
+                cell_item = self.search_replace.item(row, col)
+                assert cell_item is not None
+                colItems.append(str(cell_item.text()))
             ans.append(colItems)
         return ans
 
@@ -247,7 +262,10 @@ class SearchAndReplaceWidget(Widget, Ui_Form):
 
         for row, colItems in enumerate(rowItems):
             for col, cellValue in enumerate(colItems):
-                newItem = self.search_replace.itemPrototype().clone()
+                sv_proto = self.search_replace.itemPrototype()
+                assert sv_proto is not None
+                newItem = sv_proto.clone()
+                assert newItem is not None
                 newItem.setText(cellValue)
                 self.search_replace.setItem(row, col, newItem)
         return True
@@ -287,8 +305,8 @@ class SearchAndReplaceWidget(Widget, Ui_Form):
 
     def setup_help_handler(self, g, help):
         if g is self.opt_search_replace:
-            self.search_replace._help = _(
+            setattr(self.search_replace, '_help', _(
                 'The list of search/replace definitions that will be applied '
-                'to this conversion.')
+                'to this conversion.'))
             self.setup_widget_help(self.search_replace)
         return True

@@ -47,8 +47,8 @@ if iswindows:
             worker_kwargs['stdout'] = subprocess.PIPE
             worker_kwargs['stderr'] = subprocess.STDOUT
         else:
-            from calibre.utils.ipc.launch import windows_null_file
-            worker_kwargs['stdout'] = worker_kwargs['stderr'] = windows_null_file
+            import subprocess
+            worker_kwargs['stdout'] = worker_kwargs['stderr'] = subprocess.DEVNULL
 
 
 def get_stdout(process):

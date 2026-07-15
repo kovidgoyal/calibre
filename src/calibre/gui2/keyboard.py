@@ -238,17 +238,17 @@ class ConfigModel(SearchQueryParser, QAbstractItemModel):
         group_map = {group:sorted(names, key=lambda x:
                 sort_key(shortcut_map[x]['name'])) for group, names in self.keyboard.groups.items()}
 
-        self.data = [Node(group_map, shortcut_map, group) for group in groups]
+        self.root_nodes = [Node(group_map, shortcut_map, group) for group in groups]
 
     @property
     def all_shortcuts(self):
-        for group in self.data:
+        for group in self.root_nodes:
             yield from group
 
     def rowCount(self, parent=ROOT):
         ip = parent.internalPointer()
         if ip is None:
-            return len(self.data)
+            return len(self.root_nodes)
         return len(ip)
 
     def columnCount(self, parent=ROOT):
@@ -257,24 +257,24 @@ class ConfigModel(SearchQueryParser, QAbstractItemModel):
     def index(self, row, column, parent=ROOT):
         ip = parent.internalPointer()
         if ip is None:
-            ip = self.data
+            ip = self.root_nodes
         try:
             return self.createIndex(row, column, ip[row])
         except Exception:
             pass
         return ROOT
 
-    def parent(self, index):
-        ip = index.internalPointer()
+    def parent(self, child=QModelIndex()):
+        ip = child.internalPointer()
         if ip is None or not ip.is_shortcut:
             return ROOT
         group = ip.data['group']
-        for i, g in enumerate(self.data):
+        for i, g in enumerate(self.root_nodes):
             if g.data == group:
                 return self.index(i, 0)
         return ROOT
 
-    def data(self, index, role=Qt.ItemDataRole.DisplayRole):
+    def data(self, index, role: int = Qt.ItemDataRole.DisplayRole):
         ip = index.internalPointer()
         if ip is not None and role == Qt.ItemDataRole.UserRole:
             return ip
@@ -333,7 +333,7 @@ class ConfigModel(SearchQueryParser, QAbstractItemModel):
 
     def universal_set(self):
         ans = set()
-        for i, group in enumerate(self.data):
+        for i, group in enumerate(self.root_nodes):
             ans.add((i, -1))
             for j, sc in enumerate(group.children):
                 ans.add((i, j))
@@ -348,11 +348,11 @@ class ConfigModel(SearchQueryParser, QAbstractItemModel):
         query = lower(query)
         for c, p in candidates:
             if p < 0:
-                if query in lower(self.data[c].data):
+                if query in lower(self.root_nodes[c].data):
                     ans.add((c, p))
             else:
                 try:
-                    sc = self.data[c].children[p].data
+                    sc = self.root_nodes[c].children[p].data
                 except Exception:
                     continue
                 if query in lower(sc['name']) or query in lower(sc.get('desc') or ''):
@@ -407,14 +407,14 @@ class ConfigModel(SearchQueryParser, QAbstractItemModel):
 
     def index_for_group(self, name):
         for i in range(self.rowCount()):
-            node = self.data[i]
+            node = self.root_nodes[i]
             if node.data == name:
                 return self.index(i, 0)
 
     @property
     def group_names(self):
         for i in range(self.rowCount()):
-            node = self.data[i]
+            node = self.root_nodes[i]
             yield node.data
 
 # }}}
@@ -423,6 +423,8 @@ class ConfigModel(SearchQueryParser, QAbstractItemModel):
 class Editor(QFrame):  # {{{
 
     editing_done = pyqtSignal(object)
+    button1: QPushButton
+    button2: QPushButton
 
     def __init__(self, parent=None):
         QFrame.__init__(self, parent)
@@ -455,7 +457,10 @@ class Editor(QFrame):  # {{{
             button.setObjectName(_('None'))
             button.clicked.connect(partial(self.capture_clicked, which=which))
             button.installEventFilter(self)
-            setattr(self, f'button{which}', button)
+            if which == 1:
+                self.button1 = button
+            else:
+                self.button2 = button
             clear = QToolButton(self)
             clear.setIcon(QIcon.ic('clear_left.png'))
             clear.clicked.connect(partial(self.clear_clicked, which=which))
@@ -518,16 +523,16 @@ class Editor(QFrame):  # {{{
         button.setText(_('None'))
         button.setObjectName(_('None'))
 
-    def eventFilter(self, obj, event):
-        if self.capture and obj in (self.button1, self.button2):
-            t = event.type()
+    def eventFilter(self, a0, a1):
+        if self.capture and a0 in (self.button1, self.button2):
+            t = a1.type()
             if t == QEvent.Type.ShortcutOverride:
-                event.accept()
+                a1.accept()
                 return True
-            if t == QEvent.Type.KeyPress and isinstance(event, QKeyEvent):
-                self.key_press_event(event, 1 if obj is self.button1 else 2)
+            if t == QEvent.Type.KeyPress and isinstance(a1, QKeyEvent):
+                self.key_press_event(a1, 1 if a0 is self.button1 else 2)
                 return True
-        return QFrame.eventFilter(self, obj, event)
+        return QFrame.eventFilter(self, a0, a1)
 
     def key_press_event(self, ev, which=0):
         if self.capture == 0:
@@ -616,7 +621,9 @@ class Delegate(QStyledItemDelegate):  # {{{
         painter.save()
         painter.setClipRect(QRectF(option.rect))
         if hasattr(QStyle, 'CE_ItemViewItem'):
-            QApplication.style().drawControl(QStyle.ControlElement.CE_ItemViewItem, option, painter)
+            app_style = QApplication.style()
+            assert app_style is not None
+            app_style.drawControl(QStyle.ControlElement.CE_ItemViewItem, option, painter)
         elif option.state & QStyle.StateFlag.State_Selected:
             painter.fillRect(option.rect, option.palette.highlight())
         painter.translate(option.rect.topLeft())
@@ -743,25 +750,27 @@ class ShortcutConfig(QWidget):  # {{{
     def is_editing(self):
         return self.view.state() == QAbstractItemView.State.EditingState
 
-    def find(self, query):
-        if not query:
+    def find(self, a0):
+        if not a0:
             return
         try:
-            idx = self._model.find(query)
+            idx = self._model.find(a0)
         except ParseException:
             self.search.search_done(False)
             return
         self.search.search_done(True)
         if not idx.isValid():
             info_dialog(self, _('No matches'),
-                    _('Could not find any shortcuts matching <i>{}</i>').format(prepare_string_for_xml(query)),
+                    _('Could not find any shortcuts matching <i>{}</i>').format(prepare_string_for_xml(a0)),
                     show=True, show_copy_button=False)
             return
         self.highlight_index(idx)
 
     def highlight_index(self, idx):
         self.view.scrollTo(idx)
-        self.view.selectionModel().select(idx, QItemSelectionModel.SelectionFlag.ClearAndSelect)
+        sel_model = self.view.selectionModel()
+        assert sel_model is not None
+        sel_model.select(idx, QItemSelectionModel.SelectionFlag.ClearAndSelect)
         self.view.setCurrentIndex(idx)
         self.view.setFocus(Qt.FocusReason.OtherFocusReason)
 
@@ -782,11 +791,15 @@ class ShortcutConfig(QWidget):  # {{{
         self.highlight_index(idx)
 
     def highlight_group(self, group_name):
-        idx = self.view.model().index_for_group(group_name)
+        model = self.view.model()
+        assert isinstance(model, ConfigModel)
+        idx = model.index_for_group(group_name)
         if idx is not None:
             self.view.expand(idx)
             self.view.scrollTo(idx, QAbstractItemView.ScrollHint.PositionAtTop)
-            self.view.selectionModel().select(idx, QItemSelectionModel.SelectionFlag.ClearAndSelect)
+            group_sel_model = self.view.selectionModel()
+            assert group_sel_model is not None
+            group_sel_model.select(idx, QItemSelectionModel.SelectionFlag.ClearAndSelect)
             self.view.setCurrentIndex(idx)
             self.view.setFocus(Qt.FocusReason.OtherFocusReason)
 

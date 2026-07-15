@@ -21,7 +21,7 @@ from functools import partial
 
 import apsw
 
-from calibre import as_unicode, force_unicode, isbytestring, prints
+from calibre import as_unicode, force_unicode, prints
 from calibre.constants import builtin_colors_light, builtin_decorations, filesystem_encoding, iswindows, plugins, preferred_encoding
 from calibre.db import SPOOL_SIZE, FTSQueryError
 from calibre.db.annotations import annot_db_data, unicode_normalize
@@ -208,12 +208,12 @@ class DBPrefs(dict):  # {{{
 # Extra collators {{{
 
 def pynocase(one, two, encoding='utf-8'):
-    if isbytestring(one):
+    if isinstance(one, bytes):
         try:
             one = one.decode(encoding, 'replace')
         except Exception:
             pass
-    if isbytestring(two):
+    if isinstance(two, bytes):
         try:
             two = two.decode(encoding, 'replace')
         except Exception:
@@ -402,8 +402,7 @@ class Connection(apsw.Connection):  # {{{
         self.createscalarfunction('title_sort', title_sort, 1)
         self.createscalarfunction('author_to_author_sort',
                 _author_to_author_sort, 1)
-        self.createscalarfunction('uuid4', lambda: str(uuid.uuid4()),
-                0)
+        self.createscalarfunction('uuid4', lambda *a: str(uuid.uuid4()), 0)
 
         # Dummy functions for dynamically created filters
         self.createscalarfunction('books_list_filter', lambda x: 1, 1)
@@ -447,13 +446,13 @@ class Connection(apsw.Connection):  # {{{
             ans = as_dict(ans)
         return ans
 
-    def execute(self, sql, bindings=None):
+    def execute(self, statements, bindings=None, *, can_cache=True, prepare_flags=0, explain=-1):
         cursor = self.cursor()
-        return cursor.execute(sql, bindings)
+        return cursor.execute(statements, bindings, can_cache=True, prepare_flags=prepare_flags, explain=explain)
 
-    def executemany(self, sql, sequence_of_bindings):
+    def executemany(self, statements, sequenceofbindings, *, can_cache=True, prepare_flags=0, explain=-1):
         with self:  # Disable autocommit mode, for performance
-            return self.cursor().executemany(sql, sequence_of_bindings)
+            return self.cursor().executemany(statements, sequenceofbindings, can_cache=True, prepare_flags=prepare_flags, explain=explain)
 
 # }}}
 
@@ -469,7 +468,7 @@ def rmtree_with_retry(path, sleep_time=1):
     except OSError as e:
         if e.errno == errno.ENOENT and not os.path.exists(path):
             return
-        if iswindows and e.winerror == winutil.ERROR_SHARING_VIOLATION:
+        if iswindows and getattr(e, 'winerror') == winutil.ERROR_SHARING_VIOLATION:
             time.sleep(sleep_time)  # In case something has temporarily locked a file
         shutil.rmtree(path)
 
@@ -485,7 +484,7 @@ class DB:
                  restore_all_prefs=False, progress_callback=lambda x, y:True,
                  load_user_formatter_functions=True, temp_db_path=None):
         self.is_closed = False
-        if isbytestring(library_path):
+        if isinstance(library_path, bytes):
             library_path = library_path.decode(filesystem_encoding)
         self.field_metadata = FieldMetadata()
 
@@ -1133,18 +1132,26 @@ class DB:
 
     @property
     def fts_has_idle_workers(self):
-        return self.fts_enabled and self.fts.pool.num_of_idle_workers > 0
+        if not self.fts_enabled:
+            return False
+        assert self.fts is not None
+        return self.fts.pool.num_of_idle_workers > 0
 
     @property
     def fts_num_of_workers(self):
-        return self.fts.pool.num_of_workers if self.fts_enabled else 0
+        if not self.fts_enabled:
+            return 0
+        assert self.fts is not None
+        return self.fts.pool.num_of_workers
 
     @fts_num_of_workers.setter
     def fts_num_of_workers(self, num):
         if self.fts_enabled:
+            assert self.fts is not None
             self.fts.pool.num_of_workers = num
 
     def get_next_fts_job(self):
+        assert self.fts is not None
         return self.fts.get_next_fts_job()
 
     def reindex_fts(self):
@@ -1154,9 +1161,11 @@ class DB:
             self.conn.fts_dbpath = None
 
     def remove_dirty_fts(self, book_id, fmt):
+        assert self.fts is not None
         return self.fts.remove_dirty(book_id, fmt)
 
     def queue_fts_job(self, book_id, fmt, path, fmt_size, fmt_hash, start_time):
+        assert self.fts is not None
         return self.fts.queue_job(book_id, fmt, path, fmt_size, fmt_hash, start_time)
 
     def commit_fts_result(self, book_id, fmt, fmt_size, fmt_hash, text, err_msg):
@@ -1164,19 +1173,23 @@ class DB:
             return self.fts.commit_result(book_id, fmt, fmt_size, fmt_hash, text, err_msg)
 
     def fts_unindex(self, book_id, fmt=None):
+        assert self.fts is not None
         self.fts.unindex(book_id, fmt=fmt)
 
     def reindex_fts_book(self, book_id, *fmts):
+        assert self.fts is not None
         return self.fts.dirty_book(book_id, *fmts)
 
     def fts_search(self,
         fts_engine_query, use_stemming, highlight_start, highlight_end, snippet_size, restrict_to_book_ids, return_text, process_each_result
     ):
+        assert self.fts is not None
         yield from self.fts.search(
             fts_engine_query, use_stemming, highlight_start, highlight_end, snippet_size, restrict_to_book_ids, return_text, process_each_result)
 
     def shutdown_fts(self):
         if self.fts_enabled:
+            assert self.fts is not None
             self.fts.shutdown()
 
     def join_fts(self):
@@ -1438,6 +1451,7 @@ class DB:
                     unload_user_template_functions(self.library_id)
                 except Exception:
                     pass
+            assert self._conn is not None
             self._conn.close(force)
             del self._conn
             self.is_closed = True
@@ -1449,9 +1463,7 @@ class DB:
         self.notes.reopen(self)
 
     def dump_and_restore(self, callback=None, sql=None):
-        import codecs
-
-        from apsw import Shell
+        from apsw import Shell  # type: ignore
         if callback is None:
             def callback(x):
                 return x
@@ -1460,7 +1472,7 @@ class DB:
         with TemporaryFile(suffix='.sql') as fname:
             if sql is None:
                 callback(_('Dumping database to SQL') + '...')
-                with codecs.open(fname, 'wb', encoding='utf-8') as buf:
+                with open(fname, 'w', encoding='utf-8') as buf:
                     shell = Shell(db=self.conn, stdout=buf)
                     shell.process_command('.dump')
             else:
@@ -1486,6 +1498,7 @@ class DB:
             self.execute('INSERT INTO annotations_fts(annotations_fts) VALUES("rebuild");')
             self.execute('INSERT INTO annotations_fts_stemmed(annotations_fts_stemmed) VALUES("rebuild");')
         if self.fts_enabled and include_fts_db:
+            assert self.fts is not None
             self.fts.vacuum()
         if include_notes_db:
             self.notes.vacuum(self.conn)
@@ -2159,6 +2172,7 @@ class DB:
                         os.remove(make_long_path_useable(path))
                 else:
                     from calibre.utils.recycle_bin import recycle
+                    assert recycle is not None
                     recycle(make_long_path_useable(path))
             except Exception as e:
                 import traceback
@@ -2400,7 +2414,8 @@ class DB:
                         else:
                             formats.add(f.name.upper())
                 if formats:
-                    files.append(TrashEntry(book_id, metadata.get('title') or unknown, (metadata.get('authors') or au)[0], '', mtime, tuple(formats)))
+                    ttitle: str = str(metadata.get('title') or unknown)
+                    files.append(TrashEntry(book_id, ttitle, (metadata.get('authors') or au)[0], '', mtime, tuple(formats)))
         return books, files
 
     def remove_books(self, path_map, permanent=False):

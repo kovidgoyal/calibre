@@ -263,7 +263,7 @@ def encode_path(*components):
 class Cookie(SimpleCookie):
 
     def _BaseCookie__set(self, key, real_value, coded_value):
-        return SimpleCookie._BaseCookie__set(self, key, real_value, coded_value)
+        return SimpleCookie._BaseCookie__set(self, key, real_value, coded_value)  # type: ignore
 
 
 def custom_fields_to_display(db):

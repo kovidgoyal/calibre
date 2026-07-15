@@ -37,7 +37,9 @@ class AddFromISBN(QDialog):
         self.h = h = QHBoxLayout()
         l.addLayout(h)
         self.bb = bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok|QDialogButtonBox.StandardButton.Cancel, self)
-        bb.button(QDialogButtonBox.StandardButton.Ok).setText(_('&OK'))
+        _ok_btn = bb.button(QDialogButtonBox.StandardButton.Ok)
+        assert _ok_btn is not None
+        _ok_btn.setText(_('&OK'))
         l.addWidget(bb), bb.accepted.connect(self.accept), bb.rejected.connect(self.reject)
         self.ll = l = QVBoxLayout()
         h.addLayout(l)
@@ -79,6 +81,7 @@ class AddFromISBN(QDialog):
     def paste(self, *args):
         app = qapplication_or_fail()
         c = app.clipboard()
+        assert c is not None
         txt = str(c.text()).strip()
         if txt:
             old = str(self.isbn_box.toPlainText()).strip()

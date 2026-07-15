@@ -9,11 +9,7 @@ __docformat__ = 'restructuredtext en'
 
 from base64 import b64encode
 from contextlib import closing
-
-try:
-    from urllib.parse import quote_plus
-except ImportError:
-    from urllib import quote_plus
+from urllib.parse import quote_plus
 
 from qt.core import QUrl
 
@@ -41,7 +37,7 @@ def as_base64(data):
 
 class LegimiStore(BasicStoreConfig, StorePlugin):
 
-    def open(self, parent=None, detail_item=None, external=False):
+    def open(self, gui=None, parent=None, detail_item=None, external=False):
         aff_root = 'https://www.a4b-tracking.com/pl/stat-click-text-link/9/58/'
 
         url = 'https://www.legimi.pl/ebooki/'
@@ -90,7 +86,7 @@ class LegimiStore(BasicStoreConfig, StorePlugin):
 
                 yield s
 
-    def get_details(self, search_result, timeout):
+    def get_details(self, search_result, timeout=60):
         br = browser()
         with closing(br.open(search_result.detail_item, timeout=timeout/2)) as nf:
             idata = safe_html_fromstring(nf.read())

@@ -314,17 +314,16 @@ def remove_accents_icu(txt: str) -> str:
     return t.transliterate(txt)
 
 
-def remove_accents_regex(txt: str) -> str:
-    pat = getattr(remove_accents_regex, 'pat', None)
-    if pat is None:
-        import unicodedata
+_remove_accents_pat = None
 
+
+def remove_accents_regex(txt: str) -> str:
+    global _remove_accents_pat
+    import unicodedata
+    if _remove_accents_pat is None:
         import regex
-        pat = regex.compile(r'\p{Mn}', flags=regex.UNICODE)
-        setattr(remove_accents_regex, 'pat', pat)
-        setattr(remove_accents_regex, 'normalize', unicodedata.normalize)
-    normalize = remove_accents_regex.normalize
-    return normalize('NFKC', pat.sub('', normalize('NFKD', txt)))
+        _remove_accents_pat = regex.compile(r'\p{Mn}', flags=regex.UNICODE)
+    return unicodedata.normalize('NFKC', _remove_accents_pat.sub('', unicodedata.normalize('NFKD', txt)))
 
 
 remove_accents = remove_accents_regex  # more robust and faster

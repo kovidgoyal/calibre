@@ -12,6 +12,7 @@ import os
 import re
 import unicodedata
 from operator import itemgetter
+from typing import cast
 from weakref import WeakKeyDictionary
 from xml.dom import SyntaxErr as CSSSyntaxError
 
@@ -497,7 +498,7 @@ class Style:
         for name, val in cssdict.items():
             override = False
             if name in update_ip:
-                current_ip.add(name)
+                cast(set, current_ip).add(name)
                 override = True
             elif name not in current_ip:
                 override = True
@@ -595,13 +596,13 @@ class Style:
                 if val is not None:
                     try:
                         style = parseStyle('background: '+val, validate=False)
-                        val = style.getProperty('background').propertyValue
+                        css_val = style.getProperty('background').propertyValue
                         try:
-                            val = list(val)
+                            val_list = list(css_val)
                         except Exception:
-                            # val is CSSPrimitiveValue
-                            val = [val]
-                        for c in val:
+                            # css_val is CSSPrimitiveValue
+                            val_list = [css_val]
+                        for c in val_list:
                             c = c.cssText
                             if isinstance(c, bytes):
                                 c = c.decode('utf-8', 'replace')

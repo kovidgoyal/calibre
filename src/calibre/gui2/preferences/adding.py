@@ -45,8 +45,8 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         r('auto_convert_same_fmt', gprefs)
 
         self.filename_pattern = FilenamePattern(self)
-        self.metadata_box.l = QVBoxLayout(self.metadata_box)
-        self.metadata_box.layout().insertWidget(0, self.filename_pattern)
+        mb_layout = QVBoxLayout(self.metadata_box)
+        mb_layout.insertWidget(0, self.filename_pattern)
         self.filename_pattern.changed_signal.connect(self.changed_signal.emit)
         self.auto_add_browse_button.clicked.connect(self.choose_aa_path)
         for signal in ('Activated', 'Changed', 'DoubleClicked', 'Clicked'):
@@ -57,7 +57,9 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.author_map_rules_button.clicked.connect(self.change_author_map_rules)
         self.add_filter_rules_button.clicked.connect(self.change_add_filter_rules)
         self.tabWidget.setCurrentIndex(0)
-        self.actions_tab.layout().setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.AllNonFixedFieldsGrow)
+        at_layout = self.actions_tab.layout()
+        assert isinstance(at_layout, QFormLayout)
+        at_layout.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.AllNonFixedFieldsGrow)
         self.ignore_another_button.clicked.connect(self.add_another_ignored_format)
 
     def change_tag_map_rules(self):
@@ -125,6 +127,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         for ext in sorted(exts):
             viewer.addItem(ext)
             item = viewer.item(viewer.count()-1)
+            assert item is not None
             item.setFlags(Qt.ItemFlag.ItemIsEnabled|Qt.ItemFlag.ItemIsUserCheckable)
             item.setCheckState(Qt.CheckState.Checked if
                     ext in fmts else Qt.CheckState.Unchecked)
@@ -139,8 +142,10 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             existing.add(fmt)
             self.set_blocked_auto_formats(existing)
             for i in range(viewer.count()):
-                if viewer.item(i).text() == fmt:
-                    viewer.scrollToItem(viewer.item(i))
+                _vi = viewer.item(i)
+                assert _vi is not None
+                if _vi.text() == fmt:
+                    viewer.scrollToItem(_vi)
                     break
             self.changed_signal.emit()
 
@@ -149,12 +154,14 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         fmts = []
         viewer = self.opt_blocked_auto_formats
         for i in range(viewer.count()):
-            if viewer.item(i).checkState() == Qt.CheckState.Checked:
-                fmts.append(str(viewer.item(i).text()))
+            _item = viewer.item(i)
+            assert _item is not None
+            if _item.checkState() == Qt.CheckState.Checked:
+                fmts.append(str(_item.text()))
         return fmts
     # }}}
 
-    def restore_defaults(self):
+    def restore_defaults(self, *args):
         ConfigWidgetBase.restore_defaults(self)
         self.filename_pattern.initialize(defaults=True)
         self.init_blocked_auto_formats(defaults=True)
@@ -162,7 +169,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.author_map_rules = []
         self.add_filter_rules = []
 
-    def commit(self):
+    def commit(self, *args):
         path = str(self.opt_auto_add_path.text()).strip()
         if path != gprefs['auto_add_path']:
             if path:

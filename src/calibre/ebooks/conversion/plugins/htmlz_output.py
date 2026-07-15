@@ -52,7 +52,8 @@ class HTMLZOutput(OutputFormatPlugin):
             ),
     }
 
-    def convert(self, oeb_book, output_path, input_plugin, opts, log):
+    def convert(self, oeb_book, output, input_plugin, opts, log):
+        output_path = output
         from lxml import etree
 
         from calibre.ebooks.metadata.opf2 import OPF, metadata_to_opf

@@ -57,8 +57,10 @@ class RecipeInput(InputFormatPlugin):
             help='Optimize fetching for subsequent conversion to LRF.'),
         }
 
-    def convert(self, recipe_or_file, opts, file_ext, log,
+    def convert(self, stream, options, file_ext, log,
             accelerators):
+        recipe_or_file = stream
+        opts = options
         listing_recipe_specific_options = 'list' in (opts.recipe_specific_option or ())
         from calibre.web.feeds.recipes import compile_recipe
         opts.output_profile.flow_size = 0

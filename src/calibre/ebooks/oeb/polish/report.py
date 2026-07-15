@@ -146,7 +146,7 @@ def create_anchor_map(root, pat, name):
 
 
 Anchor = namedtuple('Anchor', 'id location text')
-L = namedtuple('Link', 'location text is_external href path_ok anchor_ok anchor ok')
+L = namedtuple('L', 'location text is_external href path_ok anchor_ok anchor ok')
 
 
 def Link(location, text, is_external, href, path_ok, anchor_ok, anchor):

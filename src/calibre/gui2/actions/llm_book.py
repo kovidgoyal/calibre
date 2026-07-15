@@ -21,6 +21,7 @@ class LLMBookAction(InterfaceAction):
         self.qaction.triggered.connect(self.ask_ai)
         self.ask_action = self.menuless_qaction
         self.ask_menu = self.qaction.menu()
+        assert self.ask_menu is not None
         self.ask_menu.aboutToShow.connect(self.about_to_show_menu)
 
     def initialization_complete(self):
@@ -29,6 +30,7 @@ class LLMBookAction(InterfaceAction):
     def about_to_show_menu(self):
         from calibre.utils.icu import primary_sort_key
         m = self.ask_menu
+        assert m is not None
         m.clear()
         from calibre.gui2.dialogs.llm_book import current_actions
         for ac in sorted(current_actions(), key=lambda a: primary_sort_key(a.human_name)):

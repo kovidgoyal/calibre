@@ -59,6 +59,7 @@ class Location:
 
     def __init__(self, file_name=None, elided_prefix='', original_word=None, location_node=None, node_item=(None, None)):
         self.file_name, self.elided_prefix, self.original_word = file_name, elided_prefix, original_word
+        assert location_node is not None
         self.location_node, self.node_item, self.sourceline = location_node, node_item, location_node.sourceline
 
     def __repr__(self):

@@ -61,7 +61,7 @@ class ElementWriter:
 
     def toString(self):
         class x:
-            pass
+            write: object
         buffer = []
         x.write = buffer.append
         self.write(x)

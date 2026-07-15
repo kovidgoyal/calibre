@@ -8,6 +8,7 @@ import re
 import sys
 import tempfile
 from collections import deque
+from collections.abc import Callable
 from itertools import chain
 from math import ceil, floor
 from urllib.parse import urlparse
@@ -183,7 +184,7 @@ class HTMLConverter:
     def __hasattr__(self, attr):
         if hasattr(self.options, attr):
             return True
-        return object.__hasattr__(self, attr)
+        raise AttributeError(attr)
 
     def __getattr__(self, attr):
         if hasattr(self.options, attr):
@@ -348,7 +349,7 @@ class HTMLConverter:
         if self.book_designer:
             nmassage.extend(HTMLConverter.BOOK_DESIGNER)
         if isinstance(raw, bytes):
-            raw = xml_to_unicode(raw, replace_entities=True)[0]
+            raw = xml_to_unicode(raw, resolve_entities=True)[0]
         for pat, repl in nmassage:
             raw = pat.sub(repl, raw)
         soup = BeautifulSoup(raw)
@@ -553,6 +554,7 @@ class HTMLConverter:
                 except ValueError:
                     self.log.warning(_('%s is an empty file')%self.file_name)
                     tb = self.book.create_text_block()
+                    assert self.current_page is not None
                     self.current_page.append(tb)
                     return tb
                 for page in list(self.book.pages()[index+1:]):
@@ -699,8 +701,10 @@ class HTMLConverter:
         if self.current_block.has_text() or self.current_block.must_append:
             self.current_block.append_to(self.current_page)
             self.current_block = self.book.create_text_block()
-        if self.current_page.has_text():
-            self.book.append(self.current_page)
+        current_page = self.current_page
+        assert current_page is not None
+        if current_page.has_text():
+            self.book.append(current_page)
             self.current_page = self.book.create_page()
 
     def add_image_page(self, path):
@@ -822,8 +826,7 @@ class HTMLConverter:
             for x, y in [('\xad', ''), ('\xa0', ' '), ('ﬀ', 'ff'), ('ﬁ', 'fi'), ('ﬂ', 'fl'), ('ﬃ', 'ffi'), ('ﬄ', 'ffl')]:
                 src = src.replace(x, y)
 
-            def valigner(x):
-                return x
+            valigner: Callable[..., object] = lambda x: x  # noqa: E731
             if 'vertical-align' in css:
                 valign = css['vertical-align']
                 if valign in ('sup', 'super', 'sub'):
@@ -917,15 +920,17 @@ class HTMLConverter:
         if self.current_para.contents:
             self.current_block.append(self.current_para)
             self.current_para = Paragraph()
+        current_page = self.current_page
+        assert current_page is not None
         if self.current_block.contents or self.current_block.must_append:
-            self.current_page.append(self.current_block)
+            current_page.append(self.current_block)
             self.current_block = self.book.create_text_block(textStyle=self.current_block.textStyle,
                                                          blockStyle=self.current_block.blockStyle)
 
     def process_image(self, path, tag_css, width=None, height=None,
                       dropcaps=False, rescale=False):
-        def detect_encoding(im):
-            fmt = im.format
+        def detect_encoding(im) -> str:
+            fmt = im.format or 'JPEG'
             if fmt == 'JPG':
                 fmt = 'JPEG'
             return fmt
@@ -950,7 +955,7 @@ class HTMLConverter:
             pt = PersistentTemporaryFile(suffix='_html2lrf_scaled_image_.'+encoding.lower())
             self.image_memory.append(pt)  # Necessary, trust me ;-)
             try:
-                im.resize((int(width), int(height)), PILImage.Resampling.LANCZOS).save(pt, encoding)
+                im.resize((int(width), int(height)), PILImage.Resampling.LANCZOS).save(pt.name, encoding)
                 pt.close()
                 self.scaled_images[path] = pt
                 return pt.name
@@ -967,8 +972,10 @@ class HTMLConverter:
                 return
 
         factor = 720./self.profile.dpi
-        pheight = int(self.current_page.pageStyle.attrs['textheight'])
-        pwidth  = int(self.current_page.pageStyle.attrs['textwidth'])
+        current_page = self.current_page
+        assert current_page is not None
+        pheight = int(current_page.pageStyle.attrs['textheight'])
+        pwidth  = int(current_page.pageStyle.attrs['textwidth'])
 
         if dropcaps:
             scale = False
@@ -982,14 +989,14 @@ class HTMLConverter:
                 path = scale_image(width, height)
             if path not in self.images:
                 self.images[path] = ImageStream(path)
-            im = Image(self.images[path], x0=0, y0=0, x1=width, y1=height,
+            lrf_im = Image(self.images[path], x0=0, y0=0, x1=width, y1=height,
                                xsize=width, ysize=height)
             line_height = (int(self.current_block.textStyle.attrs['baselineskip']) +
                             int(self.current_block.textStyle.attrs['linespace']))//10
             line_height *= self.profile.dpi/72
             lines = ceil(height/line_height)
             dc = DropCaps(lines)
-            dc.append(Plot(im, xsize=ceil(width*factor), ysize=ceil(height*factor)))
+            dc.append(Plot(lrf_im, xsize=ceil(width*factor), ysize=ceil(height*factor)))
             self.current_para.append(dc)
             return
 
@@ -997,7 +1004,7 @@ class HTMLConverter:
             pt = PersistentTemporaryFile(suffix='_html2lrf_rotated_image_.'+encoding.lower())
             try:
                 im = im.rotate(90)
-                im.save(pt, encoding)
+                im.save(pt.name, encoding)
                 path = pt.name
                 self.rotated_images[path] = pt
                 width, height = im.size
@@ -1020,34 +1027,38 @@ class HTMLConverter:
                 self.log.warning(f'Could not process image: {original_path}\n{err}')
                 return
 
-        im = Image(self.images[path], x0=0, y0=0, x1=width, y1=height,
+        lrf_im = Image(self.images[path], x0=0, y0=0, x1=width, y1=height,
                                xsize=width, ysize=height)
 
         self.process_alignment(tag_css)
 
         if max(width, height) <= min(pwidth, pheight)/5:
-            self.current_para.append(Plot(im, xsize=ceil(width*factor),
+            self.current_para.append(Plot(lrf_im, xsize=ceil(width*factor),
                                           ysize=ceil(height*factor)))
         elif height <= floor((2/3)*pheight):
             pb = self.current_block
             self.end_current_para()
             self.process_alignment(tag_css)
-            self.current_para.append(Plot(im, xsize=width*factor,
+            self.current_para.append(Plot(lrf_im, xsize=width*factor,
                                           ysize=height*factor))
             self.current_block.append(self.current_para)
-            self.current_page.append(self.current_block)
+            current_page = self.current_page
+            assert current_page is not None
+            current_page.append(self.current_block)
             self.current_block = self.book.create_text_block(
                                             textStyle=pb.textStyle,
                                             blockStyle=pb.blockStyle)
             self.current_para = Paragraph()
         else:
             self.end_page()
-            if len(self.current_page.contents) == 1 and not self.current_page.has_text():
-                self.current_page.contents[0:1] = []
-            self.current_page.append(Canvas(width=pwidth,
+            current_page = self.current_page
+            assert current_page is not None
+            if len(current_page.contents) == 1 and not current_page.has_text():
+                current_page.contents[0:1] = []
+            current_page.append(Canvas(width=pwidth,
                                             height=height))
             left = floor((pwidth - width)/2)
-            self.current_page.contents[-1].put_object(
+            current_page.contents[-1].put_object(
                             ImageBlock(self.images[path], xsize=width,
                                        ysize=height, x1=width, y1=height,
                                        blockwidth=width, blockheight=height),
@@ -1072,9 +1083,11 @@ class HTMLConverter:
             self.end_page()
             self.page_break_found = True
         if not self.page_break_found and self.page_break.match(tagname):
+            current_page = self.current_page
+            assert current_page is not None
             number_of_paragraphs = sum(
                 len([1 for i in block.contents if isinstance(i, Paragraph)])
-                for block in self.current_page.contents if isinstance(block, TextBlock)
+                for block in current_page.contents if isinstance(block, TextBlock)
             )
 
             if number_of_paragraphs > 2:
@@ -1422,7 +1435,9 @@ class HTMLConverter:
                 target = self.current_block
             else:
                 found = False
-                for item in self.current_page.contents:
+                current_page = self.current_page
+                assert current_page is not None
+                for item in current_page.contents:
                     if item == previous:
                         found = True
                         continue
@@ -1434,10 +1449,10 @@ class HTMLConverter:
                         target = self.book.create_text_block(textStyle=self.current_block.textStyle,
                                                      blockStyle=self.current_block.blockStyle)
                         target.Paragraph(' ')
-                        self.current_page.append(target)
+                        current_page.append(target)
                     else:
                         target = BlockSpace()
-                        self.current_page.append(target)
+                        current_page.append(target)
                 if target is None:
                     if self.current_block.has_text():
                         target = self.current_block
@@ -1722,7 +1737,9 @@ class HTMLConverter:
             elif tagname in ['hr', 'tr']:  # tr needed for nested tables
                 self.end_current_block()
                 if tagname == 'hr' and not tag_css.get('width', '').strip().startswith('0'):
-                    self.current_page.RuledLine(linelength=int(self.current_page.pageStyle.attrs['textwidth']))
+                    current_page = self.current_page
+                    assert current_page is not None
+                    current_page.RuledLine(linelength=int(current_page.pageStyle.attrs['textwidth']))
                 self.previous_text = '\n'
                 self.process_children(tag, tag_css, tag_pseudo_css)
             elif tagname == 'td':  # Needed for nested tables
@@ -1755,12 +1772,14 @@ class HTMLConverter:
         rowpad = 10
         table = Table(self, tag, tag_css, rowpad=rowpad, colpad=10)
         canvases = []
-        ps = self.current_page.pageStyle.attrs
+        current_page = self.current_page
+        assert current_page is not None
+        ps = current_page.pageStyle.attrs
         for block, xpos, ypos, delta, targets in table.blocks(int(ps['textwidth']), int(ps['textheight'])):
             if not block:
                 if ypos > int(ps['textheight']):
                     raise Exception(_('Table has cell that is too large'))
-                canvases.append(Canvas(int(self.current_page.pageStyle.attrs['textwidth']), ypos+rowpad,
+                canvases.append(Canvas(int(current_page.pageStyle.attrs['textwidth']), ypos+rowpad,
                         blockrule='block-fixed'))
                 for name in targets:
                     self.targets[self.target_prefix+name] = canvases[-1]
@@ -1769,7 +1788,7 @@ class HTMLConverter:
                 canvases[-1].put_object(block, xpos + int(delta/2), ypos)
 
         for canvas in canvases:
-            self.current_page.append(canvas)
+            current_page.append(canvas)
         self.end_current_block()
 
     def remove_unused_target_blocks(self):
@@ -1809,7 +1828,7 @@ def process_file(path, options, logger):
 
             scaled, width, height = fit_image(width, height, pwidth, pheight)
             try:
-                cim = im.resize((width, height), PILImage.BICUBIC).convert('RGB') if \
+                cim = im.resize((width, height), PILImage.Resampling.BICUBIC).convert('RGB') if \
                       scaled else im
                 cf = PersistentTemporaryFile(prefix=__appname__+'_', suffix='.jpg')
                 cf.close()
@@ -1950,8 +1969,9 @@ def try_opf(path, options, logger):
                         pass
             if not getattr(options, 'cover', None) and orig_cover is not None:
                 options.cover = orig_cover
-        if getattr(opf, 'spine', False):
-            options.spine = [i.path for i in opf.spine if i.path]
+        spine = getattr(opf, 'spine', None)
+        if spine:
+            options.spine = [i.path for i in spine if i.path]
         if not getattr(options, 'toc', None):
             options.toc   = opf.toc
     except Exception:

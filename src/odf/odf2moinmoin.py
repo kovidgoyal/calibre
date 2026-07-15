@@ -22,6 +22,7 @@
 
 import xml.dom.minidom
 import zipfile
+from collections.abc import Callable
 
 from .elementtypes import empty_elements, inline_elements
 from .namespaces import nsdict
@@ -154,7 +155,7 @@ class ODF2MoinMoin:
         self.lastsegment = None
 
         # Tags
-        self.elements = {
+        self.elements: dict[str, Callable[..., str]] = {
             'draw:page': self.textToString,
             'draw:frame': self.textToString,
             'draw:image': self.draw_image,
@@ -446,8 +447,9 @@ class ODF2MoinMoin:
         buffer = []
 
         paragraphs = [el for el in text.childNodes
-                      if el.tagName in ['draw:page', 'text:p', 'text:h','text:section',
-                                        'text:list', 'table:table']]
+                      if isinstance(el, xml.dom.minidom.Element) and el.tagName in [
+                          'draw:page', 'text:p', 'text:h', 'text:section',
+                          'text:list', 'table:table']]
 
         for paragraph in paragraphs:
             if paragraph.tagName == 'text:list':

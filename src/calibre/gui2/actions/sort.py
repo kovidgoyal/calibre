@@ -72,6 +72,7 @@ class SortByAction(InterfaceAction):
     def genesis(self):
         self.sorted_icon = QIcon.ic('ok.png')
         self.menu = m = self.qaction.menu()
+        assert m is not None
         m.aboutToShow.connect(self.about_to_show_menu)
         # self.qaction.triggered.connect(self.show_menu)
 
@@ -125,7 +126,9 @@ class SortByAction(InterfaceAction):
         return get_sorted_fields(self.gui.current_db)
 
     def update_menu(self, menu=None):
-        menu = menu or self.qaction.menu()
+        if menu is None:
+            menu = self.qaction.menu()
+        assert menu is not None
         for action in menu.actions():
             if hasattr(action, 'sort_requested'):
                 action.sort_requested.disconnect()
@@ -186,14 +189,16 @@ class SortByAction(InterfaceAction):
         l = QVBoxLayout(d)
         l.addWidget(items)
         d.setWindowTitle(_('Select sortable columns'))
-        d.bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)
-        d.bb.accepted.connect(d.accept)
-        d.bb.rejected.connect(d.reject)
-        l.addWidget(d.bb)
+        bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)
+        bb.accepted.connect(d.accept)
+        bb.rejected.connect(d.reject)
+        l.addWidget(bb)
         d.resize(d.sizeHint() + QSize(50, 100))
         if d.exec() == QDialog.DialogCode.Accepted:
             hidden = []
-            for i in (items.item(x) for x in range(items.count())):
+            for x in range(items.count()):
+                i = items.item(x)
+                assert i is not None
                 if not i.isSelected():
                     hidden.append(i.data(Qt.ItemDataRole.UserRole))
             db.new_api.set_pref(SORT_HIDDEN_PREF, tuple(hidden))

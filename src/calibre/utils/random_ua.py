@@ -7,20 +7,23 @@ import random
 
 from calibre.utils.resources import get_path as P
 
+_user_agent_data_cache = None
+_common_english_words_cache: tuple | None = None
+
 
 def user_agent_data():
-    ans = getattr(user_agent_data, 'ans', None)
-    if ans is None:
-        ans = user_agent_data.ans = json.loads(
+    global _user_agent_data_cache
+    if _user_agent_data_cache is None:
+        _user_agent_data_cache = json.loads(
             P('user-agent-data.json', data=True, allow_user_override=False))
-    return ans
+    return _user_agent_data_cache
 
 
 def common_english_words():
-    ans = getattr(common_english_words, 'ans', None)
-    if ans is None:
-        ans = common_english_words.ans = tuple(x.strip() for x in P('common-english-words.txt', data=True).decode('utf-8').splitlines())
-    return ans
+    global _common_english_words_cache
+    if _common_english_words_cache is None:
+        _common_english_words_cache = tuple(x.strip() for x in P('common-english-words.txt', data=True).decode('utf-8').splitlines())
+    return _common_english_words_cache
 
 
 def random_english_text(max_num_sentences=3, min_words_per_sentence=8, max_words_per_sentence=41):

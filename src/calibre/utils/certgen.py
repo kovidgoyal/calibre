@@ -58,7 +58,7 @@ def create_server_cert(
         is_ip = True
     except Exception:
         try:
-            socket.inet_aton(socket.AF_INET6, domain_or_ip)
+            socket.inet_pton(socket.AF_INET6, domain_or_ip)
             is_ip = True
         except Exception:
             pass

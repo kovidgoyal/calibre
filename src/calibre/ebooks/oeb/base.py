@@ -19,7 +19,7 @@ from urllib.parse import urldefrag, urljoin, urlparse, urlunparse
 
 from lxml import etree, html
 
-from calibre import as_unicode, force_unicode, get_types_map, isbytestring
+from calibre import as_unicode, force_unicode, get_types_map
 from calibre.constants import __version__, filesystem_encoding
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.ebooks.conversion.preprocess import CSSPreProcessor
@@ -173,7 +173,7 @@ def itercsslinks(raw):
         yield match.group(1), match.start(1)
 
 
-_link_attrs = set(html.defs.link_attrs) | {XLINK('href'), 'poster', 'altimg'}
+_link_attrs = set(html.defs.link_attrs) | {XLINK('href'), 'poster', 'altimg'}  # type: ignore
 
 
 def iterlinks(root, find_links_in_css=True):
@@ -247,7 +247,7 @@ def resolve_base_href(root):
         b.drop_tree()
     if not base_href:
         return
-    make_links_absolute(root, base_href, resolve_base_href=False)
+    make_links_absolute(root, base_href)
 
 
 def rewrite_links(root, link_repl_func, resolve_base_href=False):
@@ -467,17 +467,20 @@ def urlquote(href):
     ''' Quote URL-unsafe characters, allowing IRI-safe characters.
     That is, this function returns valid IRIs not valid URIs. In particular,
     IRIs can contain non-ascii characters.  '''
-    result = []
     isbytes = isinstance(href, bytes)
     unsafe = URL_UNSAFE[int(isbytes)]
-    esc, join = '%%%02x', ''
     if isbytes:
-        esc, join = esc.encode('ascii'), b''
-    for char in href:
-        if char in unsafe:
-            char = esc % ord(char)
-        result.append(char)
-    return join.join(result)
+        esc = b'%%%02x'
+        result: list[bytes] = []
+        for char in href:
+            result.append(esc % ord(char) if char in unsafe else char)
+        return b''.join(result)
+    else:
+        esc_str = '%%%02x'
+        str_result: list[str] = []
+        for char in href:
+            str_result.append(esc_str % ord(char) if char in unsafe else char)
+        return ''.join(str_result)
 
 
 def urlnormalize(href):
@@ -567,7 +570,7 @@ class DirContainer:
 
     def __init__(self, path, log, ignore_opf=False):
         self.log = log
-        if isbytestring(path):
+        if isinstance(path, bytes):
             path = path.decode(filesystem_encoding)
         self.opfname = None
         ext = os.path.splitext(path)[1].lower()
@@ -1038,7 +1041,7 @@ class Manifest:
         # }}}
 
         @property
-        def data_as_bytes_or_none(self) -> bytes | None:
+        def data_as_bytes_or_none(self):
             if self._loader is None:
                 return None
             return self._loader(getattr(self, 'html_input_href', self.href))
@@ -1777,9 +1780,11 @@ class OEBBook:
 
     COVER_SVG_XP    = XPath('h:body//svg:svg[position() = 1]')
     COVER_OBJECT_XP = XPath('h:body//h:object[@data][position() = 1]')
+    # Set dynamically by calibre.ebooks.oeb.transforms.jacket when a metadata jacket is inserted
+    inserted_metadata_jacket: Manifest.Item
 
     def __init__(self, logger,
-            html_preprocessor,
+            html_preprocessor=lambda x: x,
             css_preprocessor=CSSPreProcessor(),
             encoding='utf-8', pretty_print=False,
             input_encoding='utf-8'):
@@ -1831,6 +1836,7 @@ class OEBBook:
         self.pages = PageList()
         self.auto_generated_toc = True
         self._temp_files = []
+        self.removed_items_to_ignore: tuple = ()
 
     def set_page_progression_direction_if_needed(self):
         if not self.spine.page_progression_direction:
@@ -1853,7 +1859,8 @@ class OEBBook:
         '''Generate an OEBBook instance from command-line options.'''
         encoding = opts.encoding
         pretty_print = opts.pretty_print
-        return cls(encoding=encoding, pretty_print=pretty_print)
+        from calibre.utils.logging import default_log
+        return cls(default_log, lambda x: x, encoding=encoding, pretty_print=pretty_print)
 
     def translate(self, text):
         '''Translate :param:`text` into the book's primary language.'''
@@ -1901,8 +1908,10 @@ class OEBBook:
         Returns a dictionary in which the keys are MIME types and the values
         are tuples of (default) filenames and lxml.etree element structures.
         '''
+        _uid = self.uid
+        assert _uid is not None
         package = etree.Element('package',
-            attrib={'unique-identifier': self.uid.id})
+            attrib={'unique-identifier': _uid.id})
         self.metadata.to_opf1(package)
         self.manifest.to_opf1(package)
         self.spine.to_opf1(package)
@@ -1981,8 +1990,10 @@ class OEBBook:
         are tuples of (default) filenames and lxml.etree element structures.
         '''
         results = {}
+        _uid2 = self.uid
+        assert _uid2 is not None
         package = etree.Element(OPF('package'),
-            attrib={'version': '2.0', 'unique-identifier': self.uid.id},
+            attrib={'version': '2.0', 'unique-identifier': _uid2.id},
             nsmap={None: OPF2_NS})
         self.metadata.to_opf2(package)
         manifest = self.manifest.to_opf2(package)

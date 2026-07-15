@@ -5,6 +5,7 @@ __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 from functools import partial
+from typing import TYPE_CHECKING
 
 from qt.core import (
     QAbstractItemView,
@@ -36,6 +37,9 @@ from calibre.gui2.widgets import ComboBoxWithHelp
 from calibre.utils.icu import sort_key
 from calibre.utils.localization import _, localize_user_manual_link, ngettext
 from calibre.utils.search_query_parser import ParseException
+
+if TYPE_CHECKING:
+    from calibre.gui2.ui import Main
 
 
 class SelectNames(QDialog):  # {{{
@@ -151,14 +155,18 @@ class CreateVirtualLibrary(QDialog):  # {{{
         gl.addWidget(la1, 0, 0)
         self.vl_name = QComboBox()
         self.vl_name.setEditable(True)
-        self.vl_name.lineEdit().setMaxLength(MAX_VIRTUAL_LIBRARY_NAME_LENGTH)
-        self.vl_name.lineEdit().setClearButtonEnabled(True)
+        vl_le = self.vl_name.lineEdit()
+        assert vl_le is not None
+        vl_le.setMaxLength(MAX_VIRTUAL_LIBRARY_NAME_LENGTH)
+        vl_le.setClearButtonEnabled(True)
         la1.setBuddy(self.vl_name)
         gl.addWidget(self.vl_name, 0, 1)
         self.editing = editing
 
         self.saved_searches_label = sl = QTextBrowser(self)
-        sl.viewport().setAutoFillBackground(False)
+        sl_vp = sl.viewport()
+        assert sl_vp is not None
+        sl_vp.setAutoFillBackground(False)
         gl.addWidget(sl, 2, 0, 1, 2)
 
         self.la2 = la2 = QLabel(_('&Search expression:'))
@@ -222,7 +230,9 @@ class CreateVirtualLibrary(QDialog):  # {{{
             self.search_expression = self.original_search
             self.new_name = editing
             self.vl_name.currentIndexChanged.connect(self.name_index_changed)
-            self.vl_name.lineEdit().textEdited.connect(self.name_text_edited)
+            vl_le2 = self.vl_name.lineEdit()
+            assert vl_le2 is not None
+            vl_le2.textEdited.connect(self.name_text_edited)
 
         self.resize(self.sizeHint()+QSize(150, 25))
         self.restore_geometry(gprefs, 'create-virtual-library-dialog')
@@ -272,7 +282,9 @@ class CreateVirtualLibrary(QDialog):  # {{{
                          default_yes=False):
                 self.vl_name.blockSignals(True)
                 self.vl_name.setCurrentIndex(self.original_index)
-                self.vl_name.lineEdit().setText(self.new_name)
+                vl_le3 = self.vl_name.lineEdit()
+                assert vl_le3 is not None
+                vl_le3.setText(self.new_name)
                 self.vl_name.blockSignals(False)
                 return
         self.new_name = self.editing = self.vl_name.currentText()
@@ -296,8 +308,10 @@ class CreateVirtualLibrary(QDialog):  # {{{
                 search = ['{}:"={}"'.format(prefix, x.replace('"', '\\"')) for x in d.names]
             if search:
                 if not self.editing:
-                    self.vl_name.lineEdit().setText(next(d.names))
-                    self.vl_name.lineEdit().setCursorPosition(0)
+                    vl_le4 = self.vl_name.lineEdit()
+                    assert vl_le4 is not None
+                    vl_le4.setText(next(d.names))
+                    vl_le4.setCursorPosition(0)
                 self.search_expression = d.match_type.join(search)
                 self.vl_text.moveCursor(QTextCursor.MoveOperation.Start)
 
@@ -364,10 +378,7 @@ class SearchRestrictionMixin:
 
     no_restriction = '<' + _('None') + '>'
 
-    def __init__(self, *args, **kwargs):
-        pass
-
-    def init_search_restriction_mixin(self):
+    def init_search_restriction_mixin(self: Main):
         self.checked = QIcon.ic('ok.png')
         self.empty = QIcon.ic('blank.png')
         self.current_search_action = QAction(self.empty, _('*current search'), self)
@@ -400,15 +411,15 @@ class SearchRestrictionMixin:
         self.rm_menu = QMenu(_('Remove Virtual library'), self.virtual_library_menu)
         self.search_restriction_list_built = False
 
-    def add_virtual_library(self, db, name, search):
+    def add_virtual_library(self: Main, db, name, search):
         virt_libs = db.new_api.pref('virtual_libraries', {})
         virt_libs[name] = search
         db.new_api.set_pref('virtual_libraries', virt_libs)
         db.new_api.clear_search_caches()
-        self.library_view.model().refresh()
+        self.library_view._model.refresh()
 
-    def do_create_edit(self, name=None):
-        db = self.library_view.model().db
+    def do_create_edit(self: Main, name=None):
+        db = self.current_db
         virt_libs = db.new_api.pref('virtual_libraries', {})
         cd = CreateVirtualLibrary(self, virt_libs.keys(), editing=name)
         if cd.exec() == QDialog.DialogCode.Accepted:
@@ -419,7 +430,7 @@ class SearchRestrictionMixin:
                 self.apply_virtual_library(cd.library_name)
             self.rebuild_vl_tabs()
 
-    def build_virtual_library_menu(self, m, add_tabs_action=True):
+    def build_virtual_library_menu(self: Main, m, add_tabs_action=True):
         m.clear()
 
         a = m.addAction(QIcon.ic('plus.png'), _('Create Virtual library'))
@@ -481,20 +492,20 @@ class SearchRestrictionMixin:
             else:
                 a.triggered.connect(partial(self.apply_virtual_library, library=vl))
 
-    def virtual_library_menu_about_to_show(self):
+    def virtual_library_menu_about_to_show(self: Main):
         self.build_virtual_library_menu(self.virtual_library_menu)
 
-    def rebuild_vl_tabs(self):
+    def rebuild_vl_tabs(self: Main):
         self.vl_tabs.rebuild()
 
-    def clear_vl_history(self):
+    def clear_vl_history(self: Main):
         self.currently_applied_virtual_library = self.previous_virtual_library = None
 
-    def switch_to_previous_virtual_library(self):
+    def switch_to_previous_virtual_library(self: Main):
         self.apply_virtual_library(self.previous_virtual_library)
 
-    def apply_virtual_library(self, library=None, update_tabs=True):
-        db = self.library_view.model().db
+    def apply_virtual_library(self: Main, library=None, update_tabs=True):
+        db = self.current_db
         virt_libs = db.new_api.pref('virtual_libraries', {})
         if not library:
             db.data.set_base_restriction('')
@@ -535,8 +546,8 @@ class SearchRestrictionMixin:
         if update_tabs:
             self.vl_tabs.update_current()
 
-    def build_virtual_library_list(self, menu, handler):
-        db = self.library_view.model().db
+    def build_virtual_library_list(self: Main, menu, handler):
+        db = self.current_db
         virt_libs = db.new_api.pref('virtual_libraries', {})
         menu.clear()
         menu.setIcon(self.empty)
@@ -554,17 +565,17 @@ class SearchRestrictionMixin:
         else:
             menu.setEnabled(False)
 
-    def remove_vl_triggered(self, name=None):
+    def remove_vl_triggered(self: Main, name=None):
         if not confirm(
             _('Are you sure you want to remove the Virtual library <b>{0}</b>?').format(name),
             'confirm_vl_removal', parent=self):
             return
         self._remove_vl(name, reapply=True)
-        self.library_view.model().refresh()
+        self.library_view._model.refresh()
 
-    def choose_vl_triggerred(self):
+    def choose_vl_triggerred(self: Main):
         from calibre.gui2.tweak_book.widgets import QuickOpen, emphasis_style
-        db = self.library_view.model().db
+        db = self.current_db
         virt_libs = db.new_api.pref('virtual_libraries', {})
         if not virt_libs:
             return error_dialog(self, _('No Virtual libraries'), _(
@@ -585,8 +596,8 @@ class SearchRestrictionMixin:
         if d.exec() == QDialog.DialogCode.Accepted and d.selected_result:
             self.apply_virtual_library(library=d.selected_result)
 
-    def _remove_vl(self, name, reapply=True):
-        db = self.library_view.model().db
+    def _remove_vl(self: Main, name, reapply=True):
+        db = self.current_db
         virt_libs = db.new_api.pref('virtual_libraries', {})
         virt_libs.pop(name, None)
         db.new_api.set_pref('virtual_libraries', virt_libs)
@@ -594,13 +605,13 @@ class SearchRestrictionMixin:
             self.apply_virtual_library('')
         self.rebuild_vl_tabs()
 
-    def _trim_restriction_name(self, name):
+    def _trim_restriction_name(self: Main, name):
         name = name.strip()
         if len(name) < MAX_VIRTUAL_LIBRARY_NAME_LENGTH or name.endswith('…'):
             return name
         return name[0:MAX_VIRTUAL_LIBRARY_NAME_LENGTH].strip() + '…'
 
-    def build_search_restriction_list(self):
+    def build_search_restriction_list(self: Main):
         self.search_restriction_list_built = True
         m = self.ar_menu
         m.clear()
@@ -613,7 +624,7 @@ class SearchRestrictionMixin:
                 current_restriction_text = txt
         self.search_restriction.clear()
 
-        current_restriction = self.library_view.model().db.data.get_search_restriction_name()
+        current_restriction = self.current_db.data.get_search_restriction_name()
         m.setIcon(self.checked if current_restriction else self.empty)
 
         dex = 0
@@ -636,13 +647,13 @@ class SearchRestrictionMixin:
         add_action(m, _('*current search'), _('*current search'))
         if current_restriction_text:
             add_action(m, current_restriction_text, current_restriction_text)
-        self.add_saved_searches_to_menu(m, self.library_view.model().db, add_action)
+        self.add_saved_searches_to_menu(m, self.current_db, add_action)
 
-    def search_restriction_triggered(self, action=None, index=None):
-        self.search_restriction.setCurrentIndex(index)
+    def search_restriction_triggered(self: Main, action=None, index=None):
+        self.search_restriction.setCurrentIndex(index or 0)
         self.apply_search_restriction(index)
 
-    def apply_named_search_restriction(self, name=None):
+    def apply_named_search_restriction(self: Main, name=None):
         if not self.search_restriction_list_built:
             self.build_search_restriction_list()
         if not name:
@@ -653,7 +664,7 @@ class SearchRestrictionMixin:
         self.search_restriction.setCurrentIndex(r)
         self.apply_search_restriction(r)
 
-    def apply_text_search_restriction(self, search):
+    def apply_text_search_restriction(self: Main, search):
         if not self.search_restriction_list_built:
             self.build_search_restriction_list()
         search = str(search)
@@ -673,7 +684,7 @@ class SearchRestrictionMixin:
             self.search_restriction.setCurrentIndex(2)
             self._apply_search_restriction(search, self._trim_restriction_name(s))
 
-    def apply_search_restriction(self, i):
+    def apply_search_restriction(self: Main, i):
         if not self.search_restriction_list_built:
             self.build_search_restriction_list()
         if i == 1:
@@ -688,16 +699,16 @@ class SearchRestrictionMixin:
                 restriction = ''
             self._apply_search_restriction(restriction, r)
 
-    def clear_additional_restriction(self):
+    def clear_additional_restriction(self: Main):
         self.search_restriction.setCurrentIndex(0)
         self._apply_search_restriction('', '')
 
-    def _apply_search_restriction(self, restriction, name):
+    def _apply_search_restriction(self: Main, restriction, name):
         # The order below is important. Set the restriction, force a '' search
         # to apply it, reset the tag browser to take it into account, then set
         # the book count.
-        self.library_view.model().db.data.set_search_restriction(restriction)
-        self.library_view.model().db.data.set_search_restriction_name(name)
+        self.current_db.data.set_search_restriction(restriction)
+        self.current_db.data.set_search_restriction_name(name)
         if gprefs.get('keep_search_when_switching_vl') and self.search.current_text:
             self.search.do_search()
         else:
@@ -712,8 +723,8 @@ class SearchRestrictionMixin:
         if not v.refresh_book_details():
             self.book_details.reset_info()
 
-    def set_number_of_books_shown(self):
-        db = self.library_view.model().db
+    def set_number_of_books_shown(self: Main):
+        db = self.current_db
         if self.current_view() == self.library_view and db is not None and \
                                             db.data.search_restriction_applied():
             restrictions = [x for x in (db.data.get_base_restriction_name(),

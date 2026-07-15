@@ -83,7 +83,7 @@ class Central(QStackedWidget):  # {{{
 
         self.container = c = QWidget(self)
         self.addWidget(c)
-        l = c.l = QVBoxLayout(c)
+        l = QVBoxLayout(c)
         c.setLayout(l)
         l.setContentsMargins(0, 0, 0, 0)
         self.editor_tabs = t = QTabWidget(c)
@@ -97,7 +97,9 @@ class Central(QStackedWidget):  # {{{
         self.search_panel = SearchPanel(self)
         l.addWidget(self.search_panel)
         self.restore_state()
-        self.editor_tabs.tabBar().installEventFilter(self)
+        tab_bar = self.editor_tabs.tabBar()
+        assert tab_bar is not None
+        tab_bar.installEventFilter(self)
 
     def _close_requested(self, index):
         editor = self.editor_tabs.widget(index)
@@ -141,6 +143,7 @@ class Central(QStackedWidget):  # {{{
 
     def editor_modified(self, *args):
         tb = self.editor_tabs.tabBar()
+        assert tb is not None
         for i in range(self.editor_tabs.count()):
             editor = self.editor_tabs.widget(i)
             modified = getattr(editor, 'is_modified', False)
@@ -202,15 +205,17 @@ class Central(QStackedWidget):  # {{{
     def pre_fill_search(self, text):
         self.search_panel.pre_fill(text)
 
-    def eventFilter(self, obj, event):
+    def eventFilter(self, a0, a1):
         base = super()
-        if obj is not self.editor_tabs.tabBar() or event.type() != QEvent.Type.MouseButtonPress or event.button() not in (
+        if a0 is not self.editor_tabs.tabBar() or a1.type() != QEvent.Type.MouseButtonPress or a1.button() not in (
                 Qt.MouseButton.RightButton, Qt.MouseButton.MiddleButton):
-            return base.eventFilter(obj, event)
-        index = self.editor_tabs.tabBar().tabAt(event.pos())
+            return base.eventFilter(a0, a1)
+        tab_bar = self.editor_tabs.tabBar()
+        assert tab_bar is not None
+        index = tab_bar.tabAt(a1.pos())
         if index < 0:
-            return base.eventFilter(obj, event)
-        if event.button() == Qt.MouseButton.MiddleButton:
+            return base.eventFilter(a0, a1)
+        if a1.button() == Qt.MouseButton.MiddleButton:
             self._close_requested(index)
         ed = self.editor_tabs.widget(index)
         if ed is not None:
@@ -219,7 +224,7 @@ class Central(QStackedWidget):  # {{{
             menu.addSeparator()
             menu.addAction(actions['close-all-but-current-tab'].icon(), _('Close other tabs'), partial(self.close_all_but, ed))
             menu.addAction(actions['close-tabs-to-right-of'].icon(), _('Close tabs to the right of this tab'), partial(self.close_to_right, ed))
-            menu.exec(self.editor_tabs.tabBar().mapToGlobal(event.pos()))
+            menu.exec(tab_bar.mapToGlobal(a1.pos()))
 
         return True
 # }}}
@@ -313,17 +318,20 @@ class Main(MainWindow):
         self.create_menubar()
 
         self.status_bar = self.statusBar()
+        assert self.status_bar is not None
         self.status_bar.addPermanentWidget(self.boss.save_manager.status_widget)
         self.cursor_position_widget = CursorPositionWidget(self)
         self.status_bar.addPermanentWidget(self.cursor_position_widget)
         v = get_version()
         self.status_bar_default_msg = la = QLabel(' ' + _('{0} {1} created by {2}').format(__appname__, v, 'Kovid Goyal'))
-        la.base_template = str(la.text())
-        la.editing_template = _('{appname} {version} editing: {{path}}').format(appname=__appname__, version=v)
+        setattr(la, 'base_template', str(la.text()))
+        setattr(la, 'editing_template', _('{appname} {version} editing: {{path}}').format(appname=__appname__, version=v))
         self.status_bar.addWidget(la)
 
         self.boss(self)
-        g = self.screen().availableSize()
+        screen = self.screen()
+        assert screen is not None
+        g = screen.availableSize()
         self.resize(g.width()-50, g.height()-50)
 
         self.apply_settings()
@@ -343,14 +351,16 @@ class Main(MainWindow):
             bar.setIconSize(QSize(tprefs['toolbar_icon_size'], tprefs['toolbar_icon_size']))
 
     def show_status_message(self, msg, timeout=5):
-        self.status_bar.showMessage(msg, int(timeout*1000))
+        status_bar = self.status_bar
+        assert status_bar is not None
+        status_bar.showMessage(msg, int(timeout*1000))
 
     def update_status_bar_default_message(self, path=''):
         m = self.status_bar_default_msg
         if path:
-            m.setText(m.editing_template.format(path=path))
+            m.setText(getattr(m, 'editing_template').format(path=path))
         else:
-            m.setText(m.base_template)
+            m.setText(getattr(m, 'base_template'))
 
     def elided_text(self, text, width=300):
         return elided_text(text, font=self.font(), width=width)
@@ -595,9 +605,10 @@ class Main(MainWindow):
             p.triggered.connect(self.action_preferences.trigger)
         b = QMenuBar(self)
         self.setMenuBar(b)
-        b.is_native_menubar = False
+        setattr(b, 'is_native_menubar', False)
 
         f = b.addMenu(_('&File'))
+        assert f is not None
         f.addAction(self.action_new_file)
         f.addAction(self.action_import_files)
         f.addSeparator()
@@ -610,6 +621,7 @@ class Main(MainWindow):
         f.addSeparator()
         f.addAction(self.action_save)
         m = f.addMenu(_('Save a copy'))
+        assert m is not None
         m.addAction(self.action_save_copy)
         m.addAction(self.action_save_copy_edit)
         m.addAction(self.action_save_copy_replace)
@@ -618,6 +630,7 @@ class Main(MainWindow):
         f.addAction(self.action_quit)
 
         e = b.addMenu(_('&Edit'))
+        assert e is not None
         e.addAction(self.action_global_undo)
         e.addAction(self.action_global_redo)
         e.addAction(self.action_create_checkpoint)
@@ -634,7 +647,9 @@ class Main(MainWindow):
         e.addAction(self.action_preferences)
 
         e = b.addMenu(_('&Tools'))
+        assert e is not None
         tm = e.addMenu(QIcon.ic('toc.png'), _('Table of Contents'))
+        assert tm is not None
         tm.addAction(self.action_toc)
         tm.addAction(self.action_inline_toc)
         e.addAction(self.action_manage_fonts)
@@ -643,9 +658,11 @@ class Main(MainWindow):
         e.addAction(self.action_compress_images)
         e.addAction(self.action_smarten_punctuation)
         ru = e.addMenu(QIcon.ic('edit-clear.png'), _('Remove &unused') + '…')
+        assert ru is not None
         ru.addAction(self.action_remove_unused_css)
         ru.addAction(self.action_remove_unused_images)
         ts = e.addMenu(QIcon.ic('wizard.png'), _('Transform markup/styles'))
+        assert ts is not None
         ts.addAction(self.action_transform_styles)
         ts.addAction(self.action_transform_html)
         e.addAction(self.action_fix_html_all)
@@ -657,6 +674,7 @@ class Main(MainWindow):
         e.addAction(self.action_filter_css)
         e.addAction(self.action_spell_check_book)
         er = e.addMenu(QIcon.ic('external-link.png'), _('External &links'))
+        assert er is not None
         er.addAction(self.action_check_external_links)
         er.addAction(self.action_get_ext_resources)
         e.addAction(self.action_check_book)
@@ -664,7 +682,9 @@ class Main(MainWindow):
         e.addAction(self.action_upgrade_book_internals)
 
         e = b.addMenu(_('&View'))
+        assert e is not None
         t = e.addMenu(_('Tool&bars'))
+        assert t is not None
         e.addSeparator()
         for name in sorted(actions, key=lambda x: sort_key(actions[x].text())):
             ac = actions[name]
@@ -678,6 +698,7 @@ class Main(MainWindow):
         e.addAction(self.action_close_all_but_current_tab)
 
         e = b.addMenu(_('&Search'))
+        assert e is not None
         a = e.addAction
         a(self.action_find)
         e.addSeparator()
@@ -702,10 +723,12 @@ class Main(MainWindow):
 
         if self.plugin_menu_actions:
             e = b.addMenu(_('&Plugins'))
+            assert e is not None
             for ac in sorted(self.plugin_menu_actions, key=lambda x: sort_key(str(x.text()))):
                 e.addAction(ac)
 
         e = b.addMenu(_('&Help'))
+        assert e is not None
         a = e.addAction
         a(self.action_help)
         a(QIcon.ic('donate.png'), _('&Donate to support calibre development'), open_donate)
@@ -717,6 +740,7 @@ class Main(MainWindow):
 
     def update_recent_books(self):
         m = self.recent_books_menu
+        assert m is not None
         m.clear()
         books = tprefs.get('recent-books', [])
         for path in books:
@@ -742,7 +766,7 @@ class Main(MainWindow):
             if ac is None:
                 bar.addSeparator()
             elif ac == 'donate':
-                self.donate_button = b = ThrobbingButton(self)
+                b = ThrobbingButton(self)
                 b.clicked.connect(open_donate)
                 b.setAutoRaise(True)
                 b.setToolTip(_('Donate to support calibre development'))
@@ -852,23 +876,25 @@ class Main(MainWindow):
         self.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea, d)
         d.close()  # Hidden by default
 
-    def resizeEvent(self, ev):
-        self.blocking_job.resize(ev.size())
-        return super().resizeEvent(ev)
+    def resizeEvent(self, a0):
+        self.blocking_job.resize(a0.size())
+        return super().resizeEvent(a0)
 
     def update_window_title(self):
         cc = current_container()
         if cc is not None:
             fname = os.path.basename(cc.path_to_ebook)
-            self.setWindowTitle(self.current_metadata.title + f' [{cc.book_type_for_display}] :: {fname} :: {self.APP_NAME}')
+            current_metadata = self.current_metadata
+            assert current_metadata is not None
+            self.setWindowTitle(current_metadata.title + f' [{cc.book_type_for_display}] :: {fname} :: {self.APP_NAME}')
         else:
             self.setWindowTitle(self.APP_NAME)
 
-    def closeEvent(self, e):
+    def closeEvent(self, a0):
         if self.boss.quit():
-            e.accept()
+            a0.accept()
         else:
-            e.ignore()
+            a0.ignore()
 
     def save_state(self):
         self.save_geometry(tprefs, 'main_window_geometry')
@@ -886,5 +912,5 @@ class Main(MainWindow):
         self.central.restore_state()
         self.saved_searches.restore_state()
 
-    def contextMenuEvent(self, ev):
-        ev.ignore()
+    def contextMenuEvent(self, event):
+        event.ignore()

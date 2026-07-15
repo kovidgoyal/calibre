@@ -100,5 +100,5 @@ class GenerateCatalogAction(InterfaceAction):
                 try:
                     shutil.copyfile(job.catalog_file_path, destination)
                 except OSError as err:
-                    err.locking_violation_msg = _('Could not open the catalog output file.')
+                    setattr(err, 'locking_violation_msg', _('Could not open the catalog output file.'))
                     raise

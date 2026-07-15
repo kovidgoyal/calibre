@@ -24,11 +24,14 @@ from calibre.utils.imghdr import what
 from calibre.utils.localization import _
 from polyglot.urllib import unquote
 
+_image_extensions: list[str] | None = None
 
-def image_extensions():
-    if not hasattr(image_extensions, 'ans'):
-        image_extensions.ans = [x.data().decode('utf-8') for x in QImageReader.supportedImageFormats()]
-    return image_extensions.ans
+
+def image_extensions() -> list[str]:
+    global _image_extensions
+    if _image_extensions is None:
+        _image_extensions = [x.data().decode('utf-8') for x in QImageReader.supportedImageFormats()]
+    return _image_extensions
 
 
 # This is present for compatibility with old plugins, do not use
@@ -84,10 +87,10 @@ class DownloadDialog(QDialog):  # {{{
         self.fpath = fpath.name
 
         self.worker = Worker(url, self.fpath, Queue())
-        self.rejected = False
+        self._download_rejected = False
 
     def reject(self):
-        self.rejected = True
+        self._download_rejected = True
         QDialog.reject(self)
 
     def start_download(self):
@@ -100,8 +103,8 @@ class DownloadDialog(QDialog):  # {{{
                     url=self.worker.url, err=self.worker.err),
                 det_msg=self.worker.tb, show=True)
 
-    def update(self):
-        if self.rejected:
+    def update(self, *args, **kwargs):
+        if self._download_rejected:
             return
 
         try:

@@ -13,11 +13,13 @@ import struct
 import time
 import uuid
 from collections import namedtuple
+from collections.abc import Callable
 from compression import zlib
 from functools import wraps
 from io import DEFAULT_BUFFER_SIZE, BytesIO
 from itertools import chain, repeat, zip_longest
 from operator import itemgetter
+from typing import Any
 
 from calibre import force_unicode, guess_type
 from calibre.constants import __version__
@@ -234,7 +236,9 @@ class RequestData:  # {{{
         self.opts = opts
         self.status_code = http.client.OK
         self.outcookie = Cookie()
-        self.lang_code = self.gettext_func = self.ngettext_func = None
+        self.lang_code: str | None = None
+        self.gettext_func: Callable[[str], str] = lambda text: text
+        self.ngettext_func: Callable[[str, str, int], str] = lambda s, p, n: s if n == 1 else p
         self.set_translator(self.get_preferred_language())
         self.tdir = tdir
 
@@ -298,6 +302,9 @@ class RequestData:  # {{{
 
 class ReadableOutput:
 
+    name: str | bytes | int | None = None
+    ranges: Any = None
+
     def __init__(self, output, etag=None, content_length=None):
         self.src_file = output
         if content_length is None:
@@ -350,6 +357,8 @@ class ETaggedDynamicOutput:
 
 
 class GeneratedOutput:
+
+    ranges: Any = None
 
     def __init__(self, output, etag=None):
         self.output = output
@@ -451,6 +460,7 @@ class HTTPConnection(HTTPRequest):
         self.queue_job(self.run_request_handler, data)
 
     def run_request_handler(self, data):
+        assert self.request_handler is not None
         result = self.request_handler(data)
         return data, result
 
@@ -706,6 +716,7 @@ class HTTPConnection(HTTPRequest):
             outheaders.set('Content-Encoding', 'gzip', replace_all=True)
             if getattr(output, 'content_length', None):
                 outheaders.set('Calibre-Uncompressed-Length', f'{output.content_length}')
+            assert isinstance(output, ReadableOutput)
             output = GeneratedOutput(compress_readable_output(output.src_file), etag=output.etag)
         if output.content_length is not None and not compressible and not ranges:
             outheaders.set('Content-Length', f'{output.content_length}', replace_all=True)

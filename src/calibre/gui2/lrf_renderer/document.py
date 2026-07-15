@@ -82,8 +82,6 @@ class _Canvas(QGraphicsRectItem):
         pen = QPen()
         pen.setStyle(Qt.PenStyle.NoPen)
         self.setPen(pen)
-        if not hasattr(self, 'children'):
-            self.children = self.childItems
 
     def layout_block(self, block, x, y):
         if isinstance(block, TextBlock):
@@ -170,9 +168,9 @@ class _Canvas(QGraphicsRectItem):
 
     def search(self, phrase):
         matches = []
-        for child in self.children():
+        for child in self.childItems():
             if hasattr(child, 'search'):
-                res = child.search(phrase)
+                res = getattr(child, 'search')(phrase)
                 if res:
                     if isinstance(res, list):
                         matches += res
@@ -269,17 +267,20 @@ class Screen(_Canvas):
         self.page = None
 
     def set_page(self, page):
+        scene = self.scene()
+        assert scene is not None
         if self.page is not None and self.page.scene():
-            self.scene().removeItem(self.page)
+            scene.removeItem(self.page)
         self.page = page
         self.page.setPos(self.content_x, self.text_y)
-        self.scene().addItem(self.page)
+        scene.addItem(self.page)
 
     def remove(self):
-        if self.scene():
+        scene = self.scene()
+        if scene is not None:
             if self.page is not None and self.page.scene():
-                self.scene().removeItem(self.page)
-            self.scene().removeItem(self)
+                scene.removeItem(self.page)
+            scene.removeItem(self)
 
 
 class Page(_Canvas):
@@ -290,7 +291,7 @@ class Page(_Canvas):
             self.setPen(QPen(Qt.GlobalColor.cyan, 1, Qt.PenStyle.DashLine))
 
     def id(self):
-        for child in self.children():
+        for child in self.childItems():
             if hasattr(child, 'block_id'):
                 return child.block_id
 
@@ -378,6 +379,7 @@ class Document(QGraphicsScene):
     def get_page_num(self, chapterid, objid):
         cnum = self.chapter_map[chapterid]
         page = self.chapters[cnum].object_to_page_map[objid]
+        assert self.chapter_layout is not None
         return sum(self.chapter_layout[:cnum])+page
 
     def add_to_history(self):
@@ -394,6 +396,7 @@ class Document(QGraphicsScene):
                 page = self.get_page_num(cid, oid)
                 self.show_page(page)
         else:
+            assert self.objects is not None
             jb = self.objects[objid]
             self.link_map[objid] = (jb.refpage, jb.refobj)
 
@@ -448,7 +451,9 @@ class Document(QGraphicsScene):
         self.chapters.append(Chapter(oddscreen, evenscreen, pages, object_to_page_map))
         self.chapter_map[chapter.id] = len(self.chapters)-1
 
-    def render(self, lrf, load_substitutions=True):
+    def render(self, painter=None, target=None, source=None, mode=None, load_substitutions=True):
+        lrf = painter
+        assert lrf is not None
         self.dpi = lrf.device_info.dpi/10.
         self.ruby_tags = dict(**lrf.ruby_tags)
         self.load_fonts(lrf, load_substitutions)
@@ -515,6 +520,7 @@ class Document(QGraphicsScene):
         for i in range(len(self.chapters)):
             cmatches = self.chapters[i].search(phrase)
             for match in cmatches:
+                assert self.chapter_layout is not None
                 match[0] += sum(self.chapter_layout[:i])+1
             matches += cmatches
         self.last_search = itertools.cycle(matches)

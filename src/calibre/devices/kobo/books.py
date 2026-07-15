@@ -5,7 +5,6 @@ __docformat__ = 'restructuredtext en'
 import os
 import time
 
-from calibre import isbytestring
 from calibre.constants import DEBUG, preferred_encoding
 from calibre.devices.usbms.books import Book as Book_
 from calibre.devices.usbms.books import CollectionsBookList
@@ -74,7 +73,7 @@ class Book(Book_):
         self.kobo_bookstats     = {}
 
         if thumbnail_name is not None:
-            self.thumbnail = ImageWrapper(thumbnail_name)
+            self._thumbnail_value = ImageWrapper(thumbnail_name)
 
         if show_debug:
             debug_print('Book::__init__ end - self=', self)
@@ -116,9 +115,7 @@ class Book(Book_):
 
         ans.append(str(self.kobo_metadata))
 
-        ans = '\n'.join(ans)
-
-        return super().__str__() + '\n' + ans
+        return super().__str__() + '\n' + '\n'.join(ans)
 
 
 class ImageWrapper:
@@ -133,13 +130,13 @@ class KTCollectionsBookList(CollectionsBookList):
         super().__init__(oncard, prefix, settings)
         self.set_device_managed_collections([])
 
-    def get_collections(self, collection_attributes, collections_template=None, template_globals=None):
+    def get_collections(self, collection_attributes=None, collections_template=None, template_globals=None):
         debug_print('KTCollectionsBookList:get_collections - start - collection_attributes=', collection_attributes)
 
         collections = {}
 
         ca = []
-        for c in collection_attributes:
+        for c in (collection_attributes or []):
             ca.append(c.lower())
         collection_attributes = ca
         debug_print('KTCollectionsBookList:get_collections - collection_attributes=', collection_attributes)
@@ -234,7 +231,7 @@ class KTCollectionsBookList(CollectionsBookList):
 
                 if not val:
                     continue
-                if isbytestring(val):
+                if isinstance(val, bytes):
                     val = val.decode(preferred_encoding, 'replace')
                 if isinstance(val, (list, tuple)):
                     val = list(val)

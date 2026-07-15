@@ -61,7 +61,7 @@ class NOOK(USBMS):
             im.thumbnail((96, 144), Image.Resampling.LANCZOS)
 
             x, y = im.size
-            cover.paste(im, ((96-x)/2, (144-y)/2))
+            cover.paste(im, ((96-x)//2, (144-y)//2))
 
             draw = ImageDraw.Draw(cover)
             draw.text((1, 15), metadata.get('title', _('Unknown')).encode('ascii', 'ignore'))
@@ -107,7 +107,10 @@ class NOOK_COLOR(NOOK):
         pass
 
     def post_open_callback(self):
-        product_id = self.device_being_opened[1]
+        device_info = self.device_being_opened
+        if device_info is None:
+            return
+        product_id = device_info[1]
         if DEBUG:
             prints('Opened NOOK with product id:', product_id)
         if product_id >= 0xb:
@@ -115,6 +118,7 @@ class NOOK_COLOR(NOOK):
             if DEBUG:
                 prints(f'Setting Nook upload directory to {self.EBOOK_DIR_MAIN}')
             try:
+                assert self._main_prefix is not None
                 os.makedirs(os.path.join(self._main_prefix, *self.EBOOK_DIR_MAIN.split('/')), exist_ok=True)
             except OSError:
                 self.EBOOK_DIR_MAIN = 'NOOK'

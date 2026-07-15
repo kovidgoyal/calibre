@@ -18,7 +18,7 @@ jobs:
                 persist-credentials: false
 
             - name: Set up Python
-              uses: actions/setup-python@v6.2.0
+              uses: actions/setup-python@v6.3.0
               with:
                 python-version: "3.14"
 
@@ -66,6 +66,12 @@ jobs:
 
             - name: Bootstrap calibre
               run: runuser -u ci -- python setup.py bootstrap --ephemeral --debug --sanitize
+
+            - name: Run type checker
+              run: ./setup.py type_check
+
+            - name: Run linter
+              run: ./setup.py check
 
             - name: Test calibre
               env:

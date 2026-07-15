@@ -10,11 +10,7 @@ __docformat__ = 'restructuredtext en'
 import re
 from base64 import b64encode
 from contextlib import closing
-
-try:
-    from urllib.parse import quote_plus
-except ImportError:
-    from urllib import quote_plus
+from urllib.parse import quote_plus
 
 from qt.core import QUrl
 
@@ -42,7 +38,7 @@ def as_base64(data):
 
 class EbookpointStore(BasicStoreConfig, StorePlugin):
 
-    def open(self, parent=None, detail_item=None, external=False):
+    def open(self, gui=None, parent=None, detail_item=None, external=False):
         aff_root = 'https://www.a4b-tracking.com/pl/stat-click-text-link/32/58/'
 
         url = 'http://ebookpoint.pl/'

@@ -60,6 +60,7 @@ class ViewAction(InterfaceAction):
         self.qaction.triggered.connect(self.view_book)
         self.view_action = self.menuless_qaction
         self.view_menu = self.qaction.menu()
+        assert self.view_menu is not None
         cm = partial(self.create_menu_action, self.view_menu)
         self.view_specific_action = cm('specific', _('View specific format'),
                 shortcut='Alt+V', triggered=self.view_specific_format)
@@ -90,6 +91,7 @@ class ViewAction(InterfaceAction):
         self.llm_action.setText(t + '\t' + sc.toString(QKeySequence.SequenceFormat.NativeText))
 
     def build_menus(self, db):
+        assert self.view_menu is not None
         for ac in self.history_actions:
             self.view_menu.removeAction(ac)
         self.history_actions = []
@@ -126,6 +128,7 @@ class ViewAction(InterfaceAction):
 
     def location_selected(self, loc):
         enabled = loc == 'library'
+        assert self.view_menu is not None
         for action in list(self.view_menu.actions())[1:]:
             action.setEnabled(enabled)
 
@@ -190,6 +193,7 @@ class ViewAction(InterfaceAction):
             else:
                 if iswindows:
                     from calibre_extensions import winutil
+                    assert name is not None
                     ext = name.rpartition('.')[-1]
                     if ext:
                         try:
@@ -278,8 +282,7 @@ class ViewAction(InterfaceAction):
     def view_folder(self, *args, **kwargs):
         rows = self.gui.current_view().selectionModel().selectedRows()
         if not rows or len(rows) == 0:
-            d = error_dialog(self.gui, _('Cannot open folder'),
-                    _('No book selected'))
+            d = error_dialog(self.gui, _('Cannot open folder'), _('No book selected'))
             d.exec()
             return
         if not self._view_check(len(rows), max_=10, skip_dialog_name='open-folder-many-check'):
@@ -301,8 +304,9 @@ class ViewAction(InterfaceAction):
                 try:
                     open_local_file(path)
                 except Exception as e:
+                    import traceback
                     # We shouldn't get here ...
-                    error_dialog(self.gui, _('Cannot open folder'), str(e), show=True)
+                    error_dialog(self.gui, _('Cannot open folder'), str(e), det_msg=traceback.format_exc(), show=True)
                 if ismacos and i < len(rows) - 1:
                     time.sleep(0.1)  # Finder cannot handle multiple folder opens
 

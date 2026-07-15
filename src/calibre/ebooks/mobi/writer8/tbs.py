@@ -21,7 +21,7 @@ from operator import attrgetter
 
 from calibre.ebooks.mobi.utils import encode_tbs, encode_trailing_data
 
-Entry = namedtuple('IndexEntry', 'index start length depth parent '
+Entry = namedtuple('Entry', 'index start length depth parent '
         'first_child last_child title action start_offset length_offset '
         'text_record_length')
 

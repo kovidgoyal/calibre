@@ -97,7 +97,7 @@ class TextSearch(QWidget):
         QWidget.__init__(self, ui)
         self.l = l = QVBoxLayout(self)
         self.la = la = QLabel(_('&Find:'))
-        self.find = ft = HistoryComboBox(self)
+        self.find_widget = ft = HistoryComboBox(self)
         ft.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
         ft.initialize('tweak_book_text_search_history')
         la.setBuddy(ft)
@@ -150,7 +150,7 @@ class TextSearch(QWidget):
 
     def do_search(self, direction='down'):
         state = self.state
-        state['find'] = self.find.text()
+        state['find'] = self.find_widget.text()
         state['direction'] = direction
         self.find_text.emit(state)
 

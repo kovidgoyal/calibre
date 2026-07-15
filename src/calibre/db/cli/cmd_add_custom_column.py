@@ -6,12 +6,13 @@ import json
 
 from calibre import prints
 from calibre.db.legacy import LibraryDatabase
-from calibre.library.custom_columns import CustomColumns
 from calibre.utils.localization import _
 
 readonly = False
 version = 0  # change this if you change signature of implementation()
 no_remote = True
+CUSTOM_DATA_TYPES = frozenset(('rating', 'text', 'comments', 'datetime',
+        'int', 'float', 'bool', 'series', 'composite', 'enumeration'))
 
 
 def implementation(db, notify_changes, *args):
@@ -28,7 +29,7 @@ Create a custom column. label is the machine friendly name of the column. Should
 not contain spaces or colons. name is the human friendly name of the column.
 datatype is one of: {0}
 '''
-        ).format(', '.join(sorted(CustomColumns.CUSTOM_DATA_TYPES)))
+        ).format(', '.join(sorted(CUSTOM_DATA_TYPES)))
     )
 
     parser.add_option(

@@ -300,6 +300,46 @@ def get_metadata(stream):
     return mi
 
 
+def safe(func):
+    '''
+    Decorator that ensures that function calls leave the pos
+    in the underlying file unchanged
+    '''
+    @wraps(func)
+    def restore_pos(*args, **kwargs):
+        obj = args[0]
+        pos = obj._file.tell()
+        res = func(*args, **kwargs)
+        obj._file.seek(0, 2)
+        if obj._file.tell() >= pos:
+            obj._file.seek(pos)
+        return res
+    return restore_pos
+
+
+def safe_property(func):
+    '''
+    Decorator that ensures that read or writing a property leaves
+    the position in the underlying file unchanged
+    '''
+    def decorator(f):
+        def restore_pos(*args, **kwargs):
+            obj = args[0]
+            pos = obj._file.tell()
+            res = f(*args, **kwargs)
+            obj._file.seek(0, 2)
+            if obj._file.tell() >= pos:
+                obj._file.seek(pos)
+            return res
+        return restore_pos
+    locals_ = func()
+    if 'fget' in locals_:
+        locals_['fget'] = decorator(locals_['fget'])
+    if 'fset' in locals_:
+        locals_['fset'] = decorator(locals_['fset'])
+    return property(**locals_)
+
+
 class LRFMetaFile:
     ''' Has properties to read and write all Meta information in a LRF file. '''
     #: The first 6 bytes of all valid LRF files
@@ -342,44 +382,6 @@ class LRFMetaFile:
     creation_date         = xml_field('CreationDate', parent='DocInfo')
     producer              = xml_field('Producer', parent='DocInfo')
     page                  = xml_field('SumPage', parent='DocInfo')
-
-    def safe(func):
-        '''
-        Decorator that ensures that function calls leave the pos
-        in the underlying file unchanged
-        '''
-        @wraps(func)
-        def restore_pos(*args, **kwargs):
-            obj = args[0]
-            pos = obj._file.tell()
-            res = func(*args, **kwargs)
-            obj._file.seek(0, 2)
-            if obj._file.tell() >= pos:
-                obj._file.seek(pos)
-            return res
-        return restore_pos
-
-    def safe_property(func):
-        '''
-        Decorator that ensures that read or writing a property leaves
-        the position in the underlying file unchanged
-        '''
-        def decorator(f):
-            def restore_pos(*args, **kwargs):
-                obj = args[0]
-                pos = obj._file.tell()
-                res = f(*args, **kwargs)
-                obj._file.seek(0, 2)
-                if obj._file.tell() >= pos:
-                    obj._file.seek(pos)
-                return res
-            return restore_pos
-        locals_ = func()
-        if 'fget' in locals_:
-            locals_['fget'] = decorator(locals_['fget'])
-        if 'fset' in locals_:
-            locals_['fset'] = decorator(locals_['fset'])
-        return property(**locals_)
 
     @safe_property
     def info():
@@ -723,8 +725,7 @@ def main(args=sys.argv):
             with open(td, 'wb') as f:
                 f.write(t)
 
-    fields = LRFMetaFile.__dict__.items()
-    fields.sort()
+    fields = sorted(LRFMetaFile.__dict__.items())
     for f in fields:
         if 'XML' in str(f):
             print(str(f[1]) + ':', lrf.__getattribute__(f[0]).encode('utf-8'))

@@ -16,6 +16,7 @@ from qt.core import (
     QPainter,
     QPainterPath,
     QPalette,
+    QPixmap,
     QPointF,
     QRect,
     QScrollArea,
@@ -76,7 +77,7 @@ def default_cover():
 
 
 @lru_cache(maxsize=8)
-def icon_resource_provider(qurl: QUrl) -> QVariant:
+def icon_resource_provider(qurl: QUrl) -> QVariant | QPixmap:
     if qurl.scheme() == 'calibre-icon':
         ic = QIcon.cached_icon(qurl.path().lstrip('/'))
         if ic.is_ok():
@@ -147,6 +148,7 @@ class CardData:
 
     def ensure_renderable(self, dpr) -> QTextDocument:
         self.height
+        assert self.doc is not None
         return self.doc
 
     @property
@@ -159,8 +161,10 @@ class CardData:
         if self.doc is None:
             self._load_doc()
         lc = layout()
-        self.doc.setTextWidth(self.width - 2 * (lc.padding + 1))
-        self._height = int(self.doc.size().height()) + 2 * lc.padding + 2
+        doc = self.doc
+        assert doc is not None
+        doc.setTextWidth(self.width - 2 * (lc.padding + 1))
+        self._height = int(doc.size().height()) + 2 * lc.padding + 2
 
     def _load_doc(self):
         lc = layout()
@@ -242,11 +246,13 @@ class CardWidget(QWidget):
             return '', ''
         doc = self._card.doc
         dpos = self._pos_in_doc(widget_pos)
-        href = doc.documentLayout().anchorAt(dpos)
+        doc_layout = doc.documentLayout()
+        assert doc_layout is not None
+        href = doc_layout.anchorAt(dpos)
         if not href:
             return '', ''
         title = ''
-        cursor_pos = doc.documentLayout().hitTest(dpos, Qt.HitTestAccuracy.FuzzyHit)
+        cursor_pos = doc_layout.hitTest(dpos, Qt.HitTestAccuracy.FuzzyHit)
         if cursor_pos >= 0:
             cursor = QTextCursor(doc)
             cursor.setPosition(cursor_pos)
@@ -254,35 +260,37 @@ class CardWidget(QWidget):
             title = fmt.toolTip()
         return href, title
 
-    def mouseMoveEvent(self, event):
-        href, title = self._anchor_data(event.pos())
+    def mouseMoveEvent(self, a0):
+        href, title = self._anchor_data(a0.pos())
         if href:
             self.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
             if title:
-                QToolTip.showText(event.globalPosition().toPoint(), title, self)
+                QToolTip.showText(a0.globalPosition().toPoint(), title, self)
             else:
                 QToolTip.hideText()
         else:
             self.unsetCursor()
             QToolTip.hideText()
-        super().mouseMoveEvent(event)
+        super().mouseMoveEvent(a0)
 
-    def leaveEvent(self, event):
+    def leaveEvent(self, a0):
         self.unsetCursor()
         QToolTip.hideText()
-        super().leaveEvent(event)
+        super().leaveEvent(a0)
 
-    def mouseReleaseEvent(self, event):
-        if event.button() == Qt.MouseButton.LeftButton:
-            href, _ = self._anchor_data(event.pos())
+    def mouseReleaseEvent(self, a0):
+        if a0.button() == Qt.MouseButton.LeftButton:
+            href, _ = self._anchor_data(a0.pos())
             if href:
-                event.accept()
+                a0.accept()
                 self.link_activated.emit(QUrl(href))
                 return
-        super().mouseReleaseEvent(event)
+        super().mouseReleaseEvent(a0)
 
-    def paintEvent(self, event):
-        doc = self._card.ensure_renderable(self.devicePixelRatioF())
+    def paintEvent(self, a0):
+        card = self._card
+        assert card is not None
+        doc = card.ensure_renderable(self.devicePixelRatioF())
         with QPainter(self) as p:
             p.setRenderHints(QPainter.RenderHint.Antialiasing | QPainter.RenderHint.TextAntialiasing)
             lc = layout()
@@ -311,7 +319,7 @@ class VirtualCardContainer(QWidget):
 
     def __init__(self, model, parent=None):
         super().__init__(parent)
-        self.cover_render_queue: Queue[int] = Queue()
+        self.cover_render_queue: Queue[tuple[int, int]] = Queue()
         self.model = model
         model.matches_found.connect(self.matches_found)
         model.result_with_context_found.connect(self.result_with_context_found)
@@ -382,7 +390,7 @@ class VirtualCardContainer(QWidget):
             w.hide()
         self._live_widgets.clear()
 
-    def render_covers(self, queue: Queue[int], dpr: float, lc: Layout, default_cover: QImage, db_ref: weakref.ref[Cache], generation: int):
+    def render_covers(self, queue: Queue[tuple[int, int]], dpr: float, lc: Layout, default_cover: QImage, db_ref: weakref.ref[Cache], generation: int):
         while True:
             try:
                 book_id, idx = queue.get()
@@ -565,7 +573,9 @@ class CardView(QScrollArea):
         self._container.link_activated.connect(self.link_activated)
         self._container.change_panel.connect(self.change_panel)
         self.setWidget(self._container)
-        self.verticalScrollBar().valueChanged.connect(self._on_scroll)
+        vsb = self.verticalScrollBar()
+        assert vsb is not None
+        vsb.valueChanged.connect(self._on_scroll)
         model.search_started.connect(self.scroll_to_top)
         # Debounce resize relayout
         self._resize_timer = QTimer(self)
@@ -575,15 +585,20 @@ class CardView(QScrollArea):
 
     def _viewport_rect(self) -> QRect:
         vp = self.viewport()
-        return QRect(0, self.verticalScrollBar().value(), vp.width(), vp.height())
+        assert vp is not None
+        vsb = self.verticalScrollBar()
+        assert vsb is not None
+        return QRect(0, vsb.value(), vp.width(), vp.height())
 
     def _on_scroll(self):
         self._container.set_viewport(self._viewport_rect())
 
-    def resizeEvent(self, event):
-        super().resizeEvent(event)
+    def resizeEvent(self, a0):
+        super().resizeEvent(a0)
         # Set container width to match viewport width so row count updates
-        self._container.setFixedWidth(max(0, self.viewport().width()))
+        vp = self.viewport()
+        assert vp is not None
+        self._container.setFixedWidth(max(0, vp.width()))
         self._resize_timer.start()
 
     def _do_relayout(self):
@@ -592,11 +607,15 @@ class CardView(QScrollArea):
         self.update()
 
     def scroll_to_top(self):
-        self.verticalScrollBar().setValue(0)
+        vsb = self.verticalScrollBar()
+        assert vsb is not None
+        vsb.setValue(0)
 
-    def showEvent(self, event):
-        super().showEvent(event)
-        self._container.setFixedWidth(max(0, self.viewport().width()))
+    def showEvent(self, a0):
+        super().showEvent(a0)
+        vp = self.viewport()
+        assert vp is not None
+        self._container.setFixedWidth(max(0, vp.width()))
         self._do_relayout()
 
     def shutdown(self):

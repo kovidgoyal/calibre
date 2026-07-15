@@ -19,7 +19,7 @@ from queue import Queue
 from sqlite3 import IntegrityError, OperationalError
 from threading import RLock, Thread
 
-from calibre import force_unicode, isbytestring, prints
+from calibre import force_unicode, prints
 from calibre.constants import DEBUG, iswindows, plugins, plugins_loc
 from calibre.ebooks.metadata import author_to_author_sort, title_sort
 from calibre.utils.date import UNDEFINED_DATE, isoformat, local_tz, parse_date
@@ -216,12 +216,12 @@ def _author_to_author_sort(x):
 
 
 def pynocase(one, two, encoding='utf-8'):
-    if isbytestring(one):
+    if isinstance(one, bytes):
         try:
             one = one.decode(encoding, 'replace')
         except Exception:
             pass
-    if isbytestring(two):
+    if isinstance(two, bytes):
         try:
             two = two.decode(encoding, 'replace')
         except Exception:
@@ -296,16 +296,19 @@ class DBThread(Thread):
             while True:
                 func, args, kwargs = self.requests.get()
                 if func == self.CLOSE:
+                    assert self.conn is not None
                     self.conn.close()
                     break
                 if func == 'dump':
                     try:
+                        assert self.conn is not None
                         ok, res = True, tuple(self.conn.iterdump())
                     except Exception as err:
                         ok, res = False, (err, traceback.format_exc())
                 elif func == 'create_dynamic_filter':
                     try:
                         f = DynamicFilter(args[0])
+                        assert self.conn is not None
                         self.conn.create_function(args[0], 1, f)
                         ok, res = True, f
                     except Exception as err:

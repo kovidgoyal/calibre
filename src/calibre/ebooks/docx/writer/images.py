@@ -84,6 +84,9 @@ class ImagesManager:
             item.unload_data_from_memory()
         return self.images[href]
 
+    def abshref(self, x: str) -> str:
+        return x
+
     def add_image(self, img, block, stylizer, bookmark=None, as_block=False):
         src = img.get('src')
         if not src:

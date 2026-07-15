@@ -125,8 +125,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>205</width>
-            <height>147</height>
+            <width>201</width>
+            <height>142</height>
            </rect>
           </property>
          </widget>
@@ -329,7 +329,7 @@
       </spacer>
      </item>
      <item>
-      <widget class="QPushButton" name="close">
+      <widget class="QPushButton" name="close_button">
        <property name="text">
         <string>&amp;Close</string>
        </property>
@@ -364,14 +364,14 @@
   <tabstop>results_view</tabstop>
   <tabstop>configure</tabstop>
   <tabstop>open_external</tabstop>
-  <tabstop>close</tabstop>
+  <tabstop>close_button</tabstop>
  </tabstops>
  <resources>
   <include location="../../../../../resources/images.qrc"/>
  </resources>
  <connections>
   <connection>
-   <sender>close</sender>
+   <sender>close_button</sender>
    <signal>clicked()</signal>
    <receiver>Dialog</receiver>
    <slot>accept()</slot>

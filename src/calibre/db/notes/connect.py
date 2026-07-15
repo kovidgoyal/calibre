@@ -53,7 +53,7 @@ def remove_with_retry(x, is_dir=False):
     except FileNotFoundError:
         return
     except OSError as e:
-        if iswindows and e.winerror == winutil.ERROR_SHARING_VIOLATION:
+        if iswindows and getattr(e, 'winerror', None) == winutil.ERROR_SHARING_VIOLATION:
             time.sleep(WINDOWS_SLEEP_FOR_RETRY_TIME)
             f(x)
 
@@ -399,7 +399,7 @@ class Notes:
                 break
         return ans
 
-    def all_notes(self, conn, restrict_to_fields=(), limit=None, snippet_size=64, return_text=True, process_each_result=None) -> list[dict]:
+    def all_notes(self, conn, restrict_to_fields=(), limit=None, snippet_size=64, return_text=True, process_each_result=None):
         if snippet_size is None:
             snippet_size = 64
         char_size = snippet_size * 8

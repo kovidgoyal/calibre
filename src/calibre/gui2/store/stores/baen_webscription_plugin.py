@@ -8,11 +8,7 @@ __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
 from contextlib import closing
-
-try:
-    from urllib.parse import urlencode
-except ImportError:
-    from urllib import urlencode
+from urllib.parse import urlencode
 
 from qt.core import QUrl
 
@@ -81,7 +77,7 @@ def search(query, max_results=10, timeout=60):
 
 class BaenWebScriptionStore(BasicStoreConfig, StorePlugin):
 
-    def open(self, parent=None, detail_item=None, external=False):
+    def open(self, gui=None, parent=None, detail_item=None, external=False):
         url = 'http://www.baenebooks.com/'
         if external or self.config.get('open_external', False):
             open_url(QUrl(detail_item or url))

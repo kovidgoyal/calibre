@@ -73,7 +73,7 @@ class ConfigWidget(QWidget):
             self.pchm.setOpenExternalLinks(True)
             l.addWidget(self.pchm, 10)
         l.addWidget(self.gb)
-        self.gb.l = g = QVBoxLayout(self.gb)
+        g = QVBoxLayout(self.gb)
         g.setContentsMargins(0, 0, 0, 0)
         self.fields_view = v = FieldsList(self)
         g.addWidget(v)
@@ -96,7 +96,7 @@ class ConfigWidget(QWidget):
         if opt.type == 'number':
             c = QSpinBox if isinstance(opt.default, numbers.Integral) else QDoubleSpinBox
             widget = c(self)
-            widget.setRange(min(widget.minimum(), 20 * val), max(widget.maximum(), 20 * val))
+            widget.setRange(int(min(widget.minimum(), 20 * val)), int(max(widget.maximum(), 20 * val)))
             widget.setValue(val)
         elif opt.type == 'string':
             widget = QLineEdit(self)
@@ -112,8 +112,8 @@ class ConfigWidget(QWidget):
                 widget.addItem(label, (key))
             idx = widget.findData(val)
             widget.setCurrentIndex(idx)
-        widget.opt = opt
         widget.setToolTip(textwrap.fill(opt.desc))
+        setattr(widget, 'opt', opt)
         self.widgets.append(widget)
         r = self.l.rowCount()
         if opt.type == 'bool':

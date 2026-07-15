@@ -15,7 +15,7 @@ from calibre.utils.localization import _
 
 def commit_searches(searches):
     from calibre.gui2.ui import get_gui
-    db = get_gui().current_db
+    db = get_gui(fail_if_absent=True).current_db
     db.saved_search_set_all(searches)
 
 
@@ -29,7 +29,7 @@ class AddSavedSearch(Dialog):
         Dialog.__init__(
             self, _('Add a new Saved search'), 'add-saved-search', parent)
         from calibre.gui2.ui import get_gui
-        db = get_gui().current_db
+        db = get_gui(fail_if_absent=True).current_db
         self.searches = {}
         for name in db.saved_search_names():
             self.searches[name] = db.saved_search_lookup(name)
@@ -96,17 +96,20 @@ class SavedSearchEditor(Dialog):
 
     def setup_ui(self):
         from calibre.gui2.ui import get_gui
-        db = get_gui().current_db
+        db = get_gui(fail_if_absent=True).current_db
         self.l = l = QVBoxLayout(self)
         b = self.bb.addButton(_('&Add search'), QDialogButtonBox.ButtonRole.ActionRole)
+        assert b is not None
         b.setIcon(QIcon.ic('search_add_saved.png'))
         b.clicked.connect(self.add_search)
 
         b = self.bb.addButton(_('&Remove search'), QDialogButtonBox.ButtonRole.ActionRole)
+        assert b is not None
         b.setIcon(QIcon.ic('search_delete_saved.png'))
         b.clicked.connect(self.del_search)
 
         b = self.bb.addButton(_('&Edit search'), QDialogButtonBox.ButtonRole.ActionRole)
+        assert b is not None
         b.setIcon(QIcon.ic('modified.png'))
         b.clicked.connect(self.edit_search)
 
@@ -140,11 +143,11 @@ class SavedSearchEditor(Dialog):
             if ans in self.searches:
                 return ans
 
-    def keyPressEvent(self, ev):
-        if ev.key() == Qt.Key.Key_Delete:
+    def keyPressEvent(self, a0):
+        if a0.key() == Qt.Key.Key_Delete:
             self.del_search()
             return
-        return Dialog.keyPressEvent(self, ev)
+        return Dialog.keyPressEvent(self, a0)
 
     def populate_search_list(self):
         self.slist.clear()
@@ -185,7 +188,9 @@ class SavedSearchEditor(Dialog):
         if d.exec() != QDialog.DialogCode.Accepted:
             return
         name, expression = d.accepted_data
-        self.slist.currentItem().setText(name)
+        current_item = self.slist.currentItem()
+        assert current_item is not None
+        current_item.setText(name)
         del self.searches[n]
         self.searches[name] = expression
         self.current_index_changed(self.slist.currentItem())

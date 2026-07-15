@@ -128,15 +128,19 @@ class TrimImage(QDialog):
         c.image_changed.connect(self.image_changed)
         c.load_image(img_data)
         self.undo_action = u = c.undo_action
+        assert u is not None
         u.setShortcut(QKeySequence(QKeySequence.StandardKey.Undo))
         self.redo_action = r = c.redo_action
+        assert r is not None
         r.setShortcut(QKeySequence(QKeySequence.StandardKey.Redo))
         self.trim_action = ac = self.bar.addAction(QIcon.ic('trim.png'), _('&Trim'), self.do_trim)
+        assert ac is not None
         ac.setShortcut(QKeySequence('Ctrl+T'))
         ac.setToolTip('{} [{}]'.format(_('Trim image by removing borders outside the selected region'),
                                    ac.shortcut().toString(QKeySequence.SequenceFormat.NativeText)))
         ac.setEnabled(False)
         self.size_selection = ac = self.bar.addAction(QIcon.ic('resize.png'), _('&Region'), self.do_region)
+        assert ac is not None
         ac.setToolTip(_('Specify a selection region size using numbers to allow for precise control'))
         c.selection_state_changed.connect(self.selection_changed)
         c.selection_area_changed.connect(self.selection_area_changed)
@@ -161,7 +165,9 @@ class TrimImage(QDialog):
         h.addWidget(bb)
 
         self.restore_geometry(gprefs, 'image-trim-dialog-geometry')
-        self.setWindowIcon(self.trim_action.icon())
+        trim_action = self.trim_action
+        assert trim_action is not None
+        self.setWindowIcon(trim_action.icon())
         self.image_data = None
 
     def sizeHint(self):
@@ -169,7 +175,9 @@ class TrimImage(QDialog):
 
     def do_region(self):
         rect = self.canvas.selection_rect_in_image_coords
-        d = Region(self, int(rect.width()), int(rect.height()), self.canvas.current_image.width(), self.canvas.current_image.height())
+        current_image = self.canvas.current_image
+        assert current_image is not None
+        d = Region(self, int(rect.width()), int(rect.height()), current_image.width(), current_image.height())
         if d.exec() == QDialog.DialogCode.Accepted:
             width, height = d.selection_size
             self.canvas.set_selection_size_in_image_coords(width, height)
@@ -179,7 +187,9 @@ class TrimImage(QDialog):
         self.selection_changed(False)
 
     def selection_changed(self, has_selection):
-        self.trim_action.setEnabled(has_selection)
+        trim_action = self.trim_action
+        assert trim_action is not None
+        trim_action.setEnabled(has_selection)
         self.msg.setText(_('Adjust selection by dragging corners') if has_selection else self.msg_txt)
 
     def selection_area_changed(self, rect):
@@ -199,8 +209,10 @@ class TrimImage(QDialog):
         self.save_geometry(gprefs, 'image-trim-dialog-geometry')
 
     def accept(self):
-        if self.trim_action.isEnabled():
-            self.trim_action.trigger()
+        trim_action = self.trim_action
+        assert trim_action is not None
+        if trim_action.isEnabled():
+            trim_action.trigger()
         if self.canvas.is_modified:
             self.image_data = self.canvas.get_image_data()
         self.cleanup()

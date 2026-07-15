@@ -2,10 +2,15 @@
 # License: GPLv3 Copyright: 2018, Kovid Goyal <kovid at kovidgoyal.net>
 
 
-from qt.core import QAbstractItemDelegate, QModelIndex, QSplitter, Qt, QTableView
+from typing import TYPE_CHECKING, cast
+
+from qt.core import QAbstractItemDelegate, QAction, QHeaderView, QMenu, QModelIndex, QSplitter, Qt, QTableView
 
 from calibre.gui2 import gprefs
 from calibre.gui2.library import DEFAULT_SORT
+
+if TYPE_CHECKING:
+    from calibre.gui2.library.models import BooksModel
 from calibre.gui2.library.delegates import (
     CcBoolDelegate,
     CcCommentsDelegate,
@@ -28,7 +33,15 @@ from calibre.gui2.library.delegates import (
 from calibre.gui2.momentum_scroll import MomentumScrollMixin
 
 
+class ColumnHeaderMenu(QMenu):
+    bl_split_action: QAction | None = None
+
+
 class TableView(MomentumScrollMixin, QTableView):
+
+    column_header: QHeaderView
+    column_header_context_menu: ColumnHeaderMenu | None = None
+    column_map: list[str]
 
     def closeEditor(self, editor, hint):
         # We want to implement our own go to next/previous cell behavior
@@ -42,7 +55,9 @@ class TableView(MomentumScrollMixin, QTableView):
             return
         current = self.currentIndex()
         hdr = self.horizontalHeader()
+        assert hdr is not None
         m = self.model()
+        assert m is not None
         row = current.row()
         vdx = hdr.visualIndex(current.column())  # must work with visual indices, not logical indices
         if vdx < 0:
@@ -70,8 +85,10 @@ class TableView(MomentumScrollMixin, QTableView):
             idx = m.index(row, ldx, current.parent())
             if not idx.isValid():
                 continue
-            if m.is_custom_column(colname):
-                if self.itemDelegateForIndex(idx).is_editable_with_tab:
+            if cast('BooksModel', m).is_custom_column(colname):
+                delegate_for_idx = self.itemDelegateForIndex(idx)
+                assert delegate_for_idx is not None
+                if getattr(delegate_for_idx, 'is_editable_with_tab', True):
                     # Don't try to open editors implemented by dialogs such as
                     # markdown, composites and comments
                     break
@@ -82,7 +99,7 @@ class TableView(MomentumScrollMixin, QTableView):
             # Tell the delegate to ignore keyboard modifiers in case
             # Shift-Tab is being used to move the cell.
             if (d := self.itemDelegateForIndex(idx)) is not None:
-                d.ignore_kb_mods_on_edit = True
+                setattr(d, 'ignore_kb_mods_on_edit', True)
             self.setCurrentIndex(idx)
             self.edit(idx)
 
@@ -112,14 +129,17 @@ class TableView(MomentumScrollMixin, QTableView):
 
     def set_delegates(self):
         cm = self.column_map
+        m = self.model()
+        assert m is not None
+        bm = cast('BooksModel', m)
 
         def set_item_delegate(colhead, delegate):
             idx = self.column_map.index(colhead)
             self.setItemDelegateForColumn(idx, delegate)
 
         for colhead in cm:
-            if self.model().is_custom_column(colhead):
-                cc = self.model().custom_columns[colhead]
+            if bm.is_custom_column(colhead):
+                cc = bm.custom_columns[colhead]
                 if cc['datatype'] == 'datetime':
                     delegate = CcDateDelegate(self)
                     delegate.set_format(cc['display'].get('date_format',''))
@@ -165,17 +185,19 @@ class TableView(MomentumScrollMixin, QTableView):
 
     def allow_one_edit_for_f2(self):
         key = self.column_map[self.currentIndex().column()]
-        db = self.model().db
+        m = self.model()
+        assert m is not None
+        db = cast('BooksModel', m).db
         if hasattr(db, 'field_metadata') and db.field_metadata[key]['datatype'] == 'composite':
             self.cc_template_delegate.allow_one_edit()
 
-    def keyPressEvent(self, ev):
+    def keyPressEvent(self, e):
         from calibre.gui2.library.alternate_views import handle_enter_press
-        if handle_enter_press(self, ev):
+        if handle_enter_press(self, e):
             return
-        if ev.key() == Qt.Key.Key_F2:
+        if e.key() == Qt.Key.Key_F2:
             self.allow_one_edit_for_f2()
-        return super().keyPressEvent(ev)
+        return super().keyPressEvent(e)
 
 
 class PinTableView(TableView):
@@ -185,7 +207,9 @@ class PinTableView(TableView):
     def __init__(self, books_view, parent=None):
         QTableView.__init__(self, parent)
         self.books_view = books_view
-        self.verticalHeader().close()
+        vh = self.verticalHeader()
+        assert vh is not None
+        vh.close()
         self.splitter = None
 
     @property
@@ -195,8 +219,8 @@ class PinTableView(TableView):
     def set_context_menu(self, menu):
         self.context_menu = menu
 
-    def contextMenuEvent(self, event):
-        self.books_view.show_context_menu(self.context_menu, event)
+    def contextMenuEvent(self, a0):
+        self.books_view.show_context_menu(self.context_menu, a0)
 
     def get_default_state(self):
         old_state = {

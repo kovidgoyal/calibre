@@ -33,17 +33,17 @@ def renice(niceness):
 
 
 def macos_viewer_bundle_path():
-    base = os.path.dirname(sys.executables_location)
+    base = os.path.dirname(getattr(sys, 'executables_location'))
     return os.path.join(base, 'ebook-viewer.app/Contents/MacOS/')
 
 
 def macos_edit_book_bundle_path():
-    base = os.path.dirname(sys.executables_location)
+    base = os.path.dirname(getattr(sys, 'executables_location'))
     return os.path.join(base, 'ebook-viewer.app/Contents/ebook-edit.app/Contents/MacOS/')
 
 
 def macos_headless_bundle_path():
-    base = os.path.dirname(sys.executables_location)
+    base = os.path.dirname(getattr(sys, 'executables_location'))
     return os.path.join(base, 'ebook-viewer.app/Contents/ebook-edit.app/Contents/headless.app/Contents/MacOS/')
 
 
@@ -51,19 +51,19 @@ def exe_path(exe_name):
     if hasattr(sys, 'running_from_setup'):
         return [sys.executable, os.path.join(sys.setup_dir, 'run-calibre-worker.py')]
     if getattr(sys, 'run_local', False):
-        return [sys.executable, sys.run_local, exe_name]
+        return [sys.executable, getattr(sys, 'run_local'), exe_name]
     e = exe_name
     if iswindows:
         return os.path.join(os.path.dirname(sys.executable),
                 e+'.exe' if isfrozen else f'Scripts\\{e}.exe')
     if ismacos:
-        return os.path.join(sys.executables_location, e)
+        return os.path.join(getattr(sys, 'executables_location'), e)
 
     if isfrozen:
-        return os.path.join(sys.executables_location, e)
+        return os.path.join(getattr(sys, 'executables_location'), e)
 
     if hasattr(sys, 'executables_location'):
-        c = os.path.join(sys.executables_location, e)
+        c = os.path.join(getattr(sys, 'executables_location'), e)
         if os.access(c, os.X_OK):
             return c
     return e
@@ -110,7 +110,7 @@ class Worker:
             if self.job_name == 'ebook-edit':
                 return os.path.join(macos_edit_book_bundle_path(), self.exe_name)
 
-            return os.path.join(sys.executables_location, self.exe_name)
+            return os.path.join(getattr(sys, 'executables_location'), self.exe_name)
 
         return self.executable
 
@@ -223,12 +223,13 @@ class Worker:
                     args['startupinfo'] = subprocess.STARTUPINFO(lpAttributeList={'handle_list':pass_fds})
                 else:
                     args['pass_fds'] = pass_fds
-            self.child = subprocess.Popen(cmd, **args)
+            self.child = subprocess.Popen(cmd, **args)  # type: ignore
         finally:
             if iswindows and pass_fds:
                 for fd in pass_fds:
                     os.set_handle_inheritable(fd, False)
         if 'stdin' in args:
+            assert self.child.stdin is not None
             self.child.stdin.close()
 
         self.log_path = ret

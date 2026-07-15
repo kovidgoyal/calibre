@@ -48,7 +48,7 @@ class FakeResponse:
         self._headers = res['headers']
         if 'error' in res:
             ex = URLError(res['error'])
-            ex.worth_retry = bool(res.get('worth_retry'))
+            setattr(ex, 'worth_retry', bool(res.get('worth_retry')))
             raise ex
         with suppress(FileNotFoundError):
             self._data = open(res['output'], 'rb')
@@ -131,10 +131,11 @@ class Browser:
         if start_worker:
             self._ensure_state()
 
-    def _open(self, url_or_request: Request, data=None, timeout=None, visit: bool = True):
+    def _open(self, url_or_request: Request | str, data=None, timeout=None, visit: bool = True):
         method = 'POST' if data else 'GET'
         headers = []
         if hasattr(url_or_request, 'get_method'):
+            assert isinstance(url_or_request, Request)
             r = url_or_request
             method = r.get_method()
             data = data or r.data
@@ -152,7 +153,7 @@ class Browser:
 
         if isinstance(data, dict):
             headers.append(('Content-Type', 'application/x-www-form-urlencoded'))
-            data = urlencode(data)
+            data = urlencode(data)  # type: ignore
         if isinstance(data, str):
             data = data.encode('utf-8')
             if not has_header('Content-Type'):
@@ -170,9 +171,9 @@ class Browser:
             if data:
                 with open(os.path.join(self.tdir, f'i{self.id_counter}'), 'wb') as f:
                     if hasattr(data, 'read'):
-                        shutil.copyfileobj(data, f)
+                        shutil.copyfileobj(data, f)  # type: ignore
                     else:
-                        f.write(data)
+                        f.write(data)  # type: ignore
                 cmd['data_path'] = f.name
                 for k, v in cmd['headers']:
                     if k.lower() == 'content-type':
@@ -184,7 +185,7 @@ class Browser:
             self._send_command(cmd)
         return res
 
-    def open(self, url_or_request: Request, data=None, timeout=None):
+    def open(self, url_or_request: Request | str, data=None, timeout=None):
         return self._open(url_or_request, data, timeout)
 
     def open_novisit(self, url_or_request: Request, data=None, timeout=None):
@@ -213,9 +214,13 @@ class Browser:
     def _send_command(self, cmd):
         with self.lock:
             self._ensure_state()
-            self.worker.stdin.write(json.dumps(cmd).encode())
-            self.worker.stdin.write(b'\n')
-            self.worker.stdin.flush()
+            _worker = self.worker
+            assert _worker is not None
+            _w_stdin = _worker.stdin
+            assert _w_stdin is not None
+            _w_stdin.write(json.dumps(cmd).encode())
+            _w_stdin.write(b'\n')
+            _w_stdin.flush()
 
     def _ensure_state(self):
         with self.lock:
@@ -230,7 +235,11 @@ class Browser:
 
     def _dispatch(self):
         try:
-            for line in self.worker.stdout:
+            _dispatch_worker = self.worker
+            assert _dispatch_worker is not None
+            _dispatch_stdout = _dispatch_worker.stdout
+            assert _dispatch_stdout is not None
+            for line in _dispatch_stdout:
                 cmd = json.loads(line)
                 if cmd.get('action') == 'finished':
                     with self.lock:
@@ -248,9 +257,13 @@ class Browser:
         if self.worker:
             w, self.worker = self.worker, None
             with suppress(OSError):
-                w.stdin.close()
+                _w_stdin_s = w.stdin
+                assert _w_stdin_s is not None
+                _w_stdin_s.close()
             with suppress(OSError):
-                w.stdout.close()
+                _w_stdout_s = w.stdout
+                assert _w_stdout_s is not None
+                _w_stdout_s.close()
             give_up_at = time.monotonic() + 1.5
             while time.monotonic() < give_up_at and w.poll() is None:
                 time.sleep(0.01)

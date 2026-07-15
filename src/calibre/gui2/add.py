@@ -134,18 +134,24 @@ class Adder(QObject):
 
     def break_cycles(self):
         self.abort_scan = True
-        self.pd.close()
-        self.pd.deleteLater()
+        pd = self.pd
+        assert pd is not None
+        pd.close()
+        pd.deleteLater()
         if self.pool is not None:
             self.pool.shutdown()
         if not self.items:
-            shutil.rmtree(self.tdir, ignore_errors=True)
+            tdir = self.tdir
+            assert tdir is not None
+            shutil.rmtree(tdir, ignore_errors=True)
         self.setParent(None)
         self.find_identical_books_data = self.merged_books = self.added_duplicate_info = self.pool = self.items = self.duplicates = self.pd = self.db = self.dbref = self.tdir = self.file_groups = self.scan_thread = None  # noqa: E501
         self.deleteLater()
 
     def tick(self):
-        if self.pd.canceled:
+        pd = self.pd
+        assert pd is not None
+        if pd.canceled:
             try:
                 if callable(self.callback):
                     self.callback(self)
@@ -157,6 +163,8 @@ class Adder(QObject):
     # Filesystem scan {{{
 
     def scan(self):
+        file_groups = self.file_groups
+        assert file_groups is not None
 
         try:
             compiled_rules = tuple(map(compile_rule, gprefs.get('add_filter_rules', ())))
@@ -174,7 +182,7 @@ class Adder(QObject):
                         if iswindows:
                             files = list(resolve_windows_links(files, hwnd=self.win_id))
                         if files:
-                            self.file_groups[len(self.file_groups)] = files
+                            file_groups[len(file_groups)] = files
         else:
             def find_files(root):
                 if isinstance(root, str):
@@ -188,7 +196,7 @@ class Adder(QObject):
                     for files in find_books_in_directory(dirpath, self.single_book_per_directory, compiled_rules=compiled_rules):
                         if self.abort_scan:
                             return
-                        self.file_groups[len(self.file_groups)] = files
+                        file_groups[len(file_groups)] = files
 
         def extract(source):
             tdir = tempfile.mkdtemp(suffix='_archive', dir=self.tdir)
@@ -226,7 +234,7 @@ class Adder(QObject):
                             if iswindows:
                                 x = list(resolve_windows_links(x, hwnd=self.win_id))
                             if x:
-                                self.file_groups[len(self.file_groups)] = x
+                                file_groups[len(file_groups)] = x
                             else:
                                 unreadable_files.append(path)
                     else:
@@ -245,8 +253,10 @@ class Adder(QObject):
             self.scan_error = traceback.format_exc()
 
     def monitor_scan(self):
-        self.scan_thread.join(0.05)
-        if self.scan_thread.is_alive():
+        scan_thread = self.scan_thread
+        assert scan_thread is not None
+        scan_thread.join(0.05)
+        if scan_thread.is_alive():
             self.do_one_signal.emit()
             return
         if self.scan_error is not None:
@@ -260,13 +270,15 @@ class Adder(QObject):
                 'No e-book files were found in %s') % self.source, show=True)
             self.break_cycles()
             return
-        self.pd.max = len(self.file_groups)
-        self.pd.title = ngettext(
+        pd = self.pd
+        assert pd is not None
+        pd.max = len(self.file_groups)
+        pd.title = ngettext(
             'Reading metadata and adding to library (one book)...',
             'Reading metadata and adding to library ({} books)...',
-            self.pd.max).format(self.pd.max)
-        self.pd.msg = ''
-        self.pd.value = 0
+            pd.max).format(pd.max)
+        pd.msg = ''
+        pd.value = 0
         self.pool = Pool(name='AddBooks') if self.pool is None else self.pool
         if self.db is not None:
             if self.add_formats_to_existing:
@@ -275,10 +287,10 @@ class Adder(QObject):
                 try:
                     self.pool.set_common_data(self.db.data_for_has_book())
                 except Failure as err:
-                    error_dialog(self.pd, _('Cannot add books'), _(
+                    error_dialog(pd, _('Cannot add books'), _(
                     'Failed to add any books, click "Show details" for more information.'),
                     det_msg=as_unicode(err.failure_message) + '\n' + as_unicode(err.details), show=True)
-                    self.pd.canceled = True
+                    pd.canceled = True
         self.groups_to_add = iter(self.file_groups)
         self.do_one = self.do_one_group
         self.do_one_signal.emit()
@@ -291,34 +303,48 @@ class Adder(QObject):
             self.do_one = self.monitor_pool
             self.do_one_signal.emit()
             return
+        pool = self.pool
+        assert pool is not None
+        file_groups = self.file_groups
+        assert file_groups is not None
+        tdir = self.tdir
+        assert tdir is not None
+        pd = self.pd
+        assert pd is not None
         try:
-            self.pool(group_id, 'calibre.ebooks.metadata.worker', 'read_metadata',
-                      self.file_groups[group_id], group_id, self.tdir)
+            pool(group_id, 'calibre.ebooks.metadata.worker', 'read_metadata',
+                 file_groups[group_id], group_id, tdir)
         except Failure as err:
-            error_dialog(self.pd, _('Cannot add books'), _(
+            error_dialog(pd, _('Cannot add books'), _(
             'Failed to add any books, click "Show details" for more information.'),
             det_msg=as_unicode(err.failure_message) + '\n' + as_unicode(err.details), show=True)
-            self.pd.canceled = True
+            pd.canceled = True
         self.do_one_signal.emit()
 
     def monitor_pool(self):
+        pool = self.pool
+        assert pool is not None
+        pd = self.pd
+        assert pd is not None
+        file_groups = self.file_groups
+        assert file_groups is not None
         try:
-            worker_result = self.pool.results.get(True, 0.05)
-            self.pool.results.task_done()
+            worker_result = pool.results.get(True, 0.05)
+            pool.results.task_done()
         except Empty:
             try:
-                self.pool.wait_for_tasks(timeout=0.01)
+                pool.wait_for_tasks(timeout=0.01)
             except RuntimeError:
                 pass  # Tasks still remaining
             except Failure as err:
-                error_dialog(self.pd, _('Cannot add books'), _(
+                error_dialog(pd, _('Cannot add books'), _(
                 'Failed to add some books, click "Show details" for more information.'),
                 det_msg=str(err.failure_message) + '\n' + str(err.details), show=True)
-                self.pd.canceled = True
+                pd.canceled = True
             else:
                 # All tasks completed
                 try:
-                    join_with_timeout(self.pool.results, 0.01)
+                    join_with_timeout(pool.results, 0.01)
                 except RuntimeError:
                     pass  # There are results remaining
                 else:
@@ -328,24 +354,26 @@ class Adder(QObject):
         else:
             group_id = worker_result.id
             if worker_result.is_terminal_failure:
-                error_dialog(self.pd, _('Critical failure'), _(
+                error_dialog(pd, _('Critical failure'), _(
                     'The read metadata worker process crashed while processing'
                     ' some files. Adding of books is aborted. Click "Show details"'
                     ' to see which files caused the problem.'), show=True,
-                    det_msg='\n'.join(self.file_groups[group_id]))
-                self.pd.canceled = True
+                    det_msg='\n'.join(file_groups[group_id]))
+                pd.canceled = True
             else:
                 try:
                     self.process_result(group_id, worker_result.result)
                 except Exception:
                     self.report_metadata_failure(group_id, traceback.format_exc())
-                self.pd.value += 1
+                pd.value += 1
 
         self.do_one_signal.emit()
 
     def report_metadata_failure(self, group_id, details):
         a = self.report.append
-        paths = self.file_groups[group_id]
+        file_groups = self.file_groups
+        assert file_groups is not None
+        paths = file_groups[group_id]
         a(''), a('-' * 70)
         m = ngettext('Failed to read metadata from the file:', 'Failed to read metadata from the files:', len(paths))
         a(m)
@@ -356,9 +384,15 @@ class Adder(QObject):
         return mi
 
     def process_result(self, group_id, result):
+        file_groups = self.file_groups
+        assert file_groups is not None
+        pd = self.pd
+        assert pd is not None
+        added_duplicate_info = self.added_duplicate_info
+        assert added_duplicate_info is not None
         if result.err:
             mi = self.report_metadata_failure(group_id, result.traceback)
-            paths = self.file_groups[group_id]
+            paths = file_groups[group_id]
             has_cover = False
             duplicate_info = set() if self.add_formats_to_existing else False
         else:
@@ -388,13 +422,16 @@ class Adder(QObject):
                 else:
                     mi.author_sort = self.db.author_sort_from_authors(mi.authors)
 
-        self.pd.msg = mi.title
+        pd.msg = mi.title
 
+        assert self.tdir is not None
         cover_path = os.path.join(self.tdir, f'{group_id}.cdata') if has_cover else None
 
         if self.db is None:
             if paths:
-                self.items.append((mi, cover_path, paths))
+                items = self.items
+                assert items is not None
+                items.append((mi, cover_path, paths))
             return
 
         if self.add_formats_to_existing:
@@ -410,27 +447,33 @@ class Adder(QObject):
                     a(_('With error:')), a(traceback.format_exc())
             else:
                 self.add_book(mi, cover_path, paths)
-        elif duplicate_info or icu_lower(mi.title or _('Unknown')) in self.added_duplicate_info:
-            self.duplicates.append((mi, cover_path, paths))
+        elif duplicate_info or icu_lower(mi.title or _('Unknown')) in added_duplicate_info:
+            duplicates = self.duplicates
+            assert duplicates is not None
+            duplicates.append((mi, cover_path, paths))
         else:
             self.add_book(mi, cover_path, paths)
 
     def merge_books(self, mi, cover_path, paths, identical_book_ids):
-        self.merged_books.add((mi.title, ' & '.join(mi.authors)))
+        merged_books = self.merged_books
+        assert merged_books is not None
+        merged_books.add((mi.title, ' & '.join(mi.authors)))
         seen_fmts = set()
         replace = gprefs['automerge'] == 'overwrite'
         cover_removed = False
         cdata = None
+        db = self.db
+        assert db is not None
         for identical_book_id in identical_book_ids:
-            ib_fmts = {fmt.upper() for fmt in self.db.formats(identical_book_id)}
+            ib_fmts = {fmt.upper() for fmt in db.formats(identical_book_id)}
             seen_fmts |= ib_fmts
             self.add_formats(identical_book_id, paths, mi, replace=replace)
             self.merged_formats_added_to.add(identical_book_id)
-            if cover_path and not self.db.field_for('cover', identical_book_id):
+            if cover_path and not db.field_for('cover', identical_book_id):
                 if cdata is None:
                     with open(cover_path, 'rb') as f:
                         cdata = f.read()
-                self.db.set_cover({identical_book_id: cdata})
+                db.set_cover({identical_book_id: cdata})
         if gprefs['automerge'] == 'new record':
             incoming_fmts = {path.rpartition(os.extsep)[-1].upper() for path in paths}
             if incoming_fmts.intersection(seen_fmts):
@@ -458,7 +501,11 @@ class Adder(QObject):
                     os.remove(cover_path)
                 except Exception:
                     pass
-            book_id = self.dbref().create_book_entry(mi, cover=cdata)
+            dbref = self.dbref
+            assert dbref is not None
+            db_inst = dbref()
+            assert db_inst is not None
+            book_id = db_inst.create_book_entry(mi, cover=cdata)
             self.added_book_ids.add(book_id)
         except Exception:
             a = self.report.append
@@ -470,9 +517,13 @@ class Adder(QObject):
         self.add_formats(book_id, paths, mi, is_an_add=True)
         try:
             if self.add_formats_to_existing:
-                self.db.update_data_for_find_identical_books(book_id, self.find_identical_books_data)
+                db = self.db
+                assert db is not None
+                db.update_data_for_find_identical_books(book_id, self.find_identical_books_data)
             else:
-                self.added_duplicate_info.add(icu_lower(mi.title or _('Unknown')))
+                added_duplicate_info = self.added_duplicate_info
+                assert added_duplicate_info is not None
+                added_duplicate_info.add(icu_lower(mi.title or _('Unknown')))
         except Exception:
             # Ignore this exception since all it means is that duplicate
             # detection/automerge will fail for this book.
@@ -483,14 +534,18 @@ class Adder(QObject):
     def add_formats(self, book_id, paths, mi, replace=True, is_an_add=False):
         fmap = {p.rpartition(os.path.extsep)[-1].lower():p for p in paths}
         fmt_map = {}
+        db = self.db
+        assert db is not None
+        dbref = self.dbref
+        assert dbref is not None
         for fmt, path in fmap.items():
             # The onimport plugins have already been run by the read metadata
             # worker
             if self.ignore_opf and fmt.lower() == 'opf':
                 continue
             try:
-                if self.db.add_format(book_id, fmt, path, run_hooks=False, replace=replace):
-                    run_plugins_on_postimport(self.dbref(), book_id, fmt)
+                if db.add_format(book_id, fmt, path, run_hooks=False, replace=replace):
+                    run_plugins_on_postimport(dbref(), book_id, fmt)
                     fmt_map[fmt.lower()] = path
             except Exception:
                 a = self.report.append
@@ -498,19 +553,23 @@ class Adder(QObject):
                 a(_('Failed to add the file {0} to the book: {1}').format(path, mi.title))
                 a(_('With error:')), a(traceback.format_exc())
         if is_an_add:
-            run_plugins_on_postadd(self.dbref(), book_id, fmt_map)
+            run_plugins_on_postadd(dbref(), book_id, fmt_map)
 
     def process_duplicates(self):
         if self.duplicates:
-            d = DuplicatesQuestion(self.dbref(), self.duplicates, self.pd)
+            dbref = self.dbref
+            assert dbref is not None
+            pd = self.pd
+            assert pd is not None
+            d = DuplicatesQuestion(dbref(), self.duplicates, pd)
             duplicates = tuple(d.duplicates)
             d.deleteLater()
             if duplicates:
                 self.do_one = self.process_duplicate
                 self.duplicates_to_process = iter(duplicates)
-                self.pd.title = _('Adding duplicates')
-                self.pd.msg = ''
-                self.pd.max, self.pd.value = len(duplicates), 0
+                pd.title = _('Adding duplicates')
+                pd.msg = ''
+                pd.max, pd.value = len(duplicates), 0
                 self.do_one_signal.emit()
                 return
         self.finish()
@@ -521,24 +580,34 @@ class Adder(QObject):
         except StopIteration:
             self.finish()
             return
-        self.pd.value += 1
-        self.pd.msg = mi.title
+        pd = self.pd
+        assert pd is not None
+        pd.value += 1
+        pd.msg = mi.title
         self.add_book(mi, cover_path, paths)
         self.do_one_signal.emit()
 
     def finish(self):
+        added_book_ids = self.added_book_ids
+        assert added_book_ids is not None
+        pd = self.pd
+        assert pd is not None
         if DEBUG:
-            prints(f'Added {len(self.added_book_ids or self.items)} books in {time.time() - self.start_time:.1f} seconds')
+            items = self.items
+            assert items is not None
+            prints(f'Added {len(added_book_ids or items)} books in {time.time() - self.start_time:.1f} seconds')
         if self.report:
-            added_some = self.items or self.added_book_ids
+            added_some = self.items or added_book_ids
             d = warning_dialog if added_some else error_dialog
             msg = _('There were problems adding some files, click "Show details" for more information') if added_some else _(
                 'Failed to add any books, click "Show details" for more information')
-            d(self.pd, _('Errors while adding'), msg, det_msg='\n'.join(self.report), show=True)
+            d(pd, _('Errors while adding'), msg, det_msg='\n'.join(self.report), show=True)
 
-        potentially_convertible = self.added_book_ids | self.merged_formats_added_to
-        if gprefs['manual_add_auto_convert'] and potentially_convertible and self.parent() is not None:
-            self.parent().iactions['Convert Books'].auto_convert_auto_add(potentially_convertible)
+        potentially_convertible = added_book_ids | self.merged_formats_added_to
+        from calibre.gui2.ui import get_gui
+        g = get_gui()
+        if gprefs['manual_add_auto_convert'] and potentially_convertible and g is not None:
+            g.iactions['Convert Books'].auto_convert_auto_add(potentially_convertible)
 
         try:
             if callable(self.callback):

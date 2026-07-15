@@ -77,9 +77,10 @@ class PALADIN(USBMS):
             return dummy_bl
 
         prefix = self._card_a_prefix if oncard == 'carda' else self._main_prefix
+        assert prefix is not None
 
         # Let parent driver get the books
-        self.booklist_class.rebuild_collections = self.rebuild_collections
+        setattr(self.booklist_class, 'rebuild_collections', self.rebuild_collections)
         bl = USBMS.books(self, oncard=oncard, end_session=end_session)
 
         dbpath = self.normalize_path(prefix + DBPATH)
@@ -122,7 +123,7 @@ class PALADIN(USBMS):
                     time_offsets[offset] = time_offsets[offset] + 1
 
                 try:
-                    device_offset = max(time_offsets, key=time_offsets.get)
+                    device_offset = max(time_offsets, key=lambda k: time_offsets.get(k) or 0)
                     debug_print(f'Device Offset: {device_offset} ms')
                     self.device_offset = device_offset
                 except ValueError:

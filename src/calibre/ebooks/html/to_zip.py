@@ -41,7 +41,7 @@ every time you add an HTML file to the library.\
             enc, _, bfs = sc.partition('|')
             return {'encoding': enc, 'breadth_first': bfs == 'bf'}
 
-    def run(self, htmlfile):
+    def run(self, path_to_ebook):
         import codecs
 
         from calibre import prints
@@ -67,7 +67,7 @@ every time you add an HTML file to the library.\
                     recs.append(['breadth_first', True, OptionRecommendation.HIGH])
                 if settings.get('allow_local_files_outside_root'):
                     recs.append(['allow_local_files_outside_root', True, OptionRecommendation.HIGH])
-            gui_convert(htmlfile, tdir, recs, abort_after_input_dump=True)
+            gui_convert(path_to_ebook, tdir, recs, abort_after_input_dump=True)
             of = self.temporary_file('_plugin_html2zip.zip')
             tdir = os.path.join(tdir, 'input')
             opf = glob.glob(os.path.join(tdir, '*.opf'))[0]

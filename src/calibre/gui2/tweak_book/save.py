@@ -57,8 +57,9 @@ def save_container(container, path):
             except OSError as err:
                 if err.errno != errno.EPERM:
                     raise
+                err_code = errno.errorcode.get(err.errno, str(err.errno))
                 raise OSError(f'Failed to change permissions of {temp.name} to {oct(st.st_mode)} ({format_permissions(st.st_mode)}), '
-                              f'with error: {errno.errorcode[err.errno]}. Most likely the {os.path.dirname(temp.name)} directory has a restrictive umask')
+                              f'with error: {err_code}. Most likely the {os.path.dirname(temp.name)} directory has a restrictive umask')
             try:
                 os.fchown(fno, st.st_uid, st.st_gid)
             except OSError as err:

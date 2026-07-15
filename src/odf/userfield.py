@@ -74,6 +74,7 @@ class UserFields:
 
     def savedoc(self):
         # write output
+        assert self.document is not None
         if self.dest_file is None:
             # use stdout if no filename given
             self.document.save('-')
@@ -97,6 +98,7 @@ class UserFields:
 
         '''
         self.loaddoc()
+        assert self.document is not None
         found_fields = []
         all_fields = self.document.getElementsByType(UserFieldDecl)
         for f in all_fields:
@@ -155,6 +157,7 @@ class UserFields:
 
         '''
         self.loaddoc()
+        assert self.document is not None
         all_fields = self.document.getElementsByType(UserFieldDecl)
         for f in all_fields:
             field_name = f.getAttribute('name')

@@ -24,16 +24,19 @@ class CSSParseError(BaseError):
     level = ERROR
     is_parsing_error = True
     FIXABLE_CSS_ERROR = False
+    css_rule_id: str | None = None
 
 
 class CSSError(BaseError):
     level = ERROR
     FIXABLE_CSS_ERROR = False
+    css_rule_id: str | None = None
 
 
 class CSSWarning(BaseError):
     level = WARN
     FIXABLE_CSS_ERROR = False
+    css_rule_id: str | None = None
 
 
 def as_int_or_none(x):
@@ -76,28 +79,36 @@ def message_to_error(message, name, line_offset, rule_metadata):
     return ans
 
 
+_stylelint_js_cache: tuple[tuple[str, str], ...] | None = None
+
+
 def stylelint_js():
-    ans = getattr(stylelint_js, 'ans', None)
-    if ans is None:
-        ans = stylelint_js.ans = (
+    global _stylelint_js_cache
+    if _stylelint_js_cache is None:
+        _stylelint_js_cache = (
             ('stylelint-bundle.min.js', P('stylelint-bundle.min.js', data=True, allow_user_override=False).decode('utf-8')),
             ('stylelint.js', P('stylelint.js', data=True, allow_user_override=False).decode('utf-8')),
         )
-    return ans
+    return _stylelint_js_cache
+
+
+_create_profile_cache: QWebEngineProfile | None = None
 
 
 def create_profile():
-    ans = getattr(create_profile, 'ans', None)
-    if ans is None:
-        ans = create_profile.ans = QWebEngineProfile(QApplication.instance())
-        setup_profile(ans)
+    global _create_profile_cache
+    if _create_profile_cache is None:
+        _create_profile_cache = QWebEngineProfile(QApplication.instance())
+        setup_profile(_create_profile_cache)
         for name, code in stylelint_js():
             s = QWebEngineScript()
             s.setName(name)
             s.setSourceCode(code)
             s.setWorldId(QWebEngineScript.ScriptWorldId.ApplicationWorld)
-            ans.scripts().insert(s)
-    return ans
+            _scripts = _create_profile_cache.scripts()
+            assert _scripts is not None
+            _scripts.insert(s)
+    return _create_profile_cache
 
 
 class Worker(QWebEnginePage):
@@ -124,10 +135,10 @@ class Worker(QWebEnginePage):
         elif new_title == 'checked':
             self.runJavaScript('window.get_css_results()', QWebEngineScript.ScriptWorldId.ApplicationWorld, self.check_done)
 
-    def javaScriptConsoleMessage(self, level, msg, lineno, source_id):
-        msg = f'{source_id}:{lineno}:{msg}'
+    def javaScriptConsoleMessage(self, level, message, lineNumber, sourceID):
+        message = f'{sourceID}:{lineNumber}:{message}'
         try:
-            print(msg)
+            print(message)
         except Exception:
             pass
 
@@ -167,6 +178,7 @@ class Pool:
         self.working = True
         self.assign_work()
         app = QApplication.instance()
+        assert app is not None
         while self.working:
             app.processEvents(QEventLoop.ProcessEventsFlag.WaitForMoreEvents | QEventLoop.ProcessEventsFlag.ExcludeUserInputEvents)
         return self.results

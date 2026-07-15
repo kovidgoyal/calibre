@@ -90,18 +90,28 @@ class RecipesView(QTreeView):
 
     def currentChanged(self, current, previous):
         QTreeView.currentChanged(self, current, previous)
-        self.parent().current_changed(current, previous)
+        p = self.parent()
+        assert isinstance(p, SchedulerDialog)
+        p.current_changed(current, previous)
 
 
 # Time/date widgets {{{
 
 class Base(QWidget):
+    HELP: str = ''
 
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
         self.l = QGridLayout()
         self.setLayout(self.l)
         self.setToolTip(textwrap.dedent(self.HELP))
+
+    def initialize(self, typ=None, val=None):
+        pass
+
+    @property
+    def schedule(self) -> tuple[str, object]:
+        return '', None
 
 
 class DaysOfWeek(Base):
@@ -140,8 +150,10 @@ class DaysOfWeek(Base):
             val = (-1, 6, 0)
         if typ == 'day/time':
             val = convert_day_time_schedule(val)
+        assert val is not None
 
         days_of_week, hour, minute = val
+        assert isinstance(days_of_week, (tuple, list))
         for i, d in enumerate(self.days):
             d.setChecked(i in days_of_week)
 
@@ -292,7 +304,7 @@ class SchedulerDialog(QDialog):
         # Right Panel
         self.scroll_area_contents = sac = QWidget(self)
         self.l.addWidget(sac, 0, 1, 2, 1)
-        sac.v = v = QVBoxLayout(sac)
+        v = QVBoxLayout(sac)
         v.setContentsMargins(0, 0, 0, 0)
         self.detail_box = QTabWidget(self)
         self.detail_box.setVisible(False)
@@ -303,7 +315,7 @@ class SchedulerDialog(QDialog):
         # First Tab (scheduling)
         self.tab = QWidget()
         self.detail_box.addTab(self.tab, _('&Schedule'))
-        self.tab.v = vt = QVBoxLayout(self.tab)
+        vt = QVBoxLayout(self.tab)
         self.blurb = la = QLabel('blurb')
         la.setWordWrap(True), la.setOpenExternalLinks(True)
         vt.addWidget(la)
@@ -311,11 +323,11 @@ class SchedulerDialog(QDialog):
         vt.addWidget(f)
         f.setFrameShape(QFrame.Shape.StyledPanel)
         f.setFrameShadow(QFrame.Shadow.Raised)
-        f.v = vf = QVBoxLayout(f)
+        vf = QVBoxLayout(f)
         self.schedule = s = QCheckBox(_('&Schedule for download:'), f)
         self.schedule.stateChanged[int].connect(self.toggle_schedule_info)
         vf.addWidget(s)
-        f.h = h = QHBoxLayout()
+        h = QHBoxLayout()
         vf.addLayout(h)
         self.days_of_week = QRadioButton(_('&Days of  week'), f)
         self.days_of_month = QRadioButton(_('Da&ys of month'), f)
@@ -337,12 +349,12 @@ class SchedulerDialog(QDialog):
         self.account = acc = QGroupBox(self.tab)
         acc.setTitle(_('&Account'))
         vt.addWidget(acc)
-        acc.g = g = QGridLayout(acc)
-        acc.unla = la = QLabel(_('&Username:'))
+        g = QGridLayout(acc)
+        la = QLabel(_('&Username:'))
         self.username = un = QLineEdit(self)
         la.setBuddy(un)
         g.addWidget(la), g.addWidget(un, 0, 1)
-        acc.pwla = la = QLabel(_('&Password:'))
+        la = QLabel(_('&Password:'))
         self.password = pw = QLineEdit(self)
         pw.setEchoMode(QLineEdit.EchoMode.Password), la.setBuddy(pw)
         g.addWidget(la), g.addWidget(pw, 1, 1)
@@ -357,7 +369,7 @@ class SchedulerDialog(QDialog):
         # Second tab (advanced settings)
         self.tab2 = t2 = QWidget()
         self.detail_box.addTab(self.tab2, _('&Advanced'))
-        self.tab2.g = g = QFormLayout(t2)
+        g = QFormLayout(t2)
         g.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.AllNonFixedFieldsGrow)
         self.add_title_tag = tt = QCheckBox(_('Add &title as tag'), t2)
         g.addRow(tt)
@@ -398,6 +410,7 @@ class SchedulerDialog(QDialog):
         self.bb = bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel, self)
         bb.accepted.connect(self.accept), bb.rejected.connect(self.reject)
         self.download_button = b = bb.addButton(_('&Download now'), QDialogButtonBox.ButtonRole.ActionRole)
+        assert b is not None
         b.setIcon(QIcon.ic('arrow-down.png')), b.setVisible(False)
         b.clicked.connect(self.download_clicked)
         self.l.addWidget(bb, 3, 1, 1, 1)
@@ -417,14 +430,16 @@ class SchedulerDialog(QDialog):
                 self.schedule_stack.setCurrentIndex(i)
                 break
 
-    def keyPressEvent(self, ev):
-        if ev.key() not in (Qt.Key.Key_Enter, Qt.Key.Key_Return):
-            return QDialog.keyPressEvent(self, ev)
+    def keyPressEvent(self, a0):
+        if a0.key() not in (Qt.Key.Key_Enter, Qt.Key.Key_Return):
+            return QDialog.keyPressEvent(self, a0)
 
     def break_cycles(self):
         try:
-            self.recipe_model.searched.disconnect(self.search_done)
-            self.recipe_model.searched.disconnect(self.search.search_done)
+            rm = self.recipe_model
+            assert rm is not None
+            rm.searched.disconnect(self.search_done)
+            rm.searched.disconnect(self.search.search_done)
             self.search.search.disconnect()
             self.download.disconnect()
         except Exception:
@@ -432,7 +447,9 @@ class SchedulerDialog(QDialog):
         self.recipe_model = None
 
     def search_done(self, *args):
-        if self.recipe_model.showing_count < 20:
+        rm = self.recipe_model
+        assert rm is not None
+        if rm.showing_count < 20:
             self.recipes.expandAll()
 
     def toggle_schedule_info(self, *args):
@@ -482,6 +499,8 @@ class SchedulerDialog(QDialog):
         if not self.detail_box.isVisible() or urn is None:
             return True
 
+        recipe_model = self.recipe_model
+        assert recipe_model is not None
         if self.account.isVisible():
             un, pw = map(str, (self.username.text(), self.password.text()))
             un, pw = un.strip(), pw.strip()
@@ -492,44 +511,49 @@ class SchedulerDialog(QDialog):
                                 'use this news source.'), show=True)
                     return False
             if un or pw:
-                self.recipe_model.set_account_info(urn, un, pw)
+                recipe_model.set_account_info(urn, un, pw)
             else:
-                self.recipe_model.clear_account_info(urn)
+                recipe_model.clear_account_info(urn)
 
         if self.schedule.isChecked():
-            schedule_type, schedule = \
-                    self.schedule_stack.currentWidget().schedule
-            self.recipe_model.schedule_recipe(urn, schedule_type, schedule)
+            csw = self.schedule_stack.currentWidget()
+            assert isinstance(csw, Base)
+            schedule_type, schedule = csw.schedule
+            recipe_model.schedule_recipe(urn, schedule_type, schedule)
         else:
-            self.recipe_model.un_schedule_recipe(urn)
+            recipe_model.un_schedule_recipe(urn)
 
         add_title_tag = self.add_title_tag.isChecked()
-        keep_issues = '0'
+        keep_issues = 0
         if self.keep_issues.isEnabled():
-            keep_issues = str(self.keep_issues.value())
+            keep_issues = self.keep_issues.value()
         custom_tags = str(self.custom_tags.text()).strip()
         custom_tags = [x.strip() for x in custom_tags.split(',')]
         from calibre.web.feeds.recipes.collection import RecipeCustomization
         recipe_specific_options = None
         if self.recipe_specific_widgets:
             recipe_specific_options = {name: w.text().strip() for name, w in self.recipe_specific_widgets.items() if w.text().strip()}
-        self.recipe_model.customize_recipe(urn, RecipeCustomization(add_title_tag, custom_tags, keep_issues, recipe_specific_options))
+        recipe_model.customize_recipe(urn, RecipeCustomization(add_title_tag, custom_tags, keep_issues, recipe_specific_options))
         return True
 
     def initialize_detail_box(self, urn):
         self.previous_urn = urn
         self.detail_box.setVisible(True)
-        self.download_button.setVisible(True)
+        download_button = self.download_button
+        assert download_button is not None
+        download_button.setVisible(True)
         self.detail_box.setCurrentIndex(0)
-        recipe = self.recipe_model.recipe_from_urn(urn)
+        recipe_model = self.recipe_model
+        assert recipe_model is not None
+        recipe = recipe_model.recipe_from_urn(urn)
         try:
-            schedule_info = self.recipe_model.schedule_info_from_urn(urn)
+            schedule_info = recipe_model.schedule_info_from_urn(urn)
         except Exception:
             # Happens if user does something stupid like unchecking all the
             # days of the week
             schedule_info = None
-        account_info = self.recipe_model.account_info_from_urn(urn)
-        customize_info = self.recipe_model.get_customize_info(urn)
+        account_info = recipe_model.account_info_from_urn(urn)
+        customize_info = recipe_model.get_customize_info(urn)
 
         ns = recipe.get('needs_subscription', '')
         self.account.setVisible(ns in ('yes', 'optional'))
@@ -558,7 +582,7 @@ class SchedulerDialog(QDialog):
         '''.format(**dict(title=recipe.get('title'), cb=_('Created by: '),
             author=recipe.get('author', _('Unknown')),
             description=recipe.get('description', ''))))
-        self.download_button.setToolTip(
+        download_button.setToolTip(
                 _('Download %s now')%recipe.get('title'))
         scheduled = schedule_info is not None
         self.schedule.setChecked(scheduled)
@@ -584,13 +608,16 @@ class SchedulerDialog(QDialog):
         rb = getattr(self, list(self.SCHEDULE_TYPES)[sch_widget])
         rb.setChecked(True)
         self.schedule_stack.setCurrentIndex(sch_widget)
-        self.schedule_stack.currentWidget().initialize(typ, sch)
+        csw = self.schedule_stack.currentWidget()
+        assert isinstance(csw, Base)
+        csw.initialize(typ, sch)
         self.add_title_tag.setChecked(customize_info.add_title_tag)
         self.custom_tags.setText(', '.join(customize_info.custom_tags))
         self.last_downloaded.setText(_('Last downloaded:') + ' ' + ld_text)
         self.keep_issues.setValue(customize_info.keep_issues)
         self.keep_issues.setEnabled(self.add_title_tag.isChecked())
         g = self.tab2.layout()
+        assert isinstance(g, QFormLayout)
         for x in self.recipe_specific_widgets.values():
             g.removeRow(x)
         self.recipe_specific_widgets = {}
@@ -686,9 +713,9 @@ class Scheduler(QObject):
     def db(self):
         from calibre.gui2.ui import get_gui
         gui = get_gui()
-        with suppress(AttributeError):
-            ans = gui.current_db
-            if not ans.new_api.is_doing_rebuild_or_vacuum:
+        if gui is not None:
+            ans = gui.library_view._model.db
+            if ans is not None and not ans.new_api.is_doing_rebuild_or_vacuum:
                 return ans
 
     def oldest_check(self):

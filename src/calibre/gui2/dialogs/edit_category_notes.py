@@ -149,13 +149,13 @@ class AskImage(Dialog):
         vr.addLayout(h)
         la = QLabel(_('&Width:'))
         h.addWidget(la)
-        self.width = w = QSpinBox(self)
+        self.width_spin = w = QSpinBox(self)
         w.setRange(0, 10000), w.setSuffix(' px')
         h.addWidget(w), la.setBuddy(w)
         w.setSpecialValueText(' ')
         la = QLabel(_('&Height:'))
         h.addWidget(la)
-        self.height = w = QSpinBox(self)
+        self.height_spin = w = QSpinBox(self)
         w.setRange(0, 10000), w.setSuffix(' px')
         h.addWidget(w), la.setBuddy(w)
         w.setSpecialValueText(' ')
@@ -211,7 +211,7 @@ class AskImage(Dialog):
 
     @property
     def bounding_size(self) -> tuple[int, int]:
-        return (self.width.value() or sys.maxsize), (self.height.value() or sys.maxsize)
+        return (self.width_spin.value() or sys.maxsize), (self.height_spin.value() or sys.maxsize)
 # }}}
 
 
@@ -219,7 +219,9 @@ class NoteEditorWidget(EditorWidget):
 
     insert_images_separately = True
     db = field = item_id = item_val = None
-    images = None
+    images: dict[str, ImageResource] | None = None
+    searchable_text: str = ''
+    referenced_resources: set[str]
     can_store_images = True
 
     def resource_digest_from_qurl(self, qurl):
@@ -228,16 +230,21 @@ class NoteEditorWidget(EditorWidget):
         return f'{alg}:{digest}'
 
     def get_resource(self, digest):
-        ir = self.images.get(digest)
+        images = self.images
+        assert images is not None
+        ir = images.get(digest)
         if ir is not None:
             if ir.data:
                 return {'name': ir.name, 'data': ir.data}
             elif ir.path:
                 with open(ir.path, 'rb') as f:
                     return {'name': ir.name, 'data': f.read()}
-        return self.db.get_notes_resource(digest)
+        db = self.db
+        assert db is not None
+        return db.get_notes_resource(digest)
 
     def add_resource(self, path_or_data, name):
+        assert self.images is not None
         if isinstance(path_or_data, str):
             with open(path_or_data, 'rb') as f:
                 data = f.read()
@@ -249,17 +256,20 @@ class NoteEditorWidget(EditorWidget):
         return digest
 
     @pyqtSlot(int, 'QUrl', result='QVariant')
-    def loadResource(self, rtype, qurl):
-        if self.db is None or self.images is None or qurl.scheme() != RESOURCE_URL_SCHEME or int(rtype) != int(QTextDocument.ResourceType.ImageResource):
+    def loadResource(self, type, name):
+        if self.db is None or self.images is None or name.scheme() != RESOURCE_URL_SCHEME or int(type) != int(QTextDocument.ResourceType.ImageResource):
             return
-        digest = self.resource_digest_from_qurl(qurl)
+        digest = self.resource_digest_from_qurl(name)
         ans = self.get_resource(digest)
         if ans is not None:
             r = QByteArray(ans['data'])
-            self.document().addResource(rtype, qurl, r)  # cache the resource
+            doc = self.document()
+            assert doc is not None
+            doc.addResource(type, name, r)  # cache the resource
             return r
 
     def commit_downloaded_image(self, data, suggested_filename):
+        assert self.images is not None
         digest = hash_data(data)
         if digest in self.images:
             ir = self.images[digest]
@@ -271,11 +281,13 @@ class NoteEditorWidget(EditorWidget):
     def get_html_callback(self, root, text):
         self.searchable_text = text.replace(OBJECT_REPLACEMENT_CHAR, '')
         self.referenced_resources = set()
-        for fmt in self.document().allFormats():
+        doc = self.document()
+        assert doc is not None
+        for fmt in doc.allFormats():
             if fmt.isImageFormat():
-                qurl = QUrl(fmt.toImageFormat().name())
-                if qurl.scheme() == RESOURCE_URL_SCHEME:
-                    digest = self.resource_digest_from_qurl(qurl)
+                name = QUrl(fmt.toImageFormat().name())
+                if name.scheme() == RESOURCE_URL_SCHEME:
+                    digest = self.resource_digest_from_qurl(name)
                     self.referenced_resources.add(digest)
 
     def ask_link(self):
@@ -289,6 +301,7 @@ class NoteEditorWidget(EditorWidget):
     def do_insert_image(self):
         # See https://bugreports.qt.io/browse/QTBUG-118537
         # for why we can't have a nice margin for floating images
+        assert self.images is not None
         d = AskImage(self.images, self.db)
         if d.exec() == QDialog.DialogCode.Accepted and d.current_digest:
             ir = self.images[d.current_digest]
@@ -309,6 +322,7 @@ class NoteEditorWidget(EditorWidget):
 class NoteEditor(Editor):
 
     editor_class = NoteEditorWidget
+    editor: NoteEditorWidget
 
     def get_doc(self):
         self.editor.referenced_resources = set()
@@ -317,6 +331,7 @@ class NoteEditor(Editor):
         self.tabs.setCurrentIndex(0)
         html = self.editor.html
         self.tabs.setCurrentIndex(idx)
+        assert self.editor.images is not None
         return html, self.editor.searchable_text, self.editor.referenced_resources, self.editor.images.values()
 
     def export_note(self):
@@ -349,9 +364,11 @@ class EditNoteWidget(QWidget):
     def commit(self):
         doc, searchable_text, resources, resources_to_add = self.editor.get_doc()
         s = self.editor.editor
+        db = s.db
+        assert db is not None
         for ir in resources_to_add:
-            s.db.add_notes_resource(ir.data or ir.path, ir.name)
-        s.db.set_notes_for(s.field, s.item_id, doc, searchable_text, resources)
+            db.add_notes_resource(ir.data or ir.path, ir.name)
+        db.set_notes_for(s.field, s.item_id, doc, searchable_text, resources)
         return True
 
 
@@ -368,8 +385,12 @@ class EditNoteDialog(Dialog):
         self.l = l = QVBoxLayout(self)
         self.edit_note_widget = EditNoteWidget(self.db, self.field, self.item_id, self.item_val, self)
         l.addWidget(self.edit_note_widget)
-        self.bb.addButton(_('E&xport'), QDialogButtonBox.ButtonRole.ActionRole).clicked.connect(self.export_note)
-        self.bb.addButton(_('&Import'), QDialogButtonBox.ButtonRole.ActionRole).clicked.connect(self.import_note)
+        export_btn = self.bb.addButton(_('E&xport'), QDialogButtonBox.ButtonRole.ActionRole)
+        assert export_btn is not None
+        export_btn.clicked.connect(self.export_note)
+        import_btn = self.bb.addButton(_('&Import'), QDialogButtonBox.ButtonRole.ActionRole)
+        assert import_btn is not None
+        import_btn.clicked.connect(self.import_note)
 
         l.addWidget(self.bb)
 

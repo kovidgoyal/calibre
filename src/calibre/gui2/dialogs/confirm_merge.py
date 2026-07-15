@@ -32,7 +32,9 @@ class Target(QTextBrowser):
         cover_html = has_cover_row = ''
         if mi.cover:
             cover_html = f'<img src="{QUrl.fromLocalFile(mi.cover).toString()}">'.format()
-            self.document().setDefaultStyleSheet(
+            doc = self.document()
+            assert doc is not None
+            doc.setDefaultStyleSheet(
                 'img { max-width: 100%; width: 100%; height: auto; display: block; }'
             )
         else:
@@ -85,7 +87,7 @@ class ConfirmMerge(Dialog):
 
         self.left = w = QWidget(self)
         s.addWidget(w)
-        w.l = l = QVBoxLayout(w)
+        l = QVBoxLayout(w)
         l.setContentsMargins(0, 0, 0, 0)
         self.la = la = QLabel(self.msg)
         la.setWordWrap(True)
@@ -126,6 +128,12 @@ def confirm_merge(msg, name, parent, mi, ask_about_save_alternate_cover=False):
 
 class ChooseMerge(Dialog):
 
+    merge_metadata: QCheckBox
+    merge_formats: QCheckBox
+    delete_books: QCheckBox
+    replace_cover: QCheckBox
+    save_alternate_cover: QCheckBox
+
     def __init__(self, dest_id, src_ids, gui):
         self.dest_id, self.src_ids = dest_id, src_ids
         self.mi = gui.current_db.new_api.get_metadata(dest_id, get_cover=True)
@@ -144,15 +152,16 @@ class ChooseMerge(Dialog):
         self.bb.setStandardButtons(QDialogButtonBox.StandardButton.Yes | QDialogButtonBox.StandardButton.No)
         self.left = w = QWidget(self)
         s.addWidget(w)
-        w.l = l = QVBoxLayout(w)
+        l = QVBoxLayout(w)
         l.setContentsMargins(0, 0, 0, 0)
-        w.fl = fl = FlowLayout()
+        fl = FlowLayout()
         l.addLayout(fl)
 
         def cb(name, text, tt='', defval=True):
             ans = QCheckBox(text)
             fl.addWidget(ans)
-            prefs_key = ans.prefs_key = 'choose-merge-cb-' + name
+            prefs_key = 'choose-merge-cb-' + name
+            ans.setObjectName(prefs_key)
             ans.setChecked(gprefs.get(prefs_key, defval))
             connect_lambda(ans.stateChanged, self, lambda self, state: self.state_changed(getattr(self, name), state), type=Qt.ConnectionType.QueuedConnection)
             if tt:
@@ -184,7 +193,7 @@ class ChooseMerge(Dialog):
         mf = self.merge_formats.isChecked()
         if not mm and not mf:
             (self.merge_metadata if cb is self.merge_formats else self.merge_formats).setChecked(True)
-        gprefs[cb.prefs_key] = cb.isChecked()
+        gprefs[cb.objectName()] = cb.isChecked()
         self.update_msg()
 
     def update_msg(self):

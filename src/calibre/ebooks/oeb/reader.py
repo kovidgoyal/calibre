@@ -13,6 +13,7 @@ import re
 import sys
 import uuid
 from collections import defaultdict
+from typing import cast
 from urllib.parse import urldefrag, urlparse
 
 from lxml import etree
@@ -150,7 +151,7 @@ class OEBReader:
                 opf = safe_xml_fromstring(data)
                 self.logger.warn('OPF contains invalid tours section')
 
-        ns = namespace(opf.tag)
+        ns = namespace(cast(str, opf.tag))
         if ns not in ('', OPF1_NS, OPF2_NS):
             raise OEBError(f'Invalid namespace {ns!r} for OPF document')
         opf = self._clean_opf(opf)
@@ -731,9 +732,10 @@ class OEBReader:
 
 
 def main(argv=sys.argv):
+    from calibre.utils.logging import default_log
     reader = OEBReader()
     for arg in argv[1:]:
-        oeb = reader(OEBBook(), arg)
+        oeb = reader(OEBBook(default_log), arg)
         for name, doc in oeb.to_opf1().values():
             print(etree.tostring(doc, pretty_print=True))
         for name, doc in oeb.to_opf2(page_map=True).values():

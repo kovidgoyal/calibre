@@ -6,7 +6,7 @@ from collections.abc import Iterator
 from html import escape
 from itertools import count
 from threading import Thread
-from typing import Any, NamedTuple
+from typing import Any, NamedTuple, Self
 
 from qt.core import (
     QAbstractItemView,
@@ -211,19 +211,19 @@ class ConverseWidget(QWidget):
         self.update_ai_provider_plugin()
         self.clear_current_conversation()
 
-        self.layout = QVBoxLayout(self)
-        self.layout.setContentsMargins(5, 5, 5, 5)
+        vl = QVBoxLayout(self)
+        vl.setContentsMargins(5, 5, 5, 5)
 
         self.result_display = rd = ChatWidget(self, _('Type a question to the AI'))
         rd.link_clicked.connect(self.on_chat_link_clicked)
         rd.input_from_user.connect(self.run_custom_prompt)
-        self.layout.addWidget(rd)
+        vl.addWidget(rd)
 
         self.response_actions_layout = QHBoxLayout()
         self.response_buttons = {}
         self.add_buttons()
         self.response_actions_layout.addStretch()
-        self.layout.addLayout(self.response_actions_layout)
+        vl.addLayout(self.response_actions_layout)
 
         footer_layout = QHBoxLayout()
         self.settings_button = QPushButton(QIcon.ic('config.png'), _('Se&ttings'))
@@ -240,13 +240,13 @@ class ConverseWidget(QWidget):
             b.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
             b.clicked.connect(self.close_requested)
             footer_layout.addWidget(b)
-        self.layout.addLayout(footer_layout)
+        vl.addLayout(footer_layout)
 
         self.response_received.connect(self.on_response_from_ai, type=Qt.ConnectionType.QueuedConnection)
         self.show_initial_message()
         self.update_cost()
 
-    def setFocus(self, reason) -> None:
+    def setFocus(self, reason=...) -> None:
         self.result_display.setFocus(reason)
 
     def language_instruction(self):
@@ -292,6 +292,7 @@ class ConverseWidget(QWidget):
 
     @property
     def assistant_name(self) -> str:
+        assert self.ai_provider_plugin is not None
         return self.ai_provider_plugin.human_readable_model_name(self.conversation_history.model_used) or _('Assistant')
 
     def show_ai_conversation(self):
@@ -438,20 +439,26 @@ class ConverseWidget(QWidget):
 
     def show_reasoning(self, message_index: int) -> None:
         h = self.get_conversation_history_for_specific_response(message_index)
+        assert h is not None
         m = h.at(len(h)-1)
         if m.reasoning:
             show_reasoning(m.reasoning, self)
 
     def copy_specific_note(self, message_index: int) -> None:
         history_for_record = self.get_conversation_history_for_specific_response(message_index)
+        assert history_for_record is not None
         text = history_for_record.format_llm_note(self.assistant_name, self.NOTE_TITLE)
         if text:
-            qapplication_or_fail().clipboard().setText(text)
+            clip = qapplication_or_fail().clipboard()
+            assert clip is not None
+            clip.setText(text)
 
     def copy_to_clipboard(self) -> None:
         text = self.conversation_history.format_llm_note(self.assistant_name, self.NOTE_TITLE)
         if text:
-            qapplication_or_fail().clipboard().setText(text)
+            clip = qapplication_or_fail().clipboard()
+            assert clip is not None
+            clip.setText(text)
 
     def on_chat_link_clicked(self, qurl: QUrl):
         if qurl.scheme() not in ('http', 'https'):
@@ -473,10 +480,10 @@ class ConverseWidget(QWidget):
         safe_open_url(qurl)
 
     def set_all_inputs_enabled(self, enabled):
-        for i in range(self.quick_actions_layout.count()):
-            widget = self.quick_actions_layout.itemAt(i).widget()
-            if widget:
-                widget.setEnabled(enabled)
+        # for i in range(self.quick_actions_layout.count()):
+        #     widget = self.quick_actions_layout.itemAt(i).widget()
+        #     if widget:
+        #         widget.setEnabled(enabled)
         self.result_display.set_input_enabled(enabled)
 
     def add_button(self, icon: str, text: str, tooltip: str) -> QPushButton:
@@ -543,7 +550,7 @@ class ActionData(NamedTuple):
         return {'disabled': self.is_disabled, 'title': self.human_name, 'prompt_template': self.prompt_template}
 
     @classmethod
-    def unserialize(cls, p: dict[str, Any], default_actions: tuple[ActionData, ...], include_disabled=False) -> Iterator[ActionData]:
+    def unserialize(cls, p: dict[str, Any], default_actions: tuple[Self, ...], include_disabled=False) -> Iterator[Self]:
         dd = p.get('disabled_default_actions', ())
         for x in default_actions:
             x = x._replace(is_disabled=x.name in dd)
@@ -560,18 +567,18 @@ class ActionEditDialog(QDialog):
     def __init__(self, help_text: str, action: ActionData | None=None, parent=None):
         super().__init__(parent)
         self.setWindowTitle(_('Edit Quick action') if action else _('Add Quick action'))
-        self.layout = QFormLayout(self)
-        self.layout.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.ExpandingFieldsGrow)
+        fl = QFormLayout(self)
+        fl.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.ExpandingFieldsGrow)
         self.name_edit = QLineEdit(self)
         self.prompt_edit = QPlainTextEdit(self)
         self.prompt_edit.setMinimumHeight(100)
-        self.layout.addRow(_('Name:'), self.name_edit)
-        self.layout.addRow(_('Prompt:'), self.prompt_edit)
+        fl.addRow(_('Name:'), self.name_edit)
+        fl.addRow(_('Prompt:'), self.prompt_edit)
         self.help_label = la = QLabel(help_text)
         la.setWordWrap(True)
-        self.layout.addRow(la)
+        fl.addRow(la)
         self.button_box = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)
-        self.layout.addWidget(self.button_box)
+        fl.addWidget(self.button_box)
         self.button_box.accepted.connect(self.accept)
         self.button_box.rejected.connect(self.reject)
         if action is not None:
@@ -585,16 +592,16 @@ class ActionEditDialog(QDialog):
         ans.setWidth(max(500, ans.width()))
         return ans
 
-    def eventFilter(self, obj, event):
-        if event.type() == QEvent.Type.KeyPress:
-            if obj is self.name_edit and event.key() in (Qt.Key.Key_Return, Qt.Key.Key_Enter):
+    def eventFilter(self, a0, a1):
+        if a1.type() == QEvent.Type.KeyPress:
+            if a0 is self.name_edit and a1.key() in (Qt.Key.Key_Return, Qt.Key.Key_Enter):
                 self.prompt_edit.setFocus()
                 return True
-            if obj is self.prompt_edit and event.key() in (Qt.Key.Key_Return, Qt.Key.Key_Enter):
-                if event.modifiers() & Qt.KeyboardModifier.ControlModifier:
+            if a0 is self.prompt_edit and a1.key() in (Qt.Key.Key_Return, Qt.Key.Key_Enter):
+                if a1.modifiers() & Qt.KeyboardModifier.ControlModifier:
                     self.accept()
                     return True
-        return super().eventFilter(obj, event)
+        return super().eventFilter(a0, a1)
 
     def get_action(self) -> ActionData:
         title = self.name_edit.text().strip()
@@ -631,7 +638,7 @@ class LLMActionsSettingsWidget(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setMinimumWidth(550)
-        self.layout = QVBoxLayout(self)
+        vl = QVBoxLayout(self)
         api_model_layout = QFormLayout()
         api_model_layout.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.ExpandingFieldsGrow)
 
@@ -642,10 +649,10 @@ class LLMActionsSettingsWidget(QWidget):
             else:
                 api_model_layout.addRow(w)
             self.custom_widgets.append(w)
-        self.layout.addLayout(api_model_layout)
+        vl.addLayout(api_model_layout)
         self.qa_gb = gb = QGroupBox(_('&Quick actions:'), self)
-        self.layout.addWidget(gb)
-        gb.l = l = QVBoxLayout(gb)
+        vl.addWidget(gb)
+        l = QVBoxLayout(gb)
         self.actions_list = QListWidget(self)
         self.actions_list.setDragDropMode(QAbstractItemView.DragDropMode.InternalMove)
         l.addWidget(self.actions_list)
@@ -667,10 +674,11 @@ class LLMActionsSettingsWidget(QWidget):
 
     def load_settings(self):
         for w in self.custom_widgets:
-            w.load_settings()
+            if ls := getattr(w, 'load_settings', None):
+                ls()
         self.load_actions_from_prefs()
 
-    def action_as_item(self, ac: ActionData) -> QListWidgetItem:
+    def action_as_item(self, ac: ActionData) -> None:
         item = QListWidgetItem(ac.human_name, self.actions_list)
         item.setData(Qt.ItemDataRole.UserRole, ac)
         item.setCheckState(Qt.CheckState.Unchecked if ac.is_disabled else Qt.CheckState.Checked)
@@ -719,12 +727,13 @@ class LLMActionsSettingsWidget(QWidget):
 
     def commit(self) -> bool:
         for w in self.custom_widgets:
-            if not w.commit():
+            if (commit := getattr(w, 'commit', None)) and not commit():
                 return False
         disabled_defaults = []
         custom_actions = {}
         for i in range(self.actions_list.count()):
             item = self.actions_list.item(i)
+            assert item is not None
             action:ActionData = item.data(Qt.ItemDataRole.UserRole)
             action = action._replace(is_disabled=item.checkState() == Qt.CheckState.Unchecked)
             if action.is_builtin:
@@ -748,7 +757,7 @@ class LLMActionsSettingsWidget(QWidget):
     def set_actions_in_prefs(self, s: dict[str, Any]) -> None:
         raise NotImplementedError('implement in sub class')
 
-    def create_custom_widgets(self) -> Iterator[str, QWidget]:
+    def create_custom_widgets(self) -> Iterator[tuple[str, QWidget]]:
         raise NotImplementedError('implement in sub class')
     # }}}
 
@@ -758,7 +767,7 @@ class LLMSettingsDialogBase(Dialog):
     def __init__(self, name, prefs, title='', parent=None):
         super().__init__(title=title or _('AI Settings'), name=name, prefs=prefs, parent=parent)
 
-    def custom_tabs(self) -> Iterator[str, str, QWidget]:
+    def custom_tabs(self) -> Iterator[tuple[str, str, QWidget]]:
         if False:
             yield 'icon', 'title', QWidget()
 
@@ -776,7 +785,8 @@ class LLMSettingsDialogBase(Dialog):
     def accept(self):
         for i in range(self.tabs.count()):
             w = self.tabs.widget(i)
-            if not w.commit():
+            assert w is not None
+            if (commit := getattr(w, 'commit', None)) and not commit():
                 self.tabs.setCurrentWidget(w)
                 return
         super().accept()
@@ -798,11 +808,13 @@ class StreamingDemoWidget(ConverseWidget):
         self.render_count = 0
         super().__init__(parent)
         self.render_count_label = QLabel('', self)
-        self.layout.insertWidget(0, self.render_count_label)
+        layout_ = self.layout()
+        assert isinstance(layout_, QVBoxLayout)
+        layout_.insertWidget(0, self.render_count_label)
         self.settings_button.setVisible(False)
         self.result_display.input.setEnabled(False)
         self.original_re_render = self.result_display.re_render
-        self.result_display.re_render = self.counted_re_render
+        self.result_display.re_render = self.counted_re_render  # type: ignore
         self.update_render_count(True)
 
     def counted_re_render(self) -> None:

@@ -20,6 +20,7 @@ class ModernHTTPSHandler(HTTPSHandler):
             key_file, cert_file = self.client_cert_manager.find_key_cert(
                 req.get_full_url())
             if cert_file:
+                assert self.ssl_context is not None
                 self.ssl_context.load_cert_chain(cert_file, key_file)
 
         def conn_factory(hostport, **kw):
@@ -38,7 +39,7 @@ class Browser(B):
     '''
 
     handler_classes = B.handler_classes.copy()
-    handler_classes['https'] = ModernHTTPSHandler
+    handler_classes['https'] = ModernHTTPSHandler  # type: ignore
 
     def __init__(self, *args, **kwargs):
         self._clone_actions = {}
@@ -48,13 +49,13 @@ class Browser(B):
 
         B.__init__(self, *args, **kwargs)
         self.set_cookiejar(CookieJar())
-        self._ua_handlers['https'].ssl_context = sc
+        self._ua_handlers['https'].ssl_context = sc  # type: ignore
 
     @property
     def https_handler(self):
-        return self._ua_handlers['https']
+        return self._ua_handlers['https']  # type: ignore
 
-    def set_current_header(self, header, value=None):
+    def set_current_header(self, header: str, value: str | None=None):
         found = False
         q = header.lower()
         remove = []
@@ -66,7 +67,7 @@ class Browser(B):
                 else:
                     remove.append(i)
         if not found:
-            self.addheaders.append((header, value))
+            self.addheaders.append((header, value or ''))
         if remove:
             for i in reversed(remove):
                 del self.addheaders[i]
@@ -88,8 +89,8 @@ class Browser(B):
         B.set_cookiejar(self, *args, **kwargs)
         self._clone_actions['set_cookiejar'] = ('set_cookiejar', args, kwargs)
 
-    def set_cookie(self, name, value, domain, path='/'):
-        return self.set_simple_cookie(name, value, domain, path=path)
+    def set_cookie(self, cookie_string, value=None, domain=None, path='/'):  # type: ignore[override]
+        return self.set_simple_cookie(cookie_string, value, domain, path=path)
 
     @property
     def cookiejar(self):

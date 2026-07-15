@@ -20,7 +20,7 @@ dependencies = [
 	"sgmllib3k == 1.0.0",
 	"Markdown == 3.10.0",
 	"html2text == 2025.4.15",
-	"soupsieve == 2.8",
+	"soupsieve == 2.8.4",
     "typing-extensions == 4.15.0",  # needed by beautifulsoup4
 	"beautifulsoup4 == 4.14.3",
 	"regex == 2025.11.3",
@@ -48,7 +48,7 @@ dependencies = [
 	"pykakasi == 2.3.0",
 	"zeroconf == 0.149.16",
 	"fonttools == 4.61.0",
-	"lxml_html_clean == 0.4.4",
+	"lxml_html_clean == 0.4.5",
 	"PyQt6_sip == 13.10.2",
 	"PyQt6 == 6.10.0",
 	"PyQt6_WebEngine == 6.10.0",
@@ -86,11 +86,17 @@ requires = [
 	"sip == 6.14.0",
 	"PyQt_builder == 1.19.1",
 ]
+[dependency-groups]
+dev = [
+    "ruff >= 0.15.21",
+    "types-lxml >= 2026.2.16",
+    "ty >= 0.0.59",
+]
 
 [tool.ruff]
 line-length = 160
 builtins = ['_', 'I', 'P']
-include = ['*.py', '*.recipe']
+include = ['*.py', '*.pyi', '*.recipe']
 exclude = [
     "*_ui.py",
     "bypy/*",
@@ -282,4 +288,23 @@ exclude = [
 ]
 
 [tool.ty.environment]
-root = ['./src', './stubs', './setup', './recipes']
+root = ['./src']
+extra-paths = ['./stubs']
+python-platform = "all"
+
+[tool.ty.src]
+exclude = [
+	'**/*_ui.py', '**/*_test.py', '**/test_*.py',
+	'setup/*.py', 'setup.py', 'manual/**/*.py', 'bypy/**/*.py',
+	'**/tests/**',
+    '.github/workflows/*.py',
+	'src/calibre/library/add_to_library.py',
+	'src/calibre/library/database.py',
+	'src/calibre/library/database2.py',
+	'src/calibre/library/sqlite.py',
+	'src/calibre/library/prefs.py',
+	'src/calibre/library/restore.py',
+	'src/calibre/library/custom_columns.py',
+	'src/calibre/library/schema_upgrades.py',
+    'src/calibre/gui2/pyqt6_compat.py',
+]

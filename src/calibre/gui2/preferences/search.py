@@ -81,9 +81,13 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         QTimer.singleShot(0, self.fill_gst_box)
 
         self.user_category_layout.setContentsMargins(0, 30, 0, 0)
-        self.gst_names.lineEdit().setPlaceholderText(
+        _gst_names_le = self.gst_names.lineEdit()
+        assert _gst_names_le is not None
+        _gst_names_le.setPlaceholderText(
                          _('Enter new or select existing name'))
-        self.gst_value.lineEdit().setPlaceholderText(
+        _gst_value_le = self.gst_value.lineEdit()
+        assert _gst_value_le is not None
+        _gst_value_le.setPlaceholderText(
                          _('Enter list of column lookup names to search'))
 
         self.category_fields = fl
@@ -111,7 +115,9 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             db.new_api.set_pref('grouped_search_make_user_categories', [])
         r('grouped_search_make_user_categories', db.prefs, setting=CommaSeparatedList)
         self.muc_changed = False
-        self.opt_grouped_search_make_user_categories.lineEdit().editingFinished.connect(
+        _muc_le = self.opt_grouped_search_make_user_categories.lineEdit()
+        assert _muc_le is not None
+        _muc_le.editingFinished.connect(
                                                         self.muc_box_changed)
 
     def set_similar_fields(self, initial=False):
@@ -233,7 +239,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             self.gst_value.setText(','.join(self.gst[name]))
         self.gst_value.blockSignals(False)
 
-    def commit(self):
+    def commit(self, *args):
         if self.opt_case_sensitive.isChecked() and self.opt_use_primary_find_in_search.isChecked():
             error_dialog(self, _('Incompatible options'), _(
                 'The option to have un-accented characters match accented characters has no effect'

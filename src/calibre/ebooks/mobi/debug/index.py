@@ -15,7 +15,7 @@ from calibre.ebooks.mobi.reader.ncx import default_entry, tag_fieldname_map
 File = namedtuple('File',
     'file_number name divtbl_count start_position length')
 
-Elem = namedtuple('Chunk',
+Elem = namedtuple('Elem',
     'insert_pos toc_text file_number sequence_number start_pos '
     'length')
 
@@ -85,7 +85,8 @@ def read_index(sections, idx, codec):
 class Index:
 
     def __init__(self, idx, records, codec):
-        self.table = self.cncx = self.header = self.records = None
+        self.table = self.cncx = self.header = None
+        self.records: list = []
         self.index_headers = []
         if idx != NULL_INDEX:
             self.table, self.cncx, self.header, self.index_headers = read_index(records, idx, codec)
@@ -155,6 +156,7 @@ class SECTIndex(Index):
         self.records = []
 
         if self.table is not None:
+            assert self.cncx is not None
             for i, text in enumerate(self.table):
                 tag_map = self.table[text]
                 if set(tag_map) != {2, 3, 4, 6}:
@@ -179,6 +181,7 @@ class GuideIndex(Index):
         self.records = []
 
         if self.table is not None:
+            assert self.cncx is not None
             for i, text in enumerate(self.table):
                 tag_map = self.table[text]
                 if set(tag_map) not in ({1, 6}, {1, 2, 3}):
@@ -205,24 +208,27 @@ class NCXIndex(Index):
 
             for num, x in enumerate(self.table.items()):
                 text, tag_map = x
-                entry = e = default_entry.copy()
-                entry['name'] = text
-                entry['num'] = num
+                e: dict = default_entry.copy()
+                e['name'] = text
+                e['num'] = num
 
                 for tag in tag_fieldname_map:
                     fieldname, i = tag_fieldname_map[tag]
+                    assert isinstance(fieldname, str)
                     if tag in tag_map:
                         fieldvalue = tag_map[tag][i]
                         if tag == 6:
                             # Appears to be an idx into the KF8 elems table with an
                             # offset
                             fieldvalue = tuple(tag_map[tag])
-                        entry[fieldname] = fieldvalue
+                        e[fieldname] = fieldvalue
                         for which, name in {3:'text', 5:'kind', 70:'description',
                                 71:'author', 72:'image_caption',
                                 73:'image_attribution'}.items():
                             if tag == which:
-                                entry[name] = self.cncx.get(fieldvalue,
+                                cncx = self.cncx
+                                assert cncx is not None
+                                e[name] = cncx.get(fieldvalue,
                                         default_entry[name])
 
                 def refindx(e, name):

@@ -136,6 +136,7 @@ class DownloadResources(Dialog):
         self.wait.start()
         for t, f in ((_('Select &none'), cr.select_none), (_('Select &all'), cr.select_all)):
             b = self.bb.addButton(t, QDialogButtonBox.ButtonRole.ActionRole)
+            assert b is not None
             b.clicked.connect(f), b.setAutoDefault(False)
         self.bb.setVisible(False)
         l.addWidget(self.wait), l.addWidget(self.bb)
@@ -238,6 +239,7 @@ class DownloadResources(Dialog):
             self.resources_replaced = True
             self.bb.setStandardButtons(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Close)
             b = self.bb.button(QDialogButtonBox.StandardButton.Ok)
+            assert b is not None
             b.setText(_('See what &changed'))
             b.setIcon(QIcon.ic('diff.png'))
             connect_lambda(b.clicked, self, lambda self: setattr(self, 'show_diff', True))

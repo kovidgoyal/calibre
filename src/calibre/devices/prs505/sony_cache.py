@@ -9,7 +9,7 @@ import os
 import time
 from datetime import date
 
-from calibre import fsync, guess_type, isbytestring, prints
+from calibre import fsync, guess_type, prints
 from calibre.constants import DEBUG, preferred_encoding
 from calibre.devices.errors import DeviceError
 from calibre.ebooks.chardet import xml_to_unicode
@@ -429,11 +429,12 @@ class XMLCache:
                     book.device_collections = []
                 book.device_collections = playlist_map.get(book.lpath, [])
 
-                if created and ext_root is not None and \
-                        ext_lpath_map.get(book.lpath, None) is None:
-                    ext_record = self.create_ext_text_record(ext_root, i,
-                            book.lpath, book.thumbnail)
-                    self.periodicalize_book(book, ext_record)
+                if created and ext_root is not None:
+                    assert ext_lpath_map is not None
+                    if ext_lpath_map.get(book.lpath, None) is None:
+                        ext_record = self.create_ext_text_record(ext_root, i,
+                                book.lpath, book.thumbnail)
+                        self.periodicalize_book(book, ext_record)
 
             debug_print(f'Timezone votes: {gtz_count} GMT, {ltz_count} LTZ, use_tz_var={use_tz_var}')
             self.update_playlists(i, root, booklist, collections_attributes)
@@ -623,7 +624,7 @@ class XMLCache:
         rec_date = record.get('date', None)
 
         def clean(x):
-            if isbytestring(x):
+            if isinstance(x, bytes):
                 x = x.decode(preferred_encoding, 'replace')
             x.replace('\0', '')
             return x

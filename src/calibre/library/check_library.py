@@ -10,7 +10,6 @@ import os
 import re
 import traceback
 
-from calibre import isbytestring
 from calibre.constants import filesystem_encoding
 from calibre.db.constants import COVER_FILE_NAME, DATA_DIR_NAME, METADATA_FILE_NAME, NOTES_DIR_NAME, TRASH_DIR_NAME
 from calibre.ebooks import BOOK_EXTENSIONS
@@ -49,7 +48,7 @@ CHECKS = [('invalid_titles',    _('Invalid titles'), True, False),
 class CheckLibrary:
 
     def __init__(self, library_path, db):
-        if isbytestring(library_path):
+        if isinstance(library_path, bytes):
             library_path = library_path.decode(filesystem_encoding)
         self.src_library_path = os.path.abspath(library_path)
         self.db = db
@@ -90,8 +89,7 @@ class CheckLibrary:
 
     @property
     def errors_occurred(self):
-        return self.failed_folders or self.mismatched_dirs or \
-                self.conflicting_custom_cols or self.failed_restores
+        return self.failed_folders
 
     def ignore_name(self, filename):
         for filespec in self.ignore_names:

@@ -77,9 +77,11 @@ class TextureChooser(QDialog):
         bb.accepted.connect(self.accept)
         bb.rejected.connect(self.reject)
         b = self.add_button = bb.addButton(_('Add texture'), QDialogButtonBox.ButtonRole.ActionRole)
+        assert b is not None
         b.setIcon(QIcon.ic('plus.png'))
         b.clicked.connect(self.add_texture)
         b = self.remove_button = bb.addButton(_('Remove texture'), QDialogButtonBox.ButtonRole.ActionRole)
+        assert b is not None
         b.setIcon(QIcon.ic('minus.png'))
         b.clicked.connect(self.remove_texture)
         l.addWidget(bb)
@@ -101,7 +103,7 @@ class TextureChooser(QDialog):
         self.update_remove_state()
 
         if initial:
-            existing = {str(i.data(Qt.ItemDataRole.UserRole) or ''):i for i in (self.images.item(c) for c in range(self.images.count()))}
+            existing = {str(i.data(Qt.ItemDataRole.UserRole) or ''):i for i in (self.images.item(c) for c in range(self.images.count())) if i is not None}
             item = existing.get(initial, None)
             if item is not None:
                 item.setSelected(True)
@@ -118,6 +120,7 @@ class TextureChooser(QDialog):
 
     def update_remove_state(self):
         removable = bool(self.selected_fname and not self.selected_fname.startswith(':'))
+        assert self.remove_button is not None
         self.remove_button.setEnabled(removable)
 
     @property
@@ -132,12 +135,12 @@ class TextureChooser(QDialog):
         path = path[0]
         fname = os.path.basename(path)
         name = fname.rpartition('.')[0]
-        existing = {str(i.data(Qt.ItemDataRole.UserRole) or ''):i for i in (self.images.item(c) for c in range(self.images.count()))}
+        existing = {str(i.data(Qt.ItemDataRole.UserRole) or ''):i for i in (self.images.item(c) for c in range(self.images.count())) if i is not None}
         dest = os.path.join(self.tdir, fname)
         with open(path, 'rb') as s, open(dest, 'wb') as f:
             shutil.copyfileobj(s, f)
         if fname in existing:
-            self.takeItem(existing[fname])
+            self.images.takeItem(self.images.row(existing[fname]))
         data = {'fname': fname, 'path': dest, 'name': name}
         i = self.create_item(data)
         i.setSelected(True)

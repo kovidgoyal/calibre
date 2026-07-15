@@ -111,6 +111,8 @@ class MetadataSingleDialogBase(QDialog):
             QKeySequence.SequenceFormat.PortableText))
         p = self.parent()
         if hasattr(p, 'keyboard'):
+            from calibre.gui2.ui import Main
+            assert isinstance(p, Main)
             kname = 'Interface Action: Edit Metadata (Edit Metadata) : menu action : download'
             sc = p.keyboard.keys_map.get(kname, None)
             if sc:
@@ -144,7 +146,9 @@ class MetadataSingleDialogBase(QDialog):
         self.button_box.addButton(self.prev_button, QDialogButtonBox.ButtonRole.ActionRole)
         self.button_box.addButton(self.next_button, QDialogButtonBox.ButtonRole.ActionRole)
         bb.setStandardButtons(QDialogButtonBox.StandardButton.Ok|QDialogButtonBox.StandardButton.Cancel)
-        bb.button(QDialogButtonBox.StandardButton.Ok).setDefault(True)
+        ok_btn = bb.button(QDialogButtonBox.StandardButton.Ok)
+        assert ok_btn is not None
+        ok_btn.setDefault(True)
 
         self.central_widget = QTabWidget(self)
 
@@ -172,7 +176,9 @@ class MetadataSingleDialogBase(QDialog):
     # }}}
 
     def sizeHint(self):
-        geom = self.screen().availableSize()
+        screen = self.screen()
+        assert screen is not None
+        geom = screen.availableSize()
         nh, nw = max(300, geom.height()-50), max(400, geom.width()-70)
         return QSize(nw, nh)
 
@@ -206,14 +212,14 @@ class MetadataSingleDialogBase(QDialog):
             # Workaround for https://bugreports.qt-project.org/browse/QTBUG-41017
             class Menu(QMenu):
 
-                def mouseReleaseEvent(self, ev):
-                    ac = self.actionAt(ev.pos())
+                def mouseReleaseEvent(self, a0):
+                    ac = self.actionAt(a0.pos())
                     if ac is not None:
                         ac.trigger()
-                    return QMenu.mouseReleaseEvent(self, ev)
-            b.m = m = Menu(b)
+                    return QMenu.mouseReleaseEvent(self, a0)
+            m = Menu(b)
         else:
-            b.m = m = QMenu(b)
+            m = QMenu(b)
         ac = m.addAction(QIcon.ic('forward.png'), _('Set author sort from author'))
         ac2 = m.addAction(QIcon.ic('back.png'), _('Set author from author sort'))
         ac3 = m.addAction(QIcon.ic('user_profile.png'), _('Manage authors'))
@@ -349,6 +355,7 @@ class MetadataSingleDialogBase(QDialog):
 
     def update_paste_identifiers_menu(self):
         m = self.paste_isbn_button.menu()
+        assert m is not None
         m.clear()
         m.addAction(_('Edit list of prefixes'), self.edit_prefix_list)
         m.addSeparator()
@@ -405,7 +412,7 @@ class MetadataSingleDialogBase(QDialog):
 
     def do_open_book_folder(self):
         from calibre.gui2.ui import get_gui
-        get_gui().iactions['View'].view_folder_for_id(self.book_id)
+        get_gui(fail_if_absent=True).iactions['View'].view_folder_for_id(self.book_id)
 
     def do_edit_format(self, path, fmt):
         if self.was_data_edited:
@@ -425,7 +432,9 @@ class MetadataSingleDialogBase(QDialog):
         self.edit_format.emit(self.book_id, fmt)
 
     def copy_fmt(self, fmt, f):
-        self.db.copy_format_to(self.book_id, fmt, f, index_is_id=True)
+        db = self.db
+        assert db is not None
+        db.copy_format_to(self.book_id, fmt, f, index_is_id=True)
 
     def do_layout(self):
         raise NotImplementedError()
@@ -462,7 +471,9 @@ class MetadataSingleDialogBase(QDialog):
 
     # Miscellaneous interaction methods {{{
     def update_data_files_button(self):
-        num_files = len(self.db.new_api.list_extra_files(self.book_id, pattern=DATA_FILE_PATTERN))
+        db = self.db
+        assert db is not None
+        num_files = len(db.new_api.list_extra_files(self.book_id, pattern=DATA_FILE_PATTERN))
         self.data_files_button.setText(_('{} Data &files').format(num_files))
 
     def update_window_title(self, *args):
@@ -516,7 +527,7 @@ class MetadataSingleDialogBase(QDialog):
         try:
             mi, ext = self.formats_manager.get_selected_format_metadata(self.db, self.book_id)
         except OSError as e:
-            e.locking_violation_msg = _('Could not read from book file.')
+            setattr(e, 'locking_violation_msg', _('Could not read from book file.'))
             raise
         if mi is None:
             return
@@ -668,8 +679,8 @@ class MetadataSingleDialogBase(QDialog):
             return True
         self.comments_edit_state_at_apply = {w:w.tab for w in self.comments_edit_state_at_apply}
         for widget in self.basic_metadata_widgets:
-            if hasattr(widget, 'validate_for_commit'):
-                title, msg, det_msg = widget.validate_for_commit()
+            if callable(vfc := getattr(widget, 'validate_for_commit', None)):
+                title, msg, det_msg = vfc()
                 if title is not None:
                     error_dialog(self, title, msg, det_msg=det_msg, show=True)
                     return False
@@ -677,7 +688,7 @@ class MetadataSingleDialogBase(QDialog):
                 widget.commit(self.db, self.book_id)
                 self.books_to_refresh |= getattr(widget, 'books_to_refresh', set())
             except OSError as e:
-                e.locking_violation_msg = _("Could not change on-disk location of this book's files.")
+                setattr(e, 'locking_violation_msg', _("Could not change on-disk location of this book's files."))
                 raise
         for widget in getattr(self, 'custom_metadata_widgets', []):
             self.books_to_refresh |= widget.commit(self.book_id)
@@ -728,7 +739,9 @@ class MetadataSingleDialogBase(QDialog):
     # Dialog use methods {{{
     def start(self, row_list, current_row, view_slot=None, edit_slot=None,
             set_current_callback=None):
-        self.id_list = list(map(self.db.id, row_list))
+        db = self.db
+        assert db is not None
+        self.id_list = list(map(db.id, row_list))
         self.current_row = current_row
         if view_slot is not None:
             self.view_format.connect(view_slot)
@@ -774,10 +787,12 @@ class MetadataSingleDialogBase(QDialog):
         self.current_row += delta
         self.update_window_title()
         prev = next_ = None
+        do_one_db = self.db
+        assert do_one_db is not None
         if self.current_row > 0:
-            prev = self.db.new_api.field_for('title', self.id_list[self.current_row-1])
+            prev = do_one_db.new_api.field_for('title', self.id_list[self.current_row-1])
         if self.current_row < len(self.id_list) - 1:
-            next_ = self.db.new_api.field_for('title', self.id_list[self.current_row+1])
+            next_ = do_one_db.new_api.field_for('title', self.id_list[self.current_row+1])
 
         if next_ is not None:
             tip = _('Save changes and edit the metadata of {0} [{1}]').format(
@@ -789,8 +804,10 @@ class MetadataSingleDialogBase(QDialog):
                 prev, self.prev_action.shortcut().toString(QKeySequence.SequenceFormat.NativeText))
             self.prev_button.setToolTip(tip)
         self.prev_button.setEnabled(prev is not None)
-        self.button_box.button(QDialogButtonBox.StandardButton.Ok).setDefault(True)
-        self.button_box.button(QDialogButtonBox.StandardButton.Ok).setFocus(Qt.FocusReason.OtherFocusReason)
+        ok_button = self.button_box.button(QDialogButtonBox.StandardButton.Ok)
+        assert ok_button is not None
+        ok_button.setDefault(True)
+        ok_button.setFocus(Qt.FocusReason.OtherFocusReason)
         self(self.id_list[self.current_row])
         for w, state in self.comments_edit_state_at_apply.items():
             if state == 'code':
@@ -827,9 +844,9 @@ class Splitter(QSplitter):
 
     frame_resized = pyqtSignal(object)
 
-    def resizeEvent(self, ev):
-        self.frame_resized.emit(ev)
-        return super().resizeEvent(ev)
+    def resizeEvent(self, a0):
+        self.frame_resized.emit(a0)
+        return super().resizeEvent(a0)
 
 
 class MetadataSingleDialog(MetadataSingleDialogBase):  # {{{
@@ -838,15 +855,19 @@ class MetadataSingleDialog(MetadataSingleDialogBase):  # {{{
         return gprefs['edit_metadata_single_use_2_cols_for_custom_fields']
 
     def do_layout(self):
-        if len(self.db.custom_column_label_map) == 0:
-            self.central_widget.tabBar().setVisible(False)
+        do_layout_db = self.db
+        assert do_layout_db is not None
+        if len(do_layout_db.custom_column_label_map) == 0:
+            tab_bar = self.central_widget.tabBar()
+            assert tab_bar is not None
+            tab_bar.setVisible(False)
         self.central_widget.clear()
         self.tabs = []
         self.labels = []
         self.tabs.append(QWidget(self))
         self.central_widget.addTab(ScrollArea(self.tabs[0], self), _('&Basic metadata'))
-        self.tabs[0].l = l = QVBoxLayout()
-        self.tabs[0].tl = tl = QGridLayout()
+        l = QVBoxLayout()
+        tl = QGridLayout()
         self.tabs[0].setLayout(l)
         w = getattr(self, 'custom_metadata_widgets_parent', None)
         if w is not None:
@@ -896,21 +917,20 @@ class MetadataSingleDialog(MetadataSingleDialogBase):  # {{{
         self.splitter.addWidget(self.cover)
         self.splitter.frame_resized.connect(self.cover.frame_resized)
         l.addWidget(self.splitter)
-        self.tabs[0].gb = gb = QGroupBox(_('Change cover'), self)
-        gb.l = l = QGridLayout()
-        gb.setLayout(l)
+        gb = QGroupBox(_('Change cover'), self)
+        gb_l = QGridLayout()
+        gb.setLayout(gb_l)
         for i, b in enumerate(self.cover.buttons[:3]):
-            l.addWidget(b, 0, i, 1, 1)
+            gb_l.addWidget(b, 0, i, 1, 1)
             sto(b, self.cover.buttons[i+1])
-        gb.hl = QHBoxLayout()
+        gb_hl = QHBoxLayout()
         for b in self.cover.buttons[3:]:
-            gb.hl.addWidget(b)
+            gb_hl.addWidget(b)
         sto(self.cover.buttons[-2], self.cover.buttons[-1])
-        l.addLayout(gb.hl, 1, 0, 1, 3)
-        self.tabs[0].middle = w = QWidget(self)
-        w.l = l = QGridLayout()
-        w.setLayout(w.l)
-        self.splitter.addWidget(w)
+        gb_l.addLayout(gb_hl, 1, 0, 1, 3)
+        middle = QWidget(self)
+        middle_l = QGridLayout(middle)
+        self.splitter.addWidget(middle)
 
         def create_row2(row, widget, button=None, front_button=None):
             row += 1
@@ -919,19 +939,18 @@ class MetadataSingleDialog(MetadataSingleDialogBase):  # {{{
                 ltl = QHBoxLayout()
                 ltl.addWidget(front_button)
                 ltl.addWidget(ql)
-                l.addLayout(ltl, row, 0, 1, 1)
+                middle_l.addLayout(ltl, row, 0, 1, 1)
             else:
-                l.addWidget(ql, row, 0, 1, 1)
-            l.addWidget(widget, row, 1, 1, 2 if button is None else 1)
+                middle_l.addWidget(ql, row, 0, 1, 1)
+            middle_l.addWidget(widget, row, 1, 1, 2 if button is None else 1)
             if button is not None:
-                l.addWidget(button, row, 2, 1, 1)
+                middle_l.addWidget(button, row, 2, 1, 1)
             if button is not None:
                 sto(widget, button)
 
-        l.addWidget(gb, 0, 0, 1, 3)
-        self.tabs[0].spc_one = QSpacerItem(10, 10, QSizePolicy.Policy.Expanding,
-                QSizePolicy.Policy.Expanding)
-        l.addItem(self.tabs[0].spc_one, 1, 0, 1, 3)
+        middle_l.addWidget(gb, 0, 0, 1, 3)
+        spc_one = QSpacerItem(10, 10, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
+        middle_l.addItem(spc_one, 1, 0, 1, 3)
         sto(self.cover.buttons[-1], self.rating)
         create_row2(1, self.rating, self.clear_ratings_button)
         sto(self.rating, self.clear_ratings_button)
@@ -951,18 +970,16 @@ class MetadataSingleDialog(MetadataSingleDialogBase):  # {{{
         create_row2(6, self.publisher, self.publisher.clear_button, front_button=self.publisher_editor_button)
         sto(self.publisher.clear_button, self.languages)
         create_row2(7, self.languages)
-        self.tabs[0].spc_two = QSpacerItem(10, 10, QSizePolicy.Policy.Expanding,
-                QSizePolicy.Policy.Expanding)
-        l.addItem(self.tabs[0].spc_two, 9, 0, 1, 3)
-        l.addWidget(self.fetch_metadata_button, 10, 0, 1, 2)
-        l.addWidget(self.config_metadata_button, 10, 2, 1, 1)
+        spc_two = QSpacerItem(10, 10, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
+        middle_l.addItem(spc_two, 9, 0, 1, 3)
+        middle_l.addWidget(self.fetch_metadata_button, 10, 0, 1, 2)
+        middle_l.addWidget(self.config_metadata_button, 10, 2, 1, 1)
 
-        self.tabs[0].gb2 = gb = QGroupBox(_('Co&mments'), self)
-        gb.l = l = QVBoxLayout()
-        l.setContentsMargins(0, 0, 0, 0)
-        gb.setLayout(l)
-        l.addWidget(self.comments)
-        self.splitter.addWidget(gb)
+        gb2 = QGroupBox(_('Co&mments'), self)
+        gb2_l = QVBoxLayout(gb2)
+        gb2_l.setContentsMargins(0, 0, 0, 0)
+        gb2_l.addWidget(self.comments)
+        self.splitter.addWidget(gb2)
 
         self.set_custom_metadata_tab_order()
 
@@ -983,7 +1000,7 @@ class DragTrackingWidget(QWidget):  # {{{
         QWidget.__init__(self, parent)
         self.on_drag_enter = on_drag_enter
 
-    def dragEnterEvent(self, ev):
+    def dragEnterEvent(self, a0):
         self.on_drag_enter.emit()
 
 # }}}
@@ -1010,13 +1027,11 @@ class MetadataSingleDialogAlt1(MetadataSingleDialogBase):  # {{{
         self.on_drag_enter.connect(self.handle_drag_enter)
         self.tabs.append(DragTrackingWidget(self, self.on_drag_enter))
         self.central_widget.addTab(ScrollArea(self.tabs[0], self), _('&Metadata'))
-        self.tabs[0].l = QGridLayout()
-        self.tabs[0].setLayout(self.tabs[0].l)
+        zero_l = QGridLayout(self.tabs[0])
 
         self.tabs.append(QWidget(self))
         self.central_widget.addTab(ScrollArea(self.tabs[1], self), _('&Cover and formats'))
-        self.tabs[1].l = QGridLayout()
-        self.tabs[1].setLayout(self.tabs[1].l)
+        one_l = QGridLayout(self.tabs[1])
 
         # accept drop events so we can automatically switch to the second tab to
         # drop covers and formats
@@ -1027,7 +1042,7 @@ class MetadataSingleDialogAlt1(MetadataSingleDialogBase):  # {{{
 
         tl = QGridLayout()
         gb = QGroupBox(_('&Basic metadata'), self.tabs[0])
-        self.tabs[0].l.addWidget(gb, 0, 0, 1, 1)
+        zero_l.addWidget(gb, 0, 0, 1, 1)
         gb.setLayout(tl)
 
         self.button_box_layout.insertWidget(1, self.fetch_metadata_button)
@@ -1098,7 +1113,7 @@ class MetadataSingleDialogAlt1(MetadataSingleDialogBase):  # {{{
             sr.setFrameStyle(QFrame.Shape.NoFrame)
             sr.setWidget(w)
             gbl.addWidget(sr)
-            self.tabs[0].l.addWidget(gb, 0, 1, 1, 1)
+            zero_l.addWidget(gb, 0, 1, 1, 1)
             sto(self.identifiers, gb)
 
         w = QGroupBox(_('&Comments'), tab0)
@@ -1110,7 +1125,7 @@ class MetadataSingleDialogAlt1(MetadataSingleDialogBase):  # {{{
         l = QHBoxLayout()
         w.setLayout(l)
         l.addWidget(self.comments)
-        tab0.l.addWidget(w, 1, 0, 1, 2)
+        zero_l.addWidget(w, 1, 0, 1, 2)
 
         # Tab 1
         tab1 = self.tabs[1]
@@ -1139,7 +1154,7 @@ class MetadataSingleDialogAlt1(MetadataSingleDialogBase):  # {{{
         wgl.addWidget(self.formats_manager)
 
         self.splitter = Splitter(Qt.Orientation.Horizontal, tab1)
-        tab1.l.addWidget(self.splitter)
+        one_l.addWidget(self.splitter)
         self.splitter.addWidget(self.cover)
         self.splitter.addWidget(wsp)
 
@@ -1168,7 +1183,9 @@ class MetadataSingleDialogAlt2(MetadataSingleDialogBase):  # {{{
         # right, separated by another splitter.
 
         main_splitter = self.main_splitter = Splitter(Qt.Orientation.Horizontal, self)
-        self.central_widget.tabBar().setVisible(False)
+        alt2_tab_bar = self.central_widget.tabBar()
+        assert alt2_tab_bar is not None
+        alt2_tab_bar.setVisible(False)
         self.central_widget.addTab(ScrollArea(main_splitter, self), _('&Metadata'))
 
         # Left side (metadata & comments)

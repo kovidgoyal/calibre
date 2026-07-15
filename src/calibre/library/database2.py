@@ -23,7 +23,7 @@ import traceback
 import uuid
 from collections import defaultdict, namedtuple
 
-from calibre import force_unicode, isbytestring, prints
+from calibre import force_unicode, prints
 from calibre.constants import filesystem_encoding, iswindows, preferred_encoding
 from calibre.customize.ui import run_plugins_on_import, run_plugins_on_postimport
 from calibre.db import _get_next_series_num_for_list, _get_series_values, get_data_as_dict
@@ -155,7 +155,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                              "library.database2. Use db.legacy.LibraryDatabase instead")
         self.is_second_db = is_second_db
         try:
-            if isbytestring(library_path):
+            if isinstance(library_path, bytes):
                 library_path = library_path.decode(filesystem_encoding)
         except Exception:
             traceback.print_exc()
@@ -1104,8 +1104,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             return bool(self.conn.get('SELECT id FROM books where title=?', (title,), all=False))
         return False
 
-    def has_id(self, id_):
-        return self.data._data[id_] is not None
+    def has_id(self, id):
+        return self.data._data[id] is not None
 
     def books_with_same_title(self, mi, all_matches=True):
         title = mi.title
@@ -1550,20 +1550,20 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         run_plugins_on_postimport(self, id, format)
         return retval
 
-    def add_format(self, index, format, stream, index_is_id=False, path=None,
+    def add_format(self, index, ext, stream, index_is_id=False, path=None,
             notify=True, replace=True, copy_function=None):
         id = index if index_is_id else self.id(index)
-        if not format:
-            format = ''
-        self.format_metadata_cache[id].pop(format.upper(), None)
-        name = self.format_filename_cache[id].get(format.upper(), None)
+        if not ext:
+            ext = ''
+        self.format_metadata_cache[id].pop(ext.upper(), None)
+        name = self.format_filename_cache[id].get(ext.upper(), None)
         if path is None:
             path = os.path.join(self.library_path, self.path(id, index_is_id=True))
         if name and not replace:
             return False
         name = self.construct_file_name(id)
-        ext = ('.' + format.lower()) if format else ''
-        dest = os.path.join(path, name+ext)
+        file_ext = ('.' + ext.lower()) if ext else ''
+        dest = os.path.join(path, name+file_ext)
         pdir = os.path.dirname(dest)
         if not os.path.exists(pdir):
             os.makedirs(pdir)
@@ -1579,10 +1579,10 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         elif os.path.exists(dest):
             size = os.path.getsize(dest)
         self.conn.execute('INSERT OR REPLACE INTO data (book,format,uncompressed_size,name) VALUES (?,?,?,?)',
-                          (id, format.upper(), size, name))
+                          (id, ext.upper(), size, name))
         self.update_last_modified([id], commit=False)
         self.conn.commit()
-        self.format_filename_cache[id][format.upper()] = name
+        self.format_filename_cache[id][ext.upper()] = name
         self.refresh_ids([id])
         if notify:
             self.notify('metadata', [id])
@@ -1638,23 +1638,23 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         if notify:
             self.notify('delete', [id])
 
-    def remove_format(self, index, format, index_is_id=False, notify=True,
+    def remove_format(self, index, ext, index_is_id=False, notify=True,
                       commit=True, db_only=False):
         id = index if index_is_id else self.id(index)
-        if not format:
-            format = ''
-        self.format_metadata_cache[id].pop(format.upper(), None)
-        name = self.format_filename_cache[id].get(format.upper(), None)
+        if not ext:
+            ext = ''
+        self.format_metadata_cache[id].pop(ext.upper(), None)
+        name = self.format_filename_cache[id].get(ext.upper(), None)
         if name:
             if not db_only:
                 try:
-                    path = self.format_abspath(id, format, index_is_id=True)
+                    path = self.format_abspath(id, ext, index_is_id=True)
                     if path:
                         delete_file(path)
                 except Exception:
                     traceback.print_exc()
-            self.format_filename_cache[id].pop(format.upper(), None)
-            self.conn.execute('DELETE FROM data WHERE book=? AND format=?', (id, format.upper()))
+            self.format_filename_cache[id].pop(ext.upper(), None)
+            self.conn.execute('DELETE FROM data WHERE book=? AND format=?', (id, ext.upper()))
             if commit:
                 self.conn.commit()
             self.refresh_ids([id])
@@ -2555,7 +2555,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
     def set_title_sort(self, id, title_sort_, notify=True, commit=True):
         if not title_sort_:
             return False
-        if isbytestring(title_sort_):
+        if isinstance(title_sort_, bytes):
             title_sort_ = title_sort_.decode(preferred_encoding, 'replace')
         self.conn.execute('UPDATE books SET sort=? WHERE id=?', (title_sort_, id))
         self.data.set(id, self.FIELD_MAP['sort'], title_sort_, row_is_id=True)
@@ -2569,7 +2569,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
     def _set_title(self, id, title):
         if not title:
             return False
-        if isbytestring(title):
+        if isinstance(title, bytes):
             title = title.decode(preferred_encoding, 'replace')
         old_title = self.title(id, index_is_id=True)
         # We cannot check if old_title == title as previous code might have
@@ -3006,7 +3006,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
     def cleanup_tags(cls, tags):
         tags = [x.strip().replace(',', ';') for x in tags if x.strip()]
         tags = [x.decode(preferred_encoding, 'replace')
-                    if isbytestring(x) else x for x in tags]
+                    if isinstance(x, bytes) else x for x in tags]
         tags = [' '.join(x.split()) for x in tags]
         ans, seen = [], set()
         for tag in tags:
@@ -3355,8 +3355,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         if notify:
             self.notify('metadata', [id_])
 
-    def set_isbn(self, id_, isbn, notify=True, commit=True):
-        self.set_identifier(id_, 'isbn', isbn, notify=notify, commit=commit)
+    def set_isbn(self, id, isbn, notify=True, commit=True):
+        self.set_identifier(id, 'isbn', isbn, notify=notify, commit=commit)
 
     def add_catalog(self, path, title):
         from calibre.ebooks.metadata.meta import get_metadata
@@ -3465,9 +3465,9 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                     if mi.series_index is None else mi.series_index
         aus = mi.author_sort or self.author_sort_from_authors(mi.authors)
         title = mi.title
-        if isbytestring(aus):
+        if isinstance(aus, bytes):
             aus = aus.decode(preferred_encoding, 'replace')
-        if isbytestring(title):
+        if isinstance(title, bytes):
             title = title.decode(preferred_encoding, 'replace')
         if force_id is None:
             obj = self.conn.execute('INSERT INTO books(title, series_index, author_sort) VALUES (?, ?, ?)',

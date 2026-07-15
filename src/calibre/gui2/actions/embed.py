@@ -36,6 +36,7 @@ class EmbedAction(InterfaceActionWithLibraryDrop):
                 _('Embed metadata into files of a specific format from selected books...'),
                 triggered=self.embed_selected_formats)
         self.qaction.setMenu(self.embed_menu)
+        self.job_data = None
         self.pd_timer = t = QTimer()
         t.timeout.connect(self.do_one)
 
@@ -66,8 +67,11 @@ class EmbedAction(InterfaceActionWithLibraryDrop):
         self.pd_timer.start()
 
     def do_one(self):
+        job_data = self.job_data
+        if job_data is None:
+            return
         try:
-            i, book_ids, pd, only_fmts, errors = self.job_data
+            i, book_ids, pd, only_fmts, errors = job_data
         except (TypeError, AttributeError):
             return
         if i >= len(book_ids) or pd.wasCanceled():

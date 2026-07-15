@@ -22,7 +22,7 @@ from calibre.utils.resources import get_path as P
 from calibre.utils.shared_file import share_open
 
 Dictionary = namedtuple('Dictionary', 'primary_locale locales dicpath affpath builtin name id')
-LoadedDictionary = namedtuple('Dictionary', 'primary_locale locales obj builtin name id')
+LoadedDictionary = namedtuple('LoadedDictionary', 'primary_locale locales obj builtin name id')
 dprefs = JSONConfig('dictionaries/prefs.json')
 dprefs.defaults['preferred_dictionaries'] = {}
 dprefs.defaults['preferred_locales'] = {}

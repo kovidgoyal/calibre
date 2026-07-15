@@ -34,18 +34,18 @@ def clean_ascii_chars(txt, charlist=None):
     Remove ASCII control chars.
     This is all control chars except \t, \n and \r
     '''
-    is_binary = isinstance(txt, bytes)
-    empty = b'' if is_binary else ''
-    if not txt:
-        return empty
-
-    if charlist is None:
-        pat = ascii_pat(is_binary)
+    if isinstance(txt, bytes):
+        if not txt:
+            return b''
+        if charlist is None:
+            return ascii_pat(True).sub(b'', txt)
+        return re.compile('|'.join(map(chr, charlist)).encode('utf-8')).sub(b'', txt)
     else:
-        pat = '|'.join(map(chr, charlist))
-        if is_binary:
-            pat = pat.encode('utf-8')
-    return pat.sub(empty, txt)
+        if not txt:
+            return ''
+        if charlist is None:
+            return ascii_pat(False).sub('', txt)
+        return re.compile('|'.join(map(chr, charlist))).sub('', txt)
 
 
 def allowed(x):

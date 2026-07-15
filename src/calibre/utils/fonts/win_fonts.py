@@ -10,7 +10,7 @@ import os
 import sys
 from itertools import product
 
-from calibre import isbytestring, prints
+from calibre import prints
 from calibre.constants import filesystem_encoding
 from calibre.utils.fonts.utils import get_font_characteristics, get_font_names, is_truetype_font
 from calibre.utils.resources import get_path as P
@@ -125,7 +125,7 @@ class WinFonts:
         WARNING: The file you are adding must have execute permissions or
         windows will fail to add it. (ls -l in cygwin to check)
         '''
-        if isbytestring(path):
+        if isinstance(path, bytes):
             path = path.decode(filesystem_encoding)
         path = os.path.abspath(path)
         ret = self.w.add_system_font(path)
@@ -157,7 +157,7 @@ def test():
     pluginsd = os.path.join(d(d(d(base))), 'plugins')
     if os.path.exists(os.path.join(pluginsd, 'winfonts.pyd')):
         sys.path.insert(0, pluginsd)
-        import winfonts
+        import winfonts  # type: ignore
         w = WinFonts(winfonts)
     else:
         w = load_winfonts()

@@ -46,17 +46,19 @@ def decode_xml(data: bytes, normalize_to_nfc: bool = True) -> tuple[str, str]:
         return fix_data(data.decode('utf-8'))
     except UnicodeDecodeError:
         pass
-    data, used_encoding = xml_to_unicode(data)
+    str_data, used_encoding = xml_to_unicode(data)
     if normalize_to_nfc:
-        data = unicodedata.normalize('NFC', data)
-    return fix_data(data)
+        str_data = unicodedata.normalize('NFC', str_data)
+    return fix_data(str_data)
 
 
 def parse_html5(raw, decoder=None, log=None, discard_namespaces=False, line_numbers=True, linenumber_attribute=None, replace_entities=True, fix_newlines=True):
     if isinstance(raw, bytes):
         raw = xml_to_unicode(raw)[0] if decoder is None else decoder(raw)
+    assert isinstance(raw, str)
     if replace_entities:
         raw = replace_all_entities(raw, True)
+        assert isinstance(raw, str)
     if fix_newlines:
         raw = raw.replace('\r\n', '\n').replace('\r', '\n')
     raw = clean_xml_chars(raw)
@@ -93,9 +95,12 @@ def handle_private_entities(data):
 def parse(raw, decoder=None, log=None, line_numbers=True, linenumber_attribute=None, replace_entities=True, force_html5_parse=False):
     if isinstance(raw, bytes):
         raw = xml_to_unicode(raw)[0] if decoder is None else decoder(raw)
+    assert isinstance(raw, str)
     raw = handle_private_entities(raw)
+    assert isinstance(raw, str)
     if replace_entities:
         raw = replace_all_entities(raw, True)
+        assert isinstance(raw, str)
     raw = raw.replace('\r\n', '\n').replace('\r', '\n')
 
     # Remove any preamble before the opening html tag as it can cause problems,

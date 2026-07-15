@@ -7,6 +7,7 @@ import numbers
 import operator
 import re
 import sys
+from typing import cast
 
 from qt.core import QBrush, QColor, QFont, QFontMetrics, QGraphicsItem, QGraphicsPixmapItem, QGraphicsRectItem, QPen, QPixmap, QRectF, Qt
 
@@ -159,6 +160,10 @@ class BlockStyle(Style):
         bgcolor=COLOR,
         framecolor=COLOR,
         )
+    blockwidth: int
+    blockheight: int
+    sidemargin: int
+    blockrule: str
 
 
 class ParSkip:
@@ -224,6 +229,7 @@ class TextBlock:
     def create_link(self, refobj):
         if self.current_line is None:
             self.create_line()
+        assert self.current_line is not None
         self.current_line.start_link(refobj, self.link_activated)
         self.link_activated(refobj, on_creation=True)
 
@@ -276,13 +282,16 @@ class TextBlock:
                 plot = Plot(i, self.font_loader.dpi)
                 if self.current_line is None:
                     self.create_line()
+                assert self.current_line is not None
                 if not self.current_line.can_add_plot(plot):
                     self.end_line()
                     self.create_line()
+                assert self.current_line is not None
                 self.current_line.add_plot(plot)
             elif i.name in ['Sup', 'Sub']:
                 if self.current_line is None:
                     self.create_line()
+                assert self.current_line is not None
                 self.current_line.valign = i.name
                 open_containers.append(((self.close_valign, []),))
             elif i.name == 'Space' and self.current_line is not None:
@@ -324,6 +333,7 @@ class TextBlock:
         while len(raw) > 0:
             if self.current_line is None:
                 self.create_line()
+            assert self.current_line is not None
             pos, line_filled = self.current_line.populate(raw, self.current_style)
             raw = raw[pos:]
             if line_filled:
@@ -349,18 +359,22 @@ class Link(QGraphicsRectItem):
         QGraphicsRectItem.__init__(self, start, 0, stop-start, parent.height, parent)
         self.refobj = refobj
         self.slot = slot
-        self.brush = self.__class__.inactive_brush
+        self._brush = self.__class__.inactive_brush
         self.setPen(QPen(Qt.PenStyle.NoPen))
         self.setCursor(Qt.CursorShape.PointingHandCursor)
         self.setAcceptHoverEvents(True)
 
     def hoverEnterEvent(self, event):
-        self.brush = self.__class__.active_brush
-        self.parentItem().update()
+        self._brush = self.__class__.active_brush
+        parent_item = self.parentItem()
+        assert parent_item is not None
+        parent_item.update()
 
     def hoverLeaveEvent(self, event):
-        self.brush = self.__class__.inactive_brush
-        self.parentItem().update()
+        self._brush = self.__class__.inactive_brush
+        parent_item = self.parentItem()
+        assert parent_item is not None
+        parent_item.update()
 
     def mousePressEvent(self, event):
         self.hoverLeaveEvent(None)
@@ -382,9 +396,7 @@ class Line(QGraphicsItem):
         self.height, self.descent, self.width = 0, 0, 0
         self.links = collections.deque()
         self.current_link = None
-        self.valign = None
-        if not hasattr(self, 'children'):
-            self.children = self.childItems
+        self.valign: str | None = None
 
     def start_link(self, refobj, slot):
         self.current_link = [self.current_width, sys.maxsize, refobj, slot]
@@ -498,7 +510,7 @@ class Line(QGraphicsItem):
     def boundingRect(self):
         return QRectF(0, 0, self.width, self.height)
 
-    def paint(self, painter, option, widget):
+    def paint(self, painter, option, widget=None):
         x, y = 0, 0+self.height-self.descent
         if self.vdebug:
             painter.save()
@@ -507,8 +519,8 @@ class Line(QGraphicsItem):
             painter.restore()
         painter.save()
         painter.setPen(QPen(Qt.PenStyle.NoPen))
-        for c in self.children():
-            painter.setBrush(c.brush)
+        for c in self.childItems():
+            painter.setBrush(cast('Link', c)._brush)
             painter.drawRect(c.boundingRect())
         painter.restore()
         painter.save()

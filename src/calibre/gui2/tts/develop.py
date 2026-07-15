@@ -89,11 +89,12 @@ class MainWindow(MainWindow):
 
     def state_event(self, ev: Literal['begin', 'end', 'cancel', 'pause', 'resume']):
         sb = self.statusBar()
+        assert sb is not None
         events = sb.currentMessage().split()
         events.append(ev)
         if len(events) > 16:
             del events[0]
-        self.statusBar().showMessage(' '.join(events))
+        sb.showMessage(' '.join(events))
         self.stop_action.setEnabled(ev in ('pause', 'resume', 'begin'))
         if ev == 'cancel':
             self.update_play_action('Play')

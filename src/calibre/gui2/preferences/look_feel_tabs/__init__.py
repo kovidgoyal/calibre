@@ -114,7 +114,7 @@ class DefaultAuthorLink(QWidget):
         self.choices.setCurrentIndex(i)
 
     def open_template_tester(self):
-        gui = get_gui()
+        gui = get_gui(fail_if_absent=True)
         db = gui.current_db.new_api
         lv = gui.library_view
         rows = lv.selectionModel().selectedRows()
@@ -123,7 +123,10 @@ class DefaultAuthorLink(QWidget):
         else:
             vals = []
             for row in rows:
-                book_id = lv.model().id(row)
+                from calibre.gui2.library.models import BooksModel as _BooksModel
+                lv_model = lv.model()
+                assert isinstance(lv_model, _BooksModel)
+                book_id = lv_model.id(row)
                 mi = db.new_api.get_proxy_metadata(book_id)
                 vals.append({'author': qquote(mi.authors[0]),
                              'title': qquote(mi.title),
@@ -161,10 +164,10 @@ class DisplayedFields(QAbstractListModel):
         self.endResetModel()
         self.changed = True
 
-    def rowCount(self, *args):
+    def rowCount(self, parent=...):
         return len(self.fields)
 
-    def data(self, index, role):
+    def data(self, index, role=...):
         try:
             field, visible = self.fields[index.row()]
         except Exception:
@@ -202,10 +205,10 @@ class DisplayedFields(QAbstractListModel):
         ans = QAbstractListModel.flags(self, index)
         return ans | Qt.ItemFlag.ItemIsUserCheckable
 
-    def setData(self, index, val, role):
+    def setData(self, index, value, role=...):
         ret = False
         if role == Qt.ItemDataRole.CheckStateRole:
-            self.fields[index.row()][1] = val in (Qt.CheckState.Checked, Qt.CheckState.Checked.value)
+            self.fields[index.row()][1] = value in (Qt.CheckState.Checked, Qt.CheckState.Checked.value)
             self.changed = True
             ret = True
             self.dataChanged.emit(index, index)
@@ -239,9 +242,8 @@ class DisplayedFields(QAbstractListModel):
 class RulesSetting(Setting):
 
     def __init__(self, name, config_obj, widget, gui_name=None, **kw):
-        self.name, self.gui_name = name, gui_name
-        if gui_name is None:
-            self.gui_name = 'opt_'+name
+        self.name = name
+        self.gui_name = gui_name or 'opt_' + name
         self.widget = widget
         self.edit_rules: EditRulesWidget = getattr(widget, self.gui_name)
         self.edit_rules.changed_signal.connect(self.widget.changed_signal)
@@ -276,7 +278,7 @@ class EditRulesWidget(QWidget):
             return
         self.initialized = True
         from calibre.gui2.ui import get_gui
-        db = get_gui().current_db
+        db = get_gui(fail_if_absent=True).current_db
         mi = selected_rows_metadatas()
         self.rules_editor.initialize(db.field_metadata, db.prefs, mi, self.rule_set_name)
 
@@ -287,12 +289,12 @@ class EditRulesWidget(QWidget):
     def commit(self):
         self.initialize()
         from calibre.gui2.ui import get_gui
-        db = get_gui().current_db
+        db = get_gui(fail_if_absent=True).current_db
         self.rules_editor.commit(db.prefs)
 
-    def showEvent(self, ev):
+    def showEvent(self, a0):
         self.initialize()
-        super().showEvent(ev)
+        super().showEvent(a0)
 
 
 class EditRulesConfigWidgetBase(LazyConfigWidgetBase):
@@ -356,6 +358,7 @@ class BackgroundConfig(QGroupBox, LazyConfigWidgetBase):
             self.load_from_gprefs()
 
         def load_from_gprefs(self, use_defaults=False):
+            assert self.config_name is not None
             rs = resolve_custom_background
             self.bcol_dark = QColor(*rs(self.config_name, for_dark=True, use_defaults=use_defaults))
             self.bcol_light = QColor(*rs(self.config_name, for_dark=False, use_defaults=use_defaults))
@@ -389,8 +392,9 @@ class BackgroundConfig(QGroupBox, LazyConfigWidgetBase):
 
         def change_color(self, light=False):
             which = _('light') if light else _('dark')
-            col = QColorDialog.getColor(self.bcol_light if light else self.bcol_dark,
-                    self, _('Choose {} background color').format(which))
+            bcol = self.bcol_light if light else self.bcol_dark
+            assert bcol is not None
+            col = QColorDialog.getColor(bcol, self, _('Choose {} background color').format(which))
 
             if col.isValid():
                 if light:
@@ -440,19 +444,24 @@ class BackgroundConfig(QGroupBox, LazyConfigWidgetBase):
             dotex(self.btex_light, self.light_brush)
             dotex(self.btex_dark, self.dark_brush)
 
-        def restore_defaults(self):
+        def restore_defaults(self, *args):
             self.load_from_gprefs(use_defaults=True)
             self.changed_signal.emit()
 
-        def commit(self):
+        def commit(self, *args):
+            assert self.config_name is not None
             s = gprefs[self.config_name].copy()
-            s['light'] = tuple(self.bcol_light.getRgb())[:3]
-            s['dark'] = tuple(self.bcol_dark.getRgb())[:3]
+            bcol_light = self.bcol_light
+            assert bcol_light is not None
+            bcol_dark = self.bcol_dark
+            assert bcol_dark is not None
+            s['light'] = tuple(bcol_light.getRgb())[:3]
+            s['dark'] = tuple(bcol_dark.getRgb())[:3]
             s['light_texture'] = self.btex_light
             s['dark_texture'] = self.btex_dark
             gprefs[self.config_name] = s
 
-        def paintEvent(self, ev):
+        def paintEvent(self, a0):
             painter = QPainter(self)
             r = self.rect()
             light = r.adjusted(0, 0, -r.width()//2, 0)
@@ -460,7 +469,7 @@ class BackgroundConfig(QGroupBox, LazyConfigWidgetBase):
             painter.fillRect(light, self.light_brush)
             painter.fillRect(dark, self.dark_brush)
             painter.end()
-            super().paintEvent(ev)
+            super().paintEvent(a0)
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -598,6 +607,7 @@ def export_layout(in_widget, model=None):
             filters=[(_('Column list'), ['json'])])
     if filename:
         try:
+            assert model is not None
             with open(filename, 'w') as f:
                 json.dump(model.fields, f, indent=1)
         except Exception as err:
@@ -613,6 +623,7 @@ def import_layout(in_widget, model=None):
         try:
             with open(filename[0]) as f:
                 fields = json.load(f)
+            assert model is not None
             model.initialize(pref_data_override=fields)
             in_widget.changed_signal.emit()
         except Exception as err:
@@ -621,6 +632,7 @@ def import_layout(in_widget, model=None):
 
 
 def reset_layout(in_widget, model=None):
+    assert model is not None
     model.initialize(use_defaults=True)
     if hasattr(in_widget, 'changed_signal'):
         in_widget.changed_signal.emit()
@@ -651,8 +663,10 @@ def move_field_down(widget, model, *args, use_kbd_modifiers=True):
 def selected_rows_metadatas():
     rslt = []
     try:
-        db = get_gui().current_db
-        rows = get_gui().current_view().selectionModel().selectedRows()
+        gui = get_gui()
+        assert gui is not None
+        db = gui.current_db
+        rows = gui.current_view().selectionModel().selectedRows()
         for row in rows:
             if row.isValid():
                 rslt.append(db.new_api.get_proxy_metadata(db.data.index_to_id(row.row())))

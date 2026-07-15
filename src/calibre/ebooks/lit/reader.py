@@ -468,63 +468,50 @@ class LitFile:
     def warn(self, msg):
         self._warn(msg)
 
-    def magic():
-        @preserve
-        def fget(self):
-            self.stream.seek(0)
-            return self.stream.read(8)
-        return property(fget=fget)
-    magic = magic()
+    @property
+    @preserve
+    def magic(self):
+        self.stream.seek(0)
+        return self.stream.read(8)
 
-    def version():
-        def fget(self):
-            self.stream.seek(8)
-            return u32(self.stream.read(4))
-        return property(fget=fget)
-    version = version()
+    @property
+    @preserve
+    def version(self):
+        self.stream.seek(8)
+        return u32(self.stream.read(4))
 
-    def hdr_len():
-        @preserve
-        def fget(self):
-            self.stream.seek(12)
-            return int32(self.stream.read(4))
-        return property(fget=fget)
-    hdr_len = hdr_len()
+    @property
+    @preserve
+    def hdr_len(self):
+        self.stream.seek(12)
+        return int32(self.stream.read(4))
 
-    def num_pieces():
-        @preserve
-        def fget(self):
-            self.stream.seek(16)
-            return int32(self.stream.read(4))
-        return property(fget=fget)
-    num_pieces = num_pieces()
+    @property
+    @preserve
+    def num_pieces(self):
+        self.stream.seek(16)
+        return int32(self.stream.read(4))
 
-    def sec_hdr_len():
-        @preserve
-        def fget(self):
-            self.stream.seek(20)
-            return int32(self.stream.read(4))
-        return property(fget=fget)
-    sec_hdr_len = sec_hdr_len()
+    @property
+    @preserve
+    def sec_hdr_len(self):
+        self.stream.seek(20)
+        return int32(self.stream.read(4))
 
-    def guid():
-        @preserve
-        def fget(self):
-            self.stream.seek(24)
-            return self.stream.read(16)
-        return property(fget=fget)
-    guid = guid()
+    @property
+    @preserve
+    def guid(self):
+        self.stream.seek(24)
+        return self.stream.read(16)
 
-    def header():
-        @preserve
-        def fget(self):
-            size = self.hdr_len \
-                + (self.num_pieces * self.PIECE_SIZE) \
-                + self.sec_hdr_len
-            self.stream.seek(0)
-            return self.stream.read(size)
-        return property(fget=fget)
-    header = header()
+    @property
+    @preserve
+    def header(self):
+        size = self.hdr_len \
+            + (self.num_pieces * self.PIECE_SIZE) \
+            + self.sec_hdr_len
+        self.stream.seek(0)
+        return self.stream.read(size)
 
     @preserve
     def __len__(self):

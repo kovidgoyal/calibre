@@ -15,7 +15,6 @@ from qt.core import (
     QListWidget,
     QListWidgetItem,
     QMenu,
-    QPainter,
     QPalette,
     QPixmap,
     QRectF,
@@ -26,6 +25,7 @@ from qt.core import (
     Qt,
     QTabWidget,
     QVBoxLayout,
+    QWidget,
     pyqtSignal,
 )
 
@@ -60,7 +60,7 @@ class TrashItemDelegate(QStyledItemDelegate):
     def sizeHint(self, option, index):
         return QSize(THUMBNAIL_SIZE[0] + MARGIN_SIZE + 256, THUMBNAIL_SIZE[1] + MARGIN_SIZE)
 
-    def paint(self, painter: QPainter, option, index):
+    def paint(self, painter, option, index):
         super().paint(painter, option, index)
         painter.save()
         entry: TrashEntry = index.data(Qt.ItemDataRole.UserRole)
@@ -76,7 +76,9 @@ class TrashItemDelegate(QStyledItemDelegate):
             text += '\n' + ', '.join(sorted(entry.formats))
         r = QRectF(option.rect)
         if entry.cover_path:
-            dp = self.parent().devicePixelRatioF()
+            par = self.parent()
+            assert isinstance(par, QWidget)
+            dp = par.devicePixelRatioF()
             p = self.pixmap_cache.get(entry.cover_path)
             if p is None:
                 p = QPixmap()
@@ -84,7 +86,7 @@ class TrashItemDelegate(QStyledItemDelegate):
                 scaled, w, h = fit_image(p.width(), p.height(), int(THUMBNAIL_SIZE[0] * dp), int(THUMBNAIL_SIZE[1] * dp))
                 if scaled:
                     p = p.scaled(w, h, transformMode=Qt.TransformationMode.SmoothTransformation)
-                p.setDevicePixelRatio(self.parent().devicePixelRatioF())
+                p.setDevicePixelRatio(par.devicePixelRatioF())
                 self.pixmap_cache[entry.cover_path] = p
             w, h = p.width() / dp, p.height() / dp
             width, height = THUMBNAIL_SIZE[0] + MARGIN_SIZE, THUMBNAIL_SIZE[1] + MARGIN_SIZE
@@ -132,7 +134,9 @@ class TrashList(QListWidget):
             return
         m = QMenu(self)
         entry = item.data(Qt.ItemDataRole.UserRole)
-        m.addAction(QIcon.ic('save.png'), _('Save "{}" to disk').format(entry.title)).triggered.connect(self.save_current_item)
+        _save_action = m.addAction(QIcon.ic('save.png'), _('Save "{}" to disk').format(entry.title))
+        assert _save_action is not None
+        _save_action.triggered.connect(self.save_current_item)
         m.exec(self.mapToGlobal(pos))
 
     def save_current_item(self):
@@ -201,17 +205,22 @@ class TrashView(Dialog):
         h = QHBoxLayout()
         l.addWidget(self.bb)
         self.restore_button = b = self.bb.addButton(_('&Restore selected'), QDialogButtonBox.ButtonRole.ActionRole)
+        assert b is not None
         b.clicked.connect(self.restore_selected)
         b.setIcon(QIcon.ic('edit-undo.png'))
         self.delete_button = b = self.bb.addButton(_('Permanently &delete selected'), QDialogButtonBox.ButtonRole.ActionRole)
+        assert b is not None
         b.setToolTip(_('Remove the selected entries from the trash bin, thereby deleting them permanently'))
         b.setIcon(QIcon.ic('edit-clear.png'))
         b.clicked.connect(self.delete_selected)
         self.clear_button = b = self.bb.addButton(_('&Clear'), QDialogButtonBox.ButtonRole.ResetRole)
+        assert b is not None
         b.clicked.connect(self.clear_all)
         b.setIcon(QIcon.ic('dialog_warning.png'))
         self.update_titles()
-        self.bb.button(QDialogButtonBox.StandardButton.Close).setFocus(Qt.FocusReason.OtherFocusReason)
+        _close_btn = self.bb.button(QDialogButtonBox.StandardButton.Close)
+        assert _close_btn is not None
+        _close_btn.setFocus(Qt.FocusReason.OtherFocusReason)
 
     def clear_all(self):
         if not confirm('<p>'+_('All books and formats will be <b>permanently deleted</b>! Are you sure?'), 'clear_trash_bin', self):
@@ -238,7 +247,9 @@ class TrashView(Dialog):
 
     def do_operation_on_selected(self, func):
         ok_items, failed_items = [], []
-        for i in self.tabs.currentWidget().selectedItems():
+        cw = self.tabs.currentWidget()
+        assert isinstance(cw, TrashList)
+        for i in cw.selectedItems():
             entry = i.data(Qt.ItemDataRole.UserRole)
             try:
                 func(entry)
@@ -285,6 +296,7 @@ class TrashView(Dialog):
 
     def remove_entries(self, remove):
         w = self.tabs.currentWidget()
+        assert isinstance(w, TrashList)
         for i in remove:
             w.takeItem(w.row(i))
         self.update_titles()

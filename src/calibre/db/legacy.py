@@ -7,9 +7,10 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 import os
 import traceback
 import weakref
-from collections.abc import MutableMapping
+from collections.abc import Callable, MutableMapping
+from typing import Any
 
-from calibre import force_unicode, isbytestring
+from calibre import force_unicode
 from calibre.constants import preferred_encoding
 from calibre.db import _get_next_series_num_for_list, _get_series_values, get_data_as_dict
 from calibre.db.adding import add_catalog, add_news, find_books_in_directory, import_book_directory, import_book_directory_multiple, recursive_import
@@ -28,7 +29,7 @@ from calibre.utils.search_query_parser import set_saved_searches
 def cleanup_tags(tags):
     tags = [x.strip().replace(',', ';') for x in tags if x.strip()]
     tags = [x.decode(preferred_encoding, 'replace')
-                if isbytestring(x) else x for x in tags]
+                if isinstance(x, bytes) else x for x in tags]
     tags = [' '.join(x.split()) for x in tags]
     ans, seen = [], set()
     for tag in tags:
@@ -60,98 +61,135 @@ class ThreadSafePrefs(MutableMapping):
         self.db = weakref.ref(db)
 
     def has_setting(self, key):
-        prefs = self.db().backend.prefs
+        db = self.db()
+        assert db is not None
+        prefs = db.backend.prefs
         return prefs.has_setting(key)
 
     def __getitem__(self, key):
-        prefs = self.db().backend.prefs
+        db = self.db()
+        assert db is not None
+        prefs = db.backend.prefs
         return prefs.__getitem__(key)
 
     def __delitem__(self, key):
         db = self.db()
+        assert db is not None
         with db.write_lock:
             prefs = db.backend.prefs
             prefs.__delitem__(key)
 
     def __setitem__(self, key, val):
         db = self.db()
+        assert db is not None
         with db.write_lock:
             prefs = db.backend.prefs
             prefs.__setitem__(key, val)
 
     def __contains__(self, key):
-        prefs = self.db().backend.prefs
+        db = self.db()
+        assert db is not None
+        prefs = db.backend.prefs
         return prefs.__contains__(key)
 
     def __iter__(self):
-        prefs = self.db().backend.prefs
+        db = self.db()
+        assert db is not None
+        prefs = db.backend.prefs
         return prefs.__iter__()
 
     def __len__(self):
-        prefs = self.db().backend.prefs
+        db = self.db()
+        assert db is not None
+        prefs = db.backend.prefs
         return prefs.__len__()
 
     def __bool__(self):
-        prefs = self.db().backend.prefs
+        db = self.db()
+        assert db is not None
+        prefs = db.backend.prefs
         return prefs.__bool__()
 
     def copy(self):
-        prefs = self.db().backend.prefs
+        db = self.db()
+        assert db is not None
+        prefs = db.backend.prefs
         return prefs.copy()
 
     def items(self):
-        prefs = self.db().backend.prefs
+        db = self.db()
+        assert db is not None
+        prefs = db.backend.prefs
         return prefs.items()
     iteritems = items
 
     def keys(self):
-        prefs = self.db().backend.prefs
+        db = self.db()
+        assert db is not None
+        prefs = db.backend.prefs
         return prefs.keys()
     iterkeys = keys
 
     def values(self):
-        prefs = self.db().backend.prefs
+        db = self.db()
+        assert db is not None
+        prefs = db.backend.prefs
         return prefs.values()
     itervalues = values
 
     @property
     def defaults(self):
-        prefs = self.db().backend.prefs
+        db = self.db()
+        assert db is not None
+        prefs = db.backend.prefs
         return prefs.defaults
 
     @property
     def disable_setting(self):
-        prefs = self.db().backend.prefs
+        db = self.db()
+        assert db is not None
+        prefs = db.backend.prefs
         return prefs.disable_setting
 
     @disable_setting.setter
     def disable_setting(self, val):
-        prefs = self.db().backend.prefs
+        db = self.db()
+        assert db is not None
+        prefs = db.backend.prefs
         prefs.disable_setting = val
 
     def get(self, key, default=None):
-        prefs = self.db().backend.prefs
+        db = self.db()
+        assert db is not None
+        prefs = db.backend.prefs
         return prefs.get(key, default)
 
     def set(self, key, val):
         self.__setitem__(key, val)
 
     def get_namespaced(self, namespace, key, default=None):
-        prefs = self.db().backend.prefs
+        db = self.db()
+        assert db is not None
+        prefs = db.backend.prefs
         return prefs.get_namespaced(namespace, key, default)
 
     def set_namespaced(self, namespace, key, val):
         db = self.db()
+        assert db is not None
         with db.write_lock:
             prefs = db.backend.prefs
             return prefs.set_namespaced(namespace, key, val)
 
     def write_serialized(self, library_path):
-        prefs = self.db().backend.prefs
+        db = self.db()
+        assert db is not None
+        prefs = db.backend.prefs
         prefs.write_serialized(library_path)
 
     def to_raw(self, val):
-        prefs = self.db().backend.prefs
+        db = self.db()
+        assert db is not None
+        prefs = db.backend.prefs
         return prefs.to_raw(val)
 
     def raw_to_object(self, raw):
@@ -172,6 +210,40 @@ class LibraryDatabase:
     MATCH_TYPE = ('any', 'all')
     CUSTOM_DATA_TYPES = frozenset(['rating', 'text', 'comments', 'datetime',
         'int', 'float', 'bool', 'series', 'composite', 'enumeration'])
+
+    # These attributes are assigned dynamically at module level after class definition
+    multisort: Callable[..., Any]
+    all_custom: Callable[..., Any]
+    format_hash: Callable[..., Any]
+    index: Callable[..., Any]
+    has_cover: Callable[..., Any]
+    get_tags: Callable[..., Any]
+    get_categories: Callable[..., Any]
+    get_identifiers: Callable[..., Any]
+    isbn: Callable[..., Any]
+    get_books_for_category: Callable[..., Any]
+    get_data_as_dict: Callable[..., Any]
+    find_identical_books: Callable[..., Any]
+    get_top_level_move_items: Callable[..., Any]
+    update_last_modified: Callable[..., Any]
+    all_formats: Callable[..., Any]
+    all_tags: Callable[..., Any]
+    get_all_identifier_types: Callable[..., Any]
+    get_authors_with_ids: Callable[..., Any]
+    get_author_id: Callable[..., Any]
+    metadata_for_field: Callable[..., Any]
+    saved_search_names: Callable[..., Any]
+    saved_search_lookup: Callable[..., Any]
+    saved_search_set_all: Callable[..., Any]
+    saved_search_delete: Callable[..., Any]
+    saved_search_add: Callable[..., Any]
+    saved_search_rename: Callable[..., Any]
+    commit_dirty_cache: Callable[..., Any]
+    author_sort_from_authors: Callable[..., Any]
+    clean: Callable[..., Any]
+    clean_custom: Callable[..., Any]
+    clean_standard_field: Callable[..., Any]
+    commit: Callable[..., Any]
 
     @classmethod
     def exists_at(cls, path):

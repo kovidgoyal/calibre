@@ -103,7 +103,7 @@ class RBMLizer:
                 if item.href in self.link_hrefs.keys():
                     toc.append(f'<LI><A HREF="#{self.link_hrefs[item.href]}">{item.title}</A></LI>\n')
                 else:
-                    self.oeb.warn(f'Ignoring toc item: {item} not found in document.')
+                    self.log.warn(f'Ignoring toc item: {item} not found in document.')
             toc.append('</UL>')
         return ''.join(toc)
 

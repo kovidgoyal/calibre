@@ -50,6 +50,7 @@ class EditMetadataAction(InterfaceActionWithLibraryDrop):
 
     def genesis(self):
         md = self.qaction.menu()
+        assert md is not None
         cm = partial(self.create_menu_action, md)
         cm('individual', _('Edit metadata individually'), icon=self.qaction.icon(),
                 triggered=partial(self.edit_metadata, False, bulk=False))
@@ -121,6 +122,7 @@ class EditMetadataAction(InterfaceActionWithLibraryDrop):
     def _copy_links(self, lines):
         urls = QUrl.fromStringList(lines)
         cb = qapplication_or_fail().clipboard()
+        assert cb is not None
         md = QMimeData()
         md.setText('\n'.join(lines))
         md.setUrls(urls)
@@ -178,6 +180,7 @@ class EditMetadataAction(InterfaceActionWithLibraryDrop):
         if img:
             md.setImageData(img)
         c = QApplication.clipboard()
+        assert c is not None
         c.setMimeData(md)
 
     def paste_metadata(self):
@@ -192,7 +195,9 @@ class EditMetadataAction(InterfaceActionWithLibraryDrop):
             return error_dialog(self.gui, _('Cannot paste metadata'),
                                 _('No books selected'), show=True)
         c = QApplication.clipboard()
+        assert c is not None
         md = c.mimeData()
+        assert md is not None
         if not md.hasFormat('application/calibre-book-metadata'):
             return error_dialog(self.gui, _('Cannot paste metadata'),
                                 _('No copied metadata available'), show=True)
@@ -382,7 +387,7 @@ class EditMetadataAction(InterfaceActionWithLibraryDrop):
                     failed_ids |= d.rejected_ids
                     restrict_to_failed = True
                 nid_map = {}
-                for book_id, (changed, mi) in d.accepted.items():
+                for book_id, (changed, mi) in d.accepted_map.items():
                     if mi is None:  # discarded
                         continue
                     if changed:

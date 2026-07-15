@@ -151,15 +151,15 @@ def arbitrary_n(module_name, func_name, args, kwargs={},
 
 
 def get_func(name):
-    module, func, notification = PARALLEL_FUNCS[name]
+    module_name, func, notification = PARALLEL_FUNCS[name]
     try:
-        module = importlib.import_module(module)
+        module = importlib.import_module(module_name)
     except ZipImportError:
         # Something windows weird happened, try clearing the zip import cache
         # in case the zipfile was changed from under us
-        from zipimport import _zip_directory_cache as zdc
+        from zipimport import _zip_directory_cache as zdc  # type: ignore
         zdc.clear()
-        module = importlib.import_module(module)
+        module = importlib.import_module(module_name)
     func = getattr(module, func)
     return func, notification
 

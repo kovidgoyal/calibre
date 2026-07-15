@@ -85,7 +85,8 @@ class HTMLOutput(OutputFormatPlugin):
         return etree.tostring(root, pretty_print=True, encoding='unicode',
                 xml_declaration=False)
 
-    def convert(self, oeb_book, output_path, input_plugin, opts, log):
+    def convert(self, oeb_book, output, input_plugin, opts, log):
+        output_path = output
         import pystache
         from lxml import etree
 
@@ -144,6 +145,7 @@ class HTMLOutput(OutputFormatPlugin):
                 'table_of_contents':  _('Table of contents'), 'no_toc': _('No table of contents present'),
                 'begin_to_read': _('begin to read'), 'start': _('start'),
                 'prev_page': _('previous page'), 'next_page': _('next page'),
+                'has_link': None, 'prev_link': None, 'next_link': None,
         }
 
         with open(output_file, 'wb') as f:
@@ -217,13 +219,15 @@ class HTMLOutput(OutputFormatPlugin):
                     return
                 toc_as_html = self.generate_html_toc(oeb_book, path, output_dir) if has_toc else ''
                 v = basic_template_vars.copy()
-                v.update({
-                    'has_link': prevLink or nextLink,
-                    'prev_link': prevLink, 'next_link': nextLink, 'toc_url': tocUrl,
-                    'head_content': head_content, 'ebook_content': ebook_content,
-                    'css_link': cssLink, 'toc': toc_as_html,
-                    'first_content_page_link': firstContentPageLink,
-                })
+                v['has_link'] = prevLink or nextLink
+                v['prev_link'] = prevLink
+                v['next_link'] = nextLink
+                v['toc_url'] = tocUrl
+                v['head_content'] = head_content
+                v['ebook_content'] = ebook_content
+                v['css_link'] = cssLink
+                v['toc'] = toc_as_html
+                v['first_content_page_link'] = firstContentPageLink
                 t = pystache.render(template_html, v)
                 # write html to file
                 with open(path, 'wb') as f:

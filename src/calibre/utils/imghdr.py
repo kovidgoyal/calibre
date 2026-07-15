@@ -100,11 +100,11 @@ def _identify(stream):
 # ---------------------------------#
 
 
-tests = []
+_tests = []
 
 
 def test(f):
-    tests.append(f)
+    _tests.append(f)
     return f
 
 
@@ -264,4 +264,4 @@ def svg(h):
         return 'svg'
 
 
-tests = tuple(tests)
+tests = tuple(_tests)

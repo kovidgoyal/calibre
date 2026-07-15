@@ -32,7 +32,7 @@ from qt.core import (
     pyqtSignal,
 )
 
-from calibre import isbytestring, prepare_string_for_xml
+from calibre import prepare_string_for_xml
 from calibre.gui2 import error_dialog, info_dialog
 from calibre.gui2.preferences import AbortCommit, ConfigWidgetBase, test_widget
 from calibre.gui2.search_box import SearchBox2
@@ -144,10 +144,10 @@ class Tweaks(QAbstractListModel, AdaptSQP):  # {{{
         SearchQueryParser.__init__(self, ['all'])
         self.parse_tweaks()
 
-    def rowCount(self, *args):
+    def rowCount(self, parent=...):
         return len(self.tweaks)
 
-    def data(self, index, role):
+    def data(self, index, role=...):
         row = index.row()
         try:
             tweak = self.tweaks[row]
@@ -279,7 +279,7 @@ class Tweaks(QAbstractListModel, AdaptSQP):  # {{{
         for key, val in self.plugin_tweaks.items():
             ans.extend([f'{key} = {val!r}', '', ''])
         ans = '\n'.join(ans)
-        if isbytestring(ans):
+        if isinstance(ans, bytes):
             ans = ans.decode('utf-8')
         return ans
 
@@ -378,9 +378,9 @@ class TweaksView(QListView):
         self.setStyleSheet('QListView::item { padding-top: 0.75ex; padding-bottom: 0.75ex; }')
         self.setWordWrap(True)
 
-    def currentChanged(self, cur, prev):
-        QListView.currentChanged(self, cur, prev)
-        self.current_changed.emit(cur, prev)
+    def currentChanged(self, current, previous):
+        QListView.currentChanged(self, current, previous)
+        self.current_changed.emit(current, previous)
 
 
 class ConfigWidget(ConfigWidgetBase):
@@ -396,7 +396,7 @@ class ConfigWidget(ConfigWidgetBase):
         l.addWidget(s, 10)
 
         self.lv = lv = QWidget(self)
-        lv.l = l2 = QVBoxLayout(lv)
+        l2 = QVBoxLayout(lv)
         l2.setContentsMargins(0, 0, 0, 0)
         self.tweaks_view = tv = TweaksView(self)
         l2.addWidget(tv)
@@ -479,6 +479,7 @@ class ConfigWidget(ConfigWidgetBase):
 
     def copy_item_to_clipboard(self, val):
         cb = QApplication.clipboard()
+        assert cb is not None
         cb.clear()
         cb.setText(val)
 
@@ -517,7 +518,9 @@ class ConfigWidget(ConfigWidgetBase):
     def initialize(self):
         self.tweaks = self._model = Tweaks()
         self.tweaks_view.setModel(self.tweaks)
-        self.tweaks_view.setCurrentIndex(self.tweaks_view.model().index(0))
+        tweaks_model = self.tweaks_view.model()
+        assert tweaks_model is not None
+        self.tweaks_view.setCurrentIndex(tweaks_model.index(0, 0))
 
     def restore_to_default(self, *args):
         idx = self.tweaks_view.currentIndex()
@@ -527,7 +530,7 @@ class ConfigWidget(ConfigWidgetBase):
             self.set_edit_text(tweak.edit_text)
             self.changed()
 
-    def restore_defaults(self):
+    def restore_defaults(self, *args):
         ConfigWidgetBase.restore_defaults(self)
         self.tweaks.restore_to_defaults()
         idx = self.tweaks_view.currentIndex()
@@ -551,7 +554,7 @@ class ConfigWidget(ConfigWidgetBase):
                 self.changed()
         self.edit_tweak.setStyleSheet(stylesheet_for_lineedit(ok, 'QPlainTextEdit'))
 
-    def commit(self):
+    def commit(self, *args):
         raw = self.tweaks.to_string()
         try:
             custom_tweaks = parse_python_tweaks(raw)
@@ -567,18 +570,18 @@ class ConfigWidget(ConfigWidgetBase):
         ConfigWidgetBase.commit(self)
         return True
 
-    def find(self, query):
-        if not query:
+    def find(self, a0):
+        if not a0:
             return
         try:
-            idx = self._model.find(query)
+            idx = self._model.find(a0)
         except ParseException:
             self.search.search_done(False)
             return
         self.search.search_done(True)
         if not idx.isValid():
             info_dialog(self, _('No matches'),
-                    _('Could not find any tweaks matching <i>{}</i>').format(prepare_string_for_xml(query)),
+                    _('Could not find any tweaks matching <i>{}</i>').format(prepare_string_for_xml(a0)),
                     show=True, show_copy_button=False)
             return
         self.highlight_index(idx)
@@ -587,7 +590,9 @@ class ConfigWidget(ConfigWidgetBase):
         if not idx.isValid():
             return
         self.view.scrollTo(idx)
-        self.view.selectionModel().select(idx, QItemSelectionModel.SelectionFlag.ClearAndSelect)
+        sel_model = self.view.selectionModel()
+        assert sel_model is not None
+        sel_model.select(idx, QItemSelectionModel.SelectionFlag.ClearAndSelect)
         self.view.setCurrentIndex(idx)
 
     def find_next(self, *args):

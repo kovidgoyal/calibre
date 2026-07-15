@@ -39,6 +39,7 @@ class Job(Thread):
 
     def run(self):
         func, self.func = self.func, None
+        assert func is not None
         try:
             result = func()
         except WorkerError as err:

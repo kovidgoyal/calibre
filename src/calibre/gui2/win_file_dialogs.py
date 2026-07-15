@@ -177,7 +177,7 @@ def run_file_dialog(
 
         def __init__(self):
             QEventLoop.__init__(self)
-            self.dialog_closed.connect(self.exit, type=Qt.ConnectionType.QueuedConnection)  # type: ignore
+            self.dialog_closed.connect(self.exit, type=Qt.ConnectionType.QueuedConnection)
 
     loop = Loop()
     server = PipeServer(pipename)

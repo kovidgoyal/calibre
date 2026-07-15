@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2019, Kovid Goyal <kovid at kovidgoyal.net>
 
 import ast
@@ -114,32 +113,40 @@ def initialize_constants():
     calibre_constants = {}
     src = read_cal_file('constants.py')
     nv = re.search(r'numeric_version\s+=\s+\((\d+), (\d+), (\d+)\)', src)
+    assert nv is not None
     calibre_constants['version'
                       ] = '%s.%s.%s' % (nv.group(1), nv.group(2), nv.group(3))
     def get_str_assign(which):
         pat = r'__appname__\s+=\s+(u{0,1})[\'"]([^\'"]+)[\'"]'.replace('__appname__', which)
-        return re.search(pat, src).group(2)
+        m = re.search(pat, src)
+        assert m is not None
+        return m.group(2)
 
     calibre_constants['appname'] = get_str_assign('__appname__')
     calibre_constants['MAIN_APP_UID'] = get_str_assign('MAIN_APP_UID')
     calibre_constants['VIEWER_APP_UID'] = get_str_assign('VIEWER_APP_UID')
     calibre_constants['EDITOR_APP_UID'] = get_str_assign('EDITOR_APP_UID')
-    epsrc = re.compile(r'entry_points = (\{.*?\})',
-                       re.DOTALL).search(read_cal_file('linux.py')).group(1)
+    ep_match = re.compile(r'entry_points = (\{.*?\})',
+                          re.DOTALL).search(read_cal_file('linux.py'))
+    assert ep_match is not None
+    epsrc = ep_match.group(1)
     epsrc = epsrc.replace('__appname__+', repr(calibre_constants['appname']))
     entry_points = ast.literal_eval(epsrc)
 
     def e2b(ep):
-        return re.search(r'\s*(.*?)\s*=', ep).group(1).strip()
+        m = re.search(r'\s*(.*?)\s*=', ep)
+        assert m is not None
+        return m.group(1).strip()
 
     def e2s(ep, base='src'):
-        return (
-            base + os.path.sep +
-            re.search(r'.*=\s*(.*?):', ep).group(1).replace('.', '/') + '.py'
-        ).strip()
+        m = re.search(r'.*=\s*(.*?):', ep)
+        assert m is not None
+        return (base + os.path.sep + m.group(1).replace('.', '/') + '.py').strip()
 
     def e2m(ep):
-        return re.search(r'.*=\s*(.*?)\s*:', ep).group(1).strip()
+        m = re.search(r'.*=\s*(.*?)\s*:', ep)
+        assert m is not None
+        return m.group(1).strip()
 
     def e2f(ep):
         return ep[ep.rindex(':') + 1:].strip()
@@ -156,9 +163,11 @@ def initialize_constants():
         scripts[x] = list(map(e2s, entry_points[y]))
 
     src = read_cal_file('ebooks/__init__.py')
-    be = re.search(
+    be_match = re.search(
         r'^BOOK_EXTENSIONS\s*=\s*(\[.+?\])', src, flags=re.DOTALL | re.MULTILINE
-    ).group(1)
+    )
+    assert be_match is not None
+    be = be_match.group(1)
     calibre_constants['book_extensions'] = json.loads(be.replace("'", '"'))
     return calibre_constants
 

@@ -443,6 +443,7 @@ class Mobi8Reader:
                         continue
                     container = Container(data)
                 elif typ == b'CRES':
+                    assert container is not None
                     data, imgtype = container.load_image(data)
                     if data is not None:
                         href = f'images/{container.resource_index:05}.{imgtype}'
@@ -575,6 +576,7 @@ class Mobi8Reader:
         depths = sorted({x[-1] for x in links})
         depth_map = {x:i for i, x in enumerate(depths)}
         for text, href, frag, depth in links:
+            assert parent is not None
             depth = depth_map[depth]
             if current_depth is None:
                 current_depth = 0
@@ -583,12 +585,14 @@ class Mobi8Reader:
                 parent.add_item(href, frag, text)
             elif current_depth < depth:
                 parent = parent[-1] if len(parent) > 0 else parent
+                assert parent is not None
                 parent.add_item(href, frag, text)
                 current_depth += 1
             else:
                 delta = current_depth - depth
                 while delta > 0 and parent.parent is not None:
                     parent = parent.parent
+                    assert parent is not None
                     delta -= 1
                 parent.add_item(href, frag, text)
                 current_depth = depth

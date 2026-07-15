@@ -4,6 +4,8 @@
 
 class ChangeEvent:
 
+    book_ids: frozenset
+
     def __init__(self):
         pass
 

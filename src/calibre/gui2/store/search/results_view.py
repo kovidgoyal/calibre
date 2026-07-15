@@ -53,18 +53,21 @@ class ResultsView(QTreeView):
         for i in self._model.IMG_COLS:
             self.setItemDelegateForColumn(i, self.img_delegate)
 
-    def contextMenuEvent(self, event):
-        index = self.indexAt(event.pos())
+    def contextMenuEvent(self, a0):
+        index = self.indexAt(a0.pos())
 
         if not index.isValid():
             return
 
-        result = self.model().get_result(index)
+        _m = self.model()
+        assert isinstance(_m, Matches)
+        result = _m.get_result(index)
 
         menu = QMenu(self)
         da = menu.addAction(_('Download...'), partial(self.download_requested.emit, result))
+        assert da is not None
         if not result.downloads:
             da.setEnabled(False)
         menu.addSeparator()
         menu.addAction(_('Show in store'), partial(self.open_requested.emit, result))
-        menu.exec(event.globalPos())
+        menu.exec(a0.globalPos())

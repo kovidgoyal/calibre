@@ -329,7 +329,7 @@ class Resource:
             rpath = self.path
         if isinstance(rpath, str):
             rpath = rpath.encode('utf-8')
-        return as_unicode(quote(rpath.replace(os.sep, '/')))+frag
+        return as_unicode(quote(rpath.replace(os.sep.encode('utf-8'), b'/')))+frag
 
     def set_basedir(self, path):
         self._basedir = path
@@ -380,11 +380,12 @@ class ResourceCollection:
     @staticmethod
     def from_directory_contents(top, topdown=True):
         collection = ResourceCollection()
-        for spec in os.walk(top, topdown=topdown):
-            path = os.path.abspath(os.path.join(spec[0], spec[1]))
-            res = Resource.from_path(path)
-            res.set_basedir(top)
-            collection.append(res)
+        for dirpath, _dirnames, filenames in os.walk(top, topdown=topdown):
+            for fname in filenames:
+                path = os.path.abspath(os.path.join(dirpath, fname))
+                res = Resource(path)
+                res.set_basedir(top)
+                collection.append(res)
         return collection
 
     def set_basedir(self, path):

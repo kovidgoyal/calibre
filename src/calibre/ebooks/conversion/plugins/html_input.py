@@ -81,8 +81,9 @@ class HTMLInput(InputFormatPlugin):
     def set_root_dir_of_input(self, basedir):
         self.root_dir_of_input = os.path.normcase(get_long_path_name(os.path.abspath(basedir)) + os.sep)
 
-    def convert(self, stream, opts, file_ext, log,
+    def convert(self, stream, options, file_ext, log,
                 accelerators):
+        opts = options
         self._is_case_sensitive = None
         basedir = os.getcwd()
         self.opts = opts

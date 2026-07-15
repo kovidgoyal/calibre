@@ -284,6 +284,23 @@ release_io_pm_assertion(PyObject *self, PyObject *args) {
 }
 
 static PyObject*
+close_finder_window(PyObject *self, PyObject *args) {
+    (void)self;
+    const char *name = NULL;
+    if (!PyArg_ParseTuple(args, "s", &name)) return NULL;
+    @autoreleasepool {
+        NSString *script = [NSString stringWithFormat:
+            @"tell application \"Finder\"\ntry\nclose window \"%@\"\nend try\nend tell",
+            [@(name) stringByReplacingOccurrencesOfString:@"\"" withString:@"\\\""]];
+        NSAppleScript *as = [[NSAppleScript alloc] initWithSource:script];
+        NSDictionary *err = nil;
+        [as executeAndReturnError:&err];
+        [as release];
+    }
+    Py_RETURN_NONE;
+}
+
+static PyObject*
 set_requires_aqua_system_appearance(PyObject *self, PyObject *yes) {
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     if (PyObject_IsTrue(yes)) {
@@ -339,6 +356,7 @@ get_appearance(PyObject *self, PyObject *args) {
 
 
 static PyMethodDef module_methods[] = {
+    {"close_finder_window", (PyCFunction)close_finder_window, METH_VARARGS, "close_finder_window(name) -> None -- Close a Finder window whose title matches name."},
     {"get_appearance", (PyCFunction)get_appearance, METH_VARARGS, ""},
     {"set_appearance", (PyCFunction)set_appearance, METH_VARARGS, ""},
     {"set_requires_aqua_system_appearance", (PyCFunction)set_requires_aqua_system_appearance, METH_O, ""},

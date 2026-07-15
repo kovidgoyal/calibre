@@ -332,7 +332,7 @@ class FieldStrings:
         '''
         match_group = re.search(self.__date_exp, the_string)
         if match_group:
-            return match_group(1)
+            return match_group.group(1)
 
     def __parse_num_type(self, the_string):
         '''

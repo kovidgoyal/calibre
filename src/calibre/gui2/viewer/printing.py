@@ -200,27 +200,27 @@ class Printing(QProgressDialog):
         self.show_file = show_file
         self.setWindowTitle(_('Printing...'))
         self.setWindowIcon(QIcon.ic('print.png'))
-        self.thread = thread
+        self.print_thread = thread
         self.timer = t = QTimer(self)
         t.timeout.connect(self.check)
         self.canceled.connect(self.do_cancel)
         t.start(100)
 
     def check(self):
-        if self.thread.is_alive():
+        if self.print_thread.is_alive():
             return
-        if self.thread.tb or self.thread.log:
+        if self.print_thread.tb or self.print_thread.log:
             error_dialog(self, _('Failed to convert to PDF'), _(
-                'Failed to generate PDF file, click "Show details" for more information.'), det_msg=self.thread.tb or self.thread.log, show=True)
+                'Failed to generate PDF file, click "Show details" for more information.'), det_msg=self.print_thread.tb or self.print_thread.log, show=True)
         elif self.show_file:
-            open_local_file(self.thread.data['output'])
+            open_local_file(self.print_thread.data['output'])
         self.accept()
 
     def do_cancel(self):
-        if hasattr(self.thread, 'worker'):
+        if hasattr(self.print_thread, 'worker'):
             try:
-                if self.thread.worker.poll() is None:
-                    self.thread.worker.kill()
+                if self.print_thread.worker.poll() is None:
+                    self.print_thread.worker.kill()
             except OSError:
                 import traceback
                 traceback.print_exc()

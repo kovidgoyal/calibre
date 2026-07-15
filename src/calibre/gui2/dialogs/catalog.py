@@ -128,17 +128,25 @@ class Catalog(QDialog, Ui_Dialog):
         self.add_to_library.setChecked(dynamic.get('catalog_add_to_library', True))
 
         self.format.currentIndexChanged.connect(self.show_plugin_tab)
-        self.buttonBox.button(QDialogButtonBox.StandardButton.Apply).clicked.connect(self.apply)
-        self.buttonBox.button(QDialogButtonBox.StandardButton.Help).clicked.connect(self.help)
+        apply_btn = self.buttonBox.button(QDialogButtonBox.StandardButton.Apply)
+        assert apply_btn is not None
+        apply_btn.clicked.connect(self.apply)
+        help_btn = self.buttonBox.button(QDialogButtonBox.StandardButton.Help)
+        assert help_btn is not None
+        help_btn.clicked.connect(self.help)
         self.show_plugin_tab(None)
 
         self.restore_geometry(dynamic, 'catalog_window_geom')
-        g = self.screen().availableSize()
+        screen = self.screen()
+        assert screen is not None
+        g = screen.availableSize()
         self.setMaximumWidth(g.width() - 50)
         self.setMaximumHeight(g.height() - 50)
 
     def sizeHint(self):
-        geom = self.screen().availableSize()
+        screen = self.screen()
+        assert screen is not None
+        geom = screen.availableSize()
         nh, nw = max(300, geom.height()-50), max(400, geom.width()-70)
         return QSize(nw, nh)
 
@@ -162,10 +170,12 @@ class Catalog(QDialog, Ui_Dialog):
                     s.setWidget(pw), s.setWidgetResizable(True)
                     self.tabs.addTab(s, pw.TITLE)
                 break
+        help_button = self.buttonBox.button(QDialogButtonBox.StandardButton.Help)
+        assert help_button is not None
         if hasattr(self.options_widget, 'show_help'):
-            self.buttonBox.button(QDialogButtonBox.StandardButton.Help).setVisible(True)
+            help_button.setVisible(True)
         else:
-            self.buttonBox.button(QDialogButtonBox.StandardButton.Help).setVisible(False)
+            help_button.setVisible(False)
 
     def format_changed(self, idx):
         cf = str(self.format.currentText())

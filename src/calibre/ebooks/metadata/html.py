@@ -14,7 +14,7 @@ from collections import defaultdict
 from html5_parser import parse
 from lxml.etree import Comment
 
-from calibre import isbytestring, replace_entities
+from calibre import replace_entities
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.ebooks.metadata import authors_to_string, string_to_authors
 from calibre.ebooks.metadata.book.base import Metadata
@@ -65,10 +65,14 @@ rmap_meta = {v:k for k, l in META_NAMES.items() for v in l}
 attr_pat = r'''(?:(?P<sq>')|(?P<dq>"))(?P<content>(?(sq)[^']+|[^"]+))(?(sq)'|")'''
 
 
+_handle_comment_pat: re.Pattern[str] | None = None
+
+
 def handle_comment(data, comment_tags):
-    if not hasattr(handle_comment, 'pat'):
-        handle_comment.pat = re.compile(rf'''(?P<name>\S+)\s*=\s*{attr_pat}''')
-    for match in handle_comment.pat.finditer(data):
+    global _handle_comment_pat
+    if _handle_comment_pat is None:
+        _handle_comment_pat = re.compile(rf'''(?P<name>\S+)\s*=\s*{attr_pat}''')
+    for match in _handle_comment_pat.finditer(data):
         x = match.group('name')
         field = None
         try:
@@ -131,7 +135,7 @@ def get_metadata_(src, encoding=None):
     # Meta data definitions as in
     # https://www.mobileread.com/forums/showpost.php?p=712544&postcount=9
 
-    if isbytestring(src):
+    if isinstance(src, bytes):
         if not encoding:
             src = xml_to_unicode(src)[0]
         else:

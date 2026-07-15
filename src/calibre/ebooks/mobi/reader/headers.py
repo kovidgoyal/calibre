@@ -192,6 +192,8 @@ class BookHeader:
 
     def __init__(self, raw, ident, user_encoding, log, try_extra_data_fix=False):
         self.log = log
+        self.kf8_first_image_index: int | None = None
+        self.mobi6_records: int | None = None
         self.compression_type = raw[:2]
         self.records, self.records_size = struct.unpack('>HH', raw[8:12])
         self.encryption_type, = struct.unpack('>H', raw[12:14])

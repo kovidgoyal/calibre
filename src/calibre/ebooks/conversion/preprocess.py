@@ -7,6 +7,7 @@ __docformat__ = 'restructuredtext en'
 
 import json
 import re
+from functools import lru_cache
 from math import ceil
 
 from calibre import as_unicode, entity_regex, xml_replace_entities
@@ -218,42 +219,40 @@ class Dehyphenator:
             lookupword = dehyphenated
         if len(firsthalf) > 4 and self.prefixes.match(firsthalf) is None:
             lookupword = self.removeprefix.sub('', lookupword)
+        assert self.log is not None
         if self.verbose > 2:
-            self.log('lookup word is: '+lookupword+', orig is: ' + hyphenated)
+            log = self.log or print
+        else:
+            def log(*a):
+                pass
+        log('lookup word is: '+lookupword+', orig is: ' + hyphenated)
         try:
             searchresult = self.html.find(lookupword.lower())
         except Exception:
             return hyphenated
         if self.format in {'html_cleanup', 'txt_cleanup'}:
             if self.html.find(lookupword) != -1 or searchresult != -1:
-                if self.verbose > 2:
-                    self.log('    Cleanup:returned dehyphenated word: ' + dehyphenated)
+                log('    Cleanup:returned dehyphenated word: ' + dehyphenated)
                 return dehyphenated
             elif self.html.find(hyphenated) != -1:
-                if self.verbose > 2:
-                    self.log('        Cleanup:returned hyphenated word: ' + hyphenated)
+                log('        Cleanup:returned hyphenated word: ' + hyphenated)
                 return hyphenated
             else:
-                if self.verbose > 2:
-                    self.log('            Cleanup:returning original text '+firsthalf+' + linefeed '+secondhalf)
+                log('            Cleanup:returning original text '+firsthalf+' + linefeed '+secondhalf)
                 return firsthalf+'—'+wraptags+secondhalf
 
         else:
             if self.format == 'individual_words' and len(firsthalf) + len(secondhalf) <= 6:
-                if self.verbose > 2:
-                    self.log('too short, returned hyphenated word: ' + hyphenated)
+                log('too short, returned hyphenated word: ' + hyphenated)
                 return hyphenated
             if len(firsthalf) <= 2 and len(secondhalf) <= 2:
-                if self.verbose > 2:
-                    self.log('too short, returned hyphenated word: ' + hyphenated)
+                log('too short, returned hyphenated word: ' + hyphenated)
                 return hyphenated
             if self.html.find(lookupword) != -1 or searchresult != -1:
-                if self.verbose > 2:
-                    self.log('     returned dehyphenated word: ' + dehyphenated)
+                log('     returned dehyphenated word: ' + dehyphenated)
                 return dehyphenated
             else:
-                if self.verbose > 2:
-                    self.log('          returned hyphenated word: ' + hyphenated)
+                log('          returned hyphenated word: ' + hyphenated)
                 return hyphenated
 
     def __call__(self, html, format, length=1):
@@ -358,10 +357,9 @@ def accent_regex(accent_maps, letter_before=False):
     return pat, sub
 
 
+@lru_cache(maxsize=2)
 def html_preprocess_rules():
-    ans = getattr(html_preprocess_rules, 'ans', None)
-    if ans is None:
-        ans = html_preprocess_rules.ans = [
+    return (
         # Remove huge block of contiguous spaces as they slow down
         # the following regexes pretty badly
         (re.compile(r'\s{10000,}'), ''),
@@ -372,14 +370,12 @@ def html_preprocess_rules():
         (entity_regex(), convert_entities),
         # Remove the <![if/endif tags inserted by everybody's darling, MS Word
         (re.compile(r'</{0,1}!\[(end){0,1}if\]{0,1}>', re.IGNORECASE), ''),
-    ]
-    return ans
+    )
 
 
+@lru_cache(maxsize=2)
 def pdftohtml_rules():
-    ans = getattr(pdftohtml_rules, 'ans', None)
-    if ans is None:
-        ans = pdftohtml_rules.ans = [
+    return (
         accent_regex({
             '¨': 'aAeEiIoOuU:äÄëËïÏöÖüÜ',
             '`': 'aAeEiIoOuU:àÀèÈìÌòÒùÙ',
@@ -416,14 +412,12 @@ def pdftohtml_rules():
         # Add space before and after italics
         (re.compile(r'(?<!“)<i>'), ' <i>'),
         (re.compile(r'</i>(?=\w)'), '</i> '),
-    ]
-    return ans
+    )
 
 
+@lru_cache(maxsize=2)
 def book_designer_rules():
-    ans = getattr(book_designer_rules, 'ans', None)
-    if ans is None:
-        ans = book_designer_rules.ans = [
+    return (
         # HR
         (re.compile(r'<hr>', re.IGNORECASE),
         lambda match : '<span style="page-break-after:always"> </span>'),
@@ -436,8 +430,7 @@ def book_designer_rules():
         lambda match : f'<h2 class="title">{match.group(1)}</h2>'),
         (re.compile(r'<span[^><]*?id=subtitle[^><]*?>(.*?)</span>', re.IGNORECASE|re.DOTALL),
         lambda match : f'<h3 class="subtitle">{match.group(1)}</h3>'),
-    ]
-    return ans
+    )
 
 
 class HTMLPreProcessor:
@@ -467,9 +460,9 @@ class HTMLPreProcessor:
         if self.is_baen(html):
             rules = []
         elif self.is_book_designer(html):
-            rules = book_designer_rules()
+            rules = list(book_designer_rules())
         elif is_pdftohtml:
-            rules = pdftohtml_rules()
+            rules = list(pdftohtml_rules())
         else:
             rules = []
 
@@ -490,6 +483,7 @@ class HTMLPreProcessor:
                 rules.insert(0, (search_re, replace_txt))
                 user_sr_rules[(search_re, replace_txt)] = search_pattern
             except Exception as e:
+                assert self.log is not None
                 self.log.error(f'Failed to parse {search!r} regexp because {as_unicode(e)}')
 
         # search / replace using the sr?_search / sr?_replace options
@@ -534,7 +528,7 @@ class HTMLPreProcessor:
                         r'\s*[\w\d$(])') % length, re.UNICODE), wrap_lines),
                 )
 
-        for rule in html_preprocess_rules() + start_rules:
+        for rule in list(html_preprocess_rules()) + start_rules:
             html = rule[0].sub(rule[1], html)
 
         if self.regex_wizard_callback is not None:
@@ -566,6 +560,7 @@ class HTMLPreProcessor:
                 html = rule[0].sub(rule[1], html)
             except Exception as e:
                 if rule in user_sr_rules:
+                    assert self.log is not None
                     self.log.error(
                         f'User supplied search & replace rule: {user_sr_rules[rule]} -> {rule[1]} '
                         f'failed with error: {e}, ignoring.')
@@ -574,6 +569,7 @@ class HTMLPreProcessor:
 
         if is_pdftohtml and length > -1:
             # Dehyphenate
+            assert self.extra_opts is not None
             dehyphenator = Dehyphenator(self.extra_opts.verbose, self.log)
             html = dehyphenator(html,'html', length)
 
@@ -615,15 +611,16 @@ class HTMLPreProcessor:
         if getattr(self.extra_opts, 'smarten_punctuation', False):
             html = smarten_punctuation(html, self.log)
 
-        try:
-            unsupported_unicode_chars = self.extra_opts.output_profile.unsupported_unicode_chars
-        except AttributeError:
-            unsupported_unicode_chars = ''
-        if unsupported_unicode_chars:
-            from calibre.utils.localization import get_udc
-            unihandecoder = get_udc()
-            for char in unsupported_unicode_chars:
-                asciichar = unihandecoder.decode(char)
-                html = html.replace(char, asciichar)
+        if self.extra_opts is not None:
+            try:
+                unsupported_unicode_chars = self.extra_opts.output_profile.unsupported_unicode_chars
+            except AttributeError:
+                unsupported_unicode_chars = ''
+            if unsupported_unicode_chars:
+                from calibre.utils.localization import get_udc
+                unihandecoder = get_udc()
+                for char in unsupported_unicode_chars:
+                    asciichar = unihandecoder.decode(char)
+                    html = html.replace(char, asciichar)
 
         return html

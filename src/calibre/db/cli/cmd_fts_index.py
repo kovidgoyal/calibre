@@ -3,6 +3,7 @@
 
 import sys
 
+from calibre.db.errors import NoTracebackException
 from calibre.db.listeners import EventType
 from calibre.utils.localization import _
 
@@ -29,9 +30,8 @@ def implementation(db, notify_changes, action, adata=None):
 
     if action == 'reindex':
         if not db.is_fts_enabled():
-            a = Exception(_('Full text indexing is not enabled on this library'))
-            a.suppress_traceback = True
-            raise a
+            raise NoTracebackException(_('Full text indexing is not enabled on this library'))
+        assert adata is not None
         items = adata.get('items')
         if items:
             for item in items:
@@ -43,9 +43,8 @@ def implementation(db, notify_changes, action, adata=None):
 
     if action == 'wait':
         if not db.is_fts_enabled():
-            a = Exception(_('Full text indexing is not enabled on this library'))
-            a.suppress_traceback = True
-            raise a
+            raise NoTracebackException(_('Full text indexing is not enabled on this library'))
+        assert adata is not None
         if 'measure_state' in adata:
             db.fts_start_measuring_rate(measure=adata['measure_state'])
         if adata.get('speed'):

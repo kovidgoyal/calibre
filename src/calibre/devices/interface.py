@@ -2,7 +2,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import os
 from collections import namedtuple
-from typing import NamedTuple
+from typing import ClassVar, NamedTuple
 
 from calibre import prints
 from calibre.constants import iswindows
@@ -59,10 +59,10 @@ class DevicePlugin(Plugin):
     #:    ...
     #:   }
     #:
-    VENDOR_ID   = 0x0000
+    VENDOR_ID: ClassVar[int | list[int] | dict[int, dict[int, list[int] | None]]] = 0x0000
 
     #: An integer or a list of integers
-    PRODUCT_ID  = 0x0000
+    PRODUCT_ID: ClassVar[int | list[int]] = 0x0000
     #: BCD can be either None to not distinguish between devices based on BCD, or
     #: it can be a list of the BCD numbers of all devices supported by this driver.
     BCD         = None
@@ -97,7 +97,7 @@ class DevicePlugin(Plugin):
     icon = 'reader.png'
 
     # Encapsulates an annotation fetched from the device
-    UserAnnotation = namedtuple('Annotation','type, value')
+    UserAnnotation = namedtuple('UserAnnotation','type, value')
 
     #: GUI displays this as a message if not None in the status bar. Useful if opening can take a
     #: long time
@@ -183,13 +183,18 @@ class DevicePlugin(Plugin):
 
         '''
         vendors_on_system = {x[0] for x in devices_on_system}
-        vendors = set(self.VENDOR_ID) if hasattr(self.VENDOR_ID, '__len__') else {self.VENDOR_ID}
-        if hasattr(self.VENDOR_ID, 'keys'):
-            products = []
-            for ven in self.VENDOR_ID:
-                products.extend(self.VENDOR_ID[ven].keys())
+        vendor_id = self.VENDOR_ID
+        if isinstance(vendor_id, dict):
+            vendors = set(vendor_id)
+            products: list[int] = []
+            for ven in vendor_id:
+                products.extend(vendor_id[ven].keys())
+        elif isinstance(vendor_id, list):
+            vendors = set(vendor_id)
+            products = self.PRODUCT_ID if isinstance(self.PRODUCT_ID, list) else [self.PRODUCT_ID]
         else:
-            products = self.PRODUCT_ID if hasattr(self.PRODUCT_ID, '__len__') else [self.PRODUCT_ID]
+            vendors = {vendor_id}
+            products = self.PRODUCT_ID if isinstance(self.PRODUCT_ID, list) else [self.PRODUCT_ID]
 
         ch = self.can_handle_windows if iswindows else self.can_handle
         for vid in vendors_on_system.intersection(vendors):
@@ -197,9 +202,9 @@ class DevicePlugin(Plugin):
                 cvid, pid, bcd = dev[:3]
                 if cvid == vid:
                     if pid in products:
-                        if hasattr(self.VENDOR_ID, 'keys'):
+                        if isinstance(vendor_id, dict):
                             try:
-                                cbcd = self.VENDOR_ID[vid][pid]
+                                cbcd = vendor_id[vid][pid]
                             except KeyError:
                                 # Vendor vid does not have product pid, pid
                                 # exists for some other vendor in this
@@ -291,7 +296,6 @@ class DevicePlugin(Plugin):
         '''
 
         return True
-    can_handle.is_base_class_implementation = True
 
     def open(self, connected_device, library_uuid):
         '''
@@ -517,7 +521,7 @@ class DevicePlugin(Plugin):
         raise NotImplementedError()
 
     @classmethod
-    def save_settings(cls, settings_widget):
+    def save_settings(cls, config_widget):
         '''
         Should save settings to disk. Takes the widget created in
         :meth:`config_widget` and saves all settings to disk.
@@ -769,7 +773,7 @@ class BookList(list):
     __getslice__ = None
     __setslice__ = None
 
-    def __init__(self, oncard, prefix, settings):
+    def __init__(self, oncard=None, prefix=None, settings=None):
         pass
 
     def supports_collections(self):

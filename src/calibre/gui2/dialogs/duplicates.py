@@ -48,10 +48,13 @@ class DuplicatesQuestion(QDialog):
         l.addWidget(bb, 2, 0, 1, 2)
         l.setColumnStretch(1, 10)
         self.ab = ab = bb.addButton(_('Select &all'), QDialogButtonBox.ButtonRole.ActionRole)
+        assert ab is not None
         ab.clicked.connect(self.select_all), ab.setIcon(QIcon.ic('plus.png'))
         self.nb = ab = bb.addButton(_('Select &none'), QDialogButtonBox.ButtonRole.ActionRole)
+        assert ab is not None
         ab.clicked.connect(self.select_none), ab.setIcon(QIcon.ic('minus.png'))
         self.cb = cb = bb.addButton(_('&Copy to clipboard'), QDialogButtonBox.ButtonRole.ActionRole)
+        assert cb is not None
         cb.setIcon(QIcon.ic('edit-copy.png'))
         cb.clicked.connect(self.copy_to_clipboard)
 
@@ -60,16 +63,20 @@ class DuplicatesQuestion(QDialog):
         self.exec()
 
     def copy_to_clipboard(self):
-        QApplication.clipboard().setText(self.as_text)
+        clipboard = QApplication.clipboard()
+        assert clipboard is not None
+        clipboard.setText(self.as_text)
 
     def select_all(self):
         for i in range(self.dup_list.topLevelItemCount()):
             x = self.dup_list.topLevelItem(i)
+            assert x is not None
             x.setCheckState(0, Qt.CheckState.Checked)
 
     def select_none(self):
         for i in range(self.dup_list.topLevelItemCount()):
             x = self.dup_list.topLevelItem(i)
+            assert x is not None
             x.setCheckState(0, Qt.CheckState.Unchecked)
 
     def reject(self):
@@ -81,7 +88,7 @@ class DuplicatesQuestion(QDialog):
         self.save_geometry()
         QDialog.accept(self)
 
-    def save_geometry(self):
+    def save_geometry(self, prefs=None, name=None):
         super().save_geometry(gprefs, 'duplicates-question-dialog-geometry')
 
     def process_duplicates(self, db, duplicates):
@@ -135,6 +142,7 @@ class DuplicatesQuestion(QDialog):
     def duplicates(self):
         for i in range(self.dup_list.topLevelItemCount()):
             x = self.dup_list.topLevelItem(i)
+            assert x is not None
             if x.checkState(0) == Qt.CheckState.Checked:
                 yield x.data(0, Qt.ItemDataRole.UserRole)
 
@@ -143,10 +151,13 @@ class DuplicatesQuestion(QDialog):
         entries = []
         for i in range(self.dup_list.topLevelItemCount()):
             x = self.dup_list.topLevelItem(i)
+            assert x is not None
             check = '✓' if x.checkState(0) == Qt.CheckState.Checked else '✗'
             title = f'{check} {x.text(0)}'
             dups = []
-            for child in (x.child(j) for j in range(x.childCount())):
+            for j in range(x.childCount()):
+                child = x.child(j)
+                assert child is not None
                 dups.append('\t' + str(child.text(0)))
             entries.append(title + '\n' + '\n'.join(dups))
         return '\n\n'.join(entries)

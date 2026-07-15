@@ -49,11 +49,11 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
         self.send_template.blockSignals(False)
 
-    def restore_defaults(self):
+    def restore_defaults(self, *args):
         ConfigWidgetBase.restore_defaults(self)
         self.send_template.set_value(self.proxy.defaults['send_template'])
 
-    def commit(self):
+    def commit(self, *args):
         if not self.send_template.validate():
             raise AbortCommit('abort')
         self.send_template.save_settings(self.proxy, 'send_template')

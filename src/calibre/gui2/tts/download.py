@@ -48,10 +48,11 @@ class ProgressBar(QWidget):
         self.file_obj = tempfile.NamedTemporaryFile('wb', dir=os.path.dirname(self.path), delete=False)
         req = QNetworkRequest(qurl)
         fi = QFileInfo(self.path)
-        if fi.exists():
+        if fi.exists():  # type: ignore
             req.setHeader(QNetworkRequest.KnownHeaders.IfModifiedSinceHeader, fi.lastModified(QTimeZone(QTimeZone.Initialization.UTC)))
 
         self.reply = reply = nam.get(req)
+        assert reply is not None
         self.over_reported = False
         reply.downloadProgress.connect(self.on_download)
         reply.errorOccurred.connect(self.on_error)
@@ -60,12 +61,16 @@ class ProgressBar(QWidget):
 
     def data_received(self):
         try:
-            self.file_obj.write(self.reply.readAll())
+            reply = self.reply
+            assert reply is not None
+            self.file_obj.write(reply.readAll())
         except Exception as e:
             self.on_over(_('Failed to write downloaded data with error: {}').format(e))
 
     def on_error(self, ec: QNetworkReply.NetworkError) -> None:
-        self.on_over(_('Failed to write downloaded data with error: {}').format(self.reply.errorString()))
+        reply = self.reply
+        assert reply is not None
+        self.on_over(_('Failed to write downloaded data with error: {}').format(reply.errorString()))
 
     def on_over(self, err_msg: str = '') -> None:
         if self.over_reported:
@@ -77,7 +82,9 @@ class ProgressBar(QWidget):
             with suppress(OSError):
                 os.remove(self.file_obj.name)
         else:
-            code = self.reply.attribute(QNetworkRequest.Attribute.HttpStatusCodeAttribute)
+            reply = self.reply
+            assert reply is not None
+            code = reply.attribute(QNetworkRequest.Attribute.HttpStatusCodeAttribute)
             if code == 200:
                 os.replace(self.file_obj.name, self.path)
             else:
@@ -115,7 +122,7 @@ class DownloadResources(QDialog):
         sa.setWidgetResizable(True)
         l.addWidget(sa)
         self.central = central = QWidget(sa)
-        central.l = QVBoxLayout(central)
+        central_l = QVBoxLayout(central)
         sa.setWidget(central)
 
         self.todo = set()
@@ -127,10 +134,10 @@ class DownloadResources(QDialog):
             self.todo.add(qurl)
             pb = ProgressBar(qurl, path, nam, desc, self)
             pb.done.connect(self.on_done, type=Qt.ConnectionType.QueuedConnection)
-            central.l.addWidget(pb)
+            central_l.addWidget(pb)
             self.bars.append(pb)
 
-        self.bb = bb = QDialogButtonBox(QDialogButtonBox.Cancel, self)
+        self.bb = bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Cancel, self)
         bb.rejected.connect(self.reject)
         l.addWidget(bb)
         sz = self.sizeHint()
@@ -139,6 +146,8 @@ class DownloadResources(QDialog):
 
     def on_done(self, err_msg: str):
         pb = self.sender()
+        assert pb is not None
+        assert isinstance(pb, ProgressBar)
         self.todo.discard(pb.qurl)
         if err_msg:
             self.failures.append(_('Failed to download {0} with error: {1}').format(pb.desc, err_msg))
@@ -158,7 +167,9 @@ class DownloadResources(QDialog):
     def reject(self):
         for pb in self.bars:
             pb.blockSignals(True)
-            pb.reply.abort()
+            pb_reply = pb.reply
+            assert pb_reply is not None
+            pb_reply.abort()
         super().reject()
 
 

@@ -112,6 +112,7 @@ def process_index(field, index, xe_fields, log, XPath, expand):
     for item in reversed(items):
         is_heading = not isinstance(item, dict)
         style = heading_style if is_heading else None
+        assert start_pos is not None
         p, t = make_block(expand, style, *start_pos)
         if is_heading:
             text = heading_text

@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2025, Kovid Goyal <kovid at kovidgoyal.net>
 
+from typing import Any
+
 from qt.core import QComboBox, QDialog, QGroupBox, QHBoxLayout, QLabel, QStackedLayout, QVBoxLayout, QWidget
 
 from calibre.ai import AICapabilities
@@ -16,7 +18,7 @@ class ConfigureAI(QWidget):
         plugins = tuple(plugins_for_purpose(purpose))
         self.available_plugins = plugins
         self.purpose = purpose
-        self.plugin_config_widgets: tuple[QWidget, ...] = tuple(p.config_widget() for p in plugins)
+        self.plugin_config_widgets: tuple[Any, ...] = tuple(p.config_widget() for p in plugins)
         v = QVBoxLayout(self)
         self.gb = QGroupBox(self)
         self.stack = s = QStackedLayout(self.gb)

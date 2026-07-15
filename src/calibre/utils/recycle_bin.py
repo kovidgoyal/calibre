@@ -10,7 +10,6 @@ import shutil
 import sys
 import time
 
-from calibre import isbytestring
 from calibre.constants import filesystem_encoding, islinux, ismacos, iswindows
 
 recycle = None
@@ -62,6 +61,9 @@ if iswindows:
             raise ValueError(f'Cannot recycle paths that have newlines in them ({path!r})')
         with rlock:
             start_recycler()
+            assert recycler is not None
+            assert recycler.stdin is not None
+            assert recycler.stdout is not None
             recycler.stdin.write(path.encode('utf-8'))
             recycler.stdin.write(b'\n')
             recycler.stdin.flush()
@@ -91,7 +93,7 @@ elif ismacos:
     from calibre_extensions.cocoa import send2trash
 
     def osx_recycle(path):
-        if isbytestring(path):
+        if isinstance(path, bytes):
             path = path.decode(filesystem_encoding)
         send2trash(path)
     recycle = osx_recycle
@@ -99,7 +101,7 @@ elif islinux:
     from calibre.utils.linux_trash import send2trash
 
     def fdo_recycle(path):
-        if isbytestring(path):
+        if isinstance(path, bytes):
             path = path.decode(filesystem_encoding)
         path = os.path.abspath(path)
         send2trash(path)
@@ -119,7 +121,7 @@ def restore_recyle():
 
 
 def delete_file(path, permanent=False):
-    if not permanent and can_recycle:
+    if not permanent and can_recycle and recycle is not None:
         try:
             recycle(path)
             return
@@ -142,7 +144,7 @@ def delete_tree(path, permanent=False):
             time.sleep(1)
             shutil.rmtree(path)
     else:
-        if can_recycle:
+        if can_recycle and recycle is not None:
             try:
                 recycle(path)
                 return

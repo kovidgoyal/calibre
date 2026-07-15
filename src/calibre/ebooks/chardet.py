@@ -8,8 +8,15 @@ __docformat__ = 'restructuredtext en'
 import codecs
 import re
 import sys
+from typing import TypedDict
 
 from calibre import xml_replace_entities
+
+
+class ChardetResult(TypedDict):
+    encoding: str
+    confidence: int
+
 
 _encoding_pats = (
     # XML declaration
@@ -102,7 +109,7 @@ def find_declared_encoding(raw, limit=50*1024):
 _CHARSET_ALIASES = {'macintosh': 'mac-roman', 'x-sjis': 'shift-jis', 'mac-centraleurope': 'cp1250'}
 
 
-def detect(bytestring):
+def detect(bytestring) -> ChardetResult:
     if isinstance(bytestring, str):
         bytestring = bytestring.encode('utf-8', 'replace')
     from calibre_extensions.uchardet import detect as implementation
@@ -116,7 +123,7 @@ def force_encoding(raw, verbose, assume_utf8=False):
     try:
         chardet = detect(raw[:1024*50])
     except Exception:
-        chardet = {'encoding':preferred_encoding, 'confidence':0}
+        chardet = ChardetResult(encoding=preferred_encoding, confidence=0)
     encoding = chardet['encoding']
     if chardet['confidence'] < 1:
         if verbose:

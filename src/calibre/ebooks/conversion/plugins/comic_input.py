@@ -161,11 +161,11 @@ class ComicInput(InputFormatPlugin):
     def get_images(self):
         return self._images
 
-    def convert(self, stream, opts, file_ext, log, accelerators):
+    def convert(self, stream, options, file_ext, log, accelerators):
         from calibre.ebooks.metadata import MetaInformation
         from calibre.ebooks.metadata.opf2 import OPFCreator
         from calibre.ebooks.metadata.toc import TOC
-
+        opts = options
         self.opts, self.log= opts, log
         if file_ext == 'cbc':
             comics_ = self.get_comics_from_collection(stream)

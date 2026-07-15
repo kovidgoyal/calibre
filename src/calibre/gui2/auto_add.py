@@ -219,11 +219,13 @@ class AutoAdder(QObject):
 
     def do_add(self, data):
         from calibre.ebooks.metadata.opf2 import OPF
-
-        gui = self.parent()
+        from calibre.gui2.library.models import BooksModel
+        from calibre.gui2.ui import get_gui
+        gui = get_gui()
         if gui is None:
             return
         m = gui.library_view.model()
+        assert isinstance(m, BooksModel)
         count = 0
 
         needs_rescan = False
@@ -328,5 +330,7 @@ class AutoAdder(QObject):
             QTimer.singleShot(2000, self.dir_changed)
 
     def do_auto_convert(self, added_ids):
-        gui = self.parent()
+        from calibre.gui2.ui import get_gui
+        gui = get_gui()
+        assert gui is not None
         gui.iactions['Convert Books'].auto_convert_auto_add(added_ids)

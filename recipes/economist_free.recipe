@@ -200,6 +200,37 @@ def process_url(url):
     return url
 
 
+def get_edition(issue_date=None):
+    if issue_date:
+        operation_name = 'EditionByDateQuery'
+        operation_args = '($issueDate: Date!)'
+        resolver = 'findEditionByDate(issueDate: $issueDate, editionType: WEEKLY)'
+        variables = {'issueDate': issue_date}
+    else:
+        operation_name = 'LatestEditionQuery'
+        operation_args = ''
+        resolver = 'findLatestEdition(editionType: [WEEKLY])'
+        variables = {}
+    graphql = (
+        'query ' + operation_name + operation_args + ' {'
+        ' edition: ' + resolver + ' {'
+        ' id issueDate datePublished url headline flyTitle rubric'
+        ' cover { url }'
+        ' sections { id name articles { id url headline flyTitle rubric } }'
+        ' }'
+        '}'
+    )
+    query = {
+        'operationName': operation_name,
+        'variables': json.dumps(variables, separators=(',', ':')),
+        'query': graphql,
+    }
+    url = 'https://cp2-graphql-gateway.p.aws.economist.com/graphql?' + urlencode(
+        query, safe='()!', quote_via=quote
+    )
+    return safe_dict(json.loads(get_content(url)), 'data', 'edition')
+
+
 class Economist(BasicNewsRecipe):
     title = 'The Economist'
     language = 'en_GB'
@@ -251,15 +282,29 @@ class Economist(BasicNewsRecipe):
 
     def publication_date(self):
         edition_date = self.recipe_specific_options.get('date')
-        if edition_date and isinstance(edition_date, str):
+        if isinstance(edition_date, str):
+            edition_date = edition_date.strip()
+        if edition_date:
             return datetime.strptime(edition_date, '%Y-%m-%d').replace(tzinfo=local_tz)
         try:
             url = self.browser.open('https://www.economist.com/printedition').geturl()
             date_str = url.split('/')[-1]
             return datetime.strptime(date_str, '%Y-%m-%d').replace(tzinfo=local_tz)
         except Exception as e:
-            self.log('Failed to fetch publication date with error: ' + str(e))
+            self.log('Failed to fetch publication date from website with error: ' + str(e))
+        try:
+            edition = self.economist_get_edition()
+            return datetime.strptime(edition['issueDate'][:10], '%Y-%m-%d').replace(tzinfo=local_tz)
+        except Exception as e:
+            self.log('Failed to fetch publication date from GraphQL with error: ' + str(e))
             return super().publication_date()
+
+    def economist_get_edition(self, edition_date=None):
+        cache = getattr(self, '_edition_cache', {})
+        if edition_date not in cache:
+            cache[edition_date] = get_edition(edition_date)
+            self._edition_cache = cache
+        return cache[edition_date]
 
     def economist_return_index(self, ans):
         if not ans:
@@ -280,12 +325,28 @@ class Economist(BasicNewsRecipe):
     def parse_index(self):
         # return self.economist_test_article()
         edition_date = self.recipe_specific_options.get('date')
-        if edition_date and isinstance(edition_date, str):
+        if isinstance(edition_date, str):
+            edition_date = edition_date.strip()
+        if edition_date:
             url = 'https://www.economist.com/weeklyedition/' + edition_date
             self.timefmt = ' [' + edition_date + ']'
         else:
+            edition_date = None
             url = 'https://www.economist.com/weeklyedition'
-        ans = self.economist_parse_index(url)
+        try:
+            ans = self.economist_parse_index(url)
+        except Exception as e:
+            self.log('Failed to get index from website with error:', e)
+            ans = []
+        if not ans:
+            self.log('Falling back to GraphQL for the edition index')
+            try:
+                ans = self.economist_parse_graphql_index(
+                    self.economist_get_edition(edition_date)
+                )
+            except Exception as e:
+                self.log('Failed to get index from GraphQL with error:', e)
+                ans = []
         return self.economist_return_index(ans)
 
     def economist_parse_index(self, url):
@@ -348,6 +409,53 @@ class Economist(BasicNewsRecipe):
                             articles.append({'title': title, 'url': url, 'description': desc})
                     if articles:
                         feeds.append((section, articles))
+
+        d = self.recipe_specific_options.get('de')
+        if d and isinstance(d, str):
+            if d.lower().strip() == 'yes':
+                self.from_web = True
+            else:
+                self.from_web = False
+        return feeds
+
+    def economist_parse_graphql_index(self, edition):
+        if not edition:
+            return []
+        self.description = edition.get('headline') or self.description
+        self.timefmt = ' [' + edition['issueDate'][:10] + ']'
+        cover_url = safe_dict(edition, 'cover', 'url')
+        if cover_url:
+            self.cover_url = (
+                cover_url.replace(
+                    'economist.com/',
+                    'economist.com/cdn-cgi/image/width=960,quality=80,format=auto/',
+                )
+                .replace('SQ_', '')
+                .replace('_AS', '_AP')
+            )
+            self.log('Got cover:', self.cover_url)
+
+        feeds = []
+        seen = set()
+        for component in edition.get('sections') or ():
+            articles = []
+            section = component.get('name') or ''
+            self.log(section)
+            for article in component.get('articles') or ():
+                url = process_url(article.get('url') or '')
+                article_id = article.get('id') or url
+                title = article.get('headline') or ''
+                if not article_id or article_id in seen or not title or not url:
+                    continue
+                seen.add(article_id)
+                sub = article.get('flyTitle') or ''
+                desc = article.get('rubric') or ''
+                if sub and section != sub:
+                    desc = sub + (' :: ' + desc if desc else '')
+                self.log('\t', title, '\n\t', desc, '\n\t\t', url)
+                articles.append({'title': title, 'url': url, 'description': desc})
+            if articles:
+                feeds.append((section, articles))
 
         d = self.recipe_specific_options.get('de')
         if d and isinstance(d, str):

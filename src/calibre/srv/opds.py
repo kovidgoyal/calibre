@@ -219,7 +219,7 @@ def ACQUISITION_ENTRY(book_id, updated, request_context):
         ans.append(ans.makeelement(f'{{{DC_NS}}}date'))
         ans[-1].text = mi.pubdate.isoformat()
     if len(extra):
-        ans.append(E.content(extra, type='xhtml'))
+        ans.append(E.content(*extra, type='xhtml'))
     get = partial(request_context.ctx.url_for, '/get', book_id=book_id, library_id=request_context.library_id)
     if mi.formats:
         fm = mi.format_metadata
@@ -526,7 +526,7 @@ def opds_navcatalog(ctx, rd, which):
 
 
 @endpoint('/opds/category/{category}/{which}', postprocess=atom)
-def opds_category(ctx, rd, category, which):
+def opds_category(ctx, rd, category, which: str):
     try:
         offset = int(rd.query.get('offset', 0))
     except Exception:
@@ -547,7 +547,7 @@ def opds_category(ctx, rd, category, which):
             category = which[p+1:]
             which = which[:p]
             # This line will toss an exception for composite columns
-            which = int(which[:p])
+            which = str(int(which[:p]))
         except Exception:
             # Might be a composite column, where we have the lookup key
             if not (category in rc.db.field_metadata and rc.db.field_metadata[category]['datatype'] == 'composite'):

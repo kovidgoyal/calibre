@@ -7,7 +7,7 @@ import select
 import signal
 import ssl
 import traceback
-from collections.abc import Callable, Iterator
+from collections.abc import Callable, Iterator, Sequence
 from contextlib import ExitStack
 from itertools import batched, chain
 from typing import Any, BinaryIO, NamedTuple
@@ -100,7 +100,10 @@ def run_jobs(*jobs: Job) -> Worker:
         os._exit(os.EX_OK)
 
 
-def forked_map[T, R](fn: Callable[[T], R], iterable: T, *iterables: T, timeout: int | float | None = None, num_workers: int = 0) -> Iterator[R]:
+def forked_map[T, R](
+    fn: Callable[[T], R], iterable: Sequence[T], *iterables: Sequence[T],
+    timeout: int | float | None = None, num_workers: int = 0
+) -> Iterator[R]:
     '''
     Should be used only in worker processes that have no threads and that do not use/import any non fork safe libraries such as macOS
     system libraries.
@@ -109,7 +112,7 @@ def forked_map[T, R](fn: Callable[[T], R], iterable: T, *iterables: T, timeout: 
     if num_items < 1:
         return
     if num_workers <= 0:
-        num_workers = max(1, min(num_items, os.cpu_count()))
+        num_workers = max(1, min(num_items, os.cpu_count() or 1))
     chunk_size = max(1, num_items // num_workers)
     groups = batched((Job(i, arg, fn) for i, arg in enumerate(chain(iterable, *iterables))), chunk_size)
     cache: dict[int, Result] = {}

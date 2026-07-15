@@ -22,13 +22,24 @@ from calibre.utils.serialize import MSGPACK_MIME, json_dumps, msgpack_dumps
 default_methods = frozenset(('HEAD', 'GET'))
 
 
-def json(ctx, rd, endpoint, output):
-    rd.outheaders.set('Content-Type', 'application/json; charset=UTF-8', replace_all=True)
-    if isinstance(output, bytes) or hasattr(output, 'fileno'):
-        ans = output  # Assume output is already UTF-8 encoded json
-    else:
-        ans = json_dumps(output)
-    return ans
+class JSONEndpoint:
+
+    def loads(self, *a, **kw):
+        return jsonlib.loads(*a, **kw)
+
+    def dumps(self, *a, **kw):
+        return jsonlib.dumps(*a, **kw)
+
+    def __call__(self, ctx, rd, endpoint, output):
+        rd.outheaders.set('Content-Type', 'application/json; charset=UTF-8', replace_all=True)
+        if isinstance(output, bytes) or hasattr(output, 'fileno'):
+            ans = output  # Assume output is already UTF-8 encoded json
+        else:
+            ans = json_dumps(output)
+        return ans
+
+
+json = JSONEndpoint()
 
 
 def msgpack(ctx, rd, endpoint, output):
@@ -44,9 +55,6 @@ def msgpack_or_json(ctx, rd, endpoint, output):
     accept = rd.inheaders.get('Accept', all=True)
     func = msgpack if MSGPACK_MIME in accept else json
     return func(ctx, rd, endpoint, output)
-
-
-json.loads, json.dumps = jsonlib.loads, jsonlib.dumps
 
 
 def route_key(route):
@@ -212,6 +220,7 @@ class Route:
         args = {k:'' for k in self.defaults}
         args.update(kwargs)
         args = {k:quoted(v) for k, v in args.items()}
+        assert self.var_pat is not None
         route = self.var_pat.sub(lambda m:'{{{}}}'.format(m.group(1).partition('=')[0].lstrip('+')), self.endpoint.route)
         return route.format(**args).rstrip('/')
 
@@ -312,6 +321,7 @@ class Router:
 
         self.init_session(endpoint_, data)
         if endpoint_.needs_db_write:
+            assert self.ctx is not None
             self.ctx.check_for_write_access(data)
         ans = endpoint_(self.ctx, data, *args)
         self.finalize_session(endpoint_, data, ans)

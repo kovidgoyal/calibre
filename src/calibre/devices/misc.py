@@ -452,7 +452,9 @@ class WAYTEQ(USBMS):
 
     def get_gui_name(self):
         try:
-            if self.detected_device.idVendor == 0x05e8:
+            detected_device = self.detected_device
+            assert detected_device is not None
+            if detected_device.idVendor == 0x05e8:
                 return 'SPC Dickens'
         except Exception:
             pass

@@ -33,7 +33,7 @@ class Tool:
     '''
 
     #: Set this to a unique name it will be used as a key
-    name = None
+    name: str | None = None
 
     #: If True the user can choose to place this tool in the plugins toolbar
     allowed_in_toolbar = True
@@ -81,6 +81,7 @@ class Tool:
             will be used in the preferences entry for this shortcut.
         '''
         short_text = short_text or str(qaction.text()).replace('&&', '\0').replace('&', '').replace('\0', '&')
+        assert self.name is not None
         self.gui.keyboard.register_shortcut(
             self.name + '_' + unique_name, short_text, default_keys=default_keys, action=qaction,
             description=description or '', group=_('Plugins'))

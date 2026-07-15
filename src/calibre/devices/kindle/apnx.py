@@ -29,9 +29,11 @@ class APNXBuilder:
     Create an APNX file using a pseudo page mapping.
     '''
 
+    _accurate_gen = AccuratePageGenerator.instance
+    assert _accurate_gen is not None
     generators: dict[str, IPageGenerator] = {
         FastPageGenerator.instance.name(): FastPageGenerator.instance,
-        AccuratePageGenerator.instance.name(): AccuratePageGenerator.instance,
+        _accurate_gen.name(): _accurate_gen,
         PagebreakPageGenerator.instance.name(): PagebreakPageGenerator.instance,
         # ExactPageGenerator.instance.name(): ExactPageGenerator.instance,
     }
@@ -46,8 +48,10 @@ class APNXBuilder:
 
         if page_count:
             generator: IPageGenerator = ExactPageGenerator.instance
+        elif method is not None:
+            generator = self.generators.setdefault(method, FastPageGenerator.instance)
         else:
-            generator: IPageGenerator = self.generators.setdefault(method, FastPageGenerator.instance)
+            generator = FastPageGenerator.instance
 
         pages = generator.generate(mobi_file_path, page_count)
         if pages.number_of_pages == 0:

@@ -218,6 +218,9 @@ HEADER_FIELDS = {'compression', 'text_length', 'last_text_record', 'book_type',
 
 
 class KF8Book:
+    cover_offset: object
+    thumbnail_offset: object
+    masthead_offset: object
 
     def __init__(self, writer, for_joint=False):
         self.build_records(writer, for_joint)

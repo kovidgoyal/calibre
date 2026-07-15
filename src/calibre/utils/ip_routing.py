@@ -9,7 +9,7 @@ from calibre.constants import ismacos, iswindows
 
 
 def get_address_of_default_gateway(family='AF_INET'):
-    import netifaces
+    import netifaces  # type: ignore
     ip = netifaces.gateways()['default'][getattr(netifaces, family)][0]
     if isinstance(ip, bytes):
         ip = ip.decode('ascii')
@@ -17,7 +17,7 @@ def get_address_of_default_gateway(family='AF_INET'):
 
 
 def get_addresses_for_interface(name, family='AF_INET'):
-    import netifaces
+    import netifaces  # type: ignore
     for entry in netifaces.ifaddresses(name)[getattr(netifaces, family)]:
         if entry.get('broadcast'):  # Not a point-to-point address
             addr = entry.get('addr')

@@ -41,7 +41,7 @@ from calibre.constants import __appname__, __version__
 from calibre.customize.ui import preferences_plugins
 from calibre.gui2 import gprefs, show_restart_warning
 from calibre.gui2.dialogs.message_box import Icon
-from calibre.gui2.preferences import AbortCommit, AbortInitialize, get_plugin, init_gui
+from calibre.gui2.preferences import AbortCommit, AbortInitialize, ConfigWidgetBase, get_plugin, init_gui
 from calibre.utils.localization import _
 
 ICON_SIZE = 32
@@ -71,14 +71,14 @@ class Message(QWidget):
 
     def __init__(self, parent):
         QWidget.__init__(self, parent)
-        self.layout = QTextLayout()
-        self.layout.setFont(self.font())
-        self.layout.setCacheEnabled(True)
+        self.text_layout = QTextLayout()
+        self.text_layout.setFont(self.font())
+        self.text_layout.setCacheEnabled(True)
         self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred)
         self.last_layout_rect = None
 
     def setText(self, text):
-        self.layout.setText(text)
+        self.text_layout.setText(text)
         self.last_layout_rect = None
         self.update()
 
@@ -86,7 +86,7 @@ class Message(QWidget):
         return QSize(10, 10)
 
     def do_layout(self):
-        ly = self.layout
+        ly = self.text_layout
         ly.beginLayout()
         w = self.width() - 5
         height = 0
@@ -101,15 +101,15 @@ class Message(QWidget):
             height += line.height()
         ly.endLayout()
 
-    def paintEvent(self, ev):
+    def paintEvent(self, a0):
         if self.last_layout_rect != self.rect():
             self.do_layout()
         p = QPainter(self)
-        br = self.layout.boundingRect()
+        br = self.text_layout.boundingRect()
         y = 0
         if br.height() < self.height():
             y = (self.height() - br.height()) / 2
-        self.layout.draw(p, QPointF(0, y))
+        self.text_layout.draw(p, QPointF(0, y))
 
 
 class TitleBar(QWidget):
@@ -146,9 +146,9 @@ class SectionSeparator(QWidget):
     def sizeHint(self):
         return QSize(1, 1)
 
-    def paintEvent(self, ev):
+    def paintEvent(self, a0):
         p = QPainter(self)
-        p.fillRect(self.rect(), self.palette().color(QPalette.ColorRole.Midlight))
+        p.fillRect(self.rect(), self.palette().color(QPalette.ColorRole.Mid))
 
 
 class Category(QWidget):  # {{{
@@ -158,8 +158,6 @@ class Category(QWidget):  # {{{
     def __init__(self, name, plugins, gui_name, parent=None, add_separator=True, columns=1):
         QWidget.__init__(self, parent)
         self._layout = QVBoxLayout()
-        self._layout.setContentsMargins(0, 0, 0, 4)
-        self._layout.setSpacing(2)
         self.setLayout(self._layout)
         if add_separator:
             self._layout.addWidget(SectionSeparator(self))
@@ -178,10 +176,10 @@ class Category(QWidget):  # {{{
         self.bar_layout.setContentsMargins(0, 0, 0, 0)
         self.bar_layout.setSpacing(0)
         self._layout.addWidget(self.bar)
-        self.actions = []
+        self._actions = []
         self.buttons = []
         from calibre.gui2.ui import get_gui
-        iac = get_gui().iactions['Preferences']
+        iac = get_gui(fail_if_absent=True).iactions['Preferences']
         for p in plugins:
             sc = iac.action_map.get(p.name).shortcut().toString(QKeySequence.SequenceFormat.NativeText)
             target = partial(self.triggered, p)
@@ -193,23 +191,23 @@ class Category(QWidget):  # {{{
             ac.setToolTip(tt)
             ac.setWhatsThis(textwrap.fill(p.description))
             ac.setStatusTip(p.description)
-            self.actions.append(ac)
+            self._actions.append(ac)
             w = QToolButton(self.bar)
             w.setDefaultAction(ac)
             w.setIconSize(QSize(ICON_SIZE, ICON_SIZE))
             w.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
-            self.buttons.append(w)
+            button_text = p.gui_name.replace('&', '&&')
+            self.buttons.append((w, button_text))
             self.bar_layout.addWidget(w)
-            w.preference_button_text = p.gui_name.replace('&', '&&')
-            w.setText(wrap_preference_button_text(w.preference_button_text))
+            w.setText(wrap_preference_button_text(button_text))
             w.setCursor(Qt.CursorShape.PointingHandCursor)
             w.setAutoRaise(True)
             w.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Preferred)
         self.bar_layout.addStretch(1)
         self.update_button_widths()
 
-    def resizeEvent(self, ev):
-        QWidget.resizeEvent(self, ev)
+    def resizeEvent(self, a0):
+        QWidget.resizeEvent(self, a0)
         self.update_button_widths()
 
     def update_button_widths(self, available_width=None):
@@ -218,10 +216,10 @@ class Category(QWidget):  # {{{
         # Keep every category on the same grid; empty columns remain blank instead of creating overflow buttons.
         available = self.bar.contentsRect().width() if available_width is None else available_width
         width = PREFERENCE_BUTTON_WIDTH if available <= 0 else max(1, available // self.columns)
-        for button in self.buttons:
+        for button, button_text in self.buttons:
             button.setFixedWidth(width)
             button.setText(wrap_preference_button_text(
-                button.preference_button_text, width - PREFERENCE_BUTTON_TEXT_PADDING, button.fontMetrics()))
+                button_text, width - PREFERENCE_BUTTON_TEXT_PADDING, button.fontMetrics()))
 
     def triggered(self, plugin, *args):
         self.plugin_activated.emit(plugin)
@@ -276,15 +274,16 @@ class Browser(QScrollArea):  # {{{
         self._layout.addStretch(1)
         self.update_category_widths()
 
-    def resizeEvent(self, ev):
-        QScrollArea.resizeEvent(self, ev)
+    def resizeEvent(self, a0):
+        QScrollArea.resizeEvent(self, a0)
         self.update_category_widths()
 
     def update_category_widths(self):
         margins = self._layout.contentsMargins()
         available = self.viewport().width() - margins.left() - margins.right()
         for widget in self.widgets:
-            widget.update_button_widths(available)
+            category_margins = widget._layout.contentsMargins()
+            widget.update_button_widths(available - category_margins.left() - category_margins.right())
 
 # }}}
 
@@ -297,6 +296,7 @@ must_restart_message = _('The changes you have made require calibre be '
 class Preferences(QDialog):
 
     run_wizard_requested = pyqtSignal()
+    showing_widget: ConfigWidgetBase
 
     def __init__(self, gui, initial_plugin=None, close_after_initial=False):
         QDialog.__init__(self, gui)
@@ -318,7 +318,9 @@ class Preferences(QDialog):
             QDialogButtonBox.StandardButton.Close | QDialogButtonBox.StandardButton.Apply |
             QDialogButtonBox.StandardButton.Cancel
         )
-        self.bb.button(QDialogButtonBox.StandardButton.Apply).clicked.connect(self.accept)
+        apply_button = self.bb.button(QDialogButtonBox.StandardButton.Apply)
+        assert apply_button is not None
+        apply_button.clicked.connect(self.accept)
         self.wizard_button = QPushButton(QIcon.ic('wizard.png'), _('Run Welcome &wizard'))
         self.wizard_button.clicked.connect(self.run_wizard, type=Qt.ConnectionType.QueuedConnection)
         self.wizard_button.setAutoDefault(False)
@@ -338,10 +340,12 @@ class Preferences(QDialog):
         self.title_bar = TitleBar(self)
         for ac, tt in [(QDialogButtonBox.StandardButton.Apply, _('Save changes')),
                 (QDialogButtonBox.StandardButton.Cancel, _('Cancel and return to overview'))]:
-            self.bb.button(ac).setToolTip(tt)
+            btn = self.bb.button(ac)
+            assert btn is not None
+            btn.setToolTip(tt)
 
         l.addWidget(self.title_bar), l.addWidget(self.stack)
-        h = self.button_bar_layout = QHBoxLayout()
+        h = QHBoxLayout()
         l.addLayout(h)
         h.addWidget(self.wizard_button), h.addWidget(self.restore_defaults_button), h.addStretch(10), h.addWidget(self.bb)
 
@@ -372,11 +376,11 @@ class Preferences(QDialog):
     def sizeHint(self):
         return QSize(930, 720)
 
-    def event(self, ev):
-        if isinstance(ev, QStatusTipEvent):
-            msg = re.sub(r'</?[a-z1-6]+>', ' ', ev.tip())
+    def event(self, a0):
+        if isinstance(a0, QStatusTipEvent):
+            msg = re.sub(r'</?[a-z1-6]+>', ' ', a0.tip())
             self.title_bar.show_msg(msg)
-        return QDialog.event(self, ev)
+        return QDialog.event(self, a0)
 
     def run_wizard(self):
         self.run_wizard_requested.emit()
@@ -417,14 +421,19 @@ class Preferences(QDialog):
         self.title_bar.show_plugin(plugin)
         self.setWindowIcon(QIcon.ic(plugin.icon))
 
-        self.bb.button(QDialogButtonBox.StandardButton.Close).setVisible(False)
+        close_btn = self.bb.button(QDialogButtonBox.StandardButton.Close)
+        assert close_btn is not None
+        close_btn.setVisible(False)
         self.wizard_button.setVisible(False)
         for button in (QDialogButtonBox.StandardButton.Apply, QDialogButtonBox.StandardButton.Cancel):
             button = self.bb.button(button)
+            assert button is not None
             button.setVisible(True)
 
-        self.bb.button(QDialogButtonBox.StandardButton.Apply).setEnabled(False)
-        self.bb.button(QDialogButtonBox.StandardButton.Apply).setDefault(False), self.bb.button(QDialogButtonBox.StandardButton.Apply).setDefault(True)
+        apply_btn = self.bb.button(QDialogButtonBox.StandardButton.Apply)
+        assert apply_btn is not None
+        apply_btn.setEnabled(False)
+        apply_btn.setDefault(False), apply_btn.setDefault(True)
         self.restore_defaults_button.setEnabled(self.showing_widget.supports_restoring_to_defaults)
         self.restore_defaults_button.setVisible(self.showing_widget.supports_restoring_to_defaults)
         self.restore_defaults_button.setToolTip(
@@ -436,6 +445,7 @@ class Preferences(QDialog):
 
     def changed_signal(self):
         b = self.bb.button(QDialogButtonBox.StandardButton.Apply)
+        assert b is not None
         b.setEnabled(True)
 
     def hide_plugin(self):
@@ -445,19 +455,22 @@ class Preferences(QDialog):
             except Exception:
                 pass
         self.stack.setCurrentIndex(0)
-        self.showing_widget = QWidget(self.scroll_area)
-        self.scroll_area.setWidget(self.showing_widget)
+        self.showing_widget_placeholder = QWidget(self.scroll_area)
+        self.scroll_area.setWidget(self.showing_widget_placeholder)
         self.setWindowTitle(__appname__ + ' - ' + _('Preferences'))
         self.title_bar.show_plugin()
         self.setWindowIcon(QIcon.ic('config.png'))
 
         for button in (QDialogButtonBox.StandardButton.Apply, QDialogButtonBox.StandardButton.Cancel):
             button = self.bb.button(button)
+            assert button is not None
             button.setVisible(False)
         self.restore_defaults_button.setVisible(False)
 
-        self.bb.button(QDialogButtonBox.StandardButton.Close).setVisible(True)
-        self.bb.button(QDialogButtonBox.StandardButton.Close).setDefault(False), self.bb.button(QDialogButtonBox.StandardButton.Close).setDefault(True)
+        close_button = self.bb.button(QDialogButtonBox.StandardButton.Close)
+        assert close_button is not None
+        close_button.setVisible(True)
+        close_button.setDefault(False), close_button.setDefault(True)
         self.wizard_button.setVisible(True)
 
     def restart_now(self):

@@ -142,7 +142,8 @@ class Colors:
                 'function is self.__in_color_func\n'
                 f'no action for {self.__token_info}'
                 )
-            action(line)
+            else:
+                action(line)
 
     def __after_color_func(self, line):
         '''
@@ -249,7 +250,8 @@ class Colors:
                             sys.stderr.write(self.__state + '\n')
                         except Exception:
                             pass
-                    action(line)
+                    else:
+                        action(line)
         copy_obj = copy.Copy(bug_handler=self.__bug_handler)
         if self.__copy:
             copy_obj.copy_file(self.__write_to, 'color.data')

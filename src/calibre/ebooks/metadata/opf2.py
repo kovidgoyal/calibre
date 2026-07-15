@@ -178,11 +178,12 @@ class ResourceCollection:  # {{{
     @staticmethod
     def from_directory_contents(top, topdown=True):
         collection = ResourceCollection()
-        for spec in os.walk(top, topdown=topdown):
-            path = os.path.abspath(os.path.join(spec[0], spec[1]))
-            res = Resource.from_path(path)
-            res.set_basedir(top)
-            collection.append(res)
+        for dirpath, _dirnames, filenames in os.walk(top, topdown=topdown):
+            for fname in filenames:
+                path = os.path.abspath(os.path.join(dirpath, fname))
+                res = Resource(path)
+                res.set_basedir(top)
+                collection.append(res)
         return collection
 
     def set_basedir(self, path):
@@ -193,6 +194,7 @@ class ResourceCollection:  # {{{
 
 
 class ManifestItem(Resource):  # {{{
+    id: str
 
     @staticmethod
     def from_opf_manifest_item(item, basedir):
@@ -346,18 +348,19 @@ class Spine(ResourceCollection):  # {{{
         ResourceCollection.__init__(self)
         self.manifest = manifest
 
-    def replace(self, start, end, ids):
+    def replace(self, start, end, items):
         '''
         Replace the items between start (inclusive) and end (not inclusive) with
         with the items identified by ids. ids can be a list of any length.
         '''
+        ids = items
         items = []
         for id in ids:
             path = self.manifest.path_for_id(id)
             if path is None:
                 raise ValueError('id %s not in manifest')
             items.append(Spine.Item(lambda x: id, path, is_path=True))
-        ResourceCollection.replace(start, end, items)
+        super().replace(start, end, items)
 
     def linear_items(self):
         for r in self:
@@ -379,6 +382,9 @@ class Spine(ResourceCollection):  # {{{
 class Guide(ResourceCollection):  # {{{
 
     class Reference(Resource):
+
+        title: str
+        type: str
 
         @staticmethod
         def from_opf_resource_item(ref, basedir):
@@ -643,12 +649,14 @@ class OPF:  # {{{
             self.package_version = float(self.root.get('version', None))
         except (AttributeError, TypeError, ValueError):
             self.package_version = 0
-        self.metadata = self.metadata_path(self.root)
-        if not self.metadata:
-            self.metadata = [self.root.makeelement('{http://www.idpf.org/2007/opf}metadata')]
-            self.root.insert(0, self.metadata[0])
-            self.metadata[0].tail = '\n'
-        self.metadata      = self.metadata[0]
+        _metadata_list = self.metadata_path(self.root)
+        if not _metadata_list:
+            _metadata_elem = self.root.makeelement('{http://www.idpf.org/2007/opf}metadata')
+            self.root.insert(0, _metadata_elem)
+            _metadata_elem.tail = '\n'
+            self.metadata = _metadata_elem
+        else:
+            self.metadata = _metadata_list[0]
         if unquote_urls:
             self.unquote_urls()
         self.manifest = Manifest()
@@ -740,18 +748,20 @@ class OPF:  # {{{
                 for item in self.guide:
                     if item.type and item.type.lower() == 'toc':
                         toc = item.path
-            if toc is None:
+            if toc is None and self.manifest is not None:
                 for item in self.manifest:
                     if 'toc' in item.href().lower():
                         toc = item.path
             if toc is None:
                 return
             self.toc = TOC(base_path=self.base_dir)
-            is_ncx = getattr(self, 'manifest', None) is not None and \
-                     self.manifest.type_for_id(toc) is not None and \
-                     'dtbncx' in self.manifest.type_for_id(toc)
+            _manifest = getattr(self, 'manifest', None)
+            is_ncx = _manifest is not None and \
+                     _manifest.type_for_id(toc) is not None and \
+                     'dtbncx' in _manifest.type_for_id(toc)
             if is_ncx or toc.lower() in ('ncx', 'ncxtoc'):
-                path = self.manifest.path_for_id(toc)
+                assert _manifest is not None
+                path = _manifest.path_for_id(toc)
                 if path:
                     self.toc.read_ncx_toc(path)
                 else:
@@ -988,6 +998,7 @@ class OPF:  # {{{
             if least_val is None:
                 least_elem = self.create_metadata_element('date')
 
+            assert least_elem is not None
             least_elem.attrib.clear()
             least_elem.text = isoformat(val)
 
@@ -1274,7 +1285,9 @@ class OPF:  # {{{
                     if 'html' in mt.lower():
                         mid = item.get('id')
                         if mid:
-                            path = self.manifest.path_for_id(mid)
+                            manifest = self.manifest
+                            assert manifest is not None
+                            path = manifest.path_for_id(mid)
                             if path and os.path.exists(path):
                                 return path
 
@@ -1300,7 +1313,9 @@ class OPF:  # {{{
             self.guide.set_cover(path)
             etree.SubElement(g, 'opf:reference', nsmap=self.NAMESPACES,
                                 attrib={'type':'cover', 'href':self.guide[-1].href()})
-        id = self.manifest.id_for_path(self.cover)
+        manifest = self.manifest
+        assert manifest is not None
+        id = manifest.id_for_path(self.cover)
         if id is None:
             for t in ('cover', 'other.ms-coverimage-standard', 'other.ms-coverimage'):
                 for item in self.guide:
@@ -1486,7 +1501,7 @@ class OPFCreator(Metadata):
         self.guide = Guide.from_opf_guide(guide_element, self.base_path)
         self.guide.set_basedir(self.base_path)
 
-    def render(self, opf_stream=sys.stdout, ncx_stream=None,
+    def render(self, opf_stream=sys.stdout.buffer, ncx_stream=None,
                ncx_manifest_entry=None, encoding=None, process_guide=None):
         if encoding is None:
             encoding = 'utf-8'

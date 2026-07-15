@@ -7,6 +7,7 @@ import os
 
 class ReadOnlyFileBuffer:
     ''' A zero copy implementation of a file like object. Uses memoryviews for efficiency. '''
+    is_close_frame: bool = False  # used by the srv code
 
     def __init__(self, raw: bytes, name: str = ''):
         self.sz, self.mv = len(raw), (raw if isinstance(raw, memoryview) else memoryview(raw))

@@ -232,11 +232,12 @@ def prepare_book(path, convert_func=do_convert, max_age=30 * DAY, force=False, p
     temp_path = safe_makedirs(os.path.join(book_cache_dir(), 't'))
 
     with cache_lock() as f:
+        metadata: dict
         try:
             metadata = json.loads(f.read())
         except ValueError:
             metadata = {'entries': {}, 'last_clear_at': 0}
-        entries = metadata['entries']
+        entries: dict = metadata['entries']
         instances = entries.setdefault(key, [])
         for instance in tuple(instances):
             if instance['status'] == 'finished':
@@ -257,12 +258,14 @@ def prepare_book(path, convert_func=do_convert, max_age=30 * DAY, force=False, p
     with cache_lock() as f:
         ans = tempfile.mkdtemp(dir=finished_path, prefix=f'c{next(td_counter)}-')
         instance['path'] = os.path.basename(ans)
+        metadata3: dict
         try:
-            metadata = json.loads(f.read())
+            metadata3 = json.loads(f.read())
         except ValueError:
-            metadata = {'entries': {}, 'last_clear_at': 0}
-        entries = metadata['entries']
-        instances = entries.setdefault(key, [])
+            metadata3 = {'entries': {}, 'last_clear_at': 0}
+        entries2: dict = metadata3['entries']
+        metadata = metadata3
+        instances = entries2.setdefault(key, [])
         os.rmdir(ans)
         if not robust_rename(src_path, ans):
             raise Exception(
@@ -289,27 +292,28 @@ def update_book(path, old_stat, name_data_map=None):
         new_key = book_hash(path, st.st_size, st.st_mtime)
         if old_key == new_key:
             return
+        metadata4: dict
         try:
-            metadata = json.loads(f.read())
+            metadata4 = json.loads(f.read())
         except ValueError:
-            metadata = {'entries': {}, 'last_clear_at': 0}
-        entries = metadata['entries']
-        instances = entries.get(old_key)
+            metadata4 = {'entries': {}, 'last_clear_at': 0}
+        entries3: dict = metadata4['entries']
+        instances = entries3.get(old_key)
         if not instances:
             return
         for instance in tuple(instances):
             if instance['status'] == 'finished':
-                entries.setdefault(new_key, []).append(instance)
+                entries3.setdefault(new_key, []).append(instance)
                 instances.remove(instance)
                 if not instances:
-                    del entries[old_key]
+                    del entries3[old_key]
                 instance['file_mtime'] = st.st_mtime
                 instance['file_size'] = st.st_size
                 if name_data_map:
                     for name, data in name_data_map.items():
                         with open(os.path.join(finished_path, instance['path'], name), 'wb') as f2:
                             f2.write(data)
-                save_metadata(metadata, f)
+                save_metadata(metadata4, f)
                 return
 
 
@@ -321,11 +325,11 @@ def find_tests():
 
         def setUp(self):
             self.tdir = tempfile.mkdtemp()
-            book_cache_dir.override = os.path.join(self.tdir, 'ev2')
+            setattr(book_cache_dir, 'override', os.path.join(self.tdir, 'ev2'))
 
         def tearDown(self):
             rmtree(self.tdir)
-            del book_cache_dir.override
+            delattr(book_cache_dir, 'override')
 
         def test_viewer_cache(self):
 

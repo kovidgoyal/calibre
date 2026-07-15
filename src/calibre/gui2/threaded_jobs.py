@@ -80,14 +80,18 @@ class ThreadedJob(BaseJob):
 
     def start_work(self):
         self.start_time = time.time()
+        assert self.log is not None
         self.log('Starting job:', self.description)
         try:
+            assert self.func is not None and self.args is not None and self.kwargs is not None
             self.result = self.func(*self.args, **self.kwargs)
         except Exception as e:
             self.exception = e
             self.failed = True
-            self.log.exception(f'Job: "{self.description}" failed with error:')
-            self.log.debug('Called with args:', self.args, self.kwargs)
+            log = self.log
+            assert log is not None
+            log.exception(f'Job: "{self.description}" failed with error:')
+            log.debug('Called with args:', self.args, self.kwargs)
 
         self.duration = time.time() - self.start_time
         try:
@@ -118,13 +122,16 @@ class ThreadedJob(BaseJob):
             self.duration = time.time() - self.start_time
             self.abort.set()
 
+        assert self.log is not None
         self.log('Aborted job:', self.description)
         self.killed = True
         self.failed = True
         self._cleanup()
 
     def consolidate_log(self):
-        logs = [self.log.html, self.log.plain_text]
+        log = self.log
+        assert log is not None
+        logs = [log.html, log.plain_text]
         bdir = base_dir()
         log_dir = os.path.join(bdir, 'threaded_job_logs')
         if not os.path.exists(log_dir):
@@ -139,19 +146,24 @@ class ThreadedJob(BaseJob):
         self.log = None
 
     def read_consolidated_log(self):
+        assert self.consolidated_log is not None
         with open(self.consolidated_log, 'rb') as f:
             return json.loads(f.read().decode('utf-8'))
 
     @property
     def details(self):
         if self.consolidated_log is None:
-            return self.log.plain_text
+            log = self.log
+            assert log is not None
+            return log.plain_text
         return self.read_consolidated_log()[1]
 
     @property
     def html_details(self):
         if self.consolidated_log is None:
-            return self.log.html
+            log = self.log
+            assert log is not None
+            return log.html
         return self.read_consolidated_log()[0]
 
 

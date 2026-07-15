@@ -22,7 +22,7 @@ class TBPartitionedFields(DisplayedFields):
     def __init__(self, db, parent=None, category_icons=None):
         DisplayedFields.__init__(self, db, parent, category_icons=category_icons)
         from calibre.gui2.ui import get_gui
-        self.gui = get_gui()
+        self.gui = get_gui(fail_if_absent=True)
 
     def filter_user_categories(self, tv):
         cats = tv.model().categories
@@ -90,7 +90,11 @@ class TbPartitioningTab(LazyConfigWidgetBase, Ui_Form):
     def lazy_initialize(self):
         self.tb_categories_to_part_model.initialize()
 
-    def commit(self):
+    def restore_defaults(self, *args):
+        LazyConfigWidgetBase.restore_defaults(self)
+        self.tb_categories_to_part_model.restore_defaults()
+
+    def commit(self, *args):
         self.tb_categories_to_part_model.commit()
         return LazyConfigWidgetBase.commit(self)
 

@@ -49,7 +49,7 @@ class RemotePdb(pdb.Pdb):
         self.handle.flush()
         return self.handle.readline()
 
-    def end_session(self, *args):
+    def end_session(self, arg=None):
         self.clear_all_breaks()
         self.reset()
         self.handle.close()
@@ -60,7 +60,7 @@ class RemotePdb(pdb.Pdb):
             self.sock.close()
         except OSError:
             pass
-        return pdb.Pdb.do_continue(self, None)
+        return pdb.Pdb.do_continue(self, arg or '')
 
     def do_clear(self, arg):
         if not arg:
@@ -86,7 +86,9 @@ class RemotePdb(pdb.Pdb):
 
 
 def set_trace(port=4444, skip=None):
-    frame = inspect.currentframe().f_back
+    frame_obj = inspect.currentframe()
+    assert frame_obj is not None
+    frame = frame_obj.f_back
 
     try:
         debugger = RemotePdb(port=port, skip=skip)
@@ -128,7 +130,7 @@ def cli(port=4444):
             pass
         atexit.register(readline.write_history_file, histfile)
         p = pdb.Pdb()
-        readline.set_completer(p.complete)
+        readline.set_completer(p.complete)  # type: ignore
         readline.parse_and_bind('tab: complete')
 
     sock.setblocking(True)

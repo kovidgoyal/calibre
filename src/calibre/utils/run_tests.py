@@ -42,18 +42,20 @@ class TestResult(unittest.TextTestResult):
 
     def stopTest(self, test):
         orig = self.stream.writeln
-        self.stream.writeln = self.stream.write
-        super().stopTest(test)
-        elapsed = monotonic()
-        elapsed -= self.start_time.get(test, elapsed)
-        self.times[test] = elapsed
-        self.stream.writeln = orig
-        self.stream.writeln(f' [{elapsed:.1f} s]')
+        try:
+            self.stream.writeln = self.stream.write  # type: ignore
+            super().stopTest(test)
+            elapsed = monotonic()
+            elapsed -= self.start_time.get(test, elapsed)
+            self.times[test] = elapsed
+        finally:
+            self.stream.writeln = orig  # type: ignore
+            self.stream.writeln(f' [{elapsed:.1f} s]')
 
     def stopTestRun(self):
         super().stopTestRun()
         if self.wasSuccessful():
-            tests = sorted(self.times, key=self.times.get, reverse=True)
+            tests = sorted(self.times, key=self.times.__getitem__, reverse=True)
             slowest = [f'{t.id()} [{self.times[t]:.1f} s]' for t in tests[:3]]
             if len(slowest) > 1:
                 self.stream.writeln('\nSlowest tests: {}'.format(' '.join(slowest)))
@@ -200,9 +202,10 @@ class TestImports(unittest.TestCase):
         base = os.path.join(SRC, 'calibre')
         self.assertGreater(self.base_check(base, exclude_packages, exclude_modules), 1000)
 
-        import calibre.web.feeds.feedparser as f
+        # Virtual imports for legacy compatibility
+        import calibre.web.feeds.feedparser as f  # type: ignore
         del f
-        from calibre.ebooks.markdown import Markdown
+        from calibre.ebooks.markdown import Markdown  # type: ignore
         del Markdown
 
 
@@ -368,9 +371,4 @@ def run_cli(suite, verbosity=4, buffer=True):
     init_env()
     result = r(verbosity=verbosity, buffer=buffer and not is_ci).run(suite)
     rc = 0 if result.wasSuccessful() else 1
-    if is_ci:
-        # for some reason interpreter shutdown hangs probably some non-daemonic
-        # thread
-        os._exit(rc)
-    else:
-        raise SystemExit(rc)
+    raise SystemExit(rc)

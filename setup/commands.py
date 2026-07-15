@@ -51,6 +51,7 @@ __all__ = [
     'test',
     'test_rs',
     'translations',
+    'type_check',
     'upgrade_source_code',
     'upload_demo',
     'upload_installers',
@@ -131,6 +132,10 @@ from setup.test import Test, TestRS
 
 test = Test()
 test_rs = TestRS()
+
+from setup.type_check import TypeCheck
+
+type_check = TypeCheck()
 
 from setup.resources import CACerts, RapydScript, RecentUAs, Resources
 

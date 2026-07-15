@@ -208,7 +208,11 @@ def do_list(
         )
         if not isinstance(raw, bytes):
             raw = raw.encode('utf-8')
-        getattr(sys.stdout, 'buffer', sys.stdout).write(raw)
+        buf = getattr(sys.stdout, 'buffer', None)
+        if buf is not None:
+            buf.write(raw)
+        else:
+            sys.stdout.write(raw.decode('utf-8'))
         return
     from calibre.utils.terminal import ColoredStream, geometry
 
@@ -244,7 +248,7 @@ def do_list(
     )
     with ColoredStream(sys.stdout, fg='green'):
         print(''.join(titles), flush=True)
-    stdout = getattr(sys.stdout, 'buffer', sys.stdout)
+    stdout_buf = getattr(sys.stdout, 'buffer', None)
     linesep = as_bytes(os.linesep)
 
     wrappers = [TextWrapper(x - 1).wrap if x > 1 else lambda y: y for x in widths]
@@ -257,11 +261,20 @@ def do_list(
         for l in range(lines):
             for i in range(len(text)):
                 ft = text[i][l] if l < len(text[i]) else ''
-                stdout.write(ft.encode('utf-8'))
+                if stdout_buf is not None:
+                    stdout_buf.write(ft.encode('utf-8'))
+                else:
+                    sys.stdout.write(ft)
                 if i < len(text) - 1:
                     filler = ' '*(widths[i] - str_width(ft) - 1)
-                    stdout.write((filler + separator).encode('utf-8'))
-            stdout.write(linesep)
+                    if stdout_buf is not None:
+                        stdout_buf.write((filler + separator).encode('utf-8'))
+                    else:
+                        sys.stdout.write(filler + separator)
+            if stdout_buf is not None:
+                stdout_buf.write(linesep)
+            else:
+                sys.stdout.write(linesep.decode('utf-8'))
 
 
 def option_parser(get_parser, args):

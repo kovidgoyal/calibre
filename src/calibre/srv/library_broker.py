@@ -204,7 +204,7 @@ class GuiLibraryBroker(LibraryBroker):
 
     def __init__(self, db):
         from calibre.gui2 import gprefs
-        self.last_used_times = defaultdict(lambda: -EXPIRED_AGE)
+        self.last_used_times: defaultdict[str | None, float] = defaultdict(lambda: float(-EXPIRED_AGE))
         self.gui_library_id = None
         self.listening_for_db_events = False
         LibraryBroker.__init__(self, load_gui_libraries(gprefs))

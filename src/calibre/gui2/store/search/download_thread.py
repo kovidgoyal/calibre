@@ -31,7 +31,7 @@ class GenericDownloadThreadPool:
     def set_thread_count(self, thread_count):
         self.thread_count = thread_count
 
-    def add_task(self):
+    def add_task(self, *args, **kwargs):
         '''
         This must be implemented in a sub class and this function
         must be called at the end of the add_task function in
@@ -63,7 +63,7 @@ class GenericDownloadThreadPool:
         return self.results.get_nowait()
 
     def result_count(self):
-        return len(self.results)
+        return self.results.qsize()
 
     def has_results(self):
         return not self.results.empty()
@@ -93,7 +93,7 @@ class SearchThreadPool(GenericDownloadThreadPool):
     def __init__(self, thread_count):
         GenericDownloadThreadPool.__init__(self, SearchThread, thread_count)
 
-    def add_task(self, query, store_name, store_plugin, max_results, timeout):
+    def add_task(self, query=None, store_name=None, store_plugin=None, max_results=None, timeout=None):
         self.tasks.put((query, store_name, store_plugin, max_results, timeout))
         GenericDownloadThreadPool.add_task(self)
 
@@ -133,7 +133,7 @@ class CoverThreadPool(GenericDownloadThreadPool):
     def __init__(self, thread_count):
         GenericDownloadThreadPool.__init__(self, CoverThread, thread_count)
 
-    def add_task(self, search_result, update_callback, timeout=5):
+    def add_task(self, search_result=None, update_callback=None, timeout=5):
         self.tasks.put((search_result, update_callback, timeout))
         GenericDownloadThreadPool.add_task(self)
 
@@ -179,7 +179,7 @@ class DetailsThreadPool(GenericDownloadThreadPool):
     def __init__(self, thread_count):
         GenericDownloadThreadPool.__init__(self, DetailsThread, thread_count)
 
-    def add_task(self, search_result, store_plugin, update_callback, timeout=10):
+    def add_task(self, search_result=None, store_plugin=None, update_callback=None, timeout=10):
         self.tasks.put((search_result, store_plugin, update_callback, timeout))
         GenericDownloadThreadPool.add_task(self)
 
@@ -214,7 +214,7 @@ class CacheUpdateThreadPool(GenericDownloadThreadPool):
     def __init__(self, thread_count):
         GenericDownloadThreadPool.__init__(self, CacheUpdateThread, thread_count)
 
-    def add_task(self, store_plugin, timeout=10):
+    def add_task(self, store_plugin=None, timeout=10):
         self.tasks.put((store_plugin, timeout))
         GenericDownloadThreadPool.add_task(self)
 

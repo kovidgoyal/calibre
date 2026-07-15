@@ -236,7 +236,10 @@ class UnpackBook(QDialog):
     def do_preview(self):
         rebuilt = self.rebuild_it()
         if rebuilt is not None:
-            self.parent().iactions['View']._view_file(rebuilt)
+            from calibre.gui2.ui import get_gui
+            g = get_gui()
+            assert g is not None
+            g.iactions['View']._view_file(rebuilt)
 
     def rebuild(self):
         self.show_msg(_('Rebuilding, please wait...'))
@@ -256,9 +259,8 @@ class UnpackBook(QDialog):
     def cleanup(self):
         if ismacos and self._exploded:
             try:
-                import appscript
-                self.finder = appscript.app('Finder')
-                self.finder.Finder_windows[os.path.basename(self._exploded)].close()
+                from calibre_extensions.cocoa import close_finder_window
+                close_finder_window(os.path.basename(self._exploded))
             except Exception:
                 pass
 

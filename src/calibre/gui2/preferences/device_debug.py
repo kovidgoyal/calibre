@@ -62,10 +62,12 @@ class DebugDevice(QDialog):
         self.log.setPlainText(job.result)
 
     def copy_to_clipboard(self):
-        QApplication.clipboard().setText(self.log.toPlainText())
+        cb = QApplication.clipboard()
+        assert cb is not None
+        cb.setText(self.log.toPlainText())
 
 
 if __name__ == '__main__':
     app = QApplication([])
-    d = DebugDevice()
+    d = DebugDevice(None)
     d.exec()

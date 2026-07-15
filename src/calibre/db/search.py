@@ -9,6 +9,7 @@ import operator
 import unicodedata
 import weakref
 from collections import OrderedDict, deque
+from collections.abc import Callable
 from datetime import timedelta
 from functools import partial
 
@@ -279,9 +280,11 @@ class NumericSearch:  # {{{
             else:
                 relop = self.operators['=']
 
+            cast: Callable[..., int | float]
             if dt == 'rating':
-                def cast(x):
+                def _cast_for_rating(x):
                     return (0 if x is None else int(x))
+                cast = _cast_for_rating
 
                 def adjust(x):
                     return (x // 2)

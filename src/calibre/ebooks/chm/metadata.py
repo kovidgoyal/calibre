@@ -79,7 +79,9 @@ def _get_comments(soup):
         # date span can have copyright symbols in it...
         date = date.replace('©', '').strip()
         # and pages often comes as '(\d+ pages)'
-        pages = re.search(r'\d+', pages).group(0)
+        m_pages = re.search(r'\d+', pages)
+        assert m_pages is not None
+        pages = m_pages.group(0)
         return f'Published {date}, {pages} pages.'
     except Exception:
         pass
@@ -101,9 +103,11 @@ def _get_cover(soup, rdr):
         r = {}
         for img in soup('img'):
             try:
-                r[abs(float(re.search(r'[0-9.]+',
-                    img['height']).group())/float(re.search(r'[0-9.]+',
-                        img['width']).group())-1.25)] = img['src']
+                m_h = re.search(r'[0-9.]+', img['height'])
+                assert m_h is not None
+                m_w = re.search(r'[0-9.]+', img['width'])
+                assert m_w is not None
+                r[abs(float(m_h.group())/float(m_w.group())-1.25)] = img['src']
             except KeyError:
                 # interestingly, occasionally the only image without height
                 # or width attrs is the cover...

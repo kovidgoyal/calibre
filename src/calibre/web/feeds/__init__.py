@@ -10,11 +10,11 @@ import copy
 import re
 import time
 import traceback
-from builtins import _
 
 from calibre import force_unicode, replace_entities, strftime
 from calibre.utils.cleantext import clean_ascii_chars, clean_xml_chars
 from calibre.utils.date import dt_factory, local_tz, utcnow
+from calibre.utils.localization import _
 from calibre.utils.logging import default_log
 
 
@@ -278,7 +278,7 @@ class Feed:
         return -1
 
     def remove(self, article):
-        i = self.index(article)
+        i = self.find(article)
         if i > -1:
             self.articles[i:i+1] = []
 
@@ -342,7 +342,7 @@ def feed_from_xml(raw_xml, title=None, oldest_article=7,
                   max_articles_per_feed=100,
                   get_article_url=lambda item: item.get('link', None),
                   log=default_log):
-    from calibre.web.feeds.feedparser import parse
+    from feedparser import parse
 
     # Handle unclosed escaped entities. They trip up feedparser and HBR for one
     # generates them

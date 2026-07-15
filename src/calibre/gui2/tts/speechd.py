@@ -4,7 +4,7 @@
 import atexit
 
 from qt.core import QObject, Qt, QTextToSpeech, pyqtSignal
-from speechd.client import CallbackType, DataMode, Priority, SpawnError, SSIPClient, SSIPCommunicationError
+from speechd.client import CallbackType, DataMode, Priority, SpawnError, SSIPClient, SSIPCommunicationError  # type: ignore
 
 from calibre import prepare_string_for_xml
 from calibre.gui2.tts.types import EngineSpecificSettings, TTSBackend, Voice
@@ -44,11 +44,11 @@ class SpeechdTTSBackend(TTSBackend):
     _event_signal = pyqtSignal(object, object)
 
     def __init__(self, engine_name: str = '', parent: QObject|None = None):
-        super().__init__(parent)
+        super().__init__(engine_name, parent)
         self._last_error = ''
         self._state = QTextToSpeech.State.Ready
         self._voices = None
-        self._system_default_output_module = None
+        self._system_default_output_module: str | None = None
         self._status = {'synthesizing': False, 'paused': False}
         self._ssip_client: SSIPClient | None = None
         self._voice_lang = 'en'
@@ -61,7 +61,7 @@ class SpeechdTTSBackend(TTSBackend):
     @property
     def default_output_module(self) -> str:
         if self._ensure_state():
-            return self._system_default_output_module
+            return self._system_default_output_module or ''
         return ''
 
     @property
@@ -153,9 +153,11 @@ class SpeechdTTSBackend(TTSBackend):
             if not self._create_ssip_client():
                 return False
         if self._system_default_output_module is None:
-            self._system_default_output_module = self._ssip_client.get_output_module()
+            ssip_client = self._ssip_client
+            assert ssip_client is not None
+            self._system_default_output_module = ssip_client.get_output_module()
             if self._system_default_output_module == '(null)':
-                mods = self._ssip_client.list_output_modules()
+                mods = ssip_client.list_output_modules()
                 if not mods:
                     self._set_error(_(
                         'Speech dispatcher on this system is not configured with any available output modules. Install some output modules first.'))
@@ -165,11 +167,13 @@ class SpeechdTTSBackend(TTSBackend):
 
     def _set_use_ssml(self, on: bool) -> bool:
         mode = DataMode.SSML if on else DataMode.TEXT
+        ssip_client = self._ssip_client
+        assert ssip_client is not None
         try:
-            self._ssip_client.set_data_mode(mode)
+            ssip_client.set_data_mode(mode)
             return True
         except SSIPCommunicationError:
-            self._ssip_client.close()
+            ssip_client.close()
             self._ssip_client = None
             self._set_error(_('Failed to set support for SSML to: {}').format(on))
         return False
@@ -177,43 +181,50 @@ class SpeechdTTSBackend(TTSBackend):
     def _apply_settings(self, settings: EngineSpecificSettings) -> bool:
         if not self._ensure_state():
             return False
+        apply_ssip_client = self._ssip_client
+        assert apply_ssip_client is not None
         try:
             om = settings.output_module or self._system_default_output_module
-            self._ssip_client.set_output_module(om)
+            if om is None:
+                om = ''
+            apply_ssip_client.set_output_module(om)
             if settings.voice_name:
                 for v in self.available_voices[om]:
                     if v.name == settings.voice_name:
                         self._voice_lang = v.language_code
                         break
-                self._ssip_client.set_synthesis_voice(settings.voice_name)
+                apply_ssip_client.set_synthesis_voice(settings.voice_name)
             else:
                 self._voice_lang = self.available_voices[om][0].language_code
-            self._ssip_client.set_pitch_range(int(max(-1, min(settings.pitch, 1)) * 100))
-            self._ssip_client.set_rate(int(max(-1, min(settings.rate, 1)) * 100))
+            apply_ssip_client.set_pitch_range(int(max(-1, min(settings.pitch, 1)) * 100))
+            apply_ssip_client.set_rate(int(max(-1, min(settings.rate, 1)) * 100))
             if settings.volume is not None:
-                self._ssip_client.set_volume(-100 + int(max(0, min(settings.volume, 1)) * 200))
+                apply_ssip_client.set_volume(-100 + int(max(0, min(settings.volume, 1)) * 200))
             return True
         except Exception as e:
             self._set_error(str(e))
             return False
 
-    def _get_all_voices_for_all_output_modules(self) -> dict[str, Voice]:
+    def _get_all_voices_for_all_output_modules(self) -> dict[str, tuple[Voice, ...]]:
         ans = {}
         def v(x) -> Voice:
             name, langcode, variant = x
             return Voice(name, canonicalize_lang(langcode) or 'und', human_name=name, notes=variant)
 
         if self._ensure_state():
-            om = self._ssip_client.get_output_module()
-            for omq in self._ssip_client.list_output_modules():
-                self._ssip_client.set_output_module(omq)
-                ans[omq] = tuple(map(v, self._ssip_client.list_synthesis_voices()))
-            self._ssip_client.set_output_module(om)
+            voices_ssip_client = self._ssip_client
+            assert voices_ssip_client is not None
+            om = voices_ssip_client.get_output_module()
+            for omq in voices_ssip_client.list_output_modules():
+                voices_ssip_client.set_output_module(omq)
+                ans[omq] = tuple(map(v, voices_ssip_client.list_synthesis_voices()))
+            voices_ssip_client.set_output_module(om)
         return ans
 
     def _update_status(self, callback_type, index_mark=None):
         event = None
         if callback_type is CallbackType.INDEX_MARK:
+            assert index_mark is not None
             pos, sep, length = index_mark.partition(':')
             self._last_mark = MARK_TEMPLATE.format(index_mark)
             self.saying.emit(int(pos), int(length))
@@ -238,9 +249,11 @@ class SpeechdTTSBackend(TTSBackend):
 
     def _speak(self, text: str) -> None:
         if self._ensure_state():
+            speak_ssip_client = self._ssip_client
+            assert speak_ssip_client is not None
             self._last_text = text
             self._last_mark = ''
             try:
-                self._ssip_client.speak(wrap_in_ssml(text), self._speak_callback)
+                speak_ssip_client.speak(wrap_in_ssml(text), self._speak_callback)
             except Exception as e:
                 self._set_error(str(e))

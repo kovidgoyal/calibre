@@ -100,7 +100,7 @@ class JobManager(QAbstractTableModel, AdaptSQP):  # {{{
     def rowCount(self, parent=QModelIndex()):
         return len(self.jobs)
 
-    def headerData(self, section, orientation, role):
+    def headerData(self, section, orientation, role=None):
         if role == Qt.ItemDataRole.DisplayRole:
             if orientation == Qt.Orientation.Horizontal:
                 try:
@@ -132,7 +132,7 @@ class JobManager(QAbstractTableModel, AdaptSQP):  # {{{
             lines.append(desc)
         return '\n'.join(['calibre', '']+ lines)
 
-    def data(self, index, role):
+    def data(self, index, role=None):
         try:
             if role not in (Qt.ItemDataRole.DisplayRole, Qt.ItemDataRole.DecorationRole):
                 return None
@@ -396,6 +396,8 @@ class FilterModel(QSortFilterProxyModel):  # {{{
                 self.search_filter):
             return False
         m = self.sourceModel()
+        assert m is not None
+        assert isinstance(m, JobManager)
         try:
             job = m.row_to_job(source_row)
         except Exception:
@@ -407,7 +409,10 @@ class FilterModel(QSortFilterProxyModel):  # {{{
         val = None
         if query:
             try:
-                val = self.sourceModel().parse(query)
+                sm = self.sourceModel()
+                assert sm is not None
+                assert isinstance(sm, JobManager)
+                val = sm.parse(query)
             except ParseException:
                 ok = False
         self.search_filter = val
@@ -437,7 +442,9 @@ class ProgressBarDelegate(QAbstractItemDelegate):  # {{{
             percent = 0
         opts.progress = percent
         opts.text = (_('Unavailable') if percent == 0 else f'{percent}%')
-        QApplication.style().drawControl(QStyle.ControlElement.CE_ProgressBar, opts, painter)
+        app_style = QApplication.style()
+        assert app_style is not None
+        app_style.drawControl(QStyle.ControlElement.CE_ProgressBar, opts, painter)
 # }}}
 
 
@@ -458,7 +465,9 @@ class DetailView(Dialog):  # {{{
         return self.log.toPlainText()
 
     def copy_to_clipboard(self):
-        qapplication_or_fail().clipboard().setText(self.plain_text)
+        clipboard = qapplication_or_fail().clipboard()
+        assert clipboard is not None
+        clipboard.setText(self.plain_text)
 
     def setup_ui(self):
         self.l = l = QVBoxLayout(self)
@@ -471,6 +480,7 @@ class DetailView(Dialog):  # {{{
         l.addWidget(self.bb)
         self.bb.clear(), self.bb.setStandardButtons(QDialogButtonBox.StandardButton.Close)
         self.copy_button = b = self.bb.addButton(_('&Copy to clipboard'), QDialogButtonBox.ButtonRole.ActionRole)
+        assert b is not None
         b.setIcon(QIcon.ic('edit-copy.png'))
         b.clicked.connect(self.copy_to_clipboard)
         self.next_pos = 0
@@ -480,9 +490,10 @@ class DetailView(Dialog):  # {{{
         self.timer.start(1000)
         if not self.html_view:
             v = self.log.verticalScrollBar()
+            assert v is not None
             v.setValue(v.maximum())
 
-    def update(self):
+    def update(self, *args, **kwargs):
         if self.html_view:
             html = self.job.html_details
             if len(html) > self.next_pos:
@@ -496,6 +507,7 @@ class DetailView(Dialog):  # {{{
             self.next_pos = f.tell()
             if more:
                 v = self.log.verticalScrollBar()
+                assert v is not None
                 atbottom = v.value() >= v.maximum() - 1
                 self.log.appendPlainText(more.decode('utf-8', 'replace'))
                 if atbottom:
@@ -511,10 +523,12 @@ class JobsButton(QWidget):  # {{{
         QWidget.__init__(self, parent)
         self.num_jobs = 0
         self.mouse_over = False
-        self.pi = ProgressIndicator(self, self.style().pixelMetric(QStyle.PixelMetric.PM_ToolBarIconSize))
+        widget_style = self.style()
+        assert widget_style is not None
+        self.pi = ProgressIndicator(self, widget_style.pixelMetric(QStyle.PixelMetric.PM_ToolBarIconSize))
         self.pi.setVisible(False)
         self._jobs = QLabel('')
-        self._jobs.mouseReleaseEvent = self.mouseReleaseEvent
+        setattr(self._jobs, 'mouseReleaseEvent', self.mouseReleaseEvent)
         self.update_label()
         self.shortcut = 'Alt+Shift+J'
 
@@ -522,12 +536,15 @@ class JobsButton(QWidget):  # {{{
         l.setSpacing(3)
         l.addWidget(self.pi)
         l.addWidget(self._jobs)
-        m = self.style().pixelMetric(QStyle.PixelMetric.PM_DefaultFrameWidth)
-        self.layout().setContentsMargins(m, m, m, m)
+        m = widget_style.pixelMetric(QStyle.PixelMetric.PM_DefaultFrameWidth)
+        btn_layout = self.layout()
+        assert btn_layout is not None
+        btn_layout.setContentsMargins(m, m, m, m)
         self._jobs.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Minimum)
         self.setCursor(Qt.CursorShape.PointingHandCursor)
         b = _('Click to see list of jobs')
         self.action_toggle = QAction(b, parent)
+        assert parent is not None
         parent.addAction(self.action_toggle)
         self.action_toggle.triggered.connect(self.toggle)
         self.action_toggle.changed.connect(self.update_tooltip)
@@ -545,9 +562,9 @@ class JobsButton(QWidget):  # {{{
         prefix = '<b>' if n > 0 else ''
         self._jobs.setText(prefix + ' ' + _('Jobs:') + f' {n} ')
 
-    def event(self, ev):
+    def event(self, a0):
         m = None
-        et = ev.type()
+        et = a0.type()
         if et == QEvent.Type.Enter:
             m = True
         elif et == QEvent.Type.Leave:
@@ -555,7 +572,7 @@ class JobsButton(QWidget):  # {{{
         if m is not None and m != self.mouse_over:
             self.mouse_over = m
             self.update()
-        return QWidget.event(self, ev)
+        return QWidget.event(self, a0)
 
     def initialize(self, jobs_dialog, job_manager):
         self.jobs_dialog = jobs_dialog
@@ -563,7 +580,7 @@ class JobsButton(QWidget):  # {{{
         job_manager.job_done.connect(self.job_done)
         self.jobs_dialog.addAction(self.action_toggle)
 
-    def mouseReleaseEvent(self, event):
+    def mouseReleaseEvent(self, a0):
         self.toggle()
 
     def toggle(self, *args):
@@ -614,9 +631,12 @@ class JobsButton(QWidget):  # {{{
     def no_more_jobs(self):
         if self.is_running:
             self.stop()
-            QCoreApplication.instance().alert(self, 5000)
+            app = QCoreApplication.instance()
+            assert app is not None
+            assert isinstance(app, QApplication)
+            app.alert(self, 5000)
 
-    def paintEvent(self, ev):
+    def paintEvent(self, a0):
         if self.mouse_over:
             p = QStylePainter(self)
             tool = QStyleOption()
@@ -625,7 +645,7 @@ class JobsButton(QWidget):  # {{{
             tool.state = QStyle.StateFlag.State_Raised | QStyle.StateFlag.State_Active | QStyle.StateFlag.State_MouseOver
             p.drawPrimitive(QStyle.PrimitiveElement.PE_PanelButtonTool, tool)
             p.end()
-        QWidget.paintEvent(self, ev)
+        QWidget.paintEvent(self, a0)
 
 # }}}
 
@@ -649,7 +669,9 @@ class JobsDialog(QDialog, Ui_JobsDialog):
         self.pb_delegate = ProgressBarDelegate(self)
         self.jobs_view.setItemDelegateForColumn(2, self.pb_delegate)
         self.jobs_view.doubleClicked.connect(self.show_job_details)
-        self.jobs_view.horizontalHeader().setSectionsMovable(True)
+        h_header = self.jobs_view.horizontalHeader()
+        assert h_header is not None
+        h_header.setSectionsMovable(True)
         self.hide_button.clicked.connect(self.hide_selected)
         self.hide_all_button.clicked.connect(self.hide_all)
         self.show_button.clicked.connect(self.show_hidden)
@@ -664,19 +686,26 @@ class JobsDialog(QDialog, Ui_JobsDialog):
             self.restore_geometry(gprefs, 'jobs_dialog_geometry')
             state = gprefs.get('jobs view column layout3', None)
             if state is not None:
-                self.jobs_view.horizontalHeader().restoreState(QByteArray(state))
+                restore_header = self.jobs_view.horizontalHeader()
+                assert restore_header is not None
+                restore_header.restoreState(QByteArray(state))
         except Exception:
             import traceback
             traceback.print_exc()
-        idx = self.jobs_view.model().index(0, 0)
+        jobs_view_model = self.jobs_view.model()
+        assert jobs_view_model is not None
+        idx = jobs_view_model.index(0, 0)
         if idx.isValid():
             sm = self.jobs_view.selectionModel()
+            assert sm is not None
             sm.select(idx, QItemSelectionModel.SelectionFlag.ClearAndSelect|QItemSelectionModel.SelectionFlag.Rows)
 
     def save_state(self):
         try:
             with gprefs:
-                state = bytearray(self.jobs_view.horizontalHeader().saveState())
+                save_header = self.jobs_view.horizontalHeader()
+                assert save_header is not None
+                state = bytearray(save_header.saveState())
                 gprefs['jobs view column layout3'] = state
                 self.save_geometry(gprefs, 'jobs_dialog_geometry')
         except Exception:
@@ -699,8 +728,10 @@ class JobsDialog(QDialog, Ui_JobsDialog):
             self.show_job_details(index)
 
     def kill_job(self, *args):
+        kill_sel_model = self.jobs_view.selectionModel()
+        assert kill_sel_model is not None
         indices = [self.proxy_model.mapToSource(index) for index in
-                self.jobs_view.selectionModel().selectedRows()]
+                kill_sel_model.selectedRows()]
         indices = [i for i in indices if i.isValid()]
         jobs = self.model.rows_to_jobs([index.row() for index in indices])
         if not jobs:
@@ -721,8 +752,10 @@ class JobsDialog(QDialog, Ui_JobsDialog):
             self.model.kill_all_jobs()
 
     def hide_selected(self, *args):
+        hide_sel_model = self.jobs_view.selectionModel()
+        assert hide_sel_model is not None
         indices = [self.proxy_model.mapToSource(index) for index in
-                self.jobs_view.selectionModel().selectedRows()]
+                hide_sel_model.selectedRows()]
         indices = [i for i in indices if i.isValid()]
         rows = [index.row() for index in indices]
         if not rows:
@@ -739,9 +772,9 @@ class JobsDialog(QDialog, Ui_JobsDialog):
         self.model.show_hidden_jobs()
         self.find(self.search.current_text)
 
-    def closeEvent(self, e):
+    def closeEvent(self, a0):
         self.save_state()
-        return QDialog.closeEvent(self, e)
+        return QDialog.closeEvent(self, a0)
 
     def show(self, *args):
         self.restore_state()
@@ -755,7 +788,7 @@ class JobsDialog(QDialog, Ui_JobsDialog):
         self.save_state()
         QDialog.reject(self)
 
-    def find(self, query):
-        self.proxy_model.find(query)
+    def find(self, a0):
+        self.proxy_model.find(a0)
 
 # }}}

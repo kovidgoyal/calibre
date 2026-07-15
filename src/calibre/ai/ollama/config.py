@@ -81,7 +81,7 @@ class ConfigWidget(QWidget):
         return self.api_url_edit.text().strip()
 
     @property
-    def headers(self) -> tuple[tuple[str, str]]:
+    def headers(self) -> tuple[tuple[str, str], ...]:
         ans = []
         for line in self.headers_edit.toPlainText().splitlines():
             if line := line.strip():
@@ -92,8 +92,8 @@ class ConfigWidget(QWidget):
         return tuple(ans)
 
     @property
-    def settings(self) -> dict[str, str]:
-        ans = {
+    def settings(self) -> dict[str, str | tuple[tuple[str, str], ...] | int]:
+        ans: dict[str, str | tuple[tuple[str, str], ...] | int] = {
             'text_model': self.text_model, 'timeout': self.timeout,
         }
         if url := self.api_url:

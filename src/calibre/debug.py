@@ -176,7 +176,8 @@ def print_basic_debug_info(out=None):
         elif ismacos:
             out('OSX:', platform.mac_ver())
         else:
-            out('Linux:', platform.linux_distribution())
+            r = platform.freedesktop_os_release()
+            out('Linux:', r.get('PRETTY_NAME', r.get('ID', _('Unknown'))))
     except Exception:
         pass
     out('Interface language:', str(set_translators.lang))
@@ -248,8 +249,8 @@ def main(args=sys.argv):
     elif opts.add_simple_plugin is not None:
         add_simple_plugin(opts.add_simple_plugin)
     elif opts.paths:
-        prints('CALIBRE_RESOURCES_PATH='+sys.resources_location)
-        prints('CALIBRE_EXTENSIONS_PATH='+sys.extensions_location)
+        prints('CALIBRE_RESOURCES_PATH='+getattr(sys, 'resources_location'))
+        prints('CALIBRE_EXTENSIONS_PATH='+getattr(sys, 'extensions_location'))
         prints('CALIBRE_PYTHON_PATH='+os.pathsep.join(sys.path))
     elif opts.inspect_mobi:
         for path in args[1:]:

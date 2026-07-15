@@ -152,9 +152,10 @@ class Plugin:  # {{{
         True if the user clicks OK, False otherwise. The changes are
         automatically applied.
         '''
-        from qt.core import QApplication, QDialog, QDialogButtonBox, QLabel, QLineEdit, QScrollArea, QSize, Qt, QVBoxLayout
+        from qt.core import QDialog, QDialogButtonBox, QLabel, QLineEdit, QScrollArea, QSize, Qt, QVBoxLayout
 
-        from calibre.gui2 import gprefs
+        from calibre.gui2 import gprefs, qapplication_or_fail
+        from calibre.gui2.geometry import restore_geometry, save_geometry
 
         class ConfigDialog(QDialog):
 
@@ -192,16 +193,17 @@ class Plugin:  # {{{
         if config_widget is not None:
             class SA(QScrollArea):
                 def sizeHint(self):
-                    sz = self.widget().sizeHint()
+                    sz = sw.sizeHint() if (sw := self.widget()) else QSize(0, 0)
                     fw = 2 * self.frameWidth()
-                    return QSize(sz.width() + self.verticalScrollBar().sizeHint().width() + fw, sz.height() + fw)
+                    vsz = vs.sizeHint().width() if (vs := self.verticalScrollBar()) else 0
+                    return QSize(sz.width() + vsz + fw, sz.height() + fw)
             sa = SA(config_dialog)
             sa.setWidget(config_widget)
             sa.setWidgetResizable(True)
             v.addWidget(sa)
             v.addWidget(button_box)
-            if not config_dialog.restore_geometry(gprefs, prefname):
-                QApplication.instance().ensure_window_on_screen(config_dialog)
+            if not restore_geometry(config_dialog, gprefs, prefname):
+                qapplication_or_fail().ensure_window_on_screen(config_dialog)
             config_dialog.exec()
 
             if config_dialog.result() == QDialog.DialogCode.Accepted:
@@ -225,14 +227,14 @@ class Plugin:  # {{{
             sc = QLineEdit(sc, config_dialog)
             v.addWidget(sc)
             v.addWidget(button_box)
-            config_dialog.restore_geometry(gprefs, prefname)
+            restore_geometry(config_dialog, gprefs, prefname)
             config_dialog.exec()
 
             if config_dialog.result() == QDialog.DialogCode.Accepted:
                 sc = str(sc.text()).strip()
                 customize_plugin(self, sc)
 
-        config_dialog.save_geometry(gprefs, prefname)
+        save_geometry(config_dialog, gprefs, prefname)
         return config_dialog.result()
 
     def load_resources(self, names):
@@ -517,6 +519,7 @@ class MetadataWriterPlugin(Plugin):  # {{{
     def __init__(self, *args, **kwargs):
         Plugin.__init__(self, *args, **kwargs)
         self.apply_null = False
+        self.force_identifiers = False
 
     def set_metadata(self, stream, mi, type):
         '''
@@ -675,6 +678,7 @@ class InterfaceActionBase(Plugin):  # {{{
         '''
         ac = self.actual_plugin_
         if ac is None:
+            assert self.actual_plugin is not None
             mod, cls = self.actual_plugin.split(':')
             ac = getattr(importlib.import_module(mod), cls)(gui,
                     self.site_customization)
@@ -733,6 +737,7 @@ class PreferencesPlugin(Plugin):  # {{{
         The default implementation uses :attr:`config_widget` to instantiate
         the widget.
         '''
+        assert self.config_widget is not None
         base, _, wc = self.config_widget.partition(':')
         if not wc:
             wc = 'ConfigWidget'
@@ -771,6 +776,7 @@ class StoreBase(Plugin):  # {{{
         '''
         This method must return the actual interface action plugin object.
         '''
+        assert self.actual_plugin is not None
         mod, cls = self.actual_plugin.split(':')
         self.actual_plugin_object  = getattr(importlib.import_module(mod), cls)(gui, self.name)
         return self.actual_plugin_object
@@ -860,7 +866,7 @@ class AIProviderPlugin(Plugin):  # {{{
     def initialize(self):
         self._builtin_live_module = None
 
-    def customization_help(self):
+    def customization_help(self, gui=False):
         return ''
 
     def config_widget(self):
@@ -893,4 +899,24 @@ class AIProviderPlugin(Plugin):  # {{{
         if not self.builtin_live_module_name:
             return model_id
         return self.builtin_live_module.human_readable_model_name(model_id)
+# }}}
+
+
+class ContentServerPlugin(Plugin):  # {{{
+
+    type = _('Content server')
+    supported_platforms = ['windows', 'osx', 'linux']
+    # minimum version when support for this plugin type was added
+    minimum_calibre_version = (9, 12, 0)
+
+    def content_server_endpoints(self):
+        '''
+        Return endpoint functions decorated with @endpoint().
+        These are registered with the content server's router at startup.
+
+        The default returns an empty tuple. Override to provide routes.
+        Endpoints with auth_required=False will be publicly accessible.
+        Endpoints with a route matching an existing route will not be added.
+        '''
+        return ()
 # }}}

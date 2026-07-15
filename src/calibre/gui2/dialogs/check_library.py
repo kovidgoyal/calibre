@@ -45,13 +45,13 @@ from calibre.utils.recycle_bin import delete_file, delete_tree
 class DBCheck(QDialog):  # {{{
 
     finished_vacuum = pyqtSignal()
+    was_rejected = False
 
     def __init__(self, parent, db):
         QDialog.__init__(self, parent)
         self.vacuum_started = False
         self.finished_vacuum.connect(self.accept, type=Qt.ConnectionType.QueuedConnection)
         self.error = None
-        self.rejected = False
 
         s = QStackedLayout(self)
         s.setContentsMargins(0, 0, 0, 0)
@@ -110,11 +110,13 @@ class DBCheck(QDialog):  # {{{
 
     def start(self):
         self.setWindowTitle(_('Vacuuming...'))
-        self.layout().setCurrentIndex(1)
+        sl = self.layout()
+        assert isinstance(sl, QStackedLayout)
+        sl.setCurrentIndex(1)
         QApplication.setOverrideCursor(QCursor(Qt.CursorShape.WaitCursor))
         self.vacuum_started = True
         db = self.db()
-        t = self.thread = Thread(target=self.vacuum, args=(
+        self._worker = t = Thread(target=self.vacuum, args=(
             db, self.fts.isChecked(), self.notes.isChecked(), self.annots.isChecked()), daemon=True, name='VacuumDB')
         t.start()
 
@@ -127,21 +129,21 @@ class DBCheck(QDialog):  # {{{
         self.finished_vacuum.emit()
 
     def reject(self):
-        self.rejected = True
+        self.was_rejected = True
         if self.vacuum_started:
             return
         return QDialog.reject(self)
 
-    def closeEvent(self, ev):
+    def closeEvent(self, a0):
         if self.vacuum_started:
-            ev.ignore()
+            a0.ignore()
             return
-        return super().closeEvent(ev)
+        return super().closeEvent(a0)
 
     def break_cycles(self):
         if self.vacuum_started:
             QApplication.restoreOverrideCursor()
-        self.thread = None
+        self._worker = None
 
 # }}}
 
@@ -599,7 +601,9 @@ class CheckLibraryDialog(QDialog):
         self.run_the_check()
 
     def copy_to_clipboard(self):
-        QApplication.clipboard().setText(self.text_results)
+        cb = QApplication.clipboard()
+        assert cb is not None
+        cb.setText(self.text_results)
 
 
 if __name__ == '__main__':

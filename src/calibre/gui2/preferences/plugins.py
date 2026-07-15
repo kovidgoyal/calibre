@@ -151,12 +151,12 @@ class PluginModel(QAbstractItemModel, AdaptSQP):  # {{{
         else:
             return self.createIndex(row, column, 0)
 
-    def parent(self, index):
-        if not index.isValid() or index.internalId() == 0:
+    def parent(self, child=QModelIndex()):
+        if not child.isValid() or child.internalId() == 0:
             return QModelIndex()
-        return self.createIndex(index.internalId()-1, 0, 0)
+        return self.createIndex(child.internalId()-1, 0, 0)
 
-    def rowCount(self, parent):
+    def rowCount(self, parent=QModelIndex()):
         if not parent.isValid():
             return len(self.categories)
         if parent.internalId() == 0:
@@ -164,7 +164,7 @@ class PluginModel(QAbstractItemModel, AdaptSQP):  # {{{
             return len(self._data[category])
         return 0
 
-    def columnCount(self, parent):
+    def columnCount(self, parent=None):
         return 1
 
     def index_to_plugin(self, index):
@@ -199,7 +199,7 @@ class PluginModel(QAbstractItemModel, AdaptSQP):  # {{{
             return Qt.ItemFlag.NoItemFlags
         return Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
 
-    def data(self, index, role):
+    def data(self, index, role=None):
         if not index.isValid():
             return None
         if index.internalId() == 0:
@@ -267,8 +267,8 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
     def show_user_installed_plugins(self, state):
         self._plugin_model.toggle_shown_plugins(self.user_installed_plugins.isChecked())
 
-    def find(self, query):
-        idx = self._plugin_model.find(query)
+    def find(self, a0):
+        idx = self._plugin_model.find(a0)
         if not idx.isValid():
             return info_dialog(self, _('No matches'),
                     _('Could not find any matching plugins'), show=True,
@@ -276,7 +276,9 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.highlight_index(idx)
 
     def highlight_index(self, idx):
-        self.plugin_view.selectionModel().select(idx, QItemSelectionModel.SelectionFlag.ClearAndSelect)
+        sm = self.plugin_view.selectionModel()
+        assert sm is not None
+        sm.select(idx, QItemSelectionModel.SelectionFlag.ClearAndSelect)
         self.plugin_view.setCurrentIndex(idx)
         self.plugin_view.setFocus(Qt.FocusReason.OtherFocusReason)
         self.plugin_view.scrollTo(idx, QAbstractItemView.ScrollHint.EnsureVisible)

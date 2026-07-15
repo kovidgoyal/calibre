@@ -182,7 +182,9 @@ class MOBIOutput(OutputFormatPlugin):
             # Fix up the periodical href to point to first section href
             toc.nodes[0].href = toc.nodes[0].nodes[0].href
 
-    def convert(self, oeb, output_path, input_plugin, opts, log):
+    def convert(self, oeb_book, output, input_plugin, opts, log):
+        oeb = oeb_book
+        output_path = output
         from calibre.ebooks.mobi.writer2.resources import Resources
         self.log, self.opts, self.oeb = log, opts, oeb
 
@@ -207,6 +209,7 @@ class MOBIOutput(OutputFormatPlugin):
         kf8 = self.create_kf8(resources, for_joint=mobi_type=='both'
                 ) if create_kf8 else None
         if mobi_type == 'new':
+            assert kf8 is not None
             kf8.write(output_path)
             extract_mobi(output_path, opts)
             return
@@ -309,7 +312,9 @@ class AZW3Output(OutputFormatPlugin):
         ),
     }
 
-    def convert(self, oeb, output_path, input_plugin, opts, log):
+    def convert(self, oeb_book, output, input_plugin, opts, log):
+        oeb = oeb_book
+        output_path = output
         from calibre.ebooks.mobi.writer2.resources import Resources
         from calibre.ebooks.mobi.writer8.cleanup import remove_duplicate_anchors
         from calibre.ebooks.mobi.writer8.main import create_kf8_book

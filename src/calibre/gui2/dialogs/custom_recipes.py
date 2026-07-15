@@ -80,13 +80,13 @@ class CustomRecipeModel(QAbstractListModel):  # {{{
             urn = self.recipe_model.custom_recipe_collection[row].get('id')
             return self.recipe_model.get_recipe(urn)
 
-    def rowCount(self, *args):
+    def rowCount(self, parent=...):
         try:
             return len(self.recipe_model.custom_recipe_collection)
         except Exception:
             return 0
 
-    def data(self, index, role):
+    def data(self, index, role=...):
         if role == Qt.ItemDataRole.DisplayRole:
             return self.title(index)
 
@@ -206,7 +206,7 @@ class RecipeList(QWidget):  # {{{
         s.addWidget(la)
 
         self.w = w = QWidget(self)
-        w.l = l = QVBoxLayout(w)
+        l = QVBoxLayout(w)
         l.setContentsMargins(0, 0, 0, 0)
         s.addWidget(w)
 
@@ -233,14 +233,20 @@ class RecipeList(QWidget):  # {{{
         l.addWidget(b)
 
         self.select_row()
-        v.selectionModel().currentRowChanged.connect(self.recipe_selected)
+        sel_model = v.selectionModel()
+        assert sel_model is not None
+        sel_model.currentRowChanged.connect(self.recipe_selected)
 
     def select_row(self, row=0):
         v = self.view
-        if v.model().rowCount() > 0:
-            idx = v.model().index(row)
+        m = v.model()
+        assert m is not None
+        if m.rowCount() > 0:
+            idx = m.index(row, 0)
             if idx.isValid():
-                v.selectionModel().select(idx, QItemSelectionModel.SelectionFlag.ClearAndSelect)
+                sel_model = v.selectionModel()
+                assert sel_model is not None
+                sel_model.select(idx, QItemSelectionModel.SelectionFlag.ClearAndSelect)
                 v.setCurrentIndex(idx)
                 self.recipe_selected(idx)
 
@@ -248,7 +254,7 @@ class RecipeList(QWidget):  # {{{
         row = self.model.add(title, src)
         self.select_row(row)
 
-    def update(self, row, title, src):
+    def update_recipe(self, row, title, src):
         self.model.update(row, title, src)
         self.select_row(row)
 
@@ -306,7 +312,7 @@ class RecipeList(QWidget):  # {{{
             urn = self.model.urn(idx)
             title = self.model.title(idx)
             from calibre.gui2.ui import get_gui
-            gui = get_gui()
+            gui = get_gui(fail_if_absent=True)
             gui.iactions['Fetch News'].download_custom_recipe(title, urn)
 
     def has_title(self, title):
@@ -354,39 +360,39 @@ class BasicRecipe(QWidget):  # {{{
         self.fg = fg = QGroupBox(self)
         fg.setTitle(_('Feeds in recipe'))
         self.feeds = f = QListWidget(self)
-        fg.h = QHBoxLayout(fg)
-        fg.h.addWidget(f)
-        fg.l = QVBoxLayout()
+        fg_h = QHBoxLayout(fg)
+        fg_h.addWidget(f)
+        fg_l = QVBoxLayout()
         self.up_button = b = QToolButton(self)
         b.setIcon(QIcon.ic('arrow-up.png'))
         b.setToolTip(_('Move selected feed up'))
-        fg.l.addWidget(b)
+        fg_l.addWidget(b)
         b.clicked.connect(self.move_up)
         self.remove_button = b = QToolButton(self)
         b.setIcon(QIcon.ic('list_remove.png'))
         b.setToolTip(_('Remove selected feed'))
-        fg.l.addWidget(b)
+        fg_l.addWidget(b)
         b.clicked.connect(self.remove_feed)
         self.down_button = b = QToolButton(self)
         b.setIcon(QIcon.ic('arrow-down.png'))
         b.setToolTip(_('Move selected feed down'))
-        fg.l.addWidget(b)
+        fg_l.addWidget(b)
         b.clicked.connect(self.move_down)
-        fg.h.addLayout(fg.l)
+        fg_h.addLayout(fg_l)
         l.addRow(fg)
 
         self.afg = afg = QGroupBox(self)
         afg.setTitle(_('Add feed to recipe'))
-        afg.l = QFormLayout(afg)
-        afg.l.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.ExpandingFieldsGrow)
+        afg_l = QFormLayout(afg)
+        afg_l.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.ExpandingFieldsGrow)
         self.feed_title = ft = QLineEdit(self)
-        afg.l.addRow(_('&Feed title:'), ft)
+        afg_l.addRow(_('&Feed title:'), ft)
         self.feed_url = fu = QLineEdit(self)
-        afg.l.addRow(_('Feed &URL:'), fu)
+        afg_l.addRow(_('Feed &URL:'), fu)
         self.afb = b = QPushButton(QIcon.ic('plus.png'), _('&Add feed'), self)
         b.setToolTip(_('Add this feed to the recipe'))
         b.clicked.connect(self.add_feed)
-        afg.l.addRow(b)
+        afg_l.addRow(b)
         l.addRow(afg)
 
     def move_up(self):
@@ -443,7 +449,11 @@ class BasicRecipe(QWidget):  # {{{
     def recipe_source(self):
 
         title = self.title.text().strip()
-        feeds = [self.feeds.item(i).data(Qt.ItemDataRole.UserRole) for i in range(self.feeds.count())]
+        feeds = []
+        for i in range(self.feeds.count()):
+            feed_item = self.feeds.item(i)
+            assert feed_item is not None
+            feeds.append(feed_item.data(Qt.ItemDataRole.UserRole))
         return options_to_recipe_source(title, self.oldest_article.value(), self.max_articles.value(), feeds)
 
     @recipe_source.setter
@@ -508,7 +518,9 @@ class AdvancedRecipe(QWidget):  # {{{
 class ChooseBuiltinRecipeModel(QSortFilterProxyModel):
 
     def filterAcceptsRow(self, source_row, source_parent):
-        idx = self.sourceModel().index(source_row, 0, source_parent)
+        src_model = self.sourceModel()
+        assert src_model is not None
+        idx = src_model.index(source_row, 0, source_parent)
         urn = idx.data(Qt.ItemDataRole.UserRole)
         if not urn or urn in ('::category::0', '::category::1'):
             return False
@@ -621,6 +633,7 @@ class CustomRecipes(Dialog):
                 tooltip = _('Edit this recipe in advanced mode')
                 receiver = self.switch_to_advanced
                 b = bb.addButton(text, QDialogButtonBox.ButtonRole.ActionRole)
+                assert b is not None
                 b.setToolTip(tooltip)
                 b.clicked.connect(receiver)
 
@@ -666,6 +679,7 @@ class CustomRecipes(Dialog):
 
     def editing_finished(self):
         w = self.stack.currentWidget()
+        assert isinstance(w, (BasicRecipe, AdvancedRecipe))
         if not w.validate():
             return
         src = w.recipe_source
@@ -677,7 +691,7 @@ class CustomRecipes(Dialog):
             # Adding a new recipe
             self.recipe_list.add(recipe.title, src)
         else:
-            self.recipe_list.update(row, recipe.title, src)
+            self.recipe_list.update_recipe(row, recipe.title, src)
         self.stack.setCurrentIndex(0)
 
     def customize_recipe(self):

@@ -9,6 +9,7 @@ import os
 import re
 import traceback
 from contextlib import closing, suppress
+from typing import Protocol, runtime_checkable
 
 from qt.core import QAbstractListModel, QDir, QIcon, QItemSelection, QItemSelectionModel, Qt, QWizard, QWizardPage, pyqtSignal
 
@@ -467,13 +468,13 @@ class ManufacturerModel(QAbstractListModel):
         QAbstractListModel.__init__(self)
         self.manufacturers = get_manufacturers()
 
-    def rowCount(self, p):
+    def rowCount(self, parent=...):
         return len(self.manufacturers)
 
-    def columnCount(self, p):
+    def columnCount(self, parent=...):
         return 1
 
-    def data(self, index, role):
+    def data(self, index, role=...):
         if role == Qt.ItemDataRole.DisplayRole:
             ans = self.manufacturers[index.row()]
             if ans == Device.manufacturer:
@@ -495,13 +496,13 @@ class DeviceModel(QAbstractListModel):
         QAbstractListModel.__init__(self)
         self.devices = get_devices_of(manufacturer)
 
-    def rowCount(self, p):
+    def rowCount(self, parent=...):
         return len(self.devices)
 
-    def columnCount(self, p):
+    def columnCount(self, parent=...):
         return 1
 
-    def data(self, index, role):
+    def data(self, index, role=...):
         if role == Qt.ItemDataRole.DisplayRole:
             return (self.devices[index.row()].name)
         if role == Qt.ItemDataRole.UserRole:
@@ -563,8 +564,8 @@ class KindlePage(QWizardPage, KindleUI):
     def nextId(self):
         return FinishPage.ID
 
-    def retranslateUi(self, widget):
-        KindleUI.retranslateUi(self, widget)
+    def retranslateUi(self, WizardPage):
+        KindleUI.retranslateUi(self, WizardPage)
         if hasattr(self, 'send_email_widget'):
             self.send_email_widget.retranslateUi(self.send_email_widget)
 
@@ -643,31 +644,41 @@ class DevicePage(QWizardPage, DeviceUI):
         if idx is None:
             idx = self.man_model.index_of(Device.manufacturer)
             previous = Device
-        self.manufacturer_view.selectionModel().select(idx,
+        man_sel_model = self.manufacturer_view.selectionModel()
+        assert man_sel_model is not None
+        man_sel_model.select(idx,
                 QItemSelectionModel.SelectionFlag.Select)
         self.dev_model = DeviceModel(self.man_model.data(idx, Qt.ItemDataRole.UserRole))
         idx = self.dev_model.index_of(previous)
         self.device_view.setModel(self.dev_model)
-        self.device_view.selectionModel().select(idx,
+        dev_sel_model = self.device_view.selectionModel()
+        assert dev_sel_model is not None
+        dev_sel_model.select(idx,
                 QItemSelectionModel.SelectionFlag.Select)
-        self.manufacturer_view.selectionModel().selectionChanged[(QItemSelection, QItemSelection)].connect(self.manufacturer_changed)
+        man_sel_model.selectionChanged[(QItemSelection, QItemSelection)].connect(self.manufacturer_changed)
 
     def manufacturer_changed(self, current, previous):
         new = list(current.indexes())[0]
         man = self.man_model.data(new, Qt.ItemDataRole.UserRole)
         self.dev_model = DeviceModel(man)
         self.device_view.setModel(self.dev_model)
-        self.device_view.selectionModel().select(self.dev_model.index(0),
+        dev_sel_model = self.device_view.selectionModel()
+        assert dev_sel_model is not None
+        dev_sel_model.select(self.dev_model.index(0),
                 QItemSelectionModel.SelectionFlag.Select)
 
     def commit(self):
-        idx = list(self.device_view.selectionModel().selectedIndexes())[0]
+        dev_sel_model = self.device_view.selectionModel()
+        assert dev_sel_model is not None
+        idx = list(dev_sel_model.selectedIndexes())[0]
         dev = self.dev_model.data(idx, Qt.ItemDataRole.UserRole)
         dev.commit()
         dynamic.set('welcome_wizard_device', dev.id)
 
     def nextId(self):
-        idx = list(self.device_view.selectionModel().selectedIndexes())[0]
+        dev_sel_model = self.device_view.selectionModel()
+        assert dev_sel_model is not None
+        idx = list(dev_sel_model.selectedIndexes())[0]
         dev = self.dev_model.data(idx, Qt.ItemDataRole.UserRole)
         if dev in (Kindle, KindleDX, KindleFire, KindlePW, KindleVoyage, KindleScribe):
             return KindlePage.ID
@@ -707,8 +718,8 @@ class LibraryPage(QWizardPage, LibraryUI):
                 localize_user_manual_link(
         'https://manual.calibre-ebook.com/faq.html#how-do-i-move-my-calibre-data-from-one-computer-to-another')))
 
-    def retranslateUi(self, widget):
-        LibraryUI.retranslateUi(self, widget)
+    def retranslateUi(self, WizardPage):
+        LibraryUI.retranslateUi(self, WizardPage)
         self.set_move_lib_label_text()
 
     def init_languages(self):
@@ -741,10 +752,10 @@ class LibraryPage(QWizardPage, LibraryUI):
         import builtins
         builtins.__dict__['_'] = lambda x: x
         from calibre.ebooks.metadata.book.base import reset_field_metadata
-        from calibre.gui2 import qt_app
+        from calibre.gui2 import qapplication_or_fail
         from calibre.utils.localization import set_translators
         set_translators()
-        qt_app.load_translations()
+        qapplication_or_fail().load_translations()
         self.retranslate.emit()
         self.init_languages()
         reset_field_metadata()
@@ -892,6 +903,12 @@ class FinishPage(QWizardPage, FinishUI):
         pass
 
 
+@runtime_checkable
+class _WizardPageWithMethods(Protocol):
+    def commit(self) -> None: ...
+    def retranslateUi(self, page: object) -> None: ...
+
+
 class Wizard(QWizard):
 
     BUTTON_TEXTS = {
@@ -938,6 +955,8 @@ class Wizard(QWizard):
     def retranslate(self):
         for pid in self.pageIds():
             page = self.page(pid)
+            assert page is not None
+            assert isinstance(page, _WizardPageWithMethods)
             page.retranslateUi(page)
         self.set_button_texts()
         self.set_finish_text()
@@ -945,6 +964,8 @@ class Wizard(QWizard):
     def accept(self):
         pages = map(self.page, self.visitedIds())
         for page in pages:
+            assert page is not None
+            assert isinstance(page, _WizardPageWithMethods)
             page.commit()
         QWizard.accept(self)
 

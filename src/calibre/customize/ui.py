@@ -14,6 +14,7 @@ from calibre.constants import DEBUG, ismacos, numeric_version, system_plugins_lo
 from calibre.customize import (
     AIProviderPlugin,
     CatalogPlugin,
+    ContentServerPlugin,
     EditBookToolPlugin,
     FileTypePlugin,
     InterfaceActionBase,
@@ -427,7 +428,7 @@ def available_stores():
 # Metadata read/write {{{
 
 _metadata_readers = {}
-_metadata_writers = {}
+_metadata_writers: dict[str, list[MetadataWriterPlugin]] = {}
 
 
 def reread_metadata_plugins():
@@ -503,8 +504,7 @@ apply_null_metadata = ApplyNullMetadata()
 
 class ForceIdentifiers:
 
-    def __init__(self):
-        self.force_identifiers = False
+    force_identifiers: bool = False
 
     def __enter__(self):
         self.force_identifiers = True
@@ -767,6 +767,16 @@ def all_edit_book_tool_plugins():
 # }}}
 
 
+# Content server plugins {{{
+
+def content_server_plugins():
+    for plugin in _initialized_plugins:
+        if isinstance(plugin, ContentServerPlugin):
+            if not is_disabled(plugin):
+                yield plugin
+# }}}
+
+
 # Initialize plugins {{{
 
 _initialized_plugins = []
@@ -837,7 +847,7 @@ def initialize_plugins(perf=False):
     if perf:
         import time
         from collections import defaultdict
-        times = defaultdict(int)
+        times: defaultdict[str, int | float] = defaultdict(int)
 
     for zfp, installation_type in chain(
             zip_value(external_plugins.items(), PluginInstallationType.EXTERNAL),
@@ -866,7 +876,7 @@ def initialize_plugins(perf=False):
             _initialized_plugins.append(plugin)
         except Exception:
             print('Failed to initialize plugin:', repr(zfp), file=sys.stderr)
-            if DEBUG:
+            if DEBUG or True:
                 traceback.print_exc()
     # Prevent a custom plugin from overriding stdout/stderr as this breaks
     # ipython

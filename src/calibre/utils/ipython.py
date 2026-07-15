@@ -109,7 +109,7 @@ history_length(2000) #value of -1 means no limit
 #ctrl_c_tap_time_interval(0.3)
     '''
     try:
-        import pyreadline.rlmain
+        import pyreadline.rlmain  # type: ignore
         if not os.path.exists(ipydir):
             os.makedirs(ipydir)
         conf = os.path.join(ipydir, 'pyreadline.txt')
@@ -121,7 +121,7 @@ history_length(2000) #value of -1 means no limit
         import atexit
         import readline
 
-        import pyreadline.unicode_helper  # noqa: F401
+        import pyreadline.unicode_helper  # noqa: F401  # type: ignore
         # Normally the codepage for pyreadline is set to be sys.stdout.encoding
         # if you need to change this uncomment the following line
         # pyreadline.unicode_helper.pyreadline_codepage="utf8"
@@ -136,7 +136,7 @@ history_length(2000) #value of -1 means no limit
 
         def nop(val, word):
             return word
-        completer_obj._callable_postfix = nop
+        completer_obj._callable_postfix = nop  # type: ignore
         readline.set_completer(completer_obj.complete)
 
         # activate tab completion
@@ -192,9 +192,9 @@ def ipython(user_ns=None):
     os.environ['IPYTHONDIR'] = ipydir
     have_ipython = True
     try:
-        from IPython.terminal.embed import InteractiveShellEmbed
-        from IPython.terminal.prompts import Prompts, Token
-        from traitlets.config.loader import Config
+        from IPython.terminal.embed import InteractiveShellEmbed  # type: ignore
+        from IPython.terminal.prompts import Prompts, Token  # type: ignore
+        from traitlets.config.loader import Config  # type: ignore
     except ImportError:
         have_ipython = False
     if not have_ipython:

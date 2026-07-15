@@ -24,7 +24,8 @@ class Writer(FormatWriter):
         self.opts = opts
         self.log = log
 
-    def write_content(self, oeb_book, out_stream, metadata=None):
+    def write_content(self, oeb_book, output_stream, metadata=None):
+        out_stream = output_stream
         title = self.opts.title or (oeb_book.metadata.title[0].value if oeb_book.metadata.title != [] else _('Unknown'))
 
         txt_records, txt_length = self._generate_text(oeb_book)
@@ -62,7 +63,7 @@ class Writer(FormatWriter):
         txt_length = len(txt)
 
         txt_records = []
-        for i in range((len(txt) / MAX_RECORD_SIZE) + 1):
+        for i in range((len(txt) // MAX_RECORD_SIZE) + 1):
             txt_records.append(txt[i * MAX_RECORD_SIZE : (i * MAX_RECORD_SIZE) + MAX_RECORD_SIZE])
 
         return txt_records, txt_length

@@ -22,7 +22,6 @@ from qt.core import (
     QAbstractListModel,
     QAbstractTableModel,
     QApplication,
-    QCursor,
     QDialog,
     QDialogButtonBox,
     QGridLayout,
@@ -136,6 +135,7 @@ class CoverDelegate(QStyledItemDelegate):  # {{{
     def paint(self, painter, option, index):
         QStyledItemDelegate.paint(self, painter, option, index)
         style = QApplication.style()
+        assert style is not None
         waiting = self.animator.is_running() and bool(index.data(Qt.ItemDataRole.UserRole))
         if waiting:
             rect = QRect(0, 0, self.spinner_width, self.spinner_width)
@@ -168,7 +168,7 @@ class ResultsModel(QAbstractTableModel):  # {{{
     def columnCount(self, parent=None):
         return len(self.COLUMNS)
 
-    def headerData(self, section, orientation, role):
+    def headerData(self, section, orientation, role=...):
         if orientation == Qt.Orientation.Horizontal and role == Qt.ItemDataRole.DisplayRole:
             try:
                 return (self.COLUMNS[section])
@@ -188,7 +188,7 @@ class ResultsModel(QAbstractTableModel):  # {{{
             p = book.publisher or ''
             return f'<b>{d}</b><br><i>{p}</i>'
 
-    def data(self, index, role):
+    def data(self, index, role=...):
         row, col = index.row(), index.column()
         try:
             book = self.results[row]
@@ -215,21 +215,21 @@ class ResultsModel(QAbstractTableModel):  # {{{
 
         return None
 
-    def sort(self, col, order=Qt.SortOrder.AscendingOrder):
-        if col == 0:
+    def sort(self, column, order=Qt.SortOrder.AscendingOrder):
+        if column == 0:
             key = attrgetter('gui_rank')
-        elif col == 1:
+        elif column == 1:
             key = attrgetter('title')
-        elif col == 2:
+        elif column == 2:
             def dategetter(x):
                 x = getattr(x, 'pubdate', None)
                 if x is None:
                     x = UNDEFINED_DATE
                 return as_utc(x)
             key = dategetter
-        elif col == 3:
+        elif column == 3:
             key = attrgetter('has_cached_cover_url')
-        elif key == 4:
+        elif column == 4:
             def key(x):
                 return bool(x.comments)
         else:
@@ -267,18 +267,21 @@ class ResultsView(QTableView):  # {{{
         self.resizeRowsToContents()
         self.resizeColumnsToContents()
         self.setFocus(Qt.FocusReason.OtherFocusReason)
-        idx = self.model().index(0, 0)
-        if idx.isValid() and self.model().rowCount() > 0:
+        model = self.model()
+        assert model is not None
+        idx = model.index(0, 0)
+        if idx.isValid() and model.rowCount() > 0:
             self.show_details(idx)
             sm = self.selectionModel()
+            assert sm is not None
             sm.select(idx, QItemSelectionModel.SelectionFlag.ClearAndSelect|QItemSelectionModel.SelectionFlag.Rows)
 
     def resize_delegate(self):
         self.rt_delegate.max_width = int(self.width()/2.1)
         self.resizeColumnsToContents()
 
-    def resizeEvent(self, ev):
-        ret = super().resizeEvent(ev)
+    def resizeEvent(self, e):
+        ret = super().resizeEvent(e)
         self.resize_delegate()
         return ret
 
@@ -289,7 +292,9 @@ class ResultsView(QTableView):  # {{{
 
     def show_details(self, index):
         f = rating_font()
-        book = self.model().data(index, Qt.ItemDataRole.UserRole)
+        model = self.model()
+        assert model is not None
+        book = model.data(index, Qt.ItemDataRole.UserRole)
         parts = [
             '<center>',
             f'<h2>{book.title}</h2>',
@@ -316,27 +321,29 @@ class ResultsView(QTableView):  # {{{
         self.show_details_signal.emit(''.join(parts))
 
     def select_index(self, index):
-        if self.model() is None:
+        model = self.model()
+        if model is None:
             return
         if not index.isValid():
-            index = self.model().index(0, 0)
-        book = self.model().data(index, Qt.ItemDataRole.UserRole)
+            index = model.index(0, 0)
+        book = model.data(index, Qt.ItemDataRole.UserRole)
         self.book_selected.emit(book)
 
     def get_result(self):
         self.select_index(self.currentIndex())
 
-    def keyPressEvent(self, ev):
-        if ev.key() in (Qt.Key.Key_Left, Qt.Key.Key_Right):
-            ac = QAbstractItemView.CursorAction.MoveDown if ev.key() == Qt.Key.Key_Right else QAbstractItemView.CursorAction.MoveUp
-            index = self.moveCursor(ac, ev.modifiers())
+    def keyPressEvent(self, e):
+        if e.key() in (Qt.Key.Key_Left, Qt.Key.Key_Right):
+            ac = QAbstractItemView.CursorAction.MoveDown if e.key() == Qt.Key.Key_Right else QAbstractItemView.CursorAction.MoveUp
+            index = self.moveCursor(ac, e.modifiers())
             if index.isValid() and index != self.currentIndex():
                 m = self.selectionModel()
+                assert m is not None
                 m.select(index, QItemSelectionModel.SelectionFlag.Select|QItemSelectionModel.SelectionFlag.Current|QItemSelectionModel.SelectionFlag.Rows)
                 self.setCurrentIndex(index)
-                ev.accept()
+                e.accept()
                 return
-        return QTableView.keyPressEvent(self, ev)
+        return QTableView.keyPressEvent(self, e)
 
 # }}}
 
@@ -537,11 +544,11 @@ class IdentifyWidget(QWidget):  # {{{
 
         self.worker.start()
 
-        QTimer.singleShot(50, self.update)
+        QTimer.singleShot(50, self.poll_results)
 
-    def update(self):
+    def poll_results(self):
         if self.worker.is_alive():
-            QTimer.singleShot(50, self.update)
+            QTimer.singleShot(50, self.poll_results)
         else:
             self.process_results()
 
@@ -691,7 +698,7 @@ class CoversModel(QAbstractListModel):  # {{{
     def rowCount(self, parent=None):
         return len(self.covers)
 
-    def data(self, index, role):
+    def data(self, index, role=...):
         try:
             text, pmap, cover, waiting = self.covers[index.row()]
         except Exception:
@@ -828,14 +835,18 @@ class CoversView(QListView):  # {{{
 
     def redraw_spinners(self):
         m = self.model()
+        assert m is not None
         for r in range(m.rowCount()):
-            idx = m.index(r)
+            idx = m.index(r, 0)
             if bool(m.data(idx, Qt.ItemDataRole.UserRole)):
                 m.dataChanged.emit(idx, idx)
 
     def select(self, num):
-        current = self.model().index(num)
+        model = self.model()
+        assert model is not None
+        current = model.index(num, 0)
         sm = self.selectionModel()
+        assert sm is not None
         sm.select(current, QItemSelectionModel.SelectionFlag.SelectCurrent)
 
     def start(self):
@@ -865,14 +876,15 @@ class CoversView(QListView):  # {{{
             m.addAction(QIcon.ic('save.png'), _('Save this cover to disk'), self.save_to_disk)
             if self.book_id:
                 m.addAction(QIcon.ic('save.png'), _('Save this cover in the book extra files'), self.save_alternate_cover)
-            m.exec(QCursor.pos())
+            m.exec(self.mapToGlobal(point))
 
     @property
     def current_pixmap(self):
         idx = self.currentIndex()
-        pmap = self.model().cover_pixmap(idx)
+        m = self.m
+        pmap = m.cover_pixmap(idx)
         if pmap is None and idx.row() == 0:
-            pmap = self.model().cc
+            pmap = m.cc
         return pmap
 
     def show_cover(self):
@@ -885,7 +897,9 @@ class CoversView(QListView):  # {{{
     def copy_cover(self):
         pmap = self.current_pixmap
         if pmap is not None:
-            QApplication.clipboard().setPixmap(pmap)
+            clipboard = QApplication.clipboard()
+            assert clipboard is not None
+            clipboard.setPixmap(pmap)
 
     def save_to_disk(self):
         pmap = self.current_pixmap
@@ -899,7 +913,7 @@ class CoversView(QListView):  # {{{
         pmap = self.current_pixmap
         if pmap:
             from calibre.gui2.ui import get_gui
-            db = get_gui().current_db.new_api
+            db = get_gui(fail_if_absent=True).current_db.new_api
             existing = {x[0] for x in db.list_extra_files(self.book_id)}
             h, ext = os.path.splitext(COVER_FILE_NAME)
             template = f'{DATA_DIR_NAME}/{h}-{{:03d}}{ext}'
@@ -914,12 +928,12 @@ class CoversView(QListView):  # {{{
                     'Could not save cover as there are too many existing covers'), show=True)
                 return
 
-    def keyPressEvent(self, ev):
-        if ev.key() in (Qt.Key.Key_Enter, Qt.Key.Key_Return):
+    def keyPressEvent(self, e):
+        if e.key() in (Qt.Key.Key_Enter, Qt.Key.Key_Return):
             self.chosen.emit()
-            ev.accept()
+            e.accept()
             return
-        return QListView.keyPressEvent(self, ev)
+        return QListView.keyPressEvent(self, e)
 
 # }}}
 
@@ -993,7 +1007,9 @@ class CoversWidget(QWidget):  # {{{
                         ' "Show details" for details.'),
                     det_msg=self.worker.error, show=True)
 
-        num = self.covers_view.model().rowCount()
+        covers_model = self.covers_view.model()
+        assert covers_model is not None
+        num = covers_model.rowCount()
         if num < 2:
             txt = _('Could not find any covers for <b>%s</b>')%self.book.title
         elif num == 2:
@@ -1013,7 +1029,8 @@ class CoversWidget(QWidget):  # {{{
         if not self.continue_processing:
             return
         plugin_name, width, height, fmt, data = result
-        self.covers_view.model().update_result(plugin_name, width, height, data)
+        cv_model = self.covers_view.m
+        cv_model.update_result(plugin_name, width, height, data)
 
     def cleanup(self):
         self.covers_view.delegate.stop_animation()
@@ -1025,13 +1042,16 @@ class CoversWidget(QWidget):  # {{{
 
     def cover_pixmap(self):
         idx = None
-        for i in self.covers_view.selectionModel().selectedIndexes():
+        sel_model = self.covers_view.selectionModel()
+        assert sel_model is not None
+        for i in sel_model.selectedIndexes():
             if i.isValid():
                 idx = i
                 break
         if idx is None:
             idx = self.covers_view.currentIndex()
-        return self.covers_view.model().cover_pixmap(idx)
+        cv_model = self.covers_view.m
+        return cv_model.cover_pixmap(idx)
 
 # }}}
 
@@ -1049,10 +1069,12 @@ class LogViewer(QDialog):  # {{{
 
         self.bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Close)
         l.addWidget(self.bb)
-        self.copy_button = self.bb.addButton(_('Copy to clipboard'),
+        copy_button = self.bb.addButton(_('Copy to clipboard'),
                 QDialogButtonBox.ButtonRole.ActionRole)
-        self.copy_button.clicked.connect(self.copy_to_clipboard)
-        self.copy_button.setIcon(QIcon.ic('edit-copy.png'))
+        assert copy_button is not None
+        self.copy_button = copy_button
+        copy_button.clicked.connect(self.copy_to_clipboard)
+        copy_button.setIcon(QIcon.ic('edit-copy.png'))
         self.bb.rejected.connect(self.reject)
         self.bb.accepted.connect(self.accept)
 
@@ -1068,7 +1090,9 @@ class LogViewer(QDialog):  # {{{
         self.show()
 
     def copy_to_clipboard(self):
-        QApplication.clipboard().setText(''.join(self.log.plain_text))
+        clipboard = QApplication.clipboard()
+        assert clipboard is not None
+        clipboard.setText(''.join(self.log.plain_text))
 
     def stop(self, *args):
         self.keep_updating = False
@@ -1107,15 +1131,19 @@ class FullFetch(QDialog):  # {{{
         l.addLayout(h)
         self.bb.rejected.connect(self.reject)
         self.bb.accepted.connect(self.accept)
-        self.ok_button = self.bb.button(QDialogButtonBox.StandardButton.Ok)
-        self.ok_button.setEnabled(False)
-        self.ok_button.clicked.connect(self.ok_clicked)
+        ok_button = self.bb.button(QDialogButtonBox.StandardButton.Ok)
+        assert ok_button is not None
+        self.ok_button = ok_button
+        ok_button.setEnabled(False)
+        ok_button.clicked.connect(self.ok_clicked)
         self.prev_button = pb = QPushButton(QIcon.ic('back.png'), _('&Back'), self)
         pb.clicked.connect(self.back_clicked)
         pb.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
-        self.log_button = self.bb.addButton(_('&View log'), QDialogButtonBox.ButtonRole.ActionRole)
-        self.log_button.clicked.connect(self.view_log)
-        self.log_button.setIcon(QIcon.ic('debug.png'))
+        log_button = self.bb.addButton(_('&View log'), QDialogButtonBox.ButtonRole.ActionRole)
+        assert log_button is not None
+        self.log_button = log_button
+        log_button.clicked.connect(self.view_log)
+        log_button.setIcon(QIcon.ic('debug.png'))
         self.prev_button.setVisible(False)
         h.addWidget(self.prev_button), h.addWidget(self.bb)
 
@@ -1143,7 +1171,9 @@ class FullFetch(QDialog):  # {{{
         self.log('\n\n')
         self.covers_widget.start(book, self.current_cover,
                 self.title, self.authors, caches)
-        self.ok_button.setFocus()
+        ok_button = self.ok_button
+        assert ok_button is not None
+        ok_button.setFocus()
 
     def back_clicked(self):
         self.prev_button.setVisible(False)
@@ -1171,7 +1201,9 @@ class FullFetch(QDialog):  # {{{
         self.covers_widget.cleanup()
 
     def identify_results_found(self):
-        self.ok_button.setEnabled(True)
+        ok_button = self.ok_button
+        assert ok_button is not None
+        ok_button.setEnabled(True)
 
     def next_clicked(self, *args):
         self.save_geometry(gprefs, 'metadata_single_gui_geom')
@@ -1224,9 +1256,11 @@ class CoverFetch(QDialog):  # {{{
 
         self.bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Cancel|QDialogButtonBox.StandardButton.Ok)
         l.addWidget(self.bb)
-        self.log_button = self.bb.addButton(_('&View log'), QDialogButtonBox.ButtonRole.ActionRole)
-        self.log_button.clicked.connect(self.view_log)
-        self.log_button.setIcon(QIcon.ic('debug.png'))
+        log_button = self.bb.addButton(_('&View log'), QDialogButtonBox.ButtonRole.ActionRole)
+        assert log_button is not None
+        self.log_button = log_button
+        log_button.clicked.connect(self.view_log)
+        log_button.setIcon(QIcon.ic('debug.png'))
         self.bb.rejected.connect(self.reject)
         self.bb.accepted.connect(self.accept)
         self.restore_geometry(gprefs, 'single-cover-fetch-dialog-geometry')

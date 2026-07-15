@@ -69,9 +69,9 @@ class ConfigWidget(QWidget):
         return self.model_strategy.currentData()
 
     @property
-    def settings(self) -> dict[str, str]:
+    def settings(self) -> dict[str, str | dict[str, str]]:
         name = self.text_model_edit.text().strip()
-        ans = {
+        ans: dict[str, str | dict[str, str]] = {
             'api_key': encode_secret(self.api_key), 'model_choice_strategy': self.model_choice_strategy,
         }
         if name:

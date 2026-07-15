@@ -11,6 +11,8 @@ from collections import deque
 from contextlib import suppress
 from http import HTTPStatus
 from time import monotonic
+from types import TracebackType
+from typing import Any
 
 from qt.core import QApplication, QByteArray, QNetworkCookie, QObject, Qt, QTimer, QUrl, pyqtSignal, sip
 from qt.webengine import QWebEnginePage, QWebEngineProfile, QWebEngineScript, QWebEngineSettings
@@ -31,6 +33,7 @@ def create_base_profile(cache_name='', allow_js=False):
     ans.setHttpUserAgent(random_common_chrome_user_agent())
     ans.setHttpCacheMaximumSize(0)  # managed by webengine
     s = ans.settings()
+    assert s is not None
     a = s.setAttribute
     a(QWebEngineSettings.WebAttribute.PluginsEnabled, False)
     a(QWebEngineSettings.WebAttribute.JavascriptEnabled, allow_js)
@@ -94,29 +97,31 @@ class Worker(QWebEnginePage):
     working_on_request: DownloadRequest | None = None
     messages_dispatch = pyqtSignal(object)
     result_received = pyqtSignal(object)
+    token: str
 
-    def __init__(self, profile, parent):
+    def __init__(self, profile, parent: FetchBackend):
         super().__init__(profile, parent)
+        self._parent = parent
         self.messages_dispatch.connect(self.on_messages)
 
-    def javaScriptAlert(self, url, msg):
+    def javaScriptAlert(self, securityOrigin, msg):
         pass
 
-    def javaScriptConfirm(self, url, msg):
+    def javaScriptConfirm(self, securityOrigin, msg):
         return True
 
-    def javaScriptPrompt(self, url, msg, defval):
-        return True, defval
+    def javaScriptPrompt(self, securityOrigin, msg, defaultValue):
+        return True, defaultValue
 
-    def javaScriptConsoleMessage(self, level: QWebEnginePage.JavaScriptConsoleMessageLevel, message: str, line_num: int, source_id: str) -> None:
-        if source_id == 'userscript:scraper.js':
-            if level == QWebEnginePage.JavaScriptConsoleMessageLevel.InfoMessageLevel and message.startswith(self.token):
+    def javaScriptConsoleMessage(self, level: QWebEnginePage.JavaScriptConsoleMessageLevel, message: str | None, lineNumber: int, sourceID: str | None) -> None:
+        if sourceID == 'userscript:scraper.js':
+            if level == QWebEnginePage.JavaScriptConsoleMessageLevel.InfoMessageLevel and message is not None and message.startswith(self.token):
                 msg = json.loads(message.partition(' ')[2])
                 t = msg.get('type')
                 if t == 'messages_available':
                     self.runjs('window.get_messages()', self.dispatch_messages)
             else:
-                print(f'{source_id}:{line_num}:{message}')
+                print(f'{sourceID}:{lineNumber}:{message}')
 
     def dispatch_messages(self, messages: list) -> None:
         if not sip.isdeleted(self):
@@ -135,7 +140,7 @@ class Worker(QWebEnginePage):
         <html><head></head></body><div id="payload">{html.escape(payload)}</div></body></html>
         '''
         self.setContent(content.encode(), 'text/html;charset=utf-8', QUrl(req['url']))
-        self.working_on_request = DownloadRequest(req['url'], os.path.join(output_dir, filename), req['timeout'], req['id'], self.parent())
+        self.working_on_request = DownloadRequest(req['url'], os.path.join(output_dir, filename), req['timeout'], req['id'], self._parent)
         return self.working_on_request
 
     def abort_on_timeout(self) -> None:
@@ -152,16 +157,18 @@ class Worker(QWebEnginePage):
         self.working_on_request.last_activity_at = monotonic()
         for m in messages:
             t = m['type']
+            wor = self.working_on_request
+            assert wor is not None
             if t == 'metadata_received':
-                self.working_on_request.metadata_received(m)
+                wor.metadata_received(m)
             elif t == 'chunk_received':
-                self.working_on_request.chunk_received(m['chunk'])
+                wor.chunk_received(m['chunk'])
             elif t == 'finished':
-                result = self.working_on_request.as_result()
+                result = wor.as_result()
                 self.working_on_request = None
                 self.result_received.emit(result)
             elif t == 'error':
-                result = self.working_on_request.as_result(m)
+                result = wor.as_result(m)
                 self.working_on_request = None
                 self.result_received.emit(result)
 
@@ -174,7 +181,9 @@ class FetchBackend(QObject):
     set_user_agent_signal = pyqtSignal(str)
     download_finished = pyqtSignal(object)
 
-    def __init__(self, output_dir: str = '', cache_name: str = '', parent: QObject = None, user_agent: str = '', verify_ssl_certificates: bool = True) -> None:
+    def __init__(
+            self, output_dir: str = '', cache_name: str = '',
+            parent: QObject | None = None, user_agent: str = '', verify_ssl_certificates: bool = True) -> None:
         profile = create_base_profile(cache_name)
         self.token = secrets.token_hex()
         js = P('scraper.js', allow_user_override=False, data=True).decode('utf-8').replace('TOKEN', self.token)
@@ -196,15 +205,19 @@ class FetchBackend(QObject):
         t.setInterval(50)
         t.timeout.connect(self.enforce_timeouts)
 
-    def excepthook(self, cls: type, exc: Exception, tb) -> None:
+    def excepthook(self, cls: type[BaseException], exc: BaseException, tb: TracebackType | None) -> Any:
         if not isinstance(exc, KeyboardInterrupt):
             sys.__excepthook__(cls, exc, tb)
-        QApplication.instance().exit(1)
+        app = QApplication.instance()
+        assert app is not None
+        app.exit(1)
 
     def on_input_finished(self, error_msg: str) -> None:
         if error_msg:
             self.send_response({'action': 'input_error', 'error': error_msg})
-        QApplication.instance().exit(1)
+        app = QApplication.instance()
+        assert app is not None
+        app.exit(1)
 
     def enforce_timeouts(self):
         now = monotonic()
@@ -255,6 +268,7 @@ class FetchBackend(QObject):
         self.download_finished.emit(result)
         if self.pending_requests:
             w = self.sender()
+            assert isinstance(w, Worker)
             req, data = self.pending_requests.popleft()
             w.start_download(self.output_dir, req, data)
             self.timeout_timer.start()

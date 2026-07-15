@@ -56,11 +56,14 @@ def to_dict(obj):
     return dict(zip(list(obj.keys()), list(obj.values())))
 
 
+_compiler_instance = None
+
+
 def compiler():
+    global _compiler_instance
     import lzma
-    ans = getattr(compiler, 'ans', None)
-    if ans is not None:
-        return ans
+    if _compiler_instance is not None:
+        return _compiler_instance
     from qt.core import QApplication, QEventLoop
     from qt.webengine import QWebEnginePage, QWebEngineScript
 
@@ -144,13 +147,15 @@ document.title = 'compiler initialized';
                 self.spin_loop()
 
         def spin_loop(self):
-            QApplication.instance().processEvents(QEventLoop.ProcessEventsFlag.ExcludeUserInputEvents)
+            app = QApplication.instance()
+            assert app is not None
+            app.processEvents(QEventLoop.ProcessEventsFlag.ExcludeUserInputEvents)
 
-        def javaScriptConsoleMessage(self, level, msg, line_num, source_id):
+        def javaScriptConsoleMessage(self, level, message, lineNumber, sourceID):
             if level == QWebEnginePage.JavaScriptConsoleMessageLevel.ErrorMessageLevel:
-                self.errors.append(msg)
+                self.errors.append(message)
             else:
-                print(f'{source_id}:{line_num}:{msg}')
+                print(f'{sourceID}:{lineNumber}:{message}')
 
         def __call__(self, src, options):
             self.compiler_result = null = object()
@@ -185,8 +190,8 @@ document.title = 'compiler initialized';
             self.working = False
             self.compiler_result = js
 
-    compiler.ans = Compiler()
-    return compiler.ans
+    _compiler_instance = Compiler()
+    return _compiler_instance
 
 
 class CompileFailure(ValueError):
@@ -225,12 +230,13 @@ OUTPUT_SENTINEL = b'-----RS webengine compiler output starts here------'
 def forked_compile():
     c = compiler()
     stdin = getattr(sys.stdin, 'buffer', sys.stdin)
-    data = stdin.read().decode('utf-8')
+    raw = stdin.read()
+    data = raw.decode('utf-8') if isinstance(raw, bytes) else raw
     options = json.loads(sys.argv[-1])
     result = c(data, options)
     stdout = getattr(sys.stdout, 'buffer', sys.stdout)
-    stdout.write(OUTPUT_SENTINEL)
-    stdout.write(as_bytes(result))
+    stdout.write(OUTPUT_SENTINEL)  # type: ignore
+    stdout.write(as_bytes(result))  # type: ignore
     stdout.close()
 
 
@@ -376,19 +382,19 @@ def run_rapydscript_tests():
             self.allowed_hosts = (FAKE_HOST,)
             self.registered_data = {}
 
-        def requestStarted(self, rq):
-            if bytes(rq.requestMethod()) != b'GET':
-                return self.fail_request(rq, QWebEngineUrlRequestJob.Error.RequestDenied)
-            url = rq.requestUrl()
+        def requestStarted(self, a0):
+            if bytes(a0.requestMethod()) != b'GET':
+                return self.fail_request(a0, QWebEngineUrlRequestJob.Error.RequestDenied)
+            url = a0.requestUrl()
             host = url.host()
             if host not in self.allowed_hosts:
-                return self.fail_request(rq)
+                return self.fail_request(a0)
             q = parse_qs(url.query())
             if not q:
-                return self.fail_request(rq)
+                return self.fail_request(a0)
             mt = q.get('mime-type', ('text/plain',))[0]
             data = q.get('data', ('',))[0].encode('utf-8')
-            send_reply(rq, mt, data)
+            send_reply(a0, mt, data)
 
         def fail_request(self, rq, fail_code=None):
             if fail_code is None:
@@ -418,15 +424,17 @@ def run_rapydscript_tests():
 
         def spin_loop(self):
             while self.working:
-                QApplication.instance().processEvents(QEventLoop.ProcessEventsFlag.ExcludeUserInputEvents)
+                app = QApplication.instance()
+                assert app is not None
+                app.processEvents(QEventLoop.ProcessEventsFlag.ExcludeUserInputEvents)
             return self.result
 
         def callback(self, result):
             self.result = result
             self.working = False
 
-        def javaScriptConsoleMessage(self, level, msg, line_num, source_id):
-            print(msg, file=sys.stdout if level == QWebEnginePage.JavaScriptConsoleMessageLevel.InfoMessageLevel else sys.stderr)
+        def javaScriptConsoleMessage(self, level, message, lineNumber, sourceID):
+            print(message, file=sys.stdout if level == QWebEnginePage.JavaScriptConsoleMessageLevel.InfoMessageLevel else sys.stderr)
 
     tester = Tester()
     result = tester.spin_loop()
@@ -501,16 +509,24 @@ def compile_srv():
         base_css = f.read()
     with open(os.path.join(base, 'src', 'pyj', 'book_list', 'constants.pyj')) as f:
         constants = f.read()
-    cs_top_bar_host_id = re.search(r"^cs_top_bar_host_id = '(.+?)'", constants, flags=re.M).group(1)
-    book_list_container_id = re.search(r"^book_list_container_id = '(.+?)'", constants, flags=re.M).group(1)
-    read_book_container_id = re.search(r"^read_book_container_id = '(.+?)'", constants, flags=re.M).group(1)
+    m = re.search(r"^cs_top_bar_host_id = '(.+?)'", constants, flags=re.M)
+    assert m is not None
+    cs_top_bar_host_id = m.group(1)
+    m = re.search(r"^book_list_container_id = '(.+?)'", constants, flags=re.M)
+    assert m is not None
+    book_list_container_id = m.group(1)
+    m = re.search(r"^read_book_container_id = '(.+?)'", constants, flags=re.M)
+    assert m is not None
+    read_book_container_id = m.group(1)
     base_css = base_css.replace('CS_TOP_BAR_HOST_ID', cs_top_bar_host_id)
     base_css = base_css.replace('BOOK_LIST_CONTAINER_ID', book_list_container_id)
     base_css = base_css.replace('READ_BOOK_CONTAINER_ID', read_book_container_id)
     rapydscript_dir = os.path.join(base, 'src', 'pyj')
     rb = os.path.join(base, 'src', 'calibre', 'srv', 'render_book.py')
     with open(rb, 'rb') as f:
-        rv = str(int(re.search(br'^RENDER_VERSION\s+=\s+(\d+)', f.read(), re.M).group(1)))
+        rv_m = re.search(br'^RENDER_VERSION\s+=\s+(\d+)', f.read(), re.M)
+        assert rv_m is not None
+        rv = str(int(rv_m.group(1)))
     mathjax_version = json.loads(P('mathjax/manifest.json', data=True, allow_user_override=False))['etag']
     base = os.path.join(base, 'resources', 'content-server')
     fname = os.path.join(rapydscript_dir, 'srv.pyj')

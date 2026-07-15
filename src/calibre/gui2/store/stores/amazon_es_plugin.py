@@ -6,11 +6,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 store_version = 16  # Needed for dynamic plugin loading
 
 from contextlib import closing
-
-try:
-    from urllib.parse import urlencode
-except ImportError:
-    from urllib import urlencode
+from urllib.parse import urlencode
 
 from qt.core import QUrl
 
@@ -125,7 +121,7 @@ def search_amazon(query, max_results=10, timeout=60,
 
 class AmazonKindleStore(StorePlugin):
 
-    def open(self, parent=None, detail_item=None, external=False):
+    def open(self, gui=None, parent=None, detail_item=None, external=False):
         store_link = (DETAILS_URL + detail_item) if detail_item else STORE_LINK
         open_url(QUrl(store_link))
 
@@ -133,7 +129,7 @@ class AmazonKindleStore(StorePlugin):
         for result in search_amazon(query, max_results=max_results, timeout=timeout):
             yield result
 
-    def get_details(self, search_result, timeout):
+    def get_details(self, search_result, timeout=60):
         url = DETAILS_URL
 
         br = browser(user_agent=get_user_agent())

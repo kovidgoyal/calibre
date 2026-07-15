@@ -137,9 +137,10 @@ class FunctionalPseudoElement:
         Use at your own risks.
 
     """
-    def __init__(self, name, arguments):
+    def __init__(self, name, arguments, selector):
         self.name = ascii_lower(name)
         self.arguments = arguments
+        self.selector = selector
 
     def __repr__(self):
         return '%s[::%s(%s)]' % (
@@ -462,7 +463,7 @@ def parse_simple_selector(stream, inside_negation=False):
                 if stream.peek() == ('DELIM', '('):
                     stream.next()
                     pseudo_element = FunctionalPseudoElement(
-                        pseudo_element, parse_arguments(stream))
+                        pseudo_element, parse_arguments(stream), result)
                 continue
             ident = stream.next_ident()
             if ident.lower() in special_pseudo_elements:
@@ -597,6 +598,8 @@ def parse_series(tokens):
 # Token objects
 
 class Token(tuple):
+
+    pos: int
 
     def __new__(cls, type_, value, pos):
         obj = tuple.__new__(cls, (type_, value))

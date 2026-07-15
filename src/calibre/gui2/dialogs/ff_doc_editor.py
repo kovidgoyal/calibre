@@ -41,7 +41,9 @@ class FFDocEditor(Dialog):
         return self.editable_text_widget.toPlainText()
 
     def copy_text(self):
-        qapplication_or_fail().clipboard().setText(self.document_text())
+        cb = qapplication_or_fail().clipboard()
+        assert cb is not None
+        cb.setText(self.document_text())
 
     def html_widget(self, layout, row, column):
         e = HTMLDisplay()

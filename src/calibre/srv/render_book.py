@@ -45,14 +45,14 @@ class Spineless(ValueError):
     pass
 
 
+_xpath_cache: dict = {}
+
+
 def XPath(expr):
-    ans = XPath.cache.get(expr)
+    ans = _xpath_cache.get(expr)
     if ans is None:
-        ans = XPath.cache[expr] = _XPath(expr)
+        ans = _xpath_cache[expr] = _XPath(expr)
     return ans
-
-
-XPath.cache = {}
 
 
 def encode_url(name, frag=''):
@@ -358,7 +358,9 @@ def transform_smil(container, name, link_uid, virtualize_resources, virtualized_
                 smil_map[target] = parent_seq = {'textref': [target, ''], 'par':[], 'seq':[], 'type': 'root'}
         elif parent_seq['textref'][0] != target:
             return  # child seqs must be in the same HTML file as parent
-        parent_seq['seq'].append(seq)
+        seq_list = parent_seq['seq']
+        assert isinstance(seq_list, list)
+        seq_list.append(seq)
         for child in seq_xml_element.iterchildren('*'):
             if child.tag == par_tag:
                 p = make_par(child, target)
@@ -683,7 +685,7 @@ def process_exploded_book(
             data = html_data[name]
             ans['length'] = l = data['length']
             book_render_data['total_length'] += l
-            if name in book_render_data['spine']:
+            if name in spineq:
                 book_render_data['spine_length'] += l
             ans['has_maths'] = hm = data['has_maths']
             if hm:
@@ -929,11 +931,8 @@ def quicklook_service(path_to_socket: str) -> None:
 class Profiler:
 
     def __init__(self):
-        try:
-            import cProfile as profile
-        except ImportError:
-            import profile
-        self.profile = profile.Profile()
+        import cProfile
+        self.profile = cProfile.Profile()
 
     def __enter__(self):
         self.profile.enable()

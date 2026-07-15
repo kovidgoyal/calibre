@@ -10,6 +10,7 @@ import weakref
 from collections import OrderedDict, namedtuple
 from itertools import groupby
 from operator import attrgetter, itemgetter
+from typing import TYPE_CHECKING, cast
 
 from qt.core import (
     QDialog,
@@ -42,6 +43,9 @@ from calibre.gui2.tweak_book.widgets import Dialog, PlainTextEdit
 from calibre.utils.config import JSONConfig
 from calibre.utils.icu import string_length as strlen
 from calibre.utils.localization import _, localize_user_manual_link
+
+if TYPE_CHECKING:
+    from calibre.gui2.tweak_book.editor.text import TextEdit
 
 
 def string_length(x):
@@ -129,6 +133,12 @@ def escape_funcs():
 
 
 class TabStop(str):
+    num: int
+    start: int
+    is_toplevel: bool
+    is_mirror: bool
+    takes_selection: bool
+    parent: TabStop | None
 
     def __new__(self, raw, start_offset, tab_stops, is_toplevel=True):  # noqa: PLW0211
         if raw.endswith('}'):
@@ -302,6 +312,10 @@ class EditorTabStop:
 
 
 class Template(list):
+    left_most_ts: EditorTabStop | None
+    right_most_ts: EditorTabStop | None
+    has_tab_stops: bool
+    active_tab_stop: EditorTabStop | None
 
     def __new__(self, tab_stops):  # noqa: PLW0211
         self = list.__new__(self)
@@ -341,6 +355,7 @@ class Template(list):
         ts = self.active_tab_stop
         if not ts.is_deleted:
             if ts.has_transform:
+                assert ts.transform is not None
                 ts.text = ts.transform(ts.text)
             for m in ts.mirrors:
                 if not m.is_deleted:
@@ -426,7 +441,9 @@ class SnippetManager(QObject):
         return at
 
     def handle_key_press(self, ev):
-        editor = self.parent()
+        editor_raw = self.parent()
+        assert editor_raw is not None
+        editor = cast('TextEdit', editor_raw)
         if ev.key() == KEY and ev.modifiers() & MODIFIER:
             at = self.get_active_template(editor.textCursor())
             if at is not None:
@@ -471,10 +488,10 @@ class SnippetTextEdit(PlainTextEdit):
             self.setPlainText(text)
         self.snippet_manager = SnippetManager(self)
 
-    def keyPressEvent(self, ev):
-        if self.snippet_manager.handle_key_press(ev):
+    def keyPressEvent(self, e):
+        if self.snippet_manager.handle_key_press(e):
             return
-        PlainTextEdit.keyPressEvent(self, ev)
+        PlainTextEdit.keyPressEvent(self, e)
 
 
 class EditSnippet(QWidget):
@@ -555,10 +572,13 @@ class EditSnippet(QWidget):
         ftypes = snip.get('syntaxes', ())
         for i in range(self.types.count()):
             i = self.types.item(i)
+            assert i is not None
             ftype = i.data(Qt.ItemDataRole.UserRole)
             i.setCheckState(Qt.CheckState.Checked if ftype in ftypes else Qt.CheckState.Unchecked)
         if self.creating_snippet and not ftypes:
-            self.types.item(0).setCheckState(Qt.CheckState.Checked)
+            _first_type_item = self.types.item(0)
+            assert _first_type_item is not None
+            _first_type_item.setCheckState(Qt.CheckState.Checked)
         (self.name if self.creating_snippet else self.template).setFocus(Qt.FocusReason.OtherFocusReason)
 
     @property
@@ -566,6 +586,7 @@ class EditSnippet(QWidget):
         ftypes = []
         for i in range(self.types.count()):
             i = self.types.item(i)
+            assert i is not None
             if i.checkState() == Qt.CheckState.Checked:
                 ftypes.append(i.data(Qt.ItemDataRole.UserRole))
         return {'description':self.name.text().strip(), 'trigger':self.trig.text(), 'template':self.template.toPlainText(), 'syntaxes':ftypes}
@@ -601,8 +622,8 @@ class UserSnippets(Dialog):
         l.addLayout(s), l.addWidget(self.bb)
         self.listc = c = QWidget(self)
         s.addWidget(c)
-        c.l = l = QVBoxLayout(c)
-        c.h = h = QHBoxLayout()
+        l = QVBoxLayout(c)
+        h = QHBoxLayout()
         l.addLayout(h)
 
         self.search_bar = sb = QLineEdit(self)
@@ -612,13 +633,13 @@ class UserSnippets(Dialog):
         b.clicked.connect(self.find_next)
         h.addWidget(b)
 
-        c.h2 = h = QHBoxLayout()
+        h = QHBoxLayout()
         l.addLayout(h)
         self.snip_list = sl = QListWidget(self)
         sl.doubleClicked.connect(self.edit_snippet)
         h.addWidget(sl)
 
-        c.l2 = l = QVBoxLayout()
+        l = QVBoxLayout()
         h.addLayout(l)
         self.add_button = b = QToolButton(self)
         b.setIcon(QIcon.ic('plus.png')), b.setText(_('&Add snippet')), b.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
@@ -671,6 +692,7 @@ class UserSnippets(Dialog):
                     item = self.snip_to_item(self.edit_snip.snip)
                 else:
                     item = self.snip_list.currentItem()
+                    assert item is not None
                     snip = self.edit_snip.snip
                     item.setText(self.snip_to_text(snip))
                     item.setData(Qt.ItemDataRole.UserRole, snip)
@@ -679,7 +701,12 @@ class UserSnippets(Dialog):
             else:
                 error_dialog(self, _('Invalid snippet'), err, show=True)
             return
-        user_snippets['snippets'] = [self.snip_list.item(i).data(Qt.ItemDataRole.UserRole) for i in range(self.snip_list.count())]
+        _snippets_data = []
+        for i in range(self.snip_list.count()):
+            _snip_item = self.snip_list.item(i)
+            assert _snip_item is not None
+            _snippets_data.append(_snip_item.data(Qt.ItemDataRole.UserRole))
+        user_snippets['snippets'] = _snippets_data
         snippets(refresh=True)
         return Dialog.accept(self)
 
@@ -712,7 +739,7 @@ class UserSnippets(Dialog):
                 'No snippets found for query: %s') % q, show=True)
         ci = self.snip_list.currentItem()
         try:
-            item = matches[(matches.index(ci) + 1) % len(matches)]
+            item = matches[(matches.index(ci) + 1) % len(matches)] if ci is not None else matches[0]
         except Exception:
             item = matches[0]
         self.snip_list.setCurrentItem(item)
@@ -726,16 +753,18 @@ class UserSnippets(Dialog):
             snip['trigger'], snip['syntaxes'] = trigger, syntaxes
             i = QListWidgetItem(self.snip_to_text(snip), lw)
             i.setData(Qt.ItemDataRole.UserRole, snip)
-        d.l = l = QVBoxLayout(d)
+        l = QVBoxLayout(d)
         l.addWidget(QLabel(_('Choose the built-in snippet to modify:')))
         l.addWidget(lw)
         lw.itemDoubleClicked.connect(d.accept)
-        d.bb = bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)
+        bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)
         l.addWidget(bb)
         bb.accepted.connect(d.accept), bb.rejected.connect(d.reject)
         if d.exec() == QDialog.DialogCode.Accepted and lw.currentItem() is not None:
             self.stack.setCurrentIndex(1)
-            self.edit_snip.apply_snip(lw.currentItem().data(Qt.ItemDataRole.UserRole), creating_snippet=True)
+            _lw_current_item = lw.currentItem()
+            assert _lw_current_item is not None
+            self.edit_snip.apply_snip(_lw_current_item.data(Qt.ItemDataRole.UserRole), creating_snippet=True)
 # }}}
 
 

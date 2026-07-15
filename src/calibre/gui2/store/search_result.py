@@ -25,6 +25,7 @@ class SearchResult:
         self.affiliate = False
         self.plugin_author = ''
         self.create_browser = None
+        self.ebooks_com_api_url = ''
 
     def __eq__(self, other):
         return self.title == other.title and self.author == other.author and self.store_name == other.store_name and self.formats == other.formats

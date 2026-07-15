@@ -14,7 +14,7 @@ def ceil(num):
 
 
 def print_xml(elem):
-    from calibre.ebooks.lrf.pylrs.pylrs import ElementWriter
+    from calibre.ebooks.lrf.pylrs.elements import ElementWriter
     elem = elem.toElement('utf8')
     ew = ElementWriter(elem, sourceEncoding='utf8')
     ew.write(sys.stdout)

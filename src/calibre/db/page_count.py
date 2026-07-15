@@ -4,7 +4,7 @@
 import os
 import sys
 import weakref
-from collections.abc import Iterator
+from collections.abc import Callable, Iterator
 from contextlib import suppress
 from queue import Queue, ShutDown
 from threading import Event, Thread, current_thread
@@ -36,7 +36,7 @@ class MaintainPageCounts(Thread):
         self.shutdown_event = Event()
         self.tick_event = Event()
         self.count_callback = lambda fmt_file: None
-        self.dbref: CacheRef = weakref.ref(db_new_api)
+        self.dbref: Callable[[], Cache | None] = weakref.ref(db_new_api)
         self.queue: Queue[int] = Queue()
         self.tdir = ''
         self.failure_log_path = os.path.join(cache_dir(), f'page-count-failures-{db_new_api.library_id}.txt')

@@ -32,7 +32,8 @@ class Writer(FormatWriter):
         self.opts = opts
         self.log = log
 
-    def write_content(self, oeb_book, out_stream, metadata=None):
+    def write_content(self, oeb_book, output_stream, metadata=None):
+        out_stream = output_stream
         pmlmlizer = PMLMLizer(self.log)
         pml = str(pmlmlizer.extract_content(oeb_book, self.opts)).encode('cp1252', 'replace')
 

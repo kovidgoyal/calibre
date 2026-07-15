@@ -30,7 +30,7 @@ from calibre.gui2.tweak_book.editor.smarts.utils import (
     smart_home,
     smart_tab,
 )
-from calibre.gui2.tweak_book.editor.syntax.html import ATTR_END, ATTR_NAME, ATTR_START, ATTR_VALUE
+from calibre.gui2.tweak_book.editor.syntax.html import ATTR_END, ATTR_NAME, ATTR_START, ATTR_VALUE, HTMLUserData
 from calibre.utils.icu import utf16_length
 from calibre.utils.localization import _
 
@@ -63,9 +63,9 @@ def next_tag_boundary(block, offset, forward=True, max_lines=10000):
         if ud is not None:
             tags = sorted(ud.tags, key=get_offset, reverse=not forward)
             for boundary in tags:
-                if forward and boundary.offset > offset:
+                if forward and boundary[0] > offset:
                     return block, boundary
-                if not forward and boundary.offset < offset:
+                if not forward and boundary[0] < offset:
                     return block, boundary
         block = block.next() if forward else block.previous()
         offset = -1 if forward else sys.maxsize
@@ -79,9 +79,9 @@ def next_attr_boundary(block, offset, forward=True):
         if ud is not None:
             attributes = sorted(ud.attributes, key=get_offset, reverse=not forward)
             for boundary in attributes:
-                if forward and boundary.offset >= offset:
+                if forward and boundary[0] >= offset:
                     return block, boundary
-                if not forward and boundary.offset <= offset:
+                if not forward and boundary[0] <= offset:
                     return block, boundary
         block = block.next() if forward else block.previous()
         offset = -1 if forward else sys.maxsize
@@ -259,7 +259,9 @@ def split_tag(cursor, opening_tag, closing_tag):
         open_text = select_tag(cursor, opening_tag)
         open_text = re.sub(r'''\bid\s*=\s*['"].*?['"]''', '', open_text)
         open_text = re.sub(r'\s+', ' ', open_text)
-        tag_name = re.search(r'<\s*(\S+)', open_text).group(1).lower()
+        m = re.search(r'<\s*(\S+)', open_text)
+        assert m is not None
+        tag_name = m.group(1).lower()
         is_block = tag_name in BLOCK_TAG_NAMES
         prefix = ''
         if is_block:
@@ -335,6 +337,12 @@ entity_pat = re.compile(r'&(#{0,1}[a-zA-Z0-9]{1,8});$')
 
 
 class Smarts(NullSmarts):
+    regexps_compiled: bool
+    tag_pat: re.Pattern[str]
+    closing_tag_pat: re.Pattern[str]
+    closing_pat: re.Pattern[str]
+    self_closing_pat: re.Pattern[str]
+    complete_attr_pat: re.Pattern[str]
 
     def __init__(self, *args, **kwargs):
         if not hasattr(Smarts, 'regexps_compiled'):
@@ -836,7 +844,9 @@ class Smarts(NullSmarts):
             # Check if we are in comment/PI/etc.
             pb = block.previous()
             while pb.isValid():
-                boundaries = pb.userData().non_tag_structures
+                pud = pb.userData()
+                assert isinstance(pud, HTMLUserData)
+                boundaries = pud.non_tag_structures
                 if boundaries:
                     if boundaries[-1].is_start:
                         in_text = False
@@ -857,6 +867,7 @@ class Smarts(NullSmarts):
 
         while block.isValid() and block.position() <= cend:
             ud = block.userData()
+            assert isinstance(ud, HTMLUserData)
             boundaries = sorted(chain(ud.tags, ud.non_tag_structures), key=get_offset)
             if not boundaries:
                 # Add the whole line

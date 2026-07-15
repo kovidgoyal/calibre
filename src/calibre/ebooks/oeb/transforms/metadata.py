@@ -163,6 +163,7 @@ class MergeMetadata:
             new_cover_item = self.oeb.manifest.add(id, href, guess_type('cover.'+ext)[0], data=cdata)
             self.oeb.guide.add('cover', 'Cover', href)
         if do_remove_old_cover:
+            assert new_cover_item is not None
             self.remove_old_cover(item, new_cover_item.href)
         return id
 

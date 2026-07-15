@@ -214,9 +214,11 @@ class CSSFlattener:
             for prop, val in stylizer.page_rule.items():
                 p, w = prop.partition('-')[::2]
                 if p == 'margin':
+                    profile = stylizer.profile
+                    assert profile is not None
                     margins[w] = unit_convert(
-                            val, stylizer.profile.width_pts, stylizer.body_font_size,
-                            stylizer.profile.dpi, body_font_size=stylizer.body_font_size)
+                            val, profile.width_pts, stylizer.body_font_size,
+                            profile.dpi, body_font_size=stylizer.body_font_size)
 
     def get_embed_font_info(self, family, failure_critical=True):
         efi = []
@@ -335,6 +337,7 @@ class CSSFlattener:
         return sbase
 
     def clean_edges(self, cssdict, style, fsize):
+        assert self.sbase is not None
         slineh = self.sbase * 1.26
         dlineh = self.lineh
         for kind in ('margin', 'padding'):
@@ -406,7 +409,9 @@ class CSSFlattener:
             node.tag = XHTML(tag)
             if 'size' in node.attrib:
                 def force_int(raw):
-                    return int(re.search(r'([0-9+-]+)', raw).group(1))
+                    m = re.search(r'([0-9+-]+)', raw)
+                    assert m is not None
+                    return int(m.group(1))
                 size = node.attrib['size'].strip()
                 if size:
                     fnums = self.context.source.fnums

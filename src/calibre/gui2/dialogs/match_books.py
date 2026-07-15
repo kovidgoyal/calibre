@@ -90,7 +90,9 @@ class MatchBooks(QDialog, Ui_MatchBooks):
         self.books_table.setHorizontalHeaderItem(2, t)
         self.books_table_header_height = self.books_table.height()
         self.books_table.cellDoubleClicked.connect(self.book_doubleclicked)
-        self.books_table.selectionModel().selectionChanged.connect(self.selection_changed)
+        selection_model = self.books_table.selectionModel()
+        assert selection_model is not None
+        selection_model.selectionChanged.connect(self.selection_changed)
         self.books_table.cellClicked.connect(self.book_clicked)
         self.books_table.sortByColumn(0, Qt.SortOrder.AscendingOrder)
 
@@ -105,7 +107,9 @@ class MatchBooks(QDialog, Ui_MatchBooks):
 
         self.search_button.clicked.connect(self.do_search)
         self.search_button.setDefault(False)
-        self.search_text.lineEdit().returnPressed.connect(self.return_pressed)
+        line_edit = self.search_text.lineEdit()
+        assert line_edit is not None
+        line_edit.returnPressed.connect(self.return_pressed)
 
         self.buttonBox.accepted.connect(self.accept)
         self.buttonBox.rejected.connect(self.reject)
@@ -123,11 +127,11 @@ class MatchBooks(QDialog, Ui_MatchBooks):
         self.ignore_next_key = True
         self.do_search()
 
-    def keyPressEvent(self, e):
+    def keyPressEvent(self, a0):
         if self.ignore_next_key:
             self.ignore_next_key = False
         else:
-            QDialog.keyPressEvent(self, e)
+            QDialog.keyPressEvent(self, a0)
 
     def do_search(self):
         query = str(self.search_text.text())
@@ -186,8 +190,8 @@ class MatchBooks(QDialog, Ui_MatchBooks):
 
     # Deal with sizing the table columns. Done here because the numbers are not
     # correct until the first paint.
-    def resizeEvent(self, *args):
-        QDialog.resizeEvent(self, *args)
+    def resizeEvent(self, a0=None):
+        QDialog.resizeEvent(self, a0)
         if self.books_table_column_widths is not None:
             for c,w in enumerate(self.books_table_column_widths):
                 self.books_table.setColumnWidth(c, w)
@@ -195,7 +199,9 @@ class MatchBooks(QDialog, Ui_MatchBooks):
             # the vertical scroll bar might not be rendered, so might not yet
             # have a width. Assume 25. Not a problem because user-changed column
             # widths will be remembered
-            w = self.books_table.width() - 25 - self.books_table.verticalHeader().width()
+            vertical_header = self.books_table.verticalHeader()
+            assert vertical_header is not None
+            w = self.books_table.width() - 25 - vertical_header.width()
             w //= self.books_table.columnCount()
             for c in range(self.books_table.columnCount()):
                 self.books_table.setColumnWidth(c, w)
@@ -209,7 +215,9 @@ class MatchBooks(QDialog, Ui_MatchBooks):
 
     def book_clicked(self, row, column):
         self.book_selected = True
-        id_ = int(self.books_table.item(row, 0).data(Qt.ItemDataRole.UserRole))
+        item = self.books_table.item(row, 0)
+        assert item is not None
+        id_ = int(item.data(Qt.ItemDataRole.UserRole))
         self.current_library_book_id = id_
 
     def book_doubleclicked(self, row, column):
@@ -238,12 +246,17 @@ class MatchBooks(QDialog, Ui_MatchBooks):
         mi = self.library_db.get_metadata(self.current_library_book_id,
                               index_is_id=True, get_user_categories=False,
                               get_cover=True)
+        assert self.device_db is not None
         book = self.device_db[self.current_device_book_id]
         book.smart_update(mi, replace_metadata=True)
-        self.gui.update_thumbnail(book)
+        gui = self.gui
+        assert gui is not None
+        gui.update_thumbnail(book)
         book.in_library_waiting = True
-        self.view.model().current_changed(self.current_device_book_index,
-                                          self.current_device_book_index)
+        view = self.view
+        assert view is not None
+        view.model().current_changed(self.current_device_book_index,
+                                     self.current_device_book_index)
         self.save_state()
         QDialog.accept(self)
 

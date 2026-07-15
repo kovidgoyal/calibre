@@ -5,8 +5,9 @@ __docformat__ = 'restructuredtext en'
 import re
 import string
 from operator import attrgetter
+from typing import overload
 
-from qt.core import QAbstractItemModel, QIcon, QModelIndex, QPixmap, QSize, Qt, pyqtSignal
+from qt.core import QAbstractItemModel, QIcon, QModelIndex, QObject, QPixmap, QSize, Qt, pyqtSignal
 
 from calibre import force_unicode
 from calibre.gui2 import FunctionDispatcher, qapplication_or_fail
@@ -39,6 +40,7 @@ def comparable_price(text):
 class Matches(QAbstractItemModel):
 
     total_changed = pyqtSignal(int)
+    sort_order: Qt.SortOrder
 
     HEADERS = [_('Cover'), _('Title'), _('Price'), _('DRM'), pgettext('book store in the Get books calibre feature', 'Store'), _('Download'), _('Affiliate')]
     HTML_COLS = (1, 4)
@@ -173,18 +175,22 @@ class Matches(QAbstractItemModel):
     def index(self, row, column, parent=QModelIndex()):
         return self.createIndex(row, column)
 
-    def parent(self, index):
-        if not index.isValid() or index.internalId() == 0:
+    @overload
+    def parent(self, child: QModelIndex) -> QModelIndex: ...
+    @overload
+    def parent(self) -> QObject | None: ...
+    def parent(self, child: QModelIndex = QModelIndex()):
+        if not child.isValid() or child.internalId() == 0:
             return QModelIndex()
         return self.createIndex(0, 0)
 
-    def rowCount(self, *args):
+    def rowCount(self, parent=...):
         return len(self.matches)
 
-    def columnCount(self, *args):
+    def columnCount(self, parent=...):
         return len(self.HEADERS)
 
-    def headerData(self, section, orientation, role):
+    def headerData(self, section, orientation, role=...):
         if role != Qt.ItemDataRole.DisplayRole:
             return None
         text = ''
@@ -195,7 +201,7 @@ class Matches(QAbstractItemModel):
         else:
             return (section+1)
 
-    def data(self, index, role):
+    def data(self, index, role=...):
         row, col = index.row(), index.column()
         if row >= len(self.matches):
             return None
@@ -286,14 +292,14 @@ class Matches(QAbstractItemModel):
                 text = 'b'
         return text
 
-    def sort(self, col, order, reset=True):
-        self.sort_col = col
+    def sort(self, column, order: Qt.SortOrder = Qt.SortOrder.AscendingOrder, reset=True):
+        self.sort_col = column
         self.sort_order = order
         if not self.matches:
             return
         descending = order == Qt.SortOrder.DescendingOrder
         self.all_matches.sort(
-            key=lambda x: sort_key(str(self.data_as_text(x, col))),
+            key=lambda x: sort_key(str(self.data_as_text(x, column))),
             reverse=descending)
         self.reorder_matches()
         if reset:
@@ -368,7 +374,7 @@ class SearchFilter(SearchQueryParser):
                 pass
         return False
 
-    def get_matches(self, location, query):
+    def get_matches(self, location, query, candidates=None):
         query = query.strip()
         location = location.lower().strip()
         if location == 'authors':

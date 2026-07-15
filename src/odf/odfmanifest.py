@@ -53,19 +53,19 @@ class ODFManifestHandler(handler.ContentHandler):
     def handle_endtag(self, tag, method):
         method(tag)
 
-    def startElementNS(self, tag, qname, attrs):
-        method = self.elements.get(tag, (None, None))[0]
+    def startElementNS(self, name, qname, attrs):
+        method = self.elements.get(name, (None, None))[0]
         if method:
-            self.handle_starttag(tag, method, attrs)
+            self.handle_starttag(name, method, attrs)
         else:
-            self.unknown_starttag(tag, attrs)
+            self.unknown_starttag(name, attrs)
 
-    def endElementNS(self, tag, qname):
-        method = self.elements.get(tag, (None, None))[1]
+    def endElementNS(self, name, qname):
+        method = self.elements.get(name, (None, None))[1]
         if method:
-            self.handle_endtag(tag, method)
+            self.handle_endtag(name, method)
         else:
-            self.unknown_endtag(tag)
+            self.unknown_endtag(name)
 
     def unknown_starttag(self, tag, attrs):
         pass

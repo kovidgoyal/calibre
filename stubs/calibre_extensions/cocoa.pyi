@@ -57,6 +57,10 @@ def release_io_pm_assertion(assertion_id: int) -> None:
     'Release a previously created IOPMAssertion given its id'
     pass
 
+def close_finder_window(name: str) -> None:
+    'Close the Finder window identified by name'
+    pass
+
 kIOPMAssertionTypePreventUserIdleSystemSleep: str
 kIOPMAssertionTypePreventUserIdleDisplaySleep: str
 kIOPMAssertionTypePreventSystemSleep: str

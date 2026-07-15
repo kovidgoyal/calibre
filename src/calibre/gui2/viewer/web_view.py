@@ -57,21 +57,32 @@ SANDBOX_HOST = FAKE_HOST.rpartition('.')[0] + '.sandbox'
 
 # Override network access to load data from the book {{{
 
+_book_path: str | None = None
+_book_pathtoebook: str | None = None
+_book_metadata: bytes | None = None
+_book_manifest: bytes | None = None
+_book_manifest_mime: str | None = None
+_book_parsed_metadata: object = None
+_book_parsed_manifest: object = None
+
+
 def set_book_path(path, pathtoebook):
-    set_book_path.pathtoebook = pathtoebook
-    set_book_path.path = os.path.abspath(path)
-    set_book_path.metadata = get_data('calibre-book-metadata.json')[0]
-    set_book_path.manifest, set_book_path.manifest_mime = get_data('calibre-book-manifest.json')
-    set_book_path.parsed_metadata = json_loads(set_book_path.metadata)
-    set_book_path.parsed_manifest = json_loads(set_book_path.manifest)
+    global _book_path, _book_pathtoebook, _book_metadata, _book_manifest
+    global _book_manifest_mime, _book_parsed_metadata, _book_parsed_manifest
+    _book_pathtoebook = pathtoebook
+    _book_path = os.path.abspath(path)
+    _book_metadata = get_data('calibre-book-metadata.json')[0]
+    _book_manifest, _book_manifest_mime = get_data('calibre-book-manifest.json')
+    _book_parsed_metadata = json_loads(_book_metadata)
+    _book_parsed_manifest = json_loads(_book_manifest)
 
 
 def get_manifest():
-    return getattr(set_book_path, 'parsed_manifest', None)
+    return _book_parsed_manifest
 
 
 def get_path_for_name(name):
-    bdir = getattr(set_book_path, 'path', None)
+    bdir = _book_path
     if bdir is None:
         return
     try:
@@ -152,25 +163,25 @@ class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
         QWebEngineUrlSchemeHandler.__init__(self, parent)
         self.allowed_hosts = (FAKE_HOST, SANDBOX_HOST)
 
-    def requestStarted(self, rq):
-        if bytes(rq.requestMethod()) != b'GET':
-            return self.fail_request(rq, QWebEngineUrlRequestJob.Error.RequestDenied)
-        url = rq.requestUrl()
+    def requestStarted(self, a0):
+        if bytes(a0.requestMethod()) != b'GET':
+            return self.fail_request(a0, QWebEngineUrlRequestJob.Error.RequestDenied)
+        url = a0.requestUrl()
         host = url.host()
         if host not in self.allowed_hosts or url.scheme() != FAKE_PROTOCOL:
-            return self.fail_request(rq)
+            return self.fail_request(a0)
         name = url.path()[1:]
         if host == SANDBOX_HOST and name.partition('/')[0] not in ('book', 'mathjax'):
-            return self.fail_request(rq)
+            return self.fail_request(a0)
         if name.startswith('book/'):
             name = name.partition('/')[2]
             if name in ('__index__', '__popup__'):
-                send_reply(rq, 'text/html', b'<div>\xa0</div>')
+                send_reply(a0, 'text/html', b'<div>\xa0</div>')
                 return
             try:
                 data, mime_type = get_data(name)
                 if data is None:
-                    rq.fail(QWebEngineUrlRequestJob.Error.UrlNotFound)
+                    a0.fail(QWebEngineUrlRequestJob.Error.UrlNotFound)
                     return
                 data = as_bytes(data)
                 mime_type = {
@@ -181,27 +192,27 @@ class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
                 }.get(mime_type, mime_type)
                 if mime_type == 'text/css':
                     mime_type += '; charset=utf-8'
-                send_reply(rq, mime_type, data)
+                send_reply(a0, mime_type, data)
             except Exception:
                 import traceback
                 traceback.print_exc()
-                return self.fail_request(rq, QWebEngineUrlRequestJob.Error.RequestFailed)
+                return self.fail_request(a0, QWebEngineUrlRequestJob.Error.RequestFailed)
         elif name == 'manifest':
-            data = b'[' + set_book_path.manifest + b',' + set_book_path.metadata + b']'
-            send_reply(rq, set_book_path.manifest_mime, data)
+            data = b'[' + (_book_manifest or b'') + b',' + (_book_metadata or b'') + b']'
+            send_reply(a0, _book_manifest_mime, data)
         elif name == 'reader-background':
             mt, data = background_image()
-            send_reply(rq, mt, data) if data else rq.fail(QWebEngineUrlRequestJob.Error.UrlNotFound)
+            send_reply(a0, mt, data) if data else a0.fail(QWebEngineUrlRequestJob.Error.UrlNotFound)
         elif name.startswith('reader-background-'):
             encoded_fname = name[len('reader-background-'):]
             mt, data = background_image(encoded_fname)
-            send_reply(rq, mt, data) if data else rq.fail(QWebEngineUrlRequestJob.Error.UrlNotFound)
+            send_reply(a0, mt, data) if data else a0.fail(QWebEngineUrlRequestJob.Error.UrlNotFound)
         elif name.startswith('mathjax/'):
-            handle_mathjax_request(rq, name)
+            handle_mathjax_request(a0, name)
         elif not name:
-            send_reply(rq, 'text/html', viewer_html())
+            send_reply(a0, 'text/html', viewer_html())
         else:
-            return self.fail_request(rq)
+            return self.fail_request(a0)
 
     def fail_request(self, rq, fail_code=None):
         if fail_code is None:
@@ -236,7 +247,7 @@ def create_profile():
         s = ans.settings()
         s.setDefaultTextEncoding('utf-8')
         s.setAttribute(QWebEngineSettings.WebAttribute.LinksIncludedInFocusChain, False)
-        create_profile.ans = ans
+        setattr(create_profile, 'ans', ans)
     return ans
 
 
@@ -315,6 +326,7 @@ class ViewerBridge(Bridge):
     viewer_font_size_changed = to_js()
     tts_event = to_js()
     profile_response = to_js()
+    go_to_anchor = to_js()
 
 
 def apply_font_settings(page_or_view):
@@ -377,25 +389,27 @@ class WebPage(QWebEnginePage):
             md.setText(text)
             if html:
                 md.setHtml(html)
-            qapplication_or_fail().clipboard().setMimeData(md)
+            cb = qapplication_or_fail().clipboard()
+            assert cb is not None
+            cb.setMimeData(md)
 
-    def javaScriptConsoleMessage(self, level, msg, linenumber, source_id):
+    def javaScriptConsoleMessage(self, level, message, lineNumber, sourceID):
         prefix = {
             QWebEnginePage.JavaScriptConsoleMessageLevel.InfoMessageLevel: 'INFO',
             QWebEnginePage.JavaScriptConsoleMessageLevel.WarningMessageLevel: 'WARNING'
         }.get(level, 'ERROR')
-        prints(f'{prefix}: {source_id}:{linenumber}: {msg}', file=sys.stderr)
+        prints(f'{prefix}: {sourceID}:{lineNumber}: {message}', file=sys.stderr)
         try:
             sys.stderr.flush()
         except OSError:
             pass
 
-    def acceptNavigationRequest(self, url, req_type, is_main_frame):
-        if req_type in (QWebEnginePage.NavigationType.NavigationTypeReload, QWebEnginePage.NavigationType.NavigationTypeBackForward):
+    def acceptNavigationRequest(self, url, type, isMainFrame):
+        if type in (QWebEnginePage.NavigationType.NavigationTypeReload, QWebEnginePage.NavigationType.NavigationTypeBackForward):
             return True
         if url.scheme() in (FAKE_PROTOCOL, 'data'):
             return True
-        if url.scheme() in ('http', 'https', 'calibre') and req_type == QWebEnginePage.NavigationType.NavigationTypeLinkClicked:
+        if url.scheme() in ('http', 'https', 'calibre') and type == QWebEnginePage.NavigationType.NavigationTypeLinkClicked:
             if DEBUG:
                 prints('Open URL from book:', url.toString())
             safe_open_url(url)
@@ -413,11 +427,14 @@ class WebPage(QWebEnginePage):
             self.runJavaScript(src, QWebEngineScript.ScriptWorldId.ApplicationWorld, callback)
 
 
-def viewer_html():
-    ans = getattr(viewer_html, 'ans', None)
-    if ans is None:
-        ans = viewer_html.ans = P('viewer.html', data=True, allow_user_override=False)
-    return ans
+_viewer_html: bytes | None = None
+
+
+def viewer_html() -> bytes:
+    global _viewer_html
+    if _viewer_html is None:
+        _viewer_html = P('viewer.html', data=True, allow_user_override=False)
+    return _viewer_html
 
 
 class Inspector(QWidget):
@@ -426,8 +443,8 @@ class Inspector(QWidget):
         QWidget.__init__(self, parent=parent)
         self.view_to_debug = parent
         self.view = None
-        self.layout = QHBoxLayout(self)
-        self.layout.setContentsMargins(0, 0, 0, 0)
+        h = QHBoxLayout(self)
+        h.setContentsMargins(0, 0, 0, 0)
         self.dock_action = dock_action
         QTimer.singleShot(0, self.connect_to_dock)
 
@@ -440,9 +457,17 @@ class Inspector(QWidget):
     def visibility_changed(self, visible):
         if visible and self.view is None:
             self.view = QWebEngineView(self.view_to_debug)
-            setup_profile(self.view.page().profile())
-            self.view_to_debug.page().setDevToolsPage(self.view.page())
-            self.layout.addWidget(self.view)
+            view_page = self.view.page()
+            assert view_page is not None
+            setup_profile(view_page.profile())
+            view_to_debug = self.view_to_debug
+            assert view_to_debug is not None
+            debug_page = view_to_debug.page()
+            assert debug_page is not None
+            debug_page.setDevToolsPage(view_page)
+            h = self.layout()
+            assert h is not None
+            h.addWidget(self.view)
 
     def sizeHint(self):
         return QSize(600, 1200)
@@ -520,7 +545,9 @@ class WebView(QWebEngineView):
         self.tts.configured.connect(self.redraw_tts_bar)
         self.dead_renderer_error_shown = False
         self.renderProcessTerminated.connect(self.render_process_died)
-        w = self.screen().availableSize().width()
+        screen = self.screen()
+        assert screen is not None
+        w = screen.availableSize().width()
         qapplication_or_fail().palette_changed.connect(self.palette_changed)
         self.show_home_page_on_ready = True
         self._size_hint = QSize(int(w/3), int(w/2))
@@ -588,22 +615,24 @@ class WebView(QWebEngineView):
         if parent is not None:
             self.inspector = Inspector(parent.inspector_dock.toggleViewAction(), self)
             parent.inspector_dock.setWidget(self.inspector)
-        self.focusProxy().installEventFilter(self)
+        focus_proxy = self.focusProxy()
+        assert focus_proxy is not None
+        focus_proxy.installEventFilter(self)
 
-    def eventFilter(self, obj, event):
-        match event.type():
+    def eventFilter(self, a0, a1):
+        match a1.type():
             case QEvent.Type.NativeGesture:
-                match event.gestureType():
+                match a1.gestureType():
                     case Qt.NativeGestureType.BeginNativeGesture:
                         self.pinch_accumulated_value = 0
                     case Qt.NativeGestureType.ZoomNativeGesture:
-                        self.pinch_accumulated_value += event.value()
+                        self.pinch_accumulated_value += a1.value()
                         return True
                     case Qt.NativeGestureType.EndNativeGesture:
                         if abs(self.pinch_accumulated_value) > 0.05:
                             out = self.pinch_accumulated_value > 0
                             self.execute_when_ready('native_gesture', {'type': 'pinch_out' if out else 'pinch_in'})
-        return super().eventFilter(obj, event)
+        return super().eventFilter(a0, a1)
 
     def html_input_focusin(self):
         # Programmatic focus of HTML editors in Qt WebEngine can leave the
@@ -663,7 +692,9 @@ class WebView(QWebEngineView):
         return self._size_hint
 
     def refresh(self):
-        self.pageAction(QWebEnginePage.WebAction.ReloadAndBypassCache).trigger()
+        page_action = self.pageAction(QWebEnginePage.WebAction.ReloadAndBypassCache)
+        assert page_action is not None
+        page_action.trigger()
 
     @property
     def bridge(self):
@@ -703,11 +734,11 @@ class WebView(QWebEngineView):
         self.content_file_changed.emit(self.current_content_file)
 
     def start_book_load(self, initial_position=None, highlights=None, current_book_data=None, reading_rates=None):
-        key = (set_book_path.path,)
+        key = (_book_path,)
         book_url = link_prefix_for_location_links(add_open_at=False)
         book_in_library_url = url_for_book_in_library()
         self.execute_when_ready(
-            'start_book_load', key, initial_position, set_book_path.pathtoebook, highlights or [], book_url,
+            'start_book_load', key, initial_position, _book_pathtoebook, highlights or [], book_url,
             reading_rates, book_in_library_url)
 
     def execute_when_ready(self, action, *args):
@@ -811,7 +842,7 @@ class WebView(QWebEngineView):
             os.makedirs(d, exist_ok=True)
             fname = os.path.basename(img)
             shutil.copyfile(img, os.path.join(d, fname))
-            background_image.ans = None
+            background_image.cache_clear()
             encoded = fname.encode().hex()
             self.execute_when_ready('background_image_changed', img_id, f'{FAKE_PROTOCOL}://{FAKE_HOST}/reader-background-{encoded}')
 
@@ -819,10 +850,14 @@ class WebView(QWebEngineView):
         self.execute_when_ready('goto_frac', frac)
 
     def clear_history(self):
-        self._page.history().clear()
+        history = self._page.history()
+        assert history is not None
+        history.clear()
 
     def clear_caches(self):
-        self._page.profile().clearHttpCache()
+        profile = self._page.profile()
+        assert profile is not None
+        profile.clearHttpCache()
 
     def trigger_shortcut(self, which):
         if which:
@@ -851,7 +886,9 @@ class WebView(QWebEngineView):
         self.execute_when_ready('tts_event', 'configured', ui_settings)
 
     def show_book_folder(self):
-        path = os.path.dirname(os.path.abspath(set_book_path.pathtoebook))
+        if _book_pathtoebook is None:
+            return
+        path = os.path.dirname(os.path.abspath(_book_pathtoebook))
         safe_open_url(QUrl.fromLocalFile(path))
 
     def show_help(self, which):

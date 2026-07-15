@@ -8,6 +8,10 @@ import sys
 import time
 from threading import Thread
 
+_kdialog_supports_desktopfile: bool | None = None
+_linux_native_dialog_failed: bool = False
+_check_for_linux_native_dialogs_ans: str | bool | None = None
+
 from qt.core import QEventLoop
 
 from calibre import force_unicode
@@ -132,17 +136,17 @@ def run(cmd):
 
 # KDE {{{
 
-def kdialog_supports_desktopfile():
-    ans = getattr(kdialog_supports_desktopfile, 'ans', None)
-    if ans is None:
+def kdialog_supports_desktopfile() -> bool:
+    global _kdialog_supports_desktopfile
+    if _kdialog_supports_desktopfile is None:
         from calibre.gui2 import sanitize_env_vars
         try:
             with sanitize_env_vars():
                 raw = subprocess.check_output(['kdialog', '--help'])
         except (subprocess.CalledProcessError, FileNotFoundError, OSError):
             raw = b'--desktopfile'
-        ans = kdialog_supports_desktopfile.ans = b'--desktopfile' in raw
-    return ans
+        _kdialog_supports_desktopfile = b'--desktopfile' in raw
+    return _kdialog_supports_desktopfile
 
 
 def kde_cmd(window, title, *rest):
@@ -317,7 +321,8 @@ def linux_native_dialog(name):
 
     @functools.wraps(func)
     def looped(window, *args, **kwargs):
-        if hasattr(linux_native_dialog, 'native_failed'):
+        global _linux_native_dialog_failed
+        if _linux_native_dialog_failed:
             import importlib
             m = importlib.import_module('calibre.gui2.qt_file_dialogs')
             qfunc = getattr(m, 'choose_' + name)
@@ -344,7 +349,7 @@ def linux_native_dialog(name):
                 reraise(*ret[1])
             return ret[0]
         except Exception:
-            linux_native_dialog.native_failed = True
+            _linux_native_dialog_failed = True
             import traceback
             traceback.print_exc()
             return looped(window, *args, **kwargs)
@@ -352,23 +357,22 @@ def linux_native_dialog(name):
     return looped
 
 
-def check_for_linux_native_dialogs():
-    ans = getattr(check_for_linux_native_dialogs, 'ans', None)
-    if ans is None:
+def check_for_linux_native_dialogs() -> str | bool:
+    global _check_for_linux_native_dialogs_ans
+    if _check_for_linux_native_dialogs_ans is None:
         de = detect_desktop_environment()
         order = ('zenity', 'kdialog')
         if de == 'GNOME':
             order = ('zenity',)
         elif de == 'KDE':
             order = ('kdialog',)
+        ans: str | bool = False
         for exe in order:
             if is_executable_present(exe):
                 ans = exe
                 break
-        else:
-            ans = False
-        check_for_linux_native_dialogs.ans = ans
-    return ans
+        _check_for_linux_native_dialogs_ans = ans
+    return _check_for_linux_native_dialogs_ans
 
 
 if __name__ == '__main__':

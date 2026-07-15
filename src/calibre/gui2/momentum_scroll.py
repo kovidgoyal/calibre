@@ -2,7 +2,7 @@
 # License: GPLv3 Copyright: 2025, Kovid Goyal <kovid at kovidgoyal.net>
 
 from collections import deque
-from typing import NamedTuple
+from typing import TYPE_CHECKING, NamedTuple
 
 from qt.core import (
     QAbstractScrollArea,
@@ -314,7 +314,7 @@ class MomentumScroller:
         self._in_scroll_gesture = False
 
 
-class MomentumScrollMixin:
+class MomentumScrollMixin(QAbstractScrollArea if TYPE_CHECKING else object):
     '''
     Mixin class to add momentum scrolling to any QAbstractScrollArea subclass.
 
@@ -335,12 +335,16 @@ class MomentumScrollMixin:
     def default_wheel_event_handler(self, event: QWheelEvent):
         super().wheelEvent(event)
 
-    def wheelEvent(self, event: QWheelEvent):
+    def wheelEvent(self, a0: QWheelEvent | None):
+        assert a0 is not None
+        event = a0
         self._ensure_momentum_scroller()
-        if (not self._momentum_scroller.settings.enable_x and event.angleDelta().x() != 0) or (
-                not self._momentum_scroller.settings.enable_y and event.angleDelta().y() != 0):
+        scroller = self._momentum_scroller
+        assert scroller is not None
+        if (not scroller.settings.enable_x and event.angleDelta().x() != 0) or (
+                not scroller.settings.enable_y and event.angleDelta().y() != 0):
             return self.default_wheel_event_handler(event)
-        if not self._momentum_scroller.handle_wheel_event(event):
+        if not scroller.handle_wheel_event(event):
             return self.default_wheel_event_handler(event)
         event.accept()
 
@@ -351,7 +355,9 @@ class MomentumScrollMixin:
 
     def update_momentum_scroll_settings(self, **kw) -> None:
         self._ensure_momentum_scroller()
-        self._momentum_scroller.settings = self._momentum_scroller.settings._replace(**kw)
+        scroller = self._momentum_scroller
+        assert scroller is not None
+        scroller.settings = scroller.settings._replace(**kw)
 
 
 # Demo {{{
@@ -398,7 +404,7 @@ if __name__ == '__main__':
             friction_row.addWidget(QLabel('Friction:'))
             self.friction_slider = QSlider(Qt.Orientation.Horizontal)
             self.friction_slider.setRange(0, 100)
-            self.friction_slider.setValue(int(MomentumSettings.friction * 100))
+            self.friction_slider.setValue(int(MomentumSettings._field_defaults['friction'] * 100))
             self.friction_slider.valueChanged.connect(self._update_friction)
             friction_row.addWidget(self.friction_slider)
             self.friction_label = QLabel('0.92')

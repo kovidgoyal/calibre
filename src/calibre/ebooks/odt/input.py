@@ -80,7 +80,7 @@ class Extract(ODF2XHTML):
         css = '\n\n'.join(ans)
         parser = CSSParser(loglevel=logging.WARNING,
                             log=_css_logger)
-        self.css = parser.parseString(css, validate=False)
+        self._parsed_css = parser.parseString(css, validate=False)
 
         with open('odfpy.css', 'wb') as f:
             f.write(css.encode('utf-8'))
@@ -88,7 +88,7 @@ class Extract(ODF2XHTML):
     def get_css_for_class(self, cls):
         if not cls:
             return None
-        for rule in self.css.cssRules.rulesOfType(CSSRule.STYLE_RULE):
+        for rule in self._parsed_css.cssRules.rulesOfType(CSSRule.STYLE_RULE):
             for sel in rule.selectorList:
                 q = sel.selectorText
                 if q == '.' + cls:

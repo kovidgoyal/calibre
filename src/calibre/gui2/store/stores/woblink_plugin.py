@@ -8,11 +8,7 @@ __copyright__ = '2011-2019, Tomasz Długosz <tomek3d@gmail.com>'
 __docformat__ = 'restructuredtext en'
 
 from base64 import b64encode
-
-try:
-    from urllib.parse import quote_plus, urlencode
-except ImportError:
-    from urllib import quote_plus, urlencode
+from urllib.parse import quote_plus, urlencode
 
 from mechanize import Request
 from qt.core import QUrl
@@ -91,7 +87,7 @@ def search(query, max_results=10, timeout=60):
 
 class WoblinkStore(BasicStoreConfig, StorePlugin):
 
-    def open(self, parent=None, detail_item=None, external=False):
+    def open(self, gui=None, parent=None, detail_item=None, external=False):
         aff_root = 'https://www.a4b-tracking.com/pl/stat-click-text-link/16/58/'
         url = 'https://woblink.com/publication'
 

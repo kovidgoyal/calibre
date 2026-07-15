@@ -34,23 +34,25 @@ class DBRestore(QDialog):
         self.bb.rejected.connect(self.confirm_cancel)
         self.resize(self.sizeHint() + QSize(100, 50))
         self.error = None
-        self.rejected = False
+        self.was_rejected = False
         self.library_path = library_path
         self.update_signal.connect(self.do_update, type=Qt.ConnectionType.QueuedConnection)
 
         from calibre.db.restore import Restore
-        self.restorer = Restore(library_path, self)
+        self.restorer: Restore | None = Restore(library_path, self)
         self.restorer.daemon = True
 
         # Give the metadata backup thread time to stop
         QTimer.singleShot(wait_time * 1000, self.start)
 
     def start(self):
+        assert self.restorer is not None
         self.restorer.start()
         QTimer.singleShot(10, self.update)
 
     def reject(self):
-        self.rejected = True
+        assert self.restorer is not None
+        self.was_rejected = True
         self.restorer.progress_callback = lambda x, y: x
         QDialog.reject(self)
 
@@ -60,7 +62,8 @@ class DBRestore(QDialog):
             default_yes=False, override_icon='dialog_warning.png'):
             self.reject()
 
-    def update(self):
+    def update(self, *args, **kwargs):
+        assert self.restorer is not None
         if self.restorer.is_alive():
             QTimer.singleShot(10, self.update)
         else:
@@ -112,8 +115,9 @@ def restore_database(db, parent=None):
     d.exec()
     r = d.restorer
     d.restorer = None
-    if d.rejected:
+    if d.was_rejected:
         return True
+    assert r is not None
     if r.tb is not None:
         error_dialog(parent, _('Failed'),
         _('Restoring database failed, click "Show details" to see details'),
@@ -126,9 +130,10 @@ def restore_database(db, parent=None):
 def repair_library_at(library_path, parent=None, wait_time=2):
     d = DBRestore(parent, library_path, wait_time=wait_time)
     d.exec()
-    if d.rejected:
+    if d.was_rejected:
         return False
     r = d.restorer
+    assert r is not None
     if r.tb is not None:
         error_dialog(parent, _('Failed to repair library'),
         _('Restoring database failed, click "Show details" to see details'),

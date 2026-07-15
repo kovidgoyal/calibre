@@ -25,7 +25,7 @@ class Clean:
                     except KeyError:
                         continue
                     else:
-                        covers.append([self.oeb.guide[x], len(item.data)])
+                        covers.append((self.oeb.guide[x], len(item.data)))
 
             covers.sort(key=lambda x: x[1], reverse=True)
             if covers:

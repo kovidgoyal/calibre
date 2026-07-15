@@ -96,15 +96,15 @@ class ActionsContainer(QScrollArea):
         self.setWidgetResizable(True)
         self.w = w = QWidget()
         self.setWidget(w)
-        w.l = QVBoxLayout(w)
-        w.l.addStretch(1)
+        self.w_layout = QVBoxLayout(w)
+        self.w_layout.addStretch(1)
         self.all_actions = []
         self.new_action()
 
     def new_action(self):
         a = TagAction(self)
         self.all_actions.append(a)
-        l = self.w.l
+        l = self.w_layout
         a.remove_action.connect(self.remove_action)
         l.insertWidget(l.count() - 1, a)
         a.action_type.setFocus(Qt.FocusReason.OtherFocusReason)
@@ -112,7 +112,7 @@ class ActionsContainer(QScrollArea):
 
     def remove_action(self, ac):
         if ac in self.all_actions:
-            self.w.l.removeWidget(ac)
+            self.w_layout.removeWidget(ac)
             del self.all_actions[self.all_actions.index(ac)]
             ac.deleteLater()
 
@@ -209,10 +209,10 @@ class RuleEdit(QWidget):  # {{{
 
         self.thenl = QLabel(_('Then:'))
         l.addWidget(self.thenl)
-        self.actions = a = ActionsContainer(self)
+        self.actions_container = a = ActionsContainer(self)
         l.addWidget(a)
         self.add_button = b = QPushButton(QIcon.ic('plus.png'), _('Add another action'))
-        b.clicked.connect(self.actions.new_action)
+        b.clicked.connect(self.actions_container.new_action)
         l.addWidget(b)
         self.update_state()
 
@@ -239,7 +239,7 @@ class RuleEdit(QWidget):  # {{{
             return {
                 'match_type': self.match_type.currentData(),
                 'query': self.current_query_widget.value,
-                'actions': self.actions.as_list,
+                'actions': self.actions_container.as_list,
             }
         except Exception:
             import traceback
@@ -253,7 +253,7 @@ class RuleEdit(QWidget):  # {{{
             c.setCurrentIndex(max(0, c.findData(str(rule.get(name, '')))))
         sc('match_type')
         self.current_query_widget.value = str(rule.get('query', '')).strip()
-        self.actions.as_list = rule.get('actions') or []
+        self.actions_container.as_list = rule.get('actions') or []
         self.update_state()
 
     def validate(self):

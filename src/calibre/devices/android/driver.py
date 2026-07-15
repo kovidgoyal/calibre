@@ -312,6 +312,7 @@ class ANDROID(USBMS):
 
     def windows_sort_drives(self, drives):
         try:
+            assert self.device_being_opened is not None
             vid, pid, bcd = self.device_being_opened[:3]
         except Exception:
             vid, pid, bcd = -1, -1, -1
@@ -395,7 +396,7 @@ class WEBOS(USBMS):
             im.thumbnail((120, 160), Image.Resampling.LANCZOS)
 
             x, y = im.size
-            cover.paste(im, ((120-x)/2, (160-y)/2))
+            cover.paste(im, ((120-x)//2, (160-y)//2))
 
             draw = ImageDraw.Draw(cover)
             draw.text((1, 10), metadata.get('title', _('Unknown')).encode('ascii', 'ignore'))

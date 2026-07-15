@@ -2,6 +2,7 @@
 *.pyc
 *.pyo
 *.pyj-cached
+*.local.md
 .bzr
 .bzrignore
 .build-cache

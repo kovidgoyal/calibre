@@ -11,7 +11,7 @@ from lxml import etree, html
 from lxml.html.builder import BODY, BR, DIV, H2, H3, HEAD, HR, HTML, IMG, LI, SPAN, STRONG, STYLE, TABLE, TD, TITLE, TR, UL, A
 from lxml.html.builder import P as PT
 
-from calibre import isbytestring, strftime
+from calibre import strftime
 from calibre.utils.localization import _
 
 
@@ -29,21 +29,25 @@ def attrs(*args, **kw):
 class Template:
 
     IS_HTML = True
+    root: html.HtmlElement
 
     def __init__(self, lang=None):
         self.html_lang = lang
+
+    def _generate(self, *args, **kwargs) -> None:
+        raise NotImplementedError
 
     def generate(self, *args, **kwargs):
         if 'style' not in kwargs:
             kwargs['style'] = ''
         for key, val in kwargs.items():
-            if isbytestring(val):
+            if isinstance(val, bytes):
                 kwargs[key] = val.decode('utf-8', 'replace')
             if kwargs[key] is None:
                 kwargs[key] = ''
         args = list(args)
         for i in range(len(args)):
-            if isbytestring(args[i]):
+            if isinstance(args[i], bytes):
                 args[i] = args[i].decode('utf-8', 'replace')
             if args[i] is None:
                 args[i] = ''
@@ -72,21 +76,26 @@ class EmbeddedContent(Template):
         if extra_css:
             head.append(STYLE(extra_css, type='text/css'))
 
-        if isbytestring(text):
+        if isinstance(text, bytes):
             text = text.decode('utf-8', 'replace')
         elements = html.fragments_fromstring(text)
         self.root = HTML(head,
                 BODY(H2(article.title), DIV()))
-        div = self.root.find('body').find('div')
+        body = self.root.find('body')
+        assert body is not None
+        div = body.find('div')
+        assert div is not None
         if elements and isinstance(elements[0], str):
             div.text = elements[0]
             elements = list(elements)[1:]
         for elem in elements:
-            if hasattr(elem, 'getparent'):
-                elem.getparent().remove(elem)
+            if isinstance(elem, str):
+                div.append(SPAN(elem))
             else:
-                elem = SPAN(elem)
-            div.append(elem)
+                parent = elem.getparent()
+                if parent is not None:
+                    parent.remove(elem)
+                div.append(elem)
 
 
 class IndexTemplate(Template):

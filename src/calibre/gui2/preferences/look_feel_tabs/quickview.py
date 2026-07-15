@@ -56,7 +56,7 @@ class QuickviewTab(LazyConfigWidgetBase, Ui_Form):
     def lazy_initialize(self):
         self.qv_display_model.initialize()
 
-    def restore_defaults(self):
+    def restore_defaults(self, *args):
         LazyConfigWidgetBase.restore_defaults(self)
         self.qv_display_model.restore_defaults()
 
@@ -65,6 +65,6 @@ class QuickviewTab(LazyConfigWidgetBase, Ui_Form):
         if qv:
             qv.refill_quickview()
 
-    def commit(self):
+    def commit(self, *args):
         self.qv_display_model.commit()
         return LazyConfigWidgetBase.commit(self)

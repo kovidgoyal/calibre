@@ -123,7 +123,7 @@ class PreambleDiv:
         self.__individual_font = 0
         self.__old_font = 0
         self.__ob_group = 0  # depth of group
-        self.__font_table_final = 0
+        self.__font_table_final: str = ''
         self.__list_table_obj = list_table.ListTable(
                 run_level=self.__run_level,
                 bug_handler=self.__bug_handler,
@@ -561,6 +561,7 @@ cw<ci<font-style<nu<0
             action = self.__state_dict.get(self.__state)
             if action is None:
                 print(self.__state)
+            assert action is not None
             action(line)
         read_obj.close()
         self.__write_obj.close()

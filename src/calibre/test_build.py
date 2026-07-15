@@ -196,7 +196,7 @@ class BuildTest(unittest.TestCase):
 
     @unittest.skipUnless(ismacos, 'FSEvents only present on OS X')
     def test_fsevents(self):
-        from fsevents import Observer, Stream
+        from fsevents import Observer, Stream  # type: ignore
         del Observer, Stream
 
     @unittest.skipUnless(iswindows, 'winutil is windows only')
@@ -339,73 +339,22 @@ class BuildTest(unittest.TestCase):
     def test_qt(self):
         if is_sanitized:
             raise unittest.SkipTest('Skipping Qt build test as sanitizer is enabled')
+        import subprocess
+
+        from calibre.utils.ipc.simple_worker import start_pipe_worker
         webengine_process = None
         if not (is_ci and (iswindows or ismacos)):
             # WebEngine is flaky in CI
-            from calibre.utils.ipc.simple_worker import start_pipe_worker
-            webengine_process = start_pipe_worker('from calibre.test_build import *; test_webengine_worker_main()')
+            webengine_process = start_pipe_worker('from calibre.test_build import *; test_webengine_worker_main()', stderr=subprocess.STDOUT)
         try:
-            self.do_qt_test()
-            if webengine_process is not None:
-                self.assertEqual(webengine_process.wait(), 0)
+            qt_process = start_pipe_worker('from calibre.test_build import *; test_qt_main()', stderr=subprocess.STDOUT)
+            if qt_process.wait(10) != 0:
+                raise AssertionError(f'qt test failed with stderr:\n{qt_process.stdout.read().decode()}')
+            if webengine_process is not None and webengine_process.wait(10) != 0:
+                raise AssertionError(f'webengine_process test failed with stderr:\n{webengine_process.stdout.read().decode()}')
         finally:
             if webengine_process is not None:
                 webengine_process.wait()
-
-    def do_qt_test(self):
-        from qt.core import QFontDatabase, QImageReader, QNetworkAccessManager, QSslSocket
-
-        from calibre.utils.img import image_from_data, image_to_data, test
-
-        # Ensure that images can be read before QApplication is constructed.
-        # Note that this requires QCoreApplication.libraryPaths() to return the
-        # path to the Qt plugins which it always does in the frozen build,
-        # because Qt is patched to know the layout of the calibre application
-        # package. On non-frozen builds, it should just work because the
-        # hard-coded paths of the Qt installation should work. If they do not,
-        # then it is a distro problem.
-        fmts = {x.data().decode('utf-8') for x in QImageReader.supportedImageFormats()}  # no2to3
-        testf = {'jpg', 'png', 'svg', 'ico', 'gif', 'webp', 'ppm'}
-        self.assertEqual(testf.intersection(fmts), testf, f"Qt doesn't seem to be able to load some of its image plugins. Available plugins: {fmts}")
-        data = P('images/blank.png', allow_user_override=False, data=True)
-        img = image_from_data(data)
-        image_from_data(P('catalog/mastheadImage.gif', allow_user_override=False, data=True))
-        for fmt in 'png bmp jpeg'.split():
-            d = image_to_data(img, fmt=fmt)
-            image_from_data(d)
-        # Run the imaging tests
-        test()
-
-        from calibre.gui2 import destroy_app, ensure_app
-        display_env_var = os.environ.pop('DISPLAY', None)
-        try:
-            ensure_app()
-            self.assertGreaterEqual(len(QFontDatabase.families()), 5, 'The QPA headless plugin is not able to locate enough system fonts via fontconfig')
-
-            if 'SKIP_SPEECH_TESTS' not in os.environ:
-                from qt.core import QMediaDevices, QTextToSpeech
-
-                available_tts_engines = tuple(x for x in QTextToSpeech.availableEngines() if x != 'mock')
-                self.assertTrue(available_tts_engines)
-
-                if not islinux or is_ci:
-                    # On some Linux systems this hangs when using the headless backend
-                    QMediaDevices.audioOutputs()
-
-            from calibre.ebooks.oeb.transforms.rasterize import rasterize_svg
-            img = rasterize_svg(as_qimage=True)
-            self.assertFalse(img.isNull())
-            self.assertGreater(img.width(), 8)
-            from calibre.ebooks.covers import create_cover
-            create_cover('xxx', ['yyy'])
-            na = QNetworkAccessManager()
-            self.assertTrue(hasattr(na, 'sslErrors'), 'Qt not compiled with openssl')
-            self.assertTrue(QSslSocket.availableBackends(), 'Qt tls plugins missings')
-            del na
-            destroy_app()
-        finally:
-            if display_env_var is not None:
-                os.environ['DISPLAY'] = display_env_var
 
     def test_pykakasi(self):
         from calibre.ebooks.unihandecode.jadecoder import Jadecoder
@@ -414,9 +363,9 @@ class BuildTest(unittest.TestCase):
     def test_imaging(self):
         from PIL import Image
         try:
-            import _imaging
-            import _imagingft
-            import _imagingmath
+            import _imaging  # type: ignore
+            import _imagingft  # type: ignore
+            import _imagingmath  # type: ignore
             _imaging, _imagingmath, _imagingft
         except ImportError:
             from PIL import _imaging, _imagingft, _imagingmath
@@ -482,7 +431,7 @@ class BuildTest(unittest.TestCase):
             self.assertTrue(os.path.exists(eject_exe()), f'calibre-eject.exe ({eject_exe()}) does not exist')
 
     def test_netifaces(self):
-        import netifaces
+        import netifaces  # type: ignore
         self.assertGreaterEqual(len(netifaces.interfaces()), 1, 'netifaces could find no network interfaces')
 
     def test_psutil(self):
@@ -515,7 +464,7 @@ class BuildTest(unittest.TestCase):
         # running 2to3 on it
         import sgmllib
 
-        from calibre.web.feeds.feedparser import parse
+        from calibre.web.feeds.feedparser import parse  # type: ignore
         sgmllib, parse
 
     def test_openssl(self):
@@ -583,8 +532,67 @@ def test():
     run_cli(find_tests())
 
 
+def test_qt_main():
+    from unittest import TestCase
+
+    from qt.core import QFontDatabase, QImageReader, QNetworkAccessManager, QSslSocket
+
+    from calibre.utils.img import image_from_data, image_to_data, test
+    self = TestCase()
+
+    # Ensure that images can be read before QApplication is constructed.
+    # Note that this requires QCoreApplication.libraryPaths() to return the
+    # path to the Qt plugins which it always does in the frozen build,
+    # because Qt is patched to know the layout of the calibre application
+    # package. On non-frozen builds, it should just work because the
+    # hard-coded paths of the Qt installation should work. If they do not,
+    # then it is a distro problem.
+    fmts = {x.data().decode('utf-8') for x in QImageReader.supportedImageFormats()}  # no2to3
+    testf = {'jpg', 'png', 'svg', 'ico', 'gif', 'webp', 'ppm'}
+    self.assertEqual(testf.intersection(fmts), testf, f"Qt doesn't seem to be able to load some of its image plugins. Available plugins: {fmts}")
+    data = P('images/blank.png', allow_user_override=False, data=True)
+    img = image_from_data(data)
+    image_from_data(P('catalog/mastheadImage.gif', allow_user_override=False, data=True))
+    for fmt in 'png bmp jpeg'.split():
+        d = image_to_data(img, fmt=fmt)
+        image_from_data(d)
+    # Run the imaging tests
+    test()
+
+    from calibre.gui2 import destroy_app, ensure_app
+    display_env_var = os.environ.pop('DISPLAY', None)
+    try:
+        ensure_app()
+        self.assertGreaterEqual(len(QFontDatabase.families()), 5, 'The QPA headless plugin is not able to locate enough system fonts via fontconfig')
+
+        if 'SKIP_SPEECH_TESTS' not in os.environ:
+            from qt.core import QMediaDevices, QTextToSpeech
+
+            available_tts_engines = tuple(x for x in QTextToSpeech.availableEngines() if x != 'mock')
+            self.assertTrue(available_tts_engines)
+
+            if not islinux or is_ci:
+                # On some Linux systems this hangs when using the headless backend
+                QMediaDevices.audioOutputs()
+
+        from calibre.ebooks.oeb.transforms.rasterize import rasterize_svg
+        img = rasterize_svg(as_qimage=True)
+        self.assertFalse(img.isNull())
+        self.assertGreater(img.width(), 8)
+        from calibre.ebooks.covers import create_cover
+        create_cover('xxx', ['yyy'])
+        na = QNetworkAccessManager()
+        self.assertTrue(hasattr(na, 'sslErrors'), 'Qt not compiled with openssl')
+        self.assertTrue(QSslSocket.availableBackends(), 'Qt tls plugins missings')
+        del na
+        destroy_app()
+    finally:
+        if display_env_var is not None:
+            os.environ['DISPLAY'] = display_env_var
+
+
 def test_webengine_worker_main():
-    from qt.core import QApplication, QLoggingCategory, QTimer
+    from qt.core import QLoggingCategory, QTimer
     from qt.webengine import QWebEnginePage
 
     from calibre.gui2 import destroy_app, ensure_app
@@ -594,7 +602,7 @@ def test_webengine_worker_main():
         # likely a container build, webengine cannot run as root with sandbox
         os.environ['QTWEBENGINE_CHROMIUM_FLAGS'] = '--no-sandbox'
 
-    ensure_app()
+    app = ensure_app()
 
     p = QWebEnginePage()
     setup_profile(p.profile())
@@ -602,12 +610,12 @@ def test_webengine_worker_main():
     def callback(result):
         callback.result = result
         if hasattr(print_callback, 'result'):
-            QApplication.instance().quit()
+            app.quit()
 
     def print_callback(result):
         print_callback.result = result
         if hasattr(callback, 'result'):
-            QApplication.instance().quit()
+            app.quit()
 
     def do_webengine_test(title):
         nonlocal p
@@ -616,14 +624,14 @@ def test_webengine_worker_main():
 
     def render_process_crashed(status, exit_code):
         print('Qt WebEngine Render process crashed with status:', status, 'and exit code:', exit_code)
-        QApplication.instance().quit()
+        app.quit()
 
     p.titleChanged.connect(do_webengine_test)
     p.renderProcessTerminated.connect(render_process_crashed)
     p.runJavaScript(f'document.title = "test-run-{os.getpid()}";')
     timeout = 10
-    QTimer.singleShot(timeout * 1000, lambda: QApplication.instance().quit())
-    QApplication.instance().exec()
+    QTimer.singleShot(timeout * 1000, app.quit)
+    app.exec()
     if not hasattr(callback, 'result'):
         raise SystemExit(f'Qt WebEngine failed to run in {timeout} seconds')
     if callback.result != 2:

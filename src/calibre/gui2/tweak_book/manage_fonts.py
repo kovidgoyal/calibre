@@ -63,7 +63,9 @@ def rule_for_font(font_file, added_name):
 
 def show_font_face_rule_for_font_file(file_data, added_name, parent=None):
     rule = rule_for_font(BytesIO(file_data), added_name)
-    QApplication.clipboard().setText(rule)
+    clip = QApplication.clipboard()
+    assert clip is not None
+    clip.setText(rule)
     QMessageBox.information(parent, _('Font file added'), _(
         'The font file <b>{}</b> has been added. The text for the CSS @font-face rule for this file has been copied'
         ' to the clipboard. You should paste it into whichever CSS file you want to add this font to.').format(added_name))
@@ -76,7 +78,9 @@ def show_font_face_rule_for_font_files(container, added_names, parent=None):
         if rule:
             rules.append(rule)
     if rules:
-        QApplication.clipboard().setText('\n\n'.join(rules))
+        clip2 = QApplication.clipboard()
+        assert clip2 is not None
+        clip2.setText('\n\n'.join(rules))
         QMessageBox.information(parent, _('Font files added'), _(
         'The specified font files have been added. The text for the CSS @font-face rules for these files has been copied'
         ' to the clipboard. You should paste it into whichever CSS file you want to add these fonts to.'))
@@ -143,7 +147,7 @@ class AllFonts(QAbstractTableModel):
         reverse = not self.sorted_on[1]
         self.items = sorted(self.font_data, key=sort_key, reverse=reverse)
         if self.sorted_on[0] != 'name':
-            self.items.sort(key=self.font_data.get, reverse=reverse)
+            self.items.sort(key=self.font_data.__getitem__, reverse=reverse)
 
     def data(self, index, role=Qt.ItemDataRole.DisplayRole):
         if role == Qt.ItemDataRole.DisplayRole:
@@ -172,8 +176,8 @@ class AllFonts(QAbstractTableModel):
             else:
                 return name
 
-    def sort(self, col, order=Qt.SortOrder.AscendingOrder):
-        sorted_on = (('name' if col == 1 else 'embedded'), order == Qt.SortOrder.AscendingOrder)
+    def sort(self, column, order=Qt.SortOrder.AscendingOrder):
+        sorted_on = (('name' if column == 1 else 'embedded'), order == Qt.SortOrder.AscendingOrder)
         if sorted_on != self.sorted_on:
             self.sorted_on = sorted_on
             self.beginResetModel()
@@ -269,16 +273,18 @@ class ManageFonts(Dialog):
         self.fonts_view = fv = QTableView(self)
         fv.doubleClicked.connect(self.show_embedding_data)
         self.model = m = AllFonts(fv)
-        fv.horizontalHeader().setStretchLastSection(True)
+        fv_hh = fv.horizontalHeader()
+        assert fv_hh is not None
+        fv_hh.setStretchLastSection(True)
         fv.setModel(m)
         fv.setSortingEnabled(True)
         fv.setShowGrid(False)
         fv.setAlternatingRowColors(True)
         fv.setSelectionMode(QAbstractItemView.SelectionMode.ExtendedSelection)
         fv.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
-        fv.horizontalHeader().setSortIndicator(1, Qt.SortOrder.AscendingOrder)
+        fv_hh.setSortIndicator(1, Qt.SortOrder.AscendingOrder)
         self.container = c = QWidget()
-        l = c.l = QVBoxLayout(c)
+        l = QVBoxLayout(c)
         c.setLayout(l)
         s.addWidget(fv), s.addWidget(c)
 
@@ -299,6 +305,7 @@ class ManageFonts(Dialog):
         b.clicked.connect(self.subset_fonts)
         l.addWidget(b)
         self.refresh_button = b = self.bb.addButton(_('&Refresh'), QDialogButtonBox.ButtonRole.ActionRole)
+        assert b is not None
         b.setToolTip(_('Rescan the book for fonts in case you have made changes'))
         b.setIcon(QIcon.ic('view-refresh.png'))
         b.clicked.connect(self.refresh)

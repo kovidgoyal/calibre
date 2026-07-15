@@ -21,7 +21,7 @@ from polyglot.builtins import cmp, iteritems
 def create_log(ostream=None):
     from calibre.utils.logging import FileStream, ThreadSafeLog
     log = ThreadSafeLog(level=ThreadSafeLog.DEBUG)
-    log.outputs = [FileStream(ostream)]
+    setattr(log, 'outputs', [FileStream(ostream)])
     return log
 
 
@@ -259,7 +259,7 @@ class Source(Plugin):
     def is_customizable(self):
         return True
 
-    def customization_help(self):
+    def customization_help(self, gui=False):
         return 'This plugin can only be customized using the GUI'
 
     def config_widget(self):
@@ -468,7 +468,7 @@ class Source(Plugin):
             result_queue.put((self, ans))
             log('Downloaded cover from: %s'%url)
         except Exception:
-            self.log.exception('Failed to download cover from: %r'%url)
+            log.exception('Failed to download cover from: %r'%url)
 
     # }}}
 

@@ -88,16 +88,19 @@ class SNBInput(InputFormatPlugin):
             if toc is not None:
                 toc = safe_xml_fromstring(toc)
                 i = 1
-                for ch in toc.find('.//body'):
+                toc_body = toc.find('.//body')
+                for ch in (toc_body if toc_body is not None else []):
                     chapterName = ch.text
                     chapterSrc = ch.get('src')
                     fname = f'ch_{i}.htm'
+                    assert isinstance(chapterSrc, str)
                     data = snbFile.GetFileStream('snbc/' + chapterSrc)
                     if data is None:
                         continue
                     snbc = safe_xml_fromstring(data)
                     lines = []
-                    for line in snbc.find('.//body'):
+                    snbc_body = snbc.find('.//body')
+                    for line in (snbc_body if snbc_body is not None else []):
                         if line.tag == 'text':
                             lines.append(f'<p>{html_encode(line.text)}</p>')
                         elif line.tag == 'img':

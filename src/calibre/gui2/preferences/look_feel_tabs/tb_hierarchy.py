@@ -27,12 +27,15 @@ class TBHierarchicalFields(DisplayedFields):
     def __init__(self, db, parent=None, category_icons=None):
         DisplayedFields.__init__(self, db, parent, category_icons=category_icons)
         from calibre.gui2.ui import get_gui
-        self.gui = get_gui()
+        self.gui = get_gui(fail_if_absent=True)
 
     def initialize(self, use_defaults=False, pref_data_override=None):
+        from calibre.gui2.tag_browser.model import TagsModel
         tv = self.gui.tags_view
-        cats = [k for k in tv.model().categories.keys() if (not k.startswith('@') and
-                                                            k not in self.cant_make_hierarical)]
+        model = tv.model()
+        assert isinstance(model, TagsModel)
+        cats = [k for k in model.categories.keys() if (not k.startswith('@') and
+                                                        k not in self.cant_make_hierarical)]
         ans = []
         if use_defaults:
             ans = [[k, False] for k in cats]
@@ -125,7 +128,9 @@ class TbHierarchyTab(LazyConfigWidgetBase, Ui_Form):
         # the option order
         node = 0
         for i in range(4):
-            v = self.tb_search_order.item(i).data(Qt.ItemDataRole.UserRole)
+            item = self.tb_search_order.item(i)
+            assert item is not None
+            v = item.data(Qt.ItemDataRole.UserRole)
             # JSON dumps converts integer keys to strings, so do it explicitly
             t[str(node)] = v
             node = v
@@ -139,10 +144,12 @@ class TbHierarchyTab(LazyConfigWidgetBase, Ui_Form):
         self.changed_signal.emit()
 
     def reset_layout(self, model=None):
+        assert model is not None
         model.initialize(use_defaults=True)
         self.changed_signal.emit()
 
     def export_layout(self, model=None):
+        assert model is not None
         filename = choose_save_file(self, 'em_import_export_field_list',
                 _('Save column list to file'),
                 filters=[(_('Column list'), ['json'])])
@@ -155,6 +162,7 @@ class TbHierarchyTab(LazyConfigWidgetBase, Ui_Form):
                              _('<p>Could not write field list. Error:<br>%s')%err, show=True)
 
     def import_layout(self, model=None):
+        assert model is not None
         filename = choose_files(self, 'em_import_export_field_list',
                 _('Load column list from file'),
                 filters=[(_('Column list'), ['json'])])
@@ -168,11 +176,12 @@ class TbHierarchyTab(LazyConfigWidgetBase, Ui_Form):
                 error_dialog(self, _('Import layout'),
                              _('<p>Could not read field list. Error:<br>%s')%err, show=True)
 
-    def restore_defaults(self):
+    def restore_defaults(self, *args):
+        LazyConfigWidgetBase.restore_defaults(self)
         self.tb_hierarchical_cats_model.restore_defaults()
         self.reset_tb_search_order()
 
-    def commit(self):
+    def commit(self, *args):
         self.tb_search_order_commit()
         self.tb_hierarchical_cats_model.commit()
         return LazyConfigWidgetBase.commit(self)

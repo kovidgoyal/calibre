@@ -48,6 +48,7 @@ __license__ = 'Python license'
 # standard library modules
 import queue
 import threading
+from typing import Any
 
 # exceptions
 
@@ -87,10 +88,10 @@ class WorkerThread(threading.Thread):
     def run(self):
         '''Repeatedly process the job queue until told to exit.'''
 
-        while not self._dismissed.isSet():
+        while not self._dismissed.is_set():
             # thread blocks here, if queue empty
             request = self.workRequestQueue.get()
-            if self._dismissed.isSet():
+            if self._dismissed.is_set():
                 # if told to exit, return the work request we just picked up
                 self.workRequestQueue.put(request)
                 break  # and exit
@@ -117,6 +118,11 @@ class WorkRequest:
     where you want to build several WorkRequests for the same callable
     but with different arguments for each call.
     '''
+
+    # these are used by the recipe download system
+    feed: Any
+    article: Any
+    feed_dir: str
 
     def __init__(self, callable, args=None, kwds=None, requestID=None,
       callback=None, exc_callback=None):

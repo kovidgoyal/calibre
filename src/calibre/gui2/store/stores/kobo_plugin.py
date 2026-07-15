@@ -7,10 +7,7 @@ __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
-try:
-    from urllib.parse import quote_plus
-except ImportError:
-    from urllib import quote_plus
+from urllib.parse import quote_plus
 
 from lxml import etree, html
 
@@ -25,17 +22,18 @@ from calibre.gui2.store.web_store_dialog import WebStoreDialog
 try:
     from calibre.utils.xml_parse import safe_html_fromstring
 except ImportError:
-    safe_html_fromstring = html.fromstring
+    def safe_html_fromstring(string_or_bytes, recover=True):
+        return html.fromstring(string_or_bytes)
+
+
+_storage: list = []
 
 
 def read_url(url, timeout=60):
     # Kobo uses Akamai which has some bot detection that uses network/tls
     # protocol data. So use the Chromium network stack to make the request
     from calibre.scraper.simple import read_url as ru
-    return ru(read_url.storage, url, timeout=timeout)
-
-
-read_url.storage = []
+    return ru(_storage, url, timeout=timeout)
 
 
 def search_kobo(query, max_results=10, timeout=60, write_html_to=None):
@@ -81,11 +79,11 @@ def search_kobo(query, max_results=10, timeout=60, write_html_to=None):
 
         if title and authors and url:
             s = SearchResult()
-            s.cover_url = cover_url
+            s.cover_url = cover_url or ''
             s.store_name = 'Kobo'
             s.title = title
             s.author = authors
-            s.price = price
+            s.price = price or ''
             s.detail_item = url
             s.formats = 'EPUB'
             s.drm = SearchResult.DRM_UNKNOWN
@@ -97,7 +95,7 @@ class KoboStore(BasicStoreConfig, StorePlugin):
 
     minimum_calibre_version = (5, 40, 1)
 
-    def open(self, parent=None, detail_item=None, external=False):
+    def open(self, gui=None, parent=None, detail_item=None, external=False):
         if detail_item:
             purl = detail_item
             url = purl
@@ -117,7 +115,7 @@ class KoboStore(BasicStoreConfig, StorePlugin):
         for result in search_kobo(query, max_results=max_results, timeout=timeout):
             yield result
 
-    def get_details(self, search_result, timeout):
+    def get_details(self, search_result, timeout=60):
         raw = read_url(search_result.detail_item, timeout=timeout)
         idata = safe_html_fromstring(raw)
         if idata.xpath('boolean(//div[@class="bookitem-secondary-metadata"]//li[contains(text(), "Download options")])'):

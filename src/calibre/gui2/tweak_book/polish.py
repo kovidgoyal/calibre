@@ -38,7 +38,6 @@ from calibre.ebooks.oeb.polish.main import CUSTOMIZATION
 from calibre.gui2 import empty_index, qapplication_or_fail, question_dialog
 from calibre.gui2.tweak_book import current_container, set_current_container, tprefs
 from calibre.gui2.tweak_book.widgets import Dialog
-from calibre.startup import connect_lambda
 from calibre.utils.icu import numeric_sort_key
 from calibre.utils.localization import _
 
@@ -49,8 +48,8 @@ class Abort(Exception):
 
 def customize_remove_unused_css(name, parent, ans):
     d = QDialog(parent)
-    d.l = l = QVBoxLayout()
-    d.setLayout(d.l)
+    l = QVBoxLayout()
+    d.setLayout(l)
     d.setWindowTitle(_('Remove unused CSS'))
 
     def label(text):
@@ -59,39 +58,39 @@ def customize_remove_unused_css(name, parent, ans):
         l.addWidget(la)
         return la
 
-    d.la = label(_(
+    label(_(
         'This will remove all CSS rules that do not match any actual content.'
         ' There are a couple of additional cleanups you can enable, below:'))
-    d.c = c = QCheckBox(_('Remove unused &class attributes'))
+    c = QCheckBox(_('Remove unused &class attributes'))
     c.setChecked(tprefs['remove_unused_classes'])
     l.addWidget(c)
-    d.la2 = label('<span style="font-size:small; font-style: italic">' + _(
+    label('<span style="font-size:small; font-style: italic">' + _(
         'Remove all class attributes from the HTML that do not match any existing CSS rules'))
-    d.m = m = QCheckBox(_('Merge CSS rules with identical &selectors'))
+    m = QCheckBox(_('Merge CSS rules with identical &selectors'))
     m.setChecked(tprefs['merge_identical_selectors'])
     l.addWidget(m)
-    d.la3 = label('<span style="font-size:small; font-style: italic">' + _(
+    label('<span style="font-size:small; font-style: italic">' + _(
         'Merge CSS rules in the same stylesheet that have identical selectors.'
     ' Note that in rare cases merging can result in a change to the effective styling'
     ' of the book, so use with care.'))
-    d.p = p = QCheckBox(_('Merge CSS rules with identical &properties'))
+    p = QCheckBox(_('Merge CSS rules with identical &properties'))
     p.setChecked(tprefs['merge_rules_with_identical_properties'])
     l.addWidget(p)
-    d.la4 = label('<span style="font-size:small; font-style: italic">' + _(
+    label('<span style="font-size:small; font-style: italic">' + _(
         'Merge CSS rules in the same stylesheet that have identical properties.'
     ' Note that in rare cases merging can result in a change to the effective styling'
     ' of the book, so use with care.'))
-    d.u = u = QCheckBox(_('Remove &unreferenced style sheets'))
+    u = QCheckBox(_('Remove &unreferenced style sheets'))
     u.setChecked(tprefs['remove_unreferenced_sheets'])
     l.addWidget(u)
-    d.la5 = label('<span style="font-size:small; font-style: italic">' + _(
+    label('<span style="font-size:small; font-style: italic">' + _(
         'Remove stylesheets that are not referenced by any content.'
     ))
 
-    d.bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)
-    d.l.addWidget(d.bb)
-    d.bb.rejected.connect(d.reject)
-    d.bb.accepted.connect(d.accept)
+    bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)
+    l.addWidget(bb)
+    bb.rejected.connect(d.reject)
+    bb.accepted.connect(d.accept)
     ret = d.exec()
     ans['remove_unused_classes'] = tprefs['remove_unused_classes'] = c.isChecked()
     ans['merge_identical_selectors'] = tprefs['merge_identical_selectors'] = m.isChecked()
@@ -124,7 +123,7 @@ def get_customization(action, name, parent):
 
 
 def format_report(title, report):
-    from calibre.ebooks.markdown import markdown
+    from markdown import markdown
     report = [force_unicode(line) for line in report]
     return markdown(f'# {force_unicode(title)}\n\n' + '\n\n'.join(report), output_format='html4')
 
@@ -133,35 +132,40 @@ def show_report(changed, title, report, parent, show_current_diff):
     report = format_report(title, report)
     d = QDialog(parent)
     d.setWindowTitle(_('Action report'))
-    d.l = QVBoxLayout()
-    d.setLayout(d.l)
-    d.e = QTextBrowser(d)
-    d.l.addWidget(d.e)
-    d.e.setHtml(report)
-    d.bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Close)
-    d.show_changes = False
+    l = QVBoxLayout()
+    d.setLayout(l)
+    e = QTextBrowser(d)
+    l.addWidget(e)
+    e.setHtml(report)
+    bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Close)
+    show_changes = [False]
     if changed:
-        b = d.b = d.bb.addButton(_('See what &changed'), QDialogButtonBox.ButtonRole.AcceptRole)
+        b = bb.addButton(_('See what &changed'), QDialogButtonBox.ButtonRole.AcceptRole)
+        assert b is not None
         b.setIcon(QIcon.ic('diff.png')), b.setAutoDefault(False)
-        connect_lambda(b.clicked, d, lambda d: setattr(d, 'show_changes', True))
-    b = d.bb.addButton(_('&Copy to clipboard'), QDialogButtonBox.ButtonRole.ActionRole)
-    b.setIcon(QIcon.ic('edit-copy.png')), b.setAutoDefault(False)
+        b.clicked.connect(lambda: show_changes.__setitem__(0, True))
+    copy_btn = bb.addButton(_('&Copy to clipboard'), QDialogButtonBox.ButtonRole.ActionRole)
+    assert copy_btn is not None
+    copy_btn.setIcon(QIcon.ic('edit-copy.png')), copy_btn.setAutoDefault(False)
 
     def copy_report():
         text = re.sub(r'</.+?>', '\n', report)
         text = re.sub(r'<.+?>', '', text)
         cp = qapplication_or_fail().clipboard()
+        assert cp is not None
         cp.setText(text)
 
-    b.clicked.connect(copy_report)
-    d.bb.button(QDialogButtonBox.StandardButton.Close).setDefault(True)
-    d.l.addWidget(d.bb)
-    d.bb.rejected.connect(d.reject)
-    d.bb.accepted.connect(d.accept)
+    copy_btn.clicked.connect(copy_report)
+    close_btn = bb.button(QDialogButtonBox.StandardButton.Close)
+    assert close_btn is not None
+    close_btn.setDefault(True)
+    l.addWidget(bb)
+    bb.rejected.connect(d.reject)
+    bb.accepted.connect(d.accept)
     d.resize(600, 400)
     d.exec()
-    b.clicked.disconnect()
-    if d.show_changes:
+    copy_btn.clicked.disconnect()
+    if show_changes[0]:
         show_current_diff(allow_revert=True)
 
 
@@ -332,7 +336,7 @@ class CompressImagesProgress(Dialog):
         self.compress_png = compress_png
         self.png_to_format = png_to_format
         self.keep_going = True
-        self.result = (None, '')
+        self.compress_result: tuple = (None, '')
         Dialog.__init__(self, _('Compressing images...'), 'compress-images-progress', parent=parent)
         self.gui_loop.connect(self.update_progress, type=Qt.ConnectionType.QueuedConnection)
         self.cidone.connect(self.accept, type=Qt.ConnectionType.QueuedConnection)
@@ -345,7 +349,7 @@ class CompressImagesProgress(Dialog):
         from calibre.gui2.tweak_book import current_container
         report = []
         try:
-            self.result = (compress_images(
+            self.compress_result = (compress_images(
                 current_container(), report=report.append, names=self.names, jpeg_quality=self.jpeg_quality,
                 webp_quality=self.webp_quality, compress_png=self.compress_png,
                 png_to_format=self.png_to_format,
@@ -353,7 +357,7 @@ class CompressImagesProgress(Dialog):
             )[0], report)
         except Exception:
             import traceback
-            self.result = (None, traceback.format_exc())
+            self.compress_result = (None, traceback.format_exc())
         self.cidone.emit()
 
     def setup_ui(self):
@@ -376,7 +380,9 @@ class CompressImagesProgress(Dialog):
 
     def reject(self):
         self.keep_going = False
-        self.bb.button(QDialogButtonBox.StandardButton.Cancel).setEnabled(False)
+        cancel_btn = self.bb.button(QDialogButtonBox.StandardButton.Cancel)
+        assert cancel_btn is not None
+        cancel_btn.setEnabled(False)
         Dialog.reject(self)
 
     def progress_callback(self, num, total, name):
@@ -391,11 +397,11 @@ class CompressImagesProgress(Dialog):
 
 
 if __name__ == '__main__':
+    from qt.core import sip
+
     from calibre.gui2 import Application
     app = Application([])
     import sys
-
-    import sip
 
     from calibre.ebooks.oeb.polish.container import get_container
     c = get_container(sys.argv[-1], tweak_mode=True)

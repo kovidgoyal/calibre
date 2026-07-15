@@ -56,7 +56,10 @@ class Collator:
         pass
 
     def sort_key(self, unicode_object: str) -> bytes:
-        'sort_key(unicode object) -> Return a sort key for the given object as a bytestring. The idea is that these bytestring will sort using the builtin cmp function, just like the original unicode strings would sort in the current locale with ICU.'
+        (
+            'sort_key(unicode object) -> Return a sort key for the given object as a bytestring. The idea is that these bytestring will sort using the builtin'
+            ' cmp function, just like the original unicode strings would sort in the current locale with ICU.'
+        )
         pass
 
     def get_attribute(self, key: int) -> int:
@@ -72,7 +75,10 @@ class Collator:
         pass
 
     def find_all(self, pattern: str, source: str, callback: Callable[[int, int], object], whole_words: bool = False) -> None:
-        'find(pattern, source, callback) -> reports the position and length of all occurrences of pattern in source to callback. Aborts if callback returns anything other than None.'
+        (
+            'find(pattern, source, callback) -> reports the position and length of all occurrences of pattern in source to callback. Aborts if callback returns'
+            ' anything other than None.'
+        )
         pass
 
     def find(self, pattern: str, source: str, whole_words: bool = False) -> tuple[int, int]:
@@ -96,7 +102,10 @@ class Collator:
         pass
 
     def collation_order(self, string: str) -> tuple[int, int]:
-        'collation_order(string) -> returns (order, length) where order is an integer that gives the position of string in a list. length gives the number of characters used for order.'
+        (
+            'collation_order(string) -> returns (order, length) where order is an integer that gives the position of string in a list. length gives the number'
+            ' of characters used for order.'
+        )
         pass
 
     @property
@@ -125,7 +134,10 @@ class Collator:
 
     @property
     def upper_first(self) -> bool | None:
-        'Whether this collator should always put upper case letters before lower case. Values are: None - means use the tertiary strength of the letters. True - Always sort upper case before lower case. False - Always sort lower case before upper case.'
+        (
+            'Whether this collator should always put upper case letters before lower case. Values are: None - means use the tertiary strength of the letters.'
+            ' True - Always sort upper case before lower case. False - Always sort lower case before upper case.'
+        )
         pass
 
     @upper_first.setter
@@ -162,7 +174,10 @@ class Transliterator:
         pass
 
 class BreakIterator:
-    'BreakIterator(type, locale[, extra_word_break_chars]) -> Create a break iterator.\nFor UBRK_WORD iterators, extra_word_break_chars is an optional string of characters\nthat act as additional word-break points beyond the ICU defaults.'
+    (
+        'BreakIterator(type, locale[, extra_word_break_chars]) -> Create a break iterator.\nFor UBRK_WORD iterators, extra_word_break_chars is an optional'
+        ' string of characters\nthat act as additional word-break points beyond the ICU defaults.'
+    )
 
     def __init__(self, type: int, locale: str, extra_word_break_chars: str | None = None) -> None:
         'Create a break iterator of the specified type (one of UBRK_CHARACTER, UBRK_WORD, UBRK_LINE, UBRK_SENTENCE) for the specified locale.'
@@ -173,15 +188,24 @@ class BreakIterator:
         pass
 
     def split2(self) -> list[tuple[int, int]]:
-        'split2() -> Split the current text into tokens, returning a list of 2-tuples of the form (position of token, length of token). The numbers are suitable for indexing python strings regardless of narrow/wide builds.'
+        (
+            'split2() -> Split the current text into tokens, returning a list of 2-tuples of the form (position of token, length of token). The numbers are'
+            ' suitable for indexing python strings regardless of narrow/wide builds.'
+        )
         pass
 
     def iter_breaks(self) -> Iterator[tuple[int, int]]:
-        'iter_breaks() -> Split the current text into tokens, returning an iterator that yields 2-tuples of the form (position of token, length of token). The numbers are suitable for indexing python strings regardless of narrow/wide builds.'
+        (
+            'iter_breaks() -> Split the current text into tokens, returning an iterator that yields 2-tuples of the form (position of token, length of token).'
+            ' The numbers are suitable for indexing python strings regardless of narrow/wide builds.'
+        )
         pass
 
     def iter_positions(self) -> Iterator[int]:
-        'iter_positions() -> Split the current text into tokens, returning an iterator that yields the position of each token as an integer. The numbers are suitable for indexing python strings regardless of narrow/wide builds.'
+        (
+            'iter_positions() -> Split the current text into tokens, returning an iterator that yields the position of each token as an integer. The numbers'
+            ' are suitable for indexing python strings regardless of narrow/wide builds.'
+        )
         pass
 
     def count_words(self) -> int:
@@ -189,7 +213,10 @@ class BreakIterator:
         pass
 
     def index(self, token: str) -> int:
-        "index(token) -> Find the index of the first match for token. Useful to find, for example, words that could also be a part of a larger word. For example, index('i') in 'string i' will be 7 not 3. Returns -1 if not found."
+        (
+            'index(token) -> Find the index of the first match for token. Useful to find, for example, words that could also be a part of a larger word. For'
+            " example, index('i') in 'string i' will be 7 not 3. Returns -1 if not found."
+        )
         pass
 
 def change_case(unicode_object: str, which: int, locale: str | bytes | None) -> str:
@@ -221,7 +248,10 @@ def character_name_from_code(code: int, alias: bool = False) -> str:
     pass
 
 def chr(code: int) -> str:
-    'chr(code) -> Return a python unicode string corresponding to the specified character code. The string can have length 1 or 2 (for non BMP codes on narrow python builds).'
+    (
+        'chr(code) -> Return a python unicode string corresponding to the specified character code. The string can have length 1 or 2 (for non BMP codes on'
+        ' narrow python builds).'
+    )
     pass
 
 def ord_string(code: str) -> tuple[int, ...]:
@@ -241,13 +271,22 @@ def available_locales_for_break_iterator() -> tuple[bytes, ...]:
     pass
 
 def string_length(string: str) -> int:
-    'string_length(string) -> Return the length of a string (number of unicode code points in the string). Useful on narrow python builds where len() returns an incorrect answer if the string contains surrogate pairs.'
+    (
+        'string_length(string) -> Return the length of a string (number of unicode code points in the string). Useful on narrow python builds where len()'
+        ' returns an incorrect answer if the string contains surrogate pairs.'
+    )
     pass
 
 def utf16_length(string: str) -> int:
-    'utf16_length(string) -> Return the length of a string (number of UTF-16 code points in the string). Useful on wide python builds where len() returns an incorrect answer if the string contains surrogate pairs.'
+    (
+        'utf16_length(string) -> Return the length of a string (number of UTF-16 code points in the string). Useful on wide python builds where len() returns'
+        ' an incorrect answer if the string contains surrogate pairs.'
+    )
     pass
 
 def word_prefix_find(collator: Collator, break_iterator: BreakIterator, string: str, prefix: str) -> int:
-    'word_prefix_find(collator, break_iterator, string, prefix) -> Return the codepoint offset of the first word in string that starts with prefix according to collator, or -1 if none.'
+    (
+        'word_prefix_find(collator, break_iterator, string, prefix) -> Return the codepoint offset of the first word in string that starts with prefix'
+        ' according to collator, or -1 if none.'
+    )
     pass

@@ -31,14 +31,14 @@ from calibre.ebooks.oeb.polish.container import Container as ContainerBase
 from calibre.ebooks.oeb.polish.toc import get_toc
 from calibre.ebooks.oeb.polish.utils import guess_type
 from calibre.ebooks.pdf.image_writer import PDFMetadata, get_page_layout
-from calibre.gui2 import setup_unix_signals
+from calibre.gui2 import qapplication_or_fail, setup_unix_signals
 from calibre.srv.render_book import check_for_maths
 from calibre.utils.fonts.sfnt.container import Sfnt, UnsupportedFont
 from calibre.utils.fonts.sfnt.errors import NoGlyphs
 from calibre.utils.fonts.sfnt.merge import merge_truetype_fonts_for_pdf
 from calibre.utils.fonts.sfnt.subset import pdf_subset
 from calibre.utils.localization import _
-from calibre.utils.logging import default_log
+from calibre.utils.logging import Log, default_log
 from calibre.utils.monotonic import monotonic
 from calibre.utils.podofo import add_image_page, dedup_type3_fonts, get_podofo, remove_unused_fonts, set_metadata_implementation
 from calibre.utils.resources import get_path as P
@@ -60,11 +60,14 @@ def data_as_pdf_doc(data):
     return ans
 
 
-def preprint_js():
-    ans = getattr(preprint_js, 'ans', None)
-    if ans is None:
-        ans = preprint_js.ans = P('pdf-preprint.js', data=True).decode('utf-8').replace('HYPHEN_CHAR', 'true' if ismacos else 'false', 1)
-    return ans
+_preprint_js_cache: str | None = None
+
+
+def preprint_js() -> str:
+    global _preprint_js_cache
+    if _preprint_js_cache is None:
+        _preprint_js_cache = P('pdf-preprint.js', data=True).decode('utf-8').replace('HYPHEN_CHAR', 'true' if ismacos else 'false', 1)
+    return _preprint_js_cache
 
 
 def last_tag(root):
@@ -130,6 +133,7 @@ def fix_fullscreen_images(container):
                     if name == 'svg':
                         svg = elem
             if is_svg_fs_markup(names, svg):
+                assert svg is not None
                 svg.set('width', '100vw')
                 svg.set('height', '100vh')
                 container.dirty(file_name)
@@ -154,13 +158,13 @@ class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
         self.allowed_hosts = (FAKE_HOST,)
         self.container = container
 
-    def requestStarted(self, rq):
-        if bytes(rq.requestMethod()) != b'GET':
-            return self.fail_request(rq, QWebEngineUrlRequestJob.Error.RequestDenied)
-        url = rq.requestUrl()
+    def requestStarted(self, a0):
+        if bytes(a0.requestMethod()) != b'GET':
+            return self.fail_request(a0, QWebEngineUrlRequestJob.Error.RequestDenied)
+        url = a0.requestUrl()
         host = url.host()
         if host not in self.allowed_hosts or url.scheme() != FAKE_PROTOCOL:
-            return self.fail_request(rq)
+            return self.fail_request(a0)
         path = url.path()
         if path.startswith('/book/'):
             name = path[len('/book/'):]
@@ -174,7 +178,7 @@ class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
                         data = f.read()
                 except FileNotFoundError:
                     print(f'Could not find file {name} in book', file=sys.stderr)
-                    rq.fail(QWebEngineUrlRequestJob.Error.UrlNotFound)
+                    a0.fail(QWebEngineUrlRequestJob.Error.UrlNotFound)
                     return
                 data = as_bytes(data)
                 mime_type = {
@@ -183,17 +187,17 @@ class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
                     'application/x-font-truetype':'application/x-font-ttf',
                     'application/font-sfnt': 'application/x-font-ttf',
                 }.get(mime_type, mime_type)
-                send_reply(rq, mime_type, data)
+                send_reply(a0, mime_type, data)
             except Exception:
                 import traceback
                 traceback.print_exc()
-                return self.fail_request(rq, QWebEngineUrlRequestJob.Error.RequestFailed)
+                return self.fail_request(a0, QWebEngineUrlRequestJob.Error.RequestFailed)
         elif path.startswith('/mathjax/'):
             try:
                 _ign, _ign, base, rest = path.split('/', 3)
             except ValueError:
                 print(f'Could not find file {path} in mathjax', file=sys.stderr)
-                rq.fail(QWebEngineUrlRequestJob.Error.UrlNotFound)
+                a0.fail(QWebEngineUrlRequestJob.Error.UrlNotFound)
                 return
             try:
                 mime_type = guess_type(rest)
@@ -207,17 +211,17 @@ class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
                         data = f.read()
                 else:
                     raise FileNotFoundError('')
-                send_reply(rq, mime_type, data)
+                send_reply(a0, mime_type, data)
             except FileNotFoundError:
                 print(f'Could not find file {path} in mathjax', file=sys.stderr)
-                rq.fail(QWebEngineUrlRequestJob.Error.UrlNotFound)
+                a0.fail(QWebEngineUrlRequestJob.Error.UrlNotFound)
                 return
             except Exception:
                 import traceback
                 traceback.print_exc()
-                return self.fail_request(rq, QWebEngineUrlRequestJob.Error.RequestFailed)
+                return self.fail_request(a0, QWebEngineUrlRequestJob.Error.RequestFailed)
         else:
-            return self.fail_request(rq)
+            return self.fail_request(a0)
 
     def fail_request(self, rq, fail_code=None):
         if fail_code is None:
@@ -241,6 +245,7 @@ class Renderer(QWebEnginePage):
         self.settle_time = 0
         self.wait_for_title = None
         s = self.settings()
+        assert s is not None
         s.setAttribute(QWebEngineSettings.WebAttribute.JavascriptEnabled, True)
         s.setFontSize(QWebEngineSettings.FontSize.DefaultFontSize, int(opts.pdf_default_font_size))
         s.setFontSize(QWebEngineSettings.FontSize.DefaultFixedFontSize, int(opts.pdf_mono_font_size))
@@ -303,9 +308,9 @@ class Renderer(QWebEnginePage):
             return
         QTimer.singleShot(int(1000 * self.settle_time), self.print_to_pdf)
 
-    def javaScriptConsoleMessage(self, level, message, linenum, source_id):
+    def javaScriptConsoleMessage(self, level, message, lineNumber, sourceID):
         try:
-            self.log(f'{source_id}:{linenum}:{message}')
+            self.log(f'{sourceID}:{lineNumber}:{message}')
         except Exception:
             pass
 
@@ -334,17 +339,18 @@ class Renderer(QWebEnginePage):
 
 
 class RequestInterceptor(QWebEngineUrlRequestInterceptor):
+    log: Log
 
-    def interceptRequest(self, request_info):
-        method = bytes(request_info.requestMethod())
+    def interceptRequest(self, info):
+        method = bytes(info.requestMethod())
         if method not in (b'GET', b'HEAD'):
             self.log.warn(f'Blocking URL request with method: {method}')
-            request_info.block(True)
+            info.block(True)
             return
-        qurl = request_info.requestUrl()
+        qurl = info.requestUrl()
         if qurl.scheme() != FAKE_PROTOCOL:
             self.log.warn(f'Blocking URL request {qurl.toString()} as it is not for a resource in the book')
-            request_info.block(True)
+            info.block(True)
             return
 
 
@@ -362,6 +368,7 @@ class RenderManager(QObject):
         ua = 'calibre-pdf-output ' + __version__
         ans.setHttpUserAgent(ua)
         s = ans.settings()
+        assert s is not None
         s.setDefaultTextEncoding('utf-8')
         ans.setUrlRequestInterceptor(self.interceptor)
         self.profile = ans
@@ -384,7 +391,7 @@ class RenderManager(QObject):
             os.read(read_fd, 1024)
         except OSError:
             return
-        QApplication.instance().exit(KILL_SIGNAL)
+        qapplication_or_fail().exit(KILL_SIGNAL)
 
     def block_signal_handlers(self):
         for sig in self.original_signal_handlers:
@@ -432,7 +439,7 @@ class RenderManager(QObject):
 
     def evaljs_callback(self, result):
         self.evaljs_result = result
-        QApplication.instance().exit(0)
+        qapplication_or_fail().exit(0)
 
     def assign_work(self):
         free_workers = [w for w in self.workers if not w.working]
@@ -461,7 +468,7 @@ class RenderManager(QObject):
             for w in self.workers:
                 if w.working:
                     return
-            QApplication.instance().exit(OK)
+            qapplication_or_fail().exit(OK)
 
 
 def resolve_margins(margins, page_layout):
@@ -566,45 +573,56 @@ def add_all_links(container, margin_files):
     return uuid
 
 
-def make_anchors_unique(container, log):
-    mapping = {}
-    count = 0
-    base = None
-    spine_names = set()
+class _AnchorReplacer:
+    file_type: str
+    replaced: bool
 
-    def replacer(url):
-        if replacer.file_type not in ('text', 'ncx'):
+    def __init__(self, container: ContainerBase, mapping: dict[tuple[str, str], str], spine_names: set[str], log: Log) -> None:
+        self.container = container
+        self.mapping = mapping
+        self.spine_names = spine_names
+        self.log = log
+        self.file_type = ''
+        self.replaced = False
+        self.base = ''
+
+    def __call__(self, url: str) -> str:
+        if self.file_type not in ('text', 'ncx'):
             return url
         if not url:
             return url
         if '#' not in url:
             url += '#'
         if url.startswith('#'):
-            href, frag = base, url[1:]
-            name = base
+            href, frag = self.base, url[1:]
+            name: str | None = self.base
         else:
             href, frag = url.partition('#')[::2]
-            name = container.href_to_name(href, base)
+            name = self.container.href_to_name(href, self.base)
         if not name:
             return url.rstrip('#')
-        if not frag and name in spine_names:
-            replacer.replaced = True
+        if not frag and name in self.spine_names:
+            self.replaced = True
             return 'https://calibre-pdf-anchor.n#' + name
         key = name, frag
-        new_frag = mapping.get(key)
+        new_frag = self.mapping.get(key)
         if new_frag is None:
-            if name in spine_names:
-                log.warn(f'Link anchor: {name}#{frag} not found, linking to top of file instead')
-                replacer.replaced = True
+            if name in self.spine_names:
+                self.log.warn(f'Link anchor: {name}#{frag} not found, linking to top of file instead')
+                self.replaced = True
                 return 'https://calibre-pdf-anchor.n#' + name
             return url.rstrip('#')
-        replacer.replaced = True
+        self.replaced = True
         return 'https://calibre-pdf-anchor.a#' + new_frag
-        if url.startswith('#'):
-            return '#' + new_frag
-        return href + '#' + new_frag
 
-    name_anchor_map = {}
+
+def make_anchors_unique(container: ContainerBase, log: Log) -> dict[str, str | None]:
+    mapping: dict[tuple[str, str], str] = {}
+    count = 0
+    spine_names: set[str] = set()
+    replacer = _AnchorReplacer(container, mapping, spine_names, log)
+
+    name_anchor_map: dict[str, str | None] = {}
     for spine_name, is_linear in container.spine_names:
         spine_names.add(spine_name)
         root = container.parsed(spine_name)
@@ -621,7 +639,7 @@ def make_anchors_unique(container, log):
         name_anchor_map[spine_name] = body.get('id')
 
     for name in container.mime_map:
-        base = name
+        replacer.base = name
         replacer.replaced = False
         container.replace_links(name, replacer)
     return name_anchor_map

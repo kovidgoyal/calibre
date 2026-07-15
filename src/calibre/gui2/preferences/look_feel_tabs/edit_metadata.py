@@ -67,12 +67,12 @@ class EditMetadataTab(LazyConfigWidgetBase, Ui_Form):
     def lazy_initialize(self):
         self.em_display_model.initialize()
 
-    def commit(self):
+    def commit(self, *args):
         with BusyCursor():
             self.em_display_model.commit()
         return LazyConfigWidgetBase.commit(self)
 
-    def restore_defaults(self):
+    def restore_defaults(self, *args):
         LazyConfigWidgetBase.restore_defaults(self)
         self.em_display_model.restore_defaults()
         self.changed_signal.emit()
