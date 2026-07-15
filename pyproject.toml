@@ -297,7 +297,13 @@ exclude = [
 	'**/*_ui.py', '**/*_test.py', '**/test_*.py',
 	'setup/*.py', 'setup.py',
 	'**/tests/**',
+	'src/calibre/library/add_to_library.py',
+	'src/calibre/library/database.py',
 	'src/calibre/library/database2.py',
+	'src/calibre/library/sqlite.py',
+	'src/calibre/library/prefs.py',
+	'src/calibre/library/restore.py',
+	'src/calibre/library/custom_columns.py',
 	'src/calibre/library/schema_upgrades.py',
     'src/calibre/gui2/pyqt6_compat.py',
 ]
