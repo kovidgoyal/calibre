@@ -127,7 +127,7 @@ class BasicSettings(QWidget):  # {{{
         widget.setDefaultDropAction(Qt.DropAction.MoveAction)
         widget.setMovement(QListView.Movement.Snap)
         widget.setSpacing(5)
-        widget.defaults = prefs.defaults[name]
+        setattr(widget, 'defaults', prefs.defaults[name])
 
         def getter(w):
             return list(map(str, (w.item(i).text() for i in range(w.count()))))
@@ -209,7 +209,7 @@ class EditorSettings(BasicSettings):  # {{{
         h.addWidget(theme), h.addWidget(b)
         l.addRow(_('&Color scheme:'), h)
         lf = l.labelForField(h)
-        assert lf is not None
+        assert isinstance(lf, QLabel)
         lf.setBuddy(theme)
 
         tw = self('editor_tab_stop_width')
@@ -447,7 +447,8 @@ class PreviewSettings(BasicSettings):  # {{{
         b('auto', _('Theme based'), _('When using a dark theme force dark colors, otherwise same as "No change"'))
         b('manual', _('Custom'), _('Choose a custom color'))
 
-        c = w.color_button = ColorButton(parent=w)
+        c = ColorButton(parent=w)
+        setattr(w, 'color_button', c)
         l.addWidget(c)
         connect_lambda(c.clicked, w, lambda w: w.manual.setChecked(True))
 

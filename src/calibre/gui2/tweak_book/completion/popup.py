@@ -34,7 +34,8 @@ class ChoosePopupWidget(QWidget):
         self.setMouseTracking(True)
         self.setCursor(Qt.CursorShape.PointingHandCursor)
 
-        self.current_results = self.current_size_hint = None
+        self.current_results: tuple = ()
+        self.current_size_hint = None
 
         self.max_text_length = 0
         self.current_index = -1
@@ -91,6 +92,7 @@ class ChoosePopupWidget(QWidget):
                 height += ceil(sz.height()) + self.BOTTOM_MARGIN
                 max_width = max(max_width, ceil(sz.width()))
             self.current_size_hint = QSize(max_width + 2 * self.SIDE_MARGIN, height + self.BOTTOM_MARGIN + self.TOP_MARGIN)
+        assert self.current_size_hint is not None
         return self.current_size_hint
 
     def iter_visible_items(self):
@@ -263,7 +265,7 @@ class CompletionPopup(ChoosePopupWidget):
     def activate_current_result(self):
         if self.current_completion is not None:
             c = self.current_completion
-            text = self.current_query if self.current_index == -1 else self.current_results[self.current_index][0]
+            text = (self.current_query or '') if self.current_index == -1 else self.current_results[self.current_index][0]
             c.insertText(text)
             chars = string_length(text)
             c.setPosition(c.position() - chars)

@@ -7,6 +7,7 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 import sys
 
 from qt.core import (
+    QAction,
     QApplication,
     QCheckBox,
     QDialog,
@@ -96,6 +97,8 @@ class ResizeDialog(QDialog):  # {{{
 class Editor(QMainWindow):
 
     has_line_numbers = False
+    action_copy: QAction
+    action_paste: QAction
 
     modification_state_changed = pyqtSignal(object)
     undo_redo_state_changed = pyqtSignal(object, object)

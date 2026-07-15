@@ -577,7 +577,7 @@ class ImagesWidget(QWidget):
         self.model = m = ImagesModel(self)
         self.files = f = FilesView(m, self)
         self.to_csv = f.to_csv
-        f.customize_context_menu = self.customize_context_menu
+        setattr(f, 'customize_context_menu', self.customize_context_menu)
         f.delete_requested.connect(self.delete_requested)
         fhh = f.horizontalHeader()
         assert fhh is not None
@@ -1040,7 +1040,7 @@ class CSSRulesModel(QAbstractItemModel):
             except IndexError:
                 pass
 
-    def parent(self, child=...):
+    def parent(self, child: QModelIndex = ROOT):
         if not child.isValid():
             return ROOT
         parent = child.internalPointer()
@@ -1117,7 +1117,7 @@ class CSSProxyModel(QSortFilterProxyModel):
         if not self._filter_text:
             return True
         sm = self.sourceModel()
-        assert sm is not None
+        assert isinstance(sm, CSSRulesModel)
         entry = sm.index_to_entry(sm.index(source_row, 0, source_parent))
         if not isinstance(entry, CSSEntry):
             return True
@@ -1334,7 +1334,7 @@ class ClassProxyModel(CSSProxyModel):
         if not self._filter_text:
             return True
         sm = self.sourceModel()
-        assert sm is not None
+        assert isinstance(sm, CSSRulesModel)
         entry = sm.index_to_entry(sm.index(source_row, 0, source_parent))
         if not isinstance(entry, ClassEntry):
             return True
@@ -1459,7 +1459,9 @@ class ReportsWidget(QWidget):
         jump.clear()
         for i in range(self.stack.count()):
             st = time.time()
-            self.stack.widget(i)(data)
+            widget = self.stack.widget(i)
+            assert widget is not None
+            getattr(widget, '__call__')(data)
             if DEBUG:
                 report_item = self.reports.item(i)
                 assert report_item is not None
@@ -1482,7 +1484,7 @@ class ReportsWidget(QWidget):
         if not hasattr(w, 'to_csv'):
             return error_dialog(self, _('Not supported'), _(
                 'Export of %s data is not supported') % category, show=True)
-        data = w.to_csv()
+        data = getattr(w, 'to_csv')()
         fname = choose_save_file(self, 'report-csv-export', _('Choose a filename for the data'), filters=[
             (_('CSV files'), ['csv'])], all_files=False, initial_filename=f'{category}.csv')
         if fname:
@@ -1514,10 +1516,10 @@ class Reports(Dialog):
 
         self.pw = pw = QWidget(self)
         s.addWidget(pw), s.addWidget(r)
-        pw.l = l = QVBoxLayout(pw)
+        l = QVBoxLayout(pw)
         self.pi = pi = ProgressIndicator(self, 256)
         l.addStretch(1), l.addWidget(pi, alignment=Qt.AlignmentFlag.AlignHCenter), l.addSpacing(10)
-        pw.la = la = QLabel(_('Gathering data, please wait...'))
+        la = QLabel(_('Gathering data, please wait...'))
         la.setStyleSheet('QLabel { font-size: 30pt; font-weight: bold }')
         l.addWidget(la, alignment=Qt.AlignmentFlag.AlignHCenter), l.addStretch(1)
 

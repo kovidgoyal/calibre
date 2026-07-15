@@ -83,7 +83,7 @@ class Central(QStackedWidget):  # {{{
 
         self.container = c = QWidget(self)
         self.addWidget(c)
-        l = c.l = QVBoxLayout(c)
+        l = QVBoxLayout(c)
         c.setLayout(l)
         l.setContentsMargins(0, 0, 0, 0)
         self.editor_tabs = t = QTabWidget(c)
@@ -324,8 +324,8 @@ class Main(MainWindow):
         self.status_bar.addPermanentWidget(self.cursor_position_widget)
         v = get_version()
         self.status_bar_default_msg = la = QLabel(' ' + _('{0} {1} created by {2}').format(__appname__, v, 'Kovid Goyal'))
-        la.base_template = str(la.text())
-        la.editing_template = _('{appname} {version} editing: {{path}}').format(appname=__appname__, version=v)
+        setattr(la, 'base_template', str(la.text()))
+        setattr(la, 'editing_template', _('{appname} {version} editing: {{path}}').format(appname=__appname__, version=v))
         self.status_bar.addWidget(la)
 
         self.boss(self)
@@ -358,9 +358,9 @@ class Main(MainWindow):
     def update_status_bar_default_message(self, path=''):
         m = self.status_bar_default_msg
         if path:
-            m.setText(m.editing_template.format(path=path))
+            m.setText(getattr(m, 'editing_template').format(path=path))
         else:
-            m.setText(m.base_template)
+            m.setText(getattr(m, 'base_template'))
 
     def elided_text(self, text, width=300):
         return elided_text(text, font=self.font(), width=width)
@@ -605,7 +605,7 @@ class Main(MainWindow):
             p.triggered.connect(self.action_preferences.trigger)
         b = QMenuBar(self)
         self.setMenuBar(b)
-        b.is_native_menubar = False
+        setattr(b, 'is_native_menubar', False)
 
         f = b.addMenu(_('&File'))
         assert f is not None
@@ -766,7 +766,7 @@ class Main(MainWindow):
             if ac is None:
                 bar.addSeparator()
             elif ac == 'donate':
-                self.donate_button = b = ThrobbingButton(self)
+                b = ThrobbingButton(self)
                 b.clicked.connect(open_donate)
                 b.setAutoRaise(True)
                 b.setToolTip(_('Donate to support calibre development'))

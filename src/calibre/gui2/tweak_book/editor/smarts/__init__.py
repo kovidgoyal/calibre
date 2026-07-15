@@ -38,3 +38,21 @@ class NullSmarts:
 
     def rename_block_tag(self, editor, new_name):
         pass
+
+    def set_text_alignment(self, editor, value):
+        pass
+
+    def surround_with_custom_tag(self, editor, opent, close):
+        pass
+
+    def insert_hyperlink(self, editor, target, text, template=None):
+        pass
+
+    def insert_tag(self, editor, name):
+        pass
+
+    def remove_tag(self, editor):
+        pass
+
+    def split_tag(self, editor):
+        pass

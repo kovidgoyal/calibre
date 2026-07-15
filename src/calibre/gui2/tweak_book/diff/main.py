@@ -142,13 +142,15 @@ def get_decoded_raw(name):
                 enc = force_encoding(raw, verbose=True)
             if isinstance(enc, bytes):
                 enc = enc.decode('utf-8', 'ignore')
-            try:
-                raw = raw.decode(enc)
-            except (LookupError, ValueError):
+            if isinstance(raw, bytes):
                 try:
-                    raw = raw.decode('utf-8')
-                except ValueError:
-                    pass
+                    raw = raw.decode(enc)
+                except (LookupError, ValueError):
+                    if isinstance(raw, bytes):
+                        try:
+                            raw = raw.decode('utf-8')
+                        except ValueError:
+                            pass
     return raw, syntax
 
 
@@ -515,6 +517,7 @@ class Diff(Dialog):
 def compare_books(path1, path2, revert_msg=None, revert_callback=None, parent=None, names=None):
     d = Diff(parent=parent, revert_button_msg=revert_msg)
     if revert_msg is not None:
+        assert revert_callback is not None
         d.revert_requested.connect(revert_callback)
     QTimer.singleShot(0, partial(d.ebook_diff, path1, path2, names=names))
     d.exec()

@@ -133,6 +133,12 @@ def escape_funcs():
 
 
 class TabStop(str):
+    num: int
+    start: int
+    is_toplevel: bool
+    is_mirror: bool
+    takes_selection: bool
+    parent: TabStop | None
 
     def __new__(self, raw, start_offset, tab_stops, is_toplevel=True):  # noqa: PLW0211
         if raw.endswith('}'):
@@ -306,6 +312,10 @@ class EditorTabStop:
 
 
 class Template(list):
+    left_most_ts: EditorTabStop | None
+    right_most_ts: EditorTabStop | None
+    has_tab_stops: bool
+    active_tab_stop: EditorTabStop | None
 
     def __new__(self, tab_stops):  # noqa: PLW0211
         self = list.__new__(self)
@@ -345,6 +355,7 @@ class Template(list):
         ts = self.active_tab_stop
         if not ts.is_deleted:
             if ts.has_transform:
+                assert ts.transform is not None
                 ts.text = ts.transform(ts.text)
             for m in ts.mirrors:
                 if not m.is_deleted:
@@ -611,8 +622,8 @@ class UserSnippets(Dialog):
         l.addLayout(s), l.addWidget(self.bb)
         self.listc = c = QWidget(self)
         s.addWidget(c)
-        c.l = l = QVBoxLayout(c)
-        c.h = h = QHBoxLayout()
+        l = QVBoxLayout(c)
+        h = QHBoxLayout()
         l.addLayout(h)
 
         self.search_bar = sb = QLineEdit(self)
@@ -622,13 +633,13 @@ class UserSnippets(Dialog):
         b.clicked.connect(self.find_next)
         h.addWidget(b)
 
-        c.h2 = h = QHBoxLayout()
+        h = QHBoxLayout()
         l.addLayout(h)
         self.snip_list = sl = QListWidget(self)
         sl.doubleClicked.connect(self.edit_snippet)
         h.addWidget(sl)
 
-        c.l2 = l = QVBoxLayout()
+        l = QVBoxLayout()
         h.addLayout(l)
         self.add_button = b = QToolButton(self)
         b.setIcon(QIcon.ic('plus.png')), b.setText(_('&Add snippet')), b.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
@@ -728,7 +739,7 @@ class UserSnippets(Dialog):
                 'No snippets found for query: %s') % q, show=True)
         ci = self.snip_list.currentItem()
         try:
-            item = matches[(matches.index(ci) + 1) % len(matches)]
+            item = matches[(matches.index(ci) + 1) % len(matches)] if ci is not None else matches[0]
         except Exception:
             item = matches[0]
         self.snip_list.setCurrentItem(item)
@@ -742,11 +753,11 @@ class UserSnippets(Dialog):
             snip['trigger'], snip['syntaxes'] = trigger, syntaxes
             i = QListWidgetItem(self.snip_to_text(snip), lw)
             i.setData(Qt.ItemDataRole.UserRole, snip)
-        d.l = l = QVBoxLayout(d)
+        l = QVBoxLayout(d)
         l.addWidget(QLabel(_('Choose the built-in snippet to modify:')))
         l.addWidget(lw)
         lw.itemDoubleClicked.connect(d.accept)
-        d.bb = bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)
+        bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)
         l.addWidget(bb)
         bb.accepted.connect(d.accept), bb.rejected.connect(d.reject)
         if d.exec() == QDialog.DialogCode.Accepted and lw.currentItem() is not None:

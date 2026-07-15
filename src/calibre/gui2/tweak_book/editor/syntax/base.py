@@ -69,6 +69,7 @@ class SyntaxHighlighter:
     def tag_ok_for_spell(x):
         return False
     user_data_factory = SimpleUserData
+    state_map: dict
 
     def __init__(self):
         self.doc = None

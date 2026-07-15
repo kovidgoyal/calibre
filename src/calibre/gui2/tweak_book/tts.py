@@ -154,7 +154,7 @@ class TTSEmbed(Dialog):
             err = embed_tts(self.container, report_progress, self.ensure_voices_downloaded)
         except Exception as e:
             err = e
-            err.det_msg = traceback.format_exc()
+            setattr(err, 'det_msg', traceback.format_exc())
         self.worker_done.emit(err)
 
     def ensure_voices_downloaded(self, callback):
@@ -170,7 +170,7 @@ class TTSEmbed(Dialog):
         try:
             queue.put(callback(self))
         except Exception as e:
-            e.det_msg = traceback.format_exc()
+            setattr(e, 'det_msg', traceback.format_exc())
             queue.put(e)
 
     def on_worker_done(self, err_or_ok):

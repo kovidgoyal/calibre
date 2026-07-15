@@ -418,7 +418,7 @@ class CategoryModel(QAbstractItemModel):
         except IndexError:
             return ROOT
 
-    def parent(self, child=...):
+    def parent(self, child: QModelIndex = ROOT):
         if not child.isValid():
             return ROOT
         pid = child.internalId()
@@ -476,6 +476,7 @@ class CategoryDelegate(QStyledItemDelegate):
 class CategoryView(QTreeView):
 
     category_selected = pyqtSignal(object, object)
+    _model: CategoryModel
 
     def __init__(self, parent=None):
         QTreeView.__init__(self, parent)
@@ -700,11 +701,9 @@ class CharView(QListView):
 
     def restore_defaults(self):
         del tprefs['charmap_favorites']
-        m = self.model()
-        assert m is not None
-        m.beginResetModel()
-        m.chars = list(tprefs['charmap_favorites'])
-        m.endResetModel()
+        self._model.beginResetModel()
+        self._model.chars = list(tprefs['charmap_favorites'])
+        self._model.endResetModel()
 
     def copy_to_clipboard(self, char_code):
         c = QApplication.clipboard()
@@ -719,11 +718,9 @@ class CharView(QListView):
         elif char_code in existing:
             existing.remove(char_code)
             tprefs['charmap_favorites'] = existing
-            m = self.model()
-            assert m is not None
-            m.beginResetModel()
-            m.chars.remove(char_code)
-            m.endResetModel()
+            self._model.beginResetModel()
+            self._model.chars.remove(char_code)
+            self._model.endResetModel()
 
 
 class CharSelect(Dialog):
@@ -802,7 +799,7 @@ class CharSelect(Dialog):
 
     def category_view_clicked(self):
         p = self.parent()
-        if p is not None and p.focusWidget() is not None:
+        if isinstance(p, QWidget) and p.focusWidget() is not None:
             p.activateWindow()
 
     def do_search(self):
@@ -841,9 +838,7 @@ class CharSelect(Dialog):
     def show_char_info(self, char_code):
         text = '\xa0'
         if char_code > 0:
-            m = self.category_view.model()
-            assert m is not None
-            category_name, subcategory_name, character_name = m.get_char_info(char_code)
+            category_name, subcategory_name, character_name = self.category_view._model.get_char_info(char_code)
             text = _('{character_name} (U+{char_code:04X}) in {category_name} - {subcategory_name}').format(**locals())
         self.char_info.setText(text)
 
@@ -866,11 +861,11 @@ class CharSelect(Dialog):
         e = QInputMethodEvent('', [])
         e.setCommitString(unicodedata.normalize('NFC', c))
         if hasattr(w, 'no_popup'):
-            oval = w.no_popup
-            w.no_popup = True
+            oval = getattr(w, 'no_popup')
+            setattr(w, 'no_popup', True)
         QApplication.sendEvent(w, e)
         if hasattr(w, 'no_popup'):
-            w.no_popup = oval
+            setattr(w, 'no_popup', oval)
 
 
 if __name__ == '__main__':

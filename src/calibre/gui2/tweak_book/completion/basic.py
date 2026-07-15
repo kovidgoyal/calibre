@@ -67,6 +67,8 @@ def get_data(data_conn, data_type, data=None):
 
 
 class Name(str):
+    mime_type: str
+    in_spine: bool
 
     def __new__(cls, name, mime_type, spine_names):
         ans = str.__new__(cls, name)

@@ -841,6 +841,8 @@ class DiffSplit(QSplitter):  # {{{
         # don't synch up unless the lines have a similarity score of at
         # least cutoff; best_ratio tracks the best score seen so far
         best_ratio, cutoff = 0.74, 0.75
+        best_i: int | None = None
+        best_j: int | None = None
         cruncher = SequenceMatcher()
         eqi, eqj = None, None   # 1st indices of equal lines (if any)
         a, b = self.left_lines, self.right_lines
@@ -884,6 +886,7 @@ class DiffSplit(QSplitter):  # {{{
         # identical
 
         # pump out diffs from before the synch point
+        assert best_i is not None and best_j is not None
         self.replace_helper(alo, best_i, blo, best_j)
 
         # do intraline marking on the synch pair
@@ -989,8 +992,8 @@ class DiffView(QWidget):  # {{{
         for bar in (self.scrollbar, self.view.left.verticalScrollBar(), self.view.right.verticalScrollBar()):
             assert bar is not None
             self.bars.append(bar)
-            bar.scroll_idx = len(self.bars) - 1
-            connect_lambda(bar.valueChanged[int], self, lambda self: self.scrolled(self.sender().scroll_idx))
+            setattr(bar, 'scroll_idx', len(self.bars) - 1)
+            connect_lambda(bar.valueChanged[int], self, lambda self: self.scrolled(getattr(self.sender(), 'scroll_idx')))
         self.view.left.resized.connect(self.resized)
         handle1 = self.view.handle(1)
         assert isinstance(handle1, DiffSplitHandle)
@@ -1133,7 +1136,7 @@ class DiffView(QWidget):  # {{{
             b = v_doc.firstBlock()
             v_doc_layout = v_doc.documentLayout()
             assert v_doc_layout is not None
-            ebl = v_doc_layout.ensureBlockLayout
+            ebl = getattr(v_doc_layout, 'ensureBlockLayout')
             last_line_count = 0
             while b.isValid():
                 ebl(b)

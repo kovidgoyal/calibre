@@ -512,7 +512,7 @@ class SearchPanel(QWidget):  # {{{
         t.setIconSize(QSize(12, 12))
         t.setMovable(False)
         t.setFloatable(False)
-        t.cl = ac = t.addAction(QIcon.ic('window-close.png'), _('Close search panel'))
+        ac = t.addAction(QIcon.ic('window-close.png'), _('Close search panel'))
         assert ac is not None
         ac.triggered.connect(self.hide_panel)
         self.widget = SearchWidget(self)
@@ -940,9 +940,9 @@ class SavedSearches(QWidget):
         es.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Preferred)
         stack.addWidget(es)
         es.done.connect(self.search_editing_done)
-        mw.v = QVBoxLayout(mw)
-        mw.v.setContentsMargins(0, 0, 0, 0)
-        mw.v.addWidget(searches)
+        mw_layout = QVBoxLayout(mw)
+        mw_layout.setContentsMargins(0, 0, 0, 0)
+        mw_layout.addWidget(searches)
         searches.doubleClicked.connect(self.edit_search)
         self.model = SearchesModel(self.searches)
         self.model.dataChanged.connect(self.show_details)
@@ -1034,7 +1034,7 @@ class SavedSearches(QWidget):
 
         self.wr = wr = QCheckBox(_('&Wrap'))
         wr.setToolTip('<p>'+_('When searching reaches the end, wrap around to the beginning and continue the search'))
-        self.wr.setChecked(SearchWidget.DEFAULT_STATE['wrap'])
+        self.wr.setChecked(bool(SearchWidget.DEFAULT_STATE['wrap']))
         v.addWidget(wr)
 
         self.d3 = d = QFrame(self)
@@ -1042,8 +1042,8 @@ class SavedSearches(QWidget):
         v.addWidget(d)
 
         self.description = d = SearchDescription(self)
-        mw.v.addWidget(d)
-        mw.v.setStretch(0, 10)
+        mw_layout.addWidget(d)
+        mw_layout.setStretch(0, 10)
 
         self.ib = b = pb(_('&Import'), _('Import saved searches'))
         b.clicked.connect(self.import_searches)
@@ -1205,7 +1205,7 @@ class SavedSearches(QWidget):
             search_index, search = index.data(Qt.ItemDataRole.UserRole)
             self.edit_search_widget.show_search(search=search, search_index=search_index)
             self.stack.setCurrentIndex(1)
-            self.edit_search_widget.find.setFocus(Qt.FocusReason.OtherFocusReason)
+            self.edit_search_widget.find_widget.setFocus(Qt.FocusReason.OtherFocusReason)
 
     def remove_search(self):
         if self.editing_search:
@@ -1543,13 +1543,13 @@ def run_search(
                     det_msg += _('{0}: {1} occurrences').format(k, count_map[k]) + '\n'
             if show_diff and count > 0:
                 d = MessageBox(MessageBox.INFO, _('Searching done'), '<p>'+msg, parent=gui_parent, show_copy_button=False, det_msg=det_msg)
-                d.diffb = b = d.bb.addButton(_('See what &changed'), QDialogButtonBox.ButtonRole.AcceptRole)
-                d.show_changes = False
+                b = d.bb.addButton(_('See what &changed'), QDialogButtonBox.ButtonRole.AcceptRole)
+                show_changes = [False]
                 assert b is not None
                 b.setIcon(QIcon.ic('diff.png')), b.clicked.connect(d.accept)
-                connect_lambda(b.clicked, d, lambda d: setattr(d, 'show_changes', True))
+                b.clicked.connect(lambda: show_changes.__setitem__(0, True))
                 d.exec()
-                if d.show_changes:
+                if show_changes[0]:
                     show_current_diff(allow_revert=True)
             else:
                 info_dialog(gui_parent, _('Searching done'), prepare_string_for_xml(msg), show=True, det_msg=det_msg)

@@ -970,20 +970,16 @@ version="1.1" width="100%%" height="100%%" viewBox="0 0 {w} {h}" preserveAspectR
         self.setTextCursor(c)
 
     def insert_hyperlink(self, target, text, template=None):
-        if hasattr(self.smarts, 'insert_hyperlink'):
-            self.smarts.insert_hyperlink(self, target, text, template=template)
+        self.smarts.insert_hyperlink(self, target, text, template=template)
 
     def insert_tag(self, tag):
-        if hasattr(self.smarts, 'insert_tag'):
-            self.smarts.insert_tag(self, tag)
+        self.smarts.insert_tag(self, tag)
 
     def remove_tag(self):
-        if hasattr(self.smarts, 'remove_tag'):
-            self.smarts.remove_tag(self)
+        self.smarts.remove_tag(self)
 
     def split_tag(self):
-        if hasattr(self.smarts, 'split_tag'):
-            self.smarts.split_tag(self)
+        self.smarts.split_tag(self)
 
     def keyPressEvent(self, e):
         if e.key() == Qt.Key.Key_X and e.modifiers() == Qt.KeyboardModifier.AltModifier:

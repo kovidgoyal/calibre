@@ -63,9 +63,9 @@ def next_tag_boundary(block, offset, forward=True, max_lines=10000):
         if ud is not None:
             tags = sorted(ud.tags, key=get_offset, reverse=not forward)
             for boundary in tags:
-                if forward and boundary.offset > offset:
+                if forward and boundary[0] > offset:
                     return block, boundary
-                if not forward and boundary.offset < offset:
+                if not forward and boundary[0] < offset:
                     return block, boundary
         block = block.next() if forward else block.previous()
         offset = -1 if forward else sys.maxsize
@@ -79,9 +79,9 @@ def next_attr_boundary(block, offset, forward=True):
         if ud is not None:
             attributes = sorted(ud.attributes, key=get_offset, reverse=not forward)
             for boundary in attributes:
-                if forward and boundary.offset >= offset:
+                if forward and boundary[0] >= offset:
                     return block, boundary
-                if not forward and boundary.offset <= offset:
+                if not forward and boundary[0] <= offset:
                     return block, boundary
         block = block.next() if forward else block.previous()
         offset = -1 if forward else sys.maxsize
@@ -337,6 +337,12 @@ entity_pat = re.compile(r'&(#{0,1}[a-zA-Z0-9]{1,8});$')
 
 
 class Smarts(NullSmarts):
+    regexps_compiled: bool
+    tag_pat: re.Pattern[str]
+    closing_tag_pat: re.Pattern[str]
+    closing_pat: re.Pattern[str]
+    self_closing_pat: re.Pattern[str]
+    complete_attr_pat: re.Pattern[str]
 
     def __init__(self, *args, **kwargs):
         if not hasattr(Smarts, 'regexps_compiled'):

@@ -441,7 +441,7 @@ class LiveCSS(QWidget):
 
         self.box = box = Box(self)
         box.hyperlink_activated.connect(self.goto_declaration, type=Qt.ConnectionType.QueuedConnection)
-        self.scroll = sc = QScrollArea(self)
+        sc = QScrollArea(self)
         sc.setWidget(box)
         sc.setWidgetResizable(True)
         s.addWidget(sc)
@@ -516,6 +516,7 @@ class LiveCSS(QWidget):
         selector = rule['selector']
         sheet_index = rule['sheet_index']
         rule_address = rule['rule_address'] or ()
+        specificity: list[object]
         if selector is not None:
             try:
                 specificity = [0] + list(parse(selector)[0].specificity())

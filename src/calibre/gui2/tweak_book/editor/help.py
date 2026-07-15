@@ -122,13 +122,13 @@ def write_tag_help():
     for category in ('HTML', 'SVG', 'MathML', 'CSS'):
         data = get_mdn_tag_index(category)
         with open(P(base % category.lower()), 'wb') as f:
-            f.write(dump(data))
+            f.write(dump(data).encode())
 
     with open(P(base % 'opf2'), 'wb') as f:
-        f.write(dump(get_opf2_tag_index()))
+        f.write(dump(get_opf2_tag_index()).encode())
 
     with open(P(base % 'opf3'), 'wb') as f:
-        f.write(dump(get_opf3_tag_index()))
+        f.write(dump(get_opf3_tag_index()).encode())
 
 
 if __name__ == '__main__':

@@ -76,9 +76,9 @@ class CheckExternalLinks(Dialog):
         pb.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
         pb.setRange(0, 0)
         self.w = w = QWidget(self)
-        self.w.l = l = QVBoxLayout(w)
+        l = QVBoxLayout(w)
         l.addStretch(), l.addWidget(pb)
-        self.w.la = la = QLabel(_('Checking external links, please wait...'))
+        la = QLabel(_('Checking external links, please wait...'))
         la.setStyleSheet('QLabel { font-size: 20px; font-weight: bold }')
         l.addWidget(la, 0, Qt.AlignmentFlag.AlignCenter), l.addStretch()
 

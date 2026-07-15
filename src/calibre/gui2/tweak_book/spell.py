@@ -345,7 +345,7 @@ class ManageUserDictionaries(Dialog):
         self.add_word_button = b = QPushButton(_('&Add word'), self)
         b.clicked.connect(self.add_word)
         b.setIcon(QIcon.ic('plus.png'))
-        l.h = h = QHBoxLayout()
+        h = QHBoxLayout()
         l.addLayout(h)
         h.addWidget(b)
         self.remove_word_button = b = QPushButton(_('&Remove selected words'), self)
@@ -445,20 +445,20 @@ class ManageUserDictionaries(Dialog):
 
     def add_word(self):
         d = QDialog(self)
-        d.l = l = QFormLayout(d)
+        l = QFormLayout(d)
         d.setWindowTitle(_('Add a word'))
-        d.w = w = QLineEdit(d)
+        w = QLineEdit(d)
         w.setPlaceholderText(_('Word to add'))
         l.addRow(_('&Word:'), w)
-        d.loc = loc = LanguagesEdit(parent=d)
-        l.addRow(_('&Language:'), d.loc)
+        loc = LanguagesEdit(parent=d)
+        l.addRow(_('&Language:'), loc)
         loc.lang_codes = [canonicalize_lang(get_lang())]
-        d.bb = bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok|QDialogButtonBox.StandardButton.Cancel)
+        bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok|QDialogButtonBox.StandardButton.Cancel)
         bb.accepted.connect(d.accept), bb.rejected.connect(d.reject)
         l.addRow(bb)
         if d.exec() != QDialog.DialogCode.Accepted:
             return
-        d.loc.update_recently_used()
+        loc.update_recently_used()
         word = str(w.text())
         lang = (loc.lang_codes or [canonicalize_lang(get_lang())])[0]
         if not word:
@@ -474,23 +474,23 @@ class ManageUserDictionaries(Dialog):
 
     def import_words(self):
         d = QDialog(self)
-        d.l = l = QFormLayout(d)
+        l = QFormLayout(d)
         d.setWindowTitle(_('Import list of words'))
-        d.w = w = QPlainTextEdit(d)
+        w = QPlainTextEdit(d)
         l.addRow(QLabel(_('Enter a list of words, one per line')))
         l.addRow(w)
-        d.b = b = QPushButton(_('Paste from clipboard'))
+        b = QPushButton(_('Paste from clipboard'))
         l.addRow(b)
         b.clicked.connect(w.paste)
-        d.la = la = QLabel(_('Words in the user dictionary must have an associated language. Choose the language below:'))
+        la = QLabel(_('Words in the user dictionary must have an associated language. Choose the language below:'))
         la.setWordWrap(True)
         l.addRow(la)
-        d.le = le = LanguagesEdit(d)
+        le = LanguagesEdit(d)
         lc = canonicalize_lang(get_lang())
         if lc:
             le.lang_codes = [lc]
         l.addRow(_('&Language:'), le)
-        d.bb = bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok|QDialogButtonBox.StandardButton.Cancel)
+        bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok|QDialogButtonBox.StandardButton.Cancel)
         l.addRow(bb)
         bb.accepted.connect(d.accept), bb.rejected.connect(d.reject)
 
@@ -1212,11 +1212,11 @@ class SpellCheck(Dialog):
 
         self.progress = p = QWidget(self)
         s.addWidget(p)
-        p.l = l = QVBoxLayout(p)
+        l = QVBoxLayout(p)
         l.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.progress_indicator = pi = ProgressIndicator(self, 256)
         l.addWidget(pi, alignment=Qt.AlignmentFlag.AlignHCenter), l.addSpacing(10)
-        p.la = la = QLabel(_('Checking, please wait...'))
+        la = QLabel(_('Checking, please wait...'))
         la.setStyleSheet('QLabel { font-size: 30pt; font-weight: bold }')
         l.addWidget(la, alignment=Qt.AlignmentFlag.AlignHCenter)
 
@@ -1252,7 +1252,7 @@ class SpellCheck(Dialog):
         self.snake_case = hw('snake-case', _('sna&ke_case'), _('Hide words in snake_case'))
         h.addStretch(10)
 
-        m.h2 = h = QHBoxLayout()
+        h = QHBoxLayout()
         l.addLayout(h)
         self.words_view = w = WordsView(m)
         set_no_activate_on_click(w)
@@ -1277,18 +1277,20 @@ class SpellCheck(Dialog):
             w.sortByColumn(hh.sortIndicatorSection(), hh.sortIndicatorOrder())
 
         self.ignore_button = b = QPushButton(_('&Ignore'))
-        b.ign_text, b.unign_text = str(b.text()), _('Un&ignore')
-        b.ign_tt = _('Ignore the current word for the rest of this session')
-        b.unign_tt = _('Stop ignoring the current word')
+        setattr(b, 'ign_text', str(b.text()))
+        setattr(b, 'unign_text', _('Un&ignore'))
+        setattr(b, 'ign_tt', _('Ignore the current word for the rest of this session'))
+        setattr(b, 'unign_tt', _('Stop ignoring the current word'))
         b.clicked.connect(self.toggle_ignore)
         l = QVBoxLayout()
         h.addLayout(l)
         h.setStretch(0, 1)
         l.addWidget(b), l.addSpacing(20)
         self.add_button = b = QPushButton(_('Add word to &dictionary:'))
-        b.add_text, b.remove_text = str(b.text()), _('Remove from &dictionaries')
-        b.add_tt = _('Add the current word to the specified user dictionary')
-        b.remove_tt = _('Remove the current word from all active user dictionaries')
+        setattr(b, 'add_text', str(b.text()))
+        setattr(b, 'remove_text', _('Remove from &dictionaries'))
+        setattr(b, 'add_tt', _('Add the current word to the specified user dictionary'))
+        setattr(b, 'remove_tt', _('Remove the current word from all active user dictionaries'))
         b.clicked.connect(self.add_remove)
         self.user_dictionaries = d = QComboBox(self)
         self.user_dictionaries_missing_label = la = QLabel(_(
@@ -1317,7 +1319,7 @@ class SpellCheck(Dialog):
         self.suggested_list = sl = SuggestedList(self)
         sl.currentItemChanged.connect(self.current_suggestion_changed)
         sl.itemActivated.connect(self.change_word)
-        set_no_activate_on_click(sl)  # type: ignore
+        set_no_activate_on_click(sl)
         l.addWidget(sl)
 
         hh.setSectionHidden(3, self.show_only_misspelt.isChecked())
@@ -1484,14 +1486,14 @@ class SpellCheck(Dialog):
             if not word_suggested:
                 self.suggested_word.setText(current_word)
 
-        prefix = b.unign_text if ignored else b.ign_text
+        prefix = getattr(b, 'unign_text') if ignored else getattr(b, 'ign_text')
         b.setText(prefix + ' ' + current_word)
-        b.setToolTip(b.unign_tt if ignored else b.ign_tt)
+        b.setToolTip(getattr(b, 'unign_tt') if ignored else getattr(b, 'ign_tt'))
         b.setEnabled(current.isValid() and (ignored or not recognized))
         if not self.user_dictionaries_missing_label.isVisible():
             b = self.add_button
-            b.setText(b.remove_text if in_user_dictionary else b.add_text)
-            b.setToolTip(b.remove_tt if in_user_dictionary else b.add_tt)
+            b.setText(getattr(b, 'remove_text') if in_user_dictionary else getattr(b, 'add_text'))
+            b.setToolTip(getattr(b, 'remove_tt') if in_user_dictionary else getattr(b, 'add_tt'))
             self.user_dictionaries.setVisible(not in_user_dictionary)
 
     def current_suggestion_changed(self, item):

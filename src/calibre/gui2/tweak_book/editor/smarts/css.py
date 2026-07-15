@@ -41,6 +41,8 @@ def find_rule(raw, rule_address):
 
 
 class Smarts(NullSmarts):
+    regexps_compiled: bool
+    complete_attr_pat: re.Pattern[str]
 
     def __init__(self, *args, **kwargs):
         if not hasattr(Smarts, 'regexps_compiled'):

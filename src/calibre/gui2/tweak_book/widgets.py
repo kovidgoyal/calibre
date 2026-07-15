@@ -767,12 +767,12 @@ class NamesModel(QAbstractListModel):
 
 def create_filterable_names_list(names, filter_text=None, parent=None, model=NamesModel):
     nl = QListView(parent)
-    nl.m = m = model(names, parent=nl)
+    m = model(names, parent=nl)
     connect_lambda(m.filtered, nl, lambda nl, all_items: nl.scrollTo(m.index(0)))
     nl.setModel(m)
     if model is NamesModel:
-        nl.d = NamesDelegate(nl)
-        nl.setItemDelegate(nl.d)
+        d = NamesDelegate(nl)
+        nl.setItemDelegate(d)
     f = QLineEdit(parent)
     f.setPlaceholderText(filter_text or '')
     f.textEdited.connect(m.filter)
@@ -1198,13 +1198,19 @@ class InsertSemantics(Dialog):  # {{{
         d = cls(c)
         if d.exec() == QDialog.DialogCode.Accepted:
             import pprint
-            pprint.pprint(d.changed_type_map)
+            pprint.pprint(d.changes)
             d.apply_changes(d.container)
 
 # }}}
 
 
 class FilterCSS(Dialog):  # {{{
+
+    opt_fonts: QCheckBox
+    opt_margins: QCheckBox
+    opt_padding: QCheckBox
+    opt_floats: QCheckBox
+    opt_colors: QCheckBox
 
     def __init__(self, current_name=None, parent=None):
         self.current_name = current_name

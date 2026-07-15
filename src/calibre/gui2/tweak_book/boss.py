@@ -115,8 +115,12 @@ def in_thread_job(func):
     return ans
 
 
-def get_boss():
-    return get_boss.boss
+_boss: Boss | None = None
+
+
+def get_boss() -> Boss:
+    assert _boss is not None
+    return _boss
 
 
 def open_path_in_new_editor_instance(path: str):
@@ -148,7 +152,8 @@ class Boss(QObject):
         self.doing_terminal_save = False
         self.ignore_preview_to_editor_sync = False
         setup_css_parser_serialization()
-        get_boss.boss = self
+        global _boss
+        _boss = self
         self.gui = parent
         completion_worker().result_callback = self.handle_completion_result_signal.emit
         self.handle_completion_result_signal.connect(self.handle_completion_result, Qt.ConnectionType.QueuedConnection)
@@ -939,15 +944,15 @@ class Boss(QObject):
         k = QVBoxLayout(d)
         d.setWindowTitle(title)
         k.addWidget(QLabel(msg))
-        k.confirm = cb = QCheckBox(_('Show this popup again'))
+        cb = QCheckBox(_('Show this popup again'))
         k.addWidget(cb)
         cb.setChecked(True)
         connect_lambda(cb.toggled, d, lambda d, checked: tprefs.set('skip_ask_to_show_current_diff_for_' + name, not checked))
-        d.bb = bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Close, d)
+        bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Close, d)
         k.addWidget(bb)
         bb.accepted.connect(d.accept)
         bb.rejected.connect(d.reject)
-        d.b = b = bb.addButton(_('See what &changed'), QDialogButtonBox.ButtonRole.AcceptRole)
+        b = bb.addButton(_('See what &changed'), QDialogButtonBox.ButtonRole.AcceptRole)
         assert b is not None
         b.setIcon(QIcon.ic('diff.png')), b.setAutoDefault(False)
         close_btn = bb.button(QDialogButtonBox.StandardButton.Close)
@@ -1146,9 +1151,12 @@ class Boss(QObject):
             return
         ret = run_search(searches, action, ed, name, searchable_names,
                    self.gui, self.show_editor, self.edit_file, self.show_current_diff, self.add_savepoint, self.rewind_savepoint, self.set_modified)
-        ed = ret is True and self.gui.central.current_editor
-        if getattr(ed, 'has_line_numbers', False):
-            ed.editor.setFocus(Qt.FocusReason.OtherFocusReason)
+        if ret is True:
+            ed = self.gui.central.current_editor
+            if getattr(ed, 'has_line_numbers', False):
+                getattr(ed, 'editor').setFocus(Qt.FocusReason.OtherFocusReason)
+            else:
+                self.gui.saved_searches.setFocus(Qt.FocusReason.OtherFocusReason)
         else:
             self.gui.saved_searches.setFocus(Qt.FocusReason.OtherFocusReason)
 
@@ -1168,9 +1176,12 @@ class Boss(QObject):
 
         ret = run_search(state, action, ed, name, searchable_names,
                    self.gui, self.show_editor, self.edit_file, self.show_current_diff, self.add_savepoint, self.rewind_savepoint, self.set_modified)
-        ed = ret is True and self.gui.central.current_editor
-        if getattr(ed, 'has_line_numbers', False):
-            ed.editor.setFocus(Qt.FocusReason.OtherFocusReason)
+        if ret is True:
+            ed = self.gui.central.current_editor
+            if getattr(ed, 'has_line_numbers', False):
+                getattr(ed, 'editor').setFocus(Qt.FocusReason.OtherFocusReason)
+            else:
+                self.gui.saved_searches.setFocus(Qt.FocusReason.OtherFocusReason)
         else:
             self.gui.saved_searches.setFocus(Qt.FocusReason.OtherFocusReason)
 
@@ -1182,9 +1193,10 @@ class Boss(QObject):
         if not validate_search_request(name, searchable_names, getattr(ed, 'has_marked_text', False), state, self.gui):
             return
         ret = run_text_search(state, ed, name, searchable_names, self.gui, self.show_editor, self.edit_file)
-        ed = ret is True and self.gui.central.current_editor
-        if getattr(ed, 'has_line_numbers', False):
-            ed.editor.setFocus(Qt.FocusReason.OtherFocusReason)
+        if ret is True:
+            ed = self.gui.central.current_editor
+            if getattr(ed, 'has_line_numbers', False):
+                getattr(ed, 'editor').setFocus(Qt.FocusReason.OtherFocusReason)
 
     def find_initial_text(self, text):
         from calibre.gui2.tweak_book.search import get_search_regex
@@ -1703,7 +1715,7 @@ class Boss(QObject):
                 if d.exec() != QDialog.DialogCode.Accepted:
                     self.rewind_savepoint()
                     return
-                changed, report = d.result
+                changed, report = d.compress_result
                 if changed is None and report:
                     self.rewind_savepoint()
                     return error_dialog(self.gui, _('Unexpected error'), _(
@@ -2000,36 +2012,36 @@ class Boss(QObject):
     def confirm_quit(self):
         if self.gui.action_save.isEnabled():
             d = QDialog(self.gui)
-            d.l = QGridLayout(d)
-            d.setLayout(d.l)
+            l = QGridLayout(d)
+            d.setLayout(l)
             d.setWindowTitle(_('Unsaved changes'))
-            d.i = QLabel('')
-            d.i.setMaximumSize(QSize(64, 64))
-            d.i.setPixmap(QIcon.ic('dialog_warning.png').pixmap(d.i.maximumSize()))
-            d.l.addWidget(d.i, 0, 0)
-            d.m = QLabel(_('There are unsaved changes, if you quit without saving, you will lose them.'))
-            d.m.setWordWrap(True)
-            d.l.addWidget(d.m, 0, 1)
-            d.bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Cancel)
-            d.bb.rejected.connect(d.reject)
-            d.bb.accepted.connect(d.accept)
-            d.l.addWidget(d.bb, 1, 0, 1, 2)
-            d.do_save = None
+            i = QLabel('')
+            i.setMaximumSize(QSize(64, 64))
+            i.setPixmap(QIcon.ic('dialog_warning.png').pixmap(i.maximumSize()))
+            l.addWidget(i, 0, 0)
+            m = QLabel(_('There are unsaved changes, if you quit without saving, you will lose them.'))
+            m.setWordWrap(True)
+            l.addWidget(m, 0, 1)
+            bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Cancel)
+            bb.rejected.connect(d.reject)
+            bb.accepted.connect(d.accept)
+            l.addWidget(bb, 1, 0, 1, 2)
+            do_save: list[bool | None] = [None]
 
-            def endit(d, x):
-                d.do_save = x
+            def endit(x):
+                do_save[0] = x
                 d.accept()
-            b = d.bb.addButton(_('&Save and Quit'), QDialogButtonBox.ButtonRole.ActionRole)
+            b = bb.addButton(_('&Save and Quit'), QDialogButtonBox.ButtonRole.ActionRole)
             assert b is not None
             b.setIcon(QIcon.ic('save.png'))
-            connect_lambda(b.clicked, d, lambda d: endit(d, True))
-            b = d.bb.addButton(_('&Quit without saving'), QDialogButtonBox.ButtonRole.ActionRole)
+            b.clicked.connect(lambda: endit(True))
+            b = bb.addButton(_('&Quit without saving'), QDialogButtonBox.ButtonRole.ActionRole)
             assert b is not None
-            connect_lambda(b.clicked, d, lambda d: endit(d, False))
+            b.clicked.connect(lambda: endit(False))
             d.resize(d.sizeHint())
-            if d.exec() != QDialog.DialogCode.Accepted or d.do_save is None:
+            if d.exec() != QDialog.DialogCode.Accepted or do_save[0] is None:
                 return False
-            if d.do_save:
+            if do_save[0]:
                 self.gui.action_save.trigger()
                 self.start_terminal_save_indicator()
                 return False

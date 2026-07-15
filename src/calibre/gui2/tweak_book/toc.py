@@ -145,6 +145,7 @@ FRAG_ROLE = DEST_ROLE + 1
 class Delegate(QStyledItemDelegate):
 
     def sizeHint(self, option=None, index=None):
+        assert option is not None and index is not None
         ans = QStyledItemDelegate.sizeHint(self, option, index)
         return ans + QSize(0, 10)
 
@@ -213,7 +214,7 @@ class TOCViewer(QWidget):
 
     def iter_items(self, parent=None):
         if parent is None:
-            parent = self.invisibleRootItem()
+            parent = self.view.invisibleRootItem()
         for i in range(parent.childCount()):
             child = parent.child(i)
             yield child

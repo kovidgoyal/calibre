@@ -112,44 +112,45 @@ def get_bulk_rename_settings(parent, number, msg=None, sanitize=sanitize_file_na
         leading_zeros=True, prefix=None, category='text', allow_spine_order=False):  # {{{
     d = QDialog(parent)
     d.setWindowTitle(_('Bulk rename items'))
-    d.l = l = QFormLayout(d)
+    l = QFormLayout(d)
     d.setLayout(l)
-    d.prefix = p = QLineEdit(d)
+    p = QLineEdit(d)
     default_prefix = {k:v for k, __, v in category_defs()}.get(category, _('Chapter-'))
     previous = tprefs.get('file-list-bulk-rename-prefix', {})
     prefix = prefix or previous.get(category, default_prefix)
     p.setText(prefix)
     p.selectAll()
-    d.la = la = QLabel(msg or _(
+    la = QLabel(msg or _(
         'All selected files will be renamed to the form prefix-number'))
     l.addRow(la)
     l.addRow(_('&Prefix:'), p)
-    d.num = num = QSpinBox(d)
-    num.setMinimum(0), num.setValue(1), num.setMaximum(10000)
-    l.addRow(_('Starting &number:'), num)
+    spinbox = QSpinBox(d)
+    spinbox.setMinimum(0), spinbox.setValue(1), spinbox.setMaximum(10000)
+    l.addRow(_('Starting &number:'), spinbox)
+    spine_order_cb = None
     if allow_spine_order:
-        d.spine_order = QCheckBox(_('Rename files according to their book order'))
-        d.spine_order.setToolTip(textwrap.fill(_(
+        spine_order_cb = QCheckBox(_('Rename files according to their book order'))
+        spine_order_cb.setToolTip(textwrap.fill(_(
             'Rename the selected files according to the order they appear in the book, instead of the order they were selected in.')))
-        l.addRow(d.spine_order)
-    d.bb = bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)
+        l.addRow(spine_order_cb)
+    bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)
     bb.accepted.connect(d.accept), bb.rejected.connect(d.reject)
     l.addRow(bb)
     ans = {'prefix': None, 'start': None}
 
     if d.exec() == QDialog.DialogCode.Accepted:
-        prefix = sanitize(str(d.prefix.text()))
+        prefix = sanitize(str(p.text()))
         previous[category] = prefix
         tprefs.set('file-list-bulk-rename-prefix', previous)
-        num = d.num.value()
+        num = spinbox.value()
         fmt = '%d'
         if leading_zeros:
             largest = num + number - 1
             fmt = f'%0{len(str(largest))}d'
         ans['prefix'] = prefix + fmt
         ans['start'] = num
-        if allow_spine_order:
-            ans['spine_order'] = d.spine_order.isChecked()
+        if allow_spine_order and spine_order_cb is not None:
+            ans['spine_order'] = spine_order_cb.isChecked()
     return ans
 # }}}
 
@@ -717,7 +718,7 @@ class FileList(QTreeWidget, OpenWithHandler):
         m = QMenu(self)
         cn = str(item.data(0, NAME_ROLE) or '')
         if cn:
-            name = item.data(0, Qt.DisplayRole)
+            name = item.data(0, Qt.ItemDataRole.DisplayRole)
             m.addAction(_('Select all {} files').format(name), partial(self.select_all_in_category, cn))
             m.addAction(_('De-select all {} files').format(name), partial(self.deselect_all_in_category, cn))
         return m
@@ -1150,14 +1151,14 @@ class FileList(QTreeWidget, OpenWithHandler):
                 'This book currently has no stylesheets. You must first create a stylesheet'
                 ' before linking it.'), show=True)
         d = QDialog(self)
-        d.l = l = QVBoxLayout(d)
+        l = QVBoxLayout(d)
         d.setLayout(l)
         d.setWindowTitle(_('Choose stylesheets'))
-        d.la = la = QLabel(_('Choose the stylesheets to link. Drag and drop to re-arrange'))
+        la = QLabel(_('Choose the stylesheets to link. Drag and drop to re-arrange'))
 
         la.setWordWrap(True)
         l.addWidget(la)
-        d.s = s = QListWidget(d)
+        s = QListWidget(d)
         l.addWidget(s)
         s.setDragEnabled(True)
         s.setDropIndicatorShown(True)
@@ -1169,10 +1170,10 @@ class FileList(QTreeWidget, OpenWithHandler):
             flags = Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsUserCheckable | Qt.ItemFlag.ItemIsDragEnabled | Qt.ItemFlag.ItemIsSelectable
             i.setFlags(flags)
             i.setCheckState(Qt.CheckState.Checked)
-        d.r = r = QCheckBox(_('Remove existing links to stylesheets'))
+        r = QCheckBox(_('Remove existing links to stylesheets'))
         r.setChecked(tprefs['remove_existing_links_when_linking_sheets'])
         l.addWidget(r)
-        d.bb = bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)
+        bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)
         bb.accepted.connect(d.accept), bb.rejected.connect(d.reject)
         l.addWidget(bb)
         if d.exec() == QDialog.DialogCode.Accepted:
@@ -1301,13 +1302,13 @@ class MergeDialog(QDialog):  # {{{
         bb.accepted.connect(self.accept)
         bb.rejected.connect(self.reject)
         self.w = w = QWidget(self)
-        w.l = QVBoxLayout()
-        w.setLayout(w.l)
+        wl = QVBoxLayout()
+        w.setLayout(wl)
 
         buttons = self.buttons = [QRadioButton(n) for n in names]
         buttons[0].setChecked(True)
         for i in buttons:
-            w.l.addWidget(i)
+            wl.addWidget(i)
         sa.setWidget(w)
 
         self.resize(self.sizeHint() + QSize(150, 20))
@@ -1360,4 +1361,4 @@ class FileListWidget(QWidget):
     def __getattr__(self, name):
         if name in object.__getattribute__(self, 'forwarded_signals'):
             return getattr(self.file_list, name)
-        return QWidget.__getattr__(self, name)
+        raise AttributeError(name)

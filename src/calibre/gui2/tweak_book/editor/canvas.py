@@ -80,6 +80,9 @@ class Command(QUndoCommand):
 
     TEXT = ''
 
+    def __call__(self, canvas):
+        raise NotImplementedError()
+
     def __init__(self, canvas):
         QUndoCommand.__init__(self, self.TEXT)
         self.canvas_ref = weakref.ref(canvas)
@@ -275,7 +278,7 @@ class Canvas(QWidget):
                 # Local image
                 self.undo_stack.push(Replace(x.toImage(), _('Drop image'), self))
             else:
-                d = DownloadDialog(x, y, self.gui)
+                d = DownloadDialog(x, y, self)
                 d.start_download()
                 if d.err is None:
                     with open(d.fpath, 'rb') as f:
@@ -364,6 +367,7 @@ class Canvas(QWidget):
         clipboard = QApplication.clipboard()
         assert clipboard is not None
         if not self.has_selection or self.selection_state.rect is None:
+            assert self.current_image is not None
             clipboard.setImage(self.current_image)
         else:
             trim = Trim(self)
@@ -464,11 +468,10 @@ class Canvas(QWidget):
     def get_drag_rect(self):
         sr = self.selection_state.rect
         dc = self.selection_state.drag_corner
-        if None in (sr, dc):
+        if sr is None or dc is None:
             return
-        assert sr is not None
         dx, dy = self.dc_size
-        if None in dc:
+        if dc[0] is None or dc[1] is None:
             # An edge
             if dc[0] is None:
                 top = sr.top() if dc[1] == 'top' else sr.bottom() - dy
@@ -724,6 +727,7 @@ class Canvas(QWidget):
             self.last_canvas_size = canvas_size
             self.current_scaled_pixmap = None
         if self.current_scaled_pixmap is None:
+            assert self.last_canvas_size is not None
             pwidth, pheight = self.last_canvas_size
             i = self.current_image
             assert i is not None
@@ -747,6 +751,7 @@ class Canvas(QWidget):
         except AttributeError:
             dpr = self.devicePixelRatio()
         width, height = int(p.width()/dpr), int(p.height()/dpr)
+        assert self.last_canvas_size is not None
         pwidth, pheight = self.last_canvas_size
         x = int(abs(pwidth - width)/2.)
         y = int(abs(pheight - height)/2.)
