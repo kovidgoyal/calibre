@@ -797,6 +797,8 @@ class ScrollingTabWidget(QTabWidget):
         return w.widget()
 
     def addTab(self, widget, a1=None, *args, **kwargs):
+        if a1 is not None:
+            return QTabWidget.addTab(self, self.wrap_widget(widget), a1, *args)
         return QTabWidget.addTab(self, self.wrap_widget(widget), *args)
 
 
