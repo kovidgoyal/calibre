@@ -47,6 +47,7 @@ from calibre.utils.localization import _
 ICON_SIZE = 32
 PREFERENCE_BUTTON_WIDTH = 112
 PREFERENCE_BUTTON_TEXT_PADDING = 12
+PREFERENCE_CATEGORY_VERTICAL_SHIFT = 4
 
 
 def wrap_preference_button_text(text, max_width=0, font_metrics=None):
@@ -143,6 +144,11 @@ class TitleBar(QWidget):
 
 class SectionSeparator(QWidget):
 
+    def __init__(self, parent=None):
+        QWidget.__init__(self, parent)
+        self.setFixedHeight(1)
+        self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
+
     def sizeHint(self):
         return QSize(1, 1)
 
@@ -159,6 +165,9 @@ class Category(QWidget):  # {{{
         QWidget.__init__(self, parent)
         self._layout = QVBoxLayout()
         self.setLayout(self._layout)
+        margins = self._layout.contentsMargins()
+        self._layout.setContentsMargins(
+            margins.left(), margins.top(), margins.right(), max(0, margins.bottom() - PREFERENCE_CATEGORY_VERTICAL_SHIFT))
         if add_separator:
             self._layout.addWidget(SectionSeparator(self))
         self.label = QLabel(gui_name)
@@ -173,7 +182,7 @@ class Category(QWidget):  # {{{
         self.bar = QWidget(self)
         self.bar.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred)
         self.bar_layout = QHBoxLayout(self.bar)
-        self.bar_layout.setContentsMargins(0, 0, 0, 0)
+        self.bar_layout.setContentsMargins(0, PREFERENCE_CATEGORY_VERTICAL_SHIFT, 0, 0)
         self.bar_layout.setSpacing(0)
         self._layout.addWidget(self.bar)
         self._actions = []
@@ -215,7 +224,7 @@ class Category(QWidget):  # {{{
             return
         # Keep every category on the same grid; empty columns remain blank instead of creating overflow buttons.
         available = self.bar.contentsRect().width() if available_width is None else available_width
-        width = PREFERENCE_BUTTON_WIDTH if available <= 0 else max(1, available // self.columns)
+        width = PREFERENCE_BUTTON_WIDTH if available_width is None and available <= 0 else max(1, available // self.columns)
         for button, button_text in self.buttons:
             button.setFixedWidth(width)
             button.setText(wrap_preference_button_text(
