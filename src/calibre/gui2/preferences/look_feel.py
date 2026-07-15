@@ -36,16 +36,19 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
     def initial_tab_changed(self):
         self.sections_view.setCurrentRow(self.tabWidget.currentIndex())
 
+    def _restore_widget_defaults(self, widget):
+        if hasattr(widget, 'restore_defaults'):
+            widget.restore_defaults()
+        elif isinstance(widget, QTabWidget):
+            for i in range(widget.count()):
+                sw = widget.widget(i)
+                if sw is not None and hasattr(sw, 'restore_defaults'):
+                    sw.restore_defaults()
+
     def restore_defaults(self, *args):
         ConfigWidgetBase.restore_defaults(self)
         for w in self.tabWidget.all_widgets:
-            if hasattr(w, 'restore_defaults'):
-                w.restore_defaults()
-            elif isinstance(w, QTabWidget):
-                for i in range(w.count()):
-                    sw = w.widget(i)
-                    if sw is not None and hasattr(sw, 'restore_defaults'):
-                        sw.restore_defaults()
+            self._restore_widget_defaults(w)
         self.changed_signal.emit()
 
     def refresh_gui(self, gui):
@@ -63,13 +66,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             pos = self.sections_view.mapToGlobal(pos)
             can_restore = hasattr(widget, 'restore_defaults') or isinstance(widget, QTabWidget)
             if can_restore and menu.exec(pos):  # type: ignore
-                if hasattr(widget, 'restore_defaults'):
-                    widget.restore_defaults()
-                else:
-                    for i in range(widget.count()):
-                        sw = widget.widget(i)
-                        if sw is not None and hasattr(sw, 'restore_defaults'):
-                            sw.restore_defaults()
+                self._restore_widget_defaults(widget)
                 self.changed_signal.emit()
 
 
