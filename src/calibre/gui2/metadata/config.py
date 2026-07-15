@@ -112,6 +112,7 @@ class ConfigWidget(QWidget):
                 widget.addItem(label, (key))
             idx = widget.findData(val)
             widget.setCurrentIndex(idx)
+        setattr(widget, 'opt', opt)
         widget.setToolTip(textwrap.fill(opt.desc))
         self.widgets.append(widget)
         r = self.l.rowCount()
