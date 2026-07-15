@@ -32,6 +32,7 @@ jobs:
                   python setup/unix-ci.py install
 
             - name: Bootstrap calibre
+              timeout-minutes: 20
               run:
                   python setup/unix-ci.py bootstrap
 
