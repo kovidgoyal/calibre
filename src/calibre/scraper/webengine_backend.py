@@ -11,6 +11,8 @@ from collections import deque
 from contextlib import suppress
 from http import HTTPStatus
 from time import monotonic
+from types import TracebackType
+from typing import Any
 
 from qt.core import QApplication, QByteArray, QNetworkCookie, QObject, Qt, QTimer, QUrl, pyqtSignal, sip
 from qt.webengine import QWebEnginePage, QWebEngineProfile, QWebEngineScript, QWebEngineSettings
@@ -95,9 +97,11 @@ class Worker(QWebEnginePage):
     working_on_request: DownloadRequest | None = None
     messages_dispatch = pyqtSignal(object)
     result_received = pyqtSignal(object)
+    token: str
 
-    def __init__(self, profile, parent):
+    def __init__(self, profile, parent: FetchBackend):
         super().__init__(profile, parent)
+        self._parent = parent
         self.messages_dispatch.connect(self.on_messages)
 
     def javaScriptAlert(self, securityOrigin, msg):
@@ -136,7 +140,7 @@ class Worker(QWebEnginePage):
         <html><head></head></body><div id="payload">{html.escape(payload)}</div></body></html>
         '''
         self.setContent(content.encode(), 'text/html;charset=utf-8', QUrl(req['url']))
-        self.working_on_request = DownloadRequest(req['url'], os.path.join(output_dir, filename), req['timeout'], req['id'], self.parent())
+        self.working_on_request = DownloadRequest(req['url'], os.path.join(output_dir, filename), req['timeout'], req['id'], self._parent)
         return self.working_on_request
 
     def abort_on_timeout(self) -> None:
@@ -177,7 +181,9 @@ class FetchBackend(QObject):
     set_user_agent_signal = pyqtSignal(str)
     download_finished = pyqtSignal(object)
 
-    def __init__(self, output_dir: str = '', cache_name: str = '', parent: QObject = None, user_agent: str = '', verify_ssl_certificates: bool = True) -> None:
+    def __init__(
+            self, output_dir: str = '', cache_name: str = '',
+            parent: QObject | None = None, user_agent: str = '', verify_ssl_certificates: bool = True) -> None:
         profile = create_base_profile(cache_name)
         self.token = secrets.token_hex()
         js = P('scraper.js', allow_user_override=False, data=True).decode('utf-8').replace('TOKEN', self.token)
@@ -199,7 +205,7 @@ class FetchBackend(QObject):
         t.setInterval(50)
         t.timeout.connect(self.enforce_timeouts)
 
-    def excepthook(self, cls: type, exc: Exception, tb) -> None:
+    def excepthook(self, cls: type[BaseException], exc: BaseException, tb: TracebackType | None) -> Any:
         if not isinstance(exc, KeyboardInterrupt):
             sys.__excepthook__(cls, exc, tb)
         app = QApplication.instance()
