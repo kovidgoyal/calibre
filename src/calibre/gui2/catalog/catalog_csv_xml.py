@@ -116,7 +116,7 @@ class PluginWidget(QWidget):
         self.name = catalog_name
         from calibre.library.catalogs import FIELDS
         db = get_gui(fail_if_absent=True).current_db
-        self.all_fields = {x for x in FIELDS if x != 'all'} | set(db.custom_field_keys())
+        self.all_fields = {x for x in FIELDS if x != 'all'} | set(db.field_metadata.custom_field_keys())
         sort_order, fields = get_saved_field_data(self.name, self.all_fields)
         fm = db.field_metadata
 

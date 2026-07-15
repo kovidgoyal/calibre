@@ -81,6 +81,7 @@ class PluginWidget(QWidget, Ui_Form):
         gprefs.set(self.name+'_db_fields', fields)
 
         # Dictionary currently activated fields
+        opts_dict: dict[str, list[str] | int | bool | str]
         if len(self.db_fields.selectedItems()):
             opts_dict = {'fields':[str(i.text()) for i in self.db_fields.selectedItems()]}
         else:

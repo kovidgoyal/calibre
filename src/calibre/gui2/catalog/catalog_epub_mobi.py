@@ -8,6 +8,7 @@ __docformat__ = 'restructuredtext en'
 import re
 import sys
 from functools import partial
+from typing import ClassVar, TypedDict
 
 from qt.core import (
     QAbstractItemView,
@@ -87,7 +88,8 @@ class PluginWidget(QWidget, Ui_Form):
             elif type(self.__dict__[item]) is QTextEdit:
                 TextEditControls.append(self.__dict__[item].objectName())
 
-        option_fields = list(zip(CheckBoxControls,
+        option_fields: list[tuple[str, bool | None | str | int | float | dict[str, int | str], str]] = list(zip(
+                            CheckBoxControls,
                             [True for i in CheckBoxControls],
                             ['check_box' for i in CheckBoxControls]))
         option_fields += list(zip(ComboBoxControls,
@@ -252,7 +254,7 @@ class PluginWidget(QWidget, Ui_Form):
     def exclude_genre_reset(self):
         for default in self.OPTION_FIELDS:
             if default[0] == 'exclude_genre':
-                self.exclude_genre.setText(default[1])
+                self.exclude_genre.setText(str(default[1]))
                 break
 
     def fetch_eligible_custom_fields(self):
@@ -363,7 +365,7 @@ class PluginWidget(QWidget, Ui_Form):
                     index = getattr(self, c_name).findText(opt_value)
                     if index == -1:
                         if c_name == 'read_source_field':
-                            index = self.read_source_field.findText(_('Tags'))
+                            index = getattr(self, c_name).findText(_('Tags'))
                         elif c_name == 'genre_source_field':
                             index = self.genre_source_field.findText(_('Tags'))
                 getattr(self, c_name).setCurrentIndex(index)
@@ -666,7 +668,7 @@ class PluginWidget(QWidget, Ui_Form):
                     index = getattr(self, c_name).findText(opt_value)
                     if index == -1:
                         if c_name == 'read_source_field':
-                            index = self.read_source_field.findText(_('Tags'))
+                            index = getattr(self, c_name).findText(_('Tags'))
                         elif c_name == 'genre_source_field':
                             index = self.genre_source_field.findText(_('Tags'))
                 getattr(self, c_name).setCurrentIndex(index)
@@ -732,7 +734,7 @@ class PluginWidget(QWidget, Ui_Form):
         names = ['']
         names.extend(self.preset_field_values)
         try:
-            dex = names.index(self.preset_search_name)
+            dex = names.index(getattr(self, 'preset_search_name', ''))
         except Exception:
             dex = 0
         name = ''
@@ -857,7 +859,7 @@ class CheckableTableWidgetItem(QTableWidgetItem):
         QTableWidgetItem.__init__(self, '')
         self.setFlags(Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsUserCheckable | Qt.ItemFlag.ItemIsEnabled)
         if is_tristate:
-            self.setFlags(self.flags() | Qt.ItemFlag.ItemIsTristate)
+            self.setFlags(self.flags() | Qt.ItemFlag.ItemIsUserTristate)
         if checked:
             self.setCheckState(Qt.CheckState.Checked)
         elif is_tristate and checked is None:
@@ -901,6 +903,11 @@ class ComboBox(NoWheelComboBox):
             self.setCurrentIndex(0)
 
 
+class _ColumnDef(TypedDict):
+    ordinal: int
+    name: str
+
+
 class GenericRulesTable(QTableWidget):
     '''
     Generic methods for managing rows in a QTableWidget
@@ -908,6 +915,16 @@ class GenericRulesTable(QTableWidget):
     DEBUG = False
     MAXIMUM_TABLE_HEIGHT = 113
     NAME_FIELD_WIDTH = 225
+    COLUMNS: ClassVar[dict[str, _ColumnDef]] = {}
+
+    def populate_table_row(self, row: int, data: dict[str, object]) -> None:
+        raise NotImplementedError
+
+    def create_blank_row_data(self) -> dict[str, object]:
+        raise NotImplementedError
+
+    def convert_row_to_data(self, row: int) -> dict[str, object]:
+        raise NotImplementedError
 
     def __init__(self, parent, parent_gb, object_name, rules):
         self._plugin_widget = parent
@@ -1209,7 +1226,7 @@ class GenericRulesTable(QTableWidget):
 
 class ExclusionRules(GenericRulesTable):
 
-    COLUMNS = {'ENABLED':{'ordinal': 0, 'name': ''},
+    COLUMNS: ClassVar[dict[str, _ColumnDef]] = {'ENABLED':{'ordinal': 0, 'name': ''},
                 'NAME':   {'ordinal': 1, 'name': _('Name')},
                 'FIELD':  {'ordinal': 2, 'name': _('Field')},
                 'PATTERN':  {'ordinal': 3, 'name': _('Value')},}
@@ -1311,7 +1328,7 @@ class ExclusionRules(GenericRulesTable):
 
 class PrefixRules(GenericRulesTable):
 
-    COLUMNS = {'ENABLED':{'ordinal': 0, 'name': ''},
+    COLUMNS: ClassVar[dict[str, _ColumnDef]] = {'ENABLED':{'ordinal': 0, 'name': ''},
                 'NAME':   {'ordinal': 1, 'name': _('Name')},
                 'PREFIX': {'ordinal': 2, 'name': _('Prefix')},
                 'FIELD':  {'ordinal': 3, 'name': _('Field')},
