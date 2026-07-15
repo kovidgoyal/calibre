@@ -276,7 +276,7 @@ class EbookViewer(MainWindow):
         m.addSeparator()
         a(_('Hide this scrollbar'), 'toggle_scrollbar')
 
-        q = m.exec(QCursor.pos())
+        q = m.exec(QCursor.pos())  # type: ignore
         if not q:
             return
         q = amap[q.text()]

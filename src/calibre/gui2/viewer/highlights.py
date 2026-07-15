@@ -54,7 +54,7 @@ from calibre.gui2.library.annotations import Export as ExportBase
 from calibre.gui2.viewer import get_boss, link_prefix_for_location_links
 from calibre.gui2.viewer.config import get_session_pref, vprefs
 from calibre.gui2.viewer.search import SearchInput
-from calibre.gui2.viewer.shortcuts import get_shortcut_for, index_to_key_sequence
+from calibre.gui2.viewer.shortcuts import get_shortcut_for
 from calibre.gui2.widgets2 import Dialog
 from calibre.utils.localization import _, ngettext
 from calibre_extensions.progress_indicator import set_no_activate_on_click
@@ -763,16 +763,7 @@ class HighlightsPanel(QWidget):
             self.notes_edited_signal.emit(h['uuid'], text)
 
     def set_tooltips(self, rmap):
-        a = rmap.get('create_annotation')
-        if a:
-
-            def as_text(idx):
-                return index_to_key_sequence(idx).toString(QKeySequence.SequenceFormat.NativeText)
-
-            tt = self.add_button.toolTip().partition('[')[0].strip()
-            keys = sorted(filter(None, map(as_text, a)))
-            if keys:
-                self.add_button.setToolTip('{} [{}]'.format(tt, ', '.join(keys)))
+        pass
 
     def search_requested(self, query):
         if not self.highlights.find_query(query):
