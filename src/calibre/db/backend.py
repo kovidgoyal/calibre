@@ -448,11 +448,11 @@ class Connection(apsw.Connection):  # {{{
 
     def execute(self, statements, bindings=None, *, can_cache=True, prepare_flags=0, explain=-1):
         cursor = self.cursor()
-        return cursor.execute(statements, bindings)
+        return cursor.execute(statements, bindings, can_cache=True, prepare_flags=prepare_flags, explain=explain)
 
     def executemany(self, statements, sequenceofbindings, *, can_cache=True, prepare_flags=0, explain=-1):
         with self:  # Disable autocommit mode, for performance
-            return self.cursor().executemany(statements, sequenceofbindings)
+            return self.cursor().executemany(statements, sequenceofbindings, can_cache=True, prepare_flags=prepare_flags, explain=explain)
 
 # }}}
 
