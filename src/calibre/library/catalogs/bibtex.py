@@ -5,7 +5,6 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import codecs
 import numbers
 import os
 import re
@@ -387,8 +386,7 @@ class BIBTEX(CatalogPlugin):
         template_citation = preprocess_template(opts.bib_cit)
 
         # Open output and write entries
-        with codecs.open(path_to_output, 'w', bibfile_enc, bibfile_enctag)\
-            as outfile:
+        with open(path_to_output, 'w', encoding=bibfile_enc, errors=bibfile_enctag) as outfile:
             # File header
             nb_entries = len(data)
 
