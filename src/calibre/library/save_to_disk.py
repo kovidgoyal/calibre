@@ -445,7 +445,7 @@ def read_serialized_metadata(data):
     return mi, cdata
 
 
-def update_serialized_metadata(book, common_data=None):
+def update_serialized_metadata(book, common_data):
     # This is called from a worker process. It must not open the database.
     result = []
     plugboard_cache = common_data['plugboard_cache']

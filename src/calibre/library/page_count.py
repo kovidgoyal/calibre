@@ -50,6 +50,7 @@ def count_pages_pdf(pathtoebook: str) -> int:
                 field, rest = line.partition(':')[::2]
                 if field == 'Pages':
                     return int(rest.strip())
+    return 0
 
 
 def fname_ok_cb(fname):
@@ -113,7 +114,9 @@ def count_char(root: etree.Element) -> int:
 
 
 def count_line(block_elem: etree.Element) -> int:
-    char_num, line_margin = head_map.get(barename(block_elem.tag), default_head_map_value)
+    tag = block_elem.tag
+    assert isinstance(tag, str)
+    char_num, line_margin = head_map.get(barename(tag), default_head_map_value)
     ans = ceil(count_char(block_elem) / char_num)
     if ans > 0:
         ans += line_margin
@@ -125,6 +128,7 @@ def get_line_count(document_root: etree.Element) -> int:
     ans = 0
     # Visits every non-block tag twice and every other tag once
     for elem in document_root.iterdescendants('*'):
+        assert isinstance(elem.tag, str)
         if barename(elem.tag) in blocks:
             ans += count_line(elem)
     return ans
@@ -305,6 +309,7 @@ def test_line_counting(self):
 
 
 def test_page_count(self) -> None:
+    from calibre.utils.resources import get_path as P
     test_line_counting(self)
     files = (
         P('quick_start/eng.epub'), P('quick_start/swe.epub'), P('quick_start/fra.epub'),

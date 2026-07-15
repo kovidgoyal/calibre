@@ -10,6 +10,7 @@ import numbers
 import os
 import re
 from collections import namedtuple
+from datetime import datetime as _datetime
 
 from calibre import strftime
 from calibre.customize import CatalogPlugin
@@ -218,7 +219,7 @@ class BIBTEX(CatalogPlugin):
                 elif field == 'timestamp':
                     bibtex_entry.append('timestamp = "{}"'.format(isoformat(item).partition('T')[0]))
 
-                elif field == 'pubdate':
+                elif field == 'pubdate' and isinstance(item, _datetime):
                     bibtex_entry.append(f'year = "{item.year}"')
                     bibtex_entry.append('month = "{}"'.format(bibtexdict.utf8ToBibtex(strftime('%b', item))))
 

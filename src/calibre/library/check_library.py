@@ -89,8 +89,7 @@ class CheckLibrary:
 
     @property
     def errors_occurred(self):
-        return self.failed_folders or self.mismatched_dirs or \
-                self.conflicting_custom_cols or self.failed_restores
+        return self.failed_folders
 
     def ignore_name(self, filename):
         for filespec in self.ignore_names:

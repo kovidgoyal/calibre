@@ -30,12 +30,10 @@ def generate_test_db(library_path,  # {{{
     import sys
     import time
 
-    from calibre.constants import preferred_encoding
-
     if not os.path.exists(library_path):
         os.makedirs(library_path)
 
-    letters = string.letters.decode(preferred_encoding)
+    letters = string.ascii_letters
 
     def randstr(length):
         return ''.join(random.choice(letters) for i in
