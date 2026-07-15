@@ -177,6 +177,7 @@ class TbHierarchyTab(LazyConfigWidgetBase, Ui_Form):
                              _('<p>Could not read field list. Error:<br>%s')%err, show=True)
 
     def restore_defaults(self, *args):
+        LazyConfigWidgetBase.restore_defaults(self)
         self.tb_hierarchical_cats_model.restore_defaults()
         self.reset_tb_search_order()
 

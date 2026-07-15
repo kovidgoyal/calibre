@@ -803,6 +803,9 @@ class TbIconRulesTab(LazyConfigWidgetBase, Ui_Form):
         self.last_section_sorted = section
         self.rules_table.sortByColumn(section, Qt.SortOrder(order))
 
+    def restore_defaults(self, *args):
+        LazyConfigWidgetBase.restore_defaults(self)
+
     def commit(self, *args):
         tbvip = copy.deepcopy(gprefs['tags_browser_value_icons'])
 
