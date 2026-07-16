@@ -86,13 +86,18 @@ class RapydScript(Command):  # {{{
                 help='Only compile the specified module')
 
     def run(self, opts):
-        from calibre.utils.rapydscript import compile_editor, compile_srv, compile_viewer
+        from calibre.utils.rapydscript import compile_all, compile_editor, compile_srv, compile_viewer
         if opts.only_module:
+            match opts.only_module:
+                case 'editor':
+                    compile_editor()
+                case 'srv':
+                    compile_srv()
+                case 'viewer':
+                    compile_viewer()
             locals()['compile_' + opts.only_module]()
         else:
-            compile_editor()
-            compile_viewer()
-            compile_srv()
+            compile_all()
 # }}}
 
 

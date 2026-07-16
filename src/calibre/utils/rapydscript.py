@@ -547,6 +547,11 @@ def compile_srv():
 
     atomic_write(base, 'index-generated.html', html)
 
+
+def compile_all():
+    compile_editor()
+    compile_viewer()
+    compile_srv()
 # }}}
 
 
