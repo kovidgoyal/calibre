@@ -8,6 +8,7 @@ import os
 import re
 import subprocess
 import sys
+from functools import lru_cache
 
 from calibre import force_unicode
 from calibre.constants import (
@@ -284,25 +285,29 @@ def compile_pyj(
     return result
 
 
-has_external_compiler = None
-
-
-def detect_external_compiler():
+@lru_cache(maxsize=2)
+def external_compiler_version() -> tuple[str, tuple[int, int, int]]:
     from calibre.utils.filenames import find_executable_in_path
     rs = find_executable_in_path('rapydscript')
+    ver = (0, 0, 0)
     try:
         raw = subprocess.check_output([rs, '--version'])
     except Exception:
-        raw = b''
+        return '', ver
     if raw.startswith(b'rapydscript-ng '):
-        ver = raw.partition(b' ')[-1]
+        rver = raw.partition(b' ')[-1]
         try:
-            ver = tuple(map(int, ver.split(b'.')))
+            qver = tuple(map(int, rver.split(b'.')))
+            ver = qver[0], qver[1], qver[2]
         except Exception:
-            ver = (0, 0, 0)
-        if ver >= (0, 7, 5):
-            return rs
-    return False
+            return '', ver
+        if ver < (0, 7, 5):
+            return '', ver
+    return rs, ver
+
+
+def external_compiler() -> str:
+    return external_compiler_version()[0]
 
 
 def compile_fast(
@@ -314,10 +319,7 @@ def compile_fast(
     omit_baselib=False,
     js_version=None,
 ):
-    global has_external_compiler
-    if has_external_compiler is None:
-        has_external_compiler = detect_external_compiler()
-    if not has_external_compiler:
+    if not (rs := external_compiler()):
         return compile_pyj(data, filename or '<stdin>', beautify, private_scope, libdir, omit_baselib, js_version or 6)
     args = ['--cache-dir', module_cache_dir()]
     if libdir:
@@ -334,7 +336,7 @@ def compile_fast(
         data = data.encode('utf-8')
     if filename:
         args.append('--filename-for-stdin'), args.append(filename)
-    p = subprocess.Popen([has_external_compiler, 'compile'] + args,
+    p = subprocess.Popen([rs, 'compile'] + args,
             stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
     js, stderr = p.communicate(data)
     if p.wait() != 0:
@@ -551,15 +553,12 @@ def compile_srv():
 # Translations {{{
 
 def create_pot(source_files):
-    global has_external_compiler
-    if has_external_compiler is None:
-        has_external_compiler = detect_external_compiler()
     gettext_options = {
         'package_name': __appname__,
         'package_version': __version__,
         'bugs_address': 'https://bugs.launchpad.net/calibre'
     }
-    if not has_external_compiler:
+    if not (rs := external_compiler()):
         c = compiler()
         c.eval(f'window.catalog = {{}}; window.gettext_options = {json.dumps(gettext_options)}; 1')
         for fname in source_files:
@@ -570,7 +569,7 @@ def create_pot(source_files):
         buf = c.eval('ans = []; RapydScript.gettext_output(window.catalog, window.gettext_options, ans.push.bind(ans)); ans;')
         return ''.join(buf)
     cp = subprocess.run([
-        has_external_compiler, 'gettext', '--package-name', gettext_options['package_name'],
+        rs, 'gettext', '--package-name', gettext_options['package_name'],
         '--package-version', gettext_options['package_version'], '--bugs-address', gettext_options['bugs_address'],
     ] + list(source_files), capture_output=True)
     if cp.returncode != 0:
@@ -580,14 +579,11 @@ def create_pot(source_files):
 
 
 def msgfmt(po_data_as_string):
-    global has_external_compiler
-    if has_external_compiler is None:
-        has_external_compiler = detect_external_compiler()
-    if not has_external_compiler:
+    if not (rs := external_compiler()):
         c = compiler()
         return c.eval('RapydScript.msgfmt({}, {})'.format(
             json.dumps(po_data_as_string), json.dumps({'use_fuzzy': False})))
-    cp = subprocess.run([has_external_compiler, 'msgfmt'], input=po_data_as_string.encode(), capture_output=True)
+    cp = subprocess.run([rs, 'msgfmt'], input=po_data_as_string.encode(), capture_output=True)
     if cp.returncode != 0:
         sys.stderr.write(cp.stderr)
         raise SystemExit(cp.returncode)
