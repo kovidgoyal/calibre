@@ -18,5 +18,4 @@ cd .. && rm -rf espeak-ng
 useradd -m ci
 chown -R ci:users $GITHUB_WORKSPACE
 
-pip install --break-system-packages types-lxml
 npm install -g rapydscript-ng
