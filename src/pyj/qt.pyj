@@ -58,3 +58,4 @@ if window is window.top:
 
 def from_python(func):
     slots[func.name] = func
+    return func
