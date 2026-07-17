@@ -6,7 +6,7 @@ Miscellaneous widgets used in the GUI
 import os
 import re
 from collections.abc import Callable
-from typing import Any, Protocol
+from typing import TYPE_CHECKING, Any, Protocol
 
 from qt.core import (
     QAction,
@@ -273,6 +273,10 @@ class ImageDropMixin:
     '''
     DROPABBLE_EXTENSIONS = None
 
+    if TYPE_CHECKING:
+        def pixmap(self) -> QPixmap: ...
+        def setPixmap(self, pixmap: QPixmap) -> None: ...
+
     def __init__(self: ImageDropWidgetProtocol):
         self.setAcceptDrops(True)
 
@@ -317,10 +321,10 @@ class ImageDropMixin:
     def dragMoveEvent(self, event):
         event.acceptProposedAction()
 
-    def get_pixmap(self: ImageDropWidgetProtocol):
+    def get_pixmap(self) -> QPixmap:
         return self.pixmap()
 
-    def set_pixmap(self: ImageDropWidgetProtocol, pixmap):
+    def set_pixmap(self, pixmap: QPixmap) -> None:
         self.setPixmap(pixmap)
 
     def build_context_menu(self):
@@ -342,7 +346,7 @@ class ImageDropMixin:
     def contextMenuEvent(self, ev):
         self.build_context_menu().exec(ev.globalPos())
 
-    def copy_to_clipboard(self: ImageDropWidgetProtocol):
+    def copy_to_clipboard(self) -> None:
         _cb = qapplication_or_fail().clipboard()
         assert _cb is not None
         _cb.setPixmap(self.get_pixmap())
@@ -485,19 +489,23 @@ class CoverView(QGraphicsView, ImageDropMixin):
             self.setViewportUpdateMode(QGraphicsView.ViewportUpdateMode.FullViewportUpdate)
         self.set_background()
 
-    def get_pixmap(self):
-        if self._pixmap_scene is None:
-            return None
-        for item in self._pixmap_scene.items():
-            if isinstance(item, QGraphicsPixmapItem):
-                return item.pixmap()
-    pixmap = get_pixmap
+    def get_pixmap(self) -> QPixmap:
+        if self._pixmap_scene is not None:
+            for item in self._pixmap_scene.items():
+                if isinstance(item, QGraphicsPixmapItem):
+                    return item.pixmap()
+        return QPixmap()
 
-    def set_pixmap(self, pixmap):
+    def pixmap(self) -> QPixmap:
+        return self.get_pixmap()
+
+    def set_pixmap(self, pixmap: QPixmap) -> None:
         self._pixmap_scene = QGraphicsScene()
         self._pixmap_scene.addItem(RoundedPixmap(pixmap))
         self.setScene(self._pixmap_scene)
-    setPixmap = set_pixmap
+
+    def setPixmap(self, pixmap: QPixmap) -> None:
+        self.set_pixmap(pixmap)
 
     def set_background(self, brush=None):
         self.setBackgroundBrush(brush or self.palette().color(QPalette.ColorRole.Window))
@@ -552,8 +560,8 @@ class BasicList(QListWidget):
 
 
 class LineEditECMProtocol(Protocol):
-    def createStandardContextMenu(self) -> QMenu: ...
-    def create_change_case_menu(self, menu: QMenu) -> None: ...
+    def createStandardContextMenu(self) -> QMenu | None: ...
+    def create_change_case_menu(self, menu: QMenu) -> QMenu: ...
     def add_items_to_context_menu(self, menu: QMenu) -> QMenu: ...
     def hasSelectedText(self) -> bool: ...
     def selectedText(self) -> str: ...
@@ -570,7 +578,14 @@ class LineEditECM:  # {{{
     '''
     add_items_to_context_menu_callback: Callable[[QMenu], None] | None = None
 
-    def create_change_case_menu(self, menu):
+    if TYPE_CHECKING:
+        def hasSelectedText(self) -> bool: ...
+        def selectedText(self) -> str: ...
+        def text(self) -> str: ...
+        def insert(self, text: str) -> None: ...
+        def setText(self, text: str | None) -> None: ...
+
+    def create_change_case_menu(self, menu: QMenu) -> QMenu:
         case_menu = QMenu(_('Change case'), menu)
         action_upper_case = case_menu.addAction(_('Upper case'))
         action_lower_case = case_menu.addAction(_('Lower case'))
@@ -590,19 +605,20 @@ class LineEditECM:  # {{{
         menu.addMenu(case_menu)
         return case_menu
 
-    def add_items_to_context_menu(self, menu):
+    def add_items_to_context_menu(self, menu: QMenu) -> QMenu:
         if self.add_items_to_context_menu_callback is not None:
             self.add_items_to_context_menu_callback(menu)
         return menu
 
     def contextMenuEvent(self: LineEditECMProtocol, event):
         menu = self.createStandardContextMenu()
+        assert menu is not None
         menu.addSeparator()
         self.create_change_case_menu(menu)
         menu = self.add_items_to_context_menu(menu)
         menu.exec(event.globalPos())
 
-    def modify_case_operation(self: LineEditECMProtocol, func):
+    def modify_case_operation(self, func: Callable[[str], str]) -> None:
         has_selection = self.hasSelectedText()
         text = self.selectedText() if has_selection else self.text()
         ntext = func(text)

@@ -4,7 +4,7 @@
 
 import textwrap
 from collections import OrderedDict
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from qt.core import (
     QAbstractItemView,
@@ -478,6 +478,9 @@ class SaveLoadMixin:
 
     ruleset_changed = pyqtSignal()
     base_window_title = ''
+    PREFS_OBJECT: Any
+    loaded_ruleset: str | None
+    rules: Any
 
     def save_ruleset(self: SaveLoadSelf):
         if not self.rules:
@@ -521,7 +524,7 @@ class SaveLoadMixin:
         else:
             self.load_menu.addAction(_('No saved rulesets available'))
 
-    def load_ruleset(self: SaveLoadSelf, name):
+    def load_ruleset(self, name: str) -> None:
         self.rules = self.PREFS_OBJECT[name]
         self.loaded_ruleset = name
         self.ruleset_changed.emit()

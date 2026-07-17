@@ -66,7 +66,7 @@ class Cover(CoverView):
     def sizeHint(self):
         return self.size_hint_callback(super().sizeHint())
 
-    def copy_to_clipboard(self):
+    def copy_to_clipboard(self) -> None:
         self.copy_to_clipboard_requested.emit()
 
     def build_context_menu(self):

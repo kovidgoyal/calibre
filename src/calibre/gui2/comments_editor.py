@@ -7,6 +7,7 @@ import re
 import sys
 import weakref
 from collections import defaultdict
+from collections.abc import Callable
 from contextlib import contextmanager
 from functools import partial
 from threading import Thread
@@ -1076,16 +1077,20 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
             c.removeSelectedText()
             c.insertHtml(val)
 
-    def text(self):
+    def text(self) -> str:
         return self.textCursor().selectedText()
-    selectedText = text
 
-    def setText(self, text):
+    def selectedText(self) -> str:
+        return self.text()
+
+    def setText(self, text: str | None) -> None:
         with self.editing_cursor() as c:
-            c.insertText(text)
-    insert = setText
+            c.insertText(text or '')
 
-    def hasSelectedText(self):
+    def insert(self, text: str) -> None:
+        self.setText(text)
+
+    def hasSelectedText(self) -> bool:
         c = self.textCursor()
         return c.hasSelection()
 
@@ -1285,7 +1290,7 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
         menu.addAction(_('Smarten punctuation'), parent.smarten_punctuation)
         menu.exec(e.globalPos())
 
-    def modify_case_operation(self, func):
+    def modify_case_operation(self, func: Callable[[str], str]) -> None:
         cursor: QTextCursor = self.textCursor()
         if not cursor.hasSelection():
             cursor.select(QTextCursor.SelectionType.Document)
@@ -1378,7 +1383,7 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
             if isinstance(list_fmt, QTextListFormat):
                 editcur.createList(list_fmt)
 
-            fragment_text = func(blk['fragment_text'])
+            fragment_text = func(cast(str, blk['fragment_text']))
             # insert the fragments for this block, preserving char formats
             for start_pos, length, ch_fmt in cast(list[tuple[int, int, QTextCharFormat]], blk['fragments']):
                 if start_pos >= len(fragment_text):
