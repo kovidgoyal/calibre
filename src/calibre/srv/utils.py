@@ -456,8 +456,7 @@ class Offsets:
             self.next_offset = -1
         self.previous_offset = self.offset - delta
         self.previous_offset = max(self.previous_offset, 0)
-        self.last_offset = last_allowed_index - delta
-        self.last_offset = max(self.last_offset, 0)
+        self.last_offset = (last_allowed_index // delta) * delta
 
 
 _use_roman = None
