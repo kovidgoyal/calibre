@@ -6,27 +6,14 @@ import os
 import re
 import subprocess
 
-from setup import Command
+from setup import Command, iswindows
 
 
 class TypeCheck(Command):
 
     description = 'Run the ty type checker over the calibre source code'
     usage_help = 'To type check specific files, specify them as command line arguments'
-
-    @property
-    def project_root(self):
-        return self.d(self.SRC)
-
-    @property
-    def venv_dir(self):
-        return self.j(self.project_root, '.venv')
-
-    def ensure_venv(self):
-        if not self.e(self.venv_dir):
-            subprocess.check_call(['uv', 'venv'], cwd=self.project_root)
-        deps = subprocess.check_output(['uv', 'pip', 'compile', 'pyproject.toml', '--group', 'dev'], cwd=self.project_root)
-        subprocess.run(['uv', 'pip', 'sync', '-'], check=True, input=deps, cwd=self.project_root)
+    require_venv = True
 
     def patch_qt_stubs(self, version: int = 1):
         def patch(mod: str, changes: dict[str, list[str]]) -> str:
@@ -94,9 +81,10 @@ def raise_without_focus(self) -> None: ...
 '''.splitlines()})
 
     def run(self, opts):
-        self.ensure_venv()
-        ty = os.path.abspath('.venv/bin/ty')
+        ty = self.j(self.PROJECT_ROOT, '.venv/bin/ty')
+        if iswindows:
+            ty += '.exe'
         self.patch_qt_stubs()
-        cp = subprocess.run([ty, 'check'] + list(opts.cli_args), cwd=self.project_root)
+        cp = subprocess.run([ty, 'check'] + list(opts.cli_args), cwd=self.PROJECT_ROOT)
         if cp.returncode != 0:
             raise SystemExit(cp.returncode)
