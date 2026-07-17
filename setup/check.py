@@ -41,6 +41,7 @@ def checkable_python_files(SRC):
 class Check(Command):
 
     description = 'Check for errors in the calibre source code'
+    require_venv = True
 
     CACHE = 'check.json'
 
@@ -86,7 +87,7 @@ class Check(Command):
         dump_json(cache, self.cache_file)
 
     def _ruff_executable(self):
-        ruff = self.j(self.d(self.SRC), '.venv', 'bin', 'ruff')
+        ruff = self.j(self.PROJECT_ROOT, '.venv/bin/ruff')
         if iswindows:
             ruff += '.exe'
         if not os.path.exists(ruff):
@@ -99,9 +100,9 @@ class Check(Command):
         if ext in {'.py', '.pyi', '.recipe'}:
             ruff = self._ruff_executable()
             if self.auto_fix:
-                p = subprocess.Popen([ruff, 'check', '-q', '--fix', f])
+                p = subprocess.Popen([ruff, 'check', '-q', '--fix', f], cwd=self.PROJECT_ROOT)
             else:
-                p = subprocess.Popen([ruff, 'check', '-q', f])
+                p = subprocess.Popen([ruff, 'check', '-q', f], cwd=self.PROJECT_ROOT)
             return p.wait() != 0
         if ext == '.pyj':
             p = subprocess.Popen(['rapydscript', 'lint', f])
@@ -165,6 +166,7 @@ class Check(Command):
                     p = subprocess.run(
                         ruff_cmd + batch,
                         capture_output=True, text=True,
+                        cwd=self.PROJECT_ROOT,
                     )
                     if p.returncode != 0:
                         try:

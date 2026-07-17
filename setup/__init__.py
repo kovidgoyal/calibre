@@ -195,10 +195,13 @@ def edit_file(path):
 class Command:
 
     SRC = SRC
-    RESOURCES = os.path.join(os.path.dirname(SRC), 'resources')
+    PROJECT_ROOT = os.path.dirname(SRC)
+    RESOURCES = os.path.join(PROJECT_ROOT, 'resources')
+
     description = ''
     usage_help = ''
     drop_privileges_for_subcommands = False
+    require_venv = False
 
     sub_commands = []
 
@@ -251,6 +254,8 @@ class Command:
 
         st = time.time()
         self.running(cmd)
+        if cmd.require_venv:
+            self.ensure_venv()
         cmd.run(opts)
         self.info(f'* {command_names[cmd]} took {time.time() - st:.1f} seconds')
         if is_ci:
@@ -279,6 +284,14 @@ class Command:
 
     def clean(self):
         pass
+
+    @lru_cache(maxsize=2)
+    def ensure_venv(self) -> None:
+        venv_dir = self.j(self.PROJECT_ROOT, '.venv')
+        if not self.e(venv_dir):
+            subprocess.check_call(['uv', 'venv'], cwd=self.PROJECT_ROOT)
+        deps = subprocess.check_output(['uv', 'pip', 'compile', 'pyproject.toml', '--group', 'dev'], cwd=self.PROJECT_ROOT)
+        subprocess.run(['uv', 'pip', 'sync', '-'], check=True, input=deps, cwd=self.PROJECT_ROOT)
 
     @classmethod
     def newer(cls, targets, sources):
