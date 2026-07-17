@@ -102,7 +102,7 @@ def find_offset_for_point(x, y, node, cdoc):
             range_.setStart(child, 0)
             range_.setEnd(child, child.nodeValue.length)
             if range_has_point(range_, x, y):
-                return v'[child, offset_in_text_node(child, range_, x, y)]'
+                return [child, offset_in_text_node(child, range_, x, y)]
         child = child.nextSibling
 
     # The point must be after the last bit of text/in the padding/border, we don't know

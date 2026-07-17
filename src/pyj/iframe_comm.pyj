@@ -17,10 +17,8 @@ LOADING_DOC = '''
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
-<script type="text/javascript" id="bootstrap">
-window.iframe_entry_point = '__ENTRY_POINT__';  // different in different iframes
-window.default_font_family = '__FONT__';  // from the theme
-__SCRIPT__
+<!-- script must be on a single line so that source map matches up -->
+<script type="text/javascript" id="bootstrap">window.iframe_entry_point = '__ENTRY_POINT__'; window.default_font_family = '__FONT__';  __SCRIPT__
 end_script
 </head>
 <body>

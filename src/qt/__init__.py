@@ -13,6 +13,7 @@ top_level_module_names = ('QtCore',
  'QtTextToSpeech',
  'QtWebEngineCore',
  'QtWebEngineWidgets',
+ 'QtWebChannel',
  'QtDBus')
 
 

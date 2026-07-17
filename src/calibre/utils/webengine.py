@@ -5,7 +5,7 @@
 import json
 import os
 
-from qt.core import QBuffer, QIODevice, QObject, pyqtSignal, sip
+from qt.core import QBuffer, QIODevice, QObject, QUrl, pyqtSignal, sip
 from qt.webengine import QWebEngineProfile, QWebEngineScript, QWebEngineSettings, QWebEngineUrlScheme
 
 from calibre.constants import FAKE_PROTOCOL, SPECIAL_TITLE_FOR_WEBENGINE_COMMS, cache_dir
@@ -79,14 +79,17 @@ def insert_scripts(profile, *scripts):
 
 
 def create_script(
-    name, src, world=QWebEngineScript.ScriptWorldId.ApplicationWorld,
+    name, src: str = '', world=QWebEngineScript.ScriptWorldId.ApplicationWorld,
     injection_point=QWebEngineScript.InjectionPoint.DocumentReady,
-    on_subframes=True
+    on_subframes=True, path: str = '',
 ):
     script = QWebEngineScript()
-    if isinstance(src, bytes):
-        src = src.decode('utf-8')
-    script.setSourceCode(src)
+    if path:
+        script.setSourceUrl(QUrl.fromLocalFile(path))
+    else:
+        if isinstance(src, bytes):
+            src = src.decode('utf-8')
+        script.setSourceCode(src)
     script.setName(name)
     script.setWorldId(world)
     script.setInjectionPoint(injection_point)

@@ -95,7 +95,8 @@ class RapydScript(Command):  # {{{
                     compile_srv()
                 case 'viewer':
                     compile_viewer()
-            locals()['compile_' + opts.only_module]()
+                case _:
+                    raise KeyError(f'Unknown RapydScript --only-module: {opts.only_module}')
         else:
             compile_all()
 # }}}

@@ -2,6 +2,7 @@
 # License: GPL v3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 from __python__ import bound_methods, hash_literals
 
+import traceback
 from elementmaker import E
 
 import read_book.iframe  # noqa
@@ -833,7 +834,9 @@ class View:
                 title=_('In flow mode')
                 msg=_('Cannot change number of pages per screen in flow mode, switch to paged mode first.')
             elif data.errkey = 'unhandled-error':
-                title = _('Unhandled error')
+                window.onerror(data.msg, data.script_url, data.line_number, data.column_number,
+                               traceback.unserialize_error_for_formatting(data.error_object))
+                return
         if data.is_non_critical:
             warning_dialog(title, msg, data.details, on_close=ui_operations.focus_iframe)
             return

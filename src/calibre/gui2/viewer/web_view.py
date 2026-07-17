@@ -203,6 +203,8 @@ class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
         elif name == 'reader-background':
             mt, data = background_image()
             send_reply(a0, mt, data) if data else a0.fail(QWebEngineUrlRequestJob.Error.UrlNotFound)
+        elif name == 'viewer.js.map':
+            send_reply(a0, 'application/json', P('viewer.js.map', data=True, allow_user_override=False))
         elif name.startswith('reader-background-'):
             encoded_fname = name[len('reader-background-'):]
             mt, data = background_image(encoded_fname)
@@ -236,12 +238,15 @@ def create_profile():
             from calibre.utils.rapydscript import compile_viewer
             prints('Compiling viewer code...')
             compile_viewer()
-        js = P('viewer.js', data=True, allow_user_override=False)
-        translations_json = get_translations_data() or b'null'
-        js = js.replace(b'__TRANSLATIONS_DATA__', translations_json, 1)
-        if in_develop_mode:
-            js = js.replace(b'__IN_DEVELOP_MODE__', b'1')
-        insert_scripts(ans, create_script('viewer.js', js))
+        translations_json = (get_translations_data() or b'null').decode()
+        js = f'''
+window.calibre_in_develop_mode = {'true' if in_develop_mode else 'false'};
+window.calibre_translations_data = {translations_json};
+'''
+        insert_scripts(ans,
+            create_script(name='translations.js', src=js),
+            create_script(name='viewer.js', path=P('viewer.js', allow_user_override=False)),
+        )
         url_handler = UrlSchemeHandler(ans)
         ans.installUrlSchemeHandler(QByteArray(FAKE_PROTOCOL.encode('ascii')), url_handler)
         s = ans.settings()

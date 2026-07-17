@@ -48,3 +48,6 @@ qWebEngineProcessName = PyQt6.QtWebEngineCore.qWebEngineProcessName
 qWebEngineVersion = PyQt6.QtWebEngineCore.qWebEngineVersion
 import PyQt6.QtWebEngineWidgets
 QWebEngineView = PyQt6.QtWebEngineWidgets.QWebEngineView
+import PyQt6.QtWebChannel
+QWebChannel = PyQt6.QtWebChannel.QWebChannel
+QWebChannelAbstractTransport = PyQt6.QtWebChannel.QWebChannelAbstractTransport

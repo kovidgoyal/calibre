@@ -689,5 +689,6 @@ def develop(container):
     editor.init()
 
 
+@no_prune
 def main():
     main.boss = CommentsEditorBoss()

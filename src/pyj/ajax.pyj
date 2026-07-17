@@ -140,9 +140,9 @@ def ajax_send_file(path, file, on_complete, on_progress, timeout=None, ok_code=2
     return xhr
 
 
-def console_print(*args):
-    ρσ_print(*args)  # noqa: undef
-    data = ' '.join(map(str, args)) + '\n'
+def console_print():
+    ρσ_print.apply(this, arguments)  # noqa: undef
+    data = ' '.join(map(str, Array.from(arguments))) + '\n'
     xhr = ajax('console-print', def():pass;, method='POST', progress_totals_needed=False)
     xhr.send(data)
 

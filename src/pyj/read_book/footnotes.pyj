@@ -306,5 +306,6 @@ class PopupIframeBoss:
         self.comm.send_message('content_loaded', height=document.documentElement.scrollHeight + 25)
 
 
+@no_prune
 def main():
     main.boss = PopupIframeBoss()

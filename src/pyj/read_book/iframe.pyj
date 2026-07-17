@@ -262,18 +262,16 @@ class IframeBoss:
             return
         is_internal_error = script_url in ('about:srcdoc', 'userscript:viewer.js')
         if is_internal_error:  # don't report errors from scripts in the book itself
-            console.log(f'{script_url}: {error_object}')
             try:
-                fname = script_url.rpartition('/')[-1] or script_url
-                msg = msg + '<br><span style="font-size:smaller">' + 'Error at {}:{}:{}'.format(fname, line_number, column_number or '') + '</span>'
-                details = traceback.format_exception(error_object).join('') if error_object else ''
-                if details:
-                    console.log(details)
-                self.send_message('error', errkey='unhandled-error', details=details, msg=msg)
+                (console.error or console.log)(error_object)
+                self.send_message('error', errkey='unhandled-error', msg=msg,
+                    script_url=script_url, line_number=line_number, column_number=column_number,
+                    error_object=traceback.serialize_error_for_formatting(error_object))
             except:
                 console.log('There was an error in the iframe unhandled exception handler')
         else:
             (console.error or console.log)('There was an error in the JavaScript from within the book')
+            (console.error or console.log)(error_object)
 
     def display(self, data):
         cancel_drag_scroll()
@@ -1105,6 +1103,7 @@ class IframeBoss:
         a.click()
 
 
+@no_prune
 def main():
     if not main.boss:
         main.boss = IframeBoss()

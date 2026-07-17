@@ -40,6 +40,28 @@ def remove_initial_progress_bar():
     if p:
         p.parentNode.removeChild(p)
 
+
+source_map_set = False
+
+
+def source_map_received(data, end_type, xhr, ev):
+    if end_type is 'abort':
+        return
+    if end_type is 'load' and xhr.responseType is 'json':
+        traceback.set_source_map_data(xhr.response)
+    error_object = traceback.unserialize_error_for_formatting(data.error)
+    details = traceback.format_exception(error_object).join('')
+    error_dialog(data.title, data.msg, details)
+
+
+def load_source_map(data):
+    nonlocal source_map_set
+    xhr = ajax('index.js.map', source_map_received.bind(None, data))
+    xhr.responseType = 'json'
+    xhr.send()
+    source_map_set = True
+
+
 def onerror(msg, script_url, line_number, column_number, error_object):
     if error_object is None:
         # This happens for cross-domain errors (probably javascript injected
@@ -49,15 +71,14 @@ def onerror(msg, script_url, line_number, column_number, error_object):
         console.log(f'Unhandled error from external javascript, ignoring: {msg} {script_url} {line_number}')
         return
     console.log(error_object)
-    try:
-        fname = script_url.rpartition('/')[-1] or script_url
-        msg = msg + '<br><span style="font-size:smaller">' + 'Error at {}:{}:{}'.format(fname, line_number, column_number or '') + '</span>'
-        details = ''
+    fname = script_url.rpartition('/')[-1] or script_url
+    msg = msg + '<br><span style="font-size:smaller">' + 'Error at {}:{}:{}'.format(fname, line_number, column_number or '') + '</span>'
+    title = _('Unhandled error')
+    if source_map_set:
         details = traceback.format_exception(error_object).join('')
-        error_dialog(_('Unhandled error'), msg, details)
-        return True
-    except:
-        console.log('There was an error in the unhandled exception handler')
+        error_dialog(title, msg, details)
+    else:
+        load_source_map({'title': title, 'msg': msg, 'error': traceback.serialize_error_for_formatting(error_object)})
 
 
 def init_ui():
@@ -159,6 +180,7 @@ def do_update_interface_data():
     ).send()
 
 
+@no_prune
 def main():
     if document.createElement('iframe').srcdoc is undefined:
         document.body.innerHTML = '<p style="margin:1.5em; max-width: 40em">' + _(

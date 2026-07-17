@@ -77,6 +77,7 @@ def get_file(book, name, proceed):
 profiles_callbacks = {'all': None, 'saved': None}
 
 @from_python
+@no_prune
 def profile_response(which, x):
     if which is 'all-profiles':
         profiles_callbacks.all(x)
@@ -229,6 +230,7 @@ def create_session_data(prefs, local_storage_data):
 
 
 @from_python
+@no_prune
 def create_view(prefs, local_storage, field_metadata, ui_data):
     nonlocal view
     set_system_colors(ui_data.system_colors)
@@ -251,6 +253,7 @@ def create_view(prefs, local_storage, field_metadata, ui_data):
 
 
 @from_python
+@no_prune
 def set_system_palette(system_colors):
     set_system_colors(system_colors)
     if view:
@@ -258,12 +261,14 @@ def set_system_palette(system_colors):
 
 
 @from_python
+@no_prune
 def highlight_action(uuid, which):
     if view:
         view.highlight_action(uuid, which)
 
 
 @from_python
+@no_prune
 def generic_action(which, data):
     if which is 'set-notes-in-highlight':
         view.set_notes_for_highlight(data.uuid, data.notes or '')
@@ -276,16 +281,19 @@ def generic_action(which, data):
 
 
 @from_python
+@no_prune
 def tts_event(which, data):
     view.read_aloud.handle_tts_event(which, data)
 
 
 @from_python
+@no_prune
 def show_home_page():
     view.overlay.open_book(False)
 
 
 @from_python
+@no_prune
 def redraw_tts_bar(pos):
     sd = get_session_data()
     sd.set('tts_bar_position', pos)
@@ -294,6 +302,7 @@ def redraw_tts_bar(pos):
 
 
 @from_python
+@no_prune
 def start_book_load(key, initial_position, pathtoebook, highlights, book_url, reading_rates, book_in_library_url):
     xhr = ajax('manifest', manifest_received.bind(None, key, initial_position, pathtoebook, highlights, book_url, reading_rates, book_in_library_url), ok_code=0)
     xhr.responseType = 'json'
@@ -301,32 +310,38 @@ def start_book_load(key, initial_position, pathtoebook, highlights, book_url, re
 
 
 @from_python
+@no_prune
 def goto_toc_node(node_id):
     view.goto_toc_node(node_id)
 
 
 @from_python
+@no_prune
 def goto_cfi(cfi, add_to_history):
     return view.goto_cfi(cfi, v'!!add_to_history')
 
 
 @from_python
+@no_prune
 def full_screen_state_changed(viewer_in_full_screen):
     runtime.viewer_in_full_screen = viewer_in_full_screen
 
 
 @from_python
+@no_prune
 def get_current_cfi(request_id):
     view.get_current_cfi(request_id, ui_operations.report_cfi)
 
 
 @from_python
+@no_prune
 def goto_frac(frac):
     if view:
         view.goto_frac(frac)
 
 
 @from_python
+@no_prune
 def background_image_changed(img_id, url):
     img = document.getElementById(img_id)
     if img:
@@ -335,12 +350,14 @@ def background_image_changed(img_id, url):
 
 
 @from_python
+@no_prune
 def trigger_shortcut(which):
     if view:
         view.on_handle_shortcut({'name': which})
 
 
 @from_python
+@no_prune
 def show_search_result(sr):
     if view:
         if sr.on_discovery:
@@ -349,6 +366,7 @@ def show_search_result(sr):
             view.show_search_result(sr)
 
 @from_python
+@no_prune
 def prepare_for_close():
     if view:
         view.prepare_for_close()
@@ -357,20 +375,45 @@ def prepare_for_close():
 
 
 @from_python
+@no_prune
 def repair_after_fullscreen_switch():
     if view:
         view.show_status_message('...', 200)
 
 
 @from_python
+@no_prune
 def viewer_font_size_changed():
     if view:
         view.viewer_font_size_changed()
 
 @from_python
+@no_prune
 def native_gesture(gesture):
     if view:
         view.native_gesture(gesture)
+
+
+source_map_set = False
+
+def source_map_received(data, end_type, xhr, ev):
+    end_type = workaround_qt_bug(xhr, end_type)
+    if end_type is 'abort':
+        return
+    if end_type is 'load' and xhr.responseType is 'json':
+        traceback.set_source_map_data(xhr.response)
+    error_object = traceback.unserialize_error_for_formatting(data.error)
+    details = traceback.format_exception(error_object).join('')
+    show_error(data.title, data.msg, details)
+
+
+def load_source_map(data):
+    nonlocal source_map_set
+    xhr = ajax('viewer.js.map', source_map_received.bind(None, data))
+    xhr.responseType = 'json'
+    xhr.send()
+    source_map_set = True
+
 
 def onerror(msg, script_url, line_number, column_number, error_object):
     if not error_object:
@@ -380,16 +423,20 @@ def onerror(msg, script_url, line_number, column_number, error_object):
     msg += '<br><span style="font-size:smaller">' + 'Error at {}:{}:{}'.format(fname, line_number, column_number or '') + '</span>'
     details = ''
     console.log(error_object)
-    details = traceback.format_exception(error_object).join('')
-    show_error(_('Unhandled error'), msg, details)
+    title = _('Unhandled error')
+    if source_map_set:
+        details = traceback.format_exception(error_object).join('')
+        show_error(title, msg, details)
+    else:
+        load_source_map({'title': title, 'msg': msg, 'error': traceback.serialize_error_for_formatting(error_object)})
     return True
 
 
 if window is window.top:
     # main
-    TRANSLATIONS_DATA = v'__TRANSLATIONS_DATA__'
-    if TRANSLATIONS_DATA:
-        install(TRANSLATIONS_DATA)
+    if window.calibre_translations_data:
+        install(window.calibre_translations_data)
+        window.calibre_translations_data = None
     ui_operations.get_all_profiles = get_all_profiles
     ui_operations.save_profile = save_profile
     ui_operations.apply_profile = def(profile):

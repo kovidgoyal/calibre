@@ -47,6 +47,13 @@ def index(ctx, rd):
     return open(P('content-server/index-generated.html'), 'rb')
 
 
+@endpoint('/index.js.map', auth_required=False)
+def index_js_map(ctx, rd):
+    rd.outheaders['Content-Type'] = 'application/json'
+    # allow serving the data via sendfile() for performance
+    return open(P('content-server/index.js.map'), 'rb')
+
+
 @endpoint('/robots.txt', auth_required=False)
 def robots(ctx, rd):
     return b'User-agent: *\nDisallow: /'
@@ -137,7 +144,7 @@ def get_basic_query_data(ctx, rd):
     return library_id, db, sorts, orders, rd.query.get('vl') or ''
 
 
-def get_translations_data():
+def get_translations_data() -> bytes | None:
     with zipfile.ZipFile(
         P('content-server/locales.zip', allow_user_override=False), 'r'
     ) as zf:

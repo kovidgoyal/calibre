@@ -26,6 +26,7 @@ module_lists = {
     'webengine': (
         'QtWebEngineCore',
         'QtWebEngineWidgets',
+        'QtWebChannel',
     ),
     'dbus': (
         'QtDBus',
