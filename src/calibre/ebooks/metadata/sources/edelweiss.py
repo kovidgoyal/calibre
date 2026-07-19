@@ -10,10 +10,10 @@ import re
 import time
 from threading import Thread
 
-from calibre.utils.localization import _
-
 try:
     from queue import Empty, Queue
+
+    from calibre.utils.localization import _
 except ImportError:
     from Queue import Empty, Queue  # type: ignore
 
