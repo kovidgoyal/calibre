@@ -18,6 +18,7 @@ import uuid
 from contextlib import closing, suppress
 from datetime import datetime
 from functools import partial
+from typing import TYPE_CHECKING, cast
 
 import apsw
 
@@ -80,6 +81,10 @@ from polyglot.builtins import cmp, reraise
 
 if iswindows:
     from calibre_extensions import winutil
+if TYPE_CHECKING:
+    from apsw import ScalarProtocol
+else:
+    ScalarProtocol = None
 
 # }}}
 
@@ -399,13 +404,13 @@ class Connection(apsw.Connection):  # {{{
         self.createcollation('PYNOCASE', partial(pynocase,
             encoding=encoding))
 
-        self.createscalarfunction('title_sort', title_sort, 1)
+        self.createscalarfunction('title_sort', cast(ScalarProtocol, title_sort))
         self.createscalarfunction('author_to_author_sort',
-                _author_to_author_sort, 1)
+                cast(ScalarProtocol, _author_to_author_sort), 1)
         self.createscalarfunction('uuid4', lambda *a: str(uuid.uuid4()), 0)
 
         # Dummy functions for dynamically created filters
-        self.createscalarfunction('books_list_filter', lambda x: 1, 1)
+        self.createscalarfunction('books_list_filter', cast(ScalarProtocol, lambda x: 1), 1)
         self.createcollation('icucollate', icu_collator)
 
         # Legacy aggregators (never used) but present for backwards compat
@@ -422,7 +427,7 @@ class Connection(apsw.Connection):  # {{{
 
     def create_dynamic_filter(self, name):
         f = DynamicFilter(name)
-        self.createscalarfunction(name, f, 1)
+        self.createscalarfunction(name, cast(ScalarProtocol, f), 1)
 
     def get(self, *args, **kw):
         ans = self.cursor().execute(*args)
