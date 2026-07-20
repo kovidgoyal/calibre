@@ -13,7 +13,6 @@ SIZE = 10
 
 
 class BookScrollbar:
-
     def __init__(self, view):
         self.view = view
         self.container_id = unique_id('book-scrollbar')
@@ -88,7 +87,7 @@ class BookScrollbar:
             self.down_y = 0
             window.removeEventListener('mousemove', self.on_bob_mousemove, {'capture': True, 'passive': False})
             window.removeEventListener('mouseup', self.on_bob_mouseup, {'capture': True, 'passive': False})
-            window.setTimeout(def(): self.container.firstChild.nextSibling.style.display = 'none';, 10)
+            window.setTimeout(def (): self.container.firstChild.nextSibling.style.display='none';, 10)
             evt.preventDefault(), evt.stopPropagation()
 
     def apply_visibility(self):
@@ -119,7 +118,7 @@ class BookScrollbar:
 
         def mix(fg, bg, frac):
             def m(x):  # noqa: unused-local
-                return frac * fg[x] + (1-frac) * bg[x]
+                return frac * fg[x] + (1 - frac) * bg[x]
             return v'[m[0], m[1], m[2]]'
 
         rbg = mix(fg, bg, 0.3)

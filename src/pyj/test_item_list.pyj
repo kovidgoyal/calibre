@@ -2,8 +2,9 @@
 # License: GPL v3 Copyright: 2026, Kovid Goyal <kovid at kovidgoyal.net>
 from __python__ import hash_literals
 
-from book_list.item_list import create_item, create_item_list
 from elementmaker import E
+
+from book_list.item_list import create_item, create_item_list
 from testing import assert_true, test
 
 

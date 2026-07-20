@@ -9,6 +9,7 @@ from session import session_defaults
 
 opts = {}
 
+
 def update_settings(settings):
     settings = Object.assign({}, session_defaults(), settings)
     opts.base_font_size = max(8, min(settings.base_font_size, 64))

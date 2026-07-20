@@ -4,6 +4,7 @@ from __python__ import bound_methods, hash_literals
 
 from dom import clear
 
+
 def raise_fail(preamble, msg, call_site):
     if msg:
         msg = '. ' + msg
@@ -26,7 +27,6 @@ def repr_of(a):
 
 
 def assert_equal(a, b, msg, call_site=None):
-
     def fail():
         ra = repr_of(a)
         rb = repr_of(b)

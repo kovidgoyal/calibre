@@ -2,9 +2,10 @@
 # License: GPL v3 Copyright: 2023, Kovid Goyal <kovid at kovidgoyal.net>
 from __python__ import bound_methods, hash_literals
 
-from read_book.touch import GESTURE
-from read_book.settings import opts
 from gettext import gettext as _
+
+from read_book.settings import opts
+from read_book.touch import GESTURE
 
 
 def get_action_descriptions():
@@ -73,7 +74,6 @@ default_actions_for_gesture = {
         GESTURE.forward_zone_tap: 'next_page',
         GESTURE.control_zone_tap: 'show_chrome',
         GESTURE.long_tap: 'highlight_or_inspect',
-
         GESTURE.two_finger_tap: 'show_chrome',
         GESTURE.pinch_in: 'decrease_font_size',
         GESTURE.pinch_out: 'increase_font_size',
@@ -98,6 +98,7 @@ default_actions_for_gesture = {
     },
 }
 
+
 def current_action_for_gesture_type(overrides, gesture_type, in_flow_mode):
     mode = 'flow_mode' if in_flow_mode else 'paged_mode'
     mode_overrides = overrides[mode] or {}
@@ -110,18 +111,23 @@ def current_action_for_gesture_type(overrides, gesture_type, in_flow_mode):
         return default_actions_for_gesture[mode][gesture_type]
     return default_actions_for_gesture.common[gesture_type] or 'none'
 
+
 def action_for_gesture(gesture, in_flow_mode):
     return current_action_for_gesture_type(opts.gesture_overrides, gesture.type, in_flow_mode)
 
+
 def allowed_actions_for_tap():
     return [ac for ac in Object.keys(get_action_descriptions()) if not only_flow_swipe_mode_actions[ac]]
+
 
 def allowed_actions_for_paged_mode_swipe():
     return [ac for ac in Object.keys(get_action_descriptions()) if not only_flow_swipe_mode_actions[ac] and not only_tap_actions[ac]]
 allowed_actions_for_two_fingers = allowed_actions_for_paged_mode_swipe
 
+
 def allowed_actions_for_flow_mode_flick():
     return [ac for ac in Object.keys(get_action_descriptions()) if not only_tap_actions[ac]]
+
 
 def allowed_actions_for_flow_mode_drag():
     return ['pan', 'none']

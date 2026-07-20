@@ -25,6 +25,7 @@ MAX_SCROLL_SPEED_SMOOTH = 80
 MIN_SCROLL_MOUSE_DELAY = 0
 MAX_SCROLL_MOUSE_DELAY = 5
 
+
 def restore_defaults():
     container = get_container()
     for control in container.querySelectorAll('input[name]'):
@@ -64,7 +65,7 @@ def create_scrolling_panel(container, apply_func, cancel_func):
         for key, val in Object.entries(kwargs):
             ans[key] = val
         ans.valueAsNumber = sd.get(name, session_defaults()[name])
-        return E.label("for"=name, text), ans
+        return E.label('for'=name, text), ans
 
     container.appendChild(E.div(style='margin-top:1ex', _('Control how scrolling works in paged mode')))
     container.appendChild(E.div(style='margin-left: 1rem'))

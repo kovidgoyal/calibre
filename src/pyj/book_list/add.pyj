@@ -8,9 +8,9 @@ from gettext import gettext as _
 from ajax import ajax_send_file
 from book_list.library_data import force_refresh_on_next_load, loaded_books_query
 from book_list.router import back
+from book_list.theme import get_color
 from book_list.top_bar import create_top_bar
 from book_list.ui import query_as_href, show_panel
-from book_list.theme import get_color
 from dom import add_extra_css, build_rule, clear, ensure_id
 from file_uploads import (
     update_status_widget, upload_files_widget, upload_status_widget
@@ -29,7 +29,7 @@ state = {
 }
 
 
-add_extra_css(def():
+add_extra_css(def ():
     panel = '.cs-add-books'
     sel = panel + ' '
     s = ''
@@ -203,7 +203,7 @@ def list_added_book(container, data):
     if state.number > 1:
         a.setAttribute('target', '_blank')
     else:
-        a.addEventListener('click', def(e):
+        a.addEventListener('click', def (e):
             e.preventDefault()
             show_panel('book_details', {'book_id': data.book_id + ''}, True)
         )
@@ -215,7 +215,7 @@ def list_duplicate_book(container, container_id, job_id, data, file):
         _('A book with the title "{0}" already exists in the library.').format(data.title),
         class_='cs-add-books-dup-hint',
     ))
-    b = create_button(_('Add anyway'), action=def():
+    b = create_button(_('Add anyway'), action=def ():
         c = get_job_container(container_id, job_id)
         clear(c)
         w = upload_status_widget(file.name, job_id)

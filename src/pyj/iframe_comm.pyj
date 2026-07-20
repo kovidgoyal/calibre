@@ -2,14 +2,14 @@
 # License: GPL v3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
 from __python__ import bound_methods, hash_literals
 
+import traceback
 from aes import GCM
 from elementmaker import E
+from gettext import install
 
-import traceback
 from book_list.globals import get_translations, main_js
 from book_list.theme import get_font_family
 from dom import ensure_id
-from gettext import install
 
 LOADING_DOC = '''
 <!DOCTYPE html>
@@ -31,7 +31,6 @@ __BS__
 
 
 class Messenger:
-
     def __init__(self):
         self.secret = Uint8Array(64)
 
@@ -48,7 +47,6 @@ class Messenger:
 
 
 class IframeWrapper:
-
     def __init__(self, handlers, iframe, entry_point, bootstrap_text):
         self.messenger = Messenger()
         self.iframe_id = ensure_id(iframe, 'content-iframe')
@@ -87,7 +85,7 @@ class IframeWrapper:
                 'FONT': get_font_family(),
                 'ENTRY_POINT': self.entry_point,
             }
-            self.iframe.srcdoc = LOADING_DOC.replace(r, def(match, field): return data[field];)
+            self.iframe.srcdoc = LOADING_DOC.replace(r, def (match, field): return data[field];)
         else:
             self.iframe.src = self.constructor_url
         self.srcdoc_created = True
@@ -118,7 +116,7 @@ class IframeWrapper:
         if not self.ready:
             return
         data.action = action
-        msg = {'data':data, 'encrypted': encrypted}
+        msg = {'data': data, 'encrypted': encrypted}
         if encrypted:
             msg.data = self.messenger.encrypt(data)
         self.iframe.contentWindow.postMessage(msg, '*')
@@ -177,8 +175,8 @@ def create_wrapped_iframe(handlers, bootstrap_text, entry_point, kw):
 
 instance_numbers = {}
 
-class IframeClient:
 
+class IframeClient:
     def __init__(self, handlers, name):
         self.encrypted_communications = False
         self.name = name

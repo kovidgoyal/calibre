@@ -4,11 +4,10 @@ from __python__ import hash_literals, bound_methods
 
 
 def lru_node(key, val):
-    return {'key': key, 'val':val, 'prev':None, 'next':None}
+    return {'key': key, 'val': val, 'prev': None, 'next': None}
 
 
 class LRUCache:
-
     def __init__(self, size):
         self.limit = 200
         self.clear(size)

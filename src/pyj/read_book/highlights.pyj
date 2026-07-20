@@ -3,13 +3,13 @@
 from __python__ import bound_methods, hash_literals
 
 from elementmaker import E
+from gettext import gettext as _, ngettext
 
 from ajax import encode_query
 from book_list.globals import get_current_query, get_session_data
 from book_list.theme import get_color
 from complete import create_search_bar
 from dom import add_extra_css, build_rule, clear, svgicon, unique_id
-from gettext import gettext as _, ngettext
 from modals import (
     create_custom_dialog, error_dialog, get_text_dialog, question_dialog,
     warning_dialog
@@ -76,7 +76,6 @@ def style_key(style):
 
 
 class HighlightStyle:
-
     def __init__(self, style):
         if jstype(style) is 'string':
             style = JSON.parse(style)
@@ -151,7 +150,6 @@ class HighlightStyle:
 
 
 def highlight_style_as_css(s, is_dark, foreground):
-
     def styler(node):
         def set(name, val):
             if val:
@@ -164,7 +162,7 @@ def highlight_style_as_css(s, is_dark, foreground):
                 keys = s
             set('text-decoration-line', keys['text-decoration-line'])
             set('text-decoration-color', keys['text-decoration-color'])
-            set('text-decoration-style',  keys['text-decoration-style'])
+            set('text-decoration-style', keys['text-decoration-style'])
             return
 
         bg = None
@@ -205,10 +203,10 @@ def all_styles():
 
 
 class AddStyle:  # {{{
-
     def __init__(self, get_container, hide_self):
         self.get_container = get_container
         self.hide_self = hide_self
+
         def onkeydown(ev):
             ev.stopPropagation()
             if ev.key is 'Escape':
@@ -224,7 +222,6 @@ class AddStyle:  # {{{
                 '\xa0\xa0',
                 E.label(E.input(type='radio', name='style_type', value='decoration', onchange=self.change_type), _('Underline')),
             ),
-
             E.div(
                 name='color-container',
                 style='margin-top:1rem; border-top: solid; padding-top: 1rem',
@@ -232,7 +229,6 @@ class AddStyle:  # {{{
                 E.div('\xa0'),
                 E.div(E.label(_('Color for dark color themes: '), E.input(type='color', name='dark_color', value='#cccc00'))),
             ),
-
             E.div(
                 name='decoration-container',
                 style='margin-top:1rem; border-top: solid; padding-top: 1rem',
@@ -242,7 +238,7 @@ class AddStyle:  # {{{
                     '\xa0',
                     E.label(E.input(type='radio', name='color_type', value='custom_color'), _('Custom color:')),
                     '\xa0',
-                    E.input(type='color', name='decoration_color', value='#ff0000', onchange=def():
+                    E.input(type='color', name='decoration_color', value='#ff0000', onchange=def ():
                             self.get_container().querySelector('input[value=custom_color]').checked = True
                     )
                 ),
@@ -267,11 +263,11 @@ class AddStyle:  # {{{
             ),
             E.div(
                 style='margin-top:1rem; border-top: solid; padding-top: 1rem; display: flex; width: 100%; justify-content: space-between',
-                create_button(_('Discard'), 'close', def(ev):
+                create_button(_('Discard'), 'close', def (ev):
                     ev.stopPropagation()
                     hide_self(None)
                 ),
-                create_button(_('Save'), 'check', def(ev):
+                create_button(_('Save'), 'check', def (ev):
                     ev.stopPropagation()
                     if not self.friendly_name:
                         return error_dialog(_('No name specified'), _('You must give your custom style a name'), on_close=self.focus)
@@ -325,7 +321,6 @@ class AddStyle:  # {{{
 
 
 class EditNotesAndColors:  # {{{
-
     def __init__(self, container, is_dark_theme, current_notes, current_style, annot_id, close_editor):
         self.initial_style = current_style
         self.is_dark_theme = is_dark_theme
@@ -353,7 +348,7 @@ class EditNotesAndColors:  # {{{
             True
         )
         apply_button.style.marginLeft = apply_button.style.marginTop = 'auto'
-        stop_propagation = def(ev):
+        stop_propagation = def (ev):
             ev.stopPropagation()
 
         c = E.div(
@@ -367,7 +362,6 @@ class EditNotesAndColors:  # {{{
                 rows='10', spellcheck='true', style='width: 90%;',
                 onkeydown=handle_keypress,
             ),
-
             E.div(
                 class_='color-block',
                 style=f'display: flex; flex-wrap: wrap; width: 100%; justify-content: center',
@@ -384,7 +378,7 @@ class EditNotesAndColors:  # {{{
         container.style.maxWidth = '40rem'
         container.style.width = '90%'
         c.appendChild(E.div(style='display:none'))
-        self.add_style = AddStyle(def(): return self.container.lastChild;, self.hide_add_style)
+        self.add_style = AddStyle(def (): return self.container.lastChild;, self.hide_add_style)
         self.seen_colors = {}
         custom_highlight_styles = get_session_data().get('custom_highlight_styles')
         for raw in custom_highlight_styles:
@@ -399,7 +393,7 @@ class EditNotesAndColors:  # {{{
             style='padding: 4px; margin: 4px;',
             title=_('Add a new highlight style'),
             class_='simple-link',
-            onclick=def(ev):
+            onclick=def (ev):
                 ev.stopPropagation()
                 c = self.container
                 c.firstChild.style.display = 'none'
@@ -527,6 +521,7 @@ class EditNotesAndColors:  # {{{
 
 # Browse highlights panel {{{
 
+
 def get_container_id():
     if not get_container_id.ans:
         get_container_id.ans = unique_id()
@@ -578,7 +573,6 @@ def render_highlight_as_text(hl, lines, link_prefix, current_query, as_markdown=
 
 
 class ChapterGroup:
-
     def __init__(self, title, level):
         self.level = level or 0
         self.title = title or ''
@@ -598,7 +592,7 @@ class ChapterGroup:
     def group_for_title(self, title):
         ans = self.subgroups[title]
         if not ans:
-            ans = ChapterGroup(title, self.level+1)
+            ans = ChapterGroup(title, self.level + 1)
             self.subgroups[title] = ans
             self.subgroups_in_order.push(title)
         return ans
@@ -627,7 +621,7 @@ def show_export_dialog(annotations_manager, book_metadata):
     ta_id = unique_id()
     href = window.location.href
     idx = href.indexOf('#')
-    href = href[:idx+1]
+    href = href[:idx + 1]
     current_query = Object.assign({}, get_current_query())
     link_prefix = get_current_link_prefix()
 
@@ -651,7 +645,7 @@ def show_export_dialog(annotations_manager, book_metadata):
     def fmt_item(text, val):
         ans = E.label(E.input(type='radio', name='format', value=val, checked=val is fmt), '\xa0', text)
         ans.style.marginRight = '1rem'
-        ans.firstChild.addEventListener('change', def(ev):
+        ans.firstChild.addEventListener('change', def (ev):
             nonlocal fmt
             fmt = this.value
             sd.set('highlights_export_format', this.value)
@@ -688,7 +682,7 @@ def show_export_dialog(annotations_manager, book_metadata):
                     a = E.a(href=url, download=filename)
                     document.body.appendChild(a)
                     a.click()
-                    window.setTimeout(def():
+                    window.setTimeout(def ():
                         document.body.removeChild(a)
                         window.URL.revokeObjectURL(url)
                     , 0)
@@ -716,7 +710,7 @@ def find(backwards):
         if backwards:
             all_highlights = all_highlights[:start].reverse().concat(all_highlights[start:].reverse())
         else:
-            all_highlights = all_highlights[start+1:].concat(all_highlights[:start+1])
+            all_highlights = all_highlights[start + 1:].concat(all_highlights[:start + 1])
     elif backwards:
         all_highlights.reverse()
     q = text.toLowerCase()
@@ -739,7 +733,7 @@ def find_next():
     return find(False)
 
 
-add_extra_css(def():
+add_extra_css(def ():
     ans = ''
     sel = '#' + get_container_id()
     ans += build_rule(sel + ' .ac-button', margin_left='1rem', margin_top='1ex')
@@ -768,11 +762,11 @@ opening_brackets = Object.keys(closing_bracket_map).join('')
 
 
 def url(text: str, s: int, e: int):
-    while '.,?!'.indexOf(text[e-1]) > -1 and e > 1:  # remove trailing punctuation
+    while '.,?!'.indexOf(text[e - 1]) > -1 and e > 1:  # remove trailing punctuation
         e -= 1
     # truncate url at closing bracket/quote
-    if s > 0 and e <= text.length and closing_bracket_map[text[s-1]]:
-        q = closing_bracket_map[text[s-1]]
+    if s > 0 and e <= text.length and closing_bracket_map[text[s - 1]]:
+        q = closing_bracket_map[text[s - 1]]
         idx = text.indexOf(q, s)
         if idx > s:
             e = idx
@@ -847,7 +841,7 @@ def remove_highlight(annot_id, view, ev):
 
 def edit_notes(annot_id, notes, view, ev):
     entry = ev.currentTarget.closest('.highlight')
-    get_text_dialog(_('Notes'), def(ok, text):
+    get_text_dialog(_('Notes'), def (ok, text):
         if not ok:
             return
         text = text or ''
@@ -855,7 +849,7 @@ def edit_notes(annot_id, notes, view, ev):
         clear(nc)
         view.set_notes_for_highlight(annot_id, text)
         render_notes(text, nc)
-    , initial_text=notes or None)
+    , initial_text = notes or None)
 
 
 def all_selected_entries():
@@ -888,7 +882,7 @@ def delete_selection(annotations_manager, view):
         'Do you want to permanently delete the {} selected highlights?',
         selected_highlight_items.length
     ).format(selected_highlight_items.length)
-    question_dialog(_('Are you sure?'), text, def(yes):
+    question_dialog(_('Are you sure?'), text, def (yes):
         if yes:
             for entry in selected_highlight_items:
                 entry.style.display = 'none'
@@ -897,7 +891,6 @@ def delete_selection(annotations_manager, view):
 
 
 def highlight_entry(h, onclick, view, hide_panel):
-
     def action(func, ev):
         ev.stopPropagation(), ev.preventDefault()
         onclick(func)
@@ -912,8 +905,8 @@ def highlight_entry(h, onclick, view, hide_panel):
         E.div(
             class_='title-row',
             E.div(class_='title', swatch, E.div(style='margin-left: 1rem', h.highlighted_text)),
-            E.div(style='margin-left: 1rem', onclick=def(ev): ev.stopPropagation();,
-                  E.input(type='checkbox', onchange=item_select_toggled, onkeydown=def(ev):
+            E.div(style='margin-left: 1rem', onclick=def (ev): ev.stopPropagation();,
+                  E.input(type='checkbox', onchange=item_select_toggled, onkeydown=def (ev):
                         if ev.key is 'Escape':
                             ev.stopPropagation()
                             ev.preventDefault()
@@ -938,10 +931,11 @@ def highlight_entry(h, onclick, view, hide_panel):
 
 
 def create_icon_button(icon, title, action):
-    return E.a(svgicon(icon), class_='calibre-icon-button ac-button', title=title, onclick=def(ev):
+    return E.a(svgicon(icon), class_='calibre-icon-button ac-button', title=title, onclick=def (ev):
                 ev.preventDefault()
                 action()
-            , onmousedown=def(e): e.preventDefault();)
+            , onmousedown = def (e): e.preventDefault();)
+
 
 def create_highlights_panel(annotations_manager, hide_panel, book, container, onclick):
     next_button = create_icon_button('chevron-down', _('Next match'), find_next)
@@ -1013,4 +1007,4 @@ def create_highlights_panel(annotations_manager, hide_panel, book, container, on
         ic = g.lastChild
         for h in highlights:
             ic.appendChild(highlight_entry(h, onclick, annotations_manager.view, hide_panel))
-# }}}
+            # }}}

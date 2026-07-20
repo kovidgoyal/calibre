@@ -11,15 +11,19 @@ from read_book.settings import opts
 
 JSON_XHTML_MIMETYPE = 'application/calibre+xhtml+json'
 
+
 def decode_component(x):
     return utf8_decode(base64decode(x))
+
 
 def decode_url(x):
     parts = x.split('#', 1)
     return decode_component(parts[0]), parts[1] or ''
 
+
 def create_link_pat(book):
     return RegExp(book.manifest.link_uid + r'\|([^|]+)\|', 'g')
+
 
 def load_resources(book, root_name, previous_resources, proceed):
     ans = Object.create(None)
@@ -67,9 +71,10 @@ def load_resources(book, root_name, previous_resources, proceed):
 
 mathjax_data = None
 
+
 def load_mathjax(book, resource_data, proceed):
     if mathjax_data is None:
-        ui_operations.get_mathjax_files(def(data):
+        ui_operations.get_mathjax_files(def (data):
             nonlocal mathjax_data
             mathjax_data = data
             resource_data['..mathjax-files..'] = data
@@ -78,6 +83,7 @@ def load_mathjax(book, resource_data, proceed):
     else:
         resource_data['..mathjax-files..'] = mathjax_data
         proceed(resource_data)
+
 
 def finalize_resources(book, root_name, resource_data):
     blob_url_map = Object.create(None)
@@ -163,10 +169,17 @@ def finalize_resources(book, root_name, resource_data):
     return root_data, mathjax, blob_url_map
 
 js_types = {k: True for k in 'text/javascript text/ecmascript application/javascript application/ecmascript'.split(' ')}
-resource_tag_names = {'script':'src', 'link':'href', 'img':'src', 'image':'xlink:href'}
-ns_rmap = {'http://www.w3.org/2000/svg':'svg', 'http://www.w3.org/1999/xlink':'xlink', 'http://www.w3.org/1998/Math/MathML':'math', 'http://www.w3.org/XML/1998/namespace': 'xml', 'http://www.idpf.org/2007/ops': 'epub'}
+resource_tag_names = {'script': 'src', 'link': 'href', 'img': 'src', 'image': 'xlink:href'}
+ns_rmap = {
+    'http://www.w3.org/2000/svg': 'svg',
+    'http://www.w3.org/1999/xlink': 'xlink',
+    'http://www.w3.org/1998/Math/MathML': 'math',
+    'http://www.w3.org/XML/1998/namespace': 'xml',
+    'http://www.idpf.org/2007/ops': 'epub',
+}
 ns_count = 0
 hide_tooltips = False
+
 
 def get_prefix(ns):
     nonlocal ns_count
@@ -175,6 +188,7 @@ def get_prefix(ns):
         ns_rmap[ns] = ans = 'ns' + ns_count
         ns_count += 1
     return ans + ':'
+
 
 def apply_attributes(src, elem, ns_map):
     attributes = src.a
@@ -272,12 +286,11 @@ def unserialize_html(serialized_data, proceed, postprocess_dom, root_name):
             base = f'{window.location.protocol}//{window.location.hostname}{base}/' + root_name
             document.head.appendChild(E.base(href=base))
 
-
     # Default stylesheet
     if not runtime.is_standalone_viewer:
         # for the standalone viewer the default font family is set
         # in the viewer settings
-        document.head.appendChild(E.style(type='text/css', 'html {{ font-family: {} }}'.format(window.default_font_family or "sans-serif")))
+        document.head.appendChild(E.style(type='text/css', 'html {{ font-family: {} }}'.format(window.default_font_family or 'sans-serif')))
 
     load_required = set()
     proceeded = False
@@ -307,7 +320,6 @@ def unserialize_html(serialized_data, proceed, postprocess_dom, root_name):
                 stack.push(v'[child, parent]')
         process_stack(stack, None, ns_map, load_required, onload)
 
-
     body_done = False
     process_stack.tag_id = 1
     for child in html.c:
@@ -335,7 +347,6 @@ def unserialize_html(serialized_data, proceed, postprocess_dom, root_name):
         proceed()
 
 
-
 def unserialize_html_legacy(serialized_data, proceed, postprocess_dom, root_name):
     tag_map = serialized_data.tag_map
     tree = serialized_data.tree
@@ -357,12 +368,11 @@ def unserialize_html_legacy(serialized_data, proceed, postprocess_dom, root_name
             base = f'{window.location.protocol}//{window.location.hostname}{base}/' + root_name
             document.head.appendChild(E.base(href=base))
 
-
     # Default stylesheet
     if not runtime.is_standalone_viewer:
         # for the standalone viewer the default font family is set
         # in the viewer settings
-        document.head.appendChild(E.style(type='text/css', 'html {{ font-family: {} }}'.format(window.default_font_family or "sans-serif")))
+        document.head.appendChild(E.style(type='text/css', 'html {{ font-family: {} }}'.format(window.default_font_family or 'sans-serif')))
     load_required = set()
     proceeded = False
     hang_timeout = 5

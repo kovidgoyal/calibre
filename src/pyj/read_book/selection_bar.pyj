@@ -3,11 +3,12 @@
 from __python__ import bound_methods, hash_literals
 
 from elementmaker import E
+from gettext import gettext as _
+from uuid import short_uuid
 
 from book_list.globals import get_session_data
 from book_list.theme import get_color
 from dom import change_icon_image, clear, svgicon, unique_id
-from gettext import gettext as _
 from modals import create_custom_dialog, error_dialog, question_dialog
 from read_book.globals import runtime, ui_operations
 from read_book.highlights import (
@@ -16,14 +17,14 @@ from read_book.highlights import (
 )
 from read_book.shortcuts import shortcut_for_key_event
 from read_book.toc import family_for_toc_node, get_toc_nodes_bordering_spine_item
-from uuid import short_uuid
-from widgets import create_button
 from utils import parse_url_params
+from widgets import create_button
 
 DRAG_SCROLL_ZONE_MIN_HEIGHT = 10
 BUTTON_MARGIN = '0.5rem'
 
 # Utils {{{
+
 
 def get_margins():
     return {
@@ -58,7 +59,13 @@ def map_boundaries(cs, vertical, rtl):
                 if b.selected_prev:
                     x_offset = b.width
 
-        return {'x': (b.x or 0) + x_offset + margins.left, 'y': (b.y or 0) + y_offset + margins.top, 'height': b.height or 0, 'width': b.width or 0, 'onscreen': b.onscreen}
+        return {
+            'x': (b.x or 0) + x_offset + margins.left,
+            'y': (b.y or 0) + y_offset + margins.top,
+            'height': b.height or 0,
+            'width': b.width or 0,
+            'onscreen': b.onscreen,
+        }
 
     return map_boundary(cs.start), map_boundary(cs.end)
 
@@ -165,8 +172,7 @@ def position_bar_avoiding_handles(lh, rh, left, top, bar_width, bar_height, avai
     if not overlaps_a_handle(available_width - bar_width, available_height - bar_height):
         return {'left': available_width - bar_width, 'top': available_height - bar_height, 'put_below': True}
 
-    # give up should be relatively rare
-
+# give up should be relatively rare
 
 
 def quick_highlight_icon(name, tooltip, hcolor):
@@ -238,7 +244,6 @@ EDITING = 3
 
 
 class SelectionBar:
-
     def __init__(self, view):
         self.view = view
         self.current_highlight_style = HighlightStyle(get_session_data().get('highlight_style'))
@@ -291,7 +296,7 @@ class SelectionBar:
         editor_div = E.div(id=self.editor_id, style='position: absolute')
         container.appendChild(editor_div)
         editor_div.addEventListener('click', self.editor_container_clicked, {'passive': False})
-        editor_div.addEventListener('wheel', def(ev):ev.stopPropagation();, {'passive': True})
+        editor_div.addEventListener('wheel', def (ev): ev.stopPropagation();, {'passive': True})
 
     # bar and handles markup {{{
 
@@ -306,14 +311,12 @@ class SelectionBar:
         bar_container = self.bar
         clear(bar_container)
         bar_container.style.maxWidth = 'min(50rem, 90vw)'
-        bar_container.style.backgroundColor = get_color("window-background")
+        bar_container.style.backgroundColor = get_color('window-background')
         notes_container = E.div()
-        notes_container.addEventListener('wheel', def(evt): evt.stopPropagation();, {'passive': False})
+        notes_container.addEventListener('wheel', def (evt): evt.stopPropagation();, {'passive': False})
         for x in [
             E.div(style='height: 4ex; display: flex; align-items: center; padding: 5px; justify-content: center'),
-
             E.hr(style='border-top: solid 1px; margin: 0; padding: 0; display: none'),
-
             E.div(
                 style='display: none; padding: 5px;',
                 notes_container,
@@ -325,7 +328,7 @@ class SelectionBar:
 
         def cb(ac, callback):
             ans = ac.icon_function(hs)
-            ans.addEventListener('click', def(ev):
+            ans.addEventListener('click', def (ev):
                 ev.stopPropagation(), ev.preventDefault()
                 callback(ev)
                 self.view.focus_iframe()
@@ -348,7 +351,7 @@ class SelectionBar:
         return bar_container
 
     def show_quick_highlight_buttons(self, bar, actions):
-        all = {x.key:x for x in all_styles()}
+        all = {x.key: x for x in all_styles()}
         actions = [a for a in actions if all[a]]
         if not actions.length:
             return
@@ -375,7 +378,7 @@ class SelectionBar:
             bar.appendChild(sw)
 
     def show_notes(self, bar, notes):
-        notes = (notes or "").strip()
+        notes = (notes or '').strip()
         if not notes:
             return
         notes_container = bar.lastChild
@@ -618,7 +621,7 @@ class SelectionBar:
                 self.remove_highlight()
                 return
             if k in '0123456789':
-                all = {x.key:x for x in all_styles()}
+                all = {x.key: x for x in all_styles()}
                 k = int(k)
                 if k is 0:
                     k = 9
@@ -676,10 +679,10 @@ class SelectionBar:
                         class_='button-box',
                         create_button(_('OK'), None, close_modal),
                         create_button(
-                            _('Copy notes to clipboard'), None, def():
+                            _('Copy notes to clipboard'), None, def ():
                                     ui_operations.copy_selection(notes)
                                     close_modal()
-                            , highlight=True),
+                            , highlight = True),
                     )
                 ))
             )
@@ -698,7 +701,7 @@ class SelectionBar:
             return
         sd = get_session_data()
         in_flow_mode = sd.get('read_mode') is 'flow'
-        interval = 1000/sd.get('lines_per_sec_smooth') if in_flow_mode else 1200
+        interval = 1000 / sd.get('lines_per_sec_smooth') if in_flow_mode else 1200
         self.drag_scroll_timer = window.setTimeout(self.do_one_drag_scroll.bind(None, backwards, distance_from_boundary), interval)
         now = window.performance.now()
         if self.last_drag_scroll_at is None:
@@ -1112,7 +1115,7 @@ class SelectionBar:
                 def (yes):
                     if yes:
                         self.remove_highlight_with_id(annot_id)
-                , skip_dialog_name='confirm_remove_highlight'
+                , skip_dialog_name = 'confirm_remove_highlight'
             )
 
     def remove_highlight_with_id(self, annot_id):
@@ -1178,20 +1181,20 @@ class SelectionBar:
                 cfi = self.annotations_manager.cfi_for_highlight(annot_id, spine_index)
 
                 if runtime.is_standalone_viewer:
-                    url = get_current_link_prefix() + "?open_at=" + cfi
+                    url = get_current_link_prefix() + '?open_at=' + cfi
                 else:
                     url = get_current_link_prefix() + f"bookpos={cfi}"
                     for key, value in Object.entries(parse_url_params()):
-                        if key != "bookpos":
+                        if key != 'bookpos':
                             url = url + f"&{key}={value}"
-                info = { "text" : data.highlighted_text,
-                            "url": url,
-                            "timestamp": data.timestamp,
-                            "style_type": data.style.type,
-                            "style_kind": data.style.kind,
-                            "style_which": data.style.which,
-                            "chapter": data.toc_family_titles[0] if data.toc_family_titles[0] else "",
-                            "notes": data.notes if "notes" in data else "",
+                info = {'text': data.highlighted_text,
+                            'url': url,
+                            'timestamp': data.timestamp,
+                            'style_type': data.style.type,
+                            'style_kind': data.style.kind,
+                            'style_which': data.style.which,
+                            'chapter': data.toc_family_titles[0] if data.toc_family_titles[0] else '',
+                            'notes': data.notes if 'notes' in data else '',
                         }
                 copy_info = get_session_data().get('cite_hl_template').format(**info)
             # If selected text isn't highlighted
@@ -1204,8 +1207,8 @@ class SelectionBar:
                     return self.view.show_not_a_library_book_error()
                 text = msg.highlighted_text.replace(/\[/g, r'\[').replace(/\]/g, r'\]')
                 url = link_to_epubcfi(f'epubcfi(/{spine_index}{cfi})', link_prefix)
-                info = { "text" : text,
-                            "url": url,
+                info = {'text': text,
+                            'url': url,
                         }
                 copy_info = get_session_data().get('cite_text_template').format(**info)
 
@@ -1213,4 +1216,4 @@ class SelectionBar:
         else:
             print('Ignoring annotations message with unknown type:', msg.type)
 
-    # }}}
+            # }}}

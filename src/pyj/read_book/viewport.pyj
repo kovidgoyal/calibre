@@ -7,8 +7,8 @@ FUNCTIONS = 'x y scroll_to scroll_into_view reset_globals __reset_transforms win
 from read_book.globals import get_boss, viewport_mode_changer
 from utils import document_height, document_width, ios_major_version
 
-class ScrollViewport:
 
+class ScrollViewport:
     def __init__(self):
         self.set_mode('flow')
         self.window_width_from_parent = self.window_height_from_parent = None
@@ -30,18 +30,18 @@ class ScrollViewport:
         self.vertical_writing_mode = False
         self.ltr = True
         self.rtl = False
-        if body_style.direction is "rtl":
+        if body_style.direction is 'rtl':
             self.rtl = True
             self.ltr = False
 
-        css_vertical_rl = body_style.getPropertyValue("writing-mode") is "vertical-rl"
+        css_vertical_rl = body_style.getPropertyValue('writing-mode') is 'vertical-rl'
         if css_vertical_rl:
             self.vertical_writing_mode = True
             self.horizontal_writing_mode = False
             self.rtl = True
             self.ltr = False
         else:
-            css_vertical_lr = body_style.getPropertyValue("writing-mode") is "vertical-lr"
+            css_vertical_lr = body_style.getPropertyValue('writing-mode') is 'vertical-lr'
             if css_vertical_lr:
                 self.vertical_writing_mode = True
                 self.horizontal_writing_mode = False
@@ -71,7 +71,7 @@ class ScrollViewport:
 
     def flow_scroll_to(self, x, y):
         if self.rtl:
-            window.scrollTo(-x,y)
+            window.scrollTo(-x, y)
         else:
             window.scrollTo(x, y)
 
@@ -98,7 +98,7 @@ class ScrollViewport:
             window.scrollBy(x, y)
         # Swap inline direction if in RTL mode.
         else:
-            window.scrollBy(-x,y)
+            window.scrollBy(-x, y)
 
     def scroll_by_in_inline_direction(self, offset):
         # Same logic as scroll_to_in_inline_direction
@@ -245,7 +245,6 @@ class ScrollViewport:
 
 
 class IOSScrollViewport(ScrollViewport):
-
     def width(self):
         return self.window_width_from_parent or window.innerWidth
 
@@ -363,6 +362,7 @@ def rem_size(reset):
         rem_size.ans = max(2, d.clientWidth)
         document.body.removeChild(d)
     return rem_size.ans
+
 
 def line_height(reset):
     if reset:

@@ -5,16 +5,16 @@ from __python__ import hash_literals
 from elementmaker import E
 from gettext import gettext as _
 
+from ajax import ajax
 from book_list.globals import get_session_data
 from book_list.item_list import create_item, create_item_list
 from book_list.library_data import browse_field_for, url_books_query, cover_url, current_library_id
 from book_list.router import back, update_window_title
+from book_list.theme import get_color
 from book_list.top_bar import create_top_bar
 from book_list.ui import set_panel_handler, show_panel
-from book_list.theme import get_color
-from session import get_interface_data
 from dom import add_extra_css, build_rule, clear, svgicon
-from ajax import ajax
+from session import get_interface_data
 from utils import parse_url_params
 from widgets import create_pager_widget, create_button
 
@@ -195,7 +195,7 @@ def render_series_stack_covers(div, urls):
         div.appendChild(img)
     return count
 
-add_extra_css(def():
+add_extra_css(def ():
     sel = '.cs-nav-list '
     style = ''
     # Unified nav subtitle (so "Browse all ..." looks consistent across fields)
@@ -343,7 +343,6 @@ add_extra_css(def():
     style += build_rule('.cs-nav-list[data-field="series"]:not([data-series-display="list"]) .cs-series-stack-covers img.cover-img:hover',
         box_shadow='0 26px 64px rgba(0,0,0,0.22)'
     )
-
     # Per-count sizing/positioning: odd stacks only (1 / 3 / 5).
     style += r'''
 .cs-nav-list .cs-series-stack-covers.covers-0 {
@@ -470,9 +469,7 @@ add_extra_css(def():
         overflow='hidden',
         box_sizing='border-box',
     )
-
     # Series card grid: same row has subtitle-nav but layout must stay columnar (not browse-row center).
-
     style += build_rule(sel + '.cs-loading .cs-loading-overlay', opacity='1')
     style += build_rule(sel + '.cs-loading .cs-list-content', opacity='0.45')
     style += r'''
@@ -514,7 +511,6 @@ add_extra_css(def():
     style += build_rule('.cs-nav-list[data-field="series"]:not([data-series-display="list"]) .generic-items-list .cs-series-stack-item-row',
         flex_direction='column',
         align_items='stretch')
-
     # Disable hover "lift" animation for series items (prevents cover zoom feel)
     style += build_rule('.generic-items-list li.cs-series-stack-item:hover', transform='none')
     style += build_rule('.generic-items-list li.cs-series-stack-item:active', transform='none')
@@ -656,8 +652,8 @@ def create_nav_list_panel(container_id):
         body.dataset.seriesDisplay = series_mode
 
     top_pager_widget = create_pager_widget(
-        def(): update_nav_list_url(field, max(0, offset - num), num, query_text, replace=True);,
-        def(): update_nav_list_url(field, offset + num, num, query_text, replace=True);,
+        def (): update_nav_list_url(field, max(0, offset - num), num, query_text, replace=True);,
+        def (): update_nav_list_url(field, offset + num, num, query_text, replace=True);,
     )
     body.appendChild(E.div(top_pager_widget.container, style='margin: 0 0.75rem'))
     status = top_pager_widget.count_msg
@@ -668,12 +664,12 @@ def create_nav_list_panel(container_id):
             value=query_text,
             class_='cs-filter'
         )
-        search_inp.addEventListener('keydown', def(ev):
+        search_inp.addEventListener('keydown', def (ev):
             if ev.key is 'Enter':
                 ev.preventDefault()
                 apply_btn.click()
         )
-        apply_btn = create_button(_('Apply'), icons='search', action=def():
+        apply_btn = create_button(_('Apply'), icons='search', action=def ():
             nonlocal query_text
             query_text = search_inp.value or ''
             update_nav_list_url(field, 0, num, query_text, replace=True)
@@ -685,7 +681,7 @@ def create_nav_list_panel(container_id):
         a = E.a(href='#', class_='cs-toggle-btn')
         a.setAttribute('aria-pressed', 'true' if group_mode is mode else 'false')
         a.appendChild(E.span(label))
-        a.addEventListener('click', def(evt):
+        a.addEventListener('click', def (evt):
             evt.preventDefault()
             update_nav_list_url(field, 0, num, None, replace=True, g=mode)
         )
@@ -720,7 +716,7 @@ def create_nav_list_panel(container_id):
             list_wrap.classList.add('cs-loading')
         else:
             # Delay removal slightly to avoid a flash on very fast responses
-            setTimeout(def():
+            setTimeout(def ():
                 list_wrap.classList.remove('cs-loading')
             , 60)
 
@@ -773,7 +769,7 @@ def create_nav_list_panel(container_id):
         if p.rating:
             info = parse_rating_from_api(avg_rating)
             if info:
-                parts.push(info.text )
+                parts.push(info.text)
         return ' · '.join(parts)
 
     def browse_cache_key():
@@ -853,7 +849,7 @@ def create_nav_list_panel(container_id):
         total = items.length or 0
 
         def make_action(search_query):
-            return def(ev):
+            return def (ev):
                 if ev:
                     ev.preventDefault()
                 show_panel('book_list', query=search_query, replace=False)
@@ -894,7 +890,7 @@ def create_nav_list_panel(container_id):
                 a = E.a(href='#', class_='cs-show-more')
                 a.appendChild(svgicon('plus'))
                 a.appendChild(E.span(_('Show more')))
-                a.addEventListener('click', def(ev):
+                a.addEventListener('click', def (ev):
                     nonlocal visible_tags
                     ev.preventDefault()
                     visible_tags = min(total, visible_tags + 50)
@@ -916,7 +912,7 @@ def create_nav_list_panel(container_id):
         list_items = []
 
         def make_action(search_query):
-            return def(ev):
+            return def (ev):
                 if ev:
                     ev.preventDefault()
                 show_panel('book_list', query=search_query, replace=False)
@@ -970,8 +966,8 @@ def create_nav_list_panel(container_id):
         # Bottom prev/next mirrors top pager state
         clear(bottom_pager)
         bot_widget = create_pager_widget(
-            def(): update_nav_list_url(field, max(0, offset - num), num, query_text, replace=True);,
-            def(): update_nav_list_url(field, offset + num, num, query_text, replace=True);,
+            def (): update_nav_list_url(field, max(0, offset - num), num, query_text, replace=True);,
+            def (): update_nav_list_url(field, offset + num, num, query_text, replace=True);,
         )
         bot_widget.set_enabled(offset > 0, end < total)
         bottom_pager.appendChild(bot_widget.container)

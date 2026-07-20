@@ -3,16 +3,16 @@
 from __python__ import bound_methods, hash_literals
 
 from elementmaker import E
+from gettext import gettext as _
 
 from ajax import absolute_path
 from dom import add_extra_css, svgicon, unique_id
-from gettext import gettext as _
 from popups import MODAL_Z_INDEX
 from read_book.flow_mode import FlickAnimator
 from read_book.touch import TouchHandler, install_handlers
 from utils import debounce
 
-add_extra_css(def():
+add_extra_css(def ():
     # Modern, minimal "glass" image viewer styling
     css = ''
     css += '.calibre-image-popup { background: rgba(10, 10, 12, 0.92); color: rgba(255,255,255,0.92); }\n'
@@ -63,25 +63,24 @@ def fit_image(width, height, pwidth, pheight):
     scaled = height > pheight or width > pwidth
     if height > pheight:
         corrf = pheight / float(height)
-        width, height = Math.floor(corrf*width), pheight
+        width, height = Math.floor(corrf * width), pheight
     if width > pwidth:
         corrf = pwidth / float(width)
-        width, height = pwidth, Math.floor(corrf*height)
+        width, height = pwidth, Math.floor(corrf * height)
     if height > pheight:
         corrf = pheight / float(height)
-        width, height = Math.floor(corrf*width), pheight
+        width, height = Math.floor(corrf * width), pheight
 
     return scaled, int(width), int(height)
 
 
 class ImagePopup(TouchHandler):
-
     def __init__(self):
         TouchHandler.__init__(self)
         self.flick_animator = fa = FlickAnimator()
         fa.scroll_x = self.scroll_x
         fa.scroll_y = self.scroll_y
-        fa.cancel_current_drag_scroll = def(): pass
+        fa.cancel_current_drag_scroll = def (): pass
         self._container = None
         self.container_id = unique_id('image-popup')
         self.img = None
@@ -93,25 +92,13 @@ class ImagePopup(TouchHandler):
         if self._container is None:
             self._container = E.div(
                 style=f'display:none; position:absolute; left:0; top: 0; z-index: {MODAL_Z_INDEX}; width: 100vw; height: 100vh; padding: 0; margin: 0; border-width: 0; box-sizing: border-box',
-                id=self.container_id, tabindex='0', class_='calibre-image-popup',
+                id=self.container_id,
+                tabindex='0',
+                class_='calibre-image-popup',
                 onkeydown=self.onkeydown,
                 onwheel=self.onwheel,
-                E.div(
-                    class_='cs-image-toolbar',
-                    E.a(
-                        svgicon('fit-to-screen'), title=_('Fit image to screen'), class_='fit-to-window',
-                        onclick=self.toggle_fit_to_window,
-                    ),
-                    E.a(
-                        svgicon('close'), title=_('Close'),
-                        onclick=self.hide_container
-                    ),
-                ),
-                E.canvas(
-                    width=window.innerWidth + '', height=window.innerHeight + '',
-                    style='width: 100%; height: 100%; margin: 0; padding: 0; border-width: 0; box-sizing: border-box; display: block',
-                    aria_label='Popup view of image',
-                ),
+                E.div(class_='cs-image-toolbar', E.a(svgicon('fit-to-screen'), title=_('Fit image to screen'), class_='fit-to-window', onclick=self.toggle_fit_to_window,), E.a(svgicon('close'), title=_('Close'), onclick=self.hide_container),),
+                E.canvas(width=window.innerWidth + '', height=window.innerHeight + '', style='width: 100%; height: 100%; margin: 0; padding: 0; border-width: 0; box-sizing: border-box; display: block', aria_label='Popup view of image',)
             )
             document.body.appendChild(self._container)
             install_handlers(self.canvas, self)
@@ -135,17 +122,17 @@ class ImagePopup(TouchHandler):
         if ev.key is 'Escape':
             return self.hide_container()
         if ev.key is 'ArrowDown':
-            return self.scroll_down((window.innerHeight - 10) if ev.getModifierState("Control") else 10)
+            return self.scroll_down((window.innerHeight - 10) if ev.getModifierState('Control') else 10)
         if ev.key is 'PageDown':
-            return self.scroll_down(window.innerHeight-10)
+            return self.scroll_down(window.innerHeight - 10)
         if ev.key is 'ArrowUp':
-            return self.scroll_up((window.innerHeight - 10) if ev.getModifierState("Control") else 10)
+            return self.scroll_up((window.innerHeight - 10) if ev.getModifierState('Control') else 10)
         if ev.key is 'PageUp':
-            return self.scroll_up(window.innerHeight-10)
+            return self.scroll_up(window.innerHeight - 10)
         if ev.key is 'ArrowLeft':
-            return self.scroll_left((window.innerWidth - 10) if ev.getModifierState("Control") else 10)
+            return self.scroll_left((window.innerWidth - 10) if ev.getModifierState('Control') else 10)
         if ev.key is 'ArrowRight':
-            return self.scroll_right((window.innerWidth - 10) if ev.getModifierState("Control") else 10)
+            return self.scroll_right((window.innerWidth - 10) if ev.getModifierState('Control') else 10)
 
     def handle_gesture(self, gesture):
         self.flick_animator.stop()

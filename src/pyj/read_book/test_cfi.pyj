@@ -17,6 +17,7 @@ def cfi_escaping():
 @test
 def cfi_roundtripping():
     idc = 0
+
     def nid():
         nonlocal idc
         idc += 1

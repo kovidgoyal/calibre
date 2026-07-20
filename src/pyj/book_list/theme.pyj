@@ -15,6 +15,7 @@ DT_DARK_LIGHTER = '#777'
 DT_DARK_LIGTHER_CONTRAST = '#1d1d1d'
 DT_LIGHT = '#ddd'
 
+
 def c(light, dark):
     return {'light': light, 'dark': dark or light}
 
@@ -126,30 +127,24 @@ DEFAULT_COLORS = {
     'surface-1': c(hex_as_rgba(LIGHT, '0.08'), hex_as_rgba(DT_DARK, '0.08')),
     'surface-2': c(hex_as_rgba(LIGHT, '0.04'), hex_as_rgba(DT_DARK, '0.04')),
     'surface-3': c(hex_as_rgba(LIGHT, '0.02'), hex_as_rgba(DT_DARK, '0.02')),
-
     # Top bar specific colors
     'bar-background': c(DARK, DT_DARK_LIGHTER),
     'bar-foreground': c(LIGHT, DT_DARK_LIGTHER_CONTRAST),
     'bar-highlight': c('yellow'),
     'heart': c('#B92111'),
-
     # Item list colors
     'list-hover-background': c(DARK, DT_DARK_LIGHTER),
     'list-hover-foreground': c(LIGHT, DT_DARK_LIGTHER_CONTRAST),
-
     # Tree colors
     'tree-highlight-item': c(LIGHT_DARKER, DT_DARK_LIGHTER),
-
     # Button colors
     'button-start': c(DARK, DT_LIGHT),
     'button-end': c('#49423B', '#666'),
     'button-text': c(LIGHT, DT_DARK),
-
     # Dialog colors (solid panel — gradients hurt text contrast on some displays)
     'dialog-background': c(LIGHT, DT_DARK),
     'dialog-background-image': c('none', 'none'),
     'dialog-foreground': c(DARK, DT_LIGHT),
-
     # Native controls
     'input-background': c('field', DT_DARK_DARKER),
     'input-foreground': c('fieldtext', DT_LIGHT),
@@ -233,6 +228,7 @@ def get_saved_color_settings():
         'is_dark': is_dark,
     }
 
+
 def apply_book_list_theme():
     s = get_saved_color_settings()
     set_ui_colors(s.is_dark, s.primary_color)
@@ -314,6 +310,7 @@ get_color_as_rgba.cache = {}
 
 def get_font_size(name):
     return DEFAULT_SIZES[name]
+
 
 def get_font_family(name):
     name = name or 'main'

@@ -6,7 +6,6 @@ from book_list.globals import get_session_data, set_session_data
 
 
 class FakeSessionData:
-
     def __init__(self):
         self.data = {}
 

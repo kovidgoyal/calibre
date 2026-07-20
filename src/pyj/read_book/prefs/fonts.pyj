@@ -2,15 +2,15 @@
 # License: GPL v3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 from __python__ import bound_methods, hash_literals
 
-from dom import svgicon
 from elementmaker import E
 from gettext import gettext as _
 
 from book_list.globals import get_session_data
+from dom import svgicon
 from dom import unique_id
 from read_book.globals import runtime
-from read_book.prefs.utils import create_button_box
 from read_book.prefs.font_size import MAX_FONT_SIZE, MIN_FONT_SIZE
+from read_book.prefs.utils import create_button_box
 
 CONTAINER = unique_id('standalone-font-settings')
 DEFAULT_STANDARD_FONT = 'serif'

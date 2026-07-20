@@ -3,6 +3,7 @@
 from __python__ import bound_methods, hash_literals
 
 from gettext import gettext as _
+
 from read_book.cfi import create_cfi_cmp, cfi_sort_key
 from read_book.globals import ui_operations
 
@@ -101,9 +102,7 @@ def merge_annotation_maps(a, b):
     return updated, ans
 
 
-
 class AnnotationsManager:  # {{{
-
     def __init__(self, view):
         self.view = view
         self.set_highlights()
@@ -162,7 +161,7 @@ class AnnotationsManager:  # {{{
         return changed
 
     def default_bookmark_title(self, base_default_title):
-        all_titles = {bm.title:True for bm in self.bookmarks if not bm.removed}
+        all_titles = {bm.title: True for bm in self.bookmarks if not bm.removed}
         base_default_title = base_default_title or _('Bookmark')
         c = 0
         while True:
@@ -290,4 +289,4 @@ class AnnotationsManager:  # {{{
             if h.spine_name is name and not h.removed and h.start_cfi:
                 ans.push(h)
         return ans
-# }}}
+        # }}}

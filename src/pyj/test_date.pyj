@@ -10,6 +10,7 @@ def test_fd(date, fmt, ans):
     q = format_date(date, fmt, as_utc=True)
     assert_equal(ans, q)
 
+
 @test
 def date_formatting():
     assert_true(get_ampm_text('am'))

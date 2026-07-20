@@ -8,8 +8,22 @@ ignored_tags = {
 }
 
 block_tags_for_tts = {
-    'h1': True, 'h2': True, 'h3': True, 'h4': True, 'h5': True, 'h6': True, 'p': True, 'div': True, 'table': True, 'th': True, 'tr': True, 'td': True, 'section': True, 'article': True,
+    'h1': True,
+    'h2': True,
+    'h3': True,
+    'h4': True,
+    'h5': True,
+    'h6': True,
+    'p': True,
+    'div': True,
+    'table': True,
+    'th': True,
+    'tr': True,
+    'td': True,
+    'section': True,
+    'article': True,
 }
+
 
 def build_text_map(for_tts):
     node_list = v'[]'
@@ -106,13 +120,12 @@ def tts_data(text_node, offset):
     return marked_text
 
 
-
 def find_node_for_index_binary(node_list, idx_in_flat_text, start):
     # Do a binary search for idx
     start = start or 0
     end = node_list.length - 1
     while start <= end:
-        mid = Math.floor((start + end)/2)
+        mid = Math.floor((start + end) / 2)
         q = node_list[mid]
         limit = q.offset + q.length
         if q.offset <= idx_in_flat_text and limit > idx_in_flat_text:

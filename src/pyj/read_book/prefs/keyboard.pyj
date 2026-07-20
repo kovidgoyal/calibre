@@ -6,8 +6,8 @@ from elementmaker import E
 from gettext import gettext as _
 
 from book_list.globals import get_session_data
-from complete import create_search_bar
 from book_list.item_list import create_item, create_item_list
+from complete import create_search_bar
 from dom import clear, unique_id
 from read_book.shortcuts import (
     key_as_text, keyevent_as_shortcut, shortcut_differs, shortcuts_definition,
@@ -48,7 +48,6 @@ def sc_as_item(sc_name, sc, shortcuts):
     return create_item(sc.short, action=customize_shortcut.bind(None, sc_name), subtitle=sc.long, data=JSON.stringify({'name': sc_name, 'shortcuts': cuts}))
 
 
-
 def remove_key(evt):
     key_container = evt.currentTarget.parentNode.parentNode
     key_container.parentNode.removeChild(key_container)
@@ -57,8 +56,8 @@ def remove_key(evt):
 def key_widget(key):
     return E.tr(
         data_shortcut=JSON.stringify(keyevent_as_shortcut(key)),
-        E.td(style="padding: 0.5rem; border-right: solid 1px; margin-right: 0.5rem; margin-top: 0.5rem; vertical-align: middle", key_as_text(key)),
-        E.td(style="padding: 0.5rem; margin-top: 0.5rem; vertical-align: bottom", create_button(_('Remove'), 'remove', action=remove_key)),
+        E.td(style='padding: 0.5rem; border-right: solid 1px; margin-right: 0.5rem; margin-top: 0.5rem; vertical-align: middle', key_as_text(key)),
+        E.td(style='padding: 0.5rem; margin-top: 0.5rem; vertical-align: bottom', create_button(_('Remove'), 'remove', action=remove_key)),
     )
 
 
@@ -93,7 +92,7 @@ def add_key_widget():
     uid = unique_id('add-new-shortcut')
     return E.div(style='margin-top: 1ex; margin-bottom: 1ex',
         id=uid,
-        E.div(create_button(_('Add a new shortcut'), icon="plus", action=def (evt):
+        E.div(create_button(_('Add a new shortcut'), icon='plus', action=def (evt):
             div = document.getElementById(uid)
             div.firstChild.style.display = 'none'
             div.lastChild.style.display = 'block'
@@ -136,7 +135,7 @@ def customize_shortcut(sc_name):
     if sc.long:
         container.appendChild(E.div(sc.long, style='font-style: italic; font-size: smaller; margin-top: 1ex'))
     container.appendChild(E.div(style='margin-top: 1rem', _('Existing shortcuts:')))
-    key_con = container.appendChild(E.table(class_="key-container"))
+    key_con = container.appendChild(E.table(class_='key-container'))
     for key in shortcuts:
         key_con.appendChild(key_widget(key))
     container.appendChild(E.div(style='margin-top:1ex;', add_key_widget()))

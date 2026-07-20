@@ -2,13 +2,13 @@
 # License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 from __python__ import hash_literals, bound_methods
 
-from dom import ensure_id, clear
 from elementmaker import E
 
 from book_list.constants import book_list_container_id
 from book_list.globals import get_current_query
-from book_list.router import push_state
 from book_list.library_data import current_library_id, current_virtual_library
+from book_list.router import push_state
+from dom import ensure_id, clear
 from utils import encode_query_with_path
 
 
@@ -58,16 +58,19 @@ def add_library_info(query):
             if vlid:
                 query.vl = vlid
 
+
 def prepare_query(query, panel):
-    q = {k:query[k] for k in (query or {}) if k is not 'panel'}
+    q = {k: query[k] for k in (query or {}) if k is not 'panel'}
     if panel is not 'home':
         q.panel = panel
         add_library_info(q)
     return q
 
+
 def query_as_href(query, panel):
     q = prepare_query(query, panel or 'book_list')
     return encode_query_with_path(q)
+
 
 def show_panel(panel, query=None, replace=False):
     push_state(prepare_query(query, panel), replace=replace)
@@ -87,11 +90,11 @@ apply_url_state.back_from_current = def back_from_current(current_query):
     q = current_query
     if q.panel:
         if '^' in q.panel:
-            q = {k:q[k] for k in q}
+            q = {k: q[k] for k in q}
             q.panel = q.panel.rpartition('^')[0]
         elif q.panel is 'book_list':
             q = {}
         else:
-            q = {'panel':'book_list'}
+            q = {'panel': 'book_list'}
             add_library_info(q)
     return q

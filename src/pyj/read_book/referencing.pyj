@@ -5,6 +5,7 @@ from __python__ import bound_methods, hash_literals
 
 from read_book.globals import current_spine_item
 
+
 def elem_for_ref(refnum):
     refnum = int(refnum)
     return document.getElementsByTagName('p')[refnum - 1]

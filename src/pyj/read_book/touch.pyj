@@ -3,6 +3,7 @@
 from __python__ import bound_methods, hash_literals
 
 from gettext import gettext as _
+
 from read_book.globals import get_boss, ltr_page_progression, ui_operations
 from read_book.settings import opts
 from read_book.viewport import get_unit_size_in_pixels, scroll_viewport
@@ -12,7 +13,7 @@ TAP_THRESHOLD = 8  # pixels
 SWIPE_THRESHOLD = 64  # pixels
 TAP_LINK_THRESHOLD = 5  # pixels
 PINCH_THRESHOLD = 20  # pixels
-GESTURE = {k:k for k in v"""[
+GESTURE = {k: k for k in v"""[
     'back_zone_tap',
     'forward_zone_tap',
     'control_zone_tap',
@@ -41,6 +42,7 @@ GESTURE = {k:k for k in v"""[
     'pinch',
 ]"""}
 
+
 def GESTURE_NAMES():
     ans = GESTURE_NAMES.ans
     if not ans:
@@ -52,17 +54,14 @@ def GESTURE_NAMES():
     'two_finger_tap': _('Two finger tap'),
     'pinch_in': _('Pinch in'),
     'pinch_out': _('Pinch out'),
-
     'flick_inline_backward': _('Flick in writing direction, to go back'),
     'flick_inline_forward': _('Flick in writing direction, to go forward'),
     'flick_block_backward': _('Flick perpendicular to writing direction, to go forward'),
     'flick_block_forward': _('Flick perpendicular to writing direction, to go back'),
-
     'swipe_inline_backward_in_progress': _('Drag finger in writing direction, to go back'),
     'swipe_inline_forward_in_progress': _('Drag finger in writing direction, to go forward'),
     'swipe_block_backward_in_progress': _('Drag finger perpendicular to writing direction, to go back'),
     'swipe_block_forward_in_progress': _('Drag finger perpendicular to writing direction, to go forward'),
-
     'swipe_inline_backward_hold': _('Drag and hold finger in writing direction, to go back'),
     'swipe_inline_forward_hold': _('Drag and hold finger in writing direction, to go forward'),
     'swipe_block_backward_hold': _('Drag and hold finger perpendicular to writing direction, to go back'),
@@ -72,16 +71,18 @@ def GESTURE_NAMES():
 
 gesture_id = 0
 
+
 def touch_id(touch):
     # On Safari using touch.identifier as dict key yields a key of "NaN" for some reason
     return touch.identifier + ''
 
+
 def copy_touch(t):
     now = window.performance.now()
     return {
-        'identifier':touch_id(t),
-        'page_x':v'[t.pageX]', 'page_y':v'[t.pageY]', 'viewport_x':v'[t.clientX]', 'viewport_y':v'[t.clientY]',
-        'active':True, 'mtimes':v'[now]', 'ctime':now, 'is_held':False, 'x_velocity': 0, 'y_velocity': 0
+        'identifier': touch_id(t),
+        'page_x': v'[t.pageX]', 'page_y': v'[t.pageY]', 'viewport_x': v'[t.clientX]', 'viewport_y': v'[t.clientY]',
+        'active': True, 'mtimes': v'[now]', 'ctime': now, 'is_held': False, 'x_velocity': 0, 'y_velocity': 0
     }
 
 
@@ -103,10 +104,11 @@ def max_displacement(points):
             ans = delta
     return ans
 
+
 def interpret_single_gesture(touch, gesture_id):
     max_x_displacement = max_displacement(touch.viewport_x)
     max_y_displacement = max_displacement(touch.viewport_y)
-    ans = {'active':touch.active, 'is_held':touch.is_held, 'id':gesture_id, 'start_time': touch.ctime}
+    ans = {'active': touch.active, 'is_held': touch.is_held, 'id': gesture_id, 'start_time': touch.ctime}
     if max(max_x_displacement, max_y_displacement) < TAP_THRESHOLD:
         ans.type = GESTURE.tap
         ans.viewport_x = touch.viewport_x[0]
@@ -117,7 +119,7 @@ def interpret_single_gesture(touch, gesture_id):
     delta_x = abs(touch.viewport_x[-1] - touch.viewport_x[0])
     delta_y = abs(touch.viewport_y[-1] - touch.viewport_y[0])
     max_disp = max(delta_y, delta_x)
-    if max_disp > SWIPE_THRESHOLD and min(delta_x, delta_y)/max_disp < 0.35:
+    if max_disp > SWIPE_THRESHOLD and min(delta_x, delta_y) / max_disp < 0.35:
         ans.type = GESTURE.swipe
         ans.axis = 'vertical' if delta_y > delta_x else 'horizontal'
         ans.points = pts = touch.viewport_y if ans.axis is 'vertical' else touch.viewport_x
@@ -134,7 +136,7 @@ def interpret_single_gesture(touch, gesture_id):
 
 
 def interpret_double_gesture(touch1, touch2, gesture_id):
-    ans = {'active':touch1.active or touch2.active, 'is_held':touch1.is_held or touch2.is_held, 'id':gesture_id}
+    ans = {'active': touch1.active or touch2.active, 'is_held': touch1.is_held or touch2.is_held, 'id': gesture_id}
     max_x_displacement1 = max_displacement(touch1.viewport_x)
     max_x_displacement2 = max_displacement(touch2.viewport_x)
     max_y_displacement1 = max_displacement(touch1.viewport_y)
@@ -146,8 +148,8 @@ def interpret_double_gesture(touch1, touch2, gesture_id):
         ans.viewport_x2 = touch2.viewport_x[0]
         ans.viewport_y2 = touch2.viewport_y[0]
         return ans
-    initial_distance = Math.sqrt((touch1.viewport_x[0] - touch2.viewport_x[0])**2 + (touch1.viewport_y[0] - touch2.viewport_y[0])**2)
-    final_distance = Math.sqrt((touch1.viewport_x[-1] - touch2.viewport_x[-1])**2 + (touch1.viewport_y[-1] - touch2.viewport_y[-1])**2)
+    initial_distance = Math.sqrt((touch1.viewport_x[0] - touch2.viewport_x[0]) ** 2 + (touch1.viewport_y[0] - touch2.viewport_y[0]) ** 2)
+    final_distance = Math.sqrt((touch1.viewport_x[-1] - touch2.viewport_x[-1]) ** 2 + (touch1.viewport_y[-1] - touch2.viewport_y[-1]) ** 2)
     distance = abs(final_distance - initial_distance)
     if distance > PINCH_THRESHOLD:
         ans.type = GESTURE.pinch
@@ -155,6 +157,7 @@ def interpret_double_gesture(touch1, touch2, gesture_id):
         ans.distance = distance
         return ans
     return ans
+
 
 def element_from_point(x, y):
     # This does not currently support detecting links inside iframes, but since
@@ -183,7 +186,6 @@ def tap_on_link(gesture):
 
 
 class TouchHandler:
-
     def __init__(self):
         self.ongoing_touches = {}
         self.gesture_id = None
@@ -299,6 +301,7 @@ class TouchHandler:
             return
         self.handle_gesture(gesture)
 
+
 def inch_in_pixels():
     ans = inch_in_pixels.ans
     if not ans:
@@ -307,7 +310,6 @@ def inch_in_pixels():
 
 
 class BookTouchHandler(TouchHandler):
-
     def __init__(self, for_side_margin=None):
         self.for_side_margin = for_side_margin
         TouchHandler.__init__(self)
@@ -338,7 +340,7 @@ class BookTouchHandler(TouchHandler):
                             # The "going back" area should not be more than limit units big,
                             # even if 1/4 of the scroll viewport is more than limit units.
                             # Checking against the larger of the width minus the limit units and 3/4 of the width will accomplish that.
-                            if gesture.viewport_x > max(scroll_viewport.width() - limit, scroll_viewport.width() * (3/4)):
+                            if gesture.viewport_x > max(scroll_viewport.width() - limit, scroll_viewport.width() * (3 / 4)):
                                 gesture.type = GESTURE.back_zone_tap
                             else:
                                 gesture.type = GESTURE.forward_zone_tap
@@ -370,12 +372,14 @@ main_touch_handler = BookTouchHandler()
 left_margin_handler = BookTouchHandler('left')
 right_margin_handler = BookTouchHandler('right')
 
+
 def install_handlers(elem, handler, passive):
     options = {'capture': True, 'passive': v'!!passive'}
     elem.addEventListener('touchstart', handler.handle_touchstart, options)
     elem.addEventListener('touchmove', handler.handle_touchmove, options)
     elem.addEventListener('touchend', handler.handle_touchend, options)
     elem.addEventListener('touchcancel', handler.handle_touchcancel, options)
+
 
 def create_handlers():
     # Safari does not work if we register the handler
@@ -385,11 +389,14 @@ def create_handlers():
     # for why we need touchAction none
     document.body.style.touchAction = 'none'
 
+
 def reset_handlers():
     main_touch_handler.reset_handlers()
 
+
 def set_left_margin_handler(elem):
     install_handlers(elem, left_margin_handler)
+
 
 def set_right_margin_handler(elem):
     install_handlers(elem, right_margin_handler)

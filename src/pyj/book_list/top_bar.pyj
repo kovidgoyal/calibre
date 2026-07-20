@@ -2,14 +2,15 @@
 # License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 from __python__ import hash_literals
 
-from book_list.theme import get_color, get_font_size
-from book_list.constants import book_list_container_id, cs_top_bar_host_id
-from dom import set_css, clear, create_keyframes, build_rule, svgicon, add_extra_css
 from elementmaker import E
 from gettext import gettext as _
-from session import get_interface_data
-from book_list.router import home
+
+from book_list.constants import book_list_container_id, cs_top_bar_host_id
 from book_list.router import back
+from book_list.router import home
+from book_list.theme import get_color, get_font_size
+from dom import set_css, clear, create_keyframes, build_rule, svgicon, add_extra_css
+from session import get_interface_data
 from utils import parse_url_params
 
 CLASS_NAME = 'main-top-bar'
@@ -17,7 +18,7 @@ SPACING = '0.5em'
 VSPACING = '0.55ex'
 THROBBER_NAME = 'top-bar-throbber'
 
-add_extra_css(def():
+add_extra_css(def ():
     sel = '.' + CLASS_NAME + ' '
     style = ''
     style += create_keyframes(THROBBER_NAME, 'from { transform: scale(1); } 50% { transform: scale(0.5); } to { transform: scale(1); }')
@@ -72,6 +73,7 @@ add_extra_css(def():
         display='none', margin_left='0', padding_right='0')
     return style
 )
+
 
 def top_bar_target_container(container):
     # Book-list UI top bar mounts in the shell host above the sidebar + main column.
@@ -151,8 +153,10 @@ def get_bars(container):
         return document.createElement('div').getElementsByClassName(CLASS_NAME)
     return target.getElementsByClassName(CLASS_NAME)
 
+
 def set_left_data(container, title='calibre', icon='heart', action=None, tooltip='', run_animation=False, title_action=None, title_tooltip=None, back_action=None):
     bars = get_bars(container)
+
     def on_back_click(event):
         event.preventDefault()
         if callable(back_action):
@@ -201,13 +205,13 @@ def set_left_data(container, title='calibre', icon='heart', action=None, tooltip
                 a.setAttribute('href', interface_data.donate_link)
                 a.setAttribute('target', 'donate-to-calibre')
                 if action is not None:
-                    a.addEventListener('click', def(event):
+                    a.addEventListener('click', def (event):
                         event.preventDefault()
                         action.bind(event)()
                     )
             elif icon is 'close':
                 if action is not None:
-                    a.addEventListener('click', def(event):
+                    a.addEventListener('click', def (event):
                         event.preventDefault()
                         action.bind(event)()
                     )
@@ -217,7 +221,7 @@ def set_left_data(container, title='calibre', icon='heart', action=None, tooltip
                 if not is_home:
                     btns[idx].addEventListener('click', on_back_click)
                     idx += 1
-                btns[idx].addEventListener('click', def(event):
+                btns[idx].addEventListener('click', def (event):
                     event.preventDefault()
                     home.bind(event)()
                 )
@@ -225,10 +229,11 @@ def set_left_data(container, title='calibre', icon='heart', action=None, tooltip
             if callable(title_action):
                 # If we injected Back/Home buttons, title is further to the right
                 a = left.querySelector('.top-bar-title')
-                a.addEventListener('click', def(event):
+                a.addEventListener('click', def (event):
                     event.preventDefault()
                     title_action.bind(event)()
                 )
+
 
 def set_title(container, text):
     bars = get_bars(container)
@@ -252,6 +257,7 @@ def create_top_bar(container, **kw):
     create_markup(container)
     set_left_data(container, **kw)
 
+
 def add_button(container, icon, action=None, tooltip=''):
     if not icon:
         raise ValueError('An icon must be specified')
@@ -259,16 +265,17 @@ def add_button(container, icon, action=None, tooltip=''):
     for i, bar in enumerate(bars):
         right = bar.firstChild.nextSibling
         right.appendChild(E.a(
-            style="margin-left: " + SPACING,
+            style='margin-left: ' + SPACING,
             title=tooltip, svgicon(icon),
         ))
         right.lastChild.dataset.buttonIcon = icon
         if i is 0:
             if action is not None:
-                right.lastChild.addEventListener('click', def(event):
+                right.lastChild.addEventListener('click', def (event):
                     event.preventDefault(), action()
                 )
     sync_right_slot_visibility(container)
+
 
 def clear_buttons(container):
     bars = get_bars(container)

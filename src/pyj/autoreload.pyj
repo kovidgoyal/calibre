@@ -4,8 +4,8 @@ from __python__ import bound_methods, hash_literals
 
 MAX_RETRIES = 10
 
-class Watcher:
 
+class Watcher:
     def __init__(self, autoreload_port):
         host = document.location.host.split(':')[0]
         self.url = 'ws://' + host + ':' + autoreload_port
@@ -24,7 +24,7 @@ class Watcher:
                 return
             raise
 
-        self.ws.onopen = def(event):
+        self.ws.onopen = def (event):
             self.retries = 0
             self.opened_at_least_once = True
             self.interval = 100
@@ -35,7 +35,7 @@ class Watcher:
                 self.ws.close()
             )
 
-        self.ws.onmessage = def(event):
+        self.ws.onmessage = def (event):
             if event.data is not 'ping':
                 print('Received message from reload server: ' + event.data)
             if event.data is 'reload':
@@ -53,6 +53,7 @@ class Watcher:
 
     def reload_app(self):
         window.location.reload(True)
+
 
 def create_auto_reload_watcher(autoreload_port):
     if not create_auto_reload_watcher.watcher:

@@ -9,7 +9,7 @@ from ajax import ajax_send
 all_settings = {
     'copy_to_library_dupes': {'default': 'add;overwrite', 'category': 'book_list'},
     'last_sort_order': {'default': {}, 'category': 'book_list'},
-    'show_all_metadata': {'default': False, 'category': 'book_list'}, # show all metadata fields in the book details panel
+    'show_all_metadata': {'default': False, 'category': 'book_list'},  # show all metadata fields in the book details panel
     'show_nav_list_book_count': {'default': True, 'category': 'book_list', 'is_local': False},
     'show_nav_list_avg_rating': {'default': True, 'category': 'book_list', 'is_local': False},
     'show_sidebar_in_book_viewer': {'default': False, 'category': 'book_list', 'is_local': False},
@@ -30,15 +30,14 @@ all_settings = {
     'dont_collapse': {'default': '', 'category': 'tag_browser'},  # comma separated list of category names
     'hide_empty_categories': {'default': 'no', 'category': 'tag_browser'},
     'partition_method': {'default': 'first letter', 'category': 'tag_browser'},  # other choices: 'disable', 'partition'
-    'sort_tags_by': {'default': 'name', 'category': 'tag_browser'}, # other choices: popularity, rating
-
+    'sort_tags_by': {'default': 'name', 'category': 'tag_browser'},  # other choices: popularity, rating
     # Book reader settings
     'background_image_fade': {'default': 0, 'category': 'read_book', 'is_local': True},
     'background_image_style': {'default': 'scaled', 'category': 'read_book', 'is_local': True},
     'background_image': {'default': None, 'category': 'read_book', 'is_local': True},
     'base_font_size': {'default': 16, 'category': 'read_book', 'is_local': True},
     'book_scrollbar': {'default': False, 'category': 'read_book'},
-    'columns_per_screen': {'default': {'portrait':0, 'landscape':0}, 'category': 'read_book', 'is_local': True},
+    'columns_per_screen': {'default': {'portrait': 0, 'landscape': 0}, 'category': 'read_book', 'is_local': True},
     'controls_help_shown_count': {'default': 0, 'category': 'read_book', 'is_local': True, 'disallowed_in_profile': True},
     'controls_help_shown_count_rtl_page_progression': {'default': 0, 'category': 'read_book', 'is_local': True, 'disallowed_in_profile': True},
     'cover_preserve_aspect_ratio': {'default': True, 'category': 'read_book'},
@@ -113,8 +112,8 @@ def storage_available(which):
     except:
         return False
 
-class FakeStorage:
 
+class FakeStorage:
     def __init__(self):
         self.data = {}
 
@@ -128,6 +127,7 @@ class FakeStorage:
 
     def clear(self):
         self.data = {}
+
 
 def get_session_storage():
     if not get_session_storage.ans:
@@ -143,7 +143,6 @@ def get_session_storage():
 
 
 class SessionData:
-
     def __init__(self, global_prefix=None):
         self.global_prefix = global_prefix or 'calibre-session-'
         self.storage = get_session_storage()
@@ -251,6 +250,7 @@ def get_subset_of_settings(sd, filter_func):
             ans[setting_name] = window.structuredClone(curval if is_set else metadata.default)
     return ans
 
+
 def apply_profile(sd, profile, filter_func):
     changes = {}
     for setting_name in Object.keys(all_settings):
@@ -282,7 +282,6 @@ standalone_reader_defaults = {
 
 
 def settings_for_reader_profile(sd):
-
     margin_text_settings = {'footer': True, 'header': True, 'controls_footer': True, 'left-margin': True, 'right-margin': True}
 
     def filter_func(setting_name, metadata, is_set, curval):
@@ -331,6 +330,7 @@ default_interface_data = {
     'lang_code_for_user_manual': '',
 }
 
+
 def get_interface_data():
     if not get_interface_data.storage:
         get_interface_data.storage = SessionData('calibre-interface-data-')
@@ -370,7 +370,6 @@ def is_setting_local(name):
 
 
 class UserSessionData(SessionData):
-
     def __init__(self, username, saved_data):
         self.prefix = (username or '') + '-'
         self.has_user = bool(username)
@@ -421,7 +420,7 @@ class UserSessionData(SessionData):
 
     def push_to_server(self):
         if self.has_changes:
-            ajax_send('interface-data/set-session-data', self.changes, def(end_type, xhr, ev):
+            ajax_send('interface-data/set-session-data', self.changes, def (end_type, xhr, ev):
                 if end_type is not 'load':
                     console.error('Failed to send session data to server: ' + xhr.error_html)
             )

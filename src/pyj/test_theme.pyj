@@ -3,11 +3,12 @@
 from __python__ import hash_literals
 
 from book_list.theme import css_for_variables, set_ui_colors, theme_variables
+from session import all_settings
 from test_book_list_helpers import with_empty_session
 from testing import assert_equal, assert_true, test
-from session import all_settings
 
 DEFAULT_PRIMARY_HEX = all_settings.ui_highlight_colors.default.light
+
 
 def assert_css_and_dom_use_variables(variables, css, style):
     for name in Object.keys(variables):

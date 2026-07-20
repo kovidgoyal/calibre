@@ -2,8 +2,9 @@
 # License: GPL v3 Copyright: 2026, Kovid Goyal <kovid at kovidgoyal.net>
 from __python__ import hash_literals
 
-from book_list.nav_list import render_series_stack_covers, series_cover_key, series_stack_cover_count, series_stack_cover_urls, set_series_stack_cover_count
 from elementmaker import E
+
+from book_list.nav_list import render_series_stack_covers, series_cover_key, series_stack_cover_count, series_stack_cover_urls, set_series_stack_cover_count
 from testing import assert_equal, assert_false, assert_true, test
 
 

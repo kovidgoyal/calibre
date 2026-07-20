@@ -27,6 +27,7 @@ simple_vendor_prefixes = {
     'column-fill': v"['moz']",
 }
 
+
 def set_css(elem, **kw):
     if jstype(elem) is 'string':
         elem = document.querySelector(elem)
@@ -46,6 +47,7 @@ def set_css(elem, **kw):
                     else:
                         s.setProperty('-' + prefix + '-' + name, val)
     return elem
+
 
 def set_important_css(elem, **kw):
     if jstype(elem) is 'string':
@@ -104,6 +106,7 @@ def create_keyframes(animation_name, *frames):
         ans.push('}')
     return ans.join('\n') + '\n'
 
+
 def change_icon_image(icon_element, new_name, tooltip):
     if new_name:
         icon_element.firstChild.setAttributeNS('http://www.w3.org/1999/xlink', 'xlink:href', '#icon-' + new_name)
@@ -116,6 +119,7 @@ def change_icon_image(icon_element, new_name, tooltip):
             icon_element.appendChild(tt)
             x = v'[tt]'
         x[0].textContent = tooltip
+
 
 def svgicon(name, height, width, tooltip):
     ans = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
@@ -130,11 +134,13 @@ def svgicon(name, height, width, tooltip):
         ans.appendChild(tt)
     return ans
 
+
 def element(elem_id, child_selector):
     ans = document.getElementById(elem_id) if elem_id else document.body
     if child_selector:
         ans = ans.querySelector(child_selector)
     return ans
+
 
 def selector(id_selector, *args):
     ans = '#' + id_selector
@@ -142,14 +148,17 @@ def selector(id_selector, *args):
         ans += ' ' + x
     return ans
 
+
 def rule(id_selector, *args, **kw):
     return build_rule(selector(id_selector, *args), **kw)
+
 
 def unique_id(prefix):
     prefix = prefix or 'auto-id'
     unique_id.counts[prefix] = num = (unique_id.counts[prefix] or 0) + 1
     return prefix + '-' + num
 unique_id.counts = {}
+
 
 def ensure_id(w, prefix):
     ans = w.getAttribute('id')
@@ -160,6 +169,7 @@ def ensure_id(w, prefix):
 
 extra_css = v'[]'
 add_extra_css = extra_css.push.bind(extra_css)
+
 
 def get_widget_css():
     ans = v'[]'

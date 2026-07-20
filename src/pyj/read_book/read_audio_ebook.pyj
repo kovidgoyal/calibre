@@ -11,10 +11,10 @@
 from __python__ import bound_methods, hash_literals
 
 from elementmaker import E
+from gettext import gettext as _
 
 from book_list.theme import get_color
 from dom import change_icon_image, svgicon
-from gettext import gettext as _
 from modals import error_dialog
 from read_book.globals import ui_operations
 from read_book.highlights import ICON_SIZE
@@ -33,9 +33,7 @@ def seconds_to_ms(seconds):
     return str(minutes) + ':' + (str(remaining_seconds).zfill(2))
 
 
-
 class ReadAudioEbook:
-
     dont_hide_on_content_loaded = True
     prevent_navigation = True
     CONTAINER_DISPLAY = 'flex'
@@ -52,83 +50,64 @@ class ReadAudioEbook:
         self.initialized = True
 
         container = self.container
-        container.style.backgroundColor = "rgba(0, 0, 0, 0)"
+        container.style.backgroundColor = 'rgba(0, 0, 0, 0)'
         container.style.justifyContent = 'center'
         container.style.alignItems = 'flex-end'
-        container.setAttribute("tabindex", "0")
-        container.appendChild(E.div(
-            data_component='bar',
-            style=f'position: absolute; bottom: 0; width: min(600px, 80vw); height: 2em; border-radius: 1em; padding:0.5em; display: flex; justify-content: center; align-items: center; background-color: {get_color("window-background")};'
-        ))
+        container.setAttribute('tabindex', '0')
+        container.appendChild(E.div(data_component='bar', style=f'position: absolute; bottom: 0; width: min(600px, 80vw); height: 2em; border-radius: 1em; padding:0.5em; display: flex; justify-content: center; align-items: center; background-color: {get_color("window-background")};'))
         bar_container = container.lastChild
         container.appendChild(E.style(
-            f'#{container.id} .speaking '+'{ opacity: 0.5 }\n\n',
-            f'#{container.id} .speaking:hover '+'{ opacity: 1.0 }\n\n',
+            f'#{container.id} .speaking ' + '{ opacity: 0.5 }\n\n',
+            f'#{container.id} .speaking:hover ' + '{ opacity: 1.0 }\n\n',
         ))
-        container.addEventListener("keydown", self.on_keydown, {"passive": False})
-        container.addEventListener("click", self.on_container_clicked, {"passive": False})
-        container.addEventListener("contextmenu", self.toggle, {"passive": False})
+        container.addEventListener('keydown', self.on_keydown, {'passive': False})
+        container.addEventListener('click', self.on_container_clicked, {'passive': False})
+        container.addEventListener('contextmenu', self.toggle, {'passive': False})
 
         def create_button(name, icon, text):
             ans = svgicon(icon, ICON_SIZE, ICON_SIZE, text)
             if name:
-                ans.addEventListener("click", def(ev):
+                ans.addEventListener('click', def (ev):
                     ev.stopPropagation(), ev.preventDefault()
                     self[name](ev)
                     self.view.focus_iframe()
                 )
             ans.dataset.button = name
-            ans.classList.add("simple-link")
+            ans.classList.add('simple-link')
             ans.style.marginLeft = ans.style.marginRight = BUTTON_MARGIN
             return ans
 
         for x in [
-            E.div (
-                style='height: 3ex; display: flex; align-items: center; justify-content: center',
-                create_button("toggle", "pause", _('Pause audio')),
-            ),
-            E.div(
-                data_component="time_display", E.text("")
-            ),
-            E.div(
-                data_component="progress_bar",
-                style=f'height:1.5em; border-radius: 0.75em; overflow: hidden; flex-grow: 100; display:block; background-color:{get_color("window-background2")}; margin:1em; cursor: pointer',
-                E.div(style=f'display:block; width: 0%; background-color:{get_color("window-foreground")}; height:100%'),
-            ),
-            E.div(
-                style='height: 3ex; display: flex; align-items: center; justify-content: center',
-                create_button("slower", "slower", _("Slow down audio")),
-                create_button("faster", "faster", _("Speed up audio")),
-                create_button("hide", "off", _("Close Read aloud"))
-            )
-
+            E.div(style='height: 3ex; display: flex; align-items: center; justify-content: center', create_button('toggle', 'pause', _('Pause audio')),),
+            E.div(data_component='time_display', E.text('')),
+            E.div(data_component='progress_bar', style=f'height:1.5em; border-radius: 0.75em; overflow: hidden; flex-grow: 100; display:block; background-color:{get_color("window-background2")}; margin:1em; cursor: pointer', E.div(style=f'display:block; width: 0%; background-color:{get_color("window-foreground")}; height:100%'),),
+            E.div(style='height: 3ex; display: flex; align-items: center; justify-content: center', create_button('slower', 'slower', _('Slow down audio')), create_button('faster', 'faster', _('Speed up audio')), create_button('hide', 'off', _('Close Read aloud'))),
         ]:
             bar_container.appendChild(x)
 
-        bar_container.addEventListener("click", self.on_bar_clicked, {"passive": False})
-        self.container.appendChild(E.audio(data_component='audio', style="display:none"))
+        bar_container.addEventListener('click', self.on_bar_clicked, {'passive': False})
+        self.container.appendChild(E.audio(data_component='audio', style='display:none'))
         ap = self.container.lastChild
 
-        ap.addEventListener("timeupdate", def():
+        ap.addEventListener('timeupdate', def ():
             if self.state is not HIDDEN:
                 ap = self.audio_player
                 if ap.duration:
                     audio_current_time = ap.currentTime
                     progress = (audio_current_time / ap.duration) * 100
-                    self.progress_bar.firstChild.style.width = progress + "%"
+                    self.progress_bar.firstChild.style.width = progress + '%'
                     self.time_display.textContent = f'{seconds_to_ms(audio_current_time)}/{seconds_to_ms(ap.duration)}'
                     self.mark_for_timeupdate(audio_current_time)
                 else:
-                    self.time_display.textContent = "00:00"
-                    self.progress_bar.firstChild.style.width = "0%"
-
+                    self.time_display.textContent = '00:00'
+                    self.progress_bar.firstChild.style.width = '0%'
         )
 
-        ap.addEventListener("ended", def():
+        ap.addEventListener('ended', def ():
             self.play_next_audio_file()
         )
 
-        self.progress_bar.addEventListener("click", def(event):
+        self.progress_bar.addEventListener('click', def (event):
             ap = self.audio_player
             if ap.duration:
                 rect = self.progress_bar.getBoundingClientRect()
@@ -161,7 +140,7 @@ class ReadAudioEbook:
     def play_next_audio_file(self):
         next_audio_file, par = next_audio_file_for_spine_item(self.current_audio_src, self.view.currently_showing.smil_audio_map)
         if next_audio_file:
-            self.set_audio_src(next_audio_file, def():
+            self.set_audio_src(next_audio_file, def ():
                 self.audio_player.currentTime = par.audio?.start or 0
                 self.play()
             )
@@ -180,26 +159,26 @@ class ReadAudioEbook:
         self.current_audio_src = name
         ap = self.audio_player
         if ui_operations.get_url_for_book_file_name:
-            ap.onloadeddata = def():
+            ap.onloadeddata = def ():
                 proceed()
-            ap.onerror = def(evt):
+            ap.onerror = def (evt):
                 console.error(evt)
                 error_dialog(_('Could not load audio'), _(
                     'Could not load the audio file: {} with error: {}').format(name, evt.message))
             ap.src = ui_operations.get_url_for_book_file_name(name)
             return
         if ap.src:
-            ap.onloadeddata = def():
+            ap.onloadeddata = def ():
                 pass
-            ap.onerror = def():
+            ap.onerror = def ():
                 pass
             window.URL.revokeObjectURL(ap.src)
             ap.src = ''
-        ui_operations.get_file(self.view.book, name, def(blob, name, mimetype):
+        ui_operations.get_file(self.view.book, name, def (blob, name, mimetype):
             ap = self.audio_player
-            ap.onloadeddata = def():
+            ap.onloadeddata = def ():
                 proceed()
-            ap.onerror = def(evt):
+            ap.onerror = def (evt):
                 console.error(evt)
                 error_dialog(_('Could not load audio'), _(
                     'Could not load the audio file: {} with error: {}').format(name, evt.message))
@@ -222,7 +201,7 @@ class ReadAudioEbook:
 
     @property
     def container(self):
-        return document.getElementById("audio-ebooks-overlay")
+        return document.getElementById('audio-ebooks-overlay')
 
     @property
     def audio_player(self):
@@ -230,7 +209,7 @@ class ReadAudioEbook:
 
     @property
     def is_visible(self):
-        return self.container.style.display is not "none"
+        return self.container.style.display is not 'none'
 
     @property
     def state(self):
@@ -254,9 +233,9 @@ class ReadAudioEbook:
 
     def hide(self):
         if self.state is not HIDDEN:
-            self.send_message("mark")
+            self.send_message('mark')
             self.pause()
-            self.container.style.display = "none"
+            self.container.style.display = 'none'
             self.view.focus_iframe()
             self.state = HIDDEN
             if ui_operations.read_aloud_state_changed:
@@ -270,7 +249,7 @@ class ReadAudioEbook:
         if self.state is HIDDEN:
             self.initialize()
             self.state = PLAYING
-            change_icon_image(self.play_pause_button, "pause", _('Pause audio'))
+            change_icon_image(self.play_pause_button, 'pause', _('Pause audio'))
             self.start_playback()
             self.container.style.display = self.CONTAINER_DISPLAY
             self.focus()
@@ -288,16 +267,16 @@ class ReadAudioEbook:
 
     def play(self):
         self.state = PLAYING
-        change_icon_image(self.play_pause_button, "pause", _('Pause audio'))
+        change_icon_image(self.play_pause_button, 'pause', _('Pause audio'))
         ap = self.audio_player
-        if ap.getAttribute("src"):
+        if ap.getAttribute('src'):
             ap.play()
 
     def pause(self):
         self.state = PAUSED
-        change_icon_image(self.play_pause_button, "play", _('Play audio'))
+        change_icon_image(self.play_pause_button, 'play', _('Play audio'))
         ap = self.audio_player
-        if ap.getAttribute("src"):
+        if ap.getAttribute('src'):
             ap.pause()
 
     def toggle(self):
@@ -315,40 +294,40 @@ class ReadAudioEbook:
             return
         ev.stopPropagation(), ev.preventDefault()
         margins = get_margins()
-        pos = {"x": ev.clientX, "y": ev.clientY}
+        pos = {'x': ev.clientX, 'y': ev.clientY}
         pos = map_to_iframe_coords(pos, margins)
-        self.send_message("play", pos=pos)
+        self.send_message('play', pos=pos)
 
     def on_keydown(self, ev):
         ev.stopPropagation(), ev.preventDefault()
-        if ev.key is "Escape":
+        if ev.key is 'Escape':
             self.hide()
             return
-        if ev.key is " " or ev.key is "MediaPlayPause" or ev.key is "PlayPause":
+        if ev.key is ' ' or ev.key is 'MediaPlayPause' or ev.key is 'PlayPause':
             self.toggle()
             return
-        if ev.key is "Play" or ev.key is "MediaPlay":
+        if ev.key is 'Play' or ev.key is 'MediaPlay':
             self.play()
             return
-        if ev.key is "Pause" or ev.key is "MediaPause":
+        if ev.key is 'Pause' or ev.key is 'MediaPause':
             self.pause()
             return
         sc_name = shortcut_for_key_event(ev, self.view.keyboard_shortcut_map)
         if not sc_name:
             return
-        if sc_name is "show_chrome":
+        if sc_name is 'show_chrome':
             self.hide()
-        elif sc_name is "quit":
+        elif sc_name is 'quit':
             self.hide()
 
     def send_message(self, message_type, **kw):
-        self.view.iframe_wrapper.send_message("audio-ebook", type=message_type, **kw)
+        self.view.iframe_wrapper.send_message('audio-ebook', type=message_type, **kw)
 
     def handle_message(self, message):
         if message.type is 'start_play_at':
             if message.par:
                 self.set_audio_src(
-                    message.par.audio, def():
+                    message.par.audio, def ():
                         self.audio_player.currentTime = message.par.start or 0
                         self.play()
                 )
