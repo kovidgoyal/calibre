@@ -992,4 +992,6 @@ def create_nav_list_panel(container_id):
         set_loading(True)
         fetch_browse_items(render)
 
-set_panel_handler('nav_list', create_nav_list_panel)
+
+def set_panel_handlers():
+    set_panel_handler('nav_list', create_nav_list_panel)

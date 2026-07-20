@@ -1638,9 +1638,11 @@ def copy_to_library(container_id):
 def delete_book():
     start_delete_book(current_library_id(), render_book.book_id, render_book.title or _('Unknown'))
 
-set_panel_handler('book_details', init)
-set_panel_handler('book_details^more_actions', create_more_actions_panel)
-set_panel_handler('book_details^search_internet', search_internet)
-set_panel_handler('book_details^copy_to_library', copy_to_library)
-set_panel_handler('book_details^data_files', data_files)
-set_panel_handler('book_details^upload_data_file', upload_data_file)
+
+def set_panel_handlers():
+    set_panel_handler('book_details', init)
+    set_panel_handler('book_details^more_actions', create_more_actions_panel)
+    set_panel_handler('book_details^search_internet', search_internet)
+    set_panel_handler('book_details^copy_to_library', copy_to_library)
+    set_panel_handler('book_details^data_files', data_files)
+    set_panel_handler('book_details^upload_data_file', upload_data_file)

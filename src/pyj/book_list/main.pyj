@@ -6,25 +6,25 @@ import traceback
 from elementmaker import E
 from gettext import gettext as _, install
 
-import book_list.book_details  # noqa: unused-import
-import book_list.convert_book  # noqa: unused-import
-import book_list.edit_metadata  # noqa: unused-import
-import book_list.fts  # noqa: unused-import
-import book_list.home  # noqa: unused-import
-import book_list.local_books  # noqa: unused-import
-import book_list.nav_list  # noqa: unused-import
-import book_list.show_note  # noqa: unused-import
-import book_list.ui_settings  # noqa: unused-import
-import book_list.views  # noqa: unused-import
 from ajax import ajax
+from book_list.book_details import set_panel_handlers as book_details_init
 from book_list.constants import book_list_container_id, read_book_container_id, cs_top_bar_host_id, INIT_ENDPOINT
+from book_list.convert_book import set_panel_handlers as convert_book_init
+from book_list.edit_metadata import set_panel_handlers as edit_metadata_init
+from book_list.fts import set_panel_handlers as fts_init
 from book_list.globals import get_db, set_session_data
+from book_list.home import set_panel_handlers as home_init
 from book_list.home import update_recently_read_by_user
 from book_list.library_data import fetch_init_data, update_library_data, url_books_query
+from book_list.local_books import set_panel_handlers as local_books_init
+from book_list.nav_list import set_panel_handlers as nav_list_init
 from book_list.router import update_window_title, set_default_mode_handler, apply_url, set_mode_handler, on_pop_state
+from book_list.show_note import set_panel_handlers as show_note_init
 from book_list.sidebar import create_sidebar
 from book_list.theme import get_color, get_font_family, css_for_variables, apply_book_list_theme, bind_book_list_color_scheme_listener
 from book_list.ui import apply_url_state as book_list_mode_handler
+from book_list.ui_settings import set_panel_handlers as ui_settings_init
+from book_list.views import set_panel_handlers as views_init
 from dom import get_widget_css
 from modals import create_modal_container, error_dialog
 from popups import install_event_filters
@@ -112,7 +112,19 @@ def init_ui():
     update_window_title()
     read_ui = ReadUI()
     get_db(read_ui.db)
+    book_details_init()
+    convert_book_init()
+    local_books_init()
+    edit_metadata_init()
+    fts_init()
+    home_init()
+    nav_list_init()
+    show_note_init()
+    ui_settings_init()
+    views_init()
+
     set_mode_handler('read_book', read_ui.apply_url_state.bind(read_ui))
+
     apply_url()
 
 

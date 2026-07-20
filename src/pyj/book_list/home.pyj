@@ -464,4 +464,6 @@ def init(container_id):
                 else:
                     offline_mode.textContent = _('Offline mode is not available, you need to setup HTTPS support in the calibre Content server')
 
-set_default_panel_handler(init)
+
+def set_panel_handlers():
+    set_default_panel_handler(init)

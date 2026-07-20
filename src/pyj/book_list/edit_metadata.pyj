@@ -1513,5 +1513,6 @@ def init_select_item_for_edit_notes(container_id):
     conditional_timeout(container_id, 5, check_for_books_loaded)
 
 
-set_panel_handler('edit_metadata', init)
-set_panel_handler('select_item_for_edit_notes', init_select_item_for_edit_notes)
+def set_panel_handlers():
+    set_panel_handler('edit_metadata', init)
+    set_panel_handler('select_item_for_edit_notes', init_select_item_for_edit_notes)

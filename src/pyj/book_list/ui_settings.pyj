@@ -353,4 +353,5 @@ def init(container_id):
     create_prefs_widget(panel_tagbrowser, get_tb_prefs())
 
 
-set_panel_handler('book_list^prefs', init)
+def set_panel_handlers():
+    set_panel_handler('book_list^prefs', init)

@@ -258,5 +258,6 @@ def create_editor(container, html):
     editor.init()
 
 
-set_panel_handler('show_note', init_display_note)
-set_panel_handler('edit_note', init_edit)
+def set_panel_handlers():
+    set_panel_handler('show_note', init_display_note)
+    set_panel_handler('edit_note', init_edit)

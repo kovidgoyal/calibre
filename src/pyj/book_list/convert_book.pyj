@@ -489,5 +489,6 @@ def init(container_id):
     enable_escape_key(container, on_close.bind(None, container_id))
 
 
-set_panel_handler('convert_book', init)
-# }}}
+def set_panel_handlers():
+    set_panel_handler('convert_book', init)
+    # }}}

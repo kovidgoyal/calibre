@@ -353,4 +353,5 @@ def init(container_id):
     enable_escape_key(container, on_close)
 
 
-set_panel_handler('local_books', init)
+def set_panel_handlers():
+    set_panel_handler('local_books', init)

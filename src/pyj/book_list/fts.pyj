@@ -519,4 +519,5 @@ def init(container_id):
         show_index_panel()
 
 
-set_panel_handler('fts', init)
+def set_panel_handlers():
+    set_panel_handler('fts', init)
