@@ -79,7 +79,7 @@ class TheAtlantic(BasicNewsRecipe):
         description = 'News and editorial about politics, culture, entertainment, tech, etc. Contains many articles not seen in The Atlantic magazine'
     else:
         title = 'The Atlantic'
-        description = 'Current affairs and politics focussed on the US'
+        description = 'Current affairs and politics focused on the US'
         INDEX = 'https://www.theatlantic.com/magazine/'
 
     __author__ = 'Kovid Goyal'
