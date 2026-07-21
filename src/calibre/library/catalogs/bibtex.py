@@ -20,7 +20,7 @@ from calibre.utils.localization import _
 
 
 class BIBTEX(CatalogPlugin):
-    'BIBTEX catalog generator'
+    "BIBTEX catalog generator"
 
     Option = namedtuple('Option', 'option, default, dest, action, help')
 

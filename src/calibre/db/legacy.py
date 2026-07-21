@@ -202,7 +202,7 @@ class ThreadSafePrefs(MutableMapping):
 
 
 class LibraryDatabase:
-    ''' Emulate the old LibraryDatabase2 interface '''
+    """ Emulate the old LibraryDatabase2 interface """
 
     PATH_LIMIT = DB.PATH_LIMIT
     WINDOWS_LIBRARY_PATH_LIMIT = DB.WINDOWS_LIBRARY_PATH_LIMIT
@@ -349,7 +349,7 @@ class LibraryDatabase:
         self.data.cache.initialize_template_cache()
 
     def all_ids(self):
-        'All book ids in the db. This can no longer be a generator because of db locking.'
+        "All book ids in the db. This can no longer be a generator because of db locking."
         return tuple(self.new_api.all_book_ids())
 
     def is_empty(self):
@@ -376,14 +376,14 @@ class LibraryDatabase:
             return self.new_api.lookup_by_uuid(uuid)
 
     def add_listener(self, listener):
-        '''
+        """
         Add a listener. Will be called on change events with two arguments.
         Event name and list of affected ids.
-        '''
+        """
         self.listeners.add(listener)
 
     def notify(self, event, ids=[]):
-        'Notify all listeners'
+        "Notify all listeners"
         for listener in self.listeners:
             try:
                 listener(event, ids)
@@ -394,12 +394,12 @@ class LibraryDatabase:
     # }}}
 
     def path(self, index, index_is_id=False):
-        'Return the relative path to the directory containing this books files as a unicode string.'
+        "Return the relative path to the directory containing this books files as a unicode string."
         book_id = index if index_is_id else self.id(index)
         return self.new_api.get_book_path(book_id)
 
     def abspath(self, index, index_is_id=False, create_dirs=True):
-        'Return the absolute path to the directory containing this books files as a unicode string.'
+        "Return the absolute path to the directory containing this books files as a unicode string."
         path = os.path.join(self.library_path, self.path(index, index_is_id=index_is_id))
         if create_dirs and not os.path.exists(path):
             os.makedirs(path)
@@ -469,14 +469,14 @@ class LibraryDatabase:
         return book_id
 
     def add_format(self, index, fmt, stream, index_is_id=False, path=None, notify=True, replace=True, copy_function=None):
-        ''' path and copy_function are ignored by the new API '''
+        """ path and copy_function are ignored by the new API """
         book_id = index if index_is_id else self.id(index)
         ret = self.new_api.add_format(book_id, fmt, stream, replace=replace, run_hooks=False, dbapi=self)
         self.notify('metadata', [book_id])
         return ret
 
     def add_format_with_hooks(self, index, fmt, fpath, index_is_id=False, path=None, notify=True, replace=True):
-        ''' path is ignored by the new API '''
+        """ path is ignored by the new API """
         book_id = index if index_is_id else self.id(index)
         ret = self.new_api.add_format(book_id, fmt, fpath, replace=replace, run_hooks=True, dbapi=self)
         self.notify('metadata', [book_id])

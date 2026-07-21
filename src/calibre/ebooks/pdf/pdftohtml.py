@@ -32,11 +32,11 @@ PDFTOTEXT = os.path.join(os.path.dirname(PDFTOHTML), 'pdftotext' + ('.exe' if is
 
 
 def pdftohtml(output_dir, pdf_path, no_images, as_xml=False):
-    '''
+    """
     Convert the pdf into html using the pdftohtml app.
     This will write the html as index.html into output_dir.
     It will also write all extracted images to the output_dir
-    '''
+    """
 
     pdfsrc = os.path.join(output_dir, 'src.pdf')
     index = os.path.join(output_dir, 'index.'+('xml' if as_xml else 'html'))

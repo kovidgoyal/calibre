@@ -80,7 +80,7 @@ class Book(Metadata):
 
     @property
     def db_id(self):
-        '''The database id in the application database that this file corresponds to'''
+        """The database id in the application database that this file corresponds to"""
 
         match = re.search(r'_(\d+)$', self.lpath.rpartition('.')[0])
         if match:
@@ -89,7 +89,7 @@ class Book(Metadata):
 
     @property
     def title_sorter(self):
-        '''String to sort the title. If absent, title is returned'''
+        """String to sort the title. If absent, title is returned"""
         return title_sort(self.title)
 
     @property
@@ -110,10 +110,10 @@ class BookList(_BookList):
         return self.add_book_extended(book, replace_metadata, check_for_duplicates=True)
 
     def add_book_extended(self, book, replace_metadata, check_for_duplicates):
-        '''
+        """
         Add the book to the booklist, if needed. Return None if the book is
         already there and not updated, otherwise return the book.
-        '''
+        """
         try:
             b = self.index(book) if check_for_duplicates else None
         except (ValueError, IndexError):
@@ -314,7 +314,7 @@ class CollectionsBookList(BookList):
         return result
 
     def rebuild_collections(self, booklist, oncard):
-        '''
+        """
         For each book in the booklist for the card oncard, remove it from all
         its current collections, then add it to the collections specified in
         device_collections.
@@ -323,5 +323,5 @@ class CollectionsBookList(BookList):
         etc.
 
         booklist is the object created by the :method:`books` call above.
-        '''
+        """
         pass

@@ -137,10 +137,10 @@ def _make_dir(suffix, prefix, base):
 
 
 class PersistentTemporaryFile:
-    '''
+    """
     A file-like object that is a temporary file that is available even after being closed on
     all platforms. It is automatically deleted on normal program termination.
-    '''
+    """
     _file: IO[bytes]
 
     def __init__(self, suffix='', prefix='', dir=None, mode='w+b'):
@@ -232,10 +232,10 @@ class PersistentTemporaryFile:
 
 
 def PersistentTemporaryDirectory(suffix='', prefix='', dir=None):
-    '''
+    """
     Return the path to a newly created temporary directory that will
     be automatically deleted on application exit.
-    '''
+    """
     if dir is None:
         dir = base_dir()
     tdir = _make_dir(suffix, prefix, dir)
@@ -244,9 +244,9 @@ def PersistentTemporaryDirectory(suffix='', prefix='', dir=None):
 
 
 class TemporaryDirectory:
-    '''
+    """
     A temporary directory to be used in a with statement.
-    '''
+    """
 
     def __init__(self, suffix='', prefix='', dir=None, keep=False):
         self.suffix = suffix

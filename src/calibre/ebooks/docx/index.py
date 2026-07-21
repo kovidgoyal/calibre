@@ -76,10 +76,10 @@ def add_xe(xe, t, expand):
 
 
 def process_index(field, index, xe_fields, log, XPath, expand):
-    '''
+    """
     We remove all the word generated index markup and replace it with our own
     that is more suitable for an ebook.
-    '''
+    """
     styles = []
     heading_text = index.get('heading', None)
     heading_style = 'IndexHeading'

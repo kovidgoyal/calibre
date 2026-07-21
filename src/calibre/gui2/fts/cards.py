@@ -212,7 +212,7 @@ class CardData:
 
 
 class RowInfo(NamedTuple):
-    '''Computed metadata for one row of cards.'''
+    """Computed metadata for one row of cards."""
     y: int = 0               # top Y of this row
     height: int = 0          # tallest card in this row
     first_index: int = 0     # index of first card in this row
@@ -230,13 +230,13 @@ class CardWidget(QWidget):
         self.setMouseTracking(True)
 
     def bind(self, card: CardData):
-        '''Bind this widget to a CardData, rebuilding the document.'''
+        """Bind this widget to a CardData, rebuilding the document."""
         self._card = card
         self.setFixedSize(max(0, card.width), max(0, card.height))
         self.update()
 
     def _pos_in_doc(self, widget_pos) -> QPointF:
-        '''Convert a widget-local position to the document's coordinate space.'''
+        """Convert a widget-local position to the document's coordinate space."""
         p = layout().padding + 1
         return QPointF(widget_pos.x() - p, widget_pos.y() - p)
 
@@ -436,7 +436,7 @@ class VirtualCardContainer(QWidget):
             self.update_debounce_timer.start()
 
     def set_viewport(self, viewport_rect: QRect):
-        '''Called by the scroll area whenever scroll position or size changes.'''
+        """Called by the scroll area whenever scroll position or size changes."""
         self._viewport_rect = viewport_rect
         self._update_visible_widgets()
 
@@ -479,7 +479,7 @@ class VirtualCardContainer(QWidget):
 
     # -- visibility determination (binary search on rows) --------------------
     def _visible_row_range(self) -> tuple[int, int]:
-        '''Return [first_visible_row, last_visible_row) using binary search.'''
+        """Return [first_visible_row, last_visible_row) using binary search."""
         if not self._rows:
             return (0, 0)
         OVERSCAN = 20

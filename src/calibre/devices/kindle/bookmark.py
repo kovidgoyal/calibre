@@ -7,10 +7,10 @@ from struct import unpack
 
 
 class Bookmark:  # {{{
-    '''
+    """
     A simple class fetching bookmark data
     Kindle-specific
-    '''
+    """
 
     def __init__(self, path, id, book_format, bookmark_extension):
         self.book_format = book_format
@@ -42,7 +42,7 @@ class Bookmark:  # {{{
         return StreamSlicer(self.stream, start, stop)
 
     def get_bookmark_data(self):
-        ''' Return the timestamp and last_read_location '''
+        """ Return the timestamp and last_read_location """
         from calibre.ebooks.metadata.mobi import StreamSlicer
         user_notes = {}
         if self.bookmark_extension == 'mbp':

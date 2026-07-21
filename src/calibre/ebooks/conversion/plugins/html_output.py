@@ -46,9 +46,9 @@ class HTMLOutput(OutputFormatPlugin):
     recommendations = {('pretty_print', True, OptionRecommendation.HIGH)}
 
     def generate_toc(self, oeb_book, ref_url, output_dir):
-        '''
+        """
         Generate table of contents
-        '''
+        """
         from lxml import etree
 
         from calibre.ebooks.oeb.base import element

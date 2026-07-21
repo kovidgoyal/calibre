@@ -67,7 +67,7 @@ def open_donate():
 
 class Central(QStackedWidget):  # {{{
 
-    ' The central widget, hosts the editors '
+    " The central widget, hosts the editors "
 
     current_editor_changed = pyqtSignal()
     close_requested = pyqtSignal(object)

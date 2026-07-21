@@ -82,17 +82,17 @@ class Table:
         pass
 
     def fix_case_duplicates(self, db):
-        ''' If this table contains entries that differ only by case, then merge
+        """ If this table contains entries that differ only by case, then merge
         those entries. This can happen in databases created with old versions
         of calibre and non-ascii values, since sqlite's NOCASE only works with
-        ascii text. '''
+        ascii text. """
         pass
 
 
 class VirtualTable(Table):
-    '''
+    """
     A dummy table used for fields that only exist in memory like ondevice
-    '''
+    """
 
     def __init__(self, name, table_type=ONE_ONE, datatype='text'):
         metadata = {'datatype':datatype, 'table':name}
@@ -101,11 +101,11 @@ class VirtualTable(Table):
 
 
 class OneToOneTable(Table):
-    '''
+    """
     Represents data that is unique per book (it may not actually be unique) but
     each item is assigned to a book in a one-to-one mapping. For example: uuid,
     timestamp, size, etc.
-    '''
+    """
 
     table_type = ONE_ONE
 
@@ -195,12 +195,12 @@ class CompositeTable(OneToOneTable):
 
 
 class ManyToOneTable(Table):
-    '''
+    """
     Represents data where one data item can map to many books, for example:
     series or publisher.
 
     Each book however has only one value for data of this type.
-    '''
+    """
 
     table_type = MANY_ONE
     supports_notes = True
@@ -407,11 +407,11 @@ class RatingTable(ManyToOneTable):
 
 
 class ManyToManyTable(ManyToOneTable):
-    '''
+    """
     Represents data that has a many-to-many mapping with books. i.e. each book
     can have more than one value and each value can be mapped to more than one
     book. For example: tags or authors.
-    '''
+    """
 
     table_type = MANY_MANY
     selectq = 'SELECT book, {0} FROM {1} ORDER BY id'

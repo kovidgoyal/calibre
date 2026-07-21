@@ -181,9 +181,9 @@ def parse_asin(root, log, url):
 
 class Worker(Thread):  # Get details {{{
 
-    '''
+    """
     Get book details from amazons book page in a separate thread
-    '''
+    """
 
     def __init__(self, url, result_queue, browser, log, relevance, domain,
                  plugin, timeout=20, testing=False, preparsed_root=None,
@@ -1213,10 +1213,10 @@ class Amazon(Source):
             return aid, val
 
     def test_fields(self, mi):
-        '''
+        """
         Return the first field from self.touched_fields that is null on the
         mi object
-        '''
+        """
         for key in self.touched_fields:
             if key.startswith('identifier:'):
                 key = key.partition(':')[-1]
@@ -1646,10 +1646,10 @@ class Amazon(Source):
 
     def identify(self, log, result_queue, abort, title=None, authors=None,  # {{{
                  identifiers={}, timeout=60):
-        '''
+        """
         Note this method will retry without identifiers automatically if no
         match is found with identifiers.
-        '''
+        """
 
         testing = getattr(self, 'running_a_test', False)
 

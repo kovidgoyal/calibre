@@ -33,16 +33,16 @@ QWORD     = '<Q'  #: Unsigned long long little endian encoded in 8 bytes
 
 
 class field:
-    ''' A U{Descriptor<http://www.cafepy.com/article/python_attributes_and_methods/python_attributes_and_methods.html>}, that implements access
+    """ A U{Descriptor<http://www.cafepy.com/article/python_attributes_and_methods/python_attributes_and_methods.html>}, that implements access
     to protocol packets in a human readable way.
-    '''
+    """
 
     def __init__(self, start=16, fmt=DWORD):
-        '''
+        """
         @param start: The byte at which this field is stored in the buffer
         @param fmt:   The packing format for this field.
         See U{struct<http://docs.python.org/lib/module-struct.html>}.
-        '''
+        """
         self._fmt, self._start = fmt, start
 
     def __get__(self, obj, typ=None):
@@ -83,13 +83,13 @@ class LRFException(Exception):
 
 
 class fixed_stringfield:
-    ''' A field storing a variable length string. '''
+    """ A field storing a variable length string. """
 
     def __init__(self, length=8, start=0):
-        '''
+        """
         @param length: Size of this string
         @param start: The byte at which this field is stored in the buffer
-        '''
+        """
         self._length = length
         self._start = start
 
@@ -120,7 +120,7 @@ class xml_attr_field:
         self.attr= attr
 
     def __get__(self, obj, typ=None):
-        ''' Return the data in this field or '' if the field is empty '''
+        """ Return the data in this field or '' if the field is empty """
         document = obj.info
         elems = document.getElementsByTagName(self.tag_name)
         if len(elems):
@@ -154,21 +154,21 @@ class xml_attr_field:
 
 
 class xml_field:
-    '''
+    """
     Descriptor that gets and sets XML based meta information from an LRF file.
     Works for simple XML fields of the form <tagname>data</tagname>
-    '''
+    """
 
     def __init__(self, tag_name, parent='BookInfo'):
-        '''
+        """
         @param tag_name: The XML tag whose data we operate on
         @param parent: The tagname of the parent element of C{tag_name}
-        '''
+        """
         self.tag_name = tag_name
         self.parent = parent
 
     def __get__(self, obj, typ=None):
-        ''' Return the data in this field or '' if the field is empty '''
+        """ Return the data in this field or '' if the field is empty """
         document = obj.info
 
         elems = document.getElementsByTagName(self.tag_name)
@@ -225,7 +225,7 @@ class xml_field:
 
 
 def insert_into_file(fileobj, data, start, end):
-    '''
+    """
     Insert data into fileobj at position C{start}.
 
     This function inserts data into a file, overwriting all data between start
@@ -237,7 +237,7 @@ def insert_into_file(fileobj, data, start, end):
     @param start:   The position at which to start inserting data
     @param end:     The position in fileobj of data that must not be overwritten
     @return:        C{start + len(data) - end}
-    '''
+    """
     buffer = io.BytesIO()
     fileobj.seek(end)
     copyfileobj(fileobj, buffer, -1)
@@ -255,11 +255,11 @@ def insert_into_file(fileobj, data, start, end):
 
 
 def get_metadata(stream):
-    '''
+    """
     Return basic meta-data about the LRF file in C{stream} as a
     L{MetaInformation} object.
     @param stream: A file like object or an instance of L{LRFMetaFile}
-    '''
+    """
     lrf = stream if isinstance(stream, LRFMetaFile) else LRFMetaFile(stream)
     authors = string_to_authors(lrf.author)
     mi = MetaInformation(lrf.title.strip(), authors)
@@ -301,10 +301,10 @@ def get_metadata(stream):
 
 
 def safe(func):
-    '''
+    """
     Decorator that ensures that function calls leave the pos
     in the underlying file unchanged
-    '''
+    """
     @wraps(func)
     def restore_pos(*args, **kwargs):
         obj = args[0]
@@ -318,10 +318,10 @@ def safe(func):
 
 
 def safe_property(func):
-    '''
+    """
     Decorator that ensures that read or writing a property leaves
     the position in the underlying file unchanged
-    '''
+    """
     def decorator(f):
         def restore_pos(*args, **kwargs):
             obj = args[0]
@@ -341,7 +341,7 @@ def safe_property(func):
 
 
 class LRFMetaFile:
-    ''' Has properties to read and write all Meta information in a LRF file. '''
+    """ Has properties to read and write all Meta information in a LRF file. """
     #: The first 6 bytes of all valid LRF files
     LRF_HEADER = 'LRF'.encode('utf-16le')
 
@@ -433,7 +433,7 @@ class LRFMetaFile:
 
     @classmethod
     def _detect_thumbnail_type(cls, slice):
-        ''' @param slice: The first 16 bytes of the thumbnail '''
+        """ @param slice: The first 16 bytes of the thumbnail """
         ttype = 0x14  # GIF
         if 'PNG' in slice:
             ttype = 0x12
@@ -475,7 +475,7 @@ class LRFMetaFile:
         return {'fget':fget, 'fset':fset, 'doc':doc}
 
     def __init__(self, file):
-        ''' @param file: A file object opened in the r+b mode '''
+        """ @param file: A file object opened in the r+b mode """
         file.seek(0, 2)
         self.size = file.tell()
         self._file = file
@@ -487,7 +487,7 @@ class LRFMetaFile:
 
     @safe
     def update_object_offsets(self, delta):
-        ''' Run through the LRF Object index changing the offset by C{delta}. '''
+        """ Run through the LRF Object index changing the offset by C{delta}. """
         self._file.seek(self.object_index_offset)
         count = self.number_of_objects
         while count > 0:
@@ -503,12 +503,12 @@ class LRFMetaFile:
 
     @safe
     def unpack(self, fmt=DWORD, start=0):
-        '''
+        """
         Return decoded data from file.
 
         @param fmt: See U{struct<http://docs.python.org/lib/module-struct.html>}
         @param start: Position in file from which to decode
-        '''
+        """
         end = start + struct.calcsize(fmt)
         self._file.seek(start)
         ret = struct.unpack(fmt, self._file.read(end-start))
@@ -516,25 +516,25 @@ class LRFMetaFile:
 
     @safe
     def pack(self, *args, **kwargs):
-        '''
+        """
         Encode C{args} and write them to file.
         C{kwargs} must contain the keywords C{fmt} and C{start}
 
         @param args: The values to pack
         @param fmt: See U{struct<http://docs.python.org/lib/module-struct.html>}
         @param start: Position in file at which to write encoded data
-        '''
+        """
         encoded = struct.pack(kwargs['fmt'], *args)
         self._file.seek(kwargs['start'])
         self._file.write(encoded)
         self._file.flush()
 
     def thumbail_extension(self):
-        '''
+        """
         Return the extension for the thumbnail image type as specified
         by L{self.thumbnail_type}. If the LRF file was created by buggy
         software, the extension maye be incorrect. See L{self.fix_thumbnail_type}.
-        '''
+        """
         ext = 'gif'
         ttype = self.thumbnail_type
         if ttype == 0x11:
@@ -546,27 +546,27 @@ class LRFMetaFile:
         return ext
 
     def fix_thumbnail_type(self):
-        '''
+        """
         Attempt to guess the thumbnail image format and set
         L{self.thumbnail_type} accordingly.
-        '''
+        """
         slice = self.thumbnail[0:16]
         self.thumbnail_type = self._detect_thumbnail_type(slice)
 
     def seek(self, *args):
-        ''' See L{file.seek} '''
+        """ See L{file.seek} """
         return self._file.seek(*args)
 
     def tell(self):
-        ''' See L{file.tell} '''
+        """ See L{file.tell} """
         return self._file.tell()
 
     def read(self):
-        ''' See L{file.read} '''
+        """ See L{file.read} """
         return self._file.read()
 
     def write(self, val):
-        ''' See L{file.write} '''
+        """ See L{file.write} """
         self._file.write(val)
 
     def _objects(self):

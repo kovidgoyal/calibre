@@ -35,7 +35,7 @@ ONLINE_DICTIONARY_BASE_URL = 'https://raw.githubusercontent.com/LibreOffice/dict
 
 
 def parse_xcu(raw, origin='%origin%'):
-    ' Get the dictionary and affix file names as well as supported locales for each dictionary '
+    " Get the dictionary and affix file names as well as supported locales for each dictionary "
     ans = {}
     root = safe_xml_fromstring(raw)
 
@@ -107,8 +107,8 @@ def fill_country_code(x):
 
 
 def uniq(vals, kmap=lambda x:x):
-    ''' Remove all duplicates from vals, while preserving order. kmap must be a
-    callable that returns a hashable value for every item in vals '''
+    """ Remove all duplicates from vals, while preserving order. kmap must be a
+    callable that returns a hashable value for every item in vals """
     vals = vals or ()
     lvals = (kmap(x) for x in vals)
     seen = set()

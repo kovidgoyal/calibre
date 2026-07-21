@@ -31,7 +31,7 @@ class AllAllowed:
 
 
 def allowed_formats():
-    ' Return an object that can be used to test if a format (lowercase) is allowed for auto-adding '
+    " Return an object that can be used to test if a format (lowercase) is allowed for auto-adding "
     if gprefs['auto_add_everything']:
         allowed = AllAllowed()
     else:

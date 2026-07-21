@@ -115,9 +115,9 @@ class Mediapart(BasicNewsRecipe):
         return br
 
     def default_cover(self, cover_file):
-        '''
+        """
         Create a generic cover for recipes that don't have a cover
-        '''
+        """
         from qt.core import QFont, QImage, QPainter, QPen, QRect, Qt
 
         from calibre.gui2 import ensure_app, load_builtin_fonts, pixmap_to_data
@@ -127,7 +127,7 @@ class Mediapart(BasicNewsRecipe):
             load_builtin_fonts()
 
         def create_cover_mediapart(date):
-            ' Create a cover for mediapart adding the date on Mediapart Cover'
+            " Create a cover for mediapart adding the date on Mediapart Cover"
             init_environment()
             # Get data
             image_url = 'https://raw.githubusercontent.com/lhoupert/calibre_contrib/main/mediapart.jpeg'

@@ -166,7 +166,7 @@ def sort_formats_by_preference(formats, prefs):
 
 
 def get_input_format_for_book(db, book_id, pref=None):
-    '''
+    """
     Return (preferred input format, list of available formats) for the book
     identified by book_id. Raises an error if the book has no input formats.
 
@@ -174,7 +174,7 @@ def get_input_format_for_book(db, book_id, pref=None):
     any, on this book is used. If not None, should be a lowercase format like
     'epub' or 'mobi'. If you do not want the last converted format to be used,
     set pref=False.
-    '''
+    """
     if pref is None:
         pref = get_preferred_input_format_for_book(db, book_id)
     if hasattr(pref, 'lower'):

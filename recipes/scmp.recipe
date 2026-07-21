@@ -1,7 +1,7 @@
 #!/usr/bin/env python
-'''
+"""
 scmp.com
-'''
+"""
 
 import json
 import time

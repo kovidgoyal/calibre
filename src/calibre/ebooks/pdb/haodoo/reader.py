@@ -1,6 +1,6 @@
-'''
+"""
 Read content from Haodoo.net pdb file.
-'''
+"""
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kan-Ru Chen <kanru@kanru.info>'

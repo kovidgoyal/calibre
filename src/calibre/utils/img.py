@@ -114,12 +114,12 @@ def set_image_allocation_limit(size_in_mb=1024):
 
 
 def null_image():
-    ' Create an invalid image. For internal use. '
+    " Create an invalid image. For internal use. "
     return QImage()
 
 
 def image_from_data(data):
-    ' Create an image object from data, which should be a bytestring. '
+    " Create an image object from data, which should be a bytestring. "
     if isinstance(data, QImage):
         return data
     set_image_allocation_limit()
@@ -140,13 +140,13 @@ def image_from_data(data):
 
 
 def image_from_path(path):
-    ' Load an image from the specified path. '
+    " Load an image from the specified path. "
     with open(path, 'rb') as f:
         return image_from_data(f.read())
 
 
 def image_from_x(x):
-    ' Create an image from a bytestring or a path or a file like object. '
+    " Create an image from a bytestring or a path or a file like object. "
     if isinstance(x, str):
         return image_from_path(x)
     if hasattr(x, 'read'):
@@ -161,7 +161,7 @@ def image_from_x(x):
 
 
 def image_and_format_from_data(data):
-    ' Create an image object from the specified data which should be a bytestring and also return the format of the image '
+    " Create an image object from the specified data which should be a bytestring and also return the format of the image "
     ba = QByteArray(data)
     buf = QBuffer(ba)
     buf.open(QIODevice.OpenModeFlag.ReadOnly)
@@ -177,7 +177,7 @@ def image_and_format_from_data(data):
 # Saving images {{{
 
 def image_to_data(img, compression_quality=95, fmt='JPEG', png_compression_level=9, jpeg_optimized=True, jpeg_progressive=False):
-    '''
+    """
     Serialize image to bytestring in the specified format.
 
     :param compression_quality: is for JPEG and WEBP and goes from 0 to 100.
@@ -185,7 +185,7 @@ def image_to_data(img, compression_quality=95, fmt='JPEG', png_compression_level
     :param png_compression_level: is for PNG and goes from 0-9. 9 being highest compression.
     :param jpeg_optimized: Turns on the 'optimize' option for libjpeg which losslessly reduce file size
     :param jpeg_progressive: Turns on the 'progressive scan' option for libjpeg which allows JPEG images to be downloaded in streaming fashion
-    '''
+    """
     fmt = fmt.upper()
     ba = QByteArray()
     buf = QBuffer(ba)
@@ -218,9 +218,9 @@ def image_to_data(img, compression_quality=95, fmt='JPEG', png_compression_level
 
 
 def save_image(img, path, **kw):
-    ''' Save image to the specified path. Image format is taken from the file
+    """ Save image to the specified path. Image format is taken from the file
     extension. You can pass the same keyword arguments as for the
-    `image_to_data()` function. '''
+    `image_to_data()` function. """
     fmt = path.rpartition('.')[-1]
     kw['fmt'] = kw.get('fmt', fmt)
     with open(path, 'wb') as f:
@@ -239,7 +239,7 @@ def save_cover_data_to(
     letterbox_color='#000000',
     data_fmt='jpeg'
 ):
-    '''
+    """
     Saves image in data to path, in the format specified by the path
     extension. Removes any transparency. If there is no transparency and no
     resize and the input and output image formats are the same, no changes are
@@ -266,7 +266,7 @@ def save_cover_data_to(
         the image will be letterboxed (i.e., centered on a black background).
     :param letterbox_color: If letterboxing is used, this is the background color
         used. The default is black.
-    '''
+    """
     fmt = normalize_format_name(data_fmt if path is None else os.path.splitext(path)[1][1:])
     if isinstance(data, QImage):
         img = data
@@ -317,7 +317,7 @@ def save_cover_data_to(
 # Overlaying images {{{
 
 def blend_on_canvas(img, width, height, bgcolor='#ffffff'):
-    ' Blend the `img` onto a canvas with the specified background color and size '
+    " Blend the `img` onto a canvas with the specified background color and size "
     w, h = img.width(), img.height()
     scaled, nw, nh = fit_image(w, h, width, height)
     if scaled:
@@ -350,14 +350,14 @@ class Canvas:
 
 
 def create_canvas(width, height, bgcolor='#ffffff'):
-    'Create a blank canvas of the specified size and color '
+    "Create a blank canvas of the specified size and color "
     img = QImage(int(width), int(height), QImage.Format.Format_RGB32)
     img.fill(QColor(bgcolor))
     return img
 
 
 def overlay_image(img, canvas=None, left=0, top=0):
-    ' Overlay the `img` onto the canvas at the specified position '
+    " Overlay the `img` onto the canvas at the specified position "
     if canvas is None:
         canvas = QImage(img.size(), QImage.Format.Format_RGB32)
         canvas.fill(Qt.GlobalColor.white)
@@ -367,14 +367,14 @@ def overlay_image(img, canvas=None, left=0, top=0):
 
 
 def texture_image(canvas, texture):
-    ' Repeatedly tile the image `texture` across and down the image `canvas` '
+    " Repeatedly tile the image `texture` across and down the image `canvas` "
     if canvas.hasAlphaChannel():
         canvas = blend_image(canvas)
     return imageops.texture_image(canvas, texture)
 
 
 def blend_image(img, bgcolor='#ffffff'):
-    ' Used to convert images that have semi-transparent pixels to opaque by blending with the specified color '
+    " Used to convert images that have semi-transparent pixels to opaque by blending with the specified color "
     canvas = QImage(img.size(), QImage.Format.Format_RGB32)
     canvas.fill(QColor(bgcolor))
     overlay_image(img, canvas)
@@ -395,10 +395,10 @@ def add_borders_to_image(img, left=0, top=0, right=0, bottom=0, border_color='#f
 
 
 def remove_borders_from_image(img, fuzz=None):
-    ''' Try to auto-detect and remove any borders from the image. Returns
+    """ Try to auto-detect and remove any borders from the image. Returns
     the image itself if no borders could be removed. `fuzz` is a measure of
     what colors are considered identical (must be a number between 0 and 255 in
-    absolute intensity units). Default is from a tweak whose default value is 10. '''
+    absolute intensity units). Default is from a tweak whose default value is 10. """
     fuzz = tweaks['cover_trim_fuzz_value'] if fuzz is None else fuzz
     img = image_from_data(img)
     ans = imageops.remove_borders(img, int(max(0, fuzz)))
@@ -421,15 +421,15 @@ def resize_to_fit(img, width, height):
 
 
 def clone_image(img):
-    ''' Returns a shallow copy of the image. However, the underlying data buffer
-    will be automatically copied-on-write '''
+    """ Returns a shallow copy of the image. However, the underlying data buffer
+    will be automatically copied-on-write """
     return QImage(img)
 
 
 def scale_image(data, width=60, height=80, compression_quality=70, as_png=False, preserve_aspect_ratio=True):
-    ''' Scale an image, returning it as either JPEG or PNG data (bytestring).
+    """ Scale an image, returning it as either JPEG or PNG data (bytestring).
     Transparency is alpha blended with white when converting to JPEG. Is thread
-    safe and does not require a QApplication. '''
+    safe and does not require a QApplication. """
     # We use Qt instead of ImageMagick here because ImageMagick seems to use
     # some kind of memory pool, causing memory consumption to sky rocket.
     img = image_from_data(data)
@@ -445,14 +445,14 @@ def scale_image(data, width=60, height=80, compression_quality=70, as_png=False,
 
 
 def crop_image(img, x, y, width, height):
-    '''
+    """
     Return the specified section of the image.
 
     :param x, y: The top left corner of the crop box
     :param width, height: The width and height of the crop box. Note that if
     the crop box exceeds the source images dimensions, width and height will be
     auto-truncated.
-    '''
+    """
     img = image_from_data(img)
     width = min(width, img.width() - x)
     height = min(height, img.height() - y)
@@ -468,9 +468,9 @@ def grayscale_image(img):
 
 
 def set_image_opacity(img, alpha=0.5):
-    ''' Change the opacity of `img`. Note that the alpha value is multiplied to
+    """ Change the opacity of `img`. Note that the alpha value is multiplied to
     any existing alpha values, so you cannot use this function to convert a
-    semi-transparent image to an opaque one. For that use `blend_image()`. '''
+    semi-transparent image to an opaque one. For that use `blend_image()`. """
     return imageops.set_opacity(image_from_data(img), alpha)
 
 
@@ -479,7 +479,7 @@ def flip_image(img, horizontal=False, vertical=False):
 
 
 def image_has_transparent_pixels(img):
-    ' Return True iff the image has at least one semi-transparent pixel '
+    " Return True iff the image has at least one semi-transparent pixel "
     img = image_from_data(img)
     if img.isNull():
         return False
@@ -513,7 +513,7 @@ def normalize_image(img):
 
 
 def quantize_image(img, max_colors=256, dither=True, palette=''):
-    ''' Quantize the image to contain a maximum of `max_colors` colors. By
+    """ Quantize the image to contain a maximum of `max_colors` colors. By
     default a palette is chosen automatically, if you want to use a fixed
     palette, then pass in a list of color names in the `palette` variable. If
     you, specify a palette `max_colors` is ignored. Note that it is possible
@@ -522,7 +522,7 @@ def quantize_image(img, max_colors=256, dither=True, palette=''):
     :param max_colors: Max. number of colors in the auto-generated palette. Must be between 2 and 256.
     :param dither: Whether to use dithering or not. dithering is almost always a good thing.
     :param palette: Use a manually specified palette instead. For example: palette='red green blue #eee'
-    '''
+    """
     img = image_from_data(img)
     if img.hasAlphaChannel():
         img = blend_image(img)
@@ -532,13 +532,13 @@ def quantize_image(img, max_colors=256, dither=True, palette=''):
 
 
 def eink_dither_image(img):
-    ''' Dither the source image down to the eInk palette of 16 shades of grey,
+    """ Dither the source image down to the eInk palette of 16 shades of grey,
     using ImageMagick's OrderedDither algorithm.
 
     NOTE: No need to call grayscale_image first, as this will inline a grayscaling pass if need be.
 
     Returns a QImage in Grayscale8 pixel format.
-    '''
+    """
     img = image_from_data(img)
     if img.hasAlphaChannel():
         img = blend_image(img)
@@ -639,7 +639,7 @@ def optimize_jpeg(file_path):
 
 
 def optimize_png(file_path, level=7):
-    ' level goes from 1 to 7 with 7 being maximum compression '
+    " level goes from 1 to 7 with 7 being maximum compression "
     exe = get_exe_path('optipng')
     cmd = [exe] + f'-fix -clobber -strip all -o{level} -out'.split() + [False, True]
     return run_optimizer(file_path, cmd)
@@ -656,7 +656,7 @@ def run_cwebp(file_path, lossless, q, m, metadata):
 
 
 def optimize_webp(file_path, q=100, m=6, metadata='all'):
-    ' metadata can be a comma seaprated list of all, none, exif, icc, xmp '
+    " metadata can be a comma seaprated list of all, none, exif, icc, xmp "
     return run_cwebp(file_path, True, q, m, metadata)
 
 
@@ -686,9 +686,9 @@ def encode_webp(file_path, quality=75, m=6, metadata='all'):
 
 # PIL images {{{
 def align8to32(bytes, width, mode):
-    '''
+    """
     converts each scanline of data from 8 bit to 32 bit aligned
-    '''
+    """
 
     bits_per_pixel = {'1': 1, 'L': 8, 'P': 8, 'I;16': 16}[mode]
 

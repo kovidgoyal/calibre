@@ -1,6 +1,6 @@
-'''
+"""
 focus.de
-'''
+"""
 
 from calibre.web.feeds.news import BasicNewsRecipe, classes
 

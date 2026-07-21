@@ -115,7 +115,7 @@ class MultiDict(dict):  # {{{
 
 
 def error_codes(*errnames):
-    ''' Return error numbers for error names, ignoring non-existent names '''
+    """ Return error numbers for error names, ignoring non-existent names """
     ans = {getattr(errno, x, None) for x in errnames}
     ans.discard(None)
     return ans
@@ -151,21 +151,21 @@ def stop_cork(sock):
 
 
 def create_sock_pair():
-    '''Create socket pair. '''
+    """Create socket pair. """
     client_sock, srv_sock = socket.socketpair()
     set_socket_inherit(client_sock, False), set_socket_inherit(srv_sock, False)
     return client_sock, srv_sock
 
 
 def parse_http_list(header_val):
-    '''Parse lists as described by RFC 2068 Section 2.
+    """Parse lists as described by RFC 2068 Section 2.
 
     In particular, parse comma-separated lists where the elements of
     the list may include quoted-strings.  A quoted-string could
     contain a comma.  A non-quoted string could have quotes in the
     middle.  Neither commas nor quotes count if they are escaped.
     Only double-quotes count, not single-quotes.
-    '''
+    """
     if isinstance(header_val, bytes):
         slash, dquote, comma = b'\\",'
         empty = b''
@@ -219,7 +219,7 @@ def parse_http_dict(header_val):
 
 
 def sort_q_values(header_val):
-    'Get sorted items from an HTTP header of type: a;q=0.5, b;q=0.7...'
+    "Get sorted items from an HTTP header of type: a;q=0.5, b;q=0.7..."
     if not header_val:
         return []
 
@@ -256,7 +256,7 @@ def get_translator_for_lang(cache, bcp_47_code):
 
 
 def encode_path(*components):
-    'Encode the path specified as a list of path components using URL encoding'
+    "Encode the path specified as a list of path components using URL encoding"
     return '/' + '/'.join(urlquote(x.encode('utf-8'), '') for x in components)
 
 
@@ -404,7 +404,7 @@ class HandleInterrupt:  # {{{
 
 class Accumulator:  # {{{
 
-    'Optimized replacement for BytesIO when the usage pattern is many writes followed by a single getvalue()'
+    "Optimized replacement for BytesIO when the usage pattern is many writes followed by a single getvalue()"
 
     def __init__(self):
         self._buf = []
@@ -441,7 +441,7 @@ def get_library_data(ctx, rd, strict_library_id=False):
 
 
 class Offsets:
-    'Calculate offsets for a paginated view'
+    "Calculate offsets for a paginated view"
 
     def __init__(self, offset, delta, total):
         offset = max(offset, 0)

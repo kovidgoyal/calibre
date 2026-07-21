@@ -20,7 +20,7 @@ from calibre.utils.localization import _
 
 
 class Catalog(QDialog, Ui_Dialog):
-    ''' Catalog Dialog builder'''
+    """ Catalog Dialog builder"""
 
     def __init__(self, parent, dbspec, ids, db):
         import re
@@ -186,9 +186,9 @@ class Catalog(QDialog, Ui_Dialog):
             self.sync.setChecked(False)
 
     def settings_changed(self):
-        '''
+        """
         When title/format change, invalidate Preset in E-book options tab
-        '''
+        """
         cf = str(self.format.currentText()).lower()
         if cf in ('azw3', 'epub', 'mobi') and hasattr(self.options_widget, 'settings_changed'):
             self.options_widget.settings_changed('title/format')
@@ -222,7 +222,7 @@ class Catalog(QDialog, Ui_Dialog):
         return QDialog.accept(self)
 
     def help(self):
-        '''
+        """
         To add help functionality for a specific format:
         In gui2.catalog.catalog_<format>.py, add the following:
             from calibre.gui2 import open_url
@@ -234,7 +234,7 @@ class Catalog(QDialog, Ui_Dialog):
                 open_url(QUrl(url))
 
         Create the help file at resources/catalog/help_<format>.html
-        '''
+        """
         if self.tabs.count() > 1 and hasattr(self.options_widget,'show_help'):
             try:
                 self.options_widget.show_help()

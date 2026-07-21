@@ -800,13 +800,13 @@ class BarsManager(QObject):
         self.search_tool_bar.init_bar(gprefs['action-layout-searchbar'])
 
     def update_bars(self, reveal_bar=False):
-        '''
+        """
         This shows the correct main toolbar and rebuilds the menubar based on
         whether a device is connected or not. Note that the toolbars are
         explicitly not rebuilt, this is to workaround a Qt limitation with
         QToolButton's popup menus and modal dialogs. If you want the toolbars
         rebuilt, call init_bars().
-        '''
+        """
         showing_device = self.location_manager.has_device
         main_bar = self.main_bars[1 if showing_device else 0]
         child_bar = self.child_bars[0]

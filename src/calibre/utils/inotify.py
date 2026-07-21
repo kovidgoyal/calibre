@@ -32,7 +32,7 @@ _inotify = None
 
 
 def load_inotify():  # {{{
-    ''' Initialize the inotify ctypes wrapper '''
+    """ Initialize the inotify ctypes wrapper """
     global _inotify
     if _inotify is None:
         if hasattr(sys, 'getwindowsversion'):
@@ -202,7 +202,7 @@ class INotify:
         raise NotImplementedError()
 
     def wait(self, timeout=None):
-        'Return True iff there are events waiting to be read. Blocks if timeout is None. Polls if timeout is 0.'
+        "Return True iff there are events waiting to be read. Blocks if timeout is None. Polls if timeout is 0."
         return len((select.select([self._inotify_fd], [], []) if timeout is None else select.select([self._inotify_fd], [], [], timeout))[0]) > 0
 
 
@@ -231,8 +231,8 @@ class INotifyTreeWatcher(INotify):
                 raise DirTooLarge(self.basedir)
 
     def add_watches(self, base, top_level=True):
-        ''' Add watches for this directory and all its descendant directories,
-        recursively. '''
+        """ Add watches for this directory and all its descendant directories,
+        recursively. """
         base = realpath(base)
         # There may exist a link which leads to an endless
         # add_watches loop or to maximum recursion depth exceeded

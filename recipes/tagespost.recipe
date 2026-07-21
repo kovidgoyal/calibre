@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # vim:fileencoding=utf-8
-'''
+"""
 Recipe for Die Tagespost
-'''
+"""
 
 from calibre.web.feeds.news import BasicNewsRecipe, classes
 

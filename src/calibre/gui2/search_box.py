@@ -128,7 +128,7 @@ class SearchLineEdit(QLineEdit):  # {{{
 
 class SearchBox2(QComboBox):  # {{{
 
-    '''
+    """
     To use this class:
 
         * Call initialize()
@@ -141,7 +141,7 @@ class SearchBox2(QComboBox):  # {{{
           Be aware that if you are using it in a slot connected to the
           changed() signal, if the connection is not queued it will not be
           accurate.
-    '''
+    """
 
     INTERVAL = 1500  #: Time to wait before emitting search signal
     MAX_COUNT = 25

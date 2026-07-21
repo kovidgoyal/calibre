@@ -1,6 +1,6 @@
-'''
+"""
 Fetch RSS-Feeds http://spectrum.ieee.org
-'''
+"""
 
 from calibre.web.feeds.news import BasicNewsRecipe
 

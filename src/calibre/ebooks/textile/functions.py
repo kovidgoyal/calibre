@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 
 
-'''
+"""
 PyTextile
 
 A Humane Web Text Generator
-'''
+"""
 
 # Last upstream version basis
 # __version__ = '2.1.4'
@@ -263,7 +263,7 @@ class Textile:
     ]
 
     def __init__(self, restricted=False, lite=False, noimage=False):
-        '''docstring for __init__'''
+        """docstring for __init__"""
         self.restricted = restricted
         self.lite = lite
         self.noimage = noimage
@@ -275,11 +275,11 @@ class Textile:
         self.html_type = 'xhtml'
 
     def textile(self, text, rel=None, head_offset=0, html_type='xhtml'):
-        '''
+        """
         >>> import textile
         >>> textile.textile('some textile')
         '\\t<p>some textile</p>'
-        '''
+        """
         self.html_type = html_type
 
         # text = str(text)
@@ -421,7 +421,7 @@ class Textile:
         return ''.join(result)
 
     def hasRawText(self, text):
-        '''
+        """
         checks whether the text has text not already enclosed by a block tag
 
         >>> t = Textile()
@@ -431,17 +431,17 @@ class Textile:
         >>> t.hasRawText(' why yes, yes it does')
         True
 
-        '''
+        """
         r = re.compile(r'<(p|blockquote|div|form|table|ul|ol|pre|h\d)[^>]*?>.*</\1>', re.S).sub('', text.strip()).strip()
         r = re.compile(r'<(hr|br)[^>]*?/>').sub('', r)
         return '' != r
 
     def table(self, text):
-        r'''
+        r"""
         >>> t = Textile()
         >>> t.table('|one|two|three|\n|a|b|c|')
         '\t<table>\n\t\t<tr>\n\t\t\t<td>one</td>\n\t\t\t<td>two</td>\n\t\t\t<td>three</td>\n\t\t</tr>\n\t\t<tr>\n\t\t\t<td>a</td>\n\t\t\t<td>b</td>\n\t\t\t<td>c</td>\n\t\t</tr>\n\t</table>\n\n'
-        '''
+        """
         text = text + '\n\n'
         pattern = re.compile(rf'^(?:table(_?{self.s}{self.a}{self.c})\. ?\n)?^({self.a}{self.c}\.? ?\|.*\|)\n\n', re.S|re.M|re.U)
         return pattern.sub(self.fTable, text)
@@ -538,11 +538,11 @@ class Textile:
         return f'<{match.group(1)}{match.group(2)}>{content}{match.group(4)}'
 
     def block(self, text, head_offset=0):
-        '''
+        """
         >>> t = Textile()
         >>> t.block('h1. foobar baby')
         '\\t<h1>foobar baby</h1>'
-        '''
+        """
         if not self.lite:
             tre = '|'.join(self.btag)
         else:
@@ -756,9 +756,9 @@ class Textile:
         return d.get(input, '')
 
     def getRefs(self, text):
-        '''
+        """
         what is this for?
-        '''
+        """
         pattern = re.compile(r'(?:(?<=^)|(?<=\s))\[(.+)\]((?:http(?:s?)://|/)\S+)(?=\s|$)', re.U)
         text = pattern.sub(self.refs, text)
         return text
@@ -1036,9 +1036,9 @@ class Textile:
         return pattern.sub(method, text)
 
     def fSpecial(self, match):
-        '''
+        """
         special blocks like notextile or code
-        '''
+        """
         before, text, after = match.groups()
         if after is None:
             after = ''
@@ -1056,17 +1056,17 @@ class Textile:
 
 
 def textile(text, head_offset=0, html_type='xhtml', encoding=None, output=None):
-    '''
+    """
     this function takes additional parameters:
     head_offset - offset to apply to heading levels (default: 0)
     html_type - 'xhtml' or 'html' style tags (default: 'xhtml')
-    '''
+    """
     return Textile().textile(text, head_offset=head_offset,
                              html_type=html_type)
 
 
 def textile_restricted(text, lite=True, noimage=True, html_type='xhtml'):
-    '''
+    """
     Restricted version of Textile designed for weblog comments and other
     untrusted input.
 
@@ -1081,7 +1081,7 @@ def textile_restricted(text, lite=True, noimage=True, html_type='xhtml'):
     When noimage=True is set (the default):
     Image tags are disabled.
 
-    '''
+    """
     return Textile(restricted=True, lite=lite,
                    noimage=noimage).textile(text, rel='nofollow',
                                             html_type=html_type)

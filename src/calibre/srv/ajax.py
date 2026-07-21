@@ -143,7 +143,7 @@ def book_to_json(ctx, rd, db, book_id,
 
 @endpoint('/ajax/book/{book_id}/{library_id=None}', postprocess=json)
 def book(ctx, rd, book_id, library_id):
-    '''
+    """
     Return the metadata of the book as a JSON dictionary.
 
     Query parameters: ?category_urls=true&id_is_uuid=false&device_for_template=None
@@ -153,7 +153,7 @@ def book(ctx, rd, book_id, library_id):
     given category.
 
     If id_is_uuid is true then the book_id is assumed to be a book uuid instead.
-    '''
+    """
     db = get_db(ctx, rd, library_id)
     with db.safe_read_lock:
         id_is_uuid = rd.query.get('id_is_uuid', 'false')
@@ -183,7 +183,7 @@ def book(ctx, rd, book_id, library_id):
 
 @endpoint('/ajax/books/{library_id=None}', postprocess=json)
 def books(ctx, rd, library_id):
-    '''
+    """
     Return the metadata for the books as a JSON dictionary.
 
     Query parameters: ?ids=all&category_urls=true&id_is_uuid=false&device_for_template=None
@@ -193,7 +193,7 @@ def books(ctx, rd, library_id):
     given category.
 
     If id_is_uuid is true then the book_id is assumed to be a book uuid instead.
-    '''
+    """
     db = get_db(ctx, rd, library_id)
     with db.safe_read_lock:
         id_is_uuid = rd.query.get('id_is_uuid', 'false')
@@ -236,7 +236,7 @@ def books(ctx, rd, library_id):
 
 @endpoint('/ajax/categories/{library_id=None}', postprocess=json)
 def categories(ctx, rd, library_id):
-    '''
+    """
     Return the list of top-level categories as a list of dictionaries. Each
     dictionary is of the form::
         {
@@ -246,7 +246,7 @@ def categories(ctx, rd, library_id):
         'is_category': False for the All Books and Newest categories, True for everything else
         }
 
-    '''
+    """
     db = get_db(ctx, rd, library_id)
     with db.safe_read_lock:
         ans = {}
@@ -297,7 +297,7 @@ def categories(ctx, rd, library_id):
 
 @endpoint('/ajax/category/{encoded_name}/{library_id=None}', postprocess=json)
 def category(ctx, rd, encoded_name, library_id):
-    '''
+    """
     Return a dictionary describing the category specified by name. The
 
     Optional: ?num=100&offset=0&sort=name&sort_order=asc
@@ -337,7 +337,7 @@ def category(ctx, rd, encoded_name, library_id):
 
     To learn how to create subcategories see
     https://manual.calibre-ebook.com/sub_groups.html
-    '''
+    """
 
     db = get_db(ctx, rd, library_id)
     with db.safe_read_lock:
@@ -464,11 +464,11 @@ def category(ctx, rd, encoded_name, library_id):
 
 @endpoint('/ajax/books_in/{encoded_category}/{encoded_item}/{library_id=None}', postprocess=json)
 def books_in(ctx, rd, encoded_category, encoded_item, library_id):
-    '''
+    """
     Return the books (as list of ids) present in the specified category.
 
     Optional: ?num=100&offset=0&sort=title&sort_order=asc&get_additional_fields=
-    '''
+    """
     db = get_db(ctx, rd, library_id)
     with db.safe_read_lock:
         try:
@@ -561,14 +561,14 @@ def search_result(ctx, rd, db, query, num, offset, sort, sort_order, vl=''):
 
 @endpoint('/ajax/search/{library_id=None}', postprocess=json)
 def search(ctx, rd, library_id):
-    '''
+    """
     Return the books matching the specified search query.
     The returned object is a dict with the field book_ids which
     is a list of matched book ids. For all the other fields in the object, see
     :func:`search_result`.
 
     Optional: ?num=100&offset=0&sort=title&sort_order=asc&query=&vl=
-    '''
+    """
     db = get_db(ctx, rd, library_id)
     query = rd.query.get('query')
     num, offset = get_pagination(rd.query)
@@ -580,6 +580,6 @@ def search(ctx, rd, library_id):
 
 @endpoint('/ajax/library-info', postprocess=json)
 def library_info(ctx, rd):
-    ' Return info about available libraries '
+    " Return info about available libraries "
     library_map, default_library = ctx.library_info(rd)
     return {'library_map':library_map, 'default_library':default_library}

@@ -1,6 +1,6 @@
-'''
+"""
 newrepublic.com
-'''
+"""
 import json
 from functools import cmp_to_key
 from urllib.parse import urlencode, urljoin, urlparse, urlsplit
@@ -68,11 +68,11 @@ class NewRepublicMagazine(BasicNewsRecipe):
     '''
 
     def _article_endpoint(self, nid):
-        '''
+        """
         Graphql endpoint to fetch full article
         :param nid:
         :return:
-        '''
+        """
         query = '''
 query ($id: ID, $nid: ID) {
   Article(id: $id, nid: $nid) {
@@ -163,7 +163,7 @@ fragment ArticlePageFields on Article {
         return f'https://newrepublic.com/graphql?{urlencode(params)}'
 
     def _resize_image(self, image_url, width, height):
-        '''
+        """
         Rewrite the image url to fetch a device appropriate sized one instead
         of the full-res one
 
@@ -171,7 +171,7 @@ fragment ArticlePageFields on Article {
         :param width:
         :param height:
         :return:
-        '''
+        """
         crop_params = {
             'auto': 'compress',
             'ar': f'{width}:{height}',

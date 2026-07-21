@@ -61,27 +61,27 @@ class TAGX:  # {{{
 
     @property
     def periodical(self):
-        '''
+        """
         TAGX block for the Primary index header of a periodical
-        '''
+        """
         for i in (1, 2, 3, 4, 5, 21, 22, 23, 0, 69, 70, 71, 72, 73, 0):
             self.add_tag(i)
         return self.header(2) + bytes(self.byts)
 
     @property
     def secondary(self):
-        '''
+        """
         TAGX block for the secondary index header of a periodical
-        '''
+        """
         for i in (11, 0):
             self.add_tag(i)
         return self.header(1) + bytes(self.byts)
 
     @property
     def flat_book(self):
-        '''
+        """
         TAGX block for the primary index header of a flat book
-        '''
+        """
         for i in (1, 2, 3, 4, 0):
             self.add_tag(i)
         return self.header(1) + bytes(self.byts)
@@ -244,10 +244,10 @@ class SecondaryIndexEntry(IndexEntry):
 
 class TBS:  # {{{
 
-    '''
+    """
     Take the list of index nodes starting/ending on a record and calculate the
     trailing byte sequence for the record.
-    '''
+    """
 
     def __init__(self, data, is_periodical, first=False, section_map={},
             after_first=False):

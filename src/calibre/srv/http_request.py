@@ -128,14 +128,14 @@ def normalize_header_name(name):
 
 
 class HTTPHeaderParser:
-    '''
+    """
     Parse HTTP headers. Use this class by repeatedly calling the created object
     with a single line at a time and checking the finished attribute. Can raise ValueError
     for malformed headers, in which case you should probably return BAD_REQUEST.
 
     Headers which are repeated are folded together using a comma if their
     specification so dictates.
-    '''
+    """
     __slots__ = ('finished', 'hdict', 'lines')
 
     def __init__(self):
@@ -148,7 +148,7 @@ class HTTPHeaderParser:
             self(line)
 
     def __call__(self, line):
-        'Process a single line'
+        "Process a single line"
 
         def safe_decode(hname, value):
             try:
@@ -264,7 +264,7 @@ class HTTPRequest(Connection):
             self.fill_read_buffer()
 
     def connection_ready(self):
-        'Become ready to read an HTTP request'
+        "Become ready to read an HTTP request"
         self.method = self.request_line = None
         self.response_protocol = self.request_protocol = HTTP1
         self.forwarded_for = None

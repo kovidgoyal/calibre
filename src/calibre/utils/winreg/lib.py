@@ -260,7 +260,7 @@ class Key:
         return data_buf.value
 
     def iterkeynames(self, get_last_write_times=False):
-        ' Iterate over the names of all keys in this key '
+        " Iterate over the names of all keys in this key "
         name_buf = ctypes.create_unicode_buffer(1024)
         lname_buf = DWORD(len(name_buf))
         i = 0
@@ -279,20 +279,20 @@ class Key:
             i += 1
 
     def delete_value(self, name=None, sub_key=None):
-        ' Delete the named value from this key. If name is None the default value is deleted. If name does not exist, not error is reported. '
+        " Delete the named value from this key. If name is None the default value is deleted. If name does not exist, not error is reported. "
         RegDeleteKeyValue(self.hkey, sub_key, name)
 
     def delete_tree(self, sub_key=None):
-        ''' Delete this all children of this key. Note that a key is not
+        """ Delete this all children of this key. Note that a key is not
         actually deleted till the last handle to it is closed. Also if you
         specify a sub_key, then the sub-key is deleted completely. If sub_key
-        does not exist, no error is reported.'''
+        does not exist, no error is reported."""
         RegDeleteTree(self.hkey, sub_key)
 
     def set(self, name=None, value=None, sub_key=None, has_expansions=False):
-        ''' Set a value for this key (with optional sub-key). If name is None,
+        """ Set a value for this key (with optional sub-key). If name is None,
         the Default value is set. value can be an integer, a string, bytes or a list
-        of strings. If you want to use expansions, set has_expansions=True. '''
+        of strings. If you want to use expansions, set has_expansions=True. """
         value, dtype, size = convert_to_registry_data(value, has_expansions=has_expansions)
         RegSetKeyValue(self.hkey, sub_key, name, dtype, value, size)
 
@@ -300,15 +300,15 @@ class Key:
         self.set(sub_key=sub_key, value=value, has_expansions=has_expansions)
 
     def sub_key(self, path, allow_create=True, open_mode=KEY_READ):
-        ' Create (or open) a sub-key at the specified relative path. When opening instead of creating, use open_mode '
+        " Create (or open) a sub-key at the specified relative path. When opening instead of creating, use open_mode "
         if allow_create:
             return Key(create_at=path, root=self.hkey)
         return Key(open_at=path, root=self.hkey)
 
     def itervalues(self, get_data=False, sub_key=None):
-        '''Iterate over all values in this key (or optionally the specified
+        """Iterate over all values in this key (or optionally the specified
         sub-key. If get_data is True also return the data for every value,
-        otherwise, just the name.'''
+        otherwise, just the name."""
         key = self.hkey
         if sub_key is not None:
             try:

@@ -1,6 +1,6 @@
-'''
+"""
 Add page mapping information to an EPUB book.
-'''
+"""
 
 
 __license__   = 'GPL v3'

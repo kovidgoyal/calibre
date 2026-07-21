@@ -27,10 +27,10 @@ class TCRCompressor:
         self.codes = []
 
     def _combine_codes(self):
-        '''
+        """
         Combine two codes that always appear in pair into a single code.
         The intent is to create more unused codes.
-        '''
+        """
         possible_codes = []
         a_code = set(re.findall(br'(?ms).', self.coded_txt))
 
@@ -44,19 +44,19 @@ class TCRCompressor:
             self.codes[code[0]] = b'%s%s' % (self.codes[code[0]], self.codes[code[1]])
 
     def _free_unused_codes(self):
-        '''
+        """
         Look for codes that do no not appear in the coded text and add them to
         the list of free codes.
-        '''
+        """
         for i in range(256):
             if i not in self.unused_codes:
                 if int_to_byte(i) not in self.coded_txt:
                     self.unused_codes.add(i)
 
     def _new_codes(self):
-        '''
+        """
         Create new codes from codes that occur in pairs often.
-        '''
+        """
         possible_new_codes = list(set(re.findall(br'(?ms)..', self.coded_txt)))
         new_codes_count = []
 

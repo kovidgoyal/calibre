@@ -235,7 +235,7 @@ class GitHub(Base):  # {{{
         return r.json()
 
     def create_release(self, releases):
-        ' Create a release on GitHub or if it already exists, return the existing release '
+        " Create a release on GitHub or if it already exists, return the existing release "
         for release in releases:
             # Check for existing release
             if release['tag_name'] == self.current_tag_name:

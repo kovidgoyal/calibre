@@ -1,8 +1,8 @@
-'''
+"""
 Created on 15 May 2010
 
 @author: charles
-'''
+"""
 import os
 from contextlib import suppress
 

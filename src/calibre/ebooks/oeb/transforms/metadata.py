@@ -102,7 +102,7 @@ def meta_info_to_oeb_metadata(mi, m, log, override_input_metadata=False):
 
 
 class MergeMetadata:
-    'Merge in user metadata, including cover'
+    "Merge in user metadata, including cover"
 
     def __call__(self, oeb, mi, opts, override_input_metadata=False):
         self.oeb, self.log = oeb, oeb.log

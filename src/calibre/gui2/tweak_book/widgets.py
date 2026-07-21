@@ -1429,8 +1429,8 @@ class AddCover(Dialog):
 
 class PlainTextEdit(QPlainTextEdit):  # {{{
 
-    ''' A class that overrides some methods from QPlainTextEdit to fix handling
-    of the nbsp unicode character and AltGr input method on windows. '''
+    """ A class that overrides some methods from QPlainTextEdit to fix handling
+    of the nbsp unicode character and AltGr input method on windows. """
 
     def __init__(self, parent=None):
         QPlainTextEdit.__init__(self, parent)

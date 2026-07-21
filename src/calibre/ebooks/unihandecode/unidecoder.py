@@ -76,9 +76,9 @@ class Unidecoder:
         return re.sub(r'[^\x00-\x7f]', lambda x: self.replace_point(x.group()), text)
 
     def replace_point(self, codepoint):
-        '''
+        """
         Returns the replacement character or ? if none can be found.
-        '''
+        """
         try:
             # Split the unicode character xABCD into parts 0xAB and 0xCD.
             # 0xAB represents the group within CODEPOINTS to query and 0xCD
@@ -89,19 +89,19 @@ class Unidecoder:
             return '?'
 
     def code_group(self, character):
-        '''
+        """
         Find what group character is a part of.
-        '''
+        """
         # Code groups within CODEPOINTS take the form 'xAB'
         if not isinstance(character, str):
             character = str(character, 'utf-8')
         return f'x{ord(character) >> 8:02x}'
 
     def grouped_point(self, character):
-        '''
+        """
         Return the location the replacement character is in the list for a
         the group character is a part of.
-        '''
+        """
         if not isinstance(character, str):
             character = str(character, 'utf-8')
         return ord(character) & 255

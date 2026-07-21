@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 
-'''
+"""
 Created on 29 Jun 2012
 
 @author: charles
-'''
+"""
 import hashlib
 import json
 import os
@@ -50,7 +50,7 @@ wireless_driver_connected = False
 
 
 def synchronous(tlockname):
-    '''A decorator to place an instance based lock around a method '''
+    """A decorator to place an instance based lock around a method """
 
     def _synched(func):
         @wraps(func)

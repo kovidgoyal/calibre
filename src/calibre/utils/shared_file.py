@@ -53,9 +53,9 @@ if iswindows:
     }
 
     def os_open(path, flags, mode=0o777, share_flags=winutil.FILE_SHARE_VALID_FLAGS):
-        '''
+        """
         Replacement for os.open() allowing moving or unlinking before closing
-        '''
+        """
         if not isinstance(flags, Integral):
             raise TypeError('flags must be an integer')
         if not isinstance(mode, Integral):

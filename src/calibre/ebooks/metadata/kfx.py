@@ -69,9 +69,9 @@ def hexs(string, sep=' '):
 
 
 class PackedData:
-    '''
+    """
     Simplify unpacking of packed binary data structures
-    '''
+    """
 
     def __init__(self, data):
         self.buffer = data
@@ -100,9 +100,9 @@ class PackedData:
 
 
 class PackedBlock(PackedData):
-    '''
+    """
     Common header structure of container and entity blocks
-    '''
+    """
 
     def __init__(self, data, magic):
         PackedData.__init__(self, data)
@@ -116,9 +116,9 @@ class PackedBlock(PackedData):
 
 
 class Container(PackedBlock):
-    '''
+    """
     Container file containing data entities
-    '''
+    """
 
     def __init__(self, data):
         self.data = data
@@ -139,9 +139,9 @@ class Container(PackedBlock):
 
 
 class Entity(PackedBlock):
-    '''
+    """
     Data entity inside a container
-    '''
+    """
 
     def __init__(self, data, entity_type, entity_id):
         PackedBlock.__init__(self, data, ENTITY_MAGIC)
@@ -159,9 +159,9 @@ class Entity(PackedBlock):
 
 
 class PackedIon(PackedData):
-    '''
+    """
     Packed structured binary data format used by KFX
-    '''
+    """
 
     def __init__(self, data):
         PackedData.__init__(self, data)
@@ -281,7 +281,7 @@ def dump_metadata(m):
 
 
 def read_book_key_kfx(stream, read_cover=True):
-    ' Read the metadata.kfx file that is found in the sdr book folder for KFX files '
+    " Read the metadata.kfx file that is found in the sdr book folder for KFX files "
     c = Container(stream.read())
     m = extract_metadata(c.decode())
 
@@ -292,7 +292,7 @@ def read_book_key_kfx(stream, read_cover=True):
 
 
 def read_metadata_kfx(stream, read_cover=True):
-    ' Read the metadata.kfx file that is found in the sdr book folder for KFX files '
+    " Read the metadata.kfx file that is found in the sdr book folder for KFX files "
     c = Container(stream.read())
     m = extract_metadata(c.decode())
     # dump_metadata(m)

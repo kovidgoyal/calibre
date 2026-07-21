@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2008, Kovid Goyal <kovid at kovidgoyal.net>
 
-''' Post installation script for linux '''
+""" Post installation script for linux """
 
 import errno
 import os

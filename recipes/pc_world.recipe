@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
-'''
+"""
 http://www.pcworld.com/
-'''
+"""
 
 from calibre.web.feeds.news import BasicNewsRecipe, classes
 

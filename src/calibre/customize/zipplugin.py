@@ -24,7 +24,7 @@ from calibre.customize import InvalidPlugin, Plugin, PluginNotFound, numeric_ver
 
 
 def get_resources(zfp, name_or_list_of_names, print_tracebacks_for_missing_resources=True):
-    '''
+    """
     Load resources from the plugin zip file
 
     :param name_or_list_of_names: List of paths to resources in the zip file using / as
@@ -36,7 +36,7 @@ def get_resources(zfp, name_or_list_of_names, print_tracebacks_for_missing_resou
                 that were not found in the zip file will not be present in the
                 dictionary. If a single path is passed in the return value will
                 be just the bytes of the resource or None if it wasn't found.
-    '''
+    """
     names = name_or_list_of_names
     if isinstance(names, (str, bytes)):
         names = [names]
@@ -82,7 +82,7 @@ def get_icons(
     plugin_name: str = '', folder_in_zip_file: str = '',
     print_tracebacks_for_missing_resources: bool = True,
 ):
-    '''
+    """
     Load icons from the plugin zip file
 
     :param name_or_list_of_names: List of paths to resources in the zip file using / as
@@ -100,7 +100,7 @@ def get_icons(
                 that were not found in the zip file will be null QIcons.
                 If a single path is passed in the return value will
                 be a QIcon.
-    '''
+    """
     namelist = tuple(
         (name_or_list_of_names,) if isinstance(name_or_list_of_names, (str, bytes)) else name_or_list_of_names)
     ans, tracebacks = get_icons_cached(zfp, namelist, plugin_name or '', folder_in_zip_file or '')

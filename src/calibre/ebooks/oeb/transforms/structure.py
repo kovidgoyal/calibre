@@ -30,7 +30,7 @@ def isspace(x):
 
 
 def at_start(elem):
-    ' Return True if there is no content before elem '
+    " Return True if there is no content before elem "
     body = XPath('ancestor-or-self::h:body')(elem)
     if not body:
         return True

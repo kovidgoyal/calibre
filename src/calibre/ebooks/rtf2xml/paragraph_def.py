@@ -20,7 +20,7 @@ from . import open_for_read, open_for_write
 
 
 class ParagraphDef:
-    '''
+    """
 =================
 Purpose
 =================
@@ -52,7 +52,7 @@ be closed:
 5. after_para_def
 'mi<mk<para-start'  changes state to in_paragraphs
 if another paragraph_def is found, the state changes to collect_tokens.
-    '''
+    """
 
     def __init__(self,
         in_file,
@@ -60,7 +60,7 @@ if another paragraph_def is found, the state changes to collect_tokens.
         default_font,
         copy=None,
         run_level=1,):
-        '''
+        """
         Required:
             'file'--file to parse
             'default_font' --document default font
@@ -70,7 +70,7 @@ if another paragraph_def is found, the state changes to collect_tokens.
             directory from which the script is run.)
         Returns:
             nothing
-        '''
+        """
         self.__file = in_file
         self.__bug_handler = bug_handler
         self.__default_font = default_font
@@ -79,9 +79,9 @@ if another paragraph_def is found, the state changes to collect_tokens.
         self.__write_to = better_mktemp()
 
     def __initiate_values(self):
-        '''
+        """
         Initiate all values.
-        '''
+        """
         # Dictionary needed to convert shortened style names to readable names
         self.__token_dict={
         # paragraph formatting => pf
@@ -307,14 +307,14 @@ if another paragraph_def is found, the state changes to collect_tokens.
         }
 
     def __before_1st_para_def_func(self, line):
-        '''
+        """
         Required:
             line -- line to parse
         Returns:
             nothing
         Logic:
             Look for the beginning of a paragraph definition
-        '''
+        """
         # cw<pf<par-def___<nu<true
         if self.__token_info == 'cw<pf<par-def___':
             self.__found_para_def_func()
@@ -328,7 +328,7 @@ if another paragraph_def is found, the state changes to collect_tokens.
         self.__reset_dict()
 
     def __collect_tokens_func(self, line):
-        '''
+        """
         Required:
             line --line to parse
         Returns:
@@ -341,7 +341,7 @@ if another paragraph_def is found, the state changes to collect_tokens.
             change the state to after_para_def.
             Otherwise, check if the token is a paragraph definition word; if
             so, add it to the attributes and values dictionary.
-        '''
+        """
         action = self.__collect_tokens_dict.get(self.__token_info)
         if action:
             action(line)
@@ -360,15 +360,15 @@ if another paragraph_def is found, the state changes to collect_tokens.
                     self.__att_val_dict[token] = line[20:-1]
 
     def __tab_stop_func(self, line):
-        '''
-        '''
+        """
+        """
         self.__att_val_dict['tabs'] += f'{self.__tab_type}:'
         self.__att_val_dict['tabs'] += f'{line[20:-1]};'
         self.__tab_type = 'left'
 
     def __tab_type_func(self, line):
-        '''
-        '''
+        """
+        """
         type = self.__tab_type_dict.get(self.__token_info)
         if type is not None:
             self.__tab_type = type
@@ -377,8 +377,8 @@ if another paragraph_def is found, the state changes to collect_tokens.
             raise self.__bug_handler(msg)
 
     def __tab_leader_func(self, line):
-        '''
-        '''
+        """
+        """
         leader = self.__tab_type_dict.get(self.__token_info)
         if leader is not None:
             self.__att_val_dict['tabs'] += f'{leader}^'
@@ -387,14 +387,14 @@ if another paragraph_def is found, the state changes to collect_tokens.
             raise self.__bug_handler(msg)
 
     def __tab_bar_func(self, line):
-        '''
-        '''
+        """
+        """
         # self.__att_val_dict['tabs-bar'] += '%s:' % line[20:-1]
         self.__att_val_dict['tabs'] += f'bar:{line[20:-1]};'
         self.__tab_type = 'left'
 
     def __parse_border(self, line):
-        '''
+        """
         Requires:
             line --line to parse
         Returns:
@@ -402,12 +402,12 @@ if another paragraph_def is found, the state changes to collect_tokens.
         Logic:
             Uses the border_parse module to return a dictionary of attribute
             value pairs for a border line.
-        '''
+        """
         border_dict = self.__border_obj.parse_border(line)
         self.__att_val_dict.update(border_dict)
 
     def __para_def_in_para_def_func(self, line):
-        '''
+        """
         Requires:
             line --line to parse
         Returns:
@@ -415,13 +415,13 @@ if another paragraph_def is found, the state changes to collect_tokens.
         Logic:
             I have found a \\pard while I am collecting tokens. I want to reset
             the dectionary and do nothing else.
-        '''
+        """
         # Change this
         self.__state = 'collect_tokens'
         self.__reset_dict()
 
     def __end_para_def_func(self, line):
-        '''
+        """
         Requires:
             Nothing
         Returns:
@@ -431,13 +431,13 @@ if another paragraph_def is found, the state changes to collect_tokens.
             of a paragraph. I want to output the definition tag; output the line
             itself (telling me of the beginning of a paragraph);change the
             state to 'in_paragraphs';
-        '''
+        """
         self.__write_para_def_beg()
         self.__write_obj.write(line)
         self.__state = 'in_paragraphs'
 
     def __start_para_after_def_func(self, line):
-        '''
+        """
         Requires:
             Nothing
         Returns:
@@ -448,13 +448,13 @@ if another paragraph_def is found, the state changes to collect_tokens.
             itself (telling me of the beginning of a paragraph);change the
             state to 'in_paragraphs'.
             (I now realize that this is absolutely identical to the function above!)
-        '''
+        """
         self.__write_para_def_beg()
         self.__write_obj.write(line)
         self.__state = 'in_paragraphs'
 
     def __after_para_def_func(self, line):
-        '''
+        """
         Requires:
             line -- line to parse
         Returns:
@@ -462,7 +462,7 @@ if another paragraph_def is found, the state changes to collect_tokens.
         Logic:
             Check if the token info is the start of a paragraph. If so, call
             on the function found in the value of the dictionary.
-        '''
+        """
         action = self.__after_para_def_dict.get(self.__token_info)
         if self.__token_info == 'cw<pf<par-def___':
             self.__found_para_def_func()
@@ -472,14 +472,14 @@ if another paragraph_def is found, the state changes to collect_tokens.
             self.__write_obj.write(line)
 
     def __in_paragraphs_func(self, line):
-        '''
+        """
         Requires:
             line --current line
         Returns:
             nothing
         Logic:
             Look for the end of a paragraph, the start of a cell or row.
-        '''
+        """
         action = self.__in_paragraphs_dict.get(self.__token_info)
         if action:
             action(line)
@@ -487,7 +487,7 @@ if another paragraph_def is found, the state changes to collect_tokens.
             self.__write_obj.write(line)
 
     def __found_para_end_func(self, line):
-        '''
+        """
         Requires:
             line -- line to print out
         Returns:
@@ -496,12 +496,12 @@ if another paragraph_def is found, the state changes to collect_tokens.
             State is in paragraphs. You have found the end of a paragraph. You
             need to print out the line and change the state to after
             paragraphs.
-        '''
+        """
         self.__state = 'after_para_end'
         self.__write_obj.write(line)
 
     def __after_para_end_func(self, line):
-        '''
+        """
         Requires:
             line -- line to output
         Returns:
@@ -518,14 +518,14 @@ if another paragraph_def is found, the state changes to collect_tokens.
             If you find the beginning of a paragraph, then you don't need to
             write out the paragraph definition. Write out the string, and
             change the state to in paragraphs.
-        '''
+        """
         self.__text_string += line
         action = self.__after_para_end_dict.get(self.__token_info)
         if action:
             action(line)
 
     def __continue_block_func(self, line):
-        '''
+        """
         Requires:
             line --line to print out
         Returns:
@@ -535,14 +535,14 @@ if another paragraph_def is found, the state changes to collect_tokens.
             start of a paragraph, so you don't need to print out the paragraph
             definition. Print out the string, the line, and change the state
             to in paragraphs.
-        '''
+        """
         self.__state = 'in_paragraphs'
         self.__write_obj.write(self.__text_string)
         self.__text_string = ''
     # found a new paragraph definition after an end of a paragraph
 
     def __new_para_def_func(self, line):
-        '''
+        """
         Requires:
             line -- line to output
         Returns:
@@ -552,13 +552,13 @@ if another paragraph_def is found, the state changes to collect_tokens.
             paragraph. Output the end of the old paragraph definition. Output
             the text string. Output the line. Change the state to collect
             tokens. (And don't forget to set the text string to ''!)
-        '''
+        """
         self.__write_para_def_end_func()
         self.__found_para_def_func()
     # after a paragraph and found reason to stop this block
 
     def __stop_block_func(self, line):
-        '''
+        """
         Requires:
             line --(shouldn't be here?)
         Returns:
@@ -568,12 +568,12 @@ if another paragraph_def is found, the state changes to collect_tokens.
             than paragraph-definition. You want to write the end tag of the
             old definition and reset the text string (handled by other
             methods).
-        '''
+        """
         self.__write_para_def_end_func()
         self.__state = 'after_para_def'
 
     def __write_para_def_end_func(self):
-        '''
+        """
         Requires:
             nothing
         Returns:
@@ -582,7 +582,7 @@ if another paragraph_def is found, the state changes to collect_tokens.
             Print out the end of the pargraph definition tag, and the markers
             that let me know when I have reached this tag. (These markers are
             used for later parsing.)
-        '''
+        """
         self.__write_obj.write(self.__end2_marker)
         self.__write_obj.write('mi<tg<close_____<paragraph-definition\n')
         self.__write_obj.write(self.__end_marker)
@@ -595,14 +595,14 @@ if another paragraph_def is found, the state changes to collect_tokens.
             self.__write_obj.write('mi<mk<caps-end__\n')
 
     def __get_num_of_style(self):
-        '''
+        """
         Requires:
             nothing
         Returns:
             nothing
         Logic:
             Get a unique value for each style.
-        '''
+        """
         my_string = ''
         new_style = 0
         # when determining uniqueness for a style, ingorne these values, since
@@ -642,7 +642,7 @@ if another paragraph_def is found, the state changes to collect_tokens.
         self.__body_style_strings.append(style_string)
 
     def __write_para_def_beg(self):
-        '''
+        """
         Requires:
             nothing
         Returns:
@@ -651,7 +651,7 @@ if another paragraph_def is found, the state changes to collect_tokens.
             Print out the beginning of the pargraph definition tag, and the markers
             that let me know when I have reached this tag. (These markers are
             used for later parsing.)
-        '''
+        """
         self.__get_num_of_style()
         table = self.__att_val_dict.get('in-table')
         if table:
@@ -702,7 +702,7 @@ if another paragraph_def is found, the state changes to collect_tokens.
         self.__state = 'after_para_def'
 
     def __reset_dict(self):
-        '''
+        """
         Requires:
             nothing
         Returns:
@@ -710,7 +710,7 @@ if another paragraph_def is found, the state changes to collect_tokens.
         Logic:
             The dictionary containing values and attributes must be reset each
             time a new paragraphs definition is found.
-        '''
+        """
         self.__att_val_dict.clear()
         self.__att_val_dict['name'] = 'Normal'
         self.__att_val_dict['font-style'] = self.__default_font
@@ -723,7 +723,7 @@ if another paragraph_def is found, the state changes to collect_tokens.
         self.__att_val_dict['tabs'] = ''
 
     def make_paragraph_def(self):
-        '''
+        """
         Requires:
             nothing
         Returns:
@@ -731,7 +731,7 @@ if another paragraph_def is found, the state changes to collect_tokens.
         Logic:
             Read one line in at a time. Determine what action to take based on
             the state.
-        '''
+        """
         self.__initiate_values()
         read_obj = open_for_read(self.__file)
         self.__write_obj = open_for_write(self.__write_to)

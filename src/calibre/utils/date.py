@@ -87,7 +87,7 @@ def iso_pat():
 
 
 def parse_date(date_string, assume_utc=False, as_utc=True, default=None):
-    '''
+    """
     Parse a date/time string into a timezone aware datetime object. The timezone
     is always either UTC or the local timezone.
 
@@ -98,7 +98,7 @@ def parse_date(date_string, assume_utc=False, as_utc=True, default=None):
 
     :param default: Missing fields are filled in from default. If None, the
     current month and year are used.
-    '''
+    """
     from dateutil.parser import parse
     if not date_string:
         return UNDEFINED_DATE
@@ -127,11 +127,11 @@ def fix_only_date(val):
 
 
 def parse_only_date(raw, assume_utc=True, as_utc=True):
-    '''
+    """
     Parse a date string that contains no time information in a manner that
     guarantees that the month and year are always correct in all timezones, and
     the day is at most one day wrong.
-    '''
+    """
     f = utcnow if assume_utc else now
     default = f().replace(hour=0, minute=0, second=0, microsecond=0,
             day=15)
@@ -364,7 +364,7 @@ def fd_repl_func(dt, ampm, mo):
 
 
 def format_date(dt, format, assume_utc=False, as_utc=False):
-    ''' Return a date formatted as a string using a subset of Qt's formatting codes '''
+    """ Return a date formatted as a string using a subset of Qt's formatting codes """
     format = format or 'dd MMM yyyy'
 
     if not isinstance(dt, datetime):
@@ -439,7 +439,7 @@ def cd_repl_func(tt, dt, match_object):
 
 
 def clean_date_for_sort(dt, fmt=None):
-    ''' Return dt with fields not in shown in format set to a default '''
+    """ Return dt with fields not in shown in format set to a default """
     if not fmt:
         fmt = 'yyMd'
 

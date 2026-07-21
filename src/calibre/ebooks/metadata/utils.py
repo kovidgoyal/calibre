@@ -51,7 +51,7 @@ def parse_opf(stream_or_path):
 
 
 def normalize_languages(opf_languages, mi_languages):
-    ' Preserve original country codes and use 2-letter lang codes where possible '
+    " Preserve original country codes and use 2-letter lang codes where possible "
     def parse(x):
         try:
             return parse_lang_code(x)

@@ -209,7 +209,7 @@ def two_part_fork_job(env=None, priority='normal', cwd=None):
 def fork_job(mod_name, func_name, args=(), kwargs=None, timeout=300,  # seconds
         cwd=None, priority='normal', env={}, no_output=False, heartbeat=None,
         abort=None, module_is_source_code=False):
-    '''
+    """
     Run a job in a worker process. A job is simply a function that will be
     called with the supplied arguments, in the worker process.
     The result of the function will be returned.
@@ -256,7 +256,7 @@ def fork_job(mod_name, func_name, args=(), kwargs=None, timeout=300,  # seconds
     return value of the function (it must be picklable). stdout_stderr is the
     path to a file that contains the stdout and stderr of the worker process.
     If you set no_output=True, then this will not be present.
-    '''
+    """
     return two_part_fork_job(env, priority, cwd)(
         mod_name, func_name, args=args, kwargs=kwargs, timeout=timeout,
         no_output=no_output, heartbeat=heartbeat, abort=abort,

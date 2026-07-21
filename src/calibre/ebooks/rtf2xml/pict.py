@@ -20,7 +20,7 @@ from . import open_for_read, open_for_write
 
 
 class Pict:
-    '''Process graphic information'''
+    """Process graphic information"""
     def __init__(self,
             in_file,
             bug_handler,
@@ -62,7 +62,7 @@ class Pict:
         return line[17:]
 
     def __make_dir(self):
-        ''' Make a directory to put the image data in'''
+        """ Make a directory to put the image data in"""
         _orig_path = getattr(self.__orig_file, 'name', self.__orig_file)
         assert isinstance(_orig_path, (str, bytes, os.PathLike))
         base_name = os.path.basename(_orig_path)
@@ -95,8 +95,8 @@ class Pict:
                 sys.stderr.write('Files removed.\n')
 
     def __create_pict_file(self):
-        '''Create a file for all the pict data to be written to.
-        '''
+        """Create a file for all the pict data to be written to.
+        """
         self.__pict_file = os.path.join(self.__dir_name, 'picts.rtf')
         self.__write_pic_obj = open_for_write(self.__pict_file, append=True)
 
@@ -112,11 +112,11 @@ class Pict:
             return False
 
     def __default(self, line, write_obj):
-        '''Determine if each token marks the beginning of pict data.
+        """Determine if each token marks the beginning of pict data.
         If it does, create a new file to write data to (if that file
         has not already been created.) Set the self.__in_pict flag to true.
         If the line does not contain pict data, return 1
-        '''
+        """
         # $pict_count++;
         # $pict_count =  sprintf("%03d", $pict_count);
         # print OUTPUT "dv<xx<em<nu<pict<at<num>$pict_count\n";
@@ -138,9 +138,9 @@ class Pict:
         return True
 
     def __print_rtf_header(self):
-        '''Print to pict file the necessary RTF data for the file to be
+        """Print to pict file the necessary RTF data for the file to be
         recognized as an RTF file.
-        '''
+        """
         self.__write_pic_obj.write('{\\rtf1 \n{\\fonttbl\\f0\\null;} \n')
         self.__write_pic_obj.write('{\\colortbl\\red255\\green255\\blue255;} \n\\pard \n')
 

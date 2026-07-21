@@ -78,7 +78,7 @@ def count_pages_cb7(pathtoebook: str) -> int:
 
 
 def get_length(root: etree.Element) -> int:
-    ' Used for position/length display in the viewer '
+    " Used for position/length display in the viewer "
     return max(CHARS_PER_PAGE, get_line_count(root) * CHARS_PER_LINE)
 
 
@@ -124,7 +124,7 @@ def count_line(block_elem: etree.Element) -> int:
 
 
 def get_line_count(document_root: etree.Element) -> int:
-    '''Emulate lines rendering of the content to return the page count.'''
+    """Emulate lines rendering of the content to return the page count."""
     ans = 0
     # Visits every non-block tag twice and every other tag once
     for elem in document_root.iterdescendants('*'):

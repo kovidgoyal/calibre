@@ -41,7 +41,7 @@ INLINE_TAGS = [nsdict[item[0]]+':'+item[1] for item in inline_elements]
 
 
 class TextProps:
-    ''' Holds properties for a text style. '''
+    """ Holds properties for a text style. """
 
     def __init__(self):
 
@@ -104,7 +104,7 @@ class TextProps:
 
 
 class ParagraphProps:
-    ''' Holds properties of a paragraph style. '''
+    """ Holds properties of a paragraph style. """
 
     def __init__(self):
 
@@ -133,7 +133,7 @@ class ParagraphProps:
 
 
 class ListProperties:
-    ''' Holds properties for a list style. '''
+    """ Holds properties for a list style. """
 
     def __init__(self):
         self.ordered = False
@@ -175,15 +175,15 @@ class ODF2MoinMoin:
         self.load(filepath)
 
     def processFontDeclarations(self, fontDecl):
-        ''' Extracts necessary font information from a font-declaration
+        """ Extracts necessary font information from a font-declaration
             element.
-        '''
+        """
         for fontFace in fontDecl.getElementsByTagName('style:font-face'):
             if fontFace.getAttribute('style:font-pitch') == 'fixed':
                 self.fixedFonts.append(fontFace.getAttribute('style:name'))
 
     def extractTextProperties(self, style, parent=None):
-        ''' Extracts text properties from a style element. '''
+        """ Extracts text properties from a style element. """
 
         textProps = TextProps()
 
@@ -205,7 +205,7 @@ class ODF2MoinMoin:
         return textProps
 
     def extractParagraphProperties(self, style, parent=None):
-        ''' Extracts paragraph properties from a style element. '''
+        """ Extracts paragraph properties from a style element. """
 
         paraProps = ParagraphProps()
 
@@ -277,7 +277,7 @@ class ODF2MoinMoin:
             self.listStyles[name] = prop
 
     def load(self, filepath):
-        ''' Loads an ODT file. '''
+        """ Loads an ODT file. """
 
         zip = zipfile.ZipFile(filepath)
 
@@ -297,7 +297,7 @@ class ODF2MoinMoin:
         self.processListStyles(self.content.getElementsByTagName('text:list-style'))
 
     def compressCodeBlocks(self, text):
-        ''' Removes extra blank lines from code blocks. '''
+        """ Removes extra blank lines from code blocks. """
 
         return text
         lines = text.split('\n')
@@ -316,8 +316,8 @@ class ODF2MoinMoin:
         return ''
 
     def draw_image(self, node):
-        '''
-        '''
+        """
+        """
 
         link = node.getAttribute('xlink:href')
         if link and link[:2] == './':  # Indicates a sub-object, which isn't supported
@@ -419,8 +419,8 @@ class ODF2MoinMoin:
         return ''.join(buffer)
 
     def tableToString(self, tableElement):
-        ''' MoinMoin uses || to delimit table cells
-        '''
+        """ MoinMoin uses || to delimit table cells
+        """
 
         self.lastsegment = tableElement.tagName
         buffer = []
@@ -438,9 +438,9 @@ class ODF2MoinMoin:
         return ''.join(buffer)
 
     def toString(self):
-        ''' Converts the document to a string.
+        """ Converts the document to a string.
             FIXME: Result from second call differs from first call
-        '''
+        """
         body = self.content.getElementsByTagName('office:body')[0]
         text = body.childNodes[0]
 

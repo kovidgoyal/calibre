@@ -176,10 +176,10 @@ class ISBNMerge:
         return self.results
 
     def merge_metadata_results(self, merge_on_identifiers=False):
-        '''
+        """
         Merge results with identical title and authors or an identical
         identifier
-        '''
+        """
         # First title/author
         groups = {}
         for result in self.results:

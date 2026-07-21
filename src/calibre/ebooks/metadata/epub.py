@@ -265,7 +265,7 @@ def get_cover(raster_cover, first_spine_item, reader):
 
 
 def get_metadata(stream, extract_cover=True, ftype='epub'):
-    ''' Return metadata as a :class:`Metadata` object '''
+    """ Return metadata as a :class:`Metadata` object """
     stream.seek(0)
     reader = get_zip_reader(stream)
     opfbytes = reader.read_bytes(reader.opf_path)

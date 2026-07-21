@@ -144,9 +144,9 @@ class ConversationHistory:
             self.currency = self.accumulator.metadata.currency
 
     def format_llm_note(self, assistant_name: str, title: str = '') -> str:
-        '''
+        """
         Formats a conversation history into a standardized, self-contained note entry.
-        '''
+        """
         if not self:
             return ''
 

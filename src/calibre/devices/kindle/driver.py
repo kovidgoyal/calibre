@@ -524,9 +524,9 @@ class KINDLE2(KINDLE):
                         return
 
     def upload_cover(self, path, filename, metadata, filepath):
-        '''
+        """
         Upload sidecar files: cover thumbnails and page count
-        '''
+        """
         # Upload the cover thumbnail
         try:
             self.upload_kindle_thumbnail(metadata, filepath)

@@ -159,7 +159,7 @@ class ToMetadataMixinComboBox(ToMetadataMixinBase):
 
 
 def make_undoable(spinbox):
-    'Add a proper undo/redo capability to spinbox which must be a sub-class of QAbstractSpinBox'
+    "Add a proper undo/redo capability to spinbox which must be a sub-class of QAbstractSpinBox"
 
     class UndoCommand(QUndoCommand):
 

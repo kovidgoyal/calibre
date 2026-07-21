@@ -19,9 +19,9 @@ _all_ip_addresses = {}
 class AllIpAddressesGetter(Thread):
 
     def get_all_ips(self):
-        ''' Return a mapping of interface names to the configuration of the
+        """ Return a mapping of interface names to the configuration of the
         interface, which includes the ip address, netmask and broadcast addresses
-        '''
+        """
         import netifaces  # type: ignore
         all_ips = defaultdict(list)
         if hasattr(netifaces, 'AF_INET'):
@@ -59,7 +59,7 @@ def get_all_ips(reinitialize=False):
 
 
 def _get_external_ip():
-    'Get IP address of interface used to connect to the outside world'
+    "Get IP address of interface used to connect to the outside world"
     try:
         ipaddr = socket.gethostbyname(socket.gethostname())
     except Exception:
@@ -168,7 +168,7 @@ def create_service(desc, service_type, port, properties, add_hostname, use_ip_ad
 
 
 def publish(desc, service_type, port, properties=None, add_hostname=True, use_ip_address=None, strict=True):
-    '''
+    """
     Publish a service.
 
     :param desc: Description of service
@@ -176,7 +176,7 @@ def publish(desc, service_type, port, properties=None, add_hostname=True, use_ip
     :param port: Port the service listens on
     :param properties: An optional dictionary whose keys and values will be put
                        into the TXT record.
-    '''
+    """
     server = start_server()
     service = create_service(desc, service_type, port, properties, add_hostname,
                              use_ip_address)
@@ -185,11 +185,11 @@ def publish(desc, service_type, port, properties=None, add_hostname=True, use_ip
 
 
 def unpublish(desc, service_type, port, properties=None, add_hostname=True, wait_for_stop=True):
-    '''
+    """
     Unpublish a service.
 
     The parameters must be the same as used in the corresponding call to publish
-    '''
+    """
     server = start_server()
     service = create_service(desc, service_type, port, properties, add_hostname)
     num_services = len(server.registry.async_get_service_infos())

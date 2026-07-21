@@ -883,7 +883,7 @@ def render_notes(notes, tag='p'):
 
 
 def slugify(text: str, max_length: int = 60) -> str:
-    ''' Convert header text into a URL-safe slug suitable for element IDs. '''
+    """ Convert header text into a URL-safe slug suitable for element IDs. """
     if not text:
         return 'untitled'
     s = text.strip().lower()
@@ -900,7 +900,7 @@ def slugify(text: str, max_length: int = 60) -> str:
 
 
 def get_unique_id(base: str, counts: dict) -> str:
-    ''' Return base unchanged on first use; append -1, -2, ... for duplicates. Mutates counts. '''
+    """ Return base unchanged on first use; append -1, -2, ... for duplicates. Mutates counts. """
     if base not in counts:
         counts[base] = 1
         return base
@@ -909,7 +909,7 @@ def get_unique_id(base: str, counts: dict) -> str:
 
 
 def generate_outline_html(headings: list) -> str:
-    ''' Generate a nested HTML outline nav from a flat list of heading dicts. '''
+    """ Generate a nested HTML outline nav from a flat list of heading dicts. """
     out = ['<nav class="calibre-outline" aria-label="Document outline">']
     out.append(
         '<div class="calibre-search-box">'
@@ -1180,14 +1180,14 @@ def current_db() -> Cache:
 
 
 def annotation_only_groupings() -> dict[str, str]:
-    '''
+    """
     Return annotation-specific field names that can be used for grouping but are
     not present in the book field metadata (and therefore not in iter_all_groups).
 
     The key 'annot_timestamp' is a virtual field name used to group by the
     annotation's own creation date, as distinct from the book's Date Added
     field ('timestamp') which comes from the database.
-    '''
+    """
     return {
         'user': _('User'),
         'annot_timestamp': _('Annotation date'),
@@ -1198,10 +1198,10 @@ BROWSE_ANNOTS_GROUP_BY_PREF = 'browse_annots_group_by'
 
 
 def get_annotation_value(annotation, bid, field, db):
-    '''
+    """
     Get the value for a field from an annotation result, checking
     annotation-level fields first and falling back to book metadata.
-    '''
+    """
     val = annotation.get(field)
     if val is None:
         val = annotation.get('annotation', {}).get(field)
@@ -1211,7 +1211,7 @@ def get_annotation_value(annotation, bid, field, db):
 
 
 def get_group_key(result, field, db):
-    '''
+    """
     Return (sort_key, display_label) for an annotation result grouped by field.
 
     field is a string naming a field in the annotation row (e.g. 'format',
@@ -1220,7 +1220,7 @@ def get_group_key(result, field, db):
 
     sort_key is a tuple suitable for use as a dict key and for natural ordering.
     display_label is a localized human-readable string for the group header.
-    '''
+    """
     fm = db.field_metadata
     dt = fm.get(field, {}).get('datatype')
     bid = result['book_id']
@@ -1323,14 +1323,14 @@ def get_group_key(result, field, db):
 
 
 def get_group_keys_list(result, field, db):
-    '''
+    """
     Return a list of (sort_key, display_label) pairs for an annotation result
     grouped by field.
 
     For multi-valued fields (e.g. tags, languages) the list contains one entry
     per value so that the result appears under every applicable group.  For
     single-valued fields the list always contains exactly one entry.
-    '''
+    """
     if field in ('title', 'user', 'annot_timestamp'):
         key, label = get_group_key(result, field, db)
         return [(key, label)]
@@ -1485,9 +1485,9 @@ class ResultsList(QTreeWidget):
         self.setCurrentItem(self.item_map[i])
 
     def add_children(self, parent_item, children):
-        '''
+        """
         Create child items under a parent of the annotations tree.
-        '''
+        """
         from calibre.gui2.viewer.highlights import decoration_for_style
         is_dark = is_dark_theme()
         dpr = self.devicePixelRatioF()
@@ -1747,7 +1747,7 @@ class GroupOptions(QWidget):
 
     @property
     def selected_field(self):
-        '''Return the currently selected grouping field name (string).'''
+        """Return the currently selected grouping field name (string)."""
         return self.group_box.currentData() or 'title'
 
     @property

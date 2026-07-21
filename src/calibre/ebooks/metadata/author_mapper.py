@@ -121,8 +121,8 @@ def apply_rules(author, rules):
 
 
 def uniq(vals, kmap=icu_lower):
-    ''' Remove all duplicates from vals, while preserving order. kmap must be a
-    callable that returns a hashable value for every item in vals '''
+    """ Remove all duplicates from vals, while preserving order. kmap must be a
+    callable that returns a hashable value for every item in vals """
     vals = vals or ()
     lvals = (kmap(x) for x in vals)
     seen = set()

@@ -785,9 +785,9 @@ class MTP_DEVICE(BASE):
     # Settings {{{
 
     def get_pref(self, key):
-        ''' Get the setting named key. First looks for a device specific setting.
+        """ Get the setting named key. First looks for a device specific setting.
         If that is not found looks for a device default and if that is not
-        found uses the global default.'''
+        found uses the global default."""
         dd = self.current_device_defaults if self.is_mtp_device_connected else {}
         dev_settings = self.prefs.get(f'device-{self.current_serial_num}', {})
         default_value = dd.get(key, self.prefs[key])

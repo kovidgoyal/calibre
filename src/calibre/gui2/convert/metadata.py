@@ -281,10 +281,10 @@ class MetadataWidget(Widget, Ui_Form):
         return True
 
     def commit(self, save_defaults=False):
-        '''
+        """
         Settings are stored in two attributes: `opf_file` and `cover_file`.
         Both may be None. Also returns a recommendation dictionary.
-        '''
+        """
         recs = self.commit_options(save_defaults)
         self.user_mi = self.get_metadata()
         self.cover_file = self.opf_file = None

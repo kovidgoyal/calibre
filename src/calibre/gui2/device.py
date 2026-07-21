@@ -185,9 +185,9 @@ class DeviceManager(Thread):  # {{{
     def __init__(self, connected_slot, job_manager, open_feedback_slot,
                  open_feedback_msg, allow_connect_slot,
                  after_callback_feedback_slot, sleep_time=2):
-        '''
+        """
         :sleep_time: Time to sleep between device probes in secs
-        '''
+        """
         Thread.__init__(self, name='DeviceManager', daemon=True)
         # [Device driver, Showing in GUI, Ejected]
         self.devices        = list(device_plugins())
@@ -558,24 +558,24 @@ class DeviceManager(Thread):  # {{{
         return info, cp, fs
 
     def get_device_information(self, done, add_as_step_to_job=None):
-        '''Get device information and free space on device'''
+        """Get device information and free space on device"""
         return self.create_job_step(self._get_device_information, done,
                     description=_('Get device information'), to_job=add_as_step_to_job)
 
     def _set_library_information(self, library_name, library_uuid, field_metadata):
-        '''Give the device the current library information'''
+        """Give the device the current library information"""
         self.device.set_library_info(library_name, library_uuid, field_metadata)
 
     def set_library_information(self, done, library_name, library_uuid,
                                  field_metadata, add_as_step_to_job=None):
-        '''Give the device the current library information'''
+        """Give the device the current library information"""
         return self.create_job_step(self._set_library_information, done,
                     args=[library_name, library_uuid, field_metadata],
                     description=_('Set library information'), to_job=add_as_step_to_job)
 
     def slow_driveinfo(self):
-        ''' Update the stored device information with the driveinfo if the
-        device indicates that getting driveinfo is slow '''
+        """ Update the stored device information with the driveinfo if the
+        device indicates that getting driveinfo is slow """
         assert self._device_information is not None
         info = self._device_information['info']
         if (not info[4] and self.device.SLOW_DRIVEINFO):
@@ -587,14 +587,14 @@ class DeviceManager(Thread):  # {{{
         return self._device_information if self.is_device_present else None
 
     def _books(self):
-        '''Get metadata from device'''
+        """Get metadata from device"""
         mainlist = self.device.books(oncard=None, end_session=False)
         cardalist = self.device.books(oncard='carda')
         cardblist = self.device.books(oncard='cardb')
         return mainlist, cardalist, cardblist
 
     def books(self, done, add_as_step_to_job=None):
-        '''Return callable that returns the list of books on device as two booklists'''
+        """Return callable that returns the list of books on device as two booklists"""
         return self.create_job_step(self._books, done,
                 description=_('Get list of books on device'), to_job=add_as_step_to_job)
 
@@ -610,14 +610,14 @@ class DeviceManager(Thread):  # {{{
         return self.device.get_annotations(path_map)
 
     def annotations(self, done, path_map, add_as_step_to_job=None):
-        '''Return mapping of ids to annotations. Each annotation is of the
+        """Return mapping of ids to annotations. Each annotation is of the
         form (type, location_info, content). path_map is a mapping of
-        ids to paths on the device.'''
+        ids to paths on the device."""
         return self.create_job_step(self._annotations, done, args=[path_map],
                 description=_('Get annotations from device'), to_job=add_as_step_to_job)
 
     def _sync_booklists(self, booklists):
-        '''Sync metadata to device'''
+        """Sync metadata to device"""
         self.device.sync_booklists(booklists, end_session=False)
         return self.device.card_prefix(end_session=False), self.device.free_space()
 
@@ -635,7 +635,7 @@ class DeviceManager(Thread):  # {{{
                         to_job=add_as_step_to_job)
 
     def _upload_books(self, files, names, on_card=None, metadata=None, plugboards=None):
-        '''Upload books to device: '''
+        """Upload books to device: """
         from calibre.ebooks.metadata.meta import set_metadata
         if hasattr(self.connected_device, 'set_plugboards') and \
                 callable(self.connected_device.set_plugboards):
@@ -692,7 +692,7 @@ class DeviceManager(Thread):  # {{{
         self.device.add_books_to_metadata(locations, metadata, booklists)
 
     def _delete_books(self, paths):
-        '''Remove books from device'''
+        """Remove books from device"""
         self.device.delete_books(paths, end_session=True)
 
     def delete_books(self, done, paths, add_as_step_to_job=None):
@@ -704,7 +704,7 @@ class DeviceManager(Thread):  # {{{
         self.device.remove_books_from_metadata(paths, booklists)
 
     def _save_books(self, paths, target):
-        '''Copy books from device to disk'''
+        """Copy books from device to disk"""
         for path in paths:
             name = sanitize_file_name(os.path.basename(path))
             dest = os.path.join(target, name)
@@ -1122,9 +1122,9 @@ class DeviceMixin:  # {{{
             dma.setEnabled(False)
 
     def device_job_exception(self: Main, job):
-        '''
+        """
         Handle exceptions in threaded device jobs.
-        '''
+        """
         if isinstance(getattr(job, 'exception', None), UserFeedback):
             ex = job.exception
             func = {UserFeedback.ERROR:error_dialog,
@@ -1175,11 +1175,11 @@ class DeviceMixin:  # {{{
             self.eject_action.setEnabled(False)
 
     def device_detected(self: Main, connected, device_kind):
-        '''
+        """
         Called when a device is connected to the computer.
 
         If connected is False then device_kind is None.
-        '''
+        """
         # This can happen as this function is called in a queued connection and
         # the user could have yanked the device in the meantime
         if connected and not self.device_manager.is_device_connected:
@@ -1219,9 +1219,9 @@ class DeviceMixin:  # {{{
         device_signals.device_connection_changed.emit(connected)
 
     def info_read(self: Main, job):
-        '''
+        """
         Called once device information has been read.
-        '''
+        """
         if job.failed:
             return self.device_job_exception(job)
         info, cp, fs = job.result
@@ -1237,9 +1237,9 @@ class DeviceMixin:  # {{{
                                   add_as_step_to_job=job)
 
     def metadata_downloaded(self: Main, job):
-        '''
+        """
         Called once metadata has been read for all books on the device.
-        '''
+        """
         if job.failed:
             self.device_job_exception(job)
             return
@@ -1274,10 +1274,10 @@ class DeviceMixin:  # {{{
         device_signals.device_metadata_available.emit()
 
     def refresh_ondevice(self: Main, reset_only=False):
-        '''
+        """
         Force the library view to refresh, taking into consideration new
         device books information
-        '''
+        """
         with self.library_view.preserve_state():
             self.book_on_device(None, reset=True)
             if reset_only:
@@ -1291,9 +1291,9 @@ class DeviceMixin:  # {{{
                 FunctionDispatcher(self.books_deleted), paths)
 
     def books_deleted(self: Main, job):
-        '''
+        """
         Called once deletion is done on the device
-        '''
+        """
         cv, row = self.current_view(), -1
         if cv is not self.library_view:
             row = cv.currentIndex().row()
@@ -1478,7 +1478,7 @@ class DeviceMixin:  # {{{
 
     @property
     def news_to_be_synced(self: Main):
-        'Set of ids to be sent to device'
+        "Set of ids to be sent to device"
         ans = []
         try:
             ans = self.current_db.new_api.pref('news_to_be_synced',
@@ -1668,26 +1668,26 @@ class DeviceMixin:  # {{{
             d.exec()
 
     def upload_dirtied_booklists(self: Main):
-        '''
+        """
         Upload metadata to device.
-        '''
+        """
         plugboards = self.current_db.new_api.pref('plugboards', {})
         self.device_manager.sync_booklists(Dispatcher(lambda x: x),
                                            self.booklists(), plugboards)
 
     def upload_booklists(self: Main, add_as_step_to_job=None):
-        '''
+        """
         Upload metadata to device.
-        '''
+        """
         plugboards = self.current_db.new_api.pref('plugboards', {})
         self.device_manager.sync_booklists(FunctionDispatcher(self.metadata_synced),
                                            self.booklists(), plugboards,
                                            add_as_step_to_job=add_as_step_to_job)
 
     def metadata_synced(self: Main, job):
-        '''
+        """
         Called once metadata has been uploaded.
-        '''
+        """
         if job.failed:
             self.device_job_exception(job)
             return
@@ -1714,10 +1714,10 @@ class DeviceMixin:  # {{{
                                                        booklist, oncard)
 
     def upload_books(self: Main, files, names, metadata, on_card=None, memory=None):
-        '''
+        """
         Upload books to device.
         :param files: List of either paths to files or file like objects
-        '''
+        """
         titles = [i.title for i in metadata]
         plugboards = self.current_db.new_api.pref('plugboards', {})
         job = self.device_manager.upload_books(
@@ -1728,9 +1728,9 @@ class DeviceMixin:  # {{{
         self.upload_memory[job] = (metadata, on_card, memory, files)
 
     def books_uploaded(self: Main, job):
-        '''
+        """
         Called once books have been uploaded.
-        '''
+        """
         metadata, on_card, memory, files = self.upload_memory.pop(job)
 
         if job.exception is not None:
@@ -1801,7 +1801,7 @@ class DeviceMixin:  # {{{
                                             library_uuid, field_metadata)
 
     def book_on_device(self: Main, id, reset=False):
-        '''
+        """
         Return an indication of whether the given book represented by its db id
         is on the currently connected device. It returns a 5 element list. The
         first three elements represent memory locations main, carda, and cardb,
@@ -1809,7 +1809,7 @@ class DeviceMixin:  # {{{
         is a count of how many instances of the book were found across all
         the memory locations. The fifth is a set of paths to the
         matching books on the device.
-        '''
+        """
         loc = [None, None, None, 0, set()]
 
         if reset:
@@ -1859,12 +1859,12 @@ class DeviceMixin:  # {{{
 
     def set_books_in_library(self: Main, booklists, reset=False, add_as_step_to_job=None,
                              force_send=False, do_device_sync=True):
-        '''
+        """
         Set the ondevice indications in the device database.
         This method should be called before book_on_device is called, because
         it sets the application_id for matched books. Book_on_device uses that
         to both speed up matching and to count matches.
-        '''
+        """
 
         if not self.device_manager.is_device_connected:
             return False

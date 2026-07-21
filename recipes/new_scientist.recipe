@@ -9,11 +9,11 @@
 # Last Edited:  Jan 2016
 ##
 
-'''
+"""
 01-19-2012: Added GrayScale Image conversion and Duplicant article removals
 12-31-2015: Major rewrite due to massive changes in site structure
 01-27-2016: Added support for series index and minor cleanup
-'''
+"""
 
 __license__ = 'GNU General Public License v3 - http://www.gnu.org/copyleft/gpl.html'
 __copyright__ = '2008-2016, AprilHare, Darko Miletic <darko.miletic at gmail.com>'

@@ -68,7 +68,7 @@ from polyglot.builtins import error_message
 
 
 class AnimatablePushButton(QPushButton):
-    'A push button that can be animated without actually emitting a clicked signal'
+    "A push button that can be animated without actually emitting a clicked signal"
 
     def __init__(self, *args, **kwargs):
         QPushButton.__init__(self, *args, **kwargs)

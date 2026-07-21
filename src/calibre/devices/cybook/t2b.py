@@ -28,10 +28,10 @@ def i2b(n):
 
 
 def write_t2b(t2bfile, coverdata=None):
-    '''
+    """
     t2bfile is a file handle ready to write binary data to disk.
     coverdata is a string representation of a JPEG file.
-    '''
+    """
     from PIL import Image
     if coverdata is not None:
         coverdata = io.BytesIO(coverdata)

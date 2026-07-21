@@ -95,7 +95,7 @@ WINDOWS_RESERVED_NAMES = frozenset('CON PRN AUX NUL COM1 COM2 COM3 COM4 COM5 COM
 
 class DynamicFilter:  # {{{
 
-    'No longer used, present for legacy compatibility'
+    "No longer used, present for legacy compatibility"
 
     def __init__(self, name):
         self.name = name
@@ -111,7 +111,7 @@ class DynamicFilter:  # {{{
 
 class DBPrefs(dict):  # {{{
 
-    'Store preferences as key:value pairs in the db'
+    "Store preferences as key:value pairs in the db"
 
     def __init__(self, db):
         dict.__init__(self)
@@ -242,7 +242,7 @@ def icu_collator(s1, s2):
 # Unused aggregators {{{
 
 def Concatenate(sep=','):
-    '''String concatenation aggregator for sqlite'''
+    """String concatenation aggregator for sqlite"""
 
     def step(ctxt, value):
         if value is not None:
@@ -262,7 +262,7 @@ def Concatenate(sep=','):
 
 
 def SortedConcatenate(sep=','):
-    '''String concatenation aggregator for sqlite, sorted by supplied index'''
+    """String concatenation aggregator for sqlite, sorted by supplied index"""
 
     def step(ctxt, ndx, value):
         if value is not None:
@@ -282,7 +282,7 @@ def SortedConcatenate(sep=','):
 
 
 def IdentifiersConcat():
-    '''String concatenation aggregator for the identifiers map'''
+    """String concatenation aggregator for the identifiers map"""
 
     def step(ctxt, key, val):
         ctxt.append(f'{key}:{val}')
@@ -299,7 +299,7 @@ def IdentifiersConcat():
 
 
 def AumSortedConcatenate():
-    '''String concatenation aggregator for the author sort map'''
+    """String concatenation aggregator for the author sort map"""
 
     def step(ctxt, ndx, author, sort, link):
         if author is not None:
@@ -1510,7 +1510,7 @@ class DB:
 
     @property
     def user_version(self):
-        '''The user version of this database'''
+        """The user version of this database"""
         return self.conn.get('PRAGMA user_version;', all=False)
 
     @user_version.setter
@@ -1555,9 +1555,9 @@ class DB:
             rmtree_with_retry(path)
 
     def construct_path_name(self, book_id, title, author):
-        '''
+        """
         Construct the directory name for this book based on its metadata.
-        '''
+        """
         book_id = BOOK_ID_PATH_TEMPLATE.format(book_id)
         l = self.PATH_LIMIT - (len(book_id) // 2) - 2
         author = ascii_filename(author)[:l]
@@ -1576,9 +1576,9 @@ class DB:
         return f'{author}/{title}{book_id}'
 
     def construct_file_name(self, book_id, title, author, extlen):
-        '''
+        """
         Construct the file name for this book based on its metadata.
-        '''
+        """
         extlen = max(extlen, 14)  # 14 accounts for ORIGINAL_EPUB
         # The PATH_LIMIT on windows already takes into account the doubling
         # (it is used to enforce the total path length limit, individual path
@@ -1615,7 +1615,7 @@ class DB:
 
     @property
     def library_id(self):
-        '''The UUID for this library. As long as the user only operates  on libraries with calibre, it will be unique'''
+        """The UUID for this library. As long as the user only operates  on libraries with calibre, it will be unique"""
 
         if getattr(self, '_library_id_', None) is None:
             ans = self.conn.get('SELECT uuid FROM library_id', all=False)
@@ -1635,13 +1635,13 @@ class DB:
                 ''', (self._library_id_,))
 
     def last_modified(self):
-        ''' Return last modified time as a UTC datetime object '''
+        """ Return last modified time as a UTC datetime object """
         return utcfromtimestamp(os.stat(self.dbpath).st_mtime)
 
     def read_tables(self):
-        '''
+        """
         Read all data from the db into the python in-memory tables
-        '''
+        """
 
         with self.conn:  # Use a single transaction, to ensure nothing modifies the db while we are reading
             for table in self.tables.values():
@@ -1934,10 +1934,10 @@ class DB:
         return True
 
     def windows_check_if_files_in_use(self, paths):
-        '''
+        """
         Raises an EACCES IOError if any of the files in the specified folders
         are opened in another program on windows.
-        '''
+        """
         if iswindows:
             for path in paths:
                 spath = os.path.join(self.library_path, *path.split('/'))

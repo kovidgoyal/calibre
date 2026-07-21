@@ -16,7 +16,7 @@ from calibre.utils.serialize import pickle_dumps, pickle_loads
 
 
 class Concatenate:
-    '''String concatenation aggregator for sqlite'''
+    """String concatenation aggregator for sqlite"""
 
     def __init__(self, sep=','):
         self.sep = sep
@@ -73,9 +73,9 @@ class LibraryDatabase:
 
     @staticmethod
     def books_in_old_database(path):
-        '''
+        """
         Iterator over the books in the old pre 0.4.0 database.
-        '''
+        """
         conn = sqlite.connect(path)
         cur = conn.execute('select * from books_meta order by id;')
         book = cur.fetchone()
@@ -829,16 +829,16 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
 
     @property
     def user_version(self):
-        'The user version of this database'
+        "The user version of this database"
         return self.conn.get('pragma user_version;', all=False)
 
     def is_empty(self):
         return not self.conn.get('SELECT id FROM books LIMIT 1', all=False)
 
     def refresh(self, sort_field, ascending):
-        '''
+        """
         Rebuild self.data and self.cache. Filter results are lost.
-        '''
+        """
         FIELDS = {
                   'title'    : 'sort',
                   'authors'  : 'author_sort',
@@ -875,7 +875,7 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
         return indices
 
     def filter(self, filters, refilter=False, OR=False):
-        '''
+        """
         Filter data based on filters. All the filters must match for an item to
         be accepted. Matching is case independent regexp matching.
         @param filters: A list of SearchToken objects
@@ -883,7 +883,7 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
                          filtering.
         @param OR: If True, keeps a match if any one of the filters matches. If False,
         keeps a match only if all the filters match
-        '''
+        """
         if not filters:
             self.data = self.data if refilter else self.cache
         else:
@@ -927,10 +927,10 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
             return _('Unknown')
 
     def authors(self, index, index_is_id=False):
-        '''
+        """
         Authors as a comma separated list or None.
         In the comma separated list, commas in author names are replaced by | symbols
-        '''
+        """
         if not index_is_id:
             return self.data[index][2]
         try:
@@ -975,7 +975,7 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
         return self.data[index][4]
 
     def cover(self, index, index_is_id=False):
-        '''Cover as a data string or None'''
+        """Cover as a data string or None"""
         id = index if index_is_id else self.id(index)
         data = self.conn.get('SELECT data FROM covers WHERE book=?', (id,), all=False)
         if not data:
@@ -983,7 +983,7 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
         return decompress(data)
 
     def tags(self, index, index_is_id=False):
-        '''tags as a comma separated list or None'''
+        """tags as a comma separated list or None"""
         id = index if index_is_id else self.id(index)
         matches = self.conn.get('SELECT concat(name) FROM tags WHERE tags.id IN (SELECT tag from books_tags_link WHERE book=?)', (id,))
         if not matches or not matches[0][0]:
@@ -1011,10 +1011,10 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
             return 1.0
 
     def books_in_series(self, series_id):
-        '''
+        """
         Return an ordered list of all books in the series.
         The list contains book ids.
-        '''
+        """
         ans = self.conn.get('SELECT book from books_series_link WHERE series=?',
                                 (series_id,))
         if not ans:
@@ -1024,25 +1024,25 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
         return ans
 
     def books_in_series_of(self, index, index_is_id=False):
-        '''
+        """
         Return an ordered list of all books in the series that the book identified by index belongs to.
         If the book does not belong to a series return an empty list. The list contains book ids.
-        '''
+        """
         series_id = self.series_id(index, index_is_id=index_is_id)
         return self.books_in_series(series_id)
 
     def comments(self, index, index_is_id=False):
-        '''Comments as string or None'''
+        """Comments as string or None"""
         id = index if index_is_id else self.id(index)
         return self.conn.get('SELECT text FROM comments WHERE book=?', (id,), all=False)
 
     def formats(self, index, index_is_id=False):
-        ''' Return available formats as a comma separated list '''
+        """ Return available formats as a comma separated list """
         id = index if index_is_id else self.id(index)
         return self.conn.get('SELECT concat(format) FROM data WHERE data.book=?', (id,), all=False)
 
     def sizeof_format(self, index, format, index_is_id=False):
-        ''' Return size of C{format} for book C{index} in bytes'''
+        """ Return size of C{format} for book C{index} in bytes"""
         id = index if index_is_id else self.id(index)
         format = format.upper()
         return self.conn.get('SELECT uncompressed_size FROM data WHERE data.book=? AND data.format=?', (id, format), all=False)
@@ -1115,9 +1115,9 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
             self.conn.commit()
 
     def add_format(self, index, ext, stream, index_is_id=False):
-        '''
+        """
         Add the format specified by ext. If it already exists it is replaced.
-        '''
+        """
         id = index if index_is_id else self.id(index)
         stream.seek(0, 2)
         usize = stream.tell()
@@ -1145,9 +1145,9 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
         self.conn.commit()
 
     def set(self, row, column, val):
-        '''
+        """
         Convenience method for setting the title, authors, publisher or rating
-        '''
+        """
         id = self.data[row][0]
         col = {'title':1, 'authors':2, 'publisher':3, 'rating':4, 'tags':7}[column]
 
@@ -1178,9 +1178,9 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
         self.conn.commit()
 
     def set_authors(self, id, authors):
-        '''
+        """
         @param authors: A list of authors.
-        '''
+        """
         self.conn.execute('DELETE FROM books_authors_link WHERE book=?',(id,))
         for a in authors:
             if not a:
@@ -1241,10 +1241,10 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
         self.conn.commit()
 
     def set_tags(self, id, tags, append=False):
-        '''
+        """
         @param tags: list of strings
         @param append: If True existing tags are not removed
-        '''
+        """
         if not append:
             self.conn.execute('DELETE FROM books_tags_link WHERE book=?', (id,))
         for tag in set(tags):
@@ -1309,9 +1309,9 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
         self.conn.commit()
 
     def set_metadata(self, id, mi):
-        '''
+        """
         Set metadata for the book C{id} from the L{MetaInformation} object C{mi}
-        '''
+        """
         if mi.title:
             self.set_title(id, mi.title)
         if not mi.authors:
@@ -1332,10 +1332,10 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
             self.set_cover(id, mi.cover_data[1])
 
     def add_books(self, paths, formats, metadata, uris=[], add_duplicates=True):
-        '''
+        """
         Add a book to the database. self.data and self.cache are not updated.
         @param paths: List of paths to book files of file-like objects
-        '''
+        """
         formats, metadata, uris = iter(formats), iter(metadata), iter(uris)
         duplicates = []
         for path in paths:
@@ -1414,9 +1414,9 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
         self.conn.commit()
 
     def delete_book(self, id):
-        '''
+        """
         Removes book from self.cache, self.data and underlying database.
-        '''
+        """
         try:
             self.cache.pop(self.index(id, cache=True))
             self.data.pop(self.index(id, cache=False))
@@ -1426,9 +1426,9 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
         self.conn.commit()
 
     def get_metadata(self, idx, index_is_id=False):
-        '''
+        """
         Convenience method to return metadata as a L{MetaInformation} object.
-        '''
+        """
         aum = self.authors(idx, index_is_id=index_is_id)
         if aum:
             aum = [a.strip().replace('|', ',') for a in aum.split(',')]

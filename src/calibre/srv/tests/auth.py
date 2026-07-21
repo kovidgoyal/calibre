@@ -61,7 +61,7 @@ def urlopen(server, path='/closed', un='testuser', pw='testpw', method='digest')
 
 
 def digest(un, pw, nonce=None, uri=None, method='GET', nc=1, qop='auth', realm=REALM, cnonce=None, algorithm='MD5', body=b'', modify=lambda x:None):
-    'Create the payload for a digest based Authorization header'
+    "Create the payload for a digest based Authorization header"
     from calibre.srv.auth import DigestAuth
     templ = ('username="{un}", realm="{realm}", qop={qop}, method="{method}",'
     ' nonce="{nonce}", uri="{uri}", nc={nc}, algorithm="{algorithm}", cnonce="{cnonce}", response="{response}"')
@@ -85,7 +85,7 @@ def digest(un, pw, nonce=None, uri=None, method='GET', nc=1, qop='auth', realm=R
 class TestAuth(BaseTest):
 
     def test_basic_auth(self):  # {{{
-        'Test HTTP Basic auth'
+        "Test HTTP Basic auth"
         r = router(prefer_basic_auth=True)
         with TestServer(r.dispatch) as server:
             r.auth_controller.log = server.log
@@ -163,7 +163,7 @@ class TestAuth(BaseTest):
     # }}}
 
     def test_digest_auth(self):  # {{{
-        'Test HTTP Digest auth'
+        "Test HTTP Digest auth"
         from calibre.srv.http_request import normalize_header_name
         from calibre.srv.utils import parse_http_dict
         r = router()
@@ -271,7 +271,7 @@ class TestAuth(BaseTest):
     # }}}
 
     def test_android_auth_workaround(self):  # {{{
-        'Test authentication workaround for Android'
+        "Test authentication workaround for Android"
         r = router()
         with TestServer(r.dispatch) as server:
             r.auth_controller.log = server.log

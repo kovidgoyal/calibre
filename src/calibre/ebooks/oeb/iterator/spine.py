@@ -26,7 +26,7 @@ def character_count(html):
 
 
 def anchor_map(html):
-    ''' Return map of all anchor names to their offsets in the html '''
+    """ Return map of all anchor names to their offsets in the html """
     ans = {}
     for match in re.finditer(
         r'''(?:id|name)\s*=\s*['"]([^'"]+)['"]''', html):
@@ -36,7 +36,7 @@ def anchor_map(html):
 
 
 def all_links(html):
-    ''' Return set of all links in the file '''
+    """ Return set of all links in the file """
     ans = set()
     for match in re.finditer(
             r'''<\s*[Aa]\s+.*?[hH][Rr][Ee][Ff]\s*=\s*(['"])(.+?)\1''', html, re.MULTILINE|re.DOTALL):

@@ -106,7 +106,7 @@ def get_fb2_data(stream):
 
 
 def get_metadata(stream):
-    ''' Return fb2 metadata as a L{MetaInformation} object '''
+    """ Return fb2 metadata as a L{MetaInformation} object """
 
     root = _get_fbroot(get_fb2_data(stream)[0])
     ctx = Context(root)
@@ -180,7 +180,7 @@ def _parse_authors(root, ctx):
 
 
 def _parse_author(elm_author, ctx):
-    ''' Returns a list of display author and sortable author'''
+    """ Returns a list of display author and sortable author"""
 
     xp_templ = 'normalize-space(fb:%s/text())'
 

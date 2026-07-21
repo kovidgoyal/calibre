@@ -78,13 +78,13 @@ def get_compressible_images(container):
 
 
 def convert_png_to_format(container, name, fmt, jpeg_quality=75, webp_quality=75, report=None):
-    '''Convert a PNG image in the container to JPEG or WEBP format.
+    """Convert a PNG image in the container to JPEG or WEBP format.
 
     :param fmt: ``'jpeg'``, ``'webp'`` (lossy), or ``'webp-lossless'``
     :returns: ``(new_name, before, after)`` where *before* and *after* are the
         file sizes in bytes before and after conversion, or ``(name, 0, 0)`` if
         conversion was skipped.
-    '''
+    """
     from calibre.ebooks.oeb.polish.replace import rename_files
     from calibre.utils.img import image_from_data, image_to_data
 
@@ -251,10 +251,10 @@ def compress_images(container, report=None, names=None, jpeg_quality=None, webp_
 
 
 def remove_unused_images(container, report=None):
-    '''
+    """
     Remove images that are not referenced by any file in the spine or by any
     stylesheet used by files in the spine.
-    '''
+    """
     report = report or (lambda x: x)
     from calibre.ebooks.oeb.polish.container import OEB_STYLES
     from calibre.ebooks.oeb.polish.report import safe_href_to_name

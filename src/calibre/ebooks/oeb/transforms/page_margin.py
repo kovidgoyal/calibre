@@ -12,9 +12,9 @@ from calibre.ebooks.oeb.base import XPath, barename
 
 
 class RemoveAdobeMargins:
-    '''
+    """
     Remove margins specified in Adobe's page templates.
-    '''
+    """
 
     def __call__(self, oeb, log, opts):
         self.oeb, self.opts, self.log = oeb, opts, log
@@ -39,12 +39,12 @@ class NegativeTextIndent(Exception):
 
 
 class RemoveFakeMargins:
-    '''
+    """
     Remove left and right margins from paragraph/divs if the same margin is specified
     on almost all the elements at that level.
 
     Must be called only after CSS flattening
-    '''
+    """
 
     def __call__(self, oeb, log, opts):
         if not opts.remove_fake_margins:

@@ -15,10 +15,10 @@ def reduce_color(c):
 
 
 def write_t4b(t4bfile, coverdata=None):
-    '''
+    """
     t4bfile is a file handle ready to write binary data to disk.
     coverdata is a string representation of a JPEG file.
-    '''
+    """
     from PIL import Image
     if coverdata is not None:
         coverdata = BytesIO(coverdata)

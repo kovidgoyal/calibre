@@ -267,10 +267,10 @@ class ImageDropWidgetProtocol(Protocol):  # {{{
 
 
 class ImageDropMixin:
-    '''
+    """
     Adds support for dropping images onto widgets and a context menu for
     copy/pasting images.
-    '''
+    """
     DROPABBLE_EXTENSIONS = None
 
     if TYPE_CHECKING:
@@ -573,9 +573,9 @@ class LineEditECMProtocol(Protocol):
 
 class LineEditECM:  # {{{
 
-    '''
+    """
     Extend the context menu of a QLineEdit to include more actions.
-    '''
+    """
     add_items_to_context_menu_callback: Callable[[QMenu], None] | None = None
 
     if TYPE_CHECKING:
@@ -650,11 +650,11 @@ class LineEditECM:  # {{{
 
 class EnLineEdit(LineEditECM, QLineEdit):  # {{{
 
-    '''
+    """
     Enhanced QLineEdit.
 
     Includes an extended content menu.
-    '''
+    """
 
     def event(self, a0):
         # See https://bugreports.qt.io/browse/QTBUG-46911
@@ -716,10 +716,10 @@ class LineEditIndicators:
 
 class ItemsCompleter(QCompleter):  # {{{
 
-    '''
+    """
     A completer object that completes a list of tags. It is used in conjunction
     with a CompleterLineEdit.
-    '''
+    """
 
     def __init__(self, parent, all_items):
         QCompleter.__init__(self, all_items, parent)
@@ -744,9 +744,9 @@ class ItemsCompleter(QCompleter):  # {{{
 
 class CompleteLineEdit(EnLineEdit):  # {{{
 
-    '''
+    """
     A QLineEdit that can complete parts of text separated by separator.
-    '''
+    """
 
     def __init__(self, parent=None, complete_items=[], sep=',', space_before_sep=False):
         EnLineEdit.__init__(self, parent)
@@ -804,11 +804,11 @@ class CompleteLineEdit(EnLineEdit):  # {{{
 
 class EnComboBox(QComboBox):  # {{{
 
-    '''
+    """
     Enhanced QComboBox.
 
     Includes an extended context menu.
-    '''
+    """
 
     def __init__(self, *args):
         QComboBox.__init__(self, *args)
@@ -946,11 +946,11 @@ class HistoryLineEdit(QComboBox):  # {{{
 
 
 class ComboBoxWithHelp(QComboBox):  # {{{
-    '''
+    """
     A combobox where item 0 is help text. CurrentText will return '' for item 0.
     Be sure to always fetch the text with currentText. Don't use the signals
     that pass a string, because they will not correct the text.
-    '''
+    """
 
     def __init__(self, parent=None):
         QComboBox.__init__(self, parent)
@@ -997,14 +997,14 @@ class ComboBoxWithHelp(QComboBox):  # {{{
 
 
 class EncodingComboBox(QComboBox):  # {{{
-    '''
+    """
     A combobox that holds text encodings support
     by Python. This is only populated with the most
     common and standard encodings. There is no good
     way to programmatically list all supported encodings
     using encodings.aliases.aliases.keys(). It
     will not work.
-    '''
+    """
 
     ENCODINGS = ['', 'cp1252', 'latin1', 'utf-8', '', 'ascii', 'big5', 'cp1250', 'cp1251', 'cp1253',
         'cp1254', 'cp1255', 'cp1256', 'euc_jp', 'euc_kr', 'gb2312', 'gb18030',

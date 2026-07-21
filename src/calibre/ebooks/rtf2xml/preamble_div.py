@@ -20,9 +20,9 @@ from . import open_for_read, open_for_write
 
 
 class PreambleDiv:
-    '''
+    """
     Break the preamble into divisions.
-    '''
+    """
 
     def __init__(self, in_file,
             bug_handler,
@@ -30,7 +30,7 @@ class PreambleDiv:
             no_namespace=None,
             run_level=1,
             ):
-        '''
+        """
         Required:
             'file'
         Optional:
@@ -39,7 +39,7 @@ class PreambleDiv:
             directory from which the script is run.)
         Returns:
             nothing
-        '''
+        """
         self.__file = in_file
         self.__bug_handler = bug_handler
         self.__copy = copy
@@ -48,9 +48,9 @@ class PreambleDiv:
         self.__run_level = run_level
 
     def __initiate_values(self):
-        '''
+        """
         Set values, including those for the dictionary.
-        '''
+        """
         self.__all_lists = {}
         self.__page = {
         'margin-top'    : 72,
@@ -130,10 +130,10 @@ class PreambleDiv:
                 )
 
     def __ignore_func(self, line):
-        '''
+        """
         Ignore all  lines, until the bracket is found that marks the end of
         the group.
-        '''
+        """
         if self.__ignore_num == self.__cb_count:
             self.__state = self.__previous_state
 
@@ -162,9 +162,9 @@ class PreambleDiv:
             self.__rtf_final = self.__rtf_final + line
 
     def __make_default_font_table(self):
-        '''
+        """
         If not font table is found, need to write one out.
-        '''
+        """
         self.__font_table_final = 'mi<tg<open______<font-table\n'
         self.__font_table_final += 'mi<mk<fonttb-beg\n'
         self.__font_table_final += 'mi<mk<fontit-beg\n'
@@ -175,9 +175,9 @@ class PreambleDiv:
         self.__font_table_final += 'mi<tg<close_____<font-table\n'
 
     def __make_default_color_table(self):
-        '''
+        """
         If no color table is found, write a string for a default one
-        '''
+        """
         self.__color_table_final = 'mi<tg<open______<color-table\n'
         self.__color_table_final += 'mi<mk<clrtbl-beg\n'
         self.__color_table_final += 'cw<ci<red_______<nu<00\n'
@@ -187,9 +187,9 @@ class PreambleDiv:
         self.__color_table_final += 'mi<tg<close_____<color-table\n'
 
     def __make_default_style_table(self):
-        '''
+        """
         If not font table is found, make a string for a default one
-        '''
+        """
         # self.__style_sheet_final = 'mi<tg<open______<style-table\n'
         # self.__style_sheet_final +=
         # self.__style_sheet_final +=
@@ -222,13 +222,13 @@ mi<tg<close_____<style-table
         self.__found_font_table = 1
 
     def __font_table_func(self, line):
-        '''
+        """
         Keep adding to the self.__individual_font string until end of group
         found. If a bracket is found, check that it is only one bracket deep.
         If it is, then set the marker for an individual font. If it is not,
         then ignore all data in this group.
 cw<ci<font-style<nu<0
-        '''
+        """
         if self.__cb_count == self.__close_group_count:
             self.__state = 'preamble'
             self.__font_table_final = 'mi<tg<open______<font-table\n' + 'mi<mk<fonttb-beg\n' + self.__font_table_final
@@ -261,7 +261,7 @@ cw<ci<font-style<nu<0
             self.__font_table_final += line
 
     def __old_font_func(self, line):
-        '''
+        """
         Required:
             line --line to parse
         Returns:
@@ -270,14 +270,14 @@ cw<ci<font-style<nu<0
             used for older forms of RTF:
             \f3\fswiss\fcharset77 Helvetica-Oblique;\f4\fnil\fcharset77 Geneva;}
             Note how each font is not divided by a bracket
-        '''
+        """
 
     def __found_color_table_func(self, line):
-        '''
+        """
         all functions that start with __found operate the same. They set the
         state, initiate a string, determine the self.__close_group_count, and
         set self.__cb_count to zero.
-        '''
+        """
         self.__state = 'color_table'
         self.__color_table_final = ''
         self.__close_group_count = self.__ob_count
@@ -298,9 +298,9 @@ cw<ci<font-style<nu<0
         self.__cb_count = 0
 
     def __style_sheet_func(self, line):
-        '''
+        """
         Same logic as the  font_table_func.
-        '''
+        """
         if self.__cb_count == self.__close_group_count:
             self.__state = 'preamble'
             self.__style_sheet_final = 'mi<tg<open______<style-table\n' + 'mi<mk<styles-beg\n' + self.__style_sheet_final
@@ -388,10 +388,10 @@ cw<ci<font-style<nu<0
             self.__doc_info_table_final += line
 
     def __margin_func(self, line):
-        '''
+        """
         Handles lines that describe page info. Add the appropriate info in the
         token to the self.__margin_dict dictionary.
-        '''
+        """
         info = line[6:16]
         changed = self.__margin_dict.get(info)
         if changed is None:
@@ -410,10 +410,10 @@ cw<ci<font-style<nu<0
 # mi<tg<open-att__<footn
 
     def __print_sec_info(self):
-        '''
+        """
         Check if there is any section info. If so, print it out.
         If not, print out an empty tag to satisfy the dtd.
-        '''
+        """
         if len(self.__section.keys()) == 0:
             self.__write_obj.write(
             'mi<tg<open______<section-definition\n'
@@ -429,10 +429,10 @@ cw<ci<font-style<nu<0
             self.__write_obj.write('\n')
 
     def __section_func(self, line):
-        '''
+        """
         Add info pertaining to section to the self.__section dictionary, to be
         printed out later.
-        '''
+        """
         info = self.__translate_sec.get(line[6:16])
         if info is None:
             sys.stderr.write('woops!\n')
@@ -455,11 +455,11 @@ cw<ci<font-style<nu<0
         self.__write_obj.write(line)
 
     def __text_func(self, line):
-        '''
+        """
         If the cb_count is less than 1, you have hit the body
         For older RTF
         Newer RTF should never have to use this function
-        '''
+        """
         if self.__cb_count == '':
             cb_count = '0002'
         else:
@@ -482,9 +482,9 @@ cw<ci<font-style<nu<0
         self.__write_obj.write(line)
 
     def __new_section_func(self, line):
-        '''
+        """
         This is new. The start of a section marks the end of the preamble
-        '''
+        """
         if self.__cb_count == '0002':
             self.__state = 'body'
             self.__write_preamble()
@@ -495,10 +495,10 @@ cw<ci<font-style<nu<0
         self.__write_obj.write(line)
 
     def __write_preamble(self):
-        '''
+        """
         Write all the strings, which represent all the data in the preamble.
         Write a body and section beginning.
-        '''
+        """
         if self.__no_namespace:
             self.__write_obj.write(
                 'mi<tg<open______<doc\n'
@@ -535,10 +535,10 @@ cw<ci<font-style<nu<0
         self.__write_obj.write('mi<mk<body-open_\n')
 
     def __preamble_func(self, line):
-        '''
+        """
         Check if the token info belongs to the dictionary. If so, take the
         appropriate action.
-        '''
+        """
         action = self.__state_dict.get(self.__token_info)
         if action:
             action(line)

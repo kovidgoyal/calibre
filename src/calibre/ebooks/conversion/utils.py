@@ -102,11 +102,11 @@ class HeuristicProcessor:
             return '<'+tag+' style="text-indent:3%">'+span
 
     def no_markup(self, raw, percent):
-        '''
+        """
         Detects total marked up line endings in the file. raw is the text to
         inspect.  Percent is the minimum percent of line endings which should
         be marked up to return true.
-        '''
+        """
         htm_end_ere = re.compile(r'</(p|div)>', re.DOTALL)
         line_end_ere = re.compile(r'(\n|\r|\r\n)', re.DOTALL)
         htm_end = htm_end_ere.findall(raw)
@@ -190,11 +190,11 @@ class HeuristicProcessor:
         return html
 
     def markup_chapters(self, html, wordcount, blanks_between_paragraphs):
-        '''
+        """
         Searches for common chapter headings throughout the document
         attempts multiple patterns based on likelihood of a match
         with minimum false positives.  Exits after finding a successful pattern
-        '''
+        """
         # Typical chapters are between 2000 and 7000 words, use the larger number to decide the
         # minimum of chapters to search for.  A max limit is calculated to prevent things like OCR
         # or pdf page numbers from being treated as TOC markers
@@ -337,7 +337,7 @@ class HeuristicProcessor:
         return html
 
     def punctuation_unwrap(self, length, content, format):
-        '''
+        """
         Unwraps lines based on line length and punctuation
         supports a range of html markup and text files
 
@@ -348,7 +348,7 @@ class HeuristicProcessor:
 
         This function intentionally leaves hyphenated content alone as that is handled by the
         dehyphenate routine in a separate step
-        '''
+        """
         def style_unwrap(match):
             style_close = match.group('style_close')
             style_open = match.group('style_open')
@@ -455,10 +455,10 @@ class HeuristicProcessor:
         return html
 
     def analyze_line_endings(self, html):
-        '''
+        """
         determines the type of html line ending used most commonly in a document
         use before calling docanalysis functions
-        '''
+        """
         paras_reg = re.compile(r'<p[^>]*>', re.IGNORECASE)
         spans_reg = re.compile(r'<span[^>]*>', re.IGNORECASE)
         paras = len(paras_reg.findall(html))
@@ -585,13 +585,13 @@ class HeuristicProcessor:
         return html
 
     def markup_user_break(self, replacement_break):
-        '''
+        """
         Takes string a user supplies and wraps it in markup that will be centered with
         appropriate margins.  <hr> and <img> tags are allowed.  If the user specifies
         a style with width attributes in the <hr> tag then the appropriate margins are
         applied to wrapping divs.  This is because many ebook devices don't support margin:auto
         All other html is converted to text.
-        '''
+        """
         hr_open = '<div id="scenebreak" style="margin-left: 45%; margin-right: 45%; margin-top:1.5em; margin-bottom:1.5em; page-break-before:avoid">'
         if re.findall(r'(<|>)', replacement_break):
             if re.match(r'^<hr', replacement_break):

@@ -1,6 +1,6 @@
-'''
+"""
 Directory output OEBBook writer.
-'''
+"""
 
 
 __license__   = 'GPL v3'
@@ -28,9 +28,9 @@ class OEBWriter:
 
     @classmethod
     def config(cls, cfg):
-        '''Add any book-writing options to the :class:`Config` object
+        """Add any book-writing options to the :class:`Config` object
         :param:`cfg`.
-        '''
+        """
         oeb = cfg.add_group('oeb', _('OPF/NCX/etc. generation options.'))
         versions = ['1.2', '2.0']
         oeb('opf_version', ['--opf-version'], default='2.0', choices=versions,
@@ -42,7 +42,7 @@ class OEBWriter:
 
     @classmethod
     def generate(cls, opts):
-        '''Generate a Writer instance from command-line options.'''
+        """Generate a Writer instance from command-line options."""
         version = opts.opf_version
         page_map = opts.adobe_page_map
         pretty_print = opts.pretty_print
@@ -50,10 +50,10 @@ class OEBWriter:
                    pretty_print=pretty_print)
 
     def __call__(self, oeb, path):
-        '''
+        """
         Write the book in the :class:`OEBBook` object :param:`oeb` to a folder
         at :param:`path`.
-        '''
+        """
         version = int(self.version[0])
         opfname = None
         if os.path.splitext(path)[1].lower() == '.opf':

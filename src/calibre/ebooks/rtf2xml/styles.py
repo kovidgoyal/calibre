@@ -20,9 +20,9 @@ from . import open_for_read, open_for_write
 
 
 class Styles:
-    '''
+    """
     Change lines with style numbers to actual style names.
-    '''
+    """
 
     def __init__(self,
             in_file,
@@ -30,7 +30,7 @@ class Styles:
             copy=None,
             run_level=1,
             ):
-        '''
+        """
         Required:
             'file'--file to parse
         Optional:
@@ -39,7 +39,7 @@ class Styles:
             directory from which the script is run.)
         Returns:
             nothing
-        '''
+        """
         self.__file = in_file
         self.__bug_handler = bug_handler
         self.__copy = copy
@@ -47,9 +47,9 @@ class Styles:
         self.__run_level = run_level
 
     def __initiate_values(self):
-        '''
+        """
         Initiate all values.
-        '''
+        """
         self.__border_obj = border_parse.BorderParse()
         self.__styles_dict = {'par':{}, 'char':{}}
         self.__styles_num = '0'
@@ -267,7 +267,7 @@ class Styles:
         self.__leader_found = 0
 
     def __in_individual_style_func(self, line):
-        '''
+        """
         Required:
             line
         Returns:
@@ -283,7 +283,7 @@ class Styles:
             Write an error message if no key is found for the info.
             If the line is text, add the text to a text string. The text
             string will be the name of the style.
-        '''
+        """
         action = self.__state_dict.get(self.__token_info)
         if action:
             action(line)
@@ -313,7 +313,7 @@ class Styles:
             self.__text_string += line[17:-1]
 
     def __tab_stop_func(self, line):
-        '''
+        """
         Requires:
             line -- line to parse
         Returns:
@@ -321,7 +321,7 @@ class Styles:
         Logic:
             Try to add the number to dictionary entry tabs-left, or tabs-right, etc.
             If the dictionary entry doesn't exist, create one.
-        '''
+        """
         try:
             if self.__leader_found:
                 self.__styles_dict['par'][self.__styles_num]['tabs']\
@@ -342,8 +342,8 @@ class Styles:
         self.__leader_found = 0
 
     def __tab_type_func(self, line):
-        '''
-        '''
+        """
+        """
         type = self.__tab_type_dict.get(self.__token_info)
         if type is not None:
             self.__tab_type = type
@@ -352,7 +352,7 @@ class Styles:
             raise self.__bug_handler(msg)
 
     def __tab_leader_func(self, line):
-        '''
+        """
         Requires:
             line --line to parse
         Returns:
@@ -361,7 +361,7 @@ class Styles:
             Try to add the string of the tab leader to dictionary entry
             tabs-left, or tabs-right, etc.  If the dictionary entry doesn't
             exist, create one.
-        '''
+        """
         self.__leader_found = 1
         leader = self.__tab_type_dict.get(self.__token_info)
         if leader is not None:
@@ -376,7 +376,7 @@ class Styles:
             raise self.__bug_handler(msg)
 
     def __tab_bar_func(self, line):
-        '''
+        """
         Requires:
             line -- line to parse
         Returns:
@@ -384,7 +384,7 @@ class Styles:
         Logic:
             Try to add the string of the tab bar to dictionary entry tabs-bar.
             If the dictionary entry doesn't exist, create one.
-        '''
+        """
         # self.__add_dict_entry('tabs-bar', line[20:-1])
         try:
             self.__styles_dict['par'][self.__styles_num]['tabs']\
@@ -417,7 +417,7 @@ class Styles:
             self.__add_dict_entry(att, value)
 
     def __add_dict_entry(self, att, value):
-        '''
+        """
         Required:
             att --the attribute
             value --the value
@@ -432,7 +432,7 @@ class Styles:
             Next, create a second, smaller dictionary with just the attribute and value.
             Add the small dictionary to the type dictionary.
             Add this type dictionary to the main styles dictionary.
-        '''
+        """
         if self.__type_of_style == 'par':
             type_dict = self.__styles_dict['par']
         elif self.__type_of_style == 'char':
@@ -477,7 +477,7 @@ class Styles:
         self.__styles_num = line[20:-1]
 
     def __found_beg_ind_style_func(self, line):
-        '''
+        """
         Required:
             line
         Returns:
@@ -486,7 +486,7 @@ class Styles:
             Get rid of the last semicolon in the text string. Add the text
             string as the value with 'name' as the key in the style
             dictionary.
-        '''
+        """
         self.__state = 'in_individual_style'
 
     def __found_end_ind_style_func(self, line):
@@ -498,7 +498,7 @@ class Styles:
         self.__text_string = ''
 
     def __found_end_styles_table_func(self, line):
-        '''
+        """
         Required:
             line
         Returns:
@@ -507,13 +507,13 @@ class Styles:
             Set the state to after the styles table.
             Fix the styles. (I explain this below.)
             Print out the style table.
-        '''
+        """
         self.__state = 'after_styles_table'
         self.__fix_based_on()
         self.__print_style_table()
 
     def __fix_based_on(self):
-        '''
+        """
         Requires:
             nothing
         Returns:
@@ -527,7 +527,7 @@ class Styles:
             all the character styles.
             The inner loop: first check 'next-style', then check 'based-on-style'.
             Make sure values exist for the keys to avoid the nasty keyerror message.
-        '''
+        """
         types = ['par', 'char']
         for type in types:
             keys = self.__styles_dict[type].keys()
@@ -552,7 +552,7 @@ class Styles:
                             del self.__styles_dict[type][key][style]
 
     def __print_style_table(self):
-        '''
+        """
         Required:
             nothing
         Returns:
@@ -564,7 +564,7 @@ class Styles:
             The next loop iterates through the style numbers.
             The most inside loop iterates over the pairs of attributes and
             values, and prints them out.
-        '''
+        """
         types = ['par', 'char']
         for type in types:
             if type == 'par':
@@ -591,18 +591,18 @@ class Styles:
             )
 
     def __found_styles_table_func(self, line):
-        '''
+        """
         Required:
             line
         Returns:
             nothing
         Logic:
             Change the state to in the style table when the marker has been found.
-        '''
+        """
         self.__state = 'in_styles_table'
 
     def __before_styles_func(self, line):
-        '''
+        """
         Required:
             line
         Returns:
@@ -611,7 +611,7 @@ class Styles:
             Check the line info in the state dictionary. When the beginning of
             the styles table is found, change the state to in the styles
             table.
-        '''
+        """
         action = self.__state_dict.get(self.__token_info)
         if not action:
             self.__write_obj.write(line)
@@ -619,7 +619,7 @@ class Styles:
             action(line)
 
     def __in_styles_func(self, line):
-        '''
+        """
         Required:
             line
         Returns:
@@ -627,7 +627,7 @@ class Styles:
         Logic:
             Check the line for the beginning of an individual style. If it is
             not found, simply print out the line.
-        '''
+        """
         action = self.__state_dict.get(self.__token_info)
         if action is None:
             self.__write_obj.write(line)
@@ -666,7 +666,7 @@ class Styles:
             )
 
     def __after_styles_func(self, line):
-        '''
+        """
         Required:
             line
         Returns:
@@ -675,7 +675,7 @@ class Styles:
             Determine if a line with either character of paragraph style info
             has been found. If so, then use the appropriate method to parse
             the line. Otherwise, write the line to a file.
-        '''
+        """
         action, type = self.__body_dict.get(self.__token_info, (None, None))
         if action:
             action(line, type)
@@ -683,7 +683,7 @@ class Styles:
             self.__write_obj.write(line)
 
     def convert_styles(self):
-        '''
+        """
         Requires:
             nothing
         Returns:
@@ -696,7 +696,7 @@ class Styles:
             and print out the tags.
             If the state if after the style table, look for lines with style
             info, and substitute the number with the name of the style.
-        '''
+        """
         self.__initiate_values()
         read_obj = open_for_read(self.__file)
         self.__write_obj = open_for_write(self.__write_to)

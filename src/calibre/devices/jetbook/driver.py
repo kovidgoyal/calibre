@@ -100,14 +100,14 @@ class MIBUK(USBMS):
 
 
 class JETBOOK_MINI(USBMS):
-    '''
+    """
     ['0x4b8',
      '0x507',
      '0x100',
      'ECTACO',
      'ECTACO ATA/ATAPI Bridge (Bulk-Only)',
      'Rev.0.20']
-    '''
+    """
     FORMATS     = ['fb2', 'txt']
 
     gui_name = 'JetBook Mini'
@@ -126,14 +126,14 @@ class JETBOOK_MINI(USBMS):
 
 
 class JETBOOK_COLOR(USBMS):
-    '''
+    """
     set(['0x951',
          '0x160b',
          '0x0',
          'Freescale',
          'Mass Storage Device',
          '0802270905553'])
-    '''
+    """
 
     FORMATS = ['epub', 'mobi', 'prc', 'fb2', 'rtf', 'txt', 'pdf', 'djvu']
 

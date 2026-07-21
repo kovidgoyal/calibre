@@ -104,10 +104,10 @@ def forked_map[T, R](
     fn: Callable[[T], R], iterable: Sequence[T], *iterables: Sequence[T],
     timeout: int | float | None = None, num_workers: int = 0
 ) -> Iterator[R]:
-    '''
+    """
     Should be used only in worker processes that have no threads and that do not use/import any non fork safe libraries such as macOS
     system libraries.
-    '''
+    """
     num_items = len(iterable) + sum(map(len, iterables))
     if num_items < 1:
         return

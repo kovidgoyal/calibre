@@ -204,7 +204,7 @@ class PDFOutput(OutputFormatPlugin):
                 self.cover_data = item.data
 
     def process_fonts(self):
-        ''' Make sure all fonts are embeddable '''
+        """ Make sure all fonts are embeddable """
         from calibre.ebooks.oeb.base import urlnormalize
         from calibre.utils.fonts.utils import remove_embed_restriction
 

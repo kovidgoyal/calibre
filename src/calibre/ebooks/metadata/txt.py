@@ -13,9 +13,9 @@ from calibre.utils.localization import _
 
 
 def get_metadata(stream, extract_cover=True):
-    '''
+    """
     Return metadata as a L{MetaInfo} object
-    '''
+    """
     name = getattr(stream, 'name', '').rpartition('.')[0]
     if name:
         name = os.path.basename(name)

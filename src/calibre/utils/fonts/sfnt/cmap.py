@@ -201,9 +201,9 @@ class CmapTable(UnknownTable):
                     self.bmp_table = BMPTable(table)
 
     def get_character_map(self, chars):
-        '''
+        """
         Get a mapping of character codes to glyph ids in the font.
-        '''
+        """
         if self.bmp_table is None:
             raise UnsupportedFont('This font has no Windows BMP cmap subtable.'
                     ' Most likely a special purpose font.')
@@ -215,10 +215,10 @@ class CmapTable(UnknownTable):
         return ans
 
     def get_glyph_map(self, glyph_ids):
-        '''
+        """
         Get a mapping of character codes to glyph ids for the specified glyph
         ids.
-        '''
+        """
         if self.bmp_table is None:
             raise UnsupportedFont('This font has no Windows BMP cmap subtable.'
                     ' Most likely a special purpose font.')

@@ -69,7 +69,7 @@ class TestDeviceInteraction(unittest.TestCase):
             self.skipTest('The connected device does not have enough free space')
 
     def test_folder_operations(self):
-        ''' Test the creation of folders, duplicate folders and sub folders '''
+        """ Test the creation of folders, duplicate folders and sub folders """
         self.check_setup()
         dev = self.dev
         assert dev is not None
@@ -108,7 +108,7 @@ class TestDeviceInteraction(unittest.TestCase):
                 dev.create_folder(root_file[0], 'sub-folder')
 
     def test_file_transfer(self):
-        ''' Test transferring files to and from the device '''
+        """ Test transferring files to and from the device """
         self.check_setup()
         dev = self.dev
         assert dev is not None
@@ -200,7 +200,7 @@ class TestDeviceInteraction(unittest.TestCase):
 
     @unittest.skipUnless(iswindows or islinux, 'Can only test for leaks on windows and linux')
     def test_memory_leaks(self):
-        ''' Test for memory leaks in the C module '''
+        """ Test for memory leaks in the C module """
         self.check_setup()
         dev = self.dev
         assert dev is not None

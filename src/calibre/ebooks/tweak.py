@@ -159,7 +159,7 @@ def implode(output_dir, ebook_file):
 
 
 def tweak(ebook_file):
-    ''' Command line interface to the Tweak Book tool '''
+    """ Command line interface to the Tweak Book tool """
     fmt = ebook_file.rpartition('.')[-1].lower()
     exploder, rebuilder = get_tools(fmt)
     if exploder is None:

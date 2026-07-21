@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
-'''
+"""
 zaobao.com.sg
-'''
+"""
 
 from calibre.web.feeds.news import BasicNewsRecipe, classes
 

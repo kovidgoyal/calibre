@@ -1,6 +1,6 @@
-'''
+"""
 Read content from ereader pdb file.
-'''
+"""
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'

@@ -225,12 +225,12 @@ class FontScanner(Thread):
             raise NoFonts(f'No fonts found for the family: {family!r}')
 
     def legacy_fonts_for_family(self, family):
-        '''
+        """
         Return a simple set of regular, bold, italic and bold-italic faces for
         the specified family. Returns a dictionary with each element being a
         2-tuple of (path to font, full font name) and the keys being: normal,
         bold, italic, bi.
-        '''
+        """
         ans = {}
         try:
             faces = self.fonts_for_family(family)

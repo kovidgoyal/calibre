@@ -28,7 +28,7 @@ def get_container(*args, **kwargs):
 class ContainerTests(BaseTest):
 
     def test_clone(self):
-        ' Test cloning of containers '
+        " Test cloning of containers "
         for fmt in ('epub', 'azw3'):
             base = os.path.join(self.tdir, fmt + '-')
             book = get_simple_book(fmt)
@@ -76,7 +76,7 @@ class ContainerTests(BaseTest):
                 self.assertEqual(getattr(c1, attr), getattr(c, attr))
 
     def test_file_removal(self):
-        ' Test removal of files from the container '
+        " Test removal of files from the container "
         book = get_simple_book()
         c = get_container(book, tdir=self.tdir)
         files = ('toc.ncx', 'cover.png', 'titlepage.xhtml')
@@ -100,7 +100,7 @@ class ContainerTests(BaseTest):
                 subprocess.Popen(['epubcheck', f]).wait()
 
     def test_file_rename(self):
-        ' Test renaming of files '
+        " Test renaming of files "
         book = get_simple_book()
         count = [0]
 
@@ -180,7 +180,7 @@ class ContainerTests(BaseTest):
         # self.run_external_tools(c, vim=True)
 
     def test_file_add(self):
-        ' Test adding of files '
+        " Test adding of files "
         book = get_simple_book()
         c = get_container(book)
         name = 'folder/added file.html'
@@ -201,7 +201,7 @@ class ContainerTests(BaseTest):
         self.check_links(c)
 
     def test_actual_case(self):
-        ' Test getting the actual case for files from names on case insensitive filesystems '
+        " Test getting the actual case for files from names on case insensitive filesystems "
         from calibre.ebooks.oeb.polish.utils import actual_case_for_name, corrected_case_for_name
         book = get_simple_book()
         c = get_container(book)
@@ -218,7 +218,7 @@ class ContainerTests(BaseTest):
             self.assertIsNone(corrected_case_for_name(c, name+'/xx'))
 
     def test_split_file(self):
-        ' Test splitting of files '
+        " Test splitting of files "
         book = get_split_book()
         c = get_container(book)
         name = 'index.html'
@@ -230,7 +230,7 @@ class ContainerTests(BaseTest):
         self.check_links(c)
 
     def test_merge_file(self):
-        ' Test merging of files '
+        " Test merging of files "
         book = get_simple_book()
         c = get_container(book)
         merge(c, 'text', ('index_split_000.html', 'index_split_001.html'), 'index_split_000.html')

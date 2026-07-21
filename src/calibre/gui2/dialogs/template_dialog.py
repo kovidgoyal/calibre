@@ -736,10 +736,10 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
         self.template_name.setVisible(show_doc_and_name)
 
     def set_mi(self, mi, fm):
-        '''
+        """
         This sets the metadata for the test result books table. It doesn't reset
         the contents of the field selectors for editing rules.
-        '''
+        """
         self.fm = fm
         if mi:
             if not isinstance(mi, (tuple, list)):

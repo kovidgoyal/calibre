@@ -124,7 +124,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         SavedSearchBoxMixin, SearchRestrictionMixin, LayoutMixin, UpdateMixin,
         EbookDownloadMixin
         ):
-    'The main GUI'
+    "The main GUI"
 
     proceed_requested = pyqtSignal(object, object)
     book_converted = pyqtSignal(object, object)
@@ -978,7 +978,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
             prints(f'Ignoring unknown message from other instance: {msg[:20]!r}')
 
     def current_view(self):
-        '''Convenience method that returns the currently visible view '''
+        """Convenience method that returns the currently visible view """
         try:
             idx = self.stack.currentIndex()
         except AttributeError:
@@ -1114,9 +1114,9 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         self.setWindowTitle(title)
 
     def location_selected(self, location):
-        '''
+        """
         Called when a location icon is clicked (e.g. Library)
-        '''
+        """
         page = 0 if location == 'library' else 1 if location == 'main' else 2 if location == 'carda' else 3
         self.stack.setCurrentIndex(page)
         self.book_details.reset_info()

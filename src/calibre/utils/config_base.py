@@ -225,9 +225,9 @@ class OptionSet:
             self.preferences.append(pref)
 
     def smart_update(self, opts1, opts2):
-        '''
+        """
         Updates the preference values in opts1 using only the non-default preference values in opts2.
-        '''
+        """
         for pref in self.preferences:
             new = getattr(opts2, pref.name, pref.default)
             if new != pref.default:
@@ -239,7 +239,7 @@ class OptionSet:
 
     def add_opt(self, name, switches=[], help=None, type=None, choices=None,
                  group=None, default=None, action=None, metavar=None):
-        '''
+        """
         Add an option to this section.
 
         :param name:       The name of this option. Must be a valid Python identifier.
@@ -257,7 +257,7 @@ class OptionSet:
         :param action:     The action to pass to optparse. Supported values are:
                            `None, 'count'`. For choices and boolean options,
                            action is automatically set correctly.
-        '''
+        """
         pref = Option(name, switches=switches, help=help, type=type, choices=choices,
                  group=group, default=default, action=action, metavar=None)
         if group is not None and group not in self.groups.keys():
@@ -408,9 +408,9 @@ def commit_data(file_path, data, permissions=0o666):
 
 
 class Config(ConfigInterface):
-    '''
+    """
     A file based configuration.
-    '''
+    """
 
     def __init__(self, basename, description=''):
         ConfigInterface.__init__(self, description)
@@ -464,9 +464,9 @@ class Config(ConfigInterface):
 
 
 class StringConfig(ConfigInterface):
-    '''
+    """
     A string based configuration
-    '''
+    """
 
     def __init__(self, src, description=''):
         ConfigInterface.__init__(self, description)
@@ -489,9 +489,9 @@ class StringConfig(ConfigInterface):
 
 
 class ConfigProxy:
-    '''
+    """
     A Proxy to minimize file reads for widely used config settings
-    '''
+    """
 
     def __init__(self, config):
         self.__config = config

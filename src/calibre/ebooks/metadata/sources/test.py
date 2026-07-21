@@ -142,13 +142,13 @@ def dump_log(lf):
 
 
 def test_identify(tests):  # {{{
-    '''
+    """
     :param tests: List of 2-tuples. Each two tuple is of the form (args,
                   test_funcs). args is a dict of keyword arguments to pass to
                   the identify method. test_funcs are callables that accept a
                   Metadata object and return True iff the object passes the
                   test.
-    '''
+    """
     from calibre.ebooks.metadata.sources.identify import identify
 
     tdir, abort, log = init_test('Full Identify')
@@ -209,14 +209,14 @@ def test_identify(tests):  # {{{
 
 def test_identify_plugin(name, tests, modify_plugin=lambda plugin:None,  # {{{
         fail_missing_meta=True):
-    '''
+    """
     :param name: Plugin name
     :param tests: List of 2-tuples. Each two tuple is of the form (args,
                   test_funcs). args is a dict of keyword arguments to pass to
                   the identify method. test_funcs are callables that accept a
                   Metadata object and return True iff the object passes the
                   test.
-    '''
+    """
     plugin = None
     for x in all_metadata_plugins():
         if x.name == name and 'identify' in x.capabilities:

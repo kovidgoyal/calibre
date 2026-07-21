@@ -37,7 +37,7 @@ class DowngradeLockError(LockingError):
 
 
 def create_locks():
-    '''
+    """
     Return a pair of locks: (read_lock, write_lock)
 
     The read_lock can be acquired by multiple threads simultaneously, it can
@@ -57,20 +57,20 @@ def create_locks():
     B. Bad things will happen if you violate this rule, the most benign of
     which is the raising of a LockingError (I haven't been able to eliminate
     the possibility of deadlocking in this scenario).
-    '''
+    """
     l = SHLock()
     wrapper = DebugRWLockWrapper if os.environ.get('CALIBRE_DEBUG_DB_LOCKING') == '1' else RWLockWrapper
     return wrapper(l), wrapper(l, is_shared=False)
 
 
 class SHLock:  # {{{
-    '''
+    """
     Shareable lock class. Used to implement the Multiple readers-single writer
     paradigm. As best as I can tell, neither writer nor reader starvation
     should be possible.
 
     Based on code from: https://github.com/rfk/threading2
-    '''
+    """
 
     def __init__(self):
         self._lock = Lock()
@@ -92,12 +92,12 @@ class SHLock:  # {{{
         self._free_waiters = []
 
     def acquire(self, blocking=True, shared=False):
-        '''
+        """
         Acquire the lock in shared or exclusive mode.
 
         If blocking is False this method will return False if acquiring the
         lock failed.
-        '''
+        """
         with self._lock:
             if shared:
                 return self._acquire_shared(blocking)
@@ -111,7 +111,7 @@ class SHLock:  # {{{
             return self._exclusive_owner is me or me in self._shared_owners
 
     def release(self):
-        ''' Release the lock. '''
+        """ Release the lock. """
         # This decrements the appropriate lock counters, and if the lock
         # becomes free, it looks for a queued thread to hand it off to.
         # By doing the handoff here we ensure fairness.

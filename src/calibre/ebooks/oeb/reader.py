@@ -1,6 +1,6 @@
-'''
+"""
 Container-/OPF-based input OEBBook reader.
-'''
+"""
 
 
 __license__   = 'GPL v3'
@@ -61,7 +61,7 @@ __all__ = ['OEBReader']
 
 
 class OEBReader:
-    '''Read an OEBPS 1.x or OPF/OPS 2.0 file collection.'''
+    """Read an OEBPS 1.x or OPF/OPS 2.0 file collection."""
 
     COVER_SVG_XP    = XPath('h:body//svg:svg[position() = 1]')
     COVER_OBJECT_XP = XPath('h:body//h:object[@data][position() = 1]')
@@ -77,20 +77,20 @@ class OEBReader:
 
     @classmethod
     def config(cls, cfg):
-        '''Add any book-reading options to the :class:`Config` object
+        """Add any book-reading options to the :class:`Config` object
         :param:`cfg`.
-        '''
+        """
         return
 
     @classmethod
     def generate(cls, opts):
-        '''Generate a Reader instance from command-line options.'''
+        """Generate a Reader instance from command-line options."""
         return cls()
 
     def __call__(self, oeb, path):
-        '''Read the book at :param:`path` into the :class:`OEBBook` object
+        """Read the book at :param:`path` into the :class:`OEBBook` object
         :param:`oeb`.
-        '''
+        """
         self.oeb = oeb
         self.logger = self.log = oeb.logger
         oeb.container = self.Container(path, self.logger)
@@ -186,11 +186,11 @@ class OEBReader:
             m.add('creator', self.oeb.translate(__('Unknown')), role='aut')
 
     def _manifest_prune_invalid(self):
-        '''
+        """
         Remove items from manifest that contain invalid data. This prevents
         catastrophic conversion failure, when a few files contain corrupted
         data.
-        '''
+        """
         bad = []
         check = OEB_DOCS.union(OEB_STYLES)
         for item in list(self.oeb.manifest.values()):

@@ -21,7 +21,7 @@ class PagebreakPageGenerator(IPageGenerator):
         return FastPageGenerator.instance.generate(mobi_file_path, real_count)
 
     def _generate(self, mobi_file_path: str, real_count: int | None) -> Pages:
-        ''' Determine pages based on the presence of <*pagebreak*/>. '''
+        """ Determine pages based on the presence of <*pagebreak*/>. """
         html = mobi_html(mobi_file_path)
         pages = []
         for m in re.finditer(br'<[^>]*pagebreak[^>]*>', html):

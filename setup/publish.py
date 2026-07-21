@@ -258,7 +258,7 @@ class Manual(Command):
         httpd.serve_forever()
 
     def replace_with_symlinks(self, lang_dir):
-        ' Replace all identical files with symlinks to save disk space/upload bandwidth '
+        " Replace all identical files with symlinks to save disk space/upload bandwidth "
         from calibre import walk
         base = self.a(lang_dir)
         for f in walk(base):

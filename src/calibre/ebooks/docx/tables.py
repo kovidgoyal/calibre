@@ -458,7 +458,7 @@ class Table:
         return self.table_style.bidi is True
 
     def override_allowed(self, name):
-        'Check if the named override is allowed by the tblLook element'
+        "Check if the named override is allowed by the tblLook element"
         if name.endswith('Cell') or name == 'wholeTable':
             return True
         look = self.table_style.look
@@ -474,7 +474,7 @@ class Table:
         return False
 
     def get_overrides(self, r, c, num_of_rows, num_of_cols_in_row):
-        'List of possible overrides for the given para'
+        "List of possible overrides for the given para"
         overrides = ['wholeTable']
 
         def divisor(m, n):

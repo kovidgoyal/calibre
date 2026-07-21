@@ -39,7 +39,7 @@ class TestRouter(BaseTest):
             self.assertTrue(db_matches(db, db.server_library_id.upper(), tdir))
 
     def test_route_construction(self):
-        ' Test route construction '
+        " Test route construction "
         from calibre.srv.routes import Route, RouteError, endpoint
 
         def makeroute(route, func=lambda c,d:None, **kwargs):
@@ -63,7 +63,7 @@ class TestRouter(BaseTest):
         self.assertRaises(RouteError, makeroute, '/a/b', lambda c,d,b,a:None)
 
     def test_route_finding(self):
-        'Test route finding'
+        "Test route finding"
         from calibre.srv.routes import HTTPNotFound, Router, endpoint
         router = Router()
 

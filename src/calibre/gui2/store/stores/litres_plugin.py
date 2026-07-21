@@ -100,12 +100,12 @@ class LitResStore(BasicStoreConfig, StorePlugin):
 
 
 def format_price_in_RUR(price):
-    '''
+    """
     Try to format price according ru locale: '12 212,34 руб.'
     @param price: price in format like 25.99
     @return: formatted price if possible otherwise original value
     @rtype: unicode
-    '''
+    """
     if price and re.match(r'^\d*?\.\d*?$', price):
         try:
             price = u'{:,.2F} \u20bd'.format(float(price))  # \u20bd => руб.
@@ -139,13 +139,13 @@ def _get_affiliate_id():
 
 
 def _parse_ebook_formats(formatsStr):
-    '''
+    """
     Creates a set with displayable names of the formats
 
     :param formatsStr: string with comma separated book formats
            as it provided by ozon.ru
     :return: a list with displayable book formats
-    '''
+    """
 
     formatsUnstruct = formatsStr.lower()
     formats = set()

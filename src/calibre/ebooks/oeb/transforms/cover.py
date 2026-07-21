@@ -83,9 +83,9 @@ class CoverManager:
         self.insert_cover()
 
     def default_cover(self):
-        '''
+        """
         Create a generic cover for books that don't have a cover
-        '''
+        """
         if self.no_default_cover:
             return None
         self.log('Generating default cover')

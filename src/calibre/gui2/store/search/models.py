@@ -481,7 +481,7 @@ class SearchFilter(SearchQueryParser):
         return matches
 
     def field_trimmer(self, field):
-        ''' Remove common joiner words and punctuation to improve matching,
-        punctuation is removed first, so that a.and.b becomes a b '''
+        """ Remove common joiner words and punctuation to improve matching,
+        punctuation is removed first, so that a.and.b becomes a b """
         field = force_unicode(field)
         return self.joiner_pat.sub(' ', field.translate(self.punctuation_table))

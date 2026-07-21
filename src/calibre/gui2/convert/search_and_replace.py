@@ -271,11 +271,11 @@ class SearchAndReplaceWidget(Widget, Ui_Form):
         return True
 
     def apply_recommendations(self, recs):
-        '''
+        """
         Handle the legacy sr* options that may have been previously saved. They
         are applied only if the new search_replace option has not been set in
         recs.
-        '''
+        """
         new_val = None
         legacy = {}
         rest = {}

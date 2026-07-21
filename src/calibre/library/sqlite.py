@@ -103,7 +103,7 @@ class DynamicFilter:
 
 
 class Concatenate:
-    '''String concatenation aggregator for sqlite'''
+    """String concatenation aggregator for sqlite"""
 
     def __init__(self, sep=','):
         self.sep = sep
@@ -125,7 +125,7 @@ class Concatenate:
 
 
 class SortedConcatenate:
-    '''String concatenation aggregator for sqlite, sorted by supplied index'''
+    """String concatenation aggregator for sqlite, sorted by supplied index"""
     sep = ','
 
     def __init__(self):
@@ -155,7 +155,7 @@ class SortedConcatenateAmper(SortedConcatenate):
 
 
 class IdentifiersConcat:
-    '''String concatenation aggregator for the identifiers map'''
+    """String concatenation aggregator for the identifiers map"""
 
     def __init__(self):
         self.ans = []
@@ -173,7 +173,7 @@ class IdentifiersConcat:
 
 
 class AumSortedConcatenate:
-    '''String concatenation aggregator for the author sort map'''
+    """String concatenation aggregator for the author sort map"""
 
     def __init__(self):
         self.ans = {}
@@ -351,7 +351,7 @@ class DatabaseException(Exception):
 
 
 def proxy(fn):
-    ''' Decorator to call methods on the database connection in the proxy thread '''
+    """ Decorator to call methods on the database connection in the proxy thread """
 
     def run(self, *args, **kwargs):
         if self.closed:

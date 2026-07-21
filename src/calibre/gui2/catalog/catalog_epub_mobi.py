@@ -146,11 +146,11 @@ class PluginWidget(QWidget, Ui_Form):
             getattr(self, c_name).blockSignals(bool)
 
     def construct_tw_opts_object(self, c_name, opt_value, opts_dict):
-        '''
+        """
         Build an opts object from the UI settings to pass to the catalog builder
         Handles two types of rules sets, with and without ['prefix'] field
         Store processed opts object to opt_dict
-        '''
+        """
         rule_set = []
         for stored_rule in opt_value:
             rule = stored_rule.copy()
@@ -179,7 +179,7 @@ class PluginWidget(QWidget, Ui_Form):
         opts_dict[c_name[:-3]] = opt_value
 
     def exclude_genre_changed(self):
-        ''' Dynamically compute excluded genres.
+        """ Dynamically compute excluded genres.
 
         Run exclude_genre regex against selected genre_source_field to show excluded tags.
 
@@ -189,11 +189,11 @@ class PluginWidget(QWidget, Ui_Form):
 
         Output:
          self.exclude_genre_results (QLabel): updated to show tags to be excluded as genres
-        '''
+        """
         def _truncated_results(excluded_tags, limit=180):
-            '''
+            """
             Limit number of genres displayed to avoid dialog explosion
-            '''
+            """
             start = []
             end = []
             lower = 0
@@ -269,9 +269,9 @@ class PluginWidget(QWidget, Ui_Form):
         self.eligible_custom_fields = custom_fields
 
     def generate_descriptions_changed(self, enabled):
-        '''
+        """
         Toggle Description-related controls
-        '''
+        """
         self.header_note_source_field.setEnabled(enabled)
         self.include_hr.setEnabled(enabled)
         self.merge_after.setEnabled(enabled)
@@ -280,16 +280,16 @@ class PluginWidget(QWidget, Ui_Form):
         self.thumb_width.setEnabled(enabled)
 
     def generate_genres_changed(self, enabled):
-        '''
+        """
         Toggle Genres-related controls
-        '''
+        """
         self.genre_source_field.setEnabled(enabled)
 
     def genre_source_field_changed(self, new_index):
-        '''
+        """
         Process changes in the genre_source_field combo box
         Update Excluded genres preview
-        '''
+        """
         new_source = self.genre_source_field.currentText()
         self.genre_source_field_name = new_source
         if new_source != _('Tags'):
@@ -307,9 +307,9 @@ class PluginWidget(QWidget, Ui_Form):
         return current_format, current_title
 
     def header_note_source_field_changed(self, new_index):
-        '''
+        """
         Process changes in the header_note_source_field combo box
-        '''
+        """
         new_source = self.header_note_source_field.currentText()
         self.header_note_source_field_name = new_source
         if new_source:
@@ -317,7 +317,7 @@ class PluginWidget(QWidget, Ui_Form):
             self.header_note_source_field_name = header_note_source_spec['field']
 
     def initialize(self, name, db):
-        '''
+        """
         CheckBoxControls (c_type: check_box):
             ['cross_reference_authors',
              'generate_titles','generate_series','generate_genres',
@@ -337,7 +337,7 @@ class PluginWidget(QWidget, Ui_Form):
         TextEditControls (c_type: text_edit):
             ['exclude_genre_results']
 
-        '''
+        """
         self.name = name
         self.db = db
         self.all_genre_tags = []
@@ -443,9 +443,9 @@ class PluginWidget(QWidget, Ui_Form):
         self.blocking_all_signals = False
 
     def merge_source_field_changed(self, new_index):
-        '''
+        """
         Process changes in the merge_source_field combo box
-        '''
+        """
         new_source = self.merge_source_field.currentText()
         self.merge_source_field_name = new_source
         if new_source:
@@ -463,12 +463,12 @@ class PluginWidget(QWidget, Ui_Form):
             self.include_hr.setEnabled(False)
 
     def options(self):
-        '''
+        """
         Return, optionally save current options
         exclude_genre stores literally
         Section switches store as True/False
         others store as lists
-        '''
+        """
 
         opts_dict = {}
         prefix_rules_processed = False
@@ -633,9 +633,9 @@ class PluginWidget(QWidget, Ui_Form):
         self.preset_field.addItems(self.preset_field_values)
 
     def preset_change(self, idx):
-        '''
+        """
         Update catalog options from current preset
-        '''
+        """
         if idx <= 0:
             return
 
@@ -836,24 +836,24 @@ class PluginWidget(QWidget, Ui_Form):
                 parent.title.setText(title)
 
     def settings_changed(self, source):
-        '''
+        """
         When anything changes, clear Preset combobox
-        '''
+        """
         if self.DEBUG:
             print(f'settings_changed: {source}')
         self.preset_field.setCurrentIndex(0)
 
     def show_help(self):
-        '''
+        """
         Display help file
-        '''
+        """
         open_url(QUrl(localize_user_manual_link('https://manual.calibre-ebook.com/catalogs.html')))
 
 
 class CheckableTableWidgetItem(QTableWidgetItem):
-    '''
+    """
     Borrowed from kiwidude
-    '''
+    """
 
     def __init__(self, checked=False, is_tristate=False):
         QTableWidgetItem.__init__(self, '')
@@ -868,10 +868,10 @@ class CheckableTableWidgetItem(QTableWidgetItem):
             self.setCheckState(Qt.CheckState.Unchecked)
 
     def get_boolean_value(self):
-        '''
+        """
         Return a boolean value indicating whether checkbox is checked
         If this is a tristate checkbox, a partially checked value is returned as None
-        '''
+        """
         if self.checkState() == Qt.CheckState.PartiallyChecked:
             return None
         else:
@@ -909,9 +909,9 @@ class _ColumnDef(TypedDict):
 
 
 class GenericRulesTable(QTableWidget):
-    '''
+    """
     Generic methods for managing rows in a QTableWidget
-    '''
+    """
     DEBUG = False
     MAXIMUM_TABLE_HEIGHT = 113
     NAME_FIELD_WIDTH = 225

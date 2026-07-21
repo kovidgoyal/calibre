@@ -28,7 +28,7 @@ class Unpackable:
 
 
 class SimpleListTable(list):
-    'A table that contains a list of subtables'
+    "A table that contains a list of subtables"
 
     child_class: Callable[..., object] | None = None
 
@@ -53,7 +53,7 @@ class SimpleListTable(list):
 
 
 class ListTable(OrderedDict):
-    'A table that contains an ordered mapping of table tag to subtable'
+    "A table that contains an ordered mapping of table tag to subtable"
 
     child_class: Callable[..., object] | None = None
 
@@ -190,9 +190,9 @@ class Coverage:
                 self.ranges.append(CoverageRange(start, end, start_coverage_index))
 
     def coverage_indices(self, glyph_ids):
-        '''Return map of glyph_id -> coverage index. Map contains only those
+        """Return map of glyph_id -> coverage index. Map contains only those
         glyph_ids that are covered by this table and that are present in
-        glyph_ids.'''
+        glyph_ids."""
         ans = OrderedDict()
         for gid in glyph_ids:
             if self.format == 1:
@@ -228,8 +228,8 @@ class UnknownLookupSubTable:
         raise NotImplementedError()
 
     def all_substitutions(self, glyph_ids):
-        ''' Return a set of all glyph ids that could be substituted for any
-        subset of the specified glyph ids (which must be a set)'''
+        """ Return a set of all glyph ids that could be substituted for any
+        subset of the specified glyph ids (which must be a set)"""
         raise NotImplementedError()
 
     def read_sets(self, data, read_item=None, set_is_index=False):

@@ -428,7 +428,7 @@ class Lookup(QTabWidget):
         return panel
 
     def _activate_llm_panel(self):
-        ' Only load LLM code when actually requested by the user '
+        " Only load LLM code when actually requested by the user "
         if self.llm_panel is not None:
             return
         from calibre.live import start_worker

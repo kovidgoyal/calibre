@@ -12,10 +12,10 @@ from calibre.utils.wmf import create_bmp_from_dib, to_png
 
 
 class WMFHeader:
-    '''
+    """
     For header documentation, see
     http://www.skynet.ie/~caolan/publink/libwmf/libwmf/doc/ora-wmf.html
-    '''
+    """
 
     def __init__(self, data, log, verbose):
         self.log, self.verbose = log, verbose
@@ -210,10 +210,10 @@ class WMF:
 
 
 def wmf_unwrap(wmf_data, verbose=0):
-    '''
+    """
     Return the largest embedded raster image in the WMF.
     The returned data is in PNG format.
-    '''
+    """
     w = WMF(verbose=verbose)
     w(wmf_data)
     if not w.has_raster_image:

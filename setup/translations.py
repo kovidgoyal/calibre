@@ -29,7 +29,7 @@ from setup.parallel_build import batched_parallel_jobs
 
 
 def serialize_msgid(text):
-    '''Serialize a string in the format used by msgid in GNU POT files.'''
+    """Serialize a string in the format used by msgid in GNU POT files."""
     if not text:
         return 'msgid ""\n'
     # Escape backslashes and quotes

@@ -40,7 +40,7 @@ class PluginInstallationType(enum.IntEnum):
 
 
 class Plugin:  # {{{
-    '''
+    """
     A calibre plugin. Useful members include:
 
        * ``self.installation_type``: Stores how the plugin was installed.
@@ -61,7 +61,7 @@ class Plugin:  # {{{
         * :meth:`__enter__`
         * :meth:`load_resources`
 
-    '''
+    """
     #: List of platforms this plugin works on.
     #: For example: ``['windows', 'osx', 'linux']``
     supported_platforms = []
@@ -105,7 +105,7 @@ class Plugin:  # {{{
         self.site_customization = None
 
     def initialize(self):
-        '''
+        """
         Called once when calibre plugins are initialized.  Plugins are
         re-initialized every time a new plugin is added. Also note that if the
         plugin is run in a worker process, such as for adding books, then the
@@ -116,11 +116,11 @@ class Plugin:  # {{{
         available as ``self.plugin_path``.
 
         Note that ``self.site_customization`` is **not** available at this point.
-        '''
+        """
         pass
 
     def config_widget(self):
-        '''
+        """
         Implement this method and :meth:`save_settings` in your plugin to
         use a custom configuration dialog, rather then relying on the simple
         string based default customization.
@@ -134,24 +134,24 @@ class Plugin:  # {{{
         return a tuple of two strings (message, details), these will be
         displayed as a warning dialog to the user and the process will be
         aborted.
-        '''
+        """
         raise NotImplementedError()
 
     def save_settings(self, config_widget):
-        '''
+        """
         Save the settings specified by the user with config_widget.
 
         :param config_widget: The widget returned by :meth:`config_widget`.
 
-        '''
+        """
         raise NotImplementedError()
 
     def do_user_config(self, parent=None):
-        '''
+        """
         This method shows a configuration dialog for this plugin. It returns
         True if the user clicks OK, False otherwise. The changes are
         automatically applied.
-        '''
+        """
         from qt.core import QDialog, QDialogButtonBox, QLabel, QLineEdit, QScrollArea, QSize, Qt, QVBoxLayout
 
         from calibre.gui2 import gprefs, qapplication_or_fail
@@ -238,7 +238,7 @@ class Plugin:  # {{{
         return config_dialog.result()
 
     def load_resources(self, names):
-        '''
+        """
         If this plugin comes in a ZIP file (user added plugin), this method
         will allow you to load resources from the ZIP file.
 
@@ -254,7 +254,7 @@ class Plugin:  # {{{
                  that were not found in the ZIP file will not be present in the
                  dictionary.
 
-        '''
+        """
         if self.plugin_path is None:
             raise ValueError('This plugin was not loaded from a ZIP file')
         ans = {}
@@ -265,7 +265,7 @@ class Plugin:  # {{{
         return ans
 
     def customization_help(self, gui=False):
-        '''
+        """
         Return a string giving help on how to customize this plugin.
         By default raise a :class:`NotImplementedError`, which indicates that
         the plugin does not require customization.
@@ -280,18 +280,18 @@ class Plugin:  # {{{
 
         :param gui: If True return HTML help, otherwise return plain text help.
 
-        '''
+        """
         raise NotImplementedError()
 
     def temporary_file(self, suffix):
-        '''
+        """
         Return a file-like object that is a temporary file on the file system.
         This file will remain available even after being closed and will only
         be removed on interpreter shutdown. Use the ``name`` member of the
         returned object to access the full path to the created temporary file.
 
         :param suffix: The suffix that the temporary file will have.
-        '''
+        """
         return PersistentTemporaryFile(suffix)
 
     def is_customizable(self):
@@ -302,12 +302,12 @@ class Plugin:  # {{{
             return False
 
     def __enter__(self, *args):
-        '''
+        """
         Add this plugin to the python path so that it's contents become directly importable.
         Useful when bundling large python libraries into the plugin. Use it like this::
             with plugin:
                 import something
-        '''
+        """
         if self.plugin_path is not None:
             from importlib.machinery import EXTENSION_SUFFIXES
 
@@ -352,9 +352,9 @@ class Plugin:  # {{{
 
 
 class FileTypePlugin(Plugin):  # {{{
-    '''
+    """
     A plugin that is associated with a particular set of file types.
-    '''
+    """
 
     #: Set of file types for which this plugin should be run.
     #: Use '*' for all file types.
@@ -389,7 +389,7 @@ class FileTypePlugin(Plugin):  # {{{
     type = _('File type')
 
     def run(self, path_to_ebook):
-        '''
+        """
         Run the plugin. Must be implemented in subclasses.
         It should perform whatever modifications are required
         on the e-book and return the absolute path to the
@@ -406,12 +406,12 @@ class FileTypePlugin(Plugin):  # {{{
         :param path_to_ebook: Absolute path to the e-book.
 
         :return: Absolute path to the modified e-book.
-        '''
+        """
         # Default implementation does nothing
         return path_to_ebook
 
     def postimport(self, book_id, book_format, db):
-        '''
+        """
         Called post import, i.e., after the book file has been added to the database. Note that
         this is different from :meth:`postadd` which is called when the book record is created for
         the first time. This method is called whenever a new file is added to a book record. It is
@@ -420,11 +420,11 @@ class FileTypePlugin(Plugin):  # {{{
         :param book_id: Database id of the added book.
         :param book_format: The file type of the book that was added.
         :param db: Library database.
-        '''
+        """
         pass  # Default implementation does nothing
 
     def postconvert(self, book_id, book_format, db):
-        '''
+        """
         Called post conversion, i.e., after the conversion output book file has been added to the database.
         Note that it is run after a conversion only, not after a book is added. It is useful for modifying
         the book record based on the contents of the newly added file.
@@ -432,11 +432,11 @@ class FileTypePlugin(Plugin):  # {{{
         :param book_id: Database id of the added book.
         :param book_format: The file type of the book that was added.
         :param db: Library database.
-        '''
+        """
         pass  # Default implementation does nothing
 
     def postdelete(self, book_id, book_format, db):
-        '''
+        """
         Called post deletion, i.e., after the book file has been deleted from the database. Note
         that it is not run when a book record is deleted, only when one or more formats from the
         book are deleted. It is useful for modifying the book record based on the format of the
@@ -445,11 +445,11 @@ class FileTypePlugin(Plugin):  # {{{
         :param book_id: Database id of the added book.
         :param book_format: The file type of the book that was added.
         :param db: Library database.
-        '''
+        """
         pass  # Default implementation does nothing
 
     def postadd(self, book_id, fmt_map, db):
-        '''
+        """
         Called post add, i.e. after a book has been added to the db. Note that
         this is different from :meth:`postimport`, which is called after a single book file
         has been added to a book. postadd() is called only when an entire book record
@@ -463,16 +463,16 @@ class FileTypePlugin(Plugin):  # {{{
             existing file, as sometimes files are added as streams. In which case
             it might be a dummy value or a non-existent path.
         :param db: Library database
-        '''
+        """
         pass  # Default implementation does nothing
 
 # }}}
 
 
 class MetadataReaderPlugin(Plugin):  # {{{
-    '''
+    """
     A plugin that implements reading metadata from a set of file types.
-    '''
+    """
     #: Set of file types for which this plugin should be run.
     #: For example: ``set(['lit', 'mobi', 'prc'])``
     file_types     = set()
@@ -488,7 +488,7 @@ class MetadataReaderPlugin(Plugin):  # {{{
         self.quick = False
 
     def get_metadata(self, stream, type):
-        '''
+        """
         Return metadata for the file represented by stream (a file like object
         that supports reading). Raise an exception when there is an error
         with the input data.
@@ -496,16 +496,16 @@ class MetadataReaderPlugin(Plugin):  # {{{
         :param type: The type of file. Guaranteed to be one of the entries
             in :attr:`file_types`.
         :return: A :class:`calibre.ebooks.metadata.book.Metadata` object
-        '''
+        """
         return
 
 # }}}
 
 
 class MetadataWriterPlugin(Plugin):  # {{{
-    '''
+    """
     A plugin that implements reading metadata from a set of file types.
-    '''
+    """
     #: Set of file types for which this plugin should be run.
     #: For example: ``set(['lit', 'mobi', 'prc'])``
     file_types     = set()
@@ -522,7 +522,7 @@ class MetadataWriterPlugin(Plugin):  # {{{
         self.force_identifiers = False
 
     def set_metadata(self, stream, mi, type):
-        '''
+        """
         Set metadata for the file represented by stream (a file like object
         that supports reading). Raise an exception when there is an error
         with the input data.
@@ -530,16 +530,16 @@ class MetadataWriterPlugin(Plugin):  # {{{
         :param type: The type of file. Guaranteed to be one of the entries
             in :attr:`file_types`.
         :param mi: A :class:`calibre.ebooks.metadata.book.Metadata` object
-        '''
+        """
         pass
 
 # }}}
 
 
 class CatalogPlugin(Plugin):  # {{{
-    '''
+    """
     A plugin that implements a catalog generator.
-    '''
+    """
 
     resources_path = None
 
@@ -560,9 +560,9 @@ class CatalogPlugin(Plugin):  # {{{
     cli_options = []
 
     def _field_sorter(self, key):
-        '''
+        """
         Custom fields sort after standard fields
-        '''
+        """
         if key.startswith('#'):
             return f'~{key[1:]}'
         else:
@@ -613,12 +613,12 @@ class CatalogPlugin(Plugin):  # {{{
         return fields
 
     def initialize(self):
-        '''
+        """
         If plugin is not a built-in, copy the plugin's .ui and .py files from
         the ZIP file to $TMPDIR.
         Tab will be dynamically generated and added to the Catalog Options dialog in
         calibre.gui2.dialogs.catalog.py:Catalog
-        '''
+        """
         from calibre.customize.builtins import plugins as builtin_plugins
         from calibre.customize.ui import config
         from calibre.ptempfile import PersistentTemporaryDirectory
@@ -639,7 +639,7 @@ class CatalogPlugin(Plugin):  # {{{
             resources.close()
 
     def run(self, path_to_output, opts, db, ids, notification=None):
-        '''
+        """
         Run the plugin. Must be implemented in subclasses.
         It should generate the catalog in the format specified
         in file_types, returning the absolute path to the
@@ -652,7 +652,7 @@ class CatalogPlugin(Plugin):  # {{{
         :param path_to_output: Absolute path to the generated catalog file.
         :param opts: A dictionary of keyword arguments
         :param db: A LibraryDatabase2 object
-        '''
+        """
         # Default implementation does nothing
         raise NotImplementedError('CatalogPlugin.generate_catalog() default '
                 'method, should be overridden in subclass')
@@ -673,9 +673,9 @@ class InterfaceActionBase(Plugin):  # {{{
         self.actual_plugin_ = None
 
     def load_actual_plugin(self, gui):
-        '''
+        """
         This method must return the actual interface action plugin object.
-        '''
+        """
         ac = self.actual_plugin_
         if ac is None:
             assert self.actual_plugin is not None
@@ -690,12 +690,12 @@ class InterfaceActionBase(Plugin):  # {{{
 
 class PreferencesPlugin(Plugin):  # {{{
 
-    '''
+    """
     A plugin representing a widget displayed in the Preferences dialog.
 
     This plugin has only one important method :meth:`create_widget`. The
     various fields of the plugin control how it is categorized in the UI.
-    '''
+    """
 
     supported_platforms = ['windows', 'osx', 'linux']
     author         = 'Kovid Goyal'
@@ -729,14 +729,14 @@ class PreferencesPlugin(Plugin):  # {{{
     description = None
 
     def create_widget(self, parent=None):
-        '''
+        """
         Create and return the actual Qt widget used for setting this group of
         preferences. The widget must implement the
         :class:`calibre.gui2.preferences.ConfigWidgetInterface`.
 
         The default implementation uses :attr:`config_widget` to instantiate
         the widget.
-        '''
+        """
         assert self.config_widget is not None
         base, _, wc = self.config_widget.partition(':')
         if not wc:
@@ -773,9 +773,9 @@ class StoreBase(Plugin):  # {{{
     affiliate = False
 
     def load_actual_plugin(self, gui):
-        '''
+        """
         This method must return the actual interface action plugin object.
-        '''
+        """
         assert self.actual_plugin is not None
         mod, cls = self.actual_plugin.split(':')
         self.actual_plugin_object  = getattr(importlib.import_module(mod), cls)(gui, self.name)
@@ -808,32 +808,32 @@ class EditBookToolPlugin(Plugin):  # {{{
 
 
 class LibraryClosedPlugin(Plugin):  # {{{
-    '''
+    """
     LibraryClosedPlugins are run when a library is closed, either at shutdown,
     when the library is changed, or when a library is used in some other way.
     At the moment these plugins won't be called by the CLI functions.
-    '''
+    """
     type = _('Library closed')
 
     # minimum version 2.54 because that is when support was added
     minimum_calibre_version = (2, 54, 0)
 
     def run(self, db):
-        '''
+        """
         The db will be a reference to the new_api (db.cache.py).
 
         The plugin must run to completion. It must not use the GUI, threads, or
         any signals.
-        '''
+        """
         raise NotImplementedError('LibraryClosedPlugin '
                 'run method must be overridden in subclass')
 # }}}
 
 
 class AIProviderPlugin(Plugin):  # {{{
-    '''
+    """
     AIProvider plugins abstract AI services that can be used by the rest of calibre.
-    '''
+    """
     type = _('AI provider')
 
     # minimum version when support for this plugin type was added
@@ -870,11 +870,11 @@ class AIProviderPlugin(Plugin):  # {{{
         return ''
 
     def config_widget(self):
-        '''
+        """
         The config widget for an AI plugin must support validate() and additionally the property
         is_ready_for_use which must be true iff the plugin is ready to be used,
         i.e. it does not require configuration such as an API key or the API key is already set.
-        '''
+        """
         if self.builtin_live_module_name:
             return self.builtin_live_module.config_widget()
         raise NotImplementedError()
@@ -885,17 +885,17 @@ class AIProviderPlugin(Plugin):  # {{{
         raise NotImplementedError()
 
     def text_chat(self, messages: Iterable[ChatMessage], use_model: str = '') -> Iterator[ChatResponse]:
-        '''
+        """
         Send the specified chat messages to the AI and return an iterable over its streaming responses.
         The :code:`use_model` parameter will cause the plugin to use a specific model, useful when having
         a conversation, to ensure the same model responds for every subsequent query.
-        '''
+        """
         if not self.builtin_live_module_name:
             raise NotImplementedError()
         yield from self.builtin_live_module.text_chat(messages, use_model)
 
     def human_readable_model_name(self, model_id: str) -> str:
-        ' Return a human readable model name for the specified model id'
+        " Return a human readable model name for the specified model id"
         if not self.builtin_live_module_name:
             return model_id
         return self.builtin_live_module.human_readable_model_name(model_id)
@@ -910,13 +910,13 @@ class ContentServerPlugin(Plugin):  # {{{
     minimum_calibre_version = (9, 12, 0)
 
     def content_server_endpoints(self):
-        '''
+        """
         Return endpoint functions decorated with @endpoint().
         These are registered with the content server's router at startup.
 
         The default returns an empty tuple. Override to provide routes.
         Endpoints with auth_required=False will be publicly accessible.
         Endpoints with a route matching an existing route will not be added.
-        '''
+        """
         return ()
 # }}}

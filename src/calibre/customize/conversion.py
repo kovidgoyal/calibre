@@ -1,6 +1,6 @@
-'''
+"""
 Defines the plugin system for conversions.
-'''
+"""
 import numbers
 import os
 import re
@@ -12,9 +12,9 @@ from calibre.utils.localization import _
 
 
 class ConversionOption:
-    '''
+    """
     Class representing conversion options
-    '''
+    """
 
     def __init__(self, name='', help=None, long_switch=None,
                  short_switch=None, choices=None):
@@ -30,9 +30,9 @@ class ConversionOption:
         self.validate_parameters()
 
     def validate_parameters(self):
-        '''
+        """
         Validate the parameters passed to :meth:`__init__`.
-        '''
+        """
         if re.match(r'[a-zA-Z_]([a-zA-Z0-9_])*', self.name) is None:
             raise ValueError(self.name + ' is not a valid Python identifier')
         if not self.help:
@@ -56,10 +56,10 @@ class OptionRecommendation:
     HIGH = 3
 
     def __init__(self, recommended_value=None, level=LOW, **kwargs):
-        '''
+        """
         An option recommendation. That is, an option as well as its recommended
         value and the level of the recommendation.
-        '''
+        """
         self.level = level
         self.recommended_value = recommended_value
         self.option = kwargs.pop('option', None)
@@ -126,12 +126,12 @@ def gui_configuration_widget(name, parent, get_option_by_name,
 
 
 class InputFormatPlugin(Plugin):
-    '''
+    """
     InputFormatPlugins are responsible for converting a document into
     HTML+OPF+CSS+etc.
     The results of the conversion *must* be encoded in UTF-8.
     The main action happens in :meth:`convert`.
-    '''
+    """
 
     type = _('Conversion input')
     supported_platforms = ['windows', 'osx', 'linux']
@@ -188,15 +188,15 @@ class InputFormatPlugin(Plugin):
         self.report_progress = DummyReporter()
 
     def get_images(self):
-        '''
+        """
         Return a list of absolute paths to the images, if this input plugin
         represents an image collection. The list of images is in the same order
         as the spine and the TOC.
-        '''
+        """
         raise NotImplementedError()
 
     def convert(self, stream, options, file_ext, log, accelerators):
-        '''
+        """
         This method must be implemented in sub-classes. It must return
         the path to the created OPF file or an :class:`OEBBook` instance.
         All output should be contained in the current folder.
@@ -222,7 +222,7 @@ class InputFormatPlugin(Plugin):
                              plugin can get easily that would speed up the
                              subsequent stages of the conversion.
 
-        '''
+        """
         raise NotImplementedError()
 
     def __call__(self, stream, options, file_ext, log,
@@ -245,40 +245,40 @@ class InputFormatPlugin(Plugin):
         return ret
 
     def postprocess_book(self, oeb, opts, log):
-        '''
+        """
         Called to allow the input plugin to perform postprocessing after
         the book has been parsed.
-        '''
+        """
         pass
 
     def specialize(self, oeb, opts, log, output_fmt):
-        '''
+        """
         Called to allow the input plugin to specialize the parsed book
         for a particular output format. Called after postprocess_book
         and before any transforms are performed on the parsed book.
-        '''
+        """
         pass
 
     def gui_configuration_widget(self, parent, get_option_by_name,
             get_option_help, db, book_id=None):
-        '''
+        """
         Called to create the widget used for configuring this plugin in the
         calibre GUI. The widget must be an instance of the PluginWidget class.
         See the builtin input plugins for examples.
-        '''
+        """
         name = self.name.lower().replace(' ', '_')
         return gui_configuration_widget(name, parent, get_option_by_name,
                 get_option_help, db, book_id, for_output=False)
 
 
 class OutputFormatPlugin(Plugin):
-    '''
+    """
     OutputFormatPlugins are responsible for converting an OEB document
     (OPF+HTML) into an output e-book.
 
     The OEB document can be assumed to be encoded in UTF-8.
     The main action happens in :meth:`convert`.
-    '''
+    """
 
     type = _('Conversion output')
     supported_platforms = ['windows', 'osx', 'linux']
@@ -317,7 +317,7 @@ class OutputFormatPlugin(Plugin):
         self.report_progress = DummyReporter()
 
     def convert(self, oeb_book, output, input_plugin, opts, log):
-        '''
+        """
         Render the contents of `oeb_book` (which is an instance of
         :class:`calibre.ebooks.oeb.OEBBook`) to the file specified by output.
 
@@ -331,7 +331,7 @@ class OutputFormatPlugin(Plugin):
                      corresponding to the OptionRecommendations of this plugin.
         :param log: The logger. Print debug/info messages etc. using this.
 
-        '''
+        """
         self.oeb = oeb_book
         raise NotImplementedError()
 
@@ -341,14 +341,14 @@ class OutputFormatPlugin(Plugin):
             str(self.oeb.metadata.publication_type[0]).startswith('periodical:')
 
     def specialize_options(self, log, opts, input_fmt):
-        '''
+        """
         Can be used to change the values of conversion options, as used by the
         conversion pipeline.
-        '''
+        """
         pass
 
     def specialize_css_for_output(self, log, opts, item, stylizer):
-        '''
+        """
         Can be used to make changes to the CSS during the CSS flattening
         process.
 
@@ -357,16 +357,16 @@ class OutputFormatPlugin(Plugin):
                          item. You can get the style for any element by
                          stylizer.style(element).
 
-        '''
+        """
         pass
 
     def gui_configuration_widget(self, parent, get_option_by_name,
             get_option_help, db, book_id=None):
-        '''
+        """
         Called to create the widget used for configuring this plugin in the
         calibre GUI. The widget must be an instance of the PluginWidget class.
         See the builtin output plugins for examples.
-        '''
+        """
         name = self.name.lower().replace(' ', '_')
         return gui_configuration_widget(name, parent, get_option_by_name,
                 get_option_help, db, book_id, for_output=True)

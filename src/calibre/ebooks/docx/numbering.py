@@ -186,7 +186,7 @@ class Numbering:
         self.pic_map = {}
 
     def __call__(self, root, styles, rid_map):
-        ' Read all numbering style definitions '
+        " Read all numbering style definitions "
         XPath, get = self.namespace.XPath, self.namespace.get
         self.rid_map = rid_map
         for npb in XPath('./w:numPicBullet[@w:numPicBulletId]')(root):

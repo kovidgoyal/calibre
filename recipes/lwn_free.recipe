@@ -21,7 +21,7 @@ class LWNFree(BasicNewsRecipe):
     ]
 
     def parse_feeds(self):
-        '''Remove paid articles and articles older than a week.'''
+        """Remove paid articles and articles older than a week."""
 
         prev_feeds = super().parse_feeds()
 

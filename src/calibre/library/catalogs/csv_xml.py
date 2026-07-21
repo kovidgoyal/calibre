@@ -16,7 +16,7 @@ from calibre.utils.localization import _
 
 
 class CSV_XML(CatalogPlugin):
-    'CSV/XML catalog generator'
+    "CSV/XML catalog generator"
 
     Option = namedtuple('Option', 'option, default, dest, action, help')
 

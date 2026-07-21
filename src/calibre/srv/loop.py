@@ -47,7 +47,7 @@ IPPROTO_IPV6 = getattr(socket, 'IPPROTO_IPV6', 41)
 
 class ReadBuffer:  # {{{
 
-    ' A ring buffer used to speed up the readline() implementation by minimizing recv() calls '
+    " A ring buffer used to speed up the readline() implementation by minimizing recv() calls "
 
     __slots__ = ('ba', 'buf', 'full_state', 'read_pos', 'write_pos')
 
@@ -558,7 +558,7 @@ class ServerLoop:
             self.shutdown()
 
     def serve_forever(self):
-        ''' Listen for incoming connections. '''
+        """ Listen for incoming connections. """
         self.initialize_socket()
         self.serve()
 
@@ -580,7 +580,7 @@ class ServerLoop:
         self.socket.setblocking(False)
 
     def bind(self, family, atype, proto=0):
-        '''Create (or recreate) the actual socket object.'''
+        """Create (or recreate) the actual socket object."""
         self.socket = socket.socket(family, atype, proto)
         set_socket_inherit(self.socket, False)
         self.setup_socket()

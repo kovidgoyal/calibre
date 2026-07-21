@@ -69,7 +69,7 @@ def _get_series_values(val):
 
 
 def get_data_as_dict(self, prefix=None, authors_as_string=False, ids=None, convert_to_local_tz=True):
-    '''
+    """
     Return all metadata stored in the database as a dict. Includes paths to
     the cover and each format.
 
@@ -77,7 +77,7 @@ def get_data_as_dict(self, prefix=None, authors_as_string=False, ids=None, conve
     to the library folder.
     :param ids: Set of ids to return the data for. If None return data for
     all entries in database.
-    '''
+    """
     import os
 
     from calibre.ebooks.metadata import authors_to_string

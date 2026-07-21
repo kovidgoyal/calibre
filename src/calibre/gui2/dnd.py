@@ -260,13 +260,13 @@ def dnd_get_local_image_and_pixmap(md, image_exts=None):
 
 
 def dnd_get_image(md, image_exts=None):
-    '''
+    """
     Get the image in the QMimeData object md.
 
     :return: None, None if no image is found
              QPixmap, None if an image is found, the pixmap is guaranteed not null
              url, filename if a URL that points to an image is found
-    '''
+    """
     if image_exts is None:
         image_exts = image_extensions()
     pmap, data = dnd_get_local_image_and_pixmap(md, image_exts)
@@ -287,14 +287,14 @@ def dnd_get_image(md, image_exts=None):
 
 
 def dnd_get_files(md, exts, allow_all_extensions=False, filter_exts=()):
-    '''
+    """
     Get the file in the QMimeData object md with an extension that is one of
     the extensions in exts.
 
     :return: None, None if no file is found
              [paths], None if a local file is found
              [urls], [filenames] if URLs that point to a files are found
-    '''
+    """
     # Look for a URL pointing to a file
     urls = urls_from_md(md)
     # First look for a local file

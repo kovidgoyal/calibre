@@ -432,7 +432,7 @@ if iswindows:
 
 
 def get_version():
-    '''Return version string for display to user '''
+    """Return version string for display to user """
     if git_version is not None:
         v = git_version
     else:
@@ -454,17 +454,17 @@ def get_appname_for_display():
 
 
 def get_portable_base():
-    'Return path to the directory that contains calibre-portable.exe or None'
+    "Return path to the directory that contains calibre-portable.exe or None"
     if isportable and (cpb := os.getenv('CALIBRE_PORTABLE_BUILD')):
         return os.path.dirname(os.path.dirname(cpb))
 
 
 def get_windows_username():
-    '''
+    """
     Return the user name of the currently logged in user as a unicode string.
     Note that usernames on windows are case insensitive, the case of the value
     returned depends on what the user typed into the login box at login time.
-    '''
+    """
     return winutil.username()
 
 
@@ -519,8 +519,8 @@ def bundled_binaries_dir() -> str:
 
 @contextmanager
 def sanitize_env_vars():
-    '''Unset various environment variables that calibre uses. This
-    is needed to prevent library conflicts when launching external utilities.'''
+    """Unset various environment variables that calibre uses. This
+    is needed to prevent library conflicts when launching external utilities."""
 
     if islinux and isfrozen:
         env_vars = {

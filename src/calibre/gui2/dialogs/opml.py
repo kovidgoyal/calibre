@@ -19,8 +19,8 @@ Group = namedtuple('Group', 'title feeds')
 
 
 def uniq(vals, kmap=lambda x:x):
-    ''' Remove all duplicates from vals, while preserving order. kmap must be a
-    callable that returns a hashable value for every item in vals '''
+    """ Remove all duplicates from vals, while preserving order. kmap must be a
+    callable that returns a hashable value for every item in vals """
     vals = vals or ()
     lvals = (kmap(x) for x in vals)
     seen = set()

@@ -76,10 +76,10 @@ class EMF:
 
 
 def emf_unwrap(raw, verbose=0):
-    '''
+    """
     Return the largest embedded raster image in the EMF.
     The returned data is in PNG format.
-    '''
+    """
     w = EMF(raw, verbose=verbose)
     if not w.has_raster_image:
         raise ValueError('No raster image found in the EMF')

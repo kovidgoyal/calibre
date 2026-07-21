@@ -13,7 +13,7 @@ from calibre.ebooks import BOOK_EXTENSIONS
 
 def find_folders_under(root, db, add_root=True,  # {{{
         follow_links=False, cancel_callback=lambda: False):
-    '''
+    """
     Find all folders under the specified root path, ignoring any folders under
     the library path of db
 
@@ -22,7 +22,7 @@ def find_folders_under(root, db, add_root=True,  # {{{
 
     cancel_callback must be a no argument callable that returns True to cancel
     the search
-    '''
+    """
     lp = db.library_path
     if lp:
         lp = os.path.abspath(lp)

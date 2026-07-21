@@ -164,7 +164,7 @@ allow-dict-calls-with-keyword-arguments = true
 
 [tool.ruff.lint.flake8-quotes]
 avoid-escape = true
-docstring-quotes = 'single'
+docstring-quotes = 'double'
 inline-quotes = 'single'
 multiline-quotes = 'single'
 

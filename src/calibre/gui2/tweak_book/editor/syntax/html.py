@@ -182,7 +182,7 @@ def add_attr_data(user_data, data_type, data, offset):
 
 
 def css(state, text, i, formats, user_data):
-    ' Inside a <style> tag '
+    " Inside a <style> tag "
     pat = cdata_close_pats['style']
     m = pat.search(text, i)
     if m is None:
@@ -203,7 +203,7 @@ def css(state, text, i, formats, user_data):
 
 
 def cdata(state, text, i, formats, user_data):
-    'CDATA inside tags like <title> or <style>'
+    "CDATA inside tags like <title> or <style>"
     name = state.tags[-1].name
     pat = cdata_close_pats[name]
     m = pat.search(text, i)
@@ -255,7 +255,7 @@ def process_text(state, text, nbsp_format, spell_format, user_data):
 
 
 def normal(state, text, i, formats, user_data):
-    ' The normal state in between tags '
+    " The normal state in between tags "
     ch = text[i]
     if ch == '<':
         if text[i:i+4] == '<!--':
@@ -315,7 +315,7 @@ def normal(state, text, i, formats, user_data):
 
 
 def opening_tag(cdata_tags, state, text, i, formats, user_data):
-    'An opening tag, like <a>'
+    "An opening tag, like <a>"
     ch = text[i]
     if ch in space_chars:
         return [(1, None)]
@@ -346,7 +346,7 @@ def opening_tag(cdata_tags, state, text, i, formats, user_data):
 
 
 def attribute_name(state, text, i, formats, user_data):
-    ' After attribute name '
+    " After attribute name "
     ch = text[i]
     if ch in space_chars:
         return [(1, None)]
@@ -360,7 +360,7 @@ def attribute_name(state, text, i, formats, user_data):
 
 
 def attribute_value(state, text, i, formats, user_data):
-    ' After attribute = '
+    " After attribute = "
     ch = text[i]
     if ch in space_chars:
         return [(1, None)]
@@ -376,7 +376,7 @@ def attribute_value(state, text, i, formats, user_data):
 
 
 def quoted_val(state, text, i, formats, user_data):
-    ' A quoted attribute value '
+    " A quoted attribute value "
     quote = '"' if state.parse is DQ_VAL else "'"
     add_attr_data(user_data, ATTR_VALUE, ATTR_START, i)
     pos = text.find(quote, i)
@@ -405,7 +405,7 @@ def quoted_val(state, text, i, formats, user_data):
 
 
 def closing_tag(state, text, i, formats, user_data):
-    ' A closing tag like </a> '
+    " A closing tag like </a> "
     ch = text[i]
     if ch in space_chars:
         return [(1, None)]
@@ -422,7 +422,7 @@ def closing_tag(state, text, i, formats, user_data):
 
 
 def in_comment(state, text, i, formats, user_data):
-    ' Comment, processing instruction or doctype '
+    " Comment, processing instruction or doctype "
     end = {IN_COMMENT:'-->', IN_PI:'?>'}.get(state.parse, '>')
     pos = text.find(end, i)
     fmt = formats['comment' if state.parse is IN_COMMENT else 'preproc']

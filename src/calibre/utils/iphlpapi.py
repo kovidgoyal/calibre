@@ -333,7 +333,7 @@ Adapter = namedtuple('Adapter', 'name if_index if_index6 friendly_name status tr
 
 
 def adapters():
-    ''' A list of adapters on this machine '''
+    """ A list of adapters on this machine """
     ans = []
     smap = {1:'up', 2:'down', 3:'testing', 4:'unknown', 5:'dormant', 6:'not-present', 7:'lower-layer-down'}
     with _get_adapters() as p_adapters_list:
@@ -359,7 +359,7 @@ Route = namedtuple('Route', 'destination gateway netmask interface metric flags'
 
 
 def routes():
-    ''' A list of routes on this machine '''
+    """ A list of routes on this machine """
     ans = []
     adapter_map = {a.if_index:a.name for a in adapters()}
     with _get_forward_table() as p_forward_table:

@@ -60,11 +60,11 @@ def node_from_path(root, path):
 
 
 def tostring(raw, **kwargs):
-    ''' lxml *sometimes* represents non-ascii characters as hex entities in
+    """ lxml *sometimes* represents non-ascii characters as hex entities in
     attribute values. I can't figure out exactly what circumstances cause it.
     It seems to happen when serializing a part of a larger tree. Since we need
     serialization to be the same when serializing full and partial trees, we
-    manually replace all hex entities with their unicode codepoints. '''
+    manually replace all hex entities with their unicode codepoints. """
 
     xml_declaration = kwargs.pop('xml_declaration', False)
     encoding = kwargs.pop('encoding', 'UTF-8')
@@ -360,8 +360,8 @@ class Chunker:
                 num += 1
 
     def set_internal_links(self, text, rebuilt_text):
-        ''' Update the internal link placeholders to point to the correct
-        location, based on the chunk table.'''
+        """ Update the internal link placeholders to point to the correct
+        location, based on the chunk table."""
         # A kindle:pos:fid:off link contains two base 32 numbers of the form
         # XXXX:YYYYYYYYYY
         # The first number is an index into the chunk table and the second is

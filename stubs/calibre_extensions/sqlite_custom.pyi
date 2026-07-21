@@ -1,3 +1,3 @@
 def init_funcs() -> None:
-    'Initialize module.'
+    "Initialize module."
     pass

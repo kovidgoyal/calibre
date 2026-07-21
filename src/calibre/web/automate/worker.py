@@ -137,7 +137,7 @@ async def start_server(
     random_suffix: str = '',
     num_attempts: int = 10,
 ) -> tuple[str, Server]:
-    '''Tries to start the server, retrying on name collisions.'''
+    """Tries to start the server, retrying on name collisions."""
     loop = asyncio.get_running_loop()
     protocol_factory = partial(SingleObjectProtocol, handle_client)
     for attempt in range(num_attempts):
@@ -238,13 +238,13 @@ def main(*a, **kw) -> None:
 def start_worker(
     handler: str = '', delayed_setup: str = '', finalizer: str = '', input_data: Any = None
 ) -> tuple[str, Callable[[], None]]:
-    '''
+    """
     Run the specified handler, delayed_setup and finalizer functions in a worker process, passing input_data (if not None)
     to each function as its first parameter.
 
     Returns: path the worker is listening on for connections and a function to gracefully kill the worker. The worker
     will anyway gracefully close when its parent process closes. The function is mainly useful for testing.
-    '''
+    """
     from calibre.utils.ipc.simple_worker import start_pipe_worker
 
     def parse(x: str) -> tuple[str, str]:
@@ -299,7 +299,7 @@ class Response(NamedTuple):
 
 
 def make_request(worker_path: str, data: Any = None) -> Response:
-    ' Make a request and get a response from the worker '
+    " Make a request and get a response from the worker "
     data = msgpack_dumps(data)
     datalen = struct.pack('!I', len(data))
     if iswindows:

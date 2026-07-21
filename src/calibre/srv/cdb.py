@@ -68,7 +68,7 @@ def cdb_run(ctx, rd, which, version):
 @endpoint('/cdb/add-book/{job_id}/{add_duplicates}/{filename}/{library_id=None}',
           needs_db_write=True, postprocess=json, methods=receive_data_methods, cache_control='no-cache')
 def cdb_add_book(ctx, rd, job_id, add_duplicates, filename, library_id):
-    '''
+    """
     Add a file as a new book. The file contents must be in the body of the request.
 
     The response will also have the title/authors/languages read from the
@@ -78,7 +78,7 @@ def cdb_add_book(ctx, rd, job_id, add_duplicates, filename, library_id):
     `duplicates` field specifying the title and authors for all duplicate
     matches. It will also return the value of `job_id` as the `id` field and
     `filename` as the `filename` field.
-    '''
+    """
     db = get_db(ctx, rd, library_id)
     if ctx.restriction_for(rd, db):
         raise HTTPForbidden('Cannot use the add book interface with a user who has per library restrictions')

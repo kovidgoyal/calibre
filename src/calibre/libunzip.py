@@ -11,7 +11,7 @@ from calibre.utils.icu import numeric_sort_key
 
 
 def update(pathtozip, patterns, filepaths, names, compression=zipfile.ZIP_DEFLATED, verbose=True):
-    '''
+    """
     Update files in the zip file at `pathtozip` matching the given
     `patterns` with the given `filepaths`. If more than
     one file matches, all of the files are replaced.
@@ -24,7 +24,7 @@ def update(pathtozip, patterns, filepaths, names, compression=zipfile.ZIP_DEFLAT
                         file in the archive is used.
     :param compression: The compression to use when replacing files. Can be
                         either `zipfile.ZIP_DEFLATED` or `zipfile.ZIP_STORED`.
-    '''
+    """
     assert len(patterns) == len(filepaths) == len(names)
     z = zipfile.ZipFile(pathtozip, mode='a')
     for name in z.namelist():
@@ -42,9 +42,9 @@ def update(pathtozip, patterns, filepaths, names, compression=zipfile.ZIP_DEFLAT
 
 
 def extract(filename, dir):
-    '''
+    """
     Extract archive C{filename} into directory C{dir}
-    '''
+    """
     zf = zipfile.ZipFile(filename)
     zf.extractall(dir)
 

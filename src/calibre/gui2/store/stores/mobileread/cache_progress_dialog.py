@@ -39,10 +39,10 @@ class CacheProgressDialog(QDialog, Ui_Dialog):
         QDialog.reject(self)
 
     def update_progress(self):
-        '''
+        """
         completed is an int from 0 to total representing the number
         records that have bee completed.
-        '''
+        """
         self.set_progress(self.completed + 1)
 
     def set_message(self, msg):
@@ -52,10 +52,10 @@ class CacheProgressDialog(QDialog, Ui_Dialog):
         self.details.setText(msg)
 
     def set_progress(self, completed):
-        '''
+        """
         completed is an int from 0 to total representing the number
         records that have bee completed.
-        '''
+        """
         self.completed = completed
         self.progress.setValue(self.completed)
 

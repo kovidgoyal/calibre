@@ -755,7 +755,7 @@ class ProcessTokens:
         return first, second
 
     def convert_to_hex(self, number):
-        '''Convert a string to uppercase hexadecimal'''
+        """Convert a string to uppercase hexadecimal"""
         num = int(number)
         try:
             hex_num = f'{num:X}'
@@ -764,8 +764,8 @@ class ProcessTokens:
             raise self.__bug_handler
 
     def process_cw(self, token):
-        '''Change the value of the control word by determining what dictionary
-        it belongs to'''
+        """Change the value of the control word by determining what dictionary
+        it belongs to"""
         special = ['*', ':', '}', '{', '~', '_', '-', ';']
         # if token != "{" or token != "}":
         token = token[1:]  # strip off leading \
@@ -786,7 +786,7 @@ class ProcessTokens:
             return 1
 
     def process_tokens(self):
-        '''Main method for handling other methods. '''
+        """Main method for handling other methods. """
         line_count = 0
         with open_for_read(self.__file) as read_obj:
             with open_for_write(self.__write_to) as write_obj:

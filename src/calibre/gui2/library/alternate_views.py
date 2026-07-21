@@ -470,10 +470,10 @@ def dropEvent(self, event):
 
 
 def paths_from_event(self, event):
-    '''
+    """
     Accept a drop event and return a list of paths that can be read from
     and represent files with extensions.
-    '''
+    """
     md = event.mimeData()
     if md.hasFormat('text/uri-list') and not md.hasFormat('application/calibre+from_library'):
         urls = map(path_from_qurl, md.urls())

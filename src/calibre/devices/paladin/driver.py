@@ -2,9 +2,9 @@
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
 
-'''
+"""
 Device driver for the Paladin devices
-'''
+"""
 
 import os
 import sys

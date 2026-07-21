@@ -80,8 +80,8 @@ def separate_strands(entries):
 
 
 def collect_indexing_data(entries, text_record_lengths):
-    ''' For every text record calculate which index entries start, end, span or
-    are contained within that record. Arrange these entries in 'strands'. '''
+    """ For every text record calculate which index entries start, end, span or
+    are contained within that record. Arrange these entries in 'strands'. """
 
     data = []
     entries = sorted(entries, key=attrgetter('start'))
@@ -112,8 +112,8 @@ class NegativeStrandIndex(Exception):
 
 
 def encode_strands_as_sequences(strands, tbs_type=8):
-    ''' Encode the list of strands for a single text record into a list of
-    sequences, ready to be converted into TBS bytes.    '''
+    """ Encode the list of strands for a single text record into a list of
+    sequences, ready to be converted into TBS bytes.    """
     ans = []
     last_index = None
     max_length_offset = 0

@@ -184,24 +184,24 @@ class InterfaceAction(QObject):
         self.interface_action_base_plugin = None
 
     def accept_enter_event(self, event, mime_data):
-        ''' This method should return True iff this interface action is capable
+        """ This method should return True iff this interface action is capable
         of handling the drag event. Do not call accept/ignore on the event,
-        that will be taken care of by the calibre UI.'''
+        that will be taken care of by the calibre UI."""
         return False
 
     def accept_drag_move_event(self, event, mime_data):
-        ''' This method should return True iff this interface action is capable
+        """ This method should return True iff this interface action is capable
         of handling the drag event. Do not call accept/ignore on the event,
-        that will be taken care of by the calibre UI.'''
+        that will be taken care of by the calibre UI."""
         return False
 
     def drop_event(self, event, mime_data):
-        ''' This method should perform some useful action and return True
+        """ This method should perform some useful action and return True
         iff this interface action is capable of handling the drop event. Do not
         call accept/ignore on the event, that will be taken care of by the
         calibre UI. You should not perform blocking/long operations in this
         function. Instead emit a signal or use QTimer.singleShot and return
-        quickly. See the builtin actions for examples.'''
+        quickly. See the builtin actions for examples."""
         return False
 
     def do_genesis(self):
@@ -287,7 +287,7 @@ class InterfaceAction(QObject):
 
     def create_menu_action(self, menu, unique_name, text, icon=None, shortcut=None,
             description=None, triggered=None, shortcut_name=None, persist_shortcut=False):
-        '''
+        """
         Convenience method to easily add actions to a QMenu.
         Returns the created QAction. This action has one extra attribute
         calibre_shortcut_unique_name which if not None refers to the unique
@@ -317,7 +317,7 @@ class InterfaceAction(QObject):
             when other keyboard shortcuts are edited unless
             ```persist_shortcut``` is set True.
 
-        '''
+        """
         if shortcut_name is None:
             shortcut_name = str(text)
         ac = menu.addAction(text)
@@ -350,7 +350,7 @@ class InterfaceAction(QObject):
         return ac
 
     def load_resources(self, names):
-        '''
+        """
         If this plugin comes in a ZIP file (user added plugin), this method
         will allow you to load resources from the ZIP file.
 
@@ -366,7 +366,7 @@ class InterfaceAction(QObject):
                  that were not found in the ZIP file will not be present in the
                  dictionary.
 
-        '''
+        """
         pp = getattr(self, 'plugin_path', None)
         if pp is None:
             raise ValueError('This plugin was not loaded from a ZIP file')
@@ -378,85 +378,85 @@ class InterfaceAction(QObject):
         return ans
 
     def genesis(self):
-        '''
+        """
         Setup this plugin. Only called once during initialization. self.gui is
         available. The action specified by :attr:`action_spec` is available as
         ``self.qaction``.
-        '''
+        """
         pass
 
     def location_selected(self, loc):
-        '''
+        """
         Called whenever the book list being displayed in calibre changes.
         Currently values for loc are: ``library, main, card and cardb``.
 
         This method should enable/disable this action and its sub actions as
         appropriate for the location.
-        '''
+        """
         pass
 
     def library_about_to_change(self, olddb, db):
-        '''
+        """
         Called whenever the current library is changed.
 
         :param olddb: The LibraryDatabase corresponding to the previous library.
         :param db: The LibraryDatabase corresponding to the new library.
 
-        '''
+        """
         pass
 
     def library_changed(self, db):
-        '''
+        """
         Called whenever the current library is changed.
 
         :param db: The LibraryDatabase corresponding to the current library.
 
-        '''
+        """
         pass
 
     def gui_layout_complete(self):
-        '''
+        """
         Called once per action when the layout of the main GUI is
         completed. If your action needs to make changes to the layout, they
         should be done here, rather than in :meth:`initialization_complete`.
-        '''
+        """
         pass
 
     def initialization_complete(self):
-        '''
+        """
         Called once per action when the initialization of the main GUI is
         completed.
-        '''
+        """
         pass
 
     def tag_browser_context_action(self, index):
-        '''
+        """
         Called when displaying the context menu in the Tag browser. ``index`` is
         the QModelIndex that points to the Tag browser item that was right clicked.
         Test it for validity with index.valid() and get the underlying TagTreeItem
         object with index.data(Qt.ItemDataRole.UserRole). Any action objects
         yielded by this method will be added to the context menu.
-        '''
+        """
         if False:
             yield QAction()
 
     def shutting_down(self):
-        '''
+        """
         Called once per plugin when the main GUI is in the process of shutting
         down. Release any used resources, but try not to block the shutdown for
         long periods of time.
-        '''
+        """
         pass
 
 
 class InterfaceActionWithLibraryDrop(InterfaceAction):
-    '''
+    """
     Subclass of InterfaceAction that implements methods to execute the default action
     by drop some books from the library.
 
     Inside the do_drop() method, the ids of the dropped books are provided
     by the attribute self.dropped_ids
-    '''
+    """
 
     accepts_drops = True
     mimetype_for_drop = 'application/calibre+from_library'

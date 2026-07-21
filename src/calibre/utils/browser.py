@@ -30,13 +30,13 @@ class ModernHTTPSHandler(HTTPSHandler):
 
 
 class Browser(B):
-    '''
+    """
     A clonable mechanize browser. Useful for multithreading. The idea is that
     each thread has a browser clone. Every clone uses the same thread safe
     cookie jar. All clones share the same browser configuration.
 
     Also adds support for fine-tuning SSL verification via an SSL context object.
-    '''
+    """
 
     handler_classes = B.handler_classes.copy()
     handler_classes['https'] = ModernHTTPSHandler  # type: ignore

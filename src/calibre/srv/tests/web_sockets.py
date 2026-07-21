@@ -229,7 +229,7 @@ class WebSocketTest(BaseTest):
 
     @retry(max_attempts=3 if is_ci else 1, delay=1)
     def test_websocket_basic(self):
-        'Test basic interaction with the websocket server'
+        "Test basic interaction with the websocket server"
         from calibre.srv.web_socket import EchoHandler
 
         with WSTestServer(EchoHandler) as server:

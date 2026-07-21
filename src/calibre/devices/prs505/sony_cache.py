@@ -205,9 +205,9 @@ class XMLCache:
                     seen.add(title)
 
     def build_id_playlist_map(self, bl_index):
-        '''
+        """
         Return a map of the collections in books: {lpaths: [collection names]}
-        '''
+        """
         debug_print('Start build_id_playlist_map')
         self.ensure_unique_playlist_titles()
         self.prune_empty_playlists()
@@ -244,12 +244,12 @@ class XMLCache:
         return playlist_map
 
     def reset_existing_playlists_map(self):
-        '''
+        """
         Call this method before calling get_or_create_playlist in the context of
         a given job. Call it again after deleting any playlists. The current
         implementation adds all new playlists before deleting any, so that
         constraint is respected.
-        '''
+        """
         self._playlist_to_playlist_id_map = {}
 
     def get_or_create_playlist(self, bl_idx, title):
@@ -312,7 +312,7 @@ class XMLCache:
                     x.set('id', str(num))
 
         def rebase_ids(root, base, sourceid, pl_sourceid):
-            'Rebase all ids and also make them consecutive'
+            "Rebase all ids and also make them consecutive"
             for item in root.xpath('//*[@sourceid]'):
                 sid = pl_sourceid if item.tag.endswith('playlist') else sourceid
                 item.set('sourceid', str(sid))
@@ -597,10 +597,10 @@ class XMLCache:
 
     def update_text_record(self, record, book, path, bl_index,
                            gtz_count, ltz_count, use_tz_var):
-        '''
+        """
         Update the Sony database from the book. This is done if the timestamp in
         the db differs from the timestamp on the file.
-        '''
+        """
 
         # It seems that a Sony device can sometimes know what timezone it is in,
         # and apparently converts the dates to GMT when it writes them to its

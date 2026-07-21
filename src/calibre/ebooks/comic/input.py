@@ -26,9 +26,9 @@ MAX_SCREEN_SIZE = 3000
 
 
 def extract_comic(path_to_comic_file):
-    '''
+    """
     Un-archive the comic file.
-    '''
+    """
     tdir = PersistentTemporaryDirectory(suffix='_comic_extract')
     if not isinstance(tdir, str):
         # Needed in case the zip file has wrongly encoded unicode file/dir
@@ -55,13 +55,13 @@ def generate_entries_from_dir(path):
 
 
 def find_pages(dir_or_items, sort_on_mtime=False, verbose=False):
-    '''
+    """
     Find valid comic pages in a previously un-archived comic.
 
     :param dir_or_items: Directory in which extracted comic lives or a dict of paths to function getting mtime
     :param sort_on_mtime: If True sort pages based on their last modified time.
                           Otherwise, sort alphabetically.
-    '''
+    """
     from calibre.libunzip import comic_exts
     items = generate_entries_from_dir(dir_or_items) if isinstance(dir_or_items, str) else dir_or_items
     sep_counts = set()
@@ -97,10 +97,10 @@ def find_pages(dir_or_items, sort_on_mtime=False, verbose=False):
 
 class PageProcessor(list):  # {{{
 
-    '''
+    """
     Contains the actual image rendering logic. See :method:`render` and
     :method:`process_pages`.
-    '''
+    """
 
     def __init__(self, path_to_page, dest, opts, num):
         list.__init__(self)
@@ -245,9 +245,9 @@ class PageProcessor(list):  # {{{
 
 
 def render_pages(tasks, dest, opts, notification=lambda x, y: x):
-    '''
+    """
     Entry point for the job server.
-    '''
+    """
     failures, pages = [], []
     for num, path in tasks:
         try:
@@ -278,9 +278,9 @@ class Progress:
 
 
 def process_pages(pages, opts, update, tdir):
-    '''
+    """
     Render all identified comic pages.
-    '''
+    """
     progress = Progress(len(pages), update)
     server = Server()
     jobs = []

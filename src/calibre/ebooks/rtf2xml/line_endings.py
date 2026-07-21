@@ -18,7 +18,7 @@ from calibre.utils.cleantext import clean_ascii_chars
 
 
 class FixLineEndings:
-    '''Fix line endings'''
+    """Fix line endings"""
 
     def __init__(self,
             bug_handler,

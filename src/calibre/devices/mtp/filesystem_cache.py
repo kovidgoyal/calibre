@@ -220,11 +220,11 @@ class FileOrFolder:
         return None
 
     def find_path(self, path):
-        '''
+        """
         Find a path in this folder, where path is a
         tuple of folder and file names like ('eBooks', 'newest',
         'calibre.epub'). Finding is case-insensitive.
-        '''
+        """
         parent = self
         components = list(path)
         while components:

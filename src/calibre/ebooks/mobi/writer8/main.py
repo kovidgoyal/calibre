@@ -74,8 +74,8 @@ class KF8Writer:
         self.toc_adder.remove_generated_toc()
 
     def dup_data(self):
-        ''' Duplicate data so that any changes we make to markup/CSS only
-        affect KF8 output and not MOBI 6 output '''
+        """ Duplicate data so that any changes we make to markup/CSS only
+        affect KF8 output and not MOBI 6 output """
         self._data_cache = {}
         # Suppress css_parser logging output as it is duplicated anyway earlier
         # in the pipeline
@@ -108,10 +108,10 @@ class KF8Writer:
                 tag.attrib.pop('aid', None), tag.attrib.pop('cid', None)
 
     def replace_resource_links(self):
-        ''' Replace links to resources (raster images/fonts) with pointers to
+        """ Replace links to resources (raster images/fonts) with pointers to
         the MOBI record containing the resource. The pointers are of the form:
         kindle:embed:XXXX?mime=image/* The ?mime= is apparently optional and
-        not used for fonts. '''
+        not used for fonts. """
 
         def pointer(item, oref):
             ref = urlnormalize(item.abshref(oref))

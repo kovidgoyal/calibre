@@ -283,7 +283,7 @@ def check_link_destination(container, dest_map, name, href, a, errors):
 
 
 def check_link_destinations(container):
-    ' Check destinations of links that point to HTML files '
+    " Check destinations of links that point to HTML files "
     errors = []
     dest_map = {}
     opf_type = guess_type('a.opf')

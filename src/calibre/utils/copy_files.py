@@ -74,9 +74,9 @@ def windows_lock_path_and_callback(path: str, f: Callable) -> None:
 
 
 class WindowsFileCopier:
-    '''
+    """
     Locks all files before starting the copy, ensuring other processes cannot interfere
-    '''
+    """
 
     def __init__(self, delete_all=False, allow_move=False):
         self.delete_all = delete_all
@@ -191,7 +191,7 @@ def get_copier(delete_all=False, allow_move=False) -> UnixFileCopier | WindowsFi
 
 
 def rename_files(src_to_dest_map: dict[str, str]) -> None:
-    ' Rename a bunch of files. On Windows all files are locked before renaming so no other process can interfere. '
+    " Rename a bunch of files. On Windows all files are locked before renaming so no other process can interfere. "
     copier = get_copier(allow_move=True)
     for s, d in src_to_dest_map.items():
         copier.register(s, d)
@@ -260,11 +260,11 @@ def copy_tree(
     transform_destination_filename: Callable[[str, str], str] = identity_transform,
     delete_source: bool = False
 ) -> None:
-    '''
+    """
     Copy all files in the tree over. On Windows locks all files before starting the copy to ensure that
     other processes cannot interfere once the copy starts. Uses hardlinks, falling back to actual file copies
     only if hardlinking fails.
-    '''
+    """
     if iswindows:
         if isinstance(src, bytes):
             src = src.decode(filesystem_encoding)

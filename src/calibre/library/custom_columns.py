@@ -422,10 +422,10 @@ class CustomColumns:
 
     def set_custom_bulk_multiple(self, ids, add=[], remove=[],
                         label=None, num=None, notify=False):
-        '''
+        """
         Fast algorithm for updating custom column is_multiple datatypes.
         Do not use with other custom column datatypes.
-        '''
+        """
         if label is not None:
             data = self.custom_column_label_map[label]
         if num is not None:
@@ -502,11 +502,11 @@ class CustomColumns:
 
     def set_custom_bulk(self, ids, val, label=None, num=None,
                    append=False, notify=True, extras=None):
-        '''
+        """
         Change the value of a column for a set of books. The ids parameter is a
         list of book ids to change. The extra field must be None or a list the
         same length as ids.
-        '''
+        """
         if extras is not None and len(extras) != len(ids):
             raise ValueError('Length of ids and extras is not the same')
         ev = None

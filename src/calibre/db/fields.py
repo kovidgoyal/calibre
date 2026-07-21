@@ -122,51 +122,51 @@ class Field:
         return self.table.metadata
 
     def for_book(self, book_id, default_value=None):
-        '''
+        """
         Return the value of this field for the book identified by book_id.
         When no value is found, returns ``default_value``.
-        '''
+        """
         raise NotImplementedError()
 
     def ids_for_book(self, book_id):
-        '''
+        """
         Return a tuple of items ids for items associated with the book
         identified by book_ids. Returns an empty tuple if no such items are
         found.
-        '''
+        """
         raise NotImplementedError()
 
     def books_for(self, item_id):
-        '''
+        """
         Return the ids of all books associated with the item identified by
         item_id as a set. An empty set is returned if no books are found.
-        '''
+        """
         raise NotImplementedError()
 
     def __iter__(self):
-        '''
+        """
         Iterate over the ids for all values in this field.
 
         WARNING: Some fields such as composite fields and virtual
         fields like ondevice do not have ids for their values, in such
         cases this is an empty iterator.
-        '''
+        """
         return iter(())
 
     def sort_keys_for_books(self, get_metadata, lang_map):
-        '''
+        """
         Return a function that maps book_id to sort_key. The sort key is suitable for
         use in sorting the list of all books by this field, via the python cmp
         method.
-        '''
+        """
         raise NotImplementedError()
 
     def iter_searchable_values(self, get_metadata, candidates, default_value=None):
-        '''
+        """
         Return a generator that yields items of the form (value, set of books
         ids that have this value). Here, value is a searchable value. Returned
         books_ids are restricted to the set of ids in candidates.
-        '''
+        """
         raise NotImplementedError()
 
     def get_categories(self, tag_class, book_rating_map, lang_map, book_ids=None):
@@ -297,7 +297,7 @@ class CompositeField(OneToOneField):
         return self._bool_sort_key(force_to_bool(val))
 
     def __render_composite(self, book_id, mi, formatter, template_cache):
-        ' INTERNAL USE ONLY. DO NOT USE THIS OUTSIDE THIS CLASS! '
+        " INTERNAL USE ONLY. DO NOT USE THIS OUTSIDE THIS CLASS! "
         db = self.db_weakref()
         ans = formatter.safe_format(
             self.metadata['display']['composite_template'], mi, TEMPLATE_ERROR,
@@ -309,10 +309,10 @@ class CompositeField(OneToOneField):
         return ans
 
     def _render_composite_with_cache(self, book_id, mi, formatter, template_cache):
-        ''' INTERNAL USE ONLY. DO NOT USE METHOD DIRECTLY. INSTEAD USE
+        """ INTERNAL USE ONLY. DO NOT USE METHOD DIRECTLY. INSTEAD USE
          db.composite_for() OR mi.get(). Those methods make sure there is no
          risk of infinite recursion when evaluating templates that refer to
-         themselves. '''
+         themselves. """
         with self._lock:
             ans = self._render_cache.get(book_id, None)
         if ans is None:
@@ -622,7 +622,7 @@ class IdentifiersField(ManyToManyField):
         return ids
 
     def sort_keys_for_books(self, get_metadata, lang_map):
-        'Sort by identifier keys'
+        "Sort by identifier keys"
         bcmg = self.table.book_col_map.get
         dv = {self._default_sort_key:None}
         return lambda book_id: tuple(sorted(bcmg(book_id, dv)))

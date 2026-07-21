@@ -24,10 +24,10 @@ from polyglot.binary import as_base64_unicode
 
 
 class FB2MLizer:
-    '''
+    """
     Todo: * Include more FB2 specific tags in the conversion.
           * Handle notes and anchor links.
-    '''
+    """
 
     def __init__(self, log):
         self.log = log
@@ -309,9 +309,9 @@ class FB2MLizer:
         return ''.join(text)
 
     def fb2mlize_images(self):
-        '''
+        """
         This function uses the self.image_hrefs dictionary mapping. It is populated by the dump_text function.
-        '''
+        """
         from calibre.ebooks.oeb.base import OEB_RASTER_IMAGES
 
         images = []
@@ -390,7 +390,7 @@ class FB2MLizer:
         return s_out, s_tags
 
     def dump_text(self, elem_tree, stylizer, page, tag_stack=[]):
-        '''
+        """
         This function is intended to be used in a recursive manner. dump_text will
         run though all elements in the elem_tree and call itself on each element.
 
@@ -402,7 +402,7 @@ class FB2MLizer:
         @param tag_stack: List of open FB2 tags to take into account.
 
         @return: List of string representing the XHTML converted to FB2 markup.
-        '''
+        """
         from calibre.ebooks.oeb.base import XHTML_NS, barename, namespace
         elem = elem_tree
 

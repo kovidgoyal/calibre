@@ -1,8 +1,8 @@
-'''
+"""
 Created on 25 May 2010
 
 @author: charles
-'''
+"""
 
 import traceback
 from collections import OrderedDict
@@ -346,7 +346,7 @@ def _builtin_field_metadata():
 
 
 class FieldMetadata:
-    '''
+    """
     key: the key to the dictionary is:
     - for standard fields, the metadata field name.
     - for custom fields, the metadata field name prefixed by '#'
@@ -397,7 +397,7 @@ class FieldMetadata:
 
     is_csp: field contains colon-separated pairs. Must also be text, is_multiple
 
-    '''
+    """
 
     VALID_DATA_TYPES = frozenset([None, 'rating', 'text', 'comments', 'datetime',
                 'int', 'float', 'bool', 'series', 'composite', 'enumeration'])
@@ -525,7 +525,7 @@ class FieldMetadata:
         return key.startswith(self.custom_field_prefix)
 
     def is_ignorable_field(self, key):
-        'Custom fields and user categories are ignorable'
+        "Custom fields and user categories are ignorable"
         return self.is_custom_field(key) or key.startswith('@')
 
     def ignorable_field_keys(self):

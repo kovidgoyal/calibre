@@ -16,8 +16,8 @@ from calibre.ebooks.oeb.polish.tests.base import BaseTest
 
 
 def nonvoid_cdata_elements(test, parse_function):
-    ''' If self closed version of non-void cdata elements like <title/> are
-    present, the HTML5 parsing algorithm treats all following data as CDATA '''
+    """ If self closed version of non-void cdata elements like <title/> are
+    present, the HTML5 parsing algorithm treats all following data as CDATA """
     markup = '''
     <html> <head><{0}/></head> <body id="test"> </html>
     '''
@@ -166,19 +166,19 @@ basic_checks = (nonvoid_cdata_elements, namespaces, space_characters,
 class ParsingTests(BaseTest):
 
     def test_lxml_tostring(self):
-        ' Test for bug in some versions of lxml that causes incorrect serialization of sub-trees'
+        " Test for bug in some versions of lxml that causes incorrect serialization of sub-trees"
         from html5_parser import parse
         root = parse('<p>a<p>b<p>c')
         p = root.xpath('//p')[0]
         self.assertEqual(etree.tostring(p, encoding=str), '<p>a</p>')
 
     def test_conversion_parser(self):
-        ' Test parsing with the HTML5 parser used for conversion '
+        " Test parsing with the HTML5 parser used for conversion "
         for test in basic_checks:
             test(self, html5_parse)
 
     def test_polish_parser(self):
-        ' Test parsing with the HTML5 parser used for polishing '
+        " Test parsing with the HTML5 parser used for polishing "
         for test in basic_checks:
             test(self, parse)
 

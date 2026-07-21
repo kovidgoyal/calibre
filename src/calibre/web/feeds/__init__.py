@@ -113,9 +113,9 @@ class Feed:
 
     def __init__(self, get_article_url=lambda item: item.get('link', None),
             log=default_log):
-        '''
+        """
         Parse a feed into articles.
-        '''
+        """
         self.logger = log
         self.get_article_url = get_article_url
 
@@ -357,11 +357,11 @@ def feed_from_xml(raw_xml, title=None, oldest_article=7,
 
 def feeds_from_index(index, oldest_article=7, max_articles_per_feed=100,
         log=default_log):
-    '''
+    """
     @param index: A parsed index as returned by L{BasicNewsRecipe.parse_index}.
     @return: A list of L{Feed} objects.
     @rtype: list
-    '''
+    """
     feeds = []
     for title, articles in index:
         pfeed = Feed(log=log)

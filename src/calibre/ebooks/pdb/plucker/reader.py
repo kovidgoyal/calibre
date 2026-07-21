@@ -107,9 +107,9 @@ MIBNUM_TO_NAME = {
 
 
 class HeaderRecord:
-    '''
+    """
     Plucker header. PDB record 0.
-    '''
+    """
 
     def __init__(self, raw):
         self.uid, = struct.unpack('>H', raw[0:2])
@@ -133,10 +133,10 @@ class HeaderRecord:
 
 
 class SectionHeader:
-    '''
+    """
     Every sections (record) has this header. It gives
     details about the section such as it's uid.
-    '''
+    """
 
     def __init__(self, raw):
         self.uid, = struct.unpack('>H', raw[0:2])
@@ -147,9 +147,9 @@ class SectionHeader:
 
 
 class SectionHeaderText:
-    '''
+    """
     Sub header for text records.
-    '''
+    """
 
     def __init__(self, section_header, raw):
         # The uncompressed size of each paragraph.
@@ -172,7 +172,7 @@ class SectionHeaderText:
 
 
 class SectionMetadata:
-    '''
+    """
     Metadata.
 
     This does not store metadata such as title, or author.
@@ -184,7 +184,7 @@ class SectionMetadata:
 
     Note: There is a default encoding but each text section
     can be assigned a different encoding.
-    '''
+    """
 
     def __init__(self, raw):
         self.default_encoding = 'latin-1'
@@ -224,9 +224,9 @@ class SectionMetadata:
 
 
 class SectionText:
-    '''
+    """
     Text data. Stores a text section header and the PHTML.
-    '''
+    """
 
     def __init__(self, section_header, raw):
         self.header = SectionHeaderText(section_header, raw)
@@ -234,11 +234,11 @@ class SectionText:
 
 
 class SectionCompositeImage:
-    '''
+    """
     A composite image consists of a 2D array
     of rows and columns. The entries in the array
     are uid's.
-    '''
+    """
 
     def __init__(self, raw):
         self.columns, = struct.unpack('>H', raw[0:2])
@@ -267,7 +267,7 @@ class SectionCompositeImage:
 
 
 class Reader(FormatReader):
-    '''
+    """
     Convert a plucker archive into HTML.
 
     TODO:
@@ -279,7 +279,7 @@ class Reader(FormatReader):
           * DATATYPE_TABLE(_COMPRESSED)
           * DATATYPE_EXT_ANCHOR_INDEX
           * DATATYPE_EXT_ANCHOR(_COMPRESSED)
-    '''
+    """
 
     def __init__(self, header, stream, log, options):
         self.stream = stream

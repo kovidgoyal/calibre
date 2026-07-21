@@ -26,7 +26,7 @@ class UnsupportedFormatError(Exception):
 
 
 def EbookIterator(*args, **kwargs):
-    'For backwards compatibility'
+    "For backwards compatibility"
     from calibre.ebooks.oeb.iterator.book import EbookIterator
     return EbookIterator(*args, **kwargs)
 

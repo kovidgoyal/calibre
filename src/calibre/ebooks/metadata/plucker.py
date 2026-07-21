@@ -1,6 +1,6 @@
-'''
+"""
 Read meta information from Plucker pdb files.
-'''
+"""
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'
@@ -16,9 +16,9 @@ from calibre.utils.localization import _
 
 
 def get_metadata(stream, extract_cover=True):
-    '''
+    """
     Return metadata as a L{MetaInfo} object
-    '''
+    """
     mi = MetaInformation(_('Unknown'), [_('Unknown')])
     stream.seek(0)
 

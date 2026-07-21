@@ -9,10 +9,10 @@ from datetime import datetime, timedelta
 
 
 def align_block(raw, multiple=4, pad=b'\0'):
-    '''
+    """
     Return raw with enough pad bytes append to ensure its length is a multiple
     of 4.
-    '''
+    """
     extra = len(raw) % multiple
     if extra == 0:
         return raw
@@ -59,10 +59,10 @@ class FixedProperty:
 
 
 def max_power_of_two(x):
-    '''
+    """
 Return the highest exponent of two, so that
     (2 ** exponent) <= x
-    '''
+    """
     exponent = 0
     while x:
         x = x >> 1

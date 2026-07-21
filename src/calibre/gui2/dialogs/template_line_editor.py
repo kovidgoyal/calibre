@@ -14,9 +14,9 @@ from calibre.utils.localization import _
 
 
 class TemplateLineEditor(QLineEdit):
-    '''
+    """
     Extend the context menu of a QLineEdit to include more actions.
-    '''
+    """
 
     def __init__(self, parent):
         QLineEdit.__init__(self, parent)

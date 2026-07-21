@@ -2,9 +2,9 @@
 # License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
 
-'''
+"""
 Generate UUID encoded using a user specified alphabet.
-'''
+"""
 
 import math
 import string

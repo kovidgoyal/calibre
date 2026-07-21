@@ -1,6 +1,6 @@
-'''
+"""
 OPF manifest trimming transform.
-'''
+"""
 
 
 __license__   = 'GPL v3'

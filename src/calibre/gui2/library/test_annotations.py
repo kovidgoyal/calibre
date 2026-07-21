@@ -22,11 +22,11 @@ def _make_result(book_id=1, annot_id=1, **extra):
 
 
 def _make_mock_db(field_for_map=None, field_metadata=None):
-    '''
+    """
     Build a lightweight mock that satisfies grouping_key's db access:
       - db.field_for(field, bid): returns values from field_for_map
       - db.field_metadata: plain dict
-    '''
+    """
     db = MagicMock()
     d = field_for_map or {}
 

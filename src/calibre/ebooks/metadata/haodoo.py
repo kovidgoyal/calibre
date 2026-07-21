@@ -1,6 +1,6 @@
-'''
+"""
 Read meta information from Haodoo.net pdb files.
-'''
+"""
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kan-Ru Chen <kanru@kanru.info>'
@@ -11,9 +11,9 @@ from calibre.ebooks.pdb.header import PdbHeaderReader
 
 
 def get_metadata(stream, extract_cover=True):
-    '''
+    """
     Return metadata as a L{MetaInfo} object
-    '''
+    """
     stream.seek(0)
 
     pheader = PdbHeaderReader(stream)

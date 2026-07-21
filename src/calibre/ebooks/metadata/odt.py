@@ -60,7 +60,7 @@ fields = {
 
 
 def uniq(vals):
-    ''' Remove all duplicates from vals, while preserving order.  '''
+    """ Remove all duplicates from vals, while preserving order.  """
     vals = vals or ()
     seen = set()
     seen_add = seen.add

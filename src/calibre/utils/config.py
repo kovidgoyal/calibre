@@ -142,10 +142,10 @@ class OptionParser(optparse.OptionParser):
         optparse.OptionParser.error(self, msg)
 
     def merge(self, parser):
-        '''
+        """
         Add options from parser to self. In case of conflicts, conflicting options from
         parser are skipped.
-        '''
+        """
         opts   = list(parser.option_list)
         groups = list(parser.option_groups)
 
@@ -161,10 +161,10 @@ class OptionParser(optparse.OptionParser):
             merge_options(group.option_list, g)
 
     def subsume(self, group_name, msg=''):
-        '''
+        """
         Move all existing options into a subgroup named
         C{group_name} with description C{msg}.
-        '''
+        """
         opts = [opt for opt in self.options_iter() if opt.get_opt_string() not in ('--version', '--help')]
         self.option_groups = []
         subgroup = self.add_option_group(group_name, msg)
@@ -187,11 +187,11 @@ class OptionParser(optparse.OptionParser):
                 return opt
 
     def merge_options(self, lower, upper):
-        '''
+        """
         Merge options in lower and upper option lists into upper.
         Default values in upper are overridden by
         non default values in lower.
-        '''
+        """
         for dest in lower.__dict__.keys():
             if dest not in upper.__dict__:
                 continue
@@ -208,11 +208,11 @@ class OptionParser(optparse.OptionParser):
 
 
 class DynamicConfig(dict):
-    '''
+    """
     A replacement for QSettings that supports dynamic config keys.
     Returns `None` if a config key is not found. Note that the config
     data is stored in a JSON file.
-    '''
+    """
 
     def __init__(self, name='dynamic'):
         dict.__init__(self, {})
@@ -298,13 +298,13 @@ dynamic = DynamicConfig()
 
 
 class XMLConfig(dict):
-    '''
+    """
     Similar to :class:`DynamicConfig`, except that it uses an XML storage
     backend instead of a pickle file.
 
     See `https://docs.python.org/library/plistlib.html`_ for the supported
     data types.
-    '''
+    """
 
     EXTENSION = '.plist'
 

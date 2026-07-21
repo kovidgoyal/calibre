@@ -16,7 +16,7 @@ from . import open_for_read
 
 
 class CheckBrackets:
-    '''Check that brackets match up'''
+    """Check that brackets match up"""
 
     def __init__(self, bug_handler=None, file=None):
         self.__file=file

@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # vim:fileencoding=utf-8
-'''
+"""
 https://www.military-history.org/
-'''
+"""
 from calibre import browser
 from calibre.web.feeds.news import BasicNewsRecipe
 

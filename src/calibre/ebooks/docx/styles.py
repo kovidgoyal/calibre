@@ -12,10 +12,10 @@ from calibre.ebooks.docx.char_styles import RunStyle
 
 
 class PageProperties:
-    '''
+    """
     Class representing page level properties (page size/margins) read from
     sectPr elements.
-    '''
+    """
 
     def __init__(self, namespace, elems=()):
         self.width, self.height = 595.28, 841.89  # pts, A4
@@ -36,9 +36,9 @@ class PageProperties:
 
 
 class Style:
-    '''
+    """
     Class representing a <w:style> element. Can contain block, character, etc. styles.
-    '''
+    """
 
     def __init__(self, namespace, elem):
         self.namespace = namespace
@@ -103,9 +103,9 @@ class Style:
 
 
 class Styles:
-    '''
+    """
     Collection of all styles defined in the document. Used to get the final styles applicable to elements in the document markup.
-    '''
+    """
 
     def __init__(self, namespace, tables):
         self.namespace = namespace

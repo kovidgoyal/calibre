@@ -100,7 +100,7 @@ class MaintainPageCounts(Thread):
                 self.shutdown_event.wait(YIELD_TIME)
 
     def get_batch(self, size: int = 100) -> Iterator[int]:
-        ' Order results by book id to prioritise newer books '
+        " Order results by book id to prioritise newer books "
         if db := self.dbref():
             with db.safe_read_lock:
                 for rec in db.backend.execute(f'SELECT book FROM books_pages_link WHERE needs_scan=1 ORDER BY book DESC LIMIT {size}'):

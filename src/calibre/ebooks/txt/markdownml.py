@@ -101,10 +101,10 @@ class MarkdownMLizer(OEB2HTML):
         return '\n'.join(new_text)
 
     def dump_text(self, elem, stylizer, page=None):
-        '''
+        """
         @elem: The element in the etree that we are working on.
         @stylizer: The style information attached to the element.
-        '''
+        """
 
         # We can only processes tags. If there isn't a tag return any text.
         if not isinstance(elem.tag, (str, bytes)) \

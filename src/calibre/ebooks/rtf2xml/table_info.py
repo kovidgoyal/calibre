@@ -23,10 +23,10 @@ from . import open_for_read, open_for_write
 
 
 class TableInfo:
-    '''
+    """
     Insert table data for tables.
     Logic:
-    '''
+    """
 
     def __init__(self,
             in_file,
@@ -34,7 +34,7 @@ class TableInfo:
             table_data,
             copy=None,
             run_level=1,):
-        '''
+        """
         Required:
             'file'--file to parse
             'table_data' -- a dictionary for each table.
@@ -44,7 +44,7 @@ class TableInfo:
             directory from which the script is run.)
         Returns:
             nothing
-        '''
+        """
         self.__file = in_file
         self.__bug_handler = bug_handler
         self.__copy = copy
@@ -54,8 +54,8 @@ class TableInfo:
         # self.__write_to = 'table_info.data'
 
     def insert_info(self):
-        '''
-        '''
+        """
+        """
         read_obj = open_for_read(self.__file)
         self.__write_obj = open_for_write(self.__write_to)
         line_to_read = 1

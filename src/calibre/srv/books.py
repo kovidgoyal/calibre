@@ -202,10 +202,10 @@ def book_file(ctx, rd, book_id, fmt, size, mtime, name):
 
 @endpoint('/book-get-last-read-position/{library_id}/{+which}', postprocess=json)
 def get_last_read_position(ctx, rd, library_id, which):
-    '''
+    """
     Get last read position data for the specified books, where which is of the form:
     book_id1-fmt1_book_id2-fmt2,...
-    '''
+    """
     db = get_db(ctx, rd, library_id)
     user = rd.username or None
     if not user:
@@ -250,10 +250,10 @@ def set_last_read_position(ctx, rd, library_id, book_id, fmt):
 
 @endpoint('/book-get-annotations/{library_id}/{+which}', postprocess=json)
 def get_annotations(ctx, rd, library_id, which):
-    '''
+    """
     Get annotations and last read position data for the specified books, where which is of the form:
     book_id1-fmt1_book_id2-fmt2,...
-    '''
+    """
     db = get_db(ctx, rd, library_id)
     user = rd.username or '*'
     ans = {}

@@ -84,7 +84,7 @@ def windows_creationflags_for_worker_process(priority: str = 'normal') -> int:
 
 
 class Worker:
-    '''
+    """
     Platform independent object for launching child processes. All processes
     have the environment variable :envvar:`CALIBRE_WORKER` set.
 
@@ -94,7 +94,7 @@ class Worker:
     To launch child simply call the Worker object. By default, the child's
     output is redirected to an on disk file, the path to which is returned by
     the call.
-    '''
+    """
 
     exe_name = 'calibre-parallel'
 
@@ -169,10 +169,10 @@ class Worker:
         self._env = (env or {}).copy()
 
     def __call__(self, redirect_output=True, cwd=None, priority=None, pass_fds=()):
-        '''
+        """
         If redirect_output is True, output from the child is redirected
         to a file on disk and this method returns the path to that file.
-        '''
+        """
         exe = self.gui_executable if self.gui else self.executable
         env = self.env
         try:

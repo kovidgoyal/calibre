@@ -23,11 +23,11 @@ class Abort(Exception):
 
 
 class MetadataBackup(Thread):
-    '''
+    """
     Continuously backup changed metadata into OPF files
     in the book directory. This class runs in its own
     thread.
-    '''
+    """
 
     def __init__(self, db, interval=2, scheduling_interval=0.1):
         super().__init__(name='MetadataBackup', daemon=True)

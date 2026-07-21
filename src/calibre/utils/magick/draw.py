@@ -25,7 +25,7 @@ def _data_to_image(data):
 
 
 def minify_image(data, minify_to=(1200, 1600), preserve_aspect_ratio=True):
-    '''
+    """
     Minify image to specified size if image is bigger than specified
     size and return minified image, otherwise, original image is
     returned.
@@ -33,7 +33,7 @@ def minify_image(data, minify_to=(1200, 1600), preserve_aspect_ratio=True):
     :param data: Image data as bytestring or Image object
     :param minify_to: A tuple (width, height) to specify target size
     :param preserve_aspect_ratio: whether preserve original aspect ratio
-    '''
+    """
     img = _data_to_image(data)
     owidth, oheight = img.size
     nwidth, nheight = minify_to
@@ -48,7 +48,7 @@ def minify_image(data, minify_to=(1200, 1600), preserve_aspect_ratio=True):
 def save_cover_data_to(data, path, bgcolor='#ffffff', resize_to=None,
         return_data=False, compression_quality=90, minify_to=None,
         grayscale=False):
-    '''
+    """
     Saves image in data to path, in the format specified by the path
     extension. Removes any transparency. If there is no transparency and no
     resize and the input and output image formats are the same, no changes are
@@ -65,7 +65,7 @@ def save_cover_data_to(data, path, bgcolor='#ffffff', resize_to=None,
     will be resized to fit into this target size. If None the value from the
     tweak is used.
 
-    '''
+    """
     fmt = os.path.splitext(path)[1]
     if return_data:
         path = None
@@ -99,21 +99,21 @@ def thumbnail(data, width=120, height=120, bgcolor='#ffffff', fmt='jpg',
 
 
 def identify_data(data):
-    '''
+    """
     Identify the image in data. Returns a 3-tuple
     (width, height, format)
     or raises an Exception if data is not an image.
-    '''
+    """
     fmt, width, height = _identify(data)
     return width, height, fmt
 
 
 def identify(path):
-    '''
+    """
     Identify the image at path. Returns a 3-tuple
     (width, height, format)
     or raises an Exception.
-    '''
+    """
     with open(path, 'rb') as f:
         fmt, width, height = _identify(f)
     return width, height, fmt

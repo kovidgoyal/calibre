@@ -40,7 +40,7 @@ def get_tables(raw):
 
 
 def get_table(raw, name):
-    ''' Get the raw table bytes for the specified table in the font '''
+    """ Get the raw table bytes for the specified table in the font """
     name = as_bytes(name.lower())
     for table_tag, table, table_index, table_offset, table_checksum in get_tables(raw):
         if table_tag.lower() == name:
@@ -75,12 +75,12 @@ def get_font_characteristics_from_ttlib_os2_table(t, return_all=False):
 
 
 def get_font_characteristics(raw, raw_is_table=False, return_all=False):
-    '''
+    """
     Return (weight, is_italic, is_bold, is_regular, fs_type, panose, width,
     is_oblique, is_wws). These
     values are taken from the OS/2 table of the font. See
     http://www.microsoft.com/typography/otspec/os2.htm for details
-    '''
+    """
     if hasattr(raw, 'getUnicodeRanges'):
         return get_font_characteristics_from_ttlib_os2_table(raw, return_all)
     if raw_is_table:
@@ -137,10 +137,10 @@ def panose_to_css_generic_family(panose):
 
 
 def decode_name_record(recs):
-    '''
+    """
     Get the English names of this font. See
     http://www.microsoft.com/typography/otspec/name.htm for details.
-    '''
+    """
     if not recs:
         return None
     unicode_names = {}

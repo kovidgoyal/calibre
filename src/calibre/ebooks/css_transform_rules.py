@@ -22,7 +22,7 @@ def compile_pat(pat):
 
 
 def all_properties(decl):
-    ' This is needed because CSSStyleDeclaration.getProperties(None, all=True) does not work and is slower than it needs to be. '
+    " This is needed because CSSStyleDeclaration.getProperties(None, all=True) does not work and is slower than it needs to be. "
     for item in decl.seq:
         p = item.value
         if isinstance(p, Property):

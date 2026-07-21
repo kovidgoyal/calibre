@@ -38,7 +38,7 @@ class FileFormatter:
 
     @property
     def mode_string(self):
-        ''' The mode string for this file. There are only two modes read-only and read-write '''
+        """ The mode string for this file. There are only two modes read-only and read-write """
         mode, x = '-', '-'
         if self.is_dir:
             mode, x = 'd', 'x'
@@ -50,7 +50,7 @@ class FileFormatter:
 
     @property
     def isdir_name(self):
-        '''Return self.name + '/' if self is a directory'''
+        """Return self.name + '/' if self is a directory"""
         name = self.name
         if self.is_dir:
             name += '/'
@@ -58,7 +58,7 @@ class FileFormatter:
 
     @property
     def name_in_color(self):
-        ''' The name in ANSI text. Directories are blue, ebooks are green '''
+        """ The name in ANSI text. Directories are blue, ebooks are green """
         cname = self.name
         blue, green, normal = '', '', ''
         if self.term:
@@ -73,17 +73,17 @@ class FileFormatter:
 
     @property
     def human_readable_size(self):
-        ''' File size in human readable form '''
+        """ File size in human readable form """
         return human_readable(self.size)
 
     @property
     def modification_time(self):
-        ''' Last modified time in the Linux ls -l format '''
+        """ Last modified time in the Linux ls -l format """
         return time.strftime('%Y-%m-%d %H:%M', time.localtime(self.wtime))
 
     @property
     def creation_time(self):
-        ''' Last modified time in the Linux ls -l format '''
+        """ Last modified time in the Linux ls -l format """
         return time.strftime('%Y-%m-%d %H:%M', time.localtime(self.ctime))
 
 

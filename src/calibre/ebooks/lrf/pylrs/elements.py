@@ -1,4 +1,4 @@
-''' elements.py -- replacements and helpers for ElementTree '''
+""" elements.py -- replacements and helpers for ElementTree """
 
 
 class ElementWriter:

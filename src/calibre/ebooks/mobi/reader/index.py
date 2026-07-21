@@ -82,11 +82,11 @@ def parse_indx_header(data):
 
 class CNCX:  # {{{
 
-    '''
+    """
     Parses the records that contain the compiled NCX (all strings from the
     NCX). Presents a simple offset : string mapping interface to access the
     data.
-    '''
+    """
 
     def __init__(self, records, codec):
         self.records = OrderedDict()

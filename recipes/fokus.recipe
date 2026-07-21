@@ -54,7 +54,7 @@ class Fokus(BasicNewsRecipe):
     ]
 
     def extract_cover_url(self, a_tag) -> str:
-        '''Given the <a> tag of the current edition, extract the URL of the highest-resolution cover image.'''
+        """Given the <a> tag of the current edition, extract the URL of the highest-resolution cover image."""
         figure_tag = a_tag.find('figure')
         img_tag = figure_tag.find('img')
 
@@ -77,7 +77,7 @@ class Fokus(BasicNewsRecipe):
         return
 
     def get_current_edition_url(self) -> str:
-        '''Return the URL of the current (weekly) edition of Fokus.'''
+        """Return the URL of the current (weekly) edition of Fokus."""
         current_year = datetime.now().year
         current_week = datetime.now().isocalendar().week
         try:
@@ -146,14 +146,14 @@ class Fokus(BasicNewsRecipe):
         return current_edition_url
 
     def parse_article_blurb(self, article_blurb) -> dict[str, str, str, str, str] | None:
-        '''Given a <article> tag of class 'Blurb', parse it into a dict.
+        """Given a <article> tag of class 'Blurb', parse it into a dict.
 
         Args:
             article_blurb (Tag): An <article> tag hosting metadata and the URL of an article.
 
         Returns:
             A dict on a `{'url': str, 'title': str, 'date': str, 'category': str, 'description': str}` format.
-        '''
+        """
         if a_tag := article_blurb.find('a', href=True):
             url = a_tag['href'].strip().rstrip('/')
             if url.startswith('/'):
@@ -183,7 +183,7 @@ class Fokus(BasicNewsRecipe):
         return
 
     def get_article_blurbs(self, soup) -> dict[str, dict[str, str, str, str, str]]:
-        '''Given a Fokus webpage `soup`, return a dict of unique article entries found on the page.
+        """Given a Fokus webpage `soup`, return a dict of unique article entries found on the page.
 
         The key of a given entry in the output dictionary is the article URL. The corresponding value is a dictionary
         on a `{'url': str, 'title': str, 'date': str, 'category': str, 'description': str}` format.
@@ -193,10 +193,10 @@ class Fokus(BasicNewsRecipe):
 
         Returns:
             dict[str, dict[str, str, str, str, str]]: A dict with article URLs as keys and 'article dicts' as values.
-        '''
+        """
 
         def _log(article) -> None:
-            '''Log a digestible summary of the input `article` blurb.'''
+            """Log a digestible summary of the input `article` blurb."""
             log_message = f"\t{article['title']} : {article['url']}"
             if article.get('description'):
                 log_message += f" : {article['description']}"
@@ -225,14 +225,14 @@ class Fokus(BasicNewsRecipe):
         self,
         articles: dict[str, dict[str, str, str, str, str]],
     ) -> dict[str, list[dict[str, str, str, str]]]:
-        '''Convert the `articles` dict of dicts to a dict of lists; each list holds the articles of a given section.
+        """Convert the `articles` dict of dicts to a dict of lists; each list holds the articles of a given section.
 
         Args:
             articles (dict[str, dict[str, str, str, str, str]]): A dict of article URLs and article dicts.
 
         Returns:
             dict[str, list[dict[str, str, str, str]]]: A dict on a `{section_title: list[article_dict]}` format.
-        '''
+        """
         self.log(f'Assigning each of the {len(articles)} articles to a section...')
         section_to_articles = {}
         for _, article_dict in articles.items():

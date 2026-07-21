@@ -91,7 +91,7 @@ class Progress(Thread):
 
 
 def arbitrary(module_name, func_name, args, kwargs={}):
-    '''
+    """
     An entry point that allows arbitrary functions to be run in a parallel
     process. useful for plugin developers that want to run jobs in a parallel
     process.
@@ -120,7 +120,7 @@ def arbitrary(module_name, func_name, args, kwargs={}):
     :param name: A list (or tuple) of arguments that will be passed to the
     function ``func_name``
     :param kwargs: A dictionary of keyword arguments to pass to func_name
-    '''
+    """
     if module_name.startswith('calibre_plugins'):
         # Initialize the plugin loader by doing this dummy import
         from calibre.customize.ui import find_plugin

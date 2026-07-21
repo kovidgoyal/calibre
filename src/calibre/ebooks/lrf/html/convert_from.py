@@ -94,7 +94,7 @@ def strip_style_comments(match):
 
 
 def tag_regex(tagname):
-    '''Return non-grouping regular expressions that match the opening and closing tags for tagname'''
+    """Return non-grouping regular expressions that match the opening and closing tags for tagname"""
     return dict(open=r'(?:<\s*{t}\s+[^<>]*?>|<\s*{t}\s*>)'.format(**dict(t=tagname)),
                 close=r'</\s*{t}\s*>'.format(**dict(t=tagname)))
 
@@ -222,14 +222,14 @@ class HTMLConverter:
     }
 
     def __init__(self, book, fonts, options, logger, paths):
-        '''
+        """
         Convert HTML files at C{paths} and add to C{book}. After creating
         the object, you must call L{self.writeto} to output the LRF/S file.
 
         @param book: The LRF book
         @type book:  L{lrf.pylrs.Book}
         @param fonts: dict specifying the font families to use
-        '''
+        """
         # Defaults for various formatting tags
         object.__setattr__(self, 'options', options)
         self.log = logger
@@ -411,12 +411,12 @@ class HTMLConverter:
         self.processed_files.append(path)
 
     def parse_css(self, style):
-        '''
+        """
         Parse the contents of a <style> tag or .css file.
         @param style: C{str(style)} should be the CSS to parse.
         @return: A dictionary with one entry per selector where the key is the
         selector name and the value is a dictionary of properties
-        '''
+        """
         sdict, pdict = {}, {}
         style = re.sub(r'/\*.*?\*/', '', style)  # Remove /*...*/ comments
         for sel in re.findall(HTMLConverter.SELECTOR_PAT, style):
@@ -441,12 +441,12 @@ class HTMLConverter:
         return sdict, pdict
 
     def parse_style_properties(self, props):
-        '''
+        """
         Parses a style attribute. The code within a CSS selector block or in
         the style attribute of an HTML element.
         @return: A dictionary with one entry for each property where the key
                 is the property name and the value is the property value.
-        '''
+        """
         prop = {}
         for s in props.split(';'):
             l = s.split(':',1)
@@ -457,9 +457,9 @@ class HTMLConverter:
         return prop
 
     def tag_css(self, tag, parent_css={}):
-        '''
+        """
         Return a dictionary of style properties applicable to Tag tag.
-        '''
+        """
         def merge_parent_css(prop, pcss):
             # float should not be inherited according to the CSS spec
             # however we need to as we don't do alignment at a block level.
@@ -619,7 +619,7 @@ class HTMLConverter:
                 self.log.debug(f'Cannot add link {ascii_text} to TOC')
 
         def get_target_block(fragment, targets):
-            '''Return the correct block for the <a name> element'''
+            """Return the correct block for the <a name> element"""
             bs = targets[fragment]
             if not isinstance(bs, BlockSpace):
                 return bs
@@ -691,10 +691,10 @@ class HTMLConverter:
                     self.book.addTocEntry(ascii_text, self.targets[url])
 
     def end_page(self):
-        '''
+        """
         End the current page, ensuring that any further content is displayed
         on a new page.
-        '''
+        """
         if self.current_para.has_text():
             self.current_para.append_to(self.current_block)
             self.current_para = Paragraph()
@@ -730,7 +730,7 @@ class HTMLConverter:
             self.book.append(page)
 
     def process_children(self, ptag, pcss, ppcss={}):
-        ''' Process the children of ptag '''
+        """ Process the children of ptag """
         # Need to make a copy of contents as when
         # extract is called on a child, it will
         # mess up the iteration.
@@ -766,10 +766,10 @@ class HTMLConverter:
         return align
 
     def process_alignment(self, css):
-        '''
+        """
         Create a new TextBlock only if necessary as indicated by css
         @type css: dict
-        '''
+        """
         align = self.get_alignment(css)
         if align != self.current_block.textStyle.attrs['align']:
             self.current_para.append_to(self.current_block)
@@ -789,11 +789,11 @@ class HTMLConverter:
         return False
 
     def add_text(self, tag, css, pseudo_css, force_span_use=False):
-        '''
+        """
         Add text to the current paragraph taking CSS into account.
         @param tag: Either a BeautifulSoup tag or a string
         @param css: A dict
-        '''
+        """
         src = tag.string if hasattr(tag, 'string') else tag
         if len(src) > 32760:
             pos = 0
@@ -905,18 +905,18 @@ class HTMLConverter:
         self.previous_text = '\n'
 
     def end_current_para(self):
-        '''
+        """
         End current paragraph with a paragraph break after it.
-        '''
+        """
         if self.current_para.contents:
             self.current_block.append(self.current_para)
         self.current_block.append(CR())
         self.current_para = Paragraph()
 
     def end_current_block(self):
-        '''
+        """
         End current TextBlock. Create new TextBlock with the same styles.
-        '''
+        """
         if self.current_para.contents:
             self.current_block.append(self.current_para)
             self.current_para = Paragraph()
@@ -1150,13 +1150,13 @@ class HTMLConverter:
         return ans
 
     def font_properties(self, css):
-        '''
+        """
         Convert the font propertiess in css to the Xylog equivalents. If the CSS
         does not contain a particular font property, the default from self.book.defaultTextSytle
         is used. Assumes 1em = 10pt
         @return: dict, key, variant. The dict contains the Xlog equivalents. key indicates
           the font type (i.e. bold, bi, normal) and variant is None or 'small-caps'
-        '''
+        """
         t = {}
         for key in ('fontwidth', 'fontsize', 'wordspace', 'fontfacename', 'fontweight', 'baselineskip'):
             t[key] = self.book.defaultTextStyle.attrs[key]
@@ -1202,9 +1202,9 @@ class HTMLConverter:
             return key
 
         def font_size(val):
-            '''
+            """
             Assumes 1em=100%=10pt
-            '''
+            """
             normal = 100
             ans = self.unit_convert(val, pts=True, base_length='10pt')
 
@@ -1298,11 +1298,11 @@ class HTMLConverter:
         return t, key, variant
 
     def unit_convert(self, val, pts=False, base_length='10pt'):
-        '''
+        """
         Tries to convert html units in C{val} to pixels.
         @param pts: If True return 10*pts instead of pixels.
         @return: The number of pixels (an int) if successful. Otherwise, returns None.
-        '''
+        """
         dpi = self.profile.dpi
         result = None
         try:
@@ -1371,7 +1371,7 @@ class HTMLConverter:
         return fp
 
     def process_block(self, tag, tag_css):
-        ''' Ensure padding and text-indent properties are respected '''
+        """ Ensure padding and text-indent properties are respected """
         text_properties = self.text_properties(tag_css)
         block_properties = self.block_properties(tag_css)
         indent = (float(text_properties['parindent'])/10) * (self.profile.dpi/72)

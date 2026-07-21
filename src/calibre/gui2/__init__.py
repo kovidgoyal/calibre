@@ -256,13 +256,13 @@ class IconResourceManager:
         return either, light, dark
 
     def cached_icon(self, name=''):
-        '''
+        """
         Keep these icons in a cache. This is intended to be used in dialogs like
         manage categories where thousands of icon instances can be needed.
 
         It is a new method to avoid breaking QIcon.ic() if names are reused
         in different contexts. It isn't clear if this can ever happen.
-        '''
+        """
         icon = self.icon_cache.get(name)
         if icon is None:
             icon = self.icon_cache[name] = self(name)
@@ -853,14 +853,14 @@ def show_restart_warning(msg, parent=None):
 
 
 class Dispatcher(QObject):
-    '''
+    """
     Convenience class to use Qt signals with arbitrary python callables.
     By default, ensures that a function call always happens in the
     thread this Dispatcher was created in.
 
     Note that if you create the Dispatcher in a thread without an event loop of
     its own, the function call will happen in the GUI thread (I think).
-    '''
+    """
     dispatch_signal = pyqtSignal(object, object)
 
     def __init__(self, func, queued=True, parent=None):
@@ -879,13 +879,13 @@ class Dispatcher(QObject):
 
 
 class FunctionDispatcher(QObject):
-    '''
+    """
     Convenience class to use Qt signals with arbitrary python functions.
     By default, ensures that a function call always happens in the
     thread this FunctionDispatcher was created in.
 
     Note that you must create FunctionDispatcher objects in the GUI thread.
-    '''
+    """
     dispatch_signal = pyqtSignal(object, object, object)
 
     def __init__(self, func, queued=True, parent=None):
@@ -930,10 +930,10 @@ class FunctionDispatcher(QObject):
 
 
 class GetMetadata(QObject):
-    '''
+    """
     Convenience class to ensure that metadata readers are used only in the
     GUI thread. Must be instantiated in the GUI thread.
-    '''
+    """
 
     edispatch = pyqtSignal(object, object, object)
     idispatch = pyqtSignal(object, object, object)
@@ -1102,9 +1102,9 @@ def choose_osx_app(window, name, title, default_dir='/Applications'):
 
 
 def pixmap_to_data(pixmap, format='JPEG', quality=None):
-    '''
+    """
     Return the QPixmap pixmap as a string saved in the specified format.
-    '''
+    """
     if quality is None:
         if format.upper() == 'PNG':
             # For some reason on windows with Qt 5.6 using a quality of 90
@@ -1122,7 +1122,7 @@ def pixmap_to_data(pixmap, format='JPEG', quality=None):
 
 
 def decouple(prefix):
-    ' Ensure that config files used by utility code are not the same as those used by the main calibre GUI '
+    " Ensure that config files used by utility code are not the same as those used by the main calibre GUI "
     dynamic.decouple(prefix)
     from calibre.gui2.widgets import history
     history.decouple(prefix)
@@ -1611,11 +1611,11 @@ def safe_open_url(qurl):
 
 
 def get_current_db():
-    '''
+    """
     This method will try to return the current database in use by the user as
     efficiently as possible, i.e. without constructing duplicate
     LibraryDatabase objects.
-    '''
+    """
     from calibre.gui2.ui import get_gui
     gui = get_gui()
     if gui is not None and gui.current_db is not None:
@@ -1696,11 +1696,11 @@ def app_is_headless():
 
 
 def must_use_qt(headless=True):
-    ''' This function should be called if you want to use Qt for some non-GUI
+    """ This function should be called if you want to use Qt for some non-GUI
     task like rendering HTML/SVG or using a headless browser. It will raise a
     RuntimeError if using Qt is not possible, which will happen if the current
     thread is not the main GUI thread. On linux, it uses a special QPA headless
-    plugin, so that the X server does not need to be running. '''
+    plugin, so that the X server does not need to be running. """
     global gui_thread
     ensure_app(headless=headless)
     if gui_thread is None:
@@ -1731,10 +1731,10 @@ def rating_font():
 
 
 def elided_text(text, font=None, width=300, pos='middle'):
-    ''' Return a version of text that is no wider than width pixels when
+    """ Return a version of text that is no wider than width pixels when
     rendered, replacing characters from the left, middle or right (as per pos)
     of the string with an ellipsis. Results in a string much closer to the
-    limit than Qt's elidedText().'''
+    limit than Qt's elidedText()."""
     from qt.core import QFontMetrics
     if font is None:
         font = qapplication_or_fail().font()

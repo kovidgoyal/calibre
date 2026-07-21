@@ -52,7 +52,7 @@ def decode_string(raw, codec='utf-8', ordt_map=None):
 
 
 def decode_hex_number(raw, codec='utf-8'):
-    '''
+    """
     Return a variable length number encoded using hexadecimal encoding. These
     numbers have the first byte which tells the number of bytes that follow.
     The bytes that follow are simply the hexadecimal representation of the
@@ -62,7 +62,7 @@ def decode_hex_number(raw, codec='utf-8'):
 
     :return: The number and the number of bytes from raw that the number
     occupies.
-    '''
+    """
     raw, consumed = decode_string(raw, codec=codec)
     return int(raw, 16), consumed
 
@@ -74,13 +74,13 @@ def encode_string(raw):
 
 
 def encode_number_as_hex(num):
-    '''
+    """
     Encode num as a variable length encoded hexadecimal number. Returns the
     bytestring containing the encoded number. These
     numbers have the first byte which tells the number of bytes that follow.
     The bytes that follow are simply the hexadecimal representation of the
     number.
-    '''
+    """
     num = f'{num:X}'.encode('ascii')
     nlen = len(num)
     if nlen % 2 != 0:
@@ -89,7 +89,7 @@ def encode_number_as_hex(num):
 
 
 def encint(value, forward=True):
-    '''
+    """
     Some parts of the Mobipocket format encode data as variable-width integers.
     These integers are represented big-endian with 7 bits per byte in bits 1-7.
     They may be either forward-encoded, in which case only the first byte has bit 8 set,
@@ -108,7 +108,7 @@ def encint(value, forward=True):
 
     If forward is True the bytes returned are suitable for prepending to the
     output buffer, otherwise they must be append to the output buffer.
-    '''
+    """
     if value < 0:
         raise ValueError('Cannot encode negative numbers as vwi')
     # Encode vwi
@@ -126,14 +126,14 @@ def encint(value, forward=True):
 
 
 def decint(raw, forward=True):
-    '''
+    """
     Read a variable width integer from the bytestring or bytearray raw and return the
     integer and the number of bytes read. If forward is True bytes are read
     from the start of raw, otherwise from the end of raw.
 
     This function is the inverse of encint above, see its docs for more
     details.
-    '''
+    """
     val = 0
     byts = bytearray()
     src = bytearray(raw)
@@ -161,7 +161,7 @@ def test_decint(num):
 
 
 def rescale_image(data, maxsizeb=IMAGE_MAX_SIZE, dimen=None):
-    '''
+    """
     Convert image setting all transparent pixels to white and changing format
     to JPEG. Ensure the resultant image has a byte size less than
     maxsizeb.
@@ -171,7 +171,7 @@ def rescale_image(data, maxsizeb=IMAGE_MAX_SIZE, dimen=None):
     of dimen)
 
     Returns the image as a bytestring
-    '''
+    """
     if dimen is not None:
         if hasattr(dimen, '__len__'):
             width, height = dimen
@@ -203,13 +203,13 @@ def rescale_image(data, maxsizeb=IMAGE_MAX_SIZE, dimen=None):
 
 
 def get_trailing_data(record, extra_data_flags):
-    '''
+    """
     Given a text record as a bytestring and the extra data flags from the MOBI
     header, return the trailing data as a dictionary, mapping bit number to
     data as bytestring. Also returns the record - all trailing data.
 
     :return: Trailing data, record - trailing data
-    '''
+    """
     data = OrderedDict()
     flags = extra_data_flags >> 1
 
@@ -235,7 +235,7 @@ def get_trailing_data(record, extra_data_flags):
 
 
 def encode_trailing_data(raw):
-    '''
+    """
     Given some data in the bytestring raw, return a bytestring of the form
 
         <data><size>
@@ -245,7 +245,7 @@ def encode_trailing_data(raw):
 
     This is the encoding used for trailing data entries at the end of text
     records. See get_trailing_data() for details.
-    '''
+    """
     lsize = 1
     while True:
         encoded = encint(len(raw) + lsize, forward=False)
@@ -256,11 +256,11 @@ def encode_trailing_data(raw):
 
 
 def encode_fvwi(val, flags, flag_size=4):
-    '''
+    """
     Encode the value val and the flag_size bits from flags as a fvwi. This encoding is
     used in the trailing byte sequences for indexing. Returns encoded
     bytestring.
-    '''
+    """
     ans = val << flag_size
     for i in range(flag_size):
         ans |= (flags & (1 << i))
@@ -268,9 +268,9 @@ def encode_fvwi(val, flags, flag_size=4):
 
 
 def decode_fvwi(byts, flag_size=4):
-    '''
+    """
     Decode encoded fvwi. Returns number, flags, consumed
-    '''
+    """
     arg, consumed = decint(bytes(byts))
     val = arg >> flag_size
     flags = 0
@@ -280,7 +280,7 @@ def decode_fvwi(byts, flag_size=4):
 
 
 def decode_tbs(byts, flag_size=4):
-    '''
+    """
     Trailing byte sequences for indexing consists of series of fvwi numbers.
     This function reads the fvwi number and its associated flags. It then uses
     the flags to read any more numbers that belong to the series. The flags are
@@ -288,7 +288,7 @@ def decode_tbs(byts, flag_size=4):
 
     Returns the fvwi number, a dictionary mapping flags bits to the associated
     data and the number of bytes consumed.
-    '''
+    """
     byts = bytes(byts)
     val, flags, consumed = decode_fvwi(byts, flag_size=flag_size)
     extra = {}
@@ -313,10 +313,10 @@ def decode_tbs(byts, flag_size=4):
 
 
 def encode_tbs(val, extra, flag_size=4):
-    '''
+    """
     Encode the number val and the extra data in the extra dict as an fvwi. See
     decode_tbs above.
-    '''
+    """
     flags = 0
     for flag in extra:
         flags |= flag
@@ -332,10 +332,10 @@ def encode_tbs(val, extra, flag_size=4):
 
 
 def utf8_text(text):
-    '''
+    """
     Convert a possibly null string to utf-8 bytes, guaranteeing to return a non
     empty, normalized bytestring.
-    '''
+    """
     if text and text.strip():
         text = text.strip()
         if not isinstance(text, str):
@@ -347,10 +347,10 @@ def utf8_text(text):
 
 
 def align_block(raw, multiple=4, pad=b'\0'):
-    '''
+    """
     Return raw with enough pad bytes append to ensure its length is a multiple
     of 4.
-    '''
+    """
     extra = len(raw) % multiple
     if extra == 0:
         return raw
@@ -358,10 +358,10 @@ def align_block(raw, multiple=4, pad=b'\0'):
 
 
 def detect_periodical(toc, log=None):
-    '''
+    """
     Detect if the TOC object toc contains a periodical that conforms to the
     structure required by kindlegen to generate a periodical.
-    '''
+    """
     if toc.count() < 1 or not toc[0].klass == 'periodical':
         return False
     for node in toc.iterdescendants():
@@ -418,7 +418,7 @@ def to_base(num, base=32, min_num_digits=None):
 
 
 def mobify_image(data):
-    'Convert PNG images to GIF as the idiotic Kindle cannot display some PNG'
+    "Convert PNG images to GIF as the idiotic Kindle cannot display some PNG"
     fmt = what(None, data)
     if fmt == 'png':
         data = png_data_to_gif_data(data)
@@ -428,7 +428,7 @@ def mobify_image(data):
 # Font records {{{
 
 def read_font_record(data, extent=1040):
-    '''
+    """
     Return the font encoded in the MOBI FONT record represented by data.
     The return value in a dict with fields raw_data, font_data, err, ext,
     headers.
@@ -445,7 +445,7 @@ def read_font_record(data, extent=1040):
     error occurred)
     headers is the list of decoded headers from the font record or None if
     decoding failed
-    '''
+    """
     # Format:
     # bytes  0 -  3:  'FONT'
     # bytes  4 -  7:  Uncompressed size
@@ -504,10 +504,10 @@ def read_font_record(data, extent=1040):
 
 
 def write_font_record(data, obfuscate=True, compress=True):
-    '''
+    """
     Write the ttf/otf font represented by data into a font record. See
     read_font_record() for details on the format of the record.
-    '''
+    """
 
     flags = 0
     key_len = 20
@@ -537,14 +537,14 @@ def write_font_record(data, obfuscate=True, compress=True):
 
 
 def create_text_record(text):
-    '''
+    """
     Return a Palmdoc record of size RECORD_SIZE from the text file object.
     In case the record ends in the middle of a multibyte character return
     the overlap as well.
 
     Returns data, overlap: where both are byte strings. overlap is the
     extra bytes needed to complete the truncated multibyte character.
-    '''
+    """
     opos = text.tell()
     text.seek(0, 2)
     # npos is the position of the next record
@@ -589,11 +589,11 @@ def create_text_record(text):
 
 class CNCX:  # {{{
 
-    '''
+    """
     Create the CNCX records. These are records containing all the strings from
     an index. Each record is of the form: <vwi string size><utf-8 encoded
     string>
-    '''
+    """
 
     MAX_STRING_LENGTH = 500
 

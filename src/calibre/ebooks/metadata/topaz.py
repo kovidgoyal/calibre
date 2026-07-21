@@ -120,7 +120,7 @@ class MetadataUpdater:
             raise ValueError("'{}': Damaged metadata record".format(getattr(stream, 'name', 'Unnamed stream')))
 
     def book_length(self):
-        ''' convenience method for retrieving book length '''
+        """ convenience method for retrieving book length """
         self.get_original_metadata()
         if 'bookLength' in self.metadata:
             return int(self.metadata['bookLength'])
@@ -143,7 +143,7 @@ class MetadataUpdater:
         return val, pos
 
     def dump_headers(self):
-        ''' Diagnostic '''
+        """ Diagnostic """
         print('\ndump_headers():')
         for tag in self.topaz_headers:
             print(f'{tag}: ')
@@ -153,7 +153,7 @@ class MetadataUpdater:
                 print(' starting offset: 0x{:x}'.format(self.topaz_headers[tag]['blocks'][0]['offset']))
 
     def dump_hex(self, src, length=16):
-        ''' Diagnostic '''
+        """ Diagnostic """
         FILTER=''.join([((len(repr(chr(x)))==3) and chr(x)) or '.' for x in range(256)])
         N=0
         result=''
@@ -166,7 +166,7 @@ class MetadataUpdater:
         print(result)
 
     def dump_metadata(self):
-        ''' Diagnostic '''
+        """ Diagnostic """
         for tag in self.metadata:
             print(f'{tag}: {self.metadata[tag]!r}')
 
@@ -263,7 +263,7 @@ class MetadataUpdater:
         return ms.getvalue()
 
     def get_metadata(self):
-        ''' Return MetaInformation with title, author'''
+        """ Return MetaInformation with title, author"""
         self.get_original_metadata()
         title = force_unicode(self.metadata['Title'], 'utf-8')
         authors = force_unicode(self.metadata['Authors'], 'utf-8').split(';')

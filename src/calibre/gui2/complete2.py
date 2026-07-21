@@ -284,7 +284,7 @@ class Completer(QListView):  # {{{
         return QListView.mouseMoveEvent(self, e)
 
     def eventFilter(self, object, event):
-        'Redirect key presses from the popup to the widget'
+        "Redirect key presses from the popup to the widget"
         widget = self.parent()
         if widget is None or sip.isdeleted(widget) or not isinstance(widget, QWidget):
             return False
@@ -375,7 +375,7 @@ class Completer(QListView):  # {{{
 
 
 class LineEdit(QLineEdit, LineEditECM):
-    '''
+    """
     A line edit that completes on multiple items separated by a
     separator. Use the :meth:`update_items_cache` to set the list of
     all possible completions. Separator can be controlled with the
@@ -383,7 +383,7 @@ class LineEdit(QLineEdit, LineEditECM):
 
     A call to self.set_separator(None) will allow this widget to be used
     to complete non multiple fields as well.
-    '''
+    """
     item_selected = pyqtSignal(object)
 
     def __init__(self, parent=None, completer_widget=None, sort_func=sort_key, strip_completion_entries=True):
@@ -498,7 +498,7 @@ class LineEdit(QLineEdit, LineEditECM):
         self.complete(select_first=select_first)
 
     def update_completions(self):
-        ' Update the list of completions '
+        " Update the list of completions "
         self.original_cursor_pos = cpos = self.cursorPosition()
         text = str(self.text())
         prefix = text[:cpos]
@@ -508,7 +508,7 @@ class LineEdit(QLineEdit, LineEditECM):
         self.mcompleter.set_completion_prefix(complete_prefix, self.hierarchy_separator)
 
     def get_completed_text(self, text):
-        'Get completed text in before and after parts'
+        "Get completed text in before and after parts"
         if self.sep is None:
             return text, ''
         else:

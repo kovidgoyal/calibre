@@ -43,14 +43,14 @@ class LocaTable(UnknownTable):
         return offset, next_offset - offset
 
     def update(self, resolved_glyph_map):
-        '''
+        """
         Update this table to contain pointers only to the glyphs in
         resolved_glyph_map which must be a map of glyph_ids to (offset, sz)
         Note that the loca table is generated for all glyphs from 0 to the
         largest glyph that is either in resolved_glyph_map or was present
         originally. The pointers to glyphs that have no data will be set to
         zero. This preserves glyph ids.
-        '''
+        """
         current_max_glyph_id = len(self.offset_map) - 2
         max_glyph_id = max(resolved_glyph_map or (0,))
         max_glyph_id = max(max_glyph_id, current_max_glyph_id)

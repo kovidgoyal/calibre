@@ -194,10 +194,10 @@ def link_stylesheets(container, names, sheets, remove=False, mtype='text/css'):
 
 
 def lead_text(top_elem, num_words=10):
-    ''' Return the leading text contained in top_elem (including descendants)
+    """ Return the leading text contained in top_elem (including descendants)
     up to a maximum of num_words words. More efficient than using
     etree.tostring(method='text') as it does not have to serialize the entire
-    sub-tree rooted at top_elem.'''
+    sub-tree rooted at top_elem."""
     pat = re.compile(r'\s+', flags=re.UNICODE)
     words = []
 
@@ -246,8 +246,8 @@ def handle_entities(text, func):
 
 
 def apply_func_to_match_groups(match, func=icu_upper, handle_entities=handle_entities):
-    '''Apply the specified function to individual groups in the match object (the result of re.search() or
-    the whole match if no groups were defined. Returns the replaced string.'''
+    """Apply the specified function to individual groups in the match object (the result of re.search() or
+    the whole match if no groups were defined. Returns the replaced string."""
     found_groups = False
     i = 0
     parts, pos = [], match.start()
@@ -272,7 +272,7 @@ def apply_func_to_match_groups(match, func=icu_upper, handle_entities=handle_ent
 
 
 def apply_func_to_html_text(match, func=icu_upper, handle_entities=handle_entities):
-    ''' Apply the specified function only to text between HTML tag definitions. '''
+    """ Apply the specified function only to text between HTML tag definitions. """
     def f(text):
         return handle_entities(text, func)
     parts = re.split(r'(<[^>]+>)', match.group())
@@ -281,7 +281,7 @@ def apply_func_to_html_text(match, func=icu_upper, handle_entities=handle_entiti
 
 
 def extract(elem):
-    ''' Remove an element from the tree, keeping elem.tail '''
+    """ Remove an element from the tree, keeping elem.tail """
     p = elem.getparent()
     if p is not None:
         idx = p.index(elem)
@@ -294,8 +294,8 @@ def extract(elem):
 
 
 def insert_self_closing(parent, item, index=None):
-    '''Insert item into parent (or append if index is None), fixing
-    indentation. Only works with self closing items.'''
+    """Insert item into parent (or append if index is None), fixing
+    indentation. Only works with self closing items."""
     if index is None:
         parent.append(item)
     else:
@@ -320,10 +320,10 @@ def insert_self_closing(parent, item, index=None):
 
 
 def fixed_layout_data(container):
-    '''
+    """
     Return a dict of the various data for a fixed-layout rendering.
     Return None if not supported.
-    '''
+    """
     if not container.opf_version:
         return None
     if container.opf_version_parsed < (3, 0):

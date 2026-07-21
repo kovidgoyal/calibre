@@ -193,7 +193,7 @@ def get_adapter(name, metadata):
 # One-One fields {{{
 
 def one_one_in_books(book_id_val_map, db, field, *args):
-    'Set a one-one field in the books table'
+    "Set a one-one field in the books table"
     # Ignore those items whose value is the same as the current value
     # We can't do this for the cover because the file might change without
     # the presence-of-cover flag changing
@@ -222,7 +222,7 @@ def set_title(book_id_val_map, db, field, *args):
 
 
 def one_one_in_other(book_id_val_map, db, field, *args):
-    'Set a one-one field in the non-books table, like comments'
+    "Set a one-one field in the non-books table, like comments"
     # Ignore those items whose value is the same as the current value
     g = field.table.book_col_map.get
     book_id_val_map = {k:v for k, v in book_id_val_map.items() if v != g(k, missing)}
@@ -276,8 +276,8 @@ def safe_lower(x):
 
 def get_db_id(val, db, m, table, kmap, rid_map, allow_case_change,
               case_changes, val_map, is_authors=False):
-    ''' Get the db id for the value val. If val does not exist in the db it is
-    inserted into the db. '''
+    """ Get the db id for the value val. If val does not exist in the db it is
+    inserted into the db. """
     kval = kmap(val)
     item_id = rid_map.get(kval, None)
     if item_id is None:
@@ -393,8 +393,8 @@ def many_one(book_id_val_map, db, field, allow_case_change, *args):
 # Many-Many fields {{{
 
 def uniq(vals, kmap=lambda x:x):
-    ''' Remove all duplicates from vals, while preserving order. kmap must be a
-    callable that returns a hashable value for every item in vals '''
+    """ Remove all duplicates from vals, while preserving order. kmap must be a
+    callable that returns a hashable value for every item in vals """
     vals = vals or ()
     lvals = (kmap(x) for x in vals)
     seen = set()

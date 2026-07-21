@@ -1,6 +1,6 @@
-'''
+"""
 Support for reading LIT files.
-'''
+"""
 
 __license__   = 'GPL v3'
 __copyright__ = ('2008, Kovid Goyal <kovid at kovidgoyal.net> '
@@ -876,7 +876,7 @@ class LitFile:
 
 
 class LitContainer:
-    '''Simple Container-interface, read-only accessor for LIT files.'''
+    """Simple Container-interface, read-only accessor for LIT files."""
 
     def __init__(self, filename_or_stream, log):
         self._litfile = LitFile(filename_or_stream, log)

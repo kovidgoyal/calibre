@@ -27,9 +27,9 @@ class ArretSurImages(BasicNewsRecipe):
     ]
 
     def default_cover(self, cover_file):
-        '''
+        """
         Crée une couverture personnalisée avec le logo ASI
-        '''
+        """
         from qt.core import QColor, QFont, QImage, QPainter, QPen, QRect, Qt
 
         from calibre.gui2 import ensure_app, load_builtin_fonts, pixmap_to_data

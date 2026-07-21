@@ -322,71 +322,71 @@ def replace(match, number, file_name, metadata, dictionaries, data, functions, *
 
 @builtin('Upper-case text', upper, apply_func_to_match_groups)
 def replace_uppercase(match, number, file_name, metadata, dictionaries, data, functions, *args, **kwargs):
-    '''Make matched text upper case. If the regular expression contains groups,
+    """Make matched text upper case. If the regular expression contains groups,
     only the text in the groups will be changed, otherwise the entire text is
-    changed.'''
+    changed."""
     return apply_func_to_match_groups(match, upper)
 
 
 @builtin('Lower-case text', lower, apply_func_to_match_groups)
 def replace_lowercase(match, number, file_name, metadata, dictionaries, data, functions, *args, **kwargs):
-    '''Make matched text lower case. If the regular expression contains groups,
+    """Make matched text lower case. If the regular expression contains groups,
     only the text in the groups will be changed, otherwise the entire text is
-    changed.'''
+    changed."""
     return apply_func_to_match_groups(match, lower)
 
 
 @builtin('Capitalize text', capitalize, apply_func_to_match_groups)
 def replace_capitalize(match, number, file_name, metadata, dictionaries, data, functions, *args, **kwargs):
-    '''Capitalize matched text. If the regular expression contains groups,
+    """Capitalize matched text. If the regular expression contains groups,
     only the text in the groups will be changed, otherwise the entire text is
-    changed.'''
+    changed."""
     return apply_func_to_match_groups(match, capitalize)
 
 
 @builtin('Title-case text', titlecase, apply_func_to_match_groups)
 def replace_titlecase(match, number, file_name, metadata, dictionaries, data, functions, *args, **kwargs):
-    '''Title-case matched text. If the regular expression contains groups,
+    """Title-case matched text. If the regular expression contains groups,
     only the text in the groups will be changed, otherwise the entire text is
-    changed.'''
+    changed."""
     return apply_func_to_match_groups(match, titlecase)
 
 
 @builtin('Swap the case of text', swapcase, apply_func_to_match_groups)
 def replace_swapcase(match, number, file_name, metadata, dictionaries, data, functions, *args, **kwargs):
-    '''Swap the case of the matched text. If the regular expression contains groups,
+    """Swap the case of the matched text. If the regular expression contains groups,
     only the text in the groups will be changed, otherwise the entire text is
-    changed.'''
+    changed."""
     return apply_func_to_match_groups(match, swapcase)
 
 
 @builtin('Upper-case text (ignore tags)', upper, apply_func_to_html_text)
 def replace_uppercase_ignore_tags(match, number, file_name, metadata, dictionaries, data, functions, *args, **kwargs):
-    '''Make matched text upper case, ignoring the text inside tag definitions.'''
+    """Make matched text upper case, ignoring the text inside tag definitions."""
     return apply_func_to_html_text(match, upper)
 
 
 @builtin('Lower-case text (ignore tags)', lower, apply_func_to_html_text)
 def replace_lowercase_ignore_tags(match, number, file_name, metadata, dictionaries, data, functions, *args, **kwargs):
-    '''Make matched text lower case, ignoring the text inside tag definitions.'''
+    """Make matched text lower case, ignoring the text inside tag definitions."""
     return apply_func_to_html_text(match, lower)
 
 
 @builtin('Capitalize text (ignore tags)', capitalize, apply_func_to_html_text)
 def replace_capitalize_ignore_tags(match, number, file_name, metadata, dictionaries, data, functions, *args, **kwargs):
-    '''Capitalize matched text, ignoring the text inside tag definitions.'''
+    """Capitalize matched text, ignoring the text inside tag definitions."""
     return apply_func_to_html_text(match, capitalize)
 
 
 @builtin('Title-case text (ignore tags)', titlecase, apply_func_to_html_text)
 def replace_titlecase_ignore_tags(match, number, file_name, metadata, dictionaries, data, functions, *args, **kwargs):
-    '''Title-case matched text, ignoring the text inside tag definitions.'''
+    """Title-case matched text, ignoring the text inside tag definitions."""
     return apply_func_to_html_text(match, titlecase)
 
 
 @builtin('Swap the case of text (ignore tags)', swapcase, apply_func_to_html_text)
 def replace_swapcase_ignore_tags(match, number, file_name, metadata, dictionaries, data, functions, *args, **kwargs):
-    '''Swap the case of the matched text, ignoring the text inside tag definitions.'''
+    """Swap the case of the matched text, ignoring the text inside tag definitions."""
     return apply_func_to_html_text(match, swapcase)
 
 

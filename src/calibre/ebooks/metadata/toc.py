@@ -116,14 +116,14 @@ class TOC(list):
         return depth
 
     def flat(self):
-        'Depth first iteration over the tree rooted at self'
+        "Depth first iteration over the tree rooted at self"
         yield self
         for obj in self:
             yield from obj.flat()
 
     @property
     def abspath(self):
-        'Return the file this toc entry points to as a absolute path to a file on the system.'
+        "Return the file this toc entry points to as a absolute path to a file on the system."
 
         if self.href is None:
             return None

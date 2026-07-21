@@ -6,7 +6,7 @@ from urllib.parse import parse_qs, urlencode, urlparse, urlunparse
 
 
 class Query:
-    '''
+    """
     Represents an opensearch query Really this class is just a
     helper for substituting values into the macros in a format.
 
@@ -16,7 +16,7 @@ class Query:
     q.startIndex = 1
     q.count = 25
     print q.url()
-    '''
+    """
 
     standard_macros = ['searchTerms', 'count', 'startIndex', 'startPage',
         'language', 'outputEncoding', 'inputEncoding']
@@ -30,10 +30,10 @@ class Query:
     inputEncoding: str
 
     def __init__(self, format):
-        '''
+        """
         Create a query object by passing it the url format obtained
         from the opensearch Description.
-        '''
+        """
         self.format = format
 
         # unpack the url to a tuple

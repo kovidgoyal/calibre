@@ -29,7 +29,7 @@ from calibre.utils.localization import _, ngettext
 
 
 def get_data(name):
-    'Get the data for name. Returns a unicode string if name is a text document/stylesheet'
+    "Get the data for name. Returns a unicode string if name is a text document/stylesheet"
     if name in editors:
         return editors[name].get_raw_data()
     return current_container().raw_data(name)

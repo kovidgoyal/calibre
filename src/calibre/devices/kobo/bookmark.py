@@ -8,10 +8,10 @@ from calibre.prints import debug_print
 
 
 class Bookmark:  # {{{
-    '''
+    """
     A simple class fetching bookmark data
     kobo-specific
-    '''
+    """
 
     def __init__(self, db_connection, contentId, path, id, book_format, bookmark_extension):
         self.book_format = book_format
@@ -31,7 +31,7 @@ class Bookmark:  # {{{
         self.get_book_length()          # Not Used
 
     def get_bookmark_data(self):
-        ''' Return the timestamp and last_read_location '''
+        """ Return the timestamp and last_read_location """
         user_notes = {}
         self.timestamp = os.path.getmtime(self.path)
 
@@ -161,10 +161,10 @@ class Bookmark:  # {{{
         pass
 
     def __str__(self):
-        '''
+        """
         A string representation of this object, suitable for printing to
         console
-        '''
+        """
         parts = ['Kobo bookmark:']
 
         def fmt(x, y):

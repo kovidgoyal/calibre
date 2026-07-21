@@ -28,11 +28,11 @@ def cattrs(base, extra):
 
 
 def tokens(tb):
-    '''
+    """
     Return the next token. A token is :
     1. A string
     a block of text that has the same style
-    '''
+    """
     def process_element(x, attrs):
         if isinstance(x, CR):
             yield 2, None
@@ -222,7 +222,7 @@ class Row:
                 self.targets.append(name.replace('#', ''))
 
     def number_of_cells(self):
-        '''Number of cells in this row. Respects colspan'''
+        """Number of cells in this row. Respects colspan"""
         ans = 0
         for cell in self.cells:
             ans += cell.colspan
@@ -296,7 +296,7 @@ class Table:
         return len(self.rows)
 
     def height(self, maxwidth):
-        ''' Return row heights + self.rowpad'''
+        """ Return row heights + self.rowpad"""
         widths = self.get_widths(maxwidth)
         return sum(row.height(widths) + self.rowpad for row in self.rows) - self.rowpad
 
@@ -307,9 +307,9 @@ class Table:
         return max(row.width_percent(col) for row in self.rows)
 
     def get_widths(self, maxwidth):
-        '''
+        """
         Return widths of columns + self.colpad
-        '''
+        """
         rows, cols = self.number_or_rows(), self.number_of_columns()
         widths = list(range(cols))
         for c in range(cols):

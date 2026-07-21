@@ -1,6 +1,6 @@
-'''
+"""
 CSS flattening transform.
-'''
+"""
 
 
 __license__   = 'GPL v3'

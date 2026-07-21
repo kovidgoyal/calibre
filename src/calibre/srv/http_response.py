@@ -113,8 +113,8 @@ def preferred_lang(val, get_translator_for_lang):  # {{{
 
 
 def get_ranges(headervalue, content_length):  # {{{
-    ''' Return a list of ranges from the Range header. If this function returns
-    an empty list, it indicates no valid range was found. '''
+    """ Return a list of ranges from the Range header. If this function returns
+    an empty list, it indicates no valid range was found. """
     if not headervalue:
         return None
 
@@ -261,7 +261,7 @@ class RequestData:  # {{{
         return ETaggedFile(output, etag_as_hexencoded_string)
 
     def etagged_dynamic_response(self, etag, func, content_type='text/html; charset=UTF-8'):
-        ' A response that is generated only if the etag does not match '
+        " A response that is generated only if the etag does not match "
         ct = self.outheaders.get('Content-Type')
         if not ct:
             self.outheaders.set('Content-Type', content_type, replace_all=True)

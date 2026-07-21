@@ -34,7 +34,7 @@ _points_for_word_cache: dict = {}
 
 
 def points_for_word(w):
-    '''Returns the set of all codepoints that contain ``word`` in their names'''
+    """Returns the set of all codepoints that contain ``word`` in their names"""
     w = w.lower()
     ans = _points_for_word_cache.get(w)
     if ans is None:

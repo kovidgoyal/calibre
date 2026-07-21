@@ -8,11 +8,11 @@ class Tag:
     lang: str | None
 
     def __init__(self, name: str, bold: bool | None = None, italic: bool | None = None, lang: str | None = None) -> None:
-        'Tag'
+        "Tag"
         pass
 
     def copy(self) -> Tag:
-        'copy() -> Return a copy of this Tag'
+        "copy() -> Return a copy of this Tag"
         pass
 
 class State:
@@ -40,20 +40,20 @@ class State:
         default_lang: str | None = None,
         attribute_name: str | None = None,
     ) -> None:
-        'State'
+        "State"
         pass
 
     def copy(self) -> State:
-        'copy() -> Return a copy of this Tag'
+        "copy() -> Return a copy of this Tag"
         pass
 
 bold_tags: frozenset[str]
 italic_tags: frozenset[str]
 
 def init(spell_property: Callable[..., Any], recognized: Callable[..., Any], split: Callable[..., Any]) -> None:
-    'init()\n\n Initialize this module'
+    "init()\n\n Initialize this module"
     pass
 
 def check_spelling(text: str, text_len: int, fmt: Any, locale: Any, sfmt: Any, store_locale: bool) -> tuple[tuple[int, Any], ...]:
-    'html_check_spelling()\n\n Speedup inner loop for spell check'
+    "html_check_spelling()\n\n Speedup inner loop for spell check"
     pass

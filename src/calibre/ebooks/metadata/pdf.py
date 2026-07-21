@@ -36,12 +36,12 @@ def check_call(*a):
 
 
 def read_info(outputdir, get_cover):
-    ''' Read info dict and cover from a pdf file named src.pdf in outputdir.
+    """ Read info dict and cover from a pdf file named src.pdf in outputdir.
     Note that this function changes the cwd to outputdir and is therefore not
     thread safe. Run it using fork_job. This is necessary as there is no safe
     way to pass unicode paths via command line arguments. This also ensures
     that if poppler crashes, no stale file handles are left for the original
-    file, only for src.pdf.'''
+    file, only for src.pdf."""
     os.chdir(outputdir)
     pdfinfo, pdftoppm = get_tools()
     ans = {}

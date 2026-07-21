@@ -82,14 +82,14 @@ def process_result(log, result):
 
 def run_download(log, results, abort,
         title=None, authors=None, identifiers={}, timeout=30, get_best_cover=False):
-    '''
+    """
     Run the cover download, putting results into the queue :param:`results`.
 
     Each result is a tuple of the form:
 
         (plugin, width, height, fmt, bytes)
 
-    '''
+    """
     if title == _('Unknown'):
         title = None
     if authors == [_('Unknown')]:

@@ -59,7 +59,7 @@ shutdown = object()
 
 
 def get_data(name):
-    'Get the data for name. Returns a unicode string if name is a text document/stylesheet'
+    "Get the data for name. Returns a unicode string if name is a text document/stylesheet"
     if name in editors:
         return editors[name].get_raw_data()
     return current_container().raw_data(name)
@@ -242,7 +242,7 @@ class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
 
 
 def uniq(vals):
-    ''' Remove all duplicates from vals, while preserving order.  '''
+    """ Remove all duplicates from vals, while preserving order.  """
     vals = vals or ()
     seen = set()
     seen_add = seen.add

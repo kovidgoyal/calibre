@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2008, Kovid Goyal <kovid at kovidgoyal.net>
 
-'''
+"""
 Edit metadata in RTF files.
-'''
+"""
 
 import codecs
 import re
@@ -21,12 +21,12 @@ publisher_pat = re.compile(br'\{\\info.*?\{\\manager(.*?)(?<!\\)\}', re.DOTALL)
 
 
 def get_document_info(stream):
-    '''
+    """
     Extract the \\info block from an RTF file.
     Return the info block as a string and the position in the file at which it
     starts.
     @param stream: File like object pointing to the RTF file.
-    '''
+    """
     block_size = 4096
     stream.seek(0)
     found, block = False, b''
@@ -109,9 +109,9 @@ def decode(raw, codec):
 
 
 def get_metadata(stream):
-    '''
+    """
     Return metadata as a L{MetaInfo} object
-    '''
+    """
     stream.seek(0)
     if stream.read(5) != br'{\rtf':
         return MetaInformation(_('Unknown'))
@@ -185,10 +185,10 @@ def create_metadata(stream, options):
 
 
 def set_metadata(stream, options):
-    '''
+    """
     Modify/add RTF metadata in stream
     @param options: Object with metadata attributes title, author, comment, category
-    '''
+    """
     def add_metadata_item(src, name, val):
         index = src.rindex('}')
         return src[:index] + r'{\ '[:-1] + name + ' ' + val + '}}'

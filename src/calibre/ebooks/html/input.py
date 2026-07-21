@@ -24,9 +24,9 @@ from calibre.utils.filenames import case_ignoring_open_file
 
 
 class Link:
-    '''
+    """
     Represents a link in a HTML file.
-    '''
+    """
 
     @classmethod
     def url_to_local_path(cls, url, base):
@@ -42,11 +42,11 @@ class Link:
         return os.path.abspath(os.path.join(base, path))
 
     def __init__(self, url, base):
-        '''
+        """
         :param url:  The url this link points to. Must be an unquoted unicode string.
         :param base: The base folder that relative URLs are with respect to.
                      Must be a unicode string.
-        '''
+        """
         assert isinstance(url, str) and isinstance(base, str)
         self.url         = url
         self.parsed_url  = urlparse(self.url)
@@ -78,14 +78,14 @@ class IgnoreFile(Exception):
 
 
 class HTMLFile:
-    '''
+    """
     Contains basic information about an HTML file. This
     includes a list of links to other files as well as
     the encoding of each file. Also tries to detect if the file is not a HTML
     file in which case :member:`is_binary` is set to True.
 
     The encoding of the file is available as :member:`encoding`.
-    '''
+    """
 
     HTML_PAT  = re.compile(r'<\s*html', re.IGNORECASE)
     HTML_PAT_BIN  = re.compile(br'<\s*html', re.IGNORECASE)
@@ -95,11 +95,11 @@ class HTMLFile:
     re.DOTALL|re.IGNORECASE)
 
     def __init__(self, path_to_html_file, level, encoding, verbose, referrer=None, correct_case_mismatches=False):
-        '''
+        """
         :param level: The level of this file. Should be 0 for the root file.
         :param encoding: Use `encoding` to decode HTML.
         :param referrer: The :class:`HTMLFile` that first refers to this file.
-        '''
+        """
         self.path     = unicode_path(path_to_html_file, abs=True)
         self.level    = level
         self.referrer = referrer
@@ -244,7 +244,7 @@ def find_tests():
 
 
 def traverse(path_to_html_file, max_levels=sys.maxsize, verbose=0, encoding=None, correct_case_mismatches=False):
-    '''
+    """
     Recursively traverse all links in the HTML file.
 
     :param max_levels: Maximum levels of recursion. Must be non-negative. 0
@@ -253,7 +253,7 @@ def traverse(path_to_html_file, max_levels=sys.maxsize, verbose=0, encoding=None
                        auto-detected.
     :return:           A pair of lists (breadth_first, depth_first). Each list contains
                        :class:`HTMLFile` objects.
-    '''
+    """
     assert max_levels >= 0
     level = 0
     flat = [HTMLFile(path_to_html_file, level, encoding, verbose, correct_case_mismatches=correct_case_mismatches)]
@@ -288,10 +288,10 @@ def traverse(path_to_html_file, max_levels=sys.maxsize, verbose=0, encoding=None
 
 
 def get_filelist(htmlfile, dir, opts, log):
-    '''
+    """
     Build list of files referenced by html file or try to detect and use an
     OPF file instead.
-    '''
+    """
     log.info('Building file list...')
     filelist = traverse(htmlfile, max_levels=int(opts.max_levels),
                         verbose=opts.verbose, correct_case_mismatches=getattr(opts, 'correct_case_mismatches', False),

@@ -177,7 +177,7 @@ class SaveManager(QObject):
         self.notify_data = None
 
     def __empty_queue(self):
-        ' Only to be used during shutdown '
+        " Only to be used during shutdown "
         while True:
             try:
                 self.requests.get_nowait()

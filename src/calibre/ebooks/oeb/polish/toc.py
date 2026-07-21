@@ -95,7 +95,7 @@ class TOC:
 
     @property
     def depth(self):
-        '''The maximum depth of the navigation tree rooted at this node.'''
+        """The maximum depth of the navigation tree rooted at this node."""
         try:
             return max(node.depth for node in self) + 1
         except ValueError:
@@ -423,12 +423,12 @@ def item_at_top(elem):
 
 
 def from_xpaths(container, xpaths, prefer_title=False):
-    '''
+    """
     Generate a Table of Contents from a list of XPath expressions. Each
     expression in the list corresponds to a level of the generate ToC. For
     example: :code:`['//h:h1', '//h:h2', '//h:h3']` will generate a three level
     Table of Contents from the ``<h1>``, ``<h2>`` and ``<h3>`` tags.
-    '''
+    """
     tocroot = TOC()
     xpaths = [XPath(xp) for xp in xpaths]
 
@@ -492,9 +492,9 @@ def from_xpaths(container, xpaths, prefer_title=False):
 
 
 def from_links(container):
-    '''
+    """
     Generate a Table of Contents from links in the book.
-    '''
+    """
     toc = TOC()
     link_path = XPath('//h:a[@href]')
     seen_titles, seen_dests = set(), set()
@@ -545,9 +545,9 @@ def find_text(node):
 
 
 def from_files(container):
-    '''
+    """
     Generate a Table of Contents from files in the book.
-    '''
+    """
     toc = TOC()
     for i, spinepath in enumerate(container.spine_items):
         name = container.abspath_to_name(spinepath)
@@ -889,11 +889,11 @@ def toc_to_html(toc, container, toc_name, title, lang=None):
 
 
 def create_inline_toc(container, title=None):
-    '''
+    """
     Create an inline (HTML) Table of Contents from an existing NCX Table of Contents.
 
     :param title: The title for this table of contents.
-    '''
+    """
     lang = get_book_language(container)
     default_title = 'Table of Contents'
     if lang:

@@ -262,7 +262,7 @@ def fmt_sidx(i, fmt='%.2f', use_roman=False):
 
 
 class Resource:
-    '''
+    """
     Represents a resource (usually a file on the filesystem or a URL pointing
     to the web. Such resources are commonly referred to in OPF files.
 
@@ -272,7 +272,7 @@ class Resource:
     :member:`mime_type`
     :method:`href`
 
-    '''
+    """
 
     def __init__(self, href_or_path, basedir=os.getcwd(), is_path=True):
         self._href = None
@@ -305,13 +305,13 @@ class Resource:
                 self.fragment = unquote(url[-1])
 
     def href(self, basedir=None):
-        '''
+        """
         Return a URL pointing to this resource. If it is a file on the filesystem
         the URL is relative to `basedir`.
 
         `basedir`: If None, the basedir of this resource is used (see :method:`set_basedir`).
         If this resource has no basedir, then the current working directory is used as the basedir.
-        '''
+        """
         if basedir is None:
             if self._basedir:
                 basedir = self._basedir
@@ -374,7 +374,7 @@ class ResourceCollection:
         self._resources.remove(resource)
 
     def replace(self, start, end, items):
-        'Same as list[start:end] = items'
+        "Same as list[start:end] = items"
         self._resources[start:end] = items
 
     @staticmethod
@@ -394,10 +394,10 @@ class ResourceCollection:
 
 
 def MetaInformation(title, authors=(_('Unknown'),)):
-    ''' Convenient encapsulation of book metadata, needed for compatibility
+    """ Convenient encapsulation of book metadata, needed for compatibility
         @param title: title or ``_('Unknown')`` or a MetaInformation object
         @param authors: List of strings or []
-    '''
+    """
     from calibre.ebooks.metadata.book.base import Metadata
     mi = None
     if hasattr(title, 'title') and hasattr(title, 'authors'):
@@ -489,7 +489,7 @@ def format_isbn(isbn):
 
 
 def check_doi(doi):
-    'Check if something that looks like a DOI is present anywhere in the string'
+    "Check if something that looks like a DOI is present anywhere in the string"
     if not doi:
         return None
     doi_check = re.search(r'10\.\d{4}/\S+', doi)

@@ -1,6 +1,6 @@
-'''
+"""
 Read content from ereader pdb file with a 132 byte header created by Dropbook.
-'''
+"""
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'
@@ -20,12 +20,12 @@ from calibre.utils.localization import _
 
 
 class HeaderRecord:
-    '''
+    """
     The first record in the file is always the header record. It holds
     information related to the location of text, images, and so on
     in the file. This is used in conjunction with the sections
     defined in the file header.
-    '''
+    """
 
     def __init__(self, raw):
         self.compression, = struct.unpack('>H', raw[0:2])
@@ -101,11 +101,11 @@ class Reader132(FormatReader):
         return ans
 
     def get_text_page(self, number):
-        '''
+        """
         Only palmdoc and zlib compressed are supported. The text is
         assumed to be encoded as Windows-1252. The encoding is part of
         the eReader file spec and should always be this encoding.
-        '''
+        """
         if not (1 <= number <= self.header_record.num_text_pages):
             return ''
 
@@ -201,10 +201,10 @@ class Reader132(FormatReader):
         return os.path.join(output_dir, 'metadata.opf')
 
     def dump_pml(self):
-        '''
+        """
         This is primarily used for debugging and 3rd party tools to
         get the plm markup that comprises the text in the file.
-        '''
+        """
         pml = ''
 
         for i in range(1, self.header_record.num_text_pages + 1):
@@ -213,10 +213,10 @@ class Reader132(FormatReader):
         return pml
 
     def dump_images(self, output_dir):
-        '''
+        """
         This is primarily used for debugging and 3rd party tools to
         get the images in the file.
-        '''
+        """
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
 

@@ -461,7 +461,7 @@ class Graphics:
         self.pdf.restore_stack()
 
     def resolve_fill(self, rect, pdf_system, qt_system):
-        '''
+        """
         Qt's paint system does not update brushOrigin when using
         TexturePatterns and it also uses TexturePatterns to emulate gradients,
         leading to brokenness. So this method allows the paint engine to update
@@ -470,7 +470,7 @@ class Graphics:
         border, then QtWebKit generates an image of the rect size - border but
         fills the full rect, and there's no way for the paint engine to know
         that and adjust the brush origin.
-        '''
+        """
         if not hasattr(self, 'last_fill') or not self.current_state.do_fill:
             return
 

@@ -194,7 +194,7 @@ def choose_dir(window, name, title, default_dir='~', no_save_dir=False):
 
 def choose_files(window, name, title,
                 filters=[], all_files=True, select_only_single_file=False, default_dir='~', no_save_dir=False):
-    '''
+    """
     Ask user to choose a bunch of files.
     :param name: Unique dialog name used to store the opened directory
     :param title: Title to show in dialogs titlebar
@@ -204,7 +204,7 @@ def choose_files(window, name, title,
                     of extensions.
     :param all_files: If True add All files to filters.
     :param select_only_single_file: If True only one file can be selected
-    '''
+    """
     mode = QFileDialog.FileMode.ExistingFile if select_only_single_file else QFileDialog.FileMode.ExistingFiles
     fd = FileDialog(title=title, name=name, filters=filters, default_dir=default_dir,
                     parent=window, add_all_files_filter=all_files, mode=mode, no_save_dir=no_save_dir,
@@ -216,7 +216,7 @@ def choose_files(window, name, title,
 
 
 def choose_save_file(window, name, title, filters=[], all_files=True, initial_path=None, initial_filename=None):
-    '''
+    """
     Ask user to choose a file to save to. Can be a non-existent file.
     :param filters: list of allowable extensions. Each element of the list
                     must be a 2-tuple with first element a string describing
@@ -225,7 +225,7 @@ def choose_save_file(window, name, title, filters=[], all_files=True, initial_pa
     :param all_files: If True add All files to filters.
     :param initial_path: The initially selected path (does not need to exist). Cannot be used with initial_filename.
     :param initial_filename: If specified, the initially selected path is this filename in the previously used directory. Cannot be used with initial_path.
-    '''
+    """
     kwargs = dict(title=title, name=name, filters=filters,
                     parent=window, add_all_files_filter=all_files, mode=QFileDialog.FileMode.AnyFile)
     if initial_path is not None:

@@ -26,7 +26,7 @@ is_ci = os.environ.get('CI', '').lower() == 'true'
 class LoopTest(BaseTest):
 
     def test_log_rotation(self):
-        'Test log rotation'
+        "Test log rotation"
         from calibre.ptempfile import TemporaryDirectory
         from calibre.srv.utils import RotatingLog
         with TemporaryDirectory() as tdir:
@@ -53,7 +53,7 @@ class LoopTest(BaseTest):
             self.ae(history(), {1,2,3,4,5})
 
     def test_plugins(self):
-        'Test plugin semantics'
+        "Test plugin semantics"
         class Plugin:
 
             def __init__(self):
@@ -78,7 +78,7 @@ class LoopTest(BaseTest):
         self.assertFalse(plugin.running.is_set())
 
     def test_workers(self):
-        ' Test worker semantics '
+        " Test worker semantics "
         with TestServer(lambda data:(data.path[0] + data.read()), worker_count=3) as server:
             self.ae(3, sum(int(w.is_alive()) for w in server.loop.pool.workers))
         self.ae(0, sum(int(w.is_alive()) for w in server.loop.pool.workers))
@@ -102,13 +102,13 @@ class LoopTest(BaseTest):
         self.ae(0, sum(int(w.is_alive()) for w in server.loop.pool.workers))
 
     def test_fallback_interface(self):
-        'Test falling back to default interface'
+        "Test falling back to default interface"
         with TestServer(lambda data:(data.path[0] + data.read()), listen_on='1.1.1.1', fallback_to_detected_interface=True) as server:
             self.assertNotEqual('1.1.1.1', server.address[0])
 
     @skipIf(True, 'Disabled as it is failing on the build server, need to investigate')
     def test_bonjour(self):
-        'Test advertising via BonJour'
+        "Test advertising via BonJour"
         from zeroconf import Zeroconf
 
         from calibre.srv.bonjour import BonJour
@@ -137,7 +137,7 @@ class LoopTest(BaseTest):
             self.ae(r.read(), b'testbody')
 
     def test_ring_buffer(self):
-        'Test the ring buffer used for reads'
+        "Test the ring buffer used for reads"
         class FakeSocket:
 
             def __init__(self, data):
@@ -194,7 +194,7 @@ class LoopTest(BaseTest):
         self.ae(buf.readline(), b'56\n')
 
     def test_ssl(self):
-        'Test serving over SSL'
+        "Test serving over SSL"
         address = '127.0.0.1'
         with TemporaryDirectory('srv-test-ssl') as tdir:
             cert_file, key_file, ca_file = (os.path.join(tdir, x) for x in 'cka')
@@ -215,7 +215,7 @@ class LoopTest(BaseTest):
 
     @skipIf(not has_preactivated_support, 'pre_activated_socket not available')
     def test_socket_activation(self):
-        'Test socket activation'
+        "Test socket activation"
         os.closerange(3, 4)  # Ensure the socket gets fileno == 3
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM, 0)
         s.bind(('localhost', 0))
@@ -233,7 +233,7 @@ class LoopTest(BaseTest):
             self.ae(server.loop.bound_address[1], port)
 
     def test_monotonic(self):
-        'Test the monotonic() clock'
+        "Test the monotonic() clock"
         a = monotonic()
         b = monotonic()
         self.assertGreaterEqual(b, a)
@@ -245,7 +245,7 @@ class LoopTest(BaseTest):
         self.assertLessEqual(b - a, 0.4)
 
     def test_jobs_manager(self):
-        'Test the jobs manager'
+        "Test the jobs manager"
         from calibre.srv.jobs import JobsManager
         O = namedtuple('O', 'max_jobs max_job_time')
 

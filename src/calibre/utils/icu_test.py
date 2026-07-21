@@ -31,7 +31,7 @@ class TestICU(unittest.TestCase):
         icu.change_locale('en')
 
     def test_sorting(self):
-        ' Test the various sorting APIs '
+        " Test the various sorting APIs "
         german = '''Sonntag Montag Dienstag Januar Februar März Fuße Fluße Flusse flusse fluße flüße flüsse'''.split()
         german_good = '''Dienstag Februar flusse Flusse fluße Fluße flüsse flüße Fuße Januar März Montag Sonntag'''.split()
         french = '''dimanche lundi mardi janvier février mars déjà Meme deja même dejà bpef bœg Boef Mémé bœf boef bnef pêche pèché pêché pêche pêché'''.split()
@@ -78,7 +78,7 @@ class TestICU(unittest.TestCase):
         self.ae(0, icu.primary_strcmp('ä', 'A'))
 
     def test_change_case(self):
-        ' Test the various ways of changing the case '
+        " Test the various ways of changing the case "
         from calibre.utils.titlecase import titlecase
         # Test corner cases
         self.ae('A', icu.upper(b'a'))
@@ -95,7 +95,7 @@ class TestICU(unittest.TestCase):
             self.ae(icu.swapcase(x), x.swapcase())
 
     def test_find(self):
-        ' Test searching for substrings '
+        " Test searching for substrings "
         self.ae((1, 1), icu.find(b'a', b'1ab'))
         self.ae((1, 1), icu.find('\U0001f431', 'x\U0001f431x'))
         self.ae((1, 1), icu.find('y', '\U0001f431y'))
@@ -149,7 +149,7 @@ class TestICU(unittest.TestCase):
         self.ae(c.find('pena', 'a peñaabc peña', True), (10, 4))
 
     def test_collation_order(self):
-        'Testing collation ordering'
+        "Testing collation ordering"
         for group in [
             (self.ae,  ('Šaa', 'Smith', 'Solženicyn', 'Štepánek')),
             (self.ae,  ('11', '011')),
@@ -168,7 +168,7 @@ class TestICU(unittest.TestCase):
                 {' ':[''], 'A':['A1', 'a1'], '\U0001f431':['\U0001f431', '\U0001f431x']})
 
     def test_collation_order_for_partitioning(self):
-        'Testing collation ordering for partitioning'
+        "Testing collation ordering for partitioning"
         for group in [
             (self.ae, ('Smith', 'Šaa', 'Solženicyn', 'Štepánek')),
             (self.ane, ('11', '011')),
@@ -187,7 +187,7 @@ class TestICU(unittest.TestCase):
                 {' ':[''], 'A':['A1', 'a1'], '\U0001f431':['\U0001f431', '\U0001f431x']})
 
     def test_roundtrip(self):
-        ' Test roundtripping '
+        " Test roundtripping "
         for r in ('xxx\0\u2219\U0001f431xxx', '\0', '', 'simple'):
             self.ae(r, icu._icu.roundtrip(r))
         self.ae(icu._icu.roundtrip('\ud8e81'), '\ufffd1')
@@ -201,7 +201,7 @@ class TestICU(unittest.TestCase):
         self.ae(icu._icu.ord_string('\U0001f431'), (0x1f431,))
 
     def test_character_name(self):
-        ' Test character naming '
+        " Test character naming "
         from calibre.utils.unicode_names import character_name_from_code
         for q, e in {
                 '\U0001f431': 'CAT FACE'
@@ -210,7 +210,7 @@ class TestICU(unittest.TestCase):
             self.ae(character_name_from_code(icu.ord_string(q)[0]), e)
 
     def test_contractions(self):
-        ' Test contractions '
+        " Test contractions "
         self.skipTest('Skipping as this depends too much on ICU version')
         c = icu._icu.Collator('cs')
         self.ae(icu.contractions(c), frozenset({'Z\u030c', 'z\u030c', 'Ch',
@@ -218,7 +218,7 @@ class TestICU(unittest.TestCase):
             'S\u030c', 'R\u030c'}))
 
     def test_break_iterator(self):
-        ' Test the break iterator '
+        " Test the break iterator "
         from calibre.spell.break_iterator import count_words, index_of, split_into_words_and_positions
         from calibre.spell.break_iterator import split_into_words as split
         for q in ('one two three', ' one two three', 'one\ntwo  three ', ):
@@ -324,7 +324,7 @@ class TestICU(unittest.TestCase):
         self.ae(list(it_comp.iter_breaks()), [(0, 4), (5, 5), (11, 4), (16, 4)])
 
     def test_word_prefix_find(self):
-        ' Test the C implementation of word_prefix_find '
+        " Test the C implementation of word_prefix_find "
         from calibre_extensions import icu as _icu
         c = icu.primary_collator()
         it = _icu.BreakIterator(_icu.UBRK_WORD, 'en')

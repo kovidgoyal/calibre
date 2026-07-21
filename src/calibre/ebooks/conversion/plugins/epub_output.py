@@ -163,7 +163,7 @@ class EPUBOutput(OutputFormatPlugin):
     # }}}
 
     def upshift_markup(self):  # {{{
-        'Upgrade markup to comply with XHTML 1.1 where possible'
+        "Upgrade markup to comply with XHTML 1.1 where possible"
         from calibre.ebooks.oeb.base import XML, XPath
         for x in self.oeb.spine:
             root = x.data
@@ -417,10 +417,10 @@ class EPUBOutput(OutputFormatPlugin):
     # }}}
 
     def workaround_ade_quirks(self):  # {{{
-        '''
+        """
         Perform various markup transforms to get the output to render correctly
         in the quirky ADE.
-        '''
+        """
         from calibre.ebooks.oeb.base import XHTML, XPath, barename, urlunquote
 
         stylesheet = self.oeb.manifest.main_stylesheet
@@ -558,9 +558,9 @@ class EPUBOutput(OutputFormatPlugin):
     # }}}
 
     def workaround_sony_quirks(self):  # {{{
-        '''
+        """
         Perform toc link transforms to alleviate slow loading.
-        '''
+        """
         from calibre.ebooks.oeb.base import XPath, urldefrag
         from calibre.ebooks.oeb.polish.toc import item_at_top
 

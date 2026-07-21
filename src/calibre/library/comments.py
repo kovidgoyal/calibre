@@ -18,7 +18,7 @@ sanitize_pat = re.compile(r'<script|<table|<tr|<td|<th|<style|<iframe',
 
 
 def comments_to_html(comments):
-    '''
+    """
     Convert random comment text to normalized, xml-legal block of <p>s
     'plain text' returns as
     <p>plain text</p>
@@ -41,7 +41,7 @@ def comments_to_html(comments):
 
     Deprecated HTML returns as HTML via BeautifulSoup()
 
-    '''
+    """
     if not comments:
         return '<p></p>'
     if not isinstance(comments, str):

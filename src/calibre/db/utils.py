@@ -119,7 +119,7 @@ class CacheError(Exception):
 
 
 class ThumbnailCache:
-    ' This is a persistent disk cache to speed up loading and resizing of covers '
+    " This is a persistent disk cache to speed up loading and resizing of covers "
 
     def __init__(self,
         max_size=1024,  # The maximum disk space in MB
@@ -157,10 +157,10 @@ class ThumbnailCache:
             self.log('Failed to delete cached thumbnail file:', as_unicode(err))
 
     def _load_index(self):
-        '''
+        """
         Load the index, automatically removing incorrectly sized thumbnails and
         pruning to fit max_size
-        '''
+        """
 
         # Remove the cache if it isn't the current version
         version_path = os.path.join(self.location, 'version')

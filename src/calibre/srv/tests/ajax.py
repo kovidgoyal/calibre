@@ -35,7 +35,7 @@ def make_request(conn, url, headers={}, prefix='/ajax', username=None, password=
 class ContentTest(LibraryBaseTest):
 
     def test_ajax_book(self):  # {{{
-        'Test /ajax/book'
+        "Test /ajax/book"
         with self.create_server() as server:
             db = server.handler.router.ctx.library_broker.get(None)
             conn = server.connect()
@@ -59,7 +59,7 @@ class ContentTest(LibraryBaseTest):
     # }}}
 
     def test_move_duplicate_to_library(self):  # {{{
-        'Test that ignored duplicates are not removed when moving to another library'
+        "Test that ignored duplicates are not removed when moving to another library"
         target_library_path = self.mkdtemp()
         self.create_db(target_library_path)
         with self.create_server(libraries=(self.library_path, target_library_path), auth=True, auth_mode='basic') as server:
@@ -126,7 +126,7 @@ class ContentTest(LibraryBaseTest):
     # }}}
 
     def test_ajax_categories(self):  # {{{
-        'Test /ajax/categories and /ajax/search'
+        "Test /ajax/categories and /ajax/search"
         with self.create_server() as server:
             db = server.handler.router.ctx.library_broker.get(None)
             db.set_pref('virtual_libraries', {'1':'title:"=Title One"'})
@@ -158,7 +158,7 @@ class ContentTest(LibraryBaseTest):
     # }}}
 
     def test_interface_data_browse_fields(self):  # {{{
-        'Test /interface-data browse field data'
+        "Test /interface-data browse field data"
         with self.create_server() as server:
             from calibre.gui2 import gprefs
             from calibre.srv import metadata as srv_metadata
@@ -240,7 +240,7 @@ class ContentTest(LibraryBaseTest):
     # }}}
 
     def test_srv_restrictions(self):  # {{{
-        ' Test that virtual lib. + search restriction works on all end points'
+        " Test that virtual lib. + search restriction works on all end points"
         with self.create_server(auth=True, auth_mode='basic') as server:
             db = server.handler.router.ctx.library_broker.get(None)
             db.set_pref('virtual_libraries', {'1':'id:1', '12':'id:1 or id:2'})

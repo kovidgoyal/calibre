@@ -58,13 +58,13 @@ def get_body(root):
 
 
 def do_split(split_point, log, before=True):
-    '''
+    """
     Split tree into a *before* and an *after* tree at ``split_point``.
 
     :param split_point: The Element at which to split
     :param before: If True tree is split before split_point, otherwise after split_point
     :return: before_tree, after_tree
-    '''
+    """
     if before:
         # We cannot adjust for after since moving an after split point to a
         # parent will cause breakage if the parent contains any content
@@ -264,13 +264,13 @@ def split(container, name, loc_or_xpath, before=True, totals=None):
 
 
 def multisplit(container, name, xpath, before=True):
-    '''
+    """
     Split the specified file at multiple locations (all tags that match the specified XPath expression). See also: :func:`split`.
     Splitting automatically migrates all links and references to the affected
     files.
 
     :param before: If True the splits occur before the identified element otherwise after it.
-    '''
+    """
     root = container.parsed(name)
     nodes = root.xpath(xpath, namespaces=XPNSMAP)
     if not nodes:
@@ -494,14 +494,14 @@ def merge_css(container, names, master):
 
 
 def merge(container, category, names, master):
-    '''
+    """
     Merge the specified files into a single file, automatically migrating all
     links and references to the affected files. The file must all either be HTML or CSS files.
 
     :param category: Must be either ``'text'`` for HTML files or ``'styles'`` for CSS files
     :param names: The list of files to be merged
     :param master: Which of the merged files is the *master* file, that is, the file that will remain after merging.
-    '''
+    """
     if category not in {'text', 'styles'}:
         raise AbortError(f'Cannot merge files of type: {category}')
     if len(names) < 2:

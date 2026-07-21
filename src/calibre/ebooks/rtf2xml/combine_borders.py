@@ -19,7 +19,7 @@ from . import open_for_read, open_for_write
 
 
 class CombineBorders:
-    '''Combine borders in RTF tokens to make later processing easier'''
+    """Combine borders in RTF tokens to make later processing easier"""
 
     def __init__(self,
             in_file,

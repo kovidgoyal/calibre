@@ -66,7 +66,7 @@ class Formatter(TemplateFormatter):
 
 
 class CatalogBuilder:
-    '''
+    """
     Generates catalog source files from calibre database
 
     Flow of control:
@@ -82,7 +82,7 @@ class CatalogBuilder:
                                            _opts.connected_kindle and
                                            self.generate_for_kindle_mobi) else False
     Does not work with AZW3, interferes with new prefix handling
-    '''
+    """
 
     DEBUG = False
 
@@ -222,7 +222,7 @@ class CatalogBuilder:
     ''' key() functions '''
 
     def _kf_author_to_author_sort(self, author):
-        ''' Compute author_sort value from author
+        """ Compute author_sort value from author
 
         Tokenize author string, return capitalized string with last token first
 
@@ -231,7 +231,7 @@ class CatalogBuilder:
 
         Return:
          (str): 'Smith, john'
-        '''
+        """
         tokens = author.split()
         tokens = tokens[-1:] + tokens[:-1]
         if len(tokens) > 1:
@@ -239,7 +239,7 @@ class CatalogBuilder:
         return ' '.join(tokens).capitalize()
 
     def _kf_books_by_author_sorter_author(self, book):
-        ''' Generate book sort key with computed author_sort.
+        """ Generate book sort key with computed author_sort.
 
         Generate a sort key of computed author_sort, title. Used to look for
         author_sort mismatches.
@@ -252,7 +252,7 @@ class CatalogBuilder:
 
         Return:
          (str): sort key
-        '''
+        """
         if not book['series']:
             key = '{} {}'.format(self._kf_author_to_author_sort(book['author']),
                                 capitalize(book['title_sort']))
@@ -267,7 +267,7 @@ class CatalogBuilder:
         return key
 
     def _kf_books_by_author_sorter_author_sort(self, book, longest_author_sort=60):
-        ''' Generate book sort key with supplied author_sort.
+        """ Generate book sort key with supplied author_sort.
 
         Generate a sort key of author_sort, title.
         Bang, tilde included to force series to sort after non-series books.
@@ -277,7 +277,7 @@ class CatalogBuilder:
 
         Return:
          (str): sort key
-        '''
+        """
         if not book['series']:
             fs = '{:<%d}!{!s}' % longest_author_sort  # noqa: UP031
             key = fs.format(capitalize(book['author_sort']),
@@ -305,7 +305,7 @@ class CatalogBuilder:
     ''' Methods '''
 
     def build_sources(self):
-        ''' Generate catalog source files.
+        """ Generate catalog source files.
 
         Assemble OPF, HTML and NCX files reflecting catalog options.
         Generated source is OEB compliant.
@@ -320,7 +320,7 @@ class CatalogBuilder:
         Results:
          error: problems reported during build
 
-        '''
+        """
 
         self.fetch_books_by_title()
         self.fetch_books_by_author()
@@ -369,7 +369,7 @@ class CatalogBuilder:
         self.write_ncx()
 
     def calculate_thumbnail_dimensions(self):
-        ''' Calculate thumb dimensions based on device DPI.
+        """ Calculate thumb dimensions based on device DPI.
 
         Using the specified output profile, calculate thumb_width
         in pixels, then set height to width * 1.33. Special-case for
@@ -383,7 +383,7 @@ class CatalogBuilder:
         Outputs:
          thumb_width (float): calculated thumb_width
          thumb_height (float): calculated thumb_height
-        '''
+        """
 
         for x in output_profiles():
             if x.short_name == self.opts.output_profile:
@@ -400,7 +400,7 @@ class CatalogBuilder:
             self.opts.log(f'  DPI = {x.dpi}; thumbnail dimensions: {self.thumb_width} x {self.thumb_height}')
 
     def compute_total_steps(self):
-        ''' Calculate number of build steps to generate catalog.
+        """ Calculate number of build steps to generate catalog.
 
         Calculate total number of build steps based on enabled sections.
 
@@ -409,7 +409,7 @@ class CatalogBuilder:
 
         Outputs:
          total_steps (int): updated
-        '''
+        """
         # Tweak build steps based on optional sections:  1 call for HTML, 1 for NCX
         incremental_jobs = 0
         if self.opts.generate_authors:
@@ -428,7 +428,7 @@ class CatalogBuilder:
         self.total_steps += incremental_jobs
 
     def confirm_thumbs_archive(self):
-        ''' Validate thumbs archive.
+        """ Validate thumbs archive.
 
         Confirm existence of thumbs archive, or create if absent.
         Confirm stored thumb_width matches current opts.thumb_width,
@@ -442,7 +442,7 @@ class CatalogBuilder:
         Outputs:
          thumbs_path (file): new (non_existent or invalidated), or
                                   validated existing thumbs archive
-        '''
+        """
         if self.opts.generate_descriptions:
             if not os.path.exists(self.cache_dir):
                 self.opts.log.info(f"  creating new thumb cache '{self.cache_dir}'")
@@ -471,7 +471,7 @@ class CatalogBuilder:
                     self.opts.log.info(f'  existing thumb cache at {self.thumbs_path}, cached_thumb_width: {float(cached_thumb_width):1.2f}"')
 
     def convert_html_entities(self, s):
-        ''' Convert string containing HTML entities to its unicode equivalent.
+        """ Convert string containing HTML entities to its unicode equivalent.
 
         Convert a string containing HTML entities of the form '&amp;' or '&97;'
         to a normalized unicode string. E.g., 'AT&amp;T' converted to 'AT&T'.
@@ -481,11 +481,11 @@ class CatalogBuilder:
 
         Return:
          s (str): converted string
-        '''
+        """
         return replace_entities(s)
 
     def copy_catalog_resources(self):
-        ''' Copy resources from calibre source to self.catalog_path.
+        """ Copy resources from calibre source to self.catalog_path.
 
         Copy basic resources - default cover, stylesheet, and masthead (Kindle only)
         from calibre resource directory to self.catalog_path, a temporary directory
@@ -496,7 +496,7 @@ class CatalogBuilder:
 
         Output:
          resource files copied to self.catalog_path/*
-        '''
+        """
         self.create_catalog_directory_structure()
         catalog_resources = P('catalog')
 
@@ -521,7 +521,7 @@ class CatalogBuilder:
                 pass
 
     def create_catalog_directory_structure(self):
-        ''' Create subdirs in catalog output dir.
+        """ Create subdirs in catalog output dir.
 
         Create /content and /images in self.catalog_path
 
@@ -530,7 +530,7 @@ class CatalogBuilder:
 
         Output:
          /content, /images created
-        '''
+        """
         if not os.path.isdir(self.catalog_path):
             os.makedirs(self.catalog_path)
 
@@ -542,7 +542,7 @@ class CatalogBuilder:
             os.makedirs(images_path)
 
     def detect_author_sort_mismatches(self, books_to_test):
-        ''' Detect author_sort mismatches.
+        """ Detect author_sort mismatches.
 
         Sort by author, look for inconsistencies in author_sort among
         similarly-named authors. Fatal for MOBI generation, a mere
@@ -556,7 +556,7 @@ class CatalogBuilder:
 
         Exceptions:
          AuthorSortMismatchException: author_sort mismatch detected
-        '''
+        """
 
         books_by_author = sorted(books_to_test, key=self._kf_books_by_author_sorter_author)
 
@@ -594,7 +594,7 @@ class CatalogBuilder:
                 current_author = author
 
     def discover_prefix(self, record):
-        ''' Return a prefix for record.
+        """ Return a prefix for record.
 
         Evaluate record against self.prefix_rules. Return assigned prefix
         if matched.
@@ -605,7 +605,7 @@ class CatalogBuilder:
         Return:
          prefix (str): matched a prefix_rule
          None: no match
-        '''
+        """
         def _log_prefix_rule_match_info(rule, record, matched):
             self.opts.log.info("  {} '{}' by {} ({}: '{}' contains '{}')".format(rule['prefix'], record['title'],
                                 record['authors'][0], rule['name'],
@@ -661,9 +661,9 @@ class CatalogBuilder:
         return None
 
     def dump_custom_fields(self):
-        '''
+        """
         Dump custom field mappings for debugging
-        '''
+        """
         if self.opts.verbose:
             self.opts.log.info(' Custom fields:')
             all_custom_fields = self.db.custom_field_keys()
@@ -672,7 +672,7 @@ class CatalogBuilder:
                     cf, self.db.metadata_for_field(cf)['name'], self.db.metadata_for_field(cf)['datatype']))
 
     def establish_equivalencies(self, item_list, key=None):
-        ''' Return icu equivalent sort letter.
+        """ Return icu equivalent sort letter.
 
         Returns base sort letter for accented characters. Code provided by
         chaley, modified to force unaccented base letters for A, O & U when
@@ -683,7 +683,7 @@ class CatalogBuilder:
 
         Return:
          cl_list (list): list of equivalent leading chars, 1:1 correspondence to item_list
-        '''
+        """
 
         # Hack to force the cataloged leading letter to be
         # an unadorned character if the accented version sorts before the unaccented
@@ -749,7 +749,7 @@ class CatalogBuilder:
         return cl_list
 
     def fetch_books_by_author(self):
-        ''' Generate a list of books sorted by author.
+        """ Generate a list of books sorted by author.
 
         For books with multiple authors, relist book with additional authors.
         Sort the database by author. Report author_sort inconsistencies as warning when
@@ -768,7 +768,7 @@ class CatalogBuilder:
         Return:
          True: no errors
          False: author_sort mismatch detected while building MOBI
-        '''
+        """
 
         self.update_progress_full_step(_('Sorting database'))
 
@@ -858,7 +858,7 @@ class CatalogBuilder:
         return True
 
     def fetch_books_by_title(self):
-        ''' Generate a list of books sorted by title.
+        """ Generate a list of books sorted by title.
 
         Sort the database by title.
 
@@ -871,7 +871,7 @@ class CatalogBuilder:
         Return:
          True: no errors
          False: author_sort mismatch detected while building MOBI
-        '''
+        """
         self.update_progress_full_step(_('Sorting titles'))
         # Re-sort based on title_sort
         assert self.books_to_catalog is not None
@@ -891,7 +891,7 @@ class CatalogBuilder:
             raise EmptyCatalogException(error_msg)
 
     def fetch_books_to_catalog(self):
-        ''' Populate self.books_to_catalog from database
+        """ Populate self.books_to_catalog from database
 
         Create self.books_to_catalog from filtered database.
         Keys:
@@ -924,10 +924,10 @@ class CatalogBuilder:
         Returns:
          True: Successful
          False: Empty data, (check filter restrictions)
-        '''
+        """
 
         def _populate_title(record):
-            ''' populate this_title with massaged metadata '''
+            """ populate this_title with massaged metadata """
             this_title = {}
 
             this_title['id'] = record['id']
@@ -1081,7 +1081,7 @@ class CatalogBuilder:
         return titles
 
     def fetch_bookmarks(self):
-        ''' Interrogate connected Kindle for bookmarks.
+        """ Interrogate connected Kindle for bookmarks.
 
         Discover bookmarks associated with books on Kindle downloaded by calibre.
         Used in Descriptions to show reading progress, Last Read section showing date
@@ -1095,7 +1095,7 @@ class CatalogBuilder:
 
         Output:
          bookmarked_books (dict): dict of Bookmarks
-        '''
+        """
 
         from calibre.devices.kindle.bookmark import Bookmark
         from calibre.devices.usbms.device import Device
@@ -1196,7 +1196,7 @@ class CatalogBuilder:
             self.bookmarked_books = bookmarks
 
     def filter_genre_tags(self, max_len):
-        ''' Remove excluded tags from data set, return normalized genre list.
+        """ Remove excluded tags from data set, return normalized genre list.
 
         Filter all db tags, removing excluded tags supplied in opts.
         Test for multiple tags resolving to same normalized form. Normalized
@@ -1207,7 +1207,7 @@ class CatalogBuilder:
 
         Return:
          genre_tags_dict (dict): dict of filtered, normalized tags in data set
-        '''
+        """
 
         def _format_tag_list(tags, indent=1, line_break=70, header='Tag list'):
             def _next_tag(sorted_tags):
@@ -1229,7 +1229,7 @@ class CatalogBuilder:
             return ans + out_str
 
         def _normalize_tag(tag, max_len):
-            ''' Generate an XHTML-legal anchor string from tag.
+            """ Generate an XHTML-legal anchor string from tag.
 
             Parse tag for non-ascii, convert to unicode name.
 
@@ -1240,7 +1240,7 @@ class CatalogBuilder:
             Return:
              normalized (str): unicode names substituted for non-ascii chars,
               clipped to max_len
-            '''
+            """
 
             normalized = massaged = re.sub(r'\s', '', ascii_text(tag).lower())
             if re.search(r'\W', normalized):
@@ -1316,7 +1316,7 @@ class CatalogBuilder:
         return genre_tags_dict
 
     def filter_excluded_genres(self, tags, regex):
-        ''' Remove excluded tags from a tag list
+        """ Remove excluded tags from a tag list
 
         Run regex against list of tags, remove matching tags. Return filtered list.
 
@@ -1325,7 +1325,7 @@ class CatalogBuilder:
 
         Return:
          tag_list(list): filtered list of tags
-        '''
+        """
 
         tag_list = []
 
@@ -1343,7 +1343,7 @@ class CatalogBuilder:
         return tag_list
 
     def format_ncx_text(self, description, dest=None):
-        ''' Massage NCX text for Kindle.
+        """ Massage NCX text for Kindle.
 
         Convert HTML entities for proper display on Kindle, convert
         '&amp;' to '&#38;' (Kindle fails).
@@ -1354,7 +1354,7 @@ class CatalogBuilder:
 
         Return:
          (str): massaged, possibly truncated description
-        '''
+        """
         # Kindle TOC descriptions won't render certain characters
         # Fix up
         massaged = xml_replace_entities(str(description))
@@ -1369,11 +1369,11 @@ class CatalogBuilder:
             return None
 
     def insert_prefix(self, soup, parent_tag, pos, prefix_char):
-        ''' Generate HTML snippet with prefix character.
+        """ Generate HTML snippet with prefix character.
 
         Insert a <code> snippet for Kindle, <span> snippet for EPUB.
         Optimized to preserve first-column alignment for MOBI, EPUB.
-        '''
+        """
         if self.opts.fmt == 'mobi':
             tag = soup.new_tag('code')
         else:
@@ -1383,7 +1383,7 @@ class CatalogBuilder:
         parent_tag.insert(pos, tag)
 
     def generate_author_anchor(self, author):
-        ''' Generate legal XHTML anchor.
+        """ Generate legal XHTML anchor.
 
         Convert author to legal XHTML (may contain unicode chars), stripping
         non-alphanumeric chars.
@@ -1393,11 +1393,11 @@ class CatalogBuilder:
 
         Return:
          (str): asciized version of author
-        '''
+        """
         return re.sub(r'\W', '', ascii_text(author))
 
     def generate_format_args(self, book):
-        ''' Generate the format args for template substitution.
+        """ Generate the format args for template substitution.
 
         self.load_section_templates imports string formatting templates of the form
         'by_*_template.py' for use in the various sections. The templates are designed to use
@@ -1408,7 +1408,7 @@ class CatalogBuilder:
 
         Return:
          (dict): formatted args for templating
-        '''
+        """
         series_index = str(book['series_index'])
         series_index = series_index.removesuffix('.0')
         args = dict(
@@ -1422,7 +1422,7 @@ class CatalogBuilder:
         return args
 
     def generate_html_by_author(self):
-        ''' Generate content/ByAlphaAuthor.html.
+        """ Generate content/ByAlphaAuthor.html.
 
         Loop through self.books_by_author, generate HTML
         with anchors for author and index letters.
@@ -1432,7 +1432,7 @@ class CatalogBuilder:
 
         Output:
          content/ByAlphaAuthor.html (file)
-        '''
+        """
 
         friendly_name = _('Authors')
         self.update_progress_full_step(f'{friendly_name} HTML')
@@ -1644,7 +1644,7 @@ class CatalogBuilder:
         self.html_filelist_1.append('content/ByAlphaAuthor.html')
 
     def generate_html_by_date_added(self):
-        ''' Generate content/ByDateAdded.html.
+        """ Generate content/ByDateAdded.html.
 
         Loop through self.books_to_catalog sorted by reverse date, generate HTML.
 
@@ -1653,7 +1653,7 @@ class CatalogBuilder:
 
         Output:
          content/ByDateAdded.html (file)
-        '''
+        """
 
         def _add_books_to_html_by_month(this_months_list, dtc):
             if len(this_months_list):
@@ -1909,7 +1909,7 @@ class CatalogBuilder:
         self.html_filelist_2.append('content/ByDateAdded.html')
 
     def generate_html_by_date_read(self):
-        ''' Generate content/ByDateRead.html.
+        """ Generate content/ByDateRead.html.
 
         Create self.bookmarked_books_by_date_read from self.bookmarked_books.
         Loop through self.bookmarked_books_by_date_read, generate HTML.
@@ -1919,7 +1919,7 @@ class CatalogBuilder:
 
         Output:
          content/ByDateRead.html (file)
-        '''
+        """
 
         def _add_books_to_html_by_day(todays_list, dtc):
             if len(todays_list):
@@ -2087,7 +2087,7 @@ class CatalogBuilder:
         self.html_filelist_2.append('content/ByDateRead.html')
 
     def generate_html_by_genres(self):
-        ''' Generate individual HTML files per tag.
+        """ Generate individual HTML files per tag.
 
         Filter out excluded tags. For each tag qualifying as a genre,
         create a separate HTML file. Normalize tags to flatten synonymous tags.
@@ -2097,7 +2097,7 @@ class CatalogBuilder:
 
         Output:
          (files): HTML file per genre
-        '''
+        """
 
         self.update_progress_full_step(_('Genres HTML'))
 
@@ -2200,7 +2200,7 @@ class CatalogBuilder:
         self.genres = master_genre_list
 
     def generate_html_by_genre(self, genre, section_head, books, outfile):
-        ''' Generate individual genre HTML file.
+        """ Generate individual genre HTML file.
 
         Generate an individual genre HTML file. Called from generate_html_by_genres()
 
@@ -2215,7 +2215,7 @@ class CatalogBuilder:
 
         Returns:
          titles_spanned (list): [(first_author, first_book), (last_author, last_book)]
-        '''
+        """
 
         soup = self.generate_html_genre_header(genre)
         body = soup.find('body')
@@ -2341,7 +2341,7 @@ class CatalogBuilder:
         return titles_spanned
 
     def generate_html_by_series(self):
-        ''' Generate content/BySeries.html.
+        """ Generate content/BySeries.html.
 
         Search database for books in series.
 
@@ -2351,7 +2351,7 @@ class CatalogBuilder:
         Output:
          content/BySeries.html (file)
 
-        '''
+        """
         friendly_name = ngettext('Series', 'Series', 2)
         self.update_progress_full_step(f'{friendly_name} HTML')
 
@@ -2495,7 +2495,7 @@ class CatalogBuilder:
         self.html_filelist_1.append('content/BySeries.html')
 
     def generate_html_by_title(self):
-        ''' Generate content/ByAlphaTitle.html.
+        """ Generate content/ByAlphaTitle.html.
 
         Generate HTML of books sorted by title.
 
@@ -2504,7 +2504,7 @@ class CatalogBuilder:
 
         Output:
          content/ByAlphaTitle.html (file)
-        '''
+        """
 
         self.update_progress_full_step(_('Titles HTML'))
 
@@ -2652,7 +2652,7 @@ class CatalogBuilder:
         self.html_filelist_1.append('content/ByAlphaTitle.html')
 
     def generate_html_description_header(self, book):
-        ''' Generate the HTML Description header from template.
+        """ Generate the HTML Description header from template.
 
         Create HTML Description from book metadata and template.
         Called by generate_html_descriptions()
@@ -2662,7 +2662,7 @@ class CatalogBuilder:
 
         Return:
          soup (BeautifulSoup): HTML Description for book
-        '''
+        """
 
         from calibre.ebooks.oeb.base import XHTML_NS
         assert self.bookmarked_books is not None
@@ -2854,7 +2854,7 @@ class CatalogBuilder:
         return soup
 
     def generate_html_descriptions(self):
-        ''' Generate Description HTML for each book.
+        """ Generate Description HTML for each book.
 
         Loop though books, write Description HTML for each book.
 
@@ -2863,7 +2863,7 @@ class CatalogBuilder:
 
         Output:
          (files): Description HTML for each book
-        '''
+        """
 
         self.update_progress_full_step(_('Descriptions HTML'))
 
@@ -2880,7 +2880,7 @@ class CatalogBuilder:
                 outfile.write(prettify(soup).encode('utf-8'))
 
     def generate_html_empty_header(self, title):
-        ''' Return a boilerplate HTML header.
+        """ Return a boilerplate HTML header.
 
         Generate an HTML header with document title.
 
@@ -2889,7 +2889,7 @@ class CatalogBuilder:
 
         Return:
          soup (BeautifulSoup): HTML header with document title inserted
-        '''
+        """
 
         header = '''
             <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
@@ -2910,7 +2910,7 @@ class CatalogBuilder:
         return soup
 
     def generate_html_genre_header(self, title):
-        ''' Generate HTML header with initial body content
+        """ Generate HTML header with initial body content
 
         Start with a generic HTML header, add <p> and <div>
 
@@ -2919,7 +2919,7 @@ class CatalogBuilder:
 
         Return:
          soup (BeautifulSoup): HTML with initial <p> and <div> tags
-        '''
+        """
 
         soup = self.generate_html_empty_header(title)
         bodyTag = soup.find('body')
@@ -2932,7 +2932,7 @@ class CatalogBuilder:
         return soup
 
     def generate_masthead_image(self, out_path):
-        ''' Generate a Kindle masthead image.
+        """ Generate a Kindle masthead image.
 
         Generate a Kindle masthead image, used with Kindle periodical format.
 
@@ -2945,7 +2945,7 @@ class CatalogBuilder:
 
         Output:
          out_path (file): masthead image (GIF)
-        '''
+        """
 
         from calibre.ebooks.conversion.config import load_defaults
 
@@ -2985,7 +2985,7 @@ class CatalogBuilder:
             img.save(f, 'GIF')
 
     def generate_ncx_header(self):
-        ''' Generate the basic NCX file.
+        """ Generate the basic NCX file.
 
         Generate the initial NCX, which is added to depending on included Sections.
 
@@ -2997,7 +2997,7 @@ class CatalogBuilder:
 
         Outputs:
          ncx_root (file): NCX foundation
-        '''
+        """
 
         self.update_progress_full_step(_('NCX header'))
 
@@ -3062,7 +3062,7 @@ class CatalogBuilder:
                 makeelement('{http://calibre.kovidgoyal.net/2009/metadata}meta', navPointVolumeTag, name=name).text = text
 
     def generate_ncx_descriptions(self, tocTitle):
-        ''' Add Descriptions to the basic NCX file.
+        """ Add Descriptions to the basic NCX file.
 
         Generate the Descriptions NCX content, add to self.ncx_soup.
 
@@ -3074,7 +3074,7 @@ class CatalogBuilder:
 
         Outputs:
          ncx_soup (file): updated
-        '''
+        """
         section_header = f'{tocTitle} [{len(self.books_by_description)}]'
         if self.generate_for_kindle_mobi:
             section_header = tocTitle
@@ -3131,7 +3131,7 @@ class CatalogBuilder:
             self.generate_ncx_subsection(navPointTag, sec_id, sec_text, content_src, cm_tags)
 
     def generate_ncx_by_series(self, tocTitle):
-        ''' Add Series to the basic NCX file.
+        """ Add Series to the basic NCX file.
 
         Generate the Series NCX content, add to self.ncx_soup.
 
@@ -3143,7 +3143,7 @@ class CatalogBuilder:
 
         Outputs:
          ncx_soup (file): updated
-        '''
+        """
 
         self.update_progress_full_step(_('NCX for Series'))
 
@@ -3213,7 +3213,7 @@ class CatalogBuilder:
             self.generate_ncx_subsection(navPointTag, sec_id, sec_text, content_src, cm_tags)
 
     def generate_ncx_by_title(self, tocTitle):
-        ''' Add Titles to the basic NCX file.
+        """ Add Titles to the basic NCX file.
 
         Generate the Titles NCX content, add to self.ncx_soup.
 
@@ -3225,7 +3225,7 @@ class CatalogBuilder:
 
         Outputs:
          ncx_soup (file): updated
-        '''
+        """
 
         self.update_progress_full_step(_('NCX for Titles'))
 
@@ -3298,7 +3298,7 @@ class CatalogBuilder:
             self.generate_ncx_subsection(navPointTag, sec_id, sec_text, content_src, cm_tags)
 
     def generate_ncx_by_author(self, tocTitle):
-        ''' Add Authors to the basic NCX file.
+        """ Add Authors to the basic NCX file.
 
         Generate the Authors NCX content, add to self.ncx_soup.
 
@@ -3310,7 +3310,7 @@ class CatalogBuilder:
 
         Outputs:
          ncx_soup (file): updated
-        '''
+        """
 
         self.update_progress_full_step(_('NCX for Authors'))
 
@@ -3376,7 +3376,7 @@ class CatalogBuilder:
             self.generate_ncx_subsection(navPointTag, sec_id, sec_text, content_src, cm_tags)
 
     def generate_ncx_by_date_added(self, tocTitle):
-        ''' Add Recently Added to the basic NCX file.
+        """ Add Recently Added to the basic NCX file.
 
         Generate the Recently Added NCX content, add to self.ncx_soup.
 
@@ -3388,7 +3388,7 @@ class CatalogBuilder:
 
         Outputs:
          ncx_soup (file): updated
-        '''
+        """
 
         self.update_progress_full_step(_('NCX for Recently Added'))
 
@@ -3483,7 +3483,7 @@ class CatalogBuilder:
             self.generate_ncx_subsection(navPointTag, sec_id, sec_text, content_src, cm_tags)
 
     def generate_ncx_by_date_read(self, tocTitle):
-        ''' Add By Date Read to the basic NCX file.
+        """ Add By Date Read to the basic NCX file.
 
         Generate the By Date Read NCX content (Kindle only), add to self.ncx_soup.
 
@@ -3495,7 +3495,7 @@ class CatalogBuilder:
 
         Outputs:
          ncx_soup (file): updated
-        '''
+        """
 
         def _add_to_master_day_list(current_titles_list):
             book_count = len(current_titles_list)
@@ -3581,7 +3581,7 @@ class CatalogBuilder:
             self.generate_ncx_subsection(navPointTag, sec_id, sec_text, content_src, cm_tags)
 
     def generate_ncx_by_genre(self, tocTitle):
-        ''' Add Genres to the basic NCX file.
+        """ Add Genres to the basic NCX file.
 
         Generate the Genre NCX content, add to self.ncx_soup.
 
@@ -3593,7 +3593,7 @@ class CatalogBuilder:
 
         Outputs:
          ncx_soup (file): updated
-        '''
+        """
 
         self.update_progress_full_step(_('NCX for genres'))
 
@@ -3638,7 +3638,7 @@ class CatalogBuilder:
             self.generate_ncx_subsection(navPointTag, sec_id, sec_text, content_src, cm_tags)
 
     def generate_opf(self):
-        ''' Generate the OPF file.
+        """ Generate the OPF file.
 
         Start with header template, construct manifest, spine and guide.
 
@@ -3653,7 +3653,7 @@ class CatalogBuilder:
 
         Outputs:
          opts.basename + '.opf' (file): written
-        '''
+        """
 
         self.update_progress_full_step(_('Generating OPF'))
         lang = get_lang() or 'en'
@@ -3738,7 +3738,7 @@ class CatalogBuilder:
             outfile.write(output.strip())
 
     def generate_rating_string(self, book):
-        ''' Generate rating string for Descriptions.
+        """ Generate rating string for Descriptions.
 
         Starting with database rating (0-10), return 5 stars, with 0-5 filled,
         balance empty.
@@ -3748,7 +3748,7 @@ class CatalogBuilder:
 
         Return:
          rating (str): 5 stars, 1-5 solid, balance empty. Empty str for no rating.
-        '''
+        """
 
         rating = ''
         try:
@@ -3764,7 +3764,7 @@ class CatalogBuilder:
         return rating
 
     def generate_series_anchor(self, series):
-        ''' Generate legal XHTML anchor for series names.
+        """ Generate legal XHTML anchor for series names.
 
         Flatten series name to ascii_legal text.
 
@@ -3773,7 +3773,7 @@ class CatalogBuilder:
 
         Return:
          (str): asciized version of series name
-        '''
+        """
 
         # Generate a legal XHTML id/href string
         if self.letter_or_symbol(series) == self.SYMBOLS:
@@ -3782,7 +3782,7 @@ class CatalogBuilder:
             return '{}_series'.format(re.sub(r'\W', '', ascii_text(series)).lower())
 
     def generate_short_description(self, description, dest=None):
-        ''' Generate a truncated version of the supplied string.
+        """ Generate a truncated version of the supplied string.
 
         Given a string and NCX destination, truncate string to length specified
         in self.opts.
@@ -3796,7 +3796,7 @@ class CatalogBuilder:
 
         Return:
          (str): truncated description
-        '''
+        """
 
         def _short_description(description, limit):
             short_description = ''
@@ -3828,7 +3828,7 @@ class CatalogBuilder:
             raise RuntimeError
 
     def generate_sort_title(self, title):
-        ''' Generates a sort string from title.
+        """ Generates a sort string from title.
 
         Based on trunk title_sort algorithm, but also accommodates series
         numbers by padding with leading zeroes to force proper numeric
@@ -3840,7 +3840,7 @@ class CatalogBuilder:
 
         Return:
          (str): sort string
-        '''
+        """
 
         from calibre.ebooks.metadata import title_sort
         from calibre.library.catalogs.utils import NumberToText
@@ -3885,7 +3885,7 @@ class CatalogBuilder:
         return ' '.join(translated)
 
     def generate_thumbnail(self, title, image_dir, thumb_file):
-        ''' Create thumbnail of cover or return previously cached thumb.
+        """ Create thumbnail of cover or return previously cached thumb.
 
         Test thumb archive for currently cached cover. Return cached version, or create
         and cache new version.
@@ -3898,7 +3898,7 @@ class CatalogBuilder:
         Output:
          (file): thumb written to /images
          (archive): current thumb archived under cover crc
-        '''
+        """
         from calibre.utils.img import scale_image
 
         def _open_archive(mode='r'):
@@ -3948,7 +3948,7 @@ class CatalogBuilder:
                         zf.writestr(uuid + cover_crc, thumb_data)
 
     def generate_thumbnails(self):
-        ''' Generate a thumbnail cover for each book.
+        """ Generate a thumbnail cover for each book.
 
         Generate or retrieve a thumbnail for each cover. If nonexistent or faulty
         cover data, substitute default cover. Checks for updated default cover.
@@ -3959,7 +3959,7 @@ class CatalogBuilder:
 
         Output:
          thumbs (list): list of referenced thumbnails
-        '''
+        """
 
         self.update_progress_full_step(_('Thumbnails'))
         thumbs = ['thumbnail_default.jpg']
@@ -4027,7 +4027,7 @@ class CatalogBuilder:
         self.thumbs = thumbs
 
     def generate_unicode_name(self, c):
-        ''' Generate a legal XHTML anchor from unicode character.
+        """ Generate a legal XHTML anchor from unicode character.
 
         Generate a legal XHTML anchor from unicode character.
 
@@ -4036,13 +4036,13 @@ class CatalogBuilder:
 
         Return:
          (str): legal XHTML anchor string of unicode character name
-        '''
+        """
         fullname = ''.join(unicodedata.name(str(cc)) for cc in c)
         terms = fullname.split()
         return '_'.join(terms)
 
     def get_excluded_tags(self):
-        ''' Get excluded_tags from opts.exclusion_rules.
+        """ Get excluded_tags from opts.exclusion_rules.
 
         Parse opts.exclusion_rules for tags to be excluded, return list.
         Log books that will be excluded by excluded_tags.
@@ -4052,7 +4052,7 @@ class CatalogBuilder:
 
         Return:
          excluded_tags (list): excluded tags
-        '''
+        """
         excluded_tags = []
         for rule in self.opts.exclusion_rules:
             if rule[1] == _('Tags'):
@@ -4075,7 +4075,7 @@ class CatalogBuilder:
         return excluded_tags
 
     def get_friendly_genre_tag(self, genre):
-        ''' Return the first friendly_tag matching genre.
+        """ Return the first friendly_tag matching genre.
 
         Scan self.genre_tags_dict[] for first friendly_tag matching genre.
         genre_tags_dict[] populated in filter_genre_tags().
@@ -4085,7 +4085,7 @@ class CatalogBuilder:
 
         Return:
          friendly_tag (str): friendly_tag matching genre
-        '''
+        """
         # Find the first instance of friendly_tag matching genre
         assert self.genre_tags_dict is not None
         for friendly_tag in self.genre_tags_dict:
@@ -4093,20 +4093,20 @@ class CatalogBuilder:
                 return friendly_tag
 
     def get_output_profile(self, _opts):
-        ''' Return profile matching opts.output_profile
+        """ Return profile matching opts.output_profile
 
         Input:
          _opts (object): build options object
 
         Return:
          (profile): output profile matching name
-        '''
+        """
         for profile in output_profiles():
             if profile.short_name == _opts.output_profile:
                 return profile
 
     def get_prefix_rules(self):
-        ''' Convert opts.prefix_rules to dict.
+        """ Convert opts.prefix_rules to dict.
 
         Convert opts.prefix_rules to dict format. The model for a prefix rule is
         ('<rule name>','<#source_field_lookup>','<pattern>','<prefix>')
@@ -4116,7 +4116,7 @@ class CatalogBuilder:
 
         Return:
          (list): list of prefix_rules dicts
-        '''
+        """
         pr = []
         if self.opts.prefix_rules:
             try:
@@ -4133,7 +4133,7 @@ class CatalogBuilder:
         return pr
 
     def letter_or_symbol(self, char):
-        ''' Test asciized char for A-z.
+        """ Test asciized char for A-z.
 
         Convert char to ascii, test for A-z.
 
@@ -4142,14 +4142,14 @@ class CatalogBuilder:
 
         Return:
          (str): char if A-z, else SYMBOLS
-        '''
+        """
         if not re.search(r'[a-zA-Z]', ascii_text(char)):
             return self.SYMBOLS
         else:
             return char
 
     def load_section_templates(self):
-        ''' Add section templates to local namespace.
+        """ Add section templates to local namespace.
 
         Load section templates from resource directory. If user has made local copies,
         these will be used for individual section generation.
@@ -4162,7 +4162,7 @@ class CatalogBuilder:
 
         Results:
          (strs): section templates added to local namespace
-        '''
+        """
 
         for line in P('catalog/section_list_templates.conf', data=True).decode('utf-8').splitlines():
             line = line.lstrip()
@@ -4175,7 +4175,7 @@ class CatalogBuilder:
                     setattr(self, key, val)
 
     def merge_comments(self, record):
-        ''' Merge comments with custom column content.
+        """ Merge comments with custom column content.
 
         Merge comments from book metadata with user-specified custom column
          content, optionally before or after. Optionally insert <hr> between
@@ -4186,7 +4186,7 @@ class CatalogBuilder:
 
         Return:
          merged (str): comments merged with addendum
-        '''
+        """
 
         merged = ''
         if record['description']:
@@ -4223,7 +4223,7 @@ class CatalogBuilder:
         return merged
 
     def process_exclusions(self, data_set):
-        ''' Filter data_set based on exclusion_rules.
+        """ Filter data_set based on exclusion_rules.
 
         Compare each book in data_set to each exclusion_rule. Remove
          books matching exclusion criteria.
@@ -4233,7 +4233,7 @@ class CatalogBuilder:
 
         Return:
          (list): filtered data_set
-        '''
+        """
         filtered_data_set = []
         exclusion_pairs = []
         exclusion_set = []
@@ -4298,7 +4298,7 @@ class CatalogBuilder:
             return data_set
 
     def relist_multiple_authors(self, books_by_author):
-        ''' Create multiple entries for books with multiple authors
+        """ Create multiple entries for books with multiple authors
 
         Given a list of books by author, scan list for books with multiple
         authors. Add a cloned copy of the book per additional author.
@@ -4310,7 +4310,7 @@ class CatalogBuilder:
         Return:
          (list): books_by_author with additional cloned entries for books with
          multiple authors
-        '''
+        """
 
         multiple_author_books = []
 
@@ -4335,7 +4335,7 @@ class CatalogBuilder:
         return books_by_author
 
     def update_progress_full_step(self, description):
-        ''' Update calibre's job status UI.
+        """ Update calibre's job status UI.
 
         Call ProgessReporter() with updates.
 
@@ -4344,7 +4344,7 @@ class CatalogBuilder:
 
         Result:
          (UI): Jobs UI updated
-        '''
+        """
 
         self.current_step += 1
         self.progress_string = description
@@ -4361,7 +4361,7 @@ class CatalogBuilder:
         self.opts.log(log_msg)
 
     def update_progress_micro_step(self, description, micro_step_pct):
-        ''' Update calibre's job status UI.
+        """ Update calibre's job status UI.
 
         Called from steps requiring more time:
          generate_html_descriptions()
@@ -4373,7 +4373,7 @@ class CatalogBuilder:
 
         Results:
          (UI): Jobs UI updated
-        '''
+        """
 
         step_range = 100 / self.total_steps
         self.progress_string = description
@@ -4383,7 +4383,7 @@ class CatalogBuilder:
         self.reporter(self.progress_int, self.progress_string)
 
     def write_ncx(self):
-        ''' Write accumulated ncx_soup to file.
+        """ Write accumulated ncx_soup to file.
 
         Expanded description
 
@@ -4393,7 +4393,7 @@ class CatalogBuilder:
 
         Output:
          (file): basename.NCX written
-        '''
+        """
 
         self.update_progress_full_step(_('Saving NCX'))
         assert self.ncx_root is not None

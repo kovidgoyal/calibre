@@ -77,13 +77,13 @@ def keysequence_from_event(ev: QKeyEvent):  # {{{
 
 
 def finalize(shortcuts, custom_keys_map={}) -> dict[str, tuple[QKeySequence, ...]]:  # {{{
-    '''
+    """
     Resolve conflicts and assign keys to every action in shortcuts, which must
     be a OrderedDict. User specified mappings of unique names to keys (as a
     list of strings) should be passed in custom_keys_map. Return a mapping
     of unique names to resolved keys. Also sets the set_to_default member
     correctly for each shortcut.
-    '''
+    """
     for unique_name, shortcut in shortcuts.items():
         shortcut['set_to_default'] = unique_name in custom_keys_map
     keys_map = defaultdict(list)
@@ -170,10 +170,10 @@ class Manager(QObject):  # {{{
         self.groups[group] = self.groups.get(group, []) + [unique_name]
 
     def unregister_shortcut(self, unique_name):
-        '''
+        """
         Remove a registered shortcut. You need to call finalize() after you are
         done unregistering.
-        '''
+        """
         self.shortcuts.pop(unique_name, None)
         for group in self.groups.values():
             try:
@@ -186,12 +186,12 @@ class Manager(QObject):  # {{{
         self.keys_map = finalize(self.shortcuts, custom_keys_map=custom_keys_map)
 
     def replace_action(self, unique_name, new_action):
-        '''
+        """
         Replace the action associated with a shortcut.
         Once you're done calling replace_action() for all shortcuts you want
         replaced, call finalize() to have the shortcuts assigned to the replaced
         actions.
-        '''
+        """
         sc = self.shortcuts[unique_name]
         sc['action'] = new_action
 

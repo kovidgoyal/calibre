@@ -29,7 +29,7 @@ class ThreadedJob(BaseJob):
             max_concurrent_count=1,
             killable=True,
             log=None):
-        '''
+        """
         A job that is run in its own thread in the calibre main process
 
         :param type_: The type of this job (a string). The type is used in
@@ -60,7 +60,7 @@ class ThreadedJob(BaseJob):
 
         :param log: Must be a subclass of GUILog or None. If None a default
         GUILog is created.
-        '''
+        """
         BaseJob.__init__(self, description)
 
         self.type = type_

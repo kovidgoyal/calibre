@@ -14,7 +14,7 @@ from calibre.utils.localization import _
 
 
 class Panel(Enum):
-    ' See gui2.init for these '
+    " See gui2.init for these "
     SEARCH_BAR = 'sb'
     TAG_BROWSER = 'tb'
     BOOK_DETAILS = 'bd'
@@ -165,13 +165,13 @@ class LayoutActions(InterfaceAction):
 
     # Public API
     def apply_layout(self, name):
-        '''apply_layout()
+        """apply_layout()
         Apply a saved GUI panel layout.
 
         :param:`name` The name of the saved layout
 
          Throws KeyError if the name doesn't exist.
-        '''
+        """
         # This can be called by plugins so let the exception fly
 
         # Restore the application window geometry if we have it.
@@ -187,30 +187,30 @@ class LayoutActions(InterfaceAction):
         self.gui.layout_container.relayout()
 
     def save_current_layout(self):
-        '''save_current_layout()
+        """save_current_layout()
         Opens a dialog asking for the name to use to save the current layout.
         Saves the current settings under the provided name.
-        '''
+        """
         layouts = gprefs['saved_layouts']
         d = SaveLayoutDialog(self.gui, layouts.keys())
         if d.exec() == QDialog.DialogCode.Accepted:
             self.save_named_layout(d.current_name(), self.current_settings())
 
     def current_settings(self):
-        '''current_settings()
+        """current_settings()
 
         :return: the current gui layout settings.
-        '''
+        """
 
         return self.gui.layout_container.serialized_settings()
 
     def save_named_layout(self, name, settings):
-        '''save_named_layout()
+        """save_named_layout()
         Saves the settings under the provided name.
 
         :param:`name` The name for the settings.
         :param:`settings`: The gui layout settings to save.
-        '''
+        """
         # Save the main window geometry.
         save_geometry(self.gui, gprefs, f'saved_layout_{name}')
         # Now the panel sizes inside the central widget
@@ -220,12 +220,12 @@ class LayoutActions(InterfaceAction):
         self.populate_menu()
 
     def delete_layout(self, name, show_warning=True):
-        '''delete_layout()
+        """delete_layout()
         Delete a saved layout.
 
         :param:`name` The name of the layout to delete
         :param:`show_warning`: If True a warning dialog will be shown before deleting the layout.
-        '''
+        """
         if show_warning:
             if not question_dialog(self.gui, _('Are you sure?'),
                                    _('Do you really want to delete the saved layout {0}?').format(name),
@@ -239,16 +239,16 @@ class LayoutActions(InterfaceAction):
         self.populate_menu()
 
     def saved_layout_names(self):
-        '''saved_layout_names()
+        """saved_layout_names()
         Get a list of saved layout names
 
         :return: the sorted list of names. The list is empty if there are no names.
-        '''
+        """
         layouts = gprefs['saved_layouts']
         return sorted(layouts.keys(), key=sort_key)
 
     def toggle_item(self, name):
-        '''toggle_item()
+        """toggle_item()
         Toggle the visibility of the panel.
 
         :param name: specifies which panel to toggle. Valid names are
@@ -258,11 +258,11 @@ class LayoutActions(InterfaceAction):
             GRID_VIEW: 'gv'
             COVER_BROWSER: 'cb'
             QUICKVIEW: 'qv'
-        '''
+        """
         self._toggle_item(self._button_from_enum(name))
 
     def set_visible(self, name: Panel, show=True):
-        '''set_visible()
+        """set_visible()
         Show or hide a panel. Does nothing if the panel is already in the
         desired state.
 
@@ -275,11 +275,11 @@ class LayoutActions(InterfaceAction):
             QUICKVIEW: 'qv'
             BOOKSHELF: 'bs'
         :param show: If True, show the panel, otherwise hide the panel
-        '''
+        """
         self._change_item(self._button_from_enum(name), show)
 
     def is_visible(self, name: Panel):
-        '''is_visible()
+        """is_visible()
         Returns True if the panel is visible.
 
         :param name: specifies which panel. Valid names are
@@ -290,7 +290,7 @@ class LayoutActions(InterfaceAction):
             COVER_BROWSER: 'cb'
             QUICKVIEW: 'qv'
             BOOKSHELF: 'bs'
-        '''
+        """
         self._button_from_enum(name).isChecked()
 
     def hide_all(self):
@@ -302,11 +302,11 @@ class LayoutActions(InterfaceAction):
             self.set_visible(Panel(name), show=True)
 
     def panel_titles(self):
-        '''panel_titles()
+        """panel_titles()
         Return a dictionary of Panel Enum items to translated human readable title.
         Simplifies building dialogs, for example combo boxes of all the panel
         names or check boxes for each panel.
 
         :return: {Panel_enum_value: human readable title, ...}
-        '''
+        """
         return {p: self._button_from_enum(p).label for p in Panel}

@@ -105,8 +105,8 @@ class EPUBInput(InputFormatPlugin):
             return t
 
     def rationalize_cover3(self, opf, log):
-        ''' If there is a reference to the cover/titlepage via manifest properties, convert to
-        entries in the <guide> so that the rest of the pipeline picks it up. '''
+        """ If there is a reference to the cover/titlepage via manifest properties, convert to
+        entries in the <guide> so that the rest of the pipeline picks it up. """
         from calibre.ebooks.metadata.opf3 import items_with_property
         from calibre.utils.localization import __
         removed = guide_titlepage_href = guide_titlepage_id = None

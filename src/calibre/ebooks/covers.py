@@ -649,7 +649,7 @@ def override_prefs(base_prefs, **overrides):
 
 
 def create_cover(title, authors, series=None, series_index=1, prefs=None, as_qimage=False):
-    ' Create a cover from the specified title, author and series. Any user set'
+    " Create a cover from the specified title, author and series. Any user set"
     ' templates are ignored, to ensure that the specified metadata is used. '
     mi = Metadata(title, authors)
     if series:

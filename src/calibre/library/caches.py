@@ -26,12 +26,12 @@ from polyglot.builtins import cmp
 
 
 class MetadataBackup(Thread):  # {{{
-    '''
+    """
     Continuously backup changed metadata into OPF files
     in the book directory. This class runs in its own
     thread and makes sure that the actual file write happens in the
     GUI thread to prevent Windows' file locking from causing problems.
-    '''
+    """
 
     def __init__(self, db):
         Thread.__init__(self)
@@ -222,9 +222,9 @@ class CacheRow(list):  # {{{
 
 class ResultCache(SearchQueryParser):  # {{{
 
-    '''
+    """
     Stores sorted and filtered metadata in memory.
-    '''
+    """
 
     def __init__(self, FIELD_MAP, field_metadata, db_prefs=None):
         self.FIELD_MAP = FIELD_MAP
@@ -304,12 +304,12 @@ class ResultCache(SearchQueryParser):  # {{{
         self.all_search_locations = locations
 
     def build_date_relop_dict(self):
-        '''
+        """
         Because the database dates have time in them, we can't use direct
         comparisons even when field_count == 3. The query has time = 0, but
         the database object has time == something. As such, a complete compare
         will almost never be correct.
-        '''
+        """
         def relop_eq(db, query, field_count):
             if db.tzinfo != query.tzinfo:
                 db = db.astimezone(tz=query.tzinfo)
@@ -1075,10 +1075,10 @@ class ResultCache(SearchQueryParser):  # {{{
         return False
 
     def refresh_ids(self, db, ids):
-        '''
+        """
         Refresh the data in the cache for books identified by ids.
         Returns a list of affected rows or None if the rows are filtered.
-        '''
+        """
         data = self._data
         assert data is not None
         for id in ids:
@@ -1187,13 +1187,13 @@ class ResultCache(SearchQueryParser):  # {{{
         self.multisort([(field, ascending)])
 
     def multisort(self, fields=[], subsort=False, only_ids=None):
-        '''
+        """
         fields is a list of 2-tuple, each tuple is of the form
         (field_name, is_ascending)
 
         If only_ids is a list of ids, this function will sort that list instead
         of the internal mapping of ids.
-        '''
+        """
         fields = [(self.sanitize_sort_field_name(x), bool(y)) for x, y in fields]
         field_meta = self.field_metadata
         assert field_meta is not None

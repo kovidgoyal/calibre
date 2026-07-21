@@ -74,11 +74,11 @@ class USBDevice:
 
 
 class Device(DeviceConfig, DevicePlugin):
-    '''
+    """
     This class provides logic common to all drivers for devices that export themselves
     as USB Mass Storage devices. Provides implementations for mounting/ejecting
     of USBMS devices on all platforms.
-    '''
+    """
 
     VENDOR_ID   = 0x0
     PRODUCT_ID  = 0x0
@@ -242,11 +242,11 @@ class Device(DeviceConfig, DevicePlugin):
         return False
 
     def windows_sort_drives(self, drives):
-        '''
+        """
         Called to disambiguate main memory and storage card for devices that
         do not distinguish between them on the basis of `WINDOWS_CARD_NAME`.
         For example: The EB600
-        '''
+        """
         return drives
 
     def can_handle_windows(self, usbdevice, debug=False):
@@ -386,7 +386,7 @@ class Device(DeviceConfig, DevicePlugin):
         pat = re.compile(r'(?P<m>\d+)([a-z]+(?P<p>\d+)){0,1}')
 
         def nums(x):
-            'Return (disk num, partition number)'
+            "Return (disk num, partition number)"
             m = pat.search(x)
             if m is None:
                 return (10000, -1)
@@ -396,13 +396,13 @@ class Device(DeviceConfig, DevicePlugin):
             return [int(g.get('m') or '0'), int(g.get('p') or 0)]
 
         def cmp_key(x):
-            '''
+            """
             Sorting based on the following scheme:
                 - disks without partitions are first
                   - sub sorted based on disk number
                 - disks with partitions are sorted first on
                   disk number, then on partition number
-            '''
+            """
             x = x.rpartition('/')[-1]
             disk_num, part_num = nums(x)
             has_part = 1 if part_num > 0 else 0
@@ -994,36 +994,36 @@ class Device(DeviceConfig, DevicePlugin):
         return path
 
     def sanitize_callback(self, path):
-        '''
+        """
         Callback to allow individual device drivers to override the path sanitization
         used by :meth:`create_upload_path`.
-        '''
+        """
         return sanitize(path)
 
     def filename_callback(self, default, mi):
-        '''
+        """
         Callback to allow drivers to change the default file name
         set by :meth:`create_upload_path`.
-        '''
+        """
         return default
 
     def sanitize_path_components(self, components):
-        '''
+        """
         Perform any device specific sanitization on the path components
         for files to be uploaded to the device
-        '''
+        """
         return components
 
     def get_annotations(self, path_map):
-        '''
+        """
         Resolve path_map to annotation_map of files found on the device
-        '''
+        """
         return {}
 
     def add_annotation_to_library(self, db, db_id, annotation):
-        '''
+        """
         Add an annotation to the calibre library
-        '''
+        """
         pass
 
     def create_upload_path(self, path, mdata, fname, create_dirs=True):

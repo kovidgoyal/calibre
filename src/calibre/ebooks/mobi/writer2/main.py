@@ -114,10 +114,10 @@ class MobiWriter:
     # }}}
 
     def write_uncrossable_breaks(self):  # {{{
-        '''
+        """
         Write information about uncrossable breaks (non linear items in
         the spine.
-        '''
+        """
         if not WRITE_UNCROSSABLE_BREAKS:
             return
 
@@ -453,9 +453,9 @@ class MobiWriter:
     # }}}
 
     def write_header(self):  # PalmDB header {{{
-        '''
+        """
         Write the PalmDB header
-        '''
+        """
         title = ascii_filename(str(self.oeb.metadata.title[0])).replace(
                 ' ', '_')
         if not isinstance(title, bytes):

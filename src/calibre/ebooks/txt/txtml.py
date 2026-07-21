@@ -110,9 +110,9 @@ class TXTMLizer:
         return ''.join(toc)
 
     def create_flat_toc(self, nodes):
-        '''
+        """
         Turns a hierarchical list of TOC href's into a flat list.
-        '''
+        """
         for item in nodes:
             self.toc_titles.append(item.title)
             self.toc_ids.append(item.href)
@@ -188,11 +188,11 @@ class TXTMLizer:
         return text
 
     def dump_text(self, elem, stylizer, page):
-        '''
+        """
         @elem: The element in the etree that we are working on.
         @stylizer: The style information attached to the element.
         @page: OEB page used to determine absolute urls.
-        '''
+        """
         from calibre.ebooks.oeb.base import XHTML_NS, barename, namespace
 
         if not isinstance(elem.tag, (str, bytes)) \

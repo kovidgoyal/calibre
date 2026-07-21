@@ -26,13 +26,13 @@ def custom_recipe_filename(id_, title):
 
 
 def compile_recipe(src):
-    '''
+    """
     Compile the code in src and return a recipe object, if found.
 
     :param src: Python source code as bytestring or unicode object
 
     :return: Recipe class or None, if no such class was found in src
-    '''
+    """
     if not isinstance(src, str):
         match = re.search(br'coding[:=]\s*([-\w.]+)', src[:200])
         enc = match.group(1).decode('utf-8') if match else 'utf-8'

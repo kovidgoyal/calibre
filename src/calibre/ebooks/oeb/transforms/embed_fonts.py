@@ -85,9 +85,9 @@ def used_font(style, embedded_fonts):
 
 
 class EmbedFonts:
-    '''
+    """
     Embed all referenced fonts, if found on system. Must be called after CSS flattening.
-    '''
+    """
 
     def __call__(self, oeb, log, opts):
         self.oeb, self.log, self.opts = oeb, log, opts
@@ -111,9 +111,9 @@ class EmbedFonts:
                 self.process_item(item, sheets)
 
     def find_embedded_fonts(self):
-        '''
+        """
         Find all @font-face rules and extract the relevant info from them.
-        '''
+        """
         self.embedded_fonts = []
         for item in self.oeb.manifest:
             if not hasattr(item.data, 'cssRules'):
@@ -121,11 +121,11 @@ class EmbedFonts:
             self.embedded_fonts.extend(find_font_face_rules(item, self.oeb))
 
     def find_style_rules(self):
-        '''
+        """
         Extract all font related style information from all stylesheets into a
         dict mapping classes to font properties specified by that class. All
         the heavy lifting has already been done by the CSS flattening code.
-        '''
+        """
         rules = defaultdict(dict)
         for item in self.oeb.manifest:
             if not hasattr(item.data, 'cssRules'):

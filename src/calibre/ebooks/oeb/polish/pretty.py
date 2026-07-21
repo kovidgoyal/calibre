@@ -19,11 +19,11 @@ def isspace(x):
 
 
 def pretty_xml_tree(elem, level=0, indent='  '):
-    ''' XML beautifier, assumes that elements that have children do not have
+    """ XML beautifier, assumes that elements that have children do not have
     textual content.  Also assumes that there is no text immediately after
     closing tags. These are true for opf/ncx and container.xml files. If either
     of the assumptions are violated, there should be no data loss, but pretty
-    printing won't produce optimal results.'''
+    printing won't produce optimal results."""
     if (not elem.text and len(elem) > 0) or (elem.text and isspace(elem.text)):
         elem.text = '\n' + (indent * (level+1))
     for i, child in enumerate(elem):
@@ -140,8 +140,8 @@ def set_indent(elem, attr, indent):
 
 
 def pretty_block(parent, level=1, indent='  '):
-    ''' Surround block tags with blank lines and recurse into child block tags
-    that contain only other block tags '''
+    """ Surround block tags with blank lines and recurse into child block tags
+    that contain only other block tags """
     if not parent.text or isspace(parent.text):
         parent.text = ''
     nn = '\n' if hasattr(parent.tag, 'strip') and barename(parent.tag) in {'tr', 'td', 'th'} else '\n\n'
@@ -192,26 +192,26 @@ def pretty_html_tree(container, root):
 
 
 def fix_html(container, raw):
-    ' Fix any parsing errors in the HTML represented as a string in raw. Fixing is done using the HTML5 parsing algorithm. '
+    " Fix any parsing errors in the HTML represented as a string in raw. Fixing is done using the HTML5 parsing algorithm. "
     root = container.parse_xhtml(raw)
     return serialize(root, 'text/html')
 
 
 def pretty_html(container, name, raw):
-    ' Pretty print the HTML represented as a string in raw '
+    " Pretty print the HTML represented as a string in raw "
     root = container.parse_xhtml(raw)
     pretty_html_tree(container, root)
     return serialize(root, 'text/html')
 
 
 def pretty_css(container, name, raw):
-    ' Pretty print the CSS represented as a string in raw '
+    " Pretty print the CSS represented as a string in raw "
     sheet = container.parse_css(raw)
     return serialize(sheet, 'text/css')
 
 
 def pretty_xml(container, name, raw):
-    ' Pretty print the XML represented as a string in raw. If ``name`` is the name of the OPF, extra OPF-specific prettying is performed. '
+    " Pretty print the XML represented as a string in raw. If ``name`` is the name of the OPF, extra OPF-specific prettying is performed. "
     root = container.parse_xml(raw)
     if name == container.opf_name:
         pretty_opf(root)
@@ -220,7 +220,7 @@ def pretty_xml(container, name, raw):
 
 
 def fix_all_html(container):
-    ' Fix any parsing errors in all HTML files in the container. Fixing is done using the HTML5 parsing algorithm. '
+    " Fix any parsing errors in all HTML files in the container. Fixing is done using the HTML5 parsing algorithm. "
     for name, mt in container.mime_map.items():
         if mt in OEB_DOCS:
             container.parsed(name)
@@ -228,7 +228,7 @@ def fix_all_html(container):
 
 
 def pretty_all(container):
-    ' Pretty print all HTML/CSS/XML files in the container '
+    " Pretty print all HTML/CSS/XML files in the container "
     xml_types = {guess_type('a.ncx'), guess_type('a.xml'), guess_type('a.svg')}
     for name, mt in container.mime_map.items():
         prettied = False

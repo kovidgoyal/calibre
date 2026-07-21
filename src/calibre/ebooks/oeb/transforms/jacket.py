@@ -88,20 +88,20 @@ class RemoveFirstImage(Base):
             self.oeb.guide.remove_by_href(deleted_item.href)
 
     def __call__(self, oeb, opts, metadata):
-        '''
+        """
         Add metadata in jacket.xhtml if specified in opts
         If not specified, remove previous jacket instance
-        '''
+        """
         self.oeb, self.opts, self.log = oeb, opts, oeb.log
         if opts.remove_first_image:
             self.remove_first_image()
 
 
 class Jacket(Base):
-    '''
+    """
     Book jacket manipulation. Remove first image and insert comments at start of
     book.
-    '''
+    """
 
     def insert_metadata(self, mi):
         self.log('Inserting metadata into book...')
@@ -152,10 +152,10 @@ class Jacket(Base):
                 break
 
     def __call__(self, oeb, opts, metadata):
-        '''
+        """
         Add metadata in jacket.xhtml if specified in opts
         If not specified, remove previous jacket instance
-        '''
+        """
         self.oeb, self.opts, self.log = oeb, opts, oeb.log
         self.remove_existing_jacket()
         if opts.insert_metadata:

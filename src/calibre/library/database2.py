@@ -76,15 +76,15 @@ class DBPrefsWrapper:
 
 
 class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
-    '''
+    """
     An ebook metadata database that stores references to ebook files on disk.
-    '''
+    """
     PATH_LIMIT = 40 if 'win32' in sys.platform else 100
     WINDOWS_LIBRARY_PATH_LIMIT = 75
 
     @property
     def user_version(self):
-        'The user version of this database'
+        "The user version of this database"
         return self.conn.get('pragma user_version;', all=False)
 
     @user_version.setter
@@ -94,7 +94,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
     @property
     def library_id(self):
-        '''The UUID for this library. As long as the user only operates on libraries with calibre, it will be unique'''
+        """The UUID for this library. As long as the user only operates on libraries with calibre, it will be unique"""
         if self._library_id_ is None:
             ans = self.conn.get('SELECT uuid FROM library_id', all=False)
             if ans is None:
@@ -583,7 +583,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         saved_searches().set_all(smap)
 
     def last_modified(self):
-        ''' Return last modified time as a UTC datetime object'''
+        """ Return last modified time as a UTC datetime object"""
         return utcfromtimestamp(os.stat(self.dbpath).st_mtime)
 
     def refresh_format_cache(self):
@@ -600,21 +600,21 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         self.last_update_check = utcnow()
 
     def path(self, index, index_is_id=False):
-        'Return the relative path to the directory containing this books files as a unicode string.'
+        "Return the relative path to the directory containing this books files as a unicode string."
         row = self.data._data[index] if index_is_id else self.data[index]
         return row[self.FIELD_MAP['path']].replace('/', os.sep)
 
     def abspath(self, index, index_is_id=False, create_dirs=True):
-        'Return the absolute path to the directory containing this books files as a unicode string.'
+        "Return the absolute path to the directory containing this books files as a unicode string."
         path = os.path.join(self.library_path, self.path(index, index_is_id=index_is_id))
         if create_dirs and not os.path.exists(path):
             os.makedirs(path)
         return path
 
     def construct_path_name(self, id):
-        '''
+        """
         Construct the directory name for this book based on its metadata.
-        '''
+        """
         authors = self.authors(id, index_is_id=True)
         if not authors:
             authors = _('Unknown')
@@ -630,9 +630,9 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         return path
 
     def construct_file_name(self, id):
-        '''
+        """
         Construct the file name for this book based on its metadata.
-        '''
+        """
         authors = self.authors(id, index_is_id=True)
         if not authors:
             authors = _('Unknown')
@@ -656,11 +656,11 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         return path
 
     def set_path(self, index, index_is_id=False):
-        '''
+        """
         Set the path to the directory containing this books files based on its
         current title and author. If there was a previous directory, its contents
         are copied and it is deleted.
-        '''
+        """
         id = index if index_is_id else self.id(index)
         path = self.construct_path_name(id)
         current_path = self.path(id, index_is_id=True).replace(os.sep, '/')
@@ -737,14 +737,14 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 curpath = os.path.join(curpath, newseg)
 
     def add_listener(self, listener):
-        '''
+        """
         Add a listener. Will be called on change events with two arguments.
         Event name and list of affected ids.
-        '''
+        """
         self.listeners.add(listener)
 
     def notify(self, event, ids=[]):
-        'Notify all listeners'
+        "Notify all listeners"
         for listener in self.listeners:
             try:
                 listener(event, ids)
@@ -754,7 +754,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
     def cover(self, index, index_is_id=False, as_file=False, as_image=False,
             as_path=False):
-        '''
+        """
         Return the cover image as a bytestring (in JPEG format) or None.
 
         WARNING: Using as_path will copy the cover to a temp file and return
@@ -763,7 +763,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
         :param as_file: If True return the image as an open file object (a SpooledTemporaryFile)
         :param as_image: If True return the image as a QImage object
-        '''
+        """
         id = index if index_is_id else self.id(index)
         path = os.path.join(self.library_path, self.path(id, index_is_id=True), 'cover.jpg')
         if os.access(path, os.R_OK):
@@ -836,11 +836,11 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         return self.field_metadata[key]
 
     def clear_dirtied(self, book_id, sequence):
-        '''
+        """
         Clear the dirtied indicator for the books. This is used when fetching
         metadata, creating an OPF, and writing a file are separated into steps.
         The last step is clearing the indicator
-        '''
+        """
         with self.dirtied_lock:
             dc_sequence = self.dirtied_cache.get(book_id, None)
             # print('clear_dirty: check book', book_id, dc_sequence)
@@ -859,12 +859,12 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
     def dump_metadata(self, book_ids=None, remove_from_dirtied=True,
             commit=True, callback=None):
-        '''
+        """
         Write metadata for each record to an individual OPF file. If callback
         is not None, it is called once at the start with the number of book_ids
         being processed. And once for every book_id, with arguments (book_id,
         mi, ok).
-        '''
+        """
         if book_ids is None:
             book_ids = [x[0] for x in self.conn.get(
                 'SELECT book FROM metadata_dirtied', all=True)]
@@ -948,14 +948,14 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         return len(self.dirtied_cache)
 
     def commit_dirty_cache(self):
-        '''
+        """
         Set the dirty indication for every book in the cache. The vast majority
         of the time, the indication will already be set. However, sometimes
         exceptions may have prevented a commit, which may remove some dirty
         indications from the DB. This call will put them back. Note that there
         is no problem with setting a dirty indication for a book that isn't in
         fact dirty. Just wastes a few cycles.
-        '''
+        """
         with self.dirtied_lock:
             book_ids = list(self.dirtied_cache.keys())
             self.dirtied_cache = {}
@@ -987,10 +987,10 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
     def get_metadata(self, idx, index_is_id=False, get_cover=False,
                      get_user_categories=True, cover_as_data=False):
-        '''
+        """
         Convenience method to return metadata as a :class:`Metadata` object.
         Note that the list of formats is not verified.
-        '''
+        """
         idx = idx if index_is_id else self.id(idx)
         try:
             row = self.data._data[idx]
@@ -1188,11 +1188,11 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             self.notify('cover', [id])
 
     def set_cover(self, id, data, notify=True, commit=True):
-        '''
+        """
         Set the cover for this book.
 
         `data`: Can be either a QImage, QPixmap, file object or bytestring
-        '''
+        """
         base_path = os.path.join(self.library_path, self.path(id,
             index_is_id=True))
         if not os.path.exists(base_path):
@@ -1270,7 +1270,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         return [(v, k) for k, v in self.format_filename_cache[id].items()]
 
     def formats(self, index, index_is_id=False, verify_formats=True):
-        ''' Return available formats as a comma separated list or None if there are no available formats '''
+        """ Return available formats as a comma separated list or None if there are no available formats """
         id_ = index if index_is_id else self.id(index)
         formats = self.data.get(id_, self.FIELD_MAP['formats'], row_is_id=True)
         if not formats:
@@ -1333,13 +1333,13 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         return sha.hexdigest()
 
     def format_path(self, index, fmt, index_is_id=False):
-        '''
+        """
         This method is intended to be used only in those rare situations, like
         Drag'n Drop, when you absolutely need the path to the original file.
         Otherwise, use format(..., as_path=True).
 
         Note that a networked backend will always return None.
-        '''
+        """
         path = self.format_abspath(index, fmt, index_is_id=index_is_id)
         if path is None:
             id_ = index if index_is_id else self.id(index)
@@ -1347,7 +1347,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         return path
 
     def format_abspath(self, index, format, index_is_id=False):
-        '''
+        """
         Return absolute path to the ebook file of format `format`
 
         WARNING: This method will return a dummy path for a network backend DB,
@@ -1358,7 +1358,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
         Apart from the viewer, I don't believe any of the others do any file
         I/O with the results of this call.
-        '''
+        """
         id = index if index_is_id else self.id(index)
         try:
             name = self.format_filename_cache[id][format.upper()]
@@ -1386,7 +1386,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
     def copy_format_to(self, index, fmt, dest, index_is_id=False,
             windows_atomic_move=None, use_hardlink=False):
-        '''
+        """
         Copy the format ``fmt`` to the file like object ``dest``. If the
         specified format does not exist, raises :class:`NoSuchFormat` error.
         dest can also be a path, in which case the format is copied to it, iff
@@ -1399,7 +1399,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
         windows_atomic_move is an internally used parameter. You should not use
         it in any code outside this module.
-        '''
+        """
         path = self.format_abspath(index, fmt, index_is_id=index_is_id)
         if path is None:
             id_ = index if index_is_id else self.id(index)
@@ -1443,7 +1443,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
     def copy_cover_to(self, index, dest, index_is_id=False,
             windows_atomic_move=None, use_hardlink=False):
-        '''
+        """
         Copy the cover to the file like object ``dest``. Returns False
         if no cover exists or dest is the same file as the current cover.
         dest can also be a path in which case the cover is
@@ -1456,7 +1456,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
         windows_atomic_move is an internally used parameter. You should not use
         it in any code outside this module.
-        '''
+        """
         id = index if index_is_id else self.id(index)
         path = os.path.join(self.library_path, self.path(id, index_is_id=True), 'cover.jpg')
         if windows_atomic_move is not None:
@@ -1492,7 +1492,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
     def format(self, index, format, index_is_id=False, as_file=False,
             mode='r+b', as_path=False, preserve_filename=False):
-        '''
+        """
         Return the ebook format as a bytestring or `None` if the format doesn't exist,
         or we don't have permission to write to the ebook file.
 
@@ -1507,7 +1507,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                                   this means that repeated calls yield the same
                                   temp file (which is re-created each time)
         :param mode: This is ignored (present for legacy compatibility)
-        '''
+        """
         path = self.format_abspath(index, format, index_is_id=index_is_id)
         if path is not None:
             with open(path, mode) as f:
@@ -1616,10 +1616,10 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
     def delete_book(self, id, notify=True, commit=True, permanent=False,
             do_clean=True):
-        '''
+        """
         Removes book from the result cache and the underlying database.
         If you set commit to False, you must call clean() manually afterwards
-        '''
+        """
         try:
             path = os.path.join(self.library_path, self.path(id, index_is_id=True))
         except Exception:
@@ -1680,9 +1680,9 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             self.conn.commit()
 
     def clean(self):
-        '''
+        """
         Remove orphaned entries.
-        '''
+        """
         def doit(ltable, table, ltable_col):
             st = (f'DELETE FROM books_{ltable}_link WHERE (SELECT COUNT(id) '
                     'FROM books WHERE id=book) < 1;')
@@ -2189,7 +2189,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
     def tags_older_than(self, tag, delta, must_have_tag=None,
             must_have_authors=None):
-        '''
+        """
         Return the ids of all books having the tag ``tag`` that are older than
         than the specified time. tag comparison is case insensitive.
 
@@ -2200,7 +2200,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         :param must_have_authors: A list of authors. If not None the list of
         matches will be restricted to books that have these authors (case
         insensitive).
-        '''
+        """
         tag = tag.lower().strip()
         mht = must_have_tag.lower().strip() if must_have_tag else None
         now = nowf()
@@ -2245,10 +2245,10 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         return _get_next_series_num_for_list(series_indices)
 
     def set(self, row, column, val, allow_case_change=False):
-        '''
+        """
         Convenience method for setting the title, authors, publisher, tags or
         rating
-        '''
+        """
         id = self.data[row][0]
         col = self.FIELD_MAP[column]
 
@@ -2278,7 +2278,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
     def set_metadata(self, id, mi, ignore_errors=False, set_title=True,
                      set_authors=True, commit=True, force_changes=False,
                      notify=True):
-        '''
+        """
         Set metadata for the book `id` from the `Metadata` object `mi`
 
         Setting force_changes=True will force set_metadata to update fields even
@@ -2290,7 +2290,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         want the book to have. Covers are always changed if a new cover is
         provided, but are never deleted. Also note that force_changes has no
         effect on setting title or authors.
-        '''
+        """
         if callable(getattr(mi, 'to_book_metadata', None)):
             # Handle code passing in a OPF object instead of a Metadata object
             mi = mi.to_book_metadata()
@@ -2396,10 +2396,10 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             self.notify('metadata', [id])
 
     def authors_sort_strings(self, id, index_is_id=False):
-        '''
+        """
         Given a book, return the list of author sort strings
         for the book's authors
-        '''
+        """
         id = id if index_is_id else self.id(id)
         aut_strings = self.conn.get('''
                         SELECT sort
@@ -2517,10 +2517,10 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         return books_to_refresh
 
     def windows_check_if_files_in_use(self, book_id):
-        '''
+        """
         Raises an EACCES IOError if any of the files in the folder of book_id
         are opened in another program on windows.
-        '''
+        """
         if iswindows:
             path = self.path(book_id, index_is_id=True)
             if path:
@@ -2535,12 +2535,12 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
     def set_authors(self, id, authors, notify=True, commit=True,
                     allow_case_change=False):
-        '''
+        """
         Note that even if commit is False, the db will still be committed to
         because this causes the location of files to change
 
         :param authors: A list of authors.
-        '''
+        """
         self.windows_check_if_files_in_use(id)
         books_to_refresh = self._set_authors(id, authors,
                                              allow_case_change=allow_case_change)
@@ -2588,10 +2588,10 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         return True
 
     def set_title(self, id, title, notify=True, commit=True):
-        '''
+        """
         Note that even if commit is False, the db will still be committed to
         because this causes the location of files to change
-        '''
+        """
         self.windows_check_if_files_in_use(id)
         if not self._set_title(id, title):
             return
@@ -3092,10 +3092,10 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
     def set_tags(self, id, tags, append=False, notify=True, commit=True,
                  allow_case_change=False):
-        '''
+        """
         @param tags: list of strings
         @param append: If True existing tags are not removed
-        '''
+        """
         if not tags:
             tags = []
         if not append:
@@ -3310,7 +3310,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         return typ, val
 
     def set_identifier(self, id_, typ, val, notify=True, commit=True):
-        'If val is empty, deletes identifier of type typ'
+        "If val is empty, deletes identifier of type typ"
         typ, val = self._clean_identifier(typ, val)
         identifiers = self.get_identifiers(id_, index_is_id=True)
         if not typ:
@@ -3494,10 +3494,10 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
     def add_books(self, paths, formats, metadata, add_duplicates=True,
             return_ids=False):
-        '''
+        """
         Add a book to the database. The result cache is not updated.
         :param:`paths` List of paths to book files or file-like objects
-        '''
+        """
         formats, metadata = iter(formats), iter(metadata)
         duplicates = []
         ids = []

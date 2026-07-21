@@ -31,7 +31,7 @@ class DistroWatchWeekly(BasicNewsRecipe):
     ]
 
     def _get_mag_date(self):
-        '''Return date of latest weekly issue.'''
+        """Return date of latest weekly issue."""
 
         d = datetime.date(2022, 6, 20)
         t = datetime.date.today()

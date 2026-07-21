@@ -21,11 +21,11 @@ class NextMatchAction(InterfaceAction):
     action_type = 'current'
 
     def genesis(self):
-        '''
+        """
         Setup this plugin. Only called once during initialization. self.gui is
         available. The action specified by :attr:`action_spec` is available as
         ``self.qaction``.
-        '''
+        """
         self.can_move = None
         self.qaction.triggered.connect(self.move_forward)
         self.create_action(spec=(_('Move to previous item'), 'arrow-up.png',

@@ -123,11 +123,11 @@ class GlobalUndoHistory(QAbstractListModel):
             self.endRemoveRows()
 
     def rewind_savepoint(self):
-        ''' Revert back to the last save point, should only be used immediately
+        """ Revert back to the last save point, should only be used immediately
         after a call to add_savepoint. If there are intervening calls to undo
         or redo, behavior is undefined. This is intended to be used in the case
         where you create savepoint, perform some operation, operation fails, so
-        revert to state before creating savepoint. '''
+        revert to state before creating savepoint. """
         if self.pos > 0 and self.pos == len(self.states) - 1:
             self.beginRemoveRows(ROOT, self.pos, self.pos)
             self.pos -= 1

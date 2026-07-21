@@ -66,11 +66,11 @@ def open_for_write(fname):
 
 
 def create_file_copy(ctx, rd, prefix, library_id, book_id, ext, mtime, copy_func, extra_etag_data=''):
-    ''' We cannot copy files directly from the library folder to the output
+    """ We cannot copy files directly from the library folder to the output
     socket, as this can potentially lock the library for an extended period. So
     instead we copy out the data from the library folder into a temp folder. We
     make sure to only do this copy once, using the previous copy, if there have
-    been no changes to the data for the file since the last copy. '''
+    been no changes to the data for the file since the last copy. """
     global rename_counter
 
     # Avoid too many items in a single directory for performance
@@ -441,9 +441,9 @@ def _get_note(ctx, rd, db, field, item_id, library_id):
 
 @endpoint('/get-note/{field}/{item_id}/{library_id=None}', types={'item_id': int})
 def get_note(ctx, rd, field, item_id, library_id):
-    '''
+    """
     Get the note as text/html for the specified field and item id.
-    '''
+    """
     db = get_db(ctx, rd, library_id)
     if db is None:
         raise HTTPNotFound(f'Library {library_id} not found')
@@ -468,9 +468,9 @@ def get_note_from_val(ctx, rd, field, item, library_id):
 
 @endpoint('/get-note-resource/{scheme}/{digest}/{library_id=None}')
 def get_note_resource(ctx, rd, scheme, digest, library_id):
-    '''
+    """
     Get the data for a resource in a field note, such as an image.
-    '''
+    """
     db = get_db(ctx, rd, library_id)
     if db is None:
         raise HTTPNotFound(f'Library {library_id} not found')
@@ -487,9 +487,9 @@ def get_note_resource(ctx, rd, scheme, digest, library_id):
 
 @endpoint('/set-note/{field}/{item_id}/{library_id=None}', needs_db_write=True, methods={'POST'}, types={'item_id': int})
 def set_note(ctx, rd, field, item_id, library_id):
-    '''
+    """
     Set the note for a field  as HTML + text + resources.
-    '''
+    """
     db = get_db(ctx, rd, library_id)
     if db is None:
         raise HTTPNotFound(f'Library {library_id} not found')

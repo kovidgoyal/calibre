@@ -69,7 +69,7 @@ def merge_declarations(first, second):
 
 
 def merge_identical_selectors(sheet):
-    ' Merge rules that have identical selectors '
+    " Merge rules that have identical selectors "
     selector_map = defaultdict(list)
     for rule in sheet.cssRules.rulesOfType(CSSRule.STYLE_RULE):
         selector_map[rule.selectorText].append(rule)
@@ -85,7 +85,7 @@ def merge_identical_selectors(sheet):
 
 
 def merge_identical_properties(sheet):
-    ' Merge rules having identical properties '
+    " Merge rules having identical properties "
     properties_map = defaultdict(list)
 
     def declaration_key(declaration):
@@ -148,7 +148,7 @@ def remove_unused_css(
     merge_rules_with_identical_properties=False,
     remove_unreferenced_sheets=False,
 ):
-    '''
+    """
     Remove all unused CSS rules from the book. An unused CSS rule is one that does not match any actual content.
 
     :param report: An optional callable that takes a single argument. It is called with information about the operations being performed.
@@ -156,7 +156,7 @@ def remove_unused_css(
     :param merge_rules: If True, rules with identical selectors are merged.
     :param merge_rules_with_identical_properties: If True, rules with identical properties are merged.
     :param remove_unreferenced_sheets: If True, stylesheets that are not referenced by any content are removed
-    '''
+    """
     report = report or (lambda x:x)
 
     def safe_parse(name):
@@ -378,12 +378,12 @@ def transform_css(container, transform_sheet=None, transform_style=None, names=(
 
 
 def filter_css(container, properties, names=()):
-    '''
+    """
     Remove the specified CSS properties from all CSS rules in the book.
 
     :param properties: Set of properties to remove. For example: :code:`{'font-family', 'color'}`.
     :param names: The files from which to remove the properties. Defaults to all HTML and CSS files in the book.
-    '''
+    """
     properties = normalize_filter_css(properties)
     return transform_css(container, transform_sheet=partial(filter_sheet, properties=properties),
                          transform_style=partial(filter_declaration, properties=properties), names=names)
@@ -431,10 +431,10 @@ def iter_declarations(sheet_or_rule):
 
 
 def remove_property_value(prop, predicate):
-    ''' Remove the Values that match the predicate from this property. If all
+    """ Remove the Values that match the predicate from this property. If all
     values of the property would be removed, the property is removed from its
     parent instead. Note that this means the property must have a parent (a
-    CSSStyleDeclaration). '''
+    CSSStyleDeclaration). """
     removed_vals = list(filter(predicate, prop.propertyValue))
     if len(removed_vals) == len(prop.propertyValue):
         prop.parent.removeProperty(prop.name)
@@ -450,9 +450,9 @@ RULE_PRIORITIES = {t:i for i, t in enumerate((CSSRule.COMMENT, CSSRule.CHARSET_R
 
 
 def sort_sheet(container, sheet_or_text):
-    ''' Sort the rules in a stylesheet. Note that in the general case this can
+    """ Sort the rules in a stylesheet. Note that in the general case this can
     change the effective styles, but for most common sheets, it should be safe.
-    '''
+    """
     sheet = container.parse_css(sheet_or_text) if isinstance(sheet_or_text, str) else sheet_or_text
 
     def text_sort_key(x):

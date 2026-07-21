@@ -75,10 +75,10 @@ if False:  # Added by Kovid
 
 
 class StyleToCSS:
-    ''' The purpose of the StyleToCSS class is to contain the rules to convert
+    """ The purpose of the StyleToCSS class is to contain the rules to convert
         ODF styles to CSS2. Since it needs the generic fonts, it would probably
         make sense to also contain the Styles in a dict as well..
-    '''
+    """
 
     def __init__(self):
         # Font declarations
@@ -131,13 +131,13 @@ class StyleToCSS:
         }
 
     def save_font(self, name, family, generic):
-        ''' It is possible that the HTML browser doesn't know how to
+        """ It is possible that the HTML browser doesn't know how to
             show a particular font. Fortunately ODF provides generic fallbacks.
             Unfortunately they are not the same as CSS2.
             CSS2: serif, sans-serif, cursive, fantasy, monospace
             ODF: roman, swiss, modern, decorative, script, system
             This method put the font and fallback into a dictionary
-        '''
+        """
         htmlgeneric = 'sans-serif'
         if generic == 'roman':
             htmlgeneric = 'serif'
@@ -154,14 +154,14 @@ class StyleToCSS:
         self.fontdict[name] = (family, htmlgeneric)
 
     def c_drawfillimage(self, ruleset, sdict, rule, val):
-        ''' Fill a figure with an image. Since CSS doesn't let you resize images
+        """ Fill a figure with an image. Since CSS doesn't let you resize images
             this should really be implemented as an absolutely position <img>
             with a width and a height
-        '''
+        """
         sdict['background-image'] = f"url('{self.fillimages[val]}')"
 
     def c_fo(self, ruleset, sdict, rule, val):
-        ''' XSL formatting attributes '''
+        """ XSL formatting attributes """
         selector = rule[1]
         sdict[selector] = val
 
@@ -173,18 +173,18 @@ class StyleToCSS:
         sdict[property] = values.get(val, 'auto')
 
     def c_border_model(self, ruleset, sdict, rule, val):
-        ''' Convert to CSS2 border model '''
+        """ Convert to CSS2 border model """
         if val == 'collapsing':
             sdict['border-collapse'] ='collapse'
         else:
             sdict['border-collapse'] ='separate'
 
     def c_width(self, ruleset, sdict, rule, val):
-        ''' Set width of box '''
+        """ Set width of box """
         sdict['width'] = val
 
     def c_text_align(self, ruleset, sdict, rule, align):
-        ''' Text align '''
+        """ Text align """
         if align == 'start':
             align = 'left'
         if align == 'end':
@@ -192,10 +192,10 @@ class StyleToCSS:
         sdict['text-align'] = align
 
     def c_fn(self, ruleset, sdict, rule, fontstyle):
-        ''' Generate the CSS font family
+        """ Generate the CSS font family
             A generic font can be found in two ways. In a <style:font-face>
             element or as a font-family-generic attribute in text-properties.
-        '''
+        """
         generic = ruleset.get((STYLENS,'font-family-generic'))
         if generic is not None:
             self.save_font(fontstyle, fontstyle, generic)
@@ -203,7 +203,7 @@ class StyleToCSS:
         sdict['font-family'] = f'{family}, {htmlgeneric}'
 
     def c_text_position(self, ruleset, sdict, rule, tp):
-        ''' Text position. This is used e.g. to make superscript and subscript
+        """ Text position. This is used e.g. to make superscript and subscript
             This attribute can have one or two values.
 
             The first value must be present and specifies the vertical
@@ -220,7 +220,7 @@ class StyleToCSS:
             used. Although this value may change the font height that
             is displayed, it never changes the current font height that
             is used for additional calculations.
-        '''
+        """
         textpos = tp.split(' ')
         if len(textpos) == 2 and textpos[0] != '0%':
             # Bug in OpenOffice. If vertical-align is 0% - ignore the text size.
@@ -275,33 +275,33 @@ class StyleToCSS:
                     sdict['left'] = ruleset[(SVGNS,'x')]
 
     def c_page_width(self, ruleset, sdict, rule, val):
-        ''' Set width of box
+        """ Set width of box
             HTML doesn't really have a page-width. It is always 100% of the browser width
-        '''
+        """
         sdict['width'] = val
 
     def c_text_underline_style(self, ruleset, sdict, rule, val):
-        ''' Set underline decoration
+        """ Set underline decoration
             HTML doesn't really have a page-width. It is always 100% of the browser width
-        '''
+        """
         if val and val != 'none':
             sdict['text-decoration'] = 'underline'
 
     def c_text_line_through_style(self, ruleset, sdict, rule, val):
-        ''' Set underline decoration
+        """ Set underline decoration
             HTML doesn't really have a page-width. It is always 100% of the browser width
-        '''
+        """
         if val and val != 'none':
             sdict['text-decoration'] = 'line-through'
 
     def c_page_height(self, ruleset, sdict, rule, val):
-        ''' Set height of box '''
+        """ Set height of box """
         sdict['height'] = val
 
     def convert_styles(self, ruleset):
-        ''' Rule is a tuple of (namespace, name). If the namespace is '' then
+        """ Rule is a tuple of (namespace, name). If the namespace is '' then
             it is already CSS2
-        '''
+        """
         sdict = {}
         for rule,val in ruleset.items():
             if rule[0] == '':
@@ -330,7 +330,7 @@ class TagStack:
         return item[1]
 
     def rfindattr(self, attr):
-        ''' Find a tag with the given attribute '''
+        """ Find a tag with the given attribute """
         for tag, attrs in self.stack:
             if attr in attrs:
                 return attrs[attr]
@@ -375,7 +375,7 @@ special_styles = {
 
 
 class ODF2XHTML(handler.ContentHandler):
-    ''' The ODF2XHTML parses an ODF file and produces XHTML'''
+    """ The ODF2XHTML parses an ODF file and produces XHTML"""
 
     def __init__(self, generate_css=True, embedable=False):
         # Tags
@@ -487,20 +487,20 @@ class ODF2XHTML(handler.ContentHandler):
         self._resetobject()
 
     def set_plain(self):
-        ''' Tell the parser to not generate CSS '''
+        """ Tell the parser to not generate CSS """
         self.generate_css = False
 
     def set_embedable(self):
-        ''' Tells the converter to only output the parts inside the <body>'''
+        """ Tells the converter to only output the parts inside the <body>"""
         self.elements[(OFFICENS, 'text')] = (None,None)
         self.elements[(OFFICENS, 'spreadsheet')] = (None,None)
         self.elements[(OFFICENS, 'presentation')] = (None,None)
         self.elements[(OFFICENS, 'document-content')] = (None,None)
 
     def add_style_file(self, stylefilename, media=None):
-        ''' Add a link to an external style file.
+        """ Add a link to an external style file.
             Also turns of the embedding of styles in the HTML
-        '''
+        """
         self.use_internal_css = False
         self.stylefilename = stylefilename
         if media:
@@ -554,7 +554,7 @@ class ODF2XHTML(handler.ContentHandler):
             self.writeout(escape(d))
 
     def opentag(self, tag, attrs={}, block=False):
-        ''' Create an open HTML tag '''
+        """ Create an open HTML tag """
         self.htmlstack.append((tag,attrs,block))
         a = []
         for key,val in attrs.items():
@@ -567,7 +567,7 @@ class ODF2XHTML(handler.ContentHandler):
             self.writeout('\n')
 
     def closetag(self, tag, block=True):
-        ''' Close an open HTML tag '''
+        """ Close an open HTML tag """
         self.htmlstack.pop()
         self.writeout(f'</{tag}>')
         if block:
@@ -620,27 +620,27 @@ class ODF2XHTML(handler.ContentHandler):
         pass
 
     def s_ignorexml(self, tag, attrs):
-        ''' Ignore this xml element and all children of it
+        """ Ignore this xml element and all children of it
             It will automatically stop ignoring
-        '''
+        """
         self.processelem = False
 
     def s_ignorecont(self, tag, attrs):
-        ''' Stop processing the text nodes '''
+        """ Stop processing the text nodes """
         self.processcont = False
 
     def s_processcont(self, tag, attrs):
-        ''' Start processing the text nodes '''
+        """ Start processing the text nodes """
         self.processcont = True
 
     def classname(self, attrs):
-        ''' Generate a class name from a style name '''
+        """ Generate a class name from a style name """
         c = attrs.get((TEXTNS,'style-name'),'')
         c = c.replace('.','_')
         return c
 
     def get_anchor(self, name):
-        ''' Create a unique anchor id for a href name '''
+        """ Create a unique anchor id for a href name """
         if name not in self.anchors:
             # Changed by Kovid
             self.anchors[name] = f'anchor{len(self.anchors) + 1}'
@@ -655,35 +655,35 @@ class ODF2XHTML(handler.ContentHandler):
 #
 # -----------------------------------------------------------------------------
     def e_dc_title(self, tag, attrs):
-        ''' Get the title from the meta data and create a HTML <title>
-        '''
+        """ Get the title from the meta data and create a HTML <title>
+        """
         self.title = ''.join(self.data)
         # self.metatags.append('<title>{}</title>\n'.format(escape(self.title)))
         self.data = []
 
     def e_dc_metatag(self, tag, attrs):
-        ''' Any other meta data is added as a <meta> element
-        '''
+        """ Any other meta data is added as a <meta> element
+        """
         self.metatags.append('<meta name="{}" content={}/>\n'.format(tag[1], quoteattr(''.join(self.data))))
         self.data = []
 
     def e_dc_contentlanguage(self, tag, attrs):
-        ''' Set the content language. Identifies the targeted audience
-        '''
+        """ Set the content language. Identifies the targeted audience
+        """
         self.language = ''.join(self.data)
         self.metatags.append(f'<meta http-equiv="content-language" content="{escape(self.language)}"/>\n')
         self.data = []
 
     def e_dc_creator(self, tag, attrs):
-        ''' Set the content creator. Identifies the targeted audience
-        '''
+        """ Set the content creator. Identifies the targeted audience
+        """
         self.creator = ''.join(self.data)
         self.metatags.append(f'<meta http-equiv="creator" content="{escape(self.creator)}"/>\n')
         self.data = []
 
     def s_custom_shape(self, tag, attrs):
-        ''' A <draw:custom-shape> is made into a <div> in HTML which is then styled
-        '''
+        """ A <draw:custom-shape> is made into a <div> in HTML which is then styled
+        """
         anchor_type = attrs.get((TEXTNS,'anchor-type'),'notfound')
         htmltag = 'div'
         name = 'G-' + attrs.get((DRAWNS,'style-name'), '')
@@ -713,13 +713,13 @@ class ODF2XHTML(handler.ContentHandler):
             self.opentag(htmltag)
 
     def e_custom_shape(self, tag, attrs):
-        ''' End the <draw:frame>
-        '''
+        """ End the <draw:frame>
+        """
         self.closetag('div')
 
     def s_draw_frame(self, tag, attrs):
-        ''' A <draw:frame> is made into a <div> in HTML which is then styled
-        '''
+        """ A <draw:frame> is made into a <div> in HTML which is then styled
+        """
         self.frame_stack.append([])
         anchor_type = attrs.get((TEXTNS,'anchor-type'),'notfound')
         htmltag = 'div'
@@ -750,8 +750,8 @@ class ODF2XHTML(handler.ContentHandler):
             self.opentag(htmltag)
 
     def e_draw_frame(self, tag, attrs):
-        ''' End the <draw:frame>
-        '''
+        """ End the <draw:frame>
+        """
         self.closetag('div')
         self.frame_stack.pop()
 
@@ -762,14 +762,14 @@ class ODF2XHTML(handler.ContentHandler):
         self.cs.fillimages[name] = imghref
 
     def rewritelink(self, imghref):
-        ''' Intended to be overloaded if you don't store your pictures
+        """ Intended to be overloaded if you don't store your pictures
             in a Pictures subfolder
-        '''
+        """
         return imghref
 
     def s_draw_image(self, tag, attrs):
-        ''' A <draw:image> becomes an <img/> element
-        '''
+        """ A <draw:image> becomes an <img/> element
+        """
         if self.frame_stack:
             if self.frame_stack[-1]:
                 return
@@ -785,8 +785,8 @@ class ODF2XHTML(handler.ContentHandler):
         self.emptytag('img', htmlattrs)
 
     def s_draw_object(self, tag, attrs):
-        ''' A <draw:object> is embedded object in the document (e.g. spreadsheet in presentation).
-        '''
+        """ A <draw:object> is embedded object in the document (e.g. spreadsheet in presentation).
+        """
         return  # Added by Kovid
         objhref = attrs[(XLINKNS,'href')]
         # Remove leading "./": from "./Object 1" to "Object 1"
@@ -800,8 +800,8 @@ class ODF2XHTML(handler.ContentHandler):
                 self._walknode(c.topnode)
 
     def s_draw_object_ole(self, tag, attrs):
-        ''' A <draw:object-ole> is embedded OLE object in the document (e.g. MS Graph).
-        '''
+        """ A <draw:object-ole> is embedded OLE object in the document (e.g. MS Graph).
+        """
         try:
             class_id = attrs[(DRAWNS,'class-id')]
         except KeyError:  # Added by Kovid to ignore <draw> without the right
@@ -812,10 +812,10 @@ class ODF2XHTML(handler.ContentHandler):
             self.closetag('a', tagattrs)
 
     def s_draw_page(self, tag, attrs):
-        ''' A <draw:page> is a slide in a presentation. We use a <fieldset> element in HTML.
+        """ A <draw:page> is a slide in a presentation. We use a <fieldset> element in HTML.
             Therefore if you convert a ODP file, you get a series of <fieldset>s.
             Override this for your own purpose.
-        '''
+        """
         name = attrs.get((DRAWNS,'name'), 'NoName')
         stylename = attrs.get((DRAWNS,'style-name'), '')
         stylename = stylename.replace('.','_')
@@ -840,8 +840,8 @@ class ODF2XHTML(handler.ContentHandler):
         # self.opentag('div', {'style': style})
 
     def e_draw_textbox(self, tag, attrs):
-        ''' End the <draw:text-box>
-        '''
+        """ End the <draw:text-box>
+        """
         self.closetag('div')
 
     def html_body(self, tag, attrs):
@@ -959,7 +959,7 @@ dl.notes dd:last-of-type { page-break-after: avoid }
             self.autoprefix = ''
 
     def s_office_document_content(self, tag, attrs):
-        ''' First tag in the content.xml file'''
+        """ First tag in the content.xml file"""
         self.writeout('<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" ')
         self.writeout('"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">\n')
         self.opentag('html', {'xmlns':'http://www.w3.org/1999/xhtml'}, True)
@@ -970,17 +970,17 @@ dl.notes dd:last-of-type { page-break-after: avoid }
         self.writeout(f'<title>{escape(self.title)}</title>\n')
 
     def e_office_document_content(self, tag, attrs):
-        ''' Last tag '''
+        """ Last tag """
         self.closetag('html')
 
     def s_office_master_styles(self, tag, attrs):
-        ''' '''
+        """ """
 
     def s_office_presentation(self, tag, attrs):
-        ''' For some odd reason, OpenOffice Impress doesn't define a default-style
+        """ For some odd reason, OpenOffice Impress doesn't define a default-style
             for the 'paragraph'. We therefore force a standard when we see
             it is a presentation
-        '''
+        """
         self.styledict['p'] = {(FONS,'font-size'): '24pt'}
         self.styledict['presentation'] = {(FONS,'font-size'): '24pt'}
         self.html_body(tag, attrs)
@@ -1000,7 +1000,7 @@ dl.notes dd:last-of-type { page-break-after: avoid }
         self.autoprefix = ''
 
     def s_office_text(self, tag, attrs):
-        ''' OpenDocument text '''
+        """ OpenDocument text """
         self.styledict['frame'] = {(STYLENS,'wrap'): 'parallel'}
         self.html_body(tag, attrs)
 
@@ -1009,9 +1009,9 @@ dl.notes dd:last-of-type { page-break-after: avoid }
         self.closetag('body')
 
     def s_style_handle_properties(self, tag, attrs):
-        ''' Copy all attributes to a struct.
+        """ Copy all attributes to a struct.
             We will later convert them to CSS2
-        '''
+        """
         if self.currentstyle is None:  # Added by Kovid
             return
 
@@ -1024,8 +1024,8 @@ dl.notes dd:last-of-type { page-break-after: avoid }
         'table-row':'tr','graphic':'graphic'}
 
     def s_style_default_style(self, tag, attrs):
-        ''' A default style is like a style on an HTML tag
-        '''
+        """ A default style is like a style on an HTML tag
+        """
         family = attrs[(STYLENS,'family')]
         htmlfamily = self.familymap.get(family,'unknown')
         self.currentstyle = htmlfamily
@@ -1036,12 +1036,12 @@ dl.notes dd:last-of-type { page-break-after: avoid }
         self.currentstyle = None
 
     def s_style_font_face(self, tag, attrs):
-        ''' It is possible that the HTML browser doesn't know how to
+        """ It is possible that the HTML browser doesn't know how to
             show a particular font. Luckily ODF provides generic fallbacks
             Unfortunately they are not the same as CSS2.
             CSS2: serif, sans-serif, cursive, fantasy, monospace
             ODF: roman, swiss, modern, decorative, script, system
-        '''
+        """
         name = attrs[(STYLENS,'name')]
         family = attrs[(SVGNS,'font-family')]
         generic = attrs.get((STYLENS,'font-family-generic'),'')
@@ -1076,17 +1076,17 @@ dl.notes dd:last-of-type { page-break-after: avoid }
         self.styledict[self.currentstyle] = {}
 
     def s_style_default_page_layout(self, tag, attrs):
-        ''' Collect the formatting for the default page layout style.
-        '''
+        """ Collect the formatting for the default page layout style.
+        """
         self.currentstyle = '@page'
         self.stylestack.append(self.currentstyle)
         self.styledict[self.currentstyle] = {}
 
     def s_style_page_layout(self, tag, attrs):
-        ''' Collect the formatting for the page layout style.
+        """ Collect the formatting for the page layout style.
             This won't work in CSS 2.1, as page identifiers are not allowed.
             It is legal in CSS3, but the rest of the application doesn't specify when to use what page layout
-        '''
+        """
         name = attrs[(STYLENS,'name')]
         name = name.replace('.','_')
         self.currentstyle = '.PL-' + name
@@ -1094,13 +1094,13 @@ dl.notes dd:last-of-type { page-break-after: avoid }
         self.styledict[self.currentstyle] = {}
 
     def e_style_page_layout(self, tag, attrs):
-        ''' End this style
-        '''
+        """ End this style
+        """
         self.currentstyle = None
 
     def s_style_master_page(self, tag, attrs):
-        ''' Collect the formatting for the page layout style.
-        '''
+        """ Collect the formatting for the page layout style.
+        """
         name = attrs[(STYLENS,'name')]
         name = name.replace('.','_')
 
@@ -1126,12 +1126,12 @@ dl.notes dd:last-of-type { page-break-after: avoid }
         'table-row':'TR', 'graphic':'G'}
 
     def s_style_style(self, tag, attrs):
-        ''' Collect the formatting for the style.
+        """ Collect the formatting for the style.
             Styles have scope. The same name can be used for both paragraph and
             character styles Since CSS has no scope we use a prefix. (Not elegant)
             In ODF a style can have a parent, these parents can be chained.
             We may not have encountered the parent yet, but if we have, we resolve it.
-        '''
+        """
         name = attrs[(STYLENS,'name')]
         name = name.replace('.','_')
         family = attrs[(STYLENS,'family')]
@@ -1159,13 +1159,13 @@ dl.notes dd:last-of-type { page-break-after: avoid }
                 self.styledict[self.currentstyle]['__parent-style-name'] = parent
 
     def e_style_style(self, tag, attrs):
-        ''' End this style
-        '''
+        """ End this style
+        """
         self.currentstyle = None
 
     def s_table_table(self, tag, attrs):
-        ''' Start a table
-        '''
+        """ Start a table
+        """
         c = attrs.get((TABLENS,'style-name'), None)
         if c and self.generate_css:
             c = c.replace('.','_')
@@ -1175,14 +1175,14 @@ dl.notes dd:last-of-type { page-break-after: avoid }
         self.purgedata()
 
     def e_table_table(self, tag, attrs):
-        ''' End a table
-        '''
+        """ End a table
+        """
         self.writedata()
         self.closetag('table')
         self.purgedata()
 
     def s_table_table_cell(self, tag, attrs):
-        ''' Start a table cell '''
+        """ Start a table cell """
         # FIXME: number-columns-repeated § 8.1.3
         # repeated = int(attrs.get( (TABLENS,'number-columns-repeated'), 1))
         htmlattrs = {}
@@ -1200,13 +1200,13 @@ dl.notes dd:last-of-type { page-break-after: avoid }
         self.purgedata()
 
     def e_table_table_cell(self, tag, attrs):
-        ''' End a table cell '''
+        """ End a table cell """
         self.writedata()
         self.closetag('td')
         self.purgedata()
 
     def s_table_table_column(self, tag, attrs):
-        ''' Start a table column '''
+        """ Start a table column """
         c = attrs.get((TABLENS,'style-name'), None)
         repeated = int(attrs.get((TABLENS,'number-columns-repeated'), 1))
         htmlattrs = {}
@@ -1217,7 +1217,7 @@ dl.notes dd:last-of-type { page-break-after: avoid }
         self.purgedata()
 
     def s_table_table_row(self, tag, attrs):
-        ''' Start a table row '''
+        """ Start a table row """
         # FIXME: table:number-rows-repeated
         c = attrs.get((TABLENS,'style-name'), None)
         htmlattrs = {}
@@ -1227,13 +1227,13 @@ dl.notes dd:last-of-type { page-break-after: avoid }
         self.purgedata()
 
     def e_table_table_row(self, tag, attrs):
-        ''' End a table row '''
+        """ End a table row """
         self.writedata()
         self.closetag('tr')
         self.purgedata()
 
     def s_text_a(self, tag, attrs):
-        ''' Anchors start '''
+        """ Anchors start """
         self.writedata()
         href = attrs[(XLINKNS,'href')].split('|')[0]
         if href[:1] == '#':  # Changed by Kovid
@@ -1242,13 +1242,13 @@ dl.notes dd:last-of-type { page-break-after: avoid }
         self.purgedata()
 
     def e_text_a(self, tag, attrs):
-        ''' End an anchor or bookmark reference '''
+        """ End an anchor or bookmark reference """
         self.writedata()
         self.closetag('a', False)
         self.purgedata()
 
     def s_text_bookmark(self, tag, attrs):
-        ''' Bookmark definition '''
+        """ Bookmark definition """
         name = attrs[(TEXTNS,'name')]
         html_id = self.get_anchor(name)
         self.writedata()
@@ -1257,7 +1257,7 @@ dl.notes dd:last-of-type { page-break-after: avoid }
         self.purgedata()
 
     def s_text_bookmark_ref(self, tag, attrs):
-        ''' Bookmark reference '''
+        """ Bookmark reference """
         name = attrs[(TEXTNS,'ref-name')]
         html_id = '#' + self.get_anchor(name)
         self.writedata()
@@ -1265,7 +1265,7 @@ dl.notes dd:last-of-type { page-break-after: avoid }
         self.purgedata()
 
     def s_text_h(self, tag, attrs):
-        ''' Headings start '''
+        """ Headings start """
         level = int(attrs[(TEXTNS,'outline-level')])
         level = min(max(level, 1), 6)  # Heading levels go only to 6 in XHTML
         self.headinglevels[level] = self.headinglevels[level] + 1
@@ -1280,10 +1280,10 @@ dl.notes dd:last-of-type { page-break-after: avoid }
         self.purgedata()
 
     def e_text_h(self, tag, attrs):
-        ''' Headings end
+        """ Headings end
             Side-effect: If there is no title in the metadata, then it is taken
             from the first heading of any level.
-        '''
+        """
         self.writedata()
         level = int(attrs[(TEXTNS,'outline-level')])
         level = min(level, 6)  # Heading levels go only to 6 in XHTML
@@ -1305,16 +1305,16 @@ dl.notes dd:last-of-type { page-break-after: avoid }
         self.purgedata()
 
     def s_text_line_break(self, tag, attrs):
-        ''' Force a line break (<br/>) '''
+        """ Force a line break (<br/>) """
         self.writedata()
         self.emptytag('br')
         self.purgedata()
 
     def s_text_list(self, tag, attrs):
-        ''' Start a list (<ul> or <ol>)
+        """ Start a list (<ul> or <ol>)
             To know which level we're at, we have to count the number
             of <text:list> elements on the tagstack.
-        '''
+        """
         name = attrs.get((TEXTNS,'style-name'))
         continue_numbering = attrs.get((TEXTNS, 'continue-numbering')) == 'true'
         continue_list = attrs.get((TEXTNS, 'continue-list'))
@@ -1350,7 +1350,7 @@ dl.notes dd:last-of-type { page-break-after: avoid }
         self.purgedata()
 
     def e_text_list(self, tag, attrs):
-        ''' End a list '''
+        """ End a list """
         self.writedata()
         if self.list_class_stack:
             self.list_class_stack.pop()
@@ -1368,7 +1368,7 @@ dl.notes dd:last-of-type { page-break-after: avoid }
         self.purgedata()
 
     def s_text_list_item(self, tag, attrs):
-        ''' Start list item '''
+        """ Start list item """
         number_class = self.list_class_stack[-1] if self.list_class_stack else None
         if number_class:
             self.list_number_map[number_class] += 1
@@ -1376,16 +1376,16 @@ dl.notes dd:last-of-type { page-break-after: avoid }
         self.purgedata()
 
     def e_text_list_item(self, tag, attrs):
-        ''' End list item '''
+        """ End list item """
         self.writedata()
         self.closetag('li')
         self.purgedata()
 
     def s_text_list_level_style_bullet(self, tag, attrs):
-        ''' CSS doesn't have the ability to set the glyph
+        """ CSS doesn't have the ability to set the glyph
             to a particular character, so we just go through
             the available glyphs
-        '''
+        """
         name = self.tagstack.rfindattr((STYLENS,'name'))
         level = attrs[(TEXTNS,'level')]
         self.prevstyle = self.currentstyle
@@ -1476,8 +1476,8 @@ dl.notes dd:last-of-type { page-break-after: avoid }
         self.closetag('sup')
 
     def s_text_p(self, tag, attrs):
-        ''' Paragraph
-        '''
+        """ Paragraph
+        """
         htmlattrs = {}
         specialtag = 'p'
         c = attrs.get((TEXTNS,'style-name'), None)
@@ -1492,8 +1492,8 @@ dl.notes dd:last-of-type { page-break-after: avoid }
         self.purgedata()
 
     def e_text_p(self, tag, attrs):
-        ''' End Paragraph
-        '''
+        """ End Paragraph
+        """
         specialtag = 'p'
         c = attrs.get((TEXTNS,'style-name'), None)
         if c:
@@ -1513,9 +1513,9 @@ dl.notes dd:last-of-type { page-break-after: avoid }
         # element instead of being part of the text flow.
         # We don't use an entity for the nbsp as the contents of self.data will
         # be escaped on writeout.
-        ''' Generate a number of spaces. We use the non breaking space for
+        """ Generate a number of spaces. We use the non breaking space for
         the text:s ODF element.
-        '''
+        """
         try:
             c = int(attrs.get((TEXTNS, 'c'), 1))
         except Exception:
@@ -1524,9 +1524,9 @@ dl.notes dd:last-of-type { page-break-after: avoid }
             self.data.append('\u00a0'*c)
 
     def s_text_span(self, tag, attrs):
-        ''' The <text:span> element matches the <span> element in HTML. It is
+        """ The <text:span> element matches the <span> element in HTML. It is
             typically used to properties of the text.
-        '''
+        """
         self.writedata()
         c = attrs.get((TEXTNS,'style-name'), None)
         htmlattrs = {}
@@ -1545,7 +1545,7 @@ dl.notes dd:last-of-type { page-break-after: avoid }
         self.purgedata()
 
     def e_text_span(self, tag, attrs):
-        ''' End the <text:span> '''
+        """ End the <text:span> """
         self.writedata()
         c = attrs.get((TEXTNS,'style-name'), None)
         # Changed by Kovid to handle inline special styles defined on <text:span> tags.
@@ -1561,22 +1561,22 @@ dl.notes dd:last-of-type { page-break-after: avoid }
         self.purgedata()
 
     def s_text_tab(self, tag, attrs):
-        ''' Move to the next tabstop. We ignore this in HTML
-        '''
+        """ Move to the next tabstop. We ignore this in HTML
+        """
         self.writedata()
         self.writeout(' ')
         self.purgedata()
 
     def s_text_x_source(self, tag, attrs):
-        ''' Various indexes and tables of contents. We ignore those.
-        '''
+        """ Various indexes and tables of contents. We ignore those.
+        """
         self.writedata()
         self.purgedata()
         self.s_ignorexml(tag, attrs)
 
     def e_text_x_source(self, tag, attrs):
-        ''' Various indexes and tables of contents. We ignore those.
-        '''
+        """ Various indexes and tables of contents. We ignore those.
+        """
         self.writedata()
         self.purgedata()
 
@@ -1587,9 +1587,9 @@ dl.notes dd:last-of-type { page-break-after: avoid }
     # -----------------------------------------------------------------------------
 
     def load(self, odffile):
-        ''' Loads a document into the parser and parses it.
+        """ Loads a document into the parser and parses it.
             The argument can either be a filename or a document in memory.
-        '''
+        """
         self.lines = []
         self._wfunc = self._wlines
         if isinstance(odffile, (bytes, str)) or hasattr(odffile, 'read'):  # Added by Kovid
@@ -1608,8 +1608,8 @@ dl.notes dd:last-of-type { page-break-after: avoid }
             self.characters(str(node))
 
     def odf2xhtml(self, odffile):
-        ''' Load a file and return the XHTML
-        '''
+        """ Load a file and return the XHTML
+        """
         self.load(odffile)
         return self.xhtml()
 
@@ -1618,8 +1618,8 @@ dl.notes dd:last-of-type { page-break-after: avoid }
             self.lines.append(s)
 
     def xhtml(self):
-        ''' Returns the xhtml
-        '''
+        """ Returns the xhtml
+        """
         return ''.join(self.lines)
 
     def _writecss(self, s):
@@ -1630,7 +1630,7 @@ dl.notes dd:last-of-type { page-break-after: avoid }
         pass
 
     def css(self):
-        ''' Returns the CSS content '''
+        """ Returns the CSS content """
         self._csslines = []
         self._wfunc = self._writecss
         self.generate_stylesheet()
@@ -1640,10 +1640,10 @@ dl.notes dd:last-of-type { page-break-after: avoid }
         return res
 
     def save(self, outputfile, addsuffix=False):
-        ''' Save the HTML under the filename.
+        """ Save the HTML under the filename.
             If the filename is '-' then save to stdout
             We have the last style filename in self.stylefilename
-        '''
+        """
         if outputfile == '-':
             import sys  # Added by Kovid
             outputfp = sys.stdout
@@ -1656,7 +1656,7 @@ dl.notes dd:last-of-type { page-break-after: avoid }
 
 
 class ODF2XHTMLembedded(ODF2XHTML):
-    ''' The ODF2XHTML parses an ODF file and produces XHTML'''
+    """ The ODF2XHTML parses an ODF file and produces XHTML"""
 
     def __init__(self, lines, generate_css=True, embedable=False):
         self._resetobject()

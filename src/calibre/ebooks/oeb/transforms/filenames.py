@@ -15,10 +15,10 @@ from calibre.ebooks.oeb.base import rewrite_links, urlnormalize
 
 class RenameFiles:  # {{{
 
-    '''
+    """
     Rename files and adjust all links pointing to them. Note that the spine
     and manifest are not touched by this transform.
-    '''
+    """
 
     def __init__(self, rename_map, renamed_items_map=None):
         self.rename_map = rename_map
@@ -89,7 +89,7 @@ class RenameFiles:  # {{{
 
 class UniqueFilenames:  # {{{
 
-    'Ensure that every item in the manifest has a unique filename'
+    "Ensure that every item in the manifest has a unique filename"
 
     def __call__(self, oeb, opts):
         self.log = oeb.logger
@@ -141,7 +141,7 @@ class UniqueFilenames:  # {{{
 
 class FlatFilenames:  # {{{
 
-    'Ensure that every item in the manifest has a unique filename without subfolders.'
+    "Ensure that every item in the manifest has a unique filename without subfolders."
 
     def __call__(self, oeb, opts):
         self.log = oeb.logger

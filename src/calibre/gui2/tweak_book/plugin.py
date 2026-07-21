@@ -18,7 +18,7 @@ from calibre.utils.localization import _
 
 
 class Tool:
-    '''
+    """
     The base class for individual tools in an Edit Book plugin. Useful members include:
 
         * ``self.plugin``: A reference to the :class:`calibre.customize.Plugin` object to which this tool belongs.
@@ -30,7 +30,7 @@ class Tool:
         * :meth:`create_action`
         * :meth:`register_shortcut`
 
-    '''
+    """
 
     #: Set this to a unique name it will be used as a key
     name: str | None = None
@@ -46,21 +46,21 @@ class Tool:
 
     @property
     def boss(self):
-        ' The :class:`calibre.gui2.tweak_book.boss.Boss` object. Used to control the user interface. '
+        " The :class:`calibre.gui2.tweak_book.boss.Boss` object. Used to control the user interface. "
         return get_boss()
 
     @property
     def gui(self):
-        ' The main window of the user interface '
+        " The main window of the user interface "
         return self.boss.gui
 
     @property
     def current_container(self):
-        ' Return the current :class:`calibre.ebooks.oeb.polish.container.Container` object that represents the book being edited. '
+        " Return the current :class:`calibre.ebooks.oeb.polish.container.Container` object that represents the book being edited. "
         return current_container()
 
     def register_shortcut(self, qaction, unique_name, default_keys=(), short_text=None, description=None, **extra_data):
-        '''
+        """
         Register a keyboard shortcut that will trigger the specified ``qaction``. This keyboard shortcut
         will become automatically customizable by the user in the Keyboard shortcuts section of the editor preferences.
 
@@ -79,7 +79,7 @@ class Tool:
             specified the text from the QAction will be used.
         :param description: An optional longer description of this action, it
             will be used in the preferences entry for this shortcut.
-        '''
+        """
         short_text = short_text or str(qaction.text()).replace('&&', '\0').replace('&', '').replace('\0', '&')
         assert self.name is not None
         self.gui.keyboard.register_shortcut(
@@ -87,7 +87,7 @@ class Tool:
             description=description or '', group=_('Plugins'))
 
     def create_action(self, for_toolbar=True):
-        '''
+        """
         Create a QAction that will be added to either the plugins toolbar or
         the plugins menu depending on ``for_toolbar``. For example::
 
@@ -107,7 +107,7 @@ class Tool:
                 return ac
 
         .. seealso:: Method :meth:`register_shortcut`.
-        '''
+        """
         raise NotImplementedError()
 
 

@@ -27,9 +27,9 @@ class QtHighlighter(QTextDocument):
         self.setPlainText(text)
 
     def copy_lines(self, lo, hi, cursor):
-        ''' Copy specified lines from the syntax highlighted buffer into the
+        """ Copy specified lines from the syntax highlighted buffer into the
         destination cursor, preserving all formatting created by the syntax
-        highlighter. '''
+        highlighter. """
         self.highlighter.join()
         num = hi - lo
         if num > 0:

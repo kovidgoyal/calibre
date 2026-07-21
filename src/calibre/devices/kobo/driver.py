@@ -1031,7 +1031,7 @@ class KOBO(USBMS):
         self.update_device_database_collections(booklist, collections_attributes, oncard)
 
     def upload_cover(self, path, filename, metadata, filepath):
-        '''
+        """
         Upload book cover to the device. Default implementation does nothing.
 
         :param path: The full path to the folder where the associated book is located.
@@ -1040,7 +1040,7 @@ class KOBO(USBMS):
                          for cover
         :param filepath: The full path to the ebook file
 
-        '''
+        """
 
         opts = self.settings()
         if not opts.extra_customization[self.OPT_UPLOAD_COVERS]:
@@ -1119,7 +1119,7 @@ class KOBO(USBMS):
                     debug_print('ImageID could not be retrieved from the database')
 
     def prepare_addable_books(self, paths):
-        '''
+        """
         The Kobo supports an encrypted epub referred to as a kepub
         Unfortunately Kobo decided to put the files on the device
         with no file extension.  I just hope that decision causes
@@ -1128,7 +1128,7 @@ class KOBO(USBMS):
         This has to make a temporary copy of the book files with an
         epub extension to allow calibre's normal processing to
         deal with the file appropriately
-        '''
+        """
         for idx, path in enumerate(paths):
             parts = path.replace(os.sep, '/').split('/')
             if path.lower().endswith(KEPUB_EXT + EPUB_EXT) or ('kepub' in parts and '.' not in parts[-1]):
@@ -2812,7 +2812,7 @@ class KOBOTOUCH(KOBO):
         self.update_device_database_collections(booklist, collections_attributes, oncard)
 
     def upload_cover(self, path, filename, metadata, filepath):
-        '''
+        """
         Upload book cover to the device. Default implementation does nothing.
 
         :param path: The full path to the folder where the associated book is located.
@@ -2821,7 +2821,7 @@ class KOBOTOUCH(KOBO):
                          for cover
         :param filepath: The full path to the ebook file
 
-        '''
+        """
         debug_print(f"KoboTouch:upload_cover - path='{path}' filename='{filename}' ")
         debug_print(f"        filepath='{filepath}' ")
 
@@ -2910,7 +2910,7 @@ class KOBOTOUCH(KOBO):
         upload_grayscale=False, dithered_covers=False, keep_cover_aspect=False, is_full_size=False, letterbox=False, png_covers=False, quality=90,
         letterbox_color=DEFAULT_COVER_LETTERBOX_COLOR
         ):
-        '''
+        """
         This will generate the new cover image from the cover in the library. It is a wrapper
         for save_cover_data_to to allow it to be overridden in a subclass. For this reason,
         options are passed in that are not used by this implementation.
@@ -2929,7 +2929,7 @@ class KOBOTOUCH(KOBO):
         :param png_covers:    True if we were asked to encode those images in PNG instead of JPG
         :param quality:       0-100 Output encoding quality (or compression level for PNG, àla IM)
         :param letterbox_color:  Colour used for letterboxing.
-        '''
+        """
 
         from calibre.utils.img import save_cover_data_to
         data = save_cover_data_to(
@@ -3634,9 +3634,9 @@ class KOBOTOUCH(KOBO):
 
     @classmethod
     def get_pref(cls, key):
-        ''' Get the setting named key. First looks for a device specific setting.
+        """ Get the setting named key. First looks for a device specific setting.
         If that is not found looks for a device default and if that is not
-        found uses the global default.'''
+        found uses the global default."""
         # debug_print("KoboTouch::get_prefs - key=", key, "cls=", cls)
         if not cls.opts:
             cls.opts = cls.settings()

@@ -176,11 +176,11 @@ class HeaderView(QHeaderView):  # {{{
 
 class PreserveViewState:  # {{{
 
-    '''
+    """
     Save the set of selected books at enter time. If at exit time there are no
     selected books, restore the previous selection, the previous current index
     and don't affect the scroll position.
-    '''
+    """
 
     def __init__(self, view, preserve_hpos=True, preserve_vpos=True, require_selected_ids=True):
         self.view = view
@@ -1597,10 +1597,10 @@ class BooksView(TableView):  # {{{
 
     def select_rows(self, identifiers, using_ids=True, change_current=True,
             scroll=True):
-        '''
+        """
         Select rows identified by identifiers. identifiers can be a set of ids,
         row numbers or QModelIndexes.
-        '''
+        """
         rows = {x.row() if hasattr(x, 'row') else x for x in
             identifiers}
         if using_ids:
@@ -1677,10 +1677,10 @@ class BooksView(TableView):  # {{{
 
     @property
     def next_id(self):
-        '''
+        """
         Return the id of the 'next' row (i.e. the first unselected row after
         the current row).
-        '''
+        """
         ci = self.currentIndex()
         if not ci.isValid():
             return None

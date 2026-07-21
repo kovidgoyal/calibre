@@ -1,6 +1,6 @@
-'''
+"""
 Convert pml markup to and from html
-'''
+"""
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'
@@ -676,7 +676,7 @@ class PML_HTMLizer:
         return output
 
     def get_toc(self):
-        '''
+        """
         Toc can have up to 5 levels, 0 - 4 inclusive.
 
         This function will add items to their appropriate
@@ -684,7 +684,7 @@ class PML_HTMLizer:
         invalid (item would not have a valid parent) add
         it to the next valid level above the specified
         level.
-        '''
+        """
         # Base toc object all items will be added to.
         n_toc = TOC()
         # Used to track nodes in the toc so we can add

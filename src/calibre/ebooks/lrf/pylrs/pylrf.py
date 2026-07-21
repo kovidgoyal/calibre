@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 
 
-'''
+"""
     pylrf.py -- very low level interface to create lrf files.  See pylrs for
     higher level interface that can use this module to render books to lrf.
-'''
+"""
 import codecs
 import io
 import os
@@ -573,10 +573,10 @@ class LrfObject:
 
 
 class LrfToc(LrfObject):
-    '''
+    """
         Table of contents.  Format of toc is:
         [ (pageid, objid, string)...]
-    '''
+    """
 
     def __init__(self, objId, toc, se):
         LrfObject.__init__(self, 'TOC', objId)

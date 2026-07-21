@@ -79,12 +79,12 @@ def smarten_punctuation(html, log=None):
 
 
 class DocAnalysis:
-    '''
+    """
     Provides various text analysis functions to determine how the document is structured.
     format is the type of document analysis will be done against.
     raw is the raw text to determine the line length to use for wrapping.
     Blank lines are excluded from analysis
-    '''
+    """
 
     def __init__(self, format='html', raw=''):
         raw = raw.replace('&nbsp;', ' ')
@@ -99,13 +99,13 @@ class DocAnalysis:
         self.lines = linere.findall(raw)
 
     def line_length(self, percent):
-        '''
+        """
         Analyses the document to find the median line length.
         percentage is a decimal number, 0 - 1 which is used to determine
         how far in the list of line lengths to use. The list of line lengths is
         ordered smallest to largest and does not include duplicates. 0.5 is the
         median value.
-        '''
+        """
         lengths = []
         for line in self.lines:
             if len(line) > 0:
@@ -131,12 +131,12 @@ class DocAnalysis:
         return lengths[index]
 
     def line_histogram(self, percent):
-        '''
+        """
         Creates a broad histogram of the document to determine whether it incorporates hard
         line breaks.  Lines are sorted into 20 'buckets' based on length.
         percent is the percentage of lines that should be in a single bucket to return true
         The majority of the lines will exist in 1-2 buckets in typical docs with hard line breaks
-        '''
+        """
         minLineLength=20  # Ignore lines under 20 chars (typical of spaces)
         maxLineLength=1900  # Discard larger than this to stay in range
         buckets=20  # Each line is divided into a bucket based on length
@@ -180,12 +180,12 @@ class DocAnalysis:
 
 
 class Dehyphenator:
-    '''
+    """
     Analyzes words to determine whether hyphens should be retained/removed.  Uses the document
     itself is as a dictionary. This method handles all languages along with uncommon, made-up, and
     scientific words. The primary disadvantage is that words appearing only once in the document
     retain hyphens.
-    '''
+    """
 
     def __init__(self, verbose=0, log=None):
         self.log = log

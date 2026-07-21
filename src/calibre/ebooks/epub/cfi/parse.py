@@ -8,10 +8,10 @@ import regex
 
 
 class Parser:
-    ''' See epubcfi.ebnf for the specification that this parser tries to
+    """ See epubcfi.ebnf for the specification that this parser tries to
     follow. I have implemented it manually, since I don't want to depend on
     grako, and the grammar is pretty simple. This parser is thread-safe, i.e.
-    it can be used from multiple threads simultaneously. '''
+    it can be used from multiple threads simultaneously. """
 
     def __init__(self):
         # All allowed unicode characters + escaped special characters
@@ -55,7 +55,7 @@ class Parser:
         self.unescape = lambda x: unescape_pat.sub(r'\1', x)
 
     def parse_epubcfi(self, raw):
-        ' Parse a full epubcfi of the form epubcfi(path [ , path , path ]) '
+        " Parse a full epubcfi of the form epubcfi(path [ , path , path ]) "
         null = {}, {}, {}, raw
         if not raw:
             return null
@@ -81,7 +81,7 @@ class Parser:
         return parent_cfi, start_cfi, end_cfi, raw
 
     def parse_path(self, raw):
-        ' Parse the path component of an epubcfi of the form /step... '
+        " Parse the path component of an epubcfi of the form /step... "
         path = {'steps':[]}
         raw = self._parse_path(raw, path)
         if not path['steps']:

@@ -88,7 +88,7 @@ SAME_INDENT = 2.0
 
 
 def adjacent_quotes(first_string, second_string):
-    ''' Does one string end with a closing quote and the next start with an opening quote? '''
+    """ Does one string end with a closing quote and the next start with an opening quote? """
 
     # Find last non-space char in first string
     lchar = re.match(r'.*([^ ])\s*$', first_string)

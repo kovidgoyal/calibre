@@ -195,11 +195,11 @@ class Browser:
         return True
 
     def set_simple_cookie(self, name: str, value: str, domain: str | None = None, path: str | None = '/'):
-        '''
+        """
         Set a simple cookie using a name and value. If domain is specified, the cookie is only sent with requests
         to matching domains, otherwise it is sent with all requests. The leading dot in domain is optional.
         Similarly, by default all paths match, to restrict to certain path use the path parameter.
-        '''
+        """
         c = {'name': name, 'value': value, 'domain': domain, 'path': path}
         self._send_command({'action': 'set_cookies', 'cookies':[c]})
     set_cookie = set_simple_cookie

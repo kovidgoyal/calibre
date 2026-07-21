@@ -63,7 +63,7 @@ def replace_jacket(container, name):
 
 
 def remove_jacket(container):
-    ' Remove an existing jacket, if any. Returns False if no existing jacket was found. '
+    " Remove an existing jacket, if any. Returns False if no existing jacket was found. "
     name = find_existing_jacket(container)
     if name is not None:
         remove_jacket_images(container, name)
@@ -81,8 +81,8 @@ def remove_jacket_images(container, name):
 
 
 def add_or_replace_jacket(container):
-    ''' Either create a new jacket from the book's metadata or replace an
-    existing jacket. Returns True if an existing jacket was replaced. '''
+    """ Either create a new jacket from the book's metadata or replace an
+    existing jacket. Returns True if an existing jacket was replaced. """
     name = find_existing_jacket(container)
     found = True
     if name is None:

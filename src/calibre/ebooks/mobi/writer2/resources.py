@@ -159,9 +159,9 @@ class Resources:
             item.media_type = 'image/png'
 
     def add_extra_images(self):
-        '''
+        """
         Add any images that were created after the call to add_resources()
-        '''
+        """
         for item in self.oeb.manifest.values():
             if (item.media_type not in OEB_RASTER_IMAGES or item.href in self.item_map):
                 continue

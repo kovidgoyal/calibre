@@ -39,12 +39,12 @@ if TYPE_CHECKING:
 
 
 def _escape(data, entities={}):
-    ''' Escape &, <, and > in a string of data.
+    """ Escape &, <, and > in a string of data.
 
         You can escape other strings of data by passing a dictionary as
         the optional entities parameter.  The keys and values must all be
         strings; each key will be replaced with its corresponding value.
-    '''
+    """
     data = data.replace('&', '&amp;')
     data = data.replace('<', '&lt;')
     data = data.replace('>', '&gt;')
@@ -78,7 +78,7 @@ def _quoteattr(data, entities={}):
 
 
 def _nssplit(qualifiedName):
-    ''' Split a qualified name into namespace part and local part.  '''
+    """ Split a qualified name into namespace part and local part.  """
     fields = qualifiedName.split(':', 1)
     if len(fields) == 2:
         return fields
@@ -93,15 +93,15 @@ def _nsassign(namespace):
 # Exceptions
 
 class IllegalChild(Exception):
-    ''' Complains if you add an element to a parent where it is not allowed '''
+    """ Complains if you add an element to a parent where it is not allowed """
 
 
 class IllegalText(Exception):
-    ''' Complains if you add text or cdata to an element where it is not allowed '''
+    """ Complains if you add text or cdata to an element where it is not allowed """
 
 
 class Node(xml.dom.Node):
-    ''' super class for more specific nodes '''
+    """ super class for more specific nodes """
     parentNode = None
     nextSibling = None
     previousSibling = None
@@ -115,9 +115,9 @@ class Node(xml.dom.Node):
         raise NotImplementedError
 
     def hasChildNodes(self):
-        ''' Tells whether this element has any children; text nodes,
+        """ Tells whether this element has any children; text nodes,
             subelements, whatever.
-        '''
+        """
         if self.childNodes:
             return True
         else:
@@ -135,9 +135,9 @@ class Node(xml.dom.Node):
             return self.childNodes[-1]
 
     def insertBefore(self, newChild, refChild):
-        ''' Inserts the node newChild before the existing child node refChild.
+        """ Inserts the node newChild before the existing child node refChild.
             If refChild is null, insert newChild at the end of the list of children.
-        '''
+        """
         if newChild.nodeType not in self._child_node_types:
             raise IllegalChild(f'{newChild.tagName} cannot be child of {self.tagName}')
         if newChild.parentNode is not None:
@@ -162,9 +162,9 @@ class Node(xml.dom.Node):
         return newChild
 
     def appendChild(self, newChild):
-        ''' Adds the node newChild to the end of the list of children of this node.
+        """ Adds the node newChild to the end of the list of children of this node.
             If the newChild is already in the tree, it is first removed.
-        '''
+        """
         if newChild.nodeType == self.DOCUMENT_FRAGMENT_NODE:
             for c in tuple(newChild.childNodes):
                 self.appendChild(c)
@@ -179,8 +179,8 @@ class Node(xml.dom.Node):
         return newChild
 
     def removeChild(self, oldChild):
-        ''' Removes the child node indicated by oldChild from the list of children, and returns it.
-        '''
+        """ Removes the child node indicated by oldChild from the list of children, and returns it.
+        """
         # FIXME: update ownerDocument.element_dict or find other solution
         try:
             self.childNodes.remove(oldChild)
@@ -220,9 +220,9 @@ def _append_child(self, node):
 
 
 class Childless:
-    ''' Mixin that makes childless-ness easy to implement and avoids
+    """ Mixin that makes childless-ness easy to implement and avoids
         the complexity of the Node methods that deal with children.
-    '''
+    """
 
     attributes = None
     childNodes = EmptyNodeList()
@@ -237,7 +237,7 @@ class Childless:
         return None
 
     def appendChild(self, node):
-        ''' Raises an error '''
+        """ Raises an error """
         raise xml.dom.HierarchyRequestErr(
             self.tagName + ' nodes cannot have children')
 
@@ -245,17 +245,17 @@ class Childless:
         return False
 
     def insertBefore(self, newChild, refChild):
-        ''' Raises an error '''
+        """ Raises an error """
         raise xml.dom.HierarchyRequestErr(
             self.tagName + ' nodes do not have children')
 
     def removeChild(self, oldChild):
-        ''' Raises an error '''
+        """ Raises an error """
         raise xml.dom.NotFoundErr(
             self.tagName + ' nodes do not have children')
 
     def replaceChild(self, newChild, oldChild):
-        ''' Raises an error '''
+        """ Raises an error """
         raise xml.dom.HierarchyRequestErr(
             self.tagName + ' nodes do not have children')
 
@@ -272,7 +272,7 @@ class Text(Childless, Node):
     __unicode__ = __str__
 
     def toXml(self, level, f):
-        ''' Write XML in UTF-8 '''
+        """ Write XML in UTF-8 """
         if self.data:
             f.write(_escape(str(self.data).encode('utf-8')))
 
@@ -290,12 +290,12 @@ class CDATASection(Text, Childless):
 
 
 class Element(Node):
-    ''' Creates a arbitrary element and is intended to be subclassed not used on its own.
+    """ Creates a arbitrary element and is intended to be subclassed not used on its own.
         This element is the base of every element it defines a class which resembles
         a xml-element. The main advantage of this kind of implementation is that you don't
         have to create a toXML method for every different object. Every element
         consists of an attribute, optional subelements, optional text and optional cdata.
-    '''
+    """
 
     nodeType = Node.ELEMENT_NODE
     namespaces = {}  # Due to shallow copy this is a static variable
@@ -348,9 +348,9 @@ class Element(Node):
                     raise AttributeError('Required attribute missing: {} in <{}>'.format(r[1].lower().replace('-',''), self.tagName))
 
     def get_knownns(self, prefix):
-        ''' Odfpy maintains a list of known namespaces. In some cases a prefix is used, and
+        """ Odfpy maintains a list of known namespaces. In some cases a prefix is used, and
             we need to know which namespace it resolves to.
-        '''
+        """
         global nsdict
         for ns,p in nsdict.items():
             if p == prefix:
@@ -358,9 +358,9 @@ class Element(Node):
         return None
 
     def get_nsprefix(self, namespace):
-        ''' Odfpy maintains a list of known namespaces. In some cases we have a namespace URL,
+        """ Odfpy maintains a list of known namespaces. In some cases we have a namespace URL,
             and needs to look up or assign the prefix for it.
-        '''
+        """
         if namespace is None:
             namespace = ''
         prefix = _nsassign(namespace)
@@ -377,10 +377,10 @@ class Element(Node):
             self._setOwnerDoc(child)
 
     def addElement(self, element, check_grammar=True):
-        ''' adds an element to an Element
+        """ adds an element to an Element
 
             Element.addElement(Element)
-        '''
+        """
         if check_grammar and self.allowed_children is not None:
             if element.qname not in self.allowed_children:
                 raise IllegalChild(f'<{element.tagName}> is not allowed in <{self.tagName}>')
@@ -390,25 +390,25 @@ class Element(Node):
             self.ownerDocument.rebuild_caches(element)
 
     def addText(self, text, check_grammar=True):
-        ''' Adds text to an element
+        """ Adds text to an element
             Setting check_grammar=False turns off grammar checking
-        '''
+        """
         if check_grammar and self.qname not in grammar.allows_text:
             raise IllegalText(f'The <{self.tagName}> element does not allow text')
         elif text != '':
             self.appendChild(Text(text))
 
     def addCDATA(self, cdata, check_grammar=True):
-        ''' Adds CDATA to an element
+        """ Adds CDATA to an element
             Setting check_grammar=False turns off grammar checking
-        '''
+        """
         if check_grammar and self.qname not in grammar.allows_text:
             raise IllegalText(f'The <{self.tagName}> element does not allow text')
         else:
             self.appendChild(CDATASection(cdata))
 
     def removeAttribute(self, attr, check_grammar=True):
-        ''' Removes an attribute by name. '''
+        """ Removes an attribute by name. """
         allowed_attrs = self.allowed_attributes()
         if allowed_attrs is None:
             if isinstance(attr, tuple):
@@ -425,13 +425,13 @@ class Element(Node):
             self.removeAttrNS(allowed_attrs[i][0], allowed_attrs[i][1])
 
     def setAttribute(self, attr, value, check_grammar=True):
-        ''' Add an attribute to the element
+        """ Add an attribute to the element
             This is sort of a convenience method. All attributes in ODF have
             namespaces. The library knows what attributes are legal and then allows
             the user to provide the attribute as a keyword argument and the
             library will add the correct namespace.
             Must overwrite, If attribute already exists.
-        '''
+        """
         allowed_attrs = self.allowed_attributes()
         if allowed_attrs is None:
             if isinstance(attr, tuple):
@@ -448,12 +448,12 @@ class Element(Node):
             self.setAttrNS(allowed_attrs[i][0], allowed_attrs[i][1], value)
 
     def setAttrNS(self, namespace, localpart, value):
-        ''' Add an attribute to the element
+        """ Add an attribute to the element
             In case you need to add an attribute the library doesn't know about
             then you must provide the full qualified name
             It will not check that the attribute is legal according to the schema.
             Must overwrite, If attribute already exists.
-        '''
+        """
         c = AttrConverters()
         self.attributes[(namespace, localpart)] = c.convert((namespace, localpart), value, self)
 
@@ -464,8 +464,8 @@ class Element(Node):
         del self.attributes[(namespace, localpart)]
 
     def getAttribute(self, attr):
-        ''' Get an attribute value. The method knows which namespace the attribute is in
-        '''
+        """ Get an attribute value. The method knows which namespace the attribute is in
+        """
         allowed_attrs = self.allowed_attributes()
         if allowed_attrs is None:
             if isinstance(attr, tuple):
@@ -493,7 +493,7 @@ class Element(Node):
         f.write('</'+self.tagName+'>')
 
     def toXml(self, level, f):
-        ''' Generate XML stream out of the tree structure '''
+        """ Generate XML stream out of the tree structure """
         f.write('<'+self.tagName)
         if level == 0:
             for namespace, prefix in self.namespaces.items():
@@ -518,11 +518,11 @@ class Element(Node):
         return accumulator
 
     def getElementsByType(self, element):
-        ''' Gets elements based on the type, which is function from text.py, draw.py etc. '''
+        """ Gets elements based on the type, which is function from text.py, draw.py etc. """
         obj = element(check_grammar=False)
         return self._getElementsByObj(obj,[])
 
     def isInstanceOf(self, element):
-        ''' This is a check to see if the object is an instance of a type '''
+        """ This is a check to see if the object is an instance of a type """
         obj = element(check_grammar=False)
         return self.qname == obj.qname

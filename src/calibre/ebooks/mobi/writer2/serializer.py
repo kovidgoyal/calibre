@@ -29,7 +29,7 @@ class Serializer:
     NSRMAP = {'': None, XML_NS: 'xml', XHTML_NS: '', MBP_NS: 'mbp'}
 
     def __init__(self, oeb, images, is_periodical, write_page_breaks_after_item=True):
-        '''
+        """
         Write all the HTML markup in oeb into a single in memory buffer
         containing a single html document with links replaced by offsets into
         the buffer.
@@ -42,7 +42,7 @@ class Serializer:
 
         :param write_page_breaks_after_item: If True a MOBIpocket pagebreak tag
         is written after every element of the spine in ``oeb``.
-        '''
+        """
         self.oeb = oeb
         # Map of image hrefs to image index in the MOBI file
         self.images = images
@@ -72,10 +72,10 @@ class Serializer:
         self.find_blocks()
 
     def find_blocks(self):
-        '''
+        """
         Mark every item in the spine if it is the start/end of a
         section/article, so that it can be wrapped in divs appropriately.
-        '''
+        """
         for item in self.oeb.spine:
             item.is_section_start = item.is_section_end = False
             item.is_article_start = item.is_article_end = False
@@ -120,9 +120,9 @@ class Serializer:
         item.is_section_end = item.is_article_end = True
 
     def __call__(self):
-        '''
+        """
         Return the document serialized as a single UTF-8 encoded bytestring.
-        '''
+        """
         buf = self.buf = Buf()
         buf.write(b'<html>')
         self.serialize_head()
@@ -214,10 +214,10 @@ class Serializer:
         return True
 
     def serialize_body(self):
-        '''
+        """
         Serialize all items in the spine of the document. Non linear items are
         moved to the end.
-        '''
+        """
         buf = self.buf
 
         def serialize_toc_level(tocref, href=None):
@@ -287,10 +287,10 @@ class Serializer:
         buf.write(b'</body>')
 
     def serialize_item(self, item):
-        '''
+        """
         Serialize an individual item from the spine of the input document.
         A reference to this item is stored in self.href_offsets
-        '''
+        """
         buf = self.buf
         if not item.linear:
             self.breaks.append(buf.tell() - 1)

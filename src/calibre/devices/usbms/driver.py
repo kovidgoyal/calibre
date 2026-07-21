@@ -24,7 +24,7 @@ from calibre.utils.localization import _
 
 
 def safe_walk(top, topdown=True, onerror=None, followlinks=False, maxdepth=128):
-    ' A replacement for os.walk that does not die when it encounters undecodeable filenames in a linux filesystem'
+    " A replacement for os.walk that does not die when it encounters undecodeable filenames in a linux filesystem"
     if maxdepth < 0:
         return
     islink, join, isdir = os.path.islink, os.path.join, os.path.isdir
@@ -67,10 +67,10 @@ def safe_walk(top, topdown=True, onerror=None, followlinks=False, maxdepth=128):
 # CLI must come before Device as it implements the CLI functions that
 # are inherited from the device interface in Device.
 class USBMS(CLI, Device):
-    '''
+    """
     The base class for all USBMS devices. Implements the logic for
     sending/getting/updating metadata/caching metadata/etc.
-    '''
+    """
 
     description    = _('Communicate with an e-book reader.')
     author         = 'John Schember'
@@ -344,7 +344,7 @@ class USBMS(CLI, Device):
         return list(zip(paths, cycle([on_card])))
 
     def upload_cover(self, path, filename, metadata, filepath):
-        '''
+        """
         Upload book cover to the device. Default implementation does nothing.
 
         :param path: The full path to the folder where the associated book is located.
@@ -353,7 +353,7 @@ class USBMS(CLI, Device):
                          for cover
         :param filepath: The full path to the e-book file
 
-        '''
+        """
         pass
 
     def add_books_to_metadata(self, locations, metadata, booklists):
@@ -486,7 +486,7 @@ class USBMS(CLI, Device):
 
     @classmethod
     def normalize_path(cls, path):
-        'Return path with platform native path separators'
+        "Return path with platform native path separators"
         if path is None:
             return None
         if os.sep == '\\':

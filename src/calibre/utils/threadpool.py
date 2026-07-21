@@ -54,30 +54,30 @@ from typing import Any
 
 
 class NoResultsPending(Exception):
-    '''All work requests have been processed.'''
+    """All work requests have been processed."""
     pass
 
 
 class NoWorkersAvailable(Exception):
-    '''No worker threads available to process remaining requests.'''
+    """No worker threads available to process remaining requests."""
     pass
 
 
 # classes
 
 class WorkerThread(threading.Thread):
-    '''Background thread connected to the requests/results queues.
+    """Background thread connected to the requests/results queues.
 
     A worker thread sits in the background and picks up work requests from
     one queue and puts the results in another until it is dismissed.
-    '''
+    """
 
     def __init__(self, requestsQueue, resultsQueue, **kwds):
-        '''Set up thread in daemonic mode and start it immediately.
+        """Set up thread in daemonic mode and start it immediately.
 
         requestsQueue and resultQueue are instances of queue.Queue passed
         by the ThreadPool class when it creates a new worker thread.
-        '''
+        """
         kwds['daemon'] = True
         threading.Thread.__init__(self, **kwds)
         self.workRequestQueue = requestsQueue
@@ -86,7 +86,7 @@ class WorkerThread(threading.Thread):
         self.start()
 
     def run(self):
-        '''Repeatedly process the job queue until told to exit.'''
+        """Repeatedly process the job queue until told to exit."""
 
         while not self._dismissed.is_set():
             # thread blocks here, if queue empty
@@ -105,19 +105,19 @@ class WorkerThread(threading.Thread):
                 self.resultQueue.put((request, traceback.format_exc()))
 
     def dismiss(self):
-        '''Sets a flag to tell the thread to exit when done with current job.
-        '''
+        """Sets a flag to tell the thread to exit when done with current job.
+        """
 
         self._dismissed.set()
 
 
 class WorkRequest:
-    '''A request to execute a callable for putting in the request queue later.
+    """A request to execute a callable for putting in the request queue later.
 
     See the module function makeRequests() for the common case
     where you want to build several WorkRequests for the same callable
     but with different arguments for each call.
-    '''
+    """
 
     # these are used by the recipe download system
     feed: Any
@@ -126,7 +126,7 @@ class WorkRequest:
 
     def __init__(self, callable, args=None, kwds=None, requestID=None,
       callback=None, exc_callback=None):
-        '''Create a work request for a callable and attach callbacks.
+        """Create a work request for a callable and attach callbacks.
 
         A work request consists of the callable to be executed by a
         worker thread, a list of positional arguments, a dictionary
@@ -145,7 +145,7 @@ class WorkRequest:
         requestID, if given, must be hashable since it is used by the
         ThreadPool object to store the results of that work request in a
         dictionary. It defaults to the return value of id(self).
-        '''
+        """
 
         if requestID is None:
             self.requestID = id(self)
@@ -164,19 +164,19 @@ class WorkRequest:
 
 
 class ThreadPool:
-    '''A thread pool, distributing work requests and collecting results.
+    """A thread pool, distributing work requests and collecting results.
 
     See the module doctring for more information.
-    '''
+    """
 
     def __init__(self, num_workers, q_size=0):
-        '''Set up the thread pool and start num_workers worker threads.
+        """Set up the thread pool and start num_workers worker threads.
 
         num_workers is the number of worker threads to start initially.
         If q_size > 0 the size of the work request queue is limited and
         the thread pool blocks when the queue is full and it tries to put
         more work requests in it (see putRequest method).
-        '''
+        """
 
         self.requestsQueue = queue.Queue(q_size)
         self.resultsQueue = queue.Queue()
@@ -185,29 +185,29 @@ class ThreadPool:
         self.createWorkers(num_workers)
 
     def createWorkers(self, num_workers):
-        '''Add num_workers worker threads to the pool.'''
+        """Add num_workers worker threads to the pool."""
 
         for i in range(num_workers):
             self.workers.append(WorkerThread(self.requestsQueue,
               self.resultsQueue))
 
     def dismissWorkers(self, num_workers):
-        '''Tell num_workers worker threads to quit after their current task.
-        '''
+        """Tell num_workers worker threads to quit after their current task.
+        """
 
         for i in range(min(num_workers, len(self.workers))):
             worker = self.workers.pop()
             worker.dismiss()
 
     def putRequest(self, request, block=True, timeout=0):
-        '''Put work request into work queue and save its id for later.'''
+        """Put work request into work queue and save its id for later."""
 
         assert isinstance(request, WorkRequest)
         self.requestsQueue.put(request, block, timeout)
         self.workRequests[request.requestID] = request
 
     def poll(self, block=False):
-        '''Process any new results in the queue.'''
+        """Process any new results in the queue."""
 
         while True:
             # still results pending?
@@ -231,7 +231,7 @@ class ThreadPool:
                 break
 
     def wait(self, sleep=0):
-        '''Wait for results, blocking until all have arrived.'''
+        """Wait for results, blocking until all have arrived."""
 
         while 1:
             try:
@@ -244,7 +244,7 @@ class ThreadPool:
 # helper functions
 
 def makeRequests(callable, args_list, callback=None, exc_callback=None):
-    '''Create several work requests for same callable with different arguments.
+    """Create several work requests for same callable with different arguments.
 
     Convenience function for creating several work requests for the same
     callable where each invocation of the callable receives different values
@@ -256,7 +256,7 @@ def makeRequests(callable, args_list, callback=None, exc_callback=None):
     non-tuple argument.
 
     See docstring for WorkRequest for info on callback and exc_callback.
-    '''
+    """
 
     requests = []
     for item in args_list:

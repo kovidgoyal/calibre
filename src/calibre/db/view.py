@@ -101,8 +101,8 @@ def format_identifiers(x):
 
 
 class View:
-    ''' A table view of the database, with rows and columns. Also supports
-    filtering and sorting.  '''
+    """ A table view of the database, with rows and columns. Also supports
+    filtering and sorting.  """
 
     def __init__(self, cache):
         self.cache = cache
@@ -222,10 +222,10 @@ class View:
         return TableRow(book_id, self)
 
     def get_field_map_field(self, row, col, index_is_id=True):
-        '''
+        """
         Supports the legacy FIELD_MAP interface for getting metadata. Do not use
         in new code.
-        '''
+        """
         getter = self._field_getters[col]
         return getter(row, index_is_id=index_is_id)
 

@@ -34,7 +34,7 @@ def import_test(replacement_data, replacement_fmt=None):
 class AddRemoveTest(BaseTest):
 
     def test_add_format(self):  # {{{
-        'Test adding formats to an existing book record'
+        "Test adding formats to an existing book record"
         af, ae, at = self.assertFalse, self.assertEqual, self.assertTrue
 
         cache = self.init_cache()
@@ -107,7 +107,7 @@ class AddRemoveTest(BaseTest):
     # }}}
 
     def test_remove_formats(self):  # {{{
-        'Test removal of formats from book records'
+        "Test removal of formats from book records"
         af, ae, at = self.assertFalse, self.assertEqual, self.assertTrue
 
         cache = self.init_cache()
@@ -149,7 +149,7 @@ class AddRemoveTest(BaseTest):
     # }}}
 
     def test_create_book_entry(self):  # {{{
-        'Test the creation of new book entries'
+        "Test the creation of new book entries"
         from calibre.ebooks.metadata.book.base import Metadata
         cache = self.init_cache()
         cache.set_field('authors', {1: 'Creator Two'})
@@ -201,7 +201,7 @@ class AddRemoveTest(BaseTest):
     # }}}
 
     def test_add_books(self):  # {{{
-        'Test the adding of new books'
+        "Test the adding of new books"
         from calibre.ebooks.metadata.book.base import Metadata
         cache = self.init_cache()
         mi = Metadata('Created One', authors=('Creator One', 'Creator Two'))
@@ -217,7 +217,7 @@ class AddRemoveTest(BaseTest):
     # }}}
 
     def test_remove_books(self):  # {{{
-        'Test removal of books'
+        "Test removal of books"
         cl = self.cloned_library
         cl2 = self.cloned_library
         cl3 = self.cloned_library
@@ -329,7 +329,7 @@ class AddRemoveTest(BaseTest):
     # }}}
 
     def test_original_fmt(self):  # {{{
-        ' Test management of original fmt '
+        " Test management of original fmt "
         af, ae, at = self.assertFalse, self.assertEqual, self.assertTrue
         db = self.init_cache()
         fmts = db.formats(1)
@@ -347,7 +347,7 @@ class AddRemoveTest(BaseTest):
     # }}}
 
     def test_format_orphan(self):  # {{{
-        ' Test that adding formats does not create orphans if the file name algorithm changes '
+        " Test that adding formats does not create orphans if the file name algorithm changes "
         cache = self.init_cache()
         path = cache.format_abspath(1, 'FMT1')
         base, name = os.path.split(path)
@@ -492,7 +492,7 @@ class AddRemoveTest(BaseTest):
     # }}}
 
     def test_custom_column_defaults(self):  # {{{
-        'Test that custom column defaults are applied correctly when adding books'
+        "Test that custom column defaults are applied correctly when adding books"
         from calibre.ebooks.metadata.book.base import Metadata
 
         cache = self.init_cache()

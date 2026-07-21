@@ -406,7 +406,7 @@ class ProceedQuestion(QWidget):
         show_det=False, show_ok=False, icon=None, log_viewer_unique_name=None,
         **kw
     ):
-        '''
+        """
         A non modal popup that notifies the user that a background task has
         been completed. This class guarantees that only a single popup is
         visible at any one time. Other requests are queued and displayed after
@@ -442,7 +442,7 @@ class ProceedQuestion(QWidget):
         :param show_ok: If True, OK will be shown instead of YES/NO
         :param icon: The icon to be used for this popop (defaults to question mark). Can be either a QIcon or a string to be used with QIcon.ic()
         :log_viewer_unique_name: If set, ViewLog will remember/reuse its size for this name in calibre.gui2.gprefs
-        '''
+        """
         question = Question(
             payload, callback, cancel_callback, title, msg, html_log,
             log_viewer_title, log_is_file, det_msg, show_copy_button,

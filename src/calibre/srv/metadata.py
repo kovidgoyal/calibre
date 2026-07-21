@@ -675,7 +675,7 @@ def dump_tags_model(m):
 
 
 def test_tag_browser(library_path=None):
-    ' Compare output of server and GUI tag browsers '
+    " Compare output of server and GUI tag browsers "
     from calibre.library import db
     olddb = db(library_path)
     db = olddb.new_api

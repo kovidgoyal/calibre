@@ -35,7 +35,7 @@ from .namespaces import OFFICENS
 
 
 class LoadParser(handler.ContentHandler):
-    ''' Extract headings from content.xml of an ODT file '''
+    """ Extract headings from content.xml of an ODT file """
     triggers = (
        (OFFICENS, 'automatic-styles'), (OFFICENS, 'body'),
        (OFFICENS, 'font-face-decls'), (OFFICENS, 'master-styles'),

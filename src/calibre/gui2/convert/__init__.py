@@ -91,12 +91,12 @@ class Widget(QWidget):
             self.connect_gui_obj(getattr(self, 'opt_'+name))
 
     def initialize_options(self, get_option, get_help, db=None, book_id=None):
-        '''
+        """
         :param get_option: A callable that takes one argument: the option name
         and returns the corresponding OptionRecommendation.
         :param get_help: A callable that takes the option name and return a help
         string.
-        '''
+        """
         defaults = load_defaults(self._name)
         defaults.merge_recommendations(get_option, OptionRecommendation.LOW,
                 self._options)
@@ -299,7 +299,7 @@ class Widget(QWidget):
         g.__class__.enterEvent = lambda obj, event: self.set_help(getattr(obj, '_help', obj.toolTip()))
 
     def set_value_handler(self, g, val):
-        'Return True iff you handle setting the value for g'
+        "Return True iff you handle setting the value for g"
         return False
 
     def post_set_value(self, g, val):

@@ -44,7 +44,7 @@ def cleanup_title(s):
 
 @total_ordering
 class InternalMetadataCompareKeyGen:
-    '''
+    """
     Generate a sort key for comparison of the relevance of Metadata objects,
     given a search query. This is used only to compare results from the same
     metadata source, not across different sources.
@@ -62,7 +62,7 @@ class InternalMetadataCompareKeyGen:
         * Prefer results with longer comments (greater than 10% longer)
         * Use the relevance of the result as reported by the metadata source's search
            engine
-    '''
+    """
 
     def __init__(self, mi, source_plugin, title, authors, identifiers):
         same_identifier = 2
@@ -166,7 +166,7 @@ class Option:
     __slots__ = ('choices', 'default', 'desc', 'label', 'name', 'type')
 
     def __init__(self, name, type_, default, label, desc, choices=None):
-        '''
+        """
         :param name: The name of this option. Must be a valid python identifier
         :param type_: The type of this option, one of ('number', 'string',
                         'bool', 'choices')
@@ -175,7 +175,7 @@ class Option:
         :param desc: A longer description of this option
         :param choices: A dict of possible values, used only if type='choices'.
         dict is of the form {key:human readable label, ...}
-        '''
+        """
         self.name, self.type, self.default, self.label, self.desc = (name,
                 type_, default, label, desc)
         if choices and not isinstance(choices, dict):
@@ -250,10 +250,10 @@ class Source(Plugin):
     # Configuration {{{
 
     def is_configured(self):
-        '''
+        """
         Return False if your plugin needs to be configured before it can be
         used. For example, it might need a username/password/API key.
-        '''
+        """
         return True
 
     def is_customizable(self):
@@ -334,12 +334,12 @@ class Source(Plugin):
     # Utility functions {{{
 
     def get_author_tokens(self, authors, only_first_author=True):
-        '''
+        """
         Take a list of authors and return a list of tokens useful for an
         AND search query. This function tries to return tokens in
         first name middle names last name order, by assuming that if a comma is
         in the author name, the name is in lastname, other names form.
-        '''
+        """
 
         if authors:
             # Leave ' in there for Irish names
@@ -361,10 +361,10 @@ class Source(Plugin):
                         yield tok
 
     def get_title_tokens(self, title, strip_joiners=True, strip_subtitle=False):
-        '''
+        """
         Take a title and return a list of tokens useful for an AND search query.
         Excludes connectives(optionally) and punctuation.
-        '''
+        """
         if title:
             # strip sub-titles
             if strip_subtitle:
@@ -398,7 +398,7 @@ class Source(Plugin):
                     yield token
 
     def split_jobs(self, jobs, num):
-        'Split a list of jobs into at most num groups, as evenly as possible'
+        "Split a list of jobs into at most num groups, as evenly as possible"
         groups = [[] for i in range(num)]
         jobs = list(jobs)
         while jobs:
@@ -411,10 +411,10 @@ class Source(Plugin):
         return [g for g in groups if g]
 
     def test_fields(self, mi):
-        '''
+        """
         Return the first field from self.touched_fields that is null on the
         mi object
-        '''
+        """
         for key in self.touched_fields:
             if key.startswith('identifier:'):
                 key = key.partition(':')[-1]
@@ -424,11 +424,11 @@ class Source(Plugin):
                 return key
 
     def clean_downloaded_metadata(self, mi):
-        '''
+        """
         Call this method in your plugin's identify method to normalize metadata
         before putting the Metadata object into result_queue. You can of
         course, use a custom algorithm suited to your metadata source.
-        '''
+        """
         docase = mi.language == 'eng' or mi.is_null('language')
         if docase and mi.title:
             mi.title = fixcase(mi.title)
@@ -474,7 +474,7 @@ class Source(Plugin):
 
     # Metadata API {{{
     def get_book_url(self, identifiers):
-        '''
+        """
         Return a 3-tuple or None. The 3-tuple is of the form:
         (identifier_type, identifier_value, URL).
         The URL is the URL for the book identified by identifiers at this
@@ -486,47 +486,47 @@ class Source(Plugin):
         If no URL is found, return None. This method must be quick, and
         consistent, so only implement it if it is possible to construct the URL
         from a known scheme given identifiers.
-        '''
+        """
         return
 
     def get_book_url_name(self, idtype, idval, url):
-        '''
+        """
         Return a human readable name from the return value of get_book_url().
-        '''
+        """
         return self.name
 
     def get_book_urls(self, identifiers):
-        '''
+        """
         Override this method if you would like to return multiple URLs for this book.
         Return a list of 3-tuples. By default this method simply calls :func:`get_book_url`.
-        '''
+        """
         data = self.get_book_url(identifiers)
         if data is None:
             return ()
         return (data,)
 
     def get_cached_cover_url(self, identifiers):
-        '''
+        """
         Return cached cover URL for the book identified by
         the identifiers dictionary or None if no such URL exists.
 
         Note that this method must only return validated URLs, i.e. not URLS
         that could result in a generic cover image or a not found error.
-        '''
+        """
         return
 
     def id_from_url(self, url):
-        '''
+        """
         Parse a URL and return a tuple of the form:
         (identifier_type, identifier_value).
         If the URL does not match the pattern for the metadata source,
         return None.
-        '''
+        """
         return
 
     def identify_results_keygen(self, title=None, authors=None,
             identifiers={}):
-        '''
+        """
         Return a function that is used to generate a key that can sort Metadata
         objects by their relevance given a search query (title, authors,
         identifiers).
@@ -536,7 +536,7 @@ class Source(Plugin):
         For details on the default algorithm see
         :class:`InternalMetadataCompareKeyGen`. Re-implement this function in
         your plugin if the default algorithm is not suitable.
-        '''
+        """
         def keygen(mi):
             return InternalMetadataCompareKeyGen(mi, self, title, authors,
                 identifiers)
@@ -544,7 +544,7 @@ class Source(Plugin):
 
     def identify(self, log, result_queue, abort, title=None, authors=None,
             identifiers={}, timeout=30):
-        '''
+        """
         Identify a book by its Title/Author/ISBN/etc.
 
         If identifiers(s) are specified and no match is found and this metadata
@@ -580,7 +580,7 @@ class Source(Plugin):
         :return: None if no errors occurred, otherwise a unicode representation
                  of the error suitable for showing to the user
 
-        '''
+        """
         return
 
     def download_cover(self, log, result_queue, abort,

@@ -1,8 +1,8 @@
-'''
+"""
 Created on 4 Jun 2010
 
 @author: charles
-'''
+"""
 
 import json
 import traceback
@@ -42,9 +42,9 @@ def datetime_to_string(dateval):
 
 
 def encode_thumbnail(thumbnail):
-    '''
+    """
     Encode the image part of a thumbnail, then return the 3 part tuple
-    '''
+    """
     from calibre.utils.imghdr import identify
     if thumbnail is None:
         return None
@@ -60,9 +60,9 @@ def encode_thumbnail(thumbnail):
 
 
 def decode_thumbnail(tup):
-    '''
+    """
     Decode an encoded thumbnail into its 3 component parts
-    '''
+    """
     if tup is None:
         return None
     return (tup[0], tup[1], from_base64_bytes(tup[2]))

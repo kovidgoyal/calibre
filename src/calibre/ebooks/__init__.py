@@ -175,7 +175,7 @@ UNIT_RE = re.compile(r'^(-*[0-9]*[.]?[0-9]*)\s*(%|em|ex|en|px|mm|cm|in|pt|pc|rem
 
 
 def unit_convert(value, base, font, dpi, body_font_size=12):
-    ' Return value in pts'
+    " Return value in pts"
     if isinstance(value, numbers.Number):
         return value
     with suppress(Exception):

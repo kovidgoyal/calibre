@@ -10,9 +10,9 @@
 #                                                                       #
 #                                                                       #
 #########################################################################
-'''
+"""
 Gets options for main part of script
-'''
+"""
 import os
 import sys
 
@@ -33,9 +33,9 @@ class GetOptions:
         self.__bug_handler = bug_handler
 
     def get_options(self):
-        '''
+        """
         return valid, output, help, show_warnings, debug, file
-        '''
+        """
         return_options = self.__get_config_options()
         options_dict = {
                         'dir'                       : [1],

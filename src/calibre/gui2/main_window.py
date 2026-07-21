@@ -27,13 +27,13 @@ Launch the Graphical User Interface
 
 
 class GarbageCollector(QObject):
-    '''
+    """
     Disable automatic garbage collection and instead collect manually
     every INTERVAL milliseconds.
 
     This is done to ensure that garbage collection only happens in the GUI
     thread, as otherwise Qt can crash.
-    '''
+    """
 
     INTERVAL = 5000
 

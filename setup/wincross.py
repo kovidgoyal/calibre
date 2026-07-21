@@ -363,7 +363,7 @@ def files_in(path):
 
 
 def create_include_symlinks(path, include_root, include_files):
-    ' Create symlinks for include entries in header files whose case does not match '
+    " Create symlinks for include entries in header files whose case does not match "
     with open(path, 'rb') as f:
         src = f.read()
     for m in re.finditer(rb'^#include\s+([<"])(.+?)[>"]', src, flags=re.M):

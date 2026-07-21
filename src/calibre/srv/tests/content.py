@@ -30,7 +30,7 @@ def setUpModule():
 class ContentTest(LibraryBaseTest):
 
     def test_static(self):  # {{{
-        'Test serving of static content'
+        "Test serving of static content"
         with self.create_server() as server:
             conn = server.connect()
 
@@ -76,7 +76,7 @@ class ContentTest(LibraryBaseTest):
     # }}}
 
     def test_get(self):  # {{{
-        'Test /get'
+        "Test /get"
         with self.create_server() as server:
             db = server.handler.router.ctx.library_broker.get(None)
             conn = server.connect()

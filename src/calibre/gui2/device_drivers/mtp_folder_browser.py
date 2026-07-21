@@ -165,7 +165,7 @@ class IgnoredFolders(QDialog):
             w.itemChanged.connect(self.item_changed)
 
     def iterchildren(self, node):
-        ' Iterate over all descendants of node '
+        " Iterate over all descendants of node "
         for i in range(node.childCount()):
             child = node.child(i)
             yield child

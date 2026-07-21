@@ -455,9 +455,9 @@ class DeleteAction(InterfaceActionWithLibraryDrop):
                 pass
 
     def delete_books(self, *args):
-        '''
+        """
         Delete selected books from device or library.
-        '''
+        """
         view = self.gui.current_view()
         rows = view.selectionModel().selectedRows()
         if not rows or len(rows) == 0:

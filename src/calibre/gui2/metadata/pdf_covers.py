@@ -54,7 +54,7 @@ PAGES_PER_RENDER = 10
 
 
 class PDFCovers(QDialog):
-    'Choose a cover from the first few pages of a PDF'
+    "Choose a cover from the first few pages of a PDF"
 
     rendering_done = pyqtSignal()
 

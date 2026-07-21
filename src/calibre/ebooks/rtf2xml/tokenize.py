@@ -21,7 +21,7 @@ from . import open_for_read, open_for_write
 
 
 class Tokenize:
-    '''Tokenize RTF into one line per field. Each line will contain information useful for the rest of the script'''
+    """Tokenize RTF into one line per field. Each line will contain information useful for the rest of the script"""
 
     def __init__(self,
             in_file,
@@ -173,9 +173,9 @@ class Tokenize:
         self.__cwdigit_exp = re.compile(r'(\\[a-zA-Z]+[\-0-9]+)([^0-9 \\]+)')
 
     def tokenize(self):
-        '''Main class for handling other methods. Reads the file,
+        """Main class for handling other methods. Reads the file,
         uses method self.sub_reg to make basic substitutions,
-        and process tokens by itself'''
+        and process tokens by itself"""
         # read
         with open_for_read(self.__file) as read_obj:
             input_file = read_obj.read()

@@ -2,7 +2,7 @@
 # Written by Martin v. Löwis <loewis@informatik.hu-berlin.de>
 
 
-'''Generate binary message catalog from textual translation description.
+"""Generate binary message catalog from textual translation description.
 
 This program converts a textual Uniforum-style message catalog (.po file) into
 a binary GNU catalog (.mo file).  This is essentially the same function as the
@@ -24,7 +24,7 @@ Options:
     -V
     --version
         Display version information and exit.
-'''
+"""
 
 import array
 import ast
@@ -50,7 +50,7 @@ def usage(code, msg=''):
 
 
 def add(ctxt, msgid, msgstr, fuzzy):
-    'Add a non-fuzzy translation to the dictionary.'
+    "Add a non-fuzzy translation to the dictionary."
     if (not fuzzy or not msgid) and msgstr:
         if msgid:
             STATS['translated'] += 1
@@ -69,7 +69,7 @@ def add(ctxt, msgid, msgstr, fuzzy):
 
 
 def generate():
-    'Return the generated output.'
+    "Return the generated output."
     # the keys are sorted in the .mo file
     keys = sorted(MESSAGES.keys())
     offsets = []

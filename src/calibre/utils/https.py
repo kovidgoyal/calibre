@@ -47,14 +47,14 @@ def get_https_resource_securely(
     ssl_version=None, headers=None, get_response=False,
     cadir='',
 ):
-    '''
+    """
     Download the resource pointed to by url using https securely (verify server
     certificate).  Ensures that redirects, if any, are also downloaded
     securely. Needs a CA certificates bundle (in PEM format) to verify the
     server's certificates.
 
     You can pass cacerts=None to download using SSL but without verifying the server certificate.
-    '''
+    """
     disable_x509_strict_checking = cacerts == 'calibre-ebook-root-CA.crt'
     cert_file = None
     if cacerts is not None:

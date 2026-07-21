@@ -93,10 +93,10 @@ class Book(Book_):
         return self.contentID and not self.contentID.startswith('file')
 
     def __str__(self):
-        '''
+        """
         A string representation of this object, suitable for printing to
         console
-        '''
+        """
         ans = ['Kobo metadata:']
 
         def fmt(x, y):

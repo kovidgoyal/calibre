@@ -235,10 +235,10 @@ class IndexHeader:  # {{{
 
 class Tag:  # {{{
 
-    '''
+    """
     Index entries are a collection of tags. Each tag is represented by this
     class.
-    '''
+    """
 
     TAG_MAP = {
             1 : ('offset', 'Offset in HTML'),
@@ -290,12 +290,12 @@ class Tag:  # {{{
 
 class IndexEntry:  # {{{
 
-    '''
+    """
     The index is made up of entries, each of which is represented by an
     instance of this class. Index entries typically point to offsets in the
     HTML, specify HTML sizes and point to text strings in the CNCX that are
     used in the navigation UI.
-    '''
+    """
 
     def __init__(self, ident, entry, cncx):
         try:
@@ -374,10 +374,10 @@ class IndexEntry:  # {{{
 
 class IndexRecord:  # {{{
 
-    '''
+    """
     Represents all indexing information in the MOBI, apart from indexing info
     in the trailing data of the text records.
-    '''
+    """
 
     def __init__(self, records, index_header, cncx):
         self.alltext = None
@@ -434,11 +434,11 @@ class IndexRecord:  # {{{
 
 class CNCX:  # {{{
 
-    '''
+    """
     Parses the records that contain the compiled NCX (all strings from the
     NCX). Presents a simple offset : string mapping interface to access the
     data.
-    '''
+    """
 
     def __init__(self, records, codec):
         self.records = OrderedDict()

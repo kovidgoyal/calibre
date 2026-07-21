@@ -85,7 +85,7 @@ class FontSelectionDialog(QDialog):
         main_layout.addWidget(button_box)
 
     def _populate_families(self):
-        '''Populate the families list with smoothly scalable fonts only'''
+        """Populate the families list with smoothly scalable fonts only"""
         self.families_list.clear()
 
         # Get all font families
@@ -110,7 +110,7 @@ class FontSelectionDialog(QDialog):
             self._on_family_changed(self.families_list.currentItem(), None)
 
     def _on_family_changed(self, current, previous):
-        '''When a family is selected, populate the styles list'''
+        """When a family is selected, populate the styles list"""
         if not current:
             self.styles_list.clear()
             return
@@ -131,11 +131,11 @@ class FontSelectionDialog(QDialog):
         self._update_preview()
 
     def _on_style_changed(self, current, previous):
-        '''Update the preview when style changes'''
+        """Update the preview when style changes"""
         self._update_preview()
 
     def _update_preview(self):
-        '''Update the preview labels with the selected font'''
+        """Update the preview labels with the selected font"""
         family_item = self.families_list.currentItem()
         style_item = self.styles_list.currentItem()
 
@@ -168,7 +168,7 @@ class FontSelectionDialog(QDialog):
         s(self.preview_large, self.max_size)
 
     def selected_font(self):
-        '''Returns the selected font family and style as a tuple'''
+        """Returns the selected font family and style as a tuple"""
         family_item = self.families_list.currentItem()
         style_item = self.styles_list. currentItem()
 
@@ -177,7 +177,7 @@ class FontSelectionDialog(QDialog):
         return None, None
 
     def get_font(self, size=None):
-        '''Returns a QFont object for the selected family and style'''
+        """Returns a QFont object for the selected family and style"""
         family, style = self.selected_font()
         if family and style:
             if size is None:
@@ -186,7 +186,7 @@ class FontSelectionDialog(QDialog):
         return None
 
     def accept(self):
-        '''Override accept to emit signal with selected font'''
+        """Override accept to emit signal with selected font"""
         family, style = self.selected_font()
         if family and style:
             self.fontSelected.emit(family, style)

@@ -37,9 +37,9 @@ from calibre.utils.localization import _
 
 
 class TableItem(QTableWidgetItem):
-    '''
+    """
     A QTableWidgetItem that sorts on a separate string and uses ICU rules
-    '''
+    """
 
     def __init__(self, getter=None):
         self.val = ''
@@ -403,10 +403,10 @@ class Quickview(QDialog, Ui_Quickview):
         self.refresh_button.setEnabled(state)
 
     def add_columns_to_widget(self):
-        '''
+        """
         Get the list of columns from the preferences. Clear the current table
         and add the current column set
-        '''
+        """
         self.column_order = [x[0] for x in get_qv_field_list(self.fm) if x[1]]
         self.books_table.clear()
         self.books_table.setRowCount(0)
@@ -416,9 +416,9 @@ class Quickview(QDialog, Ui_Quickview):
             self.books_table.setHorizontalHeaderItem(idx, t)
 
     def refill(self):
-        '''
+        """
             Refill the table in case the columns displayed changes
-        '''
+        """
         self.add_columns_to_widget()
         view = self.view
         assert view is not None
@@ -438,10 +438,10 @@ class Quickview(QDialog, Ui_Quickview):
         self.books_table_set_search_string(cur_row, cur_col)
 
     def books_table_set_search_string(self, current_row, current_col):
-        '''
+        """
         Given the contents of a cell, compute a search string that will find
         that book and any others with identical contents in the cell.
-        '''
+        """
         current = self.books_table.item(current_row, current_col)
         if current is None:
             return
@@ -509,11 +509,11 @@ class Quickview(QDialog, Ui_Quickview):
                 self.follow_library_view = True
 
     def book_was_changed(self, mi):
-        '''
+        """
         Called when book information is changed in the library view. Make that
         book info current. This means that prev and next in edit metadata will move
         the current book and change quickview
-        '''
+        """
         if self.is_closed or self.current_column is None or not self.follow_library_view:
             return
         # There is an ordering problem when libraries are changed. The library
@@ -544,10 +544,10 @@ class Quickview(QDialog, Ui_Quickview):
         self._refresh(self.current_book_id, self.current_key)
 
     def refresh(self, idx, ignore_lock=False):
-        '''
+        """
         Given a cell in the library view, display the information. This method
         converts the index into the lookup key
-        '''
+        """
         if (not ignore_lock and self.lock_qv.isChecked()):
             return
         if not idx.isValid():
@@ -581,10 +581,10 @@ class Quickview(QDialog, Ui_Quickview):
                                      self.fm[key]['display'].get('make_category', False))))
 
     def _refresh(self, book_id, key):
-        '''
+        """
         Actually fill in the left-hand panel from the information in the
         selected column of the selected book
-        '''
+        """
         # Only show items for categories
         if not self.is_category(key):
             if self.current_key is None:
@@ -663,10 +663,10 @@ class Quickview(QDialog, Ui_Quickview):
                                    'to see the information for that book'))
 
     def fill_in_books_box(self, selected_item):
-        '''
+        """
         Given the selected row in the left-hand box, fill in the grid with
         the books that contain that data.
-        '''
+        """
         # Do a bit of fix-up on the items so that the search works.
         if selected_item.startswith('.'):
             sv = '.' + selected_item
@@ -836,9 +836,9 @@ class Quickview(QDialog, Ui_Quickview):
             pass
 
     def select_book(self, book_id):
-        '''
+        """
         Select a book in the library view without changing the QV lists
-        '''
+        """
         try:
             self.follow_library_view = False
             view = self.view
@@ -851,10 +851,10 @@ class Quickview(QDialog, Ui_Quickview):
             self.follow_library_view = True
 
     def select_book_and_qv(self, row, column):
-        '''
+        """
         row and column both refer the qv table. In particular, column is not
         the logical column in the book list.
-        '''
+        """
         item = self.books_table.item(row, column)
         if item is None:
             return
@@ -885,16 +885,16 @@ class Quickview(QDialog, Ui_Quickview):
         self.books_table.setFocus()
 
     def column_slave(self, current):
-        '''
+        """
         called when the column is changed on the booklist
-        '''
+        """
         if self.follow_library_view and gprefs['qv_follows_column']:
             self.slave(current)
 
     def slave(self, current):
-        '''
+        """
         called when a book is clicked on the library view
-        '''
+        """
         if self.is_closed or not self.follow_library_view:
             return
         self.refresh(current)

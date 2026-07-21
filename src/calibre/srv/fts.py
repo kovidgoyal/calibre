@@ -20,11 +20,11 @@ def book_ids_from_user_restriction(ctx, rd, db):
 
 @endpoint('/fts/search', postprocess=json)
 def fts_search(ctx, rd):
-    '''
+    """
     Perform the specified full text query.
 
     Optional: ?query=<search query>&library_id=<default library>&use_stemming=<y or n>&query_id=arbitrary&restriction=arbitrary
-    '''
+    """
 
     db = get_library_data(ctx, rd)[0]
     if not db.is_fts_enabled():
@@ -106,12 +106,12 @@ def fts_indexing(ctx, rd):
 
 @endpoint('/fts/snippets/{book_ids}', postprocess=json)
 def fts_snippets(ctx, rd, book_ids):
-    '''
+    """
     Perform the specified full text query and return the results with snippets restricted to the specified book ids.
 
     Optional: ?query=<search query>&library_id=<default library>&use_stemming=<y or n>
     &query_id=arbitrary&snippet_size=32&highlight_start=\x1c&highlight_end=\x1e
-    '''
+    """
     db = get_library_data(ctx, rd)[0]
     if not db.is_fts_enabled():
         raise HTTPPreconditionRequired('Full text searching is not enabled on this library')

@@ -1,6 +1,6 @@
-'''
+"""
 CSS property propagation class.
-'''
+"""
 
 __license__   = 'GPL v3'
 __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
@@ -558,7 +558,7 @@ class Style:
         return self._style.get(name, default)
 
     def _unit_convert(self, value, base=None, font=None):
-        'Return value in pts'
+        "Return value in pts"
         if base is None:
             base = self.width
         if not font and font != 0:
@@ -580,11 +580,11 @@ class Style:
 
     @property
     def backgroundColor(self):
-        '''
+        """
         Return the background color by parsing both the background-color and
         background shortcut properties. Note that inheritance/default values
         are not used. None is returned if no background color is set.
-        '''
+        """
 
         if self._bgcolor is None:
             col = None
@@ -698,7 +698,7 @@ class Style:
         return ans
 
     def img_size(self, width, height):
-        ' Return the final size of an <img> given that it points to an image of size widthxheight '
+        " Return the final size of an <img> given that it points to an image of size widthxheight "
         w, h = self._get('width'), self._get('height')
         answ, ansh = self.img_dimension('width', width), self.img_dimension('height', height)
         if w == 'auto' and h != 'auto':
@@ -795,7 +795,7 @@ class Style:
 
     @property
     def effective_text_decoration(self):
-        '''
+        """
         Browsers do this creepy thing with text-decoration where even though the
         property is not inherited, it looks like it is because containing
         blocks apply it. The actual algorithm is utterly ridiculous, see
@@ -803,7 +803,7 @@ class Style:
         This matters for MOBI output, where text-decoration is mapped to <u>
         and <st> tags. Trying to implement the actual algorithm is too much
         work, so we just use a simple fake that should cover most cases.
-        '''
+        """
         css = self._style.get('text-decoration', None)
         pcss = None
         parent = self._get_parent()
@@ -815,9 +815,9 @@ class Style:
 
     @property
     def first_vertical_align(self):
-        ''' For docx output where tags are not nested, we cannot directly
+        """ For docx output where tags are not nested, we cannot directly
         simulate the HTML vertical-align rendering model. Instead use the
-        approximation of considering the first non-default vertical-align '''
+        approximation of considering the first non-default vertical-align """
         val = self['vertical-align']
         if val != 'baseline':
             raw_val = self._get('vertical-align')

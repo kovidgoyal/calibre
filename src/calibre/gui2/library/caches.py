@@ -38,12 +38,12 @@ T = TypeVar('T')
 
 
 class RAMCache(MutableMapping[int, T]):
-    '''
+    """
     This is a RAM cache to speed up rendering of covers by storing them as
     QPixmaps. It is possible that it is called from multiple threads, thus the
     locking and staging. For example, it can be called by the db layer when a
     book is removed either by the GUI or the content server.
-    '''
+    """
 
     def __init__(self, limit=100):
         self.cached_items = OrderedDict[int, T]()
@@ -238,11 +238,11 @@ class ThumbnailRenderer(QObject):
                 q.task_done()
 
     def fetch_cover_from_cache(self, book_id: int, width: int, height: int) -> QImage:
-        '''
+        """
         This method fetches the thumbnail from the cache if it exists, otherwise renders
         the cover as a thumbnail, stores it in the cache and returns the rendered QImage.
         If the book has no cover or loading the cover fails, returns null QImage.
-        '''
+        """
         if not (db := self.dbref()) or self.ignore_render_requests.is_set():
             return QImage()
         tc = self.disk_cache
@@ -410,12 +410,12 @@ class CoverThumbnailCache(QObject):
         return self.renderer.disk_cache.thumbnail_size
 
     def thumbnail_as_pixmap(self, book_id: int) -> QPixmap | None:
-        '''
+        """
         Return the thumbnail from the cache if available otherwise return None and request it be rendered.
         The rendered signal will be emitted when it is rendered.
         If the pixmap is null, then it means either the book has no cover or there was some error
         rendering the cover as a thumbnail.
-        '''
+        """
         return self.renderer.cached_or_none(book_id)
 
 

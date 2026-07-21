@@ -102,9 +102,9 @@ _tdir_in_cache_scanned: set[str] = set()
 
 
 def tdir_in_cache(base):
-    ''' Create a temp dir inside cache_dir/base. The created dir is robust
+    """ Create a temp dir inside cache_dir/base. The created dir is robust
     against application crashes. i.e. it will be cleaned up the next time the
-    application starts, even if it was left behind by a previous crash. '''
+    application starts, even if it was left behind by a previous crash. """
     b = os.path.join(os.path.realpath(cache_dir()), base)
     try:
         os.makedirs(b)

@@ -109,7 +109,7 @@ class BlockingJob(QWidget):
         self.text = text
 
     def __call__(self, name, user_text, callback, function, *args, **kwargs):
-        ' Run a job that blocks the GUI providing some feedback to the user '
+        " Run a job that blocks the GUI providing some feedback to the user "
         self.set_msg(user_text)
         job = LongJob(name, user_text, Dispatcher(partial(self.job_done, callback)), function, *args, **kwargs)
         job.start()

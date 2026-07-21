@@ -193,7 +193,7 @@ class ColorButton(QPushButton):
 
 
 def access_key(k):
-    'Return shortcut text suitable for adding to a menu item'
+    "Return shortcut text suitable for adding to a menu item"
     if QKeySequence.keyBindings(k):
         return '\t' + QKeySequence(k).toString(QKeySequence.SequenceFormat.NativeText)
     return ''
@@ -262,7 +262,7 @@ class CenteredToolButton(RightClickButton):
 
 
 class Dialog(QDialog):
-    '''
+    """
     An improved version of Qt's QDialog class. This automatically remembers the
     last used size, automatically connects the signals for QDialogButtonBox,
     automatically sets the window title and if the dialog has an object named
@@ -271,7 +271,7 @@ class Dialog(QDialog):
     In order to use it, simply subclass an implement setup_ui(). You can also
     implement sizeHint() to give the dialog a different default size when shown
     for the first time.
-    '''
+    """
 
     splitter: QSplitter | None = None
 
@@ -388,7 +388,7 @@ class RatingEditor(QComboBox):
 
     @property
     def rating_value(self):
-        ' An integer from 0 to 10 '
+        " An integer from 0 to 10 "
         ans = self.currentIndex()
         if not self.is_half_star:
             ans *= 2
@@ -431,7 +431,7 @@ class RatingEditor(QComboBox):
 
 class FlowLayout(QLayout):  # {{{
 
-    ''' A layout that lays out items left-to-right wrapping onto a second line if needed '''
+    """ A layout that lays out items left-to-right wrapping onto a second line if needed """
 
     def __init__(self, parent=None):
         QLayout.__init__(self, parent)
@@ -583,13 +583,13 @@ class FlowLayout(QLayout):  # {{{
 
 class Separator(QWidget):  # {{{
 
-    ''' Vertical separator lines usable in FlowLayout '''
+    """ Vertical separator lines usable in FlowLayout """
 
     def __init__(self, parent, widget_for_height=None):
-        '''
+        """
         You must provide a widget in the layout either here or with setBuddy.
         The height of the separator is computed using this widget,
-        '''
+        """
         QWidget.__init__(self, parent)
         self.bcol = qapplication_or_fail().palette().color(QPalette.ColorRole.Text)
         self.update_brush()
@@ -601,7 +601,7 @@ class Separator(QWidget):  # {{{
         self.update()
 
     def setBuddy(self, widget_for_height):
-        ''' See __init__. This is repurposed to support Qt Designer .ui files. '''
+        """ See __init__. This is repurposed to support Qt Designer .ui files. """
         self.widget_for_height = widget_for_height
 
     def sizeHint(self):

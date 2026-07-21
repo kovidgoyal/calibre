@@ -18,9 +18,9 @@ from calibre.utils.search_query_parser import ParseException
 
 
 class TableItem(QTableWidgetItem):
-    '''
+    """
     A QTableWidgetItem that sorts on a separate string and uses ICU rules
-    '''
+    """
 
     def __init__(self, val, sort, idx=0):
         self.sort = sort

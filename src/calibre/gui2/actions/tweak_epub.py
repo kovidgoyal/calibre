@@ -130,10 +130,10 @@ class TweakEpubAction(InterfaceActionWithLibraryDrop):
         self.ebook_edit_format(book_id, fmt)
 
     def ebook_edit_format(self, book_id, fmt):
-        '''
+        """
         Also called from edit_metadata formats list.  In that context,
         SUPPORTED check was already done.
-        '''
+        """
         db = self.gui.library_view.model().db
         from calibre.gui2.tweak_book import tprefs
         tprefs.refresh()  # In case they were changed in a Tweak Book process

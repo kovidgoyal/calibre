@@ -102,23 +102,23 @@ def Handle_Main():
 
 
 class InvalidRtfException(Exception):
-    '''
+    """
     handle invalid RTF
-    '''
+    """
     pass
 
 
 class RtfInvalidCodeException(Exception):
-    '''
+    """
     handle bugs in program
-    '''
+    """
     pass
 
 
 class ParseRtf:
-    '''
+    """
     Main class for controlling the rest of the parsing.
-    '''
+    """
 
     def __init__(self,
                 in_file,
@@ -142,7 +142,7 @@ class ParseRtf:
                 char_data='',
                 default_encoding='cp1252',
                 ):
-        '''
+        """
         Requires:
         'file' --file to parse
         'char_data' --file containing character maps
@@ -157,7 +157,7 @@ class ParseRtf:
             'check_brackets' -- make sure the brackets match up after each run
             through a file. Only for debugging.
         Returns: Nothing
-        '''
+        """
 
         self.__file = in_file
         self.__out_file = out_file
@@ -186,7 +186,7 @@ class ParseRtf:
         self.__default_encoding = default_encoding
 
     def __check_file(self, the_file, type):
-        '''Check to see if files exist'''
+        """Check to see if files exist"""
         if hasattr(the_file, 'read'):
             return
         if the_file is None:
@@ -200,7 +200,7 @@ class ParseRtf:
             raise RtfInvalidCodeException(msg)
 
     def __check_dir(self, the_dir):
-        '''Check to see if directory exists'''
+        """Check to see if directory exists"""
         if not the_dir:
             return
         dir_exists = os.path.isdir(the_dir)
@@ -210,14 +210,14 @@ class ParseRtf:
         return 1
 
     def parse_rtf(self):
-        '''
+        """
         Parse the file by calling on other classes.
         Requires:
             Nothing
         Returns:
             A parsed file in XML, either to standard output or to a file,
             depending on the value of 'output' when the instance was created.
-        '''
+        """
         self.__temp_file = self.__make_temp_file(self.__file)
         # if the self.__deb_dir is true, then create a copy object,
         # set the directory to write to, remove files, and copy
@@ -590,7 +590,7 @@ class ParseRtf:
             self.__exit_level = num
 
     def __make_temp_file(self, file):
-        '''Make a temporary file to parse'''
+        """Make a temporary file to parse"""
         write_file='rtf_write_file'
         read_obj = file if hasattr(file, 'read') else open_for_read(file)
         with open_for_write(write_file) as write_obj:

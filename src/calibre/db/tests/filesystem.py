@@ -35,7 +35,7 @@ class FilesystemTest(BaseTest):
         return ans
 
     def test_metadata_move(self):
-        'Test the moving of files when title/author change'
+        "Test the moving of files when title/author change"
         cl = self.cloned_library
         cache = self.init_cache(cl)
         ae, af, sf = self.assertEqual, self.assertFalse, cache.set_field
@@ -199,7 +199,7 @@ class FilesystemTest(BaseTest):
 
     @unittest.skipUnless(iswindows, 'Windows only')
     def test_windows_atomic_move(self):
-        'Test book file open in another process when changing metadata'
+        "Test book file open in another process when changing metadata"
         cl = self.cloned_library
         cache = self.init_cache(cl)
         fpath = cache.format_abspath(1, 'FMT1')
@@ -230,7 +230,7 @@ class FilesystemTest(BaseTest):
             self.assertEqual(raw, read(os.path.join(tdir2, 'b'), 'rb'))
 
     def test_library_move(self):
-        ' Test moving of library '
+        " Test moving of library "
         from calibre.ptempfile import TemporaryDirectory
         cache = self.init_cache()
         self.assertIn('metadata.db', cache.get_top_level_move_items()[0])
@@ -251,7 +251,7 @@ class FilesystemTest(BaseTest):
             os.mkdir(odir)  # needed otherwise tearDown() fails
 
     def test_long_filenames(self):
-        ' Test long file names '
+        " Test long file names "
         cache = self.init_cache()
         cache.set_field('title', {1:'a'*10000})
         self.assertLessEqual(len(cache.field_for('path', 1)), cache.backend.PATH_LIMIT * 2)
@@ -261,14 +261,14 @@ class FilesystemTest(BaseTest):
         self.assertLessEqual(len(fpath), len(cache.backend.library_path) + cache.backend.PATH_LIMIT * 4)
 
     def test_reserved_names(self):
-        ' Test that folders are not created with a windows reserve name '
+        " Test that folders are not created with a windows reserve name "
         cache = self.init_cache()
         cache.set_field('authors', {1:'con'})
         p = cache.field_for('path', 1).replace(os.sep, '/').split('/')
         self.assertNotIn('con', p)
 
     def test_fname_change(self):
-        ' Test the changing of the filename but not the folder name '
+        " Test the changing of the filename but not the folder name "
         cache = self.init_cache()
         title = 'a'*30 + 'bbb'
         cache.backend.PATH_LIMIT = 100

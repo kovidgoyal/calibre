@@ -179,12 +179,12 @@ def detect_xml_encoding(raw, verbose=False, assume_utf8=False):
 
 def xml_to_unicode(raw, verbose=False, strip_encoding_pats=False,
                    resolve_entities=False, assume_utf8=False):
-    '''
+    """
     Force conversion of byte string to unicode. Tries to look for XML/HTML
     encoding declaration first, if not found uses the chardet library and
     prints a warning if detection confidence is < 100%
     @return: (unicode, encoding used)
-    '''
+    """
     if not raw:
         return '', None
     raw, encoding = detect_xml_encoding(raw, verbose=verbose,

@@ -105,12 +105,12 @@ class Category(Enum):
 
 
 def get_plugin_updates_available(raise_error=False):
-    '''
+    """
     API exposed to read whether there are updates available for any
     of the installed user plugins.
     Returns None if no updates found
     Returns list(DisplayPlugin) of plugins installed that have a new version
-    '''
+    """
     if not has_external_plugins():
         return None
     display_plugins = read_available_plugins(raise_error=raise_error)
@@ -186,9 +186,9 @@ def get_installed_plugin_status(display_plugin):
 
 
 class ImageTitleLayout(QHBoxLayout):
-    '''
+    """
     A reusable layout widget displaying an image followed by a title
-    '''
+    """
 
     def __init__(self, parent, icon_name, title):
         QHBoxLayout.__init__(self)
@@ -211,10 +211,10 @@ class ImageTitleLayout(QHBoxLayout):
 
 
 class SizePersistedDialog(QDialog):
-    '''
+    """
     This dialog is a base class for any dialogs that want their size/position
     restored when they are next opened.
-    '''
+    """
 
     initial_extra_size = QSize(0, 0)
 

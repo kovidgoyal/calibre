@@ -66,11 +66,11 @@ class TestContentServerPlugin(BaseTest):
 
 
 class TestPluginDiscovery(BaseTest):
-    '''
+    """
     Test that ContentServerPlugin endpoints are discovered and registered.
     Uses Router directly rather than Handler to avoid PyQt6 dependency
     in the test environment (calibre.srv.ajax -> calibre.ebooks.covers -> QtGui).
-    '''
+    """
 
     def setUp(self):
         from calibre.customize.ui import _initialized_plugins, config

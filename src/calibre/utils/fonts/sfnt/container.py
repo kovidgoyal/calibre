@@ -76,7 +76,7 @@ class Sfnt:
         del self.tables[key]
 
     def __iter__(self):
-        '''Iterate over the table tags in order.'''
+        """Iterate over the table tags in order."""
         yield from sorted(self.tables)
         # Although the optimal order is not alphabetical, the OTF spec says
         # they should be alphabetical, so we stick with that. See

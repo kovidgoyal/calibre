@@ -81,7 +81,7 @@ class DemoDialog(QDialog):
                 text.decode('utf-8'))
 
     def marked(self):
-        ''' Show books with only one format '''
+        """ Show books with only one format """
         db = self.db.new_api
         matched_ids = {book_id for book_id in db.all_book_ids() if len(db.formats(book_id)) == 1}
         # Mark the records with the matching ids
@@ -94,7 +94,7 @@ class DemoDialog(QDialog):
         self.gui.search.do_search()
 
     def view(self):
-        ''' View the most recently added book '''
+        """ View the most recently added book """
         most_recent = most_recent_id = None
         db = self.db.new_api
         for book_id, timestamp in db.all_field_for('timestamp', db.all_book_ids()).items():
@@ -109,10 +109,10 @@ class DemoDialog(QDialog):
             view_plugin._view_calibre_books([most_recent_id])
 
     def update_metadata(self):
-        '''
+        """
         Set the metadata in the files in the selected book's record to
         match the current metadata in the database.
-        '''
+        """
         from calibre.ebooks.metadata.meta import set_metadata
         from calibre.gui2 import error_dialog, info_dialog
 

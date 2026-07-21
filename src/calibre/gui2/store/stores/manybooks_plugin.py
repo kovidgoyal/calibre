@@ -20,14 +20,14 @@ from calibre.utils.xml_parse import safe_xml_fromstring
 
 
 def search_manybooks(query, max_results=10, timeout=60, open_search_url='http://www.manybooks.net/opds/'):
-    '''
+    """
     Manybooks uses a very strange opds feed. The opds
     main feed is structured like a stanza feed. The
     search result entries give very little information
     and requires you to go to a detail link. The detail
     link has the wrong type specified (text/html instead
     of application/atom+xml).
-    '''
+    """
 
     description = Description(open_search_url)
     url_template = description.get_best_template()

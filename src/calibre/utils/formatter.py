@@ -1,8 +1,8 @@
-'''
+"""
 Created on 23 Sep 2010
 
 @author: charles
-'''
+"""
 __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
@@ -937,13 +937,13 @@ class PythonTemplateContext:
 
 
 class FormatterFuncsCaller:
-    '''
+    """
     Provides a convenient solution to call functions loaded in the
     TemplateFormatter. The functions are called using their name as an attribute
     of this class, with an underscore at the end if the name conflicts with a
     Python keyword. If the name contain a illegal character for a attribute
     (like .:-), use getattr(). Example: context.funcs.list_re_group()
-    '''
+    """
 
     def __init__(self, formatter):
         if not isinstance(formatter, TemplateFormatter):
@@ -1734,9 +1734,9 @@ def cached_lex_scanner() -> re.Scanner:  # type: ignore
 
 
 class TemplateFormatter(string.Formatter):
-    '''
+    """
     Provides a format function that substitutes '' for any missing value
-    '''
+    """
 
     _validation_string = 'This Is Some Text THAT SHOULD be LONG Enough.%^&*'
 
@@ -2121,12 +2121,12 @@ class TemplateFormatter(string.Formatter):
 
 
 class ValidateFormatter:
-    '''
+    """
     Provides a formatter that uses a fake book. This class must be used only
     in the GUI thread.
 
     It is a class instead of a function for compatibility reasons.
-    '''
+    """
 
     def validate(self, template):
         from calibre.gui2 import is_gui_thread
@@ -2142,9 +2142,9 @@ validation_formatter = ValidateFormatter()
 
 
 class EvalFormatter(TemplateFormatter):
-    '''
+    """
     A template formatter that uses a simple dict instead of an mi instance
-    '''
+    """
 
     def get_value(self, key, args, kwargs):
         if key == '':

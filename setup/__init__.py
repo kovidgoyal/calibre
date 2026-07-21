@@ -295,10 +295,10 @@ class Command:
 
     @classmethod
     def newer(cls, targets, sources):
-        '''
+        """
         Return True if sources is newer that targets or if targets
         does not exist.
-        '''
+        """
         return newer(targets, sources)
 
     def info(self, *args, **kwargs):

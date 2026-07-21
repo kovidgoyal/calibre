@@ -338,9 +338,9 @@ class TagTreeItem:  # {{{
         return fmt % (name, count, rating or '')
 
     def toggle(self, set_to=None):
-        '''
+        """
         set_to: None => advance the state, otherwise a value from TAG_SEARCH_STATES
-        '''
+        """
         tag = self.tag
         assert tag is not None
         if set_to is None:
@@ -447,11 +447,11 @@ class TagsModel(QAbstractItemModel):  # {{{
         return QObject.parent(self)
 
     def rename_user_category_icon(self, old_key, new_key):
-        '''
+        """
         This is required for user categories because the key (lookup name) changes
         on rename. We must rename the old icon to use the new key then update
         the preferences and internal tables.
-        '''
+        """
         old_icon = self.prefs['tags_browser_category_icons'].get(old_key, None)
         if old_icon is not None:
             old_path = os.path.join(self.icon_config_dir, old_icon)
@@ -463,7 +463,7 @@ class TagsModel(QAbstractItemModel):  # {{{
             self.set_custom_category_icon(old_key, None)
 
     def set_value_icon(self, key, value, file_name, children):
-        '''
+        """
         Add a 'rule' for an icon for a value in the tag browser as a dict entry:
             value_icons[key] = {value: (file_name, children)}
 
@@ -477,7 +477,7 @@ class TagsModel(QAbstractItemModel):  # {{{
                          is to be used for any children of the item that don't have
                          a specific rule. If False then this rule is used only for
                          the specified item.
-        '''
+        """
         v = self.value_icons = self.prefs['tags_browser_value_icons']
         if key not in v:
             self.value_icons[key] = {value: (file_name, children)}
@@ -1184,19 +1184,19 @@ class TagsModel(QAbstractItemModel):  # {{{
         return self.move_or_copy_item_to_user_category(src, dest, action)
 
     def move_or_copy_item_to_user_category(self, src, dest, action):
-        '''
+        """
         src is a list of tuples representing items to copy. The tuple is
         (type, containing category key, category key is global search term,
          full name, category key, path to node)
         The type must be TagTreeItem.TAG
         dest is the TagTreeItem node to receive the items
         action is Qt.DropAction.CopyAction or Qt.DropAction.MoveAction
-        '''
+        """
         def process_source_node(user_cats, src_parent, src_parent_is_gst,
                                 is_uc, dest_key, idx):
-            '''
+            """
             Copy/move an item and all its children to the destination
-            '''
+            """
             copied = False
             src_name = idx.tag.original_name
             src_cat = idx.tag.category
@@ -1415,9 +1415,9 @@ class TagsModel(QAbstractItemModel):  # {{{
         return category_display_order(tbo, list(self.categories.keys()))
 
     def _get_category_nodes(self, sort):
-        '''
+        """
         Called by __init__. Do not directly call this method.
-        '''
+        """
         self.row_map = []
         self.categories = OrderedDict()
 
@@ -1530,10 +1530,10 @@ class TagsModel(QAbstractItemModel):  # {{{
         return self.filter_categories_by
 
     def refresh(self, data=None):
-        '''
+        """
         Here to trap usages of refresh in the old architecture. Can eventually
         be removed.
-        '''
+        """
         print('TagsModel: refresh called!')
         traceback.print_stack()
         return False
@@ -1704,11 +1704,11 @@ class TagsModel(QAbstractItemModel):  # {{{
         self.refresh_required.emit()
 
     def rename_item_in_all_user_categories(self, item_name, item_category, new_name):
-        '''
+        """
         Search all User categories for items named item_name with category
         item_category and rename them to new_name. The caller must arrange to
         redisplay the tree as appropriate.
-        '''
+        """
         riauc_db = self.db
         assert riauc_db is not None
         user_cats = riauc_db.new_api.pref('user_categories', {})
@@ -1731,11 +1731,11 @@ class TagsModel(QAbstractItemModel):  # {{{
         riauc_db.new_api.set_pref('user_categories', user_cats)
 
     def delete_item_from_all_user_categories(self, item_name, item_category):
-        '''
+        """
         Search all User categories for items named item_name with category
         item_category and delete them. The caller must arrange to redisplay the
         tree as appropriate.
-        '''
+        """
         difauc_db = self.db
         assert difauc_db is not None
         user_cats = difauc_db.new_api.pref('user_categories', {})
@@ -1763,7 +1763,7 @@ class TagsModel(QAbstractItemModel):  # {{{
             difuc_db.new_api.set_pref('user_categories', user_cats)
 
     def add_renamed_item_to_user_categories(self, lookup_key, original_name, new_name):
-        '''
+        """
         Add new_name to any user category that contains original name if new_name
         isn't already there. The original name isn't deleted. This is the first
         step when renaming user categories that might be in virtual libraries
@@ -1771,7 +1771,7 @@ class TagsModel(QAbstractItemModel):  # {{{
         clean_items_from_user_categories() when done to remove any keys that no
         longer exist from all user categories. The caller must arrange to
         redisplay the tree as appropriate.
-        '''
+        """
         ariauc_db = self.db
         assert ariauc_db is not None
         user_cats = ariauc_db.new_api.pref('user_categories', {})
@@ -1789,12 +1789,12 @@ class TagsModel(QAbstractItemModel):  # {{{
         ariauc_db.new_api.set_pref('user_categories', user_cats)
 
     def clean_items_from_user_categories(self):
-        '''
+        """
         Remove any items that no longer exist from user categories. This can
         happen when renaming items in virtual libraries, where sometimes the
         old name still exists on some book not in the VL and sometimes it
         doesn't. The caller must arrange to redisplay the tree as appropriate.
-        '''
+        """
         ciuc_db = self.db
         assert ciuc_db is not None
         user_cats = ciuc_db.new_api.pref('user_categories', {})
@@ -1959,10 +1959,10 @@ class TagsModel(QAbstractItemModel):  # {{{
         self.reset_all_states()
 
     def toggle(self, index, exclusive, set_to=None):
-        '''
+        """
         exclusive: clear all states before applying this one
         set_to: None => advance the state, otherwise a value from TAG_SEARCH_STATES
-        '''
+        """
         if not index.isValid():
             return False
         item = self.get_node(index)
@@ -2074,7 +2074,7 @@ class TagsModel(QAbstractItemModel):  # {{{
         return ans
 
     def find_item_node(self, key, txt, start_path, equals_match=False):
-        '''
+        """
         Search for an item (a node) in the tags browser list that matches both
         the key (exact case-insensitive match) and txt (not equals_match =>
         case-insensitive contains match; equals_match => case_insensitive
@@ -2083,7 +2083,7 @@ class TagsModel(QAbstractItemModel):  # {{{
         start_path is None, the search starts with the topmost node. If the tree
         is changed subsequent to calling this method, the path can easily refer
         to a different node or no node at all.
-        '''
+        """
         if not txt:
             return None
         txt = lower(txt) if not equals_match else txt
@@ -2144,11 +2144,11 @@ class TagsModel(QAbstractItemModel):  # {{{
         return self.path_found
 
     def find_category_node(self, key, parent=QModelIndex()):
-        '''
+        """
         Search for an category node (a top-level node) in the tags browser list
         that matches the key (exact case-insensitive match). Returns the path to
         the node. Paths are as in find_item_node.
-        '''
+        """
         if not key:
             return None
 
@@ -2171,9 +2171,9 @@ class TagsModel(QAbstractItemModel):  # {{{
         self.dataChanged.emit(idx, idx)
 
     def clear_boxed(self):
-        '''
+        """
         Clear all boxes around items.
-        '''
+        """
         def process_tag(tag_index, tag_item):
             if tag_item.boxed:
                 tag_item.boxed = False

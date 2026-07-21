@@ -76,12 +76,12 @@ class OzonRUStore(StorePlugin):
 
 
 def format_price_in_RUR(price):
-    '''
+    """
     Try to format price according ru locale: '12 212,34 руб.'
     @param price: price in format like 25.99
     @return: formatted price if possible otherwise original value
     @rtype: unicode
-    '''
+    """
     price = price.replace('\xa0', '').replace(',', '.').strip() + ' py6'
     return price
 

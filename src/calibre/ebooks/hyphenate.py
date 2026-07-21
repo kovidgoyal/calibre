@@ -48,9 +48,9 @@ class Hyphenator:
         t[None] = points
 
     def hyphenate_word(self, word):
-        ''' Given a word, returns a list of pieces, broken at the possible
+        """ Given a word, returns a list of pieces, broken at the possible
             hyphenation points.
-        '''
+        """
         # Short words aren't hyphenated.
         if len(word) <= 4:
             return [word]

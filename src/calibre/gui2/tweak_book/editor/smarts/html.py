@@ -89,9 +89,9 @@ def next_attr_boundary(block, offset, forward=True):
 
 
 def find_closest_containing_tag(block, offset, max_tags=sys.maxsize):
-    ''' Find the closest containing tag. To find it, we search for the first
+    """ Find the closest containing tag. To find it, we search for the first
     opening tag that does not have a matching closing tag before the specified
-    position. Search through at most max_tags. '''
+    position. Search through at most max_tags. """
     def prev_tag_boundary(b, o):
         return next_tag_boundary(b, o, forward=False)
 
@@ -133,7 +133,7 @@ def find_closest_containing_tag(block, offset, max_tags=sys.maxsize):
 
 
 def find_tag_definition(block, offset):
-    ''' Return the <tag | > definition, if any that (block, offset) is inside. '''
+    """ Return the <tag | > definition, if any that (block, offset) is inside. """
     block, boundary = next_tag_boundary(block, offset, forward=False)
     if not boundary or not boundary.is_start:
         return None, False
@@ -158,7 +158,7 @@ def find_containing_attribute(block, offset):
 
 
 def find_attribute_in_tag(block, offset, attr_name):
-    ' Return the start of the attribute value as block, offset or None, None if attribute not found '
+    " Return the start of the attribute value as block, offset or None, None if attribute not found "
     end_block, boundary = next_tag_boundary(block, offset)
     if boundary.is_start:
         return None, None
@@ -182,7 +182,7 @@ def find_attribute_in_tag(block, offset, attr_name):
 
 
 def find_end_of_attribute(block, offset):
-    ' Find the end of an attribute that occurs somewhere after the position specified by (block, offset) '
+    " Find the end of an attribute that occurs somewhere after the position specified by (block, offset) "
     block, boundary = next_attr_boundary(block, offset)
     if block is None or boundary is None:
         return None, None
@@ -192,9 +192,9 @@ def find_end_of_attribute(block, offset):
 
 
 def find_closing_tag(tag, max_tags=sys.maxsize):
-    ''' Find the closing tag corresponding to the specified tag. To find it we
+    """ Find the closing tag corresponding to the specified tag. To find it we
     search for the first closing tag after the specified tag that does not
-    match a previous opening tag. Search through at most max_tags. '''
+    match a previous opening tag. Search through at most max_tags. """
     if tag.self_closing:
         return None
     stack = []
@@ -276,7 +276,7 @@ def split_tag(cursor, opening_tag, closing_tag):
 
 
 def ensure_not_within_tag_definition(cursor, forward=True):
-    ''' Ensure the cursor is not inside a tag definition <>. Returns True iff the cursor was moved. '''
+    """ Ensure the cursor is not inside a tag definition <>. Returns True iff the cursor was moved. """
     block, offset = cursor.block(), cursor.positionInBlock()
     b, boundary = next_tag_boundary(block, offset, forward=False)
     if b is None:
@@ -306,10 +306,10 @@ def find_closest_containing_block_tag(block, offset, block_tag_names=BLOCK_TAG_N
 
 
 def set_style_property(tag, property_name, value, editor):
-    '''
+    """
     Set a style property, i.e. a CSS property inside the style attribute of the tag.
     Any existing style attribute is updated or a new attribute is inserted.
-    '''
+    """
     block, offset = find_attribute_in_tag(tag.start_block, tag.start_offset + 1, 'style')
     c = editor.textCursor()
 
@@ -553,13 +553,13 @@ class Smarts(NullSmarts):
         return False
 
     def cursor_position_with_sourceline(self, cursor, for_position_sync=True, use_matched_tag=True):
-        ''' Return the tag just before the current cursor as a source line
+        """ Return the tag just before the current cursor as a source line
         number and a list of tags defined on that line up to and including the
         containing tag. If ``for_position_sync`` is False then the tag
         *containing* the cursor is returned instead of the tag just before the
         cursor. Note that finding the containing tag is expensive, so
         use with care. As an optimization, the last tag matched by
-        get_extra_selections is used, unless use_matched_tag is False. '''
+        get_extra_selections is used, unless use_matched_tag is False. """
         block, offset = cursor.block(), cursor.positionInBlock()
         if for_position_sync:
             nblock, boundary = next_tag_boundary(block, offset, forward=False)
@@ -605,9 +605,9 @@ class Smarts(NullSmarts):
         return sourceline, tags
 
     def goto_sourceline(self, editor, sourceline, tags, attribute=None):
-        ''' Move the cursor to the tag identified by sourceline and tags (a
+        """ Move the cursor to the tag identified by sourceline and tags (a
         list of tags names on the specified line). If attribute is specified
-        the cursor will be placed at the start of the attribute value. '''
+        the cursor will be placed at the start of the attribute value. """
         found_tag = False
         if sourceline is None:
             return found_tag
@@ -633,8 +633,8 @@ class Smarts(NullSmarts):
         return found_tag
 
     def get_inner_HTML(self, editor):
-        ''' Select the inner HTML of the current tag. Return a cursor with the
-        inner HTML selected or None. '''
+        """ Select the inner HTML of the current tag. Return a cursor with the
+        inner HTML selected or None. """
         editor.highlighter.join()
         c = editor.textCursor()
         block = c.block()
@@ -658,7 +658,7 @@ class Smarts(NullSmarts):
         return c
 
     def set_text_alignment(self, editor, value):
-        ''' Set the text-align property on the current block tag(s) '''
+        """ Set the text-align property on the current block tag(s) """
         editor.highlighter.join()
         block_tag_names = BLOCK_TAG_NAMES - {'body'}  # ignore body since setting text-align globally on body is almost never what is wanted
         tags = []

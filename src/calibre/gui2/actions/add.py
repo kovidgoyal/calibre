@@ -330,17 +330,17 @@ class AddAction(InterfaceAction):
               callback=self._files_added, parent=self.gui, pool=self.gui.spare_pool())
 
     def add_recursive_single(self, *args):
-        '''
+        """
         Add books from the local filesystem to either the library or the device
         recursively assuming one book per folder.
-        '''
+        """
         self.add_recursive(True)
 
     def add_recursive_multiple(self, *args):
-        '''
+        """
         Add books from the local filesystem to either the library or the device
         recursively assuming multiple books per folder.
-        '''
+        """
         self.add_recursive(False)
 
     def add_recursive_question(self):
@@ -349,10 +349,10 @@ class AddAction(InterfaceAction):
         self.add_recursive(single)
 
     def add_empty(self, *args):
-        '''
+        """
         Add an empty book item to the library. This does not import any formats
         from a book file.
-        '''
+        """
         author = series = title = None
         index = self.gui.library_view.currentIndex()
         if index.isValid():
@@ -589,9 +589,9 @@ class AddAction(InterfaceAction):
             self.add_isbns(d.books, add_tags=d.set_tags, check_for_existing=d.check_for_existing)
 
     def add_books(self, *args):
-        '''
+        """
         Add books from the local filesystem to either the library or the device.
-        '''
+        """
         filters = get_filters()
         to_device = self.gui.stack.currentIndex() != 0
         if to_device:

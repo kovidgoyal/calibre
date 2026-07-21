@@ -33,7 +33,7 @@ class UtilsTest(BaseTest):
         return total
 
     def test_thumbnail_cache(self):  # {{{
-        ' Test the operation of the thumbnail cache '
+        " Test the operation of the thumbnail cache "
         c = self.init_tc()
         self.assertFalse(hasattr(c, 'total_size'), 'index read on initialization')
         c.invalidate(666)

@@ -227,8 +227,8 @@ class EventAccumulator:
 
 
 class GuiRunner(QObject):
-    '''Make sure an event loop is running before starting the main work of
-    initialization'''
+    """Make sure an event loop is running before starting the main work of
+    initialization"""
 
     def __init__(self, opts, args, actions, app, gui_debug=None):
         self.startup_time = monotonic()

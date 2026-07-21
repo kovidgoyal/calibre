@@ -25,7 +25,7 @@ SELF_CLOSING_TAGS = {'area', 'base', 'basefont', 'br', 'hr', 'input', 'img', 'li
 
 
 class OEB2HTML:
-    '''
+    """
     Base class. All subclasses should implement dump_text to actually transform
     content. Also, callers should use oeb2html to get the transformed html.
     links and images can be retrieved after calling oeb2html to get the mapping
@@ -33,7 +33,7 @@ class OEB2HTML:
     Images will always be referenced as if they are in an images folder.
 
     Use get_css to get the CSS classes for the OEB document as a string.
-    '''
+    """
 
     def __init__(self, log=None):
         self.log = default_log if log is None else log
@@ -158,15 +158,15 @@ class OEB2HTML:
 
 
 class OEB2HTMLNoCSSizer(OEB2HTML):
-    '''
+    """
     This will remap a small number of CSS styles to equivalent HTML tags.
-    '''
+    """
 
     def dump_text(self, elem, stylizer, page):
-        '''
+        """
         @elem: The element in the etree that we are working on.
         @stylizer: The style information attached to the element.
-        '''
+        """
 
         # We can only processes tags. If there isn't a tag return any text.
         if not isinstance(elem.tag, (str, bytes)) \
@@ -248,15 +248,15 @@ class OEB2HTMLNoCSSizer(OEB2HTML):
 
 
 class OEB2HTMLInlineCSSizer(OEB2HTML):
-    '''
+    """
     Turns external CSS classes into inline style attributes.
-    '''
+    """
 
     def dump_text(self, elem, stylizer, page):
-        '''
+        """
         @elem: The element in the etree that we are working on.
         @stylizer: The style information attached to the element.
-        '''
+        """
 
         # We can only processes tags. If there isn't a tag return any text.
         if not isinstance(elem.tag, (str, bytes)) \
@@ -332,11 +332,11 @@ class OEB2HTMLInlineCSSizer(OEB2HTML):
 
 
 class OEB2HTMLClassCSSizer(OEB2HTML):
-    '''
+    """
     Use CSS classes. css_style option can specify whether to use
     inline classes (style tag in the head) or reference an external
     CSS file called style.css.
-    '''
+    """
 
     def mlize_spine(self, oeb_book):
         output = []
@@ -357,10 +357,10 @@ class OEB2HTMLClassCSSizer(OEB2HTML):
         return ''.join(output)
 
     def dump_text(self, elem, stylizer, page):
-        '''
+        """
         @elem: The element in the etree that we are working on.
         @stylizer: The style information attached to the element.
-        '''
+        """
 
         # We can only processes tags. If there isn't a tag return any text.
         if not isinstance(elem.tag, (str, bytes)) \

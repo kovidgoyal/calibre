@@ -10,11 +10,11 @@ from calibre.utils.fonts.utils import get_all_font_names
 
 
 class FontMetrics:
-    '''
+    """
     Get various metrics for the specified sfnt. All the metrics are returned in
     units of pixels. To calculate a metric you have to specify the font size
     (in pixels) and the horizontal stretch factor (between 0.0 and 1.0).
-    '''
+    """
 
     def __init__(self, sfnt):
         for table in (b'head', b'hhea', b'hmtx', b'cmap', b'OS/2', b'post',
@@ -64,7 +64,7 @@ class FontMetrics:
             return self.names['family_name'].replace(' ', '-')
 
     def underline_thickness(self, pixel_size=12.0):
-        'Thickness for lines (in pixels) at the specified size'
+        "Thickness for lines (in pixels) at the specified size"
         yscale = pixel_size / self.units_per_em
         return self.post.underline_thickness * yscale
 
@@ -77,20 +77,20 @@ class FontMetrics:
         return (self.ascent + 2) * yscale
 
     def strikeout_size(self, pixel_size=12.0):
-        'The width of the strikeout line, in pixels'
+        "The width of the strikeout line, in pixels"
         yscale = pixel_size / self.units_per_em
         return yscale * self.os2.strikeout_size
 
     def strikeout_position(self, pixel_size=12.0):
-        'The displacement from the baseline to top of the strikeout line, in pixels'
+        "The displacement from the baseline to top of the strikeout line, in pixels"
         yscale = pixel_size / self.units_per_em
         return yscale * self.os2.strikeout_position
 
     def advance_widths(self, string, pixel_size=12.0, stretch=1.0):
-        '''
+        """
         Return the advance widths (in pixels) for all glyphs corresponding to
         the characters in string at the specified pixel_size and stretch factor.
-        '''
+        """
         if not isinstance(string, str):
             raise ValueError('Must supply a unicode object')
         chars = tuple(map(ord, string))
@@ -106,7 +106,7 @@ class FontMetrics:
                      glyph_ids)
 
     def width(self, string, pixel_size=12.0, stretch=1.0):
-        'The width of the string at the specified pixel size and stretch, in pixels'
+        "The width of the string at the specified pixel size and stretch, in pixels"
         return sum(self.advance_widths(string, pixel_size, stretch))
 
 

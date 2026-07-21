@@ -100,7 +100,7 @@ def sanitize_lang(lang):
 
 
 def get_lang():
-    'Try to figure out what language to display the interface in'
+    "Try to figure out what language to display the interface in"
     from calibre.utils.config_base import prefs
     lang = prefs['language']
     lang = os.environ.get('CALIBRE_OVERRIDE_LANG', lang)
@@ -491,7 +491,7 @@ _lang_map = None
 
 
 def lang_map():
-    ' Return mapping of ISO 639 3 letter codes to localized language names '
+    " Return mapping of ISO 639 3 letter codes to localized language names "
     iso639 = _load_iso639()
     translate = _
     global _lang_map
@@ -522,11 +522,11 @@ def reverse_lang_map_for_ui():
 
 
 def langnames_to_langcodes(names):
-    '''
+    """
     Given a list of localized language names return a mapping of the names to 3
     letter ISO 639 language codes. If a name is not recognized, it is mapped to
     None.
-    '''
+    """
     iso639 = _load_iso639()
     translate = _
     ans = {}

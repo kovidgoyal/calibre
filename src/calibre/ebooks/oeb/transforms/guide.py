@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 
 
 class Clean:
-    '''Clean up guide, leaving only known values '''
+    """Clean up guide, leaving only known values """
 
     def __call__(self, oeb, opts):
         self.oeb, self.log, self.opts = oeb, oeb.log, opts

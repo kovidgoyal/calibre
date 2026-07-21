@@ -229,8 +229,8 @@ class TextEdit(PlainTextEdit):
 
     @property
     def is_modified(self):
-        ''' True if the document has been modified since it was loaded or since
-        the last time is_modified was set to False. '''
+        """ True if the document has been modified since it was loaded or since
+        the last time is_modified was set to False. """
         if (d := self.document()) is None:
             return False
         return d.isModified()

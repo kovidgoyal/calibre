@@ -1,6 +1,6 @@
-'''
+"""
 Inspect the header of ereader files. This is primarily used for debugging.
-'''
+"""
 
 
 __license__   = 'GPL v3'

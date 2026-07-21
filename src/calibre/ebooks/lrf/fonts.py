@@ -18,13 +18,13 @@ FONT_FILE_MAP = {}
 
 
 def get_font(name, size, encoding='unic'):
-    '''
+    """
     Get an ImageFont object by name.
     @param size: Font height in pixels. To convert from pts:
                  sz in pixels = (dpi/72) * size in pts
     @param encoding: Font encoding to use. E.g. 'unic', 'symbol', 'ADOB', 'ADBE', 'aprm'
     @param manager: A dict that will store the PersistentTemporary
-    '''
+    """
     from calibre.utils.resources import get_path as P
     if name in LIBERATION_FONT_MAP:
         return ImageFont.truetype(P(f'fonts/liberation/{LIBERATION_FONT_MAP[name]}.ttf'), size, encoding=encoding)

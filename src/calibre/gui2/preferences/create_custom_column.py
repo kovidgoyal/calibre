@@ -935,7 +935,7 @@ class CreateCustomColumn(QDialog):
 
 
 class CreateNewCustomColumn:
-    '''
+    """
     Provide an API to create new custom columns.
 
     Usage:
@@ -1041,7 +1041,7 @@ class CreateNewCustomColumn:
     The method returns Result.MUST_RESTART if further calibre configuration has
     been blocked. You can check for this situation in advance by calling
     must_restart().
-    '''
+    """
 
     cc_column_key: str | None
 
@@ -1070,7 +1070,7 @@ class CreateNewCustomColumn:
 
     def create_column(self, lookup_name, column_heading, datatype, is_multiple,
                       display={}, generate_unused_lookup_name=False, freeze_lookup_name=True):
-        ''' See the class documentation for more information.'''
+        """ See the class documentation for more information."""
         if self.restart_required:
             return (self.Result.MUST_RESTART, _('You must restart calibre before making any more changes'))
         if not lookup_name.startswith('#'):
@@ -1159,7 +1159,7 @@ class CreateNewCustomColumn:
         return (self.Result.CANCELED, _('Canceled'))
 
     def current_columns(self):
-        '''
+        """
         Return the currently defined custom columns
 
         Return the currently defined custom columns including the ones that haven't
@@ -1176,22 +1176,22 @@ class CreateNewCustomColumn:
         Columns that already exist will have additional attributes that this class
         doesn't use. See calibre.library.field_metadata.add_custom_field() for the
         complete list.
-        '''
+        """
         # deepcopy to prevent users from changing it. The new MappingProxyType
         # isn't enough because only the top-level dict is immutable, not the
         # items in the dict.
         return copy.deepcopy(self.custcols)
 
     def current_headings(self):
-        '''
+        """
         Return the currently defined column headings
 
         Return the column headings including the ones that haven't yet been
         created. It is a dict. The key is the heading, the value is the lookup
         name having that heading.
-        '''
+        """
         return {v['name']:('#' + v['label']) for v in self.custcols.values()}
 
     def must_restart(self):
-        '''Return true if calibre must be restarted before new columns can be added.'''
+        """Return true if calibre must be restarted before new columns can be added."""
         return self.restart_required

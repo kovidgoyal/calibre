@@ -15,8 +15,8 @@ from polyglot.builtins import as_bytes
 
 
 def join_with_timeout(q, timeout=2):
-    ''' Join the queue q with a specified timeout. Blocks until all tasks on
-    the queue are done or times out with a runtime error. '''
+    """ Join the queue q with a specified timeout. Blocks until all tasks on
+    the queue are done or times out with a runtime error. """
     q.all_tasks_done.acquire()
     try:
         endtime = time() + timeout

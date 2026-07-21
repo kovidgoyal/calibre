@@ -18,11 +18,11 @@ font_properties = ('font-family', 'src', 'font-weight', 'font-stretch', 'font-st
 
 
 def get_font_properties(rule, default=None):
-    '''
+    """
     Given a CSS rule, extract normalized font properties from
     it. Note that shorthand font property should already have been expanded
     by the CSS flattening code.
-    '''
+    """
     props = {}
     s = rule.style
     for q in font_properties:
@@ -60,10 +60,10 @@ def get_font_properties(rule, default=None):
 
 
 def find_font_face_rules(sheet, oeb):
-    '''
+    """
     Find all @font-face rules in the given sheet and extract the relevant info from them.
     sheet can be either a ManifestItem or a CSSStyleSheet.
-    '''
+    """
     ans = []
     try:
         rules = sheet.data.cssRules
@@ -96,9 +96,9 @@ def find_font_face_rules(sheet, oeb):
 
 
 def elem_style(style_rules, cls, inherited_style):
-    '''
+    """
     Find the effective style for the given element.
-    '''
+    """
     classes = cls.split()
     style = inherited_style.copy()
     for cls in classes:
@@ -122,10 +122,10 @@ def elem_style(style_rules, cls, inherited_style):
 
 
 class SubsetFonts:
-    '''
+    """
     Subset all embedded fonts. Must be run after CSS flattening, as it requires
     CSS normalization and flattening to work.
-    '''
+    """
 
     def __call__(self, oeb, log, opts):
         self.oeb, self.log, self.opts = oeb, log, opts
@@ -181,9 +181,9 @@ class SubsetFonts:
             self.log(f'Reduced total font size to {totals[0]/totals[1]*100:.1f}% of original')
 
     def find_embedded_fonts(self):
-        '''
+        """
         Find all @font-face rules and extract the relevant info from them.
-        '''
+        """
         self.embedded_fonts = []
         for item in self.oeb.manifest:
             try:
@@ -194,11 +194,11 @@ class SubsetFonts:
             self.embedded_fonts.extend(find_font_face_rules(item, self.oeb))
 
     def find_style_rules(self):
-        '''
+        """
         Extract all font related style information from all stylesheets into a
         dict mapping classes to font properties specified by that class. All
         the heavy lifting has already been done by the CSS flattening code.
-        '''
+        """
         rules = defaultdict(dict)
         for item in self.oeb.manifest:
             if not hasattr(item.data, 'cssRules'):
@@ -230,10 +230,10 @@ class SubsetFonts:
                 self.find_usage_in(body, base)
 
     def used_font(self, style):
-        '''
+        """
         Given a style find the embedded font that matches it. Returns None if
         no match is found (can happen if no family matches).
-        '''
+        """
         ff = style.get('font-family', [])
         lnames = {str(x).lower() for x in ff}
         matching_set = []

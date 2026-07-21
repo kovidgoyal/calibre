@@ -10,7 +10,7 @@ MAGIC = (b'\x00\x01BOOKDOUG', b'\x00\x02BOOKDOUG')
 
 
 def get_metadata(stream):
-    ''' Return metadata as a L{MetaInfo} object '''
+    """ Return metadata as a L{MetaInfo} object """
     title = 'Unknown'
     mi = MetaInformation(title, ['Unknown'])
     stream.seek(0)

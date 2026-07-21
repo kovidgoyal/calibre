@@ -70,7 +70,7 @@ def get_cover_page_name(container):
 
 
 def set_cover(container, cover_path, report=None, options=None):
-    '''
+    """
     Set the cover of the book to the image pointed to by cover_path.
 
     :param cover_path: Either the absolute path to an image file or the
@@ -82,7 +82,7 @@ def set_cover(container, cover_path, report=None, options=None):
         **keep_aspect**: True or False  (Preserve aspect ratio of covers in EPUB)
         **no_svg**: True or False  (Use an SVG cover wrapper in the EPUB titlepage)
         **existing**: True or False  (``cover_path`` refers to an existing image in the book)
-    '''
+    """
     report = report or (lambda x:x)
     if container.book_type == 'azw3':
         set_azw3_cover(container, cover_path, report, options=options)
@@ -91,9 +91,9 @@ def set_cover(container, cover_path, report=None, options=None):
 
 
 def mark_as_cover(container, name):
-    '''
+    """
     Mark the specified image as the cover image.
-    '''
+    """
     if name not in container.mime_map:
         raise ValueError(f'Cannot mark {name} as cover as it does not exist')
     mt = container.mime_map[name]
@@ -167,7 +167,7 @@ def find_cover_image3(container):
 
 
 def find_cover_image(container, strict=False):
-    'Find a raster image marked as a cover in the OPF'
+    "Find a raster image marked as a cover in the OPF"
     ver = container.opf_version_parsed
     if ver.major < 3:
         return find_cover_image2(container, strict=strict)
@@ -221,11 +221,11 @@ def mark_as_cover_epub(container, name):
 
 
 def mark_as_titlepage(container, name, move_to_start=True):
-    '''
+    """
     Mark the specified HTML file as the titlepage of the EPUB.
 
     :param move_to_start: If True the HTML file is moved to the start of the spine
-    '''
+    """
     ver = container.opf_version_parsed
     if move_to_start:
         for item, q, linear in container.spine_iter:
@@ -249,7 +249,7 @@ def mark_as_titlepage(container, name, move_to_start=True):
 
 
 def find_cover_page(container):
-    'Find a document marked as a cover in the OPF'
+    "Find a document marked as a cover in the OPF"
     ver = container.opf_version_parsed
     mm = container.mime_map
     if ver.major < 3:
@@ -301,7 +301,7 @@ def find_cover_image_in_page(container, cover_page):
 
 
 def clean_opf(container):
-    'Remove all references to covers from the OPF'
+    "Remove all references to covers from the OPF"
     manifest_id_map = container.manifest_id_map
     for meta in container.opf_xpath('//opf:meta[@name="cover" and @content]'):
         name = manifest_id_map.get(meta.get('content', None), None)

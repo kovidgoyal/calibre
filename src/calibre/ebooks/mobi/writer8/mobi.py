@@ -30,10 +30,10 @@ def fcis(text_length):
 
 class MOBIHeader(Header):  # {{{
 
-    '''
+    """
     Represents the first record in a MOBI file, contains all the metadata about
     the file.
-    '''
+    """
 
     DEFINITION = '''
     # 0: Compression
@@ -305,9 +305,9 @@ class KF8Book:
 
     @property
     def record0(self):
-        ''' We generate the EXTH header and record0 dynamically, to allow other
+        """ We generate the EXTH header and record0 dynamically, to allow other
         code to customize various values after build_records() has been
-        called'''
+        called"""
         opts = self.opts
         self.exth = build_exth(
             self.metadata,

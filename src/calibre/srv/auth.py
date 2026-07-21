@@ -89,12 +89,12 @@ def base64_decode(s):
 
 
 def synthesize_nonce(key_order, realm, secret, timestamp=None):
-    '''
+    """
     Create a nonce. Can be used for either digest or cookie based auth.
     The nonce is of the form timestamp:hash with hash being a hash of the
     timestamp, server secret and realm. This allows the timestamp to be
     validated and stale nonce's to be rejected.
-    '''
+    """
     if timestamp is None:
         global nonce_counter
         with nonce_counter_lock:
@@ -160,7 +160,7 @@ class DigestAuth:  # {{{
         return md5_hex(val)
 
     def H_A2(self, data):
-        '''Returns the H(A2) string. See :rfc:`2617` section 3.2.2.3.'''
+        """Returns the H(A2) string. See :rfc:`2617` section 3.2.2.3."""
         # RFC 2617 3.2.2.3
         # If the "qop" directive's value is "auth" or is unspecified,
         # then A2 is:
@@ -214,7 +214,7 @@ class DigestAuth:  # {{{
 
 
 class AuthController:
-    '''
+    """
     Implement Basic/Digest authentication for the Content server. Android browsers
     cannot handle HTTP AUTH when downloading files, as the download is handed
     off to a separate process. So we use a cookie based authentication scheme
@@ -238,7 +238,7 @@ class AuthController:
     hijacking, since we have to ignore repeated nc values, because Firefox does
     not implement the digest auth spec properly (it sends out of order nc
     values).
-    '''
+    """
     ANDROID_COOKIE = 'android_workaround'
 
     def __init__(self,

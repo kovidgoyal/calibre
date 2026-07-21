@@ -78,8 +78,8 @@ MAXLEN = 1024 ** 2
 
 
 class BZZDecoderError(Exception):
-    '''This exception is raised when BZZDecode runs into trouble
-    '''
+    """This exception is raised when BZZDecode runs into trouble
+    """
 
     def __init__(self, msg):
         self.msg = msg

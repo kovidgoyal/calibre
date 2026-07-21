@@ -4,7 +4,7 @@
 #                                                                       #
 #########################################################################
 
-'''
+"""
 Codepages as to RTF 1.9.1:
     437     United States IBM
     708     Arabic (ASMO 708)
@@ -54,16 +54,16 @@ Codepages as to RTF 1.9.1:
     57009   Malayalam
     57010   Gujarati
     57011   Punjabi
-'''
+"""
 import re
 
 from . import open_for_read
 
 
 class DefaultEncoding:
-    '''
+    """
     Find the default encoding for the doc
-    '''
+    """
 
     # Note: not all those encoding are really supported by rtf2xml
     # See http://msdn.microsoft.com/en-us/library/windows/desktop/dd317756%28v=vs.85%29.aspx

@@ -30,10 +30,10 @@ def ascii_pat(for_binary=False):
 
 
 def clean_ascii_chars(txt, charlist=None):
-    r'''
+    r"""
     Remove ASCII control chars.
     This is all control chars except \t, \n and \r
-    '''
+    """
     if isinstance(txt, bytes):
         if not txt:
             return b''

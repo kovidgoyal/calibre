@@ -141,9 +141,9 @@ def preprocess_template(template):
 
 
 class Formatter(TemplateFormatter):
-    '''
+    """
     Provides a format function that substitutes '' for any missing value
-    '''
+    """
 
     def get_value(self, key, args, kwargs):
         if not isinstance(key, str) or key == '':
@@ -400,7 +400,7 @@ def sanitize_args(root, opts):
 
 
 def save_to_disk(db, ids, root, opts=None, callback=None):
-    '''
+    """
     Save books from the database ``db`` to the path specified by ``root``.
 
     :param:`ids` iterable of book ids to save from the database.
@@ -410,7 +410,7 @@ def save_to_disk(db, ids, root, opts=None, callback=None):
     the function returns.
     :return: A list of failures. Each element of the list is a tuple
     (id, title, traceback)
-    '''
+    """
     root, opts, length = sanitize_args(root, opts)
     failures = []
     for x in ids:

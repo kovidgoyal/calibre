@@ -148,7 +148,7 @@ class UserManager:
             c.execute('UPDATE users SET session_data=? WHERE name=?', (data, username))
 
     def get(self, username):
-        ' Get password for user, or None if user does not exist '
+        " Get password for user, or None if user does not exist "
         with self.lock:
             for pw, in self.conn.cursor().execute(
                     'SELECT pw FROM users WHERE name=?', (username,)):
@@ -241,7 +241,7 @@ class UserManager:
                 return parse_restriction(restriction).copy()
 
     def allowed_library_names(self, username, all_library_names):
-        ' Get allowed library names for specified user from set of all library names '
+        " Get allowed library names for specified user from set of all library names "
         r = self.restrictions(username)
         if r is None:
             return set()

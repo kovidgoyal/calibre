@@ -51,8 +51,8 @@ def locate_beg_end_of_tag(ml, aid):
 
 
 def reverse_tag_iter(block):
-    ''' Iterate over all tags in block in reverse order, i.e. last tag
-    to first tag. '''
+    """ Iterate over all tags in block in reverse order, i.e. last tag
+    to first tag. """
     end = len(block)
     while True:
         pgt = block.rfind(b'>', 0, end)
@@ -292,8 +292,8 @@ class Mobi8Reader:
             self.flowinfo.append(FlowInfo(typ, format, dir, fname))
 
     def get_file_info(self, pos):
-        ''' Get information about the part (file) that exists at pos in
-        the raw markup '''
+        """ Get information about the part (file) that exists at pos in
+        the raw markup """
         for part in self.partinfo:
             if pos >= part.start and pos < part.end:
                 return part

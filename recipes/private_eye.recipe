@@ -1,6 +1,6 @@
-'''
+"""
 Fetch Private Eye (Online Edition)
-'''
+"""
 
 import re
 from datetime import datetime, timedelta

@@ -654,13 +654,13 @@ def educateQuotes(text):
 
 
 def educateBackticks(text):
-    '''
+    """
     Parameter:  String.
     Returns:    The string, with ``backticks'' -style double quotes
                 translated into HTML curly quote entities.
     Example input:  ``Isn't this fun?''
     Example output: &#8220;Isn't this fun?&#8221;
-    '''
+    """
 
     text = text.replace('``', '&#8220;')
     text = text.replace("''", '&#8221;')
@@ -668,14 +668,14 @@ def educateBackticks(text):
 
 
 def educateSingleBackticks(text):
-    '''
+    """
     Parameter:  String.
     Returns:    The string, with `backticks' -style single quotes
                 translated into HTML curly quote entities.
 
     Example input:  `Isn't this fun?'
     Example output: &#8216;Isn&#8217;t this fun?&#8217;
-    '''
+    """
 
     text = text.replace('`', '&#8216;')
     text = text.replace("'", '&#8217;')

@@ -84,7 +84,7 @@ class WritingTest(BaseTest):
     # }}}
 
     def test_one_one(self):  # {{{
-        'Test setting of values in one-one fields'
+        "Test setting of values in one-one fields"
         tests = [self.create_test('#yesno', (True, False, 'true', 'false', None))]
         for name, getter, setter in (
             ('#series_index', None, None),
@@ -136,7 +136,7 @@ class WritingTest(BaseTest):
     # }}}
 
     def test_many_one_basic(self):  # {{{
-        'Test the different code paths for writing to a many-one field'
+        "Test the different code paths for writing to a many-one field"
         cl = self.cloned_library
         cache = self.init_cache(cl)
         f = cache.fields['publisher']
@@ -224,7 +224,7 @@ class WritingTest(BaseTest):
     # }}}
 
     def test_many_many_basic(self):  # {{{
-        'Test the different code paths for writing to a many-many field'
+        "Test the different code paths for writing to a many-many field"
         cl = self.cloned_library
         cache = self.init_cache(cl)
         ae, af, sf = self.assertEqual, self.assertFalse, cache.set_field
@@ -326,7 +326,7 @@ class WritingTest(BaseTest):
     # }}}
 
     def test_dirtied(self):  # {{{
-        'Test the setting of the dirtied flag and the last_modified column'
+        "Test the setting of the dirtied flag and the last_modified column"
         cl = self.cloned_library
         cache = self.init_cache(cl)
         ae, af, sf = self.assertEqual, self.assertFalse, cache.set_field
@@ -356,7 +356,7 @@ class WritingTest(BaseTest):
     # }}}
 
     def test_backup(self):  # {{{
-        'Test the automatic backup of changed metadata'
+        "Test the automatic backup of changed metadata"
         cl = self.cloned_library
         cache = self.init_cache(cl)
         ae, af, sf = self.assertEqual, self.assertFalse, cache.set_field
@@ -441,7 +441,7 @@ class WritingTest(BaseTest):
     # }}}
 
     def test_set_cover(self):  # {{{
-        ' Test setting of cover '
+        " Test setting of cover "
         cache = self.init_cache()
         ae = self.assertEqual
 
@@ -465,7 +465,7 @@ class WritingTest(BaseTest):
     # }}}
 
     def test_set_metadata(self):  # {{{
-        ' Test setting of metadata '
+        " Test setting of metadata "
         ae = self.assertEqual
         cache = self.init_cache(self.cloned_library)
 
@@ -524,7 +524,7 @@ class WritingTest(BaseTest):
     # }}}
 
     def test_conversion_options(self):  # {{{
-        ' Test saving of conversion options '
+        " Test saving of conversion options "
         cache = self.init_cache()
         all_ids = cache.all_book_ids()
         self.assertFalse(cache.has_conversion_options(all_ids))
@@ -541,7 +541,7 @@ class WritingTest(BaseTest):
     # }}}
 
     def test_remove_items(self):  # {{{
-        ' Test removal of many-(many,one) items '
+        " Test removal of many-(many,one) items "
         cache = self.init_cache()
         tmap = cache.get_id_map('tags')
         self.assertEqual(cache.remove_items('tags', tmap), {1, 2})
@@ -601,7 +601,7 @@ class WritingTest(BaseTest):
     # }}}
 
     def test_rename_items(self):  # {{{
-        ' Test renaming of many-(many,one) items '
+        " Test renaming of many-(many,one) items "
         # Test renaming authors removes folders with junk in them
         cl = self.cloned_library
         cache = self.init_cache(cl)
@@ -716,7 +716,7 @@ class WritingTest(BaseTest):
     # }}}
 
     def test_composite_cache(self):  # {{{
-        ' Test that the composite field cache is properly invalidated on writes '
+        " Test that the composite field cache is properly invalidated on writes "
         cache = self.init_cache()
         cache.create_custom_column('tc', 'TC', 'composite', False, display={
             'composite_template':'{title} {author_sort} {title_sort} {formats} {tags} {series} {series_index} {pages}'})
@@ -757,7 +757,7 @@ class WritingTest(BaseTest):
     # }}}
 
     def test_dump_and_restore(self):  # {{{
-        ' Test roundtripping the db through SQL '
+        " Test roundtripping the db through SQL "
         try:
             from apsw import shell
         except Exception:
@@ -800,7 +800,7 @@ class WritingTest(BaseTest):
     # }}}
 
     def test_fix_case_duplicates(self):  # {{{
-        ' Test fixing of databases that have items in is_many fields that differ only by case '
+        " Test fixing of databases that have items in is_many fields that differ only by case "
         ae = self.assertEqual
         cache = self.init_cache()
         conn = cache.backend.conn
@@ -859,7 +859,7 @@ class WritingTest(BaseTest):
     # }}}
 
     def test_preferences(self):  # {{{
-        ' Test getting and setting of preferences, especially with mutable objects '
+        " Test getting and setting of preferences, especially with mutable objects "
         cache = self.init_cache()
         changes = []
         cache.backend.conn.setupdatehook(lambda typ, dbname, tblname, rowid: changes.append(rowid))
@@ -880,7 +880,7 @@ class WritingTest(BaseTest):
     # }}}
 
     def test_annotations(self):  # {{{
-        'Test handling of annotations'
+        "Test handling of annotations"
         from calibre.utils.date import EPOCH, utcnow
         cl = self.cloned_library
         cache = self.init_cache(cl)

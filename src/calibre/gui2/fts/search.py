@@ -361,7 +361,7 @@ class ResultsModel(QAbstractItemModel):
         self.result_map = {r.book_id: i for i, r in enumerate(self.results)}
 
     def sort_results(self, sort_key):
-        '''Re-sort the current results using the given sort key. Emits results_resorted signal.'''
+        """Re-sort the current results using the given sort key. Emits results_resorted signal."""
         if not self.results:
             return
         if sort_key == 'relevance':

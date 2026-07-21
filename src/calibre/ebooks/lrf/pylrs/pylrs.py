@@ -81,7 +81,7 @@ def _checkExists(filename):
 
 
 def _formatXml(root):
-    ''' A helper to make the LRS output look nicer. '''
+    """ A helper to make the LRS output look nicer. """
     for elem in root.iter():
         if len(elem) > 0 and (not elem.text or not elem.text.strip()):
             elem.text = '\n'
@@ -90,14 +90,14 @@ def _formatXml(root):
 
 
 def ElementWithText(tag, text, **extra):
-    ''' A shorthand function to create Elements with text. '''
+    """ A shorthand function to create Elements with text. """
     e = Element(tag, **extra)
     e.text = text
     return e
 
 
 def ElementWithReading(tag, text, reading=False):
-    ''' A helper function that creates reading attributes. '''
+    """ A helper function that creates reading attributes. """
 
     # note: old lrs2lrf parser only allows reading = ""
 
@@ -116,7 +116,7 @@ def ElementWithReading(tag, text, reading=False):
 
 
 def appendTextElements(e, contentsList, se):
-    ''' A helper function to convert text streams into the proper elements. '''
+    """ A helper function to convert text streams into the proper elements. """
 
     def uconcat(text, newText, se):
         if isinstance(text, bytes):
@@ -144,7 +144,7 @@ def appendTextElements(e, contentsList, se):
 
 
 class Delegator:
-    ''' A mixin class to create delegated methods that create elements. '''
+    """ A mixin class to create delegated methods that create elements. """
 
     def __init__(self, delegates):
         self.delegates = delegates
@@ -222,7 +222,7 @@ class Delegator:
 
 
 class LrsAttributes:
-    ''' A mixin class to handle default and user supplied attributes. '''
+    """ A mixin class to handle default and user supplied attributes. """
 
     def __init__(self, defaults, alsoAllow=None, **settings):
         if alsoAllow is None:
@@ -237,9 +237,9 @@ class LrsAttributes:
 
 
 class LrsContainer:
-    ''' This class is a mixin class for elements that are contained in or
+    """ This class is a mixin class for elements that are contained in or
         contain an unknown number of other elements.
-    '''
+    """
 
     def __init__(self, validChildren):
         self.parent = None
@@ -248,7 +248,7 @@ class LrsContainer:
         self.must_append = False  # : If True even an empty container is appended by append_to
 
     def has_text(self):
-        ''' Return True iff this container has non whitespace text '''
+        """ Return True iff this container has non whitespace text """
         if hasattr(self, 'text'):
             if isinstance(self.text, str) and self.text.strip():
                 return True
@@ -262,10 +262,10 @@ class LrsContainer:
         return False
 
     def append_to(self, parent):
-        '''
+        """
         Append self to C{parent} iff self has non whitespace textual content
         @type parent: LrsContainer
-        '''
+        """
         if self.contents or self.must_append:
             parent.append(self)
 
@@ -280,10 +280,10 @@ class LrsContainer:
         self.parent = parent
 
     def append(self, content, convertText=True):
-        '''
+        """
             Appends valid objects to container.  Can auto-covert text strings
             to Text objects.
-        '''
+        """
         for validChild in self.validChildren:
             if isinstance(content, validChild):
                 break
@@ -310,7 +310,7 @@ class LrsContainer:
 
 
 class LrsObject:
-    ''' A mixin class for elements that need an object id. '''
+    """ A mixin class for elements that need an object id. """
     nextObjId = 0
 
     @classmethod
@@ -463,24 +463,24 @@ class Book(Delegator):
         return ans
 
     def create_page(self, pageStyle=None, **settings):
-        '''
+        """
         Return a new L{Page}. The page has not been appended to this book.
         @param pageStyle: If None the default pagestyle is used.
         @type pageStyle: L{PageStyle}
-        '''
+        """
         if not pageStyle:
             pageStyle = self.defaultPageStyle
         return Page(pageStyle=pageStyle, **settings)
 
     def create_text_block(self, textStyle=None, blockStyle=None, **settings):
-        '''
+        """
         Return a new L{TextBlock}. The block has not been appended to this
         book.
         @param textStyle: If None the default text style is used
         @type textStyle: L{TextStyle}
         @param blockStyle: If None the default block style is used.
         @type blockStyle: L{BlockStyle}
-        '''
+        """
         if not textStyle:
             textStyle = self.defaultTextStyle
         if not blockStyle:
@@ -488,7 +488,7 @@ class Book(Delegator):
         return TextBlock(textStyle=textStyle, blockStyle=blockStyle, **settings)
 
     def pages(self):
-        '''Return list of Page objects in this book '''
+        """Return list of Page objects in this book """
         ans = []
         for item in self.delegates:
             if isinstance(item, Main):
@@ -499,7 +499,7 @@ class Book(Delegator):
         return ans
 
     def last_page(self):
-        '''Return last Page in this book '''
+        """Return last Page in this book """
         for item in self.delegates:
             if isinstance(item, Main):
                 temp = list(item.contents)
@@ -516,7 +516,7 @@ class Book(Delegator):
         return ['sourceencoding']
 
     def append(self, content):
-        ''' Find and invoke the correct appender for this content. '''
+        """ Find and invoke the correct appender for this content. """
 
         className = content.__class__.__name__
         try:
@@ -609,7 +609,7 @@ class Book(Delegator):
         return root
 
     def render(self, f, outputEncodingName='UTF-8'):
-        ''' Write the book as an LRS to file f. '''
+        """ Write the book as an LRS to file f. """
 
         self.appendReferencedObjects(self)
 
@@ -625,7 +625,7 @@ class Book(Delegator):
 
 
 class BookInformation(Delegator):
-    ''' Just a container for the Info and TableOfContents elements. '''
+    """ Just a container for the Info and TableOfContents elements. """
 
     def __init__(self):
         Delegator.__init__(self, [Info(), TableOfContents()])
@@ -637,7 +637,7 @@ class BookInformation(Delegator):
 
 
 class Info(Delegator):
-    ''' Just a container for the BookInfo and DocInfo elements. '''
+    """ Just a container for the BookInfo and DocInfo elements. """
 
     def __init__(self):
         self.genreading = DEFAULT_GENREADING
@@ -925,7 +925,7 @@ class Solo(Main):
 
 
 class Template:
-    ''' Does nothing that I know of. '''
+    """ Does nothing that I know of. """
 
     def appendReferencedObjects(self, parent):
         pass
@@ -947,11 +947,11 @@ class Template:
 
 
 class StyleDefault(LrsAttributes):
-    '''
+    """
         Supply some defaults for all TextBlocks.
         The legal values are a subset of what is allowed on a
         TextBlock -- ruby, emphasis, and waitprop settings.
-    '''
+    """
     defaults = dict(rubyalign='start', rubyadjust='none',
                 rubyoverhang='none', empdotsposition='before',
                 empdotsfontname='Dutch801 Rm BT Roman',
@@ -1083,7 +1083,7 @@ class BookSetting(LrsAttributes):
 
 
 class LrsStyle(LrsObject, LrsAttributes, LrsContainer):
-    ''' A mixin class for styles. '''
+    """ A mixin class for styles. """
 
     validSettings: list
 
@@ -1171,7 +1171,7 @@ class TextStyle(LrsStyle):
 
 
 class BlockStyle(LrsStyle):
-    '''
+    """
         The block style of a TextBlock.  Default is an expandable 560 pixel
         wide area with no space for headers or footers.
 
@@ -1179,7 +1179,7 @@ class BlockStyle(LrsStyle):
         --------     -----                  -------
         blockwidth   pixels                 560
         sidemargin   pixels                 0
-    '''
+    """
 
     baseDefaults = dict(
             bgimagemode='fix', framemode='square', blockwidth='560',
@@ -1200,13 +1200,13 @@ class BlockStyle(LrsStyle):
 
 
 class PageStyle(LrsStyle):
-    '''
+    """
         Setting         Value                   Default
         --------        -----                   -------
         evensidemargin  pixels                  20
         oddsidemargin   pixels                  20
         topmargin       pixels                  20
-    '''
+    """
     baseDefaults = dict(
             topmargin='20', headheight='0', headsep='0',
             oddsidemargin='20', textheight='747', textwidth='575',
@@ -1261,10 +1261,10 @@ class PageStyle(LrsStyle):
 
 
 class Page(LrsObject, LrsContainer):
-    '''
+    """
         Pages are added to Books.  Pages can be supplied a PageStyle.
         If they are not, Page.defaultPageStyle will be used.
-    '''
+    """
     defaultPageStyle = PageStyle()
 
     def __init__(self, pageStyle=defaultPageStyle, **settings):
@@ -1302,13 +1302,13 @@ class Page(LrsObject, LrsContainer):
         return bs
 
     def TextBlock(self, *args, **kwargs):
-        ''' Create and append a new text block (shortcut). '''
+        """ Create and append a new text block (shortcut). """
         tb = TextBlock(*args, **kwargs)
         self.append(tb)
         return tb
 
     def ImageBlock(self, *args, **kwargs):
-        ''' Create and append and new Image block (shorthand). '''
+        """ Create and append and new Image block (shorthand). """
         ib = ImageBlock(*args, **kwargs)
         self.append(ib)
         return ib
@@ -1356,24 +1356,24 @@ class Page(LrsObject, LrsContainer):
 
 
 class TextBlock(LrsObject, LrsContainer):
-    '''
+    """
         TextBlocks are added to Pages.  They hold Paragraphs or CRs.
 
         If a TextBlock is used in a header, it should be appended to
         the Book, not to a specific Page.
-    '''
+    """
     defaultTextStyle = TextStyle()
     defaultBlockStyle = BlockStyle()
 
     def __init__(self, textStyle=defaultTextStyle,
                        blockStyle=defaultBlockStyle,
                        **settings):
-        '''
+        """
         Create TextBlock.
         @param textStyle: The L{TextStyle} for this block.
         @param blockStyle: The L{BlockStyle} for this block.
         @param settings: C{dict} of extra settings to apply to this block.
-        '''
+        """
         LrsObject.__init__(self)
         LrsContainer.__init__(self, [Paragraph, CR])
 
@@ -1407,12 +1407,12 @@ class TextBlock(LrsObject, LrsContainer):
         LrsContainer.appendReferencedObjects(self, parent)
 
     def Paragraph(self, *args, **kwargs):
-        '''
+        """
             Create and append a Paragraph to this TextBlock.  A CR is
             automatically inserted after the Paragraph.  To avoid this
             behavior, create the Paragraph and append it to the TextBlock
             in a separate call.
-        '''
+        """
         p = Paragraph(*args, **kwargs)
         self.append(p)
         self.append(CR())
@@ -1477,7 +1477,7 @@ class TextBlock(LrsObject, LrsContainer):
 
 
 class Paragraph(LrsContainer):
-    '''
+    """
         Note: <P> alone does not make a paragraph.  Only a CR inserted
         into a text block right after a <P> makes a real paragraph.
         Two Paragraphs appended in a row act like a single Paragraph.
@@ -1485,7 +1485,7 @@ class Paragraph(LrsContainer):
         Also note that there are few autoappenders for Paragraph (and
         the things that can go in it.)  It's less confusing (to me) to use
         explicit .append methods to build up the text stream.
-    '''
+    """
 
     def __init__(self, text=None):
         LrsContainer.__init__(self, [Text, CR, DropCaps, CharButton,
@@ -1704,7 +1704,7 @@ class Plot(LrsSimpleChar1, LrsContainer):
 
 
 class Text(LrsContainer):
-    ''' A object that represents raw text.  Does not have a toElement. '''
+    """ A object that represents raw text.  Does not have a toElement. """
 
     def __init__(self, text):
         LrsContainer.__init__(self, [])
@@ -1722,10 +1722,10 @@ class Text(LrsContainer):
 
 
 class CR(LrsSimpleChar1, LrsContainer):
-    '''
+    """
         A line break (when appended to a Paragraph) or a paragraph break
         (when appended to a TextBlock).
-    '''
+    """
 
     def __init__(self):
         LrsContainer.__init__(self, [])
@@ -1781,10 +1781,10 @@ class Space(LrsSimpleChar1, LrsContainer):
 
 
 class Box(LrsSimpleChar1, LrsContainer):
-    '''
+    """
         Draw a box around text.  Unfortunately, does not seem to do
         anything on the PRS-500.
-    '''
+    """
 
     def __init__(self, linetype='solid'):
         LrsContainer.__init__(self, [Text, bytes, str])
@@ -1914,7 +1914,7 @@ class Bold(Span):
 
 
 class BlockSpace(LrsContainer):
-    ''' Can be appended to a page to move the text point. '''
+    """ Can be appended to a page to move the text point. """
 
     def __init__(self, xspace=0, yspace=0, x=0, y=0):
         LrsContainer.__init__(self, [])
@@ -1943,12 +1943,12 @@ class BlockSpace(LrsContainer):
 
 
 class CharButton(LrsSimpleChar1, LrsContainer):
-    '''
+    """
         Define the text and target of a CharButton.  Must be passed a
         JumpButton that is the destination of the CharButton.
 
         Only text or SimpleChars can be appended to the CharButton.
-    '''
+    """
 
     def __init__(self, button, text=None):
         LrsContainer.__init__(self, [bytes, str, Text, LrsSimpleChar1])
@@ -2058,11 +2058,11 @@ class Objects(LrsContainer):
 
 
 class JumpButton(LrsObject, LrsContainer):
-    '''
+    """
         The target of a CharButton.  Needs a parented TextBlock to jump to.
         Actually creates several elements in the XML.  JumpButtons must
         be eventually appended to a Book (actually, an Object.)
-    '''
+    """
 
     def __init__(self, textBlock):
         LrsObject.__init__(self)
@@ -2093,7 +2093,7 @@ class JumpButton(LrsObject, LrsContainer):
 
 
 class RuledLine(LrsContainer, LrsAttributes, LrsObject):
-    ''' A line.  Default is 500 pixels long, 2 pixels wide. '''
+    """ A line.  Default is 500 pixels long, 2 pixels wide. """
 
     defaults = dict(
             linelength='500', linetype='solid', linewidth='2',
@@ -2114,13 +2114,13 @@ class RuledLine(LrsContainer, LrsAttributes, LrsObject):
 
 
 class HeaderOrFooter(LrsObject, LrsContainer, LrsAttributes):
-    '''
+    """
         Creates empty header or footer objects.  Append PutObj objects to
         the header or footer to create the text.
 
         Note: it seems that adding multiple PutObjs to a header or footer
               only shows the last one.
-    '''
+    """
     defaults = dict(framemode='square', layout='LrTb', framewidth='0',
                 framecolor='0x00000000', bgcolor='0xFF000000')
 
@@ -2216,7 +2216,7 @@ class Canvas(LrsObject, LrsContainer, LrsAttributes):
 
 
 class PutObj(LrsContainer):
-    ''' PutObj holds other objects that are drawn on a Canvas or Header. '''
+    """ PutObj holds other objects that are drawn on a Canvas or Header. """
 
     def __init__(self, content, x1=0, y1=0):
         LrsContainer.__init__(self, [TextBlock, ImageBlock])
@@ -2242,9 +2242,9 @@ class PutObj(LrsContainer):
 
 
 class ImageStream(LrsObject, LrsContainer):
-    '''
+    """
         Embed an image file into an Lrf.
-    '''
+    """
 
     VALID_ENCODINGS = ['JPEG', 'GIF', 'BMP', 'PNG']
 
@@ -2336,7 +2336,7 @@ class Image(LrsObject, LrsContainer, LrsAttributes):
 
 
 class ImageBlock(LrsObject, LrsContainer, LrsAttributes):
-    ''' Create an image on a page. '''
+    """ Create an image on a page. """
     # TODO: allow other block attributes
 
     defaults = BlockStyle.baseDefaults.copy()
@@ -2412,7 +2412,7 @@ class ImageBlock(LrsObject, LrsContainer, LrsAttributes):
 
 
 class Font(LrsContainer):
-    ''' Allows a TrueType file to be embedded in an Lrf. '''
+    """ Allows a TrueType file to be embedded in an Lrf. """
 
     def __init__(self, file=None, fontname=None, fontfilename=None, encoding=None):
         LrsContainer.__init__(self, [])

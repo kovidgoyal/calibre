@@ -22,11 +22,11 @@ JS_IDENT = JS_IDENT_START + '(?:' + JS_IDENT_PART + ')*'
 
 
 class JavascriptLexer(RegexLexer):
-    '''
+    """
     For JavaScript source code. This is based on the pygments JS highlighter,
     but that does not handle multi-line comments in streaming mode, so we had to
     modify it.
-    '''
+    """
 
     flags = re.UNICODE | re.MULTILINE
 

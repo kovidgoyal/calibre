@@ -24,7 +24,7 @@ SIMPLE_SET = frozenset(SIMPLE_GET - {'identifiers'})
 
 
 def human_readable(size, precision=2):
-    ''' Convert a size in bytes into megabytes '''
+    """ Convert a size in bytes into megabytes """
     ans = size/(1024*1024)
     if ans < 0.1:
         return '<0.1 MB'
@@ -86,11 +86,11 @@ class Metadata:
 
     def __init__(self, title, authors=(_('Unknown'),), other=None, template_cache=None,
                  formatter=None):
-        '''
+        """
         @param title: title or ``_('Unknown')``
         @param authors: List of strings or []
         @param other: None or a metadata object
-        '''
+        """
         _data = copy.deepcopy(NULL_VALUES)
         _data.pop('language')
         object.__setattr__(self, '_data', _data)
@@ -115,7 +115,7 @@ class Metadata:
         self.template_cache = template_cache
 
     def is_null(self, field):
-        '''
+        """
         Return True if the value of field is null in this object.
         'null' means it is unknown or evaluates to False. So a title of
         _('Unknown') is null or a language of 'und' is null.
@@ -124,7 +124,7 @@ class Metadata:
         well as None.
 
         Also returns True if the field does not exist.
-        '''
+        """
         try:
             val = getattr(self, field, None)
             return not val or val == NULL_VALUES.get(field)
@@ -220,10 +220,10 @@ class Metadata:
                 self.get(field)
 
     def deepcopy(self, class_generator=lambda: Metadata(None)):
-        ''' Do not use this method unless you know what you are doing, if you
+        """ Do not use this method unless you know what you are doing, if you
         want to create a simple clone of this object, use :meth:`deepcopy_metadata`
         instead. Class_generator must be a function that returns an instance
-        of Metadata or a subclass of it.'''
+        of Metadata or a subclass of it."""
         # We don't need to evaluate all the composites here because we
         # are returning a "real" Metadata instance that has __get_attribute__.
         m = class_generator()
@@ -266,12 +266,12 @@ class Metadata:
         self.__setattr__(field, val, extra)
 
     def get_identifiers(self):
-        '''
+        """
         Return a copy of the identifiers dictionary.
         The dict is small, and the penalty for using a reference where a copy is
         needed is large. Also, we don't want any manipulations of the returned
         dict to show up in the book.
-        '''
+        """
         ans = object.__getattribute__(self, '_data')['identifiers']
         if not ans:
             ans = {}
@@ -285,15 +285,15 @@ class Metadata:
         return typ, val
 
     def set_identifiers(self, identifiers):
-        '''
+        """
         Set all identifiers. Note that if you previously set ISBN, calling
         this method will delete it.
-        '''
+        """
         cleaned = {ck(k):cv(v) for k, v in identifiers.items() if k and v}
         object.__getattribute__(self, '_data')['identifiers'] = cleaned
 
     def set_identifier(self, typ, val):
-        'If val is empty, deletes identifier of type typ'
+        "If val is empty, deletes identifier of type typ"
         typ, val = self._clean_identifier(typ, val)
         if not typ:
             return
@@ -310,37 +310,37 @@ class Metadata:
     # field-oriented interface. Intended to be the same as in LibraryDatabase
 
     def standard_field_keys(self):
-        '''
+        """
         return a list of all possible keys, even if this book doesn't have them
-        '''
+        """
         return STANDARD_METADATA_FIELDS
 
     def custom_field_keys(self):
-        '''
+        """
         return a list of the custom fields in this book
-        '''
+        """
         return iter(object.__getattribute__(self, '_data')['user_metadata'])
 
     def all_field_keys(self):
-        '''
+        """
         All field keys known by this instance, even if their value is None
-        '''
+        """
         _data = object.__getattribute__(self, '_data')
         return frozenset(ALL_METADATA_FIELDS.union(frozenset(_data['user_metadata'])))
 
     def metadata_for_field(self, key):
-        '''
+        """
         return metadata describing a standard or custom field.
-        '''
+        """
         if key not in self.custom_field_keys():
             return self.get_standard_metadata(key, make_copy=False)
         return self.get_user_metadata(key, make_copy=False)
 
     def all_non_none_fields(self):
-        '''
+        """
         Return a dictionary containing all non-None metadata fields, including
         the custom ones.
-        '''
+        """
         result = {}
         _data = object.__getattribute__(self, '_data')
         for attr in STANDARD_METADATA_FIELDS:
@@ -366,11 +366,11 @@ class Metadata:
     # get and set custom field metadata
 
     def get_standard_metadata(self, field, make_copy):
-        '''
+        """
         return field metadata from the field if it is there. Otherwise return
         None. field is the key name, not the label. Return a copy if requested,
         just in case the user wants to change values in the dict.
-        '''
+        """
         if field in field_metadata and field_metadata[field]['kind'] == 'field':
             if make_copy:
                 return copy.deepcopy(field_metadata[field])
@@ -378,10 +378,10 @@ class Metadata:
         return None
 
     def get_all_standard_metadata(self, make_copy):
-        '''
+        """
         return a dict containing all the standard field metadata associated with
         the book.
-        '''
+        """
         if not make_copy:
             return field_metadata
         res = {}
@@ -391,10 +391,10 @@ class Metadata:
         return res
 
     def get_all_user_metadata(self, make_copy):
-        '''
+        """
         return a dict containing all the custom field metadata associated with
         the book.
-        '''
+        """
         # Must evaluate all composites because we are returning a dict, not a
         # Metadata instance
         self._evaluate_all_composites()
@@ -408,11 +408,11 @@ class Metadata:
         return res
 
     def get_user_metadata(self, field, make_copy):
-        '''
+        """
         return field metadata from the object if it is there. Otherwise return
         None. field is the key name, not the label. Return a copy if requested,
         just in case the user wants to change values in the dict.
-        '''
+        """
         _data = object.__getattribute__(self, '_data')['user_metadata']
         if field in _data:
             # Must evaluate the field because it might be a composite. It won't
@@ -425,10 +425,10 @@ class Metadata:
         return None
 
     def set_all_user_metadata(self, metadata):
-        '''
+        """
         store custom field metadata into the object. Field is the key name
         not the label
-        '''
+        """
         if metadata is None:
             traceback.print_stack()
             return
@@ -446,10 +446,10 @@ class Metadata:
         _data['user_metadata'] = um
 
     def set_user_metadata(self, field, metadata):
-        '''
+        """
         store custom field metadata for one column into the object. Field is
         the key name not the label
-        '''
+        """
         if field is not None:
             if not field.startswith('#'):
                 raise AttributeError(
@@ -471,10 +471,10 @@ class Metadata:
             _data['user_metadata'][field] = m
 
     def remove_stale_user_metadata(self, other_mi):
-        '''
+        """
         Remove user metadata keys (custom column keys) if they
         don't exist in 'other_mi', which must be a metadata object
-        '''
+        """
         me = self.get_all_user_metadata(make_copy=False)
         other = set(other_mi.custom_field_keys())
         new = {}
@@ -484,11 +484,11 @@ class Metadata:
         self.set_all_user_metadata(new)
 
     def template_to_attribute(self, other, ops):
-        '''
+        """
         Takes a list [(src,dest), (src,dest)], evaluates the template in the
         context of other, then copies the result to self[dest]. This is on a
         best-efforts basis. Some assignments can make no sense.
-        '''
+        """
         if not ops:
             return
         from calibre.ebooks.metadata.book.formatter import SafeFormat
@@ -520,10 +520,10 @@ class Metadata:
         prints('--------------')
 
     def smart_update(self, other, replace_metadata=False):
-        '''
+        """
         Merge the information in `other` into self. In case of conflicts, the information
         in `other` takes precedence, unless the information in `other` is NULL.
-        '''
+        """
         def copy_not_none(dest, src, attr):
             v = getattr(src, attr, None)
             if v is not None and v != NULL_VALUES.get(attr, None):
@@ -672,9 +672,9 @@ class Metadata:
         return str(v/divide_by)
 
     def format_field(self, key, series_with_index=True):
-        '''
+        """
         Returns the tuple (display_name, formatted_value)
-        '''
+        """
         name, val, _ign, _ign = self.format_field_extended(key, series_with_index)
         return name, val
 
@@ -775,10 +775,10 @@ class Metadata:
         return (None, None, None, None)
 
     def __unicode__representation__(self):
-        '''
+        """
         A string representation of this object, suitable for printing to
         console
-        '''
+        """
         from calibre.ebooks.metadata import authors_to_string
         from calibre.utils.date import isoformat
         ans = []
@@ -825,9 +825,9 @@ class Metadata:
         return '\n'.join(ans)
 
     def to_html(self):
-        '''
+        """
         A HTML representation of this object.
-        '''
+        """
         from calibre.ebooks.metadata import authors_to_string
         from calibre.utils.date import isoformat
         ans = [(_('Title'), str(self.title))]
@@ -864,8 +864,8 @@ class Metadata:
 
 
 def field_from_string(field, raw, field_metadata):
-    ''' Parse the string raw to return an object that is suitable for calling
-    set() on a Metadata object. '''
+    """ Parse the string raw to return an object that is suitable for calling
+    set() on a Metadata object. """
     dt = field_metadata['datatype']
     val = object
     if dt in {'int', 'float'}:
@@ -902,11 +902,11 @@ def field_from_string(field, raw, field_metadata):
 
 
 def get_model_metadata_instance():
-    '''
+    """
     Get a metadata instance that contains all the fields in the current database
     with the fields to a plausible value. This function must only be used in
     the GUI thread.
-    '''
+    """
     from calibre.gui2 import is_gui_thread
     if not is_gui_thread():
         raise ValueError('get_model_metadata_instance() must only be used in the GUI thread')

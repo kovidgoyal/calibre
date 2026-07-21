@@ -650,10 +650,10 @@ class TagsView(QTreeView):  # {{{
         self._toggle(index, None)
 
     def _toggle(self, index, set_to):
-        '''
+        """
         set_to: if None, advance the state. Otherwise must be one of the values
         in TAG_SEARCH_STATES
-        '''
+        """
         exclusive = QApplication.keyboardModifiers() not in (Qt.KeyboardModifier.ControlModifier, Qt.KeyboardModifier.ShiftModifier)
         if self._model.toggle(index, exclusive, set_to=set_to):
             # Reset the focus back to TB if it has it before the toggle
@@ -677,12 +677,12 @@ class TagsView(QTreeView):  # {{{
                              key=None, index=None, search_state=None,
                              is_first_letter=False, ignore_vl=False,
                              extra=None):
-        '''
+        """
         action: a string specifying the operation
         category: the human readable label for the category
         key: the lookup name for the category
         index: the index of the item, if there is one.
-        '''
+        """
         if not action:
             return
         from calibre.gui2.ui import get_gui
@@ -1632,10 +1632,10 @@ class TagsView(QTreeView):  # {{{
         self.recount()
 
     def recount(self, *args):
-        '''
+        """
         Rebuild the category tree, expand any categories that were expanded,
         reset the search states, and reselect the current node.
-        '''
+        """
         if self.disable_recounting or not self.pane_is_visible:
             return
         self.refresh_signal_processed = True
@@ -1671,11 +1671,11 @@ class TagsView(QTreeView):  # {{{
 
     def show_item_at_path(self, path, box=False,
                           position=QAbstractItemView.ScrollHint.PositionAtCenter):
-        '''
+        """
         Scroll the browser and open categories to show the item referenced by
         path. If possible, the item is placed in the center. If box=True, a
         box is drawn around the item.
-        '''
+        """
         if path:
             self.show_item_at_index(self._model.index_for_path(path), box=box,
                                     position=position)
@@ -1699,16 +1699,16 @@ class TagsView(QTreeView):  # {{{
                 self._model.set_boxed(idx)
 
     def item_expanded(self, idx):
-        '''
+        """
         Called by the expanded signal
-        '''
+        """
         self.setCurrentIndex(idx)
         self.current_expansion = (self.isExpanded(idx), self._model.named_path_for_index(idx))
 
     def item_collapsed(self, idx):
-        '''
+        """
         Called by the collapsed signal
-        '''
+        """
         self.current_expansion = (self.isExpanded(idx), self._model.named_path_for_index(idx))
 
     def currentChanged(self, current, previous):

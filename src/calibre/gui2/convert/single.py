@@ -76,7 +76,7 @@ class GroupModel(QAbstractListModel):
 
 
 class Config(QDialog):
-    '''
+    """
     Configuration dialog for single book conversion. If accepted, has the
     following important attributes
 
@@ -86,7 +86,7 @@ class Config(QDialog):
     cover_path - Path to user specified cover (can be None)
     recommendations - A pickled list of 3 tuples in the same format as the
     recommendations member of the Input/Output plugins.
-    '''
+    """
 
     def __init__(self, parent, db, book_id,
             preferred_input_format=None, preferred_output_format=None):

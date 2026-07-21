@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 
 
 def path_in_archive_root(root, path):
-    ' Resolve a path from archive metadata, returning None if it leaves root. '
+    " Resolve a path from archive metadata, returning None if it leaves root. "
     import os
 
     from calibre.utils.filenames import is_path_inside, path_from_root

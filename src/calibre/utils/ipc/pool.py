@@ -135,18 +135,18 @@ class Pool(Thread):
         self.start()
 
     def set_common_data(self, data=None):
-        ''' Set some data that will be passed to all subsequent jobs without
+        """ Set some data that will be passed to all subsequent jobs without
         needing to be transmitted every time. You must call this method before
         queueing any jobs, otherwise the behavior is undefined. You can call it
         after all jobs are done, then it will be used for the new round of
         jobs. Can raise the :class:`Failure` exception is data could not be
-        sent to workers.'''
+        sent to workers."""
         if self.failed:
             raise Failure(self.terminal_failure)
         self.events.put(data)
 
     def __call__(self, job_id, module, func, *args, **kwargs):
-        '''
+        """
         Schedule a job. The job will be run in a worker process, with the
         result placed in self.results. If a terminal failure has occurred
         previously, this method will raise the :class:`Failure` exception.
@@ -157,7 +157,7 @@ class Pool(Thread):
                        Source code is detected by the presence of newlines in module.
         :param func: Name of the function from ``module`` that will be
                      executed. ``args`` and ``kwargs`` will be passed to the function.
-        '''
+        """
         if self.failed:
             raise Failure(self.terminal_failure)
         job = Job(job_id, module, func, args, kwargs)
@@ -165,10 +165,10 @@ class Pool(Thread):
         self.events.put(job)
 
     def wait_for_tasks(self, timeout=None):
-        ''' Wait for all queued jobs to be completed, if timeout is not None,
+        """ Wait for all queued jobs to be completed, if timeout is not None,
         will raise a RuntimeError if jobs are not completed in the specified
         time. Will raise a :class:`Failure` exception if a terminal failure has
-        occurred previously. '''
+        occurred previously. """
         if self.failed:
             raise Failure(self.terminal_failure)
         if timeout is None:
@@ -177,8 +177,8 @@ class Pool(Thread):
             join_with_timeout(self.tracker, timeout)
 
     def shutdown(self, wait_time=0.1):
-        ''' Shutdown this pool, terminating all worker process. The pool cannot
-        be used after a shutdown. '''
+        """ Shutdown this pool, terminating all worker process. The pool cannot
+        be used after a shutdown. """
         self.shutting_down = True
         self.events.put(None)
         self.shutdown_workers(wait_time=wait_time)

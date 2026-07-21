@@ -1,6 +1,6 @@
-'''
+"""
 Fetch The Oldie (Online Edition)
-'''
+"""
 
 import re
 from datetime import datetime

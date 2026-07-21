@@ -1,6 +1,6 @@
-'''
+"""
 Read the header data from a pdb file.
-'''
+"""
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'
@@ -71,9 +71,9 @@ class PdbHeaderBuilder:
         self.title = b'%s\x00' % re.sub(br'[^-A-Za-z0-9 ]+', b'_', title).ljust(31, b'\x00')[:31]
 
     def build_header(self, section_lengths, out_stream):
-        '''
+        """
         section_lengths = Length of each section in file.
-        '''
+        """
 
         now = int(time.time())
         nrecords = len(section_lengths)

@@ -10,14 +10,14 @@ from calibre.gui2.dialogs.choose_format_device_ui import Ui_ChooseFormatDeviceDi
 class ChooseFormatDeviceDialog(QDialog, Ui_ChooseFormatDeviceDialog):
 
     def __init__(self, window, msg, formats):
-        '''
+        """
         formats is a list of tuples: [(format, exists, convertible)].
             format: Lower case format identifier. E.G. mobi
             exists: String representing the number of books that
                     exist in the format.
             convertible: True if the format is a convertible format.
         formats should be ordered in the device's preferred format ordering.
-        '''
+        """
         QDialog.__init__(self, window)
         Ui_ChooseFormatDeviceDialog.__init__(self)
         self.setupUi(self)

@@ -95,7 +95,7 @@ def beautify_text(raw, syntax):
 
 class LineNumberMap(dict):  # {{{
 
-    'Map line numbers and keep track of the maximum width of the line numbers'
+    "Map line numbers and keep track of the maximum width of the line numbers"
 
     def __new__(cls):
         self = dict.__new__(cls)
@@ -233,8 +233,8 @@ class TextBrowser(PlainTextEdit):  # {{{
         self.line_activated.emit(name, lnum, bool(self.right))
 
     def search(self, query, reverse=False):
-        ''' Search for query, also searching the headers. Matches in headers
-        are not highlighted as managing the highlight is too much of a pain.'''
+        """ Search for query, also searching the headers. Matches in headers
+        are not highlighted as managing the highlight is too much of a pain."""
         if not query.strip():
             return
         c = self.textCursor()
@@ -454,7 +454,7 @@ class DiffSplitHandle(QSplitterHandle):  # {{{
         C = 16  # Curve factor.
 
         def create_line(ly, ry, right_to_left=False):
-            ' Create path that represents upper or lower line of change marker '
+            " Create path that represents upper or lower line of change marker "
             line = QPainterPath()
             if not right_to_left:
                 line.moveTo(0, ly)
@@ -662,7 +662,7 @@ class DiffSplit(QSplitter):  # {{{
         QApplication.processEvents(QEventLoop.ProcessEventsFlag.ExcludeUserInputEvents | QEventLoop.ProcessEventsFlag.ExcludeSocketNotifiers)
 
     def resized(self):
-        ' Resize images to fit in new view size and adjust all line number references accordingly '
+        " Resize images to fit in new view size and adjust all line number references accordingly "
         for v in (self.left, self.right):
             changes = []
             for i, (top, bot, kind) in enumerate(v.changes):
@@ -777,7 +777,7 @@ class DiffSplit(QSplitter):  # {{{
         del self.changes
 
     def coalesce_changes(self):
-        'Merge neighboring changes of the same kind, if any'
+        "Merge neighboring changes of the same kind, if any"
         changes = []
         for x in self.changes:
             if changes and changes[-1].kind == x.kind:
@@ -812,10 +812,10 @@ class DiffSplit(QSplitter):  # {{{
             rtop=start_block, rbot=current_block, ltop=l, lbot=l, kind='insert'))
 
     def trim_identical_leading_lines(self, alo, ahi, blo, bhi):
-        ''' The patience diff algorithm sometimes results in a block of replace
+        """ The patience diff algorithm sometimes results in a block of replace
         lines with identical leading lines. Remove these. This can cause extra
         lines of context, but that is better than having extra lines of diff
-        with no actual changes. '''
+        with no actual changes. """
         a, b = self.left_lines, self.right_lines
         leading = 0
         while alo < ahi and blo < bhi and a[alo] == b[blo]:
@@ -827,10 +827,10 @@ class DiffSplit(QSplitter):  # {{{
         return alo, ahi, blo, bhi
 
     def replace(self, alo, ahi, blo, bhi):
-        ''' When replacing one block of lines with another, search the blocks
+        """ When replacing one block of lines with another, search the blocks
         for *similar* lines; the best-matching pair (if any) is used as a synch
         point, and intraline difference marking is done on the similar pair.
-        Lots of work, but often worth it.  '''
+        Lots of work, but often worth it.  """
         alo, ahi, blo, bhi = self.trim_identical_leading_lines(alo, ahi, blo, bhi)
         if alo == ahi and blo == bhi:
             return

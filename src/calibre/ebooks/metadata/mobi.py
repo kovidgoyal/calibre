@@ -137,7 +137,7 @@ class MetadataUpdater:
         self.fetchEXTHFields()
 
     def fetchDRMdata(self):
-        ''' Fetch the DRM keys '''
+        """ Fetch the DRM keys """
         drm_offset = int(unpack('>I', self.record0[0xa8:0xac])[0])
         self.drm_key_count = int(unpack('>I', self.record0[0xac:0xb0])[0])
         drm_keys = b''

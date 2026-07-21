@@ -67,9 +67,9 @@ def cnv_boolean(attribute, arg, element):
 # Potentially accept color values
 
 def cnv_color(attribute, arg, element):
-    ''' A RGB color in conformance with §5.9.11 of [XSL], that is a RGB color in notation “#rrggbb”, where
+    """ A RGB color in conformance with §5.9.11 of [XSL], that is a RGB color in notation “#rrggbb”, where
         rr, gg and bb are 8-bit hexadecimal digits.
-    '''
+    """
     return str(arg)
 
 
@@ -89,16 +89,16 @@ def cnv_data_source_has_labels(attribute, arg, element):
 # Understand different date formats
 
 def cnv_date(attribute, arg, element):
-    ''' A dateOrDateTime value is either an [xmlschema-2] date value or an [xmlschema-2] dateTime
+    """ A dateOrDateTime value is either an [xmlschema-2] date value or an [xmlschema-2] dateTime
         value.
-    '''
+    """
     return str(arg)
 
 
 def cnv_dateTime(attribute, arg, element):
-    ''' A dateOrDateTime value is either an [xmlschema-2] date value or an [xmlschema-2] dateTime
+    """ A dateOrDateTime value is either an [xmlschema-2] date value or an [xmlschema-2] dateTime
         value.
-    '''
+    """
     return str(arg)
 
 
@@ -111,7 +111,7 @@ def cnv_duration(attribute, arg, element):
 
 
 def cnv_family(attribute, arg, element):
-    ''' A style family '''
+    """ A style family """
     if str(arg) not in ('text', 'paragraph', 'section', 'ruby', 'table', 'table-column', 'table-row', 'table-cell',
       'graphic', 'presentation', 'drawing-page', 'chart'):
         raise ValueError(f"'{arg!s}' not allowed")
@@ -130,11 +130,11 @@ def __save_prefix(attribute, arg, element):
 
 
 def cnv_formula(attribute, arg, element):
-    ''' A string containing a formula. Formulas do not have a predefined syntax, but the string should
+    """ A string containing a formula. Formulas do not have a predefined syntax, but the string should
         begin with a namespace prefix, followed by a “:” (COLON, U+003A) separator, followed by the text
         of the formula. The namespace bound to the prefix determines the syntax and semantics of the
         formula.
-    '''
+    """
     return __save_prefix(attribute, arg, element)
 
 
@@ -160,9 +160,9 @@ pattern_length = re.compile(r'-?([0-9]+(\.[0-9]*)?|\.[0-9]+)((cm)|(mm)|(in)|(pt)
 
 
 def cnv_length(attribute, arg, element):
-    ''' A (positive or negative) physical length, consisting of magnitude and unit, in conformance with the
+    """ A (positive or negative) physical length, consisting of magnitude and unit, in conformance with the
         Units of Measure defined in §5.9.13 of [XSL].
-    '''
+    """
     global pattern_length
     if not pattern_length.match(arg):
         raise ValueError(f"'{arg}' is not a valid length")
@@ -207,9 +207,9 @@ def cnv_namespacedToken(attribute, arg, element):
 
 
 def cnv_NCName(attribute, arg, element):
-    ''' NCName is defined in http://www.w3.org/TR/REC-xml-names/#NT-NCName
+    """ NCName is defined in http://www.w3.org/TR/REC-xml-names/#NT-NCName
         Essentially an XML name minus ':'
-    '''
+    """
     if isinstance(arg, (str, bytes)):
         return make_NCName(arg)
     else:
@@ -1531,9 +1531,9 @@ attrconverters = {
 
 class AttrConverters:
     def convert(self, attribute, value, element):
-        ''' Based on the element, figures out how to check/convert the attribute value
+        """ Based on the element, figures out how to check/convert the attribute value
             All values are converted to string
-        '''
+        """
         conversion = attrconverters.get((attribute, element.qname), None)
         if conversion is not None:
             return conversion(attribute, value, element)

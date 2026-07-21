@@ -22,7 +22,7 @@ Option = namedtuple('Option', 'option, default, dest, action, help')
 
 
 class EPUB_MOBI(CatalogPlugin):
-    'EPUB catalog generator'
+    "EPUB catalog generator"
 
     name = 'Catalog_EPUB_MOBI'
     description = _('AZW3/EPUB/MOBI catalog generator')

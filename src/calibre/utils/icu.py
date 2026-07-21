@@ -100,32 +100,32 @@ def change_locale(locale=None):
 
 
 def primary_collator():
-    'Ignores case differences and accented chars'
+    "Ignores case differences and accented chars"
     return collator(strength=_icu.UCOL_PRIMARY)
 
 
 def primary_collator_without_punctuation():
-    'Ignores space and punctuation and case differences and accented chars'
+    "Ignores space and punctuation and case differences and accented chars"
     return collator(strength=_icu.UCOL_PRIMARY, ignore_alternate_chars=True)
 
 
 def sort_collator():
-    'Ignores case differences and recognizes numbers in strings (if the tweak is set)'
+    "Ignores case differences and recognizes numbers in strings (if the tweak is set)"
     return collator(strength=_icu.UCOL_SECONDARY, numeric=prefs['numeric_collation'])
 
 
 def non_numeric_sort_collator():
-    'Ignores case differences only'
+    "Ignores case differences only"
     return collator(strength=_icu.UCOL_SECONDARY, numeric=False)
 
 
 def numeric_collator():
-    'Uses natural sorting for numbers inside strings so something2 will sort before something10'
+    "Uses natural sorting for numbers inside strings so something2 will sort before something10"
     return collator(strength=_icu.UCOL_SECONDARY, numeric=True)
 
 
 def case_sensitive_collator():
-    'Always sorts upper case letter before lower case'
+    "Always sorts upper case letter before lower case"
     return collator(numeric=prefs['numeric_collation'], upper_first=True)
 
 

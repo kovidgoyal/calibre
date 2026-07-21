@@ -135,8 +135,8 @@ class EbookIterator(BookmarksMixin):
 
     def __enter__(self, processed=False, only_input_plugin=False,
                   run_char_count=True, read_anchor_map=True, view_kepub=False, read_links=True):
-        ''' Convert an ebook file into an exploded OEB book suitable for
-        display in viewers/preprocessing etc. '''
+        """ Convert an ebook file into an exploded OEB book suitable for
+        display in viewers/preprocessing etc. """
 
         self.delete_on_exit = []
         if self.use_tdir_in_cache:

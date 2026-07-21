@@ -158,9 +158,9 @@ class MyBlockingBusy(QDialog):  # {{{
         pass
 
     def on_progress_update(self, processed_steps):
-        '''
+        """
         This signal should be emitted if a step can be traced with numbers.
-        '''
+        """
         self.current_step_value += processed_steps
         self.current_step_pb.setValue(self.current_step_value)
 
@@ -170,10 +170,10 @@ class MyBlockingBusy(QDialog):  # {{{
             self.overall_pb.setValue(self.current_option)
 
     def on_progress_next_step_range(self, steps_of_progress):
-        '''
+        """
         If steps_of_progress equals 0 results this in a indetermined ProgressBar
         Otherwise the range is from 0..steps_of_progress
-        '''
+        """
         self.current_step_value = 0
         self.current_step_pb.setRange(0, steps_of_progress)
 

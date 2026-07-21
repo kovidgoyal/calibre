@@ -16,7 +16,7 @@ from calibre.utils.localization import _
 
 
 class TagCategories(QDialog, Ui_TagCategories):
-    '''
+    """
     The structure of user_categories stored in preferences is
       {cat_name: [ [name, category, v], [], [] ]}, cat_name: [ [name, cat, v] ...]}
     where name is the item name, category is where it came from (series, etc),
@@ -24,7 +24,7 @@ class TagCategories(QDialog, Ui_TagCategories):
 
     If you add a category, set v to zero. If you delete a category, ensure that
     both the name and the category match.
-    '''
+    """
 
     category_icons  = {'authors': QIcon.ic('user_profile.png'),
                        'series': QIcon.ic('series.png'),

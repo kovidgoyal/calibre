@@ -6,7 +6,7 @@ import os
 
 
 class ReadOnlyFileBuffer:
-    ''' A zero copy implementation of a file like object. Uses memoryviews for efficiency. '''
+    """ A zero copy implementation of a file like object. Uses memoryviews for efficiency. """
     is_close_frame: bool = False  # used by the srv code
 
     def __init__(self, raw: bytes, name: str = ''):
@@ -47,11 +47,11 @@ class ReadOnlyFileBuffer:
 
 
 def svg_path_to_painter_path(d):
-    '''
+    """
     Convert a tiny SVG 1.2 path into a QPainterPath.
 
     :param d: The value of the d attribute of an SVG <path> tag
-    '''
+    """
     from qt.core import QPainterPath
     cmd = last_cmd = b''
     path = QPainterPath()

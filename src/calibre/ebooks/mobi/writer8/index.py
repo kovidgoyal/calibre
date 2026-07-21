@@ -299,9 +299,9 @@ class GuideIndex(Index):
 
 
 class NCXIndex(Index):
-    ''' The commented out parts have been seen in NCX indexes from MOBI 6
+    """ The commented out parts have been seen in NCX indexes from MOBI 6
     periodicals. Since we have no MOBI 8 periodicals to reverse engineer, leave
-    it for now. '''
+    it for now. """
     # control_byte_count = 2
     tag_types = tuple(map(TagMeta, (
         ('offset',             1, 1, 1, 0),

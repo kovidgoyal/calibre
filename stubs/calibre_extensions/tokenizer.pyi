@@ -9,14 +9,14 @@ class Token:
     line: int
     column: int
     def __init__(self, type: str, as_css: str, value: Any, unit: str | None, line: int, column: int) -> None:
-        'Token'
+        "Token"
         pass
     def as_css(self) -> str:
-        'as_css() -> Return the CSS representation of this token'
+        "as_css() -> Return the CSS representation of this token"
         pass
 
 def tokenize_flat(css_source: str, ignore_comments: bool) -> list[Token]:
-    'tokenize_flat(css_source, ignore_comments)\n\n Convert CSS source into a flat list of tokens'
+    "tokenize_flat(css_source, ignore_comments)\n\n Convert CSS source into a flat list of tokens"
     pass
 
 def init(
@@ -39,9 +39,9 @@ def init(
     integer: str,
     string_tok: str,
 ) -> None:
-    'init()\n\nInitialize the module.'
+    "init()\n\nInitialize the module."
     pass
 
 def cleanup() -> None:
-    'cleanup()\n\nRelease resources allocated by init(). Safe to call multiple times.'
+    "cleanup()\n\nRelease resources allocated by init(). Safe to call multiple times."
     pass

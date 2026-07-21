@@ -121,10 +121,10 @@ class WinFonts:
         return ans
 
     def add_system_font(self, path):
-        '''
+        """
         WARNING: The file you are adding must have execute permissions or
         windows will fail to add it. (ls -l in cygwin to check)
-        '''
+        """
         if isinstance(path, bytes):
             path = path.decode(filesystem_encoding)
         path = os.path.abspath(path)

@@ -85,11 +85,11 @@ every time you add an HTML file to the library.\
         'include: utf-8, cp1252, cp1251 and latin1.')
 
     def do_user_config(self, parent=None):
-        '''
+        """
         This method shows a configuration dialog for this plugin. It returns
         True if the user clicks OK, False otherwise. The changes are
         automatically applied.
-        '''
+        """
         import json
 
         from qt.core import QCheckBox, QDialog, QDialogButtonBox, QLabel, QLineEdit, Qt, QVBoxLayout

@@ -18,21 +18,21 @@ import os
 
 
 def get_memory():
-    'Return memory usage in bytes'
+    "Return memory usage in bytes"
     # See https://pythonhosted.org/psutil/#psutil.Process.memory_info
     import psutil
     return psutil.Process(os.getpid()).memory_info().rss
 
 
 def memory(since=0.0):
-    'Return memory used in MB. The value of since is subtracted from the used memory'
+    "Return memory used in MB. The value of since is subtracted from the used memory"
     ans = get_memory()
     ans /= float(1024**2)
     return ans - since
 
 
 def gc_histogram():
-    '''Returns per-class counts of existing objects.'''
+    """Returns per-class counts of existing objects."""
     result = {}
     for o in gc.get_objects():
         t = type(o)
@@ -42,7 +42,7 @@ def gc_histogram():
 
 
 def diff_hists(h1, h2):
-    '''Prints differences between two results of gc_histogram().'''
+    """Prints differences between two results of gc_histogram()."""
     for k in h1:
         if k not in h2:
             h2[k] = 0

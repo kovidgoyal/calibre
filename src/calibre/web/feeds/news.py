@@ -63,12 +63,12 @@ class DownloadDenied(ValueError):
 
 
 class BasicNewsRecipe(Recipe):
-    '''
+    """
     Base class that contains logic needed in all recipes. By overriding
     progressively more of the functionality in this class, you can make
     progressively more customized/powerful recipes. For a tutorial introduction
     to creating recipes, see :doc:`news`.
-    '''
+    """
 
     #: The title to use for the e-book
     title                  = _('Unknown News Source')
@@ -446,52 +446,52 @@ class BasicNewsRecipe(Recipe):
         return force_unicode(self.title, preferred_encoding)
 
     def is_link_wanted(self, url, tag):
-        '''
+        """
         Return True if the link should be followed or False otherwise. By
         default, raises NotImplementedError which causes the downloader to
         ignore it.
 
         :param url: The URL to be followed
         :param tag: The tag from which the URL was derived
-        '''
+        """
         raise NotImplementedError()
 
     def get_extra_css(self):
-        '''
+        """
         By default returns `self.extra_css`. Override if you want to programmatically generate the
         extra_css.
-        '''
+        """
         return self.extra_css
 
     def get_cover_url(self):
-        '''
+        """
         Return a :term:`URL` to the cover image for this issue or `None`.
         By default it returns the value of the member `self.cover_url` which
         is normally `None`. If you want your recipe to download a cover for the e-book
         override this method in your subclass, or set the member variable `self.cover_url`
         before this method is called.
-        '''
+        """
         return getattr(self, 'cover_url', None)
 
     def get_masthead_url(self):
-        '''
+        """
         Return a :term:`URL` to the masthead image for this issue or `None`.
         By default it returns the value of the member `self.masthead_url` which
         is normally `None`. If you want your recipe to download a masthead for the e-book
         override this method in your subclass, or set the member variable `self.masthead_url`
         before this method is called.
         Masthead images are used in Kindle MOBI files.
-        '''
+        """
         return getattr(self, 'masthead_url', None)
 
     def get_feeds(self):
-        '''
+        """
         Return a list of :term:`RSS` feeds to fetch for this profile. Each element of the list
         must be a 2-element tuple of the form (title, url). If title is None or an
         empty string, the title from the feed is used. This method is useful if your recipe
         needs to do some processing to figure out the list of feeds to download. If
         so, override in your subclass.
-        '''
+        """
         if not self.feeds:
             raise NotImplementedError()
         if self.test:
@@ -499,18 +499,18 @@ class BasicNewsRecipe(Recipe):
         return self.feeds
 
     def get_url_specific_delay(self, url):
-        '''
+        """
         Return the delay in seconds before downloading this URL. If you want to programmatically
         determine the delay for the specified URL, override this method in your subclass, returning
         self.delay by default for URLs you do not want to affect.
 
         :return: A floating point number, the delay in seconds.
-        '''
+        """
         return self.delay
 
     @classmethod
     def print_version(cls, url):
-        '''
+        """
         Take a `url` pointing to the webpage with article content and return the
         :term:`URL` pointing to the print version of the article. By default does
         nothing. For example::
@@ -518,28 +518,28 @@ class BasicNewsRecipe(Recipe):
             def print_version(self, url):
                 return url + '?&pagewanted=print'
 
-        '''
+        """
         raise NotImplementedError()
 
     @classmethod
     def image_url_processor(cls, baseurl, url):
-        '''
+        """
         Perform some processing on image urls (perhaps removing size restrictions for
         dynamically generated images, etc.) and return the processed URL. Return None
         or an empty string to skip fetching the image.
-        '''
+        """
         return url
 
     def preprocess_image(self, img_data, image_url):
-        '''
+        """
         Perform some processing on downloaded image data. This is called on the raw
         data before any resizing is done. Must return the processed raw data. Return
         None to skip the image.
-        '''
+        """
         return img_data
 
     def get_browser(self, *args, **kwargs):
-        '''
+        """
         Return a browser instance used to fetch documents from the web. By default
         it returns a `mechanize <https://mechanize.readthedocs.io/en/latest/>`_
         browser instance that supports cookies, ignores robots.txt, handles
@@ -568,7 +568,7 @@ class BasicNewsRecipe(Recipe):
                     br.submit()
                 return br
 
-        '''
+        """
         if 'user_agent' not in kwargs:
             # More and more news sites are serving JPEG XR images to IE
             ua = getattr(self, 'last_used_user_agent', None) or self.calibre_most_common_ua or random_user_agent(allow_ie=False)
@@ -585,7 +585,7 @@ class BasicNewsRecipe(Recipe):
         return br
 
     def clone_browser(self, br):
-        '''
+        """
         Clone the browser br. Cloned browsers are used for multi-threaded
         downloads, since mechanize is not thread safe. The default cloning
         routines should capture most browser customization, but if you do
@@ -594,7 +594,7 @@ class BasicNewsRecipe(Recipe):
 
         Cloned browser instances use the same, thread-safe CookieJar by
         default, unless you have customized cookie handling.
-        '''
+        """
         if callable(getattr(br, 'clone_browser', None)):
             return br.clone_browser()
 
@@ -612,7 +612,7 @@ class BasicNewsRecipe(Recipe):
         return br
 
     def get_article_url(self, article):
-        '''
+        """
         Override in a subclass to customize extraction of the :term:`URL` that points
         to the content for each article. Return the
         article URL. It is called with `article`, an object representing a parsed article
@@ -621,7 +621,7 @@ class BasicNewsRecipe(Recipe):
         service like FeedBurner or Pheedo) and if found,
         returns that or else returns
         `article.link <https://pythonhosted.org/feedparser/reference-entry-link.html>`_.
-        '''
+        """
         for key in article.keys():
             if key.endswith('_origlink'):
                 url = article[key]
@@ -636,7 +636,7 @@ class BasicNewsRecipe(Recipe):
         return ans
 
     def skip_ad_pages(self, soup):
-        '''
+        """
         This method is called with the source of each downloaded :term:`HTML` file, before
         any of the cleanup attributes like remove_tags, keep_only_tags are
         applied. Note that preprocess_regexps will have already been applied.
@@ -646,17 +646,17 @@ class BasicNewsRecipe(Recipe):
 
         `soup`: A `BeautifulSoup <https://www.crummy.com/software/BeautifulSoup/bs4/doc/>`__
         instance containing the downloaded :term:`HTML`.
-        '''
+        """
         return
 
     def abort_article(self, msg=None):
-        ''' Call this method inside any of the preprocess methods to abort the
+        """ Call this method inside any of the preprocess methods to abort the
         download for the current article. Useful to skip articles that contain
-        inappropriate content, such as pure video articles. '''
+        inappropriate content, such as pure video articles. """
         raise AbortArticle(msg or _('Article download aborted'))
 
     def preprocess_raw_html(self, raw_html, url):
-        '''
+        """
         This method is called with the source of each downloaded :term:`HTML` file, before
         it is parsed into an object tree. raw_html is a unicode string
         representing the raw HTML downloaded from the web. url is the URL from
@@ -665,7 +665,7 @@ class BasicNewsRecipe(Recipe):
         Note that this method acts *before* preprocess_regexps.
 
         This method must return the processed raw_html as a unicode object.
-        '''
+        """
         return raw_html
 
     def preprocess_raw_html_(self, raw_html, url):
@@ -679,7 +679,7 @@ class BasicNewsRecipe(Recipe):
         return raw_html
 
     def preprocess_html(self, soup):
-        '''
+        """
         This method is called with the source of each downloaded :term:`HTML` file, before
         it is parsed for links and images. It is called after the cleanup as
         specified by remove_tags etc.
@@ -688,11 +688,11 @@ class BasicNewsRecipe(Recipe):
 
         `soup`: A `BeautifulSoup <https://www.crummy.com/software/BeautifulSoup/bs4/doc/>`__
         instance containing the downloaded :term:`HTML`.
-        '''
+        """
         return soup
 
     def postprocess_html(self, soup, first_fetch):
-        '''
+        """
         This method is called with the source of each downloaded :term:`HTML` file, after
         it is parsed for links and images.
         It can be used to do arbitrarily powerful post-processing on the :term:`HTML`.
@@ -701,18 +701,18 @@ class BasicNewsRecipe(Recipe):
         :param soup: A `BeautifulSoup <https://www.crummy.com/software/BeautifulSoup/bs4/doc/>`__  instance containing the downloaded :term:`HTML`.
         :param first_fetch: True if this is the first page of an article.
 
-        '''
+        """
         return soup
 
     def cleanup(self):
-        '''
+        """
         Called after all articles have been download. Use it to do any cleanup like
         logging out of subscription sites, etc.
-        '''
+        """
         pass
 
     def canonicalize_internal_url(self, url, is_link=True):
-        '''
+        """
         Return a set of canonical representations of ``url``.  The default
         implementation uses just the server hostname and path of the URL,
         ignoring any query parameters, fragments, etc. The canonical
@@ -722,7 +722,7 @@ class BasicNewsRecipe(Recipe):
         :param is_link: Is True if the URL is coming from an internal link in
                         an HTML file. False if the URL is the URL used to
                         download an article.
-        '''
+        """
         try:
             parts = urlparse(url)
         except Exception:
@@ -737,13 +737,13 @@ class BasicNewsRecipe(Recipe):
         return frozenset({(nl, path.rstrip('/'))})
 
     def index_to_soup(self, url_or_raw, raw=False, as_tree=False, save_raw=None):
-        '''
+        """
         Convenience method that takes an URL to the index page and returns
         a `BeautifulSoup <https://www.crummy.com/software/BeautifulSoup/bs4/doc>`__
         of it.
 
         `url_or_raw`: Either a URL or the downloaded index page as a string
-        '''
+        """
         if re.match((br'\w+://' if isinstance(url_or_raw, bytes) else r'\w+://'), url_or_raw):
             # We may be called in a thread (in the skip_ad_pages method), so
             # clone the browser to be safe. We cannot use self.cloned_browser
@@ -780,10 +780,10 @@ class BasicNewsRecipe(Recipe):
         return BeautifulSoup(_raw)
 
     def extract_readable_article(self, html, url):
-        '''
+        """
         Extracts main article content from 'html', cleans up and returns as a (article_html, extracted_title) tuple.
         Based on the original readability algorithm by Arc90.
-        '''
+        """
         from lxml.html import HtmlElement, tostring
 
         from calibre.ebooks.readability import readability
@@ -826,7 +826,7 @@ class BasicNewsRecipe(Recipe):
         return raw_html
 
     def sort_index_by(self, index, weights):
-        '''
+        """
         Convenience method to sort the titles in `index` according to `weights`.
         `index` is sorted in place. Returns `index`.
 
@@ -834,7 +834,7 @@ class BasicNewsRecipe(Recipe):
 
         `weights`: A dictionary that maps weights to titles. If any titles
         in index are not in weights, they are assumed to have a weight of 0.
-        '''
+        """
         weights = defaultdict(int, weights)
         index.sort(key=lambda x: weights[x])
         return index
@@ -873,16 +873,16 @@ class BasicNewsRecipe(Recipe):
         raise NotImplementedError()
 
     def abort_recipe_processing(self, msg):
-        '''
+        """
         Causes the recipe download system to abort the download of this recipe,
         displaying a simple feedback message to the user.
-        '''
+        """
         from calibre.ebooks.conversion import ConversionUserFeedBack
         raise ConversionUserFeedBack(_('Failed to download %s')%self.title,
                 msg)
 
     def get_obfuscated_article(self, url):
-        '''
+        """
         If you set `articles_are_obfuscated` this method is called with
         every article URL. It should return the path to a file on the filesystem
         that contains the article HTML. That file is processed by the recursive
@@ -895,18 +895,18 @@ class BasicNewsRecipe(Recipe):
 
         This method is typically useful for sites that try to make it difficult to
         access article content automatically.
-        '''
+        """
         raise NotImplementedError()
 
     def add_toc_thumbnail(self, article, src):
-        '''
+        """
         Call this from populate_article_metadata with the src attribute of an
         <img> tag from the article that is appropriate for use as the thumbnail
         representing the article in the Table of Contents. Whether the
         thumbnail is actually used is device dependent (currently only used by
         the Kindles). Note that the referenced image must be one that was
         successfully downloaded, otherwise it will be ignored.
-        '''
+        """
         if not src or not hasattr(article, 'toc_thumbnail'):
             return
 
@@ -918,7 +918,7 @@ class BasicNewsRecipe(Recipe):
                 src, flags=re.IGNORECASE)
 
     def populate_article_metadata(self, article, soup, first):
-        '''
+        """
         Called when each HTML page belonging to article is downloaded.
         Intended to be used to get article metadata like author/summary/etc.
         from the parsed HTML (soup).
@@ -927,25 +927,25 @@ class BasicNewsRecipe(Recipe):
             If you change the summary, remember to also change the text_summary
         :param soup: Parsed HTML belonging to this article
         :param first: True iff the parsed HTML is the first page of the article.
-        '''
+        """
         pass
 
     def postprocess_book(self, oeb, opts, log):
-        '''
+        """
         Run any needed post processing on the parsed downloaded e-book.
 
         :param oeb: An OEBBook object
         :param opts: Conversion options
-        '''
+        """
         pass
 
     def __init__(self, options, log, progress_reporter):
-        '''
+        """
         Initialize the recipe.
         :param options: Parsed commandline options
         :param log:  Logging object
         :param progress_reporter: A Callable that takes two arguments: progress (a number between 0 and 1) and a string message. The message should be optional.
-        '''
+        """
         self.log = ThreadSafeWrapper(log)
         if not isinstance(self.title, str):
             self.title = str(self.title, 'utf-8', 'replace')
@@ -1114,12 +1114,12 @@ class BasicNewsRecipe(Recipe):
         return ans
 
     def download(self):
-        '''
+        """
         Download and pre-process all articles from the feeds in this recipe.
         This method should be called only once on a particular Recipe instance.
         Calling it more than once will lead to undefined behavior.
         :return: Path to index.html
-        '''
+        """
         try:
             res = self.build_index()
             self.report_progress(1, _('Download finished'))
@@ -1494,9 +1494,9 @@ class BasicNewsRecipe(Recipe):
                 self.masthead_path = None
 
     def default_cover(self, cover_file):
-        '''
+        """
         Create a generic cover for recipes that don't have a cover
-        '''
+        """
         try:
             from calibre.ebooks.covers import create_cover
             title = self.title if isinstance(self.title, str) else \
@@ -1511,7 +1511,7 @@ class BasicNewsRecipe(Recipe):
         return True
 
     def get_masthead_title(self):
-        'Override in subclass to use something other than the recipe title'
+        "Override in subclass to use something other than the recipe title"
         return self.title
 
     MI_WIDTH = 600
@@ -1526,11 +1526,11 @@ class BasicNewsRecipe(Recipe):
         prepare_masthead_image(path_to_image, out_path, self.MI_WIDTH, self.MI_HEIGHT)
 
     def publication_date(self):
-        '''
+        """
         Use this method to set the date when this issue was published.
         Defaults to the moment of download. Must return a :class:`datetime.datetime`
         object.
-        '''
+        """
         return nowf()
 
     def create_opf(self, feeds, dir=None):
@@ -1739,10 +1739,10 @@ class BasicNewsRecipe(Recipe):
             self.failed_downloads.append((request.feed, request.article, traceback))
 
     def parse_feeds(self):
-        '''
+        """
         Create a list of articles from the list of feeds returned by :meth:`BasicNewsRecipe.get_feeds`.
         Return a list of :class:`Feed` objects.
-        '''
+        """
         feeds = self.get_feeds()
         parsed_feeds = []
         br = self.browser
@@ -1794,7 +1794,7 @@ class BasicNewsRecipe(Recipe):
 
     @classmethod
     def tag_to_string(self, tag, use_alt=True, normalize_whitespace=True):
-        '''
+        """
         Convenience method to take a
         `BeautifulSoup <https://www.crummy.com/software/BeautifulSoup/bs4/doc/>`_
         :code:`Tag` and extract the text from it recursively, including any CDATA sections
@@ -1805,7 +1805,7 @@ class BasicNewsRecipe(Recipe):
 
         `tag`: `BeautifulSoup <https://www.crummy.com/software/BeautifulSoup/bs4/doc/>`_
         :code:`Tag`
-        '''
+        """
         if tag is None:
             return ''
         if isinstance(tag, (str, bytes)):
@@ -1838,11 +1838,11 @@ class BasicNewsRecipe(Recipe):
 
     @classmethod
     def adeify_images(cls, soup):
-        '''
+        """
         If your recipe when converted to EPUB has problems with images when
         viewed in Adobe Digital Editions, call this method from within
         :meth:`postprocess_html`.
-        '''
+        """
         for item in soup.findAll('img'):
             for attrib in ['height','width','border','align','style']:
                 try:

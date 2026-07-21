@@ -81,11 +81,11 @@ class SaveTemplate(QWidget, Ui_Form):
         self.changed_signal.emit()
 
     def validate(self):
-        '''
+        """
         Do a syntax check on the format string. Doing a semantic check
         (verifying that the fields exist) is not useful in the presence of
         custom fields, because they may or may not exist.
-        '''
+        """
         tmpl = preprocess_template(self.opt_template.text())
         # Allow PTM or GPM templates without checking
         if tmpl.startswith(('program:', 'python:')):

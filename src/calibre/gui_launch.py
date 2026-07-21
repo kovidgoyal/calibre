@@ -155,7 +155,7 @@ def toc_dialog(**kw):
 
 @media_pack_error_check
 def gui_ebook_edit(path=None, notify=None):
-    ' For launching the editor from inside calibre '
+    " For launching the editor from inside calibre "
     from calibre.gui2.tweak_book.main import gui_main
     setup_qt_logging()
     gui_main(path, notify)

@@ -14,7 +14,7 @@ from calibre.ebooks.oeb.polish.toc import elem_to_toc_text
 
 
 def from_headings(body, log, namespace, num_levels=3):
-    ' Create a TOC from headings in the document '
+    " Create a TOC from headings in the document "
     tocroot = TOC()
     all_heading_nodes = body.xpath('//*[@data-heading-level]')
     level_prev = {i+1:None for i in range(num_levels)}

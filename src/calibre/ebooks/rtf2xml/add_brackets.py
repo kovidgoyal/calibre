@@ -21,20 +21,20 @@ from . import open_for_read, open_for_write
 
 
 class AddBrackets:
-    '''
+    """
     Add brackets for old RTF.
     Logic:
     When control words without their own brackets are encountered
     and in the list of allowed words, this will add brackets
     to facilitate the treatment of the file
-    '''
+    """
 
     def __init__(self, in_file,
             bug_handler,
             copy=None,
             run_level=1,
             ):
-        '''
+        """
         Required:
             'file'--file to parse
         Optional:
@@ -43,7 +43,7 @@ class AddBrackets:
             directory from which the script is run.)
         Returns:
             nothing
-        '''
+        """
         self.__file = in_file
         self.__bug_handler = bug_handler
         self.__copy = copy
@@ -86,9 +86,9 @@ class AddBrackets:
         ]
 
     def __initiate_values(self):
-        '''
+        """
         Init temp values
-        '''
+        """
         self.__state = 'before_body'
         self.__inline = {}
         self.__temp_group = []
@@ -96,15 +96,15 @@ class AddBrackets:
         self.__found_brackets = False
 
     def __before_body_func(self, line):
-        '''
+        """
         If we are before the body, not interest in changing anything
-        '''
+        """
         if self.__token_info == 'mi<mk<body-open_':
             self.__state = 'in_body'
         self.__write_obj.write(line)
 
     def __in_body_func(self, line):
-        '''
+        """
         Select what action to take in body:
             1-At the end of the file close the bracket if a bracket was opened
             This happens if there is achange
@@ -113,7 +113,7 @@ class AddBrackets:
             3-If an accepted control word is found put the line
             in a buffer then change state to after cw
             4-Else simply write the line
-        '''
+        """
         if line == 'cb<nu<clos-brack<0001\n' and self.__open_bracket:
             self.__write_obj.write(
                 'cb<nu<clos-brack<0003\n'
@@ -131,12 +131,12 @@ class AddBrackets:
             self.__write_obj.write(line)
 
     def __after_control_word_func(self, line):
-        '''
+        """
         After a cw either add next allowed cw to temporary list or
         change group and write it.
         If the token leading to an exit is an open bracket go to
         ignore otherwise goto in body
-        '''
+        """
         if self.__token_info in self.__accept:
             self.__temp_group.append(line)
         else:
@@ -150,13 +150,13 @@ class AddBrackets:
                 self.__state = 'in_body'
 
     def __write_group(self):
-        '''
+        """
         Write a temporary group after accepted control words end
         But this is mostly useless in my opinion as there is no list of rejected cw
         This may be a way to implement future old rtf processing for cw
         Utility: open a group to just put brackets but why be so complicated?
         Scheme: open brackets, write cw then go to body and back with cw after
-        '''
+        """
         if self.__open_bracket:
             self.__write_obj.write(
                 'cb<nu<clos-brack<0003\n'
@@ -173,36 +173,36 @@ class AddBrackets:
         self.__temp_group = []
 
     def __change_permanent_group(self):
-        '''
+        """
         Use temp group to change permanent group
         If the control word is not accepted remove it
         What is the interest as it is build to accept only accepted cw
         in __after_control_word_func?
-        '''
+        """
         self.__inline = {line[:16]: line[20:-1]
             for line in self.__temp_group\
             # Is this really necessary?
                 if line[:16] in self.__accept}
 
     def __ignore_func(self, line):
-        '''
+        """
         Just copy data inside of RTF brackets already here.
-        '''
+        """
         self.__write_obj.write(line)
         if self.__token_info == 'cb<nu<clos-brack'\
             and self.__cb_count == self.__ignore_count:
             self.__state = 'in_body'
 
     def __check_brackets(self, in_file):
-        '''
+        """
         Return True if brackets match
-        '''
+        """
         check_brack_obj = check_brackets.CheckBrackets(file=in_file)
         return check_brack_obj.check_brackets()[0]
 
     def add_brackets(self):
-        '''
-        '''
+        """
+        """
         self.__initiate_values()
         with open_for_read(self.__file) as read_obj:
             with open_for_write(self.__write_to) as self.__write_obj:

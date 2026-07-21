@@ -540,7 +540,7 @@ class BooksModel(QAbstractTableModel):  # {{{
         return Counts(library_total, total, self.count())
 
     def row_indices(self, index):
-        ''' Return list indices of all cells in index.row()'''
+        """ Return list indices of all cells in index.row()"""
         return [self.index(index.row(), c) for c in range(self.columnCount())]
 
     @property
@@ -773,10 +773,10 @@ class BooksModel(QAbstractTableModel):  # {{{
         return data
 
     def metadata_for(self, ids, get_cover=True):
-        '''
+        """
         WARNING: if get_cover=True temp files are created for mi.cover.
         Remember to delete them once you are done with them.
-        '''
+        """
         db = self.db
         assert db is not None
         ans = []
@@ -1995,9 +1995,9 @@ class DeviceBooksModel(BooksModel):  # {{{
                 book.device_collections.remove(old_name)
 
     def indices(self, rows):
-        '''
+        """
         Return indices into underlying database from rows
-        '''
+        """
         return [self.map[r.row()] for r in rows]
 
     def data(self, index, role=...):

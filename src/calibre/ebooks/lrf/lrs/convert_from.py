@@ -226,11 +226,11 @@ class LrsParser:
 
     @classmethod
     def tag_to_string(cls, tag):
-        '''
+        """
         Convenience method to take a BeautifulSoup Tag and extract the text from it
         recursively.
         @return: A unicode (possibly empty) object
-        '''
+        """
         if not tag:
             return ''
         strings = []

@@ -80,11 +80,11 @@ class CompositeProgressReporter:
 
 
 class Plumber:
-    '''
+    """
     The `Plumber` manages the conversion pipeline. An UI should call the methods
     :method:`merge_ui_recommendations` and then :method:`run`. The plumber will
     take care of the rest.
-    '''
+    """
 
     metadata_option_names = [
         'title', 'authors', 'title_sort', 'author_sort', 'cover', 'comments',
@@ -95,10 +95,10 @@ class Plumber:
     def __init__(self, input, output, log, report_progress=DummyReporter(),
             dummy=False, merge_plugin_recs=True, abort_after_input_dump=False,
             override_input_metadata=False, for_regex_wizard=False, view_kepub=False):
-        '''
+        """
         :param input: Path to input file.
         :param output: Path to output file/folder
-        '''
+        """
         if isinstance(input, bytes):
             input = input.decode(filesystem_encoding)
         if isinstance(output, bytes):
@@ -854,11 +854,11 @@ OptionRecommendation(name='search_replace',
             self.merge_plugin_recs(source)
 
     def merge_ui_recommendations(self, recommendations):
-        '''
+        """
         Merge recommendations from the UI. As long as the UI recommendation
         level is >= the baseline recommended level, the UI value is used,
         *except* if the baseline has a recommendation level of `HIGH`.
-        '''
+        """
 
         def eq(name, a, b):
             if name in {'sr1_search', 'sr1_replace', 'sr2_search', 'sr2_replace', 'sr3_search', 'sr3_replace', 'filter_css', 'comments'}:
@@ -920,10 +920,10 @@ OptionRecommendation(name='search_replace',
         return pt.name
 
     def read_user_metadata(self):
-        '''
+        """
         Read all metadata specified by the user. Command line options override
         metadata from a specified OPF file.
-        '''
+        """
         from calibre.ebooks.metadata import MetaInformation
         from calibre.ebooks.metadata.opf2 import OPF
         mi = MetaInformation(None, [])
@@ -945,9 +945,9 @@ OptionRecommendation(name='search_replace',
         self.user_metadata = mi
 
     def setup_options(self):
-        '''
+        """
         Setup the `self.opts` object.
-        '''
+        """
         self.opts = OptionValues()
         for group in (self.input_options, self.pipeline_options,
                   self.output_options, self.all_format_options):
@@ -1023,9 +1023,9 @@ OptionRecommendation(name='search_replace',
         self.log.info('Input debug saved to:', out_dir)
 
     def run(self):
-        '''
+        """
         Run the conversion pipeline
-        '''
+        """
         # Setup baseline option values
         self.setup_options()
         if self.opts.verbose:
@@ -1289,9 +1289,9 @@ def set_regex_wizard_callback(f):
 
 def create_oebbook(log, path_or_stream, opts, reader=None,
         encoding='utf-8', populate=True, for_regex_wizard=False, specialize=None, removed_items=()):
-    '''
+    """
     Create an OEBBook.
-    '''
+    """
     from calibre.ebooks.oeb.base import OEBBook
     html_preprocessor = HTMLPreProcessor(log, opts, regex_wizard_callback=regex_wizard_callback)
     if not encoding:

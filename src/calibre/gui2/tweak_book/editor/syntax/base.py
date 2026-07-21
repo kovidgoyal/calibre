@@ -177,7 +177,7 @@ class SyntaxHighlighter:
             QTimer.singleShot(0, self.do_one_block)
 
     def join(self):
-        ''' Blocks until all pending highlighting requests are handled '''
+        """ Blocks until all pending highlighting requests are handled """
         doc = self.doc
         if doc is None:
             self.requests.clear()

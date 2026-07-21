@@ -750,13 +750,13 @@ def scan_usb_devices():
 
 
 def get_drive_letters_for_device(usbdev, storage_number_map=None, debug=False):  # {{{
-    '''
+    """
     Get the drive letters for a connected device. The drive letters are sorted
     by storage number, which (I think) corresponds to the order they are
     exported by the firmware.
 
     :param usbdevice: As returned by :function:`scan_usb_devices`
-    '''
+    """
     ans = {'pnp_id_map': {}, 'drive_letters':[], 'readonly_drives':set(), 'sort_map':{}}
 
     sn_map = get_storage_number_map(debug=debug) if storage_number_map is None else storage_number_map
@@ -830,7 +830,7 @@ def get_drive_letters_for_device_single(usbdev, storage_number_map, debug=False)
 
 
 def get_storage_number_map(drive_types=(DRIVE_REMOVABLE, DRIVE_FIXED), debug=False):
-    ' Get a mapping of drive letters to storage numbers for all drives on system (of the specified types) '
+    " Get a mapping of drive letters to storage numbers for all drives on system (of the specified types) "
     mask = GetLogicalDrives()
     type_map = {letter:GetDriveType(letter + ':' + os.sep) for i, letter in enumerate(string.ascii_uppercase) if mask & (1 << i)}
     drives = (letter for letter, dt in type_map.items() if dt in drive_types)
@@ -849,7 +849,7 @@ def get_storage_number_map(drive_types=(DRIVE_REMOVABLE, DRIVE_FIXED), debug=Fal
 
 
 def get_storage_number_map_alt(debug=False):
-    ' Alternate implementation that works without needing to call GetDriveType() (which causes floppy drives to seek) '
+    " Alternate implementation that works without needing to call GetDriveType() (which causes floppy drives to seek) "
     wbuf = create_unicode_buffer(512)
     ans = defaultdict(list)
     for devinfo, devpath in DeviceSet().interfaces():
@@ -899,11 +899,11 @@ def is_usb_device_connected(vendor_id, product_id):  # {{{
 
 
 def get_usb_info(usbdev, debug=False):  # {{{
-    '''
+    """
     The USB info (manufacturer/product names and serial number) Requires communication with the hub the device is connected to.
 
     :param usbdev: A usb device as returned by :function:`scan_usb_devices`
-    '''
+    """
     ans = {}
     hub_map = {devinfo.DevInst:path for devinfo, path in DeviceSet(guid=GUID_DEVINTERFACE_USB_HUB).interfaces()}
     for parent in iterancestors(usbdev.devinst):
@@ -986,7 +986,7 @@ def get_device_string(hub_handle, device_port, index, buf=None, lang=0x409):
 
 
 def get_device_languages(hub_handle, device_port, buf=None):
-    ' Get the languages supported by the device for strings '
+    " Get the languages supported by the device for strings "
     buf = alloc_descriptor_buf(buf)
 
     def initbuf(b):

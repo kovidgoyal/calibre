@@ -58,7 +58,7 @@ pretty_print = PrettyPrint()
 
 class Resource:  # {{{
 
-    '''
+    """
     Represents a resource (usually a file on the filesystem or a URL pointing
     to the web. Such resources are commonly referred to in OPF files.
 
@@ -67,7 +67,7 @@ class Resource:  # {{{
     :member:`path`
     :member:`mime_type`
     :method:`href`
-    '''
+    """
 
     def __init__(self, href_or_path, basedir=os.getcwd(), is_path=True):
         self.orig = href_or_path
@@ -101,13 +101,13 @@ class Resource:  # {{{
                 self.fragment = url[-1]
 
     def href(self, basedir=None):
-        '''
+        """
         Return a URL pointing to this resource. If it is a file on the filesystem
         the URL is relative to `basedir`.
 
         `basedir`: If None, the basedir of this resource is used (see :method:`set_basedir`).
         If this resource has no basedir, then the current working directory is used as the basedir.
-        '''
+        """
         if basedir is None:
             if self._basedir:
                 basedir = self._basedir
@@ -172,7 +172,7 @@ class ResourceCollection:  # {{{
         self._resources.remove(resource)
 
     def replace(self, start, end, items):
-        'Same as list[start:end] = items'
+        "Same as list[start:end] = items"
         self._resources[start:end] = items
 
     @staticmethod
@@ -254,9 +254,9 @@ class Manifest(ResourceCollection):  # {{{
 
     @staticmethod
     def from_paths(entries):
-        '''
+        """
         `entries`: List of (path, mime-type) If mime-type is None it is autodetected
-        '''
+        """
         m = Manifest()
         for path, mt in entries:
             mi = ManifestItem(path, is_path=True)
@@ -349,10 +349,10 @@ class Spine(ResourceCollection):  # {{{
         self.manifest = manifest
 
     def replace(self, start, end, items):
-        '''
+        """
         Replace the items between start (inclusive) and end (not inclusive) with
         with the items identified by ids. ids can be a list of any length.
-        '''
+        """
         ids = items
         items = []
         for id in ids:
@@ -1426,12 +1426,12 @@ class OPF:  # {{{
 class OPFCreator(Metadata):
 
     def __init__(self, base_path, other):
-        '''
+        """
         Initialize.
         @param base_path: An absolute path to the folder in which this OPF file
         will eventually be. This is used by the L{create_manifest} method
         to convert paths to files into relative paths.
-        '''
+        """
         Metadata.__init__(self, title='', other=other)
         self.base_path = os.path.abspath(base_path)
         self.page_progression_direction = None
@@ -1448,11 +1448,11 @@ class OPFCreator(Metadata):
             self.guide.set_cover(self.cover)
 
     def create_manifest(self, entries):
-        '''
+        """
         Create <manifest>
 
         `entries`: List of (path, mime-type) If mime-type is None it is autodetected
-        '''
+        """
         entries = [x if os.path.isabs(x[0]) else
                       (os.path.abspath(os.path.join(self.base_path, x[0])), x[1]) for x in entries]
         self.manifest = Manifest.from_paths(entries)
@@ -1479,22 +1479,22 @@ class OPFCreator(Metadata):
         self.create_manifest(entries)
 
     def create_spine(self, entries):
-        '''
+        """
         Create the <spine> element. Must first call :method:`create_manifest`.
 
         `entries`: List of paths
-        '''
+        """
         entries = [x if os.path.isabs(x) else
                       os.path.abspath(os.path.join(self.base_path, x)) for x in entries]
         self.spine = Spine.from_paths(entries, self.manifest)
 
     def set_toc(self, toc):
-        '''
+        """
         Set the toc. You must call :method:`create_spine` before calling this
         method.
 
         :param toc: A :class:`TOC` object
-        '''
+        """
         self.toc = toc
 
     def create_guide(self, guide_element):

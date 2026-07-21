@@ -170,9 +170,9 @@ class Split:
         return page_breaks_, page_break_ids
 
     def fix_links(self):
-        '''
+        """
         Fix references to the split files in other content files.
-        '''
+        """
         seen = set()
         for item in self.oeb.manifest:
             if etree.iselement(item.data):
@@ -212,7 +212,7 @@ class Split:
 
 
 class FlowSplitter:
-    'The actual splitting logic'
+    "The actual splitting logic"
 
     def __init__(self, item, page_breaks, page_break_ids, max_flow_size, oeb,
             opts):
@@ -307,12 +307,12 @@ class FlowSplitter:
         return body[0]
 
     def do_split(self, tree, split_point, before):
-        '''
+        """
         Split ``tree`` into a *before* and *after* tree at ``split_point``.
 
         :param before: If True tree is split before split_point, otherwise after split_point
         :return: before_tree, after_tree
-        '''
+        """
         return do_split(split_point, self.log, before=before)
 
     def is_page_empty(self, root):
@@ -439,11 +439,11 @@ class FlowSplitter:
         return None, True
 
     def commit(self):
-        '''
+        """
         Commit all changes caused by the split. Calculates an *anchor_map* for
         all anchors in the original tree. Internal links are re-directed. The
         original file is deleted and the split files are saved.
-        '''
+        """
         if not self.was_split:
             return
         self.anchor_map = collections.defaultdict(lambda: self.base%0)

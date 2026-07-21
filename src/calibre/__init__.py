@@ -1,4 +1,4 @@
-''' E-book management software'''
+""" E-book management software"""
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
@@ -131,13 +131,13 @@ _filename_sanitize_unicode = frozenset(('\\', '|', '?', '*', '<',        # no2to
 
 
 def sanitize_file_name(name, substitute='_'):
-    '''
+    """
     Sanitize the filename `name`. All invalid characters are replaced by `substitute`.
     The set of invalid characters is the union of the invalid characters in Windows,
     macOS and Linux. Also removes leading and trailing whitespace.
     **WARNING:** This function also replaces path separators, so only pass file names
     and not full paths to it.
-    '''
+    """
     if isinstance(name, bytes):
         name = name.decode(filesystem_encoding, 'replace')
     if isinstance(substitute, bytes):
@@ -284,12 +284,12 @@ def get_parsed_proxy(typ='http', debug=True):
 
 
 def get_proxy_info(proxy_scheme, proxy_string):
-    '''
+    """
     Parse all proxy information from a proxy string (as returned by
     get_proxies). The returned dict will have members set to None when the info
     is not available in the string. If an exception occurs parsing the string
     this method returns None.
-    '''
+    """
     from urllib.parse import urlparse
     try:
         proxy_url = f'{proxy_scheme}://{proxy_string}'
@@ -322,14 +322,14 @@ def random_user_agent(choose=None, allow_ie=True):
 
 
 def browser(honor_time=True, max_time=2, user_agent=None, verify_ssl_certificates=True, handle_refresh=True, **kw):
-    '''
+    """
     Create a mechanize browser for web scraping. The browser handles cookies,
     refresh requests and ignores robots.txt. Also uses proxy if available.
 
     :param honor_time: If True honors pause time in refresh requests
     :param max_time: Maximum time in seconds to wait during a refresh request
     :param verify_ssl_certificates: If false SSL certificates errors are ignored
-    '''
+    """
     from calibre.utils.browser import Browser
     opener = Browser(verify_ssl=verify_ssl_certificates)
     opener.set_handle_refresh(handle_refresh, max_time=max_time, honor_time=honor_time)
@@ -355,14 +355,14 @@ def browser(honor_time=True, max_time=2, user_agent=None, verify_ssl_certificate
 
 
 def fit_image(width, height, pwidth, pheight):
-    '''
+    """
     Fit image in box of width pwidth and height pheight.
     @param width: Width of image
     @param height: Height of image
     @param pwidth: Width of box
     @param pheight: Height of box
     @return: scaled, new_width, new_height. scaled is True iff new_width and/or new_height is different from width or height.
-    '''
+    """
     if height < 1 or width < 1:
         return False, int(width), int(height)
     scaled = height > pheight or width > pwidth
@@ -413,15 +413,15 @@ relpath = os.path.relpath
 
 
 def walk(dir):
-    ''' A nice interface to os.walk '''
+    """ A nice interface to os.walk """
     for record in os.walk(dir):
         for f in record[-1]:
             yield os.path.join(record[0], f)
 
 
 def strftime(fmt, t=None):
-    ''' A version of strftime that returns unicode strings and tries to handle dates
-    before 1900 '''
+    """ A version of strftime that returns unicode strings and tries to handle dates
+    before 1900 """
     if not fmt:
         return ''
     if t is None:
@@ -462,7 +462,7 @@ XML_ENTITIES = {
 
 
 def entity_to_unicode(match, exceptions=(), encoding=None, result_exceptions={}):
-    '''
+    """
     :param match: A match object such that '&'+match.group(1)';' is the entity.
 
     :param exceptions: A list of entities to not convert (Each entry is the name of the entity, e.g. 'apos' or '#1234)'
@@ -474,7 +474,7 @@ def entity_to_unicode(match, exceptions=(), encoding=None, result_exceptions={})
     is in result_exceptions, result_exception[result] is returned instead.
     Convenient way to specify exception for things like < or > that can be
     specified by various actual entities.
-    '''
+    """
     from calibre.ebooks.html_entities import entity_to_unicode_in_python
     from calibre_extensions.fast_html_entities import replace_all_entities
 
@@ -544,14 +544,14 @@ def as_unicode(obj, enc=preferred_encoding):
 
 
 def url_slash_cleaner(url):
-    '''
+    """
     Removes redundant /'s from url's.
-    '''
+    """
     return re.sub(r'(?<!:)/{2,}', '/', url)
 
 
 def human_readable(size, sep=' '):
-    ''' Convert a size in bytes into a human readable form '''
+    """ Convert a size in bytes into a human readable form """
     divisor, suffix = 1, 'B'
     for i, candidate in enumerate(('B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB')):
         if size < (1 << ((i + 1) * 10)):

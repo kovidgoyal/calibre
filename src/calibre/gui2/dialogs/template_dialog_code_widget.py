@@ -1,11 +1,11 @@
-'''
+"""
 Created on 26 Mar 2021
 
 @author: Charles Haley
 Based on classes in calibre.gui2.tweak_book.editor
 
 License: GPLv3 Copyright: 2021, Kovid Goyal <kovid at kovidgoyal.net>
-'''
+"""
 
 from qt.core import QFont, QPainter, QPalette, QPlainTextEdit, QRect, Qt, QTextCursor, QTextEdit, QTextFormat
 

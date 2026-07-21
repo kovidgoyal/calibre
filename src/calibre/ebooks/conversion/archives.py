@@ -30,10 +30,10 @@ def unarchive(path, tdir):
 
 
 def find_html_index(files):
-    '''
+    """
     Given a list of files, find the most likely root HTML file in the
     list.
-    '''
+    """
     html_pat = re.compile(r'\.(x){0,1}htm(l){0,1}$', re.IGNORECASE)
     html_files = [f for f in files if html_pat.search(f) is not None]
     if not html_files:

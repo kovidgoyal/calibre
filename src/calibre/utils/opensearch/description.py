@@ -13,9 +13,9 @@ from calibre.utils.xml_parse import safe_xml_fromstring
 
 
 class Description:
-    '''
+    """
     A class for representing OpenSearch Description files.
-    '''
+    """
 
     def __init__(self, url=''):
         '''
@@ -27,10 +27,10 @@ class Description:
             self.load(url)
 
     def load(self, url):
-        '''
+        """
         For loading up a description object from a url. Normally
         you'll probably just want to pass a URL into the constructor.
-        '''
+        """
         br = browser()
         with closing(br.open(url, timeout=15)) as f:
             doc = safe_xml_fromstring(f.read())
@@ -80,24 +80,24 @@ class Description:
         self.adultcontent = doc.xpath('boolean(//*[local-name() = "AdultContent" and contains(., "true")])')
 
     def get_url_by_type(self, type):
-        '''
+        """
         Walks available urls and returns them by type. Only
         appropriate in opensearch v1.1 where there can be multiple
         query targets. Returns none if no such type is found.
 
         url = description.get_url_by_type('application/rss+xml')
-        '''
+        """
         for url in self.urls:
             if url.type == type:
                 return url
         return None
 
     def get_best_template(self):
-        '''
+        """
         OK, best is a value judgement, but so be it. You'll get
         back either the atom, rss or first template available. This
         method handles the main difference between opensearch v1.0 and v1.1
-        '''
+        """
         # version 1.0
         if self.url:
             return self.url

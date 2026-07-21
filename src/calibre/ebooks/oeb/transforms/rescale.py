@@ -9,7 +9,7 @@ from calibre import fit_image
 
 
 class RescaleImages:
-    'Rescale all images to fit inside given screen size'
+    "Rescale all images to fit inside given screen size"
 
     def __init__(self, check_colorspaces=False):
         self.check_colorspaces = check_colorspaces

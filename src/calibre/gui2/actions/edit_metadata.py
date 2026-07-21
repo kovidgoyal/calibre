@@ -422,9 +422,9 @@ class EditMetadataAction(InterfaceActionWithLibraryDrop):
     # }}}
 
     def edit_metadata(self, checked, bulk=None):
-        '''
+        """
         Edit metadata of selected books in library.
-        '''
+        """
         rows = self.gui.library_view.selectionModel().selectedRows()
         if not rows or len(rows) == 0:
             d = error_dialog(self.gui, _('Cannot edit metadata'),
@@ -520,9 +520,9 @@ class EditMetadataAction(InterfaceActionWithLibraryDrop):
         edit.ebook_edit_format(id_, fmt)
 
     def edit_bulk_metadata(self, checked):
-        '''
+        """
         Edit metadata of selected books in library in bulk.
-        '''
+        """
         rows = [r.row() for r in
                 self.gui.library_view.selectionModel().selectedRows()]
         m = self.gui.library_view.model()
@@ -597,9 +597,9 @@ class EditMetadataAction(InterfaceActionWithLibraryDrop):
                 self.gui.refresh_cover_browser()
 
     def merge_books(self, safe_merge=False, merge_only_formats=False):
-        '''
+        """
         Merge selected books in library.
-        '''
+        """
         from calibre.gui2.dialogs.confirm_merge import confirm_merge
         if self.gui.current_view() is not self.gui.library_view:
             return
@@ -739,7 +739,7 @@ class EditMetadataAction(InterfaceActionWithLibraryDrop):
     # Apply bulk metadata changes {{{
     def apply_metadata_changes(self, id_map, title=None, msg='', callback=None,
             merge_tags=True, merge_comments=False, icon=None):
-        '''
+        """
         Apply the metadata changes in id_map to the database synchronously
         id_map must be a mapping of ids to Metadata objects. Set any fields you
         do not want updated in the Metadata object to null. An easy way to do
@@ -754,7 +754,7 @@ class EditMetadataAction(InterfaceActionWithLibraryDrop):
         contains the absolute paths to an OPF and cover file respectively. If
         either of the paths is None, then the corresponding metadata is not
         updated.
-        '''
+        """
         if title is None:
             title = _('Applying changed metadata')
         self.apply_id_map = list(id_map.items())

@@ -213,7 +213,7 @@ class LEquipePremium(BasicNewsRecipe):
     #  Conversion JSON API → HTML lisible                                  #
     # ------------------------------------------------------------------ #
     def strip_links(self, html):
-        '''Supprime les balises <a> en gardant le texte'''
+        """Supprime les balises <a> en gardant le texte"""
         return re.sub(r'<a[^>]*>(.*?)</a>', r'\1', html, flags=re.DOTALL)
 
     def preprocess_raw_html(self, raw_html, url):

@@ -57,7 +57,7 @@ from calibre_extensions.progress_indicator import set_no_activate_on_click
 
 class ChooseName(Dialog):  # {{{
 
-    ''' Chooses the filename for a newly imported file, with error checking '''
+    """ Chooses the filename for a newly imported file, with error checking """
 
     def __init__(self, candidate, parent=None):
         self.candidate = candidate

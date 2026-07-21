@@ -20,10 +20,10 @@ HTML_TEMPLATE = '<html><head><meta http-equiv="Content-Type" content="text/html;
 
 
 def clean_txt(txt):
-    '''
+    """
     Run transformations on the text to put it into
     consistent state.
-    '''
+    """
     if isinstance(txt, bytes):
         txt = txt.decode('utf-8', 'replace')
     # Strip whitespace from the end of the line. Also replace
@@ -48,7 +48,7 @@ def clean_txt(txt):
 
 
 def split_txt(txt, epub_split_size_kb=0):
-    '''
+    """
     Ensure there are split points for converting
     to EPUB. A mis-detected paragraph type can
     result in the entire document being one giant
@@ -56,7 +56,7 @@ def split_txt(txt, epub_split_size_kb=0):
     be able to determine where to split the file
     to accommodate the EPUB file size limitation
     and will fail.
-    '''
+    """
     # Takes care if there is no point to split
     if epub_split_size_kb > 0:
         if isinstance(txt, str):
@@ -76,12 +76,12 @@ def split_txt(txt, epub_split_size_kb=0):
 
 
 def convert_basic(txt, title='', epub_split_size_kb=0):
-    '''
+    """
     Converts plain text to html by putting all paragraphs in
     <p> tags. It condense and retains blank lines when necessary.
 
     Requires paragraphs to be in single line format.
-    '''
+    """
     txt = clean_txt(txt)
     txt = split_txt(txt, epub_split_size_kb)
 
@@ -209,18 +209,18 @@ def block_to_single_line(txt):
 
 
 def preserve_spaces(txt):
-    '''
+    """
     Replaces spaces multiple spaces with &nbsp; entities.
-    '''
+    """
     txt = re.sub(r'(?P<space>[ ]{2,})', lambda mo: ' ' + ('&nbsp;' * (len(mo.group('space')) - 1)), txt)
     txt = txt.replace('\t', '&nbsp;&nbsp;&nbsp;&nbsp;')
     return txt
 
 
 def remove_indents(txt):
-    '''
+    """
     Remove whitespace at the beginning of each line.
-    '''
+    """
     return re.sub(r'^[\r\t\f\v ]+', '', txt, flags=re.MULTILINE)
 
 
@@ -233,7 +233,7 @@ def opf_writer(path, opf_name, manifest, spine, mi):
 
 
 def split_utf8(s, n):
-    '''Split UTF-8 s into chunks of maximum length n.'''
+    """Split UTF-8 s into chunks of maximum length n."""
     if n < 3:
         raise ValueError(f'Cannot split into chunks of less than {n} < 4 bytes')
     s = memoryview(s)
@@ -247,9 +247,9 @@ def split_utf8(s, n):
 
 
 def split_string_separator(txt, size):
-    '''
+    """
     Splits the text by putting \n\n at the point size.
-    '''
+    """
     if len(txt) > size > 3:
         size -= 2
         ans = []
@@ -265,7 +265,7 @@ def split_string_separator(txt, size):
 
 
 def detect_paragraph_type(txt):
-    '''
+    """
     Tries to determine the paragraph type of the document.
 
     block: Paragraphs are separated by a blank line.
@@ -275,7 +275,7 @@ def detect_paragraph_type(txt):
     unformatted: most lines have hard line breaks, few/no blank lines or indents
 
     returns block, single, print, unformatted
-    '''
+    """
     txt = txt.replace('\r\n', '\n')
     txt = txt.replace('\r', '\n')
     txt_line_count = len(re.findall(r'(?mu)^\s*.+$', txt))
@@ -309,14 +309,14 @@ def detect_paragraph_type(txt):
 
 
 def detect_formatting_type(txt):
-    '''
+    """
     Tries to determine the formatting of the document.
 
     markdown: Markdown formatting is used.
     textile: Textile formatting is used.
     heuristic: When none of the above formatting types are
                detected heuristic is returned.
-    '''
+    """
     # Keep a count of the number of format specific object
     # that are found in the text.
     markdown_count = 0

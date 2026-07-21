@@ -102,18 +102,18 @@ HEIGHT_REDUCTION_LIMIT = 21
 
 
 def random_from_id(book_id: int, limit: int = HEIGHT_REDUCTION_LIMIT) -> int:
-    ' Return a pseudo random integer in [0, limit) that is fully determined by book_id '
+    " Return a pseudo random integer in [0, limit) that is fully determined by book_id "
     return xxh3_64_intdigest(b'', seed=book_id) % limit
 
 
 @lru_cache(maxsize=4096)
 def random_from_group_name(group_name: str, limit: int = HEIGHT_REDUCTION_LIMIT) -> int:
-    ' Return a pseudo random integer in [0, limit) that is fully determined by group_name '
+    " Return a pseudo random integer in [0, limit) that is fully determined by group_name "
     return xxh3_64_intdigest(group_name.encode()) % limit
 
 
 def normalised_size(size_bytes: int) -> float:
-    '''Estimate page count from file size.'''
+    """Estimate page count from file size."""
     # Average ebook: ~1-2KB per page, so estimate pages from size
     if size_bytes and size_bytes > 0:
         # Estimate: ~1500 bytes per page (conservative)
@@ -689,7 +689,7 @@ def draw_pixmap_with_shadow(
     pixmap: QPixmap, opacity: float = 1.0, has_shadow: bool = True,
     shadow_color: QColor = QColor(0, 0, 0, 100), fill_color: QColor = QColor(Qt.GlobalColor.transparent),
 ) -> tuple[QPixmap, int]:
-    ''' Draw a QPixmap with a nice drop shadow effect. '''
+    """ Draw a QPixmap with a nice drop shadow effect. """
     # Create a larger image to accommodate the shadow
     shadow_blur = 10 if has_shadow else 0
     margin = shadow_blur * 2
@@ -1136,7 +1136,7 @@ class BookCase(QObject):
         self.spine_width_cache = {}
 
     def shelf_with_ypos(self, y: int) -> CaseItem | None:
-        ' Return the container of books or shelf that contains the specified y position '
+        " Return the container of books or shelf that contains the specified y position "
         for shelf in self.iter_shelves_from_ypos(y):
             return shelf
         return None
@@ -1328,7 +1328,7 @@ class BookCase(QObject):
                 self.shelf_added.emit(None, None)
 
     def visual_row_cmp(self, a: int, b: int) -> int:
-        ' Compares if a or b (book_row numbers) is visually before the other in left-to-right top-to-bottom order'
+        " Compares if a or b (book_row numbers) is visually before the other in left-to-right top-to-bottom order"
         try:
             a = self.row_to_book_id[a]
             b = self.row_to_book_id[b]
@@ -1337,7 +1337,7 @@ class BookCase(QObject):
         return self.book_id_visual_order_map[a] - self.book_id_visual_order_map[b]
 
     def visual_selection_between(self, a: int, b: int) -> Iterator[int]:
-        ' Return all book_rows visually from a to b in left to right top-to-bottom order '
+        " Return all book_rows visually from a to b in left to right top-to-bottom order "
         a = self.row_to_book_id[a]
         b = self.row_to_book_id[b]
         aidx = self.book_ids_in_visual_order.index(a)
@@ -1533,12 +1533,12 @@ class SavedState(NamedTuple):
 
 @setup_dnd_interface
 class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
-    '''
+    """
     Enhanced bookshelf view displaying books as spines on shelves.
 
     This view provides an immersive browsing experience with sorting
     and grouping capabilities.
-    '''
+    """
 
     files_dropped = pyqtSignal(object)
     books_dropped = pyqtSignal(object)
@@ -1654,7 +1654,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
     # Templates rendering methods
 
     def init_template(self, db):
-        '''Initialize templates and database settings.'''
+        """Initialize templates and database settings."""
         if not db:
             return
         if self.template_inited and self.dbref() == db.new_api:
@@ -1713,7 +1713,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         return ''
 
     def refresh_settings(self):
-        '''Refresh the gui and render settings.'''
+        """Refresh the gui and render settings."""
         self.template_inited = False
         s = gprefs['bookshelf_font']
         if s and s.get('family'):
@@ -1748,7 +1748,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
             self.theme = self.theme._replace(**values)
 
     def view_is_visible(self) -> bool:
-        '''Return if the bookshelf view is visible.'''
+        """Return if the bookshelf view is visible."""
         with suppress(AttributeError):
             return self.gui.bookshelf_view_button.is_visible
         return False
@@ -1761,7 +1761,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         self.expanded_cover.invalidate()
 
     def setModel(self, model: BooksModel | None) -> None:
-        '''Set the model for this view.'''
+        """Set the model for this view."""
         signals = {
             'dataChanged': 'model_data_changed', 'rowsInserted': 'model_rows_changed',
             'rowsRemoved': 'model_rows_changed', 'modelReset': 'model_reset',
@@ -1778,27 +1778,27 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         self.invalidate(set_of_books_changed=True, clear_spine_width_cache=True)
 
     def model(self) -> BooksModel | None:
-        '''Return the model.'''
+        """Return the model."""
         return self._model
 
     def selectionModel(self) -> QItemSelectionModel:
-        '''Return the selection model (required for AlternateViews integration).'''
+        """Return the selection model (required for AlternateViews integration)."""
         return self._selection_model
 
     def model_data_changed(self, top_left, bottom_right, roles):
-        '''Handle model data changes.'''
+        """Handle model data changes."""
         self.update_viewport()
 
     def model_rows_changed(self, parent, first, last):
-        '''Handle model row changes.'''
+        """Handle model row changes."""
         self.invalidate(set_of_books_changed=True)
 
     def model_reset(self):
-        '''Handle model reset.'''
+        """Handle model reset."""
         self.invalidate(set_of_books_changed=True)
 
     def dbref(self) -> Cache:
-        '''Return the current database.'''
+        """Return the current database."""
         if m := self.model():
             mdb = m.db
             assert mdb is not None
@@ -1806,13 +1806,13 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         return self.gui.current_db.new_api
 
     def book_id_from_row(self, row: int) -> int | None:
-        '''Return the book id at this row.'''
+        """Return the book id at this row."""
         with suppress(Exception):
             return self.bookcase.row_to_book_id[row]
         return None
 
     def row_from_book_id(self, book_id: int) -> int | None:
-        '''Return the book id at this row.'''
+        """Return the book id at this row."""
         return self.bookcase.book_id_to_row_map.get(book_id)
 
     @property
@@ -1831,7 +1831,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
             self.invalidate()
 
     def update_scrollbar_ranges(self):
-        '''Update scrollbar ranges based on the current shelf layouts.'''
+        """Update scrollbar ranges based on the current shelf layouts."""
         total_height = self.bookcase.max_possible_height
         vp = self.viewport()
         assert vp is not None
@@ -1920,14 +1920,14 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
     # Paint and Drawing methods
 
     def shown(self):
-        '''Called when this view becomes active.'''
+        """Called when this view becomes active."""
         if db := self.dbref():
             db.queue_pages_scan()
         QPixmapCache.setCacheLimit(max(QPixmapCache.cacheLimit(), 20 * 1024))
         self.bookcase.ensure_layouting_is_current()
 
     def update_viewport(self):
-        '''Update viewport only if the bookshelf view is visible.'''
+        """Update viewport only if the bookshelf view is visible."""
         if not self.view_is_visible():
             return
         vp = self.viewport()
@@ -2010,7 +2010,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         return top_size, bottom_size
 
     def paintEvent(self, a0) -> None:
-        '''Paint the bookshelf view.'''
+        """Paint the bookshelf view."""
         if not self.view_is_visible():
             return
         if not self.first_painted_at:
@@ -2163,7 +2163,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         return first_line, second_line, font, fm, False
 
     def draw_inline_divider(self, painter: QPainter, divider: ShelfItem, scroll_y: int):
-        '''Draw an inline group divider with it group name write vertically and a gradient line.'''
+        """Draw an inline group divider with it group name write vertically and a gradient line."""
         lc = self.layout_constraints
         rect = divider.rect(lc).translated(0, -scroll_y)
         divider_rect = QRect(-rect.height() // 2, -rect.width() // 2, rect.height(), rect.width())
@@ -2288,7 +2288,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         return QColor()
 
     def draw_spine_background(self, painter: QPainter, rect: QRect, spine_color: QColor):
-        '''Draw spine background with gradient (darker edges, lighter center).'''
+        """Draw spine background with gradient (darker edges, lighter center)."""
         painter.save()
         painter.setOpacity(1.0)
         gradient = QLinearGradient(QPointF(rect.topLeft()), QPointF(rect.topRight()))
@@ -2308,7 +2308,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         self, painter: QPainter, rect: QRect, spine_color: QColor, book_id: int,
         top_emblem_size: int, bottom_emblem_size: int,
     ) -> None:
-        '''Draw vertically the title on the spine.'''
+        """Draw vertically the title on the spine."""
         first_line, second_line = self.first_line_renderer(book_id), self.second_line_renderer(book_id)
         margin = self.TEXT_MARGIN
 
@@ -2475,7 +2475,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
             a0.accept()
 
     def set_grouping_mode(self, mode: str):
-        '''Set the grouping mode and refresh display.'''
+        """Set the grouping mode and refresh display."""
         if mode != self.grouping_mode:
             self.grouping_mode = mode
             self.dbref().set_pref('bookshelf_grouping_mode', mode)
@@ -2485,7 +2485,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         return [bid for index in self.selectionModel().selectedRows() if index.isValid() and (bid := self.book_id_from_row(index.row())) is not None]
 
     def current_book_state(self) -> SavedState:
-        '''Get current book state for restoration.'''
+        """Get current book state for restoration."""
         sm = self.selectionModel()
         r = sm.currentIndex().row()
         current_book_id = 0
@@ -2719,7 +2719,7 @@ class BookshelfView(MomentumScrollMixin, QAbstractScrollArea):
         return -1
 
     def book_row_at_position(self, x: int, y: int) -> int:
-        ' Find which book is at the given position. x, y are in viewport coordinates '
+        " Find which book is at the given position. x, y are in viewport coordinates "
         book_id = self.book_id_at_position(x, y)
         if book_id > 0:
             if (row := self.row_from_book_id(book_id)) is not None:

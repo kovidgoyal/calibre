@@ -231,11 +231,11 @@ class TabbedDeviceConfig(QTabWidget):
 
 
 class DeviceConfigTab(QWidget):  # {{{
-    '''
+    """
     This is an abstraction for a tab in the configuration. The main reason for it is to
     abstract the properties of the configuration tab. When a property is accessed, it
     will iterate over all known widgets looking for the property.
-    '''
+    """
 
     def __init__(self, parent=None):
         QWidget.__init__(self)
@@ -377,9 +377,9 @@ class ExtraCustomization(DeviceConfigTab):  # {{{
 
 
 class DeviceOptionsGroupBox(QGroupBox):
-    '''
+    """
     This is a container for the individual options for a device driver.
-    '''
+    """
 
     def __init__(self, parent, device=None, title=_('Unknown')):
         QGroupBox.__init__(self, parent)

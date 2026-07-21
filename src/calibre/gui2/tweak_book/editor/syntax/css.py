@@ -180,7 +180,7 @@ class CSSUserData(QTextBlockUserData):
 
 
 def normal(state, text, i, formats, user_data):
-    ' The normal state (outside content blocks {})'
+    " The normal state (outside content blocks {})"
     m = space_pat.match(text, i)
     if m is not None:
         return [(len(m.group()), None)]
@@ -207,7 +207,7 @@ def normal(state, text, i, formats, user_data):
 
 
 def content(state, text, i, formats, user_data):
-    ' Inside content blocks '
+    " Inside content blocks "
     m = space_pat.match(text, i)
     if m is not None:
         return [(len(m.group()), None)]
@@ -247,7 +247,7 @@ def content(state, text, i, formats, user_data):
 
 
 def comment(state, text, i, formats, user_data):
-    ' Inside a comment '
+    " Inside a comment "
     pos = text.find('*/', i)
     if pos == -1:
         return [(len(text), formats['comment'])]
@@ -256,7 +256,7 @@ def comment(state, text, i, formats, user_data):
 
 
 def in_string(state, text, i, formats, user_data):
-    'Inside a string'
+    "Inside a string"
     q = '"' if state.parse == IN_DQS else "'"
     pos = text.find(q, i)
     if pos == -1:

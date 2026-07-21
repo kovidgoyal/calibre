@@ -32,7 +32,7 @@ class EPUBHelpBuilder(EpubBuilder):
         container.commit()
 
     def fix_epub(self, container):
-        ' Fix all the brokenness that sphinx\'s epub builder creates '
+        " Fix all the brokenness that sphinx\'s epub builder creates "
         for name, mt in container.mime_map.items():
             if mt in OEB_DOCS:
                 self.workaround_ade_quirks(container, name)

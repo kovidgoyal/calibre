@@ -12,12 +12,12 @@ from calibre.utils.logging import default_log as log
 
 
 class NumberToText:  # {{{
-    '''
+    """
     Converts numbers to text
     4.56    => four point fifty-six
     456     => four hundred fifty-six
     4:56    => four fifty-six
-    '''
+    """
     ORDINALS = ['zeroth','first','second','third','fourth','fifth','sixth','seventh','eighth','ninth']
     lessThanTwenty = ['<zero>','one','two','three','four','five','six','seven','eight','nine',
                         'ten','eleven','twelve','thirteen','fourteen','fifteen','sixteen','seventeen',

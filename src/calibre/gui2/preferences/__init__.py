@@ -48,12 +48,12 @@ class AbortInitialize(Exception):
 
 
 class ConfigWidgetInterface:
-    '''
+    """
     This class defines the interface that all widgets displayed in the
     Preferences dialog must implement. See :class:`ConfigWidgetBase` for
     a base class that implements this interface and defines various convenience
     methods as well.
-    '''
+    """
 
     #: This signal must be emitted whenever the user changes a value in this
     #: widget
@@ -71,12 +71,12 @@ class ConfigWidgetInterface:
     restart_critical = False
 
     def genesis(self, gui):
-        '''
+        """
         Called once before the widget is displayed, should perform any
         necessary setup.
 
         :param gui: The main calibre graphical user interface
-        '''
+        """
         raise NotImplementedError()
 
     def initialize(self):
@@ -88,33 +88,33 @@ class ConfigWidgetInterface:
         raise NotImplementedError()
 
     def restore_defaults(self):
-        '''
+        """
         Should set all config values to their defaults.
-        '''
+        """
         pass
 
     def commit(self):
-        '''
+        """
         Save any changed settings. Return True if the changes require a
         restart, False otherwise. Raise an :class:`AbortCommit` exception
         to indicate that an error occurred. You are responsible for giving the
         user feedback about what the error is and how to correct it.
-        '''
+        """
         return False
 
     def refresh_gui(self, gui):
-        '''
+        """
         Called once after this widget is committed. Responsible for causing the
         gui to reread any changed settings. Note that by default the GUI
         re-initializes various elements anyway, so most widgets won't need to
         use this method.
-        '''
+        """
         pass
 
     def initial_tab_changed(self):
-        '''
+        """
         Called if the initially displayed tab is changed before the widget is shown, but after it is initialized.
-        '''
+        """
         pass
 
     def do_on_child_tabs(self, method, *args):
@@ -282,7 +282,7 @@ class CommaSeparatedList(Setting):
 
 
 class ConfigWidgetBase(QWidget, ConfigWidgetInterface):
-    '''
+    """
     Base class that contains code to easily add standard config widgets like
     checkboxes, combo boxes, text fields and so on. See the :meth:`register`
     method.
@@ -294,7 +294,7 @@ class ConfigWidgetBase(QWidget, ConfigWidgetInterface):
     If your config widget inherits from this class but includes setting that
     are not registered, you should override the :class:`ConfigWidgetInterface` methods
     and call the base class methods inside the overrides.
-    '''
+    """
 
     changed_signal = pyqtSignal()
     restart_now = pyqtSignal()
@@ -313,7 +313,7 @@ class ConfigWidgetBase(QWidget, ConfigWidgetInterface):
 
     def register(self, name, config_obj, gui_name=None, choices=None,
             restart_required=False, empty_string_is_None=True, setting=Setting):
-        '''
+        """
         Register a setting.
 
         :param name: The setting name
@@ -327,7 +327,7 @@ class ConfigWidgetBase(QWidget, ConfigWidgetInterface):
         :param setting: The class responsible for managing this setting. The
                         default class handles almost all cases, so this param
                         is rarely used.
-        '''
+        """
         setting = setting(name, config_obj, self, gui_name=gui_name,
                 choices=choices, restart_required=restart_required,
                 empty_string_is_None=empty_string_is_None)
@@ -366,10 +366,10 @@ def get_plugin(category, name):
 
 
 class LazyConfigWidgetBase(ConfigWidgetBase):
-    '''
+    """
     Use this for dialogs that are tabs, accessed either from the left or on the
     top. It directly replaces ConfigWidgetBase, supporting the lazy operations.
-    '''
+    """
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -425,7 +425,7 @@ def init_gui():
 
 def show_config_widget(category, name, gui=None, show_restart_msg=False,
         parent=None, never_shutdown=False, callback=None):
-    '''
+    """
     Show the preferences plugin identified by category and name
 
     :param gui: gui instance, if None a hidden gui is created
@@ -435,7 +435,7 @@ def show_config_widget(category, name, gui=None, show_restart_msg=False,
 
     :return: True iff a restart is required for the changes made by the user to
     take effect
-    '''
+    """
     from calibre.gui2 import gprefs
     pl = get_plugin(category, name)
     d = ConfigDialog(parent)

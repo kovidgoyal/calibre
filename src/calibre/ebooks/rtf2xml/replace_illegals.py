@@ -20,9 +20,9 @@ from . import open_for_read, open_for_write
 
 
 class ReplaceIllegals:
-    '''
+    """
     reaplace illegal lower ascii characters
-    '''
+    """
 
     def __init__(self,
             in_file,
@@ -35,8 +35,8 @@ class ReplaceIllegals:
         self.__write_to = better_mktemp()
 
     def replace_illegals(self):
-        '''
-        '''
+        """
+        """
         with open_for_read(self.__file) as read_obj:
             with open_for_write(self.__write_to) as write_obj:
                 for line in read_obj:

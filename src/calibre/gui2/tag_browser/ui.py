@@ -179,11 +179,11 @@ class TagBrowserMixin:  # {{{
                          det_msg=str(e) if e else '', show=True)
 
     def do_add_subcategory(self: Main, on_category_key, new_category_name=None):
-        '''
+        """
         Add a subcategory to the category 'on_category'. If new_category_name is
         None, then a default name is shown and the user is offered the
         opportunity to edit the name.
-        '''
+        """
         db = self.library_view._model.db
         m = self.tags_view._model
         # Can't add an unnamed pref when empty categories are hidden. There is no
@@ -228,9 +228,9 @@ class TagBrowserMixin:  # {{{
             self.tags_view.edit(idx)
 
     def do_edit_user_categories(self: Main, on_category=None):
-        '''
+        """
         Open the User categories editor.
-        '''
+        """
         db = self.library_view._model.db
         assert db is not None
         d = TagCategories(self, db, on_category,
@@ -246,9 +246,9 @@ class TagBrowserMixin:  # {{{
             self.user_categories_edited()
 
     def do_delete_user_category(self: Main, category_name):
-        '''
+        """
         Delete the User category named category_name. Any leading '@' is removed
-        '''
+        """
         category_name = category_name.removeprefix('@')
         db = self.library_view._model.db
         assert db is not None
@@ -281,10 +281,10 @@ class TagBrowserMixin:  # {{{
         self.user_categories_edited()
 
     def do_del_item_from_user_cat(self: Main, user_cat, item_name, item_category):
-        '''
+        """
         Delete the item (item_name, item_category) from the User category with
         key user_cat. Any leading '@' characters are removed
-        '''
+        """
         user_cat = user_cat.removeprefix('@')
         db = self.current_db
         user_cats = db.new_api.pref('user_categories', {})
@@ -300,10 +300,10 @@ class TagBrowserMixin:  # {{{
         self.user_categories_edited()
 
     def do_add_item_to_user_cat(self: Main, dest_category, src_name, src_category):
-        '''
+        """
         Add the item src_name in src_category to the User category
         dest_category. Any leading '@' is removed
-        '''
+        """
         db = self.current_db
         user_cats = db.new_api.pref('user_categories', {})
 
@@ -352,10 +352,10 @@ class TagBrowserMixin:  # {{{
         return result
 
     def do_tags_list_edit(self: Main, tag, category, is_first_letter=False):
-        '''
+        """
         Open the 'manage_X' dialog where X == category. If tag is not None, the
         dialog will position the editor on that item.
-        '''
+        """
 
         db = self.current_db
         if category == 'series':
@@ -398,9 +398,9 @@ class TagBrowserMixin:  # {{{
 
     def do_tag_item_delete(self: Main, category, item_id, orig_name,
                            restrict_to_book_ids=None, children=[]):
-        '''
+        """
         Delete an item from some category.
-        '''
+        """
         tag_names = []
         for child in children:
             if child.tag.is_editable:
@@ -539,9 +539,9 @@ class TagBrowserMixin:  # {{{
     def do_author_sort_edit(self: Main, parent, id_, select_sort=True,
                             select_link=False, is_first_letter=False,
                             lookup_author=False):
-        '''
+        """
         Open the manage authors dialog
-        '''
+        """
         db = self.current_db
         get_authors_func = partial(self.get_book_ids_in_vl_or_selection, db=db, category='authors')
         if lookup_author:
@@ -574,14 +574,14 @@ class TagBrowserMixin:  # {{{
         self.library_view._model.refresh_ids(ids)
 
     def tb_category_visibility(self: Main, category, operation):
-        '''
+        """
         Hide or show categories in the tag browser. 'category' is the lookup key.
         Operation can be:
         - 'show' to show the category in the tag browser
         - 'hide' to hide the category
         - 'toggle' to invert its visibility
         - 'is_visible' returns True if the category is currently visible, False otherwise
-        '''
+        """
         if category not in self.tags_view._model.categories:
             raise ValueError(_('change_tb_category_visibility: category %s does not exist') % category)
         cats = self.tags_view.hidden_categories
@@ -999,19 +999,19 @@ class TagBrowserWidget(QFrame):  # {{{
         gprefs_local.set('tag browser search box visible', self.toggle_search_button.isChecked())
 
     def restore_expansion_state(self, state):
-        '''
+        """
         Expands the tag browser tree so that the node specified in state is
         visible. Use get_expansion_state() to get the state. The intent is that
         a plugin could restore the state in the library_changed() method.
-        '''
+        """
         if state is not None:
             self.tags_view.restore_expansion(state)
 
     def get_expansion_state(self):
-        '''
+        """
         Returns the currently expanded node in the tag browser as a string
         suitable for restoring using restore_expansion_state.
-        '''
+        """
         return self.tags_view.current_expansion
 
     def toggle_item(self):

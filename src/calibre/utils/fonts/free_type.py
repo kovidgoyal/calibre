@@ -43,9 +43,9 @@ class Face:
 
     @same_thread
     def supports_text(self, text, has_non_printable_chars=True):
-        '''
+        """
         Returns True if all the characters in text have glyphs in this font.
-        '''
+        """
         if not isinstance(text, str):
             raise TypeError(f'{text!r} is not a unicode object')
         if has_non_printable_chars:

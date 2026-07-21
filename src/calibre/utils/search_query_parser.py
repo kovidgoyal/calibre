@@ -465,7 +465,7 @@ class SearchQueryParser:
             return self.get_matches(location, query)
 
     def get_matches(self, location, query, candidates=None):
-        '''
+        """
         Should return the set of matches for :param:'location` and :param:`query`.
 
         The search must be performed over all entries if :param:`candidates` is
@@ -474,11 +474,11 @@ class SearchQueryParser:
         :param:`location` is one of the items in :member:`SearchQueryParser.DEFAULT_LOCATIONS`.
         :param:`query` is a string literal.
         :return: None or a subset of the set returned by :meth:`universal_set`.
-        '''
+        """
         return set()
 
     def universal_set(self):
-        '''
+        """
         Should return the set of all matches.
-        '''
+        """
         return set()

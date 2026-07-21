@@ -82,11 +82,11 @@ def find_plugin(name):
 
 
 def load_plugin(path_to_zip_file):  # {{{
-    '''
+    """
     Load plugin from ZIP file or raise InvalidPlugin error
 
     :return: A :class:`Plugin` instance.
-    '''
+    """
     return loader.load(path_to_zip_file)
 # }}}
 
@@ -796,7 +796,7 @@ def initialize_plugin(plugin, path_to_zip_file=None, installation_type=PluginIns
 
 
 def has_external_plugins():
-    'True if there are updateable (ZIP file based) plugins'
+    "True if there are updateable (ZIP file based) plugins"
     return bool(config['plugins'])
 
 

@@ -65,11 +65,11 @@ class Cenital(BasicNewsRecipe):
     '''
 
     def get_cover_url(self):
-        '''
+        """
         Builds a magazine-style cover: 2x4 grid of the featured image from each
         newsletter's latest article, with a dark overlay and the Cenital logo centred.
         Falls back to the static wide image if PIL is unavailable.
-        '''
+        """
         from io import BytesIO
         from urllib.request import Request, urlopen
         from xml.etree import ElementTree as ET

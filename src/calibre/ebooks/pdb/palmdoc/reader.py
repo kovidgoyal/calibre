@@ -1,6 +1,6 @@
-'''
+"""
 Read content from palmdoc pdb file.
-'''
+"""
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'
@@ -13,12 +13,12 @@ from calibre.ebooks.pdb.formatreader import FormatReader
 
 
 class HeaderRecord:
-    '''
+    """
     The first record in the file is always the header record. It holds
     information related to the location of text, images, and so on
     in the file. This is used in conjunction with the sections
     defined in the file header.
-    '''
+    """
 
     def __init__(self, raw):
         self.compression, = struct.unpack('>H', raw[0:2])

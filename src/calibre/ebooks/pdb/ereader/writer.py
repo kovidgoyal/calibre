@@ -1,6 +1,6 @@
-'''
+"""
 Write content to ereader pdb file.
-'''
+"""
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'
@@ -120,7 +120,7 @@ class Writer(FormatWriter):
         return index
 
     def _images(self, manifest, image_hrefs):
-        '''
+        """
         Image format.
 
         0-4   : 'PNG '. There must be a space after PNG.
@@ -129,7 +129,7 @@ class Writer(FormatWriter):
         58-60 : Width.
         60-62 : Height.
         62-...: Raw image data in 8 bit PNG format.
-        '''
+        """
         images = []
         from calibre.ebooks.oeb.base import OEB_RASTER_IMAGES
 
@@ -159,14 +159,14 @@ class Writer(FormatWriter):
         return images
 
     def _metadata(self, metadata):
-        '''
+        """
         Metadata takes the form:
         title\x00
         author\x00
         copyright\x00
         publisher\x00
         isbn\x00
-        '''
+        """
 
         title = _('Unknown')
         author = _('Unknown')
@@ -188,10 +188,10 @@ class Writer(FormatWriter):
         return as_bytes(f'{title}\x00{author}\x00{copyright}\x00{publisher}\x00{isbn}\x00')
 
     def _header_record(self, text_count, chapter_count, link_count, image_count):
-        '''
+        """
         text_count = the number of text pages
         image_count = the number of images
-        '''
+        """
         compression = 10  # zlib compression.
         non_text_offset = text_count + 1
 

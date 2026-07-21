@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
-'''
+"""
 zerodeux.fr
-'''
+"""
 
 from calibre.web.feeds.news import BasicNewsRecipe
 

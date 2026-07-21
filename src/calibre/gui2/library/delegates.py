@@ -62,12 +62,12 @@ from calibre.utils.localization import _
 
 
 class StyledItemDelegate(QStyledItemDelegate):
-    '''
+    """
     Set the flag ignore_kb_mods_on_edit before opening an editor if you don't
     want keyboard modifiers taken into account, for example when using Shift-Tab
     as a backtab when editing cells. This prevents opening dialogs by mistake.
     See gui2.library.views.closeEditor() for an example.
-    '''
+    """
     is_editable_with_tab = True  # sub-classes set to False is needed
     ignore_kb_mods_on_edit = False
 
@@ -492,11 +492,11 @@ class LanguagesDelegate(StyledItemDelegate):  # {{{
 
 class CcDateDelegate(StyledItemDelegate):  # {{{
 
-    '''
+    """
     Delegate for custom columns dates. Because this delegate stores the
     format as an instance variable, a new instance must be created for each
     column. This differs from all the other delegates.
-    '''
+    """
 
     def __init__(self, parent):
         StyledItemDelegate.__init__(self, parent)
@@ -542,9 +542,9 @@ class CcDateDelegate(StyledItemDelegate):  # {{{
 
 class CcTextDelegate(StyledItemDelegate, EditableTextDelegate):  # {{{
 
-    '''
+    """
     Delegate for text data.
-    '''
+    """
     use_title_sort = False
 
     def __init__(self, parent):
@@ -592,9 +592,9 @@ class CcSeriesDelegate(CcTextDelegate):  # {{{
 
 class CcLongTextDelegate(StyledItemDelegate):  # {{{
 
-    '''
+    """
     Delegate for comments data.
-    '''
+    """
 
     def __init__(self, parent):
         StyledItemDelegate.__init__(self, parent)
@@ -619,9 +619,9 @@ class CcLongTextDelegate(StyledItemDelegate):  # {{{
 
 class CcMarkdownDelegate(StyledItemDelegate):  # {{{
 
-    '''
+    """
     Delegate for markdown data.
-    '''
+    """
 
     def __init__(self, parent):
         super().__init__(parent)
@@ -675,9 +675,9 @@ class CcMarkdownDelegate(StyledItemDelegate):  # {{{
 
 class CcNumberDelegate(StyledItemDelegate):  # {{{
 
-    '''
+    """
     Delegate for text/int/float data.
-    '''
+    """
 
     def __init__(self, parent):
         StyledItemDelegate.__init__(self, parent)
@@ -725,9 +725,9 @@ class CcNumberDelegate(StyledItemDelegate):  # {{{
 
 class CcEnumDelegate(StyledItemDelegate):  # {{{
 
-    '''
+    """
     Delegate for text/int/float data.
-    '''
+    """
 
     def __init__(self, parent):
         StyledItemDelegate.__init__(self, parent)
@@ -772,9 +772,9 @@ class CcEnumDelegate(StyledItemDelegate):  # {{{
 
 class CcCommentsDelegate(StyledItemDelegate):  # {{{
 
-    '''
+    """
     Delegate for comments data.
-    '''
+    """
 
     def __init__(self, parent):
         StyledItemDelegate.__init__(self, parent)
@@ -838,9 +838,9 @@ class DelegateCB(QComboBox):  # {{{
 class CcBoolDelegate(StyledItemDelegate):  # {{{
 
     def __init__(self, parent):
-        '''
+        """
         Delegate for custom_column bool data.
-        '''
+        """
         self.nuke_option_data = False
         StyledItemDelegate.__init__(self, parent)
 
@@ -902,9 +902,9 @@ class CcBoolDelegate(StyledItemDelegate):  # {{{
 class CcTemplateDelegate(StyledItemDelegate):  # {{{
 
     def __init__(self, parent):
-        '''
+        """
         Delegate for composite custom_columns.
-        '''
+        """
         StyledItemDelegate.__init__(self, parent)
         self.disallow_edit = gprefs['edit_metadata_templates_only_F2_on_booklist']
         self.is_editable_with_tab = False

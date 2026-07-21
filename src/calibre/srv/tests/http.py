@@ -22,7 +22,7 @@ from calibre.utils.resources import get_path as P
 class TestHTTP(BaseTest):
 
     def test_header_parsing(self):  # {{{
-        'Test parsing of HTTP headers'
+        "Test parsing of HTTP headers"
         from calibre.srv.http_request import HTTPHeaderParser
 
         def test(name, *lines, **kwargs):
@@ -61,7 +61,7 @@ class TestHTTP(BaseTest):
     # }}}
 
     def test_accept_encoding(self):  # {{{
-        'Test parsing of Accept-Encoding'
+        "Test parsing of Accept-Encoding"
         from calibre.srv.http_response import acceptable_encoding
 
         def test(name, val, ans, allowed={'gzip'}):
@@ -74,7 +74,7 @@ class TestHTTP(BaseTest):
     # }}}
 
     def test_accept_language(self):  # {{{
-        'Test parsing of Accept-Language'
+        "Test parsing of Accept-Language"
         from calibre.srv.http_response import preferred_lang
 
         def test(name, val, ans):
@@ -114,7 +114,7 @@ class TestHTTP(BaseTest):
     # }}}
 
     def test_range_parsing(self):  # {{{
-        'Test parsing of Range header'
+        "Test parsing of Range header"
         from calibre.srv.http_response import get_ranges
 
         def test(val, *args):
@@ -136,7 +136,7 @@ class TestHTTP(BaseTest):
     # }}}
 
     def test_http_basic(self):  # {{{
-        'Test basic HTTP protocol conformance'
+        "Test basic HTTP protocol conformance"
         try:
             self.do_http_basic()
         except Exception:
@@ -339,7 +339,7 @@ class TestHTTP(BaseTest):
     # }}}
 
     def test_http_response(self):  # {{{
-        'Test HTTP protocol responses'
+        "Test HTTP protocol responses"
         from calibre.srv.http_response import parse_multipart_byterange
 
         def handler(conn):
@@ -460,7 +460,7 @@ class TestHTTP(BaseTest):
     # }}}
 
     def test_static_generation(self):  # {{{
-        'Test static generation'
+        "Test static generation"
         nums = list(map(str, range(10)))
 
         def handler(conn):

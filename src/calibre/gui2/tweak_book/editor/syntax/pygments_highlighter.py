@@ -17,10 +17,10 @@ NORMAL = 0
 
 
 def create_lexer(base_class):
-    '''
+    """
     Subclass the pygments RegexLexer to lex line by line instead of lexing full
     text. The statestack at the end of each line is stored in the Qt block state.
-    '''
+    """
 
     def get_tokens_unprocessed(self, text, statestack):
         pos = 0
@@ -67,7 +67,7 @@ def create_lexer(base_class):
                     break
 
     def lex_a_line(self, state, text, i, formats_map, user_data):
-        ' Get formats for a single block (line) '
+        " Get formats for a single block (line) "
         statestack = list(state.pygments_stack) if state.pygments_stack is not None else ['root']
 
         # Lex the text using Pygments

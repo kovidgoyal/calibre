@@ -102,18 +102,18 @@ class ShowQuickviewAction(InterfaceAction):
         self._show_quickview()
 
     def _hide_quickview(self):
-        '''
+        """
         This is called only from the QV button toggle
-        '''
+        """
         if self.current_instance:
             if not self.current_instance.is_closed:
                 self.current_instance._reject()
             self.current_instance = None
 
     def _show_quickview(self, *args):
-        '''
+        """
         This is called only from the QV button toggle
-        '''
+        """
         if self.current_instance:
             if not self.current_instance.is_closed:
                 self.current_instance._reject()
@@ -138,33 +138,33 @@ class ShowQuickviewAction(InterfaceAction):
         self.current_instance.quickview_closed.connect(self.qv_button.set_state_to_show)
 
     def open_quickview(self):
-        '''
+        """
         QV moved from/to dock. Close and reopen the pane/window.
         Also called when QV is closed and the user asks to move the focus
-        '''
+        """
         if self.current_instance and not self.current_instance.is_closed:
             self.current_instance.reject()
         self.current_instance = None
         self.qaction.triggered.emit()
 
     def refill_quickview(self):
-        '''
+        """
         Called when the columns shown in the QV pane might have changed.
-        '''
+        """
         if self.current_instance and not self.current_instance.is_closed:
             self.current_instance.refill()
 
     def refresh_quickview(self, idx):
-        '''
+        """
         Called when the data shown in the QV pane might have changed.
-        '''
+        """
         if self.current_instance and not self.current_instance.is_closed:
             self.current_instance.refresh(idx)
 
     def change_quickview_column(self, idx, show=True):
-        '''
+        """
         Called from the column header context menu to change the QV query column
-        '''
+        """
         if show or (self.current_instance and not self.current_instance.is_closed):
             self.focus_quickview()
             _cur_inst = self.current_instance
@@ -176,17 +176,17 @@ class ShowQuickviewAction(InterfaceAction):
             QTimer.singleShot(0, _cur_inst.set_focus)
 
     def library_changed(self, db):
-        '''
+        """
         If QV is open, close it then reopen it so the columns are correct
-        '''
+        """
         if self.current_instance and not self.current_instance.is_closed:
             self.current_instance.reject()
             self.qaction.triggered.emit()
 
     def focus_quickview(self):
-        '''
+        """
         Used to move the focus to the QV books table. Open QV if needed
-        '''
+        """
         if not self.current_instance or self.current_instance.is_closed:
             self.open_quickview()
         else:

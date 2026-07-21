@@ -19,10 +19,10 @@ from . import open_for_read, open_for_write
 
 
 class ListNumbers:
-    '''
+    """
         RTF puts list numbers outside of the paragraph. The public method
         in this class put the list numbers inside the paragraphs.
-    '''
+    """
 
     def __init__(self,
             in_file,
@@ -30,7 +30,7 @@ class ListNumbers:
             copy=None,
             run_level=1,
             ):
-        '''
+        """
         Required:
             'file'
         Optional:
@@ -39,20 +39,20 @@ class ListNumbers:
             directory from which the script is run.)
         Returns:
             nothing
-        '''
+        """
         self.__file = in_file
         self.__bug_handler = bug_handler
         self.__copy = copy
         self.__write_to = better_mktemp()
 
     def __initiate_values(self):
-        '''
+        """
         initiate values for fix_list_numbers.
         Required:
             Nothing
         Return:
             Nothing
-        '''
+        """
         self.__state = 'default'
         self.__list_chunk = ''
         self.__previous_line = ''
@@ -65,13 +65,13 @@ class ListNumbers:
         }
 
     def __after_ob_func(self, line):
-        '''
+        """
         Handle the line immediately after an open bracket.
         Required:
             self, line
         Returns:
             Nothing
-        '''
+        """
         if self.__token_info == 'cw<ls<list-text_':
             self.__state = 'list_text'
             self.__list_chunk = self.__list_chunk + \
@@ -84,10 +84,10 @@ class ListNumbers:
             self.__state = 'default'
 
     def __after_list_text_func(self, line):
-        '''
+        """
         Look for an open bracket or a line of text, and then print out the
         self.__list_chunk. Print out the line.
-        '''
+        """
         if line[0:2] == 'ob' or line[0:2] == 'tx':
             self.__state = 'default'
             self.__write_obj.write('mi<mk<lst-txbeg_\n')
@@ -103,9 +103,9 @@ class ListNumbers:
         self.__write_obj.write(line)
 
     def __determine_list_type(self, chunk):
-        '''
+        """
         Determine if the list is ordered or itemized
-        '''
+        """
         lines = chunk.split('\n')
         text_string = ''
         for line in lines:
@@ -126,7 +126,7 @@ class ListNumbers:
         return 'unordered'
 
     def __list_text_func(self, line):
-        '''
+        """
         Handle lines that are part of the list text. If the end of the list
         text is found (the closing bracket matches the self.__list_text_ob),
         then change  the state. Always add the line to the self.__list_chunk
@@ -134,7 +134,7 @@ class ListNumbers:
             self, line
         Returns:
             Nothing
-        '''
+        """
         if self.__list_text_ob == self.__cb_count:
             self.__state = 'after_list_text'
             self.__right_after_list_text = 1
@@ -144,7 +144,7 @@ class ListNumbers:
             self.__list_chunk = self.__list_chunk + line
 
     def __default_func(self, line):
-        '''
+        """
         Handle the lines that are not part of any special state. Look for an
         opening bracket. If an open bracket is found, add this line to a
         temporary self.__previous line, which other methods need. Otherwise,
@@ -153,7 +153,7 @@ class ListNumbers:
             self, line
         Returns:
             Nothing
-        '''
+        """
         if self.__token_info == 'ob<nu<open-brack':
             self.__state = 'after_ob'
             self.__previous_line = line
@@ -161,7 +161,7 @@ class ListNumbers:
             self.__write_obj.write(line)
 
     def fix_list_numbers(self):
-        '''
+        """
         Required:
             nothing
         Returns:
@@ -176,7 +176,7 @@ class ListNumbers:
             found.
             Next, look for an open bracket or text. When either is found,
             print out self.__list_chunk and the line.
-        '''
+        """
         self.__initiate_values()
         read_obj = open_for_read(self.__file)
         self.__write_obj = open_for_write(self.__write_to)

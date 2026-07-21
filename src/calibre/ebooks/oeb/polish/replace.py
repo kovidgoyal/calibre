@@ -110,7 +110,7 @@ class LinkRebaser:
 
 
 def replace_links(container, link_map, frag_map=lambda name, frag:frag, replace_in_opf=False):
-    '''
+    """
     Replace links to files in the container. Will iterate over all files in the container and change the specified links in them.
 
     :param link_map: A mapping of old canonical name to new canonical name. For example: :code:`{'images/old.png': 'images/new.png'}`
@@ -119,7 +119,7 @@ def replace_links(container, link_map, frag_map=lambda name, frag:frag, replace_
         HTML files. By default, it does nothing.
     :param replace_in_opf: If False, links are not replaced in the OPF file.
 
-    '''
+    """
     for name, media_type in container.mime_map.items():
         if name == container.opf_name and not replace_in_opf:
             continue
@@ -128,13 +128,13 @@ def replace_links(container, link_map, frag_map=lambda name, frag:frag, replace_
 
 
 def replace_ids(container, id_map):
-    '''
+    """
     Replace all links in the container that pointed to the changed ids.
 
     :param id_map: A mapping of {name:id_map} where each id_map is a mapping of {old_id:new_id}
     :return: True iff at least one link was changed
 
-    '''
+    """
     changed = False
     for name, media_type in container.mime_map.items():
         repl = IdReplacer(name, container, id_map)
@@ -182,12 +182,12 @@ def smarten_punctuation(container, report):
 
 
 def rename_files(container, file_map):
-    '''
+    """
     Rename files in the container, automatically updating all links to them.
 
     :param file_map: A mapping of old canonical name to new canonical name, for
         example: :code:`{'text/chapter1.html': 'chapter1.html'}`.
-    '''
+    """
     overlap = set(file_map).intersection(set(file_map.values()))
     if overlap:
         raise ValueError('Circular rename detected. The files {} are both rename targets and destinations'.format(', '.join(overlap)))
@@ -250,10 +250,10 @@ def mt_to_category(container, mt):
 
 
 def get_recommended_folders(container, names):
-    ''' Return the folders that are recommended for the given filenames. The
+    """ Return the folders that are recommended for the given filenames. The
     recommendation is based on where the majority of files of the same type are
     located in the container. If no files of a particular type are present, the
-    recommended folder is assumed to be the folder containing the OPF file. '''
+    recommended folder is assumed to be the folder containing the OPF file. """
     from calibre.ebooks.oeb.polish.utils import guess_type
     counts = defaultdict(Counter)
     for name, mt in container.mime_map.items():
@@ -346,8 +346,8 @@ def remove_links_in_declaration(href_to_name, style, predicate):
 
 
 def remove_links_to(container, predicate):
-    ''' predicate must be a function that takes the arguments (name, href,
-    fragment=None) and returns True iff the link should be removed '''
+    """ predicate must be a function that takes the arguments (name, href,
+    fragment=None) and returns True iff the link should be removed """
     from calibre.ebooks.oeb.base import OEB_DOCS, OEB_STYLES, XHTML, XPath, iterlinks
     stylepath = XPath('//h:style')
     styleattrpath = XPath('//*[@style]')

@@ -846,7 +846,7 @@ class Parser(SearchQueryParser):  # {{{
 
 class LRUCache:  # {{{
 
-    'A simple Least-Recently-Used cache'
+    "A simple Least-Recently-Used cache"
 
     def __init__(self, limit=50):
         self.item_map = {}
@@ -971,10 +971,10 @@ class Search:
             virtual_fields, self.saved_searches.lookup, self.parse_cache, allow_templates=allow_templates)
 
     def __call__(self, dbcache, query, search_restriction, virtual_fields=None, book_ids=None, allow_templates=True):
-        '''
+        """
         Return the set of ids of all records that match the specified
         query and restriction
-        '''
+        """
         # We construct a new parser instance per search as the parse is not
         # thread safe.
         sqp = self.create_parser(dbcache, virtual_fields, allow_templates)
@@ -998,8 +998,8 @@ class Search:
         return True
 
     def _do_search(self, sqp, query, search_restriction, dbcache, book_ids=None):
-        ''' Do the search, caching the results. Results are cached only if the
-        search is on the full library and no virtual field is searched on '''
+        """ Do the search, caching the results. Results are cached only if the
+        search is on the full library and no virtual field is searched on """
         if isinstance(search_restriction, bytes):
             search_restriction = search_restriction.decode('utf-8')
         if isinstance(query, bytes):

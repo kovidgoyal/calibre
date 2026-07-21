@@ -476,17 +476,17 @@ class WebSocketConnection(HTTPConnection):
     # }}}
 
     def send_websocket_message(self, buf, wakeup=True):
-        ''' Send a complete message. This class will take care of splitting it
-        into appropriate frames automatically. `buf` must be a file like object. '''
+        """ Send a complete message. This class will take care of splitting it
+        into appropriate frames automatically. `buf` must be a file like object. """
         self.sendq.put(MessageWriter(buf))
         self.wait_for = RDWR
         if wakeup:
             self.wakeup()
 
     def send_websocket_frame(self, data, is_first=True, is_last=True):
-        ''' Useful for streaming handlers that want to break up messages into
+        """ Useful for streaming handlers that want to break up messages into
         frames themselves. Note that these frames will be interleaved with
-        control frames, so they should not be too large. '''
+        control frames, so they should not be too large. """
         opcode = (TEXT if isinstance(data, str) else BINARY) if is_first else CONTINUATION
         fin = 1 if is_last else 0
         frame = create_frame(fin, opcode, data)
@@ -494,8 +494,8 @@ class WebSocketConnection(HTTPConnection):
             self.control_frames.append(ReadOnlyFileBuffer(frame))
 
     def send_websocket_ping(self, data=b''):
-        ''' Send a PING to the remote client, it should reply with a PONG which
-        will be sent to the handle_websocket_pong callback in your handler. '''
+        """ Send a PING to the remote client, it should reply with a PONG which
+        will be sent to the handle_websocket_pong callback in your handler. """
         if isinstance(data, str):
             data = data.encode('utf-8')
         frame = create_frame(True, PING, data)

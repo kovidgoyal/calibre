@@ -105,7 +105,7 @@ class Command(QUndoCommand):
 
 
 def get_selection_rect(img, sr, target):
-    ' Given selection rect return the corresponding rectangle in the underlying image as left, top, width, height '
+    " Given selection rect return the corresponding rectangle in the underlying image as left, top, width, height "
     left_border = (abs(sr.left() - target.left())/target.width()) * img.width()
     top_border = (abs(sr.top() - target.top())/target.height()) * img.height()
     right_border = (abs(target.right() - sr.right())/target.width()) * img.width()
@@ -114,7 +114,7 @@ def get_selection_rect(img, sr, target):
 
 
 class Trim(Command):
-    ''' Remove the areas of the image outside the current selection. '''
+    """ Remove the areas of the image outside the current selection. """
 
     TEXT = _('Trim image')
 
@@ -123,7 +123,7 @@ class Trim(Command):
 
 
 class AutoTrim(Trim):
-    ''' Auto trim borders from the image '''
+    """ Auto trim borders from the image """
     TEXT = _('Auto-trim image')
 
     def __call__(self, canvas):
@@ -205,8 +205,8 @@ class Normalize(Command):
 
 
 class Replace(Command):
-    ''' Replace the current image with another image. If there is a selection,
-    only the region of the selection is replaced. '''
+    """ Replace the current image with another image. If there is a selection,
+    only the region of the selection is replaced. """
 
     def __init__(self, img, text, canvas):
         self.after_image = img

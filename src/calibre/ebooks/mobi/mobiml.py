@@ -1,6 +1,6 @@
-'''
+"""
 Transform XHTML/OPS-ish content into Mobipocket HTML 3.2.
-'''
+"""
 
 __license__   = 'GPL v3'
 __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.cam>'
@@ -140,7 +140,7 @@ class MobiMLizer:
         self.mobimlize_spine()
 
     def mobimlize_spine(self):
-        'Iterate over the spine and convert it to MOBIML'
+        "Iterate over the spine and convert it to MOBIML"
         for item in self.oeb.spine:
             stylizer = Stylizer(item.data, item.href, self.oeb, self.opts, self.profile)
             body = item.data.find(XHTML('body'))
@@ -182,7 +182,7 @@ class MobiMLizer:
         return result
 
     def mobimlize_content(self, tag, text, bstate, istates):
-        'Convert text content'
+        "Convert text content"
         if text or tag != 'br':
             bstate.content = True
         istate = istates[-1]

@@ -58,7 +58,7 @@ def simple_float(val, mult=1.0):
 
 
 def twips(val, mult=0.05):
-    ''' Parse val as either a pure number representing twentieths of a point or a number followed by the suffix pt, representing pts.'''
+    """ Parse val as either a pure number representing twentieths of a point or a number followed by the suffix pt, representing pts."""
     try:
         return float(val) * mult
     except (ValueError, TypeError, AttributeError, KeyError):
