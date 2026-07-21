@@ -405,7 +405,7 @@ add_extra_css(def ():
     style += build_rule(sel + '.cs-loading-overlay',
         position='absolute', left='0', top='0', right='0', bottom='0',
         display='flex', align_items='center', justify_content='center',
-        background_color='rgba(255,255,255,0.55)',
+        background_color=get_color('window-background'),
         opacity='0',
         pointer_events='none',
         transition='opacity 160ms ease'
