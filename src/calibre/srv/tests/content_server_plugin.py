@@ -9,7 +9,6 @@ from calibre.srv.tests.base import BaseTest
 
 
 class TestContentServerPlugin(BaseTest):
-
     def test_basic_endpoint_registration(self):
         from calibre.customize import ContentServerPlugin
 
@@ -20,6 +19,7 @@ class TestContentServerPlugin(BaseTest):
                 @endpoint('/test-plugin/hello', auth_required=False)
                 def hello(ctx, rd):
                     return 'hello'
+
                 return [hello]
 
         plugin = TestPlugin(None)
@@ -74,16 +74,19 @@ class TestPluginDiscovery(BaseTest):
 
     def setUp(self):
         from calibre.customize.ui import _initialized_plugins, config
+
         self._orig_plugins = list(_initialized_plugins)
         self._orig_disabled = set(config['disabled_plugins'])
 
     def tearDown(self):
         from calibre.customize.ui import _initialized_plugins, config
+
         _initialized_plugins[:] = self._orig_plugins
         config['disabled_plugins'] = self._orig_disabled
 
     def _register_all_plugin_routes(self, router):
         from calibre.customize.ui import content_server_plugins
+
         for plugin in content_server_plugins():
             for ep in plugin.content_server_endpoints():
                 try:
@@ -103,6 +106,7 @@ class TestPluginDiscovery(BaseTest):
                 @endpoint('/test-route/ping', auth_required=False)
                 def ping(ctx, rd):
                     return 'pong'
+
                 return [ping]
 
         plugin = RoutePlugin(None)
@@ -128,6 +132,7 @@ class TestPluginDiscovery(BaseTest):
                 @endpoint('/disabled-route/test', auth_required=False)
                 def test(ctx, rd):
                     return 'test'
+
                 return [test]
 
         plugin = RoutePlugin(None)
@@ -157,6 +162,7 @@ class TestPluginDiscovery(BaseTest):
                 @endpoint('/test-route/ping', auth_required=False)
                 def duplicate(ctx, rd):
                     return 'duplicate'
+
                 return [duplicate]
 
         plugin = OverridePlugin(None)
@@ -167,7 +173,7 @@ class TestPluginDiscovery(BaseTest):
         router.finalize()
         path = tuple(filter(None, '/test-route/ping'.split('/')))
         ep, args = router.find_route(path)
-        self.assertEqual(ep.__name__, 'original')
+        self.assertEqual(ep.f.__name__, 'original')
         _initialized_plugins.remove(plugin)
 
     def test_broken_plugin_does_not_block_others(self):
@@ -182,6 +188,7 @@ class TestPluginDiscovery(BaseTest):
                 @endpoint('/good/hello', auth_required=False)
                 def hello(ctx, rd):
                     return 'hello'
+
                 return [hello]
 
         class BrokenPlugin(ContentServerPlugin):
@@ -196,6 +203,7 @@ class TestPluginDiscovery(BaseTest):
         _initialized_plugins.append(broken)
         router = Router()
         from calibre.customize.ui import content_server_plugins
+
         for plugin in content_server_plugins():
             try:
                 endpoints = plugin.content_server_endpoints()
