@@ -173,7 +173,7 @@ class TestPluginDiscovery(BaseTest):
         router.finalize()
         path = tuple(filter(None, '/test-route/ping'.split('/')))
         ep, args = router.find_route(path)
-        self.assertEqual(ep.f.__name__, 'original')
+        self.assertEqual(ep.__name__, 'original')
         _initialized_plugins.remove(plugin)
 
     def test_broken_plugin_does_not_block_others(self):

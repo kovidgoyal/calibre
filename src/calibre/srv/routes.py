@@ -103,6 +103,10 @@ class RouteFunction:
 
     is_endpoint: bool = True
 
+    @property
+    def __name__(self) -> str:
+        return self.f.__name__
+
     def __call__(self, ctx: Context, rd: RequestData, *path_segments: Any) -> Any:
         return self.f(ctx, rd, *path_segments)
 
