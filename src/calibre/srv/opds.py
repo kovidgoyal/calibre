@@ -1,13 +1,12 @@
 #!/usr/bin/env python
+# License: GPLv3 Copyright: 2010, Kovid Goyal <kovid at kovidgoyal.net>
 
-
-__license__   = 'GPL v3'
-__copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
-
+import datetime
 import hashlib
-from collections import OrderedDict, namedtuple
+from collections import OrderedDict
+from collections.abc import Callable
 from functools import partial
+from typing import Any, NamedTuple, cast
 from urllib.parse import urlencode
 
 from html5_parser import parse
@@ -17,13 +16,18 @@ from lxml.builder import ElementMaker
 from calibre import force_unicode, guess_type
 from calibre import prepare_string_for_xml as xml
 from calibre.constants import __appname__
+from calibre.db.cache import Cache
+from calibre.db.categories import Tag
 from calibre.db.view import sanitize_sort_field_name
 from calibre.ebooks.metadata import authors_to_string, fmt_sidx, rating_to_stars
 from calibre.library.comments import comments_to_html
 from calibre.srv.errors import HTTPInternalServerError, HTTPNotFound
+from calibre.srv.handler import Context, UrlForCallable
 from calibre.srv.http_request import parse_uri
+from calibre.srv.http_response import RequestData
+from calibre.srv.opts import Options
 from calibre.srv.routes import endpoint
-from calibre.srv.utils import Offsets, get_library_data, http_date
+from calibre.srv.utils import MultiDict, Offsets, get_library_data, http_date
 from calibre.utils.config import prefs
 from calibre.utils.date import as_utc, is_date_undefined, timestampfromdt
 from calibre.utils.icu import sort_key
@@ -35,7 +39,12 @@ from polyglot.builtins import as_bytes
 from polyglot.urllib import unquote_plus
 
 
-def atom(ctx, rd, endpoint, output):
+class Group(NamedTuple):
+    text: str
+    count: int
+
+
+def atom(ctx: Context, rd: RequestData, endpoint: Callable, output: bytes | str | etree.Element) -> bytes:
     rd.outheaders.set('Content-Type', 'application/atom+xml; charset=UTF-8', replace_all=True)
     rd.outheaders.set('Calibre-Instance-Id', force_unicode(prefs['installation_uuid'], 'utf-8'), replace_all=True)
     if isinstance(output, bytes):
@@ -47,9 +56,9 @@ def atom(ctx, rd, endpoint, output):
     return ans
 
 
-def format_tag_string(tags, sep, joinval=', '):
+def format_tag_string(tags: list[str] | str, sep: str | None, joinval: str = ', ') -> str:
     if tags:
-        tlist = tags if sep is None else [t.strip() for t in tags.split(sep)]
+        tlist = list(tags) if sep is None else [t.strip() for t in cast(str, tags).split(sep)]
     else:
         tlist = []
     tlist.sort(key=sort_key)
@@ -57,68 +66,63 @@ def format_tag_string(tags, sep, joinval=', '):
 
 
 # Vocabulary for building OPDS feeds {{{
-DC_NS = 'http://purl.org/dc/terms/'
-E = ElementMaker(namespace='http://www.w3.org/2005/Atom',
-                 nsmap={
-                     None  : 'http://www.w3.org/2005/Atom',
-                     'dc'  : DC_NS,
-                     'opds': 'http://opds-spec.org/2010/catalog',
-                     })
+DC_NS: str = 'http://purl.org/dc/terms/'
+E: ElementMaker[etree.Element] = ElementMaker(
+    namespace='http://www.w3.org/2005/Atom',
+    nsmap={
+        None: 'http://www.w3.org/2005/Atom',
+        'dc': DC_NS,
+        'opds': 'http://opds-spec.org/2010/catalog',
+    },
+)
 
 
-FEED    = E.feed
-TITLE   = E.title
-ID      = E.id
-ICON    = E.icon
+FEED: Callable[..., etree.Element] = E.feed
+TITLE: Callable[..., etree.Element] = E.title
+ID: Callable[..., etree.Element] = E.id
+ICON: Callable[..., etree.Element] = E.icon
 
 
-def UPDATED(dt, *args, **kwargs):
+def UPDATED(dt: datetime.datetime, *args: Any, **kwargs: Any) -> etree.Element:
     return E.updated(as_utc(dt).strftime('%Y-%m-%dT%H:%M:%S+00:00'), *args, **kwargs)
 
 
-LINK = partial(E.link, type='application/atom+xml')
-NAVLINK = partial(E.link,
-        type='application/atom+xml;type=feed;profile=opds-catalog')
+LINK: partial[etree.Element] = partial(E.link, type='application/atom+xml')
+NAVLINK: partial[etree.Element] = partial(E.link, type='application/atom+xml;type=feed;profile=opds-catalog')
 
 
-def SEARCH_LINK(url_for, *args, **kwargs):
+def SEARCH_LINK(url_for: Callable[..., str], *args: Any, **kwargs: Any) -> etree.Element:
     kwargs['rel'] = 'search'
     kwargs['title'] = 'Search'
     kwargs['href'] = url_for('/opds/search', query='XXX').replace('XXX', '{searchTerms}')
     return LINK(*args, **kwargs)
 
 
-def AUTHOR(name, uri=None):
+def AUTHOR(name: str, uri: str | None = None) -> etree.Element:
     args = [E.name(name)]
     if uri is not None:
         args.append(E.uri(uri))
     return E.author(*args)
 
 
-SUBTITLE = E.subtitle
+SUBTITLE: Callable[..., etree.Element] = E.subtitle
 
 
-def NAVCATALOG_ENTRY(url_for, updated, title, description, query):
+def NAVCATALOG_ENTRY(url_for: UrlForCallable, updated: datetime.datetime, title: str, description: str, query: str) -> etree.Element:
     href = url_for('/opds/navcatalog', which=as_hex_unicode(query))
     id_ = 'calibre-navcatalog:' + hashlib.sha1(as_bytes(href)).hexdigest()
-    return E.entry(
-        TITLE(title),
-        ID(id_),
-        UPDATED(updated),
-        E.content(description, type='text'),
-        NAVLINK(href=href)
-    )
+    return E.entry(TITLE(title), ID(id_), UPDATED(updated), E.content(description, type='text'), NAVLINK(href=href))
 
 
 START_LINK = partial(NAVLINK, rel='start')
 UP_LINK = partial(NAVLINK, rel='up')
 FIRST_LINK = partial(NAVLINK, rel='first')
-LAST_LINK  = partial(NAVLINK, rel='last')
-NEXT_LINK  = partial(NAVLINK, rel='next', title='Next')
-PREVIOUS_LINK  = partial(NAVLINK, rel='previous')
+LAST_LINK = partial(NAVLINK, rel='last')
+NEXT_LINK = partial(NAVLINK, rel='next', title='Next')
+PREVIOUS_LINK = partial(NAVLINK, rel='previous')
 
 
-def html_to_lxml(raw):
+def html_to_lxml(raw: str) -> etree.Element:
     raw = f'<div>{raw}</div>'
     root = parse(raw, keep_doctype=False, namespace_elements=False, maybe_xhtml=False, sanitize_names=True)
     root = next(root.iterdescendants('div'))
@@ -139,16 +143,24 @@ def html_to_lxml(raw):
             return safe_xml_fromstring(raw, recover=False)
         except Exception:
             from calibre.ebooks.oeb.parse_utils import _html4_parse
+
             return _html4_parse(raw)
 
 
-def CATALOG_ENTRY(item, item_kind, request_context, updated, catalog_name,
-                  ignore_count=False, add_kind=False):
-    id_ = 'calibre:category:'+item.name
+def CATALOG_ENTRY(
+    item: Tag,
+    item_kind: str,
+    request_context: RequestContext,
+    updated: datetime.datetime,
+    catalog_name: str,
+    ignore_count: bool = False,
+    add_kind: bool = False,
+) -> etree.Element:
+    id_ = 'calibre:category:' + item.name
     iid = 'N' + item.name
     if item.id is not None:
         iid = 'I' + str(item.id)
-        iid += ':'+item_kind
+        iid += ':' + item_kind
     href = request_context.url_for('/opds/category', category=as_hex_unicode(catalog_name), which=as_hex_unicode(iid))
     link = NAVLINK(href=href)
     if ignore_count:
@@ -159,51 +171,36 @@ def CATALOG_ENTRY(item, item_kind, request_context, updated, catalog_name,
         name = item.sort
     else:
         name = item.name
-    return E.entry(
-            TITLE(name + ('' if not add_kind else f' ({item_kind})')),
-            ID(id_),
-            UPDATED(updated),
-            E.content(count, type='text'),
-            link
-            )
+    return E.entry(TITLE(str(name) + ('' if not add_kind else f' ({item_kind})')), ID(id_), UPDATED(updated), E.content(count, type='text'), link)
 
 
-def CATALOG_GROUP_ENTRY(item, category, request_context, updated):
-    id_ = 'calibre:category-group:'+category+':'+item.text
+def CATALOG_GROUP_ENTRY(item: Group, category: str, request_context: RequestContext, updated: datetime.datetime) -> etree.Element:
+    id_ = 'calibre:category-group:' + category + ':' + (item.text or '')
     iid = item.text
     link = NAVLINK(href=request_context.url_for('/opds/categorygroup', category=as_hex_unicode(category), which=as_hex_unicode(iid)))
-    return E.entry(
-        TITLE(item.text),
-        ID(id_),
-        UPDATED(updated),
-        E.content(ngettext('one item', '{} items', item.count).format(item.count), type='text'),
-        link
-    )
+    return E.entry(TITLE(item.text), ID(id_), UPDATED(updated), E.content(ngettext('one item', '{} items', item.count).format(item.count), type='text'), link)
 
 
-def ACQUISITION_ENTRY(book_id, updated, request_context):
+def ACQUISITION_ENTRY(book_id: int, updated: datetime.datetime, request_context: RequestContext) -> etree.Element:
     field_metadata = request_context.db.field_metadata
     mi = request_context.db.get_metadata(book_id)
     extra = []
     if (mi.rating or 0) > 0:
         rating = rating_to_stars(mi.rating)
-        extra.append(_('RATING: %s<br />')%rating)
+        extra.append(_('RATING: %s<br />') % rating)
     if mi.tags:
-        extra.append(_('TAGS: %s<br />')%xml(format_tag_string(mi.tags, None)))
+        extra.append(_('TAGS: %s<br />') % xml(format_tag_string(mi.tags, None)))
     if mi.series:
-        extra.append(_('SERIES: %(series)s [%(sidx)s]<br />')%
-                dict(series=xml(mi.series),
-                sidx=fmt_sidx(float(mi.series_index))))
+        extra.append(_('SERIES: %(series)s [%(sidx)s]<br />') % dict(series=xml(mi.series), sidx=fmt_sidx(float(mi.series_index))))
     for key in filter(request_context.ctx.is_field_displayable, field_metadata.ignorable_field_keys()):
         name, val = mi.format_field(key)
         if val:
             fm = field_metadata[key]
             datatype = fm['datatype']
             if datatype == 'text' and fm['is_multiple']:
-                extra.append('{}: {}<br />'.format(xml(name),
-                              xml(format_tag_string(val,
-                                    fm['is_multiple']['ui_to_list'],
-                                    joinval=fm['is_multiple']['list_to_ui']))))
+                extra.append(
+                    '{}: {}<br />'.format(xml(name), xml(format_tag_string(val, fm['is_multiple']['ui_to_list'], joinval=fm['is_multiple']['list_to_ui'])))
+                )
             elif datatype == 'comments' or (fm['datatype'] == 'composite' and fm['display'].get('contains_html', False)):
                 extra.append(f'{xml(name)}: {comments_to_html(str(val))}<br />')
             else:
@@ -213,19 +210,27 @@ def ACQUISITION_ENTRY(book_id, updated, request_context):
         extra.append(comments)
     if extra:
         extra = html_to_lxml('\n'.join(extra))
-    ans = E.entry(TITLE(mi.title), E.author(E.name(authors_to_string(mi.authors))), ID('urn:uuid:' + (mi.uuid or '')), UPDATED(mi.last_modified),
-                  E.published(mi.timestamp.isoformat()))
+    ans = E.entry(
+        TITLE(mi.title),
+        E.author(E.name(authors_to_string(mi.authors))),
+        ID('urn:uuid:' + (mi.uuid or '')),
+        UPDATED(mi.last_modified),
+        E.published(mi.timestamp.isoformat()),
+    )
     if mi.pubdate and not is_date_undefined(mi.pubdate):
         ans.append(ans.makeelement(f'{{{DC_NS}}}date'))
         ans[-1].text = mi.pubdate.isoformat()
     if len(extra):
         ans.append(E.content(*extra, type='xhtml'))
-    get = partial(request_context.ctx.url_for, '/get', book_id=book_id, library_id=request_context.library_id)
+
+    def get(**kwargs: Any) -> str:
+        return request_context.ctx.url_for('/get', book_id=book_id, library_id=request_context.library_id, **kwargs)
+
     if mi.formats:
         fm = mi.format_metadata
         for fmt in mi.formats:
             fmt = fmt.lower()
-            mt = guess_type('a.'+fmt)[0]
+            mt = guess_type('a.' + fmt)[0]
             if mt:
                 link = E.link(type=mt, href=get(what=fmt), rel='http://opds-spec.org/acquisition')
                 ffm = fm.get(fmt.upper())
@@ -240,30 +245,41 @@ def ACQUISITION_ENTRY(book_id, updated, request_context):
 
     return ans
 
+
 # }}}
 
 
-default_feed_title = __appname__ + ' ' + _('Library')
+default_feed_title: str = __appname__ + ' ' + _('Library')
 
 
 class Feed:  # {{{
+    base_href: str
+    root: etree.Element
 
-    def __init__(self, id_, updated, request_context, subtitle=None,
-            title=None,
-            up_link=None, first_link=None, last_link=None,
-            next_link=None, previous_link=None):
+    def __init__(
+        self,
+        id_: str,
+        updated: datetime.datetime,
+        request_context: RequestContext,
+        subtitle: str | None = None,
+        title: str | None = None,
+        up_link: str | None = None,
+        first_link: str | None = None,
+        last_link: str | None = None,
+        next_link: str | None = None,
+        previous_link: str | None = None,
+    ) -> None:
         self.base_href = request_context.url_for('/opds')
 
-        self.root = \
-            FEED(
-                    TITLE(title or default_feed_title),
-                    AUTHOR(__appname__, uri='https://calibre-ebook.com'),
-                    ID(id_),
-                    ICON(request_context.ctx.url_for('/favicon.png')),
-                    UPDATED(updated),
-                    SEARCH_LINK(request_context.url_for),
-                    START_LINK(href=request_context.url_for('/opds'))
-                )
+        self.root = FEED(
+            TITLE(title or default_feed_title),
+            AUTHOR(__appname__, uri='https://calibre-ebook.com'),
+            ID(id_),
+            ICON(request_context.ctx.url_for('/favicon.png')),
+            UPDATED(updated),
+            SEARCH_LINK(request_context.url_for),
+            START_LINK(href=request_context.url_for('/opds')),
+        )
         if up_link:
             self.root.append(UP_LINK(href=up_link))
         if first_link:
@@ -281,116 +297,162 @@ class Feed:  # {{{
 
 
 class TopLevel(Feed):  # {{{
-
-    def __init__(self,
-            updated,  # datetime object in UTC
-            categories,
-            request_context,
-            id_='urn:calibre:main',
-            subtitle=_('Books in your library')
-            ):
+    def __init__(
+        self,
+        updated: datetime.datetime,  # datetime object in UTC
+        categories: list[tuple[str, str, str]],
+        request_context: RequestContext,
+        id_: str = 'urn:calibre:main',
+        subtitle: str = _('Books in your library'),
+    ) -> None:
         Feed.__init__(self, id_, updated, request_context, subtitle=subtitle)
 
         subc = partial(NAVCATALOG_ENTRY, request_context.url_for, updated)
-        subcatalogs = [subc(_('By ')+title,
-            _('Books sorted by ') + desc, q) for title, desc, q in
-            categories]
+        subcatalogs = [subc(_('By ') + title, _('Books sorted by ') + desc, q) for title, desc, q in categories]
         for x in subcatalogs:
             self.root.append(x)
         for library_id, library_name in sorted(request_context.library_map.items(), key=lambda item: sort_key(item[1])):
             id_ = 'calibre-library:' + library_id
-            self.root.append(E.entry(
-                TITLE(_('Library:') + ' ' + library_name),
-                ID(id_),
-                UPDATED(updated),
-                E.content(_('Change calibre library to:') + ' ' + library_name, type='text'),
-                NAVLINK(href=request_context.url_for('/opds', library_id=library_id))
-            ))
+            self.root.append(
+                E.entry(
+                    TITLE(_('Library:') + ' ' + library_name),
+                    ID(id_),
+                    UPDATED(updated),
+                    E.content(_('Change calibre library to:') + ' ' + library_name, type='text'),
+                    NAVLINK(href=request_context.url_for('/opds', library_id=library_id)),
+                )
+            )
+
+
 # }}}
 
 
 class NavFeed(Feed):
-
-    def __init__(self, id_, updated, request_context, offsets, page_url, up_url, title=None):
-        kwargs = {'up_link': up_url}
+    def __init__(
+        self, id_: str, updated: datetime.datetime, request_context: RequestContext, offsets: Offsets, page_url: str, up_url: str, title: str | None = None
+    ) -> None:
+        kwargs: dict[str, Any] = {'up_link': up_url}
         kwargs['first_link'] = page_url
-        kwargs['last_link']  = page_url+f'&offset={offsets.last_offset}'
+        kwargs['last_link'] = page_url + f'&offset={offsets.last_offset}'
         if offsets.offset > 0:
-            kwargs['previous_link'] = \
-                page_url+f'&offset={offsets.previous_offset}'
+            kwargs['previous_link'] = page_url + f'&offset={offsets.previous_offset}'
         if offsets.next_offset > -1:
-            kwargs['next_link'] = \
-                page_url+f'&offset={offsets.next_offset}'
+            kwargs['next_link'] = page_url + f'&offset={offsets.next_offset}'
         if title:
             kwargs['title'] = title
         Feed.__init__(self, id_, updated, request_context, **kwargs)
 
 
 class AcquisitionFeed(NavFeed):
-
-    def __init__(self, id_, updated, request_context, items, offsets, page_url, up_url, title=None):
+    def __init__(
+        self,
+        id_: str,
+        updated: datetime.datetime,
+        request_context: RequestContext,
+        items: list[int],
+        offsets: Offsets,
+        page_url: str,
+        up_url: str,
+        title: str | None = None,
+    ) -> None:
         NavFeed.__init__(self, id_, updated, request_context, offsets, page_url, up_url, title=title)
         for book_id in items:
             self.root.append(ACQUISITION_ENTRY(book_id, updated, request_context))
 
 
 class CategoryFeed(NavFeed):
-
-    def __init__(self, items, which, id_, updated, request_context, offsets, page_url, up_url, title=None):
+    def __init__(
+        self,
+        items: list[Tag],
+        which: str,
+        id_: str,
+        updated: datetime.datetime,
+        request_context: RequestContext,
+        offsets: Offsets,
+        page_url: str,
+        up_url: str,
+        title: str | None = None,
+    ) -> None:
         NavFeed.__init__(self, id_, updated, request_context, offsets, page_url, up_url, title=title)
         ignore_count = False
         if which == 'search':
             ignore_count = True
         for item in items:
-            self.root.append(CATALOG_ENTRY(
-                item, item.category, request_context, updated, which, ignore_count=ignore_count, add_kind=which != item.category))
+            self.root.append(
+                CATALOG_ENTRY(item, item.category or '', request_context, updated, which, ignore_count=ignore_count, add_kind=which != item.category)
+            )
 
 
 class CategoryGroupFeed(NavFeed):
-
-    def __init__(self, items, which, id_, updated, request_context, offsets, page_url, up_url, title=None):
+    def __init__(
+        self,
+        items: list[Group],
+        which: str,
+        id_: str,
+        updated: datetime.datetime,
+        request_context: RequestContext,
+        offsets: Offsets,
+        page_url: str,
+        up_url: str,
+        title: str | None = None,
+    ) -> None:
         NavFeed.__init__(self, id_, updated, request_context, offsets, page_url, up_url, title=title)
         for item in items:
             self.root.append(CATALOG_GROUP_ENTRY(item, which, request_context, updated))
 
 
 class RequestContext:
+    db: Cache
+    library_id: str
+    library_map: dict[str, str]
+    default_library: str
+    ctx: Context
+    rd: RequestData
 
-    def __init__(self, ctx, rd):
+    def __init__(self, ctx: Context, rd: RequestData) -> None:
         self.db, self.library_id, self.library_map, self.default_library = get_library_data(ctx, rd)
         self.ctx, self.rd = ctx, rd
 
-    def url_for(self, path, **kwargs):
+    def url_for(self, route: str | None, **kwargs: Any) -> str:
         lid = kwargs.pop('library_id', self.library_id)
-        ans = self.ctx.url_for(path, **kwargs)
-        q = {'library_id':lid}
+        assert self.ctx.url_for is not None
+        ans = self.ctx.url_for(route, **kwargs)
+        q = {'library_id': lid}
         ans += '?' + urlencode(q)
         return ans
 
-    def allowed_book_ids(self):
+    def allowed_book_ids(self) -> frozenset[int]:
         return self.ctx.allowed_book_ids(self.rd, self.db)
 
     @property
-    def outheaders(self):
+    def outheaders(self) -> MultiDict:
         return self.rd.outheaders
 
     @property
-    def opts(self):
+    def opts(self) -> Options:
         return self.ctx.opts
 
-    def last_modified(self):
+    def last_modified(self) -> datetime.datetime:
         return self.db.last_modified()
 
-    def get_categories(self, report_parse_errors=False):
-        return self.ctx.get_categories(self.rd, self.db,
-                                       report_parse_errors=report_parse_errors)
+    def get_categories(self, report_parse_errors: bool = False) -> dict[str, list[Tag]]:
+        return self.ctx.get_categories(self.rd, self.db, report_parse_errors=report_parse_errors)
 
-    def search(self, query):
+    def search(self, query: str) -> frozenset[int]:
         return self.ctx.search(self.rd, self.db, query)
 
 
-def get_acquisition_feed(rc, ids, offset, page_url, up_url, id_,
-        sort_by='title', ascending=True, feed_title=None):
+def get_acquisition_feed(
+    rc: RequestContext,
+    ids: frozenset[int],
+    offset: int,
+    page_url: str,
+    up_url: str,
+    id_: str,
+    sort_by: str = 'title',
+    ascending: bool = True,
+    feed_title: str | None = None,
+) -> etree.Element:
     if not ids:
         raise HTTPNotFound('No books found')
     with rc.db.safe_read_lock:
@@ -398,13 +460,13 @@ def get_acquisition_feed(rc, ids, offset, page_url, up_url, id_,
         items = rc.db.multisort([(sort_by, ascending)], ids)
         max_items = rc.opts.max_opds_items
         offsets = Offsets(offset, max_items, len(items))
-        items = items[offsets.offset:offsets.offset+max_items]
+        items = items[offsets.offset : offsets.offset + max_items]
         lm = rc.last_modified()
         rc.outheaders['Last-Modified'] = http_date(timestampfromdt(lm))
         return AcquisitionFeed(id_, lm, rc, items, offsets, page_url, up_url, title=feed_title).root
 
 
-def get_all_books(rc, which, page_url, up_url, offset=0):
+def get_all_books(rc: RequestContext, which: str, page_url: str, up_url: str, offset: int = 0) -> etree.Element:
     try:
         offset = int(offset)
     except Exception:
@@ -413,15 +475,13 @@ def get_all_books(rc, which, page_url, up_url, offset=0):
         raise HTTPNotFound('Not found')
     sort = 'timestamp' if which == 'newest' else 'title'
     ascending = which == 'title'
-    feed_title = {'newest':_('Newest'), 'title': _('Title')}.get(which, which)
+    feed_title = {'newest': _('Newest'), 'title': _('Title')}.get(which, which)
     feed_title = default_feed_title + ' :: ' + _('By %s') % feed_title
     ids = rc.allowed_book_ids()
-    return get_acquisition_feed(rc, ids, offset, page_url, up_url,
-            id_='calibre-all:'+sort, sort_by=sort, ascending=ascending,
-            feed_title=feed_title)
+    return get_acquisition_feed(rc, ids, offset, page_url, up_url, id_='calibre-all:' + sort, sort_by=sort, ascending=ascending, feed_title=feed_title)
 
 
-def get_navcatalog(request_context, which, page_url, up_url, offset=0):
+def get_navcatalog(request_context: RequestContext, which: str, page_url: str, up_url: str, offset: int = 0) -> etree.Element:
     categories = request_context.get_categories()
     if which not in categories:
         raise HTTPNotFound(f'Category {which!r} not found')
@@ -433,18 +493,16 @@ def get_navcatalog(request_context, which, page_url, up_url, offset=0):
     category_name = meta.get('name', which)
     feed_title = default_feed_title + ' :: ' + _('By %s') % category_name
 
-    id_ = 'calibre-category-feed:'+which
+    id_ = 'calibre-category-feed:' + which
 
     MAX_ITEMS = request_context.opts.max_opds_ungrouped_items
 
     if MAX_ITEMS > 0 and len(items) <= MAX_ITEMS:
         max_items = request_context.opts.max_opds_items
         offsets = Offsets(offset, max_items, len(items))
-        items = list(items)[offsets.offset:offsets.offset+max_items]
-        ans = CategoryFeed(items, which, id_, updated, request_context, offsets,
-            page_url, up_url, title=feed_title)
+        items = list(items)[offsets.offset : offsets.offset + max_items]
+        ans = CategoryFeed(items, which, id_, updated, request_context, offsets, page_url, up_url, title=feed_title)
     else:
-        Group = namedtuple('Group', 'text count')
         starts = set()
         for x in items:
             val = getattr(x, 'sort', x.name)
@@ -453,14 +511,12 @@ def get_navcatalog(request_context, which, page_url, up_url, offset=0):
             starts.add(val[0].upper())
         category_groups = OrderedDict()
         for x in sorted(starts, key=sort_key):
-            category_groups[x] = len([y for y in items if
-                getattr(y, 'sort', y.name).upper().startswith(x)])
+            category_groups[x] = len([y for y in items if getattr(y, 'sort', y.name).upper().startswith(x)])
         items = [Group(x, y) for x, y in category_groups.items()]
         max_items = request_context.opts.max_opds_items
         offsets = Offsets(offset, max_items, len(items))
-        items = items[offsets.offset:offsets.offset+max_items]
-        ans = CategoryGroupFeed(items, which, id_, updated, request_context, offsets,
-            page_url, up_url, title=feed_title)
+        items = items[offsets.offset : offsets.offset + max_items]
+        ans = CategoryGroupFeed(items, which, id_, updated, request_context, offsets, page_url, up_url, title=feed_title)
 
     request_context.outheaders['Last-Modified'] = http_date(timestampfromdt(updated))
 
@@ -468,7 +524,7 @@ def get_navcatalog(request_context, which, page_url, up_url, offset=0):
 
 
 @endpoint('/opds', postprocess=atom)
-def opds(ctx, rd):
+def opds(ctx: Context, rd: RequestData) -> etree.Element:
     rc = RequestContext(ctx, rd)
     db = rc.db
     try:
@@ -482,7 +538,7 @@ def opds(ctx, rd):
         (_('Title'), _('Title'), 'Otitle'),
     ]
 
-    def getter(x):
+    def getter(x: str) -> str:
         try:
             return category_meta[x]['name'].lower()
         except KeyError:
@@ -499,14 +555,14 @@ def opds(ctx, rd):
         meta = category_meta.get(category, None)
         if meta is None:
             continue
-        cats.append((meta['name'], meta['name'], 'N'+category))
+        cats.append((meta['name'], meta['name'], 'N' + category))
     last_modified = db.last_modified()
     rd.outheaders['Last-Modified'] = http_date(timestampfromdt(last_modified))
     return TopLevel(last_modified, cats, rc).root
 
 
 @endpoint('/opds/navcatalog/{which}', postprocess=atom)
-def opds_navcatalog(ctx, rd, which):
+def opds_navcatalog(ctx: Context, rd: RequestData, which: str) -> etree.Element:
     try:
         offset = int(rd.query.get('offset', 0))
     except Exception:
@@ -526,7 +582,7 @@ def opds_navcatalog(ctx, rd, which):
 
 
 @endpoint('/opds/category/{category}/{which}', postprocess=atom)
-def opds_category(ctx, rd, category, which: str):
+def opds_category(ctx: Context, rd: RequestData, category: str, which: str) -> etree.Element:
     try:
         offset = int(rd.query.get('offset', 0))
     except Exception:
@@ -544,7 +600,7 @@ def opds_category(ctx, rd, category, which: str):
     if type_ == 'I':
         try:
             p = which.rindex(':')
-            category = which[p+1:]
+            category = which[p + 1 :]
             which = which[:p]
             # This line will toss an exception for composite columns
             which = str(int(which[:p]))
@@ -562,7 +618,7 @@ def opds_category(ctx, rd, category, which: str):
             ids = rc.search(f'search:"{which}"')
         except Exception:
             raise HTTPNotFound(f'Search: {which!r} not understood')
-        return get_acquisition_feed(rc, ids, offset, page_url, up_url, 'calibre-search:'+which)
+        return get_acquisition_feed(rc, ids, offset, page_url, up_url, 'calibre-search:' + which)
 
     if type_ != 'I':
         raise HTTPNotFound('Non id categories not supported')
@@ -573,11 +629,11 @@ def opds_category(ctx, rd, category, which: str):
     ids = rc.db.get_books_for_category(q, which) & rc.allowed_book_ids()
     sort_by = 'series' if category == 'series' else 'title'
 
-    return get_acquisition_feed(rc, ids, offset, page_url, up_url, 'calibre-category:'+category+':'+str(which), sort_by=sort_by)
+    return get_acquisition_feed(rc, ids, offset, page_url, up_url, 'calibre-category:' + category + ':' + str(which), sort_by=sort_by)
 
 
 @endpoint('/opds/categorygroup/{category}/{which}', postprocess=atom)
-def opds_categorygroup(ctx, rd, category, which):
+def opds_categorygroup(ctx: Context, rd: RequestData, category: str, which: str) -> etree.Element:
     try:
         offset = int(rd.query.get('offset', 0))
     except Exception:
@@ -598,22 +654,23 @@ def opds_categorygroup(ctx, rd, category, which):
     category_name = meta.get('name', which)
     which = from_hex_unicode(which)
     feed_title = default_feed_title + ' :: ' + (_('By {0} :: {1}').format(category_name, which))
-    owhich = as_hex_unicode('N'+category)
+    owhich = as_hex_unicode('N' + category)
     up_url = rc.url_for('/opds/navcatalog', which=owhich)
     items = categories[category]
 
-    def belongs(x, which):
+    def belongs(x: Tag, which: str) -> bool:
         return getattr(x, 'sort', x.name).lower().startswith(which.lower())
+
     items = [x for x in items if belongs(x, which)]
     if not items:
         raise HTTPNotFound(f'No items in group {category!r}:{which!r}')
     updated = rc.last_modified()
 
-    id_ = 'calibre-category-group-feed:'+category+':'+which
+    id_ = 'calibre-category-group-feed:' + category + ':' + which
 
     max_items = rc.opts.max_opds_items
     offsets = Offsets(offset, max_items, len(items))
-    items = list(items)[offsets.offset:offsets.offset+max_items]
+    items = list(items)[offsets.offset : offsets.offset + max_items]
 
     rc.outheaders['Last-Modified'] = http_date(timestampfromdt(updated))
 
@@ -621,7 +678,7 @@ def opds_categorygroup(ctx, rd, category, which):
 
 
 @endpoint('/opds/search/{query=""}', postprocess=atom)
-def opds_search(ctx, rd, query):
+def opds_search(ctx: Context, rd: RequestData, query: str) -> etree.Element:
     try:
         offset = int(rd.query.get('offset', 0))
     except Exception:
@@ -638,4 +695,4 @@ def opds_search(ctx, rd, query):
     except Exception:
         raise HTTPNotFound(f'Search: {query!r} not understood')
     page_url = rc.url_for('/opds/search', query=query)
-    return get_acquisition_feed(rc, ids, offset, page_url, rc.url_for('/opds'), 'calibre-search:'+query)
+    return get_acquisition_feed(rc, ids, offset, page_url, rc.url_for('/opds'), 'calibre-search:' + query)

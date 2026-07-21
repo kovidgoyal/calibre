@@ -13,6 +13,7 @@ import sys
 import textwrap
 import time
 from operator import attrgetter
+from typing import Any
 from urllib.parse import quote as urlquote
 
 from calibre.srv.errors import HTTPNotFound, HTTPSimpleResponse, RouteError
@@ -23,7 +24,6 @@ default_methods = frozenset(('HEAD', 'GET'))
 
 
 class JSONEndpoint:
-
     def loads(self, *a, **kw):
         return jsonlib.loads(*a, **kw)
 
@@ -61,28 +61,24 @@ def route_key(route):
     return route.partition('{')[0].rstrip('/')
 
 
-def endpoint(route,
-             methods=default_methods,
-             types=None,
-             auth_required=True,
-             android_workaround=False,
-
-             # Manage the HTTP caching
-             # Set to None or 'no-cache' to prevent caching of this endpoint
-             # Set to a number to cache for at most number hours
-             # Set to a tuple (cache_type, max_age) to explicitly set the
-             # Cache-Control header
-             cache_control=False,
-
-             # The HTTP code to be used when no error occurs. By default it is
-             # 200 for GET and HEAD and 201 for POST
-             ok_code=None,
-
-             postprocess=None,
-
-             # Needs write access to the calibre database
-             needs_db_write=False
-
+def endpoint(
+    route,
+    methods=default_methods,
+    types=None,
+    auth_required=True,
+    android_workaround=False,
+    # Manage the HTTP caching
+    # Set to None or 'no-cache' to prevent caching of this endpoint
+    # Set to a number to cache for at most number hours
+    # Set to a tuple (cache_type, max_age) to explicitly set the
+    # Cache-Control header
+    cache_control=False,
+    # The HTTP code to be used when no error occurs. By default it is
+    # 200 for GET and HEAD and 201 for POST
+    ok_code=None,
+    postprocess=None,
+    # Needs write access to the calibre database
+    needs_db_write=False,
 ):
     from calibre.srv.handler import Context
     from calibre.srv.http_response import RequestData
@@ -106,16 +102,17 @@ def endpoint(route,
             argspec.args[0]: Context,
             argspec.args[1]: RequestData,
         }
-        f.__doc__ = textwrap.dedent(f.__doc__ or '') + '\n\n' + (
-            (f':type {argspec.args[0]}: calibre.srv.handler.Context\n') +
-            (f':type {argspec.args[1]}: calibre.srv.http_response.RequestData\n')
+        f.__doc__ = (
+            textwrap.dedent(f.__doc__ or '')
+            + '\n\n'
+            + ((f':type {argspec.args[0]}: calibre.srv.handler.Context\n') + (f':type {argspec.args[1]}: calibre.srv.http_response.RequestData\n'))
         )
         return f
+
     return annotate
 
 
 class Route:
-
     var_pat = None
 
     def __init__(self, endpoint_):
@@ -171,10 +168,10 @@ class Route:
         argspec = inspect.getfullargspec(self.endpoint)
         if len(self.names) + 2 != len(argspec.args) - len(argspec.defaults or ()):
             raise route_error(f'Function must take {len(self.names) + 2} non-default arguments')
-        if argspec.args[2:len(self.names)+2] != self.names:
+        if argspec.args[2 : len(self.names) + 2] != self.names:
             raise route_error("Function's argument names do not match the variable names in the route")
         if not frozenset(self.type_checkers).issubset(frozenset(self.names)):
-            raise route_error(f'There exist type checkers that do not correspond to route variables: {set(self.type_checkers)-set(self.names)!r}')
+            raise route_error(f'There exist type checkers that do not correspond to route variables: {set(self.type_checkers) - set(self.names)!r}')
         self.min_size = found_optional_part if found_optional_part is not False else len(matchers)
         self.max_size = sys.maxsize if self.soak_up_extra else len(matchers)
 
@@ -198,6 +195,7 @@ class Route:
                 return tc(val)
             except Exception:
                 raise HTTPNotFound('Argument of incorrect type')
+
         for name, tc in self.type_checkers.items():
             args_map[name] = check(tc, args_map[name])
         return (args_map[name] for name in self.names)
@@ -217,22 +215,23 @@ class Route:
             if isinstance(x, str):
                 x = x.encode('utf-8')
             return urlquote(x, '')
-        args = {k:'' for k in self.defaults}
+
+        args = {k: '' for k in self.defaults}
         args.update(kwargs)
-        args = {k:quoted(v) for k, v in args.items()}
+        args = {k: quoted(v) for k, v in args.items()}
         assert self.var_pat is not None
-        route = self.var_pat.sub(lambda m:'{{{}}}'.format(m.group(1).partition('=')[0].lstrip('+')), self.endpoint.route)
+        route = self.var_pat.sub(lambda m: '{{{}}}'.format(m.group(1).partition('=')[0].lstrip('+')), self.endpoint.route)
         return route.format(**args).rstrip('/')
 
     def __str__(self):
         return self.endpoint.route
+
     __unicode__ = __repr__ = __str__
 
 
 class Router:
-
     def __init__(self, endpoints=None, ctx=None, url_prefix=None, auth_controller=None):
-        self.routes = {}
+        self.routes: dict[str, Route] = {}
         self.url_prefix = (url_prefix or '').rstrip('/')
         self.strip_path = None
         if self.url_prefix:
@@ -241,8 +240,8 @@ class Router:
             self.strip_path = tuple(self.url_prefix[1:].split('/'))
         self.ctx = ctx
         self.auth_controller = auth_controller
-        self.init_session = getattr(ctx, 'init_session', lambda ep, data:None)
-        self.finalize_session = getattr(ctx, 'finalize_session', lambda ep, data, output:None)
+        self.init_session = getattr(ctx, 'init_session', lambda ep, data: None)
+        self.finalize_session = getattr(ctx, 'finalize_session', lambda ep, data, output: None)
         self.endpoints = set()
         if endpoints is not None:
             self.load_routes(endpoints)
@@ -270,13 +269,13 @@ class Router:
             lsz = max(len(r.matchers) for r in self)
         except ValueError:
             lsz = 0
-        self.min_size_map = {sz:frozenset(r for r in self if r.min_size <= sz) for sz in range(lsz + 1)}
-        self.max_size_map = {sz:frozenset(r for r in self if r.max_size >= sz) for sz in range(lsz + 1)}
+        self.min_size_map = {sz: frozenset(r for r in self if r.min_size <= sz) for sz in range(lsz + 1)}
+        self.max_size_map = {sz: frozenset(r for r in self if r.max_size >= sz) for sz in range(lsz + 1)}
         self.soak_routes = sorted(frozenset(r for r in self if r.soak_up_extra), key=attrgetter('min_size'), reverse=True)
 
     def find_route(self, path):
-        if self.strip_path is not None and path[:len(self.strip_path)] == self.strip_path:
-            path = path[len(self.strip_path):]
+        if self.strip_path is not None and path[: len(self.strip_path)] == self.strip_path:
+            path = path[len(self.strip_path) :]
         size = len(path)
         # routes for which min_size <= size <= max_size
         routes = self.max_size_map.get(size, set()) & self.min_size_map.get(size, set())
@@ -352,7 +351,7 @@ class Router:
                 outheaders['Expires'] = http_date(max_age + time.time())
         return ans
 
-    def url_for(self, route, **kwargs):
+    def url_for(self, route: str | None, **kwargs: Any) -> str:
         if route is None:
             return self.url_prefix or '/'
         route = getattr(route, 'route_key', route)
