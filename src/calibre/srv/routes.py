@@ -1,8 +1,6 @@
 #!/usr/bin/env python
+# License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
-
-__license__ = 'GPL v3'
-__copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import http.client
 import inspect
@@ -12,25 +10,34 @@ import re
 import sys
 import textwrap
 import time
+from collections.abc import Callable
+from dataclasses import dataclass
 from operator import attrgetter
-from typing import Any
+from typing import IO, TYPE_CHECKING, Any, Concatenate, Literal, Protocol
 from urllib.parse import quote as urlquote
 
 from calibre.srv.errors import HTTPNotFound, HTTPSimpleResponse, RouteError
 from calibre.srv.utils import http_date
 from calibre.utils.serialize import MSGPACK_MIME, json_dumps, msgpack_dumps
 
+if TYPE_CHECKING:
+    from calibre.srv.handler import Context
+    from calibre.srv.http_response import RequestData
+else:
+    Context = RequestData = None
+
+
 default_methods = frozenset(('HEAD', 'GET'))
 
 
 class JSONEndpoint:
-    def loads(self, *a, **kw):
+    def loads(self, *a, **kw) -> Any:
         return jsonlib.loads(*a, **kw)
 
-    def dumps(self, *a, **kw):
+    def dumps(self, *a, **kw) -> str:
         return jsonlib.dumps(*a, **kw)
 
-    def __call__(self, ctx, rd, endpoint, output):
+    def __call__(self, ctx: Context, rd: RequestData, endpoint: RouteFunction, output: Any):
         rd.outheaders.set('Content-Type', 'application/json; charset=UTF-8', replace_all=True)
         if isinstance(output, bytes) or hasattr(output, 'fileno'):
             ans = output  # Assume output is already UTF-8 encoded json
@@ -58,56 +65,94 @@ def msgpack_or_json(ctx, rd, endpoint, output):
 
 
 def route_key(route):
-    return route.partition('{')[0].rstrip('/')
+    return route.partition('{')[0].rstrip('/')  # ]]]}}))
 
 
-def endpoint(
-    route,
-    methods=default_methods,
-    types=None,
-    auth_required=True,
-    android_workaround=False,
+class EndpointFunction(Protocol):
+    def __call__(self, ctx: Context, rd: RequestData, *path_segments: Any) -> Any: ...
+
+
+PostProcessFunc = Callable[[Context, RequestData, 'RouteFunction', Any], bytes | str | IO[bytes]]
+
+
+class types_dict(dict):
+    _hash_val: int
+
+    def __new__(cls, types: dict[str, type]) -> types_dict:
+        ans = super().__new__(cls, types)
+        ans._hash_val = hash(tuple(sorted(types.items())))
+        return ans
+
+    def __hash__(self) -> int:
+        return self._hash_val
+
+
+@dataclass(unsafe_hash=True)
+class RouteFunction:
+    f: Any
+    route: str
+    route_key: str
+    types: types_dict
+    methods: frozenset[str]
+    auth_required: bool
+    android_workaround: bool
+    cache_control: int | float | None | bool | Literal['no-cache'] | tuple[str, int]
+    ok_code: int | None
+    postprocess: PostProcessFunc | None
+    needs_db_write: bool
+
+    is_endpoint: bool = True
+
+    def __call__(self, ctx: Context, rd: RequestData, *path_segments: Any) -> Any:
+        return self.f(ctx, rd, *path_segments)
+
+
+def endpoint[**P](
+    route: str,
+    methods: frozenset[str] | set[str] | tuple[str, ...] = default_methods,
+    types: dict[str, type] | None = None,
+    auth_required: bool = True,
+    android_workaround: bool = False,
     # Manage the HTTP caching
     # Set to None or 'no-cache' to prevent caching of this endpoint
     # Set to a number to cache for at most number hours
     # Set to a tuple (cache_type, max_age) to explicitly set the
     # Cache-Control header
-    cache_control=False,
+    cache_control: int | float | None | bool | Literal['no-cache'] | tuple[str, int] = False,
     # The HTTP code to be used when no error occurs. By default it is
     # 200 for GET and HEAD and 201 for POST
-    ok_code=None,
-    postprocess=None,
+    ok_code: int | None = None,
+    postprocess: PostProcessFunc | None = None,
     # Needs write access to the calibre database
-    needs_db_write=False,
-):
-    from calibre.srv.handler import Context
-    from calibre.srv.http_response import RequestData
+    needs_db_write: bool = False,
+) -> Callable[[Callable[Concatenate[Context, RequestData, P], Any]], RouteFunction]:
+    from calibre.srv.handler import Context  # noqa
+    from calibre.srv.http_response import RequestData  # noqa
 
-    def annotate(f):
-        f.route = route.rstrip('/') or '/'
-        f.route_key = route_key(f.route)
-        f.types = types or {}
-        f.methods = methods
-        f.auth_required = auth_required
-        f.android_workaround = android_workaround
-        f.cache_control = cache_control
-        f.postprocess = postprocess
-        f.ok_code = ok_code
-        f.is_endpoint = True
-        f.needs_db_write = needs_db_write
+    def annotate[**P](f: Callable[Concatenate[Context, RequestData, P], Any]) -> RouteFunction:
+        r = route.rstrip('/') or '/'
+        ans = RouteFunction(
+            f,
+            route=r,
+            route_key=route_key(r),
+            types=types_dict(types or {}),
+            methods=frozenset(methods),
+            auth_required=auth_required,
+            android_workaround=android_workaround,
+            cache_control=cache_control,
+            postprocess=postprocess,
+            ok_code=ok_code,
+            needs_db_write=needs_db_write,
+        )
         argspec = inspect.getfullargspec(f)
         if len(argspec.args) < 2:
-            raise TypeError(f'The endpoint {f.route!r} must take at least two arguments')
-        f.__annotations__ = {
-            argspec.args[0]: Context,
-            argspec.args[1]: RequestData,
-        }
-        f.__doc__ = (
+            raise TypeError(f'The endpoint {r!r} must take at least two arguments')
+        ans.__doc__ = (
             textwrap.dedent(f.__doc__ or '')
             + '\n\n'
             + ((f':type {argspec.args[0]}: calibre.srv.handler.Context\n') + (f':type {argspec.args[1]}: calibre.srv.http_response.RequestData\n'))
         )
-        return f
+        return ans
 
     return annotate
 
@@ -115,7 +160,7 @@ def endpoint(
 class Route:
     var_pat = None
 
-    def __init__(self, endpoint_):
+    def __init__(self, endpoint_: RouteFunction):
         if self.var_pat is None:
             Route.var_pat = self.var_pat = re.compile(r'{(.+?)}')
         self.endpoint = endpoint_
@@ -165,9 +210,9 @@ class Route:
         self.names = [n for n, m in matchers if n is not None]
         self.all_names = frozenset(self.names)
         self.required_names = self.all_names - frozenset(self.defaults)
-        argspec = inspect.getfullargspec(self.endpoint)
+        argspec = inspect.getfullargspec(self.endpoint.f)
         if len(self.names) + 2 != len(argspec.args) - len(argspec.defaults or ()):
-            raise route_error(f'Function must take {len(self.names) + 2} non-default arguments')
+            raise route_error(f'Function {self.endpoint.f} must take {len(self.names) + 2} non-default arguments')
         if argspec.args[2 : len(self.names) + 2] != self.names:
             raise route_error("Function's argument names do not match the variable names in the route")
         if not frozenset(self.type_checkers).issubset(frozenset(self.names)):

@@ -10,6 +10,7 @@ import zipfile
 from json import load as load_json_file
 from json import loads as json_loads
 from threading import Lock
+from typing import Any
 
 from calibre import as_unicode
 from calibre.constants import in_develop_mode
@@ -19,6 +20,8 @@ from calibre.db.view import sanitize_sort_field_name
 from calibre.ebooks.metadata.book.render import resolve_default_author_link
 from calibre.srv.ajax import search_result
 from calibre.srv.errors import BookNotFound, HTTPBadRequest, HTTPForbidden, HTTPNotFound, HTTPRedirect, HTTPTempRedirect
+from calibre.srv.handler import Context
+from calibre.srv.http_response import RequestData
 from calibre.srv.last_read import last_read_cache
 from calibre.srv.metadata import book_as_json, categories_as_json, categories_settings, get_gpref, icon_map, web_search_link
 from calibre.srv.routes import endpoint, json
@@ -34,11 +37,12 @@ POSTABLE = frozenset({'GET', 'POST', 'HEAD'})
 
 
 @endpoint('', auth_required=False)
-def index(ctx, rd):
+def index(ctx: Context, rd: RequestData) -> Any:
     if rd.opts.url_prefix and rd.request_original_uri:
         # We need a trailing slash for relative URLs to resolve correctly, for
         # example the link to the mobile page in index.html
         from urllib.parse import urlparse, urlunparse
+
         p = urlparse(rd.request_original_uri)
         if not p.path.endswith(b'/'):
             p = p._replace(path=p.path + b'/')
@@ -111,7 +115,7 @@ def ajax_setup(ctx, rd):
 print_lock = Lock()
 
 
-@endpoint('/console-print', methods=('POST', ))
+@endpoint('/console-print', methods=('POST',))
 def console_print(ctx, rd):
     if not getattr(rd.opts, 'allow_console_print', False):
         raise HTTPForbidden('console printing is not allowed')
@@ -145,9 +149,7 @@ def get_basic_query_data(ctx, rd):
 
 
 def get_translations_data() -> bytes | None:
-    with zipfile.ZipFile(
-        P('content-server/locales.zip', allow_user_override=False), 'r'
-    ) as zf:
+    with zipfile.ZipFile(P('content-server/locales.zip', allow_user_override=False), 'r') as zf:
         names = set(zf.namelist())
         lang = get_lang()
         if lang not in names:
@@ -188,7 +190,7 @@ def custom_list_template():
                 '{tags}',
                 _('Date: {timestamp}') + '|||' + _('Published: {pubdate}') + '|||' + _('Publisher: {publisher}'),
                 '',
-            ]
+            ],
         }
     return _custom_list_template_cache
 
@@ -207,8 +209,7 @@ def basic_interface_data(ctx, rd):
     ans = {
         'username': rd.username,
         'output_format': prefs['output_format'].upper(),
-        'input_formats': {x.upper(): True
-                          for x in available_input_formats()},
+        'input_formats': {x.upper(): True for x in available_input_formats()},
         'gui_pubdate_display_format': tweaks['gui_pubdate_display_format'],
         'gui_timestamp_display_format': tweaks['gui_timestamp_display_format'],
         'gui_last_modified_display_format': tweaks['gui_last_modified_display_format'],
@@ -228,16 +229,16 @@ def basic_interface_data(ctx, rd):
     ans['library_map'], ans['default_library_id'] = ctx.library_info(rd)
     if ans['username']:
         ans['recently_read_by_user'] = tuple(
-            x for x in last_read_cache().get_recently_read(ans['username'])
-            if x['library_id'] in ans['library_map'] and book_exists(x, ctx, rd))
+            x for x in last_read_cache().get_recently_read(ans['username']) if x['library_id'] in ans['library_map'] and book_exists(x, ctx, rd)
+        )
     return ans
 
 
 @endpoint('/interface-data/update/{translations_hash=None}', postprocess=json)
 def update_interface_data(ctx, rd, translations_hash):
-    '''
+    """
     Return the interface data needed for the server UI
-    '''
+    """
     ans = basic_interface_data(ctx, rd)
     t = ans['translations']
     if t and (t.get('hash') or translations_hash) and t.get('hash') == translations_hash:
@@ -402,8 +403,7 @@ def date_browse_items(ctx, rd, db, field, vl):
     from calibre.db.search import TemplatesNotAllowed
 
     try:
-        book_ids, parse_error = ctx.search(
-            rd, db, rd.query.get('search') or '', vl=vl, report_restriction_errors=True)
+        book_ids, parse_error = ctx.search(rd, db, rd.query.get('search') or '', vl=vl, report_restriction_errors=True)
     except TemplatesNotAllowed:
         raise HTTPBadRequest(_('templates are not allowed in search expressions'))
     if parse_error is not None:
@@ -412,41 +412,40 @@ def date_browse_items(ctx, rd, db, field, vl):
     if group == 'ym':
         groups = db.books_by_month(field=field, restrict_to_books=book_ids)
         items = sorted(groups, reverse=True)
-        return tuple({
-            'name': f'{year:04d}-{month:02d}',
-            'count': len(groups[year, month]),
-            'avg_rating': None,
-            'search': '{}:>={:04d}-{:02d}-01 and {}:<{:04d}-{:02d}-01'.format(
-                field, year, month, field, *next_month(year, month)),
-        } for year, month in items if groups[year, month])
+        return tuple(
+            {
+                'name': f'{year:04d}-{month:02d}',
+                'count': len(groups[year, month]),
+                'avg_rating': None,
+                'search': '{}:>={:04d}-{:02d}-01 and {}:<{:04d}-{:02d}-01'.format(field, year, month, field, *next_month(year, month)),
+            }
+            for year, month in items
+            if groups[year, month]
+        )
     groups = db.books_by_year(field=field, restrict_to_books=book_ids)
-    return tuple({
-        'name': f'{year:04d}',
-        'count': len(groups[year]),
-        'avg_rating': None,
-        'search': f'{field}:>={year:04d}-01-01 and {field}:<{year + 1:04d}-01-01',
-    } for year in sorted(groups, reverse=True) if groups[year])
+    return tuple(
+        {
+            'name': f'{year:04d}',
+            'count': len(groups[year]),
+            'avg_rating': None,
+            'search': f'{field}:>={year:04d}-01-01 and {field}:<{year + 1:04d}-01-01',
+        }
+        for year in sorted(groups, reverse=True)
+        if groups[year]
+    )
 
 
 def get_library_init_data(ctx, rd, db, num, sorts, orders, vl):
     ans = {}
     with db.safe_read_lock:
         try:
-            ans['search_result'] = search_result(
-                ctx, rd, db,
-                rd.query.get('search', ''), num, 0, ','.join(sorts),
-                ','.join(orders), vl
-            )
+            ans['search_result'] = search_result(ctx, rd, db, rd.query.get('search', ''), num, 0, ','.join(sorts), ','.join(orders), vl)
         except ParseException:
-            ans['search_result'] = search_result(
-                ctx, rd, db, '', num, 0, ','.join(sorts), ','.join(orders), vl
-            )
+            ans['search_result'] = search_result(ctx, rd, db, '', num, 0, ','.join(sorts), ','.join(orders), vl)
         sf = db.field_metadata.ui_sortable_field_keys()
         sf.pop('ondevice', None)
         ans['sortable_fields'] = sorted(
-            ((sanitize_sort_field_name(db.field_metadata, k), v)
-             for k, v in sf.items()),
-            key=lambda field_name: sort_key(field_name[1])
+            ((sanitize_sort_field_name(db.field_metadata, k), v) for k, v in sf.items()), key=lambda field_name: sort_key(field_name[1])
         )
         ans['field_metadata'] = db.field_metadata.all_metadata()
         ans['virtual_libraries'] = db._pref('virtual_libraries', {})
@@ -459,9 +458,7 @@ def get_library_init_data(ctx, rd, db, num, sorts, orders, vl):
         ans['categories_using_hierarchy'] = db._pref('categories_using_hierarchy', ())
         mdata = ans['metadata'] = {}
         try:
-            extra_books = {
-                int(x) for x in rd.query.get('extra_books', '').split(',')
-            }
+            extra_books = {int(x) for x in rd.query.get('extra_books', '').split(',')}
         except Exception:
             extra_books = ()
         for coll in (ans['search_result']['book_ids'], extra_books):
@@ -475,12 +472,12 @@ def get_library_init_data(ctx, rd, db, num, sorts, orders, vl):
 
 @endpoint('/interface-data/books-init', postprocess=json)
 def books(ctx, rd):
-    '''
+    """
     Get data to create list of books
 
     Optional: ?num=50&sort=timestamp.desc&library_id=<default library>
               &search=''&extra_books=''&vl=''
-    '''
+    """
     ans = {}
     try:
         num = int(rd.query.get('num', rd.opts.num_per_page))
@@ -494,12 +491,12 @@ def books(ctx, rd):
 
 @endpoint('/interface-data/init', postprocess=json)
 def interface_data(ctx, rd):
-    '''
+    """
     Return the data needed to create the server UI as well as a list of books.
 
     Optional: ?num=50&sort=timestamp.desc&library_id=<default library>
               &search=''&extra_books=''&vl=''
-    '''
+    """
     ans = basic_interface_data(ctx, rd)
     ud = {}
     if rd.username:
@@ -524,11 +521,11 @@ def interface_data(ctx, rd):
 
 @endpoint('/interface-data/newly-added', postprocess=json)
 def newly_added(ctx, rd):
-    '''
+    """
     Get newly added books.
 
     Optional: ?num=3&library_id=<default library>
-    '''
+    """
     db, library_id = get_library_data(ctx, rd)[:2]
     count = int(rd.query.get('num', 3))
     nbids = ctx.newest_book_ids(rd, db, count=count)
@@ -540,12 +537,12 @@ def newly_added(ctx, rd):
 
 @endpoint('/interface-data/more-books', postprocess=json, methods=POSTABLE)
 def more_books(ctx, rd):
-    '''
+    """
     Get more results from the specified search-query, which must
     be specified as JSON in the request body.
 
     Optional: ?num=50&library_id=<default library>
-    '''
+    """
     db, library_id = get_library_data(ctx, rd)[:2]
 
     try:
@@ -554,18 +551,14 @@ def more_books(ctx, rd):
         raise HTTPNotFound('Invalid number of books: {!r}'.format(rd.query.get('num')))
     try:
         search_query = load_json_file(rd.request_body_file)
-        query, offset, sorts, orders, vl = search_query['query'], search_query[
-            'offset'
-        ], search_query['sort'], search_query['sort_order'], search_query['vl']
+        query, offset, sorts, orders, vl = search_query['query'], search_query['offset'], search_query['sort'], search_query['sort_order'], search_query['vl']
     except KeyError as err:
         raise HTTPBadRequest(f'Search query missing key: {as_unicode(err)}')
     except Exception as err:
         raise HTTPBadRequest(f'Invalid query: {as_unicode(err)}')
     ans = {}
     with db.safe_read_lock:
-        ans['search_result'] = search_result(
-            ctx, rd, db, query, num, offset, sorts, orders, vl
-        )
+        ans['search_result'] = search_result(ctx, rd, db, query, num, offset, sorts, orders, vl)
         mdata = ans['metadata'] = {}
         for book_id in ans['search_result']['book_ids']:
             data = book_as_json(db, book_id)
@@ -577,10 +570,10 @@ def more_books(ctx, rd):
 
 @endpoint('/interface-data/set-session-data', postprocess=json, methods=POSTABLE)
 def set_session_data(ctx, rd):
-    '''
+    """
     Store session data persistently so that it is propagated automatically to
     new logged in clients
-    '''
+    """
     if rd.username:
         try:
             new_data = load_json_file(rd.request_body_file)
@@ -595,11 +588,11 @@ def set_session_data(ctx, rd):
 
 @endpoint('/interface-data/get-books', postprocess=json)
 def get_books(ctx, rd):
-    '''
+    """
     Get books for the specified query
 
     Optional: ?library_id=<default library>&num=50&sort=timestamp.desc&search=''&vl=''
-    '''
+    """
     library_id, db, sorts, orders, vl = get_basic_query_data(ctx, rd)
     try:
         num = int(rd.query.get('num', rd.opts.num_per_page))
@@ -611,9 +604,7 @@ def get_books(ctx, rd):
     mdata = ans['metadata'] = {}
     with db.safe_read_lock:
         try:
-            ans['search_result'] = search_result(
-                ctx, rd, db, searchq, num, 0, ','.join(sorts), ','.join(orders), vl
-            )
+            ans['search_result'] = search_result(ctx, rd, db, searchq, num, 0, ','.join(sorts), ','.join(orders), vl)
         except ParseException as err:
             # This must not be translated as it is used by the front end to
             # detect invalid search expressions
@@ -627,11 +618,11 @@ def get_books(ctx, rd):
 
 @endpoint('/interface-data/book-metadata/{book_id=0}', postprocess=json)
 def book_metadata(ctx, rd, book_id):
-    '''
+    """
     Get metadata for the specified book. If no book_id is specified, return metadata for a random book.
 
     Optional: ?library_id=<default library>&vl=<virtual library>
-    '''
+    """
     library_id, db, sorts, orders, vl = get_basic_query_data(ctx, rd)
 
     if not book_id:
@@ -648,10 +639,10 @@ def book_metadata(ctx, rd, book_id):
 
 @endpoint('/web-search/{book_id}/{field}/{item_val}', postprocess=json)
 def web_search(ctx, rd, book_id, field, item_val):
-    '''
+    """
     Redirect to a web search URL for the specified item.
     Optional: ?library_id=<default library>
-    '''
+    """
     db, library_id = get_library_data(ctx, rd)[:2]
     try:
         book_id = int(book_id)
@@ -670,11 +661,11 @@ def web_search(ctx, rd, book_id, field, item_val):
 
 @endpoint('/interface-data/tag-browser')
 def tag_browser(ctx, rd):
-    '''
+    """
     Get the Tag Browser serialized as JSON
     Optional: ?library_id=<default library>&sort_tags_by=name&partition_method=first letter
               &collapse_at=25&dont_collapse=&hide_empty_categories=&vl=''
-    '''
+    """
     db, library_id = get_library_data(ctx, rd)[:2]
     opts = categories_settings(rd.query, db, gst_container=tuple)
     vl = rd.query.get('vl') or ''
@@ -689,10 +680,10 @@ def tag_browser(ctx, rd):
 
 @endpoint('/interface-data/browse-field/{field}', postprocess=json)
 def browse_field(ctx, rd, field):
-    '''
+    """
     Get browse-list items for the specified metadata field.
     Optional: ?library_id=<default library>&vl=&date_group=y
-    '''
+    """
     db = get_library_data(ctx, rd)[0]
     fields = browse_field_map(ctx, db)
     field_data = fields.get(field)
@@ -718,10 +709,10 @@ def all_lang_names():
 
 @endpoint('/interface-data/field-names/{field}', postprocess=json)
 def field_names(ctx, rd, field):
-    '''
+    """
     Get a list of all names for the specified field
     Optional: ?library_id=<default library>
-    '''
+    """
     if field == 'languages':
         ans = all_lang_names()
     else:
@@ -735,10 +726,10 @@ def field_names(ctx, rd, field):
 
 @endpoint('/interface-data/field-id-map/{field}', postprocess=json)
 def field_id_map(ctx, rd, field):
-    '''
+    """
     Get a map of all ids:names for the specified field
     Optional: ?library_id=<default library>
-    '''
+    """
     db, library_id = get_library_data(ctx, rd)[:2]
     try:
         return db.get_id_map(field)
