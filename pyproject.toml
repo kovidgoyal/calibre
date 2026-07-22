@@ -76,7 +76,7 @@ requires = [
 	"wheel == 0.46.2", # Needed for build which is needed for setuptools
 	"build == 1.3.0", # Needed for build which is needed for setuptools
     "pybind11 == 3.0.1", # Needed for pillow
-	"setuptools == 80.9.0",
+	"setuptools == 83.0.0",
     "pkgconfig == 1.5.5",  # Needed by Brotli
 	# Some packages (xxhash/py7zr/etc) erroneously declare this as a dependency even
 	# though it is needed only for sdist not building wheels
