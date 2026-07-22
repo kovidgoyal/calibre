@@ -5,7 +5,7 @@ import datetime
 import hashlib
 from collections import OrderedDict
 from collections.abc import Callable
-from functools import partial
+from functools import lru_cache, partial
 from typing import Any, NamedTuple, cast
 from urllib.parse import urlencode
 
@@ -86,15 +86,41 @@ def UPDATED(dt: datetime.datetime, *args: Any, **kwargs: Any) -> etree.Element:
     return E.updated(as_utc(dt).strftime('%Y-%m-%dT%H:%M:%S+00:00'), *args, **kwargs)
 
 
-LINK: partial[etree.Element] = partial(E.link, type='application/atom+xml')
-NAVLINK: partial[etree.Element] = partial(E.link, type='application/atom+xml;type=feed;profile=opds-catalog')
+@lru_cache(maxsize=2)
+def rel_title_map() -> dict[str, str]:
+    return {'start': _('Start'), 'up': _('Up'), 'first': _('First'), 'last': _('Last'), 'next': _('Next'), 'previous': _('Previous')}
 
 
-def SEARCH_LINK(url_for: Callable[..., str], *args: Any, **kwargs: Any) -> etree.Element:
+class LINK:
+    type: str = 'application/atom+xml'
+    catalog_type: str = ''
+    rel: str = ''
+
+    def __call__(self, **kw: str) -> etree.Element:
+        t = self.type
+        if self.catalog_type:
+            t += f';kind={self.catalog_type}'
+        kw['type'] = kw.get('type', t)
+        if self.rel:
+            kw['rel'] = kw.get('rel', self.rel)
+            if title := rel_title_map().get(kw['rel'], ''):
+                kw['title'] = kw.get('title', title)
+        return E.link(**kw)
+
+
+class NAVLINK(LINK):
+    type = LINK.type + ';type=feed;profile=opds-catalog'
+
+
+class CATALOG_LINK(NAVLINK):
+    catalog_type = 'navigation'
+
+
+def SEARCH_LINK(url_for: Callable[..., str], **kwargs: str) -> etree.Element:
     kwargs['rel'] = 'search'
     kwargs['title'] = 'Search'
     kwargs['href'] = url_for('/opds/search', query='XXX').replace('XXX', '{searchTerms}')
-    return LINK(*args, **kwargs)
+    return LINK()(**kwargs)
 
 
 def AUTHOR(name: str, uri: str | None = None) -> etree.Element:
@@ -110,15 +136,31 @@ SUBTITLE: Callable[..., etree.Element] = E.subtitle
 def NAVCATALOG_ENTRY(url_for: UrlForCallable, updated: datetime.datetime, title: str, description: str, query: str) -> etree.Element:
     href = url_for('/opds/navcatalog', which=as_hex_unicode(query))
     id_ = 'calibre-navcatalog:' + hashlib.sha1(as_bytes(href)).hexdigest()
-    return E.entry(TITLE(title), ID(id_), UPDATED(updated), E.content(description, type='text'), NAVLINK(href=href))
+    return E.entry(TITLE(title), ID(id_), UPDATED(updated), E.content(description, type='text'), CATALOG_LINK()(href=href))
 
 
-START_LINK = partial(NAVLINK, rel='start')
-UP_LINK = partial(NAVLINK, rel='up')
-FIRST_LINK = partial(NAVLINK, rel='first')
-LAST_LINK = partial(NAVLINK, rel='last')
-NEXT_LINK = partial(NAVLINK, rel='next', title='Next')
-PREVIOUS_LINK = partial(NAVLINK, rel='previous')
+class START_LINK(CATALOG_LINK):
+    rel = 'start'
+
+
+class UP_LINK(CATALOG_LINK):
+    rel = 'up'
+
+
+class FIRST_LINK(CATALOG_LINK):
+    rel = 'first'
+
+
+class LAST_LINK(CATALOG_LINK):
+    rel = 'last'
+
+
+class NEXT_LINK(CATALOG_LINK):
+    rel = 'next'
+
+
+class PREVIOUS_LINK(CATALOG_LINK):
+    rel = 'previous'
 
 
 def html_to_lxml(raw: str) -> etree.Element:
@@ -161,7 +203,7 @@ def CATALOG_ENTRY(
         iid = 'I' + str(item.id)
         iid += ':' + item_kind
     href = request_context.url_for('/opds/category', category=as_hex_unicode(catalog_name), which=as_hex_unicode(iid))
-    link = NAVLINK(href=href)
+    link = CATALOG_LINK()(href=href)
     if ignore_count:
         count = ''
     else:
@@ -182,7 +224,7 @@ def CATALOG_ENTRY(
 def CATALOG_GROUP_ENTRY(item: Group, category: str, request_context: RequestContext, updated: datetime.datetime) -> etree.Element:
     id_ = 'calibre:category-group:' + category + ':' + (item.text or '')
     iid = item.text
-    link = NAVLINK(href=request_context.url_for('/opds/categorygroup', category=as_hex_unicode(category), which=as_hex_unicode(iid)))
+    link = CATALOG_LINK()(href=request_context.url_for('/opds/categorygroup', category=as_hex_unicode(category), which=as_hex_unicode(iid)))
     return E.entry(
         TITLE(item.text),
         ID(id_),
@@ -268,6 +310,13 @@ default_feed_title: str = __appname__ + ' ' + _('Library')
 class Feed:  # {{{
     base_href: str
     root: etree.Element
+    is_acquisition_feed: bool = False
+
+    def link(self, link_cls: type[CATALOG_LINK] = CATALOG_LINK, **kw: str) -> etree.Element:
+        cl = link_cls()
+        if self.is_acquisition_feed:
+            cl.catalog_type = 'acquisition'
+        return cl(**kw)
 
     def __init__(
         self,
@@ -291,22 +340,23 @@ class Feed:  # {{{
             ICON(request_context.ctx.url_for('/favicon.png')),
             UPDATED(updated),
             SEARCH_LINK(request_context.url_for),
-            START_LINK(href=request_context.url_for('/opds')),
+            START_LINK()(href=request_context.url_for('/opds')),
         )
         if up_link:
-            self.root.append(UP_LINK(href=up_link))
+            self.root.append(UP_LINK()(href=up_link))
         if first_link:
-            self.root.append(FIRST_LINK(href=first_link))
+            self.root.append(self.link(FIRST_LINK, href=first_link))
         if last_link:
-            self.root.append(LAST_LINK(href=last_link))
+            self.root.append(self.link(LAST_LINK, href=last_link))
         if next_link:
-            self.root.append(NEXT_LINK(href=next_link))
+            self.root.append(self.link(NEXT_LINK, href=next_link))
         if previous_link:
-            self.root.append(PREVIOUS_LINK(href=previous_link))
+            self.root.append(self.link(PREVIOUS_LINK, href=previous_link))
         if subtitle:
             self.root.insert(1, SUBTITLE(subtitle))
 
-    # }}}
+
+# }}}
 
 
 class TopLevel(Feed):  # {{{
@@ -332,7 +382,7 @@ class TopLevel(Feed):  # {{{
                     ID(id_),
                     UPDATED(updated),
                     E.content(_('Change calibre library to:') + ' ' + library_name, type='text'),
-                    NAVLINK(href=request_context.url_for('/opds', library_id=library_id)),
+                    self.link(href=request_context.url_for('/opds', library_id=library_id)),
                 )
             )
 
@@ -364,6 +414,8 @@ class NavFeed(Feed):
 
 
 class AcquisitionFeed(NavFeed):
+    is_acquisition_feed = True
+
     def __init__(
         self,
         id_: str,
