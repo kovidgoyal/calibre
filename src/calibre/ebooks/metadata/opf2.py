@@ -18,6 +18,7 @@ import re
 import sys
 import uuid
 from contextlib import suppress
+from typing import IO, cast
 from urllib.parse import urlparse
 
 from lxml import etree
@@ -1493,7 +1494,7 @@ class OPFCreator(Metadata):
         self.guide = Guide.from_opf_guide(guide_element, self.base_path)
         self.guide.set_basedir(self.base_path)
 
-    def render(self, opf_stream=sys.stdout.buffer, ncx_stream=None, ncx_manifest_entry=None, encoding=None, process_guide=None):
+    def render(self, opf_stream: IO[bytes] | None = None, ncx_stream=None, ncx_manifest_entry=None, encoding=None, process_guide=None):
         if encoding is None:
             encoding = 'utf-8'
         toc = getattr(self, 'toc', None)
@@ -1637,6 +1638,11 @@ class OPFCreator(Metadata):
         root.set('version', '2.0')
         raw = etree.tostring(root, pretty_print=True, xml_declaration=True, encoding=encoding)
         raw = raw.replace(DNS.encode('utf-8'), OPF2_NS.encode('utf-8'))
+        if opf_stream is None:
+            try:
+                opf_stream = sys.stdout.buffer
+            except AttributeError:
+                opf_stream = cast(IO[bytes], sys.stdout)
         opf_stream.write(raw)
         opf_stream.flush()
         if toc is not None and ncx_stream is not None:
