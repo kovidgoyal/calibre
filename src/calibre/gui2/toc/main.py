@@ -17,6 +17,7 @@ from qt.core import (
     QEvent,
     QFrame,
     QGridLayout,
+    QHBoxLayout,
     QIcon,
     QInputDialog,
     QItemSelectionModel,
@@ -172,6 +173,7 @@ class ItemView(QStackedWidget):  # {{{
     create_from_links = pyqtSignal()
     create_from_files = pyqtSignal()
     flatten_toc = pyqtSignal()
+    sort_toc = pyqtSignal()
 
     def __init__(self, parent, prefs):
         QStackedWidget.__init__(self, parent)
@@ -266,10 +268,23 @@ class ItemView(QStackedWidget):  # {{{
         b.setToolTip(textwrap.fill(_('Generate a Table of Contents from arbitrary XPath expressions.')))
         l.addWidget(b)
 
-        self.fal = b = QPushButton(_('&Flatten the ToC'))
+        fal_row = QHBoxLayout()
+        self.fal = b = QPushButton(_('&Flatten ToC'))
         b.clicked.connect(self.flatten_toc)
         b.setToolTip(textwrap.fill(_('Flatten the Table of Contents, putting all entries at the top level')))
-        l.addWidget(b)
+        fal_row.addWidget(b)
+        self.stb = b = QPushButton(_('&Sort ToC'))
+        b.clicked.connect(self.sort_toc)
+        b.setToolTip(
+            textwrap.fill(
+                _(
+                    '<p>Sort the Table of Contents by the order in which the destinations appear in the book.'
+                    '<p>Note that sorting does not move items out of their levels or from one section to another.'
+                )
+            )
+        )
+        fal_row.addWidget(b)
+        l.addLayout(fal_row)
 
         l.addStretch()
         self.w1 = la = QLabel(
@@ -970,6 +985,7 @@ class TOCView(QWidget):  # {{{
         i.create_from_files.connect(self.create_from_files)
         i.flatten_item.connect(self.flatten_item)
         i.flatten_toc.connect(self.flatten_toc)
+        i.sort_toc.connect(self.sort_toc)
         i.go_to_root.connect(self.go_to_root)
         l.addWidget(i, 0, 4, col, 1)
 
@@ -1015,6 +1031,66 @@ class TOCView(QWidget):  # {{{
     def flatten_item(self):
         self.tocw.push_history()
         self._flatten_item(self.tocw.currentItem())
+
+    def sort_toc(self):
+        self.tocw.push_history()
+        ebook = self.ebook
+
+        # Map each spine document name to its spine index
+        spine_order = {name: i for i, (name, _) in enumerate(ebook.spine_names)}
+
+        # Collect spine names that are referenced with a fragment anchor
+        names_with_frags = set()
+        for item in self.iter_items():
+            toc = item.data(0, Qt.ItemDataRole.UserRole)
+            if toc is not None and toc.dest and toc.frag:
+                names_with_frags.add(toc.dest)
+
+        # Build {(spine_name, frag_id): document_order_position} by parsing each document
+        frag_positions = {}
+        for spine_name in names_with_frags:
+            if spine_name not in spine_order:
+                continue
+            try:
+                doc_root = ebook.parsed(spine_name)
+            except Exception:
+                continue
+            pos = 0
+            for elem in doc_root.iter('*'):
+                elem_id = elem.get('id')
+                if elem_id and (spine_name, elem_id) not in frag_positions:
+                    frag_positions[(spine_name, elem_id)] = pos
+                tag = elem.tag
+                if isinstance(tag, str) and (tag.endswith('}a') or tag == 'a'):
+                    name_attr = elem.get('name')
+                    if name_attr and (spine_name, name_attr) not in frag_positions:
+                        frag_positions[(spine_name, name_attr)] = pos
+                pos += 1
+
+        def sort_key(item):
+            toc = item.data(0, Qt.ItemDataRole.UserRole)
+            if toc is None:
+                return (float('inf'), 0)
+            dest = toc.dest or ''
+            frag = toc.frag or ''
+            spine_idx = spine_order.get(dest, float('inf'))
+            # No fragment means start of the document (before any anchored element)
+            frag_pos = frag_positions.get((dest, frag), float('inf')) if frag else -1
+            return (spine_idx, frag_pos)
+
+        def sort_node(parent):
+            count = parent.childCount()
+            if count > 1:
+                children = [parent.child(i) for i in range(count)]
+                children.sort(key=sort_key)
+                for child in children:
+                    parent.removeChild(child)
+                for child in children:
+                    parent.addChild(child)
+            for i in range(parent.childCount()):
+                sort_node(parent.child(i))
+
+        sort_node(self.tocw.invisibleRootItem())
 
     def _flatten_item(self, item):
         if item is not None:
