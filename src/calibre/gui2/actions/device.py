@@ -7,6 +7,7 @@ __docformat__ = 'restructuredtext en'
 
 from qt.core import QIcon, QMenu, QTimer, QToolButton, QUrl, pyqtSignal
 
+from calibre.constants import ismacos
 from calibre.gui2 import info_dialog, open_url, question_dialog
 from calibre.gui2.actions import InterfaceAction
 from calibre.gui2.dialogs.smartdevice import SmartdeviceDialog
@@ -37,6 +38,7 @@ class ShareConnMenu(QMenu):  # {{{
     connect_to_folder = pyqtSignal()
 
     config_email = pyqtSignal()
+    share_airdrop = pyqtSignal()
     toggle_server = pyqtSignal()
     control_smartdevice = pyqtSignal()
     server_state_changed_signal = pyqtSignal(object, object)
@@ -67,6 +69,10 @@ class ShareConnMenu(QMenu):  # {{{
         control_smartdevice_action = self.control_smartdevice_action
         assert control_smartdevice_action is not None
         connect_lambda(control_smartdevice_action.triggered, self, lambda self: self.control_smartdevice.emit())
+        self.airdrop_action = None
+        if ismacos:
+            self.airdrop_action = self.addAction(QIcon.ic('send.png'), _('Send via AirDrop'))
+            connect_lambda(self.airdrop_action.triggered, self, lambda self: self.share_airdrop.emit())
         self.addSeparator()
 
         self.email_actions = []
@@ -227,6 +233,12 @@ class ConnectShareAction(InterfaceAction):
         )
         self.qaction.setMenu(self.share_conn_menu)
         self.share_conn_menu.connect_to_folder.connect(self.gui.connect_to_folder)
+        self.share_conn_menu.share_airdrop.connect(self.share_via_airdrop)
+
+    def share_via_airdrop(self):
+        ac = self.gui.iactions.get('AirDrop books')
+        if ac is not None:
+            ac.airdrop_books()
 
     def location_selected(self, loc):
         enabled = loc == 'library'

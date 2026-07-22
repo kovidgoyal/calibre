@@ -10,7 +10,7 @@ from calibre.ai.lm_studio import LMStudioAI
 from calibre.ai.ollama import OllamaAI
 from calibre.ai.open_router import OpenRouterAI
 from calibre.ai.openai_compatible import OpenAICompatible
-from calibre.constants import numeric_version
+from calibre.constants import ismacos, numeric_version
 from calibre.customize import FileTypePlugin, InterfaceActionBase, MetadataReaderPlugin, MetadataWriterPlugin, PreferencesPlugin, StoreBase
 from calibre.ebooks.html.to_zip import HTML2ZIP
 from calibre.ebooks.metadata.archive import ArchiveExtract, KPFExtract, get_comic_metadata
@@ -1190,6 +1190,13 @@ class ActionBooklistContextMenu(InterfaceActionBase):
     description = _('Open the context menu for the column')
 
 
+class ActionAirdrop(InterfaceActionBase):
+    name = 'AirDrop books'
+    author = 'Peter Warrington'
+    actual_plugin = 'calibre.gui2.actions.airdrop:AirdropAction'
+    description = _('Share books via AirDrop on macOS')
+
+
 class ActionAllActions(InterfaceActionBase):
     name = 'All GUI actions'
     author = 'Charles Haley'
@@ -1289,6 +1296,9 @@ plugins += [
     ActionLayoutActions,
     ActionBrowseNotes,
 ]
+
+if ismacos:
+    plugins.append(ActionAirdrop)
 
 # }}}
 
