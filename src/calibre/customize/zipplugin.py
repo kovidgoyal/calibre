@@ -1,9 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__ = 'GPL v3'
-__copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2011, Kovid Goyal <kovid@kovidgoyal.net>
 
 import importlib
 import os
@@ -409,7 +405,6 @@ class CalibrePluginFinder:
 
 loader = CalibrePluginFinder()
 sys.meta_path.append(loader)
-
 
 if __name__ == '__main__':
     from tempfile import NamedTemporaryFile

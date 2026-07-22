@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # License: GPL v3 Copyright: 2019, Kovid Goyal <kovid at kovidgoyal.net>
 
-
 from calibre.db.utils import find_identical_books
 from calibre.utils.config import tweaks
 from calibre.utils.date import now

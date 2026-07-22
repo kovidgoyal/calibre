@@ -1,9 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__ = 'GPL 3'
-__copyright__ = '2026, Hassan Raza <raihassanraza10 at gmail.com>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2026, Hassan Raza <raihassanraza10 at gmail.com>
 
 
 def path_in_archive_root(root, path):

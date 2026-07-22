@@ -1,9 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__ = 'GPL v3'
-__copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2009, Kovid Goyal <kovid@kovidgoyal.net>
 
 import os
 import re
@@ -24,7 +20,6 @@ from calibre.utils.localization import _
 plugboard_any_device_value = 'any device'
 plugboard_any_format_value = 'any format'
 plugboard_save_to_disk_value = 'save_to_disk'
-
 
 DEFAULT_TEMPLATE = '{author_sort}/{title}/{title} - {authors}'
 DEFAULT_SEND_TEMPLATE = '{author_sort}/{title} - {authors}'

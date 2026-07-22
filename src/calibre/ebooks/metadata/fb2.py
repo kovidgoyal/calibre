@@ -1,9 +1,7 @@
 #!/usr/bin/env python
+# License: GPLv3 Copyright: 2011, Roman Mukhin <ramses_ru at hotmail.com>, 2008, Anatoly Shipitsin <norguhtar at gmail.com>
 
-
-__license__ = 'GPL v3'
-__copyright__ = '2011, Roman Mukhin <ramses_ru at hotmail.com>, 2008, Anatoly Shipitsin <norguhtar at gmail.com>'
-'''Read meta information from fb2 files'''
+"""Read meta information from fb2 files"""
 
 import os
 import random

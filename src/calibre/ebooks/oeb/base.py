@@ -1,10 +1,8 @@
+# License: GPLv3 Copyright: 2008, Marshall T. Vandegrift <llasram@gmail.com>
+
 """
 Basic support for manipulating OEB 1.x/2.0 content and metadata.
 """
-
-__license__ = 'GPL v3'
-__copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
-__docformat__ = 'restructuredtext en'
 
 import logging
 import numbers

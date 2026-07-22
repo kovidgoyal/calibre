@@ -1,13 +1,10 @@
+# License: GPLv3 Copyright: 2011, John Schember <john@nachtimwald.com>
+
 """
 Read content from azw4 file.
 
 azw4 is essentially a PDF stuffed into a MOBI container.
 """
-
-__license__ = 'GPL v3'
-__copyright__ = '2011, John Schember <john@nachtimwald.com>'
-__docformat__ = 'restructuredtext en'
-
 
 import os
 import re

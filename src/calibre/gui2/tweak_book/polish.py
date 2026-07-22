@@ -1,8 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__ = 'GPL v3'
-__copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
+# License: GPLv3 Copyright: 2014, Kovid Goyal <kovid at kovidgoyal.net>
 
 import re
 from threading import Thread
@@ -423,7 +420,6 @@ class CompressImagesProgress(Dialog):
 
 
 # }}}
-
 
 if __name__ == '__main__':
     from qt.core import sip

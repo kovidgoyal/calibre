@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2015-2019, Kovid Goyal <kovid at kovidgoyal.net>
 
-
 import errno
 import os
 import shutil
@@ -63,7 +62,6 @@ def load_jxr_data(data):
 
 # }}}
 
-
 # png <-> gif {{{
 
 
@@ -110,7 +108,6 @@ def gif_data_to_png_data(data, discard_animation=False):
 
 
 # }}}
-
 
 # Loading images {{{
 
@@ -182,7 +179,6 @@ def image_and_format_from_data(data):
 
 
 # }}}
-
 
 # Saving images {{{
 
@@ -337,7 +333,6 @@ def save_cover_data_to(
 
 # }}}
 
-
 # Overlaying images {{{
 
 
@@ -407,7 +402,6 @@ def blend_image(img, bgcolor='#ffffff'):
 
 # }}}
 
-
 # Image borders {{{
 
 
@@ -433,7 +427,6 @@ def remove_borders_from_image(img, fuzz=None):
 
 
 # }}}
-
 
 # Cropping/scaling of images {{{
 
@@ -495,7 +488,6 @@ def crop_image(img, x, y, width, height):
 
 
 # }}}
-
 
 # Image transformations {{{
 
@@ -583,7 +575,6 @@ def eink_dither_image(img):
 
 
 # }}}
-
 
 # Optimization of images {{{
 
@@ -907,7 +898,6 @@ def test():  # {{{
 
 
 # }}}
-
 
 if __name__ == '__main__':  # {{{
     args = sys.argv[1:]

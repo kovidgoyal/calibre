@@ -1,6 +1,4 @@
-__license__ = 'GPL 3'
-__copyright__ = '2011, Anthon van der Neut <anthon@mnt.org>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2011, Anthon van der Neut <anthon@mnt.org>
 
 import os
 from io import BytesIO

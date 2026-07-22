@@ -242,7 +242,6 @@ def kdialog_choose_images(window, name, title, select_only_single_file=True, for
 
 # }}}
 
-
 # GTK {{{
 
 

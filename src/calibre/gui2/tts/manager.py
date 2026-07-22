@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2024, Kovid Goyal <kovid at kovidgoyal.net>
 
-
 from collections import deque
 from contextlib import contextmanager
 from typing import TYPE_CHECKING, NamedTuple
@@ -14,7 +13,6 @@ from calibre.utils.localization import _
 
 if TYPE_CHECKING:
     from calibre.gui2.tts.types import TTSBackend
-
 
 MAX_UTTERANCE_LENGTH = 32 * 1024
 

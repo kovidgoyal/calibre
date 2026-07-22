@@ -1,8 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__ = 'GPL v3'
-__copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
+# License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
 from functools import partial
 from itertools import cycle
@@ -54,7 +51,6 @@ def category_icon(category, meta):  # {{{
 
 
 # }}}
-
 
 # Book metadata {{{
 
@@ -241,7 +237,6 @@ def books(ctx, rd, library_id):
 
 
 # }}}
-
 
 # Categories (Tag Browser) {{{
 
@@ -534,7 +529,6 @@ def books_in(ctx, rd, encoded_category, encoded_item, library_id):
 
 
 # }}}
-
 
 # Search {{{
 

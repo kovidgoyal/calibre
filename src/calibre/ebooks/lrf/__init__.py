@@ -1,16 +1,14 @@
-__license__ = 'GPL v3'
-__copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
-'''
+# License: GPLv3 Copyright: 2008, Kovid Goyal <kovid at kovidgoyal.net>
+
+"""
 This package contains logic to read and write LRF files.
 The LRF file format is documented at U{http://www.sven.de/librie/Librie/LrfFormat}.
-'''
+"""
 
 from calibre.ebooks import ConversionError
 from calibre.ebooks.lrf.fonts import FONT_FILE_MAP
 from calibre.ebooks.lrf.pylrs.pylrs import BlockStyle, Header, TextBlock, TextStyle
 from calibre.ebooks.lrf.pylrs.pylrs import Book as _Book
-
-__docformat__ = 'epytext'
 
 
 class LRFParseError(Exception):

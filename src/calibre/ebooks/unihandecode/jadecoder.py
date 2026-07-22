@@ -1,8 +1,6 @@
-__license__ = 'GPL 3'
-__copyright__ = '2010, Hiroshi Miura <miurahr@linux.com>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2010, Hiroshi Miura <miurahr@linux.com>
 
-'''
+"""
 Decode unicode text to an ASCII representation of the text for Japanese.
  Translate unicode string to ASCII roman string.
 
@@ -14,7 +12,7 @@ and  perl module Text::Unidecode
 This functionality is owned by Kakasi Japanese processing engine.
 
 Copyright (c) 2010 Hiroshi Miura
-'''
+"""
 
 import pickle
 import re

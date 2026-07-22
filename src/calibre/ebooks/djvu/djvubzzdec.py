@@ -1,7 +1,5 @@
 #!/usr/bin/env python
-
-__license__ = 'GPL v3'
-__copyright__ = '2011, Anthon van der Neut <A.van.der.Neut@ruamel.eu>'
+# License: GPLv3 Copyright: 2011, Anthon van der Neut <A.van.der.Neut@ruamel.eu>
 
 # Copyright (C) 2011 Anthon van der Neut, Ruamel bvba
 # Adapted from Leon Bottou's djvulibre C++ code,
@@ -67,7 +65,6 @@ original_copyright_notice = '''
 // $Id: BSByteStream.cpp,v 1.9 2007/03/25 20:48:29 leonb Exp $
 // $Name: release_3_5_23 $
 '''
-
 
 MAXBLOCK = 4096
 FREQMAX = 4
@@ -348,7 +345,6 @@ default_ztable = [  # {{{
     (0, 0, 0, 0),
     (0, 0, 0, 0),
 ]
-
 
 xmtf = (
     0x00,

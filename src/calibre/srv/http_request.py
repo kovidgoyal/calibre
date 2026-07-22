@@ -1,8 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__ = 'GPL v3'
-__copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
+# License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
 import http.client
 import re
@@ -22,7 +19,6 @@ from polyglot.urllib import unquote
 protocol_map = {(1, 0): HTTP1, (1, 1): HTTP11}
 quoted_slash = re.compile(rb'%2[fF]')
 HTTP_METHODS = {'HEAD', 'GET', 'PUT', 'POST', 'TRACE', 'DELETE', 'OPTIONS'}
-
 
 # Parse URI {{{
 
@@ -101,7 +97,6 @@ def parse_uri(uri, parse_query=True, unquote_func=unquote):
 
 
 # }}}
-
 
 # HTTP Header parsing {{{
 comma_separated_headers = {

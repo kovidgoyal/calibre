@@ -102,7 +102,6 @@ class PreserveMIMEDefaults:  # {{{
 
 # }}}
 
-
 # Uninstall script {{{
 
 UNINSTALL = '''\
@@ -234,7 +233,6 @@ CALIBRE_LINUX_INSTALLER_HEREDOC
 '''
 
 # }}}
-
 
 # Completion {{{
 

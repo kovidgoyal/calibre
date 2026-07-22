@@ -1,9 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__ = 'GPL v3'
-__copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2010, Kovid Goyal <kovid@kovidgoyal.net>
 
 import os
 from collections import defaultdict
@@ -358,7 +354,6 @@ class DuplicatesQuestion(QDialog):  # {{{
 
 
 # }}}
-
 
 # Static session-long set of pairs of libraries that have had their custom columns
 # checked for compatibility

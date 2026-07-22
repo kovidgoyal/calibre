@@ -1,10 +1,8 @@
+# License: GPLv3 Copyright: 2009, John Schember <john@nachtimwald.com>
+
 """
 Read content from ereader pdb file with a 132 byte header created by Dropbook.
 """
-
-__license__ = 'GPL v3'
-__copyright__ = '2009, John Schember <john@nachtimwald.com>'
-__docformat__ = 'restructuredtext en'
 
 import os
 import re

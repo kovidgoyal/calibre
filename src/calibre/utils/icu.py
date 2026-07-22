@@ -1,8 +1,5 @@
 #!/usr/bin/env python
-
-__license__ = 'GPL v3'
-__copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2010, Kovid Goyal <kovid@kovidgoyal.net>
 
 # Setup code {{{
 import codecs
@@ -207,7 +204,6 @@ def make_change_case_func(which, name):
 
 
 # }}}
-
 
 # ################ The string functions ########################################
 sort_key = make_sort_key_func(sort_collator)

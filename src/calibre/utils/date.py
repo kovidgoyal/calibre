@@ -1,9 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__ = 'GPL v3'
-__copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2010, Kovid Goyal <kovid@kovidgoyal.net>
 
 import re
 from datetime import MAXYEAR, MINYEAR, datetime, timedelta
@@ -387,7 +383,6 @@ def format_date(dt, format, assume_utc=False, as_utc=False):
 
 
 # }}}
-
 
 # Clean date functions {{{
 

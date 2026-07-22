@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # License: GPL v3 Copyright: 2018, Kovid Goyal <kovid at kovidgoyal.net>
 
-
 from collections import OrderedDict
 
 from calibre.ebooks.metadata.tag_mapper import map_tags

@@ -1,9 +1,8 @@
-__license__ = 'GPL v3'
-__copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
+# License: GPLv3 Copyright: 2008, Marshall T. Vandegrift <llasram@gmail.com>
 
-'''
+"""
 Microsoft LIT HTML tag and attribute tables, copied from ConvertLIT.
-'''
+"""
 
 TAGS = [
     None,

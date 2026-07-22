@@ -69,7 +69,6 @@ def get_details(browser, url, timeout):  # {{{
 
 # }}}
 
-
 xpath_cache = {}
 
 

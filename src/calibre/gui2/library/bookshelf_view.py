@@ -94,9 +94,7 @@ from calibre_extensions.progress_indicator import contrast_ratio, utf16_slice
 
 # }}}
 
-
 # Utility functions {{{
-
 
 HEIGHT_REDUCTION_LIMIT = 21
 
@@ -195,7 +193,6 @@ def render_spine_text_as_pixmap(
 
 
 # }}}
-
 
 # Cover functions {{{
 

@@ -376,7 +376,6 @@ class ImageDropMixin:
 
 # }}}
 
-
 # ImageView {{{
 
 
@@ -487,7 +486,6 @@ class ImageView(QWidget, ImageDropMixin):
 
 # }}}
 
-
 # CoverView {{{
 
 
@@ -546,7 +544,6 @@ class CoverView(QGraphicsView, ImageDropMixin):
 
 
 # }}}
-
 
 # BasicList {{{
 
@@ -703,7 +700,6 @@ class EnLineEdit(LineEditECM, QLineEdit):  # {{{
 
 
 # }}}
-
 
 # LineEditIndicators {{{
 
@@ -1323,7 +1319,6 @@ class PythonHighlighter(QSyntaxHighlighter):  # {{{
 
 # }}}
 
-
 # Splitter {{{
 
 
@@ -1397,7 +1392,6 @@ class BusyCursor:  # {{{
 
 
 # }}}
-
 
 if __name__ == '__main__':
     from qt.core import QTextEdit

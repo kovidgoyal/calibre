@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # License: GPL v3 Copyright: 2019, Kovid Goyal <kovid at kovidgoyal.net>
 
-
 from qt.core import QMarginsF, QPageLayout, QPageSize, QSizeF
 
 from calibre.constants import filesystem_encoding
@@ -36,7 +35,6 @@ class PDFMetadata:  # {{{
 
 
 # }}}
-
 
 # Page layout {{{
 

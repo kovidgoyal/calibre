@@ -1,17 +1,13 @@
 #!/usr/bin/env python
+# License: GPLv3 Copyright: 2010-2019, Timothy Legge <timlegge@gmail.com>, Kovid Goyal <kovid@kovidgoyal.net> and David Forrester <davidfor@internode.on.net>
 
-
-__license__ = 'GPL v3'
-__copyright__ = '2010-2019, Timothy Legge <timlegge@gmail.com>, Kovid Goyal <kovid@kovidgoyal.net> and David Forrester <davidfor@internode.on.net>'
-__docformat__ = 'restructuredtext en'
-
-'''
+"""
 Driver for Kobo eReaders. Supports all e-ink devices.
 
 Originally developed by Timothy Legge <timlegge@gmail.com>.
 Extended to support Touch firmware 2.0.0 and later and newer devices by David Forrester <davidfor@internode.on.net>
 Additional maintenance performed by Peter Thomas <peterjt@gmail.com>
-'''
+"""
 
 import os
 import re

@@ -1,10 +1,8 @@
-__license__ = 'GPL v3'
-__copyright__ = '2009, James Ralston <jralston at mindspring.com>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2009, James Ralston <jralston at mindspring.com>
 
-'''
+"""
 Device driver for Ectaco Jetbook firmware >= JL04_v030e
-'''
+"""
 
 import os
 import re

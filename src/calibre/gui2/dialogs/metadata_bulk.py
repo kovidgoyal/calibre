@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2008, Kovid Goyal <kovid at kovidgoyal.net>
 
-
 import numbers
 from collections import defaultdict, namedtuple
 from io import BytesIO

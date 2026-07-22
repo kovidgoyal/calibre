@@ -1,10 +1,8 @@
-__license__ = 'GPL v3'
-__copyright__ = '2011,  Ken <ken at szboeye.com>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2011,  Ken <ken at szboeye.com>
 
-'''
+"""
 Device driver for BOEYE serial readers
-'''
+"""
 
 from calibre.devices.usbms.driver import USBMS
 from calibre.utils.localization import _

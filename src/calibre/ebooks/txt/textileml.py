@@ -1,10 +1,9 @@
-__license__ = 'GPL 3'
-__copyright__ = '2011, Leigh Parry <leighparry@blueyonder.co.uk>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2011, Leigh Parry <leighparry@blueyonder.co.uk>
 
-'''
+"""
 Transform OEB content into Textile formatted plain text
-'''
+"""
+
 import re
 from functools import partial
 

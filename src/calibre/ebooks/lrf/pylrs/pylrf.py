@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 
-
 """
 pylrf.py -- very low level interface to create lrf files.  See pylrs for
 higher level interface that can use this module to render books to lrf.
@@ -225,7 +224,6 @@ OBJECT_TYPE_ENCODING = dict(
 LINE_TYPE_ENCODING = {'none': 0, 'solid': 0x10, 'dashed': 0x20, 'double': 0x30, 'dotted': 0x40}
 
 BINDING_DIRECTION_ENCODING = dict(Lr=1, Rl=16)
-
 
 TAG_INFO = dict(
     rawtext=(0, writeRaw),

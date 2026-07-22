@@ -21,7 +21,6 @@ __author__ = 'Kovid Goyal <kovid@kovidgoyal.net>'
 Various run time constants.
 '''
 
-
 _plat = sys.platform.lower()
 iswindows = 'win32' in _plat or 'win64' in _plat
 ismacos = isosx = 'darwin' in _plat
@@ -78,7 +77,6 @@ builtin_decorations = {
     'strikeout': {'text-decoration-line': 'line-through', 'text-decoration-color': 'red'},
 }
 
-
 _osx_ver = None
 
 
@@ -111,7 +109,6 @@ else:
             # imported changes ascii to utf-8
     except Exception:
         filesystem_encoding = 'utf-8'
-
 
 DEBUG = hasenv('CALIBRE_DEBUG')
 

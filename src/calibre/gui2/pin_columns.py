@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2018, Kovid Goyal <kovid at kovidgoyal.net>
 
-
 from typing import TYPE_CHECKING, cast
 
 from qt.core import QAbstractItemDelegate, QAction, QHeaderView, QMenu, QModelIndex, QSplitter, Qt, QTableView

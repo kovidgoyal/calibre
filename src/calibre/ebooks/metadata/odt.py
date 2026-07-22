@@ -18,7 +18,6 @@
 # Contributor(s):
 #
 
-
 import io
 import json
 import os

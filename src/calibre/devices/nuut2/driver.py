@@ -1,10 +1,8 @@
-__license__ = 'GPL v3'
-__copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2009, Kovid Goyal <kovid@kovidgoyal.net>
 
-'''
+"""
 Device driver for the Nuut2
-'''
+"""
 
 from calibre.devices.usbms.driver import USBMS
 from calibre.utils.localization import _

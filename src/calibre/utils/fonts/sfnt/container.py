@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2012, Kovid Goyal <kovid at kovidgoyal.net>
 
-
 from collections import OrderedDict
 from io import BytesIO
 from struct import calcsize, pack

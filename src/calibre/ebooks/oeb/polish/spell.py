@@ -1,8 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__ = 'GPL v3'
-__copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
+# License: GPLv3 Copyright: 2014, Kovid Goyal <kovid at kovidgoyal.net>
 
 import sys
 from collections import Counter, defaultdict
@@ -156,7 +153,6 @@ def count_chars_in_escaped_html(text, counter, file_name, node, attr, locale):
 
 _opf_file_as = '{{{}}}file-as'.format(OPF_NAMESPACES['opf'])
 opf_spell_tags = {'title', 'creator', 'subject', 'description', 'publisher'}
-
 
 # We can only use barename() for tag names and simple attribute checks so that
 # this code matches up with the syntax highlighter base spell checking

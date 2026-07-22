@@ -1,8 +1,5 @@
 #!/usr/bin/env python
-
-
-__copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+# Copyright: 2013, Kovid Goyal <kovid at kovidgoyal.net>
 
 import errno
 import os

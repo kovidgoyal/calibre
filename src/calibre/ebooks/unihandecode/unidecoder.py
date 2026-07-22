@@ -1,6 +1,4 @@
-__license__ = 'GPL 3'
-__copyright__ = '2010, Hiroshi Miura <miurahr@linux.com>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2010, Hiroshi Miura <miurahr@linux.com>
 
 '''
 Decode unicode text to an ASCII representation of the text in Chinese.
@@ -20,7 +18,6 @@ http://interglacial.com/~sburke/tpj/as_html/tpj22.html.
 The major differences between this implementation and others is it's written in
 python and it uses a single dictionary instead of loading the code group files
 as needed.
-
 
 Copyright (c) 2007 Russell Norris
 
@@ -44,7 +41,6 @@ HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
 WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
-
 
 Copyright 2001, Sean M. Burke <sburke@cpan.org>, all rights reserved.
 

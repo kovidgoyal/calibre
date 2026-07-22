@@ -177,7 +177,6 @@ class Editor(QWidget):  # {{{
 
 # }}}
 
-
 if __name__ == '__main__':
     from calibre.gui2 import Application
 

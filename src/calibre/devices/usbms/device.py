@@ -1,12 +1,10 @@
-__license__ = 'GPL v3'
-__copyright__ = '2009, John Schember <john at nachtimwald.com> 2009, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2009, John Schember <john at nachtimwald.com> 2009, Kovid Goyal <kovid@kovidgoyal.net>
 
-'''
+"""
 Generic device driver. This is not a complete stand alone driver. It is
 intended to be subclassed with the relevant parts implemented for a particular
 device. This class handles device detection.
-'''
+"""
 
 import glob
 import os

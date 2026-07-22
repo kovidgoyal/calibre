@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
-
 import json
 import time
 from collections import defaultdict
@@ -176,7 +175,6 @@ class ParseWorker(Thread):
 
 parse_worker = ParseWorker()
 # }}}
-
 
 # Override network access to load data "live" from the editors {{{
 

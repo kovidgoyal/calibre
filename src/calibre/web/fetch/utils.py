@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
-
 from calibre.utils.img import blend_on_canvas, image_from_data, image_to_data, scale_image
 
 

@@ -1,5 +1,4 @@
-__license__ = 'GPL v3'
-__copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
+# License: GPLv3 Copyright: 2008, Kovid Goyal <kovid at kovidgoyal.net>
 
 import functools
 import os
@@ -91,7 +90,6 @@ def load_plugin(path_to_zip_file):  # {{{
 
 # }}}
 
-
 # Enable/disable plugins {{{
 
 
@@ -178,7 +176,6 @@ def is_disabled(plugin_or_name):
 
 
 # }}}
-
 
 # File type plugins {{{
 
@@ -328,7 +325,6 @@ def run_plugins_on_postadd(db, book_id, fmt_map):
 
 # }}}
 
-
 # Plugin customization {{{
 
 
@@ -343,7 +339,6 @@ def plugin_customization(plugin):
 
 
 # }}}
-
 
 # Input/Output profiles {{{
 
@@ -362,7 +357,6 @@ def output_profiles():
 
 # }}}
 
-
 # Interface Actions # {{{
 
 
@@ -377,7 +371,6 @@ def interface_actions():
 
 # }}}
 
-
 # Preferences Plugins # {{{
 
 
@@ -391,7 +384,6 @@ def preferences_plugins():
 
 
 # }}}
-
 
 # Library Closed Plugins # {{{
 
@@ -428,7 +420,6 @@ def available_ai_provider_plugins() -> Iterator[AIProviderPlugin]:
 
 # }}}
 
-
 # Store Plugins # {{{
 
 
@@ -461,7 +452,6 @@ def available_stores():
 
 
 # }}}
-
 
 # Metadata read/write {{{
 
@@ -610,7 +600,6 @@ def can_set_metadata(ftype):
 
 # }}}
 
-
 # Add/remove plugins {{{
 
 
@@ -655,7 +644,6 @@ def remove_plugin(plugin_or_name):
 
 
 # }}}
-
 
 # Input/Output format plugins {{{
 
@@ -716,7 +704,6 @@ def available_output_formats():
 
 # }}}
 
-
 # Catalog plugins {{{
 
 
@@ -742,7 +729,6 @@ def plugin_for_catalog_format(fmt):
 
 
 # }}}
-
 
 # Device plugins {{{
 
@@ -774,7 +760,6 @@ def disabled_device_plugins():
 
 
 # }}}
-
 
 # Metadata sources2 {{{
 
@@ -809,7 +794,6 @@ def patch_metadata_plugins(possibly_updated_plugins):
 
 # }}}
 
-
 # Editor plugins {{{
 
 
@@ -820,7 +804,6 @@ def all_edit_book_tool_plugins():
 
 
 # }}}
-
 
 # Content server plugins {{{
 
@@ -833,7 +816,6 @@ def content_server_plugins():
 
 
 # }}}
-
 
 # Initialize plugins {{{
 
@@ -954,7 +936,6 @@ def initialized_plugins():
 
 
 # }}}
-
 
 # CLI {{{
 

@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
-
 from collections import OrderedDict
 
 from calibre.db.adding import compile_glob, compile_rule, filter_filename

@@ -1,5 +1,4 @@
-__license__ = 'GPL v3'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3
 
 import io
 import os

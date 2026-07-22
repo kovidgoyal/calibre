@@ -1,10 +1,8 @@
-__license__ = 'GPL 3'
-__copyright__ = '2009, John Schember <john@nachtimwald.com>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2009, John Schember <john@nachtimwald.com>
 
-'''
+"""
 Device driver for IRex Digiatal Reader
-'''
+"""
 
 from calibre.devices.usbms.driver import USBMS
 from calibre.utils.localization import _

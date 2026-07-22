@@ -1,8 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__ = 'GPL v3'
-__copyright__ = '2011, Anthon van der Neut <A.van.der.Neut@ruamel.eu>'
+# License: GPLv3 Copyright: 2011, Anthon van der Neut <A.van.der.Neut@ruamel.eu>
 
 # this code is based on:
 # Lizardtech DjVu Reference

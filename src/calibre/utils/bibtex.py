@@ -61,7 +61,6 @@ Disclaimer
 """
 
 __author__ = 'sengian <sengian1 at gmail.com>'
-__docformat__ = 'restructuredtext en'
 
 import re
 import string

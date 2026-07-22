@@ -1,9 +1,8 @@
+# License: GPLv3 Copyright: 2008, Marshall T. Vandegrift <llasram@gmail.cam>
+
 """
 Transform XHTML/OPS-ish content into Mobipocket HTML 3.2.
 """
-
-__license__ = 'GPL v3'
-__copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.cam>'
 
 import copy
 import numbers

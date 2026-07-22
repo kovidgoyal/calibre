@@ -1,8 +1,7 @@
-__license__ = 'GPL 3'
-__copyright__ = '2010, Greg Riker <griker@hotmail.com>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2010, Greg Riker <griker@hotmail.com>
 
-''' Read/write metadata from Amazon's topaz format '''
+"""Read/write metadata from Amazon's topaz format"""
+
 import io
 import numbers
 import sys

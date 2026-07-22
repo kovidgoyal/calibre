@@ -1,10 +1,7 @@
 #!/usr/bin/env python
+# License: GPLv3 Copyright: 2010, Kovid Goyal <kovid at kovidgoyal.net>
 
-
-__license__ = 'GPL v3'
-__copyright__ = '2010, Kovid Goyal <kovid at kovidgoyal.net>'
-
-'''Dialog to create a new custom column'''
+"""Dialog to create a new custom column"""
 
 import copy
 import re

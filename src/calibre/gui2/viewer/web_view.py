@@ -54,7 +54,6 @@ from polyglot.builtins import as_bytes
 
 SANDBOX_HOST = FAKE_HOST.rpartition('.')[0] + '.sandbox'
 
-
 # Override network access to load data from the book {{{
 
 _book_path: str | None = None

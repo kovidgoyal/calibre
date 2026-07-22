@@ -1,9 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__ = 'GPL v3'
-__copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2010, Kovid Goyal <kovid@kovidgoyal.net>
 
 import re
 import textwrap
@@ -45,7 +41,6 @@ from calibre.gui2.preferences import AbortCommit, AbortInitialize, ConfigWidgetB
 from calibre.utils.localization import _
 
 ICON_SIZE = 32
-
 
 # Title Bar {{{
 
@@ -222,7 +217,6 @@ class Browser(QScrollArea):  # {{{
 
 
 # }}}
-
 
 must_restart_message = _(
     'The changes you have made require calibre be restarted immediately. You will not be allowed to set any more preferences, until you restart.'

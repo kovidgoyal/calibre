@@ -362,7 +362,6 @@ class Book(Delegator):
     sourceencoding="codec"
     Gives the assumed encoding for all non-unicode strings.
 
-
     thumbnail="thumbnail file name"
     A small (80x80?) graphics file with a thumbnail of the book's cover.
 

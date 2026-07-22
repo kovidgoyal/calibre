@@ -65,7 +65,6 @@ class BusySpinner(QWidget):  # {{{
 
 # }}}
 
-
 quote_map = {'"': '"“”', "'": "'‘’"}
 qpat = regex.compile(r'''(['"])''')
 spat = regex.compile(r'(\s+)')

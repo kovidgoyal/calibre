@@ -1,9 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__ = 'GPL v3'
-__copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2012, Kovid Goyal <kovid@kovidgoyal.net>
 
 import os
 import re
@@ -32,7 +28,6 @@ Part = namedtuple('Part', 'num type filename start end aid')
 Elem = namedtuple('Elem', 'insert_pos toc_text file_number sequence_number start_pos length')
 
 FlowInfo = namedtuple('FlowInfo', 'type format dir fname')
-
 
 # locate beginning and ending positions of tag with specific aid attribute
 

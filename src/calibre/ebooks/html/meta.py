@@ -1,6 +1,4 @@
-__license__ = 'GPL 3'
-__copyright__ = '2010, Fabian Grassl <fg@jusmeum.de>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2010, Fabian Grassl <fg@jusmeum.de>
 
 
 class EasyMeta:

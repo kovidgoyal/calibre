@@ -1,8 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__ = 'GPL v3'
-__copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
+# License: GPLv3 Copyright: 2014, Kovid Goyal <kovid at kovidgoyal.net>
 
 import os
 import sys
@@ -290,7 +287,6 @@ class AddDictionary(QDialog):  # {{{
 
 
 # }}}
-
 
 # User Dictionaries {{{
 
@@ -768,7 +764,6 @@ class ManageDictionaries(Dialog):  # {{{
 
 
 # }}}
-
 
 # Spell Check Dialog {{{
 
@@ -1779,7 +1774,6 @@ class SpellCheck(Dialog):
 
 # }}}
 
-
 # Find next occurrence {{{
 
 
@@ -1847,7 +1841,6 @@ def find_next_error(current_editor, current_editor_name, gui_parent, show_editor
 
 
 # }}}
-
 
 if __name__ == '__main__':
     from calibre.gui2 import Application

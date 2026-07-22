@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 
-
 """
 Get word, character, and Asian character counts
 

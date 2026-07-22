@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
-
 from qt.core import QComboBox, QDialogButtonBox, QHBoxLayout, QLabel, QLineEdit, QMenu, QPushButton, QSize, QTextCursor, QVBoxLayout, QWidget, pyqtSignal
 
 from calibre.ebooks.css_transform_rules import (
@@ -374,7 +373,6 @@ class RulesWidget(QWidget, SaveLoadMixin):  # {{{
 
 
 # }}}
-
 
 if __name__ == '__main__':
     from calibre.gui2 import Application

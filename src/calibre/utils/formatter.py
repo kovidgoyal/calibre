@@ -1,12 +1,10 @@
+# License: GPLv3 Copyright: 2010, Kovid Goyal <kovid@kovidgoyal.net>
+
 """
 Created on 23 Sep 2010
 
 @author: charles
 """
-
-__license__ = 'GPL v3'
-__copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
 
 import numbers
 import os

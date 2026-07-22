@@ -1,8 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__ = 'GPL v3'
-__copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
+# License: GPLv3 Copyright: 2014, Kovid Goyal <kovid at kovidgoyal.net>
 
 import numbers
 import random
@@ -87,7 +84,6 @@ def set_use_roman(val):
 
 
 # }}}
-
 
 # Draw text {{{
 Point = namedtuple('Point', 'x y')
@@ -250,7 +246,6 @@ def layout_text(prefs, img, title, subtitle, footer, max_height, style):
 
 # }}}
 
-
 # Format text using templates {{{
 
 
@@ -317,7 +312,6 @@ def format_text(mi, prefs):
 
 # }}}
 
-
 # Colors {{{
 ColorTheme = namedtuple('ColorTheme', 'color1 color2 contrast_color1 contrast_color2')
 
@@ -360,7 +354,6 @@ def color(color_theme, name):
 
 
 # }}}
-
 
 # Styles {{{
 

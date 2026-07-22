@@ -1,10 +1,8 @@
-__license__ = 'GPL 3'
-__copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2009, Kovid Goyal <kovid@kovidgoyal.net>
 
-'''
+"""
 Command line interface to conversion sub-system
-'''
+"""
 
 import numbers
 import os

@@ -1,9 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__ = 'GPL v3'
-__copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2011, Kovid Goyal <kovid@kovidgoyal.net>
 
 import os
 import re
@@ -376,7 +372,6 @@ class TitleSortEdit(TitleEdit, ToMetadataMixinLineEdit, LineEditIndicators):
 
 # }}}
 
-
 # Authors {{{
 
 
@@ -672,7 +667,6 @@ class AuthorSortEdit(EnLineEdit, ToMetadataMixinLineEdit, LineEditIndicators):
 
 # }}}
 
-
 # Series {{{
 
 
@@ -852,7 +846,6 @@ class BuddyLabel(QLabel):  # {{{
 
 
 # }}}
-
 
 # Formats {{{
 
@@ -1751,7 +1744,6 @@ class LanguagesEdit(LE, ToMetadataMixinLineEdit):  # {{{
 
 # }}}
 
-
 # Identifiers {{{
 
 
@@ -2149,7 +2141,6 @@ class PublisherEdit(EditWithComplete, ToMetadataMixinComboBox):  # {{{
 
 
 # }}}
-
 
 # DateEdit {{{
 

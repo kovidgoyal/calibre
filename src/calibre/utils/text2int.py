@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 
-
 __author__ = 'stackoverflow community'
-__docformat__ = 'restructuredtext en'
 '''
 Takes english numeric words and converts them to integers.
 Returns False if the word isn't a number.

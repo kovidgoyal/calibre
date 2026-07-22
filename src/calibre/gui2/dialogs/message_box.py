@@ -1,9 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__ = 'GPL v3'
-__copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2011, Kovid Goyal <kovid@kovidgoyal.net>
 
 import sys
 from contextlib import suppress
@@ -318,7 +314,6 @@ class ViewLog(QDialog):  # {{{
 
 # }}}
 
-
 _proceed_memory = []
 
 
@@ -632,7 +627,6 @@ class JobError(QDialog):  # {{{
 
 
 # }}}
-
 
 if __name__ == '__main__':
     from qt.core import QMainWindow, QTimer

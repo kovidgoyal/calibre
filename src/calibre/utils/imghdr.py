@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
-
 import os
 from struct import error, unpack
 
@@ -99,7 +98,6 @@ def _identify(stream):
 # ---------------------------------#
 # Subroutines per image file type #
 # ---------------------------------#
-
 
 _tests = []
 

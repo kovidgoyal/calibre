@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # License: GPL v3 Copyright: 2021, Kovid Goyal <kovid at kovidgoyal.net>
 
-
 import unittest
 
 from calibre.ebooks.metadata import author_to_author_sort, remove_bracketed_text

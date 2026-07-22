@@ -18,7 +18,6 @@ of data.
 
 The module was also rewritten to use lxml instead of MiniDom.
 
-
 Usage:
 
 description = Description(open_search_url)

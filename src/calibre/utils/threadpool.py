@@ -1,3 +1,5 @@
+# License: PSF
+
 '''Easy to use object-oriented thread pool framework.
 
 A thread pool is an object that maintains a pool of worker threads to perform
@@ -43,7 +45,6 @@ __author__ = 'Christopher Arndt'
 __version__ = '1.2.3'
 __revision__ = '$Revision: 1.5 $'
 __date__ = '$Date: 2006/06/23 12:32:25 $'
-__license__ = 'Python license'
 
 # standard library modules
 import queue

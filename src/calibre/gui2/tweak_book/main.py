@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-
+# License: GPLv3 Copyright: 2013, Kovid Goyal <kovid at kovidgoyal.net>
 
 import importlib
 import os
@@ -14,9 +14,6 @@ from calibre.gui2 import Application, decouple, set_gui_prefs, setup_gui_option_
 from calibre.ptempfile import reset_base_dir
 from calibre.utils.config import OptionParser
 from calibre.utils.localization import _
-
-__license__ = 'GPL v3'
-__copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 
 def option_parser():

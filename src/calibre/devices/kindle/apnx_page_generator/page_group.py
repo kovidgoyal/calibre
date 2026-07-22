@@ -1,7 +1,4 @@
-__license__ = 'GPL v3'
-__copyright__ = '2022, Vaso Peras-Likodric <vaso at vipl.in.rs>'
-__docformat__ = 'restructuredtext en'
-
+# License: GPLv3 Copyright: 2022, Vaso Peras-Likodric <vaso at vipl.in.rs>
 
 from calibre.devices.kindle.apnx_page_generator.page_number_type import PageNumberTypes
 

@@ -1,9 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__ = 'GPL v3'
-__copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2013, Kovid Goyal <kovid at kovidgoyal.net>
 
 import re
 from datetime import datetime
@@ -17,7 +13,6 @@ from calibre.utils.icu import strcmp
 from calibre.utils.localization import _, canonicalize_lang
 
 missing = object()
-
 
 # Convert data into values suitable for the db {{{
 
@@ -194,7 +189,6 @@ def get_adapter(name, metadata):
 
 # }}}
 
-
 # One-One fields {{{
 
 
@@ -271,7 +265,6 @@ def custom_series_index(book_id_val_map, db, field, *args):
 
 
 # }}}
-
 
 # Many-One fields {{{
 
@@ -393,7 +386,6 @@ def many_one(book_id_val_map, db, field, allow_case_change, *args):
 
 
 # }}}
-
 
 # Many-Many fields {{{
 

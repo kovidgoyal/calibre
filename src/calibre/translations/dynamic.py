@@ -1,9 +1,8 @@
+# License: GPLv3 Copyright: 2008, Marshall T. Vandegrift <llasram@gmail.com>
+
 """
 Dynamic language lookup of translations for user-visible strings.
 """
-
-__license__ = 'GPL v3'
-__copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
 
 import io
 from gettext import GNUTranslations

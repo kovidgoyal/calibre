@@ -1,12 +1,11 @@
-__license__ = 'GPL 3'
-__copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
-'''
+# License: GPLv3 Copyright: 2009, Kovid Goyal <kovid@kovidgoyal.net>
+
+"""
 This module implements a simple commandline SMTP client that supports:
 
   * Delivery via an SMTP relay with SSL or TLS
   * Background delivery with failures being saved in a maildir mailbox
-'''
+"""
 
 import os
 import socket

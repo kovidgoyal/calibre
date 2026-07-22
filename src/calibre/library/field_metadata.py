@@ -27,7 +27,6 @@ category_icon_map = {
     'languages': 'languages.png',
 }
 
-
 # Builtin metadata {{{
 
 

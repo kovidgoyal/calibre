@@ -1,14 +1,11 @@
-__license__ = 'GPL 3'
-__copyright__ = '2009, John Schember <john@nachtimwald.com>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2009, John Schember <john@nachtimwald.com>
 
-'''
+"""
 Unicode code point dictionary.
 
 Based on Text::Unidecode's xAB.pm lists. This combines all xAB.pm files into
 a single dictionary.
-'''
-
+"""
 
 CODEPOINTS = {
     'x20': [

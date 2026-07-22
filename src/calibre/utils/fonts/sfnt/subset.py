@@ -1,9 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__ = 'GPL v3'
-__copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2012, Kovid Goyal <kovid at kovidgoyal.net>
 
 import traceback
 from collections import OrderedDict
@@ -353,7 +349,6 @@ if __name__ == '__main__':
 
     main(sys.argv)
 # }}}
-
 
 # Tests {{{
 

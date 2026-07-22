@@ -1,17 +1,13 @@
 #!/usr/bin/env python
+# License: GPLv3 Copyright: 2010, Gerendi Sandor Attila
 
-
-__license__ = 'GPL v3'
-__copyright__ = '2010, Gerendi Sandor Attila'
-__docformat__ = 'restructuredtext en'
-
-'''
+"""
 RTF tokenizer and token parser. v.1.0 (1/17/2010)
 Author: Gerendi Sandor Attila
 
 At this point this will tokenize a RTF file then rebuild it from the tokens.
 In the process the UTF8 tokens are altered to be supported by the RTF2XML and also remain RTF specification compliant.
-'''
+"""
 
 
 class tokenDelimitatorStart:

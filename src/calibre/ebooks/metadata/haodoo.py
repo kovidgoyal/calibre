@@ -1,10 +1,8 @@
+# License: GPLv3 Copyright: 2012, Kan-Ru Chen <kanru@kanru.info>
+
 """
 Read meta information from Haodoo.net pdb files.
 """
-
-__license__ = 'GPL v3'
-__copyright__ = '2012, Kan-Ru Chen <kanru@kanru.info>'
-__docformat__ = 'restructuredtext en'
 
 from calibre.ebooks.pdb.haodoo.reader import Reader
 from calibre.ebooks.pdb.header import PdbHeaderReader

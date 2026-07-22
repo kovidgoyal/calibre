@@ -1,6 +1,4 @@
-__license__ = 'GPL 3'
-__copyright__ = '2006, Ed Summers <ehs@pobox.com>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2006, Ed Summers <ehs@pobox.com>
 
 from urllib.parse import parse_qs, urlencode, urlparse, urlunparse
 

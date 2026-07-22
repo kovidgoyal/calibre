@@ -1,7 +1,5 @@
 #!/usr/bin/env python
-
-__license__ = 'GPL v3'
-__copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
+# License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
 import errno
 import http.client
@@ -524,7 +522,6 @@ def create_theme(folder=None, parent=None):
 
 
 # }}}
-
 
 # Choose Theme {{{
 

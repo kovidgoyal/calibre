@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2010, Kovid Goyal <kovid at kovidgoyal.net>
 
-
 import os
 import re
 from collections import namedtuple
@@ -458,7 +457,6 @@ def render_data(mi, use_roman_numbers=True, all_fields=False, pref_name='book_di
 
 
 # }}}
-
 
 # Context menu {{{
 
@@ -1505,7 +1503,6 @@ class DetailsLayout(QSplitter):  # {{{
 
 
 # }}}
-
 
 # Drag 'n drop {{{
 

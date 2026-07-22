@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
-
 import errno
 import hashlib
 import io
@@ -232,7 +231,6 @@ def export(destdir, library_paths=None, dbmap=None, progress1=None, progress2=No
 
 
 # }}}
-
 
 # Import {{{
 
@@ -619,7 +617,6 @@ def run_importer():
 
 
 # }}}
-
 
 if __name__ == '__main__':
     export(sys.argv[-1], progress1=print, progress2=print)

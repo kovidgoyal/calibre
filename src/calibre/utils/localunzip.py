@@ -1,16 +1,12 @@
 #!/usr/bin/env python
+# License: GPLv3 Copyright: 2012, Kovid Goyal <kovid at kovidgoyal.net>
 
-
-__license__ = 'GPL v3'
-__copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
-
-'''
+"""
 Try to read invalid zip files with missing or damaged central directories.
 These are apparently produced in large numbers by the fruitcakes over at B&N.
 
 Tries to only use the local headers to extract data from the damaged zip file.
-'''
+"""
 
 import os
 import shutil
@@ -32,7 +28,6 @@ LocalHeader = namedtuple(
     'LocalHeader',
     'signature min_version flags compression_method mod_time mod_date crc32 compressed_size uncompressed_size filename_length extra_length filename extra',
 )
-
 
 if hasattr(sys, 'getwindowsversion'):
     windows_reserved_filenames = (

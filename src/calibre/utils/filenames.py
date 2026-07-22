@@ -700,7 +700,6 @@ def is_existing_subpath(child: str, parent: str) -> bool:
 
 rmtree = shutil.rmtree
 
-
 if iswindows:
     long_path_prefix = '\\\\?\\'
 

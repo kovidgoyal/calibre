@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
-
 from calibre.gui2.actions import InterfaceAction
 from calibre.utils.localization import _
 

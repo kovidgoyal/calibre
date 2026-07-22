@@ -1,8 +1,6 @@
-__license__ = 'GPL v3'
-__copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2009, Kovid Goyal <kovid@kovidgoyal.net>
 
-'''
+"""
 Device driver for the Netronix EB600
 
 Windows PNP strings:
@@ -11,7 +9,8 @@ Windows PNP strings:
         ('USBSTOR\\DISK&VEN_NETRONIX&PROD_EBOOK&REV_062E\\6&1A275569&0&EB6001009
 2W00000&1', 3, 'G:\\')
 
-'''
+"""
+
 import re
 
 from calibre.devices.usbms.driver import USBMS

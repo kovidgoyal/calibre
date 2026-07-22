@@ -1,6 +1,4 @@
-__license__ = 'GPL v3'
-__copyright__ = '2009, John Schember <john at nachtimwald.com>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2009, John Schember <john at nachtimwald.com>
 
 from calibre.devices.kindle.apnx import APNXBuilder
 from calibre.utils.localization import _

@@ -1,10 +1,9 @@
-__license__ = 'GPL v3'
-__copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2008, Kovid Goyal kovid@kovidgoyal.net
 
-'''
+"""
 Conversion to EPUB.
-'''
+"""
+
 from calibre.utils.zipfile import ZIP_STORED, ZipFile
 
 

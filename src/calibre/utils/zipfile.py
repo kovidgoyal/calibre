@@ -1621,7 +1621,6 @@ def safe_replace(zipstream_or_path, name, datastream, extra_replacements=None, a
     and re-creating the zipfile. This is necessary because :method:`ZipFile.replace`
     sometimes created corrupted zip files.
 
-
     :param zipstream:  Stream from a zip file or path to a zip file
     :param name:       The name of the file to replace
     :param datastream: The data to replace the file with.

@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # License: GPL v3 Copyright: 2019, Kovid Goyal <kovid at kovidgoyal.net>
 
-
 from qt.core import QKeySequence, QMainWindow, Qt
 
 key_name_to_qt_name = {

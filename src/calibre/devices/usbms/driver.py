@@ -1,12 +1,10 @@
-__license__ = 'GPL v3'
-__copyright__ = '2009, John Schember <john at nachtimwald.com>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2009, John Schember <john at nachtimwald.com>
 
-'''
+"""
 Generic USB Mass storage device driver. This is not a complete stand alone
 driver. It is intended to be subclassed with the relevant parts implemented
 for a particular device.
-'''
+"""
 
 import json
 import os

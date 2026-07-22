@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
-
 import errno
 import io
 import json
@@ -54,7 +53,6 @@ def update_rapydscript():
 
 
 # }}}
-
 
 # Compiler {{{
 
@@ -704,7 +702,6 @@ def compile_all():
 
 
 # }}}
-
 
 # Translations {{{
 

@@ -1,7 +1,6 @@
-__license__ = 'GPL v3'
-__copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
+# License: GPLv3 Copyright: 2008, Kovid Goyal <kovid at kovidgoyal.net>
 
-''' The GUI '''
+"""The GUI"""
 
 import glob
 import os
@@ -320,10 +319,8 @@ def configure_toolbar_extension_button(self, parent=None):
 
 QToolBar.__init__ = configure_toolbar_extension_button  # type: ignore
 
-
 # Setup gprefs {{{
 gprefs = JSONConfig('gui')
-
 
 native_menubar_defaults = {
     'action-layout-menubar': (
@@ -1734,7 +1731,6 @@ class Application(QApplication):
 
 
 _store_app: QApplication | None = None
-
 
 SanitizeLibraryPath = sanitize_env_vars  # For old plugins
 

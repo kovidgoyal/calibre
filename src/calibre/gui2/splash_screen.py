@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
-
 from qt.core import QBrush, QColor, QFont, QFontMetrics, QPainter, QPen, QPixmap, QSplashScreen, Qt
 
 from calibre.constants import __appname__, numeric_version

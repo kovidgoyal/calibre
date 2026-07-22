@@ -1,8 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__ = 'GPL v3'
-__copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
+# License: GPLv3 Copyright: 2014, Kovid Goyal <kovid at kovidgoyal.net>
 
 import copy
 import re
@@ -107,7 +104,6 @@ obtain some advantage from it? But.</p>
     },
 }  # }}}
 
-
 # Parsing of snippets {{{
 escape = unescape = None
 
@@ -198,7 +194,6 @@ def parse_template(template, start_offset=0, is_toplevel=True, grouped=True):
 
 
 # }}}
-
 
 _snippets = None
 user_snippets = JSONConfig('editor_snippets')
@@ -478,7 +473,6 @@ class SnippetManager(QObject):
 
 
 # }}}
-
 
 # Config {{{
 
@@ -789,7 +783,6 @@ class UserSnippets(Dialog):
 
 
 # }}}
-
 
 if __name__ == '__main__':
     from calibre.gui2 import Application

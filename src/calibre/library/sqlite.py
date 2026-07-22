@@ -1,11 +1,9 @@
-__license__ = 'GPL v3'
-__copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2008, Kovid Goyal kovid@kovidgoyal.net
 
-'''
+"""
 Wrapper for multi-threaded access to a single sqlite database connection. Serializes
 all calls.
-'''
+"""
 
 import os
 import reprlib

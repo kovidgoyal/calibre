@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # License: GPL v3 Copyright: 2019, Kovid Goyal <kovid at kovidgoyal.net>
 
-
 from qt.core import QFontInfo, QLabel, QPalette, Qt, QVBoxLayout, QWidget
 
 from calibre.gui2.progress_indicator import ProgressIndicator

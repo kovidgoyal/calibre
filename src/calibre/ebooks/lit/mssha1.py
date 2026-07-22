@@ -1,11 +1,10 @@
+# License: GPLv3 Copyright: 2008, Marshall T. Vandegrift <llasram@gmail.com>
+
 """
 Modified version of SHA-1 used in Microsoft LIT files.
 
 Adapted from the PyPy pure-Python SHA-1 implementation.
 """
-
-__license__ = 'GPL v3'
-__copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
 
 import copy
 import struct
@@ -111,7 +110,6 @@ f[31] = f40_59
 f[42] = f6_42
 f[51] = f20_39
 f[68] = f0_19
-
 
 # Constants to be used
 K = [

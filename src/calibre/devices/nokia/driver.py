@@ -1,10 +1,8 @@
-__license__ = 'GPL v3'
-__copyright__ = '2009-2014, John Schember <john at nachtimwald.com> and Andres Gomez <agomez at igalia.com>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2009-2014, John Schember <john at nachtimwald.com> and Andres Gomez <agomez at igalia.com>
 
-'''
+"""
 Device driver for Nokia's internet tablet devices
-'''
+"""
 
 from calibre.devices.usbms.driver import USBMS
 from calibre.utils.localization import _

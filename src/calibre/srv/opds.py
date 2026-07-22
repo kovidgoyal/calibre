@@ -76,7 +76,6 @@ E: ElementMaker[etree.Element] = ElementMaker(
     },
 )
 
-
 FEED: Callable[..., etree.Element] = E.feed
 TITLE: Callable[..., etree.Element] = E.title
 ID: Callable[..., etree.Element] = E.id
@@ -262,7 +261,6 @@ def ACQUISITION_ENTRY(book_id: int, updated: datetime.datetime, request_context:
 
 
 # }}}
-
 
 default_feed_title: str = __appname__ + ' ' + _('Library')
 

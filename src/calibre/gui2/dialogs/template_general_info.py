@@ -1,13 +1,9 @@
 #!/usr/bin/env python
+# License: GPLv3 Copyright: 2024, Kovid Goyal kovid@kovidgoyal.net
 
-
-__copyright__ = '2024, Kovid Goyal kovid@kovidgoyal.net'
-__docformat__ = 'restructuredtext en'
-__license__ = 'GPL v3'
-
-'''
+"""
 @author: Charles Haley
-'''
+"""
 
 from qt.core import QDialogButtonBox, QVBoxLayout
 

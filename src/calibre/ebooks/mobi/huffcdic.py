@@ -1,14 +1,10 @@
 #!/usr/bin/env python
+# License: GPLv3 Copyright: 2011, Kovid Goyal <kovid@kovidgoyal.net>
 
-
-__license__ = 'GPL v3'
-__copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
-
-'''
+"""
 Decompress MOBI files compressed with the Huff/cdic algorithm. Code thanks to darkninja
 and igorsk.
-'''
+"""
 
 import struct
 

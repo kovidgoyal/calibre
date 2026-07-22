@@ -1,9 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__ = 'GPL v3'
-__copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2010, Kovid Goyal <kovid@kovidgoyal.net>
 
 import os
 import sys
@@ -204,7 +200,6 @@ class DateTimeEdit(DateTimeEditBase):  # {{{
 
 # }}}
 
-
 # Number Editor {{{
 
 
@@ -239,7 +234,6 @@ ClearingSpinBox = make_clearing_spinbox(QSpinBox)
 ClearingDoubleSpinBox = make_clearing_spinbox(QDoubleSpinBox)
 
 # }}}
-
 
 # setter for text-like delegates. Return '' if CTRL is pushed {{{
 

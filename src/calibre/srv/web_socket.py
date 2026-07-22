@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
-
 import http.client
 import os
 import socket
@@ -171,7 +170,6 @@ class ReadFrame:  # {{{
 
 # }}}
 
-
 # Sending frames {{{
 
 
@@ -232,7 +230,6 @@ class MessageWriter:
 
 
 # }}}
-
 
 conn_id = 0
 

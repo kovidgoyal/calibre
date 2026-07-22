@@ -1,7 +1,6 @@
 #! /usr/bin/env python
 # Written by Martin v. Löwis <loewis@informatik.hu-berlin.de>
 
-
 """Generate binary message catalog from textual translation description.
 
 This program converts a textual Uniforum-style message catalog (.po file) into

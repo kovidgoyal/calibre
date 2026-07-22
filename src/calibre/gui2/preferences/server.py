@@ -106,7 +106,6 @@ if iswindows and not isportable:
 else:
     set_run_at_startup = is_set_to_run_at_startup = None
 
-
 # Advanced {{{
 
 
@@ -464,7 +463,6 @@ class MainTab(QWidget):  # {{{
 
 
 # }}}
-
 
 # Users {{{
 
@@ -1064,7 +1062,6 @@ class CustomList(QWidget):  # {{{
 
 
 # }}}
-
 
 # Search the internet {{{
 

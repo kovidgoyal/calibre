@@ -1,11 +1,8 @@
-__license__ = 'GPL v3'
-__copyright__ = '2009, Kovid Goyal'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2009, Kovid Goyal
 
-'''
+"""
 Device driver for Barns and Nobel's Nook
-'''
-
+"""
 
 from calibre.devices.usbms.driver import USBMS
 from calibre.utils.localization import _

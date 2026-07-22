@@ -1,8 +1,5 @@
 #!/usr/bin/env python
-
-__license__ = 'GPL v3'
-__copyright__ = '2015-2019, Kovid Goyal <kovid at kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2015-2019, Kovid Goyal <kovid at kovidgoyal.net>
 
 import json
 import textwrap
@@ -1236,7 +1233,6 @@ class TemplateConfig(QWidget):  # {{{
 
 
 # }}}
-
 
 if __name__ == '__main__':
     from calibre.devices.kobo.driver import KOBOTOUCH

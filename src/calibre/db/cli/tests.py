@@ -1,12 +1,10 @@
 #!/usr/bin/env python
+# License: GPLv3
 
-
-__license__ = 'GPL v3'
-__docformat__ = 'restructuredtext en'
-
-'''
+"""
 Test the CLI of the calibre database management tool
-'''
+"""
+
 import csv
 import unittest
 

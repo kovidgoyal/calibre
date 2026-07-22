@@ -1,9 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__ = 'GPL v3'
-__copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2012, Kovid Goyal <kovid@kovidgoyal.net>
 
 from calibre.ebooks.oeb.base import XHTML, XHTML_MIME, XHTML_NS, XPath, css_text, urlnormalize
 from calibre.utils.localization import __

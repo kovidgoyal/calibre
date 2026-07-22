@@ -1,9 +1,8 @@
+# License: GPLv3 Copyright: 2008, Kovid Goyal <kovid at kovidgoyal.net> and Marshall T. Vandegrift <llasram@gmail.com>
+
 """
 Support for reading LIT files.
 """
-
-__license__ = 'GPL v3'
-__copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net> and Marshall T. Vandegrift <llasram@gmail.com>'
 
 import functools
 import io

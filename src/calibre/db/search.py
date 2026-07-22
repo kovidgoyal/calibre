@@ -1,9 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__ = 'GPL v3'
-__copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2013, Kovid Goyal <kovid at kovidgoyal.net>
 
 import operator
 import unicodedata
@@ -343,7 +339,6 @@ class NumericSearch:  # {{{
 
 
 # }}}
-
 
 nfc = partial(unicodedata.normalize, 'NFC')
 nfkc = partial(unicodedata.normalize, 'NFKC')

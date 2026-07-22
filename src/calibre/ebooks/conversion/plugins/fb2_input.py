@@ -1,8 +1,9 @@
-__license__ = 'GPL v3'
-__copyright__ = '2008, Anatoly Shipitsin <norguhtar at gmail.com>'
-'''
+# License: GPLv3 Copyright: 2008, Anatoly Shipitsin <norguhtar at gmail.com>
+
+"""
 Convert .fb2 files to .lrf
-'''
+"""
+
 import os
 import re
 

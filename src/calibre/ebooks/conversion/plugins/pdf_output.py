@@ -1,10 +1,8 @@
-__license__ = 'GPL 3'
-__copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2012, Kovid Goyal <kovid at kovidgoyal.net>
 
-'''
+"""
 Convert OEB ebook format to PDF.
-'''
+"""
 
 import glob
 import os

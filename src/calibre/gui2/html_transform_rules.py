@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
-
 from qt.core import QComboBox, QFrame, QHBoxLayout, QIcon, QLabel, QLineEdit, QPushButton, QScrollArea, Qt, QToolButton, QVBoxLayout, QWidget, pyqtSignal
 
 from calibre import prepare_string_for_xml
@@ -367,7 +366,6 @@ class HtmlRulesWidget(RulesWidgetBase):  # {{{
 
 
 # }}}
-
 
 if __name__ == '__main__':
     from calibre.gui2 import Application

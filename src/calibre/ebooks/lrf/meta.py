@@ -1,5 +1,4 @@
-__license__ = 'GPL v3'
-__copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
+# License: GPLv3 Copyright: 2008, Kovid Goyal <kovid at kovidgoyal.net>
 
 '''
 This module presents an easy to use interface for getting and setting
@@ -622,7 +621,6 @@ def option_parser():
 
     parser = OptionParser(
         usage=_('''%prog [options] mybook.lrf
-
 
 Show/edit the metadata in an LRF file.\n\n'''),
         version=__appname__ + ' ' + __version__,

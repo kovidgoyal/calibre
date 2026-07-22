@@ -1,11 +1,7 @@
 #!/usr/bin/env python
+# License: GPLv3 Copyright: 2008, Kovid Goyal <kovid at kovidgoyal.net>
 
-
-__license__ = 'GPL v3'
-__copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
-
-'''Read meta information from epub files'''
-
+"""Read meta information from epub files"""
 
 import io
 import os

@@ -1,9 +1,8 @@
-__license__ = 'GPL v3'
-__copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
+# License: GPLv3 Copyright: 2008, Kovid Goyal <kovid at kovidgoyal.net>
 
-'''
+"""
 Backend that implements storage of ebooks in an sqlite database.
-'''
+"""
 
 import datetime
 import re
@@ -192,7 +191,6 @@ class LibraryDatabase:
         BEGIN
           UPDATE books SET sort=title_sort(NEW.title) WHERE id=NEW.id;
         END;
-
 
         /***** authors table *****/
         CREATE TABLE authors ( id   INTEGER PRIMARY KEY,

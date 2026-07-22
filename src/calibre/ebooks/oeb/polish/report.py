@@ -1,8 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__ = 'GPL v3'
-__copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
+# License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
 import os
 import posixpath
@@ -215,7 +212,6 @@ def links_data(container, *args):
 
 
 Word = namedtuple('Word', 'id word locale usage')
-
 
 file_words_counts = None
 

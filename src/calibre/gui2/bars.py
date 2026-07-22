@@ -1,9 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__ = 'GPL v3'
-__copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2011, Kovid Goyal <kovid@kovidgoyal.net>
 
 from functools import partial
 
@@ -80,7 +76,6 @@ class RevealBar(QWidget):  # {{{
 
 
 # }}}
-
 
 MAX_TEXT_LENGTH = 10
 connected_pairs = set()
@@ -352,7 +347,6 @@ class MenuAction(QAction):  # {{{
 
 
 # }}}
-
 
 # MenuBar {{{
 

@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2009, Kovid Goyal <kovid at kovidgoyal.net>
 
-
 import io
 import locale
 import os
@@ -362,7 +361,6 @@ class _SetTranslators:
 
 
 set_translators = _SetTranslators()
-
 
 _iso639 = None
 _extra_lang_codes = {

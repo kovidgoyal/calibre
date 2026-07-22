@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2013, Kovid Goyal <kovid at kovidgoyal.net>
 
-
 import os
 import sys
 import tempfile
@@ -442,7 +441,6 @@ class ItemView(QStackedWidget):  # {{{
 
 
 # }}}
-
 
 NODE_FLAGS = (
     Qt.ItemFlag.ItemIsDragEnabled | Qt.ItemFlag.ItemIsEditable | Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsDropEnabled
@@ -1204,7 +1202,6 @@ class TOCView(QWidget):  # {{{
 
 
 # }}}
-
 
 te_prefs = JSONConfig('toc-editor')
 

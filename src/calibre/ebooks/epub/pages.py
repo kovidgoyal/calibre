@@ -1,10 +1,8 @@
+# License: GPLv3 Copyright: 2008, Marshall T. Vandegrift <llasram@gmail.com>
+
 """
 Add page mapping information to an EPUB book.
 """
-
-__license__ = 'GPL v3'
-__copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
-__docformat__ = 'restructuredtext en'
 
 import re
 from itertools import count

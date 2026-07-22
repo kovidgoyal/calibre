@@ -1,6 +1,6 @@
-__license__ = 'GPL v3'
-__copyright__ = '2008, Ashish Kulkarni <kulkarni.ashish@gmail.com>'
-'''Read meta information from IMP files'''
+# License: GPLv3 Copyright: 2008, Ashish Kulkarni <kulkarni.ashish@gmail.com>
+
+"""Read meta information from IMP files"""
 
 import sys
 

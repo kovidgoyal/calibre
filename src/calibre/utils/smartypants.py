@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 
-
 __author__ = 'Chad Miller <smartypantspy@chad.org>, Kovid Goyal <kovid at kovidgoyal.net>'
 __description__ = 'Smart-quotes, smart-ellipses, and smart-dashes for weblog entries in pyblosxom'
 
@@ -19,7 +18,6 @@ Copyright (c) 2004, 2007 Chad Miller
 original `SmartyPants`_ by `John Gruber`_
 Copyright (c) 2003 John Gruber
 
-
 Synopsis
 ========
 
@@ -31,7 +29,6 @@ into "smart" typographic punctuation HTML entities.
 
 This software, *smartypants.py*, endeavours to be a functional port of
 SmartyPants to Python, for use with Pyblosxom_.
-
 
 Description
 ===========
@@ -52,7 +49,6 @@ SmartyPants does not modify characters within ``<pre>``, ``<code>``, ``<kbd>``,
 ``<math>`` or ``<script>`` tag blocks. Typically, these tags are used to
 display text where smart quotes and other "smart punctuation" would not be
 appropriate, such as source code or example markup.
-
 
 Backslash Escapes
 =================
@@ -111,7 +107,6 @@ Numeric values are the easiest way to configure SmartyPants' behavior:
     E.g.  "&#8220;" is turned into a simple double-quote ("), "&#8212;" is
     turned into two dashes, etc.
 
-
 The following single-character attribute values can be combined to toggle
 individual transformations from within the smarty_pants attribute. For
 example, to educate normal quotes and em-dashes, but not ellipses or
@@ -159,7 +154,6 @@ example, to educate normal quotes and em-dashes, but not ellipses or
 The ``smartypants_forbidden_flavours`` list contains pyblosxom flavours for
 which no Smarty Pants rendering will occur.
 
-
 Caveats
 =======
 
@@ -198,7 +192,6 @@ makes it easy to stupefy smart quote characters into their 7-bit
 equivalents, and I don't consider it my problem if you're using an
 indecent text editor or email client.
 
-
 Algorithmic Shortcomings
 ------------------------
 
@@ -213,7 +206,6 @@ this problem can be solved in the general case -- every word processor
 I've tried gets this wrong as well. In such cases, it's best to use the
 proper HTML entity for closing single-quotes (``&#8217;``) by hand.
 
-
 Bugs
 ====
 
@@ -227,7 +219,6 @@ To Do list
 ----------
 
 - Provide a function for use within templates to quote anything at all.
-
 
 Version History
 ===============
@@ -280,7 +271,6 @@ Authors
 `Movable Type`_ and almost all of this useful documentation.  `Chad Miller`_
 ported it to Python to use with Pyblosxom_.
 
-
 Additional Credits
 ==================
 
@@ -297,7 +287,6 @@ testing of the original SmartyPants.
 .. _Jeremy Hedley: http://antipixel.com/
 .. _Charles Wiltgen: http://playbacktime.com/
 .. _Rael Dornfest: http://raelity.org/
-
 
 Copyright and License
 =====================
@@ -336,7 +325,6 @@ SmartyPants_ license::
     (including negligence or otherwise) arising in any way out of the use
     of this software, even if advised of the possibility of such damage.
 
-
 smartypants.py license::
 
     smartypants.py is a derivative work of SmartyPants.
@@ -365,8 +353,6 @@ smartypants.py license::
     (including negligence or otherwise) arising in any way out of the use
     of this software, even if advised of the possibility of such damage.
 
-
-
 .. _John Gruber: https://daringfireball.net/
 .. _Chad Miller: http://web.chad.org/
 
@@ -381,7 +367,6 @@ import re
 # style added by Kovid
 tags_to_skip_regex = re.compile(r'<(/)?(style|pre|code|kbd|script|math)[^>]*>', re.I)
 self_closing_regex = re.compile(r'/\s*>$')
-
 
 # internal functions below here
 

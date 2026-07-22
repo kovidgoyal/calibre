@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
-
 from lxml.etree import tostring
 from qt.core import QCheckBox, QComboBox, QFont, QHBoxLayout, QIcon, QLabel, QSizePolicy, QToolButton, QVBoxLayout, QWidget, pyqtSignal
 

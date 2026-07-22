@@ -518,7 +518,6 @@ def add_cover(pdf_doc, cover_data, page_layout, opts):
 
 # }}}
 
-
 # Margin groups {{{
 
 Margins = namedtuple('Margins', 'left top right bottom')
@@ -838,7 +837,6 @@ def add_pagenum_toc(root, toc, opts, page_number_display_map):
 
 # }}}
 
-
 # Fonts {{{
 
 
@@ -945,7 +943,6 @@ def test_merge_fonts():
 
 
 # }}}
-
 
 # Header/footer {{{
 
@@ -1145,7 +1142,6 @@ def add_header_footer(
 
 
 # }}}
-
 
 # Maths {{{
 

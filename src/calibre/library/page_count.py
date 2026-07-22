@@ -91,7 +91,6 @@ CHARS_PER_LINE = 70
 LINES_PER_PAGE = 36
 CHARS_PER_PAGE = CHARS_PER_LINE * LINES_PER_PAGE
 
-
 head_map = {
     'h1': (30, 2),
     'h2': (40, 2),

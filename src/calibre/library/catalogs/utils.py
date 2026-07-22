@@ -1,9 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__ = 'GPL v3'
-__copyright__ = '2010, Greg Riker'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2010, Greg Riker
 
 import re
 

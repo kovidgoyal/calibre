@@ -1,7 +1,6 @@
-"""Read meta information from SNB files"""
+# License: GPLv3 Copyright: 2010, Li Fanxi <lifanxi@freemindworld.com>
 
-__license__ = 'GPL v3'
-__copyright__ = '2010, Li Fanxi <lifanxi@freemindworld.com>'
+"""Read meta information from SNB files"""
 
 import io
 import os

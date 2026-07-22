@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2010, Kovid Goyal <kovid at kovidgoyal.net>
 
-
 import os
 import re
 import sys
@@ -1428,7 +1427,6 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
 
 # }}}
 
-
 # Highlighter {{{
 
 State_Text = -1
@@ -1814,7 +1812,6 @@ class Editor(QWidget):  # {{{
 
 
 # }}}
-
 
 if __name__ == '__main__':
     from calibre.gui2 import Application

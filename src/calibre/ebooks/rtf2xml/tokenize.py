@@ -211,7 +211,6 @@ class Tokenize:
 # to = Tokenize(args[1], Exception, out_file = file)
 # to.tokenize()
 
-
 # if __name__ == '__main__':
 # sys.exit(main())
 

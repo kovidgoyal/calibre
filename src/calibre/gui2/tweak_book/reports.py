@@ -1,8 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__ = 'GPL v3'
-__copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
+# License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
 import os
 import textwrap
@@ -284,7 +281,6 @@ class FilesView(QTableView):
 
 # }}}
 
-
 # Files {{{
 
 
@@ -404,7 +400,6 @@ class FilesWidget(QWidget):
 
 # }}}
 
-
 # Jump {{{
 
 
@@ -446,7 +441,6 @@ class Jump:
 
 jump = Jump()
 # }}}
-
 
 # Images {{{
 
@@ -631,7 +625,6 @@ class ImagesWidget(QWidget):
 
 # }}}
 
-
 # Links {{{
 
 
@@ -802,7 +795,6 @@ class LinksWidget(QWidget):
 
 # }}}
 
-
 # Words {{{
 
 
@@ -904,7 +896,6 @@ class WordsWidget(QWidget):
 
 
 # }}}
-
 
 # Characters {{{
 
@@ -1030,7 +1021,6 @@ class CharsWidget(QWidget):
 
 
 # }}}
-
 
 # CSS {{{
 
@@ -1284,7 +1274,6 @@ class CSSWidget(QWidget):
 
 # }}}
 
-
 # Classes {{{
 
 
@@ -1425,7 +1414,6 @@ class ClassesWidget(CSSWidget):
 
 
 # }}}
-
 
 # Wrapper UI {{{
 
@@ -1644,7 +1632,6 @@ class Reports(Dialog):
 
 
 # }}}
-
 
 if __name__ == '__main__':
     import sys

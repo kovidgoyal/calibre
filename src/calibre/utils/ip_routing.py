@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
-
 import re
 import subprocess
 
@@ -57,7 +56,6 @@ if iswindows:
                     return addr
 
     get_default_route_src_address = get_default_route_src_address_api
-
 
 elif ismacos:
 

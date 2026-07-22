@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
-
 import errno
 import os
 import re
@@ -39,7 +38,6 @@ try:
     import winreg
 except ImportError:
     import _winreg as winreg  # type: ignore
-
 
 # Data and function type definitions {{{
 
@@ -795,7 +793,6 @@ def get_volume_pathnames(volume_id, buf=None):
 
 
 # }}}
-
 
 # def scan_usb_devices(): {{{
 

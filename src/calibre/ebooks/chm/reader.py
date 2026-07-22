@@ -1,7 +1,6 @@
-"""CHM File decoding support"""
+# License: GPLv3 Copyright: 2008, Kovid Goyal <kovid at kovidgoyal.net>, and Alex Bramley <a.bramley at gmail.com>.
 
-__license__ = 'GPL v3'
-__copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>, and Alex Bramley <a.bramley at gmail.com>.'
+"""CHM File decoding support"""
 
 import codecs
 import os

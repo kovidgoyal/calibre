@@ -1,11 +1,9 @@
 # -*- coding: utf-8 -*-
+# License: GPLv3 Copyright: 2011-2013, Roman Mukhin <ramses_ru at hotmail.com>
+
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 store_version = 3  # Needed for dynamic plugin loading
-
-__license__ = 'GPL 3'
-__copyright__ = '2011-2013, Roman Mukhin <ramses_ru at hotmail.com>'
-__docformat__ = 'restructuredtext en'
 
 from contextlib import closing
 from urllib.parse import quote_plus

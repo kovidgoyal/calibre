@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
 
-
 from calibre import prints
 from calibre.db.cli import integers_from_string
 from calibre.srv.changes import formats_added

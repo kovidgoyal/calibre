@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2026, Kovid Goyal <kovid at kovidgoyal.net>
 
-
 import weakref
 from functools import lru_cache
 from queue import Queue, ShutDown

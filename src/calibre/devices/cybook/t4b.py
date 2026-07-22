@@ -1,8 +1,8 @@
-__license__ = 'GPL v3'
-__copyright__ = '2013, Jellby <jellby at yahoo.com>'
-'''
+# License: GPLv3 Copyright: 2013, Jellby <jellby at yahoo.com>
+
+"""
 Write a t4b file to disk.
-'''
+"""
 
 from io import BytesIO
 from typing import cast

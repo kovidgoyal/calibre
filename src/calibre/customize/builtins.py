@@ -1,5 +1,4 @@
-__license__ = 'GPL v3'
-__copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
+# License: GPLv3 Copyright: 2008, Kovid Goyal <kovid at kovidgoyal.net>
 
 import glob
 import os
@@ -17,7 +16,6 @@ from calibre.ebooks.metadata.archive import ArchiveExtract, KPFExtract, get_comi
 from calibre.utils.localization import _
 
 plugins = []
-
 
 # To archive plugins {{{
 
@@ -108,7 +106,6 @@ class TXT2TXTZ(FileTypePlugin):
 
 plugins += [HTML2ZIP, PML2PMLZ, TXT2TXTZ, ArchiveExtract, KPFExtract]
 # }}}
-
 
 # Metadata reader plugins {{{
 

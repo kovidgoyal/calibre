@@ -1,8 +1,6 @@
-# multiple replace from dictionary : http://code.activestate.com/recipes/81330/
+# License: GPLv3 Copyright: 2010, sengian <sengian1 @ gmail.com>
 
-__license__ = 'GPL v3'
-__copyright__ = '2010, sengian <sengian1 @ gmail.com>'
-__docformat__ = 'restructuredtext en'
+# multiple replace from dictionary : http://code.activestate.com/recipes/81330/
 
 import re
 from collections import UserDict

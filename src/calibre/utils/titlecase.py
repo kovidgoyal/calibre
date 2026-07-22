@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 
-
 """
 Original Perl version by: John Gruber https://daringfireball.net/ 10 May 2008
 Python version by Stuart Colville http://muffinresearch.co.uk

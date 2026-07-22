@@ -1,11 +1,7 @@
 #!/usr/bin/env python
+# License: GPLv3 Copyright: 2008, Kovid Goyal kovid@kovidgoyal.net
 
-
-__license__ = 'GPL v3'
-__copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
-__docformat__ = 'restructuredtext en'
-
-'''
+"""
 A parser for search queries with a syntax very similar to that used by
 the Google search engine.
 
@@ -15,7 +11,7 @@ methods :method:`SearchQueryParser.universal_set` and
 :method:`SearchQueryParser.get_matches`. See for example :class:`Tester`.
 
 If this module is run, it will perform a series of unit tests.
-'''
+"""
 
 import re
 import weakref

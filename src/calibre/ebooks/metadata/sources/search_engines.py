@@ -37,7 +37,6 @@ webcache = {}
 webcache_lock = Lock()
 prints = partial(safe_print, file=sys.stderr)
 
-
 Result = namedtuple('Result', 'url title cached_url')
 
 
@@ -220,7 +219,6 @@ def ddg_develop():
 
 # }}}
 
-
 # Bing uses a CAPTCHA {{{
 
 
@@ -301,7 +299,6 @@ def bing_develop(terms='heroes abercrombie'):
 
 
 # }}}
-
 
 # Google only serves JS enabled search pages as of Sep 11, 2025 {{{
 

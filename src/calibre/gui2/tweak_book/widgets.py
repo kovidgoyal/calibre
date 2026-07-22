@@ -1,8 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__ = 'GPL v3'
-__copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
+# License: GPLv3 Copyright: 2014, Kovid Goyal <kovid at kovidgoyal.net>
 
 import os
 import re
@@ -456,7 +453,6 @@ class ImportForeign(Dialog):  # {{{
 
 # }}}
 
-
 # Quick Open {{{
 
 
@@ -697,7 +693,6 @@ class QuickOpen(Dialog):
 
 # }}}
 
-
 # Filterable names list {{{
 
 
@@ -803,7 +798,6 @@ def create_filterable_names_list(names, filter_text=None, parent=None, model=Nam
 
 
 # }}}
-
 
 # Insert Link {{{
 
@@ -1331,7 +1325,6 @@ class FilterCSS(Dialog):  # {{{
 
 # }}}
 
-
 # Add Cover {{{
 
 
@@ -1573,7 +1566,6 @@ class PlainTextEdit(QPlainTextEdit):  # {{{
 
 
 # }}}
-
 
 if __name__ == '__main__':
     app = QApplication([])

@@ -1,14 +1,9 @@
 #!/usr/bin/env python
+# License: GPLv3 Copyright: 2012, Kovid Goyal <kovid@kovidgoyal.net>
 
-
-__license__ = 'GPL v3'
-__copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
-
-
-'''
+"""
 Iterate over the HTML files in an ebook. Useful for writing viewers.
-'''
+"""
 
 import math
 import os

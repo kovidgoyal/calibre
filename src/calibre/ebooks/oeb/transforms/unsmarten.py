@@ -1,6 +1,4 @@
-__license__ = 'GPL 3'
-__copyright__ = '2011, John Schember <john@nachtimwald.com>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2011, John Schember <john@nachtimwald.com>
 
 from calibre.ebooks.oeb.base import OEB_DOCS, XPath, barename
 from calibre.utils.unsmarten import unsmarten_text

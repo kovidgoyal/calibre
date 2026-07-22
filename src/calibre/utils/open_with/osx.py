@@ -1,8 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__ = 'GPL v3'
-__copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
+# License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
 import mimetypes
 import os
@@ -15,7 +12,6 @@ from calibre.ptempfile import TemporaryDirectory
 from calibre.utils.icu import numeric_sort_key
 
 application_locations = ('/Applications', '~/Applications', '~/Desktop')
-
 
 # Public UTI MAP {{{
 

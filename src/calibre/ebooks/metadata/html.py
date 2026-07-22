@@ -1,11 +1,9 @@
 #!/usr/bin/env python
+# License: GPLv3 Copyright: 2013, Kovid Goyal <kovid at kovidgoyal.net>
 
-
-__license__ = 'GPL v3'
-__copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
-'''
+"""
 Try to read metadata from an HTML file.
-'''
+"""
 
 import re
 import unittest
@@ -66,11 +64,9 @@ META_NAMES = {
 rmap_comment = {v: k for k, v in COMMENT_NAMES.items()}
 rmap_meta = {v: k for k, l in META_NAMES.items() for v in l}
 
-
 # Extract an HTML attribute value, supports both single and double quotes and
 # single quotes inside double quotes and vice versa.
 attr_pat = r'''(?:(?P<sq>')|(?P<dq>"))(?P<content>(?(sq)[^']+|[^"]+))(?(sq)'|")'''
-
 
 _handle_comment_pat: re.Pattern[str] | None = None
 

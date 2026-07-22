@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
-
 import http.client
 import inspect
 import json as jsonlib
@@ -25,7 +24,6 @@ if TYPE_CHECKING:
     from calibre.srv.http_response import RequestData
 else:
     Context = RequestData = None
-
 
 default_methods = frozenset(('HEAD', 'GET'))
 

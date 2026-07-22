@@ -1,6 +1,4 @@
-__license__ = 'GPL 3'
-__copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2009, Kovid Goyal <kovid@kovidgoyal.net>
 
 from calibre.customize import Plugin as _Plugin
 from calibre.utils.localization import _
@@ -333,7 +331,6 @@ class iPadOutput(OutputProfile):
             .sections_link {
                 font-weight: bold;
                 }
-
 
             .caption_divider {
                 border:#ccc 1px solid;

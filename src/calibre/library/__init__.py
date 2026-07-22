@@ -1,8 +1,6 @@
-__license__ = 'GPL v3'
-__copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
+# License: GPLv3 Copyright: 2008, Kovid Goyal <kovid at kovidgoyal.net>
 
-''' Code to manage ebook library'''
-
+"""Code to manage ebook library"""
 
 import os
 

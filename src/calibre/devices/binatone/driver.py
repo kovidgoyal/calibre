@@ -1,10 +1,8 @@
-__license__ = 'GPL v3'
-__copyright__ = '2009, John Schember <john at nachtimwald.com>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2009, John Schember <john at nachtimwald.com>
 
-'''
+"""
 Device driver for Bookeen's Cybook Gen 3
-'''
+"""
 
 from calibre.devices.usbms.driver import USBMS
 from calibre.utils.localization import _

@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
-
 import json
 import re
 from collections import defaultdict, namedtuple
@@ -149,7 +148,6 @@ def items_with_property(root, q, prefixes=None):
 
 # http://www.idpf.org/epub/vocab/package/pfx/
 
-
 reserved_prefixes = {
     'dcterms': 'http://purl.org/dc/terms/',
     'epubsc': 'http://idpf.org/epub/vocab/sc/#',
@@ -193,7 +191,6 @@ def ensure_prefix(root, prefixes, prefix, value=None):
 
 # }}}
 
-
 # Refines {{{
 
 
@@ -225,7 +222,6 @@ def set_refines(elem, existing_refines, *new_refines):
 
 
 # }}}
-
 
 # Identifiers {{{
 
@@ -339,7 +335,6 @@ set_uuid = identifier_writer('uuid')
 
 # }}}
 
-
 # Title {{{
 
 
@@ -415,7 +410,6 @@ def set_title(root, prefixes, refines, title, title_sort=None):
 
 # }}}
 
-
 # Languages {{{
 
 
@@ -447,7 +441,6 @@ def set_languages(root, prefixes, refines, languages):
 
 
 # }}}
-
 
 # Creator/Contributor {{{
 
@@ -574,7 +567,6 @@ def set_book_producers(root, prefixes, refines, producers):
 
 # }}}
 
-
 # Dates {{{
 
 
@@ -687,7 +679,6 @@ def set_last_modified(root, prefixes, refines, val=None):
 
 # }}}
 
-
 # Comments {{{
 
 
@@ -713,7 +704,6 @@ def set_comments(root, prefixes, refines, val):
 
 # }}}
 
-
 # Publisher {{{
 
 
@@ -737,7 +727,6 @@ def set_publisher(root, prefixes, refines, val):
 
 
 # }}}
-
 
 # Tags {{{
 
@@ -764,7 +753,6 @@ def set_tags(root, prefixes, refines, val):
 
 
 # }}}
-
 
 # Rating {{{
 
@@ -810,7 +798,6 @@ def set_rating(root, prefixes, refines, val):
 
 
 # }}}
-
 
 # Series {{{
 
@@ -858,7 +845,6 @@ def set_series(root, prefixes, refines, series, series_index):
 
 
 # }}}
-
 
 # User metadata {{{
 
@@ -998,7 +984,6 @@ def set_user_metadata(root, prefixes, refines, val):
 
 # }}}
 
-
 # Covers {{{
 
 
@@ -1052,7 +1037,6 @@ def ensure_is_only_raster_cover(root, prefixes, refines, raster_cover_item_href)
 
 
 # }}}
-
 
 # Reading/setting Metadata objects {{{
 
@@ -1251,7 +1235,6 @@ def set_metadata(
 
 
 # }}}
-
 
 if __name__ == '__main__':
     import sys

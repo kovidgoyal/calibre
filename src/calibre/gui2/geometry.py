@@ -1,10 +1,8 @@
 #!/usr/bin/env python
 # License: GPL v3 Copyright: 2022, Kovid Goyal <kovid at kovidgoyal.net>
 
-
 # See https://bugreports.qt.io/browse/QTBUG-69104 for why we need to implement
 # our own restore geometry
-
 
 from collections.abc import Callable
 

@@ -1,8 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__ = 'GPL v3'
-__copyright__ = '2026, calibre contributors'
+# License: GPLv3 Copyright: 2026, calibre contributors
 
 from calibre.srv.routes import endpoint
 from calibre.srv.tests.base import BaseTest

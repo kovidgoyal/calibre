@@ -1,8 +1,8 @@
-__license__ = 'GPL v3'
-__copyright__ = '2009, John Schember <john at nachtimwald.com>'
-'''
+# License: GPLv3 Copyright: 2009, John Schember <john at nachtimwald.com>
+
+"""
 Write a t2b file to disk.
-'''
+"""
 
 import io
 from typing import cast
