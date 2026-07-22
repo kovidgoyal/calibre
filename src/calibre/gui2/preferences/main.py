@@ -281,7 +281,9 @@ class Browser(QScrollArea):  # {{{
 
     def update_category_widths(self):
         margins = self._layout.contentsMargins()
-        available = self.viewport().width() - margins.left() - margins.right()
+        viewport = self.viewport()
+        assert viewport is not None
+        available = viewport.width() - margins.left() - margins.right()
         for widget in self.widgets:
             category_margins = widget._layout.contentsMargins()
             widget.update_button_widths(available - category_margins.left() - category_margins.right())
