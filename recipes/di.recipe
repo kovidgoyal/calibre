@@ -17,9 +17,9 @@ class DziennikInternautowRecipe(BasicNewsRecipe):
     __author__ = 'Mori'
     language = 'pl'
 
-    title = u'Dziennik Internautów'
-    publisher = u'Dziennik Internaut\u00f3w Sp. z o.o.'
-    description = u'Internet w \u017cyciu i biznesie. Porady, wywiady, interwencje, bezpiecze\u0144stwo w Sieci, technologia.'
+    title = 'Dziennik Internautów'
+    publisher = 'Dziennik Internaut\u00f3w Sp. z o.o.'
+    description = 'Internet w \u017cyciu i biznesie. Porady, wywiady, interwencje, bezpiecze\u0144stwo w Sieci, technologia.'
 
     max_articles_per_feed = 100
     oldest_article = 7
@@ -36,31 +36,24 @@ class DziennikInternautowRecipe(BasicNewsRecipe):
             #pub_foto{font-size: 75%; float: left; padding-right: 10px;}
     '''
 
-    feeds = [
-        (u'Dziennik Internaut\u00f3w', u'http://feeds.feedburner.com/glowny-di')
-    ]
+    feeds = [('Dziennik Internaut\u00f3w', 'http://feeds.feedburner.com/glowny-di')]
 
-    keep_only_tags = [
-        dict(name='div', attrs={'id': 'pub_head'}),
-        dict(name='div', attrs={'id': 'pub_content'})
-    ]
+    keep_only_tags = [dict(name='div', attrs={'id': 'pub_head'}), dict(name='div', attrs={'id': 'pub_content'})]
 
     remove_tags = [
         dict(name='div', attrs={'class': 'poradniki_context'}),
         dict(name='div', attrs={'class': 'uniBox'}),
         dict(name='object', attrs={}),
         dict(name='h3', attrs={}),
-        dict(attrs={'class': 'twitter-share-button'})
+        dict(attrs={'class': 'twitter-share-button'}),
     ]
 
     preprocess_regexps = [
-        (re.compile(i[0], re.IGNORECASE | re.DOTALL), i[1]) for i in
-        [
+        (re.compile(i[0], re.IGNORECASE | re.DOTALL), i[1])
+        for i in [
             (r', <a href="http://di.com.pl/komentarze,.*?</div>', lambda match: '</div>'),
-            (r'<div class="fotonews".*?">',
-             lambda match: '<div class="fotonews">'),
-            (r'http://di.com.pl/pic/photo/mini/',
-             lambda match: 'http://di.com.pl/pic/photo/oryginal/'),
+            (r'<div class="fotonews".*?">', lambda match: '<div class="fotonews">'),
+            (r'http://di.com.pl/pic/photo/mini/', lambda match: 'http://di.com.pl/pic/photo/oryginal/'),
             (r'\s*</', lambda match: '</'),
         ]
     ]

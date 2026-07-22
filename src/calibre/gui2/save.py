@@ -1,8 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__ = 'GPL v3'
-__copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
+# License: GPLv3 Copyright: 2014, Kovid Goyal <kovid at kovidgoyal.net>
 
 import errno
 import os
@@ -47,12 +44,13 @@ def ensure_unique_components(data):  # {{{
                 suffix = f' ({i + 1})'
                 components = bid_map[book_id]
                 components[-1] = components[-1] + suffix
+
+
 # }}}
 
 
 class SpooledFile(SpooledTemporaryFile):  # {{{
-
-    def __init__(self, file_obj, max_size=50*1024*1024):
+    def __init__(self, file_obj, max_size=50 * 1024 * 1024):
         self._file_obj = file_obj
         SpooledTemporaryFile.__init__(self, max_size)
 
@@ -67,12 +65,14 @@ class SpooledFile(SpooledTemporaryFile):  # {{{
         newfile.seek(orig.tell(), 0)
 
         self._rolled = True
+
+
 # }}}
 
 
 class Saver(QObject):
-
     do_one_signal = pyqtSignal()
+    pd_title = ''
 
     def __init__(self, book_ids, db, opts, root, parent=None, pool=None):
         QObject.__init__(self, parent)
@@ -90,7 +90,14 @@ class Saver(QObject):
         self.errors = defaultdict(list)
         self._book_id_data = {}
         self.all_book_ids = frozenset(book_ids)
-        self.pd = ProgressDialog(_('Saving %d books...') % len(self.all_book_ids), _('Collecting metadata...'), min=0, max=0, parent=parent, icon='save.png')
+        self.pd = ProgressDialog(
+            self.pd_title or (_('Saving %d books...') % len(self.all_book_ids)),
+            _('Collecting metadata...'),
+            min=0,
+            max=0,
+            parent=parent,
+            icon='save.png',
+        )
         self.do_one_signal.connect(self.tick, type=Qt.ConnectionType.QueuedConnection)
         self.do_one = self.do_one_collect
         self.ids_to_collect = iter(self.all_book_ids)
@@ -118,8 +125,7 @@ class Saver(QObject):
         if self.pool is not None:
             self.pool.shutdown()
         self.setParent(None)
-        self.jobs = self.pool = self.plugboards = self.template_functions = self.library_id =\
-                self.collected_data = self.all_book_ids = self.pd = self.db = None
+        self.jobs = self.pool = self.plugboards = self.template_functions = self.library_id = self.collected_data = self.all_book_ids = self.pd = self.db = None
         self.deleteLater()
 
     def book_id_data(self, book_id):
@@ -164,22 +170,27 @@ class Saver(QObject):
         self.ids_to_write = iter(collected_data)
         pd = self.pd
         assert pd is not None
-        pd.title = _('Copying files and writing metadata...') if self.opts.update_metadata else _(
-            'Copying files...')
+        pd.title = _('Copying files and writing metadata...') if self.opts.update_metadata else _('Copying files...')
         pd.max = len(collected_data)
         pd.value = 0
         if self.opts.update_metadata:
             all_fmts = {fmt for data in collected_data.values() for fmt in data[2]}
-            plugboards_cache = {fmt:find_plugboard(plugboard_save_to_disk_value, fmt, self.plugboards) for fmt in all_fmts}
+            plugboards_cache = {fmt: find_plugboard(plugboard_save_to_disk_value, fmt, self.plugboards) for fmt in all_fmts}
             self.pool = Pool(name='SaveToDisk') if self.pool is None else self.pool
             try:
-                self.pool.set_common_data({'plugboard_cache': plugboards_cache,
-                                           'template_functions': self.template_functions,
-                                           'library_id': self.library_id})
+                self.pool.set_common_data({
+                    'plugboard_cache': plugboards_cache,
+                    'template_functions': self.template_functions,
+                    'library_id': self.library_id,
+                })
             except Failure as err:
-                error_dialog(pd, _('Critical failure'), _(
-                    'Could not save books to disk, click "Show details" for more information'),
-                    det_msg=force_unicode(err.failure_message) + '\n' + force_unicode(err.details), show=True)
+                error_dialog(
+                    pd,
+                    _('Critical failure'),
+                    _('Could not save books to disk, click "Show details" for more information'),
+                    det_msg=force_unicode(err.failure_message) + '\n' + force_unicode(err.details),
+                    show=True,
+                )
                 pd.canceled = True
         self.do_one_signal.emit()
 
@@ -214,9 +225,12 @@ class Saver(QObject):
                 pd = self.pd
                 assert pd is not None
                 if worker_result.is_terminal_failure:
-                    error_dialog(pd, _('Critical failure'), _(
-                        'The update metadata worker process crashed while processing'
-                        ' the book %s. Saving is aborted.') % self.book_id_data(book_id).title, show=True)
+                    error_dialog(
+                        pd,
+                        _('Critical failure'),
+                        _('The update metadata worker process crashed while processing the book %s. Saving is aborted.') % self.book_id_data(book_id).title,
+                        show=True,
+                    )
                     pd.canceled = True
                     return
                 result = worker_result.result
@@ -322,9 +336,13 @@ class Saver(QObject):
                 try:
                     pool(book_id, 'calibre.library.save_to_disk', 'update_serialized_metadata', d)
                 except Failure as err:
-                    error_dialog(pd, _('Critical failure'), _(
-                        'Could not save books to disk, click "Show details" for more information'),
-                        det_msg=str(err.failure_message) + '\n' + str(err.details), show=True)
+                    error_dialog(
+                        pd,
+                        _('Critical failure'),
+                        _('Could not save books to disk, click "Show details" for more information'),
+                        det_msg=str(err.failure_message) + '\n' + str(err.details),
+                        show=True,
+                    )
                     pd.canceled = True
             else:
                 pd = self.pd
@@ -364,9 +382,13 @@ class Saver(QObject):
         try:
             pool.wait_for_tasks(0.1)
         except Failure as err:
-            error_dialog(pd, _('Critical failure'), _(
-                'Could not save books to disk, click "Show details" for more information'),
-                det_msg=str(err.failure_message) + '\n' + str(err.details), show=True)
+            error_dialog(
+                pd,
+                _('Critical failure'),
+                _('Could not save books to disk, click "Show details" for more information'),
+                det_msg=str(err.failure_message) + '\n' + str(err.details),
+                show=True,
+            )
             pd.canceled = True
         except RuntimeError:
             pass  # tasks not completed
@@ -379,13 +401,16 @@ class Saver(QObject):
         if DEBUG:
             all_book_ids = self.all_book_ids
             assert all_book_ids is not None
-            prints(f'Saved {len(all_book_ids)} books in {time.time()-self.start_time:.1f} seconds')
+            prints(f'Saved {len(all_book_ids)} books in {time.time() - self.start_time:.1f} seconds')
         pd = self.pd
         assert pd is not None
         pd.close()
         pd.deleteLater()
         self.report()
         self.break_cycles()
+        self.on_complete()
+
+    def on_complete(self):
         if gprefs['show_files_after_save']:
             open_local_file(self.root)
 
@@ -401,7 +426,7 @@ class Saver(QObject):
             types = {t for t, data in errors}
             title, authors = self.book_id_data(book_id).title, authors_to_string(self.book_id_data(book_id).authors[:1])
             if report:
-                a('\n' + ('_'*70) + '\n')
+                a('\n' + ('_' * 70) + '\n')
             if 'critical' in types:
                 a(_('Failed to save: {0} by {1} to disk, with error:').format(title, authors))
                 for t, tb in errors:

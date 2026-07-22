@@ -4,7 +4,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class AdvancedUserRecipe1717744568(BasicNewsRecipe):
-    title          = 'Good e-Reader'
+    title = 'Good e-Reader'
     language = 'en'
     __author__ = 'Spicy Poison'
     publisher = 'Good e-Reader Inc'
@@ -13,8 +13,8 @@ class AdvancedUserRecipe1717744568(BasicNewsRecipe):
     encoding = 'utf-8'
     masthead_url = 'https://assets.goodereader.com/blog/uploads/images/2022/10/06041743/Good-E-Reader-Logo-Black-1.svg'
     remove_empty_feeds = True
-    auto_cleanup   = True
+    auto_cleanup = True
 
-    feeds          = [
+    feeds = [
         ('All Articles', 'https://goodereader.com/blog/feed'),
     ]

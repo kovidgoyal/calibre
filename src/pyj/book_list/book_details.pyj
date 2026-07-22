@@ -2,9 +2,10 @@
 # License: GPL v3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 from __python__ import hash_literals
 
-from elementmaker import E
-
 import traceback
+from elementmaker import E
+from gettext import gettext as _
+
 from ajax import ajax, ajax_send, encode_query_component
 from book_list.delete_book import refresh_after_delete, start_delete_book
 from book_list.globals import get_session_data
@@ -24,7 +25,6 @@ from book_list.views import search_query_for
 from date import format_date
 from dom import add_extra_css, build_rule, clear, ensure_id, svgicon, unique_id
 from file_uploads import update_status_widget, upload_files_widget, upload_status_widget
-from gettext import gettext as _
 from modals import create_custom_dialog, error_dialog, warning_dialog, question_dialog
 from read_book.touch import (
     copy_touch, install_handlers, interpret_single_gesture, touch_id, update_touch
@@ -46,11 +46,13 @@ FORMAT_PRIORITIES = [
     'EPUB', 'AZW3', 'DOCX', 'LIT', 'MOBI', 'ODT', 'RTF', 'MD', 'MARKDOWN', 'TXT', 'PDF'
 ]
 
+
 def sort_formats_key(fmt):
     ans = FORMAT_PRIORITIES.indexOf(fmt)
     if ans < 0:
         ans = FORMAT_PRIORITIES.length
     return ans
+
 
 def get_preferred_format(metadata, output_format, input_formats, for_download):
     formats = (metadata and metadata.formats) or v'[]'
@@ -70,11 +72,12 @@ def get_preferred_format(metadata, output_format, input_formats, for_download):
 
 IGNORED_FIELDS = {'title', 'sort', 'uuid', 'id', 'urls_from_identifiers', 'lang_names', 'last_modified', 'path'}
 
-default_sort = {f:i+1 for i, f in enumerate(('title', 'title_sort', 'authors', 'author_sort', 'series', 'rating', 'pubdate', 'tags', 'timestamp', 'pubdate', 'identifiers', 'languages', 'publisher', 'last_modified'))}
+default_sort = {f: i + 1 for i, f in enumerate(('title', 'title_sort', 'authors', 'author_sort', 'series', 'rating', 'pubdate', 'tags', 'timestamp', 'pubdate', 'identifiers', 'languages', 'publisher', 'last_modified'))}
 default_sort['formats'] = 999
 
+
 def field_sorter(field_metadata):
-    return def(field):
+    return def (field):
         lvl = '{:03d}'.format(default_sort[field] or 998)
         fm = (field_metadata[field] or {})[field] or {}
         return lvl + (fm.name or 'zzzzz')
@@ -91,17 +94,14 @@ def on_fmt_click(ev):
     book_id = int(ev.currentTarget.dataset.bookId)
     title, sz = this
 
-    create_custom_dialog(title, def(parent, close_modal):
-
+    create_custom_dialog(title, def (parent, close_modal):
         def action(which):
             close_modal()
             which(book_id, fmt)
-
         if fmt.lower() is 'pdf':
             read_button = download_url(book_id, fmt, 'inline')
         else:
             read_button = action.bind(None, read_format)
-
         parent.appendChild(E.div(
             E.div(_('What would you like to do with the {} format?').format(fmt)),
             E.div(class_='button-box',
@@ -210,7 +210,7 @@ def replace_calibre_links_to_books(html):
             else:
                 fmt = parts[3]
                 extra_query = {}
-                url.searchParams.forEach(def(val, key):
+                url.searchParams.forEach(def (val, key):
                     if key is 'open_at':
                         key = 'bookpos'
                     extra_query[key] = val
@@ -228,13 +228,13 @@ def replace_calibre_links_to_books(html):
 
 def adjusting_sandboxed_html(html, extra_css):
     color = get_color_as_rgba('window-foreground')
-    css =  f'\n\n:root {{ color-scheme: {color_scheme()} }}\n\nhtml, body {{ overflow: hidden; color: rgba({color[0]}, {color[1]}, {color[2]}, {color[3]}) }}'
+    css = f'\n\n:root {{ color-scheme: {color_scheme()} }}\n\nhtml, body {{ overflow: hidden; color: rgba({color[0]}, {color[1]}, {color[2]}, {color[3]}) }}'
     if extra_css:
         css += '\n\n' + extra_css
     # allow-same-origin is needed for resizing and allow-top-navigation is
     # needed for links with target="_parent"
     ans = sandboxed_html(html, css, 'allow-same-origin allow-top-navigation-by-user-activation')
-    ans.addEventListener('load', def(ev): setup_iframe(ev.target);)
+    ans.addEventListener('load', def (ev): setup_iframe(ev.target);)
     ans.style.height = '50vh'
     ans.dataset.last_window_width = '0'
     return ans
@@ -243,6 +243,7 @@ def adjusting_sandboxed_html(html, extra_css):
 def render_metadata(mi, table, book_id, iframe_css):  # {{{
     field_metadata = library_data.field_metadata
     interface_data = get_interface_data()
+
     def allowed_fields(field):
         if field.endswith('_index'):
             fm = field_metadata[field[:-len('_index')]]
@@ -380,10 +381,9 @@ def render_metadata(mi, table, book_id, iframe_css):  # {{{
         val = int(val or 0)
         if val > 0:
             add_stars_to(stars, val, fm.display?.allow_half_stars)
-            add_row(field, name, stars, is_searchable=field, search_text=val/2 + '')
+            add_row(field, name, stars, is_searchable=field, search_text=val / 2 + '')
 
     def process_identifiers(field, fm, name, val):
-
         def ids_sorter(x):
             return (x[1] or '').toLowerCase()
 
@@ -402,7 +402,7 @@ def render_metadata(mi, table, book_id, iframe_css):  # {{{
             try:
                 add_row(field, name, human_readable(int(val)))
             except:
-                add_row(field, name, val+'')
+                add_row(field, name, val + '')
 
     def process_languages(field, fm, name, val):
         if val and val.length:
@@ -445,7 +445,7 @@ def render_metadata(mi, table, book_id, iframe_css):  # {{{
                 a.setAttribute('title', _('Click to see books with {0}: {1}').format(name, val))
                 a.setAttribute('class', 'blue-link')
             else:
-                print("WARNING: Translation of series template is incorrect as it does not have an <a> tag")
+                print('WARNING: Translation of series template is incorrect as it does not have an <a> tag')
             table.lastChild.lastChild.appendChild(s)
             add_note_link(field, name, val, table.lastChild.lastChild)
 
@@ -506,7 +506,7 @@ def render_metadata(mi, table, book_id, iframe_css):  # {{{
                     add_row(field, name, val, join=join, is_searchable=field)
             elif datatype is 'bool':
                 if library_data.bools_are_tristate:
-                    v =  _('Yes') if val else ('' if val is undefined or val is None else _('No'))
+                    v = _('Yes') if val else ('' if val is undefined or val is None else _('No'))
                 else:
                     v = _('Yes') if val else _('No')
                 if v:
@@ -550,13 +550,21 @@ def render_metadata(mi, table, book_id, iframe_css):  # {{{
 def basic_table_rules(sel):
     style = ''
     style += build_rule(sel + 'table.metadata td', vertical_align='top')
-    style += build_rule(sel + 'table.metadata td:first-of-type', font_style='normal', font_weight='700', color='var(--calibre-color-faded-text)', padding_right='0.5em', white_space='nowrap', text_align='right')
+    style += build_rule(
+        sel + 'table.metadata td:first-of-type',
+        font_style='normal',
+        font_weight='700',
+        color='var(--calibre-color-faded-text)',
+        padding_right='0.5em',
+        white_space='nowrap',
+        text_align='right'
+    )
     # Values column: prefer wrapping long tokens (paths, ids) on narrow screens
     style += build_rule(sel + 'table.metadata td:last-of-type', overflow_wrap='anywhere', word_break='break-word')
     return style
 
 
-add_extra_css(def():
+add_extra_css(def ():
     sel = '.' + CLASS_NAME + ' '
     style = basic_table_rules(sel)
     style += build_rule(sel + ' .next-book-button:hover', transform='scale(1.5)')
@@ -736,21 +744,19 @@ add_extra_css(def():
 @keyframes cs_spin_bd { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 .book-details-panel .cs-bd-loading-overlay svg { animation: cs_spin_bd 1.2s linear infinite; opacity: 0.85; }
 '''
-
     sel = '.' + SEARCH_INTERNET_CLASS
     style += build_rule(sel, margin='1ex 1em')
     style += build_rule(sel + ' ul > li', list_style_type='none')
     style += build_rule(sel + ' ul > li > a', padding='2ex 1em', display='block', width='100%')
-
     sel = '.' + COPY_TO_LIBRARY_CLASS
     style += build_rule(sel, margin='1ex 1em')
-
     sel = '.' + DATA_FILES_CLASS
     style += build_rule(sel, margin='1ex 1em')
     return style
 )
 
 current_fetch = None
+
 
 def no_book(container):
     container.appendChild(E.div(
@@ -763,6 +769,7 @@ def on_img_err(err):
     img = err.target
     if img.parentNode:
         img.parentNode.style.display = 'none'
+
 
 def preferred_format(book_id, for_download):
     interface_data = get_interface_data()
@@ -891,41 +898,36 @@ def render_book(container_id, book_id):
     # These are placed right below the Read/Download buttons, and "More actions"
     # opens a floating dialog (not a new page/panel).
     def show_more_actions_modal(ev=None):
-        create_custom_dialog(_('More actions…'), def(parent, close_modal):
+        create_custom_dialog(_('More actions…'), def (parent, close_modal):
             if get_session_data().get('show_all_metadata'):
                 title, subtitle = _('Show important metadata'), _('Show only the important metadata fields in the book details')
             else:
                 title, subtitle = _('Show all metadata'), _('Show all metadata fields in the book details')
-
             items = [
                 create_item(_('Search the internet'),
                     subtitle=_('Search for this author or book on various websites'),
-                    action=def():
+                    action=def ():
                         close_modal()
                         show_subsequent_panel('search_internet', replace=True)
                 ),
-
                 create_item(title, subtitle=subtitle,
-                    action=def():
+                    action=def ():
                         close_modal()
                         toggle_fields()
                 ),
-
                 create_item(_('Copy to library'),
                     subtitle=_('Copy or move this book to another calibre library'),
-                    action=def():
+                    action=def ():
                         close_modal()
                         show_subsequent_panel('copy_to_library', replace=True)
                 ),
-
                 create_item(_('Manage data files'),
                     subtitle=_('Upload or download additional data files to this book'),
-                    action=def():
+                    action=def ():
                         close_modal()
                         show_subsequent_panel('data_files', replace=True)
                 ),
             ]
-
             wrapper = E.div()
             parent.appendChild(wrapper)
             create_item_list(wrapper, items)
@@ -992,7 +994,7 @@ def add_top_bar_buttons(container_id):
     container = document.getElementById(container_id)
     if container:
         clear_buttons(container)
-        # Book actions are rendered in the hero section (below Read/Download).
+# Book actions are rendered in the hero section (below Read/Download).
 
 
 def proceed_after_succesful_fetch_metadata(container_id, book_id):
@@ -1050,6 +1052,7 @@ def metadata_fetched(container_id, book_id, proceed, end_type, xhr, event):
         ))
         safe_set_inner_html(c.lastChild.lastChild, xhr.error_html)
 
+
 def fetch_metadata(container_id, book_id, proceed):
     nonlocal current_fetch
     container = document.getElementById(container_id)
@@ -1058,7 +1061,7 @@ def fetch_metadata(container_id, book_id, proceed):
     if current_fetch:
         current_fetch.abort()
     current_fetch = ajax('interface-data/book-metadata/' + book_id, metadata_fetched.bind(None, container_id, book_id, proceed),
-                         query={'library_id':current_library_id(), 'vl':current_virtual_library()})
+                         query={'library_id': current_library_id(), 'vl': current_virtual_library()})
     current_fetch.send()
     body = container.lastChild
     # If we already have content, do not clear; show an overlay to prevent flicker.
@@ -1165,7 +1168,6 @@ def report_load_failure(container):
         load_status.error_html)
 
 
-
 def check_for_books_loaded():
     container = this
     if load_status.loading:
@@ -1210,10 +1212,10 @@ def init(container_id):
     q = parse_url_params()
     ca = q.close_action
     if ca is 'home':
-        close_action, close_icon = def(): home();, 'home'
+        close_action, close_icon = def (): home();, 'home'
     elif ca is 'book_list':
-        close_action = def():
-            show_panel('book_list', {'book_id':q.book_id})
+        close_action = def ():
+            show_panel('book_list', {'book_id': q.book_id})
     create_top_bar(container, title='', action=close_action, icon=close_icon)
     window.scrollTo(0, 0)  # Ensure we are at the top of the window
     container.appendChild(E.div(class_=CLASS_NAME, tabindex='0'))
@@ -1251,21 +1253,18 @@ def create_more_actions_panel(container_id):
         title, subtitle = _('Show all metadata'), _('Show all metadata fields in the book details')
     items = [
         create_item(_('Search the internet'), subtitle=_('Search for this author or book on various websites'),
-                    action=def():
+                    action=def ():
                         show_subsequent_panel('search_internet', replace=True)
         ),
-
         create_item(title, subtitle=subtitle, action=toggle_fields),
-
         create_item(_('Copy to library'), subtitle=_('Copy or move this book to another calibre library'),
-                    action=def():
+                    action=def ():
                         show_subsequent_panel('copy_to_library', replace=True)
         ),
         create_item(_('Manage data files'), subtitle=_('Upload or download additional data files to this book'),
-                    action=def():
+                    action=def ():
                         show_subsequent_panel('data_files', replace=True)
         ),
-
     ]
     container.appendChild(E.div())
     create_item_list(container.lastChild, items)
@@ -1300,6 +1299,7 @@ EXTENSIONS_TO_OPEN_IN_BROWSER = {
     'htm': True,
     'xhtml': True,
 }
+
 
 def download_data_file(book_id, relpath):
     ext = relpath.toLowerCase().rpartition('.')[2]
@@ -1379,7 +1379,7 @@ def files_added(check_existing, top_container_id, book_id, container_id, files):
         data = {'name': file.name, 'size': file.size, 'type': file.type, 'data_url': None}
         added.push(data)
         r = FileReader()
-        r.onload = def(evt):
+        r.onload = def (evt):
             data.data_url = evt.target.result
             for entry in added:
                 if not entry.data_url:
@@ -1403,10 +1403,9 @@ def upload_data_file(container_id):
 
 
 def rebuild_data_files_list(container_id, book_id, relpath_being_deleted):
-
     def delete_data_file(relpath, fname, ev):
         question_dialog(_('Are you sure?'), _('Do you want to permanently delete the data file {0} from the book {1}?').format(
-            fname, mi.title), def(yes):
+            fname, mi.title), def (yes):
                 if yes:
                     data = v'[relpath]'
                     ajax_send(f'data-files/remove/{book_id}/{current_library_id()}',
@@ -1429,7 +1428,7 @@ def rebuild_data_files_list(container_id, book_id, relpath_being_deleted):
     items = [create_item(_('Upload new data file'), icon='plus', action=upload_data_file)]
     if mi.data_files:
         fname_map = {relpath: relpath.partition('/')[2] for relpath in mi.data_files}
-        df = sorted(Object.keys(fname_map), key=def(x): return fname_map[x].toLowerCase();)
+        df = sorted(Object.keys(fname_map), key=def (x): return fname_map[x].toLowerCase();)
         for relpath in df:
             fname = fname_map[relpath]
             being_deleted = relpath is relpath_being_deleted
@@ -1487,11 +1486,11 @@ def search_internet(container_id):
     clear(container)
     create_top_bar(container, title=_('Search the internet'), icon='back')
     mi = book_metadata(render_book.book_id)
-    data = {'title':mi.title, 'author':mi.authors[0] if mi.authors else _('Unknown')}
+    data = {'title': mi.title, 'author': mi.authors[0] if mi.authors else _('Unknown')}
     interface_data = get_interface_data()
 
     def link_for(name, template):
-        return E.a(name, class_='simple-link', href=url_for(template, data), target="_blank")
+        return E.a(name, class_='simple-link', href=url_for(template, data), target='_blank')
 
     author_links = E.ul()
     book_links = E.ul()
@@ -1525,8 +1524,8 @@ def search_internet(container_id):
 
 # Copy to library {{{
 
-def do_copy_to_library(book_id, target_library_id, target_library_name):
 
+def do_copy_to_library(book_id, target_library_id, target_library_name):
     def handle_result(move, close_func, end_type, xhr, ev):
         close_func()
         title = book_metadata(book_id).title
@@ -1563,7 +1562,6 @@ def do_copy_to_library(book_id, target_library_id, target_library_name):
         if move and payload.action in ('add', 'automerge'):
             refresh_after_delete(book_id, current_library_id())
 
-
     def trigger_copy(container_id, move, close_func):
         try:
             choice = document.querySelector(f'#{dupes_id} input[name="dupes"]:checked').value
@@ -1572,7 +1570,7 @@ def do_copy_to_library(book_id, target_library_id, target_library_name):
         sd.set('copy_to_library_dupes', choice)
         duplicate_action, automerge_action = choice.split(';', 2)
 
-        data = {'book_ids':v'[book_id]', 'move': move, 'duplicate_action': duplicate_action, 'automerge_action': automerge_action}
+        data = {'book_ids': v'[book_id]', 'move': move, 'duplicate_action': duplicate_action, 'automerge_action': automerge_action}
         container = document.getElementById(container_id)
         clear(container)
         container.appendChild(E.div(
@@ -1611,7 +1609,6 @@ def do_copy_to_library(book_id, target_library_id, target_library_name):
         ))
         if not container.querySelector(f'#{dupes_id} input[name="dupes"]:checked'):
             container.querySelector(f'#{dupes_id} input[name="dupes"]').checked = True
-
     )
 
 
@@ -1641,9 +1638,11 @@ def copy_to_library(container_id):
 def delete_book():
     start_delete_book(current_library_id(), render_book.book_id, render_book.title or _('Unknown'))
 
-set_panel_handler('book_details', init)
-set_panel_handler('book_details^more_actions', create_more_actions_panel)
-set_panel_handler('book_details^search_internet', search_internet)
-set_panel_handler('book_details^copy_to_library', copy_to_library)
-set_panel_handler('book_details^data_files', data_files)
-set_panel_handler('book_details^upload_data_file', upload_data_file)
+
+def set_panel_handlers():
+    set_panel_handler('book_details', init)
+    set_panel_handler('book_details^more_actions', create_more_actions_panel)
+    set_panel_handler('book_details^search_internet', search_internet)
+    set_panel_handler('book_details^copy_to_library', copy_to_library)
+    set_panel_handler('book_details^data_files', data_files)
+    set_panel_handler('book_details^upload_data_file', upload_data_file)

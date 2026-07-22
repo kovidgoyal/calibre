@@ -1,6 +1,4 @@
-__license__ = 'GPL 3'
-__copyright__ = '2011, John Schember <john@nachtimwald.com>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2011, John Schember <john@nachtimwald.com>
 
 from contextlib import closing
 
@@ -79,7 +77,6 @@ def open_search(url, query, max_results=10, timeout=60):
 
 
 class OpenSearchOPDSStore(StorePlugin):
-
     open_search_url = ''
     web_url = ''
 

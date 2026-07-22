@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
-
 import json
 import os
 import signal
@@ -51,11 +50,12 @@ def daemonize():  # {{{
 
     # Redirect standard file descriptors.
     speedup.detach(os.devnull)
+
+
 # }}}
 
 
 class Server:
-
     def __init__(self, libraries, opts):
         log = access_log = None
         log_size = opts.max_log_size * 1024 * 1024
@@ -75,58 +75,62 @@ class Server:
         plugins = []
         if opts.use_bonjour:
             plugins.append(BonJour(wait_for_stop=max(0, opts.shutdown_timeout - 0.2)))
-        self.loop = ServerLoop(
-            create_http_handler(self.handler.dispatch),
-            opts=opts,
-            log=log,
-            access_log=access_log,
-            plugins=plugins)
+        self.loop = ServerLoop(create_http_handler(self.handler.dispatch), opts=opts, log=log, access_log=access_log, plugins=plugins)
         self.handler.set_log(self.loop.log)
         self.handler.set_jobs_manager(self.loop.jobs_manager)
         self.serve_forever = self.loop.serve_forever
         self.stop = self.loop.stop
         if is_running_from_develop:
             from calibre.utils.rapydscript import compile_srv
+
             compile_srv()
 
 
 def create_option_parser():
     parser = opts_to_parser(
-        '%prog ' + _(
+        '%prog '
+        + _(
             '''[options] [path to library folder...]
 
 Start the calibre Content server. The calibre Content server exposes your
 calibre libraries over the internet. You can specify the path to the library
 folders as arguments to %prog. If you do not specify any paths, all the
 libraries that the main calibre program knows about will be used.
-'''))
+'''
+        )
+    )
     parser.add_option(
         '--log',
         default=None,
-        help=_(
-            'Path to log file for server log. This log contains server information and errors, not access logs. By default it is written to stdout.'
-        ))
+        help=_('Path to log file for server log. This log contains server information and errors, not access logs. By default it is written to stdout.'),
+    )
     parser.add_option(
         '--access-log',
         default=None,
         help=_(
             'Path to the access log file. This log contains information'
             ' about clients connecting to the server and making requests. By'
-            ' default no access logging is done.'))
+            ' default no access logging is done.'
+        ),
+    )
     parser.add_option(
-        '--custom-list-template', help=_(
+        '--custom-list-template',
+        help=_(
             'Path to a JSON file containing a template for the custom book list mode.'
             ' The easiest way to create such a template file is to go to Preferences->'
             ' Sharing over the net-> Book list template in calibre, create the'
             ' template and export it.'
-    ))
+        ),
+    )
     parser.add_option(
-        '--search-the-net-urls', help=_(
+        '--search-the-net-urls',
+        help=_(
             'Path to a JSON file containing URLs for the "Search the internet" feature.'
             ' The easiest way to create such a file is to go to Preferences->'
             ' Sharing over the net->Search the internet in calibre, create the'
             ' URLs and export them.'
-    ))
+        ),
+    )
 
     if not iswindows and not ismacos:
         # Does not work on macOS because if we fork() we cannot connect to Core
@@ -136,17 +140,15 @@ libraries that the main calibre program knows about will be used.
             '--daemonize',
             default=False,
             action='store_true',
-            help=_('Run process in background as a daemon (Linux only).'))
-    parser.add_option(
-        '--pidfile', default=None, help=_('Write process PID to the specified file'))
+            help=_('Run process in background as a daemon (Linux only).'),
+        )
+    parser.add_option('--pidfile', default=None, help=_('Write process PID to the specified file'))
     parser.add_option(
         '--auto-reload',
         default=False,
         action='store_true',
-        help=_(
-            'Automatically reload server when source code changes. Useful'
-            ' for development. You should also specify a small value for the'
-            ' shutdown timeout.'))
+        help=_('Automatically reload server when source code changes. Useful for development. You should also specify a small value for the shutdown timeout.'),
+    )
     parser.add_option(
         '--manage-users',
         default=False,
@@ -154,16 +156,17 @@ libraries that the main calibre program knows about will be used.
         help=_(
             'Manage the database of users allowed to connect to this server.'
             ' You can use it in automated mode by adding a --. See {0}'
-            ' for details. See also the {1} option.').format('calibre-server --manage-users -- help', '--userdb'))
+            ' for details. See also the {1} option.'
+        ).format('calibre-server --manage-users -- help', '--userdb'),
+    )
     parser.get_option('--userdb').help = _(
         'Path to the user database to use for authentication. The database'
         ' is a SQLite file. To create it use {0}. You can read more'
         ' about managing users at: {1}'
     ).format(
         '--manage-users',
-        localize_user_manual_link(
-            'https://manual.calibre-ebook.com/server.html#managing-user-accounts-from-the-command-line-only'
-        ))
+        localize_user_manual_link('https://manual.calibre-ebook.com/server.html#managing-user-accounts-from-the-command-line-only'),
+    )
 
     return parser
 
@@ -179,18 +182,20 @@ def ensure_single_instance():
                 'Another calibre program such as another instance of {} or the main'
                 ' calibre program is running. Having multiple programs that can make'
                 ' changes to a calibre library running at the same time is not supported.'
-            ).format('calibre-server' + ext))
+            ).format('calibre-server' + ext)
+        )
 
 
 def main(args=sys.argv):
     opts, args = create_option_parser().parse_args(args)
     if opts.auto_reload and not opts.manage_users:
         if getattr(opts, 'daemonize', False):
-            raise SystemExit(
-                'Cannot specify --auto-reload and --daemonize at the same time')
+            raise SystemExit('Cannot specify --auto-reload and --daemonize at the same time')
         from calibre.srv.auto_reload import NoAutoReload, auto_reload
+
         try:
             from calibre.utils.logging import default_log
+
             return auto_reload(default_log, listen_on=opts.listen_on)
         except NoAutoReload as e:
             raise SystemExit(error_message(e))
@@ -201,7 +206,7 @@ def main(args=sys.argv):
     if opts.manage_users:
         try:
             manage_users_cli(opts.userdb, args[1:])
-        except (KeyboardInterrupt, EOFError):
+        except KeyboardInterrupt, EOFError:
             raise SystemExit(_('Interrupted by user'))
         raise SystemExit(0)
     ensure_single_instance()
@@ -219,8 +224,7 @@ def main(args=sys.argv):
         if len(libraries) > 1:
             raise SystemExit(_('Cannot use more than one library with CALIBRE_OVERRIDE_DATABASE_PATH'))
         if not os.path.exists(os.environ['CALIBRE_OVERRIDE_DATABASE_PATH']):
-            raise SystemExit(_('No database found at CALIBRE_OVERRIDE_DATABASE_PATH: {}').format(
-                os.environ['CALIBRE_OVERRIDE_DATABASE_PATH']))
+            raise SystemExit(_('No database found at CALIBRE_OVERRIDE_DATABASE_PATH: {}').format(os.environ['CALIBRE_OVERRIDE_DATABASE_PATH']))
 
     opts.auto_reload_port = int(os.environ.get('CALIBRE_AUTORELOAD_PORT', '0'))
     opts.allow_console_print = 'CALIBRE_ALLOW_CONSOLE_PRINT' in os.environ
@@ -234,9 +238,7 @@ def main(args=sys.argv):
         raise SystemExit(f'{e}')
     if getattr(opts, 'daemonize', False):
         if not opts.log and not iswindows:
-            raise SystemExit(
-                'In order to daemonize you must specify a log file, you can use /dev/stdout to log to screen even as a daemon'
-            )
+            raise SystemExit('In order to daemonize you must specify a log file, you can use /dev/stdout to log to screen even as a daemon')
         daemonize()
     if opts.pidfile:
         with open(opts.pidfile, 'wb') as f:
@@ -246,6 +248,7 @@ def main(args=sys.argv):
         signal.signal(signal.SIGHUP, lambda s, f: server.stop())
     # Needed for dynamic cover generation, which uses Qt for drawing
     from calibre.gui2 import ensure_app, load_builtin_fonts
+
     ensure_app(), load_builtin_fonts()
     with HandleInterrupt(server.stop):
         server.serve_forever()

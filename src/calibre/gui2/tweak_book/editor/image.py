@@ -1,8 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__ = 'GPL v3'
-__copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
+# License: GPLv3 Copyright: 2013, Kovid Goyal <kovid at kovidgoyal.net>
 
 import sys
 
@@ -33,7 +30,6 @@ from calibre.utils.localization import _
 
 
 class ResizeDialog(QDialog):  # {{{
-
     def __init__(self, width, height, parent=None):
         QDialog.__init__(self, parent)
         self.l = l = QFormLayout(self)
@@ -91,11 +87,12 @@ class ResizeDialog(QDialog):  # {{{
     @height.setter
     def height(self, val):
         self._height.setValue(val)
+
+
 # }}}
 
 
 class Editor(QMainWindow):
-
     has_line_numbers = False
     action_copy: QAction
     action_paste: QAction
@@ -222,9 +219,12 @@ class Editor(QMainWindow):
         self.canvas.copy()
 
     def cut(self):
-        return error_dialog(self, _('Not allowed'), _(
-            'Cutting of images is not allowed. If you want to delete the image, use'
-            ' the files browser to do it.'), show=True)
+        return error_dialog(
+            self,
+            _('Not allowed'),
+            _('Cutting of images is not allowed. If you want to delete the image, use the files browser to do it.'),
+            show=True,
+        )
 
     def paste(self):
         self.canvas.paste()
@@ -245,6 +245,7 @@ class Editor(QMainWindow):
     @property
     def selected_text(self):
         return ''
+
     # }}}
 
     def image_changed(self, new_image):
@@ -346,20 +347,38 @@ class Editor(QMainWindow):
             self.canvas.resize_image(d.width, d.height)
 
     def sharpen_image(self):
-        val, ok = QInputDialog.getInt(self, _('Sharpen image'), _(
-            'The standard deviation for the Gaussian sharpen operation (higher means more sharpening)'), value=3, min=1, max=20)
+        val, ok = QInputDialog.getInt(
+            self,
+            _('Sharpen image'),
+            _('The standard deviation for the Gaussian sharpen operation (higher means more sharpening)'),
+            value=3,
+            min=1,
+            max=20,
+        )
         if ok:
             self.canvas.sharpen_image(sigma=val)
 
     def blur_image(self):
-        val, ok = QInputDialog.getInt(self, _('Blur image'), _(
-            'The standard deviation for the Gaussian blur operation (higher means more blurring)'), value=3, min=1, max=20)
+        val, ok = QInputDialog.getInt(
+            self,
+            _('Blur image'),
+            _('The standard deviation for the Gaussian blur operation (higher means more blurring)'),
+            value=3,
+            min=1,
+            max=20,
+        )
         if ok:
             self.canvas.blur_image(sigma=val)
 
     def oilify_image(self):
-        val, ok = QInputDialog.getDouble(self, _('Oilify image'), _(
-            'The strength of the operation (higher numbers have larger effects)'), value=4, min=0.1, max=20)
+        val, ok = QInputDialog.getDouble(
+            self,
+            _('Oilify image'),
+            _('The strength of the operation (higher numbers have larger effects)'),
+            value=4,
+            min=0.1,
+            max=20,
+        )
         if ok:
             self.canvas.oilify_image(radius=val)
 

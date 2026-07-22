@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2024, Kovid Goyal <kovid at kovidgoyal.net>
 
-
 import json
 import os
 import sys
@@ -28,7 +27,7 @@ from qt.core import (
 
 from calibre.utils.random_ua import random_common_chrome_user_agent
 
-default_timeout: float = 60.  # seconds
+default_timeout: float = 60.0  # seconds
 
 
 def qurl_to_string(url: QUrl | str) -> str:
@@ -83,7 +82,6 @@ def too_slow_or_timed_out(timeout: float, last_activity_at: float, created_at: f
 
 
 class DownloadRequest(QObject):
-
     worth_retry: bool = False
 
     def __init__(self, url: str, output_path: str, reply: QNetworkReply, timeout: float, req_id: int, parent: FetchBackend):
@@ -124,11 +122,15 @@ class DownloadRequest(QObject):
         self.save_data()
         e = self.reply.error()
         result = {
-            'action': 'finished', 'id': self.req_id, 'url': self.url, 'output': self.output_path,
-            'final_url': qurl_to_string(self.reply.url()), 'headers': []
+            'action': 'finished',
+            'id': self.req_id,
+            'url': self.url,
+            'output': self.output_path,
+            'final_url': qurl_to_string(self.reply.url()),
+            'headers': [],
         }
         h = result['headers']
-        for k,v in self.reply.rawHeaderPairs():
+        for k, v in self.reply.rawHeaderPairs():
             h.append((bytes(k).decode('utf-8', 'replace'), bytes(v).decode('utf-8', 'replace')))
         if code := self.reply.attribute(QNetworkRequest.Attribute.HttpStatusCodeAttribute):
             result['http_code'] = code
@@ -139,7 +141,6 @@ class DownloadRequest(QObject):
             if e in (
                 QNetworkReply.NetworkError.TimeoutError,
                 QNetworkReply.NetworkError.TemporaryNetworkFailureError,
-
                 QNetworkReply.NetworkError.ConnectionRefusedError,
                 QNetworkReply.NetworkError.RemoteHostClosedError,
                 QNetworkReply.NetworkError.OperationCanceledError,  # abort() called in overall timeout check
@@ -155,7 +156,6 @@ class DownloadRequest(QObject):
 
 
 class FetchBackend(QNetworkAccessManager):
-
     request_download = pyqtSignal(object)
     input_finished = pyqtSignal(str)
     set_cookies = pyqtSignal(object)
@@ -163,8 +163,13 @@ class FetchBackend(QNetworkAccessManager):
     download_finished = pyqtSignal(object)
 
     def __init__(
-            self, output_dir: str = '', cache_name: str = '',
-            parent: QObject | None = None, user_agent: str = '', verify_ssl_certificates: bool = True) -> None:
+        self,
+        output_dir: str = '',
+        cache_name: str = '',
+        parent: QObject | None = None,
+        user_agent: str = '',
+        verify_ssl_certificates: bool = True,
+    ) -> None:
         super().__init__(parent)
         self.cookie_jar = CookieJar(self)
         self.verify_ssl_certificates = verify_ssl_certificates
@@ -325,6 +330,7 @@ def read_commands(backend: FetchBackend, tdir: str) -> None:
                 break
     except Exception as err:
         import traceback
+
         traceback.print_exc()
         error_msg = str(err)
     backend.input_finished.emit(error_msg)
@@ -346,6 +352,7 @@ def worker(tdir: str, user_agent: str, verify_ssl_certificates: bool, backend_cl
 
 def develop(url: str) -> None:
     from calibre.gui2 import must_use_qt, setup_unix_signals
+
     must_use_qt()
     app = QApplication.instance()
     assert app is not None
@@ -362,7 +369,7 @@ def develop(url: str) -> None:
 
     backend.download_finished.connect(download_finished)
     for i, url in enumerate(sys.argv[1:]):
-        backend.download(request_from_cmd({'url':url, 'id': i}, f'test-output-{i}'))
+        backend.download(request_from_cmd({'url': url, 'id': i}, f'test-output-{i}'))
         num_left += 1
     app.exec()
 

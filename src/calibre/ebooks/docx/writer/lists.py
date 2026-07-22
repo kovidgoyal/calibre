@@ -1,8 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__ = 'GPL v3'
-__copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
+# License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
 from collections import defaultdict
 from operator import attrgetter
@@ -10,7 +7,8 @@ from operator import attrgetter
 LIST_STYLES = frozenset(
     'disc circle square decimal decimal-leading-zero lower-roman upper-roman'
     ' lower-greek lower-alpha lower-latin upper-alpha upper-latin hiragana hebrew'
-    ' katakana-iroha cjk-ideographic'.split())
+    ' katakana-iroha cjk-ideographic'.split()
+)
 
 STYLE_MAP = {
     'disc': 'bullet',
@@ -48,7 +46,6 @@ def find_list_containers(list_tag, tag_style):
 
 
 class NumberingDefinition:
-
     def __init__(self, top_most, stylizer, namespace):
         self.namespace = namespace
         self.top_most = top_most
@@ -65,10 +62,7 @@ class NumberingDefinition:
                 items_for_level[ilvl].append(list_tag)
                 container_for_level[ilvl] = container
                 type_for_level[ilvl] = list_type
-        self.levels = tuple(
-            Level(type_for_level[ilvl], container_for_level[ilvl], items_for_level[ilvl], ilvl=ilvl)
-            for ilvl in sorted(self.level_map)
-        )
+        self.levels = tuple(Level(type_for_level[ilvl], container_for_level[ilvl], items_for_level[ilvl], ilvl=ilvl) for ilvl in sorted(self.level_map))
 
     def __hash__(self):
         return hash(self.levels)
@@ -90,7 +84,6 @@ class NumberingDefinition:
 
 
 class Level:
-
     def __init__(self, list_type, container, items, ilvl=0):
         self.ilvl = ilvl
         try:
@@ -120,12 +113,11 @@ class Level:
         makeelement(lvl, 'w:lvlJc', w_val='left')
         makeelement(makeelement(lvl, 'w:pPr'), 'w:ind', w_hanging='360', w_left=str(1152 + self.ilvl * 360))
         if self.num_fmt == 'bullet':
-            ff = {'\uf0b7':'Symbol', '\uf0a7':'Wingdings'}.get(self.lvl_text, 'Courier New')
+            ff = {'\uf0b7': 'Symbol', '\uf0a7': 'Wingdings'}.get(self.lvl_text, 'Courier New')
             makeelement(makeelement(lvl, 'w:rPr'), 'w:rFonts', w_ascii=ff, w_hAnsi=ff, w_hint='default')
 
 
 class ListsManager:
-
     def __init__(self, docx):
         self.namespace = docx.namespace
         self.lists = {}

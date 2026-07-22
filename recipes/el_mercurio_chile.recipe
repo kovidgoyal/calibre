@@ -26,24 +26,20 @@ class ElMercurio(BasicNewsRecipe):
     use_embedded_content = False
     language = 'es_CL'
 
-    conversion_options = {
-        'comment': description, 'tags': category, 'publisher': publisher, 'language': language
-    }
+    conversion_options = {'comment': description, 'tags': category, 'publisher': publisher, 'language': language}
 
     keep_only_tags = [
-        dict(name='div', attrs={'class': ['cont_iz_titulobajada', 'info-notaemol-por',
-                                          'info-notaemol-porfecha']}), dict(name='div', attrs={'id': 'texto_noticia'})
+        dict(name='div', attrs={'class': ['cont_iz_titulobajada', 'info-notaemol-por', 'info-notaemol-porfecha']}),
+        dict(name='div', attrs={'id': 'texto_noticia'}),
     ]
-    remove_tags = [
-        dict(name='div', attrs={'id': 'cont_iz_cuerpo_relacionados'})]
+    remove_tags = [dict(name='div', attrs={'id': 'cont_iz_cuerpo_relacionados'})]
 
     feeds = [
-
-    (u'Nacional', u'http://www.emol.com/noticias/nacional/todas.aspx'),
-    (u'Mundo', u'http://www.emol.com/noticias/internacional/todas.aspx'),
-    (u'Deportes', u'http://www.emol.com/noticias/deportes/todas.aspx'),
-    (u'Espectaculos', u'http://www.emol.com/noticias/cultura/todas.aspx'),
-    (u'Tecnologia', u'http://www.emol.com/noticias/economia/todas.aspx')
+        ('Nacional', 'http://www.emol.com/noticias/nacional/todas.aspx'),
+        ('Mundo', 'http://www.emol.com/noticias/internacional/todas.aspx'),
+        ('Deportes', 'http://www.emol.com/noticias/deportes/todas.aspx'),
+        ('Espectaculos', 'http://www.emol.com/noticias/cultura/todas.aspx'),
+        ('Tecnologia', 'http://www.emol.com/noticias/economia/todas.aspx'),
     ]
 
     def parse_index(self):
@@ -51,8 +47,7 @@ class ElMercurio(BasicNewsRecipe):
         lfeeds = self.get_feeds()
         for feedobj in lfeeds:
             feedtitle, feedurl = feedobj
-            self.report_progress(0, _('Fetching feed') + ' %s...' %
-                                 (feedtitle or feedurl))
+            self.report_progress(0, _('Fetching feed') + ' %s...' % (feedtitle or feedurl))
             articles = []
             soup = self.index_to_soup(feedurl)
             arts = soup.find('div', attrs={'id': 'caja_listado_noticia_todas'})
@@ -63,8 +58,6 @@ class ElMercurio(BasicNewsRecipe):
                     url = atag['href']
                     title = self.tag_to_string(atag)
                     description = self.tag_to_string(ptag)
-                    articles.append({
-                        'title': title, 'date': '', 'url': url, 'description': description
-                    })
+                    articles.append({'title': title, 'date': '', 'url': url, 'description': description})
                 totalfeeds.append((feedtitle, articles))
         return totalfeeds

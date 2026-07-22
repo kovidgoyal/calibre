@@ -1,18 +1,10 @@
-__license__ = 'GPL 3'
-__copyright__ = '2009, John Schember <john@nachtimwald.com>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2009, John Schember <john@nachtimwald.com>
 
 import os
 
 
 class TxtNewlines:
-
-    NEWLINE_TYPES = {
-                        'system'  : os.linesep,
-                        'unix'    : '\n',
-                        'old_mac' : '\r',
-                        'windows' : '\r\n'
-                     }
+    NEWLINE_TYPES = {'system': os.linesep, 'unix': '\n', 'old_mac': '\r', 'windows': '\r\n'}
 
     def __init__(self, newline_type):
         self.newline = self.NEWLINE_TYPES.get(newline_type.lower(), os.linesep)

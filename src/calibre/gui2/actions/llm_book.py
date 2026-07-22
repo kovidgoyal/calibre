@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2025, Kovid Goyal <kovid at kovidgoyal.net>
 
-
 from functools import partial
 
 from calibre.gui2 import error_dialog
@@ -10,7 +9,6 @@ from calibre.utils.localization import _
 
 
 class LLMBookAction(InterfaceAction):
-
     name = 'Discuss book with AI'
     action_spec = (_('Discuss book with AI'), 'ai.png', _('Ask AI about books'), 'Ctrl+Alt+A')
     action_type = 'current'
@@ -29,16 +27,19 @@ class LLMBookAction(InterfaceAction):
 
     def about_to_show_menu(self):
         from calibre.utils.icu import primary_sort_key
+
         m = self.ask_menu
         assert m is not None
         m.clear()
         from calibre.gui2.dialogs.llm_book import current_actions
+
         for ac in sorted(current_actions(), key=lambda a: primary_sort_key(a.human_name)):
             a = m.addAction(ac.human_name)
             a.triggered.connect(partial(self.ask_ai_with_action, ac))
 
     def ask_ai_with_action(self, action=None):
         from calibre.gui2.dialogs.llm_book import LLMBookDialog
+
         rows = list(self.gui.library_view.selectionModel().selectedRows())
         if not rows or len(rows) == 0:
             d = error_dialog(self.gui, _('Cannot ask AI'), _('No book selected'))

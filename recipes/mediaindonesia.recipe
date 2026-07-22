@@ -9,7 +9,7 @@ from calibre.web.feeds.recipes import BasicNewsRecipe
 
 
 class Media(BasicNewsRecipe):
-    title = u'Media Indonesia'
+    title = 'Media Indonesia'
     __author__ = 'bakthariq'
     oldest_article = 1
     max_articles_per_feed = 500
@@ -26,21 +26,21 @@ class Media(BasicNewsRecipe):
     remove_tags = [dict(id=['atas', 'merah', 'putih']), dict(name='a')]
     remove_tags_after = [dict(id='putih')]
 
-    extra_css             = '''
+    extra_css = '''
                             .judul {font-size: x-large;}
                             .tgl {font-size: x-small;color:#333333;}
                             .foto {font-size: x-small;}
     '''
 
     feeds = [
-    (u'Polhukam', u'http://www.mediaindonesia.com/rss/1/polhukam'),
-    (u'Ekonomi dan Bisnis', u'http://www.mediaindonesia.com/rss/2/ekonomi-dan-bisnis'),
-
-    (u'Internasional', u'http://www.mediaindonesia.com/rss/6/internasional'),
-    (u'Olahraga', u'http://www.mediaindonesia.com/rss/3/olahraga'),
-    (u'Sepakbola', u'http://www.mediaindonesia.com/rss/4/sepakbola'),
-    (u'Megapolitan', u'http://www.mediaindonesia.com/rss/5/megapolitan'),
-    (u'Sains dan Teknologi', u'http://www.mediaindonesia.com/rss/7/sains-dan-teknologi'),
-    (u'Humaniora', u'http://www.mediaindonesia.com/rss/14/humaniora'),
-    (u'Hiburan', u'http://www.mediaindonesia.com/rss/10/hiburan'),
-    (u'Opini', u'http://www.mediaindonesia.com/rss/11/opini')]
+        ('Polhukam', 'http://www.mediaindonesia.com/rss/1/polhukam'),
+        ('Ekonomi dan Bisnis', 'http://www.mediaindonesia.com/rss/2/ekonomi-dan-bisnis'),
+        ('Internasional', 'http://www.mediaindonesia.com/rss/6/internasional'),
+        ('Olahraga', 'http://www.mediaindonesia.com/rss/3/olahraga'),
+        ('Sepakbola', 'http://www.mediaindonesia.com/rss/4/sepakbola'),
+        ('Megapolitan', 'http://www.mediaindonesia.com/rss/5/megapolitan'),
+        ('Sains dan Teknologi', 'http://www.mediaindonesia.com/rss/7/sains-dan-teknologi'),
+        ('Humaniora', 'http://www.mediaindonesia.com/rss/14/humaniora'),
+        ('Hiburan', 'http://www.mediaindonesia.com/rss/10/hiburan'),
+        ('Opini', 'http://www.mediaindonesia.com/rss/11/opini'),
+    ]

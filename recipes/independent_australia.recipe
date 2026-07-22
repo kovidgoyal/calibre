@@ -19,13 +19,11 @@ class IndependentAustralia(BasicNewsRecipe):
     __author__ = 'Pat Stapleton'
     description = (
         'Independent Australia is a progressive journal focusing on politics, democracy, the environment, Australian history and Australian identity.'
-        ' It contains news and opinion from Australia and around the world.')
+        ' It contains news and opinion from Australia and around the world.'
+    )
 
     feeds = [
-        (
-            'Independent Australia',
-            'https://feeds.feedburner.com/IndependentAustralia'
-        ),
+        ('Independent Australia', 'https://feeds.feedburner.com/IndependentAustralia'),
     ]
 
     masthead_url = 'https://independentaustralia.net/t/2018/logo-2018-lg-h90.png'
@@ -43,20 +41,12 @@ class IndependentAustralia(BasicNewsRecipe):
     no_stylesheets = True
     remove_javascript = True
 
-    keep_only_tags = [
-        dict(name='div', attrs={'class': 'art-display'})
-    ]  # the article content is contained in
+    keep_only_tags = [dict(name='div', attrs={'class': 'art-display'})]  # the article content is contained in
 
     # ************************************
     # Clear out all the unwanted html tags:
     # ************************************
-    remove_tags = [{
-        'name': ['meta', 'link', 'noscript', 'script', 'footer']
-    }, {
-        'attrs': {
-            'class': ['tagFooter', 'noshow', 'panelSubscription', 'mt-2']
-        }
-    }]
+    remove_tags = [{'name': ['meta', 'link', 'noscript', 'script', 'footer']}, {'attrs': {'class': ['tagFooter', 'noshow', 'panelSubscription', 'mt-2']}}]
 
     # ************************************
     # Tidy up the output to look neat for reading
@@ -81,30 +71,25 @@ class IndependentAustralia(BasicNewsRecipe):
         for curfeed in feeds:
             delList = []
             for a, curarticle in enumerate(curfeed.articles):
-                if curarticle.url.lower(
-                ).find('independentaustralia.net/politics/') >= 0:
+                if curarticle.url.lower().find('independentaustralia.net/politics/') >= 0:
                     politicsArticles.append(curarticle)
                     delList.append(curarticle)
-                elif curarticle.url.lower(
-                ).find('independentaustralia.net/environment/') >= 0:
+                elif curarticle.url.lower().find('independentaustralia.net/environment/') >= 0:
                     environmentArticles.append(curarticle)
                     delList.append(curarticle)
-                elif curarticle.url.lower(
-                ).find('independentaustralia.net/business/') >= 0:
+                elif curarticle.url.lower().find('independentaustralia.net/business/') >= 0:
                     businessArticles.append(curarticle)
                     delList.append(curarticle)
-                elif curarticle.url.lower(
-                ).find('independentaustralia.net/life/') >= 0:
+                elif curarticle.url.lower().find('independentaustralia.net/life/') >= 0:
                     lifeArticles.append(curarticle)
                     delList.append(curarticle)
-                elif curarticle.url.lower(
-                ).find('independentaustralia.net/australia/') >= 0:
+                elif curarticle.url.lower().find('independentaustralia.net/australia/') >= 0:
                     australiaArticles.append(curarticle)
                     delList.append(curarticle)
             if len(delList) > 0:
                 for d in delList:
                     index = curfeed.articles.index(d)
-                    curfeed.articles[index:index + 1] = []
+                    curfeed.articles[index : index + 1] = []
 
         # If there are any of each base category found, create, append a new Feed object
         if len(politicsArticles) > 0:

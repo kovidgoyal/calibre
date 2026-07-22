@@ -1,8 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__ = 'GPL v3'
-__copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
+# License: GPLv3 Copyright: 2013, Kovid Goyal <kovid at kovidgoyal.net>
 
 import re
 import string
@@ -37,14 +34,15 @@ def alphabet(val, lower=True):
 
 
 alphabet_map = {
-    'lower-alpha':alphabet, 'upper-alpha':partial(alphabet, lower=False),
-    'lower-roman':lambda x: roman(x).lower(), 'upper-roman':roman,
-    'decimal-leading-zero': lambda x: f'0{x}'
+    'lower-alpha': alphabet,
+    'upper-alpha': partial(alphabet, lower=False),
+    'lower-roman': lambda x: roman(x).lower(),
+    'upper-roman': roman,
+    'decimal-leading-zero': lambda x: f'0{x}',
 }
 
 
 class Level:
-
     def __init__(self, namespace, lvl=None):
         self.namespace = namespace
         self.restart = None
@@ -62,7 +60,18 @@ class Level:
 
     def copy(self):
         ans = Level(self.namespace)
-        for x in ('restart', 'pic_id', 'start', 'fmt', 'para_link', 'paragraph_style', 'character_style', 'is_numbered', 'num_template', 'bullet_template'):
+        for x in (
+            'restart',
+            'pic_id',
+            'start',
+            'fmt',
+            'para_link',
+            'paragraph_style',
+            'character_style',
+            'is_numbered',
+            'num_template',
+            'bullet_template',
+        ):
             setattr(ans, x, getattr(self, x))
         return ans
 
@@ -74,6 +83,7 @@ class Level:
             val = counter[x] - (0 if x == ilvl else 1)
             formatter = alphabet_map.get(self.fmt, lambda x: f'{x}')
             return formatter(val)
+
         return re.sub(r'%(\d+)', sub, template).rstrip() + '\xa0'
 
     def read_from_xml(self, lvl, override=False):
@@ -81,13 +91,13 @@ class Level:
         for lr in XPath('./w:lvlRestart[@w:val]')(lvl):
             try:
                 self.restart = int(get(lr, 'w:val'))
-            except (TypeError, ValueError):
+            except TypeError, ValueError:
                 pass
 
         for lr in XPath('./w:start[@w:val]')(lvl):
             try:
                 self.start = int(get(lr, 'w:val'))
-            except (TypeError, ValueError):
+            except TypeError, ValueError:
                 pass
 
         for rPr in XPath('./w:rPr')(lvl):
@@ -107,8 +117,9 @@ class Level:
                 self.is_numbered = False
                 cs = self.character_style
                 if lt in {'\uf0a7', 'o'} or (
-                    cs is not None and cs.font_family is not inherit and isinstance(cs.font_family, str) and cs.font_family.lower() in {'wingdings', 'symbol'}):
-                    self.fmt = {'\uf0a7':'square', 'o':'circle'}.get(lt, 'disc')
+                    cs is not None and cs.font_family is not inherit and isinstance(cs.font_family, str) and cs.font_family.lower() in {'wingdings', 'symbol'}
+                ):
+                    self.fmt = {'\uf0a7': 'square', 'o': 'circle'}.get(lt, 'disc')
                 else:
                     self.bullet_template = lt
                 for lpid in XPath('./w:lvlPicBulletId[@w:val]')(lvl):
@@ -154,7 +165,6 @@ class Level:
 
 
 class NumberingDefinition:
-
     def __init__(self, namespace, parent=None, an_id=None):
         self.namespace = namespace
         XPath, get = self.namespace.XPath, self.namespace.get
@@ -164,7 +174,7 @@ class NumberingDefinition:
             for lvl in XPath('./w:lvl')(parent):
                 try:
                     ilvl = int(get(lvl, 'w:ilvl', 0))
-                except (TypeError, ValueError):
+                except TypeError, ValueError:
                     ilvl = 0
                 self.levels[ilvl] = Level(namespace, lvl)
 
@@ -176,7 +186,6 @@ class NumberingDefinition:
 
 
 class Numbering:
-
     def __init__(self, namespace):
         self.namespace = namespace
         self.definitions = {}
@@ -186,7 +195,7 @@ class Numbering:
         self.pic_map = {}
 
     def __call__(self, root, styles, rid_map):
-        ' Read all numbering style definitions '
+        "Read all numbering style definitions"
         XPath, get = self.namespace.XPath, self.namespace.get
         self.rid_map = rid_map
         for npb in XPath('./w:numPicBullet[@w:numPicBulletId]')(root):
@@ -210,12 +219,12 @@ class Numbering:
             for lo in XPath('./w:lvlOverride')(n):
                 try:
                     ilvl = int(get(lo, 'w:ilvl'))
-                except (ValueError, TypeError):
+                except ValueError, TypeError:
                     ilvl = None
                 for so in XPath('./w:startOverride[@w:val]')(lo):
                     try:
                         start_override = int(get(so, 'w:val'))
-                    except (TypeError, ValueError):
+                    except TypeError, ValueError:
                         pass
                     else:
                         start_overrides[ilvl] = start_override
@@ -256,7 +265,7 @@ class Numbering:
                 self.instances[num_id] = create_instance(n, d)
 
         for num_id, d in self.instances.items():
-            self.starts[num_id] = {lvl:d.levels[lvl].start for lvl in d.levels}
+            self.starts[num_id] = {lvl: d.levels[lvl].start for lvl in d.levels}
 
     def get_pstyle(self, num_id, style_id):
         d = self.instances.get(num_id, None)

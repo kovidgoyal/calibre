@@ -1,29 +1,23 @@
 #!/usr/bin/env python
-
-
-__license__   = 'GPL v3'
-__copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
-
+# License: GPLv3 Copyright: 2009, Kovid Goyal <kovid@kovidgoyal.net>
 
 from calibre.devices.usbms.driver import USBMS
 from calibre.utils.localization import _
 
 
 class ESLICK(USBMS):
-
-    name           = 'ESlick Device Interface'
-    gui_name       = 'Foxit ESlick'
-    description    = _('Communicate with the ESlick e-book reader.')
-    author         = 'Kovid Goyal'
+    name = 'ESlick Device Interface'
+    gui_name = 'Foxit ESlick'
+    description = _('Communicate with the ESlick e-book reader.')
+    author = 'Kovid Goyal'
     supported_platforms = ['windows', 'osx', 'linux']
 
     # Ordered list of supported formats
-    FORMATS     = ['epub', 'pdb', 'pdf', 'txt']
+    FORMATS = ['epub', 'pdb', 'pdf', 'txt']
 
-    VENDOR_ID   = [0x04cc]
-    PRODUCT_ID  = [0x1a64]
-    BCD         = [0x0110]
+    VENDOR_ID = [0x04CC]
+    PRODUCT_ID = [0x1A64]
+    BCD = [0x0110]
 
     VENDOR_NAME = 'FOXIT'
     WINDOWS_MAIN_MEM = 'ESLICK_USB_DEVIC'
@@ -32,7 +26,7 @@ class ESLICK(USBMS):
     # OSX_MAIN_MEM = 'Kindle Internal Storage Media'
     # OSX_CARD_A_MEM = 'Kindle Card Storage Media'
 
-    MAIN_MEMORY_VOLUME_LABEL  = 'ESlick Main Memory'
+    MAIN_MEMORY_VOLUME_LABEL = 'ESlick Main Memory'
     STORAGE_CARD_VOLUME_LABEL = 'ESlick Storage Card'
 
     SUPPORTS_SUB_DIRS = True
@@ -43,17 +37,16 @@ class ESLICK(USBMS):
 
 
 class EBK52(ESLICK):
+    name = 'EBK-52 Device Interface'
+    gui_name = 'Sigmatek EBK'
+    description = _('Communicate with the Sigmatek e-book reader.')
 
-    name           = 'EBK-52 Device Interface'
-    gui_name       = 'Sigmatek EBK'
-    description    = _('Communicate with the Sigmatek e-book reader.')
-
-    FORMATS     = ['epub', 'fb2', 'pdf', 'txt']
+    FORMATS = ['epub', 'fb2', 'pdf', 'txt']
 
     VENDOR_NAME = ''
     WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = 'EBOOK_READER'
 
-    MAIN_MEMORY_VOLUME_LABEL  = 'Sigmatek Main Memory'
+    MAIN_MEMORY_VOLUME_LABEL = 'Sigmatek Main Memory'
     STORAGE_CARD_VOLUME_LABEL = 'Sigmatek Storage Card'
 
     @classmethod

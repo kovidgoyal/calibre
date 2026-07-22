@@ -1,8 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__ = 'GPL v3'
-__copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
+# License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
 import http.client
 import os
@@ -24,7 +21,6 @@ nonce_counter, nonce_counter_lock = 0, Lock()
 
 
 class BanList:
-
     def __init__(self, ban_time_in_minutes=0, max_failures_before_ban=5):
         self.interval = max(0, ban_time_in_minutes) * 60
         self.max_failures_before_ban = max(0, max_failures_before_ban)
@@ -89,12 +85,12 @@ def base64_decode(s):
 
 
 def synthesize_nonce(key_order, realm, secret, timestamp=None):
-    '''
+    """
     Create a nonce. Can be used for either digest or cookie based auth.
     The nonce is of the form timestamp:hash with hash being a hash of the
     timestamp, server secret and realm. This allows the timestamp to be
     validated and stale nonce's to be rejected.
-    '''
+    """
     if timestamp is None:
         global nonce_counter
         with nonce_counter_lock:
@@ -124,7 +120,6 @@ def is_nonce_stale(nonce, max_age_seconds=MAX_AGE_SECONDS):
 
 
 class DigestAuth:  # {{{
-
     valid_algorithms = {'MD5', 'MD5-SESS'}
     valid_qops = {'auth', 'auth-int'}
 
@@ -160,7 +155,7 @@ class DigestAuth:  # {{{
         return md5_hex(val)
 
     def H_A2(self, data):
-        '''Returns the H(A2) string. See :rfc:`2617` section 3.2.2.3.'''
+        """Returns the H(A2) string. See :rfc:`2617` section 3.2.2.3."""
         # RFC 2617 3.2.2.3
         # If the "qop" directive's value is "auth" or is unspecified,
         # then A2 is:
@@ -210,11 +205,13 @@ class DigestAuth:  # {{{
                 log.warn(f'Authorization URI mismatch: {data.path} != {path} from client: {data.remote_addr}')
             raise HTTPSimpleResponse(http.client.BAD_REQUEST, 'The uri in the Request Line and the Authorization header do not match')
         return self.response is not None and data.path == path and self.request_digest(pw, data) == self.response
+
+
 # }}}
 
 
 class AuthController:
-    '''
+    """
     Implement Basic/Digest authentication for the Content server. Android browsers
     cannot handle HTTP AUTH when downloading files, as the download is handed
     off to a separate process. So we use a cookie based authentication scheme
@@ -238,18 +235,26 @@ class AuthController:
     hijacking, since we have to ignore repeated nc values, because Firefox does
     not implement the digest auth spec properly (it sends out of order nc
     values).
-    '''
+    """
+
     ANDROID_COOKIE = 'android_workaround'
 
-    def __init__(self,
-                 user_credentials=None, prefer_basic_auth=False, realm='calibre',
-                 max_age_seconds=MAX_AGE_SECONDS, log=None, ban_time_in_minutes=0, ban_after=5):
+    def __init__(
+        self,
+        user_credentials=None,
+        prefer_basic_auth=False,
+        realm='calibre',
+        max_age_seconds=MAX_AGE_SECONDS,
+        log=None,
+        ban_time_in_minutes=0,
+        ban_after=5,
+    ):
         self.user_credentials, self.prefer_basic_auth = user_credentials, prefer_basic_auth
         self.ban_list = BanList(ban_time_in_minutes=ban_time_in_minutes, max_failures_before_ban=ban_after)
         self.log = log
         self.secret = as_hex_unicode(os.urandom(random.randint(20, 30)))
         self.max_age_seconds = max_age_seconds
-        self.key_order = '{%d}:{%d}:{%d}' % random.choice(tuple(permutations((0,1,2))))  # noqa: UP031
+        self.key_order = '{%d}:{%d}:{%d}' % random.choice(tuple(permutations((0, 1, 2))))  # noqa: UP031
         self.realm = realm
         if '"' in realm:
             raise ValueError('Double-quotes are not allowed in the authentication realm')

@@ -15,23 +15,24 @@ class Ekot_SE(BasicNewsRecipe):
     encoding = 'utf-8'
     language = 'sv'
 
-    conversion_options = {
-        'comment': description, 'tags': category, 'publisher': publisher, 'language': language
-    }
+    conversion_options = {'comment': description, 'tags': category, 'publisher': publisher, 'language': language}
 
-    keep_only_tags = [dict(name='h1', attrs={'class': 'newsH2'}),
-                      dict(name='div', attrs={'class': 'articleTop'}),
-                      dict(name='div', attrs={'class': 'newsIntro'}),
-                      dict(name='div', attrs={'class': 'newsText'})]
-    remove_tags = [
-        dict(name=['object', 'link', 'base']), dict(
-            name='span', attrs={'class': 'relLink'})
+    keep_only_tags = [
+        dict(name='h1', attrs={'class': 'newsH2'}),
+        dict(name='div', attrs={'class': 'articleTop'}),
+        dict(name='div', attrs={'class': 'newsIntro'}),
+        dict(name='div', attrs={'class': 'newsText'}),
+    ]
+    remove_tags = [dict(name=['object', 'link', 'base']), dict(name='span', attrs={'class': 'relLink'})]
+
+    feeds = [
+        ('Ekot', 'https://api.sr.se/api/rssfeed/rssfeed.aspx?rssfeed=83'),
+        ('Utrikes', 'https://api.sr.se/api/rssfeed/rssfeed.aspx?rssfeed=3304'),
+        ('Radiosporten', 'https://api.sr.se/api/rssfeed/rssfeed.aspx?rssfeed=179'),
     ]
 
-    feeds = [(u'Ekot', u'https://api.sr.se/api/rssfeed/rssfeed.aspx?rssfeed=83'),
-             (u'Utrikes', u'https://api.sr.se/api/rssfeed/rssfeed.aspx?rssfeed=3304'),
-             (u'Radiosporten', u'https://api.sr.se/api/rssfeed/rssfeed.aspx?rssfeed=179')]
-
     def print_version(self, url):
-        return url.replace('https://sverigesradio.se/cgi-bin/ekot/artikel.asp',
-                           'https://sverigesradio.se/cgi-bin/isidorpub/PrinterFriendlyArticle.asp') + '&ProgramID=83'
+        return (
+            url.replace('https://sverigesradio.se/cgi-bin/ekot/artikel.asp', 'https://sverigesradio.se/cgi-bin/isidorpub/PrinterFriendlyArticle.asp')
+            + '&ProgramID=83'
+        )

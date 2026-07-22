@@ -1,16 +1,18 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
-
 from calibre.gui2.actions import InterfaceAction
 from calibre.utils.localization import _
 
 
 class AutoscrollBooksAction(InterfaceAction):
-
     name = 'Autoscroll Books'
-    action_spec = (_('Auto scroll through the book list'), 'auto-scroll.png',
-                   _('Auto scroll through the book list, particularly useful with the cover browser open'), _('X'))
+    action_spec = (
+        _('Auto scroll through the book list'),
+        'auto-scroll.png',
+        _('Auto scroll through the book list, particularly useful with the cover browser open'),
+        _('X'),
+    )
     dont_add_to = frozenset(('context-menu-device', 'menubar-device'))
     action_type = 'current'
 

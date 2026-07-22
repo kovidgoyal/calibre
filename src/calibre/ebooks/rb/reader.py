@@ -1,6 +1,4 @@
-__license__ = 'GPL 3'
-__copyright__ = '2009, John Schember <john@nachtimwald.com>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2009, John Schember <john@nachtimwald.com>
 
 import os
 import struct
@@ -15,9 +13,7 @@ from polyglot.urllib import unquote
 
 
 class RBToc(list):
-
     class Item:
-
         def __init__(self, name='', size=0, offset=0, flags=0):
             self.name = name
             self.size = size
@@ -26,7 +22,6 @@ class RBToc(list):
 
 
 class Reader:
-
     def __init__(self, stream, log, encoding=None):
         self.stream = stream
         self.log = log
@@ -136,7 +131,7 @@ class Reader:
             opf = OPFCreator(output_dir, self.mi)
 
             manifest = []
-            for page in pages+images:
+            for page in pages + images:
                 manifest.append((page, None))
 
             opf.create_manifest(manifest)

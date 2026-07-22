@@ -37,9 +37,7 @@ class outlook(BasicNewsRecipe):
             name='a',
             attrs={'href': lambda x: x and x.startswith('https://www.whatsapp.com/')},
         ),
-        classes(
-            'ads-box info-img-absolute mobile-info-id story-dec-time-mobile sb-also-read ads-box1 story-mag-issue-section'
-        ),
+        classes('ads-box info-img-absolute mobile-info-id story-dec-time-mobile sb-also-read ads-box1 story-mag-issue-section'),
     ]
 
     recipe_specific_options = {
@@ -50,10 +48,7 @@ class outlook(BasicNewsRecipe):
     }
 
     def parse_index(self):
-        self.log(
-            'try again and again\n***\nif this recipe fails, report it on: '
-            'https://www.mobileread.com/forums/forumdisplay.php?f=228\n***\n'
-        )
+        self.log('try again and again\n***\nif this recipe fails, report it on: https://www.mobileread.com/forums/forumdisplay.php?f=228\n***\n')
 
         d = self.recipe_specific_options.get('date')
         if d and isinstance(d, str):
@@ -82,9 +77,7 @@ class outlook(BasicNewsRecipe):
             url = a['href']
             title = self.tag_to_string(a)
             desc = ''
-            p = div.find_next_sibling(
-                'p', attrs={'class': lambda x: x and 'article-desc' in x.split()}
-            )
+            p = div.find_next_sibling('p', attrs={'class': lambda x: x and 'article-desc' in x.split()})
             if p:
                 desc = self.tag_to_string(p)
             auth = div.find_next_sibling('p', attrs={'class': 'author'})

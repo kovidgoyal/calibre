@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
 
-
 import os
 
 from calibre import prints
@@ -83,17 +82,14 @@ is no need to specify an OPF file.
             'en for English, fr for French and so on). For identifiers, the '
             'syntax is {0} {2}. For boolean (yes/no) fields use true and false '
             'or yes and no.'
-        ).format('--field', '--list-fields', 'identifiers:isbn:XXXX,doi:YYYYY')
+        ).format('--field', '--list-fields', 'identifiers:isbn:XXXX,doi:YYYYY'),
     )
     parser.add_option(
         '-l',
         '--list-fields',
         action='store_true',
         default=False,
-        help=_(
-            'List the metadata field names that can be used'
-            ' with the --field option'
-        )
+        help=_('List the metadata field names that can be used with the --field option'),
     )
     return parser
 
@@ -102,8 +98,7 @@ def get_fields(dbctx):
     fm = dbctx.run('set_metadata', 'field_metadata')
     for key in sorted(fm.all_field_keys()):
         m = fm[key]
-        if (key not in {'formats', 'series_sort', 'ondevice', 'path',
-            'last_modified'} and m['is_editable'] and m['name']):
+        if key not in {'formats', 'series_sort', 'ondevice', 'path', 'last_modified'} and m['is_editable'] and m['name']:
             yield key, m
             if m['datatype'] == 'series':
                 si = m.copy()
@@ -131,10 +126,7 @@ def main(opts, args, dbctx):
             return False
 
     if len(args) < 1 or not verify_int(args[0]):
-        raise SystemExit(_(
-            'You must specify a record id as the '
-            'first argument'
-        ))
+        raise SystemExit(_('You must specify a record id as the first argument'))
     if len(args) < 2 and not opts.field:
         raise SystemExit(_('You must specify either a field or an OPF file'))
     book_id = int(args[0])
@@ -168,7 +160,8 @@ def main(opts, args, dbctx):
             vals[field] = val
         fvals = []
         for field, val in sorted(  # ensure series_index fields are set last
-                vals.items(), key=lambda k: 1 if k[0].endswith('_index') else 0):
+            vals.items(), key=lambda k: 1 if k[0].endswith('_index') else 0
+        ):
             if field.endswith('_index'):
                 try:
                     val = float(val)

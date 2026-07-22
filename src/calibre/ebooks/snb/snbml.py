@@ -1,10 +1,8 @@
-__license__ = 'GPL 3'
-__copyright__ = '2010, Li Fanxi <lifanxi@freemindworld.com>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2010, Li Fanxi <lifanxi@freemindworld.com>
 
-'''
+"""
 Transform OEB content into SNB format
-'''
+"""
 
 import os
 import re
@@ -53,7 +51,6 @@ CALIBRE_SNB_PRE_TAG = '<$$calibre_snb_pre_tag$$>'
 
 
 class SNBMLizer:
-
     curSubItem = ''
     # curText = [ ]
 
@@ -81,6 +78,7 @@ class SNBMLizer:
         from calibre.ebooks.oeb.base import XHTML
         from calibre.ebooks.oeb.stylizer import Stylizer
         from calibre.utils.xml_parse import safe_xml_fromstring
+
         output = ['']
         stylizer = Stylizer(self.item.data, self.item.href, self.oeb_book, self.opts, self.opts.output_profile)
         content = etree.tostring(self.item.data.find(XHTML('body')), encoding='unicode')
@@ -106,20 +104,17 @@ class SNBMLizer:
             if pos == -1:
                 line = line.strip(' \t\n\r\u3000')
             else:
-                etree.SubElement(bodyTree, 'text').text = \
-                    etree.CDATA(line[pos+len(CALIBRE_SNB_PRE_TAG):])
+                etree.SubElement(bodyTree, 'text').text = etree.CDATA(line[pos + len(CALIBRE_SNB_PRE_TAG) :])
                 continue
             if len(line) != 0:
                 if line.find(CALIBRE_SNB_IMG_TAG) == 0:
                     prefix = ProcessFileName(os.path.dirname(self.item.href))
                     if prefix != '':
-                        etree.SubElement(bodyTree, 'img').text = \
-                            prefix + '_' + line[len(CALIBRE_SNB_IMG_TAG):]
+                        etree.SubElement(bodyTree, 'img').text = prefix + '_' + line[len(CALIBRE_SNB_IMG_TAG) :]
                     else:
-                        etree.SubElement(bodyTree, 'img').text = \
-                            line[len(CALIBRE_SNB_IMG_TAG):]
+                        etree.SubElement(bodyTree, 'img').text = line[len(CALIBRE_SNB_IMG_TAG) :]
                 elif line.find(CALIBRE_SNB_BM_TAG) == 0:
-                    subitem = line[len(CALIBRE_SNB_BM_TAG):]
+                    subitem = line[len(CALIBRE_SNB_BM_TAG) :]
                     bodyTree = trees[subitem].find('.//body')
                     assert bodyTree is not None
                 else:
@@ -127,11 +122,9 @@ class SNBMLizer:
                         prefix = '\u3000\u3000'
                     else:
                         prefix = ''
-                    etree.SubElement(bodyTree, 'text').text = \
-                        etree.CDATA(str(prefix + line))
+                    etree.SubElement(bodyTree, 'text').text = etree.CDATA(str(prefix + line))
                 if self.opts and self.opts.snb_insert_empty_line:
-                    etree.SubElement(bodyTree, 'text').text = \
-                        etree.CDATA('')
+                    etree.SubElement(bodyTree, 'text').text = etree.CDATA('')
 
         return trees
 
@@ -185,7 +178,7 @@ class SNBMLizer:
                     if space != -1:
                         # Space was found.
                         short_lines.append(line[:space])
-                        line = line[space + 1:]
+                        line = line[space + 1 :]
                     # Space was not found.
                     elif False and self.opts.force_max_line_length:
                         # Force breaking at max_lenght.
@@ -197,7 +190,7 @@ class SNBMLizer:
                         if space != -1:
                             # Space was found.
                             short_lines.append(line[:space])
-                            line = line[space + 1:]
+                            line = line[space + 1 :]
                         else:
                             # No space was found cannot break line.
                             short_lines.append(line)
@@ -211,11 +204,9 @@ class SNBMLizer:
     def dump_text(self, subitems, elem, stylizer, end='', pre=False, li=''):
         from calibre.ebooks.oeb.base import XHTML_NS, barename, namespace
 
-        if not isinstance(elem.tag, (str, bytes)) \
-           or namespace(elem.tag) != XHTML_NS:
+        if not isinstance(elem.tag, (str, bytes)) or namespace(elem.tag) != XHTML_NS:
             p = elem.getparent()
-            if p is not None and isinstance(p.tag, (str, bytes)) and namespace(p.tag) == XHTML_NS \
-                    and elem.tail:
+            if p is not None and isinstance(p.tag, (str, bytes)) and namespace(p.tag) == XHTML_NS and elem.tail:
                 return [elem.tail]
             return ['']
 
@@ -227,8 +218,7 @@ class SNBMLizer:
                 self.curSubItem = elem.attrib['id']
                 text.append(f'\n\n{CALIBRE_SNB_BM_TAG}{self.curSubItem}\n\n')
 
-        if style['display'] in ('none', 'oeb-page-head', 'oeb-page-foot') \
-           or style['visibility'] == 'hidden':
+        if style['display'] in ('none', 'oeb-page-head', 'oeb-page-foot') or style['visibility'] == 'hidden':
             if hasattr(elem, 'tail') and elem.tail:
                 return [elem.tail]
             return ['']
@@ -255,7 +245,7 @@ class SNBMLizer:
         if tag == 'li':
             li = '- '
 
-        pre = (tag == 'pre' or pre)
+        pre = tag == 'pre' or pre
         # Process tags that contain text.
         if hasattr(elem, 'text') and elem.text:
             if pre:

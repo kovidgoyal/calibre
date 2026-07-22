@@ -42,6 +42,7 @@ from calibre.utils.localization import _, ngettext
 
 def current_db() -> Cache:
     from calibre.gui2.ui import get_gui
+
     ans = getattr(current_db, 'ans', None)
     if ans is not None:
         return ans.new_api
@@ -49,7 +50,6 @@ def current_db() -> Cache:
 
 
 class NotesResultsDelegate(ResultsDelegate):
-
     add_ellipsis = True
     emphasize_text = False
 
@@ -72,7 +72,6 @@ class NotesResultsDelegate(ResultsDelegate):
 
 
 class ResultsList(QTreeWidget):
-
     current_result_changed = pyqtSignal(object)
     note_edited = pyqtSignal(object, object)
     export_requested = pyqtSignal()
@@ -251,7 +250,6 @@ class ResultsList(QTreeWidget):
 
 
 class RestrictFields(QWidget):
-
     restriction_changed = pyqtSignal()
 
     def __init__(self, parent=None):
@@ -262,13 +260,21 @@ class RestrictFields(QWidget):
         self.restricted_fields = []
         self.add_button = b = QToolButton(self)
         b.setToolTip(_('Add categories to which to restrict results.\nWhen no categories are specified no restriction is in effect'))
-        b.setIcon(QIcon.ic('plus.png')), b.setText(_('Add')), b.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
+        (
+            b.setIcon(QIcon.ic('plus.png')),
+            b.setText(_('Add')),
+            b.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon),
+        )
         b.setPopupMode(QToolButton.ToolButtonPopupMode.InstantPopup)
         self.fields_menu = m = QMenu()
         b.setMenu(m)
         m.aboutToShow.connect(self.build_add_menu)
         self.remove_button = b = QToolButton(self)
-        b.setIcon(QIcon.ic('minus.png')), b.setText(_('Remove')), b.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
+        (
+            b.setIcon(QIcon.ic('minus.png')),
+            b.setText(_('Remove')),
+            b.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon),
+        )
         b.setPopupMode(QToolButton.ToolButtonPopupMode.InstantPopup)
         self.remove_fields_menu = m = QMenu()
         b.setMenu(m)
@@ -276,11 +282,13 @@ class RestrictFields(QWidget):
 
         db = current_db()
         fm = db.field_metadata
+
         def field_name(field):
             return fm[field].get('name') or field
+
         _fsn = db.field_supports_notes()
         assert not isinstance(_fsn, bool)
-        self.field_names = {f:field_name(f) for f in _fsn}
+        self.field_names = {f: field_name(f) for f in _fsn}
         self.field_labels = {f: QLabel(self.field_names[f], self) for f in sorted(self.field_names, key=self.field_names.__getitem__)}
         for l in self.field_labels.values():
             l.setVisible(False)
@@ -328,7 +336,6 @@ class RestrictFields(QWidget):
 
 
 class SearchInput(QWidget):
-
     show_next_signal = pyqtSignal()
     show_previous_signal = pyqtSignal()
     search_changed = pyqtSignal()
@@ -389,7 +396,6 @@ class SearchInput(QWidget):
 
 
 class NoteDisplay(QWidget):
-
     field = item_id = None
     edit_requested = pyqtSignal(str, int)
 
@@ -445,7 +451,6 @@ class NoteDisplay(QWidget):
 
 
 class NotesBrowser(Dialog):
-
     current_query = None
 
     def __init__(self, parent=None):
@@ -480,9 +485,13 @@ class NotesBrowser(Dialog):
 
         self.use_stemmer = us = QCheckBox(_('&Match on related words'))
         us.setChecked(gprefs['browse_notes_use_stemmer'])
-        us.setToolTip('<p>' + _(
-            'With this option searching for words will also match on any related words (supported in several languages). For'
-            ' example, in the English language: <i>correction</i> matches <i>correcting</i> and <i>corrected</i> as well'))
+        us.setToolTip(
+            '<p>'
+            + _(
+                'With this option searching for words will also match on any related words (supported in several languages). For'
+                ' example, in the English language: <i>correction</i> matches <i>correcting</i> and <i>corrected</i> as well'
+            )
+        )
         us.stateChanged.connect(lambda state: gprefs.set('browse_notes_use_stemmer', state != Qt.CheckState.Unchecked.value))
 
         h = QHBoxLayout()
@@ -494,6 +503,7 @@ class NotesBrowser(Dialog):
         b.setToolTip(_('Export the selected notes as HTML files'))
         h.addWidget(us), h.addStretch(10), h.addWidget(self.bb)
         from calibre.gui2.ui import get_gui
+
         gui = get_gui()
         if gui is not None:
             b = self.bb.addButton(_('Search books'), QDialogButtonBox.ButtonRole.ActionRole)
@@ -513,15 +523,18 @@ class NotesBrowser(Dialog):
         if vals:
             search_expression = ' OR '.join(f'{r["field"]}:"={ival}"' for ival in vals)
             from calibre.gui2.ui import get_gui
+
             get_gui(fail_if_absent=True).search.set_search_string(search_expression)
 
     def export_selected(self):
         results = tuple(self.results_list.selected_results())
         if not results:
-            return error_dialog(self, _('No results selected'), _(
-                'No results selected, nothing to export'), show=True)
-        path = choose_dir(self, 'export-notes-dir', ngettext(
-            'Choose folder for exported note', 'Choose folder for {} exported notes', len(results)).format(len(results)))
+            return error_dialog(self, _('No results selected'), _('No results selected, nothing to export'), show=True)
+        path = choose_dir(
+            self,
+            'export-notes-dir',
+            ngettext('Choose folder for exported note', 'Choose folder for {} exported notes', len(results)).format(len(results)),
+        )
         if not path:
             return
         with BusyCursor():
@@ -536,6 +549,7 @@ class NotesBrowser(Dialog):
 
     def note_edited(self, field, item_id):
         from calibre.gui2.ui import get_gui
+
         self.notes_display.refresh()
         self.results_list.update_item(field, item_id)
         gui = get_gui()
@@ -553,17 +567,21 @@ class NotesBrowser(Dialog):
             return
         try:
             with BusyCursor():
-                results = current_db().search_notes(
-                    highlight_start='\x1d', highlight_end='\x1d', snippet_size=64, **q
-                )
+                results = current_db().search_notes(highlight_start='\x1d', highlight_end='\x1d', snippet_size=64, **q)
                 self.results_list.set_results(results, bool(q['fts_engine_query']))
                 self.current_query = q
         except FTSQueryError as err:
-            return error_dialog(self, _('Invalid search expression'), '<p>' + _(
-                'The search expression: {0} is invalid. The search syntax used is the'
-                ' SQLite Full text Search Query syntax, <a href="{1}">described here</a>.').format(
-                    err.query, 'https://www.sqlite.org/fts5.html#full_text_query_syntax'),
-                det_msg=str(err), show=True)
+            return error_dialog(
+                self,
+                _('Invalid search expression'),
+                '<p>'
+                + _(
+                    'The search expression: {0} is invalid. The search syntax used is the'
+                    ' SQLite Full text Search Query syntax, <a href="{1}">described here</a>.'
+                ).format(err.query, 'https://www.sqlite.org/fts5.html#full_text_query_syntax'),
+                det_msg=str(err),
+                show=True,
+            )
 
     def keyPressEvent(self, a0):
         k = a0.key()
@@ -575,6 +593,7 @@ class NotesBrowser(Dialog):
 
 if __name__ == '__main__':
     from calibre.library import db
+
     app = Application([])
     setattr(current_db, 'ans', db(os.path.expanduser('~/test library')))
     br = NotesBrowser()

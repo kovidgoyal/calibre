@@ -1,9 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__   = 'GPL v3'
-__copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2013, Kovid Goyal <kovid at kovidgoyal.net>
 
 import sys
 import traceback
@@ -23,11 +19,11 @@ class Abort(Exception):
 
 
 class MetadataBackup(Thread):
-    '''
+    """
     Continuously backup changed metadata into OPF files
     in the book directory. This class runs in its own
     thread.
-    '''
+    """
 
     def __init__(self, db, interval=2, scheduling_interval=0.1):
         super().__init__(name='MetadataBackup', daemon=True)

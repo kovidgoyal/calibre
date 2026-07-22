@@ -56,6 +56,7 @@ def run_import_plugins(paths, group_id, tdir):
         except Exception:
             nfp = None
             import traceback
+
             traceback.print_exc()
         if nfp and os.access(nfp, os.R_OK) and not samefile(nfp, path):
             # Ensure that the filename is preserved so that

@@ -6,24 +6,21 @@ from calibre.web.feeds.recipes import BasicNewsRecipe
 
 class ceskyDenikRecipe(BasicNewsRecipe):
     __author__ = 'bubak'
-    title = u'denik.cz'
-    publisher = u''
-    description = u'Český deník'
+    title = 'denik.cz'
+    publisher = ''
+    description = 'Český deník'
     oldest_article = 1
     max_articles_per_feed = 20
     use_embedded_content = False
     remove_empty_feeds = True
 
-    feeds = [
-        (u'Z domova', u'http://www.denik.cz/rss/z_domova.html'), (u'Pražský deník - Moje Praha',
-                                                                  u'http://prazsky.denik.cz/rss/zpravy_region.html')
-    ]
+    feeds = [('Z domova', 'http://www.denik.cz/rss/z_domova.html'), ('Pražský deník - Moje Praha', 'http://prazsky.denik.cz/rss/zpravy_region.html')]
 
     language = 'cs'
     cover_url = 'http://g.denik.cz/images/loga/denik.png'
     remove_javascript = True
     no_stylesheets = True
-    extra_css             = '''
+    extra_css = '''
                             '''
 
     remove_tags = []

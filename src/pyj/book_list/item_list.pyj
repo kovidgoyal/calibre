@@ -2,14 +2,14 @@
 # License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 from __python__ import hash_literals
 
-from dom import build_rule, svgicon, add_extra_css, clear
 from elementmaker import E
 
 from book_list.theme import get_font_size, get_color
+from dom import build_rule, svgicon, add_extra_css, clear
 
 CLASS_NAME = 'generic-items-list'
 
-add_extra_css(def():
+add_extra_css(def ():
     sel = '.' + CLASS_NAME + ' '
     style = ''
     style += build_rule(sel, padding='0.75rem 1rem')
@@ -89,7 +89,7 @@ def build_list(container, items, subtitle):
     clear(c)
     c.classList.add(CLASS_NAME)
     if subtitle:
-        c.appendChild(E.p(subtitle, style="font-style:normal; font-weight:700; padding: 1em 1ex; border-bottom: solid 1px currentColor"))
+        c.appendChild(E.p(subtitle, style='font-style:normal; font-weight:700; padding: 1em 1ex; border-bottom: solid 1px currentColor'))
     ul = E.ul()
     c.appendChild(ul)
     has_icons = False
@@ -149,7 +149,7 @@ def build_list(container, items, subtitle):
 
 
 def create_side_action(icon, action=None, tooltip=None):
-    return {'icon':icon, 'action': action, 'tooltip': tooltip}
+    return {'icon': icon, 'action': action, 'tooltip': tooltip}
 
 
 def create_item(title, action=None, subtitle=None, icon=None, data=None, side_actions=None, nav_list_meta=None, li_class=None, row_class=None):

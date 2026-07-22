@@ -29,17 +29,17 @@ class Nzz(BasicNewsRecipe):
     keep_only_tags = [dict(name='section', attrs={'class': 'container--article'})]
 
     remove_tags = [
-        dict(name='div', attrs={'class': 'progressbar__wrapper'}),               # Reading progress.
-        dict(name='div', attrs={'class': 'headline__meta'}),                     # Article meta data.
-        dict(name='div', attrs={'class': 'items-start'}),                        # Article meta data.
+        dict(name='div', attrs={'class': 'progressbar__wrapper'}),  # Reading progress.
+        dict(name='div', attrs={'class': 'headline__meta'}),  # Article meta data.
+        dict(name='div', attrs={'class': 'items-start'}),  # Article meta data.
         dict(name='span', attrs={'class': 'image-description__author-single'}),  # Photo accreditation.
-        dict(name='span', attrs={'data-nzz-tid': 'image-description-author'}),   # Photo accreditation.
-        dict(name='div', attrs={'class': 'disabled-overlay'}),                   # "Please enable Javascript".
-        dict(name='section', attrs={'id': 'content-table'}),                     # Table of contents.
-        dict(name='div', attrs={'componenttype': 'articlelist'}),                # Article list inside the article.
-        dict(name='svg'),                                                        # Checkmark images.
-        dict(name='div', attrs={'componenttype': 'advertisement'}),              # Ads.
-        dict(name='div', attrs={'componenttype': 'alias-teaser-embed'}),         # Embedded teasers.
+        dict(name='span', attrs={'data-nzz-tid': 'image-description-author'}),  # Photo accreditation.
+        dict(name='div', attrs={'class': 'disabled-overlay'}),  # "Please enable Javascript".
+        dict(name='section', attrs={'id': 'content-table'}),  # Table of contents.
+        dict(name='div', attrs={'componenttype': 'articlelist'}),  # Article list inside the article.
+        dict(name='svg'),  # Checkmark images.
+        dict(name='div', attrs={'componenttype': 'advertisement'}),  # Ads.
+        dict(name='div', attrs={'componenttype': 'alias-teaser-embed'}),  # Embedded teasers.
     ]
 
     remove_tags_after = [
@@ -100,10 +100,7 @@ class Nzz(BasicNewsRecipe):
         encoded_data = json.dumps(json_data).encode('utf-8')
 
         # Create a mechanize Request object with the target URL, encoded data, and headers
-        req = Request(url='https://epaper.nzz.ch/epaper/1.0/findEditionsFromDate',
-                                data=encoded_data,
-                                headers=headers,
-                                method='POST')
+        req = Request(url='https://epaper.nzz.ch/epaper/1.0/findEditionsFromDate', data=encoded_data, headers=headers, method='POST')
 
         # Use mechanize to open the request and read the response
         browser = self.get_browser()
@@ -116,15 +113,9 @@ class Nzz(BasicNewsRecipe):
         return url
 
     def get_browser(self, *args, **kwargs):
-        kwargs['user_agent'] = (
-            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
-            'Chrome/115.0.0.0 Safari/537.36'
-        )
+        kwargs['user_agent'] = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36'
         br = BasicNewsRecipe.get_browser(self, *args, **kwargs)
-        br.addheaders += [
-            ('Referer', 'https://www.google.com/'),
-            ('X-Forwarded-For', '66.249.66.1')
-        ]
+        br.addheaders += [('Referer', 'https://www.google.com/'), ('X-Forwarded-For', '66.249.66.1')]
         return br
 
     def preprocess_html(self, soup):

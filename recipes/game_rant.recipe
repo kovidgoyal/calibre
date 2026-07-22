@@ -4,13 +4,14 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class AdvancedUserRecipe1718106336(BasicNewsRecipe):
-    title          = 'Game Rant'
+    title = 'Game Rant'
     language = 'en'
     __author__ = 'Spicy Poison'
     description = (
-            'Game Rant is a Digital Publication run by gamers with articles published for gamers'
-            ' with an emphasis on news, reviews, unique features, and interviews.'
-            ' Their information aims to tap into the topics and subjects that they, as gamers, are most passionate about.')
+        'Game Rant is a Digital Publication run by gamers with articles published for gamers'
+        ' with an emphasis on news, reviews, unique features, and interviews.'
+        ' Their information aims to tap into the topics and subjects that they, as gamers, are most passionate about.'
+    )
     publisher = 'Valnet Publishing Group'
     oldest_article = 7
     max_articles_per_feed = 50
@@ -20,9 +21,9 @@ class AdvancedUserRecipe1718106336(BasicNewsRecipe):
     encoding = 'utf-8'
     masthead_url = 'https://www.valnetinc.com/images/brand/gr-logo-full-colored-dark.svg'
     remove_empty_feeds = True
-    auto_cleanup   = True
+    auto_cleanup = True
 
-    feeds          = [
+    feeds = [
         ('Game News', 'https://gamerant.com/feed/gaming/'),
         # Platforms
         ('Platforms', 'https://gamerant.com/feed/platforms/'),
@@ -37,7 +38,6 @@ class AdvancedUserRecipe1718106336(BasicNewsRecipe):
         ('Game Reviews', 'https://gamerant.com/feed/game-reviews/'),
         ('Explainer', 'https://gamerant.com/feed/explainer/'),
         ('Game Rant Advance', 'https://gamerant.com/feed/game-rant-advance/'),
-
         ('Strategy Guides', 'https://gamerant.com/feed/strategy-guide/'),
         ('Threads', 'https://gamerant.com/feed/threads/'),
         ('Movies & TV', 'https://gamerant.com/feed/movies-tv/'),

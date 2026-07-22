@@ -1,9 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__   = 'GPL v3'
-__copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2013, Kovid Goyal <kovid at kovidgoyal.net>
 
 import re
 import sys
@@ -32,10 +28,10 @@ ALL_OPTS = {
     'opf': None,
     'cover': None,
     'jacket': False,
-    'remove_jacket':False,
-    'smarten_punctuation':False,
-    'remove_unused_css':False,
-    'remove_unused_images':False,
+    'remove_jacket': False,
+    'smarten_punctuation': False,
+    'remove_unused_css': False,
+    'remove_unused_images': False,
     'compress_images': False,
     'upgrade_book': False,
     'add_soft_hyphens': False,
@@ -54,8 +50,9 @@ CUSTOMIZATION = {
 SUPPORTED = {'EPUB', 'AZW3', 'KEPUB'}
 
 # Help {{{
-HELP = {'about': _(
-'''\
+HELP = {
+    'about': _(
+        '''\
 <p><i>Polishing books</i> is all about putting the shine of perfection onto
 your carefully crafted e-books.</p>
 
@@ -67,16 +64,16 @@ changes needed for the desired effect.</p>
 <p>You should use this tool as the last step in your e-book creation process.</p>
 {0}
 <p>Note that polishing only works on files in the %s formats.</p>\
-''')%_(' or ').join(sorted(f'<b>{x}</b>' for x in SUPPORTED)),
-
-'embed': _('''\
+'''
+    )
+    % _(' or ').join(sorted(f'<b>{x}</b>' for x in SUPPORTED)),
+    'embed': _('''\
 <p>Embed all fonts that are referenced in the document and are not already embedded.
 This will scan your computer for the fonts, and if they are found, they will be
 embedded into the document.</p>
 <p>Please ensure that you have the proper license for embedding the fonts used in this document.</p>
 '''),
-
-'subset': _('''\
+    'subset': _('''\
 <p>Subsetting fonts means reducing an embedded font to contain
 only the characters used from that font in the book. This
 greatly reduces the size of the font files (halving the font
@@ -94,50 +91,41 @@ characters or completely removed.</p>
 date you decide to add more text to your books, the newly added
 text might not be covered by the subset font.</p>
 '''),
-
-'jacket': _('''\
+    'jacket': _('''\
 <p>Insert a "book jacket" page at the start of the book that contains
 all the book metadata such as title, tags, authors, series, comments,
 etc. Any previous book jacket will be replaced.</p>'''),
-
-'remove_jacket': _('''\
+    'remove_jacket': _('''\
 <p>Remove a previous inserted book jacket page.</p>
 '''),
-
-'smarten_punctuation': _('''\
+    'smarten_punctuation': _('''\
 <p>Convert plain text dashes, ellipsis, quotes, multiple hyphens, etc. into their
 typographically correct equivalents.</p>
 <p>Note that the algorithm can sometimes generate incorrect results, especially
 when single quotes at the start of contractions are involved.</p>
 '''),
-
-'remove_unused_css': _('''\
+    'remove_unused_css': _('''\
 <p>Remove all unused CSS rules from stylesheets and &lt;style&gt; tags. Some books
 created from production templates can have a large number of extra CSS rules
 that don't match any actual content. These extra rules can slow down readers
 that need to parse them all.</p>
 '''),
-
-'compress_images': _('''\
+    'compress_images': _('''\
 <p>Losslessly compress images in the book, to reduce the filesize, without
 affecting image quality.</p>
 '''),
-
-'upgrade_book': _('''\
+    'upgrade_book': _('''\
 <p>Upgrade the internal structures of the book, if possible. For instance,
 upgrades EPUB 2 books to EPUB 3 books.</p>
 '''),
-
-'add_soft_hyphens': _('''\
+    'add_soft_hyphens': _('''\
 <p>Add soft hyphens to all words in the book. This allows the book to be rendered
 better when the text is justified, in readers that do not support hyphenation.</p>
 '''),
-
-'remove_soft_hyphens': _('''\
+    'remove_soft_hyphens': _('''\
 <p>Remove soft hyphens from all text in the book.</p>
 '''),
-
-'download_external_resources': _('''\
+    'download_external_resources': _('''\
 <p>Download external resources such as images, stylesheets, etc. that point to URLs instead of files in the book.
 All such resources will be downloaded and added to the book so that the book no longer references any external resources.
 </p>
@@ -155,12 +143,13 @@ def hfix(name, raw):
     return raw
 
 
-CLI_HELP = {x:hfix(x, re.sub(r'<.*?>', '', y)) for x, y in HELP.items()}
+CLI_HELP = {x: hfix(x, re.sub(r'<.*?>', '', y)) for x, y in HELP.items()}
 # }}}
 
 
 def update_metadata(ebook, new_opf):
     from calibre.ebooks.metadata.opf import get_metadata, set_metadata
+
     with ebook.open(ebook.opf_name, 'r+b') as stream, open(new_opf, 'rb') as ns:
         mi = get_metadata(ns)[0]
         mi.cover, mi.cover_data = None, (None, None)
@@ -197,6 +186,7 @@ def download_resources(ebook, report) -> bool:
 def polish_one(ebook, opts, report, customization=None):
     def rt(x):
         return report('\n### ' + x)
+
     jacket = None
     changed = False
     customization = customization or CUSTOMIZATION.copy()
@@ -270,11 +260,12 @@ def polish_one(ebook, opts, report, customization=None):
     if opts.remove_unused_css:
         rt(_('Removing unused CSS rules'))
         if remove_unused_css(
-            ebook, report,
+            ebook,
+            report,
             remove_unused_classes=customization['remove_unused_classes'],
             merge_rules=customization['merge_identical_selectors'],
             merge_rules_with_identical_properties=customization['merge_rules_with_identical_properties'],
-            remove_unreferenced_sheets=customization['remove_unreferenced_sheets']
+            remove_unreferenced_sheets=customization['remove_unreferenced_sheets'],
         ):
             changed = True
         report('')
@@ -312,6 +303,7 @@ def polish_one(ebook, opts, report, customization=None):
             download_resources(ebook, report)
         except Exception:
             import traceback
+
             report(_('Failed to download resources with error:'))
             report(traceback.format_exc())
         report('')
@@ -322,15 +314,15 @@ def polish_one(ebook, opts, report, customization=None):
 def polish(file_map, opts, log, report):
     st = time.time()
     for inbook, outbook in file_map.items():
-        report(_('## Polishing: %s')%(inbook.rpartition('.')[-1].upper()))
+        report(_('## Polishing: %s') % (inbook.rpartition('.')[-1].upper()))
         ebook = get_container(inbook, log)
         polish_one(ebook, opts, report)
         ebook.commit(outbook)
-        report('-'*70)
-    report(_('Polishing took: %.1f seconds')%(time.time()-st))
+        report('-' * 70)
+    report(_('Polishing took: %.1f seconds') % (time.time() - st))
 
 
-REPORT = '{0} REPORT {0}'.format('-'*30)
+REPORT = '{0} REPORT {0}'.format('-' * 30)
 
 
 def gui_polish(data):
@@ -339,7 +331,7 @@ def gui_polish(data):
         data.pop('opf')
     if not data.pop('do_cover'):
         data.pop('cover', None)
-    file_map = {x:x for x in files}
+    file_map = {x: x for x in files}
     opts = ALL_OPTS.copy()
     opts.update(data)
     O = namedtuple('O', ' '.join(ALL_OPTS))
@@ -366,18 +358,22 @@ def tweak_polish(container, actions, customization=None):
 
 def option_parser():
     from calibre.utils.config import OptionParser
-    USAGE = _('%prog [options] input_file [output_file]\n\n') + re.sub(
-        r'<.*?>', '', CLI_HELP['about'])
+
+    USAGE = _('%prog [options] input_file [output_file]\n\n') + re.sub(r'<.*?>', '', CLI_HELP['about'])
     parser = OptionParser(usage=USAGE)
     a = parser.add_option
     o = partial(a, default=False, action='store_true')
     o('--embed-fonts', '-e', dest='embed', help=CLI_HELP['embed'])
     o('--subset-fonts', '-f', dest='subset', help=CLI_HELP['subset'])
-    a('--cover', '-c', help=_(
-        'Path to a cover image. Changes the cover specified in the e-book. '
-        'If no cover is present, or the cover is not properly identified, inserts a new cover.'))
-    a('--opf', '-o', help=_(
-        'Path to an OPF file. The metadata in the book is updated from the OPF file.'))
+    a(
+        '--cover',
+        '-c',
+        help=_(
+            'Path to a cover image. Changes the cover specified in the e-book. '
+            'If no cover is present, or the cover is not properly identified, inserts a new cover.'
+        ),
+    )
+    a('--opf', '-o', help=_('Path to an OPF file. The metadata in the book is updated from the OPF file.'))
     o('--jacket', '-j', help=CLI_HELP['jacket'])
     o('--remove-jacket', help=CLI_HELP['remove_jacket'])
     o('--smarten-punctuation', '-p', help=CLI_HELP['smarten_punctuation'])
@@ -424,7 +420,7 @@ def main(args=None):
         log.error(_('You must specify at least one action to perform'))
         raise SystemExit(1)
 
-    polish({inbook:outbook}, popts, log, report.append)
+    polish({inbook: outbook}, popts, log, report.append)
     log('')
     log(REPORT)
     for msg in report:

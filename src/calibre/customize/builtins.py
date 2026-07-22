@@ -1,5 +1,4 @@
-__license__   = 'GPL v3'
-__copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
+# License: GPLv3 Copyright: 2008, Kovid Goyal <kovid at kovidgoyal.net>
 
 import glob
 import os
@@ -10,7 +9,7 @@ from calibre.ai.lm_studio import LMStudioAI
 from calibre.ai.ollama import OllamaAI
 from calibre.ai.open_router import OpenRouterAI
 from calibre.ai.openai_compatible import OpenAICompatible
-from calibre.constants import numeric_version
+from calibre.constants import ismacos, numeric_version
 from calibre.customize import FileTypePlugin, InterfaceActionBase, MetadataReaderPlugin, MetadataWriterPlugin, PreferencesPlugin, StoreBase
 from calibre.ebooks.html.to_zip import HTML2ZIP
 from calibre.ebooks.metadata.archive import ArchiveExtract, KPFExtract, get_comic_metadata
@@ -18,16 +17,18 @@ from calibre.utils.localization import _
 
 plugins = []
 
-
 # To archive plugins {{{
+
 
 class PML2PMLZ(FileTypePlugin):
     name = 'PML to PMLZ'
     author = 'John Schember'
-    description = _('Create a PMLZ archive containing the PML file '
+    description = _(
+        'Create a PMLZ archive containing the PML file '
         'and all images in the folder pmlname_img or images. '
         'This plugin is run every time you add '
-        'a PML file to the library.')
+        'a PML file to the library.'
+    )
     version = numeric_version
     file_types = {'pml'}
     supported_platforms = ['windows', 'osx', 'linux']
@@ -41,9 +42,8 @@ class PML2PMLZ(FileTypePlugin):
         pmlz.write(path_to_ebook, os.path.basename(path_to_ebook), zipfile.ZIP_DEFLATED)
 
         pml_img = os.path.splitext(path_to_ebook)[0] + '_img'
-        i_img = os.path.join(os.path.dirname(path_to_ebook),'images')
-        img_dir = pml_img if os.path.isdir(pml_img) else i_img if \
-            os.path.isdir(i_img) else ''
+        i_img = os.path.join(os.path.dirname(path_to_ebook), 'images')
+        img_dir = pml_img if os.path.isdir(pml_img) else i_img if os.path.isdir(i_img) else ''
         if img_dir:
             for image in glob.glob(os.path.join(img_dir, '*.png')):
                 pmlz.write(image, os.path.join('images', (os.path.basename(image))))
@@ -55,9 +55,11 @@ class PML2PMLZ(FileTypePlugin):
 class TXT2TXTZ(FileTypePlugin):
     name = 'TXT to TXTZ'
     author = 'John Schember'
-    description = _('Create a TXTZ archive when a TXT file is imported '
+    description = _(
+        'Create a TXTZ archive when a TXT file is imported '
         'containing Markdown or Textile references to images. The referenced '
-        'images as well as the TXT file are added to the archive.')
+        'images as well as the TXT file are added to the archive.'
+    )
     version = numeric_version
     file_types = {'txt', 'text', 'md', 'markdown', 'textile'}
     supported_platforms = ['windows', 'osx', 'linux']
@@ -76,6 +78,7 @@ class TXT2TXTZ(FileTypePlugin):
         if images:
             # Create TXTZ and put file plus images inside of it.
             import zipfile
+
             of = self.temporary_file('_plugin_txt2txtz.txtz')
             txtz = zipfile.ZipFile(of.name, 'w')
             # Add selected TXT file to archive.
@@ -85,6 +88,7 @@ class TXT2TXTZ(FileTypePlugin):
                 txtz.write(os.path.join(base_dir, 'metadata.opf'), 'metadata.opf', zipfile.ZIP_DEFLATED)
             else:
                 from calibre.ebooks.metadata.txt import get_metadata
+
                 with open(path_to_ebook, 'rb') as ebf:
                     mi = get_metadata(ebf)
                 opf = metadata_to_opf(mi)
@@ -103,11 +107,10 @@ class TXT2TXTZ(FileTypePlugin):
 plugins += [HTML2ZIP, PML2PMLZ, TXT2TXTZ, ArchiveExtract, KPFExtract]
 # }}}
 
-
 # Metadata reader plugins {{{
 
-class ComicMetadataReader(MetadataReaderPlugin):
 
+class ComicMetadataReader(MetadataReaderPlugin):
     name = 'Read comic metadata'
     file_types = {'cbr', 'cbz', 'cb7', 'cbc'}
     description = _('Extract cover from comic files')
@@ -118,6 +121,7 @@ class ComicMetadataReader(MetadataReaderPlugin):
     def get_metadata(self, stream, type):
         if type == 'cbc':
             from zipfile import ZipFile
+
             zf = ZipFile(stream)
             fcn = zf.open('comics.txt').read().decode('utf-8').splitlines()[0]
             oname = getattr(stream, 'name', None)
@@ -142,6 +146,7 @@ class ComicMetadataReader(MetadataReaderPlugin):
         else:
             from calibre.libunzip import extract_cover_image
         from calibre.ebooks.metadata import MetaInformation
+
         ret = extract_cover_image(stream)
         mi = MetaInformation(None, None)
         stream.seek(0)
@@ -161,283 +166,282 @@ class ComicMetadataReader(MetadataReaderPlugin):
 
 
 class CHMMetadataReader(MetadataReaderPlugin):
-
-    name        = 'Read CHM metadata'
-    file_types  = {'chm'}
+    name = 'Read CHM metadata'
+    file_types = {'chm'}
     description = _('Read metadata from %s files') % 'CHM'
 
     def get_metadata(self, stream, type):
         from calibre.ebooks.chm.metadata import get_metadata
+
         return get_metadata(stream)
 
 
 class EPUBMetadataReader(MetadataReaderPlugin):
-
-    name        = 'Read EPUB metadata'
-    file_types  = {'epub', 'kepub'}
+    name = 'Read EPUB metadata'
+    file_types = {'epub', 'kepub'}
     description = _('Read metadata from EPUB and KEPUB files')
 
     def get_metadata(self, stream, type):
         from calibre.ebooks.metadata.epub import get_metadata, get_quick_metadata
+
         if self.quick:
             return get_quick_metadata(stream, ftype=type)
         return get_metadata(stream, ftype=type)
 
 
 class FB2MetadataReader(MetadataReaderPlugin):
-
-    name        = 'Read FB2 metadata'
-    file_types  = {'fb2', 'fbz'}
-    description = _('Read metadata from %s files')%'FB2'
+    name = 'Read FB2 metadata'
+    file_types = {'fb2', 'fbz'}
+    description = _('Read metadata from %s files') % 'FB2'
 
     def get_metadata(self, stream, type):
         from calibre.ebooks.metadata.fb2 import get_metadata
+
         return get_metadata(stream)
 
 
 class HTMLMetadataReader(MetadataReaderPlugin):
-
-    name        = 'Read HTML metadata'
-    file_types  = {'html'}
-    description = _('Read metadata from %s files')%'HTML'
+    name = 'Read HTML metadata'
+    file_types = {'html'}
+    description = _('Read metadata from %s files') % 'HTML'
 
     def get_metadata(self, stream, type):
         from calibre.ebooks.metadata.html import get_metadata
+
         return get_metadata(stream)
 
 
 class HTMLZMetadataReader(MetadataReaderPlugin):
-
-    name        = 'Read HTMLZ metadata'
-    file_types  = {'htmlz'}
+    name = 'Read HTMLZ metadata'
+    file_types = {'htmlz'}
     description = _('Read metadata from %s files') % 'HTMLZ'
-    author      = 'John Schember'
+    author = 'John Schember'
 
     def get_metadata(self, stream, type):
         from calibre.ebooks.metadata.extz import get_metadata
+
         return get_metadata(stream)
 
 
 class IMPMetadataReader(MetadataReaderPlugin):
-
-    name        = 'Read IMP metadata'
-    file_types  = {'imp'}
-    description = _('Read metadata from %s files')%'IMP'
-    author      = 'Ashish Kulkarni'
+    name = 'Read IMP metadata'
+    file_types = {'imp'}
+    description = _('Read metadata from %s files') % 'IMP'
+    author = 'Ashish Kulkarni'
 
     def get_metadata(self, stream, type):
         from calibre.ebooks.metadata.imp import get_metadata
+
         return get_metadata(stream)
 
 
 class LITMetadataReader(MetadataReaderPlugin):
-
-    name        = 'Read LIT metadata'
-    file_types  = {'lit'}
-    description = _('Read metadata from %s files')%'LIT'
+    name = 'Read LIT metadata'
+    file_types = {'lit'}
+    description = _('Read metadata from %s files') % 'LIT'
 
     def get_metadata(self, stream, type):
         from calibre.ebooks.metadata.lit import get_metadata
+
         return get_metadata(stream)
 
 
 class LRFMetadataReader(MetadataReaderPlugin):
-
-    name        = 'Read LRF metadata'
-    file_types  = {'lrf'}
-    description = _('Read metadata from %s files')%'LRF'
+    name = 'Read LRF metadata'
+    file_types = {'lrf'}
+    description = _('Read metadata from %s files') % 'LRF'
 
     def get_metadata(self, stream, type):
         from calibre.ebooks.lrf.meta import get_metadata
+
         return get_metadata(stream)
 
 
 class LRXMetadataReader(MetadataReaderPlugin):
-
-    name        = 'Read LRX metadata'
-    file_types  = {'lrx'}
-    description = _('Read metadata from %s files')%'LRX'
+    name = 'Read LRX metadata'
+    file_types = {'lrx'}
+    description = _('Read metadata from %s files') % 'LRX'
 
     def get_metadata(self, stream, type):
         from calibre.ebooks.metadata.lrx import get_metadata
+
         return get_metadata(stream)
 
 
 class MOBIMetadataReader(MetadataReaderPlugin):
-
-    name        = 'Read MOBI metadata'
-    file_types  = {'mobi', 'prc', 'azw', 'azw3', 'azw4', 'pobi'}
-    description = _('Read metadata from %s files')%'MOBI'
+    name = 'Read MOBI metadata'
+    file_types = {'mobi', 'prc', 'azw', 'azw3', 'azw4', 'pobi'}
+    description = _('Read metadata from %s files') % 'MOBI'
 
     def get_metadata(self, stream, type):
         from calibre.ebooks.metadata.mobi import get_metadata
+
         return get_metadata(stream)
 
 
 class ODTMetadataReader(MetadataReaderPlugin):
-
-    name        = 'Read ODT metadata'
-    file_types  = {'odt'}
-    description = _('Read metadata from %s files')%'ODT'
+    name = 'Read ODT metadata'
+    file_types = {'odt'}
+    description = _('Read metadata from %s files') % 'ODT'
 
     def get_metadata(self, stream, type):
         from calibre.ebooks.metadata.odt import get_metadata
+
         return get_metadata(stream)
 
 
 class DocXMetadataReader(MetadataReaderPlugin):
-
-    name        = 'Read DOCX metadata'
-    file_types  = {'docx'}
-    description = _('Read metadata from %s files')%'DOCX'
+    name = 'Read DOCX metadata'
+    file_types = {'docx'}
+    description = _('Read metadata from %s files') % 'DOCX'
 
     def get_metadata(self, stream, type):
         from calibre.ebooks.metadata.docx import get_metadata
+
         return get_metadata(stream)
 
 
 class OPFMetadataReader(MetadataReaderPlugin):
-
-    name        = 'Read OPF metadata'
-    file_types  = {'opf'}
-    description = _('Read metadata from %s files')%'OPF'
+    name = 'Read OPF metadata'
+    file_types = {'opf'}
+    description = _('Read metadata from %s files') % 'OPF'
 
     def get_metadata(self, stream, type):
         from calibre.ebooks.metadata.opf import get_metadata
+
         return get_metadata(stream)[0]
 
 
 class PDBMetadataReader(MetadataReaderPlugin):
-
-    name        = 'Read PDB metadata'
-    file_types  = {'pdb', 'updb'}
+    name = 'Read PDB metadata'
+    file_types = {'pdb', 'updb'}
     description = _('Read metadata from %s files') % 'PDB'
-    author      = 'John Schember'
+    author = 'John Schember'
 
     def get_metadata(self, stream, type):
         from calibre.ebooks.metadata.pdb import get_metadata
+
         return get_metadata(stream)
 
 
 class PDFMetadataReader(MetadataReaderPlugin):
-
-    name        = 'Read PDF metadata'
-    file_types  = {'pdf'}
-    description = _('Read metadata from %s files')%'PDF'
+    name = 'Read PDF metadata'
+    file_types = {'pdf'}
+    description = _('Read metadata from %s files') % 'PDF'
 
     def get_metadata(self, stream, type):
         from calibre.ebooks.metadata.pdf import get_metadata, get_quick_metadata
+
         if self.quick:
             return get_quick_metadata(stream)
         return get_metadata(stream)
 
 
 class PMLMetadataReader(MetadataReaderPlugin):
-
-    name        = 'Read PML metadata'
-    file_types  = {'pml', 'pmlz'}
+    name = 'Read PML metadata'
+    file_types = {'pml', 'pmlz'}
     description = _('Read metadata from %s files') % 'PML'
-    author      = 'John Schember'
+    author = 'John Schember'
 
     def get_metadata(self, stream, type):
         from calibre.ebooks.metadata.pml import get_metadata
+
         return get_metadata(stream)
 
 
 class RARMetadataReader(MetadataReaderPlugin):
-
     name = 'Read RAR metadata'
     file_types = {'rar'}
     description = _('Read metadata from e-books in RAR archives')
 
     def get_metadata(self, stream, type):
         from calibre.ebooks.metadata.rar import get_metadata
+
         return get_metadata(stream)
 
 
 class RBMetadataReader(MetadataReaderPlugin):
-
-    name        = 'Read RB metadata'
-    file_types  = {'rb'}
-    description = _('Read metadata from %s files')%'RB'
-    author      = 'Ashish Kulkarni'
+    name = 'Read RB metadata'
+    file_types = {'rb'}
+    description = _('Read metadata from %s files') % 'RB'
+    author = 'Ashish Kulkarni'
 
     def get_metadata(self, stream, type):
         from calibre.ebooks.metadata.rb import get_metadata
+
         return get_metadata(stream)
 
 
 class RTFMetadataReader(MetadataReaderPlugin):
-
-    name        = 'Read RTF metadata'
-    file_types  = {'rtf'}
-    description = _('Read metadata from %s files')%'RTF'
+    name = 'Read RTF metadata'
+    file_types = {'rtf'}
+    description = _('Read metadata from %s files') % 'RTF'
 
     def get_metadata(self, stream, type):
         from calibre.ebooks.metadata.rtf import get_metadata
+
         return get_metadata(stream)
 
 
 class SNBMetadataReader(MetadataReaderPlugin):
-
-    name        = 'Read SNB metadata'
-    file_types  = {'snb'}
+    name = 'Read SNB metadata'
+    file_types = {'snb'}
     description = _('Read metadata from %s files') % 'SNB'
-    author      = 'Li Fanxi'
+    author = 'Li Fanxi'
 
     def get_metadata(self, stream, type):
         from calibre.ebooks.metadata.snb import get_metadata
+
         return get_metadata(stream)
 
 
 class TOPAZMetadataReader(MetadataReaderPlugin):
-
-    name        = 'Read Topaz metadata'
-    file_types  = {'tpz', 'azw1'}
-    description = _('Read metadata from %s files')%'MOBI'
+    name = 'Read Topaz metadata'
+    file_types = {'tpz', 'azw1'}
+    description = _('Read metadata from %s files') % 'MOBI'
 
     def get_metadata(self, stream, type):
         from calibre.ebooks.metadata.topaz import get_metadata
+
         return get_metadata(stream)
 
 
 class TXTMetadataReader(MetadataReaderPlugin):
-
-    name        = 'Read TXT metadata'
-    file_types  = {'txt'}
+    name = 'Read TXT metadata'
+    file_types = {'txt'}
     description = _('Read metadata from %s files') % 'TXT'
-    author      = 'John Schember'
+    author = 'John Schember'
 
     def get_metadata(self, stream, type):
         from calibre.ebooks.metadata.txt import get_metadata
+
         return get_metadata(stream)
 
 
 class TXTZMetadataReader(MetadataReaderPlugin):
-
-    name        = 'Read TXTZ metadata'
-    file_types  = {'txtz'}
+    name = 'Read TXTZ metadata'
+    file_types = {'txtz'}
     description = _('Read metadata from %s files') % 'TXTZ'
-    author      = 'John Schember'
+    author = 'John Schember'
 
     def get_metadata(self, stream, type):
         from calibre.ebooks.metadata.extz import get_metadata
+
         return get_metadata(stream)
 
 
 class ZipMetadataReader(MetadataReaderPlugin):
-
     name = 'Read ZIP metadata'
     file_types = {'zip', 'oebzip'}
     description = _('Read metadata from e-books in ZIP archives')
 
     def get_metadata(self, stream, type):
         from calibre.ebooks.metadata.zip import get_metadata
+
         return get_metadata(stream)
 
 
-plugins += [x for x in list(locals().values()) if isinstance(x, type) and
-                                        x.__name__.endswith('MetadataReader')]
+plugins += [x for x in list(locals().values()) if isinstance(x, type) and x.__name__.endswith('MetadataReader')]
 
 # }}}
 
@@ -445,154 +449,158 @@ plugins += [x for x in list(locals().values()) if isinstance(x, type) and
 
 
 class EPUBMetadataWriter(MetadataWriterPlugin):
-
     name = 'Set EPUB metadata'
     file_types = {'epub', 'kepub'}
     description = _('Set metadata in EPUB and KEPUB files')
 
     def set_metadata(self, stream, mi, type):
         from calibre.ebooks.metadata.epub import set_metadata
+
         q = self.site_customization or ''
-        set_metadata(stream, mi, apply_null=self.apply_null, force_identifiers=self.force_identifiers, ftype=type,
-                     add_missing_cover='disable-add-missing-cover' != q or type == 'kepub')
+        set_metadata(
+            stream,
+            mi,
+            apply_null=self.apply_null,
+            force_identifiers=self.force_identifiers,
+            ftype=type,
+            add_missing_cover='disable-add-missing-cover' != q or type == 'kepub',
+        )
 
     def customization_help(self, gui=False):
         h = 'disable-add-missing-cover'
         if gui:
             h = '<i>' + h + '</i>'
-        return _('Enter {0} below to have the EPUB metadata writer plugin not'
-                 ' add cover images to EPUB files that have no existing cover image.').format(h)
+        return _('Enter {0} below to have the EPUB metadata writer plugin not add cover images to EPUB files that have no existing cover image.').format(h)
 
 
 class FB2MetadataWriter(MetadataWriterPlugin):
-
     name = 'Set FB2 metadata'
     file_types = {'fb2', 'fbz'}
-    description = _('Set metadata in %s files')%'FB2'
+    description = _('Set metadata in %s files') % 'FB2'
 
     def set_metadata(self, stream, mi, type):
         from calibre.ebooks.metadata.fb2 import set_metadata
+
         set_metadata(stream, mi, apply_null=self.apply_null)
 
 
 class HTMLZMetadataWriter(MetadataWriterPlugin):
-
-    name        = 'Set HTMLZ metadata'
-    file_types  = {'htmlz'}
+    name = 'Set HTMLZ metadata'
+    file_types = {'htmlz'}
     description = _('Set metadata from %s files') % 'HTMLZ'
-    author      = 'John Schember'
+    author = 'John Schember'
 
     def set_metadata(self, stream, mi, type):
         from calibre.ebooks.metadata.extz import set_metadata
+
         set_metadata(stream, mi)
 
 
 class LRFMetadataWriter(MetadataWriterPlugin):
-
     name = 'Set LRF metadata'
     file_types = {'lrf'}
-    description = _('Set metadata in %s files')%'LRF'
+    description = _('Set metadata in %s files') % 'LRF'
 
     def set_metadata(self, stream, mi, type):
         from calibre.ebooks.lrf.meta import set_metadata
+
         set_metadata(stream, mi)
 
 
 class MOBIMetadataWriter(MetadataWriterPlugin):
-
-    name        = 'Set MOBI metadata'
-    file_types  = {'mobi', 'prc', 'azw', 'azw3', 'azw4'}
-    description = _('Set metadata in %s files')%'MOBI'
-    author      = 'Marshall T. Vandegrift'
+    name = 'Set MOBI metadata'
+    file_types = {'mobi', 'prc', 'azw', 'azw3', 'azw4'}
+    description = _('Set metadata in %s files') % 'MOBI'
+    author = 'Marshall T. Vandegrift'
 
     def set_metadata(self, stream, mi, type):
         from calibre.ebooks.metadata.mobi import set_metadata
+
         set_metadata(stream, mi)
 
 
 class PDBMetadataWriter(MetadataWriterPlugin):
-
-    name        = 'Set PDB metadata'
-    file_types  = {'pdb'}
+    name = 'Set PDB metadata'
+    file_types = {'pdb'}
     description = _('Set metadata from %s files') % 'PDB'
-    author      = 'John Schember'
+    author = 'John Schember'
 
     def set_metadata(self, stream, mi, type):
         from calibre.ebooks.metadata.pdb import set_metadata
+
         set_metadata(stream, mi)
 
 
 class PDFMetadataWriter(MetadataWriterPlugin):
-
-    name        = 'Set PDF metadata'
-    file_types  = {'pdf'}
+    name = 'Set PDF metadata'
+    file_types = {'pdf'}
     description = _('Set metadata in %s files') % 'PDF'
-    author      = 'Kovid Goyal'
+    author = 'Kovid Goyal'
 
     def set_metadata(self, stream, mi, type):
         from calibre.ebooks.metadata.pdf import set_metadata
+
         set_metadata(stream, mi)
 
 
 class RTFMetadataWriter(MetadataWriterPlugin):
-
     name = 'Set RTF metadata'
     file_types = {'rtf'}
-    description = _('Set metadata in %s files')%'RTF'
+    description = _('Set metadata in %s files') % 'RTF'
 
     def set_metadata(self, stream, mi, type):
         from calibre.ebooks.metadata.rtf import set_metadata
+
         set_metadata(stream, mi)
 
 
 class TOPAZMetadataWriter(MetadataWriterPlugin):
-
-    name        = 'Set TOPAZ metadata'
-    file_types  = {'tpz', 'azw1'}
-    description = _('Set metadata in %s files')%'TOPAZ'
-    author      = 'Greg Riker'
+    name = 'Set TOPAZ metadata'
+    file_types = {'tpz', 'azw1'}
+    description = _('Set metadata in %s files') % 'TOPAZ'
+    author = 'Greg Riker'
 
     def set_metadata(self, stream, mi, type):
         from calibre.ebooks.metadata.topaz import set_metadata
+
         set_metadata(stream, mi)
 
 
 class TXTZMetadataWriter(MetadataWriterPlugin):
-
-    name        = 'Set TXTZ metadata'
-    file_types  = {'txtz'}
+    name = 'Set TXTZ metadata'
+    file_types = {'txtz'}
     description = _('Set metadata from %s files') % 'TXTZ'
-    author      = 'John Schember'
+    author = 'John Schember'
 
     def set_metadata(self, stream, mi, type):
         from calibre.ebooks.metadata.extz import set_metadata
+
         set_metadata(stream, mi)
 
 
 class ODTMetadataWriter(MetadataWriterPlugin):
-
-    name        = 'Set ODT metadata'
-    file_types  = {'odt'}
-    description = _('Set metadata from %s files')%'ODT'
+    name = 'Set ODT metadata'
+    file_types = {'odt'}
+    description = _('Set metadata from %s files') % 'ODT'
 
     def set_metadata(self, stream, mi, type):
         from calibre.ebooks.metadata.odt import set_metadata
+
         return set_metadata(stream, mi)
 
 
 class DocXMetadataWriter(MetadataWriterPlugin):
-
-    name        = 'Set DOCX metadata'
-    file_types  = {'docx'}
-    description = _('Set metadata from %s files')%'DOCX'
+    name = 'Set DOCX metadata'
+    file_types = {'docx'}
+    description = _('Set metadata from %s files') % 'DOCX'
 
     def set_metadata(self, stream, mi, type):
         from calibre.ebooks.metadata.docx import set_metadata
+
         return set_metadata(stream, mi)
 
 
-plugins += [x for x in list(locals().values()) if isinstance(x, type) and
-                                        x.__name__.endswith('MetadataWriter')]
+plugins += [x for x in list(locals().values()) if isinstance(x, type) and x.__name__.endswith('MetadataWriter')]
 
 # }}}
 
@@ -668,7 +676,8 @@ plugins += [
     FB2Output,
     LITOutput,
     LRFOutput,
-    MOBIOutput, AZW3Output,
+    MOBIOutput,
+    AZW3Output,
     OEBOutput,
     PDBOutput,
     PDFOutput,
@@ -776,19 +785,40 @@ from calibre.devices.user_defined.driver import USER_DEFINED
 plugins += [
     HANLINV3,
     HANLINV5,
-    BLACKBERRY, PLAYBOOK,
-    CYBOOK, ORIZON, MUSE, DIVA,
+    BLACKBERRY,
+    PLAYBOOK,
+    CYBOOK,
+    ORIZON,
+    MUSE,
+    DIVA,
     ILIAD,
     IREXDR1000,
     IREXDR800,
-    JETBOOK, JETBOOK_MINI, MIBUK, JETBOOK_COLOR,
+    JETBOOK,
+    JETBOOK_MINI,
+    MIBUK,
+    JETBOOK_COLOR,
     SHINEBOOK,
-    POCKETBOOK360, POCKETBOOK301, POCKETBOOK602, POCKETBOOK701, POCKETBOOK360P,
-    POCKETBOOK622, PI2, POCKETBOOKHD, POCKETBOOK740,
-    KINDLE, KINDLE2, KINDLE_DX, KINDLE_FIRE,
-    NOOK, NOOK_COLOR,
-    PRS505, PRST1,
-    ANDROID, S60, WEBOS,
+    POCKETBOOK360,
+    POCKETBOOK301,
+    POCKETBOOK602,
+    POCKETBOOK701,
+    POCKETBOOK360P,
+    POCKETBOOK622,
+    PI2,
+    POCKETBOOKHD,
+    POCKETBOOK740,
+    KINDLE,
+    KINDLE2,
+    KINDLE_DX,
+    KINDLE_FIRE,
+    NOOK,
+    NOOK_COLOR,
+    PRS505,
+    PRST1,
+    ANDROID,
+    S60,
+    WEBOS,
     N770,
     E71X,
     E52,
@@ -805,24 +835,35 @@ plugins += [
     INVESBOOK,
     BOOX,
     BOOQ,
-    EB600, TOLINO,
+    EB600,
+    TOLINO,
     README,
-    N516, KIBANO,
-    THEBOOK, LIBREAIR,
+    N516,
+    KIBANO,
+    THEBOOK,
+    LIBREAIR,
     EB511,
     ELONEX,
     TECLAST_K3,
     NEWSMY,
-    PICO, SUNSTECH_EB700, ARCHOS7O, SOVOS, STASH, WEXLER,
+    PICO,
+    SUNSTECH_EB700,
+    ARCHOS7O,
+    SOVOS,
+    STASH,
+    WEXLER,
     IPAPYRUS,
     EDGE,
     SNE,
-    ALEX, ODYSSEY,
+    ALEX,
+    ODYSSEY,
     PALMPRE,
-    KOBO, KOBOTOUCH,
+    KOBO,
+    KOBOTOUCH,
     AZBOOKA,
     FOLDER_DEVICE_FOR_CONFIG,
-    AVANT, CERVANTES,
+    AVANT,
+    CERVANTES,
     MENTOR,
     SWEEX,
     PDNOVEL,
@@ -836,7 +877,13 @@ plugins += [
     EEEREADER,
     NEXTBOOK,
     ADAM,
-    MOOVYBOOK, COBY, EX124G, WAYTEQ, WOXTER, POCKETBOOK626, SONYDPTS1,
+    MOOVYBOOK,
+    COBY,
+    EX124G,
+    WAYTEQ,
+    WOXTER,
+    POCKETBOOK626,
+    SONYDPTS1,
     BOEYE_BEX,
     BOEYE_BDX,
     MTP_DEVICE,
@@ -1001,8 +1048,7 @@ class ActionRestart(InterfaceActionBase):
 class ActionOpenFolder(InterfaceActionBase):
     name = 'Open Folder'
     actual_plugin = 'calibre.gui2.actions.open:OpenFolderAction'
-    description = _('Open the folder that contains the book files in your'
-            ' calibre library')
+    description = _('Open the folder that contains the book files in your calibre library')
 
 
 class ActionAutoscrollBooks(InterfaceActionBase):
@@ -1020,8 +1066,7 @@ class ActionSendToDevice(InterfaceActionBase):
 class ActionConnectShare(InterfaceActionBase):
     name = 'Connect Share'
     actual_plugin = 'calibre.gui2.actions.device:ConnectShareAction'
-    description = _('Send books via email or the web. Also connect to'
-            ' folders on your computer as if they are devices')
+    description = _('Send books via email or the web. Also connect to folders on your computer as if they are devices')
 
 
 class ActionHelp(InterfaceActionBase):
@@ -1045,8 +1090,7 @@ class ActionSimilarBooks(InterfaceActionBase):
 class ActionChooseLibrary(InterfaceActionBase):
     name = 'Choose Library'
     actual_plugin = 'calibre.gui2.actions.choose_library:ChooseLibraryAction'
-    description = _('Switch between different calibre libraries and perform'
-            ' maintenance on them')
+    description = _('Switch between different calibre libraries and perform maintenance on them')
 
 
 class ActionAddToLibrary(InterfaceActionBase):
@@ -1094,8 +1138,7 @@ class ActionUnpackBook(InterfaceActionBase):
 class ActionNextMatch(InterfaceActionBase):
     name = 'Next Match'
     actual_plugin = 'calibre.gui2.actions.next_match:NextMatchAction'
-    description = _('Find the next or previous match when searching in '
-            'your calibre library in highlight mode')
+    description = _('Find the next or previous match when searching in your calibre library in highlight mode')
 
 
 class ActionPickRandom(InterfaceActionBase):
@@ -1144,6 +1187,13 @@ class ActionBooklistContextMenu(InterfaceActionBase):
     description = _('Open the context menu for the column')
 
 
+class ActionAirdrop(InterfaceActionBase):
+    name = 'AirDrop books'
+    author = 'Peter Warrington'
+    actual_plugin = 'calibre.gui2.actions.airdrop:AirdropAction'
+    description = _('Share books via AirDrop on macOS')
+
+
 class ActionAllActions(InterfaceActionBase):
     name = 'All GUI actions'
     author = 'Charles Haley'
@@ -1168,10 +1218,12 @@ class ActionStore(InterfaceActionBase):
 
     def config_widget(self):
         from calibre.gui2.store.config.store import config_widget as get_cw
+
         return get_cw()
 
     def save_settings(self, config_widget):
         from calibre.gui2.store.config.store import save_settings as save
+
         save(config_widget)
 
 
@@ -1188,18 +1240,62 @@ class ActionPluginUpdater(InterfaceActionBase):
     actual_plugin = 'calibre.gui2.actions.plugin_updates:PluginUpdaterAction'
 
 
-plugins += [ActionAdd, ActionAllActions, ActionColumnTooltip, ActionFetchAnnotations,
-        ActionGenerateCatalog, ActionConvert, ActionDelete, ActionEditMetadata, ActionView,
-        ActionFetchNews, ActionSaveToDisk, ActionQuickview, ActionPolish, ActionLLMBook,
-        ActionShowBookDetails, ActionRestart, ActionOpenFolder, ActionConnectShare,
-        ActionSendToDevice, ActionHelp, ActionPreferences, ActionSimilarBooks,
-        ActionAddToLibrary, ActionEditCollections, ActionMatchBooks, ActionShowMatchedBooks, ActionChooseLibrary,
-        ActionCopyToLibrary, ActionTweakEpub, ActionUnpackBook, ActionNextMatch, ActionStore,
-        ActionPluginUpdater, ActionPickRandom, ActionEditToC, ActionSortBy,
-        ActionMarkBooks, ActionEmbed, ActionTemplateTester, ActionTagMapper, ActionAuthorMapper,
-        ActionVirtualLibrary, ActionBrowseAnnotations, ActionTemplateFunctions, ActionAutoscrollBooks,
-        ActionFullTextSearch, ActionManageCategories, ActionBooklistContextMenu, ActionSavedSearches,
-        ActionLayoutActions, ActionBrowseNotes,]
+plugins += [
+    ActionAdd,
+    ActionAllActions,
+    ActionColumnTooltip,
+    ActionFetchAnnotations,
+    ActionGenerateCatalog,
+    ActionConvert,
+    ActionDelete,
+    ActionEditMetadata,
+    ActionView,
+    ActionFetchNews,
+    ActionSaveToDisk,
+    ActionQuickview,
+    ActionPolish,
+    ActionLLMBook,
+    ActionShowBookDetails,
+    ActionRestart,
+    ActionOpenFolder,
+    ActionConnectShare,
+    ActionSendToDevice,
+    ActionHelp,
+    ActionPreferences,
+    ActionSimilarBooks,
+    ActionAddToLibrary,
+    ActionEditCollections,
+    ActionMatchBooks,
+    ActionShowMatchedBooks,
+    ActionChooseLibrary,
+    ActionCopyToLibrary,
+    ActionTweakEpub,
+    ActionUnpackBook,
+    ActionNextMatch,
+    ActionStore,
+    ActionPluginUpdater,
+    ActionPickRandom,
+    ActionEditToC,
+    ActionSortBy,
+    ActionMarkBooks,
+    ActionEmbed,
+    ActionTemplateTester,
+    ActionTagMapper,
+    ActionAuthorMapper,
+    ActionVirtualLibrary,
+    ActionBrowseAnnotations,
+    ActionTemplateFunctions,
+    ActionAutoscrollBooks,
+    ActionFullTextSearch,
+    ActionManageCategories,
+    ActionBooklistContextMenu,
+    ActionSavedSearches,
+    ActionLayoutActions,
+    ActionBrowseNotes,
+]
+
+if ismacos:
+    plugins.append(ActionAirdrop)
 
 # }}}
 
@@ -1215,8 +1311,7 @@ class LookAndFeel(PreferencesPlugin):
     category_order = 1
     name_order = 1
     config_widget = 'calibre.gui2.preferences.look_feel'
-    description = _('Adjust the look and feel of the calibre interface'
-            ' to suit your tastes')
+    description = _('Adjust the look and feel of the calibre interface to suit your tastes')
 
 
 class Behavior(PreferencesPlugin):
@@ -1252,8 +1347,7 @@ class Toolbar(PreferencesPlugin):
     category_order = 1
     name_order = 4
     config_widget = 'calibre.gui2.preferences.toolbar'
-    description = _('Customize the toolbars and context menus, changing which'
-            ' actions are available in each')
+    description = _('Customize the toolbars and context menus, changing which actions are available in each')
 
 
 class Search(PreferencesPlugin):
@@ -1318,8 +1412,7 @@ class Adding(PreferencesPlugin):
     category_order = 3
     name_order = 1
     config_widget = 'calibre.gui2.preferences.adding'
-    description = _('Control how calibre reads metadata from files when '
-            'adding books')
+    description = _('Control how calibre reads metadata from files when adding books')
 
 
 class Saving(PreferencesPlugin):
@@ -1331,8 +1424,7 @@ class Saving(PreferencesPlugin):
     category_order = 3
     name_order = 2
     config_widget = 'calibre.gui2.preferences.saving'
-    description = _('Control how calibre exports files from its database '
-            'to disk when using Save to disk')
+    description = _('Control how calibre exports files from its database to disk when using Save to disk')
 
 
 class Sending(PreferencesPlugin):
@@ -1344,8 +1436,7 @@ class Sending(PreferencesPlugin):
     category_order = 3
     name_order = 3
     config_widget = 'calibre.gui2.preferences.sending'
-    description = _('Control how calibre transfers files to your '
-            'e-book reader')
+    description = _('Control how calibre transfers files to your e-book reader')
 
 
 class Plugboard(PreferencesPlugin):
@@ -1381,8 +1472,7 @@ class Email(PreferencesPlugin):
     category_order = 4
     name_order = 1
     config_widget = 'calibre.gui2.preferences.emailp'
-    description = _('Setup sharing of books via email. Can be used '
-            'for automatic sending of downloaded news to your devices')
+    description = _('Setup sharing of books via email. Can be used for automatic sending of downloaded news to your devices')
 
 
 class Server(PreferencesPlugin):
@@ -1394,9 +1484,7 @@ class Server(PreferencesPlugin):
     category_order = 4
     name_order = 2
     config_widget = 'calibre.gui2.preferences.server'
-    description = _('Setup the calibre Content server which will '
-            'give you access to your calibre library from anywhere, '
-            'on any device, over the internet')
+    description = _('Setup the calibre Content server which will give you access to your calibre library from anywhere, on any device, over the internet')
 
 
 class MetadataSources(PreferencesPlugin):
@@ -1420,8 +1508,7 @@ class IgnoredDevices(PreferencesPlugin):
     category_order = 4
     name_order = 4
     config_widget = 'calibre.gui2.preferences.ignored_devices'
-    description = _('Control which devices calibre will ignore when they are connected '
-            'to the computer.')
+    description = _('Control which devices calibre will ignore when they are connected to the computer.')
 
 
 class Plugins(PreferencesPlugin):
@@ -1433,8 +1520,7 @@ class Plugins(PreferencesPlugin):
     category_order = 5
     name_order = 1
     config_widget = 'calibre.gui2.preferences.plugins'
-    description = _('Add/remove/customize various bits of calibre '
-            'functionality')
+    description = _('Add/remove/customize various bits of calibre functionality')
 
 
 class Tweaks(PreferencesPlugin):
@@ -1473,10 +1559,29 @@ class Misc(PreferencesPlugin):
     description = _('Miscellaneous advanced configuration')
 
 
-plugins += [LookAndFeel, Behavior, Columns, Toolbar, Search, InputOptions,
-        CommonOptions, OutputOptions, Adding, Saving, Sending, Plugboard,
-        Email, Server, Plugins, Tweaks, Misc, TemplateFunctions,
-        MetadataSources, Keyboard, IgnoredDevices]
+plugins += [
+    LookAndFeel,
+    Behavior,
+    Columns,
+    Toolbar,
+    Search,
+    InputOptions,
+    CommonOptions,
+    OutputOptions,
+    Adding,
+    Saving,
+    Sending,
+    Plugboard,
+    Email,
+    Server,
+    Plugins,
+    Tweaks,
+    Misc,
+    TemplateFunctions,
+    MetadataSources,
+    Keyboard,
+    IgnoredDevices,
+]
 
 # }}}
 
@@ -1585,7 +1690,9 @@ class StoreArchiveOrgStore(StoreBase):
 
 class StoreBubokPublishingStore(StoreBase):
     name = 'Bubok Spain'
-    description = 'Bubok Publishing is a publisher, library and store of books of authors from all around the world. They have a big amount of books of a lot of topics'  # noqa: E501
+    description = (
+        'Bubok Publishing is a publisher, library and store of books of authors from all around the world. They have a big amount of books of a lot of topics'  # noqa: E501
+    )
     actual_plugin = 'calibre.gui2.store.stores.bubok_publishing_plugin:BubokPublishingStore'
 
     drm_free_only = True
@@ -1595,7 +1702,9 @@ class StoreBubokPublishingStore(StoreBase):
 
 class StoreBubokPortugalStore(StoreBase):
     name = 'Bubok Portugal'
-    description = 'Bubok Publishing Portugal is a publisher, library and store of books of authors from Portugal. They have a big amount of books of a lot of topics'  # noqa: E501
+    description = (
+        'Bubok Publishing Portugal is a publisher, library and store of books of authors from Portugal. They have a big amount of books of a lot of topics'  # noqa: E501
+    )
     actual_plugin = 'calibre.gui2.store.stores.bubok_portugal_plugin:BubokPortugalStore'
 
     drm_free_only = True
@@ -1695,6 +1804,7 @@ class StoreEbooksGratuitsStore(StoreBase):
     formats = ['EPUB', 'MOBI', 'PDF', 'PDB']
     drm_free_only = True
 
+
 # class StoreEBookShoppeUKStore(StoreBase):
 #     name = 'ebookShoppe UK'
 #     author = 'Charles Haley'
@@ -1709,7 +1819,7 @@ class StoreEbooksGratuitsStore(StoreBase):
 class StoreEmpikStore(StoreBase):
     name = 'Empik'
     author = 'Tomasz Długosz'
-    description  = 'Empik to marka o unikalnym dziedzictwie i legendarne miejsce, dawne “okno na świat”. Jest obecna w polskim krajobrazie kulturalnym od 60 lat (wcześniej jako Kluby Międzynarodowej Prasy i Książki).'  # noqa: E501
+    description = 'Empik to marka o unikalnym dziedzictwie i legendarne miejsce, dawne “okno na świat”. Jest obecna w polskim krajobrazie kulturalnym od 60 lat (wcześniej jako Kluby Międzynarodowej Prasy i Książki).'  # noqa: E501
     actual_plugin = 'calibre.gui2.store.stores.empik_plugin:EmpikStore'
 
     headquarters = 'PL'
@@ -1982,9 +2092,13 @@ if __name__ == '__main__':
     # Test load speed
     import subprocess
     import textwrap
+
     try:
-        subprocess.check_call(['python', '-c', textwrap.dedent(
-        '''
+        subprocess.check_call([
+            'python',
+            '-c',
+            textwrap.dedent(
+                '''
         import init_calibre
 
         def doit():
@@ -2001,12 +2115,16 @@ if __name__ == '__main__':
         show_stats()
 
         '''
-        )])
+            ),
+        ])
     except subprocess.CalledProcessError:
         raise SystemExit(1)
     try:
-        subprocess.check_call(['python', '-c', textwrap.dedent(
-        '''
+        subprocess.check_call([
+            'python',
+            '-c',
+            textwrap.dedent(
+                '''
         import time, sys, init_calibre  # noqa: F401
         st = time.time()
         import calibre.customize.builtins
@@ -2029,6 +2147,8 @@ if __name__ == '__main__':
         print('Time taken to import all plugins: %.2f'%t)
         sys.exit(ret)
 
-        ''')])
+        '''
+            ),
+        ])
     except subprocess.CalledProcessError:
         raise SystemExit(1)

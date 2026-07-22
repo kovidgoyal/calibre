@@ -7,8 +7,7 @@ from calibre.web.feeds.news import BasicNewsRecipe, classes
 
 class NatGeo(BasicNewsRecipe):
     title = 'National Geographic'
-    description = ('News articles from The National Geographic, Download Monthly. '
-                   'Inspiring people to care about the planet since 1888')
+    description = 'News articles from The National Geographic, Download Monthly. Inspiring people to care about the planet since 1888'
     language = 'en'
     encoding = 'utf8'
     publisher = 'nationalgeographic.com'
@@ -58,10 +57,7 @@ class NatGeo(BasicNewsRecipe):
         # png = re.findall('https://i\.natgeofe\.com\S+?national-geographic-\S+?\.jpg', soup.decode('utf-8'))
         from datetime import date
 
-        url = (
-            'https://www.nationalgeographic.com/magazine/issue/'
-            + (date.today().strftime('%B-%Y')).lower()
-        )
+        url = 'https://www.nationalgeographic.com/magazine/issue/' + (date.today().strftime('%B-%Y')).lower()
         soup = self.index_to_soup(url)
         png = soup.find('meta', attrs={'property': 'og:image'})['content'].split('?')
         return png[0] + '?w=1000&h=1000'
@@ -94,9 +90,7 @@ class NatGeo(BasicNewsRecipe):
             section = self.tag_to_string(article.find(**classes('SectionLabel')))
             if section.startswith('Paid Content'):
                 continue
-            title = self.tag_to_string(
-                article.find(**classes('PromoTile__Title--truncated'))
-            )
+            title = self.tag_to_string(article.find(**classes('PromoTile__Title--truncated')))
             articles = ans.setdefault(section, [])
             articles.append({'title': title, 'url': url})
         self.log(pformat(ans))

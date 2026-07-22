@@ -1,9 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__   = 'GPL v3'
-__copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2012, Kovid Goyal <kovid@kovidgoyal.net>
 
 import numbers
 import os
@@ -20,7 +16,7 @@ from calibre.utils.localization import _
 
 
 class BIBTEX(CatalogPlugin):
-    'BIBTEX catalog generator'
+    "BIBTEX catalog generator"
 
     Option = namedtuple('Option', 'option, default, dest, action, help')
 
@@ -32,82 +28,94 @@ class BIBTEX(CatalogPlugin):
     file_types = {'bib'}
 
     cli_options = [
-            Option('--fields',
-                default='all',
-                dest='fields',
-                action=None,
-                help=_('The fields to output when cataloging books in the '
-                    'database.  Should be a comma-separated list of fields.\n'
-                    'Available fields: %(fields)s.\n'
-                    'plus user-created custom fields.\n'
-                    'Example: %(opt)s=title,authors,tags\n'
-                    "Default: '%%default'\n"
-                    "Applies to: BIBTEX output format")%dict(
-                        fields=', '.join(FIELDS), opt='--fields')),
-
-            Option('--sort-by',
-                default='id',
-                dest='sort_by',
-                action=None,
-                help=_('Output field to sort on.\n'
+        Option(
+            '--fields',
+            default='all',
+            dest='fields',
+            action=None,
+            help=_(
+                'The fields to output when cataloging books in the '
+                'database.  Should be a comma-separated list of fields.\n'
+                'Available fields: %(fields)s.\n'
+                'plus user-created custom fields.\n'
+                'Example: %(opt)s=title,authors,tags\n'
+                "Default: '%%default'\n"
+                "Applies to: BIBTEX output format"
+            )
+            % dict(fields=', '.join(FIELDS), opt='--fields'),
+        ),
+        Option(
+            '--sort-by',
+            default='id',
+            dest='sort_by',
+            action=None,
+            help=_(
+                'Output field to sort on.\n'
                 'Available fields: author_sort, id, rating, size, timestamp, title.\n'
                 "Default: '%default'\n"
-                "Applies to: BIBTEX output format")),
-
-            Option('--create-citation',
-                default='True',
-                dest='impcit',
-                action=None,
-                help=_('Create a citation for BibTeX entries.\n'
+                "Applies to: BIBTEX output format"
+            ),
+        ),
+        Option(
+            '--create-citation',
+            default='True',
+            dest='impcit',
+            action=None,
+            help=_("Create a citation for BibTeX entries.\nBoolean value: True, False\nDefault: '%default'\nApplies to: BIBTEX output format"),
+        ),
+        Option(
+            '--add-files-path',
+            default='True',
+            dest='addfiles',
+            action=None,
+            help=_(
+                'Create a file entry if formats is selected for BibTeX entries.\n'
                 'Boolean value: True, False\n'
                 "Default: '%default'\n"
-                "Applies to: BIBTEX output format")),
-
-            Option('--add-files-path',
-                default='True',
-                dest='addfiles',
-                action=None,
-                help=_('Create a file entry if formats is selected for BibTeX entries.\n'
-                'Boolean value: True, False\n'
-                "Default: '%default'\n"
-                "Applies to: BIBTEX output format")),
-
-            Option('--citation-template',
-                default='{authors}{id}',
-                dest='bib_cit',
-                action=None,
-                help=_('The template for citation creation from database fields.\n'
-                    'Should be a template with {} enclosed fields.\n'
-                    'Available fields: %s.\n'
-                    "Default: '%%default'\n"
-                    "Applies to: BIBTEX output format")%', '.join(TEMPLATE_ALLOWED_FIELDS)),
-
-            Option('--choose-encoding',
-                default='utf8',
-                dest='bibfile_enc',
-                action=None,
-                help=_('BibTeX file encoding output.\n'
-                'Available types: utf8, cp1252, ascii.\n'
-                "Default: '%default'\n"
-                "Applies to: BIBTEX output format")),
-
-            Option('--choose-encoding-configuration',
-                default='strict',
-                dest='bibfile_enctag',
-                action=None,
-                help=_('BibTeX file encoding flag.\n'
+                "Applies to: BIBTEX output format"
+            ),
+        ),
+        Option(
+            '--citation-template',
+            default='{authors}{id}',
+            dest='bib_cit',
+            action=None,
+            help=_(
+                'The template for citation creation from database fields.\n'
+                'Should be a template with {} enclosed fields.\n'
+                'Available fields: %s.\n'
+                "Default: '%%default'\n"
+                "Applies to: BIBTEX output format"
+            )
+            % ', '.join(TEMPLATE_ALLOWED_FIELDS),
+        ),
+        Option(
+            '--choose-encoding',
+            default='utf8',
+            dest='bibfile_enc',
+            action=None,
+            help=_("BibTeX file encoding output.\nAvailable types: utf8, cp1252, ascii.\nDefault: '%default'\nApplies to: BIBTEX output format"),
+        ),
+        Option(
+            '--choose-encoding-configuration',
+            default='strict',
+            dest='bibfile_enctag',
+            action=None,
+            help=_(
+                'BibTeX file encoding flag.\n'
                 'Available types: strict, replace, ignore, backslashreplace.\n'
                 "Default: '%default'\n"
-                "Applies to: BIBTEX output format")),
-
-            Option('--entry-type',
-                default='book',
-                dest='bib_entry',
-                action=None,
-                help=_('Entry type for BibTeX catalog.\n'
-                'Available types: book, misc, mixed.\n'
-                "Default: '%default'\n"
-                "Applies to: BIBTEX output format"))]
+                "Applies to: BIBTEX output format"
+            ),
+        ),
+        Option(
+            '--entry-type',
+            default='book',
+            dest='bib_entry',
+            action=None,
+            help=_("Entry type for BibTeX catalog.\nAvailable types: book, misc, mixed.\nDefault: '%default'\nApplies to: BIBTEX output format"),
+        ),
+    ]
 
     def run(self, path_to_output, opts, db, ids=None, notification=DummyReporter()):
         from calibre.library.save_to_disk import preprocess_template
@@ -119,8 +127,7 @@ class BIBTEX(CatalogPlugin):
 
         library_name = os.path.basename(db.library_path)
 
-        def create_bibtex_entry(entry, fields, mode, template_citation,
-                                    bibtexdict, db, citation_bibtex=True, calibre_files=True):
+        def create_bibtex_entry(entry, fields, mode, template_citation, bibtexdict, db, citation_bibtex=True, calibre_files=True):
 
             # Bibtex doesn't like UTF-8 but keep unicode until writing
             # Define starting chain or if book valid strict and not book return a Fail string
@@ -136,8 +143,7 @@ class BIBTEX(CatalogPlugin):
 
             if citation_bibtex:
                 # Citation tag
-                bibtex_entry.append(make_bibtex_citation(entry, template_citation,
-                    bibtexdict))
+                bibtex_entry.append(make_bibtex_citation(entry, template_citation, bibtexdict))
                 bibtex_entry = [' '.join(bibtex_entry)]
 
             for field in fields:
@@ -208,8 +214,7 @@ class BIBTEX(CatalogPlugin):
                     formats = [format.rpartition('.')[2].lower() for format in item]
                     bibtex_entry.append('formats = "{}"'.format(', '.join(formats)))
                     if calibre_files:
-                        files = [':{}:{}'.format(format, format.rpartition('.')[2].upper())
-                            for format in item]
+                        files = [':{}:{}'.format(format, format.rpartition('.')[2].upper()) for format in item]
                         bibtex_entry.append('file = "{}"'.format(', '.join(files)))
 
                 elif field == 'series_index':
@@ -265,16 +270,14 @@ class BIBTEX(CatalogPlugin):
                 else:
                     return ''
 
-            if len(template_citation) >0:
-                tpl_citation = bibtexclass.utf8ToBibtex(
-                    bibtexclass.ValidateCitationKey(re.sub(r'\{[^{}]*\}',
-                        tpl_replace, template_citation)))
+            if len(template_citation) > 0:
+                tpl_citation = bibtexclass.utf8ToBibtex(bibtexclass.ValidateCitationKey(re.sub(r'\{[^{}]*\}', tpl_replace, template_citation)))
 
-                if len(tpl_citation) >0:
+                if len(tpl_citation) > 0:
                     return tpl_citation
 
             if len(entry['isbn']) > 0:
-                template_citation = '{}'.format(re.sub(r'[\D]','', entry['isbn']))
+                template_citation = '{}'.format(re.sub(r'[\D]', '', entry['isbn']))
 
             else:
                 template_citation = '{}'.format(str(entry['id']))
@@ -361,14 +364,14 @@ class BIBTEX(CatalogPlugin):
         # Check citation choice and go to default in case of bad CLI
         if isinstance(opts.impcit, (str, bytes)):
             if opts.impcit == 'False':
-                citation_bibtex= False
+                citation_bibtex = False
             elif opts.impcit == 'True':
-                citation_bibtex= True
+                citation_bibtex = True
             else:
                 log.warn('Incorrect --create-citation, revert to default')
-                citation_bibtex= True
+                citation_bibtex = True
         else:
-            citation_bibtex= opts.impcit
+            citation_bibtex = opts.impcit
 
         # Check add file entry and go to default in case of bad CLI
         if isinstance(opts.addfiles, (str, bytes)):
@@ -378,7 +381,7 @@ class BIBTEX(CatalogPlugin):
                 addfiles_bibtex = True
             else:
                 log.warn('Incorrect --add-files-path, revert to default')
-                addfiles_bibtex= True
+                addfiles_bibtex = True
         else:
             addfiles_bibtex = opts.addfiles
 
@@ -403,9 +406,10 @@ class BIBTEX(CatalogPlugin):
                     entry['ondevice'] = db.catalog_plugin_on_device_temp_mapping[entry['id']]['ondevice']
 
             # outfile.write('%%%Calibre catalog\n%%%{0} entries in catalog\n\n'.format(nb_entries))
-            outfile.write('@preamble{"This catalog of %d entries was generated by calibre on %s"}\n\n'  # noqa: UP031
-                % (nb_entries, strftime('%A, %d. %B %Y %H:%M')))
+            outfile.write(
+                '@preamble{"This catalog of %d entries was generated by calibre on %s"}\n\n'  # noqa: UP031
+                % (nb_entries, strftime('%A, %d. %B %Y %H:%M'))
+            )
 
             for entry in data:
-                outfile.write(create_bibtex_entry(entry, fields, bib_entry, template_citation,
-                    bibtexc, db, citation_bibtex, addfiles_bibtex))
+                outfile.write(create_bibtex_entry(entry, fields, bib_entry, template_citation, bibtexc, db, citation_bibtex, addfiles_bibtex))

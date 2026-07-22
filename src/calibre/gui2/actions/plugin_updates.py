@@ -1,9 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__   = 'GPL v3'
-__copyright__ = '2011, Grant Drake <grant.drake@gmail.com>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2011, Grant Drake <grant.drake@gmail.com>
 
 from qt.core import QApplication, QIcon, Qt
 
@@ -13,7 +9,6 @@ from calibre.utils.localization import _
 
 
 class PluginUpdaterAction(InterfaceAction):
-
     name = 'Plugin Updater'
     action_spec = (_('Plugin updater'), None, _('Update any plugins you have installed in calibre'), ())
     action_type = 'current'

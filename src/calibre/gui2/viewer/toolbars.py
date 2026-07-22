@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # License: GPL v3 Copyright: 2019, Kovid Goyal <kovid at kovidgoyal.net>
 
-
 import os
 from functools import partial
 
@@ -40,7 +39,6 @@ from calibre.utils.localization import _
 
 
 class Action:
-
     __slots__ = ('icon', 'shortcut_action', 'text')
 
     def __init__(self, icon=None, text=None, shortcut_action=None):
@@ -48,7 +46,6 @@ class Action:
 
 
 class Actions:
-
     def __init__(self, a):
         self.__dict__.update(a)
         self.all_action_names = frozenset(a)
@@ -100,9 +97,31 @@ def all_actions() -> Actions:
 
 
 DEFAULT_ACTIONS = (
-    'back', 'forward', None, 'open', 'copy', 'increase_font_size', 'decrease_font_size', 'fullscreen', 'color_scheme',
-    None, 'previous', 'next', None, 'toc', 'search', 'bookmarks', 'lookup', 'toggle_highlights', 'chrome', None,
-    'mode', 'print', 'preferences', 'metadata', 'inspector'
+    'back',
+    'forward',
+    None,
+    'open',
+    'copy',
+    'increase_font_size',
+    'decrease_font_size',
+    'fullscreen',
+    'color_scheme',
+    None,
+    'previous',
+    'next',
+    None,
+    'toc',
+    'search',
+    'bookmarks',
+    'lookup',
+    'toggle_highlights',
+    'chrome',
+    None,
+    'mode',
+    'print',
+    'preferences',
+    'metadata',
+    'inspector',
 )
 
 
@@ -114,7 +133,6 @@ def current_actions():
 
 
 class ToolBar(QToolBar):
-
     def __init__(self, parent=None):
         QToolBar.__init__(self, parent)
         self.setWindowTitle(_('Toolbar'))
@@ -134,7 +152,6 @@ class ToolBar(QToolBar):
 
 
 class ActionsToolBar(ToolBar):
-
     action_triggered = pyqtSignal(object)
     open_book_at_path = pyqtSignal(object)
 
@@ -293,31 +310,32 @@ class ActionsToolBar(ToolBar):
 
     def change_sleep_permission(self, disallow_sleep=True):
         from .control_sleep import allow_sleep, prevent_sleep
+
         if disallow_sleep:
             if self.prevent_sleep_cookie is None:
                 try:
                     self.prevent_sleep_cookie = prevent_sleep()
                 except Exception:
                     import traceback
+
                     traceback.print_exc()
         elif self.prevent_sleep_cookie is not None:
             try:
                 allow_sleep(self.prevent_sleep_cookie)
             except Exception:
                 import traceback
+
                 traceback.print_exc()
             self.prevent_sleep_cookie = None
 
     def update_autoscroll_action(self, active):
         self.autoscroll_action.setChecked(active)
-        self.autoscroll_action.setToolTip(
-            _('Turn off auto-scrolling') if active else _('Turn on auto-scrolling'))
+        self.autoscroll_action.setToolTip(_('Turn off auto-scrolling') if active else _('Turn on auto-scrolling'))
         self.change_sleep_permission(active)
 
     def update_read_aloud_action(self, active):
         self.toggle_read_aloud_action.setChecked(active)
-        self.toggle_read_aloud_action.setToolTip(
-            _('Stop reading') if active else _('Read the text of the book aloud'))
+        self.toggle_read_aloud_action.setToolTip(_('Stop reading') if active else _('Read the text of the book aloud'))
         self.change_sleep_permission(active)
 
     def update_reference_mode_action(self, enabled):
@@ -345,7 +363,11 @@ class ActionsToolBar(ToolBar):
             sc = aliases.get(sc, sc)
             set_it(a, sc)
 
-        for a, sc in ((self.forward_action, 'forward'), (self.back_action, 'back'), (self.search_action, 'start_search')):
+        for a, sc in (
+            (self.forward_action, 'forward'),
+            (self.back_action, 'back'),
+            (self.search_action, 'start_search'),
+        ):
             set_it(a, sc)
 
     def populate_open_menu(self):
@@ -361,10 +383,12 @@ class ActionsToolBar(ToolBar):
                 if _web_view_module._book_pathtoebook is not None and path == os.path.abspath(_web_view_module._book_pathtoebook):
                     continue
                 if os.path.exists(path):
-                    m.addAction('{}\t {}'.format(
-                        elided_text(entry['title'], pos='right', width=250),
-                        elided_text(os.path.basename(path), width=250))).triggered.connect(partial(
-                        self.open_book_at_path.emit, path))
+                    m.addAction(
+                        '{}\t {}'.format(
+                            elided_text(entry['title'], pos='right', width=250),
+                            elided_text(os.path.basename(path), width=250),
+                        )
+                    ).triggered.connect(partial(self.open_book_at_path.emit, path))
                 else:
                     self.web_view.remove_recently_opened(path)
         if len(m.actions()) > 0:
@@ -379,14 +403,17 @@ class ActionsToolBar(ToolBar):
 
     def populate_profiles_menu(self):
         from calibre.gui2.viewer.config import load_viewer_profiles
+
         m = self.profiles_menu
         m.clear()
         self.profiles = load_viewer_profiles('viewer:')
         self.profiles['__default__'] = {}
+
         def a(name, display_name=''):
             a = m.addAction(display_name or name)
             a.setObjectName(f'profile-switch-action:{name}')
             a.triggered.connect(self.profile_switch_triggered)
+
         a('__default__', _('Restore settings to defaults'))
         m.addSeparator()
         for profile_name in sorted(self.profiles, key=lambda x: x.lower()):
@@ -418,6 +445,7 @@ class ActionsToolBar(ToolBar):
         assert sender is not None
         key = sender.objectName().partition(':')[-1]
         from calibre.gui2.viewer.config import save_viewer_profile
+
         save_viewer_profile(key, None, 'viewer:')
 
     def save_profile(self):
@@ -465,7 +493,6 @@ class ActionsToolBar(ToolBar):
 
 
 class ActionsList(QListWidget):
-
     def __init__(self, actions, parent=None, is_source=True):
         QListWidget.__init__(self, parent)
         self.setSelectionMode(QAbstractItemView.SelectionMode.ExtendedSelection)
@@ -534,7 +561,6 @@ class ActionsList(QListWidget):
 
 
 class ConfigureToolBar(Dialog):
-
     def __init__(self, parent=None):
         Dialog.__init__(self, _('Configure the toolbar'), 'configure-viewer-toolbar', parent=parent, prefs=vprefs)
 
@@ -545,8 +571,7 @@ class ConfigureToolBar(Dialog):
         self.current_actions = ActionsList(current_actions(), parent=self, is_source=False)
         self.current_actions.itemDoubleClicked.connect(self.remove_item)
         self.l = l = QVBoxLayout(self)
-        self.la = la = QLabel(_('Choose the actions you want on the toolbar.'
-            ' Drag and drop items in the right hand list to re-arrange the toolbar.'))
+        self.la = la = QLabel(_('Choose the actions you want on the toolbar. Drag and drop items in the right hand list to re-arrange the toolbar.'))
         la.setWordWrap(True)
         l.addWidget(la)
         self.bv = bv = QVBoxLayout()
@@ -609,5 +634,6 @@ class ConfigureToolBar(Dialog):
 
 if __name__ == '__main__':
     from calibre.gui2 import Application
+
     app = Application([])
     ConfigureToolBar().exec()

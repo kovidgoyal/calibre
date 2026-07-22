@@ -28,4 +28,4 @@ from .namespaces import SCRIPTNS
 
 
 def EventListener(**args):
-    return Element(qname=(SCRIPTNS,'event-listener'), **args)
+    return Element(qname=(SCRIPTNS, 'event-listener'), **args)

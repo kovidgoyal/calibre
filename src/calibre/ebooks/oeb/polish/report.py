@@ -1,8 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__ = 'GPL v3'
-__copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
+# License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
 import os
 import posixpath
@@ -65,8 +62,14 @@ def safe_img_data(container, name, mt):
 def files_data(container, *args):
     fwc = file_words_counts or {}
     for name, path in container.name_path_map.items():
-        yield File(name, posixpath.dirname(name), posixpath.basename(name), safe_size(container, name),
-                   get_category(name, container.mime_map.get(name, '')), fwc.get(name, -1))
+        yield File(
+            name,
+            posixpath.dirname(name),
+            posixpath.basename(name),
+            safe_size(container, name),
+            get_category(name, container.mime_map.get(name, '')),
+            fwc.get(name, -1),
+        )
 
 
 Image = namedtuple('Image', 'name mime_type usage size basename id width height')
@@ -75,10 +78,11 @@ LinkLocation = namedtuple('LinkLocation', 'name line_number text_on_line')
 
 
 def sort_locations(container, locations):
-    nmap = {n:i for i, (n, l) in enumerate(container.spine_names)}
+    nmap = {n: i for i, (n, l) in enumerate(container.spine_names)}
 
     def sort_key(l):
         return (nmap.get(l.name, len(nmap)), numeric_sort_key(l.name), l.line_number)
+
     return sorted(locations, key=sort_key)
 
 
@@ -104,8 +108,17 @@ def images_data(container, *args):
     image_data = []
     for name, mt in container.mime_map.items():
         if mt.startswith('image/') and container.exists(name):
-            image_data.append(Image(name, mt, sort_locations(container, image_usage.get(name, set())), safe_size(container, name),
-                                    posixpath.basename(name), len(image_data), *safe_img_data(container, name, mt)))
+            image_data.append(
+                Image(
+                    name,
+                    mt,
+                    sort_locations(container, image_usage.get(name, set())),
+                    safe_size(container, name),
+                    posixpath.basename(name),
+                    len(image_data),
+                    *safe_img_data(container, name, mt),
+                )
+            )
     return tuple(image_data)
 
 
@@ -200,7 +213,6 @@ def links_data(container, *args):
 
 Word = namedtuple('Word', 'id word locale usage')
 
-
 file_words_counts = None
 
 
@@ -214,7 +226,7 @@ Char = namedtuple('Char', 'id char codepoint usage count')
 
 def chars_data(container, book_locale, *args):
     cc = count_all_chars(container, book_locale)
-    nmap = {n:i for i, (n, l) in enumerate(container.spine_names)}
+    nmap = {n: i for i, (n, l) in enumerate(container.spine_names)}
 
     def sort_key(name):
         return nmap.get(name, len(nmap)), numeric_sort_key(name)
@@ -266,7 +278,12 @@ def css_data(container, book_locale, result_data, *args):
             for style in style_path(container.parsed(name)):
                 if style.get('type', 'text/css') == 'text/css' and style.text:
                     html_sheets[name].append(
-                        css_rules(name, parser.parse_stylesheet(force_unicode(style.text, 'utf-8')).rules, style.sourceline - 1))
+                        css_rules(
+                            name,
+                            parser.parse_stylesheet(force_unicode(style.text, 'utf-8')).rules,
+                            style.sourceline - 1,
+                        )
+                    )
 
     rule_map = defaultdict(lambda: defaultdict(list))
 
@@ -336,8 +353,7 @@ def css_data(container, book_locale, result_data, *args):
         for cls, elem_map in cmap.items():
             class_elements = class_map[cls][name]
             for elem, usage in elem_map.items():
-                class_elements.append(
-                    ClassElement(name, elem.sourceline, elem.get('class'), tag_text(elem), tuple(usage)))
+                class_elements.append(ClassElement(name, elem.sourceline, elem.get('class'), tag_text(elem), tuple(usage)))
 
     result_data['classes'] = ans = []
     for cls, name_map in class_map.items():
@@ -374,5 +390,6 @@ def debug_data_gather():
 
     from calibre.gui2.tweak_book import dictionaries
     from calibre.gui2.tweak_book.boss import get_container
+
     c = get_container(sys.argv[-1])
     gather_data(c, dictionaries.default_locale)

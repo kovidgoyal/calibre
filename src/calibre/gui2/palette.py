@@ -13,17 +13,17 @@ from calibre.constants import dark_link_color as dlc
 from calibre.utils.localization import _
 
 dark_link_color = QColor(dlc)
-dark_color = QColor(45,45,45)
+dark_color = QColor(45, 45, 45)
 dark_text_color = QColor('#ddd')
-light_color = QColor(0xf0, 0xf0, 0xf0)
-light_text_color = QColor(0,0,0)
+light_color = QColor(0xF0, 0xF0, 0xF0)
+light_text_color = QColor(0, 0, 0)
 light_link_color = QColor(0, 0, 255)
 
 
 class UseCalibreIcons(QProxyStyle):
-
     def standardIcon(self, standardIcon, option=None, widget=None):
         from calibre.gui2 import qapplication_or_fail
+
         ic = qapplication_or_fail().get_qt_standard_icon(standardIcon)
         if ic.isNull():
             return super().standardIcon(standardIcon, option, widget)
@@ -56,7 +56,8 @@ def serialize_palette_as_python(self):
                 continue
             c = self.color(group, role)
             lines.append(
-                f'self.setColor(QPalette.ColorGroup.{group.name}, QPalette.ColorRole.{role.name}, QColor({c.red()}, {c.green()}, {c.blue()}, {c.alpha()}))')
+                f'self.setColor(QPalette.ColorGroup.{group.name}, QPalette.ColorRole.{role.name}, QColor({c.red()}, {c.green()}, {c.blue()}, {c.alpha()}))'
+            )
     return '\n'.join(lines)
 
 
@@ -68,11 +69,11 @@ QPalette.unserialize_from_bytes = unserialize_palette
 
 def default_dark_palette():
     p = QPalette()
-    disabled_color = QColor(127,127,127)
+    disabled_color = QColor(127, 127, 127)
     p.setColor(QPalette.ColorRole.Window, dark_color)
     p.setColor(QPalette.ColorRole.WindowText, dark_text_color)
     p.setColor(QPalette.ColorRole.PlaceholderText, disabled_color)
-    p.setColor(QPalette.ColorRole.Base, QColor(18,18,18))
+    p.setColor(QPalette.ColorRole.Base, QColor(18, 18, 18))
     p.setColor(QPalette.ColorRole.AlternateBase, dark_color)
     p.setColor(QPalette.ColorRole.ToolTipBase, dark_color)
     p.setColor(QPalette.ColorRole.ToolTipText, dark_text_color)
@@ -82,9 +83,9 @@ def default_dark_palette():
     p.setColor(QPalette.ColorRole.BrightText, Qt.GlobalColor.red)
     p.setColor(QPalette.ColorRole.Link, dark_link_color)
     p.setColor(QPalette.ColorRole.LinkVisited, Qt.GlobalColor.darkMagenta)
-    p.setColor(QPalette.ColorRole.Highlight, QColor(0x0b, 0x45, 0xc4))
+    p.setColor(QPalette.ColorRole.Highlight, QColor(0x0B, 0x45, 0xC4))
     p.setColor(QPalette.ColorRole.HighlightedText, dark_text_color)
-    p.setColor(QPalette.ColorRole.Accent, QColor(0x7a, 0xbc, 0x43))
+    p.setColor(QPalette.ColorRole.Accent, QColor(0x7A, 0xBC, 0x43))
 
     p.setColor(QPalette.ColorGroup.Disabled, QPalette.ColorRole.ButtonText, disabled_color)
     p.setColor(QPalette.ColorGroup.Disabled, QPalette.ColorRole.HighlightedText, disabled_color)
@@ -95,13 +96,13 @@ def default_dark_palette():
 
 def default_light_palette():
     p = QPalette()
-    disabled_color = QColor(120,120,120)
+    disabled_color = QColor(120, 120, 120)
     p.setColor(QPalette.ColorRole.Window, light_color)
     p.setColor(QPalette.ColorRole.WindowText, light_text_color)
     p.setColor(QPalette.ColorRole.PlaceholderText, disabled_color)
     p.setColor(QPalette.ColorRole.Base, Qt.GlobalColor.white)
     p.setColor(QPalette.ColorRole.AlternateBase, QColor(245, 245, 245))
-    p.setColor(QPalette.ColorRole.ToolTipBase, QColor(0xff, 0xff, 0xdc))
+    p.setColor(QPalette.ColorRole.ToolTipBase, QColor(0xFF, 0xFF, 0xDC))
     p.setColor(QPalette.ColorRole.ToolTipText, light_text_color)
     p.setColor(QPalette.ColorRole.Text, light_text_color)
     p.setColor(QPalette.ColorRole.Button, light_color)
@@ -111,7 +112,7 @@ def default_light_palette():
     p.setColor(QPalette.ColorRole.LinkVisited, Qt.GlobalColor.magenta)
     p.setColor(QPalette.ColorRole.Highlight, QColor(48, 140, 198))
     p.setColor(QPalette.ColorRole.HighlightedText, Qt.GlobalColor.white)
-    p.setColor(QPalette.ColorRole.Accent, QColor(0x31, 0xbd, 0x5a))
+    p.setColor(QPalette.ColorRole.Accent, QColor(0x31, 0xBD, 0x5A))
 
     p.setColor(QPalette.ColorGroup.Disabled, QPalette.ColorRole.Text, disabled_color)
     p.setColor(QPalette.ColorGroup.Disabled, QPalette.ColorRole.ButtonText, disabled_color)
@@ -130,7 +131,6 @@ def palette_colors():
         'ToolTipText': _('The foreground color for tool tips'),
         'BrightText': _('A "bright" text color'),
         'HighlightedText': _('The foreground color for highlighted items'),
-
         'Window': _('A general background color'),
         'Base': _('The background color for text input widgets'),
         'Button': _('The background color for buttons'),
@@ -138,7 +138,6 @@ def palette_colors():
         'ToolTipBase': _('The background color for tool tips'),
         'Highlight': _('The background color for highlighted items'),
         'Accent': _('The color for emphasised items'),
-
         'Link': _('The color for links'),
         'LinkVisited': _('The color for visited links'),
     }
@@ -169,6 +168,7 @@ def palette_from_dict(data: dict[str, str], default_palette: QPalette) -> QPalet
 
 def dark_palette():
     from calibre.gui2 import gprefs
+
     ans = default_dark_palette()
     if gprefs['dark_palette_name']:
         pdata = gprefs['dark_palettes'].get(gprefs['dark_palette_name'])
@@ -179,6 +179,7 @@ def dark_palette():
 
 def light_palette():
     from calibre.gui2 import gprefs
+
     ans = default_light_palette()
     if gprefs['light_palette_name']:
         pdata = gprefs['light_palettes'].get(gprefs['light_palette_name'])
@@ -221,13 +222,13 @@ standard_pixmaps = {  # {{{
 
 
 class PaletteManager(QObject):
-
     color_palette: str
     using_calibre_style: bool
     is_dark_theme: bool
 
     def __init__(self, force_calibre_style, headless):
         from calibre.gui2 import gprefs
+
         super().__init__()
         self.color_palette = gprefs['color_palette']
         ui_style = gprefs['ui_style']
@@ -245,10 +246,12 @@ class PaletteManager(QObject):
         self.args_to_qt = tuple(args)
         if ismacos and not headless:
             from calibre_extensions.cocoa import set_appearance
+
             set_appearance(self.color_palette)
 
     def initialize(self):
         from calibre.gui2 import qapplication_or_fail
+
         app = qapplication_or_fail()
         self.setParent(app)
         app_style = app.style()
@@ -260,6 +263,7 @@ class PaletteManager(QObject):
     @property
     def use_dark_palette(self):
         from calibre.gui2 import qapplication_or_fail
+
         app = qapplication_or_fail()
         hints = app.styleHints()
         assert hints is not None
@@ -268,6 +272,7 @@ class PaletteManager(QObject):
 
     def setup_styles(self):
         from calibre.gui2 import qapplication_or_fail
+
         if self.using_calibre_style:
             app = qapplication_or_fail()
             style_hints = app.styleHints()
@@ -288,6 +293,7 @@ class PaletteManager(QObject):
 
     def get_qt_standard_icon(self, standard_pixmap):
         from qt.core import QStyle
+
         sp = QStyle.StandardPixmap(standard_pixmap)
         val = standard_pixmaps.get(sp)
         if val is None:
@@ -296,18 +302,22 @@ class PaletteManager(QObject):
 
     def load_calibre_style(self):
         from calibre.gui2 import qapplication_or_fail
+
         ts = 0
         if ismacos:
             from calibre_extensions.cocoa import transient_scroller
+
             ts = transient_scroller()
         app = qapplication_or_fail()
         assert app is not None
         from calibre_extensions.progress_indicator import CalibreStyle
+
         self.calibre_style = style = CalibreStyle(ts)
         app.setStyle(style)
 
     def on_palette_change(self):
         from calibre.gui2 import qapplication_or_fail
+
         app = qapplication_or_fail()
         app.cached_qimage.cache_clear()
         app.cached_qpixmap.cache_clear()
@@ -384,6 +394,7 @@ QTabBar::tab:only-one {
 
     def set_palette(self, pal):
         from calibre.gui2 import qapplication_or_fail
+
         with self.changing_palette():
             qapplication_or_fail().setPalette(pal)
             # Setting the tooltip palette is needed on Windows with Qt 6.10
@@ -400,6 +411,7 @@ QTabBar::tab:only-one {
                 print('ApplicationPaletteChange event received', file=sys.stderr)
             if self.using_calibre_style:
                 from calibre.gui2 import qapplication_or_fail
+
                 pal = dark_palette() if self.use_dark_palette else light_palette()
                 if qapplication_or_fail().palette().color(QPalette.ColorRole.Window) != pal.color(QPalette.ColorRole.Window):
                     if DEBUG:
@@ -409,9 +421,11 @@ QTabBar::tab:only-one {
 
     def refresh_palette(self):
         from calibre.gui2 import gprefs, qapplication_or_fail
+
         self.color_palette = gprefs['color_palette']
         if ismacos:
             from calibre_extensions.cocoa import set_appearance
+
             set_appearance(self.color_palette)
         refresh_app = qapplication_or_fail()
         refresh_hints = refresh_app.styleHints()
@@ -427,6 +441,7 @@ QTabBar::tab:only-one {
         border_size = '1px'
         if self.is_dark_theme:
             from calibre.gui2 import qapplication_or_fail
+
             c = qapplication_or_fail().palette().color(QPalette.ColorRole.Highlight)
             c = c.lighter(180)
             g1 = g2 = c.name()

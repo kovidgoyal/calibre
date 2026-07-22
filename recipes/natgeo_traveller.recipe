@@ -7,8 +7,7 @@ from calibre.web.feeds.news import BasicNewsRecipe, classes
 
 class NatGeo(BasicNewsRecipe):
     title = 'National Geographic Traveller'
-    description = ('News articles from The National Geographic Traveller, Download Monthly. '
-                   'Inspiring people to care about the planet since 1888')
+    description = 'News articles from The National Geographic Traveller, Download Monthly. Inspiring people to care about the planet since 1888'
     language = 'en'
     encoding = 'utf8'
     publisher = 'nationalgeographic.com'
@@ -54,9 +53,7 @@ class NatGeo(BasicNewsRecipe):
     '''
 
     def parse_index(self):
-        pages = [
-            'https://www.nationalgeographic.com/travel/topic/national-geographic-traveller-uk'
-        ]
+        pages = ['https://www.nationalgeographic.com/travel/topic/national-geographic-traveller-uk']
 
         feeds = []
 
@@ -77,9 +74,7 @@ class NatGeo(BasicNewsRecipe):
             section = self.tag_to_string(article.find(**classes('SectionLabel')))
             if section.startswith('Paid Content'):
                 continue
-            title = self.tag_to_string(
-                article.find(**classes('PromoTile__Title--truncated'))
-            )
+            title = self.tag_to_string(article.find(**classes('PromoTile__Title--truncated')))
             articles = ans.setdefault(section, [])
             articles.append({'title': title, 'url': url})
         self.log(pformat(ans))

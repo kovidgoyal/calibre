@@ -1,8 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__ = 'GPL v3'
-__copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
+# License: GPLv3 Copyright: 2014, Kovid Goyal <kovid at kovidgoyal.net>
 
 import http.client
 import ssl
@@ -14,7 +11,6 @@ from calibre.utils.resources import get_path as P
 
 
 class HTTPError(ValueError):
-
     def __init__(self, url, code):
         msg = f'{url} returned an unsupported http response code: {code} ({http.client.responses.get(code, None)})'
         ValueError.__init__(self, msg)
@@ -23,7 +19,6 @@ class HTTPError(ValueError):
 
 
 class HTTPSConnection(http.client.HTTPSConnection):
-
     def __init__(self, *args, **kwargs):
         cafile = kwargs.pop('cert_file', None)
         capath = kwargs.pop('cadir', None)
@@ -43,18 +38,23 @@ class HTTPSConnection(http.client.HTTPSConnection):
 
 
 def get_https_resource_securely(
-    url, cacerts='calibre-ebook-root-CA.crt', timeout=60, max_redirects=5,
-    ssl_version=None, headers=None, get_response=False,
+    url,
+    cacerts='calibre-ebook-root-CA.crt',
+    timeout=60,
+    max_redirects=5,
+    ssl_version=None,
+    headers=None,
+    get_response=False,
     cadir='',
 ):
-    '''
+    """
     Download the resource pointed to by url using https securely (verify server
     certificate).  Ensures that redirects, if any, are also downloaded
     securely. Needs a CA certificates bundle (in PEM format) to verify the
     server's certificates.
 
     You can pass cacerts=None to download using SSL but without verifying the server certificate.
-    '''
+    """
     disable_x509_strict_checking = cacerts == 'calibre-ebook-root-CA.crt'
     cert_file = None
     if cacerts is not None:
@@ -78,7 +78,14 @@ def get_https_resource_securely(
                 # Invalid proxy, ignore
                 pass
 
-    c = HTTPSConnection(hostname, port, cert_file=cert_file, timeout=timeout, disable_x509_strict_checking=disable_x509_strict_checking, cadir=cadir)
+    c = HTTPSConnection(
+        hostname,
+        port,
+        cert_file=cert_file,
+        timeout=timeout,
+        disable_x509_strict_checking=disable_x509_strict_checking,
+        cadir=cadir,
+    )
     if has_proxy:
         c.set_tunnel(p.hostname, p.port)
 
@@ -95,8 +102,7 @@ def get_https_resource_securely(
             newurl = response.getheader('Location', None)
             if newurl is None:
                 raise ValueError(f'{url} returned a redirect response with no Location header')
-            return get_https_resource_securely(
-                newurl, cacerts=cacerts, timeout=timeout, max_redirects=max_redirects-1, get_response=get_response)
+            return get_https_resource_securely(newurl, cacerts=cacerts, timeout=timeout, max_redirects=max_redirects - 1, get_response=get_response)
         if response.status != http.client.OK:
             raise HTTPError(url, response.status)
         if get_response:

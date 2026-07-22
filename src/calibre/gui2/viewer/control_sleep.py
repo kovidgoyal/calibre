@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # License: GPL v3 Copyright: 2021, Kovid Goyal <kovid at kovidgoyal.net>
 
-
 from calibre.constants import ismacos, iswindows
 
 if iswindows:
@@ -13,6 +12,7 @@ if iswindows:
 
     def allow_sleep(cookie):
         set_thread_execution_state(ES_CONTINUOUS)
+
 elif ismacos:
     from calibre_extensions.cocoa import create_io_pm_assertion, kIOPMAssertionTypeNoDisplaySleep, release_io_pm_assertion
 
@@ -23,6 +23,7 @@ elif ismacos:
         release_io_pm_assertion(cookie)
 
 else:
+
     def prevent_sleep(reason=''):
         return 0
 

@@ -1,8 +1,8 @@
-__license__   = 'GPL v3'
-__copyright__ = '2009, John Schember <john at nachtimwald.com>'
-'''
+# License: GPLv3 Copyright: 2009, John Schember <john at nachtimwald.com>
+
+"""
 Write a t2b file to disk.
-'''
+"""
 
 import io
 from typing import cast
@@ -28,11 +28,12 @@ def i2b(n):
 
 
 def write_t2b(t2bfile, coverdata=None):
-    '''
+    """
     t2bfile is a file handle ready to write binary data to disk.
     coverdata is a string representation of a JPEG file.
-    '''
+    """
     from PIL import Image
+
     if coverdata is not None:
         coverdata = io.BytesIO(coverdata)
         cover = Image.open(coverdata).convert('L')
@@ -40,7 +41,7 @@ def write_t2b(t2bfile, coverdata=None):
         t2bcover = Image.new('L', (96, 144), 'white')
 
         x, y = cover.size
-        t2bcover.paste(cover, ((96-x)//2, (144-y)//2))
+        t2bcover.paste(cover, ((96 - x) // 2, (144 - y) // 2))
 
         px = []
         pxs = cast(list, t2bcover.getdata())

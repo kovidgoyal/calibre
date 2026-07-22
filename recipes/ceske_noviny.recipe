@@ -6,14 +6,12 @@ from calibre.web.feeds.recipes import BasicNewsRecipe
 
 class ceskenovinyRecipe(BasicNewsRecipe):
     __author__ = 'bubak'
-    title = u'České Noviny'
+    title = 'České Noviny'
     description = 'ceskenoviny.cz'
     oldest_article = 1
     max_articles_per_feed = 20
 
-    feeds = [
-        (u'Domácí', u'http://www.ceskenoviny.cz/sluzby/rss/domov.php')
-    ]
+    feeds = [('Domácí', 'http://www.ceskenoviny.cz/sluzby/rss/domov.php')]
 
     language = 'cs'
     cover_url = 'http://i4.cn.cz/grafika/cn_logo-print.gif'

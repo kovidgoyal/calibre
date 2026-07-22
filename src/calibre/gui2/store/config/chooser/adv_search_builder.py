@@ -1,6 +1,4 @@
-__license__ = 'GPL 3'
-__copyright__ = '2011, John Schember <john@nachtimwald.com>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2011, John Schember <john@nachtimwald.com>
 
 import re
 
@@ -21,8 +19,7 @@ class AdvSearchBuilderDialog(QDialog, Ui_Dialog):
         QDialog.__init__(self, parent)
         self.setupUi(self)
         try:
-            self.sh_label.setText(self.sh_label.text() % localize_user_manual_link(
-                'https://manual.calibre-ebook.com/gui.html#the-search-interface'))
+            self.sh_label.setText(self.sh_label.text() % localize_user_manual_link('https://manual.calibre-ebook.com/gui.html#the-search-interface'))
         except TypeError:
             pass  # link already localized
 
@@ -102,8 +99,8 @@ class AdvSearchBuilderDialog(QDialog, Ui_Dialog):
         txt = str(self.text.text()).strip()
         if txt:
             if self.negate.isChecked():
-                txt = '!'+txt
-            tok = self.FIELDS[str(self.field.currentText())]+txt
+                txt = '!' + txt
+            tok = self.FIELDS[str(self.field.currentText())] + txt
             if re.search(r'\s', tok):
                 tok = f'"{tok}"'
             return tok

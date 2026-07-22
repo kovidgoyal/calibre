@@ -1,24 +1,29 @@
 #!/usr/bin/env python
-
-
-__license__   = 'GPL v3'
-__copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2009, Kovid Goyal <kovid@kovidgoyal.net>
 
 from calibre.ebooks.oeb.base import OEB_DOCS, XHTML, XPath
 
 
 class LinearizeTables:
-
     def linearize(self, root):
-        for x in XPath('//h:table|//h:td|//h:tr|//h:th|//h:caption|'
-                '//h:tbody|//h:tfoot|//h:thead|//h:colgroup|//h:col')(root):
+        for x in XPath('//h:table|//h:td|//h:tr|//h:th|//h:caption|//h:tbody|//h:tfoot|//h:thead|//h:colgroup|//h:col')(root):
             x.tag = XHTML('div')
-            for attr in ('style', 'font', 'valign',
-                         'colspan', 'width', 'height',
-                         'rowspan', 'summary', 'align',
-                         'cellspacing', 'cellpadding',
-                         'frames', 'rules', 'border'):
+            for attr in (
+                'style',
+                'font',
+                'valign',
+                'colspan',
+                'width',
+                'height',
+                'rowspan',
+                'summary',
+                'align',
+                'cellspacing',
+                'cellpadding',
+                'frames',
+                'rules',
+                'border',
+            ):
                 if attr in x.attrib:
                     del x.attrib[attr]
 

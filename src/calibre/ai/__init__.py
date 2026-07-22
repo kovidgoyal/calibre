@@ -138,14 +138,12 @@ class ResultBlockReason(Enum):
 
 
 class PromptBlocked(ValueError):
-
     def __init__(self, reason: PromptBlockReason = PromptBlockReason.unknown, custom_message: str = ''):
         super().__init__(custom_message or reason.for_human)
         self.reason = reason
 
 
 class ResultBlocked(ValueError):
-
     def __init__(self, reason: ResultBlockReason = ResultBlockReason.unknown, custom_message: str = ''):
         super().__init__(custom_message or reason.for_human)
         self.reason = reason
@@ -169,4 +167,4 @@ class AICapabilities(Flag):
 
     @property
     def purpose(self) -> str:
-        return 'AICapabilities.'+'|'.join(sorted(x.name for x in self))
+        return 'AICapabilities.' + '|'.join(sorted(str(x.name) for x in self))

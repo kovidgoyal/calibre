@@ -78,6 +78,7 @@ def save_reading_rates(key, rates):
         atomic_rename(f.name, path)
     except Exception:
         import traceback
+
         traceback.print_exc()
 
 
@@ -94,6 +95,7 @@ def delete_all_reading_rates():
         pass
     except OSError:
         import traceback
+
         traceback.print_exc()
 
 
@@ -133,6 +135,7 @@ def save_viewer_profile(profile_name, profile, *user_names: str):
     if isinstance(profile, dict):
         profile['__timestamp__'] = isoformat(utcnow())
         from calibre.gui2.viewer.toolbars import DEFAULT_ACTIONS, current_actions
+
         ca = current_actions()
         s = {}
         if ca != DEFAULT_ACTIONS:

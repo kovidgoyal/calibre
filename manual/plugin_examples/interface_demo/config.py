@@ -2,7 +2,7 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 
 
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
@@ -22,7 +22,6 @@ prefs.defaults['hello_world_msg'] = 'Hello, World!'
 
 
 class ConfigWidget(QWidget):
-
     def __init__(self):
         QWidget.__init__(self)
         self.l = QHBoxLayout()

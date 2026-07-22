@@ -1,9 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__   = 'GPL v3'
-__copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2010, Kovid Goyal <kovid@kovidgoyal.net>
 
 import io
 import os
@@ -15,14 +11,14 @@ from calibre.utils.localization import _, canonicalize_lang
 
 
 def is_comic(list_of_names):
-    extensions = {x.rpartition('.')[-1].lower() for x in list_of_names
-                      if '.' in x and x.lower().rpartition('/')[-1] != 'thumbs.db'}
+    extensions = {x.rpartition('.')[-1].lower() for x in list_of_names if '.' in x and x.lower().rpartition('/')[-1] != 'thumbs.db'}
     comic_extensions = {'jpg', 'jpeg', 'png'}
     return len(extensions - comic_extensions) == 0
 
 
 def archive_type(stream):
     from calibre.utils.zipfile import stringFileHeader
+
     try:
         pos = stream.tell()
     except Exception:
@@ -41,17 +37,18 @@ def archive_type(stream):
 
 
 class KPFExtract(FileTypePlugin):
-
     name = 'KPF Extract'
     author = 'Kovid Goyal'
-    description = _('Extract the source DOCX file from Amazon Kindle Create KPF files.'
-            ' Note this will not contain any edits made in the Kindle Create program itself.')
+    description = _(
+        'Extract the source DOCX file from Amazon Kindle Create KPF files. Note this will not contain any edits made in the Kindle Create program itself.'
+    )
     file_types = {'kpf'}
     supported_platforms = ['windows', 'osx', 'linux']
     on_import = True
 
     def run(self, path_to_ebook):
         from calibre.utils.zipfile import ZipFile
+
         with ZipFile(path_to_ebook, 'r') as zf:
             fnames = zf.namelist()
             candidates = [x for x in fnames if x.lower().endswith('.docx')]
@@ -64,7 +61,6 @@ class KPFExtract(FileTypePlugin):
 
 
 class RAR:
-
     def __init__(self, archive):
         self.archive = archive
 
@@ -73,17 +69,19 @@ class RAR:
 
     def namelist(self):
         from calibre.utils.unrar import names
+
         return list(names(self.archive))
 
     def read(self, fname):
         from calibre.utils.unrar import extract_member
+
         return extract_member(self.archive, match=None, name=fname)[1]
 
 
 class SevenZip:
-
     def __init__(self, archive):
         from py7zr import SevenZipFile
+
         self.zf = SevenZipFile(archive, 'r')
 
     def namelist(self):
@@ -94,6 +92,7 @@ class SevenZip:
 
     def read(self, fname):
         from py7zr import WriterFactory
+
         class MemoryFactory(WriterFactory):
             def __init__(self):
                 self.buffers = {}
@@ -102,6 +101,7 @@ class SevenZip:
                 # Create an in-memory BytesIO stream for the file
                 self.buffers[filename] = io.BytesIO()
                 return self.buffers[filename]
+
         factory = MemoryFactory()
         self.zf.extract(targets=[fname], factory=factory)
         target_buffer: io.BytesIO = factory.buffers[fname]
@@ -126,15 +126,14 @@ def fname_ok(fname):
 class ArchiveExtract(FileTypePlugin):
     name = 'Archive Extract'
     author = 'Kovid Goyal'
-    description = _('Extract common e-book formats from archive files '
-        '(ZIP/RAR/7z). Also try to autodetect if they are actually '
-        'CBZ/CBR/CB7 files.')
+    description = _('Extract common e-book formats from archive files (ZIP/RAR/7z). Also try to autodetect if they are actually CBZ/CBR/CB7 files.')
     file_types = {'zip', 'rar', '7z'}
     supported_platforms = ['windows', 'osx', 'linux']
     on_import = True
 
     def run(self, path_to_ebook):
         import shutil
+
         q = path_to_ebook.lower()
         if q.endswith('.rar'):
             comic_ext = 'cbr'
@@ -144,6 +143,7 @@ class ArchiveExtract(FileTypePlugin):
             zf = SevenZip(path_to_ebook)
         else:
             from calibre.utils.zipfile import ZipFile
+
             zf = ZipFile(path_to_ebook, 'r')
             comic_ext = 'cbz'
 
@@ -151,7 +151,7 @@ class ArchiveExtract(FileTypePlugin):
             fnames = zf.namelist()
             fnames = list(filter(fname_ok, fnames))
             if is_comic(fnames):
-                of = self.temporary_file('_archive_extract.'+comic_ext)
+                of = self.temporary_file('_archive_extract.' + comic_ext)
                 with closing(of), open(path_to_ebook, 'rb') as f:
                     shutil.copyfileobj(f, of)
                 return of.name
@@ -160,11 +160,25 @@ class ArchiveExtract(FileTypePlugin):
             fname = fnames[0]
             ext = os.path.splitext(fname)[1][1:]
             if ext.lower() not in {
-                    'lit', 'epub', 'mobi', 'prc', 'rtf', 'pdf', 'mp3', 'pdb',
-                    'azw', 'azw1', 'azw3', 'fb2', 'docx', 'doc', 'odt'}:
+                'lit',
+                'epub',
+                'mobi',
+                'prc',
+                'rtf',
+                'pdf',
+                'mp3',
+                'pdb',
+                'azw',
+                'azw1',
+                'azw3',
+                'fb2',
+                'docx',
+                'doc',
+                'odt',
+            }:
                 return path_to_ebook
 
-            of = self.temporary_file('_archive_extract.'+ext)
+            of = self.temporary_file('_archive_extract.' + ext)
             with closing(of):
                 of.write(zf.read(fname))
             return of.name
@@ -198,8 +212,7 @@ def get_comic_book_info(d, mi, series_index='volume'):
         mi.tags = tags
     authors = []
     for credit in d.get('credits', []):
-        if credit.get('role', '') in ('Writer', 'Artist', 'Cartoonist',
-                'Creator'):
+        if credit.get('role', '') in ('Writer', 'Artist', 'Cartoonist', 'Creator'):
             x = credit.get('person', '')
             if x:
                 x = ' '.join(reversed(x.split(', ')))
@@ -214,6 +227,7 @@ def get_comic_book_info(d, mi, series_index='volume'):
         from datetime import date
 
         from calibre.utils.date import parse_only_date
+
         try:
             dt = date(puby, 6 if pubm is None else pubm, 15)
             dt = parse_only_date(str(dt))
@@ -227,6 +241,7 @@ def parse_comic_comment(comment, series_index='volume'):
     import json
 
     from calibre.ebooks.metadata import MetaInformation
+
     mi = MetaInformation(None, None)
     m = json.loads(comment)
     if isinstance(m, dict):
@@ -241,10 +256,12 @@ def get_comic_metadata(stream, stream_type, series_index='volume'):
     comment = None
     if stream_type == 'cbz':
         from calibre.utils.zipfile import ZipFile
+
         zf = ZipFile(stream)
         comment = zf.comment
     elif stream_type == 'cbr':
         from calibre.utils.unrar import comment as get_comment
+
         comment = get_comment(stream)
 
     return parse_comic_comment(comment or b'{}', series_index=series_index)
@@ -252,6 +269,7 @@ def get_comic_metadata(stream, stream_type, series_index='volume'):
 
 def get_comic_images(path, tdir, first=1, last=0):  # first and last use 1 based indexing
     from functools import partial
+
     with open(path, 'rb') as f:
         fmt = archive_type(f)
         if fmt not in ('zip', 'rar'):
@@ -259,26 +277,31 @@ def get_comic_images(path, tdir, first=1, last=0):  # first and last use 1 based
     items: dict = {}
     if fmt == 'rar':
         from calibre.utils.unrar import headers
+
         for h in headers(path):
             items[h['filename']] = lambda: partial(h.get, 'file_time', 0)
     else:
         from zipfile import ZipFile
+
         with ZipFile(path) as zf:
             for i in zf.infolist():
                 items[i.filename] = partial(getattr, i, 'date_time')
     from calibre.ebooks.comic.input import find_pages
+
     pages = find_pages(items)
     if last <= 0:
         last = len(pages)
-    pages = pages[first-1:last]
+    pages = pages[first - 1 : last]
 
     def make_filename(num, ext):
         return f'{num:08d}{ext}'
 
     if fmt == 'rar':
-        all_pages = {p:i+first for i, p in enumerate(pages)}
+        all_pages = {p: i + first for i, p in enumerate(pages)}
         from calibre.utils.unrar import extract_members
+
         current = None
+
         def callback(x):
             nonlocal current
             if isinstance(x, dict):
@@ -294,11 +317,13 @@ def get_comic_images(path, tdir, first=1, last=0):  # first and last use 1 based
             if isinstance(x, bytes):
                 assert current is not None
                 current.write(x)
+
         extract_members(path, callback)
         if current is not None:
             current.close()
     else:
         import shutil
+
         with ZipFile(path) as zf:
             for i, name in enumerate(pages):
                 num = i + first

@@ -32,20 +32,17 @@ class General(BasicNewsRecipe):
     keep_only_tags = [
         dict(name='h1', attrs={'class': 'title'}),
         dict(name='div', attrs={'class': 'composite-captioned-image'}),
-        dict(name='div', attrs={'class': 'content-modules'})
+        dict(name='div', attrs={'class': 'content-modules'}),
     ]
 
-    conversion_options = {
-        'comment': description, 'tags': category, 'publisher': publisher, 'language': language
-    }
+    conversion_options = {'comment': description, 'tags': category, 'publisher': publisher, 'language': language}
     remove_tags = [
-        dict(name='div', attrs={
-             'class': ['date_text', 'comments', 'form_section', 'share_it']}),
-        dict(name='div', attrs={
-             'id': ['relatedPosts', 'spacer', 'banner_izquierda', 'right_container']}),
+        dict(name='div', attrs={'class': ['date_text', 'comments', 'form_section', 'share_it']}),
+        dict(name='div', attrs={'id': ['relatedPosts', 'spacer', 'banner_izquierda', 'right_container']}),
         dict(name='p', attrs={'class': 'FacebookLikeButton'}),
         dict(name=['object', 'form']),
-        dict(name=['object', 'table'])]
+        dict(name=['object', 'table']),
+    ]
 
     extra_css = '''
                 h1{font-family: Georgia,"Times New Roman",Times,serif}
@@ -56,10 +53,7 @@ class General(BasicNewsRecipe):
                 img{margin-bottom: 0.4em; display:block;}
                 '''
 
-    feeds = [
-        (u'Ultimo Momento',
-         u'https://www.elpais.com.uy/rss/')
-    ]
+    feeds = [('Ultimo Momento', 'https://www.elpais.com.uy/rss/')]
 
     def get_cover_url(self):
         cover_url = None

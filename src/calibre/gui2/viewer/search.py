@@ -41,7 +41,6 @@ from calibre.utils.localization import _, ngettext
 
 
 class BusySpinner(QWidget):  # {{{
-
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
         self.l = l = QHBoxLayout(self)
@@ -62,10 +61,11 @@ class BusySpinner(QWidget):  # {{{
         self.setVisible(False)
         self.pi.stop()
         self.is_running = False
+
+
 # }}}
 
-
-quote_map= {'"':'"“”', "'": "'‘’"}
+quote_map = {'"': '"“”', "'": "'‘’"}
 qpat = regex.compile(r'''(['"])''')
 spat = regex.compile(r'(\s+)')
 invisible_chars = '(?:[\u00ad\u200c\u200d]{0,1})'
@@ -112,7 +112,6 @@ def words_and_interval_for_near(expr, default_interval=60):
 
 
 class Search:
-
     def __init__(self, text, mode, case_sensitive, backwards):
         self.text, self.mode = text, mode
         self.case_sensitive = case_sensitive
@@ -139,7 +138,7 @@ class Search:
                 if self.mode == 'word':
                     words = []
                     for part in expr.split():
-                        words.append(fr'\b{text_to_regex(part)}\b')
+                        words.append(rf'\b{text_to_regex(part)}\b')
                     expr = r'\s+'.join(words)
                 else:
                     expr = text_to_regex(expr)
@@ -164,16 +163,27 @@ class Search:
         if self.mode == 'near':
             word_pats, full_pat = self.near_search_data
             if len(word_pats) < 2:
-                error_dialog(gui, _('Invalid search expression'), _(
-                    'In nearby words mode, you must specify at least two words and an optional trailing number of characters.'
-                    ' The expression: {} does not have at least two words.').format(self.text), show=True)
+                error_dialog(
+                    gui,
+                    _('Invalid search expression'),
+                    _(
+                        'In nearby words mode, you must specify at least two words and an optional trailing number of characters.'
+                        ' The expression: {} does not have at least two words.'
+                    ).format(self.text),
+                    show=True,
+                )
                 return False
         elif self.mode == 'regex':
             try:
                 self.regex
             except Exception as e:
-                error_dialog(gui, _('Invalid search expression'), _(
-                    'The search expression {} is not a valid regex.').format(self.text), det_msg=str(e), show=True)
+                error_dialog(
+                    gui,
+                    _('Invalid search expression'),
+                    _('The search expression {} is not a valid regex.').format(self.text),
+                    det_msg=str(e),
+                    show=True,
+                )
                 return False
         return True
 
@@ -187,18 +197,17 @@ class Search:
 
     def __str__(self):
         from collections import namedtuple
+
         s = ('text', 'mode', 'case_sensitive', 'backwards')
         return str(namedtuple('Search', s)(*tuple(getattr(self, x) for x in s)))
 
 
 class SearchFinished:
-
     def __init__(self, search_query):
         self.search_query = search_query
 
 
 class SearchResult:
-
     __slots__ = (
         'after',
         'before',
@@ -227,15 +236,22 @@ class SearchResult:
             self.toc_nodes = toc_nodes_for_search_result(self)
         except Exception:
             import traceback
+
             traceback.print_exc()
             self.toc_nodes = ()
 
     @property
     def for_js(self):
         return {
-            'file_name': self.file_name, 'spine_idx': self.spine_idx, 'index': self.index, 'text': self.text,
-            'before': self.before, 'after': self.after, 'mode': self.search_query.mode, 'q': self.q,
-            'result_num': self.result_num
+            'file_name': self.file_name,
+            'spine_idx': self.spine_idx,
+            'index': self.index,
+            'text': self.text,
+            'before': self.before,
+            'after': self.after,
+            'mode': self.search_query.mode,
+            'q': self.q,
+            'result_num': self.result_num,
         }
 
     def is_result(self, result_from_js):
@@ -243,6 +259,7 @@ class SearchResult:
 
     def __str__(self):
         from collections import namedtuple
+
         s = self.__slots__[:-1]
         return str(namedtuple('SearchResult', s)(*tuple(getattr(self, x) for x in s)))
 
@@ -328,14 +345,14 @@ def get_toc_data():
     if toc:
         process_node(toc)
     return {
-        'spine': tuple(spine), 'spine_toc_map': spine_toc_map,
+        'spine': tuple(spine),
+        'spine_toc_map': spine_toc_map,
         'spine_idx_map': {name: idx for idx, name in enumerate(spine)},
-        'parent_map': parent_map
+        'parent_map': parent_map,
     }
 
 
 class ToCOffsetMap:
-
     def __init__(self, toc_nodes=(), offset_map=None, previous_toc_node=None, parent_map=None):
         self.toc_nodes = toc_nodes
         self.offset_map = offset_map or {}
@@ -422,6 +439,7 @@ def search_in_name(name, search_query, ctx_size=75):
                     yield match.span()
 
     elif search_query.mode == 'regex' or search_query.case_sensitive:
+
         def miter():
             for match in search_query.regex.finditer(raw):
                 yield match.span()
@@ -431,19 +449,21 @@ def search_in_name(name, search_query, ctx_size=75):
 
         def miter():
             return spans
+
         if raw:
+
             def a(s, l):
                 return spans.append((s, s + l))
+
             primary_collator_without_punctuation().find_all(search_query.text, raw, a, search_query.mode == 'word')
 
     for start, end in miter():
-        before = raw[max(0, start-ctx_size):start]
-        after = raw[end:end+ctx_size]
+        before = raw[max(0, start - ctx_size) : start]
+        after = raw[end : end + ctx_size]
         yield before, raw[start:end], after, start
 
 
 class SearchInput(QWidget):  # {{{
-
     do_search = pyqtSignal(object)
     cleared = pyqtSignal()
     go_back = pyqtSignal()
@@ -492,19 +512,22 @@ class SearchInput(QWidget):  # {{{
         qt.addItem(_('Whole words'), 'word')
         qt.addItem(_('Nearby words'), 'near')
         qt.addItem(_('Regex'), 'regex')
-        qt.setToolTip('<p>' + _(
-            'Choose the type of search: <ul>'
-            '<li><b>Contains</b> will search for the entered text anywhere. It will ignore punctuation,'
-            ' spaces and accents, unless Case sensitive searching is enabled.'
-            '<li><b>Whole words</b> will search for whole words that equal the entered text. As with'
-            ' "Contains" searches punctuation and accents are ignored.'
-            '<li><b>Nearby words</b> will search for whole words that are near each other in the text.'
-            ' For example: <i>calibre cool</i> will find places in the text where the words <i>calibre</i> and <i>cool</i>'
-            ' occur within 60 characters of each other. To change the number of characters add the number to the end of'
-            ' the list of words, for example: <i>calibre cool awesome 120</i> will search for <i>calibre</i>, <i>cool</i>'
-            ' and <i>awesome</i> within 120 characters of each other.'
-            '<li><b>Regex</b> will interpret the text as a regular expression.'
-        ))
+        qt.setToolTip(
+            '<p>'
+            + _(
+                'Choose the type of search: <ul>'
+                '<li><b>Contains</b> will search for the entered text anywhere. It will ignore punctuation,'
+                ' spaces and accents, unless Case sensitive searching is enabled.'
+                '<li><b>Whole words</b> will search for whole words that equal the entered text. As with'
+                ' "Contains" searches punctuation and accents are ignored.'
+                '<li><b>Nearby words</b> will search for whole words that are near each other in the text.'
+                ' For example: <i>calibre cool</i> will find places in the text where the words <i>calibre</i> and <i>cool</i>'
+                ' occur within 60 characters of each other. To change the number of characters add the number to the end of'
+                ' the list of words, for example: <i>calibre cool awesome 120</i> will search for <i>calibre</i>, <i>cool</i>'
+                ' and <i>awesome</i> within 120 characters of each other.'
+                '<li><b>Regex</b> will interpret the text as a regular expression.'
+            )
+        )
         qt.setCurrentIndex(qt.findData(vprefs.get(f'viewer-{self.panel_name}-mode', 'normal') or 'normal'))
         qt.currentIndexChanged.connect(self.save_search_type)
         h.addWidget(qt)
@@ -558,10 +581,7 @@ class SearchInput(QWidget):  # {{{
     def search_query(self, backwards=False):
         text = self.search_box.currentText()
         if text:
-            return Search(
-                text, self.query_type.currentData() or 'normal',
-                self.case_sensitive.isChecked(), backwards
-            )
+            return Search(text, self.query_type.currentData() or 'normal', self.case_sensitive.isChecked(), backwards)
 
     def emit_search(self, backwards=False):
         boss = get_boss()
@@ -599,19 +619,22 @@ class SearchInput(QWidget):  # {{{
 
     def set_tooltips(self, key_map: dict[str, list[str]]) -> None:
         from calibre.gui2.viewer.shortcuts import index_to_key_sequence
+
         def as_text(prefix, action):
             ans = prefix
             if idx := key_map.get(action):
                 x = _(' or ').join(index_to_key_sequence(x).toString(QKeySequence.SequenceFormat.NativeText) for x in idx)
                 ans += f' [{x}]'
             return ans
+
         self.next_button.setToolTip(as_text(_('Find next match'), 'next_match'))
         self.prev_button.setToolTip(as_text(_('Find previous match'), 'previous_match'))
+
+
 # }}}
 
 
 class Results(QTreeWidget):  # {{{
-
     show_search_result = pyqtSignal(object)
     current_result_changed = pyqtSignal(object)
     count_changed = pyqtSignal(object)
@@ -698,8 +721,7 @@ class Results(QTreeWidget):  # {{{
         item.setData(0, RESULT_NUMBER_ROLE, len(self.search_results))
         item.setData(0, SPINE_IDX_ROLE, spine_idx)
         if isinstance(result, SearchResult):
-            tt = '<p>…' + escape(result.before, False) + '<b>' + escape(
-                result.text, False) + '</b>' + escape(result.after, False) + '…'
+            tt = '<p>…' + escape(result.before, False) + '<b>' + escape(result.text, False) + '</b>' + escape(result.after, False) + '…'
             item.setData(0, Qt.ItemDataRole.ToolTipRole, tt)
         item.setIcon(0, self.blank_icon)
         self.item_map[len(self.search_results)] = item
@@ -777,11 +799,11 @@ class Results(QTreeWidget):  # {{{
         if item is not None:
             self.scrollToItem(item)
 
+
 # }}}
 
 
 class SearchPanel(QWidget):  # {{{
-
     search_requested = pyqtSignal(object)
     results_found = pyqtSignal(object)
     show_search_result = pyqtSignal(object)
@@ -867,6 +889,7 @@ class SearchPanel(QWidget):  # {{{
                 spine_idx = idx_map.get(current_name, -1)
             except Exception:
                 import traceback
+
                 traceback.print_exc()
                 spine_idx = -1
             if spine_idx < 0:
@@ -887,6 +910,7 @@ class SearchPanel(QWidget):  # {{{
                         counter[q] += 1
                 except Exception:
                     import traceback
+
                     traceback.print_exc()
             self.results_found.emit(SearchFinished(search_query))
 
@@ -958,5 +982,6 @@ class SearchPanel(QWidget):  # {{{
 
     def set_tooltips(self, key_map: dict[str, list[str]]) -> None:
         self.search_input.set_tooltips(key_map)
+
 
 # }}}

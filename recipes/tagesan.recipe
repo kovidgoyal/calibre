@@ -2,7 +2,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class AdvancedUserRecipe1450864843(BasicNewsRecipe):
-    title = u'Tagesanzeiger'
+    title = 'Tagesanzeiger'
     __author__ = 'noxxx'
     language = 'de'
     oldest_article = 1
@@ -17,27 +17,21 @@ class AdvancedUserRecipe1450864843(BasicNewsRecipe):
     ignore_duplicate_articles = {'title', 'url'}
 
     feeds = [
-        (u'Front', u'http://www.tagesanzeiger.ch/rss.html'),
-        (u'Zurich', u'http://www.tagesanzeiger.ch/zuerich/rss.html'),
-        (u'Schweiz', u'http://www.tagesanzeiger.ch/schweiz/rss.html'),
-        (u'International', u'http://www.tagesanzeiger.ch/ausland/rss.html'),
-        (u'Wirtschaft', u'http://www.tagesanzeiger.ch/wirtschaft/rss.html'),
-        (u'Sport', u'http://www.tagesanzeiger.ch/sport/rss.html'),
-        (u'Kultur', u'http://www.tagesanzeiger.ch/kultur/rss.html'),
-        (u'Leben', u'http://www.tagesanzeiger.ch/leben/rss.html'),
-        (u'Panorama', u'http://www.tagesanzeiger.ch/panorama/rss.html'),
-        (u'Digital', u'http://www.tagesanzeiger.ch/digital/rss.html')
+        ('Front', 'http://www.tagesanzeiger.ch/rss.html'),
+        ('Zurich', 'http://www.tagesanzeiger.ch/zuerich/rss.html'),
+        ('Schweiz', 'http://www.tagesanzeiger.ch/schweiz/rss.html'),
+        ('International', 'http://www.tagesanzeiger.ch/ausland/rss.html'),
+        ('Wirtschaft', 'http://www.tagesanzeiger.ch/wirtschaft/rss.html'),
+        ('Sport', 'http://www.tagesanzeiger.ch/sport/rss.html'),
+        ('Kultur', 'http://www.tagesanzeiger.ch/kultur/rss.html'),
+        ('Leben', 'http://www.tagesanzeiger.ch/leben/rss.html'),
+        ('Panorama', 'http://www.tagesanzeiger.ch/panorama/rss.html'),
+        ('Digital', 'http://www.tagesanzeiger.ch/digital/rss.html'),
     ]
 
-    keep_only_tags = [dict(name='h1'),
-                      dict(name='h3'),
-                      dict(name='div', attrs={'id': 'topElement'}),
-                      dict(name='div', attrs={'id': 'mainContent'})
-                      ]
+    keep_only_tags = [dict(name='h1'), dict(name='h3'), dict(name='div', attrs={'id': 'topElement'}), dict(name='div', attrs={'id': 'mainContent'})]
 
-    auto_cleanup_keep = {'//div[@id="article-image"]',
-                         '//*[@class="standard"]'
-                         }
+    auto_cleanup_keep = {'//div[@id="article-image"]', '//*[@class="standard"]'}
 
     conversion_options = {'base_font_size': 12}
 

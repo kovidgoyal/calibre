@@ -1,9 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__   = 'GPL v3'
-__copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2012, Kovid Goyal <kovid at kovidgoyal.net>
 
 from io import BytesIO
 
@@ -17,7 +13,8 @@ def get_cover(docx):
     doc = docx.document
     get = docx.namespace.get
     images = docx.namespace.XPath(
-        '//*[name()="w:drawing" or name()="w:pict"]/descendant::*[(name()="a:blip" and @r:embed) or (name()="v:imagedata" and @r:id)][1]')
+        '//*[name()="w:drawing" or name()="w:pict"]/descendant::*[(name()="a:blip" and @r:embed) or (name()="v:imagedata" and @r:id)][1]'
+    )
     rid_map = docx.document_relationships[0]
     for image in images(doc):
         rid = get(image, 'r:embed') or get(image, 'r:id')
@@ -29,7 +26,7 @@ def get_cover(docx):
                 continue
             if width < 0 or height < 0:
                 continue
-            if 0.8 <= height/width <= 1.8 and height*width >= 160000:
+            if 0.8 <= height / width <= 1.8 and height * width >= 160000:
                 return fmt, raw
 
 
@@ -41,6 +38,7 @@ def get_metadata(stream):
     except Exception:
         cdata = None
         import traceback
+
         traceback.print_exc()
     c.close()
     stream.seek(0)
@@ -52,6 +50,7 @@ def get_metadata(stream):
 
 def set_metadata(stream, mi):
     from calibre.utils.zipfile import safe_replace
+
     c = DOCX(stream, extract=False)
     dp_name, ap_name = c.get_document_properties_names()
     dp_raw = c.read(dp_name)
@@ -77,5 +76,6 @@ def set_metadata(stream, mi):
 
 if __name__ == '__main__':
     import sys
+
     with open(sys.argv[-1], 'rb') as stream:
         print(get_metadata(stream))

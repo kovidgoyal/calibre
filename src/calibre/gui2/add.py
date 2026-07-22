@@ -1,8 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__ = 'GPL v3'
-__copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
+# License: GPLv3 Copyright: 2014, Kovid Goyal <kovid at kovidgoyal.net>
 
 import os
 import shutil
@@ -41,12 +38,10 @@ from calibre.utils.localization import _, ngettext
 def validate_source(source, parent=None):  # {{{
     if isinstance(source, (str, bytes)):
         if not os.path.exists(source):
-            error_dialog(parent, _('Cannot add books'), _(
-                'The path %s does not exist') % source, show=True)
+            error_dialog(parent, _('Cannot add books'), _('The path %s does not exist') % source, show=True)
             return False
-        if not os.access(source, os.X_OK|os.R_OK):
-            error_dialog(parent, _('Cannot add books'), _(
-                'You do not have permission to read %s') % source, show=True)
+        if not os.access(source, os.X_OK | os.R_OK):
+            error_dialog(parent, _('Cannot add books'), _('You do not have permission to read %s') % source, show=True)
             return False
     else:
         ok = False
@@ -55,16 +50,23 @@ def validate_source(source, parent=None):  # {{{
                 ok = True
                 break
         if not ok:
-            error_dialog(parent, _('Cannot add books'), _(
-                'You do not have permission to read any of the selected files'),
-                det_msg='\n'.join(source), show=True)
+            error_dialog(
+                parent,
+                _('Cannot add books'),
+                _('You do not have permission to read any of the selected files'),
+                det_msg='\n'.join(source),
+                show=True,
+            )
             return False
     return True
+
+
 # }}}
 
 
 def resolve_windows_links(paths, hwnd=None):
     from calibre_extensions.winutil import resolve_lnk
+
     for x in paths:
         if x.lower().endswith('.lnk'):
             try:
@@ -79,10 +81,18 @@ def resolve_windows_links(paths, hwnd=None):
 
 
 class Adder(QObject):
-
     do_one_signal = pyqtSignal()
 
-    def __init__(self, source, single_book_per_directory=True, db=None, parent=None, callback=None, pool=None, list_of_archives=False):
+    def __init__(
+        self,
+        source,
+        single_book_per_directory=True,
+        db=None,
+        parent=None,
+        callback=None,
+        pool=None,
+        list_of_archives=False,
+    ):
         if isinstance(source, str):
             source = make_long_path_useable(source)
         else:
@@ -93,6 +103,7 @@ class Adder(QObject):
         self.author_map_rules = None
         if gprefs.get('author_map_on_add_rules'):
             from calibre.ebooks.metadata.author_mapper import compile_rules as acr
+
             self.author_map_rules = acr(gprefs['author_map_on_add_rules'])
         self.single_book_per_directory = single_book_per_directory
         self.ignore_opf = False
@@ -145,7 +156,9 @@ class Adder(QObject):
             assert tdir is not None
             shutil.rmtree(tdir, ignore_errors=True)
         self.setParent(None)
-        self.find_identical_books_data = self.merged_books = self.added_duplicate_info = self.pool = self.items = self.duplicates = self.pd = self.db = self.dbref = self.tdir = self.file_groups = self.scan_thread = None  # noqa: E501
+        self.find_identical_books_data = self.merged_books = self.added_duplicate_info = self.pool = self.items = self.duplicates = self.pd = self.db = (
+            self.dbref
+        ) = self.tdir = self.file_groups = self.scan_thread = None  # noqa: E501
         self.deleteLater()
 
     def tick(self):
@@ -171,9 +184,11 @@ class Adder(QObject):
         except Exception:
             compiled_rules = ()
             import traceback
+
             traceback.print_exc()
 
         if iswindows or ismacos:
+
             def find_files(root):
                 for dirpath, dirnames, filenames in os.walk(root):
                     for files in find_books_in_directory(dirpath, self.single_book_per_directory, compiled_rules=compiled_rules):
@@ -183,7 +198,9 @@ class Adder(QObject):
                             files = list(resolve_windows_links(files, hwnd=self.win_id))
                         if files:
                             file_groups[len(file_groups)] = files
+
         else:
+
             def find_files(root):
                 if isinstance(root, str):
                     root = root.encode(filesystem_encoding)
@@ -202,17 +219,21 @@ class Adder(QObject):
             tdir = tempfile.mkdtemp(suffix='_archive', dir=self.tdir)
             if source.lower().endswith('.zip'):
                 from calibre.utils.zipfile import extractall
+
                 try:
                     extractall(source, tdir)
                 except Exception:
                     prints('Corrupt ZIP file, trying to use local headers')
                     from calibre.utils.localunzip import extractall
+
                     extractall(source, tdir)
             elif source.lower().endswith('.rar'):
                 from calibre.utils.unrar import extract
+
                 extract(source, tdir)
             elif source.lower().endswith('.7z'):
                 from calibre.utils.seven_zip import extract
+
                 extract(source, tdir)
             return tdir
 
@@ -241,8 +262,11 @@ class Adder(QObject):
                         unreadable_files.append(path)
                 if unreadable_files:
                     if not self.file_groups:
-                        m = ngettext('You do not have permission to read the selected file.',
-                                     'You do not have permission to read the selected files.', len(unreadable_files))
+                        m = ngettext(
+                            'You do not have permission to read the selected file.',
+                            'You do not have permission to read the selected files.',
+                            len(unreadable_files),
+                        )
                         self.scan_error = m + '\n' + '\n'.join(unreadable_files)
                     else:
                         a = self.report.append
@@ -260,14 +284,17 @@ class Adder(QObject):
             self.do_one_signal.emit()
             return
         if self.scan_error is not None:
-            error_dialog(self.pd, _('Cannot add books'), _(
-                'Failed to add any books, click "Show details" for more information.'),
-                         det_msg=self.scan_error, show=True)
+            error_dialog(
+                self.pd,
+                _('Cannot add books'),
+                _('Failed to add any books, click "Show details" for more information.'),
+                det_msg=self.scan_error,
+                show=True,
+            )
             self.break_cycles()
             return
         if not self.file_groups:
-            error_dialog(self.pd, _('Could not add'), _(
-                'No e-book files were found in %s') % self.source, show=True)
+            error_dialog(self.pd, _('Could not add'), _('No e-book files were found in %s') % self.source, show=True)
             self.break_cycles()
             return
         pd = self.pd
@@ -276,7 +303,8 @@ class Adder(QObject):
         pd.title = ngettext(
             'Reading metadata and adding to library (one book)...',
             'Reading metadata and adding to library ({} books)...',
-            pd.max).format(pd.max)
+            pd.max,
+        ).format(pd.max)
         pd.msg = ''
         pd.value = 0
         self.pool = Pool(name='AddBooks') if self.pool is None else self.pool
@@ -287,13 +315,18 @@ class Adder(QObject):
                 try:
                     self.pool.set_common_data(self.db.data_for_has_book())
                 except Failure as err:
-                    error_dialog(pd, _('Cannot add books'), _(
-                    'Failed to add any books, click "Show details" for more information.'),
-                    det_msg=as_unicode(err.failure_message) + '\n' + as_unicode(err.details), show=True)
+                    error_dialog(
+                        pd,
+                        _('Cannot add books'),
+                        _('Failed to add any books, click "Show details" for more information.'),
+                        det_msg=as_unicode(err.failure_message) + '\n' + as_unicode(err.details),
+                        show=True,
+                    )
                     pd.canceled = True
         self.groups_to_add = iter(self.file_groups)
         self.do_one = self.do_one_group
         self.do_one_signal.emit()
+
     # }}}
 
     def do_one_group(self):
@@ -312,12 +345,15 @@ class Adder(QObject):
         pd = self.pd
         assert pd is not None
         try:
-            pool(group_id, 'calibre.ebooks.metadata.worker', 'read_metadata',
-                 file_groups[group_id], group_id, tdir)
+            pool(group_id, 'calibre.ebooks.metadata.worker', 'read_metadata', file_groups[group_id], group_id, tdir)
         except Failure as err:
-            error_dialog(pd, _('Cannot add books'), _(
-            'Failed to add any books, click "Show details" for more information.'),
-            det_msg=as_unicode(err.failure_message) + '\n' + as_unicode(err.details), show=True)
+            error_dialog(
+                pd,
+                _('Cannot add books'),
+                _('Failed to add any books, click "Show details" for more information.'),
+                det_msg=as_unicode(err.failure_message) + '\n' + as_unicode(err.details),
+                show=True,
+            )
             pd.canceled = True
         self.do_one_signal.emit()
 
@@ -337,9 +373,13 @@ class Adder(QObject):
             except RuntimeError:
                 pass  # Tasks still remaining
             except Failure as err:
-                error_dialog(pd, _('Cannot add books'), _(
-                'Failed to add some books, click "Show details" for more information.'),
-                det_msg=str(err.failure_message) + '\n' + str(err.details), show=True)
+                error_dialog(
+                    pd,
+                    _('Cannot add books'),
+                    _('Failed to add some books, click "Show details" for more information.'),
+                    det_msg=str(err.failure_message) + '\n' + str(err.details),
+                    show=True,
+                )
                 pd.canceled = True
             else:
                 # All tasks completed
@@ -354,11 +394,17 @@ class Adder(QObject):
         else:
             group_id = worker_result.id
             if worker_result.is_terminal_failure:
-                error_dialog(pd, _('Critical failure'), _(
-                    'The read metadata worker process crashed while processing'
-                    ' some files. Adding of books is aborted. Click "Show details"'
-                    ' to see which files caused the problem.'), show=True,
-                    det_msg='\n'.join(file_groups[group_id]))
+                error_dialog(
+                    pd,
+                    _('Critical failure'),
+                    _(
+                        'The read metadata worker process crashed while processing'
+                        ' some files. Adding of books is aborted. Click "Show details"'
+                        ' to see which files caused the problem.'
+                    ),
+                    show=True,
+                    det_msg='\n'.join(file_groups[group_id]),
+                )
                 pd.canceled = True
             else:
                 try:
@@ -411,9 +457,11 @@ class Adder(QObject):
             mi.application_id = None
         if gprefs.get('tag_map_on_add_rules'):
             from calibre.ebooks.metadata.tag_mapper import map_tags
+
             mi.tags = map_tags(mi.tags, gprefs['tag_map_on_add_rules'])
         if self.author_map_rules:
             from calibre.ebooks.metadata.author_mapper import map_authors
+
             new_authors = map_authors(mi.authors, self.author_map_rules)
             if new_authors != mi.authors:
                 mi.authors = new_authors
@@ -529,10 +577,10 @@ class Adder(QObject):
             # detection/automerge will fail for this book.
             traceback.print_exc()
         if DEBUG:
-            prints('Added', mi.title, f'to db in: {time.time()-st:.1f}')
+            prints('Added', mi.title, f'to db in: {time.time() - st:.1f}')
 
     def add_formats(self, book_id, paths, mi, replace=True, is_an_add=False):
-        fmap = {p.rpartition(os.path.extsep)[-1].lower():p for p in paths}
+        fmap = {p.rpartition(os.path.extsep)[-1].lower(): p for p in paths}
         fmt_map = {}
         db = self.db
         assert db is not None
@@ -599,12 +647,16 @@ class Adder(QObject):
         if self.report:
             added_some = self.items or added_book_ids
             d = warning_dialog if added_some else error_dialog
-            msg = _('There were problems adding some files, click "Show details" for more information') if added_some else _(
-                'Failed to add any books, click "Show details" for more information')
+            msg = (
+                _('There were problems adding some files, click "Show details" for more information')
+                if added_some
+                else _('Failed to add any books, click "Show details" for more information')
+            )
             d(pd, _('Errors while adding'), msg, det_msg='\n'.join(self.report), show=True)
 
         potentially_convertible = added_book_ids | self.merged_formats_added_to
         from calibre.gui2.ui import get_gui
+
         g = get_gui()
         if gprefs['manual_add_auto_convert'] and potentially_convertible and g is not None:
             g.iactions['Convert Books'].auto_convert_auto_add(potentially_convertible)

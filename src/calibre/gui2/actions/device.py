@@ -1,12 +1,9 @@
 #!/usr/bin/env python
-
-
-__license__   = 'GPL v3'
-__copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2010, Kovid Goyal <kovid@kovidgoyal.net>
 
 from qt.core import QIcon, QMenu, QTimer, QToolButton, QUrl, pyqtSignal
 
+from calibre.constants import ismacos
 from calibre.gui2 import info_dialog, open_url, question_dialog
 from calibre.gui2.actions import InterfaceAction
 from calibre.gui2.dialogs.smartdevice import SmartdeviceDialog
@@ -34,17 +31,16 @@ def open_in_browser():
 
 
 class ShareConnMenu(QMenu):  # {{{
-
     connect_to_folder = pyqtSignal()
 
     config_email = pyqtSignal()
+    share_airdrop = pyqtSignal()
     toggle_server = pyqtSignal()
     control_smartdevice = pyqtSignal()
     server_state_changed_signal = pyqtSignal(object, object)
     dont_add_to = frozenset(('context-menu-device',))
 
-    DEVICE_MSGS = [_('Start wireless device connection'),
-            _('Stop wireless device connection')]
+    DEVICE_MSGS = [_('Start wireless device connection'), _('Stop wireless device connection')]
 
     def __init__(self, parent=None):
         QMenu.__init__(self, parent)
@@ -56,24 +52,24 @@ class ShareConnMenu(QMenu):  # {{{
         self.connect_to_folder_action = mitem
 
         self.addSeparator()
-        self.toggle_server_action = \
-            self.addAction(QIcon.ic('network-server.png'),
-            _('Start Content server'))
+        self.toggle_server_action = self.addAction(QIcon.ic('network-server.png'), _('Start Content server'))
         toggle_server_action = self.toggle_server_action
         assert toggle_server_action is not None
         connect_lambda(toggle_server_action.triggered, self, lambda self: self.toggle_server.emit())
-        self.open_server_in_browser_action = self.addAction(
-            QIcon.ic('forward.png'), _('Visit Content server in browser'))
+        self.open_server_in_browser_action = self.addAction(QIcon.ic('forward.png'), _('Visit Content server in browser'))
         open_server_in_browser_action = self.open_server_in_browser_action
         assert open_server_in_browser_action is not None
         connect_lambda(open_server_in_browser_action.triggered, self, lambda self: open_in_browser())
         open_server_in_browser_action.setVisible(False)
-        self.control_smartdevice_action = \
-            self.addAction(QIcon.ic('dot_red.png'),
-            self.DEVICE_MSGS[0])
+        self.control_smartdevice_action = self.addAction(QIcon.ic('dot_red.png'), self.DEVICE_MSGS[0])
         control_smartdevice_action = self.control_smartdevice_action
         assert control_smartdevice_action is not None
         connect_lambda(control_smartdevice_action.triggered, self, lambda self: self.control_smartdevice.emit())
+        self.airdrop_action = None
+        if ismacos:
+            self.airdrop_action = self.addAction(QIcon.ic('send.png'), _('Send via AirDrop'))
+            assert self.airdrop_action is not None
+            connect_lambda(self.airdrop_action.triggered, self, lambda self: self.share_airdrop.emit())
         self.addSeparator()
 
         self.email_actions = []
@@ -82,25 +78,29 @@ class ShareConnMenu(QMenu):  # {{{
             r = parent.keyboard.register_shortcut
             prefix = 'Share/Connect Menu '
             gr = ConnectShareAction.action_spec[0]
-            for attr in ('folder', ):
+            for attr in ('folder',):
                 ac = getattr(self, f'connect_to_{attr}_action')
-                r(prefix + attr, str(ac.text()), action=ac,
-                        group=gr)
-            r(prefix+' content server', _('Start/stop Content server'),
-                    action=self.toggle_server_action, group=gr)
-            r(prefix + ' open server in browser', open_server_in_browser_action.text(), action=open_server_in_browser_action, group=gr)
+                r(prefix + attr, str(ac.text()), action=ac, group=gr)
+            r(prefix + ' content server', _('Start/stop Content server'), action=self.toggle_server_action, group=gr)
+            r(
+                prefix + ' open server in browser',
+                open_server_in_browser_action.text(),
+                action=open_server_in_browser_action,
+                group=gr,
+            )
 
     def server_state_changed(self, running):
         from calibre.utils.mdns import get_external_ip, verify_ip_address
+
         text = _('Start Content server')
         if running:
             from calibre.srv.opts import server_config
+
             opts = server_config()
             listen_on = verify_ip_address(opts.listen_on) or get_external_ip()
             protocol = 'HTTPS' if opts.ssl_certfile and opts.ssl_keyfile else 'HTTP'
             try:
-                ip_text = ' ' + _('[{ip}, port {port}, {protocol}]').format(
-                        ip=listen_on, port=opts.port, protocol=protocol)
+                ip_text = ' ' + _('[{ip}, port {port}, {protocol}]').format(ip=listen_on, port=opts.port, protocol=protocol)
             except Exception:
                 ip_text = f' [{listen_on} {protocol}]'
             self.ip_text = ip_text
@@ -122,17 +122,17 @@ class ShareConnMenu(QMenu):  # {{{
 
     def build_email_entries(self, sync_menu):
         from calibre.gui2.device import DeviceAction
+
         for ac in self.email_actions:
             self.removeAction(ac)
         self.email_actions = []
         self.memory = []
         opts = email_config().parse()
         if opts.accounts:
-            self.email_to_menu = QMenu(_('Email to')+'...', self)
+            self.email_to_menu = QMenu(_('Email to') + '...', self)
             ac = self.addMenu(self.email_to_menu)
             self.email_actions.append(ac)
-            self.email_to_and_delete_menu = QMenu(
-                    _('Email to and delete from library')+'...', self)
+            self.email_to_and_delete_menu = QMenu(_('Email to and delete from library') + '...', self)
             keys = sorted(opts.accounts.keys())
 
             def sk(account):
@@ -142,34 +142,27 @@ class ShareConnMenu(QMenu):  # {{{
                 formats, auto, default = opts.accounts[account]
                 subject = opts.subjects.get(account, '')
                 alias = opts.aliases.get(account, '')
-                dest = 'mail:'+account+';'+formats+';'+subject
-                action1 = DeviceAction(dest, False, False, 'mail.png',
-                        alias or account)
-                action2 = DeviceAction(dest, True, False, 'mail.png',
-                        (alias or account) + ' ' + _('(delete from library)'))
+                dest = 'mail:' + account + ';' + formats + ';' + subject
+                action1 = DeviceAction(dest, False, False, 'mail.png', alias or account)
+                action2 = DeviceAction(dest, True, False, 'mail.png', (alias or account) + ' ' + _('(delete from library)'))
                 self.email_to_menu.addAction(action1)
                 self.email_to_and_delete_menu.addAction(action2)
                 self.memory.append(action1)
                 self.memory.append(action2)
                 if default:
-                    ac = DeviceAction(dest, False, False,
-                            'mail.png', _('Email to') + ' ' +(alias or
-                                account))
+                    ac = DeviceAction(dest, False, False, 'mail.png', _('Email to') + ' ' + (alias or account))
                     self.addAction(ac)
                     self.email_actions.append(ac)
                     ac.a_s.connect(sync_menu.action_triggered)
                 action1.a_s.connect(sync_menu.action_triggered)
                 action2.a_s.connect(sync_menu.action_triggered)
-            action1 = DeviceAction('choosemail:', False, False, 'mail.png',
-                    _('Select recipients'))
-            action2 = DeviceAction('choosemail:', True, False, 'mail.png',
-                    _('Select recipients') + ' ' + _('(delete from library)'))
+            action1 = DeviceAction('choosemail:', False, False, 'mail.png', _('Select recipients'))
+            action2 = DeviceAction('choosemail:', True, False, 'mail.png', _('Select recipients') + ' ' + _('(delete from library)'))
             self.email_to_menu.addAction(action1)
             self.email_to_and_delete_menu.addAction(action2)
             self.memory.append(action1)
             self.memory.append(action2)
-            tac1 = DeviceAction('choosemail:', False, False, 'mail.png',
-                    _('Email to selected recipients...'))
+            tac1 = DeviceAction('choosemail:', False, False, 'mail.png', _('Email to selected recipients...'))
             self.addAction(tac1)
             tac1.a_s.connect(sync_menu.action_triggered)
             self.memory.append(tac1)
@@ -192,11 +185,11 @@ class ShareConnMenu(QMenu):  # {{{
         assert connect_to_folder_action is not None
         connect_to_folder_action.setEnabled(not device_connected)
 
+
 # }}}
 
 
 class SendToDeviceAction(InterfaceAction):
-
     name = 'Send To Device'
     action_spec = (_('Send to device'), 'sync.png', None, _('D'))
     dont_add_to = frozenset(('menubar', 'toolbar', 'context-menu', 'toolbar-child'))
@@ -215,10 +208,13 @@ class SendToDeviceAction(InterfaceAction):
 
 
 class ConnectShareAction(InterfaceAction):
-
     name = 'Connect Share'
-    action_spec = (_('Connect/share'), 'connect_share.png',
-                   _('Share books using a web server or email. Connect to special devices, etc.'), None)
+    action_spec = (
+        _('Connect/share'),
+        'connect_share.png',
+        _('Share books using a web server or email. Connect to special devices, etc.'),
+        None,
+    )
     popup_type = QToolButton.ToolButtonPopupMode.InstantPopup
 
     def genesis(self):
@@ -227,10 +223,19 @@ class ConnectShareAction(InterfaceAction):
         self.share_conn_menu.aboutToShow.connect(self.set_smartdevice_action_state)
         self.share_conn_menu.toggle_server.connect(self.toggle_content_server)
         self.share_conn_menu.control_smartdevice.connect(self.control_smartdevice)
-        connect_lambda(self.share_conn_menu.config_email, self, lambda self:
-            self.gui.iactions['Preferences'].do_config(initial_plugin=('Sharing', 'Email'), close_after_initial=True))
+        connect_lambda(
+            self.share_conn_menu.config_email,
+            self,
+            lambda self: self.gui.iactions['Preferences'].do_config(initial_plugin=('Sharing', 'Email'), close_after_initial=True),
+        )
         self.qaction.setMenu(self.share_conn_menu)
         self.share_conn_menu.connect_to_folder.connect(self.gui.connect_to_folder)
+        self.share_conn_menu.share_airdrop.connect(self.share_via_airdrop)
+
+    def share_via_airdrop(self):
+        ac = self.gui.iactions.get('AirDrop books')
+        if ac is not None:
+            ac.airdrop_books()
 
     def location_selected(self, loc):
         enabled = loc == 'library'
@@ -258,9 +263,12 @@ class ConnectShareAction(InterfaceAction):
             self.gui.start_content_server()
         else:
             self.gui.content_server.stop()
-            self.stopping_msg = info_dialog(self.gui, _('Stopping'),
-                    _('Stopping server, this could take up to a minute, please wait...'),
-                    show_copy_button=False)
+            self.stopping_msg = info_dialog(
+                self.gui,
+                _('Stopping'),
+                _('Stopping server, this could take up to a minute, please wait...'),
+                show_copy_button=False,
+            )
             QTimer.singleShot(1000, self.check_exited)
             self.stopping_msg.exec()
 
@@ -277,9 +285,11 @@ class ConnectShareAction(InterfaceAction):
         if running:
             dm.stop_plugin('smartdevice')
             if dm.get_option('smartdevice', 'autostart'):
-                if not question_dialog(self.gui, _('Disable autostart'),
-                        _('Do you want wireless device connections to be'
-                            ' started automatically when calibre starts?')):
+                if not question_dialog(
+                    self.gui,
+                    _('Disable autostart'),
+                    _('Do you want wireless device connections to be started automatically when calibre starts?'),
+                ):
                     dm.set_option('smartdevice', 'autostart', False)
         else:
             sd_dialog = SmartdeviceDialog(self.gui)
@@ -292,6 +302,7 @@ class ConnectShareAction(InterfaceAction):
 
     def set_smartdevice_action_state(self):
         from calibre.gui2.dialogs.smartdevice import get_all_ip_addresses
+
         dm = self.gui.device_manager
 
         forced_ip = dm.get_option('smartdevice', 'force_ip_address')
@@ -317,7 +328,7 @@ class ConnectShareAction(InterfaceAction):
             use_fixed_port = dm.get_option('smartdevice', 'use_fixed_port')
             port_number = dm.get_option('smartdevice', 'port_number')
             if show_port and use_fixed_port:
-                text = self.share_conn_menu.DEVICE_MSGS[1]  + f' [{formatted_addresses}, port {port_number}]'
+                text = self.share_conn_menu.DEVICE_MSGS[1] + f' [{formatted_addresses}, port {port_number}]'
             else:
                 text = self.share_conn_menu.DEVICE_MSGS[1] + ' [' + formatted_addresses + ']'
 

@@ -7,8 +7,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 def classes(classes):
     q = frozenset(classes.split(' '))
-    return dict(
-        attrs={'class': lambda x: x and frozenset(x.split()).intersection(q)})
+    return dict(attrs={'class': lambda x: x and frozenset(x.split()).intersection(q)})
 
 
 class FoxNews(BasicNewsRecipe):
@@ -35,7 +34,7 @@ class FoxNews(BasicNewsRecipe):
         'days': {
             'short': 'Oldest article to download from this news source. In days ',
             'long': 'For example, 0.5, gives you articles from the past 12 hours',
-            'default': str(oldest_article)
+            'default': str(oldest_article),
         }
     }
 
@@ -45,11 +44,7 @@ class FoxNews(BasicNewsRecipe):
         if d and isinstance(d, str):
             self.oldest_article = float(d)
 
-    conversion_options = {
-        'comment': description,
-        'tags': category,
-        'publisher': publisher,
-        'language': language}
+    conversion_options = {'comment': description, 'tags': category, 'publisher': publisher, 'language': language}
 
     remove_attributes = ['xmlns', 'lang']
     ignore_duplicate_articles = {'title', 'url'}
@@ -62,13 +57,15 @@ class FoxNews(BasicNewsRecipe):
         classes('featured-video video-container'),
     ]
 
-    feeds = [(u'Latest Headlines', u'http://feeds.foxnews.com/foxnews/latest'),
-             (u'National', u'http://feeds.foxnews.com/foxnews/national'),
-             (u'World', u'http://feeds.foxnews.com/foxnews/world'),
-             (u'Politics', u'http://feeds.foxnews.com/foxnews/politics'),
-             (u'Opinion', u'http://feeds.foxnews.com/foxnews/opinion'),
-             (u'Science', u'http://feeds.foxnews.com/foxnews/science'),
-             (u'Technology', u'http://feeds.foxnews.com/foxnews/tech'),
-             (u'Health', u'http://feeds.foxnews.com/foxnews/health'),
-             (u'Lifestyle', u'http://feeds.foxnews.com/foxnews/section/lifestyle'),
-             (u'Travel', u'http://feeds.foxnews.com/foxnews/internal/travel/mixed')]
+    feeds = [
+        ('Latest Headlines', 'http://feeds.foxnews.com/foxnews/latest'),
+        ('National', 'http://feeds.foxnews.com/foxnews/national'),
+        ('World', 'http://feeds.foxnews.com/foxnews/world'),
+        ('Politics', 'http://feeds.foxnews.com/foxnews/politics'),
+        ('Opinion', 'http://feeds.foxnews.com/foxnews/opinion'),
+        ('Science', 'http://feeds.foxnews.com/foxnews/science'),
+        ('Technology', 'http://feeds.foxnews.com/foxnews/tech'),
+        ('Health', 'http://feeds.foxnews.com/foxnews/health'),
+        ('Lifestyle', 'http://feeds.foxnews.com/foxnews/section/lifestyle'),
+        ('Travel', 'http://feeds.foxnews.com/foxnews/internal/travel/mixed'),
+    ]

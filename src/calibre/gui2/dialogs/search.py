@@ -1,5 +1,4 @@
-__license__   = 'GPL v3'
-__copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
+# License: GPLv3 Copyright: 2008, Kovid Goyal <kovid at kovidgoyal.net>
 
 import copy
 import re
@@ -48,13 +47,13 @@ last_matchkind = CONTAINS_MATCH
 # UI {{{
 def init_dateop(cb):
     for op, desc in [
-            ('=', _('equal to')),
-            ('<', _('before')),
-            ('>', _('after')),
-            ('<=', _('before or equal to')),
-            ('>=', _('after or equal to')),
-            ('s', _('is set')),
-            ('u', _('is unset')),
+        ('=', _('equal to')),
+        ('<', _('before')),
+        ('>', _('after')),
+        ('<=', _('before or equal to')),
+        ('>=', _('after or equal to')),
+        ('s', _('is set')),
+        ('u', _('is unset')),
     ]:
         cb.addItem(desc, op)
 
@@ -68,11 +67,14 @@ def create_msg_label(self):
     f.setFrameShape(QFrame.Shape.StyledPanel)
     f.setFrameShadow(QFrame.Shadow.Raised)
     l = QVBoxLayout(f)
-    la = QLabel(_(
-        '<p>You can also perform other kinds of advanced searches, for example checking'
-        ' for books that have no covers, combining multiple search expression using Boolean'
-        ' operators and so on. See <a href="%s">The search interface</a> for more information.'
-    ) % localize_user_manual_link('https://manual.calibre-ebook.com/gui.html#the-search-interface'))
+    la = QLabel(
+        _(
+            '<p>You can also perform other kinds of advanced searches, for example checking'
+            ' for books that have no covers, combining multiple search expression using Boolean'
+            ' operators and so on. See <a href="%s">The search interface</a> for more information.'
+        )
+        % localize_user_manual_link('https://manual.calibre-ebook.com/gui.html#the-search-interface')
+    )
     la.setMinimumSize(QSize(150, 0))
     la.setWordWrap(True)
     la.setOpenExternalLinks(True)
@@ -88,7 +90,7 @@ def create_match_kind(self):
         _('Contains: the word or phrase matches anywhere in the metadata field'),
         _('Equals: the word or phrase must match the entire metadata field'),
         _('Regular expression: the expression must match anywhere in the metadata field'),
-        _("Character variant: 'contains' with accents ignored and punctuation significant")
+        _("Character variant: 'contains' with accents ignored and punctuation significant"),
     ])
     l = QHBoxLayout()
     l.addWidget(la), l.addWidget(m)
@@ -117,9 +119,9 @@ def create_adv_tab(self):
     l = QFormLayout(g1)
     l.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.AllNonFixedFieldsGrow)
     for key, text in (
-            ('all', _('A&ll these words:')),
-            ('phrase', _('&This exact phrase:')),
-            ('any', _('O&ne or more of these words:')),
+        ('all', _('A&ll these words:')),
+        ('phrase', _('&This exact phrase:')),
+        ('any', _('O&ne or more of these words:')),
     ):
         le = QLineEdit(w)
         le.setClearButtonEnabled(True)
@@ -176,8 +178,7 @@ def create_simple_tab(self, db):
     self.tags_box.update_items_cache(db.new_api.all_field_names('tags'))
     l.addRow(_('Ta&gs:'), le)
 
-    searchables = sorted(db.field_metadata.searchable_fields(),
-                            key=lambda x: sort_key(x if x[0] != '#' else x[1:]))
+    searchables = sorted(db.field_metadata.searchable_fields(), key=lambda x: sort_key(x if x[0] != '#' else x[1:]))
     self.general_combo = QComboBox(w)
     self.general_combo.addItems(searchables)
     self.box_last_values = copy.deepcopy(box_values)
@@ -186,12 +187,11 @@ def create_simple_tab(self, db):
     le.setObjectName('general_box')
     l.addRow(self.general_combo, le)
     if self.box_last_values:
-        for k,v in self.box_last_values.items():
+        for k, v in self.box_last_values.items():
             if k == 'general_index':
                 continue
             getattr(self, k).setText(v)
-        self.general_combo.setCurrentIndex(
-                self.general_combo.findText(self.box_last_values['general_index']))
+        self.general_combo.setCurrentIndex(self.general_combo.findText(self.box_last_values['general_index']))
 
 
 def toggle_date_conditions_visibility(self):
@@ -225,11 +225,11 @@ def create_date_tab(self, db):
     h = QHBoxLayout()
     l.addLayout(h)
     self.date_field = df = add(_('&Search the'), QComboBox(w))
-    vals = [((v['search_terms'] or [k])[0], v['name'] or k)
-                for k, v in db.field_metadata.iter_items()
-                    if v.get('datatype', None) == 'datetime' or
-                       (v.get('datatype', None) == 'composite' and
-                        v.get('display', {}).get('composite_sort', None) == 'date')]
+    vals = [
+        ((v['search_terms'] or [k])[0], v['name'] or k)
+        for k, v in db.field_metadata.iter_items()
+        if v.get('datatype', None) == 'datetime' or (v.get('datatype', None) == 'composite' and v.get('display', {}).get('composite_sort', None) == 'date')
+    ]
     for k, v in sorted(vals, key=lambda k_v: sort_key(k_v[1])):
         df.addItem(v, k)
     h.addWidget(df)
@@ -296,41 +296,47 @@ def create_template_tab(self):
     le.setClearButtonEnabled(True)
     le.setObjectName('template_value_box')
     le.setPlaceholderText(_('The value to search for'))
-    le.setToolTip('<p>' +
-                  _("You can use the search specifications described "
-                    "in the calibre documentation. For example, with Number "
-                    "comparisons you can use the relational operators like '>=' etc. "
-                    "With Text comparisons you can use contains (T), exact (=T), "
-                    "or regular expression matches (~T), where T is your text. "
-                    "With Date you can use 'today', 'yesterday', etc. When checking for "
-                    "Set use 'true' or 'yes'. When checking for Not set use 'false' "
-                    "or 'no'") + '</p>')
+    le.setToolTip(
+        '<p>'
+        + _(
+            "You can use the search specifications described "
+            "in the calibre documentation. For example, with Number "
+            "comparisons you can use the relational operators like '>=' etc. "
+            "With Text comparisons you can use contains (T), exact (=T), "
+            "or regular expression matches (~T), where T is your text. "
+            "With Date you can use 'today', 'yesterday', etc. When checking for "
+            "Set use 'true' or 'yes'. When checking for Not set use 'false' "
+            "or 'no'"
+        )
+        + '</p>'
+    )
     l.addRow(_('Template &value:'), le)
 
     self.template_test_type_box = le = QComboBox(w)
     le.setObjectName('template_test_type_box')
-    for op, desc in [
-            ('t', _('Text')),
-            ('d', _('Date')),
-            ('n', _('Number')),
-            ('b', _('Set/Not set'))]:
+    for op, desc in [('t', _('Text')), ('d', _('Date')), ('n', _('Number')), ('b', _('Set/Not set'))]:
         le.addItem(desc, op)
     le.setToolTip(_('How the template result will be compared to the value'))
     l.addRow(_('C&omparison type:'), le)
 
     from calibre.gui2.dialogs.template_line_editor import TemplateLineEditor
+
     self.template_program_box = le = TemplateLineEditor(self.tab_widget)
     le.setObjectName('template_program_box')
     le.setPlaceholderText(_('The template that generates the value'))
-    le.setToolTip('<p>' +
-                  _('Right click to open a template editor. <br>'
-                    'Technical note: the set of book ids already matched by '
-                    'previous search terms in the search expression is passed '
-                    'to the template in the global variables dictionary with the '
-                    'key "{0}". You can use the set to limit any work the '
-                    'template does to the set of books already matched, possibly '
-                    'improving performance.'
-                    ).format('_candidates')  + '</p>')
+    le.setToolTip(
+        '<p>'
+        + _(
+            'Right click to open a template editor. <br>'
+            'Technical note: the set of book ids already matched by '
+            'previous search terms in the search expression is passed '
+            'to the template in the global variables dictionary with the '
+            'key "{0}". You can use the set to limit any work the '
+            'template does to the set of books already matched, possibly '
+            'improving performance.'
+        ).format('_candidates')
+        + '</p>'
+    )
     lo = QHBoxLayout()
     lo.addWidget(le)
     self.edit_template_button = tb = QToolButton()
@@ -364,11 +370,12 @@ def setup_ui(self, db):
     create_simple_tab(self, db)
     create_date_tab(self, db)
     create_template_tab(self)
+
+
 # }}}
 
 
 class SearchDialog(QDialog):
-
     mc: str = ''
     tab_widget: QTabWidget
     matchkind: QComboBox
@@ -410,6 +417,7 @@ class SearchDialog(QDialog):
         # Get metadata of some of the selected books to give to the template
         # dialog to help test the template
         from calibre.gui2.ui import get_gui
+
         view = get_gui(fail_if_absent=True).library_view
         rows = view.selectionModel().selectedRows()[0:10]  # Maximum of 10 books
         mi = [db.new_api.get_proxy_metadata(db.data.index_to_id(x.row())) for x in rows]
@@ -424,15 +432,12 @@ class SearchDialog(QDialog):
             if w is not None:
                 w.setFocus(Qt.FocusReason.OtherFocusReason)
         elif current_tab == 3:
-            self.template_program_box.setText(
-                      gprefs.get('advanced_search_template_tab_program_field', ''))
-            self.template_value_box.setText(
-                      gprefs.get('advanced_search_template_tab_value_field', ''))
-            self.template_test_type_box.setCurrentIndex(
-                      int(gprefs.get('advanced_search_template_tab_test_field', '0')))
+            self.template_program_box.setText(gprefs.get('advanced_search_template_tab_program_field', ''))
+            self.template_value_box.setText(gprefs.get('advanced_search_template_tab_value_field', ''))
+            self.template_test_type_box.setCurrentIndex(int(gprefs.get('advanced_search_template_tab_test_field', '0')))
         self.current_search_text = get_gui(fail_if_absent=True).search.current_text
         if self.current_search_text.startswith('template:'):
-            self.current_search_text = self.current_search_text[len('template:'):]
+            self.current_search_text = self.current_search_text[len('template:') :]
             if self.current_search_text.startswith('"""'):
                 self.current_search_text = self.current_search_text[3:-3]
             elif self.current_search_text.startswith('"'):
@@ -462,19 +467,15 @@ class SearchDialog(QDialog):
         self.template_program_box.setText(template)
 
     def save_state(self):
-        gprefs['advanced search dialog current tab'] = \
-            self.tab_widget.currentIndex()
+        gprefs['advanced search dialog current tab'] = self.tab_widget.currentIndex()
         if self.tab_widget.currentIndex() == 1:
             fw = self.tab_widget.focusWidget()
             if fw:
                 gprefs.set('advanced_search_simple_tab_focused_field', fw.objectName())
         elif self.tab_widget.currentIndex() == 3:
-            gprefs.set('advanced_search_template_tab_program_field',
-                       str(self.template_program_box.text()))
-            gprefs.set('advanced_search_template_tab_value_field',
-                       str(self.template_value_box.text()))
-            gprefs.set('advanced_search_template_tab_test_field',
-                       str(self.template_test_type_box.currentIndex()))
+            gprefs.set('advanced_search_template_tab_program_field', str(self.template_program_box.text()))
+            gprefs.set('advanced_search_template_tab_value_field', str(self.template_value_box.text()))
+            gprefs.set('advanced_search_template_tab_test_field', str(self.template_test_type_box.currentIndex()))
 
     def accept(self):
         self.save_state()
@@ -509,8 +510,7 @@ class SearchDialog(QDialog):
 
     def search_string(self):
         i = self.tab_widget.currentIndex()
-        return (self.adv_search_string, self.box_search_string,
-                self.date_search_string, self.template_search_string)[i]()
+        return (self.adv_search_string, self.box_search_string, self.date_search_string, self.template_search_string)[i]()
 
     def template_search_string(self):
         template = str(self.template_program_box.text())
@@ -538,7 +538,7 @@ class SearchDialog(QDialog):
             return ans
         if self.sel_daysago.isChecked():
             val = self.date_daysago.value()
-            val *= {0:1, 1:7, 2:30, 3:365}[self.date_ago_type.currentIndex()]
+            val *= {0: 1, 1: 7, 2: 30, 3: 365}[self.date_ago_type.currentIndex()]
             return f'{prefix}{val}daysago'
         return '{}{}'.format(prefix, str(self.date_human.itemData(self.date_human.currentIndex()) or ''))
 
@@ -613,8 +613,7 @@ class SearchDialog(QDialog):
         box_values = copy.deepcopy(self.box_last_values)
         last_matchkind = mk
         if general:
-            ans.append(str(self.general_combo.currentText()) + ':"' +
-                    self.mc + general + '"')
+            ans.append(str(self.general_combo.currentText()) + ':"' + self.mc + general + '"')
         if ans:
             return ' and '.join(ans)
         return ''
@@ -622,8 +621,10 @@ class SearchDialog(QDialog):
 
 if __name__ == '__main__':
     from calibre.library import db
+
     db = db()
     from calibre.gui2 import Application
+
     app = Application([])
     d = SearchDialog(None, db)
     d.exec()

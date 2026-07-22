@@ -12,7 +12,7 @@ from widgets import create_button
 CLASS_NAME = 'conversion-option-group'
 indent = '↳\xa0'
 
-add_extra_css(def():
+add_extra_css(def ():
     style = ''
     sel = '.' + CLASS_NAME + ' '
     style += build_rule(sel + 'input[type="checkbox"]', margin_left='0')
@@ -56,6 +56,7 @@ def sanitize_accelerator(text):
     return text.replace('&', '')
 # }}}
 
+
 def subset_choice(name, choices, tooltip=None):  # {{{
     if get_option_default_value(name) is undefined:
         raise KeyError(f'{name} is not a known option')
@@ -74,7 +75,7 @@ def subset_choice(name, choices, tooltip=None):  # {{{
             return ','.join(ans)
         ,
         'set': def (container, val):
-            q = {x.strip():True for x in (val or '').split(',')}
+            q = {x.strip(): True for x in (val or '').split(',')}
             for w in container.querySelectorAll('input'):
                 w.checked = bool(q[w.name])
         ,
@@ -85,6 +86,7 @@ def subset_choice(name, choices, tooltip=None):  # {{{
     ops.set(ans, get_option_value(name))
     return ans
 # }}}
+
 
 def create_simple_widget(name, text, tooltip, input_widget_, getter, setter, suffix):  # {{{
     if get_option_default_value(name) is undefined:
@@ -127,6 +129,7 @@ def create_simple_widget(name, text, tooltip, input_widget_, getter, setter, suf
     return label
 # }}}
 
+
 def checkbox(name, text, tooltip):  # {{{
     return create_simple_widget(name, text, tooltip, E.input(type='checkbox'),
         def getter(w):  # noqa: unused-local
@@ -138,6 +141,7 @@ def checkbox(name, text, tooltip):  # {{{
     )
 # }}}
 
+
 def lineedit(name, text, width=25, tooltip=None, suffix=None):  # {{{
     return create_simple_widget(name, text, tooltip, E.input(type='text', size=str(width)),
             def getter(w):  # noqa: unused-local
@@ -147,9 +151,10 @@ def lineedit(name, text, width=25, tooltip=None, suffix=None):  # {{{
             ,
             def setter(w, val):  # noqa: unused-local
                 w.value = val or ''
-            , suffix=suffix
+            , suffix = suffix
     )
 # }}}
+
 
 def float_spin(name, text, tooltip=None, step=0.1, min=0, max=100, unit=None):  # {{{
     f = E.input(type='number', step=str(step), min=str(min), max=str(max), required=True)
@@ -164,9 +169,10 @@ def float_spin(name, text, tooltip=None, step=0.1, min=0, max=100, unit=None):  
         def setter(w, val):  # noqa: unused-local
             w.value = str(float(val))
         ,
-        suffix=unit
+        suffix = unit
     )
 # }}}
+
 
 def int_spin(name, text, tooltip=None, step=1, min=0, max=100, unit=None):  # {{{
     f = E.input(type='number', step=str(step), min=str(min), max=str(max), required=True)
@@ -181,9 +187,10 @@ def int_spin(name, text, tooltip=None, step=1, min=0, max=100, unit=None):  # {{
         def setter(w, val):  # noqa: unused-local
             w.value = str(int(val))
         ,
-        suffix=unit
+        suffix = unit
     )
 # }}}
+
 
 def choices(name, text, choices, tooltip):  # {{{
     f = E.select()
@@ -203,6 +210,7 @@ def choices(name, text, choices, tooltip):  # {{{
     )
 # }}}
 
+
 def textarea(name, text, tooltip):  # {{{
     ans = create_simple_widget(name, text, tooltip, E.textarea(rows='30', cols='70'),
             def getter(w):  # noqa: unused-local
@@ -216,6 +224,7 @@ def textarea(name, text, tooltip):  # {{{
     ans.classList.add('vertical')
     return ans
 # }}}
+
 
 def container_for_option(name):
     return document.getElementById(container_id).querySelector(f'[data-option-name="{name}"]')
@@ -289,10 +298,12 @@ def look_and_feel(container):
     container.appendChild(textarea('extra_css', 'E&xtra CSS'))
 # }}}
 
+
 # Heuristics {{{
 @ep
 def heuristics(container):
     settings = v'[]'
+
     def add(func, name, text, **kw):
         g.appendChild(func(name, text, **kw))
         settings.push(name)
@@ -307,7 +318,7 @@ def heuristics(container):
     ' As the name implies, this involves guesswork, which means that it could end up worsening the result'
     ' of a conversion, if calibre guesses wrong. Therefore, it is disabled by default. Often, if a conversion'
     ' does not turn out as you expect, turning on heuristics can improve matters. Read more about the various'
-    ' heuristic processing options in the <a href="%s">User Manual</a>.''').replace(
+    ' heuristic processing options in the <a href="%s">User Manual</a>.' '').replace(
         '%s', 'https://manual.calibre-ebook.com/conversion.html#heuristic-processing')
     container.appendChild(E.div(style='margin-bottom: 1ex'))
     safe_set_inner_html(container.lastChild, blurb)
@@ -326,6 +337,7 @@ def heuristics(container):
     add(checkbox, 'italicize_common_cases', _('Italicize common words and patterns'))
     add(checkbox, 'fix_indents', _('Replace entity indents with CSS indents'))
 # }}}
+
 
 # Page setup {{{
 @ep
@@ -351,6 +363,7 @@ def page_setup(container):
     g.appendChild(E.div(data_profile='output'))
 # }}}
 
+
 # Structure detection {{{
 @ep
 def structure_detection(container):
@@ -365,6 +378,7 @@ def structure_detection(container):
     g.appendChild(lineedit('page_breaks_before', _('Insert page breaks before'), 50))
     g.appendChild(lineedit('start_reading_at', _('Start reading at'), 50))
 # }}}
+
 
 # ToC {{{
 @ep
@@ -382,10 +396,10 @@ def toc(container):
     g.appendChild(lineedit('level3_toc', _('Level &3 TOC (XPath expression):')))
 # }}}
 
+
 # Search & replace {{{
 @ep
 def search_and_replace(container):
-
     def add(val):
         c = container_for_option('search_replace')
         c.appendChild(E.div(
@@ -433,14 +447,16 @@ def search_and_replace(container):
     ops.set(container.lastChild, get_option_value('search_replace'))
 
     container.appendChild(E.div(
-        create_button(_('Add'), 'plus', action=def(): add();)
+        create_button(_('Add'), 'plus', action=def (): add();)
     ))
 # }}}
+
 
 # Comic Input {{{
 @ep
 def comic_input(container):
     settings = v'[]'
+
     def add(func, name, text, **kw):
         g.appendChild(func(name, text, **kw))
         settings.push(name)
@@ -472,6 +488,7 @@ def comic_input(container):
 
 # }}}
 
+
 # FB2 Input {{{
 @ep
 def fb2_input(container):
@@ -479,6 +496,7 @@ def fb2_input(container):
     container.appendChild(g)
     g.appendChild(checkbox('no_inline_fb2_toc', _('Do not insert a Table of Contents at the beginning of the book')))
 # }}}
+
 
 # PDF Input {{{
 @ep
@@ -494,6 +512,7 @@ def pdf_input(container):
     g.appendChild(lineedit('pdf_footer_regex', _('Regular expression to remove &footer at bottom of page:')))
 # }}}
 
+
 # RTF Input {{{
 @ep
 def rtf_input(container):
@@ -501,6 +520,7 @@ def rtf_input(container):
     container.appendChild(g)
     g.appendChild(checkbox('ignore_wmf', _('Ignore &WMF images in the RTF file')))
 # }}}
+
 
 # DOCX Input {{{
 @ep
@@ -511,6 +531,7 @@ def docx_input(container):
     g.appendChild(checkbox('docx_no_pagebreaks_between_notes', _('Do not add a page after every &endnote')))
     g.appendChild(checkbox('docx_inline_subsup', _('Render &superscripts and subscripts so that they do not affect the line height')))
 # }}}
+
 
 # TXT Input {{{
 @ep
@@ -532,6 +553,7 @@ def txt_input(container):
     ))
 # }}}
 
+
 # EPUB Output {{{
 @ep
 def epub_output(container):
@@ -549,6 +571,7 @@ def epub_output(container):
     g.appendChild(lineedit('epub_max_image_size', _('Shrink &images larger than:')))
     g.appendChild(choices('epub_version', _('EP&UB version:'), ui_data.versions))
 # }}}
+
 
 # KEPUB Output {{{
 @ep
@@ -585,6 +608,7 @@ def docx_output(container):
     g.appendChild(checkbox('preserve_cover_aspect_ratio', _('Preserve the aspect ratio of the image inserted as cover')))
 # }}}
 
+
 # FB2 Output {{{
 @ep
 def fb2_output(container):
@@ -593,6 +617,7 @@ def fb2_output(container):
     g.appendChild(choices('sectionize', _('Sec&tionize:'), ui_data.sectionize))
     g.appendChild(choices('fb2_genre', _('&Genre:'), ui_data.genres))
 # }}}
+
 
 # LRF Output {{{
 @ep
@@ -613,6 +638,7 @@ def lrf_output(container):
     g.appendChild(lineedit('mono_family', _('&Monospace font family:')))
 # }}}
 
+
 # MOBI Output {{{
 @ep
 def mobi_output(container):
@@ -630,6 +656,7 @@ def mobi_output(container):
     g.appendChild(checkbox('share_not_sync', _('Enable &sharing of book content via Facebook, etc. WARNING: Disables last read syncing')))
 # }}}
 
+
 # AZW3 Output {{{
 @ep
 def azw3_output(container):
@@ -643,6 +670,7 @@ def azw3_output(container):
     g.appendChild(checkbox('share_not_sync', _('Enable &sharing of book content via Facebook, etc. WARNING: Disables last read syncing')))
 # }}}
 
+
 # PDB Output {{{
 @ep
 def pdb_output(container):
@@ -652,6 +680,7 @@ def pdb_output(container):
     g.appendChild(lineedit('pdb_output_encoding', _('O&utput encoding:')))
     g.appendChild(checkbox('inline_toc', _('&Inline TOC')))
 # }}}
+
 
 # PDF Output {{{
 @ep
@@ -696,6 +725,7 @@ def pdf_output(container):
     g.appendChild(lineedit('pdf_footer_template', _('&Footer template:')))
 # }}}
 
+
 # PMLZ Output {{{
 @ep
 def pml_output(container):
@@ -706,6 +736,7 @@ def pml_output(container):
     g.appendChild(checkbox('full_image_depth', _('Do not &reduce image size and depth')))
 # }}}
 
+
 # RB Output {{{
 @ep
 def rb_output(container):
@@ -713,6 +744,7 @@ def rb_output(container):
     container.appendChild(g)
     g.appendChild(checkbox('inline_toc', _('&Inline TOC')))
 # }}}
+
 
 # TXT Output {{{
 @ep
@@ -736,10 +768,12 @@ def txt_output(container):
     g.appendChild(checkbox('use_alt_text_for_images', _('Replace images with their alt attribute text')))
     g.appendChild(checkbox('keep_color', _('Keep text &color, when possible')))
 
+
 @ep
 def txtz_output(container):
     return txt_output(container)
 # }}}
+
 
 # HTMLZ Output {{{
 @ep
@@ -751,6 +785,7 @@ def htmlz_output(container):
     g.appendChild(checkbox('htmlz_title_filename', _('Use book title as the filename for the HTML file')))
 # }}}
 
+
 # SNB Output {{{
 @ep
 def snb_output(container):
@@ -761,6 +796,7 @@ def snb_output(container):
     g.appendChild(checkbox('snb_hide_chapter_name', _('Hide &chapter name')))
     g.appendChild(checkbox('snb_full_screen', _('Optimize for full-&screen mode')))
 # }}}
+
 
 def restore_defaults():
     for setting in registry:

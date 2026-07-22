@@ -1,9 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__   = 'GPL v3'
-__copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2009, Kovid Goyal <kovid@kovidgoyal.net>
 
 import json
 import re
@@ -13,28 +9,28 @@ from math import ceil
 from calibre import as_unicode, entity_regex, xml_replace_entities
 from calibre import xml_entity_to_unicode as convert_entities
 
-XMLDECL_RE    = re.compile(r'^\s*<[?]xml.*?[?]>')
-SVG_NS       = 'http://www.w3.org/2000/svg'
-XLINK_NS     = 'http://www.w3.org/1999/xlink'
+XMLDECL_RE = re.compile(r'^\s*<[?]xml.*?[?]>')
+SVG_NS = 'http://www.w3.org/2000/svg'
+XLINK_NS = 'http://www.w3.org/1999/xlink'
 
-_span_pat = re.compile(r'<span.*?</span>', re.DOTALL|re.IGNORECASE)
+_span_pat = re.compile(r'<span.*?</span>', re.DOTALL | re.IGNORECASE)
 
 LIGATURES = {
-        # 'Æ': 'AE',
-        # 'æ': 'ae',
-        # 'Œ': 'OE',
-        # 'œ': 'oe',
-        # 'Ĳ': 'IJ',
-        # 'ĳ': 'ij',
-        # 'ᵫ': 'ue',
-        'ﬀ': 'ff',
-        'ﬁ': 'fi',
-        'ﬂ': 'fl',
-        'ﬃ': 'ffi',
-        'ﬄ': 'ffl',
-        'ﬅ': 'ft',
-        'ﬆ': 'st',
-        }
+    # 'Æ': 'AE',
+    # 'æ': 'ae',
+    # 'Œ': 'OE',
+    # 'œ': 'oe',
+    # 'Ĳ': 'IJ',
+    # 'ĳ': 'ij',
+    # 'ᵫ': 'ue',
+    'ﬀ': 'ff',
+    'ﬁ': 'fi',
+    'ﬂ': 'fl',
+    'ﬃ': 'ffi',
+    'ﬄ': 'ffl',
+    'ﬅ': 'ft',
+    'ﬆ': 'st',
+}
 
 _ligpat = re.compile('|'.join(LIGATURES))
 
@@ -49,9 +45,9 @@ def chap_head(match):
     chap = match.group('chap')
     title = match.group('title')
     if not title:
-        return '<h1>'+chap+'</h1><br/>\n'
+        return '<h1>' + chap + '</h1><br/>\n'
     else:
-        return '<h1>'+chap+'</h1>\n<h3>'+title+'</h3>\n'
+        return '<h1>' + chap + '</h1>\n<h3>' + title + '</h3>\n'
 
 
 def wrap_lines(match):
@@ -59,16 +55,18 @@ def wrap_lines(match):
     if not ital:
         return ' '
     else:
-        return ital+' '
+        return ital + ' '
 
 
 def smarten_punctuation(html, log=None):
     from calibre.ebooks.conversion.utils import HeuristicProcessor
     from calibre.utils.smartypants import smartyPants
+
     preprocessor = HeuristicProcessor(log=log)
     from uuid import uuid4
-    start = 'calibre-smartypants-'+str(uuid4())
-    stop = 'calibre-smartypants-'+str(uuid4())
+
+    start = 'calibre-smartypants-' + str(uuid4())
+    stop = 'calibre-smartypants-' + str(uuid4())
     html = html.replace('<!--', start)
     html = html.replace('-->', stop)
     html = preprocessor.fix_nbsp_indents(html)
@@ -79,12 +77,12 @@ def smarten_punctuation(html, log=None):
 
 
 class DocAnalysis:
-    '''
+    """
     Provides various text analysis functions to determine how the document is structured.
     format is the type of document analysis will be done against.
     raw is the raw text to determine the line length to use for wrapping.
     Blank lines are excluded from analysis
-    '''
+    """
 
     def __init__(self, format='html', raw=''):
         raw = raw.replace('&nbsp;', ' ')
@@ -99,13 +97,13 @@ class DocAnalysis:
         self.lines = linere.findall(raw)
 
     def line_length(self, percent):
-        '''
+        """
         Analyses the document to find the median line length.
         percentage is a decimal number, 0 - 1 which is used to determine
         how far in the list of line lengths to use. The list of line lengths is
         ordered smallest to largest and does not include duplicates. 0.5 is the
         median value.
-        '''
+        """
         lengths = []
         for line in self.lines:
             if len(line) > 0:
@@ -131,15 +129,15 @@ class DocAnalysis:
         return lengths[index]
 
     def line_histogram(self, percent):
-        '''
+        """
         Creates a broad histogram of the document to determine whether it incorporates hard
         line breaks.  Lines are sorted into 20 'buckets' based on length.
         percent is the percentage of lines that should be in a single bucket to return true
         The majority of the lines will exist in 1-2 buckets in typical docs with hard line breaks
-        '''
-        minLineLength=20  # Ignore lines under 20 chars (typical of spaces)
-        maxLineLength=1900  # Discard larger than this to stay in range
-        buckets=20  # Each line is divided into a bucket based on length
+        """
+        minLineLength = 20  # Ignore lines under 20 chars (typical of spaces)
+        maxLineLength = 1900  # Discard larger than this to stay in range
+        buckets = 20  # Each line is divided into a bucket based on length
 
         # print('there are '+str(len(lines))+' lines')
         # max = 0
@@ -155,12 +153,12 @@ class DocAnalysis:
             if l > minLineLength and l < maxLineLength:
                 l = int(l // 100)
                 # print('adding '+str(l))
-                hRaw[l]+=1
+                hRaw[l] += 1
 
         # Normalize the histogram into percents
         totalLines = len(self.lines)
         if totalLines > 0:
-            h = [float(count)/totalLines for count in hRaw]
+            h = [float(count) / totalLines for count in hRaw]
         else:
             h = []
         # print('\nhRaw histogram lengths are: '+str(hRaw))
@@ -180,12 +178,12 @@ class DocAnalysis:
 
 
 class Dehyphenator:
-    '''
+    """
     Analyzes words to determine whether hyphens should be retained/removed.  Uses the document
     itself is as a dictionary. This method handles all languages along with uncommon, made-up, and
     scientific words. The primary disadvantage is that words appearing only once in the document
     retain hyphens.
-    '''
+    """
 
     def __init__(self, verbose=0, log=None):
         self.log = log
@@ -196,7 +194,8 @@ class Dehyphenator:
         self.suffix_string = (
             "((ed)?ly|'?e?s||a?(t|s)?ion(s|al(ly)?)?|ings?|er|(i)?ous|"
             "(i|a)ty|(it)?ies|ive|gence|istic(ally)?|(e|a)nce|m?ents?|ism|ated|"
-            "(e|u)ct(ed)?|ed|(i|ed)?ness|(e|a)ncy|ble|ier|al|ex|ian)$")
+            "(e|u)ct(ed)?|ed|(i|ed)?ness|(e|a)ncy|ble|ier|al|ex|ian)$"
+        )
         self.suffixes = re.compile(rf'^{self.suffix_string}', re.IGNORECASE)
         self.removesuffixes = re.compile(rf'{self.suffix_string}', re.IGNORECASE)
         # remove prefixes if the prefix was not already the point of hyphenation
@@ -223,9 +222,11 @@ class Dehyphenator:
         if self.verbose > 2:
             log = self.log or print
         else:
+
             def log(*a):
                 pass
-        log('lookup word is: '+lookupword+', orig is: ' + hyphenated)
+
+        log('lookup word is: ' + lookupword + ', orig is: ' + hyphenated)
         try:
             searchresult = self.html.find(lookupword.lower())
         except Exception:
@@ -238,8 +239,8 @@ class Dehyphenator:
                 log('        Cleanup:returned hyphenated word: ' + hyphenated)
                 return hyphenated
             else:
-                log('            Cleanup:returning original text '+firsthalf+' + linefeed '+secondhalf)
-                return firsthalf+'—'+wraptags+secondhalf
+                log('            Cleanup:returning original text ' + firsthalf + ' + linefeed ' + secondhalf)
+                return firsthalf + '—' + wraptags + secondhalf
 
         else:
             if self.format == 'individual_words' and len(firsthalf) + len(secondhalf) <= 6:
@@ -259,42 +260,49 @@ class Dehyphenator:
         self.html = html
         self.format = format
         if format == 'html':
-            intextmatch = re.compile((
-                r'(?<=.{%i})(?P<firstpart>[^\W\-]+)(-|‐)\s*(?=<)(?P<wraptags>(</span>)?'  # noqa: UP031
-                r'\s*(</[iubp]>\s*){1,2}(?P<up2threeblanks><(p|div)[^>]*>\s*(<p[^>]*>\s*</p>\s*)'
-                r'?</(p|div)>\s+){0,3}\s*(<[iubp][^>]*>\s*){1,2}(<span[^>]*>)?)\s*(?P<secondpart>[\w\d]+)') % length)
+            intextmatch = re.compile(
+                (
+                    r'(?<=.{%i})(?P<firstpart>[^\W\-]+)(-|‐)\s*(?=<)(?P<wraptags>(</span>)?'  # noqa: UP031
+                    r'\s*(</[iubp]>\s*){1,2}(?P<up2threeblanks><(p|div)[^>]*>\s*(<p[^>]*>\s*</p>\s*)'
+                    r'?</(p|div)>\s+){0,3}\s*(<[iubp][^>]*>\s*){1,2}(<span[^>]*>)?)\s*(?P<secondpart>[\w\d]+)'
+                )
+                % length
+            )
         elif format == 'pdf':
-            intextmatch = re.compile((
-                r'(?<=.{%i})(?P<firstpart>[^\W\-]+)(-|‐)\s*(?P<wraptags><p>|'  # noqa: UP031
-                r'</[iub]>\s*<p>\s*<[iub]>)\s*(?P<secondpart>[\w\d]+)')% length)
+            intextmatch = re.compile(
+                (
+                    r'(?<=.{%i})(?P<firstpart>[^\W\-]+)(-|‐)\s*(?P<wraptags><p>|'  # noqa: UP031
+                    r'</[iub]>\s*<p>\s*<[iub]>)\s*(?P<secondpart>[\w\d]+)'
+                )
+                % length
+            )
         elif format == 'txt':
-            intextmatch = re.compile(
-                r'(?<=.{%i})(?P<firstpart>[^\W\-]+)(-|‐)( |\t)*(?P<wraptags>(\n( |\t)*)+)(?P<secondpart>[\w\d]+)'% length)  # noqa: UP031
+            intextmatch = re.compile(r'(?<=.{%i})(?P<firstpart>[^\W\-]+)(-|‐)( |\t)*(?P<wraptags>(\n( |\t)*)+)(?P<secondpart>[\w\d]+)' % length)  # noqa: UP031
         elif format == 'individual_words':
-            intextmatch = re.compile(
-                r'(?!<)(?P<firstpart>[^\W\-]+)(-|‐)\s*(?P<secondpart>\w+)(?![^<]*?>)', re.UNICODE)
+            intextmatch = re.compile(r'(?!<)(?P<firstpart>[^\W\-]+)(-|‐)\s*(?P<secondpart>\w+)(?![^<]*?>)', re.UNICODE)
         elif format == 'html_cleanup':
             intextmatch = re.compile(
                 r'(?P<firstpart>[^\W\-]+)(-|‐)\s*(?=<)(?P<wraptags></span>\s*(</[iubp]>'
-                r'\s*<[iubp][^>]*>\s*)?<span[^>]*>|</[iubp]>\s*<[iubp][^>]*>)?\s*(?P<secondpart>[\w\d]+)')
+                r'\s*<[iubp][^>]*>\s*)?<span[^>]*>|</[iubp]>\s*<[iubp][^>]*>)?\s*(?P<secondpart>[\w\d]+)'
+            )
         elif format == 'txt_cleanup':
-            intextmatch = re.compile(
-                r'(?P<firstpart>[^\W\-]+)(-|‐)(?P<wraptags>\s+)(?P<secondpart>[\w\d]+)')
+            intextmatch = re.compile(r'(?P<firstpart>[^\W\-]+)(-|‐)(?P<wraptags>\s+)(?P<secondpart>[\w\d]+)')
 
         html = intextmatch.sub(self.dehyphenate, html)
         return html
 
 
 class CSSPreProcessor:
-
     # Remove some of the broken CSS Microsoft products
     # create
-    MS_PAT     = re.compile(r'''
+    MS_PAT = re.compile(
+        r'''
         (?P<start>^|;|\{{)\s*    # The end of the previous rule or block start
         ({}).+?                 # The invalid selectors
         (?P<end>$|;|\}})         # The end of the declaration
         '''.format('mso-|panose-|text-underline|tab-interval'),
-        re.MULTILINE|re.IGNORECASE|re.VERBOSE)
+        re.MULTILINE | re.IGNORECASE | re.VERBOSE,
+    )
 
     def ms_sub(self, match):
         end = match.group('end')
@@ -308,6 +316,7 @@ class CSSPreProcessor:
 
     def __call__(self, data, add_namespace=False):
         from calibre.ebooks.oeb.base import XHTML_CSS_NAMESPACE
+
         data = self.MS_PAT.sub(self.ms_sub, data)
         if not add_namespace:
             return data
@@ -365,7 +374,7 @@ def html_preprocess_rules():
         (re.compile(r'\s{10000,}'), ''),
         # Some idiotic HTML generators (Frontpage I'm looking at you)
         # Put all sorts of crap into <head>. This messes up lxml
-        (re.compile(r'<head[^>]*>(.*?)</head>', re.IGNORECASE|re.DOTALL), sanitize_head),
+        (re.compile(r'<head[^>]*>(.*?)</head>', re.IGNORECASE | re.DOTALL), sanitize_head),
         # Convert all entities, since lxml doesn't handle them well
         (entity_regex(), convert_entities),
         # Remove the <![if/endif tags inserted by everybody's darling, MS Word
@@ -387,26 +396,25 @@ def pdftohtml_rules():
             'ˇ': 'cCdDeElLnNrRsStTzZ:čČďĎěĚľĽňŇřŘšŠťŤžŽ',
             '°': 'uU:ůŮ',
         }),
-
         accent_regex({'`': 'aAeEiIoOuU:àÀèÈìÌòÒùÙ'}, letter_before=True),
-
         # If pdf printed from a browser then the header/footer has a reliable pattern
-        (re.compile(r'((?<=</a>)\s*file:/{2,4}[A-Z].*<br>|file:////?[A-Z].*<br>(?=\s*<hr>))', re.IGNORECASE), lambda match: ''),
-
+        (
+            re.compile(r'((?<=</a>)\s*file:/{2,4}[A-Z].*<br>|file:////?[A-Z].*<br>(?=\s*<hr>))', re.IGNORECASE),
+            lambda match: '',
+        ),
         # Center separator lines
-        (re.compile(r'<br>\s*(?P<break>([*#•✦=] *){3,})\s*<br>'), lambda match: '<p>\n<p style="text-align:center">' + match.group('break') + '</p>'),
-
+        (
+            re.compile(r'<br>\s*(?P<break>([*#•✦=] *){3,})\s*<br>'),
+            lambda match: '<p>\n<p style="text-align:center">' + match.group('break') + '</p>',
+        ),
         # Remove <hr> tags
         (re.compile(r'<hr.*?>', re.IGNORECASE), ''),
-
         # Remove gray background
         (re.compile(r'<BODY[^<>]+>'), '<BODY>'),
-
         # Convert line breaks to paragraphs
         (re.compile(r'<br[^>]*>\s*'), '</p>\n<p>'),
         (re.compile(r'<body[^>]*>\s*'), '<body>\n<p>'),
         (re.compile(r'\s*</body>'), '</p>\n</body>'),
-
         # Clean up spaces
         (re.compile(r'(?<=[\.,;\?!”"\'])[\s^ ]*(?=<)'), ' '),
         # Add space before and after italics
@@ -419,22 +427,28 @@ def pdftohtml_rules():
 def book_designer_rules():
     return (
         # HR
-        (re.compile(r'<hr>', re.IGNORECASE),
-        lambda match : '<span style="page-break-after:always"> </span>'),
+        (re.compile(r'<hr>', re.IGNORECASE), lambda match: '<span style="page-break-after:always"> </span>'),
         # Create header tags
-        (re.compile(r'<h2[^><]*?id=BookTitle[^><]*?(align=)*(?(1)(\w+))*[^><]*?>[^><]*?</h2>', re.IGNORECASE),
-        lambda match : '<h1 id="BookTitle" align="{}">{}</h1>'.format(match.group(2) or 'center', match.group(3))),
-        (re.compile(r'<h2[^><]*?id=BookAuthor[^><]*?(align=)*(?(1)(\w+))*[^><]*?>[^><]*?</h2>', re.IGNORECASE),
-        lambda match : '<h2 id="BookAuthor" align="{}">{}</h2>'.format(match.group(2) or 'center', match.group(3))),
-        (re.compile(r'<span[^><]*?id=title[^><]*?>(.*?)</span>', re.IGNORECASE|re.DOTALL),
-        lambda match : f'<h2 class="title">{match.group(1)}</h2>'),
-        (re.compile(r'<span[^><]*?id=subtitle[^><]*?>(.*?)</span>', re.IGNORECASE|re.DOTALL),
-        lambda match : f'<h3 class="subtitle">{match.group(1)}</h3>'),
+        (
+            re.compile(r'<h2[^><]*?id=BookTitle[^><]*?(align=)*(?(1)(\w+))*[^><]*?>[^><]*?</h2>', re.IGNORECASE),
+            lambda match: '<h1 id="BookTitle" align="{}">{}</h1>'.format(match.group(2) or 'center', match.group(3)),
+        ),
+        (
+            re.compile(r'<h2[^><]*?id=BookAuthor[^><]*?(align=)*(?(1)(\w+))*[^><]*?>[^><]*?</h2>', re.IGNORECASE),
+            lambda match: '<h2 id="BookAuthor" align="{}">{}</h2>'.format(match.group(2) or 'center', match.group(3)),
+        ),
+        (
+            re.compile(r'<span[^><]*?id=title[^><]*?>(.*?)</span>', re.IGNORECASE | re.DOTALL),
+            lambda match: f'<h2 class="title">{match.group(1)}</h2>',
+        ),
+        (
+            re.compile(r'<span[^><]*?id=subtitle[^><]*?>(.*?)</span>', re.IGNORECASE | re.DOTALL),
+            lambda match: f'<h3 class="subtitle">{match.group(1)}</h3>',
+        ),
     )
 
 
 class HTMLPreProcessor:
-
     def __init__(self, log=None, extra_opts=None, regex_wizard_callback=None):
         self.log = log
         self.extra_opts = extra_opts
@@ -442,8 +456,7 @@ class HTMLPreProcessor:
         self.current_href = None
 
     def is_baen(self, src):
-        return re.compile(r'<meta\s+name="Publisher"\s+content=".*?Baen.*?"',
-                          re.IGNORECASE).search(src) is not None
+        return re.compile(r'<meta\s+name="Publisher"\s+content=".*?Baen.*?"', re.IGNORECASE).search(src) is not None
 
     def is_book_designer(self, raw):
         return re.search(r'<H2[^><]*id=BookTitle', raw) is not None
@@ -451,8 +464,7 @@ class HTMLPreProcessor:
     def is_pdftohtml(self, src):
         return "<!-- created by calibre's pdftohtml -->" in src[:1000]
 
-    def __call__(self, html, remove_special_chars=None,
-            get_preprocess_html=False):
+    def __call__(self, html, remove_special_chars=None, get_preprocess_html=False):
         if remove_special_chars is not None:
             html = remove_special_chars.sub('', html)
         html = html.replace('\0', '')
@@ -476,6 +488,7 @@ class HTMLPreProcessor:
 
         def do_search_replace(search_pattern, replace_txt):
             from calibre.ebooks.conversion.search_replace import compile_regular_expression
+
             try:
                 search_re = compile_regular_expression(search_pattern)
                 if not replace_txt:
@@ -505,11 +518,12 @@ class HTMLPreProcessor:
         # delete soft hyphens - moved here so it's executed after header/footer removal
         if is_pdftohtml:
             # unwrap/delete soft hyphens
-            end_rules.append((re.compile(
-                r'[­](</p>\s*<p>\s*)+\s*(?=[\[a-z\d])'), lambda match: ''))
+            end_rules.append((re.compile(r'[­](</p>\s*<p>\s*)+\s*(?=[\[a-z\d])'), lambda match: ''))
             # unwrap/delete soft hyphens with formatting
-            end_rules.append((re.compile(
-                r'[­]\s*(</(i|u|b)>)+(</p>\s*<p>\s*)+\s*(<(i|u|b)>)+\s*(?=[\[a-z\d])'), lambda match: ''))
+            end_rules.append((
+                re.compile(r'[­]\s*(</(i|u|b)>)+(</p>\s*<p>\s*)+\s*(<(i|u|b)>)+\s*(?=[\[a-z\d])'),
+                lambda match: '',
+            ))
 
         length = -1
         if getattr(self.extra_opts, 'unwrap_factor', 0.0) > 0.01:
@@ -518,14 +532,21 @@ class HTMLPreProcessor:
             if length:
                 # print('The pdf line length returned is ' + str(length))
                 # unwrap em/en dashes
-                end_rules.append((re.compile(
-                    r'(?<=.{%i}[–—])\s*<p>\s*(?=[\[a-z\d])' % length), lambda match: ''))  # noqa: UP031
+                end_rules.append((re.compile(r'(?<=.{%i}[–—])\s*<p>\s*(?=[\[a-z\d])' % length), lambda match: ''))  # noqa: UP031
                 end_rules.append(
                     # Un wrap using punctuation
-                    (re.compile((
-                        r'(?<=.{%i}([a-zäëïöüàèìòùáćéíĺóŕńśúýâêîôûçąężıãõñæøþðßěľščťžňďřů,:)\\IAß]'  # noqa: UP031
-                        r'|(?<!\&\w{4});))\s*(?P<ital></(i|b|u)>)?\s*(</p>\s*<p>\s*)+\s*(?=(<(i|b|u)>)?'
-                        r'\s*[\w\d$(])') % length, re.UNICODE), wrap_lines),
+                    (
+                        re.compile(
+                            (
+                                r'(?<=.{%i}([a-zäëïöüàèìòùáćéíĺóŕńśúýâêîôûçąężıãõñæøþðßěľščťžňďřů,:)\\IAß]'  # noqa: UP031
+                                r'|(?<!\&\w{4});))\s*(?P<ital></(i|b|u)>)?\s*(</p>\s*<p>\s*)+\s*(?=(<(i|b|u)>)?'
+                                r'\s*[\w\d$(])'
+                            )
+                            % length,
+                            re.UNICODE,
+                        ),
+                        wrap_lines,
+                    ),
                 )
 
         for rule in list(html_preprocess_rules()) + start_rules:
@@ -539,6 +560,7 @@ class HTMLPreProcessor:
 
         def dump(raw, where):
             import os
+
             dp = getattr(self.extra_opts, 'debug_pipeline', None)
             if dp and os.path.exists(dp):
                 odir = os.path.join(dp, 'input')
@@ -561,9 +583,7 @@ class HTMLPreProcessor:
             except Exception as e:
                 if rule in user_sr_rules:
                     assert self.log is not None
-                    self.log.error(
-                        f'User supplied search & replace rule: {user_sr_rules[rule]} -> {rule[1]} '
-                        f'failed with error: {e}, ignoring.')
+                    self.log.error(f'User supplied search & replace rule: {user_sr_rules[rule]} -> {rule[1]} failed with error: {e}, ignoring.')
                 else:
                     raise
 
@@ -571,10 +591,11 @@ class HTMLPreProcessor:
             # Dehyphenate
             assert self.extra_opts is not None
             dehyphenator = Dehyphenator(self.extra_opts.verbose, self.log)
-            html = dehyphenator(html,'html', length)
+            html = dehyphenator(html, 'html', length)
 
         if is_pdftohtml:
             from calibre.ebooks.conversion.utils import HeuristicProcessor
+
             pdf_markup = HeuristicProcessor(self.extra_opts, None)
             totalwords = 0
             if pdf_markup.get_word_count(html) > 7000:
@@ -584,24 +605,24 @@ class HTMLPreProcessor:
 
         # Handle broken XHTML w/ SVG (ugh)
         if 'svg:' in html and SVG_NS not in html:
-            html = html.replace(
-                '<html', f'<html xmlns:svg="{SVG_NS}"', 1)
+            html = html.replace('<html', f'<html xmlns:svg="{SVG_NS}"', 1)
         if 'xlink:' in html and XLINK_NS not in html:
-            html = html.replace(
-                '<html', f'<html xmlns:xlink="{XLINK_NS}"', 1)
+            html = html.replace('<html', f'<html xmlns:xlink="{XLINK_NS}"', 1)
 
         html = XMLDECL_RE.sub('', html)
 
         if getattr(self.extra_opts, 'asciiize', False):
             from calibre.utils.localization import get_udc
             from calibre.utils.mreplace import MReplace
+
             unihandecoder = get_udc()
-            mr = MReplace(data={'«':'&lt;'*3, '»':'&gt;'*3})
+            mr = MReplace(data={'«': '&lt;' * 3, '»': '&gt;' * 3})
             html = mr.mreplace(html)
             html = unihandecoder.decode(html)
 
         if getattr(self.extra_opts, 'enable_heuristics', False):
             from calibre.ebooks.conversion.utils import HeuristicProcessor
+
             preprocessor = HeuristicProcessor(self.extra_opts, self.log)
             html = preprocessor(html)
 
@@ -618,6 +639,7 @@ class HTMLPreProcessor:
                 unsupported_unicode_chars = ''
             if unsupported_unicode_chars:
                 from calibre.utils.localization import get_udc
+
                 unihandecoder = get_udc()
                 for char in unsupported_unicode_chars:
                     asciichar = unihandecoder.decode(char)

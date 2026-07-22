@@ -2,7 +2,7 @@
 # vim:fileencoding=utf-8
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2026, Kabonix'
 
 import json
@@ -29,11 +29,7 @@ class TeleramaPremium(BasicNewsRecipe):
     scale_news_images = None
 
     # --- API ---
-    headers = {
-        'User-Agent': 'Telerama/4.3.5 (Android; 14)',
-        'X-Lmd-Token': 'TWPLMOLMO',
-        'Accept': 'application/json'
-    }
+    headers = {'User-Agent': 'Telerama/4.3.5 (Android; 14)', 'X-Lmd-Token': 'TWPLMOLMO', 'Accept': 'application/json'}
 
     def get_browser(self, *args, **kwargs):
         br = BasicNewsRecipe.get_browser(self, *args, **kwargs)
@@ -153,7 +149,7 @@ class TeleramaPremium(BasicNewsRecipe):
         dict(attrs={'class': re.compile(r'paywall|premium-banner|banner|pubstack|marketing', re.I)}),
         dict(attrs={'class': re.compile(r'sharing|social|bookmark|button|btn|openapp|listBtns', re.I)}),
         dict(attrs={'class': re.compile(r'OUTBRAIN|forecast|overlay', re.I)}),
-        dict(name=['script', 'style', 'nav', 'footer', 'button', 'iframe'])
+        dict(name=['script', 'style', 'nav', 'footer', 'button', 'iframe']),
     ]
 
     extra_css = '''

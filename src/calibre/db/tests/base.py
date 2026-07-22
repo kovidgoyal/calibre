@@ -1,9 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__   = 'GPL v3'
-__copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2011, Kovid Goyal <kovid@kovidgoyal.net>
 
 import gc
 import os
@@ -22,12 +18,12 @@ IMG = b'\xff\xd8\xff\xe0\x00\x10JFIF\x00\x01\x01\x01\x00`\x00`\x00\x00\xff\xe1\x
 
 
 class BaseTest(unittest.TestCase):
-
     longMessage = True
     maxDiff = None
 
     def setUp(self):
         from calibre.utils.recycle_bin import nuke_recycle
+
         nuke_recycle()
         self.paths_to_remove = []
         self.objects_to_close = []
@@ -36,6 +32,7 @@ class BaseTest(unittest.TestCase):
 
     def tearDown(self):
         from calibre.utils.recycle_bin import restore_recyle
+
         restore_recyle()
         for x in self.objects_to_close:
             x.close()
@@ -47,14 +44,17 @@ class BaseTest(unittest.TestCase):
             except OSError:
                 if iswindows:
                     import atexit
+
                     atexit.register(shutil.rmtree, x)
                 else:
                     import time
+
                     time.sleep(1)
                     shutil.rmtree(x)
 
     def create_db(self, library_path):
         from calibre.library.database2 import LibraryDatabase2
+
         if LibraryDatabase2.exists_at(library_path):
             raise ValueError(f'A library already exists at {library_path!r}')
         src = os.path.join(os.path.dirname(__file__), 'metadata.db')
@@ -72,6 +72,7 @@ class BaseTest(unittest.TestCase):
     def init_cache(self, library_path=None):
         from calibre.db.backend import DB
         from calibre.db.cache import Cache
+
         backend = DB(library_path or self.library_path)
         cache = Cache(backend)
         cache.init()
@@ -85,12 +86,14 @@ class BaseTest(unittest.TestCase):
 
     def init_old(self, library_path=None):
         from calibre.library.database2 import LibraryDatabase2
+
         ans = LibraryDatabase2(library_path or self.library_path)
         self.objects_to_close.append(ans)
         return ans
 
     def init_legacy(self, library_path=None):
         from calibre.db.legacy import LibraryDatabase
+
         ans = LibraryDatabase(library_path or self.library_path)
         self.objects_to_close.append(ans)
         return ans
@@ -114,10 +117,18 @@ class BaseTest(unittest.TestCase):
         allfk2 = mi2.all_field_keys()
         self.assertEqual(allfk1, allfk2)
 
-        all_keys = {'format_metadata', 'id', 'application_id',
-                    'author_sort_map', 'link_maps', 'book_size',
-                    'ondevice_col', 'last_modified', 'has_cover',
-                    'cover_data'}.union(allfk1)
+        all_keys = {
+            'format_metadata',
+            'id',
+            'application_id',
+            'author_sort_map',
+            'link_maps',
+            'book_size',
+            'ondevice_col',
+            'last_modified',
+            'has_cover',
+            'cover_data',
+        }.union(allfk1)
         for attr in all_keys:
             if attr in {'user_metadata', 'book_size', 'ondevice_col', 'db_approx_formats'} or attr in exclude:
                 continue
@@ -126,9 +137,7 @@ class BaseTest(unittest.TestCase):
                 attr1, attr2 = (tuple(x) if x else () for x in (attr1, attr2))
             if isinstance(attr1, (tuple, list)) and 'authors' not in attr and 'languages' not in attr:
                 attr1, attr2 = set(attr1), set(attr2)
-            self.assertEqual(attr1, attr2,
-                    f'{attr} not the same: {attr1!r} != {attr2!r}')
+            self.assertEqual(attr1, attr2, f'{attr} not the same: {attr1!r} != {attr2!r}')
             if attr.startswith('#') and attr + '_index' not in exclude:
                 attr1, attr2 = mi1.get_extra(attr), mi2.get_extra(attr)
-                self.assertEqual(attr1, attr2,
-                    f'{attr} {{#extra}} not the same: {attr1!r} != {attr2!r}')
+                self.assertEqual(attr1, attr2, f'{attr} {{#extra}} not the same: {attr1!r} != {attr2!r}')

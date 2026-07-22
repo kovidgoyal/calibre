@@ -29,20 +29,12 @@ class IndianExpress(BasicNewsRecipe):
     resolve_internal_links = True
     remove_empty_feeds = True
 
-    keep_only_tags = [
-        classes(
-            'heading-part full-details top-opinion article-main-head top-description top-image-part story_details'
-        )
-    ]
+    keep_only_tags = [classes('heading-part full-details top-opinion article-main-head top-description top-image-part story_details')]
     remove_tags = [
         dict(name='div', attrs={'id': 'ie_story_comments'}),
         dict(name='div', attrs={'class': lambda x: x and 'related-widget' in x}),
-        dict(
-            name='img', attrs={'src': lambda x: x and x.endswith('-button-300-ie.jpeg')}
-        ),
-        dict(
-            name='a', attrs={'href': lambda x: x and x.endswith('/?utm_source=newbanner')}
-        ),
+        dict(name='img', attrs={'src': lambda x: x and x.endswith('-button-300-ie.jpeg')}),
+        dict(name='a', attrs={'href': lambda x: x and x.endswith('/?utm_source=newbanner')}),
         classes(
             'share-social appstext ie-int-campign-ad ie-breadcrumb custom_read_button unitimg copyright '
             'storytags pdsc-related-modify news-guard premium-story append_social_share ie-int-campign-ad '
@@ -89,9 +81,7 @@ class IndianExpress(BasicNewsRecipe):
     ]
 
     def get_cover_url(self):
-        soup = self.index_to_soup(
-            'https://www.readwhere.com/newspaper/indian-express/Nagpur/38726'
-        )
+        soup = self.index_to_soup('https://www.readwhere.com/newspaper/indian-express/Nagpur/38726')
         citem = soup.find('meta', attrs={'property': 'og:image'})
         return citem['content'].replace('300', '600')
 
@@ -100,17 +90,12 @@ class IndianExpress(BasicNewsRecipe):
         w = self.recipe_specific_options.get('res')
         if w and isinstance(w, str):
             width = w
-        if h2 := (
-            soup.find('h2', **classes('synopsis top-description'))
-            or soup.find(attrs={'itemprop': 'description'})
-        ):
+        if h2 := (soup.find('h2', **classes('synopsis top-description')) or soup.find(attrs={'itemprop': 'description'})):
             h2.name = 'p'
             h2['id'] = 'sub-d'
         for heads in soup.findAll(('h2', 'h3')):
             heads.name = 'h4'
-        for span in soup.findAll(
-            'span', attrs={'class': ['ie-custom-caption', 'custom-caption']}
-        ):
+        for span in soup.findAll('span', attrs={'class': ['ie-custom-caption', 'custom-caption']}):
             span['id'] = 'img-cap'
         for img in soup.findAll('img', attrs={'data-src': True}):
             img['src'] = img['data-src'].split('?')[0] + '?w=' + width

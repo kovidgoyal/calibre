@@ -14,9 +14,9 @@ base = d(a(__file__))
 os.chdir(base)
 
 imgsrc = j(d(base), 'imgsrc')
-sources = {'library':j(imgsrc, 'calibre.svg'), 'ebook-edit':j(imgsrc, 'tweak.svg'), 'viewer':j(imgsrc, 'viewer.svg'), 'favicon':j(imgsrc, 'calibre.svg')}
+sources = {'library': j(imgsrc, 'calibre.svg'), 'ebook-edit': j(imgsrc, 'tweak.svg'), 'viewer': j(imgsrc, 'viewer.svg'), 'favicon': j(imgsrc, 'calibre.svg')}
 if sys.argv[-1] == 'only-logo':
-    sources = {'library':sources['library']}
+    sources = {'library': sources['library']}
 
 for name, src in sources.items():
     os.mkdir('ico_temp')
@@ -31,6 +31,6 @@ for name, src in sources.items():
             else:
                 names.extend(['-t', '0'])  # see https://bugzilla.gnome.org/show_bug.cgi?id=755200
             names.append(iname)
-        subprocess.check_call(['icotool', '-c', '--output=' + name+'.ico'] + names)
+        subprocess.check_call(['icotool', '-c', '--output=' + name + '.ico'] + names)
     finally:
         shutil.rmtree('ico_temp')

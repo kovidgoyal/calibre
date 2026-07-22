@@ -1,4 +1,3 @@
-
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
@@ -16,7 +15,7 @@ class Tagesschau(BasicNewsRecipe):
     remove_javascript = True
     use_embedded_content = False
     encoding = 'utf-8'
-    auto_cleanup   = True
+    auto_cleanup = True
 
     masthead_url = 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3c/Tagesschau_Logo_2015.svg/1920px-Tagesschau_Logo_2015.svg.png'
     cover_url = 'https://www.ardmediathek.de/img?imwidth=2560&url=https%3A%2F%2Fapi.ardmediathek.de%2Fimage-service%2Fimages%2Furn%3Aard%3Aimage%3A2e8eb9029b7f4684%3Fw%3D%7Bwidth%7D%26ch%3D657e32f8ff8614b2'

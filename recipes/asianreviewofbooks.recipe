@@ -45,7 +45,7 @@ class AsianReviewOfBooks(BasicNewsRecipe):
         # carousel appended after the body, inside the single-entry wrapper.
         classes('entry-related'),
     ]
-    extra_css             = '''
+    extra_css = '''
                                body{font-family: "Droid Serif", serif}
                                .entry-title {font-family: "Playfair Display", serif}
                                img {display: block}
@@ -55,7 +55,7 @@ class AsianReviewOfBooks(BasicNewsRecipe):
         'days': {
             'short': 'Oldest article to download from this news source. In days ',
             'long': 'For example, 0.5, gives you articles from the past 12 hours',
-            'default': str(oldest_article)
+            'default': str(oldest_article),
         }
     }
 
@@ -65,11 +65,6 @@ class AsianReviewOfBooks(BasicNewsRecipe):
         if d and isinstance(d, str):
             self.oldest_article = float(d)
 
-    conversion_options = {
-        'comment': description,
-        'tags': category,
-        'publisher': publisher,
-        'language': language
-    }
+    conversion_options = {'comment': description, 'tags': category, 'publisher': publisher, 'language': language}
 
-    feeds = [(u'Articles', u'http://asianreviewofbooks.com/content/feed/')]
+    feeds = [('Articles', 'http://asianreviewofbooks.com/content/feed/')]

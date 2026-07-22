@@ -1,9 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__   = 'GPL v3'
-__copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2009, Kovid Goyal <kovid@kovidgoyal.net>
 
 import ast
 import json
@@ -19,7 +15,7 @@ config_dir = os.path.join(config_dir, 'conversion')
 
 
 def name_to_path(name):
-    return os.path.join(config_dir, sanitize_file_name(name)+'.py')
+    return os.path.join(config_dir, sanitize_file_name(name) + '.py')
 
 
 def save_defaults(name, recs):
@@ -84,7 +80,7 @@ class GuiRecommendations(dict):
     def __str__(self):
         ans = ['{']
         for key, val in self.items():
-            ans.append('\t'+repr(key)+' : '+repr(val)+',')
+            ans.append('\t' + repr(key) + ' : ' + repr(val) + ',')
         ans.append('}')
         return '\n'.join(ans)
 
@@ -97,7 +93,7 @@ class GuiRecommendations(dict):
     def deserialize(self, raw):
         try:
             if raw.startswith(b'json:'):
-                d = json.loads(raw[len(b'json:'):])
+                d = json.loads(raw[len(b'json:') :])
             else:
                 d = ast.literal_eval(raw)
         except Exception:
@@ -105,10 +101,10 @@ class GuiRecommendations(dict):
         else:
             if d:
                 self.update(d)
+
     from_string = deserialize
 
-    def merge_recommendations(self, get_option, level, options,
-            only_existing=False):
+    def merge_recommendations(self, get_option, level, options, only_existing=False):
         for name in options:
             if only_existing and name not in self:
                 continue
@@ -122,10 +118,7 @@ class GuiRecommendations(dict):
                 self[name] = opt.recommended_value
 
     def as_dict(self):
-        return {
-            'options': self.copy(),
-            'disabled': tuple(self.disabled_options)
-        }
+        return {'options': self.copy(), 'disabled': tuple(self.disabled_options)}
 
 
 def get_available_formats_for_book(db, book_id):
@@ -134,7 +127,6 @@ def get_available_formats_for_book(db, book_id):
 
 
 class NoSupportedInputFormats(Exception):
-
     def __init__(self, available_formats):
         Exception.__init__(self)
         self.available_formats = available_formats
@@ -142,6 +134,7 @@ class NoSupportedInputFormats(Exception):
 
 def get_supported_input_formats_for_book(db, book_id):
     from calibre.ebooks.conversion.plumber import supported_input_formats
+
     available_formats = get_available_formats_for_book(db, book_id)
     input_formats = {x.lower() for x in supported_input_formats()}
     input_formats = sorted(available_formats.intersection(input_formats))
@@ -157,7 +150,7 @@ def get_preferred_input_format_for_book(db, book_id):
 
 
 def sort_formats_by_preference(formats, prefs):
-    uprefs = {x.upper():i for i, x in enumerate(prefs)}
+    uprefs = {x.upper(): i for i, x in enumerate(prefs)}
 
     def key(x):
         return uprefs.get(x.upper(), len(prefs))
@@ -166,7 +159,7 @@ def sort_formats_by_preference(formats, prefs):
 
 
 def get_input_format_for_book(db, book_id, pref=None):
-    '''
+    """
     Return (preferred input format, list of available formats) for the book
     identified by book_id. Raises an error if the book has no input formats.
 
@@ -174,15 +167,13 @@ def get_input_format_for_book(db, book_id, pref=None):
     any, on this book is used. If not None, should be a lowercase format like
     'epub' or 'mobi'. If you do not want the last converted format to be used,
     set pref=False.
-    '''
+    """
     if pref is None:
         pref = get_preferred_input_format_for_book(db, book_id)
     if hasattr(pref, 'lower'):
         pref = pref.lower()
     input_formats = get_supported_input_formats_for_book(db, book_id)
-    input_format = pref if pref in input_formats else \
-        sort_formats_by_preference(
-            input_formats, prefs['input_format_order'])[0]
+    input_format = pref if pref in input_formats else sort_formats_by_preference(input_formats, prefs['input_format_order'])[0]
     return input_format, input_formats
 
 
@@ -196,8 +187,7 @@ def get_output_formats(preferred_output_format):
         if pfo and pfo not in fmts and pfo in all_formats:
             fmts.append(pfo)
     else:
-        fmts = list(sorted(all_formats,
-            key=lambda x:{'EPUB':'!A', 'AZW3':'!B', 'MOBI':'!C'}.get(x.upper(), x)))
+        fmts = list(sorted(all_formats, key=lambda x: {'EPUB': '!A', 'AZW3': '!B', 'MOBI': '!C'}.get(x.upper(), x)))
     return fmts
 
 
@@ -215,119 +205,226 @@ def get_sorted_output_formats(preferred_fmt=None):
 OPTIONS = {
     'input': {
         'comic': (
-            'colors', 'dont_normalize', 'keep_aspect_ratio', 'right2left', 'despeckle', 'no_sort', 'no_process', 'landscape',
-            'dont_sharpen', 'disable_trim', 'wide', 'output_format', 'dont_grayscale', 'comic_image_size', 'dont_add_comic_pages_to_toc'),
-
+            'colors',
+            'dont_normalize',
+            'keep_aspect_ratio',
+            'right2left',
+            'despeckle',
+            'no_sort',
+            'no_process',
+            'landscape',
+            'dont_sharpen',
+            'disable_trim',
+            'wide',
+            'output_format',
+            'dont_grayscale',
+            'comic_image_size',
+            'dont_add_comic_pages_to_toc',
+        ),
         'docx': ('docx_no_cover', 'docx_no_pagebreaks_between_notes', 'docx_inline_subsup'),
-
         'fb2': ('no_inline_fb2_toc',),
-
-        'pdf': ('no_images', 'unwrap_factor', 'pdf_engine', 'pdf_header_skip', 'pdf_footer_skip', 'pdf_header_regex', 'pdf_footer_regex'),
-
+        'pdf': (
+            'no_images',
+            'unwrap_factor',
+            'pdf_engine',
+            'pdf_header_skip',
+            'pdf_footer_skip',
+            'pdf_header_regex',
+            'pdf_footer_regex',
+        ),
         'rtf': ('ignore_wmf',),
-
         'txt': ('paragraph_type', 'formatting_type', 'markdown_extensions', 'preserve_spaces', 'txt_in_remove_indents'),
     },
-
     'pipe': {
         'debug': ('debug_pipeline',),
-
         'heuristics': (
-            'enable_heuristics', 'markup_chapter_headings',
-            'italicize_common_cases', 'fix_indents', 'html_unwrap_factor',
-            'unwrap_lines', 'delete_blank_paragraphs', 'format_scene_breaks',
-            'replace_scene_breaks', 'dehyphenate', 'renumber_headings'),
-
-        'look_and_feel': (
-            'change_justification', 'extra_css', 'base_font_size',
-            'font_size_mapping', 'line_height', 'minimum_line_height',
-            'embed_font_family', 'embed_all_fonts', 'subset_embedded_fonts',
-            'smarten_punctuation', 'unsmarten_punctuation',
-            'disable_font_rescaling', 'insert_blank_line',
-            'remove_paragraph_spacing', 'remove_paragraph_spacing_indent_size',
-            'insert_blank_line_size', 'input_encoding', 'filter_css',
-            'expand_css', 'asciiize', 'keep_ligatures', 'linearize_tables',
-            'transform_css_rules', 'transform_html_rules'),
-
-        'metadata': ('prefer_metadata_cover',),
-
-        'page_setup': (
-            'margin_top', 'margin_left', 'margin_right', 'margin_bottom',
-            'input_profile', 'output_profile'),
-
-        'search_and_replace': (
-            'search_replace', 'sr1_search', 'sr1_replace', 'sr2_search', 'sr2_replace', 'sr3_search', 'sr3_replace'),
-
-        'structure_detection': (
-            'chapter', 'chapter_mark', 'start_reading_at',
-            'remove_first_image', 'remove_fake_margins', 'insert_metadata',
-            'page_breaks_before', 'add_alt_text_to_img',),
-
-        'toc': (
-            'level1_toc', 'level2_toc', 'level3_toc',
-            'toc_threshold', 'max_toc_links', 'no_chapters_in_toc',
-            'use_auto_toc', 'toc_filter', 'duplicate_links_in_toc',),
-    },
-
-    'output': {
-        'azw3': ('prefer_author_sort', 'toc_title', 'mobi_toc_at_start', 'dont_compress', 'no_inline_toc', 'share_not_sync',),
-
-        'docx': (
-            'docx_page_size', 'docx_custom_page_size', 'docx_no_cover', 'docx_no_toc',
-            'docx_page_margin_left', 'docx_page_margin_top', 'docx_page_margin_right',
-            'docx_page_margin_bottom', 'preserve_cover_aspect_ratio',),
-
-        'epub': (
-            'dont_split_on_page_breaks', 'flow_size', 'no_default_epub_cover',
-            'no_svg_cover', 'epub_inline_toc', 'epub_toc_at_end', 'toc_title',
-            'preserve_cover_aspect_ratio', 'epub_flatten', 'epub_version', 'epub_max_image_size',),
-
-        'kepub': (
-            'dont_split_on_page_breaks', 'flow_size', 'kepub_max_image_size', 'kepub_prefer_justification',
-            'kepub_affect_hyphenation', 'kepub_disable_hyphenation', 'kepub_hyphenation_min_chars',
-            'kepub_hyphenation_min_chars_before', 'kepub_hyphenation_min_chars_after', 'kepub_hyphenation_limit_lines',
+            'enable_heuristics',
+            'markup_chapter_headings',
+            'italicize_common_cases',
+            'fix_indents',
+            'html_unwrap_factor',
+            'unwrap_lines',
+            'delete_blank_paragraphs',
+            'format_scene_breaks',
+            'replace_scene_breaks',
+            'dehyphenate',
+            'renumber_headings',
         ),
-
+        'look_and_feel': (
+            'change_justification',
+            'extra_css',
+            'base_font_size',
+            'font_size_mapping',
+            'line_height',
+            'minimum_line_height',
+            'embed_font_family',
+            'embed_all_fonts',
+            'subset_embedded_fonts',
+            'smarten_punctuation',
+            'unsmarten_punctuation',
+            'disable_font_rescaling',
+            'insert_blank_line',
+            'remove_paragraph_spacing',
+            'remove_paragraph_spacing_indent_size',
+            'insert_blank_line_size',
+            'input_encoding',
+            'filter_css',
+            'expand_css',
+            'asciiize',
+            'keep_ligatures',
+            'linearize_tables',
+            'transform_css_rules',
+            'transform_html_rules',
+        ),
+        'metadata': ('prefer_metadata_cover',),
+        'page_setup': ('margin_top', 'margin_left', 'margin_right', 'margin_bottom', 'input_profile', 'output_profile'),
+        'search_and_replace': (
+            'search_replace',
+            'sr1_search',
+            'sr1_replace',
+            'sr2_search',
+            'sr2_replace',
+            'sr3_search',
+            'sr3_replace',
+        ),
+        'structure_detection': (
+            'chapter',
+            'chapter_mark',
+            'start_reading_at',
+            'remove_first_image',
+            'remove_fake_margins',
+            'insert_metadata',
+            'page_breaks_before',
+            'add_alt_text_to_img',
+        ),
+        'toc': (
+            'level1_toc',
+            'level2_toc',
+            'level3_toc',
+            'toc_threshold',
+            'max_toc_links',
+            'no_chapters_in_toc',
+            'use_auto_toc',
+            'toc_filter',
+            'duplicate_links_in_toc',
+        ),
+    },
+    'output': {
+        'azw3': (
+            'prefer_author_sort',
+            'toc_title',
+            'mobi_toc_at_start',
+            'dont_compress',
+            'no_inline_toc',
+            'share_not_sync',
+        ),
+        'docx': (
+            'docx_page_size',
+            'docx_custom_page_size',
+            'docx_no_cover',
+            'docx_no_toc',
+            'docx_page_margin_left',
+            'docx_page_margin_top',
+            'docx_page_margin_right',
+            'docx_page_margin_bottom',
+            'preserve_cover_aspect_ratio',
+        ),
+        'epub': (
+            'dont_split_on_page_breaks',
+            'flow_size',
+            'no_default_epub_cover',
+            'no_svg_cover',
+            'epub_inline_toc',
+            'epub_toc_at_end',
+            'toc_title',
+            'preserve_cover_aspect_ratio',
+            'epub_flatten',
+            'epub_version',
+            'epub_max_image_size',
+        ),
+        'kepub': (
+            'dont_split_on_page_breaks',
+            'flow_size',
+            'kepub_max_image_size',
+            'kepub_prefer_justification',
+            'kepub_affect_hyphenation',
+            'kepub_disable_hyphenation',
+            'kepub_hyphenation_min_chars',
+            'kepub_hyphenation_min_chars_before',
+            'kepub_hyphenation_min_chars_after',
+            'kepub_hyphenation_limit_lines',
+        ),
         'fb2': ('sectionize', 'fb2_genre'),
-
         'htmlz': ('htmlz_css_type', 'htmlz_class_style', 'htmlz_title_filename'),
-
         'lrf': (
-            'wordspace', 'header', 'header_format', 'minimum_indent',
-            'serif_family', 'render_tables_as_images', 'sans_family',
-            'mono_family', 'text_size_multiplier_for_rendered_tables',
-            'autorotation', 'header_separation', 'minimum_indent'),
-
+            'wordspace',
+            'header',
+            'header_format',
+            'minimum_indent',
+            'serif_family',
+            'render_tables_as_images',
+            'sans_family',
+            'mono_family',
+            'text_size_multiplier_for_rendered_tables',
+            'autorotation',
+            'header_separation',
+            'minimum_indent',
+        ),
         'mobi': (
-            'prefer_author_sort', 'toc_title', 'mobi_keep_original_images',
-            'mobi_ignore_margins', 'mobi_toc_at_start', 'dont_compress',
-            'no_inline_toc', 'share_not_sync', 'personal_doc',
-            'mobi_file_type'),
-
+            'prefer_author_sort',
+            'toc_title',
+            'mobi_keep_original_images',
+            'mobi_ignore_margins',
+            'mobi_toc_at_start',
+            'dont_compress',
+            'no_inline_toc',
+            'share_not_sync',
+            'personal_doc',
+            'mobi_file_type',
+        ),
         'pdb': ('format', 'inline_toc', 'pdb_output_encoding'),
-
         'pdf': (
-            'use_profile_size', 'paper_size', 'custom_size', 'pdf_hyphenate',
-            'preserve_cover_aspect_ratio', 'pdf_serif_family', 'unit',
-            'pdf_sans_family', 'pdf_mono_family', 'pdf_standard_font',
-            'pdf_default_font_size', 'pdf_mono_font_size', 'pdf_page_numbers',
-            'pdf_footer_template', 'pdf_header_template', 'pdf_add_toc',
-            'toc_title', 'pdf_page_margin_left', 'pdf_page_margin_top',
-            'pdf_page_margin_right', 'pdf_page_margin_bottom', 'pdf_no_cover',
-            'pdf_use_document_margins', 'pdf_page_number_map', 'pdf_odd_even_offset'),
-
+            'use_profile_size',
+            'paper_size',
+            'custom_size',
+            'pdf_hyphenate',
+            'preserve_cover_aspect_ratio',
+            'pdf_serif_family',
+            'unit',
+            'pdf_sans_family',
+            'pdf_mono_family',
+            'pdf_standard_font',
+            'pdf_default_font_size',
+            'pdf_mono_font_size',
+            'pdf_page_numbers',
+            'pdf_footer_template',
+            'pdf_header_template',
+            'pdf_add_toc',
+            'toc_title',
+            'pdf_page_margin_left',
+            'pdf_page_margin_top',
+            'pdf_page_margin_right',
+            'pdf_page_margin_bottom',
+            'pdf_no_cover',
+            'pdf_use_document_margins',
+            'pdf_page_number_map',
+            'pdf_odd_even_offset',
+        ),
         'pml': ('inline_toc', 'full_image_depth', 'pml_output_encoding'),
-
         'rb': ('inline_toc',),
-
-        'snb': (
-            'snb_insert_empty_line', 'snb_dont_indent_first_line',
-            'snb_hide_chapter_name','snb_full_screen'),
-
+        'snb': ('snb_insert_empty_line', 'snb_dont_indent_first_line', 'snb_hide_chapter_name', 'snb_full_screen'),
         'txt': (
-            'newline', 'max_line_length', 'force_max_line_length', 'use_alt_text_for_images',
-            'inline_toc', 'txt_output_formatting', 'keep_links', 'keep_image_references',
-            'keep_color', 'txt_output_encoding'),
+            'newline',
+            'max_line_length',
+            'force_max_line_length',
+            'use_alt_text_for_images',
+            'inline_toc',
+            'txt_output_formatting',
+            'keep_links',
+            'keep_image_references',
+            'keep_color',
+            'txt_output_encoding',
+        ),
     },
 }
 OPTIONS['output']['txtz'] = OPTIONS['output']['txt']
@@ -335,6 +432,7 @@ OPTIONS['output']['txtz'] = OPTIONS['output']['txt']
 
 def options_for_input_fmt(fmt):
     from calibre.customize.ui import plugin_for_input_format
+
     fmt = fmt.lower()
     plugin = plugin_for_input_format(fmt)
     if plugin is None:
@@ -346,6 +444,7 @@ def options_for_input_fmt(fmt):
 
 def options_for_output_fmt(fmt):
     from calibre.customize.ui import plugin_for_output_format
+
     fmt = fmt.lower()
     plugin = plugin_for_output_format(fmt)
     if plugin is None:

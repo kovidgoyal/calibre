@@ -1,8 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__ = 'GPL v3'
-__copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
+# License: GPLv3 Copyright: 2013, Kovid Goyal <kovid at kovidgoyal.net>
 
 import logging
 from collections import defaultdict
@@ -19,8 +16,7 @@ from calibre.utils.fonts.scanner import NoFonts, font_scanner
 
 
 def font_families_from_style(style):
-    return [str(f) for f in style.get('font-family', []) if str(f).lower() not in {
-        'serif', 'sansserif', 'sans-serif', 'fantasy', 'cursive', 'monospace'}]
+    return [str(f) for f in style.get('font-family', []) if str(f).lower() not in {'serif', 'sansserif', 'sans-serif', 'fantasy', 'cursive', 'monospace'}]
 
 
 def style_key(style):
@@ -51,25 +47,34 @@ def used_font(style, embedded_fonts):
         return True, None
 
     # Filter on font-stretch
-    widths = {x:i for i, x in enumerate(('ultra-condensed',
-            'extra-condensed', 'condensed', 'semi-condensed', 'normal',
-            'semi-expanded', 'expanded', 'extra-expanded', 'ultra-expanded'
-            ))}
+    widths = {
+        x: i
+        for i, x in enumerate((
+            'ultra-condensed',
+            'extra-condensed',
+            'condensed',
+            'semi-condensed',
+            'normal',
+            'semi-expanded',
+            'expanded',
+            'extra-expanded',
+            'ultra-expanded',
+        ))
+    }
 
     width = widths[style.get('font-stretch', 'normal')]
     for f in matching_set:
         f['width'] = widths[style.get('font-stretch', 'normal')]
 
-    min_dist = min(abs(width-f['width']) for f in matching_set)
+    min_dist = min(abs(width - f['width']) for f in matching_set)
     if min_dist > 0:
         return True, None
-    nearest = [f for f in matching_set if abs(width-f['width']) ==
-        min_dist]
+    nearest = [f for f in matching_set if abs(width - f['width']) == min_dist]
     if width <= 4:
         lmatches = [f for f in nearest if f['width'] <= width]
     else:
         lmatches = [f for f in nearest if f['width'] >= width]
-    matching_set = (lmatches or nearest)
+    matching_set = lmatches or nearest
 
     # Filter on font-style
     fs = style.get('font-style', 'normal')
@@ -85,9 +90,9 @@ def used_font(style, embedded_fonts):
 
 
 class EmbedFonts:
-    '''
+    """
     Embed all referenced fonts, if found on system. Must be called after CSS flattening.
-    '''
+    """
 
     def __call__(self, oeb, log, opts):
         self.oeb, self.log, self.opts = oeb, log, opts
@@ -111,9 +116,9 @@ class EmbedFonts:
                 self.process_item(item, sheets)
 
     def find_embedded_fonts(self):
-        '''
+        """
         Find all @font-face rules and extract the relevant info from them.
-        '''
+        """
         self.embedded_fonts = []
         for item in self.oeb.manifest:
             if not hasattr(item.data, 'cssRules'):
@@ -121,11 +126,11 @@ class EmbedFonts:
             self.embedded_fonts.extend(find_font_face_rules(item, self.oeb))
 
     def find_style_rules(self):
-        '''
+        """
         Extract all font related style information from all stylesheets into a
         dict mapping classes to font properties specified by that class. All
         the heavy lifting has already been done by the CSS flattening code.
-        '''
+        """
         rules = defaultdict(dict)
         for item in self.oeb.manifest:
             if not hasattr(item.data, 'cssRules'):
@@ -133,7 +138,7 @@ class EmbedFonts:
             for i, rule in enumerate(item.data.cssRules):
                 if rule.type != rule.STYLE_RULE:
                     continue
-                props = {k:v for k,v in get_font_properties(rule).items() if v}
+                props = {k: v for k, v in get_font_properties(rule).items() if v}
                 if not props:
                     continue
                 for sel in rule.selectorList:
@@ -155,8 +160,7 @@ class EmbedFonts:
             head = self.current_item.data.xpath('//*[local-name()="head"][1]')
             if head:
                 href = self.current_item.relhref(href)
-                l = etree.SubElement(head[0], XHTML('link'),
-                    rel='stylesheet', type=CSS_MIME, href=href)
+                l = etree.SubElement(head[0], XHTML('link'), rel='stylesheet', type=CSS_MIME, href=href)
                 l.tail = '\n'
             else:
                 self.log.warn('No <head> cannot embed font rules')
@@ -171,8 +175,7 @@ class EmbedFonts:
                 ff_rules.extend(find_font_face_rules(sheet, self.oeb))
                 self.page_sheet = sheet
 
-        base = {'font-family':['serif'], 'font-weight': '400',
-                'font-style':'normal', 'font-stretch':'normal'}
+        base = {'font-family': ['serif'], 'font-weight': '400', 'font-style': 'normal', 'font-stretch': 'normal'}
 
         for body in item.data.xpath('//*[local-name()="body"]'):
             self.find_usage_in(body, base, ff_rules)
@@ -207,6 +210,7 @@ class EmbedFonts:
 
     def embed_font(self, style):
         from calibre.ebooks.oeb.polish.embed import find_matching_font, weight_as_number
+
         ff = font_families_from_style(style)
         if not ff:
             return
@@ -227,12 +231,13 @@ class EmbedFonts:
             ext = 'otf' if f['is_otf'] else 'ttf'
             name = ascii_filename(name).replace(' ', '-').replace('(', '').replace(')', '')
             fid, href = self.oeb.manifest.generate(id='font', href=f'fonts/{name}.{ext}')
-            item = self.oeb.manifest.add(fid, href, guess_type('dummy.'+ext)[0], data=data)
+            item = self.oeb.manifest.add(fid, href, guess_type('dummy.' + ext)[0], data=data)
             item.unload_data_from_memory()
             page_sheet = self.get_page_sheet()
             href = page_sheet.relhref(item.href)
             css = '''@font-face {{ font-family: "{}"; font-weight: {}; font-style: {}; font-stretch: {}; src: url({}) }}'''.format(
-                f['font-family'], f['font-weight'], f['font-style'], f['font-stretch'], href)
+                f['font-family'], f['font-weight'], f['font-style'], f['font-stretch'], href
+            )
             sheet = self.parser.parseString(css, validate=False)
             page_sheet.data.insertRule(sheet.cssRules[0], len(page_sheet.data.cssRules))
             return find_font_face_rules(sheet, self.oeb)[0]
@@ -242,7 +247,12 @@ class EmbedFonts:
                 self.log('Embedding font {} from {}'.format(f['full_name'], f['path']))
                 return do_embed(f)
         try:
-            f = find_matching_font(fonts, style.get('font-weight', 'normal'), style.get('font-style', 'normal'), style.get('font-stretch', 'normal'))
+            f = find_matching_font(
+                fonts,
+                style.get('font-weight', 'normal'),
+                style.get('font-style', 'normal'),
+                style.get('font-stretch', 'normal'),
+            )
         except Exception:
             if ff not in self.warned2:
                 self.log.exception('Failed to find a matching font for family', ff, 'not embedding')

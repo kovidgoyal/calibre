@@ -13,10 +13,10 @@ class IncMagazineRecipe(BasicNewsRecipe):
 
     __author__ = 'Nikolas Mangold-Takao <nmangold at gmail.com>'
 
-    title = u'Inc Magazine'
-    publisher = u'Mansueto Ventures LLC'
-    category = u'News, Business'
-    description = u'Free account required to browse website. Handbook of the American Entrepeneur'
+    title = 'Inc Magazine'
+    publisher = 'Mansueto Ventures LLC'
+    category = 'News, Business'
+    description = 'Free account required to browse website. Handbook of the American Entrepeneur'
 
     # signup is free, without account browsing is limited and recipe won't work
     needs_subscription = True

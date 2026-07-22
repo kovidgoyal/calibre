@@ -1,8 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__ = 'GPL v3'
-__copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
+# License: GPLv3 Copyright: 2014, Kovid Goyal <kovid at kovidgoyal.net>
 
 import json
 from functools import partial
@@ -15,7 +12,6 @@ from calibre.utils.xml_parse import safe_html_fromstring
 
 
 class URLMap:
-
     def __init__(self):
         self.cache = {}
 
@@ -90,14 +86,38 @@ def get_opf2_tag_index():
     for i, tag in enumerate(('package', 'metadata', 'manifest', 'spine', 'tours', 'guide')):
         ans[tag] = base + f'Section2.{i + 1}'
     for i, tag in enumerate((
-            'title', 'creator', 'subject', 'description', 'publisher',
-            'contributor', 'date', 'type', 'format', 'identifier', 'source',
-            'language', 'relation', 'coverage', 'rights')):
+        'title',
+        'creator',
+        'subject',
+        'description',
+        'publisher',
+        'contributor',
+        'date',
+        'type',
+        'format',
+        'identifier',
+        'source',
+        'language',
+        'relation',
+        'coverage',
+        'rights',
+    )):
         ans[tag] = base + f'Section2.2.{i + 1}'
     ans['item'] = ans['manifest']
     ans['itemref'] = ans['spine']
     ans['reference'] = ans['guide']
-    for tag in ('ncx', 'docTitle', 'docAuthor', 'navMap', 'navPoint', 'navLabel', 'text', 'content', 'pageList', 'pageTarget'):
+    for tag in (
+        'ncx',
+        'docTitle',
+        'docAuthor',
+        'navMap',
+        'navPoint',
+        'navLabel',
+        'text',
+        'content',
+        'pageList',
+        'pageTarget',
+    ):
         ans[tag.lower()] = base + 'Section2.4.1.2'
     return ans
 
@@ -106,11 +126,30 @@ def get_opf3_tag_index():
     base = 'http://www.idpf.org/epub/301/spec/epub-publications.html#'
     ans = {}
     for tag in (
-            'package', 'metadata', 'identifier', 'title', 'language', 'meta',
-            'link', 'manifest', 'item', 'spine', 'itemref', 'guide',
-            'bindings', 'mediaType', 'collection'):
+        'package',
+        'metadata',
+        'identifier',
+        'title',
+        'language',
+        'meta',
+        'link',
+        'manifest',
+        'item',
+        'spine',
+        'itemref',
+        'guide',
+        'bindings',
+        'mediaType',
+        'collection',
+    ):
         ans[tag.lower()] = base + f'sec-{tag}-elem'
-    for tag in ('contributor', 'creator', 'date', 'source', 'type',):
+    for tag in (
+        'contributor',
+        'creator',
+        'date',
+        'source',
+        'type',
+    ):
         ans[tag.lower()] = base + 'sec-opf-dc' + tag
     return ans
 

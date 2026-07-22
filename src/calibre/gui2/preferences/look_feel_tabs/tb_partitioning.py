@@ -1,10 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__   = 'GPL v3'
-__copyright__ = '2025, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
-
+# License: GPLv3 Copyright: 2025, Kovid Goyal <kovid@kovidgoyal.net>
 
 from functools import partial
 
@@ -22,13 +17,14 @@ class TBPartitionedFields(DisplayedFields):
     def __init__(self, db, parent=None, category_icons=None):
         DisplayedFields.__init__(self, db, parent, category_icons=category_icons)
         from calibre.gui2.ui import get_gui
+
         self.gui = get_gui(fail_if_absent=True)
 
     def filter_user_categories(self, tv):
         cats = tv.model().categories
         answer = {}
         filtered = set()
-        for key,name in cats.items():
+        for key, name in cats.items():
             if key.startswith('@'):
                 key = key.partition('.')[0]
                 name = key[1:]
@@ -60,32 +56,29 @@ class TBPartitionedFields(DisplayedFields):
     def commit(self):
         if self.changed:
             # Migrate to a per-library setting
-            self.db.prefs.set('tag_browser_dont_collapse', [k for k,v in self.fields if not v])
+            self.db.prefs.set('tag_browser_dont_collapse', [k for k, v in self.fields if not v])
 
 
 class TbPartitioningTab(LazyConfigWidgetBase, Ui_Form):
-
     def genesis(self, gui):
         self.gui = gui
         r = self.register
 
-        choices = [(_('Disabled'), 'disable'), (_('By first letter'), 'first letter'),
-                   (_('Partitioned'), 'partition')]
+        choices = [(_('Disabled'), 'disable'), (_('By first letter'), 'first letter'), (_('Partitioned'), 'partition')]
         r('tags_browser_partition_method', gprefs, choices=choices)
         r('tags_browser_collapse_at', gprefs)
         r('tags_browser_collapse_fl_at', gprefs)
 
-        self.tb_categories_to_part_model = TBPartitionedFields(self.gui.current_db,
-                                   self.tb_cats_to_partition,
-                                   category_icons=self.gui.tags_view.model().category_custom_icons)
+        self.tb_categories_to_part_model = TBPartitionedFields(
+            self.gui.current_db,
+            self.tb_cats_to_partition,
+            category_icons=self.gui.tags_view.model().category_custom_icons,
+        )
         self.tb_categories_to_part_model.dataChanged.connect(self.changed_signal)
         self.tb_cats_to_partition.setModel(self.tb_categories_to_part_model)
-        self.tb_partition_reset_button.clicked.connect(partial(reset_layout, self,
-                                                               model=self.tb_categories_to_part_model))
-        self.tb_partition_export_layout_button.clicked.connect(partial(export_layout, self,
-                                                                       model=self.tb_categories_to_part_model))
-        self.tb_partition_import_layout_button.clicked.connect(partial(import_layout, self,
-                                                                       model=self.tb_categories_to_part_model))
+        self.tb_partition_reset_button.clicked.connect(partial(reset_layout, self, model=self.tb_categories_to_part_model))
+        self.tb_partition_export_layout_button.clicked.connect(partial(export_layout, self, model=self.tb_categories_to_part_model))
+        self.tb_partition_import_layout_button.clicked.connect(partial(import_layout, self, model=self.tb_categories_to_part_model))
 
     def lazy_initialize(self):
         self.tb_categories_to_part_model.initialize()

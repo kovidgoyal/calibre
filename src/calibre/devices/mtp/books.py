@@ -1,9 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__   = 'GPL v3'
-__copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2012, Kovid Goyal <kovid at kovidgoyal.net>
 
 import os
 
@@ -17,7 +13,6 @@ from calibre.utils.localization import _
 
 
 class BookList(BL):
-
     def __init__(self, storage_id):
         self.storage_id = storage_id
 
@@ -27,7 +22,7 @@ class BookList(BL):
     def add_book(self, book, replace_metadata=True):
         try:
             b = self.index(book)
-        except (ValueError, IndexError):
+        except ValueError, IndexError:
             b = None
         if b is None:
             self.append(book)
@@ -42,7 +37,6 @@ class BookList(BL):
 
 
 class Book(Metadata):
-
     def __init__(self, storage_id, lpath, other=None):
         Metadata.__init__(self, _('Unknown'), other=other)
         self.storage_id, self.lpath = storage_id, lpath
@@ -52,12 +46,10 @@ class Book(Metadata):
         self.thumbail = None
 
     def matches_file(self, mtp_file):
-        return (self.storage_id == mtp_file.storage_id and
-                self.mtp_relpath == mtp_file.mtp_relpath)
+        return self.storage_id == mtp_file.storage_id and self.mtp_relpath == mtp_file.mtp_relpath
 
     def __eq__(self, other):
-        return (isinstance(other, self.__class__) and (self.storage_id ==
-            other.storage_id and self.mtp_relpath == other.mtp_relpath))
+        return isinstance(other, self.__class__) and (self.storage_id == other.storage_id and self.mtp_relpath == other.mtp_relpath)
 
     def __ne__(self, other):
         return not self.__eq__(other)

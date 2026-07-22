@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # License: GPL v3 Copyright: 2019, Kovid Goyal <kovid at kovidgoyal.net>
 
-
 import re
 from functools import partial
 from typing import TypedDict
@@ -40,7 +39,6 @@ class _SearchQuery(TypedDict):
 
 
 class Delegate(QStyledItemDelegate):
-
     def helpEvent(self, event, view, option, index):
         # Show a tooltip only if the item is truncated
         if not event or not view:
@@ -56,7 +54,6 @@ class Delegate(QStyledItemDelegate):
 
 
 class TOCView(QTreeView):
-
     searched = pyqtSignal(object)
 
     def __init__(self, *args):
@@ -99,7 +96,8 @@ class TOCView(QTreeView):
             self.setExpanded(idx, True)
 
     def set_style_sheet(self):
-        self.setStyleSheet('''
+        self.setStyleSheet(
+            '''
             QTreeView {
                 background-color: palette(window);
                 color: palette(window-text);
@@ -112,7 +110,9 @@ class TOCView(QTreeView):
                 padding-bottom:0.5ex;
             }
 
-        ''' + qapplication_or_fail().palette_manager.tree_view_hover_style())
+        '''
+            + qapplication_or_fail().palette_manager.tree_view_hover_style()
+        )
         self.setProperty('hovered_item_is_highlighted', True)
 
     def mouseMoveEvent(self, event):
@@ -160,8 +160,16 @@ class TOCView(QTreeView):
         m.addAction(QIcon.ic('minus.png'), _('Collapse all items'), self.collapseAll)
         m.addSeparator()
         if index.isValid():
-            m.addAction(QIcon.ic('plus.png'), _('Expand all items at the level of {}').format(index.data()), partial(self.expand_at_level, index))
-            m.addAction(QIcon.ic('minus.png'), _('Collapse all items at the level of {}').format(index.data()), partial(self.collapse_at_level, index))
+            m.addAction(
+                QIcon.ic('plus.png'),
+                _('Expand all items at the level of {}').format(index.data()),
+                partial(self.expand_at_level, index),
+            )
+            m.addAction(
+                QIcon.ic('minus.png'),
+                _('Collapse all items at the level of {}').format(index.data()),
+                partial(self.collapse_at_level, index),
+            )
         m.addSeparator()
         m.addAction(QIcon.ic('edit-copy.png'), _('Copy Table of Contents to clipboard'), self.copy_to_clipboard)
         self.context_menu = m
@@ -192,7 +200,6 @@ class TOCView(QTreeView):
 
 
 class TOCSearch(QWidget):
-
     def __init__(self, toc_view, parent=None):
         QWidget.__init__(self, parent)
         self.toc_view = toc_view
@@ -217,18 +224,21 @@ class TOCSearch(QWidget):
             self.toc_view.scrollTo(index)
             self.toc_view.searched.emit(index)
         else:
-            error_dialog(self.toc_view, _('No matches found'), _(
-                'There are no Table of Contents entries matching: %s') % text, show=True)
+            error_dialog(
+                self.toc_view,
+                _('No matches found'),
+                _('There are no Table of Contents entries matching: %s') % text,
+                show=True,
+            )
         self.search.search_done(True)
 
 
 class TOCItem(QStandardItem):
-
     def __init__(self, toc, depth, all_items, normal_font, emphasis_font, depths, parent=None):
         text = toc.get('title') or ''
         if text == '--pipe-worker':
             text = _('Untitled')
-        self.href = (toc.get('dest') or '')
+        self.href = toc.get('dest') or ''
         if toc.get('frag'):
             self.href += '#' + toc['frag']
         if text:
@@ -242,7 +252,7 @@ class TOCItem(QStandardItem):
         if toc['children']:
             depths.add(depth + 1)
             for t in toc['children']:
-                self.appendRow(TOCItem(t, depth+1, all_items, normal_font, emphasis_font, depths, parent=self))
+                self.appendRow(TOCItem(t, depth + 1, all_items, normal_font, emphasis_font, depths, parent=self))
         self.setFlags(Qt.ItemFlag.ItemIsEnabled)
         self.is_current_search_result = False
         self.depth = depth
@@ -280,7 +290,6 @@ class TOCItem(QStandardItem):
 
 
 class TOC(QStandardItemModel):
-
     current_toc_nodes_changed = pyqtSignal(object, object)
 
     def __init__(self, toc=None):
@@ -327,7 +336,7 @@ class TOC(QStandardItemModel):
             cq['items'][cq['index']].set_current_search_result(False)
         if cq['text'] != query:
             items = tuple(self.find_items(query))
-            cq.update({'text':query, 'items':items, 'index':-1})
+            cq.update({'text': query, 'items': items, 'index': -1})
         num = len(cq['items'])
         if num > 0:
             cq['index'] = (cq['index'] + delta + num) % num

@@ -53,19 +53,14 @@ def parse_txt(ty):
     tag_map = {
         'text': lambda: [ty.get('value', '')],
         'scaps': lambda: [
-            f'<span style="text-transform: uppercase; font-size: 0.85em; letter-spacing: 0.05em;">{"".join(parse_txt(c))}</span>'
-            for c in children
+            f'<span style="text-transform: uppercase; font-size: 0.85em; letter-spacing: 0.05em;">{"".join(parse_txt(c))}</span>' for c in children
         ],
         'bold': lambda: [f'<b>{"".join(parse_txt(c))}</b>' for c in children],
         'drop_caps': lambda: [f'<b>{"".join(parse_txt(c))}</b>' for c in children],
         'italic': lambda: [f'<i>{"".join(parse_txt(c))}</i>' for c in children],
         'linebreak': lambda: ['<br>'],
-        'external_link': lambda: [
-            f'<a href="{href}">{"".join(parse_txt(c))}</a>' for c in children
-        ],
-        'internal_link': lambda: [
-            f'<a href="{href}">{"".join(parse_txt(c))}</a>' for c in children
-        ],
+        'external_link': lambda: [f'<a href="{href}">{"".join(parse_txt(c))}</a>' for c in children],
+        'internal_link': lambda: [f'<a href="{href}">{"".join(parse_txt(c))}</a>' for c in children],
         'ufinish': lambda: [text for c in children for text in parse_txt(c)],
         'subscript': lambda: [f'<sub>{"".join(parse_txt(c))}</sub>' for c in children],
         'superscript': lambda: [f'<sup>{"".join(parse_txt(c))}</sup>' for c in children],
@@ -193,7 +188,6 @@ def process_url(url):
 
 
 class Econ1843(BasicNewsRecipe):
-
     title = 'The Economist 1843'
     language = 'en_GB'
     encoding = 'utf-8'
@@ -226,14 +220,13 @@ class Econ1843(BasicNewsRecipe):
 
     def get_browser(self, *args, **kwargs):
         from calibre.utils.random_ua import common_english_word_ua
+
         kwargs['user_agent'] = common_english_word_ua()
         br = BasicNewsRecipe.get_browser(self, *args, **kwargs)
         return br
 
     def economist_test_article(self):
-        return [('Articles', [{'title':'test',
-            'url':'https://www.economist.com/1843/2025/03/05/the-great-pretender-how-ahmed-al-sharaa-won-syria'
-        }])]
+        return [('Articles', [{'title': 'test', 'url': 'https://www.economist.com/1843/2025/03/05/the-great-pretender-how-ahmed-al-sharaa-won-syria'}])]
 
     def economist_return_index(self, ans):
         if not ans:
@@ -268,7 +261,7 @@ class Econ1843(BasicNewsRecipe):
                 if sub:
                     desc = sub + ' :: ' + desc
                 self.log('\t', title, '\n\t', desc, '\n\t\t', url)
-                feeds.append({'title': title, 'description':desc, 'url': url})
+                feeds.append({'title': title, 'description': desc, 'url': url})
             return [('Articles', feeds)]
 
     def preprocess_html(self, soup):
@@ -277,9 +270,7 @@ class Econ1843(BasicNewsRecipe):
         if w and isinstance(w, str):
             width = w
         for img in soup.findAll('img', src=True):
-            qua = (
-                'economist.com/cdn-cgi/image/width=' + width + ',quality=80,format=auto/'
-            )
+            qua = 'economist.com/cdn-cgi/image/width=' + width + ',quality=80,format=auto/'
             img['src'] = img['src'].replace('economist.com/', qua)
         return soup
 
@@ -314,9 +305,7 @@ class Econ1843(BasicNewsRecipe):
             'variables': '{{"ref":"{}"}}'.format(url),
             'query': 'query ArticleDeeplinkQuery($ref: String!, $includeRelatedArticles: Boolean = true ) { findArticleByUrl(url: $ref) { __typename ...ArticleDataFragment } }  fragment ContentIdentityFragment on ContentIdentity { articleType forceAppWebView leadMediaType }  fragment NarrationFragment on Narration { album bitrate duration filename id provider url isAiGenerated fileHash }  fragment ImageTeaserFragment on ImageComponent { altText height imageType source url width }  fragment PodcastAudioFragment on PodcastEpisode { id audio { url durationInSeconds } }  fragment ArticleTeaserFragment on Article { id tegId url rubric headline flyTitle brand byline dateFirstPublished dateline dateModified datePublished dateRevised estimatedReadTime wordCount printHeadline contentIdentity { __typename ...ContentIdentityFragment } section { tegId name } teaserImage { __typename type ...ImageTeaserFragment } leadComponent { __typename type ...ImageTeaserFragment } narration(selectionMethod: PREFER_ACTOR_NARRATION) { __typename ...NarrationFragment } podcast { __typename ...PodcastAudioFragment } }  fragment AnnotatedTextFragment on AnnotatedText { text textJson annotations { type length index attributes { name value } } }  fragment ImageComponentFragment on ImageComponent { altText caption { __typename ...AnnotatedTextFragment } credit height imageType mode source url width }  fragment BlockQuoteComponentFragment on BlockQuoteComponent { text textJson annotations { type length index attributes { name value } } }  fragment BookInfoComponentFragment on BookInfoComponent { text textJson annotations { type length index attributes { name value } } }  fragment ParagraphComponentFragment on ParagraphComponent { text textJson annotations { type length index attributes { name value } } }  fragment PullQuoteComponentFragment on PullQuoteComponent { text textJson annotations { type length index attributes { name value } } }  fragment CrossheadComponentFragment on CrossheadComponent { text }  fragment OrderedListComponentFragment on OrderedListComponent { items { __typename ...AnnotatedTextFragment } }  fragment UnorderedListComponentFragment on UnorderedListComponent { items { __typename ...AnnotatedTextFragment } }  fragment VideoComponentFragment on VideoComponent { url title thumbnailImage }  fragment InfoboxComponentFragment on InfoboxComponent { components { __typename type ...BlockQuoteComponentFragment ...BookInfoComponentFragment ...ParagraphComponentFragment ...PullQuoteComponentFragment ...CrossheadComponentFragment ...OrderedListComponentFragment ...UnorderedListComponentFragment ...VideoComponentFragment } }  fragment InfographicComponentFragment on InfographicComponent { url title width fallback { __typename ...ImageComponentFragment } altText height width }  fragment ArticleDataFragment on Article { id url brand byline rubric headline layout { headerStyle } contentIdentity { __typename ...ContentIdentityFragment } dateline dateFirstPublished dateModified datePublished dateRevised estimatedReadTime narration(selectionMethod: PREFER_ACTOR_NARRATION) { __typename ...NarrationFragment } printFlyTitle printHeadline printRubric flyTitle wordCount section { tegId name articles(pagingInfo: { pagingType: OFFSET pageSize: 6 pageNumber: 1 } ) @include(if: $includeRelatedArticles) { edges { node { __typename ...ArticleTeaserFragment } } } } teaserImage { __typename type ...ImageComponentFragment } tegId leadComponent { __typename type ...ImageComponentFragment } body { __typename type ...BlockQuoteComponentFragment ...BookInfoComponentFragment ...ParagraphComponentFragment ...PullQuoteComponentFragment ...CrossheadComponentFragment ...OrderedListComponentFragment ...UnorderedListComponentFragment ...InfoboxComponentFragment ...ImageComponentFragment ...VideoComponentFragment ...InfographicComponentFragment } footer { __typename type ...ParagraphComponentFragment } tags { name } ads { adData } podcast { __typename ...PodcastAudioFragment } }',  # noqa: E501
         }
-        deep_url = 'https://cp2-graphql-gateway.p.aws.economist.com/graphql?' + urlencode(
-            query, safe='()!', quote_via=quote
-        )
+        deep_url = 'https://cp2-graphql-gateway.p.aws.economist.com/graphql?' + urlencode(query, safe='()!', quote_via=quote)
         raw = get_content(deep_url)
         return raw
 

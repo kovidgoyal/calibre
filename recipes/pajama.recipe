@@ -2,8 +2,8 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class PajamasMedia(BasicNewsRecipe):
-    title = u'Pajamas Media'
-    description = u'Provides exclusive news and opinion for forty countries.'
+    title = 'Pajamas Media'
+    description = 'Provides exclusive news and opinion for forty countries.'
     language = 'en'
     __author__ = 'Krittika Goyal'
     oldest_article = 2  # days
@@ -14,7 +14,5 @@ class PajamasMedia(BasicNewsRecipe):
     remove_stylesheets = True
     auto_cleanup = True
     feeds = [
-        ('pajamas Media',
-         'http://feeds.feedburner.com/PajamasMedia'),
-
+        ('pajamas Media', 'http://feeds.feedburner.com/PajamasMedia'),
     ]

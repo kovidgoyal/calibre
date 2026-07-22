@@ -7,6 +7,7 @@ from read_book.viewport import scroll_viewport
 
 anchor_position_cache = {}
 
+
 def invalidate_anchor_position_cache():
     nonlocal anchor_position_cache
     anchor_position_cache = {

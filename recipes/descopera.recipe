@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 __license__ = 'GPL v3'
-__copyright__ = u'2011, Silviu Cotoar\u0103'
+__copyright__ = '2011, Silviu Cotoar\u0103'
 '''
 descopera.ro
 '''
@@ -11,8 +11,8 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class Descopera(BasicNewsRecipe):
-    title = u'Descoper\u0103'
-    __author__ = u'Silviu Cotoar\u0103'
+    title = 'Descoper\u0103'
+    __author__ = 'Silviu Cotoar\u0103'
     description = 'E lumea ta'
     publisher = 'Descopera'
     oldest_article = 5
@@ -26,10 +26,6 @@ class Descopera(BasicNewsRecipe):
     no_stylesheets = True
     auto_cleanup = True
 
-    conversion_options = {
-        'comments': description, 'tags': category, 'language': language, 'publisher': publisher
-    }
+    conversion_options = {'comments': description, 'tags': category, 'language': language, 'publisher': publisher}
 
-    feeds = [
-        (u'Feeds', u'http://www.descopera.ro/rss')
-    ]
+    feeds = [('Feeds', 'http://www.descopera.ro/rss')]

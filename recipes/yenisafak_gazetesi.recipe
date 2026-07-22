@@ -3,10 +3,9 @@
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
-class Bugun (BasicNewsRecipe):
-
-    title = u'Yenişafak Gazetesi'
-    __author__ = u'thomass'
+class Bugun(BasicNewsRecipe):
+    title = 'Yenişafak Gazetesi'
+    __author__ = 'thomass'
     oldest_article = 2
     max_articles_per_feed = 100
     no_stylesheets = True
@@ -16,9 +15,7 @@ class Bugun (BasicNewsRecipe):
     category = 'news, haberler,TR,gazete'
     language = 'tr'
     publication_type = 'newspaper '
-    conversion_options = {
-        'tags': category, 'language': language, 'publisher': publisher, 'linearize_tables': True
-    }
+    conversion_options = {'tags': category, 'language': language, 'publisher': publisher, 'linearize_tables': True}
     cover_img_url = 'http://yenisafak.com.tr/resim/logo.gif'
     masthead_url = 'http://yenisafak.com.tr/resim/logo.gif'
 
@@ -27,35 +24,30 @@ class Bugun (BasicNewsRecipe):
     # 'font-size:10%;font-weight: bold'}
     extra_css = ' h1{font-size:20px;font-weight: bold}h2{font-size: small;font-weight: bold}div{font-size: small}   '
 
-    remove_tags = [dict(name='div', attrs={'id': ['yasaluyari2010', 'divhaberdetayilisik2010']}), dict(
-        name='font', attrs={'class': ['haberdetaytarih']})]
+    remove_tags = [dict(name='div', attrs={'id': ['yasaluyari2010', 'divhaberdetayilisik2010']}), dict(name='font', attrs={'class': ['haberdetaytarih']})]
 
     remove_empty_feeds = True
 
     feeds = [
-        (u'SonDakika', u'http://yenisafak.com.tr/rss/?xml=anasayfa'),
-        (u'Gündem', u'http://yenisafak.com.tr/rss/?xml=gundem'),
-        (u'Politika', u'http://yenisafak.com.tr/rss/?xml=politika'),
-        (u'Ekonomi', u'http://yenisafak.com.tr/rss/?xml=ekonomi'),
-        (u'Dünya', u'http://yenisafak.com.tr/rss/?xml=dunya'),
-        (u'Aktüel', u'http://yenisafak.com.tr/rss/?xml=aktuel'),
-        (u'Eğitim', u'http://yenisafak.com.tr/rss/?xml=egitim'),
-        (u'Spor', u'http://yenisafak.com.tr/rss/?xml=spor'),
-        (u'Yazarlar', u'http://yenisafak.com.tr/rss/?xml=yazarlar'),
-        (u'Televizyon', u'http://yenisafak.com.tr/rss/?xml=televizyon'),
-        (u'Sağlık', u'http://yenisafak.com.tr/rss/?xml=saglik'),
-        (u'Yurt Haberler', u'http://yenisafak.com.tr/rss/?xml=yurthaberler'),
-        (u'Bilişim', u'http://yenisafak.com.tr/rss/?xml=bilisim'),
-        (u'Diziler', u'http://yenisafak.com.tr/rss/?xml=diziler'),
-        (u'Kültür-Sanat', u'http://yenisafak.com.tr/rss/?xml=kultursanat'),
-        (u'Röportaj', u'http://yenisafak.com.tr/rss/?xml=roportaj'),
-        (u'Sinema', u'http://yenisafak.com.tr/rss/?xml=sinema'),
-        (u'Yorum', u'http://yenisafak.com.tr/rss/?xml=yorum'),
-        (u' Yeni Şafak Pazar', u'http://yenisafak.com.tr/rss/?xml=pazar'),
-        (u'Yeni Şafak Kitap', u'http://yenisafak.com.tr/rss/?xml=kitap'),
-        (u'Yeni Şafak English',
-         u'http://yenisafak.com.tr/rss/?xml=english'),
-
-
-
+        ('SonDakika', 'http://yenisafak.com.tr/rss/?xml=anasayfa'),
+        ('Gündem', 'http://yenisafak.com.tr/rss/?xml=gundem'),
+        ('Politika', 'http://yenisafak.com.tr/rss/?xml=politika'),
+        ('Ekonomi', 'http://yenisafak.com.tr/rss/?xml=ekonomi'),
+        ('Dünya', 'http://yenisafak.com.tr/rss/?xml=dunya'),
+        ('Aktüel', 'http://yenisafak.com.tr/rss/?xml=aktuel'),
+        ('Eğitim', 'http://yenisafak.com.tr/rss/?xml=egitim'),
+        ('Spor', 'http://yenisafak.com.tr/rss/?xml=spor'),
+        ('Yazarlar', 'http://yenisafak.com.tr/rss/?xml=yazarlar'),
+        ('Televizyon', 'http://yenisafak.com.tr/rss/?xml=televizyon'),
+        ('Sağlık', 'http://yenisafak.com.tr/rss/?xml=saglik'),
+        ('Yurt Haberler', 'http://yenisafak.com.tr/rss/?xml=yurthaberler'),
+        ('Bilişim', 'http://yenisafak.com.tr/rss/?xml=bilisim'),
+        ('Diziler', 'http://yenisafak.com.tr/rss/?xml=diziler'),
+        ('Kültür-Sanat', 'http://yenisafak.com.tr/rss/?xml=kultursanat'),
+        ('Röportaj', 'http://yenisafak.com.tr/rss/?xml=roportaj'),
+        ('Sinema', 'http://yenisafak.com.tr/rss/?xml=sinema'),
+        ('Yorum', 'http://yenisafak.com.tr/rss/?xml=yorum'),
+        (' Yeni Şafak Pazar', 'http://yenisafak.com.tr/rss/?xml=pazar'),
+        ('Yeni Şafak Kitap', 'http://yenisafak.com.tr/rss/?xml=kitap'),
+        ('Yeni Şafak English', 'http://yenisafak.com.tr/rss/?xml=english'),
     ]

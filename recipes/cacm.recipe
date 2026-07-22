@@ -17,12 +17,12 @@ class CACM(BasicNewsRecipe):
     ]
 
     def get_cover_url(self):
-        '''
+        """
         Parse out cover URL from cover page.
         Example:
         From: https://cacm.acm.org/system/assets/0004/2570/April2022.Cover.1000x1338.large.jpg?1647524668&1647524668
         Get:  https://cacm.acm.org/system/assets/0004/2570/April2022.Cover.1000x1338.jpg
-        '''
+        """
 
         soup = self.index_to_soup('https://cacm.acm.org/')
         a_img = soup.find('a', class_='menuCover')

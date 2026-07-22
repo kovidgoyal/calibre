@@ -13,11 +13,11 @@ class EPLTalkRecipe(BasicNewsRecipe):
     version = 2
     __author__ = 'rylsfan'
 
-    title = u'EPL Talk'
-    publisher = u'The Gaffer'
+    title = 'EPL Talk'
+    publisher = 'The Gaffer'
     publication_type = 'Blog'
-    category = u'Soccer'
-    description = u'News and Analysis from the English Premier League'
+    category = 'Soccer'
+    description = 'News and Analysis from the English Premier League'
     cover_url = 'http://bit.ly/hJxZPu'
 
     oldest_article = 3
@@ -26,9 +26,7 @@ class EPLTalkRecipe(BasicNewsRecipe):
     remove_javascript = True
     encoding = 'utf8'
 
-    conversion_options = {
-        'comment': description, 'tags': category, 'publisher': publisher, 'language': language
-    }
+    conversion_options = {'comment': description, 'tags': category, 'publisher': publisher, 'language': language}
 
     remove_tags = [
         {'class': 'feedflare'},
@@ -41,8 +39,8 @@ class EPLTalkRecipe(BasicNewsRecipe):
         return self.adeify_images(soup)
 
     feeds = [
-        (u'EPL Talk', u'http://feeds.feedburner.com/EPLTalk'),
-        (u'MLS Talk', u'http://feeds.feedburner.com/majorleaguesoccertalksite'),
+        ('EPL Talk', 'http://feeds.feedburner.com/EPLTalk'),
+        ('MLS Talk', 'http://feeds.feedburner.com/majorleaguesoccertalksite'),
     ]
 
     extra_css = '''

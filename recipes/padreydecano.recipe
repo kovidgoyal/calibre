@@ -34,16 +34,12 @@ class General(BasicNewsRecipe):
 
     oldest_article = 10
     max_articles_per_feed = 100
-    keep_only_tags = [
-        dict(name='h1', attrs={'class': 'entry-title'}),
-        dict(name='div', attrs={'class': 'entry-content clearfix'})
-    ]
+    keep_only_tags = [dict(name='h1', attrs={'class': 'entry-title'}), dict(name='div', attrs={'class': 'entry-content clearfix'})]
 
     remove_tags = [
-        dict(name='div', attrs={
-             'class': ['br', 'hr', 'titlebar', 'navigation']}),
+        dict(name='div', attrs={'class': ['br', 'hr', 'titlebar', 'navigation']}),
         dict(name='dl', attrs={'class': 'gallery-item'}),
-        dict(name=['object', 'link'])
+        dict(name=['object', 'link']),
     ]
 
     extra_css = '''
@@ -55,10 +51,7 @@ class General(BasicNewsRecipe):
                 img{margin-bottom: 0.4em; display:block;}
                 '''
 
-    feeds = [
-        (u'Padre y Decano | Club Atlético Peñarol',
-         u'http://www.padreydecano.com/cms/feed/')
-    ]
+    feeds = [('Padre y Decano | Club Atlético Peñarol', 'http://www.padreydecano.com/cms/feed/')]
 
     def get_cover_url(self):
         return None

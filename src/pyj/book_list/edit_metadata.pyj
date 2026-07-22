@@ -2,9 +2,10 @@
 # License: GPL v3 Copyright: 2018, Kovid Goyal <kovid at kovidgoyal.net>
 from __python__ import bound_methods, hash_literals
 
-from elementmaker import E
-
 import traceback
+from elementmaker import E
+from gettext import gettext as _
+
 from ajax import ajax_send
 from book_list.book_details import (
     add_stars_to, basic_table_rules, fetch_metadata, field_sorter, no_book,
@@ -25,14 +26,30 @@ from book_list.ui import set_panel_handler, show_panel
 from date import UNDEFINED_DATE_ISO, format_date
 from dom import add_extra_css, build_rule, clear, svgicon
 from file_uploads import update_status_widget, upload_files_widget, upload_status_widget
-from gettext import gettext as _
 from modals import error_dialog, question_dialog
 from session import get_interface_data
 from utils import conditional_timeout, fmt_sidx, parse_url_params, safe_set_inner_html
 from widgets import create_button
 
 CLASS_NAME = 'edit-metadata-panel'
-IGNORED_FIELDS = {'sort', 'uuid', 'id', 'urls_from_identifiers', 'lang_names', 'last_modified', 'path', 'marked', 'size', 'ondevice', 'cover', 'au_map', 'isbn', 'in_tag_browser'}
+IGNORED_FIELDS = {
+    'sort',
+    'uuid',
+    'id',
+    'urls_from_identifiers',
+    'lang_names',
+    'last_modified',
+    'path',
+    'marked',
+    'size',
+    'ondevice',
+    'cover',
+    'au_map',
+    'isbn',
+    'in_tag_browser',
+}
+
+
 def identity(x):
     return x
 value_to_json = identity
@@ -40,7 +57,7 @@ changes = {}
 draft_changes = {}
 has_changes = False
 
-add_extra_css(def():
+add_extra_css(def ():
     sel = '.' + CLASS_NAME + ' '
     style = basic_table_rules(sel)
     style += build_rule(sel + 'table.metadata', width='100%')
@@ -53,7 +70,6 @@ add_extra_css(def():
     style += build_rule(sel + 'table.metadata td:first-of-type', font_weight='600')
     style += build_rule(sel + 'table.metadata tr:hover td', background_color='var(--calibre-color-primary-light)')
     style += build_rule(sel + 'table.metadata tr:active td', transform='translateY(0.5px)')
-
     style += build_rule(sel + '.completions', display='flex', flex_wrap='wrap', align_items='center', margin_bottom='0.5ex', gap='0.4rem')
     style += build_rule(sel + '.completions > div',
         margin='0',
@@ -67,11 +83,9 @@ add_extra_css(def():
         background_color='var(--calibre-color-primary-light)',
         border='var(--calibre-border-style)'
     )
-
     style += build_rule(sel + '.rating-edit-container', display='flex', flex_wrap='wrap', align_items='center', list_style_type='none')
     style += build_rule(sel + '.rating-edit-container > li', margin='0.5ex 0.5rem', margin_left='0', padding='0.5ex 0.5rem', border='solid 1px currentColor', border_radius='1ex', cursor='pointer')
     style += build_rule(sel + '.rating-edit-container > li.current-rating', color=get_color('window-background'), background=get_color('window-foreground'))
-
     # Floating editor modal (field editing)
     style += build_rule(sel + 'div[data-ctype="edit"]',
         position='fixed',
@@ -183,7 +197,6 @@ edit-metadata-panel[data-modal="1"]::before{
         flex_wrap='wrap',
         padding='0 1rem 1.5rem 1rem'
     )
-
     return style
 )
 
@@ -263,7 +276,7 @@ def onsubmit_field(get_value, container_id, book_id, field):
 def create_form(widget, get_value, container_id, book_id, field):
     submit_action = onsubmit_field.bind(None, get_value, container_id, book_id, field)
     button = create_button(_('OK'), icon='check', action=submit_action, highlight=True)
-    cancel_button = create_button(_('Cancel'), icon='close', action=def(ev): on_close(container_id);)
+    cancel_button = create_button(_('Cancel'), icon='close', action=def (ev): on_close(container_id);)
     widget.classList.add('metadata-editor')
     form = E.form(
         action='javascript: void(0)', onsubmit=submit_action, style='margin: 1ex auto',
@@ -274,6 +287,7 @@ def create_form(widget, get_value, container_id, book_id, field):
 
 
 # Simple line edit {{{
+
 
 def line_edit_get_value(container):
     return True, container.querySelector('input[type="text"]').value
@@ -292,6 +306,7 @@ def simple_line_edit(container_id, book_id, field, fm, div, mi):
 # }}}
 
 # Text edit {{{
+
 
 def text_edit_get_value(container):
     return True, container.querySelector('textarea').value
@@ -332,6 +347,7 @@ def html_edit(container_id, book_id, field, fm, div, mi):
 
 # Number edit {{{
 
+
 def number_edit_get_value(container):
     return True, container.querySelector('input[type="number"]').value
 
@@ -360,6 +376,7 @@ def number_edit(container_id, book_id, field, fm, div, mi):
 # }}}
 
 # Line edit with completions {{{
+
 
 def remove_item(container_id, name):
     c = document.getElementById(container_id)
@@ -521,7 +538,7 @@ def multiple_line_edit(list_to_ui, ui_to_list, container_id, book_id, field, fm,
     div.appendChild(E.div(E.span(_('Loading all {}...').format(name)), style='margin: 0.5ex 1rem'))
     le.focus(), le.select()
     if list_to_ui:
-        value_to_json = def(raw):
+        value_to_json = def (raw):
             seen = {}
             ans = v'[]'
             for x in [a.strip() for a in raw.split(ui_to_list) if a.strip()]:
@@ -536,6 +553,7 @@ def multiple_line_edit(list_to_ui, ui_to_list, container_id, book_id, field, fm,
 # }}}
 
 # Series edit {{{
+
 
 def series_edit_get_value(container):
     val = {
@@ -568,8 +586,10 @@ def series_edit(container_id, book_id, field, fm, div, mi):
 
 # Date edit {{{
 
+
 def date_edit_get_value(container):
     return True, container.querySelector('input[type="date"]').value
+
 
 def date_to_datetime(raw):
     if not raw:
@@ -581,7 +601,7 @@ def date_edit(container_id, book_id, field, fm, div, mi):
     nonlocal value_to_json
     value_to_json = date_to_datetime
     name = fm.name or field
-    le = E.input(type='date', name=name.replace('#', '_c_'), min=UNDEFINED_DATE_ISO.split('T')[0], pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}")
+    le = E.input(type='date', name=name.replace('#', '_c_'), min=UNDEFINED_DATE_ISO.split('T')[0], pattern='[0-9]{4}-[0-9]{2}-[0-9]{2}')
     val = resolved_metadata(mi, field) or ''
     if val:
         val = format_date(val, 'yyyy-MM-dd')
@@ -609,6 +629,7 @@ def date_edit(container_id, book_id, field, fm, div, mi):
 
 # Identifiers edit {{{
 
+
 def remove_identifier(evt):
     li = evt.currentTarget.closest('li')
     li.parentNode.removeChild(li)
@@ -619,12 +640,7 @@ def add_identifier(container_id, name, val):
     if not c:
         return
     b = create_button(_('Remove'), action=remove_identifier)
-    c.appendChild(E.li(style='padding-bottom: 1ex; margin-bottom: 1ex; border-bottom: solid 1px currentColor',
-        E.table(style='width: 100%',
-            E.tr(E.td(_('Type:') + '\xa0'), E.td(style='padding-bottom: 1ex; width: 99%', E.input(type='text', style='width:100%', autocomplete=True, value=name or '')), E.td(rowspan='2', style='padding: 0.5ex 1rem; vertical-align: middle', b)),
-
-            E.tr(E.td(_('Value:') + '\xa0'), E.td(E.input(type='text', style='width: 100%', autocomplete=True, value=val or ''))),
-    )))
+    c.appendChild(E.li(style='padding-bottom: 1ex; margin-bottom: 1ex; border-bottom: solid 1px currentColor', E.table(style='width: 100%', E.tr(E.td(_('Type:') + '\xa0'), E.td(style='padding-bottom: 1ex; width: 99%', E.input(type='text', style='width:100%', autocomplete=True, value=name or '')), E.td(rowspan='2', style='padding: 0.5ex 1rem; vertical-align: middle', b)), E.tr(E.td(_('Value:') + '\xa0'), E.td(E.input(type='text', style='width: 100%', autocomplete=True, value=val or ''))),)))
 
 
 def identifiers_get_value(container):
@@ -654,6 +670,7 @@ def identifiers_edit(container_id, book_id, field, fm, div, mi):
 # }}}
 
 # Rating edit {{{
+
 
 def rating_get_value(container):
     return True, parseInt(container.querySelector('.current-rating[data-rating]').getAttribute('data-rating'))
@@ -689,6 +706,7 @@ def rating_edit(container_id, book_id, field, fm, div, mi):
 
 # Enum edit {{{
 
+
 def enum_get_value(container):
     return True, container.querySelector('.current-rating[data-rating]').getAttribute('data-rating')
 
@@ -711,6 +729,7 @@ def enum_edit(container_id, book_id, field, fm, div, mi):
 # }}}
 
 # Bool edit {{{
+
 
 def bool_edit(container_id, book_id, field, fm, div, mi):
     nonlocal value_to_json
@@ -735,11 +754,12 @@ def bool_edit(container_id, book_id, field, fm, div, mi):
     div.appendChild(E.div(style='margin: 0.5ex 1rem', _('Choose the "{}" below').format(name)))
     div.appendChild(E.div(style='margin: 0.5ex 1rem', form))
     val_map = {'': None, 'y': True, 'n': False}
-    value_to_json = def(x):
+    value_to_json = def (x):
         return val_map[x]
 # }}}
 
 # Cover edit {{{
+
 
 def cover_chosen(top_container_id, book_id, container_id, files):
     nonlocal has_changes, draft_changes
@@ -812,8 +832,8 @@ def cover_edit(container_id, book_id, field, fm, div, mi):
         pending.remove = False
         refresh_preview()
 
-    file_input.addEventListener('change', def(): handle_files(file_input.files);, False)
-    dropzone.addEventListener('click', def(ev): file_input.click();, False)
+    file_input.addEventListener('change', def (): handle_files(file_input.files);, False)
+    dropzone.addEventListener('click', def (ev): file_input.click();, False)
 
     def stop(e):
         e.stopPropagation()
@@ -828,7 +848,7 @@ def cover_edit(container_id, book_id, field, fm, div, mi):
     dropzone.addEventListener('drop', drop, False)
 
     actions = E.div(class_='cover-edit-actions')
-    actions.appendChild(create_button(_('Remove existing cover'), action=def(ev):
+    actions.appendChild(create_button(_('Remove existing cover'), action=def (ev):
         pending.file = None
         pending.remove = True
         refresh_preview()
@@ -869,7 +889,7 @@ def cover_edit(container_id, book_id, field, fm, div, mi):
 
     footer.appendChild(create_button(_('Save'), icon='check', action=do_save, highlight=True))
     footer.appendChild(E.span('\xa0'))
-    footer.appendChild(create_button(_('Cancel'), icon='close', action=def(ev):
+    footer.appendChild(create_button(_('Cancel'), icon='close', action=def (ev):
         if object_url:
             try:
                 window.URL.revokeObjectURL(object_url)
@@ -885,6 +905,7 @@ def cover_edit(container_id, book_id, field, fm, div, mi):
 
 # Formats edit {{{
 
+
 def format_added(top_container_id, book_id, container_id, files):
     nonlocal has_changes, draft_changes
     container = document.getElementById(container_id)
@@ -898,7 +919,7 @@ def format_added(top_container_id, book_id, container_id, files):
         data = {'name': file.name, 'size': file.size, 'type': file.type, 'data_url': None, 'ext': ext}
         added.push(data)
         r = FileReader()
-        r.onload = def(evt):
+        r.onload = def (evt):
             data.data_url = evt.target.result
         r.readAsDataURL(file)
     draft_changes.added_formats = added
@@ -930,6 +951,7 @@ def formats_edit(container_id, book_id, field, fm, div, mi):
     div.appendChild(remove_buttons)
 
 # }}}
+
 
 def switch_to_edit_panel(container):
     d = container.querySelector('div[data-ctype="edit"]')
@@ -1005,10 +1027,10 @@ def edit_field(container_id, book_id, field):
         else:
             simple_line_edit(container_id, book_id, field, fm, d, mi)
     if field is 'title':
-        value_to_json = def(x):
+        value_to_json = def (x):
             return x or _('Untitled')
     elif field is 'authors':
-        value_to_json = def(x):
+        value_to_json = def (x):
             ans = [a.strip() for a in x.split('&') if a.strip()]
             if not ans.length:
                 ans = [_('Unknown')]
@@ -1042,7 +1064,7 @@ def render_metadata(mi, table, container_id, book_id):  # {{{
     else:
         fields = filter(allowed_fields, fields)
     fields = list(fields)
-    added_fields = {f:True for f in fields}
+    added_fields = {f: True for f in fields}
     if not added_fields.title:
         added_fields.title = True
         fields.insert(0, 'title')
@@ -1053,6 +1075,7 @@ def render_metadata(mi, table, container_id, book_id):  # {{{
     def add_row(name, val, is_html=False, join=None):
         if val is undefined or val is None:
             val = v'[" "]' if join else '\xa0'
+
         def add_val(v):
             if not v.appendChild:
                 v += ''
@@ -1289,7 +1312,7 @@ def select_item_for_edit_notes(container, mi):
 
     container.appendChild(E.div(style='padding: 0.5rem'))
     d = container.lastChild
-    d.appendChild(E.div(svgicon('pencil'), ' ' , _('Tap on an item below to edit the notes associated with it.'), style='margin-bottom: 0.5rem'))
+    d.appendChild(E.div(svgicon('pencil'), ' ', _('Tap on an item below to edit the notes associated with it.'), style='margin-bottom: 0.5rem'))
     dl = E.dl()
     fields = sorted(filter(allowed_fields, mi), key=field_sorter(field_metadata))
     for field in fields:
@@ -1322,7 +1345,11 @@ def submit_changes(container_id, book_id):
     w = upload_status_widget()
     d.appendChild(w)
     ajax_send(
-        f'cdb/set-fields/{book_id}/{current_library_id()}', data, changes_submitted.bind(None, container_id, book_id), on_progress.bind(None, container_id, book_id))
+        f'cdb/set-fields/{book_id}/{current_library_id()}',
+        data,
+        changes_submitted.bind(None, container_id, book_id),
+        on_progress.bind(None, container_id, book_id)
+    )
 
 
 def show_book(container_id, book_id):
@@ -1342,11 +1369,7 @@ def show_book(container_id, book_id):
             E.div(_('Use Save/Cancel below to apply or discard them.')),
         ))
     else:
-        div.appendChild(E.div(
-            style='margin: 1ex 1rem',
-            E.div(_('Tap any field below to edit that field.')),
-            E.div(E.a(svgicon('pencil'), '\xa0', _('Add notes for authors, series, etc.'), href='javascript:void(0)', onclick=show_select_panel, class_='blue-link'), style='display:' + ('none' if cq.from_read_book else 'block')),
-        ))
+        div.appendChild(E.div(style='margin: 1ex 1rem', E.div(_('Tap any field below to edit that field.')), E.div(E.a(svgicon('pencil'), '\xa0', _('Add notes for authors, series, etc.'), href='javascript:void(0)', onclick=show_select_panel, class_='blue-link'), style='display:' + ('none' if cq.from_read_book else 'block')),))
     div.appendChild(E.table(class_='metadata'))
     render_metadata(mi, div.lastChild, container_id, book_id)
 
@@ -1363,12 +1386,8 @@ def show_book(container_id, book_id):
         has_changes = False
         show_book(container_id, book_id)
 
-
     if has_changes:
-        div.appendChild(E.div(class_='edit-metadata-footer', style='display:flex;justify-content:center;align-items:center;gap:0.75rem;flex-wrap:wrap;padding:0 1rem 1.5rem 1rem',
-            create_button(_('Save'), None, save_action, highlight=True),
-            create_button(_('Cancel'), None, cancel_action),
-        ))
+        div.appendChild(E.div(class_='edit-metadata-footer', style='display:flex;justify-content:center;align-items:center;gap:0.75rem;flex-wrap:wrap;padding:0 1rem 1.5rem 1rem', create_button(_('Save'), None, save_action, highlight=True), create_button(_('Cancel'), None, cancel_action),))
 
 
 def is_edit_panel_showing(container):
@@ -1494,5 +1513,6 @@ def init_select_item_for_edit_notes(container_id):
     conditional_timeout(container_id, 5, check_for_books_loaded)
 
 
-set_panel_handler('edit_metadata', init)
-set_panel_handler('select_item_for_edit_notes', init_select_item_for_edit_notes)
+def set_panel_handlers():
+    set_panel_handler('edit_metadata', init)
+    set_panel_handler('select_item_for_edit_notes', init_select_item_for_edit_notes)

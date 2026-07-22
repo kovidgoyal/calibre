@@ -40,7 +40,7 @@ class General(BasicNewsRecipe):
         dict(name='div', attrs={'class': ['hr', 'titlebar', 'navigation']}),
         dict(name='div', attrs={'class': 'sharedaddy sd-sharing-enabled'}),
         dict(name='p', attrs={'class': 'post-meta'}),
-        dict(name=['object', 'link'])
+        dict(name=['object', 'link']),
     ]
 
     extra_css = '''
@@ -52,9 +52,7 @@ class General(BasicNewsRecipe):
                 img{margin-bottom: 0.4em; display:block;}
                 '''
 
-    feeds = [
-        (u'Articulos', u'http://10minutos.com.uy/?feed=rss2')
-    ]
+    feeds = [('Articulos', 'http://10minutos.com.uy/?feed=rss2')]
 
     def get_cover_url(self):
         return None

@@ -1,9 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__   = 'GPL v3'
-__copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2012, Kovid Goyal <kovid at kovidgoyal.net>
 
 from functools import partial
 from struct import unpack_from
@@ -14,7 +10,6 @@ from calibre.utils.fonts.sfnt.errors import UnsupportedFont
 
 
 class SingleSubstitution(UnknownLookupSubTable):
-
     formats = {1, 2}
 
     def initialize(self, data):
@@ -32,7 +27,6 @@ class SingleSubstitution(UnknownLookupSubTable):
 
 
 class MultipleSubstitution(UnknownLookupSubTable):
-
     formats = {1}
 
     def initialize(self, data):
@@ -52,7 +46,6 @@ class AlternateSubstitution(MultipleSubstitution):
 
 
 class LigatureSubstitution(UnknownLookupSubTable):
-
     formats = {1}
 
     def initialize(self, data):
@@ -75,7 +68,6 @@ class LigatureSubstitution(UnknownLookupSubTable):
 
 
 class ContexttualSubstitution(UnknownLookupSubTable):
-
     formats = {1, 2, 3}
 
     @property
@@ -91,7 +83,6 @@ class ContexttualSubstitution(UnknownLookupSubTable):
 
 
 class ChainingContextualSubstitution(UnknownLookupSubTable):
-
     formats = {1, 2, 3}
 
     @property
@@ -107,16 +98,13 @@ class ChainingContextualSubstitution(UnknownLookupSubTable):
 
 
 class ReverseChainSingleSubstitution(UnknownLookupSubTable):
-
     formats = {1}
 
     def initialize(self, data):
         backtrack_count = data.unpack('H')
-        backtrack_offsets = data.unpack(f'{backtrack_count}H',
-                single_special=False)
+        backtrack_offsets = data.unpack(f'{backtrack_count}H', single_special=False)
         lookahead_count = data.unpack('H')
-        lookahead_offsets = data.unpack(f'{lookahead_count}H',
-                single_special=False)
+        lookahead_offsets = data.unpack(f'{lookahead_count}H', single_special=False)
         backtrack_offsets = [data.start_pos + x for x in backtrack_offsets]
         lookahead_offsets = [data.start_pos + x for x in lookahead_offsets]
         backtrack_offsets, lookahead_offsets  # TODO: Use these
@@ -129,51 +117,43 @@ class ReverseChainSingleSubstitution(UnknownLookupSubTable):
 
 
 subtable_map = {
-        1: SingleSubstitution,
-        2: MultipleSubstitution,
-        3: AlternateSubstitution,
-        4: LigatureSubstitution,
-        5: ContexttualSubstitution,
-        6: ChainingContextualSubstitution,
-        8: ReverseChainSingleSubstitution,
+    1: SingleSubstitution,
+    2: MultipleSubstitution,
+    3: AlternateSubstitution,
+    4: LigatureSubstitution,
+    5: ContexttualSubstitution,
+    6: ChainingContextualSubstitution,
+    8: ReverseChainSingleSubstitution,
 }
 
 
 class GSUBLookupTable(LookupTable):
-
     def set_child_class(self):
         if self.lookup_type == 7:
-            self.child_class = partial(ExtensionSubstitution,
-                    subtable_map=subtable_map)
+            self.child_class = partial(ExtensionSubstitution, subtable_map=subtable_map)
         else:
             self.child_class = subtable_map[self.lookup_type]
 
 
 class LookupListTable(SimpleListTable):
-
     child_class = GSUBLookupTable
 
 
 class GSUBTable(UnknownTable):
-
     version = FixedProperty('_version')
 
     def decompile(self):
-        (self._version, self.scriptlist_offset, self.featurelist_offset,
-                self.lookuplist_offset) = unpack_from(b'>L3H', self.raw)
+        (self._version, self.scriptlist_offset, self.featurelist_offset, self.lookuplist_offset) = unpack_from(b'>L3H', self.raw)
         if self._version != 0x10000:
             raise UnsupportedFont(f'The GSUB table has unknown version: 0x{self._version:x}')
 
-        self.script_list_table = ScriptListTable(self.raw,
-                self.scriptlist_offset)
+        self.script_list_table = ScriptListTable(self.raw, self.scriptlist_offset)
         # self.script_list_table.dump()
 
-        self.feature_list_table = FeatureListTable(self.raw,
-                self.featurelist_offset)
+        self.feature_list_table = FeatureListTable(self.raw, self.featurelist_offset)
         # self.feature_list_table.dump()
 
-        self.lookup_list_table = LookupListTable(self.raw,
-                self.lookuplist_offset)
+        self.lookup_list_table = LookupListTable(self.raw, self.lookuplist_offset)
 
     def all_substitutions(self, glyph_ids):
         glyph_ids = frozenset(glyph_ids)

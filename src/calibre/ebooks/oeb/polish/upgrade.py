@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2018, Kovid Goyal <kovid at kovidgoyal.net>
 
-
 import sys
 
 from calibre.ebooks.conversion.plugins.epub_input import ADOBE_OBFUSCATION, IDPF_OBFUSCATION
@@ -91,50 +90,50 @@ def collect_properties(container):
 
 
 guide_epubtype_map = {
-    'acknowledgements'   : 'acknowledgments',
-    'other.afterword'    : 'afterword',
-    'other.appendix'     : 'appendix',
-    'other.backmatter'   : 'backmatter',
-    'bibliography'       : 'bibliography',
-    'text'               : 'bodymatter',
-    'other.chapter'      : 'chapter',
-    'colophon'           : 'colophon',
-    'other.conclusion'   : 'conclusion',
-    'other.contributors' : 'contributors',
-    'copyright-page'     : 'copyright-page',
-    'cover'              : 'cover',
-    'dedication'         : 'dedication',
-    'other.division'     : 'division',
-    'epigraph'           : 'epigraph',
-    'other.epilogue'     : 'epilogue',
-    'other.errata'       : 'errata',
-    'other.footnotes'    : 'footnotes',
-    'foreword'           : 'foreword',
-    'other.frontmatter'  : 'frontmatter',
-    'glossary'           : 'glossary',
+    'acknowledgements': 'acknowledgments',
+    'other.afterword': 'afterword',
+    'other.appendix': 'appendix',
+    'other.backmatter': 'backmatter',
+    'bibliography': 'bibliography',
+    'text': 'bodymatter',
+    'other.chapter': 'chapter',
+    'colophon': 'colophon',
+    'other.conclusion': 'conclusion',
+    'other.contributors': 'contributors',
+    'copyright-page': 'copyright-page',
+    'cover': 'cover',
+    'dedication': 'dedication',
+    'other.division': 'division',
+    'epigraph': 'epigraph',
+    'other.epilogue': 'epilogue',
+    'other.errata': 'errata',
+    'other.footnotes': 'footnotes',
+    'foreword': 'foreword',
+    'other.frontmatter': 'frontmatter',
+    'glossary': 'glossary',
     'other.halftitlepage': 'halftitlepage',
-    'other.imprint'      : 'imprint',
-    'other.imprimatur'   : 'imprimatur',
-    'index'              : 'index',
-    'other.introduction' : 'introduction',
-    'other.landmarks'    : 'landmarks',
-    'other.loa'          : 'loa',
-    'loi'                : 'loi',
-    'lot'                : 'lot',
-    'other.lov'          : 'lov',
-    'notes'              : '',
-    'other.notice'       : 'notice',
+    'other.imprint': 'imprint',
+    'other.imprimatur': 'imprimatur',
+    'index': 'index',
+    'other.introduction': 'introduction',
+    'other.landmarks': 'landmarks',
+    'other.loa': 'loa',
+    'loi': 'loi',
+    'lot': 'lot',
+    'other.lov': 'lov',
+    'notes': '',
+    'other.notice': 'notice',
     'other.other-credits': 'other-credits',
-    'other.part'         : 'part',
-    'other.preamble'     : 'preamble',
-    'preface'            : 'preface',
-    'other.prologue'     : 'prologue',
-    'other.rearnotes'    : 'rearnotes',
-    'other.subchapter'   : 'subchapter',
-    'title-page'         : 'titlepage',
-    'toc'                : 'toc',
-    'other.volume'       : 'volume',
-    'other.warning'      : 'warning'
+    'other.part': 'part',
+    'other.preamble': 'preamble',
+    'preface': 'preface',
+    'other.prologue': 'prologue',
+    'other.rearnotes': 'rearnotes',
+    'other.subchapter': 'subchapter',
+    'title-page': 'titlepage',
+    'toc': 'toc',
+    'other.volume': 'volume',
+    'other.warning': 'warning',
 }
 
 
@@ -181,6 +180,7 @@ def upgrade_book(container, report, remove_ncx=True):
 if __name__ == '__main__':
     from calibre.ebooks.oeb.polish.container import get_container
     from calibre.utils.logging import default_log
+
     default_log.filter_level = default_log.DEBUG
     inbook = sys.argv[-1]
     ebook = get_container(inbook, default_log)

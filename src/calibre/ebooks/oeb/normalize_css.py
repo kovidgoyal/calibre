@@ -1,8 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__ = 'GPL v3'
-__copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
+# License: GPLv3 Copyright: 2013, Kovid Goyal <kovid at kovidgoyal.net>
 
 import numbers
 from functools import wraps
@@ -14,45 +11,109 @@ from tinycss.fonts3 import parse_font, serialize_font_family
 
 from calibre.ebooks.oeb.base import css_text
 
-DEFAULTS = {'azimuth': 'center', 'background-attachment': 'scroll',  # {{{
-            'background-color': 'transparent', 'background-image': 'none',
-            'background-position': '0% 0%', 'background-repeat': 'repeat',
-            'border-bottom-color': 'currentColor', 'border-bottom-style':
-            'none', 'border-bottom-width': 'medium', 'border-collapse':
-            'separate', 'border-left-color': 'currentColor',
-            'border-left-style': 'none', 'border-left-width': 'medium',
-            'border-right-color': 'currentColor', 'border-right-style': 'none',
-            'border-right-width': 'medium', 'border-spacing': 0,
-            'border-top-color': 'currentColor', 'border-top-style': 'none',
-            'border-top-width': 'medium', 'bottom': 'auto', 'caption-side':
-            'top', 'clear': 'none', 'clip': 'auto', 'color': 'black',
-            'content': 'normal', 'counter-increment': 'none', 'counter-reset':
-            'none', 'cue-after': 'none', 'cue-before': 'none', 'cursor':
-            'auto', 'direction': 'ltr', 'display': 'inline', 'elevation':
-            'level', 'empty-cells': 'show', 'float': 'none', 'font-family':
-            'serif', 'font-size': 'medium', 'font-stretch': 'normal', 'font-style': 'normal',
-            'font-variant': 'normal', 'font-weight': 'normal', 'height':
-            'auto', 'left': 'auto', 'letter-spacing': 'normal', 'line-height':
-            'normal', 'list-style-image': 'none', 'list-style-position':
-            'outside', 'list-style-type': 'disc', 'margin-bottom': 0,
-            'margin-left': 0, 'margin-right': 0, 'margin-top': 0, 'max-height':
-            'none', 'max-width': 'none', 'min-height': 0, 'min-width': 0,
-            'orphans': '2', 'outline-color': 'invert', 'outline-style': 'none',
-            'outline-width': 'medium', 'overflow': 'visible', 'padding-bottom':
-            0, 'padding-left': 0, 'padding-right': 0, 'padding-top': 0,
-            'page-break-after': 'auto', 'page-break-before': 'auto',
-            'page-break-inside': 'auto', 'pause-after': 0, 'pause-before': 0,
-            'pitch': 'medium', 'pitch-range': '50', 'play-during': 'auto',
-            'position': 'static', 'quotes': "'“' '”' '‘' '’'", 'richness':
-            '50', 'right': 'auto', 'speak': 'normal', 'speak-header': 'once',
-            'speak-numeral': 'continuous', 'speak-punctuation': 'none',
-            'speech-rate': 'medium', 'stress': '50', 'table-layout': 'auto',
-            'text-align': 'auto', 'text-decoration': 'none', 'text-indent': 0,
-            'text-shadow': 'none', 'text-transform': 'none', 'top': 'auto',
-            'unicode-bidi': 'normal', 'vertical-align': 'baseline',
-            'visibility': 'visible', 'voice-family': 'default', 'volume':
-            'medium', 'white-space': 'normal', 'widows': '2', 'width': 'auto',
-            'word-spacing': 'normal', 'z-index': 'auto'}
+DEFAULTS = {
+    'azimuth': 'center',
+    'background-attachment': 'scroll',  # {{{
+    'background-color': 'transparent',
+    'background-image': 'none',
+    'background-position': '0% 0%',
+    'background-repeat': 'repeat',
+    'border-bottom-color': 'currentColor',
+    'border-bottom-style': 'none',
+    'border-bottom-width': 'medium',
+    'border-collapse': 'separate',
+    'border-left-color': 'currentColor',
+    'border-left-style': 'none',
+    'border-left-width': 'medium',
+    'border-right-color': 'currentColor',
+    'border-right-style': 'none',
+    'border-right-width': 'medium',
+    'border-spacing': 0,
+    'border-top-color': 'currentColor',
+    'border-top-style': 'none',
+    'border-top-width': 'medium',
+    'bottom': 'auto',
+    'caption-side': 'top',
+    'clear': 'none',
+    'clip': 'auto',
+    'color': 'black',
+    'content': 'normal',
+    'counter-increment': 'none',
+    'counter-reset': 'none',
+    'cue-after': 'none',
+    'cue-before': 'none',
+    'cursor': 'auto',
+    'direction': 'ltr',
+    'display': 'inline',
+    'elevation': 'level',
+    'empty-cells': 'show',
+    'float': 'none',
+    'font-family': 'serif',
+    'font-size': 'medium',
+    'font-stretch': 'normal',
+    'font-style': 'normal',
+    'font-variant': 'normal',
+    'font-weight': 'normal',
+    'height': 'auto',
+    'left': 'auto',
+    'letter-spacing': 'normal',
+    'line-height': 'normal',
+    'list-style-image': 'none',
+    'list-style-position': 'outside',
+    'list-style-type': 'disc',
+    'margin-bottom': 0,
+    'margin-left': 0,
+    'margin-right': 0,
+    'margin-top': 0,
+    'max-height': 'none',
+    'max-width': 'none',
+    'min-height': 0,
+    'min-width': 0,
+    'orphans': '2',
+    'outline-color': 'invert',
+    'outline-style': 'none',
+    'outline-width': 'medium',
+    'overflow': 'visible',
+    'padding-bottom': 0,
+    'padding-left': 0,
+    'padding-right': 0,
+    'padding-top': 0,
+    'page-break-after': 'auto',
+    'page-break-before': 'auto',
+    'page-break-inside': 'auto',
+    'pause-after': 0,
+    'pause-before': 0,
+    'pitch': 'medium',
+    'pitch-range': '50',
+    'play-during': 'auto',
+    'position': 'static',
+    'quotes': "'“' '”' '‘' '’'",
+    'richness': '50',
+    'right': 'auto',
+    'speak': 'normal',
+    'speak-header': 'once',
+    'speak-numeral': 'continuous',
+    'speak-punctuation': 'none',
+    'speech-rate': 'medium',
+    'stress': '50',
+    'table-layout': 'auto',
+    'text-align': 'auto',
+    'text-decoration': 'none',
+    'text-indent': 0,
+    'text-shadow': 'none',
+    'text-transform': 'none',
+    'top': 'auto',
+    'unicode-bidi': 'normal',
+    'vertical-align': 'baseline',
+    'visibility': 'visible',
+    'voice-family': 'default',
+    'volume': 'medium',
+    'white-space': 'normal',
+    'widows': '2',
+    'width': 'auto',
+    'word-spacing': 'normal',
+    'z-index': 'auto',
+}
 # }}}
 
 EDGES = ('top', 'right', 'bottom', 'left')
@@ -66,7 +127,7 @@ def normalize_edge(name, cssvalue):
     else:
         primitives = [css_text(cssvalue)]
     if len(primitives) == 1:
-        value, = primitives
+        (value,) = primitives
         values = (value, value, value, value)
     elif len(primitives) == 2:
         vert, horiz = primitives
@@ -92,14 +153,15 @@ def simple_normalizer(prefix, names, check_inherit=True):
     @wraps(normalize_simple_composition)
     def wrapper(name, cssvalue):
         return normalize_simple_composition(name, cssvalue, composition, check_inherit=check_inherit)
+
     return wrapper
 
 
 def normalize_simple_composition(name, cssvalue, composition, check_inherit=True):
     if check_inherit and css_text(cssvalue) == 'inherit':
-        style = {k:'inherit' for k in composition}
+        style = {k: 'inherit' for k in composition}
     else:
-        style = {k:DEFAULTS[k] for k in composition}
+        style = {k: DEFAULTS[k] for k in composition}
         try:
             primitives = [css_text(v) for v in cssvalue]
         except TypeError:
@@ -122,11 +184,11 @@ def normalize_font(cssvalue, font_family_as_list=False):
     val = css_text(cssvalue)
     ans: dict
     if val == 'inherit':
-        ans = {k:'inherit' for k in composition}
+        ans = {k: 'inherit' for k in composition}
     elif val in {'caption', 'icon', 'menu', 'message-box', 'small-caption', 'status-bar'}:
-        ans = {k:DEFAULTS[k] for k in composition}
+        ans = {k: DEFAULTS[k] for k in composition}
     else:
-        ans = {k:DEFAULTS[k] for k in composition}
+        ans = {k: DEFAULTS[k] for k in composition}
         ans.update(parse_font(val))
     if font_family_as_list:
         if isinstance(ans['font-family'], (str, bytes)):
@@ -140,7 +202,7 @@ def normalize_border(name, cssvalue):
     style = normalizers['border-' + EDGES[0]]('border-' + EDGES[0], cssvalue)
     vals = style.copy()
     for edge in EDGES[1:]:
-        style.update({k.replace(EDGES[0], edge):v for k, v in vals.items()})
+        style.update({k.replace(EDGES[0], edge): v for k, v in vals.items()})
     return style
 
 
@@ -158,9 +220,18 @@ for x in EDGES:
     normalizers[name] = simple_normalizer(name, BORDER_PROPS, check_inherit=False)
 
 SHORTHAND_DEFAULTS = {
-    'margin': '0', 'padding': '0', 'border-style': 'none', 'border-width': '0', 'border-color': 'currentColor',
-    'border':'none', 'border-left': 'none', 'border-right':'none', 'border-top': 'none', 'border-bottom': 'none',
-    'list-style': 'inherit', 'font': 'inherit',
+    'margin': '0',
+    'padding': '0',
+    'border-style': 'none',
+    'border-width': '0',
+    'border-color': 'currentColor',
+    'border': 'none',
+    'border-left': 'none',
+    'border-right': 'none',
+    'border-top': 'none',
+    'border-bottom': 'none',
+    'list-style': 'inherit',
+    'font': 'inherit',
 }
 
 _safe_parser = None
@@ -170,6 +241,7 @@ def safe_parser():
     global _safe_parser
     if _safe_parser is None:
         import logging
+
         _safe_parser = CSSParser(loglevel=logging.CRITICAL, validate=False)
     return _safe_parser
 
@@ -188,11 +260,11 @@ def normalize_filter_css(props):
 
 
 def condense_edge(vals):
-    edges = {x.name.rpartition('-')[-1]:x.value for x in vals}
+    edges = {x.name.rpartition('-')[-1]: x.value for x in vals}
     if len(edges) != 4 or set(edges) != {'left', 'top', 'right', 'bottom'}:
         return
     ce = {}
-    for x,y in [('left', 'right'), ('top', 'bottom')]:
+    for x, y in [('left', 'right'), ('top', 'bottom')]:
         if edges[x] == edges[y]:
             ce[x] = edges[x]
         else:
@@ -217,11 +289,12 @@ def simple_condenser(prefix, func):
             for prop in props:
                 style.removeProperty(prop.name)
             style.setProperty(prefix, cp)
+
     return condense_simple
 
 
 def condense_border(style, props):
-    prop_map = {p.name:p for p in props}
+    prop_map = {p.name: p for p in props}
     edge_vals = []
     for edge in EDGES:
         name = f'border-{edge}'
@@ -244,13 +317,17 @@ def condense_border(style, props):
         style.setProperty('border', edge_vals[0].value)
 
 
-condensers = {'margin': simple_condenser('margin', condense_edge), 'padding': simple_condenser('padding', condense_edge), 'border': condense_border}
+condensers = {
+    'margin': simple_condenser('margin', condense_edge),
+    'padding': simple_condenser('padding', condense_edge),
+    'border': condense_border,
+}
 
 
 def condense_rule(style):
-    expanded = {'margin-':[], 'padding-':[], 'border-':[]}
+    expanded = {'margin-': [], 'padding-': [], 'border-': []}
     for prop in style.getProperties():
-        for x,t in expanded.items():
+        for x, t in expanded.items():
             if prop.name and prop.name.startswith(x):
                 t.append(prop)
                 break
@@ -277,20 +354,37 @@ def test_normalization(return_tests=False):  # {{{
 
         def test_font_normalization(self):
             def font_dict(expected):
-                ans = {k:DEFAULTS[k] for k in font_composition} if expected else {}
+                ans = {k: DEFAULTS[k] for k in font_composition} if expected else {}
                 ans.update(expected)
                 return ans
 
             for raw, expected in {
-                'some_font': {'font-family':'some_font'}, 'inherit':{k:'inherit' for k in font_composition},
-                '1.2pt/1.4 A_Font': {'font-family':'A_Font', 'font-size':'1.2pt', 'line-height':'1.4'},
-                'bad font': {'font-family':'"bad font"'}, '10% serif': {'font-family':'serif', 'font-size':'10%'},
-                '12px "My Font", serif': {'font-family':'"My Font", serif', 'font-size': '12px'},
-                'normal 0.6em/135% arial,sans-serif': {'font-family': 'arial, sans-serif', 'font-size': '0.6em', 'line-height':'135%', 'font-style':'normal'},
-                'bold italic large serif': {'font-family':'serif', 'font-weight':'bold', 'font-style':'italic', 'font-size':'large'},
-                'bold italic small-caps larger/normal serif':
-                {'font-family':'serif', 'font-weight':'bold', 'font-style':'italic', 'font-size':'larger',
-                 'line-height':'normal', 'font-variant':'small-caps'},
+                'some_font': {'font-family': 'some_font'},
+                'inherit': {k: 'inherit' for k in font_composition},
+                '1.2pt/1.4 A_Font': {'font-family': 'A_Font', 'font-size': '1.2pt', 'line-height': '1.4'},
+                'bad font': {'font-family': '"bad font"'},
+                '10% serif': {'font-family': 'serif', 'font-size': '10%'},
+                '12px "My Font", serif': {'font-family': '"My Font", serif', 'font-size': '12px'},
+                'normal 0.6em/135% arial,sans-serif': {
+                    'font-family': 'arial, sans-serif',
+                    'font-size': '0.6em',
+                    'line-height': '135%',
+                    'font-style': 'normal',
+                },
+                'bold italic large serif': {
+                    'font-family': 'serif',
+                    'font-weight': 'bold',
+                    'font-style': 'italic',
+                    'font-size': 'large',
+                },
+                'bold italic small-caps larger/normal serif': {
+                    'font-family': 'serif',
+                    'font-weight': 'bold',
+                    'font-style': 'italic',
+                    'font-size': 'larger',
+                    'line-height': 'normal',
+                    'font-variant': 'small-caps',
+                },
                 '2em A B': {'font-family': '"A B"', 'font-size': '2em'},
             }.items():
                 val = tuple(parseStyle(f'font: {raw}', validate=False))[0].propertyValue
@@ -317,9 +411,10 @@ def test_normalization(return_tests=False):  # {{{
                 return ans
 
             for raw, expected in {
-                'solid 1px red': {'color':'red', 'width':'1px', 'style':'solid'},
-                '1px': {'width': '1px'}, '#aaa': {'color': '#aaa'},
-                '2em groove': {'width':'2em', 'style':'groove'},
+                'solid 1px red': {'color': 'red', 'width': '1px', 'style': 'solid'},
+                '1px': {'width': '1px'},
+                '#aaa': {'color': '#aaa'},
+                '2em groove': {'width': '2em', 'style': 'groove'},
             }.items():
                 for edge in EDGES:
                     br = f'border-{edge}'
@@ -327,22 +422,26 @@ def test_normalization(return_tests=False):  # {{{
                     self.assertDictEqual(border_edge_dict(expected, edge), normalizers[br](br, val))
 
             for raw, expected in {
-                'solid 1px red': {'color':'red', 'width':'1px', 'style':'solid'},
-                '1px': {'width': '1px'}, '#aaa': {'color': '#aaa'},
-                'thin groove': {'width':'thin', 'style':'groove'},
+                'solid 1px red': {'color': 'red', 'width': '1px', 'style': 'solid'},
+                '1px': {'width': '1px'},
+                '#aaa': {'color': '#aaa'},
+                'thin groove': {'width': 'thin', 'style': 'groove'},
             }.items():
                 val = tuple(parseStyle('{}: {}'.format('border', raw), validate=False))[0].propertyValue
                 self.assertDictEqual(border_dict(expected), normalizers['border']('border', val))
 
             for name, val in {
-                'width': '10%', 'color': 'rgb(0, 1, 1)', 'style': 'double',
+                'width': '10%',
+                'color': 'rgb(0, 1, 1)',
+                'style': 'double',
             }.items():
                 cval = tuple(parseStyle(f'border-{name}: {val}', validate=False))[0].propertyValue
-                self.assertDictEqual(border_val_dict(val, name), normalizers['border-'+name]('border-'+name, cval))
+                self.assertDictEqual(border_val_dict(val, name), normalizers['border-' + name]('border-' + name, cval))
 
         def test_edge_normalization(self):
             def edge_dict(prefix, expected):
                 return {f'{prefix}-{edge}': x for edge, x in zip(EDGES, expected)}
+
             for raw, expected in {
                 '2px': ('2px', '2px', '2px', '2px'),
                 '1em 2em': ('1em', '2em', '1em', '2em'),
@@ -359,10 +458,11 @@ def test_normalization(return_tests=False):  # {{{
                 for k, v in expected.items():
                     ans[f'list-style-{k}'] = v
                 return ans
+
             for raw, expected in {
                 'url(http://www.example.com/images/list.png)': {'image': 'url(http://www.example.com/images/list.png)'},
-                'inside square': {'position':'inside', 'type':'square'},
-                'upper-roman url(img) outside': {'position':'outside', 'type':'upper-roman', 'image':'url(img)'},
+                'inside square': {'position': 'inside', 'type': 'square'},
+                'upper-roman url(img) outside': {'position': 'outside', 'type': 'upper-roman', 'image': 'url(img)'},
             }.items():
                 cval = tuple(parseStyle(f'list-style: {raw}', validate=False))[0].propertyValue
                 self.assertDictEqual(ls_dict(expected), normalizers['list-style']('list-style', cval))
@@ -380,7 +480,10 @@ def test_normalization(return_tests=False):  # {{{
             for e in EDGES:
                 sbvals = {f'border-{e}-{x}' for x in BORDER_PROPS}
                 ae(sbvals | {f'border-{e}'}, normalize_filter_css({f'border-{e}'}))
-            ae({'list-style', 'list-style-image', 'list-style-type', 'list-style-position'}, normalize_filter_css({'list-style'}))
+            ae(
+                {'list-style', 'list-style-image', 'list-style-type', 'list-style-position'},
+                normalize_filter_css({'list-style'}),
+            )
 
         def test_edge_condensation(self):
             for s, v in {
@@ -394,8 +497,7 @@ def test_normalization(return_tests=False):  # {{{
                 tuple('0 0 0 0'.split()): '0',
             }.items():
                 for prefix in ('margin', 'padding'):
-                    css = {f'{prefix}-{x}': str(y)+'pt' if isinstance(y, numbers.Number) else y
-                            for x, y in zip(('left', 'top', 'right', 'bottom'), s)}
+                    css = {f'{prefix}-{x}': str(y) + 'pt' if isinstance(y, numbers.Number) else y for x, y in zip(('left', 'top', 'right', 'bottom'), s)}
                     css = '; '.join((f'{k}:{v}' for k, v in css.items()))
                     style = parseStyle(css)
                     condense_rule(style)
@@ -419,8 +521,9 @@ def test_normalization(return_tests=False):  # {{{
             style = parseStyle(css)
             condense_rule(style)
             self.assertEqual(css_text(style).rstrip(';'), f'border-top: {vals}')
-            css += ';' + '; '.join(f'border-{edge}-{p}: {v}' for edge in ('right', 'left', 'bottom') for p, v in
-                             zip(BORDER_PROPS, vals.replace('red', 'green').split()))
+            css += ';' + '; '.join(
+                f'border-{edge}-{p}: {v}' for edge in ('right', 'left', 'bottom') for p, v in zip(BORDER_PROPS, vals.replace('red', 'green').split())
+            )
             style = parseStyle(css)
             condense_rule(style)
             self.assertEqual(len(style.getProperties()), 4)
@@ -431,8 +534,9 @@ def test_normalization(return_tests=False):  # {{{
     if return_tests:
         return tests
     unittest.TextTestRunner(verbosity=4).run(tests)
-# }}}
 
+
+# }}}
 
 if __name__ == '__main__':
     test_normalization()

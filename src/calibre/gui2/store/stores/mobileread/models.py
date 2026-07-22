@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
-from __future__ import absolute_import, division, print_function, unicode_literals
+# License: GPLv3 Copyright: 2011, John Schember <john@nachtimwald.com>
 
-__license__ = 'GPL 3'
-__copyright__ = '2011, John Schember <john@nachtimwald.com>'
-__docformat__ = 'restructuredtext en'
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 from operator import attrgetter
 from typing import overload
@@ -18,7 +16,6 @@ from calibre.utils.search_query_parser import SearchQueryParser
 
 
 class BooksModel(QAbstractItemModel):
-
     total_changed = pyqtSignal(int)
 
     HEADERS = [_('Title'), _('Author(s)'), _('Format')]
@@ -77,20 +74,20 @@ class BooksModel(QAbstractItemModel):
         if orientation == Qt.Orientation.Horizontal:
             if section < len(self.HEADERS):
                 text = self.HEADERS[section]
-            return (text)
+            return text
         else:
-            return (section+1)
+            return section + 1
 
     def data(self, index, role=...):
         row, col = index.row(), index.column()
         result = self.books[row]
         if role == Qt.ItemDataRole.DisplayRole:
             if col == 0:
-                return (result.title)
+                return result.title
             elif col == 1:
-                return (result.author)
+                return result.author
             elif col == 2:
-                return (result.formats)
+                return result.formats
         return None
 
     def data_as_text(self, result, col):
@@ -109,13 +106,12 @@ class BooksModel(QAbstractItemModel):
         if not self.books:
             return
         descending = order == Qt.SortOrder.DescendingOrder
-        self.books.sort(key=lambda x: sort_key(type(u'')(self.data_as_text(x, column))), reverse=descending)
+        self.books.sort(key=lambda x: sort_key(type('')(self.data_as_text(x, column))), reverse=descending)
         if reset:
             self.beginResetModel(), self.endResetModel()
 
 
 class SearchFilter(SearchQueryParser):
-
     USABLE_LOCATIONS = [
         'all',
         'author',
@@ -163,7 +159,7 @@ class SearchFilter(SearchQueryParser):
             'title': lambda x: x.title.lower(),
         }
         for x in ('author', 'format'):
-            q[x+'s'] = q[x]
+            q[x + 's'] = q[x]
         upf = prefs['use_primary_find_in_search']
         for sr in self.srs:
             for locvalue in locations:
@@ -191,5 +187,6 @@ class SearchFilter(SearchQueryParser):
                         break
                 except ValueError:  # Unicode errors
                     import traceback
+
                     traceback.print_exc()
         return matches

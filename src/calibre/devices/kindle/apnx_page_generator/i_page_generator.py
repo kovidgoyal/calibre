@@ -1,6 +1,4 @@
-__license__ = 'GPL v3'
-__copyright__ = '2022, Vaso Peras-Likodric <vaso at vipl.in.rs>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2022, Vaso Peras-Likodric <vaso at vipl.in.rs>
 
 import struct
 from abc import ABCMeta, abstractmethod
@@ -12,7 +10,6 @@ from polyglot.builtins import as_bytes
 
 
 class IPageGenerator(metaclass=ABCMeta):
-
     @abstractmethod
     def _generate(self, mobi_file_path: str, real_count: int | None) -> Pages:
         pass
@@ -39,6 +36,7 @@ class IPageGenerator(metaclass=ABCMeta):
 
 def mobi_html(mobi_file_path: str) -> bytes:
     from calibre.ebooks.mobi.reader.mobi6 import MobiReader
+
     mr = MobiReader(mobi_file_path, default_log)
     if mr.book_header.encryption_type != 0:
         raise Exception('DRMed book')

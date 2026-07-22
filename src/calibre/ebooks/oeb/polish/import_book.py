@@ -1,8 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__ = 'GPL v3'
-__copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
+# License: GPLv3 Copyright: 2014, Kovid Goyal <kovid at kovidgoyal.net>
 
 import os
 import sys
@@ -18,7 +15,7 @@ IMPORTABLE = {'htm', 'xhtml', 'html', 'xhtm', 'docx'}
 
 def auto_fill_manifest(container):
     manifest_id_map = container.manifest_id_map
-    manifest_name_map = {v:k for k, v in manifest_id_map.items()}
+    manifest_name_map = {v: k for k, v in manifest_id_map.items()}
 
     for name, mt in container.mime_map.items():
         if name not in manifest_name_map and not container.ok_to_be_unmanifested(name):
@@ -46,6 +43,7 @@ def import_book_as_epub(srcpath, destpath, log=default_log):
             pathtoopf = plumber.input_plugin(inf, plumber.opts, plumber.input_fmt, log, {}, tdir)
         if hasattr(pathtoopf, 'manifest'):
             from calibre.ebooks.oeb.iterator.book import write_oebbook
+
             pathtoopf = write_oebbook(pathtoopf, tdir)
 
         c = Container(tdir, pathtoopf, log)

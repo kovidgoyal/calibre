@@ -1,8 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__ = 'GPL v3'
-__copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
+# License: GPLv3 Copyright: 2014, Kovid Goyal <kovid at kovidgoyal.net>
 
 import textwrap
 from math import ceil
@@ -21,7 +18,6 @@ from calibre.utils.localization import _
 
 
 class ChoosePopupWidget(QWidget):
-
     TOP_MARGIN = BOTTOM_MARGIN = 2
     SIDE_MARGIN = 4
 
@@ -98,7 +94,7 @@ class ChoosePopupWidget(QWidget):
     def iter_visible_items(self):
         y = self.TOP_MARGIN
         bottom = self.rect().bottom()
-        for i, (text, positions) in enumerate(self.current_results[self.current_top_index:]):
+        for i, (text, positions) in enumerate(self.current_results[self.current_top_index :]):
             st = self.get_static_text(text, positions)
             height = self.BOTTOM_MARGIN + ceil(st.size().height())
             if y + height > bottom:
@@ -181,6 +177,7 @@ class ChoosePopupWidget(QWidget):
     def hide(self):
         QWidget.hide(self)
         self.relayout_timer.stop()
+
     abort = hide
 
     def activate_current_result(self):
@@ -247,7 +244,6 @@ class ChoosePopupWidget(QWidget):
 
 
 class CompletionPopup(ChoosePopupWidget):
-
     def __init__(self, parent, max_height=1000):
         ChoosePopupWidget.__init__(self, parent, max_height=max_height)
         self.completion_error_shown = False
@@ -285,9 +281,13 @@ class CompletionPopup(ChoosePopupWidget):
         if result.traceback:
             prints(result.traceback)
             if not self.completion_error_shown:
-                error_dialog(self, _('Completion failed'), _(
-                    'Failed to get completions, click "Show details" for more information.'
-                    ' Future errors during completion will be suppressed.'), det_msg=result.traceback, show=True)
+                error_dialog(
+                    self,
+                    _('Completion failed'),
+                    _('Failed to get completions, click "Show details" for more information. Future errors during completion will be suppressed.'),
+                    det_msg=result.traceback,
+                    show=True,
+                )
                 self.completion_error_shown = True
             self.hide()
             return
@@ -309,9 +309,11 @@ if __name__ == '__main__':
         c = editor.__c = CompletionPopup(editor.editor, max_height=100)
         items = 'a ab abc abcd abcde abcdef abcdefg abcdefgh'.split()
         m = Matcher(items)
-        c.set_items(m('a'), descriptions={x:x for x in items})
+        c.set_items(m('a'), descriptions={x: x for x in items})
         QTimer.singleShot(100, c.show)
+
     from calibre.gui2.tweak_book.editor.widget import launch_editor
+
     raw = textwrap.dedent('''\
     Is the same as saying through shrinking from toil and pain. These
     cases are perfectly simple and easy to distinguish. In a free hour, when

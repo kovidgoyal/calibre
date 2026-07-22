@@ -1,6 +1,4 @@
-__license__ = 'GPL 3'
-__copyright__ = '2011, John Schember <john@nachtimwald.com>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2011, John Schember <john@nachtimwald.com>
 
 from qt.core import QWidget
 
@@ -9,7 +7,6 @@ from calibre.gui2.store.config.search.search_widget_ui import Ui_Form
 
 
 class StoreConfigWidget(QWidget, Ui_Form):
-
     def __init__(self, config=None):
         QWidget.__init__(self)
         self.setupUi(self)

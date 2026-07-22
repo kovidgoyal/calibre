@@ -1,6 +1,4 @@
-__license__ = 'GPL 3'
-__copyright__ = '2011, John Schember <john@nachtimwald.com>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2011, John Schember <john@nachtimwald.com>
 
 from qt.core import QComboBox, QDialog, QIcon, QLineEdit, QWidget
 
@@ -11,7 +9,6 @@ from calibre.utils.localization import _
 
 
 class StoreChooserWidget(QWidget, Ui_Form):
-
     def __init__(self):
         QWidget.__init__(self)
         self.setupUi(self)

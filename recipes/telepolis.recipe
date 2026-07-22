@@ -10,16 +10,16 @@ class Telepolis(BasicNewsRecipe):
     __author__ = 'Lutz Epperlein'
     oldest_article = 10
     max_articles_per_feed = 200
-    auto_cleanup   = False
+    auto_cleanup = False
     language = 'de'
     scale_news_images = (758, 1024)
     scale_news_images_to_device = True
 
-    feeds          = [
+    feeds = [
         ('Telepolis', 'https://www.heise.de/tp/news-atom.xml'),
     ]
 
-    remove_tags = [dict(name='p', attrs={'class':'printversion__back-to-article printversion--hide'})]
+    remove_tags = [dict(name='p', attrs={'class': 'printversion__back-to-article printversion--hide'})]
 
     def get_article_url(self, article):
         return article.link + '&view=print'

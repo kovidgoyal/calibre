@@ -1,32 +1,27 @@
 #!/usr/bin/env python
-
-
-__license__   = 'GPL v3'
-__copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2012, Kovid Goyal <kovid at kovidgoyal.net>
 
 from collections import OrderedDict
 from struct import unpack_from
 
 from calibre.utils.fonts.sfnt import UnknownTable
 
-ARG_1_AND_2_ARE_WORDS      = 0x0001  # if set args are words otherwise they are bytes
-ARGS_ARE_XY_VALUES         = 0x0002  # if set args are xy values, otherwise they are points
-ROUND_XY_TO_GRID           = 0x0004  # for the xy values if above is true
-WE_HAVE_A_SCALE            = 0x0008  # Sx = Sy, otherwise scale == 1.0
-NON_OVERLAPPING            = 0x0010  # set to same value for all components (obsolete!)
-MORE_COMPONENTS            = 0x0020  # indicates at least one more glyph after this one
-WE_HAVE_AN_X_AND_Y_SCALE   = 0x0040  # Sx, Sy
-WE_HAVE_A_TWO_BY_TWO       = 0x0080  # t00, t01, t10, t11
-WE_HAVE_INSTRUCTIONS       = 0x0100  # instructions follow
-USE_MY_METRICS             = 0x0200  # apply these metrics to parent glyph
-OVERLAP_COMPOUND           = 0x0400  # used by Apple in GX fonts
-SCALED_COMPONENT_OFFSET    = 0x0800  # composite designed to have the component offset scaled (designed for Apple)
-UNSCALED_COMPONENT_OFFSET  = 0x1000  # composite designed not to have the component offset scaled (designed for MS)
+ARG_1_AND_2_ARE_WORDS = 0x0001  # if set args are words otherwise they are bytes
+ARGS_ARE_XY_VALUES = 0x0002  # if set args are xy values, otherwise they are points
+ROUND_XY_TO_GRID = 0x0004  # for the xy values if above is true
+WE_HAVE_A_SCALE = 0x0008  # Sx = Sy, otherwise scale == 1.0
+NON_OVERLAPPING = 0x0010  # set to same value for all components (obsolete!)
+MORE_COMPONENTS = 0x0020  # indicates at least one more glyph after this one
+WE_HAVE_AN_X_AND_Y_SCALE = 0x0040  # Sx, Sy
+WE_HAVE_A_TWO_BY_TWO = 0x0080  # t00, t01, t10, t11
+WE_HAVE_INSTRUCTIONS = 0x0100  # instructions follow
+USE_MY_METRICS = 0x0200  # apply these metrics to parent glyph
+OVERLAP_COMPOUND = 0x0400  # used by Apple in GX fonts
+SCALED_COMPONENT_OFFSET = 0x0800  # composite designed to have the component offset scaled (designed for Apple)
+UNSCALED_COMPONENT_OFFSET = 0x1000  # composite designed not to have the component offset scaled (designed for MS)
 
 
 class SimpleGlyph:
-
     def __init__(self, num_of_countours, raw):
         self.num_of_countours = num_of_countours
         self.raw = raw
@@ -43,7 +38,6 @@ class SimpleGlyph:
 
 
 class CompositeGlyph(SimpleGlyph):
-
     def __init__(self, num_of_countours, raw):
         super().__init__(num_of_countours, raw)
         self.is_composite = True
@@ -67,9 +61,8 @@ class CompositeGlyph(SimpleGlyph):
 
 
 class GlyfTable(UnknownTable):
-
     def glyph_data(self, offset, length, as_raw=False):
-        raw = self.raw[offset:offset+length]
+        raw = self.raw[offset : offset + length]
         if as_raw:
             return raw
         num_of_countours = unpack_from(b'>h', raw)[0] if raw else 0

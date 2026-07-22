@@ -1,8 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__ = 'GPL v3'
-__copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
+# License: GPLv3 Copyright: 2014, Kovid Goyal <kovid at kovidgoyal.net>
 
 from struct import unpack_from
 
@@ -10,14 +7,13 @@ from calibre.ebooks.mobi.debug.headers import EXTHHeader
 
 
 class ContainerHeader:
-
     def __init__(self, data):
         self.ident = data[:4]
         self.record_size, self.type, self.count, self.encoding = unpack_from(b'>IHHI', data, 4)
         self.encoding = {
-                1252 : 'cp1252',
-                65001: 'utf-8',
-            }.get(self.encoding, repr(self.encoding))
+            1252: 'cp1252',
+            65001: 'utf-8',
+        }.get(self.encoding, repr(self.encoding))
         rest = list(unpack_from(b'>IIIIIIII', data, 16))
         self.num_of_resource_records = rest[2]
         self.num_of_non_dummy_resource_records = rest[3]
@@ -30,13 +26,13 @@ class ContainerHeader:
         self.hrefs = []
         if data[48:52] == b'EXTH':
             self.exth = EXTHHeader(data[48:])
-            self.title = data[48 + self.exth.length:][:self.title_length].decode(self.encoding)
+            self.title = data[48 + self.exth.length :][: self.title_length].decode(self.encoding)
             self.is_image_container = self.exth[539] == 'application/image'
         else:
             self.exth = ' No EXTH header present '
             self.title = ''
             self.is_image_container = False
-        self.bytes_after_exth = data[self.header_length + self.title_length:]
+        self.bytes_after_exth = data[self.header_length + self.title_length :]
         self.null_bytes_after_exth = len(self.bytes_after_exth) - len(self.bytes_after_exth.replace(b'\0', b''))
 
     def add_hrefs(self, data):
@@ -44,7 +40,7 @@ class ContainerHeader:
         self.hrefs = list(filter(None, data.decode('utf-8').split('|')))
 
     def __str__(self):
-        ans = [('*'*10) + ' Container Header ' + ('*'*10)]
+        ans = [('*' * 10) + ' Container Header ' + ('*' * 10)]
         a = ans.append
         a(f'Record size: {self.record_size}')
         a(f'Type: {self.type}')

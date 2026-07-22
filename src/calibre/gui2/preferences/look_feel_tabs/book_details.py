@@ -1,9 +1,5 @@
 #!/usr/bin/env python
-
-__license__   = 'GPL v3'
-__copyright__ = '2025, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
-
+# License: GPLv3 Copyright: 2025, Kovid Goyal <kovid@kovidgoyal.net>
 
 from collections import defaultdict
 from functools import partial
@@ -39,7 +35,6 @@ from calibre.utils.resources import set_data
 
 
 class IdLinksRuleEdit(Dialog):
-
     def __init__(self, key='', name='', template='', parent=None):
         title = _('Edit rule') if key else _('Create a new rule')
         Dialog.__init__(self, title=title, name='id-links-rule-editor', parent=parent)
@@ -54,19 +49,20 @@ class IdLinksRuleEdit(Dialog):
     def setup_ui(self):
         self.l = l = QFormLayout(self)
         l.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.AllNonFixedFieldsGrow)
-        l.addRow(QLabel(_(
-            'The key of the identifier, for example, in isbn:XXX, the key is "isbn"')))
+        l.addRow(QLabel(_('The key of the identifier, for example, in isbn:XXX, the key is "isbn"')))
         self.key = k = QLineEdit(self)
         l.addRow(_('&Key:'), k)
-        l.addRow(QLabel(_(
-            'The name that will appear in the Book details panel')))
+        l.addRow(QLabel(_('The name that will appear in the Book details panel')))
         self.nw = n = QLineEdit(self)
         l.addRow(_('&Name:'), n)
-        la = QLabel(_(
-            'The template used to create the link.'
-            ' The placeholder {0} in the template will be replaced'
-            ' with the actual identifier value. Use {1} to avoid the value'
-            ' being quoted.').format('{id}', '{id_unquoted}'))
+        la = QLabel(
+            _(
+                'The template used to create the link.'
+                ' The placeholder {0} in the template will be replaced'
+                ' with the actual identifier value. Use {1} to avoid the value'
+                ' being quoted.'
+            ).format('{id}', '{id_unquoted}')
+        )
         la.setWordWrap(True)
         l.addRow(la)
         self.template = t = QLineEdit(self)
@@ -79,20 +75,17 @@ class IdLinksRuleEdit(Dialog):
         r = self.rule
         for i, which in enumerate([_('Key'), _('Name'), _('Template')]):
             if not r[i]:
-                return error_dialog(self, _('Value needed'), _(
-                    'The %s field cannot be empty') % which, show=True)
+                return error_dialog(self, _('Value needed'), _('The %s field cannot be empty') % which, show=True)
         Dialog.accept(self)
 
 
 class IdLinksEditor(Dialog):
-
     def __init__(self, parent=None):
         Dialog.__init__(self, title=_('Create rules for identifiers'), name='id-links-rules-editor', parent=parent)
 
     def setup_ui(self):
         self.l = l = QVBoxLayout(self)
-        self.la = la = QLabel(_(
-            'Create rules to convert identifiers into links.'))
+        self.la = la = QLabel(_('Create rules to convert identifiers into links.'))
         la.setWordWrap(True)
         l.addWidget(la)
         items = []
@@ -127,10 +120,12 @@ class IdLinksEditor(Dialog):
     def accept(self):
         rules = defaultdict(list)
         for r in range(self.table.rowCount()):
+
             def item(c):
                 _it = self.table.item(r, c)
                 assert _it is not None
                 return _it.text()
+
             rules[item(0)].append([item(1), item(2)])
         msprefs['id_link_rules'] = dict(rules)
         Dialog.accept(self)
@@ -160,10 +155,10 @@ class IdLinksEditor(Dialog):
 
 
 class BDVerticalCats(DisplayedFields):
-
     def __init__(self, db, parent=None, category_icons=None):
         DisplayedFields.__init__(self, db, parent, category_icons=category_icons)
         from calibre.gui2.ui import get_gui
+
         self.gui = get_gui()
 
     def initialize(self, use_defaults=False, pref_data_override=None):
@@ -189,11 +184,10 @@ class BDVerticalCats(DisplayedFields):
 
     def commit(self):
         if self.changed:
-            self.db.prefs.set('book_details_vertical_categories', [k for k,v in self.fields if v])
+            self.db.prefs.set('book_details_vertical_categories', [k for k, v in self.fields if v])
 
 
 class BookDetailsTab(LazyConfigWidgetBase, Ui_Form):
-
     def genesis(self, gui):
         self.gui = gui
         r = self.register
@@ -201,8 +195,11 @@ class BookDetailsTab(LazyConfigWidgetBase, Ui_Form):
         self.default_author_link.changed_signal.connect(self.changed_signal)
         r('bd_show_cover', gprefs)
         r('bd_overlay_cover_size', gprefs)
-        r('book_details_comments_heading_pos', gprefs, choices=[
-            (_('Never'), 'hide'), (_('Above text'), 'above'), (_('Beside text'), 'side')])
+        r(
+            'book_details_comments_heading_pos',
+            gprefs,
+            choices=[(_('Never'), 'hide'), (_('Above text'), 'above'), (_('Beside text'), 'side')],
+        )
         r('book_details_note_link_icon_width', gprefs)
         self.id_links_button.clicked.connect(self.edit_id_link_rules)
 
@@ -223,6 +220,7 @@ class BookDetailsTab(LazyConfigWidgetBase, Ui_Form):
 
         self.opt_book_details_css.textChanged.connect(self.changed_signal)
         from calibre.gui2.tweak_book.editor.text import get_highlighter, get_theme
+
         self.css_highlighter = get_highlighter('css')()
         self.css_highlighter.apply_theme(get_theme(None))
         self.css_highlighter.set_document(self.opt_book_details_css.document())

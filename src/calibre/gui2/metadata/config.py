@@ -1,9 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__   = 'GPL v3'
-__copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2011, Kovid Goyal <kovid@kovidgoyal.net>
 
 import numbers
 import textwrap
@@ -16,7 +12,6 @@ from calibre.utils.localization import _
 
 
 class FieldsModel(FM):  # {{{
-
     def __init__(self, plugin):
         FM.__init__(self)
         self.plugin = plugin
@@ -35,8 +30,7 @@ class FieldsModel(FM):  # {{{
 
     def state(self, field, defaults=False):
         src = self.prefs.defaults if defaults else self.prefs
-        return (Qt.CheckState.Unchecked if field in src['ignore_fields']
-                    else Qt.CheckState.Checked)
+        return Qt.CheckState.Unchecked if field in src['ignore_fields'] else Qt.CheckState.Checked
 
     def restore_defaults(self):
         self.beginResetModel()
@@ -44,23 +38,20 @@ class FieldsModel(FM):  # {{{
         self.endResetModel()
 
     def commit(self):
-        ignored_fields = {x for x in self.prefs['ignore_fields'] if x not in
-            self.overrides}
-        changed = {k for k, v in self.overrides.items() if v ==
-            Qt.CheckState.Unchecked}
+        ignored_fields = {x for x in self.prefs['ignore_fields'] if x not in self.overrides}
+        changed = {k for k, v in self.overrides.items() if v == Qt.CheckState.Unchecked}
         self.prefs['ignore_fields'] = list(ignored_fields.union(changed))
+
 
 # }}}
 
 
 class FieldsList(QListView):
-
     def sizeHint(self):
         return self.minimumSizeHint()
 
 
 class ConfigWidget(QWidget):
-
     def __init__(self, plugin):
         QWidget.__init__(self)
         self.plugin = plugin

@@ -2,7 +2,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class SanFranciscoBayGuardian(BasicNewsRecipe):
-    title = u'San Francisco Bay Guardian'
+    title = 'San Francisco Bay Guardian'
     language = 'en_US'
     __author__ = 'Krittika Goyal'
     oldest_article = 31  # days

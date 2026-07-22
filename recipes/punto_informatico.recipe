@@ -16,7 +16,7 @@ class PuntoInformatico(BasicNewsRecipe):
     description = 'Punto Informatico: Internet dal 1996'
 
     cover_url = 'http://punto-informatico.it/images/logo_8bit.png'
-    title = u'Punto Informatico '
+    title = 'Punto Informatico '
     publisher = 'italiaNews High Tech'
     category = 'News, Information Tecnology'
 
@@ -35,5 +35,4 @@ class PuntoInformatico(BasicNewsRecipe):
     def get_article_url(self, article):
         return article.get('id', article.get('guid', None))
 
-    feeds = [(u'Punto Informatico',
-              u'http://punto-informatico.it/fader/pixml2.xml')]
+    feeds = [('Punto Informatico', 'http://punto-informatico.it/fader/pixml2.xml')]

@@ -9,14 +9,13 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 def classes(classes):
     q = frozenset(classes.split(' '))
-    return dict(attrs={
-        'class': lambda x: x and frozenset(x.split()).intersection(q)})
+    return dict(attrs={'class': lambda x: x and frozenset(x.split()).intersection(q)})
 
 
 class FreeInquiry(BasicNewsRecipe):
     title = 'Free Inquiry'
     __author__ = 'Howard Cornett'
-    description = ("America's Bimonthly Journal of Humanist Ideas")
+    description = "America's Bimonthly Journal of Humanist Ideas"
     publisher = 'Center for Inquiry'
     no_stylesheets = True
     encoding = 'utf-8'
@@ -25,7 +24,7 @@ class FreeInquiry(BasicNewsRecipe):
     ignore_duplicate_articles = {'url'}
     remove_empty_feeds = True
     needs_subscription = True
-    extra_css             = '''
+    extra_css = '''
                             .entry-header{
                                           text-transform: uppercase;
                                           vertical-align: baseline;
@@ -35,9 +34,7 @@ class FreeInquiry(BasicNewsRecipe):
                             '''
 
     remove_tags = [
-        classes(
-            'main-navigation swp-social-panel see-more user-admin d-print-none post-18669 wc-memberships-message'
-        ),
+        classes('main-navigation swp-social-panel see-more user-admin d-print-none post-18669 wc-memberships-message'),
         dict(id=['sidebar-TOC', 'loginModal']),
     ]
 
@@ -76,16 +73,12 @@ class FreeInquiry(BasicNewsRecipe):
                                 url = ''
                             seen.add(url)
                             self.log('Found article:', art_title)
-                            yield {
-                                'title': art_title,
-                                'url': url,
-                                'description': desc
-                            }
+                            yield {'title': art_title, 'url': url, 'description': desc}
 
     def parse_index(self):
         baseurl = 'https://secularhumanism.org/latest/'
         articles = []
         seen = set()
-        articles.extend(self.parse_free_inquiry_index_page(baseurl,seen))
+        articles.extend(self.parse_free_inquiry_index_page(baseurl, seen))
 
         return [('Magazine Articles', articles)]

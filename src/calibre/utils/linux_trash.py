@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 
-
 # Copyright 2010 Hardcoded Software (http://www.hardcoded.net)
 
 # This software is licensed under the "BSD" License as described in the "LICENSE" file,
@@ -61,7 +60,7 @@ def info_for(src, topdir):
     else:
         src = op.relpath(src, topdir)
 
-    info  = '[Trash Info]\n'
+    info = '[Trash Info]\n'
     info += 'Path=' + uniquote(src) + '\n'
     info += 'DeletionDate=' + format_date(datetime.now()) + '\n'
     return info
@@ -140,6 +139,7 @@ def find_ext_volume_trash(volume_root):
     if trash_dir is None:
         trash_dir = find_ext_volume_fallback_trash(volume_root)
     return trash_dir
+
 
 # Pull this out so it's easy to stub (to avoid stubbing lstat itself)
 

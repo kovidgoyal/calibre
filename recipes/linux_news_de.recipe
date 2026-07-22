@@ -6,7 +6,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class AdvancedUserRecipe1591780224(BasicNewsRecipe):
-    title          = 'Linux News'
+    title = 'Linux News'
     # Title of the Recipe
     cover_url = 'https://linuxnews.de/wp-content/themes/linuxnews/images/linuxnews-logo.png'
     # Author
@@ -17,11 +17,11 @@ class AdvancedUserRecipe1591780224(BasicNewsRecipe):
     # ---- can be edit by user
     simultaneous_downloads = 10
     # description, some Reader show this in titlepage
-    description = u'Linux news - from https://linuxnews.de'
+    description = 'Linux news - from https://linuxnews.de'
     # Who published the content?
-    publisher = u'https://linuxnews.de'
+    publisher = 'https://linuxnews.de'
     # What is the content of?
-    category = u'Linux'
+    category = 'Linux'
     use_embedded_content = False
     language = 'de'
     # Removes empty feeds - why keep them!?
@@ -38,6 +38,6 @@ class AdvancedUserRecipe1591780224(BasicNewsRecipe):
     # Make some tests, may you first comment all of them out, and step by step you add what you'll need?
     #
 
-    feeds          = [
+    feeds = [
         ('Linux News', 'http://feeds.feedburner.com/linuxnewsde?fmt=xml'),
     ]

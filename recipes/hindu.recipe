@@ -34,34 +34,29 @@ class TheHindu(BasicNewsRecipe):
     recipe_specific_options = {
         'location': {
             'short': 'The name of the local edition',
-            'long': ('If The Hindu is available in your local town/city, '
-                     'set this to your location, for example, hyderabad\n'
-                     'Available Editions: bengaluru, chennai, coimbatore, delhi, '
-                     'erode, hyderabad, international, kochi, kolkata,\n'
-                     'kozhikode, madurai, mangalore, mumbai, thiruvananthapuram, '
-                     'tiruchirapalli, vijayawada, visakhapatnam'),
-            'default': 'chennai'
+            'long': (
+                'If The Hindu is available in your local town/city, '
+                'set this to your location, for example, hyderabad\n'
+                'Available Editions: bengaluru, chennai, coimbatore, delhi, '
+                'erode, hyderabad, international, kochi, kolkata,\n'
+                'kozhikode, madurai, mangalore, mumbai, thiruvananthapuram, '
+                'tiruchirapalli, vijayawada, visakhapatnam'
+            ),
+            'default': 'chennai',
         },
-        'date': {
-            'short': 'The date of the edition to download (YYYY-MM-DD format)',
-            'long': 'For example, 2023-01-28'
-        }
+        'date': {'short': 'The date of the edition to download (YYYY-MM-DD format)', 'long': 'For example, 2023-01-28'},
     }
 
     ignore_duplicate_articles = {'url'}
 
-    keep_only_tags = [
-        classes('article-section')
-    ]
+    keep_only_tags = [classes('article-section')]
 
-    remove_tags = [
-        classes('hide-mobile comments-shares share-page editiondetails')
-    ]
+    remove_tags = [classes('hide-mobile comments-shares share-page editiondetails')]
 
     def preprocess_html(self, soup):
-        for cap in soup.findAll('p', attrs={'class':'caption'}):
+        for cap in soup.findAll('p', attrs={'class': 'caption'}):
             cap.name = 'figcaption'
-        for img in soup.findAll('img', attrs={'data-original':True}):
+        for img in soup.findAll('img', attrs={'data-original': True}):
             img['src'] = img['data-original']
         for h3 in soup.findAll(**classes('sub-title')):
             h3.name = 'p'
@@ -102,10 +97,8 @@ class TheHindu(BasicNewsRecipe):
         soup = self.index_to_soup(raw)
         ans = self.hindu_parse_index(soup)
         if not ans:
-            raise ValueError(
-                    'The Hindu Newspaper is not published Today.'
-                )
-        cover = soup.find(attrs={'class':'hindu-ad'})
+            raise ValueError('The Hindu Newspaper is not published Today.')
+        cover = soup.find(attrs={'class': 'hindu-ad'})
         if cover:
             self.cover_url = cover.img['src']
         if mag_url:

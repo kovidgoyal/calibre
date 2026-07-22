@@ -1,14 +1,10 @@
 #!/usr/bin/env python
+# License: GPLv3 Copyright: 2011, Kovid Goyal <kovid@kovidgoyal.net>
 
-
-__license__   = 'GPL v3'
-__copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
-
-'''
+"""
 Decompress MOBI files compressed with the Huff/cdic algorithm. Code thanks to darkninja
 and igorsk.
-'''
+"""
 
 import struct
 
@@ -16,7 +12,6 @@ from calibre.ebooks.mobi import MobiError
 
 
 class Reader:
-
     def __init__(self):
         self.q = struct.Struct(b'>Q').unpack_from
 
@@ -26,20 +21,21 @@ class Reader:
         off1, off2 = struct.unpack_from(b'>LL', huff, 8)
 
         def dict1_unpack(v):
-            codelen, term, maxcode = v&0x1f, v&0x80, v>>8
+            codelen, term, maxcode = v & 0x1F, v & 0x80, v >> 8
             assert codelen != 0
             if codelen <= 8:
                 assert term
             maxcode = ((maxcode + 1) << (32 - codelen)) - 1
             return codelen, term, maxcode
+
         self.dict1 = tuple(map(dict1_unpack, struct.unpack_from(b'>256L', huff, off1)))
 
         dict2 = struct.unpack_from(b'>64L', huff, off2)
         self.mincode, self.maxcode = (), ()
         for codelen, mincode in enumerate((0,) + dict2[0::2]):
-            self.mincode += (mincode << (32 - codelen), )
+            self.mincode += (mincode << (32 - codelen),)
         for codelen, maxcode in enumerate((0,) + dict2[1::2]):
-            self.maxcode += (((maxcode + 1) << (32 - codelen)) - 1, )
+            self.maxcode += (((maxcode + 1) << (32 - codelen)) - 1,)
 
         self.dictionary = []
 
@@ -47,13 +43,14 @@ class Reader:
         if cdic[0:8] != b'CDIC\x00\x00\x00\x10':
             raise MobiError('Invalid CDIC header')
         phrases, bits = struct.unpack_from(b'>LL', cdic, 8)
-        n = min(1<<bits, phrases-len(self.dictionary))
+        n = min(1 << bits, phrases - len(self.dictionary))
         h = struct.Struct(b'>H').unpack_from
 
         def getslice(off):
-            blen, = h(cdic, 16+off)
-            slice = cdic[18+off:18+off+(blen&0x7fff)]
-            return (slice, blen&0x8000)
+            (blen,) = h(cdic, 16 + off)
+            slice = cdic[18 + off : 18 + off + (blen & 0x7FFF)]
+            return (slice, blen & 0x8000)
+
         self.dictionary += map(getslice, struct.unpack_from(b'>%dH' % n, cdic, 16))
 
     def unpack(self, data):
@@ -62,14 +59,14 @@ class Reader:
         bitsleft = len(data) * 8
         data += b'\x00\x00\x00\x00\x00\x00\x00\x00'
         pos = 0
-        x, = q(data, pos)
+        (x,) = q(data, pos)
         n = 32
 
         s = []
         while True:
             if n <= 0:
                 pos += 4
-                x, = q(data, pos)
+                (x,) = q(data, pos)
                 n += 32
             code = (x >> n) & ((1 << 32) - 1)
 
@@ -95,7 +92,6 @@ class Reader:
 
 
 class HuffReader:
-
     def __init__(self, huffs):
         self.reader = Reader()
         self.reader.load_huff(huffs[0])

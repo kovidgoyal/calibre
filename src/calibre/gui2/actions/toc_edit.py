@@ -1,9 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__   = 'GPL v3'
-__copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2013, Kovid Goyal <kovid at kovidgoyal.net>
 
 import os
 from collections import OrderedDict
@@ -21,7 +17,6 @@ SUPPORTED = {'EPUB', 'AZW3'}
 
 
 class ChooseFormat(QDialog):  # {{{
-
     def __init__(self, formats, parent=None):
         QDialog.__init__(self, parent)
         self.setWindowTitle(_('Choose format to edit'))
@@ -36,18 +31,21 @@ class ChooseFormat(QDialog):  # {{{
             b = QCheckBox('&' + f, self)
             l.addWidget(b, 1, i)
             self.buttons.append(b)
-        self.formats = gprefs.get('edit_toc_last_selected_formats', ['EPUB',])
-        bb = self.bb = QDialogButtonBox(
-            QDialogButtonBox.StandardButton.Ok|QDialogButtonBox.StandardButton.Cancel)
-        btn = bb.addButton(_('&All formats'),
-                     QDialogButtonBox.ButtonRole.ActionRole)
+        self.formats = gprefs.get(
+            'edit_toc_last_selected_formats',
+            [
+                'EPUB',
+            ],
+        )
+        bb = self.bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)
+        btn = bb.addButton(_('&All formats'), QDialogButtonBox.ButtonRole.ActionRole)
         assert btn is not None
         btn.clicked.connect(self.do_all)
         bb.accepted.connect(self.accept)
         bb.rejected.connect(self.reject)
         l.addWidget(bb, l.rowCount(), 0, 1, -1)
         self.resize(self.sizeHint())
-        connect_lambda(self.finished, self, lambda self, code:gprefs.set('edit_toc_last_selected_formats', list(self.formats)))
+        connect_lambda(self.finished, self, lambda self, code: gprefs.set('edit_toc_last_selected_formats', list(self.formats)))
 
     def do_all(self):
         for b in self.buttons:
@@ -66,14 +64,13 @@ class ChooseFormat(QDialog):  # {{{
         for b in self.buttons:
             b.setChecked(b.text()[1:] in formats)
 
+
 # }}}
 
 
 class ToCEditAction(InterfaceActionWithLibraryDrop):
-
     name = 'Edit ToC'
-    action_spec = (_('Edit ToC'), 'toc.png',
-                   _('Edit the Table of Contents in your books'), _('K'))
+    action_spec = (_('Edit ToC'), 'toc.png', _('Edit the Table of Contents in your books'), _('K'))
     dont_add_to = frozenset(['context-menu-device'])
     action_type = 'current'
 
@@ -91,29 +88,32 @@ class ToCEditAction(InterfaceActionWithLibraryDrop):
     def get_supported_books(self, book_ids):
         db = self.gui.library_view.model().db
         supported = set(SUPPORTED)
-        ans = [(x, set((db.formats(x, index_is_id=True) or '').split(','))
-               .intersection(supported)) for x in book_ids]
+        ans = [(x, set((db.formats(x, index_is_id=True) or '').split(',')).intersection(supported)) for x in book_ids]
         ans = [x for x in ans if x[1]]
         if not ans:
-            error_dialog(self.gui, _('Cannot edit ToC'),
-                _('Editing Table of Contents is only supported for books in the %s'
-                  ' formats. Convert to one of those formats before editing.')
-                         %_(' or ').join(sorted(supported)), show=True)
+            error_dialog(
+                self.gui,
+                _('Cannot edit ToC'),
+                _('Editing Table of Contents is only supported for books in the %s formats. Convert to one of those formats before editing.')
+                % _(' or ').join(sorted(supported)),
+                show=True,
+            )
         ans = OrderedDict(ans)
         if len(ans) > 5:
-            if not question_dialog(self.gui, _('Are you sure?'), _(
-                'You have chosen to edit the Table of Contents of {} books at once.'
-                ' Doing so will likely slow your computer to a crawl. Are you sure?'
-            ).format(len(ans))):
+            if not question_dialog(
+                self.gui,
+                _('Are you sure?'),
+                _(
+                    'You have chosen to edit the Table of Contents of {} books at once. Doing so will likely slow your computer to a crawl. Are you sure?'
+                ).format(len(ans)),
+            ):
                 return
         return ans
 
     def get_books_for_editing(self):
-        rows = [r.row() for r in
-                self.gui.library_view.selectionModel().selectedRows()]
+        rows = [r.row() for r in self.gui.library_view.selectionModel().selectedRows()]
         if not rows or len(rows) == 0:
-            d = error_dialog(self.gui, _('Cannot edit ToC'),
-                    _('No books selected'))
+            d = error_dialog(self.gui, _('Cannot edit ToC'), _('No books selected'))
             d.exec()
             return None
         db = self.gui.current_db
@@ -136,20 +136,30 @@ class ToCEditAction(InterfaceActionWithLibraryDrop):
         import struct
 
         from calibre.utils.shm import SharedMemory
+
         db = self.gui.current_db
         path = db.format(book_id, fmt, index_is_id=True, as_path=True)
         title = db.title(book_id, index_is_id=True) + f' [{fmt}]'
         job = {'path': path, 'title': title}
         data = json.dumps(job).encode('utf-8')
         header = struct.pack('>II', 0, 0)
-        shm = SharedMemory(prefix=f'c{os.getpid()}-{next(self.shm_count)}-', size=len(data) + len(header) + SharedMemory.num_bytes_for_size)
+        shm = SharedMemory(
+            prefix=f'c{os.getpid()}-{next(self.shm_count)}-',
+            size=len(data) + len(header) + SharedMemory.num_bytes_for_size,
+        )
         shm.write(header)
         shm.write_data_with_size(data)
         shm.flush()
         atexit.register(shm.close)
         self.gui.job_manager.launch_gui_app('toc-dialog', kwargs={'shm_name': shm.name})
         job.update({
-            'book_id': book_id, 'fmt': fmt, 'library_id': db.new_api.library_id, 'shm': shm, 'started': False, 'start_time': monotonic()})
+            'book_id': book_id,
+            'fmt': fmt,
+            'library_id': db.new_api.library_id,
+            'shm': shm,
+            'started': False,
+            'start_time': monotonic(),
+        })
         self.jobs.append(job)
         self.check_for_completions()
 
@@ -169,8 +179,12 @@ class ToCEditAction(InterfaceActionWithLibraryDrop):
                 # not started
                 if monotonic() - job['start_time'] > 120:
                     remove_job(job)
-                    error_dialog(self.gui, _('Failed to start editor'), _(
-                        'Could not edit: {}. The Table of Contents editor did not start in two minutes').format(job['title']), show=True)
+                    error_dialog(
+                        self.gui,
+                        _('Failed to start editor'),
+                        _('Could not edit: {}. The Table of Contents editor did not start in two minutes').format(job['title']),
+                        show=True,
+                    )
             elif state == 1:
                 # running
                 pass
@@ -181,9 +195,12 @@ class ToCEditAction(InterfaceActionWithLibraryDrop):
                 if ok == 1:
                     db = self.gui.current_db
                     if db.new_api.library_id != job['library_id']:
-                        error_dialog(self.gui, _('Library changed'), _(
-                            'Cannot save changes made to {0} by the ToC editor as'
-                            ' the calibre library has changed.').format(job['title']), show=True)
+                        error_dialog(
+                            self.gui,
+                            _('Library changed'),
+                            _('Cannot save changes made to {0} by the ToC editor as the calibre library has changed.').format(job['title']),
+                            show=True,
+                        )
                     else:
                         db.new_api.add_format(job['book_id'], job['fmt'], path, run_hooks=False)
         if self.jobs:

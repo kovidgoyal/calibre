@@ -1,9 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__   = 'GPL v3'
-__copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2010, Kovid Goyal <kovid@kovidgoyal.net>
 
 import os
 
@@ -16,14 +12,12 @@ from calibre.utils.localization import _
 
 
 class AddFromISBN(QDialog):
-
     def __init__(self, parent=None):
         QDialog.__init__(self, parent)
         self.setup_ui()
 
-        path = 'C:\\Users\\kovid\\e-books\\some_book.epub' if iswindows else \
-                '/Users/kovid/e-books/some_book.epub'
-        self.label.setText(str(self.label.text())%path)
+        path = 'C:\\Users\\kovid\\e-books\\some_book.epub' if iswindows else '/Users/kovid/e-books/some_book.epub'
+        self.label.setText(str(self.label.text()) % path)
 
         self.isbns = []
         self.books = []
@@ -36,7 +30,7 @@ class AddFromISBN(QDialog):
         self.l = l = QVBoxLayout(self)
         self.h = h = QHBoxLayout()
         l.addLayout(h)
-        self.bb = bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok|QDialogButtonBox.StandardButton.Cancel, self)
+        self.bb = bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel, self)
         _ok_btn = bb.button(QDialogButtonBox.StandardButton.Ok)
         assert _ok_btn is not None
         _ok_btn.setText(_('&OK'))
@@ -48,18 +42,21 @@ class AddFromISBN(QDialog):
         l.addWidget(i)
         self.paste_button = b = QPushButton(_('&Paste from clipboard'), self)
         l.addWidget(b), b.clicked.connect(self.paste)
-        self.lll = l  = QVBoxLayout()
+        self.lll = l = QVBoxLayout()
         h.addLayout(l)
-        self.label = la = QLabel(_(
-            '<p>Enter a list of ISBNs in the box to the left, one per line. calibre will automatically'
-            ' create entries for books based on the ISBN and download metadata and covers for them.</p>\n'
-            '<p>Any invalid ISBNs in the list will be ignored.</p>\n'
-            '<p>You can also specify a file that will be added with each ISBN. To do this enter the full'
-            ' path to the file after a <code>&gt;&gt;</code>. For example:</p>\n'
-            '<p><code>9788842915232 &gt;&gt; %s</code></p>'
-            '<p>To use identifiers other than ISBN use key:value syntax, For example:</p>\n'
-            '<p><code>amazon:B001JK9C72</code></p>'
-        ), self)
+        self.label = la = QLabel(
+            _(
+                '<p>Enter a list of ISBNs in the box to the left, one per line. calibre will automatically'
+                ' create entries for books based on the ISBN and download metadata and covers for them.</p>\n'
+                '<p>Any invalid ISBNs in the list will be ignored.</p>\n'
+                '<p>You can also specify a file that will be added with each ISBN. To do this enter the full'
+                ' path to the file after a <code>&gt;&gt;</code>. For example:</p>\n'
+                '<p><code>9788842915232 &gt;&gt; %s</code></p>'
+                '<p>To use identifiers other than ISBN use key:value syntax, For example:</p>\n'
+                '<p><code>amazon:B001JK9C72</code></p>'
+            ),
+            self,
+        )
 
         l.addWidget(la), la.setWordWrap(True)
         l.addSpacing(20)
@@ -136,17 +133,22 @@ class AddFromISBN(QDialog):
                 else:
                     bad.add(parts[0])
             elif prefix != 'path':
-                self.books.append({prefix: val, 'path': path, '':prefix})
+                self.books.append({prefix: val, 'path': path, '': prefix})
         if bad:
             if self.books:
-                if not question_dialog(self, _('Some invalid ISBNs'),
-                    _('Some of the ISBNs you entered were invalid. They will'
-                        ' be ignored. Click "Show details" to see which ones.'
-                        ' Do you want to proceed?'), det_msg='\n'.join(bad),
-                    show_copy_button=True):
+                if not question_dialog(
+                    self,
+                    _('Some invalid ISBNs'),
+                    _('Some of the ISBNs you entered were invalid. They will be ignored. Click "Show details" to see which ones. Do you want to proceed?'),
+                    det_msg='\n'.join(bad),
+                    show_copy_button=True,
+                ):
                     return
             else:
-                return error_dialog(self, _('All invalid ISBNs'),
-                        _('All the ISBNs you entered were invalid. No books'
-                            ' can be added.'), show=True)
+                return error_dialog(
+                    self,
+                    _('All invalid ISBNs'),
+                    _('All the ISBNs you entered were invalid. No books can be added.'),
+                    show=True,
+                )
         QDialog.accept(self, *args)

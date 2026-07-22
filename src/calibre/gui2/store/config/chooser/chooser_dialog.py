@@ -1,6 +1,4 @@
-__license__ = 'GPL 3'
-__copyright__ = '2011, John Schember <john@nachtimwald.com>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2011, John Schember <john@nachtimwald.com>
 
 from qt.core import QDialog, QDialogButtonBox, QVBoxLayout
 
@@ -9,7 +7,6 @@ from calibre.utils.localization import _
 
 
 class StoreChooserDialog(QDialog):
-
     def __init__(self, parent):
         QDialog.__init__(self, parent)
 

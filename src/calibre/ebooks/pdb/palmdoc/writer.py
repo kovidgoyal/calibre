@@ -1,10 +1,8 @@
-'''
-Writer content to palmdoc pdb file.
-'''
+# License: GPLv3 Copyright: 2009, John Schember <john@nachtimwald.com>
 
-__license__   = 'GPL v3'
-__copyright__ = '2009, John Schember <john@nachtimwald.com>'
-__docformat__ = 'restructuredtext en'
+"""
+Writer content to palmdoc pdb file.
+"""
 
 import struct
 
@@ -18,7 +16,6 @@ MAX_RECORD_SIZE = 4096
 
 
 class Writer(FormatWriter):
-
     def __init__(self, opts, log):
         self.opts = opts
         self.log = log
@@ -52,25 +49,24 @@ class Writer(FormatWriter):
         txt = writer.extract_content(oeb_book, self.opts)
 
         self.log.debug('\tReplacing newlines with selected type...')
-        txt = specified_newlines(TxtNewlines('windows').newline,
-                txt).encode(self.opts.pdb_output_encoding, 'replace')
+        txt = specified_newlines(TxtNewlines('windows').newline, txt).encode(self.opts.pdb_output_encoding, 'replace')
 
         txt_length = len(txt)
 
         txt_records = []
         for i in range((len(txt) // MAX_RECORD_SIZE) + 1):
-            txt_records.append(txt[i * MAX_RECORD_SIZE: (i * MAX_RECORD_SIZE) + MAX_RECORD_SIZE])
+            txt_records.append(txt[i * MAX_RECORD_SIZE : (i * MAX_RECORD_SIZE) + MAX_RECORD_SIZE])
 
         return txt_records, txt_length
 
     def _header_record(self, txt_length, record_count):
         record = b''
 
-        record += struct.pack('>H', 2)                  # [0:2],   PalmDoc compression. (1 = No compression).
-        record += struct.pack('>H', 0)                  # [2:4],   Always 0.
-        record += struct.pack('>L', txt_length)         # [4:8],   Uncompressed length of the entire text of the book.
-        record += struct.pack('>H', record_count)       # [8:10],  Number of PDB records used for the text of the book.
-        record += struct.pack('>H', MAX_RECORD_SIZE)    # [10-12], Maximum size of each record containing text, always 4096.
-        record += struct.pack('>L', 0)                  # [12-16], Current reading position, as an offset into the uncompressed text.
+        record += struct.pack('>H', 2)  # [0:2],   PalmDoc compression. (1 = No compression).
+        record += struct.pack('>H', 0)  # [2:4],   Always 0.
+        record += struct.pack('>L', txt_length)  # [4:8],   Uncompressed length of the entire text of the book.
+        record += struct.pack('>H', record_count)  # [8:10],  Number of PDB records used for the text of the book.
+        record += struct.pack('>H', MAX_RECORD_SIZE)  # [10-12], Maximum size of each record containing text, always 4096.
+        record += struct.pack('>L', 0)  # [12-16], Current reading position, as an offset into the uncompressed text.
 
         return record

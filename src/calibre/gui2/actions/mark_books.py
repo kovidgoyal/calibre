@@ -1,8 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__ = 'GPL v3'
-__copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
+# License: GPLv3 Copyright: 2013, Kovid Goyal <kovid at kovidgoyal.net>
 
 from functools import partial
 
@@ -24,7 +21,6 @@ class MyHistoryComboBox(HistoryComboBox):
 
 
 class MarkWithTextDialog(QDialog):
-
     def __init__(self, gui):
         QDialog.__init__(self, parent=gui)
         self.gui = gui
@@ -37,29 +33,28 @@ class MarkWithTextDialog(QDialog):
         textbox.initialize('mark_with_text')
 
         history = textbox.all_items
-        button_rows = min(4, len(history)-1)
+        button_rows = min(4, len(history) - 1)
         for i in range(button_rows):
             if i == 0:
                 layout.addWidget(QLabel(_('Recently used values:')), 0, 0, 1, 2)
             button = QPushButton()
-            text = history[i+1]
+            text = history[i + 1]
             button.setText(text)
             button.clicked.connect(partial(self.button_pushed, text=text))
             row = i + 1
             layout.addWidget(button, row, 1)
-            label = QLabel('&' + str(row+1))
+            label = QLabel('&' + str(row + 1))
             label.setBuddy(button)
             layout.addWidget(label, row, 0)
         if button_rows > 0:
-            layout.addWidget(QLabel(_('Enter a value:')), button_rows+1, 0, 1, 2)
+            layout.addWidget(QLabel(_('Enter a value:')), button_rows + 1, 0, 1, 2)
         textbox.show_initial_value(history[0] if history else '')
-        layout.addWidget(textbox, button_rows+2, 1)
+        layout.addWidget(textbox, button_rows + 2, 1)
         textbox.setFocus()
-        button_box = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok |
-                                      QDialogButtonBox.StandardButton.Cancel)
+        button_box = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)
         button_box.accepted.connect(self.accept)
         button_box.rejected.connect(self.reject)
-        layout.addWidget(button_box, button_rows+3, 0, 1, 2)
+        layout.addWidget(button_box, button_rows + 3, 0, 1, 2)
 
     def text(self):
         return self.text_box.text().strip()
@@ -81,13 +76,11 @@ mark_books_with_text = None
 
 
 class MarkBooksAction(InterfaceActionWithLibraryDrop):
-
     name = 'Mark Books'
     action_spec = (_('Mark books'), 'marked.png', _('Temporarily mark books for easy access'), 'Ctrl+M')
     action_type = 'current'
     action_add_menu = True
-    dont_add_to = frozenset([
-        'context-menu-device', 'menubar-device', 'context-menu-cover-browser'])
+    dont_add_to = frozenset(['context-menu-device', 'menubar-device', 'context-menu-cover-browser'])
     action_menu_clone_qaction = _('Toggle mark for selected books')
 
     def do_drop(self):
@@ -164,8 +157,7 @@ class MarkBooksAction(InterfaceActionWithLibraryDrop):
                 assert ac is not None
                 ac.triggered.connect(partial(self.show_marked_text, txt=t))
             if len(labs) < len(labels):
-                self.show_marked_with_text.addAction(
-                    _('{0} labels not shown').format(len(labels) - len(labs)))
+                self.show_marked_with_text.addAction(_('{0} labels not shown').format(len(labels) - len(labs)))
         else:
             self.show_marked_with_text.setEnabled(False)
 

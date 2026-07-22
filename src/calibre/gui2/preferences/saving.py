@@ -1,10 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__   = 'GPL v3'
-__copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
-
+# License: GPLv3 Copyright: 2010, Kovid Goyal <kovid@kovidgoyal.net>
 
 from calibre.gui2 import gprefs
 from calibre.gui2.preferences import AbortCommit, ConfigWidgetBase, test_widget
@@ -15,15 +10,23 @@ from calibre.utils.localization import _
 
 
 class ConfigWidget(ConfigWidgetBase, Ui_Form):
-
     def genesis(self, gui):
         self.gui = gui
         self.proxy = ConfigProxy(config())
 
         r = self.register
 
-        for x in ('asciiize', 'update_metadata', 'save_cover', 'write_opf',
-                'replace_whitespace', 'to_lowercase', 'formats', 'timefmt', 'save_extra_files'):
+        for x in (
+            'asciiize',
+            'update_metadata',
+            'save_cover',
+            'write_opf',
+            'replace_whitespace',
+            'to_lowercase',
+            'formats',
+            'timefmt',
+            'save_extra_files',
+        ):
             r(x, self.proxy)
         r('show_files_after_save', gprefs)
 
@@ -32,11 +35,15 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
     def initialize(self):
         ConfigWidgetBase.initialize(self)
         self.save_template.blockSignals(True)
-        self.save_template.initialize('save_to_disk', self.proxy['template'],
-                self.proxy.help('template'),
-                self.gui.library_view.model().db.field_metadata)
-        self.opt_timefmt.setToolTip('<p>' + self.opt_timefmt.toolTip() + '</p><p>' +
-                    _('Changes will not appear in the template editor until you press the apply button.') + '</p>')
+        self.save_template.initialize(
+            'save_to_disk',
+            self.proxy['template'],
+            self.proxy.help('template'),
+            self.gui.library_view.model().db.field_metadata,
+        )
+        self.opt_timefmt.setToolTip(
+            '<p>' + self.opt_timefmt.toolTip() + '</p><p>' + _('Changes will not appear in the template editor until you press the apply button.') + '</p>'
+        )
         self.save_template.blockSignals(False)
 
     def restore_defaults(self, *args):
@@ -57,5 +64,6 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
 if __name__ == '__main__':
     from qt.core import QApplication
+
     app = QApplication([])
     test_widget('Import/Export', 'Saving')

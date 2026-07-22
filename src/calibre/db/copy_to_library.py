@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # License: GPL v3 Copyright: 2019, Kovid Goyal <kovid at kovidgoyal.net>
 
-
 from calibre.db.utils import find_identical_books
 from calibre.utils.config import tweaks
 from calibre.utils.date import now
@@ -36,8 +35,12 @@ def automerge_book(automerge_action, book_id, mi, identical_book_list, newdb, fo
             # formats, but no real harm is done by having
             # all formats
             new_book_id = newdb.add_books(
-                [(mi, format_map)], add_duplicates=True, apply_import_tags=tweaks['add_new_book_tags_when_importing_books'],
-                preserve_uuid=False, run_hooks=False)[0][0]
+                [(mi, format_map)],
+                add_duplicates=True,
+                apply_import_tags=tweaks['add_new_book_tags_when_importing_books'],
+                preserve_uuid=False,
+                run_hooks=False,
+            )[0][0]
             if extra_file_map:
                 newdb.add_extra_files(new_book_id, extra_file_map)
             return new_book_id
@@ -63,7 +66,7 @@ def postprocess_copy(book_id, new_book_id, new_authors, db, newdb, identical_boo
 
     co = db.conversion_options(book_id)
     if co is not None:
-        newdb.set_conversion_options({new_book_id:co})
+        newdb.set_conversion_options({new_book_id: co})
     annots = db.all_annotations_for_book(book_id)
     if annots:
         newdb.restore_annotations(new_book_id, annots)
@@ -72,8 +75,15 @@ def postprocess_copy(book_id, new_book_id, new_authors, db, newdb, identical_boo
 
 
 def copy_one_book(
-        book_id, src_db, dest_db, duplicate_action='add', automerge_action='overwrite',
-        preserve_date=True, identical_books_data=None, preserve_uuid=False):
+    book_id,
+    src_db,
+    dest_db,
+    duplicate_action='add',
+    automerge_action='overwrite',
+    preserve_date=True,
+    identical_books_data=None,
+    preserve_uuid=False,
+):
     db = src_db.new_api
     newdb = dest_db.new_api
     with db.safe_read_lock, newdb.write_lock:
@@ -93,8 +103,12 @@ def copy_one_book(
         new_authors = {k for k, v in newdb.get_item_ids('authors', mi.authors).items() if v is None}
         new_book_id = None
         return_data = {
-                'book_id': book_id, 'title': mi.title, 'authors': mi.authors, 'author': mi.format_field('authors')[1],
-                'action': 'add', 'new_book_id': None
+            'book_id': book_id,
+            'title': mi.title,
+            'authors': mi.authors,
+            'author': mi.format_field('authors')[1],
+            'action': 'add',
+            'new_book_id': None,
         }
         if duplicate_action != 'add':
             # Scanning for dupes can be slow on a large library so
@@ -113,11 +127,15 @@ def copy_one_book(
                 return return_data
 
         new_book_id = newdb.add_books(
-            [(mi, format_map)], add_duplicates=True, apply_import_tags=tweaks['add_new_book_tags_when_importing_books'],
-            preserve_uuid=preserve_uuid, run_hooks=False)[0][0]
+            [(mi, format_map)],
+            add_duplicates=True,
+            apply_import_tags=tweaks['add_new_book_tags_when_importing_books'],
+            preserve_uuid=preserve_uuid,
+            run_hooks=False,
+        )[0][0]
         bp = db.get_book_path(book_id, sep='/', unsafe=True)
         if bp:
-            for (relpath, src_path, stat_result) in db.backend.iter_extra_files(book_id, bp, db.fields['formats'], yield_paths=True):
+            for relpath, src_path, stat_result in db.backend.iter_extra_files(book_id, bp, db.fields['formats'], yield_paths=True):
                 nbp = newdb.field_for('path', new_book_id)
                 if nbp:
                     newdb.backend.add_extra_file(relpath, src_path, nbp)

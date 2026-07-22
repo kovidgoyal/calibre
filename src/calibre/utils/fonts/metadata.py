@@ -1,9 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__   = 'GPL v3'
-__copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2012, Kovid Goyal <kovid at kovidgoyal.net>
 
 from collections import namedtuple
 from io import BytesIO
@@ -15,16 +11,20 @@ class UnsupportedFont(ValueError):
     pass
 
 
-FontCharacteristics = namedtuple('FontCharacteristics',
-    'weight, is_italic, is_bold, is_regular, fs_type, panose, width, is_oblique, is_wws, os2_version')
-FontNames = namedtuple('FontNames',
-    'family_name, subfamily_name, full_name, preferred_family_name, preferred_subfamily_name, wws_family_name, wws_subfamily_name')
+FontCharacteristics = namedtuple(
+    'FontCharacteristics',
+    'weight, is_italic, is_bold, is_regular, fs_type, panose, width, is_oblique, is_wws, os2_version',
+)
+FontNames = namedtuple(
+    'FontNames',
+    'family_name, subfamily_name, full_name, preferred_family_name, preferred_subfamily_name, wws_family_name, wws_subfamily_name',
+)
 
 
 class FontMetadata:
-
     def __init__(self, bytes_or_stream):
         from fontTools.subset import Subsetter, load_font
+
         if not hasattr(bytes_or_stream, 'read'):
             bytes_or_stream = BytesIO(bytes_or_stream)
         f = bytes_or_stream
@@ -49,10 +49,17 @@ class FontMetadata:
             wt = str(wt)
         self.font_weight = wt
 
-        self.font_stretch = ('ultra-condensed', 'extra-condensed',
-                'condensed', 'semi-condensed', 'normal', 'semi-expanded',
-                'expanded', 'extra-expanded', 'ultra-expanded')[
-                        self.characteristics.width-1]
+        self.font_stretch = (
+            'ultra-condensed',
+            'extra-condensed',
+            'condensed',
+            'semi-condensed',
+            'normal',
+            'semi-expanded',
+            'expanded',
+            'extra-expanded',
+            'ultra-expanded',
+        )[self.characteristics.width - 1]
         if self.characteristics.is_oblique:
             self.font_style = 'oblique'
         elif self.characteristics.is_italic:
@@ -78,11 +85,11 @@ class FontMetadata:
 
     def to_dict(self):
         ans = {
-                'is_otf':self.is_otf,
-                'font-family':self.font_family,
-                'font-weight':self.font_weight,
-                'font-style':self.font_style,
-                'font-stretch':self.font_stretch
+            'is_otf': self.is_otf,
+            'font-family': self.font_family,
+            'font-weight': self.font_weight,
+            'font-style': self.font_style,
+            'font-stretch': self.font_stretch,
         }
         for f in self.names._fields:
             ans[f] = getattr(self.names, f)
@@ -93,7 +100,9 @@ class FontMetadata:
 
 if __name__ == '__main__':
     import sys
+
     with open(sys.argv[-1], 'rb') as f:
         fm = FontMetadata(f)
         import pprint
+
         pprint.pprint(fm.to_dict())

@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2014, Kovid Goyal <kovid at kovidgoyal.net>
 
-
 import glob
 import json
 import os
@@ -26,12 +25,11 @@ LoadedDictionary = namedtuple('LoadedDictionary', 'primary_locale locales obj bu
 dprefs = JSONConfig('dictionaries/prefs.json')
 dprefs.defaults['preferred_dictionaries'] = {}
 dprefs.defaults['preferred_locales'] = {}
-dprefs.defaults['user_dictionaries'] = [{'name':_('Default'), 'is_active':True, 'words':[]}]
+dprefs.defaults['user_dictionaries'] = [{'name': _('Default'), 'is_active': True, 'words': []}]
 not_present = object()
 
 
 class UserDictionary:
-
     __slots__ = ('is_active', 'name', 'words')
 
     def __init__(self, **kwargs):
@@ -40,7 +38,7 @@ class UserDictionary:
         self.words = set(map(tuple, kwargs['words']))
 
     def serialize(self):
-        return {'name':self.name, 'is_active': self.is_active, 'words': list(self.words)}
+        return {'name': self.name, 'is_active': self.is_active, 'words': list(self.words)}
 
 
 _builtins = _custom = None
@@ -55,9 +53,17 @@ def builtin_dictionaries():
                 locales = list(filter(None, lcf.read().decode('utf-8').splitlines()))
             locale = locales[0]
             base = os.path.dirname(lc)
-            dics.append(Dictionary(
-                parse_lang_code(locale), frozenset(map(parse_lang_code, locales)), os.path.join(base, f'{locale}.dic'),
-                os.path.join(base, f'{locale}.aff'), True, None, None))
+            dics.append(
+                Dictionary(
+                    parse_lang_code(locale),
+                    frozenset(map(parse_lang_code, locales)),
+                    os.path.join(base, f'{locale}.dic'),
+                    os.path.join(base, f'{locale}.aff'),
+                    True,
+                    None,
+                    None,
+                )
+            )
         _builtins = frozenset(dics)
     return _builtins
 
@@ -70,7 +76,7 @@ def catalog_online_dictionaries():
         pass
     rslt = []
     for lang, directory in loaded.items():
-        rslt.append({'primary_locale':parse_lang_code(lang), 'name':lang,'directory':directory})
+        rslt.append({'primary_locale': parse_lang_code(lang), 'name': lang, 'directory': directory})
     return rslt
 
 
@@ -89,9 +95,17 @@ def custom_dictionaries(reread=False):
             ploc = parse_lang_code(locale)
             if ploc.countrycode is None:
                 continue
-            dics.append(Dictionary(
-                ploc, frozenset(filter(lambda x: x.countrycode is not None, map(parse_lang_code, locales))), os.path.join(base, f'{locale}.dic'),
-                os.path.join(base, f'{locale}.aff'), False, name, os.path.basename(base)))
+            dics.append(
+                Dictionary(
+                    ploc,
+                    frozenset(filter(lambda x: x.countrycode is not None, map(parse_lang_code, locales))),
+                    os.path.join(base, f'{locale}.dic'),
+                    os.path.join(base, f'{locale}.aff'),
+                    False,
+                    name,
+                    os.path.basename(base),
+                )
+            )
         _custom = frozenset(dics)
     return _custom
 
@@ -103,7 +117,7 @@ except ValueError:
     ul = None
 if ul is not None and ul.langcode == 'eng' and ul.countrycode in 'GB BS BZ GH IE IN JM NZ TT'.split():
     default_en_locale = 'en-' + ul.countrycode
-default_preferred_locales = {'eng':default_en_locale, 'deu':'de-DE', 'spa':'es-ES', 'fra':'fr-FR'}
+default_preferred_locales = {'eng': default_en_locale, 'deu': 'de-DE', 'spa': 'es-ES', 'fra': 'fr-FR'}
 
 
 def best_locale_for_language(langcode):
@@ -113,7 +127,7 @@ def best_locale_for_language(langcode):
 
 
 def preferred_dictionary(locale):
-    return {parse_lang_code(k):v for k, v in dprefs['preferred_dictionaries'].items()}.get(locale, None)
+    return {parse_lang_code(k): v for k, v in dprefs['preferred_dictionaries'].items()}.get(locale, None)
 
 
 def remove_dictionary(dictionary):
@@ -121,7 +135,7 @@ def remove_dictionary(dictionary):
         raise ValueError('Cannot remove builtin dictionaries')
     base = os.path.dirname(dictionary.dicpath)
     shutil.rmtree(base)
-    dprefs['preferred_dictionaries'] = {k:v for k, v in dprefs['preferred_dictionaries'].items() if v != dictionary.id}
+    dprefs['preferred_dictionaries'] = {k: v for k, v in dprefs['preferred_dictionaries'].items() if v != dictionary.id}
 
 
 def rename_dictionary(dictionary, name):
@@ -183,7 +197,7 @@ def load_dictionary(dictionary):
             path = path.decode(filesystem_encoding)
         path = os.path.abspath(path)
         if iswindows:
-            path = fr'\\?\{path}'
+            path = rf'\\?\{path}'
         return path
 
     obj = hunspell.Dictionary(fix_path(dictionary.dicpath), fix_path(dictionary.affpath))
@@ -191,7 +205,6 @@ def load_dictionary(dictionary):
 
 
 class Dictionaries:
-
     def __init__(self):
         self.remove_hyphenation = re.compile(r'[\u2010-]+')
         self.negative_pat = re.compile(r'-[.\d+]')
@@ -420,7 +433,7 @@ class Dictionaries:
                 else:
                     m = self.fix_punctuation_pat.search(word)
                     if m is not None:
-                        w1, w2 = word[:m.start()], word[m.end():]
+                        w1, w2 = word[: m.start()], word[m.end() :]
                         if self.recognized(w1) and self.recognized(w2):
                             fw = w1 + m.group() + ' ' + w2
                             ans = add_suggestion(fw, ans)
@@ -445,7 +458,6 @@ def find_tests():
     import unittest
 
     class TestDictionaries(unittest.TestCase):
-
         def setUp(self):
             dictionaries = Dictionaries()
             dictionaries.initialize()
@@ -473,6 +485,7 @@ def find_tests():
 
 def test():
     from calibre.utils.run_tests import run_cli
+
     run_cli(find_tests())
 
 

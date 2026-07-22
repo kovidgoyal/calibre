@@ -1,11 +1,9 @@
 # -*- coding: utf-8 -*-
+# License: GPLv3 Copyright: 2012, Alex Stanev <alex@stanev.org>
+
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 store_version = 3  # Needed for dynamic plugin loading
-
-__license__ = 'GPL 3'
-__copyright__ = '2012, Alex Stanev <alex@stanev.org>'
-__docformat__ = 'restructuredtext en'
 
 from contextlib import closing
 from urllib.parse import quote_plus
@@ -24,7 +22,6 @@ except ImportError:
 
 
 class BiblioStore(BasicStoreConfig, StorePlugin):
-
     web_url = 'https://biblio.bg'
 
     def open(self, gui=None, parent=None, detail_item=None, external=False):

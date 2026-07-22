@@ -1,8 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__ = 'GPL v3'
-__copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
+# License: GPLv3 Copyright: 2013, Kovid Goyal <kovid at kovidgoyal.net>
 
 from css_parser.css import CSSRule
 from tinycss.fonts3 import parse_font_family
@@ -18,9 +15,7 @@ from calibre.utils.localization import _
 
 
 class InvalidFont(BaseError):
-
-    HELP = _('This font could not be processed. It most likely will'
-             ' not work in an e-book reader, either')
+    HELP = _('This font could not be processed. It most likely will not work in an e-book reader, either')
 
 
 def fix_sheet(sheet, css_name, font_name):
@@ -32,26 +27,33 @@ def fix_sheet(sheet, css_name, font_name):
 
 
 class NotEmbeddable(BaseError):
-
     level = WARN
 
     def __init__(self, name, fs_type):
         BaseError.__init__(self, _('The font {} is not allowed to be embedded').format(name), name)
-        self.HELP = _('The font has a flag in its metadata ({:09b}) set indicating that it is'
-                      ' not licensed for embedding. You can ignore this warning, if you are'
-                      ' sure you have permission to embed this font.').format(fs_type)
+        self.HELP = _(
+            'The font has a flag in its metadata ({:09b}) set indicating that it is'
+            ' not licensed for embedding. You can ignore this warning, if you are'
+            ' sure you have permission to embed this font.'
+        ).format(fs_type)
 
 
 class FontAliasing(BaseError):
-
     level = WARN
 
     def __init__(self, font_name, css_name, name, line):
-        BaseError.__init__(self, _('The CSS font-family name {0} does not match the actual font name {1}').format(css_name, font_name), name, line)
-        self.HELP = _('The font family name specified in the CSS @font-face rule: "{0}" does'
-                      ' not match the font name inside the actual font file: "{1}". This can'
-                      ' cause problems in some viewers. You should change the CSS font name'
-                      ' to match the actual font name.').format(css_name, font_name)
+        BaseError.__init__(
+            self,
+            _('The CSS font-family name {0} does not match the actual font name {1}').format(css_name, font_name),
+            name,
+            line,
+        )
+        self.HELP = _(
+            'The font family name specified in the CSS @font-face rule: "{0}" does'
+            ' not match the font name inside the actual font file: "{1}". This can'
+            ' cause problems in some viewers. You should change the CSS font name'
+            ' to match the actual font name.'
+        ).format(css_name, font_name)
         self.INDIVIDUAL_FIX = _('Change the font name {0} to {1} everywhere').format(css_name, font_name)
         self.font_name, self.css_name = font_name, css_name
 

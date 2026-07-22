@@ -1,10 +1,8 @@
-__license__   = 'GPL v3'
-__copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2008, Kovid Goyal <kovid at kovidgoyal.net>
 
-'''
+"""
 Device driver for the SONY devices
-'''
+"""
 
 import os
 import re
@@ -19,95 +17,100 @@ from calibre.utils.localization import _
 
 
 class PRS505(USBMS):
-
-    name           = 'SONY Device Interface'
-    gui_name       = 'SONY PRS-500'
-    description    = _('Communicate with Sony e-book readers older than the'
-            ' PRST1.')
-    author         = 'Kovid Goyal'
+    name = 'SONY Device Interface'
+    gui_name = 'SONY PRS-500'
+    description = _('Communicate with Sony e-book readers older than the PRST1.')
+    author = 'Kovid Goyal'
     supported_platforms = ['windows', 'osx', 'linux']
     path_sep = '/'
     booklist_class = CollectionsBookList
 
-    FORMATS      = ['epub', 'lrf', 'lrx', 'rtf', 'pdf', 'txt', 'zbf']
+    FORMATS = ['epub', 'lrf', 'lrx', 'rtf', 'pdf', 'txt', 'zbf']
     CAN_SET_METADATA = ['title', 'authors', 'collections']
     CAN_DO_DEVICE_DB_PLUGBOARD = True
 
-    VENDOR_ID    = [0x054c]   #: SONY Vendor Id
-    PRODUCT_ID   = [0x031e]
-    BCD          = [0x229, 0x1000, 0x22a, 0x31a]
+    VENDOR_ID = [0x054C]  #: SONY Vendor Id
+    PRODUCT_ID = [0x031E]
+    BCD = [0x229, 0x1000, 0x22A, 0x31A]
 
-    VENDOR_NAME        = 'SONY'
-    WINDOWS_MAIN_MEM   = re.compile(
-            r'(PRS-(505|500|300))|'
-            r'(PRS-((700[#/])|((6|9|3)(0|5)0&)))'
-            )
+    VENDOR_NAME = 'SONY'
+    WINDOWS_MAIN_MEM = re.compile(
+        r'(PRS-(505|500|300))|'
+        r'(PRS-((700[#/])|((6|9|3)(0|5)0&)))'
+    )
     WINDOWS_CARD_A_MEM = re.compile(
-            r'(PRS-(505|500)[#/]\S+:MS)|'
-            r'(PRS-((700[/#]\S+:)|((6|9)(0|5)0[#_]))MS)'
-            )
+        r'(PRS-(505|500)[#/]\S+:MS)|'
+        r'(PRS-((700[/#]\S+:)|((6|9)(0|5)0[#_]))MS)'
+    )
     WINDOWS_CARD_B_MEM = re.compile(
-            r'(PRS-(505|500)[#/]\S+:SD)|'
-            r'(PRS-((700[/#]\S+:)|((6|9)(0|5)0[#_]))SD)'
-            )
+        r'(PRS-(505|500)[#/]\S+:SD)|'
+        r'(PRS-((700[/#]\S+:)|((6|9)(0|5)0[#_]))SD)'
+    )
 
-    MAIN_MEMORY_VOLUME_LABEL  = 'Sony Reader Main Memory'
+    MAIN_MEMORY_VOLUME_LABEL = 'Sony Reader Main Memory'
     STORAGE_CARD_VOLUME_LABEL = 'Sony Reader Storage Card'
 
-    CARD_PATH_PREFIX          = __appname__
+    CARD_PATH_PREFIX = __appname__
 
     SUPPORTS_SUB_DIRS = True
     MUST_READ_METADATA = True
-    NUKE_COMMENTS = _('Comments have been removed as the SONY reader'
-            ' chokes on them')
+    NUKE_COMMENTS = _('Comments have been removed as the SONY reader chokes on them')
     SUPPORTS_USE_AUTHOR_SORT = True
     EBOOK_DIR_MAIN = 'database/media/books'
     SCAN_FROM_ROOT = False
 
-    ALL_BY_TITLE  = _('All by title')
+    ALL_BY_TITLE = _('All by title')
     ALL_BY_AUTHOR = _('All by author')
 
     EXTRA_CUSTOMIZATION_MESSAGE = [
-        _('Comma separated list of metadata fields '
+        _(
+            'Comma separated list of metadata fields '
             'to turn into collections on the device. Possibilities include: '
             '%(coll)s. Two special collections are available: '
             '%(abt)s:%(abtv)s and %(aba)s:%(abav)s. Add '
             'these values to the list to enable them. The collections will be '
-            'given the name provided after the ":" character.')%dict(
-            abt='abt', abtv=ALL_BY_TITLE, aba='aba', abav=ALL_BY_AUTHOR, coll='series, tags, authors'),
-        _('Upload separate cover thumbnails for books (newer readers)') + ':::'+
-        _('Normally, the SONY readers get the cover image from the'
-                ' e-book file itself. With this option, calibre will send a '
-                'separate cover image to the reader, useful if you are '
-                'sending DRMed books in which you cannot change the cover.'
-                ' WARNING: This option should only be used with newer '
-                'SONY readers: 350, 650, 950 and newer.'),
-        _('Refresh separate covers when using automatic management (newer readers)') + ':::' +
-        _('Set this option to have separate book covers uploaded '
-                  'every time you connect your device. Unset this option if '
-                  'you have so many books on the reader that performance is '
-                  'unacceptable.'),
-        _('Preserve cover aspect ratio when building thumbnails') + ':::' +
-        _('Set this option if you want the cover thumbnails to have '
-                  'the same aspect ratio (width to height) as the cover. '
-                  'Unset it if you want the thumbnail to be the maximum size, '
-                  'ignoring aspect ratio.'),
-        _('Search for books in all folders') + ':::' +
-        _('Setting this option tells calibre to look for books in all '
-                  'folders on the device and its cards. This permits calibre to '
-                  'find books put on the device by other software and by '
-                  'wireless download.')
+            'given the name provided after the ":" character.'
+        )
+        % dict(abt='abt', abtv=ALL_BY_TITLE, aba='aba', abav=ALL_BY_AUTHOR, coll='series, tags, authors'),
+        _('Upload separate cover thumbnails for books (newer readers)')
+        + ':::'
+        + _(
+            'Normally, the SONY readers get the cover image from the'
+            ' e-book file itself. With this option, calibre will send a '
+            'separate cover image to the reader, useful if you are '
+            'sending DRMed books in which you cannot change the cover.'
+            ' WARNING: This option should only be used with newer '
+            'SONY readers: 350, 650, 950 and newer.'
+        ),
+        _('Refresh separate covers when using automatic management (newer readers)')
+        + ':::'
+        + _(
+            'Set this option to have separate book covers uploaded '
+            'every time you connect your device. Unset this option if '
+            'you have so many books on the reader that performance is '
+            'unacceptable.'
+        ),
+        _('Preserve cover aspect ratio when building thumbnails')
+        + ':::'
+        + _(
+            'Set this option if you want the cover thumbnails to have '
+            'the same aspect ratio (width to height) as the cover. '
+            'Unset it if you want the thumbnail to be the maximum size, '
+            'ignoring aspect ratio.'
+        ),
+        _('Search for books in all folders')
+        + ':::'
+        + _(
+            'Setting this option tells calibre to look for books in all '
+            'folders on the device and its cards. This permits calibre to '
+            'find books put on the device by other software and by '
+            'wireless download.'
+        ),
     ]
-    EXTRA_CUSTOMIZATION_DEFAULT = [
-                ', '.join(['series', 'tags']),
-                False,
-                False,
-                True,
-                True
-    ]
+    EXTRA_CUSTOMIZATION_DEFAULT = [', '.join(['series', 'tags']), False, False, True, True]
 
-    OPT_COLLECTIONS    = 0
-    OPT_UPLOAD_COVERS  = 1
+    OPT_COLLECTIONS = 0
+    OPT_UPLOAD_COVERS = 1
     OPT_REFRESH_COVERS = 2
     OPT_PRESERVE_ASPECT_RATIO = 3
     OPT_SCAN_FROM_ROOT = 4
@@ -145,6 +148,7 @@ class PRS505(USBMS):
                 return True
             except Exception:
                 import traceback
+
                 traceback.print_exc()
             return False
 
@@ -164,8 +168,7 @@ class PRS505(USBMS):
             self.THUMBNAIL_WIDTH = 168
         # Set WANTS_UPDATED_THUMBNAILS if the user has asked that thumbnails be
         # updated on every connect
-        self.WANTS_UPDATED_THUMBNAILS = \
-                self.settings().extra_customization[self.OPT_REFRESH_COVERS]
+        self.WANTS_UPDATED_THUMBNAILS = self.settings().extra_customization[self.OPT_REFRESH_COVERS]
         self.SCAN_FROM_ROOT = self.settings().extra_customization[self.OPT_SCAN_FROM_ROOT]
 
     def filename_callback(self, default, mi):
@@ -178,12 +181,13 @@ class PRS505(USBMS):
 
     def initialize_XML_cache(self):
         from calibre.devices.prs505.sony_cache import XMLCache
+
         paths, prefixes, ext_paths = {}, {}, {}
         for prefix, path, ext_path, source_id in [
-                ('main', MEDIA_XML, MEDIA_EXT, 0),
-                ('card_a', CACHE_XML, CACHE_EXT, 1),
-                ('card_b', CACHE_XML, CACHE_EXT, 2)
-                ]:
+            ('main', MEDIA_XML, MEDIA_EXT, 0),
+            ('card_a', CACHE_XML, CACHE_EXT, 1),
+            ('card_b', CACHE_XML, CACHE_EXT, 2),
+        ]:
             prefix = getattr(self, f'_{prefix}_prefix')
             if prefix is not None and os.path.exists(prefix):
                 paths[source_id] = os.path.join(prefix, *(path.split('/')))
@@ -198,7 +202,7 @@ class PRS505(USBMS):
         debug_print('PRS505: starting fetching books for card', oncard)
         bl = USBMS.books(self, oncard=oncard, end_session=end_session)
         c = self.initialize_XML_cache()
-        c.update_booklist(bl, {'carda':1, 'cardb':2}.get(oncard, 0))
+        c.update_booklist(bl, {'carda': 1, 'cardb': 2}.get(oncard, 0))
         debug_print('PRS505: finished fetching books for card', oncard)
         return bl
 
@@ -214,34 +218,28 @@ class PRS505(USBMS):
                 pass
         opts = self.settings()
         if opts.extra_customization:
-            collections = [x.strip() for x in
-                    opts.extra_customization[self.OPT_COLLECTIONS].split(',')]
+            collections = [x.strip() for x in opts.extra_customization[self.OPT_COLLECTIONS].split(',')]
         else:
             collections = []
         debug_print('PRS505: collection fields:', collections)
         pb = None
         if self.plugboard_func:
-            pb = self.plugboard_func(self.__class__.__name__,
-                                     'device_db', self.plugboards)
+            pb = self.plugboard_func(self.__class__.__name__, 'device_db', self.plugboards)
         debug_print('PRS505: use plugboards', pb)
         c.update(blists, collections, pb)
         c.write()
 
         if opts.extra_customization[self.OPT_REFRESH_COVERS]:
             debug_print('PRS505: uploading covers in sync_booklists')
-            for idx,bl in blists.items():
-                prefix = self._card_a_prefix if idx == 1 else \
-                                self._card_b_prefix if idx == 2 else self._main_prefix
+            for idx, bl in blists.items():
+                prefix = self._card_a_prefix if idx == 1 else self._card_b_prefix if idx == 2 else self._main_prefix
                 assert prefix is not None
                 for book in bl:
                     try:
                         p = os.path.join(prefix, book.lpath)
-                        self._upload_cover(os.path.dirname(p),
-                                          os.path.splitext(os.path.basename(p))[0],
-                                          book, p)
+                        self._upload_cover(os.path.dirname(p), os.path.splitext(os.path.basename(p))[0], book, p)
                     except Exception:
-                        debug_print('FAILED to upload cover',
-                                prefix, book.lpath)
+                        debug_print('FAILED to upload cover', prefix, book.lpath)
         else:
             debug_print('PRS505: NOT uploading covers in sync_booklists')
 
@@ -251,7 +249,7 @@ class PRS505(USBMS):
     def rebuild_collections(self, booklist, oncard):
         debug_print('PRS505: started rebuild_collections on card', oncard)
         c = self.initialize_XML_cache()
-        c.rebuild_collections(booklist, {'carda':1, 'cardb':2}.get(oncard, 0))
+        c.rebuild_collections(booklist, {'carda': 1, 'cardb': 2}.get(oncard, 0))
         c.write()
         debug_print('PRS505: finished rebuild_collections')
 
@@ -279,11 +277,9 @@ class PRS505(USBMS):
             prefix = None
             if is_main:
                 prefix = self._main_prefix
-            elif self._card_a_prefix and \
-                path.startswith(self._card_a_prefix):
+            elif self._card_a_prefix and path.startswith(self._card_a_prefix):
                 prefix = self._card_a_prefix
-            elif self._card_b_prefix and \
-                    path.startswith(self._card_b_prefix):
+            elif self._card_b_prefix and path.startswith(self._card_b_prefix):
                 prefix = self._card_b_prefix
             if prefix is None:
                 prints('WARNING: Failed to find prefix for:', filepath)

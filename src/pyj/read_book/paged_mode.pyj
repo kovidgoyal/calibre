@@ -48,6 +48,7 @@ def first_child(parent):
     if c?.nodeType is Node.ELEMENT_NODE:
         return c
 
+
 def has_start_text(elem):
     # Returns true if elem has some non-whitespace text before its first child
     # element
@@ -58,10 +59,12 @@ def has_start_text(elem):
             return True
     return False
 
+
 def handle_rtl_body(body_style):
-    if body_style.direction is "rtl":
+    if body_style.direction is 'rtl':
         # If this in not set, Chrome scrolling breaks for some RTL and vertical content.
         document.documentElement.style.overflow = 'visible'
+
 
 def create_page_div(elem):
     div = E('blank-page-div', ' \n    ')
@@ -71,6 +74,8 @@ def create_page_div(elem):
             background_image='none', border_width='0', float='none', position='static', min_height='100vh')
 
 _in_paged_mode = False
+
+
 def in_paged_mode():
     return _in_paged_mode
 
@@ -97,6 +102,7 @@ def reset_paged_mode_globals():
     is_full_screen_layout = _in_paged_mode = False
     resize_manager.reset()
 
+
 def column_at(pos):
     # Return the (zero-based) number of the column that contains pos
     si = scroll_viewport.paged_content_inline_size()
@@ -105,6 +111,7 @@ def column_at(pos):
     # we subtract 1 here so that a point at the absolute trailing (right in
     # horz-LTR) edge of a column remains in the column and not at the next column
     return max(0, (pos + gap - 1)) // col_and_gap
+
 
 def fit_images():
     # Ensure no images are wider than the available size of a column. Note
@@ -123,7 +130,7 @@ def fit_images():
         previously_limited = get_elem_data(img, 'inline-limited', False)
         data = get_elem_data(img, 'img-data', None)
         if data is None:
-            data = {'left':br.left, 'right':br.right, 'height':br.height, 'display': img.style.display}
+            data = {'left': br.left, 'right': br.right, 'height': br.height, 'display': img.style.display}
             set_elem_data(img, 'img-data', data)
 
         # Get start of image bounding box in the column direction (inline)
@@ -147,9 +154,9 @@ def fit_images():
 
     for img_tag, max_inline_size in inline_limited_images:
         if scroll_viewport.vertical_writing_mode:
-            img_tag.style.setProperty('max-height', max_inline_size+'px')
+            img_tag.style.setProperty('max-height', max_inline_size + 'px')
         else:
-            img_tag.style.setProperty('max-width', max_inline_size+'px')
+            img_tag.style.setProperty('max-width', max_inline_size + 'px')
         set_elem_data(img_tag, 'inline-limited', True)
 
     for img_tag in block_limited_images:
@@ -195,7 +202,6 @@ def will_columns_per_screen_change():
 
 
 class ScrollResizeBugWatcher:
-
     # In Chrome sometimes after layout the scrollWidth of body increases after a
     # few milliseconds, this can cause scrolling to the end to not work
     # immediately after layout. This happens without a resize event, and
@@ -244,6 +250,7 @@ class ScrollResizeBugWatcher:
 
 
 scroll_resize_bug_watcher = ScrollResizeBugWatcher()
+
 
 def layout(is_single_page, on_resize):
     nonlocal _in_paged_mode, col_size, col_and_gap, screen_block, gap, screen_inline, is_full_screen_layout, cols_per_screen
@@ -329,7 +336,7 @@ def layout(is_single_page, on_resize):
         # with height=100% overflow the first column
         is_full_screen_layout = is_single_page
         if not is_full_screen_layout:
-            has_no_more_than_two_columns = (scroll_viewport.paged_content_inline_size() < 2*screen_inline + 10)
+            has_no_more_than_two_columns = (scroll_viewport.paged_content_inline_size() < 2 * screen_inline + 10)
             if has_no_more_than_two_columns and single_screen:
                 if only_img and imgs.length and get_bounding_client_rect(imgs[0]).left < screen_inline:
                     is_full_screen_layout = True
@@ -345,16 +352,20 @@ def layout(is_single_page, on_resize):
         nc = get_number_of_cols(True)
         if Math.floor(nc) is not nc:
             data = {
-                'col_size':col_size, 'gap':gap, 'scrollWidth':scroll_viewport.paged_content_inline_size(),
-                'ncols':nc, 'screen_inline': screen_inline
+                'col_size': col_size, 'gap': gap, 'scrollWidth': scroll_viewport.paged_content_inline_size(),
+                'ncols': nc, 'screen_inline': screen_inline
             }
-            print('WARNING: column layout broken, probably because there is some non-reflowable content in the book whose inline size is greater than the column size', data)
+            print(
+                'WARNING: column layout broken, probably because there is some non-reflowable content in the book whose inline size is greater than the column size',
+                data
+            )
 
     check_column_sizes()
     _in_paged_mode = True
     fit_images()
     scroll_resize_bug_watcher.layout_done()
     return gap
+
 
 def current_scroll_offset():
     return scroll_viewport.inline_pos()
@@ -551,7 +562,8 @@ def scroll_to_elem(elem):
             # If we can use the rect, just use the simpler viewport helper function
             inline_start = scroll_viewport.rect_inline_start(br)
 
-        scroll_to_pos(scroll_viewport.viewport_to_document_inline(inline_start+2, elem.ownerDocument))
+        scroll_to_pos(scroll_viewport.viewport_to_document_inline(inline_start + 2, elem.ownerDocument))
+
 
 def snap_to_selection():
     # Ensure that the viewport is positioned at the start of the column
@@ -566,7 +578,7 @@ def snap_to_selection():
 
         # Ensure we are scrolled to the column containing the start of the
         # selection
-        scroll_to_pos(pos+5)
+        scroll_to_pos(pos + 5)
 
 
 def ensure_selection_boundary_visible(use_end):
@@ -585,19 +597,20 @@ def ensure_selection_boundary_visible(use_end):
             x = scroll_viewport.rect_inline_end(r) if use_end else scroll_viewport.rect_inline_start(r)
             if x < 0 or x >= scroll_viewport.inline_size():
                 pos = scroll_viewport.viewport_to_document_inline(x, doc=node.ownerDocument)
-                scroll_to_pos(pos+5)
+                scroll_to_pos(pos + 5)
 
 
 def jump_to_cfi(cfi):
     # Jump to the position indicated by the specified conformal fragment
     # indicator.
     scroll_resize_bug_watcher.last_command = jump_to_cfi.bind(None, cfi)
-    cfi_scroll_to(cfi, def(x, y):
+    cfi_scroll_to(cfi, def (x, y):
         if scroll_viewport.horizontal_writing_mode:
             scroll_to_pos(x)
         else:
             scroll_to_pos(y)
     )
+
 
 def current_cfi():
     # The Conformal Fragment Identifier at the current position, returns
@@ -711,7 +724,6 @@ class WheelState:
 
 
 class HandleWheel:
-
     def __init__(self):
         self.vertical_state = WheelState()
         self.horizontal_state = WheelState()
@@ -884,7 +896,6 @@ anchor_funcs = {
 
 
 class ResizeManager:
-
     def __init__(self):
         self.reset()
 
@@ -917,8 +928,11 @@ class ResizeManager:
 
 
 resize_manager = ResizeManager()
+
+
 def prepare_for_resize(width, height):
     resize_manager.start_resize(width, height)
+
 
 def resize_done():
     resize_manager.end_resize()
@@ -931,7 +945,6 @@ def auto_scroll_action(action):
 
 
 class DragScroller:
-
     INTERVAL = 500
 
     def __init__(self):

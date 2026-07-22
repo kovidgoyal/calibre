@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
 
-
 import os
 from io import BytesIO
 
@@ -16,12 +15,11 @@ def implementation(db, notify_changes, book_id, data, fmt, replace):
     is_remote = notify_changes is not None
     if is_remote:
         if fmt.lower() in ('recipe', 'original_recipe'):
-            raise ValueError(
-                'Cannot use the add format interface to add recipe files, as they allow code execution')
+            raise ValueError('Cannot use the add format interface to add recipe files, as they allow code execution')
         data = BytesIO(data[1])
     relpath = ''
     if fmt.startswith('.EXTRA_DATA_FILE:'):
-        relpath = fmt[len('.EXTRA_DATA_FILE:'):]
+        relpath = fmt[len('.EXTRA_DATA_FILE:') :]
     if relpath:
         added = db.add_extra_files(book_id, {relpath: data}, replace=replace)[relpath]
     else:
@@ -48,13 +46,13 @@ it is replaced, unless the do not replace option is specified.\
         dest='replace',
         default=True,
         action='store_false',
-        help=_('Do not replace the format if it already exists')
+        help=_('Do not replace the format if it already exists'),
     )
     parser.add_option(
         '--as-extra-data-file',
         default=False,
         action='store_true',
-        help=_('Add the file as an extra data file to the book, not an ebook format')
+        help=_('Add the file as an extra data file to the book, not an ebook format'),
     )
 
     return parser
@@ -74,5 +72,5 @@ def main(opts, args, dbctx):
     if not dbctx.run('add_format', id, dbctx.path(path), fmt, opts.replace):
         if opts.as_extra_data_file:
             raise SystemExit(f'An extra data file with the filename {os.path.basename(args[1])} already exists')
-        raise SystemExit(_('A %(fmt)s file already exists for book: %(id)d, not replacing')%dict(fmt=fmt, id=id))
+        raise SystemExit(_('A %(fmt)s file already exists for book: %(id)d, not replacing') % dict(fmt=fmt, id=id))
     return 0

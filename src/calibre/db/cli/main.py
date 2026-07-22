@@ -17,11 +17,29 @@ from calibre.utils.lock import singleinstance
 from calibre.utils.serialize import MSGPACK_MIME
 
 COMMANDS = (
-    'list', 'add', 'remove', 'add_format', 'remove_format', 'show_metadata',
-    'set_metadata', 'export', 'catalog', 'saved_searches', 'add_custom_column',
-    'custom_columns', 'remove_custom_column', 'set_custom', 'restore_database',
-    'check_library', 'list_categories', 'backup_metadata', 'clone', 'embed_metadata',
-    'search', 'fts_index', 'fts_search',
+    'list',
+    'add',
+    'remove',
+    'add_format',
+    'remove_format',
+    'show_metadata',
+    'set_metadata',
+    'export',
+    'catalog',
+    'saved_searches',
+    'add_custom_column',
+    'custom_columns',
+    'remove_custom_column',
+    'set_custom',
+    'restore_database',
+    'check_library',
+    'list_categories',
+    'backup_metadata',
+    'clone',
+    'embed_metadata',
+    'search',
+    'fts_index',
+    'fts_search',
 )
 
 
@@ -58,39 +76,30 @@ def get_parser(usage):
             ' the special library_id value of - to get a list of library ids available'
             ' on the server. For details on how to setup access via a Content server, see'
             ' {0}.'
-        ).format(localize_user_manual_link(
-            'https://manual.calibre-ebook.com/generated/en/calibredb.html'),
+        ).format(
+            localize_user_manual_link('https://manual.calibre-ebook.com/generated/en/calibredb.html'),
             'http://hostname:port/#library_id',
             'http://localhost:8080/#mylibrary',
-        )
+        ),
     )
-    go.add_option(
-        '-h', '--help', help=_('show this help message and exit'), action='help'
-    )
-    go.add_option(
-        '--version',
-        help=_("show program's version number and exit"),
-        action='version'
-    )
-    go.add_option(
-        '--username',
-        help=_('Username for connecting to a calibre Content server')
-    )
+    go.add_option('-h', '--help', help=_('show this help message and exit'), action='help')
+    go.add_option('--version', help=_("show program's version number and exit"), action='version')
+    go.add_option('--username', help=_('Username for connecting to a calibre Content server'))
     go.add_option(
         '--password',
-        help=_('Password for connecting to a calibre Content server.'
-               ' To read the password from standard input, use the special value: {0}.'
-               ' To read the password from a file, use: {1} (i.e. <f: followed by the full path to the file and a trailing >).'
-               ' The angle brackets in the above are required, remember to escape them or use quotes'
-               ' for your shell.').format(
-                   '<stdin>', '<f:C:/path/to/file>' if iswindows else '<f:/path/to/file>')
+        help=_(
+            'Password for connecting to a calibre Content server.'
+            ' To read the password from standard input, use the special value: {0}.'
+            ' To read the password from a file, use: {1} (i.e. <f: followed by the full path to the file and a trailing >).'
+            ' The angle brackets in the above are required, remember to escape them or use quotes'
+            ' for your shell.'
+        ).format('<stdin>', '<f:C:/path/to/file>' if iswindows else '<f:/path/to/file>'),
     )
     go.add_option(
         '--timeout',
         type=float,
         default=120,
-        help=_('The timeout, in seconds, when connecting to a calibre library over the network. The default is'
-               ' two minutes.')
+        help=_('The timeout, in seconds, when connecting to a calibre library over the network. The default is two minutes.'),
     )
 
     return parser
@@ -109,7 +118,8 @@ command is one of:
 
 For help on an individual command: %%prog command --help
 '''
-        ) % '\n  '.join(COMMANDS)
+        )
+        % '\n  '.join(COMMANDS)
     )
 
 
@@ -119,6 +129,7 @@ def read_credentials(opts):
     if pw:
         if pw == '<stdin>':
             from getpass import getpass
+
             pw = getpass(_('Enter the password: '))
         elif pw.startswith('<f:') and pw.endswith('>'):
             with open(pw[3:-1], 'rb') as f:
@@ -127,17 +138,13 @@ def read_credentials(opts):
 
 
 class DBCtx:
-
     def __init__(self, opts, option_parser):
         self.option_parser = option_parser
         self.library_path = opts.library_path or prefs['library_path']
         self.timeout = opts.timeout
         self.url = None
         if self.library_path is None:
-            raise SystemExit(
-                'No saved library path, either run the GUI or use the'
-                ' --with-library option'
-            )
+            raise SystemExit('No saved library path, either run the GUI or use the --with-library option')
         if self.library_path.partition(':')[0] in ('http', 'https'):
             parts = urlparse(self.library_path)
             self.library_id = parts.fragment or None
@@ -156,13 +163,14 @@ class DBCtx:
             self.library_path = os.path.expanduser(self.library_path)
             if not singleinstance('db'):
                 ext = '.exe' if iswindows else ''
-                raise SystemExit(_(
-                    'Another calibre program such as {} or the main calibre program is running.'
-                    ' Having multiple programs that can make changes to a calibre library'
-                    ' running at the same time is a bad idea. calibredb can connect directly'
-                    ' to a running calibre Content server, to make changes through it, instead.'
-                    ' See the documentation of the {} option for details.'
-                ).format('calibre-server' + ext, '--with-library')
+                raise SystemExit(
+                    _(
+                        'Another calibre program such as {} or the main calibre program is running.'
+                        ' Having multiple programs that can make changes to a calibre library'
+                        ' running at the same time is a bad idea. calibredb can connect directly'
+                        ' to a running calibre Content server, to make changes through it, instead.'
+                        ' See the documentation of the {} option for details.'
+                    ).format('calibre-server' + ext, '--with-library')
                 )
             self._db = None
             self.is_remote = False
@@ -206,12 +214,12 @@ class DBCtx:
         from mechanize import HTTPError, Request
 
         from calibre.utils.serialize import msgpack_dumps, msgpack_loads
+
         assert self.url is not None
         url = self.url + '/cdb/cmd/{}/{}'.format(name, getattr(m, 'version', 0))
         if self.library_id:
-            url += '?' + urlencode({'library_id':self.library_id})
-        rq = Request(url, data=msgpack_dumps(args),
-                     headers={'Accept': MSGPACK_MIME, 'Content-Type': MSGPACK_MIME})
+            url += '?' + urlencode({'library_id': self.library_id})
+        rq = Request(url, data=msgpack_dumps(args), headers={'Accept': MSGPACK_MIME, 'Content-Type': MSGPACK_MIME})
         try:
             res = self.br.open_novisit(rq, timeout=self.timeout)
             ans = msgpack_loads(res.read())
@@ -226,6 +234,7 @@ class DBCtx:
 
     def list_libraries(self):
         from mechanize import HTTPError
+
         assert self.url is not None
         url = self.url + '/ajax/library-info'
         try:

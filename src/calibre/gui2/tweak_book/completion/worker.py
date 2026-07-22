@@ -1,8 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__ = 'GPL v3'
-__copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
+# License: GPLv3 Copyright: 2014, Kovid Goyal <kovid at kovidgoyal.net>
 
 from collections import namedtuple
 from multiprocessing.connection import Pipe
@@ -19,10 +16,9 @@ CLEAR_REQUEST = 'clear request'
 
 
 class CompletionWorker(Thread):
-
     daemon = True
 
-    def __init__(self, result_callback=lambda x:x, worker_entry_point='main'):
+    def __init__(self, result_callback=lambda x: x, worker_entry_point='main'):
         Thread.__init__(self)
         self.worker_entry_point = worker_entry_point
         self.start()
@@ -37,14 +33,14 @@ class CompletionWorker(Thread):
 
     def launch_worker_process(self):
         from calibre.utils.ipc.pool import start_worker
+
         control_a, control_b = Pipe()
         data_a, data_b = Pipe()
         with control_a, data_a:
             pass_fds = control_a.fileno(), data_a.fileno()
             self.worker_process = p = start_worker(
-                'from {0} import run_main, {1}; run_main({2}, {3}, {1})'.format(
-                    self.__class__.__module__, self.worker_entry_point, *pass_fds),
-                pass_fds
+                'from {0} import run_main, {1}; run_main({2}, {3}, {1})'.format(self.__class__.__module__, self.worker_entry_point, *pass_fds),
+                pass_fds,
             )
             p.stdin.close()
         self.control_conn = control_b
@@ -75,6 +71,7 @@ class CompletionWorker(Thread):
 
     def handle_data_requests(self):
         from calibre.gui2.tweak_book.completion.basic import handle_data_request
+
         while True:
             try:
                 req = self.recv(self.data_conn)
@@ -82,6 +79,7 @@ class CompletionWorker(Thread):
                 break
             except Exception:
                 import traceback
+
                 traceback.print_exc()
                 break
             if req is None or self.shutting_down:
@@ -93,6 +91,7 @@ class CompletionWorker(Thread):
                 break
             except Exception:
                 import traceback
+
                 traceback.print_exc()
                 break
 
@@ -112,6 +111,7 @@ class CompletionWorker(Thread):
                 break
             except Exception:
                 import traceback
+
                 traceback.print_exc()
 
     def send_completion_request(self, request):
@@ -123,6 +123,7 @@ class CompletionWorker(Thread):
                 self.result_callback(result)
             except Exception:
                 import traceback
+
                 traceback.print_exc()
 
     def clear_caches(self, cache_type=None):
@@ -182,10 +183,11 @@ Result = namedtuple('Result', 'request_id ans traceback query')
 
 def main(control_conn, data_conn):
     from calibre.gui2.tweak_book.completion.basic import handle_control_request
+
     while True:
         try:
             request = eintr_retry_call(control_conn.recv)
-        except (KeyboardInterrupt, EOFError):
+        except KeyboardInterrupt, EOFError:
             break
         if request is None:
             break
@@ -195,6 +197,7 @@ def main(control_conn, data_conn):
             ans, tb = None, err.traceback()
         except Exception:
             import traceback
+
             ans, tb = None, traceback.format_exc()
         if request.id is not None:
             result = Result(request.id, ans, tb, request.query)

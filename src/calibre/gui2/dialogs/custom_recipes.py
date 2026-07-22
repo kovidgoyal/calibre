@@ -1,8 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__ = 'GPL v3'
-__copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
+# License: GPLv3 Copyright: 2014, Kovid Goyal <kovid at kovidgoyal.net>
 
 import os
 import re
@@ -53,7 +50,6 @@ def is_basic_recipe(src):
 
 
 class CustomRecipeModel(QAbstractListModel):  # {{{
-
     def __init__(self, recipe_model):
         QAbstractListModel.__init__(self)
         self.recipe_model = recipe_model
@@ -141,6 +137,8 @@ class CustomRecipeModel(QAbstractListModel):  # {{{
         self.beginResetModel()
         self.recipe_model.remove_custom_recipes(urns)
         self.endResetModel()
+
+
 # }}}
 
 
@@ -178,13 +176,17 @@ def options_to_recipe_source(title, oldest_article, max_articles_per_feed, feeds
         auto_cleanup   = True
 
         {feeds}''').format(
-            classname=classname, title=py3_repr(title), oldest_article=oldest_article, feeds=feeds,
-            max_articles_per_feed=max_articles_per_feed, base='AutomaticNewsRecipe')
+        classname=classname,
+        title=py3_repr(title),
+        oldest_article=oldest_article,
+        feeds=feeds,
+        max_articles_per_feed=max_articles_per_feed,
+        base='AutomaticNewsRecipe',
+    )
     return src
 
 
 class RecipeList(QWidget):  # {{{
-
     edit_recipe = pyqtSignal(object, object)
 
     def __init__(self, parent, model):
@@ -200,8 +202,7 @@ class RecipeList(QWidget):  # {{{
         self.stacks = s = QStackedWidget(self)
         l.addWidget(s, stretch=10, alignment=Qt.AlignmentFlag.AlignTop)
 
-        self.first_msg = la = QLabel(_(
-            'Create a new news source by clicking one of the buttons below'))
+        self.first_msg = la = QLabel(_('Create a new news source by clicking one of the buttons below'))
         la.setWordWrap(True)
         s.addWidget(la)
 
@@ -282,10 +283,12 @@ class RecipeList(QWidget):  # {{{
             src = self.model.script(idx)
             if src is not None:
                 path = choose_save_file(
-                    self, 'save-custom-recipe', _('Save recipe'),
+                    self,
+                    'save-custom-recipe',
+                    _('Save recipe'),
                     filters=[(_('Recipes'), ['recipe'])],
                     all_files=False,
-                    initial_filename=f'{self.model.title(idx)}.recipe'
+                    initial_filename=f'{self.model.title(idx)}.recipe',
                 )
                 if path:
                     with open(path, 'wb') as f:
@@ -312,6 +315,7 @@ class RecipeList(QWidget):  # {{{
             urn = self.model.urn(idx)
             title = self.model.title(idx)
             from calibre.gui2.ui import get_gui
+
             gui = get_gui(fail_if_absent=True)
             gui.iactions['Fetch News'].download_custom_recipe(title, urn)
 
@@ -325,20 +329,24 @@ class RecipeList(QWidget):  # {{{
     def replace_many_by_title(self, script_map):
         self.model.replace_many_by_title(script_map)
         self.select_row()
+
+
 # }}}
 
 
 class BasicRecipe(QWidget):  # {{{
-
     def __init__(self, parent):
         QWidget.__init__(self, parent)
         self.l = l = QFormLayout(self)
         l.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.ExpandingFieldsGrow)
 
-        self.hm = hm = QLabel(_(
-            'Create a basic news recipe, by adding RSS feeds to it.\n'
-            'For some news sources, you will have to use the "Switch to advanced mode" '
-            'button below to further customize the fetch process.'))
+        self.hm = hm = QLabel(
+            _(
+                'Create a basic news recipe, by adding RSS feeds to it.\n'
+                'For some news sources, you will have to use the "Switch to advanced mode" '
+                'button below to further customize the fetch process.'
+            )
+        )
         hm.setWordWrap(True)
         l.addRow(hm)
 
@@ -418,30 +426,30 @@ class BasicRecipe(QWidget):  # {{{
     def add_feed(self):
         title = self.feed_title.text().strip()
         if not title:
-            return error_dialog(self, _('No feed title'), _(
-                'You must specify a title for the feed'), show=True)
+            return error_dialog(self, _('No feed title'), _('You must specify a title for the feed'), show=True)
         url = self.feed_url.text().strip()
         if not title:
-            return error_dialog(self, _('No feed URL'), _(
-                'You must specify a URL for the feed'), show=True)
+            return error_dialog(self, _('No feed URL'), _('You must specify a URL for the feed'), show=True)
         QListWidgetItem(f'{title} - {url}', self.feeds).setData(Qt.ItemDataRole.UserRole, (title, url))
         self.feed_title.clear(), self.feed_url.clear()
 
     def validate(self):
         title = self.title.text().strip()
         if not title:
-            error_dialog(self, _('Title required'), _(
-                'You must give your news source a title'), show=True)
+            error_dialog(self, _('Title required'), _('You must give your news source a title'), show=True)
             return False
         if self.feeds.count() < 1:
-            error_dialog(self, _('Feed required'), _(
-                'You must add at least one feed to your news source'), show=True)
+            error_dialog(self, _('Feed required'), _('You must add at least one feed to your news source'), show=True)
             return False
         try:
             compile_recipe(self.recipe_source)
         except Exception as err:
-            error_dialog(self, _('Invalid recipe'), _(
-                'Failed to compile the recipe, with syntax error: {}').format(err), show=True)
+            error_dialog(
+                self,
+                _('Invalid recipe'),
+                _('Failed to compile the recipe, with syntax error: {}').format(err),
+                show=True,
+            )
             return False
         return True
 
@@ -470,22 +478,23 @@ class BasicRecipe(QWidget):  # {{{
             self.title.setText(recipe.title)
             self.oldest_article.setValue(recipe.oldest_article)
             self.max_articles.setValue(recipe.max_articles_per_feed)
-            for x in (recipe.feeds or ()):
+            for x in recipe.feeds or ():
                 title, url = ('', x) if len(x) == 1 else x
                 QListWidgetItem(f'{title} - {url}', self.feeds).setData(Qt.ItemDataRole.UserRole, (title, url))
+
 
 # }}}
 
 
 class AdvancedRecipe(QWidget):  # {{{
-
     def __init__(self, parent):
         QWidget.__init__(self, parent)
         self.l = l = QVBoxLayout(self)
 
-        self.la = la = QLabel(_(
-            'For help with writing advanced news recipes, see the <a href="%s">User Manual</a>'
-        ) % localize_user_manual_link('https://manual.calibre-ebook.com/news.html'))
+        self.la = la = QLabel(
+            _('For help with writing advanced news recipes, see the <a href="%s">User Manual</a>')
+            % localize_user_manual_link('https://manual.calibre-ebook.com/news.html')
+        )
         la.setOpenExternalLinks(True)
         l.addWidget(la)
 
@@ -497,8 +506,12 @@ class AdvancedRecipe(QWidget):  # {{{
         try:
             compile_recipe(src)
         except Exception as err:
-            error_dialog(self, _('Invalid recipe'), _(
-                'Failed to compile the recipe, with syntax error: {}').format(err), show=True)
+            error_dialog(
+                self,
+                _('Invalid recipe'),
+                _('Failed to compile the recipe, with syntax error: {}').format(err),
+                show=True,
+            )
             return False
         return True
 
@@ -512,11 +525,12 @@ class AdvancedRecipe(QWidget):  # {{{
 
     def sizeHint(self):
         return QSize(800, 500)
+
+
 # }}}
 
 
 class ChooseBuiltinRecipeModel(QSortFilterProxyModel):
-
     def filterAcceptsRow(self, source_row, source_parent):
         src_model = self.sourceModel()
         assert src_model is not None
@@ -528,7 +542,6 @@ class ChooseBuiltinRecipeModel(QSortFilterProxyModel):
 
 
 class ChooseBuiltinRecipe(Dialog):  # {{{
-
     def __init__(self, recipe_model, parent=None):
         self.recipe_model = recipe_model
         Dialog.__init__(self, _('Choose builtin recipe'), 'choose-builtin-recipe', parent=parent)
@@ -574,14 +587,14 @@ class ChooseBuiltinRecipe(Dialog):  # {{{
 
     def accept(self):
         if not self.selected_recipe:
-            return error_dialog(self, _('Choose recipe'), _(
-                'You must choose a recipe to customize first'), show=True)
+            return error_dialog(self, _('Choose recipe'), _('You must choose a recipe to customize first'), show=True)
         return Dialog.accept(self)
+
+
 # }}}
 
 
 class CustomRecipes(Dialog):
-
     def __init__(self, recipe_model, parent=None):
         self.recipe_model = recipe_model
         Dialog.__init__(self, _('Add custom news source'), 'add-custom-news-source', parent=parent)
@@ -603,16 +616,30 @@ class CustomRecipes(Dialog):
 
         l.addWidget(self.bb)
         self.list_actions = []
+
         def la(*args):
             return self.list_actions.append(args)
+
         la('plus.png', _('&New recipe'), _('Create a new recipe from scratch'), self.add_recipe)
-        la('news.png', _('Customize &builtin recipe'), _('Customize a builtin news download source'), self.customize_recipe)
+        la(
+            'news.png',
+            _('Customize &builtin recipe'),
+            _('Customize a builtin news download source'),
+            self.customize_recipe,
+        )
         la('document_open.png', _('Load recipe from &file'), _('Load a recipe from a file'), self.load_recipe)
-        la('mimetypes/dir.png', _('&Show recipe files'), _('Show the folder containing all recipe files'), self.show_recipe_files)
-        la('mimetypes/opml.png', _('Import &OPML'), _(
-            'Import a collection of RSS feeds in OPML format\n'
-            'Many RSS readers can export their subscribed RSS feeds\n'
-            'in OPML format'), self.import_opml)
+        la(
+            'mimetypes/dir.png',
+            _('&Show recipe files'),
+            _('Show the folder containing all recipe files'),
+            self.show_recipe_files,
+        )
+        la(
+            'mimetypes/opml.png',
+            _('Import &OPML'),
+            _('Import a collection of RSS feeds in OPML format\nMany RSS readers can export their subscribed RSS feeds\nin OPML format'),
+            self.import_opml,
+        )
 
         s.currentChanged.connect(self.update_button_box)
         self.update_button_box()
@@ -659,8 +686,7 @@ class CustomRecipes(Dialog):
     def show_recipe_files(self):
         bdir = os.path.dirname(custom_recipes.file_path)
         if not os.path.exists(bdir):
-            return error_dialog(self, _('No recipes'),
-                    _('No custom recipes created.'), show=True)
+            return error_dialog(self, _('No recipes'), _('No custom recipes created.'), show=True)
         open_local_file(bdir)
 
     def add_recipe(self):
@@ -710,27 +736,35 @@ class CustomRecipes(Dialog):
         self.edit_recipe(None, src)
 
     def load_recipe(self):
-        files = choose_files(self, 'recipe loader dialog',
+        files = choose_files(
+            self,
+            'recipe loader dialog',
             _('Choose a recipe file'),
             filters=[(_('Recipes'), ['py', 'recipe'])],
-            all_files=False, select_only_single_file=True)
+            all_files=False,
+            select_only_single_file=True,
+        )
         if files:
             path = files[0]
             try:
                 with open(path, 'rb') as f:
                     src = f.read().decode('utf-8')
             except Exception as err:
-                error_dialog(self, _('Invalid input'),
-                        _('<p>Could not create recipe. Error:<br>%s')%err, show=True)
+                error_dialog(self, _('Invalid input'), _('<p>Could not create recipe. Error:<br>%s') % err, show=True)
                 return
             self.edit_recipe(None, src)
 
     def import_opml(self):
         from calibre.gui2.dialogs.opml import ImportOPML
+
         d = ImportOPML(parent=self)
         if d.exec() != QDialog.DialogCode.Accepted:
             return
-        oldest_article, max_articles_per_feed, replace_existing = d.oldest_article, d.articles_per_feed, d.replace_existing
+        oldest_article, max_articles_per_feed, replace_existing = (
+            d.oldest_article,
+            d.articles_per_feed,
+            d.replace_existing,
+        )
         failed_recipes, replace_recipes, add_recipes = {}, {}, {}
 
         for group in d.recipes:
@@ -745,6 +779,7 @@ class CustomRecipes(Dialog):
                 compile_recipe(src)
             except Exception:
                 import traceback
+
                 failed_recipes[title] = traceback.format_exc()
                 continue
 
@@ -759,9 +794,13 @@ class CustomRecipes(Dialog):
             self.recipe_list.replace_many_by_title(replace_recipes)
         if failed_recipes:
             det_msg = '\n'.join(f'{title}\n{tb}\n' for title, tb in failed_recipes.items())
-            error_dialog(self, _('Failed to create recipes'), _(
-                'Failed to create some recipes, click "Show details" for details'), show=True,
-                         det_msg=det_msg)
+            error_dialog(
+                self,
+                _('Failed to create recipes'),
+                _('Failed to create some recipes, click "Show details" for details'),
+                show=True,
+                det_msg=det_msg,
+            )
 
     def switch_to_advanced(self):
         src = self.basic_recipe.recipe_source
@@ -774,6 +813,7 @@ class CustomRecipes(Dialog):
 if __name__ == '__main__':
     from calibre.gui2 import Application
     from calibre.web.feeds.recipes.model import RecipeModel
+
     app = Application([])
     CustomRecipes(RecipeModel()).exec()
     del app

@@ -1,15 +1,10 @@
 #!/usr/bin/env python
-
-
-__license__   = 'GPL v3'
-__copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2012, Kovid Goyal <kovid@kovidgoyal.net>
 
 from calibre.ebooks.oeb.base import XPath
 
 
 class CSSCleanup:
-
     def __init__(self, log, opts):
         self.log, self.opts = log, opts
 

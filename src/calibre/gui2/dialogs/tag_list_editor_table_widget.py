@@ -5,7 +5,6 @@ from qt.core import Qt, QTableWidget, pyqtSignal
 
 
 class TleTableWidget(QTableWidget):
-
     delete_pressed = pyqtSignal()
 
     def __init__(self, parent=None):

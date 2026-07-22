@@ -1,15 +1,11 @@
 #!/usr/bin/env python
+# License: GPLv3 Copyright: 2010, Kovid Goyal <kovid@kovidgoyal.net>
 
-
-__license__   = 'GPL v3'
-__copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
-
-'''
+"""
 Created on 12 Nov 2024
 
 @author: chaley
-'''
+"""
 
 from qt.core import QCheckBox, QComboBox, QFrame, QGridLayout, QHBoxLayout, QLabel, QPlainTextEdit, QPushButton, QSize, QTimer
 
@@ -23,13 +19,11 @@ from calibre.utils.localization import _
 
 
 class FFDocEditor(Dialog):
-
     def __init__(self, can_copy_back=False, parent=None):
         self.ffml = FFMLProcessor()
         self.can_copy_back = can_copy_back
         self.last_operation = None
-        super().__init__(title=_('Template function documentation editor'),
-                         name='template_function_doc_editor_dialog', parent=parent)
+        super().__init__(title=_('Template function documentation editor'), name='template_function_doc_editor_dialog', parent=parent)
 
     def sizeHint(self):
         return QSize(800, 600)
@@ -92,10 +86,8 @@ class FFDocEditor(Dialog):
         hl.addStretch()
         gl.addLayout(hl, 0, 0, 1, 2)
 
-        self.original_doc_label = self.label_widget(
-            _('Raw documentation for the selected function'), gl, 1, 0)
-        w = self.original_doc_html_label = self.label_widget(
-            _('Documentation for the selected function in HTML'), gl, 1, 1)
+        self.original_doc_label = self.label_widget(_('Raw documentation for the selected function'), gl, 1, 0)
+        w = self.original_doc_html_label = self.label_widget(_('Documentation for the selected function in HTML'), gl, 1, 1)
         w.setVisible(so.isChecked())
         w = self.original_text_widget = self.text_widget(True, gl, 2, 0)
         w.setVisible(so.isChecked())
@@ -151,14 +143,13 @@ class FFDocEditor(Dialog):
             doc = self.builtins[name].doc
             try:
                 self.editable_text_result.setHtml(
-                    self.ffml.document_to_html(doc.format_again(
-                        self.editable_text_widget.toPlainText()), 'edited text', safe=False))
+                    self.ffml.document_to_html(doc.format_again(self.editable_text_widget.toPlainText()), 'edited text', safe=False)
+                )
             except Exception as e:
                 self.editable_text_result.setHtml(str(e))
         else:
             try:
-                self.editable_text_result.setHtml(
-                    self.ffml.document_to_html(self.editable_text_widget.toPlainText(), 'edited text', safe=False))
+                self.editable_text_result.setHtml(self.ffml.document_to_html(self.editable_text_widget.toPlainText(), 'edited text', safe=False))
             except Exception as e:
                 self.editable_text_result.setHtml(str(e))
 

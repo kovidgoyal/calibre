@@ -1,6 +1,4 @@
-__license__ = 'GPL 3'
-__copyright__ = '2009, John Schember <john@nachtimwald.com>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2009, John Schember <john@nachtimwald.com>
 
 from calibre.ebooks.conversion.config import OPTIONS
 from calibre.gui2.convert import Widget
@@ -11,9 +9,8 @@ format_model = None
 
 
 class PluginWidget(Widget, Ui_Form):
-
     TITLE = _('HTMLZ output')
-    HELP = _('Options specific to')+' HTMLZ '+_('output')
+    HELP = _('Options specific to') + ' HTMLZ ' + _('output')
     COMMIT_NAME = 'htmlz_output'
     ICON = 'mimetypes/html.png'
 

@@ -73,20 +73,23 @@ Control the Full text search indexing process.
     specify the book ids as additional arguments after the
     {reindex} command. If no book ids are specified the
     entire library is re-indexed.
-''').format(enable='enable', disable='disable', status='status', reindex='reindex')
+'''
+        ).format(enable='enable', disable='disable', status='status', reindex='reindex')
     )
     parser.add_option(
         '--wait-for-completion',
         default=False,
         action='store_true',
-        help=_('Wait till all books are indexed, showing indexing progress periodically')
+        help=_('Wait till all books are indexed, showing indexing progress periodically'),
     )
     parser.add_option(
         '--indexing-speed',
         default='',
         choices=('fast', 'slow', ''),
-        help=_('The speed of indexing. Use fast for fast indexing using all your computers resources'
-               ' and slow for less resource intensive indexing. Note that the speed is reset to slow after every invocation.')
+        help=_(
+            'The speed of indexing. Use fast for fast indexing using all your computers resources'
+            ' and slow for less resource intensive indexing. Note that the speed is reset to slow after every invocation.'
+        ),
     )
     return parser
 
@@ -102,13 +105,19 @@ def run_job(dbctx, which, **data):
 
 def show_progress(left, total, rate):
     from calibre.db.utils import IndexingProgress
+
     ip = IndexingProgress()
     ip.update(left, total, rate)
-    print('\r\x1b[K' + _('{0} of {1} book files indexed, {2}').format(total-left, total, ip.time_left), flush=True, end=' ...')
+    print(
+        '\r\x1b[K' + _('{0} of {1} book files indexed, {2}').format(total - left, total, ip.time_left),
+        flush=True,
+        end=' ...',
+    )
 
 
 def remote_wait_for_completion(dbctx, indexing_speed):
     import time
+
     s = run_job(dbctx, 'wait', speed=indexing_speed, measure_state=True)
     try:
         while s['left'] > 0:

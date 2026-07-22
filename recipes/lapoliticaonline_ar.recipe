@@ -22,7 +22,7 @@ class LaPoliticaOnline_AR(BasicNewsRecipe):
     publication_type = 'newspaper'
     remove_empty_feeds = True
     masthead_url = 'http://www.lapoliticaonline.com/0/img/header/logo.gif'
-    extra_css             = '''
+    extra_css = '''
                                 .title,.vsmcontent{font-family: Georgia,"Times New Roman",Times,serif}
                                 body{font-family: Arial,Helvetica,sans-serif}
                                 .galleryfooter{font-size: small; color: gainsboro;}
@@ -30,28 +30,25 @@ class LaPoliticaOnline_AR(BasicNewsRecipe):
                                 .title{font-size: x-large; font-weight: bold; line-height: 2em;}
                             '''
 
-    conversion_options = {
-        'comment': description, 'tags': category, 'publisher': publisher, 'language': language
-    }
+    conversion_options = {'comment': description, 'tags': category, 'publisher': publisher, 'language': language}
 
     remove_tags = [
-        dict(name=['iframe', 'embed', 'object', 'meta', 'link', 'button']), dict(
-            attrs={'class': ['share-related', 'controls oneimage', 'toolbar', 'itemheader']})
+        dict(name=['iframe', 'embed', 'object', 'meta', 'link', 'button']),
+        dict(attrs={'class': ['share-related', 'controls oneimage', 'toolbar', 'itemheader']}),
     ]
 
     remove_tags_before = dict(name='div', attrs={'class': 'title'})
     remove_tags_after = dict(attrs={'id': 'vsmcontent'})
 
     feeds = [
-
-    (u'Politica', u'http://www.lapoliticaonline.com/files/rss/politica.xml'),
-    (u'Economia', u'http://www.lapoliticaonline.com/files/rss/economia.xml'),
-    (u'Ciudad', u'http://www.lapoliticaonline.com/files/rss/ciudad.xml'),
-    (u'Provincia', u'http://www.lapoliticaonline.com/files/rss/provincia.xml'),
-    (u'Conurbano', u'http://www.lapoliticaonline.com/files/rss/conurbano.xml'),
-    (u'Mendoza', u'http://www.lapoliticaonline.com/files/rss/mendoza.xml'),
-    (u'Santa Fe', u'http://www.lapoliticaonline.com/files/rss/santafe.xml'),
-    (u'Transporte', u'http://www.lapoliticaonline.com/files/rss/transporte.xml'),
-    (u'Energia', u'http://www.lapoliticaonline.com/files/rss/energía.xml'),
-    (u'Judiciales', u'http://www.lapoliticaonline.com/files/rss/judiciales.xml')
+        ('Politica', 'http://www.lapoliticaonline.com/files/rss/politica.xml'),
+        ('Economia', 'http://www.lapoliticaonline.com/files/rss/economia.xml'),
+        ('Ciudad', 'http://www.lapoliticaonline.com/files/rss/ciudad.xml'),
+        ('Provincia', 'http://www.lapoliticaonline.com/files/rss/provincia.xml'),
+        ('Conurbano', 'http://www.lapoliticaonline.com/files/rss/conurbano.xml'),
+        ('Mendoza', 'http://www.lapoliticaonline.com/files/rss/mendoza.xml'),
+        ('Santa Fe', 'http://www.lapoliticaonline.com/files/rss/santafe.xml'),
+        ('Transporte', 'http://www.lapoliticaonline.com/files/rss/transporte.xml'),
+        ('Energia', 'http://www.lapoliticaonline.com/files/rss/energía.xml'),
+        ('Judiciales', 'http://www.lapoliticaonline.com/files/rss/judiciales.xml'),
     ]

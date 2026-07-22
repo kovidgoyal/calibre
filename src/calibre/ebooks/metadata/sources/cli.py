@@ -1,9 +1,6 @@
 #!/usr/bin/env python
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-
-__license__   = 'GPL v3'
-__copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2011, Kovid Goyal <kovid@kovidgoyal.net>
 
 import sys
 from io import BytesIO
@@ -23,31 +20,51 @@ from calibre.utils.localization import _
 
 
 def option_parser():
-    parser = OptionParser(_('''\
+    parser = OptionParser(
+        _('''\
 %prog [options]
 
 Fetch book metadata from online sources. You must specify at least one
 of title, authors or ISBN.
-'''
-    ))
+''')
+    )
     parser.add_option('-t', '--title', help=_('Book title'))
     parser.add_option('-a', '--authors', help=_('Book author(s)'))
     parser.add_option('-i', '--isbn', help=_('Book ISBN'))
-    parser.add_option('-I', '--identifier', action='append', default=[], help=_(
-        'Identifiers such as ASIN/Goodreads id etc. Can be specified multiple times for multiple identifiers.'
-        ' For example: ') + '--identifier asin:B0082BAJA0')
-    parser.add_option('-v', '--verbose', default=False, action='store_true',
-                      help=_('Print the log to the console (stderr)'))
-    parser.add_option('-o', '--opf', help=_('Output the metadata in OPF format instead of human readable text.'), action='store_true', default=False)
-    parser.add_option('-c', '--cover',
-            help=_('Specify a filename. The cover, if available, will be saved to it. Without this option, no cover will be downloaded.'))
-    parser.add_option('-d', '--timeout', default='30',
-            help=_('Timeout in seconds. Default is 30'))
-    parser.add_option('-p', '--allowed-plugin', action='append', default=[],
-            help=_('Specify the name of a metadata download plugin to use.'
-                   ' By default, all metadata plugins will be used.'
-                   ' Can be specified multiple times for multiple plugins.'
-                   ' All plugin names: {}').format(', '.join(p.name for p in all_metadata_plugins())))
+    parser.add_option(
+        '-I',
+        '--identifier',
+        action='append',
+        default=[],
+        help=_('Identifiers such as ASIN/Goodreads id etc. Can be specified multiple times for multiple identifiers. For example: ')
+        + '--identifier asin:B0082BAJA0',
+    )
+    parser.add_option('-v', '--verbose', default=False, action='store_true', help=_('Print the log to the console (stderr)'))
+    parser.add_option(
+        '-o',
+        '--opf',
+        help=_('Output the metadata in OPF format instead of human readable text.'),
+        action='store_true',
+        default=False,
+    )
+    parser.add_option(
+        '-c',
+        '--cover',
+        help=_('Specify a filename. The cover, if available, will be saved to it. Without this option, no cover will be downloaded.'),
+    )
+    parser.add_option('-d', '--timeout', default='30', help=_('Timeout in seconds. Default is 30'))
+    parser.add_option(
+        '-p',
+        '--allowed-plugin',
+        action='append',
+        default=[],
+        help=_(
+            'Specify the name of a metadata download plugin to use.'
+            ' By default, all metadata plugins will be used.'
+            ' Can be specified multiple times for multiple plugins.'
+            ' All plugin names: {}'
+        ).format(', '.join(p.name for p in all_metadata_plugins())),
+    )
 
     return parser
 
@@ -75,9 +92,15 @@ def main(args=sys.argv):
         identifiers['isbn'] = opts.isbn
 
     allowed_plugins = frozenset(opts.allowed_plugin)
-    results = identify(log, abort, title=opts.title, authors=authors,
-            identifiers=identifiers, timeout=int(opts.timeout),
-            allowed_plugins=allowed_plugins or None)
+    results = identify(
+        log,
+        abort,
+        title=opts.title,
+        authors=authors,
+        identifiers=identifiers,
+        timeout=int(opts.timeout),
+        allowed_plugins=allowed_plugins or None,
+    )
 
     if not results:
         prints(buf.getvalue(), file=sys.stderr)
@@ -87,8 +110,7 @@ def main(args=sys.argv):
 
     cf = None
     if opts.cover and results:
-        cover = download_cover(log, title=opts.title, authors=authors,
-                identifiers=result.identifiers, timeout=int(opts.timeout))
+        cover = download_cover(log, title=opts.title, authors=authors, identifiers=result.identifiers, timeout=int(opts.timeout))
         if cover is None:
             if not opts.opf:
                 prints('No cover found', file=sys.stderr)

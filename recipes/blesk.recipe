@@ -8,36 +8,37 @@ from calibre.web.feeds.recipes import BasicNewsRecipe
 
 class bleskRecipe(BasicNewsRecipe):
     __author__ = 'bubak'
-    title = u'Blesk'
-    publisher = u''
+    title = 'Blesk'
+    publisher = ''
     description = 'blesk.cz'
     oldest_article = 1
     max_articles_per_feed = 20
     use_embedded_content = False
 
     feeds = [
-        (u'Zprávy', u'http://www.blesk.cz/rss/7'),
-        (u'Blesk', u'http://www.blesk.cz/rss/1'),
-        (u'Sex a tabu', u'http://www.blesk.cz/rss/2'),
-        (u'Celebrity', u'http://www.blesk.cz/rss/5'),
-        (u'Cestování', u'http://www.blesk.cz/rss/12')
+        ('Zprávy', 'http://www.blesk.cz/rss/7'),
+        ('Blesk', 'http://www.blesk.cz/rss/1'),
+        ('Sex a tabu', 'http://www.blesk.cz/rss/2'),
+        ('Celebrity', 'http://www.blesk.cz/rss/5'),
+        ('Cestování', 'http://www.blesk.cz/rss/12'),
     ]
 
     language = 'cs'
     cover_url = 'http://img.blesk.cz/images/blesk/blesk-logo.png'
     remove_javascript = True
     no_stylesheets = True
-    extra_css             = '''
+    extra_css = '''
                             '''
 
     remove_attributes = []
     remove_tags_before = dict(name='div', attrs={'id': ['boxContent']})
     remove_tags_after = dict(name='div', attrs={'class': ['artAuthors']})
-    remove_tags = [dict(name='div', attrs={'class': ['link_clanek']}),
-                   dict(name='div', attrs={'id': ['partHeader']}),
-                   dict(name='div', attrs={'id': ['top_bottom_box', 'lista_top']})]
-    preprocess_regexps = [(re.compile(r'<div class="(textovytip|related)".*',
-                                      re.DOTALL | re.IGNORECASE), lambda match: '</body>')]
+    remove_tags = [
+        dict(name='div', attrs={'class': ['link_clanek']}),
+        dict(name='div', attrs={'id': ['partHeader']}),
+        dict(name='div', attrs={'id': ['top_bottom_box', 'lista_top']}),
+    ]
+    preprocess_regexps = [(re.compile(r'<div class="(textovytip|related)".*', re.DOTALL | re.IGNORECASE), lambda match: '</body>')]
 
     keep_only_tags = [dict(name='div', attrs={'class': 'articleContent'})]
 

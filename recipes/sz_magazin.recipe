@@ -31,22 +31,10 @@ class szmagazin(BasicNewsRecipe):
         blockquote, em { color: #202020; }
     '''
 
-    recipe_specific_options = {
-        'issue': {
-            'short': 'The edition to download (YYYY/Number format)',
-            'long': 'For example, 2024/31'
-        }
-    }
+    recipe_specific_options = {'issue': {'short': 'The edition to download (YYYY/Number format)', 'long': 'For example, 2024/31'}}
 
-    keep_only_tags = [
-        classes(
-            'articleheader__headline articleheader__subline articleheader__author articleheader__mediasection articlemain__content'
-        )
-    ]
-    remove_tags = [
-        dict(name=['svg', 'button', 'meta']),
-        classes('articlemain__ad inline-teaser')
-    ]
+    keep_only_tags = [classes('articleheader__headline articleheader__subline articleheader__author articleheader__mediasection articlemain__content')]
+    remove_tags = [dict(name=['svg', 'button', 'meta']), classes('articlemain__ad inline-teaser')]
 
     def parse_index(self):
         d = self.recipe_specific_options.get('issue')
@@ -65,7 +53,7 @@ class szmagazin(BasicNewsRecipe):
 
         ans = []
 
-        for a in soup.findAll('a', attrs={'class':'link teaser__text-link'}):
+        for a in soup.findAll('a', attrs={'class': 'link teaser__text-link'}):
             title = self.tag_to_string(a.h5)
             url = absurl(a['href'])
             desc = self.tag_to_string(a.p)
@@ -84,6 +72,6 @@ class szmagazin(BasicNewsRecipe):
             h2 = bq.find('h2')
             if h2:
                 h2.name = 'h4'
-        for img in soup.findAll('img', attrs={'data-src':True}):
+        for img in soup.findAll('img', attrs={'data-src': True}):
             img['src'] = img['data-src']
         return soup

@@ -2,7 +2,6 @@
 # License: GPL v3 Copyright: 2019, Kovid Goyal <kovid at kovidgoyal.net>
 from __python__ import bound_methods, hash_literals
 
-
 from read_book.globals import annot_id_uuid_map
 
 

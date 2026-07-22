@@ -1,9 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__   = 'GPL v3'
-__copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2012, Kovid Goyal <kovid@kovidgoyal.net>
 
 import os
 import sys
@@ -27,10 +23,12 @@ def ask_cli_question(msg):
 
     if iswindows:
         import msvcrt
+
         ans = msvcrt.getch()
     else:
         import termios
         import tty
+
         old_settings = termios.tcgetattr(sys.stdin.fileno())
         try:
             tty.setraw(sys.stdin.fileno())
@@ -44,15 +42,16 @@ def ask_cli_question(msg):
     return ans == b'y'
 
 
-def mobi_exploder(path, tdir, question=lambda x:True):
+def mobi_exploder(path, tdir, question=lambda x: True):
     from calibre.ebooks.mobi.tweak import BadFormat, explode
+
     try:
         return explode(path, tdir, question=question)
     except BadFormat as e:
         raise Error(as_unicode(e))
 
 
-def zip_exploder(path, tdir, question=lambda x:True):
+def zip_exploder(path, tdir, question=lambda x: True):
     zipextract(path, tdir)
     for f in walk(tdir):
         if f.lower().endswith('.opf'):
@@ -77,9 +76,10 @@ def zip_rebuilder(tdir, path):
                 zf.write(absfn, zfn)
 
 
-def docx_exploder(path, tdir, question=lambda x:True):
+def docx_exploder(path, tdir, question=lambda x: True):
     zipextract(path, tdir)
     from calibre.ebooks.docx.dump import pretty_all_xml_in_dir
+
     pretty_all_xml_in_dir(tdir)
     for f in walk(tdir):
         if os.path.basename(f) == 'document.xml':
@@ -92,6 +92,7 @@ def get_tools(fmt):
 
     if fmt in {'mobi', 'azw', 'azw3'}:
         from calibre.ebooks.mobi.tweak import rebuild
+
         ans = mobi_exploder, rebuild
     elif fmt in {'epub', 'htmlz'}:
         ans = zip_exploder, zip_rebuilder
@@ -159,16 +160,14 @@ def implode(output_dir, ebook_file):
 
 
 def tweak(ebook_file):
-    ''' Command line interface to the Tweak Book tool '''
+    """Command line interface to the Tweak Book tool"""
     fmt = ebook_file.rpartition('.')[-1].lower()
     exploder, rebuilder = get_tools(fmt)
     if exploder is None:
-        prints(f'Cannot tweak {fmt.upper()} files. Supported formats are: EPUB, HTMLZ, AZW3, MOBI'
-                , file=sys.stderr)
+        prints(f'Cannot tweak {fmt.upper()} files. Supported formats are: EPUB, HTMLZ, AZW3, MOBI', file=sys.stderr)
         raise SystemExit(1)
 
-    with TemporaryDirectory('_tweak_'+
-            os.path.basename(ebook_file).rpartition('.')[0]) as tdir:
+    with TemporaryDirectory('_tweak_' + os.path.basename(ebook_file).rpartition('.')[0]) as tdir:
         try:
             opf = exploder(ebook_file, tdir, question=ask_cli_question)
         except WorkerError as e:
@@ -184,8 +183,7 @@ def tweak(ebook_file):
             return
 
         prints('Book extracted to', tdir)
-        prints('Make your tweaks and once you are done,', __appname__,
-                'will rebuild', ebook_file, 'from', tdir)
+        prints('Make your tweaks and once you are done,', __appname__, 'will rebuild', ebook_file, 'from', tdir)
         print()
         proceed = ask_cli_question('Rebuild ' + ebook_file + '?')
 

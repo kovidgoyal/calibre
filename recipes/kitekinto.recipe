@@ -21,4 +21,5 @@ class BasicUserRecipe1498286429(AutomaticNewsRecipe):
         ('V\xe1llalati h\xedrek', 'http://kitekinto.hu/vallalati-hirek/feed/'),
         ('T\u0151zsde', 'http://kitekinto.hu/tozsde/feed/'),
         ('Aut\xf3', 'http://kitekinto.hu/auto/feed/'),
-        ('Kult\xfara', 'http://kitekinto.hu/kultura/feed/'), ]
+        ('Kult\xfara', 'http://kitekinto.hu/kultura/feed/'),
+    ]

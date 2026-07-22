@@ -30,28 +30,28 @@ def create_goto_list(onclick, current_position_data, page_list, show_sub_panel=N
         items.push(create_item(_('Next section'), icon='caret-right', subtitle=after.title, action=onclick.bind(None, after.dest, after.frag)))
     if before:
         items.push(create_item(_('Previous section'), icon='caret-left', subtitle=before.title, action=onclick.bind(None, before.dest, before.frag)))
-    items.push(create_item(_('Book start'), action=onclick.bind(None, def(view): view.goto_doc_boundary(True);)))
-    items.push(create_item(_('Book end'), action=onclick.bind(None, def(view): view.goto_doc_boundary(False);)))
+    items.push(create_item(_('Book start'), action=onclick.bind(None, def (view): view.goto_doc_boundary(True);)))
+    items.push(create_item(_('Book end'), action=onclick.bind(None, def (view): view.goto_doc_boundary(False);)))
 
     def panel_action(name, fallback_fn):
         # Use show_sub_panel when available so the goto panel stays in the
         # stack and closing the sub-panel returns here; otherwise fall back
         # to the regular onclick which closes the overlay first.
         if show_sub_panel:
-            return def(): show_sub_panel(name)
+            return def (): show_sub_panel(name)
         return onclick.bind(None, fallback_fn)
 
     items.push(create_item(_('Metadata'), subtitle=_('Details about this book'),
-        action=panel_action('metadata', def(view): view.overlay.show_metadata();)))
+        action=panel_action('metadata', def (view): view.overlay.show_metadata();)))
     if not runtime.is_standalone_viewer:
-        items.push(create_item(_('Book page in library'), subtitle=_('The page for this book in the calibre library'), action=onclick.bind(None, def(view):
+        items.push(create_item(_('Book page in library'), subtitle=_('The page for this book in the calibre library'), action=onclick.bind(None, def (view):
             view.open_book_page()
         )))
     items.push(create_item(_('Location'), subtitle=location_text,
-        action=panel_action('location', def(view): view.overlay.show_ask_for_location();)))
+        action=panel_action('location', def (view): view.overlay.show_ask_for_location();)))
     if page_list and page_list.length > 0:
         items.push(create_item(_('Page number'), subtitle=_('Typically the page number from a paper edition of this book'),
-            action=panel_action('page_list', def(view): view.overlay.show_page_list(page_list);)))
+            action=panel_action('page_list', def (view): view.overlay.show_page_list(page_list);)))
     for l in landmarks:
         items.push(create_item(l.title, action=onclick.bind(None, l.dest, l.frag)))
     build_list(ans, items)
@@ -100,7 +100,7 @@ def create_page_list_overlay(book, overlay, container):
         container.appendChild(E.div(style='margin: 1em', text))
     search_input = E.div(
         E.div(
-            E.input(type='text', placeholder=_('Enter a page number'), onkeydown=def(ev):
+            E.input(type='text', placeholder=_('Enter a page number'), onkeydown=def (ev):
                     if ev.key is 'Enter':
                         text = ev.target.value
                         if text:
@@ -127,7 +127,7 @@ def create_location_overlay(current_position_data, book, overlay, container):
     calibre_book_url = book?.calibre_book_url
 
     def copy_button(text_to_copy):
-        return create_button(_('Copy'), action=def():
+        return create_button(_('Copy'), action=def ():
                 src = document.querySelector(f'#{container_id} input')
                 orig = src.value
                 src.value = text_to_copy
@@ -195,7 +195,7 @@ def create_location_overlay(current_position_data, book, overlay, container):
         E.div(
             style='display: flex; align-items: baseline; flex-wrap: wrap',
             E.label(_('Go to:'), style='margin-right: 1rem'),
-            E.input(name='newpos', type='text', style='flex-grow: 10; margin-right: 1rem', onkeydown=def(ev):
+            E.input(name='newpos', type='text', style='flex-grow: 10; margin-right: 1rem', onkeydown=def (ev):
                     if ev.key is 'Enter':
                         goto_pos()
             ), E.span(' '),
@@ -206,14 +206,13 @@ def create_location_overlay(current_position_data, book, overlay, container):
         E.div(style='margin: 1rem', _(
             'Note that using a position is not very robust, it is best to use either the location or reference.')))
 
-
     if calibre_book_url:
         if current_cfi:
             calibre_book_url += '?open_at=' + encode_query_component(current_cfi)
         display_and_copy(_('URL for this position:'), calibre_book_url)
     elif not runtime.is_standalone_viewer:
         display_and_copy(_('URL for this position:'), window.top.location.toString())
-    window.setTimeout(def():
+    window.setTimeout(def ():
         container = document.getElementById(container_id)
         if container:
             container.querySelector('[name=newpos]').focus()

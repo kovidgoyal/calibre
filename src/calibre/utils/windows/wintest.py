@@ -1,15 +1,14 @@
 #!/usr/bin/env python
 # License: GPL v3 Copyright: 2019, Kovid Goyal <kovid at kovidgoyal.net>
 
-
 import os
 import unittest
 
 
 class TestWinutil(unittest.TestCase):
-
     def setUp(self):
         from calibre_extensions import winutil
+
         self.winutil = winutil
 
     def tearDown(self):

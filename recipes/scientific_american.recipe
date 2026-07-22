@@ -20,9 +20,7 @@ class ScientificAmerican(BasicNewsRecipe):
     remove_javascript = True
     timefmt = ' [%B %Y]'
     remove_attributes = ['height', 'width']
-    masthead_url = (
-        'https://static.scientificamerican.com/sciam/assets/Image/newsletter/salogo.png'
-    )
+    masthead_url = 'https://static.scientificamerican.com/sciam/assets/Image/newsletter/salogo.png'
     extra_css = '''
         [class^="default_dek-"], [class^="short_dek-"] { font-style:italic; color:#202020; }
         [class^="article_authors-"] {font-size:small; color:#202020; }
@@ -35,13 +33,9 @@ class ScientificAmerican(BasicNewsRecipe):
     needs_subscription = 'optional'
 
     keep_only_tags = [
-        prefixed_classes(
-            'default_hed- default_dek- short_hed- short_dek- article_authors- lead_image_ article__body- bio-'
-        ),
+        prefixed_classes('default_hed- default_dek- short_hed- short_dek- article_authors- lead_image_ article__body- bio-'),
     ]
-    remove_tags = [
-        dict(name=['button', 'svg', 'iframe', 'source'])
-    ]
+    remove_tags = [dict(name=['button', 'svg', 'iframe', 'source'])]
 
     def preprocess_html(self, soup):
         for a in soup.findAll('a', href=lambda h: h and 'getsciam' in h):
@@ -82,13 +76,13 @@ class ScientificAmerican(BasicNewsRecipe):
             'long': (
                 'For example, https://www.scientificamerican.com/issue/sa/2024/07-01/'
                 '\nYou can also download special-editions, physics, health, mind magazines by pasting the URL here.'
-            )
+            ),
         },
         'res': {
             'short': 'For hi-res images, select a resolution from the\nfollowing options: 800, 1000, 1200 or 1500',
             'long': 'This is useful for non e-ink devices, and for a lower file size\nthan the default, use 400 or 300.',
-            'default': '600'
-        }
+            'default': '600',
+        },
     }
 
     def parse_index(self):
@@ -110,11 +104,7 @@ class ScientificAmerican(BasicNewsRecipe):
 
         JSON = script.contents[0].split('JSON.parse(`')[1].replace('\\\\', '\\')
         data = json.JSONDecoder().raw_decode(JSON)[0]
-        issue_info = (
-            data
-            .get('initialData', {})
-            .get('issueData', {})
-        )
+        issue_info = data.get('initialData', {}).get('issueData', {})
         if not issue_info:
             self.abort_recipe_processing('Unable to find issue info')
 
@@ -130,17 +120,15 @@ class ScientificAmerican(BasicNewsRecipe):
                 feed_name = article['column']
                 if feed_name not in feeds:
                     feeds[feed_name] = []
-                feeds[feed_name].append(
-                    {
-                        'title': article['title'],
-                        'url': urljoin(
-                            'https://www.scientificamerican.com/article/',
-                            article['slug'],
-                        ),
-                        'description': article['summary'],
-                        'page_number': int(article['page_number'])
-                    }
-                )
+                feeds[feed_name].append({
+                    'title': article['title'],
+                    'url': urljoin(
+                        'https://www.scientificamerican.com/article/',
+                        article['slug'],
+                    ),
+                    'description': article['summary'],
+                    'page_number': int(article['page_number']),
+                })
         # articles are already sorted by page number within a feed, but feeds are not in order
         sorted_feeds = dict(sorted(feeds.items(), key=lambda x: x[1][0]['page_number']))
         return sorted_feeds.items()

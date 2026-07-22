@@ -2,7 +2,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class AdvancedUserRecipe1271446252(BasicNewsRecipe):
-    title = u'CanardPC'
+    title = 'CanardPC'
     oldest_article = 7
     language = 'fr'
     __author__ = 'zorgluf'
@@ -12,4 +12,4 @@ class AdvancedUserRecipe1271446252(BasicNewsRecipe):
     no_stylesheets = True
     auto_cleanup = True
 
-    feeds = [(u'CanardPC', u'http://www.canardpc.com/feed.php')]
+    feeds = [('CanardPC', 'http://www.canardpc.com/feed.php')]

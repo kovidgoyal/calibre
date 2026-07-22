@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
 
-
 from calibre import prints
 from calibre.utils.localization import _
 
@@ -33,17 +32,12 @@ automatically, every time metadata is changed.
         '--all',
         default=False,
         action='store_true',
-        help=_(
-            'Normally, this command only operates on books that have'
-            ' out of date OPF files. This option makes it operate on all'
-            ' books.'
-        )
+        help=_('Normally, this command only operates on books that have out of date OPF files. This option makes it operate on all books.'),
     )
     return parser
 
 
 class BackupProgress:
-
     def __init__(self):
         self.total = 0
         self.count = 0
@@ -54,13 +48,9 @@ class BackupProgress:
         else:
             self.count += 1
             if ok:
-                prints(
-                    '{:.1f}% {} - {}'.format((self.count * 100) / float(self.total), book_id,
-                                        getattr(mi, 'title', 'Unknown'))
-                )
+                prints('{:.1f}% {} - {}'.format((self.count * 100) / float(self.total), book_id, getattr(mi, 'title', 'Unknown')))
             else:
-                prints(
-                    f'{(self.count * 100) / float(self.total):.1f}% {book_id} failed')
+                prints(f'{(self.count * 100) / float(self.total):.1f}% {book_id} failed')
 
 
 def main(opts, args, dbctx):

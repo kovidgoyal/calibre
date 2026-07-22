@@ -15,12 +15,6 @@ class protagon(BasicNewsRecipe):
     use_embedded_content = False
     remove_empty_feeds = True
 
-    keep_only_tags = [
-        dict(name='h1', attrs={'id': ['title']}),
-        dict(name='div', attrs={'class': ['freetext']})
-    ]
+    keep_only_tags = [dict(name='h1', attrs={'id': ['title']}), dict(name='div', attrs={'class': ['freetext']})]
 
-    feeds = [
-        (u'\u0398\u03AD\u03BC\u03B1\u03C4\u03B1',
-         'http://www.protagon.gr/rss?i=protagon.el.8emata')
-    ]
+    feeds = [('\u0398\u03ad\u03bc\u03b1\u03c4\u03b1', 'http://www.protagon.gr/rss?i=protagon.el.8emata')]

@@ -1,9 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__   = 'GPL v3'
-__copyright__ = '2025, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2025, Kovid Goyal <kovid@kovidgoyal.net>
 
 import copy
 import os
@@ -58,7 +54,6 @@ def icon_to_bytes(icon):
 
 
 class StateTableWidgetItem(QTableWidgetItem):
-
     def __init__(self, txt):
         super().__init__(txt)
         self.setIcon(QIcon.cached_icon('blank.png'))
@@ -80,7 +75,6 @@ class StateTableWidgetItem(QTableWidgetItem):
 
 
 class CategoryTableWidgetItem(QTableWidgetItem):
-
     def __init__(self, lookup_name, category_icons, field_metadata, table):
         super().__init__('')
         self._table = table
@@ -96,7 +90,7 @@ class CategoryTableWidgetItem(QTableWidgetItem):
         if in_library := (self._lookup_name in self._field_metadata):
             txt = f"{self._field_metadata[self._lookup_name]['name']} ({self._lookup_name})"
         else:
-            txt =  f"{atext} ({_('Not in library')})"
+            txt = f"{atext} ({_('Not in library')})"
         super().setText(txt)
         self.setToolTip(txt)
         if in_library:
@@ -142,7 +136,6 @@ class CategoryTableWidgetItem(QTableWidgetItem):
 
 
 class ValueTableWidgetItem(QTableWidgetItem):
-
     def __init__(self, txt, table, all_values):
         self._table = table
         self._is_template = is_template = txt == TEMPLATE_ICON_INDICATOR
@@ -175,7 +168,6 @@ class ValueTableWidgetItem(QTableWidgetItem):
 
 
 class IconFileTableWidgetItem(QTableWidgetItem):
-
     def __init__(self, icon_file, value_text, table):
         super().__init__(icon_file)
         self._new_icon = None
@@ -225,7 +217,6 @@ class IconFileTableWidgetItem(QTableWidgetItem):
 
 
 class IconColumnDelegate(QStyledItemDelegate):
-
     def __init__(self, parent, table, changed_signal):
         super().__init__(parent)
         self._parent = parent
@@ -237,20 +228,35 @@ class IconColumnDelegate(QStyledItemDelegate):
         value_item = self._table.item(row, VALUE_COLUMN)
         icon_item = self._table.item(row, ICON_COLUMN)
         if value_item.is_template:
-            v = {'title': 'Template Rule', 'category': self._table.item(row, CATEGORY_COLUMN).text(),
-                  'value': 'abcd', 'count': str(5), 'avg_rating': str(2.5)}
-            d = TemplateDialog(parent=self.parent(), text=self._table.item(row, ICON_COLUMN).text(),
-                           mi=v, doing_emblem=True, formatter=EvalFormatter, icon_dir='tb_icons/template_icons')
+            v = {
+                'title': 'Template Rule',
+                'category': self._table.item(row, CATEGORY_COLUMN).text(),
+                'value': 'abcd',
+                'count': str(5),
+                'avg_rating': str(2.5),
+            }
+            d = TemplateDialog(
+                parent=self.parent(),
+                text=self._table.item(row, ICON_COLUMN).text(),
+                mi=v,
+                doing_emblem=True,
+                formatter=EvalFormatter,
+                icon_dir='tb_icons/template_icons',
+            )
             if d.exec() == QDialog.DialogCode.Accepted:
                 icon_item.set_text(d.rule[-1])
                 icon_item.is_modified = True
                 self._changed_signal.emit()
             return
 
-        path = choose_files(self.parent(), 'choose_category_icon',
-                    _('Change icon for: %s')%value_item.text(), filters=[
-                    ('Images', ['png', 'gif', 'jpg', 'jpeg'])],
-                all_files=False, select_only_single_file=True)
+        path = choose_files(
+            self.parent(),
+            'choose_category_icon',
+            _('Change icon for: %s') % value_item.text(),
+            filters=[('Images', ['png', 'gif', 'jpg', 'jpeg'])],
+            all_files=False,
+            select_only_single_file=True,
+        )
         if not path:
             return
         icon_item.new_icon = QIcon(path[0])
@@ -258,14 +264,12 @@ class IconColumnDelegate(QStyledItemDelegate):
             category = self._table.item(row, CATEGORY_COLUMN).lookup_name
             txt = value_item.text()
             db = self._parent.gui.current_db.new_api
-            icon_item.set_text(f'icon_{sanitize_file_name(category)}@@'
-                               f'{sanitize_file_name(txt)}_{db.get_item_id(category, txt)}.png')
+            icon_item.set_text(f'icon_{sanitize_file_name(category)}@@{sanitize_file_name(txt)}_{db.get_item_id(category, txt)}.png')
         self._changed_signal.emit()
         self._parent.check_button_state(icon_item)
 
 
 class ChildrenTableWidgetItem(QTableWidgetItem):
-
     def __init__(self, value, item_value, table):
         super().__init__('')
         self._is_modified = False
@@ -317,7 +321,6 @@ class ChildrenTableWidgetItem(QTableWidgetItem):
 
 
 class ChildrenColumnDelegate(QStyledItemDelegate):
-
     def __init__(self, parent, table, changed_signal):
         super().__init__(parent)
         self._parent = parent
@@ -329,7 +332,10 @@ class ChildrenColumnDelegate(QStyledItemDelegate):
         if item.is_template:
             return None
         editor = DelegateCB(parent)
-        items = [_('Yes'), _('No'), ]
+        items = [
+            _('Yes'),
+            _('No'),
+        ]
         icons = ['ok.png', 'list_remove.png']
         self.longest_text = ''
         for icon, text in zip(icons, items):
@@ -337,7 +343,7 @@ class ChildrenColumnDelegate(QStyledItemDelegate):
         return editor
 
     def setModelData(self, editor, model, index):
-        val = {0:True, 1:False}[editor.currentIndex()]
+        val = {0: True, 1: False}[editor.currentIndex()]
         item = self._table.item(index.row(), index.column())
         item.set_value(val)
         self._parent.check_button_state(item)
@@ -351,7 +357,6 @@ class ChildrenColumnDelegate(QStyledItemDelegate):
 
 
 class AddItemDialog(QDialog):
-
     def __init__(self, parent):
         super().__init__(parent)
         self._owner = parent
@@ -429,16 +434,18 @@ class AddItemDialog(QDialog):
         else:
             category = self.category_box.currentText()
             item = self.value_box.currentText()
-            self.icon_box.setText(f'icon_{sanitize_file_name(category)}@@'
-                                  f'{sanitize_file_name(item)}_'
-                                  f'{self._owner.db.get_item_id(category, item)}.png')
+            self.icon_box.setText(f'icon_{sanitize_file_name(category)}@@{sanitize_file_name(item)}_{self._owner.db.get_item_id(category, item)}.png')
             self.icon_chooser.setEnabled(True)
 
     def choose_icon(self):
-        path = choose_files(self.parent, 'choose_category_icon',
-                    _('Change icon for: %s')%self.value_box.currentText(), filters=[
-                    ('Images', ['png', 'gif', 'jpg', 'jpeg'])],
-                all_files=False, select_only_single_file=True)
+        path = choose_files(
+            self.parent,
+            'choose_category_icon',
+            _('Change icon for: %s') % self.value_box.currentText(),
+            filters=[('Images', ['png', 'gif', 'jpg', 'jpeg'])],
+            all_files=False,
+            select_only_single_file=True,
+        )
         if not path:
             self.icon = None
             return
@@ -456,7 +463,6 @@ class AddItemDialog(QDialog):
 
 
 class TbIconRulesTab(LazyConfigWidgetBase, Ui_Form):
-
     def genesis(self, gui):
         self.gui = gui
         self.db = gui.current_db.new_api
@@ -468,8 +474,15 @@ class TbIconRulesTab(LazyConfigWidgetBase, Ui_Form):
 
         self.rules_table.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectItems)
         self.rules_table.setColumnCount(HEADER_SECTION_COUNT)
-        self.rules_table.setHorizontalHeaderLabels(('', _('Category'), _('Value'), '',
-                                                    _('Icon file or template'), '', _('For children')))
+        self.rules_table.setHorizontalHeaderLabels((
+            '',
+            _('Category'),
+            _('Value'),
+            '',
+            _('Icon file or template'),
+            '',
+            _('For children'),
+        ))
         self.rules_table.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self.rules_table.customContextMenuRequested.connect(self.show_context_menu)
         self.rules_table.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
@@ -492,11 +505,15 @@ class TbIconRulesTab(LazyConfigWidgetBase, Ui_Form):
             elif i == CATEGORY_COLUMN:
                 item.setToolTip(_('The name of the category. Select a cell in this column to delete a row.'))
             elif i == VALUE_COLUMN:
-                item.setToolTip('<p>' +
-                                 _('The value in the category the rule is applied to. '
-                                 "If the value doesn't exist in the library then an "
-                                 "error icon is shown, in which case you can edit the "
-                                 "cell to pick the correct value."))
+                item.setToolTip(
+                    '<p>'
+                    + _(
+                        'The value in the category the rule is applied to. '
+                        "If the value doesn't exist in the library then an "
+                        "error icon is shown, in which case you can edit the "
+                        "cell to pick the correct value."
+                    )
+                )
             elif i == ICON_MODIFIED_COLUMN:
                 item.setIcon(QIcon.cached_icon('modified.png'))
                 item.setToolTip(_('This icon shows in the row if the icon or template is modified.'))
@@ -532,10 +549,8 @@ class TbIconRulesTab(LazyConfigWidgetBase, Ui_Form):
             pass
 
     def lazy_initialize(self):
-        self.rules_table.setItemDelegateForColumn(ICON_COLUMN,
-                                  IconColumnDelegate(self, self.rules_table, self.changed_signal))
-        self.rules_table.setItemDelegateForColumn(FOR_CHILDREN_COLUMN,
-                                  ChildrenColumnDelegate(self, self.rules_table, self.changed_signal))
+        self.rules_table.setItemDelegateForColumn(ICON_COLUMN, IconColumnDelegate(self, self.rules_table, self.changed_signal))
+        self.rules_table.setItemDelegateForColumn(FOR_CHILDREN_COLUMN, ChildrenColumnDelegate(self, self.rules_table, self.changed_signal))
 
         self.populate_content()
         self.section_order = [0, 1, 1, 0, 0, 0, 0]
@@ -578,8 +593,7 @@ class TbIconRulesTab(LazyConfigWidgetBase, Ui_Form):
                 all_values[category] = set()
             with block_signals(self.rules_table):
                 for item_value in vdict:
-                    if (only_current_library and item_value != TEMPLATE_ICON_INDICATOR and
-                            item_value not in all_values[category]):
+                    if only_current_library and item_value != TEMPLATE_ICON_INDICATOR and item_value not in all_values[category]:
                         continue
                     self.add_table_row(row, category, item_value, vdict[item_value][0], vdict[item_value][1])
                     row += 1
@@ -589,8 +603,7 @@ class TbIconRulesTab(LazyConfigWidgetBase, Ui_Form):
         t.setRowCount(row + 1)
 
         t.setItem(row, DELETED_COLUMN, StateTableWidgetItem(''))
-        t.setItem(row, CATEGORY_COLUMN,
-                  CategoryTableWidgetItem(category, self.category_icons, self.field_metadata, t))
+        t.setItem(row, CATEGORY_COLUMN, CategoryTableWidgetItem(category, self.category_icons, self.field_metadata, t))
         t.setItem(row, ICON_MODIFIED_COLUMN, StateTableWidgetItem(''))
         t.setItem(row, VALUE_COLUMN, ValueTableWidgetItem(item_value, t, self.all_values[category]))
         t.setItem(row, ICON_COLUMN, IconFileTableWidgetItem(icon_name, item_value, t))
@@ -777,7 +790,7 @@ class TbIconRulesTab(LazyConfigWidgetBase, Ui_Form):
     def resizeEvent(self, a0):
         super().resizeEvent(a0)
         if self.table_column_widths is not None:
-            for c,w in enumerate(self.table_column_widths):
+            for c, w in enumerate(self.table_column_widths):
                 self.rules_table.setColumnWidth(c, w)
         else:
             # Calculate a reasonable initial sizing. The vertical scroll bar
@@ -787,8 +800,8 @@ class TbIconRulesTab(LazyConfigWidgetBase, Ui_Form):
             # column widths will be remembered.
             vh = self.rules_table.verticalHeader()
             assert vh is not None
-            w = self.tb_icon_rules_groupbox.width() - (4*25) - 60 - vh.width()
-            w //= (self.rules_table.columnCount() - 3)
+            w = self.tb_icon_rules_groupbox.width() - (4 * 25) - 60 - vh.width()
+            w //= self.rules_table.columnCount() - 3
             for c in range(self.rules_table.columnCount()):
                 if c in (DELETED_COLUMN, ICON_MODIFIED_COLUMN, FOR_CHILDREN_MODIFIED_COLUMN):
                     self.rules_table.setColumnWidth(c, 20)

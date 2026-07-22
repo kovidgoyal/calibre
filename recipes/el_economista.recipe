@@ -14,7 +14,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class ElConfidencial(BasicNewsRecipe):
-    title = u'elEconomista.es'
+    title = 'elEconomista.es'
     oldest_article = 7.0
     __author__ = 'hmeza'
     description = 'elEconomista.es'
@@ -26,9 +26,9 @@ class ElConfidencial(BasicNewsRecipe):
     remove_javascript = True
 
     feeds = [
-        (u'elEconomista economía', u'https://www.eleconomista.es/rss/rss-economia.php'),
-        (u'elEconomista gestion', u'https://www.eleconomista.es/rss/rss-gestion.php'),
-        (u'elEconomista tecnología', u'https://www.eleconomista.es/rss/rss-category.php?category=tecnologia'),
-        (u'Selección elEconomista', u'https://www.eleconomista.es/rss/rss-seleccion-ee.php'),
-        (u'Mercados', u'https://www.eleconomista.es/rss/rss-mercados.php'),
+        ('elEconomista economía', 'https://www.eleconomista.es/rss/rss-economia.php'),
+        ('elEconomista gestion', 'https://www.eleconomista.es/rss/rss-gestion.php'),
+        ('elEconomista tecnología', 'https://www.eleconomista.es/rss/rss-category.php?category=tecnologia'),
+        ('Selección elEconomista', 'https://www.eleconomista.es/rss/rss-seleccion-ee.php'),
+        ('Mercados', 'https://www.eleconomista.es/rss/rss-mercados.php'),
     ]

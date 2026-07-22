@@ -36,7 +36,7 @@ class InstapaperRecipe(BasicNewsRecipe):
         'days': {
             'short': 'Oldest article to download from this news source. In days ',
             'long': 'For example, 0.5, gives you articles from the past 12 hours',
-            'default': str(oldest_article)
+            'default': str(oldest_article),
         }
     }
 
@@ -95,11 +95,9 @@ class InstapaperRecipe(BasicNewsRecipe):
             articles = []
             soup = self.index_to_soup(feedurl)
             for item in soup.findAll('a', attrs={'class': 'article_title'}):
-                articles.append(
-                    {
-                        'url': 'https://www.instapaper.com' + item['href'],
-                        'title': item['title'],
-                    }
-                )
+                articles.append({
+                    'url': 'https://www.instapaper.com' + item['href'],
+                    'title': item['title'],
+                })
             totalfeeds.append((feedtitle, articles))
         return totalfeeds

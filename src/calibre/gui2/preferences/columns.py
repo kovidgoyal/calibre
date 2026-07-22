@@ -1,9 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__   = 'GPL v3'
-__copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2010, Kovid Goyal <kovid@kovidgoyal.net>
 
 import copy
 import sys
@@ -20,7 +16,6 @@ from calibre.utils.localization import _
 
 
 class ConfigWidget(ConfigWidgetBase, Ui_Form):
-
     ORDER_COLUMN = 0
     HEADER_COLUMN = 1
     KEY_COLUMN = 2
@@ -28,8 +23,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
     DESCRIPTION_COLUMN = 4
     STATUS_COLUMN = 5
 
-    column_headings = (_('Order'), _('Column header'), _('Lookup name'),
-                       _('Type'), _('Description'), _('Status'))
+    column_headings = (_('Order'), _('Column header'), _('Lookup name'), _('Type'), _('Description'), _('Status'))
 
     restart_critical = True
 
@@ -41,8 +35,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         for k, cc in self.custcols.items():
             cc['original_key'] = k
         # Using max() in this way requires python 3.4+
-        self.initial_created_count = max((x['colnum'] for x in self.custcols.values()),
-                                         default=0) + 1
+        self.initial_created_count = max((x['colnum'] for x in self.custcols.values()), default=0) + 1
         self.created_count = self.initial_created_count
 
         self.column_up.clicked.connect(partial(self.up_column, use_kbd_modifiers=True))
@@ -55,7 +48,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.edit_custcol_button.clicked.connect(self.edit_custcol)
         self.opt_columns.currentItemChanged.connect(self.set_up_down_enabled)
         for signal in ('Activated', 'Changed', 'DoubleClicked', 'Clicked'):
-            signal = getattr(self.opt_columns, 'item'+signal)
+            signal = getattr(self.opt_columns, 'item' + signal)
             signal.connect(self.columns_changed)
         self.show_all_button.clicked.connect(self.show_all)
         self.hide_all_button.clicked.connect(self.hide_all)
@@ -99,7 +92,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.column_positions = gprefs.get('custcol-prefs-column_order', [0, 1, 2, 3, 4, 5])
         header = self.opt_columns.horizontalHeader()
         assert header is not None
-        for dvi,li in enumerate(self.column_positions):
+        for dvi, li in enumerate(self.column_positions):
             cvi = header.visualIndex(li)
             if cvi != dvi:
                 header.moveSection(cvi, dvi)
@@ -113,10 +106,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         vheader.hide()
 
         self.opt_columns.setRowCount(len(colmap))
-        self.column_desc = {
-            CreateCustomColumn.column_types[x]['datatype']: CreateCustomColumn.column_types[x]['text']
-                for x in CreateCustomColumn.column_types
-        }
+        self.column_desc = {CreateCustomColumn.column_types[x]['datatype']: CreateCustomColumn.column_types[x]['text'] for x in CreateCustomColumn.column_types}
 
         for row, key in enumerate(colmap):
             self.setup_row(row, key, row)
@@ -268,8 +258,10 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         if key == 'pages':
             desc = _('An estimate of the number of pages in the book. Useful only to compare one book against another.')
         elif key == 'last_modified':
-            desc = _('The timestamp when any metadata associated with this book is modified.'
-                     ' For example if a tag has its case changed, all books with that tag will be modified.')
+            desc = _(
+                'The timestamp when any metadata associated with this book is modified.'
+                ' For example if a tag has its case changed, all books with that tag will be modified.'
+            )
         item = QTableWidgetItem(desc)
         item.setToolTip(desc)
         item.setFlags(flags)
@@ -309,13 +301,13 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             if row > 0:
                 self.opt_columns.setSortingEnabled(False)
                 for i in range(self.opt_columns.columnCount()):
-                    lower = self.opt_columns.takeItem(row-1, i)
+                    lower = self.opt_columns.takeItem(row - 1, i)
                     upper = self.opt_columns.takeItem(row, i)
                     self.opt_columns.setItem(row, i, lower)
-                    self.opt_columns.setItem(row-1, i, upper)
-                self.recreate_row(row-1)
+                    self.opt_columns.setItem(row - 1, i, upper)
+                self.recreate_row(row - 1)
                 self.recreate_row(row)
-                self.opt_columns.setCurrentCell(row-1, 1)
+                self.opt_columns.setCurrentCell(row - 1, 1)
                 self.changed_signal.emit()
                 self.opt_columns.setSortingEnabled(True)
 
@@ -323,16 +315,16 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         count = get_move_count(self.opt_columns.rowCount()) if use_kbd_modifiers else 1
         for _x in range(count):
             row = self.opt_columns.currentRow()
-            if row < self.opt_columns.rowCount()-1:
+            if row < self.opt_columns.rowCount() - 1:
                 self.opt_columns.setSortingEnabled(False)
                 for i in range(self.opt_columns.columnCount()):
                     lower = self.opt_columns.takeItem(row, i)
-                    upper = self.opt_columns.takeItem(row+1, i)
-                    self.opt_columns.setItem(row+1, i, lower)
+                    upper = self.opt_columns.takeItem(row + 1, i)
+                    self.opt_columns.setItem(row + 1, i, lower)
                     self.opt_columns.setItem(row, i, upper)
-                self.recreate_row(row+1)
+                self.recreate_row(row + 1)
                 self.recreate_row(row)
-                self.opt_columns.setCurrentCell(row+1, 1)
+                self.opt_columns.setCurrentCell(row + 1, 1)
                 self.changed_signal.emit()
                 self.opt_columns.setSortingEnabled(True)
 
@@ -346,17 +338,18 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
     def del_custcol(self):
         row = self.opt_columns.currentRow()
         if row < 0:
-            return error_dialog(self, '', _('You must select a column to delete it'),
-                    show=True)
+            return error_dialog(self, '', _('You must select a column to delete it'), show=True)
         order_item = self.opt_columns.item(row, self.ORDER_COLUMN)
         assert order_item is not None
         key = str(order_item.data(Qt.ItemDataRole.UserRole) or '')
         if key not in self.custcols:
-            return error_dialog(self, '',
-                    _('The selected column is not a custom column'), show=True)
-        if not question_dialog(self, _('Are you sure?'),
-            _('Do you really want to delete column %s and all its data?') %
-            self.custcols[key]['name'], show_copy_button=False):
+            return error_dialog(self, '', _('The selected column is not a custom column'), show=True)
+        if not question_dialog(
+            self,
+            _('Are you sure?'),
+            _('Do you really want to delete column %s and all its data?') % self.custcols[key]['name'],
+            show_copy_button=False,
+        ):
             return
         if self.is_new_custom_column(self.custcols[key]):
             del self.custcols[key]  # A newly-added column was deleted
@@ -405,20 +398,19 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             assert edit_order_item is not None
             key = str(edit_order_item.data(Qt.ItemDataRole.UserRole))
             if key not in self.custcols:
-                return error_dialog(self, '',
-                            _('The selected column is not a user-defined column'),
-                            show=True)
+                return error_dialog(self, '', _('The selected column is not a user-defined column'), show=True)
             cc = self.custcols[key]
             if '*deleted' in cc:
-                if question_dialog(self, _('Undelete the column?'),
-                           _('The column is to be deleted. Do you want to undelete it?'),
-                           show_copy_button=False):
+                if question_dialog(
+                    self,
+                    _('Undelete the column?'),
+                    _('The column is to be deleted. Do you want to undelete it?'),
+                    show_copy_button=False,
+                ):
                     cc.pop('*deleted', None)
                     self.setup_row(row, key, self.column_order_val(row))
                 return
-            CreateCustomColumn(self.gui, self,
-                               self.label_to_lookup_name(self.custcols[key]['label']),
-                               model.orig_headers)
+            CreateCustomColumn(self.gui, self, self.label_to_lookup_name(self.custcols[key]['label']), model.orig_headers)
             new_key = self.cc_column_key
             if new_key is None:
                 return
@@ -433,6 +425,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             self.changed_signal.emit()
         except Exception:
             import traceback
+
             traceback.print_exc()
 
     def apply_custom_column_changes(self):
@@ -460,10 +453,11 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
         def col_pos(x):
             return config_cols.index(x) if x in config_cols else sys.maxsize
+
         positions = {}
         for i, col in enumerate(sorted(model.column_map, key=col_pos)):
             positions[col] = i
-        state = {'hidden_columns': hidden_cols, 'column_positions':positions}
+        state = {'hidden_columns': hidden_cols, 'column_positions': positions}
         self.gui.library_view.apply_state(state)
         self.gui.library_view.save_state()
 
@@ -473,16 +467,17 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                 db.delete_custom_column(label=cc['label'])
                 must_restart = True
             elif '*edited' in cc:
-                db.set_custom_column_metadata(cc['colnum'], name=cc['name'],
-                                              label=cc['label'],
-                                              display=cc['display'],
-                                              notify=False)
+                db.set_custom_column_metadata(cc['colnum'], name=cc['name'], label=cc['label'], display=cc['display'], notify=False)
                 if '*must_restart' in cc:
                     must_restart = True
             elif self.is_new_custom_column(cc):
-                db.create_custom_column(label=cc['label'], name=cc['name'],
-                                        datatype=cc['datatype'], is_multiple=cc['is_multiple'],
-                                        display=cc['display'])
+                db.create_custom_column(
+                    label=cc['label'],
+                    name=cc['name'],
+                    datatype=cc['datatype'],
+                    is_multiple=cc['is_multiple'],
+                    display=cc['display'],
+                )
                 must_restart = True
         return must_restart
 

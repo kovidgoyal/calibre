@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
@@ -15,7 +15,6 @@ from setup import Command, build_cache_dir, dump_json, edit_file, iswindows
 
 
 class Message:
-
     def __init__(self, filename, lineno, msg):
         self.filename, self.lineno, self.msg = filename, lineno, msg
 
@@ -39,18 +38,21 @@ def checkable_python_files(SRC):
 
 
 class Check(Command):
-
     description = 'Check for errors in the calibre source code'
+    require_venv = True
 
     CACHE = 'check.json'
 
     def add_options(self, parser):
-        parser.add_option('--fix', '--auto-fix', default=False, action='store_true',
-                help='Try to automatically fix some of the smallest errors instead of opening an editor for bad files.')
-        parser.add_option('-f', '--file', dest='files', type='string', action='append',
-                help='Specific file to be check. Can be repeat to check severals.')
-        parser.add_option('--no-editor', default=False, action='store_true',
-                help="Don't open the editor when a bad file is found.")
+        parser.add_option(
+            '--fix',
+            '--auto-fix',
+            default=False,
+            action='store_true',
+            help='Try to automatically fix some of the smallest errors instead of opening an editor for bad files.',
+        )
+        parser.add_option('-f', '--file', dest='files', type='string', action='append', help='Specific file to be check. Can be repeat to check severals.')
+        parser.add_option('--no-editor', default=False, action='store_true', help="Don't open the editor when a bad file is found.")
 
     def get_files(self):
         yield from checkable_python_files(self.SRC)
@@ -86,11 +88,12 @@ class Check(Command):
         dump_json(cache, self.cache_file)
 
     def _ruff_executable(self):
-        ruff = self.j(self.d(self.SRC), '.venv', 'bin', 'ruff')
+        ruff = self.j(self.PROJECT_ROOT, '.venv/bin/ruff')
         if iswindows:
             ruff += '.exe'
         if not os.path.exists(ruff):
             import shutil
+
             ruff = shutil.which('ruff') or 'ruff'
         return ruff
 
@@ -99,9 +102,9 @@ class Check(Command):
         if ext in {'.py', '.pyi', '.recipe'}:
             ruff = self._ruff_executable()
             if self.auto_fix:
-                p = subprocess.Popen([ruff, 'check', '-q', '--fix', f])
+                p = subprocess.Popen([ruff, 'check', '-q', '--fix', f], cwd=self.PROJECT_ROOT)
             else:
-                p = subprocess.Popen([ruff, 'check', '-q', f])
+                p = subprocess.Popen([ruff, 'check', '-q', f], cwd=self.PROJECT_ROOT)
             return p.wait() != 0
         if ext == '.pyj':
             p = subprocess.Popen(['rapydscript', 'lint', f])
@@ -164,13 +167,15 @@ class Check(Command):
                 for batch in chunks:
                     p = subprocess.run(
                         ruff_cmd + batch,
-                        capture_output=True, text=True,
+                        capture_output=True,
+                        text=True,
+                        cwd=self.PROJECT_ROOT,
                     )
                     if p.returncode != 0:
                         try:
                             diagnostics = json.loads(p.stdout)
                             bad_python_files.update(d['filename'] for d in diagnostics)
-                        except (json.JSONDecodeError, KeyError):
+                        except json.JSONDecodeError, KeyError:
                             bad_python_files.update(batch)
             for f in python_files:
                 if f not in bad_python_files:
@@ -223,7 +228,6 @@ class Check(Command):
 
 
 class UpgradeSourceCode(Command):
-
     description = 'Upgrade python source code'
 
     def run(self, opts):

@@ -21,17 +21,18 @@ from . import open_for_read, open_for_write
 
 
 class Info:
-    '''
+    """
     Make tags for document-information
-    '''
+    """
 
-    def __init__(self,
-            in_file,
-            bug_handler,
-            copy=None,
-            run_level=1,
-            ):
-        '''
+    def __init__(
+        self,
+        in_file,
+        bug_handler,
+        copy=None,
+        run_level=1,
+    ):
+        """
         Required:
             'file'--file to parse
         Optional:
@@ -40,7 +41,7 @@ class Info:
             directory from which the script is run.)
         Returns:
             nothing
-        '''
+        """
         self.__file = in_file
         self.__bug_handler = bug_handler
         self.__copy = copy
@@ -48,67 +49,65 @@ class Info:
         self.__write_to = better_mktemp()
 
     def __initiate_values(self):
-        '''
+        """
         Initiate all values.
-        '''
+        """
         self.__text_string = ''
         self.__state = 'before_info_table'
         self.rmspace = re.compile(r'\s+')
         self.__state_dict = {
-        'before_info_table' : self.__before_info_table_func,
-        'after_info_table'  : self.__after_info_table_func,
-        'in_info_table'     : self.__in_info_table_func,
-        'collect_text'      : self.__collect_text_func,
-        'collect_tokens'    : self.__collect_tokens_func,
+            'before_info_table': self.__before_info_table_func,
+            'after_info_table': self.__after_info_table_func,
+            'in_info_table': self.__in_info_table_func,
+            'collect_text': self.__collect_text_func,
+            'collect_tokens': self.__collect_tokens_func,
         }
         self.__info_table_dict = {
-        'cw<di<title_____'  : (self.__found_tag_with_text_func, 'title'),
-        'cw<di<author____'  : (self.__found_tag_with_text_func, 'author'),
-        'cw<di<operator__'  : (self.__found_tag_with_text_func, 'operator'),
-        'cw<di<manager___'  : (self.__found_tag_with_text_func, 'manager'),
-        'cw<di<company___'  : (self.__found_tag_with_text_func, 'company'),
-        'cw<di<keywords__'  : (self.__found_tag_with_text_func, 'keywords'),
-        'cw<di<category__'  : (self.__found_tag_with_text_func, 'category'),
-        'cw<di<doc-notes_'  : (self.__found_tag_with_text_func, 'doc-notes'),
-        'cw<di<subject___'  : (self.__found_tag_with_text_func, 'subject'),
-        'cw<di<linkbase__'  : (self.__found_tag_with_text_func, 'hyperlink-base'),
-
-        'cw<di<create-tim'  : (self.__found_tag_with_tokens_func, 'creation-time'),
-        'cw<di<revis-time'  : (self.__found_tag_with_tokens_func, 'revision-time'),
-        'cw<di<print-time'  : (self.__found_tag_with_tokens_func, 'printing-time'),
-        'cw<di<backuptime'  : (self.__found_tag_with_tokens_func, 'backup-time'),
-
-        'cw<di<num-of-wor'  : (self.__single_field_func, 'number-of-words'),
-        'cw<di<num-of-chr'  : (self.__single_field_func, 'number-of-characters'),
-        'cw<di<numofchrws'  : (self.__single_field_func, 'number-of-characters-without-space'),
-        'cw<di<num-of-pag'  : (self.__single_field_func, 'number-of-pages'),
-        'cw<di<version___'  : (self.__single_field_func, 'version'),
-        'cw<di<edit-time_'  : (self.__single_field_func, 'editing-time'),
-        'cw<di<intern-ver'  : (self.__single_field_func, 'internal-version-number'),
-        'cw<di<internalID'  : (self.__single_field_func, 'internal-id-number'),
+            'cw<di<title_____': (self.__found_tag_with_text_func, 'title'),
+            'cw<di<author____': (self.__found_tag_with_text_func, 'author'),
+            'cw<di<operator__': (self.__found_tag_with_text_func, 'operator'),
+            'cw<di<manager___': (self.__found_tag_with_text_func, 'manager'),
+            'cw<di<company___': (self.__found_tag_with_text_func, 'company'),
+            'cw<di<keywords__': (self.__found_tag_with_text_func, 'keywords'),
+            'cw<di<category__': (self.__found_tag_with_text_func, 'category'),
+            'cw<di<doc-notes_': (self.__found_tag_with_text_func, 'doc-notes'),
+            'cw<di<subject___': (self.__found_tag_with_text_func, 'subject'),
+            'cw<di<linkbase__': (self.__found_tag_with_text_func, 'hyperlink-base'),
+            'cw<di<create-tim': (self.__found_tag_with_tokens_func, 'creation-time'),
+            'cw<di<revis-time': (self.__found_tag_with_tokens_func, 'revision-time'),
+            'cw<di<print-time': (self.__found_tag_with_tokens_func, 'printing-time'),
+            'cw<di<backuptime': (self.__found_tag_with_tokens_func, 'backup-time'),
+            'cw<di<num-of-wor': (self.__single_field_func, 'number-of-words'),
+            'cw<di<num-of-chr': (self.__single_field_func, 'number-of-characters'),
+            'cw<di<numofchrws': (self.__single_field_func, 'number-of-characters-without-space'),
+            'cw<di<num-of-pag': (self.__single_field_func, 'number-of-pages'),
+            'cw<di<version___': (self.__single_field_func, 'version'),
+            'cw<di<edit-time_': (self.__single_field_func, 'editing-time'),
+            'cw<di<intern-ver': (self.__single_field_func, 'internal-version-number'),
+            'cw<di<internalID': (self.__single_field_func, 'internal-id-number'),
         }
         self.__token_dict = {
-        'year______': 'year',
-        'month_____': 'month',
-        'day_______': 'day',
-        'minute____': 'minute',
-        'second____': 'second',
-        'revis-time': 'revision-time',
-        'create-tim': 'creation-time',
-        'edit-time_': 'editing-time',
-        'print-time': 'printing-time',
-        'backuptime': 'backup-time',
-        'num-of-wor': 'number-of-words',
-        'num-of-chr': 'number-of-characters',
-        'numofchrws': 'number-of-characters-without-space',
-        'num-of-pag': 'number-of-pages',
-        'version___': 'version',
-        'intern-ver': 'internal-version-number',
-        'internalID': 'internal-id-number',
+            'year______': 'year',
+            'month_____': 'month',
+            'day_______': 'day',
+            'minute____': 'minute',
+            'second____': 'second',
+            'revis-time': 'revision-time',
+            'create-tim': 'creation-time',
+            'edit-time_': 'editing-time',
+            'print-time': 'printing-time',
+            'backuptime': 'backup-time',
+            'num-of-wor': 'number-of-words',
+            'num-of-chr': 'number-of-characters',
+            'numofchrws': 'number-of-characters-without-space',
+            'num-of-pag': 'number-of-pages',
+            'version___': 'version',
+            'intern-ver': 'internal-version-number',
+            'internalID': 'internal-id-number',
         }
 
     def __before_info_table_func(self, line):
-        '''
+        """
         Required:
             line -- the line to parse
         Returns:
@@ -116,13 +115,13 @@ class Info:
         Logic:
             Check for the beginning of the information table. When found, set
             the state to the information table. Always write the line.
-        '''
+        """
         if self.__token_info == 'mi<mk<doc-in-beg':
             self.__state = 'in_info_table'
         self.__write_obj.write(line)
 
     def __in_info_table_func(self, line):
-        '''
+        """
         Requires:
             line -- line to parse
         Returns:
@@ -132,7 +131,7 @@ class Info:
             token has a special value in the info table dictionary. If it
             does, execute that function.
             Otherwise, output the line to the file.
-        '''
+        """
         if self.__token_info == 'mi<mk<doc-in-end':
             self.__state = 'after_info_table'
         else:
@@ -143,7 +142,7 @@ class Info:
                 self.__write_obj.write(line)
 
     def __found_tag_with_text_func(self, line, tag):
-        '''
+        """
         Requires:
             line -- line to parse
             tag --what kind of line
@@ -153,12 +152,12 @@ class Info:
             This function marks the beginning of information fields that have
             text that must be collected.  Set the type of information field
             with the tag option. Set the state to collecting text
-        '''
+        """
         self.__tag = tag
         self.__state = 'collect_text'
 
     def __collect_text_func(self, line):
-        '''
+        """
         Requires:
             line -- line to parse
         Returns:
@@ -167,22 +166,18 @@ class Info:
             If the end of the information field is found, write the text
             string to the file.
             Otherwise, if the line contains text, add it to the text string.
-        '''
+        """
         if self.__token_info == 'mi<mk<docinf-end':
             self.__state = 'in_info_table'
             # Don't print empty tags
-            if len(self.rmspace.sub('',self.__text_string)):
-                self.__write_obj.write(
-                    f'mi<tg<open______<{self.__tag}\n'
-                    f'tx<nu<__________<{self.__text_string}\n'
-                    f'mi<tg<close_____<{self.__tag}\n'
-                )
+            if len(self.rmspace.sub('', self.__text_string)):
+                self.__write_obj.write(f'mi<tg<open______<{self.__tag}\ntx<nu<__________<{self.__text_string}\nmi<tg<close_____<{self.__tag}\n')
             self.__text_string = ''
         elif line[0:2] == 'tx':
             self.__text_string += line[17:-1]
 
     def __found_tag_with_tokens_func(self, line, tag):
-        '''
+        """
         Requires:
             line -- line to parse
             tag -- type of field
@@ -193,13 +188,13 @@ class Info:
             that must be parsed as attributes for the element.
             Set the state to collect tokesn, and set the text string to
             start an empty element with attributes.
-        '''
+        """
         self.__state = 'collect_tokens'
         self.__text_string = f'mi<tg<empty-att_<{tag}'
         # mi<tg<empty-att_<page-definition<margin>33\n
 
     def __collect_tokens_func(self, line):
-        '''
+        """
         Requires:
             line -- line to parse
         Returns:
@@ -217,13 +212,11 @@ class Info:
             dictionary, print out an error message. Otherwise add the value
             to the text string.
             (num-of-wor => number-of-words)
-        '''
+        """
         # cw<di<year______<nu<2003
         if self.__token_info == 'mi<mk<docinf-end':
             self.__state = 'in_info_table'
-            self.__write_obj.write(
-            f'{self.__text_string}\n'
-            )
+            self.__write_obj.write(f'{self.__text_string}\n')
             self.__text_string = ''
         else:
             att = line[6:16]
@@ -238,12 +231,10 @@ class Info:
 
     def __single_field_func(self, line, tag):
         value = line[20:-1]
-        self.__write_obj.write(
-        f'mi<tg<empty-att_<{tag}<{tag}>{value}\n'
-        )
+        self.__write_obj.write(f'mi<tg<empty-att_<{tag}<{tag}>{value}\n')
 
     def __after_info_table_func(self, line):
-        '''
+        """
         Requires:
             line --line to write to file
         Returns:
@@ -251,11 +242,11 @@ class Info:
         Logic:
             After the end of the information table, simple write the line to
             the file.
-        '''
+        """
         self.__write_obj.write(line)
 
     def fix_info(self):
-        '''
+        """
         Requires:
             nothing
         Returns:
@@ -269,7 +260,7 @@ class Info:
             style table, look for lines with style info, and substitute the
             number with the name of the style.  If the state if after the
             information table, simply write the line to the output file.
-        '''
+        """
         self.__initiate_values()
         with open_for_read(self.__file) as read_obj:
             with open_for_write(self.__write_to) as self.__write_obj:

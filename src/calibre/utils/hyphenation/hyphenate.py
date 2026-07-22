@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # License: GPL v3 Copyright: 2019, Kovid Goyal <kovid at kovidgoyal.net>
 
-
 import os
 from functools import lru_cache
 
@@ -17,6 +16,7 @@ def dictionary_for_locale(locale):
     name = dictionary_name_for_locale(locale)
     if name is not None:
         from calibre_extensions import hyphen
+
         path = path_to_dictionary(name)
         fd = os.open(path, getattr(os, 'O_BINARY', 0) | os.O_RDONLY)
         return hyphen.load_dictionary(fd)
@@ -32,6 +32,7 @@ def add_soft_hyphens(word, dictionary, hyphen_char='\u00ad'):
         return word
     lq = q.lower()  # the hyphen library needs lowercase words to work
     from calibre_extensions import hyphen
+
     try:
         ans = hyphen.simple_hyphenate(dictionary, lq)
     except ValueError:
@@ -46,16 +47,37 @@ def add_soft_hyphens(word, dictionary, hyphen_char='\u00ad'):
         pos = 0
         for p in parts:
             lp = len(p)
-            aparts.append(q[pos:pos+lp])
+            aparts.append(q[pos : pos + lp])
             pos += lp
         parts = aparts
     return hyphen_char.join(parts)
 
 
 tags_not_to_hyphenate = frozenset((
-    'video', 'audio', 'script', 'code', 'pre', 'img', 'br', 'samp', 'kbd',
-    'var', 'abbr', 'acronym', 'sub', 'sup', 'button', 'option', 'label',
-    'textarea', 'input', 'math', 'svg', 'style', 'title', 'head'
+    'video',
+    'audio',
+    'script',
+    'code',
+    'pre',
+    'img',
+    'br',
+    'samp',
+    'kbd',
+    'var',
+    'abbr',
+    'acronym',
+    'sub',
+    'sup',
+    'button',
+    'option',
+    'label',
+    'textarea',
+    'input',
+    'math',
+    'svg',
+    'style',
+    'title',
+    'head',
 ))
 
 
@@ -79,7 +101,7 @@ def add_soft_hyphens_to_words(words, dictionary, hyphen_char='\u00ad'):
     for m in words_pat().finditer(words):
         word = m.group()
         if m.start() > pos:
-            parts.append(words[pos:m.start()])
+            parts.append(words[pos : m.start()])
         parts.append(add_soft_hyphens(word, dictionary, hyphen_char))
         pos = m.end()
     if pos < len(words):

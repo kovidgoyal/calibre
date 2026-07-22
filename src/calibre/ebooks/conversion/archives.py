@@ -13,16 +13,16 @@ ARCHIVE_FMTS = ('zip', 'rar', 'oebzip')
 def unarchive(path, tdir):
     extract(path, tdir)
     files = list(walk(tdir))
-    files = [f if isinstance(f, str) else f.decode(filesystem_encoding)
-            for f in files]
+    files = [f if isinstance(f, str) else f.decode(filesystem_encoding) for f in files]
     from calibre.customize.ui import available_input_formats
+
     fmts = set(available_input_formats())
     fmts -= {'htm', 'html', 'xhtm', 'xhtml'}
     fmts -= set(ARCHIVE_FMTS)
 
     for ext in fmts:
         for f in files:
-            if f.lower().endswith('.'+ext):
+            if f.lower().endswith('.' + ext):
                 if ext in ['txt', 'rtf'] and os.stat(f).st_size < 2048:
                     continue
                 return f, ext
@@ -30,10 +30,10 @@ def unarchive(path, tdir):
 
 
 def find_html_index(files):
-    '''
+    """
     Given a list of files, find the most likely root HTML file in the
     list.
-    '''
+    """
     html_pat = re.compile(r'\.(x){0,1}htm(l){0,1}$', re.IGNORECASE)
     html_files = [f for f in files if html_pat.search(f) is not None]
     if not html_files:

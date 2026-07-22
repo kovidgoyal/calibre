@@ -46,10 +46,7 @@ class NewYorkPost(BasicNewsRecipe):
 
     remove_tags = [
         dict(attrs={'id': ['connatix-outstream-video']}),
-        classes(
-            'article-header__social-icons wpcom-liveblog-container nyp-s2n-wrapper '
-            'nyp-slideshow-modal-image__icon  inline-module inline-module__inner'
-        ),
+        classes('article-header__social-icons wpcom-liveblog-container nyp-s2n-wrapper nyp-slideshow-modal-image__icon  inline-module inline-module__inner'),
         dict(name=['svg', 'link', 'meta', 'aside']),
     ]
 

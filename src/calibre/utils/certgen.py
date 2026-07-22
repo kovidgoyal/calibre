@@ -1,8 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__ = 'GPL v3'
-__copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
+# License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
 import socket
 
@@ -14,15 +11,32 @@ def create_key_pair(size=2048):
 
 
 def create_cert_request(
-    key_pair, common_name,
-    country='IN', state='Maharashtra', locality='Mumbai', organization=None,
-    organizational_unit=None, email_address=None, alt_names=(), basic_constraints=None,
-    digital_key_usage=None, ext_key_usage=None,
+    key_pair,
+    common_name,
+    country='IN',
+    state='Maharashtra',
+    locality='Mumbai',
+    organization=None,
+    organizational_unit=None,
+    email_address=None,
+    alt_names=(),
+    basic_constraints=None,
+    digital_key_usage=None,
+    ext_key_usage=None,
 ):
     return certgen.create_rsa_cert_req(
-        key_pair, tuple(alt_names), common_name,
-        country, state, locality, organization, organizational_unit, email_address,
-        basic_constraints, digital_key_usage, ext_key_usage,
+        key_pair,
+        tuple(alt_names),
+        common_name,
+        country,
+        state,
+        locality,
+        organization,
+        organizational_unit,
+        email_address,
+        basic_constraints,
+        digital_key_usage,
+        ext_key_usage,
     )
 
 
@@ -47,10 +61,22 @@ def cert_info(cert):
 
 
 def create_server_cert(
-    domain_or_ip, ca_cert_file=None, server_cert_file=None, server_key_file=None,
-    expire=365, ca_key_file=None, ca_name='Dummy Certificate Authority', key_size=2048,
-    country='IN', state='Maharashtra', locality='Mumbai', organization=None,
-    organizational_unit=None, email_address=None, alt_names=(), encrypt_key_with_password=None,
+    domain_or_ip,
+    ca_cert_file=None,
+    server_cert_file=None,
+    server_key_file=None,
+    expire=365,
+    ca_key_file=None,
+    ca_name='Dummy Certificate Authority',
+    key_size=2048,
+    country='IN',
+    state='Maharashtra',
+    locality='Mumbai',
+    organization=None,
+    organizational_unit=None,
+    email_address=None,
+    alt_names=(),
+    encrypt_key_with_password=None,
 ):
     is_ip = False
     try:
@@ -69,15 +95,29 @@ def create_server_cert(
     # Create the Certificate Authority
     cakey = create_key_pair(key_size)
     careq = create_cert_request(
-    cakey, ca_name, basic_constraints='critical,CA:TRUE', digital_key_usage='critical,keyCertSign,cRLSign',
-        ext_key_usage='critical,serverAuth,clientAuth')
+        cakey,
+        ca_name,
+        basic_constraints='critical,CA:TRUE',
+        digital_key_usage='critical,keyCertSign,cRLSign',
+        ext_key_usage='critical,serverAuth,clientAuth',
+    )
     cacert = create_ca_cert(careq, cakey)
 
     # Create the server certificate issued by the newly created CA
     pkey = create_key_pair(key_size)
     req = create_cert_request(
-        pkey, domain_or_ip, country, state, locality, organization, organizational_unit, email_address, alt_names,
-        digital_key_usage='critical,keyEncipherment,digitalSignature', ext_key_usage='critical,serverAuth,clientAuth')
+        pkey,
+        domain_or_ip,
+        country,
+        state,
+        locality,
+        organization,
+        organizational_unit,
+        email_address,
+        alt_names,
+        digital_key_usage='critical,keyEncipherment,digitalSignature',
+        ext_key_usage='critical,serverAuth,clientAuth',
+    )
     cert = create_cert(req, cacert, cakey, expire=expire)
 
     def export(dest, obj, func, *args):
@@ -90,6 +130,7 @@ def create_server_cert(
             else:
                 with open(dest, 'wb') as f:
                     f.write(data)
+
     export(ca_cert_file, cacert, serialize_cert)
     export(server_cert_file, cert, serialize_cert)
     export(server_key_file, pkey, serialize_key, encrypt_key_with_password)

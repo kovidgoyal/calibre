@@ -1,10 +1,7 @@
 #!/usr/bin/env python
+# License: GPLv3 Copyright: 2011, Roman Mukhin <ramses_ru at hotmail.com>, 2008, Anatoly Shipitsin <norguhtar at gmail.com>
 
-
-__license__   = 'GPL v3'
-__copyright__ = ('2011, Roman Mukhin <ramses_ru at hotmail.com>, '
-                 '2008, Anatoly Shipitsin <norguhtar at gmail.com>')
-'''Read meta information from fb2 files'''
+"""Read meta information from fb2 files"""
 
 import os
 import random
@@ -24,9 +21,9 @@ from calibre.utils.xml_parse import safe_xml_fromstring
 from polyglot.binary import as_base64_unicode
 
 NAMESPACES = {
-    'fb2'   :   'http://www.gribuser.ru/xml/fictionbook/2.0',
-    'fb21'  :   'http://www.gribuser.ru/xml/fictionbook/2.1',
-    'xlink' :   'http://www.w3.org/1999/xlink'
+    'fb2': 'http://www.gribuser.ru/xml/fictionbook/2.0',
+    'fb21': 'http://www.gribuser.ru/xml/fictionbook/2.1',
+    'xlink': 'http://www.w3.org/1999/xlink',
 }
 
 tostring = partial(etree.tostring, method='text', encoding='unicode')
@@ -37,23 +34,18 @@ def XLINK(tag):
 
 
 class Context:
-
     def __init__(self, root):
         try:
             self.fb_ns = root.nsmap[root.prefix] or NAMESPACES['fb2']
         except Exception:
             self.fb_ns = NAMESPACES['fb2']
-        self.namespaces = {
-            'fb': self.fb_ns,
-            'fb2': self.fb_ns,
-            'xlink': NAMESPACES['xlink']
-        }
+        self.namespaces = {'fb': self.fb_ns, 'fb2': self.fb_ns, 'xlink': NAMESPACES['xlink']}
 
     def XPath(self, *args):
         return etree.XPath(*args, namespaces=self.namespaces)
 
     def get_or_create(self, parent, tag, attribs={}, at_start=True):
-        xpathstr='./fb:'+tag
+        xpathstr = './fb:' + tag
         for n, v in attribs.items():
             xpathstr += f'[@{n}="{v}"]'
         ans = self.XPath(xpathstr)(parent)
@@ -90,6 +82,7 @@ class Context:
 
 def get_fb2_data(stream):
     from calibre.utils.zipfile import BadZipfile, ZipFile
+
     pos = stream.tell()
     try:
         zf = ZipFile(stream)
@@ -106,7 +99,7 @@ def get_fb2_data(stream):
 
 
 def get_metadata(stream):
-    ''' Return fb2 metadata as a L{MetaInformation} object '''
+    """Return fb2 metadata as a L{MetaInformation} object"""
 
     root = _get_fbroot(get_fb2_data(stream)[0])
     ctx = Context(root)
@@ -117,9 +110,7 @@ def get_metadata(stream):
     if book_title:
         book_title = str(book_title)
     else:
-        book_title = force_unicode(os.path.splitext(
-            os.path.basename(getattr(stream, 'name',
-                _('Unknown'))))[0])
+        book_title = force_unicode(os.path.splitext(os.path.basename(getattr(stream, 'name', _('Unknown'))))[0])
     mi = MetaInformation(book_title, authors)
 
     try:
@@ -180,7 +171,7 @@ def _parse_authors(root, ctx):
 
 
 def _parse_author(elm_author, ctx):
-    ''' Returns a list of display author and sortable author'''
+    """Returns a list of display author and sortable author"""
 
     xp_templ = 'normalize-space(fb:%s/text())'
 
@@ -225,6 +216,7 @@ def _parse_cover(root, mi, ctx):
 
 def _parse_cover_data(root, imgid, mi, ctx):
     from calibre.ebooks.fb2 import base64_decode
+
     elm_binary = ctx.XPath(f'//fb:binary[@id="{imgid}"]')(root)
     if elm_binary:
         mimetype = elm_binary[0].get('content-type', 'image/jpeg')
@@ -279,7 +271,7 @@ def _parse_isbn(root, mi, ctx):
     if isbn:
         # some people try to put several isbn in this field, but it is not allowed.  try to stick to the 1-st one in this case
         if ',' in isbn:
-            isbn = isbn[:isbn.index(',')]
+            isbn = isbn[: isbn.index(',')]
         if check_isbn(isbn):
             mi.isbn = isbn
 
@@ -330,6 +322,7 @@ def _set_title(title_info, mi, ctx):
 def _set_comments(title_info, mi, ctx):
     if not mi.is_null('comments'):
         from calibre.utils.html2text import html2text
+
         ctx.clear_meta_tags(title_info, 'annotation')
         title = ctx.get_or_create(title_info, 'annotation')
         ctx.text2fb2(title, html2text(mi.comments))
@@ -451,6 +444,7 @@ def set_metadata(stream, mi, apply_null=False, update_timestamp=False):
     stream.truncate()
     if zip_file_name:
         from calibre.utils.zipfile import ZipFile
+
         with ZipFile(stream, 'w') as zf:
             zf.writestr(zip_file_name, raw)
     else:
@@ -468,6 +462,7 @@ def ensure_namespace(doc):
                 break
     if bare_tags:
         import re
+
         raw = etree.tostring(doc, encoding='unicode')
         raw = re.sub(r'''<(description|body)\s+xmlns=['"]['"]>''', r'<\1>', raw)
         doc = safe_xml_fromstring(raw)

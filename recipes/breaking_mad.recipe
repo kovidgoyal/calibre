@@ -11,7 +11,7 @@ class AdvancedUserRecipe1467715002(BasicNewsRecipe):
     description = 'Breaking Mad - пока смерть не насмешит нас. Breakingmad - это агрегатор самых странных и драматичных новостей с жизнеутверждающим эффектом. Breakingmad - это все, что вы должны знать о России и не только.'  # noqa: E501
     publisher = 'BreakingMad'
     category = 'news'
-    cover_url = u'http://breakingmad.me/images/logo.png'
+    cover_url = 'http://breakingmad.me/images/logo.png'
     language = 'ru'
     no_stylesheets = False
     remove_javascript = True
@@ -30,11 +30,4 @@ class AdvancedUserRecipe1467715002(BasicNewsRecipe):
 
     remove_tags_before = dict(name='div', attrs={'class': 'news-row'})
     remove_tags_after = dict(name='div', attrs={'class': 'news-bottom'})
-    remove_tags = [
-        dict(name='div', attrs={
-            'class': 'news-bottom-center'
-        }),
-        dict(name='span', attrs={
-            'class': 'ico-link news-bottom-link'
-        })
-    ]
+    remove_tags = [dict(name='div', attrs={'class': 'news-bottom-center'}), dict(name='span', attrs={'class': 'ico-link news-bottom-link'})]

@@ -35,19 +35,20 @@ class NYTimesSports(BasicNewsRecipe):
     delay = 1
 
     feeds = [
-        (u'The Fifth Down', u'https://fifthdown.blogs.nytimes.com/feed/'),
-        (u'The Quad', u'https://thequad.blogs.nytimes.com/feed/'),
-        (u'Slap Shot', u'https://slapshot.blogs.nytimes.com/feed/'),
-        (u'Goal', u'https://goal.blogs.nytimes.com/feed/'),
-        (u'Bats', u'https://bats.blogs.nytimes.com/feed/'),
-        (u'Straight Sets', u'https://straightsets.blogs.nytimes.com/feed/'),
-        (u'Formula One', u'https://formulaone.blogs.nytimes.com/feed/'),
-        (u'On Par', u'https://onpar.blogs.nytimes.com/feed/'),
+        ('The Fifth Down', 'https://fifthdown.blogs.nytimes.com/feed/'),
+        ('The Quad', 'https://thequad.blogs.nytimes.com/feed/'),
+        ('Slap Shot', 'https://slapshot.blogs.nytimes.com/feed/'),
+        ('Goal', 'https://goal.blogs.nytimes.com/feed/'),
+        ('Bats', 'https://bats.blogs.nytimes.com/feed/'),
+        ('Straight Sets', 'https://straightsets.blogs.nytimes.com/feed/'),
+        ('Formula One', 'https://formulaone.blogs.nytimes.com/feed/'),
+        ('On Par', 'https://onpar.blogs.nytimes.com/feed/'),
     ]
 
     def preprocess_raw_html(self, raw_html, url):
         if not hasattr(self, 'nyt_parser'):
             from calibre.live import load_module
+
             m = load_module('calibre.web.site_parsers.nytimes')
             self.nyt_parser = m
         html = self.nyt_parser.extract_html(self.index_to_soup(raw_html))

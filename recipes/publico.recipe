@@ -1,7 +1,7 @@
 #!/usr/bin/env python
-__author__ = u'Jordi Balcells'
+__author__ = 'Jordi Balcells'
 __license__ = 'GPL v3'
-description = u'Jornal portugu\xeas - v1.03 (16 June 2010)'
+description = 'Jornal portugu\xeas - v1.03 (16 June 2010)'
 __docformat__ = 'restructuredtext en'
 
 '''
@@ -14,14 +14,13 @@ from polyglot.urllib import urlencode
 
 def classes(classes):
     q = frozenset(classes.split(' '))
-    return dict(attrs={
-        'class': lambda x: x and frozenset(x.split()).intersection(q)})
+    return dict(attrs={'class': lambda x: x and frozenset(x.split()).intersection(q)})
 
 
 class PublicoPT(BasicNewsRecipe):
-    description = u'Jornal portugu\xeas'
+    description = 'Jornal portugu\xeas'
     cover_url = 'http://static.publico.pt/files/header/img/publico.gif'
-    title = u'Publico.PT'
+    title = 'Publico.PT'
     category = 'News, politics, culture, economy, general interest'
     oldest_article = 2
     no_stylesheets = True
@@ -41,38 +40,31 @@ class PublicoPT(BasicNewsRecipe):
     remove_attributes = ['style']
 
     feeds = [
-        (u'Geral', u'http://feeds.feedburner.com/publicoRSS'),
-        (u'Mundo', u'http://feeds.feedburner.com/PublicoMundo'),
-        (u'Pol\xedtica', u'http://feeds.feedburner.com/PublicoPolitica'),
-        (u'Economia', u'http://feeds.feedburner.com/PublicoEconomia'),
-        (u'Desporto', u'http://feeds.feedburner.com/PublicoDesporto'),
-        (u'Sociedade', u'http://feeds.feedburner.com/PublicoSociedade'),
-        (u'Educa\xe7\xe3o', u'http://feeds.feedburner.com/PublicoEducacao'),
-        (u'Ci\xeancias', u'http://feeds.feedburner.com/PublicoCiencias'),
-        (u'Ecosfera', u'http://feeds.feedburner.com/PublicoEcosfera'),
-        (u'Cultura', u'http://feeds.feedburner.com/PublicoCultura'),
-        (u'Local', u'http://feeds.feedburner.com/PublicoLocal'),
-        (u'Tecnologia', u'http://feeds.feedburner.com/PublicoTecnologia')
+        ('Geral', 'http://feeds.feedburner.com/publicoRSS'),
+        ('Mundo', 'http://feeds.feedburner.com/PublicoMundo'),
+        ('Pol\xedtica', 'http://feeds.feedburner.com/PublicoPolitica'),
+        ('Economia', 'http://feeds.feedburner.com/PublicoEconomia'),
+        ('Desporto', 'http://feeds.feedburner.com/PublicoDesporto'),
+        ('Sociedade', 'http://feeds.feedburner.com/PublicoSociedade'),
+        ('Educa\xe7\xe3o', 'http://feeds.feedburner.com/PublicoEducacao'),
+        ('Ci\xeancias', 'http://feeds.feedburner.com/PublicoCiencias'),
+        ('Ecosfera', 'http://feeds.feedburner.com/PublicoEcosfera'),
+        ('Cultura', 'http://feeds.feedburner.com/PublicoCultura'),
+        ('Local', 'http://feeds.feedburner.com/PublicoLocal'),
+        ('Tecnologia', 'http://feeds.feedburner.com/PublicoTecnologia'),
     ]
 
     def get_browser(self):
         br = BasicNewsRecipe.get_browser(self)
         if self.username is not None and self.password is not None:
-            postdata = urlencode({
-                'username': self.username,
-                'password': self.password
-            })
-            br.open(
-                'https://www.publico.pt/api/user/login',
-                data=postdata,
-                timeout=self.timeout
-            )
+            postdata = urlencode({'username': self.username, 'password': self.password})
+            br.open('https://www.publico.pt/api/user/login', data=postdata, timeout=self.timeout)
 
             br.set_handle_refresh(True)
 
         return br
 
     def preprocess_html(self, soup):
-        for img in soup.findAll('img', attrs={'data-media-viewer':True}):
+        for img in soup.findAll('img', attrs={'data-media-viewer': True}):
             img['src'] = img['data-media-viewer']
         return soup

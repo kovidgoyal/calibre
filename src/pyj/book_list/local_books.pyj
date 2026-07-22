@@ -6,9 +6,9 @@ from elementmaker import E
 from gettext import gettext as _, ngettext
 
 from book_list.globals import get_db
+from book_list.library_data import library_data
 from book_list.router import home, open_book
 from book_list.top_bar import add_button, create_top_bar
-from book_list.library_data import library_data
 from book_list.ui import set_panel_handler
 from book_list.views import DEFAULT_MODE, get_view_mode, setup_view_mode, populate_book_list_toolbar
 from dom import clear, ensure_id
@@ -25,6 +25,7 @@ LOCAL_SEARCH_METADATA_FIELDS = [
     'title', 'authors', 'author_sort', 'publisher', 'series', 'tags',
     'formats', 'identifiers', 'languages', 'lang_names'
 ]
+
 
 def component(name):
     return document.getElementById(book_list_data.container_id).querySelector(f'[data-component="{name}"]')
@@ -111,7 +112,7 @@ def read_book(book, book_idx):
 
 def delete_book(book, book_idx):
     db = get_db()
-    db.delete_book(book, def(book, err_string):
+    db.delete_book(book, def (book, err_string):
         if err_string:
             error_dialog(_('Failed to delete book'), err_string)
             return
@@ -124,15 +125,13 @@ def confirm_delete_all():
     num_of_books = book_list_data.all_books?.length
     if not num_of_books:
         return
-    create_custom_dialog(_('Are you sure?'), def(parent, close_modal):
-
+    create_custom_dialog(_('Are you sure?'), def (parent, close_modal):
         def action(doit):
             if doit:
                 clear(parent)
                 delete_all(parent, close_modal)
             else:
                 close_modal()
-
         msg = ngettext(
             'This will remove the downloaded book from local storage. Are you sure?',
             'This will remove all {} downloaded books from local storage. Are you sure?',
@@ -147,7 +146,6 @@ def confirm_delete_all():
             )
         ))
     )
-
 
 
 def delete_all(msg_parent, close_modal):
@@ -169,7 +167,7 @@ def delete_all(msg_parent, close_modal):
             books.length or 0).format(books.length)
         )
         book_to_delete = books.pop()
-        db.delete_book(book_list_data.book_data[book_to_delete], def(book, err_string):
+        db.delete_book(book_list_data.book_data[book_to_delete], def (book, err_string):
             if err_string:
                 close_modal()
                 refresh()
@@ -180,16 +178,13 @@ def delete_all(msg_parent, close_modal):
     delete_one()
 
 
-
 def on_select(book, book_idx):
     title = this
 
-    create_custom_dialog(title, def(parent, close_modal):
-
+    create_custom_dialog(title, def (parent, close_modal):
         def action(which):
             close_modal()
             which(book, book_idx)
-
         parent.appendChild(E.div(
             E.div(_('What would you like to do with this book?')),
             E.div(class_='button-box',
@@ -200,7 +195,6 @@ def on_select(book, book_idx):
     )
 
 
-
 def show_cover(blob, name, mt, book):
     img = document.getElementById(this)
     if img:
@@ -209,11 +203,11 @@ def show_cover(blob, name, mt, book):
 
 def create_image(book_idx, max_width, max_height, on_load):
     img = new Image()
-    img.onerror = def():
+    img.onerror = def ():
         if this.src:
             window.URL.revokeObjectURL(this.src)
         on_load(this, 'error')
-    img.onload = def():
+    img.onload = def ():
         if this.src:
             window.URL.revokeObjectURL(this.src)
         on_load(this, 'load')
@@ -288,7 +282,7 @@ def create_search_box():
 def create_books_list(container, books, search_query=None):
     clear(container)
     book_list_data.container_id = ensure_id(container)
-    book_list_data.book_data = {i:book for i, book in enumerate(books)}
+    book_list_data.book_data = {i: book for i, book in enumerate(books)}
     book_list_data.all_books = list(range(books.length))
     book_list_data.search_query = search_query or ''
     book_list_data.books = matching_book_indices_for_query(book_list_data.book_data, book_list_data.all_books, search_query)
@@ -359,5 +353,5 @@ def init(container_id):
     enable_escape_key(container, on_close)
 
 
-
-set_panel_handler('local_books', init)
+def set_panel_handlers():
+    set_panel_handler('local_books', init)

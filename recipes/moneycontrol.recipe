@@ -3,7 +3,7 @@ from calibre.web.feeds.news import BasicNewsRecipe, classes
 
 
 class MoneyControlRecipe(BasicNewsRecipe):
-    title = u'Money Control'
+    title = 'Money Control'
     __author__ = 'unkn0wn'
     description = 'Read the latest business news on the Indian economy, global market, upcoming IPOs and more.'
     language = 'en_IN'
@@ -25,17 +25,15 @@ class MoneyControlRecipe(BasicNewsRecipe):
         .article_desc { font-style:italic; color:#202020; }
     '''
 
-    keep_only_tags = [
-        dict(name='div', attrs={'id':lambda x: x and x.startswith('article-')})
-    ]
+    keep_only_tags = [dict(name='div', attrs={'id': lambda x: x and x.startswith('article-')})]
 
     remove_tags = [
         dict(name=['svg', 'style', 'button', 'script']),
-        dict(attrs={'id':['social_icon_impression', 'taboola-mid-article-thumbnails']}),
+        dict(attrs={'id': ['social_icon_impression', 'taboola-mid-article-thumbnails']}),
         classes(
             'social_icons_wrapper mid-arti-ad lastPara related_stories_left_block social_icons_mobile_wrapper '
             'advSlotsWithoutGrayBox tags_wrapper maintextdiv page_right_wrapper stockwidget tech_newsletter'
-        )
+        ),
     ]
 
     def preprocess_html(self, soup):
@@ -45,7 +43,7 @@ class MoneyControlRecipe(BasicNewsRecipe):
         for wrap in soup.findAll(**classes('article_image_wrapper')):
             for h2 in wrap.findAll('h2'):
                 h2.name = 'span'
-        for img in soup.findAll('img', attrs={'data-src':True}):
+        for img in soup.findAll('img', attrs={'data-src': True}):
             img['src'] = img['data-src']
         return soup
 
@@ -53,13 +51,22 @@ class MoneyControlRecipe(BasicNewsRecipe):
         index = 'https://www.moneycontrol.com/'
 
         business_sections = [
-            'markets', 'stocks', 'ipo', 'budget', 'banks', 'moneycontrol-research', 'economy', 'earnings', 'real-estate',
-            'personal-finance', 'commodities', 'trade', 'companies'
+            'markets',
+            'stocks',
+            'ipo',
+            'budget',
+            'banks',
+            'moneycontrol-research',
+            'economy',
+            'earnings',
+            'real-estate',
+            'personal-finance',
+            'commodities',
+            'trade',
+            'companies',
         ]
 
-        news_sections = [
-            'india', 'world', 'opinion', 'politics', 'technology', 'trends', 'lifestyle'
-        ]
+        news_sections = ['india', 'world', 'opinion', 'politics', 'technology', 'trends', 'lifestyle']
 
         feeds = []
         soup = self.index_to_soup(index)
@@ -68,7 +75,7 @@ class MoneyControlRecipe(BasicNewsRecipe):
             section = b_sec.capitalize()
             self.log(section)
             articles = []
-            for a in soup.findAll('a', attrs={'href':lambda x: x and x.startswith(burl + b_sec + '/')}):
+            for a in soup.findAll('a', attrs={'href': lambda x: x and x.startswith(burl + b_sec + '/')}):
                 url = a['href']
                 if url in {burl + b_sec + '/', burl + b_sec}:
                     continue
@@ -82,7 +89,7 @@ class MoneyControlRecipe(BasicNewsRecipe):
             nsection = n_sec.capitalize()
             self.log(nsection)
             articles = []
-            for a in soup.findAll('a', attrs={'href':lambda x: x and x.startswith(nurl + n_sec + '/')}):
+            for a in soup.findAll('a', attrs={'href': lambda x: x and x.startswith(nurl + n_sec + '/')}):
                 url = a['href']
                 if url in {nurl + n_sec + '/', nurl + n_sec}:
                     continue

@@ -1,6 +1,4 @@
-__license__ = 'GPL 3'
-__copyright__ = '2011, John Schember <john@nachtimwald.com>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2011, John Schember <john@nachtimwald.com>
 
 from functools import partial
 
@@ -14,7 +12,6 @@ from calibre.utils.localization import _
 
 
 class ImageDelegate(QStyledItemDelegate):
-
     def paint(self, painter, option, index):
         QStyledItemDelegate.paint(self, painter, option, empty_index)
         img = index.data(Qt.ItemDataRole.DecorationRole)
@@ -28,19 +25,23 @@ class ImageDelegate(QStyledItemDelegate):
                 dpr = img.devicePixelRatio()
                 scaled, nw, nh = fit_image(img.width(), img.height(), w, h)
                 if scaled:
-                    img = img.scaled(int(nw*dpr), int(nh*dpr), Qt.AspectRatioMode.IgnoreAspectRatio, Qt.TransformationMode.SmoothTransformation)
-            iw, ih = int(img.width()/dpr), int(img.height()/dpr)
+                    img = img.scaled(
+                        int(nw * dpr),
+                        int(nh * dpr),
+                        Qt.AspectRatioMode.IgnoreAspectRatio,
+                        Qt.TransformationMode.SmoothTransformation,
+                    )
+            iw, ih = int(img.width() / dpr), int(img.height() / dpr)
             dx, dy = (option.rect.width() - iw) // 2, (option.rect.height() - ih) // 2
             painter.drawPixmap(option.rect.adjusted(dx, dy, -dx, -dy), img)
 
 
 class ResultsView(QTreeView):
-
     download_requested = pyqtSignal(object)
     open_requested = pyqtSignal(object)
 
     def __init__(self, *args, **kwargs):
-        QTreeView.__init__(self,*args, **kwargs)
+        QTreeView.__init__(self, *args, **kwargs)
 
         self._model = Matches()
         self.setModel(self._model)

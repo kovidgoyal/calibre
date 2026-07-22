@@ -1,15 +1,11 @@
 #!/usr/bin/env python
-
-
-__license__ = 'GPL v3'
-__copyright__ = '2026, calibre contributors'
+# License: GPLv3 Copyright: 2026, calibre contributors
 
 from calibre.srv.routes import endpoint
 from calibre.srv.tests.base import BaseTest
 
 
 class TestContentServerPlugin(BaseTest):
-
     def test_basic_endpoint_registration(self):
         from calibre.customize import ContentServerPlugin
 
@@ -20,6 +16,7 @@ class TestContentServerPlugin(BaseTest):
                 @endpoint('/test-plugin/hello', auth_required=False)
                 def hello(ctx, rd):
                     return 'hello'
+
                 return [hello]
 
         plugin = TestPlugin(None)
@@ -66,24 +63,27 @@ class TestContentServerPlugin(BaseTest):
 
 
 class TestPluginDiscovery(BaseTest):
-    '''
+    """
     Test that ContentServerPlugin endpoints are discovered and registered.
     Uses Router directly rather than Handler to avoid PyQt6 dependency
     in the test environment (calibre.srv.ajax -> calibre.ebooks.covers -> QtGui).
-    '''
+    """
 
     def setUp(self):
         from calibre.customize.ui import _initialized_plugins, config
+
         self._orig_plugins = list(_initialized_plugins)
         self._orig_disabled = set(config['disabled_plugins'])
 
     def tearDown(self):
         from calibre.customize.ui import _initialized_plugins, config
+
         _initialized_plugins[:] = self._orig_plugins
         config['disabled_plugins'] = self._orig_disabled
 
     def _register_all_plugin_routes(self, router):
         from calibre.customize.ui import content_server_plugins
+
         for plugin in content_server_plugins():
             for ep in plugin.content_server_endpoints():
                 try:
@@ -103,6 +103,7 @@ class TestPluginDiscovery(BaseTest):
                 @endpoint('/test-route/ping', auth_required=False)
                 def ping(ctx, rd):
                     return 'pong'
+
                 return [ping]
 
         plugin = RoutePlugin(None)
@@ -128,6 +129,7 @@ class TestPluginDiscovery(BaseTest):
                 @endpoint('/disabled-route/test', auth_required=False)
                 def test(ctx, rd):
                     return 'test'
+
                 return [test]
 
         plugin = RoutePlugin(None)
@@ -157,6 +159,7 @@ class TestPluginDiscovery(BaseTest):
                 @endpoint('/test-route/ping', auth_required=False)
                 def duplicate(ctx, rd):
                     return 'duplicate'
+
                 return [duplicate]
 
         plugin = OverridePlugin(None)
@@ -182,6 +185,7 @@ class TestPluginDiscovery(BaseTest):
                 @endpoint('/good/hello', auth_required=False)
                 def hello(ctx, rd):
                     return 'hello'
+
                 return [hello]
 
         class BrokenPlugin(ContentServerPlugin):
@@ -196,6 +200,7 @@ class TestPluginDiscovery(BaseTest):
         _initialized_plugins.append(broken)
         router = Router()
         from calibre.customize.ui import content_server_plugins
+
         for plugin in content_server_plugins():
             try:
                 endpoints = plugin.content_server_endpoints()

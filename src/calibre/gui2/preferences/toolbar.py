@@ -1,9 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__   = 'GPL v3'
-__copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2010, Kovid Goyal <kovid@kovidgoyal.net>
 
 from qt.core import QAbstractItemView, QAbstractListModel, QIcon, QItemSelectionModel, Qt
 
@@ -26,9 +22,7 @@ def sort_key_for_action(ac):
 
 
 class FakeAction:
-
-    def __init__(self, name, gui_name, icon, tooltip=None,
-            dont_add_to=frozenset(), dont_remove_from=frozenset()):
+    def __init__(self, name, gui_name, icon, tooltip=None, dont_add_to=frozenset(), dont_remove_from=frozenset()):
         self.name = name
         self.action_spec = (gui_name, icon, tooltip, None)
         self.dont_remove_from = dont_remove_from
@@ -36,24 +30,39 @@ class FakeAction:
 
 
 class BaseModel(QAbstractListModel):
-
     _data: list
 
     def name_to_action(self, name, gui):
         if name == 'Donate':
             return FakeAction(
-                'Donate', _('Donate'), 'donate.png', tooltip=_('Donate to support the development of calibre'),
-                dont_add_to=frozenset(['context-menu', 'context-menu-device', 'searchbar']))
+                'Donate',
+                _('Donate'),
+                'donate.png',
+                tooltip=_('Donate to support the development of calibre'),
+                dont_add_to=frozenset(['context-menu', 'context-menu-device', 'searchbar']),
+            )
         if name == 'Location Manager':
-            return FakeAction('Location Manager', _('Location Manager'), 'reader.png',
-                    _('Switch between library and device views'),
-                    dont_add_to=frozenset(['menubar', 'toolbar',
-                        'toolbar-child', 'context-menu', 'searchbar',
-                        'context-menu-device']))
+            return FakeAction(
+                'Location Manager',
+                _('Location Manager'),
+                'reader.png',
+                _('Switch between library and device views'),
+                dont_add_to=frozenset([
+                    'menubar',
+                    'toolbar',
+                    'toolbar-child',
+                    'context-menu',
+                    'searchbar',
+                    'context-menu-device',
+                ]),
+            )
         if name is None:
-            return FakeAction('--- '+('Separator')+' ---',
-                    '--- '+_('Separator')+' ---', None,
-                    dont_add_to=frozenset(['menubar', 'menubar-device']))
+            return FakeAction(
+                '--- ' + ('Separator') + ' ---',
+                '--- ' + _('Separator') + ' ---',
+                None,
+                dont_add_to=frozenset(['menubar', 'menubar-device']),
+            )
         try:
             return gui.iactions[name]
         except Exception:
@@ -70,18 +79,18 @@ class BaseModel(QAbstractListModel):
             text = text.replace('&', '')
             if text == _('%d books'):
                 text = _('Choose library')
-            return (text)
+            return text
         if role == Qt.ItemDataRole.DecorationRole:
             if hasattr(self._data[row], 'qaction'):
                 icon = self._data[row].qaction.icon()
                 if not icon.isNull():
-                    return (icon)
+                    return icon
             ic = action[1]
             if ic is None:
                 ic = 'blank.png'
-            return (QIcon.ic(ic))
+            return QIcon.ic(ic)
         if role == Qt.ItemDataRole.ToolTipRole and action[2] is not None:
-            return (action[2])
+            return action[2]
         return None
 
     def names(self, indexes):
@@ -102,10 +111,9 @@ class BaseModel(QAbstractListModel):
 
 
 class AllModel(BaseModel):
-
     def __init__(self, key, gui):
         BaseModel.__init__(self)
-        self.gprefs_name = 'action-layout-'+key
+        self.gprefs_name = 'action-layout-' + key
         current = gprefs[self.gprefs_name]
         self.gui = gui
         self.key = key
@@ -156,10 +164,9 @@ class AllModel(BaseModel):
 
 
 class CurrentModel(BaseModel):
-
     def __init__(self, key, gui):
         BaseModel.__init__(self)
-        self.gprefs_name = 'action-layout-'+key
+        self.gprefs_name = 'action-layout-' + key
         current = gprefs[self.gprefs_name]
         self._data = [self.name_to_action(x, gui) for x in current]
         self._data = [x for x in self._data if x is not None]
@@ -248,29 +255,24 @@ class CurrentModel(BaseModel):
 
 
 class ConfigWidget(ConfigWidgetBase, Ui_Form):
-
     LOCATIONS = [
-            ('toolbar', _('The main toolbar')),
-            ('toolbar-device', _('The main toolbar when a device is connected')),
-            ('toolbar-child', _('The optional second toolbar')),
-            ('searchbar', _('The buttons on the search bar')),
-            ('menubar', _('The menubar')),
-            ('menubar-device', _('The menubar when a device is connected')),
-            ('context-menu', _('The context menu for the books in the '
-                'calibre library')),
-            ('context-menu-split', _('The context menu for the split book list')),
-            ('context-menu-device', _('The context menu for the books on '
-                'the device')),
-            ('context-menu-cover-browser', _('The context menu for the Cover '
-                'browser')),
-            ]
+        ('toolbar', _('The main toolbar')),
+        ('toolbar-device', _('The main toolbar when a device is connected')),
+        ('toolbar-child', _('The optional second toolbar')),
+        ('searchbar', _('The buttons on the search bar')),
+        ('menubar', _('The menubar')),
+        ('menubar-device', _('The menubar when a device is connected')),
+        ('context-menu', _('The context menu for the books in the calibre library')),
+        ('context-menu-split', _('The context menu for the split book list')),
+        ('context-menu-device', _('The context menu for the books on the device')),
+        ('context-menu-cover-browser', _('The context menu for the Cover browser')),
+    ]
 
     def genesis(self, gui):
         self.all_actions.doubleClicked.connect(self.add_single_action)
         self.current_actions.doubleClicked.connect(self.remove_single_action)
         self.models = {}
-        self.what.addItem(_('Click to choose toolbar or menu to customize'),
-                'blank')
+        self.what.addItem(_('Click to choose toolbar or menu to customize'), 'blank')
         for key, text in self.LOCATIONS:
             self.what.addItem(text, key)
             all_model = AllModel(key, gui)
@@ -332,15 +334,17 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             added = set(names) - ns
             all_model.remove(indices, added)
             if not_added:
-                warning_dialog(self, _('Cannot add'),
-                        _('Cannot add the actions %s to this location') %
-                        ','.join([a.action_spec[0] for a in not_added]),
-                        show=True)
+                warning_dialog(
+                    self,
+                    _('Cannot add'),
+                    _('Cannot add the actions %s to this location') % ','.join([a.action_spec[0] for a in not_added]),
+                    show=True,
+                )
             if added:
                 ca = self.current_actions
                 ca_model = ca.model()
                 assert isinstance(ca_model, CurrentModel)
-                idx = ca_model.index(ca_model.rowCount()-1, 0)
+                idx = ca_model.index(ca_model.rowCount() - 1, 0)
                 ca.scrollTo(idx)
                 self.changed_signal.emit()
 
@@ -364,10 +368,12 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             assert isinstance(all_model, AllModel)
             all_model.add(removed)
             if not_removed:
-                warning_dialog(self, _('Cannot remove'),
-                        _('Cannot remove the actions %s from this location') %
-                        ','.join([a.action_spec[0] for a in not_removed]),
-                        show=True)
+                warning_dialog(
+                    self,
+                    _('Cannot remove'),
+                    _('Cannot remove the actions %s from this location') % ','.join([a.action_spec[0] for a in not_removed]),
+                    show=True,
+                )
             else:
                 self.changed_signal.emit()
 
@@ -398,12 +404,20 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         lm_in_toolbar = self.models['toolbar-device'][1].has_action('Location Manager')
         lm_in_menubar = self.models['menubar-device'][1].has_action('Location Manager')
         if not pref_in_toolbar and not pref_in_menubar:
-            error_dialog(self, _('Preferences missing'), _(
-                'The Preferences action must be in either the main toolbar or the menubar.'), show=True)
+            error_dialog(
+                self,
+                _('Preferences missing'),
+                _('The Preferences action must be in either the main toolbar or the menubar.'),
+                show=True,
+            )
             raise AbortCommit()
         if not lm_in_toolbar and not lm_in_menubar:
-            error_dialog(self, _('Location manager missing'), _(
-                'The Location manager must be in either the main toolbar or the menubar when a device is connected.'), show=True)
+            error_dialog(
+                self,
+                _('Location manager missing'),
+                _('The Location manager must be in either the main toolbar or the menubar when a device is connected.'),
+                show=True,
+            )
             raise AbortCommit()
 
         # Save data.
@@ -424,5 +438,6 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
 if __name__ == '__main__':
     from calibre.gui2 import Application
+
     app = Application([])
     test_widget('Interface', 'Toolbar')

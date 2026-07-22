@@ -4,18 +4,19 @@ from calibre.web.feeds.news import AutomaticNewsRecipe
 
 
 class ReflexCzRecipe(AutomaticNewsRecipe):
-    __author__     = 'Mailo'
-    title          = 'Reflex'
-    description    = (
+    __author__ = 'Mailo'
+    title = 'Reflex'
+    description = (
         'Reflex.cz je každodenní kritický průvodce aktuálním domácím i světovým děním.'
         ' Názorový a autorský online magazín kultovního společenského týdeníku Reflex inteligentnímu čtenáři nabízí komentáře,'
         ' glosy a originální články od vyhlášených autorů J.X. Doležala, Milana Tesaře, Bohumila Pečinky nebo Marka Stoniše.'
-        ' Za poplatek je na stránkách dostupný také unikátní archiv tištěného Reflexu, včetně aktuálního čísla.')
+        ' Za poplatek je na stránkách dostupný také unikátní archiv tištěného Reflexu, včetně aktuálního čísla.'
+    )
     oldest_article = 10
     max_articles_per_feed = 100
-    auto_cleanup   = True
+    auto_cleanup = True
 
-    feeds          = [
+    feeds = [
         ('Reflex', 'https://www.reflex.cz/rss'),
     ]
 

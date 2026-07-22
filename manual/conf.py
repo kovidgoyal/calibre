@@ -69,8 +69,7 @@ def generated_langs():
 
 
 # ignore generated files in languages other than the language we are building for
-ge = {'generated/' + x for x in generated_langs()} | {
-    'generated/' + x for x in os.environ.get('ALL_USER_MANUAL_LANGUAGES', '').split()}
+ge = {'generated/' + x for x in generated_langs()} | {'generated/' + x for x in os.environ.get('ALL_USER_MANUAL_LANGUAGES', '').split()}
 ge.discard('generated/' + language)
 exclude_patterns += list(ge)
 del ge
@@ -101,6 +100,7 @@ title = f'{__appname__} User Manual'
 needs_localization = language not in {'en', 'eng'}
 if needs_localization:
     import gettext
+
     try:
         t = gettext.translation('simple_index', locale_dirs[0], [language])
     except OSError:
@@ -165,12 +165,12 @@ html_short_title = _('Start')
 from calibre.utils.localization import get_language
 
 html_context = {}
-html_context['other_languages'] = [
-    (lc, get_language(lc)) for lc in os.environ.get('ALL_USER_MANUAL_LANGUAGES', '').split() if lc != language]
+html_context['other_languages'] = [(lc, get_language(lc)) for lc in os.environ.get('ALL_USER_MANUAL_LANGUAGES', '').split() if lc != language]
 
 
 def sort_languages(x):
     from calibre.utils.icu import sort_key
+
     lc, name = x
     if lc == language:
         return ''
@@ -191,16 +191,16 @@ extlinks = {
 }
 del sort_languages, get_language
 
-epub_author      = 'Kovid Goyal'
-epub_publisher   = 'Kovid Goyal'
-epub_copyright   = f'© {date.today().year} Kovid Goyal'
+epub_author = 'Kovid Goyal'
+epub_publisher = 'Kovid Goyal'
+epub_copyright = f'© {date.today().year} Kovid Goyal'
 epub_description = 'Comprehensive documentation for calibre'
-epub_identifier  = 'https://manual.calibre-ebook.com'
-epub_scheme      = 'url'
-epub_uid         = 'S54a88f8e9d42455e9c6db000e989225f'
-epub_tocdepth    = 4
-epub_tocdup      = True
-epub_cover       = ('epub_cover.jpg', 'epub_cover_template.html')
+epub_identifier = 'https://manual.calibre-ebook.com'
+epub_scheme = 'url'
+epub_uid = 'S54a88f8e9d42455e9c6db000e989225f'
+epub_tocdepth = 4
+epub_tocdup = True
+epub_cover = ('epub_cover.jpg', 'epub_cover_template.html')
 suppress_warnings = ['epub.duplicated_toc_entry']
 
 # Custom sidebar templates, maps document names to template names.
@@ -252,6 +252,6 @@ latex_logo = 'resources/logo.png'
 latex_show_pagerefs = True
 latex_show_urls = 'footnote'
 latex_elements = {
-    'papersize':'letterpaper',
+    'papersize': 'letterpaper',
     'preamble': r'\renewcommand{\pageautorefname}{%s}' % _('page'),  # noqa: UP031
 }

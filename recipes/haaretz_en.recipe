@@ -33,7 +33,7 @@ class Haaretz_en(BasicNewsRecipe):
     PREFIX = 'https://www.haaretz.com'
     LOGIN = 'https://services.haaretz.com/ms-sso/loginUrlEncoded'
     LOGOUT = 'https://services.haaretz.com/ms-sso/logout'
-    extra_css             = '''
+    extra_css = '''
                                 body{font-family: Merriweather, "Helvetica Neue", Helvetica, Arial, sans-serif }
                                 div.mx time{display: none}
                                 div.my time{display: none}
@@ -41,51 +41,48 @@ class Haaretz_en(BasicNewsRecipe):
                                 div.mr time{display: none}
                             '''
 
-    conversion_options = {
-        'comment': description, 'publisher': publisher, 'language': language
-    }
+    conversion_options = {'comment': description, 'publisher': publisher, 'language': language}
 
     keep_only_tags = [
         dict(name='div', attrs={'data-test': 'articleHeader'}),
         dict(attrs={'data-test': 'articleBodyImage'}),
         dict(name='div', attrs={'class': ['bu a b d e ', 'bu a b d e']}),
-        dict(name='div', attrs={'data-test': 'articleBody'})
+        dict(name='div', attrs={'data-test': 'articleBody'}),
     ]
     remove_attributes = ['width', 'height']
     remove_tags = [
-        dict(name=['div', 'ul', 'button', 'svg'], attrs={'data-test': [
-            'audioPlayer', 'newsletter', 'relatedArticles', 'tags', 'writerAlertButton', 'IconAlefLogo']})
+        dict(
+            name=['div', 'ul', 'button', 'svg'],
+            attrs={'data-test': ['audioPlayer', 'newsletter', 'relatedArticles', 'tags', 'writerAlertButton', 'IconAlefLogo']},
+        )
     ]
 
     feeds = [
-
-    (u'Headlines', 'https://www.haaretz.com/srv/haaretz-latest-headlines'),
-    (u'Opinion', 'https://www.haaretz.com/srv/opinion-rss'),
-    (u'Security & Aviation', 'https://www.haaretz.com/srv/security-&-aviation-rss'),
-    (u'Israel News', 'https://www.haaretz.com/srv/israel-news-rss'),
-    (u'World News', 'https://www.haaretz.com/srv/world-news-rss'),
-    (u'Jewish World', 'https://www.haaretz.com/srv/jewish-world-rss'),
-    (u'Business', 'https://www.haaretz.com/srv/business-rss'),
-    (u'Science & Health', 'https://www.haaretz.com/srv/science-&-health-rss'),
-    (u'Life & Culture', 'https://www.haaretz.com/srv/life-&-culture-rss'),
-    (u'Books', 'https://www.haaretz.com/srv/books-rss'),
-    (u'Food', 'https://www.haaretz.com/srv/food-rss')
+        ('Headlines', 'https://www.haaretz.com/srv/haaretz-latest-headlines'),
+        ('Opinion', 'https://www.haaretz.com/srv/opinion-rss'),
+        ('Security & Aviation', 'https://www.haaretz.com/srv/security-&-aviation-rss'),
+        ('Israel News', 'https://www.haaretz.com/srv/israel-news-rss'),
+        ('World News', 'https://www.haaretz.com/srv/world-news-rss'),
+        ('Jewish World', 'https://www.haaretz.com/srv/jewish-world-rss'),
+        ('Business', 'https://www.haaretz.com/srv/business-rss'),
+        ('Science & Health', 'https://www.haaretz.com/srv/science-&-health-rss'),
+        ('Life & Culture', 'https://www.haaretz.com/srv/life-&-culture-rss'),
+        ('Books', 'https://www.haaretz.com/srv/books-rss'),
+        ('Food', 'https://www.haaretz.com/srv/food-rss'),
     ]
 
     def get_browser(self):
         br = BasicNewsRecipe.get_browser(self)
         br.open(self.PREFIX)
         if self.username is not None and self.password is not None:
-            data = urlencode(
-                {
-                    'newsso': 'true',
-                    'fromlogin': 'true',
-                    'site': '85',
-                    'layer': 'login',
-                    'anonymousId': '16549476476914546',
-                    'userName': self.username,
-                    'password': self.password
-                }
-            )
+            data = urlencode({
+                'newsso': 'true',
+                'fromlogin': 'true',
+                'site': '85',
+                'layer': 'login',
+                'anonymousId': '16549476476914546',
+                'userName': self.username,
+                'password': self.password,
+            })
             br.open(self.LOGIN, data)
         return br

@@ -8,8 +8,8 @@ THRESHOLD = 5
 FILTER_THRESHOLD = 25
 MAX_SAMPLES = 256
 
-class Timers:
 
+class Timers:
     def __init__(self):
         self.reset_read_timer()
         self.rates = v'[]'

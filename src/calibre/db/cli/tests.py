@@ -1,12 +1,10 @@
 #!/usr/bin/env python
+# License: GPLv3
 
-
-__license__ = 'GPL v3'
-__docformat__ = 'restructuredtext en'
-
-'''
+"""
 Test the CLI of the calibre database management tool
-'''
+"""
+
 import csv
 import unittest
 
@@ -15,16 +13,15 @@ from polyglot.io import PolyglotBytesIO
 
 
 class Checker:
-
     def __init__(self, kw):
         for k, v in kw.items():
             setattr(self, k, v)
 
 
 class PrintCheckLibraryResultsTest(unittest.TestCase):
-    '''
+    """
     Asserts the format of the output to the CLI to avoid regressions
-    '''
+    """
 
     check = ('dummy_check', 'Dummy Check')
 
@@ -37,11 +34,11 @@ class PrintCheckLibraryResultsTest(unittest.TestCase):
         self.assertEqual(stdout.getvalue(), b'')
 
     def test_human_readable_output(self):
-        '''
+        """
         Basic check of the human-readable output.
 
         Does not test: the full line format, truncation
-        '''
+        """
         data = [['first', 'second']]
         checker = Checker(dict.fromkeys(self.check))
         setattr(checker, self.check[0], data)
@@ -49,7 +46,7 @@ class PrintCheckLibraryResultsTest(unittest.TestCase):
         _print_check_library_results(checker, self.check, out=stdout, as_csv=False)
 
         result = stdout.getvalue().decode('utf-8', 'replace').split('\n')
-        self.assertEqual(len(result), len(data)+2)
+        self.assertEqual(len(result), len(data) + 2)
         self.assertEqual(result[0], self.check[1])
 
         result_first = result[1].split('-')[0].strip()
@@ -61,9 +58,9 @@ class PrintCheckLibraryResultsTest(unittest.TestCase):
         self.assertEqual(result[-1], '')
 
     def test_basic_csv_output(self):
-        '''
+        """
         Test simple csv output
-        '''
+        """
         data = [['first', 'second']]
         checker = Checker(dict.fromkeys(self.check))
         setattr(checker, self.check[0], data)
@@ -75,9 +72,9 @@ class PrintCheckLibraryResultsTest(unittest.TestCase):
         self.assertEqual(parsed_result, [[self.check[1], data[0][0], data[0][1]]])
 
     def test_escaped_csv_output(self):
-        '''
+        """
         Test more complex csv output
-        '''
+        """
         data = [['I, Caesar', 'second']]
         checker = Checker(dict.fromkeys(self.check))
         setattr(checker, self.check[0], data)

@@ -2,7 +2,6 @@
 # License: GPL v3 Copyright: 2026, Kovid Goyal <kovid at kovidgoyal.net>
 from __python__ import hash_literals
 
-from dom import add_extra_css, clear
 from elementmaker import E
 from gettext import gettext as _
 
@@ -10,11 +9,12 @@ from book_list.library_data import all_virtual_libraries
 from book_list.saved_virtual_libraries import DEFAULT_SAVED_VIRTUAL_LIBRARY_ICON, normalize_saved_virtual_library_icon, saved_virtual_library_item
 from book_list.saved_virtual_library_icon_picker import create_saved_virtual_library_icon_picker
 from book_list.theme import get_color
+from dom import add_extra_css, clear
 from modals import create_custom_dialog
 from widgets import create_button
 
 
-add_extra_css(def(): return '''
+add_extra_css(def (): return '''
 
 .cs-virtual-library-dialog {
     width: 100%;
@@ -196,35 +196,29 @@ add_extra_css(def(): return '''
 
 
 def show_import_virtual_libraries_dialog(library_id, on_save):
-    create_custom_dialog(_('Import Virtual Libraries'), def(parent, close_modal):
+    create_custom_dialog(_('Import Virtual Libraries'), def (parent, close_modal):
         vls = all_virtual_libraries()
         vl_names = sorted(Object.keys(vls))
-
         if not vl_names.length:
             parent.appendChild(E.div(class_='cs-vl-import-dialog',
                 E.div(_('No virtual libraries found in calibre settings.'), class_='vl-import-empty'),
                 E.div(class_='vl-actions-save-cancel vl-actions-save-cancel--toprule',
-                    create_button(_('Close'), 'close', def(ev=None): close_modal();),
+                    create_button(_('Close'), 'close', def (ev = None): close_modal();),
                 ),
             ))
             return
-
         # Shared overlay for icon picking – rendered over the import dialog
         overlay = E.div(class_='vl-import-icon-overlay')
         overlay.style.backgroundColor = get_color('dialog-background')
-
         def hide_overlay(ev=None):
             overlay.style.display = 'none'
             clear(overlay)
-
         def show_icon_overlay(row):
             picker = create_saved_virtual_library_icon_picker(row.icon)
-
             def confirm_icon(ev=None):
                 row.icon = normalize_saved_virtual_library_icon(picker.get_value())
                 row.icon_btn.textContent = row.icon
                 hide_overlay()
-
             clear(overlay)
             overlay.appendChild(E.div(class_='vl-import-overlay-title', _('Choose icon')))
             overlay.appendChild(picker.root)
@@ -233,7 +227,6 @@ def show_import_virtual_libraries_dialog(library_id, on_save):
                 create_button(_('Select'), 'check', confirm_icon, highlight=True),
             ))
             overlay.style.display = 'flex'
-
         rows = v'[]'
         list_div = E.div(class_='vl-import-list')
         for vl_name in vl_names:
@@ -245,13 +238,11 @@ def show_import_virtual_libraries_dialog(library_id, on_save):
             icon_btn.textContent = DEFAULT_SAVED_VIRTUAL_LIBRARY_ICON
             row_state = {'name': vl_name, 'search': search, 'checkbox': cb,
                          'icon': DEFAULT_SAVED_VIRTUAL_LIBRARY_ICON, 'icon_btn': icon_btn}
-
             def make_icon_handler(r):
                 def handler(ev):
                     ev.preventDefault()
                     show_icon_overlay(r)
                 return handler
-
             icon_btn.addEventListener('click', make_icon_handler(row_state))
             rows.push(row_state)
             list_div.appendChild(E.div(class_='vl-import-row',
@@ -262,7 +253,6 @@ def show_import_virtual_libraries_dialog(library_id, on_save):
                     icon_btn,
                 ),
             ))
-
         def do_import(ev=None):
             for row in rows:
                 if row.checkbox.checked:
@@ -271,12 +261,11 @@ def show_import_virtual_libraries_dialog(library_id, on_save):
                     if item:
                         on_save(item)
             close_modal()
-
         parent.appendChild(E.div(class_='cs-vl-import-dialog',
             list_div,
             overlay,
             E.div(class_='vl-actions-save-cancel vl-actions-save-cancel--toprule',
-                create_button(_('Cancel'), 'close', def(ev=None): close_modal();),
+                create_button(_('Cancel'), 'close', def (ev = None): close_modal();),
                 create_button(_('Import'), 'plus', do_import, highlight=True),
             ),
         ))
@@ -286,7 +275,7 @@ def show_import_virtual_libraries_dialog(library_id, on_save):
 def show_saved_virtual_library_dialog(
         title, save_label, on_save, library_id, virtual_library='', initial_name='', initial_search='',
         initial_icon=DEFAULT_SAVED_VIRTUAL_LIBRARY_ICON, initial_use_icon=True, on_delete=None, save_icon='check'):
-    create_custom_dialog(title, def(parent, close_modal):
+    create_custom_dialog(title, def (parent, close_modal):
         name_input = E.input(type='text', value=((initial_name or '') + ''), placeholder=_('Virtual library name'))
         search_input = E.input(type='text', value=((initial_search or '') + ''), placeholder=_('Search expression'))
         icon_picker = create_saved_virtual_library_icon_picker((initial_icon or DEFAULT_SAVED_VIRTUAL_LIBRARY_ICON) + '')
@@ -299,12 +288,10 @@ def show_saved_virtual_library_dialog(
             ),
         )
         use_icon_help = E.div(_('When disabled, only the first character of the name is shown while the navigation is collapsed.'), class_='help')
-
         def sync_icon_section_visibility(ev=None):
             on = use_icon_cb.checked
             icon_section.style.display = 'block' if on else 'none'
             use_icon_help.style.display = 'none' if on else 'block'
-
         def save_item(ev=None):
             item = saved_virtual_library_item(library_id, name_input.value, search_input.value, virtual_library, icon_picker.get_value(), use_icon_cb.checked)
             if not item:
@@ -312,16 +299,13 @@ def show_saved_virtual_library_dialog(
             if on_save(item) is False:
                 return
             close_modal()
-
         def delete_item(ev=None):
             if on_delete and on_delete() is False:
                 return
             close_modal()
-
         def open_import(ev=None):
             close_modal()
             show_import_virtual_libraries_dialog(library_id, on_save)
-
         dialog = E.div(class_='cs-virtual-library-dialog',
             E.div(class_='vl-row',
                 E.label(_('Virtual library name'), class_='vl-label'),
@@ -342,7 +326,7 @@ def show_saved_virtual_library_dialog(
         if not on_delete:
             actions_class += ' vl-actions-save-cancel--toprule'
         dialog.appendChild(E.div(class_=actions_class,
-            create_button(_('Cancel'), 'close', def(ev=None): close_modal();),
+            create_button(_('Cancel'), 'close', def (ev = None): close_modal();),
             create_button(save_label, save_icon, save_item, highlight=True),
         ))
         if on_delete:
@@ -355,7 +339,7 @@ def show_saved_virtual_library_dialog(
         parent.appendChild(dialog)
         use_icon_cb.addEventListener('change', sync_icon_section_visibility)
         sync_icon_section_visibility()
-        setTimeout(def():
+        setTimeout(def ():
             name_input.focus()
         , 10)
     )

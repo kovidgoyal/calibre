@@ -1,10 +1,8 @@
-__license__   = 'GPL v3'
-__copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2008, Kovid Goyal kovid@kovidgoyal.net
 
-'''
+"""
 Based on ideas from comiclrf created by FangornUK.
-'''
+"""
 
 import codecs
 import os
@@ -18,63 +16,92 @@ from calibre.utils.localization import _
 
 
 class ComicInput(InputFormatPlugin):
-
-    name        = 'Comic Input'
-    author      = 'Kovid Goyal'
+    name = 'Comic Input'
+    author = 'Kovid Goyal'
     description = _('Optimize comic files (.cbz, .cbr, .cb7, .cbc) for viewing on portable devices')
-    file_types  = {'cbz', 'cbr', 'cb7', 'cbc'}
+    file_types = {'cbz', 'cbr', 'cb7', 'cbc'}
     is_image_collection = True
     commit_name = 'comic_input'
     core_usage = -1
 
     options = {
-        OptionRecommendation(name='colors', recommended_value=0,
-            help=_('Reduce the number of colors used in the image. This works only'
-                   ' if you choose the PNG output format. It is useful to reduce file sizes.'
-                   ' Set to zero to turn off. Maximum value is 256. It is off by default.')),
-        OptionRecommendation(name='dont_normalize', recommended_value=False,
-            help=_('Disable normalize (improve contrast) color range '
-            'for pictures. Default: False')),
-        OptionRecommendation(name='keep_aspect_ratio', recommended_value=False,
-            help=_('Maintain picture aspect ratio. Default is to fill the screen.')),
-        OptionRecommendation(name='dont_sharpen', recommended_value=False,
-            help=_('Disable sharpening.')),
-        OptionRecommendation(name='disable_trim', recommended_value=False,
-            help=_('Disable trimming of comic pages. For some comics, '
-                     'trimming might remove content as well as borders.')),
-        OptionRecommendation(name='landscape', recommended_value=False,
-            help=_("Don't split landscape images into two portrait images")),
-        OptionRecommendation(name='wide', recommended_value=False,
-            help=_('Keep aspect ratio and scale image using screen height as '
-            'image width for viewing in landscape mode.')),
-        OptionRecommendation(name='right2left', recommended_value=False,
-              help=_('Used for right-to-left publications like manga. '
-              'Causes landscape pages to be split into portrait pages '
-              'from right to left.')),
-        OptionRecommendation(name='despeckle', recommended_value=False,
-              help=_('Enable Despeckle. Reduces speckle noise. '
-              'May greatly increase processing time.')),
-        OptionRecommendation(name='no_sort', recommended_value=False,
-              help=_("Don't sort the files found in the comic "
-              "alphabetically by name. Instead use the order they were "
-              "added to the comic.")),
-        OptionRecommendation(name='output_format', choices=['png', 'jpg'],
-            recommended_value='png', help=_('The format that images in the created e-book '
+        OptionRecommendation(
+            name='colors',
+            recommended_value=0,
+            help=_(
+                'Reduce the number of colors used in the image. This works only'
+                ' if you choose the PNG output format. It is useful to reduce file sizes.'
+                ' Set to zero to turn off. Maximum value is 256. It is off by default.'
+            ),
+        ),
+        OptionRecommendation(
+            name='dont_normalize',
+            recommended_value=False,
+            help=_('Disable normalize (improve contrast) color range for pictures. Default: False'),
+        ),
+        OptionRecommendation(
+            name='keep_aspect_ratio',
+            recommended_value=False,
+            help=_('Maintain picture aspect ratio. Default is to fill the screen.'),
+        ),
+        OptionRecommendation(name='dont_sharpen', recommended_value=False, help=_('Disable sharpening.')),
+        OptionRecommendation(
+            name='disable_trim',
+            recommended_value=False,
+            help=_('Disable trimming of comic pages. For some comics, trimming might remove content as well as borders.'),
+        ),
+        OptionRecommendation(name='landscape', recommended_value=False, help=_("Don't split landscape images into two portrait images")),
+        OptionRecommendation(
+            name='wide',
+            recommended_value=False,
+            help=_('Keep aspect ratio and scale image using screen height as image width for viewing in landscape mode.'),
+        ),
+        OptionRecommendation(
+            name='right2left',
+            recommended_value=False,
+            help=_('Used for right-to-left publications like manga. Causes landscape pages to be split into portrait pages from right to left.'),
+        ),
+        OptionRecommendation(
+            name='despeckle',
+            recommended_value=False,
+            help=_('Enable Despeckle. Reduces speckle noise. May greatly increase processing time.'),
+        ),
+        OptionRecommendation(
+            name='no_sort',
+            recommended_value=False,
+            help=_("Don't sort the files found in the comic alphabetically by name. Instead use the order they were added to the comic."),
+        ),
+        OptionRecommendation(
+            name='output_format',
+            choices=['png', 'jpg'],
+            recommended_value='png',
+            help=_(
+                'The format that images in the created e-book '
                 'are converted to. You can experiment to see which format gives '
-                'you optimal size and look on your device.')),
-        OptionRecommendation(name='no_process', recommended_value=False,
-              help=_('Apply no processing to the image')),
-        OptionRecommendation(name='dont_grayscale', recommended_value=False,
-            help=_('Do not convert the image to grayscale (black and white)')),
-        OptionRecommendation(name='comic_image_size', recommended_value=None,
-            help=_('Specify the image size as width x height pixels, for example: 123x321. Normally,'
+                'you optimal size and look on your device.'
+            ),
+        ),
+        OptionRecommendation(name='no_process', recommended_value=False, help=_('Apply no processing to the image')),
+        OptionRecommendation(
+            name='dont_grayscale',
+            recommended_value=False,
+            help=_('Do not convert the image to grayscale (black and white)'),
+        ),
+        OptionRecommendation(
+            name='comic_image_size',
+            recommended_value=None,
+            help=_(
+                'Specify the image size as width x height pixels, for example: 123x321. Normally,'
                 ' an image size is automatically calculated from the output '
-                'profile, this option overrides it.')),
-        OptionRecommendation(name='dont_add_comic_pages_to_toc', recommended_value=False,
-            help=_('When converting a CBC do not add links to each page to'
-                ' the TOC. Note this only applies if the TOC has more than one'
-                ' section')),
-        }
+                'profile, this option overrides it.'
+            ),
+        ),
+        OptionRecommendation(
+            name='dont_add_comic_pages_to_toc',
+            recommended_value=False,
+            help=_('When converting a CBC do not add links to each page to the TOC. Note this only applies if the TOC has more than one section'),
+        ),
+    }
 
     recommendations = {
         ('margin_left', 0, OptionRecommendation.HIGH),
@@ -91,18 +118,17 @@ class ComicInput(InputFormatPlugin):
         ('page_breaks_before', None, OptionRecommendation.HIGH),
         ('disable_font_rescaling', True, OptionRecommendation.HIGH),
         ('linearize_tables', False, OptionRecommendation.HIGH),
-        }
+    }
 
     def get_comics_from_collection(self, stream):
         from calibre.libunzip import extract as zipextract
+
         tdir = PersistentTemporaryDirectory('_comic_collection')
         zipextract(stream, tdir)
         comics = []
         with CurrentDir(tdir):
             if not os.path.exists('comics.txt'):
-                raise ValueError(
-                    f'{stream.name} is not a valid comic collection'
-                    ' no comics.txt was found in the file')
+                raise ValueError(f'{stream.name} is not a valid comic collection no comics.txt was found in the file')
             with open('comics.txt', 'rb') as f:
                 raw = f.read()
             if raw.startswith(codecs.BOM_UTF16_BE):
@@ -130,9 +156,9 @@ class ComicInput(InputFormatPlugin):
 
     def get_pages(self, comic, tdir2):
         from calibre.ebooks.comic.input import extract_comic, find_pages, process_pages
-        tdir  = extract_comic(comic)
-        new_pages = find_pages(tdir, sort_on_mtime=self.opts.no_sort,
-                verbose=self.opts.verbose)
+
+        tdir = extract_comic(comic)
+        new_pages = find_pages(tdir, sort_on_mtime=self.opts.no_sort, verbose=self.opts.verbose)
         thumbnail = None
         if not new_pages:
             raise ValueError(f'Could not find any pages in the comic: {comic}')
@@ -143,17 +169,14 @@ class ComicInput(InputFormatPlugin):
                 shutil.copyfile(page, n2[-1])
             new_pages = n2
         else:
-            new_pages, failures = process_pages(new_pages, self.opts,
-                    self.report_progress, tdir2)
+            new_pages, failures = process_pages(new_pages, self.opts, self.report_progress, tdir2)
             if failures:
-                self.log.warning('Could not process the following pages '
-                '(run with --verbose to see why):')
+                self.log.warning('Could not process the following pages (run with --verbose to see why):')
                 for f in failures:
                     self.log.warning('\t', f)
             if not new_pages:
                 raise ValueError(f'Could not find any valid pages in comic: {comic}')
-            thumbnail = os.path.join(tdir2,
-                    'thumbnail.'+self.opts.output_format.lower())
+            thumbnail = os.path.join(tdir2, 'thumbnail.' + self.opts.output_format.lower())
             if not os.access(thumbnail, os.R_OK):
                 thumbnail = None
         return new_pages
@@ -165,8 +188,9 @@ class ComicInput(InputFormatPlugin):
         from calibre.ebooks.metadata import MetaInformation
         from calibre.ebooks.metadata.opf2 import OPFCreator
         from calibre.ebooks.metadata.toc import TOC
+
         opts = options
-        self.opts, self.log= opts, log
+        self.opts, self.log = opts, log
         if file_ext == 'cbc':
             comics_ = self.get_comics_from_collection(stream)
         else:
@@ -193,8 +217,7 @@ class ComicInput(InputFormatPlugin):
         if not comics:
             raise ValueError(f'No comic pages found in {stream.name}')
 
-        mi  = MetaInformation(os.path.basename(stream.name).rpartition('.')[0],
-            [_('Unknown')])
+        mi = MetaInformation(os.path.basename(stream.name).rpartition('.')[0], [_('Unknown')])
         opf = OPFCreator(os.getcwd(), mi)
         entries = []
 
@@ -228,31 +251,26 @@ class ComicInput(InputFormatPlugin):
             if self.for_viewer:
                 wrapper_page_href = href(wrappers[0])
                 for i in range(num_pages_per_comic[0]):
-                    toc.add_item(f'{wrapper_page_href}#page_{i+1}', None,
-                        _('Page')+f' {i + 1}', play_order=i)
+                    toc.add_item(f'{wrapper_page_href}#page_{i + 1}', None, _('Page') + f' {i + 1}', play_order=i)
 
             else:
                 for i, x in enumerate(wrappers):
-                    toc.add_item(href(x), None, _('Page')+f' {i + 1}',
-                            play_order=i)
+                    toc.add_item(href(x), None, _('Page') + f' {i + 1}', play_order=i)
         else:
             po = 0
             for num_pages, comic in zip(num_pages_per_comic, comics):
                 po += 1
                 wrappers = comic[2]
-                stoc = toc.add_item(href(wrappers[0]),
-                        None, comic[0], play_order=po)
+                stoc = toc.add_item(href(wrappers[0]), None, comic[0], play_order=po)
                 if not opts.dont_add_comic_pages_to_toc:
                     if self.for_viewer:
                         wrapper_page_href = href(wrappers[0])
                         for i in range(num_pages):
-                            stoc.add_item(f'{wrapper_page_href}#page_{i+1}', None,
-                                    _('Page')+f' {i + 1}', play_order=po)
+                            stoc.add_item(f'{wrapper_page_href}#page_{i + 1}', None, _('Page') + f' {i + 1}', play_order=po)
                             po += 1
                     else:
                         for i, x in enumerate(wrappers):
-                            stoc.add_item(href(x), None,
-                                    _('Page')+f' {i + 1}', play_order=po)
+                            stoc.add_item(href(x), None, _('Page') + f' {i + 1}', play_order=po)
                             po += 1
         opf.set_toc(toc)
         with open('metadata.opf', 'wb') as m, open('toc.ncx', 'wb') as n:
@@ -261,6 +279,7 @@ class ComicInput(InputFormatPlugin):
 
     def create_wrappers(self, pages):
         from calibre.ebooks.oeb.base import XHTML_NS
+
         wrappers = []
         WRAPPER = textwrap.dedent('''\
         <html xmlns="%s">
@@ -282,7 +301,7 @@ class ComicInput(InputFormatPlugin):
         ''')
         dir = os.path.dirname(pages[0])
         for i, page in enumerate(pages):
-            wrapper = WRAPPER%(XHTML_NS, i+1, os.path.basename(page), i+1)
+            wrapper = WRAPPER % (XHTML_NS, i + 1, os.path.basename(page), i + 1)
             page = os.path.join(dir, f'page_{i + 1}.xhtml')
             with open(page, 'wb') as f:
                 f.write(wrapper.encode('utf-8'))

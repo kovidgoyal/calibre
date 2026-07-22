@@ -1,8 +1,6 @@
-__license__ = 'GPL 3'
-__copyright__ = '2010, Hiroshi Miura <miurahr@linux.com>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2010, Hiroshi Miura <miurahr@linux.com>
 
-'''
+"""
 Decode unicode text to an ASCII representation of the text for Japanese.
  Translate unicode string to ASCII roman string.
 
@@ -14,7 +12,7 @@ and  perl module Text::Unidecode
 This functionality is owned by Kakasi Japanese processing engine.
 
 Copyright (c) 2010 Hiroshi Miura
-'''
+"""
 
 import pickle
 import re
@@ -64,7 +62,6 @@ Kanwa.__init__ = kanwa_init
 
 
 class Jadecoder(Unidecoder):
-
     def __init__(self):
         self.codepoints = CODEPOINTS.copy()
         self.codepoints.update(JACODES)
@@ -75,10 +72,10 @@ class Jadecoder(Unidecoder):
         with warnings.catch_warnings():
             warnings.simplefilter('ignore')
             self.kakasi = kakasi()
-            self.kakasi.setMode('H','a')  # Hiragana to ascii, default: no conversion
-            self.kakasi.setMode('K','a')  # Katakana to ascii, default: no conversion
-            self.kakasi.setMode('J','a')  # Japanese to ascii, default: no conversion
-            self.kakasi.setMode('r','Hepburn')  # default: use Hepburn Roman table
+            self.kakasi.setMode('H', 'a')  # Hiragana to ascii, default: no conversion
+            self.kakasi.setMode('K', 'a')  # Katakana to ascii, default: no conversion
+            self.kakasi.setMode('J', 'a')  # Japanese to ascii, default: no conversion
+            self.kakasi.setMode('r', 'Hepburn')  # default: use Hepburn Roman table
             self.kakasi.setMode('s', True)  # add space, default: no separator
             self.kakasi.setMode('C', True)  # capitalize, default: no capitalize
             self.conv = self.kakasi.getConverter()

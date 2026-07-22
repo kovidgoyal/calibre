@@ -1,9 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__   = 'GPL v3'
-__copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2011, Kovid Goyal <kovid@kovidgoyal.net>
 
 import copy
 import textwrap
@@ -46,12 +42,12 @@ if TYPE_CHECKING:
 
 
 class TagBrowserMixin:  # {{{
-
     def populate_tb_manage_menu(self: Main, db):
         self.populate_manage_categories_menu(db, self.alter_tb.manage_menu, add_column_items=False)
 
     def populate_manage_categories_menu(self: Main, db, menu, add_column_items=False):
         from calibre.db.categories import find_categories
+
         fm = db.new_api.field_metadata
 
         # Get the custom categories
@@ -75,14 +71,18 @@ class TagBrowserMixin:  # {{{
             icon = self.tags_view._model.category_custom_icons.get(cat_name, None)
             if not icon:
                 from calibre.library.field_metadata import category_icon_map
+
                 icon = QIcon.ic(category_icon_map.get(cat_name) or category_icon_map['custom:'])
             return icon
 
         def menu_func(cat_name, item):
             if cat_name == 'authors':
-                return partial(self.do_author_sort_edit, self,
-                               None if item is None else db.new_api.get_item_id('authors', item),
-                               select_sort=False)
+                return partial(
+                    self.do_author_sort_edit,
+                    self,
+                    None if item is None else db.new_api.get_item_id('authors', item),
+                    select_sort=False,
+                )
             elif cat_name == 'user:':
                 return partial(self.do_edit_user_categories, None)
             elif cat_name == 'search':
@@ -149,16 +149,13 @@ class TagBrowserMixin:  # {{{
         self.tags_view.tag_item_renamed.connect(self.do_field_item_value_changed)
         self.tags_view.search_item_renamed.connect(self.saved_searches_changed)
         self.tags_view.drag_drop_finished.connect(self.drag_drop_finished)
-        self.tags_view.restriction_error.connect(self.do_restriction_error,
-                                                 type=Qt.ConnectionType.QueuedConnection)
+        self.tags_view.restriction_error.connect(self.do_restriction_error, type=Qt.ConnectionType.QueuedConnection)
         self.tags_view.tag_item_delete.connect(self.do_tag_item_delete)
         self.tags_view.tag_identifier_delete.connect(self.delete_identifier)
         self.tags_view.apply_tag_to_selected.connect(self.apply_tag_to_selected)
         self.populate_tb_manage_menu(db)
-        self.tags_view._model.user_categories_edited.connect(self.user_categories_edited,
-                type=Qt.ConnectionType.QueuedConnection)
-        self.tags_view._model.user_category_added.connect(self.user_categories_edited,
-                type=Qt.ConnectionType.QueuedConnection)
+        self.tags_view._model.user_categories_edited.connect(self.user_categories_edited, type=Qt.ConnectionType.QueuedConnection)
+        self.tags_view._model.user_category_added.connect(self.user_categories_edited, type=Qt.ConnectionType.QueuedConnection)
         self.tags_view.edit_enum_values.connect(self.edit_enum_values)
         self.tags_view._model.research_required.connect(self.do_gui_research, type=Qt.ConnectionType.QueuedConnection)
 
@@ -174,28 +171,37 @@ class TagBrowserMixin:  # {{{
         self.library_view.current_id = current_row_id  # the setter checks for None
 
     def do_restriction_error(self: Main, e):
-        error_dialog(self.tags_view, _('Invalid search restriction'),
-                         _('The current search restriction is invalid'),
-                         det_msg=str(e) if e else '', show=True)
+        error_dialog(
+            self.tags_view,
+            _('Invalid search restriction'),
+            _('The current search restriction is invalid'),
+            det_msg=str(e) if e else '',
+            show=True,
+        )
 
     def do_add_subcategory(self: Main, on_category_key, new_category_name=None):
-        '''
+        """
         Add a subcategory to the category 'on_category'. If new_category_name is
         None, then a default name is shown and the user is offered the
         opportunity to edit the name.
-        '''
+        """
         db = self.library_view._model.db
         m = self.tags_view._model
         # Can't add an unnamed pref when empty categories are hidden. There is no
         # way for the user to see/edit it.
         if new_category_name is None and m.prefs['tag_browser_hide_empty_categories']:
-            error_dialog(self.tags_view, _('Cannot add subcategory to category'),
-                    _("The option 'Preferences -> Look & feel -> Tag browser -> "
-                      "Hide empty categories' is enabled, preventing the creation "
-                      "of new empty user subcategories because they won't be "
-                      "displayed. Either change the option or use the 'Manage "
-                      "Categories' dialog to add the subcategories."),
-                    show=True)
+            error_dialog(
+                self.tags_view,
+                _('Cannot add subcategory to category'),
+                _(
+                    "The option 'Preferences -> Look & feel -> Tag browser -> "
+                    "Hide empty categories' is enabled, preventing the creation "
+                    "of new empty user subcategories because they won't be "
+                    "displayed. Either change the option or use the 'Manage "
+                    "Categories' dialog to add the subcategories."
+                ),
+                show=True,
+            )
             return
         assert db is not None
         user_cats = db.new_api.pref('user_categories', {})
@@ -228,13 +234,12 @@ class TagBrowserMixin:  # {{{
             self.tags_view.edit(idx)
 
     def do_edit_user_categories(self: Main, on_category=None):
-        '''
+        """
         Open the User categories editor.
-        '''
+        """
         db = self.library_view._model.db
         assert db is not None
-        d = TagCategories(self, db, on_category,
-                          book_ids=self.tags_view._model.get_book_ids_to_use())
+        d = TagCategories(self, db, on_category, book_ids=self.tags_view._model.get_book_ids_to_use())
         if d.exec() == QDialog.DialogCode.Accepted:
             # Order is important. The categories must be removed before setting
             # the preference because setting the pref recomputes the dynamic categories
@@ -246,9 +251,9 @@ class TagBrowserMixin:  # {{{
             self.user_categories_edited()
 
     def do_delete_user_category(self: Main, category_name):
-        '''
+        """
         Delete the User category named category_name. Any leading '@' is removed
-        '''
+        """
         category_name = category_name.removeprefix('@')
         db = self.library_view._model.db
         assert db is not None
@@ -263,12 +268,13 @@ class TagBrowserMixin:  # {{{
             elif k.startswith(category_name + '.'):
                 has_children = True
         if not found:
-            return error_dialog(self.tags_view, _('Delete User category'),
-                         _('%s is not a User category')%category_name, show=True)
+            return error_dialog(self.tags_view, _('Delete User category'), _('%s is not a User category') % category_name, show=True)
         if has_children:
-            if not question_dialog(self.tags_view, _('Delete User category'),
-                                   _('%s contains items. Do you really '
-                                     'want to delete it?')%category_name):
+            if not question_dialog(
+                self.tags_view,
+                _('Delete User category'),
+                _('%s contains items. Do you really want to delete it?') % category_name,
+            ):
                 return
         for k in cat_keys:
             if k == category_name:
@@ -281,29 +287,26 @@ class TagBrowserMixin:  # {{{
         self.user_categories_edited()
 
     def do_del_item_from_user_cat(self: Main, user_cat, item_name, item_category):
-        '''
+        """
         Delete the item (item_name, item_category) from the User category with
         key user_cat. Any leading '@' characters are removed
-        '''
+        """
         user_cat = user_cat.removeprefix('@')
         db = self.current_db
         user_cats = db.new_api.pref('user_categories', {})
         if user_cat not in user_cats:
-            error_dialog(self.tags_view, _('Remove category'),
-                         _('User category %s does not exist')%user_cat,
-                         show=True)
+            error_dialog(self.tags_view, _('Remove category'), _('User category %s does not exist') % user_cat, show=True)
             return
-        self.tags_view._model.delete_item_from_user_category(user_cat,
-                                                      item_name, item_category)
+        self.tags_view._model.delete_item_from_user_category(user_cat, item_name, item_category)
         self.tags_view.recount()
         db.new_api.clear_search_caches()
         self.user_categories_edited()
 
     def do_add_item_to_user_cat(self: Main, dest_category, src_name, src_category):
-        '''
+        """
         Add the item src_name in src_category to the User category
         dest_category. Any leading '@' is removed
-        '''
+        """
         db = self.current_db
         user_cats = db.new_api.pref('user_categories', {})
 
@@ -311,8 +314,12 @@ class TagBrowserMixin:  # {{{
             dest_category = dest_category[1:]
 
         if dest_category not in user_cats:
-            return error_dialog(self.tags_view, _('Add to User category'),
-                    _('A User category %s does not exist')%dest_category, show=True)
+            return error_dialog(
+                self.tags_view,
+                _('Add to User category'),
+                _('A User category %s does not exist') % dest_category,
+                show=True,
+            )
 
         # Now add the item to the destination User category
         add_it = True
@@ -330,8 +337,7 @@ class TagBrowserMixin:  # {{{
 
     # Keep this for compatibility. It isn't used here but could be used in a plugin
     def get_book_ids(self: Main, use_virtual_library, db, category):
-        return self.get_book_ids_in_vl_or_selection(
-            ('virtual_library' if use_virtual_library else None), db, category)
+        return self.get_book_ids_in_vl_or_selection(('virtual_library' if use_virtual_library else None), db, category)
 
     def get_book_ids_in_vl_or_selection(self: Main, use_what, db, category):
         if use_what is None:
@@ -341,8 +347,7 @@ class TagBrowserMixin:  # {{{
         else:
             book_ids = self.library_view.get_selected_ids()
             if not book_ids:
-                warning_dialog(self.tags_view, _('No books selected'),
-                               _('No books are selected. Showing all items.'), show=True)
+                warning_dialog(self.tags_view, _('No books selected'), _('No books are selected. Showing all items.'), show=True)
                 book_ids = None
         data = db.new_api.get_categories(book_ids=book_ids)
         if category in data:
@@ -352,39 +357,43 @@ class TagBrowserMixin:  # {{{
         return result
 
     def do_tags_list_edit(self: Main, tag, category, is_first_letter=False):
-        '''
+        """
         Open the 'manage_X' dialog where X == category. If tag is not None, the
         dialog will position the editor on that item.
-        '''
+        """
 
         db = self.current_db
         if category == 'series':
+
             def key(x):
                 return sort_key(title_sort(x))
+
         else:
             key = sort_key
 
-        d = TagListEditor(self, category=category,
-                          cat_name=db.field_metadata[category]['name'],
-                          tag_to_match=tag,
-                          get_book_ids=partial(self.get_book_ids_in_vl_or_selection, db=db, category=category),
-                          sorter=key, ttm_is_first_letter=is_first_letter,
-                          fm=db.field_metadata[category],
-                          link_map=db.new_api.get_link_map(category))
+        d = TagListEditor(
+            self,
+            category=category,
+            cat_name=db.field_metadata[category]['name'],
+            tag_to_match=tag,
+            get_book_ids=partial(self.get_book_ids_in_vl_or_selection, db=db, category=category),
+            sorter=key,
+            ttm_is_first_letter=is_first_letter,
+            fm=db.field_metadata[category],
+            link_map=db.new_api.get_link_map(category),
+        )
         d.exec()
         if d.result() == QDialog.DialogCode.Accepted:
             to_rename = d.to_rename  # dict of old id to new name
             to_delete = d.to_delete  # list of ids
             orig_name = d.original_names  # dict of id: name
 
-            if (category in ['tags', 'series', 'publisher'] or
-                    db.new_api.field_metadata.is_custom_field(category)):
+            if category in ['tags', 'series', 'publisher'] or db.new_api.field_metadata.is_custom_field(category):
                 m = self.tags_view._model
                 for item in to_delete:
                     m.delete_item_from_all_user_categories(orig_name[item], category)
                 for old_id in to_rename:
-                    m.rename_item_in_all_user_categories(orig_name[old_id],
-                                            category, str(to_rename[old_id]))
+                    m.rename_item_in_all_user_categories(orig_name[old_id], category, str(to_rename[old_id]))
 
                 db.new_api.remove_items(category, to_delete)
                 db.new_api.rename_items(category, to_rename, change_index=False)
@@ -396,11 +405,10 @@ class TagBrowserMixin:  # {{{
                 self.do_field_item_value_changed()
                 self.tags_view.recount()
 
-    def do_tag_item_delete(self: Main, category, item_id, orig_name,
-                           restrict_to_book_ids=None, children=[]):
-        '''
+    def do_tag_item_delete(self: Main, category, item_id, orig_name, restrict_to_book_ids=None, children=[]):
+        """
         Delete an item from some category.
-        '''
+        """
         tag_names = []
         for child in children:
             if child.tag.is_editable:
@@ -413,23 +421,23 @@ class TagBrowserMixin:  # {{{
             # least once, thus announcing the new feature.
             skip_dialog_name = 'tag_item_delete_hierarchical'
             if restrict_to_book_ids:
-                msg = _('%s and its children will be deleted from books '
-                        'in the Virtual library. Are you sure?')%orig_name
+                msg = _('%s and its children will be deleted from books in the Virtual library. Are you sure?') % orig_name
             else:
-                msg = _('%s and its children will be deleted from all books. '
-                        'Are you sure?')%orig_name
+                msg = _('%s and its children will be deleted from all books. Are you sure?') % orig_name
         else:
-            skip_dialog_name='tag_item_delete'
+            skip_dialog_name = 'tag_item_delete'
             if restrict_to_book_ids:
-                msg = _('%s will be deleted from books in the Virtual library. Are you sure?')%orig_name
+                msg = _('%s will be deleted from books in the Virtual library. Are you sure?') % orig_name
             else:
-                msg = _('%s will be deleted from all books. Are you sure?')%orig_name
-        if not question_dialog(self.tags_view,
-                    title=_('Delete item'),
-                    msg='<p>'+ msg,
-                    det_msg=n,
-                    skip_dialog_name=skip_dialog_name,
-                    skip_dialog_msg=_('Show this confirmation again')):
+                msg = _('%s will be deleted from all books. Are you sure?') % orig_name
+        if not question_dialog(
+            self.tags_view,
+            title=_('Delete item'),
+            msg='<p>' + msg,
+            det_msg=n,
+            skip_dialog_name=skip_dialog_name,
+            skip_dialog_msg=_('Show this confirmation again'),
+        ):
             return
         ids_to_remove = []
         if item_id is not None:
@@ -438,8 +446,7 @@ class TagBrowserMixin:  # {{{
             if child.tag.is_editable:
                 ids_to_remove.append(child.tag.id)
 
-        self.current_db.new_api.remove_items(category, ids_to_remove,
-                                             restrict_to_book_ids=restrict_to_book_ids)
+        self.current_db.new_api.remove_items(category, ids_to_remove, restrict_to_book_ids=restrict_to_book_ids)
         if restrict_to_book_ids is None:
             m = self.tags_view._model
             m.delete_item_from_all_user_categories(orig_name, category)
@@ -455,8 +462,12 @@ class TagBrowserMixin:  # {{{
             return
         book_ids = self.library_view.get_selected_ids()
         if not book_ids:
-            return error_dialog(self.library_view, _('No books selected'), _(
-                'You must select some books to apply {} to').format(item_name), show=True)
+            return error_dialog(
+                self.library_view,
+                _('No books selected'),
+                _('You must select some books to apply {} to').format(item_name),
+                show=True,
+            )
         existing_values = db.all_field_for(field_name, book_ids)
         series_index_field = None
         if fm['datatype'] == 'series':
@@ -501,21 +512,23 @@ class TagBrowserMixin:  # {{{
                     changed = True
         if changed:
             if in_vl:
-                msg = _('The identifier %s will be deleted from books in the '
-                        'current virtual library. Are you sure?')%name
+                msg = _('The identifier %s will be deleted from books in the current virtual library. Are you sure?') % name
             else:
-                msg= _('The identifier %s will be deleted from all books. Are you sure?')%name
-            if not question_dialog(self,
+                msg = _('The identifier %s will be deleted from all books. Are you sure?') % name
+            if not question_dialog(
+                self,
                 title=_('Delete identifier'),
                 msg=msg,
                 skip_dialog_name='tag_browser_delete_identifiers',
-                skip_dialog_msg=_('Show this confirmation again')):
+                skip_dialog_msg=_('Show this confirmation again'),
+            ):
                 return
             d.set_field('identifiers', new_ids)
             self.tags_view.recount_with_position_based_index()
 
     def edit_enum_values(self: Main, parent, db, key):
         from calibre.gui2.dialogs.enum_values_edit import EnumValuesEdit
+
         d = EnumValuesEdit(parent, db, key)
         d.exec()
 
@@ -534,14 +547,13 @@ class TagBrowserMixin:  # {{{
         m.research()
         self.library_view.select_rows(ids)
         # refreshing the tags view happens at the emit()/call() site
+
     do_tag_item_renamed = do_field_item_value_changed  # alias for backcompat
 
-    def do_author_sort_edit(self: Main, parent, id_, select_sort=True,
-                            select_link=False, is_first_letter=False,
-                            lookup_author=False):
-        '''
+    def do_author_sort_edit(self: Main, parent, id_, select_sort=True, select_link=False, is_first_letter=False, lookup_author=False):
+        """
         Open the manage authors dialog
-        '''
+        """
         db = self.current_db
         get_authors_func = partial(self.get_book_ids_in_vl_or_selection, db=db, category='authors')
         if lookup_author:
@@ -549,8 +561,7 @@ class TagBrowserMixin:  # {{{
                 if t[1] == id_:
                     id_ = t[0]
                     break
-        editor = EditAuthorsDialog(parent, db, id_, select_sort, select_link,
-                                   get_authors_func, is_first_letter)
+        editor = EditAuthorsDialog(parent, db, id_, select_sort, select_link, get_authors_func, is_first_letter)
         if editor.exec() == QDialog.DialogCode.Accepted:
             # Save and restore the current selections. Note that some changes
             # will cause sort orders to change, so don't bother with attempting
@@ -559,12 +570,12 @@ class TagBrowserMixin:  # {{{
             with self.library_view.preserve_state(preserve_hpos=False, preserve_vpos=False):
                 affected_books, id_map = set(), {}
                 db = db.new_api
-                rename_map = {author_id:new_author for author_id, old_author, new_author, new_sort, new_link in editor.result_val if old_author != new_author}
+                rename_map = {author_id: new_author for author_id, old_author, new_author, new_sort, new_link in editor.result_val if old_author != new_author}
                 if rename_map:
                     affected_books, id_map = db.rename_items('authors', rename_map)
-                link_map = {id_map.get(author_id, author_id):new_link for author_id, old_author, new_author, new_sort, new_link in editor.result_val}
+                link_map = {id_map.get(author_id, author_id): new_link for author_id, old_author, new_author, new_sort, new_link in editor.result_val}
                 affected_books |= db.set_link_for_authors(link_map)
-                sort_map = {id_map.get(author_id, author_id):new_sort for author_id, old_author, new_author, new_sort, new_link in editor.result_val}
+                sort_map = {id_map.get(author_id, author_id): new_sort for author_id, old_author, new_author, new_sort, new_link in editor.result_val}
                 affected_books |= db.set_sort_for_authors(sort_map)
                 self.library_view._model.refresh_ids(affected_books, current_row=self.library_view.currentIndex().row())
             self.do_field_item_value_changed()
@@ -574,14 +585,14 @@ class TagBrowserMixin:  # {{{
         self.library_view._model.refresh_ids(ids)
 
     def tb_category_visibility(self: Main, category, operation):
-        '''
+        """
         Hide or show categories in the tag browser. 'category' is the lookup key.
         Operation can be:
         - 'show' to show the category in the tag browser
         - 'hide' to hide the category
         - 'toggle' to invert its visibility
         - 'is_visible' returns True if the category is currently visible, False otherwise
-        '''
+        """
         if category not in self.tags_view._model.categories:
             raise ValueError(_('change_tb_category_visibility: category %s does not exist') % category)
         cats = self.tags_view.hidden_categories
@@ -601,11 +612,11 @@ class TagBrowserMixin:  # {{{
         self.current_db.new_api.set_pref('tag_browser_hidden_categories', sorted(cats))
         self.tags_view.recount()
 
+
 # }}}
 
 
 class FindBox(HistoryLineEdit):  # {{{
-
     def keyPressEvent(self, e):
         k = e.key()
         if k not in (Qt.Key.Key_Up, Qt.Key.Key_Down):
@@ -619,11 +630,12 @@ class FindBox(HistoryLineEdit):  # {{{
         else:
             HistoryLineEdit.keyPressEvent(self, e)
         self.blockSignals(False)
+
+
 # }}}
 
 
 class AlterTabBrowserMenu(QMenu):
-
     def add_action(self, name: str, text: str, icon: QIcon | None = None) -> QAction:
         ac = self.addAction(text) if icon is None else self.addAction(icon, text)
         assert ac is not None
@@ -644,7 +656,6 @@ class AlterTagBrowser(QToolButton):
 
 
 class TagBrowserBar(QWidget):  # {{{
-
     clear_find = pyqtSignal()
 
     def __init__(self, parent: TagBrowserWidget):
@@ -658,11 +669,7 @@ class TagBrowserBar(QWidget):  # {{{
         b.setText(_('Configure')), b.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
         b.setCursor(Qt.CursorShape.PointingHandCursor)
         b.setPopupMode(QToolButton.ToolButtonPopupMode.InstantPopup)
-        b.setToolTip(textwrap.fill(_(
-            'Change how the Tag browser works, such as,'
-            ' how it is sorted, what happens when you click'
-            ' items, etc.'
-        )))
+        b.setToolTip(textwrap.fill(_('Change how the Tag browser works, such as, how it is sorted, what happens when you click items, etc.')))
         b.setIcon(QIcon.ic('config.png'))
         b.m = m = AlterTabBrowserMenu(b)
         b.setMenu(m)
@@ -675,7 +682,8 @@ class TagBrowserBar(QWidget):  # {{{
         assert item_search_completer is not None
         item_search_completer.setCaseSensitivity(Qt.CaseSensitivity.CaseSensitive)
         self.item_search.setToolTip(
-            _('<p>'
+            _(
+                '<p>'
                 'Search for items in the Tag browser. If the search text begins '
                 'with an equals sign (=) then the search is "equals", otherwise '
                 'it is "contains". Both the equals and contains searches ignore '
@@ -684,19 +692,19 @@ class TagBrowserBar(QWidget):  # {{{
                 '<em>Character variant search</em> is used, where characters '
                 'match regardless of accents, and punctuation is significant. See '
                 '<em>The search interface</em> in the calibre manual for more explanation.'
-            '</p><p>'
+                '</p><p>'
                 'You can limit the search to particular categories using syntax '
                 "similar to calibre's <em>Search</em>. For example, tags:foo will "
                 'find foo in tags but not in authors etc.'
-            '</p><p>'
+                '</p><p>'
                 'Entering *foo will collapse all categories before doing the '
                 'search.'
-            '</p>'))
+                '</p>'
+            )
+        )
         ac = QAction(gp)
         gp.addAction(ac)
-        gp.keyboard.register_shortcut('tag browser find box',
-                _('Find in the Tag browser'), default_keys=(),
-                action=ac, group=_('Tag browser'))
+        gp.keyboard.register_shortcut('tag browser find box', _('Find in the Tag browser'), default_keys=(), action=ac, group=_('Tag browser'))
         ac.triggered.connect(self.set_focus_to_find_box)
 
         self.search_button = QToolButton()
@@ -706,9 +714,7 @@ class TagBrowserBar(QWidget):  # {{{
         self.search_button.setToolTip(_('Find the first/next matching item'))
         ac = QAction(gp)
         gp.addAction(ac)
-        gp.keyboard.register_shortcut('tag browser find button',
-                _('Find next match'), default_keys=(),
-                action=ac, group=_('Tag browser'))
+        gp.keyboard.register_shortcut('tag browser find button', _('Find next match'), default_keys=(), action=ac, group=_('Tag browser'))
         ac.triggered.connect(self.search_button.click)
 
         self.toggle_search_button = b = QToolButton(self)
@@ -765,17 +771,17 @@ class TagBrowserBar(QWidget):  # {{{
             self.search_button.setVisible(False)
             self.item_search.setVisible(False)
 
+
 # }}}
 
 
 class TagBrowserWidget(QFrame):  # {{{
-
     def __init__(self, parent: Main):
         QFrame.__init__(self, parent)
         self.setFrameStyle(QFrame.Shape.NoFrame)
         self._parent = parent
         self._layout = QVBoxLayout(self)
-        self._layout.setContentsMargins(0,0,0,0)
+        self._layout.setContentsMargins(0, 0, 0, 0)
 
         # Set up the find box & button
         self.tb_bar = tbb = TagBrowserBar(self)
@@ -801,63 +807,60 @@ class TagBrowserWidget(QFrame):  # {{{
         self.not_found_label = l
         l.setFrameStyle(QFrame.Shape.StyledPanel)
         l.setAutoFillBackground(True)
-        l.setText('<p><b>'+_('No more matches.</b><p> Click Find again to go to first match'))
+        l.setText('<p><b>' + _('No more matches.</b><p> Click Find again to go to first match'))
         l.setAlignment(Qt.AlignmentFlag.AlignVCenter)
         l.setWordWrap(True)
         l.resize(l.sizeHint())
-        l.move(10,20)
+        l.move(10, 20)
         l.setVisible(False)
         self.not_found_label_timer = QTimer()
         self.not_found_label_timer.setSingleShot(True)
-        self.not_found_label_timer.timeout.connect(self.not_found_label_timer_event,
-                                                   type=Qt.ConnectionType.QueuedConnection)
+        self.not_found_label_timer.timeout.connect(self.not_found_label_timer_event, type=Qt.ConnectionType.QueuedConnection)
         self.collapse_all_action = ac = QAction(parent)
         parent.addAction(ac)
-        parent.keyboard.register_shortcut('tag browser collapse all',
-                _('Collapse all'), default_keys=(),
-                action=ac, group=_('Tag browser'))
+        parent.keyboard.register_shortcut('tag browser collapse all', _('Collapse all'), default_keys=(), action=ac, group=_('Tag browser'))
         connect_lambda(ac.triggered, self, lambda self: self.tags_view.collapseAll())
 
         # The Configure Tag Browser button
         l = self.alter_tb
         ac = QAction(parent)
         parent.addAction(ac)
-        parent.keyboard.register_shortcut('tag browser alter',
-                _('Configure Tag browser'), default_keys=(),
-                action=ac, group=_('Tag browser'))
+        parent.keyboard.register_shortcut('tag browser alter', _('Configure Tag browser'), default_keys=(), action=ac, group=_('Tag browser'))
         ac.triggered.connect(l.showMenu)
         l.m.aboutToShow.connect(self.about_to_show_configure_menu)
         # Show/hide counts
         ac = l.m.add_action('show_counts_action', 'counts')
-        parent.keyboard.register_shortcut('tag browser toggle counts',
-                _('Toggle counts'), default_keys=(),
-                action=ac, group=_('Tag browser'))
+        parent.keyboard.register_shortcut('tag browser toggle counts', _('Toggle counts'), default_keys=(), action=ac, group=_('Tag browser'))
         ac.triggered.connect(self.toggle_counts)
         # Show/hide average rating
         ac = l.m.add_action('show_avg_rating_action', icon=QIcon.ic('rating.png'), text='avg rating')
         ac.triggered.connect(self.toggle_avg_rating)
-        parent.keyboard.register_shortcut('tag browser toggle average ratings',
-                _('Toggle average ratings'), default_keys=(),
-                action=ac, group=_('Tag browser'))
+        parent.keyboard.register_shortcut(
+            'tag browser toggle average ratings',
+            _('Toggle average ratings'),
+            default_keys=(),
+            action=ac,
+            group=_('Tag browser'),
+        )
         # Show/hide notes icon
         ac = l.m.add_action('show_notes_icon_action', icon=QIcon.ic('notes.png'), text='notes icon')
         ac.triggered.connect(self.toggle_notes)
-        parent.keyboard.register_shortcut('tag browser toggle notes',
-                _('Toggle notes icons'), default_keys=(),
-                action=ac, group=_('Tag browser'))
+        parent.keyboard.register_shortcut('tag browser toggle notes', _('Toggle notes icons'), default_keys=(), action=ac, group=_('Tag browser'))
         # Show/hide links icon
         ac = l.m.add_action('show_links_icon_action', icon=QIcon.ic('external-link.png'), text='links icon')
         ac.triggered.connect(self.toggle_links)
-        parent.keyboard.register_shortcut('tag browser toggle links',
-                _('Toggle links icons'), default_keys=(),
-                action=ac, group=_('Tag browser'))
+        parent.keyboard.register_shortcut('tag browser toggle links', _('Toggle links icons'), default_keys=(), action=ac, group=_('Tag browser'))
 
         # Show/hide empty categories
         ac = l.m.add_action('show_empty_categories_action', icon=QIcon.ic('external-link.png'), text='links icon')
         ac.triggered.connect(self.toggle_show_empty_categories)
-        parent.keyboard.register_shortcut('tag browser show empty categories',
-                _('Show empty categories (columns)'), default_keys=(),
-                action=ac, group=_('Tag browser'))
+        parent.keyboard.register_shortcut(
+            'tag browser show empty categories',
+            _('Show empty categories (columns)'),
+            default_keys=(),
+            action=ac,
+            group=_('Tag browser'),
+        )
 
         sb = l.m.add_action('sort_menu', icon=QIcon.ic('sort.png'), text=_('Sort by'))
         m = QMenu(l.m)
@@ -865,20 +868,21 @@ class TagBrowserWidget(QFrame):  # {{{
         bg = QActionGroup(sb)
 
         # Must be in the same order as db2.CATEGORY_SORTS
-        for i, x in enumerate((_('Name'), _('Number of books'),
-                  _('Average rating'))):
+        for i, x in enumerate((_('Name'), _('Number of books'), _('Average rating'))):
             a = m.addAction(x)
             assert a is not None
             parent.keyboard.register_shortcut(
-                    f"tag browser sort by {('notes', 'number of books', 'average rating')[i]}",
-                    (_('Sort by name'), _('Sort by number of books'), _('Sort by average rating'))[i],
-                    default_keys=(), action=a, group=_('Tag browser'))
+                f"tag browser sort by {('notes', 'number of books', 'average rating')[i]}",
+                (_('Sort by name'), _('Sort by number of books'), _('Sort by average rating'))[i],
+                default_keys=(),
+                action=a,
+                group=_('Tag browser'),
+            )
             bg.addAction(a)
             a.setCheckable(True)
             if i == 0:
                 a.setChecked(True)
-        sb.setToolTip(
-                _('Set the sort order for entries in the Tag browser'))
+        sb.setToolTip(_('Set the sort order for entries in the Tag browser'))
         sb.setStatusTip(sb.toolTip())
 
         ma = l.m.add_action('search_type', icon=QIcon.ic('search.png'), text=_('Search type when selecting multiple items'))
@@ -894,24 +898,25 @@ class TagBrowserWidget(QFrame):  # {{{
             a.setCheckable(True)
             if i == 0:
                 a.setChecked(True)
-        ma.setToolTip(
-                _('When selecting multiple entries in the Tag browser '
-                    'match any or all of them'))
+        ma.setToolTip(_('When selecting multiple entries in the Tag browser match any or all of them'))
         ma.setStatusTip(ma.toolTip())
 
         mt = l.m.addAction(_('Manage authors, tags, etc.'))
         assert mt is not None
-        mt.setToolTip(_('All of these category managers are available by right-clicking '
-                       'on items in the Tag browser above'))
+        mt.setToolTip(_('All of these category managers are available by right-clicking on items in the Tag browser above'))
         l.manage_menu = QMenu(l.m)
         mt.setMenu(l.manage_menu)
 
         ac = l.m.add_action('filter_action', icon=QIcon.ic('filter.png'), text=_('Show only books that have visible categories'))
         # Give it a (complicated) shortcut so people can discover a shortcut
         # is possible, I hope without creating collisions.
-        parent.keyboard.register_shortcut('tag browser filter booklist',
-                _('Filter book list'), default_keys=('Ctrl+Alt+Shift+F',),
-                action=ac, group=_('Tag browser'))
+        parent.keyboard.register_shortcut(
+            'tag browser filter booklist',
+            _('Filter book list'),
+            default_keys=('Ctrl+Alt+Shift+F',),
+            action=ac,
+            group=_('Tag browser'),
+        )
         ac.triggered.connect(self.filter_book_list)
 
         l.m.addSeparator()
@@ -921,16 +926,18 @@ class TagBrowserWidget(QFrame):  # {{{
 
         ac = QAction(parent)
         parent.addAction(ac)
-        parent.keyboard.register_shortcut('tag browser toggle item',
-                _("'Click' found item"), default_keys=(),
-                action=ac, group=_('Tag browser'))
+        parent.keyboard.register_shortcut('tag browser toggle item', _("'Click' found item"), default_keys=(), action=ac, group=_('Tag browser'))
         ac.triggered.connect(self.toggle_item)
 
         ac = QAction(parent)
         parent.addAction(ac)
-        parent.keyboard.register_shortcut('tag browser set focus',
-                _('Give the Tag browser keyboard focus'), default_keys=(),
-                action=ac, group=_('Tag browser'))
+        parent.keyboard.register_shortcut(
+            'tag browser set focus',
+            _('Give the Tag browser keyboard focus'),
+            default_keys=(),
+            action=ac,
+            group=_('Tag browser'),
+        )
         ac.triggered.connect(self.give_tb_focus)
 
         # self.leak_test_timer = QTimer(self)
@@ -939,8 +946,8 @@ class TagBrowserWidget(QFrame):  # {{{
 
     def show_tag_browser_preferences(self):
         from calibre.gui2.ui import get_gui
-        get_gui(fail_if_absent=True).iactions['Preferences'].do_config(initial_plugin=('Interface', 'Look & Feel', 'tag_browser_tab'),
-                                                   close_after_initial=True)
+
+        get_gui(fail_if_absent=True).iactions['Preferences'].do_config(initial_plugin=('Interface', 'Look & Feel', 'tag_browser_tab'), close_after_initial=True)
 
     def about_to_show_configure_menu(self):
         m = self.alter_tb.m
@@ -999,19 +1006,19 @@ class TagBrowserWidget(QFrame):  # {{{
         gprefs_local.set('tag browser search box visible', self.toggle_search_button.isChecked())
 
     def restore_expansion_state(self, state):
-        '''
+        """
         Expands the tag browser tree so that the node specified in state is
         visible. Use get_expansion_state() to get the state. The intent is that
         a plugin could restore the state in the library_changed() method.
-        '''
+        """
         if state is not None:
             self.tags_view.restore_expansion(state)
 
     def get_expansion_state(self):
-        '''
+        """
         Returns the currently expanded node in the tag browser as a string
         suitable for restoring using restore_expansion_state.
-        '''
+        """
         return self.tags_view.current_expansion
 
     def toggle_item(self):
@@ -1070,7 +1077,7 @@ class TagBrowserWidget(QFrame):  # {{{
         if colon >= 0:
             key = self._parent.current_db.field_metadata.search_term_to_field_key(txt[:colon])
             if key in self._parent.current_db.field_metadata:
-                txt = txt[colon+1:]
+                txt = txt[colon + 1 :]
             else:
                 key = ''
                 txt = txt[1:] if colon == 0 else txt
@@ -1083,8 +1090,7 @@ class TagBrowserWidget(QFrame):  # {{{
         # At this point the txt might have a leading =, in which case do an
         # exact match search
 
-        if (gprefs.get('tag_browser_always_autocollapse', False) and
-                key is None and not txt.startswith('*')):
+        if gprefs.get('tag_browser_always_autocollapse', False) and key is None and not txt.startswith('*'):
             txt = '*' + txt
         if txt.startswith('*'):
             self.tags_view.collapseAll()
@@ -1111,9 +1117,7 @@ class TagBrowserWidget(QFrame):  # {{{
             txt = txt[1:]
         else:
             equals_match = False
-        self.current_find_position = \
-            model.find_item_node(key, txt, self.current_find_position,
-                                 equals_match=equals_match)
+        self.current_find_position = model.find_item_node(key, txt, self.current_find_position, equals_match=equals_match)
 
         if self.current_find_position:
             self.tags_view.show_item_at_path(self.current_find_position, box=True)
@@ -1140,5 +1144,6 @@ class TagBrowserWidget(QFrame):  # {{{
             a0.accept()
             return
         return QFrame.keyPressEvent(self, a0)
+
 
 # }}}

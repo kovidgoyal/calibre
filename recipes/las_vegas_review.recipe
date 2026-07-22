@@ -2,8 +2,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class AdvancedUserRecipe1274742400(BasicNewsRecipe):
-
-    title = u'Las Vegas Review Journal'
+    title = 'Las Vegas Review Journal'
     __author__ = 'Kovid Goyal'
     language = 'en_US'
 
@@ -15,9 +14,10 @@ class AdvancedUserRecipe1274742400(BasicNewsRecipe):
     auto_cleanup = True
 
     feeds = [
-        (u'Top Stories', u'http://www.reviewjournal.com/rss.xml'),
-        (u'News', u'http://www.reviewjournal.com/news/feed'),
-        (u'Business', u'http://www.reviewjournal.com/business/feed'),
-        (u'Opinion', u'http://www.reviewjournal.com/opinion/feed'),
-        (u'Neon', u'http://www.reviewjournal.com/neon/feed'),
-        (u'Sports', u'http://www.reviewjournal.com/sports/feed')]
+        ('Top Stories', 'http://www.reviewjournal.com/rss.xml'),
+        ('News', 'http://www.reviewjournal.com/news/feed'),
+        ('Business', 'http://www.reviewjournal.com/business/feed'),
+        ('Opinion', 'http://www.reviewjournal.com/opinion/feed'),
+        ('Neon', 'http://www.reviewjournal.com/neon/feed'),
+        ('Sports', 'http://www.reviewjournal.com/sports/feed'),
+    ]

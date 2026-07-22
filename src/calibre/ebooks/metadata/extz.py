@@ -1,9 +1,8 @@
-__license__   = 'GPL v3'
-__copyright__ = '2011, John Schember <john@nachtimwald.com>'
+# License: GPLv3 Copyright: 2011, John Schember <john@nachtimwald.com>
 
-'''
+"""
 Read meta information from extZ (TXTZ, HTMLZ...) files.
-'''
+"""
 
 import io
 import os
@@ -16,9 +15,9 @@ from calibre.utils.zipfile import ZipFile, safe_replace
 
 
 def get_metadata(stream, extract_cover=True):
-    '''
+    """
     Return metadata as a L{MetaInfo} object
-    '''
+    """
     mi = MetaInformation(_('Unknown'), [_('Unknown')])
     stream.seek(0)
     try:
@@ -113,6 +112,7 @@ def get_first_opf_name(zf):
 
 def _write_new_cover(new_cdata, cpath):
     from calibre.utils.img import save_cover_data_to
+
     new_cover = PersistentTemporaryFile(suffix=os.path.splitext(cpath)[1])
     new_cover.close()
     save_cover_data_to(new_cdata, new_cover.name)

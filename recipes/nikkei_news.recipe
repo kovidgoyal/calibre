@@ -12,9 +12,9 @@ from calibre.web.feeds.recipes import BasicNewsRecipe
 
 
 class NikkeiNet_paper_subscription(BasicNewsRecipe):
-    title = u'\u65E5\u672C\u7D4C\u6E08\u65B0\u805E\uFF08\u671D\u520A\u30FB\u5915\u520A\uFF09'
+    title = '\u65e5\u672c\u7d4c\u6e08\u65b0\u805e\uff08\u671d\u520a\u30fb\u5915\u520a\uff09'
     __author__ = 'Ado Nishimura'
-    description = u'\u65E5\u7D4C\u96FB\u5B50\u7248\u306B\u3088\u308B\u65E5\u672C\u7D4C\u6E08\u65B0\u805E\u3002\u671D\u520A\u30FB\u5915\u520A\u306F\u53D6\u5F97\u6642\u9593\u306B\u3088\u308A\u5207\u308A\u66FF\u308F\u308A\u307E\u3059\u3002\u8981\u8CFC\u8AAD'  # noqa: E501
+    description = '\u65e5\u7d4c\u96fb\u5b50\u7248\u306b\u3088\u308b\u65e5\u672c\u7d4c\u6e08\u65b0\u805e\u3002\u671d\u520a\u30fb\u5915\u520a\u306f\u53d6\u5f97\u6642\u9593\u306b\u3088\u308a\u5207\u308a\u66ff\u308f\u308a\u307e\u3059\u3002\u8981\u8cfc\u8aad'  # noqa: E501
     needs_subscription = True
     oldest_article = 1
     max_articles_per_feed = 30
@@ -46,8 +46,7 @@ class NikkeiNet_paper_subscription(BasicNewsRecipe):
             br.open('http://www.nikkei.com/')
             print('-------------------------open first login form-----------------------------')
             try:
-                url = list(br.links(
-                    url_regex='www.nikkei.com/etc/accounts/login'))[0].url
+                url = list(br.links(url_regex='www.nikkei.com/etc/accounts/login'))[0].url
             except IndexError:
                 print('Found IndexError')
                 url = 'http://www.nikkei.com/etc/accounts/login?dps=3&pageflag=top&url=http%3A%2F%2Fwww.nikkei.com%2F'
@@ -88,16 +87,14 @@ class NikkeiNet_paper_subscription(BasicNewsRecipe):
             url = sect.a['href']
             url = url.replace('/article/', '/print-article/')
             url = 'http://www.nikkei.com' + url
-            sect_result.append(dict(title=sect_title, url=url, date='',description='', content=''))
+            sect_result.append(dict(title=sect_title, url=url, date='', description='', content=''))
             result.append([sect_title, sect_result])
         return result
 
     def populate_article_metadata(self, article, soup, first):
         try:
-            elms = soup.findAll(
-                'div', {'class': 'cmn-article_text JSID_key_fonttxt'})
-            elm_text = u'◆'.join(
-                [self.tag_to_string(elm).strip() for elm in elms])
+            elms = soup.findAll('div', {'class': 'cmn-article_text JSID_key_fonttxt'})
+            elm_text = '◆'.join([self.tag_to_string(elm).strip() for elm in elms])
             elm_text = unicodedata.normalize('NFKC', elm_text)
             article.summary = article.text_summary = elm_text
         except Exception:

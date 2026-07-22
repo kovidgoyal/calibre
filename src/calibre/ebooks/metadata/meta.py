@@ -1,5 +1,4 @@
-__license__   = 'GPL v3'
-__copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
+# License: GPLv3 Copyright: 2008, Kovid Goyal <kovid at kovidgoyal.net>
 
 import collections
 import os
@@ -17,10 +16,26 @@ from calibre.utils.localization import _
 # Higher values should be used to update metadata from lower values
 METADATA_PRIORITIES = collections.defaultdict(int)
 for i, ext in enumerate((
-    'html', 'htm', 'xhtml', 'xhtm',
-    'rtf', 'fb2', 'pdf', 'prc', 'odt',
-    'epub', 'lit', 'lrx', 'lrf', 'mobi',
-    'azw', 'azw3', 'azw1', 'rb', 'imp', 'snb'
+    'html',
+    'htm',
+    'xhtml',
+    'xhtm',
+    'rtf',
+    'fb2',
+    'pdf',
+    'prc',
+    'odt',
+    'epub',
+    'lit',
+    'lrx',
+    'lrf',
+    'mobi',
+    'azw',
+    'azw3',
+    'azw1',
+    'rb',
+    'imp',
+    'snb',
 )):
     METADATA_PRIORITIES[ext] = i + 1
 
@@ -52,10 +67,13 @@ def _metadata_from_formats(formats, force_read_metadata=False, pattern=None):
     for path, ext in zip(formats, extensions):
         with open(path, 'rb') as stream:
             try:
-                newmi = get_metadata(stream, stream_type=ext,
-                                     use_libprs_metadata=True,
-                                     force_read_metadata=force_read_metadata,
-                                     pattern=pattern)
+                newmi = get_metadata(
+                    stream,
+                    stream_type=ext,
+                    use_libprs_metadata=True,
+                    force_read_metadata=force_read_metadata,
+                    pattern=pattern,
+                )
                 mi.smart_update(newmi)
             except Exception:
                 continue
@@ -70,21 +88,18 @@ def _metadata_from_formats(formats, force_read_metadata=False, pattern=None):
     return mi
 
 
-def get_metadata(stream, stream_type='lrf', use_libprs_metadata=False,
-                 force_read_metadata=False, pattern=None):
+def get_metadata(stream, stream_type='lrf', use_libprs_metadata=False, force_read_metadata=False, pattern=None):
     pos = 0
     if hasattr(stream, 'tell'):
         pos = stream.tell()
     try:
-        return _get_metadata(stream, stream_type, use_libprs_metadata,
-                             force_read_metadata, pattern)
+        return _get_metadata(stream, stream_type, use_libprs_metadata, force_read_metadata, pattern)
     finally:
         if hasattr(stream, 'seek'):
             stream.seek(pos)
 
 
-def _get_metadata(stream, stream_type, use_libprs_metadata,
-                  force_read_metadata=False, pattern=None):
+def _get_metadata(stream, stream_type, use_libprs_metadata, force_read_metadata=False, pattern=None):
     if stream_type:
         stream_type = stream_type.lower()
     if stream_type in ('html', 'html', 'xhtml', 'xhtm', 'xml'):
@@ -96,7 +111,7 @@ def _get_metadata(stream, stream_type, use_libprs_metadata,
 
     opf = None
     if hasattr(stream, 'name'):
-        c = os.path.splitext(stream.name)[0]+'.opf'
+        c = os.path.splitext(stream.name)[0] + '.opf'
         if os.access(c, os.R_OK):
             opf = opf_metadata(os.path.abspath(c))
 
@@ -105,8 +120,11 @@ def _get_metadata(stream, stream_type, use_libprs_metadata,
 
     name = os.path.basename(getattr(stream, 'name', ''))
     # The fallback pattern matches the default filename format produced by calibre
-    base = metadata_from_filename(name, pat=pattern, fallback_pat=regex.compile(
-            r'^(?P<title>.+) - (?P<author>[^-]+)$', flags=regex.UNICODE | regex.VERSION1 | regex.FULLCASE))
+    base = metadata_from_filename(
+        name,
+        pat=pattern,
+        fallback_pat=regex.compile(r'^(?P<title>.+) - (?P<author>[^-]+)$', flags=regex.UNICODE | regex.VERSION1 | regex.FULLCASE),
+    )
     if not base.authors:
         base.authors = [_('Unknown')]
     if not base.title:
@@ -156,6 +174,7 @@ def metadata_from_filename(name, pat=None, fallback_pat=None):
             if aus:
                 mi.authors = aus
                 if prefs['swap_author_names'] and mi.authors:
+
                     def swap(a):
                         if ',' in a:
                             parts = a.split(',', 1)
@@ -166,8 +185,9 @@ def metadata_from_filename(name, pat=None, fallback_pat=None):
                             parts = parts[:-1]
                             parts.insert(0, t)
                         return ' '.join(parts)
+
                     mi.authors = [swap(x) for x in mi.authors]
-        except (IndexError, ValueError):
+        except IndexError, ValueError:
             pass
         try:
             mi.series = match.group('series')
@@ -176,29 +196,30 @@ def metadata_from_filename(name, pat=None, fallback_pat=None):
         try:
             si = match.group('series_index')
             mi.series_index = float(si)
-        except (IndexError, ValueError, TypeError):
+        except IndexError, ValueError, TypeError:
             pass
         try:
             si = match.group('isbn')
             mi.isbn = si
-        except (IndexError, ValueError):
+        except IndexError, ValueError:
             pass
         try:
             publisher = match.group('publisher')
             mi.publisher = publisher
-        except (IndexError, ValueError):
+        except IndexError, ValueError:
             pass
         try:
             pubdate = match.group('published')
             if pubdate:
                 from calibre.utils.date import parse_only_date
+
                 mi.pubdate = parse_only_date(pubdate)
         except Exception:
             pass
         try:
             comments = match.group('comments')
             mi.comments = comments
-        except (IndexError, ValueError):
+        except IndexError, ValueError:
             pass
 
     if mi.is_null('title'):
@@ -226,6 +247,7 @@ def opf_metadata(opfpath):
             return mi
     except Exception:
         import traceback
+
         traceback.print_exc()
 
 

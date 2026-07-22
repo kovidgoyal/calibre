@@ -4,7 +4,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class AdvancedUserRecipe1718371374(BasicNewsRecipe):
-    title          = 'Give Me Sports'
+    title = 'Give Me Sports'
     language = 'en'
     __author__ = 'Spicy Poison'
     description = 'Give Me Sports is a leading independent sports digital media publication'
@@ -17,9 +17,9 @@ class AdvancedUserRecipe1718371374(BasicNewsRecipe):
     encoding = 'utf-8'
     masthead_url = 'https://www.valnetinc.com/images/brand/gms-logo-full-colored-dark.svg'
     remove_empty_feeds = True
-    auto_cleanup   = True
+    auto_cleanup = True
 
-    feeds          = [
+    feeds = [
         ('Premier League', 'https://www.givemesport.com/feed/tag/premier-league/'),
         ('UEFA Champions League', 'https://www.givemesport.com/feed/tag/champions-league/'),
         ('National Basketball Association', 'https://www.givemesport.com/feed/tag/nba/'),

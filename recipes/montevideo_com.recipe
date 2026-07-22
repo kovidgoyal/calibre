@@ -24,9 +24,7 @@ class Noticias(BasicNewsRecipe):
     oldest_article = 2
     max_articles_per_feed = 100
     keep_only_tags = [dict(id=['txt'])]
-    remove_tags = [
-        dict(name=['object', 'link'])
-    ]
+    remove_tags = [dict(name=['object', 'link'])]
 
     remove_attributes = ['width', 'height', 'style', 'font', 'color']
 
@@ -37,13 +35,13 @@ class Noticias(BasicNewsRecipe):
                 p {font-family:Arial,Helvetica,sans-serif;}
                 '''
     feeds = [
-        (u'Destacados', u'http://www.montevideo.com.uy/anxml.aspx?58'),
-        (u'Noticias', u'http://www.montevideo.com.uy/anxml.aspx?59'),
-        (u'Tecnologia', u'http://www.montevideo.com.uy/anxml.aspx?133'),
-        (u'Tiempo Libre', u'http://www.montevideo.com.uy/anxml.aspx?60'),
+        ('Destacados', 'http://www.montevideo.com.uy/anxml.aspx?58'),
+        ('Noticias', 'http://www.montevideo.com.uy/anxml.aspx?59'),
+        ('Tecnologia', 'http://www.montevideo.com.uy/anxml.aspx?133'),
+        ('Tiempo Libre', 'http://www.montevideo.com.uy/anxml.aspx?60'),
         # (u'Deportes', u'http://www.montevideo.com.uy/anxml.aspx?968'),
         # (u'Pantallazo', u'http://www.montevideo.com.uy/anxml.aspx?1022'),
-        (u'Gastronomia', u'http://www.montevideo.com.uy/anxml.aspx?1023')
+        ('Gastronomia', 'http://www.montevideo.com.uy/anxml.aspx?1023'),
     ]
 
     def get_cover_url(self):

@@ -8,7 +8,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class nepszabadsag(BasicNewsRecipe):
-    title = u'N\u00e9pszabads\u00e1g'
+    title = 'N\u00e9pszabads\u00e1g'
     description = ''
     __author__ = 'bubak'
     use_embedded_content = False
@@ -22,21 +22,18 @@ class nepszabadsag(BasicNewsRecipe):
     remove_javascript = True
     cover_url = 'http://nol.hu/_design/image/logo_nol_live.jpg'
 
-    feeds = [
-        (u'Belföld', u'http://nol.hu/feed/belfold.rss')
-    ]
+    feeds = [('Belföld', 'http://nol.hu/feed/belfold.rss')]
 
     remove_attributes = []
     remove_tags_before = dict(name='div', attrs={'class': ['d-source']})
     remove_tags_after = dict(name='div', attrs={'class': ['tags']})
-    remove_tags = [dict(name='div', attrs={'class': ['h']}),
-                   dict(name='tfoot')]
+    remove_tags = [dict(name='div', attrs={'class': ['h']}), dict(name='tfoot')]
 
     keep_only_tags = [dict(name='table', attrs={'class': 'article-box'})]
 
     # NS sends an ad page sometimes but not frequently enough, TBD
     def AAskip_ad_pages(self, soup):
-        if ('advertisement' in soup.find('title').string.lower()):
+        if 'advertisement' in soup.find('title').string.lower():
             href = soup.find('a').get('href')
             self.log.debug('Skipping to: ' + href)
             new = self.browser.open(href).read().decode('utf-8', 'ignore')

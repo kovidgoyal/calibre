@@ -60,44 +60,45 @@ def styleFromList(styleName, specArray, spacing, showAllLevels):
     numFormatPattern = re.compile(r'([1IiAa])')
     cssLengthPattern = re.compile(r'([^a-z]+)\s*([a-z]+)?')
     m = cssLengthPattern.search(spacing)
-    if (m is not None):
+    if m is not None:
         cssLengthNum = float(m.group(1))
-        if (m.lastindex == 2):
+        if m.lastindex == 2:
             cssLengthUnits = m.group(2)
     i = 0
     while i < len(specArray):
         specification = specArray[i]
         m = numFormatPattern.search(specification)
-        if (m is not None):
-            numPrefix = specification[0:m.start(1)]
-            numSuffix = specification[m.end(1):]
+        if m is not None:
+            numPrefix = specification[0 : m.start(1)]
+            numSuffix = specification[m.end(1) :]
             bullet = ''
             numbered = True
-            if (showAllLevels):
+            if showAllLevels:
                 displayLevels = i + 1
             else:
                 displayLevels = 1
-        else:    # it's a bullet style
+        else:  # it's a bullet style
             bullet = specification
             numPrefix = ''
             numSuffix = ''
             displayLevels = 1
             numbered = False
-        if (numbered):
-            lls = ListLevelStyleNumber(level=(i+1))
-            if (numPrefix != ''):
+        if numbered:
+            lls = ListLevelStyleNumber(level=(i + 1))
+            if numPrefix != '':
                 lls.setAttribute('numprefix', numPrefix)
-            if (numSuffix != ''):
+            if numSuffix != '':
                 lls.setAttribute('numsuffix', numSuffix)
             lls.setAttribute('displaylevels', displayLevels)
         else:
-            lls = ListLevelStyleBullet(level=(i+1),bulletchar=(bullet or '•')[0])
+            lls = ListLevelStyleBullet(level=(i + 1), bulletchar=(bullet or '•')[0])
         llp = ListLevelProperties()
-        llp.setAttribute('spacebefore', str(cssLengthNum * (i+1)) + cssLengthUnits)
+        llp.setAttribute('spacebefore', str(cssLengthNum * (i + 1)) + cssLengthUnits)
         llp.setAttribute('minlabelwidth', str(cssLengthNum) + cssLengthUnits)
         lls.addElement(llp)
         listStyle.addElement(lls)
         i += 1
     return listStyle
+
 
 # vim: set expandtab sw=4 :

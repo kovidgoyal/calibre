@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2026, Kovid Goyal <kovid at kovidgoyal.net>
 
-
 import asyncio
 import builtins
 import os
@@ -19,7 +18,6 @@ def print(*a, **kw):
 
 
 class TestAutomateWorker(unittest.TestCase):
-
     def test_automate_worker(self):
         asyncio.run(name_collision(self))
         worker(self)
@@ -73,7 +71,8 @@ def worker(self: TestAutomateWorker):
             'calibre.web.automate.test_worker:handler_for_test',
             'calibre.web.automate.test_worker:delayed_setup_for_test',
             'calibre.web.automate.test_worker:finalize',
-        input_data=input_data)
+            input_data=input_data,
+        )
         try:
             self.assertTrue(path)
             r = make_request(path, 'some-test-input')

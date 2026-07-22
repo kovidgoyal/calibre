@@ -21,15 +21,16 @@ from . import open_for_read, open_for_write
 
 
 class Tokenize:
-    '''Tokenize RTF into one line per field. Each line will contain information useful for the rest of the script'''
+    """Tokenize RTF into one line per field. Each line will contain information useful for the rest of the script"""
 
-    def __init__(self,
-            in_file,
-            bug_handler,
-            copy=None,
-            run_level=1,
-            # out_file = None,
-        ):
+    def __init__(
+        self,
+        in_file,
+        bug_handler,
+        copy=None,
+        run_level=1,
+        # out_file = None,
+    ):
         self.__file = in_file
         self.__bug_handler = bug_handler
         self.__copy = copy
@@ -80,11 +81,11 @@ class Tokenize:
         elif self.__uc_char:
             # handle \bin tag in case of uc char to skip
             if token[:4] == '\bin':
-                self.__uc_char -=1
+                self.__uc_char -= 1
                 self.__uc_bin = True
                 return ''
             elif token[:1] == '\\':
-                self.__uc_char -=1
+                self.__uc_char -= 1
                 return ''
             else:
                 return self.__remove_uc_chars(0, token)
@@ -100,7 +101,7 @@ class Tokenize:
             uni_char = chr(uni_char).encode('ascii', 'xmlcharrefreplace').decode('ascii')
             self.__uc_char = self.__uc_value[-1]
             # there is only an unicode char
-            if len(token)<= uni_len:
+            if len(token) <= uni_len:
                 return uni_char
             # an unicode char and something else
             # must be after as it is splited on \
@@ -122,8 +123,7 @@ class Tokenize:
         input_file = self.__ms_hex_exp.sub(r'\\mshex0\g<1> ', input_file)
         input_file = self.__utf_ud.sub(r'\\{\\uc0 \g<1>\\}', input_file)
         # remove \n in bin data
-        input_file = self.__bin_exp.sub(lambda x:
-                                        x.group().replace('\n', '') + '\n', input_file)
+        input_file = self.__bin_exp.sub(lambda x: x.group().replace('\n', '') + '\n', input_file)
         # split
         tokens = re.split(self.__splitexp, input_file)
         # remove empty tokens and \n
@@ -152,15 +152,14 @@ class Tokenize:
             # put a backslash in front of to eliminate special cases and
             # make processing easier
             '}': '\\}',
-            }
+        }
         self.__replace_spchar = MReplace(SIMPLE_RPL)
         # add ;? in case of char following \u
         self.__ms_hex_exp = re.compile(r"\\\'([0-9a-fA-F]{2})")
         self.__utf_exp = re.compile(r'\\u(-?\d{3,6}) ?')
         self.__bin_exp = re.compile(r'(?:\\bin(-?\d{0,10})[\n ]+)[01\n]+')
         # manage upr/ud situations
-        self.__utf_ud = re.compile(r'\\{[\n ]?\\upr[\n ]?(?:\\{.*?\\})[\n ]?' +
-                       r'\\{[\n ]?\\*[\n ]?\\ud[\n ]?(\\{.*?\\})[\n ]?\\}[\n ]?\\}')
+        self.__utf_ud = re.compile(r'\\{[\n ]?\\upr[\n ]?(?:\\{.*?\\})[\n ]?' + r'\\{[\n ]?\\*[\n ]?\\ud[\n ]?(\\{.*?\\})[\n ]?\\}[\n ]?\\}')
         # add \n in split for whole file reading
         # why keep backslash whereas \is replaced before?
         # remove \n from endline char
@@ -173,9 +172,9 @@ class Tokenize:
         self.__cwdigit_exp = re.compile(r'(\\[a-zA-Z]+[\-0-9]+)([^0-9 \\]+)')
 
     def tokenize(self):
-        '''Main class for handling other methods. Reads the file,
+        """Main class for handling other methods. Reads the file,
         uses method self.sub_reg to make basic substitutions,
-        and process tokens by itself'''
+        and process tokens by itself"""
         # read
         with open_for_read(self.__file) as read_obj:
             input_file = read_obj.read()
@@ -200,19 +199,19 @@ class Tokenize:
 
         # self.__special_tokens = [ '_', '~', "'", '{', '}' ]
 
+
 # import sys
 # def main(args=sys.argv):
-    # if len(args) < 2:
-        # print('No file')
-        # return
-    # file = 'data_tokens.txt'
-    # if len(args) == 3:
-        # file = args[2]
-    # to = Tokenize(args[1], Exception, out_file = file)
-    # to.tokenize()
-
+# if len(args) < 2:
+# print('No file')
+# return
+# file = 'data_tokens.txt'
+# if len(args) == 3:
+# file = args[2]
+# to = Tokenize(args[1], Exception, out_file = file)
+# to.tokenize()
 
 # if __name__ == '__main__':
-    # sys.exit(main())
+# sys.exit(main())
 
 # calibre-debug -e src/calibre/ebooks/rtf2xml/tokenize.py

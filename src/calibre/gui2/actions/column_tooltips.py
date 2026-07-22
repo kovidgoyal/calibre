@@ -13,18 +13,13 @@ from calibre.utils.localization import _
 
 def column_template_placeholder_text():
     return _(
-            'Notes:\n'
-            '* The template global variable "{0}" contains the column lookup name.\n'
-            '* The global variable "{1}" contains the original tooltip text').format('column_lookup_name',
-                                                                                     'original_text')
+        'Notes:\n* The template global variable "{0}" contains the column lookup name.\n* The global variable "{1}" contains the original tooltip text'
+    ).format('column_lookup_name', 'original_text')
 
 
 class ToolTipDialog(Dialog):
-
     def __init__(self, title, prefs):
-        super().__init__(title, 'show_tooltip_dialog',
-                         prefs=prefs,
-                         default_buttons=QDialogButtonBox.StandardButton.Ok)
+        super().__init__(title, 'show_tooltip_dialog', prefs=prefs, default_buttons=QDialogButtonBox.StandardButton.Ok)
 
     def setup_ui(self):
         l = QVBoxLayout(self)
@@ -38,10 +33,8 @@ class ToolTipDialog(Dialog):
 
 
 class ColumnTooltipsAction(InterfaceAction):
-
     name = 'Column tooltips'
-    action_spec = (_('Column tooltips'), 'edit_input.png',
-                   _('Define a custom tooltip for values in a column'), ())
+    action_spec = (_('Column tooltips'), 'edit_input.png', _('Define a custom tooltip for values in a column'), ())
     action_type = 'current'
     action_add_menu = True
     action_menu_clone_qaction = _('Edit/define column tooltip')
@@ -51,30 +44,32 @@ class ColumnTooltipsAction(InterfaceAction):
         self.qaction.triggered.connect(self.show_template_editor)
         m = self.qaction.menu()
         assert m is not None
-        ac = self.create_menu_action(m, 'tooltip_in_dialog_box', _('Show item tooltip in a dialog'),
-            icon='dialog_information.png', triggered=self.show_tooltip_in_dialog, shortcut=None)
+        ac = self.create_menu_action(
+            m,
+            'tooltip_in_dialog_box',
+            _('Show item tooltip in a dialog'),
+            icon='dialog_information.png',
+            triggered=self.show_tooltip_in_dialog,
+            shortcut=None,
+        )
         m.addAction(ac)
 
     def check_errors(self, only_one_row=False):
         view = self.gui.current_view()
         if view is not self.gui.library_view:
-            error_dialog(self.gui, _('No library view available'),
-                _("You can't set custom tooltips for books on the device.")).exec()
+            error_dialog(self.gui, _('No library view available'), _("You can't set custom tooltips for books on the device.")).exec()
             return (None, None, None, None)
         idx = view.currentIndex()
         if not idx.isValid():
-            error_dialog(self.gui, _('No column selected'),
-                    _('A column (cell) must be selected'), show=True)
+            error_dialog(self.gui, _('No column selected'), _('A column (cell) must be selected'), show=True)
             return (None, None, None, None)
         column = view.model().column_map[idx.column()]
         rows = view.selectionModel().selectedRows()
         if not rows:
-            error_dialog(self.gui, _('No books selected'),
-                    _('At least one book must be selected'), show=True)
+            error_dialog(self.gui, _('No books selected'), _('At least one book must be selected'), show=True)
             return (None, None, None, None)
         if only_one_row and len(rows) != 1:
-            error_dialog(self.gui, _('Only one book'),
-                    _('Only one book can be selected'), show=True)
+            error_dialog(self.gui, _('Only one book'), _('Only one book can be selected'), show=True)
             return (None, None, None, None)
         return view, idx, column, rows
 
@@ -83,12 +78,14 @@ class ColumnTooltipsAction(InterfaceAction):
         if view is None:
             return
         from calibre.gui2.ui import get_gui
+
         db = get_gui(fail_if_absent=True).current_db.new_api
         fm = db.field_metadata.get(column)
         col_name = fm['name']
         d = ToolTipDialog(
-            _('Tooltip for column {name}, row {row_num}').format(name=col_name, row_num=rows[0].row()+1),
-            prefs=db.backend.prefs)
+            _('Tooltip for column {name}, row {row_num}').format(name=col_name, row_num=rows[0].row() + 1),
+            prefs=db.backend.prefs,
+        )
         d.set_html(idx.data(Qt.ItemDataRole.ToolTipRole))
         d.exec()
 

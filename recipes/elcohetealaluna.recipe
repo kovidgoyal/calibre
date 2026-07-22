@@ -11,40 +11,38 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class elcohetealaluna(BasicNewsRecipe):
-    title                = 'El Cohete a la Luna'
-    __author__           = 'Darko Miletic'
-    description          = 'El nuevo portal de Horacio Verbitsky'
-    publisher            = 'Horacio Verbitsky'
-    category             = 'news, politics, Argentina'
-    oldest_article       = 7
-    no_stylesheets       = True
-    encoding             = 'utf8'
+    title = 'El Cohete a la Luna'
+    __author__ = 'Darko Miletic'
+    description = 'El nuevo portal de Horacio Verbitsky'
+    publisher = 'Horacio Verbitsky'
+    category = 'news, politics, Argentina'
+    oldest_article = 7
+    no_stylesheets = True
+    encoding = 'utf8'
     use_embedded_content = False
-    language             = 'es_AR'
-    remove_empty_feeds   = True
-    publication_type     = 'newsportal'
-    auto_cleanup         = False
+    language = 'es_AR'
+    remove_empty_feeds = True
+    publication_type = 'newsportal'
+    auto_cleanup = False
     resolve_internal_links = True
     compress_news_images = True
-    masthead_url         = 'https://www.elcohetealaluna.com/wp-content/uploads/2018/06/logo-menu.png'
+    masthead_url = 'https://www.elcohetealaluna.com/wp-content/uploads/2018/06/logo-menu.png'
 
-    extra_css            = '''
+    extra_css = '''
         body{font-family: Georgia, Times, "Times New Roman", serif}
         h1,h2,.post-author-name{font-family: Oswald, sans-serif}
         h2{color: gray}
         img{margin-top:1em; margin-bottom: 1em; display:block}
     '''
 
-    conversion_options = {
-        'comment': description, 'tags': category, 'publisher': publisher, 'language': language
-    }
+    conversion_options = {'comment': description, 'tags': category, 'publisher': publisher, 'language': language}
 
-    keep_only_tags=[
-       dict(name='div', attrs={'class': lambda x: x and 'post-header' in x.split()}),
-       dict(name='div', attrs={'class': lambda x: x and 'entry-content' in x.split()}),
+    keep_only_tags = [
+        dict(name='div', attrs={'class': lambda x: x and 'post-header' in x.split()}),
+        dict(name='div', attrs={'class': lambda x: x and 'entry-content' in x.split()}),
     ]
 
-    feeds = [(u'Articulos', u'https://www.elcohetealaluna.com/feed/')]
+    feeds = [('Articulos', 'https://www.elcohetealaluna.com/feed/')]
 
     def preprocess_html(self, soup):
         for image in soup.findAll(name='img', attrs={'data-src': True}):

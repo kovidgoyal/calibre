@@ -1,6 +1,4 @@
-__license__ = 'GPL 3'
-__copyright__ = '2009, John Schember <john@nachtimwald.com>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2009, John Schember <john@nachtimwald.com>
 
 import os
 import shutil
@@ -13,76 +11,111 @@ NEWLINE_TYPES = ['system', 'unix', 'old_mac', 'windows']
 
 
 class TXTOutput(OutputFormatPlugin):
-
     name = 'TXT Output'
     author = 'John Schember'
     file_type = 'txt'
     commit_name = 'txt_output'
     ui_data = {
-            'newline_types': NEWLINE_TYPES,
-            'formatting_types': {
-                'plain': _('Plain text'),
-                'markdown': _('Markdown formatted text'),
-                'textile': _('Textile formatted text')
-            },
+        'newline_types': NEWLINE_TYPES,
+        'formatting_types': {
+            'plain': _('Plain text'),
+            'markdown': _('Markdown formatted text'),
+            'textile': _('Textile formatted text'),
+        },
     }
 
     options = {
-        OptionRecommendation(name='newline', recommended_value='system',
+        OptionRecommendation(
+            name='newline',
+            recommended_value='system',
             level=OptionRecommendation.LOW,
-            short_switch='n', choices=NEWLINE_TYPES,
-            help=_("Type of newline to use. Options are %s. Default is 'system'. "
+            short_switch='n',
+            choices=NEWLINE_TYPES,
+            help=_(
+                "Type of newline to use. Options are %s. Default is 'system'. "
                 "Use 'old_mac' for compatibility with Mac OS 9 and earlier. "
                 "For macOS use 'unix'. 'system' will default to the newline "
-                'type used by this OS.') % sorted(NEWLINE_TYPES)),
-        OptionRecommendation(name='txt_output_encoding', recommended_value='utf-8',
+                'type used by this OS.'
+            )
+            % sorted(NEWLINE_TYPES),
+        ),
+        OptionRecommendation(
+            name='txt_output_encoding',
+            recommended_value='utf-8',
             level=OptionRecommendation.LOW,
-            help=_('Specify the character encoding of the output document. '
-            'The default is utf-8.')),
-        OptionRecommendation(name='inline_toc',
-            recommended_value=False, level=OptionRecommendation.LOW,
-            help=_('Add Table of Contents to beginning of the book.')),
-        OptionRecommendation(name='max_line_length',
-            recommended_value=0, level=OptionRecommendation.LOW,
-            help=_('The maximum number of characters per line. This splits on '
-            'the first space before the specified value. If no space is found '
-            'the line will be broken at the space after and will exceed the '
-            'specified value. Also, there is a minimum of 25 characters. '
-            'Use 0 to disable line splitting.')),
-        OptionRecommendation(name='force_max_line_length',
-            recommended_value=False, level=OptionRecommendation.LOW,
-            help=_('Force splitting on the max-line-length value when no space '
-            'is present. Also allows max-line-length to be below the minimum')),
-        OptionRecommendation(name='txt_output_formatting',
-             recommended_value='plain',
-             choices=list(ui_data['formatting_types']),
-             help=_('Formatting used within the document.\n'
-                    '* plain: {plain}\n'
-                    '* markdown: {markdown}\n'
-                    '* textile: {textile}').format(**ui_data['formatting_types'])),
-        OptionRecommendation(name='keep_links',
-            recommended_value=False, level=OptionRecommendation.LOW,
-            help=_('Do not remove links within the document. This is only '
-            'useful when paired with a TXT output formatting option that '
-            'is not none because links are always removed with plain text output.')),
-        OptionRecommendation(name='keep_image_references',
-            recommended_value=False, level=OptionRecommendation.LOW,
-            help=_('Do not remove image references within the document. This is only '
-            'useful when paired with a TXT output formatting option that '
-            'is not none because links are always removed with plain text output.')),
-        OptionRecommendation(name='use_alt_text_for_images',
-            recommended_value=False, level=OptionRecommendation.LOW,
-            help=_('Replace images with the text from the alt attribute, if any.'
-                   ' Ignored if the option to keep image references is specified.')),
-
-        OptionRecommendation(name='keep_color',
-            recommended_value=False, level=OptionRecommendation.LOW,
-            help=_('Do not remove font color from output. This is only useful when '
-                   'TXT output formatting is set to textile. Textile is the only '
-                   'formatting that supports setting font color. If this option is '
-                   'not specified font color will not be set and default to the '
-                   'color displayed by the reader (generally this is black).')),
-     }
+            help=_('Specify the character encoding of the output document. The default is utf-8.'),
+        ),
+        OptionRecommendation(
+            name='inline_toc',
+            recommended_value=False,
+            level=OptionRecommendation.LOW,
+            help=_('Add Table of Contents to beginning of the book.'),
+        ),
+        OptionRecommendation(
+            name='max_line_length',
+            recommended_value=0,
+            level=OptionRecommendation.LOW,
+            help=_(
+                'The maximum number of characters per line. This splits on '
+                'the first space before the specified value. If no space is found '
+                'the line will be broken at the space after and will exceed the '
+                'specified value. Also, there is a minimum of 25 characters. '
+                'Use 0 to disable line splitting.'
+            ),
+        ),
+        OptionRecommendation(
+            name='force_max_line_length',
+            recommended_value=False,
+            level=OptionRecommendation.LOW,
+            help=_('Force splitting on the max-line-length value when no space is present. Also allows max-line-length to be below the minimum'),
+        ),
+        OptionRecommendation(
+            name='txt_output_formatting',
+            recommended_value='plain',
+            choices=list(ui_data['formatting_types']),
+            help=_('Formatting used within the document.\n* plain: {plain}\n* markdown: {markdown}\n* textile: {textile}').format(
+                **ui_data['formatting_types']
+            ),
+        ),
+        OptionRecommendation(
+            name='keep_links',
+            recommended_value=False,
+            level=OptionRecommendation.LOW,
+            help=_(
+                'Do not remove links within the document. This is only '
+                'useful when paired with a TXT output formatting option that '
+                'is not none because links are always removed with plain text output.'
+            ),
+        ),
+        OptionRecommendation(
+            name='keep_image_references',
+            recommended_value=False,
+            level=OptionRecommendation.LOW,
+            help=_(
+                'Do not remove image references within the document. This is only '
+                'useful when paired with a TXT output formatting option that '
+                'is not none because links are always removed with plain text output.'
+            ),
+        ),
+        OptionRecommendation(
+            name='use_alt_text_for_images',
+            recommended_value=False,
+            level=OptionRecommendation.LOW,
+            help=_('Replace images with the text from the alt attribute, if any. Ignored if the option to keep image references is specified.'),
+        ),
+        OptionRecommendation(
+            name='keep_color',
+            recommended_value=False,
+            level=OptionRecommendation.LOW,
+            help=_(
+                'Do not remove font color from output. This is only useful when '
+                'TXT output formatting is set to textile. Textile is the only '
+                'formatting that supports setting font color. If this option is '
+                'not specified font color will not be set and default to the '
+                'color displayed by the reader (generally this is black).'
+            ),
+        ),
+    }
 
     def convert(self, oeb_book, output, input_plugin, opts, log):
         output_path = output
@@ -92,9 +125,11 @@ class TXTOutput(OutputFormatPlugin):
 
         if opts.txt_output_formatting.lower() == 'markdown':
             from calibre.ebooks.txt.markdownml import MarkdownMLizer
+
             self.writer = MarkdownMLizer(log)
         elif opts.txt_output_formatting.lower() == 'textile':
             from calibre.ebooks.txt.textileml import TextileMLizer
+
             self.writer = TextileMLizer(log)
         else:
             self.writer = TXTMLizer(log)
@@ -123,7 +158,6 @@ class TXTOutput(OutputFormatPlugin):
 
 
 class TXTZOutput(TXTOutput):
-
     name = 'TXTZ Output'
     author = 'John Schember'
     file_type = 'txtz'

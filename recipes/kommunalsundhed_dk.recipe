@@ -11,14 +11,14 @@ Kommunal Sundhed
 
 
 class Kommunalsundhed_dk(BasicNewsRecipe):
-    __author__            = 'CoderAllan.github.com'
-    title                 = 'Kommunal Sundhed'
-    description           = 'Nyheder til kommunale ledere, der arbejder med sundhed og sygdom'
-    category              = 'medicin, healthcare, Denmark'
-    oldest_article        = 7
+    __author__ = 'CoderAllan.github.com'
+    title = 'Kommunal Sundhed'
+    description = 'Nyheder til kommunale ledere, der arbejder med sundhed og sygdom'
+    category = 'medicin, healthcare, Denmark'
+    oldest_article = 7
     max_articles_per_feed = 50
-    auto_cleanup          = True
-    language              = 'da'
+    auto_cleanup = True
+    language = 'da'
 
     # Feed are found here: http://kommunalsundhed.dk/
     feeds = [

@@ -20,9 +20,7 @@ class scienceadv(BasicNewsRecipe):
     no_javascript = True
     no_stylesheets = True
     remove_attributes = ['style', 'height', 'width']
-    masthead_url = (
-        'https://www.science.org/pb-assets/images/logos/signaling-logo-1620488350150.svg'
-    )
+    masthead_url = 'https://www.science.org/pb-assets/images/logos/signaling-logo-1620488350150.svg'
     language = 'en'
     simultaneous_downloads = 1
     browser_type = 'webengine'
@@ -38,17 +36,13 @@ class scienceadv(BasicNewsRecipe):
     ignore_duplicate_articles = {'url'}
 
     keep_only_tags = [
-        classes(
-            'meta-panel__left-content news-article__hero__info news-article__hero__figure bodySection'
-        ),
+        classes('meta-panel__left-content news-article__hero__info news-article__hero__figure bodySection'),
         dict(name='h1', attrs={'property': 'name'}),
         dict(name='div', **classes('core-lede contributors core-self-citation')),
         dict(attrs={'data-core-wrapper': 'content'}),
     ]
 
-    remove_tags = [
-        classes('pb-ad news-article__hero__scroller news-article__version-of-story')
-    ]
+    remove_tags = [classes('pb-ad news-article__hero__scroller news-article__version-of-story')]
 
     recipe_specific_options = {
         'issue': {

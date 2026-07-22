@@ -4,7 +4,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class AdvancedUserRecipe1718387215(BasicNewsRecipe):
-    title          = 'Pocket-lint'
+    title = 'Pocket-lint'
     language = 'en'
     __author__ = 'Spicy Poison'
     description = 'Pocket-lint have been geeking out over the intersection of devices, lifestyle hardware, and entertainment news.'
@@ -17,9 +17,9 @@ class AdvancedUserRecipe1718387215(BasicNewsRecipe):
     encoding = 'utf-8'
     masthead_url = 'https://www.valnetinc.com/images/brand/pl-logo-full-colored-dark.svg'
     remove_empty_feeds = True
-    auto_cleanup   = True
+    auto_cleanup = True
 
-    feeds          = [
+    feeds = [
         # Segments
         ('Devices', 'https://www.pocket-lint.com/feed/devices-segment/'),
         ('Entertainment', 'https://www.pocket-lint.com/feed/entertainment-segment/'),
@@ -57,6 +57,5 @@ class AdvancedUserRecipe1718387215(BasicNewsRecipe):
         ('Speakers', 'https://www.pocket-lint.com/feed/speakers/'),
         ('Tablets', 'https://www.pocket-lint.com/feed/tablets/'),
         ('TVs', 'https://www.pocket-lint.com/feed/tv/'),
-
         ('Pocket-lint Awards', 'https://www.pocket-lint.com/feed/awards/'),
     ]

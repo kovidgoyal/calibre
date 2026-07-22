@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = 'Copyright 2011 Starson17'
 '''
 engadget.com
@@ -15,33 +15,34 @@ def classes(classes):
 
 
 class Engadget(BasicNewsRecipe):
-    title                 = u'Engadget'
-    __author__            = 'Starson17, modified by epubli'
-    __version__           = 'v2.2'
-    __date__              = '2024-09-15'
-    description           = 'Tech news'
-    language              = 'en'
-    oldest_article        = 7
+    title = 'Engadget'
+    __author__ = 'Starson17, modified by epubli'
+    __version__ = 'v2.2'
+    __date__ = '2024-09-15'
+    description = 'Tech news'
+    language = 'en'
+    oldest_article = 7
     max_articles_per_feed = 100
-    no_stylesheets        = True
-    use_embedded_content  = False
-    remove_javascript     = True
-    remove_empty_feeds    = True
+    no_stylesheets = True
+    use_embedded_content = False
+    remove_javascript = True
+    remove_empty_feeds = True
     compress_news_images = True
     scale_news_images_to_device = True
     cover_url = 'https://upload.wikimedia.org/wikipedia/commons/b/bb/Engadget-logo.svg'
 
-    keep_only_tags = [
-        classes('caas-content-wrapper caas-title-wrapper'),
-        dict(name='figure')
-    ]
+    keep_only_tags = [classes('caas-content-wrapper caas-title-wrapper'), dict(name='figure')]
     remove_tags = [
-        dict(name='div', attrs={'class':'caas-content-byline-wrapper'}),
-        dict(name='div', attrs={'data-component':'ArticleAuthorInfo'}),
-        classes('commerce-module caas-header caas-prestige-bottom-share caas-share-buttons caas-da caas-3p-blocked commerce-disclaimer notification-upsell-push article-slideshow athena-button email-form')  # noqa: E501
+        dict(name='div', attrs={'class': 'caas-content-byline-wrapper'}),
+        dict(name='div', attrs={'data-component': 'ArticleAuthorInfo'}),
+        classes(
+            'commerce-module caas-header caas-prestige-bottom-share caas-share-buttons caas-da'
+            ' caas-3p-blocked commerce-disclaimer notification-upsell-push'
+            ' article-slideshow athena-button email-form'
+        ),
     ]
 
-    feeds = [(u'Posts', u'https://www.engadget.com/rss.xml')]
+    feeds = [('Posts', 'https://www.engadget.com/rss.xml')]
 
     def parse_feeds(self):
         # Call parent's method.
@@ -52,17 +53,17 @@ class Engadget(BasicNewsRecipe):
             for article in feed.articles[:]:
                 # Remove articles with '...' in the url.
                 if '/deals/' in article.url:
-                    print('Removing:',article.title)
+                    print('Removing:', article.title)
                     feed.articles.remove(article)
                 # Remove articles with '...' in the title.
                 elif 'best tech deals' in article.title:
-                    print('Removing:',article.title)
+                    print('Removing:', article.title)
                     feed.articles.remove(article)
                 elif 'Podcast' in article.title:
-                    print('Removing:',article.title)
+                    print('Removing:', article.title)
                     feed.articles.remove(article)
                 elif 'The Morning After' in article.title:
-                    print('Removing:',article.title)
+                    print('Removing:', article.title)
                     feed.articles.remove(article)
         return feeds
 

@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # License: GPL v3 Copyright: 2022, Kovid Goyal <kovid at kovidgoyal.net>
 
-
 import os
 import re
 import time
@@ -71,10 +70,16 @@ def mark_books(*book_ids):
 
 def reindex_book(book_id, parent):
     get_db().reindex_fts_book(book_id)
-    info_dialog(parent, _('Scheduled for re-indexing'), _(
-        'This book has been scheduled for re-indexing, which typically takes a few seconds, if'
-        ' no other books are being re-indexed. Once indexing is complete, you can re-run the search'
-        ' to see updated results.'), show=True)
+    info_dialog(
+        parent,
+        _('Scheduled for re-indexing'),
+        _(
+            'This book has been scheduled for re-indexing, which typically takes a few seconds, if'
+            ' no other books are being re-indexed. Once indexing is complete, you can re-run the search'
+            ' to see updated results.'
+        ),
+        show=True,
+    )
 
 
 def jump_to_book(book_id, parent=None):
@@ -86,11 +91,17 @@ def jump_to_book(book_id, parent=None):
         elif gprefs['fts_library_restrict_books']:
             error_dialog(parent, _('Not found'), _('This book was not found in the calibre library'), show=True)
         else:
-            error_dialog(parent, _('Not found'), _(
-                'This book is not currently visible in the calibre library.'
-                ' If you have a search or Virtual library active, try clearing that.'
-                ' Or click the "Restrict searched books" checkbox in this window to'
-                ' only search currently visible books.'), show=True)
+            error_dialog(
+                parent,
+                _('Not found'),
+                _(
+                    'This book is not currently visible in the calibre library.'
+                    ' If you have a search or Virtual library active, try clearing that.'
+                    ' Or click the "Restrict searched books" checkbox in this window to'
+                    ' only search currently visible books.'
+                ),
+                show=True,
+            )
 
 
 def show_in_viewer(book_id, text, fmt):
@@ -115,11 +126,11 @@ def open_book(results, match_index=None):
     result_dict = results.result_dicts[match_index]
     formats = results.formats[match_index]
     from calibre.gui2.actions.view import preferred_format
+
     show_in_viewer(book_id, result_dict['text'], preferred_format(formats))
 
 
 class SearchDelegate(ResultsDelegate):
-
     def result_data(self, result):
         if not isinstance(result, dict):
             return None, None, None, None, None
@@ -137,7 +148,6 @@ class SearchDelegate(ResultsDelegate):
 
 
 class Results:
-
     _title = _authors = _series = _series_index = _book_in_db = None
 
     def __init__(self, book_id):
@@ -231,7 +241,6 @@ class Results:
 
 
 class ResultsModel(QAbstractItemModel):
-
     result_found = pyqtSignal(int, object)
     all_results_found = pyqtSignal(int)
     search_started = pyqtSignal()
@@ -311,8 +320,14 @@ class ResultsModel(QAbstractItemModel):
         self.matches_found.emit(-1)
         self.beginResetModel()
         db.fts_search(
-            fts_engine_query, use_stemming=use_stemming, highlight_start='\x1d', highlight_end='\x1d', snippet_size=64,
-            restrict_to_book_ids=restrict_to_book_ids, result_type=construct, return_text=False
+            fts_engine_query,
+            use_stemming=use_stemming,
+            highlight_start='\x1d',
+            highlight_end='\x1d',
+            snippet_size=64,
+            restrict_to_book_ids=restrict_to_book_ids,
+            result_type=construct,
+            return_text=False,
         )
         self._original_results = list(self.results)
         sort_key = gprefs['fts_sort_order']
@@ -330,11 +345,17 @@ class ResultsModel(QAbstractItemModel):
                 self.query_failed.emit(fts_engine_query, str(failure[0]))
         else:
             self.current_thread = Thread(
-                name='FTSQuery', daemon=True, target=self.search_text_in_thread, args=(
-                    self.current_query_id, self.current_thread_abort, matching_book_ids, fts_engine_query),
+                name='FTSQuery',
+                daemon=True,
+                target=self.search_text_in_thread,
+                args=(self.current_query_id, self.current_thread_abort, matching_book_ids, fts_engine_query),
                 kwargs=dict(
-                    use_stemming=use_stemming, highlight_start='\x1d', highlight_end='\x1d', snippet_size=64,
-                    return_text=True)
+                    use_stemming=use_stemming,
+                    highlight_start='\x1d',
+                    highlight_end='\x1d',
+                    snippet_size=64,
+                    return_text=True,
+                ),
             )
         self.current_thread.start()
         return True
@@ -361,7 +382,7 @@ class ResultsModel(QAbstractItemModel):
         self.result_map = {r.book_id: i for i, r in enumerate(self.results)}
 
     def sort_results(self, sort_key):
-        '''Re-sort the current results using the given sort key. Emits results_resorted signal.'''
+        """Re-sort the current results using the given sort key. Emits results_resorted signal."""
         if not self.results:
             return
         if sort_key == 'relevance':
@@ -489,7 +510,6 @@ class ResultsModel(QAbstractItemModel):
 
 
 class ResultsView(QTreeView):
-
     current_changed = pyqtSignal(object, object)
 
     def __init__(self, model, parent=None):
@@ -532,7 +552,11 @@ class ResultsView(QTreeView):
             m.addAction(QIcon.ic('marked.png'), _('Mark this book in the library'), partial(mark_books, results.book_id))
             if match is not None:
                 match = index.row()
-                m.addAction(QIcon.ic('view.png'), _('View this book at this search result'), partial(open_book, results, match_index=match))
+                m.addAction(
+                    QIcon.ic('view.png'),
+                    _('View this book at this search result'),
+                    partial(open_book, results, match_index=match),
+                )
             else:
                 m.addAction(QIcon.ic('view.png'), _('View this book'), partial(open_book, results))
         m.addSeparator()
@@ -542,7 +566,6 @@ class ResultsView(QTreeView):
 
 
 class Summary(QLabel):
-
     frames = ('⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏')
     stop_requested = pyqtSignal()
 
@@ -594,12 +617,10 @@ class Summary(QLabel):
         if self.stopped_at:
             self.setText(f'{base} {duration_text}')
         else:
-            self.setText(
-                f'{base} {frame} <a href="stop://me.com" style="text-decoration: none">{_("Stop")}</a> {duration_text}')
+            self.setText(f'{base} {frame} <a href="stop://me.com" style="text-decoration: none">{_("Stop")}</a> {duration_text}')
 
 
 class SwitchViewButton(QToolButton):
-
     visualisation_changed = pyqtSignal(str)
 
     def __init__(self, parent=None):
@@ -625,7 +646,6 @@ class SwitchViewButton(QToolButton):
 
 
 class SearchInputPanel(QWidget):
-
     search_signal = pyqtSignal(str)
     clear_search = pyqtSignal()
     request_stop_search = pyqtSignal()
@@ -646,17 +666,24 @@ class SearchInputPanel(QWidget):
         self.search_button = sb = QPushButton(QIcon.ic('search.png'), _('&Search'), self)
         sb.clicked.connect(self.search_requested)
         self.restrict = r = QCheckBox(_('&Restrict searched books'))
-        r.setToolTip('<p>' + _(
-            'Restrict search results to only the books currently showing in the main'
-            ' library screen. This means that any Virtual libraries or search results'
-            ' are applied.'))
+        r.setToolTip(
+            '<p>'
+            + _(
+                'Restrict search results to only the books currently showing in the main'
+                ' library screen. This means that any Virtual libraries or search results'
+                ' are applied.'
+            )
+        )
         r.setChecked(gprefs['fts_library_restrict_books'])
         r.stateChanged.connect(lambda state: gprefs.set('fts_library_restrict_books', state != Qt.CheckState.Unchecked.value))
         self.related = rw = QCheckBox(_('&Match on related words'))
-        rw.setToolTip('<p>' + _(
-            'With this option searching for words will also match on any related words (supported in several languages). For'
-            ' example, in the English language: {0} matches {1} and {2} as well').format(
-            '<i>correction</i>', '<i>correcting</i>', '<i>corrected</i>'))
+        rw.setToolTip(
+            '<p>'
+            + _(
+                'With this option searching for words will also match on any related words (supported in several languages). For'
+                ' example, in the English language: {0} matches {1} and {2} as well'
+            ).format('<i>correction</i>', '<i>correcting</i>', '<i>corrected</i>')
+        )
         rw.setChecked(gprefs['fts_library_use_stemmer'])
         rw.stateChanged.connect(lambda state: gprefs.set('fts_library_use_stemmer', state != Qt.CheckState.Unchecked.value))
         self.summary = s = Summary(self)
@@ -678,6 +705,7 @@ class SearchInputPanel(QWidget):
         current_sort = gprefs['fts_sort_order']
         hidden = hidden_fields(get_db())
         self._sort_labels = {}
+
         def add(key, label):
             self._sort_labels[key] = label
             ac = sort_menu.addAction(label)
@@ -685,6 +713,7 @@ class SearchInputPanel(QWidget):
             ac.setChecked(key == current_sort)
             ac.setData(key)
             ag.addAction(ac)
+
         add('relevance', _('Relevance'))
         sort_menu.addSeparator()
         for name, key in get_sorted_fields(get_db()):
@@ -716,7 +745,13 @@ class SearchInputPanel(QWidget):
         hsb.addWidget(self.search_button)
         self.h1 = h1 = QHBoxLayout()
         _sip_layout.addLayout(h1)
-        h1.addWidget(self.restrict), h1.addWidget(self.related), h1.addWidget(self.sort_button), h1.addStretch(), h1.addWidget(self.summary)
+        (
+            h1.addWidget(self.restrict),
+            h1.addWidget(self.related),
+            h1.addWidget(self.sort_button),
+            h1.addStretch(),
+            h1.addWidget(self.summary),
+        )
 
     def clear_history(self):
         self.search_box.clear_history()
@@ -743,7 +778,6 @@ class SearchInputPanel(QWidget):
 
 
 class ResultDetails(QWidget):
-
     show_in_viewer = pyqtSignal(int, int, str)
     remove_book_from_results = pyqtSignal(int)
 
@@ -842,20 +876,30 @@ class ResultDetails(QWidget):
             text += '<p>' + _('{series_index} of {series}').format(series_index=sidx, series=series) + '</p>'
         ict = '<img valign="bottom" src="calibre-icon:///{}" width=16 height=16>'
         text += '<p><a href="calibre://jump" title="{1}">{2}\xa0{0}</a>\xa0\xa0\xa0 '.format(
-            _('Select'), '<p>' + _('Scroll to this book in the calibre library book list and select it') +  f' [{jump_shortcut()}]', ict.format('lt.png'))
+            _('Select'),
+            '<p>' + _('Scroll to this book in the calibre library book list and select it') + f' [{jump_shortcut()}]',
+            ict.format('lt.png'),
+        )
         text += '<a href="calibre://mark" title="{1}">{2}\xa0{0}</a></p>'.format(
-            _('Mark'), '<p>' + _(
-                'Mark this book in the calibre library [{0}].\n'
-                'You can search for marked books using the search term: {1}').format(
-                    mark_shortcut(), '<p>marked:true'), ict.format('marked.png'))
+            _('Mark'),
+            '<p>'
+            + _('Mark this book in the calibre library [{0}].\nYou can search for marked books using the search term: {1}').format(
+                mark_shortcut(), '<p>marked:true'
+            ),
+            ict.format('marked.png'),
+        )
         if get_db().has_id(results.book_id):
             text += '<p><a href="calibre://reindex" title="{1}">{2}\xa0{0}</a>'.format(
-                _('Re-index'), _('Re-index this book. Useful if the book has been changed outside of calibre, and thus not automatically re-indexed.'),
-                ict.format('view-refresh.png'))
+                _('Re-index'),
+                _('Re-index this book. Useful if the book has been changed outside of calibre, and thus not automatically re-indexed.'),
+                ict.format('view-refresh.png'),
+            )
         else:
             text += '<p><a href="calibre://unindex" title="{1}">{2}\xa0{0}</a>'.format(
-                _('Un-index'), _('This book has been deleted from the library but is still present in the'
-                                          ' full text search index. Remove it.'), ict.format('trash.png'))
+                _('Un-index'),
+                _('This book has been deleted from the library but is still present in the full text search index. Remove it.'),
+                ict.format('trash.png'),
+            )
         text += '<p>' + _('This book may have more than one match, only a single match per book is shown.')
         self.book_info.setHtml(text)
 
@@ -871,9 +915,9 @@ class ResultDetails(QWidget):
             html.append('<hr>')
             for fmt in formats:
                 fmt = fmt.upper()
-                tt = _('Open the book, in the {fmt} format.\nWhen using the calibre E-book viewer, it will attempt to scroll\n'
-                       'to this search result automatically.'
-                       ).format(fmt=fmt)
+                tt = _(
+                    'Open the book, in the {fmt} format.\nWhen using the calibre E-book viewer, it will attempt to scroll\nto this search result automatically.'
+                ).format(fmt=fmt)
                 html.append(f'<a title="{tt}" href="book:///{self.current_book_id}/{i}/{fmt}">{fmt}</a>\xa0 ')
             html.append(f'<p>{text}</p>')
         self.results.setHtml('\n'.join(html))
@@ -886,7 +930,6 @@ class ResultDetails(QWidget):
 
 
 class DetailsPanel(QStackedWidget):
-
     show_in_viewer = pyqtSignal(int, int, str)
     remove_book_from_results = pyqtSignal(int)
 
@@ -919,7 +962,6 @@ class DetailsPanel(QStackedWidget):
 
 
 class LeftPanel(QWidget):
-
     def __init__(self, parent=None):
         super().__init__(parent)
         QVBoxLayout(self).setContentsMargins(0, 0, 0, 0)
@@ -929,7 +971,6 @@ class LeftPanel(QWidget):
 
 
 class SplitView(QSplitter):
-
     show_in_viewer = pyqtSignal(int, int, str)
     remove_book_from_results = pyqtSignal(int)
 
@@ -981,7 +1022,6 @@ class SplitView(QSplitter):
 
 
 class ResultsPanel(QWidget):
-
     switch_to_scan_panel = pyqtSignal()
 
     def __init__(self, parent=None):
@@ -1004,7 +1044,10 @@ class ResultsPanel(QWidget):
         ac.triggered.connect(partial(self.mark_books, 'mark-select'))
         ac.setShortcut(QKeySequence('Ctrl+Alt+B', QKeySequence.SequenceFormat.PortableText))
         self.focus_search_action = ac = QAction(self)
-        ac.setShortcuts([QKeySequence('Ctrl+F', QKeySequence.SequenceFormat.PortableText), QKeySequence('/', QKeySequence.SequenceFormat.PortableText)])
+        ac.setShortcuts([
+            QKeySequence('Ctrl+F', QKeySequence.SequenceFormat.PortableText),
+            QKeySequence('/', QKeySequence.SequenceFormat.PortableText),
+        ])
         if isinstance(parent, QDialog):
             parent.finished.connect(self.shutdown)
         self.results_model = m = ResultsModel(self)
@@ -1163,19 +1206,27 @@ class ResultsPanel(QWidget):
         self.sip.search_box.setFocus(Qt.FocusReason.OtherFocusReason)
 
     def query_failed(self, query, err_msg):
-        error_dialog(self, _('Invalid search query'), _(
-            'The search query: {query} was not understood. See <a href="{fts_url}">here</a> for details on the'
-            ' supported query syntax.').format(
-                query=query, fts_url=fts_url), det_msg=err_msg, show=True)
+        error_dialog(
+            self,
+            _('Invalid search query'),
+            _('The search query: {query} was not understood. See <a href="{fts_url}">here</a> for details on the supported query syntax.').format(
+                query=query, fts_url=fts_url
+            ),
+            det_msg=err_msg,
+            show=True,
+        )
 
 
 def develop(view='cards'):
     from calibre.gui2 import Application
     from calibre.library import db
+
     app = Application([])
+
     class Dialog(QDialog):
         def sizeHint(self):
             return QSize(1000, 680)
+
     d = Dialog()
     l = QVBoxLayout(d)
     bb = QDialogButtonBox(d)
@@ -1186,6 +1237,7 @@ def develop(view='cards'):
     l.addWidget(w)
     l.addWidget(bb)
     from calibre.srv.render_book import Profiler
+
     with Profiler():
         w.sip.search_box.setText('asimov')
         w.sip.search_button.click()

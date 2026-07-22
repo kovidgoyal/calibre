@@ -1,6 +1,4 @@
-__license__   = 'GPL v3'
-__copyright__ = '2010, Li Fanxi <lifanxi@freemindworld.com>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2010, Li Fanxi <lifanxi@freemindworld.com>
 
 import os
 import struct
@@ -28,7 +26,6 @@ class BlockData:
 
 
 class SNBFile:
-
     MAGIC = b'SNBP000B'
     REV80 = 0x00008000
     REVA3 = 0x00A3A3A3
@@ -52,10 +49,18 @@ class SNBFile:
     def Parse(self, snbFile, metaOnly=False):
         # Read header
         vmbr = snbFile.read(44)
-        (self.magic, self.rev80, self.revA3, self.revZ1,
-         self.fileCount, self.vfatSize, self.vfatCompressed,
-         self.binStreamSize, self.plainStreamSizeUncompressed,
-         self.revZ2) = struct.unpack('>8siiiiiiiii', vmbr)
+        (
+            self.magic,
+            self.rev80,
+            self.revA3,
+            self.revZ1,
+            self.fileCount,
+            self.vfatSize,
+            self.vfatCompressed,
+            self.binStreamSize,
+            self.plainStreamSizeUncompressed,
+            self.revZ2,
+        ) = struct.unpack('>8siiiiiiiii', vmbr)
 
         # Read FAT
         self.vfat = zlib.decompress(snbFile.read(self.vfatCompressed))
@@ -83,7 +88,7 @@ class SNBFile:
                     uncompressedData = b''
                     for i in range(self.plainBlock):
                         bzdc = bz2.BZ2Decompressor()
-                        if (i < self.plainBlock - 1):
+                        if i < self.plainBlock - 1:
                             bSize = self.blocks[self.binBlock + i + 1].Offset - self.blocks[self.binBlock + i].Offset
                         else:
                             bSize = self.tailOffset - self.blocks[self.binBlock + i].Offset
@@ -96,10 +101,11 @@ class SNBFile:
                                 uncompressedData += data
                         except Exception:
                             import traceback
+
                             print(traceback.print_exc())
                 if len(uncompressedData) != self.plainStreamSizeUncompressed:
                     raise Exception()
-                f.fileBody = uncompressedData[plainPos:plainPos+f.fileSize]
+                f.fileBody = uncompressedData[plainPos : plainPos + f.fileSize]
                 plainPos += f.fileSize
             elif f.attr & 0x01000000 == 0x01000000:
                 # Binary Files
@@ -110,10 +116,10 @@ class SNBFile:
                 raise ValueError(f'Invalid file: {f.attr} {f.fileName}')
 
     def ParseFile(self, vfat, fileCount):
-        fileNames = vfat[fileCount*12:].split(b'\0')
+        fileNames = vfat[fileCount * 12 :].split(b'\0')
         for i in range(fileCount):
             f = FileStream()
-            (f.attr, f.fileNameOffset, f.fileSize) = struct.unpack('>iii', vfat[i * 12 : (i+1)*12])
+            (f.attr, f.fileNameOffset, f.fileSize) = struct.unpack('>iii', vfat[i * 12 : (i + 1) * 12])
             # Decode to str so lookups against str keys match (see GetFileStream)
             f.fileName = fileNames[i].decode('utf-8', 'replace')
             self.files.append(f)
@@ -123,11 +129,13 @@ class SNBFile:
         self.plainBlock = (self.plainStreamSizeUncompressed + 0x8000 - 1) // 0x8000
         for i in range(self.binBlock + self.plainBlock):
             block = BlockData()
-            (block.Offset,) = struct.unpack('>i', vtail[i * 4 : (i+1) * 4])
+            (block.Offset,) = struct.unpack('>i', vtail[i * 4 : (i + 1) * 4])
             self.blocks.append(block)
         for i in range(fileCount):
-            (self.files[i].blockIndex, self.files[i].contentOffset) = struct.unpack('>ii', vtail[
-             (self.binBlock + self.plainBlock) * 4 + i * 8 : (self.binBlock + self.plainBlock) * 4 + (i+1) * 8])
+            (self.files[i].blockIndex, self.files[i].contentOffset) = struct.unpack(
+                '>ii',
+                vtail[(self.binBlock + self.plainBlock) * 4 + i * 8 : (self.binBlock + self.plainBlock) * 4 + (i + 1) * 8],
+            )
 
     def IsValid(self):
         if self.magic != SNBFile.MAGIC:
@@ -192,7 +200,7 @@ class SNBFile:
             if ext in ['.jpeg', '.jpg', '.gif', '.svg', '.png']:
                 with open(os.path.join(path, fname), 'wb') as outfile:
                     outfile.write(f.fileBody)
-                fileNames.append((fname, guess_type('a'+ext)[0]))
+                fileNames.append((fname, guess_type('a' + ext)[0]))
         return fileNames
 
     def Output(self, outputFile):
@@ -224,10 +232,10 @@ class SNBFile:
                 binStream += f.fileBody
             else:
                 raise Exception(f'Unknown file type: {f.attr} {f.fileName}')
-        vfatCompressed = zlib.compress(vfat+fileNameTable)
+        vfatCompressed = zlib.compress(vfat + fileNameTable)
 
         # File header part 2
-        vmbrp2 = struct.pack('>iiiii', len(vfat+fileNameTable), len(vfatCompressed), len(binStream), len(plainStream), SNBFile.REVZ2)
+        vmbrp2 = struct.pack('>iiiii', len(vfat + fileNameTable), len(vfatCompressed), len(binStream), len(plainStream), SNBFile.REVZ2)
         # Write header
         outputFile.write(vmbrp1 + vmbrp2)
         # Write vfat
@@ -262,7 +270,7 @@ class SNBFile:
         offset = 0
         while pos < len(plainStream):
             tailBlock += struct.pack('>i', plainBlockOffset + offset)
-            block = plainStream[pos:pos+0x8000]
+            block = plainStream[pos : pos + 0x8000]
             compressed = bz2.compress(block)
             outputFile.write(compressed)
             offset += len(compressed)

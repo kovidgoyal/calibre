@@ -1,9 +1,5 @@
 #!/usr/bin/env python
-
-__license__   = 'GPL v3'
-__copyright__ = '2025, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
-
+# License: GPLv3 Copyright: 2025, Kovid Goyal <kovid@kovidgoyal.net>
 
 import os
 from contextlib import suppress
@@ -23,7 +19,6 @@ from calibre.utils.localization import _
 
 
 class LogViewer(QDialog):  # {{{
-
     def __init__(self, path: str, text: str, parent=None):
         super().__init__(parent)
         self.log_path = path
@@ -45,16 +40,21 @@ class LogViewer(QDialog):  # {{{
         self.resize(600, 500)
 
     def clear_log(self):
-        if not confirm('<p>'+_('The log for page count failures will be <b>permanently deleted</b>! Are you sure?'), 'clear_log_count', self):
+        if not confirm(
+            '<p>' + _('The log for page count failures will be <b>permanently deleted</b>! Are you sure?'),
+            'clear_log_count',
+            self,
+        ):
             return
         with suppress(FileNotFoundError):
             os.remove(make_long_path_useable(self.log_path))
         self.text.setPlainText('')
+
+
 # }}}
 
 
 class BookshelfTab(QTabWidget, LazyConfigWidgetBase, Ui_Form):
-
     changed_signal = pyqtSignal()
     restart_now = pyqtSignal()
     recount_updated = pyqtSignal(object)
@@ -85,16 +85,19 @@ class BookshelfTab(QTabWidget, LazyConfigWidgetBase, Ui_Form):
 
     def commit(self, *args):
         import re
+
         tp = self.opt_bookshelf_spine_size_template.text()
         if tp not in ('{pages}', '{random}', '{size}') and re.match(r'\{[^}]+\}', tp) is not None and 'width_from_pages(' not in tp:
-            if not confirm(_(
-                'The template used for spine size must return a number between 0 and 1. The template'
-                ' {0} is unlikely to do so. Are you sure?').format(tp), 'confirm-pages-template', parent=self):
+            if not confirm(
+                _('The template used for spine size must return a number between 0 and 1. The template {0} is unlikely to do so. Are you sure?').format(tp),
+                'confirm-pages-template',
+                parent=self,
+            ):
                 raise AbortCommit('abort')
         newval = {}
-        for t,v in self.color_buttons.items():
+        for t, v in self.color_buttons.items():
             newval[t] = d = {}
-            for k,b in v.items():
+            for k, b in v.items():
                 d[k] = b.color
         gprefs['bookshelf_custom_colors'] = newval
         gprefs['bookshelf_font'] = self.current_font_choice.copy()
@@ -107,11 +110,15 @@ class BookshelfTab(QTabWidget, LazyConfigWidgetBase, Ui_Form):
 
         r('bookshelf_icon_rules', {}, setting=RulesSetting)
         r('bookshelf_shadow', gprefs)
-        r('bookshelf_variable_height', gprefs, choices=[
-            (_('Constant'), 'constant'),
-            (_('Constant per group'), 'per_group'),
-            (_('Variable'), 'variable'),
-        ])
+        r(
+            'bookshelf_variable_height',
+            gprefs,
+            choices=[
+                (_('Constant'), 'constant'),
+                (_('Constant per group'), 'per_group'),
+                (_('Variable'), 'variable'),
+            ],
+        )
         r('bookshelf_fade_time', gprefs)
         r('bookshelf_up_to_down', gprefs)
         r('bookshelf_height', gprefs)
@@ -122,51 +129,71 @@ class BookshelfTab(QTabWidget, LazyConfigWidgetBase, Ui_Form):
 
         r('bookshelf_divider_text_right', gprefs)
         r('bookshelf_start_with_divider', gprefs)
-        r('bookshelf_divider_style', gprefs, choices=[
-            (_('Simple text'), 'text'),
-            (_('Block'), 'block'),
-            (_('Rounded corners'), 'rounded_corner'),
-            (_('Gravestone'), 'gravestone'),
-            (_('Hidden'), 'hidden'),
-        ])
+        r(
+            'bookshelf_divider_style',
+            gprefs,
+            choices=[
+                (_('Simple text'), 'text'),
+                (_('Block'), 'block'),
+                (_('Rounded corners'), 'rounded_corner'),
+                (_('Gravestone'), 'gravestone'),
+                (_('Hidden'), 'hidden'),
+            ],
+        )
 
         r('bookshelf_thumbnail_opacity', gprefs)
-        r('bookshelf_thumbnail', gprefs, choices=[
-            (_('Full'), 'full'),
-            (_('Cropped'), 'crops'),
-            (_('Edge'), 'edge'),
-            (_('Disable'), 'none'),
-        ])
-        self.opt_bookshelf_thumbnail.setToolTip(_('''\
+        r(
+            'bookshelf_thumbnail',
+            gprefs,
+            choices=[
+                (_('Full'), 'full'),
+                (_('Cropped'), 'crops'),
+                (_('Edge'), 'edge'),
+                (_('Disable'), 'none'),
+            ],
+        )
+        self.opt_bookshelf_thumbnail.setToolTip(
+            _('''\
 <p><i>Full</i> - shows the full cover on the spine.
 <p><i>Cropped</i> - shows only as much of the cover as will fit on the spine.
 <p><i>Edge</i> - same as <i>Cropped</i> except only part of the spine is covered, the rest is a solid color.
-<p><i>Disable</i> - The spine will be only the dominant color from the cover.'''))
+<p><i>Disable</i> - The spine will be only the dominant color from the cover.''')
+        )
 
-        r('bookshelf_hover', gprefs, choices=[
-            (_('Shift books on the shelf to make room'), 'shift'),
-            (_('Above other books on the shelf'), 'above'),
-            (_('Disable'), 'none'),
-        ])
+        r(
+            'bookshelf_hover',
+            gprefs,
+            choices=[
+                (_('Shift books on the shelf to make room'), 'shift'),
+                (_('Above other books on the shelf'), 'above'),
+                (_('Disable'), 'none'),
+            ],
+        )
 
         r('bookshelf_title_template', db.prefs)
         r('bookshelf_author_template', db.prefs)
         r('bookshelf_spine_size_template', db.prefs)
 
-        r('bookshelf_theme_override', gprefs, choices=[
-            (_('Inherit global setting'), 'none'),
-            (_('Light'), 'light'),
-            (_('Dark'), 'dark'),
-        ])
+        r(
+            'bookshelf_theme_override',
+            gprefs,
+            choices=[
+                (_('Inherit global setting'), 'none'),
+                (_('Light'), 'light'),
+                (_('Dark'), 'dark'),
+            ],
+        )
 
         r('bookshelf_use_custom_background', gprefs)
         self.background_box.link_config('bookshelf_custom_background')
 
         self.config_cache.link(
             self.gui.bookshelf_view.cover_cache,
-            'bookshelf_disk_cache_size', 'bookshelf_cache_size_multiple',
+            'bookshelf_disk_cache_size',
+            'bookshelf_cache_size_multiple',
         )
-        self.opt_bookshelf_spine_size_template.setToolTip(_('''
+        self.opt_bookshelf_spine_size_template.setToolTip(
+            _('''
 <p>The template used to calculate a width for the displayed spine.
 The template must evaluate to a decimal number between 0.0 and 1.0, which will be used to set the width of the books spine.
 An empty template means a fixed spine size for all books.
@@ -177,7 +204,8 @@ book size is used as a proxy.
 The special template {1} uses a random size.
 You can also use a number between 0.0 and 1.0 to pick a fixed size.
 <p>Note that this setting is per-library, which means that you have to set it again for every
-different calibre library you use.''').format('{size}', '{random}', '{pages}'))
+different calibre library you use.''').format('{size}', '{random}', '{pages}')
+        )
 
         self.template_title_button.clicked.connect(partial(self.edit_template_button, self.opt_bookshelf_title_template, _('Edit template for title')))
         self.template_author_button.clicked.connect(partial(self.edit_template_button, self.opt_bookshelf_author_template, _('Edit template for author')))
@@ -213,14 +241,20 @@ different calibre library you use.''').format('{size}', '{random}', '{pages}'))
 
     def change_font(self):
         from calibre.gui2.preferences.look_feel_tabs.font_selection_dialog import FontSelectionDialog
+
         s = self.current_font_choice
         medium = QFontInfo(self.font()).pointSizeF()
         mins = gprefs['bookshelf_min_font_multiplier'] * medium
         maxs = gprefs['bookshelf_max_font_multiplier'] * medium
 
         d = FontSelectionDialog(
-            family=s.get('family') or '', style=s.get('style') or '', parent=self,
-            min_size=mins, medium_size=medium, max_size=maxs)
+            family=s.get('family') or '',
+            style=s.get('style') or '',
+            parent=self,
+            min_size=mins,
+            medium_size=medium,
+            max_size=maxs,
+        )
         if d.exec() == QDialog.DialogCode.Accepted:
             family, style = d.selected_font()
             self.current_font_choice = {'family': family, 'style': style}
@@ -244,12 +278,17 @@ different calibre library you use.''').format('{size}', '{random}', '{pages}'))
         LogViewer(path, txt, self).exec()
 
     def recount_pages(self) -> None:
-        ok, force = confirm(_(
-            'This will cause calibre to rescan all books in your library and update page counts, where changed.'
-            ' The scanning happens in the background and can take up to an hour per thousand books'
-            ' depending on the size of the books and the power of your computer. This is'
-            ' typically never needed and is present mainly to aid debugging and testing. Are you sure?'),
-            'confirm-pages-recount', parent=self, extra_button=_('Re-count &unchanged as well'))
+        ok, force = confirm(
+            _(
+                'This will cause calibre to rescan all books in your library and update page counts, where changed.'
+                ' The scanning happens in the background and can take up to an hour per thousand books'
+                ' depending on the size of the books and the power of your computer. This is'
+                ' typically never needed and is present mainly to aid debugging and testing. Are you sure?'
+            ),
+            'confirm-pages-recount',
+            parent=self,
+            extra_button=_('Re-count &unchanged as well'),
+        )
         if ok:
             db = self.gui.current_db.new_api
             db.mark_for_pages_recount()
@@ -275,7 +314,7 @@ different calibre library you use.''').format('{size}', '{random}', '{pages}'))
         if rows:
             ids = list(map(self.gui.library_view.model().id, rows))
             mi = []
-            for bk in ids[0:min(10, len(ids))]:
+            for bk in ids[0 : min(10, len(ids))]:
                 mi.append(db.get_proxy_metadata(bk))
         t = TemplateDialog(self, line_edit.text(), mi=mi, fm=db.field_metadata)
         t.setWindowTitle(title)
@@ -290,9 +329,13 @@ different calibre library you use.''').format('{size}', '{random}', '{pages}'))
             idx = keys.index('{} ({})'.format(_('Pages'), '#pages'))
         except ValueError:
             idx = 0
-        item, ok = QInputDialog.getItem(self, _('Choose a column for pages'), _(
-            'Choose a column from which to get the page count for the book, such as generated by the Count Pages plugin'),
-                             names, idx)
+        item, ok = QInputDialog.getItem(
+            self,
+            _('Choose a column for pages'),
+            _('Choose a column from which to get the page count for the book, such as generated by the Count Pages plugin'),
+            names,
+            idx,
+        )
         if item and ok and item in names:
             key = keys[names.index(item)]
             template = f'{{{key}:width_from_pages()}}'
@@ -315,6 +358,7 @@ different calibre library you use.''').format('{size}', '{random}', '{pages}'))
 
     def populate_custom_color_theme(self, use_defaults=False):
         from calibre.gui2.library.bookshelf_view import ColorTheme
+
         default = {
             'light': ColorTheme.light_theme()._asdict(),
             'dark': ColorTheme.dark_theme()._asdict(),

@@ -12,12 +12,13 @@ from calibre.web.feeds.news import BasicNewsRecipe, classes
 
 def get_article(article_id):
     from mechanize import Request
+
     mat_url = 'https://mats.mobile.dowjones.io/translate/' + article_id + '/jpml'
     headers = {
         'User-Agent': 'okhttp/4.10.0',
         'Accept-Encoding': 'gzip',
         'Cache-Control': 'no-cache',
-        'x-api-key': ('e''0''5''9''9''5''f''f''4''4''2''1''4''3''2''5''5''e''b''8''3''8''1''f''7''2''d''4''9''1''3''b''f''7''5''0''3''d''6''c'),  # noqa: ISC001
+        'x-api-key': ('e05995ff442143255eb8381f72d4913bf7503d6c'),  # noqa: ISC001
     }
     br = browser()
     req = Request(
@@ -96,24 +97,17 @@ class WSJ(BasicNewsRecipe):
         if w and isinstance(w, str):
             res = '?width=' + w
         if x.get('type', '') == 'image':
-            if (
-                x.get('subtype', '') == 'graphic'
-                or 'images.wsj.net' not in x['manifest-url']
-            ):
-                return '<br><img src="{}"><div class="figc">{}</div>\n'.format(
-                    x['manifest-url'], x['caption'] + '<i> ' + x['credit'] + '</i>'
-                )
+            if x.get('subtype', '') == 'graphic' or 'images.wsj.net' not in x['manifest-url']:
+                return '<br><img src="{}"><div class="figc">{}</div>\n'.format(x['manifest-url'], x['caption'] + '<i> ' + x['credit'] + '</i>')
             return '<br><img src="{}"><div class="figc">{}</div>\n'.format(
                 x['manifest-url'].split('?')[0] + res,
                 x['caption'] + '<i> ' + x['credit'] + '</i>',
             )
         if x.get('type', '') == 'video':
-            return (
-                '<br><a href="{}"><img src="{}"></a><div class="figc">{}</div>\n'.format(
-                    x['share_link'],
-                    x['thumbnail_url'].split('?')[0] + res,
-                    x['caption'] + '<i> ' + x['credit'] + '</i>',
-                )
+            return '<br><a href="{}"><img src="{}"></a><div class="figc">{}</div>\n'.format(
+                x['share_link'],
+                x['thumbnail_url'].split('?')[0] + res,
+                x['caption'] + '<i> ' + x['credit'] + '</i>',
             )
         return
 
@@ -162,17 +156,12 @@ class WSJ(BasicNewsRecipe):
         from contextlib import closing
 
         from calibre.utils.img import save_cover_data_to
+
         br = browser()
         raw = br.open('https://wsjtodaysedition.cmail19.com/t/d-e-suujjg-thithlkhlr-r/')
         soup = BeautifulSoup(raw.read())
-        cu = soup.find(
-                'img',
-                attrs={
-                    'class': 'responsive-img',
-                    'src': lambda x: x and 'WSJMagazine' in x
-                }
-            )['src']
-        self.report_progress(1, _('Downloading cover from %s')%cu)
+        cu = soup.find('img', attrs={'class': 'responsive-img', 'src': lambda x: x and 'WSJMagazine' in x})['src']
+        self.report_progress(1, _('Downloading cover from %s') % cu)
         with closing(br.open(cu, timeout=self.timeout)) as r:
             cdata = r.read()
         cpath = os.path.join(self.output_dir, 'cover.jpg')
@@ -192,9 +181,7 @@ class WSJ(BasicNewsRecipe):
             'variables': '{"publication":"WSJ","region":"US","masthead":"ITPNEXTGEN"}',
             'extensions': '{"persistedQuery":{"version":1,"sha256Hash":"d938226e7d1c1fff050e7d084c72179e2713dcf4736d3a442c618c55b896f847"}}',
         }
-        url = 'https://shared-data.dowjones.io/gateway/graphql?' + urlencode(
-            query, safe='()!', quote_via=quote
-        )
+        url = 'https://shared-data.dowjones.io/gateway/graphql?' + urlencode(query, safe='()!', quote_via=quote)
         raw = self.index_to_soup(url, raw=True)
 
         cat_data = json.loads(raw)['data']['mobileIssuesByMasthead']
@@ -215,14 +202,10 @@ class WSJ(BasicNewsRecipe):
             'variables': '{{"id":"{}"}}'.format(cont_id),
             'extensions': '{"persistedQuery":{"version":1,"sha256Hash":"207fe93376f379bf223ed2734cf9313a28291293366a803db923666fa6b45026"}}',
         }
-        sec_url = 'https://shared-data.dowjones.io/gateway/graphql?' + urlencode(
-            query, safe='()!', quote_via=quote
-        )
+        sec_url = 'https://shared-data.dowjones.io/gateway/graphql?' + urlencode(query, safe='()!', quote_via=quote)
         sec_raw = self.index_to_soup(sec_url, raw=True)
 
-        sec_data = json.loads(sec_raw)['data']['summaryCollectionContent'][
-            'collectionItems'
-        ]
+        sec_data = json.loads(sec_raw)['data']['summaryCollectionContent']['collectionItems']
 
         articles = []
 

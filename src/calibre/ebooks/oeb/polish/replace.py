@@ -1,9 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__   = 'GPL v3'
-__copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2013, Kovid Goyal <kovid at kovidgoyal.net>
 
 import codecs
 import os
@@ -22,7 +18,6 @@ from calibre.utils.localization import _
 
 
 class LinkReplacer:
-
     def __init__(self, base, container, link_map, frag_map):
         self.base = base
         self.frag_map = frag_map
@@ -55,7 +50,6 @@ class LinkReplacer:
 
 
 class IdReplacer:
-
     def __init__(self, base, container, id_map):
         self.base, self.container, self.replaced = base, container, False
         self.id_map = id_map
@@ -85,7 +79,6 @@ class IdReplacer:
 
 
 class LinkRebaser:
-
     def __init__(self, container, old_name, new_name):
         self.old_name, self.new_name = old_name, new_name
         self.container = container
@@ -109,8 +102,8 @@ class LinkRebaser:
         return href
 
 
-def replace_links(container, link_map, frag_map=lambda name, frag:frag, replace_in_opf=False):
-    '''
+def replace_links(container, link_map, frag_map=lambda name, frag: frag, replace_in_opf=False):
+    """
     Replace links to files in the container. Will iterate over all files in the container and change the specified links in them.
 
     :param link_map: A mapping of old canonical name to new canonical name. For example: :code:`{'images/old.png': 'images/new.png'}`
@@ -119,7 +112,7 @@ def replace_links(container, link_map, frag_map=lambda name, frag:frag, replace_
         HTML files. By default, it does nothing.
     :param replace_in_opf: If False, links are not replaced in the OPF file.
 
-    '''
+    """
     for name, media_type in container.mime_map.items():
         if name == container.opf_name and not replace_in_opf:
             continue
@@ -128,13 +121,13 @@ def replace_links(container, link_map, frag_map=lambda name, frag:frag, replace_
 
 
 def replace_ids(container, id_map):
-    '''
+    """
     Replace all links in the container that pointed to the changed ids.
 
     :param id_map: A mapping of {name:id_map} where each id_map is a mapping of {old_id:new_id}
     :return: True iff at least one link was changed
 
-    '''
+    """
     changed = False
     for name, media_type in container.mime_map.items():
         repl = IdReplacer(name, container, id_map)
@@ -154,6 +147,7 @@ def replace_ids(container, id_map):
 
 def smarten_punctuation(container, report):
     from calibre.ebooks.conversion.preprocess import smarten_punctuation
+
     smartened = False
     for path in container.spine_items:
         name = container.abspath_to_name(path)
@@ -163,7 +157,7 @@ def smarten_punctuation(container, report):
             newhtml = smarten_punctuation(html, container.log)
             if newhtml != html:
                 changed = True
-                report(_('Smartened punctuation in: %s')%name)
+                report(_('Smartened punctuation in: %s') % name)
                 newhtml = strip_encoding_declarations(newhtml)
                 f.seek(0)
                 f.truncate()
@@ -182,12 +176,12 @@ def smarten_punctuation(container, report):
 
 
 def rename_files(container, file_map):
-    '''
+    """
     Rename files in the container, automatically updating all links to them.
 
     :param file_map: A mapping of old canonical name to new canonical name, for
         example: :code:`{'text/chapter1.html': 'chapter1.html'}`.
-    '''
+    """
     overlap = set(file_map).intersection(set(file_map.values()))
     if overlap:
         raise ValueError('Circular rename detected. The files {} are both rename targets and destinations'.format(', '.join(overlap)))
@@ -219,7 +213,7 @@ def replace_file(container, name, path, basename, force_mt=None):
             while container.exists(nname):
                 count += 1
                 nname = b + f'_{count}.{e}'
-            rename_files(container, {name:nname})
+            rename_files(container, {name: nname})
             mt = force_mt or container.guess_type(nname)
             container.mime_map[nname] = mt
             for itemid, q in container.manifest_id_map.items():
@@ -234,6 +228,7 @@ def replace_file(container, name, path, basename, force_mt=None):
 def mt_to_category(container, mt):
     from calibre.ebooks.oeb.base import OEB_DOCS, OEB_STYLES
     from calibre.ebooks.oeb.polish.utils import OEB_FONTS, guess_type
+
     if mt in OEB_DOCS:
         category = 'text'
     elif mt in OEB_STYLES:
@@ -250,11 +245,12 @@ def mt_to_category(container, mt):
 
 
 def get_recommended_folders(container, names):
-    ''' Return the folders that are recommended for the given filenames. The
+    """Return the folders that are recommended for the given filenames. The
     recommendation is based on where the majority of files of the same type are
     located in the container. If no files of a particular type are present, the
-    recommended folder is assumed to be the folder containing the OPF file. '''
+    recommended folder is assumed to be the folder containing the OPF file."""
     from calibre.ebooks.oeb.polish.utils import guess_type
+
     counts = defaultdict(Counter)
     for name, mt in container.mime_map.items():
         folder = name.rpartition('/')[0] if '/' in name else ''
@@ -265,8 +261,8 @@ def get_recommended_folders(container, names):
     except KeyError:
         opf_folder = ''
 
-    recommendations = {category:counter.most_common(1)[0][0] for category, counter in counts.items()}
-    return {n:recommendations.get(mt_to_category(container, guess_type(os.path.basename(n))), opf_folder) for n in names}
+    recommendations = {category: counter.most_common(1)[0][0] for category, counter in counts.items()}
+    return {n: recommendations.get(mt_to_category(container, guess_type(os.path.basename(n))), opf_folder) for n in names}
 
 
 def normalize_case(container, val):
@@ -280,7 +276,7 @@ def normalize_case(container, val):
     parts = val.split('/')
     ans = []
     for i in range(len(parts)):
-        q = '/'.join(parts[:i+1])
+        q = '/'.join(parts[: i + 1])
         x = container.name_to_abspath(q)
         xl = parts[i].lower()
         candidates = [c for c in safe_listdir(os.path.dirname(x)) if c != parts[i] and c.lower() == xl]
@@ -346,9 +342,10 @@ def remove_links_in_declaration(href_to_name, style, predicate):
 
 
 def remove_links_to(container, predicate):
-    ''' predicate must be a function that takes the arguments (name, href,
-    fragment=None) and returns True iff the link should be removed '''
+    """predicate must be a function that takes the arguments (name, href,
+    fragment=None) and returns True iff the link should be removed"""
     from calibre.ebooks.oeb.base import OEB_DOCS, OEB_STYLES, XHTML, XPath, iterlinks
+
     stylepath = XPath('//h:style')
     styleattrpath = XPath('//*[@style]')
     changed = set()

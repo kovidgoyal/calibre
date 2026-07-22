@@ -54,7 +54,7 @@ SAVED_VIRTUAL_LIBRARY_ICON_CHOICES = [
 ]
 
 
-add_extra_css(def():
+add_extra_css(def ():
     sel = '.cs-vl-icon-picker '
     ans = build_rule('.cs-vl-icon-picker', margin_top='0.35rem')
     ans += build_rule(sel + '.cs-vl-icon-grid',
@@ -188,10 +188,10 @@ def create_saved_virtual_library_icon_picker(initial_icon=DEFAULT_SAVED_VIRTUAL_
         placeholder=_('e.g. emoji or a few characters'),
         aria_label=_('Custom icon'),
     )
-    custom_inp.addEventListener('input', def(ev):
+    custom_inp.addEventListener('input', def (ev):
         sync_from_input()
     )
-    custom_inp.addEventListener('change', def(ev):
+    custom_inp.addEventListener('change', def (ev):
         sync_from_input()
     )
 

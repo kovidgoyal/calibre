@@ -5,9 +5,9 @@ EN0: int
 DE1: int
 
 def deskey(key: bytes, edf: int) -> None:
-    'Provide a new key for DES en/decryption.'
+    "Provide a new key for DES en/decryption."
     pass
 
 def des(data: bytes) -> bytes:
-    'Perform DES en/decryption.'
+    "Perform DES en/decryption."
     pass

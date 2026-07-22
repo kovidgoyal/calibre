@@ -1,9 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__   = 'GPL v3'
-__copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2012, Kovid Goyal <kovid@kovidgoyal.net>
 
 import os
 import re
@@ -17,37 +13,33 @@ from calibre.utils.localization import _
 
 
 def character_count(html):
-    ''' Return the number of "significant" text characters in a HTML string. '''
+    '''Return the number of "significant" text characters in a HTML string.'''
     count = 0
     strip_space = re.compile(r'\s+')
     for match in re.finditer(r'>[^<]+<', html):
-        count += len(strip_space.sub(' ', match.group()))-2
+        count += len(strip_space.sub(' ', match.group())) - 2
     return count
 
 
 def anchor_map(html):
-    ''' Return map of all anchor names to their offsets in the html '''
+    """Return map of all anchor names to their offsets in the html"""
     ans = {}
-    for match in re.finditer(
-        r'''(?:id|name)\s*=\s*['"]([^'"]+)['"]''', html):
+    for match in re.finditer(r'''(?:id|name)\s*=\s*['"]([^'"]+)['"]''', html):
         anchor = match.group(1)
         ans[anchor] = ans.get(anchor, match.start())
     return ans
 
 
 def all_links(html):
-    ''' Return set of all links in the file '''
+    """Return set of all links in the file"""
     ans = set()
-    for match in re.finditer(
-            r'''<\s*[Aa]\s+.*?[hH][Rr][Ee][Ff]\s*=\s*(['"])(.+?)\1''', html, re.MULTILINE|re.DOTALL):
+    for match in re.finditer(r'''<\s*[Aa]\s+.*?[hH][Rr][Ee][Ff]\s*=\s*(['"])(.+?)\1''', html, re.MULTILINE | re.DOTALL):
         ans.add(replace_entities(match.group(2)))
     return ans
 
 
 class SpineItem(str):
-
-    def __new__(cls, path, mime_type=None, read_anchor_map=True,
-            run_char_count=True, from_epub=False, read_links=True):
+    def __new__(cls, path, mime_type=None, read_anchor_map=True, run_char_count=True, from_epub=False, read_links=True):
         ppath = path.partition('#')[0]
         if not os.path.exists(path) and os.path.exists(ppath):
             path = ppath
@@ -76,8 +68,8 @@ class SpineItem(str):
         obj.all_links = all_links(raw) if read_links else set()
         obj.verified_links = set()
         obj.start_page = -1
-        obj.pages      = -1
-        obj.max_page   = -1
+        obj.pages = -1
+        obj.max_page = -1
         obj.index_entries = []
         if mime_type is None:
             mime_type = guess_type(obj)[0]
@@ -87,7 +79,6 @@ class SpineItem(str):
 
 
 class IndexEntry:
-
     def __init__(self, spine, toc_entry, num):
         self.num = num
         self.text = toc_entry.text or _('Unknown')
@@ -99,8 +90,7 @@ class IndexEntry:
             self.spine_pos = -1
         self.anchor_pos = 0
         if self.spine_pos > -1:
-            self.anchor_pos = spine[self.spine_pos].anchor_map.get(self.anchor,
-                    0)
+            self.anchor_pos = spine[self.spine_pos].anchor_map.get(self.anchor, 0)
 
         self.depth = 0
         p = toc_entry.parent
@@ -112,12 +102,11 @@ class IndexEntry:
         self.spine_count = len(spine)
 
     def find_end(self, all_entries):
-        potential_enders = [i for i in all_entries if
-                i.depth <= self.depth and
-                (
-                    (i.spine_pos == self.spine_pos and i.anchor_pos > self.anchor_pos) or
-                    i.spine_pos > self.spine_pos
-                )]
+        potential_enders = [
+            i
+            for i in all_entries
+            if i.depth <= self.depth and ((i.spine_pos == self.spine_pos and i.anchor_pos > self.anchor_pos) or i.spine_pos > self.spine_pos)
+        ]
         if potential_enders:
             # potential_enders is sorted by (spine_pos, anchor_pos)
             end = potential_enders[0]
@@ -132,10 +121,7 @@ def create_indexing_data(spine, toc):
     if not toc:
         return
     f = partial(IndexEntry, spine)
-    index_entries = list(map(f,
-        (t for t in toc.flat() if t is not toc),
-        (i-1 for i, t in enumerate(toc.flat()) if t is not toc)
-        ))
+    index_entries = list(map(f, (t for t in toc.flat() if t is not toc), (i - 1 for i, t in enumerate(toc.flat()) if t is not toc)))
     index_entries.sort(key=attrgetter('sort_key'))
     [i.find_end(index_entries) for i in index_entries]
 

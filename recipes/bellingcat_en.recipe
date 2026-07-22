@@ -10,7 +10,7 @@ class Bellingcat(BasicNewsRecipe):
     description = 'Bellingcat is an independent international collective of researchers, investigators and citizen journalists using open source and social media investigation to probe a variety of subjects – from Mexican drug lords and crimes against humanity, to tracking the use of chemical weapons and conflicts worldwide. With staff and contributors in more than 20 countries around the world, we operate in a unique field where advanced technology, forensic research, journalism, investigations, transparency and accountability come together.'  # noqa: E501
     publisher = 'Stichting Bellingcat'
     category = 'blog'
-    cover_url = u'https://www.bellingcat.com/app/uploads/2018/04/bellingcat_HP_logo_black.jpg'
+    cover_url = 'https://www.bellingcat.com/app/uploads/2018/04/bellingcat_HP_logo_black.jpg'
     language = 'en'
     no_stylesheets = False
     remove_javascript = False
@@ -22,9 +22,6 @@ class Bellingcat(BasicNewsRecipe):
 
     remove_tags_after = dict(name='div', attrs={'class': 'container'})
 
-    remove_tags = [
-        dict(name='div', attrs={'class': 'social social--share'}),
-        dict(name='div', attrs={'class': 'singular__related'})
-    ]
+    remove_tags = [dict(name='div', attrs={'class': 'social social--share'}), dict(name='div', attrs={'class': 'singular__related'})]
 
     feeds = [('Bellingcat', 'https://www.bellingcat.com/feed/')]

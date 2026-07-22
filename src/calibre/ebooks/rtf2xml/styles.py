@@ -20,17 +20,18 @@ from . import open_for_read, open_for_write
 
 
 class Styles:
-    '''
+    """
     Change lines with style numbers to actual style names.
-    '''
+    """
 
-    def __init__(self,
-            in_file,
-            bug_handler,
-            copy=None,
-            run_level=1,
-            ):
-        '''
+    def __init__(
+        self,
+        in_file,
+        bug_handler,
+        copy=None,
+        run_level=1,
+    ):
+        """
         Required:
             'file'--file to parse
         Optional:
@@ -39,7 +40,7 @@ class Styles:
             directory from which the script is run.)
         Returns:
             nothing
-        '''
+        """
         self.__file = in_file
         self.__bug_handler = bug_handler
         self.__copy = copy
@@ -47,227 +48,227 @@ class Styles:
         self.__run_level = run_level
 
     def __initiate_values(self):
-        '''
+        """
         Initiate all values.
-        '''
+        """
         self.__border_obj = border_parse.BorderParse()
-        self.__styles_dict = {'par':{}, 'char':{}}
+        self.__styles_dict = {'par': {}, 'char': {}}
         self.__styles_num = '0'
         self.__type_of_style = 'par'
         self.__text_string = ''
         self.__state = 'before_styles_table'
         self.__state_dict = {
-        'before_styles_table'   : self.__before_styles_func,
-        'in_styles_table'       : self.__in_styles_func,
-        'in_individual_style'   : self.__in_individual_style_func,
-        'after_styles_table'    : self.__after_styles_func,
-        'mi<mk<styles-beg'      : self.__found_styles_table_func,
-        'mi<mk<styles-end'      : self.__found_end_styles_table_func,
-        'mi<mk<stylei-beg'      : self.__found_beg_ind_style_func,
-        'mi<mk<stylei-end'      : self.__found_end_ind_style_func,
-        'cw<ss<para-style'      : self.__para_style_func,
-        'cw<ss<char-style'      : self.__char_style_func,
+            'before_styles_table': self.__before_styles_func,
+            'in_styles_table': self.__in_styles_func,
+            'in_individual_style': self.__in_individual_style_func,
+            'after_styles_table': self.__after_styles_func,
+            'mi<mk<styles-beg': self.__found_styles_table_func,
+            'mi<mk<styles-end': self.__found_end_styles_table_func,
+            'mi<mk<stylei-beg': self.__found_beg_ind_style_func,
+            'mi<mk<stylei-end': self.__found_end_ind_style_func,
+            'cw<ss<para-style': self.__para_style_func,
+            'cw<ss<char-style': self.__char_style_func,
         }
         # A separate dictionary for parsing the body text
         self.__body_dict = {
-        'cw<ss<para-style'  : (self.__para_style_in_body_func, 'par'),
-        'cw<ss<char-style'  : (self.__para_style_in_body_func, 'char'),
+            'cw<ss<para-style': (self.__para_style_in_body_func, 'par'),
+            'cw<ss<char-style': (self.__para_style_in_body_func, 'char'),
         }
         # Dictionary needed to convert shortened style names to readable names
-        self.__token_dict={
-        # paragraph formatting => pf
-        'par-end___': 'para',
-        'par-def___': 'paragraph-definition',
-        'keep-w-nex': 'keep-with-next',
-        'widow-cntl': 'widow-control',
-        'adjust-rgt': 'adjust-right',
-        'language__': 'language',
-        'right-inde': 'right-indent',
-        'fir-ln-ind': 'first-line-indent',
-        'left-inden': 'left-indent',
-        'space-befo': 'space-before',
-        'space-afte': 'space-after',
-        'line-space': 'line-spacing',
-        'default-ta': 'default-tab',
-        'align_____': 'align',
-        'widow-cntr': 'widow-control',
-        # page formatting mixed in! (Just in older RTF?)
-        'margin-lef':       'left-indent',
-        'margin-rig':       'right-indent',
-        'margin-bot':       'space-after',
-        'margin-top':       'space-before',
-        # stylesheet = > ss
-        'style-shet': 'stylesheet',
-        'based-on__': 'based-on-style',
-        'next-style': 'next-style',
-        'char-style': 'character-style',
-        'para-style': 'paragraph-style',
-        # graphics => gr
-        'picture___': 'pict',
-        'obj-class_': 'obj_class',
-        'mac-pic___': 'mac-pict',
-        # section => sc
-        'section___': 'section-new',
-        'sect-defin': 'section-reset',
-        'sect-note_': 'endnotes-in-section',
-        # list=> ls
-        'list-text_': 'list-text',
-        'list______': 'list',
-        'list-lev-d': 'list-level-definition',
-        'list-cardi': 'list-cardinal-numbering',
-        'list-decim': 'list-decimal-numbering',
-        'list-up-al': 'list-uppercase-alphabetic-numbering',
-        'list-up-ro': 'list-uppercae-roman-numbering',
-        'list-ord__': 'list-ordinal-numbering',
-        'list-ordte': 'list-ordinal-text-numbering',
-        'list-bulli': 'list-bullet',
-        'list-simpi': 'list-simple',
-        'list-conti': 'list-continue',
-        'list-hang_': 'list-hang',
-        # 'list-tebef'    : 'list-text-before',
-        # 'list-level'    : 'level',
-        'list-id___': 'list-id',
-        'list-start': 'list-start',
-        'nest-level': 'nest-level',
-        # duplicate
-        'list-level': 'list-level',
-        # notes => nt
-        'footnote__': 'footnote',
-        'type______': 'type',
-        # anchor => an
-        'toc_______': 'anchor-toc',
-        'book-mk-st': 'bookmark-start',
-        'book-mk-en': 'bookmark-end',
-        'index-mark': 'anchor-index',
-        'place_____': 'place',
-        # field => fd
-        'field_____': 'field',
-        'field-inst': 'field-instruction',
-        'field-rslt': 'field-result',
-        'datafield_': 'data-field',
-        # info-tables => it
-        'font-table': 'font-table',
-        'colr-table': 'color-table',
-        'lovr-table': 'list-override-table',
-        'listtable_': 'list-table',
-        'revi-table': 'revision-table',
-        # character info => ci
-        'hidden____': 'hidden',
-        'italics___': 'italics',
-        'bold______': 'bold',
-        'strike-thr': 'strike-through',
-        'shadow____': 'shadow',
-        'outline___': 'outline',
-        'small-caps': 'small-caps',
-        'dbl-strike': 'double-strike-through',
-        'emboss____': 'emboss',
-        'engrave___': 'engrave',
-        'subscript_': 'subscript',
-        'superscrip': 'superscript',
-        'plain_____': 'plain',
-        'font-style': 'font-style',
-        'font-color': 'font-color',
-        'font-size_': 'font-size',
-        'font-up___': 'superscript',
-        'font-down_': 'subscript',
-        'red_______': 'red',
-        'blue______': 'blue',
-        'green_____': 'green',
-        'caps______':       'caps',
-        # table => tb
-        'row-def___': 'row-definition',
-        'cell______': 'cell',
-        'row_______': 'row',
-        'in-table__': 'in-table',
-        'columns___': 'columns',
-        'row-pos-le': 'row-position-left',
-        'cell-posit': 'cell-position',
-        # preamble => pr
-        # underline
-        'underlined': 'underlined',
-        # border => bd
-        'bor-t-r-hi': 'border-table-row-horizontal-inside',
-        'bor-t-r-vi': 'border-table-row-vertical-inside',
-        'bor-t-r-to': 'border-table-row-top',
-        'bor-t-r-le': 'border-table-row-left',
-        'bor-t-r-bo': 'border-table-row-bottom',
-        'bor-t-r-ri': 'border-table-row-right',
-        'bor-cel-bo': 'border-cell-bottom',
-        'bor-cel-to': 'border-cell-top',
-        'bor-cel-le': 'border-cell-left',
-        'bor-cel-ri': 'border-cell-right',
-        # 'bor-par-bo'    : 'border-paragraph-bottom',
-        'bor-par-to': 'border-paragraph-top',
-        'bor-par-le': 'border-paragraph-left',
-        'bor-par-ri': 'border-paragraph-right',
-        'bor-par-bo': 'border-paragraph-box',
-        'bor-for-ev': 'border-for-every-paragraph',
-        'bor-outsid': 'border-outisde',
-        'bor-none__': 'border',
-        # border type => bt
-        'bdr-single': 'single',
-        'bdr-doubtb': 'double-thickness-border',
-        'bdr-shadow': 'shadowed-border',
-        'bdr-double': 'double-border',
-        'bdr-dotted': 'dotted-border',
-        'bdr-dashed': 'dashed',
-        'bdr-hair__': 'hairline',
-        'bdr-inset_': 'inset',
-        'bdr-das-sm': 'dash-small',
-        'bdr-dot-sm': 'dot-dash',
-        'bdr-dot-do': 'dot-dot-dash',
-        'bdr-outset': 'outset',
-        'bdr-trippl': 'tripple',
-        'bdr-thsm__': 'thick-thin-small',
-        'bdr-htsm__': 'thin-thick-small',
-        'bdr-hthsm_': 'thin-thick-thin-small',
-        'bdr-thm__': 'thick-thin-medium',
-        'bdr-htm__': 'thin-thick-medium',
-        'bdr-hthm_': 'thin-thick-thin-medium',
-        'bdr-thl__': 'thick-thin-large',
-        'bdr-hthl_': 'think-thick-think-large',
-        'bdr-wavy_': 'wavy',
-        'bdr-d-wav': 'double-wavy',
-        'bdr-strip': 'striped',
-        'bdr-embos': 'emboss',
-        'bdr-engra': 'engrave',
-        'bdr-frame': 'frame',
-        'bdr-li-wid': 'line-width',
-        # tabs
-        'tab-center':   'center',
-        'tab-right_':   'right',
-        'tab-dec___':   'decimal',
-        'leader-dot':   'leader-dot',
-        'leader-hyp':   'leader-hyphen',
-        'leader-und':   'leader-underline',
+        self.__token_dict = {
+            # paragraph formatting => pf
+            'par-end___': 'para',
+            'par-def___': 'paragraph-definition',
+            'keep-w-nex': 'keep-with-next',
+            'widow-cntl': 'widow-control',
+            'adjust-rgt': 'adjust-right',
+            'language__': 'language',
+            'right-inde': 'right-indent',
+            'fir-ln-ind': 'first-line-indent',
+            'left-inden': 'left-indent',
+            'space-befo': 'space-before',
+            'space-afte': 'space-after',
+            'line-space': 'line-spacing',
+            'default-ta': 'default-tab',
+            'align_____': 'align',
+            'widow-cntr': 'widow-control',
+            # page formatting mixed in! (Just in older RTF?)
+            'margin-lef': 'left-indent',
+            'margin-rig': 'right-indent',
+            'margin-bot': 'space-after',
+            'margin-top': 'space-before',
+            # stylesheet = > ss
+            'style-shet': 'stylesheet',
+            'based-on__': 'based-on-style',
+            'next-style': 'next-style',
+            'char-style': 'character-style',
+            'para-style': 'paragraph-style',
+            # graphics => gr
+            'picture___': 'pict',
+            'obj-class_': 'obj_class',
+            'mac-pic___': 'mac-pict',
+            # section => sc
+            'section___': 'section-new',
+            'sect-defin': 'section-reset',
+            'sect-note_': 'endnotes-in-section',
+            # list=> ls
+            'list-text_': 'list-text',
+            'list______': 'list',
+            'list-lev-d': 'list-level-definition',
+            'list-cardi': 'list-cardinal-numbering',
+            'list-decim': 'list-decimal-numbering',
+            'list-up-al': 'list-uppercase-alphabetic-numbering',
+            'list-up-ro': 'list-uppercae-roman-numbering',
+            'list-ord__': 'list-ordinal-numbering',
+            'list-ordte': 'list-ordinal-text-numbering',
+            'list-bulli': 'list-bullet',
+            'list-simpi': 'list-simple',
+            'list-conti': 'list-continue',
+            'list-hang_': 'list-hang',
+            # 'list-tebef'    : 'list-text-before',
+            # 'list-level'    : 'level',
+            'list-id___': 'list-id',
+            'list-start': 'list-start',
+            'nest-level': 'nest-level',
+            # duplicate
+            'list-level': 'list-level',
+            # notes => nt
+            'footnote__': 'footnote',
+            'type______': 'type',
+            # anchor => an
+            'toc_______': 'anchor-toc',
+            'book-mk-st': 'bookmark-start',
+            'book-mk-en': 'bookmark-end',
+            'index-mark': 'anchor-index',
+            'place_____': 'place',
+            # field => fd
+            'field_____': 'field',
+            'field-inst': 'field-instruction',
+            'field-rslt': 'field-result',
+            'datafield_': 'data-field',
+            # info-tables => it
+            'font-table': 'font-table',
+            'colr-table': 'color-table',
+            'lovr-table': 'list-override-table',
+            'listtable_': 'list-table',
+            'revi-table': 'revision-table',
+            # character info => ci
+            'hidden____': 'hidden',
+            'italics___': 'italics',
+            'bold______': 'bold',
+            'strike-thr': 'strike-through',
+            'shadow____': 'shadow',
+            'outline___': 'outline',
+            'small-caps': 'small-caps',
+            'dbl-strike': 'double-strike-through',
+            'emboss____': 'emboss',
+            'engrave___': 'engrave',
+            'subscript_': 'subscript',
+            'superscrip': 'superscript',
+            'plain_____': 'plain',
+            'font-style': 'font-style',
+            'font-color': 'font-color',
+            'font-size_': 'font-size',
+            'font-up___': 'superscript',
+            'font-down_': 'subscript',
+            'red_______': 'red',
+            'blue______': 'blue',
+            'green_____': 'green',
+            'caps______': 'caps',
+            # table => tb
+            'row-def___': 'row-definition',
+            'cell______': 'cell',
+            'row_______': 'row',
+            'in-table__': 'in-table',
+            'columns___': 'columns',
+            'row-pos-le': 'row-position-left',
+            'cell-posit': 'cell-position',
+            # preamble => pr
+            # underline
+            'underlined': 'underlined',
+            # border => bd
+            'bor-t-r-hi': 'border-table-row-horizontal-inside',
+            'bor-t-r-vi': 'border-table-row-vertical-inside',
+            'bor-t-r-to': 'border-table-row-top',
+            'bor-t-r-le': 'border-table-row-left',
+            'bor-t-r-bo': 'border-table-row-bottom',
+            'bor-t-r-ri': 'border-table-row-right',
+            'bor-cel-bo': 'border-cell-bottom',
+            'bor-cel-to': 'border-cell-top',
+            'bor-cel-le': 'border-cell-left',
+            'bor-cel-ri': 'border-cell-right',
+            # 'bor-par-bo'    : 'border-paragraph-bottom',
+            'bor-par-to': 'border-paragraph-top',
+            'bor-par-le': 'border-paragraph-left',
+            'bor-par-ri': 'border-paragraph-right',
+            'bor-par-bo': 'border-paragraph-box',
+            'bor-for-ev': 'border-for-every-paragraph',
+            'bor-outsid': 'border-outisde',
+            'bor-none__': 'border',
+            # border type => bt
+            'bdr-single': 'single',
+            'bdr-doubtb': 'double-thickness-border',
+            'bdr-shadow': 'shadowed-border',
+            'bdr-double': 'double-border',
+            'bdr-dotted': 'dotted-border',
+            'bdr-dashed': 'dashed',
+            'bdr-hair__': 'hairline',
+            'bdr-inset_': 'inset',
+            'bdr-das-sm': 'dash-small',
+            'bdr-dot-sm': 'dot-dash',
+            'bdr-dot-do': 'dot-dot-dash',
+            'bdr-outset': 'outset',
+            'bdr-trippl': 'tripple',
+            'bdr-thsm__': 'thick-thin-small',
+            'bdr-htsm__': 'thin-thick-small',
+            'bdr-hthsm_': 'thin-thick-thin-small',
+            'bdr-thm__': 'thick-thin-medium',
+            'bdr-htm__': 'thin-thick-medium',
+            'bdr-hthm_': 'thin-thick-thin-medium',
+            'bdr-thl__': 'thick-thin-large',
+            'bdr-hthl_': 'think-thick-think-large',
+            'bdr-wavy_': 'wavy',
+            'bdr-d-wav': 'double-wavy',
+            'bdr-strip': 'striped',
+            'bdr-embos': 'emboss',
+            'bdr-engra': 'engrave',
+            'bdr-frame': 'frame',
+            'bdr-li-wid': 'line-width',
+            # tabs
+            'tab-center': 'center',
+            'tab-right_': 'right',
+            'tab-dec___': 'decimal',
+            'leader-dot': 'leader-dot',
+            'leader-hyp': 'leader-hyphen',
+            'leader-und': 'leader-underline',
         }
         self.__tabs_dict = {
-        'cw<pf<tab-stop__'  :   self.__tab_stop_func,
-        'cw<pf<tab-center'  :   self.__tab_type_func,
-        'cw<pf<tab-right_'  :   self.__tab_type_func,
-        'cw<pf<tab-dec___'  :   self.__tab_type_func,
-        'cw<pf<leader-dot'  :   self.__tab_leader_func,
-        'cw<pf<leader-hyp'  :   self.__tab_leader_func,
-        'cw<pf<leader-und'  :   self.__tab_leader_func,
-        'cw<pf<tab-bar-st'  :   self.__tab_bar_func,
+            'cw<pf<tab-stop__': self.__tab_stop_func,
+            'cw<pf<tab-center': self.__tab_type_func,
+            'cw<pf<tab-right_': self.__tab_type_func,
+            'cw<pf<tab-dec___': self.__tab_type_func,
+            'cw<pf<leader-dot': self.__tab_leader_func,
+            'cw<pf<leader-hyp': self.__tab_leader_func,
+            'cw<pf<leader-und': self.__tab_leader_func,
+            'cw<pf<tab-bar-st': self.__tab_bar_func,
         }
         self.__tab_type_dict = {
-        'cw<pf<tab-center'  :   'center',
-        'cw<pf<tab-right_'  :   'right',
-        'cw<pf<tab-dec___'  :   'decimal',
-        'cw<pf<leader-dot'  :   'leader-dot',
-        'cw<pf<leader-hyp'  :   'leader-hyphen',
-        'cw<pf<leader-und'  :   'leader-underline',
+            'cw<pf<tab-center': 'center',
+            'cw<pf<tab-right_': 'right',
+            'cw<pf<tab-dec___': 'decimal',
+            'cw<pf<leader-dot': 'leader-dot',
+            'cw<pf<leader-hyp': 'leader-hyphen',
+            'cw<pf<leader-und': 'leader-underline',
         }
         self.__ignore_list = [
-        'list-tebef',
-            ]
+            'list-tebef',
+        ]
         self.__tabs_list = self.__tabs_dict.keys()
         self.__tab_type = 'left'
         self.__leader_found = 0
 
     def __in_individual_style_func(self, line):
-        '''
+        """
         Required:
             line
         Returns:
@@ -283,7 +284,7 @@ class Styles:
             Write an error message if no key is found for the info.
             If the line is text, add the text to a text string. The text
             string will be the name of the style.
-        '''
+        """
         action = self.__state_dict.get(self.__token_info)
         if action:
             action(line)
@@ -313,7 +314,7 @@ class Styles:
             self.__text_string += line[17:-1]
 
     def __tab_stop_func(self, line):
-        '''
+        """
         Requires:
             line -- line to parse
         Returns:
@@ -321,29 +322,23 @@ class Styles:
         Logic:
             Try to add the number to dictionary entry tabs-left, or tabs-right, etc.
             If the dictionary entry doesn't exist, create one.
-        '''
+        """
         try:
             if self.__leader_found:
-                self.__styles_dict['par'][self.__styles_num]['tabs']\
-                += f'{self.__tab_type}:'
-                self.__styles_dict['par'][self.__styles_num]['tabs']\
-                += f'{line[20:-1]};'
+                self.__styles_dict['par'][self.__styles_num]['tabs'] += f'{self.__tab_type}:'
+                self.__styles_dict['par'][self.__styles_num]['tabs'] += f'{line[20:-1]};'
             else:
-                self.__styles_dict['par'][self.__styles_num]['tabs']\
-                += f'{self.__tab_type}:'
-                self.__styles_dict['par'][self.__styles_num]['tabs']\
-                += f'{line[20:-1]};'
+                self.__styles_dict['par'][self.__styles_num]['tabs'] += f'{self.__tab_type}:'
+                self.__styles_dict['par'][self.__styles_num]['tabs'] += f'{line[20:-1]};'
         except KeyError:
             self.__enter_dict_entry('tabs', '')
-            self.__styles_dict['par'][self.__styles_num]['tabs']\
-                += f'{self.__tab_type}:'
+            self.__styles_dict['par'][self.__styles_num]['tabs'] += f'{self.__tab_type}:'
             self.__styles_dict['par'][self.__styles_num]['tabs'] += f'{line[20:-1]};'
         self.__tab_type = 'left'
         self.__leader_found = 0
 
     def __tab_type_func(self, line):
-        '''
-        '''
+        """ """
         type = self.__tab_type_dict.get(self.__token_info)
         if type is not None:
             self.__tab_type = type
@@ -352,7 +347,7 @@ class Styles:
             raise self.__bug_handler(msg)
 
     def __tab_leader_func(self, line):
-        '''
+        """
         Requires:
             line --line to parse
         Returns:
@@ -361,7 +356,7 @@ class Styles:
             Try to add the string of the tab leader to dictionary entry
             tabs-left, or tabs-right, etc.  If the dictionary entry doesn't
             exist, create one.
-        '''
+        """
         self.__leader_found = 1
         leader = self.__tab_type_dict.get(self.__token_info)
         if leader is not None:
@@ -376,7 +371,7 @@ class Styles:
             raise self.__bug_handler(msg)
 
     def __tab_bar_func(self, line):
-        '''
+        """
         Requires:
             line -- line to parse
         Returns:
@@ -384,19 +379,15 @@ class Styles:
         Logic:
             Try to add the string of the tab bar to dictionary entry tabs-bar.
             If the dictionary entry doesn't exist, create one.
-        '''
+        """
         # self.__add_dict_entry('tabs-bar', line[20:-1])
         try:
-            self.__styles_dict['par'][self.__styles_num]['tabs']\
-            += '{}:'.format('bar')
-            self.__styles_dict['par'][self.__styles_num]['tabs']\
-            += f'{line[20:-1]};'
+            self.__styles_dict['par'][self.__styles_num]['tabs'] += '{}:'.format('bar')
+            self.__styles_dict['par'][self.__styles_num]['tabs'] += f'{line[20:-1]};'
         except KeyError:
             self.__enter_dict_entry('tabs', '')
-            self.__styles_dict['par'][self.__styles_num]['tabs']\
-            += '{}:'.format('bar')
-            self.__styles_dict['par'][self.__styles_num]['tabs']\
-            += f'{line[20:-1]};'
+            self.__styles_dict['par'][self.__styles_num]['tabs'] += '{}:'.format('bar')
+            self.__styles_dict['par'][self.__styles_num]['tabs'] += f'{line[20:-1]};'
         self.__tab_type = 'left'
 
     def __enter_dict_entry(self, att, value):
@@ -417,7 +408,7 @@ class Styles:
             self.__add_dict_entry(att, value)
 
     def __add_dict_entry(self, att, value):
-        '''
+        """
         Required:
             att --the attribute
             value --the value
@@ -432,7 +423,7 @@ class Styles:
             Next, create a second, smaller dictionary with just the attribute and value.
             Add the small dictionary to the type dictionary.
             Add this type dictionary to the main styles dictionary.
-        '''
+        """
         if self.__type_of_style == 'par':
             type_dict = self.__styles_dict['par']
         elif self.__type_of_style == 'char':
@@ -477,7 +468,7 @@ class Styles:
         self.__styles_num = line[20:-1]
 
     def __found_beg_ind_style_func(self, line):
-        '''
+        """
         Required:
             line
         Returns:
@@ -486,7 +477,7 @@ class Styles:
             Get rid of the last semicolon in the text string. Add the text
             string as the value with 'name' as the key in the style
             dictionary.
-        '''
+        """
         self.__state = 'in_individual_style'
 
     def __found_end_ind_style_func(self, line):
@@ -498,7 +489,7 @@ class Styles:
         self.__text_string = ''
 
     def __found_end_styles_table_func(self, line):
-        '''
+        """
         Required:
             line
         Returns:
@@ -507,13 +498,13 @@ class Styles:
             Set the state to after the styles table.
             Fix the styles. (I explain this below.)
             Print out the style table.
-        '''
+        """
         self.__state = 'after_styles_table'
         self.__fix_based_on()
         self.__print_style_table()
 
     def __fix_based_on(self):
-        '''
+        """
         Requires:
             nothing
         Returns:
@@ -527,7 +518,7 @@ class Styles:
             all the character styles.
             The inner loop: first check 'next-style', then check 'based-on-style'.
             Make sure values exist for the keys to avoid the nasty keyerror message.
-        '''
+        """
         types = ['par', 'char']
         for type in types:
             keys = self.__styles_dict[type].keys()
@@ -540,8 +531,7 @@ class Styles:
                         if temp_dict:
                             changed_value = self.__styles_dict[type][value].get('name')
                             if changed_value:
-                                self.__styles_dict[type][key][style] = \
-                                changed_value
+                                self.__styles_dict[type][key][style] = changed_value
                         else:
                             if value in {0, '0'}:
                                 pass
@@ -552,7 +542,7 @@ class Styles:
                             del self.__styles_dict[type][key][style]
 
     def __print_style_table(self):
-        '''
+        """
         Required:
             nothing
         Returns:
@@ -564,45 +554,37 @@ class Styles:
             The next loop iterates through the style numbers.
             The most inside loop iterates over the pairs of attributes and
             values, and prints them out.
-        '''
+        """
         types = ['par', 'char']
         for type in types:
             if type == 'par':
                 prefix = 'paragraph'
             else:
                 prefix = 'character'
-            self.__write_obj.write(
-            f'mi<tg<open______<{prefix}-styles\n'
-            )
+            self.__write_obj.write(f'mi<tg<open______<{prefix}-styles\n')
             style_numbers = self.__styles_dict[type].keys()
             for num in style_numbers:
-                self.__write_obj.write(
-                f'mi<tg<empty-att_<{prefix}-style-in-table<num>{num}'
-                )
+                self.__write_obj.write(f'mi<tg<empty-att_<{prefix}-style-in-table<num>{num}')
                 attributes = self.__styles_dict[type][num].keys()
                 for att in attributes:
                     this_value = self.__styles_dict[type][num][att]
-                    self.__write_obj.write(
-                        f'<{att}>{this_value}'
-                        )
+                    self.__write_obj.write(f'<{att}>{this_value}')
                 self.__write_obj.write('\n')
-            self.__write_obj.write(
-            f'mi<tg<close_____<{prefix}-styles\n'
-            )
+            self.__write_obj.write(f'mi<tg<close_____<{prefix}-styles\n')
 
     def __found_styles_table_func(self, line):
-        '''
+        """
         Required:
             line
         Returns:
             nothing
         Logic:
             Change the state to in the style table when the marker has been found.
-        '''
+        """
         self.__state = 'in_styles_table'
 
     def __before_styles_func(self, line):
-        '''
+        """
         Required:
             line
         Returns:
@@ -611,7 +593,7 @@ class Styles:
             Check the line info in the state dictionary. When the beginning of
             the styles table is found, change the state to in the styles
             table.
-        '''
+        """
         action = self.__state_dict.get(self.__token_info)
         if not action:
             self.__write_obj.write(line)
@@ -619,7 +601,7 @@ class Styles:
             action(line)
 
     def __in_styles_func(self, line):
-        '''
+        """
         Required:
             line
         Returns:
@@ -627,7 +609,7 @@ class Styles:
         Logic:
             Check the line for the beginning of an individual style. If it is
             not found, simply print out the line.
-        '''
+        """
         action = self.__state_dict.get(self.__token_info)
         if action is None:
             self.__write_obj.write(line)
@@ -657,16 +639,12 @@ class Styles:
         except KeyError:
             value = None
         if value:
-            self.__write_obj.write(
-            f'cw<ss<{prefix}-style<nu<{value}\n'
-            )
+            self.__write_obj.write(f'cw<ss<{prefix}-style<nu<{value}\n')
         else:
-            self.__write_obj.write(
-            f'cw<ss<{prefix}_style<nu<not-defined\n'
-            )
+            self.__write_obj.write(f'cw<ss<{prefix}_style<nu<not-defined\n')
 
     def __after_styles_func(self, line):
-        '''
+        """
         Required:
             line
         Returns:
@@ -675,7 +653,7 @@ class Styles:
             Determine if a line with either character of paragraph style info
             has been found. If so, then use the appropriate method to parse
             the line. Otherwise, write the line to a file.
-        '''
+        """
         action, type = self.__body_dict.get(self.__token_info, (None, None))
         if action:
             action(line, type)
@@ -683,7 +661,7 @@ class Styles:
             self.__write_obj.write(line)
 
     def convert_styles(self):
-        '''
+        """
         Requires:
             nothing
         Returns:
@@ -696,7 +674,7 @@ class Styles:
             and print out the tags.
             If the state if after the style table, look for lines with style
             info, and substitute the number with the name of the style.
-        '''
+        """
         self.__initiate_values()
         read_obj = open_for_read(self.__file)
         self.__write_obj = open_for_write(self.__write_to)

@@ -2,9 +2,9 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class ESO(BasicNewsRecipe):
-    title = u'ESO PL'
+    title = 'ESO PL'
     __author__ = 'fenuks'
-    description = u'ESO, Europejskie Obserwatorium Południowe, buduje i obsługuje najbardziej zaawansowane naziemne teleskopy astronomiczne na świecie'
+    description = 'ESO, Europejskie Obserwatorium Południowe, buduje i obsługuje najbardziej zaawansowane naziemne teleskopy astronomiczne na świecie'
     category = 'astronomy'
     language = 'pl'
     oldest_article = 7
@@ -15,14 +15,14 @@ class ESO(BasicNewsRecipe):
     cover_url = 'https://www.eso.org/public/archives/logos/medium/eso-logo-black-outline.jpg'
     keep_only_tags = [
         dict(attrs={'class': 'subcl'}),
-        dict(name='div',attrs={'class':'col-md-9 left-column'}),
+        dict(name='div', attrs={'class': 'col-md-9 left-column'}),
     ]
-    remove_tags = [dict(id='lang_row'), dict(
-        attrs={'class': ['pr_typeid', 'pr_news_feature_link', 'outreach_usage', 'hidden']})]
+    remove_tags = [dict(id='lang_row'), dict(attrs={'class': ['pr_typeid', 'pr_news_feature_link', 'outreach_usage', 'hidden']})]
     feeds = [
-    (u'Wiadomo\u015bci', u'http://www.eso.org/public/poland/news/feed/'),
-    (u'Og\u0142oszenia', u'http://www.eso.org/public/poland/announcements/feed/'),
-    (u'Zdj\u0119cie tygodnia', u'http://www.eso.org/public/poland/images/potw/feed/')]
+        ('Wiadomo\u015bci', 'http://www.eso.org/public/poland/news/feed/'),
+        ('Og\u0142oszenia', 'http://www.eso.org/public/poland/announcements/feed/'),
+        ('Zdj\u0119cie tygodnia', 'http://www.eso.org/public/poland/images/potw/feed/'),
+    ]
 
     def preprocess_html(self, soup):
         for a in soup.findAll('a', href=True):

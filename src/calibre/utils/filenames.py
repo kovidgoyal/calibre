@@ -1,7 +1,7 @@
-'''
+"""
 Make strings safe for use as ASCII filenames, while trying to preserve as much
 meaning as possible.
-'''
+"""
 
 import errno
 import ntpath
@@ -41,7 +41,7 @@ def shorten_component(s, by_what):
     l = len(s)
     if l < by_what:
         return s
-    l = (l - by_what)//2
+    l = (l - by_what) // 2
     if l <= 0:
         return s
     return s[:l] + s[-l:]
@@ -71,8 +71,8 @@ def shorten_components_to(length, components, more_to_take=0, last_has_extension
         return components
     deltas = []
     for x in components:
-        pct = len(x)/float(len(filepath))
-        deltas.append(ceil(pct*extra))
+        pct = len(x) / float(len(filepath))
+        deltas.append(ceil(pct * extra))
     ans = []
 
     for i, x in enumerate(components):
@@ -84,9 +84,9 @@ def shorten_components_to(length, components, more_to_take=0, last_has_extension
                 b, e = os.path.splitext(x)
                 if e == '.':
                     e = ''
-                r = shorten_component(b, delta)+e
+                r = shorten_component(b, delta) + e
                 if r.startswith('.'):
-                    r = x[0]+r
+                    r = x[0] + r
             else:
                 r = shorten_component(x, delta)
             r = r.strip()
@@ -94,7 +94,7 @@ def shorten_components_to(length, components, more_to_take=0, last_has_extension
                 r = x.strip()[0] if x.strip() else 'x'
         ans.append(r)
     if len(os.sep.join(ans)) > length:
-        return shorten_components_to(length, components, more_to_take+2)
+        return shorten_components_to(length, components, more_to_take + 2)
     return ans
 
 
@@ -111,17 +111,16 @@ def find_executable_in_path(name, path=None):
 
 
 def is_case_sensitive(path):
-    '''
+    """
     Return True if the filesystem is case sensitive.
 
     path must be the path to an existing directory. You must have permission
     to create and delete files in this directory. The results of this test
     apply to the filesystem containing the directory in path.
-    '''
+    """
     is_case_sensitive = False
     if not iswindows:
-        name1, name2 = ('calibre_test_case_sensitivity.txt',
-                        'calibre_TesT_CaSe_sensitiVitY.Txt')
+        name1, name2 = ('calibre_test_case_sensitivity.txt', 'calibre_TesT_CaSe_sensitiVitY.Txt')
         f1, f2 = os.path.join(path, name1), os.path.join(path, name2)
         with suppress(OSError):
             os.remove(f1)
@@ -132,9 +131,9 @@ def is_case_sensitive(path):
 
 
 def case_ignoring_open_file(path, mode='r'):
-    '''
+    """
     Open an existing file case insensitively, even on case sensitive file systems
-    '''
+    """
     try:
         return open(path, mode)
     except FileNotFoundError as err:
@@ -173,7 +172,7 @@ def case_ignoring_open_file(path, mode='r'):
 
 
 def case_preserving_open_file(path, mode='wb', mkdir_mode=0o777):
-    '''
+    """
     Open the file pointed to by path with the specified mode. If any
     directories in path do not exist, they are created. Returns the
     opened file object and the path to the opened file object. This path is
@@ -186,7 +185,7 @@ def case_preserving_open_file(path, mode='wb', mkdir_mode=0o777):
 
     mkdir_mode specifies the mode with which any missing directories in path
     are created.
-    '''
+    """
     if isinstance(path, bytes):
         path = path.decode(filesystem_encoding)
 
@@ -258,9 +257,10 @@ def case_preserving_open_file(path, mode='wb', mkdir_mode=0o777):
 
 
 def windows_get_fileid(path):
-    ''' The fileid uniquely identifies actual file contents (it is the same for
-    all hardlinks to a file). Similar to inode number on linux. '''
+    """The fileid uniquely identifies actual file contents (it is the same for
+    all hardlinks to a file). Similar to inode number on linux."""
     from calibre_extensions.winutil import get_file_id
+
     if isinstance(path, bytes):
         path = path.decode(filesystem_encoding)
     with suppress(OSError):
@@ -268,8 +268,7 @@ def windows_get_fileid(path):
 
 
 def samefile_windows(src, dst):
-    samestring = (os.path.normcase(os.path.abspath(src)) ==
-            os.path.normcase(os.path.abspath(dst)))
+    samestring = os.path.normcase(os.path.abspath(src)) == os.path.normcase(os.path.abspath(dst))
     if samestring:
         return True
 
@@ -280,7 +279,7 @@ def samefile_windows(src, dst):
 
 
 def samefile(src, dst):
-    '''
+    """
     Check if two paths point to the same actual file on the filesystem. Handles
     symlinks, case insensitivity, mapped drives, etc.
 
@@ -289,7 +288,7 @@ def samefile(src, dst):
     Note: On windows will return True if the two string are identical (up to
     case) even if the file does not exist. This is because I have no way of
     knowing how reliable the GetFileInformationByHandle method is.
-    '''
+    """
     if iswindows:
         return samefile_windows(src, dst)
 
@@ -301,27 +300,33 @@ def samefile(src, dst):
             return False
 
     # All other platforms: check for same pathname.
-    samestring = (os.path.normcase(os.path.abspath(src)) ==
-            os.path.normcase(os.path.abspath(dst)))
+    samestring = os.path.normcase(os.path.abspath(src)) == os.path.normcase(os.path.abspath(dst))
     return samestring
 
 
 def windows_get_size(path):
-    ''' On windows file sizes are only accurately stored in the actual file,
+    """On windows file sizes are only accurately stored in the actual file,
     not in the directory entry (which could be out of date). So we open the
-    file, and get the actual size. '''
+    file, and get the actual size."""
     from calibre_extensions import winutil
+
     if isinstance(path, bytes):
         path = path.decode(filesystem_encoding)
-    with closing(winutil.create_file(
-        path, 0, winutil.FILE_SHARE_READ | winutil.FILE_SHARE_WRITE | winutil.FILE_SHARE_DELETE,
-        winutil.OPEN_EXISTING, 0)
+    with closing(
+        winutil.create_file(
+            path,
+            0,
+            winutil.FILE_SHARE_READ | winutil.FILE_SHARE_WRITE | winutil.FILE_SHARE_DELETE,
+            winutil.OPEN_EXISTING,
+            0,
+        )
     ) as h:
         return winutil.get_file_size(h)
 
 
 def windows_hardlink(src, dest):
     from calibre_extensions import winutil
+
     winutil.create_hard_link(dest, src)
     src_size = os.path.getsize(src)
     # We open and close dest, to ensure its directory entry is updated
@@ -344,6 +349,7 @@ def windows_hardlink(src, dest):
 
 def windows_fast_hardlink(src, dest):
     from calibre_extensions import winutil
+
     winutil.create_hard_link(dest, src)
     ssz, dsz = windows_get_size(src), windows_get_size(dest)
     if ssz != dsz:
@@ -353,24 +359,26 @@ def windows_fast_hardlink(src, dest):
 
 def windows_nlinks(path):
     from calibre_extensions import winutil
+
     if isinstance(path, bytes):
         path = path.decode(filesystem_encoding)
     return winutil.nlinks(path)
 
 
 class WindowsAtomicFolderMove:
-    '''
+    """
     Move all the files inside a specified folder in an atomic fashion,
     preventing any other process from locking a file while the operation is
     incomplete. Raises an IOError if another process has locked a file before
     the operation starts. Note that this only operates on the files in the
     folder, not any sub-folders.
-    '''
+    """
 
     def __init__(self, path):
         from collections import defaultdict
 
         from calibre_extensions import winutil
+
         self.handle_map = {}
 
         if isinstance(path, bytes):
@@ -380,7 +388,7 @@ class WindowsAtomicFolderMove:
             return
 
         names = os.listdir(path)
-        name_to_fileid = {x:windows_get_fileid(os.path.join(path, x)) for x in names}
+        name_to_fileid = {x: windows_get_fileid(os.path.join(path, x)) for x in names}
         fileid_to_names = defaultdict(set)
         for name, fileid in name_to_fileid.items():
             fileid_to_names[fileid].add(name)
@@ -394,9 +402,13 @@ class WindowsAtomicFolderMove:
                 winutil.set_file_attributes(f, winutil.FILE_ATTRIBUTE_NORMAL)
 
             try:
-                h = winutil.create_file(f, winutil.GENERIC_READ,
-                        winutil.FILE_SHARE_DELETE,
-                        winutil.OPEN_EXISTING, winutil.FILE_FLAG_SEQUENTIAL_SCAN)
+                h = winutil.create_file(
+                    f,
+                    winutil.GENERIC_READ,
+                    winutil.FILE_SHARE_DELETE,
+                    winutil.OPEN_EXISTING,
+                    winutil.FILE_FLAG_SEQUENTIAL_SCAN,
+                )
             except OSError as e:
                 if e.winerror == winutil.ERROR_SHARING_VIOLATION:
                     # The file could be a hardlink to an already opened file,
@@ -415,8 +427,7 @@ class WindowsAtomicFolderMove:
 
                 self.close_handles()
                 if e.winerror == winutil.ERROR_SHARING_VIOLATION:
-                    err = OSError(errno.EACCES,
-                            _('File is open in another process'))
+                    err = OSError(errno.EACCES, _('File is open in another process'))
                     err.filename = f
                     raise err
                 prints(f'CreateFile failed for: {f!r}')
@@ -429,6 +440,7 @@ class WindowsAtomicFolderMove:
 
     def copy_path_to(self, path, dest):
         from calibre_extensions import winutil
+
         handle = None
         for p, h in self.handle_map.items():
             if samefile_windows(path, p):
@@ -436,8 +448,7 @@ class WindowsAtomicFolderMove:
                 break
         if handle is None:
             if os.path.exists(path):
-                raise ValueError(f'The file {path!r} did not exist when this move'
-                        ' operation was started')
+                raise ValueError(f'The file {path!r} did not exist when this move operation was started')
             else:
                 raise ValueError(f'The file {path!r} does not exist')
 
@@ -455,7 +466,7 @@ class WindowsAtomicFolderMove:
                 f.write(raw)
 
     def release_file(self, path):
-        ' Release the lock on the file pointed to by path. Will also release the lock on any hardlinks to path '
+        "Release the lock on the file pointed to by path. Will also release the lock on any hardlinks to path"
         key = None
         for p, h in self.handle_map.items():
             if samefile_windows(path, p):
@@ -474,6 +485,7 @@ class WindowsAtomicFolderMove:
 
     def delete_originals(self):
         from calibre_extensions import winutil
+
         for path in self.handle_map:
             winutil.delete_file(path)
         self.close_handles()
@@ -488,7 +500,7 @@ def hardlink_file(src, dest):
 
 
 def nlinks_file(path):
-    ' Return number of hardlinks to the file '
+    "Return number of hardlinks to the file"
     if iswindows:
         return windows_nlinks(path)
     return os.stat(path).st_nlink
@@ -508,9 +520,9 @@ def retry_on_fail(func, *args, count=10, sleep_time=0.2):
 
 
 def atomic_rename(oldpath, newpath):
-    '''Replace the file newpath with the file oldpath. Can fail if the files
+    """Replace the file newpath with the file oldpath. Can fail if the files
     are on different volumes. If succeeds, guaranteed to be atomic. newpath may
-    or may not exist. If it exists, it is replaced. '''
+    or may not exist. If it exists, it is replaced."""
     if iswindows:
         oldpath, newpath = make_long_path_useable(oldpath), make_long_path_useable(newpath)
         retry_on_fail(os.replace, oldpath, newpath)
@@ -519,9 +531,9 @@ def atomic_rename(oldpath, newpath):
 
 
 def remove_dir_if_empty(path, ignore_metadata_caches=False):
-    ''' Remove a directory if it is empty or contains only the folder metadata
+    """Remove a directory if it is empty or contains only the folder metadata
     caches from different OSes. To delete the folder if it contains only
-    metadata caches, set ignore_metadata_caches to True.'''
+    metadata caches, set ignore_metadata_caches to True."""
     try:
         os.rmdir(path)
     except OSError as e:
@@ -542,6 +554,7 @@ def remove_dir_if_empty(path, ignore_metadata_caches=False):
                             with suppress(FileNotFoundError):
                                 if os.path.isdir(x):
                                     import shutil
+
                                     shutil.rmtree(x)
                                 else:
                                     os.remove(x)
@@ -558,6 +571,7 @@ expanduser = os.path.expanduser
 
 def format_permissions(st_mode):
     import stat
+
     for func, letter in (x.split(':') for x in 'REG:- DIR:d BLK:b CHR:c FIFO:p LNK:l SOCK:s'.split()):
         if getattr(stat, 'S_IS' + func)(st_mode):
             break
@@ -586,6 +600,7 @@ def get_hardlink_function(src, dest):
     if not iswindows:
         return os.link
     from calibre_extensions import winutil
+
     src = src.removeprefix(long_path_prefix)
     dest = dest.removeprefix(long_path_prefix)
     root = dest[0] + ':\\'
@@ -638,7 +653,7 @@ def _normalize_path_for_containment(path, case_sensitive=True):
 
 
 def is_path_inside(parent: str, child: str, allow_parent: bool = False, case_sensitive: bool = True) -> bool:
-    ' Check if child is under parent, using lexical path component boundaries. '
+    "Check if child is under parent, using lexical path component boundaries."
     parent = _normalize_path_for_containment(parent, case_sensitive=case_sensitive)
     child = _normalize_path_for_containment(child, case_sensitive=case_sensitive)
     try:
@@ -649,13 +664,11 @@ def is_path_inside(parent: str, child: str, allow_parent: bool = False, case_sen
     return allow_parent or child != parent
 
 
-def path_from_root(
-    root: str, path: str, allow_root: bool = False, reject_colon: bool = False, case_sensitive: bool = True
-) -> str:
-    '''
+def path_from_root(root: str, path: str, allow_root: bool = False, reject_colon: bool = False, case_sensitive: bool = True) -> str:
+    """
     Resolve a relative path under root. Raises ValueError for absolute paths,
     drive-qualified paths, traversal components, or paths outside root.
-    '''
+    """
     if not isinstance(path, str):
         raise ValueError('path must be text')
     if reject_colon and ':' in path:
@@ -676,7 +689,7 @@ def path_from_root(
 
 
 def is_existing_subpath(child: str, parent: str) -> bool:
-    ' Check if child is under parent. If either child or parent dont exist, returns False. '
+    "Check if child is under parent. If either child or parent dont exist, returns False."
     try:
         parent = os.path.realpath(parent, strict=True)  # resolve symlinks  # type: ignore
         child = os.path.realpath(child, strict=True)  # type: ignore
@@ -686,7 +699,6 @@ def is_existing_subpath(child: str, parent: str) -> bool:
 
 
 rmtree = shutil.rmtree
-
 
 if iswindows:
     long_path_prefix = '\\\\?\\'
@@ -713,6 +725,7 @@ if iswindows:
 
     def get_long_path_name(path):
         from calibre_extensions.winutil import get_long_path_name
+
         lpath = path
         if os.path.isabs(lpath) and not lpath.startswith(long_path_prefix):
             lpath = long_path_prefix + lpath
@@ -726,6 +739,7 @@ if iswindows:
             raise
 
 else:
+
     def make_long_path_useable(path, threshold=200):
         return path
 
@@ -744,6 +758,7 @@ def clone_file_metadata(src_fd: int, dest_fd: int, dest_name: str = '') -> None:
         import stat
 
         from calibre.utils.filenames import format_permissions
+
         st = os.stat(src_fd)
         try:
             os.fchmod(dest_fd, st.st_mode | stat.S_IWUSR)
@@ -752,8 +767,10 @@ def clone_file_metadata(src_fd: int, dest_fd: int, dest_name: str = '') -> None:
             if code != errno.EPERM:
                 raise
             assert code is not None
-            raise OSError(f'Failed to change permissions of {dest_name} to {oct(st.st_mode)} ({format_permissions(st.st_mode)}), '
-                        f'with error: {os.strerror(code)}. Most likely the directory it is in has a restrictive umask')
+            raise OSError(
+                f'Failed to change permissions of {dest_name} to {oct(st.st_mode)} ({format_permissions(st.st_mode)}), '
+                f'with error: {os.strerror(code)}. Most likely the directory it is in has a restrictive umask'
+            )
         try:
             os.fchown(dest_fd, st.st_uid, st.st_gid)
         except OSError as err:

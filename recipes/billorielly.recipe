@@ -7,9 +7,9 @@ from calibre.web.feeds.recipes import BasicNewsRecipe
 
 class BillOReilly(BasicNewsRecipe):
     cover_url = 'http://images.billoreilly.com/images/headers/borbanner.jpg'
-    title = u"Bill O'Reilly"
+    title = "Bill O'Reilly"
     __author__ = 'Rob Lammert - rob.lammert[at]gmail.com'
-    description = u"Articles from Bill O'Reilly's website and his Fox New's website"
+    description = "Articles from Bill O'Reilly's website and his Fox New's website"
     language = 'en'
     oldest_article = 7.0
     max_articles_per_feed = 100
@@ -21,10 +21,8 @@ class BillOReilly(BasicNewsRecipe):
     def parse_index(self):
         feeds = []
 
-        articles_shows = self.bo_parse_shows(
-            'http://www.billoreilly.com/show?action=tvShowArchive')
-        articles_columns = self.bo_parse_columns(
-            'http://www.billoreilly.com/columns')
+        articles_shows = self.bo_parse_shows('http://www.billoreilly.com/show?action=tvShowArchive')
+        articles_columns = self.bo_parse_columns('http://www.billoreilly.com/columns')
 
         if articles_shows:
             feeds.append(("O'Reilly Factor", articles_shows))
@@ -53,8 +51,7 @@ class BillOReilly(BasicNewsRecipe):
 
                 self.log('\t\tFound article:', title)
                 self.log('\t\t\t', url)
-                current_articles.append(
-                    {'title': title, 'url': url, 'description': '', 'date': ''})
+                current_articles.append({'title': title, 'url': url, 'description': '', 'date': ''})
                 counter += 1
         return current_articles
 
@@ -78,7 +75,6 @@ class BillOReilly(BasicNewsRecipe):
 
                 self.log('\t\tFound article:', title)
                 self.log('\t\t\t', url)
-                current_articles.append(
-                    {'title': title, 'url': url, 'description': '', 'date': ''})
+                current_articles.append({'title': title, 'url': url, 'description': '', 'date': ''})
                 counter += 1
         return current_articles

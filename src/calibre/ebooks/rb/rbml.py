@@ -1,10 +1,8 @@
-__license__ = 'GPL 3'
-__copyright__ = '2009, John Schember <john@nachtimwald.com>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2009, John Schember <john@nachtimwald.com>
 
-'''
+"""
 Transform OEB content into RB compatible markup.
-'''
+"""
 
 import re
 
@@ -47,14 +45,13 @@ IMAGE_TAGS = [
 ]
 
 STYLES = [
-    ('font-weight', {'bold'  : 'b', 'bolder' : 'b'}),
-    ('font-style', {'italic' : 'i'}),
-    ('text-align', {'center' : 'center'}),
+    ('font-weight', {'bold': 'b', 'bolder': 'b'}),
+    ('font-style', {'italic': 'i'}),
+    ('text-align', {'center': 'center'}),
 ]
 
 
 class RBMLizer:
-
     def __init__(self, log, name_map={}):
         self.log = log
         self.name_map = name_map
@@ -80,6 +77,7 @@ class RBMLizer:
     def get_cover_page(self):
         from calibre.ebooks.oeb.base import XHTML
         from calibre.ebooks.oeb.stylizer import Stylizer
+
         output = ''
         if 'cover' in self.oeb_book.guide:
             if self.name_map.get(self.oeb_book.guide['cover'].href, None):
@@ -89,8 +87,7 @@ class RBMLizer:
             href = self.oeb_book.guide['titlepage'].href
             item = self.oeb_book.manifest.hrefs[href]
             if item.spine_position is None:
-                stylizer = Stylizer(item.data, item.href, self.oeb_book,
-                        self.opts, self.opts.output_profile)
+                stylizer = Stylizer(item.data, item.href, self.oeb_book, self.opts, self.opts.output_profile)
                 output += ''.join(self.dump_text(item.data.find(XHTML('body')), stylizer, item))
         return output
 
@@ -143,16 +140,14 @@ class RBMLizer:
 
         if not isinstance(elem.tag, (str, bytes)) or namespace(elem.tag) != XHTML_NS:
             p = elem.getparent()
-            if p is not None and isinstance(p.tag, (str, bytes)) and namespace(p.tag) == XHTML_NS \
-                    and elem.tail:
+            if p is not None and isinstance(p.tag, (str, bytes)) and namespace(p.tag) == XHTML_NS and elem.tail:
                 return [elem.tail]
             return ['']
 
         text = ['']
         style = stylizer.style(elem)
 
-        if style['display'] in ('none', 'oeb-page-head', 'oeb-page-foot') \
-           or style['visibility'] == 'hidden':
+        if style['display'] in ('none', 'oeb-page-head', 'oeb-page-foot') or style['visibility'] == 'hidden':
             if hasattr(elem, 'tail') and elem.tail:
                 return [elem.tail]
             return ['']

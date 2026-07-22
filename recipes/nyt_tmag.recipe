@@ -21,7 +21,7 @@ class NytMag(BasicNewsRecipe):
 
     def get_cover_url(self):
         soup = self.index_to_soup('https://www.nytimes.com/section/t-magazine')
-        issue = soup.find(attrs={'class':'issue-promo'})
+        issue = soup.find(attrs={'class': 'issue-promo'})
         return issue.a.img['src']
 
     feeds = [
@@ -42,10 +42,7 @@ class NytMag(BasicNewsRecipe):
             'default': 'no',
         },
         'res': {
-            'short': (
-                'For hi-res images, select a resolution from the following\noptions: '
-                'popup, jumbo, mobileMasterAt3x, superJumbo'
-            ),
+            'short': ('For hi-res images, select a resolution from the following\noptions: popup, jumbo, mobileMasterAt3x, superJumbo'),
             'long': (
                 'This is useful for non e-ink devices, and for a lower file size\nthan '
                 'the default, use mediumThreeByTwo440, mediumThreeByTwo225, articleInline.'

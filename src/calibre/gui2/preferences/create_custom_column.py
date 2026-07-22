@@ -1,10 +1,7 @@
 #!/usr/bin/env python
+# License: GPLv3 Copyright: 2010, Kovid Goyal <kovid at kovidgoyal.net>
 
-
-__license__   = 'GPL v3'
-__copyright__ = '2010, Kovid Goyal <kovid at kovidgoyal.net>'
-
-'''Dialog to create a new custom column'''
+"""Dialog to create a new custom column"""
 
 import copy
 import re
@@ -40,75 +37,44 @@ from calibre.utils.localization import _, ngettext
 
 
 class CreateCustomColumn(QDialog):
-
     cc_column_key: str | None
 
     # Note: in this class, we are treating is_multiple as the boolean that
     # custom_columns expects to find in its structure. It does not use the dict
 
-    column_types = dict(enumerate((
-        {
-            'datatype':'text',
-            'text':_('Text, column shown in the Tag browser'),
-            'is_multiple':False
-        },
-        {
-            'datatype':'*text',
-            'text':_('Comma separated text, like tags, shown in the Tag browser'),
-            'is_multiple':True
-        },
-        {
-            'datatype':'comments',
-            'text':_('Long text, like comments, not shown in the Tag browser'),
-            'is_multiple':False
-        },
-        {
-            'datatype':'series',
-            'text':_('Text column for keeping series-like information'),
-            'is_multiple':False
-        },
-        {
-            'datatype':'enumeration',
-            'text':_('Text, but with a fixed set of permitted values'),
-            'is_multiple':False
-        },
-        {
-            'datatype':'datetime',
-            'text':_('Date'),
-            'is_multiple':False
-        },
-        {
-            'datatype':'float',
-            'text':_('Floating point numbers'),
-            'is_multiple':False
-        },
-        {
-            'datatype':'int',
-            'text':_('Integers'),
-            'is_multiple':False
-        },
-        {
-            'datatype':'rating',
-            'text':_('Ratings, shown with stars'),
-            'is_multiple':False
-        },
-        {
-            'datatype':'bool',
-            'text':_('Yes/No'),
-            'is_multiple':False
-        },
-        {
-            'datatype':'composite',
-            'text':_('Column built from other columns'),
-            'is_multiple':False
-        },
-        {
-            'datatype':'*composite',
-            'text':_('Column built from other columns, behaves like tags'),
-            'is_multiple':True
-        },
-    )))
-    column_types_map = {k['datatype']:idx for idx, k in column_types.items()}
+    column_types = dict(
+        enumerate((
+            {'datatype': 'text', 'text': _('Text, column shown in the Tag browser'), 'is_multiple': False},
+            {
+                'datatype': '*text',
+                'text': _('Comma separated text, like tags, shown in the Tag browser'),
+                'is_multiple': True,
+            },
+            {
+                'datatype': 'comments',
+                'text': _('Long text, like comments, not shown in the Tag browser'),
+                'is_multiple': False,
+            },
+            {'datatype': 'series', 'text': _('Text column for keeping series-like information'), 'is_multiple': False},
+            {
+                'datatype': 'enumeration',
+                'text': _('Text, but with a fixed set of permitted values'),
+                'is_multiple': False,
+            },
+            {'datatype': 'datetime', 'text': _('Date'), 'is_multiple': False},
+            {'datatype': 'float', 'text': _('Floating point numbers'), 'is_multiple': False},
+            {'datatype': 'int', 'text': _('Integers'), 'is_multiple': False},
+            {'datatype': 'rating', 'text': _('Ratings, shown with stars'), 'is_multiple': False},
+            {'datatype': 'bool', 'text': _('Yes/No'), 'is_multiple': False},
+            {'datatype': 'composite', 'text': _('Column built from other columns'), 'is_multiple': False},
+            {
+                'datatype': '*composite',
+                'text': _('Column built from other columns, behaves like tags'),
+                'is_multiple': True,
+            },
+        ))
+    )
+    column_types_map = {k['datatype']: idx for idx, k in column_types.items()}
 
     def __init__(self, gui, caller, current_key, standard_colheads, freeze_lookup_name=False):
         QDialog.__init__(self, gui)
@@ -119,11 +85,10 @@ class CreateCustomColumn(QDialog):
         self.heading_label.setText('<b>' + _('Create a custom column'))
         # Remove help icon on title bar
         icon = self.windowIcon()
-        self.setWindowFlags(self.windowFlags()&(~Qt.WindowType.WindowContextHelpButtonHint))
+        self.setWindowFlags(self.windowFlags() & (~Qt.WindowType.WindowContextHelpButtonHint))
         self.setWindowIcon(icon)
 
-        self.simple_error = partial(error_dialog, self, show=True,
-            show_copy_button=False)
+        self.simple_error = partial(error_dialog, self, show=True, show_copy_button=False)
         for sort_by in [_('Text'), _('Number'), _('Date'), _('Yes/No')]:
             self.composite_sort_by.addItem(sort_by)
 
@@ -186,10 +151,8 @@ class CreateCustomColumn(QDialog):
                 else:
                     sb = 0
                 self.composite_sort_by.setCurrentIndex(sb)
-                self.composite_make_category.setChecked(
-                                    c['display'].get('make_category', False))
-                self.composite_contains_html.setChecked(
-                                    c['display'].get('contains_html', False))
+                self.composite_make_category.setChecked(c['display'].get('make_category', False))
+                self.composite_contains_html.setChecked(c['display'].get('contains_html', False))
         elif ct == 'enumeration':
             self.enum_box.setText(','.join(c['display'].get('enum_values', [])))
             self.enum_colors.setText(','.join(c['display'].get('enum_colors', [])))
@@ -222,9 +185,9 @@ class CreateCustomColumn(QDialog):
                 self.default_value.setText(_('Now') if dv == 'now' else dv)
             elif ct == 'rating':
                 if self.allow_half_stars.isChecked():
-                    self.default_value.setText(str(dv/2))
+                    self.default_value.setText(str(dv / 2))
                 else:
-                    self.default_value.setText(str(dv//2))
+                    self.default_value.setText(str(dv // 2))
             elif ct in ('int', 'float'):
                 self.default_value.setText(str(dv))
             elif ct not in ('composite', '*composite'):
@@ -244,43 +207,50 @@ class CreateCustomColumn(QDialog):
 
     def shortcut_activated(self, url):  # {{{
         which = str(url).split(':')[-1]
-        self.column_type_box.setCurrentIndex({
-            'yesno': self.column_types_map['bool'],
-            'tags': self.column_types_map['*text'],
-            'series': self.column_types_map['series'],
-            'rating': self.column_types_map['rating'],
-            'people': self.column_types_map['*text'],
-            'text': self.column_types_map['comments'],
-            }.get(which, self.column_types_map['composite']))
+        self.column_type_box.setCurrentIndex(
+            {
+                'yesno': self.column_types_map['bool'],
+                'tags': self.column_types_map['*text'],
+                'series': self.column_types_map['series'],
+                'rating': self.column_types_map['rating'],
+                'people': self.column_types_map['*text'],
+                'text': self.column_types_map['comments'],
+            }.get(which, self.column_types_map['composite'])
+        )
         self.column_name_box.setText(which)
-        self.column_heading_box.setText({
-            'isbn':'ISBN',
-            'formats':_('Formats'),
-            'yesno':_('Yes/No'),
-            'tags': _('My Tags'),
-            'series': _('My Series'),
-            'rating': _('My Rating'),
-            'people': _('People'),
-            'text': _('My Title'),
-            'read_progress': _('Read progress'),
-        }[which])
+        self.column_heading_box.setText(
+            {
+                'isbn': 'ISBN',
+                'formats': _('Formats'),
+                'yesno': _('Yes/No'),
+                'tags': _('My Tags'),
+                'series': _('My Series'),
+                'rating': _('My Rating'),
+                'people': _('People'),
+                'text': _('My Title'),
+                'read_progress': _('Read progress'),
+            }[which]
+        )
         self.is_names.setChecked(which == 'people')
         if self.composite_box.isVisible():
-            self.composite_box.setText({
-                'isbn': '{identifiers:select(isbn)}',
-                'formats': "{:'re(approximate_formats(), ',', ', ')'}",
-                'read_progress': '{id:reading_progress()}',
-            }[which])
+            self.composite_box.setText(
+                {
+                    'isbn': '{identifiers:select(isbn)}',
+                    'formats': "{:'re(approximate_formats(), ',', ', ')'}",
+                    'read_progress': '{id:reading_progress()}',
+                }[which]
+            )
             self.composite_sort_by.setCurrentIndex(0)
             if which == 'read_progress':
                 self.composite_sort_by.setCurrentIndex(1)
                 self.store_template_value_in_opf.setChecked(False)
-                self.description_box.setText(_(
-                    'To customize this, read the help for the {0} template function in the calibre User Manual').format(
-                        'reading_progress()'))
+                self.description_box.setText(
+                    _('To customize this, read the help for the {0} template function in the calibre User Manual').format('reading_progress()')
+                )
         if which == 'text':
             self.comments_heading_position.setCurrentIndex(self.comments_heading_position.findData('side'))
             self.comments_type.setCurrentIndex(self.comments_type.findData('short-text'))
+
     # }}}
 
     def setup_ui(self):  # {{{
@@ -292,12 +262,18 @@ class CreateCustomColumn(QDialog):
         self.shortcuts = s = QLabel('')
         s.setWordWrap(True)
         s.linkActivated.connect(self.shortcut_activated)
-        text = '<p>'+_('Quick create:')
-        for col, name in [('isbn', _('ISBN')), ('formats', _('Formats')),
-                ('yesno', _('Yes/No')),
-                ('tags', _('Tags')), ('series', ngettext('Series', 'Series', 1)), ('rating',
-                    _('Rating')), ('people', _('Names')), ('text', _('Short text')),
-                          ('read_progress', _('Read progress'))]:
+        text = '<p>' + _('Quick create:')
+        for col, name in [
+            ('isbn', _('ISBN')),
+            ('formats', _('Formats')),
+            ('yesno', _('Yes/No')),
+            ('tags', _('Tags')),
+            ('series', ngettext('Series', 'Series', 1)),
+            ('rating', _('Rating')),
+            ('people', _('Names')),
+            ('text', _('Short text')),
+            ('read_progress', _('Read progress')),
+        ]:
             text += f' <a href="col:{col}">{name}</a>,'
         text = text[:-1]
         s.setText(text)
@@ -354,18 +330,28 @@ class CreateCustomColumn(QDialog):
         ctb.setToolTip(_('What kind of information will be kept in the column.'))
         h.addWidget(ctb)
         self.use_decorations = ud = QCheckBox(_('Show &checkmarks'), self)
-        ud.setToolTip(_("Show check marks in the GUI. Values of 'yes', 'checked', and 'true'\n"
-            "will show a green check. Values of 'no', 'unchecked', and 'false' will show a red X.\n"
-            "Everything else will show nothing. Note that the values of 'true' and 'false' don't\n"
-            "follow calibre's language settings and are always in English."))
+        ud.setToolTip(
+            _(
+                "Show check marks in the GUI. Values of 'yes', 'checked', and 'true'\n"
+                "will show a green check. Values of 'no', 'unchecked', and 'false' will show a red X.\n"
+                "Everything else will show nothing. Note that the values of 'true' and 'false' don't\n"
+                "follow calibre's language settings and are always in English."
+            )
+        )
         h.addWidget(ud)
         self.is_names = ins = QCheckBox(_('Contains names'), self)
-        ins.setToolTip('<p>' + _('Check this box if this column contains names, '
-            'like the authors column. If checked, the item separator will be an ampersand '
-            '(&) instead of a comma (,), sorting will be done using a computed value '
-            'that respects the author sort tweaks (for example converting "Firstname '
-            'Lastname" into "Lastname, Firstname"), and item order will be '
-            'preserved.')+'</p>')
+        ins.setToolTip(
+            '<p>'
+            + _(
+                'Check this box if this column contains names, '
+                'like the authors column. If checked, the item separator will be an ampersand '
+                '(&) instead of a comma (,), sorting will be done using a computed value '
+                'that respects the author sort tweaks (for example converting "Firstname '
+                'Lastname" into "Lastname, Firstname"), and item order will be '
+                'preserved.'
+            )
+            + '</p>'
+        )
         h.addWidget(ins)
         add_row(_('&Column type:'), h)
 
@@ -382,6 +368,7 @@ class CreateCustomColumn(QDialog):
             b.clicked.connect(partial(self.bool_radio_button_clicked, b))
             h1.addWidget(b)
             return b
+
         self.bool_show_icon_button = add_bool_radio_button(_('&Icon'))
         self.bool_show_icon_button.setChecked(True)
         self.bool_show_text_button = add_bool_radio_button(_('&Text'))
@@ -412,8 +399,7 @@ class CreateCustomColumn(QDialog):
         fb.setRange(1, 9)
         fb.setValue(2)
         h.addWidget(fb)
-        self.decimals_default_label = la = QLabel(_(
-            'Control the number of decimal digits you can enter when editing this column'))
+        self.decimals_default_label = la = QLabel(_('Control the number of decimal digits you can enter when editing this column'))
         la.setWordWrap(True)
         h.addWidget(la)
         self.decimals_label = add_row(_('Decimals when &editing:'), h)
@@ -436,42 +422,49 @@ class CreateCustomColumn(QDialog):
         # Comments properties
         self.comments_heading_position = ct = QComboBox(self)
         for k, text in (
-                ('hide', _('No heading')),
-                ('above', _('Show heading above the text')),
-                ('side', _('Show heading to the side of the text'))
+            ('hide', _('No heading')),
+            ('above', _('Show heading above the text')),
+            ('side', _('Show heading to the side of the text')),
         ):
             ct.addItem(text, k)
-        ct.setToolTip('<p>' +
-                      _('Choose whether or not the column heading is shown in the Book '
-                      'details panel and, if shown, where. Setting this to '
-                      "'Show heading to the side of the text' moves the information "
-                      "from displayed with other comments to displayed with the "
-                      "non-comments columns.") + '</p>')
+        ct.setToolTip(
+            '<p>'
+            + _(
+                'Choose whether or not the column heading is shown in the Book '
+                'details panel and, if shown, where. Setting this to '
+                "'Show heading to the side of the text' moves the information "
+                "from displayed with other comments to displayed with the "
+                "non-comments columns."
+            )
+            + '</p>'
+        )
         self.comments_heading_position_label = add_row(_('Heading position:'), ct)
 
         self.comments_type = ct = QComboBox(self)
         for k, text in (
-                ('html', 'HTML'),
-                ('short-text', _('Short text, like a title')),
-                ('long-text', _('Plain text')),
-                ('markdown', _('Plain text formatted using Markdown'))
+            ('html', 'HTML'),
+            ('short-text', _('Short text, like a title')),
+            ('long-text', _('Plain text')),
+            ('markdown', _('Plain text formatted using Markdown')),
         ):
             ct.addItem(text, k)
-        ct.setToolTip(_('Choose how the data in this column is interpreted.\n'
-                        'This controls how the data is displayed in the Book details panel\n'
-                        'and how it is edited.'))
+        ct.setToolTip(
+            _('Choose how the data in this column is interpreted.\nThis controls how the data is displayed in the Book details panel\nand how it is edited.')
+        )
         self.comments_type_label = add_row(_('Interpret this column as:') + ' ', ct)
 
         # Values for enum type
         self.enum_box = eb = QLineEdit(self)
-        eb.setToolTip(_(
-            "A comma-separated list of permitted values. The empty value is always\n"
-            "included, and is the default. For example, the list 'one,two,three' has\n"
-            "four values, the first of them being the empty value."))
+        eb.setToolTip(
+            _(
+                "A comma-separated list of permitted values. The empty value is always\n"
+                "included, and is the default. For example, the list 'one,two,three' has\n"
+                "four values, the first of them being the empty value."
+            )
+        )
         self.enum_default_label = add_row(_('&Values:'), eb)
         self.enum_colors = ec = QLineEdit(self)
-        ec.setToolTip(_('A list of color names to use when displaying an item. The\n'
-            'list must be empty or contain a color for each value.'))
+        ec.setToolTip(_('A list of color names to use when displaying an item. The\nlist must be empty or contain a color for each value.'))
         self.enum_colors_label = add_row(_('Colors:'), ec)
 
         # Rating allow half stars
@@ -489,87 +482,122 @@ class CreateCustomColumn(QDialog):
         cmc.setToolTip(_('If checked, this column will appear in the Tag browser as a category'))
         l.addWidget(cmc)
         self.composite_contains_html = cch = QCheckBox(_('Show as HTML in Book details'))
-        cch.setToolTip('<p>' + _(
-            'If checked, this column will be displayed as HTML in '
-            'Book details and the Content server. This can be used to '
-            'construct links with the template language. For example, '
-            'the template {0} '
-            'will create a field displaying the title in bold large '
-            'characters, along with the series, for example <br>"<big><b>'
-            'An Oblique Approach</b></big> [Belisarius [1]]". The template {1} '
-            'will generate a link to the book on the Beam e-books site.').format(
-                '<pre>&lt;big&gt;&lt;b&gt;{title}&lt;/b&gt;&lt;/big&gt;'
-                '{series:| [|}{series_index:| [|]]}</pre>',
-                '<pre>&lt;a href="https://www.beam-ebooks.de/ebook/{identifiers'
-                ':select(beam)}"&gt;Beam book&lt;/a&gt;</pre> '
-        ) + '</p>')
+        cch.setToolTip(
+            '<p>'
+            + _(
+                'If checked, this column will be displayed as HTML in '
+                'Book details and the Content server. This can be used to '
+                'construct links with the template language. For example, '
+                'the template {0} '
+                'will create a field displaying the title in bold large '
+                'characters, along with the series, for example <br>"<big><b>'
+                'An Oblique Approach</b></big> [Belisarius [1]]". The template {1} '
+                'will generate a link to the book on the Beam e-books site.'
+            ).format(
+                '<pre>&lt;big&gt;&lt;b&gt;{title}&lt;/b&gt;&lt;/big&gt;{series:| [|}{series_index:| [|]]}</pre>',
+                '<pre>&lt;a href="https://www.beam-ebooks.de/ebook/{identifiers:select(beam)}"&gt;Beam book&lt;/a&gt;</pre> ',
+            )
+            + '</p>'
+        )
         l.addWidget(cch)
         l.addStretch()
         add_row(None, l)
 
         l = QHBoxLayout()
         self.composite_in_comments_box = cmc = QCheckBox(_('Show with comments in Book details'))
-        cmc.setToolTip('<p>' + _('If you check this box then the column contents '
-                                 'will show in the Comments section in the Book details. '
-                                 'You can indicate whether not to have a header or '
-                                 'to put a header above the column. If you want a '
-                                 "header beside the data, don't check this box. "
-                                 'If this box is checked then the output of the '
-                                 'column template must be plain text or html.') + '</p>')
+        cmc.setToolTip(
+            '<p>'
+            + _(
+                'If you check this box then the column contents '
+                'will show in the Comments section in the Book details. '
+                'You can indicate whether not to have a header or '
+                'to put a header above the column. If you want a '
+                "header beside the data, don't check this box. "
+                'If this box is checked then the output of the '
+                'column template must be plain text or html.'
+            )
+            + '</p>'
+        )
         l.addWidget(cmc)
         self.composite_heading_position = chp = QComboBox(self)
         for k, text in (
-                ('hide', _('No heading')),
-                ('above', _('Show heading above the text'))
-                # we don't offer 'side' because that is what you get if you don't
-                # check the box.
+            ('hide', _('No heading')),
+            ('above', _('Show heading above the text')),
+            # we don't offer 'side' because that is what you get if you don't
+            # check the box.
         ):
             chp.addItem(text, k)
-        chp.setToolTip(_('Choose whether or not the column heading is shown in the Book\n'
-                        'details panel and, if shown, where'))
+        chp.setToolTip(_('Choose whether or not the column heading is shown in the Book\ndetails panel and, if shown, where'))
         self.composite_heading_position_label = la = QLabel(_('Column heading:'))
         l.addWidget(la), l.addWidget(chp)
         l.addStretch()
         add_row(None, l)
         l = QHBoxLayout()
         self.store_template_value_in_opf = cmc = QCheckBox(_("Store this column's value in an OPF"))
-        cmc.setToolTip('<p>' + _('If you check this box then the result of '
-                       "evaluating this column's template will be stored in the backup OPF "
-                       'stored in the library. The same is true when sending to a device, '
-                       'assuming the format has an OPF. One reason to uncheck this box is '
-                       'that the column contains large images.') + '</p>' + '<p>' +
-                     _('Note that some background functions require data for a column to '
-                       'be in the OPF, for example book jackets. If you uncheck this box '
-                       'and some function stops working then check the box.') + '</p>')
+        cmc.setToolTip(
+            '<p>'
+            + _(
+                'If you check this box then the result of '
+                "evaluating this column's template will be stored in the backup OPF "
+                'stored in the library. The same is true when sending to a device, '
+                'assuming the format has an OPF. One reason to uncheck this box is '
+                'that the column contains large images.'
+            )
+            + '</p>'
+            + '<p>'
+            + _(
+                'Note that some background functions require data for a column to '
+                'be in the OPF, for example book jackets. If you uncheck this box '
+                'and some function stops working then check the box.'
+            )
+            + '</p>'
+        )
         l.addWidget(cmc)
         l.addStretch()
         add_row(None, l)
 
         # Default value
         self.default_value = dv = QLineEdit(self)
-        dv.setToolTip('<p>' + _('Default value when a new book is added to the '
-            'library. For Date columns enter the word "Now", or the date as '
-            'yyyy-mm-dd. For Yes/No columns enter "Yes" or "No". For Text with '
-            'a fixed set of values enter one of the permitted values. For '
-            'Rating columns enter a number between 0 and 5.') + '</p>')
+        dv.setToolTip(
+            '<p>'
+            + _(
+                'Default value when a new book is added to the '
+                'library. For Date columns enter the word "Now", or the date as '
+                'yyyy-mm-dd. For Yes/No columns enter "Yes" or "No". For Text with '
+                'a fixed set of values enter one of the permitted values. For '
+                'Rating columns enter a number between 0 and 5.'
+            )
+            + '</p>'
+        )
         self.default_value_label = add_row(_('&Default value:'), dv)
 
         l = QHBoxLayout()
         self.web_search_label = QLabel(_('Search tem&plate:'))
         l.addWidget(self.web_search_label)
         wst = self.web_search_template = QLineEdit()
-        wst.setToolTip('<p>' + _(
-            "Fill in this box if you want clicking on the value in book details to do a "
-            "web search instead of searching your calibre library. The book's metadata is "
-            "available to the template.</p><p>Additional fields '{0}', `{1}`, and '{2}' are also available "
-            "to the template. For multiple-valued (tags-like) columns they are the value being examined, "
-            "telling you which value to use to generate the link. The two values '{1}' and '{2}' are "
-            "automatically escaped for use in URLs. In '{1}', spaces are replaced by plus signs. In '{2}' "
-            "spaces are replaced by '%20'.</p><p> The template functions '{3}' (the easiest to use), "
-            "'{4}', '{5}', and '{6}' are useful for constructing the desired URL. There are examples in "
-            "the template function documentation.").format(
-                'item_value', 'item_value_quoted', 'item_value_no_plus', 'make_url()', 'make_url_extended()',
-                'query_string()', 'quote_for_url()') + '</p>')
+        wst.setToolTip(
+            '<p>'
+            + _(
+                "Fill in this box if you want clicking on the value in book details to do a "
+                "web search instead of searching your calibre library. The book's metadata is "
+                "available to the template.</p><p>Additional fields '{0}', `{1}`, and '{2}' are also available "
+                "to the template. For multiple-valued (tags-like) columns they are the value being examined, "
+                "telling you which value to use to generate the link. The two values '{1}' and '{2}' are "
+                "automatically escaped for use in URLs. In '{1}', spaces are replaced by plus signs. In '{2}' "
+                "spaces are replaced by '%20'.</p><p> The template functions '{3}' (the easiest to use), "
+                "'{4}', '{5}', and '{6}' are useful for constructing the desired URL. There are examples in "
+                "the template function documentation."
+            ).format(
+                'item_value',
+                'item_value_quoted',
+                'item_value_no_plus',
+                'make_url()',
+                'make_url_extended()',
+                'query_string()',
+                'quote_for_url()',
+            )
+            + '</p>'
+        )
         l.addWidget(wst)
         self.web_search_label.setBuddy(wst)
         wst_tb = self.web_search_toolbutton = QToolButton()
@@ -579,6 +607,7 @@ class CreateCustomColumn(QDialog):
         add_row(None, l)
 
         self.resize(self.sizeHint())
+
     # }}}
 
     def composite_template_button_clicked(self):
@@ -589,8 +618,7 @@ class CreateCustomColumn(QDialog):
             mi = [db.get_metadata(lv.model().id(row)) for row in rows[:10]]
         else:
             mi = None
-        d = TemplateDialog(parent=self, text=self.composite_box.text(),
-                           mi=mi, fm=db.field_metadata)
+        d = TemplateDialog(parent=self, text=self.composite_box.text(), mi=mi, fm=db.field_metadata)
         d.setWindowTitle(_('Edit template'))
         if d.exec() == QDialog.DialogCode.Accepted:
             self.composite_box.setText(d.rule[1])
@@ -600,12 +628,19 @@ class CreateCustomColumn(QDialog):
         lv = self.gui.library_view
         rows = lv.selectionModel().selectedRows()
         from calibre.ebooks.metadata.search_internet import qquote
+
         if not self.editing_col or not rows:
-            vals = [{'item_value': _('Item value'),
-                     'item_value_quoted': qquote(_('Item value'), True),
-                     'item_value_no_plus': qquote(_('Item value'), False),
-                     'lookup_name': _('Lookup name'),'author': _('Author'),
-                     'title': _('Title'), 'author_sort': _('Author sort')}]
+            vals = [
+                {
+                    'item_value': _('Item value'),
+                    'item_value_quoted': qquote(_('Item value'), True),
+                    'item_value_no_plus': qquote(_('Item value'), False),
+                    'lookup_name': _('Lookup name'),
+                    'author': _('Author'),
+                    'title': _('Title'),
+                    'author_sort': _('Author sort'),
+                }
+            ]
         else:
             vals = []
             for row in rows:
@@ -648,71 +683,101 @@ class CreateCustomColumn(QDialog):
             col_type = None
         needs_format = col_type in ('datetime', 'int', 'float')
         for x in ('box', 'default_label', 'label'):
-            getattr(self, 'format_'+x).setVisible(needs_format)
-            getattr(self, 'decimals_'+x).setVisible(col_type == 'float')
+            getattr(self, 'format_' + x).setVisible(needs_format)
+            getattr(self, 'decimals_' + x).setVisible(col_type == 'float')
         if needs_format:
             if col_type == 'datetime':
                 l, dl = _('&Format for dates:'), _('Default: dd MMM yyyy.')
-                self.format_box.setToolTip(_(
-                    '<p>Date format.</p>'
-                    '<p>The formatting codes are:'
-                    '<ul>'
-                    '<li>d    : the day as number without a leading zero (1 to 31)</li>'
-                    '<li>dd   : the day as number with a leading zero (01 to 31)</li>'
-                    '<li>ddd  : the abbreviated localized day name (e.g. "Mon" to "Sun").</li>'
-                    '<li>dddd : the long localized day name (e.g. "Monday" to "Sunday").</li>'
-                    '<li>M    : the <b>month</b> as number without a leading zero (1 to 12).</li>'
-                    '<li>MM   : the <b>month</b> as number with a leading zero (01 to 12)</li>'
-                    '<li>MMM  : the abbreviated localized <b>month</b> name (e.g. "Jan" to "Dec").</li>'
-                    '<li>MMMM : the long localized <b>month</b> name (e.g. "January" to "December").</li>'
-                    '<li>yy   : the year as two digit number (00 to 99).</li>'
-                    '<li>yyyy : the year as four digit number.</li>'
-                    '<li>h    : the hours without a leading 0 (0 to 11 or 0 to 23, depending on am/pm)</li>'
-                    '<li>hh   : the hours with a leading 0 (00 to 11 or 00 to 23, depending on am/pm)</li>'
-                    '<li>m    : the <b>minutes</b> without a leading 0 (0 to 59)</li>'
-                    '<li>mm   : the <b>minutes</b> with a leading 0 (00 to 59)</li>'
-                    '<li>s    : the seconds without a leading 0 (0 to 59)</li>'
-                    '<li>ss   : the seconds with a leading 0 (00 to 59)</li>'
-                    '<li>ap   : use a 12-hour clock instead of a 24-hour clock, with "ap" replaced by the localized string for am or pm</li>'
-                    '<li>AP   : use a 12-hour clock instead of a 24-hour clock, with "AP" replaced by the localized string for AM or PM</li>'
-                    '<li>iso  : the date with time and timezone. Must be the only format present</li>'
-                    '</ul></p>'
-                    '<p>For example:\n'
-                    '<ul>\n'
-                    '<li>ddd, d MMM yyyy gives Mon, 5 Jan 2010</li>\n'
-                    '<li>dd MMMM yy gives 05 January 10</li>\n'
-                    '</ul> '))
+                self.format_box.setToolTip(
+                    _(
+                        '<p>Date format.</p>'
+                        '<p>The formatting codes are:'
+                        '<ul>'
+                        '<li>d    : the day as number without a leading zero (1 to 31)</li>'
+                        '<li>dd   : the day as number with a leading zero (01 to 31)</li>'
+                        '<li>ddd  : the abbreviated localized day name (e.g. "Mon" to "Sun").</li>'
+                        '<li>dddd : the long localized day name (e.g. "Monday" to "Sunday").</li>'
+                        '<li>M    : the <b>month</b> as number without a leading zero (1 to 12).</li>'
+                        '<li>MM   : the <b>month</b> as number with a leading zero (01 to 12)</li>'
+                        '<li>MMM  : the abbreviated localized <b>month</b> name (e.g. "Jan" to "Dec").</li>'
+                        '<li>MMMM : the long localized <b>month</b> name (e.g. "January" to "December").</li>'
+                        '<li>yy   : the year as two digit number (00 to 99).</li>'
+                        '<li>yyyy : the year as four digit number.</li>'
+                        '<li>h    : the hours without a leading 0 (0 to 11 or 0 to 23, depending on am/pm)</li>'
+                        '<li>hh   : the hours with a leading 0 (00 to 11 or 00 to 23, depending on am/pm)</li>'
+                        '<li>m    : the <b>minutes</b> without a leading 0 (0 to 59)</li>'
+                        '<li>mm   : the <b>minutes</b> with a leading 0 (00 to 59)</li>'
+                        '<li>s    : the seconds without a leading 0 (0 to 59)</li>'
+                        '<li>ss   : the seconds with a leading 0 (00 to 59)</li>'
+                        '<li>ap   : use a 12-hour clock instead of a 24-hour clock, with "ap" replaced by the localized string for am or pm</li>'
+                        '<li>AP   : use a 12-hour clock instead of a 24-hour clock, with "AP" replaced by the localized string for AM or PM</li>'
+                        '<li>iso  : the date with time and timezone. Must be the only format present</li>'
+                        '</ul></p>'
+                        '<p>For example:\n'
+                        '<ul>\n'
+                        '<li>ddd, d MMM yyyy gives Mon, 5 Jan 2010</li>\n'
+                        '<li>dd MMMM yy gives 05 January 10</li>\n'
+                        '</ul> '
+                    )
+                )
             else:
-                l, dl = _('&Format for numbers:'), (
-                    '<p>' + _('Default: Not formatted. For format language details see'
-                    ' <a href="{}">the Python documentation</a>').format('https://docs.python.org/library/string.html#format-string-syntax'))
+                l, dl = (
+                    _('&Format for numbers:'),
+                    (
+                        '<p>'
+                        + _('Default: Not formatted. For format language details see <a href="{}">the Python documentation</a>').format(
+                            'https://docs.python.org/library/string.html#format-string-syntax'
+                        )
+                    ),
+                )
                 if col_type == 'int':
-                    self.format_box.setToolTip('<p>' + _(
-                        'Examples: The format <code>{0:0>4d}</code> '
-                        'gives a 4-digit number with leading zeros. The format '
-                        '<code>{0:d}&nbsp;days</code> prints the number then the word "days"')+ '</p>')
+                    self.format_box.setToolTip(
+                        '<p>'
+                        + _(
+                            'Examples: The format <code>{0:0>4d}</code> '
+                            'gives a 4-digit number with leading zeros. The format '
+                            '<code>{0:d}&nbsp;days</code> prints the number then the word "days"'
+                        )
+                        + '</p>'
+                    )
                 else:
-                    self.format_box.setToolTip('<p>' + _(
-                        'Examples: The format <code>{0:.1f}</code> gives a floating '
-                        'point number with 1 digit after the decimal point. The format '
-                        '<code>Price:&nbsp;$&nbsp;{0:,.2f}</code> prints '
-                        '"Price&nbsp;$&nbsp;" then displays the number with 2 digits '
-                        'after the decimal point and thousands separated by commas.') + '</p>'
+                    self.format_box.setToolTip(
+                        '<p>'
+                        + _(
+                            'Examples: The format <code>{0:.1f}</code> gives a floating '
+                            'point number with 1 digit after the decimal point. The format '
+                            '<code>Price:&nbsp;$&nbsp;{0:,.2f}</code> prints '
+                            '"Price&nbsp;$&nbsp;" then displays the number with 2 digits '
+                            'after the decimal point and thousands separated by commas.'
+                        )
+                        + '</p>'
                     )
             self.format_label.setText(l), self.format_default_label.setText(dl)
-        for x in ('in_comments_box', 'heading_position', 'heading_position_label',):
-            getattr(self, 'composite_'+x).setVisible(col_type == 'composite')
-        for x in ('box', 'default_label', 'label', 'sort_by', 'sort_by_label',
-                  'make_category', 'contains_html', 'template_toolbutton'):
-            getattr(self, 'composite_'+x).setVisible(col_type in ('composite', '*composite'))
+        for x in (
+            'in_comments_box',
+            'heading_position',
+            'heading_position_label',
+        ):
+            getattr(self, 'composite_' + x).setVisible(col_type == 'composite')
+        for x in (
+            'box',
+            'default_label',
+            'label',
+            'sort_by',
+            'sort_by_label',
+            'make_category',
+            'contains_html',
+            'template_toolbutton',
+        ):
+            getattr(self, 'composite_' + x).setVisible(col_type in ('composite', '*composite'))
         self.composite_heading_position.setEnabled(False)
         self.store_template_value_in_opf.setVisible(col_type == 'composite')
         self.store_template_value_in_opf.setChecked(True)
 
         for x in ('box', 'default_label', 'colors', 'colors_label'):
-            getattr(self, 'enum_'+x).setVisible(col_type == 'enumeration')
+            getattr(self, 'enum_' + x).setVisible(col_type == 'enumeration')
         for x in ('value_label', 'value'):
-            getattr(self, 'default_'+x).setVisible(col_type not in ['composite', '*composite'])
+            getattr(self, 'default_' + x).setVisible(col_type not in ['composite', '*composite'])
         self.use_decorations.setVisible(col_type in ['text', 'composite', 'enumeration'])
         self.is_names.setVisible(col_type == '*text')
 
@@ -740,11 +805,15 @@ class CreateCustomColumn(QDialog):
             return self.simple_error('', _('No lookup name was provided'))
         col = col.removeprefix('#')
         if re.match(r'^\w*$', col) is None or not col[0].isalpha() or col.lower() != col:
-            return self.simple_error('', _('The lookup name must contain only '
-                    'lower case letters, digits and underscores, and start with a letter'))
+            return self.simple_error(
+                '',
+                _('The lookup name must contain only lower case letters, digits and underscores, and start with a letter'),
+            )
         if col.endswith('_index'):
-            return self.simple_error('', _('Lookup names cannot end with _index, '
-                    'because these names are reserved for the index of a series column.'))
+            return self.simple_error(
+                '',
+                _('Lookup names cannot end with _index, because these names are reserved for the index of a series column.'),
+            )
         col_heading = str(self.column_heading_box.text()).strip()
         coldef = self.column_types[self.column_type_box.currentIndex()]
         col_type = str(coldef['datatype'])
@@ -757,10 +826,10 @@ class CreateCustomColumn(QDialog):
             return self.simple_error('', _('No column heading was provided'))
 
         db = self.gui.library_view.model().db
-        key = db.field_metadata.custom_field_prefix+col
+        key = db.field_metadata.custom_field_prefix + col
         cc = self.caller.custcols
         if key in cc and (not self.editing_col or cc[key]['colnum'] != self.orig_column_number):
-            return self.simple_error('', _('The lookup name %s is already used')%col)
+            return self.simple_error('', _('The lookup name %s is already used') % col)
         bad_head = False
         for cc in self.caller.custcols.values():
             if cc['name'] == col_heading and cc['colnum'] != self.orig_column_number:
@@ -770,22 +839,25 @@ class CreateCustomColumn(QDialog):
             if self.standard_colheads[t] == col_heading:
                 bad_head = True
         if bad_head:
-            if not question_dialog(self, _('Are you sure?'),
-                _('The heading {} is already used by another column.'
-                ' Creating a second column with the same heading can be confusing.'
-                ' Are you sure?').format(col_heading),
+            if not question_dialog(
+                self,
+                _('Are you sure?'),
+                _('The heading {} is already used by another column. Creating a second column with the same heading can be confusing. Are you sure?').format(
+                    col_heading
+                ),
                 skip_dialog_name='create_custom_column_shared_heading',
-                default_yes=False, override_icon='dialog_warning.png'):
+                default_yes=False,
+                override_icon='dialog_warning.png',
+            ):
                 return
 
         display_dict: dict[str, Any] = {}
 
-        default_val = (str(self.default_value.text()).strip()
-                        if col_type != 'composite' else None)
+        default_val = str(self.default_value.text()).strip() if col_type != 'composite' else None
 
         if col_type == 'datetime':
             if str(self.format_box.text()).strip():
-                display_dict = {'date_format':str(self.format_box.text()).strip()}
+                display_dict = {'date_format': str(self.format_box.text()).strip()}
             else:
                 display_dict = {'date_format': None}
             if default_val:
@@ -797,60 +869,55 @@ class CreateCustomColumn(QDialog):
                     except Exception:
                         tv = UNDEFINED_DATE
                     if tv == UNDEFINED_DATE:
-                        return self.simple_error(_('Invalid default value'),
-                                 _('The default value must be "Now" or a date'))
+                        return self.simple_error(_('Invalid default value'), _('The default value must be "Now" or a date'))
                     display_dict['default_value'] = default_val
         elif col_type == 'composite':
             if not str(self.composite_box.text()).strip():
-                return self.simple_error('', _('You must enter a template for '
-                           'composite columns'))
+                return self.simple_error('', _('You must enter a template for composite columns'))
             if self.composite_in_comments_box.isChecked():
-                display_dict = {'composite_template':str(self.composite_box.text()).strip(),
-                                'heading_position': self.composite_heading_position.currentData(),
-                                'composite_show_in_comments': True,
-                            }
+                display_dict = {
+                    'composite_template': str(self.composite_box.text()).strip(),
+                    'heading_position': self.composite_heading_position.currentData(),
+                    'composite_show_in_comments': True,
+                }
             else:
-                display_dict = {'composite_template':str(self.composite_box.text()).strip(),
-                                'composite_sort': ['text', 'number', 'date', 'bool']
-                                            [self.composite_sort_by.currentIndex()],
-                                'make_category': self.composite_make_category.isChecked(),
-                                'contains_html': self.composite_contains_html.isChecked(),
-                                'composite_show_in_comments': False,
-                            }
+                display_dict = {
+                    'composite_template': str(self.composite_box.text()).strip(),
+                    'composite_sort': ['text', 'number', 'date', 'bool'][self.composite_sort_by.currentIndex()],
+                    'make_category': self.composite_make_category.isChecked(),
+                    'contains_html': self.composite_contains_html.isChecked(),
+                    'composite_show_in_comments': False,
+                }
             display_dict['composite_store_template_value_in_opf'] = self.store_template_value_in_opf.isChecked()
 
         elif col_type == 'enumeration':
             if not str(self.enum_box.text()).strip():
-                return self.simple_error('', _('You must enter at least one '
-                            'value for enumeration columns'))
+                return self.simple_error('', _('You must enter at least one value for enumeration columns'))
             l = [v.strip() for v in str(self.enum_box.text()).split(',') if v.strip()]
             l_lower = [v.lower() for v in l]
-            for i,v in enumerate(l_lower):
-                if v in l_lower[i+1:]:
-                    return self.simple_error('', _('The value "{0}" is in the '
-                    'list more than once, perhaps with different case').format(l[i]))
+            for i, v in enumerate(l_lower):
+                if v in l_lower[i + 1 :]:
+                    return self.simple_error('', _('The value "{0}" is in the list more than once, perhaps with different case').format(l[i]))
             c = str(self.enum_colors.text())
             if c:
                 c = [v.strip() for v in str(self.enum_colors.text()).split(',')]
             else:
                 c = []
             if len(c) != 0 and len(c) != len(l):
-                return self.simple_error('', _('The colors box must be empty or '
-                           'contain the same number of items as the value box'))
+                return self.simple_error('', _('The colors box must be empty or contain the same number of items as the value box'))
             for tc in c:
-                if tc not in QColor.colorNames() and not re.match(r'#(?:[0-9a-f]{3}){1,4}',tc,re.I):
+                if tc not in QColor.colorNames() and not re.match(r'#(?:[0-9a-f]{3}){1,4}', tc, re.I):
                     return self.simple_error('', _('The color {0} is unknown').format(tc))
             display_dict = {'enum_values': l, 'enum_colors': c}
             if default_val:
                 if default_val not in l:
-                    return self.simple_error(_('Invalid default value'),
-                             _('The default value must be one of the permitted values'))
+                    return self.simple_error(_('Invalid default value'), _('The default value must be one of the permitted values'))
                 display_dict['default_value'] = default_val
         elif col_type == 'text' and is_multiple:
             display_dict = {'is_names': self.is_names.isChecked()}
         elif col_type in ['int', 'float']:
             if str(self.format_box.text()).strip():
-                display_dict = {'number_format':str(self.format_box.text()).strip()}
+                display_dict = {'number_format': str(self.format_box.text()).strip()}
             else:
                 display_dict = {'number_format': None}
             if col_type == 'float':
@@ -880,18 +947,15 @@ class CreateCustomColumn(QDialog):
                     tv = -1
                 if tv < 0 or tv > 10:
                     if half_stars:
-                        return self.simple_error(_('Invalid default value'),
-                             _('The default value must be a real number between 0 and 5.0'))
+                        return self.simple_error(_('Invalid default value'), _('The default value must be a real number between 0 and 5.0'))
                     else:
-                        return self.simple_error(_('Invalid default value'),
-                             _('The default value must be an integer between 0 and 5'))
+                        return self.simple_error(_('Invalid default value'), _('The default value must be an integer between 0 and 5'))
                 display_dict['default_value'] = tv
         elif col_type == 'bool':
             if default_val:
                 tv = {_('Yes'): True, _('No'): False}.get(default_val, None)
                 if tv is None:
-                    return self.simple_error(_('Invalid default value'),
-                             _('The default value must be "Yes" or "No"'))
+                    return self.simple_error(_('Invalid default value'), _('The default value must be "Yes" or "No"'))
                 display_dict['default_value'] = tv
             show_icon = bool(self.bool_show_icon_button.isChecked()) or bool(self.bool_show_both_button.isChecked())
             show_text = bool(self.bool_show_text_button.isChecked()) or bool(self.bool_show_both_button.isChecked())
@@ -909,14 +973,14 @@ class CreateCustomColumn(QDialog):
 
         if not self.editing_col:
             self.caller.custcols[key] = {
-                    'label':col,
-                    'name':col_heading,
-                    'datatype':col_type,
-                    'display':display_dict,
-                    'normalized':None,
-                    'colnum':None,
-                    'is_multiple':is_multiple,
-                }
+                'label': col,
+                'name': col_heading,
+                'datatype': col_type,
+                'display': display_dict,
+                'normalized': None,
+                'colnum': None,
+                'is_multiple': is_multiple,
+            }
             self.caller.cc_column_key = key
         else:
             cc = self.caller.custcols[self.orig_column_name]
@@ -935,7 +999,7 @@ class CreateCustomColumn(QDialog):
 
 
 class CreateNewCustomColumn:
-    '''
+    """
     Provide an API to create new custom columns.
 
     Usage:
@@ -1041,7 +1105,7 @@ class CreateNewCustomColumn:
     The method returns Result.MUST_RESTART if further calibre configuration has
     been blocked. You can check for this situation in advance by calling
     must_restart().
-    '''
+    """
 
     cc_column_key: str | None
 
@@ -1065,12 +1129,19 @@ class CreateNewCustomColumn:
         self.custcols = copy.deepcopy(db.field_metadata.custom_field_metadata())
         # Get the largest internal column number so we can be sure that we can
         # detect duplicates.
-        self.created_count = max((x['colnum'] for x in self.custcols.values()),
-                                         default=0) + 1
+        self.created_count = max((x['colnum'] for x in self.custcols.values()), default=0) + 1
 
-    def create_column(self, lookup_name, column_heading, datatype, is_multiple,
-                      display={}, generate_unused_lookup_name=False, freeze_lookup_name=True):
-        ''' See the class documentation for more information.'''
+    def create_column(
+        self,
+        lookup_name,
+        column_heading,
+        datatype,
+        is_multiple,
+        display={},
+        generate_unused_lookup_name=False,
+        freeze_lookup_name=True,
+    ):
+        """See the class documentation for more information."""
         if self.restart_required:
             return (self.Result.MUST_RESTART, _('You must restart calibre before making any more changes'))
         if not lookup_name.startswith('#'):
@@ -1088,8 +1159,7 @@ class CreateNewCustomColumn:
             headings = {v['name'] for v in self.custcols.values()}
             if column_heading in headings:
                 if not generate_unused_lookup_name:
-                    return (self.Result.DUPLICATE_HEADING,
-                           _('The column heading %s already exists') % column_heading)
+                    return (self.Result.DUPLICATE_HEADING, _('The column heading %s already exists') % column_heading)
                 for i in range(suffix_number, 100000):
                     nh = f'{column_heading}_{i}'
                     if nh not in headings:
@@ -1098,27 +1168,23 @@ class CreateNewCustomColumn:
         else:
             column_heading = lookup_name
         if datatype not in CreateCustomColumn.column_types_map:
-            return (self.Result.INVALID_TYPE,
-                   _("The custom column type %s doesn't exist") % datatype)
+            return (self.Result.INVALID_TYPE, _("The custom column type %s doesn't exist") % datatype)
         if is_multiple and '*' + datatype not in CreateCustomColumn.column_types_map:
-            return (self.Result.INVALID_IS_MULTIPLE,
-                   _('You cannot specify is_multiple for the datatype %s') % datatype)
+            return (self.Result.INVALID_IS_MULTIPLE, _('You cannot specify is_multiple for the datatype %s') % datatype)
         if not isinstance(display, dict):
-            return (self.Result.INVALID_DISPLAY,
-                   _('The display parameter must be a Python dictionary'))
+            return (self.Result.INVALID_DISPLAY, _('The display parameter must be a Python dictionary'))
         self.created_count += 1
         self.custcols[lookup_name] = {
-                'label': lookup_name,
-                'name': column_heading,
-                'datatype': datatype,
-                'display': display,
-                'normalized': None,
-                'colnum': self.created_count,
-                'is_multiple': is_multiple,
-            }
+            'label': lookup_name,
+            'name': column_heading,
+            'datatype': datatype,
+            'display': display,
+            'normalized': None,
+            'colnum': self.created_count,
+            'is_multiple': is_multiple,
+        }
 
-        return self._create_or_edit_column(lookup_name, freeze_lookup_name=freeze_lookup_name,
-                                           operation='create')
+        return self._create_or_edit_column(lookup_name, freeze_lookup_name=freeze_lookup_name, operation='create')
 
     def edit_existing_column(self, lookup_name):
         if lookup_name not in self.custcols:
@@ -1127,31 +1193,35 @@ class CreateNewCustomColumn:
 
     def _create_or_edit_column(self, lookup_name, freeze_lookup_name, operation=None):
         try:
-            dialog = CreateCustomColumn(self.gui, self, lookup_name,
-                                        self.gui.library_view.model().orig_headers,
-                                        freeze_lookup_name=freeze_lookup_name)
+            dialog = CreateCustomColumn(
+                self.gui,
+                self,
+                lookup_name,
+                self.gui.library_view.model().orig_headers,
+                freeze_lookup_name=freeze_lookup_name,
+            )
             if dialog.result() == QDialog.DialogCode.Accepted and self.cc_column_key is not None:
                 cc = self.custcols[lookup_name]
                 if operation == 'create':
                     self.db.create_custom_column(
-                                    label=cc['label'],
-                                    name=cc['name'],
-                                    datatype=cc['datatype'],
-                                    is_multiple=bool(cc['is_multiple']),
-                                    display=cc['display'])
+                        label=cc['label'],
+                        name=cc['name'],
+                        datatype=cc['datatype'],
+                        is_multiple=bool(cc['is_multiple']),
+                        display=cc['display'],
+                    )
                     self.gui.must_restart_before_config = True
                     return (self.Result.COLUMN_ADDED, self.cc_column_key)
                 # editing/viewing
                 if operation == 'edit':
-                    self.db.set_custom_column_metadata(cc['colnum'], name=cc['name'],
-                                                  label=cc['label'], display=cc['display'],
-                                                  notify=False)
+                    self.db.set_custom_column_metadata(cc['colnum'], name=cc['name'], label=cc['label'], display=cc['display'], notify=False)
                     if '*must_restart' in cc:
                         self.gui.must_restart_before_config = True
                     return (self.Result.COLUMN_EDITED, self.cc_column_key)
                 return (self.Result.CANCELED, self.cc_column_key)
         except Exception as e:
             import traceback
+
             traceback.print_exc()
             self.custcols.pop(lookup_name, None)
             return (self.Result.EXCEPTION_RAISED, str(e))
@@ -1159,7 +1229,7 @@ class CreateNewCustomColumn:
         return (self.Result.CANCELED, _('Canceled'))
 
     def current_columns(self):
-        '''
+        """
         Return the currently defined custom columns
 
         Return the currently defined custom columns including the ones that haven't
@@ -1176,22 +1246,22 @@ class CreateNewCustomColumn:
         Columns that already exist will have additional attributes that this class
         doesn't use. See calibre.library.field_metadata.add_custom_field() for the
         complete list.
-        '''
+        """
         # deepcopy to prevent users from changing it. The new MappingProxyType
         # isn't enough because only the top-level dict is immutable, not the
         # items in the dict.
         return copy.deepcopy(self.custcols)
 
     def current_headings(self):
-        '''
+        """
         Return the currently defined column headings
 
         Return the column headings including the ones that haven't yet been
         created. It is a dict. The key is the heading, the value is the lookup
         name having that heading.
-        '''
-        return {v['name']:('#' + v['label']) for v in self.custcols.values()}
+        """
+        return {v['name']: ('#' + v['label']) for v in self.custcols.values()}
 
     def must_restart(self):
-        '''Return true if calibre must be restarted before new columns can be added.'''
+        """Return true if calibre must be restarted before new columns can be added."""
         return self.restart_required

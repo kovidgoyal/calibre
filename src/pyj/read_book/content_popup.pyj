@@ -13,20 +13,16 @@ from read_book.resources import load_resources
 CLASS_NAME = 'book-content-popup-container'
 TOP_LEVEL_DISPLAY = 'flex'
 
-add_extra_css(def():
+add_extra_css(def ():
     sel = '.' + CLASS_NAME
     style = ''
     style += build_rule(sel, justify_content='center', align_items='center', height='100%')
-
     sel += ' > div'
     style += build_rule(sel, border_radius='8px', border='solid currentColor 2px', margin='1rem', padding='0.5rem', box_shadow='2px 2px 4px currentColor')
-
     sel += ' > div'
     style += build_rule(sel, display='flex', justify_content='space-between', align_items='center')
-
-    sel += ' > div' # button container
+    sel += ' > div'  # button container
     style += build_rule(sel, display='flex', justify_content='space-between', align_items='center')
-
     sel += ' > a'  # buttons
     style += build_rule(sel, margin_left='1ex', cursor='pointer', display='inline-block')
     style += build_rule(sel + ':hover', transform='scale(1.5)')
@@ -36,7 +32,6 @@ add_extra_css(def():
 
 
 class ContentPopupOverlay:
-
     def __init__(self, view):
         self.view = view
         self.loaded_resources = {}
@@ -44,7 +39,7 @@ class ContentPopupOverlay:
         c.classList.add(CLASS_NAME)
         c.appendChild(E.div(E.div()))
         c.addEventListener('click', self.hide)
-        c.firstChild.addEventListener('click', def(ev):
+        c.firstChild.addEventListener('click', def (ev):
             ev.stopPropagation(), ev.preventDefault()
         )
         self.pending_load = None
@@ -126,7 +121,7 @@ class ContentPopupOverlay:
             E.a(svgicon('arrow-right'), title=_('Go to this footnote in the main view'), href='javascript:void(0)'),
             E.a(svgicon('close'), title=_('Close the footnotes window'), href='javascript:void(0)')
         )
-        bc.firstChild.addEventListener('click', def():
+        bc.firstChild.addEventListener('click', def ():
                 self.hide()
                 self.view.goto_named_destination(self.current_footnote_data.name, self.current_footnote_data.frag)
         )

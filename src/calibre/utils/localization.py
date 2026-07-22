@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2009, Kovid Goyal <kovid at kovidgoyal.net>
 
-
 import io
 import locale
 import os
@@ -19,6 +18,7 @@ def available_translations():
         stats = P('localization/stats.calibre_msgpack', allow_user_override=False)
         if os.path.exists(stats):
             from calibre.utils.serialize import msgpack_loads
+
             with open(stats, 'rb') as f:
                 stats = msgpack_loads(f.read())
         else:
@@ -45,10 +45,12 @@ def getlangcode_from_envvars(envvars=default_envvars_for_langcode):
 
 def get_system_locale():
     from calibre.constants import ismacos, iswindows
+
     lang = None
     if iswindows:
         try:
             from calibre.constants import get_windows_user_locale_name
+
             lang = get_windows_user_locale_name()
             lang = lang.strip()
             if not lang:
@@ -57,11 +59,13 @@ def get_system_locale():
             pass  # Windows XP does not have the GetUserDefaultLocaleName fn
     elif ismacos:
         from calibre_extensions.usbobserver import user_locale
+
         try:
             lang = user_locale() or None
         except Exception:
             # Fallback to environment vars if something bad happened
             import traceback
+
             traceback.print_exc()
     if lang is None:
         try:
@@ -100,8 +104,9 @@ def sanitize_lang(lang):
 
 
 def get_lang():
-    'Try to figure out what language to display the interface in'
+    "Try to figure out what language to display the interface in"
     from calibre.utils.config_base import prefs
+
     lang = prefs['language']
     lang = os.environ.get('CALIBRE_OVERRIDE_LANG', lang)
     if lang:
@@ -110,6 +115,7 @@ def get_lang():
         lang = get_system_locale()
     except Exception:
         import traceback
+
         traceback.print_exc()
         lang = None
     return sanitize_lang(lang)
@@ -132,8 +138,7 @@ def get_lc_messages_path(lang):
 
 
 def zf_exists():
-    return os.path.exists(P('localization/locales.zip',
-                allow_user_override=False))
+    return os.path.exists(P('localization/locales.zip', allow_user_override=False))
 
 
 _lang_trans = _country_trans = None
@@ -141,6 +146,7 @@ _lang_trans = _country_trans = None
 
 def get_all_translators():
     from zipfile import ZipFile
+
     with ZipFile(P('localization/locales.zip', allow_user_override=False), 'r') as zf:
         for lang in available_translations():
             mpath = get_lc_messages_path(lang)
@@ -151,6 +157,7 @@ def get_all_translators():
 
 def get_single_translator(mpath, which='messages'):
     from zipfile import ZipFile
+
     with ZipFile(P('localization/locales.zip', allow_user_override=False), 'r') as zf:
         path = f'{mpath}/{which}.mo'
         data = zf.read(path)
@@ -159,8 +166,10 @@ def get_single_translator(mpath, which='messages'):
             return Translator(buf)
         except Exception as e:
             import traceback
+
             traceback.print_exc()
             import hashlib
+
             sig = hashlib.sha1(data).hexdigest()
             raise ValueError(f'Failed to load translations for: {path} (size: {len(data)} and signature: {sig}) with error: {e}')
 
@@ -177,13 +186,13 @@ def get_translator(bcp_47_code):
     if len(parts) > 1:
         parts[1] = parts[1].upper()
     lang = '_'.join(parts)
-    lang = {'pt':'pt_BR', 'zh':'zh_CN'}.get(lang, lang)
+    lang = {'pt': 'pt_BR', 'zh': 'zh_CN'}.get(lang, lang)
     available = available_translations()
     found = True
     if lang == 'en' or lang.startswith('en_'):
         return found, lang, Translator()
     if lang not in available:
-        lang = {'pt':'pt_BR', 'zh':'zh_CN'}.get(parts[0], parts[0])
+        lang = {'pt': 'pt_BR', 'zh': 'zh_CN'}.get(parts[0], parts[0])
         if lang not in available:
             lang = get_lang()
             if lang not in available:
@@ -200,18 +209,32 @@ lcdata = {
     'd_fmt': '%m/%d/%Y',
     'd_t_fmt': '%a %d %b %Y %r %Z',
     'day': ('Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'),
-    'mon': ('January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'),
+    'mon': (
+        'January',
+        'February',
+        'March',
+        'April',
+        'May',
+        'June',
+        'July',
+        'August',
+        'September',
+        'October',
+        'November',
+        'December',
+    ),
     'noexpr': '^[nN].*',
     'radixchar': '.',
     't_fmt': '%r',
     't_fmt_ampm': '%I:%M:%S %p',
     'thousep': ',',
-    'yesexpr': '^[yY].*'
+    'yesexpr': '^[yY].*',
 }
 
 
 def load_po(path):
     from calibre.translations.msgfmt import make
+
     buf = io.BytesIO()
     try:
         make(path, buf)
@@ -232,6 +255,7 @@ def translator_for_lang(lang):
 
     if mpath is not None:
         from zipfile import ZipFile
+
         with ZipFile(P('localization/locales.zip', allow_user_override=False), 'r') as zf:
             if buf is None:
                 buf = zf.read(mpath + '/messages.mo')
@@ -249,6 +273,7 @@ def translator_for_lang(lang):
                 pass  # No iso3166 translations for this lang
             if buf is not None:
                 from calibre.utils.serialize import msgpack_loads
+
                 try:
                     lcdata = msgpack_loads(zf.read(mpath + '/lcdata.calibre_msgpack'))
                 except Exception:
@@ -259,6 +284,7 @@ def translator_for_lang(lang):
             t = Translator(buf)
         except Exception:
             import traceback
+
             traceback.print_exc()
             t = None
         if iso639 is not None:
@@ -330,22 +356,22 @@ class _SetTranslators:
         # for the global prefs object as it was instantiated in get_lang(), before
         # the translator was installed.
         from calibre.utils.config_base import prefs
+
         prefs.retranslate_help()
 
 
 set_translators = _SetTranslators()
 
-
 _iso639 = None
 _extra_lang_codes = {
-        'pt_BR': _('Brazilian Portuguese'),
-        'zh_CN': _('Simplified Chinese'),
-        'zh_TW': _('Traditional Chinese'),
-        'bn_IN': _('Indian Bengali'),
-        'bn_BD': _('Bangladeshi Bengali'),
-        'en'   : _('English'),
-        'und'  : _('Unknown')
-        }
+    'pt_BR': _('Brazilian Portuguese'),
+    'zh_CN': _('Simplified Chinese'),
+    'zh_TW': _('Traditional Chinese'),
+    'bn_IN': _('Indian Bengali'),
+    'bn_BD': _('Bangladeshi Bengali'),
+    'en': _('English'),
+    'und': _('Unknown'),
+}
 
 if False:
     # Extra strings needed for Qt
@@ -388,6 +414,7 @@ def _load_iso639():
     if _iso639 is None:
         ip = P('localization/iso639.calibre_msgpack', allow_user_override=False, data=True)
         from calibre.utils.serialize import msgpack_loads
+
         _iso639 = msgpack_loads(ip)
         if 'by_3' not in _iso639:
             _iso639['by_3'] = _iso639['by_3t']
@@ -401,6 +428,7 @@ def load_iso3166():
     global _iso3166_cache
     if _iso3166_cache is None:
         from calibre.utils.serialize import msgpack_loads
+
         _iso3166_cache = msgpack_loads(P('localization/iso3166.calibre_msgpack', allow_user_override=False, data=True))
     return _iso3166_cache
 
@@ -491,12 +519,12 @@ _lang_map = None
 
 
 def lang_map():
-    ' Return mapping of ISO 639 3 letter codes to localized language names '
+    "Return mapping of ISO 639 3 letter codes to localized language names"
     iso639 = _load_iso639()
     translate = _
     global _lang_map
     if _lang_map is None:
-        _lang_map = {k:translate(v) for k, v in iso639['by_3'].items()}
+        _lang_map = {k: translate(v) for k, v in iso639['by_3'].items()}
     return _lang_map
 
 
@@ -522,11 +550,11 @@ def reverse_lang_map_for_ui():
 
 
 def langnames_to_langcodes(names):
-    '''
+    """
     Given a list of localized language names return a mapping of the names to 3
     letter ISO 639 language codes. If a name is not recognized, it is mapped to
     None.
-    '''
+    """
     iso639 = _load_iso639()
     translate = _
     ans = {}
@@ -559,6 +587,7 @@ def get_udc():
     if _udc is None:
         from calibre.ebooks.unihandecode import Unihandecoder
         from calibre.utils.config_base import tweaks
+
         lang = tweaks.get('east_asian_base_language', '')
         lang = lang if lang in ('ja', 'kr', 'vn', 'zh') else get_lang()
         _udc = Unihandecoder(lang=lang)
@@ -572,6 +601,7 @@ def user_manual_stats():
     global _user_manual_stats_cache
     if _user_manual_stats_cache is None:
         import json
+
         try:
             _user_manual_stats_cache = json.loads(P('user-manual-translation-stats.json', allow_user_override=False, data=True))
         except OSError:
@@ -594,6 +624,7 @@ def localize_user_manual_link(url):
     if not lc:
         return url
     from urllib.parse import urlparse, urlunparse
+
     parts = urlparse(url)
     path = re.sub(r'/generated/[a-z]+/', f'/generated/{lc}/', parts.path or '')
     path = f'/{lc}{path}'
@@ -621,6 +652,7 @@ def localize_website_link(url):
     if lc == 'en' or lc not in langs:
         return url
     from urllib.parse import urlparse, urlunparse
+
     parts = urlparse(url)
     path = f'/{lc}{parts.path}'
     parts = list(parts)
@@ -636,4 +668,5 @@ def is_rtl_lang(lang):
 
 def install_qt_translator() -> None:
     from calibre_extensions.progress_indicator import install_qt_translator as install
+
     install(default_translator.set_as_qt_translator())

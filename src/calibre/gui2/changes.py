@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
 
-
 from calibre.srv.changes import BooksAdded, BooksDeleted, FormatsAdded, FormatsRemoved, MetadataChanged, SavedSearchesChanged
 
 
@@ -10,6 +9,7 @@ def handle_changes(changes, gui=None):
         return
     if gui is None:
         from calibre.gui2.ui import get_gui
+
         gui = get_gui()
     if gui is None:
         return

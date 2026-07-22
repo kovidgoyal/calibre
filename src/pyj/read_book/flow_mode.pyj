@@ -2,24 +2,6 @@
 # License: GPL v3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 from __python__ import bound_methods, hash_literals
 
-# Notes about flow mode scrolling:
-#  All the math in flow mode is based on the block and inline directions.
-#  Inline is "the direction lines of text go."
-#  In horizontal scripts such as English and Hebrew, the inline is horizontal
-#  and the block is vertical.
-#  In vertical languages such as Japanese and Mongolian, the inline is vertical
-#  and block is horizontal.
-#  Regardless of language, flow mode scrolls in the block direction.
-#
-#  In vertical RTL books, the block position scrolls from right to left. |<------|
-#  This means that the viewport positions become negative as you scroll.
-#  This is hidden from flow mode by the viewport, which transparently
-#  negates any inline coordinates sent in to the viewport_to_document* functions
-#  and the various scroll_to/scroll_by functions, as well as the reported X position.
-#
-#  The result of all this is that flow mode's math can safely pretend that
-#  things scroll in the positive block direction.
-
 from dom import set_css
 from range_utils import wrap_range, unwrap
 from read_book.cfi import scroll_to as cfi_scroll_to
@@ -90,7 +72,7 @@ def _check_for_scroll_end(func, obj, args, report, apply_mouse_boundary_delay):
         if apply_mouse_boundary_delay and opts.scroll_mouse_boundary_delay > 0:
             if last_change_spine_item_request.denied is None:
                 last_change_spine_item_request.denied = now
-            if now - last_change_spine_item_request.denied < opts.scroll_mouse_boundary_delay * 1000 :
+            if now - last_change_spine_item_request.denied < opts.scroll_mouse_boundary_delay * 1000:
                 return False
             last_change_spine_item_request.denied = None
         # perform change
@@ -116,6 +98,7 @@ def check_for_scroll_end_and_report(func):
     return def ():
         return _check_for_scroll_end(func, this, arguments, True, True)
 
+
 def check_for_scroll_end_and_report_no_delay(func):
     return def ():
         return _check_for_scroll_end(func, this, arguments, True, False)
@@ -127,6 +110,7 @@ def scroll_by_and_check_next_page(y):
     # This indicates to check_for_scroll_end_and_report that it should not
     # flip the page progression direction.
     return False
+
 
 def flow_onwheel(evt):
     di = db = 0
@@ -167,6 +151,7 @@ def flow_onwheel(evt):
     if Math.abs(db) >= 1:
         scroll_by_and_check_next_page(db)
 
+
 @check_for_scroll_end
 def goto_boundary(dir):
     position = 0 if dir is DIRECTION.Up else scroll_viewport.document_block_size()
@@ -206,6 +191,7 @@ def scroll_to_extend_annotation(backward, horizontal, by_page):
     before = window.pageYOffset
     window.scrollBy(0, h * direction)
     return window.pageYOffset is not before
+
 
 def is_auto_scroll_active():
     return scroll_animator.is_active()
@@ -277,6 +263,7 @@ def layout(is_single_page):
     scroll_viewport.initialize_on_layout(body_style)
     document.documentElement.style.overflow = 'visible' if scroll_viewport.vertical_writing_mode else 'hidden'
 
+
 def auto_scroll_resume():
     scroll_animator.wait = False
     scroll_animator.sync()
@@ -287,7 +274,7 @@ def add_visibility_listener():
         return
     add_visibility_listener.done = True
     # Pause auto-scroll while minimized
-    document.addEventListener("visibilitychange", def():
+    document.addEventListener('visibilitychange', def ():
         if (document.visibilityState is 'visible'):
             scroll_animator.sync()
         else:
@@ -307,7 +294,7 @@ DIRECTION = {'Up': -1, 'up': -1, 'Down': 1, 'down': 1, 'UP': -1, 'DOWN': 1}
 
 
 class ScrollAnimator:
-    DURATION = 100 # milliseconds
+    DURATION = 100  # milliseconds
 
     def __init__(self):
         self.animation_id = None
@@ -346,7 +333,7 @@ class ScrollAnimator:
         if duration <= 0:
             self.animation_id = None
             return
-        progress = max(0, min(1, (ts - self.start_time) / duration)) # max/min to account for jitter
+        progress = max(0, min(1, (ts - self.start_time) / duration))  # max/min to account for jitter
         scroll_target = self.start_offset
         scroll_target += Math.trunc(self.direction * progress * duration * line_height() * opts.lines_per_sec_smooth) / 1000
 
@@ -369,7 +356,7 @@ class ScrollAnimator:
             report_human_scroll(amt)
 
     def auto_scroll(self, ts):
-        elapsed = max(0, ts - self.start_time) # max to account for jitter
+        elapsed = max(0, ts - self.start_time)  # max to account for jitter
         scroll_target = self.start_offset
         scroll_target += Math.trunc(self.direction * elapsed * line_height() * opts.lines_per_sec_auto) / 1000
 
@@ -436,7 +423,6 @@ scroll_animator = ScrollAnimator()
 
 
 class FlickAnimator:
-
     SPEED_FACTOR = 0.04
     DECEL_TIME_CONSTANT = 325  # milliseconds
     VELOCITY_HISTORY = 300  # milliseconds
@@ -495,8 +481,7 @@ flick_animator = FlickAnimator()
 
 
 class DragScroller:
-
-    DURATION = 100 # milliseconds
+    DURATION = 100  # milliseconds
 
     def __init__(self):
         self.animation_id = None
@@ -514,7 +499,7 @@ class DragScroller:
             self.animation_id = None
             self.start(self.direction, self.speed_factor)
             return
-        progress = max(0, min(1, (ts - self.start_time) / duration)) # max/min to account for jitter
+        progress = max(0, min(1, (ts - self.start_time) / duration))  # max/min to account for jitter
         scroll_target = self.start_offset
         scroll_target += Math.trunc(self.direction * progress * duration * line_height() * opts.lines_per_sec_smooth * self.speed_factor) / 1000
         scroll_viewport.scroll_to_in_block_direction(scroll_target)
@@ -596,7 +581,6 @@ anchor_funcs = {
         if not elem:
             return {'block': 0, 'inline': 0}
         br = elem.getBoundingClientRect()
-
         # Start of object in the scrolling direction
         return {
             'block': scroll_viewport.viewport_to_document_block(scroll_viewport.rect_block_start(br), elem.ownerDocument),
@@ -609,7 +593,6 @@ anchor_funcs = {
         # as the value that the scroll viewport returns is negated
         if scroll_viewport.vertical_writing_mode and scroll_viewport.rtl:
             q = -q
-
         if q + 1 < scroll_viewport.block_pos():
             # the + 1 is needed for visibility when top aligned, see: https://bugs.launchpad.net/calibre/+bug/1924890
             return -1
@@ -620,7 +603,7 @@ anchor_funcs = {
     'cmp': def cmp(a, b):
         return (a.block - b.block) or (a.inline - b.inline)
     ,
-    'get_bounding_client_rect': def(elem):
+    'get_bounding_client_rect': def (elem):
         return elem.getBoundingClientRect()
     ,
 }
@@ -694,7 +677,7 @@ def ensure_selection_boundary_visible(use_end):
 def jump_to_cfi(cfi):
     # Jump to the position indicated by the specified conformal fragment
     # indicator.
-    cfi_scroll_to(cfi, def(x, y):
+    cfi_scroll_to(cfi, def (x, y):
         # block is vertical if text is horizontal
         if scroll_viewport.horizontal_writing_mode:
             scroll_viewport.scroll_to_in_block_direction(y)

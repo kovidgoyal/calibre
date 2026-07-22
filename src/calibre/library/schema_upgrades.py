@@ -1,9 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__   = 'GPL v3'
-__copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2010, Kovid Goyal <kovid@kovidgoyal.net>
 
 import os
 
@@ -11,7 +7,6 @@ from calibre.utils.date import DEFAULT_DATE, isoformat
 
 
 class SchemaUpgrade:
-
     def __init__(self):
         # Upgrade database
         while True:
@@ -22,12 +17,12 @@ class SchemaUpgrade:
             else:
                 print(f'Upgrading database to version {uv + 1}...')
                 meth()
-                self.user_version = uv+1
+                self.user_version = uv + 1
 
     def upgrade_version_1(self):
-        '''
+        """
         Normalize indices.
-        '''
+        """
         self.conn.executescript('''\
         DROP INDEX authors_idx;
         CREATE INDEX authors_idx ON books (author_sort COLLATE NOCASE, sort COLLATE NOCASE);
@@ -37,7 +32,7 @@ class SchemaUpgrade:
         ''')
 
     def upgrade_version_2(self):
-        ''' Fix Foreign key constraints for deleting from link tables. '''
+        """Fix Foreign key constraints for deleting from link tables."""
         script = '''\
         DROP TRIGGER IF EXISTS fkc_delete_books_%(ltable)s_link;
         CREATE TRIGGER fkc_delete_on_%(table)s
@@ -50,13 +45,13 @@ class SchemaUpgrade:
         END;
         DELETE FROM %(table)s WHERE (SELECT COUNT(id) FROM books_%(ltable)s_link WHERE %(ltable_col)s=%(table)s.id) < 1;
         '''
-        self.conn.executescript(script%dict(ltable='authors', table='authors', ltable_col='author'))
-        self.conn.executescript(script%dict(ltable='publishers', table='publishers', ltable_col='publisher'))
-        self.conn.executescript(script%dict(ltable='tags', table='tags', ltable_col='tag'))
-        self.conn.executescript(script%dict(ltable='series', table='series', ltable_col='series'))
+        self.conn.executescript(script % dict(ltable='authors', table='authors', ltable_col='author'))
+        self.conn.executescript(script % dict(ltable='publishers', table='publishers', ltable_col='publisher'))
+        self.conn.executescript(script % dict(ltable='tags', table='tags', ltable_col='tag'))
+        self.conn.executescript(script % dict(ltable='series', table='series', ltable_col='series'))
 
     def upgrade_version_3(self):
-        ' Add path to result cache '
+        "Add path to result cache"
         self.conn.executescript('''
         DROP VIEW meta;
         CREATE VIEW meta AS
@@ -79,7 +74,7 @@ class SchemaUpgrade:
         ''')
 
     def upgrade_version_4(self):
-        'Rationalize books table'
+        "Rationalize books table"
         self.conn.executescript('''
         BEGIN TRANSACTION;
         CREATE TEMPORARY TABLE
@@ -127,7 +122,7 @@ class SchemaUpgrade:
         ''')
 
     def upgrade_version_5(self):
-        'Update indexes/triggers for new books table'
+        "Update indexes/triggers for new books table"
         self.conn.executescript('''
         BEGIN TRANSACTION;
         CREATE INDEX authors_idx ON books (author_sort COLLATE NOCASE);
@@ -158,11 +153,10 @@ class SchemaUpgrade:
         UPDATE books SET sort=title_sort(title) WHERE sort IS NULL;
 
         END TRANSACTION;
-        '''
-        )
+        ''')
 
     def upgrade_version_6(self):
-        'Show authors in order'
+        "Show authors in order"
         self.conn.executescript('''
         BEGIN TRANSACTION;
         DROP VIEW meta;
@@ -190,7 +184,7 @@ class SchemaUpgrade:
         ''')
 
     def upgrade_version_7(self):
-        'Add uuid column'
+        "Add uuid column"
         self.conn.executescript('''
         BEGIN TRANSACTION;
         ALTER TABLE books ADD COLUMN uuid TEXT;
@@ -235,7 +229,8 @@ class SchemaUpgrade:
         ''')
 
     def upgrade_version_8(self):
-        'Add Tag Browser views'
+        "Add Tag Browser views"
+
         def create_tag_browser_view(table_name, column_name):
             self.conn.executescript(f'''
                 DROP VIEW IF EXISTS tag_browser_{table_name};
@@ -253,7 +248,7 @@ class SchemaUpgrade:
             create_tag_browser_view(tn, cn)
 
     def upgrade_version_9(self):
-        'Add custom columns'
+        "Add custom columns"
         self.conn.executescript('''
                 CREATE TABLE custom_columns (
                     id       INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -272,9 +267,10 @@ class SchemaUpgrade:
         ''')
 
     def upgrade_version_10(self):
-        'Add restricted Tag Browser views'
+        "Add restricted Tag Browser views"
+
         def create_tag_browser_view(table_name, column_name, view_column_name):
-            script = (f'''
+            script = f'''
                 DROP VIEW IF EXISTS tag_browser_{table_name};
                 CREATE VIEW tag_browser_{table_name} AS SELECT
                     id,
@@ -288,22 +284,24 @@ class SchemaUpgrade:
                     (SELECT COUNT(books_{table_name}_link.id) FROM books_{table_name}_link WHERE
                         {column_name}={table_name}.id AND books_list_filter(book)) count
                 FROM {table_name};
-                ''')
+                '''
             self.conn.executescript(script)
 
         for field in self.field_metadata.values():
             if field['is_category'] and not field['is_custom'] and 'link_column' in field:
                 table = self.conn.get(
                     'SELECT name FROM sqlite_master WHERE type="table" AND name=?',
-                    ('books_{}_link'.format(field['table']),), all=False)
+                    ('books_{}_link'.format(field['table']),),
+                    all=False,
+                )
                 if table is not None:
                     create_tag_browser_view(field['table'], field['link_column'], field['column'])
 
     def upgrade_version_11(self):
-        'Add average rating to tag browser views'
-        def create_std_tag_browser_view(table_name, column_name,
-                                        view_column_name, sort_column_name):
-            script = (f'''
+        "Add average rating to tag browser views"
+
+        def create_std_tag_browser_view(table_name, column_name, view_column_name, sort_column_name):
+            script = f'''
                 DROP VIEW IF EXISTS tag_browser_{table_name};
                 CREATE VIEW tag_browser_{table_name} AS SELECT
                     id,
@@ -329,7 +327,7 @@ class SchemaUpgrade:
                      {sort_column_name} AS sort
                 FROM {table_name};
 
-                ''')
+                '''
             self.conn.executescript(script)
 
         def create_cust_tag_browser_view(table_name, link_table_name):
@@ -370,10 +368,11 @@ class SchemaUpgrade:
             if field['is_category'] and not field['is_custom'] and 'link_column' in field:
                 table = self.conn.get(
                     'SELECT name FROM sqlite_master WHERE type="table" AND name=?',
-                    ('books_{}_link'.format(field['table']),), all=False)
+                    ('books_{}_link'.format(field['table']),),
+                    all=False,
+                )
                 if table is not None:
-                    create_std_tag_browser_view(field['table'], field['link_column'],
-                                            field['column'], field['category_sort'])
+                    create_std_tag_browser_view(field['table'], field['link_column'], field['column'], field['category_sort'])
 
         db_tables = self.conn.get('''SELECT name FROM sqlite_master
                                      WHERE type='table'
@@ -389,7 +388,7 @@ class SchemaUpgrade:
         self.conn.execute('UPDATE authors SET sort=author_to_author_sort(name)')
 
     def upgrade_version_12(self):
-        'DB based preference store'
+        "DB based preference store"
         script = '''
         DROP TABLE IF EXISTS preferences;
         CREATE TABLE preferences(id INTEGER PRIMARY KEY,
@@ -400,7 +399,7 @@ class SchemaUpgrade:
         self.conn.executescript(script)
 
     def upgrade_version_13(self):
-        'Dirtied table for OPF metadata backups'
+        "Dirtied table for OPF metadata backups"
         script = '''
         DROP TABLE IF EXISTS metadata_dirtied;
         CREATE TABLE metadata_dirtied(id INTEGER PRIMARY KEY,
@@ -411,14 +410,13 @@ class SchemaUpgrade:
         self.conn.executescript(script)
 
     def upgrade_version_14(self):
-        'Cache has_cover'
+        "Cache has_cover"
         self.conn.execute('ALTER TABLE books ADD COLUMN has_cover BOOL DEFAULT 0')
         data = self.conn.get('SELECT id,path FROM books', all=True)
 
         def has_cover(path):
             if path:
-                path = os.path.join(self.library_path, path.replace('/', os.sep),
-                    'cover.jpg')
+                path = os.path.join(self.library_path, path.replace('/', os.sep), 'cover.jpg')
                 return os.path.exists(path)
             return False
 
@@ -426,7 +424,7 @@ class SchemaUpgrade:
         self.conn.executemany('UPDATE books SET has_cover=1 WHERE id=?', ids)
 
     def upgrade_version_15(self):
-        'Remove commas from tags'
+        "Remove commas from tags"
         self.conn.execute("UPDATE OR IGNORE tags SET name=REPLACE(name, ',', ';')")
         self.conn.execute("UPDATE OR IGNORE tags SET name=REPLACE(name, ',', ';;')")
         self.conn.execute("UPDATE OR IGNORE tags SET name=REPLACE(name, ',', '')")
@@ -443,7 +441,7 @@ class SchemaUpgrade:
         ''')
 
     def upgrade_version_17(self):
-        'custom book data table (for plugins)'
+        "custom book data table (for plugins)"
         script = '''
         DROP TABLE IF EXISTS books_plugin_data;
         CREATE TABLE books_plugin_data(id INTEGER PRIMARY KEY,
@@ -469,14 +467,14 @@ class SchemaUpgrade:
         self.conn.executescript(script)
 
     def upgrade_version_18(self):
-        '''
+        """
         Add a library UUID.
         Add an identifiers table.
         Add a languages table.
         Add a last_modified column.
         NOTE: You cannot downgrade after this update, if you do
         any changes you make to book isbns will be lost.
-        '''
+        """
         script = '''
         DROP TABLE IF EXISTS library_id;
         CREATE TABLE library_id ( id   INTEGER PRIMARY KEY,
@@ -584,6 +582,7 @@ class SchemaUpgrade:
         recipes = self.conn.get('SELECT id,title,script FROM feeds')
         if recipes:
             from calibre.web.feeds.recipes import custom_recipe_filename, custom_recipes
+
             bdir = os.path.dirname(custom_recipes.file_path)
             for id_, title, script in recipes:
                 existing = frozenset(map(int, custom_recipes))
@@ -598,9 +597,9 @@ class SchemaUpgrade:
                     f.write(script)
 
     def upgrade_version_20(self):
-        '''
+        """
         Add a link column to the authors table.
-        '''
+        """
 
         script = '''
         BEGIN TRANSACTION;

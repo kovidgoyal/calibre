@@ -11,8 +11,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 def classes(classes):
     q = frozenset(classes.split(' '))
-    return dict(attrs={
-        'class': lambda x: x and frozenset(x.split()).intersection(q)})
+    return dict(attrs={'class': lambda x: x and frozenset(x.split()).intersection(q)})
 
 
 class IlSole24Ore(BasicNewsRecipe):
@@ -20,7 +19,7 @@ class IlSole24Ore(BasicNewsRecipe):
     description = 'Italian financial daily newspaper'
 
     cover_url = 'http://www.shopping24.ilsole24ore.com/ProductRelated/rds/img/logo_sole.gif'
-    title = u'Il Sole 24 Ore'
+    title = 'Il Sole 24 Ore'
     publisher = 'Gruppo editoriale GRUPPO 24ORE'
     category = 'News, politics, culture, economy, financial, Italian'
 
@@ -33,12 +32,8 @@ class IlSole24Ore(BasicNewsRecipe):
     extra_css = '.headline {font-size: x-large;} \n .fact { padding-top: 10pt  }'
     no_stylesheets = True
 
-    keep_only_tags = [
-        classes('ahead atext')
-    ]
-    remove_tags = [
-        classes('ahead-ltool')
-    ]
+    keep_only_tags = [classes('ahead atext')]
+    remove_tags = [classes('ahead-ltool')]
 
     def get_article_url(self, article):
         link = article.get('link', None)
@@ -57,12 +52,12 @@ class IlSole24Ore(BasicNewsRecipe):
                 ('0L0S', 'www.'),
                 ('0A', '0'),
             )
-            for a,b in t:
+            for a, b in t:
                 link = link.replace(a, b)
             link = 'http://' + link
         return link
 
-    feeds          = [
+    feeds = [
         ('Italia', 'https://www.ilsole24ore.com/rss/italia.xml'),
         ('Mondo', 'https://www.ilsole24ore.com/rss/mondo.xml'),
         ('Economia', 'https://www.ilsole24ore.com/rss/economia.xml'),

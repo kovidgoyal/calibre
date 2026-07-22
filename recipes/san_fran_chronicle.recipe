@@ -10,9 +10,9 @@ from calibre.web.feeds.news import BasicNewsRecipe, classes
 
 
 class SanFranciscoChronicle(BasicNewsRecipe):
-    title = u'San Francisco Chronicle'
-    __author__ = u'Kovid Goyal'
-    description = u'San Francisco news'
+    title = 'San Francisco Chronicle'
+    __author__ = 'Kovid Goyal'
+    description = 'San Francisco news'
     language = 'en_US'
 
     oldest_article = 7
@@ -21,7 +21,7 @@ class SanFranciscoChronicle(BasicNewsRecipe):
     use_embedded_content = False
     delay = 1
 
-    extra_css       = '''
+    extra_css = '''
                         h1{font-family :Arial,Helvetica,sans-serif; font-size:large;}
                         h2{font-family :Arial,Helvetica,sans-serif; font-size:medium; color:#666666;}
                         h3{font-family :Arial,Helvetica,sans-serif; font-size:medium; color:#000000;}
@@ -39,22 +39,20 @@ class SanFranciscoChronicle(BasicNewsRecipe):
     remove_tags = [
         dict(id=['badge-logo', 'everlit-auto-audio-widget']),
         dict(name='svg'),
-        dict(attrs={'data-eid': lambda x: x and (
-            'news_alert_bar' in x or 'card' in x or 'mostPopular' in x or 'dynamic_thumbnail_list' in x)}),
+        dict(attrs={'data-eid': lambda x: x and ('news_alert_bar' in x or 'card' in x or 'mostPopular' in x or 'dynamic_thumbnail_list' in x)}),
         dict(href=lambda x: x and 'california-mini-crossword' in x),
         dict(attrs={'data-block-type': 'embed'}),
         dict(name='img', width='1'),
     ]
 
     feeds = [
-        (u'Bay Area News', u'https://www.sfgate.com/bayarea/feed/Bay-Area-News-429.php'),
-        (u'City Insider', u'https://www.sfgate.com/default/feed/City-Insider-Blog-573.php'),
-        (u'Crime Scene', u'https://www.sfgate.com/rss/feed/Crime-Scene-Blog-599.php'),
-        (u'Education News',
-         u'https://www.sfgate.com/education/feed/Education-News-from-SFGate-430.php'),
-        (u'National News', u'https://www.sfgate.com/rss/feed/National-News-RSS-Feed-435.php'),
-        (u'Weird News', u'https://www.sfgate.com/weird/feed/Weird-News-RSS-Feed-433.php'),
-        (u'World News', u'https://www.sfgate.com/rss/feed/World-News-From-SFGate-432.php'),
+        ('Bay Area News', 'https://www.sfgate.com/bayarea/feed/Bay-Area-News-429.php'),
+        ('City Insider', 'https://www.sfgate.com/default/feed/City-Insider-Blog-573.php'),
+        ('Crime Scene', 'https://www.sfgate.com/rss/feed/Crime-Scene-Blog-599.php'),
+        ('Education News', 'https://www.sfgate.com/education/feed/Education-News-from-SFGate-430.php'),
+        ('National News', 'https://www.sfgate.com/rss/feed/National-News-RSS-Feed-435.php'),
+        ('Weird News', 'https://www.sfgate.com/weird/feed/Weird-News-RSS-Feed-433.php'),
+        ('World News', 'https://www.sfgate.com/rss/feed/World-News-From-SFGate-432.php'),
     ]
 
     def preprocess_html(self, soup):

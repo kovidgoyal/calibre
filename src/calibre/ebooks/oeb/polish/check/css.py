@@ -86,7 +86,10 @@ def stylelint_js():
     global _stylelint_js_cache
     if _stylelint_js_cache is None:
         _stylelint_js_cache = (
-            ('stylelint-bundle.min.js', P('stylelint-bundle.min.js', data=True, allow_user_override=False).decode('utf-8')),
+            (
+                'stylelint-bundle.min.js',
+                P('stylelint-bundle.min.js', data=True, allow_user_override=False).decode('utf-8'),
+            ),
             ('stylelint.js', P('stylelint.js', data=True, allow_user_override=False).decode('utf-8')),
         )
     return _stylelint_js_cache
@@ -112,7 +115,6 @@ def create_profile():
 
 
 class Worker(QWebEnginePage):
-
     work_done = pyqtSignal(object, object)
 
     def __init__(self):
@@ -145,7 +147,9 @@ class Worker(QWebEnginePage):
     def check_css(self, src, fix=False):
         self.working = True
         self.runJavaScript(
-            f'window.check_css({json.dumps(src)}, {"true" if fix else "false"})', QWebEngineScript.ScriptWorldId.ApplicationWorld)
+            f'window.check_css({json.dumps(src)}, {"true" if fix else "false"})',
+            QWebEngineScript.ScriptWorldId.ApplicationWorld,
+        )
 
     def check_css_when_ready(self, src, fix=False):
         if self.ready:
@@ -161,7 +165,6 @@ class Worker(QWebEnginePage):
 
 
 class Pool:
-
     def __init__(self):
         self.workers = []
         self.max_workers = cpu_count()
@@ -236,8 +239,12 @@ def check_css(jobs):
     results = pool.check_css([j.css for j in jobs])
     for job, result in zip(jobs, results):
         if result['type'] == 'error':
-            errors.append(CSSParseError(_('Failed to process CSS in {name} with errors: {errors}').format(
-                name=job.name, errors=result['error']), job.name))
+            errors.append(
+                CSSParseError(
+                    _('Failed to process CSS in {name} with errors: {errors}').format(name=job.name, errors=result['error']),
+                    job.name,
+                )
+            )
             continue
         result = json.loads(result['results']['output'])
         rule_metadata = result['rule_metadata']

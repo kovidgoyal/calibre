@@ -1,9 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__   = 'GPL v3'
-__copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2012, Kovid Goyal <kovid at kovidgoyal.net>
 
 from functools import partial
 from struct import calcsize, unpack, unpack_from
@@ -19,10 +15,8 @@ from calibre.utils.fonts.sfnt.errors import NoGlyphs, UnsupportedFont
 
 
 class CFF:
-
     def __init__(self, raw):
-        (self.major_version, self.minor_version, self.header_size,
-                self.offset_size) = unpack_from(b'>4B', raw)
+        (self.major_version, self.minor_version, self.header_size, self.offset_size) = unpack_from(b'>4B', raw)
         if (self.major_version, self.minor_version) != (1, 0):
             raise UnsupportedFont(f'The CFF table has unknown version: ({self.major_version}, {self.minor_version})')
         offset = self.header_size
@@ -59,8 +53,7 @@ class CFF:
             raise ValueError('This font has no CharStrings')
         cs_type = self.top_dict.safe_get('CharstringType')
         if cs_type != 2:
-            raise UnsupportedFont('This font has unsupported CharstringType: '
-                    f'{cs_type}')
+            raise UnsupportedFont(f'This font has unsupported CharstringType: {cs_type}')
         self.char_strings = CharStringsIndex(raw, offset)
         self.num_glyphs = len(self.char_strings)
 
@@ -70,15 +63,12 @@ class CFF:
         if pd:
             size, offset = pd
             self.private_dict = PrivateDict()
-            self.private_dict.decompile(self.strings, self.global_subrs,
-                    raw[offset:offset+size])
+            self.private_dict.decompile(self.strings, self.global_subrs, raw[offset : offset + size])
             if 'Subrs' in self.private_dict:
-                self.private_subrs = Subrs(raw, offset +
-                        self.private_dict['Subrs'])
+                self.private_subrs = Subrs(raw, offset + self.private_dict['Subrs'])
 
         # Read charset (Glyph names)
-        self.charset = Charset(raw, self.top_dict.safe_get('charset'),
-                self.strings, self.num_glyphs, self.is_CID)
+        self.charset = Charset(raw, self.top_dict.safe_get('charset'), self.strings, self.num_glyphs, self.is_CID)
 
         # import pprint
         # pprint.pprint(self.top_dict)
@@ -86,7 +76,6 @@ class CFF:
 
 
 class Index(list):
-
     def __init__(self, raw, offset, prepend=()):
         list.__init__(self)
         self.extend(prepend)
@@ -99,17 +88,16 @@ class Index(list):
             self.offset_size = unpack_from(b'>B', raw, offset)[0]
             offset += 1
             if self.offset_size == 3:
-                offsets = [unpack(b'>L', b'\0' + raw[i:i+3])[0]
-                            for i in range(offset, offset+3*(count+1), 3)]
+                offsets = [unpack(b'>L', b'\0' + raw[i : i + 3])[0] for i in range(offset, offset + 3 * (count + 1), 3)]
             else:
-                fmt = {1:'B', 2:'H', 4:'L'}[self.offset_size]
+                fmt = {1: 'B', 2: 'H', 4: 'L'}[self.offset_size]
                 fmt = f'>{count + 1}{fmt}'.encode('ascii')
                 offsets = unpack_from(fmt, raw, offset)
-            offset += self.offset_size * (count+1) - 1
+            offset += self.offset_size * (count + 1) - 1
 
-            for i in range(len(offsets)-1):
-                off, noff = offsets[i:i+2]
-                obj = raw[offset+off:offset+noff]
+            for i in range(len(offsets) - 1):
+                off, noff = offsets[i : i + 2]
+                obj = raw[offset + off : offset + noff]
                 self.append(obj)
 
             try:
@@ -119,14 +107,11 @@ class Index(list):
 
 
 class Strings(Index):
-
     def __init__(self, raw, offset):
-        super().__init__(raw, offset, prepend=[x.encode('ascii')
-            for x in cff_standard_strings])
+        super().__init__(raw, offset, prepend=[x.encode('ascii') for x in cff_standard_strings])
 
 
 class Charset(list):
-
     def __init__(self, raw, offset, strings, num_glyphs, is_CID):
         super().__init__()
         self.standard_charset = offset if offset in {0, 1, 2} else None
@@ -136,8 +121,7 @@ class Charset(list):
             self.append(b'.notdef')
             fmt = unpack_from(b'>B', raw, offset)[0]
             offset += 1
-            f = {0:self.parse_fmt0, 1:self.parse_fmt1,
-                2:partial(self.parse_fmt1, is_two_byte=True)}.get(fmt, None)
+            f = {0: self.parse_fmt0, 1: self.parse_fmt1, 2: partial(self.parse_fmt1, is_two_byte=True)}.get(fmt, None)
             if f is None:
                 raise UnsupportedFont(f'This font uses unsupported charset table format: {fmt}')
             f(raw, offset, strings, num_glyphs, is_CID)
@@ -151,8 +135,7 @@ class Charset(list):
             ids = (strings[x] for x in ids)
         self.extend(ids)
 
-    def parse_fmt1(self, raw, offset, strings, num_glyphs, is_CID,
-            is_two_byte=False):
+    def parse_fmt1(self, raw, offset, strings, num_glyphs, is_CID, is_two_byte=False):
         fmt = b'>2H' if is_two_byte else b'>HB'
         sz = calcsize(fmt)
         count = 1
@@ -160,8 +143,7 @@ class Charset(list):
             first, nleft = unpack_from(fmt, raw, offset)
             offset += sz
             count += nleft + 1
-            self.extend(f'cid{x:05}' if is_CID else strings[x] for x in
-                    range(first, first + nleft+1))
+            self.extend(f'cid{x:05}' if is_CID else strings[x] for x in range(first, first + nleft + 1))
 
     def lookup(self, glyph_id):
         if self.standard_charset is None:
@@ -171,7 +153,7 @@ class Charset(list):
     def safe_lookup(self, glyph_id):
         try:
             return self.lookup(glyph_id)
-        except (KeyError, IndexError, ValueError):
+        except KeyError, IndexError, ValueError:
             return None
 
 
@@ -184,22 +166,20 @@ class CharStringsIndex(Index):
 
 
 class CFFTable(UnknownTable):
-
     def decompile(self):
         self.cff = CFF(self.raw)
 
     def subset(self, character_map, extra_glyphs):
         from calibre.utils.fonts.sfnt.cff.writer import Subset
+
         # Map codes from the cmap table to glyph names, this will be used to
         # reconstruct character_map for the subset font
-        charset_map = {code:self.cff.charset.safe_lookup(glyph_id) for code,
-                glyph_id in character_map.items()}
+        charset_map = {code: self.cff.charset.safe_lookup(glyph_id) for code, glyph_id in character_map.items()}
         charset = set(charset_map.values())
         charset.discard(None)
         if not charset and character_map:
             raise NoGlyphs('This font has no glyphs for the specified characters')
-        charset |= {
-            self.cff.charset.safe_lookup(glyph_id) for glyph_id in extra_glyphs}
+        charset |= {self.cff.charset.safe_lookup(glyph_id) for glyph_id in extra_glyphs}
         charset.discard(None)
         s = Subset(self.cff, charset)
 

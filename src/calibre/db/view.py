@@ -1,9 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__   = 'GPL v3'
-__copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2011, Kovid Goyal <kovid@kovidgoyal.net>
 
 import numbers
 import operator
@@ -21,12 +17,11 @@ from calibre.utils.config_base import prefs, tweaks
 def sanitize_sort_field_name(field_metadata, field):
     field = field_metadata.search_term_to_field_key(field.lower().strip())
     # translate some fields to their hidden equivalent
-    field = {'title': 'sort', 'authors':'author_sort'}.get(field, field)
+    field = {'title': 'sort', 'authors': 'author_sort'}.get(field, field)
     return field
 
 
 class MarkedVirtualField:
-
     def __init__(self, marked_ids):
         self.marked_ids = marked_ids
 
@@ -36,11 +31,10 @@ class MarkedVirtualField:
 
     def sort_keys_for_books(self, get_metadata, lang_map):
         g = self.marked_ids.get
-        return lambda book_id:g(book_id, '')
+        return lambda book_id: g(book_id, '')
 
 
 class InTagBrowserVirtualField:
-
     def __init__(self, _ids):
         self._ids = _ids
 
@@ -54,16 +48,19 @@ class InTagBrowserVirtualField:
     def sort_keys_for_books(self, get_metadata, lang_map):
         null = sys.maxsize
         if self._ids is None:
+
             def key(_id):
                 return null
+
         else:
+
             def key(_id):
                 return _id if _id in self._ids else null
+
         return key
 
 
 class TableRow:
-
     def __init__(self, book_id, view):
         self.book_id = book_id
         self.view = weakref.ref(view)
@@ -73,8 +70,7 @@ class TableRow:
         view = self.view()
         assert view is not None
         if isinstance(obj, slice):
-            return [view._field_getters[c](self.book_id)
-                    for c in range(*obj.indices(len(view._field_getters)))]
+            return [view._field_getters[c](self.book_id) for c in range(*obj.indices(len(view._field_getters)))]
         else:
             return view._field_getters[obj](self.book_id)
 
@@ -101,8 +97,8 @@ def format_identifiers(x):
 
 
 class View:
-    ''' A table view of the database, with rows and columns. Also supports
-    filtering and sorting.  '''
+    """A table view of the database, with rows and columns. Also supports
+    filtering and sorting."""
 
     def __init__(self, cache):
         self.cache = cache
@@ -115,18 +111,18 @@ class View:
         self._field_getters: dict[int, Callable[..., Any]] = {}
         self.column_count = len(cache.backend.FIELD_MAP)
         for col, idx in cache.backend.FIELD_MAP.items():
-            label, fmt = col, lambda x:x
+            label, fmt = col, lambda x: x
             func = {
-                    'id': self._get_id,
-                    'au_map': self.get_author_data,
-                    'ondevice': self.get_ondevice,
-                    'marked': self.get_marked,
-                    'all_marked_labels': self.all_marked_labels,
-                    'series_sort':self.get_series_sort,
-                }.get(col, self._get)
+                'id': self._get_id,
+                'au_map': self.get_author_data,
+                'ondevice': self.get_ondevice,
+                'marked': self.get_marked,
+                'all_marked_labels': self.all_marked_labels,
+                'series_sort': self.get_series_sort,
+            }.get(col, self._get)
             if isinstance(col, numbers.Integral):
                 label = self.cache.backend.custom_column_num_map[col]['label']
-                label = (self.cache.backend.field_metadata.custom_field_prefix + label)
+                label = self.cache.backend.field_metadata.custom_field_prefix + label
             if label.endswith('_index'):
                 try:
                     num = int(label.partition('_')[0])
@@ -134,7 +130,7 @@ class View:
                     pass  # series_index
                 else:
                     label = self.cache.backend.custom_column_num_map[num]['label']
-                    label = (self.cache.backend.field_metadata.custom_field_prefix + label + '_index')
+                    label = self.cache.backend.field_metadata.custom_field_prefix + label + '_index'
 
             fm = self.field_metadata[label]
             fm
@@ -148,7 +144,7 @@ class View:
                 fmt = format_identifiers
             elif fm['datatype'] == 'text' and fm['is_multiple']:
                 sep = fm['is_multiple']['cache_to_list']
-                if sep not in {'&','|'}:
+                if sep not in {'&', '|'}:
                     sep = '|'
                 fmt = partial(format_is_multiple, sep=sep)
             if func == self._get:
@@ -167,8 +163,7 @@ class View:
         self.marked_listeners[id(func)] = weakref.ref(func)
 
     def add_to_sort_history(self, items):
-        self.sort_history = uniq((list(items) + list(self.sort_history)),
-                                 operator.itemgetter(0))[:tweaks['maximum_resort_levels']]
+        self.sort_history = uniq((list(items) + list(self.sort_history)), operator.itemgetter(0))[: tweaks['maximum_resort_levels']]
 
     def count(self):
         return len(self._map)
@@ -187,7 +182,7 @@ class View:
     @_map_filtered.setter
     def _map_filtered(self, v):
         self._real_map_filtered = v
-        self._real_map_filtered_id_to_row = {id_:row for row, id_ in enumerate(self._map_filtered)}
+        self._real_map_filtered_id_to_row = {id_: row for row, id_ in enumerate(self._map_filtered)}
 
     @property
     def field_metadata(self):
@@ -222,10 +217,10 @@ class View:
         return TableRow(book_id, self)
 
     def get_field_map_field(self, row, col, index_is_id=True):
-        '''
+        """
         Supports the legacy FIELD_MAP interface for getting metadata. Do not use
         in new code.
-        '''
+        """
         getter = self._field_getters[col]
         return getter(row, index_is_id=index_is_id)
 
@@ -254,7 +249,7 @@ class View:
             return self._map.index(book_id)
         return self.id_to_index(book_id)
 
-    def _get(self, field, idx, index_is_id=True, default_value=None, fmt=lambda x:x):
+    def _get(self, field, idx, index_is_id=True, default_value=None, fmt=lambda x: x):
         id_ = idx if index_is_id else self.index_to_id(idx)
         if index_is_id and not self.cache.has_id(id_):
             raise IndexError(f'No book with id {idx} present')
@@ -267,8 +262,11 @@ class View:
             lang = lang_map.get(book_id, None) or None
             if lang:
                 lang = lang[0]
-            return title_sort(self.cache._field_for('series', book_id, default_value=''),
-                              order=tweaks['title_series_sorting'], lang=lang)
+            return title_sort(
+                self.cache._field_for('series', book_id, default_value=''),
+                order=tweaks['title_series_sorting'],
+                lang=lang,
+            )
 
     def get_ondevice(self, idx, index_is_id=True, default_value=''):
         id_ = idx if index_is_id else self.index_to_id(idx)
@@ -291,8 +289,12 @@ class View:
 
     def get_virtual_libraries_for_books(self, ids):
         return self.cache.virtual_libraries_for_books(
-            ids, virtual_fields={'marked':MarkedVirtualField(self.marked_ids),
-                                 'in_tag_browser': InTagBrowserVirtualField(self.tag_browser_ids)})
+            ids,
+            virtual_fields={
+                'marked': MarkedVirtualField(self.marked_ids),
+                'in_tag_browser': InTagBrowserVirtualField(self.tag_browser_ids),
+            },
+        )
 
     def _do_sort(self, ids_to_sort, fields=(), subsort=False):
         fields = [(sanitize_sort_field_name(self.field_metadata, x), bool(y)) for x, y in fields]
@@ -304,9 +306,13 @@ class View:
             fields = [('timestamp', False)]
 
         return self.cache.multisort(
-            fields, ids_to_sort=ids_to_sort,
-            virtual_fields={'marked':MarkedVirtualField(self.marked_ids),
-                            'in_tag_browser': InTagBrowserVirtualField(self.tag_browser_ids)})
+            fields,
+            ids_to_sort=ids_to_sort,
+            virtual_fields={
+                'marked': MarkedVirtualField(self.marked_ids),
+                'in_tag_browser': InTagBrowserVirtualField(self.tag_browser_ids),
+            },
+        )
 
     def multisort(self, fields=[], subsort=False, only_ids=None):
         sorted_book_ids = self._do_sort(self._map if only_ids is None else only_ids, fields=fields, subsort=subsort)
@@ -320,7 +326,7 @@ class View:
                 fids = frozenset(self._map_filtered)
                 self._map_filtered = tuple(i for i in self._map if i in fids)
         else:
-            smap = {book_id:i for i, book_id in enumerate(sorted_book_ids)}
+            smap = {book_id: i for i, book_id in enumerate(sorted_book_ids)}
             only_ids.sort(key=smap.get)
 
     def incremental_sort(self, fields=(), subsort=False):
@@ -331,8 +337,7 @@ class View:
         self.add_to_sort_history(fields)
 
     def search(self, query, return_matches=False, sort_results=True):
-        ans = self.search_getting_ids(query, self.search_restriction,
-                                      set_restriction_count=True, sort_results=sort_results)
+        ans = self.search_getting_ids(query, self.search_restriction, set_restriction_count=True, sort_results=sort_results)
         if return_matches:
             return ans
         self._map_filtered = tuple(ans)
@@ -346,8 +351,15 @@ class View:
         else:
             return restriction
 
-    def search_getting_ids(self, query, search_restriction,
-                           set_restriction_count=False, use_virtual_library=True, sort_results=True, allow_templates=True):
+    def search_getting_ids(
+        self,
+        query,
+        search_restriction,
+        set_restriction_count=False,
+        use_virtual_library=True,
+        sort_results=True,
+        allow_templates=True,
+    ):
         if use_virtual_library:
             search_restriction = self._build_restriction_string(search_restriction)
         q = ''
@@ -367,10 +379,14 @@ class View:
                 self.full_map_is_sorted = True
             return rv
         matches = self.cache.search(
-            query, search_restriction, virtual_fields={
-                'marked':MarkedVirtualField(self.marked_ids),
-                'in_tag_browser': InTagBrowserVirtualField(self.tag_browser_ids)
-            }, allow_templates=allow_templates)
+            query,
+            search_restriction,
+            virtual_fields={
+                'marked': MarkedVirtualField(self.marked_ids),
+                'in_tag_browser': InTagBrowserVirtualField(self.tag_browser_ids),
+            },
+            allow_templates=allow_templates,
+        )
         if len(matches) == len(self._map):
             rv = list(self._map)
         else:
@@ -442,8 +458,7 @@ class View:
         old_marked_ids = set(self.marked_ids)
         if not hasattr(id_dict, 'items'):
             # Simple list. Make it a dict entry of string 'true'
-            self.marked_ids = {k: (self.marked_ids[k] if k in self.marked_ids else 'true')
-                               for k in id_dict}
+            self.marked_ids = {k: (self.marked_ids[k] if k in self.marked_ids else 'true') for k in id_dict}
         else:
             # Ensure that all the items in the dict are text
             self.marked_ids = {k: str(v) for k, v in id_dict.items()}

@@ -1,9 +1,8 @@
-
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class fd(BasicNewsRecipe):
-    title = u'Het Financieele Dagblad'
+    title = 'Het Financieele Dagblad'
     __author__ = 'marvin_2'
     oldest_article = 7
     max_articles_per_feed = 100
@@ -11,14 +10,10 @@ class fd(BasicNewsRecipe):
     cover_url = 'http://www.fd.nl/static/gfx/logo-fd-164x78.gif'
     language = 'nl'
 
-    keep_only_tags = (dict(name='div', attrs={'class': ['headlinearticle']}))
+    keep_only_tags = dict(name='div', attrs={'class': ['headlinearticle']})
     remove_tags = [dict(name='span', attrs={'class': ['opties']})]
 
-    feeds = [
-        (u'Overzicht', u'https://fd.nl/laatste-nieuws?rss&profiel=OPENBAAR')
-
-
-    ]
+    feeds = [('Overzicht', 'https://fd.nl/laatste-nieuws?rss&profiel=OPENBAAR')]
     extra_css = '''
         h1 {font-family:Arial,Helvetica,sans-serif; font-weight:bold;font-size:x-large;}
         p{font-family:Arial,Helvetica,sans-serif;}

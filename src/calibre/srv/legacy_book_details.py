@@ -32,23 +32,13 @@ def render_legacy_book_details(ctx, mi, library_id):
             if not fmt or fmt.lower().startswith('original_'):
                 continue
 
-            url = ctx.url_for(
-                '/legacy/get',
-                what=fmt,
-                book_id=book_id,
-                library_id=library_id
-            )
+            url = ctx.url_for('/legacy/get', what=fmt, book_id=book_id, library_id=library_id)
             fmt = escape(fmt)
             links.append(f'<a href="{url}" class="download-button" download="{title}.{fmt.lower()}">Download {fmt}</a>')
 
         formats_html = ' '.join(links)
 
-    cover_url = ctx.url_for(
-        '/get',
-        what='cover',
-        book_id=book_id,
-        library_id=library_id
-    )
+    cover_url = ctx.url_for('/get', what='cover', book_id=book_id, library_id=library_id)
 
     # Build metadata table
     metadata_rows = []

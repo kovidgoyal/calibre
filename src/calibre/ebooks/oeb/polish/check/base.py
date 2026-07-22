@@ -1,8 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__ = 'GPL v3'
-__copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
+# License: GPLv3 Copyright: 2013, Kovid Goyal <kovid at kovidgoyal.net>
 
 from contextlib import closing
 from functools import partial
@@ -14,7 +11,6 @@ DEBUG, INFO, WARN, ERROR, CRITICAL = range(5)
 
 
 class BaseError:
-
     HELP = ''
     INDIVIDUAL_FIX = ''
     level = ERROR
@@ -39,6 +35,7 @@ def worker(func, args):
     except Exception:
         result = None
         import traceback
+
         tb = traceback.format_exc()
     return result, tb
 

@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # License: GPL v3 Copyright: 2020, Kovid Goyal <kovid at kovidgoyal.net>
 
-
 from qt.core import Qt
 
 from calibre.gui2 import error_dialog
@@ -10,10 +9,13 @@ from calibre.utils.localization import _
 
 
 class BrowseAnnotationsAction(InterfaceAction):
-
     name = 'Browse Annotations'
-    action_spec = (_('Browse annotations'), 'highlight.png',
-                   _('Browse highlights and bookmarks from all books in the library'), _('B'))
+    action_spec = (
+        _('Browse annotations'),
+        'highlight.png',
+        _('Browse highlights and bookmarks from all books in the library'),
+        _('B'),
+    )
     dont_add_to = frozenset(('context-menu-device',))
     action_type = 'current'
 
@@ -25,6 +27,7 @@ class BrowseAnnotationsAction(InterfaceAction):
     def browser(self):
         if self._browser is None:
             from calibre.gui2.library.annotations import AnnotationsBrowser
+
             self.gui.library_view.selection_changed.connect(self.selection_changed)
             self._browser = AnnotationsBrowser(self.gui)
             self._browser.show_book.connect(self.open_book, type=Qt.ConnectionType.QueuedConnection)
@@ -46,10 +49,14 @@ class BrowseAnnotationsAction(InterfaceAction):
         if not self.gui.library_view.select_rows({book_id}):
             db = self.gui.current_db.new_api
             title = db.field_for('title', book_id)
-            return error_dialog(self._browser or self.gui, _('Not visible'), _(
-                'The book "{}" is not currently visible in the calibre library.'
-                ' If you have a search or a Virtual library applied, first clear'
-                ' it.').format(title), show=True)
+            return error_dialog(
+                self._browser or self.gui,
+                _('Not visible'),
+                _('The book "{}" is not currently visible in the calibre library. If you have a search or a Virtual library applied, first clear it.').format(
+                    title
+                ),
+                show=True,
+            )
 
     def open_annotation(self, book_id, fmt, cfi):
         self.gui.iactions['View'].view_format_by_id(book_id, fmt, open_at=cfi)

@@ -8,7 +8,6 @@ from calibre.customize import EditBookToolPlugin
 
 
 class DemoPlugin(EditBookToolPlugin):
-
     name = 'Edit Book plugin demo'
     version = (1, 0, 0)
     author = 'Kovid Goyal'

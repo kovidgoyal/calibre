@@ -18,4 +18,5 @@ class OpenAICompatible(AIProviderPlugin):
     @property
     def capabilities(self):
         from calibre.ai import AICapabilities
+
         return AICapabilities.text_to_text

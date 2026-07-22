@@ -1,10 +1,8 @@
-__license__   = 'GPL v3'
-__copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2008, Kovid Goyal kovid@kovidgoyal.net
 
-'''
+"""
 Based on ideas from comiclrf created by FangornUK.
-'''
+"""
 
 import os
 import time
@@ -26,9 +24,9 @@ MAX_SCREEN_SIZE = 3000
 
 
 def extract_comic(path_to_comic_file):
-    '''
+    """
     Un-archive the comic file.
-    '''
+    """
     tdir = PersistentTemporaryDirectory(suffix='_comic_extract')
     if not isinstance(tdir, str):
         # Needed in case the zip file has wrongly encoded unicode file/dir
@@ -47,6 +45,7 @@ def generate_entries_from_dir(path):
     from functools import partial
 
     from calibre import walk
+
     ans = {}
     for x in walk(path):
         x = os.path.abspath(x)
@@ -55,14 +54,15 @@ def generate_entries_from_dir(path):
 
 
 def find_pages(dir_or_items, sort_on_mtime=False, verbose=False):
-    '''
+    """
     Find valid comic pages in a previously un-archived comic.
 
     :param dir_or_items: Directory in which extracted comic lives or a dict of paths to function getting mtime
     :param sort_on_mtime: If True sort pages based on their last modified time.
                           Otherwise, sort alphabetically.
-    '''
+    """
     from calibre.libunzip import comic_exts
+
     items = generate_entries_from_dir(dir_or_items) if isinstance(dir_or_items, str) else dir_or_items
     sep_counts = set()
     pages = []
@@ -77,9 +77,12 @@ def find_pages(dir_or_items, sort_on_mtime=False, verbose=False):
     # levels, in which case simply use the filenames.
     basename = os.path.basename if len(sep_counts) > 1 else lambda x: x
     if sort_on_mtime:
+
         def key(x):
             return items[x]()
+
     else:
+
         def key(x):
             return numeric_sort_key(basename(x))
 
@@ -91,24 +94,23 @@ def find_pages(dir_or_items, sort_on_mtime=False, verbose=False):
         except ValueError:
             pass
         else:
-            prints('\t'+'\n\t'.join([os.path.relpath(p, base) for p in pages]))
+            prints('\t' + '\n\t'.join([os.path.relpath(p, base) for p in pages]))
     return pages
 
 
 class PageProcessor(list):  # {{{
-
-    '''
+    """
     Contains the actual image rendering logic. See :method:`render` and
     :method:`process_pages`.
-    '''
+    """
 
     def __init__(self, path_to_page, dest, opts, num):
         list.__init__(self)
         self.path_to_page = path_to_page
-        self.opts         = opts
-        self.num          = num
-        self.dest         = dest
-        self.rotate       = False
+        self.opts = opts
+        self.num = num
+        self.dest = dest
+        self.rotate = False
         self.src_img_was_grayscale = False
         self.src_img_format = None
         self.render()
@@ -118,6 +120,7 @@ class PageProcessor(list):  # {{{
 
         from calibre.utils.filenames import make_long_path_useable
         from calibre.utils.img import crop_image, image_from_data, scale_image
+
         with open(make_long_path_useable(self.path_to_page), 'rb') as f:
             img = image_from_data(f.read())
         width, height = img.width(), img.height()
@@ -125,8 +128,10 @@ class PageProcessor(list):  # {{{
             with open(os.path.join(self.dest, 'thumbnail.png'), 'wb') as f:
                 f.write(scale_image(img, as_png=True)[-1])
         self.src_img_format = img.format()
-        self.src_img_was_grayscale = self.src_img_format in (QImage.Format.Format_Grayscale8, QImage.Format.Format_Grayscale16) or (
-            img.format() == QImage.Format.Format_Indexed8 and img.allGray())
+        self.src_img_was_grayscale = self.src_img_format in (
+            QImage.Format.Format_Grayscale8,
+            QImage.Format.Format_Grayscale16,
+        ) or (img.format() == QImage.Format.Format_Indexed8 and img.allGray())
         self.pages = [img]
         if width > height:
             if self.opts.landscape:
@@ -152,6 +157,7 @@ class PageProcessor(list):  # {{{
             resize_image,
             rotate_image,
         )
+
         for i, img in enumerate(self.pages):
             if self.rotate:
                 img = rotate_image(img, -90)
@@ -168,8 +174,7 @@ class PageProcessor(list):  # {{{
 
             try:
                 if self.opts.comic_image_size:
-                    SCRWIDTH, SCRHEIGHT = map(int, [x.strip() for x in
-                        self.opts.comic_image_size.split('x')])
+                    SCRWIDTH, SCRHEIGHT = map(int, [x.strip() for x in self.opts.comic_image_size.split('x')])
             except Exception:
                 pass  # Ignore
 
@@ -232,7 +237,10 @@ class PageProcessor(list):  # {{{
                 if self.opts.colors:
                     img = quantize_image(img, max_colors=min(256, self.opts.colors))
                 elif img_is_grayscale:
-                    uses_256_colors = self.src_img_format in (QImage.Format.Format_Indexed8, QImage.Format.Format_Grayscale8)
+                    uses_256_colors = self.src_img_format in (
+                        QImage.Format.Format_Indexed8,
+                        QImage.Format.Format_Grayscale8,
+                    )
                     final_fmt = QImage.Format.Format_Indexed8 if uses_256_colors else QImage.Format.Format_Grayscale16
                     if img.format() != final_fmt:
                         img = img.convertToFormat(final_fmt)
@@ -241,21 +249,23 @@ class PageProcessor(list):  # {{{
             with open(dest, 'wb') as f:
                 f.write(image_to_data(img, fmt=self.opts.output_format))
             self.append(dest)
+
+
 # }}}
 
 
 def render_pages(tasks, dest, opts, notification=lambda x, y: x):
-    '''
+    """
     Entry point for the job server.
-    '''
+    """
     failures, pages = [], []
     for num, path in tasks:
         try:
             pages.extend(PageProcessor(path, dest, opts, num))
-            msg = _('Rendered %s')%path
+            msg = _('Rendered %s') % path
         except Exception:
             failures.append(path)
-            msg = _('Failed %s')%path
+            msg = _('Failed %s') % path
             if opts.verbose:
                 msg += '\n' + traceback.format_exc()
         prints(msg)
@@ -265,30 +275,28 @@ def render_pages(tasks, dest, opts, notification=lambda x, y: x):
 
 
 class Progress:
-
     def __init__(self, total, update):
-        self.total  = total
+        self.total = total
         self.update = update
-        self.done   = 0
+        self.done = 0
 
     def __call__(self, percent, msg=''):
         self.done += 1
         # msg = msg%os.path.basename(job.args[0])
-        self.update(float(self.done)/self.total, msg)
+        self.update(float(self.done) / self.total, msg)
 
 
 def process_pages(pages, opts, update, tdir):
-    '''
+    """
     Render all identified comic pages.
-    '''
+    """
     progress = Progress(len(pages), update)
     server = Server()
     jobs = []
     tasks = [(p, os.path.join(tdir, os.path.basename(p))) for p in pages]
     tasks = server.split(pages)
     for task in tasks:
-        jobs.append(ParallelJob('render_pages', '', progress,
-                                args=[task, tdir, opts]))
+        jobs.append(ParallelJob('render_pages', '', progress, args=[task, tdir, opts]))
         server.add_job(jobs[-1])
     while True:
         time.sleep(1)
@@ -310,8 +318,7 @@ def process_pages(pages, opts, update, tdir):
 
     for job in jobs:
         if job.failed or job.result is None:
-            raise Exception(_('Failed to process comic: \n\n%s')%
-                    job.log_file.read())
+            raise Exception(_('Failed to process comic: \n\n%s') % job.log_file.read())
         pages, failures_ = job.result
         ans += pages
         failures += failures_

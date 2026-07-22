@@ -1,8 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__ = 'GPL v3'
-__copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
+# License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
 import os
 import sys
@@ -23,23 +20,21 @@ from calibre_extensions import winutil
 def default_programs():
     return {
         'calibre.exe': {
-            'icon_id':'main_icon',
+            'icon_id': 'main_icon',
             'description': _('The main calibre program, used to manage your collection of e-books'),
             'capability_name': 'calibre64bit',
             'name': 'calibre 64-bit',
             'assoc_name': 'calibre64bit',
         },
-
         'ebook-edit.exe': {
-            'icon_id':'editor_icon',
+            'icon_id': 'editor_icon',
             'description': _('The calibre E-book editor. It can be used to edit common e-book formats.'),
             'capability_name': 'Editor64bit',
             'name': 'calibre Editor 64-bit',
             'assoc_name': 'calibreEditor64bit',
         },
-
         'ebook-viewer.exe': {
-            'icon_id':'viewer_icon',
+            'icon_id': 'viewer_icon',
             'description': _('The calibre E-book viewer. It can view most known e-book formats.'),
             'capability_name': 'Viewer64bit',
             'name': 'calibre Viewer 64-bit',
@@ -57,10 +52,12 @@ def extensions(basename):
         return set(BOOK_EXTENSIONS) - {'rar', 'zip'}
     if basename == 'ebook-viewer.exe':
         from calibre.customize.ui import all_input_formats
+
         return set(all_input_formats())
     if basename == 'ebook-edit.exe':
         from calibre.ebooks.oeb.polish.import_book import IMPORTABLE
         from calibre.ebooks.oeb.polish.main import SUPPORTED
+
         return SUPPORTED | IMPORTABLE
 
 
@@ -85,7 +82,7 @@ def create_prog_id(ext, prog_id, ext_map, exe):
         key.set(value=type_name)
         key.set('FriendlyTypeName', type_name)
         key.set('PerceivedType', 'Document')
-        key.set(sub_key='DefaultIcon', value=exe+',0')
+        key.set(sub_key='DefaultIcon', value=exe + ',0')
         key.set_default_value(r'shell\open\command', f'"{exe}" "%1"')
         # contrary to the msdn docs, this key prevents calibre programs
         # from appearing in the initial open with list, see
@@ -111,12 +108,12 @@ def register():
         data = data.copy()
         exe = os.path.join(base, program)
         capabilities_path = cap_path(data)
-        ext_map = {ext.lower():guess_type('file.' + ext.lower())[0] for ext in extensions(program)}
-        ext_map = {ext:mt for ext, mt in ext_map.items() if mt}
-        prog_id_map = {ext:progid_name(data['assoc_name'], ext) for ext in ext_map}
+        ext_map = {ext.lower(): guess_type('file.' + ext.lower())[0] for ext in extensions(program)}
+        ext_map = {ext: mt for ext, mt in ext_map.items() if mt}
+        prog_id_map = {ext: progid_name(data['assoc_name'], ext) for ext in ext_map}
 
         with Key(capabilities_path) as key:
-            for k, v in {'ApplicationDescription':'description', 'ApplicationName':'name'}.items():
+            for k, v in {'ApplicationDescription': 'description', 'ApplicationName': 'name'}.items():
                 key.set(k, data[v])
             key.set('ApplicationIcon', f'{exe},0')
             key.set_default_value(r'shell\open\command', f'"{exe}" "%1"')
@@ -139,9 +136,9 @@ def register():
 def unregister():
     for program, data in default_programs().items():
         capabilities_path = cap_path(data).rpartition('\\')[0]
-        ext_map = {ext.lower():guess_type('file.' + ext.lower())[0] for ext in extensions(program)}
-        ext_map = {ext:mt for ext, mt in ext_map.items() if mt}
-        prog_id_map = {ext:progid_name(data['assoc_name'], ext) for ext in ext_map}
+        ext_map = {ext.lower(): guess_type('file.' + ext.lower())[0] for ext in extensions(program)}
+        ext_map = {ext: mt for ext, mt in ext_map.items() if mt}
+        prog_id_map = {ext: progid_name(data['assoc_name'], ext) for ext in ext_map}
         with Key(r'Software\RegisteredApplications') as key:
             key.delete_value(data['name'])
         parent, sk = capabilities_path.rpartition('\\')[0::2]
@@ -155,7 +152,6 @@ def unregister():
 
 
 class Register(Thread):
-
     daemon = True
 
     def __init__(self, prefs):
@@ -182,7 +178,7 @@ class Register(Thread):
                     prints('Registering with default programs...')
                 register()
                 if DEBUG:
-                    prints(f'Registered with default programs in {time.monotonic()-st:.1f} seconds')
+                    prints(f'Registered with default programs in {time.monotonic() - st:.1f} seconds')
 
     def __enter__(self):
         return self
@@ -267,13 +263,16 @@ def find_programs(extensions):
                         cmdline, icon_resource, friendly_name = get_open_data(base, prog_id)
                         if cmdline and cmdline not in seen_cmdlines:
                             seen_cmdlines.add(cmdline)
-                            ans.append({'name':app_desc, 'cmdline':cmdline, 'icon_resource':icon_resource})
+                            ans.append({'name': app_desc, 'cmdline': cmdline, 'icon_resource': icon_resource})
 
     # Now look for programs that only register with Windows Explorer instead of
     # Default Programs (for example, FoxIt PDF reader)
     for ext in extensions:
         try:
-            k = Key(open_at=rf'Software\Microsoft\Windows\CurrentVersion\Explorer\FileExts\.{ext}\OpenWithProgIDs', root=HKEY_CURRENT_USER)
+            k = Key(
+                open_at=rf'Software\Microsoft\Windows\CurrentVersion\Explorer\FileExts\.{ext}\OpenWithProgIDs',
+                root=HKEY_CURRENT_USER,
+            )
         except OSError as err:
             if err.winerror == winutil.ERROR_FILE_NOT_FOUND:
                 continue
@@ -289,10 +288,11 @@ def find_programs(extensions):
                         exe_name = friendly_app_name(prog_id) or os.path.splitext(os.path.basename(exe[0]))[0]
                     name = exe_name or friendly_name
                     if name:
-                        ans.append({'name':name, 'cmdline':cmdline, 'icon_resource':icon_resource})
+                        ans.append({'name': name, 'cmdline': cmdline, 'icon_resource': icon_resource})
     return ans
 
 
 if __name__ == '__main__':
     from pprint import pprint
+
     pprint(find_programs('docx'.split()))

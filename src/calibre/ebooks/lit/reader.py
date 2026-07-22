@@ -1,10 +1,8 @@
-'''
-Support for reading LIT files.
-'''
+# License: GPLv3 Copyright: 2008, Kovid Goyal <kovid at kovidgoyal.net> and Marshall T. Vandegrift <llasram@gmail.com>
 
-__license__   = 'GPL v3'
-__copyright__ = ('2008, Kovid Goyal <kovid at kovidgoyal.net> '
-                 'and Marshall T. Vandegrift <llasram@gmail.com>')
+"""
+Support for reading LIT files.
+"""
 
 import functools
 import io
@@ -48,11 +46,11 @@ RESET_HDRLEN = 12
 RESET_UCLENGTH = 16
 RESET_INTERVAL = 32
 
-FLAG_OPENING = (1 << 0)
-FLAG_CLOSING = (1 << 1)
-FLAG_BLOCK   = (1 << 2)
-FLAG_HEAD    = (1 << 3)
-FLAG_ATOM    = (1 << 4)
+FLAG_OPENING = 1 << 0
+FLAG_CLOSING = 1 << 1
+FLAG_BLOCK = 1 << 2
+FLAG_HEAD = 1 << 3
+FLAG_ATOM = 1 << 4
 
 
 def u32(bytes):
@@ -75,7 +73,7 @@ def encint(byts, remaining):
         pos += 1
         remaining -= 1
         val <<= 7
-        val |= (b & 0x7f)
+        val |= b & 0x7F
         if b & 0x80 == 0:
             break
     return val, byts[pos:], remaining
@@ -87,9 +85,9 @@ def msguid(bytes):
 
 
 def read_utf8_char(bytes, pos):
-    c = ord(bytes[pos:pos+1])
+    c = ord(bytes[pos : pos + 1])
     mask = 0x80
-    if (c & mask):
+    if c & mask:
         elsize = 0
         while c & mask:
             mask >>= 1
@@ -101,14 +99,13 @@ def read_utf8_char(bytes, pos):
     if elsize > 1:
         if elsize + pos > len(bytes):
             raise LitError(f'Invalid UTF8 character: {bytes[pos]!r}')
-        c &= (mask - 1)
+        c &= mask - 1
         for i in range(1, elsize):
-            b = ord(bytes[pos+i:pos+i+1])
+            b = ord(bytes[pos + i : pos + i + 1])
             if (b & 0xC0) != 0x80:
-                raise LitError(
-                    f'Invalid UTF8 character: {bytes[pos:pos+i]!r}')
+                raise LitError(f'Invalid UTF8 character: {bytes[pos : pos + i]!r}')
             c = (c << 6) | (b & 0x3F)
-    return chr(c), pos+elsize
+    return chr(c), pos + elsize
 
 
 def consume_sized_utf8_string(bytes, zpad=False):
@@ -117,7 +114,7 @@ def consume_sized_utf8_string(bytes, zpad=False):
     for i in range(ord(slen)):
         char, pos = read_utf8_char(bytes, pos)
         result.append(char)
-    if zpad and bytes[pos:pos+1] == b'\0':
+    if zpad and bytes[pos : pos + 1] == b'\0':
         pos += 1
     return ''.join(result), bytes[pos:]
 
@@ -127,12 +124,11 @@ def encode(string):
 
 
 class UnBinary:
-    AMPERSAND_RE = re.compile(
-        br'&(?!(?:#[0-9]+|#x[0-9a-fA-F]+|[a-zA-Z_:][a-zA-Z0-9.-_:]+);)')
-    OPEN_ANGLE_RE = re.compile(br'<<(?![!]--)')
-    CLOSE_ANGLE_RE = re.compile(br'(?<!--)>>(?=>>|[^>])')
-    DOUBLE_ANGLE_RE = re.compile(br'([<>])\1')
-    EMPTY_ATOMS = ({},{})
+    AMPERSAND_RE = re.compile(rb'&(?!(?:#[0-9]+|#x[0-9a-fA-F]+|[a-zA-Z_:][a-zA-Z0-9.-_:]+);)')
+    OPEN_ANGLE_RE = re.compile(rb'<<(?![!]--)')
+    CLOSE_ANGLE_RE = re.compile(rb'(?<!--)>>(?=>>|[^>])')
+    DOUBLE_ANGLE_RE = re.compile(rb'([<>])\1')
+    EMPTY_ATOMS = ({}, {})
 
     def __init__(self, bin, path, manifest={}, map=HTML_MAP, atoms=EMPTY_ATOMS):
         self.manifest = manifest
@@ -148,10 +144,10 @@ class UnBinary:
 
     def escape_reserved(self):
         raw = self.raw
-        raw = self.AMPERSAND_RE.sub(br'&amp;', raw)
-        raw = self.OPEN_ANGLE_RE.sub(br'&lt;', raw)
-        raw = self.CLOSE_ANGLE_RE.sub(br'&gt;', raw)
-        raw = self.DOUBLE_ANGLE_RE.sub(br'\1', raw)
+        raw = self.AMPERSAND_RE.sub(rb'&amp;', raw)
+        raw = self.OPEN_ANGLE_RE.sub(rb'&lt;', raw)
+        raw = self.CLOSE_ANGLE_RE.sub(rb'&gt;', raw)
+        raw = self.DOUBLE_ANGLE_RE.sub(rb'\1', raw)
         self.raw = raw
 
     def item_path(self, internal_id):
@@ -193,8 +189,7 @@ class UnBinary:
         del self.cpos
 
     def binary_to_text_inner(self, bin, buf, stack):
-        (depth, tag_name, current_map, dynamic_tag, errors,
-                in_censorship, is_goingdown, state, flags) = stack.pop()
+        (depth, tag_name, current_map, dynamic_tag, errors, in_censorship, is_goingdown, state, flags) = stack.pop()
 
         if state == 'close tag':
             if not tag_name:
@@ -239,8 +234,7 @@ class UnBinary:
                         continue
                     if flags & FLAG_ATOM:
                         if not self.tag_atoms or tag not in self.tag_atoms:
-                            raise LitError(
-                                f'atom tag {tag} not in atom tag list')
+                            raise LitError(f'atom tag {tag} not in atom tag list')
                         tag_name = self.tag_atoms[tag]
                         current_map = self.attr_atoms
                     elif tag < len(self.tag_map):
@@ -249,7 +243,7 @@ class UnBinary:
                     else:
                         dynamic_tag += 1
                         errors += 1
-                        tag_name = '?'+chr(tag)+'?'
+                        tag_name = '?' + chr(tag) + '?'
                         current_map = self.tag_to_attr_map[tag]
                         print(f'WARNING: tag {chr(tag)} unknown')
                     buf.write(encode(tag_name))
@@ -268,12 +262,19 @@ class UnBinary:
                         buf.write(b' />')
                     else:
                         buf.write(b'>')
-                        frame = (depth, tag_name, current_map,
-                            dynamic_tag, errors, in_censorship, False,
-                            'close tag', flags)
+                        frame = (
+                            depth,
+                            tag_name,
+                            current_map,
+                            dynamic_tag,
+                            errors,
+                            in_censorship,
+                            False,
+                            'close tag',
+                            flags,
+                        )
                         stack.append(frame)
-                        frame = (depth+1, None, None, 0, 0,
-                                False, False, 'text', 0)
+                        frame = (depth + 1, None, None, 0, 0, False, False, 'text', 0)
                         stack.append(frame)
                         break
                 else:
@@ -286,8 +287,7 @@ class UnBinary:
                     elif oc in self.attr_map:
                         attr = self.attr_map[oc]
                     if not attr or not isinstance(attr, (str, bytes)):
-                        raise LitError(
-                            f'Unknown attribute {oc} in tag {tag_name}')
+                        raise LitError(f'Unknown attribute {oc} in tag {tag_name}')
                     if attr.startswith('%'):
                         in_censorship = True
                         state = 'get value length'
@@ -309,15 +309,15 @@ class UnBinary:
                     state = 'get attr'
                     continue
                 state = 'get value'
-                if oc == 0xffff:
+                if oc == 0xFFFF:
                     continue
                 if count < 0 or count > (len(bin) - self.cpos):
                     raise LitError(f'Invalid character count {count}')
 
             elif state == 'get value':
-                if count == 0xfffe:
+                if count == 0xFFFE:
                     if not in_censorship:
-                        buf.write(encode(f'{oc-1}"'))
+                        buf.write(encode(f'{oc - 1}"'))
                     in_censorship = False
                     state = 'get attr'
                 elif count > 0:
@@ -338,7 +338,7 @@ class UnBinary:
 
             elif state == 'get custom length':
                 count = oc - 1
-                if count <= 0 or count > len(bin)-self.cpos:
+                if count <= 0 or count > len(bin) - self.cpos:
                     raise LitError(f'Invalid character count {count}')
                 dynamic_tag += 1
                 state = 'get custom'
@@ -386,7 +386,6 @@ class UnBinary:
 
 
 class DirectoryEntry:
-
     def __init__(self, name, section, offset, size):
         self.name = name
         self.section = section
@@ -401,7 +400,6 @@ class DirectoryEntry:
 
 
 class ManifestItem:
-
     def __init__(self, original, internal, mime_type, offset, root, state):
         self.original = original
         self.internal = internal
@@ -427,7 +425,8 @@ class ManifestItem:
     def __repr__(self):
         return (
             f'ManifestItem(internal={self.internal!r}, path={self.path!r}, mime_type={self.mime_type!r},'
-            f' offset={self.offset}, root={self.root!r}, state={self.state!r})')
+            f' offset={self.offset}, root={self.root!r}, state={self.state!r})'
+        )
 
 
 def preserve(function):
@@ -437,6 +436,7 @@ def preserve(function):
             return function(self, *args, **kwargs)
         finally:
             self.stream.seek(opos)
+
     functools.update_wrapper(wrapper, function)
     return wrapper
 
@@ -451,8 +451,7 @@ class LitFile:
         else:
             self.stream = open(filename_or_stream, 'rb')
         try:
-            self.opf_path = os.path.splitext(
-                os.path.basename(self.stream.name))[0] + '.opf'
+            self.opf_path = os.path.splitext(os.path.basename(self.stream.name))[0] + '.opf'
         except AttributeError:
             self.opf_path = 'content.opf'
         if self.magic != b'ITOLITLS':
@@ -507,9 +506,7 @@ class LitFile:
     @property
     @preserve
     def header(self):
-        size = self.hdr_len \
-            + (self.num_pieces * self.PIECE_SIZE) \
-            + self.sec_hdr_len
+        size = self.hdr_len + (self.num_pieces * self.PIECE_SIZE) + self.sec_hdr_len
         self.stream.seek(0)
         return self.stream.read(size)
 
@@ -531,35 +528,33 @@ class LitFile:
         byts = self.read_raw(offset, self.sec_hdr_len)
         offset = int32(byts[4:])
         while offset < len(byts):
-            blocktype = byts[offset:offset+4]
-            blockver  = u32(byts[offset+4:])
+            blocktype = byts[offset : offset + 4]
+            blockver = u32(byts[offset + 4 :])
             if blocktype == b'CAOL':
                 if blockver != 2:
-                    raise LitError(
-                        f'Unknown CAOL block format {blockver}')
-                self.creator_id     = u32(byts[offset+12:])
-                self.entry_chunklen = u32(byts[offset+20:])
-                self.count_chunklen = u32(byts[offset+24:])
-                self.entry_unknown  = u32(byts[offset+28:])
-                self.count_unknown  = u32(byts[offset+32:])
+                    raise LitError(f'Unknown CAOL block format {blockver}')
+                self.creator_id = u32(byts[offset + 12 :])
+                self.entry_chunklen = u32(byts[offset + 20 :])
+                self.count_chunklen = u32(byts[offset + 24 :])
+                self.entry_unknown = u32(byts[offset + 28 :])
+                self.count_unknown = u32(byts[offset + 32 :])
                 offset += 48
             elif blocktype == b'ITSF':
                 if blockver != 4:
-                    raise LitError(
-                        f'Unknown ITSF block format {blockver}')
-                if u32(byts[offset+4+16:]):
+                    raise LitError(f'Unknown ITSF block format {blockver}')
+                if u32(byts[offset + 4 + 16 :]):
                     raise LitError('This file has a 64bit content offset')
-                self.content_offset = u32(byts[offset+16:])
-                self.timestamp      = u32(byts[offset+24:])
-                self.language_id    = u32(byts[offset+28:])
+                self.content_offset = u32(byts[offset + 16 :])
+                self.timestamp = u32(byts[offset + 24 :])
+                self.language_id = u32(byts[offset + 28 :])
                 offset += 48
         if not hasattr(self, 'content_offset'):
             raise LitError('Could not figure out the content offset')
 
     def read_header_pieces(self):
-        src = self.header[self.hdr_len:]
+        src = self.header[self.hdr_len :]
         for i in range(self.num_pieces):
-            piece = src[i * self.PIECE_SIZE:(i + 1) * self.PIECE_SIZE]
+            piece = src[i * self.PIECE_SIZE : (i + 1) * self.PIECE_SIZE]
             if u32(piece[4:]) != 0 or u32(piece[12:]) != 0:
                 raise LitError(f'Piece {piece!r} has 64bit value')
             offset, size = u32(piece), int32(piece[8:])
@@ -567,13 +562,11 @@ class LitFile:
             if i == 0:
                 continue  # Don't need this piece
             elif i == 1:
-                if u32(piece[8:])  != self.entry_chunklen or \
-                   u32(piece[12:]) != self.entry_unknown:
+                if u32(piece[8:]) != self.entry_chunklen or u32(piece[12:]) != self.entry_unknown:
                     raise LitError('Secondary header does not match piece')
                 self.read_directory(piece)
             elif i == 2:
-                if u32(piece[8:])  != self.count_chunklen or \
-                   u32(piece[12:]) != self.count_unknown:
+                if u32(piece[8:]) != self.count_chunklen or u32(piece[12:]) != self.count_unknown:
                     raise LitError('Secondary header does not match piece')
                 continue  # No data needed from this piece
             elif i == 3:
@@ -590,7 +583,7 @@ class LitFile:
         self.entries = {}
         for i in range(num_chunks):
             offset = 32 + (i * chunk_size)
-            chunk = piece[offset:offset + chunk_size]
+            chunk = piece[offset : offset + chunk_size]
             tag, chunk = chunk[:4], chunk[4:]
             if tag != b'AOLL':
                 continue
@@ -601,13 +594,13 @@ class LitFile:
             entries = u16(chunk[-2:])
             if entries == 0:
                 # Hopefully will work even without a correct entries count
-                entries = (2 ** 16) - 1
+                entries = (2**16) - 1
             chunk = chunk[40:]
             for j in range(entries):
                 if remaining <= 0:
                     break
                 namelen, chunk, remaining = encint(chunk, remaining)
-                if namelen != (namelen & 0x7fffffff):
+                if namelen != (namelen & 0x7FFFFFFF):
                     raise LitError('Directory entry had 64bit name length.')
                 if namelen > remaining - 3:
                     raise LitError('Read past end of directory chunk')
@@ -634,13 +627,12 @@ class LitFile:
         self.section_names = [''] * num_sections
         self.section_data = [None] * num_sections
         for section in range(num_sections):
-            size = u16(raw[pos:pos+2])
+            size = u16(raw[pos : pos + 2])
             pos += 2
-            size = size*2 + 2
+            size = size * 2 + 2
             if pos + size > len(raw):
                 raise LitError('Invalid Namelist section')
-            self.section_names[section] = \
-                raw[pos:pos+size].decode('utf-16-le').rstrip('\0')
+            self.section_names[section] = raw[pos : pos + size].decode('utf-16-le').rstrip('\0')
             pos += size
 
     def read_manifest(self):
@@ -670,8 +662,7 @@ class LitFile:
                     original = urlunquote(original)
                     # Is this last one UTF-8 or ASCIIZ?
                     mime_type, raw = consume_sized_utf8_string(raw, zpad=True)
-                    self.manifest[internal] = ManifestItem(
-                        original, internal, mime_type, offset, root, state)
+                    self.manifest[internal] = ManifestItem(original, internal, mime_type, offset, root, state)
         mlist = list(self.manifest.values())
         # Remove any common path elements
         if len(mlist) > 1:
@@ -680,7 +671,7 @@ class LitFile:
                 path = item.path
                 while shared and not path.startswith(shared):
                     try:
-                        shared = shared[:shared.rindex('/', 0, -2) + 1]
+                        shared = shared[: shared.rindex('/', 0, -2) + 1]
                     except ValueError:
                         shared = None
                 if not shared:
@@ -743,7 +734,7 @@ class LitFile:
         if entry.section == 0:
             return self.read_content(entry.offset, entry.size)
         section = self.get_section(entry.section)
-        return section[entry.offset:entry.offset+entry.size]
+        return section[entry.offset : entry.offset + entry.size]
 
     def get_section(self, section):
         data = self.section_data[section]
@@ -767,9 +758,7 @@ class LitFile:
                 content = self.decrypt(content)
                 control = control[csize:]
             elif guid == LZXCOMPRESS_GUID:
-                reset_table = self.get_file(
-                    '/'.join(('::DataSpace/Storage', name, 'Transform',
-                              LZXCOMPRESS_GUID, 'InstanceData/ResetTable')))
+                reset_table = self.get_file('/'.join(('::DataSpace/Storage', name, 'Transform', LZXCOMPRESS_GUID, 'InstanceData/ResetTable')))
                 content = self.decompress(content, control, reset_table)
                 control = control[csize:]
             else:
@@ -787,11 +776,11 @@ class LitFile:
         return msdes.des(content)
 
     def decompress(self, content, control, reset_table):
-        if len(control) < 32 or control[CONTROL_TAG:CONTROL_TAG+4] != b'LZXC':
+        if len(control) < 32 or control[CONTROL_TAG : CONTROL_TAG + 4] != b'LZXC':
             raise LitError('Invalid ControlData tag value')
         if len(reset_table) < (RESET_INTERVAL + 8):
             raise LitError('Reset table is too short')
-        if u32(reset_table[RESET_UCLENGTH + 4:]) != 0:
+        if u32(reset_table[RESET_UCLENGTH + 4 :]) != 0:
             raise LitError('Reset table has 64bit value for UCLENGTH')
 
         result = []
@@ -809,14 +798,14 @@ class LitFile:
         uclength = int32(reset_table[RESET_UCLENGTH:])
         accum = int32(reset_table[RESET_INTERVAL:])
         bytes_remaining = uclength
-        window_bytes = (1 << window_size)
+        window_bytes = 1 << window_size
         base = 0
 
         while ofs_entry < len(reset_table):
             if accum >= window_bytes:
                 accum = 0
                 size = int32(reset_table[ofs_entry:])
-                u = int32(reset_table[ofs_entry + 4:])
+                u = int32(reset_table[ofs_entry + 4 :])
                 if u != 0:
                     raise LitError('Reset table entry greater than 32 bits')
                 if size >= len(content):
@@ -824,8 +813,7 @@ class LitFile:
                 if bytes_remaining >= window_bytes:
                     lzx.reset()
                     try:
-                        result.append(
-                            lzx.decompress(content[base:size], window_bytes))
+                        result.append(lzx.decompress(content[base:size], window_bytes))
                     except lzx.LZXError:
                         self.warn('LZX decompression error; skipping chunk')
                     bytes_remaining -= window_bytes
@@ -876,7 +864,7 @@ class LitFile:
 
 
 class LitContainer:
-    '''Simple Container-interface, read-only accessor for LIT files.'''
+    """Simple Container-interface, read-only accessor for LIT files."""
 
     def __init__(self, filename_or_stream, log):
         self._litfile = LitFile(filename_or_stream, log)
@@ -917,8 +905,7 @@ class LitContainer:
             if b'PENGUIN group' not in raw:
                 raise
             print('WARNING: attempting PENGUIN malformed OPF fix')
-            raw = raw.replace(
-                b'PENGUIN group', b'\x00\x01\x18\x00PENGUIN group', 1)
+            raw = raw.replace(b'PENGUIN group', b'\x00\x01\x18\x00PENGUIN group', 1)
             unbin = UnBinary(raw, path, self._litfile.manifest, OPF_MAP)
         return unbin.unicode_representation
 
@@ -937,8 +924,7 @@ class LitReader(OEBReader):
             if idref not in manifest.ids:
                 continue
             item = manifest.ids[idref]
-            if (item.media_type.lower() == 'application/xml' and
-                hasattr(item.data, 'xpath') and item.data.xpath('/html')):
+            if item.media_type.lower() == 'application/xml' and hasattr(item.data, 'xpath') and item.data.xpath('/html'):
                 item.media_type = 'application/xhtml+xml'
                 item.data = item._parse_xhtml(etree.tostring(item.data))
         super()._spine_from_opf(opf)

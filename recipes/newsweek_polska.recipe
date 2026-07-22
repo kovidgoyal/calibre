@@ -3,7 +3,7 @@
 
 from __future__ import print_function
 
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2010, matek09, matek09@gmail.com; 2012-2013, admroz, a.rozewicki@gmail.com'
 
 import datetime
@@ -16,7 +16,6 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class Newsweek(BasicNewsRecipe):
-
     # how many issues to go back, 0 means get the most current one
     BACK_ISSUES = 1
 
@@ -24,7 +23,7 @@ class Newsweek(BasicNewsRecipe):
     DATE = None
     YEAR = datetime.datetime.now().year
 
-    title = u'Newsweek Polska'
+    title = 'Newsweek Polska'
     __author__ = 'matek09, admroz'
     description = 'Weekly magazine'
     encoding = 'utf-8'
@@ -43,10 +42,8 @@ class Newsweek(BasicNewsRecipe):
         # get all divs with given css class
         article_divs = main_section.findAll('div', attrs={'class': css})
         for article_div in article_divs:
-
             # remove sections like 'read more...' etc.
             for p in article_div.findAll('p'):
-
                 if p.find('span', attrs={'style': 'color: #800000; font-size: medium;'}):
                     p.extract()
                     continue
@@ -70,8 +67,7 @@ class Newsweek(BasicNewsRecipe):
 
                 strong = p.find('strong')
                 if strong:
-                    newest = re.compile(
-                        r'Tekst pochodzi z najnowszego numeru Tygodnika Newsweek')
+                    newest = re.compile(r'Tekst pochodzi z najnowszego numeru Tygodnika Newsweek')
                     if newest.search(str(strong)):
                         strong.extract()
                         continue
@@ -86,7 +82,7 @@ class Newsweek(BasicNewsRecipe):
                 imagedesc = p.find('div', attrs={'class': 'image-desc'})
                 if imagedesc:
                     redesc = re.compile(r'Okładka numeru')
-                    if (redesc.search(str(imagedesc))):
+                    if redesc.search(str(imagedesc)):
                         p.extract()
                         continue
 
@@ -95,7 +91,7 @@ class Newsweek(BasicNewsRecipe):
                 strs.append(''.join(str(content)))
 
         # return contents as a string
-        return u''.join(strs)
+        return ''.join(strs)
 
     #
     # Articles can be divided into several pages, this method parses them recursevely
@@ -115,7 +111,7 @@ class Newsweek(BasicNewsRecipe):
 
         if page == 0:
             title = main_section.find('h1')
-            html = html + type(u'')(title)
+            html = html + type('')(title)
 
             authors = ''
             authorBox = main_section.find('div', attrs={'class': 'AuthorBox'})
@@ -123,15 +119,13 @@ class Newsweek(BasicNewsRecipe):
                 authorH4 = authorBox.find('h4')
                 if authorH4 is not None:
                     authors = self.tag_to_string(authorH4)
-            html = html + type(u'')(authors)
+            html = html + type('')(authors)
 
             info = main_section.find('p', attrs={'class': 'lead'})
-            html = html + type(u'')(info)
+            html = html + type('')(info)
 
-        html = html + self.get_article_divs(
-            '3917dc34e07c9c7180df2ea9ef103361845c8af42b71f51b960059226090a1ac articleStart', main_section)
-        html = html + self.get_article_divs(
-            '3917dc34e07c9c7180df2ea9ef103361845c8af42b71f51b960059226090a1ac', main_section)
+        html = html + self.get_article_divs('3917dc34e07c9c7180df2ea9ef103361845c8af42b71f51b960059226090a1ac articleStart', main_section)
+        html = html + self.get_article_divs('3917dc34e07c9c7180df2ea9ef103361845c8af42b71f51b960059226090a1ac', main_section)
 
         nextPage = main_section.find('a', attrs={'class': 'next'})
         if nextPage:
@@ -159,8 +153,7 @@ class Newsweek(BasicNewsRecipe):
 
         # workaround because html is so messed up that find() method on soup returns None
         # and therefore we need to extract subhtml that we need
-        matches = re.search(
-            r'<ul class="rightIssueList">(.*?)</ul>', archive_soup, re.DOTALL)
+        matches = re.search(r'<ul class="rightIssueList">(.*?)</ul>', archive_soup, re.DOTALL)
         if matches is None:
             return
 
@@ -170,10 +163,8 @@ class Newsweek(BasicNewsRecipe):
         # check if need to go back to previous year
         if len(issueLinks) > self.BACK_ISSUES:
             link = issueLinks[self.BACK_ISSUES]
-            self.EDITION = link['href'].replace(
-                'http://www.newsweek.pl/wydania/', '')
-            self.index_to_soup(
-                'http://www.newsweek.pl/wydania/' + self.EDITION)
+            self.EDITION = link['href'].replace('http://www.newsweek.pl/wydania/', '')
+            self.index_to_soup('http://www.newsweek.pl/wydania/' + self.EDITION)
         else:
             self.BACK_ISSUES = self.BACK_ISSUES - len(issueLinks)
             self.YEAR = self.YEAR - 1
@@ -186,19 +177,16 @@ class Newsweek(BasicNewsRecipe):
     def parse_index(self):
         archive_url = 'http://www.newsweek.pl/wydania/archiwum'
         self.find_last_issue(archive_url)
-        soup = self.index_to_soup(
-            'http://www.newsweek.pl/wydania/' + self.EDITION)
+        soup = self.index_to_soup('http://www.newsweek.pl/wydania/' + self.EDITION)
 
-        matches = re.search(
-            r'<div class="Issue-Entry">(.*)ARTICLE_BOTTOM', soup.prettify(), re.DOTALL)
+        matches = re.search(r'<div class="Issue-Entry">(.*)ARTICLE_BOTTOM', soup.prettify(), re.DOTALL)
         if matches is None:
             return
 
         main_section = BeautifulSoup(matches.group(0))
 
         # date
-        matches = re.search(r'(\d{2}-\d{2}-\d{4})',
-                            self.tag_to_string(main_section.find('h2')))
+        matches = re.search(r'(\d{2}-\d{2}-\d{4})', self.tag_to_string(main_section.find('h2')))
         if matches:
             self.DATE = matches.group(0)
 
@@ -211,7 +199,6 @@ class Newsweek(BasicNewsRecipe):
 
         # sections
         for sectionUl in main_section.findAll('ul', attrs={'class': 'whatsin'}):
-
             # section header
             header = sectionUl.find('li', attrs={'class': 'header'})
             if header is None:

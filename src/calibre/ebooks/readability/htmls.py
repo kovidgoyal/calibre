@@ -19,8 +19,8 @@ def js_re(src, pattern, flags, repl):
 
 def normalize_entities(cur_title):
     entities = {
-        '\u2014':'-',
-        '\u2013':'-',
+        '\u2014': '-',
+        '\u2013': '-',
         '&mdash;': '-',
         '&ndash;': '-',
         '\u00a0': ' ',
@@ -74,16 +74,16 @@ def shorten_title(doc):
                 add_match(candidates, e.text_content(), orig)
 
     for item in [
-            "descendant-or-self::*[@id = 'title']",
-            "descendant-or-self::*[@id = 'head']",
-            "descendant-or-self::*[@id = 'heading']",
-            "descendant-or-self::*[@class and contains(concat(' ', normalize-space(@class), ' '), ' pageTitle ')]",
-            "descendant-or-self::*[@class and contains(concat(' ', normalize-space(@class), ' '), ' news_title ')]",
-            "descendant-or-self::*[@class and contains(concat(' ', normalize-space(@class), ' '), ' title ')]",
-            "descendant-or-self::*[@class and contains(concat(' ', normalize-space(@class), ' '), ' head ')]",
-            "descendant-or-self::*[@class and contains(concat(' ', normalize-space(@class), ' '), ' heading ')]",
-            "descendant-or-self::*[@class and contains(concat(' ', normalize-space(@class), ' '), ' contentheading ')]",
-            "descendant-or-self::*[@class and contains(concat(' ', normalize-space(@class), ' '), ' small_header_red ')]"
+        "descendant-or-self::*[@id = 'title']",
+        "descendant-or-self::*[@id = 'head']",
+        "descendant-or-self::*[@id = 'heading']",
+        "descendant-or-self::*[@class and contains(concat(' ', normalize-space(@class), ' '), ' pageTitle ')]",
+        "descendant-or-self::*[@class and contains(concat(' ', normalize-space(@class), ' '), ' news_title ')]",
+        "descendant-or-self::*[@class and contains(concat(' ', normalize-space(@class), ' '), ' title ')]",
+        "descendant-or-self::*[@class and contains(concat(' ', normalize-space(@class), ' '), ' head ')]",
+        "descendant-or-self::*[@class and contains(concat(' ', normalize-space(@class), ' '), ' heading ')]",
+        "descendant-or-self::*[@class and contains(concat(' ', normalize-space(@class), ' '), ' contentheading ')]",
+        "descendant-or-self::*[@class and contains(concat(' ', normalize-space(@class), ' '), ' small_header_red ')]",
     ]:
         for e in doc.xpath(item):
             if e.text:

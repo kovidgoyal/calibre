@@ -5,7 +5,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class AdvancedUserRecipe1306097511(BasicNewsRecipe):
-    title = u'Birmingham Evening Mail'
+    title = 'Birmingham Evening Mail'
     description = 'News for Birmingham UK'
     # timefmt = ''
     __author__ = 'Dave Asbury'
@@ -29,21 +29,21 @@ class AdvancedUserRecipe1306097511(BasicNewsRecipe):
         dict(attrs={'class': 'ir btn-fullscreen'}),
         dict(attrs={'class': 'tools clearfix'}),
         dict(attrs={'class': 'shareButtons'}),
-
     ]
     keep_only_tags = [
         dict(name='h1'),
         dict(attrs={'class': 'lead-text'}),
         # dict(attrs={'class' : 'styleGroup article-header'}),
         # dict(attrs={'class' : 'body '}),
-        dict(attrs={'class': 'tmCol article'}), ]
+        dict(attrs={'class': 'tmCol article'}),
+    ]
 
     feeds = [
-        (u'Local News', u'http://www.birminghammail.co.uk/news/local-news/rss.xml'),
-        (u'UK News', u'http://www.birminghammail.co.uk/news/uk-news/rss.xml'),
-        (u'Sport', u'http://www.birminghammail.co.uk/sport/rss.xml'),
-        (u'Whats On', u'http://www.birminghammail.co.uk/whats-on/rss.xml'),
-        (u'Lifestyle', u'http://www.birminghammail.co.uk/lifestyle/rss.xml'),
+        ('Local News', 'http://www.birminghammail.co.uk/news/local-news/rss.xml'),
+        ('UK News', 'http://www.birminghammail.co.uk/news/uk-news/rss.xml'),
+        ('Sport', 'http://www.birminghammail.co.uk/sport/rss.xml'),
+        ('Whats On', 'http://www.birminghammail.co.uk/whats-on/rss.xml'),
+        ('Lifestyle', 'http://www.birminghammail.co.uk/lifestyle/rss.xml'),
     ]
     extra_css = '''
         h1{font-weight:bold;}
@@ -59,11 +59,10 @@ class AdvancedUserRecipe1306097511(BasicNewsRecipe):
         soup = self.index_to_soup('http://www.birminghammail.co.uk')
         cov = soup.find(attrs={'src': re.compile(r'http://images.icnetwork.co.uk/upl/birm')})
         cov = str(cov)
-        cov2 = re.findall(
-            r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', cov)
+        cov2 = re.findall(r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', cov)
 
         cov = str(cov2)
-        cov = cov[2:len(cov) - 2]
+        cov = cov[2 : len(cov) - 2]
 
         cover_url = cov
         br = browser()

@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # License: GPL v3 Copyright: 2022, Kovid Goyal <kovid at kovidgoyal.net>
 
-
 import builtins
 import hashlib
 import os
@@ -26,7 +25,6 @@ def print(*args, **kwargs):
 
 
 class FTS:
-
     def __init__(self, dbref):
         self.dbref = dbref
         self.pool = Pool(dbref)
@@ -104,16 +102,16 @@ class FTS:
         fmt = fmt.upper()
         if err_msg:
             conn.execute(
-                'INSERT OR REPLACE INTO fts_db.books_text '
-                '(book, timestamp, format, format_size, format_hash, err_msg) VALUES '
-                '(?, ?, ?, ?, ?, ?)', (
-                    book_id, ts, fmt, fmt_size, fmt_hash, err_msg))
+                'INSERT OR REPLACE INTO fts_db.books_text (book, timestamp, format, format_size, format_hash, err_msg) VALUES (?, ?, ?, ?, ?, ?)',
+                (book_id, ts, fmt, fmt_size, fmt_hash, err_msg),
+            )
         elif text:
             conn.execute(
                 'INSERT OR REPLACE INTO fts_db.books_text '
                 '(book, timestamp, format, format_size, format_hash, searchable_text, text_size, text_hash) VALUES '
-                '(?, ?, ?, ?, ?, ?, ?, ?)', (
-                    book_id, ts, fmt, fmt_size, fmt_hash, text, len(text), text_hash))
+                '(?, ?, ?, ?, ?, ?, ?, ?)',
+                (book_id, ts, fmt, fmt_size, fmt_hash, text, len(text), text_hash),
+            )
         else:
             conn.execute('DELETE FROM fts_db.dirtied_formats WHERE book=? AND format=?', (book_id, fmt))
 
@@ -136,8 +134,10 @@ class FTS:
     def queue_job(self, book_id, fmt, path, fmt_size, fmt_hash, start_time):
         conn = self.get_connection()
         fmt = fmt.upper()
-        for x in conn.get('SELECT id FROM fts_db.books_text WHERE book=? AND format=? AND format_size=? AND format_hash=?', (
-                book_id, fmt, fmt_size, fmt_hash)):
+        for x in conn.get(
+            'SELECT id FROM fts_db.books_text WHERE book=? AND format=? AND format_size=? AND format_hash=?',
+            (book_id, fmt, fmt_size, fmt_hash),
+        ):
             break
         else:
             self.pool.add_job(book_id, fmt, path, fmt_size, fmt_hash, start_time)
@@ -148,9 +148,16 @@ class FTS:
             os.remove(path)
         return False
 
-    def search(self,
-        fts_engine_query, use_stemming, highlight_start, highlight_end, snippet_size, restrict_to_book_ids,
-        return_text=True, process_each_result=None
+    def search(
+        self,
+        fts_engine_query,
+        use_stemming,
+        highlight_start,
+        highlight_end,
+        snippet_size,
+        restrict_to_book_ids,
+        return_text=True,
+        process_each_result=None,
     ):
         if restrict_to_book_ids is not None and not restrict_to_book_ids:
             return

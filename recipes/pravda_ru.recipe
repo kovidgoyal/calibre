@@ -13,7 +13,7 @@ www.pravda.ru
 
 
 class Pravda_ru(BasicNewsRecipe):
-    title = u'\u041F\u0440\u0430\u0432\u0434\u0430'
+    title = '\u041f\u0440\u0430\u0432\u0434\u0430'
     __author__ = 'Darko Miletic (with fixes by bugmen00t)'
     description = 'Правда.Ру: Аналитика и новости'
     publisher = 'PRAVDA.Ru'
@@ -25,23 +25,14 @@ class Pravda_ru(BasicNewsRecipe):
     max_articles_per_feed = 50
     auto_cleanup = True
 
-    remove_tags_before = dict(
-        name='div', attrs={'class': 'full article full-article'}
-    )
+    remove_tags_before = dict(name='div', attrs={'class': 'full article full-article'})
 
     remove_tags_after = dict(name='div', attrs={'class': 'authors-block'})
 
     remove_tags = [dict(name='div', attrs={'class': 'breadcumbs'})]
 
-    feeds = [(
-        u'\u041F\u0440\u0430\u0432\u0434\u0430.RU',
-        'https://www.pravda.ru/export.xml'
-    ),
-             (
-                 u'\u0421\u0442\u0430\u0442\u044C\u0438',
-                 'https://www.pravda.ru/export-articles.xml'
-             ),
-             (
-                 u'\u041D\u043E\u0432\u043E\u0441\u0442\u0438',
-                 'https://www.pravda.ru/export-news.xml'
-             )]
+    feeds = [
+        ('\u041f\u0440\u0430\u0432\u0434\u0430.RU', 'https://www.pravda.ru/export.xml'),
+        ('\u0421\u0442\u0430\u0442\u044c\u0438', 'https://www.pravda.ru/export-articles.xml'),
+        ('\u041d\u043e\u0432\u043e\u0441\u0442\u0438', 'https://www.pravda.ru/export-news.xml'),
+    ]

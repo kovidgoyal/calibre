@@ -18,7 +18,6 @@
 # Contributor(s):
 #
 
-
 import io
 import json
 import os
@@ -39,28 +38,28 @@ from calibre.utils.zipfile import ZipFile, safe_replace
 from polyglot.builtins import as_unicode
 
 fields = {
-    'title':            (DCNS, 'title'),
-    'description':      (DCNS, 'description'),
-    'subject':          (DCNS, 'subject'),
-    'creator':          (DCNS, 'creator'),
-    'date':             (DCNS, 'date'),
-    'language':         (DCNS, 'language'),
-    'generator':        (METANS, 'generator'),
-    'initial-creator':  (METANS, 'initial-creator'),
-    'keyword':          (METANS, 'keyword'),
-    'keywords':         (METANS, 'keywords'),
+    'title': (DCNS, 'title'),
+    'description': (DCNS, 'description'),
+    'subject': (DCNS, 'subject'),
+    'creator': (DCNS, 'creator'),
+    'date': (DCNS, 'date'),
+    'language': (DCNS, 'language'),
+    'generator': (METANS, 'generator'),
+    'initial-creator': (METANS, 'initial-creator'),
+    'keyword': (METANS, 'keyword'),
+    'keywords': (METANS, 'keywords'),
     'editing-duration': (METANS, 'editing-duration'),
-    'editing-cycles':   (METANS, 'editing-cycles'),
-    'printed-by':       (METANS, 'printed-by'),
-    'print-date':       (METANS, 'print-date'),
-    'creation-date':    (METANS, 'creation-date'),
-    'user-defined':     (METANS, 'user-defined'),
+    'editing-cycles': (METANS, 'editing-cycles'),
+    'printed-by': (METANS, 'printed-by'),
+    'print-date': (METANS, 'print-date'),
+    'creation-date': (METANS, 'creation-date'),
+    'user-defined': (METANS, 'user-defined'),
     # 'template':         (METANS, 'template'),
 }
 
 
 def uniq(vals):
-    ''' Remove all duplicates from vals, while preserving order.  '''
+    """Remove all duplicates from vals, while preserving order."""
     vals = vals or ()
     seen = set()
     seen_add = seen.add
@@ -294,7 +293,7 @@ def read_cover(stream, zin, mi, opfmeta, extract_cover):
             cover_data = (fmt, raw)
             cover_frame = frm.getAttribute('name')  # could have upper case
             break
-        if cover_href is None and imgnum == 1 and 0.8 <= height/width <= 1.8 and height*width >= 12000:
+        if cover_href is None and imgnum == 1 and 0.8 <= height / width <= 1.8 and height * width >= 12000:
             # Pick the first image as the cover if it is of a suitable size
             cover_href = i_href
             cover_data = (fmt, raw)

@@ -1,6 +1,4 @@
-__license__ = 'GPL 3'
-__copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2012, Kovid Goyal <kovid at kovidgoyal.net>
 
 import textwrap
 
@@ -14,10 +12,17 @@ from calibre.utils.localization import _
 
 
 class ConfigWidget(QWidget, Ui_ConfigWidget):
-
-    def __init__(self, settings, all_formats, supports_subdirs,
-        must_read_metadata, supports_use_author_sort,
-        extra_customization_message, device, extra_customization_choices=None):
+    def __init__(
+        self,
+        settings,
+        all_formats,
+        supports_subdirs,
+        must_read_metadata,
+        supports_use_author_sort,
+        extra_customization_message,
+        device,
+        extra_customization_choices=None,
+    ):
 
         QWidget.__init__(self)
         Ui_ConfigWidget.__init__(self)
@@ -39,7 +44,7 @@ class ConfigWidget(QWidget, Ui_ConfigWidget):
         for format in format_map + sorted(disabled_formats):
             item = QListWidgetItem(format, self.columns)
             item.setData(Qt.ItemDataRole.UserRole, (format))
-            item.setFlags(Qt.ItemFlag.ItemIsEnabled|Qt.ItemFlag.ItemIsUserCheckable|Qt.ItemFlag.ItemIsSelectable)
+            item.setFlags(Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsUserCheckable | Qt.ItemFlag.ItemIsSelectable)
             item.setCheckState(Qt.CheckState.Checked if format in format_map else Qt.CheckState.Unchecked)
 
         self.column_up.clicked.connect(self.up_column)
@@ -70,13 +75,18 @@ class ConfigWidget(QWidget, Ui_ConfigWidget):
             if isinstance(extra_customization_message, list):
                 self.opt_extra_customization = []
                 if len(extra_customization_message) > 6:
+
                     def row_func(x, y):
-                        return (x // 2 * 2 + y)
+                        return x // 2 * 2 + y
+
                     def col_func(x):
-                        return (x % 2)
+                        return x % 2
+
                 else:
+
                     def row_func(x, y):
-                        return (x * 2 + y)
+                        return x * 2 + y
+
                     def col_func(x):
                         return 0
 
@@ -109,8 +119,7 @@ class ConfigWidget(QWidget, Ui_ConfigWidget):
                         opt_ec_i.setText(settings.extra_customization[i])
                         opt_ec_i.setCursorPosition(0)
                         self.extra_layout.addWidget(l, row_func(i, 0), col_func(i))
-                    self.extra_layout.addWidget(self.opt_extra_customization[i],
-                                                row_func(i, 1), col_func(i))
+                    self.extra_layout.addWidget(self.opt_extra_customization[i], row_func(i, 1), col_func(i))
             else:
                 self.opt_extra_customization = QLineEdit()
                 label_text, tt = parse_msg(extra_customization_message)
@@ -129,14 +138,14 @@ class ConfigWidget(QWidget, Ui_ConfigWidget):
     def up_column(self):
         idx = self.columns.currentRow()
         if idx > 0:
-            self.columns.insertItem(idx-1, self.columns.takeItem(idx))
-            self.columns.setCurrentRow(idx-1)
+            self.columns.insertItem(idx - 1, self.columns.takeItem(idx))
+            self.columns.setCurrentRow(idx - 1)
 
     def down_column(self):
         idx = self.columns.currentRow()
-        if idx < self.columns.count()-1:
-            self.columns.insertItem(idx+1, self.columns.takeItem(idx))
-            self.columns.setCurrentRow(idx+1)
+        if idx < self.columns.count() - 1:
+            self.columns.insertItem(idx + 1, self.columns.takeItem(idx))
+            self.columns.setCurrentRow(idx + 1)
 
     def format_map(self):
         formats = []
@@ -161,12 +170,16 @@ class ConfigWidget(QWidget, Ui_ConfigWidget):
         extra = formats - set(self.calibre_known_formats)
         if extra:
             fmts = sorted(x.upper() for x in extra)
-            if not question_dialog(self, _('Unknown formats'),
-                    _('You have enabled the <b>{0}</b> formats for'
-                        ' your {1}. The {1} may not support them.'
-                        ' If you send these formats to your {1} they '
-                        'may not work. Are you sure?').format(
-                            (', '.join(fmts)), self.device_name)):
+            if not question_dialog(
+                self,
+                _('Unknown formats'),
+                _(
+                    'You have enabled the <b>{0}</b> formats for'
+                    ' your {1}. The {1} may not support them.'
+                    ' If you send these formats to your {1} they '
+                    'may not work. Are you sure?'
+                ).format((', '.join(fmts)), self.device_name),
+            ):
                 return False
 
         tmpl = str(self.opt_save_template.text())
@@ -174,8 +187,11 @@ class ConfigWidget(QWidget, Ui_ConfigWidget):
             validation_formatter.validate(tmpl)
             return True
         except Exception as err:
-            error_dialog(self, _('Invalid template'),
-                    '<p>'+_('The template %s is invalid:')%tmpl +
-                    '<br>'+str(err), show=True)
+            error_dialog(
+                self,
+                _('Invalid template'),
+                '<p>' + _('The template %s is invalid:') % tmpl + '<br>' + str(err),
+                show=True,
+            )
 
             return False

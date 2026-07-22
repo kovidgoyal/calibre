@@ -24,7 +24,7 @@ class DeutscheWelle_pt(BasicNewsRecipe):
         'days': {
             'short': 'Oldest article to download from this news source. In days ',
             'long': 'For example, 0.5, gives you articles from the past 12 hours',
-            'default': str(oldest_article)
+            'default': str(oldest_article),
         }
     }
 
@@ -39,14 +39,8 @@ class DeutscheWelle_pt(BasicNewsRecipe):
             img['src'] = img['srcset'].split()[6]
         return soup
 
-    keep_only_tags = [
-        dict(name='article')
-    ]
+    keep_only_tags = [dict(name='article')]
 
-    remove_tags = [
-        dict(name=['footer', 'source']),
-        dict(attrs={'data-tracking-name':'sharing-icons-inline'}),
-        classes('kicker advertisement vjs-wrapper')
-    ]
+    remove_tags = [dict(name=['footer', 'source']), dict(attrs={'data-tracking-name': 'sharing-icons-inline'}), classes('kicker advertisement vjs-wrapper')]
 
-    feeds = [(u'Noticias', u'http://rss.dw-world.de/rdf/rss-br-all')]
+    feeds = [('Noticias', 'http://rss.dw-world.de/rdf/rss-br-all')]

@@ -23,7 +23,7 @@ class DeutscheWelle_sr(BasicNewsRecipe):
         'days': {
             'short': 'Oldest article to download from this news source. In days ',
             'long': 'For example, 0.5, gives you articles from the past 12 hours',
-            'default': str(oldest_article)
+            'default': str(oldest_article),
         }
     }
 
@@ -38,24 +38,18 @@ class DeutscheWelle_sr(BasicNewsRecipe):
             img['src'] = img['srcset'].split()[6]
         return soup
 
-    keep_only_tags = [
-        dict(name='article')
-    ]
+    keep_only_tags = [dict(name='article')]
 
-    remove_tags = [
-        dict(name=['footer', 'source']),
-        dict(attrs={'data-tracking-name':'sharing-icons-inline'}),
-        classes('kicker advertisement vjs-wrapper')
-    ]
+    remove_tags = [dict(name=['footer', 'source']), dict(attrs={'data-tracking-name': 'sharing-icons-inline'}), classes('kicker advertisement vjs-wrapper')]
 
     feeds = [
-        (u'Politika', u'http://rss.dw-world.de/rdf/rss-ser-pol'),
-        (u'Srbija', u'http://rss.dw-world.de/rdf/rss-ser-pol-ser'),
-        (u'Region', u'http://rss.dw-world.de/rdf/rss-ser-pol-region'),
-        (u'Evropa', u'http://rss.dw-world.de/rdf/rss-ser-pol-eu'),
-        (u'Nemacka', u'http://rss.dw-world.de/rdf/rss-ser-pol-ger'),
-        (u'Svet', u'http://rss.dw-world.de/rdf/rss-ser-pol-ger'),
-        (u'Pregled stampe', u'http://rss.dw-world.de/rdf/rss-ser-pol-ger'),
-        (u'Nauka Tehnika Medicina', u'http://rss.dw-world.de/rdf/rss-ser-science'),
-        (u'Kultura', u'feed:http://rss.dw-world.de/rdf/rss-ser-cul')
+        ('Politika', 'http://rss.dw-world.de/rdf/rss-ser-pol'),
+        ('Srbija', 'http://rss.dw-world.de/rdf/rss-ser-pol-ser'),
+        ('Region', 'http://rss.dw-world.de/rdf/rss-ser-pol-region'),
+        ('Evropa', 'http://rss.dw-world.de/rdf/rss-ser-pol-eu'),
+        ('Nemacka', 'http://rss.dw-world.de/rdf/rss-ser-pol-ger'),
+        ('Svet', 'http://rss.dw-world.de/rdf/rss-ser-pol-ger'),
+        ('Pregled stampe', 'http://rss.dw-world.de/rdf/rss-ser-pol-ger'),
+        ('Nauka Tehnika Medicina', 'http://rss.dw-world.de/rdf/rss-ser-science'),
+        ('Kultura', 'feed:http://rss.dw-world.de/rdf/rss-ser-cul'),
     ]

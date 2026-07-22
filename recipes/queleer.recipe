@@ -25,23 +25,21 @@ class QueLeer(BasicNewsRecipe):
     masthead_url = 'http://www.que-leer.com/wp-content/themes/queleer/images/backgrounds/que-leer.jpg'
     extra_css = ' body{font-family: Arial,sans-serif } img{margin-bottom: 0.4em} '
 
-    conversion_options = {
-        'comment': description, 'tags': category, 'publisher': publisher, 'language': language
-    }
+    conversion_options = {'comment': description, 'tags': category, 'publisher': publisher, 'language': language}
 
-    preprocess_regexps = [(re.compile(
-        r'<h2 class="izq">.*?</body>', re.DOTALL | re.IGNORECASE), lambda match: '')]
+    preprocess_regexps = [(re.compile(r'<h2 class="izq">.*?</body>', re.DOTALL | re.IGNORECASE), lambda match: '')]
 
     remove_tags = [
-        dict(attrs={'class': ['post-ratings', 'post-ratings-loading', 'sociable', 'toc-anchor']}
-             ), dict(name=['object', 'embed', 'iframe', 'link']), dict(attrs={'id': 'left'})
+        dict(attrs={'class': ['post-ratings', 'post-ratings-loading', 'sociable', 'toc-anchor']}),
+        dict(name=['object', 'embed', 'iframe', 'link']),
+        dict(attrs={'id': 'left'}),
     ]
 
     remove_tags_after = dict(attrs={'class': 'sociable'})
     remove_attributes = ['width', 'height']
     keep_only_tags = [dict(attrs={'class': 'post'})]
 
-    feeds = [(u'Articulos', u'http://www.que-leer.com/feed')]
+    feeds = [('Articulos', 'http://www.que-leer.com/feed')]
 
     def preprocess_html(self, soup):
         for item in soup.findAll(style=True):

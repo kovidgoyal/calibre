@@ -59,10 +59,7 @@ class NytFeeds(BasicNewsRecipe):
             'default': 'no',
         },
         'res': {
-            'short': (
-                'For hi-res images, select a resolution from the following\noptions: '
-                'popup, jumbo, mobileMasterAt3x, superJumbo'
-            ),
+            'short': ('For hi-res images, select a resolution from the following\noptions: popup, jumbo, mobileMasterAt3x, superJumbo'),
             'long': (
                 'This is useful for non e-ink devices, and for a lower file size\nthan '
                 'the default, use mediumThreeByTwo440, mediumThreeByTwo225, articleInline.'
@@ -72,7 +69,7 @@ class NytFeeds(BasicNewsRecipe):
             'short': 'Get all content?',
             'long': 'enter yes. Includes all articles from all feeds... magazines, books etc.',
             'default': 'no',
-        }
+        },
     }
 
     def __init__(self, *args, **kwargs):
@@ -91,18 +88,16 @@ class NytFeeds(BasicNewsRecipe):
         a = self.recipe_specific_options.get('cont')
         if a and isinstance(a, str):
             if a.lower() == 'yes':
-                self.feeds.extend(
-                    [
-                        'https://rss.nytimes.com/services/xml/rss/nyt/Technology.xml',
-                        'https://rss.nytimes.com/services/xml/rss/nyt/FashionandStyle.xml',
-                        'https://rss.nytimes.com/services/xml/rss/nyt/tmagazine.xml',
-                        'https://rss.nytimes.com/services/xml/rss/nyt/books.xml',
-                        'https://www.nytimes.com/services/xml/rss/nyt/Travel.xml',
-                        'https://rss.nytimes.com/services/xml/rss/nyt/well.xml',
-                        'https://rss.nytimes.com/services/xml/rss/nyt/Magazine.xml',
-                        'http://nytimes.com/timeswire/feeds/',
-                    ]
-                )
+                self.feeds.extend([
+                    'https://rss.nytimes.com/services/xml/rss/nyt/Technology.xml',
+                    'https://rss.nytimes.com/services/xml/rss/nyt/FashionandStyle.xml',
+                    'https://rss.nytimes.com/services/xml/rss/nyt/tmagazine.xml',
+                    'https://rss.nytimes.com/services/xml/rss/nyt/books.xml',
+                    'https://www.nytimes.com/services/xml/rss/nyt/Travel.xml',
+                    'https://rss.nytimes.com/services/xml/rss/nyt/well.xml',
+                    'https://rss.nytimes.com/services/xml/rss/nyt/Magazine.xml',
+                    'http://nytimes.com/timeswire/feeds/',
+                ])
 
     extra_css = '''
         .byl, .time { font-size:small; color:#202020; }

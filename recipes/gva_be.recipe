@@ -36,15 +36,14 @@ class GazetvanAntwerpen(BasicNewsRecipe):
         ('Binnenland', 'http://www.gva.be/syndicationservices/artfeedservice.svc/rss/mostrecent/binnenland'),
         ('Buitenland', 'http://www.gva.be/syndicationservices/artfeedservice.svc/rss/mostrecent/buitenland'),
         ('Media & Cultuur', 'http://www.gva.be/syndicationservices/artfeedservice.svc/rss/mostrecent/mediaencultuur'),
-        ('Sport', 'http://www.gva.be/syndicationservices/artfeedservice.svc/rss/mostrecent/sport')
+        ('Sport', 'http://www.gva.be/syndicationservices/artfeedservice.svc/rss/mostrecent/sport'),
     ]
 
     keep_only_tags = [
         dict(name='header', attrs={'class': 'article__header'}),
         dict(name='footer', attrs={'class': 'article__meta'}),
-        dict(name='div', attrs={
-             'class': ['article', 'article__body', 'slideshow__intro']}),
-        dict(name='figure', attrs={'class': 'article__image'})
+        dict(name='div', attrs={'class': ['article', 'article__body', 'slideshow__intro']}),
+        dict(name='figure', attrs={'class': 'article__image'}),
     ]
 
     remove_tags = [
@@ -53,7 +52,7 @@ class GazetvanAntwerpen(BasicNewsRecipe):
         dict(name='ul', attrs={'class': re.compile(r'article__share')}),
         dict(name='div', attrs={'class': 'slideshow__controls'}),
         dict(name='a', attrs={'role': 'button'}),
-        dict(name='figure', attrs={'class': re.compile(r'video')})
+        dict(name='figure', attrs={'class': re.compile(r'video')}),
     ]
 
     remove_attributes = ['width', 'height']

@@ -29,14 +29,12 @@ class Infobae(BasicNewsRecipe):
     scale_news_images_to_device = True
     ignore_duplicate_articles = {'url'}
     masthead_url = 'https://www.infobae.com/pf/resources/images/logo_infobae_naranja.svg?d=662'
-    extra_css             = '''
+    extra_css = '''
                               body{font-family: Arial,Helvetica,sans-serif}
                               img{display: block}
                               .categoria{font-size: small; text-transform: uppercase}
                             '''
 
-    conversion_options = {
-        'comment': description, 'tags': category, 'publisher': publisher, 'language': language
-    }
+    conversion_options = {'comment': description, 'tags': category, 'publisher': publisher, 'language': language}
 
-    feeds = [(u'Ahora', u'https://www.infobae.com/arc/outboundfeeds/rss/')]
+    feeds = [('Ahora', 'https://www.infobae.com/arc/outboundfeeds/rss/')]

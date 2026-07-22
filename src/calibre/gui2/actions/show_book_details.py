@@ -1,9 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__   = 'GPL v3'
-__copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2010, Kovid Goyal <kovid@kovidgoyal.net>
 
 from qt.core import Qt, sip
 
@@ -14,10 +10,13 @@ from calibre.utils.localization import _
 
 
 class ShowBookDetailsAction(InterfaceAction):
-
     name = 'Show Book Details'
-    action_spec = (_('Book details'), 'dialog_information.png',
-                   _('Show the detailed metadata for the current book in a separate window'), _('I'))
+    action_spec = (
+        _('Book details'),
+        'dialog_information.png',
+        _('Show the detailed metadata for the current book in a separate window'),
+        _('I'),
+    )
     action_shortcut_name = _('Show Book details in a separate window')
     dont_add_to = frozenset(('context-menu-device',))
     action_type = 'current'
@@ -27,12 +26,15 @@ class ShowBookDetailsAction(InterfaceAction):
     def genesis(self):
         self.dialogs = [None, None, None]
         m = self.qaction.menu()
-        self.show_info_locked = l = self.create_menu_action(m,
-            'show_locked_details', _('Show Book details in a separate locked window'),
-            icon='drm-locked.png', shortcut=None)
+        self.show_info_locked = l = self.create_menu_action(
+            m,
+            'show_locked_details',
+            _('Show Book details in a separate locked window'),
+            icon='drm-locked.png',
+            shortcut=None,
+        )
         l.triggered.connect(self.open_locked_window)
-        l = self.create_menu_action(m,
-            'close_all_details', _('Close all Book details windows'), icon='close.png', shortcut=None)
+        l = self.create_menu_action(m, 'close_all_details', _('Close all Book details windows'), icon='close.png', shortcut=None)
         l.triggered.connect(self.close_all_windows)
         self.qaction.triggered.connect(self.show_book_info)
 
@@ -43,9 +45,11 @@ class ShowBookDetailsAction(InterfaceAction):
         locked = kwargs.get('locked', False)
         index = self.gui.library_view.currentIndex()
         if self.gui.current_view() is not self.gui.library_view and not library_path:
-            error_dialog(self.gui, _('No detailed info available'),
-                _('No detailed information is available for books '
-                  'on the device.')).exec()
+            error_dialog(
+                self.gui,
+                _('No detailed info available'),
+                _('No detailed information is available for books on the device.'),
+            ).exec()
             return
         if library_path:
             dn = DialogNumbers.DetailsLink
@@ -67,9 +71,16 @@ class ShowBookDetailsAction(InterfaceAction):
                 d.done(0)
                 self.dialogs[dn] = None
         try:
-            d = BookInfo(self.gui, self.gui.library_view, index,
-                    self.gui.book_details.handle_click_from_popup, dialog_number=dn,
-                    library_id=library_id, library_path=library_path, book_id=book_id)
+            d = BookInfo(
+                self.gui,
+                self.gui.library_view,
+                index,
+                self.gui.book_details.handle_click_from_popup,
+                dialog_number=dn,
+                library_id=library_id,
+                library_path=library_path,
+                book_id=book_id,
+            )
         except ValueError as e:
             error_dialog(self.gui, _('Book not found'), str(e)).exec()
             return

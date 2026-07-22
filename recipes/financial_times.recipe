@@ -50,10 +50,7 @@ class ft(BasicNewsRecipe):
             self.oldest_article = float(d)
 
     keep_only_tags = [
-        classes(
-            'body_json o-topper__topic o-topper__headline o-topper__standfirst '
-            'article-info__time-byline-content o-topper__visual main-image'
-        ),
+        classes('body_json o-topper__topic o-topper__headline o-topper__standfirst article-info__time-byline-content o-topper__visual main-image'),
         dict(name='article', attrs={'id': 'article-body'}),
     ]
 
@@ -61,9 +58,7 @@ class ft(BasicNewsRecipe):
         dict(name=['source', 'svg', 'button', 'aside']),
         dict(name='aside', attrs={'class': 'n-content-recommended--single-story'}),
         dict(attrs={'data-layout-name': 'card'}),
-        classes(
-            'in-article-advert flourish-disclaimer n-myft-ui__preferences-modal n-myft-ui n-myft-ui--follow'
-        ),
+        classes('in-article-advert flourish-disclaimer n-myft-ui__preferences-modal n-myft-ui n-myft-ui--follow'),
     ]
 
     def get_cover_url(self):
@@ -95,9 +90,7 @@ class ft(BasicNewsRecipe):
 
     def open_novisit(self, *args, **kwargs):
         br = browser(user_agent='Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:149.0) Gecko/20100101 Firefox/149.0')
-        br.addheaders += [
-            ('Referer', 'https://www.google.com/')
-        ]
+        br.addheaders += [('Referer', 'https://www.google.com/')]
         return br.open_novisit(*args, **kwargs)
 
     open = open_novisit
@@ -164,18 +157,7 @@ class ft(BasicNewsRecipe):
         body = re.sub(r'\[https://\S+?\]', insert_image, body)
         if data.get('description'):
             desc = '<h2>' + data['description'] + '</h2>'
-        html = (
-            '<html><body><div class="body_json"><h1>'
-            + title
-            + '</h1>'
-            + desc
-            + '<h3>'
-            + author
-            + '</h3>'
-            + image
-            + '<p>'
-            + body
-        )
+        html = '<html><body><div class="body_json"><h1>' + title + '</h1>' + desc + '<h3>' + author + '</h3>' + image + '<p>' + body
         return html
 
     def preprocess_html(self, soup):

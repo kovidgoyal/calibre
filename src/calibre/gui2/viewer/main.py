@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # License: GPL v3 Copyright: 2018, Kovid Goyal <kovid at kovidgoyal.net>
 
-
 import json
 import os
 import sys
@@ -77,7 +76,6 @@ def migrate_previous_viewer_prefs():
 
 
 class EventAccumulator(QObject):
-
     got_file = pyqtSignal(object)
 
     def __init__(self, parent):
@@ -102,44 +100,72 @@ def send_message_to_viewer_instance(args, open_at):
         try:
             send_message_in_process(msg, address=viewer_socket_address())
         except Exception as err:
-            error_dialog(None, _('Connecting to E-book viewer failed'), _(
-                'Unable to connect to existing E-book viewer window, try restarting the viewer.'), det_msg=str(err), show=True)
+            error_dialog(
+                None,
+                _('Connecting to E-book viewer failed'),
+                _('Unable to connect to existing E-book viewer window, try restarting the viewer.'),
+                det_msg=str(err),
+                show=True,
+            )
             raise SystemExit(1)
         print('Opened book in existing viewer instance')
 
 
 def option_parser():
     from calibre.gui2.main_window import option_parser
-    parser = option_parser(_('''\
+
+    parser = option_parser(
+        _('''\
 %prog [options] file
 
 View an e-book.
-'''))
+''')
+    )
     a = parser.add_option
-    a('--raise-window', default=False, action='store_true',
-        help=_('If specified, the E-book viewer window will try to come to the '
-               'front when started.'))
-    a('--full-screen', '--fullscreen', '-f', default=False, action='store_true',
-        help=_('If specified, the E-book viewer window will try to open '
-               'full screen when started.'))
-    a('--force-reload', default=False, action='store_true',
-        help=_('Force reload of all opened books'))
-    a('--open-at', default=None, help=_(
-        'The position at which to open the specified book. The position is '
-        'a location or position you can get by using the Go to->Location action in the viewer controls. '
-        'Alternately, you can use the form toc:something and it will open '
-        'at the location of the first Table of Contents entry that contains '
-        'the string "something". The form toc-href:something will match the '
-        'href (internal link destination) of toc nodes. The matching is exact. '
-        'If you want to match a substring, use the form toc-href-contains:something. '
-        'The form ref:something will use Reference mode references. The form search:something will'
-        ' search for something after opening the book. The form regex:something will search'
-        ' for the regular expression something after opening the book.'
-    ))
-    a('--continue', default=False, action='store_true', dest='continue_reading',
-        help=_('Continue reading the last opened book'))
-    a('--new-instance', default=False, action='store_true', help=_(
-        'Open a new viewer window even when the option to use only a single viewer window is set'))
+    a(
+        '--raise-window',
+        default=False,
+        action='store_true',
+        help=_('If specified, the E-book viewer window will try to come to the front when started.'),
+    )
+    a(
+        '--full-screen',
+        '--fullscreen',
+        '-f',
+        default=False,
+        action='store_true',
+        help=_('If specified, the E-book viewer window will try to open full screen when started.'),
+    )
+    a('--force-reload', default=False, action='store_true', help=_('Force reload of all opened books'))
+    a(
+        '--open-at',
+        default=None,
+        help=_(
+            'The position at which to open the specified book. The position is '
+            'a location or position you can get by using the Go to->Location action in the viewer controls. '
+            'Alternately, you can use the form toc:something and it will open '
+            'at the location of the first Table of Contents entry that contains '
+            'the string "something". The form toc-href:something will match the '
+            'href (internal link destination) of toc nodes. The matching is exact. '
+            'If you want to match a substring, use the form toc-href-contains:something. '
+            'The form ref:something will use Reference mode references. The form search:something will'
+            ' search for something after opening the book. The form regex:something will search'
+            ' for the regular expression something after opening the book.'
+        ),
+    )
+    a(
+        '--continue',
+        default=False,
+        action='store_true',
+        dest='continue_reading',
+        help=_('Continue reading the last opened book'),
+    )
+    a(
+        '--new-instance',
+        default=False,
+        action='store_true',
+        help=_('Open a new viewer window even when the option to use only a single viewer window is set'),
+    )
 
     setup_gui_option_parser(parser)
     return parser
@@ -147,6 +173,7 @@ View an e-book.
 
 def run_gui(app, opts, args, internal_book_data, listener=None):
     from calibre.gui2.viewer.convert_book import initialize_worker
+
     initialize_worker()
     acc = EventAccumulator(app)
     app.file_event_hook = acc
@@ -155,8 +182,11 @@ def run_gui(app, opts, args, internal_book_data, listener=None):
         app.setWindowIcon(QIcon.ic('viewer.png'))
     migrate_previous_viewer_prefs()
     main = EbookViewer(
-        open_at=opts.open_at, continue_reading=opts.continue_reading, force_reload=opts.force_reload,
-        calibre_book_data=internal_book_data)
+        open_at=opts.open_at,
+        continue_reading=opts.continue_reading,
+        force_reload=opts.force_reload,
+        calibre_book_data=internal_book_data,
+    )
     main.set_exception_handler()
     app.shutdown_signal_received.connect(main.request_close)
     if len(args) > 1:
@@ -177,6 +207,7 @@ def run_gui(app, opts, args, internal_book_data, listener=None):
     del main
     del app
     import gc
+
     gc.collect(), gc.collect()
 
 
@@ -207,6 +238,7 @@ def main(args=sys.argv):
     args = processed_args
     app = Application(args, override_program_name=override, windows_app_uid=VIEWER_APP_UID)
     from calibre.utils.webengine import setup_default_profile
+
     setup_default_profile()
 
     parser = option_parser()
@@ -218,15 +250,20 @@ def main(args=sys.argv):
     if not opts.new_instance and get_session_pref('singleinstance', False):
         from calibre.gui2.listener import Listener
         from calibre.utils.lock import SingleInstance
+
         with SingleInstance(singleinstance_name) as si:
             if si:
                 try:
                     listener = Listener(address=viewer_socket_address(), parent=app)
                     listener.start_listening()
                 except Exception as err:
-                    error_dialog(None, _('Failed to start listener'), _(
-                        'Could not start the listener used for single instance viewers. Try rebooting your computer.'),
-                                        det_msg=str(err), show=True)
+                    error_dialog(
+                        None,
+                        _('Failed to start listener'),
+                        _('Could not start the listener used for single instance viewers. Try rebooting your computer.'),
+                        det_msg=str(err),
+                        show=True,
+                    )
                 else:
                     with closing(listener):
                         run_gui(app, opts, args, internal_book_data, listener=listener)

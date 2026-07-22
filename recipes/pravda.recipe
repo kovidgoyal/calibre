@@ -7,10 +7,10 @@ class PravdaSlovakiaRecipe(BasicNewsRecipe):
     language = 'sk'
     version = 1
 
-    title = u'Pravda'
-    publisher = u''
-    category = u'News, Newspaper'
-    description = u'News from Slovakia'
+    title = 'Pravda'
+    publisher = ''
+    category = 'News, Newspaper'
+    description = 'News from Slovakia'
 
     oldest_article = 1
     max_articles_per_feed = 100
@@ -22,31 +22,21 @@ class PravdaSlovakiaRecipe(BasicNewsRecipe):
 
     # Feeds from: http://spravy.pravda.sk/info.asp?y=sk_kskop/rssinfo.htm
     feeds = []
-    feeds.append((u'Spravodajstvo', u'http://servis.pravda.sk/rss.asp'))
-    feeds.append(
-        (u'N\u00E1zory', u'http://servis.pravda.sk/rss.asp?o=sk_nazory'))
-    feeds.append(
-        (u'\u0160port', u'http://servis.pravda.sk/rss.asp?o=sk_sport'))
-    feeds.append((u'Peniaze', u'http://servis.pravda.sk/rss.asp?o=sk_peniaze'))
-    feeds.append((u'Koktail', u'http://servis.pravda.sk/rss.asp?o=sk_koktail'))
-    feeds.append(
-        (u'Kult\u00FAra', u'http://servis.pravda.sk/rss.asp?o=sk_kultura'))
-    feeds.append(
-        (u'B\u00FDvanie', u'http://servis.pravda.sk/rss.asp?o=sk_byvanie'))
-    feeds.append(
-        (u'Veda a Technika', u'http://servis.pravda.sk/rss.asp?o=sk_veda'))
-    feeds.append(
-        (u'Mozgov\u00F1a', u'http://servis.pravda.sk/rss.asp?o=sk_mozgovna'))
-    feeds.append((u'Auto', u'http://servis.pravda.sk/rss.asp?o=sk_autoweb'))
-    feeds.append(
-        (u'Cestovanie', u'http://servis.pravda.sk/rss.asp?o=sk_cestovanie'))
-    feeds.append(
-        (u'Regi\u00F3ny', u'http://servis.pravda.sk/rss.asp?r=sk_regiony'))
-    feeds.append(
-        (u'Profesia', u'http://servis.pravda.sk/rss.asp?o=sk_profesia'))
-    feeds.append((u'Zdravie', u'http://servis.pravda.sk/rss.asp?o=sk_zdravie'))
-    feeds.append((u'\u010C\u00EDtajme de\u0165om',
-                  u'http://servis.pravda.sk/rss.asp?o=sk_citajme'))
+    feeds.append(('Spravodajstvo', 'http://servis.pravda.sk/rss.asp'))
+    feeds.append(('N\u00e1zory', 'http://servis.pravda.sk/rss.asp?o=sk_nazory'))
+    feeds.append(('\u0160port', 'http://servis.pravda.sk/rss.asp?o=sk_sport'))
+    feeds.append(('Peniaze', 'http://servis.pravda.sk/rss.asp?o=sk_peniaze'))
+    feeds.append(('Koktail', 'http://servis.pravda.sk/rss.asp?o=sk_koktail'))
+    feeds.append(('Kult\u00fara', 'http://servis.pravda.sk/rss.asp?o=sk_kultura'))
+    feeds.append(('B\u00fdvanie', 'http://servis.pravda.sk/rss.asp?o=sk_byvanie'))
+    feeds.append(('Veda a Technika', 'http://servis.pravda.sk/rss.asp?o=sk_veda'))
+    feeds.append(('Mozgov\u00f1a', 'http://servis.pravda.sk/rss.asp?o=sk_mozgovna'))
+    feeds.append(('Auto', 'http://servis.pravda.sk/rss.asp?o=sk_autoweb'))
+    feeds.append(('Cestovanie', 'http://servis.pravda.sk/rss.asp?o=sk_cestovanie'))
+    feeds.append(('Regi\u00f3ny', 'http://servis.pravda.sk/rss.asp?r=sk_regiony'))
+    feeds.append(('Profesia', 'http://servis.pravda.sk/rss.asp?o=sk_profesia'))
+    feeds.append(('Zdravie', 'http://servis.pravda.sk/rss.asp?o=sk_zdravie'))
+    feeds.append(('\u010c\u00edtajme de\u0165om', 'http://servis.pravda.sk/rss.asp?o=sk_citajme'))
 
     remove_tags = []
     remove_tags.append(dict(name='p', attrs={'class': 'spatNaClanok'}))

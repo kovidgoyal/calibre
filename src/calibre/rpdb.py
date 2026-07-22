@@ -1,8 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__ = 'GPL v3'
-__copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
+# License: GPLv3 Copyright: 2014, Kovid Goyal <kovid at kovidgoyal.net>
 
 import atexit
 import inspect
@@ -21,7 +18,6 @@ QUESTION = '\x00\x01\x02'
 
 
 class RemotePdb(pdb.Pdb):
-
     def __init__(self, addr='127.0.0.1', port=4444, skip=None):
         # Open a reusable socket to allow for reloads
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -70,16 +66,17 @@ class RemotePdb(pdb.Pdb):
                 self.prints('All breaks cleared')
             return
         return pdb.Pdb.do_clear(self, arg)
+
     do_cl = do_clear
 
     def do_continue(self, arg):
         if not self.breaks:
-            ans = self.ask_question(
-                'There are no breakpoints set. Continuing will terminate this debug session. Are you sure? [y/n]: ')
+            ans = self.ask_question('There are no breakpoints set. Continuing will terminate this debug session. Are you sure? [y/n]: ')
             if ans.strip().lower() in {'y', 'yes'}:
                 return self.end_session()
             return
         return pdb.Pdb.do_continue(self, arg)
+
     do_c = do_cont = do_continue
 
     do_EOF = do_quit = do_exit = do_q = end_session
@@ -98,6 +95,7 @@ def set_trace(port=4444, skip=None):
     except Exception:
         print('Failed to run debugger')
         import traceback
+
         traceback.print_exc()
 
 
@@ -144,17 +142,17 @@ def cli(port=4444):
                     return
                 recvd += buf
             recvd = recvd.decode('utf-8', 'replace')
-            recvd = recvd[:-len(PROMPT)]
+            recvd = recvd[: -len(PROMPT)]
             raw = ''
             if recvd.startswith(QUESTION):
-                recvd = recvd[len(QUESTION):]
+                recvd = recvd[len(QUESTION) :]
                 print(recvd, end='', flush=True)
                 raw = sys.stdin.readline() or 'n'
             else:
                 print(recvd, end='', flush=True)
                 try:
                     raw = input(PROMPT)
-                except (EOFError, KeyboardInterrupt):
+                except EOFError, KeyboardInterrupt:
                     pass
                 else:
                     raw += '\n'

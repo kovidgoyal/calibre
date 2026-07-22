@@ -6,12 +6,13 @@ from calibre.web.feeds.news import BasicNewsRecipe, classes
 
 
 class Sportstar(BasicNewsRecipe):
-    title = u'Sportstar'
+    title = 'Sportstar'
     __author__ = 'unkn0wn'
     description = (
         'Sportstar began as a Print Only multi-sport weekly on July 15, 1978.'
         ' In 2018 the periodicity of Sportstar was made fortnightly with a lot of in-depth articles coming into the mix.'
-        ' Our readers have been the fount of inspiration in our attempts at exploring new angles in sports journalism.')
+        ' Our readers have been the fount of inspiration in our attempts at exploring new angles in sports journalism.'
+    )
     language = 'en_IN'
     no_stylesheets = True
     remove_javascript = True
@@ -27,25 +28,15 @@ class Sportstar(BasicNewsRecipe):
         .author, .publish-time {font-size:small;}
     '''
 
-    recipe_specific_options = {
-        'issue': {
-            'short': 'Enter the Issue Number you want to download\n(Volume-Issue format)',
-            'long': 'For example, 47-16'
-        }
-    }
+    recipe_specific_options = {'issue': {'short': 'Enter the Issue Number you want to download\n(Volume-Issue format)', 'long': 'For example, 47-16'}}
 
     keep_only_tags = [
-        dict(name='h1', attrs={'class':'title'}),
-        dict(name='h2', attrs={'class':'sub-title'}),
-        classes('publish-time author top-pic articlebodycontent')
+        dict(name='h1', attrs={'class': 'title'}),
+        dict(name='h2', attrs={'class': 'sub-title'}),
+        classes('publish-time author top-pic articlebodycontent'),
     ]
 
-    remove_tags = [
-        classes(
-            'show-mobile inlineAds related-topics related-stories comments-shares'
-            ' share-page title-patch pic-caption slide-mobile also-read'
-        )
-    ]
+    remove_tags = [classes('show-mobile inlineAds related-topics related-stories comments-shares share-page title-patch pic-caption slide-mobile also-read')]
 
     def parse_index(self):
         d = self.recipe_specific_options.get('issue')
@@ -60,26 +51,22 @@ class Sportstar(BasicNewsRecipe):
 
         feeds = OrderedDict()
 
-        info = soup.find('div', attrs={'class':lambda x: x and 'left-sticky' in x.split()})
-        self.cover_url = info.find('div', attrs={'class':'sptar-image'}
-                                    ).find('img')['data-original'].replace('FREE_320', 'FREE_1200')
-        self.description = self.tag_to_string(info.find('div', attrs={'class':'sub-text'})).strip()
+        info = soup.find('div', attrs={'class': lambda x: x and 'left-sticky' in x.split()})
+        self.cover_url = info.find('div', attrs={'class': 'sptar-image'}).find('img')['data-original'].replace('FREE_320', 'FREE_1200')
+        self.description = self.tag_to_string(info.find('div', attrs={'class': 'sub-text'})).strip()
 
-        for content in soup.findAll('div', attrs={'class':'content'}):
+        for content in soup.findAll('div', attrs={'class': 'content'}):
             articles = []
-            h3 = content.find('h3', attrs={'class':'title'})
+            h3 = content.find('h3', attrs={'class': 'title'})
             url = h3.find('a', href=True)['href']
             title = self.tag_to_string(h3).strip()
-            desc = self.tag_to_string(content.find('div', attrs={'class':'sub-text'})).strip()
-            section_title = self.tag_to_string(content.find('div', attrs={'class':'label'})).strip()
+            desc = self.tag_to_string(content.find('div', attrs={'class': 'sub-text'})).strip()
+            section_title = self.tag_to_string(content.find('div', attrs={'class': 'label'})).strip()
             self.log(section_title)
             self.log('\t', title)
             self.log('\t', desc)
             self.log('\t\t', url)
-            articles.append({
-                'title': title,
-                'url': url,
-                'description': desc})
+            articles.append({'title': title, 'url': url, 'description': desc})
 
             if articles:
                 if section_title not in feeds:
@@ -91,12 +78,12 @@ class Sportstar(BasicNewsRecipe):
     def preprocess_html(self, soup):
         if h2 := soup.find('h2'):
             h2.name = 'p'
-        for img in soup.findAll('img', attrs={'data-original':True}):
+        for img in soup.findAll('img', attrs={'data-original': True}):
             if img['data-original'].endswith('1x1_spacer.png'):
                 source = img.findPrevious('source', srcset=True)
                 img.extract()
                 if source:
-                    source['src'] = source['srcset'].replace('_320','_1200')
+                    source['src'] = source['srcset'].replace('_320', '_1200')
                     source.name = 'img'
             else:
                 img['src'] = img['data-original']

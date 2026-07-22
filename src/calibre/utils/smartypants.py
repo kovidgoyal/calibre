@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 
-
 __author__ = 'Chad Miller <smartypantspy@chad.org>, Kovid Goyal <kovid at kovidgoyal.net>'
 __description__ = 'Smart-quotes, smart-ellipses, and smart-dashes for weblog entries in pyblosxom'
 
@@ -19,7 +18,6 @@ Copyright (c) 2004, 2007 Chad Miller
 original `SmartyPants`_ by `John Gruber`_
 Copyright (c) 2003 John Gruber
 
-
 Synopsis
 ========
 
@@ -31,7 +29,6 @@ into "smart" typographic punctuation HTML entities.
 
 This software, *smartypants.py*, endeavours to be a functional port of
 SmartyPants to Python, for use with Pyblosxom_.
-
 
 Description
 ===========
@@ -52,7 +49,6 @@ SmartyPants does not modify characters within ``<pre>``, ``<code>``, ``<kbd>``,
 ``<math>`` or ``<script>`` tag blocks. Typically, these tags are used to
 display text where smart quotes and other "smart punctuation" would not be
 appropriate, such as source code or example markup.
-
 
 Backslash Escapes
 =================
@@ -111,7 +107,6 @@ Numeric values are the easiest way to configure SmartyPants' behavior:
     E.g.  "&#8220;" is turned into a simple double-quote ("), "&#8212;" is
     turned into two dashes, etc.
 
-
 The following single-character attribute values can be combined to toggle
 individual transformations from within the smarty_pants attribute. For
 example, to educate normal quotes and em-dashes, but not ellipses or
@@ -159,7 +154,6 @@ example, to educate normal quotes and em-dashes, but not ellipses or
 The ``smartypants_forbidden_flavours`` list contains pyblosxom flavours for
 which no Smarty Pants rendering will occur.
 
-
 Caveats
 =======
 
@@ -198,7 +192,6 @@ makes it easy to stupefy smart quote characters into their 7-bit
 equivalents, and I don't consider it my problem if you're using an
 indecent text editor or email client.
 
-
 Algorithmic Shortcomings
 ------------------------
 
@@ -213,7 +206,6 @@ this problem can be solved in the general case -- every word processor
 I've tried gets this wrong as well. In such cases, it's best to use the
 proper HTML entity for closing single-quotes (``&#8217;``) by hand.
 
-
 Bugs
 ====
 
@@ -227,7 +219,6 @@ To Do list
 ----------
 
 - Provide a function for use within templates to quote anything at all.
-
 
 Version History
 ===============
@@ -280,7 +271,6 @@ Authors
 `Movable Type`_ and almost all of this useful documentation.  `Chad Miller`_
 ported it to Python to use with Pyblosxom_.
 
-
 Additional Credits
 ==================
 
@@ -297,7 +287,6 @@ testing of the original SmartyPants.
 .. _Jeremy Hedley: http://antipixel.com/
 .. _Charles Wiltgen: http://playbacktime.com/
 .. _Rael Dornfest: http://raelity.org/
-
 
 Copyright and License
 =====================
@@ -336,7 +325,6 @@ SmartyPants_ license::
     (including negligence or otherwise) arising in any way out of the use
     of this software, even if advised of the possibility of such damage.
 
-
 smartypants.py license::
 
     smartypants.py is a derivative work of SmartyPants.
@@ -365,8 +353,6 @@ smartypants.py license::
     (including negligence or otherwise) arising in any way out of the use
     of this software, even if advised of the possibility of such damage.
 
-
-
 .. _John Gruber: https://daringfireball.net/
 .. _Chad Miller: http://web.chad.org/
 
@@ -382,32 +368,32 @@ import re
 tags_to_skip_regex = re.compile(r'<(/)?(style|pre|code|kbd|script|math)[^>]*>', re.I)
 self_closing_regex = re.compile(r'/\s*>$')
 
-
 # internal functions below here
+
 
 def parse_attr(attr):
     do_dashes = do_backticks = do_quotes = do_ellipses = do_stupefy = 0
 
     if attr == '1':
-        do_quotes    = 1
+        do_quotes = 1
         do_backticks = 1
-        do_dashes    = 1
-        do_ellipses  = 1
+        do_dashes = 1
+        do_ellipses = 1
     elif attr == '2':
         # Do everything, turn all options on, use old school dash shorthand.
-        do_quotes    = 1
+        do_quotes = 1
         do_backticks = 1
-        do_dashes    = 2
-        do_ellipses  = 1
+        do_dashes = 2
+        do_ellipses = 1
     elif attr == '3':
         # Do everything, turn all options on, use inverted old school dash shorthand.
-        do_quotes    = 1
+        do_quotes = 1
         do_backticks = 1
-        do_dashes    = 3
-        do_ellipses  = 1
+        do_dashes = 3
+        do_ellipses = 1
     elif attr == '-1':
         # Special "stupefy" mode.
-        do_stupefy   = 1
+        do_stupefy = 1
     else:
         for c in attr:
             if c == 'q':
@@ -539,8 +525,8 @@ def educateQuotes(text):
 
     # Special case if the very first character is a quote
     # followed by punctuation at a non-word-break. Close the quotes by brute force:
-    text = re.sub(fr'''^'(?={punct_class}\\B)''', r'''&#8217;''', text)
-    text = re.sub(fr'''^"(?={punct_class}\\B)''', r'''&#8221;''', text)
+    text = re.sub(rf'''^'(?={punct_class}\\B)''', r'''&#8217;''', text)
+    text = re.sub(rf'''^"(?={punct_class}\\B)''', r'''&#8221;''', text)
 
     # Special case for double sets of quotes, e.g.:
     #   <p>He said, "'Quoted' words in a larger quote."</p>
@@ -551,7 +537,7 @@ def educateQuotes(text):
     text = text.replace('"\'', '&#8221;&#8217;')
     text = text.replace('\'"', '''&#8217;&#8221;''')
     text = text.replace('""', '&#8221;&#8221;')
-    text = text.replace(r"""''""",  '''&#8217;&#8217;''')
+    text = text.replace(r"""''""", '''&#8217;&#8217;''')
 
     # Special case for decade abbreviations (the '80s --> ’80s):
     # See http://practicaltypography.com/apostrophes.html
@@ -583,7 +569,8 @@ def educateQuotes(text):
     dec_dashes = r'''&#8211;|&#8212;'''
 
     # Get most opening single quotes:
-    opening_single_quotes_regex = re.compile(rf'''
+    opening_single_quotes_regex = re.compile(
+        rf'''
             (
                 \s          |   # a whitespace char, or
                 &nbsp;      |   # a non-breaking space entity, or
@@ -594,28 +581,37 @@ def educateQuotes(text):
             )
             '                 # the quote
             (?=\w)            # followed by a word character
-            ''', re.VERBOSE)
+            ''',
+        re.VERBOSE,
+    )
     text = opening_single_quotes_regex.sub(r'''\1&#8216;''', text)
 
-    closing_single_quotes_regex = re.compile(rf'''
+    closing_single_quotes_regex = re.compile(
+        rf'''
             ({close_class})
             '
             (?!\s | s\b | \d)
-            ''', re.VERBOSE)
+            ''',
+        re.VERBOSE,
+    )
     text = closing_single_quotes_regex.sub(r'''\1&#8217;''', text)
 
-    closing_single_quotes_regex = re.compile(rf'''
+    closing_single_quotes_regex = re.compile(
+        rf'''
             ({close_class})
             '
             (\s | s\b)
-            ''', re.VERBOSE)
+            ''',
+        re.VERBOSE,
+    )
     text = closing_single_quotes_regex.sub(r'''\1&#8217;\2''', text)
 
     # Any remaining single quotes should be opening ones:
     text = text.replace("'", '&#8216;')
 
     # Get most opening double quotes:
-    opening_double_quotes_regex = re.compile(rf'''
+    opening_double_quotes_regex = re.compile(
+        rf'''
             (
                 \s          |   # a whitespace char, or
                 &nbsp;      |   # a non-breaking space entity, or
@@ -626,21 +622,29 @@ def educateQuotes(text):
             )
             "                 # the quote
             (?=\w)            # followed by a word character
-            ''', re.VERBOSE)
+            ''',
+        re.VERBOSE,
+    )
     text = opening_double_quotes_regex.sub(r'''\1&#8220;''', text)
 
     # Double closing quotes:
-    closing_double_quotes_regex = re.compile(rf'''
+    closing_double_quotes_regex = re.compile(
+        rf'''
             #({close_class})?   # character that indicates the quote should be closing
             "
             (?=\s)
-            ''', re.VERBOSE)
+            ''',
+        re.VERBOSE,
+    )
     text = closing_double_quotes_regex.sub(r'''&#8221;''', text)
 
-    closing_double_quotes_regex = re.compile(rf'''
+    closing_double_quotes_regex = re.compile(
+        rf'''
             ({close_class})   # character that indicates the quote should be closing
             "
-            ''', re.VERBOSE)
+            ''',
+        re.VERBOSE,
+    )
     text = closing_double_quotes_regex.sub(r'''\1&#8221;''', text)
 
     if text.endswith('-"'):
@@ -654,13 +658,13 @@ def educateQuotes(text):
 
 
 def educateBackticks(text):
-    '''
+    """
     Parameter:  String.
     Returns:    The string, with ``backticks'' -style double quotes
                 translated into HTML curly quote entities.
     Example input:  ``Isn't this fun?''
     Example output: &#8220;Isn't this fun?&#8221;
-    '''
+    """
 
     text = text.replace('``', '&#8220;')
     text = text.replace("''", '&#8221;')
@@ -668,14 +672,14 @@ def educateBackticks(text):
 
 
 def educateSingleBackticks(text):
-    '''
+    """
     Parameter:  String.
     Returns:    The string, with `backticks' -style single quotes
                 translated into HTML curly quote entities.
 
     Example input:  `Isn't this fun?'
     Example output: &#8216;Isn&#8217;t this fun?&#8217;
-    '''
+    """
 
     text = text.replace('`', '&#8216;')
     text = text.replace("'", '&#8217;')
@@ -704,8 +708,8 @@ def educateDashesOldSchool(text):
                 an em-dash HTML entity.
     '''
 
-    text = text.replace('---', '&#8212;')    # em (yes, backwards)
-    text = text.replace('--', '&#8211;')    # en (yes, backwards)
+    text = text.replace('---', '&#8212;')  # em (yes, backwards)
+    text = text.replace('--', '&#8211;')  # en (yes, backwards)
     return text
 
 
@@ -724,8 +728,8 @@ def educateDashesOldSchoolInverted(text):
                 the shortcut should be shorter to type. (Thanks to Aaron
                 Swartz for the idea.)
     '''
-    text = text.replace('---', '&#8211;')    # em
-    text = text.replace('--', '&#8212;')    # en
+    text = text.replace('---', '&#8211;')  # em
+    text = text.replace('--', '&#8212;')  # en
     return text
 
 
@@ -837,6 +841,7 @@ def _tokenize(html):
 
 def run_tests(return_tests=False):
     import unittest
+
     sp = smartyPants
 
     class TestSmartypantsAllAttributes(unittest.TestCase):
@@ -859,15 +864,17 @@ def run_tests(return_tests=False):
 
         def test_skip_tags(self):
             self.assertEqual(
-                sp('''<script type="text/javascript">\n<!--\nvar href = "http://www.google.com";\nvar linktext = "google";\ndocument.write('<a href="' + href + '">' + linktext + "</a>");\n//-->\n</script>'''),  # noqa: E501
-                   '''<script type="text/javascript">\n<!--\nvar href = "http://www.google.com";\nvar linktext = "google";\ndocument.write('<a href="' + href + '">' + linktext + "</a>");\n//-->\n</script>''')  # noqa: E501
+                sp(
+                    '''<script type="text/javascript">\n<!--\nvar href = "http://www.google.com";\nvar linktext = "google";\ndocument.write('<a href="' + href + '">' + linktext + "</a>");\n//-->\n</script>'''  # noqa: E501
+                ),
+                '''<script type="text/javascript">\n<!--\nvar href = "http://www.google.com";\nvar linktext = "google";\ndocument.write('<a href="' + href + '">' + linktext + "</a>");\n//-->\n</script>''',  # noqa: E501
+            )
             self.assertEqual(
                 sp('''<p>He said &quot;Let's write some code.&quot; This code here <code>if True:\n\tprint &quot;Okay&quot;</code> is python code.</p>'''),
-                   '''<p>He said &#8220;Let&#8217;s write some code.&#8221; This code here <code>if True:\n\tprint &quot;Okay&quot;</code> is python code.</p>''')  # noqa: E501
+                '''<p>He said &#8220;Let&#8217;s write some code.&#8221; This code here <code>if True:\n\tprint &quot;Okay&quot;</code> is python code.</p>''',
+            )  # noqa: E501
 
-            self.assertEqual(
-                sp('''<script/><p>It's ok</p>'''),
-                '''<script/><p>It&#8217;s ok</p>''')
+            self.assertEqual(sp('''<script/><p>It's ok</p>'''), '''<script/><p>It&#8217;s ok</p>''')
 
         def test_ordinal_numbers(self):
             self.assertEqual(sp('21st century'), '21st century')  # no effect.

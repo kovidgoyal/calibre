@@ -19,12 +19,13 @@ FS_MODE = unique_id('fs-mode')
 COLS = unique_id('cols-per-screen')
 TEXT_AREA = unique_id('text-area')
 
-add_extra_css(def():
+add_extra_css(def ():
     sel = '#' + MARGINS
     style = build_rule(sel, margin_left='1rem', margin_top='-1ex')
     style += build_rule('#{} td'.format(CONTAINER), padding='1ex')
     return style
 )
+
 
 def restore_defaults():
     defaults = session_defaults()
@@ -50,7 +51,7 @@ def create_layout_panel(container, apply_func, cancel_func):
     safe_set_inner_html(container.lastChild, _('Current window size is: <b>{0}x{1}</b> pixels').format(window.innerWidth, window.innerHeight))
     container.appendChild(E.p(_('Change the page margins (in pixels) below'), style='margin:1ex 1rem; padding: 1ex 0'))
     container.appendChild(E.table(id=MARGINS))
-    labels = {'top':_('Top:'), 'bottom':_('Bottom:'), 'left':_('Left:'), 'right':_('Right:')}
+    labels = {'top': _('Top:'), 'bottom': _('Bottom:'), 'left': _('Left:'), 'right': _('Right:')}
 
     def item(which, tr):
         tr.appendChild(E.td(labels[which]))
@@ -71,6 +72,7 @@ def create_layout_panel(container, apply_func, cancel_func):
     container.appendChild(E.div(id=READ_MODE, style='margin: 1ex 2rem; display: flex;'))
     rm = sd.get('read_mode')
     rm = 'flow' if rm is 'flow' else 'paged'
+
     def rb(name, text):
         d = container.lastChild
         d.appendChild(E.label(E.input(type='radio', name='page-layout-mode', data_name=name, checked=rm is name), text))
@@ -83,7 +85,7 @@ def create_layout_panel(container, apply_func, cancel_func):
     cps = sd.get('columns_per_screen')
     container.appendChild(E.table(style='margin: 1ex 1rem', id=COLS,
         E.tr(
-            E.td(_('Portrait:')), E.td(E.input(type='number', name='portrait',   min='0', step='1', max='20', value=str(cps.portrait))),
+            E.td(_('Portrait:')), E.td(E.input(type='number', name='portrait', min='0', step='1', max='20', value=str(cps.portrait))),
             E.td(_('Landscape:')), E.td(E.input(type='number', name='landscape', min='0', step='1', max='20', value=str(cps.landscape))),
     )))
 
@@ -91,7 +93,7 @@ def create_layout_panel(container, apply_func, cancel_func):
           ' A value of zero means that all available screen area is used.'))
     container.appendChild(E.table(style='margin: 1ex 1rem', id=TEXT_AREA,
         E.tr(
-            E.td(_('Width:')), E.td(E.input(type='number', name='width',   min='0', step='10', max='99999', value=str(sd.get('max_text_width')))),
+            E.td(_('Width:')), E.td(E.input(type='number', name='width', min='0', step='10', max='99999', value=str(sd.get('max_text_width')))),
             E.td(_('Height:')), E.td(E.input(type='number', name='height', min='0', step='10', max='99999', value=str(sd.get('max_text_height')))),
     )))
 

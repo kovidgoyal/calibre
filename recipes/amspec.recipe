@@ -22,8 +22,7 @@ class TheAmericanSpectator(BasicNewsRecipe):
     encoding = 'utf-8'
 
     def parse_index(self):
-        root = self.index_to_soup(
-            'http://spectator.org/issues/current', as_tree=True)
+        root = self.index_to_soup('http://spectator.org/issues/current', as_tree=True)
         select = Select(root)
         main = tuple(select('div#block-system-main'))[0]
         feeds = []
@@ -46,8 +45,7 @@ class TheAmericanSpectator(BasicNewsRecipe):
                 for x in select('div.views-field-field-short-summary', li):
                     desc = self.tag_to_string(x)
                     break
-                articles.append(
-                    {'title': title, 'url': url, 'description': desc})
+                articles.append({'title': title, 'url': url, 'description': desc})
                 self.log('\t', title, 'at', url)
             feeds.append((section_title, articles))
         return feeds

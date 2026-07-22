@@ -6,7 +6,6 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class VillageVoice(BasicNewsRecipe):
-
     title = 'Village Voice'
     feeds = [
         ('Complete Issue', 'http://villagevoice.com/syndication/issue'),

@@ -2,7 +2,9 @@
 # License: GPL v3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 from __python__ import bound_methods, hash_literals
 
+import traceback
 from elementmaker import E
+from gettext import gettext as _
 
 import read_book.iframe  # noqa
 from ajax import ajax_send
@@ -11,7 +13,6 @@ from book_list.home import update_book_in_recently_read_by_user_on_home_page
 from book_list.theme import cached_color_to_rgba, get_color, set_ui_colors
 from book_list.ui import show_panel
 from dom import add_extra_css, build_rule, clear, set_css, svgicon, unique_id
-from gettext import gettext as _
 from iframe_comm import create_wrapped_iframe
 from modals import error_dialog, warning_dialog
 from read_book.annotations import AnnotationsManager
@@ -52,7 +53,7 @@ from utils import (
 )
 from viewer.constants import CHARS_PER_PAGE
 
-add_extra_css(def():
+add_extra_css(def ():
     sel = '.book-side-margin'
     ans = build_rule(sel, cursor='pointer', text_align='center', height='100dvh', user_select='none', display='flex', align_items='center', justify_content='space-between', flex_direction='column')
     ans += build_rule(sel + ' > .arrow', display='none')
@@ -70,22 +71,23 @@ add_extra_css(def():
 
 # Simple Overlays {{{
 
+
 def show_controls_help():
     container = document.getElementById('controls-help-overlay')
     container.style.display = 'block'
     container.style.backgroundColor = get_color('window-background')
     if not show_controls_help.listener_added:
         show_controls_help.listener_added = True
-        container.addEventListener('click', def():
+        container.addEventListener('click', def ():
             document.getElementById('controls-help-overlay').style.display = 'none'
             ui_operations.focus_iframe()
         )
-        container.addEventListener('contextmenu', def(evt):
+        container.addEventListener('contextmenu', def (evt):
             evt.preventDefault(), evt.stopPropagation()
             document.getElementById('controls-help-overlay').style.display = 'none'
             ui_operations.focus_iframe()
         , {'passive': False})
-        container.addEventListener('keydown', def(event):
+        container.addEventListener('keydown', def (event):
             event.preventDefault(), event.stopPropagation()
             document.getElementById('controls-help-overlay').style.display = 'none'
             ui_operations.focus_iframe()
@@ -138,25 +140,7 @@ def show_controls_help():
     if container.firstChild:
         container.removeChild(container.firstChild)
 
-    container.appendChild(E.div(
-        style=f'overflow: hidden; width: 100vw; height: 100dvh; text-align: center; font-size: 1.3rem; font-weight: bold; background: {get_color("window-background")};' +
-                'display:flex; flex-direction: column; align-items: stretch',
-        E.div(
-            msg(_('Tap (or right click) for controls')),
-            style='height: 25dvh; display:flex; align-items: center; border-bottom: solid 2px currentColor',
-        ),
-        E.div(
-            style="display: flex; align-items: stretch; flex-grow: 10",
-            E.div(
-                left_msg,
-                style=f'width: {left_width}; flex-grow: {left_grow}; display:flex; align-items: center; border-right: solid 2px currentColor',
-            ),
-            E.div(
-                right_msg,
-                style=f'width: {right_width}; display:flex; flex-grow: {right_grow}; align-items: center',
-            )
-        )
-    ))
+    container.appendChild(E.div(style=f'overflow: hidden; width: 100vw; height: 100dvh; text-align: center; font-size: 1.3rem; font-weight: bold; background: {get_color("window-background")};' + 'display:flex; flex-direction: column; align-items: stretch', E.div(msg(_('Tap (or right click) for controls')), style='height: 25dvh; display:flex; align-items: center; border-bottom: solid 2px currentColor',), E.div(style='display: flex; align-items: stretch; flex-grow: 10', E.div(left_msg, style=f'width: {left_width}; flex-grow: {left_grow}; display:flex; align-items: center; border-right: solid 2px currentColor',), E.div(right_msg, style=f'width: {right_width}; display:flex; flex-grow: {right_grow}; align-items: center',))))
 
 
 # }}}
@@ -185,9 +169,12 @@ def margin_elem(sd, which, id, onclick, oncontextmenu):
     fsz = header_footer_font_size(sz)
     s = '; text-overflow: ellipsis; white-space: nowrap; overflow: hidden'
     ans = E.div(
-        style=f'height:{sz}px; overflow: hidden; font-size:{fsz}px; width:100%; padding: 0; display: flex; justify-content: space-between; align-items: center; user-select: none; cursor: pointer', class_='book-h-margin',
+        style=f'height:{sz}px; overflow: hidden; font-size:{fsz}px; width:100%; padding: 0; display: flex; justify-content: space-between; align-items: center; user-select: none; cursor: pointer',
+        class_='book-h-margin',
         id=id,
-        E.div(style='margin-right: 1.5em' + s), E.div(style=s), E.div(style='margin-left: 1.5em' + s)
+        E.div(style='margin-right: 1.5em' + s),
+        E.div(style=s),
+        E.div(style='margin-left: 1.5em' + s)
     )
     if onclick:
         ans.addEventListener('click', onclick)
@@ -200,7 +187,6 @@ def side_margin_elem(self, sd, which, icon):
     ans = E.div(
         E.div(class_='arrow', style='order: 3', svgicon(f'caret-{icon}', '100%', '100%')),
         E.div(style='order:1'), E.div(style='order:2', class_='not-arrow'), E.div(style='order:4'),
-
         style='width:{}px; user-select: none'.format(sd.get(f'margin_{which}', 20)),
         class_='book-side-margin', id=f'book-{which}-margin',
         onclick=self.side_margin_clicked.bind(None, which),
@@ -211,7 +197,6 @@ def side_margin_elem(self, sd, which, icon):
 
 
 class View:
-
     def __init__(self, container):
         self.container = container
         self.timers = Timers()
@@ -238,7 +223,7 @@ class View:
         right_margin = side_margin_elem(self, sd, 'right', 'left' if sd.get('reverse_page_turn_zones') else 'right')
         set_right_margin_handler(right_margin)
         handlers = {
-            'autoscroll_state_changed': def(data):
+            'autoscroll_state_changed': def (data):
                 self.autoscroll_active = v'!!data.running'
                 if ui_operations.autoscroll_state_changed:
                     ui_operations.autoscroll_state_changed(self.autoscroll_active)
@@ -247,7 +232,7 @@ class View:
             'content_loaded': self.on_content_loaded,
             'error': self.on_iframe_error,
             'invisible_text': self.on_invisible_text,
-            'goto_doc_boundary': def(data): self.goto_doc_boundary(data.start);,
+            'goto_doc_boundary': def (data): self.goto_doc_boundary(data.start);,
             'handle_keypress': self.on_handle_keypress,
             'handle_shortcut': self.on_handle_shortcut,
             'human_scroll': self.on_human_scroll,
@@ -273,10 +258,10 @@ class View:
             'tts': self.on_tts_message,
             'audio_ebook_message': self.on_audio_ebook_message,
             'hints': self.on_hints_message,
-            'copy_text_to_clipboard': def(data):
+            'copy_text_to_clipboard': def (data):
                 ui_operations.copy_selection(data.text, data.html)
             ,
-            'view_image': def(data):
+            'view_image': def (data):
                 if ui_operations.view_image:
                     ui_operations.view_image(data.calibre_src)
             ,
@@ -299,11 +284,10 @@ class View:
                     if not default_context_menu_should_be_allowed(ev):
                         ev.preventDefault()
                 ,
-
                 E.div(style='max-height: 100dvh; min-width: 0; display: flex; flex-direction: column; align-items: stretch; flex-grow:2',  # container for iframe and any other panels in the same column
                     E.div(style='position: relative; max-height: 100dvh; min-width: 0; flex-grow: 2; display:flex; align-items: stretch; overflow: hidden',  # container for iframe and its overlay
                         left_margin,
-                        E.div(style='min-width: 0; flex-grow:2; display:flex; align-items:stretch; flex-direction: column; overflow-x: hidden', # container for top and bottom margins
+                        E.div(style='min-width: 0; flex-grow:2; display:flex; align-items:stretch; flex-direction: column; overflow-x: hidden',  # container for top and bottom margins
                             margin_elem(sd, 'margin_top', 'book-top-margin', self.top_margin_clicked, self.margin_context_menu.bind(None, 'top')),
                             iframe,
                             margin_elem(sd, 'margin_bottom', 'book-bottom-margin', self.bottom_margin_clicked, self.margin_context_menu.bind(None, 'bottom')),
@@ -338,7 +322,7 @@ class View:
         self.modal_overlays = v'[self.selection_bar, self.read_aloud, self.hints, self.read_audio_ebook]'
         self.processing_spine_item_display = False
         self.pending_load = None
-        self.currently_showing = {'selection': {'empty': True}, 'on_load':v'[]'}
+        self.currently_showing = {'selection': {'empty': True}, 'on_load': v'[]'}
         self.book_scrollbar.apply_visibility()
         self.annotations_manager = AnnotationsManager(self)
 
@@ -664,7 +648,7 @@ class View:
     def on_invisible_text(self, data):
         warning_dialog(
                 _('Not found'), _('The text: <i>{}</i> is present on this page but not visible').format(html_escape(data.text)),
-                on_close=def():
+                on_close=def ():
                     self.search_overlay.show()
             )
 
@@ -754,7 +738,6 @@ class View:
             self.overlay.show(elements)
 
     def prepare_for_close(self):
-
         def close_prepared(request_id, cfi_data):
             ui_operations.close_prep_finished(cfi_data.cfi)
 
@@ -801,6 +784,7 @@ class View:
             margin_right += extra
         set_css(document.getElementById('book-top-margin'), height=margin_top + 'px', font_size=header_footer_font_size(margin_top) + 'px')
         set_css(document.getElementById('book-bottom-margin'), height=margin_bottom + 'px', font_size=header_footer_font_size(margin_bottom) + 'px')
+
         def side_margin(which, val):
             m = document.getElementById('book-{}-margin'.format(which))
             set_css(m, width=val + 'px')
@@ -830,10 +814,12 @@ class View:
                 title = _('No auto scroll in paged mode')
                 msg = _('Switch to flow mode (Viewer preferences->Page layout) to enable auto scrolling')
             elif data.errkey is 'changing-columns-in-flow-mode':
-                title=_('In flow mode')
-                msg=_('Cannot change number of pages per screen in flow mode, switch to paged mode first.')
+                title = _('In flow mode')
+                msg = _('Cannot change number of pages per screen in flow mode, switch to paged mode first.')
             elif data.errkey = 'unhandled-error':
-                title = _('Unhandled error')
+                window.onerror(data.msg, data.script_url, data.line_number, data.column_number,
+                               traceback.unserialize_error_for_formatting(data.error_object))
+                return
         if data.is_non_critical:
             warning_dialog(title, msg, data.details, on_close=ui_operations.focus_iframe)
             return
@@ -933,7 +919,7 @@ class View:
                 print('Invalid spine number in CFI:', snum)
             if jstype(snum) is 'number':
                 name = book.manifest.spine[(int(snum) // 2) - 1] or name
-                cfi =  '/' + rest
+                cfi = '/' + rest
         return name, cfi
 
     def open_book_page(self):
@@ -983,7 +969,7 @@ class View:
                 add_book_to_recently_viewed(book)
         if ui_operations.update_last_read_time:
             ui_operations.update_last_read_time(book)
-        pos = {'replace_history':True}
+        pos = {'replace_history': True}
         if not book.manifest.spine.length:
             ui_operations.show_error(_('Invalid book'), _('This book is empty, with no items in the spine'))
             return
@@ -1075,18 +1061,18 @@ class View:
         if self.currently_showing.loading:
             return
         self.processing_spine_item_display = False
-        initial_position = initial_position or {'replace_history':False}
+        initial_position = initial_position or {'replace_history': False}
         spine = self.book.manifest.spine
         idx = spine.indexOf(name)
         self.currently_showing = {
-            'name':name, 'settings':self.iframe_settings(name), 'initial_position':initial_position,
-            'loading':True, 'spine_index': idx, 'selection': {'empty': True}, 'on_load': v'[]',
+            'name': name, 'settings': self.iframe_settings(name), 'initial_position': initial_position,
+            'loading': True, 'spine_index': idx, 'selection': {'empty': True}, 'on_load': v'[]',
         }
         self.timers.set_chapter(name)
         self.show_loading()
         set_current_spine_item(name)
         if idx > -1:
-            self.currently_showing.bookpos = 'epubcfi(/{})'.format(2 * (idx +1))
+            self.currently_showing.bookpos = 'epubcfi(/{})'.format(2 * (idx + 1))
         self.set_margins()
         self.load_doc(name, self.show_spine_item)
 
@@ -1098,7 +1084,7 @@ class View:
 
     def goto_doc_boundary(self, start):
         name = self.book.manifest.spine[0 if start else self.book.manifest.spine.length - 1]
-        self.show_name(name, initial_position={'type':'frac', 'frac':0 if start else 1, 'replace_history':False})
+        self.show_name(name, initial_position={'type': 'frac', 'frac': 0 if start else 1, 'replace_history': False})
 
     def goto_frac(self, frac):
         if not self.book or not self.book.manifest:
@@ -1126,7 +1112,7 @@ class View:
         if self.currently_showing.name is chapter_name:
             self.iframe_wrapper.send_message('scroll_to_frac', frac=chapter_frac)
         else:
-            self.show_name(chapter_name, initial_position={'type':'frac', 'frac':chapter_frac, 'replace_history':True})
+            self.show_name(chapter_name, initial_position={'type': 'frac', 'frac': chapter_frac, 'replace_history': True})
 
     def goto_book_position(self, bpos):
         pages = Math.ceil(self.current_position_data.book_length / CHARS_PER_PAGE)
@@ -1136,13 +1122,13 @@ class View:
     def goto_pagelist_item(self, item):
         name = item.dest
         frag = item.frag or ''
-        self.show_name(name, initial_position={'type':'pagelist_ref', 'anchor':frag, 'replace_history':False})
+        self.show_name(name, initial_position={'type': 'pagelist_ref', 'anchor': frag, 'replace_history': False})
 
     def on_link_to_missing_activated(self, data):
         ui_operations.show_error(_('Invalid link'), _('This link points to the file {} which does not exist in the book').format(data.name))
 
     def on_scroll_to_anchor(self, data):
-        self.show_name(data.name, initial_position={'type':'anchor', 'anchor':data.frag, 'replace_history':False})
+        self.show_name(data.name, initial_position={'type': 'anchor', 'anchor': data.frag, 'replace_history': False})
 
     def link_in_content_popup_activated(self, name, frag, is_popup, title):
         self.content_popup_overlay.hide()
@@ -1174,7 +1160,7 @@ class View:
         if self.currently_showing.name is chapter_name:
             self.iframe_wrapper.send_message('scroll_to_ref', refnum=refnum)
         else:
-            self.show_name(chapter_name, initial_position={'type':'ref', 'refnum':refnum, 'replace_history':True})
+            self.show_name(chapter_name, initial_position={'type': 'ref', 'refnum': refnum, 'replace_history': True})
         return True
 
     def goto_named_destination(self, name, frag):
@@ -1185,11 +1171,11 @@ class View:
             idx = spine.indexOf(name)
             if idx is -1:
                 error_dialog(_('Destination does not exist'), _(
-                    'The file {} does not exist in this book').format(name), on_close=def():
+                    'The file {} does not exist in this book').format(name), on_close=def ():
                         ui_operations.focus_iframe()
                 )
                 return False
-            self.show_name(name, initial_position={'type':'anchor', 'anchor':frag, 'replace_history':False})
+            self.show_name(name, initial_position={'type': 'anchor', 'anchor': frag, 'replace_history': False})
         return True
 
     def goto_toc_node(self, node_id):
@@ -1237,12 +1223,12 @@ class View:
             if idx is 0:
                 return False
             idx = min(spine.length - 1, max(idx - 1, 0))
-            self.show_name(spine[idx], initial_position={'type':'frac', 'frac':1, 'replace_history':True})
+            self.show_name(spine[idx], initial_position={'type': 'frac', 'frac': 1, 'replace_history': True})
         else:
             if idx is spine.length - 1:
                 return False
             idx = max(0, min(spine.length - 1, idx + 1))
-            self.show_name(spine[idx], initial_position={'type':'frac', 'frac':0, 'replace_history':True})
+            self.show_name(spine[idx], initial_position={'type': 'frac', 'frac': 0, 'replace_history': True})
         return True
 
     def on_next_spine_item(self, data):
@@ -1305,10 +1291,10 @@ class View:
         ui_operations.update_url_state(data.replace_history)
         if username:
             key = self.book.key
-            lrd = {'device':get_device_uuid(), 'cfi':data.cfi, 'pos_frac':data.progress_frac}
+            lrd = {'device': get_device_uuid(), 'cfi': data.cfi, 'pos_frac': data.progress_frac}
             self.last_position_data = lrd
             ajax_send('book-set-last-read-position/{library_id}/{book_id}/{fmt}'.format(
-                library_id=key[0], book_id=key[1], fmt=key[2]), lrd, def(end_type, xhr, ev):
+                library_id=key[0], book_id=key[1], fmt=key[2]), lrd, def (end_type, xhr, ev):
                     if end_type is not 'load':
                         print('Failed to update last read position, AJAX call did not succeed')
             )
@@ -1337,7 +1323,7 @@ class View:
         if self.current_status_message:
             if not timeout?:
                 timeout = 10000
-            window.setTimeout(def(): self.show_status_message();, timeout)
+            window.setTimeout(def (): self.show_status_message();, timeout)
 
     def upload_current_position(self, callback):
         if not self.last_position_data or not self.book:
@@ -1346,7 +1332,7 @@ class View:
         key = self.book.key
         ajax_send('book-set-last-read-position/{library_id}/{book_id}/{fmt}'.format(
             library_id=key[0], book_id=key[1], fmt=key[2]),
-            self.last_position_data, def(end_type, xhr, ev):
+            self.last_position_data, def (end_type, xhr, ev):
                 callback(end_type is 'load')
         )
 
@@ -1359,7 +1345,7 @@ class View:
             return
         pos = self.current_position_data
         book_length = pos.book_length * max(0, 1 - pos.progress_frac)
-        chapter_length =  pos.chapter_length * max(0, 1 - pos.file_progress_frac)
+        chapter_length = pos.chapter_length * max(0, 1 - pos.file_progress_frac)
         book_time = self.timers.time_for(book_length)
         chapter_time = self.timers.time_for(chapter_length)
         mi = self.book.metadata
@@ -1367,7 +1353,20 @@ class View:
         view_mode = sd.get('read_mode')
 
         def render(div, name, which, override):
-            return render_head_foot(div, name, which, mi, self.current_toc_node, self.current_toc_toplevel_node, self.current_pagelist_items, book_time, chapter_time, pos, override, view_mode)
+            return render_head_foot(
+                div,
+                name,
+                which,
+                mi,
+                self.current_toc_node,
+                self.current_toc_toplevel_node,
+                self.current_pagelist_items,
+                book_time,
+                chapter_time,
+                pos,
+                override,
+                view_mode
+            )
 
         return render
 
@@ -1396,7 +1395,7 @@ class View:
         for edge in ('left', 'right', 'top', 'bottom'):
             div = document.getElementById(f'book-{edge}-margin')
             if div:
-                tname = {'left':'left-margin', 'right': 'right-margin', 'top': 'header', 'bottom': 'footer'}[edge]
+                tname = {'left': 'left-margin', 'right': 'right-margin', 'top': 'header', 'bottom': 'footer'}[edge]
                 render_template(div, edge, tname)
         if has_clock:
             if not self.timer_ids.clock:
@@ -1548,7 +1547,7 @@ class View:
             else:
                 self.iframe_wrapper.send_message('show_search_result', search_result=sr)
         else:
-            self.show_name(sr.file_name, initial_position={'type':'search_result', 'search_result':sr, 'replace_history':True})
+            self.show_name(sr.file_name, initial_position={'type': 'search_result', 'search_result': sr, 'replace_history': True})
         if self.search_result_discovery?.on_discovery is sr.on_discovery:
             self.search_result_discovery.in_flight = sr.result_num
 
@@ -1563,7 +1562,7 @@ class View:
             if self.currently_showing.spine_index is spine_index:
                 self.selection_bar.edit_highlight(uuid)
             else:
-                self.show_name(spine[spine_index], initial_position={'type':'edit_annotation', 'uuid': uuid, 'replace_history':True})
+                self.show_name(spine[spine_index], initial_position={'type': 'edit_annotation', 'uuid': uuid, 'replace_history': True})
         elif which is 'delete':
             self.selection_bar.remove_highlight_with_id(uuid)
         elif which is 'goto':

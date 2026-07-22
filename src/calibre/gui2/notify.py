@@ -1,10 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__   = 'GPL v3'
-__copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
-
+# License: GPLv3 Copyright: 2009, Kovid Goyal <kovid@kovidgoyal.net>
 
 import sys
 from contextlib import suppress
@@ -15,7 +10,6 @@ from calibre.utils.resources import get_image_path as I
 
 
 class Notifier:
-
     DEFAULT_TIMEOUT = 5000
 
     def get_msg_parms(self, timeout, body, summary):
@@ -35,12 +29,12 @@ def icon(data=False):
 
 
 class DBUSNotifier(Notifier):
-
     def __init__(self):
         self.initialized = False
 
     def initialize(self):
         from jeepney.io.blocking import open_dbus_connection
+
         if self.initialized:
             return
         self.initialized = True
@@ -65,10 +59,12 @@ class DBUSNotifier(Notifier):
 
     def initialize_fdo(self):
         from jeepney import DBusAddress, MessageType, new_method_call
+
         self.address = DBusAddress(
             '/org/freedesktop/Notifications',
             bus_name='org.freedesktop.Notifications',
-            interface='org.freedesktop.Notifications')
+            interface='org.freedesktop.Notifications',
+        )
 
         msg = new_method_call(self.address, 'GetCapabilities')
         reply = self.connection.send_and_get_reply(msg)
@@ -76,10 +72,12 @@ class DBUSNotifier(Notifier):
 
     def initialize_portal(self):
         from jeepney import DBusAddress, MessageType, Properties
+
         self.address = DBusAddress(
             '/org/freedesktop/portal/desktop',
             bus_name='org.freedesktop.portal.Desktop',
-            interface='org.freedesktop.portal.Notification')
+            interface='org.freedesktop.portal.Notification',
+        )
         p = Properties(self.address)
         msg = p.get('version')
         reply = self.connection.send_and_get_reply(msg)
@@ -87,25 +85,33 @@ class DBUSNotifier(Notifier):
 
     def fdo_notify(self, body, summary=None, replaces_id=None, timeout=0):
         from jeepney import new_method_call
+
         timeout, body, summary = self.get_msg_parms(timeout, body, summary)
         msg = new_method_call(
-            self.address, 'Notify', 'susssasa{sv}i',
-            (__appname__,
-            replaces_id or 0,
-            icon(),
-            summary,
-            body,
-            [], {},  # Actions, hints
-            timeout,
-            ))
+            self.address,
+            'Notify',
+            'susssasa{sv}i',
+            (
+                __appname__,
+                replaces_id or 0,
+                icon(),
+                summary,
+                body,
+                [],
+                {},  # Actions, hints
+                timeout,
+            ),
+        )
         try:
             self.connection.send(msg)
         except Exception:
             import traceback
+
             traceback.print_exc()
 
     def portal_notify(self, body, summary=None, replaces_id=None, timeout=0):
         from jeepney import new_method_call
+
         _, body, summary = self.get_msg_parms(timeout, body, summary)
         # Note: This backend does not natively support the notion of timeouts
         #
@@ -122,23 +128,23 @@ class DBUSNotifier(Notifier):
         # its AppID everywhere and then we still need a fallback for portable
         # installations.
         msg = new_method_call(
-            self.address, 'AddNotification', 'sa{sv}', (
+            self.address,
+            'AddNotification',
+            'sa{sv}',
+            (
                 str(replaces_id or 0),
                 {
-                'title': ('s', summary),
-                'body': ('s', body),
-                'icon': (
-                    '(sv)',
-                    (
-                        'bytes',
-                        ('ay', icon(data=True))
-                    )
-                ),
-                }))
+                    'title': ('s', summary),
+                    'body': ('s', body),
+                    'icon': ('(sv)', ('bytes', ('ay', icon(data=True)))),
+                },
+            ),
+        )
         try:
             self.connection.send(msg)
         except Exception:
             import traceback
+
             traceback.print_exc()
 
     def __call__(self, body, summary=None, replaces_id=None, timeout=0):
@@ -151,7 +157,6 @@ class DBUSNotifier(Notifier):
 
 
 class QtNotifier(Notifier):
-
     def __init__(self, systray=None):
         self.systray = systray
         self.ok = self.systray is not None and self.systray.supportsMessages()
@@ -159,6 +164,7 @@ class QtNotifier(Notifier):
     def __call__(self, body, summary=None, replaces_id=None, timeout=0):
         timeout, body, summary = self.get_msg_parms(timeout, body, summary)
         from qt.core import QSystemTrayIcon
+
         if self.systray is not None:
             try:
                 hide = False
@@ -168,8 +174,7 @@ class QtNotifier(Notifier):
                     if ismacos and not self.systray.isVisible():
                         self.systray.show()
                         hide = True
-                    self.systray.showMessage(summary, body, QSystemTrayIcon.MessageIcon.Information,
-                            timeout)
+                    self.systray.showMessage(summary, body, QSystemTrayIcon.MessageIcon.Information, timeout)
                 finally:
                     if hide:
                         self.systray.hide()
@@ -178,7 +183,6 @@ class QtNotifier(Notifier):
 
 
 class WinToastNotifier:
-
     def __init__(self):
         try:
             from calibre_extensions.wintoast import initialize_toast
@@ -186,6 +190,7 @@ class WinToastNotifier:
             self.ok = False
         else:
             from qt.core import QApplication
+
             app = QApplication.instance()
             auid = getattr(app, 'windows_app_uid', MAIN_APP_UID)
             appname = __appname__
@@ -205,6 +210,7 @@ class WinToastNotifier:
         else:
             title, message = '', body
         from calibre_extensions.wintoast import notify
+
         try:
             notify(title, message, icon())
         except Exception as err:
@@ -212,7 +218,6 @@ class WinToastNotifier:
 
 
 class DummyNotifier(Notifier):
-
     ok = True
 
     def __call__(self, body, summary=None, replaces_id=None, timeout=0):
@@ -220,9 +225,9 @@ class DummyNotifier(Notifier):
 
 
 class AppleNotifier(Notifier):
-
     def __init__(self):
         from calibre_extensions import cocoa
+
         self.cocoa = cocoa
         self.ok = True
 
@@ -240,6 +245,7 @@ class AppleNotifier(Notifier):
                 self.notify(body, summary)
             except Exception:
                 import traceback
+
                 traceback.print_exc()
 
 
@@ -274,6 +280,7 @@ def hello():
 
 def develop_win():
     from calibre_extensions.wintoast import initialize_toast, notify
+
     initialize_toast(__appname__, MAIN_APP_UID)
     notify('calibre notification', 'hello world', icon())
 

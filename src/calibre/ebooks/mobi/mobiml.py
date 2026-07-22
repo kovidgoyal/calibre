@@ -1,9 +1,8 @@
-'''
-Transform XHTML/OPS-ish content into Mobipocket HTML 3.2.
-'''
+# License: GPLv3 Copyright: 2008, Marshall T. Vandegrift <llasram@gmail.cam>
 
-__license__   = 'GPL v3'
-__copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.cam>'
+"""
+Transform XHTML/OPS-ish content into Mobipocket HTML 3.2.
+"""
 
 import copy
 import numbers
@@ -27,7 +26,24 @@ def MBP(name):
 
 
 MOBI_NSMAP = {None: XHTML_NS, 'mbp': MBP_NS}
-INLINE_TAGS = {'span', 'a', 'code', 'u', 's', 'big', 'strike', 'tt', 'font', 'q', 'i', 'b', 'em', 'strong', 'sup', 'sub'}
+INLINE_TAGS = {
+    'span',
+    'a',
+    'code',
+    'u',
+    's',
+    'big',
+    'strike',
+    'tt',
+    'font',
+    'q',
+    'i',
+    'b',
+    'em',
+    'strong',
+    'sup',
+    'sub',
+}
 HEADER_TAGS = {'h1', 'h2', 'h3', 'h4', 'h5', 'h6'}
 # GR: Added 'caption' to both sets
 NESTABLE_TAGS = {'ol', 'ul', 'li', 'table', 'tr', 'td', 'th', 'caption'}
@@ -36,10 +52,8 @@ TABLE_TAGS = {'table', 'tr', 'td', 'th', 'caption'}
 SPECIAL_TAGS = {'hr', 'br'}
 CONTENT_TAGS = {'img', 'hr', 'br'}
 
-NOT_VTAGS = HEADER_TAGS | NESTABLE_TAGS | TABLE_TAGS | SPECIAL_TAGS | \
-    CONTENT_TAGS
-LEAF_TAGS = {'base', 'basefont', 'frame', 'link', 'meta', 'area', 'br',
-'col', 'hr', 'img', 'input', 'param'}
+NOT_VTAGS = HEADER_TAGS | NESTABLE_TAGS | TABLE_TAGS | SPECIAL_TAGS | CONTENT_TAGS
+LEAF_TAGS = {'base', 'basefont', 'frame', 'link', 'meta', 'area', 'br', 'col', 'hr', 'img', 'input', 'param'}
 PAGE_BREAKS = {'always', 'left', 'right'}
 
 COLLAPSE = re.compile(r'[ \t\r\n\v]+')
@@ -71,27 +85,25 @@ def isspace(text):
 
 
 class BlockState:
-
     def __init__(self, body):
         self.body = body
         self.nested = []
         self.para = None
         self.inline = None
         self.anchor = None
-        self.vpadding = 0.
-        self.vmargin = 0.
+        self.vpadding = 0.0
+        self.vmargin = 0.0
         self.pbreak = False
         self.istate = None
         self.content = False
 
 
 class FormatState:
-
     def __init__(self):
         self.rendered = False
-        self.left = 0.
+        self.left = 0.0
         self.halign = 'auto'
-        self.indent = 0.
+        self.indent = 0.0
         self.fsize = 3
         self.ids = set()
         self.italic = False
@@ -108,24 +120,25 @@ class FormatState:
         self.attrib = {}
 
     def __eq__(self, other):
-        return self.fsize == other.fsize \
-               and self.italic == other.italic \
-               and self.bold == other.bold \
-               and self.href == other.href \
-               and self.preserve == other.preserve \
-               and self.pre_wrap == other.pre_wrap \
-               and self.family == other.family \
-               and self.bgcolor == other.bgcolor \
-               and self.fgcolor == other.fgcolor \
-               and self.strikethrough == other.strikethrough \
-               and self.underline == other.underline
+        return (
+            self.fsize == other.fsize
+            and self.italic == other.italic
+            and self.bold == other.bold
+            and self.href == other.href
+            and self.preserve == other.preserve
+            and self.pre_wrap == other.pre_wrap
+            and self.family == other.family
+            and self.bgcolor == other.bgcolor
+            and self.fgcolor == other.fgcolor
+            and self.strikethrough == other.strikethrough
+            and self.underline == other.underline
+        )
 
     def __ne__(self, other):
         return not self.__eq__(other)
 
 
 class MobiMLizer:
-
     def __init__(self, ignore_tables=False):
         self.ignore_tables = ignore_tables
 
@@ -140,15 +153,14 @@ class MobiMLizer:
         self.mobimlize_spine()
 
     def mobimlize_spine(self):
-        'Iterate over the spine and convert it to MOBIML'
+        "Iterate over the spine and convert it to MOBIML"
         for item in self.oeb.spine:
             stylizer = Stylizer(item.data, item.href, self.oeb, self.opts, self.profile)
             body = item.data.find(XHTML('body'))
             nroot = etree.Element(XHTML('html'), nsmap=MOBI_NSMAP)
             nbody = etree.SubElement(nroot, XHTML('body'))
             self.current_spine_item = item
-            self.mobimlize_elem(body, stylizer, BlockState(nbody),
-                                [FormatState()])
+            self.mobimlize_elem(body, stylizer, BlockState(nbody), [FormatState()])
             item.data = nroot
             # print(etree.tostring(nroot))
 
@@ -161,13 +173,13 @@ class MobiMLizer:
         embase = self.profile.fbase
         if round(ptsize) < embase:
             return f'{round(ptsize)}pt'
-        return f'{round(ptsize/embase)}em'
+        return f'{round(ptsize / embase)}em'
 
     def preize_text(self, text, pre_wrap=False):
         text = str(text)
         if pre_wrap:
             # Replace n consecutive spaces with n-1 NBSP + space
-            text = re.sub(r' {2,}', lambda m:('\xa0'*(len(m.group())-1) + ' '), text)
+            text = re.sub(r' {2,}', lambda m: '\xa0' * (len(m.group()) - 1) + ' ', text)
         else:
             text = text.replace(' ', '\xa0')
 
@@ -182,7 +194,7 @@ class MobiMLizer:
         return result
 
     def mobimlize_content(self, tag, text, bstate, istates):
-        'Convert text content'
+        "Convert text content"
         if text or tag != 'br':
             bstate.content = True
         istate = istates[-1]
@@ -207,8 +219,7 @@ class MobiMLizer:
             elif indent != 0 and abs(indent) < self.profile.fbase:
                 indent = (indent / abs(indent)) * self.profile.fbase
             if tag in NESTABLE_TAGS and not istate.rendered:
-                para = wrapper = etree.SubElement(
-                    parent, XHTML(tag), attrib=istate.attrib)
+                para = wrapper = etree.SubElement(parent, XHTML(tag), attrib=istate.attrib)
                 bstate.nested.append(para)
                 if tag == 'li' and len(istates) > 1:
                     istates[-2].list_num += 1
@@ -231,8 +242,7 @@ class MobiMLizer:
             bstate.vpadding = bstate.vmargin = 0
             if tag not in TABLE_TAGS:
                 if tag in ('ul', 'ol') and vspace > 0:
-                    wrapper.addprevious(etree.Element(XHTML('div'),
-                        height=self.mobimlize_measure(vspace)))
+                    wrapper.addprevious(etree.Element(XHTML('div'), height=self.mobimlize_measure(vspace)))
                 else:
                     wrapper.attrib['height'] = self.mobimlize_measure(vspace)
                 para.attrib['width'] = self.mobimlize_measure(indent)
@@ -297,8 +307,7 @@ class MobiMLizer:
                 bstate.anchor = inline
 
             if fsize != 3:
-                inline = etree.SubElement(inline, XHTML('font'),
-                                          size=str(fsize))
+                inline = etree.SubElement(inline, XHTML('font'), size=str(fsize))
             if istate.family == 'monospace':
                 inline = etree.SubElement(inline, XHTML('tt'))
             if istate.italic:
@@ -306,11 +315,9 @@ class MobiMLizer:
             if istate.bold:
                 inline = etree.SubElement(inline, XHTML('b'))
             if istate.bgcolor is not None and istate.bgcolor != 'transparent':
-                inline = etree.SubElement(inline, XHTML('span'),
-                        bgcolor=convert_color_for_font_tag(istate.bgcolor))
+                inline = etree.SubElement(inline, XHTML('span'), bgcolor=convert_color_for_font_tag(istate.bgcolor))
             if istate.fgcolor != 'black':
-                inline = etree.SubElement(inline, XHTML('font'),
-                        color=convert_color_for_font_tag(istate.fgcolor))
+                inline = etree.SubElement(inline, XHTML('font'), color=convert_color_for_font_tag(istate.fgcolor))
             if istate.strikethrough:
                 inline = etree.SubElement(inline, XHTML('s'))
             if istate.underline:
@@ -330,15 +337,14 @@ class MobiMLizer:
             else:
                 inline.append(item)
 
-    def mobimlize_elem(self, elem, stylizer, bstate, istates,
-            ignore_valign=False):
-        if not isinstance(elem.tag, (str, bytes)) \
-           or namespace(elem.tag) != XHTML_NS:
+    def mobimlize_elem(self, elem, stylizer, bstate, istates, ignore_valign=False):
+        if not isinstance(elem.tag, (str, bytes)) or namespace(elem.tag) != XHTML_NS:
             return
         style = stylizer.style(elem)
         # <mbp:frame-set/> does not exist lalalala
-        if ((style['display'] in ('none', 'oeb-page-head', 'oeb-page-foot') or style['visibility'] == 'hidden') and
-                elem.get('data-calibre-jacket-searchable-tags', None) != '1'):
+        if (style['display'] in ('none', 'oeb-page-head', 'oeb-page-foot') or style['visibility'] == 'hidden') and elem.get(
+            'data-calibre-jacket-searchable-tags', None
+        ) != '1':
             id_ = elem.get('id', None)
             if id_:
                 # Keep anchors so people can use display:none
@@ -357,7 +363,7 @@ class MobiMLizer:
         istate.list_num = 0
         if tag == 'ol' and 'start' in elem.attrib:
             try:
-                istate.list_num = int(elem.attrib['start'])-1
+                istate.list_num = int(elem.attrib['start']) - 1
             except Exception:
                 pass
         istates.append(istate)
@@ -367,8 +373,7 @@ class MobiMLizer:
             display = 'inline'
         elif display.startswith('table'):
             display = 'block'
-        isblock = (not display.startswith('inline') and style['display'] !=
-                'none')
+        isblock = not display.startswith('inline') and style['display'] != 'none'
         isblock = isblock and style['float'] == 'none'
         isblock = isblock and tag != 'br'
         if isblock:
@@ -384,8 +389,7 @@ class MobiMLizer:
                 # too large if the user chooses a wide output profile like
                 # tablet
                 istate.indent = min(style._unit_convert(rawti, base=500), istate.indent)
-            if style['margin-left'] == 'auto' \
-               and style['margin-right'] == 'auto':
+            if style['margin-left'] == 'auto' and style['margin-right'] == 'auto':
                 istate.halign = 'center'
             margin = convert_margin(style, 'margin-left')
             padding = asfloat(style['padding-left'])
@@ -424,15 +428,14 @@ class MobiMLizer:
         istate.bold = weight in ('bold', 'bolder') or asfloat(weight) > 400
         istate.preserve = style['white-space'] == 'pre'
         istate.pre_wrap = style['white-space'] == 'pre-wrap'
-        istate.bgcolor  = style['background-color']
-        istate.fgcolor  = style['color']
+        istate.bgcolor = style['background-color']
+        istate.fgcolor = style['color']
         istate.strikethrough = style.effective_text_decoration == 'line-through'
         istate.underline = style.effective_text_decoration == 'underline'
         ff = style['font-family'].lower() if hasattr(style['font-family'], 'lower') else ''
         if 'monospace' in ff or 'courier' in ff or ff.endswith(' mono'):
             istate.family = 'monospace'
-        elif ('sans-serif' in ff or 'sansserif' in ff or 'verdana' in ff or
-                'arial' in ff or 'helvetica' in ff):
+        elif 'sans-serif' in ff or 'sansserif' in ff or 'verdana' in ff or 'arial' in ff or 'helvetica' in ff:
             istate.family = 'sans-serif'
         else:
             istate.family = 'serif'
@@ -460,8 +463,7 @@ class MobiMLizer:
                         # img sizes in units other than px
                         # See #7520 for test case
                         try:
-                            pixs = round(float(value) /
-                                (72/self.profile.dpi))
+                            pixs = round(float(value) / (72 / self.profile.dpi))
                         except Exception:
                             continue
                         result = str(pixs)
@@ -471,29 +473,27 @@ class MobiMLizer:
                 try:
                     item = self.oeb.manifest.hrefs[urlnormalize(href)]
                 except Exception:
-                    self.oeb.logger.warn('Failed to find image:',
-                            href)
+                    self.oeb.logger.warn('Failed to find image:', href)
                 else:
                     try:
                         width, height = identify(item.data)[1:]
                     except Exception:
                         self.oeb.logger.warn('Invalid image:', href)
                     else:
-                        if 'width' not in istate.attrib and 'height' not in \
-                                    istate.attrib:
+                        if 'width' not in istate.attrib and 'height' not in istate.attrib:
                             istate.attrib['width'] = str(width)
                             istate.attrib['height'] = str(height)
                         else:
                             ar = width / height
                             if 'width' not in istate.attrib:
                                 try:
-                                    width = int(istate.attrib['height'])*ar
+                                    width = int(istate.attrib['height']) * ar
                                 except Exception:
                                     pass
                                 istate.attrib['width'] = str(int(width))
                             else:
                                 try:
-                                    height = int(istate.attrib['width'])/ar
+                                    height = int(istate.attrib['width']) / ar
                                 except Exception:
                                     pass
                                 istate.attrib['height'] = str(int(height))
@@ -504,7 +504,7 @@ class MobiMLizer:
                 istate.attrib['width'] = raww
             else:
                 prop = style['width'] / self.profile.width
-                istate.attrib['width'] = f'{round(prop*100)}%'
+                istate.attrib['width'] = f'{round(prop * 100)}%'
         elif display == 'table':
             tag = 'table'
         elif display == 'table-row':
@@ -522,8 +522,7 @@ class MobiMLizer:
             if 'border' in css or 'border-width' in css:
                 elem.set('border', '1')
         if tag in TABLE_TAGS:
-            for attr in ('rowspan', 'colspan', 'width', 'border', 'scope',
-                    'bgcolor'):
+            for attr in ('rowspan', 'colspan', 'width', 'border', 'scope', 'bgcolor'):
                 if attr in elem.attrib:
                     istate.attrib[attr] = elem.attrib[attr]
         if tag == 'q':
@@ -539,24 +538,19 @@ class MobiMLizer:
         if elem.text:
             if istate.preserve or istate.pre_wrap:
                 text = elem.text
-            elif (len(elem) > 0 and isspace(elem.text) and hasattr(elem[0].tag, 'rpartition') and
-                  elem[0].tag.rpartition('}')[-1] not in INLINE_TAGS):
+            elif len(elem) > 0 and isspace(elem.text) and hasattr(elem[0].tag, 'rpartition') and elem[0].tag.rpartition('}')[-1] not in INLINE_TAGS:
                 text = None
             else:
                 text = COLLAPSE.sub(' ', elem.text)
         valign = style['vertical-align']
-        not_baseline = valign in ('super', 'sub', 'text-top',
-                'text-bottom', 'top', 'bottom') or (
-                isinstance(valign, numbers.Number) and abs(valign) != 0)
-        issup = valign in ('super', 'text-top', 'top') or (
-            isinstance(valign, numbers.Number) and valign > 0)
+        not_baseline = valign in ('super', 'sub', 'text-top', 'text-bottom', 'top', 'bottom') or (isinstance(valign, numbers.Number) and abs(valign) != 0)
+        issup = valign in ('super', 'text-top', 'top') or (isinstance(valign, numbers.Number) and valign > 0)
         vtag = 'sup' if issup else 'sub'
         if not_baseline and not ignore_valign and tag not in NOT_VTAGS and not isblock:
             nroot = etree.Element(XHTML('html'), nsmap=MOBI_NSMAP)
             vbstate = BlockState(etree.SubElement(nroot, XHTML('body')))
             vbstate.para = etree.SubElement(vbstate.body, XHTML('p'))
-            self.mobimlize_elem(elem, stylizer, vbstate, istates,
-                    ignore_valign=True)
+            self.mobimlize_elem(elem, stylizer, vbstate, istates, ignore_valign=True)
             if len(istates) > 0:
                 istates.pop()
             if len(istates) == 0:
@@ -585,11 +579,16 @@ class MobiMLizer:
             old_mim = self.opts.mobi_ignore_margins
             self.opts.mobi_ignore_margins = False
 
-        if (text or tag in CONTENT_TAGS or tag in NESTABLE_TAGS or (
+        if (
+            text
+            or tag in CONTENT_TAGS
+            or tag in NESTABLE_TAGS
+            or (
                 # We have an id but no text and no children, the id should still
                 # be added.
-                istate.ids and tag in ('a', 'span', 'i', 'b', 'u') and
-                len(elem)==0)):
+                istate.ids and tag in ('a', 'span', 'i', 'b', 'u') and len(elem) == 0
+            )
+        ):
             if tag == 'li' and len(istates) > 1 and 'value' in elem.attrib:
                 try:
                     value = int(elem.attrib['value'])

@@ -6,7 +6,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class AdvancedUserRecipe1283848012(BasicNewsRecipe):
     description = 'This is a recipe of Calcalist.co.il'
     cover_url = 'https://images1.calcalist.co.il//picserver3/wcm_upload_dev/2022/09/15/Hk9OzwlWi/calcalistlogn.png'
-    title = u'Calcalist'
+    title = 'Calcalist'
     language = 'he'
     __author__ = 'marbs'
     extra_css = 'img {max-width:100%;} body{direction: rtl;},title{direction: rtl; } ,article_description{direction: rtl; }, a.article{direction: rtl; } ,calibre_feed_description{direction: rtl; }'  # noqa: E501
@@ -22,33 +22,31 @@ class AdvancedUserRecipe1283848012(BasicNewsRecipe):
         dict(name='div', attrs={'class': 'ArticleBodyComponent'}),
     ]
     remove_tags = [dict(name='p', attrs={'text': ['&nbsp;']})]
-    preprocess_regexps = [
-        (re.compile(r'<p>&nbsp;</p>', re.DOTALL | re.IGNORECASE), lambda match: '')
-    ]
+    preprocess_regexps = [(re.compile(r'<p>&nbsp;</p>', re.DOTALL | re.IGNORECASE), lambda match: '')]
 
     feeds = [
-        (u' דף הבית', u'http://www.calcalist.co.il/GeneralRSS/0,16335,L-8,00.xml'),
-        (u' 24/7', u'http://www.calcalist.co.il/GeneralRSS/0,16335,L-3674,00.xml'),
-        (u' באזז', u'http://www.calcalist.co.il/GeneralRSS/0,16335,L-3673,00.xml'),
-        (u' משפט', u'http://www.calcalist.co.il/GeneralRSS/0,16335,L-3772,00.xml'),
-        (u' רכב', u'http://www.calcalist.co.il/GeneralRSS/0,16335,L-3783,00.xml'),
-        (u' אחריות וסביבה', u'http://www.calcalist.co.il/GeneralRSS/0,16335,L-3781,00.xml'),
-        (u' דעות', u'http://www.calcalist.co.il/GeneralRSS/0,16335,L-3791,00.xml'),
-        (u' תיירות ותעופה', u'http://www.calcalist.co.il/GeneralRSS/0,16335,L-3784,00.xml'),
-        (u' קריירה', u'http://www.calcalist.co.il/GeneralRSS/0,16335,L-3782,00.xml'),
-        (u' אחד העם', u'http://www.calcalist.co.il/GeneralRSS/0,16335,L-3768,00.xml'),
-        (u' המלצות ואזהרות', u'http://www.calcalist.co.il/GeneralRSS/0,16335,L-3771,00.xml'),
-        (u' הייטק והון סיכון', u'http://www.calcalist.co.il/GeneralRSS/0,16335,L-3928,00.xml'),
-        (u' חדשות טכנולוגיה', u'http://www.calcalist.co.il/GeneralRSS/0,16335,L-3778,00.xml'),
-        (u' תקשורת', u'http://www.calcalist.co.il/GeneralRSS/0,16335,L-4471,00.xml'),
-        (u' אינטרנט', u'http://www.calcalist.co.il/GeneralRSS/0,16335,L-3773,00.xml'),
-        (u" מכשירים וגאדג'טים", u'http://www.calcalist.co.il/GeneralRSS/0,16335,L-3777,00.xml'),
-        (u' המדריך', u'http://www.calcalist.co.il/GeneralRSS/0,16335,L-3880,00.xml'),
-        (u' אפליקציות', u'http://www.calcalist.co.il/GeneralRSS/0,16335,L-3998,00.xml'),
-        (u' Play', u'http://www.calcalist.co.il/GeneralRSS/0,16335,L-3792,00.xml'),
-        (u' הכסף', u'http://www.calcalist.co.il/GeneralRSS/0,16335,L-9,00.xml'),
-        (u' עולם', u'http://www.calcalist.co.il/GeneralRSS/0,16335,L-13,00.xml'),
-        (u' פרסום ושיווק', u'http://www.calcalist.co.il/GeneralRSS/0,16335,L-5,00.xml'),
-        (u' פנאי', u'http://www.calcalist.co.il/GeneralRSS/0,16335,L-3,00.xml'),
-        (u' עסקי ספורט', u'http://WallaNewsw.calcalist.co.il/GeneralRSS/0,16335,L-18,00.xml')
+        (' דף הבית', 'http://www.calcalist.co.il/GeneralRSS/0,16335,L-8,00.xml'),
+        (' 24/7', 'http://www.calcalist.co.il/GeneralRSS/0,16335,L-3674,00.xml'),
+        (' באזז', 'http://www.calcalist.co.il/GeneralRSS/0,16335,L-3673,00.xml'),
+        (' משפט', 'http://www.calcalist.co.il/GeneralRSS/0,16335,L-3772,00.xml'),
+        (' רכב', 'http://www.calcalist.co.il/GeneralRSS/0,16335,L-3783,00.xml'),
+        (' אחריות וסביבה', 'http://www.calcalist.co.il/GeneralRSS/0,16335,L-3781,00.xml'),
+        (' דעות', 'http://www.calcalist.co.il/GeneralRSS/0,16335,L-3791,00.xml'),
+        (' תיירות ותעופה', 'http://www.calcalist.co.il/GeneralRSS/0,16335,L-3784,00.xml'),
+        (' קריירה', 'http://www.calcalist.co.il/GeneralRSS/0,16335,L-3782,00.xml'),
+        (' אחד העם', 'http://www.calcalist.co.il/GeneralRSS/0,16335,L-3768,00.xml'),
+        (' המלצות ואזהרות', 'http://www.calcalist.co.il/GeneralRSS/0,16335,L-3771,00.xml'),
+        (' הייטק והון סיכון', 'http://www.calcalist.co.il/GeneralRSS/0,16335,L-3928,00.xml'),
+        (' חדשות טכנולוגיה', 'http://www.calcalist.co.il/GeneralRSS/0,16335,L-3778,00.xml'),
+        (' תקשורת', 'http://www.calcalist.co.il/GeneralRSS/0,16335,L-4471,00.xml'),
+        (' אינטרנט', 'http://www.calcalist.co.il/GeneralRSS/0,16335,L-3773,00.xml'),
+        (" מכשירים וגאדג'טים", 'http://www.calcalist.co.il/GeneralRSS/0,16335,L-3777,00.xml'),
+        (' המדריך', 'http://www.calcalist.co.il/GeneralRSS/0,16335,L-3880,00.xml'),
+        (' אפליקציות', 'http://www.calcalist.co.il/GeneralRSS/0,16335,L-3998,00.xml'),
+        (' Play', 'http://www.calcalist.co.il/GeneralRSS/0,16335,L-3792,00.xml'),
+        (' הכסף', 'http://www.calcalist.co.il/GeneralRSS/0,16335,L-9,00.xml'),
+        (' עולם', 'http://www.calcalist.co.il/GeneralRSS/0,16335,L-13,00.xml'),
+        (' פרסום ושיווק', 'http://www.calcalist.co.il/GeneralRSS/0,16335,L-5,00.xml'),
+        (' פנאי', 'http://www.calcalist.co.il/GeneralRSS/0,16335,L-3,00.xml'),
+        (' עסקי ספורט', 'http://WallaNewsw.calcalist.co.il/GeneralRSS/0,16335,L-18,00.xml'),
     ]

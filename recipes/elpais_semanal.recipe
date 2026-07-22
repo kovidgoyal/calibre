@@ -23,12 +23,9 @@ class ElPaisSemanal(BasicNewsRecipe):
     index = 'http://www.elpais.com/suple/eps/'
     extra_css = ' p{text-align: justify} body{ text-align: left; font-family: Georgia,"Times New Roman",Times,serif } h2{font-family: Arial,Helvetica,sans-serif} img{margin-bottom: 0.4em} '  # noqa: E501
 
-    conversion_options = {
-        'comment': description, 'tags': category, 'publisher': publisher, 'language': language
-    }
+    conversion_options = {'comment': description, 'tags': category, 'publisher': publisher, 'language': language}
 
-    keep_only_tags = [
-        dict(attrs={'class': ['cabecera_noticia', 'contenido_noticia']})]
+    keep_only_tags = [dict(attrs={'class': ['cabecera_noticia', 'contenido_noticia']})]
     remove_attributes = ['width', 'height']
     remove_tags = [dict(name='link')]
 
@@ -42,9 +39,7 @@ class ElPaisSemanal(BasicNewsRecipe):
             url = 'http://www.elpais.com' + item['href'].rpartition('/')[0]
             title = title_prefix + self.tag_to_string(feed_link)
             date = strftime(self.timefmt)
-            articles.append({
-                'title': title, 'date': date, 'url': url, 'description': description
-            })
+            articles.append({'title': title, 'date': date, 'url': url, 'description': description})
         return [(soup.head.title.string, articles)]
 
     def print_version(self, url):

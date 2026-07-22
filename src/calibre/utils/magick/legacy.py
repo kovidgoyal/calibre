@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
-
 import os
 from io import BytesIO
 
@@ -30,13 +29,11 @@ from calibre.utils.imghdr import identify
 
 
 class PixelWand:
-
     def __init__(self):
         self.color = '#ffffff'
 
 
 class Image:
-
     def __init__(self):
         self.read_format = None
         self.write_format = None
@@ -61,6 +58,7 @@ class Image:
         if not data:
             raise ValueError('No image data present')
         self.img, self.read_format = image_and_format_from_data(data)
+
     read = load
 
     def from_qimage(self, img):
@@ -138,6 +136,7 @@ class Image:
         if fuzz is not None and (fuzz < 0 or fuzz > 255):
             fuzz = None
         self.img = remove_borders_from_image(self.img, fuzz)
+
     trim = remove_border
 
     def add_border(self, pixel_wand, dx, dy):
@@ -159,6 +158,7 @@ class Image:
         if fmt.lower() == 'gif':
             data = image_to_data(self.img, fmt='PNG', png_compression_level=0)
             from PIL import Image
+
             i = Image.open(BytesIO(data))
             buf = BytesIO()
             i.save(buf, 'gif')

@@ -1,9 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__   = 'GPL v3'
-__copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2009, Kovid Goyal <kovid@kovidgoyal.net>
 
 from calibre.ebooks.conversion.config import OPTIONS
 from calibre.gui2 import error_dialog
@@ -13,11 +9,9 @@ from calibre.utils.localization import _
 
 
 class StructureDetectionWidget(Widget, Ui_Form):
-
     TITLE = _('Structure\ndetection')
-    ICON  = 'chapters.png'
-    HELP  = _('Fine tune the detection of chapter headings and '
-            'other document structure.')
+    ICON = 'chapters.png'
+    HELP = _('Fine tune the detection of chapter headings and other document structure.')
     COMMIT_NAME = 'structure_detection'
 
     def __init__(self, parent, get_option, get_help, db=None, book_id=None):
@@ -27,19 +21,16 @@ class StructureDetectionWidget(Widget, Ui_Form):
             self.opt_chapter_mark.addItem(x)
         self.initialize_options(get_option, get_help, db, book_id)
         self.opt_chapter.set_msg(_('Detect &chapters at (XPath expression):'))
-        self.opt_page_breaks_before.set_msg(_('Insert &page breaks before '
-            '(XPath expression):'))
-        self.opt_start_reading_at.set_msg(
-                _('Start &reading at (XPath expression):'))
+        self.opt_page_breaks_before.set_msg(_('Insert &page breaks before (XPath expression):'))
+        self.opt_start_reading_at.set_msg(_('Start &reading at (XPath expression):'))
 
     def break_cycles(self):
         Widget.break_cycles(self)
 
     def pre_commit_check(self):
         for x in ('chapter', 'page_breaks_before', 'start_reading_at'):
-            x = getattr(self, 'opt_'+x)
+            x = getattr(self, 'opt_' + x)
             if not x.check():
-                error_dialog(self, _('Invalid XPath'),
-                _('The XPath expression %s is invalid.')%x.text).exec()
+                error_dialog(self, _('Invalid XPath'), _('The XPath expression %s is invalid.') % x.text).exec()
                 return False
         return True

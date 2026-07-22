@@ -5,9 +5,9 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class BenchmarkPl(BasicNewsRecipe):
-    title = u'Benchmark.pl'
+    title = 'Benchmark.pl'
     __author__ = 'fenuks'
-    description = u'benchmark.pl, recenzje i testy sprzętu, aktualności, rankingi, sterowniki, porady, opinie'
+    description = 'benchmark.pl, recenzje i testy sprzętu, aktualności, rankingi, sterowniki, porady, opinie'
     masthead_url = 'http://www.benchmark.pl/i/logo-footer.png'
     cover_url = 'http://www.benchmark.pl/i/logo-dark.png'
     category = 'IT'
@@ -17,17 +17,46 @@ class BenchmarkPl(BasicNewsRecipe):
     extra_css = 'ul {list-style-type: none;}'
     no_stylesheets = True
     use_embedded_content = False
-    preprocess_regexps = [(re.compile(u'<h3><span style="font-size: small;">&nbsp;Zobacz poprzednie <a href="http://www.benchmark.pl/news/zestawienie/grupa_id/135">Opinie dnia:</a></span>.*</body>',  # noqa: E501, RUF039
-        re.DOTALL | re.IGNORECASE), lambda match: '</body>'), (re.compile(u'Więcej o .*?</ul>', re.DOTALL | re.IGNORECASE), lambda match: '')]  # noqa: RUF039
+    preprocess_regexps = [
+        (
+            re.compile(
+                '<h3><span style="font-size: small;">&nbsp;Zobacz poprzednie <a href="http://www.benchmark.pl/news/zestawienie/grupa_id/135">Opinie dnia:</a></span>.*</body>',  # noqa: E501, RUF039
+                re.DOTALL | re.IGNORECASE,
+            ),
+            lambda match: '</body>',
+        ),
+        (re.compile(r'Więcej o .*?</ul>', re.DOTALL | re.IGNORECASE), lambda match: ''),
+    ]  # noqa: RUF039
 
-    keep_only_tags = [dict(id=['articleHeader', 'articleGallery']), dict(
-        name='div', attrs={'class': ['m_zwykly', 'gallery']}), dict(id='article')]
+    keep_only_tags = [dict(id=['articleHeader', 'articleGallery']), dict(name='div', attrs={'class': ['m_zwykly', 'gallery']}), dict(id='article')]
     remove_tags_after = dict(id='article')
-    remove_tags = [dict(name='div', attrs={'class': ['comments', 'body', 'kategoria', 'socialize', 'thumb', 'panelOcenaObserwowane', 'categoryNextToSocializeGallery', 'breadcrumb', 'footer', 'moreTopics']}), dict(name='table', attrs={'background': 'http://www.benchmark.pl/uploads/backend_img/a/fotki_newsy/opinie_dnia/bg.png'}), dict(name='table', attrs={'width': '210', 'cellspacing': '1', 'cellpadding': '4', 'border': '0', 'align': 'right'})]  # noqa: E501
+    remove_tags = [
+        dict(
+            name='div',
+            attrs={
+                'class': [
+                    'comments',
+                    'body',
+                    'kategoria',
+                    'socialize',
+                    'thumb',
+                    'panelOcenaObserwowane',
+                    'categoryNextToSocializeGallery',
+                    'breadcrumb',
+                    'footer',
+                    'moreTopics',
+                ]
+            },
+        ),
+        dict(name='table', attrs={'background': 'http://www.benchmark.pl/uploads/backend_img/a/fotki_newsy/opinie_dnia/bg.png'}),
+        dict(name='table', attrs={'width': '210', 'cellspacing': '1', 'cellpadding': '4', 'border': '0', 'align': 'right'}),
+    ]  # noqa: E501
 
     INDEX = 'http://www.benchmark.pl'
-    feeds = [(u'Aktualności', u'http://www.benchmark.pl/rss/aktualnosci-pliki.xml'),
-             (u'Testy i recenzje', u'http://www.benchmark.pl/rss/testy-recenzje-minirecenzje.xml')]
+    feeds = [
+        ('Aktualności', 'http://www.benchmark.pl/rss/aktualnosci-pliki.xml'),
+        ('Testy i recenzje', 'http://www.benchmark.pl/rss/testy-recenzje-minirecenzje.xml'),
+    ]
 
     def append_page(self, soup, appendtag):
         nexturl = soup.find(attrs={'class': 'next'})
@@ -38,8 +67,7 @@ class BenchmarkPl(BasicNewsRecipe):
             tag = appendtag.find('div', attrs={'class': 'k_ster'})
             if tag:
                 tag.extract()
-            comments = pagetext.findAll(
-                text=lambda text: isinstance(text, Comment))
+            comments = pagetext.findAll(text=lambda text: isinstance(text, Comment))
             for comment in comments:
                 comment.extract()
             pos = len(appendtag.contents)

@@ -1,6 +1,4 @@
-__license__ = 'GPL 3'
-__copyright__ = '2009, John Schember <john@nachtimwald.com>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2009, John Schember <john@nachtimwald.com>
 
 import os
 
@@ -8,7 +6,6 @@ from calibre.customize.conversion import OutputFormatPlugin
 
 
 class RTFOutput(OutputFormatPlugin):
-
     name = 'RTF Output'
     author = 'John Schember'
     file_type = 'rtf'

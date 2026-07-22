@@ -4,11 +4,13 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class AdvancedUserRecipe1718381444(BasicNewsRecipe):
-    title          = 'The Richest'
+    title = 'The Richest'
     language = 'en'
     __author__ = 'Spicy Poison'
-    description = ('The Richest is one of the Internet’s longest-running celebrity net worth resources'
-                   ' - growing into one of the most informative (and entertaining) websites in the world.')
+    description = (
+        'The Richest is one of the Internet’s longest-running celebrity net worth resources'
+        ' - growing into one of the most informative (and entertaining) websites in the world.'
+    )
     publisher = 'Valnet Publishing Group'
     oldest_article = 7
     max_articles_per_feed = 50
@@ -18,9 +20,9 @@ class AdvancedUserRecipe1718381444(BasicNewsRecipe):
     encoding = 'utf-8'
     masthead_url = 'https://www.valnetinc.com/images/brand/tr-logo-full-colored-dark.svg'
     remove_empty_feeds = True
-    auto_cleanup   = True
+    auto_cleanup = True
 
-    feeds          = [
+    feeds = [
         ('The Rich & Powerful', 'https://www.therichest.com/feed/category/rich-powerful/'),
         ('Luxury Lifestyle', 'https://www.therichest.com/feed/category/luxury/'),
         ('Luxury Architecture', 'https://www.therichest.com/feed/category/luxury-architecture/'),

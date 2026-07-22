@@ -16,15 +16,17 @@ pref = partial(pref_for_provider, OllamaAI.name)
 
 
 class ConfigWidget(QWidget):
-
     def __init__(self, parent: QWidget | None = None):
         super().__init__(parent)
         l = QFormLayout(self)
         l.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.ExpandingFieldsGrow)
-        la = QLabel('<p>'+_(
-            'Ollama allows you to run AI models locally on your own hardware. Once you have it running and properly'
-            ' setup, fill in the fields below to have calibre use it as the AI provider.'
-        ))
+        la = QLabel(
+            '<p>'
+            + _(
+                'Ollama allows you to run AI models locally on your own hardware. Once you have it running and properly'
+                ' setup, fill in the fields below to have calibre use it as the AI provider.'
+            )
+        )
         la.setWordWrap(True)
         la.setOpenExternalLinks(True)
         l.addRow(la)
@@ -32,8 +34,7 @@ class ConfigWidget(QWidget):
         self.api_url_edit = a = QLineEdit()
         a.setClearButtonEnabled(True)
         a.setPlaceholderText(_('The Ollama URL, defaults to {}').format(OllamaAI.DEFAULT_URL))
-        a.setToolTip(_('Enter the URL of the machine running your Ollama server, for example: {}').format(
-            'https://my-ollama-server.com:11434'))
+        a.setToolTip(_('Enter the URL of the machine running your Ollama server, for example: {}').format('https://my-ollama-server.com:11434'))
         l.addRow(_('Ollama &URL:'), a)
         a.setText(pref('api_url') or '')
         self.timeout_sb = t = QSpinBox(self)
@@ -42,9 +43,7 @@ class ConfigWidget(QWidget):
         l.addRow(_('&Timeout:'), t)
         self.text_model_edit = lm = QLineEdit(self)
         lm.setClearButtonEnabled(True)
-        lm.setToolTip(_(
-            'Enter the name of the model to use for text based tasks.'
-        ))
+        lm.setToolTip(_('Enter the name of the model to use for text based tasks.'))
         lm.setPlaceholderText(_('Enter name of model to use'))
         l.addRow(_('Model for &text tasks:'), lm)
         lm.setText(pref('text_model') or '')
@@ -53,10 +52,9 @@ class ConfigWidget(QWidget):
         he.setPlaceholderText(_('HTTP headers to send to Ollama, one per line'))
         l.addRow(_('HTTP &Headers:'), he)
         he.setPlainText('\n'.join(f'{k}: {v}' for (k, v) in pref('headers') or ()))
-        he.setToolTip('<p>' + _(
-            'A list of HTTP headers to send with every request to the Ollama API.'
-            ' Add a new header per line in the format: Header-Name: Value'
-        ))
+        he.setToolTip(
+            '<p>' + _('A list of HTTP headers to send with every request to the Ollama API. Add a new header per line in the format: Header-Name: Value')
+        )
 
     def does_model_exist_locally(self, model_name: str) -> bool:
         if not model_name:
@@ -94,7 +92,8 @@ class ConfigWidget(QWidget):
     @property
     def settings(self) -> dict[str, str | tuple[tuple[str, str], ...] | int]:
         ans: dict[str, str | tuple[tuple[str, str], ...] | int] = {
-            'text_model': self.text_model, 'timeout': self.timeout,
+            'text_model': self.text_model,
+            'timeout': self.timeout,
         }
         if url := self.api_url:
             ans['api_url'] = url
@@ -119,13 +118,18 @@ class ConfigWidget(QWidget):
                     avail = self.available_models()
                 except Exception:
                     import traceback
+
                     det_msg = _('Failed to get list of available models with error:') + '\n' + traceback.format_exc()
                 else:
                     det_msg = _('Available models:') + '\n' + '\n'.join(avail)
 
-            error_dialog(self, _('No matching model'), _(
-                'No model named {} found in Ollama. Click "Show details" to see a list of available models.').format(
-                    self.text_model), show=True, det_msg=det_msg)
+            error_dialog(
+                self,
+                _('No matching model'),
+                _('No model named {} found in Ollama. Click "Show details" to see a list of available models.').format(self.text_model),
+                show=True,
+                det_msg=det_msg,
+            )
             return False
         return True
 

@@ -4,12 +4,13 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class AdvancedUserRecipe1718385916(BasicNewsRecipe):
-    title          = 'XDA'
+    title = 'XDA'
     language = 'en'
     __author__ = 'Spicy Poison'
     description = (
         'XDA cover all aspects of computing, including desktops, laptops, PC components,'
-        ' gaming handhelds, peripherals, emerging technologies like AI/VR, and the software that powers it all.')
+        ' gaming handhelds, peripherals, emerging technologies like AI/VR, and the software that powers it all.'
+    )
     publisher = 'Valnet Publishing Group'
     oldest_article = 7
     max_articles_per_feed = 50
@@ -19,9 +20,9 @@ class AdvancedUserRecipe1718385916(BasicNewsRecipe):
     encoding = 'utf-8'
     masthead_url = 'https://www.valnetinc.com/images/brand/xda-logo-full-colored-dark.svg'
     remove_empty_feeds = True
-    auto_cleanup   = True
+    auto_cleanup = True
 
-    feeds          = [
+    feeds = [
         # News & Deals
         ('News', 'https://www.xda-developers.com/feed/news/'),
         ('Computing News', 'https://www.xda-developers.com/feed/category/computing-news/'),
@@ -42,7 +43,6 @@ class AdvancedUserRecipe1718385916(BasicNewsRecipe):
         ('MacOS Tutorials', 'https://www.xda-developers.com/feed/macos-tutorials/'),
         ('Linux Tutorials', 'https://www.xda-developers.com/feed/linux-tutorials/'),
         ('ChromeOS Tutorials', 'https://www.xda-developers.com/feed/chromeos-tutorials/'),
-
         ('Computing', 'https://www.xda-developers.com/feed/category/computing/'),
         ('Acer', 'https://www.xda-developers.com/feed/tag/acer/'),
         ('Apple Mac', 'https://www.xda-developers.com/feed/apple-mac/'),

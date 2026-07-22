@@ -80,10 +80,16 @@ class Model(NamedTuple):
                 if output_has_text:
                     caps |= AICapabilities.text_to_text
         return Model(
-            name=x['name'], id=mid, description=x.get('summary', ''), version=x['version'],
-            context_length=int(x['limits']['max_input_tokens'] or 0), publisher=x['publisher'],
+            name=x['name'],
+            id=mid,
+            description=x.get('summary', ''),
+            version=x['version'],
+            context_length=int(x['limits']['max_input_tokens'] or 0),
+            publisher=x['publisher'],
             output_token_limit=int(x['limits']['max_output_tokens'] or 0),
-            capabilities=caps, url=x['html_url'], thinking='reasoning' in x['capabilities'],
+            capabilities=caps,
+            url=x['html_url'],
+            thinking='reasoning' in x['capabilities'],
         )
 
 
@@ -112,6 +118,7 @@ def find_models_matching_name(name: str) -> Iterator[str]:
 
 def config_widget():
     from calibre.ai.github.config import ConfigWidget
+
     return ConfigWidget()
 
 
@@ -237,13 +244,16 @@ def unavailable_model_error_message(err: HTTPError) -> str:
 def chat_request(data: dict[str, Any], model: Model) -> Request:
     data['stream'] = True
     data['stream_options'] = {'include_usage': True}
-    return Request(
-        CHAT_URL, data=json.dumps(data).encode('utf-8'),
-        headers=dict(headers()), method='POST')
+    return Request(CHAT_URL, data=json.dumps(data).encode('utf-8'), headers=dict(headers()), method='POST')
 
 
 def for_assistant(self: ChatMessage) -> dict[str, Any]:
-    if self.type not in (ChatMessageType.assistant, ChatMessageType.system, ChatMessageType.user, ChatMessageType.developer):
+    if self.type not in (
+        ChatMessageType.assistant,
+        ChatMessageType.system,
+        ChatMessageType.user,
+        ChatMessageType.developer,
+    ):
         raise ValueError(f'Unsupported message type: {self.type}')
     return {'role': self.type.value, 'content': self.query}
 
@@ -262,7 +272,12 @@ def as_chat_responses(d: dict[str, Any], model: Model) -> Iterator[ChatResponse]
         has_metadata = True
     if has_metadata or content:
         yield ChatResponse(
-            type=ChatMessageType.assistant, content=content, has_metadata=has_metadata, model=model.id, plugin_name=GitHubAI.name)
+            type=ChatMessageType.assistant,
+            content=content,
+            has_metadata=has_metadata,
+            model=model.id,
+            plugin_name=GitHubAI.name,
+        )
 
 
 def text_chat_implementation(messages: Iterable[ChatMessage], use_model: str = '') -> Iterator[ChatResponse]:

@@ -22,9 +22,8 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class SatMagazine(BasicNewsRecipe):
-
-    title = u'SatMagazine'
-    description = u'North American Satellite Markets...'
+    title = 'SatMagazine'
+    description = 'North American Satellite Markets...'
     publisher = 'Satnews Publishers'
     publication_type = 'magazine'
     INDEX = 'http://www.satmagazine.com/cgi-bin/display_edition.cgi'
@@ -43,8 +42,7 @@ class SatMagazine(BasicNewsRecipe):
     no_stylesheets = True
     remove_javascript = True
 
-    remove_attributes = ['border', 'cellspacing', 'align', 'cellpadding', 'colspan',
-                         'valign', 'vspace', 'hspace', 'alt', 'width', 'height']
+    remove_attributes = ['border', 'cellspacing', 'align', 'cellpadding', 'colspan', 'valign', 'vspace', 'hspace', 'alt', 'width', 'height']
 
     # Specify extra CSS - overrides ALL other CSS (IE. Added last).
     extra_css = '''body { font-family: verdana, helvetica, sans-serif; }
@@ -68,15 +66,15 @@ class SatMagazine(BasicNewsRecipe):
 
     # Remove the line breaks, href links and float left/right and picture
     # width/height.
-    preprocess_regexps = [(re.compile(r'<br[ ]*/>', re.IGNORECASE), lambda m: ''),
-                          (re.compile(r'<br[ ]*clear.*/>',
-                                      re.IGNORECASE), lambda m: ''),
-                          (re.compile(r'<a.*?>'), lambda h1: ''),
-                          (re.compile(r'</a>'), lambda h2: ''),
-                          (re.compile(r'float:.*?'), lambda h3: ''),
-                          (re.compile(r'width:.*?px'), lambda h4: ''),
-                          (re.compile(r'height:.*?px'), lambda h5: '')
-                          ]
+    preprocess_regexps = [
+        (re.compile(r'<br[ ]*/>', re.IGNORECASE), lambda m: ''),
+        (re.compile(r'<br[ ]*clear.*/>', re.IGNORECASE), lambda m: ''),
+        (re.compile(r'<a.*?>'), lambda h1: ''),
+        (re.compile(r'</a>'), lambda h2: ''),
+        (re.compile(r'float:.*?'), lambda h3: ''),
+        (re.compile(r'width:.*?px'), lambda h4: ''),
+        (re.compile(r'height:.*?px'), lambda h5: ''),
+    ]
 
     def parse_index(self):
 
@@ -109,15 +107,13 @@ class SatMagazine(BasicNewsRecipe):
 
         # Goes through all the articles one by one and sort them out
         for article in articles:
-
             title = self.tag_to_string(article)
             url = article.find('a').get('href')
 
             self.log('\tFound article:', title, 'at', url)
             desc = self.tag_to_string(descriptions[title_number])
 
-            article_info.append({'title': title, 'url': url, 'description': desc,
-                                 'date': self.timefmt})
+            article_info.append({'title': title, 'url': url, 'description': desc, 'date': self.timefmt})
 
             title_number = title_number + 1
 
@@ -130,7 +126,6 @@ class SatMagazine(BasicNewsRecipe):
 
         # Finds all the images
         for figure in soup.findAll('img', attrs={'src': True}):
-
             # if the image is an ad then remove it.
             if (figure['alt'].find('_ad_') >= 0) or (figure['alt'].find('_snipe_') >= 0):
                 del figure['src']

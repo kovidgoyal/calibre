@@ -1,11 +1,9 @@
 # -*- coding: utf-8 -*-
+# License: GPLv3 Copyright: 2011-2019, Tomasz Długosz <tomek3d@gmail.com>
+
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 store_version = 16  # Needed for dynamic plugin loading
-
-__license__ = 'GPL 3'
-__copyright__ = '2011-2019, Tomasz Długosz <tomek3d@gmail.com>'
-__docformat__ = 'restructuredtext en'
 
 from base64 import b64encode
 from urllib.parse import quote_plus, urlencode
@@ -44,15 +42,19 @@ def search(query, max_results=10, timeout=60):
             url += '&limit=20'
     br = browser(user_agent='CalibreCrawler/1.0')
     br.set_handle_gzip(True)
-    rq = Request(url, headers={
-        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-        'X-Requested-With': 'XMLHttpRequest',
-        'Referrer':'https://woblink.com/ebooki-kategorie',
-        'Cache-Control':'max-age=0',
-    }, data=urlencode({
-        'nw_filtry_filtr_zakrescen_formularz[min]':'0',
-        'nw_filtry_filtr_zakrescen_formularz[max]':'350',
-    }))
+    rq = Request(
+        url,
+        headers={
+            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+            'X-Requested-With': 'XMLHttpRequest',
+            'Referrer': 'https://woblink.com/ebooki-kategorie',
+            'Cache-Control': 'max-age=0',
+        },
+        data=urlencode({
+            'nw_filtry_filtr_zakrescen_formularz[min]': '0',
+            'nw_filtry_filtr_zakrescen_formularz[max]': '350',
+        }),
+    )
     r = br.open(rq)
     raw = r.read()
     doc = safe_html_fromstring('<html><body>' + raw.decode('utf-8') + '</body></html>')
@@ -86,7 +88,6 @@ def search(query, max_results=10, timeout=60):
 
 
 class WoblinkStore(BasicStoreConfig, StorePlugin):
-
     def open(self, gui=None, parent=None, detail_item=None, external=False):
         aff_root = 'https://www.a4b-tracking.com/pl/stat-click-text-link/16/58/'
         url = 'https://woblink.com/publication'
@@ -112,4 +113,5 @@ class WoblinkStore(BasicStoreConfig, StorePlugin):
 
 if __name__ == '__main__':
     from pprint import pprint
+
     pprint(list(search('Franciszek')))

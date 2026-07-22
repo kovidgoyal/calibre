@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
 
-
 MSGPACK_MIME = 'application/x-msgpack'
 CANARY = 'jPoAv3zOyHvQ5JFNYg4hJ9'
 
@@ -14,9 +13,11 @@ def encoded(typ, data, ExtType):
 
 def create_encoder(for_json=False):
     from datetime import datetime
+
     ExtType = None
     if not for_json:
         import msgpack
+
         ExtType = msgpack.ExtType
 
     def encoder(obj):
@@ -28,11 +29,11 @@ def create_encoder(for_json=False):
             from calibre.db.categories import Tag
             from calibre.ebooks.metadata.book.base import Metadata
             from calibre.library.field_metadata import FieldMetadata, fm_as_dict
+
             if isinstance(obj, Metadata):
                 from calibre.ebooks.metadata.book.serialize import metadata_as_dict
-                return encoded(
-                    2, metadata_as_dict(obj, encode_cover_data=for_json), ExtType
-                )
+
+                return encoded(2, metadata_as_dict(obj, encode_cover_data=for_json), ExtType)
             elif isinstance(obj, FieldMetadata):
                 return encoded(3, fm_as_dict(obj), ExtType)
             elif isinstance(obj, Tag):
@@ -46,11 +47,13 @@ def create_encoder(for_json=False):
 
 def msgpack_dumps(obj):
     import msgpack
+
     return msgpack.packb(obj, default=create_encoder(), use_bin_type=True)
 
 
 def json_dumps(data, **kw):
     import json
+
     kw['default'] = create_encoder(for_json=True)
     kw['ensure_ascii'] = False
     ans = json.dumps(data, **kw)
@@ -62,6 +65,7 @@ def json_dumps(data, **kw):
 def decode_metadata(x, for_json):
     from calibre.ebooks.metadata.book.serialize import metadata_from_dict
     from polyglot.binary import from_base64_bytes
+
     obj = metadata_from_dict(x)
     if for_json and obj.cover_data and obj.cover_data[1]:
         obj.cover_data = obj.cover_data[0], from_base64_bytes(obj.cover_data[1])
@@ -70,24 +74,23 @@ def decode_metadata(x, for_json):
 
 def decode_field_metadata(x, for_json):
     from calibre.library.field_metadata import fm_from_dict
+
     return fm_from_dict(x)
 
 
 def decode_category_tag(x, for_json):
     from calibre.db.categories import Tag
+
     return Tag.from_dict(x)
 
 
 def decode_datetime(x, fj):
     from calibre.utils.iso8601 import parse_iso8601
+
     return parse_iso8601(x, assume_utc=True)
 
 
-decoders = (
-    decode_datetime,
-    lambda x, fj: set(x),
-    decode_metadata, decode_field_metadata, decode_category_tag
-)
+decoders = (decode_datetime, lambda x, fj: set(x), decode_metadata, decode_field_metadata, decode_category_tag)
 
 
 def json_decoder(obj):
@@ -104,19 +107,23 @@ def msgpack_decoder(code, data):
 def msgpack_loads(dump, use_list=True):
     # use_list controls whether msgpack arrays are unpacked as lists or tuples
     import msgpack
+
     return msgpack.unpackb(dump, ext_hook=msgpack_decoder, raw=False, use_list=use_list, strict_map_key=False)
 
 
 def json_loads(data):
     import json
+
     return json.loads(data, object_hook=json_decoder)
 
 
 def pickle_dumps(data):
     import pickle
+
     return pickle.dumps(data, -1)
 
 
 def pickle_loads(dump):
     import pickle
+
     return pickle.loads(dump, encoding='utf-8')  # nosec: only used for calibre's own serialized data

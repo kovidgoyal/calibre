@@ -1,9 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__   = 'GPL v3'
-__copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2010, Kovid Goyal <kovid@kovidgoyal.net>
 
 from qt.core import QUrl
 
@@ -13,9 +9,13 @@ from calibre.utils.localization import _, localize_user_manual_link
 
 
 class HelpAction(InterfaceAction):
-
     name = 'Help'
-    action_spec = (_('Help'), 'help.png', _('Browse the calibre User Manual'), _('F1'),)
+    action_spec = (
+        _('Help'),
+        'help.png',
+        _('Browse the calibre User Manual'),
+        _('F1'),
+    )
 
     def genesis(self):
         self.qaction.triggered.connect(self.show_help)

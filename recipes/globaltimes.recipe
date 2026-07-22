@@ -24,7 +24,7 @@ class GlobalTimes(BasicNewsRecipe):
 
     def get_cover_url(self):
         soup = self.index_to_soup('https://en.kiosko.net/cn/np/cn_global_times.html')
-        return 'https:' + soup.find('img', attrs={'id':'portada'})['src']
+        return 'https:' + soup.find('img', attrs={'id': 'portada'})['src']
 
     extra_css = '''
         .article_column {font-size:small; color:#404040;}
@@ -36,7 +36,7 @@ class GlobalTimes(BasicNewsRecipe):
         'days': {
             'short': 'Oldest article to download from this news source. In days ',
             'long': 'For example, 0.5, gives you articles from the past 12 hours',
-            'default': str(oldest_article)
+            'default': str(oldest_article),
         }
     }
 
@@ -46,37 +46,28 @@ class GlobalTimes(BasicNewsRecipe):
         if d and isinstance(d, str):
             self.oldest_article = float(d)
 
-    keep_only_tags = [
-        classes(
-            'article_column article_title author_share_left article_content'
-        )
-    ]
+    keep_only_tags = [classes('article_column article_title author_share_left article_content')]
     remove_tags = [classes('author_card')]
 
     def preprocess_raw_html(self, raw, *a):
         return raw.replace('<br /><br />', '</p><p>').replace('<br><br>', '</p><p>')
 
     def preprocess_html(self, soup):
-        h1 = soup.find(attrs={'class':'article_title'})
+        h1 = soup.find(attrs={'class': 'article_title'})
         if h1:
             h1.name = 'h1'
-        for div in soup.findAll(attrs={'class':'picture'}):
+        for div in soup.findAll(attrs={'class': 'picture'}):
             div.name = 'div'
-        p = soup.find(attrs={'class':'author_share_left'})
+        p = soup.find(attrs={'class': 'author_share_left'})
         if p:
             p.name = 'p'
         return soup
 
     def parse_index(self):
-        self.log(
-            '\n***\nif this recipe fails, report it on: '
-            'https://www.mobileread.com/forums/forumdisplay.php?f=228\n***\n'
-        )
+        self.log('\n***\nif this recipe fails, report it on: https://www.mobileread.com/forums/forumdisplay.php?f=228\n***\n')
         sec_url = index + '{}/index.html'
 
-        section_list = [
-            'china', 'source', 'opinion', 'In-depth', 'world', 'life', 'sport', 'cartoon'
-        ]
+        section_list = ['china', 'source', 'opinion', 'In-depth', 'world', 'life', 'sport', 'cartoon']
 
         feeds = []
 
@@ -93,7 +84,7 @@ class GlobalTimes(BasicNewsRecipe):
     def articles_from_soup(self, soup):
         ans = []
         dt = datetime.today().strftime('%Y%m')
-        for a in soup.findAll('a', attrs={'href':lambda x: x and x.startswith(index + 'page/' + dt + '/')}):
+        for a in soup.findAll('a', attrs={'href': lambda x: x and x.startswith(index + 'page/' + dt + '/')}):
             if a.find('img'):
                 continue
             url = a['href']
@@ -102,7 +93,7 @@ class GlobalTimes(BasicNewsRecipe):
             p = a.find_next_sibling('p')
             if p:
                 desc = self.tag_to_string(p).strip()
-            src_time = a.find_next_sibling(attrs={'class':'source_time'})
+            src_time = a.find_next_sibling(attrs={'class': 'source_time'})
             if src_time:
                 time = self.tag_to_string(src_time).strip()
                 if '|' in time:

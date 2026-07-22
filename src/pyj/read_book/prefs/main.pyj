@@ -3,11 +3,11 @@
 from __python__ import bound_methods, hash_literals
 
 from elementmaker import E
+from gettext import gettext as _
 
 from book_list.item_list import build_list, create_item
 from book_list.top_bar import create_top_bar, set_title
 from dom import clear, ensure_id
-from gettext import gettext as _
 from read_book.globals import runtime
 from read_book.prefs.colors import commit_colors, create_colors_panel
 from read_book.prefs.fonts import commit_fonts, create_fonts_panel
@@ -24,7 +24,6 @@ from read_book.prefs.user_stylesheet import (
 
 
 class Prefs:
-
     def __init__(self, container, close_func, on_change):
         self.close_func = close_func
         self.on_change = on_change
@@ -32,7 +31,7 @@ class Prefs:
         container.appendChild(E.div(
             style='contain: paint; width: 100%; height: 100%; display: flex; flex-direction: column',
             tabindex='-1',
-            onkeydown=def(ev):
+            onkeydown=def (ev):
                 if ev.key is 'Escape':
                     ev.stopPropagation(), ev.preventDefault()
                     if not self.cancel():
@@ -173,7 +172,6 @@ class Prefs:
 
     def close_touch(self):
         commit_touch(self.onchange, self.container)
-
 
 
 def create_prefs_panel(container, close_func, on_change):

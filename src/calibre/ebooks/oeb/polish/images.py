@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
-
 import os
 import tempfile
 from functools import partial
@@ -13,7 +12,6 @@ from calibre.utils.localization import _, ngettext
 
 
 class Worker(Thread):
-
     daemon = True
 
     def __init__(self, abort, name, queue, results, jpeg_quality, webp_quality, progress_callback):
@@ -35,17 +33,20 @@ class Worker(Thread):
                 self.compress(name, path, mt)
             except Exception:
                 import traceback
+
                 self.results[name] = (False, traceback.format_exc())
             finally:
                 try:
                     self.progress_callback(name)
                 except Exception:
                     import traceback
+
                     traceback.print_exc()
                 self.queue.task_done()
 
     def compress(self, name, path, mime_type):
         from calibre.utils.img import encode_jpeg, encode_webp, optimize_jpeg, optimize_png, optimize_webp
+
         if 'png' in mime_type:
             func = optimize_png
         elif 'webp' in mime_type:
@@ -78,13 +79,13 @@ def get_compressible_images(container):
 
 
 def convert_png_to_format(container, name, fmt, jpeg_quality=75, webp_quality=75, report=None):
-    '''Convert a PNG image in the container to JPEG or WEBP format.
+    """Convert a PNG image in the container to JPEG or WEBP format.
 
     :param fmt: ``'jpeg'``, ``'webp'`` (lossy), or ``'webp-lossless'``
     :returns: ``(new_name, before, after)`` where *before* and *after* are the
         file sizes in bytes before and after conversion, or ``(name, 0, 0)`` if
         conversion was skipped.
-    '''
+    """
     from calibre.ebooks.oeb.polish.replace import rename_files
     from calibre.utils.img import image_from_data, image_to_data
 
@@ -148,16 +149,27 @@ def convert_png_to_format(container, name, fmt, jpeg_quality=75, webp_quality=75
 
     if report:
         if before != after:
-            report(_('{0} converted to {1} [{2} {5} {3}, {4:.1%} reduction]').format(
-                name, new_name, human_readable(before), human_readable(after), (before - after) / before, '→'))
+            report(
+                _('{0} converted to {1} [{2} {5} {3}, {4:.1%} reduction]').format(
+                    name, new_name, human_readable(before), human_readable(after), (before - after) / before, '→'
+                )
+            )
         else:
             report(_('{0} converted to {1} [no size change]').format(name, new_name))
 
     return new_name, before, after
 
 
-def compress_images(container, report=None, names=None, jpeg_quality=None, webp_quality=None, compress_png=True,
-                    png_to_format=None, progress_callback=lambda n, t, name:True):
+def compress_images(
+    container,
+    report=None,
+    names=None,
+    jpeg_quality=None,
+    webp_quality=None,
+    compress_png=True,
+    png_to_format=None,
+    progress_callback=lambda n, t, name: True,
+):
     images = get_compressible_images(container)
     if names is not None:
         images &= set(names)
@@ -169,10 +181,7 @@ def compress_images(container, report=None, names=None, jpeg_quality=None, webp_
         j_quality = jpeg_quality if jpeg_quality is not None else 75
         w_quality = webp_quality if webp_quality is not None else 75
         for name in png_images:
-            new_name, before, after = convert_png_to_format(
-                container, name, png_to_format,
-                jpeg_quality=j_quality, webp_quality=w_quality,
-                report=report)
+            new_name, before, after = convert_png_to_format(container, name, png_to_format, jpeg_quality=j_quality, webp_quality=w_quality, report=report)
             if new_name != name:
                 images.discard(name)
                 images.add(new_name)
@@ -200,6 +209,7 @@ def compress_images(container, report=None, names=None, jpeg_quality=None, webp_
         keep_going = progress_callback(len(results), num_to_process, name)
         if not keep_going:
             abort.set()
+
     progress_callback(0, num_to_process, '')
     [Worker(abort, f'CompressImage{i}', queue, results, jpeg_quality, webp_quality, pc) for i in range(min(detect_ncpus(), num_to_process))]
     queue.join()
@@ -217,8 +227,11 @@ def compress_images(container, report=None, names=None, jpeg_quality=None, webp_
             after_total += after
             if report:
                 if before != after:
-                    report(_('{0} compressed from {1} to {2} bytes [{3:.1%} reduction]').format(
-                        name, human_readable(before), human_readable(after), (before - after)/before))
+                    report(
+                        _('{0} compressed from {1} to {2} bytes [{3:.1%} reduction]').format(
+                            name, human_readable(before), human_readable(after), (before - after) / before
+                        )
+                    )
                 else:
                     report(_('{0} could not be further compressed').format(name))
         elif report:
@@ -228,33 +241,49 @@ def compress_images(container, report=None, names=None, jpeg_quality=None, webp_
         if conv_num:
             report('')
             if conv_before_total and conv_before_total != conv_after_total:
-                report(ngettext(
-                    'PNG conversion: {0} file converted, total size changed from {1} to {2} [{3:.1%} reduction]',
-                    'PNG conversion: {0} files converted, total size changed from {1} to {2} [{3:.1%} reduction]',
-                    conv_num).format(conv_num, human_readable(conv_before_total), human_readable(conv_after_total),
-                                     (conv_before_total - conv_after_total) / conv_before_total))
+                report(
+                    ngettext(
+                        'PNG conversion: {0} file converted, total size changed from {1} to {2} [{3:.1%} reduction]',
+                        'PNG conversion: {0} files converted, total size changed from {1} to {2} [{3:.1%} reduction]',
+                        conv_num,
+                    ).format(
+                        conv_num,
+                        human_readable(conv_before_total),
+                        human_readable(conv_after_total),
+                        (conv_before_total - conv_after_total) / conv_before_total,
+                    )
+                )
             else:
-                report(ngettext(
-                    'PNG conversion: {0} file converted, no size change',
-                    'PNG conversion: {0} files converted, no size change',
-                    conv_num).format(conv_num))
+                report(
+                    ngettext(
+                        'PNG conversion: {0} file converted, no size change',
+                        'PNG conversion: {0} files converted, no size change',
+                        conv_num,
+                    ).format(conv_num)
+                )
         grand_before = before_total + conv_before_total
         grand_after = after_total + conv_after_total
         grand_changed = processed_num + conv_num
         if grand_before and grand_changed:
             report('')
-            report(_('Total image filesize reduced from {0} to {1} [{2:.1%} reduction, {3} images changed]').format(
-                human_readable(grand_before), human_readable(grand_after), (grand_before - grand_after)/grand_before, grand_changed))
+            report(
+                _('Total image filesize reduced from {0} to {1} [{2:.1%} reduction, {3} images changed]').format(
+                    human_readable(grand_before),
+                    human_readable(grand_after),
+                    (grand_before - grand_after) / grand_before,
+                    grand_changed,
+                )
+            )
         elif not grand_changed:
             report(_('Images are already fully optimized'))
     return changed, results
 
 
 def remove_unused_images(container, report=None):
-    '''
+    """
     Remove images that are not referenced by any file in the spine or by any
     stylesheet used by files in the spine.
-    '''
+    """
     report = report or (lambda x: x)
     from calibre.ebooks.oeb.polish.container import OEB_STYLES
     from calibre.ebooks.oeb.polish.report import safe_href_to_name

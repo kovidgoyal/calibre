@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 
-
 import json
 from pprint import pprint
 
@@ -33,20 +32,11 @@ def parse_lead_image(media):
     if 'image' in media:
         yield '<p>'
         if 'dsc' in media['image']:
-            yield (
-                f'<div><img src="{escape(media["image"]["src"], True)}" '
-                f'alt="{escape(media["image"]["dsc"], True)}"></div>'
-            )
+            yield (f'<div><img src="{escape(media["image"]["src"], True)}" alt="{escape(media["image"]["dsc"], True)}"></div>')
         else:
             yield f'<div><img src="{escape(media["image"]["src"], True)}"></div>'
         if 'caption' in media and 'credit' in media:
-            yield (
-                '<div class="cap">'
-                + media['caption']
-                + '<span class="cred"> '
-                + media['credit']
-                + '</span></div>'
-            )
+            yield ('<div class="cap">' + media['caption'] + '<span class="cred"> ' + media['credit'] + '</span></div>')
         elif 'caption' in media:
             yield '<div class="cap">' + media['caption'] + '</div>'
         yield '</p>'
@@ -59,10 +49,7 @@ def parse_inline(inl):
         if 'image' in props:
             yield f'<div class="img"><img src="{props["image"]["src"]}"></div>'
         if 'caption' in props:
-            yield (
-                f'<div class="cap">{props["caption"].get("text", "")}<span '
-                f'class="cred"> {props["caption"].get("credit", "")}</span></div>'
-            )
+            yield (f'<div class="cap">{props["caption"].get("text", "")}<span class="cred"> {props["caption"].get("credit", "")}</span></div>')
         yield '</p>'
     if inl.get('content', {}).get('name', '') == 'ImageGroup':
         if 'images' in inl['content']['props']:
@@ -71,10 +58,7 @@ def parse_inline(inl):
                 if 'src' in imgs:
                     yield f'<div class="img"><img src="{imgs["src"]}"></div>'
                 if 'caption' in imgs:
-                    yield (
-                        f'<div class="cap">{imgs["caption"].get("text", "")}<span '
-                        f'class="cred"> {imgs["caption"].get("credit", "")}</span></div>'
-                    )
+                    yield (f'<div class="cap">{imgs["caption"].get("text", "")}<span class="cred"> {imgs["caption"].get("credit", "")}</span></div>')
                 yield '</p>'
 
 
@@ -127,8 +111,7 @@ def parse_bdy(item):
     elif c['mrkup'].strip().startswith('<'):
         yield c['mrkup']
     else:
-        yield '<{tag}>{markup}</{tag}>'.format(
-            tag=item['type'], markup=c['mrkup'])
+        yield '<{tag}>{markup}</{tag}>'.format(tag=item['type'], markup=c['mrkup'])
 
 
 def parse_article(edg):

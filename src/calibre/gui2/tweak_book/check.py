@@ -1,8 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__ = 'GPL v3'
-__copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
+# License: GPLv3 Copyright: 2013, Kovid Goyal <kovid at kovidgoyal.net>
 
 import sys
 
@@ -66,7 +63,6 @@ def build_error_message(error, with_level=False, with_line_numbers=False):
 
 
 class Delegate(QStyledItemDelegate):
-
     def initStyleOption(self, option, index):
         super().initStyleOption(option, index)
         p = self.parent()
@@ -77,7 +73,6 @@ class Delegate(QStyledItemDelegate):
 
 
 class Check(QSplitter):
-
     item_activated = pyqtSignal(object)
     check_requested = pyqtSignal()
     fix_requested = pyqtSignal(object)
@@ -137,8 +132,11 @@ class Check(QSplitter):
     def clear_help(self, msg=None):
         if msg is None:
             msg = _('No problems found')
-        self.help.setText('<h2>{}</h2><p><a style="text-decoration:none" title="{}" href="run:check">{}</a></p>'.format(
-            msg, _('Click to run a check on the book'), _('Run check')))
+        self.help.setText(
+            '<h2>{}</h2><p><a style="text-decoration:none" title="{}" href="run:check">{}</a></p>'.format(
+                msg, _('Click to run a check on the book'), _('Run check')
+            )
+        )
 
     def link_clicked(self, url):
         url = str(url.toString(NO_URL_FORMATTING))
@@ -205,7 +203,13 @@ class Check(QSplitter):
 
         if i is not None:
             err = i.data(Qt.ItemDataRole.UserRole)
-            header = {DEBUG:_('Debug'), INFO:_('Information'), WARN:_('Warning'), ERROR:_('Error'), CRITICAL:_('Error')}[err.level]
+            header = {
+                DEBUG: _('Debug'),
+                INFO: _('Information'),
+                WARN: _('Warning'),
+                ERROR: _('Error'),
+                CRITICAL: _('Error'),
+            }[err.level]
             ifix = ''
             loc = loc_to_string(err.line, err.col)
             if err.INDIVIDUAL_FIX:
@@ -214,7 +218,7 @@ class Check(QSplitter):
             fix_tt = _('Try to fix all fixable errors automatically. Only works for some types of error.')
             fix_msg = _('Try to correct all fixable errors automatically')
             run_tt, run_msg = _('Re-run the check'), _('Re-run check')
-            header = f'<style>a {{text-decoration: none}}</style><h2>{header} [{self.items.currentRow()+1} / {self.items.count()}]</h2>'
+            header = f'<style>a {{text-decoration: none}}</style><h2>{header} [{self.items.currentRow() + 1} / {self.items.count()}]</h2>'
             msg = '<p>%s</p>'
             footer = '<div>%s<a href="fix:errors" title="%s">%s</a><br><br> <a href="run:check" title="%s">%s</a></div>'
             if err.has_multiple_locations:
@@ -231,8 +235,7 @@ class Check(QSplitter):
                 activate = f'<div><a href="activate:item" title="{open_tt}">{err.name} {loc}</a></div>'
                 activate = activate.replace('%', '%%')
                 template = header + activate + msg + footer
-            self.help.setText(
-                template % (err.HELP, ifix, fix_tt, fix_msg, run_tt, run_msg))
+            self.help.setText(template % (err.HELP, ifix, fix_tt, fix_msg, run_tt, run_msg))
 
     def run_checks(self, container):
         with BusyCursor():
@@ -241,7 +244,7 @@ class Check(QSplitter):
             errors = run_checks(container)
             self.hide_busy()
 
-        for err in sorted(errors, key=lambda e:(100 - e.level, e.name)):
+        for err in sorted(errors, key=lambda e: (100 - e.level, e.name)):
             i = QListWidgetItem(build_error_message(err), self.items)
             i.setData(Qt.ItemDataRole.UserRole, err)
             i.setIcon(icon_for_level(err.level))
@@ -281,6 +284,7 @@ class Check(QSplitter):
 def main():
     from calibre.gui2 import Application
     from calibre.gui2.tweak_book.boss import get_container
+
     app = Application([])  # noqa: F841
     path = sys.argv[-1]
     container = get_container(path)

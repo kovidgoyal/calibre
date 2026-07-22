@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # License: GPL v3 Copyright: 2013, Kovid Goyal <kovid at kovidgoyal.net>
 
-
 import json
 from operator import itemgetter
 
@@ -34,7 +33,6 @@ from calibre.utils.localization import _
 
 
 class BookmarksList(QListWidget):
-
     changed = pyqtSignal()
     bookmark_activated = pyqtSignal(object)
 
@@ -105,7 +103,6 @@ class BookmarksList(QListWidget):
 
 
 class BookmarkManager(QWidget):
-
     edited = pyqtSignal(object)
     activated = pyqtSignal(object)
     create_requested = pyqtSignal()
@@ -127,8 +124,7 @@ class BookmarkManager(QWidget):
         bl.ac_edit.triggered.connect(self.edit_bookmark)
         bl.ac_delete.triggered.connect(self.delete_bookmark)
 
-        self.la = la = QLabel(_(
-            'Double click to edit the bookmarks'))
+        self.la = la = QLabel(_('Double click to edit the bookmarks'))
         la.setWordWrap(True)
         l.addWidget(la, l.rowCount(), 0, 1, -1)
 
@@ -188,18 +184,22 @@ class BookmarkManager(QWidget):
     def set_bookmarks(self, bookmarks=()):
         csb = self.current_sort_by
         if csb in ('name', 'title'):
+
             def sk(x):
                 return primary_sort_key(x['title'])
+
         elif csb == 'timestamp':
             sk = itemgetter('timestamp')
         else:
             from calibre.ebooks.epub.cfi.parse import cfi_sort_key
+
             defval = cfi_sort_key('/99999999')
 
             def pos_key(b):
                 if b.get('pos_type') == 'epubcfi':
                     return cfi_sort_key(b['pos'], only_path=False)
                 return defval
+
             sk = pos_key
 
         bookmarks = sorted(bookmarks, key=sk)
@@ -285,7 +285,9 @@ class BookmarkManager(QWidget):
             bm = item.data(Qt.ItemDataRole.UserRole)
             if confirm(
                 _('Are you sure you want to delete the bookmark: {0}?').format(bm['title']),
-                'delete-bookmark-from-viewer', parent=self, config_set=vprefs
+                'delete-bookmark-from-viewer',
+                parent=self,
+                config_set=vprefs,
             ):
                 bm['removed'] = True
                 bm['timestamp'] = utcnow().isoformat()
@@ -311,8 +313,13 @@ class BookmarkManager(QWidget):
 
     def export_bookmarks(self):
         filename = choose_save_file(
-            self, 'export-viewer-bookmarks', _('Export bookmarks'),
-            filters=[(_('Saved bookmarks'), ['calibre-bookmarks'])], all_files=False, initial_filename='bookmarks.calibre-bookmarks')
+            self,
+            'export-viewer-bookmarks',
+            _('Export bookmarks'),
+            filters=[(_('Saved bookmarks'), ['calibre-bookmarks'])],
+            all_files=False,
+            initial_filename='bookmarks.calibre-bookmarks',
+        )
         if filename:
             bm = [x for x in self.get_bookmarks() if not x.get('removed')]
             data = json.dumps({'type': 'bookmarks', 'entries': bm}, indent=True)
@@ -322,8 +329,14 @@ class BookmarkManager(QWidget):
                 fileobj.write(data)
 
     def import_bookmarks(self):
-        files = choose_files(self, 'export-viewer-bookmarks', _('Import bookmarks'),
-            filters=[(_('Saved bookmarks'), ['calibre-bookmarks'])], all_files=False, select_only_single_file=True)
+        files = choose_files(
+            self,
+            'export-viewer-bookmarks',
+            _('Import bookmarks'),
+            filters=[(_('Saved bookmarks'), ['calibre-bookmarks'])],
+            all_files=False,
+            select_only_single_file=True,
+        )
         if not files:
             return
         filename = files[0]
@@ -377,8 +390,7 @@ class BookmarkManager(QWidget):
             if default_title not in all_titles:
                 break
 
-        title, ok = QInputDialog.getText(self, _('Add bookmark'),
-                _('Enter title for bookmark:'), text=pos_data.get('selected_text') or default_title)
+        title, ok = QInputDialog.getText(self, _('Add bookmark'), _('Enter title for bookmark:'), text=pos_data.get('selected_text') or default_title)
         title = str(title).strip()
         if not ok or not title:
             return

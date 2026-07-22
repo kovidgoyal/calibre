@@ -1,10 +1,8 @@
-__license__   = 'GPL v3'
-__copyright__ = '2009, Tijmen Ruizendaal <tijmen at mybebook.com>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2009, Tijmen Ruizendaal <tijmen at mybebook.com>
 
-'''
+"""
 Device driver for Hanlin
-'''
+"""
 
 import re
 
@@ -13,28 +11,27 @@ from calibre.utils.localization import _
 
 
 class HANLINV3(USBMS):
-
-    name           = 'Hanlin V3 driver'
-    gui_name       = 'Hanlin V3'
-    description    = _('Communicate with Hanlin V3 e-book readers.')
-    author         = 'Tijmen Ruizendaal'
+    name = 'Hanlin V3 driver'
+    gui_name = 'Hanlin V3'
+    description = _('Communicate with Hanlin V3 e-book readers.')
+    author = 'Tijmen Ruizendaal'
     supported_platforms = ['windows', 'osx', 'linux']
 
     # Ordered list of supported formats
-    FORMATS     = ['epub', 'mobi', 'fb2', 'lit', 'prc', 'pdf', 'rtf', 'txt']
+    FORMATS = ['epub', 'mobi', 'fb2', 'lit', 'prc', 'pdf', 'rtf', 'txt']
 
-    VENDOR_ID   = [0x0525]
-    PRODUCT_ID  = [0x8803, 0x6803]
-    BCD         = [0x312]
+    VENDOR_ID = [0x0525]
+    PRODUCT_ID = [0x8803, 0x6803]
+    BCD = [0x312]
 
-    VENDOR_NAME      = 'LINUX'
+    VENDOR_NAME = 'LINUX'
     WINDOWS_MAIN_MEM = 'FILE-STOR_GADGET'
     WINDOWS_CARD_A_MEM = 'FILE-STOR_GADGET'
 
     OSX_MAIN_MEM = 'Linux File-Stor Gadget Media'
     OSX_CARD_A_MEM = 'Linux File-Stor Gadget Media'
 
-    MAIN_MEMORY_VOLUME_LABEL  = 'Hanlin V3 Internal Memory'
+    MAIN_MEMORY_VOLUME_LABEL = 'Hanlin V3 Internal Memory'
     STORAGE_CARD_VOLUME_LABEL = 'Hanlin V3 Storage Card'
 
     SUPPORTS_SUB_DIRS = True
@@ -83,10 +80,9 @@ class HANLINV3(USBMS):
 
 
 class SPECTRA(HANLINV3):
-
     name = 'Spectra'
     gui_name = 'Spectra'
-    PRODUCT_ID  = [0xa4a5]
+    PRODUCT_ID = [0xA4A5]
 
     FORMATS = ['epub', 'mobi', 'fb2', 'lit', 'prc', 'chm', 'djvu', 'pdf', 'rtf', 'txt']
 
@@ -94,49 +90,45 @@ class SPECTRA(HANLINV3):
 
 
 class HANLINV5(HANLINV3):
-    name           = 'Hanlin V5 driver'
-    gui_name       = 'Hanlin V5'
-    description    = _('Communicate with Hanlin V5 e-book readers.')
+    name = 'Hanlin V5 driver'
+    gui_name = 'Hanlin V5'
+    description = _('Communicate with Hanlin V5 e-book readers.')
 
-    VENDOR_ID   = [0x0492]
-    PRODUCT_ID  = [0x8813]
-    BCD         = [0x319]
+    VENDOR_ID = [0x0492]
+    PRODUCT_ID = [0x8813]
+    BCD = [0x319]
 
     OSX_MAIN_MEM = 'Hanlin V5 Internal Memory'
     OSX_CARD_MEM = 'Hanlin V5 Storage Card'
 
-    MAIN_MEMORY_VOLUME_LABEL  = 'Hanlin V5 Internal Memory'
+    MAIN_MEMORY_VOLUME_LABEL = 'Hanlin V5 Internal Memory'
     STORAGE_CARD_VOLUME_LABEL = 'Hanlin V5 Storage Card'
 
     OSX_EJECT_COMMAND = ['diskutil', 'unmount', 'force']
 
 
 class BOOX(HANLINV3):
-
-    name           = 'BOOX driver'
-    gui_name       = 'BOOX'
-    description    = _('Communicate with the BOOX e-book reader.')
-    author         = 'Jesus Manuel Marinho Valcarce'
+    name = 'BOOX driver'
+    gui_name = 'BOOX'
+    description = _('Communicate with the BOOX e-book reader.')
+    author = 'Jesus Manuel Marinho Valcarce'
     supported_platforms = ['windows', 'osx', 'linux']
     METADATA_CACHE = '.metadata.calibre'
     DRIVEINFO = '.driveinfo.calibre'
-    icon           = 'devices/boox.png'
+    icon = 'devices/boox.png'
 
     # Ordered list of supported formats
-    FORMATS     = ['epub', 'fb2', 'djvu', 'pdf', 'html', 'txt', 'rtf', 'mobi',
-                   'prc', 'chm', 'doc']
+    FORMATS = ['epub', 'fb2', 'djvu', 'pdf', 'html', 'txt', 'rtf', 'mobi', 'prc', 'chm', 'doc']
 
-    VENDOR_ID   = [0x0525]
-    PRODUCT_ID  = [0xa4a5]
-    BCD         = [0x322, 0x323, 0x326]
+    VENDOR_ID = [0x0525]
+    PRODUCT_ID = [0xA4A5]
+    BCD = [0x322, 0x323, 0x326]
 
-    MAIN_MEMORY_VOLUME_LABEL  = 'BOOX Internal Memory'
+    MAIN_MEMORY_VOLUME_LABEL = 'BOOX Internal Memory'
     STORAGE_CARD_VOLUME_LABEL = 'BOOX Storage Card'
 
     EBOOK_DIR_MAIN = ['MyBooks']
-    EXTRA_CUSTOMIZATION_MESSAGE = _('Comma separated list of folders to '
-            'send e-books to on the device. The first one that exists will '
-            'be used.')
+    EXTRA_CUSTOMIZATION_MESSAGE = _('Comma separated list of folders to send e-books to on the device. The first one that exists will be used.')
     EXTRA_CUSTOMIZATION_DEFAULT = ', '.join(EBOOK_DIR_MAIN)
 
     # EBOOK_DIR_CARD_A = 'MyBooks' ## Am quite sure we need this.

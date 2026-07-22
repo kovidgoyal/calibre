@@ -4,7 +4,6 @@ from calibre.web.feeds.recipes import BasicNewsRecipe
 
 
 class JournalofHospitalMedicine(BasicNewsRecipe):
-
     title = 'Journal of Hospital Medicine'
     __author__ = 'Kovid Goyal'
     description = 'Medical news'
@@ -47,8 +46,7 @@ class JournalofHospitalMedicine(BasicNewsRecipe):
                 continue
             self.log('Found section:', gtitle)
             articles = []
-            for art in arts.findAll(attrs={'class': lambda x: x and 'tocArticle'
-                                           in x}):
+            for art in arts.findAll(attrs={'class': lambda x: x and 'tocArticle' in x}):
                 a = art.find('a', href=True)
                 if a is None:
                     continue
@@ -63,8 +61,7 @@ class JournalofHospitalMedicine(BasicNewsRecipe):
                     pm.extract()
                 desc = self.tag_to_string(art)
                 self.log('\tFound article:', title, 'at', url)
-                articles.append({'title': title, 'url': url, 'description': desc,
-                                 'date': ''})
+                articles.append({'title': title, 'url': url, 'description': desc, 'date': ''})
             if articles:
                 feeds.append((gtitle, articles))
 

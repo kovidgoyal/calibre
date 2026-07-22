@@ -1,11 +1,9 @@
 # -*- coding: utf-8 -*-
+# License: GPLv3 Copyright: 2011-2023, Tomasz Długosz <tomek3d@gmail.com>
+
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 store_version = 11  # Needed for dynamic plugin loading
-
-__license__ = 'GPL 3'
-__copyright__ = '2011-2023, Tomasz Długosz <tomek3d@gmail.com>'
-__docformat__ = 'restructuredtext en'
 
 from base64 import b64encode
 from contextlib import closing
@@ -36,7 +34,6 @@ def as_base64(data):
 
 
 class EmpikStore(BasicStoreConfig, StorePlugin):
-
     def open(self, gui=None, parent=None, detail_item=None, external=False):
         aff_root = 'https://www.a4b-tracking.com/pl/stat-click-text-link/78/58/'
 

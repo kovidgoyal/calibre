@@ -12,7 +12,6 @@ TEST_MODULES = frozenset('ai fork scraper srv db polish opf css docx cfi matcher
 
 
 class BaseTest(Command):
-
     def run(self, opts):
         if opts.under_sanitize and 'CALIBRE_EXECED_UNDER_SANITIZE' not in os.environ:
             if 'libasan' not in os.environ.get('LD_PRELOAD', ''):
@@ -25,29 +24,50 @@ class BaseTest(Command):
             os.execl('setup.py', *sys.argv)
 
     def add_options(self, parser):
-        parser.add_option('--under-sanitize', default=False, action='store_true',
-                          help='Run the test suite with the sanitizer preloaded')
+        parser.add_option('--under-sanitize', default=False, action='store_true', help='Run the test suite with the sanitizer preloaded')
 
 
 class Test(BaseTest):
-
     description = 'Run the calibre test suite.'
     usage_help = 'To run specific tests, specify their names as command line arguments or use --test-name'
 
     def add_options(self, parser):
         super().add_options(parser)
         parser.add_option('--test-verbosity', type=int, default=4, help='Test verbosity (0-4)')
-        parser.add_option('--test-module', '--test-group', default=[], action='append', type='choice', choices=sorted(map(str, TEST_MODULES)),
-                    help='The test module to run (can be specified more than once for multiple modules). Choices: {}'.format(', '.join(sorted(TEST_MODULES))))
-        parser.add_option('--test-name', '-n', default=[], action='append',
-                          help='The name of an individual test to run. Can be specified more than once for multiple tests. The name of the'
-                          ' test is the name of the test function without the leading test_. For example, the function test_something()'
-                          ' can be run by specifying the name "something".')
-        parser.add_option('--exclude-test-module', default=[], action='append', type='choice', choices=sorted(map(str, TEST_MODULES)),
-                          help='A test module to be excluded from the test run (can be specified more than once for multiple modules).'
-                          ' Choices: {}'.format(', '.join(sorted(TEST_MODULES))))
-        parser.add_option('--exclude-test-name', default=[], action='append',
-                          help='The name of an individual test to be excluded from the test run. Can be specified more than once for multiple tests.')
+        parser.add_option(
+            '--test-module',
+            '--test-group',
+            default=[],
+            action='append',
+            type='choice',
+            choices=sorted(map(str, TEST_MODULES)),
+            help='The test module to run (can be specified more than once for multiple modules). Choices: {}'.format(', '.join(sorted(TEST_MODULES))),
+        )
+        parser.add_option(
+            '--test-name',
+            '-n',
+            default=[],
+            action='append',
+            help='The name of an individual test to run. Can be specified more than once for multiple tests. The name of the'
+            ' test is the name of the test function without the leading test_. For example, the function test_something()'
+            ' can be run by specifying the name "something".',
+        )
+        parser.add_option(
+            '--exclude-test-module',
+            default=[],
+            action='append',
+            type='choice',
+            choices=sorted(map(str, TEST_MODULES)),
+            help='A test module to be excluded from the test run (can be specified more than once for multiple modules). Choices: {}'.format(
+                ', '.join(sorted(TEST_MODULES))
+            ),
+        )
+        parser.add_option(
+            '--exclude-test-name',
+            default=[],
+            action='append',
+            help='The name of an individual test to be excluded from the test run. Can be specified more than once for multiple tests.',
+        )
 
     def run(self, opts):
         super().run(opts)
@@ -55,6 +75,7 @@ class Test(BaseTest):
         if is_ci and (SW := os.environ.get('SW')):
             if ismacos:
                 import ctypes
+
                 sys.libxml2_dylib = ctypes.CDLL(os.path.join(SW, 'lib', 'libxml2.dylib'))
                 sys.libxslt_dylib = ctypes.CDLL(os.path.join(SW, 'lib', 'libxslt.dylib'))
                 sys.libexslt_dylib = ctypes.CDLL(os.path.join(SW, 'lib', 'libexslt.dylib'))
@@ -64,6 +85,7 @@ class Test(BaseTest):
                 os.add_dll_directory(ffmpeg_dll_dir)  # type: ignore
 
         from calibre.utils.run_tests import filter_tests_by_name, find_tests, remove_tests_by_name, run_cli
+
         tests = find_tests(which_tests=frozenset(opts.test_module), exclude_tests=frozenset(opts.exclude_test_module))
         only = []
         if opts.test_name:
@@ -81,7 +103,6 @@ class Test(BaseTest):
 
 
 class TestRS(BaseTest):
-
     description = 'Run tests for RapydScript code'
 
     def add_options(self, parser):
@@ -90,4 +111,5 @@ class TestRS(BaseTest):
     def run(self, opts):
         super().run(opts)
         from calibre.utils.rapydscript import run_rapydscript_tests
+
         run_rapydscript_tests()

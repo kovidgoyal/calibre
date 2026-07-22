@@ -36,19 +36,15 @@ class General(BasicNewsRecipe):
     keep_only_tags = [dict(name='div', attrs={'class': 'post-alt blog'})]
 
     remove_tags = [
+        dict(name='div', attrs={'class': ['hr', 'titlebar', 'volver-arriba-right', 'navigation']}),
         dict(
             name='div',
             attrs={
-                'class': ['hr', 'titlebar', 'volver-arriba-right', 'navigation']
-            }
+                'id': 'comment suckerfish crp_related'.split(),
+            },
         ),
-        dict(name='div', attrs={
-            'id': 'comment suckerfish crp_related'.split(),
-        }),
-        dict(name='h3', attrs={
-            'class': ['post_date']
-        }),
-        dict(name=['object', 'link'])
+        dict(name='h3', attrs={'class': ['post_date']}),
+        dict(name=['object', 'link']),
     ]
 
     extra_css = '''
@@ -60,7 +56,7 @@ class General(BasicNewsRecipe):
                 img{margin-bottom: 0.4em; display:block;}
                 '''
 
-    feeds = [(u'Articulos', u'http://www.diarioelpueblo.com.uy/feed')]
+    feeds = [('Articulos', 'http://www.diarioelpueblo.com.uy/feed')]
 
     def get_cover_url(self):
         return None

@@ -1,9 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__   = 'GPL v3'
-__copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2009, Kovid Goyal <kovid@kovidgoyal.net>
 
 import errno
 import os
@@ -28,6 +24,7 @@ def eintr_retry_call(func, *args, **kwargs):
 def socket_address(which):
     from calibre import force_unicode
     from calibre.utils.filenames import ascii_filename
+
     if iswindows:
         ans = r'\\.\pipe\Calibre' + which
         try:

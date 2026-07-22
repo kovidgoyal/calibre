@@ -28,5 +28,4 @@ class Zackzack_at_review(BasicNewsRecipe):
         dict(name='figure', attrs={'class': 'wp-block-image'}),
     ]
 
-    feeds = [(u'Zack Zack',
-              u'https://zackzack.at/feed/')]
+    feeds = [('Zack Zack', 'https://zackzack.at/feed/')]

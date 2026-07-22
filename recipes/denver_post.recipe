@@ -9,12 +9,11 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 def classes(classes):
     q = frozenset(classes.split(' '))
-    return dict(attrs={
-        'class': lambda x: x and frozenset(x.split()).intersection(q)})
+    return dict(attrs={'class': lambda x: x and frozenset(x.split()).intersection(q)})
 
 
 class DenverPost(BasicNewsRecipe):
-    title = u'Denver Post'
+    title = 'Denver Post'
     language = 'en_US'
     __author__ = 'Kovid Goyal'
     oldest_article = 1  # days
@@ -32,19 +31,12 @@ class DenverPost(BasicNewsRecipe):
     ]
 
     feeds = [
-        ('Top Stories',
-         'http://feeds.denverpost.com/dp-news-topstories'),
-        ('Business',
-         'http://feeds.denverpost.com/dp-business'),
-        ('Sports',
-         'http://feeds.denverpost.com/dp-sports'),
-        ('Lifestyles',
-         'http://feeds.denverpost.com/dp-lifestyles'),
-        ('Politics',
-         'http://feeds.denverpost.com/dp-politics'),
-        ('Entertainment',
-         'http://feeds.denverpost.com/dp-entertainment'),
-
+        ('Top Stories', 'http://feeds.denverpost.com/dp-news-topstories'),
+        ('Business', 'http://feeds.denverpost.com/dp-business'),
+        ('Sports', 'http://feeds.denverpost.com/dp-sports'),
+        ('Lifestyles', 'http://feeds.denverpost.com/dp-lifestyles'),
+        ('Politics', 'http://feeds.denverpost.com/dp-politics'),
+        ('Entertainment', 'http://feeds.denverpost.com/dp-entertainment'),
     ]
 
     def preprocess_html(self, soup):

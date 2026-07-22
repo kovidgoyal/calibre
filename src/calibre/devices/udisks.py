@@ -1,9 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__   = 'GPL v3'
-__copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2010, Kovid Goyal <kovid@kovidgoyal.net>
 
 import json
 import os
@@ -20,14 +16,13 @@ def node_mountpoint(node):
         node = node.encode('utf-8')
 
     def de_mangle(raw):
-        return raw.replace(b'\\040', b' ').replace(b'\\011', b'\t').replace(b'\\012',
-                b'\n').replace(b'\\0134', b'\\').decode('utf-8')
+        return raw.replace(b'\\040', b' ').replace(b'\\011', b'\t').replace(b'\\012', b'\n').replace(b'\\0134', b'\\').decode('utf-8')
 
     if isfreebsd:
         cmd = subprocess.run(['mount', '-p', '--libxo', 'json'], capture_output=True, encoding='UTF-8')
         stdout = json.loads(cmd.stdout)
         for row in stdout['mount']['fstab']:
-            if (row['device'].encode('utf-8') == node):
+            if row['device'].encode('utf-8') == node:
                 return de_mangle(row['mntpoint'].encode('utf-8'))
     else:
         with open('/proc/mounts', 'rb') as src:
@@ -43,7 +38,6 @@ def basic_mount_options():
 
 
 class UDisks:
-
     BUS_NAME = 'org.freedesktop.UDisks2'
     BLOCK = f'{BUS_NAME}.Block'
     FILESYSTEM = f'{BUS_NAME}.Filesystem'
@@ -53,6 +47,7 @@ class UDisks:
 
     def __enter__(self):
         from jeepney.io.blocking import open_dbus_connection
+
         self.connection = open_dbus_connection(bus='SYSTEM')
         return self
 
@@ -62,11 +57,13 @@ class UDisks:
 
     def address(self, path='', interface=None):
         from jeepney import DBusAddress
+
         path = os.path.join(self.PATH, path)
         return DBusAddress(path, bus_name=self.BUS_NAME, interface=interface)
 
     def send(self, msg):
         from jeepney import DBusErrorResponse, MessageType
+
         reply = self.connection.send_and_get_reply(msg)
         if reply.header.message_type is MessageType.error:
             raise DBusErrorResponse(reply)
@@ -74,11 +71,13 @@ class UDisks:
 
     def introspect(self, object_path):
         from jeepney import Introspectable
+
         r = self.send(Introspectable(f'{self.PATH}/{object_path}', self.BUS_NAME).Introspect())
         return r.body[0]
 
     def get_device_node_path(self, devname):
         from jeepney import Properties
+
         p = Properties(self.address(f'block_devices/{devname}', self.BLOCK))
         r = self.send(p.get('Device'))
         return bytearray(r.body[0][1]).replace(b'\x00', b'').decode('utf-8')
@@ -92,13 +91,14 @@ class UDisks:
 
     def find_device_vols_by_serial(self, serial):
         from jeepney import DBusAddress, new_method_call
+
         drives = []
         blocks = []
         vols = []
         a = DBusAddress(self.PATH, bus_name=self.BUS_NAME, interface=self.OBJECTMANAGER)
         msg = new_method_call(a, 'GetManagedObjects')
         r = self.send(msg)
-        for k,v in r.body[0].items():
+        for k, v in r.body[0].items():
             if os.path.join(self.PATH, '/block_devices') in k:
                 blocks.append({'k': k, 'v': v.get(f'{self.BUS_NAME}.Block', {})})
             if os.path.join(self.PATH, '/drives') in k:
@@ -128,6 +128,7 @@ class UDisks:
 
     def filesystem_operation_message(self, device_node_path, function_name, **kw):
         from jeepney import new_method_call
+
         devname = self.device(device_node_path)
         a = self.address(f'block_devices/{devname}', self.FILESYSTEM)
         kw['auth.no_user_interaction'] = ('b', True)
@@ -151,6 +152,7 @@ class UDisks:
 
     def drive_for_device(self, device_node_path):
         from jeepney import Properties
+
         devname = self.device(device_node_path)
         a = self.address(f'block_devices/{devname}', self.BLOCK)
         msg = Properties(a).get('Drive')
@@ -159,20 +161,36 @@ class UDisks:
 
     def eject(self, device_node_path):
         from jeepney import new_method_call
+
         drive = self.drive_for_device(device_node_path)
         a = self.address(drive, self.DRIVE)
-        msg = new_method_call(a, 'Eject', 'a{sv}', ({
-            'auth.no_user_interaction': ('b', True),
-        },))
+        msg = new_method_call(
+            a,
+            'Eject',
+            'a{sv}',
+            (
+                {
+                    'auth.no_user_interaction': ('b', True),
+                },
+            ),
+        )
         self.send(msg)
 
     def rescan(self, device_node_path):
         from jeepney import new_method_call
+
         devname = self.device(device_node_path)
         a = self.address(f'block_devices/{devname}', self.BLOCK)
-        msg = new_method_call(a, 'Rescan', 'a{sv}', ({
-            'auth.no_user_interaction': ('b', True),
-        },))
+        msg = new_method_call(
+            a,
+            'Rescan',
+            'a{sv}',
+            (
+                {
+                    'auth.no_user_interaction': ('b', True),
+                },
+            ),
+        )
         self.send(msg)
 
 
@@ -207,6 +225,7 @@ def find_device_vols_by_serial(serial):
 
 def test_udisks():
     import sys
+
     dev = sys.argv[1]
     print('Testing with node', dev)
     with get_udisks() as u:

@@ -18,10 +18,10 @@ class JoopRecipe(BasicNewsRecipe):
     country = 'NL'
     version = 1
 
-    title = u'Joop'
-    publisher = u'Vara'
-    category = u'News, Politics, Discussion'
-    description = u'Political blog from the Netherlands'
+    title = 'Joop'
+    publisher = 'Vara'
+    category = 'News, Politics, Discussion'
+    description = 'Political blog from the Netherlands'
 
     oldest_article = 7
     max_articles_per_feed = 100
@@ -31,12 +31,9 @@ class JoopRecipe(BasicNewsRecipe):
     remove_javascript = True
 
     keep_only_tags = []
-    keep_only_tags.append(
-        dict(name='div', attrs={'class': 'author_head clearfix photo'}))
-    keep_only_tags.append(
-        dict(name='h2', attrs={'class': 'columnhead smallline'}))
-    keep_only_tags.append(
-        dict(name='div', attrs={'class': re.compile(r'article.*')}))
+    keep_only_tags.append(dict(name='div', attrs={'class': 'author_head clearfix photo'}))
+    keep_only_tags.append(dict(name='h2', attrs={'class': 'columnhead smallline'}))
+    keep_only_tags.append(dict(name='div', attrs={'class': re.compile(r'article.*')}))
 
     extra_css = '''
                 body {font-family: verdana, arial, helvetica, geneva, sans-serif;}
@@ -51,28 +48,24 @@ class JoopRecipe(BasicNewsRecipe):
 
     INDEX = 'http://www.joop.nl'
 
-    conversion_options = {'comments': description, 'tags': category, 'language': language,
-                          'publisher': publisher}
+    conversion_options = {'comments': description, 'tags': category, 'language': language, 'publisher': publisher}
 
     def parse_index(self):
-        sections = ['Politiek', 'Wereld', 'Economie',
-                    'Groen', 'Media', 'Leven', 'Show', 'Opinies']
+        sections = ['Politiek', 'Wereld', 'Economie', 'Groen', 'Media', 'Leven', 'Show', 'Opinies']
         soup = self.index_to_soup(self.INDEX)
         answer = []
 
         div = soup.find('div', attrs={'id': 'footer'})
         for section in sections:
             articles = []
-            h2 = div.find(lambda tag: tag.name ==
-                          'h2' and tag.renderContents().decode('utf-8') == section)
+            h2 = div.find(lambda tag: tag.name == 'h2' and tag.renderContents().decode('utf-8') == section)
             if h2:
                 ul = h2.findNextSibling('ul', 'linklist')
                 if ul:
                     for li in ul.findAll('li'):
                         title = self.tag_to_string(li.a)
                         url = self.INDEX + li.a['href']
-                        articles.append(
-                            {'title': title, 'date': None, 'url': url, 'description': ''})
+                        articles.append({'title': title, 'date': None, 'url': url, 'description': ''})
 
             answer.append((section, articles))
 

@@ -1,6 +1,4 @@
-__license__ = 'GPL 3'
-__copyright__ = '2011, John Schember <john@nachtimwald.com>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2011, John Schember <john@nachtimwald.com>
 
 import re
 from functools import partial
@@ -31,7 +29,6 @@ def add_items_to_context_menu(widget: HistoryLineEdit2, menu: QMenu) -> None:
 
 
 class SearchDialog(QDialog, Ui_Dialog):
-
     SEARCH_TEXT = _('&Search')
     STOP_TEXT = _('&Stop')
 
@@ -68,6 +65,7 @@ class SearchDialog(QDialog, Ui_Dialog):
         self.results_view.setCursor(Qt.CursorShape.PointingHandCursor)
         # needed for live updates of amazon_live.py
         from calibre.live import start_worker
+
         start_worker()
 
         # Check for results and hung threads.
@@ -166,13 +164,13 @@ class SearchDialog(QDialog, Ui_Dialog):
         self.results_view.setColumnWidth(0, 85)
         total = total - 85
         # Title / Author
-        self.results_view.setColumnWidth(1, int(total*.40))
+        self.results_view.setColumnWidth(1, int(total * 0.40))
         # Price
-        self.results_view.setColumnWidth(2, int(total*.12))
+        self.results_view.setColumnWidth(2, int(total * 0.12))
         # DRM
-        self.results_view.setColumnWidth(3, int(total*.15))
+        self.results_view.setColumnWidth(3, int(total * 0.15))
         # Store / Formats
-        self.results_view.setColumnWidth(4, int(total*.25))
+        self.results_view.setColumnWidth(4, int(total * 0.25))
         # Download
         self.results_view.setColumnWidth(5, 20)
         # Affiliate
@@ -216,9 +214,7 @@ class SearchDialog(QDialog, Ui_Dialog):
             query.append(str(self.search_edit.text()))
         query = ' '.join(query)
         if not query.strip():
-            error_dialog(self, _('No query'),
-                        _('You must enter a title, author or keyword to'
-                          ' search for.'), show=True)
+            error_dialog(self, _('No query'), _('You must enter a title, author or keyword to search for.'), show=True)
             return
         self.searching = True
         self.search.setText(self.STOP_TEXT)
@@ -416,7 +412,13 @@ class SearchDialog(QDialog, Ui_Dialog):
                 _gr_m.add_result(res, store_plugin)
 
         if not self.search_pool.threads_running() and not _gr_m.has_results():
-            info_dialog(self, _('No matches'), _("Couldn't find any books matching your query."), show=True, show_copy_button=False)
+            info_dialog(
+                self,
+                _('No matches'),
+                _("Couldn't find any books matching your query."),
+                show=True,
+                show_copy_button=False,
+            )
 
     def update_book_total(self, total):
         self.total.setText(f'{total}')
@@ -484,6 +486,7 @@ class SearchDialog(QDialog, Ui_Dialog):
         if str(self.search_edit.text()).strip() or str(self.search_title.text()).strip() or str(self.search_author.text()).strip():
             self.do_search()
         return QDialog.exec(self)
+
     exec_ = exec
 
 
@@ -492,6 +495,7 @@ if __name__ == '__main__':
 
     from calibre.gui2 import Application
     from calibre.gui2.preferences.main import init_gui
+
     app = Application([])
     app
     gui = init_gui()

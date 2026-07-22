@@ -1,8 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__ = 'GPL v3'
-__copyright__ = '2016, Kovid Goyal <kovid at kovidgoyal.net>'
+# License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
 from functools import partial
 
@@ -21,7 +18,6 @@ from calibre.utils.logging import Log, Stream
 
 
 class VirtualContainer(ContainerBase):
-
     tweak_mode = True
 
     def __init__(self, files):
@@ -31,7 +27,7 @@ class VirtualContainer(ContainerBase):
         log.outputs = [s]
         self.opf_version_parsed = (2, 0, 0)
         ContainerBase.__init__(self, log=log)
-        self.mime_map = {k:self.guess_type(k) for k in files}
+        self.mime_map = {k: self.guess_type(k) for k in files}
         self.files = files
 
     def has_name(self, name):
@@ -59,21 +55,21 @@ class VirtualContainer(ContainerBase):
 
 
 class CascadeTest(BaseTest):
-
     def test_iterrules(self):
         def get_rules(files, name='x/one.css', l=1, rule_type=None):
             c = VirtualContainer(files)
             rules = tuple(iterrules(c, name, rule_type=rule_type))
             self.assertEqual(len(rules), l)
             return rules, c
-        get_rules({'x/one.css':'@import "../two.css";', 'two.css':'body { color: red; }'})
-        get_rules({'x/one.css':'@import "../two.css" screen;', 'two.css':'body { color: red; }'})
-        get_rules({'x/one.css':'@import "../two.css" xyz;', 'two.css':'body { color: red; }'}, l=0)
-        get_rules({'x/one.css':'@import "../two.css";', 'two.css':'body { color: red; }'}, l=0, rule_type='FONT_FACE_RULE')
-        get_rules({'x/one.css':'@import "../two.css";', 'two.css':'body { color: red; }'}, rule_type='STYLE_RULE')
-        get_rules({'x/one.css':'@media screen { body { color: red; } }'})
-        get_rules({'x/one.css':'@media xyz { body { color: red; } }'}, l=0)
-        c = get_rules({'x/one.css':'@import "../two.css";', 'two.css':'@import "x/one.css"; body { color: red; }'})[1]
+
+        get_rules({'x/one.css': '@import "../two.css";', 'two.css': 'body { color: red; }'})
+        get_rules({'x/one.css': '@import "../two.css" screen;', 'two.css': 'body { color: red; }'})
+        get_rules({'x/one.css': '@import "../two.css" xyz;', 'two.css': 'body { color: red; }'}, l=0)
+        get_rules({'x/one.css': '@import "../two.css";', 'two.css': 'body { color: red; }'}, l=0, rule_type='FONT_FACE_RULE')
+        get_rules({'x/one.css': '@import "../two.css";', 'two.css': 'body { color: red; }'}, rule_type='STYLE_RULE')
+        get_rules({'x/one.css': '@media screen { body { color: red; } }'})
+        get_rules({'x/one.css': '@media xyz { body { color: red; } }'}, l=0)
+        c = get_rules({'x/one.css': '@import "../two.css";', 'two.css': '@import "x/one.css"; body { color: red; }'})[1]
         self.assertIn('Recursive import', c.log_stream.getvalue())
 
     def test_resolve_styles(self):
@@ -98,7 +94,10 @@ class CascadeTest(BaseTest):
 
         def get_maps(html, styles=None, pseudo=False):
             html = f'<html><head><link href="styles.css"></head><body>{html}</body></html>'
-            c = VirtualContainer({'index.html':html, 'styles.css':styles or 'body { color: red; font-family: "Kovid Goyal", sans-serif }'})
+            c = VirtualContainer({
+                'index.html': html,
+                'styles.css': styles or 'body { color: red; font-family: "Kovid Goyal", sans-serif }',
+            })
             resolve_property, resolve_pseudo_property, select = resolve_styles(c, 'index.html')
             if pseudo:
                 tp = partial(test_pseudo_property, select, resolve_pseudo_property)
@@ -151,7 +150,7 @@ class CascadeTest(BaseTest):
         def get_stats(html, *fonts):
             styles = []
             html = f'<html><head><link href="styles.css"></head><body>{html}</body></html>'
-            files = {'index.html':html, 'X.otf':b'xxx', 'XB.otf': b'xbxb'}
+            files = {'index.html': html, 'X.otf': b'xxx', 'XB.otf': b'xbxb'}
             for font in fonts:
                 styles.append('@font-face {')
                 for k, v in font.items():
@@ -196,29 +195,33 @@ class CascadeTest(BaseTest):
         s = get_stats('<p style="font-family: X">abc<b>d\nef</b><i>ghi</i></p><p style="font-family: U">u</p>')
         # The normal font must include ghi as it will be used to simulate
         # italic by most rendering engines when the italic font is missing
-        self.assertEqual(s.font_stats, {'XB.otf':set('def'), 'X.otf':set('abcghi')})
-        self.assertEqual(s.font_spec_map, {'index.html':set('XU')})
-        self.assertEqual(s.all_font_rules, {'X.otf':font_rule('X.otf', 'X'), 'XB.otf':font_rule('XB.otf', 'X', 'bold')})
+        self.assertEqual(s.font_stats, {'XB.otf': set('def'), 'X.otf': set('abcghi')})
+        self.assertEqual(s.font_spec_map, {'index.html': set('XU')})
+        self.assertEqual(s.all_font_rules, {'X.otf': font_rule('X.otf', 'X'), 'XB.otf': font_rule('XB.otf', 'X', 'bold')})
         self.assertEqual(set(s.font_rule_map), {'index.html'})
         self.assertEqual(s.font_rule_map['index.html'], [font_rule('X.otf', 'X'), font_rule('XB.otf', 'X', 'bold')])
         self.assertEqual(set(s.font_usage_map), {'index.html'})
-        self.assertEqual(s.font_usage_map['index.html'], dict([fu('abc', 'X'), fu('def', 'X', weight='bold'), fu('ghi', 'X', style='italic'), fu('u', 'U')]))
+        self.assertEqual(
+            s.font_usage_map['index.html'],
+            dict([fu('abc', 'X'), fu('def', 'X', weight='bold'), fu('ghi', 'X', style='italic'), fu('u', 'U')]),
+        )
 
         s = get_stats('<p style="font-family: X; text-transform:uppercase">abc</p><b style="font-family: X; font-variant: small-caps">d\nef</b>')
-        self.assertEqual(s.font_stats, {'XB.otf':set('defDEF'), 'X.otf':set('ABC')})
+        self.assertEqual(s.font_stats, {'XB.otf': set('defDEF'), 'X.otf': set('ABC')})
         s = get_stats('<style>.fl::first-line { font-family: X }</style><p class="fl">abc<b>def</b></p>')
         # Technically def should not be needed in X but that is hard to achieve
-        self.assertEqual(s.font_stats, {'XB.otf':set('def'), 'X.otf':set('abcdef')})
+        self.assertEqual(s.font_stats, {'XB.otf': set('def'), 'X.otf': set('abcdef')})
 
     def test_remove_property_value(self):
         style = parseStyle('background-image: url(b.png); background: black url(a.png) fixed')
         for prop in style.getProperties(all=True):
-            remove_property_value(prop, lambda val:'png' in val.cssText)
+            remove_property_value(prop, lambda val: 'png' in val.cssText)
         self.assertEqual('background: black fixed', style.cssText.rstrip(';'))
 
     def test_fallback_font_matching(self):
         def cf(id, weight='normal', style='normal', stretch='normal'):
-            return {'id':id, 'font-weight':weight, 'font-style':style, 'font-stretch':stretch}
+            return {'id': id, 'font-weight': weight, 'font-style': style, 'font-stretch': stretch}
+
         fonts = [cf(1, '500', 'oblique', 'condensed'), cf(2, '300', 'italic', 'normal')]
         self.assertEqual(find_matching_font(fonts)['id'], 2)
         fonts = [cf(1, '500', 'oblique', 'normal'), cf(2, '300', 'italic', 'normal')]

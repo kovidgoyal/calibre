@@ -1,7 +1,5 @@
 #!/usr/bin/env python
-
-__license__ = 'GPL v3'
-__copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
+# License: GPLv3 Copyright: 2013, Kovid Goyal <kovid at kovidgoyal.net>
 
 from collections import defaultdict, deque
 
@@ -26,7 +24,7 @@ def run_loop(user_data, state_map, formats, text):
                 if fix_offsets:
                     # We need to map offsets/lengths from UCS-4 to UTF-16 in
                     # which non-BMP characters are two code points wide
-                    yield utf16_length(text[:i]), utf16_length(text[i:i+num]), f
+                    yield utf16_length(text[:i]), utf16_length(text[i : i + num]), f
                 else:
                     yield i, num, f
                 i += num
@@ -37,7 +35,6 @@ def run_loop(user_data, state_map, formats, text):
 
 
 class SimpleState:
-
     __slots__ = ('parse',)
 
     def __init__(self):
@@ -50,7 +47,6 @@ class SimpleState:
 
 
 class SimpleUserData(QTextBlockUserData):
-
     def __init__(self):
         QTextBlockUserData.__init__(self)
         self.state = SimpleState()
@@ -62,12 +58,14 @@ class SimpleUserData(QTextBlockUserData):
 
 
 class SyntaxHighlighter:
-
     def create_formats_func(highlighter):
         return {}
+
     spell_attributes = ()
+
     def tag_ok_for_spell(x):
         return False
+
     user_data_factory = SimpleUserData
     state_map: dict
 
@@ -82,7 +80,7 @@ class SyntaxHighlighter:
         return bool(self.requests)
 
     def apply_theme(self, theme):
-        self.theme = {k:highlight_to_char_format(v) for k, v in theme.items()}
+        self.theme = {k: highlight_to_char_format(v) for k, v in theme.items()}
         self.create_formats()
         self.rehighlight()
 
@@ -177,7 +175,7 @@ class SyntaxHighlighter:
             QTimer.singleShot(0, self.do_one_block)
 
     def join(self):
-        ''' Blocks until all pending highlighting requests are handled '''
+        """Blocks until all pending highlighting requests are handled"""
         doc = self.doc
         if doc is None:
             self.requests.clear()

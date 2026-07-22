@@ -22,31 +22,25 @@ class LibertadDigital(BasicNewsRecipe):
     remove_empty_feeds = True
     publication_type = 'website'
     masthead_url = 'http://s.libertaddigital.com/images/logo.gif'
-    extra_css             = '''
+    extra_css = '''
                                body{font-family: Verdana,sans-serif }
                                img{margin-bottom: 0.4em; display:block}
                             '''
 
-    conversion_options = {
-        'comment': description, 'tags': category, 'publisher': publisher, 'language': language
-    }
+    conversion_options = {'comment': description, 'tags': category, 'publisher': publisher, 'language': language}
 
-    remove_tags = [
-        dict(name=['meta', 'link', 'iframe', 'embed', 'object']), dict(
-            name='p', attrs={'class': 'copyright'})
-    ]
+    remove_tags = [dict(name=['meta', 'link', 'iframe', 'embed', 'object']), dict(name='p', attrs={'class': 'copyright'})]
     remove_attributes = ['lang']
 
     feeds = [
-
-    (u'Portada', u'http://feeds2.feedburner.com/libertaddigital/deportes'),
-    (u'Opinion', u'http://feeds2.feedburner.com/libertaddigital/opinion'),
-    (u'España', u'http://feeds2.feedburner.com/libertaddigital/nacional'),
-    (u'Internacional', u'http://feeds2.feedburner.com/libertaddigital/internacional'),
-    (u'Libre Mercado', u'http://feeds2.feedburner.com/libertaddigital/economia'),
-    (u'Chic', u'http://feeds2.feedburner.com/libertaddigital/el-candelabro'),
-    (u'Internet', u'http://feeds2.feedburner.com/libertaddigital/internet'),
-    (u'Deportes', u'http://feeds2.feedburner.com/libertaddigital/deportes')
+        ('Portada', 'http://feeds2.feedburner.com/libertaddigital/deportes'),
+        ('Opinion', 'http://feeds2.feedburner.com/libertaddigital/opinion'),
+        ('España', 'http://feeds2.feedburner.com/libertaddigital/nacional'),
+        ('Internacional', 'http://feeds2.feedburner.com/libertaddigital/internacional'),
+        ('Libre Mercado', 'http://feeds2.feedburner.com/libertaddigital/economia'),
+        ('Chic', 'http://feeds2.feedburner.com/libertaddigital/el-candelabro'),
+        ('Internet', 'http://feeds2.feedburner.com/libertaddigital/internet'),
+        ('Deportes', 'http://feeds2.feedburner.com/libertaddigital/deportes'),
     ]
 
     def get_article_url(self, article):

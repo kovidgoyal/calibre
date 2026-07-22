@@ -1,10 +1,9 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
-
 import textwrap
 from collections import OrderedDict
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from qt.core import (
     QAbstractItemView,
@@ -53,7 +52,6 @@ def intelligent_strip(action, val):
 
 
 class QueryEdit(QLineEdit):
-
     def contextMenuEvent(self, a0):
         menu = self.createStandardContextMenu()
         assert menu is not None
@@ -64,7 +62,6 @@ class QueryEdit(QLineEdit):
 
 
 class SingleTagEdit(EditWithComplete):
-
     def __init__(self, parent):
         super().__init__(parent)
         self.set_separator(None)
@@ -74,24 +71,23 @@ class SingleTagEdit(EditWithComplete):
 
 
 class RuleEdit(QWidget):
-
     ACTION_MAP = OrderedDict((
-                ('remove', _('Remove')),
-                ('replace', _('Replace')),
-                ('keep', _('Keep')),
-                ('capitalize', _('Capitalize')),
-                ('titlecase', _('Title-case')),
-                ('lower', _('Lower-case')),
-                ('upper', _('Upper-case')),
-                ('split', _('Split')),
+        ('remove', _('Remove')),
+        ('replace', _('Replace')),
+        ('keep', _('Keep')),
+        ('capitalize', _('Capitalize')),
+        ('titlecase', _('Title-case')),
+        ('lower', _('Lower-case')),
+        ('upper', _('Upper-case')),
+        ('split', _('Split')),
     ))
 
     MATCH_TYPE_MAP = OrderedDict((
-                ('one_of', _('is one of')),
-                ('not_one_of', _('is not one of')),
-                ('matches', _('matches pattern')),
-                ('not_matches', _('does not match pattern')),
-                ('has', _('contains')),
+        ('one_of', _('is one of')),
+        ('not_one_of', _('is not one of')),
+        ('matches', _('matches pattern')),
+        ('not_matches', _('does not match pattern')),
+        ('has', _('contains')),
     ))
 
     MSG = _('Create the rule below, the rule can be used to remove or replace tags')
@@ -101,11 +97,13 @@ class RuleEdit(QWidget):
     SPLIT_TEXT = _('on the character:')
     SPLIT_TOOLTIP = _(
         'The character on which to split tags. Note that technically you can specify'
-        ' a sub-string, not just a single character. Then splitting will happen on the sub-string.')
+        ' a sub-string, not just a single character. Then splitting will happen on the sub-string.'
+    )
     REPLACE_TOOLTIP = _(
         'What to replace the tag with. Note that if you use a pattern to match'
         ' tags, you can replace with parts of the matched pattern. See '
-        ' the User Manual on how to use regular expressions for details.')
+        ' the User Manual on how to use regular expressions for details.'
+    )
     REGEXP_HELP_TEXT = _('For help with regex pattern matching, see the <a href="%s">User Manual</a>')
     SINGLE_EDIT_FIELD_NAME = 'tags'
 
@@ -145,8 +143,7 @@ class RuleEdit(QWidget):
         h.addWidget(la)
         self.replace = r = SingleTagEdit(self)
         h.addWidget(r)
-        self.regex_help = la = QLabel('<p>' + self.REGEXP_HELP_TEXT % localize_user_manual_link(
-        'https://manual.calibre-ebook.com/regexp.html'))
+        self.regex_help = la = QLabel('<p>' + self.REGEXP_HELP_TEXT % localize_user_manual_link('https://manual.calibre-ebook.com/regexp.html'))
         la.setOpenExternalLinks(True)
         la.setWordWrap(True)
         l.addWidget(la)
@@ -189,7 +186,12 @@ class RuleEdit(QWidget):
 
     def edit_tags(self):
         from calibre.gui2.dialogs.tag_editor import TagEditor
-        d = TagEditor(self, get_gui(fail_if_absent=True).current_db, current_tags=list(filter(None, [x.strip() for x in self.query.text().split(',')])))
+
+        d = TagEditor(
+            self,
+            get_gui(fail_if_absent=True).current_db,
+            current_tags=list(filter(None, [x.strip() for x in self.query.text().split(',')])),
+        )
         if d.exec() == QDialog.DialogCode.Accepted:
             self.query.setText(', '.join(d.tags))
 
@@ -210,6 +212,7 @@ class RuleEdit(QWidget):
             idx = c.findData(str(rule.get(name, '')))
             idx = max(idx, 0)
             c.setCurrentIndex(idx)
+
         sc('action'), sc('match_type')
         ac = self.action.currentData()
         self.query.setText(intelligent_strip(ac, str(rule.get('query', ''))))
@@ -224,14 +227,12 @@ class RuleEdit(QWidget):
             try:
                 compile_pat(rule['query'])
             except Exception:
-                error_dialog(self, _('Query invalid'), _(
-                    '%s is not a valid regular expression') % rule['query'], show=True)
+                error_dialog(self, _('Query invalid'), _('%s is not a valid regular expression') % rule['query'], show=True)
                 return False
         return True
 
 
 class RuleEditDialog(Dialog):
-
     PREFS_NAME = 'edit-tag-mapper-rule'
     DIALOG_TITLE = _('Edit rule')
     RuleEditClass = RuleEdit
@@ -255,13 +256,14 @@ RENDER_ROLE = DATA_ROLE + 1
 
 
 class RuleItem(QListWidgetItem):
-
     @staticmethod
     def text_from_rule(rule, parent):
         query = rule['query']
-        text = _(
-            '<b>{action}</b> the tag, if it <i>{match_type}</i>: <b>{query}</b>').format(
-                action=RuleEdit.ACTION_MAP[rule['action']], match_type=RuleEdit.MATCH_TYPE_MAP[rule['match_type']], query=query)
+        text = _('<b>{action}</b> the tag, if it <i>{match_type}</i>: <b>{query}</b>').format(
+            action=RuleEdit.ACTION_MAP[rule['action']],
+            match_type=RuleEdit.MATCH_TYPE_MAP[rule['match_type']],
+            query=query,
+        )
         if rule['action'] == 'replace':
             text += '<br>' + _('with the tag:') + ' <b>{}</b>'.format(rule['replace'])
         if rule['action'] == 'split':
@@ -276,7 +278,6 @@ class RuleItem(QListWidgetItem):
 
 
 class Delegate(QStyledItemDelegate):
-
     MARGIN = 16
 
     def sizeHint(self, option, index):
@@ -301,24 +302,22 @@ class Delegate(QStyledItemDelegate):
 
 
 class Rules(QWidget):
-
     RuleItemClass = RuleItem
     RuleEditDialogClass = RuleEditDialog
     changed = pyqtSignal()
 
     ACTION_KEY = 'action'
-    MSG = _('You can specify rules to filter/transform tags here. Click the "Add rule" button'
-            ' below to get started. The rules will be processed in order for every tag until either a'
-            ' "remove" or a "keep" rule matches.')
+    MSG = _(
+        'You can specify rules to filter/transform tags here. Click the "Add rule" button'
+        ' below to get started. The rules will be processed in order for every tag until either a'
+        ' "remove" or a "keep" rule matches.'
+    )
 
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
         self.l = l = QVBoxLayout(self)
 
-        self.msg_label = la = QLabel(
-            '<p>' + self.MSG + '<p>' + _(
-            'You can <b>change an existing rule</b> by double clicking it')
-        )
+        self.msg_label = la = QLabel('<p>' + self.MSG + '<p>' + _('You can <b>change an existing rule</b> by double clicking it'))
         la.setWordWrap(True)
         l.addWidget(la)
         self.h = h = QHBoxLayout()
@@ -422,13 +421,12 @@ class Rules(QWidget):
     @rules.setter
     def rules(self, rules):
         self.rule_list.clear()
-        for rule in (rules or ()):
+        for rule in rules or ():
             if self.ACTION_KEY in rule and 'match_type' in rule and 'query' in rule:
                 self.RuleItemClass(rule, self.rule_list)
 
 
 class Tester(Dialog):
-
     DIALOG_TITLE = _('Test tag mapper rules')
     PREFS_NAME = 'test-tag-mapper-rules'
     LABEL = _('Enter a comma separated list of &tags to test:')
@@ -475,21 +473,24 @@ class Tester(Dialog):
 
 
 class SaveLoadMixin:
-
     ruleset_changed = pyqtSignal()
     base_window_title = ''
+    PREFS_OBJECT: Any
+    loaded_ruleset: str | None
+    rules: Any
 
     def save_ruleset(self: SaveLoadSelf):
         if not self.rules:
-            error_dialog(self, _('No rules'), _(
-                'Cannot save as no rules have been created'), show=True)
+            error_dialog(self, _('No rules'), _('Cannot save as no rules have been created'), show=True)
             return
-        text, ok = QInputDialog.getText(self, _('Save ruleset as'), _(
-            'Enter a name for this ruleset:'), text=self.loaded_ruleset or '')
+        text, ok = QInputDialog.getText(self, _('Save ruleset as'), _('Enter a name for this ruleset:'), text=self.loaded_ruleset or '')
         if ok and text:
             if self.loaded_ruleset and text == self.loaded_ruleset:
-                if not question_dialog(self, _('Are you sure?'), _(
-                        'A ruleset with the name "%s" already exists, do you want to replace it?') % text):
+                if not question_dialog(
+                    self,
+                    _('Are you sure?'),
+                    _('A ruleset with the name "%s" already exists, do you want to replace it?') % text,
+                ):
                     return
                 self.loaded_ruleset = text
             rules = self.rules
@@ -521,7 +522,7 @@ class SaveLoadMixin:
         else:
             self.load_menu.addAction(_('No saved rulesets available'))
 
-    def load_ruleset(self: SaveLoadSelf, name):
+    def load_ruleset(self, name: str) -> None:
         self.rules = self.PREFS_OBJECT[name]
         self.loaded_ruleset = name
         self.ruleset_changed.emit()
@@ -535,7 +536,6 @@ class SaveLoadMixin:
 
 
 class RulesDialog(Dialog, SaveLoadMixin):
-
     DIALOG_TITLE = _('Edit tag mapper rules')
     PREFS_NAME = 'edit-tag-mapper-rules'
     RulesClass = Rules
@@ -605,17 +605,24 @@ class RulesDialog(Dialog, SaveLoadMixin):
 
 if TYPE_CHECKING:
     from calibre.gui2.css_transform_rules import RulesWidget
+
     SaveLoadSelf = RulesWidget | RulesDialog
 
 if __name__ == '__main__':
     app = Application([])
     d = RulesDialog()
     d.rules = [
-        {'action':'remove', 'query':'moose', 'match_type':'one_of', 'replace':''},
-        {'action':'replace', 'query':'moose,sfdg,sfdg,dfsg,dfgsh,sd,er,erg,egrer,ger,s,fgfsgfsga', 'match_type':'one_of', 'replace':'xxxx'},
-        {'action':'split', 'query':'/', 'match_type':'has', 'replace':'/'},
+        {'action': 'remove', 'query': 'moose', 'match_type': 'one_of', 'replace': ''},
+        {
+            'action': 'replace',
+            'query': 'moose,sfdg,sfdg,dfsg,dfgsh,sd,er,erg,egrer,ger,s,fgfsgfsga',
+            'match_type': 'one_of',
+            'replace': 'xxxx',
+        },
+        {'action': 'split', 'query': '/', 'match_type': 'has', 'replace': '/'},
     ]
     d.exec()
     from pprint import pprint
+
     pprint(d.rules)
     del d, app

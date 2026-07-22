@@ -21,7 +21,6 @@ def new_tag(soup, name, attrs=()):
 
 
 class TimesColonist(BasicNewsRecipe):
-
     # Customization -- remove sections you don't want.
     # If your e-reader is an e-ink Kindle and your output profile is
     # set properly this recipe will not include images because the
@@ -60,12 +59,12 @@ class TimesColonist(BasicNewsRecipe):
         ('life/travel/', 'Travel'),
         ('life/driving/', 'Driving'),
         ('life/homes/', 'Homes'),
-        ('life/food-drink/', 'Food & Drink')
+        ('life/food-drink/', 'Food & Drink'),
     ]
 
-    title = u'Victoria Times Colonist'
+    title = 'Victoria Times Colonist'
     url_prefix = 'http://www.timescolonist.com'
-    description = u'News from Victoria, BC'
+    description = 'News from Victoria, BC'
     fp_tag = 'CAN_TC'
 
     masthead_url = 'http://www.timescolonist.com/gmg/img/global/logoTimesColonist.png'
@@ -81,43 +80,42 @@ class TimesColonist(BasicNewsRecipe):
                 h3 { margin-bottom: 6px; }
                 .caption { font-size: xx-small; font-style: italic; font-weight: normal; }
                 '''
-    keep_only_tags = [
-        dict(name='div', attrs={'class': re.compile(r'main.content')})]
+    keep_only_tags = [dict(name='div', attrs={'class': re.compile(r'main.content')})]
 
     def __init__(self, options, log, progress_reporter):
-        self.remove_tags = [{'class': 'comments'},
-                            {'id': 'photocredit'},
-                            dict(name='div', attrs={
-                                 'class': re.compile(r'top.controls')}),
-                            dict(name='div', attrs={
-                                 'class': re.compile(r'^comments')}),
-                            dict(name='div', attrs={
-                                 'class': re.compile(r'social')}),
-                            dict(name='div', attrs={
-                                 'class': re.compile(r'tools')}),
-                            dict(name='div', attrs={
-                                 'class': re.compile(r'bottom.tools')}),
-                            dict(name='div', attrs={
-                                 'class': re.compile(r'window')}),
-                            dict(name='div', attrs={'class': re.compile(r'related.news.element')})]
+        self.remove_tags = [
+            {'class': 'comments'},
+            {'id': 'photocredit'},
+            dict(name='div', attrs={'class': re.compile(r'top.controls')}),
+            dict(name='div', attrs={'class': re.compile(r'^comments')}),
+            dict(name='div', attrs={'class': re.compile(r'social')}),
+            dict(name='div', attrs={'class': re.compile(r'tools')}),
+            dict(name='div', attrs={'class': re.compile(r'bottom.tools')}),
+            dict(name='div', attrs={'class': re.compile(r'window')}),
+            dict(name='div', attrs={'class': re.compile(r'related.news.element')}),
+        ]
         print('PROFILE NAME = ' + options.output_profile.short_name)
         if self.kindle_omit_images and options.output_profile.short_name in ['kindle', 'kindle_dx', 'kindle_pw']:
-            self.remove_tags.append(
-                dict(name='div', attrs={'class': re.compile(r'image-container')}))
+            self.remove_tags.append(dict(name='div', attrs={'class': re.compile(r'image-container')}))
         BasicNewsRecipe.__init__(self, options, log, progress_reporter)
 
     def get_cover_url(self):
         from datetime import date, timedelta
-        cover = 'http://webmedia.newseum.org/newseum-multimedia/dfp/jpg' + \
-            str(date.today().day) + '/lg/' + self.fp_tag + '.jpg'
+
+        cover = 'http://webmedia.newseum.org/newseum-multimedia/dfp/jpg' + str(date.today().day) + '/lg/' + self.fp_tag + '.jpg'
         br = BasicNewsRecipe.get_browser(self)
         daysback = 1
         try:
             br.open(cover)
         except Exception:
             while daysback < 7:
-                cover = 'http://webmedia.newseum.org/newseum-multimedia/dfp/jpg' + \
-                    str((date.today() - timedelta(days=daysback)).day) + '/lg/' + self.fp_tag + '.jpg'
+                cover = (
+                    'http://webmedia.newseum.org/newseum-multimedia/dfp/jpg'
+                    + str((date.today() - timedelta(days=daysback)).day)
+                    + '/lg/'
+                    + self.fp_tag
+                    + '.jpg'
+                )
                 br = BasicNewsRecipe.get_browser(self)
                 try:
                     br.open(cover)
@@ -153,8 +151,7 @@ class TimesColonist(BasicNewsRecipe):
         if first:
             picdiv = soup.find('body').find('img')
             if picdiv is not None:
-                self.add_toc_thumbnail(article, re.sub(
-                    r'links\\link\d+\\', '', picdiv['src']))
+                self.add_toc_thumbnail(article, re.sub(r'links\\link\d+\\', '', picdiv['src']))
         xtitle = article.text_summary.strip()
         if len(xtitle) == 0:
             desc = soup.find('meta', attrs={'property': 'og:description'})
@@ -167,16 +164,14 @@ class TimesColonist(BasicNewsRecipe):
             aTags = para.findAll('a')
             for a in aTags:
                 if a.img is None:
-                    a.replaceWith(a.renderContents().decode(
-                        'cp1252', 'replace'))
+                    a.replaceWith(a.renderContents().decode('cp1252', 'replace'))
         return soup
 
     def preprocess_html(self, soup):
         byline = soup.find('p', attrs={'class': re.compile(r'ancillary')})
         if byline is not None:
             authstr = self.tag_to_string(byline, False)
-            authstr = re.sub(r'/ *Times Colonist', '/',
-                             authstr, flags=re.IGNORECASE)
+            authstr = re.sub(r'/ *Times Colonist', '/', authstr, flags=re.IGNORECASE)
             authstr = re.sub(r'BY */', '', authstr, flags=re.IGNORECASE)
             newdiv = new_tag(soup, 'div')
             newdiv.insert(0, authstr)
@@ -184,15 +179,13 @@ class TimesColonist(BasicNewsRecipe):
             byline.replaceWith(newdiv)
         for caption in soup.findAll('p', attrs={'class': re.compile(r'caption')}):
             capstr = self.tag_to_string(caption, False)
-            capstr = re.sub(r'Photograph by.*$', '',
-                            capstr, flags=re.IGNORECASE)
+            capstr = re.sub(r'Photograph by.*$', '', capstr, flags=re.IGNORECASE)
             newdiv = new_tag(soup, 'div')
             newdiv.insert(0, capstr)
             newdiv['class'] = 'caption'
             caption.replaceWith(newdiv)
         for ptag in soup.findAll('p'):
-            ptext = self.tag_to_string(
-                ptag, use_alt=False, normalize_whitespace=True)
+            ptext = self.tag_to_string(ptag, use_alt=False, normalize_whitespace=True)
             ptext = re.sub(r'\s+', '', ptext)
             if ptext in {'', '&nbsp;'}:
                 ptag.extract()
@@ -226,10 +219,8 @@ class TimesColonist(BasicNewsRecipe):
             description = ''
             if dtag is not None:
                 description = self.tag_to_string(dtag, False)
-            article_list.append(dict(
-                title=title, url=url, date='', description=description, author='', content=''))
-            print(sectitle + title + ': description = ' +
-                  description + ' URL=' + url + '\n\r')
+            article_list.append(dict(title=title, url=url, date='', description=description, author='', content=''))
+            print(sectitle + title + ': description = ' + description + ' URL=' + url + '\n\r')
 
     def add_section_index(self, ans, securl, sectitle):
         print('Add section url=' + self.url_prefix + '/' + securl + '\n\r')
@@ -237,8 +228,7 @@ class TimesColonist(BasicNewsRecipe):
             soup = self.index_to_soup(self.url_prefix + '/' + securl)
         except Exception:
             return ans
-        mainsoup = soup.find(
-            'div', attrs={'class': re.compile(r'main.content')})
+        mainsoup = soup.find('div', attrs={'class': re.compile(r'main.content')})
         article_list = []
         for wdiv in mainsoup.findAll('div', attrs={'id': re.compile(r'featured.story')}):
             for htag in wdiv.findAll('h3'):

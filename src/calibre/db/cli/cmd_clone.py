@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
 
-
 import os
 
 from calibre import patheq
@@ -42,21 +41,12 @@ def main(opts, args, dbctx):
         os.makedirs(loc)
 
     if patheq(loc, library_path):
-        raise SystemExit(
-            _('The location for the new library is the same as the current library')
-        )
+        raise SystemExit(_('The location for the new library is the same as the current library'))
     empty = not os.listdir(loc)
     if not empty:
-        raise SystemExit(
-            _(
-                '%s is not empty. You must choose an empty folder for the new library.'
-            ) % loc
-        )
+        raise SystemExit(_('%s is not empty. You must choose an empty folder for the new library.') % loc)
     if iswindows and len(loc) > LibraryDatabase.WINDOWS_LIBRARY_PATH_LIMIT:
-        raise SystemExit(
-            _('Path to library too long. It must be less than'
-              ' %d characters.') % LibraryDatabase.WINDOWS_LIBRARY_PATH_LIMIT
-        )
+        raise SystemExit(_('Path to library too long. It must be less than %d characters.') % LibraryDatabase.WINDOWS_LIBRARY_PATH_LIMIT)
     LibraryDatabase(loc, default_prefs=prefs)
 
     return 0

@@ -14,7 +14,6 @@ hfs = html.fromstring
 
 
 class Resolver(etree.Resolver):
-
     def resolve(self, url, id, context):
         return self.resolve_string('', context)
 
@@ -75,13 +74,13 @@ def find_tests():
     from calibre.constants import iswindows
 
     class TestXMLParse(unittest.TestCase):
-
         def setUp(self):
             with tempfile.NamedTemporaryFile(delete=False) as tf:
                 tf.write(b'external')
                 self.temp_file = os.path.abspath(tf.name)
             if iswindows:
                 from calibre_extensions.winutil import get_long_path_name
+
                 self.temp_file = get_long_path_name(self.temp_file)
 
         def tearDown(self):
@@ -100,17 +99,19 @@ def find_tests():
                     err = str(e)
                     root = None
                 got = getattr(root, 'text', object())
-                self.assertEqual(got, expected, f'Unexpected result parsing: {raw!r}, got: {got!r} expected: {expected!r} with XML parser error: {err}')
+                self.assertEqual(
+                    got,
+                    expected,
+                    f'Unexpected result parsing: {raw!r}, got: {got!r} expected: {expected!r} with XML parser error: {err}',
+                )
 
             t('SYSTEM', external, 'external', safe=False)
 
             for eid, val, expected in (
                 ('', 'normal entity', 'normal entity'),
                 ('', external, external),
-
                 ('SYSTEM', external, None),
                 ('SYSTEM', 'http://example.com', None),
-
                 ('PUBLIC', external, None),
                 ('PUBLIC', 'http://example.com', None),
             ):
@@ -118,6 +119,7 @@ def find_tests():
 
         def test_lxml_unicode_parsing(self):
             from calibre.ebooks.chardet import xml_to_unicode
+
             with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'unicode-test.opf'), 'rb') as f:
                 raw = f.read()
             text = xml_to_unicode(raw, strip_encoding_pats=True, resolve_entities=True, assume_utf8=True)[0]
@@ -128,6 +130,7 @@ def find_tests():
 
 def develop():
     from calibre.ebooks.chardet import xml_to_unicode
+
     # print(etree.tostring(fs('<r/>')).decode())
     data = xml_to_unicode(open(sys.argv[-1], 'rb').read(), strip_encoding_pats=True, assume_utf8=True, resolve_entities=True)[0]
     print(etree.tostring(safe_xml_fromstring(data)).decode())
@@ -135,4 +138,5 @@ def develop():
 
 if __name__ == '__main__':
     from calibre.utils.run_tests import run_tests
+
     run_tests(find_tests)

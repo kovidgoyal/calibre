@@ -55,15 +55,13 @@ def do_delete_from_library(parent, close_modal, library_id, book_id, title):
 
 
 def confirm_delete_from_library(library_id, book_id, title):
-    create_custom_dialog(_('Are you sure?'), def(parent, close_modal):
-
+    create_custom_dialog(_('Are you sure?'), def (parent, close_modal):
         def action(doit):
             if doit:
                 clear(parent)
                 do_delete_from_library(parent, close_modal, library_id, book_id, title)
             else:
                 close_modal()
-
         msg = _('This will <b>permanently delete</b> <i>{0}</i> from your calibre library. Are you sure?').format(title)
         m = E.div()
         safe_set_inner_html(m, msg)
@@ -78,17 +76,13 @@ def confirm_delete_from_library(library_id, book_id, title):
 
 
 def choose_which_delete(library_id, book_id, title):
-
-    create_custom_dialog(_('Delete from?'), def(parent, close_modal):
-
+    create_custom_dialog(_('Delete from?'), def (parent, close_modal):
         def action(from_cache, from_library):
             close_modal()
             if from_cache:
                 delete_from_cache(library_id, book_id, title)
             if from_library:
                 confirm_delete_from_library(library_id, book_id, title)
-
-
         parent.appendChild(E.div(
             E.div(_('{0} is available both in the browser cache for offline reading and in'
                     ' your calibre library. Where do you want to delete it from?').format(title)),

@@ -1,10 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__   = 'GPL v3'
-__copyright__ = '2013, Kovid Goyal kovid@kovidgoyal.net'
-__docformat__ = 'restructuredtext en'
-
+# License: GPLv3 Copyright: 2013, Kovid Goyal kovid@kovidgoyal.net
 
 from contextlib import suppress
 
@@ -18,15 +13,15 @@ from calibre.utils.search_query_parser import ParseException
 
 
 class TableItem(QTableWidgetItem):
-    '''
+    """
     A QTableWidgetItem that sorts on a separate string and uses ICU rules
-    '''
+    """
 
     def __init__(self, val, sort, idx=0):
         self.sort = sort
         self.sort_idx = idx
         QTableWidgetItem.__init__(self, val)
-        self.setFlags(Qt.ItemFlag.ItemIsEnabled|Qt.ItemFlag.ItemIsSelectable)
+        self.setFlags(Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsSelectable)
 
     def __ge__(self, other):
         l = sort_key(self.sort)
@@ -48,7 +43,6 @@ class TableItem(QTableWidgetItem):
 
 
 class MatchBooks(QDialog, Ui_MatchBooks):
-
     def __init__(self, gui, view, id_, row_index):
         QDialog.__init__(self, gui, flags=Qt.WindowType.Window)
         Ui_MatchBooks.__init__(self)
@@ -57,8 +51,7 @@ class MatchBooks(QDialog, Ui_MatchBooks):
 
         self.books_table_column_widths = None
         try:
-            self.books_table_column_widths = \
-                        gprefs.get('match_books_dialog_books_table_widths', None)
+            self.books_table_column_widths = gprefs.get('match_books_dialog_books_table_widths', None)
             self.restore_geometry(gprefs, 'match_books_dialog_geometry')
         except Exception:
             pass
@@ -67,7 +60,7 @@ class MatchBooks(QDialog, Ui_MatchBooks):
 
         # Remove the help button from the window title bar
         icon = self.windowIcon()
-        self.setWindowFlags(self.windowFlags()&(~Qt.WindowType.WindowContextHelpButtonHint))
+        self.setWindowFlags(self.windowFlags() & (~Qt.WindowType.WindowContextHelpButtonHint))
         self.setWindowIcon(icon)
 
         self.device_db = view.model().db
@@ -136,8 +129,7 @@ class MatchBooks(QDialog, Ui_MatchBooks):
     def do_search(self):
         query = str(self.search_text.text())
         if not query:
-            d = error_dialog(self.gui, _('Match books'),
-                     _('You must enter a search expression into the search field'))
+            d = error_dialog(self.gui, _('Match books'), _('You must enter a search expression into the search field'))
             d.exec()
             return
         try:
@@ -146,10 +138,16 @@ class MatchBooks(QDialog, Ui_MatchBooks):
             try:
                 books = self.library_db.data.search(query, return_matches=True)
             except ParseException as e:
-                return error_dialog(self.gui, _('Could not search'), _(
-                    'The search expression {} is not valid.').format(query), det_msg=str(e), show=True)
+                return error_dialog(
+                    self.gui,
+                    _('Could not search'),
+                    _('The search expression {} is not valid.').format(query),
+                    det_msg=str(e),
+                    show=True,
+                )
             if not books and query == self.device_book_search_query:
                 import re
+
                 modified = re.sub(r'\s*\([^)]*\)$', '', self.device_book_title).replace('(', r'\(').replace(')', r'\)')
                 if modified:
                     with suppress(ParseException):
@@ -193,7 +191,7 @@ class MatchBooks(QDialog, Ui_MatchBooks):
     def resizeEvent(self, a0=None):
         QDialog.resizeEvent(self, a0)
         if self.books_table_column_widths is not None:
-            for c,w in enumerate(self.books_table_column_widths):
+            for c, w in enumerate(self.books_table_column_widths):
                 self.books_table.setColumnWidth(c, w)
         else:
             # the vertical scroll bar might not be rendered, so might not yet
@@ -239,13 +237,10 @@ class MatchBooks(QDialog, Ui_MatchBooks):
 
     def accept(self):
         if not self.current_library_book_id:
-            d = error_dialog(self.gui, _('Match books'),
-                     _('You must select a matching book'))
+            d = error_dialog(self.gui, _('Match books'), _('You must select a matching book'))
             d.exec()
             return
-        mi = self.library_db.get_metadata(self.current_library_book_id,
-                              index_is_id=True, get_user_categories=False,
-                              get_cover=True)
+        mi = self.library_db.get_metadata(self.current_library_book_id, index_is_id=True, get_user_categories=False, get_cover=True)
         assert self.device_db is not None
         book = self.device_db[self.current_device_book_id]
         book.smart_update(mi, replace_metadata=True)
@@ -255,8 +250,7 @@ class MatchBooks(QDialog, Ui_MatchBooks):
         book.in_library_waiting = True
         view = self.view
         assert view is not None
-        view.model().current_changed(self.current_device_book_index,
-                                     self.current_device_book_index)
+        view.model().current_changed(self.current_device_book_index, self.current_device_book_index)
         self.save_state()
         QDialog.accept(self)
 

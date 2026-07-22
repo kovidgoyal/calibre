@@ -1,16 +1,16 @@
 #!/usr/bin/env python
-
-
-__license__ = 'GPL v3'
-__copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
+# License: GPLv3 Copyright: 2013, Kovid Goyal <kovid at kovidgoyal.net>
 
 from qt.core import QTextCharFormat, QTextFormat
 
 from calibre.ebooks.oeb.base import OEB_DOCS, OEB_STYLES
 from calibre.ebooks.oeb.polish.container import guess_type
 
-_xml_types = {'application/oebps-page-map+xml', 'application/vnd.adobe-page-template+xml', 'application/page-template+xml'} | {
-            guess_type('a.'+x) for x in ('ncx', 'opf', 'svg', 'xpgt', 'xml')}
+_xml_types = {
+    'application/oebps-page-map+xml',
+    'application/vnd.adobe-page-template+xml',
+    'application/page-template+xml',
+} | {guess_type('a.' + x) for x in ('ncx', 'opf', 'svg', 'xpgt', 'xml')}
 _js_types = {'application/javascript', 'application/x-javascript'}
 
 
@@ -22,8 +22,7 @@ def syntax_from_mime(name, mime):
         return 'javascript'
     if mime.startswith('text/'):
         return 'text'
-    if mime.startswith('image/') and mime.partition('/')[-1].lower() in {
-        'jpeg', 'jpg', 'gif', 'png', 'webp'}:
+    if mime.startswith('image/') and mime.partition('/')[-1].lower() in {'jpeg', 'jpg', 'gif', 'png', 'webp'}:
         return 'raster_image'
     if mime.endswith('+xml'):
         return 'xml'
@@ -35,9 +34,11 @@ all_text_syntaxes = frozenset({'text', 'html', 'xml', 'css', 'javascript'})
 def editor_from_syntax(syntax, parent=None):
     if syntax in all_text_syntaxes:
         from calibre.gui2.tweak_book.editor.widget import Editor
+
         return Editor(syntax, parent=parent)
     elif syntax == 'raster_image':
         from calibre.gui2.tweak_book.editor.image import Editor
+
         return Editor(syntax, parent=parent)
 
 
@@ -57,7 +58,6 @@ def syntax_text_char_format(*args):
 
 
 class StoreLocale:
-
     __slots__ = ('enabled',)
 
     def __init__(self):

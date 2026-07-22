@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 __license__ = 'GPL v3'
-__copyright__ = u'Łukasz Grąbczewski 2011'
+__copyright__ = 'Łukasz Grąbczewski 2011'
 __version__ = '2.0'
 
 import os
@@ -15,17 +15,20 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class dwutygodnik(BasicNewsRecipe):
-    __author__ = u'Łukasz Grąbczewski'
+    __author__ = 'Łukasz Grąbczewski'
     title = 'Dwutygodnik'
     language = 'pl'
     publisher = 'Narodowy Instytut Audiowizualny'
     publication_type = 'magazine'
-    description = u'Strona Kultury: literatura, teatr, film, sztuka, muzyka, felietony, rozmowy'
+    description = 'Strona Kultury: literatura, teatr, film, sztuka, muzyka, felietony, rozmowy'
 
     conversion_options = {
-        'authors': 'Dwutygodnik.com', 'publisher': publisher, 'language':
-        language, 'comments': description, 'no_default_epub_cover': True,
-        'preserve_cover_aspect_ratio': True
+        'authors': 'Dwutygodnik.com',
+        'publisher': publisher,
+        'language': language,
+        'comments': description,
+        'no_default_epub_cover': True,
+        'preserve_cover_aspect_ratio': True,
     }
 
     def build_index(self):

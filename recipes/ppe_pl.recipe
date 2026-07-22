@@ -5,11 +5,11 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class ppeRecipe(BasicNewsRecipe):
-    __author__ = u'Artur Stachecki <artur.stachecki@gmail.com>'
+    __author__ = 'Artur Stachecki <artur.stachecki@gmail.com>'
     language = 'pl'
-    title = u'ppe.pl'
-    category = u'News'
-    description = u'Portal o konsolach i grach wideo.'
+    title = 'ppe.pl'
+    category = 'News'
+    description = 'Portal o konsolach i grach wideo.'
     extra_css = '.categories > li {list-style: none; display: inline;} .galmini > li {list-style: none; float: left;} .calibre_navbar {clear: both;}'
     no_stylesheets = True
     oldest_article = 7
@@ -19,8 +19,7 @@ class ppeRecipe(BasicNewsRecipe):
     remove_attributes = ['style']
 
     keep_only_tags = [dict(attrs={'class': 'box'})]
-    remove_tags = [dict(attrs={'class': ['voltage-1', 'voltage-2',
-                                         'encyklopedia', 'nag', 'related', 'comment_form', 'komentarze-box']})]
+    remove_tags = [dict(attrs={'class': ['voltage-1', 'voltage-2', 'encyklopedia', 'nag', 'related', 'comment_form', 'komentarze-box']})]
 
     feeds = [
         ('Newsy', 'http://ppe.pl/rss.html'),

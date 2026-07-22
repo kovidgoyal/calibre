@@ -1,8 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__ = 'GPL v3'
-__copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
+# License: GPLv3 Copyright: 2013, Kovid Goyal <kovid at kovidgoyal.net>
 
 import os
 import pickle
@@ -26,9 +23,8 @@ def get_container(*args, **kwargs):
 
 
 class ContainerTests(BaseTest):
-
     def test_clone(self):
-        ' Test cloning of containers '
+        "Test cloning of containers"
         for fmt in ('epub', 'azw3'):
             base = os.path.join(self.tdir, fmt + '-')
             book = get_simple_book(fmt)
@@ -76,7 +72,7 @@ class ContainerTests(BaseTest):
                 self.assertEqual(getattr(c1, attr), getattr(c, attr))
 
     def test_file_removal(self):
-        ' Test removal of files from the container '
+        "Test removal of files from the container"
         book = get_simple_book()
         c = get_container(book, tdir=self.tdir)
         files = ('toc.ncx', 'cover.png', 'titlepage.xhtml')
@@ -100,7 +96,7 @@ class ContainerTests(BaseTest):
                 subprocess.Popen(['epubcheck', f]).wait()
 
     def test_file_rename(self):
-        ' Test renaming of files '
+        "Test renaming of files"
         book = get_simple_book()
         count = [0]
 
@@ -120,9 +116,7 @@ class ContainerTests(BaseTest):
             self.assertIn(name, getattr(c, x))
         self.assertNotIn(name, c.dirtied)
         root = c.parsed('META-INF/container.xml')
-        vals = set(root.xpath(
-            r'child::ocf:rootfiles/ocf:rootfile/@full-path',
-            namespaces={'ocf':OCF_NS}))
+        vals = set(root.xpath(r'child::ocf:rootfiles/ocf:rootfile/@full-path', namespaces={'ocf': OCF_NS}))
         self.assertSetEqual(vals, {name})
         self.check_links(c)
 
@@ -138,7 +132,7 @@ class ContainerTests(BaseTest):
         name = next(c.spine_names)[0]
         root = c.parsed(name)
         root.xpath('//*[local-name()="body"]')[0].set('id', 'rename-dirty-test')
-        rename_files(c, {name:'other/' + name})
+        rename_files(c, {name: 'other/' + name})
         with c.open('other/' + name) as f:
             raw = f.read()
         self.assertIn(b'id="rename-dirty-test"', raw)
@@ -146,12 +140,19 @@ class ContainerTests(BaseTest):
 
         # Test renaming of stylesheets
         c = new_container()
-        rename_files(c, {'stylesheet.css':'styles/s 1.css', 'page_styles.css':'styles/p 1.css'})
+        rename_files(c, {'stylesheet.css': 'styles/s 1.css', 'page_styles.css': 'styles/p 1.css'})
         self.check_links(c)
 
         # Test renaming of images
         c = new_container()
-        rename_files(c, {'cover.png':'images/cover img.png', 'light_wood.png':'images/light wood.png', 'marked.png':'images/marked img.png'})
+        rename_files(
+            c,
+            {
+                'cover.png': 'images/cover img.png',
+                'light_wood.png': 'images/light wood.png',
+                'marked.png': 'images/marked img.png',
+            },
+        )
         self.check_links(c)
 
         # Test renaming of ToC
@@ -169,18 +170,21 @@ class ContainerTests(BaseTest):
 
         # Test renaming of text files
         c = new_container()
-        rename_files(c, {'index_split_000.html':'text/page one fällen.html', 'index_split_001.html':'text/page two fällen.html'})
+        rename_files(
+            c,
+            {'index_split_000.html': 'text/page one fällen.html', 'index_split_001.html': 'text/page two fällen.html'},
+        )
         self.check_links(c)
 
         # Test rename with only case change
         c = new_container()
-        rename_files(c, {'index_split_000.html':'Index_split_000.html'})
+        rename_files(c, {'index_split_000.html': 'Index_split_000.html'})
         self.check_links(c)
 
         # self.run_external_tools(c, vim=True)
 
     def test_file_add(self):
-        ' Test adding of files '
+        "Test adding of files"
         book = get_simple_book()
         c = get_container(book)
         name = 'folder/added file.html'
@@ -201,8 +205,9 @@ class ContainerTests(BaseTest):
         self.check_links(c)
 
     def test_actual_case(self):
-        ' Test getting the actual case for files from names on case insensitive filesystems '
+        "Test getting the actual case for files from names on case insensitive filesystems"
         from calibre.ebooks.oeb.polish.utils import actual_case_for_name, corrected_case_for_name
+
         book = get_simple_book()
         c = get_container(book)
         name = 'f1/f2/added file.html'
@@ -215,10 +220,10 @@ class ContainerTests(BaseTest):
         else:
             for n in variations:
                 self.assertEqual(name, corrected_case_for_name(c, n))
-            self.assertIsNone(corrected_case_for_name(c, name+'/xx'))
+            self.assertIsNone(corrected_case_for_name(c, name + '/xx'))
 
     def test_split_file(self):
-        ' Test splitting of files '
+        "Test splitting of files"
         book = get_split_book()
         c = get_container(book)
         name = 'index.html'
@@ -230,7 +235,7 @@ class ContainerTests(BaseTest):
         self.check_links(c)
 
     def test_merge_file(self):
-        ' Test merging of files '
+        "Test merging of files"
         book = get_simple_book()
         c = get_container(book)
         merge(c, 'text', ('index_split_000.html', 'index_split_001.html'), 'index_split_000.html')
@@ -239,8 +244,15 @@ class ContainerTests(BaseTest):
         book = get_simple_book()
         c = get_container(book)
         one, two = 'one/one.html', 'two/two.html'
-        c.add_file(one, b'<head><link href="../stylesheet.css"><p><a name="one" href="../two/two.html">1</a><a name="two" href="../two/two.html#one">2</a>')  # noqa: E501
-        c.add_file(two, b'<head><link href="../page_styles.css"><p><a name="one" href="two.html#two">1</a><a name="two" href="../one/one.html#one">2</a><a href="#one">3</a>')  # noqa: E501
+        c.add_file(
+            one,
+            b'<head><link href="../stylesheet.css"><p><a name="one" href="../two/two.html">1</a><a name="two" href="../two/two.html#one">2</a>',
+        )  # noqa: E501
+        c.add_file(
+            two,
+            b'<head><link href="../page_styles.css"><p><a name="one" href="two.html#two">1</a>'
+            b'<a name="two" href="../one/one.html#one">2</a><a href="#one">3</a>',
+        )  # noqa: E501
         merge(c, 'text', (one, two), one)
         self.check_links(c)
         root = c.parsed(one)
@@ -262,6 +274,7 @@ class ContainerTests(BaseTest):
                 os.mkdir('.git')
                 with open('.git/xxx', 'wb') as f:
                     f.write(b'xxx')
+
         with TemporaryDirectory('-polish-dir-container') as source:
             create_book(source)
             c = get_container(source)
@@ -280,7 +293,7 @@ class ContainerTests(BaseTest):
         book = get_simple_book()
         c = get_container(book)
         c.add_file('Image/testcase.png', b'xxx')
-        rationalize_folders(c, {'image':'image'})
+        rationalize_folders(c, {'image': 'image'})
         self.assertTrue(c.has_name('Image/testcase.png'))
         self.assertTrue(c.exists('Image/testcase.png'))
         self.assertFalse(c.has_name('image/testcase.png'))

@@ -81,9 +81,14 @@ def main():
         render(src, ofiles)
     with open(hash_path, 'w') as f:
         json.dump(hashes, f, indent=2, sort_keys=True)
-    subprocess.check_call(['inkscape', os.path.join(base, 'calibre.svg'),
-                           '--export-type=svg', '--export-plain-svg', '--export-filename',
-                           os.path.join(output_base, 'calibre.svg')])
+    subprocess.check_call([
+        'inkscape',
+        os.path.join(base, 'calibre.svg'),
+        '--export-type=svg',
+        '--export-plain-svg',
+        '--export-filename',
+        os.path.join(output_base, 'calibre.svg'),
+    ])
 
 
 if __name__ == '__main__':

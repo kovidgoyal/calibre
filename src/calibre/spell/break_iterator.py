@@ -1,8 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__ = 'GPL v3'
-__copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
+# License: GPLv3 Copyright: 2014, Kovid Goyal <kovid at kovidgoyal.net>
 
 import threading
 
@@ -11,7 +8,6 @@ from calibre.utils.localization import get_lang, lang_as_iso639_1
 
 
 class PerThreadIterators(threading.local):
-
     def __init__(self):
         self.iterators = {}
         self.sentence_iterators = {}
@@ -23,8 +19,7 @@ per_thread_iterators = PerThreadIterators()
 
 def get_iterator(lang):
     if (it := per_thread_iterators.iterators.get(lang)) is None:
-        it = per_thread_iterators.iterators[lang] = _icu.BreakIterator(
-                _icu.UBRK_WORD, lang_as_iso639_1(lang) or lang)
+        it = per_thread_iterators.iterators[lang] = _icu.BreakIterator(_icu.UBRK_WORD, lang_as_iso639_1(lang) or lang)
     return it
 
 
@@ -33,8 +28,7 @@ def get_word_break_iterator_with_extra_chars(lang: str = '', extra_break_chars: 
     lang = lang or get_lang() or 'en'
     key = lang, extra_break_chars
     if (it := per_thread_iterators.extra_break_char_word_iterators.get(key)) is None:
-        it = per_thread_iterators.extra_break_char_word_iterators[key] = _icu.BreakIterator(
-                _icu.UBRK_WORD, lang_as_iso639_1(lang) or lang, extra_break_chars)
+        it = per_thread_iterators.extra_break_char_word_iterators[key] = _icu.BreakIterator(_icu.UBRK_WORD, lang_as_iso639_1(lang) or lang, extra_break_chars)
     return it
 
 
@@ -47,7 +41,7 @@ def get_sentence_iterator(lang):
 def split_into_words(text, lang='en'):
     it = get_iterator(lang)
     it.set_text(text)
-    return [text[p:p+s] for p, s in it.split2()]
+    return [text[p : p + s] for p, s in it.split2()]
 
 
 def split_into_words_and_positions(text, lang='en'):
@@ -65,7 +59,7 @@ def sentence_positions(text, lang='en'):
 def split_into_sentences(text, lang='en'):
     it = get_sentence_iterator(lang)
     it.set_text(text)
-    return tuple(text[p:p+s] for p, s in it.split2())
+    return tuple(text[p : p + s] for p, s in it.split2())
 
 
 def index_of(needle, haystack, lang='en'):
@@ -107,20 +101,30 @@ PARAGRAPH_SEPARATOR = '\u2029'
 
 
 def split_into_sentences_for_tts_embed(
-    text: str, lang: str = 'en',
+    text: str,
+    lang: str = 'en',
 ):
     import re
+
     def sub(m):
         return PARAGRAPH_SEPARATOR + ' ' * (len(m.group()) - 1)
+
     text = re.sub(r'\n{2,}', sub, text.replace('\r', ' ')).replace('\n', ' ')
     yield from sentence_positions(text, lang)
 
 
 def split_into_sentences_for_tts(
-    text: str, lang: str = 'en', min_sentence_length: int = 32, max_sentence_length: int = 1024, PARAGRAPH_SEPARATOR: str = PARAGRAPH_SEPARATOR):
+    text: str,
+    lang: str = 'en',
+    min_sentence_length: int = 32,
+    max_sentence_length: int = 1024,
+    PARAGRAPH_SEPARATOR: str = PARAGRAPH_SEPARATOR,
+):
     import re
+
     def sub(m):
         return PARAGRAPH_SEPARATOR + ' ' * (len(m.group()) - 1)
+
     text = re.sub(r'\n{2,}', sub, text.replace('\r', ' ')).replace('\n', ' ')
     pending_start, pending_sentence = 0, ''
     for start, length in sentence_positions(text, lang):
@@ -128,7 +132,7 @@ def split_into_sentences_for_tts(
         sentence = text[start:end].rstrip().replace('\n', ' ').strip()
         if not sentence:
             continue
-        if len(sentence) < min_sentence_length and text[end-1] != PARAGRAPH_SEPARATOR:
+        if len(sentence) < min_sentence_length and text[end - 1] != PARAGRAPH_SEPARATOR:
             if pending_sentence:
                 pending_sentence += ' ' + sentence
                 if len(pending_sentence) >= min_sentence_length:

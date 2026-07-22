@@ -6,8 +6,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 class NatGeo(BasicNewsRecipe):
     title = 'National Geographic Kids'
-    description = ('The National Geographic, an American monthly magazine. '
-                   'Inspiring people to care about the planet since 1888')
+    description = 'The National Geographic, an American monthly magazine. Inspiring people to care about the planet since 1888'
     language = 'en'
     encoding = 'utf8'
     publisher = 'kids.nationalgeographic.com'
@@ -53,8 +52,13 @@ class NatGeo(BasicNewsRecipe):
     def parse_index(self):
         index = 'https://kids.nationalgeographic.com/'
         sections = [
-            'Front Page', 'animals', 'history', 'science',
-            'space', 'homework-help', 'crafts',
+            'Front Page',
+            'animals',
+            'history',
+            'science',
+            'space',
+            'homework-help',
+            'crafts',
         ]
         feeds = []
         for sec in sections:

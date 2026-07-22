@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
-
 import functools
 import importlib
 import importlib.resources
@@ -23,11 +22,11 @@ def no_endl(f):
             return f(*args, **kwargs)
         finally:
             self.stream.writeln = orig
+
     return func
 
 
 class TestResult(unittest.TextTestResult):
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.start_time = {}
@@ -94,6 +93,7 @@ def init_env():
     from calibre.ebooks.metadata.book.base import reset_field_metadata
     from calibre.ebooks.oeb.polish.utils import setup_css_parser_serialization
     from calibre.utils.config_base import reset_tweaks_to_default
+
     reset_tweaks_to_default()
     reset_field_metadata()
     setup_css_parser_serialization()
@@ -114,6 +114,7 @@ def filter_tests_by_name(suite, *names):
 
     def q(test):
         return test._testMethodName in names
+
     return filter_tests(suite, q)
 
 
@@ -122,6 +123,7 @@ def remove_tests_by_name(suite, *names):
 
     def q(test):
         return test._testMethodName not in names
+
     return filter_tests(suite, q)
 
 
@@ -131,15 +133,20 @@ def filter_tests_by_module(suite, *names):
     def q(test):
         m = test.__class__.__module__.rpartition('.')[-1]
         return m in names
+
     return filter_tests(suite, q)
 
 
 def run_tests(find_tests, verbosity=4):
     import argparse
+
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        'name', nargs='?', default=None,
-        help='The name of the test to run, for example: writing.WritingTest.many_many_basic or .many_many_basic for a shortcut')
+        'name',
+        nargs='?',
+        default=None,
+        help='The name of the test to run, for example: writing.WritingTest.many_many_basic or .many_many_basic for a shortcut',
+    )
     args = parser.parse_args()
     tests = find_tests()
     if args.name:
@@ -153,9 +160,9 @@ def run_tests(find_tests, verbosity=4):
 
 
 class TestImports(unittest.TestCase):
-
     def base_check(self, base, exclude_packages, exclude_modules):
         import importlib
+
         import_base = os.path.dirname(base)
         count = 0
         for root, dirs, files in os.walk(base):
@@ -179,6 +186,7 @@ class TestImports(unittest.TestCase):
 
     def test_import_of_all_python_modules(self):
         from calibre.constants import isbsd, islinux, ismacos, iswindows
+
         exclude_packages = {'calibre.devices.mtp.unix.upstream'}
         exclude_modules = {'calibre.web.automate.browser'}
         if not iswindows:
@@ -188,8 +196,10 @@ class TestImports(unittest.TestCase):
             exclude_modules.add('calibre.utils.open_with.osx')
         if not islinux:
             exclude_modules |= {
-                'calibre.linux', 'calibre.gui2.tts.speechd',
-                'calibre.utils.linux_trash', 'calibre.utils.open_with.linux',
+                'calibre.linux',
+                'calibre.gui2.tts.speechd',
+                'calibre.utils.linux_trash',
+                'calibre.utils.open_with.linux',
                 'calibre.gui2.linux_file_dialogs',
             }
         if 'SKIP_SPEECH_TESTS' in os.environ:
@@ -204,13 +214,16 @@ class TestImports(unittest.TestCase):
 
         # Virtual imports for legacy compatibility
         import calibre.web.feeds.feedparser as f  # type: ignore
+
         del f
         from calibre.ebooks.markdown import Markdown  # type: ignore
+
         del Markdown
 
 
 def find_tests(which_tests=None, exclude_tests=None):
     from calibre.constants import iswindows
+
     ans = []
     a = ans.append
 
@@ -219,128 +232,181 @@ def find_tests(which_tests=None, exclude_tests=None):
 
     if ok('fork'):  # need these to run first before threads are created or libraries used
         from calibre.utils.forked_map import find_tests
+
         a(find_tests())
     if ok('build'):
         from calibre.test_build import find_tests
+
         a(find_tests(only_build=True))
     if ok('srv'):
         from calibre.srv.tests.main import find_tests
+
         a(find_tests())
     if ok('db'):
         from calibre.db.tests.main import find_tests
+
         a(find_tests())
     if ok('polish'):
         from calibre.ebooks.oeb.polish.tests.main import find_tests
+
         a(find_tests())
         from calibre.ebooks.oeb.polish.tests.structure import find_tests
+
         a(find_tests())
     if ok('opf'):
         from calibre.ebooks.metadata.opf2 import suite
+
         a(suite())
         from calibre.ebooks.metadata.opf3_test import suite
+
         a(suite())
     if ok('css'):
         from tinycss.tests.main import find_tests
+
         a(find_tests())
         from calibre.ebooks.oeb.normalize_css import test_normalization
+
         a(test_normalization(return_tests=True))
         from calibre.ebooks.css_transform_rules import test
+
         a(test(return_tests=True))
         from calibre.ebooks.html_transform_rules import test
+
         a(test(return_tests=True))
         from css_selectors.tests import find_tests
+
         a(find_tests())
     if ok('docx'):
         from calibre.ebooks.docx.fields import test_parse_fields
+
         a(test_parse_fields(return_tests=True))
         from calibre.ebooks.docx.writer.utils import test_convert_color
+
         a(test_convert_color(return_tests=True))
     if ok('cfi'):
         from calibre.ebooks.epub.cfi.tests import find_tests
+
         a(find_tests())
     if ok('matcher'):
         from calibre.utils.matcher import test
+
         a(test(return_tests=True))
     if ok('scraper'):
         from calibre.scraper.test_fetch_backend import find_tests
+
         a(find_tests())
         from calibre.web.automate.test_worker import find_tests
+
         a(find_tests())
     if ok('icu'):
         from calibre.utils.icu_test import find_tests
+
         a(find_tests())
     if ok('smartypants'):
         from calibre.utils.smartypants import run_tests
+
         a(run_tests(return_tests=True))
     if ok('ebooks'):
         from calibre.ebooks.conversion.plugins.archive_input import find_tests
+
         a(find_tests())
         from calibre.ebooks.conversion.plugins.txt_input import find_tests
+
         a(find_tests())
         from calibre.ebooks.metadata.rtf import find_tests
+
         a(find_tests())
         from calibre.ebooks.metadata.html import find_tests
+
         a(find_tests())
         from calibre.utils.xml_parse import find_tests
+
         a(find_tests())
         from calibre.gui2.viewer.annotations import find_tests
+
         a(find_tests())
         from calibre.gui2.library.test_annotations import find_tests
+
         a(find_tests())
         from calibre.ebooks.html_entities import find_tests
+
         a(find_tests())
         from calibre.spell.dictionary import find_tests
+
         a(find_tests())
     if ok('ai'):
         from calibre.ai.utils import find_tests
+
         a(find_tests())
     if ok('misc'):
         from calibre.ebooks.html.input import find_tests
+
         a(find_tests())
         from calibre.ebooks.metadata.test_author_sort import find_tests
+
         a(find_tests())
         from calibre.ebooks.metadata.tag_mapper import find_tests
+
         a(find_tests())
         from calibre.ebooks.metadata.author_mapper import find_tests
+
         a(find_tests())
         from calibre.utils.shared_file import find_tests
+
         a(find_tests())
         from calibre.utils.test_lock import find_tests
+
         a(find_tests())
         from calibre.utils.search_query_parser_test import find_tests
+
         a(find_tests())
         from calibre.utils.html2text import find_tests
+
         a(find_tests())
         from calibre.utils.shm import find_tests
+
         a(find_tests())
         from calibre.library.comments import find_tests
+
         a(find_tests())
         from calibre.ebooks.compression.palmdoc import find_tests
+
         a(find_tests())
         from calibre.gui2.viewer.convert_book import find_tests
+
         a(find_tests())
         from calibre.utils.hyphenation.test_hyphenation import find_tests
+
         a(find_tests())
         from calibre.live import find_tests
+
         a(find_tests())
         from calibre.utils.copy_files_test import find_tests
+
         a(find_tests())
         from calibre.utils.safe_atexit import find_tests
+
         a(find_tests())
         from calibre.gui2.listener import find_tests
+
         a(find_tests())
         if iswindows:
             from calibre.utils.windows.wintest import find_tests
+
             a(find_tests())
         a(unittest.defaultTestLoader.loadTestsFromTestCase(TestImports))
         from calibre.utils.translator.test_translator import find_tests
+
         a(find_tests())
         from calibre.utils.config_base import find_tests
+
         a(find_tests())
         from calibre.utils.zipfile import find_tests
+
         a(find_tests())
     if ok('dbcli'):
         from calibre.db.cli.tests import find_tests
+
         a(find_tests())
 
     tests = unittest.TestSuite(ans)

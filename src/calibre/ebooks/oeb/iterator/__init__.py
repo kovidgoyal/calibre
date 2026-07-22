@@ -1,9 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__   = 'GPL v3'
-__copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2012, Kovid Goyal <kovid@kovidgoyal.net>
 
 import os
 import re
@@ -20,14 +16,14 @@ def is_supported(path):
 
 
 class UnsupportedFormatError(Exception):
-
     def __init__(self, fmt):
-        Exception.__init__(self, _('%s format books are not supported')%fmt.upper())
+        Exception.__init__(self, _('%s format books are not supported') % fmt.upper())
 
 
 def EbookIterator(*args, **kwargs):
-    'For backwards compatibility'
+    "For backwards compatibility"
     from calibre.ebooks.oeb.iterator.book import EbookIterator
+
     return EbookIterator(*args, **kwargs)
 
 
@@ -35,6 +31,7 @@ def get_preprocess_html(path_to_ebook, output=None):
     from calibre.ebooks.conversion.plumber import Plumber, set_regex_wizard_callback
     from calibre.ptempfile import TemporaryDirectory
     from calibre.utils.logging import DevNull
+
     raw = {}
     set_regex_wizard_callback(raw.__setitem__)
     with TemporaryDirectory('_regex_wiz') as tdir:
@@ -42,7 +39,7 @@ def get_preprocess_html(path_to_ebook, output=None):
         pl.run()
         items = [raw[item.href] for item in pl.oeb.spine if item.href in raw]
 
-    with (sys.stdout.buffer if output is None else open(output, 'wb')) as out:
+    with sys.stdout.buffer if output is None else open(output, 'wb') as out:
         for html in items:
             out.write(html.encode('utf-8'))
-            out.write(b'\n\n' + b'-'*80 + b'\n\n')
+            out.write(b'\n\n' + b'-' * 80 + b'\n\n')

@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
-
 from lxml.etree import tostring
 from qt.core import QCheckBox, QComboBox, QFont, QHBoxLayout, QIcon, QLabel, QSizePolicy, QToolButton, QVBoxLayout, QWidget, pyqtSignal
 
@@ -20,18 +19,21 @@ from polyglot.builtins import error_message
 
 
 class ModeBox(QComboBox):
-
     def __init__(self, parent):
         QComboBox.__init__(self, parent)
         self.addItems([_('Normal'), _('Regex')])
-        self.setToolTip('<style>dd {margin-bottom: 1.5ex}</style>' + _(
-            '''Select how the search expression is interpreted
+        self.setToolTip(
+            '<style>dd {margin-bottom: 1.5ex}</style>'
+            + _(
+                '''Select how the search expression is interpreted
             <dl>
             <dt><b>Normal</b></dt>
             <dd>The search expression is treated as normal text, calibre will look for the exact text.</dd>
             <dt><b>Regex</b></dt>
             <dd>The search expression is interpreted as a regular expression. See the User Manual for more help on using regular expressions.</dd>
-            </dl>'''))
+            </dl>'''
+            )
+        )
 
     @property
     def mode(self):
@@ -39,16 +41,17 @@ class ModeBox(QComboBox):
 
     @mode.setter
     def mode(self, val):
-        self.setCurrentIndex({'regex':1}.get(val, 0))
+        self.setCurrentIndex({'regex': 1}.get(val, 0))
 
 
 class WhereBox(QComboBox):
-
     def __init__(self, parent, emphasize=False):
         QComboBox.__init__(self)
         self.addItems([_('Current file'), _('All text files'), _('Selected files'), _('Open files')])
-        self.setToolTip('<style>dd {margin-bottom: 1.5ex}</style>' + _(
-            '''
+        self.setToolTip(
+            '<style>dd {margin-bottom: 1.5ex}</style>'
+            + _(
+                '''
             Where to search/replace:
             <dl>
             <dt><b>Current file</b></dt>
@@ -59,7 +62,9 @@ class WhereBox(QComboBox):
             <dd>Search in the files currently selected in the File browser</dd>
             <dt><b>Open files</b></dt>
             <dd>Search in the files currently open in the editor</dd>
-            </dl>'''))
+            </dl>'''
+            )
+        )
         self.emphasize = emphasize
         self.ofont = QFont(self.font())
         if emphasize:
@@ -69,13 +74,13 @@ class WhereBox(QComboBox):
 
     @property
     def where(self):
-        wm = {0:'current', 1:'text', 2:'selected', 3:'open'}
+        wm = {0: 'current', 1: 'text', 2: 'selected', 3: 'open'}
         return wm[self.currentIndex()]
 
     @where.setter
     def where(self, val):
-        wm = {0:'current', 1:'text', 2:'selected', 3:'open'}
-        self.setCurrentIndex({v:k for k, v in wm.items()}[val])
+        wm = {0: 'current', 1: 'text', 2: 'selected', 3: 'open'}
+        self.setCurrentIndex({v: k for k, v in wm.items()}[val])
 
     def showPopup(self):
         # We do it like this so that the popup uses a normal font
@@ -90,7 +95,6 @@ class WhereBox(QComboBox):
 
 
 class TextSearch(QWidget):
-
     find_text = pyqtSignal(object)
 
     def __init__(self, ui):
@@ -128,7 +132,7 @@ class TextSearch(QWidget):
         self.cs = cs = QCheckBox(_('&Case sensitive'))
         h.addWidget(cs)
         self.da = da = QCheckBox(_('&Dot all'))
-        da.setToolTip('<p>'+_("Make the '.' special character match any character at all, including a newline"))
+        da.setToolTip('<p>' + _("Make the '.' special character match any character at all, including a newline"))
         h.addWidget(da)
 
         state = tprefs.get('text_search_widget_state')
@@ -136,7 +140,12 @@ class TextSearch(QWidget):
 
     @property
     def state(self):
-        return {'mode': self.mode.mode, 'where':self.where_box.where, 'case_sensitive':self.cs.isChecked(), 'dot_all':self.da.isChecked()}
+        return {
+            'mode': self.mode.mode,
+            'where': self.where_box.where,
+            'case_sensitive': self.cs.isChecked(),
+            'dot_all': self.da.isChecked(),
+        }
 
     @state.setter
     def state(self, val):
@@ -156,6 +165,8 @@ class TextSearch(QWidget):
 
     def search_activated(self):
         self.do_search()
+
+
 # }}}
 
 
@@ -172,9 +183,12 @@ def run_text_search(search, current_editor, current_editor_name, searchable_name
     try:
         pat = get_search_regex(search)
     except InvalidRegex as e:
-        return error_dialog(gui_parent, _('Invalid regex'), '<p>' + _(
-            'The regular expression you entered is invalid: <pre>{0}</pre>With error: {1}').format(
-                prepare_string_for_xml(e.regex), error_message(e)), show=True)
+        return error_dialog(
+            gui_parent,
+            _('Invalid regex'),
+            '<p>' + _('The regular expression you entered is invalid: <pre>{0}</pre>With error: {1}').format(prepare_string_for_xml(e.regex), error_message(e)),
+            show=True,
+        )
     editor, where, files, do_all, marked = initialize_search_request(search, 'count', current_editor, current_editor_name, searchable_names)
     with BusyCursor():
         if editor is not None:
@@ -219,8 +233,8 @@ def find_text_in_chunks(pat, chunks):
             if contains(clen, start):
                 start_pos = chunk_start + (start - offset)
         if start_pos is not None:
-            if contains(clen, after-1):
-                end_pos = chunk_start + utf16_length(chunk[:after-offset])
+            if contains(clen, after - 1):
+                end_pos = chunk_start + utf16_length(chunk[: after - offset])
                 return start_pos, end_pos
         offset += clen
         if offset > after:

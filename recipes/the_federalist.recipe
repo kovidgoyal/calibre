@@ -7,9 +7,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 def classes(classes):
     q = frozenset(classes.split(' '))
-    return dict(
-        attrs={'class': lambda x: x and frozenset(x.split()).intersection(q)}
-    )
+    return dict(attrs={'class': lambda x: x and frozenset(x.split()).intersection(q)})
 
 
 class Federalist(BasicNewsRecipe):
@@ -32,7 +30,8 @@ class Federalist(BasicNewsRecipe):
         classes(
             'title-lg article-thumbnail post-categories article-excerpt article-author-details'
             ' article-meta-author article-meta-date article-content article-body shortbio entry-header'
-            ' byline-month byline-standard alpha-byline article-author-description article-author-details'),
+            ' byline-month byline-standard alpha-byline article-author-description article-author-details'
+        ),
     ]
     remove_tags = [
         dict(name=['meta', 'link']),

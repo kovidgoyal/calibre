@@ -1,8 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__ = 'GPL v3'
-__copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
+# License: GPLv3 Copyright: 2014, Kovid Goyal <kovid at kovidgoyal.net>
 
 import codecs
 import glob
@@ -35,7 +32,7 @@ ONLINE_DICTIONARY_BASE_URL = 'https://raw.githubusercontent.com/LibreOffice/dict
 
 
 def parse_xcu(raw, origin='%origin%'):
-    ' Get the dictionary and affix file names as well as supported locales for each dictionary '
+    "Get the dictionary and affix file names as well as supported locales for each dictionary"
     ans = {}
     root = safe_xml_fromstring(raw)
 
@@ -56,7 +53,7 @@ def parse_xcu(raw, origin='%origin%'):
 
 
 def convert_to_utf8(dic_data, aff_data, errors='strict'):
-    m = re.search(br'^SET\s+(\S+)$', aff_data[:2048], flags=re.MULTILINE)
+    m = re.search(rb'^SET\s+(\S+)$', aff_data[:2048], flags=re.MULTILINE)
     if m is not None:
         enc = m.group(1).decode('ascii', 'replace')
         if enc.upper() not in ('UTF-8', 'UTF8'):
@@ -65,7 +62,7 @@ def convert_to_utf8(dic_data, aff_data, errors='strict'):
             except LookupError:
                 pass
             else:
-                aff_data = aff_data[:m.start()] + b'SET UTF-8' + aff_data[m.end():]
+                aff_data = aff_data[: m.start()] + b'SET UTF-8' + aff_data[m.end() :]
                 aff_data = aff_data.decode(enc, errors).encode('utf-8')
                 dic_data = dic_data.decode(enc, errors).encode('utf-8')
     return dic_data, aff_data
@@ -103,12 +100,12 @@ def import_from_libreoffice_source_tree(source_path):
 
 
 def fill_country_code(x):
-    return {'lt':'lt_LT'}.get(x, x)
+    return {'lt': 'lt_LT'}.get(x, x)
 
 
-def uniq(vals, kmap=lambda x:x):
-    ''' Remove all duplicates from vals, while preserving order. kmap must be a
-    callable that returns a hashable value for every item in vals '''
+def uniq(vals, kmap=lambda x: x):
+    """Remove all duplicates from vals, while preserving order. kmap must be a
+    callable that returns a hashable value for every item in vals"""
     vals = vals or ()
     lvals = (kmap(x) for x in vals)
     seen = set()
@@ -118,6 +115,7 @@ def uniq(vals, kmap=lambda x:x):
 
 def _import_from_virtual_directory(read_file_func, name, dest_dir=None, prefix='dic-'):
     from calibre.spell.dictionary import parse_lang_code
+
     dest_dir = dest_dir or os.path.join(config_dir, 'dictionaries')
     if not os.path.exists(dest_dir):
         os.makedirs(dest_dir)
@@ -125,7 +123,8 @@ def _import_from_virtual_directory(read_file_func, name, dest_dir=None, prefix='
 
     root = safe_xml_fromstring(read_file_func('META-INF/manifest.xml'))
     xcu = XPath('//manifest:file-entry[@manifest:media-type="application/vnd.sun.star.configuration-data"]')(root)[0].get(
-        '{{{}}}full-path'.format(NS_MAP['manifest']))
+        '{{{}}}full-path'.format(NS_MAP['manifest'])
+    )
     for (dic, aff), locales in parse_xcu(read_file_func(xcu), origin='').items():
         dic, aff = dic.lstrip('/'), aff.lstrip('/')
         d = tempfile.mkdtemp(prefix=prefix, dir=dest_dir)
@@ -146,6 +145,7 @@ def _import_from_virtual_directory(read_file_func, name, dest_dir=None, prefix='
 
 def import_from_oxt(source_path, name, dest_dir=None, prefix='dic-'):
     with ZipFile(source_path) as zf:
+
         def read_file(key):
             try:
                 return zf.open(key).read()
@@ -163,6 +163,7 @@ def import_from_oxt(source_path, name, dest_dir=None, prefix='dic-'):
 
 def import_from_online(directory, name, dest_dir=None, prefix='dic-'):
     br = browser(timeout=30)
+
     def read_file(key):
         try:
             rp = br.open('/'.join((ONLINE_DICTIONARY_BASE_URL, directory, key)))

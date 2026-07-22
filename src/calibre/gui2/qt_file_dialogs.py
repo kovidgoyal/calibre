@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
 
-
 import os
 
 from qt.core import QDialog, QFileDialog, QObject
@@ -23,7 +22,6 @@ def select_initial_dir(q):
 
 
 class Dummy:
-
     def __enter__(self):
         pass
 
@@ -32,9 +30,9 @@ class Dummy:
 
 
 class FileDialog(QObject):
-
     def __init__(
-        self, title=_('Choose files'),
+        self,
+        title=_('Choose files'),
         filters=[],
         add_all_files_filter=True,
         parent=None,
@@ -43,10 +41,11 @@ class FileDialog(QObject):
         mode=QFileDialog.FileMode.ExistingFiles,
         default_dir='~',
         no_save_dir=False,
-        combine_file_and_saved_dir=False
+        combine_file_and_saved_dir=False,
     ):
         from calibre.gui2 import dynamic, sanitize_env_vars
         from calibre.gui2.ui import get_gui
+
         gui = get_gui()
         adapt_menubar = gui.bars_manager.adapt_menu_bar_for_dialog if gui is not None else Dummy()
         QObject.__init__(self)
@@ -58,8 +57,7 @@ class FileDialog(QObject):
                 if not extensions or (len(extensions) == 1 and extensions[0] == '*'):
                     extensions = ['*']
                 else:
-                    extensions = ['*'+(i if i.startswith('.') else '.'+i) for i in
-                            extensions]
+                    extensions = ['*' + (i if i.startswith('.') else '.' + i) for i in extensions]
                 etext = '{} ({});;'.format(text, ' '.join(extensions))
                 if len(etext) > 72:
                     has_long_filter = True
@@ -74,8 +72,7 @@ class FileDialog(QObject):
 
         if combine_file_and_saved_dir:
             bn = os.path.basename(default_dir)
-            prev = dynamic.get(self.dialog_name,
-                    os.path.expanduser('~'))
+            prev = dynamic.get(self.dialog_name, os.path.expanduser('~'))
             if os.path.exists(prev):
                 if os.path.isfile(prev):
                     prev = os.path.dirname(prev)
@@ -87,18 +84,17 @@ class FileDialog(QObject):
         elif no_save_dir:
             initial_dir = os.path.expanduser(default_dir)
         else:
-            initial_dir = dynamic.get(self.dialog_name,
-                    os.path.expanduser(default_dir))
+            initial_dir = dynamic.get(self.dialog_name, os.path.expanduser(default_dir))
         if not isinstance(initial_dir, (str, bytes)):
             initial_dir = os.path.expanduser(default_dir)
-        if not initial_dir or (not os.path.exists(initial_dir) and not (
-                mode == QFileDialog.FileMode.AnyFile and (no_save_dir or combine_file_and_saved_dir))):
+        if not initial_dir or (not os.path.exists(initial_dir) and not (mode == QFileDialog.FileMode.AnyFile and (no_save_dir or combine_file_and_saved_dir))):
             initial_dir = select_initial_dir(initial_dir)
         self.selected_files = []
         use_native_dialog = 'CALIBRE_NO_NATIVE_FILEDIALOGS' not in os.environ
 
         def create_dialog(title, ftext='', for_saving=False):
             from calibre.gui2 import file_icon_provider
+
             ans = QFileDialog(parent, title, initial_dir)
             if ftext:
                 ans.setNameFilter(ftext)
@@ -117,6 +113,7 @@ class FileDialog(QObject):
                 if url.isLocalFile() or url.isEmpty():
                     return url.toLocalFile()
                 return url.toString()
+
             return tuple(c(url) for url in ans.selectedUrls())
 
         with sanitize_env_vars(), adapt_menubar:
@@ -183,18 +180,24 @@ class FileDialog(QObject):
 
 
 def choose_dir(window, name, title, default_dir='~', no_save_dir=False):
-    fd = FileDialog(title=title, filters=[], add_all_files_filter=False,
-            parent=window, name=name, mode=QFileDialog.FileMode.Directory,
-            default_dir=default_dir, no_save_dir=no_save_dir)
+    fd = FileDialog(
+        title=title,
+        filters=[],
+        add_all_files_filter=False,
+        parent=window,
+        name=name,
+        mode=QFileDialog.FileMode.Directory,
+        default_dir=default_dir,
+        no_save_dir=no_save_dir,
+    )
     dir = fd.get_files()
     fd.setParent(None)
     if dir:
         return dir[0]
 
 
-def choose_files(window, name, title,
-                filters=[], all_files=True, select_only_single_file=False, default_dir='~', no_save_dir=False):
-    '''
+def choose_files(window, name, title, filters=[], all_files=True, select_only_single_file=False, default_dir='~', no_save_dir=False):
+    """
     Ask user to choose a bunch of files.
     :param name: Unique dialog name used to store the opened directory
     :param title: Title to show in dialogs titlebar
@@ -204,11 +207,18 @@ def choose_files(window, name, title,
                     of extensions.
     :param all_files: If True add All files to filters.
     :param select_only_single_file: If True only one file can be selected
-    '''
+    """
     mode = QFileDialog.FileMode.ExistingFile if select_only_single_file else QFileDialog.FileMode.ExistingFiles
-    fd = FileDialog(title=title, name=name, filters=filters, default_dir=default_dir,
-                    parent=window, add_all_files_filter=all_files, mode=mode, no_save_dir=no_save_dir,
-                    )
+    fd = FileDialog(
+        title=title,
+        name=name,
+        filters=filters,
+        default_dir=default_dir,
+        parent=window,
+        add_all_files_filter=all_files,
+        mode=mode,
+        no_save_dir=no_save_dir,
+    )
     fd.setParent(None)
     if fd.accepted:
         return fd.get_files()
@@ -216,7 +226,7 @@ def choose_files(window, name, title,
 
 
 def choose_save_file(window, name, title, filters=[], all_files=True, initial_path=None, initial_filename=None):
-    '''
+    """
     Ask user to choose a file to save to. Can be a non-existent file.
     :param filters: list of allowable extensions. Each element of the list
                     must be a 2-tuple with first element a string describing
@@ -225,9 +235,15 @@ def choose_save_file(window, name, title, filters=[], all_files=True, initial_pa
     :param all_files: If True add All files to filters.
     :param initial_path: The initially selected path (does not need to exist). Cannot be used with initial_filename.
     :param initial_filename: If specified, the initially selected path is this filename in the previously used directory. Cannot be used with initial_path.
-    '''
-    kwargs = dict(title=title, name=name, filters=filters,
-                    parent=window, add_all_files_filter=all_files, mode=QFileDialog.FileMode.AnyFile)
+    """
+    kwargs = dict(
+        title=title,
+        name=name,
+        filters=filters,
+        parent=window,
+        add_all_files_filter=all_files,
+        mode=QFileDialog.FileMode.AnyFile,
+    )
     if initial_path is not None:
         kwargs['no_save_dir'] = True
         kwargs['default_dir'] = initial_path
@@ -248,10 +264,14 @@ def choose_images(window, name, title, select_only_single_file=True, formats=Non
     mode = QFileDialog.FileMode.ExistingFile if select_only_single_file else QFileDialog.FileMode.ExistingFiles
     if formats is None:
         formats = image_extensions()
-    fd = FileDialog(title=title, name=name,
-                    filters=[(_('Images'), list(formats))],
-                    parent=window, add_all_files_filter=False, mode=mode,
-                    )
+    fd = FileDialog(
+        title=title,
+        name=name,
+        filters=[(_('Images'), list(formats))],
+        parent=window,
+        add_all_files_filter=False,
+        mode=mode,
+    )
     fd.setParent(None)
     if fd.accepted:
         return fd.get_files()

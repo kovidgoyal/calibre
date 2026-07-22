@@ -1,10 +1,9 @@
-__license__   = 'GPL v3'
-__copyright__ = '2009, Kovid Goyal kovid@kovidgoyal.net'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2009, Kovid Goyal kovid@kovidgoyal.net
 
-'''
+"""
 ebook-meta
-'''
+"""
+
 import os
 import sys
 import unicodedata
@@ -18,8 +17,7 @@ from calibre.utils.config import StringConfig
 from calibre.utils.date import parse_date
 from calibre.utils.localization import _
 
-USAGE=_('%prog ebook_file [options]\n') + \
-_('''
+USAGE = _('%prog ebook_file [options]\n') + _('''
 Read/Write metadata from/to e-book files.
 
 Supported formats for reading metadata: {0}
@@ -34,67 +32,66 @@ silently ignored.
 
 def config():
     c = StringConfig('')
-    c.add_opt('title', ['-t', '--title'],
-              help=_('Set the title.'))
-    c.add_opt('authors', ['-a', '--authors'],
-              help=_('Set the authors. Multiple authors should be separated '
-                     'by the & character. Author names should be in the order '
-                     'Firstname Lastname.'))
-    c.add_opt('title_sort', ['--title-sort'],
-              help=_('The version of the title to be used for sorting. '
-                     'If unspecified, and the title is specified, it will '
-                     'be auto-generated from the title.'))
-    c.add_opt('author_sort', ['--author-sort'],
-              help=_('String to be used when sorting by author. '
-                     'If unspecified, and the author(s) are specified, it will '
-                     'be auto-generated from the author(s).'))
-    c.add_opt('cover', ['--cover'],
-              help=_('Set the cover to the specified file.'))
-    c.add_opt('comments', ['-c', '--comments'],
-              help=_('Set the e-book description.'))
-    c.add_opt('publisher', ['-p', '--publisher'],
-              help=_('Set the e-book publisher.'))
-    c.add_opt('category', ['--category'],
-              help=_('Set the book category.'))
-    c.add_opt('series', ['-s', '--series'],
-              help=_('Set the series this e-book belongs to.'))
-    c.add_opt('series_index', ['-i', '--index'],
-              help=_('Set the index of the book in this series.'))
-    c.add_opt('rating', ['-r', '--rating'],
-              help=_('Set the rating. Should be a number between 1 and 5.'))
-    c.add_opt('isbn', ['--isbn'],
-              help=_('Set the ISBN of the book.'))
-    c.add_opt('identifiers', ['--identifier'], action='append',
-              help=_('Set the identifiers for the book, can be specified multiple times.'
-                     ' For example: --identifier uri:{} --identifier isbn:12345'
-                     ' To remove an identifier, specify no value, --identifier isbn:'
-                     ' Note that for EPUB files, an identifier marked as the package identifier cannot be removed.'
-            ).format('https://acme.com'))
-    c.add_opt('tags', ['--tags'],
-              help=_('Set the tags for the book. Should be a comma separated list.'))
-    c.add_opt('book_producer', ['-k', '--book-producer'],
-              help=_('Set the book producer.'))
-    c.add_opt('language', ['-l', '--language'],
-              help=_('Set the language.'))
-    c.add_opt('pubdate', ['-d', '--date'],
-              help=_('Set the published date.'))
+    c.add_opt('title', ['-t', '--title'], help=_('Set the title.'))
+    c.add_opt(
+        'authors',
+        ['-a', '--authors'],
+        help=_('Set the authors. Multiple authors should be separated by the & character. Author names should be in the order Firstname Lastname.'),
+    )
+    c.add_opt(
+        'title_sort',
+        ['--title-sort'],
+        help=_('The version of the title to be used for sorting. If unspecified, and the title is specified, it will be auto-generated from the title.'),
+    )
+    c.add_opt(
+        'author_sort',
+        ['--author-sort'],
+        help=_('String to be used when sorting by author. If unspecified, and the author(s) are specified, it will be auto-generated from the author(s).'),
+    )
+    c.add_opt('cover', ['--cover'], help=_('Set the cover to the specified file.'))
+    c.add_opt('comments', ['-c', '--comments'], help=_('Set the e-book description.'))
+    c.add_opt('publisher', ['-p', '--publisher'], help=_('Set the e-book publisher.'))
+    c.add_opt('category', ['--category'], help=_('Set the book category.'))
+    c.add_opt('series', ['-s', '--series'], help=_('Set the series this e-book belongs to.'))
+    c.add_opt('series_index', ['-i', '--index'], help=_('Set the index of the book in this series.'))
+    c.add_opt('rating', ['-r', '--rating'], help=_('Set the rating. Should be a number between 1 and 5.'))
+    c.add_opt('isbn', ['--isbn'], help=_('Set the ISBN of the book.'))
+    c.add_opt(
+        'identifiers',
+        ['--identifier'],
+        action='append',
+        help=_(
+            'Set the identifiers for the book, can be specified multiple times.'
+            ' For example: --identifier uri:{} --identifier isbn:12345'
+            ' To remove an identifier, specify no value, --identifier isbn:'
+            ' Note that for EPUB files, an identifier marked as the package identifier cannot be removed.'
+        ).format('https://acme.com'),
+    )
+    c.add_opt('tags', ['--tags'], help=_('Set the tags for the book. Should be a comma separated list.'))
+    c.add_opt('book_producer', ['-k', '--book-producer'], help=_('Set the book producer.'))
+    c.add_opt('language', ['-l', '--language'], help=_('Set the language.'))
+    c.add_opt('pubdate', ['-d', '--date'], help=_('Set the published date.'))
 
-    c.add_opt('get_cover', ['--get-cover'],
-              help=_('Get the cover from the e-book and save it at as the '
-                     'specified file.'))
-    c.add_opt('disallow_rendered_cover', ['--disallow-rendered-cover'], action='store_true', help=_(
-        'For formats like EPUB that use a "default cover" of the first page rendered, disallow such default covers'))
+    c.add_opt('get_cover', ['--get-cover'], help=_('Get the cover from the e-book and save it at as the specified file.'))
+    c.add_opt(
+        'disallow_rendered_cover',
+        ['--disallow-rendered-cover'],
+        action='store_true',
+        help=_('For formats like EPUB that use a "default cover" of the first page rendered, disallow such default covers'),
+    )
 
-    c.add_opt('to_opf', ['--to-opf'],
-              help=_('Specify the name of an OPF file. The metadata will '
-                     'be written to the OPF file.'))
-    c.add_opt('from_opf', ['--from-opf'],
-              help=_('Read metadata from the specified OPF file and use it to '
-                     'set metadata in the e-book. Metadata specified on the '
-                     'command line will override metadata read from the OPF file'))
+    c.add_opt('to_opf', ['--to-opf'], help=_('Specify the name of an OPF file. The metadata will be written to the OPF file.'))
+    c.add_opt(
+        'from_opf',
+        ['--from-opf'],
+        help=_(
+            'Read metadata from the specified OPF file and use it to '
+            'set metadata in the e-book. Metadata specified on the '
+            'command line will override metadata read from the OPF file'
+        ),
+    )
 
-    c.add_opt('lrf_bookid', ['--lrf-bookid'],
-              help=_('Set the BookID in LRF files'))
+    c.add_opt('lrf_bookid', ['--lrf-bookid'], help=_('Set the BookID in LRF files'))
     return c
 
 
@@ -125,13 +122,23 @@ def do_set_metadata(opts, mi, stream, stream_type):
     from_opf = getattr(opts, 'from_opf', None)
     if from_opf is not None:
         from calibre.ebooks.metadata.opf2 import OPF
+
         opf_mi = OPF(open(from_opf, 'rb')).to_book_metadata()
         mi.smart_update(opf_mi)
 
     for pref in config().option_set.preferences:
-        if pref.name in ('to_opf', 'from_opf', 'authors', 'title_sort',
-                         'author_sort', 'get_cover', 'cover', 'tags',
-                         'lrf_bookid', 'identifiers'):
+        if pref.name in (
+            'to_opf',
+            'from_opf',
+            'authors',
+            'title_sort',
+            'author_sort',
+            'get_cover',
+            'cover',
+            'tags',
+            'lrf_bookid',
+            'identifiers',
+        ):
             continue
         val = getattr(opts, pref.name, None)
         if val is not None:
@@ -154,11 +161,11 @@ def do_set_metadata(opts, mi, stream, stream_type):
     if getattr(opts, 'pubdate', None) is not None:
         mi.pubdate = parse_date(opts.pubdate, assume_utc=False, as_utc=False)
     if getattr(opts, 'identifiers', None):
-        val = {k.strip():v.strip() for k, v in (x.partition(':')[0::2] for x in opts.identifiers)}
+        val = {k.strip(): v.strip() for k, v in (x.partition(':')[0::2] for x in opts.identifiers)}
         if val:
             orig = mi.get_identifiers()
             orig.update(val)
-            val = {k:v for k, v in orig.items() if k and v}
+            val = {k: v for k, v in orig.items() if k and v}
             mi.set_identifiers(val)
 
     if getattr(opts, 'cover', None) is not None:
@@ -171,6 +178,7 @@ def do_set_metadata(opts, mi, stream, stream_type):
 
 def one(line: str, lock) -> None:
     import json
+
     rq = json.loads(line)
     ebookpath, coverpath = rq['path'], rq.get('cover', '')
     ans = {'path': ebookpath}
@@ -178,6 +186,7 @@ def one(line: str, lock) -> None:
         try:
             from calibre.ebooks.metadata.epub import epub_metadata_settings
             from calibre.utils.date import isoformat
+
             with open(ebookpath, 'rb') as stream, epub_metadata_settings(allow_rendered_cover=True):
                 stream_type = os.path.splitext(ebookpath)[1].replace('.', '').lower()
                 mi = get_metadata(stream, stream_type, force_read_metadata=True)
@@ -193,7 +202,7 @@ def one(line: str, lock) -> None:
             if not mi.is_null('tags'):
                 m['tags'] = mi.tags
             if not mi.is_null('rating'):
-                m['rating'] = float(mi.rating)/2
+                m['rating'] = float(mi.rating) / 2
             for field in ('pubdate', 'timestamp'):
                 if not mi.is_null(field):
                     m[field] = isoformat(getattr(mi, field))
@@ -207,14 +216,19 @@ def one(line: str, lock) -> None:
 
 def simple_metadata_server():
     import calibre.ebooks.metadata.docx as speedup
+
     del speedup
     import calibre.ebooks.metadata.epub as speedup
+
     del speedup
     import calibre.ebooks.metadata.mobi as speedup
+
     del speedup
     import calibre.ebooks.metadata.pdf as speedup
+
     del speedup
     import multiprocessing
+
     lock = multiprocessing.Lock()
     for line in sys.stdin:
         line = line.strip()
@@ -243,13 +257,14 @@ def main(args=sys.argv):
             trying_to_set = True
             break
     from calibre.ebooks.metadata.epub import epub_metadata_settings
+
     with open(path, 'rb') as stream, epub_metadata_settings(allow_rendered_cover=not opts.disallow_rendered_cover):
         mi = get_metadata(stream, stream_type, force_read_metadata=True)
     if trying_to_set:
-        prints(_('Original metadata')+'::')
+        prints(_('Original metadata') + '::')
     metadata = str(mi)
     if trying_to_set:
-        metadata = '\t'+'\n\t'.join(metadata.split('\n'))
+        metadata = '\t' + '\n\t'.join(metadata.split('\n'))
     prints(metadata)
 
     if trying_to_set:
@@ -265,13 +280,14 @@ def main(args=sys.argv):
             mi = get_metadata(stream, stream_type, force_read_metadata=True)
         prints('\n' + _('Changed metadata') + '::')
         metadata = str(mi)
-        metadata = '\t'+'\n\t'.join(metadata.split('\n'))
+        metadata = '\t' + '\n\t'.join(metadata.split('\n'))
         prints(metadata)
         if lrf is not None:
             prints('\tBookID:', lrf.book_id)
 
     if opts.to_opf is not None:
         from calibre.ebooks.metadata.opf2 import OPFCreator
+
         opf = OPFCreator(os.getcwd(), mi)
         with open(opts.to_opf, 'wb') as f:
             opf.render(f)

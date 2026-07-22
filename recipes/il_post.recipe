@@ -57,14 +57,12 @@ class IlPost(BasicNewsRecipe):
     ignore_duplicate_articles = {'title', 'url'}
     no_stylesheets = True
     extra_css = ' .wp-caption-text { font-size:small; } '
-    keep_only_tags = [dict(name='main', attrs={'id':lambda x: x and x.startswith('index_main-content__')})]
+    keep_only_tags = [dict(name='main', attrs={'id': lambda x: x and x.startswith('index_main-content__')})]
     remove_tags_before = [dict(name='article')]
     remove_tags_after = [dict(name='article')]
     remove_tags = [
-        dict(attrs={'class':lambda x: x and x.startswith(
-            ('index_actions__', 'index_il-post-comments___', 'index_art_tag__')
-        )}),
-        dict(attrs={'id':'audioPlayerArticle'})
+        dict(attrs={'class': lambda x: x and x.startswith(('index_actions__', 'index_il-post-comments___', 'index_art_tag__'))}),
+        dict(attrs={'id': 'audioPlayerArticle'}),
     ]
 
     def parse_page(self, name, url):
@@ -80,11 +78,7 @@ class IlPost(BasicNewsRecipe):
                 if not title:
                     continue
                 self.log('\t', title)
-                entries.append({
-                    'url': link['href'],
-                    'title': title,
-                    'description': desc
-                })
+                entries.append({'url': link['href'], 'title': title, 'description': desc})
         return name, entries
 
     def parse_index(self):

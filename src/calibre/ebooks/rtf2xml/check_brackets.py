@@ -11,17 +11,16 @@
 #                                                                       #
 #########################################################################
 
-
 from . import open_for_read
 
 
 class CheckBrackets:
-    '''Check that brackets match up'''
+    """Check that brackets match up"""
 
     def __init__(self, bug_handler=None, file=None):
-        self.__file=file
+        self.__file = file
         self.__bug_handler = bug_handler
-        self.__bracket_count=0
+        self.__bracket_count = 0
         self.__ob_count = 0
         self.__cb_count = 0
         self.__open_bracket_num = []
@@ -55,7 +54,6 @@ class CheckBrackets:
                         return False, f"closed bracket doesn't match, line {line_count}"
 
         if self.__bracket_count != 0:
-            msg = ("At end of file open and closed brackets don't match\n"
-                        f'total number of brackets is {self.__bracket_count}')
+            msg = f"At end of file open and closed brackets don't match\ntotal number of brackets is {self.__bracket_count}"
             return False, msg
         return True, 'Brackets match!'

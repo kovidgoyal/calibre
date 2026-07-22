@@ -1,11 +1,8 @@
-__license__ = 'GPL v3'
-__copyright__ = '2011, John Schember <john at nachtimwald.com>, refactored: 2022, Vaso Peras-Likodric <vaso at vipl.in.rs>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2011, John Schember <john at nachtimwald.com>, refactored: 2022, Vaso Peras-Likodric <vaso at vipl.in.rs>
 
-
-'''
+"""
 Generates and writes an APNX page mapping file.
-'''
+"""
 
 import struct
 
@@ -25,9 +22,9 @@ from polyglot.builtins import as_bytes, as_unicode
 
 
 class APNXBuilder:
-    '''
+    """
     Create an APNX file using a pseudo page mapping.
-    '''
+    """
 
     _accurate_gen = AccuratePageGenerator.instance
     assert _accurate_gen is not None
@@ -39,11 +36,11 @@ class APNXBuilder:
     }
 
     def write_apnx(self, mobi_file_path: str, apnx_path: str, method: str | None = None, page_count: int = 0):
-        '''
+        """
         If you want a fixed number of pages (such as from a custom column) then
         pass in a value to page_count, otherwise a count will be estimated
         using either the fast or accurate algorithm.
-        '''
+        """
         apnx_meta = self.get_apnx_meta(mobi_file_path)
 
         if page_count:
@@ -67,12 +64,13 @@ class APNXBuilder:
     @staticmethod
     def get_apnx_meta(mobi_file_path) -> dict[str, str]:
         import uuid
+
         apnx_meta = {
             'guid': str(uuid.uuid4()).replace('-', '')[:8],
             'asin': '',
             'cdetype': 'EBOK',
             'format': 'MOBI_7',
-            'acr': ''
+            'acr': '',
         }
         with open(mobi_file_path, 'rb') as mf:
             ident = PdbHeaderReader(mf).identity()
@@ -110,7 +108,9 @@ class APNXBuilder:
 
         # Updated header if we have a KF8 file...
         if apnx_meta['format'] == 'MOBI_8':
-            content_header = '{{"contentGuid":"{guid}","asin":"{asin}","cdeType":"{cdetype}","format":"{format}","fileRevisionId":"1","acr":"{acr}"}}'.format(**apnx_meta)  # noqa: E501
+            content_header = '{{"contentGuid":"{guid}","asin":"{asin}","cdeType":"{cdetype}","format":"{format}","fileRevisionId":"1","acr":"{acr}"}}'.format(
+                **apnx_meta
+            )  # noqa: E501
         else:
             # My 5.1.x Touch & 3.4 K3 seem to handle the 'extended' header fine for
             # legacy mobi files, too. But, since they still handle this one too, let's

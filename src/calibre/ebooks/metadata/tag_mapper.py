@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
-
 from collections import deque
 
 from calibre.utils.icu import lower as icu_lower
@@ -11,12 +10,14 @@ from polyglot.builtins import as_unicode
 
 def compile_pat(pat):
     import regex
+
     REGEX_FLAGS = regex.VERSION1 | regex.WORD | regex.FULLCASE | regex.IGNORECASE | regex.UNICODE
     return regex.compile(pat, flags=REGEX_FLAGS)
 
 
 def matcher(rule, separator=','):
     import unicodedata
+
     def n(x):
         return unicodedata.normalize('NFC', as_unicode(x or '', errors='replace'))
 
@@ -93,6 +94,7 @@ def apply_rules(tag, rules, separator=','):
                     break
                 if ac == 'titlecase':
                     from calibre.utils.titlecase import titlecase
+
                     ans.append(titlecase(tag))
                     break
                 if ac == 'lower':
@@ -117,8 +119,8 @@ def apply_rules(tag, rules, separator=','):
 
 
 def uniq(vals, kmap=icu_lower):
-    ''' Remove all duplicates from vals, while preserving order. kmap must be a
-    callable that returns a hashable value for every item in vals '''
+    """Remove all duplicates from vals, while preserving order. kmap must be a
+    callable that returns a hashable value for every item in vals"""
     vals = vals or ()
     lvals = (kmap(x) for x in vals)
     seen = set()
@@ -142,11 +144,10 @@ def find_tests():
     import unittest
 
     class TestTagMapper(unittest.TestCase):
-
         def test_tag_mapper(self):
 
             def rule(action, query, replace=None, match_type='one_of'):
-                ans = {'action':action, 'query': query, 'match_type':match_type}
+                ans = {'action': action, 'query': query, 'match_type': match_type}
                 if replace is not None:
                     ans['replace'] = replace
                 return ans
@@ -181,9 +182,11 @@ def find_tests():
             run(rule('split', 'a,b', '/'), 'a,b', 'a,b')
             run(rule('split', 'a b', ' ', 'has'), 'a b', 'a,b')
             run(rule('upper', 'a, b, c'), 'a, b, c', 'A, B, C', sep='')
+
     return unittest.defaultTestLoader.loadTestsFromTestCase(TestTagMapper)
 
 
 if __name__ == '__main__':
     from calibre.utils.run_tests import run_cli
+
     run_cli(find_tests())

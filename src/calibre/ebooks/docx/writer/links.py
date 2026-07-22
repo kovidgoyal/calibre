@@ -1,8 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__ = 'GPL v3'
-__copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
+# License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
 import posixpath
 import re
@@ -28,7 +25,6 @@ def start_text(tag, prefix_len=0, top_level=True):
 
 
 class TOCItem:
-
     def __init__(self, title, bmark, level):
         self.title, self.bmark, self.level = title, bmark, level
         self.is_first = self.is_last = False
@@ -66,7 +62,6 @@ def sanitize_bookmark_name(base):
 
 
 class LinksManager:
-
     def __init__(self, namespace, document_relationships, log):
         self.namespace = namespace
         self.log = log
@@ -84,7 +79,7 @@ class LinksManager:
         if key in self.anchor_map:
             return self.anchor_map[key]
         if anchor == self.top_anchor:
-            name = (f'Top of {posixpath.basename(current_item.href)}')
+            name = f'Top of {posixpath.basename(current_item.href)}'
             self.document_hrefs.add(current_item.href)
         else:
             name = start_text(html_tag).strip() or anchor
@@ -92,7 +87,7 @@ class LinksManager:
         i, bname = 0, name
         while name in self.used_bookmark_names:
             i += 1
-            name  = bname + f'_{i}'
+            name = bname + f'_{i}'
         self.anchor_map[key] = name
         self.used_bookmark_names.add(name)
         return name
@@ -149,7 +144,7 @@ class LinksManager:
                     bmark = self.anchor_map[(href, self.top_anchor)]
                 self.toc.append(TOCItem(toc.title, bmark, level))
         for child in toc:
-            self.process_toc_node(child, level+1)
+            self.process_toc_node(child, level + 1)
 
     def process_toc_links(self, oeb):
         self.toc = []

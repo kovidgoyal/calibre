@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2021, Kovid Goyal <kovid at kovidgoyal.net>
 
-
 import builtins
 import os
 import shutil
@@ -27,6 +26,7 @@ class FTSAPITest(BaseTest):
         super().setUp()
         from calibre.db.cache import Cache
         from calibre_extensions.sqlite_extension import set_ui_language
+
         self.orig_sleep_time = Cache.fts_indexing_sleep_time
         Cache.fts_indexing_sleep_time = 0
         set_ui_language('en')
@@ -37,6 +37,7 @@ class FTSAPITest(BaseTest):
         super().tearDown()
         from calibre.db.cache import Cache
         from calibre_extensions.sqlite_extension import set_ui_language
+
         Cache.fts_indexing_sleep_time = self.orig_sleep_time
         set_ui_language('en')
 
@@ -55,6 +56,7 @@ class FTSAPITest(BaseTest):
 
     def wait_for_fts_to_finish(self, fts, timeout=30):
         import apsw
+
         if fts.pool.initialized:
             st = time.monotonic()
 
@@ -63,6 +65,7 @@ class FTSAPITest(BaseTest):
                     return fts.all_currently_dirty()
                 except apsw.ThreadingViolationError:
                     return True
+
             while all_currently_dirty() and time.monotonic() - st < timeout:
                 fts.pool.supervisor_thread.join(0.01)
 
@@ -151,10 +154,14 @@ class FTSAPITest(BaseTest):
         self.ae({x['id'] for x in cache.fts_search('help', restrict_to_book_ids=(1, 3, 4, 5, 11))}, {1})
         self.ae({x['format'] for x in cache.fts_search('help')}, {'TXT', 'MD'})
         self.ae({x['id'] for x in cache.fts_search('also')}, {2})
-        self.ae({x['text'] for x in cache.fts_search('also', highlight_start='[', highlight_end=']')}, {
-            'some other long text that will [also] help with the testing of search'})
-        self.ae({x['text'] for x in cache.fts_search('also', highlight_start='[', highlight_end=']', snippet_size=3)}, {
-            '…will [also] help…'})
+        self.ae(
+            {x['text'] for x in cache.fts_search('also', highlight_start='[', highlight_end=']')},
+            {'some other long text that will [also] help with the testing of search'},
+        )
+        self.ae(
+            {x['text'] for x in cache.fts_search('also', highlight_start='[', highlight_end=']', snippet_size=3)},
+            {'…will [also] help…'},
+        )
         self.ae({x['text'] for x in cache.fts_search('also', return_text=False)}, {''})
         fts = cache.reindex_fts()
         self.assertTrue(fts.pool.initialized)
@@ -201,6 +208,7 @@ class FTSAPITest(BaseTest):
 
     def test_fts_to_text(self):
         from calibre.ebooks.oeb.polish.parsing import parse
+
         html = '''
 <html><body>
 <div>first_para</div><p>second_para</p>
@@ -214,9 +222,11 @@ class FTSAPITest(BaseTest):
 
 def find_tests():
     import unittest
+
     return unittest.defaultTestLoader.loadTestsFromTestCase(FTSAPITest)
 
 
 def run_tests():
     from calibre.utils.run_tests import run_tests
+
     run_tests(find_tests)

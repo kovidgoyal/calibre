@@ -1,12 +1,8 @@
 #!/usr/bin/env python
-
-
-__license__ = 'GPL v3'
-__copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
+# License: GPLv3 Copyright: 2013, Kovid Goyal <kovid at kovidgoyal.net>
 
 
 class Theme:
-
     def __init__(self, namespace):
         self.major_latin_font = 'Cambria'
         self.minor_latin_font = 'Calibri'

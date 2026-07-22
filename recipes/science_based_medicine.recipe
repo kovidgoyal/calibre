@@ -19,9 +19,6 @@ class SBM(BasicNewsRecipe):
 
     lang = 'en'
 
-    conversion_options = {
-        'comment': description, 'tags': category, 'publisher': publisher, 'language': lang, 'pretty_print': True
-    }
+    conversion_options = {'comment': description, 'tags': category, 'publisher': publisher, 'language': lang, 'pretty_print': True}
 
-    feeds = [(u'Science Based Medicine',
-              u'http://www.sciencebasedmedicine.org/?feed=rss2')]
+    feeds = [('Science Based Medicine', 'http://www.sciencebasedmedicine.org/?feed=rss2')]

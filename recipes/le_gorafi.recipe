@@ -11,9 +11,9 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class LeGorafi(BasicNewsRecipe):
-    title = u'Le GORAFI.fr'
+    title = 'Le GORAFI.fr'
     __author__ = 'Malah, LAntoine'
-    description = u"Depuis 1826, toute l'information de sources contradictoires"
+    description = "Depuis 1826, toute l'information de sources contradictoires"
     oldest_article = 7
     language = 'fr'
     max_articles_per_feed = 100

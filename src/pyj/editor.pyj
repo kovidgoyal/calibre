@@ -69,13 +69,13 @@ def scroll_to_node(node, sync_context):
 state = {'blocks_found': False, 'in_split_mode': False}
 
 
-
 def go_to_line(lnum, sync_context):
     for node in document.querySelectorAll(f'[data-lnum="{lnum}"]'):
         if is_hidden(node):
             continue
         scroll_to_node(node, sync_context)
         break
+
 
 @from_python
 def go_to_sourceline_address(sourceline, tags, sync_context):
@@ -88,15 +88,17 @@ def go_to_sourceline_address(sourceline, tags, sync_context):
             return scroll_to_node(node, sync_context)
     go_to_line(sourceline, sync_context)
 
+
 def line_numbers():
     found_body = False
     ans = v'[]'
     for node in document.getElementsByTagName('*'):
-        if not found_body and node.tagName.toLowerCase() is "body":
+        if not found_body and node.tagName.toLowerCase() is 'body':
             found_body = True
         if found_body:
             ans.push(node.dataset.lnum)
     return ans
+
 
 def find_blocks():
     if state.blocks_found:
@@ -106,12 +108,14 @@ def find_blocks():
             elem.setAttribute('data-is-block', '1')
     state.blocks_found = True
 
+
 @from_python
 def set_split_mode(enabled):
     state.in_split_mode = enabled
     document.body.dataset.inSplitMode = '1' if enabled else '0'
     if enabled:
         find_blocks()
+
 
 def report_split(node):
     loc = v'[]'
@@ -130,6 +134,7 @@ def report_split(node):
     totals.reverse()
     to_python.request_split(loc, totals)
 
+
 def onclick(event):
     event.preventDefault()
     if state.in_split_mode:
@@ -147,6 +152,7 @@ def onclick(event):
             to_python.request_sync(tn, href, address)
     return False
 
+
 @from_python
 def go_to_anchor(anchor):
     elem = document.getElementById(anchor)
@@ -158,10 +164,11 @@ def go_to_anchor(anchor):
         if to_python.request_sync:
             to_python.request_sync('', '', address)
 
+
 @from_python
 def live_css(editor_name, sourceline, tags):
     all_properties = {}
-    ans = {'nodes':v'[]', 'computed_css':all_properties, 'editor_name': editor_name, 'sourceline': sourceline, 'tags': tags}
+    ans = {'nodes': v'[]', 'computed_css': all_properties, 'editor_name': editor_name, 'sourceline': sourceline, 'tags': tags}
     target = None
     i = 0
     for node in document.querySelectorAll(f'[data-lnum="{sourceline}"]'):

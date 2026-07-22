@@ -1,8 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__ = 'GPL v3'
-__copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
+# License: GPLv3 Copyright: 2013, Kovid Goyal <kovid at kovidgoyal.net>
 
 from collections import Counter
 from contextlib import suppress
@@ -38,14 +35,13 @@ def hidden_fields(db):
 
 def get_sorted_fields(db):
     fm = db.field_metadata
-    name_map = [(v,k) for k, v in fm.ui_sortable_field_keys().items()]
+    name_map = [(v, k) for k, v in fm.ui_sortable_field_keys().items()]
     counts = Counter(name for name, _ in name_map)
     name_map = [(f'{name} [{key}]' if counts[name] > 1 else name, key) for name, key in name_map]
     return sorted(name_map, key=lambda x: primary_sort_key(x[0]))
 
 
 class SortAction(QAction):
-
     sort_requested = pyqtSignal(object, object)
 
     def __init__(self, text, key, ascending, parent):
@@ -61,13 +57,12 @@ class SortAction(QAction):
 
 
 class SortByAction(InterfaceAction):
-
     name = 'Sort By'
     action_spec = (_('Sort by'), 'sort.png', _('Sort the list of books'), None)
     action_type = 'current'
     popup_type = QToolButton.ToolButtonPopupMode.InstantPopup
     action_add_menu = True
-    dont_add_to = frozenset(('context-menu-cover-browser', ))
+    dont_add_to = frozenset(('context-menu-cover-browser',))
 
     def genesis(self):
         self.sorted_icon = QIcon.ic('ok.png')
@@ -81,12 +76,13 @@ class SortByAction(InterfaceAction):
         # problem where Qt can show the menu on the wrong screen.
         self.hidden_menu = QMenu()
         self.shortcut_action = self.create_menu_action(
-                        menu=self.hidden_menu,
-                        unique_name=_('Sort by'),
-                        text=_('Show the Sort by menu'),
-                        icon=None,
-                        shortcut='Ctrl+F5',
-                        triggered=self.show_menu)
+            menu=self.hidden_menu,
+            unique_name=_('Sort by'),
+            text=_('Show the Sort by menu'),
+            icon=None,
+            shortcut='Ctrl+F5',
+            triggered=self.show_menu,
+        )
 
         def c(attr, title, tooltip, callback, keys=()):
             ac = self.create_action(spec=(title, None, tooltip, keys), attr=attr)
@@ -94,10 +90,14 @@ class SortByAction(InterfaceAction):
             self.gui.addAction(ac)
             return ac
 
-        self.reverse_action = c('reverse_sort_action', _('Reverse current sort'),
-                                _('Reverse the current sort order'), self.reverse_sort, 'shift+f5')
-        self.reapply_action = c('reapply_sort_action', _('Re-apply current sort'),
-                                _('Re-apply the current sort'), self.reapply_sort, 'f5')
+        self.reverse_action = c(
+            'reverse_sort_action',
+            _('Reverse current sort'),
+            _('Reverse the current sort order'),
+            self.reverse_sort,
+            'shift+f5',
+        )
+        self.reapply_action = c('reapply_sort_action', _('Re-apply current sort'), _('Re-apply the current sort'), self.reapply_sort, 'f5')
 
     def about_to_show_menu(self):
         self.update_menu()
@@ -209,6 +209,7 @@ class SortByAction(InterfaceAction):
 
     def choose_multisort(self):
         from calibre.gui2.dialogs.multisort import ChooseMultiSort
+
         d = ChooseMultiSort(self.gui.current_db, parent=self.gui, is_device_connected=self.gui.device_connected)
         if d.exec() == QDialog.DialogCode.Accepted:
             self.gui.library_view.multisort(d.current_sort_spec)

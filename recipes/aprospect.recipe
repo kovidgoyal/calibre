@@ -22,9 +22,7 @@ class AmericanProspect(BasicNewsRecipe):
     keep_only_tags = [
         dict(id=['title', 'content']),
     ]
-    remove_tags = [
-        classes('slideout-close-btn media-options')
-    ]
+    remove_tags = [classes('slideout-close-btn media-options')]
 
     def get_feeds(self):
         soup = self.index_to_soup('https://prospect.org/archive')

@@ -31,7 +31,8 @@ def same_sign(a: float, b: float) -> bool:
 
 
 class ScrollSample(NamedTuple):
-    '''Store a scroll sample with timestamp for velocity calculation.'''
+    """Store a scroll sample with timestamp for velocity calculation."""
+
     delta_x: float
     delta_y: float
     timestamp: int
@@ -44,9 +45,9 @@ class MomentumSettings(NamedTuple):
     max_velocity: float = 100  # maximum velocity to prevent runaway scrolling
     boost_factor: float = 1.2  # how much to speed up scrolling
     velocity_scale: float = 0.9  # Scale factor for initial velocity
-    timer_interval_ms: int = int(1000/120)  # 120 FPS update rate
+    timer_interval_ms: int = int(1000 / 120)  # 120 FPS update rate
     # Time to wait after ScrollEnd to see if system momentum arrives
-    momentum_detection_delay_ms: int  = 50
+    momentum_detection_delay_ms: int = 50
     # Whether to enable momentum in the specified axis, defers to Qt handling
     # of wheelevents when false
     enable_x: bool = True
@@ -59,14 +60,14 @@ class MomentumSettings(NamedTuple):
 
 
 class MomentumScroller:
-    '''
+    """
     Handles momentum/kinetic scrolling for Qt scroll areas.
 
     Behavior by platform/device:
     - macOS trackpad: Uses system-provided momentum (ScrollMomentum phase)
     - Linux trackpad: Has phases but sometimes no momentum, so we synthesize it when needed
     - Mouse wheel (all platforms): No phases, we synthesize momentum if enabled in settings
-    '''
+    """
 
     def __init__(self, scroll_area: QAbstractScrollArea, settings: MomentumSettings = MomentumSettings()):
         self.settings = settings
@@ -83,7 +84,7 @@ class MomentumScroller:
         self.accumulated_y = 0.0
 
         # Sample history for calculating velocity
-        self.samples:  deque[ScrollSample] = deque(maxlen=20)
+        self.samples: deque[ScrollSample] = deque(maxlen=20)
 
         # Timing
         self.elapsed_timer = QElapsedTimer()
@@ -103,11 +104,11 @@ class MomentumScroller:
         self._last_scroll_end_time = 0
 
     def handle_wheel_event(self, event: QWheelEvent) -> bool:
-        '''
+        """
         Process a wheel event, respecting system momentum phases when available.
 
         Returns True if the event was handled.
-        '''
+        """
         dx, dy = self._get_delta(event)
         dx *= self.settings.boost_factor
         dy *= self.settings.boost_factor
@@ -163,10 +164,10 @@ class MomentumScroller:
         return True
 
     def _start_synthetic_momentum(self):
-        '''
+        """
         Called after ScrollEnd if no system momentum arrived.
         Start our own momentum animation.
-        '''
+        """
         if not self.seen_momentum_event:
             self.synthetic_momentum_already_used = True
             self.start_momentum_timer()
@@ -176,7 +177,7 @@ class MomentumScroller:
         self.momentum_timer.start(self.settings.timer_interval_ms)
 
     def _get_delta(self, event: QWheelEvent) -> tuple[float, float]:
-        '''Extract scroll delta from wheel event.'''
+        """Extract scroll delta from wheel event."""
         pixel_delta = event.pixelDelta()
         angle_delta = event.angleDelta()
 
@@ -189,13 +190,13 @@ class MomentumScroller:
         return angle_delta.x() / 120.0 * (h_bar.singleStep() if h_bar else 1), angle_delta.y() / 120.0 * (v_bar.singleStep() if v_bar else 1)
 
     def _trim_old_samples(self, current_time: int, window_ms: int = 150):
-        '''Remove samples older than the window.'''
+        """Remove samples older than the window."""
         cutoff = current_time - window_ms
         while self.samples and self.samples[0].timestamp < cutoff:
             self.samples.popleft()
 
     def _calculate_gesture_velocity(self) -> tuple[float, float]:
-        '''Calculate velocity from the current gesture samples.'''
+        """Calculate velocity from the current gesture samples."""
         if len(self.samples) < 2:
             if self.samples:
                 s = self.samples[0]
@@ -224,16 +225,16 @@ class MomentumScroller:
 
         return 0.0, 0.0
 
-    def _clamp_velocity(self, velocity:  float) -> float:
+    def _clamp_velocity(self, velocity: float) -> float:
         m = self.settings.max_velocity
         return max(-m, min(velocity, m))
 
     def _accumulate_velocity_from_samples(self) -> None:
-        '''
+        """
         Calculate velocity from recent scroll samples and add to existing velocity.
 
         This creates the cumulative effect where repeated swipes increase speed.
-        '''
+        """
         if not self.samples:
             return
         self._trim_old_samples(self._last_scroll_end_time)
@@ -258,7 +259,7 @@ class MomentumScroller:
             self.velocity_y = new_vy
 
     def _update_momentum(self):
-        '''Called by timer to apply synthetic momentum scrolling.'''
+        """Called by timer to apply synthetic momentum scrolling."""
         self._accumulate_velocity_from_samples()
 
         # Apply friction
@@ -275,7 +276,7 @@ class MomentumScroller:
         self._do_scroll(self.velocity_x, self.velocity_y)
 
     def _do_scroll(self, dx: float, dy: float):
-        '''Apply scroll delta to the scroll area.'''
+        """Apply scroll delta to the scroll area."""
         # Accumulate sub-pixel amounts
         self.accumulated_x += dx
         self.accumulated_y += dy
@@ -299,7 +300,7 @@ class MomentumScroller:
             v_bar.setValue(v_bar.value() - int(scroll_y * self.settings.y_multiplier))
 
     def _stop_momentum(self):
-        '''Stop momentum and reset state.'''
+        """Stop momentum and reset state."""
         self.velocity_x = 0
         self.velocity_y = 0
         self.accumulated_x = 0
@@ -308,14 +309,14 @@ class MomentumScroller:
         self.momentum_timer.stop()
 
     def stop(self):
-        '''Public method to stop any ongoing momentum scrolling.'''
+        """Public method to stop any ongoing momentum scrolling."""
         self.momentum_detection_timer.stop()
         self._stop_momentum()
         self._in_scroll_gesture = False
 
 
 class MomentumScrollMixin(QAbstractScrollArea if TYPE_CHECKING else object):
-    '''
+    """
     Mixin class to add momentum scrolling to any QAbstractScrollArea subclass.
 
     Automatically uses system momentum on macOS, synthesizes on Linux/Windows.
@@ -323,9 +324,9 @@ class MomentumScrollMixin(QAbstractScrollArea if TYPE_CHECKING else object):
     Usage:
         class MyListView(MomentumScrollMixin, QListView):
             pass
-    '''
+    """
 
-    _momentum_scroller:  MomentumScroller | None = None
+    _momentum_scroller: MomentumScroller | None = None
     _momentum_settings: MomentumSettings | None = None
 
     def _ensure_momentum_scroller(self):
@@ -341,15 +342,14 @@ class MomentumScrollMixin(QAbstractScrollArea if TYPE_CHECKING else object):
         self._ensure_momentum_scroller()
         scroller = self._momentum_scroller
         assert scroller is not None
-        if (not scroller.settings.enable_x and event.angleDelta().x() != 0) or (
-                not scroller.settings.enable_y and event.angleDelta().y() != 0):
+        if (not scroller.settings.enable_x and event.angleDelta().x() != 0) or (not scroller.settings.enable_y and event.angleDelta().y() != 0):
             return self.default_wheel_event_handler(event)
         if not scroller.handle_wheel_event(event):
             return self.default_wheel_event_handler(event)
         event.accept()
 
     def stopMomentumScroll(self):
-        '''Stop any ongoing momentum scrolling.'''
+        """Stop any ongoing momentum scrolling."""
         if self._momentum_scroller:
             self._momentum_scroller.stop()
 
@@ -365,8 +365,10 @@ if __name__ == '__main__':
     import sys
 
     class MomentumListView(QListView, MomentumScrollMixin):
-        '''QListView with momentum scrolling enabled.'''
-        pass
+        """QListView with momentum scrolling enabled."""
+
+        def wheelEvent(self, e):
+            MomentumScrollMixin.wheelEvent(self, e)
 
     class DemoWindow(QMainWindow):
         def __init__(self):
@@ -381,11 +383,13 @@ if __name__ == '__main__':
             # Info box
             info_box = QGroupBox('Scroll Behavior')
             info_layout = QVBoxLayout(info_box)
-            info_layout.addWidget(QLabel(
-                '• <b>macOS trackpad</b>: Native system momentum\n'
-                '• <b>Linux trackpad</b>: Synthetic momentum (phases, no system momentum)\n'
-                '• <b>Mouse wheel</b>:  Synthetic momentum (no phases)'
-            ))
+            info_layout.addWidget(
+                QLabel(
+                    '• <b>macOS trackpad</b>: Native system momentum\n'
+                    '• <b>Linux trackpad</b>: Synthetic momentum (phases, no system momentum)\n'
+                    '• <b>Mouse wheel</b>:  Synthetic momentum (no phases)'
+                )
+            )
             layout.addWidget(info_box)
 
             # Create list view with momentum scrolling

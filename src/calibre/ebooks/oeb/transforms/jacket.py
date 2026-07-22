@@ -1,9 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__   = 'GPL v3'
-__copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2009, Kovid Goyal <kovid@kovidgoyal.net>
 
 import os
 import re
@@ -29,7 +25,6 @@ JACKET_XPATH = '//h:meta[@name="calibre-content" and @content="jacket"]'
 
 
 class SafeFormatter(Formatter):
-
     def get_value(self, *args, **kwargs):
         try:
             return Formatter.get_value(self, *args, **kwargs)
@@ -46,7 +41,7 @@ class Base:
         for img in path(item.data):
             if removed >= limit:
                 break
-            href  = item.abshref(img.get('src'))
+            href = item.abshref(img.get('src'))
             image = self.oeb.manifest.hrefs.get(href)
             if image is None:
                 href = urlnormalize(href)
@@ -60,7 +55,6 @@ class Base:
 
 
 class RemoveFirstImage(Base):
-
     def remove_first_image(self):
         deleted_item = None
         for item in self.oeb.spine:
@@ -88,20 +82,20 @@ class RemoveFirstImage(Base):
             self.oeb.guide.remove_by_href(deleted_item.href)
 
     def __call__(self, oeb, opts, metadata):
-        '''
+        """
         Add metadata in jacket.xhtml if specified in opts
         If not specified, remove previous jacket instance
-        '''
+        """
         self.oeb, self.opts, self.log = oeb, opts, oeb.log
         if opts.remove_first_image:
             self.remove_first_image()
 
 
 class Jacket(Base):
-    '''
+    """
     Book jacket manipulation. Remove first image and insert comments at start of
     book.
-    '''
+    """
 
     def insert_metadata(self, mi):
         self.log('Inserting metadata into book...')
@@ -126,9 +120,16 @@ class Jacket(Base):
         except Exception:
             authors = [_('Unknown')]
 
-        root = render_jacket(mi, self.opts.output_profile,
-                alt_title=title, alt_tags=tags, alt_authors=authors,
-                alt_comments=comments, rescale_fonts=True, smarten_punctuation=self.opts.smarten_punctuation)
+        root = render_jacket(
+            mi,
+            self.opts.output_profile,
+            alt_title=title,
+            alt_tags=tags,
+            alt_authors=authors,
+            alt_comments=comments,
+            rescale_fonts=True,
+            smarten_punctuation=self.opts.smarten_punctuation,
+        )
         id, href = self.oeb.manifest.generate('calibre_jacket', 'jacket.xhtml')
 
         jacket = self.oeb.manifest.add(id, href, guess_type(href)[0], data=root)
@@ -137,7 +138,7 @@ class Jacket(Base):
         for img, path in referenced_images(root):
             self.oeb.log(f'Embedding referenced image {path} into jacket')
             ext = path.rpartition('.')[-1].lower()
-            item_id, href = self.oeb.manifest.generate('jacket_image', 'jacket_img.'+ext)
+            item_id, href = self.oeb.manifest.generate('jacket_image', 'jacket_img.' + ext)
             with open(path, 'rb') as f:
                 item = self.oeb.manifest.add(item_id, href, guess_type(href)[0], data=f.read())
             item.unload_data_from_memory()
@@ -152,10 +153,10 @@ class Jacket(Base):
                 break
 
     def __call__(self, oeb, opts, metadata):
-        '''
+        """
         Add metadata in jacket.xhtml if specified in opts
         If not specified, remove previous jacket instance
-        '''
+        """
         self.oeb, self.opts, self.log = oeb, opts, oeb.log
         self.remove_existing_jacket()
         if opts.insert_metadata:
@@ -164,10 +165,11 @@ class Jacket(Base):
 
 # Render Jacket {{{
 
+
 def get_rating(rating, rchar, e_rchar):
     ans = ''
     try:
-        num = float(rating)/2
+        num = float(rating) / 2
     except Exception:
         return ans
     num = max(0, num)
@@ -175,18 +177,15 @@ def get_rating(rating, rchar, e_rchar):
     if num < 1:
         return ans
 
-    ans = (f'{rchar * int(num)}{e_rchar * (5 - int(num))}')
+    ans = f'{rchar * int(num)}{e_rchar * (5 - int(num))}'
     return ans
 
 
 class Series(str):
-
     def __new__(cls, series, series_index):
         if series and series_index is not None:
-            roman = _('{1} of <em>{0}</em>').format(
-                escape(series), escape(fmt_sidx(series_index, use_roman=True)))
-            combined = _('{1} of <em>{0}</em>').format(
-                escape(series), escape(fmt_sidx(series_index, use_roman=False)))
+            roman = _('{1} of <em>{0}</em>').format(escape(series), escape(fmt_sidx(series_index, use_roman=True)))
+            combined = _('{1} of <em>{0}</em>').format(escape(series), escape(fmt_sidx(series_index, use_roman=False)))
         else:
             combined = roman = escape(series or '')
         s = str.__new__(cls, combined)
@@ -198,7 +197,6 @@ class Series(str):
 
 
 class Timestamp:
-
     def __init__(self, dt, render_template):
         self.dt = as_local_time(dt)
         self.is_date_undefined = dt is None or is_date_undefined(dt)
@@ -206,6 +204,7 @@ class Timestamp:
 
     def __repr__(self):
         return self.default_render
+
     __str__ = __repr__
 
     def __bool__(self):
@@ -259,13 +258,11 @@ def postprocess_jacket(root, output_profile, has_data):
 
 
 class Attributes:
-
     def __getattr__(self, name):
         return 'none'
 
 
 class Identifiers:
-
     def __init__(self, idents):
         self.identifiers = idents or {}
         self.display = Attributes()
@@ -282,9 +279,17 @@ class Identifiers:
         return self.identifiers.get(name, '')
 
 
-def render_jacket(mi, output_profile,
-        alt_title=_('Unknown'), alt_tags=[], alt_comments='',
-        alt_publisher='', rescale_fonts=False, alt_authors=None, smarten_punctuation=False):
+def render_jacket(
+    mi,
+    output_profile,
+    alt_title=_('Unknown'),
+    alt_tags=[],
+    alt_comments='',
+    alt_publisher='',
+    rescale_fonts=False,
+    alt_authors=None,
+    smarten_punctuation=False,
+):
     css = P('jacket/stylesheet.css', data=True).decode('utf-8')
     template = P('jacket/template.xhtml', data=True).decode('utf-8')
 
@@ -342,16 +347,22 @@ def render_jacket(mi, output_profile,
             'css': css,
             'title': title,
             'author': author,
-            'publisher': publisher, 'publisher_label': _('Publisher'),
-            'pubdate_label': _('Published'), 'pubdate': Timestamp(pubdate, tweaks['gui_pubdate_display_format']),
-            'series_label': ngettext('Series', 'Series', 1), 'series': series,
-            'rating_label': _('Rating'), 'rating': rating,
-            'tags_label': _('Tags'), 'tags': tags,
-            'timestamp': Timestamp(timestamp, tweaks['gui_timestamp_display_format']), 'timestamp_label': _('Date'),
+            'publisher': publisher,
+            'publisher_label': _('Publisher'),
+            'pubdate_label': _('Published'),
+            'pubdate': Timestamp(pubdate, tweaks['gui_pubdate_display_format']),
+            'series_label': ngettext('Series', 'Series', 1),
+            'series': series,
+            'rating_label': _('Rating'),
+            'rating': rating,
+            'tags_label': _('Tags'),
+            'tags': tags,
+            'timestamp': Timestamp(timestamp, tweaks['gui_timestamp_display_format']),
+            'timestamp_label': _('Date'),
             'comments': comments,
             'footer': '',
             'display': display,
-            'searchable_tags': ' '.join(escape(t)+'ttt' for t in tags.tags_list),
+            'searchable_tags': ' '.join(escape(t) + 'ttt' for t in tags.tags_list),
         }
         for key in mi.custom_field_keys():
             m = mi.get_user_metadata(key, False) or {}
@@ -364,7 +375,7 @@ def render_jacket(mi, output_profile,
                 elif dt == 'rating':
                     args[dkey] = rating_to_stars(mi.get(key), m.get('display', {}).get('allow_half_stars', False))
                 elif dt == 'datetime':
-                    args[dkey] = Timestamp(mi.get(key), m.get('display', {}).get('date_format','dd MMM yyyy'))
+                    args[dkey] = Timestamp(mi.get(key), m.get('display', {}).get('date_format', 'dd MMM yyyy'))
                 elif dt == 'comments':
                     val = val or ''
                     ctype = m.get('display', {}).get('interpret_as') or 'html'
@@ -386,7 +397,7 @@ def render_jacket(mi, output_profile,
                     args[dkey] = val
                 else:
                     args[dkey] = escape(val)
-                args[dkey+'_label'] = escape(display_name)
+                args[dkey + '_label'] = escape(display_name)
                 setattr(display, dkey, 'none' if mi.is_null(key) else 'initial')
             except Exception:
                 # if the val (custom column contents) is None, don't add to args
@@ -420,9 +431,11 @@ def render_jacket(mi, output_profile,
         return strip_encoding_declarations(generated_html)
 
     from calibre.ebooks.oeb.polish.parsing import parse
+
     raw = generate_html(comments)
     if smarten_punctuation:
         from calibre.ebooks.conversion.preprocess import smarten_punctuation as sp
+
         raw = sp(raw)
     root = parse(raw, line_numbers=False, force_html5_parse=True)
 
@@ -444,8 +457,10 @@ def render_jacket(mi, output_profile,
             body.append(fw)
     postprocess_jacket(root, output_profile, has_data)
     from calibre.ebooks.oeb.polish.pretty import pretty_html_tree
+
     pretty_html_tree(None, root)
     return root
+
 
 # }}}
 

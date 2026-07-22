@@ -9,12 +9,11 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 def classes(classes):
     q = frozenset(classes.split(' '))
-    return dict(attrs={
-        'class': lambda x: x and frozenset(x.split()).intersection(q)})
+    return dict(attrs={'class': lambda x: x and frozenset(x.split()).intersection(q)})
 
 
 class hotair(BasicNewsRecipe):
-    title = u'Hot Air'
+    title = 'Hot Air'
     __author__ = 'Walt Anthony'
     description = "The world's first, full-service conservative Internet broadcast network"
     publisher = 'Hot Air'
@@ -27,19 +26,13 @@ class hotair(BasicNewsRecipe):
     use_embedded_content = False
     remove_javascript = True
 
-    conversion_options = {
-        'comment': description, 'tags': category, 'publisher': publisher, 'language': language
-    }
+    conversion_options = {'comment': description, 'tags': category, 'publisher': publisher, 'language': language}
 
     keep_only_tags = [
-            dict(name='h1'),
-            classes('byline article-image article-text'),
+        dict(name='h1'),
+        classes('byline article-image article-text'),
     ]
 
-    remove_tags = [dict(name=['iframe', 'small', 'embed', 'button',
-                              'object', 'link', 'script', 'form'])]
+    remove_tags = [dict(name=['iframe', 'small', 'embed', 'button', 'object', 'link', 'script', 'form'])]
 
-    feeds = [
-        ('Hot Air', 'http://feeds.feedburner.com/hotair/main'),
-        ('The Greenroom', 'http://feeds2.feedburner.com/hotair/greenroom')
-    ]
+    feeds = [('Hot Air', 'http://feeds.feedburner.com/hotair/main'), ('The Greenroom', 'http://feeds2.feedburner.com/hotair/greenroom')]

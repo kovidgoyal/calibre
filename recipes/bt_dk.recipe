@@ -11,13 +11,13 @@ BT Nyheder
 
 
 class Bt_dk(BasicNewsRecipe):
-    __author__            = 'CoderAllan.github.com'
-    title                 = 'BT Nyheder'
-    category              = 'newspaper, news, localnews, sport, politics, health, entertainment, music, crime, cars, Denmark'
-    oldest_article        = 7
+    __author__ = 'CoderAllan.github.com'
+    title = 'BT Nyheder'
+    category = 'newspaper, news, localnews, sport, politics, health, entertainment, music, crime, cars, Denmark'
+    oldest_article = 7
     max_articles_per_feed = 50
-    auto_cleanup          = True
-    language              = 'da'
+    auto_cleanup = True
+    language = 'da'
 
     # Feed are found here: http://www.bt.dk/rss-feeds
     feeds = [

@@ -3,7 +3,6 @@
 from __python__ import bound_methods, hash_literals
 
 import traceback
-from select import first_visible_word, is_start_closer_to_point, move_end_of_selection, selection_extents, word_at_point
 
 from fs_images import fix_fullscreen_svg_images
 from iframe_comm import IframeClient
@@ -94,6 +93,7 @@ from read_book.toc import find_anchor_before_range, update_visible_toc_anchors
 from read_book.touch import create_handlers as create_touch_handlers
 from read_book.touch import reset_handlers as reset_touch_handlers
 from read_book.viewport import scroll_viewport
+from select import first_visible_word, is_start_closer_to_point, move_end_of_selection, selection_extents, word_at_point
 from utils import debounce, is_ios
 
 FORCE_FLOW_MODE = False
@@ -115,7 +115,6 @@ def cancel_drag_scroll():
 
 
 class EPUBReadingSystem:
-
     @property
     def name(self):
         return 'calibre'
@@ -139,7 +138,6 @@ class EPUBReadingSystem:
 
 
 class FullBookSearch:
-
     def __init__(self):
         start_spine_index = current_spine_item()?.index
         if not start_spine_index?:
@@ -150,7 +148,6 @@ class FullBookSearch:
 
 
 class IframeBoss:
-
     def __init__(self):
         window.navigator.epubReadingSystem = EPUBReadingSystem()
         self.last_cfi = None
@@ -174,7 +171,7 @@ class IframeBoss:
             'gesture_from_margin': self.gesture_from_margin,
             'native_gesture': self.native_gesture,
             'get_current_cfi': self.get_current_cfi,
-            'initialize':self.initialize,
+            'initialize': self.initialize,
             'modify_selection': self.modify_selection,
             'next_screen': self.on_next_screen,
             'scroll_to_anchor': self.on_scroll_to_anchor,
@@ -194,7 +191,7 @@ class IframeBoss:
             'hints': self.hints_msg_received,
             'copy_selection': self.copy_selection,
             'replace_highlights': self.replace_highlights,
-            'clear_selection': def(): window.getSelection().removeAllRanges();,
+            'clear_selection': def (): window.getSelection().removeAllRanges();,
         }
         self.comm = IframeClient(handlers, 'main-iframe')
         self.last_window_ypos = 0
@@ -262,18 +259,16 @@ class IframeBoss:
             return
         is_internal_error = script_url in ('about:srcdoc', 'userscript:viewer.js')
         if is_internal_error:  # don't report errors from scripts in the book itself
-            console.log(f'{script_url}: {error_object}')
             try:
-                fname = script_url.rpartition('/')[-1] or script_url
-                msg = msg + '<br><span style="font-size:smaller">' + 'Error at {}:{}:{}'.format(fname, line_number, column_number or '') + '</span>'
-                details = traceback.format_exception(error_object).join('') if error_object else ''
-                if details:
-                    console.log(details)
-                self.send_message('error', errkey='unhandled-error', details=details, msg=msg)
+                (console.error or console.log)(error_object)
+                self.send_message('error', errkey='unhandled-error', msg=msg,
+                    script_url=script_url, line_number=line_number, column_number=column_number,
+                    error_object=traceback.serialize_error_for_formatting(error_object))
             except:
                 console.log('There was an error in the iframe unhandled exception handler')
         else:
             (console.error or console.log)('There was an error in the JavaScript from within the book')
+            (console.error or console.log)(error_object)
 
     def display(self, data):
         cancel_drag_scroll()
@@ -325,11 +320,11 @@ class IframeBoss:
         update_settings(data.settings)
         self.keyboard_shortcut_map = create_shortcut_map(data.settings.keyboard_shortcuts)
         set_current_spine_item({
-            'name':data.name,
-            'is_first':index is 0,
-            'is_last':index is spine.length - 1,
+            'name': data.name,
+            'is_first': index is 0,
+            'is_last': index is spine.length - 1,
             'index': index,
-            'initial_position':data.initial_position
+            'initial_position': data.initial_position
         })
         self.last_cfi = None
         for name in self.blob_url_map:
@@ -399,7 +394,6 @@ class IframeBoss:
             flow_scroll_by_page(-1 if backwards else 1, data.flip_if_rtl_page_progression)
         else:
             paged_scroll_by_page(backwards, data.all_pages_on_screen, data.flip_if_rtl_page_progression)
-
 
     def change_font_size(self, data):
         if data.base_font_size? and data.base_font_size != opts.base_font_size:
@@ -504,7 +498,7 @@ class IframeBoss:
             elif ipos.type is 'search_result':
                 self.show_search_result(ipos, True)
             elif ipos.type is 'edit_annotation':
-                window.setTimeout(def():
+                window.setTimeout(def ():
                     self.annotations_msg_received({'type': 'edit-highlight', 'uuid': ipos.uuid})
                 , 5)
             elif ipos.type is 'smil_id':
@@ -526,7 +520,7 @@ class IframeBoss:
         )
         self.last_cfi = None
         self.auto_scroll_action('resume')
-        reset_touch_handlers() # Needed to mitigate issue https://bugs.chromium.org/p/chromium/issues/detail?id=464579
+        reset_touch_handlers()  # Needed to mitigate issue https://bugs.chromium.org/p/chromium/issues/detail?id=464579
 
         window.setTimeout(self.update_cfi, ONSCROLL_DEBOUNCE_TIME)
         window.setTimeout(self.update_toc_position, 0)
@@ -549,7 +543,7 @@ class IframeBoss:
         csi = current_spine_item()
 
         def epubcfi(cfi):
-            return 'epubcfi(/{}{})'.format(2*(index+1), cfi) if cfi else None
+            return 'epubcfi(/{}{})'.format(2 * (index + 1), cfi) if cfi else None
 
         if cfi and csi:
             index = csi.index
@@ -575,7 +569,7 @@ class IframeBoss:
         if cfi:
             index = current_spine_item().index
             if index > -1:
-                cfi = 'epubcfi(/{}{})'.format(2*(index+1), cfi)
+                cfi = 'epubcfi(/{}{})'.format(2 * (index + 1), cfi)
                 pf = self.calculate_progress_frac()
                 fpf = progress_frac()
                 if cfi is not self.last_cfi or force_update:
@@ -589,7 +583,11 @@ class IframeBoss:
                         'update_progress_frac', progress_frac=pf, file_progress_frac=fpf, page_counts=page_counts())
 
     def update_toc_position(self, recalculate_toc_anchor_positions):
-        visible_anchors = update_visible_toc_anchors(self.book.manifest.toc_anchor_map, self.book.manifest.page_list_anchor_map, bool(recalculate_toc_anchor_positions))
+        visible_anchors = update_visible_toc_anchors(
+            self.book.manifest.toc_anchor_map,
+            self.book.manifest.page_list_anchor_map,
+            bool(recalculate_toc_anchor_positions)
+        )
         self.send_message('update_toc_position', visible_anchors=visible_anchors)
 
     def onscroll(self):
@@ -831,7 +829,10 @@ class IframeBoss:
             if need_workaround:
                 # workaround bug in chrome where sizes are incorrect in paged
                 # mode on initial load for some books
-                self.load_search_result_timer = window.setTimeout(self.ensure_search_result_visible.bind(None, before_select_pos), int(3 * ONSCROLL_DEBOUNCE_TIME / 4))
+                self.load_search_result_timer = window.setTimeout(
+                    self.ensure_search_result_visible.bind(None, before_select_pos),
+                    int(3 * ONSCROLL_DEBOUNCE_TIME / 4)
+                )
             if self.full_book_search_in_progress and not self.full_book_search_in_progress.first_result_shown and sr.on_discovery:
                 discovered = False
                 if sr.force_jump_to or progress_frac() >= self.full_book_search_in_progress.progress_frac_at_start or current_spine_item().index is not self.full_book_search_in_progress.start_spine_index:
@@ -876,7 +877,7 @@ class IframeBoss:
         annot_id, intersecting_wrappers = wrap_text_in_range(style, None, cls, self.add_highlight_listeners)
         removed_highlights = v'[]'
         if annot_id is not None:
-            intersecting_uuids = {annot_id_uuid_map[x]:True for x in intersecting_wrappers}
+            intersecting_uuids = {annot_id_uuid_map[x]: True for x in intersecting_wrappers}
             if existing and intersecting_uuids[existing]:
                 uuid = existing
             elif intersecting_wrappers.length is 1 and annot_id_uuid_map[intersecting_wrappers[0]]:
@@ -938,7 +939,7 @@ class IframeBoss:
                     break
             if found_highlight_to_edit:
                 self.ensure_selection_visible()
-                window.setTimeout(def():
+                window.setTimeout(def ():
                     self.send_message('annotations', type='edit-highlight')
                 , 50)
             else:
@@ -1105,6 +1106,7 @@ class IframeBoss:
         a.click()
 
 
+@no_prune
 def main():
     if not main.boss:
         main.boss = IframeBoss()

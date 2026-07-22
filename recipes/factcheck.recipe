@@ -2,8 +2,8 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class FactCheckOrg(BasicNewsRecipe):
-    title = u'Factcheck'
-    __author__ = u'Michael Heinz'
+    title = 'Factcheck'
+    __author__ = 'Michael Heinz'
     language = 'en'
     oldest_article = 7
     max_articles_per_feed = 100
@@ -15,4 +15,4 @@ class FactCheckOrg(BasicNewsRecipe):
 
     remove_tags = [{'id': ['footer', 'footerabout', 'sidebar']}]
 
-    feeds = [(u'Factcheck', u'feed://www.factcheck.org/feed/')]
+    feeds = [('Factcheck', 'feed://www.factcheck.org/feed/')]

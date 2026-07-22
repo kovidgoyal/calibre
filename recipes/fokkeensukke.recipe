@@ -16,13 +16,12 @@ class FokkeEnSukkeRecipe(BasicNewsRecipe):
     country = 'NL'
     version = 2
 
-    title = u'Fokke en Sukke'
-    publisher = u'Reid, Geleijnse & Van Tol'
-    category = u'News, Cartoons'
-    description = u'Popular Dutch daily cartoon Fokke en Sukke'
+    title = 'Fokke en Sukke'
+    publisher = 'Reid, Geleijnse & Van Tol'
+    category = 'News, Cartoons'
+    description = 'Popular Dutch daily cartoon Fokke en Sukke'
 
-    conversion_options = {'comments': description,
-                          'language': language, 'publisher': publisher}
+    conversion_options = {'comments': description, 'language': language, 'publisher': publisher}
 
     no_stylesheets = True
     extra_css = '''
@@ -30,15 +29,14 @@ class FokkeEnSukkeRecipe(BasicNewsRecipe):
                     div.title {text-align: center; margin-bottom: 1em;}
                     '''
 
-    INDEX = u'http://foksuk.nl'
+    INDEX = 'http://foksuk.nl'
     cover_url = 'http://foksuk.nl/content/wysiwyg/simpleimages/image350.gif'
 
     keep_only_tags = [dict(name='div', attrs={'class': 'cartoon'})]
 
     def parse_index(self):
         # A list with daynames as they _can_ appear in the index
-        dayNames = ['maandag', 'dinsdag', 'woensdag',
-                    'donderdag', 'vrijdag', 'zaterdag & zondag']
+        dayNames = ['maandag', 'dinsdag', 'woensdag', 'donderdag', 'vrijdag', 'zaterdag & zondag']
         soup = self.index_to_soup(self.INDEX)
 
         # Find the links for the various cartoons for this week and loop
@@ -57,21 +55,28 @@ class FokkeEnSukkeRecipe(BasicNewsRecipe):
                 # if the next one has '1' as content
                 if (i + 1 <= maxIndex) and (links[i + 1].renderContents().decode('utf-8') == '1'):
                     # Got you! Add it to the list
-                    article = {'title': links[i].renderContents().decode('utf-8'
-                        )+ ' 1', 'date': u'', 'url': self.INDEX + links[i + 1]['href'], 'description': ''}
+                    article = {
+                        'title': links[i].renderContents().decode('utf-8') + ' 1',
+                        'date': '',
+                        'url': self.INDEX + links[i + 1]['href'],
+                        'description': '',
+                    }
                     articles.append(article)
                     # If there is a '1', there should be a '2' as well, but
                     # better save than sorry
                     if (i + 2 <= maxIndex) and (links[i + 2].renderContents().decode('utf-8') == '2'):
                         # Got you! Add it to the list
-                        article = {'title': links[i].renderContents(
-                        ).decode('utf-8') + ' 2', 'date': u'', 'url': self.INDEX + links[i + 2]['href'], 'description': ''}
+                        article = {
+                            'title': links[i].renderContents().decode('utf-8') + ' 2',
+                            'date': '',
+                            'url': self.INDEX + links[i + 2]['href'],
+                            'description': '',
+                        }
                         articles.append(article)
                 else:
                     # There is only one cartoon for this day. Add it to the
                     # list.
-                    article = {'title': links[i].renderContents(
-                    ).decode('utf-8'), 'date': u'', 'url': self.INDEX + links[i]['href'], 'description': ''}
+                    article = {'title': links[i].renderContents().decode('utf-8'), 'date': '', 'url': self.INDEX + links[i]['href'], 'description': ''}
                     articles.append(article)
         # Might as well use the weeknumber as title
         week = index.find('span', attrs={'class': 'week'}).renderContents().decode('utf-8')
@@ -101,8 +106,7 @@ class FokkeEnSukkeRecipe(BasicNewsRecipe):
         return freshSoup
 
     def getFreshSoup(self, oldSoup):
-        freshSoup = BeautifulSoup(
-            '<html><head><title></title></head><body></body></html>')
+        freshSoup = BeautifulSoup('<html><head><title></title></head><body></body></html>')
         if oldSoup.head.title:
             freshSoup.head.title.append(self.tag_to_string(oldSoup.head.title))
         return freshSoup

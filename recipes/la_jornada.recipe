@@ -36,7 +36,7 @@ class LaJornada_mx(BasicNewsRecipe):
     cover_url = strftime('http://www.jornada.com.mx/%Y/%m/%d/portada.pdf')
     masthead_url = 'http://www.jornada.com.mx/v7.0/imagenes/la-jornada-trans.png'
     publication_type = 'newspaper'
-    extra_css             = '''
+    extra_css = '''
                                 body{font-family: "Times New Roman",serif }
                                 .cabeza{font-size: xx-large; font-weight: bold }
                                 .documentFirstHeading{font-size: xx-large; font-weight: bold }
@@ -56,15 +56,13 @@ class LaJornada_mx(BasicNewsRecipe):
                                 p.s-s{display: inline; text-indent: 0}
                             '''
 
-    conversion_options = {
-        'comment': description, 'tags': category, 'publisher': publisher, 'language': language
-    }
+    conversion_options = {'comment': description, 'tags': category, 'publisher': publisher, 'language': language}
 
     recipe_specific_options = {
         'days': {
             'short': 'Oldest article to download from this news source. In days ',
             'long': 'For example, 0.5, gives you articles from the past 12 hours',
-            'default': str(oldest_article)
+            'default': str(oldest_article),
         }
     }
 
@@ -75,33 +73,33 @@ class LaJornada_mx(BasicNewsRecipe):
             self.oldest_article = float(d)
 
     preprocess_regexps = [
-        (re.compile(r'<div class="inicial">(.*)</div><p class="s-s">', re.DOTALL | re.IGNORECASE),
-         lambda match: '<p class="inicial">' + match.group(1) + '</p><p class="s-s">')
+        (
+            re.compile(r'<div class="inicial">(.*)</div><p class="s-s">', re.DOTALL | re.IGNORECASE),
+            lambda match: '<p class="inicial">' + match.group(1) + '</p><p class="s-s">',
+        )
     ]
 
     keep_only_tags = [
-        dict(name='div', attrs={'class': ['documentContent', 'cabeza', 'sumarios',
-                                          'credito-articulo', 'text', 'carton']}), dict(name='div', attrs={'id': 'renderComments'})
+        dict(name='div', attrs={'class': ['documentContent', 'cabeza', 'sumarios', 'credito-articulo', 'text', 'carton']}),
+        dict(name='div', attrs={'id': 'renderComments'}),
     ]
-    remove_tags = [
-        dict(name='div', attrs={'class': ['buttonbar', 'comment-cont']})]
+    remove_tags = [dict(name='div', attrs={'class': ['buttonbar', 'comment-cont']})]
 
     feeds = [
-
-    (u'Opinion', u'http://www.jornada.com.mx/rss/opinion.xml'),
-    (u'Cartones', u'http://www.jornada.com.mx/rss/cartones.xml'),
-    (u'Politica', u'http://www.jornada.com.mx/rss/politica.xml'),
-    (u'Economia', u'http://www.jornada.com.mx/rss/economia.xml'),
-    (u'Mundo', u'http://www.jornada.com.mx/rss/mundo.xml'),
-    (u'Estados', u'http://www.jornada.com.mx/rss/estados.xml'),
-    (u'Capital', u'http://www.jornada.com.mx/rss/capital.xml'),
-    (u'Sociedad y justicia', u'http://www.jornada.com.mx/rss/sociedad.xml'),
-    (u'Ciencias', u'http://www.jornada.com.mx/rss/ciencias.xml'),
-    (u'Cultura', u'http://www.jornada.com.mx/rss/cultura.xml'),
-    (u'Gastronomia', u'http://www.jornada.com.mx/rss/gastronomia.xml'),
-    (u'Espectaculos', u'http://www.jornada.com.mx/rss/espectaculos.xml'),
-    (u'Deportes', u'http://www.jornada.com.mx/rss/deportes.xml'),
-    (u'Ultimas noticias', u'http://www.jornada.com.mx/ultimas/news/RSS')
+        ('Opinion', 'http://www.jornada.com.mx/rss/opinion.xml'),
+        ('Cartones', 'http://www.jornada.com.mx/rss/cartones.xml'),
+        ('Politica', 'http://www.jornada.com.mx/rss/politica.xml'),
+        ('Economia', 'http://www.jornada.com.mx/rss/economia.xml'),
+        ('Mundo', 'http://www.jornada.com.mx/rss/mundo.xml'),
+        ('Estados', 'http://www.jornada.com.mx/rss/estados.xml'),
+        ('Capital', 'http://www.jornada.com.mx/rss/capital.xml'),
+        ('Sociedad y justicia', 'http://www.jornada.com.mx/rss/sociedad.xml'),
+        ('Ciencias', 'http://www.jornada.com.mx/rss/ciencias.xml'),
+        ('Cultura', 'http://www.jornada.com.mx/rss/cultura.xml'),
+        ('Gastronomia', 'http://www.jornada.com.mx/rss/gastronomia.xml'),
+        ('Espectaculos', 'http://www.jornada.com.mx/rss/espectaculos.xml'),
+        ('Deportes', 'http://www.jornada.com.mx/rss/deportes.xml'),
+        ('Ultimas noticias', 'http://www.jornada.com.mx/ultimas/news/RSS'),
     ]
 
     def preprocess_html(self, soup):

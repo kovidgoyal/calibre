@@ -4,7 +4,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class AdvancedUserRecipe1718003855(BasicNewsRecipe):
-    title          = 'Greatist'
+    title = 'Greatist'
     language = 'en'
     __author__ = 'Spicy Poison'
     description = 'To help you discover what works for you and how to apply it.'
@@ -15,8 +15,8 @@ class AdvancedUserRecipe1718003855(BasicNewsRecipe):
     encoding = 'utf-8'
     masthead_url = 'https://post.greatist.com/wp-content/uploads/sites/2/2019/05/greatist-new-logo.jpg'
     remove_empty_feeds = True
-    auto_cleanup   = True
+    auto_cleanup = True
 
-    feeds          = [
+    feeds = [
         ('All Articles', 'https://greatist.com/feed'),
     ]

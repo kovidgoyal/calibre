@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2023, Kovid Goyal <kovid at kovidgoyal.net>
 
-
 import os
 import posixpath
 from contextlib import contextmanager
@@ -52,7 +51,6 @@ NAME_ROLE = Qt.ItemDataRole.UserRole
 
 
 class Delegate(QStyledItemDelegate):
-
     rename_requested = pyqtSignal(int, str)
     doc_size = None
 
@@ -77,7 +75,7 @@ class Delegate(QStyledItemDelegate):
         if slash_pos == -1 and ext_pos > 0:
             editor.setSelection(0, ext_pos)
         elif ext_pos > -1 and slash_pos > -1 and ext_pos > slash_pos + 1:
-            editor.setSelection(slash_pos+1, ext_pos - slash_pos - 1)
+            editor.setSelection(slash_pos + 1, ext_pos - slash_pos - 1)
         else:
             editor.selectAll()
 
@@ -117,7 +115,6 @@ class Delegate(QStyledItemDelegate):
 
 
 class Files(QAbstractListModel):
-
     def __init__(self, db, book_id, parent=None):
         self.db = db
         self.book_id = book_id
@@ -127,7 +124,11 @@ class Files(QAbstractListModel):
 
     def refresh(self, key=None, reverse=False):
         self.modelAboutToBeReset.emit()
-        self.files = sorted(self.db.list_extra_files(self.book_id, pattern=DATA_FILE_PATTERN), key=key or self.file_sort_key, reverse=reverse)
+        self.files = sorted(
+            self.db.list_extra_files(self.book_id, pattern=DATA_FILE_PATTERN),
+            key=key or self.file_sort_key,
+            reverse=reverse,
+        )
         self.modelReset.emit()
 
     def file_sort_key(self, ef):
@@ -187,7 +188,6 @@ class Files(QAbstractListModel):
 
 
 class ListView(QListView):
-
     files_dropped = pyqtSignal(object)
 
     def __init__(self, parent=None):
@@ -224,14 +224,17 @@ class ListView(QListView):
 
 
 class DataFilesManager(Dialog):
-
     def __init__(self, db, book_id, parent=None, num_left=0):
         self.db = db.new_api
         self.num_left = num_left
         self.book_title = title = self.db.field_for('title', book_id) or _('Unknown')
         self.book_id = book_id
-        super().__init__(_('Manage data files for {}').format(title), 'manage-data-files-xx',
-                         parent=parent, default_buttons=QDialogButtonBox.StandardButton.Close)
+        super().__init__(
+            _('Manage data files for {}').format(title),
+            'manage-data-files-xx',
+            parent=parent,
+            default_buttons=QDialogButtonBox.StandardButton.Close,
+        )
 
     def sizeHint(self):
         return QSize(400, 500)
@@ -355,7 +358,7 @@ class DataFilesManager(Dialog):
     def open_with_menu(self, file_path):
         m = QMenu(_('Open with...'), parent=self)
         fmt = file_path.rpartition('.')[-1].lower()
-        populate_menu(m, lambda ac, entry:ac.triggered.connect(partial(self.do_open_with, file_path, entry)), fmt)
+        populate_menu(m, lambda ac, entry: ac.triggered.connect(partial(self.do_open_with, file_path, entry)), fmt)
         if len(m.actions()) == 0:
             m.addAction(_('Open %s file with...') % fmt.upper(), partial(self.choose_open_with, file_path, fmt))
         else:
@@ -434,17 +437,22 @@ class DataFilesManager(Dialog):
         q = self.db.are_paths_inside_book_dir(self.book_id, files, DATA_DIR_NAME)
         if q:
             return error_dialog(
-                self, _('Cannot add'), _(
-                    "Cannot add these data files to the book because they are already in the book's data files folder"
-                ), show=True, det_msg='\n'.join(q))
+                self,
+                _('Cannot add'),
+                _("Cannot add these data files to the book because they are already in the book's data files folder"),
+                show=True,
+                det_msg='\n'.join(q),
+            )
 
         m = {f'{DATA_DIR_NAME}/{os.path.basename(x)}': x for x in files}
         added = self.db.add_extra_files(self.book_id, m, replace=False, auto_rename=False)
         collisions = set(m) - set(added)
         if collisions:
-            if question_dialog(self, _('Replace existing files?'), _(
-                    'The following files already exist as data files in the book. Replace them?'
-            ) + '\n' + '\n'.join(x.partition('/')[2] for x in collisions)):
+            if question_dialog(
+                self,
+                _('Replace existing files?'),
+                _('The following files already exist as data files in the book. Replace them?') + '\n' + '\n'.join(x.partition('/')[2] for x in collisions),
+            ):
                 self.db.add_extra_files(self.book_id, m, replace=True, auto_rename=False)
         with self.preserve_state():
             self.files.refresh()
@@ -474,8 +482,11 @@ class DataFilesManager(Dialog):
         if not newrelpath.startswith(DATA_DIR_NAME + '/'):
             return error_dialog(self, _('Invalid name'), _('"{}" is not a valid file name').format(new_name), show=True)
         if e.relpath not in self.db.rename_extra_files(self.book_id, {e.relpath: newrelpath}, replace=False):
-            if question_dialog(self, _('Replace existing file?'), _(
-                    'Another data file with the name "{}" already exists. Replace it?').format(new_name)):
+            if question_dialog(
+                self,
+                _('Replace existing file?'),
+                _('Another data file with the name "{}" already exists. Replace it?').format(new_name),
+            ):
                 self.db.rename_extra_files(self.book_id, {e.relpath: newrelpath}, replace=True)
         with self.preserve_state():
             self.files.refresh()
@@ -496,6 +507,7 @@ class DataFilesManager(Dialog):
 if __name__ == '__main__':
     from calibre.gui2 import Application
     from calibre.library import db as di
+
     app = Application([])
     dfm = DataFilesManager(di(os.path.expanduser('~/test library')), 1893)
     dfm.exec()

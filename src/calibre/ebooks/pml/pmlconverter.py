@@ -1,10 +1,8 @@
-'''
-Convert pml markup to and from html
-'''
+# License: GPLv3 Copyright: 2009, John Schember <john@nachtimwald.com>
 
-__license__   = 'GPL v3'
-__copyright__ = '2009, John Schember <john@nachtimwald.com>'
-__docformat__ = 'restructuredtext en'
+"""
+Convert pml markup to and from html
+"""
 
 import io
 import os
@@ -16,7 +14,6 @@ from calibre.ebooks.metadata.toc import TOC
 
 
 class PML_HTMLizer:
-
     STATES = [
         'i',
         'u',
@@ -79,8 +76,14 @@ class PML_HTMLizer:
         'b': ('<span style="font-weight: bold;">', '</span>'),
         'l': ('<span style="font-size: 150%;">', '</span>'),
         'k': ('<span style="font-size: 75%; font-variant: small-caps;">', '</span>'),
-        'FN': ('<br /><br style="page-break-after: always;" /><div id="fn-%s"><p>', '</p><small><a href="#rfn-%s">return</a></small></div>'),
-        'SB': ('<br /><br style="page-break-after: always;" /><div id="sb-%s"><p>', '</p><small><a href="#rsb-%s">return</a></small></div>'),
+        'FN': (
+            '<br /><br style="page-break-after: always;" /><div id="fn-%s"><p>',
+            '</p><small><a href="#rfn-%s">return</a></small></div>',
+        ),
+        'SB': (
+            '<br /><br style="page-break-after: always;" /><div id="sb-%s"><p>',
+            '</p><small><a href="#rsb-%s">return</a></small></div>',
+        ),
     }
 
     CODE_STATES = {
@@ -157,10 +160,16 @@ class PML_HTMLizer:
     def prepare_pml(self, pml):
         # Give Chapters the form \\*='text'text\\*. This is used for generating
         # the TOC later.
-        pml = re.sub(r'(?msu)(?P<c>\\x)(?P<text>.*?)(?P=c)', lambda match: '{}="{}"{}{}'.format(
-            match.group('c'), self.strip_pml(match.group('text')), match.group('text'), match.group('c')), pml)
-        pml = re.sub(r'(?msu)(?P<c>\\X[0-4])(?P<text>.*?)(?P=c)', lambda match: '{}="{}"{}{}'.format(
-            match.group('c'), self.strip_pml(match.group('text')), match.group('text'), match.group('c')), pml)
+        pml = re.sub(
+            r'(?msu)(?P<c>\\x)(?P<text>.*?)(?P=c)',
+            lambda match: '{}="{}"{}{}'.format(match.group('c'), self.strip_pml(match.group('text')), match.group('text'), match.group('c')),
+            pml,
+        )
+        pml = re.sub(
+            r'(?msu)(?P<c>\\X[0-4])(?P<text>.*?)(?P=c)',
+            lambda match: '{}="{}"{}{}'.format(match.group('c'), self.strip_pml(match.group('text')), match.group('text'), match.group('c')),
+            pml,
+        )
 
         # Remove comments
         pml = re.sub(r'(?mus)\\v(?P<text>.*?)\\v', '', pml)
@@ -172,10 +181,16 @@ class PML_HTMLizer:
         pml = re.sub(r'(?mus)^[ ]*$', '', pml)
 
         # Footnotes and Sidebars.
-        pml = re.sub(r'(?mus)<footnote\s+id="(?P<target>.+?)">\s*(?P<text>.*?)\s*</footnote>', lambda match: '\\FN="{}"{}\\FN'.format(
-            match.group('target'), match.group('text')) if match.group('text') else '', pml)
-        pml = re.sub(r'(?mus)<sidebar\s+id="(?P<target>.+?)">\s*(?P<text>.*?)\s*</sidebar>', lambda match: '\\SB="{}"{}\\SB'.format(
-            match.group('target'), match.group('text')) if match.group('text') else '', pml)
+        pml = re.sub(
+            r'(?mus)<footnote\s+id="(?P<target>.+?)">\s*(?P<text>.*?)\s*</footnote>',
+            lambda match: '\\FN="{}"{}\\FN'.format(match.group('target'), match.group('text')) if match.group('text') else '',
+            pml,
+        )
+        pml = re.sub(
+            r'(?mus)<sidebar\s+id="(?P<target>.+?)">\s*(?P<text>.*?)\s*</sidebar>',
+            lambda match: '\\SB="{}"{}\\SB'.format(match.group('target'), match.group('text')) if match.group('text') else '',
+            pml,
+        )
 
         # Convert &'s into entities so &amp; in the text doesn't get turned into
         # &. It will display as &amp;
@@ -222,7 +237,7 @@ class PML_HTMLizer:
             if key in self.STATES_VALUE_REQ:
                 html = re.sub(r'(?u){}\s*{}'.format(open % '.*?', close), '', html)
             else:
-                html = re.sub(fr'(?u){open}\s*{close}', '', html)
+                html = re.sub(rf'(?u){open}\s*{close}', '', html)
         html = re.sub(r'(?imu)<p>\s*</p>', '', html)
         return html
 
@@ -248,7 +263,7 @@ class PML_HTMLizer:
                 else:
                     other.append((key, val[1]))
 
-        for key, val in other+div+span:
+        for key, val in other + div + span:
             if key in self.STATES_VALUE_REQ:
                 start += self.STATES_TAGS[key][0] % val
             elif key in self.STATES_VALUE_REQ_2:
@@ -273,7 +288,7 @@ class PML_HTMLizer:
                     span.append(key)
                 else:
                     other.append(key)
-        for key in span+div+other:
+        for key in span + div + other:
             if key in self.STATES_CLOSE_VALUE_REQ:
                 end += self.STATES_TAGS[key][1] % self.state[key][1]
             else:
@@ -332,14 +347,14 @@ class PML_HTMLizer:
         # Close code.
         if self.state[code][0]:
             # Close all.
-            for c in self.SPAN_STATES+self.DIV_STATES:
+            for c in self.SPAN_STATES + self.DIV_STATES:
                 if self.state[c][0]:
                     if c in self.STATES_CLOSE_VALUE_REQ:
                         text += self.STATES_TAGS[c][1] % self.state[c][1]
                     else:
                         text += self.STATES_TAGS[c][1]
             # Reopen the based on state.
-            for c in self.DIV_STATES+self.SPAN_STATES:
+            for c in self.DIV_STATES + self.SPAN_STATES:
                 if code == c:
                     continue
                 if self.state[c][0]:
@@ -676,7 +691,7 @@ class PML_HTMLizer:
         return output
 
     def get_toc(self):
-        '''
+        """
         Toc can have up to 5 levels, 0 - 4 inclusive.
 
         This function will add items to their appropriate
@@ -684,7 +699,7 @@ class PML_HTMLizer:
         invalid (item would not have a valid parent) add
         it to the next valid level above the specified
         level.
-        '''
+        """
         # Base toc object all items will be added to.
         n_toc = TOC()
         # Used to track nodes in the toc so we can add
@@ -753,8 +768,8 @@ def footnote_sidebar_to_html(pre_id, id, pml):
     id = id.strip('\x01')
     if id.strip():
         html = (
-            f'<br /><br style="page-break-after: always;" /><div id="{pre_id}-{id}">{pml_to_html(pml)}'
-            f'<small><a href="#r{pre_id}-{id}">return</a></small></div>')
+            f'<br /><br style="page-break-after: always;" /><div id="{pre_id}-{id}">{pml_to_html(pml)}<small><a href="#r{pre_id}-{id}">return</a></small></div>'
+        )
     else:
         html = f'<br /><br style="page-break-after: always;" /><div>{pml_to_html(pml)}</div>'
     return html

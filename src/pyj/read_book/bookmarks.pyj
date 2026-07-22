@@ -8,8 +8,8 @@ from gettext import gettext as _
 from book_list.item_list import build_list, create_item, create_side_action
 from dom import ensure_id, set_css
 from modals import question_dialog
-from widgets import create_button
 from read_book.toc import get_book_mark_title
+from widgets import create_button
 
 
 def goto_cfi(cfi, view):
@@ -33,7 +33,7 @@ def edit_bookmark(annotations_manager, title, list_dom_node):
 
 
 def create_bookmarks_list(annotations_manager, onclick):
-    bookmarks = sorted(annotations_manager.all_bookmarks(), key=def(x): return x.title.toLowerCase();)
+    bookmarks = sorted(annotations_manager.all_bookmarks(), key=def (x): return x.title.toLowerCase();)
     items = []
     for bookmark in bookmarks:
         if not bookmark.removed:
@@ -63,7 +63,7 @@ def create_new_bookmark(annotations_manager, data):
 
 def new_bookmark(container_id, annotations_manager, data, onclick, ev):
     if create_new_bookmark(annotations_manager, data):
-        onclick(def(): pass;)
+        onclick(def (): pass;)
 
 
 def create_bookmarks_panel(annotations_manager, data, book, container, onclick):

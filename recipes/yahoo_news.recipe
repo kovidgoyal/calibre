@@ -3,9 +3,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 def classes(classes):
     q = frozenset(classes.split(' '))
-    return dict(
-        attrs={'class': lambda x: x and frozenset(x.split()).intersection(q)}
-    )
+    return dict(attrs={'class': lambda x: x and frozenset(x.split()).intersection(q)})
 
 
 class YahooNews(BasicNewsRecipe):
@@ -22,18 +20,15 @@ class YahooNews(BasicNewsRecipe):
     max_articles_per_feed = 10
 
     feeds = [  # There are dozens of other feeds at http://news.yahoo.com/rss
-        (u'Top Stories', u'http://rss.news.yahoo.com/rss/topstories'),
-        (u'Science', u'http://rss.news.yahoo.com/rss/science')
+        ('Top Stories', 'http://rss.news.yahoo.com/rss/topstories'),
+        ('Science', 'http://rss.news.yahoo.com/rss/science'),
     ]
 
-    keep_only_tags = [
-            dict(name='h1'),
-            dict(attrs={'itemprop': 'articleBody'})
-    ]
+    keep_only_tags = [dict(name='h1'), dict(attrs={'itemprop': 'articleBody'})]
 
     remove_tags = [
-            classes('canvas-yahoovideo canvas-sharebuttons'),
-            dict(name='button'),
+        classes('canvas-yahoovideo canvas-sharebuttons'),
+        dict(name='button'),
     ]
 
     extra_css = '''

@@ -1,9 +1,5 @@
 #!/usr/bin/env python
-
-__license__   = 'GPL v3'
-__copyright__ = '2025, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
-
+# License: GPLv3 Copyright: 2025, Kovid Goyal <kovid@kovidgoyal.net>
 
 from functools import partial
 
@@ -22,8 +18,7 @@ class EMDisplayedFields(DisplayedFields):
 
     def initialize(self, use_defaults=False, pref_data_override=None):
         self.beginResetModel()
-        self.fields = [[x[0], x[1]] for x in
-                em_get_field_list(self.db, use_defaults=use_defaults, pref_data_override=pref_data_override)]
+        self.fields = [[x[0], x[1]] for x in em_get_field_list(self.db, use_defaults=use_defaults, pref_data_override=pref_data_override)]
         self.endResetModel()
         self.changed = True
 
@@ -33,19 +28,22 @@ class EMDisplayedFields(DisplayedFields):
 
 
 class EditMetadataTab(LazyConfigWidgetBase, Ui_Form):
-
     def genesis(self, gui):
         self.gui = gui
         db = self.gui.library_view.model().db
         r = self.register
 
-        r('edit_metadata_single_layout', gprefs,
-          choices=[(_('Default'), 'default'), (_('Compact metadata'), 'alt1'),
-                   (_('All on 1 tab'), 'alt2')])
+        r(
+            'edit_metadata_single_layout',
+            gprefs,
+            choices=[(_('Default'), 'default'), (_('Compact metadata'), 'alt1'), (_('All on 1 tab'), 'alt2')],
+        )
         r('edit_metadata_ignore_display_order', db.prefs)
-        r('edit_metadata_elision_point', gprefs,
-          choices=[(_('Left'), 'left'), (_('Middle'), 'middle'),
-                   (_('Right'), 'right')])
+        r(
+            'edit_metadata_elision_point',
+            gprefs,
+            choices=[(_('Left'), 'left'), (_('Middle'), 'middle'), (_('Right'), 'right')],
+        )
         r('edit_metadata_elide_labels', gprefs)
         r('edit_metadata_single_use_2_cols_for_custom_fields', gprefs)
         r('edit_metadata_bulk_cc_label_length', gprefs)

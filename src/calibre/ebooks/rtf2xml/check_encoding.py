@@ -1,18 +1,16 @@
 #!/usr/bin/env python
 
-
 import sys
 
 
 class CheckEncoding:
-
     def __init__(self, bug_handler=RuntimeError):
         self.__bug_handler = bug_handler
 
     def __get_position_error(self, line, encoding, line_num):
         char_position = 0
         for char in line:
-            char_position +=1
+            char_position += 1
             try:
                 char.decode(encoding)
             except ValueError as msg:

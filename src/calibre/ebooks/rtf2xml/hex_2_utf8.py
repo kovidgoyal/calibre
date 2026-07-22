@@ -22,27 +22,28 @@ from . import open_for_read, open_for_write
 
 
 class Hex2Utf8:
-    '''
+    """
     Convert Microsoft hexadecimal numbers to utf-8
-    '''
+    """
 
-    def __init__(self,
-            in_file,
-            area_to_convert,
-            char_file,
-            default_char_map,
-            bug_handler,
-            invalid_rtf_handler,
-            copy=None,
-            temp_dir=None,
-            symbol=None,
-            wingdings=None,
-            caps=None,
-            convert_caps=None,
-            dingbats=None,
-            run_level=1,
-            ):
-        '''
+    def __init__(
+        self,
+        in_file,
+        area_to_convert,
+        char_file,
+        default_char_map,
+        bug_handler,
+        invalid_rtf_handler,
+        copy=None,
+        temp_dir=None,
+        symbol=None,
+        wingdings=None,
+        caps=None,
+        convert_caps=None,
+        dingbats=None,
+        run_level=1,
+    ):
+        """
         Required:
             'file'
             'area_to_convert'--the area of file to convert
@@ -58,15 +59,11 @@ class Hex2Utf8:
             'convert_to_caps'--wether to convert caps to utf-8
         Returns:
             nothing
-        '''
+        """
         self.__file = in_file
         self.__copy = copy
         if area_to_convert not in ('preamble', 'body'):
-            msg = (
-            'Developer error! Wrong flag.\n'
-            'in module "hex_2_utf8.py\n'
-            '"area_to_convert" must be "body" or "preamble"\n'
-            )
+            msg = 'Developer error! Wrong flag.\nin module "hex_2_utf8.py\n"area_to_convert" must be "body" or "preamble"\n'
             raise self.__bug_handler(msg)
         self.__char_file = char_file
         self.__area_to_convert = area_to_convert
@@ -84,22 +81,23 @@ class Hex2Utf8:
         self.__bug_handler = bug_handler
         self.__invalid_rtf_handler = invalid_rtf_handler
 
-    def update_values(self,
-                        file,
-                        area_to_convert,
-                        char_file,
-                        convert_caps,
-                        convert_symbol,
-                        convert_wingdings,
-                        convert_zapf,
-                        copy=None,
-                        temp_dir=None,
-                        symbol=None,
-                        wingdings=None,
-                        caps=None,
-                        dingbats=None,
-                    ):
-        '''
+    def update_values(
+        self,
+        file,
+        area_to_convert,
+        char_file,
+        convert_caps,
+        convert_symbol,
+        convert_wingdings,
+        convert_zapf,
+        copy=None,
+        temp_dir=None,
+        symbol=None,
+        wingdings=None,
+        caps=None,
+        dingbats=None,
+    ):
+        """
         Required:
             'file'
             'area_to_convert'--the area of file to convert
@@ -114,14 +112,11 @@ class Hex2Utf8:
             'convert_to_caps'--wether to convert caps to utf-8
         Returns:
             nothing
-        '''
-        self.__file=file
+        """
+        self.__file = file
         self.__copy = copy
         if area_to_convert not in ('preamble', 'body'):
-            msg = (
-            'in module "hex_2_utf8.py\n'
-            '"area_to_convert" must be "body" or "preamble"\n'
-            )
+            msg = 'in module "hex_2_utf8.py\n"area_to_convert" must be "body" or "preamble"\n'
             raise self.__bug_handler(msg)
         self.__area_to_convert = area_to_convert
         self.__symbol = symbol
@@ -139,7 +134,7 @@ class Hex2Utf8:
         # self.__convert_zapf = 0
 
     def __initiate_values(self):
-        '''
+        """
         Required:
             Nothing
         Set values, including those for the dictionaries.
@@ -147,16 +142,16 @@ class Hex2Utf8:
         sets. For example, for the Symbol font, there is the standard part for
         hexadecimal numbers, and the part for Microsoft characters. Read
         each part in, and then combine them.
-        '''
+        """
         # the default encoding system, the lower map for characters 0 through
         # 128, and the encoding system for Microsoft characters.
         # New on 2004-05-8: the self.__char_map is not in directory with other
         # modules
         self.__char_file = io.StringIO(char_set)
         char_map_obj = get_char_map.GetCharMap(
-                char_file=self.__char_file,
-                bug_handler=self.__bug_handler,
-                )
+            char_file=self.__char_file,
+            bug_handler=self.__bug_handler,
+        )
         up_128_dict = char_map_obj.get_char_map(map=self.__default_char_map)
         bt_128_dict = char_map_obj.get_char_map(map='bottom_128')
         ms_standard_dict = char_map_obj.get_char_map(map='ms_standard')
@@ -193,25 +188,25 @@ class Hex2Utf8:
         # keys = self.__caps_uni_dict.keys()
         # self.__caps_uni_replace = '|'.join(keys)
         self.__preamble_state_dict = {
-            'preamble'          : self.__preamble_func,
-            'body'              : self.__body_func,
-            'mi<mk<body-open_'  : self.__found_body_func,
-            'tx<hx<__________'  : self.__hex_text_func,
-            }
+            'preamble': self.__preamble_func,
+            'body': self.__body_func,
+            'mi<mk<body-open_': self.__found_body_func,
+            'tx<hx<__________': self.__hex_text_func,
+        }
         self.__body_state_dict = {
-            'preamble'  : self.__preamble_for_body_func,
-            'body'      : self.__body_for_body_func,
-            }
+            'preamble': self.__preamble_for_body_func,
+            'body': self.__body_for_body_func,
+        }
         self.__in_body_dict = {
-            'mi<mk<body-open_'  : self.__found_body_func,
-            'tx<ut<__________'  : self.__utf_to_caps_func,
-            'tx<hx<__________'  : self.__hex_text_func,
-            'tx<mc<__________'  : self.__hex_text_func,
-            'tx<nu<__________'  : self.__text_func,
-            'mi<mk<font______'  : self.__start_font_func,
-            'mi<mk<caps______'  : self.__start_caps_func,
-            'mi<mk<font-end__'  : self.__end_font_func,
-            'mi<mk<caps-end__'  : self.__end_caps_func,
+            'mi<mk<body-open_': self.__found_body_func,
+            'tx<ut<__________': self.__utf_to_caps_func,
+            'tx<hx<__________': self.__hex_text_func,
+            'tx<mc<__________': self.__hex_text_func,
+            'tx<nu<__________': self.__text_func,
+            'mi<mk<font______': self.__start_font_func,
+            'mi<mk<caps______': self.__start_caps_func,
+            'mi<mk<font-end__': self.__end_font_func,
+            'mi<mk<caps-end__': self.__end_caps_func,
         }
         self.__caps_list = ['false']
         self.__font_list = ['not-defined']
@@ -234,23 +229,15 @@ class Hex2Utf8:
             # tag as utf-8
             if converted[0:1] == '&':
                 font = self.__current_dict_name
-                if self.__convert_caps\
-                and self.__caps_list[-1] == 'true'\
-                and font not in ('Symbol', 'Wingdings', 'Zapf Dingbats'):
+                if self.__convert_caps and self.__caps_list[-1] == 'true' and font not in ('Symbol', 'Wingdings', 'Zapf Dingbats'):
                     converted = self.__utf_token_to_caps_func(converted)
-                self.__write_obj.write(
-                f'tx<ut<__________<{converted}\n'
-                )
+                self.__write_obj.write(f'tx<ut<__________<{converted}\n')
             # tag as normal text
             else:
                 font = self.__current_dict_name
-                if self.__convert_caps\
-                and self.__caps_list[-1] == 'true'\
-                and font not in ('Symbol', 'Wingdings', 'Zapf Dingbats'):
+                if self.__convert_caps and self.__caps_list[-1] == 'true' and font not in ('Symbol', 'Wingdings', 'Zapf Dingbats'):
                     converted = converted.upper()
-                self.__write_obj.write(
-                f'tx<nu<__________<{converted}\n'
-                )
+                self.__write_obj.write(f'tx<nu<__________<{converted}\n')
         # error
         else:
             token = hex_num.replace("'", '')
@@ -271,9 +258,9 @@ class Hex2Utf8:
         self.__write_obj.write(line)
 
     def __body_func(self, line):
-        '''
+        """
         When parsing preamble
-        '''
+        """
         self.__write_obj.write(line)
 
     def __preamble_func(self, line):
@@ -301,27 +288,27 @@ class Hex2Utf8:
         os.remove(self.__write_to)
 
     def __preamble_for_body_func(self, line):
-        '''
+        """
         Required:
             line -- line to parse
         Returns:
             nothing
         Logic:
             Used when parsing the body.
-        '''
+        """
         if self.__token_info == 'mi<mk<body-open_':
             self.__found_body_func(line)
         self.__write_obj.write(line)
 
     def __body_for_body_func(self, line):
-        '''
+        """
         Required:
             line -- line to parse
         Returns:
             nothing
         Logic:
             Used when parsing the body.
-        '''
+        """
         action = self.__in_body_dict.get(self.__token_info)
         if action is not None:
             action(line)
@@ -329,14 +316,14 @@ class Hex2Utf8:
             self.__write_obj.write(line)
 
     def __start_font_func(self, line):
-        '''
+        """
         Required:
             line -- line to parse
         Returns:
             nothing
         Logic:
             add font face to font_list
-        '''
+        """
         face = line[17:-1]
         self.__font_list.append(face)
         if face == 'Symbol' and self.__convert_symbol:
@@ -353,14 +340,14 @@ class Hex2Utf8:
             self.__current_dict = self.__def_dict.copy()
 
     def __end_font_func(self, line):
-        '''
+        """
         Required:
             line -- line to parse
         Returns:
             nothing
         Logic:
             pop font_list
-        '''
+        """
         if len(self.__font_list) > 1:
             self.__font_list.pop()
         else:
@@ -382,14 +369,14 @@ class Hex2Utf8:
             self.__current_dict = self.__def_dict.copy()
 
     def __start_special_font_func_old(self, line):
-        '''
+        """
         Required:
             line -- line
         Returns;
             nothing
         Logic:
             change the dictionary to use in conversion
-        '''
+        """
         # for error checking
         if self.__token_info == 'mi<mk<font-symbo':
             self.__current_dict.update(self.__symbol_dict)
@@ -405,14 +392,14 @@ class Hex2Utf8:
             self.__current_dict_name = 'Zapf Dingbats'
 
     def __end_special_font_func(self, line):
-        '''
+        """
         Required:
             line --line to parse
         Returns:
             nothing
         Logic:
             pop the last dictionary, which should be a special font
-        '''
+        """
         if len(self.__current_dict) < 2:
             sys.stderr.write('module is hex_2_utf 8\n')
             sys.stderr.write('method is __end_special_font_func\n')
@@ -424,7 +411,7 @@ class Hex2Utf8:
             self.__dict_name = 'default'
 
     def __start_caps_func_old(self, line):
-        '''
+        """
         Required:
             line -- line to parse
         Returns:
@@ -432,11 +419,11 @@ class Hex2Utf8:
         Logic:
             A marker that marks the start of caps has been found. Set
             self.__in_caps to 1
-        '''
+        """
         self.__in_caps = 1
 
     def __start_caps_func(self, line):
-        '''
+        """
         Required:
             line -- line to parse
         Returns:
@@ -444,13 +431,13 @@ class Hex2Utf8:
         Logic:
             A marker that marks the start of caps has been found. Set
             self.__in_caps to 1
-        '''
+        """
         self.__in_caps = 1
         value = line[17:-1]
         self.__caps_list.append(value)
 
     def __end_caps_func(self, line):
-        '''
+        """
         Required:
             line -- line to parse
         Returns:
@@ -458,23 +445,21 @@ class Hex2Utf8:
         Logic:
             A marker that marks the end of caps has been found.
             set self.__in_caps to 0
-        '''
+        """
         if len(self.__caps_list) > 1:
             self.__caps_list.pop()
         else:
-            sys.stderr.write('Module is hex_2_utf8\n'
-            'method is __end_caps_func\n'
-            'caps list should be more than one?\n')  # self.__in_caps not set
+            sys.stderr.write('Module is hex_2_utf8\nmethod is __end_caps_func\ncaps list should be more than one?\n')  # self.__in_caps not set
 
     def __text_func(self, line):
-        '''
+        """
         Required:
             line -- line to parse
         Returns:
             nothing
         Logic:
             if in caps, convert. Otherwise, print out.
-        '''
+        """
         text = line[17:-1]
         # print(line)
         if self.__current_dict_name in ('Symbol', 'Wingdings', 'Zapf Dingbats'):
@@ -494,21 +479,19 @@ class Hex2Utf8:
             self.__write_obj.write(f'tx<nu<__________<{the_string}\n')
             # print(the_string)
         else:
-            if self.__caps_list[-1] == 'true' \
-                and self.__convert_caps\
-                and self.__current_dict_name not in ('Symbol', 'Wingdings', 'Zapf Dingbats'):
+            if self.__caps_list[-1] == 'true' and self.__convert_caps and self.__current_dict_name not in ('Symbol', 'Wingdings', 'Zapf Dingbats'):
                 text = text.upper()
             self.__write_obj.write(f'tx<nu<__________<{text}\n')
 
     def __utf_to_caps_func(self, line):
-        '''
+        """
         Required:
             line -- line to parse
         returns
             nothing
         Logic
             Get the text, and use another method to convert
-        '''
+        """
         utf_text = line[17:-1]
         if self.__caps_list[-1] == 'true' and self.__convert_caps:
             # utf_text = utf_text.upper()
@@ -516,7 +499,7 @@ class Hex2Utf8:
         self.__write_obj.write(f'tx<ut<__________<{utf_text}\n')
 
     def __utf_token_to_caps_func(self, char_entity):
-        '''
+        """
         Required:
             utf_text -- such as &xxx;
         Returns:
@@ -525,7 +508,7 @@ class Hex2Utf8:
             RTF often stores text in the improper values. For example, a
             capital umlaut o (?), is stores as ?. This function swaps the
             case by looking up the value in a dictionary.
-        '''
+        """
         hex_num = char_entity[3:]
         length = len(hex_num)
         if length == 3:

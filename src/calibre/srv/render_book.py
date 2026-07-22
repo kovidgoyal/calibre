@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
-
 import json
 import os
 import sys
@@ -140,7 +139,7 @@ def toc_anchor_map(toc):
     def process_node(node):
         name = node['dest']
         if name and node['id'] not in seen_map[name]:
-            ans[name].append({'id':node['id'], 'frag':node['frag']})
+            ans[name].append({'id': node['id'], 'frag': node['frag']})
             seen_map[name].add(node['id'])
         for i in node['children']:
             process_node(i)
@@ -157,13 +156,12 @@ def pagelist_anchor_map(page_list):
         name = x['dest']
         frag = x['frag']
         if name and frag not in seen_map[name]:
-            ans[name].append({'id': x['id'], 'pagenum': x['pagenum'], 'frag':frag})
+            ans[name].append({'id': x['id'], 'pagenum': x['pagenum'], 'frag': frag})
             seen_map[name].add(frag)
     return dict(ans)
 
 
 class SimpleContainer(ContainerBase):
-
     tweak_mode = True
 
 
@@ -218,6 +216,7 @@ def create_cover_page(container, input_fmt, is_comic, book_metadata=None):
     def generic_cover():
         if book_metadata is not None:
             from calibre.ebooks.covers import create_cover
+
             mi = book_metadata
             return create_cover(mi.title, mi.authors, mi.series, mi.series_index)
         return BLANK_JPEG
@@ -355,7 +354,7 @@ def transform_smil(container, name, link_uid, virtualize_resources, virtualized_
         if parent_seq is None:
             parent_seq = smil_map.get(target)
             if parent_seq is None:
-                smil_map[target] = parent_seq = {'textref': [target, ''], 'par':[], 'seq':[], 'type': 'root'}
+                smil_map[target] = parent_seq = {'textref': [target, ''], 'par': [], 'seq': [], 'type': 'root'}
         elif parent_seq['textref'][0] != target:
             return  # child seqs must be in the same HTML file as parent
         seq_list = parent_seq['seq']
@@ -469,10 +468,13 @@ def transform_html(container, name, virtualize_resources, link_uid, link_to_map,
                         parts = decode_url(parts[1])
                         lname, lfrag = parts[0], parts[1]
                         link_to_map.setdefault(lname, {}).setdefault(lfrag or '', set()).add(name)
-                        a.set('data-' + link_uid, json.dumps({'name':lname, 'frag':lfrag}, ensure_ascii=False))
+                        a.set('data-' + link_uid, json.dumps({'name': lname, 'frag': lfrag}, ensure_ascii=False))
                 elif href.startswith('missing:'):
                     a.set(attr, 'javascript:void(0)')
-                    a.set('data-' + link_uid, json.dumps({'name':href[len('missing:'):], 'frag':'', 'missing': True}, ensure_ascii=False))
+                    a.set(
+                        'data-' + link_uid,
+                        json.dumps({'name': href[len('missing:') :], 'frag': '', 'missing': True}, ensure_ascii=False),
+                    )
 
         for a in link_xpath(root):
             handle_link(a)
@@ -507,11 +509,14 @@ def virtualize_html(container, name, link_uid, link_to_map, virtualized_names, p
             else:
                 lname, lfrag = parts[0], parts[1]
                 link_to_map.setdefault(lname, {}).setdefault(lfrag or '', set()).add(name)
-                a.set('data-' + link_uid, json.dumps({'name':lname, 'frag':lfrag}, ensure_ascii=False))
+                a.set('data-' + link_uid, json.dumps({'name': lname, 'frag': lfrag}, ensure_ascii=False))
         elif href:
             if href.startswith('missing:'):
                 a.set(attr, 'javascript:void(0)')
-                a.set('data-' + link_uid, json.dumps({'name':href[len('missing:'):], 'frag':'', 'missing': True}, ensure_ascii=False))
+                a.set(
+                    'data-' + link_uid,
+                    json.dumps({'name': href[len('missing:') :], 'frag': '', 'missing': True}, ensure_ascii=False),
+                )
             else:
                 a.set('target', '_blank')
                 a.set('rel', 'noopener noreferrer')
@@ -542,7 +547,7 @@ def process_book_file(virtualize_resources, link_uid, container, present_names, 
             html_data[name] = {
                 'length': get_length(root),
                 'has_maths': check_for_maths(root),
-                'anchor_map': anchor_map(root)
+                'anchor_map': anchor_map(root),
             }
             transform_html(container, name, virtualize_resources, link_uid, link_to_map, virtualized_names, present_names)
         elif mt in OEB_STYLES:
@@ -556,8 +561,16 @@ def process_book_file(virtualize_resources, link_uid, container, present_names, 
 
 
 def process_exploded_book(
-    book_fmt, opfpath, input_fmt, tdir, log=None, book_hash=None, save_bookmark_data=False,
-    book_metadata=None, virtualize_resources=True, max_workers=1
+    book_fmt,
+    opfpath,
+    input_fmt,
+    tdir,
+    log=None,
+    book_hash=None,
+    save_bookmark_data=False,
+    book_metadata=None,
+    virtualize_resources=True,
+    max_workers=1,
 ):
     log = log or default_log
     container = SimpleContainer(tdir, opfpath, log)
@@ -582,8 +595,7 @@ def process_exploded_book(
     for name, mt in container.mime_map.items():
         if container.has_name_and_is_not_empty(name):
             present_names.add(name)
-            if name == container.opf_name or mt == guess_type('a.ncx') or name.startswith(
-                    'META-INF/') or name == 'mimetype':
+            if name == container.opf_name or mt == guess_type('a.ncx') or name.startswith('META-INF/') or name == 'mimetype':
                 excluded_names.add(name)
         else:
             excluded_names.add(name)
@@ -609,9 +621,9 @@ def process_exploded_book(
 
     book_render_data = {
         'version': RENDER_VERSION,
-        'toc':toc,
+        'toc': toc,
         'book_format': book_fmt,
-        'spine':spine,
+        'spine': spine,
         'link_uid': uuid4(),
         'book_hash': book_hash,
         'is_comic': is_comic,
@@ -676,9 +688,9 @@ def process_exploded_book(
     def manifest_data(name):
         mt = (container.mime_map.get(name) or 'application/octet-stream').lower()
         ans = {
-            'size':os.path.getsize(container.name_path_map[name]),
+            'size': os.path.getsize(container.name_path_map[name]),
             'is_virtualized': name in virtualized_names,
-            'mimetype':mt,
+            'mimetype': mt,
             'is_html': mt in OEB_DOCS,
         }
         if ans['is_html']:
@@ -696,7 +708,7 @@ def process_exploded_book(
                 ans['smil_map'] = smil_map
         return ans
 
-    book_render_data['files'] = {name:manifest_data(name) for name in set(container.name_path_map) - excluded_names}
+    book_render_data['files'] = {name: manifest_data(name) for name in set(container.name_path_map) - excluded_names}
     container.commit()
 
     for name in excluded_names:
@@ -744,6 +756,7 @@ def ensure_body(root):
 
 def html_as_json(root):
     from calibre_extensions.html_as_json import serialize
+
     ns, name = split_name(root.tag)
     if ns not in (None, XHTML_NS):
         raise ValueError('HTML tag must be in empty or XHTML namespace')
@@ -771,11 +784,12 @@ def get_stored_annotations(container, bookmark_data):
     if not raw:
         return
     if raw.startswith(EPUB_FILE_TYPE_MAGIC):
-        raw = raw[len(EPUB_FILE_TYPE_MAGIC):].replace(b'\n', b'')
+        raw = raw[len(EPUB_FILE_TYPE_MAGIC) :].replace(b'\n', b'')
         yield from json_loads(from_base64_bytes(raw))
         return
 
     from calibre.ebooks.oeb.iterator.bookmarks import parse_bookmarks
+
     for bm in parse_bookmarks(raw):
         if bm['type'] == 'cfi' and isinstance(bm['pos'], str):
             spine_index = (1 + bm['spine']) * 2
@@ -787,22 +801,38 @@ def get_stored_annotations(container, bookmark_data):
                 yield {'type': 'last-read', 'pos': epubcfi, 'pos_type': 'epubcfi', 'timestamp': EPOCH}
 
 
-def render(pathtoebook, output_dir, book_hash=None, serialize_metadata=False, extract_annotations=False, virtualize_resources=True, max_workers=0):
+def render(
+    pathtoebook,
+    output_dir,
+    book_hash=None,
+    serialize_metadata=False,
+    extract_annotations=False,
+    virtualize_resources=True,
+    max_workers=0,
+):
     pathtoebook = os.path.abspath(pathtoebook)
     mi = None
     if serialize_metadata:
         from calibre.customize.ui import quick_metadata
         from calibre.ebooks.metadata.meta import get_metadata
+
         with open(pathtoebook, 'rb') as f, quick_metadata:
             mi = get_metadata(f, os.path.splitext(pathtoebook)[1][1:].lower())
     book_fmt, opfpath, input_fmt = extract_book(pathtoebook, output_dir, log=default_log)
     container, bookmark_data = process_exploded_book(
-        book_fmt, opfpath, input_fmt, output_dir, max_workers=max_workers,
-        book_hash=book_hash, save_bookmark_data=extract_annotations,
-        book_metadata=mi, virtualize_resources=virtualize_resources
+        book_fmt,
+        opfpath,
+        input_fmt,
+        output_dir,
+        max_workers=max_workers,
+        book_hash=book_hash,
+        save_bookmark_data=extract_annotations,
+        book_metadata=mi,
+        virtualize_resources=virtualize_resources,
     )
     if serialize_metadata:
         from calibre.ebooks.metadata.book.serialize import metadata_as_dict
+
         d = metadata_as_dict(mi)
         d.pop('cover_data', None)
         serialize_datetimes(d), serialize_datetimes(d.get('user_metadata', {}))
@@ -819,8 +849,12 @@ def render(pathtoebook, output_dir, book_hash=None, serialize_metadata=False, ex
 
 def render_for_viewer(path, out_dir, book_hash):
     return render(
-        path, out_dir, book_hash=book_hash, serialize_metadata=True,
-        extract_annotations=True, virtualize_resources=False
+        path,
+        out_dir,
+        book_hash=book_hash,
+        serialize_metadata=True,
+        extract_annotations=True,
+        virtualize_resources=False,
     )
 
 
@@ -832,6 +866,7 @@ def viewer_main():
 
 # QuickLook {{{
 
+
 def quicklook(pathtoebook: str, output_dir: str) -> dict[str, object]:
     pathtoebook = os.path.abspath(pathtoebook)
     output_dir = os.path.abspath(output_dir)
@@ -839,9 +874,11 @@ def quicklook(pathtoebook: str, output_dir: str) -> dict[str, object]:
     container = SimpleContainer(output_dir, opfpath, default_log)
     from calibre.customize.ui import quick_metadata
     from calibre.ebooks.metadata.meta import get_metadata
+
     with open(pathtoebook, 'rb') as f, quick_metadata:
         mi = get_metadata(f, os.path.splitext(pathtoebook)[1][1:].lower())
     from calibre.ebooks.metadata.book.serialize import metadata_as_dict
+
     d = metadata_as_dict(mi)
     d.pop('cover_data', None)
     serialize_datetimes(d), serialize_datetimes(d.get('user_metadata', {}))
@@ -850,7 +887,10 @@ def quicklook(pathtoebook: str, output_dir: str) -> dict[str, object]:
     raster_cover_name, titlepage_name = create_cover_page(container, input_fmt.lower(), is_comic, mi)
     spine = []
     for name, linear in container.spine_names:
-        spine.append({'path': container.get_file_path_for_processing(name, allow_modification=False), 'is_linear': linear})
+        spine.append({
+            'path': container.get_file_path_for_processing(name, allow_modification=False),
+            'is_linear': linear,
+        })
     ans = {'spine': spine, 'metadata': d, 'is_comic': is_comic}
     if raster_cover_name:
         ans['raster_cover'] = container.get_file_path_for_processing(raster_cover_name, allow_modification=False)
@@ -870,6 +910,7 @@ def handle_quicklook_client(c) -> None:
             output = {'ok': True, 'path': req['path'], 'result': quicklook(req['path'], req['output_dir'])}
         except Exception as e:
             import traceback
+
             output = {'ok': False, 'path': req['path'], 'error': str(e), 'traceback': traceback.format_exc()}
         with c.makefile('w', encoding='utf-8') as outf:
             json.dump(output, outf)
@@ -900,6 +941,7 @@ def quicklook_service(path_to_socket: str) -> None:
     from calibre.constants import debug
     from calibre.ptempfile import reset_base_dir
     from calibre.utils.safe_atexit import remove_file_atexit, reset_after_fork
+
     debug(False)
     s = socket.socket(socket.AF_UNIX)
     s.setblocking(True)
@@ -925,13 +967,14 @@ def quicklook_service(path_to_socket: str) -> None:
                     c.shutdown(socket.SHUT_RDWR)
                     c.close()
 
+
 # }}}
 
 
 class Profiler:
-
     def __init__(self):
         import cProfile
+
         self.profile = cProfile.Profile()
 
     def __enter__(self):
@@ -941,30 +984,34 @@ class Profiler:
         self.profile.disable()
         self.profile.create_stats()
         import pstats
+
         stats = pstats.Stats(self.profile)
         stats.sort_stats('cumulative')
-        stats.print_stats(.05)
+        stats.print_stats(0.05)
 
 
 def profile():
     from calibre.ptempfile import TemporaryDirectory
+
     path = sys.argv[-1]
     with TemporaryDirectory() as tdir, Profiler():
-        return render(
-            path, tdir, serialize_metadata=True,
-            extract_annotations=True, virtualize_resources=False, max_workers=1
-        )
+        return render(path, tdir, serialize_metadata=True, extract_annotations=True, virtualize_resources=False, max_workers=1)
 
 
 def develop(max_workers=1, wait_for_input=True):
     from calibre.ptempfile import TemporaryDirectory
+
     path = sys.argv[-1]
     if max_workers < 1:
         max_workers = os.cpu_count()
     with TemporaryDirectory() as tdir:
         render(
-            path, tdir, serialize_metadata=True,
-            extract_annotations=True, virtualize_resources=False, max_workers=max_workers
+            path,
+            tdir,
+            serialize_metadata=True,
+            extract_annotations=True,
+            virtualize_resources=False,
+            max_workers=max_workers,
         )
         print('Extracted to:', tdir)
         if wait_for_input:

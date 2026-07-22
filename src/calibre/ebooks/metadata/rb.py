@@ -1,6 +1,6 @@
-__license__   = 'GPL v3'
-__copyright__ = '2008, Ashish Kulkarni <kulkarni.ashish@gmail.com>'
-'''Read meta information from RB files'''
+# License: GPLv3 Copyright: 2008, Ashish Kulkarni <kulkarni.ashish@gmail.com>
+
+"""Read meta information from RB files"""
 
 import struct
 import sys
@@ -12,7 +12,7 @@ MAGIC = b'\xb0\x0c\xb0\x0c\x02\x00NUVO\x00\x00\x00\x00'
 
 
 def get_metadata(stream):
-    ''' Return metadata as a L{MetaInfo} object '''
+    """Return metadata as a L{MetaInfo} object"""
     title = 'Unknown'
     mi = MetaInformation(title, ['Unknown'])
     stream.seek(0)

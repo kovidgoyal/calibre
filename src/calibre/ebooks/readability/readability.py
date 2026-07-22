@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 
-
 import re
 import sys
 from collections import defaultdict
@@ -20,11 +19,17 @@ def tounicode(tree_or_node, **kwargs):
 
 
 REGEXES = {
-    'unlikelyCandidatesRe': re.compile(r'combx|comment|community|disqus|extra|foot|header|menu|remark|rss|shoutbox|sidebar|sponsor|ad-break|agegate|pagination|pager|popup|tweet|twitter',re.I),  # noqa: E501
-    'okMaybeItsACandidateRe': re.compile(r'and|article|body|column|main|shadow',re.I),
-    'positiveRe': re.compile(r'article|body|content|entry|hentry|main|page|pagination|post|text|blog|story',re.I),
-    'negativeRe': re.compile(r'combx|comment|com-|contact|foot|footer|footnote|masthead|media|meta|outbrain|promo|related|scroll|shoutbox|sidebar|sponsor|shopping|tags|tool|widget',re.I),  # noqa: E501
-    'divToPElementsRe': re.compile(r'<(a|blockquote|dl|div|img|ol|p|pre|table|ul)',re.I),
+    'unlikelyCandidatesRe': re.compile(
+        r'combx|comment|community|disqus|extra|foot|header|menu|remark|rss|shoutbox|sidebar|sponsor|ad-break|agegate|pagination|pager|popup|tweet|twitter',
+        re.I,
+    ),  # noqa: E501
+    'okMaybeItsACandidateRe': re.compile(r'and|article|body|column|main|shadow', re.I),
+    'positiveRe': re.compile(r'article|body|content|entry|hentry|main|page|pagination|post|text|blog|story', re.I),
+    'negativeRe': re.compile(
+        r'combx|comment|com-|contact|foot|footer|footnote|masthead|media|meta|outbrain|promo|related|scroll|shoutbox|sidebar|sponsor|shopping|tags|tool|widget',
+        re.I,
+    ),  # noqa: E501
+    'divToPElementsRe': re.compile(r'<(a|blockquote|dl|div|img|ol|p|pre|table|ul)', re.I),
     # 'replaceBrsRe': re.compile(r'(<br[^>]*>[ \n\r\t]*){2,}',re.I),
     # 'replaceFontsRe': re.compile(r'<(/?)font[^>]*>',re.I),
     # 'trimRe': re.compile(r'^\s+|\s+$/'),
@@ -40,13 +45,13 @@ def describe(node, depth=1):
         return f'[{type(node)}]'
     name = node.tag
     if node.get('id', ''):
-        name += '#'+node.get('id')
+        name += '#' + node.get('id')
     if node.get('class', ''):
-        name += '.' + node.get('class').replace(' ','.')
+        name += '.' + node.get('class').replace(' ', '.')
     if name[:4] in ['div#', 'div.']:
         name = name[3:]
     if depth and node.getparent() is not None:
-        return name+' - '+describe(node.getparent(), depth-1)
+        return name + ' - ' + describe(node.getparent(), depth - 1)
     return name
 
 
@@ -219,7 +224,9 @@ class Document:
         total_length = text_length(elem)
         return float(link_length) / max(total_length, 1)
 
-    def score_paragraphs(self, ):
+    def score_paragraphs(
+        self,
+    ):
         MIN_LEN = self.options.get('min_text_length') or self.TEXT_LENGTH_THRESHOLD
         candidates = {}
         # self.debug(str([describe(node) for node in self.tags(self.html, "div")]))
@@ -263,8 +270,8 @@ class Document:
             candidate = candidates[elem]
             ld = self.get_link_density(elem)
             score = candidate['content_score']
-            self.debug(f'Candid: {score:6.3f} {describe(elem)} link density {ld:.3f} -> {score*(1-ld):6.3f}')
-            candidate['content_score'] *= (1 - ld)
+            self.debug(f'Candid: {score:6.3f} {describe(elem)} link density {ld:.3f} -> {score * (1 - ld):6.3f}')
+            candidate['content_score'] *= 1 - ld
 
         return candidates
 
@@ -297,10 +304,7 @@ class Document:
             content_score -= 3
         elif name in ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'th']:
             content_score -= 5
-        return {
-            'content_score': content_score,
-            'elem': elem
-        }
+        return {'content_score': content_score, 'elem': elem}
 
     def debug(self, *a):
         # if self.options['debug']:
@@ -422,28 +426,28 @@ class Document:
                 elif (counts['embed'] == 1 and content_length < 75) or counts['embed'] > 1:
                     reason = '<embed>s with too short content length, or too many <embed>s'
                     to_remove = True
-                # if el.tag == 'div' and counts['img'] >= 1 and to_remove:
-                #     imgs = el.findall('.//img')
-                #     valid_img = False
-                #     self.debug(tounicode(el))
-                #     for img in imgs:
-                #
-                #         height = img.get('height')
-                #         text_length = img.get('text_length')
-                #         self.debug ("height %s text_length %s" %(repr(height), repr(text_length)))
-                #         if to_int(height) >= 100 or to_int(text_length) >= 100:
-                #             valid_img = True
-                #             self.debug("valid image" + tounicode(img))
-                #             break
-                #     if valid_img:
-                #         to_remove = False
-                #         self.debug("Allowing %s" %text_content(el))
-                #         for desnode in self.tags(el, "table", "ul", "div"):
-                #             allowed[desnode] = True
+                    # if el.tag == 'div' and counts['img'] >= 1 and to_remove:
+                    #     imgs = el.findall('.//img')
+                    #     valid_img = False
+                    #     self.debug(tounicode(el))
+                    #     for img in imgs:
+                    #
+                    #         height = img.get('height')
+                    #         text_length = img.get('text_length')
+                    #         self.debug ("height %s text_length %s" %(repr(height), repr(text_length)))
+                    #         if to_int(height) >= 100 or to_int(text_length) >= 100:
+                    #             valid_img = True
+                    #             self.debug("valid image" + tounicode(img))
+                    #             break
+                    #     if valid_img:
+                    #         to_remove = False
+                    #         self.debug("Allowing %s" %text_content(el))
+                    #         for desnode in self.tags(el, "table", "ul", "div"):
+                    #             allowed[desnode] = True
 
                     # find x non empty preceding and succeeding siblings
                     i, j = 0, 0
-                    x  = 1
+                    x = 1
                     siblings = []
                     for sib in el.itersiblings():
                         # self.debug(text_content(sib))
@@ -457,7 +461,7 @@ class Document:
                         # self.debug(text_content(sib))
                         sib_content_length = text_length(sib)
                         if sib_content_length:
-                            j =+ 1
+                            j = +1
                             siblings.append(sib_content_length)
                             if j == x:
                                 break
@@ -479,19 +483,31 @@ class Document:
 
 def option_parser():
     from calibre.utils.config import OptionParser
+
     parser = OptionParser(usage='%prog: [options] file')
-    parser.add_option('-v', '--verbose', default=False, action='store_true',
-            dest='verbose',
-            help='Show detailed output information. Useful for debugging')
-    parser.add_option('-k', '--keep-elements', default=None, action='store',
-            dest='keep_elements',
-            help='XPath specifying elements that should not be removed')
+    parser.add_option(
+        '-v',
+        '--verbose',
+        default=False,
+        action='store_true',
+        dest='verbose',
+        help='Show detailed output information. Useful for debugging',
+    )
+    parser.add_option(
+        '-k',
+        '--keep-elements',
+        default=None,
+        action='store',
+        dest='keep_elements',
+        help='XPath specifying elements that should not be removed',
+    )
 
     return parser
 
 
 def main():
     from calibre.utils.logging import default_log
+
     parser = option_parser()
     options, args = parser.parse_args()
 
@@ -506,10 +522,7 @@ def main():
     enc = sys.__stdout__.encoding or 'utf-8'
     if options.verbose:
         default_log.filter_level = default_log.DEBUG
-    print(Document(raw, default_log,
-            debug=options.verbose,
-            keep_elements=options.keep_elements).summary().encode(enc,
-                'replace'))
+    print(Document(raw, default_log, debug=options.verbose, keep_elements=options.keep_elements).summary().encode(enc, 'replace'))
 
 
 if __name__ == '__main__':

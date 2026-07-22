@@ -1,8 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__ = 'GPL v3'
-__copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
+# License: GPLv3 Copyright: 2013, Kovid Goyal <kovid at kovidgoyal.net>
 
 import os
 import re
@@ -13,10 +10,38 @@ from calibre import replace_entities
 from calibre.utils.icu import upper as icu_upper
 
 BLOCK_TAG_NAMES = frozenset((
-    'address', 'article', 'aside', 'blockquote', 'center', 'dir', 'fieldset',
-    'isindex', 'menu', 'noframes', 'hgroup', 'noscript', 'pre', 'section',
-    'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'header', 'p', 'div', 'dd', 'dl', 'ul',
-    'ol', 'li', 'body', 'td', 'th'))
+    'address',
+    'article',
+    'aside',
+    'blockquote',
+    'center',
+    'dir',
+    'fieldset',
+    'isindex',
+    'menu',
+    'noframes',
+    'hgroup',
+    'noscript',
+    'pre',
+    'section',
+    'h1',
+    'h2',
+    'h3',
+    'h4',
+    'h5',
+    'h6',
+    'header',
+    'p',
+    'div',
+    'dd',
+    'dl',
+    'ul',
+    'ol',
+    'li',
+    'body',
+    'td',
+    'th',
+))
 
 
 def guess_type(x):
@@ -59,22 +84,26 @@ def adjust_mime_for_epub(filename='', mime='', opf_version=(2, 0)):
         mime = {
             'font/ttf': 'application/vnd.ms-opentype',  # this is needed by the execrable epubchek
             'font/otf': 'application/vnd.ms-opentype',
-            'font/woff': 'application/font-woff'}.get(mime, mime)
+            'font/woff': 'application/font-woff',
+        }.get(mime, mime)
     elif opf_version == (3, 1):
         mime = {
-        'font/ttf': 'application/font-sfnt',
-        'font/otf': 'application/font-sfnt',
-        'font/woff': 'application/font-woff'}.get(mime, mime)
+            'font/ttf': 'application/font-sfnt',
+            'font/otf': 'application/font-sfnt',
+            'font/woff': 'application/font-woff',
+        }.get(mime, mime)
     elif opf_version < (3, 0):
         mime = {
             'font/ttf': 'application/x-font-truetype',
             'font/otf': 'application/vnd.ms-opentype',
-            'font/woff': 'application/font-woff'}.get(mime, mime)
+            'font/woff': 'application/font-woff',
+        }.get(mime, mime)
     return mime
 
 
 def setup_css_parser_serialization(tab_width=2):
     import css_parser
+
     prefs = css_parser.ser.prefs
     prefs.indent = tab_width * ' '
     prefs.indentClosingBrace = False
@@ -84,6 +113,7 @@ def setup_css_parser_serialization(tab_width=2):
 
 def actual_case_for_name(container, name):
     from calibre.utils.filenames import samefile
+
     if not container.exists(name):
         raise ValueError(f'Cannot get actual case for {name} as it does not exist')
     parts = name.split('/')
@@ -131,9 +161,8 @@ def corrected_case_for_name(container, name):
 
 
 class PositionFinder:
-
     def __init__(self, raw):
-        pat = br'\n' if isinstance(raw, bytes) else r'\n'
+        pat = rb'\n' if isinstance(raw, bytes) else r'\n'
         self.new_lines = tuple(m.start() + 1 for m in re.finditer(pat, raw))
 
     def __call__(self, pos):
@@ -146,7 +175,6 @@ class PositionFinder:
 
 
 class CommentFinder:
-
     def __init__(self, raw, pat=r'(?s)/\*.*?\*/'):
         self.starts, self.ends = [], []
         for m in re.finditer(pat, raw):
@@ -162,6 +190,7 @@ class CommentFinder:
 
 def link_stylesheets(container, names, sheets, remove=False, mtype='text/css'):
     from calibre.ebooks.oeb.base import XHTML, XPath
+
     changed_names = set()
     snames = set(sheets)
     lp = XPath('//h:link[@href]')
@@ -180,24 +209,25 @@ def link_stylesheets(container, names, sheets, remove=False, mtype='text/css'):
             changed_names.add(name)
             try:
                 parent = hp(root)[0]
-            except (TypeError, IndexError):
+            except TypeError, IndexError:
                 parent = root.makeelement(XHTML('head'))
                 container.insert_into_xml(root, parent, index=0)
             for sheet in sheets:
                 if sheet in extra:
                     container.insert_into_xml(
-                        parent, parent.makeelement(XHTML('link'), rel='stylesheet', type=mtype,
-                                                   href=container.name_to_href(sheet, name)))
+                        parent,
+                        parent.makeelement(XHTML('link'), rel='stylesheet', type=mtype, href=container.name_to_href(sheet, name)),
+                    )
             container.dirty(name)
 
     return changed_names
 
 
 def lead_text(top_elem, num_words=10):
-    ''' Return the leading text contained in top_elem (including descendants)
+    """Return the leading text contained in top_elem (including descendants)
     up to a maximum of num_words words. More efficient than using
     etree.tostring(method='text') as it does not have to serialize the entire
-    sub-tree rooted at top_elem.'''
+    sub-tree rooted at top_elem."""
     pat = re.compile(r'\s+', flags=re.UNICODE)
     words = []
 
@@ -220,10 +250,12 @@ def lead_text(top_elem, num_words=10):
 def parse_css(data, fname='<string>', is_declaration=False, decode=None, log_level=None, css_preprocessor=None):
     if log_level is None:
         import logging
+
         log_level = logging.WARNING
     from css_parser import CSSParser, log
 
     from calibre.ebooks.oeb.base import _css_logger
+
     log.setLevel(log_level)
     log.raiseExceptions = False
     data = data or ''
@@ -231,9 +263,12 @@ def parse_css(data, fname='<string>', is_declaration=False, decode=None, log_lev
         data = data.decode('utf-8') if decode is None else decode(data)
     if css_preprocessor is not None:
         data = css_preprocessor(data)
-    parser = CSSParser(loglevel=log_level,
-                        # We don't care about @import rules
-                        fetcher=lambda x: (None, None), log=_css_logger)
+    parser = CSSParser(
+        loglevel=log_level,
+        # We don't care about @import rules
+        fetcher=lambda x: (None, None),
+        log=_css_logger,
+    )
     if is_declaration:
         data = parser.parseStyle(data, validate=False)
     else:
@@ -246,14 +281,15 @@ def handle_entities(text, func):
 
 
 def apply_func_to_match_groups(match, func=icu_upper, handle_entities=handle_entities):
-    '''Apply the specified function to individual groups in the match object (the result of re.search() or
-    the whole match if no groups were defined. Returns the replaced string.'''
+    """Apply the specified function to individual groups in the match object (the result of re.search() or
+    the whole match if no groups were defined. Returns the replaced string."""
     found_groups = False
     i = 0
     parts, pos = [], match.start()
 
     def f(text):
         return handle_entities(text, func)
+
     while True:
         i += 1
         try:
@@ -267,35 +303,37 @@ def apply_func_to_match_groups(match, func=icu_upper, handle_entities=handle_ent
             pos = end
     if not found_groups:
         return f(match.group())
-    parts.append(match.string[pos:match.end()])
+    parts.append(match.string[pos : match.end()])
     return ''.join(parts)
 
 
 def apply_func_to_html_text(match, func=icu_upper, handle_entities=handle_entities):
-    ''' Apply the specified function only to text between HTML tag definitions. '''
+    """Apply the specified function only to text between HTML tag definitions."""
+
     def f(text):
         return handle_entities(text, func)
+
     parts = re.split(r'(<[^>]+>)', match.group())
     parts = (x if x.startswith('<') else f(x) for x in parts)
     return ''.join(parts)
 
 
 def extract(elem):
-    ''' Remove an element from the tree, keeping elem.tail '''
+    """Remove an element from the tree, keeping elem.tail"""
     p = elem.getparent()
     if p is not None:
         idx = p.index(elem)
         p.remove(elem)
         if elem.tail:
             if idx > 0:
-                p[idx-1].tail = (p[idx-1].tail or '') + elem.tail
+                p[idx - 1].tail = (p[idx - 1].tail or '') + elem.tail
             else:
                 p.text = (p.text or '') + elem.tail
 
 
 def insert_self_closing(parent, item, index=None):
-    '''Insert item into parent (or append if index is None), fixing
-    indentation. Only works with self closing items.'''
+    """Insert item into parent (or append if index is None), fixing
+    indentation. Only works with self closing items."""
     if index is None:
         parent.append(item)
     else:
@@ -314,16 +352,16 @@ def insert_self_closing(parent, item, index=None):
             parent.text = sibling.text
             item.tail = sibling.tail
     else:
-        item.tail = parent[idx-1].tail
-        if idx == len(parent)-1:
-            parent[idx-1].tail = parent.text
+        item.tail = parent[idx - 1].tail
+        if idx == len(parent) - 1:
+            parent[idx - 1].tail = parent.text
 
 
 def fixed_layout_data(container):
-    '''
+    """
     Return a dict of the various data for a fixed-layout rendering.
     Return None if not supported.
-    '''
+    """
     if not container.opf_version:
         return None
     if container.opf_version_parsed < (3, 0):

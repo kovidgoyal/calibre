@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # License: GPL v3 Copyright: 2021, Kovid Goyal <kovid at kovidgoyal.net>
 
-
 import unittest
 
 from calibre.ebooks.metadata import author_to_author_sort, remove_bracketed_text
@@ -30,8 +29,7 @@ class TestRemoveBracketedText(unittest.TestCase):
 
 
 class TestAuthorToAuthorSort(unittest.TestCase):
-    def check_all_methods(self, name, invert=None, comma=None,
-                            nocomma=None, copy=None):
+    def check_all_methods(self, name, invert=None, comma=None, nocomma=None, copy=None):
         methods = ('invert', 'copy', 'comma', 'nocomma')
         if invert is None:
             invert = name
@@ -55,9 +53,7 @@ class TestAuthorToAuthorSort(unittest.TestCase):
         self.check_all_methods('Senior Inc')
 
     def test_copywords(self):
-        self.check_all_methods('Don "Team" Smith',
-                                invert='Smith, Don "Team"',
-                                nocomma='Smith Don "Team"')
+        self.check_all_methods('Don "Team" Smith', invert='Smith, Don "Team"', nocomma='Smith Don "Team"')
         self.check_all_methods('Don Team Smith')
 
     def test_national(self):
@@ -67,67 +63,48 @@ class TestAuthorToAuthorSort(unittest.TestCase):
             i = c.index('National')
         except ValueError:
             # If "National" not found, check first without, then temporarily add
-            self.check_all_methods('National Lampoon',
-                                    invert='Lampoon, National',
-                                    nocomma='Lampoon National')
+            self.check_all_methods('National Lampoon', invert='Lampoon, National', nocomma='Lampoon National')
             t = type(c)
             with Tweak('author_name_copywords', c + t(['National'])):
                 self.check_all_methods('National Lampoon')
         else:
             # If "National" found, check with, then temporarily remove
             self.check_all_methods('National Lampoon')
-            with Tweak('author_name_copywords', c[:i] + c[i + 1:]):
-                self.check_all_methods('National Lampoon',
-                                        invert='Lampoon, National',
-                                        nocomma='Lampoon National')
+            with Tweak('author_name_copywords', c[:i] + c[i + 1 :]):
+                self.check_all_methods('National Lampoon', invert='Lampoon, National', nocomma='Lampoon National')
 
     def test_method(self):
-        self.check_all_methods('Jane Doe',
-                                invert='Doe, Jane',
-                                nocomma='Doe Jane')
+        self.check_all_methods('Jane Doe', invert='Doe, Jane', nocomma='Doe Jane')
 
     def test_invalid_methos(self):
         # Invalid string defaults to invert
         name = 'Jane, Q. van Doe[ed] Jr.'
-        self.assertEqual(author_to_author_sort(name, 'invert'),
-                            author_to_author_sort(name, '__unknown__!(*T^U$'))
+        self.assertEqual(author_to_author_sort(name, 'invert'), author_to_author_sort(name, '__unknown__!(*T^U$'))
 
     def test_prefix_suffix(self):
-        self.check_all_methods('Mrs. Jane Q. Doe III',
-                                invert='Doe, Jane Q. III',
-                                nocomma='Doe Jane Q. III')
+        self.check_all_methods('Mrs. Jane Q. Doe III', invert='Doe, Jane Q. III', nocomma='Doe Jane Q. III')
 
     def test_surname_prefix(self):
         with Tweak('author_use_surname_prefixes', True):
-            self.check_all_methods('Leonardo Da Vinci',
-                                    invert='Da Vinci, Leonardo',
-                                    nocomma='Da Vinci Leonardo')
-            self.check_all_methods('Liam Da Mathúna',
-                                    invert='Da Mathúna, Liam',
-                                    nocomma='Da Mathúna Liam')
+            self.check_all_methods('Leonardo Da Vinci', invert='Da Vinci, Leonardo', nocomma='Da Vinci Leonardo')
+            self.check_all_methods('Liam Da Mathúna', invert='Da Mathúna, Liam', nocomma='Da Mathúna Liam')
             self.check_all_methods('Van Gogh')
             self.check_all_methods('Van')
         with Tweak('author_use_surname_prefixes', False):
-            self.check_all_methods('Leonardo Da Vinci',
-                                    invert='Vinci, Leonardo Da',
-                                    nocomma='Vinci Leonardo Da')
-            self.check_all_methods('Van Gogh',
-                                    invert='Gogh, Van',
-                                    nocomma='Gogh Van')
+            self.check_all_methods('Leonardo Da Vinci', invert='Vinci, Leonardo Da', nocomma='Vinci Leonardo Da')
+            self.check_all_methods('Van Gogh', invert='Gogh, Van', nocomma='Gogh Van')
 
     def test_comma(self):
-        self.check_all_methods('James Wesley, Rawles',
-                                invert='Rawles, James Wesley,',
-                                comma='James Wesley, Rawles',
-                                nocomma='Rawles James Wesley,')
+        self.check_all_methods(
+            'James Wesley, Rawles',
+            invert='Rawles, James Wesley,',
+            comma='James Wesley, Rawles',
+            nocomma='Rawles James Wesley,',
+        )
 
     def test_brackets(self):
-        self.check_all_methods('Seventh Author [7]',
-                                invert='Author, Seventh',
-                                nocomma='Author Seventh')
-        self.check_all_methods('John [x]von Neumann (III)',
-                                invert='Neumann, John von',
-                                nocomma='Neumann John von')
+        self.check_all_methods('Seventh Author [7]', invert='Author, Seventh', nocomma='Author Seventh')
+        self.check_all_methods('John [x]von Neumann (III)', invert='Neumann, John von', nocomma='Neumann John von')
 
     def test_falsy(self):
         self.check_all_methods('')

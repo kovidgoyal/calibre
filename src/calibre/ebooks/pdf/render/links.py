@@ -1,9 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__   = 'GPL v3'
-__copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2012, Kovid Goyal <kovid at kovidgoyal.net>
 
 import os
 from urllib.parse import urlparse
@@ -14,7 +10,6 @@ from polyglot.urllib import unquote
 
 
 class Destination(Array):
-
     def __init__(self, start_page, pos, get_pageref):
         pnum = start_page + max(0, pos['column'])
         q = pnum
@@ -27,17 +22,14 @@ class Destination(Array):
                 q -= 1
         if q != pnum:
             current_log().warn(f'Could not find page {pnum} for link destination, using page {q} instead')
-        super().__init__([
-            pref, Name('XYZ'), pos['left'], pos['top'], None
-        ])
+        super().__init__([pref, Name('XYZ'), pos['left'], pos['top'], None])
 
 
 class Links:
-
     def __init__(self, pdf, mark_links, page_size):
         self.anchors = {}
         self.links = []
-        self.start = {'top':page_size[1], 'column':0, 'left':0}
+        self.start = {'top': page_size[1], 'column': 0, 'left': 0}
         self.pdf = pdf
         self.mark_links = mark_links
 
@@ -54,7 +46,7 @@ class Links:
                 pref = self.pdf.get_pageref(page).obj
             except IndexError:
                 try:
-                    pref = self.pdf.get_pageref(page-1).obj
+                    pref = self.pdf.get_pageref(page - 1).obj
                 except IndexError:
                     self.pdf.debug(f'Unable to find page for link: {link!r}, ignoring it')
                     continue
@@ -68,12 +60,13 @@ class Links:
             combined_path = os.path.normcase(os.path.abspath(os.path.join(os.path.dirname(path), *unquote(href).split('/'))))
             is_local = not href or combined_path in self.anchors
             annot = Dictionary({
-                'Type':Name('Annot'), 'Subtype':Name('Link'),
-                'Rect':rect, 'Border':Array([0,0,0]),
+                'Type': Name('Annot'),
+                'Subtype': Name('Link'),
+                'Rect': rect,
+                'Border': Array([0, 0, 0]),
             })
             if self.mark_links:
-                annot.update({'Border':Array([16, 16, 1]), 'C':Array([1.0, 0,
-                                                                      0])})
+                annot.update({'Border': Array([16, 16, 1]), 'C': Array([1.0, 0, 0])})
             if is_local:
                 path = combined_path if href else path
                 try:
@@ -84,7 +77,7 @@ class Links:
                     except KeyError:
                         pass
             else:
-                url = href + (('#'+frag) if frag else '')
+                url = href + (('#' + frag) if frag else '')
                 try:
                     purl = urlparse(url)
                 except Exception:
@@ -92,7 +85,8 @@ class Links:
                     continue
                 if purl.scheme and purl.scheme != 'file':
                     action = Dictionary({
-                        'Type':Name('Action'), 'S':Name('URI'),
+                        'Type': Name('Action'),
+                        'S': Name('URI'),
                     })
                     # Do not try to normalize/quote/unquote this URL as if it
                     # has a query part, it will get corrupted
@@ -106,7 +100,7 @@ class Links:
                 self.pdf.debug(f'Could not find destination for link: {href} in file {path}')
 
     def add_outline(self, toc):
-        parent = Dictionary({'Type':Name('Outlines')})
+        parent = Dictionary({'Type': Name('Outlines')})
         parentref = self.pdf.objects.add(parent)
         self.process_children(toc, parentref, parent_is_root=True)
         self.pdf.catalog.obj['Outlines'] = parentref
@@ -140,6 +134,5 @@ class Links:
             return None
         a = self.anchors[path]
         dest = a.get(frag, a[None])
-        item = Dictionary({'Parent':parentref, 'Dest':dest,
-                           'Title':UTF16String(toc.text or _('Unknown'))})
+        item = Dictionary({'Parent': parentref, 'Dest': dest, 'Title': UTF16String(toc.text or _('Unknown'))})
         return self.pdf.objects.add(item)

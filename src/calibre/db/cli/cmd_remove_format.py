@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
 
-
 from calibre.srv.changes import formats_removed
 from calibre.utils.localization import _
 
@@ -11,7 +10,7 @@ version = 0  # change this if you change signature of implementation()
 
 def implementation(db, notify_changes, book_id, fmt):
     is_remote = notify_changes is not None
-    fmt_map = {book_id: (fmt, )}
+    fmt_map = {book_id: (fmt,)}
     db.remove_formats(fmt_map)
     if is_remote:
         notify_changes(formats_removed(fmt_map))

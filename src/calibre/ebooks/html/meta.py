@@ -1,15 +1,13 @@
-__license__ = 'GPL 3'
-__copyright__ = '2010, Fabian Grassl <fg@jusmeum.de>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2010, Fabian Grassl <fg@jusmeum.de>
 
 
 class EasyMeta:
-
     def __init__(self, meta):
         self.meta = meta
 
     def __iter__(self):
         from calibre.ebooks.oeb.base import DC11_NS, barename, namespace
+
         meta = self.meta
         for item_name in meta.items:
             for item in meta[item_name]:
@@ -19,7 +17,7 @@ class EasyMeta:
     def __len__(self):
         count = 0
         for item in self:
-            count = count+1
+            count = count + 1
         return count
 
     def titles(self):

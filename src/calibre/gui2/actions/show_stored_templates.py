@@ -7,7 +7,6 @@ from calibre.utils.localization import _
 
 
 class ShowTemplateFunctionsAction(InterfaceAction):
-
     name = 'Template Functions'
     action_spec = (_('Template functions'), 'debug.png', None, ())
     dont_add_to = frozenset(('context-menu-device',))
@@ -19,6 +18,5 @@ class ShowTemplateFunctionsAction(InterfaceAction):
         self.qaction.triggered.connect(self.show_template_editor)
 
     def show_template_editor(self, *args):
-        d = Preferences(self.gui, initial_plugin=('Advanced', 'TemplateFunctions'),
-                close_after_initial=True)
+        d = Preferences(self.gui, initial_plugin=('Advanced', 'TemplateFunctions'), close_after_initial=True)
         d.exec()

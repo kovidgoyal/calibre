@@ -1,8 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__ = 'GPL v3'
-__copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
+# License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
 import os
 import re
@@ -38,7 +35,7 @@ def parse_desktop_file(path):
     try:
         with open(path, 'rb') as f:
             raw = f.read().decode('utf-8')
-    except (OSError, UnicodeDecodeError):
+    except OSError, UnicodeDecodeError:
         return
     group = None
     ans = {}
@@ -89,10 +86,7 @@ def find_icons():
         return icon_data
     base_dirs = [(os.environ.get('XDG_DATA_HOME') or os.path.expanduser('~/.local/share')) + '/icons']
     base_dirs += [os.path.expanduser('~/.icons')]
-    base_dirs += [
-        os.path.join(b, 'icons') for b in os.environ.get(
-            'XDG_DATA_DIRS', '/usr/local/share:/usr/share').split(os.pathsep)] + [
-                '/usr/share/pixmaps']
+    base_dirs += [os.path.join(b, 'icons') for b in os.environ.get('XDG_DATA_DIRS', '/usr/local/share:/usr/share').split(os.pathsep)] + ['/usr/share/pixmaps']
     ans = defaultdict(list)
     sz_pat = re.compile(r'/((?:\d+x\d+)|scalable)/')
     cache_file = os.path.join(cache_dir(), 'icon-theme-cache.calibre_msgpack')
@@ -115,7 +109,7 @@ def find_icons():
                     ans[name].append((-sz, idx, sz, path))
         for icons in ans.values():
             icons.sort(key=list)
-        return {k:(-v[0][2], v[0][3]) for k, v in ans.items()}
+        return {k: (-v[0][2], v[0][3]) for k, v in ans.items()}
 
     try:
         with open(cache_file, 'rb') as f:
@@ -148,6 +142,7 @@ def find_icons():
                     except Exception:
                         prints(f'Failed to read icon theme dir: {d!r} with error:')
                         import traceback
+
                         traceback.print_exc()
                     mtimes[d] = mtime
                 for name, data in cache[d].items():
@@ -157,17 +152,18 @@ def find_icons():
         changed = True
 
     if changed:
-        data = msgpack_dumps({'data':cache, 'mtimes':mtimes})
+        data = msgpack_dumps({'data': cache, 'mtimes': mtimes})
         try:
             with open(cache_file, 'wb') as f:
                 f.write(data)
         except Exception:
             import traceback
+
             traceback.print_exc()
 
     for icons in ans.values():
         icons.sort(key=list)
-    icon_data = {k:v[0][1] for k, v in ans.items()}
+    icon_data = {k: v[0][1] for k, v in ans.items()}
     return icon_data
 
 
@@ -223,6 +219,7 @@ def find_programs(extensions):
             data = parse_desktop_file(path)
         except Exception:
             import traceback
+
             traceback.print_exc()
             continue
         if data is not None and mime_types.intersection(data['MimeType']):
@@ -238,14 +235,20 @@ def entry_sort_key(entry):
 def entry_to_cmdline(entry, path):
     path = os.path.abspath(path)
     rmap = {
-        'f':path, 'F':path, 'u':'file://'+path, 'U':'file://'+path, '%':'%',
-        'c':entry.get('Name', ''), 'k':entry.get('desktop_file_path', ''),
+        'f': path,
+        'F': path,
+        'u': 'file://' + path,
+        'U': 'file://' + path,
+        '%': '%',
+        'c': entry.get('Name', ''),
+        'k': entry.get('desktop_file_path', ''),
     }
 
     def replace(match):
         char = match.group()[-1]
         repl = rmap.get(char)
         return match.group() if repl is None else repl
+
     sub = re.compile(r'%[fFuUdDnNickvm%]').sub
     cmd = entry['Exec']
     try:
@@ -255,5 +258,5 @@ def entry_to_cmdline(entry, path):
     else:
         icon = entry.get('Icon')
         repl = ['--icon', icon] if icon else []
-        cmd[idx:idx+1] = repl
+        cmd[idx : idx + 1] = repl
     return cmd[:1] + [sub(replace, x) for x in cmd[1:]]

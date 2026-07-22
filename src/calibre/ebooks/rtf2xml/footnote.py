@@ -19,19 +19,20 @@ from . import open_for_read, open_for_write
 
 
 class Footnote:
-    '''
+    """
     Two public methods are available. The first separates all of the
     footnotes from the body and puts them at the bottom of the text, where
     they are easier to process. The second joins those footnotes to the
     proper places in the body.
-    '''
+    """
 
-    def __init__(self,
-            in_file,
-            bug_handler,
-            copy=None,
-            run_level=1,
-            ):
+    def __init__(
+        self,
+        in_file,
+        bug_handler,
+        copy=None,
+        run_level=1,
+    ):
         self.__file = in_file
         self.__bug_handler = bug_handler
         self.__copy = copy
@@ -39,42 +40,35 @@ class Footnote:
         self.__found_a_footnote = 0
 
     def __first_line_func(self, line):
-        '''
+        """
         Print the tag info for footnotes.  Check whether footnote is an
         endnote and make the tag according to that.
-        '''
+        """
         if self.__token_info == 'cw<nt<type______':
-            self.__write_to_foot_obj.write(
-            f'mi<tg<open-att__<footnote<type>endnote<num>{self.__footnote_count}\n')
+            self.__write_to_foot_obj.write(f'mi<tg<open-att__<footnote<type>endnote<num>{self.__footnote_count}\n')
         else:
-            self.__write_to_foot_obj.write(
-            f'mi<tg<open-att__<footnote<num>{self.__footnote_count}\n')
+            self.__write_to_foot_obj.write(f'mi<tg<open-att__<footnote<num>{self.__footnote_count}\n')
         self.__first_line = 0
 
     def __in_footnote_func(self, line):
-        '''Handle all tokens that are part of footnote'''
+        """Handle all tokens that are part of footnote"""
         if self.__first_line:
             self.__first_line_func(line)
         if self.__token_info == 'cw<ci<footnot-mk':
             num = str(self.__footnote_count)
             self.__write_to_foot_obj.write(line)
-            self.__write_to_foot_obj.write(
-                f'tx<nu<__________<{num}\n'
-            )
+            self.__write_to_foot_obj.write(f'tx<nu<__________<{num}\n')
         if self.__cb_count == self.__footnote_bracket_count:
             self.__in_footnote = 0
             self.__write_obj.write(line)
-            self.__write_to_foot_obj.write(
-            'mi<mk<foot___clo\n')
-            self.__write_to_foot_obj.write(
-            'mi<tg<close_____<footnote\n')
-            self.__write_to_foot_obj.write(
-            'mi<mk<footnt-clo\n')
+            self.__write_to_foot_obj.write('mi<mk<foot___clo\n')
+            self.__write_to_foot_obj.write('mi<tg<close_____<footnote\n')
+            self.__write_to_foot_obj.write('mi<mk<footnt-clo\n')
         else:
             self.__write_to_foot_obj.write(line)
 
     def __found_footnote(self, line):
-        ''' Found a footnote'''
+        """Found a footnote"""
         self.__found_a_footnote = 1
         self.__in_footnote = 1
         self.__first_line = 1
@@ -82,27 +76,23 @@ class Footnote:
         # temporarily set this to zero so I can enter loop
         self.__cb_count = 0
         self.__footnote_bracket_count = self.__ob_count
-        self.__write_obj.write(
-        f'mi<mk<footnt-ind<{self.__footnote_count:04}\n')
-        self.__write_to_foot_obj.write(
-        f'mi<mk<footnt-ope<{self.__footnote_count:04}\n')
+        self.__write_obj.write(f'mi<mk<footnt-ind<{self.__footnote_count:04}\n')
+        self.__write_to_foot_obj.write(f'mi<mk<footnt-ope<{self.__footnote_count:04}\n')
 
     def __default_sep(self, line):
-        '''Handle all tokens that are not footnote tokens'''
+        """Handle all tokens that are not footnote tokens"""
         if self.__token_info == 'cw<nt<footnote__':
             self.__found_footnote(line)
         self.__write_obj.write(line)
         if self.__token_info == 'cw<ci<footnot-mk':
             num = str(self.__footnote_count + 1)
-            self.__write_obj.write(
-                f'tx<nu<__________<{num}\n'
-            )
+            self.__write_obj.write(f'tx<nu<__________<{num}\n')
 
     def __initiate_sep_values(self):
-        '''
+        """
         initiate counters for separate_footnotes method.
-        '''
-        self.__bracket_count=0
+        """
+        self.__bracket_count = 0
         self.__ob_count = 0
         self.__cb_count = 0
         self.__footnote_bracket_count = 0
@@ -111,13 +101,13 @@ class Footnote:
         self.__footnote_count = 0
 
     def separate_footnotes(self):
-        '''
+        """
         Separate all the footnotes in an RTF file and put them at the bottom,
         where they are easier to process.  Each time a footnote is found,
         print all of its contents to a temporary file. Close both the main and
         temporary file. Print the footnotes from the temporary file to the
         bottom of the main file.
-        '''
+        """
         self.__initiate_sep_values()
         self.__footnote_holder = better_mktemp()
         with open_for_read(self.__file) as read_obj:
@@ -138,17 +128,10 @@ class Footnote:
                             self.__default_sep(line)
         with open_for_read(self.__footnote_holder) as read_obj:
             with open_for_write(self.__write_to, append=True) as write_obj:
-                write_obj.write(
-                    'mi<mk<sect-close\n'
-                    'mi<mk<body-close\n'
-                    'mi<tg<close_____<section\n'
-                    'mi<tg<close_____<body\n'
-                    'mi<tg<close_____<doc\n'
-                    'mi<mk<footnt-beg\n')
+                write_obj.write('mi<mk<sect-close\nmi<mk<body-close\nmi<tg<close_____<section\nmi<tg<close_____<body\nmi<tg<close_____<doc\nmi<mk<footnt-beg\n')
                 for line in read_obj:
                     write_obj.write(line)
-                write_obj.write(
-                'mi<mk<footnt-end\n')
+                write_obj.write('mi<mk<footnt-end\n')
         os.remove(self.__footnote_holder)
         copy_obj = copy.Copy(bug_handler=self.__bug_handler)
         if self.__copy:
@@ -157,16 +140,16 @@ class Footnote:
         os.remove(self.__write_to)
 
     def update_info(self, file, copy):
-        '''
+        """
         Unused method
-        '''
+        """
         self.__file = file
         self.__copy = copy
 
     def __get_foot_body_func(self, line):
-        '''
+        """
         Process lines in main body and look for beginning of footnotes.
-        '''
+        """
         # mi<mk<footnt-end
         if self.__token_info == 'mi<mk<footnt-beg':
             self.__state = 'foot'
@@ -174,22 +157,22 @@ class Footnote:
             self.__write_obj.write(line)
 
     def __get_foot_foot_func(self, line):
-        '''
+        """
         Copy footnotes from bottom of file to a separate, temporary file.
-        '''
+        """
         if self.__token_info == 'mi<mk<footnt-end':
             self.__state = 'body'
         else:
             self.__write_to_foot_obj.write(line)
 
     def __get_footnotes(self):
-        '''
+        """
         Private method to remove footnotes from main file.  Read one line from
         the main file at a time. If the state is 'body', call on the private
         __get_foot_foot_func. Otherwise, call on the __get_foot_body_func.
         These two functions do the work of separating the footnotes form the
         body.
-        '''
+        """
         with open_for_read(self.__file) as read_obj:
             with open_for_write(self.__write_to) as self.__write_obj:
                 with open_for_write(self.__footnote_holder) as self.__write_to_foot_obj:
@@ -201,12 +184,12 @@ class Footnote:
                             self.__get_foot_foot_func(line)
 
     def __get_foot_from_temp(self, num):
-        '''
+        """
         Private method for joining footnotes to body. This method reads from
         the temporary file until the proper footnote marker is found. It
         collects all the tokens until the end of the footnote, and returns
         them as a string.
-        '''
+        """
         look_for = 'mi<mk<footnt-ope<' + num + '\n'
         found_foot = 0
         string_to_return = ''
@@ -219,14 +202,14 @@ class Footnote:
                 found_foot = 1
 
     def __join_from_temp(self):
-        '''
+        """
         Private method for rejoining footnotes to body.  Read from the
         newly-created, temporary file that contains the body text but no
         footnotes. Each time a footnote marker is found, call the private
         method __get_foot_from_temp(). This method will return a string to
         print out to the third file.
         If no footnote marker is found, simply print out the token (line).
-        '''
+        """
         with open_for_read(self.__footnote_holder) as self.__read_from_foot_obj:
             with open_for_read(self.__write_to) as read_obj:
                 with open_for_write(self.__write_to2) as self.__write_obj:
@@ -236,7 +219,7 @@ class Footnote:
                         self.__write_obj.write(line)
 
     def join_footnotes(self):
-        '''
+        """
         Join the footnotes from the bottom of the file and put them in their
         former places.  First, remove the footnotes from the bottom of the
         input file, outputting them to a temporary file. This creates two new
@@ -244,7 +227,7 @@ class Footnote:
         these files to read. When a marker is found in the main file, find the
         corresponding marker in the footnote file. Output the mix of body and
         footnotes to a third file.
-        '''
+        """
         if not self.__found_a_footnote:
             return
         self.__write_to2 = better_mktemp()

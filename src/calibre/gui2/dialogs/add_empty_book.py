@@ -1,10 +1,5 @@
 #!/usr/bin/env python
-
-
-__copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
-__docformat__ = 'restructuredtext en'
-__license__   = 'GPL v3'
-
+# License: GPLv3 Copyright: 2008, Kovid Goyal kovid@kovidgoyal.net
 
 from qt.core import QApplication, QCheckBox, QComboBox, QDialog, QDialogButtonBox, QGridLayout, QIcon, QLabel, QLineEdit, QSpinBox, QToolButton
 
@@ -16,7 +11,6 @@ from calibre.utils.localization import _
 
 
 class AddEmptyBookDialog(QDialog):
-
     def __init__(self, parent, db, author, series=None, title=None, dup_title=None):
         QDialog.__init__(self, parent)
         self.db = db
@@ -38,8 +32,7 @@ class AddEmptyBookDialog(QDialog):
         self._layout.addWidget(self.author_label, 2, 0, 1, 2)
 
         self.authors_combo = EditWithComplete(self)
-        self.authors_combo.setSizeAdjustPolicy(
-                QComboBox.SizeAdjustPolicy.AdjustToMinimumContentsLengthWithIcon)
+        self.authors_combo.setSizeAdjustPolicy(QComboBox.SizeAdjustPolicy.AdjustToMinimumContentsLengthWithIcon)
         self.authors_combo.setEditable(True)
         self._layout.addWidget(self.authors_combo, 3, 0, 1, 1)
         self.initialize_authors(db, author)
@@ -54,8 +47,7 @@ class AddEmptyBookDialog(QDialog):
         self._layout.addWidget(self.series_label, 4, 0, 1, 2)
 
         self.series_combo = EditWithComplete(self)
-        self.series_combo.setSizeAdjustPolicy(
-                QComboBox.SizeAdjustPolicy.AdjustToMinimumContentsLengthWithIcon)
+        self.series_combo.setSizeAdjustPolicy(QComboBox.SizeAdjustPolicy.AdjustToMinimumContentsLengthWithIcon)
         self.series_combo.setEditable(True)
         self._layout.addWidget(self.series_combo, 5, 0, 1, 1)
         self.initialize_series(db, series)
@@ -83,6 +75,7 @@ class AddEmptyBookDialog(QDialog):
         self._layout.addWidget(self.format_label, 8, 0, 1, 2)
         c = self.format_value = QComboBox(self)
         from calibre.ebooks.oeb.polish.create import valid_empty_formats
+
         possible_formats = [''] + sorted(x.upper() for x in valid_empty_formats)
         c.addItems(possible_formats)
         c.setToolTip(_('Also create an empty book format file that you can subsequently edit'))
@@ -98,9 +91,7 @@ class AddEmptyBookDialog(QDialog):
         self._layout.addWidget(c, 9, 0, 1, 1)
 
         self.copy_formats = cf = QCheckBox(_('Also copy book &formats when duplicating a book'), self)
-        cf.setToolTip(_(
-            'Also copy all e-book files into the newly created duplicate'
-            ' books.'))
+        cf.setToolTip(_('Also copy all e-book files into the newly created duplicate books.'))
         cf.setChecked(gprefs.get('create_empty_copy_dup_formats', False))
         self._layout.addWidget(cf, 10, 0, 1, -1)
 
@@ -113,10 +104,7 @@ class AddEmptyBookDialog(QDialog):
             assert b is not None
             b.clicked.connect(self.do_duplicate_book)
             b.setIcon(QIcon.ic('edit-copy.png'))
-            b.setToolTip(_(
-                'Make the new empty book records exact duplicates\n'
-                'of the current book "%s", with all metadata identical'
-            ) % dup_title)
+            b.setToolTip(_('Make the new empty book records exact duplicates\nof the current book "%s", with all metadata identical') % dup_title)
         self.resize(self.sizeHint())
         self.duplicate_current_book = False
 
@@ -177,6 +165,7 @@ class AddEmptyBookDialog(QDialog):
 
 if __name__ == '__main__':
     from calibre.library import db
+
     db = db()
     app = QApplication([])
     d = AddEmptyBookDialog(None, db, 'Test Author')

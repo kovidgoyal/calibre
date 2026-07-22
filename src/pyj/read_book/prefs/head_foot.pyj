@@ -2,15 +2,15 @@
 # License: GPL v3 Copyright: 2018, Kovid Goyal <kovid at kovidgoyal.net>
 from __python__ import bound_methods, hash_literals
 
-from dom import svgicon
 from elementmaker import E
 from gettext import gettext as _
 from gettext import ngettext
 
 from book_list.globals import get_session_data
 from dom import clear, unique_id
-from read_book.prefs.utils import create_button_box
+from dom import svgicon
 from read_book.globals import current_book
+from read_book.prefs.utils import create_button_box
 from session import get_interface_data, session_defaults
 from utils import fmt_sidx
 from viewer.constants import CHARS_PER_PAGE
@@ -56,7 +56,7 @@ def create_item(region, label, style):
     )
 
     return E.tr(
-        style = style or '',
+        style=style or '',
         E.td(label + ':', style='padding: 1ex 1rem'),
         E.td(s)
     )
@@ -161,9 +161,9 @@ def commit_head_foot(onchange, container):
 
 
 if window?.Intl?.DateTimeFormat:
-    time_formatter = window.Intl.DateTimeFormat(undefined, {'hour':'numeric', 'minute':'numeric'})
+    time_formatter = window.Intl.DateTimeFormat(undefined, {'hour': 'numeric', 'minute': 'numeric'})
 else:
-    time_formatter = {'format': def(date):
+    time_formatter = {'format': def (date):
         return '{}:{}'.format(date.getHours(), date.getMinutes())
     }
 

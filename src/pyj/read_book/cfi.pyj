@@ -2,37 +2,21 @@
 # License: GPL v3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 from __python__ import hash_literals
 
-#  Based on code originally written by Peter Sorotkin
-#  http://code.google.com/p/epub-revision/source/browse/trunk/src/samples/cfi/epubcfi.js
-#
-#  Improvements with respect to that code:
-#  1. Works on all browsers (WebKit, Firefox and IE >= 9)
-#  2. Works for content in elements that are scrollable (i.e. have their own scrollbars)
-#  3. Much more comprehensive testing/error handling
-#  4. Properly encodes/decodes assertions
-#  5. Handles points in the padding of elements consistently
-#  6. Has a utility method to calculate the CFI for the current viewport position robustly
-#
-#  Tested on: Firefox 9, IE 9, Chromium 16, Qt WebKit 2.1
-#  The main entry points are:
-#    at(x, y): Maps a point to a CFI, if possible
-#    at_current(): Returns the CFI corresponding to the current viewport scroll location
-#
-#    scroll_to(cfi): which scrolls the browser to a point corresponding to the
-#                    given cfi, and returns the x and y coordinates of the point.
-
 from read_book.viewport import scroll_viewport, rem_size
 
 # CFI escaping {{{
 escape_pat = /[\[\],^();~@!]/g
 unescape_pat = /[\^](.)/g
 
+
 def escape_for_cfi(raw):
     return (raw or '').replace(escape_pat, '^$&')
+
 
 def unescape_from_cfi(raw):
     return (raw or '').replace(unescape_pat, '$1')
 # }}}
+
 
 def fstr(d):  # {{{
     # Convert a timestamp floating point number to a string
@@ -42,17 +26,19 @@ def fstr(d):  # {{{
         d = -d
     n = Math.floor(d)
     ans += n
-    n = Math.round((d-n)*100)
+    n = Math.round((d - n) * 100)
     if n is not 0:
-        ans += "." + (n/10 if (n % 10 is 0) else n)
+        ans += '.' + (n / 10 if (n % 10 is 0) else n)
     return ans
 # }}}
 
-def get_current_time(target): # {{{
+
+def get_current_time(target):  # {{{
     return fstr(target.currentTime or 0)
 # }}}
 
-def id_is_unique(idval): # {{{
+
+def id_is_unique(idval):  # {{{
     try:
         multiples = document.querySelectorAll('[id=' + window.CSS.escape(idval) + ']')
     except:
@@ -61,6 +47,7 @@ def id_is_unique(idval): # {{{
         return True
     return False
 # }}}
+
 
 # Convert point to character offset {{{
 def range_has_point(range_, x, y):
@@ -71,14 +58,15 @@ def range_has_point(range_, x, y):
             return True
     return False
 
+
 def offset_in_text_node(node, range_, x, y):
     limits = v'[0, node.nodeValue.length]'
     while limits[0] is not limits[1]:
-        pivot = Math.floor( (limits[0] + limits[1]) / 2 )
+        pivot = Math.floor((limits[0] + limits[1]) / 2)
         lr = v'[limits[0], pivot]'
         rr = v'[pivot+1, limits[1]]'
         range_.setStart(node, pivot)
-        range_.setEnd(node, pivot+1)
+        range_.setEnd(node, pivot + 1)
         if range_has_point(range_, x, y):
             return pivot
         range_.setStart(node, rr[0])
@@ -94,6 +82,7 @@ def offset_in_text_node(node, range_, x, y):
         break
     return limits[0]
 
+
 def find_offset_for_point(x, y, node, cdoc):
     range_ = cdoc.createRange()
     child = node.firstChild
@@ -102,7 +91,7 @@ def find_offset_for_point(x, y, node, cdoc):
             range_.setStart(child, 0)
             range_.setEnd(child, child.nodeValue.length)
             if range_has_point(range_, x, y):
-                return v'[child, offset_in_text_node(child, range_, x, y)]'
+                return [child, offset_in_text_node(child, range_, x, y)]
         child = child.nextSibling
 
     # The point must be after the last bit of text/in the padding/border, we don't know
@@ -111,16 +100,18 @@ def find_offset_for_point(x, y, node, cdoc):
 
 # }}}
 
+
 def set_current_time(target, val):  # {{{
     if target.currentTime is undefined:
         return
-    if target.readyState is 4 or target.readyState is "complete":
+    if target.readyState is 4 or target.readyState is 'complete':
         target.currentTime = val + 0
     else:
-        target.addEventListener("canplay", def(): target.currentTime = val;, False)
+        target.addEventListener('canplay', def (): target.currentTime=val;, False)
 # }}}
 
 # def encode(doc, node, offset, tail): {{{
+
 
 def is_text_node(node):
     return node.nodeType is Node.TEXT_NODE or node.nodeType is Node.CDATA_SECTION_NODE
@@ -201,7 +192,7 @@ def non_range_wrapper_parent(node):
 
 
 def encode(doc, node, offset, tail):
-    cfi = tail or ""
+    cfi = tail or ''
     # Handle the offset, if any
     if node.nodeType is Node.ELEMENT_NODE:
         if jstype(offset) is 'number':
@@ -223,8 +214,8 @@ def encode(doc, node, offset, tail):
         if adjusted:
             node = adjusted_node
             offset += additional_offset
-        cfi = ":" + offset + cfi
-    elif node.nodeType is not Node.ELEMENT_NODE: # Not handled
+        cfi = ':' + offset + cfi
+    elif node.nodeType is not Node.ELEMENT_NODE:  # Not handled
         print(f"Offsets for nodes of type {node.nodeType} are not handled")
 
     # Construct the path to node from root
@@ -236,7 +227,7 @@ def encode(doc, node, offset, tail):
                 win = node.defaultView
                 if win.frameElement:
                     node = win.frameElement
-                    cfi = "!" + cfi
+                    cfi = '!' + cfi
                     continue
             break
 
@@ -258,6 +249,7 @@ def encode(doc, node, offset, tail):
 # }}}
 
 # def decode(cfi, doc):  {{{
+
 
 def node_at_index(nodes, target, index, iter_text_nodes):
     for i in range(nodes.length):
@@ -311,6 +303,7 @@ def node_for_text_offset(nodes, offset, first_node):
                 return qn, offset, True
     return last_text_node, offset, False
 
+
 # Based on a CFI string, returns a decoded CFI, with members:
 #
 #  node: The node to which the CFI refers.
@@ -337,11 +330,11 @@ def decode(cfi, doc):
     orig_cfi = cfi
     while cfi.length > 0 and not error:
         r = cfi.match(simple_node_regex)
-        if r: # Path step
+        if r:  # Path step
             target = parseInt(r[1])
             assertion = r[2]
             if assertion:
-                assertion = unescape_from_cfi(assertion.slice(1, assertion.length-1))
+                assertion = unescape_from_cfi(assertion.slice(1, assertion.length - 1))
             q = node_for_path_step(node, target, assertion)
             if q:
                 node = q
@@ -352,12 +345,12 @@ def decode(cfi, doc):
                     break
                 else:
                     cfi = cfi.substr(r[0].length)
-        else if cfi[0] is '!': # Indirection
+        else if cfi[0] is '!':  # Indirection
             if node.contentDocument:
                 node = node.contentDocument
                 cfi = cfi.substr(1)
             else:
-                error = "Cannot reference " + node.nodeName + "'s content: " + cfi
+                error = 'Cannot reference ' + node.nodeName + "'s content: " + cfi
         else:
             break
 
@@ -378,14 +371,14 @@ def decode(cfi, doc):
     r = cfi.match(/^~(-?\d+(\.\d+)?)/)
     if r:
         # Temporal offset
-        decoded.time = r[1] - 0 # Coerce to number
+        decoded.time = r[1] - 0  # Coerce to number
         cfi = cfi.substr(r[0].length)
 
     r = cfi.match(/^@(-?\d+(\.\d+)?):(-?\d+(\.\d+)?)/)
     if r:
         # Spatial offset
-        decoded.x = r[1] - 0 # Coerce to number
-        decoded.y = r[3] - 0 # Coerce to number
+        decoded.x = r[1] - 0  # Coerce to number
+        decoded.y = r[3] - 0  # Coerce to number
         cfi = cfi.substr(r[0].length)
 
     r = cfi.match(/^\[([^\]]+)\]/)
@@ -398,7 +391,7 @@ def decode(cfi, doc):
                 assertion = assertion.substr(0, r.index)
                 decoded.forward = (r[1] is 'a')
             assertion = unescape_from_cfi(assertion)
-            # TODO: Handle text assertion
+    # TODO: Handle text assertion
 
     # Find the text node that contains the offset
     if offset is not None:
@@ -407,7 +400,7 @@ def decode(cfi, doc):
             node = node.parentNode
         qnode, offset, ok = node_for_text_offset(node.parentNode.childNodes, offset, node)
         if not ok:
-            error = "Offset out of range: " + orig_offset
+            error = 'Offset out of range: ' + orig_offset
         if qnode:
             node = qnode
         decoded.offset = offset
@@ -416,7 +409,7 @@ def decode(cfi, doc):
     if error:
         decoded.error = error
     else if cfi.length > 0:
-        decoded.error = "Undecoded CFI: " + cfi
+        decoded.error = 'Undecoded CFI: ' + cfi
 
     if decoded.error:
         print(decoded.error)
@@ -424,7 +417,8 @@ def decode(cfi, doc):
     return decoded
 # }}}
 
-def cfi_sort_key(cfi): # {{{
+
+def cfi_sort_key(cfi):  # {{{
     simple_node_regex = ///
         ^/(\d+)          # The node count
           (\[[^\]]*\])?  # The optional id assertion
@@ -433,11 +427,11 @@ def cfi_sort_key(cfi): # {{{
 
     while cfi.length > 0:
         r = cfi.match(simple_node_regex)
-        if r: # Path step
+        if r:  # Path step
             target = parseInt(r[1])
             cfi = cfi.substr(r[0].length)
             steps.push(target)
-        else if cfi[0] is '!': # Indirection
+        else if cfi[0] is '!':  # Indirection
             cfi = cfi.substr(1)
         else:
             break
@@ -500,11 +494,11 @@ def create_cfi_cmp(key_map):
     return cfi_cmp
 
 
-
 def sort_cfis(array_of_cfis):
     key_map = {cfi: cfi_sort_key(cfi) for cfi in array_of_cfis}
     Array.prototype.sort.call(array_of_cfis, create_cfi_cmp(key_map))
 # }}}
+
 
 def at(x, y, doc):  # {{{
     # x, y are in viewport coordinates
@@ -549,12 +543,12 @@ def at(x, y, doc):  # {{{
     (target.parentNode or target).normalize()
 
     if name in {'audio', 'video'}:
-        tail = "~" + get_current_time(target)
+        tail = '~' + get_current_time(target)
 
     if name in {'img', 'video'}:
         rect = target.getBoundingClientRect()
-        px = ((x - rect.left)*100)/target.offsetWidth
-        py = ((y - rect.top)*100)/target.offsetHeight
+        px = ((x - rect.left) * 100) / target.offsetWidth
+        py = ((y - rect.top) * 100) / target.offsetHeight
         tail = str.format('{}@{}:{}', tail, fstr(px), fstr(py))
     else if name is not 'audio':
         # Get the text offset
@@ -567,6 +561,7 @@ def at(x, y, doc):  # {{{
 
     return encode(doc, target, offset, tail)
 # }}}
+
 
 # Wrapper for decode(), tries to construct a range from the CFI's
 # character offset and include it in the return value.
@@ -598,13 +593,13 @@ def decode_with_range(cfi, doc):  # {{{
     node = decoded.node
     ndoc = node.ownerDocument
     if not ndoc:
-        print(str.format("CFI node has no owner document: {} {}", cfi, node))
+        print(str.format('CFI node has no owner document: {} {}', cfi, node))
         return None
 
     range_ = None
     position_at_end_of_range = None
 
-    if jstype(decoded.offset) is "number":
+    if jstype(decoded.offset) is 'number':
         # We can only create a meaningful range if the node length is
         # positive and nonzero.
         node_len = node.nodeValue.length if node.nodeValue else 0
@@ -626,7 +621,7 @@ def decode_with_range(cfi, doc):  # {{{
             rect = range_.getBoundingClientRect()
 
             if not rect:
-                print(str.format("Could not find caret position for {} (offset: {})", cfi, decoded.offset))
+                print(str.format('Could not find caret position for {} (offset: {})', cfi, decoded.offset))
                 range_ = None
         else:
             print(f'Caret offset pointed to an empty text node or a non-text node for {cfi}, (offset: {decoded.offset})')
@@ -639,6 +634,7 @@ def decode_with_range(cfi, doc):  # {{{
     return decoded
 
 # }}}
+
 
 # It's only valid to call this if you have a decoded CFI with a range included.
 # Call decoded_to_document_position if you're not sure.
@@ -682,6 +678,7 @@ def decoded_range_to_document_position(decoded):
     # Now, we need to convert these to document X and Y coordinates.
     return scroll_viewport.viewport_to_document_inline_block(inline_vs_pos, block_vs_pos, decoded.node.ownerDocument)
 
+
 # This will work on a decoded CFI that refers to a node or node with spatial offset.
 # It will ignore any ranges, so call decoded_to_document_position unless you're sure the decoded CFI has no range.
 def decoded_node_or_spatial_offset_to_document_position(decoded):
@@ -690,8 +687,8 @@ def decoded_node_or_spatial_offset_to_document_position(decoded):
     percentx, percenty = decoded.x, decoded.y
     # If we have a spatial offset, base the CFI position on the offset into the object
     if jstype(percentx) is 'number' and node.offsetWidth and jstype(percenty) is 'number' and node.offsetHeight:
-        viewx = rect.left + (percentx*node.offsetWidth)/100
-        viewy = rect.top + (percenty*node.offsetHeight)/100
+        viewx = rect.left + (percentx * node.offsetWidth) / 100
+        viewy = rect.top + (percenty * node.offsetHeight) / 100
         doc_left, doc_top = scroll_viewport.viewport_to_document(viewx, viewy, node.ownerDocument)
         return doc_left, doc_top
     # Otherwise, base it on the inline and block start and end, along with side bias:
@@ -703,6 +700,7 @@ def decoded_node_or_spatial_offset_to_document_position(decoded):
 
         inline_vs_pos = scroll_viewport.rect_inline_start(rect)
         return scroll_viewport.viewport_to_document_inline_block(inline_vs_pos, block_vs_pos, node.ownerDocument)
+
 
 # This will take a decoded CFI and return a document position.
 #
@@ -719,7 +717,7 @@ def decoded_to_document_position(decoded):
 def scroll_to(cfi, callback, doc):  # {{{
     decoded = decode_with_range(cfi, doc)
     if not decoded:
-        print("No location information found for cfi: " + cfi)
+        print('No location information found for cfi: ' + cfi)
         return
     if jstype(decoded.time) is 'number':
         set_current_time(decoded.node, decoded.time)
@@ -744,7 +742,7 @@ def scroll_to(cfi, callback, doc):  # {{{
         span.setAttribute('style', 'border-width: 0; padding: 0; margin: 0')
         r.surroundContents(span)
         scroll_viewport.scroll_into_view(span)
-        return def():
+        return def ():
             nonlocal original_node, r
             # Remove the span and get the new position now that scrolling
             # has (hopefully) completed
@@ -802,7 +800,7 @@ def scroll_to(cfi, callback, doc):  # {{{
             return
         scroll_viewport.scroll_into_view(node)
 
-        return def():
+        return def ():
             doc_x, doc_y = decoded_node_or_spatial_offset_to_document_position(decoded)
 
             # Abort if CFI position is invalid
@@ -829,6 +827,7 @@ def scroll_to(cfi, callback, doc):  # {{{
 
 # }}}
 
+
 def at_point(x, y):  # {{{
     # The CFI at the specified point. Different to at() in that this method
     # returns null if there is an error, and also calculates a point from
@@ -836,7 +835,7 @@ def at_point(x, y):  # {{{
     # original point.
 
     def dist(p1, p2):
-        Math.sqrt(Math.pow(p1[0]-p2[0], 2), Math.pow(p1[1]-p2[1], 2))
+        Math.sqrt(Math.pow(p1[0] - p2[0], 2), Math.pow(p1[1] - p2[1], 2))
 
     try:
         cfi = at(x, y)
@@ -862,6 +861,7 @@ def at_point(x, y):  # {{{
 
     return cfi
 # }}}
+
 
 def at_current():  # {{{
     # We subtract one because the actual position query for CFI elements is relative to the
@@ -911,7 +911,6 @@ def at_current():  # {{{
     low_boundb = min(startb, endb)
     low_boundi = min(starti, endi)
 
-
     # In horizontal mode, X is the inline and Y is the block,
     # but it's reversed for vertical modes, so reverse the lookup.
     def at_point_vertical_mode(i, b):
@@ -944,13 +943,14 @@ def at_current():  # {{{
     x, y = scroll_viewport.x() + (0 if scroll_viewport.ltr else scroll_viewport.width()), scroll_viewport.y()
     de = document.documentElement
     rect = de.getBoundingClientRect()
-    px = (x*100)/rect.width
-    py = (y*100)/rect.height
-    cfi = str.format("/2@{}:{}", fstr(px), fstr(py))
+    px = (x * 100) / rect.width
+    py = (y * 100) / rect.height
+    cfi = str.format('/2@{}:{}', fstr(px), fstr(py))
 
     return cfi
 
 # }}}
+
 
 def cfi_for_selection(r):  # {{{
     if not r:
@@ -971,6 +971,7 @@ def cfi_for_selection(r):  # {{{
 
 # }}}
 
+
 def range_from_cfi(start, end):  # {{{
     start = decode(start)
     end = decode(end)
@@ -980,4 +981,4 @@ def range_from_cfi(start, end):  # {{{
     r.setStart(start.node, start.offset)
     r.setEnd(end.node, end.offset)
     return r
-# }}}
+    # }}}

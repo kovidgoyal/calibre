@@ -1,9 +1,8 @@
-'''
-LZX compression/decompression wrapper.
-'''
+# License: GPLv3 Copyright: 2008, Marshall T. Vandegrift <llasram@gmail.com>
 
-__license__   = 'GPL v3'
-__copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
+"""
+LZX compression/decompression wrapper.
+"""
 
 from calibre_extensions import lzx as _lzx
 
@@ -14,7 +13,6 @@ Compressor = _lzx.Compressor
 
 
 class Decompressor:
-
     def __init__(self, wbits):
         self.wbits = wbits
         self.blocksize = 1 << wbits

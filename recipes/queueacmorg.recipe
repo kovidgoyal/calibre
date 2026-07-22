@@ -28,10 +28,7 @@ class QueueAcmOrg(BasicNewsRecipe):
         soup = self.index_to_soup('https://queue.acm.org/')
         imgs = soup.find_all(
             'img',
-            attrs={
-                'src': lambda x: x
-                and x.startswith('/app/')
-            },
+            attrs={'src': lambda x: x and x.startswith('/app/')},
         )
         if len(imgs) > 0:
             self.cover_url = 'https://queue.acm.org/' + imgs[0]['src']

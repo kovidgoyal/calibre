@@ -26,13 +26,16 @@ class Hook(NamedTuple):
     default: bool = True
 
 
-HOOKS = {h.name:h for h in (
-    Hook('post-checkout', 'git_post_checkout_hook.py'),
-    Hook('post-rewrite', 'git_post_rewrite_hook.py'),
-    Hook('pre-commit', 'git_pre_commit_hook.py'),
-    # disable by default, because except Kovid, nobody can run this hook
-    Hook('commit-msg', 'git_commit_msg_hook.py', False),
-)}
+HOOKS = {
+    h.name: h
+    for h in (
+        Hook('post-checkout', 'git_post_checkout_hook.py'),
+        Hook('post-rewrite', 'git_post_rewrite_hook.py'),
+        Hook('pre-commit', 'git_pre_commit_hook.py'),
+        # disable by default, because except Kovid, nobody can run this hook
+        Hook('commit-msg', 'git_commit_msg_hook.py', False),
+    )
+}
 
 DEFAULT = ','.join(sorted(h.name for h in HOOKS.values() if h.default))
 AVAILABLES = ', '.join(sorted(h for h in HOOKS))
@@ -42,13 +45,11 @@ class GitHooks(Command):
     description = 'Install/uninstall git hooks'
 
     def add_options(self, parser):
-        parser.add_option('-n', '--name', default=DEFAULT,
-            help='Name(s) of the hook to install, separated by commas. '
-                f'Default: "{DEFAULT}". Hooks available: {AVAILABLES}')
-        parser.add_option('-u', '--uninstall', default=False, action='store_true',
-            help='Uninstall the selected hooks')
-        parser.add_option('-f', '--force', default=False, action='store_true',
-            help='Force the operations on the hooks')
+        parser.add_option(
+            '-n', '--name', default=DEFAULT, help=f'Name(s) of the hook to install, separated by commas. Default: "{DEFAULT}". Hooks available: {AVAILABLES}'
+        )
+        parser.add_option('-u', '--uninstall', default=False, action='store_true', help='Uninstall the selected hooks')
+        parser.add_option('-f', '--force', default=False, action='store_true', help='Force the operations on the hooks')
 
     def run(self, opts):
         self.force = opts.force

@@ -25,7 +25,7 @@ class iProfesional(BasicNewsRecipe):
     remove_empty_feeds = True
     publication_type = 'newsportal'
     masthead_url = 'http://www.iprofesional.com/img/header/logoiprofesional.png'
-    extra_css             = '''
+    extra_css = '''
                                body{font-family: "Open Sans", sans-serif}
                                img{margin-bottom: 0.4em; display:block}
                                .tituloprincipal{font-family: WhitneyBold, Arial, sans-serif;
@@ -35,31 +35,27 @@ class iProfesional(BasicNewsRecipe):
                                .bajadanh{font-size: small; display: block; margin-bottom: 1em;}
                             '''
 
-    conversion_options = {
-        'comment': description, 'tags': category, 'publisher': publisher, 'language': language
-    }
+    conversion_options = {'comment': description, 'tags': category, 'publisher': publisher, 'language': language}
 
     keep_only_tags = [
-                       dict(name='div', attrs={'class': lambda x: x and 'tituloprincipal' in x.split()}),
-                       dict(name='div', attrs={'class': lambda x: x and 'bajadanh' in x.split()}),
-                       dict(name='div', attrs={'class': lambda x: x and 'datosautornh' in x.split()}),
-                       dict(name='div', attrs={'class': lambda x: x and 'fotonotanh' in x.split()}),
-                       dict(name='div', attrs={'class': lambda x: x and 'contenidonotanh' in x.split()}),
-                     ]
-    remove_tags = [
-        dict(name=['meta', 'link', 'base', 'embed', 'object', 'iframe'])]
+        dict(name='div', attrs={'class': lambda x: x and 'tituloprincipal' in x.split()}),
+        dict(name='div', attrs={'class': lambda x: x and 'bajadanh' in x.split()}),
+        dict(name='div', attrs={'class': lambda x: x and 'datosautornh' in x.split()}),
+        dict(name='div', attrs={'class': lambda x: x and 'fotonotanh' in x.split()}),
+        dict(name='div', attrs={'class': lambda x: x and 'contenidonotanh' in x.split()}),
+    ]
+    remove_tags = [dict(name=['meta', 'link', 'base', 'embed', 'object', 'iframe'])]
 
     feeds = [
-
-    (u'Ultimas noticias', u'http://feeds.feedburner.com/iprofesional-principales-noticias'),
-    (u'Finanzas', u'http://feeds.feedburner.com/iprofesional-finanzas'),
-    (u'Impuestos', u'http://feeds.feedburner.com/iprofesional-impuestos'),
-    (u'Negocios', u'http://feeds.feedburner.com/iprofesional-economia'),
-    (u'Comercio Exterior', u'http://feeds.feedburner.com/iprofesional-comercio-exterior'),
-    (u'Tecnologia', u'http://feeds.feedburner.com/iprofesional-tecnologia'),
-    (u'Management', u'http://feeds.feedburner.com/iprofesional-managment'),
-    (u'Marketing', u'http://feeds.feedburner.com/iprofesional-marketing'),
-    (u'Legales', u'http://feeds.feedburner.com/iprofesional-legales'),
-    (u'Autos', u'http://feeds.feedburner.com/iprofesional-autos'),
-    (u'Vinos', u'http://feeds.feedburner.com/iprofesional-vinos-bodegas')
+        ('Ultimas noticias', 'http://feeds.feedburner.com/iprofesional-principales-noticias'),
+        ('Finanzas', 'http://feeds.feedburner.com/iprofesional-finanzas'),
+        ('Impuestos', 'http://feeds.feedburner.com/iprofesional-impuestos'),
+        ('Negocios', 'http://feeds.feedburner.com/iprofesional-economia'),
+        ('Comercio Exterior', 'http://feeds.feedburner.com/iprofesional-comercio-exterior'),
+        ('Tecnologia', 'http://feeds.feedburner.com/iprofesional-tecnologia'),
+        ('Management', 'http://feeds.feedburner.com/iprofesional-managment'),
+        ('Marketing', 'http://feeds.feedburner.com/iprofesional-marketing'),
+        ('Legales', 'http://feeds.feedburner.com/iprofesional-legales'),
+        ('Autos', 'http://feeds.feedburner.com/iprofesional-autos'),
+        ('Vinos', 'http://feeds.feedburner.com/iprofesional-vinos-bodegas'),
     ]

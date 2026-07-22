@@ -19,13 +19,9 @@ class hindutamil(BasicNewsRecipe):
     def get_browser(self):
         return BasicNewsRecipe.get_browser(self, user_agent='common_words/based')
 
-    keep_only_tags = [
-        classes('main-article')
-    ]
+    keep_only_tags = [classes('main-article')]
 
-    remove_tags = [
-        classes('newsbot-ads article-details-ads-inner art-follow-title1 dont-miss-it')
-    ]
+    remove_tags = [classes('newsbot-ads article-details-ads-inner art-follow-title1 dont-miss-it')]
 
     ignore_duplicate_articles = {'title', 'url'}
     remove_empty_feeds = True
@@ -43,7 +39,7 @@ class hindutamil(BasicNewsRecipe):
             ('தொழில்நுட்பம்', 'technology'),
             ('இணைப்பிதழ்கள்', 'supplements'),
             ('Cartoon', 'cartoon'),
-            ('Life-style', 'life-style')
+            ('Life-style', 'life-style'),
         ]
         feeds = []
         soup = self.index_to_soup(index)
@@ -52,7 +48,7 @@ class hindutamil(BasicNewsRecipe):
             section = sec[0]
             self.log(section)
             articles = []
-            for a in soup.findAll('a', attrs={'href':lambda x: x and x.startswith(index + sec[1] + '/')}):
+            for a in soup.findAll('a', attrs={'href': lambda x: x and x.startswith(index + sec[1] + '/')}):
                 url = a['href']
                 if url in {index + sec[1] + '/', index + sec[1]}:
                     continue

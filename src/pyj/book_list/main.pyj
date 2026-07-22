@@ -4,41 +4,61 @@ from __python__ import hash_literals, bound_methods
 
 import traceback
 from elementmaker import E
-from ajax import ajax
-from dom import get_widget_css
-from modals import create_modal_container, error_dialog
-from session import get_interface_data, UserSessionData, update_interface_data, get_translations
 from gettext import gettext as _, install
-from popups import install_event_filters
-from utils import safe_set_inner_html
 
+from ajax import ajax
+from book_list.book_details import set_panel_handlers as book_details_init
 from book_list.constants import book_list_container_id, read_book_container_id, cs_top_bar_host_id, INIT_ENDPOINT
+from book_list.convert_book import set_panel_handlers as convert_book_init
+from book_list.edit_metadata import set_panel_handlers as edit_metadata_init
+from book_list.fts import set_panel_handlers as fts_init
+from book_list.globals import get_db, set_session_data
+from book_list.home import set_panel_handlers as home_init
 from book_list.home import update_recently_read_by_user
 from book_list.library_data import fetch_init_data, update_library_data, url_books_query
+from book_list.local_books import set_panel_handlers as local_books_init
+from book_list.nav_list import set_panel_handlers as nav_list_init
+from book_list.router import update_window_title, set_default_mode_handler, apply_url, set_mode_handler, on_pop_state
+from book_list.show_note import set_panel_handlers as show_note_init
 from book_list.sidebar import create_sidebar
 from book_list.theme import get_color, get_font_family, css_for_variables, apply_book_list_theme, bind_book_list_color_scheme_listener
-from book_list.router import update_window_title, set_default_mode_handler, apply_url, set_mode_handler, on_pop_state
-from book_list.globals import get_db, set_session_data
 from book_list.ui import apply_url_state as book_list_mode_handler
+from book_list.ui_settings import set_panel_handlers as ui_settings_init
+from book_list.views import set_panel_handlers as views_init
+from dom import get_widget_css
+from modals import create_modal_container, error_dialog
+from popups import install_event_filters
 from read_book.ui import ReadUI
-
-# Register the various panels
-import book_list.home # noqa: unused-import
-import book_list.views # noqa: unused-import
-import book_list.local_books # noqa: unused-import
-import book_list.book_details # noqa: unused-import
-import book_list.edit_metadata # noqa: unused-import
-import book_list.convert_book # noqa: unused-import
-import book_list.fts # noqa: unused-import
-import book_list.show_note # noqa: unused-import
-import book_list.nav_list # noqa: unused-import
-import book_list.ui_settings # noqa: unused-import
+from session import get_interface_data, UserSessionData, update_interface_data, get_translations
+from utils import safe_set_inner_html
 
 
 def remove_initial_progress_bar():
     p = document.getElementById('page_load_progress')
     if p:
         p.parentNode.removeChild(p)
+
+
+source_map_set = False
+
+
+def source_map_received(data, end_type, xhr, ev):
+    if end_type is 'abort':
+        return
+    if end_type is 'load' and xhr.responseType is 'json':
+        traceback.set_source_map_data(xhr.response)
+    error_object = traceback.unserialize_error_for_formatting(data.error)
+    details = traceback.format_exception(error_object).join('')
+    error_dialog(data.title, data.msg, details)
+
+
+def load_source_map(data):
+    nonlocal source_map_set
+    xhr = ajax('index.js.map', source_map_received.bind(None, data))
+    xhr.responseType = 'json'
+    xhr.send()
+    source_map_set = True
+
 
 def onerror(msg, script_url, line_number, column_number, error_object):
     if error_object is None:
@@ -49,15 +69,14 @@ def onerror(msg, script_url, line_number, column_number, error_object):
         console.log(f'Unhandled error from external javascript, ignoring: {msg} {script_url} {line_number}')
         return
     console.log(error_object)
-    try:
-        fname = script_url.rpartition('/')[-1] or script_url
-        msg = msg + '<br><span style="font-size:smaller">' + 'Error at {}:{}:{}'.format(fname, line_number, column_number or '') + '</span>'
-        details = ''
+    fname = script_url.rpartition('/')[-1] or script_url
+    msg = msg + '<br><span style="font-size:smaller">' + 'Error at {}:{}:{}'.format(fname, line_number, column_number or '') + '</span>'
+    title = _('Unhandled error')
+    if source_map_set:
         details = traceback.format_exception(error_object).join('')
-        error_dialog(_('Unhandled error'), msg, details)
-        return True
-    except:
-        console.log('There was an error in the unhandled exception handler')
+        error_dialog(title, msg, details)
+    else:
+        load_source_map({'title': title, 'msg': msg, 'error': traceback.serialize_error_for_formatting(error_object)})
 
 
 def init_ui():
@@ -65,7 +84,7 @@ def init_ui():
     install_event_filters()
     set_default_mode_handler(book_list_mode_handler)
     window.onerror = onerror
-    setTimeout(def():
+    setTimeout(def ():
             window.onpopstate = on_pop_state
         , 0)  # We do this after event loop ticks over to avoid catching popstate events that some browsers send on page load
 
@@ -93,7 +112,19 @@ def init_ui():
     update_window_title()
     read_ui = ReadUI()
     get_db(read_ui.db)
+    book_details_init()
+    convert_book_init()
+    local_books_init()
+    edit_metadata_init()
+    fts_init()
+    home_init()
+    nav_list_init()
+    show_note_init()
+    ui_settings_init()
+    views_init()
+
     set_mode_handler('read_book', read_ui.apply_url_state.bind(read_ui))
+
     apply_url()
 
 
@@ -159,6 +190,7 @@ def do_update_interface_data():
     ).send()
 
 
+@no_prune
 def main():
     if document.createElement('iframe').srcdoc is undefined:
         document.body.innerHTML = '<p style="margin:1.5em; max-width: 40em">' + _(

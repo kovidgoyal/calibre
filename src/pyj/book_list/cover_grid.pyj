@@ -2,11 +2,11 @@
 # License: GPL v3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 from __python__ import hash_literals, bound_methods
 
-from dom import clear, set_css, build_rule
 from elementmaker import E
 from gettext import gettext as _
 
 from book_list.globals import get_session_data
+from dom import clear, set_css, build_rule
 
 
 COVER_GRID_CLASS = 'book-list-cover-grid'
@@ -249,7 +249,7 @@ def cover_grid_css():
         width='100%',
         height='100%',
         overflow='hidden',
-        border_radius=BORDER_RADIUS+'px',
+        border_radius=BORDER_RADIUS + 'px',
         box_shadow='0 clamp(10px, 1.8vh, 14px) clamp(26px, 4.2vh, 48px) rgba(0,0,0,0.18)',
         border='var(--calibre-border-style-subtle)',
         background_color='rgba(0,0,0,0.02)',
@@ -339,6 +339,7 @@ def cover_grid_css():
     )
     return ans
 
+
 def init(container):
     clear(container)
     container.appendChild(E.div(class_=COVER_GRID_CLASS))
@@ -347,6 +348,7 @@ def init(container):
     ensure_cover_grid_resize_listener()
     attach_cover_grid_resize_observer(container.lastChild)
     apply_cover_grid_pct_css()
+
 
 def on_img_load(img, load_type):
     div = img.parentNode
@@ -359,7 +361,8 @@ def on_img_load(img, load_type):
             E.div(_('by'), style='text-align: center'),
             E.h2(img.dataset.authors, style='text-align:center; font-size:larger; font-weight: bold')
         ))
-        set_css(div, border='dashed 1px currentColor', border_radius=BORDER_RADIUS+'px')
+        set_css(div, border='dashed 1px currentColor', border_radius=BORDER_RADIUS + 'px')
+
 
 def create_item(book_id, metadata, create_image, show_book_details, href):
     authors = metadata.authors.join(' & ') if metadata.authors else _('Unknown')
@@ -376,6 +379,7 @@ def create_item(book_id, metadata, create_image, show_book_details, href):
     frame = E.div(img, mask, class_='cs-cover-frame')
     ans = E.a(frame, onclick=show_book_details, title=tooltip, href=href)
     return ans
+
 
 def append_item(container, item):
     first_filler = container.lastChild.querySelector('.cover-grid-filler')

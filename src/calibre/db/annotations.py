@@ -14,6 +14,7 @@ no_cfi_sort_key = cfi_sort_key('/99999999')
 def unicode_normalize(text):
     if text:
         from unicodedata import normalize
+
         text = normalize('NFKC', text)
     return text
 

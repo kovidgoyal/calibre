@@ -17,9 +17,11 @@ class AsahiShimbunEnglishNews(BasicNewsRecipe):
     title = 'The Asahi Shimbun'
     __author__ = 'Albert Aparicio Isarn'
 
-    description = ('The Asahi Shimbun is widely regarded for its journalism as the most respected daily newspaper in Japan.'
-                   ' The English version offers selected articles from the vernacular Asahi Shimbun, as well as extensive'
-                   ' coverage of cool Japan,focusing on manga, travel and other timely news.')
+    description = (
+        'The Asahi Shimbun is widely regarded for its journalism as the most respected daily newspaper in Japan.'
+        ' The English version offers selected articles from the vernacular Asahi Shimbun, as well as extensive'
+        ' coverage of cool Japan,focusing on manga, travel and other timely news.'
+    )
     publisher = 'The Asahi Shimbun Company'
     publication_type = 'newspaper'
     category = 'news, japan'
@@ -49,14 +51,12 @@ class AsahiShimbunEnglishNews(BasicNewsRecipe):
             date = date_string.strip()
             url = self.index + item.find('a')['href']
 
-            new_news.append(
-                {
-                    'title': title,
-                    'date': datetime.strptime(date, '%B %d, %Y').strftime('%Y/%m/%d'),
-                    'url': url,
-                    'description': '',
-                }
-            )
+            new_news.append({
+                'title': title,
+                'date': datetime.strptime(date, '%B %d, %Y').strftime('%Y/%m/%d'),
+                'url': url,
+                'description': '',
+            })
 
         return new_news
 
@@ -71,14 +71,12 @@ class AsahiShimbunEnglishNews(BasicNewsRecipe):
             date = date_string.strip()
             url = self.index + item.find('a')['href']
 
-            top6_news.append(
-                {
-                    'title': title,
-                    'date': datetime.strptime(date, '%B %d, %Y').strftime('%Y/%m/%d'),
-                    'url': url,
-                    'description': '',
-                }
-            )
+            top6_news.append({
+                'title': title,
+                'date': datetime.strptime(date, '%B %d, %Y').strftime('%Y/%m/%d'),
+                'url': url,
+                'description': '',
+            })
 
         return top6_news
 
@@ -94,14 +92,12 @@ class AsahiShimbunEnglishNews(BasicNewsRecipe):
 
             url = self.index + item.find('a')['href']
 
-            news.append(
-                {
-                    'title': title,
-                    'date': datetime.strptime(date, '%B %d, %Y').strftime('%Y/%m/%d'),
-                    'url': url,
-                    'description': '',
-                }
-            )
+            news.append({
+                'title': title,
+                'date': datetime.strptime(date, '%B %d, %Y').strftime('%Y/%m/%d'),
+                'url': url,
+                'description': '',
+            })
 
         return news
 
@@ -128,14 +124,12 @@ class AsahiShimbunEnglishNews(BasicNewsRecipe):
 
             url = self.index + item_a['href']
 
-            special_news.append(
-                {
-                    'title': title,
-                    'date': '',
-                    'url': url,
-                    'description': description,
-                }
-            )
+            special_news.append({
+                'title': title,
+                'date': '',
+                'url': url,
+                'description': description,
+            })
 
         return special_news
 

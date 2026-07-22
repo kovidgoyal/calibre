@@ -1,8 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__ = 'GPL v3'
-__copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
+# License: GPLv3 Copyright: 2014, Kovid Goyal <kovid at kovidgoyal.net>
 
 from qt.core import Qt, QTextCursor
 
@@ -10,7 +7,10 @@ from qt.core import Qt, QTextCursor
 def get_text_around_cursor(editor, before=True):
     cursor = editor.textCursor()
     cursor.clearSelection()
-    cursor.movePosition((QTextCursor.MoveOperation.StartOfBlock if before else QTextCursor.MoveOperation.EndOfBlock), QTextCursor.MoveMode.KeepAnchor)
+    cursor.movePosition(
+        (QTextCursor.MoveOperation.StartOfBlock if before else QTextCursor.MoveOperation.EndOfBlock),
+        QTextCursor.MoveMode.KeepAnchor,
+    )
     text = editor.selected_text_from_cursor(cursor)
     return cursor, text
 
@@ -38,7 +38,7 @@ def get_leading_whitespace_on_block(editor, previous=False):
     if block.isValid():
         text = block.text()
         ntext = text.lstrip()
-        return text[:len(text)-len(ntext)]
+        return text[: len(text) - len(ntext)]
     return ''
 
 

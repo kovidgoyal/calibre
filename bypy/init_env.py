@@ -130,8 +130,11 @@ def initialize_constants():
                           re.DOTALL).search(read_cal_file('linux.py'))
     assert ep_match is not None
     epsrc = ep_match.group(1)
-    epsrc = epsrc.replace('__appname__+', repr(calibre_constants['appname']))
-    entry_points = ast.literal_eval(epsrc)
+    epsrc = epsrc.replace('__appname__ +', repr(calibre_constants['appname']))
+    try:
+        entry_points = ast.literal_eval(epsrc)
+    except Exception as e:
+        raise ValueError(f'could not evaluate {epsrc}') from e
 
     def e2b(ep):
         m = re.search(r'\s*(.*?)\s*=', ep)
@@ -168,7 +171,7 @@ def initialize_constants():
     )
     assert be_match is not None
     be = be_match.group(1)
-    calibre_constants['book_extensions'] = json.loads(be.replace("'", '"'))
+    calibre_constants['book_extensions'] = ast.literal_eval(be)
     return calibre_constants
 
 

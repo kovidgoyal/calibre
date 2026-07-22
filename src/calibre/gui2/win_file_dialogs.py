@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
-
 import os
 import struct
 import subprocess
@@ -71,6 +70,7 @@ def serialize_file_types(file_types):
     def add(x):
         x = x.encode('utf-8').replace(b'\0', b'')
         buf.append(struct.pack(f'=H{len(x)}s', len(x), x))
+
     for name, extensions in file_types:
         add(name or _('Files'))
         if isinstance(extensions, (str, bytes)):
@@ -80,7 +80,6 @@ def serialize_file_types(file_types):
 
 
 class Helper(Thread):
-
     def __init__(self, process, data, callback):
         Thread.__init__(self, name='FileDialogHelper')
         self.process = process
@@ -116,11 +115,22 @@ def select_initial_dir(q):
 
 
 def run_file_dialog(
-        parent=None, title=None, initial_folder=None, filename=None, save_path=None,
-        allow_multiple=False, only_dirs=False, confirm_overwrite=True, save_as=False, no_symlinks=False,
-        file_types=(), default_ext=None, app_uid=None
+    parent=None,
+    title=None,
+    initial_folder=None,
+    filename=None,
+    save_path=None,
+    allow_multiple=False,
+    only_dirs=False,
+    confirm_overwrite=True,
+    save_as=False,
+    no_symlinks=False,
+    file_types=(),
+    default_ext=None,
+    app_uid=None,
 ):
     from calibre.gui2 import sanitize_env_vars
+
     secret = os.urandom(32).replace(b'\0', b' ')
     pipename = f'\\\\.\\pipe\\{uuid4()}'
     data = [serialize_string('PIPENAME', pipename), serialize_secret(secret)]
@@ -172,7 +182,6 @@ def run_file_dialog(
     from qt.core import QEventLoop, Qt, pyqtSignal
 
     class Loop(QEventLoop):
-
         dialog_closed = pyqtSignal()
 
         def __init__(self):
@@ -183,9 +192,11 @@ def run_file_dialog(
     server = PipeServer(pipename)
     server.start()
     with sanitize_env_vars():
-        h = Helper(subprocess.Popen(
-            [HELPER], stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE),
-               data, loop.dialog_closed.emit)
+        h = Helper(
+            subprocess.Popen([HELPER], stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE),
+            data,
+            loop.dialog_closed.emit,
+        )
     h.start()
     loop.exec(QEventLoop.ProcessEventsFlag.ExcludeUserInputEvents)
 
@@ -199,8 +210,10 @@ def run_file_dialog(
 
     def get_errors():
         return decode(h.stdoutdata) + ' ' + decode(h.stderrdata)
+
     from calibre import prints
     from calibre.constants import DEBUG
+
     if DEBUG:
         prints('stdout+stderr from file dialog helper:', str([h.stdoutdata, h.stderrdata]))
 
@@ -258,8 +271,7 @@ def choose_dir(window, name, title, default_dir='~', no_save_dir=False):
         return ans
 
 
-def choose_files(window, name, title,
-                 filters=(), all_files=True, select_only_single_file=False, default_dir='~', no_save_dir=False):
+def choose_files(window, name, title, filters=(), all_files=True, select_only_single_file=False, default_dir='~', no_save_dir=False):
     name, initial_folder = get_initial_folder(name, title, default_dir, no_save_dir)
     file_types: list[tuple[str, list[str]]] = list(filters)
     if all_files:
@@ -273,6 +285,7 @@ def choose_files(window, name, title,
 def choose_images(window, name, title, select_only_single_file=True, formats=None):
     if formats is None:
         from calibre.gui2.dnd import image_extensions
+
         formats = image_extensions()
     file_types = [(_('Images'), list(formats))]
     return choose_files(window, name, title, select_only_single_file=select_only_single_file, filters=file_types)
@@ -296,7 +309,15 @@ def choose_save_file(window, name, title, filters=[], all_files=True, initial_pa
                 all_exts.append(ext.lower())
     default_ext = all_exts[0] if all_exts else None
     name, initial_folder = get_initial_folder(name, title, default_dir, no_save_dir)
-    ans = run_file_dialog(window, title, save_as=True, initial_folder=initial_folder, filename=filename, file_types=file_types, default_ext=default_ext)
+    ans = run_file_dialog(
+        window,
+        title,
+        save_as=True,
+        initial_folder=initial_folder,
+        filename=filename,
+        file_types=file_types,
+        default_ext=default_ext,
+    )
     if ans:
         ans = ans[0]
         if not no_save_dir:
@@ -305,21 +326,27 @@ def choose_save_file(window, name, title, filters=[], all_files=True, initial_pa
 
 
 class PipeServer(Thread):
-
     def __init__(self, pipename):
         Thread.__init__(self, name='PipeServer', daemon=True)
         from calibre_extensions import winutil
+
         self.client_connected = False
         self.pipe_handle = winutil.create_named_pipe(
-            pipename, winutil.PIPE_ACCESS_INBOUND | winutil.FILE_FLAG_FIRST_PIPE_INSTANCE,
+            pipename,
+            winutil.PIPE_ACCESS_INBOUND | winutil.FILE_FLAG_FIRST_PIPE_INSTANCE,
             winutil.PIPE_TYPE_BYTE | winutil.PIPE_READMODE_BYTE | winutil.PIPE_WAIT | winutil.PIPE_REJECT_REMOTE_CLIENTS,
-            1, 8192, 8192, 0)
+            1,
+            8192,
+            8192,
+            0,
+        )
         winutil.set_handle_information(self.pipe_handle, winutil.HANDLE_FLAG_INHERIT, 0)
         self.err_msg = None
         self.data = b''
 
     def run(self):
         from calibre_extensions import winutil
+
         assert self.pipe_handle is not None
         try:
             try:
@@ -367,6 +394,7 @@ def test(helper=HELPER):
 
 if __name__ == '__main__':
     from calibre.gui2 import Application
+
     app = Application([])
     print(choose_save_file(None, 'xxx', 'yyy'))
     del app

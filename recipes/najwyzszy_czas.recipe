@@ -11,7 +11,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class nczas(BasicNewsRecipe):
-    title = u'Najwy\u017cszy Czas'
+    title = 'Najwy\u017cszy Czas'
     __author__ = 'teepel <teepel44@gmail.com>'
     language = 'pl'
     description = 'Wiadomości z nczas.com'
@@ -25,4 +25,4 @@ class nczas(BasicNewsRecipe):
     remove_attributes = ['style']
     no_stylesheets = True
 
-    feeds = [(u'Najwyższy Czas', u'http://nczas.com/feed/')]
+    feeds = [('Najwyższy Czas', 'http://nczas.com/feed/')]

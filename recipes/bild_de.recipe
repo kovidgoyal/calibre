@@ -54,22 +54,17 @@ class AdvancedUserRecipe1303841067(BasicNewsRecipe):
         #        ('Stuttgart', 'http://www.bild.de/rss-feeds/rss-16725492,feed=regio-stuttgart.bild.html')
     ]
 
-    keep_only_tags = [
-        dict(name='article')
-    ]
+    keep_only_tags = [dict(name='article')]
 
     remove_tags = [
         dict(name=['aside', 'iframe']),
-        dict(
-            attrs={'class': ['socialbar', 'social-sharing flank', 'vel', 'back']}),
+        dict(attrs={'class': ['socialbar', 'social-sharing flank', 'vel', 'back']}),
         dict(name='img', attrs={'alt': 'logo'}),
         dict(name='div', attrs={'class': re.compile(r'infoEl')}),
-        dict(name='span', attrs={'class': re.compile(r'loupe')})
+        dict(name='span', attrs={'class': re.compile(r'loupe')}),
     ]
 
-    remove_tags_after = [
-        dict(name='div', attrs={'itemprop': re.compile(r'articleBody')})
-    ]
+    remove_tags_after = [dict(name='div', attrs={'itemprop': re.compile(r'articleBody')})]
 
     def preprocess_html(self, soup):
         # skip articles without relevant content

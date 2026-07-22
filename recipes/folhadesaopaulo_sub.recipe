@@ -8,11 +8,12 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class FSP(BasicNewsRecipe):
-
-    title = u'Folha de S\xE3o Paulo'
+    title = 'Folha de S\xe3o Paulo'
     __author__ = 'Joao Eduardo Bertacchi - lc_addicted, 2020 Leonardo Amaral - leleobhz'
-    description = (u'Printed edition contents. Folha subscription required (UOL subscription currently not supported).'
-                   u' [Conte\xfado completo da edi\xe7\xe3o impressa. Somente para assinantes Folha. N\xE3o suporta assinantes UOL]')
+    description = (
+        'Printed edition contents. Folha subscription required (UOL subscription currently not supported).'
+        ' [Conte\xfado completo da edi\xe7\xe3o impressa. Somente para assinantes Folha. N\xe3o suporta assinantes UOL]'
+    )
 
     today = datetime.date.today()
 
@@ -25,8 +26,8 @@ class FSP(BasicNewsRecipe):
     needs_subscription = True
 
     keep_only_tags = [
-        dict(name='div', id='articleNew'), dict(
-            name='table', attrs={'class': 'articleGraphic'}),
+        dict(name='div', id='articleNew'),
+        dict(name='table', attrs={'class': 'articleGraphic'}),
         dict(name='article', id='news'),
     ]
 
@@ -38,13 +39,21 @@ class FSP(BasicNewsRecipe):
     # The following is an attempt to fix the problem with the section names,
     # but whenever new sections are added it can generate accentuation
     # problems still
-    section_dict = {'cotidian': 'cotidiano', 'ilustrad': 'ilustrada',
-                    'quadrin': 'quadrinhos', 'opiniao': u'opini\xE3o',
-                    'ciencia': u'cincia', 'saude': u'sa\xfade',
-                    'ribeirao': u'ribeir\xE3o', 'equilibrio': u'equil\xedbrio',
-                    'imoveis': u'im\xf3veis', 'negocios': u'neg\xf3cios',
-                    'veiculos': u've\xedculos', 'corrida': 'folha corrida',
-                    'turismo': 'turismo'}
+    section_dict = {
+        'cotidian': 'cotidiano',
+        'ilustrad': 'ilustrada',
+        'quadrin': 'quadrinhos',
+        'opiniao': 'opini\xe3o',
+        'ciencia': 'cincia',
+        'saude': 'sa\xfade',
+        'ribeirao': 'ribeir\xe3o',
+        'equilibrio': 'equil\xedbrio',
+        'imoveis': 'im\xf3veis',
+        'negocios': 'neg\xf3cios',
+        'veiculos': 've\xedculos',
+        'corrida': 'folha corrida',
+        'turismo': 'turismo',
+    }
 
     # this solves the problem with truncated content in Kindle
     conversion_options = {'linearize_tables': True}
@@ -105,7 +114,7 @@ img { background: none !important; float: none; margin: 0px; }
 
         feeds = []
         articles = []
-        section_title = u'Primeira p\xe1gina'
+        section_title = 'Primeira p\xe1gina'
 
         for post in soup.findAll('a'):
             strpost = str(post)
@@ -113,8 +122,7 @@ img { background: none !important; float: none; margin: 0px; }
                 if articles:
                     feeds.append((section_title, articles))
                     self.log()
-                    self.log(
-                        '--> new section found, creating old section feed: ', section_title)
+                    self.log('--> new section found, creating old section feed: ', section_title)
                 # section_title = post['name']
                 section_title = self.tag_to_string(post)
                 if section_title in self.section_dict:

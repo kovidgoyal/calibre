@@ -2,9 +2,10 @@
 # License: GPL v3 Copyright: 2021, Kovid Goyal <kovid at kovidgoyal.net>
 from __python__ import bound_methods, hash_literals
 
+from traceback import format_exception
+
 from read_book.db import DB
 from read_book.resources import text_from_serialized_html
-from traceback import format_exception
 
 GET_SPINE_FAILED = 1
 CONNECT_FAILED = 2
@@ -20,6 +21,7 @@ invisible_chars = '(?:[\u00ad\u200c\u200d]{0,1})'
 # single Unicode code point.  The u flag ensures surrogate pairs are kept
 # together as one code point.
 _ESCAPED_ATOM = /\\[\s\S]|[\s\S]/gu
+
 
 def escape(string):
     return string.replace(_RE_ESCAPE, '\\$&')
@@ -56,7 +58,6 @@ def text_to_regex(text):
 
 
 class ToCOffsetMap:
-
     def __init__(self, toc_nodes, offset_map, previous_toc_node, parent_map):
         self.toc_nodes = toc_nodes or v'[]'
         self.offset_map = offset_map or {}
@@ -127,7 +128,6 @@ def toc_nodes_for_search_result(sr):
 
 
 class Worker:
-
     def __init__(self):
         self.db = None
         self.connected_to_db = False
@@ -171,7 +171,7 @@ def search_in_text_of(name):
         text = m[0]
         start, end = m.index, r.lastIndex
         before = haystack[Math.max(0, start - ctx_size):start]
-        after = haystack[end:end+ctx_size]
+        after = haystack[end:end + ctx_size]
         q = (before or '')[-15:] + text + (after or '')[:15]
         match_counts[q] = match_counts[q] or 0
         wc.result_num += 1
@@ -279,7 +279,7 @@ def on_worker_db_error(title, msg, details):
 def worker_main():
     wc.db = DB(worker_connection_done, on_worker_db_error)
 
-    self.onmessage = def(e):
+    self.onmessage = def (e):
         if e.data.type is 'search':
             wc.current_query_id = e.data.id
             if wc.connected_to_db:

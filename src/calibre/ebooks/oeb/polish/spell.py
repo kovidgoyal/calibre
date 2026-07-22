@@ -1,8 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__ = 'GPL v3'
-__copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
+# License: GPLv3 Copyright: 2014, Kovid Goyal <kovid at kovidgoyal.net>
 
 import sys
 from collections import Counter, defaultdict
@@ -20,22 +17,18 @@ _patterns = None
 
 
 class Patterns:
-
     __slots__ = ('digit_pat', 'fr_elision_pat', 'sanitize_invisible_pat', 'split_pat')
 
     def __init__(self):
         import regex
+
         # Remove soft hyphens/zero width spaces/control codes
-        self.sanitize_invisible_pat = regex.compile(
-            r'[\u00ad\u200b\u200c\u200d\ufeff\0-\x08\x0b\x0c\x0e-\x1f\x7f]', regex.VERSION1 | regex.UNICODE)
-        self.split_pat = regex.compile(
-            r'\W+', flags=regex.VERSION1 | regex.WORD | regex.FULLCASE | regex.UNICODE)
-        self.digit_pat = regex.compile(
-            r'^\d+$', flags=regex.VERSION1 | regex.WORD | regex.UNICODE)
+        self.sanitize_invisible_pat = regex.compile(r'[\u00ad\u200b\u200c\u200d\ufeff\0-\x08\x0b\x0c\x0e-\x1f\x7f]', regex.VERSION1 | regex.UNICODE)
+        self.split_pat = regex.compile(r'\W+', flags=regex.VERSION1 | regex.WORD | regex.FULLCASE | regex.UNICODE)
+        self.digit_pat = regex.compile(r'^\d+$', flags=regex.VERSION1 | regex.WORD | regex.UNICODE)
         # French words with prefixes are reduced to the stem word, so that the
         # words appear only once in the word list
-        self.fr_elision_pat = regex.compile(
-            r"^(?:l|d|m|t|s|j|c|ç|lorsqu|puisqu|quoiqu|qu)['’]", flags=regex.UNICODE | regex.VERSION1 | regex.IGNORECASE)
+        self.fr_elision_pat = regex.compile(r"^(?:l|d|m|t|s|j|c|ç|lorsqu|puisqu|quoiqu|qu)['’]", flags=regex.UNICODE | regex.VERSION1 | regex.IGNORECASE)
 
 
 def patterns():
@@ -46,7 +39,6 @@ def patterns():
 
 
 class CharCounter:
-
     def __init__(self):
         self.counter = Counter()
         self.chars = defaultdict(set)
@@ -54,7 +46,6 @@ class CharCounter:
 
 
 class Location:
-
     __slots__ = ('elided_prefix', 'file_name', 'location_node', 'node_item', 'original_word', 'sourceline')
 
     def __init__(self, file_name=None, elided_prefix='', original_word=None, location_node=None, node_item=(None, None)):
@@ -64,6 +55,7 @@ class Location:
 
     def __repr__(self):
         return f'{self.original_word} @ {self.file_name}:{self.sourceline}'
+
     __str__ = __repr__
 
     def replace(self, new_word):
@@ -86,7 +78,7 @@ def get_words(text, lang):
     global file_word_count
     try:
         ans = split_into_words(str(text), lang)
-    except (TypeError, ValueError):
+    except TypeError, ValueError:
         return ()
     file_word_count += len(ans)
     return list(filter(filter_words, ans))
@@ -104,7 +96,7 @@ def add_words(text, node, words, file_name, locale, node_item):
                 m = p.fr_elision_pat.match(sword)
                 if m is not None and len(sword) > len(elided_prefix):
                     elided_prefix = m.group()
-                    sword = sword[len(elided_prefix):]
+                    sword = sword[len(elided_prefix) :]
             loc = Location(file_name, elided_prefix, word, node, node_item)
             words[(sword, locale)].append(loc)
             words[None] += 1
@@ -142,7 +134,7 @@ def count_chars_in_text(node, attr, counter, file_name, locale):
 
 def add_words_from_escaped_html(text, words, file_name, node, attr, locale):
     text = replace_entities(text)
-    root = parse(f'<html><body><div>{text}</div></body></html>', decoder=lambda x:x.decode('utf-8'))
+    root = parse(f'<html><body><div>{text}</div></body></html>', decoder=lambda x: x.decode('utf-8'))
     ewords = defaultdict(list)
     ewords[None] = 0
     read_words_from_html(root, ewords, file_name, locale)
@@ -155,16 +147,16 @@ def add_words_from_escaped_html(text, words, file_name, node, attr, locale):
 
 def count_chars_in_escaped_html(text, counter, file_name, node, attr, locale):
     text = replace_entities(text)
-    root = parse(f'<html><body><div>{text}</div></body></html>', decoder=lambda x:x.decode('utf-8'))
+    root = parse(f'<html><body><div>{text}</div></body></html>', decoder=lambda x: x.decode('utf-8'))
     count_chars_in_html(root, counter, file_name, locale)
 
 
 _opf_file_as = '{{{}}}file-as'.format(OPF_NAMESPACES['opf'])
 opf_spell_tags = {'title', 'creator', 'subject', 'description', 'publisher'}
 
-
 # We can only use barename() for tag names and simple attribute checks so that
 # this code matches up with the syntax highlighter base spell checking
+
 
 def read_words_from_opf(root, words, file_name, book_locale):
     for tag in root.iterdescendants('*'):
@@ -280,7 +272,7 @@ def group_sort(locations):
     for loc in locations:
         if loc.file_name not in order:
             order[loc.file_name] = len(order)
-    return sorted(locations, key=lambda l:(order[l.file_name], l.sourceline or 0))
+    return sorted(locations, key=lambda l: (order[l.file_name], l.sourceline or 0))
 
 
 def get_checkable_file_names(container):
@@ -327,7 +319,7 @@ def get_all_words(container, book_locale, get_word_count=False, excluded_files=(
         file_words_counts[file_name] = file_word_count
         file_word_count = 0
     count = words.pop(None)
-    ans = {k:group_sort(v) for k, v in words.items()}
+    ans = {k: group_sort(v) for k, v in words.items()}
     if get_word_count:
         return count, ans
     return ans
@@ -366,7 +358,7 @@ def replace(text, original_word, new_word, lang):
         offset += idx + len(original_word)
         q = text[offset:]
     for idx in reversed(indices):
-        text = text[:idx] + new_word + text[idx+len(original_word):]
+        text = text[:idx] + new_word + text[idx + len(original_word) :]
     return text, bool(indices)
 
 
@@ -406,6 +398,7 @@ if __name__ == '__main__':
     import pprint
 
     from calibre.gui2.tweak_book import dictionaries, set_book_locale
+
     container = get_container(sys.argv[-1], tweak_mode=True)
     set_book_locale(container.mi.language)
     pprint.pprint(get_all_words(container, dictionaries.default_locale))

@@ -1,12 +1,7 @@
 #!/usr/bin/env python
+# License: GPLv3 Copyright: 2009, Kovid Goyal <kovid@kovidgoyal.net>
 
-
-__license__   = 'GPL v3'
-__copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
-
-
-'''The main GUI'''
+"""The main GUI"""
 
 import errno
 import gc
@@ -77,6 +72,7 @@ from calibre.utils.resources import get_path as P
 @overload
 def get_gui(fail_if_absent: Literal[False] = False) -> Main | None: ...
 
+
 @overload
 def get_gui(fail_if_absent: Literal[True] = True) -> Main: ...
 
@@ -94,6 +90,7 @@ def add_quick_start_guide(library_view, refresh_cover_browser=None):
     from calibre.ptempfile import PersistentTemporaryFile
     from calibre.utils.localization import canonicalize_lang, get_lang
     from calibre.utils.zipfile import safe_replace
+
     l = canonicalize_lang(get_lang()) or 'eng'
     gprefs['quick_start_guide_added'] = True
     imgbuf = BytesIO(calibre_cover2(_('Quick Start Guide'), ''))
@@ -119,12 +116,22 @@ def add_quick_start_guide(library_view, refresh_cover_browser=None):
         library_view.resizeColumnsToContents()
 
 
-class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
-        TagBrowserMixin, CoverFlowMixin, LibraryViewMixin, SearchBoxMixin,
-        SavedSearchBoxMixin, SearchRestrictionMixin, LayoutMixin, UpdateMixin,
-        EbookDownloadMixin
-        ):
-    'The main GUI'
+class Main(
+    MainWindow,
+    MainWindowMixin,
+    DeviceMixin,
+    EmailMixin,  # {{{
+    TagBrowserMixin,
+    CoverFlowMixin,
+    LibraryViewMixin,
+    SearchBoxMixin,
+    SavedSearchBoxMixin,
+    SearchRestrictionMixin,
+    LayoutMixin,
+    UpdateMixin,
+    EbookDownloadMixin,
+):
+    "The main GUI"
 
     proceed_requested = pyqtSignal(object, object)
     book_converted = pyqtSignal(object, object)
@@ -145,8 +152,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
             self.setWindowIcon(qapplication_or_fail().windowIcon())
         self.extra_files_watcher = ExtraFilesWatcher(self)
         self.jobs_pointer = Pointer(self)
-        self.proceed_requested.connect(self.do_proceed,
-                type=Qt.ConnectionType.QueuedConnection)
+        self.proceed_requested.connect(self.do_proceed, type=Qt.ConnectionType.QueuedConnection)
         self.proceed_question = ProceedQuestion(self)
         self.job_error_dialog = JobError(self)
         self.keyboard = Manager(self)
@@ -157,14 +163,14 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         self.iactions = OrderedDict()
         # Actions
         for action in interface_actions():
-            if opts.ignore_plugins \
-                    and action.installation_type is not PluginInstallationType.BUILTIN:
+            if opts.ignore_plugins and action.installation_type is not PluginInstallationType.BUILTIN:
                 continue
             try:
                 ac = self.init_iaction(action)
             except Exception:
                 # Ignore errors in loading user supplied plugins
                 import traceback
+
                 try:
                     traceback.print_exc()
                 except Exception:
@@ -196,10 +202,10 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
 
     def load_store_plugins(self):
         from calibre.gui2.store.loader import Stores
+
         self.istores = Stores()
         for store in available_store_plugins():
-            if self.opts.ignore_plugins \
-                    and store.installation_type is not PluginInstallationType.BUILTIN:
+            if self.opts.ignore_plugins and store.installation_type is not PluginInstallationType.BUILTIN:
                 continue
             try:
                 st = self.init_istore(store)
@@ -207,6 +213,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
             except Exception:
                 # Ignore errors in loading user supplied plugins
                 import traceback
+
                 traceback.print_exc()
                 if store.installation_type is PluginInstallationType.BUILTIN:
                     raise
@@ -254,11 +261,11 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
             except Exception:
                 # Ignore errors in third party plugins
                 import traceback
+
                 traceback.print_exc()
                 if getattr(ac, 'installation_type', None) is PluginInstallationType.BUILTIN:
                     raise
-        self.donate_action = QAction(QIcon.ic('donate.png'),
-                _('&Donate to support calibre'), self)
+        self.donate_action = QAction(QIcon.ic('donate.png'), _('&Donate to support calibre'), self)
         for st in self.istores.values():
             st.do_genesis()
         MainWindowMixin.init_main_window_mixin(self)
@@ -294,23 +301,24 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
             self.system_tray_icon.setVisible(True)
             self.jobs_button.tray_tooltip_updated.connect(self.system_tray_icon.setToolTip)
         elif do_systray:
-            prints('Failed to create system tray icon, your desktop environment probably'
-                   ' does not support the StatusNotifier spec https://www.freedesktop.org/wiki/Specifications/StatusNotifierItem/',
-                   file=sys.stderr, flush=True)
+            prints(
+                'Failed to create system tray icon, your desktop environment probably'
+                ' does not support the StatusNotifier spec https://www.freedesktop.org/wiki/Specifications/StatusNotifierItem/',
+                file=sys.stderr,
+                flush=True,
+            )
         self.system_tray_menu = QMenu(self)
         self.toggle_to_tray_action = self.system_tray_menu.addAction(QIcon.ic('page.png'), '')
         assert self.toggle_to_tray_action is not None
         self.toggle_to_tray_action.triggered.connect(self.system_tray_icon_activated)
         self.system_tray_menu.addAction(self.donate_action)
-        self.eject_action = self.system_tray_menu.addAction(
-                QIcon.ic('eject.png'), _('&Eject connected device'))
+        self.eject_action = self.system_tray_menu.addAction(QIcon.ic('eject.png'), _('&Eject connected device'))
         assert self.eject_action is not None
         self.eject_action.setEnabled(False)
         self.addAction(self.quit_action)
         self.system_tray_menu.addAction(self.iactions['Restart'].menuless_qaction)
         self.system_tray_menu.addAction(self.quit_action)
-        self.keyboard.register_shortcut('quit calibre', _('Quit calibre'),
-                default_keys=('Ctrl+Q',), action=self.quit_action)
+        self.keyboard.register_shortcut('quit calibre', _('Quit calibre'), default_keys=('Ctrl+Q',), action=self.quit_action)
         if self.system_tray_icon is not None:
             self.system_tray_icon.setContextMenu(self.system_tray_menu)
             self.system_tray_icon.activated.connect(self.system_tray_icon_activated)
@@ -318,43 +326,48 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         self.donate_action.triggered[bool].connect(self.donate)
         self.minimize_action = QAction(_('Minimize the calibre window'), self)
         self.addAction(self.minimize_action)
-        self.keyboard.register_shortcut('minimize calibre', self.minimize_action.text(),
-                default_keys=(), action=self.minimize_action)
+        self.keyboard.register_shortcut('minimize calibre', self.minimize_action.text(), default_keys=(), action=self.minimize_action)
         self.minimize_action.triggered.connect(self.showMinimized)
 
         self.esc_action = QAction(self)
         self.addAction(self.esc_action)
-        self.keyboard.register_shortcut('clear current search',
-                _('Clear the current search'), default_keys=('Esc',),
-                action=self.esc_action)
+        self.keyboard.register_shortcut('clear current search', _('Clear the current search'), default_keys=('Esc',), action=self.esc_action)
         self.esc_action.triggered.connect(self.esc)
 
         self.shift_esc_action = QAction(self)
         self.addAction(self.shift_esc_action)
-        self.keyboard.register_shortcut('focus book list',
-                _('Focus the book list'), default_keys=('Shift+Esc',),
-                action=self.shift_esc_action)
+        self.keyboard.register_shortcut('focus book list', _('Focus the book list'), default_keys=('Shift+Esc',), action=self.shift_esc_action)
         self.shift_esc_action.triggered.connect(self.shift_esc)
 
         self.ctrl_esc_action = QAction(self)
         self.addAction(self.ctrl_esc_action)
-        self.keyboard.register_shortcut('clear virtual library',
-                _('Clear the Virtual library'), default_keys=('Ctrl+Esc',),
-                group=_('Virtual library'), action=self.ctrl_esc_action)
+        self.keyboard.register_shortcut(
+            'clear virtual library',
+            _('Clear the Virtual library'),
+            default_keys=('Ctrl+Esc',),
+            group=_('Virtual library'),
+            action=self.ctrl_esc_action,
+        )
         self.ctrl_esc_action.triggered.connect(self.ctrl_esc)
 
         self.alt_esc_action = QAction(self)
         self.addAction(self.alt_esc_action)
-        self.keyboard.register_shortcut('clear additional restriction',
-                _('Clear the additional restriction'), default_keys=('Alt+Esc',),
-                action=self.alt_esc_action)
+        self.keyboard.register_shortcut(
+            'clear additional restriction',
+            _('Clear the additional restriction'),
+            default_keys=('Alt+Esc',),
+            action=self.alt_esc_action,
+        )
         self.alt_esc_action.triggered.connect(self.clear_additional_restriction)
 
         self.ff_doc_editor_action = QAction(self)
         self.addAction(self.ff_doc_editor_action)
-        self.keyboard.register_shortcut('open ff document editor',
-                _('Open the template documentation editor'), default_keys=(''),
-                action=self.ff_doc_editor_action)
+        self.keyboard.register_shortcut(
+            'open ff document editor',
+            _('Open the template documentation editor'),
+            default_keys=(''),
+            action=self.ff_doc_editor_action,
+        )
         self.ff_doc_editor_action.triggered.connect(self.open_ff_doc_editor)
 
         # ###################### Start spare job server ########################
@@ -383,13 +396,13 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         lv_model = self.library_view.model()
         assert lv_model is not None
         assert isinstance(lv_model, BooksModel)
-        lv_model.count_changed_signal.connect(
-                self.iactions['Choose Library'].count_changed)
+        lv_model.count_changed_signal.connect(self.iactions['Choose Library'].count_changed)
         if not gprefs.get('quick_start_guide_added', False):
             try:
                 add_quick_start_guide(self.library_view)
             except Exception:
                 import traceback
+
                 traceback.print_exc()
         for view in ('library', 'memory', 'card_a', 'card_b'):
             v = getattr(self, f'{view}_view')
@@ -398,8 +411,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
 
         lv_model.count_changed()
         self.bars_manager.database_changed(lv_model.db)
-        lv_model.database_changed.connect(self.bars_manager.database_changed,
-                type=Qt.ConnectionType.QueuedConnection)
+        lv_model.database_changed.connect(self.bars_manager.database_changed, type=Qt.ConnectionType.QueuedConnection)
 
         # ########################## Tags Browser ##############################
         TagBrowserMixin.init_tag_browser_mixin(self, db)
@@ -414,8 +426,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
 
         CoverFlowMixin.__init__(self)
 
-        self._calculated_available_height = min(max_available_height()-15,
-                self.height())
+        self._calculated_available_height = min(max_available_height() - 15, self.height())
         self.resize(self.width(), self._calculated_available_height)
 
         self.build_context_menus()
@@ -425,6 +436,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
                 ac.gui_layout_complete()
             except Exception:
                 import traceback
+
                 traceback.print_exc()
                 if ac.installation_type is PluginInstallationType.BUILTIN:
                     raise
@@ -455,11 +467,11 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
                 ac.initialization_complete()
             except Exception:
                 import traceback
+
                 traceback.print_exc()
                 if ac.installation_type is PluginInstallationType.BUILTIN:
                     raise
-        self.set_current_library_information(current_library_name(), db.library_id,
-                                             db.field_metadata)
+        self.set_current_library_information(current_library_name(), db.library_id, db.field_metadata)
 
         register_keyboard_shortcuts()
         self.keyboard.finalize()
@@ -486,11 +498,19 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         self.focus_library_view()
 
     def show_gui_debug_msg(self):
-        info_dialog(self, _('Debug mode'), '<p>' +
-                _('You have started calibre in debug mode. After you '
-                    'quit calibre, the debug log will be available in '
-                    'the file: %s<p>The '
-                    'log will be displayed automatically.')%self.gui_debug, show=True)
+        info_dialog(
+            self,
+            _('Debug mode'),
+            '<p>'
+            + _(
+                'You have started calibre in debug mode. After you '
+                'quit calibre, the debug log will be available in '
+                'the file: %s<p>The '
+                'log will be displayed automatically.'
+            )
+            % self.gui_debug,
+            show=True,
+        )
 
     def esc(self, *args):
         self.search.clear()
@@ -504,6 +524,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
             self.focus_library_view()
         else:
             view.setFocus(Qt.FocusReason.OtherFocusReason)
+
     shift_esc = focus_current_view
 
     def focus_library_view(self):
@@ -525,16 +546,21 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
                     message = str(e)
                     timed_print(f'Starting smartdevice driver failed: {message}')
                     import traceback
+
                     traceback.print_exc()
         if message:
             if not self.device_manager.is_running('Wireless Devices'):
-                error_dialog(self, _('Problem starting the wireless device'),
-                             _('The wireless device driver had problems starting. '
-                               'It said "%s"')%message, show=True)
+                error_dialog(
+                    self,
+                    _('Problem starting the wireless device'),
+                    _('The wireless device driver had problems starting. It said "%s"') % message,
+                    show=True,
+                )
         self.iactions['Connect Share'].set_smartdevice_action_state()
 
     def start_content_server(self, check_started=True):
         from calibre.srv.embedded import Server
+
         if not gprefs.get('server3_warning_done', False):
             gprefs.set('server3_warning_done', True)
             if os.path.exists(os.path.join(config_dir, 'server.py')):
@@ -542,17 +568,21 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
                     os.remove(os.path.join(config_dir, 'server.py'))
                 except OSError:
                     pass
-                warning_dialog(self, _('Content server changed!'), _(
-                    'calibre 3 comes with a completely re-written Content server.'
-                    ' As such any custom configuration you have for the content'
-                    ' server no longer applies. You should check and refresh your'
-                    ' settings in Preferences->Sharing->Sharing over the net'), show=True)
+                warning_dialog(
+                    self,
+                    _('Content server changed!'),
+                    _(
+                        'calibre 3 comes with a completely re-written Content server.'
+                        ' As such any custom configuration you have for the content'
+                        ' server no longer applies. You should check and refresh your'
+                        ' settings in Preferences->Sharing->Sharing over the net'
+                    ),
+                    show=True,
+                )
         self.content_server = Server(self.library_broker, Dispatcher(self.handle_changes_from_server))
-        self.content_server.state_callback = Dispatcher(
-                self.iactions['Connect Share'].content_server_state_changed)
+        self.content_server.state_callback = Dispatcher(self.iactions['Connect Share'].content_server_state_changed)
         if check_started:
-            self.content_server.start_failure_callback = \
-                Dispatcher(self.content_server_start_failed)
+            self.content_server.start_failure_callback = Dispatcher(self.content_server_start_failed)
         self.content_server.start()
 
     def handle_changes_from_server(self, library_path, change_event):
@@ -578,17 +608,20 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
 
     def content_server_start_failed(self, msg):
         self.content_server = None
-        error_dialog(self, _('Failed to start Content server'),
-                _('Could not start the Content server. Error:\n\n%s')%msg,
-                show=True)
+        error_dialog(
+            self,
+            _('Failed to start Content server'),
+            _('Could not start the Content server. Error:\n\n%s') % msg,
+            show=True,
+        )
 
     def resizeEvent(self, a0):
         MainWindow.resizeEvent(self, a0)
-        self.search.setMaximumWidth(self.width()-150)
+        self.search.setMaximumWidth(self.width() - 150)
 
     def create_spare_pool(self, *args):
         if self._spare_pool is None:
-            num = min(detect_ncpus(), config['worker_limit']//2)
+            num = min(detect_ncpus(), config['worker_limit'] // 2)
             self._spare_pool = Pool(max_workers=num, name='GUIPool')
 
     def spare_pool(self):
@@ -619,27 +652,37 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
     def is_minimized_to_tray(self):
         return getattr(self, '__systray_minimized', False)
 
-    def ask_a_yes_no_question(self, title, msg, det_msg='',
-            show_copy_button=False, ans_when_user_unavailable=True,
-            skip_dialog_name=None, skipped_value=True):
+    def ask_a_yes_no_question(
+        self,
+        title,
+        msg,
+        det_msg='',
+        show_copy_button=False,
+        ans_when_user_unavailable=True,
+        skip_dialog_name=None,
+        skipped_value=True,
+    ):
         if self.is_minimized_to_tray:
             return ans_when_user_unavailable
-        return question_dialog(self, title, msg, det_msg=det_msg,
-                show_copy_button=show_copy_button,
-                skip_dialog_name=skip_dialog_name,
-                skip_dialog_skipped_value=skipped_value)
+        return question_dialog(
+            self,
+            title,
+            msg,
+            det_msg=det_msg,
+            show_copy_button=show_copy_button,
+            skip_dialog_name=skip_dialog_name,
+            skip_dialog_skipped_value=skipped_value,
+        )
 
     def update_toggle_to_tray_action(self, *args):
         if hasattr(self, 'toggle_to_tray_action'):
             toggle_to_tray_action = self.toggle_to_tray_action
             assert toggle_to_tray_action is not None
-            toggle_to_tray_action.setText(
-                _('Hide main window') if self.isVisible() else _('Show main window'))
+            toggle_to_tray_action.setText(_('Hide main window') if self.isVisible() else _('Show main window'))
 
     def hide_windows(self):
         for window in QApplication.topLevelWidgets():
-            if isinstance(window, (MainWindow, QDialog)) and \
-                    window.isVisible():
+            if isinstance(window, (MainWindow, QDialog)) and window.isVisible():
                 window.hide()
                 setattr(window, '__systray_minimized', True)
         self.update_toggle_to_tray_action()
@@ -656,17 +699,19 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         # maximized and then closed to system tray, when remote desktop is
         # reconnected: https://bugreports.qt.io/browse/QTBUG-124177
         if (
-                iswindows and a0.type() == QEvent.Type.ActivationChange and self.is_minimized_to_tray and self.isMaximized() and
-                self.isActiveWindow() and not self.isVisible()
+            iswindows
+            and a0.type() == QEvent.Type.ActivationChange
+            and self.is_minimized_to_tray
+            and self.isMaximized()
+            and self.isActiveWindow()
+            and not self.isVisible()
         ):
             QTimer.singleShot(0, self.show_windows)
         return super().changeEvent(a0)
 
     def test_server(self, *args):
-        if self.content_server is not None and \
-                self.content_server.exception is not None:
-            error_dialog(self, _('Failed to start Content server'),
-                         str(self.content_server.exception)).exec()
+        if self.content_server is not None and self.content_server.exception is not None:
+            error_dialog(self, _('Failed to start Content server'), str(self.content_server.exception)).exec()
 
     @property
     def current_db(self) -> LibraryDatabase:
@@ -685,6 +730,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
 
     def handle_cli_args(self, args):
         from urllib.parse import parse_qs, unquote, urlparse
+
         if isinstance(args, (str, bytes)):
             args = [args]
         files, urls = [], []
@@ -718,9 +764,11 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         if files:
             self.iactions['Add Books'].add_filesystem_book(files)
         if urls:
+
             def doit():
                 for action, path, query in urls:
                     self.handle_url_action(action, path, query)
+
             QTimer.singleShot(10, doit)
 
     def handle_url_action(self, action, path, query):
@@ -805,6 +853,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
                         return
                 if db.notes_for(field, item_id):
                     from calibre.gui2.dialogs.show_category_note import ShowNoteDialog
+
                     ShowNoteDialog(field, item_id, db, parent=self).show()
                 else:
                     prints(f'No notes available for {field}:{itemx}', file=sys.stderr)
@@ -886,6 +935,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
                 if vl != '_':
                     self.apply_virtual_library(vl)
                 self.search.set_search_string(sq)
+
             self.perform_url_action(library_id, library_path, doit)
 
     def perform_url_action(self, library_id, library_path, func):
@@ -900,19 +950,23 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
             msg = msg.decode('utf-8', 'replace')
         if msg.startswith('launched:'):
             import json
+
             try:
-                argv = json.loads(msg[len('launched:'):])
+                argv = json.loads(msg[len('launched:') :])
             except ValueError:
                 prints(f'Failed to decode message from other instance: {msg!r}')
                 if DEBUG:
-                    error_dialog(self, 'Invalid message',
-                                 'Received an invalid message from other calibre instance.'
-                                 ' Do you have multiple versions of calibre installed?',
-                                 det_msg=f'Invalid msg: {msg!r}', show=True)
+                    error_dialog(
+                        self,
+                        'Invalid message',
+                        'Received an invalid message from other calibre instance. Do you have multiple versions of calibre installed?',
+                        det_msg=f'Invalid msg: {msg!r}',
+                        show=True,
+                    )
                 argv = ()
             if isinstance(argv, (list, tuple)) and len(argv) > 1:
                 self.handle_cli_args(argv[1:])
-            self.setWindowState(self.windowState() & ~Qt.WindowState.WindowMinimized|Qt.WindowState.WindowActive)
+            self.setWindowState(self.windowState() & ~Qt.WindowState.WindowMinimized | Qt.WindowState.WindowActive)
             self.show_windows()
             self.raise_and_focus()
             self.activateWindow()
@@ -920,8 +974,9 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
             self.quit(confirm_quit=False)
         elif msg.startswith('save-annotations:'):
             from calibre.gui2.viewer.integration import save_annotations_in_gui
+
             try:
-                library_id, book_id = save_annotations_in_gui(self.library_broker, msg[len('save-annotations:'):])
+                library_id, book_id = save_annotations_in_gui(self.library_broker, msg[len('save-annotations:') :])
                 if library_id:
                     if self.current_db.new_api.library_id == library_id:
                         lv = self.library_view
@@ -936,9 +991,15 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
                     print('Failed to update annotations for book from viewer, book or library not found.', file=sys.stderr)
             except Exception:
                 import traceback
+
                 traceback.print_exc()
-                error_dialog(self, _('Failed to update annotations'), _(
-                    'Failed to update annotations in the database for the book being currently viewed.'), det_msg=traceback.format_exc(), show=True)
+                error_dialog(
+                    self,
+                    _('Failed to update annotations'),
+                    _('Failed to update annotations in the database for the book being currently viewed.'),
+                    det_msg=traceback.format_exc(),
+                    show=True,
+                )
         elif msg.startswith('bookedited:'):
             parts = msg.split(':')[1:]
             try:
@@ -956,11 +1017,13 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
                     db.event_dispatcher(db.EventType.book_edited, book_id, fmt)
             except Exception:
                 import traceback
+
                 traceback.print_exc()
         elif msg.startswith('web-store:'):
             import json
+
             try:
-                data = json.loads(msg[len('web-store:'):])
+                data = json.loads(msg[len('web-store:') :])
             except ValueError:
                 prints(f'Failed to decode message from other instance: {msg!r}')
             path = data['path']
@@ -978,7 +1041,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
             prints(f'Ignoring unknown message from other instance: {msg[:20]!r}')
 
     def current_view(self):
-        '''Convenience method that returns the currently visible view '''
+        """Convenience method that returns the currently visible view"""
         try:
             idx = self.stack.currentIndex()
         except AttributeError:
@@ -1031,15 +1094,21 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
                     if not allow_rebuild:
                         raise
                     import traceback
-                    repair = question_dialog(self, _('Corrupted database'),
-                            _('The library database at %s appears to be corrupted. Do '
+
+                    repair = question_dialog(
+                        self,
+                        _('Corrupted database'),
+                        _(
+                            'The library database at %s appears to be corrupted. Do '
                             'you want calibre to try and rebuild it automatically? '
-                            'The rebuild may not be completely successful.')
-                            % force_unicode(newloc, filesystem_encoding),
-                            det_msg=traceback.format_exc()
-                            )
+                            'The rebuild may not be completely successful.'
+                        )
+                        % force_unicode(newloc, filesystem_encoding),
+                        det_msg=traceback.format_exc(),
+                    )
                     if repair:
                         from calibre.gui2.dialogs.restore_library import repair_library_at
+
                         if repair_library_at(newloc, parent=self):
                             db = LibraryDatabase(newloc, default_prefs=default_prefs)
                         else:
@@ -1052,6 +1121,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
                     action.library_about_to_change(olddb, db)
                 except Exception:
                     import traceback
+
                     traceback.print_exc()
             self.library_path = newloc
             self.extra_files_watcher.clear()
@@ -1083,6 +1153,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
                     action.library_changed(db)
                 except Exception:
                     import traceback
+
                     traceback.print_exc()
             self.library_broker.gui_library_changed(db, olddb)
             if self.device_connected:
@@ -1091,8 +1162,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
                 self.memory_view.reset()
                 self.card_a_view.reset()
                 self.card_b_view.reset()
-            self.set_current_library_information(current_library_name(), db.library_id,
-                                                db.field_metadata)
+            self.set_current_library_information(current_library_name(), db.library_id, db.field_metadata)
             self.library_view.set_current_row(0)
         # Run a garbage collection now so that it does not freeze the
         # interface later
@@ -1100,8 +1170,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
 
     def set_window_title(self):
         db = self.current_db
-        restrictions = [x for x in (db.data.get_base_restriction_name(),
-                        db.data.get_search_restriction_name()) if x]
+        restrictions = [x for x in (db.data.get_base_restriction_name(), db.data.get_search_restriction_name()) if x]
         restrictions = ' :: '.join(restrictions)
         font = QFont()
         if restrictions:
@@ -1109,14 +1178,13 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
             font.setBold(True)
             font.setItalic(True)
         self.virtual_library.setFont(font)
-        title = '{} — || {}{} ||'.format(
-                __appname__, self.iactions['Choose Library'].library_name(), restrictions)
+        title = '{} — || {}{} ||'.format(__appname__, self.iactions['Choose Library'].library_name(), restrictions)
         self.setWindowTitle(title)
 
     def location_selected(self, location):
-        '''
+        """
         Called when a location icon is clicked (e.g. Library)
-        '''
+        """
         page = 0 if location == 'library' else 1 if location == 'main' else 2 if location == 'carda' else 3
         self.stack.setCurrentIndex(page)
         self.book_details.reset_info()
@@ -1151,8 +1219,8 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
             if 'calibre.ebooks.DRMError' in job.details:
                 if not minz:
                     from calibre.gui2.dialogs.drm_error import DRMErrorMessage
-                    d = DRMErrorMessage(self, _('Cannot convert') + ' ' +
-                        job.description.split(':')[-1].partition('(')[-1][:-1])
+
+                    d = DRMErrorMessage(self, _('Cannot convert') + ' ' + job.description.split(':')[-1].partition('(')[-1][:-1])
                     d.setModal(False)
                     d.show()
                     self._modeless_dialogs.append(d)
@@ -1160,8 +1228,8 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
 
             if 'calibre.ebooks.oeb.transforms.split.SplitError' in job.details:
                 title = job.description.split(':')[-1].partition('(')[-1][:-1]
-                msg = _('<p><b>Failed to convert: %s')%title
-                msg += '<p>'+_('''
+                msg = _('<p><b>Failed to convert: %s') % title
+                msg += '<p>' + _('''
                 Many older e-book reader devices are incapable of displaying
                 EPUB files that have internal components over a certain size.
                 Therefore, when converting to EPUB, calibre automatically tries
@@ -1175,8 +1243,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
                 your e-book reader may have trouble with the EPUB.
                         ''')
                 if not minz:
-                    d = error_dialog(self, _('Conversion failed'), msg,
-                            det_msg=job.details)
+                    d = error_dialog(self, _('Conversion failed'), msg, det_msg=job.details)
                     d.setModal(False)
                     d.show()
                     self._modeless_dialogs.append(d)
@@ -1187,8 +1254,11 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
                     title = job.description.split(':')[-1].partition('(')[-1][:-1]
                     msg = _('<p><b>Failed to convert: %s') % title
                     idx = job.details.index('calibre.ebooks.mobi.reader.mobi6.KFXError:')
-                    msg += '<p>' + re.sub(r'(https:\S+)', r'<a href="\1">{}</a>'.format(_('here')),
-                                          job.details[idx:].partition(':')[2].strip())
+                    msg += '<p>' + re.sub(
+                        r'(https:\S+)',
+                        r'<a href="\1">{}</a>'.format(_('here')),
+                        job.details[idx:].partition(':')[2].strip(),
+                    )
                     d = error_dialog(self, _('Conversion failed'), msg, det_msg=job.details)
                     d.setModal(False)
                     d.show()
@@ -1198,10 +1268,9 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
             if 'calibre.web.feeds.input.RecipeDisabled' in job.details:
                 if not minz:
                     msg = job.details
-                    msg = msg[msg.find('calibre.web.feeds.input.RecipeDisabled:'):]
+                    msg = msg[msg.find('calibre.web.feeds.input.RecipeDisabled:') :]
                     msg = msg.partition(':')[-1]
-                    d = error_dialog(self, _('Recipe Disabled'),
-                        f'<p>{msg}</p>')
+                    d = error_dialog(self, _('Recipe Disabled'), f'<p>{msg}</p>')
                     d.setModal(False)
                     d.show()
                     self._modeless_dialogs.append(d)
@@ -1210,15 +1279,11 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
             if 'calibre.ebooks.conversion.ConversionUserFeedBack:' in job.details:
                 if not minz:
                     import json
-                    payload = job.details.rpartition(
-                        'calibre.ebooks.conversion.ConversionUserFeedBack:')[-1]
+
+                    payload = job.details.rpartition('calibre.ebooks.conversion.ConversionUserFeedBack:')[-1]
                     payload = json.loads('{' + payload.partition('{')[-1])
-                    d = {'info':info_dialog, 'warn':warning_dialog,
-                            'error':error_dialog}.get(payload['level'],
-                                    error_dialog)
-                    d = d(self, payload['title'],
-                            '<p>{}</p>'.format(payload['msg']),
-                            det_msg=payload['det_msg'])
+                    d = {'info': info_dialog, 'warn': warning_dialog, 'error': error_dialog}.get(payload['level'], error_dialog)
+                    d = d(self, payload['title'], '<p>{}</p>'.format(payload['msg']), det_msg=payload['det_msg'])
                     d.setModal(False)
                     d.show()
                     self._modeless_dialogs.append(d)
@@ -1232,9 +1297,12 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         except Exception:
             pass
         if not minz:
-            self.job_error_dialog.show_error(dialog_title,
-                    _('<b>Failed</b>')+': '+str(job.description),
-                    det_msg=job.details, retry_func=retry_func)
+            self.job_error_dialog.show_error(
+                dialog_title,
+                _('<b>Failed</b>') + ': ' + str(job.description),
+                det_msg=job.details,
+                retry_func=retry_func,
+            )
 
     def _save_tb_state(self, gprefs):
         self.tb_widget.save_state(gprefs)
@@ -1266,8 +1334,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
     def restart(self):
         self.quit(restart=True)
 
-    def quit(self, checked=True, restart=False, debug_on_restart=False,
-            confirm_quit=True, no_plugins_on_restart=False):
+    def quit(self, checked=True, restart=False, debug_on_restart=False, confirm_quit=True, no_plugins_on_restart=False):
         if self.shutting_down:
             return
         if confirm_quit and not self.confirm_quit():
@@ -1277,6 +1344,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
             self.shutdown()
         except Exception:
             import traceback
+
             traceback.print_exc()
         self.debug_on_restart = debug_on_restart
         self.no_plugins_on_restart = no_plugins_on_restart
@@ -1291,6 +1359,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
             if self.system_tray_icon is not None and self.system_tray_icon.isVisible():
                 self.show_windows()
             from calibre.gui2.dialogs.message_box import AutoCloseNotification
+
             app = qapplication_or_fail()
             parent = app.focusWidget() or self
             parent.raise_()
@@ -1300,16 +1369,21 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
 
     def donate(self, *args):
         from calibre.utils.localization import localize_website_link
+
         open_url(QUrl(localize_website_link('https://calibre-ebook.com/donate')))
 
     def confirm_quit(self):
         if self.job_manager.has_jobs():
             msg = _('There are active jobs. Are you sure you want to quit?')
             if self.job_manager.has_device_jobs():
-                msg = '<p>'+__appname__ + \
-                      _(''' is communicating with the device!<br>
+                msg = (
+                    '<p>'
+                    + __appname__
+                    + _(''' is communicating with the device!<br>
                       Quitting may cause corruption on the device.<br>
-                      Are you sure you want to quit?''')+'</p>'
+                      Are you sure you want to quit?''')
+                    + '</p>'
+                )
 
             d = warning_dialog(self, _('Active jobs'), msg, show_copy_button=False)
             b = d.bb.addButton(_('Quit after jobs &finish'), QDialogButtonBox.ButtonRole.RejectRole)
@@ -1317,8 +1391,10 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
             d.bb.button(QDialogButtonBox.StandardButton.Ok).setText(_('Quit anyway'))
             d.bb.addButton(_('&Cancel'), QDialogButtonBox.ButtonRole.RejectRole)
             d.after_jobs_finish = False
+
             def jf():
                 d.after_jobs_finish = True
+
             b.clicked.connect(jf)
             d.bb.button(QDialogButtonBox.StandardButton.Ok).setAutoDefault(False)
             d.bb.button(QDialogButtonBox.StandardButton.Ok).setIcon(QIcon.ic('dialog_warning.png'))
@@ -1339,6 +1415,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         from time import monotonic
 
         from calibre.utils.mdns import stop_server_with_joinable
+
         wait_for_mdns_server_to_shutdown = stop_server_with_joinable()
         st = monotonic()
         timed_print('Shutdown starting...')
@@ -1359,9 +1436,9 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
             pass
 
         from calibre.customize.ui import has_library_closed_plugins
+
         if has_library_closed_plugins():
-            self.show_shutdown_message(
-                _('Running database shutdown plugins. This could take a few seconds...'))
+            self.show_shutdown_message(_('Running database shutdown plugins. This could take a few seconds...'))
 
         self.grid_view.shutdown()
         timed_print('Grid view shutdown')
@@ -1404,6 +1481,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
                 traceback.print_exception(t, v, tb, file=sys.stderr)
             except Exception:
                 pass
+
         sys.excepthook = eh
 
         _close_model = self.library_view.model()
@@ -1422,8 +1500,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
                 # If the Content server has any sockets being closed then
                 # this can take quite a long time (minutes). Tell the user that it is
                 # happening.
-                self.show_shutdown_message(
-                    _('Shutting down the Content server. This could take a while...'))
+                self.show_shutdown_message(_('Shutting down the Content server. This could take a while...'))
                 s = self.content_server
                 self.content_server = None
                 s.exit()
@@ -1437,8 +1514,10 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         if self._spare_pool is not None:
             self._spare_pool.shutdown()
         from calibre.scraper.simple import cleanup_overseers
+
         wait_for_cleanup = cleanup_overseers()
         from calibre.live import async_stop_worker
+
         wait_for_stop = async_stop_worker()
         timed_print('Waiting for overseers, mdns, and live to shutdown')
         self.istores.join()
@@ -1448,9 +1527,10 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         timed_print('Waiting for device manager to shutdown')
         self.device_manager.join()
         self.shutdown_completed.emit()
-        timed_print(f'Shutdown complete in {monotonic()-st:.2f}, quitting...')
+        timed_print(f'Shutdown complete in {monotonic() - st:.2f}, quitting...')
         if DEBUG:
             import threading
+
             threads = list(threading.enumerate())
             if len(threads) > 1:
                 for thread in threads:
@@ -1478,10 +1558,12 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         self.write_settings()
         if self.system_tray_icon is not None and self.system_tray_icon.isVisible():
             if not dynamic['systray_msg'] and not ismacos:
-                info_dialog(self, 'calibre', 'calibre '+
-                        _('will keep running in the system tray. To close it, '
-                        'choose <b>Quit</b> in the context menu of the '
-                        'system tray.'), show_copy_button=False).exec()
+                info_dialog(
+                    self,
+                    'calibre',
+                    'calibre ' + _('will keep running in the system tray. To close it, choose <b>Quit</b> in the context menu of the system tray.'),
+                    show_copy_button=False,
+                ).exec()
                 dynamic['systray_msg'] = True
             self.hide_windows()
             a0.ignore()
@@ -1490,6 +1572,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
                 self.shutdown(write_settings=False)
             except Exception:
                 import traceback
+
                 traceback.print_exc()
             a0.accept()
         else:

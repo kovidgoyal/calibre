@@ -1,9 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__   = 'GPL v3'
-__copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2010, Kovid Goyal <kovid@kovidgoyal.net>
 
 import os
 import shutil
@@ -19,10 +15,13 @@ from calibre.utils.localization import _
 
 
 class GenerateCatalogAction(InterfaceAction):
-
     name = 'Generate Catalog'
-    action_spec = (_('Create catalog'), 'catalog.png',
-                   _('Create a catalog of the books in your calibre library in different formats'), ())
+    action_spec = (
+        _('Create catalog'),
+        'catalog.png',
+        _('Create a catalog of the books in your calibre library in different formats'),
+        (),
+    )
     dont_add_to = frozenset(('context-menu-device',))
 
     def genesis(self):
@@ -40,9 +39,7 @@ class GenerateCatalogAction(InterfaceAction):
         ids = list(map(self.gui.library_view.model().id, rows))
 
         if not ids:
-            return error_dialog(self.gui, _('No books selected'),
-                    _('No books selected for catalog generation'),
-                    show=True)
+            return error_dialog(self.gui, _('No books selected'), _('No books selected for catalog generation'), show=True)
 
         db = self.gui.library_view.model().db
         dbspec = {}
@@ -50,21 +47,18 @@ class GenerateCatalogAction(InterfaceAction):
             dbspec[id] = {'ondevice': db.ondevice(id, index_is_id=True)}
 
         # Calling gui2.tools:generate_catalog()
-        ret = generate_catalog(self.gui, dbspec, ids, self.gui.device_manager,
-                db)
+        ret = generate_catalog(self.gui, dbspec, ids, self.gui.device_manager, db)
         if ret is None:
             return
 
         func, args, desc, out, sync, title = ret
 
         fmt = os.path.splitext(out)[1][1:].upper()
-        job = self.gui.job_manager.run_job(
-                self.Dispatcher(self.catalog_generated), func, args=args,
-                description=desc)
+        job = self.gui.job_manager.run_job(self.Dispatcher(self.catalog_generated), func, args=args, description=desc)
         job.catalog_file_path = out
         job.fmt = fmt
         job.catalog_sync, job.catalog_title = sync, title
-        self.gui.status_bar.show_message(_('Generating %s catalog...')%fmt)
+        self.gui.status_bar.show_message(_('Generating %s catalog...') % fmt)
 
     def catalog_generated(self, job):
         if job.result:
@@ -77,7 +71,7 @@ class GenerateCatalogAction(InterfaceAction):
                 warning_dialog(self.gui, dialog_title, msg, det_msg='\n'.join(job.result), show=True)
             else:
                 job.result.append('Catalog generation terminated.')
-                error_dialog(self.gui, dialog_title,'\n'.join(job.result),show=True)
+                error_dialog(self.gui, dialog_title, '\n'.join(job.result), show=True)
                 return
 
         if job.failed:
@@ -91,10 +85,12 @@ class GenerateCatalogAction(InterfaceAction):
                 dynamic.set('catalogs_to_be_synced', sync)
         self.gui.status_bar.show_message(_('Catalog generated.'), 3000)
         self.gui.sync_catalogs()
-        if not dynamic.get('catalog_add_to_library', True) or job.fmt not in {'EPUB','MOBI', 'AZW3'}:
-            export_dir = choose_dir(self.gui, _('Export catalog folder'),
-                    _('Select destination for %(title)s.%(fmt)s') % dict(
-                        title=job.catalog_title, fmt=job.fmt.lower()))
+        if not dynamic.get('catalog_add_to_library', True) or job.fmt not in {'EPUB', 'MOBI', 'AZW3'}:
+            export_dir = choose_dir(
+                self.gui,
+                _('Export catalog folder'),
+                _('Select destination for %(title)s.%(fmt)s') % dict(title=job.catalog_title, fmt=job.fmt.lower()),
+            )
             if export_dir:
                 destination = os.path.join(export_dir, f'{sanitize_file_name(job.catalog_title)}.{job.fmt.lower()}')
                 try:

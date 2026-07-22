@@ -16,10 +16,15 @@ def create_subcommand_parser(name, usage):
 
 
 def add(user_manager, args):
-    p = create_subcommand_parser('add', _('username [password]') + '\n\n' + '''\
+    p = create_subcommand_parser(
+        'add',
+        _('username [password]')
+        + '\n\n'
+        + '''\
 Create a new user account with the specified name and password. If the password
 is not specified on the command line, it will be read from STDIN.
-''')
+''',
+    )
     p.add_option('--readonly', action='store_true', default=False, help=_('Give this user only read access'))
     opts, args = p.parse_args(['calibre-server'] + list(args))
     if len(args) < 2:
@@ -34,9 +39,14 @@ is not specified on the command line, it will be read from STDIN.
 
 
 def remove(user_manager, args):
-    p = create_subcommand_parser('remove', _('username') + '\n\n' + '''\
+    p = create_subcommand_parser(
+        'remove',
+        _('username')
+        + '\n\n'
+        + '''\
 Remove the user account with the specified username.
-''')
+''',
+    )
     opts, args = p.parse_args(['calibre-server'] + list(args))
     if len(args) < 2:
         p.print_help()
@@ -46,20 +56,29 @@ Remove the user account with the specified username.
 
 
 def list_users(user_manager, args):
-    p = create_subcommand_parser('list', '\n\n' + '''\
+    p = create_subcommand_parser(
+        'list',
+        '\n\n'
+        + '''\
 List all usernames.
-''')
+''',
+    )
     opts, args = p.parse_args(['calibre-server'] + list(args))
     for name in user_manager.all_user_names:
         print(name)
 
 
 def change_set_password(user_manager, args):
-    p = create_subcommand_parser('change_set_password', _('username set|reset|toggle|show') + '\n\n' + '''\
+    p = create_subcommand_parser(
+        'change_set_password',
+        _('username set|reset|toggle|show')
+        + '\n\n'
+        + '''\
 Restrict the specified user account to prevent it from changing its own password via the web interface. \
 The value of set allows the account to change its own password, reset prevents it from changing its \
 own password, toggle flips the value and show prints out the current value. \
-''')
+''',
+    )
     opts, args = p.parse_args(['calibre-server'] + list(args))
     if len(args) < 3:
         p.print_help()
@@ -80,11 +99,16 @@ own password, toggle flips the value and show prints out the current value. \
 
 
 def change_readonly(user_manager, args):
-    p = create_subcommand_parser('readonly', _('username set|reset|toggle|show') + '\n\n' + '''\
+    p = create_subcommand_parser(
+        'readonly',
+        _('username set|reset|toggle|show')
+        + '\n\n'
+        + '''\
 Restrict the specified user account to prevent it from making changes. \
 The value of set makes the account readonly, reset allows it to make \
 changes, toggle flips the value and show prints out the current value. \
-''')
+''',
+    )
     opts, args = p.parse_args(['calibre-server'] + list(args))
     if len(args) < 3:
         p.print_help()
@@ -106,20 +130,30 @@ changes, toggle flips the value and show prints out the current value. \
 
 def change_libraries(user_manager, args):
     p = create_subcommand_parser(
-        'libraries', _('[options] username [library_name ...]') + '\n\n' + '''\
+        'libraries',
+        _('[options] username [library_name ...]')
+        + '\n\n'
+        + '''\
 Manage the libraries the specified user account is restricted to.
-''')
-    p.add_option('--action', type='choice', choices='allow-all allow block per-library show'.split(), default='show', help=_(
-        'Specify the action to perform.'
-        '\nA value of "show" shows the current library restrictions for the specified user.'
-        '\nA value of "allow-all" removes all library restrictions.'
-        '\nA value of "allow" allows access to only the specified libraries.'
-        '\nA value of "block" allows access to all, except the specified libraries.'
-        '\nA value of "per-library" sets per library restrictions. In this case the libraries list'
-        ' is interpreted as a list of library name followed by restriction to apply, followed'
-        ' by next library name and so on. Using a restriction of "=" removes any previous restriction'
-        ' on that library.'
-    ))
+''',
+    )
+    p.add_option(
+        '--action',
+        type='choice',
+        choices='allow-all allow block per-library show'.split(),
+        default='show',
+        help=_(
+            'Specify the action to perform.'
+            '\nA value of "show" shows the current library restrictions for the specified user.'
+            '\nA value of "allow-all" removes all library restrictions.'
+            '\nA value of "allow" allows access to only the specified libraries.'
+            '\nA value of "block" allows access to all, except the specified libraries.'
+            '\nA value of "per-library" sets per library restrictions. In this case the libraries list'
+            ' is interpreted as a list of library name followed by restriction to apply, followed'
+            ' by next library name and so on. Using a restriction of "=" removes any previous restriction'
+            ' on that library.'
+        ),
+    )
     opts, args = p.parse_args(['calibre-server'] + list(args))
     if len(args) < 2:
         p.print_help()
@@ -131,7 +165,6 @@ Manage the libraries the specified user account is restricted to.
 
     if opts.action == 'show':
         if r['allowed_library_names']:
-
             print('Allowed:')
             for name in r['allowed_library_names']:
                 print('\t' + name)
@@ -157,7 +190,7 @@ Manage the libraries the specified user account is restricted to.
             raise SystemExit('Must specify a restriction for every library')
         lres = r['library_restrictions']
         for i in range(0, len(libraries), 2):
-            name, res = libraries[i:i+2]
+            name, res = libraries[i : i + 2]
             if res == '=':
                 lres.pop(name, None)
             else:
@@ -175,10 +208,15 @@ Manage the libraries the specified user account is restricted to.
 
 
 def chpass(user_manager, args):
-    p = create_subcommand_parser('chpass', _('username [password]') + '\n\n' + '''\
+    p = create_subcommand_parser(
+        'chpass',
+        _('username [password]')
+        + '\n\n'
+        + '''\
 Change the password of the new user account with the specified username. If the password
 is not specified on the command line, it will be read from STDIN.
-''')
+''',
+    )
     opts, args = p.parse_args(['calibre-server'] + list(args))
     if len(args) < 2:
         p.print_help()
@@ -218,6 +256,7 @@ def main(user_manager, args):
 
 def manage_users_cli(path=None, args=()):
     from calibre.srv.users import UserManager
+
     m = UserManager(path)
     if args:
         main(m, args)
@@ -234,8 +273,7 @@ def manage_users_cli(path=None, args=()):
             ans = ans.rstrip('\r')
         return ans
 
-    def choice(
-        question=_('What do you want to do?'), choices=(), default=None, banner=''):
+    def choice(question=_('What do you want to do?'), choices=(), default=None, banner=''):
         prints(banner)
         for i, choice in enumerate(choices):
             prints(f'{i + 1})', choice)
@@ -284,14 +322,11 @@ def manage_users_cli(path=None, args=()):
         from getpass import getpass
 
         while True:
-            one = getpass(
-                _('Enter the new password for %s: ') % username)
+            one = getpass(_('Enter the new password for %s: ') % username)
             if not one:
                 prints(_('Empty passwords are not allowed'))
                 continue
-            two = getpass(
-                _('Re-enter the new password for %s, to verify: ') % username
-            )
+            two = getpass(_('Re-enter the new password for %s, to verify: ') % username)
             if one != two:
                 prints(_('Passwords do not match'))
                 continue
@@ -308,8 +343,7 @@ def manage_users_cli(path=None, args=()):
 
     def remove_user():
         un = get_valid_user()
-        if get_input((_('Are you sure you want to remove the user %s?') % un) +
-                     ' [y/n]:') != 'y':
+        if get_input((_('Are you sure you want to remove the user %s?') % un) + ' [y/n]:') != 'y':
             raise SystemExit(0)
         m.remove_user(un)
         prints(_('User %s successfully removed!') % un)
@@ -351,18 +385,20 @@ def manage_users_cli(path=None, args=()):
                 ngettext(
                     '{} is currently only allowed to access the library named: {}',
                     '{} is currently only allowed to access the libraries named: {}',
-                    len(libs)).format(username, ', '.join(libs)))
+                    len(libs),
+                ).format(username, ', '.join(libs))
+            )
         if r['blocked_library_names']:
             libs = r['blocked_library_names']
             prints(
                 ngettext(
                     '{} is currently not allowed to access the library named: {}',
                     '{} is currently not allowed to access the libraries named: {}',
-                    len(libs)).format(username, ', '.join(libs)))
+                    len(libs),
+                ).format(username, ', '.join(libs))
+            )
         if r['library_restrictions']:
-            prints(
-                _('{} has the following additional per-library restrictions:')
-                .format(username))
+            prints(_('{} has the following additional per-library restrictions:').format(username))
             for k, v in r['library_restrictions'].items():
                 prints(k + ':', v)
         else:
@@ -373,7 +409,9 @@ def manage_users_cli(path=None, args=()):
                 _('Allow access to only specified libraries'),
                 _('Allow access to all, except specified libraries'),
                 _('Change per-library restrictions'),
-                _('Cancel')])
+                _('Cancel'),
+            ]
+        )
         if c == 0:
             m.update_user_restrictions(username, {})
         elif c == 3:
@@ -384,7 +422,9 @@ def manage_users_cli(path=None, args=()):
                 prints(
                     _(
                         'Enter a search expression, access will be granted only to books matching this expression.'
-                        ' An empty expression will grant access to all books.'))
+                        ' An empty expression will grant access to all books.'
+                    )
+                )
                 plr = get_input(_('Search expression:'))
                 if plr:
                     r['library_restrictions'][library] = plr
@@ -399,8 +439,7 @@ def manage_users_cli(path=None, args=()):
             names = get_input(_('Enter a comma separated list of library names:'))
             names = list(filter(None, [x.strip() for x in names.split(',')]))
             w = 'allowed_library_names' if c == 1 else 'blocked_library_names'
-            t = _('Allowing access only to libraries: {}') if c == 1 else _(
-                'Allowing access to all libraries, except: {}')
+            t = _('Allowing access only to libraries: {}') if c == 1 else _('Allowing access to all libraries, except: {}')
             prints(t.format(', '.join(names)))
             m.update_user_restrictions(username, {w: names})
 
@@ -413,10 +452,10 @@ def manage_users_cli(path=None, args=()):
                 _('Change read/write permission for {}').format(username),
                 _('Change the libraries {} is allowed to access').format(username),
                 _('Change if {} is allowed to set their own password').format(username),
-                _('Cancel'), ],
-            banner='\n' + _('{0} has {1} access').format(
-                username,
-                _('readonly') if m.is_readonly(username) else _('read-write')))
+                _('Cancel'),
+            ],
+            banner='\n' + _('{0} has {1} access').format(username, _('readonly') if m.is_readonly(username) else _('read-write')),
+        )
         print()
         if c > 4:
             actions.append(toplevel)
@@ -431,16 +470,9 @@ def manage_users_cli(path=None, args=()):
         actions.append(lambda: edit_user(username=username))
 
     def toplevel():
-        {
-            0: add_user,
-            1: edit_user,
-            2: remove_user,
-            3: lambda: None}[choice(
-                choices=[
-                    _('Add a new user'),
-                    _('Edit an existing user'),
-                    _('Remove a user'),
-                    _('Cancel')])]()
+        {0: add_user, 1: edit_user, 2: remove_user, 3: lambda: None}[
+            choice(choices=[_('Add a new user'), _('Edit an existing user'), _('Remove a user'), _('Cancel')])
+        ]()
 
     actions = [toplevel]
     while actions:

@@ -16,8 +16,8 @@ class ElPais(BasicNewsRecipe):
     __author__ = 'Kovid Goyal & Lorenzo Vigentini & Jordi Balcells & Alvaro Beiro'
     description = 'Main daily newspaper from Spain'
 
-    title = u'El Pa\xeds'
-    publisher = u'Ediciones El Pa\xeds SL'
+    title = 'El Pa\xeds'
+    publisher = 'Ediciones El Pa\xeds SL'
     category = 'News, politics, culture, economy, general interest'
     publication_type = 'newspaper'
 
@@ -31,7 +31,7 @@ class ElPais(BasicNewsRecipe):
         'days': {
             'short': 'Oldest article to download from this news source. In days ',
             'long': 'For example, 0.5, gives you articles from the past 12 hours',
-            'default': str(oldest_article)
+            'default': str(oldest_article),
         }
     }
 
@@ -55,38 +55,46 @@ div.a_md_a {text-align: center; text-transform: uppercase; font-size: .8rem;}
 '''
 
     keep_only_tags = [
-        dict(attrs={'class': [
-                              'article_header',
-                              'article_body',
-                              'a_t',
-                              'a_st',
-                              'articulo-titulares',
-                              'articulo-apertura',
-                              'articulo__contenedor'
-                              'a_e_m',
-                              'a_md_a',
-                             ]}),
-        dict(name='div', attrs={'class': 'a_c',}),
-
+        dict(
+            attrs={
+                'class': [
+                    'article_header',
+                    'article_body',
+                    'a_t',
+                    'a_st',
+                    'articulo-titulares',
+                    'articulo-apertura',
+                    'articulo__contenedora_e_m',
+                    'a_md_a',
+                ]
+            }
+        ),
+        dict(
+            name='div',
+            attrs={
+                'class': 'a_c',
+            },
+        ),
     ]
 
     remove_tags = [
         dict(
-            attrs={'class': [
-                              'sumario__interior',
-                              'articulo-trust',
-                              'compartir',
-                              'articulo-tags',
-                              'outbrain',
-                              'more_info',
-                              'articulo-apoyos',
-                              'top10',
-                              'a_ei',
-                              'w-cta',
-                              'ph-v_b',
-                             ]
-                    },
-            ),
+            attrs={
+                'class': [
+                    'sumario__interior',
+                    'articulo-trust',
+                    'compartir',
+                    'articulo-tags',
+                    'outbrain',
+                    'more_info',
+                    'articulo-apoyos',
+                    'top10',
+                    'a_ei',
+                    'w-cta',
+                    'ph-v_b',
+                ]
+            },
+        ),
         dict(id='cta_id'),
         dict(name='svg'),
     ]
@@ -94,27 +102,34 @@ div.a_md_a {text-align: center; text-transform: uppercase; font-size: .8rem;}
     remove_attributes = ['width', 'height']
 
     feeds = [
-        (u'Espa\xf1a', u'https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/section/espana/portada'),
-        (u'Internacional',
-         u'https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/section/internacional/portada'),
-        (u'Economía', u'https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/section/economia/portada'),
-        (u'Opinión', u'http://ep00.epimg.net/rss/elpais/opinion.xml'),
-        (u'Ciencia', u'https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/section/ciencia/portada'),
-        (u'Tecnología',
-         u'https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/section/tecnologia/portada'),
-        (u'Cultura', u'https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/section/cultura/portada'),
-        (u'Estilo', u'https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/section/estilo/portada'),
-        (u'Deportes', u'https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/section/deportes/portada'),
-        (u'Televisión', u'https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/section/television/portada'),
-        (u'Sociedad', u'https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/section/sociedad/portada'),
-        (u'Blogs', u'http://ep01.epimg.net/rss/elpais/blogs.xml'),
+        ('Espa\xf1a', 'https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/section/espana/portada'),
+        ('Internacional', 'https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/section/internacional/portada'),
+        ('Economía', 'https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/section/economia/portada'),
+        ('Opinión', 'http://ep00.epimg.net/rss/elpais/opinion.xml'),
+        ('Ciencia', 'https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/section/ciencia/portada'),
+        ('Tecnología', 'https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/section/tecnologia/portada'),
+        ('Cultura', 'https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/section/cultura/portada'),
+        ('Estilo', 'https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/section/estilo/portada'),
+        ('Deportes', 'https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/section/deportes/portada'),
+        ('Televisión', 'https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/section/television/portada'),
+        ('Sociedad', 'https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/section/sociedad/portada'),
+        ('Blogs', 'http://ep01.epimg.net/rss/elpais/blogs.xml'),
     ]
 
     def get_cover_url(self):
         from datetime import date
-        cover = ('https://srv00.epimg.net/pdf/elpais/snapshot/' +
-                 str(date.today().year) + '/' + date.today().strftime('%m') + '/elpais/' +
-                 str(date.today().year) + date.today().strftime('%m') + date.today().strftime('%d') + 'Big.jpg')
+
+        cover = (
+            'https://srv00.epimg.net/pdf/elpais/snapshot/'
+            + str(date.today().year)
+            + '/'
+            + date.today().strftime('%m')
+            + '/elpais/'
+            + str(date.today().year)
+            + date.today().strftime('%m')
+            + date.today().strftime('%d')
+            + 'Big.jpg'
+        )
         br = BasicNewsRecipe.get_browser(self)
         try:
             br.open(cover)

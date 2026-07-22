@@ -54,19 +54,14 @@ def parse_txt(ty):
     tag_map = {
         'text': lambda: [ty.get('value', '')],
         'scaps': lambda: [
-            f'<span style="text-transform: uppercase; font-size: 0.85em; letter-spacing: 0.05em;">{"".join(parse_txt(c))}</span>'
-            for c in children
+            f'<span style="text-transform: uppercase; font-size: 0.85em; letter-spacing: 0.05em;">{"".join(parse_txt(c))}</span>' for c in children
         ],
         'bold': lambda: [f'<b>{"".join(parse_txt(c))}</b>' for c in children],
         'drop_caps': lambda: [f'<b>{"".join(parse_txt(c))}</b>' for c in children],
         'italic': lambda: [f'<i>{"".join(parse_txt(c))}</i>' for c in children],
         'linebreak': lambda: ['<br>'],
-        'external_link': lambda: [
-            f'<a href="{href}">{"".join(parse_txt(c))}</a>' for c in children
-        ],
-        'internal_link': lambda: [
-            f'<a href="{href}">{"".join(parse_txt(c))}</a>' for c in children
-        ],
+        'external_link': lambda: [f'<a href="{href}">{"".join(parse_txt(c))}</a>' for c in children],
+        'internal_link': lambda: [f'<a href="{href}">{"".join(parse_txt(c))}</a>' for c in children],
         'ufinish': lambda: [text for c in children for text in parse_txt(c)],
         'subscript': lambda: [f'<sub>{"".join(parse_txt(c))}</sub>' for c in children],
         'superscript': lambda: [f'<sup>{"".join(parse_txt(c))}</sup>' for c in children],
@@ -225,9 +220,7 @@ def get_edition(issue_date=None):
         'variables': json.dumps(variables, separators=(',', ':')),
         'query': graphql,
     }
-    url = 'https://cp2-graphql-gateway.p.aws.economist.com/graphql?' + urlencode(
-        query, safe='()!', quote_via=quote
-    )
+    url = 'https://cp2-graphql-gateway.p.aws.economist.com/graphql?' + urlencode(query, safe='()!', quote_via=quote)
     return safe_dict(json.loads(get_content(url)), 'data', 'edition')
 
 
@@ -238,10 +231,7 @@ class Economist(BasicNewsRecipe):
     masthead_url = 'https://www.livemint.com/lm-img/dev/economist-logo-oneline.png'
 
     __author__ = 'Kovid Goyal, unkn0wn'
-    description = (
-        'Global news and current affairs from a European'
-        ' perspective. Best downloaded away from Friday to avoid being blocked.'
-    )
+    description = 'Global news and current affairs from a European perspective. Best downloaded away from Friday to avoid being blocked.'
     extra_css = '''
         em { color:#202020; }
         img {display:block; margin:0 auto;}
@@ -271,6 +261,7 @@ class Economist(BasicNewsRecipe):
 
     def get_browser(self, *args, **kwargs):
         from calibre.utils.random_ua import common_english_word_ua
+
         self.last_used_ua = kwargs['user_agent'] = kwargs.get('user_agent', common_english_word_ua())
         br = BasicNewsRecipe.get_browser(self, *args, **kwargs)
         return br
@@ -318,9 +309,7 @@ class Economist(BasicNewsRecipe):
 
     def economist_test_article(self):
         self.from_web = False
-        return [('Articles', [{'title': 'test',
-            'url': 'https://www.economist.com/china/2025/09/10/china-is-ditching-the-dollar-fast'
-        }])]
+        return [('Articles', [{'title': 'test', 'url': 'https://www.economist.com/china/2025/09/10/china-is-ditching-the-dollar-fast'}])]
 
     def parse_index(self):
         # return self.economist_test_article()
@@ -341,9 +330,7 @@ class Economist(BasicNewsRecipe):
         if not ans:
             self.log('Falling back to GraphQL for the edition index')
             try:
-                ans = self.economist_parse_graphql_index(
-                    self.economist_get_edition(edition_date)
-                )
+                ans = self.economist_parse_graphql_index(self.economist_get_edition(edition_date))
             except Exception as e:
                 self.log('Failed to get index from GraphQL with error:', e)
                 ans = []
@@ -355,6 +342,7 @@ class Economist(BasicNewsRecipe):
         if script_tag is None:
             self.log('Failed to get index with UA:', self.last_used_ua)
             from calibre.utils.random_ua import random_common_chrome_user_agent
+
             user_agent = random_common_chrome_user_agent()
             self.log('Retrying with UA:', user_agent)
             time.sleep(1)
@@ -366,21 +354,16 @@ class Economist(BasicNewsRecipe):
         data = json.loads(script_tag.string)
         # open('/t/raw.json', 'w').write(json.dumps(data, indent=2, sort_keys=True))
 
-        self.description = safe_dict(
-            data, 'props', 'pageProps', 'content', 'headline'
-        )
-        self.timefmt = (
-            ' ['
-            + safe_dict(data, 'props', 'pageProps', 'content', 'formattedIssueDate')
-            + ']'
-        )
+        self.description = safe_dict(data, 'props', 'pageProps', 'content', 'headline')
+        self.timefmt = ' [' + safe_dict(data, 'props', 'pageProps', 'content', 'formattedIssueDate') + ']'
         self.cover_url = (
             safe_dict(data, 'props', 'pageProps', 'content', 'cover', 'url')
             .replace(
                 'economist.com/',
                 'economist.com/cdn-cgi/image/width=960,quality=80,format=auto/',
             )
-            .replace('SQ_', '').replace('_AS', '_AP')
+            .replace('SQ_', '')
+            .replace('_AS', '_AP')
         )
         self.log('Got cover:', self.cover_url)
 
@@ -426,7 +409,8 @@ class Economist(BasicNewsRecipe):
         cover_url = safe_dict(edition, 'cover', 'url')
         if cover_url:
             self.cover_url = (
-                cover_url.replace(
+                cover_url
+                .replace(
                     'economist.com/',
                     'economist.com/cdn-cgi/image/width=960,quality=80,format=auto/',
                 )
@@ -471,9 +455,7 @@ class Economist(BasicNewsRecipe):
         if w and isinstance(w, str):
             width = w
         for img in soup.findAll('img', src=True):
-            qua = (
-                'economist.com/cdn-cgi/image/width=' + width + ',quality=80,format=auto/'
-            )
+            qua = 'economist.com/cdn-cgi/image/width=' + width + ',quality=80,format=auto/'
             img['src'] = img['src'].replace('economist.com/', qua)
         return soup
 
@@ -481,9 +463,7 @@ class Economist(BasicNewsRecipe):
         # open('/t/raw.html', 'wb').write(raw.encode('utf-8'))
         if self.from_web:
             if '/interactive/' in url:
-                return ('<html><body><article><h1>Article not available.</h1><em>'
-                        'This article is supposed to be read in a browser.'
-                        '</em></article></body></html>')
+                return '<html><body><article><h1>Article not available.</h1><em>This article is supposed to be read in a browser.</em></article></body></html>'
             root_ = parse(raw)
             script = root_.xpath('//script[@id="__NEXT_DATA__"]')
             html = load_article_from_json(script[0].text)
@@ -491,9 +471,7 @@ class Economist(BasicNewsRecipe):
             html = load_article_from_json(raw)
         root = parse(html)
 
-        for x in root.xpath(
-            '//*[name()="script" or name()="style" or name()="source" or name()="meta"]'
-        ):
+        for x in root.xpath('//*[name()="script" or name()="style" or name()="source" or name()="meta"]'):
             x.getparent().remove(x)
         # the economist uses <small> for small caps with a custom font
         for init in root.xpath('//span[@data-caps="initial"]'):
@@ -522,9 +500,7 @@ class Economist(BasicNewsRecipe):
             'variables': '{{"ref":"{}"}}'.format(url),
             'query': 'query ArticleDeeplinkQuery($ref: String!, $includeRelatedArticles: Boolean = true ) { findArticleByUrl(url: $ref) { __typename ...ArticleDataFragment } }  fragment ContentIdentityFragment on ContentIdentity { articleType forceAppWebView leadMediaType }  fragment NarrationFragment on Narration { album bitrate duration filename id provider url isAiGenerated fileHash }  fragment ImageTeaserFragment on ImageComponent { altText height imageType source url width }  fragment PodcastAudioFragment on PodcastEpisode { id audio { url durationInSeconds } }  fragment ArticleTeaserFragment on Article { id tegId url rubric headline flyTitle brand byline dateFirstPublished dateline dateModified datePublished dateRevised estimatedReadTime wordCount printHeadline contentIdentity { __typename ...ContentIdentityFragment } section { tegId name } teaserImage { __typename type ...ImageTeaserFragment } leadComponent { __typename type ...ImageTeaserFragment } narration(selectionMethod: PREFER_ACTOR_NARRATION) { __typename ...NarrationFragment } podcast { __typename ...PodcastAudioFragment } }  fragment AnnotatedTextFragment on AnnotatedText { text textJson annotations { type length index attributes { name value } } }  fragment ImageComponentFragment on ImageComponent { altText caption { __typename ...AnnotatedTextFragment } credit height imageType mode source url width }  fragment BlockQuoteComponentFragment on BlockQuoteComponent { text textJson annotations { type length index attributes { name value } } }  fragment BookInfoComponentFragment on BookInfoComponent { text textJson annotations { type length index attributes { name value } } }  fragment ParagraphComponentFragment on ParagraphComponent { text textJson annotations { type length index attributes { name value } } }  fragment PullQuoteComponentFragment on PullQuoteComponent { text textJson annotations { type length index attributes { name value } } }  fragment CrossheadComponentFragment on CrossheadComponent { text }  fragment OrderedListComponentFragment on OrderedListComponent { items { __typename ...AnnotatedTextFragment } }  fragment UnorderedListComponentFragment on UnorderedListComponent { items { __typename ...AnnotatedTextFragment } }  fragment VideoComponentFragment on VideoComponent { url title thumbnailImage }  fragment InfoboxComponentFragment on InfoboxComponent { components { __typename type ...BlockQuoteComponentFragment ...BookInfoComponentFragment ...ParagraphComponentFragment ...PullQuoteComponentFragment ...CrossheadComponentFragment ...OrderedListComponentFragment ...UnorderedListComponentFragment ...VideoComponentFragment } }  fragment InfographicComponentFragment on InfographicComponent { url title width fallback { __typename ...ImageComponentFragment } altText height width }  fragment ArticleDataFragment on Article { id url brand byline rubric headline layout { headerStyle } contentIdentity { __typename ...ContentIdentityFragment } dateline dateFirstPublished dateModified datePublished dateRevised estimatedReadTime narration(selectionMethod: PREFER_ACTOR_NARRATION) { __typename ...NarrationFragment } printFlyTitle printHeadline printRubric flyTitle wordCount section { tegId name articles(pagingInfo: { pagingType: OFFSET pageSize: 6 pageNumber: 1 } ) @include(if: $includeRelatedArticles) { edges { node { __typename ...ArticleTeaserFragment } } } } teaserImage { __typename type ...ImageComponentFragment } tegId leadComponent { __typename type ...ImageComponentFragment } body { __typename type ...BlockQuoteComponentFragment ...BookInfoComponentFragment ...ParagraphComponentFragment ...PullQuoteComponentFragment ...CrossheadComponentFragment ...OrderedListComponentFragment ...UnorderedListComponentFragment ...InfoboxComponentFragment ...ImageComponentFragment ...VideoComponentFragment ...InfographicComponentFragment } footer { __typename type ...ParagraphComponentFragment } tags { name } ads { adData } podcast { __typename ...PodcastAudioFragment } }',  # noqa: E501
         }
-        deep_url = 'https://cp2-graphql-gateway.p.aws.economist.com/graphql?' + urlencode(
-            query, safe='()!', quote_via=quote
-        )
+        deep_url = 'https://cp2-graphql-gateway.p.aws.economist.com/graphql?' + urlencode(query, safe='()!', quote_via=quote)
         raw = get_content(deep_url)
         return raw
 

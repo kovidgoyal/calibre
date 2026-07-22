@@ -1,6 +1,4 @@
-__license__ = 'GPL 3'
-__copyright__ = '2009, John Schember <john@nachtimwald.com>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2009, John Schember <john@nachtimwald.com>
 
 import os
 
@@ -10,7 +8,6 @@ from calibre.utils.localization import _
 
 
 class PDBOutput(OutputFormatPlugin):
-
     name = 'PDB Output'
     author = 'John Schember'
     file_type = 'pdb'
@@ -18,18 +15,26 @@ class PDBOutput(OutputFormatPlugin):
     ui_data = {'formats': ALL_FORMAT_WRITERS}
 
     options = {
-        OptionRecommendation(name='format', recommended_value='doc',
+        OptionRecommendation(
+            name='format',
+            recommended_value='doc',
             level=OptionRecommendation.LOW,
-            short_switch='f', choices=ALL_FORMAT_WRITERS,
-            help=(_('Format to use inside the PDB container. Choices are: ') + ', '.join(ALL_FORMAT_WRITERS))),
-        OptionRecommendation(name='pdb_output_encoding', recommended_value='cp1252',
+            short_switch='f',
+            choices=ALL_FORMAT_WRITERS,
+            help=(_('Format to use inside the PDB container. Choices are: ') + ', '.join(ALL_FORMAT_WRITERS)),
+        ),
+        OptionRecommendation(
+            name='pdb_output_encoding',
+            recommended_value='cp1252',
             level=OptionRecommendation.LOW,
-            help=_('Specify the character encoding of the output document. '
-            'The default is cp1252. Note: This option is not honored by all '
-            'formats.')),
-        OptionRecommendation(name='inline_toc',
-            recommended_value=False, level=OptionRecommendation.LOW,
-            help=_('Add Table of Contents to beginning of the book.')),
+            help=_('Specify the character encoding of the output document. The default is cp1252. Note: This option is not honored by all formats.'),
+        ),
+        OptionRecommendation(
+            name='inline_toc',
+            recommended_value=False,
+            level=OptionRecommendation.LOW,
+            help=_('Add Table of Contents to beginning of the book.'),
+        ),
     }
 
     def convert(self, oeb_book, output, input_plugin, opts, log):

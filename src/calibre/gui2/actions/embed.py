@@ -1,8 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__ = 'GPL v3'
-__copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
+# License: GPLv3 Copyright: 2014, Kovid Goyal <kovid at kovidgoyal.net>
 
 from functools import partial
 
@@ -15,7 +12,6 @@ from calibre.utils.localization import _, ngettext
 
 
 class EmbedAction(InterfaceActionWithLibraryDrop):
-
     name = 'Embed Metadata'
     action_spec = (_('Embed metadata'), 'modified.png', _('Embed metadata into book files'), ())
     action_type = 'current'
@@ -32,9 +28,11 @@ class EmbedAction(InterfaceActionWithLibraryDrop):
         self.qaction.triggered.connect(self.embed)
         self.embed_menu = self.qaction.menu()
         m = partial(self.create_menu_action, self.embed_menu)
-        m('embed-specific',
-                _('Embed metadata into files of a specific format from selected books...'),
-                triggered=self.embed_selected_formats)
+        m(
+            'embed-specific',
+            _('Embed metadata into files of a specific format from selected books...'),
+            triggered=self.embed_selected_formats,
+        )
         self.qaction.setMenu(self.embed_menu)
         self.job_data = None
         self.pd_timer = t = QTimer()
@@ -52,8 +50,7 @@ class EmbedAction(InterfaceActionWithLibraryDrop):
         ids = rb._get_selected_ids(err_title=_('Cannot embed'))
         if not ids:
             return
-        fmts = rb._get_selected_formats(
-            _('Choose formats to be updated'), ids)
+        fmts = rb._get_selected_formats(_('Choose formats to be updated'), ids)
         if not fmts:
             return
         self.do_embed(ids, fmts)
@@ -72,7 +69,7 @@ class EmbedAction(InterfaceActionWithLibraryDrop):
             return
         try:
             i, book_ids, pd, only_fmts, errors = job_data
-        except (TypeError, AttributeError):
+        except TypeError, AttributeError:
             return
         if i >= len(book_ids) or pd.wasCanceled():
             pd.setValue(pd.maximum())
@@ -81,15 +78,25 @@ class EmbedAction(InterfaceActionWithLibraryDrop):
             self.job_data = None
             self.gui.library_view.model().refresh_ids(book_ids)
             if i > 0:
-                self.gui.status_bar.show_message(ngettext(
-                    'Embedded metadata in one book', 'Embedded metadata in {} books', i).format(i), 5000)
+                self.gui.status_bar.show_message(ngettext('Embedded metadata in one book', 'Embedded metadata in {} books', i).format(i), 5000)
             if errors:
-                det_msg = '\n\n'.join([_('The {0} format of {1}:\n\n{2}\n').format(
-                    (fmt or '').upper(), force_unicode(mi.title), force_unicode(tb)) for mi, fmt, tb in errors])
+                det_msg = '\n\n'.join([
+                    _('The {0} format of {1}:\n\n{2}\n').format((fmt or '').upper(), force_unicode(mi.title), force_unicode(tb)) for mi, fmt, tb in errors
+                ])
                 from calibre.gui2.dialogs.message_box import MessageBox
-                title, msg = _('Failed for some files'), _(
-                    'Failed to embed metadata into some book files. Click "Show details" for details.')
-                d = MessageBox(MessageBox.WARNING, _('WARNING:')+ ' ' + title, msg, det_msg, parent=self.gui, show_copy_button=True)
+
+                title, msg = (
+                    _('Failed for some files'),
+                    _('Failed to embed metadata into some book files. Click "Show details" for details.'),
+                )
+                d = MessageBox(
+                    MessageBox.WARNING,
+                    _('WARNING:') + ' ' + title,
+                    msg,
+                    det_msg,
+                    parent=self.gui,
+                    show_copy_button=True,
+                )
                 tc = d.toggle_checkbox
                 tc.setVisible(True), tc.setText(_('Show the &failed books in the main book list'))
                 tc.setChecked(gprefs.get('show-embed-failed-books', False))
@@ -109,10 +116,12 @@ class EmbedAction(InterfaceActionWithLibraryDrop):
         def report_error(mi, fmt, tb):
             mi.book_id = book_id
             errors.append((mi, fmt, tb))
+
         try:
             db.embed_metadata((book_id,), only_fmts=only_fmts, report_error=report_error)
         except Exception:
             import traceback
+
             mi = db.get_metadata(book_id)
             report_error(mi, '', traceback.format_exc())
         self.job_data = (i + 1, book_ids, pd, only_fmts, errors)

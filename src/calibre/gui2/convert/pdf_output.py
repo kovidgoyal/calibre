@@ -1,7 +1,4 @@
-__license__ = 'GPL 3'
-__copyright__ = '2009, John Schember <john@nachtimwald.com>'
-__docformat__ = 'restructuredtext en'
-
+# License: GPLv3 Copyright: 2009, John Schember <john@nachtimwald.com>
 
 from qt.core import QCheckBox, QDoubleSpinBox, QFormLayout, QHBoxLayout, QVBoxLayout
 
@@ -15,9 +12,8 @@ orientation_model = None
 
 
 class PluginWidget(Widget, Ui_Form):
-
     TITLE = _('PDF output')
-    HELP = _('Options specific to')+' PDF '+_('output')
+    HELP = _('Options specific to') + ' PDF ' + _('output')
     COMMIT_NAME = 'pdf_output'
     ICON = 'mimetypes/pdf.png'
 
@@ -25,8 +21,7 @@ class PluginWidget(Widget, Ui_Form):
         Widget.__init__(self, parent, OPTIONS['output']['pdf'])
         self.db, self.book_id = db, book_id
         try:
-            self.hf_label.setText(self.hf_label.text() % localize_user_manual_link(
-                'https://manual.calibre-ebook.com/conversion.html#converting-to-pdf'))
+            self.hf_label.setText(self.hf_label.text() % localize_user_manual_link('https://manual.calibre-ebook.com/conversion.html#converting-to-pdf'))
         except TypeError:
             pass  # link already localized
 

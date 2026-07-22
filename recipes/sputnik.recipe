@@ -21,8 +21,6 @@ class Ria_eng(BasicNewsRecipe):
     encoding = 'utf-8'
     auto_cleanup = True
 
-    conversion_options = {
-        'comment': description, 'tags': category, 'language': language
-    }
+    conversion_options = {'comment': description, 'tags': category, 'language': language}
 
-    feeds = [(u'News', u'https://sputnikglobe.com/export/rss2/archive/index.xml')]
+    feeds = [('News', 'https://sputnikglobe.com/export/rss2/archive/index.xml')]

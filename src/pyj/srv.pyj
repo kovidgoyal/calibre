@@ -6,12 +6,22 @@ from __python__ import hash_literals
 import initialize  # noqa: unused-import
 from ajax import ajax, console_print, set_default_timeout, absolute_path
 from autoreload import create_auto_reload_watcher
+from book_list.comments_editor import main as prevent_comments_editor_main_from_being_pruned
 from book_list.globals import main_js
 from book_list.main import main
+from read_book.footnotes import main as prevent_footnotes_main_from_being_pruned
 from read_book.globals import runtime
+from read_book.iframe import main as prevent_iframe_main_from_being_pruned
 
 autoreload_enabled = False
 AUTO_UPDATE_THRESHOLD = 1000  # millisecs
+
+
+@no_prune
+def prevent_pruning():
+    prevent_iframe_main_from_being_pruned()
+    prevent_comments_editor_main_from_being_pruned()
+    prevent_footnotes_main_from_being_pruned()
 
 
 def worker_main(entry_point):
@@ -37,15 +47,15 @@ def iframe_main(script):
 def toplevel_main():
     script = document.currentScript or document.scripts[0]
     main_js(script.textContent)
-    script.parentNode.removeChild(script) # save some memory
+    script.parentNode.removeChild(script)  # save some memory
     script = undefined
     if window.navigator.serviceWorker:
         window.navigator.serviceWorker.register(absolute_path('service_worker.js')).catch(
-            def(err):
+            def (err):
                 console.error('Service worker registration failed:', err)
         )
 
-    ajax('ajax-setup', def(end_type, xhr, event):
+    ajax('ajax-setup', def (end_type, xhr, event):
         nonlocal autoreload_enabled, print
         if end_type is 'load':
             try:

@@ -1,8 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__ = 'GPL v3'
-__copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
+# License: GPLv3 Copyright: 2013, Kovid Goyal <kovid at kovidgoyal.net>
 
 from tinycss.color3 import parse_color_string
 
@@ -10,11 +7,12 @@ from tinycss.color3 import parse_color_string
 def int_or_zero(raw):
     try:
         return int(raw)
-    except (ValueError, TypeError, AttributeError):
+    except ValueError, TypeError, AttributeError:
         return 0
 
 
 # convert_color() {{{
+
 
 def convert_color(value):
     if not value:
@@ -33,7 +31,6 @@ def test_convert_color(return_tests=False):
     import unittest
 
     class TestColors(unittest.TestCase):
-
         def test_color_conversion(self):
             ae = self.assertEqual
             cc = convert_color
@@ -50,8 +47,11 @@ def test_convert_color(return_tests=False):
             ae('12345D', cc('#12345d'))
             ae('FFFFFF', cc('rgb(255, 255, 255)'))
             ae('FF0000', cc('rgba(255, 0, 0, 23)'))
+
     tests = unittest.defaultTestLoader.loadTestsFromTestCase(TestColors)
     if return_tests:
         return tests
     unittest.TextTestRunner(verbosity=4).run(tests)
+
+
 # }}}

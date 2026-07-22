@@ -13,6 +13,7 @@ from read_book.settings import (
 block_names = dict.fromkeys(v"['p', 'div', 'li', 'td', 'h1', 'h2', 'h2', 'h3', 'h4', 'h5', 'h6', 'body']", True).as_object()
 block_display_styles = dict.fromkeys(v"['block', 'list-item', 'table-cell', 'table']", True).as_object()
 
+
 def elem_roles(elem):
     return {k.toLowerCase(): True for k in (elem.getAttribute('role') or '').split(' ')}
 
@@ -189,7 +190,6 @@ def show_footnote(target, known_anchors):
 
 
 class PopupIframeBoss:
-
     def __init__(self):
         handlers = {
             'initialize': self.initialize,
@@ -205,7 +205,7 @@ class PopupIframeBoss:
     def initialize(self, data):
         window.addEventListener('error', self.on_error)
         window.addEventListener('keydown', self.on_keydown)
-        document.addEventListener('contextmenu', def(ev):
+        document.addEventListener('contextmenu', def (ev):
             ev.preventDefault()
         )
 
@@ -236,11 +236,11 @@ class PopupIframeBoss:
         spine = self.book.manifest.spine
         index = spine.indexOf(data.name)
         set_current_spine_item({
-            'name':data.name,
-            'is_first':index is 0,
-            'is_last':index is spine.length - 1,
+            'name': data.name,
+            'is_first': index is 0,
+            'is_last': index is spine.length - 1,
             'index': index,
-            'initial_position':data.initial_position
+            'initial_position': data.initial_position
         })
         update_settings(data.settings)
         for name in self.blob_url_map:
@@ -289,7 +289,7 @@ class PopupIframeBoss:
         known_anchors = {}
         ltm = self.book.manifest.link_to_map?[self.name]
         if ltm:
-            known_anchors = {k:True for k in Object.keys(ltm)}
+            known_anchors = {k: True for k in Object.keys(ltm)}
         show_footnote(self.frag, known_anchors)
 
     def content_loaded(self):
@@ -306,5 +306,6 @@ class PopupIframeBoss:
         self.comm.send_message('content_loaded', height=document.documentElement.scrollHeight + 25)
 
 
+@no_prune
 def main():
     main.boss = PopupIframeBoss()

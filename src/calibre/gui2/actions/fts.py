@@ -1,16 +1,18 @@
 #!/usr/bin/env python
 # License: GPL v3 Copyright: 2020, Kovid Goyal <kovid at kovidgoyal.net>
 
-
 from calibre.gui2.actions import InterfaceAction
 from calibre.utils.localization import _
 
 
 class FullTextSearchAction(InterfaceAction):
-
     name = 'Full Text Search'
-    action_spec = (_('Search full text'), 'fts.png',
-                   _('Search the full text of all books in the calibre library'), ('Ctrl+/', 'Ctrl+Alt+F'))
+    action_spec = (
+        _('Search full text'),
+        'fts.png',
+        _('Search the full text of all books in the calibre library'),
+        ('Ctrl+/', 'Ctrl+Alt+F'),
+    )
     dont_add_to = frozenset(('context-menu-device',))
     action_type = 'current'
 
@@ -22,6 +24,7 @@ class FullTextSearchAction(InterfaceAction):
     def dialog(self):
         if self._dialog is None:
             from calibre.gui2.fts.dialog import FTSDialog
+
             self._dialog = FTSDialog(self.gui)
         return self._dialog
 

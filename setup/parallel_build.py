@@ -76,8 +76,7 @@ def parallel_build_silent(jobs):
 def parallel_check_output(jobs, log):
     p = Pool(cpu_count)
     with closing(p):
-        for ok, stdout, stderr in p.imap(
-                partial(run_worker, decorate=False), ((j, '') for j in jobs)):
+        for ok, stdout, stderr in p.imap(partial(run_worker, decorate=False), ((j, '') for j in jobs)):
             if not ok:
                 log(stdout)
                 if stderr:

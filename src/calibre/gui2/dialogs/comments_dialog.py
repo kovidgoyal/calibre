@@ -1,9 +1,5 @@
 #!/usr/bin/env python
-
-
-__copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
-__docformat__ = 'restructuredtext en'
-__license__   = 'GPL v3'
+# License: GPLv3 Copyright: 2008, Kovid Goyal kovid@kovidgoyal.net
 
 from qt.core import QDialog, QDialogButtonBox, QHBoxLayout, QLabel, QPlainTextEdit, QSize, Qt, QVBoxLayout, pyqtSignal
 
@@ -15,7 +11,6 @@ from calibre.utils.localization import _
 
 
 class CommentsDialog(QDialog):
-
     def __init__(self, parent, text, column_name=None):
         QDialog.__init__(self, parent)
         self.setObjectName('CommentsDialog')
@@ -29,7 +24,7 @@ class CommentsDialog(QDialog):
         l.addWidget(bb)
         # Remove help icon on title bar
         icon = self.windowIcon()
-        self.setWindowFlags(self.windowFlags()&(~Qt.WindowType.WindowContextHelpButtonHint))
+        self.setWindowFlags(self.windowFlags() & (~Qt.WindowType.WindowContextHelpButtonHint))
         self.setWindowIcon(icon)
 
         self.textbox.html = comments_to_html(text) if text else ''
@@ -68,7 +63,6 @@ class PlainTextEdit(QPlainTextEdit):
 
 
 class PlainTextDialog(Dialog):
-
     def __init__(self, parent, text, column_name=None):
         title = _('Edit "{0}"').format(column_name) if column_name else _('Edit text')
         Dialog.__init__(self, title, 'edit-plain-text-dialog', parent=parent)

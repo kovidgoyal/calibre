@@ -3,10 +3,9 @@
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
-class Bugun (BasicNewsRecipe):
-
-    title = u'BUGÜN Gazetesi'
-    __author__ = u'thomass'
+class Bugun(BasicNewsRecipe):
+    title = 'BUGÜN Gazetesi'
+    __author__ = 'thomass'
     oldest_article = 2
     max_articles_per_feed = 100
     use_embedded_content = False
@@ -21,33 +20,31 @@ class Bugun (BasicNewsRecipe):
     # introduction{} .story-feature{display: block; padding: 0; border: 1px
     # solid; width: 40%; font-size: small} .story-feature h2{text-align:
     # center; text-transform: uppercase} '
-    conversion_options = {
-        'tags': category, 'language': language, 'publisher': publisher, 'linearize_tables': True
-    }
+    conversion_options = {'tags': category, 'language': language, 'publisher': publisher, 'linearize_tables': True}
     cover_img_url = 'http://www.bugun.com.tr/images/bugunLogo2011.png'
     masthead_url = 'http://www.bugun.com.tr/images/bugunLogo2011.png'
 
-    keep_only_tags = [dict(name='h1', attrs={'class': ['haberBaslik']}), dict(name='h2', attrs={'class': ['haberOzet']}), dict(
-        name='div', attrs={'class': ['haberGriDivvvv']}), dict(name='div', attrs={'id': ['haberTextDiv']}), ]
+    keep_only_tags = [
+        dict(name='h1', attrs={'class': ['haberBaslik']}),
+        dict(name='h2', attrs={'class': ['haberOzet']}),
+        dict(name='div', attrs={'class': ['haberGriDivvvv']}),
+        dict(name='div', attrs={'id': ['haberTextDiv']}),
+    ]
 
     remove_empty_feeds = True
 
     feeds = [
-        (u'Son Dakika', u'http://www.bugun.com.tr/haberler.xml'),
-        (u'Yazarlar', u'http://www.bugun.com.tr/rss/yazarlar.xml'),
-        (u'Gündem', u'http://www.bugun.com.tr/rss/gundem.xml'),
-        (u'Ekonomi', u'http://www.bugun.com.tr/rss/ekonomi.xml'),
-        (u'Spor', u'http://www.bugun.com.tr/rss/spor.xml'),
-        (u'Magazin', u'http://www.bugun.com.tr/rss/magazin.xml'),
-        (u'Teknoloji', u'http://www.bugun.com.tr/rss/teknoloji.xml'),
-        (u'Yaşam', u'http://www.bugun.com.tr/rss/yasam.xml'),
-        (u'Medya', u'http://www.bugun.com.tr/rss/medya.xml'),
-        (u'Dünya', u'http://www.bugun.com.tr/rss/dunya.xml'),
-        (u'Politika', u'http://www.bugun.com.tr/rss/politika.xml'),
-        (u'Sağlık', u'http://www.bugun.com.tr/rss/saglik.xml'),
-        (u'Tarifler', u'http://www.bugun.com.tr/rss/yemek-tarifi.xml'),
-
-
-
-
+        ('Son Dakika', 'http://www.bugun.com.tr/haberler.xml'),
+        ('Yazarlar', 'http://www.bugun.com.tr/rss/yazarlar.xml'),
+        ('Gündem', 'http://www.bugun.com.tr/rss/gundem.xml'),
+        ('Ekonomi', 'http://www.bugun.com.tr/rss/ekonomi.xml'),
+        ('Spor', 'http://www.bugun.com.tr/rss/spor.xml'),
+        ('Magazin', 'http://www.bugun.com.tr/rss/magazin.xml'),
+        ('Teknoloji', 'http://www.bugun.com.tr/rss/teknoloji.xml'),
+        ('Yaşam', 'http://www.bugun.com.tr/rss/yasam.xml'),
+        ('Medya', 'http://www.bugun.com.tr/rss/medya.xml'),
+        ('Dünya', 'http://www.bugun.com.tr/rss/dunya.xml'),
+        ('Politika', 'http://www.bugun.com.tr/rss/politika.xml'),
+        ('Sağlık', 'http://www.bugun.com.tr/rss/saglik.xml'),
+        ('Tarifler', 'http://www.bugun.com.tr/rss/yemek-tarifi.xml'),
     ]

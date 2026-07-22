@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2010, Kovid Goyal <kovid at kovidgoyal.net>
 
-
 import re
 import textwrap
 
@@ -19,7 +18,6 @@ from polyglot.builtins import as_unicode
 
 
 class EmailAccounts(QAbstractTableModel):  # {{{
-
     def __init__(self, accounts, subjects, aliases={}, tags={}):
         QAbstractTableModel.__init__(self)
         self.accounts = accounts
@@ -29,47 +27,70 @@ class EmailAccounts(QAbstractTableModel):  # {{{
         self.sorted_on = (0, True)
         self.account_order = list(self.accounts)
         self.do_sort()
-        self.headers  = [_('Email'), _('Formats'), _('Subject'),
-            _('Auto send'), _('Alias'), _('Auto send only tags')]
+        self.headers = [_('Email'), _('Formats'), _('Subject'), _('Auto send'), _('Alias'), _('Auto send only tags')]
         self.default_font = QFont()
         self.default_font.setBold(True)
-        self.default_font = (self.default_font)
-        self.tooltips =[None] + list(map(textwrap.fill,
-            [_('Formats to email. The first matching format will be sent.'),
-             _('Subject of the email to use when sending. When left blank '
-               'the title will be used for the subject. Also, the same '
-               'templates used for "Save to disk" such as {title} and '
-               '{author_sort} can be used here.'),
-             '<p>'+_('If checked, downloaded news will be automatically '
-                     'mailed to this email address '
-                     '(provided it is in one of the listed formats and has not been filtered by tags).'),
-             _('Friendly name to use for this email address'),
-             _('If specified, only news with one of these tags will be sent to'
-               ' this email address. All news downloads have their title as a'
-               ' tag, so you can use this to easily control which news downloads'
-               ' are sent to this email address.')
-             ]))
+        self.default_font = self.default_font
+        self.tooltips = [None] + list(
+            map(
+                textwrap.fill,
+                [
+                    _('Formats to email. The first matching format will be sent.'),
+                    _(
+                        'Subject of the email to use when sending. When left blank '
+                        'the title will be used for the subject. Also, the same '
+                        'templates used for "Save to disk" such as {title} and '
+                        '{author_sort} can be used here.'
+                    ),
+                    '<p>'
+                    + _(
+                        'If checked, downloaded news will be automatically '
+                        'mailed to this email address '
+                        '(provided it is in one of the listed formats and has not been filtered by tags).'
+                    ),
+                    _('Friendly name to use for this email address'),
+                    _(
+                        'If specified, only news with one of these tags will be sent to'
+                        ' this email address. All news downloads have their title as a'
+                        ' tag, so you can use this to easily control which news downloads'
+                        ' are sent to this email address.'
+                    ),
+                ],
+            )
+        )
 
     def do_sort(self):
         col = self.sorted_on[0]
         if col == 0:
+
             def key(account_key):
                 return numeric_sort_key(account_key)
+
         elif col == 1:
+
             def key(account_key):
                 return numeric_sort_key(self.accounts[account_key][0] or '')
+
         elif col == 2:
+
             def key(account_key):
                 return numeric_sort_key(self.subjects.get(account_key) or '')
+
         elif col == 3:
+
             def key(account_key):
                 return numeric_sort_key(as_unicode(self.accounts[account_key][0]) or '')
+
         elif col == 4:
+
             def key(account_key):
                 return numeric_sort_key(self.aliases.get(account_key) or '')
+
         elif col == 5:
+
             def key(account_key):
                 return numeric_sort_key(self.tags.get(account_key) or '')
+
         self.account_order.sort(key=key, reverse=not self.sorted_on[1])
 
     def sort(self, column, order=Qt.SortOrder.AscendingOrder):
@@ -106,26 +127,26 @@ class EmailAccounts(QAbstractTableModel):  # {{{
             return self.tooltips[col]
         if role in [Qt.ItemDataRole.DisplayRole, Qt.ItemDataRole.EditRole]:
             if col == 0:
-                return (account)
+                return account
             if col == 1:
                 return ', '.join(x.strip() for x in (self.accounts[account][0] or '').split(','))
             if col == 2:
-                return (self.subjects.get(account, ''))
+                return self.subjects.get(account, '')
             if col == 4:
-                return (self.aliases.get(account, ''))
+                return self.aliases.get(account, '')
             if col == 5:
-                return (self.tags.get(account, ''))
+                return self.tags.get(account, '')
         if role == Qt.ItemDataRole.FontRole and self.accounts[account][2]:
             return self.default_font
         if role == Qt.ItemDataRole.CheckStateRole and col == 3:
-            return (Qt.CheckState.Checked if self.accounts[account][1] else Qt.CheckState.Unchecked)
+            return Qt.CheckState.Checked if self.accounts[account][1] else Qt.CheckState.Unchecked
         return None
 
     def flags(self, index):
         if index.column() == 3:
-            return QAbstractTableModel.flags(self, index)|Qt.ItemFlag.ItemIsUserCheckable
+            return QAbstractTableModel.flags(self, index) | Qt.ItemFlag.ItemIsUserCheckable
         else:
-            return QAbstractTableModel.flags(self, index)|Qt.ItemFlag.ItemIsEditable
+            return QAbstractTableModel.flags(self, index) | Qt.ItemFlag.ItemIsEditable
 
     def setData(self, index, value, role=...):
         if not index.isValid():
@@ -151,6 +172,7 @@ class EmailAccounts(QAbstractTableModel):  # {{{
         elif col == 0:
             na = as_unicode(value or '').strip()
             from email.utils import parseaddr
+
             addr = parseaddr(na)[-1]
             if not addr or '@' not in na:
                 return False
@@ -159,8 +181,7 @@ class EmailAccounts(QAbstractTableModel):  # {{{
             if '@kindle.com' in addr:
                 self.accounts[na][0] = 'EPUB, TPZ'
 
-        self.dataChanged.emit(
-                self.index(index.row(), 0), self.index(index.row(), 3))
+        self.dataChanged.emit(self.index(index.row(), 0), self.index(index.row(), 3))
         return True
 
     def make_default(self, index):
@@ -181,8 +202,7 @@ class EmailAccounts(QAbstractTableModel):  # {{{
             y = x + str(c)
         auto_send = len(self.accounts) < 1
         self.beginResetModel()
-        self.accounts[y] = ['MOBI, EPUB', auto_send,
-                                                len(self.account_order) == 0]
+        self.accounts[y] = ['MOBI, EPUB', auto_send, len(self.account_order) == 0]
         self.account_order = list(self.accounts)
         self.do_sort()
         self.endResetModel()
@@ -212,11 +232,11 @@ class EmailAccounts(QAbstractTableModel):  # {{{
         if index.isValid():
             self.remove(index.row())
 
+
 # }}}
 
 
 class ConfigWidget(ConfigWidgetBase, Ui_Form):
-
     supports_restoring_to_defaults = False
 
     def genesis(self, gui):
@@ -228,8 +248,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.send_email_widget.initialize(self.preferred_to_address)
         self.send_email_widget.changed_signal.connect(self.changed_signal.emit)
         opts = self.send_email_widget.smtp_opts
-        self._email_accounts = EmailAccounts(opts.accounts, opts.subjects,
-                opts.aliases, opts.tags)
+        self._email_accounts = EmailAccounts(opts.accounts, opts.subjects, opts.aliases, opts.tags)
         connect_lambda(self._email_accounts.dataChanged, self, lambda self: self.changed_signal.emit())
         self.email_view.setModel(self._email_accounts)
         self.email_view.sortByColumn(0, Qt.SortOrder.AscendingOrder)
@@ -289,10 +308,12 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
     def refresh_gui(self, gui):
         from calibre.gui2.email import gui_sendmail
+
         gui_sendmail.calculate_rate_limit()
 
 
 if __name__ == '__main__':
     from calibre.gui2 import Application
+
     app = Application([])
     test_widget('Sharing', 'Email')

@@ -5,17 +5,17 @@ from __python__ import bound_methods, hash_literals
 special_title = '__SPECIAL_TITLE__'
 slots = {}
 
+
 def ping(suffix):
     document.title = special_title + suffix
 
 
 def signal():
-    args = Array.from(arguments)
+    args = Array.from (arguments)
     to_python._queue_message({'type': 'signal', 'name': this, 'args': args})
 
 
 class ToPython:
-
     def __init__(self):
         self._messages = v'[]'
         self._last_ping_value = 0
@@ -25,7 +25,7 @@ class ToPython:
     def _ping(self):
         if self._ping_timer_id < 0:
             self._last_ping_value = 0 if self._last_ping_value else 1
-            self._ping_timer_id = setTimeout(def():
+            self._ping_timer_id = setTimeout(def ():
                 ping(self._last_ping_value)
                 self._ping_timer_id = -1
             , 0)
@@ -58,3 +58,4 @@ if window is window.top:
 
 def from_python(func):
     slots[func.name] = func
+    return func

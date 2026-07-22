@@ -1,5 +1,4 @@
-__license__   = 'GPL v3'
-__copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
+# License: GPLv3 Copyright: 2008, Kovid Goyal <kovid at kovidgoyal.net>
 
 import logging
 import os
@@ -22,7 +21,6 @@ from calibre.utils.localization import _
 
 
 class RenderWorker(QThread):
-
     def __init__(self, parent, lrf_stream, logger, opts):
         QThread.__init__(self, parent)
         self.stream, self.logger, self.opts = lrf_stream, logger, opts
@@ -53,7 +51,6 @@ class RenderWorker(QThread):
 
 
 class Config(QDialog, Ui_ViewerConfig):
-
     def __init__(self, parent, opts):
         QDialog.__init__(self, parent)
         Ui_ViewerConfig.__init__(self)
@@ -63,7 +60,6 @@ class Config(QDialog, Ui_ViewerConfig):
 
 
 class Main(MainWindow, Ui_MainWindow):
-
     def create_document(self):
         self.document = Document(self.logger, self.opts)
         self.document.chapter_rendered.connect(self.chapter_rendered)
@@ -91,7 +87,10 @@ class Main(MainWindow, Ui_MainWindow):
         self.search.search.connect(self.find)
 
         self.action_next_page.setShortcuts([QKeySequence.StandardKey.MoveToNextPage, QKeySequence(Qt.Key.Key_Space)])
-        self.action_previous_page.setShortcuts([QKeySequence.StandardKey.MoveToPreviousPage, QKeySequence(Qt.Key.Key_Backspace)])
+        self.action_previous_page.setShortcuts([
+            QKeySequence.StandardKey.MoveToPreviousPage,
+            QKeySequence(Qt.Key.Key_Backspace),
+        ])
         self.action_next_match.setShortcuts(QKeySequence.StandardKey.FindNext)
         self.addAction(self.action_next_match)
         self.action_next_page.triggered[(bool)].connect(self.next)
@@ -126,7 +125,7 @@ class Main(MainWindow, Ui_MainWindow):
 
         if stream is not None:
             self.file_name = os.path.basename(stream.name) if hasattr(stream, 'name') else ''
-            self.progress_label.setText('Parsing '+ self.file_name)
+            self.progress_label.setText('Parsing ' + self.file_name)
             self.renderer = RenderWorker(self, stream, self.logger, self.opts)
             self.renderer.finished.connect(self.parsed, type=Qt.ConnectionType.QueuedConnection)
             self.search.clear()
@@ -136,9 +135,14 @@ class Main(MainWindow, Ui_MainWindow):
             self.renderer = None
 
     def open_ebook(self, triggered):
-        files = choose_files(self, 'open ebook dialog', 'Choose ebook',
-                             [('Ebooks', ['lrf'])], all_files=False,
-                             select_only_single_file=True)
+        files = choose_files(
+            self,
+            'open ebook dialog',
+            'Choose ebook',
+            [('Ebooks', ['lrf'])],
+            all_files=False,
+            select_only_single_file=True,
+        )
         if files:
             file = files[0]
             self.set_ebook(open(file, 'rb'))
@@ -158,37 +162,37 @@ class Main(MainWindow, Ui_MainWindow):
         try:
             self.document.search(a0)
         except StopIteration:
-            error_dialog(self, _('No matches found'), _('<b>No matches</b> for the search phrase <i>%s</i> were found.')%(a0,)).exec()
+            error_dialog(self, _('No matches found'), _('<b>No matches</b> for the search phrase <i>%s</i> were found.') % (a0,)).exec()
         self.search.search_done(True)
 
     def parsed(self):
         renderer = self.renderer
         assert renderer is not None
         if not renderer.aborted and renderer.lrf is not None:
-            width, height = renderer.lrf.device_info.width, \
-                                            renderer.lrf.device_info.height
-            hdelta = self.tool_bar.height()+3
+            width, height = renderer.lrf.device_info.width, renderer.lrf.device_info.height
+            hdelta = self.tool_bar.height() + 3
 
             s = QScrollBar(self)
             scrollbar_adjust = min(s.width(), s.height())
-            self.graphics_view.resize_for(width+scrollbar_adjust, height+scrollbar_adjust)
+            self.graphics_view.resize_for(width + scrollbar_adjust, height + scrollbar_adjust)
 
             screen = self.screen()
             assert screen is not None
             screen_height = screen.availableSize().height() - 25
-            height = min(screen_height, height+hdelta+scrollbar_adjust)
-            self.resize(width+scrollbar_adjust, height)
+            height = min(screen_height, height + hdelta + scrollbar_adjust)
+            self.resize(width + scrollbar_adjust, height)
             self.setWindowTitle(renderer.lrf.metadata.title + ' - ' + __appname__)
             self.document_title = renderer.lrf.metadata.title
             if self.opts.profile:
                 import cProfile
+
                 lrf = renderer.lrf
-                cProfile.runctx('self.document.render(lrf)', globals(), locals(), lrf.metadata.title+'.stats')
-                print('Stats written to', renderer.lrf.metadata.title+'.stats')
+                cProfile.runctx('self.document.render(lrf)', globals(), locals(), lrf.metadata.title + '.stats')
+                print('Stats written to', renderer.lrf.metadata.title + '.stats')
             else:
                 start = time.time()
                 self.document.render(renderer.lrf)
-                print('Layout time:', time.time()-start, 'seconds')
+                print('Layout time:', time.time() - start, 'seconds')
             renderer.lrf = None
 
             self.graphics_view.setScene(self.document)
@@ -216,9 +220,9 @@ class Main(MainWindow, Ui_MainWindow):
             self.progress_bar.setMinimum(0)
             self.progress_bar.setMaximum(num)
             self.progress_bar.setValue(0)
-            self.progress_label.setText('Laying out '+ self.document_title)
+            self.progress_label.setText('Laying out ' + self.document_title)
         else:
-            self.progress_bar.setValue(self.progress_bar.value()+1)
+            self.progress_bar.setValue(self.progress_bar.value() + 1)
         QCoreApplication.processEvents()
 
     def next(self, triggered):
@@ -264,6 +268,7 @@ def file_renderer(stream, opts, parent=None, logger=None):
     if islinux or isbsd:
         try:  # Set lrfviewer as the default for LRF files for this user
             from subprocess import call
+
             call('xdg-mime default calibre-lrfviewer.desktop application/lrf', shell=True)
         except Exception:
             pass
@@ -274,21 +279,43 @@ def file_renderer(stream, opts, parent=None, logger=None):
 
 def option_parser():
     from calibre.gui2.main_window import option_parser
-    parser = option_parser(_('''\
+
+    parser = option_parser(
+        _('''\
 %prog [options] book.lrf
 
 Read the LRF e-book book.lrf
-'''))
-    parser.add_option('--verbose', default=False, action='store_true', dest='verbose',
-                      help=_('Print more information about the rendering process'))
-    parser.add_option('--visual-debug', help=_('Turn on visual aids to debugging the rendering engine'),
-                      default=False, action='store_true', dest='visual_debug')
-    parser.add_option('--disable-hyphenation', dest='hyphenate', default=True, action='store_false',
-                      help=_('Disable hyphenation. Should significantly speed up rendering.'))
-    parser.add_option('--white-background', dest='white_background', default=False, action='store_true',
-                      help=_('By default the background is off white as I find this easier on the eyes. Use this option to make the background pure white.'))
-    parser.add_option('--profile', dest='profile', default=False, action='store_true',
-                      help=_('Profile the LRF renderer'))
+''')
+    )
+    parser.add_option(
+        '--verbose',
+        default=False,
+        action='store_true',
+        dest='verbose',
+        help=_('Print more information about the rendering process'),
+    )
+    parser.add_option(
+        '--visual-debug',
+        help=_('Turn on visual aids to debugging the rendering engine'),
+        default=False,
+        action='store_true',
+        dest='visual_debug',
+    )
+    parser.add_option(
+        '--disable-hyphenation',
+        dest='hyphenate',
+        default=True,
+        action='store_false',
+        help=_('Disable hyphenation. Should significantly speed up rendering.'),
+    )
+    parser.add_option(
+        '--white-background',
+        dest='white_background',
+        default=False,
+        action='store_true',
+        help=_('By default the background is off white as I find this easier on the eyes. Use this option to make the background pure white.'),
+    )
+    parser.add_option('--profile', dest='profile', default=False, action='store_true', help=_('Profile the LRF renderer'))
     return parser
 
 

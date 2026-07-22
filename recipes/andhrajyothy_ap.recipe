@@ -41,10 +41,7 @@ class andhra(BasicNewsRecipe):
 
     def parse_index(self):
 
-        self.log(
-            '\n***\nif this recipe fails, report it on: '
-            'https://www.mobileread.com/forums/forumdisplay.php?f=228\n***\n'
-        )
+        self.log('\n***\nif this recipe fails, report it on: https://www.mobileread.com/forums/forumdisplay.php?f=228\n***\n')
 
         get_edition = index + '/Home/GetEditionsHierarchy'
         edi_data = json.loads(self.index_to_soup(get_edition, raw=True))
@@ -107,7 +104,7 @@ class andhra(BasicNewsRecipe):
         article.url = '***'
         h1 = soup.find('h1')
         h4 = soup.find('h4')
-        body = soup.find(attrs={'class':'body'})
+        body = soup.find(attrs={'class': 'body'})
         if h4:
             article.summary = self.tag_to_string(h4)
             article.text_summary = article.summary

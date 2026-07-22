@@ -6,12 +6,12 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class AdvancedUserRecipe1541791799(BasicNewsRecipe):
-    title          = 'Mother Jones'
+    title = 'Mother Jones'
     language = 'en'
     __author__ = 'Daniel Bonnery'
     oldest_article = 14
     max_articles_per_feed = 200
-    auto_cleanup   = True
-    feeds          = [
+    auto_cleanup = True
+    feeds = [
         ('Mother Jones', 'http://feeds.feedburner.com/motherjones/feed'),
     ]

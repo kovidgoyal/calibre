@@ -14,15 +14,13 @@ except ImportError:
 import re
 
 HN_URL_RE = re.compile(r'https://news\.ycombinator\.com/item\?id=\d+')
-HN_COMMENTS_URL_RE = re.compile(
-    r'Comments URL:\s*<a [^>]*href="(https://news\.ycombinator\.com/item\?id=\d+)"'
-)
+HN_COMMENTS_URL_RE = re.compile(r'Comments URL:\s*<a [^>]*href="(https://news\.ycombinator\.com/item\?id=\d+)"')
 
 
 class HNWithCommentsLink(BasicNewsRecipe):
     title = 'HN With Actual Comments'
     __author__ = 'Tom Scholl & David Kerschner'
-    description = u'Hacker News, run by Y Combinator. Anything that good hackers would find interesting, with a focus on programming and startups.'
+    description = 'Hacker News, run by Y Combinator. Anything that good hackers would find interesting, with a focus on programming and startups.'
     publisher = 'Y Combinator'
     category = 'news, programming, it, technology'
     delay = 1
@@ -34,10 +32,7 @@ class HNWithCommentsLink(BasicNewsRecipe):
     language = 'en'
     requires_version = (0, 8, 16)
 
-    feeds = [
-        (u'Hacker News Frontpage', 'https://hnrss.org/frontpage'),
-        (u'Ask Hacker News', 'https://hnrss.org/ask')
-    ]
+    feeds = [('Hacker News Frontpage', 'https://hnrss.org/frontpage'), ('Ask Hacker News', 'https://hnrss.org/ask')]
 
     temp_files = []
     articles_are_obfuscated = True
@@ -85,11 +80,11 @@ class HNWithCommentsLink(BasicNewsRecipe):
         return self.extract_readable_article(html, url)
 
     def _extract_comments_from_soup(self, main):
-        comments = u''
+        comments = ''
         for td in main.findAll('td', 'default'):
             comhead = td.find('span', 'comhead')
             if comhead:
-                com_title = u'<h4>' + self.tag_to_string(comhead).replace(' | link', '') + u'</h4>'
+                com_title = '<h4>' + self.tag_to_string(comhead).replace(' | link', '') + '</h4>'
                 comhead.parent.extract()
                 br = td.find('br')
                 if br:
@@ -111,8 +106,7 @@ class HNWithCommentsLink(BasicNewsRecipe):
         main = soup.find('tr').findNextSiblings('tr', limit=2)[1].td
         subtext = self.tag_to_string(main.find('td', 'subtext'))
         comments = self._extract_comments_from_soup(main)
-        return (u'<hr/><h2>Hacker News Discussion</h2>'
-                + u'<p><em>' + subtext + u'</em></p>' + comments)
+        return '<hr/><h2>Hacker News Discussion</h2>' + '<p><em>' + subtext + '</em></p>' + comments
 
     def get_hn_content(self, url):
         self.log('get_hn_content(' + url + ')')
@@ -128,18 +122,28 @@ class HNWithCommentsLink(BasicNewsRecipe):
 
         subtext = self.tag_to_string(main.find('td', 'subtext'))
 
-        title_content_td = main.find('td', 'title').findParent(
-            'tr').findNextSiblings('tr', limit=3)[2].findAll('td', limit=2)[1]
-        title_content = u''
+        title_content_td = main.find('td', 'title').findParent('tr').findNextSiblings('tr', limit=3)[2].findAll('td', limit=2)[1]
+        title_content = ''
         if not title_content_td.find('form'):
             title_content_td.name = 'div'
             title_content = title_content_td.prettify()
 
         comments = self._extract_comments_from_soup(main)
-        body = (u'<h3>' + title + u'</h3><p><a href="' + link + u'">' + readable_link
-                + u'</a><br/><strong>' + subtext + u'</strong></p>' + title_content
-                + u'<hr/><h3>Comments</h3>' + comments)
-        return u'<html><title>' + title + u'</title><body>' + body + '</body></html>'
+        body = (
+            '<h3>'
+            + title
+            + '</h3><p><a href="'
+            + link
+            + '">'
+            + readable_link
+            + '</a><br/><strong>'
+            + subtext
+            + '</strong></p>'
+            + title_content
+            + '<hr/><h3>Comments</h3>'
+            + comments
+        )
+        return '<html><title>' + title + '</title><body>' + body + '</body></html>'
 
     def get_obfuscated_article(self, url):
         self.log('get_obfuscated_article with url=' + url)
@@ -154,7 +158,7 @@ class HNWithCommentsLink(BasicNewsRecipe):
 
             if is_image:
                 self.log('using image_content (' + url + ')')
-                content = u'<html><body><img src="' + url + u'"></body></html>'
+                content = '<html><body><img src="' + url + '"></body></html>'
             else:
                 content = self.get_readable_content(url)
 

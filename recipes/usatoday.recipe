@@ -11,8 +11,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 def classes(classes):
     q = frozenset(classes.split(' '))
-    return dict(attrs={
-        'class': lambda x: x and frozenset(x.split()).intersection(q)})
+    return dict(attrs={'class': lambda x: x and frozenset(x.split()).intersection(q)})
 
 
 def absurl(url):
@@ -21,7 +20,6 @@ def absurl(url):
 
 
 class USAToday(BasicNewsRecipe):
-
     title = 'USA Today'
     __author__ = 'Kovid Goyal, unkn0wn'
     description = 'newspaper'
@@ -64,13 +62,21 @@ class USAToday(BasicNewsRecipe):
                 '''
 
     ignore_duplicate_articles = {'title', 'url'}
-    resolve_internal_links  = True
+    resolve_internal_links = True
     remove_empty_feeds = True
 
     def parse_index(self):
         index = 'https://www.usatoday.com/'
         sections = [
-            'news', 'opinion', 'tech', 'entertainment', 'money', 'sports', 'travel', 'life', 'investigations',
+            'news',
+            'opinion',
+            'tech',
+            'entertainment',
+            'money',
+            'sports',
+            'travel',
+            'life',
+            'investigations',
         ]
         feeds = []
         soup = self.index_to_soup(index)
@@ -78,7 +84,7 @@ class USAToday(BasicNewsRecipe):
             section = sec.capitalize()
             self.log(section)
             articles = []
-            for a in soup.findAll('a', attrs={'href':lambda x: x and x.startswith('/story/' + sec + '/')}):
+            for a in soup.findAll('a', attrs={'href': lambda x: x and x.startswith('/story/' + sec + '/')}):
                 url = absurl(a['href'].split('?')[0])
                 if url == index + '/story/' + sec + '/':
                     continue
@@ -92,6 +98,6 @@ class USAToday(BasicNewsRecipe):
     def preprocess_html(self, soup):
         for img in soup.findAll('img', src=True):
             img['src'] = 'https://www.usatoday.com' + img['src']
-        for div in soup.findAll(attrs={'data-c-caption':True}):
+        for div in soup.findAll(attrs={'data-c-caption': True}):
             div.string = div['data-c-caption']
         return soup

@@ -9,9 +9,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class GoComics(BasicNewsRecipe):
     title = 'Go Comics'
     __author__ = 'unkn0wn'
-    description = (
-        'The best and funniest cartoons you loved then and now—all in one place!'
-    )
+    description = 'The best and funniest cartoons you loved then and now—all in one place!'
     oldest_article = 2
     language = 'en'
     remove_empty_feeds = True
@@ -23,12 +21,12 @@ class GoComics(BasicNewsRecipe):
         'coverurl': {
             'short': 'Cover URL',
             'long': 'URL of an image to be used as book cover',
-            'default': 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/78/GoComics_logo.jpg/960px-GoComics_logo.jpg'
+            'default': 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/78/GoComics_logo.jpg/960px-GoComics_logo.jpg',
         },
         'mastheadurl': {
             'short': 'Masthead URL',
             'long': 'URL of an image to be used as masthead',
-            'default': 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/78/GoComics_logo.jpg/960px-GoComics_logo.jpg'
+            'default': 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/78/GoComics_logo.jpg/960px-GoComics_logo.jpg',
         },
         'comics': {
             'short': 'enter the slugs of the url\nof the comics you want seperated by a space',
@@ -60,20 +58,17 @@ class GoComics(BasicNewsRecipe):
                 self.reverse_article_order = True
         r = self.recipe_specific_options.get('coverurl')
         if r and isinstance(r, str):
-            self.cover_url=r
+            self.cover_url = r
         r = self.recipe_specific_options.get('mastheadurl')
         if r and isinstance(r, str):
-            self.masthead_url=r
+            self.masthead_url = r
 
     def parse_index(self):
         d = self.recipe_specific_options.get('days')
         if d and isinstance(d, str):
             self.oldest_article = int(d)
 
-        dates = [
-            (datetime.now() - timedelta(days=i)).strftime('%Y/%m/%d')
-            for i in range(self.oldest_article)
-        ]
+        dates = [(datetime.now() - timedelta(days=i)).strftime('%Y/%m/%d') for i in range(self.oldest_article)]
 
         u = self.recipe_specific_options.get('comics')
         if u and isinstance(u, str):
@@ -100,18 +95,12 @@ class GoComics(BasicNewsRecipe):
         if w and isinstance(w, str):
             width = w
         soup = BeautifulSoup(raw)
-        div = soup.find(
-            attrs={
-                'class': lambda x: x and x.startswith('ShowComicViewer_showComicViewer__comic')
-            }
-        )
+        div = soup.find(attrs={'class': lambda x: x and x.startswith('ShowComicViewer_showComicViewer__comic')})
         script = div.find('script', attrs={'type': 'application/ld+json'})
         data = json.loads(self.tag_to_string(script))
         title = '<h1>' + data['name'] + '</h1>'
         auth = '<p style="font-size: small;">' + data['description'] + '</p>'
-        img = '<img src={}>'.format(
-            data['contentUrl'] + '?optimizer=image&width=' + width + '&quality=85'
-        )
+        img = '<img src={}>'.format(data['contentUrl'] + '?optimizer=image&width=' + width + '&quality=85')
         return '<html><body>' + title + img + auth + '</body></html>'
 
     def populate_article_metadata(self, article, soup, first):

@@ -1,8 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__ = 'GPL v3'
-__copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
+# License: GPLv3 Copyright: 2013, Kovid Goyal <kovid at kovidgoyal.net>
 
 from collections import namedtuple
 from functools import partial
@@ -31,16 +28,17 @@ XML_TYPES = frozenset(map(guess_type, ('a.xml', 'a.svg', 'a.opf', 'a.ncx'))) | {
 
 
 class CSSChecker:
-
     def __init__(self):
         self.jobs = []
 
     def create_job(self, name, raw, line_offset=0, is_declaration=False):
         from calibre.ebooks.oeb.polish.check.css import create_job
+
         self.jobs.append(create_job(name, as_unicode(raw), line_offset, is_declaration))
 
     def __call__(self):
         from calibre.ebooks.oeb.polish.check.css import check_css
+
         if not self.jobs:
             return ()
         return check_css(self.jobs)
@@ -118,7 +116,8 @@ CSSFix = namedtuple('CSSFix', 'original_css elem attribute')
 
 def fix_css(container):
     from calibre.ebooks.oeb.polish.check.css import create_job, pool
-    jobs  = []
+
+    jobs = []
 
     for name, mt in container.mime_map.items():
         if mt in OEB_STYLES:

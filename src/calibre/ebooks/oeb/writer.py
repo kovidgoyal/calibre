@@ -1,10 +1,8 @@
-'''
+# License: GPLv3 Copyright: 2008, Marshall T. Vandegrift <llasram@gmail.com>
+
+"""
 Directory output OEBBook writer.
-'''
-
-
-__license__   = 'GPL v3'
-__copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
+"""
 
 import os
 
@@ -28,32 +26,39 @@ class OEBWriter:
 
     @classmethod
     def config(cls, cfg):
-        '''Add any book-writing options to the :class:`Config` object
+        """Add any book-writing options to the :class:`Config` object
         :param:`cfg`.
-        '''
+        """
         oeb = cfg.add_group('oeb', _('OPF/NCX/etc. generation options.'))
         versions = ['1.2', '2.0']
-        oeb('opf_version', ['--opf-version'], default='2.0', choices=versions,
-            help=_('OPF version to generate. Default is %default.'))
-        oeb('adobe_page_map', ['--adobe-page-map'], default=False,
-            help=_('Generate an Adobe "page-map" file if pagination '
-                   'information is available.'))
+        oeb(
+            'opf_version',
+            ['--opf-version'],
+            default='2.0',
+            choices=versions,
+            help=_('OPF version to generate. Default is %default.'),
+        )
+        oeb(
+            'adobe_page_map',
+            ['--adobe-page-map'],
+            default=False,
+            help=_('Generate an Adobe "page-map" file if pagination information is available.'),
+        )
         return cfg
 
     @classmethod
     def generate(cls, opts):
-        '''Generate a Writer instance from command-line options.'''
+        """Generate a Writer instance from command-line options."""
         version = opts.opf_version
         page_map = opts.adobe_page_map
         pretty_print = opts.pretty_print
-        return cls(version=version, page_map=page_map,
-                   pretty_print=pretty_print)
+        return cls(version=version, page_map=page_map, pretty_print=pretty_print)
 
     def __call__(self, oeb, path):
-        '''
+        """
         Write the book in the :class:`OEBBook` object :param:`oeb` to a folder
         at :param:`path`.
-        '''
+        """
         version = int(self.version[0])
         opfname = None
         if os.path.splitext(path)[1].lower() == '.opf':

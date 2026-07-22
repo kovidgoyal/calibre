@@ -32,7 +32,6 @@ from calibre.utils.resources import get_image_path
 
 
 class Browser(QTextBrowser):
-
     def __init__(self, parent: QWidget | None = None):
         super().__init__(parent)
         self.setOpenLinks(False)
@@ -90,7 +89,6 @@ class Header(NamedTuple):
 
 
 class InputEdit(QTextEdit):
-
     returnPressed = pyqtSignal()
 
     def __init__(self, parent: QWidget | None = None, placeholder_text: str = ''):
@@ -121,8 +119,8 @@ class InputEdit(QTextEdit):
     def keyPressEvent(self, e):
         if e.key() in (Qt.Key.Key_Return, Qt.Key.Key_Enter):
             mods = e.modifiers() & (
-                Qt.KeyboardModifier.ShiftModifier | Qt.KeyboardModifier.ControlModifier |
-                Qt.KeyboardModifier.AltModifier | Qt.KeyboardModifier.MetaModifier)
+                Qt.KeyboardModifier.ShiftModifier | Qt.KeyboardModifier.ControlModifier | Qt.KeyboardModifier.AltModifier | Qt.KeyboardModifier.MetaModifier
+            )
             if mods in (Qt.KeyboardModifier.NoModifier, Qt.KeyboardModifier.ControlModifier):
                 self.returnPressed.emit()
                 return
@@ -138,7 +136,6 @@ class InputEdit(QTextEdit):
 
 
 class Input(QWidget):
-
     send_requested = pyqtSignal()
 
     def __init__(self, parent: QWidget | None = None, placeholder_text: str = ''):
@@ -170,15 +167,13 @@ class Input(QWidget):
 
 
 class ChatWidget(QWidget):
-
     link_clicked = pyqtSignal(QUrl)
     input_from_user = pyqtSignal(str)
 
     def __init__(self, parent: QWidget | None = None, placeholder_text: str = '', disclaimer_text: str | None = None):
         super().__init__(parent)
         if disclaimer_text is None:
-            disclaimer_text = _(
-                'AI generated answers can be inaccurate, please verify any answers before acting on them.')
+            disclaimer_text = _('AI generated answers can be inaccurate, please verify any answers before acting on them.')
         self.disclaimer_text = disclaimer_text
         l = QVBoxLayout(self)
         l.setContentsMargins(0, 0, 0, 0)
@@ -247,6 +242,7 @@ class ChatWidget(QWidget):
 
     def scroll_to_bottom(self) -> None:
         self.browser.scroll_to_bottom()
+
     # }}}
 
     def resizeEvent(self, a0) -> None:

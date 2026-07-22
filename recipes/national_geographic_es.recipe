@@ -7,9 +7,8 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class AdvancedUserRecipe1336226255(BasicNewsRecipe):
-
-    title = u'National Geographic (es)'
-    publisher = u'National Geographic'
+    title = 'National Geographic (es)'
+    publisher = 'National Geographic'
     __author__ = 'Vakya'
     description = 'Revista National Geographic - Últimas noticias'
     language = 'es'
@@ -19,5 +18,4 @@ class AdvancedUserRecipe1336226255(BasicNewsRecipe):
     auto_cleanup = True
     remove_tags_before = dict(name='p', attrs={'class': ['image']})
     remove_tags_after = dict(name='hr')
-    feeds = [
-        (u'Vida salvage', u'http://www.nationalgeographic.com.es/feeds/rss.html')]
+    feeds = [('Vida salvage', 'http://www.nationalgeographic.com.es/feeds/rss.html')]

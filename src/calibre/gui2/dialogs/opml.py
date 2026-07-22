@@ -1,8 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__ = 'GPL v3'
-__copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
+# License: GPLv3 Copyright: 2014, Kovid Goyal <kovid at kovidgoyal.net>
 
 from collections import defaultdict, namedtuple
 from operator import itemgetter
@@ -18,9 +15,9 @@ from calibre.utils.xml_parse import safe_xml_fromstring
 Group = namedtuple('Group', 'title feeds')
 
 
-def uniq(vals, kmap=lambda x:x):
-    ''' Remove all duplicates from vals, while preserving order. kmap must be a
-    callable that returns a hashable value for every item in vals '''
+def uniq(vals, kmap=lambda x: x):
+    """Remove all duplicates from vals, while preserving order. kmap must be a
+    callable that returns a hashable value for every item in vals"""
     vals = vals or ()
     lvals = (kmap(x) for x in vals)
     seen = set()
@@ -50,7 +47,6 @@ def import_opml(raw, preserve_groups=True):
 
 
 class ImportOPML(QDialog):
-
     def __init__(self, parent=None):
         QDialog.__init__(self, parent=parent)
         self.l = l = QFormLayout(self)
@@ -86,19 +82,24 @@ class ImportOPML(QDialog):
         l.addRow(_('&Oldest article:'), o)
 
         self.preserve_groups = g = QCheckBox(_('Preserve groups in the OPML file'))
-        g.setToolTip('<p>' + _(
-            'If enabled, every group of feeds in the OPML file will be converted into a single recipe. Otherwise every feed becomes its own recipe'))
+        g.setToolTip(
+            '<p>' + _('If enabled, every group of feeds in the OPML file will be converted into a single recipe. Otherwise every feed becomes its own recipe')
+        )
         g.setChecked(True)
         l.addRow(g)
 
         self._replace_existing = r = QCheckBox(_('Replace existing recipes'))
-        r.setToolTip('<p>' + _(
-            'If enabled, any existing recipes with the same titles as entries in the OPML file will be replaced.'
-            ' Otherwise, new entries with modified titles will be created'))
+        r.setToolTip(
+            '<p>'
+            + _(
+                'If enabled, any existing recipes with the same titles as entries in the OPML file will be replaced.'
+                ' Otherwise, new entries with modified titles will be created'
+            )
+        )
         r.setChecked(True)
         l.addRow(r)
 
-        self.bb = bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok|QDialogButtonBox.StandardButton.Cancel)
+        self.bb = bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)
         bb.accepted.connect(self.accept), bb.rejected.connect(self.reject)
         l.addRow(bb)
 
@@ -118,28 +119,32 @@ class ImportOPML(QDialog):
 
     def choose_file(self):
         opml_files = choose_files(
-            self, 'opml-select-dialog', _('Select OPML file'), filters=[(_('OPML files'), ['opml'])],
-            all_files=False, select_only_single_file=True)
+            self,
+            'opml-select-dialog',
+            _('Select OPML file'),
+            filters=[(_('OPML files'), ['opml'])],
+            all_files=False,
+            select_only_single_file=True,
+        )
         if opml_files:
             self.path.setText(opml_files[0])
 
     def accept(self):
         path = str(self.path.text())
         if not path:
-            return error_dialog(self, _('Path not specified'), _(
-                'You must specify the path to the OPML file to import'), show=True)
+            return error_dialog(self, _('Path not specified'), _('You must specify the path to the OPML file to import'), show=True)
         with open(path, 'rb') as f:
             raw = f.read()
         self.recipes = tuple(import_opml(raw, self.preserve_groups.isChecked()))
         if len(self.recipes) == 0:
-            return error_dialog(self, _('No feeds found'), _(
-                'No importable RSS feeds found in the OPML file'), show=True)
+            return error_dialog(self, _('No feeds found'), _('No importable RSS feeds found in the OPML file'), show=True)
 
         QDialog.accept(self)
 
 
 if __name__ == '__main__':
     import sys
+
     for group in import_opml(open(sys.argv[-1], 'rb').read()):
         print(group.title)
         for title, url in group.feeds:

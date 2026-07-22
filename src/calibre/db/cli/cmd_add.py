@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
 
-
 import os
 import sys
 from contextlib import contextmanager
@@ -48,8 +47,7 @@ def do_adding(db, request_id, notify_changes, is_remote, mi, format_map, add_dup
     duplicates = []
     identical_books_data = None
     if is_remote and ('recipe' in format_map or 'original_recipe' in format_map):
-        raise ValueError(
-            'Cannot use the add interface to add recipe files, as they allow code execution')
+        raise ValueError('Cannot use the add interface to add recipe files, as they allow code execution')
 
     def add_format(book_id, fmt):
         db.add_format(book_id, fmt, format_map[fmt], replace=True, run_hooks=False)
@@ -57,8 +55,7 @@ def do_adding(db, request_id, notify_changes, is_remote, mi, format_map, add_dup
 
     def add_book():
         nonlocal added_ids
-        added_ids_, duplicates_ = db.add_books(
-            [(mi, format_map)], add_duplicates=True, run_hooks=False)
+        added_ids_, duplicates_ = db.add_books([(mi, format_map)], add_duplicates=True, run_hooks=False)
         added_ids |= set(added_ids_)
         duplicates.extend(duplicates_)
 
@@ -72,7 +69,7 @@ def do_adding(db, request_id, notify_changes, is_remote, mi, format_map, add_dup
             duplicated_formats = set()
             for book_id in identical_book_list:
                 book_formats = {q.upper() for q in db.formats(book_id)}
-                input_formats = {q.upper():q for q in format_map}
+                input_formats = {q.upper(): q for q in format_map}
                 common_formats = book_formats & set(input_formats)
                 if not common_formats:
                     for x, format in input_formats.items():
@@ -113,7 +110,23 @@ def do_adding(db, request_id, notify_changes, is_remote, mi, format_map, add_dup
 
 
 def book(db, notify_changes, is_remote, args):
-    data, fname, fmt, add_duplicates, otitle, oauthors, oisbn, otags, oseries, oseries_index, ocover, oidentifiers, olanguages, oautomerge, request_id = args
+    (
+        data,
+        fname,
+        fmt,
+        add_duplicates,
+        otitle,
+        oauthors,
+        oisbn,
+        otags,
+        oseries,
+        oseries_index,
+        ocover,
+        oidentifiers,
+        olanguages,
+        oautomerge,
+        request_id,
+    ) = args
     with add_ctx(), TemporaryDirectory('add-single') as tdir, run_import_plugins_before_metadata(tdir):
         if is_remote:
             with open(os.path.join(tdir, fname), 'wb') as f:
@@ -147,8 +160,7 @@ def book(db, notify_changes, is_remote, args):
         identical_book_list, added_ids, updated_ids = set(), set(), set()
         duplicates = []
         identical_books_data = None
-        added_ids, updated_ids, duplicates = do_adding(
-            db, request_id, notify_changes, is_remote, mi, {fmt: path}, add_duplicates, oautomerge)
+        added_ids, updated_ids, duplicates = do_adding(db, request_id, notify_changes, is_remote, mi, {fmt: path}, add_duplicates, oautomerge)
 
     return added_ids, updated_ids, bool(duplicates), mi.title
 
@@ -172,8 +184,7 @@ def format_group(db, notify_changes, is_remote, args):
         if cover_data and (not mi.cover_data or not mi.cover_data[1]):
             mi.cover_data = 'jpeg', cover_data
         format_map = create_format_map(paths)
-        added_ids, updated_ids, duplicates = do_adding(
-            db, request_id, notify_changes, is_remote, mi, format_map, add_duplicates, oautomerge)
+        added_ids, updated_ids, duplicates = do_adding(db, request_id, notify_changes, is_remote, mi, format_map, add_duplicates, oautomerge)
         return mi.title, set(added_ids), set(updated_ids), bool(duplicates)
 
 
@@ -183,10 +194,7 @@ def implementation(db, notify_changes, action, *args):
     return func(db, notify_changes, is_remote, args)
 
 
-def do_add_empty(
-    dbctx, title, authors, isbn, tags, series, series_index, cover, identifiers,
-    languages
-):
+def do_add_empty(dbctx, title, authors, isbn, tags, series, series_index, cover, identifiers, languages):
     mi = MetaInformation(None)
     if title is not None:
         mi.title = title
@@ -216,9 +224,22 @@ def add_ctx():
 
 
 def do_add(
-    dbctx, paths, one_book_per_directory, recurse, add_duplicates, otitle, oauthors,
-    oisbn, otags, oseries, oseries_index, ocover, oidentifiers, olanguages,
-    compiled_rules, oautomerge
+    dbctx,
+    paths,
+    one_book_per_directory,
+    recurse,
+    add_duplicates,
+    otitle,
+    oauthors,
+    oisbn,
+    otags,
+    oseries,
+    oseries_index,
+    ocover,
+    oidentifiers,
+    olanguages,
+    compiled_rules,
+    oautomerge,
 ):
     request_id = uuid4()
     with add_ctx():
@@ -239,9 +260,23 @@ def do_add(
             if not fmt:
                 continue
             aids, mids, dups, book_title = dbctx.run(
-                'add', 'book', dbctx.path(book), os.path.basename(book), fmt, add_duplicates,
-                otitle, oauthors, oisbn, otags, oseries, oseries_index, serialize_cover(ocover) if ocover else None,
-                oidentifiers, olanguages, oautomerge, request_id
+                'add',
+                'book',
+                dbctx.path(book),
+                os.path.basename(book),
+                fmt,
+                add_duplicates,
+                otitle,
+                oauthors,
+                oisbn,
+                otags,
+                oseries,
+                oseries_index,
+                serialize_cover(ocover) if ocover else None,
+                oidentifiers,
+                olanguages,
+                oautomerge,
+                request_id,
             )
             added_ids |= set(aids)
             merged_ids |= set(mids)
@@ -268,7 +303,14 @@ def do_add(
                                     pass
 
                 book_title, ids, mids, dups = dbctx.run(
-                        'add', 'format_group', tuple(map(dbctx.path, formats)), add_duplicates, oautomerge, request_id, cover_data)
+                    'add',
+                    'format_group',
+                    tuple(map(dbctx.path, formats)),
+                    add_duplicates,
+                    oautomerge,
+                    request_id,
+                    cover_data,
+                )
                 if book_title is not None:
                     added_ids |= set(ids)
                     merged_ids |= set(mids)
@@ -279,12 +321,8 @@ def do_add(
 
         if dir_dups or file_duplicates:
             prints(
-                _(
-                    'The following books were not added as '
-                    'they already exist in the database '
-                    '(see --duplicates option or --automerge option):'
-                ),
-                file=sys.stderr
+                _('The following books were not added as they already exist in the database (see --duplicates option or --automerge option):'),
+                file=sys.stderr,
             )
             for title, formats in dir_dups:
                 prints(' ', title, file=sys.stderr)
@@ -318,9 +356,8 @@ the folder related options below.
         action='store_true',
         default=False,
         help=_(
-            'Add books to database even if they already exist. Comparison is done based on book titles and authors.'
-            ' Note that the {} option takes precedence.'
-        ).format('--automerge')
+            'Add books to database even if they already exist. Comparison is done based on book titles and authors. Note that the {} option takes precedence.'
+        ).format('--automerge'),
     )
     parser.add_option(
         '-m',
@@ -333,71 +370,34 @@ the folder related options below.
             ' existing book records. A value of "ignore" means duplicate formats are discarded. A value of'
             ' "overwrite" means duplicate formats in the library are overwritten with the newly added files.'
             ' A value of "new_record" means duplicate formats are placed into a new book record.'
-        )
+        ),
     )
-    parser.add_option(
-        '-e',
-        '--empty',
-        action='store_true',
-        default=False,
-        help=_('Add an empty book (a book with no formats)')
-    )
-    parser.add_option(
-        '-t', '--title', default=None, help=_('Set the title of the added book(s)')
-    )
-    parser.add_option(
-        '-a',
-        '--authors',
-        default=None,
-        help=_('Set the authors of the added book(s)')
-    )
-    parser.add_option(
-        '-i', '--isbn', default=None, help=_('Set the ISBN of the added book(s)')
-    )
+    parser.add_option('-e', '--empty', action='store_true', default=False, help=_('Add an empty book (a book with no formats)'))
+    parser.add_option('-t', '--title', default=None, help=_('Set the title of the added book(s)'))
+    parser.add_option('-a', '--authors', default=None, help=_('Set the authors of the added book(s)'))
+    parser.add_option('-i', '--isbn', default=None, help=_('Set the ISBN of the added book(s)'))
     parser.add_option(
         '-I',
         '--identifier',
         default=[],
         action='append',
-        help=_('Set the identifiers for this book, e.g. -I asin:XXX -I isbn:YYY')
+        help=_('Set the identifiers for this book, e.g. -I asin:XXX -I isbn:YYY'),
     )
-    parser.add_option(
-        '-T', '--tags', default=None, help=_('Set the tags of the added book(s)')
-    )
-    parser.add_option(
-        '-s',
-        '--series',
-        default=None,
-        help=_('Set the series of the added book(s)')
-    )
-    parser.add_option(
-        '-S',
-        '--series-index',
-        default=1.0,
-        type=float,
-        help=_('Set the series number of the added book(s)')
-    )
-    parser.add_option(
-        '-c',
-        '--cover',
-        default=None,
-        help=_('Path to the cover to use for the added book')
-    )
+    parser.add_option('-T', '--tags', default=None, help=_('Set the tags of the added book(s)'))
+    parser.add_option('-s', '--series', default=None, help=_('Set the series of the added book(s)'))
+    parser.add_option('-S', '--series-index', default=1.0, type=float, help=_('Set the series number of the added book(s)'))
+    parser.add_option('-c', '--cover', default=None, help=_('Path to the cover to use for the added book'))
     parser.add_option(
         '-l',
         '--languages',
         default=None,
-        help=_(
-            'A comma separated list of languages (best to use ISO639 language codes, though some language names may also be recognized)'
-        )
+        help=_('A comma separated list of languages (best to use ISO639 language codes, though some language names may also be recognized)'),
     )
 
     g = OptionGroup(
         parser,
         _('ADDING FROM FOLDERS'),
-        _(
-            'Options to control the adding of books from folders. By default only files that have extensions of known e-book file types are added.'
-        )
+        _('Options to control the adding of books from folders. By default only files that have extensions of known e-book file types are added.'),
     )
 
     def filter_pat(option, opt, value, parser, action):
@@ -412,17 +412,9 @@ the folder related options below.
         '--one-book-per-directory',
         action='store_true',
         default=False,
-        help=_(
-            'Assume that each folder has only a single logical book and that all files in it are different e-book formats of that book'
-        )
+        help=_('Assume that each folder has only a single logical book and that all files in it are different e-book formats of that book'),
     )
-    g.add_option(
-        '-r',
-        '--recurse',
-        action='store_true',
-        default=False,
-        help=_('Process folders recursively')
-    )
+    g.add_option('-r', '--recurse', action='store_true', default=False, help=_('Process folders recursively'))
 
     def fadd(opt, action, help):
         g.add_option(
@@ -433,24 +425,26 @@ the folder related options below.
             default=[],
             callback=filter_pat,
             dest='filters',
-            callback_args=(action, ),
+            callback_args=(action,),
             metavar=_('GLOB PATTERN'),
-            help=help
+            help=help,
         )
 
     fadd(
-        '--ignore', 'ignore',
+        '--ignore',
+        'ignore',
         _(
             'A filename (glob) pattern, files matching this pattern will be ignored when scanning folders for files.'
             ' Can be specified multiple times for multiple patterns. For example: *.pdf will ignore all PDF files'
-        )
+        ),
     )
     fadd(
-        '--add', 'add',
+        '--add',
+        'add',
         _(
             'A filename (glob) pattern, files matching this pattern will be added when scanning folders for files,'
             ' even if they are not of a known e-book file type. Can be specified multiple times for multiple patterns.'
-        )
+        ),
     )
     parser.add_option_group(g)
 
@@ -463,19 +457,28 @@ def main(opts, args, dbctx):
     lcodes = [canonicalize_lang(x) for x in (opts.languages or '').split(',')]
     lcodes = [x for x in lcodes if x]
     identifiers = (x.partition(':')[::2] for x in opts.identifier)
-    identifiers = {k.strip(): v.strip() for k, v in identifiers
-                       if k.strip() and v.strip()}
+    identifiers = {k.strip(): v.strip() for k, v in identifiers if k.strip() and v.strip()}
     if opts.empty:
-        do_add_empty(
-            dbctx, opts.title, aut, opts.isbn, tags, opts.series, opts.series_index,
-            opts.cover, identifiers, lcodes
-        )
+        do_add_empty(dbctx, opts.title, aut, opts.isbn, tags, opts.series, opts.series_index, opts.cover, identifiers, lcodes)
         return 0
     if len(args) < 1:
         raise SystemExit(_('You must specify at least one file to add'))
     do_add(
-        dbctx, args, opts.one_book_per_directory, opts.recurse, opts.duplicates,
-        opts.title, aut, opts.isbn, tags, opts.series, opts.series_index, opts.cover,
-        identifiers, lcodes, opts.filters, opts.automerge
+        dbctx,
+        args,
+        opts.one_book_per_directory,
+        opts.recurse,
+        opts.duplicates,
+        opts.title,
+        aut,
+        opts.isbn,
+        tags,
+        opts.series,
+        opts.series_index,
+        opts.cover,
+        identifiers,
+        lcodes,
+        opts.filters,
+        opts.automerge,
     )
     return 0

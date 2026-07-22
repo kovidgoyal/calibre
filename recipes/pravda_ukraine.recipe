@@ -10,7 +10,7 @@ class PravdaUAEN(BasicNewsRecipe):
     description = ' Ukrainian online newspaper founded by Georgiy Gongadze with an emphasis on the politics of Ukraine. '
     publisher = 'pravda.com.ua'
     category = 'newspaper'
-    cover_url = u'https://img.pravda.com/images/up_for_fb.gif'
+    cover_url = 'https://img.pravda.com/images/up_for_fb.gif'
     language = 'en_UK'
     no_stylesheets = False
     remove_javascript = False
@@ -29,17 +29,8 @@ class PravdaUAEN(BasicNewsRecipe):
         dict(name='div', attrs={'class': 'post__report'}),
         dict(name='div', attrs={'class': 'social_item'}),
         dict(name='div', attrs={'class': 'sidebar'}),
-        dict(
-            name='div',
-            attrs={
-                'class':
-                'article-announcement-photo article-announcement-photo-block-1'
-            }
-        ),
-        dict(
-            name='div',
-            attrs={'class': 'statistic-bottom-block statistic-top-block'}
-        ),
+        dict(name='div', attrs={'class': 'article-announcement-photo article-announcement-photo-block-1'}),
+        dict(name='div', attrs={'class': 'statistic-bottom-block statistic-top-block'}),
         dict(name='div', attrs={'class': 'modal modal_search modal_white'}),
         dict(name='div', attrs={'class': 'modal_auth modal_white'}),
         dict(name='div', attrs={'class': 'main_logo'}),
@@ -52,10 +43,12 @@ class PravdaUAEN(BasicNewsRecipe):
         dict(name='div', attrs={'class': 'block_related'}),
         dict(name='div', attrs={'class': 'block_comments'}),
         dict(name='div', attrs={'class': 'post_tags'}),
-        dict(name='div', attrs={'class': 'post__tags'})
+        dict(name='div', attrs={'class': 'post__tags'}),
     ]
 
-    feeds = [('All materials', 'https://www.pravda.com.ua/eng/rss/'),
-             ('Top news', 'https://www.pravda.com.ua/eng/rss/view_mainnews/'),
-             ('News', 'https://www.pravda.com.ua/eng/rss/view_news/'),
-             ('Articles', 'https://www.pravda.com.ua/eng/rss/view_pubs/')]
+    feeds = [
+        ('All materials', 'https://www.pravda.com.ua/eng/rss/'),
+        ('Top news', 'https://www.pravda.com.ua/eng/rss/view_mainnews/'),
+        ('News', 'https://www.pravda.com.ua/eng/rss/view_news/'),
+        ('Articles', 'https://www.pravda.com.ua/eng/rss/view_pubs/'),
+    ]

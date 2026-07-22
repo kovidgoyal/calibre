@@ -1,10 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__   = 'GPL v3'
-__copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
-
+# License: GPLv3 Copyright: 2009, Kovid Goyal <kovid@kovidgoyal.net>
 
 import os
 import sys
@@ -33,7 +28,6 @@ _name_counter = count()
 
 
 class ConnectedWorker(Thread):
-
     def __init__(self, worker, conn, rfile):
         Thread.__init__(self)
         self.daemon = True
@@ -96,9 +90,7 @@ class CriticalError(Exception):
 
 
 class Server(Thread):
-
-    def __init__(self, notify_on_job_done=lambda x: x, pool_size=None,
-            limit=sys.maxsize, enforce_cpu_limit=True):
+    def __init__(self, notify_on_job_done=lambda x: x, pool_size=None, limit=sys.maxsize, enforce_cpu_limit=True):
         Thread.__init__(self, name='IPCServer', daemon=True)
         self.id = next(server_counter) + 1
 
@@ -117,15 +109,14 @@ class Server(Thread):
     def launch_worker(self, gui=False, redirect_output=None, job_name=None):
         start = time.monotonic()
         id = next(self.launched_worker_counter)
-        fd, rfile = tempfile.mkstemp(prefix=f'ipc_result_{self.id}_{id}_',
-                dir=base_dir(), suffix='.pickle')
+        fd, rfile = tempfile.mkstemp(prefix=f'ipc_result_{self.id}_{id}_', dir=base_dir(), suffix='.pickle')
         os.close(fd)
         if redirect_output is None:
             redirect_output = not gui
 
         cw = self.do_launch(gui, redirect_output, rfile, job_name=job_name)
         if isinstance(cw, (str, bytes)):
-            raise CriticalError('Failed to launch worker process:\n'+force_unicode(cw))
+            raise CriticalError('Failed to launch worker process:\n' + force_unicode(cw))
         if DEBUG:
             print(f'Worker Launch took: {time.monotonic() - start:.2f} seconds')
         return cw
@@ -133,10 +124,7 @@ class Server(Thread):
     def do_launch(self, gui, redirect_output, rfile, job_name=None):
         a, b = Pipe()
         with a:
-            env = {
-                'CALIBRE_WORKER_FD': str(a.fileno()),
-                'CALIBRE_WORKER_RESULT': environ_item(as_hex_unicode(rfile))
-            }
+            env = {'CALIBRE_WORKER_FD': str(a.fileno()), 'CALIBRE_WORKER_RESULT': environ_item(as_hex_unicode(rfile))}
             w = Worker(env, gui=gui, job_name=job_name)
 
             try:
@@ -148,6 +136,7 @@ class Server(Thread):
                     pass
                 b.close()
                 import traceback
+
                 return traceback.format_exc()
         return ConnectedWorker(w, b, rfile)
 
@@ -188,7 +177,7 @@ class Server(Thread):
                 self.workers.remove(worker)
                 job = worker.job
                 if worker.returncode != 0:
-                    job.failed   = True
+                    job.failed = True
                     job.returncode = worker.returncode
                 elif os.path.exists(worker.rfile):
                     try:
@@ -260,17 +249,17 @@ class Server(Thread):
                 break
 
     def split(self, tasks):
-        '''
+        """
         Split a list into a list of sub lists, with the number of sub lists being
         no more than the number of workers this server supports. Each sublist contains
         2-tuples of the form (i, x) where x is an element from the original list
         and i is the index of the element x in the original list.
-        '''
+        """
         ans, count, pos = [], 0, 0
-        delta = ceil(len(tasks)/float(self.pool_size))
+        delta = ceil(len(tasks) / float(self.pool_size))
         while count < len(tasks):
             section = []
-            for t in tasks[pos:pos+delta]:
+            for t in tasks[pos : pos + delta]:
                 section.append((count, t))
                 count += 1
             ans.append(section)

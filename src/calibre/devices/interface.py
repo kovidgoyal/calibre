@@ -1,5 +1,5 @@
-__license__   = 'GPL v3'
-__copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
+# License: GPLv3 Copyright: 2008, Kovid Goyal <kovid at kovidgoyal.net>
+
 import os
 from collections import namedtuple
 from typing import ClassVar, NamedTuple
@@ -26,11 +26,18 @@ class ModelMetadata(NamedTuple):
 
     def detected_device(self, folder_path):
         from calibre.devices.scanner import USBDevice
-        return USBDevice(self.vendor_id, self.product_id, self.bcd, self.manufacturer_name, self.model_name, FAKE_DEVICE_SERIAL + folder_path)
+
+        return USBDevice(
+            self.vendor_id,
+            self.product_id,
+            self.bcd,
+            self.manufacturer_name,
+            self.model_name,
+            FAKE_DEVICE_SERIAL + folder_path,
+        )
 
 
 class OpenPopupMessage:
-
     def __init__(self, title='', message='', level='info', skip_dialog_skip_precheck=True):
         self.title = title
         self.message = message
@@ -39,14 +46,15 @@ class OpenPopupMessage:
 
 
 class DevicePlugin(Plugin):
-    '''
+    """
     Defines the interface that should be implemented by backends that
     communicate with an e-book reader.
-    '''
+    """
+
     type = _('Device interface')
 
     #: Ordered list of supported formats
-    FORMATS     = ['lrf', 'rtf', 'pdf', 'txt']
+    FORMATS = ['lrf', 'rtf', 'pdf', 'txt']
     # If True, the config dialog will not show the formats box
     HIDE_FORMATS_CONFIG_BOX = False
 
@@ -65,7 +73,7 @@ class DevicePlugin(Plugin):
     PRODUCT_ID: ClassVar[int | list[int]] = 0x0000
     #: BCD can be either None to not distinguish between devices based on BCD, or
     #: it can be a list of the BCD numbers of all devices supported by this driver.
-    BCD         = None
+    BCD = None
 
     #: Height for thumbnails on the device
     THUMBNAIL_HEIGHT = 68
@@ -97,7 +105,7 @@ class DevicePlugin(Plugin):
     icon = 'reader.png'
 
     # Encapsulates an annotation fetched from the device
-    UserAnnotation = namedtuple('UserAnnotation','type, value')
+    UserAnnotation = namedtuple('UserAnnotation', 'type, value')
 
     #: GUI displays this as a message if not None in the status bar. Useful if opening can take a
     #: long time
@@ -158,12 +166,12 @@ class DevicePlugin(Plugin):
 
     @classmethod
     def get_open_popup_message(self):
-        ' GUI displays this as a non-modal popup. Should be an instance of OpenPopupMessage '
+        "GUI displays this as a non-modal popup. Should be an instance of OpenPopupMessage"
         return
 
     @classmethod
     def model_metadata(self) -> tuple[ModelMetadata, ...]:
-        ' Metadata about all the actual device models this driver supports '
+        "Metadata about all the actual device models this driver supports"
         return ()
 
     # Device detection {{{
@@ -176,12 +184,12 @@ class DevicePlugin(Plugin):
         return False
 
     def is_usb_connected(self, devices_on_system, debug=False, only_presence=False):
-        '''
+        """
         Return True, device_info if a device handled by this plugin is currently connected.
 
         :param devices_on_system: List of devices currently connected
 
-        '''
+        """
         vendors_on_system = {x[0] for x in devices_on_system}
         vendor_id = self.VENDOR_ID
         if isinstance(vendor_id, dict):
@@ -220,7 +228,7 @@ class DevicePlugin(Plugin):
         return False, None
 
     def detect_managed_devices(self, devices_on_system, force_refresh=False):
-        '''
+        """
         Called only if MANAGES_DEVICE_PRESENCE is True.
 
         Scan for devices that this driver can handle. Should return a device
@@ -238,11 +246,11 @@ class DevicePlugin(Plugin):
         :param force_refresh: If True and the driver uses a cache to prevent
                               repeated scanning, the cache must be flushed.
 
-        '''
+        """
         raise NotImplementedError()
 
     def debug_managed_device_detection(self, devices_on_system, output):
-        '''
+        """
         Called only if MANAGES_DEVICE_PRESENCE is True.
 
         Should write information about the devices detected on the system to
@@ -250,14 +258,13 @@ class DevicePlugin(Plugin):
 
         Should return True if a device was detected and successfully opened,
         otherwise False.
-        '''
+        """
         raise NotImplementedError()
 
     # }}}
 
-    def reset(self, key='-1', log_packets=False, report_progress=None,
-            detected_device=None):
-        '''
+    def reset(self, key='-1', log_packets=False, report_progress=None, detected_device=None):
+        """
         :param key: The key to unlock the device
         :param log_packets: If true the packet stream to/from the device is logged
         :param report_progress: Function that is called with a % progress
@@ -266,11 +273,11 @@ class DevicePlugin(Plugin):
                                 task does not have any progress information
         :param detected_device: Device information from the device scanner
 
-        '''
+        """
         raise NotImplementedError()
 
     def can_handle_windows(self, usbdevice, debug=False):
-        '''
+        """
         Optional method to perform further checks on a device to see if this driver
         is capable of handling it. If it is not it should return False. This method
         is only called after the vendor, product ids and the bcd have matched, so
@@ -283,22 +290,22 @@ class DevicePlugin(Plugin):
         in your subclass of USBMS.
 
         :param usbdevice: A usbdevice as returned by :func:`calibre.devices.winusb.scan_usb_devices`
-        '''
+        """
         return True
 
     def can_handle(self, device_info, debug=False):
-        '''
+        """
         Unix version of :meth:`can_handle_windows`.
 
         :param device_info: Is a tuple of (vid, pid, bcd, manufacturer, product,
                             serial number)
 
-        '''
+        """
 
         return True
 
     def open(self, connected_device, library_uuid):
-        '''
+        """
         Perform any device specific initialization. Called after the device is
         detected but before any other functions that communicate with the device.
         For example: For devices that present themselves as USB Mass storage
@@ -322,27 +329,27 @@ class DevicePlugin(Plugin):
             None if there is no library (for example when used from the command
             line).
 
-        '''
+        """
         raise NotImplementedError()
 
     def eject(self):
-        '''
+        """
         Un-mount / eject the device from the OS. This does not check if there
         are pending GUI jobs that need to communicate with the device.
 
         NOTE: That this method may not be called on the same thread as the rest
         of the device methods.
-        '''
+        """
         raise NotImplementedError()
 
     def post_yank_cleanup(self):
-        '''
+        """
         Called if the user yanks the device without ejecting it first.
-        '''
+        """
         raise NotImplementedError()
 
     def set_progress_reporter(self, report_progress):
-        '''
+        """
         Set a function to report progress information.
 
         :param report_progress: Function that is called with a % progress
@@ -350,22 +357,22 @@ class DevicePlugin(Plugin):
                                 If it is called with -1 that means that the
                                 task does not have any progress information
 
-        '''
+        """
         raise NotImplementedError()
 
     def get_device_information(self, end_session=True):
-        '''
+        """
         Ask device for device information. See L{DeviceInfoQuery}.
 
         :return: (device name, device version, software version on device, MIME type)
                  The tuple can optionally have a fifth element, which is a
                  drive information dictionary. See usbms.driver for an example.
 
-        '''
+        """
         raise NotImplementedError()
 
     def get_driveinfo(self):
-        '''
+        """
         Return the driveinfo dictionary. Usually called from
         get_device_information(), but if loading the driveinfo is slow for this
         driver, then it should set SLOW_DRIVEINFO. In this case, this method
@@ -373,11 +380,11 @@ class DevicePlugin(Plugin):
         that it is not called on the device thread, so the driver should cache
         the drive info in the books() method and this function should return
         the cached data.
-        '''
+        """
         return {}
 
     def card_prefix(self, end_session=True):
-        '''
+        """
         Return a 2 element list of the prefix to paths on the cards.
         If no card is present None is set for the card's prefix.
         E.G.
@@ -385,11 +392,11 @@ class DevicePlugin(Plugin):
         (None, 'place2')
         ('place', None)
         (None, None)
-        '''
+        """
         raise NotImplementedError()
 
     def total_space(self, end_session=True):
-        '''
+        """
         Get total space available on the mountpoints:
             1. Main memory
             2. Memory Card A
@@ -398,11 +405,11 @@ class DevicePlugin(Plugin):
         :return: A 3 element list with total space in bytes of (1, 2, 3). If a
                  particular device doesn't have any of these locations it should return 0.
 
-        '''
+        """
         raise NotImplementedError()
 
     def free_space(self, end_session=True):
-        '''
+        """
         Get free space available on the mountpoints:
           1. Main memory
           2. Card A
@@ -411,11 +418,11 @@ class DevicePlugin(Plugin):
         :return: A 3 element list with free space in bytes of (1, 2, 3). If a
                  particular device doesn't have any of these locations it should return -1.
 
-        '''
+        """
         raise NotImplementedError()
 
     def books(self, oncard=None, end_session=True):
-        '''
+        """
         Return a list of e-books on the device.
 
         :param oncard:  If 'carda' or 'cardb' return a list of e-books on the
@@ -425,11 +432,10 @@ class DevicePlugin(Plugin):
 
         :return: A BookList.
 
-        '''
+        """
         raise NotImplementedError()
 
-    def upload_books(self, files, names, on_card=None, end_session=True,
-                     metadata=None):
+    def upload_books(self, files, names, on_card=None, end_session=True, metadata=None):
         '''
         Upload a list of books to the device. If a file already
         exists on the device, it should be replaced.
@@ -454,7 +460,7 @@ class DevicePlugin(Plugin):
 
     @classmethod
     def add_books_to_metadata(cls, locations, metadata, booklists):
-        '''
+        """
         Add locations to the booklists. This function must not communicate with
         the device.
 
@@ -466,18 +472,18 @@ class DevicePlugin(Plugin):
                           :meth:`books(oncard='carda')`,
                           :meth`books(oncard='cardb')`).
 
-        '''
+        """
         raise NotImplementedError()
 
     def delete_books(self, paths, end_session=True):
-        '''
+        """
         Delete books at paths on device.
-        '''
+        """
         raise NotImplementedError()
 
     @classmethod
     def remove_books_from_metadata(cls, paths, booklists):
-        '''
+        """
         Remove books from the metadata list. This function must not communicate
         with the device.
 
@@ -487,11 +493,11 @@ class DevicePlugin(Plugin):
                           :meth:`books(oncard='carda')`,
                           :meth`books(oncard='cardb')`).
 
-        '''
+        """
         raise NotImplementedError()
 
     def sync_booklists(self, booklists, end_session=True):
-        '''
+        """
         Update metadata on device.
 
         :param booklists: A tuple containing the result of calls to
@@ -499,46 +505,44 @@ class DevicePlugin(Plugin):
                           :meth:`books(oncard='carda')`,
                           :meth`books(oncard='cardb')`).
 
-        '''
+        """
         raise NotImplementedError()
 
     def get_file(self, path, outfile, end_session=True):
-        '''
+        """
         Read the file at ``path`` on the device and write it to outfile.
 
         :param outfile: file object like ``sys.stdout`` or the result of an
                        :func:`open` call.
 
-        '''
+        """
         raise NotImplementedError()
 
-    @classmethod
-    def config_widget(cls):
-        '''
+    def config_widget(self):
+        """
         Should return a QWidget. The QWidget contains the settings for the
         device interface
-        '''
+        """
         raise NotImplementedError()
 
-    @classmethod
-    def save_settings(cls, config_widget):
-        '''
+    def save_settings(self, config_widget):
+        """
         Should save settings to disk. Takes the widget created in
         :meth:`config_widget` and saves all settings to disk.
-        '''
+        """
         raise NotImplementedError()
 
     @classmethod
     def settings(cls):
-        '''
+        """
         Should return an opts object. The opts object should have at least one
         attribute `format_map` which is an ordered list of formats for the
         device.
-        '''
+        """
         raise NotImplementedError()
 
     def set_plugboards(self, plugboards, pb_func):
-        '''
+        """
         provide the driver the current set of plugboards and a function to
         select a specific plugboard. This method is called immediately before
         add_books and sync_booklists.
@@ -553,81 +557,81 @@ class DevicePlugin(Plugin):
 
         :return: None or a single plugboard instance.
 
-        '''
+        """
         pass
 
     def set_driveinfo_name(self, location_code, name):
-        '''
+        """
         Set the device name in the driveinfo file to 'name'. This setting will
         persist until the file is re-created or the name is changed again.
 
         Non-disk devices should implement this method based on the location
         codes returned by the get_device_information() method.
-        '''
+        """
         pass
 
     def prepare_addable_books(self, paths):
-        '''
+        """
         Given a list of paths, returns another list of paths. These paths
         point to addable versions of the books.
 
         If there is an error preparing a book, then instead of a path, the
         position in the returned list for that book should be a three tuple:
         (original_path, the exception instance, traceback)
-        '''
+        """
         return paths
 
     def startup(self):
-        '''
+        """
         Called when calibre is starting the device. Do any initialization
         required. Note that multiple instances of the class can be instantiated,
         and thus __init__ can be called multiple times, but only one instance
         will have this method called. This method is called on the device
         thread, not the GUI thread.
-        '''
+        """
         pass
 
     def shutdown(self):
-        '''
+        """
         Called when calibre is shutting down, either for good or in preparation
         to restart. Do any cleanup required. This method is called on the
         device thread, not the GUI thread.
-        '''
+        """
         pass
 
     def get_device_uid(self):
-        '''
+        """
         Must return a unique id for the currently connected device (this is
         called immediately after a successful call to open()). You must
         implement this method if you set ASK_TO_ALLOW_CONNECT = True
-        '''
+        """
         raise NotImplementedError()
 
     def ignore_connected_device(self, uid):
-        '''
+        """
         Should ignore the device identified by uid (the result of a call to
         get_device_uid()) in the future. You must implement this method if you
         set ASK_TO_ALLOW_CONNECT = True. Note that this function is called
         immediately after open(), so if open() caches some state, the driver
         should reset that state.
-        '''
+        """
         raise NotImplementedError()
 
     def get_user_blacklisted_devices(self):
-        '''
+        """
         Return map of device uid to friendly name for all devices that the user
         has asked to be ignored.
-        '''
+        """
         return {}
 
     def set_user_blacklisted_devices(self, devices):
-        '''
+        """
         Set the list of device uids that should be ignored by this driver.
-        '''
+        """
         pass
 
     def specialize_global_preferences(self, device_prefs):
-        '''
+        """
         Implement this method if your device wants to override a particular
         preference. You must ensure that all call sites that want a preference
         that can be overridden use device_prefs['something'] instead
@@ -635,15 +639,15 @@ class DevicePlugin(Plugin):
         method should call device_prefs.set_overrides(pref=val, pref=val, ...).
         Currently used for:
         metadata management (prefs['manage_device_metadata'])
-        '''
+        """
         device_prefs.set_overrides()
 
     def set_library_info(self, library_name, library_uuid, field_metadata):
-        '''
+        """
         Implement this method if you want information about the current calibre
         library. This method is called at startup and when the calibre library
         changes while connected.
-        '''
+        """
         pass
 
     # Dynamic control interface.
@@ -653,29 +657,29 @@ class DevicePlugin(Plugin):
     # these methods is called.
 
     def is_dynamically_controllable(self):
-        '''
+        """
         Called by the device manager when starting plugins. If this method returns
         a string, then a) it supports the device manager's dynamic control
         interface, and b) that name is to be used when talking to the plugin.
 
         This method can be called on the GUI thread. A driver that implements
         this method must be thread safe.
-        '''
+        """
         return
 
     def start_plugin(self):
-        '''
+        """
         This method is called to start the plugin. The plugin should begin
         to accept device connections however it does that. If the plugin is
         already accepting connections, then do nothing.
 
         This method can be called on the GUI thread. A driver that implements
         this method must be thread safe.
-        '''
+        """
         pass
 
     def stop_plugin(self):
-        '''
+        """
         This method is called to stop the plugin. The plugin should no longer
         accept connections, and should cleanup behind itself. It is likely that
         this method should call shutdown. If the plugin is already not accepting
@@ -683,41 +687,41 @@ class DevicePlugin(Plugin):
 
         This method can be called on the GUI thread. A driver that implements
         this method must be thread safe.
-        '''
+        """
         pass
 
     def get_option(self, opt_string, default=None):
-        '''
+        """
         Return the value of the option indicated by opt_string. This method can
         be called when the plugin is not started. Return None if the option does
         not exist.
 
         This method can be called on the GUI thread. A driver that implements
         this method must be thread safe.
-        '''
+        """
         return default
 
     def set_option(self, opt_string, opt_value):
-        '''
+        """
         Set the value of the option indicated by opt_string. This method can
         be called when the plugin is not started.
 
         This method can be called on the GUI thread. A driver that implements
         this method must be thread safe.
-        '''
+        """
         pass
 
     def is_running(self):
-        '''
+        """
         Return True if the plugin is started, otherwise false
 
         This method can be called on the GUI thread. A driver that implements
         this method must be thread safe.
-        '''
+        """
         return False
 
     def synchronize_with_db(self, db, book_id, book_metadata, first_call):
-        '''
+        """
         Called during book matching when a book on the device is matched with
         a book in calibre's db. The method is responsible for synchronizing
         data from the device to calibre's db (if needed).
@@ -750,12 +754,12 @@ class DevicePlugin(Plugin):
         book_id: the calibre id for the book in the database.
         book_metadata: the Metadata object for the book coming from the device.
         first_call: True if this is the first call during a sync, False otherwise
-        '''
+        """
         return (None, (None, False))
 
 
 class BookList(list):
-    '''
+    """
     A list of books. Each Book object must have the fields
 
       #. title
@@ -768,7 +772,7 @@ class BookList(list):
          absolute (platform native) path to the image
       #. tags (a list of strings, can be empty).
 
-    '''
+    """
 
     __getslice__ = None
     __setslice__ = None
@@ -777,25 +781,25 @@ class BookList(list):
         pass
 
     def supports_collections(self):
-        ''' Return True if the device supports collections for this book list. '''
+        """Return True if the device supports collections for this book list."""
         raise NotImplementedError()
 
     def add_book(self, book, replace_metadata):
-        '''
+        """
         Add the book to the booklist. Intent is to maintain any device-internal
         metadata. Return True if booklists must be sync'ed
-        '''
+        """
         raise NotImplementedError()
 
     def remove_book(self, book):
-        '''
+        """
         Remove a book from the booklist. Correct any device metadata at the
         same time
-        '''
+        """
         raise NotImplementedError()
 
     def get_collections(self, collection_attributes):
-        '''
+        """
         Return a dictionary of collections created from collection_attributes.
         Each entry in the dictionary is of the form collection name:[list of
         books]
@@ -805,12 +809,11 @@ class BookList(list):
 
         :param collection_attributes: A list of attributes of the Book object
 
-        '''
+        """
         raise NotImplementedError()
 
 
 class CurrentlyConnectedDevice:
-
     def __init__(self):
         self._device = None
 

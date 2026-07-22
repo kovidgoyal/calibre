@@ -22,7 +22,7 @@ current_state = 'initializing'
 overall_container_id = None
 initializers = {}
 
-add_extra_css(def():
+add_extra_css(def ():
     sel = '.' + CLASS_NAME + ' '
     style = build_rule(sel, padding='1ex 1rem')
     style += build_rule(sel + 'h3', margin_bottom='1ex')
@@ -33,7 +33,7 @@ add_extra_css(def():
 
 
 conversion_data = None
-conversion_data_load_status = {'loading':True, 'ok':False, 'error_html':None, 'current_fetch':None}
+conversion_data_load_status = {'loading': True, 'ok': False, 'error_html': None, 'current_fetch': None}
 
 
 def container_for_current_state():
@@ -43,7 +43,6 @@ def container_for_current_state():
 
 
 def create_converted_markup():
-
     def init(container):
         clear(container)
         container.appendChild(E.h3('Conversion successful!'))
@@ -351,12 +350,23 @@ def create_configure_group_markup():
         elif g is 'output_fmt':
             g = conversion_data.conversion_options.output_plugin_name
             ui_data = conversion_data.conversion_options.output_ui_data
-        create_option_group(g, ui_data, conversion_data.profiles, container, get_option_value, get_option_default_value, is_option_disabled, get_option_help, on_close)
+        create_option_group(
+            g,
+            ui_data,
+            conversion_data.profiles,
+            container,
+            get_option_value,
+            get_option_default_value,
+            is_option_disabled,
+            get_option_help,
+            on_close
+        )
 
     return ans, init
 
 
 # Initialization {{{
+
 
 def on_data_loaded(end_type, xhr, ev):
     nonlocal conversion_data
@@ -479,5 +489,6 @@ def init(container_id):
     enable_escape_key(container, on_close.bind(None, container_id))
 
 
-set_panel_handler('convert_book', init)
-# }}}
+def set_panel_handlers():
+    set_panel_handler('convert_book', init)
+    # }}}

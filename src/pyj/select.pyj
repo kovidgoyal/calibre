@@ -6,7 +6,7 @@ from __python__ import bound_methods, hash_literals
 if document?.caretPositionFromPoint:
     caret_position_from_point = document.caretPositionFromPoint.bind(document)
 else:
-    caret_position_from_point = def(x, y):
+    caret_position_from_point = def (x, y):
         r = document.caretRangeFromPoint(x, y)
         if r:
             return {'offsetNode': r.startContainer, 'offset': r.startOffset}
@@ -53,10 +53,11 @@ def first_visible_word():
             if r?:
                 return r
 
+
 def empty_range_extents():
     return {
         'start': {'x': 0, 'y': 0, 'height': 0, 'width': 0, 'onscreen': False, 'selected_prev': False},
-        'end':   {'x': 0, 'y': 0, 'height': 0, 'width': 0, 'onscreen': False, 'selected_prev': False}
+        'end': {'x': 0, 'y': 0, 'height': 0, 'width': 0, 'onscreen': False, 'selected_prev': False}
     }
 
 # Returns a node that we know will produce a reasonable bounding box closest to the start or end
@@ -65,6 +66,7 @@ def empty_range_extents():
 # This a depth first traversal, with the modification that if a node is reached that meets the criteria,
 # the traversal stops, because higher nodes in the DOM tree always have larger bounds than their children.
 safe_nodes = {'img': True, 'br': True, 'hr': True}
+
 
 def get_selection_node_at_boundary(node, start):
     stack = v'[]'
@@ -182,7 +184,6 @@ def range_extents(q, in_flow_mode):
     if ans.start.height is 2 and ans.end.height > 2:
         ans.start.height = ans.end.height
     return ans
-
 
 
 def selection_extents(in_flow_mode):

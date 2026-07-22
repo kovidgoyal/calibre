@@ -1,8 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__ = 'GPL v3'
-__copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
+# License: GPLv3 Copyright: 2013, Kovid Goyal <kovid at kovidgoyal.net>
 
 import math
 import unicodedata
@@ -66,80 +63,222 @@ def register_text_editor_actions(_reg, palette):
             editor_toolbar_actions[s][args[3]] = ac
         return ac
 
-    ac = reg('format-text-bold.png', _('&Bold'), ('format_text', 'bold'), 'format-text-bold', 'Ctrl+B', _('Make the selected text bold'))
+    ac = reg(
+        'format-text-bold.png',
+        _('&Bold'),
+        ('format_text', 'bold'),
+        'format-text-bold',
+        'Ctrl+B',
+        _('Make the selected text bold'),
+    )
     ac.setToolTip(_('<h3>Bold</h3>Make the selected text bold'))
-    ac = reg('format-text-italic.png', _('&Italic'), ('format_text', 'italic'), 'format-text-italic', 'Ctrl+I', _('Make the selected text italic'))
+    ac = reg(
+        'format-text-italic.png',
+        _('&Italic'),
+        ('format_text', 'italic'),
+        'format-text-italic',
+        'Ctrl+I',
+        _('Make the selected text italic'),
+    )
     ac.setToolTip(_('<h3>Italic</h3>Make the selected text italic'))
-    ac = reg('format-text-underline.png', _('&Underline'), ('format_text', 'underline'), 'format-text-underline', (), _('Underline the selected text'))
+    ac = reg(
+        'format-text-underline.png',
+        _('&Underline'),
+        ('format_text', 'underline'),
+        'format-text-underline',
+        (),
+        _('Underline the selected text'),
+    )
     ac.setToolTip(_('<h3>Underline</h3>Underline the selected text'))
-    ac = reg('format-text-strikethrough.png', _('&Strikethrough'), ('format_text', 'strikethrough'),
-             'format-text-strikethrough', (), _('Draw a line through the selected text'))
+    ac = reg(
+        'format-text-strikethrough.png',
+        _('&Strikethrough'),
+        ('format_text', 'strikethrough'),
+        'format-text-strikethrough',
+        (),
+        _('Draw a line through the selected text'),
+    )
     ac.setToolTip(_('<h3>Strikethrough</h3>Draw a line through the selected text'))
-    ac = reg('format-text-superscript.png', _('&Superscript'), ('format_text', 'superscript'),
-             'format-text-superscript', (), _('Make the selected text a superscript'))
+    ac = reg(
+        'format-text-superscript.png',
+        _('&Superscript'),
+        ('format_text', 'superscript'),
+        'format-text-superscript',
+        (),
+        _('Make the selected text a superscript'),
+    )
     ac.setToolTip(_('<h3>Superscript</h3>Set the selected text slightly smaller and above the normal line'))
-    ac = reg('format-text-subscript.png', _('&Subscript'), ('format_text', 'subscript'),
-             'format-text-subscript', (), _('Make the selected text a subscript'))
+    ac = reg(
+        'format-text-subscript.png',
+        _('&Subscript'),
+        ('format_text', 'subscript'),
+        'format-text-subscript',
+        (),
+        _('Make the selected text a subscript'),
+    )
     ac.setToolTip(_('<h3>Subscript</h3>Set the selected text slightly smaller and below the normal line'))
     ac = reg('format-text-color.png', _('&Color'), ('format_text', 'color'), 'format-text-color', (), _('Change text color'))
     ac.setToolTip(_('<h3>Color</h3>Change the color of the selected text'))
-    ac = reg('format-fill-color.png', _('&Background color'), ('format_text', 'background-color'),
-             'format-text-background-color', (), _('Change background color of text'))
+    ac = reg(
+        'format-fill-color.png',
+        _('&Background color'),
+        ('format_text', 'background-color'),
+        'format-text-background-color',
+        (),
+        _('Change background color of text'),
+    )
     ac.setToolTip(_('<h3>Background color</h3>Change the background color of the selected text'))
-    ac = reg('format-justify-left.png', _('Align &left'), ('format_text', 'justify_left'), 'format-text-justify-left', (), _('Align left'))
+    ac = reg(
+        'format-justify-left.png',
+        _('Align &left'),
+        ('format_text', 'justify_left'),
+        'format-text-justify-left',
+        (),
+        _('Align left'),
+    )
     ac.setToolTip(_('<h3>Align left</h3>Align the paragraph to the left'))
-    ac = reg('format-justify-center.png', _('&Center'), ('format_text', 'justify_center'), 'format-text-justify-center', (), _('Center'))
+    ac = reg(
+        'format-justify-center.png',
+        _('&Center'),
+        ('format_text', 'justify_center'),
+        'format-text-justify-center',
+        (),
+        _('Center'),
+    )
     ac.setToolTip(_('<h3>Center</h3>Center the paragraph'))
-    ac = reg('format-justify-right.png', _('Align &right'), ('format_text', 'justify_right'), 'format-text-justify-right', (), _('Align right'))
+    ac = reg(
+        'format-justify-right.png',
+        _('Align &right'),
+        ('format_text', 'justify_right'),
+        'format-text-justify-right',
+        (),
+        _('Align right'),
+    )
     ac.setToolTip(_('<h3>Align right</h3>Align the paragraph to the right'))
-    ac = reg('format-justify-fill.png', _('&Justify'), ('format_text', 'justify_justify'), 'format-text-justify-fill', (), _('Justify'))
+    ac = reg(
+        'format-justify-fill.png',
+        _('&Justify'),
+        ('format_text', 'justify_justify'),
+        'format-text-justify-fill',
+        (),
+        _('Justify'),
+    )
     ac.setToolTip(_('<h3>Justify</h3>Align the paragraph to both the left and right margins'))
 
-    ac = reg('sort.png', _('&Sort style rules'), ('sort_css',), 'editor-sort-css', (),
-             _('Sort the style rules'), syntaxes=('css',))
-    ac = reg('view-image.png', _('&Insert image'), ('insert_resource', 'image'), 'insert-image', (),
-             _('Insert an image into the text'), syntaxes=('html', 'css'))
+    ac = reg(
+        'sort.png',
+        _('&Sort style rules'),
+        ('sort_css',),
+        'editor-sort-css',
+        (),
+        _('Sort the style rules'),
+        syntaxes=('css',),
+    )
+    ac = reg(
+        'view-image.png',
+        _('&Insert image'),
+        ('insert_resource', 'image'),
+        'insert-image',
+        (),
+        _('Insert an image into the text'),
+        syntaxes=('html', 'css'),
+    )
     ac.setToolTip(_('<h3>Insert image</h3>Insert an image into the text'))
 
-    ac = reg('insert-link.png', _('Insert &hyperlink'), ('insert_hyperlink',), 'insert-hyperlink', (), _('Insert hyperlink'), syntaxes=('html',))
+    ac = reg(
+        'insert-link.png',
+        _('Insert &hyperlink'),
+        ('insert_hyperlink',),
+        'insert-hyperlink',
+        (),
+        _('Insert hyperlink'),
+        syntaxes=('html',),
+    )
     ac.setToolTip(_('<h3>Insert hyperlink</h3>Insert a hyperlink into the text'))
 
-    ac = reg(create_icon('/*', divider=1, fill=None), _('Smart &comment'), ('smart_comment',), 'editor-smart-comment', ('Ctrl+`',), _(
-        'Smart comment (toggle block comments)'), syntaxes=())
-    ac.setToolTip(_('<h3>Smart comment</h3>Comment or uncomment text<br><br>'
-                    'If the cursor is inside an existing block comment, uncomment it, otherwise comment out the selected text.'))
+    ac = reg(
+        create_icon('/*', divider=1, fill=None),
+        _('Smart &comment'),
+        ('smart_comment',),
+        'editor-smart-comment',
+        ('Ctrl+`',),
+        _('Smart comment (toggle block comments)'),
+        syntaxes=(),
+    )
+    ac.setToolTip(
+        _(
+            '<h3>Smart comment</h3>Comment or uncomment text<br><br>'
+            'If the cursor is inside an existing block comment, uncomment it, otherwise comment out the selected text.'
+        )
+    )
 
     for i, name in enumerate(('h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p')):
         text = ('&' + name) if name == 'p' else (name[0] + '&' + name[1])
         desc = _('Convert the paragraph to &lt;%s&gt;') % name
-        ac = reg(create_icon(name), text, ('rename_block_tag', name), 'rename-block-tag-' + name, f'Ctrl+{i + 1}', desc, syntaxes=())
+        ac = reg(
+            create_icon(name),
+            text,
+            ('rename_block_tag', name),
+            'rename-block-tag-' + name,
+            f'Ctrl+{i + 1}',
+            desc,
+            syntaxes=(),
+        )
         ac.setToolTip(desc)
 
     for transform, text in [
-            ('upper', _('&Upper case')), ('lower', _('&Lower case')), ('swap', _('&Swap case')),
-            ('title', _('&Title case')), ('capitalize', _('&Capitalize'))]:
+        ('upper', _('&Upper case')),
+        ('lower', _('&Lower case')),
+        ('swap', _('&Swap case')),
+        ('title', _('&Title case')),
+        ('capitalize', _('&Capitalize')),
+    ]:
         desc = _('Change the case of the selected text: %s') % text
         ac = reg(None, text, ('change_case', transform), 'transform-case-' + transform, (), desc, syntaxes=())
         ac.setToolTip(desc)
 
-    ac = reg('code.png', _('Insert &tag'), ('insert_tag',), 'insert-tag', ('Ctrl+<'), _('Insert tag'), syntaxes=('html', 'xml'))
+    ac = reg(
+        'code.png',
+        _('Insert &tag'),
+        ('insert_tag',),
+        'insert-tag',
+        ('Ctrl+<'),
+        _('Insert tag'),
+        syntaxes=('html', 'xml'),
+    )
     ac.setToolTip(_('<h3>Insert tag</h3>Insert a tag, if some text is selected the tag will be inserted around the selected text'))
 
-    ac = reg('trash.png', _('Remove &tag'), ('remove_tag',), 'remove-tag', ('Ctrl+>'), _('Remove tag'), syntaxes=('html', 'xml'))
+    ac = reg(
+        'trash.png',
+        _('Remove &tag'),
+        ('remove_tag',),
+        'remove-tag',
+        ('Ctrl+>'),
+        _('Remove tag'),
+        syntaxes=('html', 'xml'),
+    )
     ac.setToolTip(_('<h3>Remove tag</h3>Remove the currently highlighted tag'))
 
-    ac = reg('split.png', _('&Split tag'), ('split_tag',), 'split-tag', ('Ctrl+Alt+>'), _('Split current tag'), syntaxes=('html', 'xml'))
+    ac = reg(
+        'split.png',
+        _('&Split tag'),
+        ('split_tag',),
+        'split-tag',
+        ('Ctrl+Alt+>'),
+        _('Split current tag'),
+        syntaxes=('html', 'xml'),
+    )
     ac.setToolTip(_('<h3>Split tag</h3>Split the current tag at the cursor position'))
 
     editor_toolbar_actions['html']['fix-html-current'] = actions['fix-html-current']
     for s in ('xml', 'html', 'css'):
         editor_toolbar_actions[s]['pretty-current'] = actions['pretty-current']
     editor_toolbar_actions['html']['change-paragraph'] = actions['change-paragraph'] = QAction(
-        QIcon.ic('format-text-heading.png'), _('Change paragraph to heading'), ac.parent())
+        QIcon.ic('format-text-heading.png'), _('Change paragraph to heading'), ac.parent()
+    )
 
 
 class Editor(QMainWindow):
-
     has_line_numbers = True
 
     modification_state_changed = pyqtSignal(object)
@@ -188,7 +327,7 @@ class Editor(QMainWindow):
     @property
     def current_editing_state(self):
         c = self.editor.textCursor()
-        return {'cursor':(c.anchor(), c.position())}
+        return {'cursor': (c.anchor(), c.position())}
 
     @current_editing_state.setter
     def current_editing_state(self, val):
@@ -212,7 +351,7 @@ class Editor(QMainWindow):
     @property
     def data(self):
         ans = self.get_raw_data()
-        ans, changed = replace_encoding_declarations(ans, enc='utf-8', limit=4*1024)
+        ans, changed = replace_encoding_declarations(ans, enc='utf-8', limit=4 * 1024)
         if changed:
             self.data = ans
         return ans.encode('utf-8')
@@ -279,6 +418,7 @@ class Editor(QMainWindow):
 
     def manage_insert_tags(self):
         from calibre.gui2.tweak_book.widgets import ManageTagList
+
         d = ManageTagList(self)
         if d.exec() == QDialog.DialogCode.Accepted:
             self._build_insert_tag_button_menu()
@@ -324,6 +464,7 @@ class Editor(QMainWindow):
 
     def go_to_anchor(self, *args, **kwargs):
         return self.editor.go_to_anchor(*args, **kwargs)
+
     # }}}
 
     @property
@@ -432,7 +573,13 @@ class Editor(QMainWindow):
         self.restore_state()
 
     def break_cycles(self):
-        for x in ('modification_state_changed', 'word_ignored', 'link_clicked', 'class_clicked', 'smart_highlighting_updated'):
+        for x in (
+            'modification_state_changed',
+            'word_ignored',
+            'link_clicked',
+            'class_clicked',
+            'smart_highlighting_updated',
+        ):
             try:
                 getattr(self, x).disconnect()
             except TypeError:
@@ -499,8 +646,7 @@ class Editor(QMainWindow):
 
     def paste(self):
         if not self.editor.canPaste():
-            return error_dialog(self, _('No text'), _(
-                'There is no suitable text in the clipboard to paste.'), show=True)
+            return error_dialog(self, _('No text'), _('There is no suitable text in the clipboard to paste.'), show=True)
         self.editor.paste()
 
     def contextMenuEvent(self, event):
@@ -509,14 +655,16 @@ class Editor(QMainWindow):
     def fix_html(self):
         if self.syntax == 'html':
             from calibre.ebooks.oeb.polish.pretty import fix_html
+
             self.editor.replace_text(fix_html(current_container(), str(self.editor.toPlainText())).decode('utf-8'))
             return True
         return False
 
     def pretty_print(self, name):
         from calibre.ebooks.oeb.polish.pretty import pretty_css, pretty_html, pretty_xml
+
         if self.syntax in {'css', 'html', 'xml'}:
-            func = {'css':pretty_css, 'xml':pretty_xml}.get(self.syntax, pretty_html)
+            func = {'css': pretty_css, 'xml': pretty_xml}.get(self.syntax, pretty_html)
             original_text = str(self.editor.toPlainText())
             prettied_text = func(current_container(), name, original_text).decode('utf-8')
             if original_text != prettied_text:
@@ -566,8 +714,10 @@ class Editor(QMainWindow):
                 dics = dictionaries.active_user_dictionaries
                 if len(dics) > 0:
                     if len(dics) == 1:
-                        m.addAction(_('Add this word to the dictionary: {0}').format(dics[0].name), partial(
-                            self._nuke_word, dics[0].name, word, locale))
+                        m.addAction(
+                            _('Add this word to the dictionary: {0}').format(dics[0].name),
+                            partial(self._nuke_word, dics[0].name, word, locale),
+                        )
                     else:
                         ac = m.addAction(_('Add this word to the dictionary'))
                         assert ac is not None
@@ -642,6 +792,7 @@ def launch_editor(path_to_edit, path_is_raw=False, syntax='html', callback=None)
     from calibre.gui2.tweak_book.editor.syntax.html import refresh_spell_check_status
     from calibre.gui2.tweak_book.main import option_parser
     from calibre.gui2.tweak_book.ui import Main
+
     dictionaries.initialize()
     refresh_spell_check_status()
     opts = option_parser().parse_args([])

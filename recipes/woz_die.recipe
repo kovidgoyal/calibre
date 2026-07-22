@@ -2,7 +2,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class WozDie(BasicNewsRecipe):
-    title = u'WOZ Die Wochenzeitung'
+    title = 'WOZ Die Wochenzeitung'
     oldest_article = 7
     max_articles_per_feed = 100
     language = 'de'
@@ -13,7 +13,7 @@ class WozDie(BasicNewsRecipe):
         dict(name='p', attrs={'class': 'bottom_right'}),
         dict(name='script'),
     ]
-    extra_css      = '''#print_titel{vertical-align: bottom; text-align:
+    extra_css = '''#print_titel{vertical-align: bottom; text-align:
  left; color: #666666; background-color: white; padding-top: 30px; padding-
  bottom: 10px; border-bottom: 1px solid #999999;} #title{text-align:
  left; font-size: large; font-weight: 600; padding-top: 0px; padding-
@@ -42,8 +42,9 @@ class WozDie(BasicNewsRecipe):
  right: 0px; margin-bottom: 10px; text-align: left; width: 600px; border-
  bottom: 1px solid #999999;}'''
 
-    feeds = [('WOZ Die Wochenzeitung - Headlines',
-              'http://www.woz.ch/inhalt/headlinesRSS.php'), ]
+    feeds = [
+        ('WOZ Die Wochenzeitung - Headlines', 'http://www.woz.ch/inhalt/headlinesRSS.php'),
+    ]
 
     def print_version(self, url):
         return url.replace('rss/', 'print_')

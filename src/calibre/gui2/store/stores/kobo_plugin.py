@@ -1,11 +1,9 @@
 # -*- coding: utf-8 -*-
+# License: GPLv3 Copyright: 2011, John Schember <john@nachtimwald.com>
+
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 store_version = 16  # Needed for dynamic plugin loading
-
-__license__ = 'GPL 3'
-__copyright__ = '2011, John Schember <john@nachtimwald.com>'
-__docformat__ = 'restructuredtext en'
 
 from urllib.parse import quote_plus
 
@@ -22,6 +20,7 @@ from calibre.gui2.store.web_store_dialog import WebStoreDialog
 try:
     from calibre.utils.xml_parse import safe_html_fromstring
 except ImportError:
+
     def safe_html_fromstring(string_or_bytes, recover=True):
         return html.fromstring(string_or_bytes)
 
@@ -33,11 +32,13 @@ def read_url(url, timeout=60):
     # Kobo uses Akamai which has some bot detection that uses network/tls
     # protocol data. So use the Chromium network stack to make the request
     from calibre.scraper.simple import read_url as ru
+
     return ru(_storage, url, timeout=timeout)
 
 
 def search_kobo(query, max_results=10, timeout=60, write_html_to=None):
     from css_selectors import Select
+
     url = 'https://www.kobo.com/search?query=' + quote_plus(query)
     raw = read_url(url, timeout=timeout)
     if write_html_to is not None:
@@ -92,7 +93,6 @@ def search_kobo(query, max_results=10, timeout=60, write_html_to=None):
 
 
 class KoboStore(BasicStoreConfig, StorePlugin):
-
     minimum_calibre_version = (5, 40, 1)
 
     def open(self, gui=None, parent=None, detail_item=None, external=False):
@@ -130,5 +130,6 @@ class KoboStore(BasicStoreConfig, StorePlugin):
 
 if __name__ == '__main__':
     import sys
+
     for result in search_kobo(' '.join(sys.argv[1:]), write_html_to='/t/kobo.html'):
         print(result)

@@ -1,9 +1,5 @@
 #!/usr/bin/env python
-
-__license__   = 'GPL v3'
-__copyright__ = '2025, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
-
+# License: GPLv3 Copyright: 2025, Kovid Goyal <kovid@kovidgoyal.net>
 
 from qt.core import QTabWidget, pyqtSignal
 
@@ -18,7 +14,6 @@ from calibre.utils.localization import _
 
 
 class CoverGridTab(QTabWidget, LazyConfigWidgetBase, Ui_cover_grid_tab):
-
     changed_signal = pyqtSignal()
     restart_now = pyqtSignal()
 
@@ -37,12 +32,17 @@ class CoverGridTab(QTabWidget, LazyConfigWidgetBase, Ui_cover_grid_tab):
         r('cover_grid_show_title', gprefs)
         r('cover_grid_text_flush_bottom', gprefs)
         r('emblem_size', gprefs)
-        r('emblem_position', gprefs, choices=[
-            (_('Left'), 'left'), (_('Top'), 'top'), (_('Right'), 'right'), (_('Bottom'), 'bottom')])
+        r(
+            'emblem_position',
+            gprefs,
+            choices=[(_('Left'), 'left'), (_('Top'), 'top'), (_('Right'), 'right'), (_('Bottom'), 'bottom')],
+        )
 
         fm = db.field_metadata
-        choices = sorted((('{} ({})'.format(fm[k]['name'], k), k) for k in fm.displayable_field_keys() if fm[k]['name']),
-                         key=lambda x:sort_key(x[0]))
+        choices = sorted(
+            (('{} ({})'.format(fm[k]['name'], k), k) for k in fm.displayable_field_keys() if fm[k]['name']),
+            key=lambda x: sort_key(x[0]),
+        )
         r('field_under_covers_in_grid', db.prefs, choices=choices)
 
         self.cg_background_box.link_config('cover_grid_background')
@@ -97,5 +97,6 @@ class CoverGridTab(QTabWidget, LazyConfigWidgetBase, Ui_cover_grid_tab):
 if __name__ == '__main__':
     from calibre.gui2 import Application
     from calibre.gui2.preferences import test_widget
+
     app = Application([])
     test_widget('Interface', 'Look & Feel', callback=lambda w: w.sections_view.setCurrentRow(1))

@@ -11,9 +11,9 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class Kyungyhang(BasicNewsRecipe):
-    title = u'Kyungyhang'
+    title = 'Kyungyhang'
     language = 'ko'
-    description = u'The Kyungyhang Shinmun articles'
+    description = 'The Kyungyhang Shinmun articles'
     __author__ = 'Seongkyoun Yoo'
     oldest_article = 7
     max_articles_per_feed = 10
@@ -21,14 +21,13 @@ class Kyungyhang(BasicNewsRecipe):
     remove_javascript = True
 
     preprocess_regexps = [
-        (re.compile(r"<div class='ad_movFocus'.*</html>",
-                    re.DOTALL | re.IGNORECASE), lambda match: '</html>'),
+        (re.compile(r"<div class='ad_movFocus'.*</html>", re.DOTALL | re.IGNORECASE), lambda match: '</html>'),
     ]
 
     keep_only_tags = [
         dict(name='div', attrs={'class': ['article_title_wrap']}),
         dict(name='div', attrs={'class': ['viewHeader']}),
-        dict(name='span', attrs={'class': ['article_txt']})
+        dict(name='span', attrs={'class': ['article_txt']}),
     ]
 
     remove_tags_after = dict(id={'sub_bottom'})
@@ -39,20 +38,19 @@ class Kyungyhang(BasicNewsRecipe):
         dict(name='div', attrs={'class': ['article_date']}),
         dict(name='iframe'),
         dict(id={'TdHot'}),
-        dict(name='div', attrs={
-            'class': ['btn_list', 'bline', 'linebottom', 'bestArticle']}),
+        dict(name='div', attrs={'class': ['btn_list', 'bline', 'linebottom', 'bestArticle']}),
         dict(name='dl', attrs={'class': ['CL']}),
         dict(name='ul', attrs={'class': ['tab']}),
     ]
 
     feeds = [
-        (u'정치',    'http://www.khan.co.kr/rss/rssdata/politic_news.xml'),
-        (u'경제',    'http://www.khan.co.kr/rss/rssdata/economy_news.xml'),
-        (u'사회',    'http://www.khan.co.kr/rss/rssdata/society_news.xml'),
-        (u'세계',    'http://www.khan.co.kr/rss/rssdata/kh_world.xml'),
-        (u'스포츠',  'http://www.khan.co.kr/rss/rssdata/kh_sports.xml'),
-        (u'문화',    'http://www.khan.co.kr/rss/rssdata/culture_news.xml'),
-        (u'연예',    'http://www.khan.co.kr/rss/rssdata/kh_entertainment.xml'),
-        (u'IT',      'http://www.khan.co.kr/rss/rssdata/it_news.xml'),
-        (u'오피니언', 'http://www.khan.co.kr/rss/rssdata/opinion_news.xml'),
+        ('정치', 'http://www.khan.co.kr/rss/rssdata/politic_news.xml'),
+        ('경제', 'http://www.khan.co.kr/rss/rssdata/economy_news.xml'),
+        ('사회', 'http://www.khan.co.kr/rss/rssdata/society_news.xml'),
+        ('세계', 'http://www.khan.co.kr/rss/rssdata/kh_world.xml'),
+        ('스포츠', 'http://www.khan.co.kr/rss/rssdata/kh_sports.xml'),
+        ('문화', 'http://www.khan.co.kr/rss/rssdata/culture_news.xml'),
+        ('연예', 'http://www.khan.co.kr/rss/rssdata/kh_entertainment.xml'),
+        ('IT', 'http://www.khan.co.kr/rss/rssdata/it_news.xml'),
+        ('오피니언', 'http://www.khan.co.kr/rss/rssdata/opinion_news.xml'),
     ]

@@ -1,10 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__   = 'GPL v3'
-__copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
-
+# License: GPLv3 Copyright: 2009, Kovid Goyal <kovid@kovidgoyal.net>
 
 import io
 import time
@@ -20,36 +15,35 @@ job_counter = count()
 
 
 class BaseJob:
-
-    WAITING  = 0
-    RUNNING  = 1
+    WAITING = 0
+    RUNNING = 1
     FINISHED = 2
 
     def __init__(self, description, done=lambda x: x):
-        self.id            = next(job_counter)
-        self.description   = description
-        self.done          = done
-        self.done2         = None
-        self.killed        = False
-        self.failed        = False
+        self.id = next(job_counter)
+        self.description = description
+        self.done = done
+        self.done2 = None
+        self.killed = False
+        self.failed = False
         self.kill_on_start = False
-        self.start_time    = None
-        self.result        = None
-        self.duration      = None
-        self.log_path      = None
+        self.start_time = None
+        self.result = None
+        self.duration = None
+        self.log_path = None
         self.notifications = Queue()
 
-        self._run_state    = self.WAITING
-        self.percent       = 0
-        self._message      = None
-        self._status_text  = _('Waiting...')
-        self._done_called  = False
-        self.core_usage    = 1
-        self.timed_out     = False
+        self._run_state = self.WAITING
+        self.percent = 0
+        self._message = None
+        self._status_text = _('Waiting...')
+        self._done_called = False
+        self.core_usage = 1
+        self.timed_out = False
 
     def update(self, consume_notifications=True):
         if self.duration is not None:
-            self._run_state   = self.FINISHED
+            self._run_state = self.FINISHED
             self.percent = 100
             if self.killed:
                 if self.timed_out:
@@ -88,7 +82,7 @@ class BaseJob:
         while self.notifications is not None:
             try:
                 self.percent, self._message = self.notifications.get_nowait()
-                self.percent *= 100.
+                self.percent *= 100.0
                 got_notification = True
             except Empty:
                 break
@@ -162,8 +156,7 @@ class BaseJob:
     def log_file(self):
         if self.log_path:
             return open(self.log_path, 'rb')
-        return io.BytesIO(_('No details available.').encode('utf-8',
-            'replace'))
+        return io.BytesIO(_('No details available.').encode('utf-8', 'replace'))
 
     @property
     def details(self):
@@ -171,7 +164,6 @@ class BaseJob:
 
 
 class ParallelJob(BaseJob):
-
     def __init__(self, name, description, done, args=[], kwargs={}):
         self.name, self.args, self.kwargs = name, args, kwargs
         BaseJob.__init__(self, description, done)

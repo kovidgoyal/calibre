@@ -1,9 +1,5 @@
 #!/usr/bin/env python
-
-__license__   = 'GPL v3'
-__copyright__ = '2025, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
-
+# License: GPLv3 Copyright: 2025, Kovid Goyal <kovid@kovidgoyal.net>
 
 from qt.core import QApplication, QDialog, QFont, QFontDialog, QFontInfo
 
@@ -17,7 +13,6 @@ from calibre.utils.localization import _, available_translations, get_lang, get_
 
 
 class LanguageSetting(Setting):
-
     def commit(self):
         val = self.get_gui_val()
         oldval = self.get_config_val()
@@ -27,7 +22,6 @@ class LanguageSetting(Setting):
 
 
 class MainInterfaceTab(LazyConfigWidgetBase, Ui_Form):
-
     def genesis(self, gui):
         self.gui = gui
         self.ui_style_available = True
@@ -46,7 +40,12 @@ class MainInterfaceTab(LazyConfigWidgetBase, Ui_Form):
         self.commit_icon_theme = None
         self.icon_theme_button.clicked.connect(self.choose_icon_theme)
 
-        r('ui_style', gprefs, restart_required=True, choices=[(_('System default'), 'system'), (_('calibre style'), 'calibre')])
+        r(
+            'ui_style',
+            gprefs,
+            restart_required=True,
+            choices=[(_('System default'), 'system'), (_('calibre style'), 'calibre')],
+        )
         r('book_list_tooltips', gprefs)
         r('dnd_merge', gprefs)
         r('wrap_toolbar_text', gprefs, restart_required=True)
@@ -67,8 +66,7 @@ class MainInterfaceTab(LazyConfigWidgetBase, Ui_Form):
         lang = get_lang()
         if lang is None or lang not in available_translations():
             lang = 'en'
-        items = [(l, get_esc_lang(l)) for l in available_translations()
-                 if l != lang]
+        items = [(l, get_esc_lang(l)) for l in available_translations() if l != lang]
         if lang != 'en':
             items.append(('en', get_esc_lang('en')))
         items.sort(key=lambda x: x[1].lower())
@@ -85,12 +83,16 @@ class MainInterfaceTab(LazyConfigWidgetBase, Ui_Form):
         r('show_splash_screen', gprefs)
         r('disable_tray_notification', config)
 
-        choices = [(_('Off'), 'off'), (_('Small'), 'small'),
-            (_('Medium-small'), 'mid-small'), (_('Medium'), 'medium'), (_('Large'), 'large')]
+        choices = [
+            (_('Off'), 'off'),
+            (_('Small'), 'small'),
+            (_('Medium-small'), 'mid-small'),
+            (_('Medium'), 'medium'),
+            (_('Large'), 'large'),
+        ]
         r('toolbar_icon_size', gprefs, choices=choices)
 
-        choices = [(_('If there is enough room'), 'auto'), (_('Always'), 'always'),
-            (_('Never'), 'never')]
+        choices = [(_('If there is enough room'), 'auto'), (_('Always'), 'always'), (_('Never'), 'never')]
         r('toolbar_text', gprefs, choices=choices)
 
         self.current_font = self.initial_font = None
@@ -115,6 +117,7 @@ class MainInterfaceTab(LazyConfigWidgetBase, Ui_Form):
 
     def adjust_colors(self):
         from calibre.gui2.dialogs.palette import PaletteConfig
+
         d = PaletteConfig(self)
         if d.exec() == QDialog.DialogCode.Accepted:
             d.apply_settings()
@@ -127,6 +130,7 @@ class MainInterfaceTab(LazyConfigWidgetBase, Ui_Form):
 
     def choose_icon_theme(self):
         from calibre.gui2.icon_theme import ChooseTheme
+
         d = ChooseTheme(self)
         if d.exec() == QDialog.DialogCode.Accepted:
             self.commit_icon_theme = d.commit_changes
@@ -145,8 +149,7 @@ class MainInterfaceTab(LazyConfigWidgetBase, Ui_Form):
         if fd.exec() == QDialog.DialogCode.Accepted:
             font = fd.selectedFont()
             fi = QFontInfo(font)
-            self.current_font = [str(fi.family()), fi.pointSize(),
-                    fi.weight(), fi.italic(), font.stretch()]
+            self.current_font = [str(fi.family()), fi.pointSize(), fi.weight(), fi.italic(), font.stretch()]
             self.update_font_display()
             self.changed_signal.emit()
 
@@ -162,9 +165,8 @@ class MainInterfaceTab(LazyConfigWidgetBase, Ui_Form):
         rr = LazyConfigWidgetBase.commit(self)
         with BusyCursor():
             if self.current_font != self.initial_font:
-                gprefs['font'] = (self.current_font[:4] if self.current_font else None)
-                gprefs['font_stretch'] = (self.current_font[4] if self.current_font
-                        is not None else QFont.Stretch.Unstretched)
+                gprefs['font'] = self.current_font[:4] if self.current_font else None
+                gprefs['font_stretch'] = self.current_font[4] if self.current_font is not None else QFont.Stretch.Unstretched
                 QApplication.setFont(self.font_display.font())
                 rr = True
             if self.commit_icon_theme is not None:

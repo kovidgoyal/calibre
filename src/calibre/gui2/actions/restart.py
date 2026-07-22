@@ -1,17 +1,11 @@
 #!/usr/bin/env python
-
-
-__license__   = 'GPL v3'
-__copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
-
+# License: GPLv3 Copyright: 2010, Kovid Goyal <kovid@kovidgoyal.net>
 
 from calibre.gui2.actions import InterfaceAction
 from calibre.utils.localization import _
 
 
 class RestartAction(InterfaceAction):
-
     name = 'Restart'
     action_spec = (_('Restart'), 'restart.png', _('Restart calibre'), 'Ctrl+R')
 

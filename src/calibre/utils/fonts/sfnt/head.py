@@ -1,9 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__   = 'GPL v3'
-__copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2012, Kovid Goyal <kovid at kovidgoyal.net>
 
 import array
 from struct import calcsize, pack, unpack_from
@@ -14,7 +10,6 @@ from calibre.utils.fonts.sfnt.loca import read_array
 
 
 class HeadTable(UnknownTable):
-
     created = DateTimeProperty('_created')
     modified = DateTimeProperty('_modified')
     version_number = FixedProperty('_version_number')
@@ -24,23 +19,40 @@ class HeadTable(UnknownTable):
         super().__init__(*args, **kwargs)
 
         field_types = (
-                '_version_number', 'l',
-                '_font_revision', 'l',
-                'checksum_adjustment', 'L',
-                'magic_number', 'L',
-                'flags', 'H',
-                'units_per_em', 'H',
-                '_created', 'q',
-                '_modified', 'q',
-                'x_min', 'h',
-                'y_min', 'h',
-                'x_max', 'h',
-                'y_max', 'h',
-                'mac_style', 'H',
-                'lowest_rec_ppem', 'H',
-                'font_direction_hint', 'h',
-                'index_to_loc_format', 'h',
-                'glyph_data_format', 'h'
+            '_version_number',
+            'l',
+            '_font_revision',
+            'l',
+            'checksum_adjustment',
+            'L',
+            'magic_number',
+            'L',
+            'flags',
+            'H',
+            'units_per_em',
+            'H',
+            '_created',
+            'q',
+            '_modified',
+            'q',
+            'x_min',
+            'h',
+            'y_min',
+            'h',
+            'x_max',
+            'h',
+            'y_max',
+            'h',
+            'mac_style',
+            'H',
+            'lowest_rec_ppem',
+            'H',
+            'font_direction_hint',
+            'h',
+            'index_to_loc_format',
+            'h',
+            'glyph_data_format',
+            'h',
         )
 
         self._fmt = ('>{}'.format(''.join(field_types[1::2]))).encode('ascii')
@@ -85,26 +97,42 @@ def update_metrics_table(metrics_map, mtx_table):
 
 
 class HorizontalHeader(UnknownTable):
-
     version_number = FixedProperty('_version_number')
     field_types = (
-        '_version_number', 'l',
-        'ascender', 'h',
-        'descender', 'h',
-        'line_gap', 'h',
-        'advance_width_max', 'H',
-        'min_left_side_bearing', 'h',
-        'min_right_side_bearing', 'h',
-        'x_max_extent', 'h',
-        'caret_slope_rise', 'h',
-        'caret_slop_run', 'h',
-        'caret_offset', 'h',
-        'r1', 'h',
-        'r2', 'h',
-        'r3', 'h',
-        'r4', 'h',
-        'metric_data_format', 'h',
-        'number_of_h_metrics', 'H',
+        '_version_number',
+        'l',
+        'ascender',
+        'h',
+        'descender',
+        'h',
+        'line_gap',
+        'h',
+        'advance_width_max',
+        'H',
+        'min_left_side_bearing',
+        'h',
+        'min_right_side_bearing',
+        'h',
+        'x_max_extent',
+        'h',
+        'caret_slope_rise',
+        'h',
+        'caret_slop_run',
+        'h',
+        'caret_offset',
+        'h',
+        'r1',
+        'h',
+        'r2',
+        'h',
+        'r3',
+        'h',
+        'r4',
+        'h',
+        'metric_data_format',
+        'h',
+        'number_of_h_metrics',
+        'H',
     )
 
     def read_data(self, hmtx, num_glyphs):
@@ -134,26 +162,42 @@ class HorizontalHeader(UnknownTable):
 
 
 class VerticalHeader(UnknownTable):
-
     version_number = FixedProperty('_version_number')
     field_types = (
-        '_version_number', 'l',
-        'ascender', 'h',
-        'descender', 'h',
-        'line_gap', 'h',
-        'advance_height_max', 'H',
-        'min_top_side_bearing', 'h',
-        'min_bottom_side_bearing', 'h',
-        'y_max_extent', 'h',
-        'caret_slope_rise', 'h',
-        'caret_slop_run', 'h',
-        'caret_offset', 'h',
-        'r1', 'h',
-        'r2', 'h',
-        'r3', 'h',
-        'r4', 'h',
-        'metric_data_format', 'h',
-        'number_of_v_metrics', 'H',
+        '_version_number',
+        'l',
+        'ascender',
+        'h',
+        'descender',
+        'h',
+        'line_gap',
+        'h',
+        'advance_height_max',
+        'H',
+        'min_top_side_bearing',
+        'h',
+        'min_bottom_side_bearing',
+        'h',
+        'y_max_extent',
+        'h',
+        'caret_slope_rise',
+        'h',
+        'caret_slop_run',
+        'h',
+        'caret_offset',
+        'h',
+        'r1',
+        'h',
+        'r2',
+        'h',
+        'r3',
+        'h',
+        'r4',
+        'h',
+        'metric_data_format',
+        'h',
+        'number_of_v_metrics',
+        'H',
     )
 
     def read_data(self, vmtx, num_glyphs):
@@ -183,48 +227,80 @@ class VerticalHeader(UnknownTable):
 
 
 class OS2Table(UnknownTable):
-
     def read_data(self):
         if hasattr(self, 'char_width'):
             return
-        ver, = unpack_from(b'>H', self.raw)
+        (ver,) = unpack_from(b'>H', self.raw)
         field_types = [
-            'version', 'H',
-            'average_char_width', 'h',
-            'weight_class', 'H',
-            'width_class', 'H',
-            'fs_type', 'H',
-            'subscript_x_size', 'h',
-            'subscript_y_size', 'h',
-            'subscript_x_offset', 'h',
-            'subscript_y_offset', 'h',
-            'superscript_x_size', 'h',
-            'superscript_y_size', 'h',
-            'superscript_x_offset', 'h',
-            'superscript_y_offset', 'h',
-            'strikeout_size', 'h',
-            'strikeout_position', 'h',
-            'family_class', 'h',
-            'panose', '10s',
-            'ranges', '16s',
-            'vendor_id', '4s',
-            'selection', 'H',
-            'first_char_index', 'H',
-            'last_char_index', 'H',
-            'typo_ascender', 'h',
-            'typo_descender', 'h',
-            'typo_line_gap', 'h',
-            'win_ascent', 'H',
-            'win_descent', 'H',
+            'version',
+            'H',
+            'average_char_width',
+            'h',
+            'weight_class',
+            'H',
+            'width_class',
+            'H',
+            'fs_type',
+            'H',
+            'subscript_x_size',
+            'h',
+            'subscript_y_size',
+            'h',
+            'subscript_x_offset',
+            'h',
+            'subscript_y_offset',
+            'h',
+            'superscript_x_size',
+            'h',
+            'superscript_y_size',
+            'h',
+            'superscript_x_offset',
+            'h',
+            'superscript_y_offset',
+            'h',
+            'strikeout_size',
+            'h',
+            'strikeout_position',
+            'h',
+            'family_class',
+            'h',
+            'panose',
+            '10s',
+            'ranges',
+            '16s',
+            'vendor_id',
+            '4s',
+            'selection',
+            'H',
+            'first_char_index',
+            'H',
+            'last_char_index',
+            'H',
+            'typo_ascender',
+            'h',
+            'typo_descender',
+            'h',
+            'typo_line_gap',
+            'h',
+            'win_ascent',
+            'H',
+            'win_descent',
+            'H',
         ]
         if ver > 1:
             field_types += [
-                'code_page_range', '8s',
-                'x_height', 'h',
-                'cap_height', 'h',
-                'default_char', 'H',
-                'break_char', 'H',
-                'max_context', 'H',
+                'code_page_range',
+                '8s',
+                'x_height',
+                'h',
+                'cap_height',
+                'h',
+                'default_char',
+                'H',
+                'break_char',
+                'H',
+                'max_context',
+                'H',
             ]
 
         self._fmt = ('>{}'.format(''.join(field_types[1::2]))).encode('ascii')
@@ -235,17 +311,15 @@ class OS2Table(UnknownTable):
 
     def zero_fstype(self):
         prefix = calcsize(b'>HhHH')
-        self.raw = self.raw[:prefix] + b'\0\0' + self.raw[prefix+2:]
+        self.raw = self.raw[:prefix] + b'\0\0' + self.raw[prefix + 2 :]
         self.fs_type = 0
 
 
 class PostTable(UnknownTable):
-
     version_number = FixedProperty('_version')
     italic_angle = FixedProperty('_italic_angle')
 
     def read_data(self):
         if hasattr(self, 'underline_position'):
             return
-        (self._version, self._italic_angle, self.underline_position,
-         self.underline_thickness) = unpack_from(b'>llhh', self.raw)
+        (self._version, self._italic_angle, self.underline_position, self.underline_thickness) = unpack_from(b'>llhh', self.raw)

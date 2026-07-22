@@ -23,13 +23,11 @@ class ZeroHedge(BasicNewsRecipe):
     category = 'news, USA, world, economy, politics'
     language = 'en'
     masthead_url = 'https://www.zerohedge.com/images/logo/full.svg'
-    auto_cleanup     = True
+    auto_cleanup = True
     auto_cleanup_keep = '//*[@class="main-content"]'
     publication_type = 'blog'
     extra_css = 'body{ font-family: sans-serif }'
 
-    conversion_options = {
-        'comments': description, 'tags': category, 'language': language, 'publisher': publisher
-    }
+    conversion_options = {'comments': description, 'tags': category, 'language': language, 'publisher': publisher}
 
-    feeds = [(u'Articles', u'http://feeds.feedburner.com/zerohedge/feed')]
+    feeds = [('Articles', 'http://feeds.feedburner.com/zerohedge/feed')]

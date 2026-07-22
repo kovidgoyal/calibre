@@ -1,6 +1,4 @@
-__license__ = 'GPL 3'
-__copyright__ = '2009, John Schember <john@nachtimwald.com>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2009, John Schember <john@nachtimwald.com>
 
 import io
 import struct
@@ -16,7 +14,6 @@ TEXT_RECORD_SIZE = 4096
 
 
 class TocItem:
-
     def __init__(self, name, size, flags):
         self.name = name
         self.size = size
@@ -24,7 +21,6 @@ class TocItem:
 
 
 class RBWriter:
-
     def __init__(self, opts, log):
         self.opts = opts
         self.log = log
@@ -40,7 +36,7 @@ class RBWriter:
 
         toc_items = []
         page_count = 0
-        for name, data in info+text+hidx+images:
+        for name, data in info + text + hidx + images:
             page_count += 1
             size = len(data)
             if (name, data) in text:
@@ -84,14 +80,14 @@ class RBWriter:
             out_stream.write(chunk)
 
         self.log.debug('Writing images...')
-        for item in hidx+images:
+        for item in hidx + images:
             w = item[1]
             if not isinstance(w, bytes):
                 w = w.encode('utf-8')
             out_stream.write(w)
 
         total_size = out_stream.tell()
-        out_stream.seek(0x1c)
+        out_stream.seek(0x1C)
         out_stream.write(struct.pack('<I', total_size))
 
     def _text(self, oeb_book):
@@ -100,7 +96,7 @@ class RBWriter:
         size = len(text)
 
         pages = []
-        for i in range((len(text) + TEXT_RECORD_SIZE-1) // TEXT_RECORD_SIZE):
+        for i in range((len(text) + TEXT_RECORD_SIZE - 1) // TEXT_RECORD_SIZE):
             zobj = zlib.compressobj(9, zlib.DEFLATED, 13, 8, 0)
             pages.append(zobj.compress(text[i * TEXT_RECORD_SIZE : (i * TEXT_RECORD_SIZE) + TEXT_RECORD_SIZE]) + zobj.flush())
 
@@ -108,6 +104,7 @@ class RBWriter:
 
     def _images(self, manifest):
         from calibre.ebooks.oeb.base import OEB_RASTER_IMAGES
+
         images = []
         used_names = []
 
@@ -128,8 +125,7 @@ class RBWriter:
 
                     images.append((name, data))
                 except Exception as e:
-                    self.log.error(f'Error: Could not include file {item.href} because '
-                        f'{e}.')
+                    self.log.error(f'Error: Could not include file {item.href} because {e}.')
 
         return images
 
@@ -140,6 +136,7 @@ class RBWriter:
                 text += f'TITLE={metadata.title[0].value}\n'
             if len(metadata.creator) >= 1:
                 from calibre.ebooks.metadata import authors_to_string
+
                 text += f'AUTHOR={authors_to_string([x.value for x in metadata.creator])}\n'
         text += f'GENERATOR={__appname__} - {__version__}\n'
         text += 'PARSE=1\n'

@@ -33,11 +33,7 @@ class LeMondePremium(BasicNewsRecipe):
 
     def get_browser(self, *args, **kwargs):
         br = BasicNewsRecipe.get_browser(self, *args, **kwargs)
-        br.addheaders = [
-            ('User-Agent', self.browser_user_agent),
-            ('X-Lmd-Token', 'TWPLMOLMO'),
-            ('Accept', 'application/json')
-        ]
+        br.addheaders = [('User-Agent', self.browser_user_agent), ('X-Lmd-Token', 'TWPLMOLMO'), ('Accept', 'application/json')]
         return br
 
     def get_article_url(self, article):
@@ -78,16 +74,27 @@ class LeMondePremium(BasicNewsRecipe):
         dict(name='div', attrs={'class': ['kicker', 'article__desc']}),
         # On garde le conteneur principal et les figures (images)
         dict(name='div', attrs={'class': ['article_content', 'article__content']}),
-        dict(name='figure')
+        dict(name='figure'),
     ]
 
     remove_tags = [
-        dict(name='div', attrs={'class': [
-            'see-also-container', 'inread-container', 'premium-container',
-            'restricted-reading', 'offer-container', 'authors-container',
-            'js-init-line-clamp', 'bloc-reactions', 'meta__publisher'
-        ]}),
-        dict(name=['aside', 'footer', 'button', 'svg', 'script', 'style', 'video'])
+        dict(
+            name='div',
+            attrs={
+                'class': [
+                    'see-also-container',
+                    'inread-container',
+                    'premium-container',
+                    'restricted-reading',
+                    'offer-container',
+                    'authors-container',
+                    'js-init-line-clamp',
+                    'bloc-reactions',
+                    'meta__publisher',
+                ]
+            },
+        ),
+        dict(name=['aside', 'footer', 'button', 'svg', 'script', 'style', 'video']),
     ]
 
     extra_css = '''
@@ -129,5 +136,5 @@ class LeMondePremium(BasicNewsRecipe):
         ('Économie', 'https://www.lemonde.fr/economie/rss_full.xml'),
         ('International', 'https://www.lemonde.fr/international/rss_full.xml'),
         ('Planète', 'https://www.lemonde.fr/planete/rss_full.xml'),
-        ('M le Mag', 'https://www.lemonde.fr/m-le-mag/rss_full.xml')
+        ('M le Mag', 'https://www.lemonde.fr/m-le-mag/rss_full.xml'),
     ]

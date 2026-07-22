@@ -51,8 +51,8 @@ QDropEvent.posF = lambda self: self.position()
 QHoverEvent.pos = lambda self: self.position().toPoint()
 QHoverEvent.posF = lambda self: self.position()
 
-
 # Restore the removed exec_ method
+
 
 def exec_(self, *args, **kwargs):
     return self.exec(*args, **kwargs)
@@ -76,19 +76,31 @@ def set_menu(self, menu):
 QAction.setMenu = set_menu
 QAction.menu = lambda self: progress_indicator.menu_for_action(self)  # noqa: PLW0108
 
-
 # Restore QModelIndex::child
 QModelIndex.child = lambda self, row, column: self.model().index(row, column, self)
-
 
 # Restore QFontMetrics::width
 QFontMetrics.width = lambda self, text: self.horizontalAdvance(text)
 
 # Restore enum values to various classes
 for cls in (
-    Qt, QDialog, QToolButton, QAbstractItemView, QDialogButtonBox, QFrame, QComboBox,
-    QLineEdit, QAction, QImage, QIODevice, QPalette, QFormLayout, QEvent, QMessageBox,
-    QSizePolicy, QLayout
+    Qt,
+    QDialog,
+    QToolButton,
+    QAbstractItemView,
+    QDialogButtonBox,
+    QFrame,
+    QComboBox,
+    QLineEdit,
+    QAction,
+    QImage,
+    QIODevice,
+    QPalette,
+    QFormLayout,
+    QEvent,
+    QMessageBox,
+    QSizePolicy,
+    QLayout,
 ):
     for var in tuple(vars(cls).values()):
         m = getattr(var, '__members__', {})

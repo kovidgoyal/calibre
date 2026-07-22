@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # License: GPL v3 Copyright: 2019, Kovid Goyal <kovid at kovidgoyal.net>
 
-
 import os
 from functools import lru_cache
 from io import BytesIO
@@ -23,6 +22,7 @@ parse_annotations = json_loads
 @lru_cache(maxsize=2)
 def annotations_dir():
     from calibre.gui2.viewer.web_view import viewer_config_dir
+
     return os.path.join(viewer_config_dir, 'annots')
 
 
@@ -33,7 +33,7 @@ def annot_list_as_bytes(annots):
 def split_lines(chunk, length=80):
     pos = 0
     while pos < len(chunk):
-        yield chunk[pos:pos+length]
+        yield chunk[pos : pos + length]
         pos += length
 
 
@@ -42,7 +42,16 @@ def save_annots_to_epub(path, serialized_annots):
     safe_replace(path, 'META-INF/calibre_bookmarks.txt', BytesIO(serialized_annots), add_missing=True)
 
 
-def save_annotations(annotations_list, annotations_path_key, bld, pathtoebook, in_book_file, sync_annots_user, calibre_data, last_read_data=None):
+def save_annotations(
+    annotations_list,
+    annotations_path_key,
+    bld,
+    pathtoebook,
+    in_book_file,
+    sync_annots_user,
+    calibre_data,
+    last_read_data=None,
+):
     annots = annot_list_as_bytes(annotations_list)
     with open(os.path.join(annotations_dir(), annotations_path_key), 'wb') as f:
         f.write(annots)
@@ -55,7 +64,6 @@ def save_annotations(annotations_list, annotations_path_key, bld, pathtoebook, i
 
 
 class AnnotationsSaveWorker(Thread):
-
     def __init__(self):
         Thread.__init__(self, name='AnnotSaveWorker')
         self.daemon = True
@@ -74,7 +82,7 @@ class AnnotationsSaveWorker(Thread):
             while True:
                 try:
                     x = self.queue.get_nowait()
-                except (Empty, ShutDown):
+                except Empty, ShutDown:
                     break
             annotations_list = x['annotations_list']
             annotations_path_key = x['annotations_path_key']
@@ -84,10 +92,18 @@ class AnnotationsSaveWorker(Thread):
             sync_annots_user = x['sync_annots_user']
             try:
                 save_annotations(
-                    annotations_list, annotations_path_key, bld, pathtoebook, in_book_file, sync_annots_user,
-                    x['calibre_data'], x['last_read_data'])
+                    annotations_list,
+                    annotations_path_key,
+                    bld,
+                    pathtoebook,
+                    in_book_file,
+                    sync_annots_user,
+                    x['calibre_data'],
+                    x['last_read_data'],
+                )
             except Exception:
                 import traceback
+
                 traceback.print_exc()
 
     def save_annotations(self, current_book_data, in_book_file=True, sync_annots_user=''):
@@ -122,23 +138,35 @@ def find_tests():
 
     def bm(title, bmid, year=20, first_cfi_number=1):
         return {
-            'title': title, 'id': bmid, 'timestamp': f'20{year}-06-29T03:21:48.895323+00:00',
-            'pos_type': 'epubcfi', 'pos': f'epubcfi(/{first_cfi_number}/4/8)'
+            'title': title,
+            'id': bmid,
+            'timestamp': f'20{year}-06-29T03:21:48.895323+00:00',
+            'pos_type': 'epubcfi',
+            'pos': f'epubcfi(/{first_cfi_number}/4/8)',
         }
 
     def hl(uuid, hlid, year=20, first_cfi_number=1):
         return {
-            'uuid': uuid, 'id': hlid, 'timestamp': f'20{year}-06-29T03:21:48.895323+00:00',
-            'start_cfi': f'epubcfi(/{first_cfi_number}/4/8)'
+            'uuid': uuid,
+            'id': hlid,
+            'timestamp': f'20{year}-06-29T03:21:48.895323+00:00',
+            'start_cfi': f'epubcfi(/{first_cfi_number}/4/8)',
         }
 
     class AnnotationsTest(unittest.TestCase):
-
         def test_merge_annotations(self):
             for atype in 'bookmark highlight'.split():
                 f = bm if atype == 'bookmark' else hl
-                a = [f('one', 1, 20, 2), f('two', 2, 20, 4), f('a', 3, 20, 16),]
-                b = [f('one', 10, 30, 2), f('two', 20, 10, 4), f('b', 30, 20, 8),]
+                a = [
+                    f('one', 1, 20, 2),
+                    f('two', 2, 20, 4),
+                    f('a', 3, 20, 16),
+                ]
+                b = [
+                    f('one', 10, 30, 2),
+                    f('two', 20, 10, 4),
+                    f('b', 30, 20, 8),
+                ]
                 c = merge_annot_lists(a, b, atype)
                 self.assertEqual(tuple(map(itemgetter('id'), c)), (10, 2, 30, 3))
 

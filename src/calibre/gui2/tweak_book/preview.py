@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
-
 import json
 import time
 from collections import defaultdict
@@ -59,7 +58,7 @@ shutdown = object()
 
 
 def get_data(name):
-    'Get the data for name. Returns a unicode string if name is a text document/stylesheet'
+    "Get the data for name. Returns a unicode string if name is a text document/stylesheet"
     if name in editors:
         return editors[name].get_raw_data()
     return current_container().raw_data(name)
@@ -67,8 +66,9 @@ def get_data(name):
 
 # Parsing of html to add linenumbers {{{
 
+
 def parse_html(raw):
-    root = parse(raw, decoder=lambda x:x.decode('utf-8'), line_numbers=True, linenumber_attribute='data-lnum')
+    root = parse(raw, decoder=lambda x: x.decode('utf-8'), line_numbers=True, linenumber_attribute='data-lnum')
     ans = serialize(root, 'text/html')
     if not isinstance(ans, bytes):
         ans = ans.encode('utf-8')
@@ -76,7 +76,6 @@ def parse_html(raw):
 
 
 class ParseItem:
-
     __slots__ = ('fingerprint', 'length', 'name', 'parsed_data', 'parsing_done')
 
     def __init__(self, name):
@@ -88,11 +87,11 @@ class ParseItem:
     def __repr__(self):
         return (
             f'ParsedItem(name={self.name!r}, length={self.length!r}, fingerprint={self.fingerprint!r}, '
-            f'parsing_done={self.parsing_done!r}, parsed_data_is_None={self.parsed_data is None!r})')
+            f'parsing_done={self.parsing_done!r}, parsed_data_is_None={self.parsed_data is None!r})'
+        )
 
 
 class ParseWorker(Thread):
-
     daemon = True
     SLEEP_TIME = 1
 
@@ -111,6 +110,7 @@ class ParseWorker(Thread):
             self.worker(mod, func, '<p></p>')
         except Exception:
             import traceback
+
             traceback.print_exc()
             self.launch_error = traceback.format_exc()
             return
@@ -134,6 +134,7 @@ class ParseWorker(Thread):
                 res = self.worker(mod, func, data)
             except Exception:
                 import traceback
+
                 traceback.print_exc()
             else:
                 pi.parsing_done = True
@@ -175,11 +176,10 @@ class ParseWorker(Thread):
 parse_worker = ParseWorker()
 # }}}
 
-
 # Override network access to load data "live" from the editors {{{
 
-class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
 
+class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
     def __init__(self, parent=None):
         QWebEngineUrlSchemeHandler.__init__(self, parent)
         self.requests = defaultdict(list)
@@ -212,13 +212,14 @@ class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
                     data = data.encode('utf-8')
                 mime_type = {
                     # Prevent warning in console about mimetype of fonts
-                    'application/vnd.ms-opentype':'application/x-font-ttf',
-                    'application/x-font-truetype':'application/x-font-ttf',
+                    'application/vnd.ms-opentype': 'application/x-font-ttf',
+                    'application/x-font-truetype': 'application/x-font-ttf',
                     'application/font-sfnt': 'application/x-font-ttf',
                 }.get(mime_type, mime_type)
                 send_reply(a0, mime_type, data)
         except Exception:
             import traceback
+
             traceback.print_exc()
             a0.fail(QWebEngineUrlRequestJob.Error.RequestFailed)
 
@@ -238,11 +239,12 @@ class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
         if self.requests:
             return QTimer.singleShot(10, self.check_for_parse)
 
+
 # }}}
 
 
 def uniq(vals):
-    ''' Remove all duplicates from vals, while preserving order.  '''
+    """Remove all duplicates from vals, while preserving order."""
     vals = vals or ()
     seen = set()
     seen_add = seen.add
@@ -270,7 +272,9 @@ def get_editor_settings(tprefs):
 
 
 def create_dark_mode_script():
-    return create_script('dark-mode.js', '''
+    return create_script(
+        'dark-mode.js',
+        '''
     (function() {
         var settings = JSON.parse(navigator.userAgent.split('|')[1]);
 
@@ -301,7 +305,8 @@ def create_dark_mode_script():
         document.addEventListener("DOMContentLoaded", apply_css);
     })();
     ''',
-    injection_point=QWebEngineScript.InjectionPoint.DocumentCreation)
+        injection_point=QWebEngineScript.InjectionPoint.DocumentCreation,
+    )
 
 
 @lru_cache(maxsize=2)
@@ -312,11 +317,13 @@ def create_profile():
     ans.setHttpUserAgent(ua)
     if is_running_from_develop:
         from calibre.utils.rapydscript import compile_editor
+
         compile_editor()
     js = P('editor.js', data=True, allow_user_override=False)
     cparser = P('csscolorparser.js', data=True, allow_user_override=False)
 
-    insert_scripts(ans,
+    insert_scripts(
+        ans,
         create_script('csscolorparser.js', cparser),
         create_script('editor.js', js),
         create_dark_mode_script(),
@@ -332,7 +339,6 @@ def create_profile():
 
 
 class PreviewBridge(Bridge):
-
     request_sync = from_js(object, object, object)
     request_split = from_js(object, object)
     live_css_data = from_js(object)
@@ -344,7 +350,6 @@ class PreviewBridge(Bridge):
 
 
 class WebPage(QWebEnginePage):
-
     def __init__(self, parent):
         QWebEnginePage.__init__(self, create_profile(), parent)
         secure_webengine(self, for_viewer=True)
@@ -354,7 +359,10 @@ class WebPage(QWebEnginePage):
         prints(f'{sourceID}:{lineNumber}: {message}')
 
     def acceptNavigationRequest(self, url, type, isMainFrame):
-        if type in (QWebEnginePage.NavigationType.NavigationTypeReload, QWebEnginePage.NavigationType.NavigationTypeBackForward):
+        if type in (
+            QWebEnginePage.NavigationType.NavigationTypeReload,
+            QWebEnginePage.NavigationType.NavigationTypeBackForward,
+        ):
             return True
         if url.scheme() in (FAKE_PROTOCOL, 'data'):
             return True
@@ -388,7 +396,6 @@ class WebPage(QWebEnginePage):
 
 
 class Inspector(QWidget):
-
     def __init__(self, parent=None):
         QWidget.__init__(self, parent=parent)
         self.view_to_debug = parent
@@ -422,14 +429,13 @@ class Inspector(QWidget):
 
 
 class WebView(QWebEngineView, OpenWithHandler):
-
     def __init__(self, parent=None):
         super().__init__(parent)
         self.inspector = Inspector(self)
         screen = self.screen()
         assert screen is not None
         w = screen.availableSize().width()
-        self._size_hint = QSize(int(w/3), int(w/2))
+        self._size_hint = QSize(int(w / 3), int(w / 2))
         self._page = WebPage(self)
         self.setPage(self._page)
         self.clear()
@@ -441,10 +447,12 @@ class WebView(QWebEngineView, OpenWithHandler):
         if self.dead_renderer_error_shown:
             return
         self.dead_renderer_error_shown = True
-        error_dialog(self, _('Render process crashed'), _(
-            'The Qt WebEngine Render process has crashed so Preview/Live CSS will not work.'
-            ' You should try restarting the editor.')
-, show=True)
+        error_dialog(
+            self,
+            _('Render process crashed'),
+            _('The Qt WebEngine Render process has crashed so Preview/Live CSS will not work. You should try restarting the editor.'),
+            show=True,
+        )
 
     def sizeHint(self):
         return self._size_hint
@@ -468,8 +476,9 @@ class WebView(QWebEngineView, OpenWithHandler):
 
     def clear(self):
         self.update_settings()
-        self.setHtml(_(
-            '''
+        self.setHtml(
+            _(
+                '''
             <h3>Live preview</h3>
 
             <p>Here you will see a live preview of the HTML file you are currently editing.
@@ -478,7 +487,9 @@ class WebView(QWebEngineView, OpenWithHandler):
             <p style="font-size:x-small; color: gray">Note that this is a quick preview
             only, it is not intended to simulate an actual e-book reader. Some
             aspects of your e-book will not work, such as page breaks and page margins.
-            '''))
+            '''
+            )
+        )
 
     def reset_zoom(self):
         self.setZoomFactor(1.0)
@@ -537,7 +548,6 @@ class WebView(QWebEngineView, OpenWithHandler):
 
 
 class Preview(QWidget):
-
     sync_requested = pyqtSignal(object, object)
     split_requested = pyqtSignal(object, object, object)
     split_start_requested = pyqtSignal()
@@ -638,8 +648,7 @@ class Preview(QWidget):
 
     def find(self, a0):
         text = str(self.search.text())
-        self.view._page.findText(text, (
-            QWebEnginePage.FindFlag.FindBackward if a0 == 'prev' else QWebEnginePage.FindFlag(0)))
+        self.view._page.findText(text, (QWebEnginePage.FindFlag.FindBackward if a0 == 'prev' else QWebEnginePage.FindFlag(0)))
 
     def find_next(self):
         self.find('next')
@@ -667,8 +676,7 @@ class Preview(QWidget):
     def request_split(self, loc, totals):
         actions['split-in-preview'].setChecked(False)
         if not loc or not totals:
-            return error_dialog(self, _('Invalid location'),
-                                _('Cannot split on the body tag'), show=True)
+            return error_dialog(self, _('Invalid location'), _('Cannot split on the body tag'), show=True)
         if self.current_name:
             self.split_requested.emit(self.current_name, loc, totals)
 
@@ -695,8 +703,13 @@ class Preview(QWidget):
     def report_worker_launch_error(self):
         if parse_worker.launch_error is not None:
             tb, parse_worker.launch_error = parse_worker.launch_error, None
-            error_dialog(self, _('Failed to launch worker'), _(
-                'Failed to launch the worker process used for rendering the preview'), det_msg=tb, show=True)
+            error_dialog(
+                self,
+                _('Failed to launch worker'),
+                _('Failed to launch the worker process used for rendering the preview'),
+                det_msg=tb,
+                show=True,
+            )
 
     def name_to_qurl(self, name=None):
         name = str(name or self.current_name)
@@ -757,27 +770,35 @@ class Preview(QWidget):
     def auto_reload_toggled(self, checked):
         if self.live_css_is_visible and not actions['auto-reload-preview'].isChecked():
             actions['auto-reload-preview'].setChecked(True)
-            error_dialog(self, _('Cannot disable'), _(
-                'Auto reloading of the preview panel cannot be disabled while the'
-                ' Live CSS panel is open.'), show=True)
-        actions['auto-reload-preview'].setToolTip(_(
-            'Auto reload preview when text changes in editor') if not checked else _(
-                'Disable auto reload of preview'))
+            error_dialog(
+                self,
+                _('Cannot disable'),
+                _('Auto reloading of the preview panel cannot be disabled while the Live CSS panel is open.'),
+                show=True,
+            )
+        actions['auto-reload-preview'].setToolTip(_('Auto reload preview when text changes in editor') if not checked else _('Disable auto reload of preview'))
 
     def sync_toggled(self, checked):
-        actions['sync-preview-to-editor'].setToolTip(_(
-            'Disable syncing of preview position to editor position') if checked else _(
-                'Enable syncing of preview position to editor position'))
+        actions['sync-preview-to-editor'].setToolTip(
+            _('Disable syncing of preview position to editor position') if checked else _('Enable syncing of preview position to editor position')
+        )
 
     def visibility_changed(self, is_visible):
         if is_visible:
             self.refresh()
 
     def split_toggled(self, checked):
-        actions['split-in-preview'].setToolTip('<p>' + (_(
-            'Abort file split') if checked else _(
-                'Split this file at a specified location.<p>After clicking this button, click'
-                ' inside the preview panel above at the location you want the file to be split.')))
+        actions['split-in-preview'].setToolTip(
+            '<p>'
+            + (
+                _('Abort file split')
+                if checked
+                else _(
+                    'Split this file at a specified location.<p>After clicking this button, click'
+                    ' inside the preview panel above at the location you want the file to be split.'
+                )
+            )
+        )
         if checked:
             self.split_start_requested.emit()
         else:
@@ -817,7 +838,11 @@ class Preview(QWidget):
         s.setFontSize(QWebEngineSettings.FontSize.DefaultFixedFontSize, int(tprefs['preview_mono_font_size']))
         s.setFontSize(QWebEngineSettings.FontSize.MinimumLogicalFontSize, int(tprefs['preview_minimum_font_size']))
         s.setFontSize(QWebEngineSettings.FontSize.MinimumFontSize, int(tprefs['preview_minimum_font_size']))
-        sf, ssf, mf = tprefs['engine_preview_serif_family'], tprefs['engine_preview_sans_family'], tprefs['engine_preview_mono_family']
+        sf, ssf, mf = (
+            tprefs['engine_preview_serif_family'],
+            tprefs['engine_preview_sans_family'],
+            tprefs['engine_preview_mono_family'],
+        )
         if sf:
             s.setFontFamily(QWebEngineSettings.FontFamily.SerifFont, sf)
         if ssf:
@@ -828,6 +853,6 @@ class Preview(QWidget):
         stdfnt = {
             'serif': QWebEngineSettings.FontFamily.SerifFont,
             'sans': QWebEngineSettings.FontFamily.SansSerifFont,
-            'mono': QWebEngineSettings.FontFamily.FixedFont
+            'mono': QWebEngineSettings.FontFamily.FixedFont,
         }[stdfnt]
         s.setFontFamily(QWebEngineSettings.FontFamily.StandardFont, s.fontFamily(stdfnt))

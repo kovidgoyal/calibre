@@ -7,9 +7,9 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class Dnevnik(BasicNewsRecipe):
-    title = u'Avto Magazin'
-    __author__ = u'BlonG'
-    description = u'Za avtomobilisti\xc4\x8dne frike, poznavalce in nedeljske \xc5\xa1oferje.'
+    title = 'Avto Magazin'
+    __author__ = 'BlonG'
+    description = 'Za avtomobilisti\xc4\x8dne frike, poznavalce in nedeljske \xc5\xa1oferje.'
     oldest_article = 7
     max_articles_per_feed = 20
     labguage = 'sl'
@@ -42,6 +42,4 @@ class Dnevnik(BasicNewsRecipe):
         dict(name='div', attrs={'id': 'footer'}),
     ]
 
-    feeds = [
-        (u'Novice', u'http://www.avto-magazin.si/rss/')
-    ]
+    feeds = [('Novice', 'http://www.avto-magazin.si/rss/')]

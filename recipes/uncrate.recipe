@@ -31,12 +31,9 @@ class Uncrate(BasicNewsRecipe):
     lang = 'en'
     language = 'en'
 
-    html2lrf_options = [
-        '--comment', description, '--category', category, '--publisher', publisher
-    ]
+    html2lrf_options = ['--comment', description, '--category', category, '--publisher', publisher]
 
-    html2epub_options = 'publisher="' + publisher + \
-        '"\ncomments="' + description + '"\ntags="' + category + '"'
+    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"'
 
     keep_only_tags = [dict(name='div', attrs={'class': 'lefttext'})]
     remove_tags_after = dict(name='div', attrs={'class': 'serif'})
@@ -51,13 +48,11 @@ class Uncrate(BasicNewsRecipe):
         a{color:#FF4000;}
     '''
 
-    feeds = [(u'Articles', u'http://feeds.feedburner.com/uncrate')]
+    feeds = [('Articles', 'http://feeds.feedburner.com/uncrate')]
 
     def preprocess_html(self, soup):
-        mlang = new_tag(soup, 'meta', [
-                    ('http-equiv', 'Content-Language'), ('content', self.lang)])
-        mcharset = new_tag(soup, 'meta', [
-                       ('http-equiv', 'Content-Type'), ('content', 'text/html; charset=utf-8')])
+        mlang = new_tag(soup, 'meta', [('http-equiv', 'Content-Language'), ('content', self.lang)])
+        mcharset = new_tag(soup, 'meta', [('http-equiv', 'Content-Type'), ('content', 'text/html; charset=utf-8')])
         soup.head.insert(0, mlang)
         soup.head.insert(1, mcharset)
         for item in soup.findAll(style=True):

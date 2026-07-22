@@ -16,13 +16,14 @@ def set_default_timeout(val):
 def encode_query_component(x):
     ans = encodeURIComponent(x)
     # The following exceptions are to make epubcfi() look better
-    ans = ans.replace(/%2[fF]/g, '/')
-    ans = ans.replace(/%40/g, '@')
-    ans = ans.replace(/%5[bB]/g, '[')
-    ans = ans.replace(/%5[dD]/g, ']')
-    ans = ans.replace(/%5[eE]/g, '^')
-    ans = ans.replace(/%3[aA]/g, ':')
+    ans = ans.replace(/%2[fF]/g, '/')
+    ans = ans.replace(/%40/g, '@')
+    ans = ans.replace(/%5[bB]/g, '[')
+    ans = ans.replace(/%5[dD]/g, ']')
+    ans = ans.replace(/%5[eE]/g, '^')
+    ans = ans.replace(/%3[aA]/g, ':')
     return ans
+
 
 def encode_query(query, qchar):
     if not query:
@@ -87,7 +88,14 @@ def ajax(path, on_complete, on_progress=None, bypass_cache=True, method='GET', q
                 rtext = xhr.responseText or ''
             except:
                 rtext = ''
-            xhr.error_html = str.format(_('Failed to communicate with "{}", with status: [{} ({})] {}<br><br>{}'), xhr.request_path, xhr.status, event, xhr.statusText, rtext[:200])
+            xhr.error_html = str.format(
+                _('Failed to communicate with "{}", with status: [{} ({})] {}<br><br>{}'),
+                xhr.request_path,
+                xhr.status,
+                event,
+                xhr.statusText,
+                rtext[:200]
+            )
 
     def progress_callback(ev):
         if ev.lengthComputable:
@@ -115,13 +123,14 @@ def ajax(path, on_complete, on_progress=None, bypass_cache=True, method='GET', q
 
     if on_progress:
         xhr.addEventListener('progress', progress_callback)
-    xhr.addEventListener('abort', def(ev): complete_callback('abort', ev);)
-    xhr.addEventListener('error', def(ev): complete_callback('error', ev);)
-    xhr.addEventListener('load', def(ev): complete_callback('load', ev);)
-    xhr.addEventListener('timeout', def(ev): complete_callback('timeout', ev);)
+    xhr.addEventListener('abort', def (ev): complete_callback('abort', ev);)
+    xhr.addEventListener('error', def (ev): complete_callback('error', ev);)
+    xhr.addEventListener('load', def (ev): complete_callback('load', ev);)
+    xhr.addEventListener('timeout', def (ev): complete_callback('timeout', ev);)
     xhr.open(method, path)
-    xhr.timeout = timeout * 1000 # IE requires timeout to be set after open
+    xhr.timeout = timeout * 1000  # IE requires timeout to be set after open
     return xhr
+
 
 def ajax_send(path, data, on_complete, on_progress=None, query=None, timeout=None, ok_code=200):
     # Unfortunately, browsers do not allow sending of data with HTTP GET, except
@@ -140,15 +149,15 @@ def ajax_send_file(path, file, on_complete, on_progress, timeout=None, ok_code=2
     return xhr
 
 
-def console_print(*args):
-    ρσ_print(*args)  # noqa: undef
-    data = ' '.join(map(str, args)) + '\n'
-    xhr = ajax('console-print', def():pass;, method='POST', progress_totals_needed=False)
+def console_print():
+    ρσ_print.apply(this, arguments)  # noqa: undef
+    data = ' '.join(map(str, Array.from (arguments))) + '\n'
+    xhr = ajax('console-print', def (): pass;, method='POST', progress_totals_needed=False)
     xhr.send(data)
 
-# TODO: Implement AJAX based switch user by:
-# 1) POST to a logout URL with an incorrect username and password
-# 2) Have the server accept that incorrect username/password
-# 3) Navigate to / which should cause the browser to re-prompt for username and password
-# (only problem is login dialog will likely pre-show the wrong username) To workaround that,
-# You can consider using a dedicated ajax based login form, see http://www.peej.co.uk/articles/http-auth-with-html-forms.html)
+    # TODO: Implement AJAX based switch user by:
+    # 1) POST to a logout URL with an incorrect username and password
+    # 2) Have the server accept that incorrect username/password
+    # 3) Navigate to / which should cause the browser to re-prompt for username and password
+    # (only problem is login dialog will likely pre-show the wrong username) To workaround that,
+    # You can consider using a dedicated ajax based login form, see http://www.peej.co.uk/articles/http-auth-with-html-forms.html)

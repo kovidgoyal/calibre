@@ -1,12 +1,12 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
-
 import os
 
 
 class ReadOnlyFileBuffer:
-    ''' A zero copy implementation of a file like object. Uses memoryviews for efficiency. '''
+    """A zero copy implementation of a file like object. Uses memoryviews for efficiency."""
+
     is_close_frame: bool = False  # used by the srv code
 
     def __init__(self, raw: bytes, name: str = ''):
@@ -19,10 +19,10 @@ class ReadOnlyFileBuffer:
 
     def read(self, n: int | None = None) -> memoryview:
         if n is None:
-            ans = self.mv[self.pos:]
+            ans = self.mv[self.pos :]
             self.pos = self.sz
             return ans
-        ans = self.mv[self.pos:self.pos+n]
+        ans = self.mv[self.pos : self.pos + n]
         self.pos = min(self.pos + n, self.sz)
         return ans
 
@@ -47,12 +47,13 @@ class ReadOnlyFileBuffer:
 
 
 def svg_path_to_painter_path(d):
-    '''
+    """
     Convert a tiny SVG 1.2 path into a QPainterPath.
 
     :param d: The value of the d attribute of an SVG <path> tag
-    '''
+    """
     from qt.core import QPainterPath
+
     cmd = last_cmd = b''
     path = QPainterPath()
     moveto_abs, moveto_rel = b'M', b'm'
@@ -79,7 +80,7 @@ def svg_path_to_painter_path(d):
     def read_byte():
         p = pos[0]
         pos[0] += 1
-        return d[p:p+1]
+        return d[p : p + 1]
 
     def parse_float():
         chars = []
@@ -195,10 +196,20 @@ def svg_path_to_painter_path(d):
             elif last_cmd in (closepath1, closepath2):
                 raise ValueError('Extra parameters after close path command')
             elif last_cmd in (
-                lineto_abs, lineto_rel, hline_abs, hline_rel, vline_abs,
-                vline_rel, curveto_abs, curveto_rel, smoothcurveto_abs,
-                smoothcurveto_rel, quadcurveto_abs, quadcurveto_rel,
-                smoothquadcurveto_abs, smoothquadcurveto_rel
+                lineto_abs,
+                lineto_rel,
+                hline_abs,
+                hline_rel,
+                vline_abs,
+                vline_rel,
+                curveto_abs,
+                curveto_rel,
+                smoothcurveto_abs,
+                smoothcurveto_rel,
+                quadcurveto_abs,
+                quadcurveto_rel,
+                smoothquadcurveto_abs,
+                smoothquadcurveto_rel,
             ):
                 repeated_command = cmd = last_cmd
         else:

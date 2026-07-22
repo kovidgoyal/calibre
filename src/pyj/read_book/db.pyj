@@ -15,21 +15,23 @@ from utils import username_key
 def upgrade_schema(idb, old_version, new_version, transaction):
     print('upgrade_schema:', old_version, new_version)
     if not idb.objectStoreNames.contains('books'):
-        idb.createObjectStore('books', {'keyPath':'key'})
+        idb.createObjectStore('books', {'keyPath': 'key'})
     if not idb.objectStoreNames.contains('files'):
         idb.createObjectStore('files')
     if not idb.objectStoreNames.contains('mathjax'):
         idb.createObjectStore('mathjax')
     if not idb.objectStoreNames.contains('objects'):
-        idb.createObjectStore('objects', {'keyPath':'key'})
+        idb.createObjectStore('objects', {'keyPath': 'key'})
 
     # Create indices
     books_store = transaction.objectStore('books')
     if not books_store.indexNames.contains('recent_index'):
         books_store.createIndex('recent_index', 'recent_date')
 
+
 def file_store_name(book, name):
     return book.book_hash + ' ' + name
+
 
 def get_error_details(event):
     desc = event.target
@@ -48,10 +50,10 @@ def get_error_details(event):
 
 def new_book(key, metadata):
     return {
-        'key':key,
-        'is_complete':False,
+        'key': key,
+        'is_complete': False,
         'stored_files': {},
-        'book_hash':None,
+        'book_hash': None,
         'metadata': metadata,
         'manifest': None,
         'cover_width': None,
@@ -77,7 +79,6 @@ def indexed_db_api():
 
 
 class DB:
-
     def __init__(self, callback, show_read_book_error):
         self.initialized = False
         self.is_ok = False
@@ -105,23 +106,23 @@ class DB:
 
         request = idb.open(DB_NAME, DB_VERSION)
 
-        request.onupgradeneeded = def(event):
+        request.onupgradeneeded = def (event):
             upgrade_schema(event.target.result, event.oldVersion, event.newVersion, event.target.transaction)
 
-        request.onblocked = def(event):
+        request.onblocked = def (event):
             self.initialize_error_msg = _('Please close all other browser tabs with calibre open')
             self.initialized = True
             console.log(event)
             self.callback()
 
-        request.onerror = def(event):
+        request.onerror = def (event):
             self.initialize_error_msg = _('You must allow calibre to use IndexedDB storage in your browser to read books')
             self.initialized = True
             console.log(event)
             self.callback()
 
-        request.onsuccess = def(event):
-            blob = Blob(['test'], {'type':"text/plain"})
+        request.onsuccess = def (event):
+            blob = Blob(['test'], {'type': 'text/plain'})
             idb = event.target.result
             store = idb.transaction(['files'], 'readwrite').objectStore('files')
             try:
@@ -129,9 +130,9 @@ class DB:
             except:
                 self.initialize_stage2(idb, False)
                 return
-            req.onsuccess = def(event):
+            req.onsuccess = def (event):
                 self.initialize_stage2(idb, True)
-            req.onerror = def(event):
+            req.onerror = def (event):
                 # We use setTimeout as otherwise the idb.onerror handler is
                 # called with this error on Safari
                 setTimeout(self.initialize_stage2.bind(None, idb, False), 0)
@@ -144,14 +145,14 @@ class DB:
         if not supports_blobs:
             print('WARNING: browser does not support blob storage, calibre falling back to base64 encoding')
 
-        idb.onerror = def(event):
+        idb.onerror = def (event):
             self.display_error(None, event)
             if console.dir:
                 console.dir(event)
             else:
                 console.log(event)
 
-        idb.onversionchange = def(event):
+        idb.onversionchange = def (event):
             idb.close()
             self.show_error(_('Database upgraded!'), _(
                 'A newer version of calibre is available, please click the Reload button in your browser.'))
@@ -159,7 +160,7 @@ class DB:
         def try_persist(lock):
             if not lock:
                 return  # another tab is already requesting persistence
-            return window.navigator.storage.persisted().then(def(already_persistent):
+            return window.navigator.storage.persisted().then(def (already_persistent):
                 if not already_persistent:
                     return window.navigator.storage.persist()
             )
@@ -167,7 +168,7 @@ class DB:
             if window.navigator.locks:
                 window.navigator.locks.request('calibre-storage-persist', {'ifAvailable': True}, try_persist)
             else:
-                window.navigator.storage.persisted().then(def(already_persistent):
+                window.navigator.storage.persisted().then(def (already_persistent):
                     if not already_persistent:
                         window.navigator.storage.persist()
                 )
@@ -187,7 +188,7 @@ class DB:
         if op is 'get':
             transaction = self.idb.transaction(stores)
             req = transaction.objectStore(store).get(data)
-            req.onsuccess = def(event):
+            req.onsuccess = def (event):
                 if proceed:
                     proceed(req.result)
         elif op is 'put':
@@ -200,14 +201,14 @@ class DB:
             req = transaction.objectStore(store).delete(data)
             if proceed:
                 req.onsuccess = proceed
-        req.onerror = def(event):
+        req.onerror = def (event):
             self.display_error(error_msg, event)
 
     def set_pending_annot_upload(self, library_id, book_id, fmt, amap):
         key = f'pending-annot-upload:{library_id}/{book_id}/{fmt}'
         entry = {'key': key, 'library_id': library_id, 'book_id': book_id, 'fmt': fmt, 'amap': amap}
         self.do_op(['objects'], entry, _('Failed to save pending annotation upload'),
-                   def(): None;, op='put')
+                   def (): None;, op='put')
 
     def get_all_pending_annot_uploads(self, proceed):
         transaction = self.idb.transaction(['objects'])
@@ -215,21 +216,21 @@ class DB:
         key_range = IDBKeyRange.bound('pending-annot-upload:', 'pending-annot-upload:\uffff')  # noqa
         entries = v'[]'
         req = store.openCursor(key_range)
-        req.onsuccess = def(event):
+        req.onsuccess = def (event):
             cursor = event.target.result
             if cursor:
                 entries.push(cursor.value)
-                cursor.continue()
+                cursor.continue ()
             else:
                 proceed(entries)
-        req.onerror = def(event):
+        req.onerror = def (event):
             self.display_error(_('Failed to read pending annotation uploads'), event)
             proceed(v'[]')
 
     def clear_pending_annot_upload(self, library_id, book_id, fmt, proceed):
         key = f'pending-annot-upload:{library_id}/{book_id}/{fmt}'
         self.do_op(['objects'], key,
-                   _('Failed to clear pending annotation upload'), proceed or def(): None;, op='delete')
+                   _('Failed to clear pending annotation upload'), proceed or def (): None;, op='delete')
 
     def get_book(self, library_id, book_id, fmt, metadata, proceed):
         fmt = fmt.toUpperCase()
@@ -238,15 +239,15 @@ class DB:
         # refer to non-serializable objects like functions.
         book_id = int(book_id)
         key = v'[library_id, book_id, fmt]'
-        self.do_op(['books'], key, _('Failed to read from the books database'), def(result):
+        self.do_op(['books'], key, _('Failed to read from the books database'), def (result):
             if result and not result.annotations_map:
                 result.annotations_map = {}
             proceed(result or new_book(key, metadata))
         )
 
     def get_mathjax_info(self, proceed):
-        self.do_op(['objects'], 'mathjax-info', _('Failed to read from the objects database'), def(result):
-            proceed(result or {'key':'mathjax-info'})
+        self.do_op(['objects'], 'mathjax-info', _('Failed to read from the objects database'), def (result):
+            proceed(result or {'key': 'mathjax-info'})
         )
 
     def save_manifest(self, book, manifest, proceed):
@@ -280,7 +281,7 @@ class DB:
         mt = book.manifest.files[name]?.mimetype
         if not mt and is_cover:
             mt = 'image/jpeg'
-        book.stored_files[fname] = {'encoded':needs_encoding, 'mimetype':mt, 'store_as_text':store_as_text}
+        book.stored_files[fname] = {'encoded': needs_encoding, 'mimetype': mt, 'store_as_text': store_as_text}
         if is_cover:
             self.store_cover(book, needs_encoding, xhr.response, name, fname, proceed)
         else:
@@ -289,7 +290,7 @@ class DB:
     def store_cover(self, book, needs_encoding, data, name, fname, proceed):
         blob = data
         if needs_encoding:
-            blob = Blob([data], {'type':'image/jpeg'})
+            blob = Blob([data], {'type': 'image/jpeg'})
         url = window.URL.createObjectURL(blob)
         img = new Image()
         book.cover_name = name
@@ -302,12 +303,12 @@ class DB:
                 window.URL.revokeObjectURL(url)
                 self.store_file_stage2(needs_encoding, data, name, fname, proceed)
 
-        img.onload = def():
+        img.onload = def ():
             book.cover_width = this.width
             book.cover_height = this.height
             done()
 
-        img.onerror = def():
+        img.onerror = def ():
             print('WARNING: Failed to read dimensions of cover')
             done()
         img.src = url
@@ -316,9 +317,9 @@ class DB:
         if needs_encoding:
             data = base64encode(Uint8Array(data))
         req = self.idb.transaction(['files'], 'readwrite').objectStore('files').put(data, fname)
-        req.onsuccess = def(event):
+        req.onsuccess = def (event):
             proceed()
-        req.onerror = def(event):
+        req.onerror = def (event):
             proceed(_('Failed to store book data ({0}) with error: {1}').format(name, get_error_details(event)))
 
     def clear_mathjax(self, proceed):
@@ -329,8 +330,8 @@ class DB:
         if not self.supports_blobs:
             data = base64encode(Uint8Array(data))
         req = self.idb.transaction(['mathjax'], 'readwrite').objectStore('mathjax').put(data, name)
-        req.onsuccess = def(event): proceed()
-        req.onerror = def(event):
+        req.onsuccess = def (event): proceed()
+        req.onerror = def (event):
             proceed(_('Failed to store mathjax file ({0}) with error: {1}').format(name, get_error_details(event)))
 
     def finish_book(self, book, proceed):
@@ -350,15 +351,15 @@ class DB:
         if book.metadata:
             for key in Object.keys(new_metadata):
                 book.metadata[key] = new_metadata[key]
-            self.do_op(['books'], book, _('Failed to write to the books database'), def(): None;, op='put')
+            self.do_op(['books'], book, _('Failed to write to the books database'), def (): None;, op='put')
 
     def save_reading_rates(self, book, rates):
         book.saved_reading_rates = rates
-        self.do_op(['books'], book, _('Failed to write to the books database'), def(): None;, op='put')
+        self.do_op(['books'], book, _('Failed to write to the books database'), def (): None;, op='put')
 
     def update_annotations_data_from_key(self, library_id, book_id, fmt, new_data):
         unkey = username_key(get_interface_data().username)
-        self.get_book(library_id, book_id, fmt, None, def(book):
+        self.get_book(library_id, book_id, fmt, None, def (book):
             if book.metadata:  # book exists
                 changed = False
                 if new_data.last_read_position:
@@ -378,7 +379,7 @@ class DB:
                             changed = True
                             book.annotations_map[unkey] = merged
                 if changed:
-                    self.do_op(['books'], book, _('Failed to write to the books database'), def(): None;, op='put')
+                    self.do_op(['books'], book, _('Failed to write to the books database'), def (): None;, op='put')
         )
 
     def get_file(self, book, name, proceed):
@@ -399,7 +400,7 @@ class DB:
             fdata = book.stored_files[key]
             mt = fdata.mimetype or 'application/octet-stream'
             if fdata.encoded:
-                result = Blob([base64decode(result)], {'type':mt})
+                result = Blob([base64decode(result)], {'type': mt})
             proceed(result, name, mt, book)
         )
 
@@ -408,41 +409,41 @@ class DB:
         key = file_store_name({'book_hash': book_hash}, name)
         transaction = self.idb.transaction(stores)
         req = transaction.objectStore(stores[0]).get(key)
-        req.onsuccess = def(event):
+        req.onsuccess = def (event):
             if not req.result:
                 proceed({'ok': False, 'name': name, 'details': 'ENOENT'})
                 return
             fdata = stored_files[key]
             mt = fdata.mimetype or 'application/octet-stream'
             if fdata.encoded:
-                result = Blob([base64decode(result)], {'type':mt})
+                result = Blob([base64decode(result)], {'type': mt})
             proceed({'ok': True, 'result': req.result, 'name': name, 'mt': mt})
-        req.onerror = def(event):
+        req.onerror = def (event):
             details = get_error_details(event)
             proceed({'ok': False, 'name': name, 'details': details})
 
     def get_mathjax_files(self, proceed):
         c = self.idb.transaction('mathjax').objectStore('mathjax').openCursor()
-        c.onerror = def(event):
+        c.onerror = def (event):
             err = _('Failed to read the MathJax files from the browser offline cache.')
             self.display_error(err, event)
         data = {}
-        c.onsuccess = def(event):
+        c.onsuccess = def (event):
             cursor = event.target.result
             if cursor:
                 name, result = cursor.key, cursor.value
                 if not isinstance(result, Blob):
                     mt = 'application/x-font-woff' if name.endswith('.woff') else 'text/javascript'
-                    result = Blob([base64decode(result)], {'type':mt})
+                    result = Blob([base64decode(result)], {'type': mt})
                 data[name] = result
-                cursor.continue()
+                cursor.continue ()
             else:
                 proceed(data)
 
     def get_books_by_recent_date(self, proceed, limit=None):
         c = self.idb.transaction(['books'], 'readonly').objectStore('books').index('recent_index').openCursor(None, 'prev')
         books = v'[]'
-        c.onerror = def(event):
+        c.onerror = def (event):
             err = _('Failed to read recent books from local storage')
             self.display_error(err, event)
         c.onsuccess = def (ev):
@@ -453,7 +454,7 @@ class DB:
                 proceed(books)
                 return
             if cursor:
-                cursor.continue()
+                cursor.continue ()
 
     def get_recently_read_books(self, proceed, limit):
         self.get_books_by_recent_date(proceed, limit or 3)
@@ -466,7 +467,7 @@ class DB:
         # books in JS, but since the number of stored books is not that large,
         # I can't be bothered.
         c = self.idb.transaction(['books'], 'readonly').objectStore('books').index('recent_index').openCursor(None, 'prev')
-        c.onerror = def(event):
+        c.onerror = def (event):
             proceed(False)
         book_id = int(book_id)
         c.onsuccess = def (ev):
@@ -476,7 +477,7 @@ class DB:
                 if book.key[0] is library_id and book.key[1] is book_id:
                     proceed(True)
                     return
-                cursor.continue()
+                cursor.continue ()
             else:
                 proceed(False)
 
@@ -485,7 +486,7 @@ class DB:
         files = c.objectStore('files')
         books = c.objectStore('books')
         filenames = Object.keys(book.stored_files)
-        c.oncomplete = def(event):
+        c.oncomplete = def (event):
             proceed(book)
         c.onerror = def (event):
             proceed(book, c.error.toString())
@@ -500,7 +501,7 @@ class DB:
 
     def delete_books_matching(self, library_id, book_id, proceed):
         c = self.idb.transaction(['books'], 'readonly').objectStore('books').index('recent_index').openCursor(None, 'prev')
-        c.onerror = def(event):
+        c.onerror = def (event):
             pass
         book_id = int(book_id)
         matches = v'[]'
@@ -519,7 +520,7 @@ class DB:
                 book = cursor.value
                 if book.key[0] is library_id and book.key[1] is book_id:
                     matches.push(book)
-                cursor.continue()
+                cursor.continue ()
             else:
                 delete_all()
 

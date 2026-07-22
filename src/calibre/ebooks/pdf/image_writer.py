@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # License: GPL v3 Copyright: 2019, Kovid Goyal <kovid at kovidgoyal.net>
 
-
 from qt.core import QMarginsF, QPageLayout, QPageSize, QSizeF
 
 from calibre.constants import filesystem_encoding
@@ -14,10 +13,10 @@ from polyglot.builtins import as_unicode
 
 
 class PDFMetadata:  # {{{
-
     def __init__(self, mi=None):
         from calibre import force_unicode
         from calibre.ebooks.metadata import authors_to_string
+
         self.title = _('Unknown')
         self.author = _('Unknown')
         self.tags = ''
@@ -33,10 +32,12 @@ class PDFMetadata:  # {{{
 
         self.title = force_unicode(self.title)
         self.author = force_unicode(self.author)
+
+
 # }}}
 
-
 # Page layout {{{
+
 
 def parse_pdf_page_size(spec, unit='inch', dpi=72.0):
     width, sep, height = spec.lower().partition('x')
@@ -51,20 +52,26 @@ def parse_pdf_page_size(spec, unit='inch', dpi=72.0):
                 factor = 72.0 / dpi
             else:
                 factor = {
-                    'point':1.0, 'inch':inch, 'cicero':cicero,
-                    'didot':didot, 'pica':pica, 'millimeter':mm,
-                    'centimeter':cm
+                    'point': 1.0,
+                    'inch': inch,
+                    'cicero': cicero,
+                    'didot': didot,
+                    'pica': pica,
+                    'millimeter': mm,
+                    'centimeter': cm,
                 }.get(unit, 1.0)
-            return QPageSize(QSizeF(factor*width, factor*height), QPageSize.Unit.Point, matchPolicy=QPageSize.SizeMatchPolicy.ExactMatch)
+            return QPageSize(
+                QSizeF(factor * width, factor * height),
+                QPageSize.Unit.Point,
+                matchPolicy=QPageSize.SizeMatchPolicy.ExactMatch,
+            )
 
 
 def get_page_size(opts, for_comic=False):
     use_profile = opts.use_profile_size and opts.output_profile.short_name != 'default' and opts.output_profile.width <= 9999
     if use_profile:
-        w = (opts.output_profile.comic_screen_size[0] if for_comic else
-                opts.output_profile.width)
-        h = (opts.output_profile.comic_screen_size[1] if for_comic else
-                opts.output_profile.height)
+        w = opts.output_profile.comic_screen_size[0] if for_comic else opts.output_profile.width
+        h = opts.output_profile.comic_screen_size[1] if for_comic else opts.output_profile.height
         dpi = opts.output_profile.dpi
         factor = 72.0 / dpi
         page_size = QPageSize(QSizeF(factor * w, factor * h), QPageSize.Unit.Point, matchPolicy=QPageSize.SizeMatchPolicy.ExactMatch)
@@ -87,11 +94,12 @@ def get_page_layout(opts, for_comic=False):
     ans = QPageLayout(page_size, QPageLayout.Orientation.Portrait, margins)
     ans.setMode(QPageLayout.Mode.FullPageMode)
     return ans
+
+
 # }}}
 
 
 class Image:  # {{{
-
     def __init__(self, path_or_bytes):
         if not isinstance(path_or_bytes, bytes):
             with open(path_or_bytes, 'rb') as f:
@@ -101,6 +109,8 @@ class Image:  # {{{
         self.img, self.fmt = image_and_format_from_data(path_or_bytes)
         self.width, self.height = self.img.width(), self.img.height()
         self.cache_key = self.img.cacheKey()
+
+
 # }}}
 
 
@@ -113,7 +123,7 @@ def draw_image_page(writer, img, preserve_aspect_ratio=True):
     scaling = list(writer.page_size)
     translation = [0, 0]
     img_ar = img.width / img.height
-    page_ar = page_size[0]/page_size[1]
+    page_ar = page_size[0] / page_size[1]
     if preserve_aspect_ratio and page_ar != img_ar:
         if page_ar > img_ar:
             scaling[0] = img_ar * page_size[1]

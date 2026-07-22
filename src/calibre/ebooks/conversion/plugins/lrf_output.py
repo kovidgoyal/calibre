@@ -1,9 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__   = 'GPL v3'
-__copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2009, Kovid Goyal <kovid@kovidgoyal.net>
 
 import os
 import sys
@@ -13,16 +9,16 @@ from calibre.utils.localization import _
 
 
 class LRFOptions:
-
     def __init__(self, output, opts, oeb):
         def f2s(f):
             try:
                 return str(f[0])
             except Exception:
                 return ''
+
         m = oeb.metadata
         for x in ('left', 'top', 'right', 'bottom'):
-            attr = 'margin_'+x
+            attr = 'margin_' + x
             val = getattr(opts, attr)
             if val < 0:
                 setattr(opts, attr, 0)
@@ -53,6 +49,7 @@ class LRFOptions:
         self.font_delta = 0
         self.ignore_colors = False
         from calibre.ebooks.lrf import PRS500_PROFILE
+
         self.profile = PRS500_PROFILE
         self.link_levels = sys.maxsize
         self.link_exclude = '@'
@@ -71,72 +68,72 @@ class LRFOptions:
         self.lrs = False
         self.minimize_memory_usage = False
         self.autorotation = opts.enable_autorotation
-        self.header_separation = (self.profile.dpi/72.) * opts.header_separation
+        self.header_separation = (self.profile.dpi / 72.0) * opts.header_separation
         self.headerformat = opts.header_format
 
         for x in ('top', 'bottom', 'left', 'right'):
-            setattr(self, x+'_margin',
-                (self.profile.dpi/72.) * float(getattr(opts, 'margin_'+x)))
+            setattr(self, x + '_margin', (self.profile.dpi / 72.0) * float(getattr(opts, 'margin_' + x)))
 
-        for x in ('wordspace', 'header', 'header_format',
-                'minimum_indent', 'serif_family',
-                'render_tables_as_images', 'sans_family', 'mono_family',
-                'text_size_multiplier_for_rendered_tables'):
+        for x in (
+            'wordspace',
+            'header',
+            'header_format',
+            'minimum_indent',
+            'serif_family',
+            'render_tables_as_images',
+            'sans_family',
+            'mono_family',
+            'text_size_multiplier_for_rendered_tables',
+        ):
             setattr(self, x, getattr(opts, x))
 
 
 class LRFOutput(OutputFormatPlugin):
-
     name = 'LRF Output'
     author = 'Kovid Goyal'
     file_type = 'lrf'
     commit_name = 'lrf_output'
 
     options = {
-        OptionRecommendation(name='enable_autorotation', recommended_value=False,
-            help=_('Enable auto-rotation of images that are wider than the screen width.')
-        ),
-        OptionRecommendation(name='wordspace',
-            recommended_value=2.5, level=OptionRecommendation.LOW,
-            help=_('Set the space between words in pts. Default is %default')
-        ),
-        OptionRecommendation(name='header', recommended_value=False,
-            help=_('Add a header to all the pages with title and author.')
-        ),
-        OptionRecommendation(name='header_format', recommended_value='%t by %a',
-            help=_('Set the format of the header. %a is replaced by the author '
-            'and %t by the title. Default is %default')
-        ),
-        OptionRecommendation(name='header_separation', recommended_value=0,
-            help=_('Add extra spacing below the header. Default is %default pt.')
-        ),
-        OptionRecommendation(name='minimum_indent', recommended_value=0,
-            help=_('Minimum paragraph indent (the indent of the first line '
-            'of a paragraph) in pts. Default: %default')
-        ),
-        OptionRecommendation(name='render_tables_as_images',
+        OptionRecommendation(
+            name='enable_autorotation',
             recommended_value=False,
-            help=_('This option has no effect')
+            help=_('Enable auto-rotation of images that are wider than the screen width.'),
         ),
-        OptionRecommendation(name='text_size_multiplier_for_rendered_tables',
+        OptionRecommendation(
+            name='wordspace',
+            recommended_value=2.5,
+            level=OptionRecommendation.LOW,
+            help=_('Set the space between words in pts. Default is %default'),
+        ),
+        OptionRecommendation(name='header', recommended_value=False, help=_('Add a header to all the pages with title and author.')),
+        OptionRecommendation(
+            name='header_format',
+            recommended_value='%t by %a',
+            help=_('Set the format of the header. %a is replaced by the author and %t by the title. Default is %default'),
+        ),
+        OptionRecommendation(
+            name='header_separation',
+            recommended_value=0,
+            help=_('Add extra spacing below the header. Default is %default pt.'),
+        ),
+        OptionRecommendation(
+            name='minimum_indent',
+            recommended_value=0,
+            help=_('Minimum paragraph indent (the indent of the first line of a paragraph) in pts. Default: %default'),
+        ),
+        OptionRecommendation(name='render_tables_as_images', recommended_value=False, help=_('This option has no effect')),
+        OptionRecommendation(
+            name='text_size_multiplier_for_rendered_tables',
             recommended_value=1.0,
-            help=_('Multiply the size of text in rendered tables by this '
-            'factor. Default is %default')
+            help=_('Multiply the size of text in rendered tables by this factor. Default is %default'),
         ),
-        OptionRecommendation(name='serif_family', recommended_value=None,
-            help=_('The serif family of fonts to embed')
-        ),
-        OptionRecommendation(name='sans_family', recommended_value=None,
-            help=_('The sans-serif family of fonts to embed')
-        ),
-        OptionRecommendation(name='mono_family', recommended_value=None,
-            help=_('The monospace family of fonts to embed')
-        ),
-
+        OptionRecommendation(name='serif_family', recommended_value=None, help=_('The serif family of fonts to embed')),
+        OptionRecommendation(name='sans_family', recommended_value=None, help=_('The sans-serif family of fonts to embed')),
+        OptionRecommendation(name='mono_family', recommended_value=None, help=_('The monospace family of fonts to embed')),
     }
 
-    recommendations = {
-        ('change_justification', 'original', OptionRecommendation.HIGH)}
+    recommendations = {('change_justification', 'original', OptionRecommendation.HIGH)}
 
     def convert_images(self, pages, opts, wide):
         from uuid import uuid4
@@ -147,28 +144,41 @@ class LRFOutput(OutputFormatPlugin):
         width, height = (784, 1012) if wide else (584, 754)
 
         ps = {}
-        ps['topmargin']      = 0
+        ps['topmargin'] = 0
         ps['evensidemargin'] = 0
-        ps['oddsidemargin']  = 0
-        ps['textwidth']      = width
-        ps['textheight']     = height
-        book = Book(title=opts.title, author=opts.author,
-                bookid=uuid4().hex,
-                publisher=f'{__appname__} {__version__}',
-                category=_('Comic'), pagestyledefault=ps,
-                booksetting=BookSetting(screenwidth=width, screenheight=height))
+        ps['oddsidemargin'] = 0
+        ps['textwidth'] = width
+        ps['textheight'] = height
+        book = Book(
+            title=opts.title,
+            author=opts.author,
+            bookid=uuid4().hex,
+            publisher=f'{__appname__} {__version__}',
+            category=_('Comic'),
+            pagestyledefault=ps,
+            booksetting=BookSetting(screenwidth=width, screenheight=height),
+        )
         for page in pages:
             imageStream = ImageStream(page)
             _page = book.create_page()
-            _page.append(ImageBlock(refstream=imageStream,
-                        blockwidth=width, blockheight=height, xsize=width,
-                        ysize=height, x1=width, y1=height))
+            _page.append(
+                ImageBlock(
+                    refstream=imageStream,
+                    blockwidth=width,
+                    blockheight=height,
+                    xsize=width,
+                    ysize=height,
+                    x1=width,
+                    y1=height,
+                )
+            )
             book.append(_page)
 
         book.renderLrf(open(opts.output, 'wb'))
 
     def flatten_toc(self):
         from calibre.ebooks.oeb.base import TOC
+
         nroot = TOC()
         for x in self.oeb.toc.iterdescendants():
             nroot.add(x.title, x.href)
@@ -182,17 +192,19 @@ class LRFOutput(OutputFormatPlugin):
         lrf_opts = LRFOptions(output_path, opts, oeb)
 
         if input_plugin.is_image_collection:
-            self.convert_images(input_plugin.get_images(), lrf_opts,
-                    getattr(opts, 'wide', False))
+            self.convert_images(input_plugin.get_images(), lrf_opts, getattr(opts, 'wide', False))
             return
 
         self.flatten_toc()
 
         from calibre.ptempfile import TemporaryDirectory
+
         with TemporaryDirectory('_lrf_output') as tdir:
             from calibre.customize.ui import plugin_for_output_format
+
             oeb_output = plugin_for_output_format('oeb')
             oeb_output.convert(oeb, tdir, input_plugin, opts, log)
             opf = [x for x in os.listdir(tdir) if x.endswith('.opf')][0]
             from calibre.ebooks.lrf.html.convert_from import process_file
+
             process_file(os.path.join(tdir, opf), lrf_opts, self.log)

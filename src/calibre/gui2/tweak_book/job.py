@@ -1,8 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__ = 'GPL v3'
-__copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
+# License: GPLv3 Copyright: 2013, Kovid Goyal <kovid at kovidgoyal.net>
 
 import time
 from functools import partial
@@ -15,7 +12,6 @@ from calibre.gui2.progress_indicator import ProgressIndicator
 
 
 class LongJob(Thread):
-
     daemon = True
 
     def __init__(self, name, user_text, callback, function, *args, **kwargs):
@@ -33,6 +29,7 @@ class LongJob(Thread):
             self.result = self.function(*self.args, **self.kwargs)
         except Exception:
             import traceback
+
             self.traceback = traceback.format_exc()
         self.time_taken = time.time() - st
         try:
@@ -42,7 +39,6 @@ class LongJob(Thread):
 
 
 class BlockingJob(QWidget):
-
     def __init__(self, parent):
         QWidget.__init__(self, parent)
         l = QVBoxLayout()
@@ -109,7 +105,7 @@ class BlockingJob(QWidget):
         self.text = text
 
     def __call__(self, name, user_text, callback, function, *args, **kwargs):
-        ' Run a job that blocks the GUI providing some feedback to the user '
+        "Run a job that blocks the GUI providing some feedback to the user"
         self.set_msg(user_text)
         job = LongJob(name, user_text, Dispatcher(partial(self.job_done, callback)), function, *args, **kwargs)
         job.start()

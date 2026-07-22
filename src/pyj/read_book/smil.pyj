@@ -44,7 +44,7 @@ def get_smil_audio_map(smil_map):
     if smil_map:
         flatten(smil_map)
         for v in Object.values(audio_map):
-            v.sort(def(a, b): return a.start - b.start;)
+            v.sort(def (a, b): return a.start - b.start;)
     return {'audio_files': audio_map}
 
 
@@ -69,7 +69,7 @@ def next_audio_file_for_spine_item(audio_file_name, smil_audio_map):
         keys = Object.keys(smil_audio_map)
         idx = keys.indexOf(audio_file_name)
         if 0 <= idx < keys.length - 1:
-            return keys[idx+1], smil_audio_map[keys[idx+1]]
+            return keys[idx + 1], smil_audio_map[keys[idx + 1]]
     return None, None
 
 
@@ -111,7 +111,7 @@ def smil_element_at(pos, anchor_map, par_list):
                     if br.x <= pos.x <= (br.x + br.width) and br.y <= pos.y <= (br.y + br.height):
                         return par
         return None
-    else: # use first visible anchor
+    else:  # use first visible anchor
         for par in par_list:
             if par.anchor and par.audio and is_anchor_on_screen(par.anchor):
                 return par

@@ -1,8 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__ = 'GPL v3'
-__copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
+# License: GPLv3 Copyright: 2013, Kovid Goyal <kovid at kovidgoyal.net>
 
 import re
 
@@ -12,25 +9,24 @@ from calibre.utils.filenames import ascii_text
 
 # Names {{{
 TRANSITIONAL_NAMES = {
-    'DOCUMENT'     : 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument',
-    'DOCPROPS'     : 'http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties',
-    'APPPROPS'     : 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/extended-properties',
-    'STYLES'       : 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles',
-    'NUMBERING'    : 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/numbering',
-    'FONTS'        : 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/fontTable',
+    'DOCUMENT': 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument',
+    'DOCPROPS': 'http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties',
+    'APPPROPS': 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/extended-properties',
+    'STYLES': 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles',
+    'NUMBERING': 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/numbering',
+    'FONTS': 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/fontTable',
     'EMBEDDED_FONT': 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/font',
-    'IMAGES'       : 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/image',
-    'LINKS'        : 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink',
-    'FOOTNOTES'    : 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/footnotes',
-    'ENDNOTES'     : 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/endnotes',
-    'THEMES'       : 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/theme',
-    'SETTINGS'     : 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/settings',
-    'WEB_SETTINGS' : 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/webSettings',
+    'IMAGES': 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/image',
+    'LINKS': 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink',
+    'FOOTNOTES': 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/footnotes',
+    'ENDNOTES': 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/endnotes',
+    'THEMES': 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/theme',
+    'SETTINGS': 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/settings',
+    'WEB_SETTINGS': 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/webSettings',
 }
 
 STRICT_NAMES = {
-    k:v.replace('http://schemas.openxmlformats.org/officeDocument/2006', 'http://purl.oclc.org/ooxml/officeDocument')
-    for k, v in TRANSITIONAL_NAMES.items()
+    k: v.replace('http://schemas.openxmlformats.org/officeDocument/2006', 'http://purl.oclc.org/ooxml/officeDocument') for k, v in TRANSITIONAL_NAMES.items()
 }
 
 TRANSITIONAL_NAMESPACES = {
@@ -69,10 +65,10 @@ TRANSITIONAL_NAMESPACES = {
 }
 
 STRICT_NAMESPACES = {
-    k:v.replace(
-        'http://schemas.openxmlformats.org/officeDocument/2006', 'http://purl.oclc.org/ooxml/officeDocument').replace(
-        'http://schemas.openxmlformats.org/wordprocessingml/2006', 'http://purl.oclc.org/ooxml/wordprocessingml').replace(
-        'http://schemas.openxmlformats.org/drawingml/2006', 'http://purl.oclc.org/ooxml/drawingml')
+    k: v
+    .replace('http://schemas.openxmlformats.org/officeDocument/2006', 'http://purl.oclc.org/ooxml/officeDocument')
+    .replace('http://schemas.openxmlformats.org/wordprocessingml/2006', 'http://purl.oclc.org/ooxml/wordprocessingml')
+    .replace('http://schemas.openxmlformats.org/drawingml/2006', 'http://purl.oclc.org/ooxml/drawingml')
     for k, v in TRANSITIONAL_NAMESPACES.items()
 }
 SVG_BLIP_URI = '{96DAC541-7B7A-43D3-8B79-37D633B846F1}'
@@ -98,7 +94,6 @@ def generate_anchor(name, existing):
 
 
 class DOCXNamespace:
-
     def __init__(self, transitional=True):
         self.xpath_cache = {}
         if transitional:
@@ -141,7 +136,7 @@ class DOCXNamespace:
         return self.XPath('|'.join(f'descendant::{a}' for a in args))(elem)
 
     def makeelement(self, root, tag, append=True, **attrs):
-        ans = root.makeelement(self.expand(tag), **{self.expand(k, sep='_'):v for k, v in attrs.items()})
+        ans = root.makeelement(self.expand(tag), **{self.expand(k, sep='_'): v for k, v in attrs.items()})
         if append:
             root.append(ans)
         return ans

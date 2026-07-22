@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
-
 import re
 from functools import partial
 
@@ -25,7 +24,6 @@ def always_valid(*a):
 
 
 class Action:
-
     def __init__(self, name, short_text, long_text, placeholder='', validator=None):
         self.name = name
         self.short_text = short_text
@@ -36,33 +34,72 @@ class Action:
         self.validator = validator or always_valid
 
 
-ACTION_MAP = {a.name: a for a in (
-    Action('rename', _('Change tag name'), _('Rename tag to the specified name'), _('New tag name')),
-    Action('remove', _('Remove tag and children'), _('Remove the tag and all its contents')),
-    Action('unwrap', _('Remove tag only'), _('Remove the tag but keep its contents')),
-    Action('add_classes', _('Add classes'), _('Add the specified classes, e.g.:') + ' bold green', _('Space separated class names')),
-    Action('remove_classes', _('Remove classes'), _('Remove the specified classes, e.g.:') + ' bold green', _('Space separated class names')),
-    Action('remove_attrs', _('Remove attributes'), _(
-        'Remove the specified attributes from the tag. Multiple attribute names should be separated by spaces.'
-        ' The special value * removes all attributes.'), _('Space separated attribute names')),
-    Action('add_attrs', _('Add attributes'), _('Add the specified attributes, e.g.:') + ' class="red" name="test"', _('Space separated attribute names')),
-    Action('empty', _('Empty the tag'), _('Remove all contents from the tag')),
-    Action('wrap', _('Wrap the tag'), _(
-        'Wrap the tag in the specified tag, e.g.: {0} will wrap the tag in a DIV tag with class {1}').format(
-            '&lt;div class="box"&gt;', 'box'), _('An HTML opening tag')),
-    Action('insert', _('Insert HTML at start'), _(
-        'The specified HTML snippet is inserted after the opening tag. Note that only valid HTML snippets can be used without unclosed tags'),
-           _('HTML snippet')),
-    Action('insert_end', _('Insert HTML at end'), _(
-        'The specified HTML snippet is inserted before the closing tag. Note that only valid HTML snippets can be used without unclosed tags'),
-           _('HTML snippet')),
-    Action('prepend', _('Insert HTML before tag'), _(
-        'The specified HTML snippet is inserted before the opening tag. Note that only valid HTML snippets can be used without unclosed tags'),
-           _('HTML snippet')),
-    Action('append', _('Insert HTML after tag'), _(
-        'The specified HTML snippet is inserted after the closing tag. Note that only valid HTML snippets can be used without unclosed tags'),
-           _('HTML snippet')),
-)}
+ACTION_MAP = {
+    a.name: a
+    for a in (
+        Action('rename', _('Change tag name'), _('Rename tag to the specified name'), _('New tag name')),
+        Action('remove', _('Remove tag and children'), _('Remove the tag and all its contents')),
+        Action('unwrap', _('Remove tag only'), _('Remove the tag but keep its contents')),
+        Action(
+            'add_classes',
+            _('Add classes'),
+            _('Add the specified classes, e.g.:') + ' bold green',
+            _('Space separated class names'),
+        ),
+        Action(
+            'remove_classes',
+            _('Remove classes'),
+            _('Remove the specified classes, e.g.:') + ' bold green',
+            _('Space separated class names'),
+        ),
+        Action(
+            'remove_attrs',
+            _('Remove attributes'),
+            _(
+                'Remove the specified attributes from the tag. Multiple attribute names should be separated by spaces.'
+                ' The special value * removes all attributes.'
+            ),
+            _('Space separated attribute names'),
+        ),
+        Action(
+            'add_attrs',
+            _('Add attributes'),
+            _('Add the specified attributes, e.g.:') + ' class="red" name="test"',
+            _('Space separated attribute names'),
+        ),
+        Action('empty', _('Empty the tag'), _('Remove all contents from the tag')),
+        Action(
+            'wrap',
+            _('Wrap the tag'),
+            _('Wrap the tag in the specified tag, e.g.: {0} will wrap the tag in a DIV tag with class {1}').format('&lt;div class="box"&gt;', 'box'),
+            _('An HTML opening tag'),
+        ),
+        Action(
+            'insert',
+            _('Insert HTML at start'),
+            _('The specified HTML snippet is inserted after the opening tag. Note that only valid HTML snippets can be used without unclosed tags'),
+            _('HTML snippet'),
+        ),
+        Action(
+            'insert_end',
+            _('Insert HTML at end'),
+            _('The specified HTML snippet is inserted before the closing tag. Note that only valid HTML snippets can be used without unclosed tags'),
+            _('HTML snippet'),
+        ),
+        Action(
+            'prepend',
+            _('Insert HTML before tag'),
+            _('The specified HTML snippet is inserted before the opening tag. Note that only valid HTML snippets can be used without unclosed tags'),
+            _('HTML snippet'),
+        ),
+        Action(
+            'append',
+            _('Insert HTML after tag'),
+            _('The specified HTML snippet is inserted after the closing tag. Note that only valid HTML snippets can be used without unclosed tags'),
+            _('HTML snippet'),
+        ),
+    )
+}
 
 
 def validate_action(action):
@@ -87,7 +124,6 @@ def validate_xpath_selector(val):
 
 
 class Match:
-
     def __init__(self, name, text, placeholder='', validator=None):
         self.name = name
         self.text = text
@@ -97,15 +133,18 @@ class Match:
         self.validator = validator or always_valid
 
 
-MATCH_TYPE_MAP = {m.name: m for m in (
-    Match('is', _('is'), _('Tag name')),
-    Match('has_class', _('has class'), _('Class name')),
-    Match('not_has_class', _('does not have class'), _('Class name')),
-    Match('css', _('matches CSS selector'), _('CSS selector'), validate_css_selector),
-    Match('xpath', _('matches XPath selector'), _('XPath selector'), validate_xpath_selector),
-    Match('*', _('is any tag')),
-    Match('contains_text', _('contains text'), _('Text')),
-)}
+MATCH_TYPE_MAP = {
+    m.name: m
+    for m in (
+        Match('is', _('is'), _('Tag name')),
+        Match('has_class', _('has class'), _('Class name')),
+        Match('not_has_class', _('does not have class'), _('Class name')),
+        Match('css', _('matches CSS selector'), _('CSS selector'), validate_css_selector),
+        Match('xpath', _('matches XPath selector'), _('XPath selector'), validate_xpath_selector),
+        Match('*', _('is any tag')),
+        Match('contains_text', _('contains text'), _('Text')),
+    )
+}
 allowed_keys = frozenset('match_type query actions'.split())
 
 
@@ -113,19 +152,15 @@ def validate_rule(rule):
     keys = frozenset(rule)
     extra = keys - allowed_keys
     if extra:
-        return _('Unknown keys'), _(
-            'The rule has unknown keys: %s') % ', '.join(extra)
+        return _('Unknown keys'), _('The rule has unknown keys: %s') % ', '.join(extra)
     missing = allowed_keys - keys
     if missing:
-        return _('Missing keys'), _(
-            'The rule has missing keys: %s') % ', '.join(missing)
+        return _('Missing keys'), _('The rule has missing keys: %s') % ', '.join(missing)
     mt = rule['match_type']
     if mt not in MATCH_TYPE_MAP:
-        return _('Unknown match type'), _(
-            'The match type %s is not known') % mt
+        return _('Unknown match type'), _('The match type %s is not known') % mt
     if mt != '*' and not rule['query']:
-        _('Query required'), _(
-            'You must specify a value for the tag to match')
+        _('Query required'), _('You must specify a value for the tag to match')
     m = MATCH_TYPE_MAP[rule['match_type']]
     err = m.validator(rule.get('query') or '')
     if err:
@@ -153,7 +188,7 @@ def qualify_tag_name(name):
 def remove_tag(tag):
     p = tag.getparent()
     idx = p.index(tag)
-    sibling = p[idx-1] if idx else None
+    sibling = p[idx - 1] if idx else None
     p.remove(tag)
     if tag.tail:
         if sibling is None:
@@ -166,7 +201,7 @@ def remove_tag(tag):
 def unwrap_tag(tag):
     p = tag.getparent()
     idx = p.index(tag)
-    sibling = p[idx-1] if idx else None
+    sibling = p[idx - 1] if idx else None
     if tag.text:
         if sibling is None:
             p.text = (p.text or '') + tag.text
@@ -312,7 +347,7 @@ def append_snippet(container, before_tag, tag):
         idx += 1
     if container.text:
         if idx:
-            c = p[idx-1]
+            c = p[idx - 1]
             c.tail = (c.tail or '') + container.text
         else:
             p.text = (p.text or '') + container.text
@@ -362,7 +397,6 @@ def text_as_xpath_literal(text):
 
 
 class Rule:
-
     def __init__(self, serialized_rule):
         self.sel_type = 'xpath'
         mt = serialized_rule['match_type']
@@ -451,12 +485,10 @@ def transform_conversion_book(oeb, opts, serialized_rules):
 
 
 def rule_to_text(rule):
-    text = _('If the tag {match_type} {query}').format(
-        match_type=MATCH_TYPE_MAP[rule['match_type']].text, query=rule.get('query') or '')
+    text = _('If the tag {match_type} {query}').format(match_type=MATCH_TYPE_MAP[rule['match_type']].text, query=rule.get('query') or '')
     for action in rule['actions']:
         text += '\n'
-        text += _('{action_type} {action_data}').format(
-            action_type=ACTION_MAP[action['type']].short_text, action_data=action.get('data') or '')
+        text += _('{action_type} {action_data}').format(action_type=ACTION_MAP[action['type']].short_text, action_data=action.get('data') or '')
     return text
 
 
@@ -475,7 +507,7 @@ def import_rules(raw_data):
     current_rule = {}
 
     def sanitize(r):
-        return {k:(r.get(k) or '') for k in allowed_keys}
+        return {k: (r.get(k) or '') for k in allowed_keys}
 
     for line in raw_data.decode('utf-8').splitlines():
         if not line.strip():
@@ -507,17 +539,20 @@ def test(return_tests=False):  # {{{
         ae = unittest.TestCase.assertEqual
 
         def test_matching(self):
-            root = parse(namespace_elements=True, html='''
+            root = parse(
+                namespace_elements=True,
+                html='''
 <html id='root'>
 <head id='head'></head>
 <body id='body'>
 <p class="one red" id='p1'>simple
 <p class="two green" id='p2'>a'b"c
-''')
+''',
+            )
             all_ids = root.xpath('//*/@id')
 
             def q(mt, query=''):
-                r = Rule({'match_type': mt, 'query': query, 'actions':[]})
+                r = Rule({'match_type': mt, 'query': query, 'actions': []})
                 ans = []
                 for tag in r.selector(root):
                     ans.append(tag.get('id'))
@@ -555,7 +590,11 @@ def test(return_tests=False):  # {{{
             ai(atype='wrap')
 
         def test_export_import(self):
-            rule = {'match_type': 'is', 'query': 'p', 'actions': [{'type': 'rename', 'data': 'div'}, {'type': 'remove', 'data': ''}]}
+            rule = {
+                'match_type': 'is',
+                'query': 'p',
+                'actions': [{'type': 'rename', 'data': 'div'}, {'type': 'remove', 'data': ''}],
+            }
             self.ae(rule, next(iter(import_rules(export_rules([rule])))))
             rule = {'match_type': '*', 'actions': [{'type': 'remove'}]}
             erule = {'match_type': '*', 'query': '', 'actions': [{'type': 'remove', 'data': ''}]}

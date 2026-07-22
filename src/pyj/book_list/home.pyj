@@ -3,6 +3,7 @@
 from __python__ import bound_methods, hash_literals
 
 from elementmaker import E
+from gettext import gettext as _
 
 from ajax import absolute_path, ajax_send, ajax
 from book_list.cover_grid import BORDER_RADIUS
@@ -14,7 +15,6 @@ from book_list.router import open_book, update_window_title
 from book_list.top_bar import add_button, create_top_bar
 from book_list.ui import set_default_panel_handler, show_panel
 from dom import add_extra_css, build_rule, clear, ensure_id, set_css, unique_id
-from gettext import gettext as _
 from modals import create_custom_dialog
 from session import get_device_uuid, get_interface_data
 from utils import conditional_timeout, safe_set_inner_html, username_key
@@ -22,7 +22,7 @@ from widgets import create_button
 
 CLASS_NAME = 'home-page'
 
-add_extra_css(def():
+add_extra_css(def ():
     ans = ''
     sel = f'.{CLASS_NAME} '
     ans += build_rule('.' + CLASS_NAME,
@@ -151,7 +151,7 @@ def show_cover(blob, name, mt, book):
     img = document.getElementById(this)
     if not img:
         return
-    img.onload = def():
+    img.onload = def ():
         window.URL.revokeObjectURL(this.src)
     img.src = window.URL.createObjectURL(blob)
 
@@ -199,7 +199,7 @@ def sync_data_received(library_id, lrmap, load_type, xhr, ev):
         new_amap = new_vals.annotations_map or {}
         is_empty = True
         v'for(var ikey in new_amap) { is_empty = false; break; }'
-        if !is_empty:
+        if ! is_empty:
             entry.annotations_map = new_amap
         if entry.last_read_position or entry.annotations_map:
             book_id, fmt = key.partition(':')[::2]
@@ -226,7 +226,7 @@ def prepare_recent_container(container):
         create_button(
             _('Browse all downloaded books…'),
             icon='cloud-download',
-            action=def():
+            action=def ():
                 show_panel('local_books')
     )))
     return cover_container
@@ -244,7 +244,7 @@ def show_recent_for_user(container_id):
         images.appendChild(E.div(
             E.a(title=item.tooltip, href='javascript:void(0)', img, onclick=rb)
         ))
-        img.onerror = def(err):
+        img.onerror = def (err):
             failed = err.target
             failed.parentNode.parentNode.style.display = 'none'
 
@@ -310,7 +310,7 @@ def newly_added_received(newly_container_id, end_type, xhr, ev):
 
     for book_id in data.books:
         authors = data.authors[book_id].join(' & ')
-        alt=_('{} by {}').format(data.titles[book_id], authors)
+        alt = _('{} by {}').format(data.titles[book_id], authors)
         img = E.img(alt=alt, src=absolute_path(f'get/cover/{book_id}/{data.library_id}'))
         images.appendChild(E.div(
             E.a(img, href='javascript: void(0)', title=img.alt,
@@ -321,9 +321,10 @@ def newly_added_received(newly_container_id, end_type, xhr, ev):
 
 # User account {{{
 
+
 def change_password():
     interface_data = get_interface_data()
-    create_custom_dialog(_('Change password for: {}').format(interface_data.username), def(parent, close_modal):
+    create_custom_dialog(_('Change password for: {}').format(interface_data.username), def (parent, close_modal):
         ids = unique_id(), unique_id(), unique_id()
         parent.appendChild(E.table(
             E.tr(
@@ -337,12 +338,10 @@ def change_password():
             )
         ))
         parent.appendChild(E.div())
-
         def show_msg(html, is_info):
             msg = parent.firstChild.nextSibling
             safe_set_inner_html(msg, html)
             msg.style.color = 'red' if not is_info else 'currentColor'
-
         def on_complete(end_type, xhr, ev):
             if end_type is 'load':
                 clear(parent)
@@ -355,8 +354,6 @@ def change_password():
                 ))
                 return
             show_msg(_('Failed to change password, with error: {}').format(xhr.error_html))
-
-
         def ok():
             pws = parent.firstChild.getElementsByTagName('input')
             oldpw, pw1, pw2 = pws[0].value, pws[1].value, pws[2].value
@@ -369,7 +366,6 @@ def change_password():
             ajax_send('users/change-pw', {'oldpw': oldpw, 'newpw': pw1}, on_complete)
             show_msg(_('Contacting server, please wait...'), True)
             parent.lastChild.display = 'none'
-
         parent.appendChild(
             E.div(class_='button-box',
                 create_button(_('Cancel'), None, close_modal),
@@ -378,9 +374,10 @@ def change_password():
         )
     )
 
+
 def show_user_details():
     interface_data = get_interface_data()
-    create_custom_dialog(_('Logged in as {}').format(interface_data.username), def(parent, close_modal):
+    create_custom_dialog(_('Logged in as {}').format(interface_data.username), def (parent, close_modal):
             msg = E.div()
             safe_set_inner_html(msg, _(
                 'You are logged in as the user <b>{}</b>. To log in '
@@ -389,15 +386,14 @@ def show_user_details():
             parent.appendChild(
                 E.div(class_='button-box',
                     create_button(_('Close'), None, close_modal),
-                    create_button(_('Change password'), None, def():
+                    create_button(_('Change password'), None, def ():
                         setTimeout(change_password, 0)
                         close_modal()
-                    , highlight=True),
+                    , highlight = True),
                 )
             )
     )
 # }}}
-
 
 
 def init(container_id):
@@ -431,7 +427,7 @@ def init(container_id):
         library_name = interface_data.library_map[library_id]
         if library_name:
             cl.appendChild(
-                create_button(library_name, icon='library', action=def(ev):
+                create_button(library_name, icon='library', action=def (ev):
                     lib_id = ev.currentTarget.dataset.lid
                     q = {'library_id': lib_id}
                     vlid = last_virtual_library_for(lib_id)
@@ -468,4 +464,6 @@ def init(container_id):
                 else:
                     offline_mode.textContent = _('Offline mode is not available, you need to setup HTTPS support in the calibre Content server')
 
-set_default_panel_handler(init)
+
+def set_panel_handlers():
+    set_default_panel_handler(init)

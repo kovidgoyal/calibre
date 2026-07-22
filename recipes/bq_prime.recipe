@@ -2,7 +2,7 @@ from calibre.web.feeds.news import BasicNewsRecipe, classes
 
 
 class bq(BasicNewsRecipe):
-    title = u'BQ Prime'
+    title = 'BQ Prime'
     description = 'Bloomberg Quint: India’s premier multi-platform business and financial news company.'
     language = 'en_IN'
     __author__ = 'unkn0wn'
@@ -16,17 +16,13 @@ class bq(BasicNewsRecipe):
     ignore_duplicate_articles = {'url'}
 
     keep_only_tags = [
-        classes(
-            'story-base-template-m__story-content__1sSai print-story-card story-element-text'
-        ),
-        dict(name='img', attrs={'property': 'og:image'})
+        classes('story-base-template-m__story-content__1sSai print-story-card story-element-text'),
+        dict(name='img', attrs={'property': 'og:image'}),
     ]
 
     remove_tags = [
-        classes(
-            'desktop-hidden desktop-only bm-container bookmark-m__bookmark-container__30eHl bookmark-m__container__23o1v'
-        ),
-        dict(name='div', attrs={'id': 'piano-preview-story'})
+        classes('desktop-hidden desktop-only bm-container bookmark-m__bookmark-container__30eHl bookmark-m__container__23o1v'),
+        dict(name='div', attrs={'id': 'piano-preview-story'}),
     ]
 
     feeds = [
@@ -34,8 +30,7 @@ class bq(BasicNewsRecipe):
     ]
 
     def preprocess_raw_html(self, raw_html, url):
-        return raw_html.replace('<meta property="og:image" content=',
-                                '<img property="og:image" src=')
+        return raw_html.replace('<meta property="og:image" content=', '<img property="og:image" src=')
 
     def preprocess_html(self, soup):
         pic = soup.find('img', attrs={'property': 'og:image'})

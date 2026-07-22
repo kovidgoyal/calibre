@@ -54,7 +54,6 @@ from polyglot.builtins import as_bytes
 
 SANDBOX_HOST = FAKE_HOST.rpartition('.')[0] + '.sandbox'
 
-
 # Override network access to load data from the book {{{
 
 _book_path: str | None = None
@@ -118,7 +117,7 @@ def background_image(encoded_fname=''):
     try:
         fname = bytes.fromhex(encoded_fname).decode('utf-8')
         img_path = path_from_root(os.path.abspath(os.path.join(viewer_config_dir, 'background-images')), fname, reject_colon=iswindows)
-    except (ValueError, UnicodeDecodeError):
+    except ValueError, UnicodeDecodeError:
         return 'image/jpeg', b''
     mt = guess_type(fname)[0] or 'image/jpeg'
     try:
@@ -158,7 +157,6 @@ def handle_mathjax_request(rq, name):
 
 
 class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
-
     def __init__(self, parent=None):
         QWebEngineUrlSchemeHandler.__init__(self, parent)
         self.allowed_hosts = (FAKE_HOST, SANDBOX_HOST)
@@ -186,8 +184,8 @@ class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
                 data = as_bytes(data)
                 mime_type = {
                     # Prevent warning in console about mimetype of fonts
-                    'application/vnd.ms-opentype':'application/x-font-ttf',
-                    'application/x-font-truetype':'application/x-font-ttf',
+                    'application/vnd.ms-opentype': 'application/x-font-ttf',
+                    'application/x-font-truetype': 'application/x-font-ttf',
                     'application/font-sfnt': 'application/x-font-ttf',
                 }.get(mime_type, mime_type)
                 if mime_type == 'text/css':
@@ -195,6 +193,7 @@ class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
                 send_reply(a0, mime_type, data)
             except Exception:
                 import traceback
+
                 traceback.print_exc()
                 return self.fail_request(a0, QWebEngineUrlRequestJob.Error.RequestFailed)
         elif name == 'manifest':
@@ -203,8 +202,10 @@ class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
         elif name == 'reader-background':
             mt, data = background_image()
             send_reply(a0, mt, data) if data else a0.fail(QWebEngineUrlRequestJob.Error.UrlNotFound)
+        elif name == 'viewer.js.map':
+            send_reply(a0, 'application/json', P('viewer.js.map', data=True, allow_user_override=False))
         elif name.startswith('reader-background-'):
-            encoded_fname = name[len('reader-background-'):]
+            encoded_fname = name[len('reader-background-') :]
             mt, data = background_image(encoded_fname)
             send_reply(a0, mt, data) if data else a0.fail(QWebEngineUrlRequestJob.Error.UrlNotFound)
         elif name.startswith('mathjax/'):
@@ -220,6 +221,7 @@ class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
         rq.fail(fail_code)
         prints(f'Blocking FAKE_PROTOCOL request: {rq.requestUrl().toString()} with code: {fail_code}')
 
+
 # }}}
 
 
@@ -234,14 +236,19 @@ def create_profile():
         ans.setHttpUserAgent(ua)
         if is_running_from_develop:
             from calibre.utils.rapydscript import compile_viewer
+
             prints('Compiling viewer code...')
             compile_viewer()
-        js = P('viewer.js', data=True, allow_user_override=False)
-        translations_json = get_translations_data() or b'null'
-        js = js.replace(b'__TRANSLATIONS_DATA__', translations_json, 1)
-        if in_develop_mode:
-            js = js.replace(b'__IN_DEVELOP_MODE__', b'1')
-        insert_scripts(ans, create_script('viewer.js', js))
+        translations_json = (get_translations_data() or b'null').decode()
+        js = f'''
+window.calibre_in_develop_mode = {'true' if in_develop_mode else 'false'};
+window.calibre_translations_data = {translations_json};
+'''
+        insert_scripts(
+            ans,
+            create_script(name='translations.js', src=js),
+            create_script(name='viewer.js', path=P('viewer.js', allow_user_override=False)),
+        )
         url_handler = UrlSchemeHandler(ans)
         ans.installUrlSchemeHandler(QByteArray(FAKE_PROTOCOL.encode('ascii')), url_handler)
         s = ans.settings()
@@ -252,7 +259,6 @@ def create_profile():
 
 
 class ViewerBridge(Bridge):
-
     view_created = from_js(object)
     on_iframe_ready = from_js()
     content_file_changed = from_js(object)
@@ -362,9 +368,9 @@ def apply_font_settings(page_or_view):
         s.setFontSize(QWebEngineSettings.FontSize.DefaultFixedFontSize, int(bfs * 13 / 16))
 
     font_size_changed = (old_minimum, old_base, old_fixed_base) != (
-            s.fontSize(QWebEngineSettings.FontSize.MinimumFontSize),
-            s.fontSize(QWebEngineSettings.FontSize.DefaultFontSize),
-            s.fontSize(QWebEngineSettings.FontSize.DefaultFixedFontSize)
+        s.fontSize(QWebEngineSettings.FontSize.MinimumFontSize),
+        s.fontSize(QWebEngineSettings.FontSize.DefaultFontSize),
+        s.fontSize(QWebEngineSettings.FontSize.DefaultFixedFontSize),
     )
     if font_size_changed and hasattr(page_or_view, 'execute_when_ready'):
         page_or_view.execute_when_ready('viewer_font_size_changed')
@@ -373,7 +379,6 @@ def apply_font_settings(page_or_view):
 
 
 class WebPage(QWebEnginePage):
-
     def __init__(self, parent):
         profile = create_profile()
         QWebEnginePage.__init__(self, profile, parent)
@@ -396,7 +401,7 @@ class WebPage(QWebEnginePage):
     def javaScriptConsoleMessage(self, level, message, lineNumber, sourceID):
         prefix = {
             QWebEnginePage.JavaScriptConsoleMessageLevel.InfoMessageLevel: 'INFO',
-            QWebEnginePage.JavaScriptConsoleMessageLevel.WarningMessageLevel: 'WARNING'
+            QWebEnginePage.JavaScriptConsoleMessageLevel.WarningMessageLevel: 'WARNING',
         }.get(level, 'ERROR')
         prints(f'{prefix}: {sourceID}:{lineNumber}: {message}', file=sys.stderr)
         try:
@@ -405,7 +410,10 @@ class WebPage(QWebEnginePage):
             pass
 
     def acceptNavigationRequest(self, url, type, isMainFrame):
-        if type in (QWebEnginePage.NavigationType.NavigationTypeReload, QWebEnginePage.NavigationType.NavigationTypeBackForward):
+        if type in (
+            QWebEnginePage.NavigationType.NavigationTypeReload,
+            QWebEnginePage.NavigationType.NavigationTypeBackForward,
+        ):
             return True
         if url.scheme() in (FAKE_PROTOCOL, 'data'):
             return True
@@ -438,7 +446,6 @@ def viewer_html() -> bytes:
 
 
 class Inspector(QWidget):
-
     def __init__(self, dock_action, parent=None):
         QWidget.__init__(self, parent=parent)
         self.view_to_debug = parent
@@ -490,7 +497,6 @@ def system_colors():
 
 
 class WebView(QWebEngineView):
-
     cfi_changed = pyqtSignal(object)
     reload_book = pyqtSignal()
     toggle_toc = pyqtSignal()
@@ -550,7 +556,7 @@ class WebView(QWebEngineView):
         w = screen.availableSize().width()
         qapplication_or_fail().palette_changed.connect(self.palette_changed)
         self.show_home_page_on_ready = True
-        self._size_hint = QSize(int(w/3), int(w/2))
+        self._size_hint = QSize(int(w / 3), int(w / 2))
         self._page = WebPage(self)
         self._page.linkHovered.connect(self.link_hovered)
         self.view_is_ready = False
@@ -675,7 +681,7 @@ class WebView(QWebEngineView):
         if url.hasFragment():
             frag = url.fragment(QUrl.ComponentFormattingOption.FullyDecoded)
             if frag and frag.startswith('bookpos='):
-                cfi = frag[len('bookpos='):]
+                cfi = frag[len('bookpos=') :]
                 if cfi:
                     self.current_cfi = cfi
                     self.cfi_changed.emit(cfi)
@@ -684,9 +690,12 @@ class WebView(QWebEngineView):
         if self.dead_renderer_error_shown:
             return
         self.dead_renderer_error_shown = True
-        error_dialog(self, _('Render process crashed'), _(
-            'The Qt WebEngine Render process has crashed.'
-            ' You should try restarting the viewer.'), show=True)
+        error_dialog(
+            self,
+            _('Render process crashed'),
+            _('The Qt WebEngine Render process has crashed. You should try restarting the viewer.'),
+            show=True,
+        )
 
     def sizeHint(self):
         return self._size_hint
@@ -716,8 +725,7 @@ class WebView(QWebEngineView):
             'short_time_fmt': QLocale.system().timeFormat(QLocale.FormatType.ShortFormat),
             'use_roman_numerals_for_series_number': config['use_roman_numerals_for_series_number'],
         }
-        self.bridge.create_view(
-            vprefs['session_data'], vprefs['local_storage'], field_metadata.all_metadata(), ui_data)
+        self.bridge.create_view(vprefs['session_data'], vprefs['local_storage'], field_metadata.all_metadata(), ui_data)
         performance_monitor('bridge ready')
         for func, args in self.pending_bridge_ready_actions.items():
             getattr(self.bridge, func)(*args)
@@ -738,8 +746,15 @@ class WebView(QWebEngineView):
         book_url = link_prefix_for_location_links(add_open_at=False)
         book_in_library_url = url_for_book_in_library()
         self.execute_when_ready(
-            'start_book_load', key, initial_position, _book_pathtoebook, highlights or [], book_url,
-            reading_rates, book_in_library_url)
+            'start_book_load',
+            key,
+            initial_position,
+            _book_pathtoebook,
+            highlights or [],
+            book_url,
+            reading_rates,
+            book_in_library_url,
+        )
 
     def execute_when_ready(self, action, *args):
         if self.bridge.ready:

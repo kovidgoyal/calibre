@@ -1,9 +1,8 @@
-'''
-CSS property propagation class.
-'''
+# License: GPLv3 Copyright: 2008, Marshall T. Vandegrift <llasram@gmail.com>
 
-__license__   = 'GPL v3'
-__copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
+"""
+CSS property propagation class.
+"""
 
 import copy
 import logging
@@ -35,9 +34,7 @@ _html_css_stylesheet = None
 
 
 def validate_color(col):
-    return cssprofiles.validateWithProfile('color',
-                col,
-                profiles=[profiles.Profiles.CSS_LEVEL_2])[1]
+    return cssprofiles.validateWithProfile('color', col, profiles=[profiles.Profiles.CSS_LEVEL_2])[1]
 
 
 def html_css_stylesheet():
@@ -50,23 +47,55 @@ def html_css_stylesheet():
 
 
 INHERITED = {
-    'azimuth', 'border-collapse', 'border-spacing', 'caption-side', 'color',
-    'cursor', 'direction', 'elevation', 'empty-cells', 'font-family',
-    'font-size', 'font-style', 'font-variant', 'font-weight', 'letter-spacing',
-    'line-height', 'list-style-image', 'list-style-position',
-    'list-style-type', 'orphans', 'page-break-inside', 'pitch-range', 'pitch',
-    'quotes', 'richness', 'speak-header', 'speak-numeral', 'speak-punctuation',
-    'speak', 'speech-rate', 'stress', 'text-align', 'text-indent',
-    'text-transform', 'visibility', 'voice-family', 'volume', 'white-space',
-    'widows', 'word-spacing', 'text-shadow',
+    'azimuth',
+    'border-collapse',
+    'border-spacing',
+    'caption-side',
+    'color',
+    'cursor',
+    'direction',
+    'elevation',
+    'empty-cells',
+    'font-family',
+    'font-size',
+    'font-style',
+    'font-variant',
+    'font-weight',
+    'letter-spacing',
+    'line-height',
+    'list-style-image',
+    'list-style-position',
+    'list-style-type',
+    'orphans',
+    'page-break-inside',
+    'pitch-range',
+    'pitch',
+    'quotes',
+    'richness',
+    'speak-header',
+    'speak-numeral',
+    'speak-punctuation',
+    'speak',
+    'speech-rate',
+    'stress',
+    'text-align',
+    'text-indent',
+    'text-transform',
+    'visibility',
+    'voice-family',
+    'volume',
+    'white-space',
+    'widows',
+    'word-spacing',
+    'text-shadow',
 }
 
-FONT_SIZE_NAMES = {
-    'xx-small', 'x-small', 'small', 'medium', 'large', 'x-large', 'xx-large'
-}
+FONT_SIZE_NAMES = {'xx-small', 'x-small', 'small', 'medium', 'large', 'x-large', 'xx-large'}
 
 ALLOWED_MEDIA_TYPES = frozenset({'screen', 'all', 'aural', 'amzn-kf8'})
-IGNORED_MEDIA_FEATURES = frozenset('width min-width max-width height min-height max-height device-width min-device-width max-device-width device-height min-device-height max-device-height aspect-ratio min-aspect-ratio max-aspect-ratio device-aspect-ratio min-device-aspect-ratio max-device-aspect-ratio color min-color max-color color-index min-color-index max-color-index monochrome min-monochrome max-monochrome -webkit-min-device-pixel-ratio resolution min-resolution max-resolution scan grid'.split())  # noqa: E501
+IGNORED_MEDIA_FEATURES = frozenset(
+    'width min-width max-width height min-height max-height device-width min-device-width max-device-width device-height min-device-height max-device-height aspect-ratio min-aspect-ratio max-aspect-ratio device-aspect-ratio min-device-aspect-ratio max-device-aspect-ratio color min-color max-color color-index min-color-index max-color-index monochrome min-monochrome max-monochrome -webkit-min-device-pixel-ratio resolution min-resolution max-resolution scan grid'.split()  # noqa: E501
+)
 
 
 def media_ok(raw):
@@ -109,7 +138,6 @@ def test_media_ok():
 
 
 class style_map(dict):
-
     def __init__(self):
         super().__init__()
         self.important_properties = set()
@@ -120,7 +148,11 @@ def epub_prefix_properties() -> dict[str, tuple[str, str]]:
     if ans is None:
         ans = {}
         for unprefixed in (
-            'writing-mode', 'text-emphasis', 'text-emphasis-color', 'text-emphasis-position', 'text-emphasis-style'
+            'writing-mode',
+            'text-emphasis',
+            'text-emphasis-color',
+            'text-emphasis-position',
+            'text-emphasis-style',
         ):
             ans[f'-epub-{unprefixed}'] = f'-webkit-{unprefixed}', unprefixed
         setattr(epub_prefix_properties, 'ans', ans)
@@ -137,7 +169,6 @@ def cleanup_epub_prefixed_properties(style: dict[str, str]) -> None:
 
 
 class StylizerRules:
-
     def __init__(self, opts, profile, stylesheets):
         self.opts, self.profile, self.stylesheets = opts, profile, stylesheets
 
@@ -151,10 +182,10 @@ class StylizerRules:
                 if rule.type == rule.MEDIA_RULE:
                     if media_ok(rule.media.mediaText):
                         for subrule in rule.cssRules:
-                            self.rules.extend(self.flatten_rule(subrule, href, index, is_user_agent_sheet=sheet_index==0))
+                            self.rules.extend(self.flatten_rule(subrule, href, index, is_user_agent_sheet=sheet_index == 0))
                             index += 1
                 else:
-                    self.rules.extend(self.flatten_rule(rule, href, index, is_user_agent_sheet=sheet_index==0))
+                    self.rules.extend(self.flatten_rule(rule, href, index, is_user_agent_sheet=sheet_index == 0))
                     index = index + 1
         self.rules.sort(key=itemgetter(0))  # sort by specificity
 
@@ -205,7 +236,7 @@ class StylizerRules:
             if size == 'smallest':
                 size = 'xx-small'
             if size in FONT_SIZE_NAMES:
-                style['font-size'] = f'{self.profile.fnames[size]/float(self.profile.fbase):.1f}rem'
+                style['font-size'] = f'{self.profile.fnames[size] / float(self.profile.fbase):.1f}rem'
         cleanup_epub_prefixed_properties(style)
         return style
 
@@ -231,8 +262,7 @@ class StylizerRules:
 class Stylizer:
     STYLESHEETS = WeakKeyDictionary()
 
-    def __init__(self, tree, path, oeb, opts, profile=None,
-            extra_css='', user_css='', base_css=''):
+    def __init__(self, tree, path, oeb, opts, profile=None, extra_css='', user_css='', base_css=''):
         self.oeb, self.opts = oeb, opts
         self.profile = profile
         if self.profile is None:
@@ -240,6 +270,7 @@ class Stylizer:
             # opts.output_profile, but I don't want to risk changing it, as
             # doing so might well have hard to debug font size effects.
             from calibre.customize.ui import output_profiles
+
             for x in output_profiles():
                 if x.short_name == 'default':
                     self.profile = x
@@ -259,14 +290,11 @@ class Stylizer:
 
         # Add css_parser parsing profiles from output_profile
         for profile in self.opts.output_profile.extra_css_modules:
-            cssprofiles.addProfile(profile['name'],
-                                        profile['props'],
-                                        profile['macros'])
+            cssprofiles.addProfile(profile['name'], profile['props'], profile['macros'])
 
-        parser = CSSParser(fetcher=self._fetch_css_file,
-                log=logging.getLogger('calibre.css'))
+        parser = CSSParser(fetcher=self._fetch_css_file, log=logging.getLogger('calibre.css'))
         for elem in style_tags:
-            if (elem.tag in (XHTML('style'), SVG('style')) and elem.get('type', CSS_MIME) in OEB_STYLES and media_ok(elem.get('media'))):
+            if elem.tag in (XHTML('style'), SVG('style')) and elem.get('type', CSS_MIME) in OEB_STYLES and media_ok(elem.get('media')):
                 text = elem.text or ''
                 for x in elem:
                     t = getattr(x, 'text', None)
@@ -279,8 +307,7 @@ class Stylizer:
                     text = oeb.css_preprocessor(text)
                     # We handle @import rules separately
                     parser.setFetcher(lambda x: ('utf-8', b''))
-                    stylesheet = parser.parseString(text, href=cssname,
-                            validate=False)
+                    stylesheet = parser.parseString(text, href=cssname, validate=False)
                     parser.setFetcher(self._fetch_css_file)
                     for rule in stylesheet.cssRules:
                         if rule.type == rule.IMPORT_RULE:
@@ -298,32 +325,31 @@ class Stylizer:
                             stylesheets.append(sitem.data)
                     # Make links to resources absolute, since these rules will
                     # be folded into a stylesheet at the root
-                    replaceUrls(stylesheet, item.abshref,
-                            ignoreImportRules=True)
+                    replaceUrls(stylesheet, item.abshref, ignoreImportRules=True)
                     stylesheets.append(stylesheet)
-            elif (elem.tag == XHTML('link') and elem.get('href') and elem.get(
-                    'rel', 'stylesheet').lower() == 'stylesheet' and elem.get(
-                    'type', CSS_MIME).lower() in OEB_STYLES and media_ok(elem.get('media'))
-                ):
+            elif (
+                elem.tag == XHTML('link')
+                and elem.get('href')
+                and elem.get('rel', 'stylesheet').lower() == 'stylesheet'
+                and elem.get('type', CSS_MIME).lower() in OEB_STYLES
+                and media_ok(elem.get('media'))
+            ):
                 href = urlnormalize(elem.attrib['href'])
                 path = item.abshref(href)
                 sitem = oeb.manifest.hrefs.get(path, None)
                 if sitem is None:
-                    self.logger.warn(
-                        f'Stylesheet {path!r} referenced by file {item.href!r} not in manifest')
+                    self.logger.warn(f'Stylesheet {path!r} referenced by file {item.href!r} not in manifest')
                     continue
                 if not hasattr(sitem.data, 'cssRules'):
-                    self.logger.warn(
-                    f'Stylesheet {path!r} referenced by file {item.href!r} is not CSS')
+                    self.logger.warn(f'Stylesheet {path!r} referenced by file {item.href!r} is not CSS')
                     continue
                 stylesheets.append(sitem.data)
-        csses = {'extra_css':extra_css, 'user_css':user_css}
+        csses = {'extra_css': extra_css, 'user_css': user_css}
         for w, x in csses.items():
             if x:
                 try:
                     text = x
-                    stylesheet = parser.parseString(text, href=cssname,
-                            validate=False)
+                    stylesheet = parser.parseString(text, href=cssname, validate=False)
                     stylesheets.append(stylesheet)
                 except Exception:
                     self.logger.exception(f'Failed to parse {w}, ignoring.')
@@ -332,8 +358,7 @@ class Stylizer:
 
         # using oeb to store the rules, page rule and font face rules
         # and generating them again if opts, profile or stylesheets are different
-        if (not hasattr(self.oeb, 'stylizer_rules')) \
-            or not self.oeb.stylizer_rules.same_rules(self.opts, self.profile, stylesheets):
+        if (not hasattr(self.oeb, 'stylizer_rules')) or not self.oeb.stylizer_rules.same_rules(self.opts, self.profile, stylesheets):
             self.oeb.stylizer_rules = StylizerRules(self.opts, self.profile, stylesheets)
         self.rules = self.oeb.stylizer_rules.rules
         self.page_rule = self.oeb.stylizer_rules.page_rule
@@ -354,8 +379,7 @@ class Stylizer:
 
             if fl is not None:
                 fl = fl.group(1)
-                if fl == 'first-letter' and getattr(self.oeb,
-                        'plumber_output_format', '').lower() in {'mobi', 'docx'}:
+                if fl == 'first-letter' and getattr(self.oeb, 'plumber_output_format', '').lower() in {'mobi', 'docx'}:
                     # Fake first-letter
                     for elem in matches:
                         for x in elem.iter('*'):
@@ -369,8 +393,7 @@ class Stylizer:
                                     punctuation_chars.append(text[0])
                                     text = text[1:]
 
-                                special_text = ''.join(punctuation_chars) + \
-                                        (text[0] if text else '')
+                                special_text = ''.join(punctuation_chars) + (text[0] if text else '')
                                 span = x.makeelement(f'{{{XHTML_NS}}}span')
                                 span.text = special_text
                                 span.set('data-fake-first-letter', '1')
@@ -391,8 +414,7 @@ class Stylizer:
         for elem in xpath(tree, '//h:img[@width or @height]'):
             style = self.style(elem)
             # Check if either height or width is not default
-            is_styled = style._style.get('width', 'auto') != 'auto' or \
-                    style._style.get('height', 'auto') != 'auto'
+            is_styled = style._style.get('width', 'auto') != 'auto' or style._style.get('height', 'auto') != 'auto'
             if not is_styled:
                 # Update img style dimension using width and height
                 upd = {}
@@ -434,11 +456,10 @@ class Stylizer:
         for _, _, style, selector, href in self.rules:
             if href != name:
                 continue
-            if font_scale and 'font-size' in style and \
-                    style['font-size'].endswith('pt'):
+            if font_scale and 'font-size' in style and style['font-size'].endswith('pt'):
                 style = copy.copy(style)
                 size = float(style['font-size'][:-2])
-                style['font-size'] = f'{size*font_scale:.2f}pt'
+                style['font-size'] = f'{size * font_scale:.2f}pt'
             style = ';\n    '.join(': '.join(item) for item in style.items())
             rules.append(f'{selector} {{\n    {style};\n}}')
         return '\n'.join(rules)
@@ -547,7 +568,7 @@ class Style:
 
     def _get(self, name):
         result = self._style.get(name, None)
-        if (result == 'inherit' or (result is None and name in INHERITED and self._has_parent())):
+        if result == 'inherit' or (result is None and name in INHERITED and self._has_parent()):
             stylizer = self._stylizer
             result = stylizer.style(self._element.getparent())._get(name)
         if result is None:
@@ -558,7 +579,7 @@ class Style:
         return self._style.get(name, default)
 
     def _unit_convert(self, value, base=None, font=None):
-        'Return value in pts'
+        "Return value in pts"
         if base is None:
             base = self.width
         if not font and font != 0:
@@ -580,11 +601,11 @@ class Style:
 
     @property
     def backgroundColor(self):
-        '''
+        """
         Return the background color by parsing both the background-color and
         background shortcut properties. Note that inheritance/default values
         are not used. None is returned if no background color is set.
-        '''
+        """
 
         if self._bgcolor is None:
             col = None
@@ -595,7 +616,7 @@ class Style:
                 val = self._style.get('background', None)
                 if val is not None:
                     try:
-                        style = parseStyle('background: '+val, validate=False)
+                        style = parseStyle('background: ' + val, validate=False)
                         css_val = style.getProperty('background').propertyValue
                         try:
                             val_list = list(css_val)
@@ -628,7 +649,7 @@ class Style:
             if value in FONT_SIZE_NAMES:
                 result = self._profile.fnames[value]
             elif value == 'smaller':
-                factor = 1.0/1.2
+                factor = 1.0 / 1.2
                 for _, _, size in self._profile.fsizes:
                     if base <= size:
                         break
@@ -650,6 +671,7 @@ class Style:
             if factor:
                 result = factor * base
             return result
+
         if self._fontSize is None:
             result = None
             parent = self._get_parent()
@@ -698,13 +720,13 @@ class Style:
         return ans
 
     def img_size(self, width, height):
-        ' Return the final size of an <img> given that it points to an image of size widthxheight '
+        "Return the final size of an <img> given that it points to an image of size widthxheight"
         w, h = self._get('width'), self._get('height')
         answ, ansh = self.img_dimension('width', width), self.img_dimension('height', height)
         if w == 'auto' and h != 'auto':
-            answ = (float(width)/height) * ansh
+            answ = (float(width) / height) * ansh
         elif h == 'auto' and w != 'auto':
-            ansh = (float(height)/width) * answ
+            ansh = (float(height) / width) * answ
         return answ, ansh
 
     @property
@@ -795,7 +817,7 @@ class Style:
 
     @property
     def effective_text_decoration(self):
-        '''
+        """
         Browsers do this creepy thing with text-decoration where even though the
         property is not inherited, it looks like it is because containing
         blocks apply it. The actual algorithm is utterly ridiculous, see
@@ -803,7 +825,7 @@ class Style:
         This matters for MOBI output, where text-decoration is mapped to <u>
         and <st> tags. Trying to implement the actual algorithm is too much
         work, so we just use a simple fake that should cover most cases.
-        '''
+        """
         css = self._style.get('text-decoration', None)
         pcss = None
         parent = self._get_parent()
@@ -815,9 +837,9 @@ class Style:
 
     @property
     def first_vertical_align(self):
-        ''' For docx output where tags are not nested, we cannot directly
+        """For docx output where tags are not nested, we cannot directly
         simulate the HTML vertical-align rendering model. Instead use the
-        approximation of considering the first non-default vertical-align '''
+        approximation of considering the first non-default vertical-align"""
         val = self['vertical-align']
         if val != 'baseline':
             raw_val = self._get('vertical-align')
@@ -830,43 +852,35 @@ class Style:
 
     @property
     def marginTop(self):
-        return self._unit_convert(
-            self._get('margin-top'), base=self.parent_width)
+        return self._unit_convert(self._get('margin-top'), base=self.parent_width)
 
     @property
     def marginBottom(self):
-        return self._unit_convert(
-            self._get('margin-bottom'), base=self.parent_width)
+        return self._unit_convert(self._get('margin-bottom'), base=self.parent_width)
 
     @property
     def marginLeft(self):
-        return self._unit_convert(
-            self._get('margin-left'), base=self.parent_width)
+        return self._unit_convert(self._get('margin-left'), base=self.parent_width)
 
     @property
     def marginRight(self):
-        return self._unit_convert(
-            self._get('margin-right'), base=self.parent_width)
+        return self._unit_convert(self._get('margin-right'), base=self.parent_width)
 
     @property
     def paddingTop(self):
-        return self._unit_convert(
-            self._get('padding-top'), base=self.parent_width)
+        return self._unit_convert(self._get('padding-top'), base=self.parent_width)
 
     @property
     def paddingBottom(self):
-        return self._unit_convert(
-            self._get('padding-bottom'), base=self.parent_width)
+        return self._unit_convert(self._get('padding-bottom'), base=self.parent_width)
 
     @property
     def paddingLeft(self):
-        return self._unit_convert(
-            self._get('padding-left'), base=self.parent_width)
+        return self._unit_convert(self._get('padding-left'), base=self.parent_width)
 
     @property
     def paddingRight(self):
-        return self._unit_convert(
-            self._get('padding-right'), base=self.parent_width)
+        return self._unit_convert(self._get('padding-right'), base=self.parent_width)
 
     def __str__(self):
         items = sorted(self._style.items())
@@ -883,7 +897,7 @@ class Style:
                     cssdict.pop(k, None)
         else:
             css = self._pseudo_classes
-        return {k:v for k, v in css.items() if v}
+        return {k: v for k, v in css.items() if v}
 
     @property
     def is_hidden(self):

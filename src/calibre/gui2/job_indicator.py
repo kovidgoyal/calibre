@@ -1,9 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__   = 'GPL v3'
-__copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2012, Kovid Goyal <kovid at kovidgoyal.net>
 
 from qt.core import QAbstractAnimation, QBrush, QColor, QEasingCurve, QPainter, QPainterPath, QPalette, QPoint, QPointF, QPropertyAnimation, QRect, Qt, QWidget
 
@@ -11,7 +7,6 @@ from calibre.gui2 import config
 
 
 class Pointer(QWidget):
-
     def __init__(self, gui):
         QWidget.__init__(self, gui)
         self.setObjectName('jobs_pointer')
@@ -46,8 +41,7 @@ class Pointer(QWidget):
         return self.parent()
 
     def point_at(self, frac):
-        return (self.path.pointAtPercent(frac).toPoint() -
-                QPoint(self.rect().center().x(), self.height()))
+        return self.path.pointAtPercent(frac).toPoint() - QPoint(self.rect().center().x(), self.height())
 
     def rect_at(self, frac):
         return QRect(self.point_at(frac), self.size())
@@ -66,8 +60,8 @@ class Pointer(QWidget):
         self.setVisible(True)
         self.raise_()
         end = self.abspos(self.gui.jobs_button)
-        end = QPointF(end.x() + self.gui.jobs_button.width()/3.0, end.y()+20)
-        start = QPointF(end.x(), end.y() - 0.5*self.height())
+        end = QPointF(end.x() + self.gui.jobs_button.width() / 3.0, end.y() + 20)
+        start = QPointF(end.x(), end.y() - 0.5 * self.height())
         self.path = QPainterPath(QPointF(start))
         self.path.lineTo(end)
         self.path.closeSubpath()

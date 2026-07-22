@@ -1,10 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__   = 'GPL v3'
-__copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
-
+# License: GPLv3 Copyright: 2010, Kovid Goyal <kovid@kovidgoyal.net>
 
 from qt.core import QLineEdit
 
@@ -14,14 +9,15 @@ from calibre.utils.localization import _
 
 
 class TemplateLineEditor(QLineEdit):
-    '''
+    """
     Extend the context menu of a QLineEdit to include more actions.
-    '''
+    """
 
     def __init__(self, parent):
         QLineEdit.__init__(self, parent)
         try:
             from calibre.gui2.ui import get_gui
+
             gui = get_gui(fail_if_absent=True)
             view = gui.library_view
             db = gui.current_db

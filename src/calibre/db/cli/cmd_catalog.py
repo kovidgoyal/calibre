@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
 
-
 import os
 
 from calibre.customize.ui import available_catalog_formats, plugin_for_catalog_format
@@ -27,20 +26,9 @@ def option_parser(get_parser, args):  # {{{
         p = parser.add_option_group(_('{} OPTIONS').format(fmt.upper()))
         for option in plugin.cli_options:
             if option.action:
-                p.add_option(
-                    option.option,
-                    default=option.default,
-                    dest=option.dest,
-                    action=option.action,
-                    help=option.help
-                )
+                p.add_option(option.option, default=option.default, dest=option.dest, action=option.action, help=option.help)
             else:
-                p.add_option(
-                    option.option,
-                    default=option.default,
-                    dest=option.dest,
-                    help=option.help
-                )
+                p.add_option(option.option, default=option.default, dest=option.dest, help=option.help)
 
     # Entry point
     parser = get_parser(
@@ -61,11 +49,7 @@ see the different options, specify the name of the output file and then the
         '--ids',
         default=None,
         dest='ids',
-        help=_(
-            'Comma-separated list of database IDs to catalog.\n'
-            'If declared, --search is ignored.\n'
-            'Default: all'
-        )
+        help=_('Comma-separated list of database IDs to catalog.\nIf declared, --search is ignored.\nDefault: all'),
     )
     parser.add_option(
         '-s',
@@ -77,7 +61,7 @@ see the different options, specify the name of the output file and then the
             'For the format of the search query, please see '
             'the search-related documentation in the User Manual.\n'
             'Default: no filtering'
-        )
+        ),
     )
     parser.add_option(
         '-v',
@@ -85,7 +69,7 @@ see the different options, specify the name of the output file and then the
         default=False,
         action='store_true',
         dest='verbose',
-        help=_('Show detailed output information. Useful for debugging')
+        help=_('Show detailed output information. Useful for debugging'),
     )
     fmt = 'epub'
     if args and args[0].startswith('-'):
@@ -99,6 +83,8 @@ see the different options, specify the name of the output file and then the
     add_plugin_parser_options(fmt, parser)
 
     return parser
+
+
 # }}}
 
 
@@ -109,9 +95,7 @@ def main(opts, args, dbctx):
         opts.ids = list(integers_from_string(opts.ids))
     fmt = args[0].rpartition('.')[-1].lower()
     if fmt not in available_catalog_formats():
-        raise SystemExit(
-            _('Cannot generate a catalog in the {} format').format(fmt.upper())
-        )
+        raise SystemExit(_('Cannot generate a catalog in the {} format').format(fmt.upper()))
 
     # No support for connected device in CLI environment
     # Parallel initialization in calibre.gui2.tools:generate_catalog()

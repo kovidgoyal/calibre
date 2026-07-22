@@ -1,9 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__   = 'GPL v3'
-__copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2012, Kovid Goyal <kovid@kovidgoyal.net>
 
 import os
 import re
@@ -27,32 +23,28 @@ from calibre.ebooks.oeb.base import XHTML, XPath, xml2text
 from calibre.ebooks.oeb.parse_utils import parse_html
 from polyglot.builtins import as_unicode
 
-Part = namedtuple('Part',
-    'num type filename start end aid')
+Part = namedtuple('Part', 'num type filename start end aid')
 
-Elem = namedtuple('Elem',
-    'insert_pos toc_text file_number sequence_number start_pos '
-    'length')
+Elem = namedtuple('Elem', 'insert_pos toc_text file_number sequence_number start_pos length')
 
-FlowInfo = namedtuple('FlowInfo',
-        'type format dir fname')
-
+FlowInfo = namedtuple('FlowInfo', 'type format dir fname')
 
 # locate beginning and ending positions of tag with specific aid attribute
 
+
 def locate_beg_end_of_tag(ml, aid):
-    pattern = br'''<[^>]*\said\s*=\s*['"]%s['"][^>]*>''' % aid
+    pattern = rb'''<[^>]*\said\s*=\s*['"]%s['"][^>]*>''' % aid
     aid_pattern = re.compile(pattern, re.IGNORECASE)
     for m in re.finditer(aid_pattern, ml):
         plt = m.start()
-        pgt = ml.find(b'>', plt+1)
+        pgt = ml.find(b'>', plt + 1)
         return plt, pgt
     return 0, 0
 
 
 def reverse_tag_iter(block):
-    ''' Iterate over all tags in block in reverse order, i.e. last tag
-    to first tag. '''
+    """Iterate over all tags in block in reverse order, i.e. last tag
+    to first tag."""
     end = len(block)
     while True:
         pgt = block.rfind(b'>', 0, end)
@@ -61,7 +53,7 @@ def reverse_tag_iter(block):
         plt = block.rfind(b'<', 0, pgt)
         if plt == -1:
             break
-        yield block[plt:pgt+1]
+        yield block[plt : pgt + 1]
         end = plt
 
 
@@ -73,15 +65,14 @@ def get_first_resource_index(first_image_index, num_of_text_records, first_text_
 
 
 class Mobi8Reader:
-
     def __init__(self, mobi6_reader, log, for_tweak=False):
         self.for_tweak = for_tweak
         self.mobi6_reader, self.log = mobi6_reader, log
         self.header = mobi6_reader.book_header
         self.encrypted_fonts = []
-        self.id_re = re.compile(br'''<[^>]+\s(?:id|ID)\s*=\s*['"]([^'"]+)['"]''')
-        self.name_re = re.compile(br'''<\s*a\s*\s(?:name|NAME)\s*=\s*['"]([^'"]+)['"]''')
-        self.aid_re = re.compile(br'''<[^>]+\s(?:aid|AID)\s*=\s*['"]([^'"]+)['"]''')
+        self.id_re = re.compile(rb'''<[^>]+\s(?:id|ID)\s*=\s*['"]([^'"]+)['"]''')
+        self.name_re = re.compile(rb'''<\s*a\s*\s(?:name|NAME)\s*=\s*['"]([^'"]+)['"]''')
+        self.aid_re = re.compile(rb'''<[^>]+\s(?:aid|AID)\s*=\s*['"]([^'"]+)['"]''')
 
     def __call__(self):
         self.mobi6_reader.check_for_drm()
@@ -91,7 +82,10 @@ class Mobi8Reader:
             offset = self.mobi6_reader.kf8_boundary + 2
             self.resource_offsets = [
                 (get_first_resource_index(bh.first_image_index, bh.mobi6_records, 1), offset - 2),
-                (get_first_resource_index(bh.kf8_first_image_index, bh.records, offset), len(self.mobi6_reader.sections)),
+                (
+                    get_first_resource_index(bh.kf8_first_image_index, bh.records, offset),
+                    len(self.mobi6_reader.sections),
+                ),
             ]
         else:
             offset = 1
@@ -102,7 +96,7 @@ class Mobi8Reader:
         with open('debug-raw.html', 'wb') as f:
             f.write(self.raw_ml)
 
-        self.kf8_sections = self.mobi6_reader.sections[offset-1:]
+        self.kf8_sections = self.mobi6_reader.sections[offset - 1 :]
 
         self.cover_offset = getattr(self.header.exth, 'cover_offset', None)
         self.linked_aids = set()
@@ -123,38 +117,30 @@ class Mobi8Reader:
             if header[:4] != b'FDST':
                 raise ValueError('KF8 does not have a valid FDST record')
             sec_start, num_sections = struct.unpack_from(b'>LL', header, 4)
-            secs = struct.unpack_from(b'>%dL' % (num_sections*2),
-                    header, sec_start)
+            secs = struct.unpack_from(b'>%dL' % (num_sections * 2), header, sec_start)
             self.flow_table = tuple(zip(secs[::2], secs[1::2]))
 
         self.files = []
         if self.header.skelidx != NULL_INDEX:
-            table = read_index(self.kf8_sections, self.header.skelidx,
-                    self.header.codec)[0]
-            File = namedtuple('File',
-                'file_number name divtbl_count start_position length')
+            table = read_index(self.kf8_sections, self.header.skelidx, self.header.codec)[0]
+            File = namedtuple('File', 'file_number name divtbl_count start_position length')
 
             for i, text in enumerate(table):
                 tag_map = table[text]
-                self.files.append(File(i, text, tag_map[1][0],
-                    tag_map[6][0], tag_map[6][1]))
+                self.files.append(File(i, text, tag_map[1][0], tag_map[6][0], tag_map[6][1]))
 
         self.elems = []
         if self.header.dividx != NULL_INDEX:
-            table, cncx = read_index(self.kf8_sections, self.header.dividx,
-                    self.header.codec)
+            table, cncx = read_index(self.kf8_sections, self.header.dividx, self.header.codec)
             for i, text in enumerate(table):
                 tag_map = table[text]
                 toc_text = cncx[tag_map[2][0]]
-                self.elems.append(Elem(int(text), toc_text, tag_map[3][0],
-                    tag_map[4][0], tag_map[6][0], tag_map[6][1]))
+                self.elems.append(Elem(int(text), toc_text, tag_map[3][0], tag_map[4][0], tag_map[6][0], tag_map[6][1]))
 
         self.guide = []
         if self.header.othidx != NULL_INDEX:
-            table, cncx = read_index(self.kf8_sections, self.header.othidx,
-                    self.header.codec)
-            Item = namedtuple('Item',
-                'type title pos_fid')
+            table, cncx = read_index(self.kf8_sections, self.header.othidx, self.header.codec)
+            Item = namedtuple('Item', 'type title pos_fid')
 
             for i, ref_type in enumerate(table):
                 tag_map = table[ref_type]
@@ -162,7 +148,7 @@ class Mobi8Reader:
                 title = cncx[tag_map[1][0]]
                 fileno = None
                 if 3 in list(tag_map.keys()):
-                    fileno  = tag_map[3][0]
+                    fileno = tag_map[3][0]
                 if 6 in list(tag_map.keys()):
                     fileno = tag_map[6]
                 if isinstance(ref_type, bytes):
@@ -196,27 +182,22 @@ class Mobi8Reader:
             skeleton = text[skelpos:baseptr]
             inspos_warned = False
             for i in range(divcnt):
-                insertpos, idtext, filenum, seqnum, startpos, length = \
-                                    self.elems[divptr]
+                insertpos, idtext, filenum, seqnum, startpos, length = self.elems[divptr]
                 if i == 0:
                     aidtext = idtext[12:-2]
                     filename = f'part{filenum:04}.html'
-                part = text[baseptr:baseptr + length]
+                part = text[baseptr : baseptr + length]
                 insertpos = insertpos - skelpos
                 head = skeleton[:insertpos]
                 tail = skeleton[insertpos:]
-                if (tail.find(b'>') < tail.find(b'<') or head.rfind(b'>') <
-                    head.rfind(b'<')):
+                if tail.find(b'>') < tail.find(b'<') or head.rfind(b'>') < head.rfind(b'<'):
                     # There is an incomplete tag in either the head or tail.
                     # This can happen for some badly formed KF8 files, see for
                     # example, https://bugs.launchpad.net/bugs/1082669
                     if not inspos_warned:
-                        self.log.warn(
-                            f'The div table for {skelname} has incorrect insert '
-                            'positions. Calculating manually.')
+                        self.log.warn(f'The div table for {skelname} has incorrect insert positions. Calculating manually.')
                         inspos_warned = True
-                    bp, ep = locate_beg_end_of_tag(skeleton, aidtext if
-                        isinstance(aidtext, bytes) else aidtext.encode('utf-8'))
+                    bp, ep = locate_beg_end_of_tag(skeleton, aidtext if isinstance(aidtext, bytes) else aidtext.encode('utf-8'))
                     if bp != ep:
                         insertpos = ep + 1 + startpos
 
@@ -228,8 +209,7 @@ class Mobi8Reader:
                 # Empty file
                 aidtext = str(uuid4())
                 filename = aidtext + '.html'
-            self.partinfo.append(Part(skelnum, 'text', filename, skelpos,
-                baseptr, aidtext))
+            self.partinfo.append(Part(skelnum, 'text', filename, skelpos, baseptr, aidtext))
 
         # The primary css style sheet is typically stored next followed by any
         # snippets of code that were previously inlined in the
@@ -252,8 +232,8 @@ class Mobi8Reader:
         # in the wild to reverse engineer we won't be able to tell
 
         self.flowinfo.append(FlowInfo(None, None, None, None))
-        svg_tag_pattern = re.compile(br'''(<svg[^>]*>)''', re.IGNORECASE)
-        image_tag_pattern = re.compile(br'''(<(?:svg:)?image[^>]*>)''', re.IGNORECASE)
+        svg_tag_pattern = re.compile(rb'''(<svg[^>]*>)''', re.IGNORECASE)
+        image_tag_pattern = re.compile(rb'''(<(?:svg:)?image[^>]*>)''', re.IGNORECASE)
         for j in range(1, len(self.flows)):
             flowpart = self.flows[j]
             nstr = f'{j:04}'
@@ -292,8 +272,8 @@ class Mobi8Reader:
             self.flowinfo.append(FlowInfo(typ, format, dir, fname))
 
     def get_file_info(self, pos):
-        ''' Get information about the part (file) that exists at pos in
-        the raw markup '''
+        """Get information about the part (file) that exists at pos in
+        the raw markup"""
         for part in self.partinfo:
             if pos >= part.start and pos < part.end:
                 return part
@@ -379,8 +359,7 @@ class Mobi8Reader:
         return guide
 
     def create_ncx(self):
-        index_entries = read_ncx(self.kf8_sections, self.header.ncxidx,
-                self.header.codec)
+        index_entries = read_ncx(self.kf8_sections, self.header.ncxidx, self.header.codec)
         remove = []
 
         # Add href and anchor info to the index entries
@@ -412,6 +391,7 @@ class Mobi8Reader:
 
     def extract_resources(self, sections):
         from calibre.ebooks.mobi.writer2.resources import PLACEHOLDER_GIF
+
         resource_map = []
         container = None
         for x in ('fonts', 'images'):
@@ -419,12 +399,24 @@ class Mobi8Reader:
 
         for start, end in self.resource_offsets:
             for i, sec in enumerate(sections[start:end]):
-                fname_idx = i+1
+                fname_idx = i + 1
                 data = sec[0]
                 typ = data[:4]
                 href = None
-                if typ in {b'FLIS', b'FCIS', b'SRCS', b'\xe9\x8e\r\n', b'BOUN',
-                        b'FDST', b'DATP', b'AUDI', b'VIDE', b'RESC', b'CMET', b'PAGE'}:
+                if typ in {
+                    b'FLIS',
+                    b'FCIS',
+                    b'SRCS',
+                    b'\xe9\x8e\r\n',
+                    b'BOUN',
+                    b'FDST',
+                    b'DATP',
+                    b'AUDI',
+                    b'VIDE',
+                    b'RESC',
+                    b'CMET',
+                    b'PAGE',
+                }:
                     pass  # Ignore these records
                 elif typ == b'FONT':
                     font = read_font_record(data)
@@ -467,8 +459,7 @@ class Mobi8Reader:
 
     def write_opf(self, guide, toc, spine, resource_map):
         mi = self.header.exth.mi
-        if (self.cover_offset is not None and self.cover_offset <
-                len(resource_map)):
+        if self.cover_offset is not None and self.cover_offset < len(resource_map):
             mi.cover = resource_map[self.cover_offset]
 
         if len(list(toc)) < 2:
@@ -496,7 +487,7 @@ class Mobi8Reader:
             files = os.listdir('images')
             unknown = [x for x in files if x.endswith('.unknown')]
             if len(files) == len(unknown):
-                [os.remove('images/'+f) for f in files]
+                [os.remove('images/' + f) for f in files]
 
         if self.for_tweak:
             try:
@@ -560,8 +551,7 @@ class Mobi8Reader:
         seen = set()
         links = []
         for elem in root.iterdescendants(etree.Element):
-            if reached and elem.tag == XHTML('a') and elem.get('href',
-                    False):
+            if reached and elem.tag == XHTML('a') and elem.get('href', False):
                 href = elem.get('href')
                 href, frag = urldefrag(href)
                 href = base_href + '/' + href
@@ -574,7 +564,7 @@ class Mobi8Reader:
                 reached = True
 
         depths = sorted({x[-1] for x in links})
-        depth_map = {x:i for i, x in enumerate(depths)}
+        depth_map = {x: i for i, x in enumerate(depths)}
         for text, href, frag, depth in links:
             assert parent is not None
             depth = depth_map[depth]

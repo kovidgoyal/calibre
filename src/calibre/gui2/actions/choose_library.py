@@ -1,8 +1,5 @@
 #!/usr/bin/env python
-
-__license__   = 'GPL v3'
-__copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2010, Kovid Goyal <kovid@kovidgoyal.net>
 
 import os
 import posixpath
@@ -54,6 +51,7 @@ from calibre.utils.localization import _, ngettext
 
 def db_class():
     from calibre.db.legacy import LibraryDatabase
+
     return LibraryDatabase
 
 
@@ -79,7 +77,6 @@ library_qicon = LibraryIcon()
 
 
 class LibraryUsageStats:  # {{{
-
     def __init__(self):
         self.stats = {}
         self.read_stats()
@@ -131,7 +128,7 @@ class LibraryUsageStats:  # {{{
             locs.remove(lpath)
         limit = tweaks['many_libraries'] if limit is None else limit
         key = (lambda x: sort_key(os.path.basename(x))) if len(locs) > limit else lambda x: self.stats.get(x, 0)
-        locs.sort(key=key, reverse=len(locs)<=limit)
+        locs.sort(key=key, reverse=len(locs) <= limit)
         for loc in locs:
             yield self.pretty(loc), loc
 
@@ -145,11 +142,12 @@ class LibraryUsageStats:  # {{{
         if stats is not None:
             self.stats[newloc] = stats
         self.write_stats()
+
+
 # }}}
 
 
 class MovedDialog(QDialog):  # {{{
-
     def __init__(self, stats, location, parent=None):
         QDialog.__init__(self, parent)
         self.setWindowTitle(_('No library found'))
@@ -158,13 +156,18 @@ class MovedDialog(QDialog):  # {{{
         self.stats, self.location = stats, location
 
         loc = self.oldloc = location.replace('/', os.sep)
-        self.header = QLabel(_('No existing calibre library was found at %s. '
-            'If the library was moved, select its new location below. '
-            'Otherwise calibre will forget this library.')%loc)
+        self.header = QLabel(
+            _(
+                'No existing calibre library was found at %s. '
+                'If the library was moved, select its new location below. '
+                'Otherwise calibre will forget this library.'
+            )
+            % loc
+        )
         self.header.setWordWrap(True)
         ncols = 2
         l.addWidget(self.header, 0, 0, 1, ncols)
-        self.cl = QLabel('<b>'+_('New location of this library:'))
+        self.cl = QLabel('<b>' + _('New location of this library:'))
         l.addWidget(self.cl, l.rowCount(), 0, 1, ncols)
         self.loc = QLineEdit(loc, self)
         l.addWidget(self.loc, l.rowCount(), 0, 1, 1)
@@ -186,8 +189,7 @@ class MovedDialog(QDialog):  # {{{
         self.resize(self.sizeHint() + QSize(120, 0))
 
     def choose_dir(self):
-        d = choose_dir(self, 'library moved choose new loc',
-                _('New library location'), default_dir=self.oldloc)
+        d = choose_dir(self, 'library moved choose new loc', _('New library location'), default_dir=self.oldloc)
         if d is not None:
             self.loc.setText(d)
 
@@ -197,18 +199,17 @@ class MovedDialog(QDialog):  # {{{
     def accept(self):
         newloc = str(self.loc.text())
         if not db_class().exists_at(newloc):
-            error_dialog(self, _('No library found'),
-                    _('No existing calibre library found at %s')%newloc,
-                    show=True)
+            error_dialog(self, _('No library found'), _('No existing calibre library found at %s') % newloc, show=True)
             return
         self.stats.rename(self.location, newloc)
         self.newloc = newloc
         QDialog.accept(self)
+
+
 # }}}
 
 
 class BackupStatus(QDialog):  # {{{
-
     def __init__(self, gui):
         QDialog.__init__(self, gui)
         self.l = l = QVBoxLayout(self)
@@ -240,8 +241,7 @@ class BackupStatus(QDialog):  # {{{
             dirty_text = f'{db.dirty_queue_length()}'
         except Exception:
             dirty_text = _('none')
-        self.msg.setText('<p>' + _(
-            'Book metadata files remaining to be written: %s') % dirty_text)
+        self.msg.setText('<p>' + _('Book metadata files remaining to be written: %s') % dirty_text)
         QTimer.singleShot(1000, self.update)
 
     def mark_all_dirty(self):
@@ -250,8 +250,8 @@ class BackupStatus(QDialog):  # {{{
             return
         db.new_api.mark_as_dirty(db.new_api.all_book_ids())
 
-# }}}
 
+# }}}
 
 current_change_library_action_pi = None
 
@@ -266,10 +266,8 @@ def get_change_library_action_plugin():
 
 
 class ChooseLibraryAction(InterfaceAction):
-
     name = 'Choose Library'
-    action_spec = (_('Choose library'), 'lt.png',
-            _('Choose calibre library to work with'), None)
+    action_spec = (_('Choose library'), 'lt.png', _('Choose calibre library to work with'), None)
     dont_add_to = frozenset(('context-menu-device',))
     action_add_menu = True
     action_menu_clone_qaction = _('Switch/create library')
@@ -284,8 +282,7 @@ class ChooseLibraryAction(InterfaceAction):
         ac.triggered.connect(self.exim_data)
 
         self.stats = LibraryUsageStats()
-        self.popup_type = (QToolButton.ToolButtonPopupMode.InstantPopup if len(self.stats.stats) > 1 else
-                QToolButton.ToolButtonPopupMode.MenuButtonPopup)
+        self.popup_type = QToolButton.ToolButtonPopupMode.InstantPopup if len(self.stats.stats) > 1 else QToolButton.ToolButtonPopupMode.MenuButtonPopup
         if len(self.stats.stats) > 1:
             self.action_choose.triggered.connect(self.choose_library)
         else:
@@ -294,18 +291,13 @@ class ChooseLibraryAction(InterfaceAction):
         self.choose_menu = self.qaction.menu()
         assert self.choose_menu is not None
 
-        ac = self.create_action(spec=(_('Pick a random book'), 'random.png',
-            None, None), attr='action_pick_random')
+        ac = self.create_action(spec=(_('Pick a random book'), 'random.png', None, None), attr='action_pick_random')
         ac.triggered.connect(self.pick_random)
 
         self.choose_library_icon_menu = QMenu(_('Change the icon for this library'))
         self.choose_library_icon_menu.setIcon(QIcon.ic('icon_choose.png'))
-        self.choose_library_icon_action = self.create_action(
-            spec=(_('Choose an icon'), 'icon_choose.png', None, None),
-            attr='action_choose_library_icon')
-        self.remove_library_icon_action = self.create_action(
-            spec=(_('Remove current icon'), 'trash.png', None, None),
-            attr='action_remove_library_icon')
+        self.choose_library_icon_action = self.create_action(spec=(_('Choose an icon'), 'icon_choose.png', None, None), attr='action_choose_library_icon')
+        self.remove_library_icon_action = self.create_action(spec=(_('Remove current icon'), 'trash.png', None, None), attr='action_remove_library_icon')
         self.choose_library_icon_action.triggered.connect(self.get_library_icon)
         self.remove_library_icon_action.triggered.connect(partial(self.remove_library_icon, ''))
         self.choose_library_icon_menu.addAction(self.choose_library_icon_action)
@@ -325,8 +317,7 @@ class ChooseLibraryAction(InterfaceAction):
             self.delete_menu_action = self.choose_menu.addMenu(self.delete_menu)
             self.vl_to_apply_menu = QMenu('waiting ...')
             self.vl_to_apply_action = self.choose_menu.addMenu(self.vl_to_apply_menu)
-            self.rebuild_change_library_menus.connect(self.build_menus,
-                                                      type=Qt.ConnectionType.QueuedConnection)
+            self.rebuild_change_library_menus.connect(self.build_menus, type=Qt.ConnectionType.QueuedConnection)
             self.choose_menu.addAction(self.action_exim)
         else:
             self.choose_menu.addMenu(self.choose_library_icon_menu)
@@ -336,52 +327,50 @@ class ChooseLibraryAction(InterfaceAction):
 
         self.switch_actions = []
         for i in range(5):
-            ac = self.create_action(spec=('', None, None, None),
-                    attr=f'switch_action{i}')
+            ac = self.create_action(spec=('', None, None, None), attr=f'switch_action{i}')
             ac.setObjectName(str(i))
             self.switch_actions.append(ac)
             ac.setVisible(False)
-            connect_lambda(ac.triggered, self, lambda self:
-                    self.switch_requested(self.qs_locations[int(self.gui.sender().objectName())]),
-                    type=Qt.ConnectionType.QueuedConnection)
+            connect_lambda(
+                ac.triggered,
+                self,
+                lambda self: self.switch_requested(self.qs_locations[int(self.gui.sender().objectName())]),
+                type=Qt.ConnectionType.QueuedConnection,
+            )
             self.choose_menu.addAction(ac)
 
         self.rename_separator = self.choose_menu.addSeparator()
 
         self.maintenance_menu = QMenu(_('Library maintenance'))
-        ac = self.create_action(spec=(_('Library metadata backup status'),
-                        'lt.png', None, None), attr='action_backup_status')
+        ac = self.create_action(spec=(_('Library metadata backup status'), 'lt.png', None, None), attr='action_backup_status')
         ac.triggered.connect(self.backup_status, type=Qt.ConnectionType.QueuedConnection)
         self.maintenance_menu.addAction(ac)
-        ac = self.create_action(spec=(_('Check library'), 'lt.png',
-                                      None, None), attr='action_check_library')
+        ac = self.create_action(spec=(_('Check library'), 'lt.png', None, None), attr='action_check_library')
         ac.triggered.connect(self.check_library, type=Qt.ConnectionType.QueuedConnection)
         self.maintenance_menu.addAction(ac)
-        ac = self.create_action(spec=(_('Restore database'), 'lt.png',
-                                      None, None),
-                                      attr='action_restore_database')
+        ac = self.create_action(spec=(_('Restore database'), 'lt.png', None, None), attr='action_restore_database')
         ac.triggered.connect(self.restore_database, type=Qt.ConnectionType.QueuedConnection)
         self.maintenance_menu.addAction(ac)
 
         self.choose_menu.addMenu(self.maintenance_menu)
         self.view_state_map = {}
-        self.restore_view_state.connect(self._restore_view_state,
-                type=Qt.ConnectionType.QueuedConnection)
-        ac = self.create_action(spec=(_('Switch to previous library'), 'lt.png',
-                                      None, None),
-                                      attr='action_previous_library')
+        self.restore_view_state.connect(self._restore_view_state, type=Qt.ConnectionType.QueuedConnection)
+        ac = self.create_action(spec=(_('Switch to previous library'), 'lt.png', None, None), attr='action_previous_library')
         ac.triggered.connect(self.switch_to_previous_library, type=Qt.ConnectionType.QueuedConnection)
         self.gui.keyboard.register_shortcut(
             self.unique_name + '-' + 'action_previous_library',
-            ac.text(), action=ac, group=self.action_spec[0], default_keys=('Ctrl+Alt+p',))
+            ac.text(),
+            action=ac,
+            group=self.action_spec[0],
+            default_keys=('Ctrl+Alt+p',),
+        )
         self.gui.addAction(ac)
 
     @property
     def preserve_state_on_switch(self):
         ans = getattr(self, '_preserve_state_on_switch', None)
         if ans is None:
-            self._preserve_state_on_switch = ans = \
-                self.gui.library_view.preserve_state(require_selected_ids=False)
+            self._preserve_state_on_switch = ans = self.gui.library_view.preserve_state(require_selected_ids=False)
         return ans
 
     def pick_random(self, *args):
@@ -389,8 +378,7 @@ class ChooseLibraryAction(InterfaceAction):
 
     def get_library_icon(self):
         try:
-            paths = choose_images(self.gui, 'choose_library_icon',
-                        _('Select icon for library "%s"') % current_library_name())
+            paths = choose_images(self.gui, 'choose_library_icon', _('Select icon for library "%s"') % current_library_name())
             if paths:
                 path = paths[0]
                 p = QIcon(path).pixmap(QSize(256, 256))
@@ -402,6 +390,7 @@ class ChooseLibraryAction(InterfaceAction):
                 library_qicon.cache_clear()
         except Exception:
             import traceback
+
             traceback.print_exc()
 
     def rename_library_icon(self, old_name, new_name):
@@ -413,6 +402,7 @@ class ChooseLibraryAction(InterfaceAction):
             library_qicon.cache_clear()
         except Exception:
             import traceback
+
             traceback.print_exc()
 
     def remove_library_icon(self, name=''):
@@ -423,6 +413,7 @@ class ChooseLibraryAction(InterfaceAction):
             library_qicon.cache_clear()
         except Exception:
             import traceback
+
             traceback.print_exc()
 
     def set_library_icon(self):
@@ -436,13 +427,21 @@ class ChooseLibraryAction(InterfaceAction):
 
     def exim_data(self):
         if isportable:
-            return error_dialog(self.gui, _('Cannot export/import'), _(
-                'You are running calibre portable, all calibre data is already in the'
-                ' calibre portable folder. Export/import is unavailable.'), show=True)
+            return error_dialog(
+                self.gui,
+                _('Cannot export/import'),
+                _('You are running calibre portable, all calibre data is already in the calibre portable folder. Export/import is unavailable.'),
+                show=True,
+            )
         if self.gui.job_manager.has_jobs():
-            return error_dialog(self.gui, _('Cannot export/import'),
-                    _('Cannot export/import data while there are running jobs.'), show=True)
+            return error_dialog(
+                self.gui,
+                _('Cannot export/import'),
+                _('Cannot export/import data while there are running jobs.'),
+                show=True,
+            )
         from calibre.gui2.dialogs.exim import EximDialog
+
         d = EximDialog(parent=self.gui)
         if d.exec() == QDialog.DialogCode.Accepted:
             if d.restart_needed:
@@ -457,8 +456,7 @@ class ChooseLibraryAction(InterfaceAction):
         return self.stats.pretty(path)
 
     def update_tooltip(self, count):
-        tooltip = self.action_spec[2] + '\n\n' + ngettext('{0} [{1} book]', '{0} [{1} books]', count).format(
-            getattr(self, 'last_lname', ''), count)
+        tooltip = self.action_spec[2] + '\n\n' + ngettext('{0} [{1} book]', '{0} [{1} books]', count).format(getattr(self, 'last_lname', ''), count)
         a = self.qaction
         a.setToolTip(tooltip)
         a.setStatusTip(tooltip)
@@ -476,8 +474,7 @@ class ChooseLibraryAction(InterfaceAction):
         self.update_tooltip(db.count())
         self.build_menus()
         self.set_library_icon()
-        state = self.view_state_map.get(self.stats.canonicalize_path(
-            db.library_path), None)
+        state = self.view_state_map.get(self.stats.canonicalize_path(db.library_path), None)
         if state is not None:
             self.restore_view_state.emit(state)
 
@@ -515,8 +512,7 @@ class ChooseLibraryAction(InterfaceAction):
             is_prev_lib = name == self.prev_lname
             ic = library_qicon(name)
             name = name.replace('&', '&&')
-            ac = self.quick_menu.addAction(ic, name, Dispatcher(partial(self.switch_requested,
-                loc)))
+            ac = self.quick_menu.addAction(ic, name, Dispatcher(partial(self.switch_requested, loc)))
             assert ac is not None
             ac.setStatusTip(_('Switch to: %s') % loc)
             if is_prev_lib:
@@ -524,13 +520,11 @@ class ChooseLibraryAction(InterfaceAction):
                 f.setBold(True)
                 ac.setFont(f)
             quick_actions.append(ac)
-            ac = self.rename_menu.addAction(name, Dispatcher(partial(self.rename_requested,
-                name, loc)))
+            ac = self.rename_menu.addAction(name, Dispatcher(partial(self.rename_requested, name, loc)))
             rename_actions.append(ac)
             assert ac is not None
             ac.setStatusTip(_('Rename: %s') % loc)
-            ac = self.delete_menu.addAction(name, Dispatcher(partial(self.delete_requested,
-                name, loc)))
+            ac = self.delete_menu.addAction(name, Dispatcher(partial(self.delete_requested, name, loc)))
             delete_actions.append(ac)
             assert ac is not None
             ac.setStatusTip(_('Remove: %s') % loc)
@@ -541,7 +535,7 @@ class ChooseLibraryAction(InterfaceAction):
         locations_by_frequency = locations
         if len(locations) >= tweaks['many_libraries']:
             locations_by_frequency = list(self.stats.locations(db, limit=sys.maxsize))
-        for i, x in enumerate(locations_by_frequency[:len(self.switch_actions)]):
+        for i, x in enumerate(locations_by_frequency[: len(self.switch_actions)]):
             name, loc = x
             ic = library_qicon(name)
             name = name.replace('&', '&&')
@@ -556,9 +550,7 @@ class ChooseLibraryAction(InterfaceAction):
         self.quick_menu_action.setVisible(bool(locations))
         self.rename_menu_action.setVisible(bool(locations))
         self.delete_menu_action.setVisible(bool(locations))
-        self.gui.location_manager.set_switch_actions(quick_actions,
-                rename_actions, delete_actions, qs_actions,
-                self.action_choose)
+        self.gui.location_manager.set_switch_actions(quick_actions, rename_actions, delete_actions, qs_actions, self.action_choose)
         # VL at startup
         self.vl_to_apply_menu.clear()
         restrictions = sorted(db.prefs['virtual_libraries'], key=sort_key)
@@ -569,11 +561,13 @@ class ChooseLibraryAction(InterfaceAction):
         restrictions.insert(0, '')
         for vl in restrictions:
             if vl == vl_at_startup:
-                self.vl_to_apply_menu.addAction(QIcon.ic('ok.png'), vl or _('No Virtual library'),
-                                                Dispatcher(partial(self.change_vl_at_startup_requested, vl)))
+                self.vl_to_apply_menu.addAction(
+                    QIcon.ic('ok.png'),
+                    vl or _('No Virtual library'),
+                    Dispatcher(partial(self.change_vl_at_startup_requested, vl)),
+                )
             else:
-                self.vl_to_apply_menu.addAction(vl or _('No Virtual library'),
-                                                Dispatcher(partial(self.change_vl_at_startup_requested, vl)))
+                self.vl_to_apply_menu.addAction(vl or _('No Virtual library'), Dispatcher(partial(self.change_vl_at_startup_requested, vl)))
         # Allow the cloned actions in the OS X global menubar to update
         for a in (self.qaction, self.menuless_qaction):
             a.changed.emit()
@@ -592,42 +586,52 @@ class ChooseLibraryAction(InterfaceAction):
         loc = location.replace('/', os.sep)
         base = os.path.dirname(loc)
         old_name = name.replace('&&', '&')
-        newname, ok = QInputDialog.getText(self.gui, _('Rename') + ' ' + old_name,
-                '<p>'+_(
-                    'Choose a new name for the library <b>%s</b>. ')%name + '<p>'+_(
-                        'Note that the actual library folder will be renamed.') + '<p>' + _(
-                            'WARNING: This means that any calibre:// URLs that point to things in this library will stop working.'),
-                text=old_name)
+        newname, ok = QInputDialog.getText(
+            self.gui,
+            _('Rename') + ' ' + old_name,
+            '<p>'
+            + _('Choose a new name for the library <b>%s</b>. ') % name
+            + '<p>'
+            + _('Note that the actual library folder will be renamed.')
+            + '<p>'
+            + _('WARNING: This means that any calibre:// URLs that point to things in this library will stop working.'),
+            text=old_name,
+        )
         newname = sanitize_file_name(str(newname))
         if not ok or not newname or newname == old_name:
             return
         newloc = os.path.join(base, newname)
         if os.path.exists(newloc):
-            return error_dialog(self.gui, _('Already exists'),
-                    _('The folder %s already exists. Delete it first.') %
-                    newloc, show=True)
-        if (iswindows and len(newloc) > LibraryDatabase.WINDOWS_LIBRARY_PATH_LIMIT):
-            return error_dialog(self.gui, _('Too long'),
-                    _('Path to library too long. It must be less than'
-                    ' %d characters.')%LibraryDatabase.WINDOWS_LIBRARY_PATH_LIMIT,
-                    show=True)
+            return error_dialog(self.gui, _('Already exists'), _('The folder %s already exists. Delete it first.') % newloc, show=True)
+        if iswindows and len(newloc) > LibraryDatabase.WINDOWS_LIBRARY_PATH_LIMIT:
+            return error_dialog(
+                self.gui,
+                _('Too long'),
+                _('Path to library too long. It must be less than %d characters.') % LibraryDatabase.WINDOWS_LIBRARY_PATH_LIMIT,
+                show=True,
+            )
         if not os.path.exists(loc):
-            error_dialog(self.gui, _('Not found'),
-                    _('Cannot rename as no library was found at %s. '
-                      'Try switching to this library first, then switch back '
-                      'and retry the renaming.')%loc, show=True)
+            error_dialog(
+                self.gui,
+                _('Not found'),
+                _('Cannot rename as no library was found at %s. Try switching to this library first, then switch back and retry the renaming.') % loc,
+                show=True,
+            )
             return
         self.gui.library_broker.remove_library(loc)
         try:
             os.rename(loc, newloc)
         except Exception:
             import traceback
+
             det_msg = f'Location: {loc!r} New Location: {newloc!r}\n{traceback.format_exc()}'
-            error_dialog(self.gui, _('Rename failed'),
-                    _('Failed to rename the library at %s. '
-                'The most common cause for this is if one of the files'
-                ' in the library is open in another program.') % loc,
-                    det_msg=det_msg, show=True)
+            error_dialog(
+                self.gui,
+                _('Rename failed'),
+                _('Failed to rename the library at %s. The most common cause for this is if one of the files in the library is open in another program.') % loc,
+                det_msg=det_msg,
+                show=True,
+            )
             return
         self.stats.rename(location, newloc)
         self.rename_library_icon(old_name, newname)
@@ -637,12 +641,16 @@ class ChooseLibraryAction(InterfaceAction):
     def delete_requested(self, name, location):
         loc = location.replace('/', os.sep)
         if not question_dialog(
-                self.gui, _('Library removed'), _(
-                'The library %s has been removed from calibre. '
-                'The files remain on your computer, if you want '
-                'to delete them, you will have to do so manually.') % (f'<code>{loc}</code>'),
-                override_icon='dialog_information.png',
-                yes_text=_('&OK'), no_text=_('&Undo'), yes_icon='ok.png', no_icon='edit-undo.png'):
+            self.gui,
+            _('Library removed'),
+            _('The library %s has been removed from calibre. The files remain on your computer, if you want to delete them, you will have to do so manually.')
+            % (f'<code>{loc}</code>'),
+            override_icon='dialog_information.png',
+            yes_text=_('&OK'),
+            no_text=_('&Undo'),
+            yes_icon='ok.png',
+            no_icon='edit-undo.png',
+        ):
             return
         self.remove_library_icon(name)
         self.stats.remove(location)
@@ -659,24 +667,33 @@ class ChooseLibraryAction(InterfaceAction):
     def mark_dirty(self):
         db = self.gui.library_view.model().db
         db.dirtied(list(db.data.iterallids()))
-        info_dialog(self.gui, _('Backup metadata'),
-            _('Metadata will be backed up while calibre is running, at the '
-              'rate of approximately 1 book every three seconds.'), show=True)
+        info_dialog(
+            self.gui,
+            _('Backup metadata'),
+            _('Metadata will be backed up while calibre is running, at the rate of approximately 1 book every three seconds.'),
+            show=True,
+        )
 
     def restore_database(self):
         LibraryDatabase = db_class()
         m = self.gui.library_view.model()
         db = m.db
-        if (iswindows and len(db.library_path) > LibraryDatabase.WINDOWS_LIBRARY_PATH_LIMIT):
-            return error_dialog(self.gui, _('Too long'),
-                    _('Path to library too long. It must be less than'
+        if iswindows and len(db.library_path) > LibraryDatabase.WINDOWS_LIBRARY_PATH_LIMIT:
+            return error_dialog(
+                self.gui,
+                _('Too long'),
+                _(
+                    'Path to library too long. It must be less than'
                     ' %d characters. Move your library to a location with'
                     ' a shorter path using Windows Explorer, then point'
-                    ' calibre to the new location and try again.')%
-                    LibraryDatabase.WINDOWS_LIBRARY_PATH_LIMIT,
-                    show=True)
+                    ' calibre to the new location and try again.'
+                )
+                % LibraryDatabase.WINDOWS_LIBRARY_PATH_LIMIT,
+                show=True,
+            )
 
         from calibre.gui2.dialogs.restore_library import restore_database
+
         m = self.gui.library_view.model()
         m.stop_metadata_backup()
         db = m.db
@@ -686,6 +703,7 @@ class ChooseLibraryAction(InterfaceAction):
 
     def check_library(self):
         from calibre.gui2.dialogs.check_library import CheckLibraryDialog, DBCheck
+
         self.gui.library_view.save_state()
         m = self.gui.library_view.model()
         m.stop_metadata_backup()
@@ -710,6 +728,7 @@ class ChooseLibraryAction(InterfaceAction):
             after = self.gui.current_db.new_api.size_stats()
             det_msg = ''
             from calibre import human_readable
+
             for which, title in {'main': _('books'), 'fts': _('full text search'), 'notes': _('notes')}.items():
                 if which != 'main' and not getattr(d, which).isChecked():
                     continue
@@ -717,30 +736,42 @@ class ChooseLibraryAction(InterfaceAction):
                 if before[which] == after[which]:
                     det_msg += _('Size of the {} database was unchanged.').format(title)
                 else:
-                    det_msg += _('Size of the {0} database reduced from {1} to {2}.').format(
-                            title, human_readable(before[which]), human_readable(after[which]))
-            if not question_dialog(self.gui, _('Success'),
-                    _('Found no errors in your calibre library database.'
-                        ' Do you want calibre to check if the files in your'
-                        ' library match the information in the database?'), det_msg=det_msg.strip()):
+                    det_msg += _('Size of the {0} database reduced from {1} to {2}.').format(title, human_readable(before[which]), human_readable(after[which]))
+            if not question_dialog(
+                self.gui,
+                _('Success'),
+                _(
+                    'Found no errors in your calibre library database.'
+                    ' Do you want calibre to check if the files in your'
+                    ' library match the information in the database?'
+                ),
+                det_msg=det_msg.strip(),
+            ):
                 return
         else:
-            return error_dialog(self.gui, _('Failed'),
-                    _('Database integrity check failed, click "Show details"'
-                        ' for details.'), show=True, det_msg=d.error[1])
+            return error_dialog(
+                self.gui,
+                _('Failed'),
+                _('Database integrity check failed, click "Show details" for details.'),
+                show=True,
+                det_msg=d.error[1],
+            )
 
-        self.gui.status_bar.show_message(
-                _('Starting library scan, this may take a while'))
+        self.gui.status_bar.show_message(_('Starting library scan, this may take a while'))
         try:
             QCoreApplication.processEvents()
             d = CheckLibraryDialog(self.gui, m.db)
 
             if not d.do_exec():
-                if question_dialog(self.gui, _('No problems found'),
-                        _('The files in your library match the information in the database.\n\n'
-                          "Choose 'Open dialog' to change settings and run the check again."),
-                        yes_text=_('Open dialog'), yes_icon='gear.png', no_icon='ok.png',
-                        no_text=_('Finished')):
+                if question_dialog(
+                    self.gui,
+                    _('No problems found'),
+                    _("The files in your library match the information in the database.\n\nChoose 'Open dialog' to change settings and run the check again."),
+                    yes_text=_('Open dialog'),
+                    yes_icon='gear.png',
+                    no_icon='ok.png',
+                    no_text=_('Finished'),
+                ):
                     d.exec()
         finally:
             self.gui.status_bar.clear_message()
@@ -793,6 +824,7 @@ class ChooseLibraryAction(InterfaceAction):
         import gc
 
         from calibre.utils.mem import memory
+
         ref = self.dbref
         for i in range(3):
             gc.collect()
@@ -814,6 +846,7 @@ class ChooseLibraryAction(InterfaceAction):
         if not self.change_library_allowed():
             return
         from calibre.gui2.dialogs.choose_library import ChooseLibrary
+
         self.gui.library_view.save_state()
         db = self.gui.library_view.model().db
         location = self.stats.canonicalize_path(db.library_path)
@@ -822,8 +855,7 @@ class ChooseLibraryAction(InterfaceAction):
         c.exec()
 
     def choose_library_callback(self, newloc, copy_structure=False, library_renamed=False):
-        self.gui.library_moved(newloc, copy_structure=copy_structure,
-                allow_rebuild=True)
+        self.gui.library_moved(newloc, copy_structure=copy_structure, allow_rebuild=True)
         if library_renamed:
             self.stats.rename(self.pre_choose_dialog_location, prefs['library_path'])
         self.build_menus()
@@ -831,20 +863,24 @@ class ChooseLibraryAction(InterfaceAction):
 
     def change_library_allowed(self):
         if os.environ.get('CALIBRE_OVERRIDE_DATABASE_PATH', None):
-            warning_dialog(self.gui, _('Not allowed'),
-                    _('You cannot change libraries while using the environment'
-                        ' variable CALIBRE_OVERRIDE_DATABASE_PATH.'), show=True)
+            warning_dialog(
+                self.gui,
+                _('Not allowed'),
+                _('You cannot change libraries while using the environment variable CALIBRE_OVERRIDE_DATABASE_PATH.'),
+                show=True,
+            )
             return False
         if self.gui.job_manager.has_jobs():
-            warning_dialog(self.gui, _('Not allowed'),
-                    _('You cannot change libraries while jobs'
-                        ' are running.'), show=True)
+            warning_dialog(self.gui, _('Not allowed'), _('You cannot change libraries while jobs are running.'), show=True)
             return False
 
         if self.gui.proceed_question.questions:
-            warning_dialog(self.gui, _('Not allowed'),
-                    _('You cannot change libraries until all'
-                        ' updates are accepted or rejected.'), show=True)
+            warning_dialog(
+                self.gui,
+                _('Not allowed'),
+                _('You cannot change libraries until all updates are accepted or rejected.'),
+                show=True,
+            )
             return False
 
         return True

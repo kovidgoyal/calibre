@@ -1,8 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__ = 'GPL v3'
-__copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
+# License: GPLv3 Copyright: 2013, Kovid Goyal <kovid at kovidgoyal.net>
 
 import os
 import sys
@@ -25,10 +22,16 @@ from calibre_extensions.imageops import load_from_data_without_gil
 
 
 class ThumbnailCache(TC):
-
     def __init__(self, max_size=1024, thumbnail_size=(100, 100), name='gui-thumbnail-cache', version=0, location=None):
-        TC.__init__(self, name=name, min_disk_cache=100, max_size=max_size,
-                    thumbnail_size=thumbnail_size, version=version, location=location)
+        TC.__init__(
+            self,
+            name=name,
+            min_disk_cache=100,
+            max_size=max_size,
+            thumbnail_size=thumbnail_size,
+            version=version,
+            location=location,
+        )
 
     def set_database(self, db):
         TC.set_group_id(self, db.library_id)
@@ -38,12 +41,12 @@ T = TypeVar('T')
 
 
 class RAMCache(MutableMapping[int, T]):
-    '''
+    """
     This is a RAM cache to speed up rendering of covers by storing them as
     QPixmaps. It is possible that it is called from multiple threads, thus the
     locking and staging. For example, it can be called by the db layer when a
     book is removed either by the GUI or the content server.
-    '''
+    """
 
     def __init__(self, limit=100):
         self.cached_items = OrderedDict[int, T]()
@@ -115,13 +118,12 @@ class RAMCache(MutableMapping[int, T]):
 
 
 class Thumbnailer:
-
     thumbnail_class: type[QImage] = QImage
     pixmap_class: type[QPixmap] = QPixmap
     CACHE_FORMAT = 'PPM'
 
     def __init__(self):
-        self.image_format_for_pixmap = self.pixmap_class(1,1).toImage().format()
+        self.image_format_for_pixmap = self.pixmap_class(1, 1).toImage().format()
 
     def make_thumbnail(self, cover_as_bytes: bytes, width: int, height: int) -> tuple[QImage, bytes]:
         if not cover_as_bytes:
@@ -168,7 +170,6 @@ class Thumbnailer:
 
 
 class ThumbnailRenderer(QObject):
-
     _cover_rendered = pyqtSignal(str, int, int, int, object)  # library_id, book_id, width, height, QImage
     rendered = pyqtSignal(int, object)  # book_id, QPixmap
 
@@ -208,6 +209,7 @@ class ThumbnailRenderer(QObject):
         self.render_queue.shutdown(immediate=True)
         self.disk_cache.shutdown()
         self.render_thread = None
+
     __del__ = shutdown
 
     def fetch_covers(self):
@@ -226,23 +228,25 @@ class ThumbnailRenderer(QObject):
                     thumb = self.fetch_cover_from_cache(book_id, width, height)
                 except Exception:
                     import traceback
+
                     traceback.print_exc()
                     thumb = QImage()
                 try:
                     self.emit_cover_rendered(library_id, book_id, width, height, thumb)
                 except Exception:  # Underlying C++ object deleted
                     import traceback
+
                     traceback.print_exc()
                     break
             finally:
                 q.task_done()
 
     def fetch_cover_from_cache(self, book_id: int, width: int, height: int) -> QImage:
-        '''
+        """
         This method fetches the thumbnail from the cache if it exists, otherwise renders
         the cover as a thumbnail, stores it in the cache and returns the rendered QImage.
         If the book has no cover or loading the cover fails, returns null QImage.
-        '''
+        """
         if not (db := self.dbref()) or self.ignore_render_requests.is_set():
             return QImage()
         tc = self.disk_cache
@@ -376,17 +380,24 @@ class ThumbnailRenderer(QObject):
 
 
 class CoverThumbnailCache(QObject):
-
     rendered = pyqtSignal(int, object)
 
     def __init__(
-        self, max_size=1024, thumbnail_size=(100, 100), name='gui-thumbnail-cache', version=0, ram_limit=100,
-        thumbnailer: Thumbnailer | None = None, parent: QObject | None = None,
+        self,
+        max_size=1024,
+        thumbnail_size=(100, 100),
+        name='gui-thumbnail-cache',
+        version=0,
+        ram_limit=100,
+        thumbnailer: Thumbnailer | None = None,
+        parent: QObject | None = None,
     ):
         super().__init__(parent)
         self.renderer = ThumbnailRenderer(
             ThumbnailCache(max_size=max_size, thumbnail_size=thumbnail_size, name=name, version=version),
-            RAMCache(limit=ram_limit), thumbnailer or Thumbnailer(), self
+            RAMCache(limit=ram_limit),
+            thumbnailer or Thumbnailer(),
+            self,
         )
         self.renderer.rendered.connect(self.rendered)
 
@@ -410,20 +421,22 @@ class CoverThumbnailCache(QObject):
         return self.renderer.disk_cache.thumbnail_size
 
     def thumbnail_as_pixmap(self, book_id: int) -> QPixmap | None:
-        '''
+        """
         Return the thumbnail from the cache if available otherwise return None and request it be rendered.
         The rendered signal will be emitted when it is rendered.
         If the pixmap is null, then it means either the book has no cover or there was some error
         rendering the cover as a thumbnail.
-        '''
+        """
         return self.renderer.cached_or_none(book_id)
 
 
 # Testing {{{
 class ThumbnailerForTest(Thumbnailer):
     pixmap_class = QImage
+
     def __init__(self):
         self.image_format_for_pixmap = QImage.Format.Format_ARGB32_Premultiplied
+
     def as_pixmap(self, img):
         return QImage(img)
 
@@ -454,9 +467,10 @@ class ThumbnailRendererForTest(ThumbnailRenderer):
 
 def run_test(self, t: ThumbnailRendererForTest):
     from calibre.db.constants import COVER_FILE_NAME
+
     legacy = self.init_legacy(self.cloned_library)
     db = legacy.new_api
-    cimg = QImage(t.disk_cache.thumbnail_size[0]*2, t.disk_cache.thumbnail_size[1]*2, QImage.Format.Format_RGB32)
+    cimg = QImage(t.disk_cache.thumbnail_size[0] * 2, t.disk_cache.thumbnail_size[1] * 2, QImage.Format.Format_RGB32)
     cimg.fill(Qt.GlobalColor.red)
     db.set_cover({1: cimg})
     cimg.fill(Qt.GlobalColor.green)
@@ -493,9 +507,15 @@ def run_test(self, t: ThumbnailRendererForTest):
         ae((i.size().width(), i.size().height()), t.disk_cache.thumbnail_size)
         actual = i.pixelColor(0, 0)
         expected = QColor(col)
-        self.assertLess(max(
-            abs(expected.red()-actual.red()), abs(expected.green()-actual.green()), abs(expected.blue()-actual.blue())),
-                        4, f'{expected.name()} != {actual.name()}')
+        self.assertLess(
+            max(
+                abs(expected.red() - actual.red()),
+                abs(expected.green() - actual.green()),
+                abs(expected.blue() - actual.blue()),
+            ),
+            4,
+            f'{expected.name()} != {actual.name()}',
+        )
 
     t.set_database(legacy)
     self.assertIsNone(t.cached_or_none(1))
@@ -544,9 +564,11 @@ def run_test(self, t: ThumbnailRendererForTest):
     ac(1, Qt.GlobalColor.red)
 
     from calibre.gui2.library.bookshelf_view import ThumbnailerWithDominantColor
+
     class T(ThumbnailerWithDominantColor):
         def __init__(self):
             self.image_format_for_pixmap = QImage.Format.Format_ARGB32_Premultiplied
+
     th = T()
     data = ThumbnailerForTest().serialize(cimg)
     i, data = th.make_thumbnail(data, *t.disk_cache.thumbnail_size)
@@ -562,4 +584,6 @@ def test_cover_cache(self):
         finally:
             t.shutdown()
             t.join_with_timeout()
+
+
 # }}}

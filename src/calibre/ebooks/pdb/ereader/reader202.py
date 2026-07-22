@@ -1,9 +1,8 @@
-'''
+# License: GPLv3 Copyright: 2009, John Schember <john@nachtimwald.com>
+
+"""
 Read content from ereader pdb file with a 116 and 202 byte header created by Makebook.
-'''
-__license__   = 'GPL v3'
-__copyright__ = '2009, John Schember <john@nachtimwald.com>'
-__docformat__ = 'restructuredtext en'
+"""
 
 import os
 import struct
@@ -16,24 +15,24 @@ from polyglot.builtins import as_unicode
 
 
 class HeaderRecord:
-    '''
+    """
     The first record in the file is always the header record. It holds
     information related to the location of text, images, and so on
     in the file. This is used in conjunction with the sections
     defined in the file header.
-    '''
+    """
+
     num_image_pages: int
     image_data_offset: int
 
     def __init__(self, raw):
-        self.version, = struct.unpack('>H', raw[0:2])
-        self.non_text_offset, = struct.unpack('>H', raw[8:10])
+        (self.version,) = struct.unpack('>H', raw[0:2])
+        (self.non_text_offset,) = struct.unpack('>H', raw[8:10])
 
         self.num_text_pages = self.non_text_offset - 1
 
 
 class Reader202(FormatReader):
-
     def __init__(self, header, stream, log, options):
         self.log = log
         self.encoding = options.input_encoding
@@ -50,6 +49,7 @@ class Reader202(FormatReader):
             raise EreaderError(f'Unknown book version {self.header_record.version}.')
 
         from calibre.ebooks.metadata.pdb import get_metadata
+
         self.mi = get_metadata(stream, False)
 
     def section_data(self, number):
@@ -57,6 +57,7 @@ class Reader202(FormatReader):
 
     def decompress_text(self, number):
         from calibre.ebooks.compression.palmdoc import decompress_doc
+
         data = bytearray(self.section_data(number))
         data = bytes(bytearray(x ^ 0xA5 for x in data))
         return decompress_doc(data).decode(self.encoding or 'cp1252', 'replace')
@@ -67,17 +68,17 @@ class Reader202(FormatReader):
 
         data = self.section_data(number)
         if data.startswith(b'PNG'):
-            name = data[4:4 + 32].strip(b'\x00')
+            name = data[4 : 4 + 32].strip(b'\x00')
             img = data[62:]
 
         return name, img
 
     def get_text_page(self, number):
-        '''
+        """
         Only palmdoc compression is supported. The text is xored with 0xA5 and
         assumed to be encoded as Windows-1252. The encoding is part of
         the eReader file spec and should always be this encoding.
-        '''
+        """
         if not (1 <= number <= self.header_record.num_text_pages):
             return ''
 
@@ -141,10 +142,10 @@ class Reader202(FormatReader):
         return os.path.join(output_dir, 'metadata.opf')
 
     def dump_pml(self):
-        '''
+        """
         This is primarily used for debugging and 3rd party tools to
         get the plm markup that comprises the text in the file.
-        '''
+        """
         pml = ''
 
         for i in range(1, self.header_record.num_text_pages + 1):
@@ -162,10 +163,10 @@ class Reader202(FormatReader):
         return ans
 
     def dump_images(self, output_dir):
-        '''
+        """
         This is primarily used for debugging and 3rd party tools to
         get the images in the file.
-        '''
+        """
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
 

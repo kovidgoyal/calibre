@@ -34,7 +34,7 @@ NAMESPACES = {
     'openSearch': 'http://a9.com/-/spec/opensearchrss/1.0/',
     'atom': 'http://www.w3.org/2005/Atom',
     'dc': 'http://purl.org/dc/terms',
-    'gd': 'http://schemas.google.com/g/2005'
+    'gd': 'http://schemas.google.com/g/2005',
 }
 
 
@@ -65,8 +65,9 @@ def get_details(browser, url, timeout):  # {{{
         raw = browser.open_novisit(url, timeout=timeout).read()
 
     return raw
-# }}}
 
+
+# }}}
 
 xpath_cache = {}
 
@@ -75,12 +76,14 @@ def XPath(x):
     ans = xpath_cache.get(x)
     if ans is None:
         from lxml import etree
+
         ans = xpath_cache[x] = etree.XPath(x, namespaces=NAMESPACES)
     return ans
 
 
 def to_metadata(browser, log, entry_, timeout, running_a_test=False):  # {{{
     from calibre.utils.xml_parse import safe_xml_fromstring
+
     # total_results  = XPath('//openSearch:totalResults')
     # start_index    = XPath('//openSearch:startIndex')
     # items_per_page = XPath('//openSearch:itemsPerPage')
@@ -181,6 +184,7 @@ def to_metadata(browser, log, entry_, timeout, running_a_test=False):  # {{{
     pubdate = get_text(extra, date)
     if pubdate:
         from calibre.utils.date import parse_date, utcnow
+
         try:
             default = utcnow().replace(day=15)
             mi.pubdate = parse_date(pubdate, assume_utc=True, default=default)
@@ -189,19 +193,17 @@ def to_metadata(browser, log, entry_, timeout, running_a_test=False):  # {{{
 
     # Cover
     mi.has_google_cover = None
-    for x in extra.xpath(
-        '//*[@href and @rel="http://schemas.google.com/books/2008/thumbnail"]'
-    ):
+    for x in extra.xpath('//*[@href and @rel="http://schemas.google.com/books/2008/thumbnail"]'):
         mi.has_google_cover = x.get('href')
         break
 
     return mi
 
+
 # }}}
 
 
 class GoogleBooks(Source):
-
     name = 'Google'
     version = (1, 1, 3)
     minimum_calibre_version = (2, 80, 0)
@@ -209,32 +211,40 @@ class GoogleBooks(Source):
 
     capabilities = frozenset({'identify'})
     touched_fields = frozenset({
-        'title', 'authors', 'tags', 'pubdate', 'comments', 'publisher',
-        'identifier:isbn', 'identifier:google', 'languages'
+        'title',
+        'authors',
+        'tags',
+        'pubdate',
+        'comments',
+        'publisher',
+        'identifier:isbn',
+        'identifier:google',
+        'languages',
     })
     supports_gzip_transfer_encoding = True
     cached_cover_url_is_reliable = False
 
     GOOGLE_COVER = 'https://books.google.com/books?id=%s&printsec=frontcover&img=1'
 
-    DUMMY_IMAGE_MD5 = frozenset(
-        ('0de4383ebad0adad5eeb8975cd796657', 'a64fa89d7ebc97075c1d363fc5fea71f')
-    )
+    DUMMY_IMAGE_MD5 = frozenset(('0de4383ebad0adad5eeb8975cd796657', 'a64fa89d7ebc97075c1d363fc5fea71f'))
 
     def get_book_url(self, identifiers):  # {{{
         goog = identifiers.get('google', None)
         if goog is not None:
             return ('google', goog, 'https://books.google.com/books?id=%s' % goog)
+
     # }}}
 
     def id_from_url(self, url):  # {{{
         from polyglot.urllib import parse_qs, urlparse
+
         purl = urlparse(url)
         if purl.netloc == 'books.google.com':
             q = parse_qs(purl.query)
             gid = q.get('id')
             if gid:
                 return 'google', gid[0]
+
     # }}}
 
     def create_query(self, title=None, authors=None, identifiers={}, capitalize_isbn=False):  # {{{
@@ -273,28 +283,13 @@ class GoogleBooks(Source):
     # }}}
 
     def download_cover(  # {{{
-        self,
-        log,
-        result_queue,
-        abort,
-        title=None,
-        authors=None,
-        identifiers={},
-        timeout=30,
-        get_best_cover=False
+        self, log, result_queue, abort, title=None, authors=None, identifiers={}, timeout=30, get_best_cover=False
     ):
         cached_url = self.get_cached_cover_url(identifiers)
         if cached_url is None:
             log.info('No cached cover found, running identify')
             rq = Queue()
-            self.identify(
-                log,
-                rq,
-                abort,
-                title=title,
-                authors=authors,
-                identifiers=identifiers
-            )
+            self.identify(log, rq, abort, title=title, authors=authors, identifiers=identifiers)
             if abort.is_set():
                 return
             results = []
@@ -303,11 +298,7 @@ class GoogleBooks(Source):
                     results.append(rq.get_nowait())
                 except Empty:
                     break
-            results.sort(
-                key=self.identify_results_keygen(
-                    title=title, authors=authors, identifiers=identifiers
-                )
-            )
+            results.sort(key=self.identify_results_keygen(title=title, authors=authors, identifiers=identifiers))
             for mi in results:
                 cached_url = self.get_cached_cover_url(mi.identifiers)
                 if cached_url is not None:
@@ -362,44 +353,32 @@ class GoogleBooks(Source):
             ans.comments = pretty_google_books_comments(ans.comments)
         self.clean_downloaded_metadata(ans)
         return ans
+
     # }}}
 
     def get_all_details(  # {{{
-        self,
-        br,
-        log,
-        entries,
-        abort,
-        result_queue,
-        timeout
+        self, br, log, entries, abort, result_queue, timeout
     ):
         from lxml import etree
+
         for relevance, i in enumerate(entries):
             try:
                 ans = self.postprocess_downloaded_google_metadata(to_metadata(br, log, i, timeout, self.running_a_test), relevance)
                 if isinstance(ans, Metadata):
                     result_queue.put(ans)
             except Exception:
-                log.exception(
-                    'Failed to get metadata for identify entry:', etree.tostring(i)
-                )
+                log.exception('Failed to get metadata for identify entry:', etree.tostring(i))
             if abort.is_set():
                 break
 
     # }}}
 
     def identify_via_web_search(  # {{{
-        self,
-        log,
-        result_queue,
-        abort,
-        title=None,
-        authors=None,
-        identifiers={},
-        timeout=30
+        self, log, result_queue, abort, title=None, authors=None, identifiers={}, timeout=30
     ):
         from calibre.utils.filenames import ascii_text
         from polyglot.urllib import urlparse
+
         isbn = check_isbn(identifiers.get('isbn', None))
         q = []
         strip_punc_pat = regex.compile(r'[\p{C}|\p{M}|\p{P}|\p{S}|\p{Z}]+', regex.UNICODE)
@@ -432,6 +411,7 @@ class GoogleBooks(Source):
         if not q and not google_ids:
             return None
         from calibre.ebooks.metadata.sources.update import search_engines_module
+
         se = search_engines_module()
         br = se.google_specialize_browser(se.browser())
         if not has_google_id:
@@ -465,14 +445,28 @@ class GoogleBooks(Source):
                 if isinstance(ans, Metadata):
                     if isbn:
                         if isbn not in ans.all_isbns:
-                            log('Excluding', ans.title, 'by', authors_to_string(ans.authors), 'as it does not match the ISBN:', isbn,
-                                'not in', ' '.join(ans.all_isbns))
+                            log(
+                                'Excluding',
+                                ans.title,
+                                'by',
+                                authors_to_string(ans.authors),
+                                'as it does not match the ISBN:',
+                                isbn,
+                                'not in',
+                                ' '.join(ans.all_isbns),
+                            )
                             continue
                     elif check_tokens:
                         candidate = set(to_check_tokens(*self.get_title_tokens(ans.title)))
                         candidate |= set(to_check_tokens(*self.get_author_tokens(ans.authors)))
                         if candidate.intersection(check_tokens) != check_tokens:
-                            log('Excluding', ans.title, 'by', authors_to_string(ans.authors), 'as it does not match the query')
+                            log(
+                                'Excluding',
+                                ans.title,
+                                'by',
+                                authors_to_string(ans.authors),
+                                'as it does not match the query',
+                            )
                             continue
                     ans = self.postprocess_downloaded_google_metadata(ans, relevance)
                     result_queue.put(ans)
@@ -483,19 +477,14 @@ class GoogleBooks(Source):
                 break
         if not found and isbn and (title or authors):
             return self.identify_via_web_search(log, result_queue, abort, title, authors, {}, timeout)
+
     # }}}
 
     def identify(  # {{{
-        self,
-        log,
-        result_queue,
-        abort,
-        title=None,
-        authors=None,
-        identifiers={},
-        timeout=30
+        self, log, result_queue, abort, title=None, authors=None, identifiers={}, timeout=30
     ):
         from calibre.utils.xml_parse import safe_xml_fromstring
+
         entry = XPath('//atom:entry')
         identifiers = identifiers.copy()
         br = self.browser
@@ -510,9 +499,7 @@ class GoogleBooks(Source):
                 log.exception('Failed to get metadata for Google identifier:', identifiers['google'])
             del identifiers['google']
 
-        query = self.create_query(
-            title=title, authors=authors, identifiers=identifiers
-        )
+        query = self.create_query(title=title, authors=authors, identifiers=identifiers)
         if not query:
             log.error('Insufficient metadata to construct query')
             return
@@ -531,6 +518,7 @@ class GoogleBooks(Source):
             except Exception as e:
                 log.exception('Failed to parse identify results')
                 return False, as_unicode(e)
+
         ok, entries = make_query(query)
         if not ok:
             return entries
@@ -549,40 +537,34 @@ if __name__ == '__main__':  # tests {{{
     # To run these test use:
     # calibre-debug src/calibre/ebooks/metadata/sources/google.py
     from calibre.ebooks.metadata.sources.test import authors_test, test_identify_plugin, title_test
+
     tests = [
-    ({
-        'identifiers': {'google': 's7NIrgEACAAJ'},
-    }, [title_test('Ride Every Stride', exact=False)]),
-
-    ({
-        'identifiers': {'isbn': '0743273567'},
-        'title': 'Great Gatsby',
-        'authors': ['Fitzgerald']
-    }, [
-        title_test('The great gatsby', exact=True),
-        authors_test(['F. Scott Fitzgerald'])
-    ]),
-
-    ({
-        'title': 'Flatland',
-        'authors': ['Abbott']
-    }, [title_test('Flatland', exact=False)]),
-
-    ({
-        'title': 'The Blood Red Indian Summer: A Berger and Mitry Mystery',
-        'authors': ['David Handler'],
-    }, [title_test('The Blood Red Indian Summer: A Berger and Mitry Mystery')
-    ]),
-
-    ({
-        # requires using web search to find the book, but web search is broken currently
-        'title': 'Dragon Done It',
-        'authors': ['Eric Flint'],
-    }, [
-        title_test('The dragon done it', exact=True),
-        authors_test(['Eric Flint', 'Mike Resnick'])
-    ]),
-
+        (
+            {
+                'identifiers': {'google': 's7NIrgEACAAJ'},
+            },
+            [title_test('Ride Every Stride', exact=False)],
+        ),
+        (
+            {'identifiers': {'isbn': '0743273567'}, 'title': 'Great Gatsby', 'authors': ['Fitzgerald']},
+            [title_test('The great gatsby', exact=True), authors_test(['F. Scott Fitzgerald'])],
+        ),
+        ({'title': 'Flatland', 'authors': ['Abbott']}, [title_test('Flatland', exact=False)]),
+        (
+            {
+                'title': 'The Blood Red Indian Summer: A Berger and Mitry Mystery',
+                'authors': ['David Handler'],
+            },
+            [title_test('The Blood Red Indian Summer: A Berger and Mitry Mystery')],
+        ),
+        (
+            {
+                # requires using web search to find the book, but web search is broken currently
+                'title': 'Dragon Done It',
+                'authors': ['Eric Flint'],
+            },
+            [title_test('The dragon done it', exact=True), authors_test(['Eric Flint', 'Mike Resnick'])],
+        ),
     ]
     test_identify_plugin(GoogleBooks.name, tests)
 

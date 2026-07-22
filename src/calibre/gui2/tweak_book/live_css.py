@@ -1,8 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__ = 'GPL v3'
-__copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
+# License: GPLv3 Copyright: 2014, Kovid Goyal <kovid at kovidgoyal.net>
 
 import sys
 
@@ -38,7 +35,6 @@ lowest_specificity = (-sys.maxsize, 0, 0, 0, 0, 0)
 
 
 class Heading(QWidget):  # {{{
-
     toggled = pyqtSignal(object)
     context_menu_requested = pyqtSignal(object, object)
 
@@ -60,7 +56,7 @@ class Heading(QWidget):  # {{{
             p = self.parent()
             assert isinstance(p, QWidget)
             f = p.font()
-        except (AttributeError, AssertionError):
+        except AttributeError, AssertionError:
             return
         f.setBold(True)
         self.setFont(f)
@@ -91,7 +87,11 @@ class Heading(QWidget):  # {{{
             bg = bg.lighter(115)
         p.fillRect(self.rect(), bg)
         try:
-            p.drawText(self.rect(), Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter|Qt.TextFlag.TextSingleLine, self.rendered_text)
+            p.drawText(
+                self.rect(),
+                Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter | Qt.TextFlag.TextSingleLine,
+                self.rendered_text,
+            )
         finally:
             p.end()
 
@@ -107,11 +107,12 @@ class Heading(QWidget):  # {{{
 
     def contextMenuEvent(self, a0):
         self.context_menu_requested.emit(self, a0)
+
+
 # }}}
 
 
 class Cell:  # {{{
-
     __slots__ = ('color_role', 'is_overriden', 'override_color', 'rect', 'right_align', 'swatch', 'text')
 
     SIDE_MARGIN = 5
@@ -141,11 +142,12 @@ class Cell:  # {{{
         if self.is_overriden:
             painter.setPen(palette.color(QPalette.ColorRole.WindowText))
             painter.drawLine(br.left(), br.top() + br.height() // 2, br.right(), br.top() + br.height() // 2)
+
+
 # }}}
 
 
 class Declaration(QWidget):
-
     hyperlink_activated = pyqtSignal(object)
     context_menu_requested = pyqtSignal(object, object)
 
@@ -161,8 +163,10 @@ class Declaration(QWidget):
 
     def do_layout(self):
         fm = self.fontMetrics()
+
         def bounding_rect(text):
             return fm.boundingRect(0, 0, 10000, 10000, Cell.FLAGS, text)
+
         line_spacing = 2
         side_margin = Cell.SIDE_MARGIN
         self.rows = []
@@ -179,7 +183,7 @@ class Declaration(QWidget):
             self.hyperlink_rect = QRect(side_margin, ypos, br1.width(), br1.height())
             self.rows.append([
                 Cell(name, self.hyperlink_rect, color_role=QPalette.ColorRole.Link),
-                Cell(sel, QRect(br1.right() + side_margin, ypos, br2.width(), br2.height()), right_align=True)
+                Cell(sel, QRect(br1.right() + side_margin, ypos, br2.width(), br2.height()), right_align=True),
             ])
             ypos += max(br1.height(), br2.height()) + 2 * line_spacing
             self.lines_for_copy.append(name + ' ' + sel)
@@ -190,8 +194,18 @@ class Declaration(QWidget):
             vtext = prop.value + '\xa0' + ('!' if prop.important else '') + prop.important
             br2 = bounding_rect(vtext)
             self.rows.append([
-                Cell(text, QRect(side_margin, ypos, br1.width(), br1.height()), color_role=QPalette.ColorRole.LinkVisited, is_overriden=prop.is_overriden),
-                Cell(vtext, QRect(br1.right() + side_margin, ypos, br2.width(), br2.height()), swatch=prop.color, is_overriden=prop.is_overriden)
+                Cell(
+                    text,
+                    QRect(side_margin, ypos, br1.width(), br1.height()),
+                    color_role=QPalette.ColorRole.LinkVisited,
+                    is_overriden=prop.is_overriden,
+                ),
+                Cell(
+                    vtext,
+                    QRect(br1.right() + side_margin, ypos, br2.width(), br2.height()),
+                    swatch=prop.color,
+                    is_overriden=prop.is_overriden,
+                ),
             ])
             self.lines_for_copy.append(text + vtext)
             if prop.is_overriden:
@@ -256,7 +270,7 @@ class Declaration(QWidget):
 
     def emit_hyperlink_activated(self):
         dt = self.data['type']
-        data = {'type':dt, 'name':self.html_name, 'syntax':'html'}
+        data = {'type': dt, 'name': self.html_name, 'syntax': 'html'}
         if dt == 'inline':  # style attribute
             data['sourceline_address'] = self.data['href']
         elif dt == 'elem':  # <style> tag
@@ -275,8 +289,7 @@ class Declaration(QWidget):
 
     def update_hover(self, hovering):
         cell = self.rows[0][0]
-        if (hovering and cell.override_color is None) or (
-                not hovering and cell.override_color is not None):
+        if (hovering and cell.override_color is None) or (not hovering and cell.override_color is not None):
             cell.override_color = QColor(Qt.GlobalColor.red) if hovering else None
             self.update()
 
@@ -285,7 +298,6 @@ class Declaration(QWidget):
 
 
 class Box(QWidget):
-
     hyperlink_activated = pyqtSignal(object)
 
     def __init__(self, parent=None):
@@ -326,7 +338,7 @@ class Box(QWidget):
         h.toggled.connect(self.heading_toggled)
         self.widgets.append(h), layout.addWidget(h)
         ccss = data['computed_css']
-        declaration = {'properties':[Property([k, ccss[k][0], '', ccss[k][1]]) for k in sorted(ccss)]}
+        declaration = {'properties': [Property([k, ccss[k][0], '', ccss[k][1]]) for k in sorted(ccss)]}
         d = Declaration(None, declaration, is_first=True, parent=self)
         self.widgets.append(d), layout.addWidget(d)
         for w in self.widgets:
@@ -335,7 +347,7 @@ class Box(QWidget):
     def heading_toggled(self, heading):
         for i, w in enumerate(self.widgets):
             if w is heading:
-                for b in self.widgets[i + 1:]:
+                for b in self.widgets[i + 1 :]:
                     if isinstance(b, Heading):
                         break
                     b.setVisible(heading.expanded)
@@ -379,10 +391,12 @@ class Box(QWidget):
             return
         block = '\n'.join(lines).replace('\xa0', ' ')
         heading = lines[0]
+
         def _copy_to_clipboard(text):
             cb = qapplication_or_fail().clipboard()
             assert cb is not None
             cb.setText(text)
+
         m = QMenu(self)
         m.addAction(QIcon.ic('edit-copy.png'), _('Copy') + ' ' + heading.replace('\xa0', ' '), lambda: _copy_to_clipboard(block))
         all_lines = []
@@ -394,7 +408,6 @@ class Box(QWidget):
 
 
 class Property:
-
     __slots__ = ('color', 'important', 'is_overriden', 'name', 'specificity', 'value')
 
     def __init__(self, prop, specificity=()):
@@ -405,11 +418,11 @@ class Property:
     def __repr__(self):
         return (
             f'<Property name={self.name} value={self.value} important={self.important} '
-            f'color={self.color} specificity={self.specificity} is_overriden={self.is_overriden}>')
+            f'color={self.color} specificity={self.specificity} is_overriden={self.is_overriden}>'
+        )
 
 
 class LiveCSS(QWidget):
-
     goto_declaration = pyqtSignal(object)
 
     def __init__(self, preview, parent=None):
@@ -431,10 +444,9 @@ class LiveCSS(QWidget):
         self.stack = s = QStackedLayout(self)
         self.setLayout(s)
 
-        self.clear_label = la = QLabel('<h3>' + _(
-            'No style information found') + '</h3><p>' + _(
-                'Move the cursor inside a HTML tag to see what styles'
-                ' apply to that tag.'))
+        self.clear_label = la = QLabel(
+            '<h3>' + _('No style information found') + '</h3><p>' + _('Move the cursor inside a HTML tag to see what styles apply to that tag.')
+        )
         la.setWordWrap(True)
         la.setAlignment(Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignLeft)
         s.addWidget(la)
@@ -520,7 +532,7 @@ class LiveCSS(QWidget):
         if selector is not None:
             try:
                 specificity = [0] + list(parse(selector)[0].specificity())
-            except (AttributeError, TypeError, SelectorError):
+            except AttributeError, TypeError, SelectorError:
                 specificity = [0, 0, 0, 0]
         else:  # style attribute
             specificity = [1, 0, 0, 0]

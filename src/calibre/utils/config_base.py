@@ -1,8 +1,5 @@
 #!/usr/bin/env python
-
-__license__   = 'GPL v3'
-__copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2011, Kovid Goyal <kovid@kovidgoyal.net>
 
 import numbers
 import os
@@ -23,7 +20,6 @@ plugin_dir = os.path.join(config_dir, 'plugins')
 
 
 class Prefs(Protocol):
-
     def set(self, key: str, val: Any) -> None: ...
     def get(self, key: str) -> Any: ...
     def __getitem__(self, key: str) -> Any: ...
@@ -34,7 +30,8 @@ class Prefs(Protocol):
 
 def parse_old_style(src):
     import pickle as cPickle
-    options = {'cPickle':cPickle}
+
+    options = {'cPickle': cPickle}
     try:
         if not isinstance(src, str):
             src = src.decode('utf-8')
@@ -51,21 +48,21 @@ def parse_old_style(src):
 
 def to_json(obj):
     import datetime
+
     if isinstance(obj, bytearray):
         from base64 import standard_b64encode
-        return {'__class__': 'bytearray',
-                '__value__': standard_b64encode(bytes(obj)).decode('ascii')}
+
+        return {'__class__': 'bytearray', '__value__': standard_b64encode(bytes(obj)).decode('ascii')}
     if isinstance(obj, datetime.datetime):
         from calibre.utils.date import isoformat
-        return {'__class__': 'datetime.datetime',
-                '__value__': isoformat(obj, as_utc=True)}
+
+        return {'__class__': 'datetime.datetime', '__value__': isoformat(obj, as_utc=True)}
     if isinstance(obj, (set, frozenset)):
         return {'__class__': 'set', '__value__': tuple(obj)}
     if isinstance(obj, bytes):
         return obj.decode('utf-8')
     if hasattr(obj, 'toBase64'):  # QByteArray
-        return {'__class__': 'bytearray',
-                '__value__': bytes(obj.toBase64()).decode('ascii')}
+        return {'__class__': 'bytearray', '__value__': bytes(obj.toBase64()).decode('ascii')}
     v = getattr(obj, 'value', None)
     if isinstance(v, int):  # Possibly an enum with integer values like all the Qt enums
         return v
@@ -84,9 +81,11 @@ def from_json(obj):
     if custom is not None:
         if custom == 'bytearray':
             from base64 import standard_b64decode
+
             return bytearray(standard_b64decode(obj['__value__'].encode('ascii')))
         if custom == 'datetime.datetime':
             from calibre.utils.iso8601 import parse_iso8601
+
             return parse_iso8601(obj['__value__'], assume_utc=True)
         if custom == 'set':
             return set(obj['__value__'])
@@ -115,11 +114,24 @@ def force_unicode_recursive(obj):
 
 def json_dumps(obj, ignore_unserializable=False):
     import json
+
     try:
-        ans = json.dumps(obj, indent=2, default=safe_to_json if ignore_unserializable else to_json, sort_keys=True, ensure_ascii=False)
+        ans = json.dumps(
+            obj,
+            indent=2,
+            default=safe_to_json if ignore_unserializable else to_json,
+            sort_keys=True,
+            ensure_ascii=False,
+        )
     except UnicodeDecodeError:
         obj = force_unicode_recursive(obj)
-        ans = json.dumps(obj, indent=2, default=safe_to_json if ignore_unserializable else to_json, sort_keys=True, ensure_ascii=False)
+        ans = json.dumps(
+            obj,
+            indent=2,
+            default=safe_to_json if ignore_unserializable else to_json,
+            sort_keys=True,
+            ensure_ascii=False,
+        )
     if not isinstance(ans, bytes):
         ans = ans.encode('utf-8')
     return ans
@@ -127,6 +139,7 @@ def json_dumps(obj, ignore_unserializable=False):
 
 def json_loads(raw):
     import json
+
     if isinstance(raw, bytes):
         raw = raw.decode('utf-8')
     return json.loads(raw, object_hook=from_json)
@@ -138,57 +151,64 @@ def make_config_dir():
 
 
 class Option:
-
-    def __init__(self, name, switches=[], help='', type=None, choices=None,
-                 check=None, group=None, default=None, action=None, metavar=None):
+    def __init__(
+        self,
+        name,
+        switches=[],
+        help='',
+        type=None,
+        choices=None,
+        check=None,
+        group=None,
+        default=None,
+        action=None,
+        metavar=None,
+    ):
         if choices:
             type = 'choice'
 
-        self.name     = name
+        self.name = name
         self.switches = switches
-        self.help     = help.replace('%default', repr(default)) if help else None
-        self.type     = type
+        self.help = help.replace('%default', repr(default)) if help else None
+        self.type = type
         if self.type is None and action is None and choices is None:
             if isinstance(default, float):
                 self.type = 'float'
             elif isinstance(default, numbers.Integral) and not isinstance(default, bool):
                 self.type = 'int'
 
-        self.choices  = choices
-        self.check    = check
-        self.group    = group
-        self.default  = default
-        self.action   = action
-        self.metavar  = metavar
+        self.choices = choices
+        self.check = check
+        self.group = group
+        self.default = default
+        self.action = action
+        self.metavar = metavar
 
     def __eq__(self, other):
         return self.name == getattr(other, 'name', other)
 
     def __repr__(self):
-        return 'Option: '+self.name
+        return 'Option: ' + self.name
 
     def __str__(self):
         return repr(self)
 
 
 class OptionValues:
-
     def copy(self):
         return deepcopy(self)
 
 
 class OptionSet:
-
-    OVERRIDE_PAT = re.compile(r'#{3,100} Override Options #{15}(.*?)#{3,100} End Override #{3,100}',
-                              re.DOTALL|re.IGNORECASE)
+    OVERRIDE_PAT = re.compile(r'#{3,100} Override Options #{15}(.*?)#{3,100} End Override #{3,100}', re.DOTALL | re.IGNORECASE)
 
     def __init__(self, description=''):
         self.description = description
         self.defaults = {}
         self.preferences = []
-        self.group_list  = []
-        self.groups      = {}
-        self.set_buffer  = {}
+        self.group_list = []
+        self.groups = {}
+        self.set_buffer = {}
         self.loads_pat = None
 
     def has_option(self, name_or_option_object):
@@ -225,9 +245,9 @@ class OptionSet:
             self.preferences.append(pref)
 
     def smart_update(self, opts1, opts2):
-        '''
+        """
         Updates the preference values in opts1 using only the non-default preference values in opts2.
-        '''
+        """
         for pref in self.preferences:
             new = getattr(opts2, pref.name, pref.default)
             if new != pref.default:
@@ -237,9 +257,8 @@ class OptionSet:
         if name in self.preferences:
             self.preferences.remove(name)
 
-    def add_opt(self, name, switches=[], help=None, type=None, choices=None,
-                 group=None, default=None, action=None, metavar=None):
-        '''
+    def add_opt(self, name, switches=[], help=None, type=None, choices=None, group=None, default=None, action=None, metavar=None):
+        """
         Add an option to this section.
 
         :param name:       The name of this option. Must be a valid Python identifier.
@@ -257,9 +276,18 @@ class OptionSet:
         :param action:     The action to pass to optparse. Supported values are:
                            `None, 'count'`. For choices and boolean options,
                            action is automatically set correctly.
-        '''
-        pref = Option(name, switches=switches, help=help, type=type, choices=choices,
-                 group=group, default=default, action=action, metavar=None)
+        """
+        pref = Option(
+            name,
+            switches=switches,
+            help=help,
+            type=type,
+            choices=choices,
+            group=group,
+            default=default,
+            action=action,
+            metavar=None,
+        )
         if group is not None and group not in self.groups.keys():
             raise ValueError(f'Group {group} has not been added to this section')
         if pref in self.preferences:
@@ -277,6 +305,7 @@ class OptionSet:
 
     def option_parser(self, user_defaults=None, usage='', gui_mode=False):
         from calibre.utils.config import OptionParser
+
         parser = OptionParser(usage, gui_mode=gui_mode)
         groups = defaultdict(lambda: parser)
         for group, desc in self.groups.items():
@@ -292,14 +321,14 @@ class OptionSet:
                 if pref.default is True or pref.default is False:
                     action = 'store_' + ('false' if pref.default else 'true')
             args = dict(
-                        dest=pref.name,
-                        help=pref.help,
-                        metavar=pref.metavar,
-                        type=pref.type,
-                        choices=pref.choices,
-                        default=getattr(user_defaults, pref.name, pref.default),
-                        action=action,
-                        )
+                dest=pref.name,
+                help=pref.help,
+                metavar=pref.metavar,
+                type=pref.type,
+                choices=pref.choices,
+                default=getattr(user_defaults, pref.name, pref.default),
+                action=action,
+            )
             g.add_option(*pref.switches, **args)
 
         return parser
@@ -342,22 +371,20 @@ class OptionSet:
 
 
 class ConfigInterface:
-
     def __init__(self, description):
-        self.option_set       = OptionSet(description=description)
-        self.add_opt          = self.option_set.add_opt
-        self.add_group        = self.option_set.add_group
-        self.remove_opt       = self.remove = self.option_set.remove_opt
-        self.parse_string     = self.option_set.parse_string
-        self.get_option       = self.option_set.get_option
-        self.preferences      = self.option_set.preferences
+        self.option_set = OptionSet(description=description)
+        self.add_opt = self.option_set.add_opt
+        self.add_group = self.option_set.add_group
+        self.remove_opt = self.remove = self.option_set.remove_opt
+        self.parse_string = self.option_set.parse_string
+        self.get_option = self.option_set.get_option
+        self.preferences = self.option_set.preferences
 
     def update(self, other):
         self.option_set.update(other.option_set)
 
     def option_parser(self, usage='', gui_mode=False):
-        return self.option_set.option_parser(user_defaults=self.parse(),
-                                             usage=usage, gui_mode=gui_mode)
+        return self.option_set.option_parser(user_defaults=self.parse(), usage=usage, gui_mode=gui_mode)
 
     def smart_update(self, opts1, opts2):
         self.option_set.smart_update(opts1, opts2)
@@ -368,6 +395,7 @@ class ConfigInterface:
 
 def retry_on_fail(func, *args, count=10, sleep_time=0.2):
     import time
+
     ERROR_SHARING_VIOLATION = 32
     ACCESS_DENIED = 5
     for i in range(count):
@@ -389,11 +417,13 @@ def read_data(file_path):
     def r():
         with open(file_path, 'rb') as f:
             return f.read()
+
     return retry_on_fail(r)
 
 
 def commit_data(file_path, data, permissions=0o666):
     import tempfile
+
     bdir = os.path.dirname(file_path)
     os.makedirs(bdir, exist_ok=True, mode=CONFIG_DIR_MODE)
     try:
@@ -408,9 +438,9 @@ def commit_data(file_path, data, permissions=0o666):
 
 
 class Config(ConfigInterface):
-    '''
+    """
     A file based configuration.
-    '''
+    """
 
     def __init__(self, basename, description=''):
         ConfigInterface.__init__(self, description)
@@ -434,6 +464,7 @@ class Config(ConfigInterface):
         if not src:
             path = path.rpartition('.')[0]
             from calibre.utils.shared_file import share_open
+
             try:
                 with share_open(path, 'rb') as f:
                     src = f.read().decode('utf-8')
@@ -464,9 +495,9 @@ class Config(ConfigInterface):
 
 
 class StringConfig(ConfigInterface):
-    '''
+    """
     A string based configuration
-    '''
+    """
 
     def __init__(self, src, description=''):
         ConfigInterface.__init__(self, description)
@@ -489,13 +520,13 @@ class StringConfig(ConfigInterface):
 
 
 class ConfigProxy:
-    '''
+    """
     A Proxy to minimize file reads for widely used config settings
-    '''
+    """
 
     def __init__(self, config):
         self.__config = config
-        self.__opts   = None
+        self.__opts = None
 
     @property
     def defaults(self):
@@ -533,80 +564,124 @@ class ConfigProxy:
 
 def create_global_prefs(conf_obj=None):
     c = Config('global', 'calibre wide preferences') if conf_obj is None else conf_obj
-    c.add_opt('database_path',
-              default=os.path.expanduser('~/library1.db'),
-              help=_('Path to the database in which books are stored'))
-    c.add_opt('filename_pattern', default='(?P<title>.+) - (?P<author>[^_]+)',
-              help=_('Pattern to guess metadata from filenames'))
-    c.add_opt('isbndb_com_key', default='',
-              help=_('Access key for isbndb.com'))
-    c.add_opt('network_timeout', default=5,
-              help=_('Default timeout for network operations (seconds)'))
-    c.add_opt('library_path', default=None,
-              help=_('Path to folder in which your library of books is stored'))
-    c.add_opt('language', default=None,
-              help=_('The language in which to display the user interface'))
-    c.add_opt('output_format', default='EPUB',
-              help=_('The default output format for e-book conversions. When auto-converting'
-                  ' to send to a device this can be overridden by individual device preferences.'
-                  ' These can be changed by right clicking the device icon in calibre and'
-                  ' choosing "Configure".'))
-    c.add_opt('input_format_order', default=['EPUB', 'AZW3', 'MOBI', 'LIT', 'PRC',
-        'FB2', 'HTML', 'HTM', 'XHTM', 'SHTML', 'XHTML', 'ZIP', 'DOCX', 'ODT', 'RTF', 'PDF',
-        'TXT'],
-              help=_('Ordered list of formats to prefer for input.'))
-    c.add_opt('read_file_metadata', default=True,
-              help=_('Read metadata from files'))
-    c.add_opt('worker_process_priority', default='normal',
-              help=_('The priority of worker processes. A higher priority '
-                  'means they run faster and consume more resources. '
-                  'Most tasks like conversion/news download/adding books/etc. '
-                  'are affected by this setting.'))
-    c.add_opt('swap_author_names', default=False,
-            help=_('Swap author first and last names when reading metadata'))
-    c.add_opt('add_formats_to_existing', default=False,
-            help=_('Add new formats to existing book records'))
-    c.add_opt('check_for_dupes_on_ctl', default=False,
-            help=_('Check for duplicates when copying to another library'))
+    c.add_opt(
+        'database_path',
+        default=os.path.expanduser('~/library1.db'),
+        help=_('Path to the database in which books are stored'),
+    )
+    c.add_opt(
+        'filename_pattern',
+        default='(?P<title>.+) - (?P<author>[^_]+)',
+        help=_('Pattern to guess metadata from filenames'),
+    )
+    c.add_opt('isbndb_com_key', default='', help=_('Access key for isbndb.com'))
+    c.add_opt('network_timeout', default=5, help=_('Default timeout for network operations (seconds)'))
+    c.add_opt('library_path', default=None, help=_('Path to folder in which your library of books is stored'))
+    c.add_opt('language', default=None, help=_('The language in which to display the user interface'))
+    c.add_opt(
+        'output_format',
+        default='EPUB',
+        help=_(
+            'The default output format for e-book conversions. When auto-converting'
+            ' to send to a device this can be overridden by individual device preferences.'
+            ' These can be changed by right clicking the device icon in calibre and'
+            ' choosing "Configure".'
+        ),
+    )
+    c.add_opt(
+        'input_format_order',
+        default=[
+            'EPUB',
+            'AZW3',
+            'MOBI',
+            'LIT',
+            'PRC',
+            'FB2',
+            'HTML',
+            'HTM',
+            'XHTM',
+            'SHTML',
+            'XHTML',
+            'ZIP',
+            'DOCX',
+            'ODT',
+            'RTF',
+            'PDF',
+            'TXT',
+        ],
+        help=_('Ordered list of formats to prefer for input.'),
+    )
+    c.add_opt('read_file_metadata', default=True, help=_('Read metadata from files'))
+    c.add_opt(
+        'worker_process_priority',
+        default='normal',
+        help=_(
+            'The priority of worker processes. A higher priority '
+            'means they run faster and consume more resources. '
+            'Most tasks like conversion/news download/adding books/etc. '
+            'are affected by this setting.'
+        ),
+    )
+    c.add_opt('swap_author_names', default=False, help=_('Swap author first and last names when reading metadata'))
+    c.add_opt('add_formats_to_existing', default=False, help=_('Add new formats to existing book records'))
+    c.add_opt('check_for_dupes_on_ctl', default=False, help=_('Check for duplicates when copying to another library'))
     c.add_opt('installation_uuid', default=None, help='Installation UUID')
     c.add_opt('new_book_tags', default=[], help=_('Tags to apply to books added to the library'))
-    c.add_opt('mark_new_books', default=False, help=_(
-        'Mark newly added books. The mark is a temporary mark that is automatically removed when calibre is restarted.'))
+    c.add_opt(
+        'mark_new_books',
+        default=False,
+        help=_('Mark newly added books. The mark is a temporary mark that is automatically removed when calibre is restarted.'),
+    )
 
     # these are here instead of the gui preferences because calibredb and
     # calibre server can execute searches
     c.add_opt('saved_searches', default={}, help=_('List of named saved searches'))
     c.add_opt('user_categories', default={}, help=_('User-created Tag browser categories'))
-    c.add_opt('manage_device_metadata', default='manual',
-        help=_('How and when calibre updates metadata on the device.'))
-    c.add_opt('limit_search_columns', default=False,
-            help=_('When searching for text without using lookup '
-            'prefixes, as for example, Red instead of title:Red, '
-            'limit the columns searched to those named below.'))
-    c.add_opt('limit_search_columns_to',
-            default=['title', 'authors', 'tags', 'series', 'publisher'],
-            help=_('Choose columns to be searched when not using prefixes, '
-                'as for example, when searching for Red instead of '
-                'title:Red. Enter a list of search/lookup names '
-                'separated by commas. Only takes effect if you set the option '
-                'to limit search columns above.'))
-    c.add_opt('use_primary_find_in_search', default=True,
-            help=_('Characters typed in the search box will match their '
-                   'accented versions, based on the language you have chosen '
-                   'for the calibre interface. For example, in '
-                   'English, searching for n will match both {} and n, but if '
-                   'your language is Spanish it will only match n. Note that '
-                   'this is much slower than a simple search on very large '
-                   'libraries. Also, this option will have no effect if you turn '
-                   'on case-sensitive searching.'))
-    c.add_opt('case_sensitive', default=False, help=_(
-        'Make searches case-sensitive'))
-    c.add_opt('numeric_collation', default=False,
-            help=_('Recognize numbers inside text when sorting. Setting this '
-                   'means that when sorting on text fields like title the text "Book 2"'
-                   'will sort before the text "Book 100". Note that setting this '
-                   'can cause problems with text that starts with numbers and is '
-                   'a little slower.'))
+    c.add_opt('manage_device_metadata', default='manual', help=_('How and when calibre updates metadata on the device.'))
+    c.add_opt(
+        'limit_search_columns',
+        default=False,
+        help=_(
+            'When searching for text without using lookup prefixes, as for example, Red instead of title:Red, limit the columns searched to those named below.'
+        ),
+    )
+    c.add_opt(
+        'limit_search_columns_to',
+        default=['title', 'authors', 'tags', 'series', 'publisher'],
+        help=_(
+            'Choose columns to be searched when not using prefixes, '
+            'as for example, when searching for Red instead of '
+            'title:Red. Enter a list of search/lookup names '
+            'separated by commas. Only takes effect if you set the option '
+            'to limit search columns above.'
+        ),
+    )
+    c.add_opt(
+        'use_primary_find_in_search',
+        default=True,
+        help=_(
+            'Characters typed in the search box will match their '
+            'accented versions, based on the language you have chosen '
+            'for the calibre interface. For example, in '
+            'English, searching for n will match both {} and n, but if '
+            'your language is Spanish it will only match n. Note that '
+            'this is much slower than a simple search on very large '
+            'libraries. Also, this option will have no effect if you turn '
+            'on case-sensitive searching.'
+        ),
+    )
+    c.add_opt('case_sensitive', default=False, help=_('Make searches case-sensitive'))
+    c.add_opt(
+        'numeric_collation',
+        default=False,
+        help=_(
+            'Recognize numbers inside text when sorting. Setting this '
+            'means that when sorting on text fields like title the text "Book 2"'
+            'will sort before the text "Book 100". Note that setting this '
+            'can cause problems with text that starts with numbers and is '
+            'a little slower.'
+        ),
+    )
 
     c.add_opt('migrated', default=False, help="For Internal use. Don't modify.")
     return c
@@ -615,10 +690,11 @@ def create_global_prefs(conf_obj=None):
 prefs = ConfigProxy(create_global_prefs())
 if prefs['installation_uuid'] is None:
     import uuid
+
     prefs['installation_uuid'] = str(uuid.uuid4())
 
-
 # Read tweaks
+
 
 def tweaks_file():
     return os.path.join(config_dir, 'tweaks.json')
@@ -647,6 +723,7 @@ def normalize_tweak(val):
 
 def parse_python_tweaks(text: str) -> dict[str, object]:
     import ast
+
     ans = {}
     tree = ast.parse(text, filename='<string>')
     for node in tree.body:
@@ -692,6 +769,7 @@ def read_custom_tweaks():
             return json_loads(raw)
         except Exception:
             import traceback
+
             traceback.print_exc()
             return ans
     old_tweaks_file = tf.rpartition('.')[0] + '.py'
@@ -740,7 +818,6 @@ def reset_tweaks_to_default():
 
 
 class Tweak:
-
     def __init__(self, name, value):
         self.name, self.value = name, value
 
@@ -754,10 +831,12 @@ class Tweak:
 
 def find_tests():
     import unittest
+
     class TestTweakParsing(unittest.TestCase):
         def test_tweak_parsing(self):
             for raw in (default_tweaks_raw(),):
                 expected, g = {}, {}
                 exec(raw, g, expected)
                 self.assertEqual(expected, parse_python_tweaks(raw))
+
     return unittest.defaultTestLoader.loadTestsFromTestCase(TestTweakParsing)

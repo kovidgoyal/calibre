@@ -1,8 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__ = 'GPL v3'
-__copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
+# License: GPLv3 Copyright: 2013, Kovid Goyal <kovid at kovidgoyal.net>
 
 import textwrap
 from collections import Counter, OrderedDict
@@ -12,10 +9,10 @@ from calibre.ebooks.docx.char_styles import RunStyle
 
 
 class PageProperties:
-    '''
+    """
     Class representing page level properties (page size/margins) read from
     sectPr elements.
-    '''
+    """
 
     def __init__(self, namespace, elems=()):
         self.width, self.height = 595.28, 841.89  # pts, A4
@@ -36,9 +33,9 @@ class PageProperties:
 
 
 class Style:
-    '''
+    """
     Class representing a <w:style> element. Can contain block, character, etc. styles.
-    '''
+    """
 
     def __init__(self, namespace, elem):
         self.namespace = namespace
@@ -60,6 +57,7 @@ class Style:
         if self.style_type in {'paragraph', 'character', 'table'}:
             if self.style_type == 'table':
                 from calibre.ebooks.docx.tables import TableStyle
+
                 for tblPr in namespace.XPath('./w:tblPr')(elem):
                     ts = TableStyle(namespace, tblPr)
                     if self.table_style is None:
@@ -90,6 +88,7 @@ class Style:
         if parent.table_style is not None:
             if self.table_style is None:
                 from calibre.ebooks.docx.tables import TableStyle
+
                 self.table_style = TableStyle(self.namespace)
             self.table_style.resolve_based_on(parent.table_style)
         if parent.paragraph_style is not None:
@@ -103,9 +102,9 @@ class Style:
 
 
 class Styles:
-    '''
+    """
     Collection of all styles defined in the document. Used to get the final styles applicable to elements in the document markup.
-    '''
+    """
 
     def __init__(self, namespace, tables):
         self.namespace = namespace
@@ -245,7 +244,10 @@ class Styles:
                     self.para_char_cache[p] = default_para.character_style
 
             def has_numbering(block_style):
-                num_id, lvl = getattr(block_style, 'numbering_id', inherit), getattr(block_style, 'numbering_level', inherit)
+                num_id, lvl = (
+                    getattr(block_style, 'numbering_id', inherit),
+                    getattr(block_style, 'numbering_level', inherit),
+                )
                 return num_id is not None and num_id is not inherit and lvl is not None and lvl is not inherit
 
             is_numbering = has_numbering(direct_formatting)
@@ -257,9 +259,7 @@ class Styles:
                 ps = self.numbering.get_para_style(num_id, lvl)
                 if ps is not None:
                     parent_styles.append(ps)
-            if (
-                not is_numbering and not is_section_break and linked_style is not None and has_numbering(linked_style.paragraph_style)
-            ):
+            if not is_numbering and not is_section_break and linked_style is not None and has_numbering(linked_style.paragraph_style):
                 num_id, lvl = linked_style.paragraph_style.numbering_id, linked_style.paragraph_style.numbering_level
                 p.set('calibre_num_id', f'{lvl}:{num_id}')
                 is_numbering = True
@@ -477,19 +477,25 @@ class Styles:
             dl.footnote:last-of-type { page-break-after: avoid }
             '''
 
-        s = s + '''\
+        s = (
+            s
+            + '''\
             span.tab { white-space: pre }
 
             p.index-entry { text-indent: 0pt; }
             p.index-entry a:visited { color: blue }
             p.index-entry a:hover { color: red }
             '''
+        )
 
         if nosupsub:
-            s = s + '''\
+            s = (
+                s
+                + '''\
                sup { vertical-align: top }
                sub { vertical-align: bottom }
                '''
+            )
 
         body_color = ''
         if self.body_color.lower() not in ('currentcolor', 'inherit'):
@@ -499,7 +505,7 @@ class Styles:
             prefix = ef + '\n' + prefix
 
         ans = []
-        for cls, css in sorted(self.classes.values(), key=lambda x:x[0]):
+        for cls, css in sorted(self.classes.values(), key=lambda x: x[0]):
             b = (f'\t{k}: {v};' for k, v in css.items())
             b = '\n'.join(b)
             ans.append('.{} {{\n{}\n}}\n'.format(cls, b.rstrip(';')))

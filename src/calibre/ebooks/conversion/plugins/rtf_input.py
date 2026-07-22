@@ -1,5 +1,4 @@
-__license__   = 'GPL v3'
-__copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
+# License: GPLv3 Copyright: 2008, Kovid Goyal <kovid at kovidgoyal.net>
 
 import glob
 import os
@@ -12,52 +11,55 @@ from calibre.utils.resources import get_path as P
 from polyglot.builtins import as_bytes
 
 border_style_map = {
-        'single': 'solid',
-        'double-thickness-border': 'double',
-        'shadowed-border': 'outset',
-        'double-border': 'double',
-        'dotted-border': 'dotted',
-        'dashed': 'dashed',
-        'hairline': 'solid',
-        'inset': 'inset',
-        'dash-small': 'dashed',
-        'dot-dash': 'dotted',
-        'dot-dot-dash': 'dotted',
-        'outset': 'outset',
-        'tripple': 'double',
-        'triple': 'double',
-        'thick-thin-small': 'solid',
-        'thin-thick-small': 'solid',
-        'thin-thick-thin-small': 'solid',
-        'thick-thin-medium': 'solid',
-        'thin-thick-medium': 'solid',
-        'thin-thick-thin-medium': 'solid',
-        'thick-thin-large': 'solid',
-        'thin-thick-thin-large': 'solid',
-        'wavy': 'ridge',
-        'double-wavy': 'ridge',
-        'striped': 'ridge',
-        'emboss': 'inset',
-        'engrave': 'inset',
-        'frame': 'ridge',
+    'single': 'solid',
+    'double-thickness-border': 'double',
+    'shadowed-border': 'outset',
+    'double-border': 'double',
+    'dotted-border': 'dotted',
+    'dashed': 'dashed',
+    'hairline': 'solid',
+    'inset': 'inset',
+    'dash-small': 'dashed',
+    'dot-dash': 'dotted',
+    'dot-dot-dash': 'dotted',
+    'outset': 'outset',
+    'tripple': 'double',
+    'triple': 'double',
+    'thick-thin-small': 'solid',
+    'thin-thick-small': 'solid',
+    'thin-thick-thin-small': 'solid',
+    'thick-thin-medium': 'solid',
+    'thin-thick-medium': 'solid',
+    'thin-thick-thin-medium': 'solid',
+    'thick-thin-large': 'solid',
+    'thin-thick-thin-large': 'solid',
+    'wavy': 'ridge',
+    'double-wavy': 'ridge',
+    'striped': 'ridge',
+    'emboss': 'inset',
+    'engrave': 'inset',
+    'frame': 'ridge',
 }
 
 
 class RTFInput(InputFormatPlugin):
-
-    name        = 'RTF Input'
-    author      = 'Kovid Goyal'
+    name = 'RTF Input'
+    author = 'Kovid Goyal'
     description = _('Convert RTF files to HTML')
-    file_types  = {'rtf'}
+    file_types = {'rtf'}
     commit_name = 'rtf_input'
 
     options = {
-        OptionRecommendation(name='ignore_wmf', recommended_value=False,
-            help=_('Ignore WMF images instead of replacing them with a placeholder image.')),
+        OptionRecommendation(
+            name='ignore_wmf',
+            recommended_value=False,
+            help=_('Ignore WMF images instead of replacing them with a placeholder image.'),
+        ),
     }
 
     def generate_xml(self, stream):
         from calibre.ebooks.rtf2xml.ParseRtf import ParseRtf
+
         ofile = 'dataxml.xml'
         run_lev, debug_dir, indent_out = 1, None, 0
         if getattr(self.opts, 'debug_pipeline', None) is not None:
@@ -75,44 +77,32 @@ class RTFInput(InputFormatPlugin):
             # Convert symbol fonts to unicode equivalents. Default
             # is 1
             convert_symbol=1,
-
             # Convert Zapf fonts to unicode equivalents. Default
             # is 1.
             convert_zapf=1,
-
             # Convert Wingding fonts to unicode equivalents.
             # Default is 1.
             convert_wingdings=1,
-
             # Convert RTF caps to real caps.
             # Default is 1.
             convert_caps=1,
-
             # Indent resulting XML.
             # Default is 0 (no indent).
             indent=indent_out,
-
             # Form lists from RTF. Default is 1.
             form_lists=1,
-
             # Convert headings to sections. Default is 0.
             headings_to_sections=1,
-
             # Group paragraphs with the same style name. Default is 1.
             group_styles=1,
-
             # Group borders. Default is 1.
             group_borders=1,
-
             # Write or do not write paragraphs. Default is 0.
             empty_paragraphs=1,
-
             # Debug
             deb_dir=debug_dir,
-
             # Default encoding
             default_encoding=getattr(self.opts, 'input_encoding', 'cp1252') or 'cp1252',
-
             # Run level
             run_level=run_lev,
         )
@@ -124,12 +114,13 @@ class RTFInput(InputFormatPlugin):
         from binascii import unhexlify
 
         from calibre.utils.imghdr import what
+
         self.log('Extracting images...')
 
         with open(picts, 'rb') as f:
             raw = f.read()
-        picts = filter(len, re.findall(br'\{\\pict([^}]+)\}', raw))
-        hex_pat = re.compile(br'[^a-fA-F0-9]')
+        picts = filter(len, re.findall(rb'\{\\pict([^}]+)\}', raw))
+        hex_pat = re.compile(rb'[^a-fA-F0-9]')
         encs = [hex_pat.sub(b'', pict) for pict in picts]
 
         count = 0
@@ -173,10 +164,11 @@ class RTFInput(InputFormatPlugin):
             os.remove(name)
             return '__REMOVE_ME__'
         from calibre.ebooks.covers import message_image
+
         if self.default_img is None:
-            self.default_img = message_image('Conversion of WMF images is not supported.'
-            ' Use Microsoft Word or LibreOffice to save this RTF file'
-            ' as HTML and convert that in calibre.')
+            self.default_img = message_image(
+                'Conversion of WMF images is not supported. Use Microsoft Word or LibreOffice to save this RTF file as HTML and convert that in calibre.'
+            )
         name = name.replace('.wmf', '.jpg')
         with open(name, 'wb') as f:
             f.write(self.default_img)
@@ -184,6 +176,7 @@ class RTFInput(InputFormatPlugin):
 
     def rasterize_wmf(self, name):
         from calibre.utils.wmf.parse import wmf_unwrap
+
         with open(name, 'rb') as f:
             data = f.read()
         data = wmf_unwrap(data)
@@ -212,8 +205,8 @@ class RTFInput(InputFormatPlugin):
         span.strike-through { text-decoration: line-through }
 
         ''')
-        css += '\n'+'\n'.join(font_size_classes)
-        css += '\n' +'\n'.join(color_classes)
+        css += '\n' + '\n'.join(font_size_classes)
+        css += '\n' + '\n'.join(color_classes)
 
         for cls, val in border_styles.items():
             css += f'\n\n.{cls} {{\n{val}\n}}'
@@ -225,8 +218,7 @@ class RTFInput(InputFormatPlugin):
         border_styles = []
         style_map = {}
         for elem in doc.xpath(r'//*[local-name()="cell"]'):
-            style = ['border-style: hidden', 'border-width: 1px',
-                    'border-color: black']
+            style = ['border-style: hidden', 'border-width: 1px', 'border-color: black']
             for x in ('bottom', 'top', 'left', 'right'):
                 bs = elem.get(f'border-cell-{x}-style', None)
                 if bs:
@@ -247,8 +239,7 @@ class RTFInput(InputFormatPlugin):
             elem.set('class', cls)
         return style_map
 
-    def convert(self, stream, options, file_ext, log,
-                accelerators):
+    def convert(self, stream, options, file_ext, log, accelerators):
         from lxml import etree
 
         from calibre.ebooks.metadata.meta import get_metadata
@@ -256,6 +247,7 @@ class RTFInput(InputFormatPlugin):
         from calibre.ebooks.rtf.input import InlineClass
         from calibre.ebooks.rtf2xml.ParseRtf import RtfInvalidCodeException
         from calibre.utils.xml_parse import safe_xml_fromstring
+
         self.opts = options
         self.log = log
         self.log('Converting RTF to XML...')
@@ -263,8 +255,7 @@ class RTFInput(InputFormatPlugin):
             xml = self.generate_xml(stream.name)
         except RtfInvalidCodeException as e:
             self.log.exception('Unable to parse RTF')
-            raise ValueError(_('This RTF file has a feature calibre does not '
-            'support. Convert it to HTML first and then try it.\n%s')%e)
+            raise ValueError(_('This RTF file has a feature calibre does not support. Convert it to HTML first and then try it.\n%s') % e)
 
         d = glob.glob(os.path.join('*_rtf_pict_dir', 'picts.rtf'))
         if d:
@@ -277,8 +268,7 @@ class RTFInput(InputFormatPlugin):
         self.log('Parsing XML...')
         doc = safe_xml_fromstring(xml)
         border_styles = self.convert_borders(doc)
-        for pict in doc.xpath('//rtf:pict[@num]',
-                namespaces={'rtf':'http://rtf2xml.sourceforge.net/'}):
+        for pict in doc.xpath('//rtf:pict[@num]', namespaces={'rtf': 'http://rtf2xml.sourceforge.net/'}):
             num = int(pict.get('num'))
             name = imap.get(num, None)
             if name is not None:
@@ -295,7 +285,7 @@ class RTFInput(InputFormatPlugin):
             res = as_bytes(str(result))
             # res = res[:100].replace('xmlns:html', 'xmlns') + res[100:]
             # clean multiple \n
-            res = re.sub(br'\n+', b'\n', res)
+            res = re.sub(rb'\n+', b'\n', res)
             # Replace newlines inserted by the 'empty_paragraphs' option in rtf2xml with html blank lines
             # res = re.sub(br'\s*<body>', '<body>', res)
             # res = re.sub(br'(?<=\n)\n{2}',
@@ -324,4 +314,4 @@ class RTFInput(InputFormatPlugin):
                     if idx == 0:
                         p.text = (p.text or '') + img.tail
                     else:
-                        p[idx-1].tail = (p[idx-1].tail or '') + img.tail
+                        p[idx - 1].tail = (p[idx - 1].tail or '') + img.tail

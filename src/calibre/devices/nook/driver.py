@@ -1,10 +1,8 @@
-__license__   = 'GPL v3'
-__copyright__ = '2009, John Schember <john at nachtimwald.com>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2009, John Schember <john at nachtimwald.com>
 
-'''
+"""
 Device driver for Barns and Nobel's Nook
-'''
+"""
 
 import io
 import os
@@ -17,20 +15,19 @@ from calibre.utils.resources import get_image_path as I
 
 
 class NOOK(USBMS):
-
-    name           = 'Nook Device Interface'
-    gui_name       = 'B&N Nook'
-    description    = _('Communicate with the Nook e-book reader.')
-    author         = 'John Schember'
-    icon           = 'devices/nook.png'
+    name = 'Nook Device Interface'
+    gui_name = 'B&N Nook'
+    description = _('Communicate with the Nook e-book reader.')
+    author = 'John Schember'
+    icon = 'devices/nook.png'
     supported_platforms = ['windows', 'linux', 'osx']
 
     # Ordered list of supported formats
-    FORMATS     = ['epub', 'pdb', 'pdf']
+    FORMATS = ['epub', 'pdb', 'pdf']
 
-    VENDOR_ID   = [0x2080, 0x18d1]  # 0x18d1 is for softrooted nook
-    PRODUCT_ID  = [0x001]
-    BCD         = [0x322]
+    VENDOR_ID = [0x2080, 0x18D1]  # 0x18d1 is for softrooted nook
+    PRODUCT_ID = [0x001]
+    BCD = [0x322]
 
     VENDOR_NAME = 'B&N'
     WINDOWS_MAIN_MEM = 'NOOK'
@@ -39,7 +36,7 @@ class NOOK(USBMS):
     OSX_MAIN_MEM = 'B&N nook Media'
     OSX_CARD_A_MEM = OSX_MAIN_MEM
 
-    MAIN_MEMORY_VOLUME_LABEL  = 'Nook Main Memory'
+    MAIN_MEMORY_VOLUME_LABEL = 'Nook Main Memory'
     STORAGE_CARD_VOLUME_LABEL = 'Nook Storage Card'
 
     EBOOK_DIR_MAIN = 'my documents'
@@ -61,7 +58,7 @@ class NOOK(USBMS):
             im.thumbnail((96, 144), Image.Resampling.LANCZOS)
 
             x, y = im.size
-            cover.paste(im, ((96-x)//2, (144-y)//2))
+            cover.paste(im, ((96 - x) // 2, (144 - y) // 2))
 
             draw = ImageDraw.Draw(cover)
             draw.text((1, 15), metadata.get('title', _('Unknown')).encode('ascii', 'ignore'))
@@ -80,25 +77,26 @@ class NOOK(USBMS):
 
 
 class NOOK_COLOR(NOOK):
-    name           = 'Nook Color Device Interface'
+    name = 'Nook Color Device Interface'
     gui_name = _('B&N Nook Color')
-    description    = _('Communicate with the Nook Color, TSR, Glowlight and Tablet e-book readers.')
+    description = _('Communicate with the Nook Color, TSR, Glowlight and Tablet e-book readers.')
 
-    PRODUCT_ID  = [
-        0x002, 0x003, 0x004,
+    PRODUCT_ID = [
+        0x002,
+        0x003,
+        0x004,
         0x005,  # Nook HD+
         0x007,  # Glowlight from 2013
         # 0xa,    # Glowlight from 2016 is MTP based device
-        0xb,    # Glowlight from 2017
-        0xc,    # Glowlight from 2019
-        0xd,    # Glowlight from 2021
-        0xe,    # Glowlight from 2022
+        0xB,  # Glowlight from 2017
+        0xC,  # Glowlight from 2019
+        0xD,  # Glowlight from 2021
+        0xE,  # Glowlight from 2022
         # 0xf,    # Glowlight from 2023 is MTP based device
     ]
-    BCD         = [0x216, 0x9999, 0x409, 0x440]
+    BCD = [0x216, 0x9999, 0x409, 0x440]
 
-    WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = ['EBOOK_DISK', 'NOOK_TABLET',
-            'NOOK_SIMPLETOUCH', 'NOOK_GLOWLIGHT']
+    WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = ['EBOOK_DISK', 'NOOK_TABLET', 'NOOK_SIMPLETOUCH', 'NOOK_GLOWLIGHT']
     EBOOK_DIR_MAIN = 'My Files'
     SCAN_FROM_ROOT = True
     NEWS_IN_FOLDER = False
@@ -113,8 +111,8 @@ class NOOK_COLOR(NOOK):
         product_id = device_info[1]
         if DEBUG:
             prints('Opened NOOK with product id:', product_id)
-        if product_id >= 0xb:
-            self.EBOOK_DIR_MAIN = 'NOOK/Books' if product_id >= 0xd else 'NOOK/My Files'
+        if product_id >= 0xB:
+            self.EBOOK_DIR_MAIN = 'NOOK/Books' if product_id >= 0xD else 'NOOK/My Files'
             if DEBUG:
                 prints(f'Setting Nook upload directory to {self.EBOOK_DIR_MAIN}')
             try:
@@ -132,5 +130,4 @@ class NOOK_COLOR(NOOK):
         is_news = mdata.tags and _('News') in mdata.tags
         subdir = 'Magazines' if is_news else 'Books'
         path = os.path.join(path, subdir)
-        return USBMS.create_upload_path(self, path, mdata, fname,
-                create_dirs=create_dirs)
+        return USBMS.create_upload_path(self, path, mdata, fname, create_dirs=create_dirs)

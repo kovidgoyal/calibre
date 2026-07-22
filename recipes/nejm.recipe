@@ -4,12 +4,10 @@ from calibre.web.feeds.recipes import BasicNewsRecipe
 
 def classes(classes):
     q = frozenset(classes.split(' '))
-    return dict(attrs={
-        'class': lambda x: x and frozenset(x.split()).intersection(q)})
+    return dict(attrs={'class': lambda x: x and frozenset(x.split()).intersection(q)})
 
 
 class NEJM(BasicNewsRecipe):
-
     title = 'New England Journal of Medicine'
     __author__ = 'Kovid Goyal'
     description = 'Medical news'
@@ -18,9 +16,7 @@ class NEJM(BasicNewsRecipe):
     language = 'en'
 
     no_stylesheets = True
-    keep_only_tags = [
-            dict(id='content')
-    ]
+    keep_only_tags = [dict(id='content')]
     remove_tags_after = dict(id='article_references')
     remove_attributes = ['width', 'height']
 

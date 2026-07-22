@@ -21,8 +21,7 @@ class IlManifesto(BasicNewsRecipe):
     timeout = 30
     auto_cleanup = True
     remove_tags = [dict(name='div', attrs={'class': 'column_1 float_left'})]
-    remove_tags_before = dict(
-        name='div', attrs={'class': 'column_2 float_right'})
+    remove_tags_before = dict(name='div', attrs={'class': 'column_2 float_right'})
     remove_tags_after = dict(id='myPrintArea')
 
     manifesto_index = None
@@ -32,8 +31,7 @@ class IlManifesto(BasicNewsRecipe):
         if self.manifesto_index is None:
             startUrl = MANIFESTO_BASEURL + 'area-abbonati/in-edicola/'
             startSoup = self.index_to_soup(startUrl)
-            lastEdition = startSoup.findAll('div', id='accordion_inedicola')[
-                1].find('a')['href']
+            lastEdition = startSoup.findAll('div', id='accordion_inedicola')[1].find('a')['href']
             del startSoup
             self.manifesto_index = MANIFESTO_BASEURL + lastEdition
             urlsplit = lastEdition.split('/')
@@ -75,14 +73,7 @@ class IlManifesto(BasicNewsRecipe):
                     author = authNode.string
 
                 articleText = ''
-                article = {
-                    'title': title,
-                    'url': url,
-                    'date': strftime('%d %B %Y'),
-                    'description': description,
-                    'content': articleText,
-                    'author': author
-                }
+                article = {'title': title, 'url': url, 'date': strftime('%d %B %Y'), 'description': description, 'content': articleText, 'author': author}
                 articles.append(article)
             result.append((feedName, articles))
         return result

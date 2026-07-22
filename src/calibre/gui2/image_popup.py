@@ -1,9 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__   = 'GPL v3'
-__copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2012, Kovid Goyal <kovid at kovidgoyal.net>
 
 from qt.core import (
     QAction,
@@ -37,12 +33,13 @@ from calibre.utils.localization import _
 
 def render_svg(widget, path):
     from qt.core import QSvgRenderer
+
     img = QPixmap()
     rend = QSvgRenderer()
     if rend.load(path):
         dpr = getattr(widget, 'devicePixelRatioF', widget.devicePixelRatio)()
         sz = rend.defaultSize()
-        h = (max_available_height() - 50)
+        h = max_available_height() - 50
         w = int(h * sz.height() / float(sz.width()))
         pd = QImage(w * dpr, h * dpr, QImage.Format.Format_RGB32)
         pd.fill(Qt.GlobalColor.white)
@@ -55,7 +52,6 @@ def render_svg(widget, path):
 
 
 class Label(QLabel):
-
     toggle_fit = pyqtSignal()
     zoom_requested = pyqtSignal(bool)
 
@@ -105,7 +101,6 @@ class Label(QLabel):
 
 
 class ScrollArea(QScrollArea):
-
     toggle_fit = pyqtSignal()
     zoom_requested = pyqtSignal(bool)
     current_wheel_angle_delta = 0
@@ -129,7 +124,6 @@ class ScrollArea(QScrollArea):
 
 
 class ImageView(QDialog):
-
     def __init__(self, parent, current_img, current_url, geom_name='viewer_image_popup_geometry', prefs=gprefs):
         QDialog.__init__(self)
         self.prefs = prefs
@@ -148,11 +142,17 @@ class ImageView(QDialog):
         self.geom_name = geom_name
         self.zoom_in_action = ac = QAction(QIcon.ic('plus.png'), _('Zoom &in'), self)
         ac.triggered.connect(self.zoom_in)
-        ac.setShortcuts([QKeySequence(QKeySequence.StandardKey.ZoomIn), QKeySequence('+', QKeySequence.SequenceFormat.PortableText)])
+        ac.setShortcuts([
+            QKeySequence(QKeySequence.StandardKey.ZoomIn),
+            QKeySequence('+', QKeySequence.SequenceFormat.PortableText),
+        ])
         self.addAction(ac)
         self.zoom_out_action = ac = QAction(QIcon.ic('minus.png'), _('Zoom &out'), self)
         ac.triggered.connect(self.zoom_out)
-        ac.setShortcuts([QKeySequence(QKeySequence.StandardKey.ZoomOut), QKeySequence('-', QKeySequence.SequenceFormat.PortableText)])
+        ac.setShortcuts([
+            QKeySequence(QKeySequence.StandardKey.ZoomOut),
+            QKeySequence('-', QKeySequence.SequenceFormat.PortableText),
+        ])
         self.addAction(ac)
         self.reset_zoom_action = ac = QAction(QIcon.ic('edit-undo.png'), _('Reset &zoom'), self)
         ac.triggered.connect(self.reset_zoom)
@@ -168,8 +168,10 @@ class ImageView(QDialog):
 
         self.scrollarea = sa = ScrollArea()
         pal = sa.palette()
-        pal.setColor(QPalette.ColorRole.Dark,
-                     dark_palette().color(QPalette.ColorRole.Base) if qapplication_or_fail().is_dark_theme else Qt.GlobalColor.darkGray)
+        pal.setColor(
+            QPalette.ColorRole.Dark,
+            dark_palette().color(QPalette.ColorRole.Base) if qapplication_or_fail().is_dark_theme else Qt.GlobalColor.darkGray,
+        )
         sa.setPalette(pal)
         sa.setAlignment(Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignVCenter)
         sa.setBackgroundRole(QPalette.ColorRole.Dark)
@@ -252,7 +254,7 @@ class ImageView(QDialog):
         iw, ih = img_size.width(), img_size.height()
         scaled, nw, nh = fit_image(iw, ih, pw, ph)
         if scaled:
-            self.factor = min(nw/iw, nh/ih)
+            self.factor = min(nw / iw, nh / ih)
         img_size.setWidth(nw), img_size.setHeight(nh)
         self.label.resize(img_size)
 
@@ -300,16 +302,23 @@ class ImageView(QDialog):
 
     def save_image(self):
         is_svg = self.current_image_is_svg and hasattr(self, 'current_url') and self.current_url.isLocalFile()
-        filters=[('Images', ['svg'] if is_svg else ['png', 'jpeg', 'jpg'])]
-        f = choose_save_file(self, 'viewer image view save dialog',
-                _('Choose a file to save to'), filters=filters,
-                all_files=False, initial_filename=self.current_image_name or None)
+        filters = [('Images', ['svg'] if is_svg else ['png', 'jpeg', 'jpg'])]
+        f = choose_save_file(
+            self,
+            'viewer image view save dialog',
+            _('Choose a file to save to'),
+            filters=filters,
+            all_files=False,
+            initial_filename=self.current_image_name or None,
+        )
         if f:
             if is_svg:
                 import shutil
+
                 shutil.copyfile(self.current_url.toLocalFile(), f)
             else:
                 from calibre.utils.img import save_image
+
                 save_image(self.current_img.toImage(), f)
 
     def copy_image(self):
@@ -353,10 +362,9 @@ class ImageView(QDialog):
         self.adjust_scrollbars(factor)
 
     def adjust_scrollbars(self, factor):
-        for sb in (self.scrollarea.horizontalScrollBar(),
-                self.scrollarea.verticalScrollBar()):
+        for sb in (self.scrollarea.horizontalScrollBar(), self.scrollarea.verticalScrollBar()):
             assert sb is not None
-            sb.setValue(int(factor*sb.value()) + int((factor - 1) * sb.pageStep()/2))
+            sb.setValue(int(factor * sb.value()) + int((factor - 1) * sb.pageStep() / 2))
 
     def rotate_image(self):
         pm = self.label.pixmap()
@@ -372,7 +380,7 @@ class ImageView(QDialog):
         geom = self.avail_geom
         self.label.setPixmap(self.current_img)
         self.label.adjustSize()
-        self.resize(QSize(int(geom.width()/2.5), geom.height()-50))
+        self.resize(QSize(int(geom.width() / 2.5), geom.height() - 50))
         self.restore_geometry(self.prefs, self.geom_name)
         try:
             self.current_image_name = str(self.current_url.toString(NO_URL_FORMATTING)).rpartition('/')[-1]
@@ -405,7 +413,6 @@ class ImageView(QDialog):
 
 
 class ImagePopup:
-
     def __init__(self, parent, prefs=gprefs):
         self.current_img = QPixmap()
         self.current_url = QUrl()
@@ -432,8 +439,10 @@ class ImagePopup:
 def show_image(path=None):
     if path is None:
         import sys
+
         path = sys.argv[-1]
     from calibre.gui2 import Application
+
     app = Application([])
     p = QPixmap()
     p.load(path)

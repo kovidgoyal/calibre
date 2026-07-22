@@ -12,7 +12,6 @@ from calibre.utils.localization import _
 
 
 class ConfigureAI(QWidget):
-
     def __init__(self, purpose: AICapabilities = AICapabilities.text_to_text, parent: QWidget | None = None):
         super().__init__(parent)
         plugins = tuple(plugins_for_purpose(purpose))
@@ -39,8 +38,9 @@ class ConfigureAI(QWidget):
         elif len(plugins) == 1:
             self.gb.setTitle(_('Configure AI provider: {}').format(plugins[0].name))
         else:
-            self.none_label = la = QLabel(_('No AI providers found that have the capabilities: {}. Make sure you have not'
-                               ' disabled some AI provider plugins').format(purpose))
+            self.none_label = la = QLabel(
+                _('No AI providers found that have the capabilities: {}. Make sure you have not disabled some AI provider plugins').format(purpose)
+            )
             s.addWidget(la)
         v.addWidget(self.gb)
 

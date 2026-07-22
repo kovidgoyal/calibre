@@ -1,9 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__   = 'GPL v3'
-__copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2013, Kovid Goyal <kovid at kovidgoyal.net>
 
 import os
 import shutil
@@ -43,48 +39,48 @@ from calibre.utils.localization import _, ngettext
 
 
 class Polish(QDialog):  # {{{
-
     def __init__(self, db, book_id_map, parent=None):
         from calibre.ebooks.oeb.polish.main import HELP
+
         QDialog.__init__(self, parent)
         self.db, self.book_id_map = weakref.ref(db), book_id_map
         self.setWindowIcon(QIcon.ic('polish.png'))
         title = _('Polish book')
         if len(book_id_map) > 1:
-            title = _('Polish %d books')%len(book_id_map)
+            title = _('Polish %d books') % len(book_id_map)
         self.setWindowTitle(title)
 
         self.help_text = {
-            'polish': _('<h3>About Polishing books</h3>%s')%HELP['about'].format(
+            'polish': _('<h3>About Polishing books</h3>%s')
+            % HELP['about'].format(
                 _('''<p>If you have both EPUB and ORIGINAL_EPUB in your book,
                   then polishing will run on ORIGINAL_EPUB (the same for other
                   ORIGINAL_* formats).  So if you
                   want Polishing to not run on the ORIGINAL_* format, delete the
                   ORIGINAL_* format before running it.</p>''')
             ),
-
-            'embed':_('<h3>Embed referenced fonts</h3>%s')%HELP['embed'],
-            'subset':_('<h3>Subsetting fonts</h3>%s')%HELP['subset'],
-
-            'smarten_punctuation':
-            _('<h3>Smarten punctuation</h3>%s')%HELP['smarten_punctuation'],
-
-            'metadata':_('<h3>Updating metadata</h3>'
-                         '<p>This will update all metadata <i>except</i> the cover in the'
-                         ' e-book files to match the current metadata in the'
-                         ' calibre library.</p>'
-                         ' <p>Note that most e-book'
-                         ' formats are not capable of supporting all the'
-                         ' metadata in calibre.</p><p>There is a separate option to'
-                         ' update the cover.</p>'),
-            'do_cover': _('<h3>Update cover</h3><p>Update the covers in the e-book files to match the'
-                        ' current cover in the calibre library.</p>'
-                        '<p>If the e-book file does not have'
-                        ' an identifiable cover, a new cover is inserted.</p>'
-                        ),
-            'jacket':_('<h3>Book jacket</h3>%s')%HELP['jacket'],
-            'remove_jacket':_('<h3>Remove book jacket</h3>%s')%HELP['remove_jacket'],
-            'remove_unused_css':_('<h3>Remove unused CSS rules</h3>%s')%HELP['remove_unused_css'],
+            'embed': _('<h3>Embed referenced fonts</h3>%s') % HELP['embed'],
+            'subset': _('<h3>Subsetting fonts</h3>%s') % HELP['subset'],
+            'smarten_punctuation': _('<h3>Smarten punctuation</h3>%s') % HELP['smarten_punctuation'],
+            'metadata': _(
+                '<h3>Updating metadata</h3>'
+                '<p>This will update all metadata <i>except</i> the cover in the'
+                ' e-book files to match the current metadata in the'
+                ' calibre library.</p>'
+                ' <p>Note that most e-book'
+                ' formats are not capable of supporting all the'
+                ' metadata in calibre.</p><p>There is a separate option to'
+                ' update the cover.</p>'
+            ),
+            'do_cover': _(
+                '<h3>Update cover</h3><p>Update the covers in the e-book files to match the'
+                ' current cover in the calibre library.</p>'
+                '<p>If the e-book file does not have'
+                ' an identifiable cover, a new cover is inserted.</p>'
+            ),
+            'jacket': _('<h3>Book jacket</h3>%s') % HELP['jacket'],
+            'remove_jacket': _('<h3>Remove book jacket</h3>%s') % HELP['remove_jacket'],
+            'remove_unused_css': _('<h3>Remove unused CSS rules</h3>%s') % HELP['remove_unused_css'],
             'compress_images': _('<h3>Losslessly compress images</h3>%s') % HELP['compress_images'],
             'download_external_resources': _('<h3>Download external resources</h3>%s') % HELP['download_external_resources'],
             'add_soft_hyphens': _('<h3>Add soft-hyphens</h3>%s') % HELP['add_soft_hyphens'],
@@ -95,7 +91,7 @@ class Polish(QDialog):  # {{{
         self.l = l = QGridLayout()
         self.setLayout(l)
 
-        self.la = la = QLabel('<b>'+_('Select actions to perform:'))
+        self.la = la = QLabel('<b>' + _('Select actions to perform:'))
         l.addWidget(la, 0, 0, 1, 2)
 
         count = 0
@@ -122,9 +118,9 @@ class Polish(QDialog):  # {{{
             x.setObjectName(name)
             connect_lambda(x.stateChanged, self, lambda self, state: self.option_toggled(self.sender().objectName(), state))
             l.addWidget(x, count, 0, 1, 1)
-            setattr(self, 'opt_'+name, x)
+            setattr(self, 'opt_' + name, x)
             la = QLabel(' <a href="#{}">{}</a>'.format(name, _('About')))
-            setattr(self, 'label_'+name, x)
+            setattr(self, 'label_' + name, x)
             la.linkActivated.connect(self.help_link_activated)
             l.addWidget(la, count, 1, 1, 1)
 
@@ -136,18 +132,17 @@ class Polish(QDialog):  # {{{
         la.setWordWrap(True)
         la.setTextFormat(Qt.TextFormat.RichText)
         la.setFrameShape(QFrame.Shape.StyledPanel)
-        la.setAlignment(Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignTop)
+        la.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignTop)
         la.setLineWidth(2)
         la.setStyleSheet('QLabel { margin-left: 75px }')
-        l.addWidget(la, 0, 2, count+1, 1)
+        l.addWidget(la, 0, 2, count + 1, 1)
         l.setColumnStretch(2, 1)
 
         self.show_reports = sr = QCheckBox(_('Show &report'), self)
         sr.setChecked(gprefs.get('polish_show_reports', True))
-        sr.setToolTip(textwrap.fill(_('Show a report of all the actions performed'
-                        ' after polishing is completed')))
-        l.addWidget(sr, count+1, 0, 1, 1)
-        self.bb = bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok|QDialogButtonBox.StandardButton.Cancel)
+        sr.setToolTip(textwrap.fill(_('Show a report of all the actions performed after polishing is completed')))
+        l.addWidget(sr, count + 1, 0, 1, 1)
+        self.bb = bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)
         bb.accepted.connect(self.accept)
         bb.rejected.connect(self.reject)
         self.save_button = sb = bb.addButton(_('&Save settings'), QDialogButtonBox.ButtonRole.ActionRole)
@@ -163,7 +158,7 @@ class Polish(QDialog):  # {{{
         self.none_button = b = bb.addButton(_('Select &none'), QDialogButtonBox.ButtonRole.ActionRole)
         assert b is not None
         connect_lambda(b.clicked, self, lambda self: self.select_all(False))
-        l.addWidget(bb, count+1, 1, 1, -1)
+        l.addWidget(bb, count + 1, 1, 1, -1)
         bb.setFocus()
         self.setup_load_button()
         self.resize(self.sizeHint())
@@ -174,23 +169,19 @@ class Polish(QDialog):  # {{{
 
     def select_all(self, enable):
         for action in self.all_actions:
-            x = getattr(self, 'opt_'+action)
+            x = getattr(self, 'opt_' + action)
             x.blockSignals(True)
             x.setChecked(enable)
             x.blockSignals(False)
 
     def save_settings(self):
         if not self.something_selected:
-            return error_dialog(self, _('No actions selected'),
-                _('You must select at least one action before saving'),
-                                show=True)
-        name, ok = QInputDialog.getText(self, _('Choose name'),
-                _('Choose a name for these settings'))
+            return error_dialog(self, _('No actions selected'), _('You must select at least one action before saving'), show=True)
+        name, ok = QInputDialog.getText(self, _('Choose name'), _('Choose a name for these settings'))
         if ok:
             name = str(name).strip()
             if name:
-                settings = {ac:getattr(self, 'opt_'+ac).isChecked() for ac in
-                            self.all_actions}
+                settings = {ac: getattr(self, 'opt_' + ac).isChecked() for ac in self.all_actions}
                 saved = gprefs.get('polish_settings', {})
                 saved[name] = settings
                 gprefs.set('polish_settings', saved)
@@ -218,7 +209,7 @@ class Polish(QDialog):  # {{{
         saved = gprefs.get('polish_settings', {}).get(name, {})
         for action in self.all_actions:
             checked = saved.get(action, False)
-            x = getattr(self, 'opt_'+action)
+            x = getattr(self, 'opt_' + action)
             x.blockSignals(True)
             x.setChecked(checked)
             x.blockSignals(False)
@@ -234,7 +225,7 @@ class Polish(QDialog):  # {{{
     @property
     def something_selected(self):
         for action in self.all_actions:
-            if getattr(self, 'opt_'+action).isChecked():
+            if getattr(self, 'opt_' + action).isChecked():
                 return True
         return False
 
@@ -244,30 +235,34 @@ class Polish(QDialog):  # {{{
         gprefs['polish_show_reports'] = bool(self.show_reports.isChecked())
         something = False
         for action in self.all_actions:
-            ac[action] = saved_prefs[action] = bool(getattr(self, 'opt_'+action).isChecked())
+            ac[action] = saved_prefs[action] = bool(getattr(self, 'opt_' + action).isChecked())
             if ac[action]:
                 something = True
         if ac['jacket'] and not ac['metadata']:
-            if not question_dialog(self, _('Must update metadata'),
-                _('You have selected the option to add metadata as '
-                  'a "book jacket". For this option to work, you '
-                  'must also select the option to update metadata in'
-                  ' the book files. Do you want to select it?')):
+            if not question_dialog(
+                self,
+                _('Must update metadata'),
+                _(
+                    'You have selected the option to add metadata as '
+                    'a "book jacket". For this option to work, you '
+                    'must also select the option to update metadata in'
+                    ' the book files. Do you want to select it?'
+                ),
+            ):
                 return
             ac['metadata'] = saved_prefs['metadata'] = True
             opt_metadata = self.findChild(QCheckBox, 'metadata')
             assert opt_metadata is not None
             opt_metadata.setChecked(True)
         if ac['jacket'] and ac['remove_jacket']:
-            if not question_dialog(self, _('Add or remove jacket?'), _(
-                    'You have chosen to both add and remove the metadata jacket.'
-                    ' This will result in the final book having no jacket. Is this'
-                    ' what you want?')):
+            if not question_dialog(
+                self,
+                _('Add or remove jacket?'),
+                _('You have chosen to both add and remove the metadata jacket. This will result in the final book having no jacket. Is this what you want?'),
+            ):
                 return
         if not something:
-            return error_dialog(self, _('No actions selected'),
-                _('You must select at least one action, or click Cancel.'),
-                                show=True)
+            return error_dialog(self, _('No actions selected'), _('You must select at least one action, or click Cancel.'), show=True)
         gprefs['polishing_settings'] = saved_prefs
         self.queue_files()
         return super().accept()
@@ -277,11 +272,10 @@ class Polish(QDialog):  # {{{
         self.jobs = []
         if len(self.book_id_map) <= 5:
             for i, (book_id, formats) in enumerate(self.book_id_map.items()):
-                self.do_book(i+1, book_id, formats)
+                self.do_book(i + 1, book_id, formats)
         else:
-            self.queue = [(i+1, id_) for i, id_ in enumerate(self.book_id_map)]
-            self.pd = ProgressDialog(_('Queueing books for polishing'),
-                                     max=len(self.queue), parent=self)
+            self.queue = [(i + 1, id_) for i, id_ in enumerate(self.book_id_map)]
+            self.pd = ProgressDialog(_('Queueing books for polishing'), max=len(self.queue), parent=self)
             QTimer.singleShot(0, self.do_one)
             self.pd.exec()
 
@@ -311,9 +305,9 @@ class Polish(QDialog):  # {{{
         opf = os.path.join(base, 'metadata.opf')
         with open(opf, 'wb') as opf_file:
             mi = create_opf_file(db, book_id, opf_file=opf_file)[0]
-        data = {'opf':opf, 'files':[]}
+        data = {'opf': opf, 'files': []}
         for action in self.chosen_actions:
-            data[action] = bool(getattr(self, 'opt_'+action).isChecked())
+            data[action] = bool(getattr(self, 'opt_' + action).isChecked())
         cover = os.path.join(base, 'cover.jpg')
         if db.copy_cover_to(book_id, cover, index_is_id=True):
             data['cover'] = cover
@@ -329,20 +323,21 @@ class Polish(QDialog):  # {{{
         if hasattr(self, 'pd'):
             nums = self.pd.max - num
 
-        desc = ngettext(_('Polish %s')%mi.title,
-                        _('Polish book %(nums)s of %(tot)s (%(title)s)')%dict(
-                            nums=nums, tot=len(self.book_id_map),
-                            title=mi.title), len(self.book_id_map))
+        desc = ngettext(
+            _('Polish %s') % mi.title,
+            _('Polish book %(nums)s of %(tot)s (%(title)s)') % dict(nums=nums, tot=len(self.book_id_map), title=mi.title),
+            len(self.book_id_map),
+        )
         if hasattr(self, 'pd'):
-            self.pd.set_msg(_('Queueing book %(nums)s of %(tot)s (%(title)s)')%dict(
-                            nums=num, tot=len(self.book_id_map), title=mi.title))
+            self.pd.set_msg(_('Queueing book %(nums)s of %(tot)s (%(title)s)') % dict(nums=num, tot=len(self.book_id_map), title=mi.title))
 
         self.jobs.append((desc, data, book_id, base, is_orig))
+
+
 # }}}
 
 
 class Report(QDialog):  # {{{
-
     def __init__(self, parent):
         QDialog.__init__(self, parent)
         self.gui = parent
@@ -380,8 +375,7 @@ class Report(QDialog):  # {{{
         self.resize(QSize(800, 600))
 
     def setup_ign(self):
-        self.ign.setText(ngettext(
-            'Ignore remaining report', 'Ignore remaining {} reports', len(self.reports)).format(len(self.reports)))
+        self.ign.setText(ngettext('Ignore remaining report', 'Ignore remaining {} reports', len(self.reports)).format(len(self.reports)))
         self.ign.setVisible(bool(self.reports))
         self.ign.setChecked(False)
 
@@ -393,22 +387,19 @@ class Report(QDialog):  # {{{
 
     def show_report(self, book_title, book_id, fmts, job, report):
         from markdown import markdown
+
         self.current_log = job.details
-        self.setWindowTitle(_('Polishing of %s')%book_title)
-        self.view.setText(markdown(f'# {book_title}\n\n' + report,
-                                   output_format='html4'))
+        self.setWindowTitle(_('Polishing of %s') % book_title)
+        self.view.setText(markdown(f'# {book_title}\n\n' + report, output_format='html4'))
         close_btn = self.bb.button(QDialogButtonBox.StandardButton.Close)
         assert close_btn is not None
         close_btn.setFocus(Qt.FocusReason.OtherFocusReason)
         self.backup_msg.setVisible(bool(fmts))
         if fmts:
-            m = ngettext('The original file has been saved as %s.',
-                     'The original files have been saved as %s.', len(fmts))%(
-                _(' and ').join('ORIGINAL_'+f for f in fmts)
-                     )
-            self.backup_msg.setText(m + ' ' + _(
-                'If you polish again, the polishing will run on the originals.')%(
-                ))
+            m = ngettext('The original file has been saved as %s.', 'The original files have been saved as %s.', len(fmts)) % (
+                _(' and ').join('ORIGINAL_' + f for f in fmts)
+            )
+            self.backup_msg.setText(m + ' ' + _('If you polish again, the polishing will run on the originals.') % ())
 
     def view_log(self):
         self.view.setPlainText(self.current_log)
@@ -439,14 +430,14 @@ class Report(QDialog):  # {{{
             self.show_next()
             return
         super().reject()
+
+
 # }}}
 
 
 class PolishAction(InterfaceActionWithLibraryDrop):
-
     name = 'Polish Books'
-    action_spec = (_('Polish books'), 'polish.png',
-                   _('Apply the shine of perfection to your books'), _('P'))
+    action_spec = (_('Polish books'), 'polish.png', _('Apply the shine of perfection to your books'), _('P'))
     dont_add_to = frozenset(['context-menu-device'])
     action_type = 'current'
 
@@ -474,11 +465,9 @@ class PolishAction(InterfaceActionWithLibraryDrop):
         self.menuless_qaction.setEnabled(enabled)
 
     def get_books_for_polishing(self):
-        rows = [r.row() for r in
-                self.gui.library_view.selectionModel().selectedRows()]
+        rows = [r.row() for r in self.gui.library_view.selectionModel().selectedRows()]
         if not rows or len(rows) == 0:
-            d = error_dialog(self.gui, _('Cannot polish'),
-                    _('No books selected'))
+            d = error_dialog(self.gui, _('Cannot polish'), _('No books selected'))
             d.exec()
             return None
         db = self.gui.library_view.model().db
@@ -488,34 +477,42 @@ class PolishAction(InterfaceActionWithLibraryDrop):
             for x in fmts:
                 if x.startswith('ORIGINAL_'):
                     from calibre.gui2.dialogs.confirm_delete import confirm
-                    if not confirm(_(
+
+                    if not confirm(
+                        _(
                             'One of the books you are polishing has an {0} format.'
                             ' Polishing will use this as the source and overwrite'
-                            ' any existing {1} format. Are you sure you want to proceed?').format(
-                                x, x[len('ORIGINAL_'):]), 'confirm_original_polish', title=_('Are you sure?'),
-                                   confirm_msg=_('Ask for this confirmation again')):
+                            ' any existing {1} format. Are you sure you want to proceed?'
+                        ).format(x, x[len('ORIGINAL_') :]),
+                        'confirm_original_polish',
+                        title=_('Are you sure?'),
+                        confirm_msg=_('Ask for this confirmation again'),
+                    ):
                         return {}
                     break
         return ans
 
     def get_supported_books(self, book_ids):
         from calibre.ebooks.oeb.polish.main import SUPPORTED
+
         db = self.gui.library_view.model().db
         supported = set(SUPPORTED)
         for x in SUPPORTED:
-            supported.add('ORIGINAL_'+x)
-        ans = [(x, set((db.formats(x, index_is_id=True) or '').split(','))
-               .intersection(supported)) for x in book_ids]
+            supported.add('ORIGINAL_' + x)
+        ans = [(x, set((db.formats(x, index_is_id=True) or '').split(',')).intersection(supported)) for x in book_ids]
         ans = [x for x in ans if x[1]]
         if not ans:
-            error_dialog(self.gui, _('Cannot polish'),
-                _('Polishing is only supported for books in the %s'
-                  ' formats. Convert to one of those formats before polishing.')
-                         %_(' or ').join(sorted(SUPPORTED)), show=True)
+            error_dialog(
+                self.gui,
+                _('Cannot polish'),
+                _('Polishing is only supported for books in the %s formats. Convert to one of those formats before polishing.')
+                % _(' or ').join(sorted(SUPPORTED)),
+                show=True,
+            )
         ans = OrderedDict(ans)
         for fmts in ans.values():
             for x in SUPPORTED:
-                if ('ORIGINAL_'+x) in fmts:
+                if ('ORIGINAL_' + x) in fmts:
                     fmts.discard(x)
         return ans
 
@@ -530,15 +527,14 @@ class PolishAction(InterfaceActionWithLibraryDrop):
         if d.exec() == QDialog.DialogCode.Accepted and d.jobs:
             show_reports = bool(d.show_reports.isChecked())
             for desc, data, book_id, base, is_orig in reversed(d.jobs):
-                job = self.gui.job_manager.run_job(
-                    Dispatcher(self.book_polished), 'gui_polish', args=(data,),
-                    description=desc)
+                job = self.gui.job_manager.run_job(Dispatcher(self.book_polished), 'gui_polish', args=(data,), description=desc)
                 job.polish_args = (book_id, base, data['files'], show_reports, is_orig)
             if d.jobs:
                 self.gui.jobs_pointer.start()
                 self.gui.status_bar.show_message(
-                    ngettext('Start polishing the book', 'Start polishing of {} books',
-                             len(d.jobs)).format(len(d.jobs)), 2000)
+                    ngettext('Start polishing the book', 'Start polishing of {} books', len(d.jobs)).format(len(d.jobs)),
+                    2000,
+                )
 
     def book_polished(self, job):
         if job.failed:
@@ -582,5 +578,6 @@ if __name__ == '__main__':
     app = QApplication([])
     app
     from calibre.library import db
-    d = Polish(db(), {1:{'EPUB'}, 2:{'AZW3'}})
+
+    d = Polish(db(), {1: {'EPUB'}, 2: {'AZW3'}})
     d.exec()

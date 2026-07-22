@@ -34,7 +34,7 @@ def upload_files_widget(container, proceed, msg, single_file=False, accept_exten
     a = c.getElementsByTagName('a')[0]
     a.setAttribute('href', 'javascript: void(0)')
     a.classList.add('blue-link')
-    a.addEventListener('click', def():
+    a.addEventListener('click', def ():
         document.getElementById(container_id).querySelector('input[type=file]').click()
     , False)
 

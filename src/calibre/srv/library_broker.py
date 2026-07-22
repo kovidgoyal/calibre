@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
 
-
 import os
 from collections import OrderedDict, defaultdict
 from threading import RLock as Lock
@@ -15,6 +14,7 @@ from calibre.utils.monotonic import monotonic
 
 def gui_on_db_event(event_type, library_id, event_data):
     from calibre.gui2.ui import get_gui
+
     gui = get_gui()
     if gui is not None:
         gui.library_broker.on_db_event(event_type, library_id, event_data)
@@ -46,9 +46,7 @@ def basename(path):
 
 
 def init_library(library_path, is_default_library):
-    db = Cache(
-        create_backend(
-            library_path, load_user_formatter_functions=is_default_library))
+    db = Cache(create_backend(library_path, load_user_formatter_functions=is_default_library))
     db.init()
     return db
 
@@ -92,7 +90,6 @@ def db_matches(db, library_id, library_path):
 
 
 class LibraryBroker:
-
     def __init__(self, libraries):
         self.lock = Lock()
         self.lmap = OrderedDict()
@@ -118,8 +115,10 @@ class LibraryBroker:
             self.original_path_map[path] = original_path
         self.loaded_dbs = {}
         self.category_caches, self.search_caches, self.tag_browser_caches = (
-            defaultdict(OrderedDict), defaultdict(OrderedDict),
-            defaultdict(OrderedDict))
+            defaultdict(OrderedDict),
+            defaultdict(OrderedDict),
+            defaultdict(OrderedDict),
+        )
 
     def get(self, library_id=None):
         with self:
@@ -130,8 +129,7 @@ class LibraryBroker:
             if path is None:
                 return
             try:
-                self.loaded_dbs[library_id] = ans = self.init_library(
-                    path, library_id == self.default_library)
+                self.loaded_dbs[library_id] = ans = self.init_library(path, library_id == self.default_library)
                 ans.new_api.server_library_id = library_id
             except Exception:
                 self.loaded_dbs[library_id] = None
@@ -159,11 +157,8 @@ class LibraryBroker:
 
     def allowed_libraries(self, filter_func):
         with self:
-            allowed_names = filter_func(
-                basename(l) for l in self.lmap.values())
-            return OrderedDict(((lid, self.library_map[lid])
-                                for lid, path in self.lmap.items()
-                                if basename(path) in allowed_names))
+            allowed_names = filter_func(basename(l) for l in self.lmap.values())
+            return OrderedDict(((lid, self.library_map[lid]) for lid, path in self.lmap.items() if basename(path) in allowed_names))
 
     def path_for_library_id(self, library_id):
         with self:
@@ -191,6 +186,7 @@ EXPIRED_AGE = 300  # seconds
 def load_gui_libraries(gprefs=None):
     if gprefs is None:
         from calibre.utils.config import JSONConfig
+
         gprefs = JSONConfig('gui')
     stats = gprefs.get('library_usage_stats', {})
     return sorted(stats, key=stats.get, reverse=True)
@@ -201,9 +197,9 @@ def path_for_db(db):
 
 
 class GuiLibraryBroker(LibraryBroker):
-
     def __init__(self, db):
         from calibre.gui2 import gprefs
+
         self.last_used_times: defaultdict[str | None, float] = defaultdict(lambda: float(-EXPIRED_AGE))
         self.gui_library_id = None
         self.listening_for_db_events = False
@@ -231,6 +227,7 @@ class GuiLibraryBroker(LibraryBroker):
 
     def on_db_event(self, event_type, library_id, event_data):
         from calibre.gui2.ui import get_gui
+
         gui = get_gui()
         if gui is not None:
             with self:
@@ -245,8 +242,7 @@ class GuiLibraryBroker(LibraryBroker):
                 if samefile(library_path, path):
                     db = self.loaded_dbs.get(library_id)
                     if db is None:
-                        db = self.loaded_dbs[library_id] = self.init_library(
-                            path, False)
+                        db = self.loaded_dbs[library_id] = self.init_library(path, False)
                     db.new_api.server_library_id = library_id
                     return db
             # A new library
@@ -307,8 +303,7 @@ class GuiLibraryBroker(LibraryBroker):
     def _prune_loaded_dbs(self):
         now = monotonic()
         for library_id in tuple(self.loaded_dbs):
-            if library_id != self.gui_library_id and now - self.last_used_times[
-                library_id] > EXPIRED_AGE:
+            if library_id != self.gui_library_id and now - self.last_used_times[library_id] > EXPIRED_AGE:
                 db = self.loaded_dbs.pop(library_id, None)
                 if db is not None:
                     db.close()
@@ -339,8 +334,11 @@ class GuiLibraryBroker(LibraryBroker):
                     break
             else:
                 return
-            self.lmap.pop(library_id, None), self.library_name_map.pop(
-                library_id, None), self.original_path_map.pop(path, None)
+            (
+                self.lmap.pop(library_id, None),
+                self.library_name_map.pop(library_id, None),
+                self.original_path_map.pop(path, None),
+            )
             db = self.loaded_dbs.pop(library_id, None)
             if db is not None:
                 db.close()

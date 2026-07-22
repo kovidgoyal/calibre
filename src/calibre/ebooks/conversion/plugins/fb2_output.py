@@ -1,6 +1,4 @@
-__license__ = 'GPL 3'
-__copyright__ = '2009, John Schember <john@nachtimwald.com>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2009, John Schember <john@nachtimwald.com>
 
 import os
 
@@ -9,7 +7,6 @@ from calibre.utils.localization import _
 
 
 class FB2Output(OutputFormatPlugin):
-
     name = 'FB2 Output'
     author = 'John Schember'
     file_type = 'fb2'
@@ -145,27 +142,35 @@ class FB2Output(OutputFormatPlugin):
         'sectionize': {
             'toc': _('Section per entry in the ToC'),
             'files': _('Section per file'),
-            'nothing': _('A single section')
+            'nothing': _('A single section'),
         },
         'genres': FB2_GENRES,
     }
 
     options = {
-        OptionRecommendation(name='sectionize',
-            recommended_value='files', level=OptionRecommendation.LOW,
+        OptionRecommendation(
+            name='sectionize',
+            recommended_value='files',
+            level=OptionRecommendation.LOW,
             choices=list(ui_data['sectionize']),
-            help=_('Specify how sections are created:\n'
+            help=_(
+                'Specify how sections are created:\n'
                 ' * nothing: {nothing}\n'
                 ' * files: {files}\n'
                 ' * toc: {toc}\n'
                 'If ToC based generation fails, adjust the "Structure detection" and/or "Table of Contents" settings '
-                '(turn on "Force use of auto-generated Table of Contents").').format(**ui_data['sectionize'])
+                '(turn on "Force use of auto-generated Table of Contents").'
+            ).format(**ui_data['sectionize']),
         ),
-        OptionRecommendation(name='fb2_genre',
-            recommended_value='antique', level=OptionRecommendation.LOW,
+        OptionRecommendation(
+            name='fb2_genre',
+            recommended_value='antique',
+            level=OptionRecommendation.LOW,
             choices=FB2_GENRES,
-            help=(_('Genre for the book. Choices: %s\n\n See: ') % ', '.join(FB2_GENRES)
-                ) + 'http://www.fictionbook.org/index.php/Eng:FictionBook_2.1_genres ' + _('for a complete list with descriptions.')),
+            help=(_('Genre for the book. Choices: %s\n\n See: ') % ', '.join(FB2_GENRES))
+            + 'http://www.fictionbook.org/index.php/Eng:FictionBook_2.1_genres '
+            + _('for a complete list with descriptions.'),
+        ),
     }
 
     def convert(self, oeb_book, output, input_plugin, opts, log):

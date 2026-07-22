@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2018, Kovid Goyal <kovid at kovidgoyal.net>
 
-
 import atexit
 import errno
 import os
@@ -34,6 +33,7 @@ if iswindows:
         except OSError:
             return True
         return False
+
 else:
     import fcntl
 
@@ -47,6 +47,7 @@ else:
 
     def unlock_file(fobj):
         from calibre.utils.ipc import eintr_retry_call
+
         eintr_retry_call(fcntl.lockf, fobj.fileno(), fcntl.LOCK_UN)
         fobj.close()
 
@@ -102,9 +103,9 @@ _tdir_in_cache_scanned: set[str] = set()
 
 
 def tdir_in_cache(base):
-    ''' Create a temp dir inside cache_dir/base. The created dir is robust
+    """Create a temp dir inside cache_dir/base. The created dir is robust
     against application crashes. i.e. it will be cleaned up the next time the
-    application starts, even if it was left behind by a previous crash. '''
+    application starts, even if it was left behind by a previous crash."""
     b = os.path.join(os.path.realpath(cache_dir()), base)
     try:
         os.makedirs(b)
@@ -119,6 +120,7 @@ def tdir_in_cache(base):
                 clean_tdirs_in(b)
             except Exception:
                 import traceback
+
                 traceback.print_exc()
         tdir = tempfile.mkdtemp(dir=b)
         lock_data = lock_tdir(tdir)

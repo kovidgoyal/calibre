@@ -4,7 +4,6 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class DNAIndia(BasicNewsRecipe):
-
     title = 'DNA India'
     description = 'Mumbai news, India news, World news, breaking news'
     __author__ = 'Kovid Goyal'
@@ -25,7 +24,7 @@ class DNAIndia(BasicNewsRecipe):
         ('World', 'http://www.dnaindia.com/syndication/rss,catid-9.xml'),
         ('Money', 'http://www.dnaindia.com/syndication/rss,catid-4.xml'),
         ('Sports', 'http://www.dnaindia.com/syndication/rss,catid-6.xml'),
-        ('After Hours', 'http://www.dnaindia.com/syndication/rss,catid-7.xml')
+        ('After Hours', 'http://www.dnaindia.com/syndication/rss,catid-7.xml'),
     ]
 
     def print_version(self, url):

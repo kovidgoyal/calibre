@@ -31,7 +31,7 @@ class TagesspiegelRss(BasicNewsRecipe):
         'days': {
             'short': 'Oldest article to download from this news source. In days ',
             'long': 'For example, 0.5, gives you articles from the past 12 hours',
-            'default': str(oldest_article)
+            'default': str(oldest_article),
         }
     }
 
@@ -46,27 +46,22 @@ class TagesspiegelRss(BasicNewsRecipe):
 
     def get_cover_url(self):
         from datetime import date
+
         cover = 'https://img.kiosko.net/' + date.today().strftime('%Y/%m/%d') + '/de/tagesspiegel.750.jpg'
         return cover
 
-    keep_only_tags = [
-        dict(name='header', attrs={'class':'Bo'}),
-        dict(name='div', attrs={'id':'story-elements'})
-    ]
+    keep_only_tags = [dict(name='header', attrs={'class': 'Bo'}), dict(name='div', attrs={'id': 'story-elements'})]
 
-    remove_tags = [
-        dict(name='aside'),
-        classes('iqd_mainAd Bs')
-    ]
+    remove_tags = [dict(name='aside'), classes('iqd_mainAd Bs')]
 
     feeds = [
-        (u'Politik', u'http://www.tagesspiegel.de/contentexport/feed/politik'),
-        (u'Meinung', u'http://www.tagesspiegel.de/contentexport/feed/meinung'),
-        (u'Berlin', u'http://www.tagesspiegel.de/contentexport/feed/berlin'),
-        (u'Wirtschaft', u'http://www.tagesspiegel.de/contentexport/feed/wirtschaft'),
-        (u'Sport', u'http://www.tagesspiegel.de/contentexport/feed/sport'),
-        (u'Kultur', u'http://www.tagesspiegel.de/contentexport/feed/kultur'),
-        (u'Weltspiegel', u'http://www.tagesspiegel.de/contentexport/feed/weltspiegel'),
-        (u'Medien', u'http://www.tagesspiegel.de/contentexport/feed/medien'),
-        (u'Wissen', u'http://www.tagesspiegel.de/contentexport/feed/wissen')
+        ('Politik', 'http://www.tagesspiegel.de/contentexport/feed/politik'),
+        ('Meinung', 'http://www.tagesspiegel.de/contentexport/feed/meinung'),
+        ('Berlin', 'http://www.tagesspiegel.de/contentexport/feed/berlin'),
+        ('Wirtschaft', 'http://www.tagesspiegel.de/contentexport/feed/wirtschaft'),
+        ('Sport', 'http://www.tagesspiegel.de/contentexport/feed/sport'),
+        ('Kultur', 'http://www.tagesspiegel.de/contentexport/feed/kultur'),
+        ('Weltspiegel', 'http://www.tagesspiegel.de/contentexport/feed/weltspiegel'),
+        ('Medien', 'http://www.tagesspiegel.de/contentexport/feed/medien'),
+        ('Wissen', 'http://www.tagesspiegel.de/contentexport/feed/wissen'),
     ]

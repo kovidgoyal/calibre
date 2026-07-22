@@ -1,9 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__   = 'GPL v3'
-__copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2009, Kovid Goyal <kovid@kovidgoyal.net>
 
 import os
 
@@ -15,10 +11,9 @@ from calibre.utils.localization import _
 
 
 class DebugWidget(Widget, Ui_Form):
-
     TITLE = _('Debug')
-    ICON  = 'debug.png'
-    HELP  = _('Debug the conversion process.')
+    ICON = 'debug.png'
+    HELP = _('Debug the conversion process.')
     COMMIT_NAME = 'debug'
 
     def __init__(self, parent, get_option, get_help, db=None, book_id=None):
@@ -46,9 +41,14 @@ class DebugWidget(Widget, Ui_Form):
                 os.remove(test)
         except Exception:
             import traceback
+
             det_msg = traceback.format_exc()
-            error_dialog(self, _('Invalid debug folder'),
-                    _('Failed to create debug folder')+': '+ str(self.opt_debug_pipeline.text()),
-                        det_msg=det_msg, show=True)
+            error_dialog(
+                self,
+                _('Invalid debug folder'),
+                _('Failed to create debug folder') + ': ' + str(self.opt_debug_pipeline.text()),
+                det_msg=det_msg,
+                show=True,
+            )
             return False
         return True

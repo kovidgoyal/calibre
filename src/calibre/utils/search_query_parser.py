@@ -1,11 +1,7 @@
 #!/usr/bin/env python
+# License: GPLv3 Copyright: 2008, Kovid Goyal kovid@kovidgoyal.net
 
-
-__license__   = 'GPL v3'
-__copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
-__docformat__ = 'restructuredtext en'
-
-'''
+"""
 A parser for search queries with a syntax very similar to that used by
 the Google search engine.
 
@@ -15,7 +11,7 @@ methods :method:`SearchQueryParser.universal_set` and
 :method:`SearchQueryParser.get_matches`. See for example :class:`Tester`.
 
 If this module is run, it will perform a series of unit tests.
-'''
+"""
 
 import re
 import weakref
@@ -78,8 +74,7 @@ class SavedSearchQueries:
         self.save_queries()
 
     def rename(self, old_name, new_name):
-        self.queries[self.force_unicode(new_name)] = \
-                    self.queries.get(self.force_unicode(old_name), None)
+        self.queries[self.force_unicode(new_name)] = self.queries.get(self.force_unicode(old_name), None)
         self.queries.pop(self.force_unicode(old_name), False)
         self.save_queries()
 
@@ -88,7 +83,7 @@ class SavedSearchQueries:
         self.save_queries()
 
     def names(self):
-        return sorted(self.queries.keys(),key=sort_key)
+        return sorted(self.queries.keys(), key=sort_key)
 
 
 '''
@@ -141,7 +136,6 @@ base_token ::= a sequence of letters and colons, perhaps quoted
 
 
 class Parser:
-
     def __init__(self):
         self.current_token = 0
         self.tokens: list[tuple[int, str]] = []
@@ -156,13 +150,16 @@ class Parser:
     docstring_sep = '□ༀ؆'  # Unicode white square, Tibetan Om, Arabic-Indic Cube Root
 
     # Had to translate named constants to numeric values
-    lex_scanner = re.Scanner([  # type: ignore
-        (r'[()]',             lambda x,t: (Parser.OPCODE, t)),
-        (r'@.+?:[^")\s]+',    lambda x,t: (Parser.WORD, str(t))),
-        (r'[^"()\s]+',        lambda x,t: (Parser.WORD, str(t))),
-        (r'".*?(?:(?<!\\)")', lambda x,t: (Parser.QUOTED_WORD, t[1:-1])),
-        (r'\s+',              None)
-    ], flags=re.DOTALL)
+    lex_scanner = re.Scanner(  # type: ignore
+        [
+            (r'[()]', lambda x, t: (Parser.OPCODE, t)),
+            (r'@.+?:[^")\s]+', lambda x, t: (Parser.WORD, str(t))),
+            (r'[^"()\s]+', lambda x, t: (Parser.WORD, str(t))),
+            (r'".*?(?:(?<!\\)")', lambda x, t: (Parser.QUOTED_WORD, t[1:-1])),
+            (r'\s+', None),
+        ],
+        flags=re.DOTALL,
+    )
 
     def token(self, advance=False):
         if self.is_eof():
@@ -194,9 +191,12 @@ class Parser:
     def tokenize(self, expr):
         # convert docstrings to base64 to avoid all processing. Change the docstring
         # indicator to something unique with no characters special to the parser.
-        expr = re.sub(r'(""")(..*?)(""")',
-                  lambda mo: self.docstring_sep + as_hex_unicode(mo.group(2)) + self.docstring_sep,
-                  expr, flags=re.DOTALL)
+        expr = re.sub(
+            r'(""")(..*?)(""")',
+            lambda mo: self.docstring_sep + as_hex_unicode(mo.group(2)) + self.docstring_sep,
+            expr,
+            flags=re.DOTALL,
+        )
 
         # Strip out escaped backslashes, quotes and parens so that the
         # lex scanner doesn't get confused. We put them back later.
@@ -206,8 +206,7 @@ class Parser:
 
         def unescape(x):
             # recover the docstrings
-            x = re.sub(f'({self.docstring_sep})(..*?)({self.docstring_sep})',
-                       lambda mo: from_hex_unicode(mo.group(2)), x)
+            x = re.sub(f'({self.docstring_sep})(..*?)({self.docstring_sep})', lambda mo: from_hex_unicode(mo.group(2)), x)
             for k, v in self.REPLACEMENTS:
                 x = x.replace(v, k[1:])
             return x
@@ -237,7 +236,7 @@ class Parser:
             return ['and', lhs, self.and_expression()]
 
         # Account for the optional 'and'
-        if ((self.token_type() in [self.WORD, self.QUOTED_WORD] or self.token() == '(') and self.lcase_token() != 'or'):
+        if (self.token_type() in [self.WORD, self.QUOTED_WORD] or self.token() == '(') and self.lcase_token() != 'or':
             return ['and', lhs, self.and_expression()]
         return lhs
 
@@ -288,7 +287,6 @@ class Parser:
 
 
 class ParseException(Exception):
-
     @property
     def msg(self):
         if len(self.args) > 0:
@@ -383,7 +381,7 @@ class SearchQueryParser:
         try:
             res = self.parser.parse(query, self.locations)
         except RuntimeError:
-            raise ParseException(_('Failed to parse query, recursion limit reached: %s')%repr(query))
+            raise ParseException(_('Failed to parse query, recursion limit reached: %s') % repr(query))
         if self.sqp_parse_cache is not None:
             self.sqp_parse_cache[query] = res
         return res
@@ -398,7 +396,7 @@ class SearchQueryParser:
         return t
 
     def method(self, group_name):
-        return getattr(self, 'evaluate_'+group_name)
+        return getattr(self, 'evaluate_' + group_name)
 
     def evaluate(self, parse_result, candidates):
         return self.method(parse_result[0])(parse_result[1:], candidates)
@@ -445,6 +443,7 @@ class SearchQueryParser:
             raise e
         except Exception:  # convert all exceptions (e.g., missing key) to a parse error
             import traceback
+
             traceback.print_exc()
             raise ParseException(_('Unknown error in saved search: {0}').format(query))
 
@@ -465,7 +464,7 @@ class SearchQueryParser:
             return self.get_matches(location, query)
 
     def get_matches(self, location, query, candidates=None):
-        '''
+        """
         Should return the set of matches for :param:'location` and :param:`query`.
 
         The search must be performed over all entries if :param:`candidates` is
@@ -474,11 +473,11 @@ class SearchQueryParser:
         :param:`location` is one of the items in :member:`SearchQueryParser.DEFAULT_LOCATIONS`.
         :param:`query` is a string literal.
         :return: None or a subset of the set returned by :meth:`universal_set`.
-        '''
+        """
         return set()
 
     def universal_set(self):
-        '''
+        """
         Should return the set of all matches.
-        '''
+        """
         return set()

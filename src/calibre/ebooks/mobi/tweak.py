@@ -1,9 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__   = 'GPL v3'
-__copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2012, Kovid Goyal <kovid@kovidgoyal.net>
 
 import glob
 import os
@@ -40,7 +36,7 @@ def do_explode(path, dest):
     return opf
 
 
-def explode(path, dest, question=lambda x:True):
+def explode(path, dest, question=lambda x: True):
     with open(path, 'rb') as stream:
         raw = stream.read(3)
         stream.seek(0)
@@ -58,20 +54,27 @@ def explode(path, dest, question=lambda x:True):
         kf8_type = header.kf8_type
 
         if kf8_type is None:
-            raise BadFormat(_('This MOBI file does not contain a KF8 format '
+            raise BadFormat(
+                _(
+                    'This MOBI file does not contain a KF8 format '
                     'book. KF8 is the new format from Amazon. calibre can '
                     'only tweak MOBI files that contain KF8 books. Older '
-                    'MOBI files without KF8 are not tweakable.'))
+                    'MOBI files without KF8 are not tweakable.'
+                )
+            )
 
         if kf8_type == 'joint':
-            if not question(_('This MOBI file contains both KF8 and '
-                'older Mobi6 data. Tweaking it will remove the Mobi6 data, which '
-                'means the file will not be usable on older Kindles. Are you '
-                'sure?')):
+            if not question(
+                _(
+                    'This MOBI file contains both KF8 and '
+                    'older Mobi6 data. Tweaking it will remove the Mobi6 data, which '
+                    'means the file will not be usable on older Kindles. Are you '
+                    'sure?'
+                )
+            ):
                 return None
 
-    return fork_job('calibre.ebooks.mobi.tweak', 'do_explode', args=(path,
-            dest), no_output=True)['result']
+    return fork_job('calibre.ebooks.mobi.tweak', 'do_explode', args=(path, dest), no_output=True)['result']
 
 
 def set_cover(oeb):
@@ -104,5 +107,4 @@ def rebuild(src_dir, dest_path):
     # For debugging, uncomment the following two lines
     # def fork_job(a, b, args=None, no_output=True):
     #     do_rebuild(*args)
-    fork_job('calibre.ebooks.mobi.tweak', 'do_rebuild', args=(opf, dest_path),
-            no_output=True)
+    fork_job('calibre.ebooks.mobi.tweak', 'do_rebuild', args=(opf, dest_path), no_output=True)

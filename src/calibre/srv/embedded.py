@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
 
-
 import errno
 import json
 import os
@@ -19,9 +18,7 @@ from calibre.srv.utils import RotatingLog
 
 
 def log_paths():
-    return os.path.join(cache_dir(), 'server-log.txt'), os.path.join(
-        cache_dir(), 'server-access-log.txt'
-    )
+    return os.path.join(cache_dir(), 'server-log.txt'), os.path.join(cache_dir(), 'server-access-log.txt')
 
 
 def read_json(path):
@@ -49,7 +46,6 @@ search_the_net_urls = _JsonFileFunction('server-search-the-net.json')
 
 
 class Server:
-
     loop = current_thread = exception = None
     state_callback = start_failure_callback = None
 
@@ -94,7 +90,7 @@ class Server:
                     opts=self.opts,
                     log=self.log,
                     access_log=self.access_log,
-                    plugins=self.plugins
+                    plugins=self.plugins,
                 )
                 self.loop.initialize_socket()
             except Exception as e:
@@ -107,18 +103,18 @@ class Server:
                         pass
                 return
             self.handler.set_jobs_manager(self.loop.jobs_manager)
-            self.current_thread = t = Thread(
-                name='EmbeddedServer', target=self.serve_forever
-            )
+            self.current_thread = t = Thread(name='EmbeddedServer', target=self.serve_forever)
             t.daemon = True
             t.start()
 
     def serve_forever(self):
         self.exception = None
         from calibre.srv.content import reset_caches
+
         try:
             if is_running_from_develop:
                 from calibre.utils.rapydscript import compile_srv
+
                 compile_srv()
         except BaseException as e:
             self.exception = e

@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
 
-
 from calibre import prints
 from calibre.utils.localization import _
 
@@ -11,6 +10,7 @@ version = 0  # change this if you change signature of implementation()
 
 def implementation(db, notify_changes, query):
     from calibre.utils.search_query_parser import ParseException
+
     is_remote = notify_changes is not None
     try:
         return db.search(query, allow_templates=not is_remote)
@@ -40,7 +40,7 @@ language, for example: %prog search {0}
         '--limit',
         default=-1,
         type=int,
-        help=_('The maximum number of results to return. Default is all results.')
+        help=_('The maximum number of results to return. Default is all results.'),
     )
     return parser
 
@@ -59,6 +59,6 @@ def main(opts, args, dbctx):
         raise SystemExit(_('No books matching the search expression:') + ' ' + q)
     ids = sorted(ids)
     if opts.limit > -1:
-        ids = ids[:opts.limit]
+        ids = ids[: opts.limit]
     prints(','.join(map(str, ids)), end='')
     return 0

@@ -15,10 +15,11 @@ def implementation(db, notify_changes, query, adata):
     restrict_to = None
     is_remote = notify_changes is not None
     if not db.is_fts_enabled():
-        raise NoTracebackException(_(
-            'Full text searching is not enabled on this library. Use the calibredb fts_index enable --wait-until-complete command to enable it'))
+        raise NoTracebackException(
+            _('Full text searching is not enabled on this library. Use the calibredb fts_index enable --wait-until-complete command to enable it')
+        )
     l, t = db.fts_indexing_progress()[:2]
-    if l/t > (1 - adata['threshold']):
+    if l / t > (1 - adata['threshold']):
         raise NoTracebackException(_('{0} files out of {1} are not yet indexed, searching is disabled').format(l, t))
     if rto:
         if isinstance(rto, str):
@@ -40,11 +41,17 @@ def implementation(db, notify_changes, query, adata):
         return result
 
     from calibre.db import FTSQueryError
+
     try:
         return db.fts_search(
-            query, use_stemming=adata['use_stemming'], highlight_start=adata['start_marker'], highlight_end=adata['end_marker'],
-            return_text=include_snippets, restrict_to_book_ids=restrict_to,
-            process_each_result=add_metadata, snippet_size=64
+            query,
+            use_stemming=adata['use_stemming'],
+            highlight_start=adata['start_marker'],
+            highlight_end=adata['end_marker'],
+            return_text=include_snippets,
+            restrict_to_book_ids=restrict_to,
+            process_each_result=add_metadata,
+            snippet_size=64,
         ), metadata_cache
     except FTSQueryError as e:
         setattr(e, 'suppress_traceback', True)
@@ -60,44 +67,51 @@ def option_parser(get_parser, args):
 Do a full text search on the entire library or a subset of it.
 
 '''
-    ))
+        )
+    )
     parser.add_option(
         '--include-snippets',
         default=False,
         action='store_true',
-        help=_('Include snippets of the text surrounding each match. Note that this makes searching much slower.')
+        help=_('Include snippets of the text surrounding each match. Note that this makes searching much slower.'),
     )
     parser.add_option(
         '--match-start-marker',
         default='\x1b[31m',
-        help=_('The marker used to indicate the start of a matched word inside a snippet')
+        help=_('The marker used to indicate the start of a matched word inside a snippet'),
     )
     parser.add_option(
         '--match-end-marker',
         default='\x1b[m',
-        help=_('The marker used to indicate the end of a matched word inside a snippet')
+        help=_('The marker used to indicate the end of a matched word inside a snippet'),
     )
     parser.add_option(
         '--do-not-match-on-related-words',
         default=True,
         dest='use_stemming',
         action='store_false',
-        help=_('Only match on exact words not related words. So correction will not match correcting.')
+        help=_('Only match on exact words not related words. So correction will not match correcting.'),
     )
     parser.add_option(
         '--restrict-to',
         default='',
-        help=_('Restrict the searched books, either using a search expression or ids.'
-               ' For example: ids:1,2,3 to restrict by ids or search:tag:foo to restrict to books having the tag foo.')
+        help=_(
+            'Restrict the searched books, either using a search expression or ids.'
+            ' For example: ids:1,2,3 to restrict by ids or search:tag:foo to restrict to books having the tag foo.'
+        ),
     )
     parser.add_option(
-        '--output-format', default='text', choices=('text', 'json'),
-        help=_('The format to output the search results in. Either "text" for plain text or "json" for JSON output.')
+        '--output-format',
+        default='text',
+        choices=('text', 'json'),
+        help=_('The format to output the search results in. Either "text" for plain text or "json" for JSON output.'),
     )
 
     parser.add_option(
-        '--indexing-threshold', type=float, default=90.,
-        help=_('How much of the library must be indexed before searching is allowed, as a percentage. Defaults to 90')
+        '--indexing-threshold',
+        type=float,
+        default=90.0,
+        help=_('How much of the library must be indexed before searching is allowed, as a percentage. Defaults to 90'),
     )
     return parser
 
@@ -105,6 +119,7 @@ Do a full text search on the entire library or a subset of it.
 def output_results_as_text(results, metadata_cache, include_snippets):
     from calibre.ebooks.metadata import authors_to_string
     from calibre.utils.terminal import geometry
+
     width = max(5, geometry()[0])
     separator = '─' * width
     if not include_snippets:
@@ -158,17 +173,26 @@ def main(opts, args, dbctx):
         else:
             raise SystemExit('The --restrict-to option must start with either ids: or search:')
     from calibre.db import FTSQueryError
+
     try:
-        results, metadata_cache = dbctx.run('fts_search', search_expression, {
-            'start_marker': opts.match_start_marker, 'end_marker': opts.match_end_marker, 'use_stemming': opts.use_stemming,
-            'include_snippets': opts.include_snippets, 'restrict_to': restrict_to,
-            'threshold': max(0, min(opts.indexing_threshold, 100)) / 100
-        })
+        results, metadata_cache = dbctx.run(
+            'fts_search',
+            search_expression,
+            {
+                'start_marker': opts.match_start_marker,
+                'end_marker': opts.match_end_marker,
+                'use_stemming': opts.use_stemming,
+                'include_snippets': opts.include_snippets,
+                'restrict_to': restrict_to,
+                'threshold': max(0, min(opts.indexing_threshold, 100)) / 100,
+            },
+        )
         if opts.output_format == 'json':
             for r in results:
                 m = metadata_cache[r['book_id']]
                 r['title'], r['authors'] = m['title'], m['authors']
             import json
+
             print(json.dumps(results, sort_keys=True, indent='  '))
         else:
             output_results_as_text(results, metadata_cache, opts.include_snippets)

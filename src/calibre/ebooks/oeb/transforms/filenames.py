@@ -1,9 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__   = 'GPL v3'
-__copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2010, Kovid Goyal <kovid@kovidgoyal.net>
 
 import posixpath
 from urllib.parse import urldefrag, urlparse
@@ -14,11 +10,10 @@ from calibre.ebooks.oeb.base import rewrite_links, urlnormalize
 
 
 class RenameFiles:  # {{{
-
-    '''
+    """
     Rename files and adjust all links pointing to them. Note that the spine
     and manifest are not touched by this transform.
-    '''
+    """
 
     def __init__(self, rename_map, renamed_items_map=None):
         self.rename_map = rename_map
@@ -26,6 +21,7 @@ class RenameFiles:  # {{{
 
     def __call__(self, oeb, opts):
         import css_parser
+
         self.log = oeb.logger
         self.opts = opts
         self.oeb = oeb
@@ -84,12 +80,12 @@ class RenameFiles:  # {{{
             replacement += '#' + frag
         return replacement
 
+
 # }}}
 
 
 class UniqueFilenames:  # {{{
-
-    'Ensure that every item in the manifest has a unique filename'
+    "Ensure that every item in the manifest has a unique filename"
 
     def __call__(self, oeb, opts):
         self.log = oeb.logger
@@ -109,8 +105,7 @@ class UniqueFilenames:  # {{{
                 nhref = oeb.manifest.generate(href=nhref)[1]
                 spine_pos = item.spine_position
                 oeb.manifest.remove(item)
-                nitem = oeb.manifest.add(item.id, nhref, item.media_type, data=data,
-                        fallback=item.fallback)
+                nitem = oeb.manifest.add(item.id, nhref, item.media_type, data=data, fallback=item.fallback)
                 self.seen_filenames.add(posixpath.basename(nhref))
                 self.rename_map[item.href] = nhref
                 if spine_pos is not None:
@@ -119,9 +114,9 @@ class UniqueFilenames:  # {{{
                 self.seen_filenames.add(fname)
 
         if self.rename_map:
-            self.log('Found non-unique filenames, renaming to support broken'
-                    ' EPUB readers like FBReader, Aldiko and Stanza...')
+            self.log('Found non-unique filenames, renaming to support broken EPUB readers like FBReader, Aldiko and Stanza...')
             from pprint import pformat
+
             self.log.debug(pformat(self.rename_map))
 
             renamer = RenameFiles(self.rename_map)
@@ -136,12 +131,13 @@ class UniqueFilenames:  # {{{
             candidate = base + suffix + ext
             if candidate not in self.seen_filenames:
                 return suffix
+
+
 # }}}
 
 
 class FlatFilenames:  # {{{
-
-    'Ensure that every item in the manifest has a unique filename without subfolders.'
+    "Ensure that every item in the manifest has a unique filename without subfolders."
 
     def __call__(self, oeb, opts):
         self.log = oeb.logger
@@ -167,20 +163,21 @@ class FlatFilenames:  # {{{
                 oeb.spine.remove(item)
             oeb.manifest.remove(item)
 
-            nitem = oeb.manifest.add(item.id, nhref, item.media_type, data=data,
-                                     fallback=item.fallback)
+            nitem = oeb.manifest.add(item.id, nhref, item.media_type, data=data, fallback=item.fallback)
             self.rename_map[item.href] = nhref
             self.renamed_items_map[nhref] = item
             if isp is not None:
                 oeb.spine.insert(isp, nitem, item.linear)
 
         if self.rename_map:
-            self.log('Found non-flat filenames, renaming to support broken'
-                    ' EPUB readers like FBReader...')
+            self.log('Found non-flat filenames, renaming to support broken EPUB readers like FBReader...')
             from pprint import pformat
+
             self.log.debug(pformat(self.rename_map))
             self.log.debug(pformat(self.renamed_items_map))
 
             renamer = RenameFiles(self.rename_map, self.renamed_items_map)
             renamer(oeb, opts)
+
+
 # }}}

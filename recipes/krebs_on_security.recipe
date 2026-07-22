@@ -6,14 +6,12 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 def classes(classes):
     q = frozenset(classes.split(' '))
-    return dict(attrs={
-        'class': lambda x: x and frozenset(x.split()).intersection(q)})
+    return dict(attrs={'class': lambda x: x and frozenset(x.split()).intersection(q)})
 
 
 class KrebsOnSecurity(BasicNewsRecipe):
-
-    title = u'Krebs on Security'
-    publisher = u'Brian Krebs'
+    title = 'Krebs on Security'
+    publisher = 'Brian Krebs'
     __author__ = 'Jelle van der Waa'
     description = 'In-depth Security news and investigation'
     category = 'security, news'
@@ -25,8 +23,6 @@ class KrebsOnSecurity(BasicNewsRecipe):
     use_embedded_content = False
     language = 'en'
     remove_empty_feeds = True
-    keep_only_tags = [
-        classes('entry-header entry-content entry-meta')
-    ]
+    keep_only_tags = [classes('entry-header entry-content entry-meta')]
     remove_attributes = ['width', 'height']
-    feeds = [(u'Krebs on security', u'http://feeds.feedburner.com/KrebsOnSecurity')]
+    feeds = [('Krebs on security', 'http://feeds.feedburner.com/KrebsOnSecurity')]

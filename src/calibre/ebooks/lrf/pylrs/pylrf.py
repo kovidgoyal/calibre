@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 
+"""
+pylrf.py -- very low level interface to create lrf files.  See pylrs for
+higher level interface that can use this module to render books to lrf.
+"""
 
-'''
-    pylrf.py -- very low level interface to create lrf files.  See pylrs for
-    higher level interface that can use this module to render books to lrf.
-'''
 import codecs
 import io
 import os
@@ -84,7 +84,7 @@ def writeWord(f, word):
     if int(word) > 65535:
         raise LrfError('Cannot encode a number greater than 65535 in a word.')
     if int(word) < 0:
-        raise LrfError('Cannot encode a number < 0 in a word: '+str(word))
+        raise LrfError('Cannot encode a number < 0 in a word: ' + str(word))
     f.write(struct.pack('<H', int(word)))
 
 
@@ -151,14 +151,14 @@ def writeRaw(f, string, encoding):
 
 def writeRubyAA(f, rubyAA):
     ralign, radjust = rubyAA
-    radjust = {'line-edge':0x10, 'none':0}[radjust]
-    ralign = {'start':1, 'center':2}[ralign]
+    radjust = {'line-edge': 0x10, 'none': 0}[radjust]
+    ralign = {'start': 1, 'center': 2}[ralign]
     writeWord(f, ralign | radjust)
 
 
 def writeBgImage(f, bgInfo):
     imode, iid = bgInfo
-    imode = {'pfix': 0, 'fix':1, 'tile':2, 'centering':3}[imode]
+    imode = {'pfix': 0, 'fix': 1, 'tile': 2, 'centering': 3}[imode]
     writeWord(f, imode)
     writeDWord(f, iid)
 
@@ -188,175 +188,185 @@ LRF_VERSION = 1000  # is 999 for librie? lrf2lrs uses 1000
 IMAGE_TYPE_ENCODING = dict(GIF=0x14, PNG=0x12, BMP=0x13, JPEG=0x11, JPG=0x11)
 
 OBJECT_TYPE_ENCODING = dict(
-        PageTree=0x01,
-        Page=0x02,
-        Header=0x03,
-        Footer=0x04,
-        PageAtr=0x05, PageStyle=0x05,
-        Block=0x06,
-        BlockAtr=0x07, BlockStyle=0x07,
-        MiniPage=0x08,
-        TextBlock=0x0A, Text=0x0A,
-        TextAtr=0x0B, TextStyle=0x0B,
-        ImageBlock=0x0C, Image=0x0C,
-        Canvas=0x0D,
-        ESound=0x0E,
-        ImageStream=0x11,
-        Import=0x12,
-        Button=0x13,
-        Window=0x14,
-        PopUpWindow=0x15,
-        Sound=0x16,
-        SoundStream=0x17,
-        Font=0x19,
-        ObjectInfo=0x1A,
-        BookAtr=0x1C, BookStyle=0x1C,
-        SimpleTextBlock=0x1D,
-        TOC=0x1E
+    PageTree=0x01,
+    Page=0x02,
+    Header=0x03,
+    Footer=0x04,
+    PageAtr=0x05,
+    PageStyle=0x05,
+    Block=0x06,
+    BlockAtr=0x07,
+    BlockStyle=0x07,
+    MiniPage=0x08,
+    TextBlock=0x0A,
+    Text=0x0A,
+    TextAtr=0x0B,
+    TextStyle=0x0B,
+    ImageBlock=0x0C,
+    Image=0x0C,
+    Canvas=0x0D,
+    ESound=0x0E,
+    ImageStream=0x11,
+    Import=0x12,
+    Button=0x13,
+    Window=0x14,
+    PopUpWindow=0x15,
+    Sound=0x16,
+    SoundStream=0x17,
+    Font=0x19,
+    ObjectInfo=0x1A,
+    BookAtr=0x1C,
+    BookStyle=0x1C,
+    SimpleTextBlock=0x1D,
+    TOC=0x1E,
 )
 
-LINE_TYPE_ENCODING = {
-        'none':0, 'solid':0x10, 'dashed':0x20, 'double':0x30, 'dotted':0x40
-}
+LINE_TYPE_ENCODING = {'none': 0, 'solid': 0x10, 'dashed': 0x20, 'double': 0x30, 'dotted': 0x40}
 
 BINDING_DIRECTION_ENCODING = dict(Lr=1, Rl=16)
 
-
 TAG_INFO = dict(
-        rawtext=(0, writeRaw),
-        ObjectStart=(0xF500, '<IH'),
-        ObjectEnd=(0xF501,),
-        # InfoLink (0xF502)
-        Link=(0xF503, '<I'),
-        StreamSize=(0xF504, writeDWord),
-        StreamData=(0xF505, writeString),
-        StreamEnd=(0xF506,),
-        oddheaderid=(0xF507, writeDWord),
-        evenheaderid=(0xF508, writeDWord),
-        oddfooterid=(0xF509, writeDWord),
-        evenfooterid=(0xF50A, writeDWord),
-        ObjectList=(0xF50B, writeIdList),
-        fontsize=(0xF511, writeSignedWord),
-        fontwidth=(0xF512, writeSignedWord),
-        fontescapement=(0xF513, writeSignedWord),
-        fontorientation=(0xF514, writeSignedWord),
-        fontweight=(0xF515, writeWord),
-        fontfacename=(0xF516, writeUnicode),
-        textcolor=(0xF517, writeColor),
-        textbgcolor=(0xF518, writeColor),
-        wordspace=(0xF519, writeSignedWord),
-        letterspace=(0xF51A, writeSignedWord),
-        baselineskip=(0xF51B, writeSignedWord),
-        linespace=(0xF51C, writeSignedWord),
-        parindent=(0xF51D, writeSignedWord),
-        parskip=(0xF51E, writeSignedWord),
-        # F51F, F520
-        topmargin=(0xF521, writeWord),
-        headheight=(0xF522, writeWord),
-        headsep=(0xF523, writeWord),
-        oddsidemargin=(0xF524, writeWord),
-        textheight=(0xF525, writeWord),
-        textwidth=(0xF526, writeWord),
-        canvaswidth=(0xF551, writeWord),
-        canvasheight=(0xF552, writeWord),
-        footspace=(0xF527, writeWord),
-        footheight=(0xF528, writeWord),
-        bgimage=(0xF529, writeBgImage),
-        setemptyview=(0xF52A, {'show':1, 'empty':0}, writeWord),
-        pageposition=(0xF52B, {'any':0,'upper':1, 'lower':2}, writeWord),
-        evensidemargin=(0xF52C, writeWord),
-        framemode=(0xF52E, {'None':0, 'curve':2, 'square':1}, writeWord),
-        blockwidth=(0xF531, writeWord),
-        blockheight=(0xF532, writeWord),
-        blockrule=(0xF533, {'horz-fixed':0x14, 'horz-adjustable':0x12,
-                            'vert-fixed':0x41, 'vert-adjustable':0x21,
-                            'block-fixed':0x44, 'block-adjustable':0x22},
-                                writeWord),
-        bgcolor=(0xF534, writeColor),
-        layout=(0xF535, {'TbRl':0x41, 'LrTb':0x34}, writeWord),
-        framewidth=(0xF536, writeWord),
-        framecolor=(0xF537, writeColor),
-        topskip=(0xF538, writeWord),
-        sidemargin=(0xF539, writeWord),
-        footskip=(0xF53A, writeWord),
-        align=(0xF53C, {'head':1, 'center':4, 'foot':8}, writeWord),
-        column=(0xF53D, writeWord),
-        columnsep=(0xF53E, writeSignedWord),
-        minipagewidth=(0xF541, writeWord),
-        minipageheight=(0xF542, writeWord),
-        yspace=(0xF546, writeWord),
-        xspace=(0xF547, writeWord),
-        PutObj=(0xF549, '<HHI'),
-        ImageRect=(0xF54A, '<HHHH'),
-        ImageSize=(0xF54B, '<HH'),
-        RefObjId=(0xF54C, '<I'),
-        PageDiv=(0xF54E, '<HIHI'),
-        StreamFlags=(0xF554, writeWord),
-        Comment=(0xF555, writeUnicode),
-        FontFilename=(0xF559, writeUnicode),
-        PageList=(0xF55C, writeIdList),
-        FontFacename=(0xF55D, writeUnicode),
-        buttonflags=(0xF561, writeWord),
-        PushButtonStart=(0xF566,),
-        PushButtonEnd=(0xF567,),
-        buttonactions=(0xF56A,),
-        endbuttonactions=(0xF56B,),
-        jumpto=(0xF56C, '<II'),
-        RuledLine=(0xF573, writeRuledLine),
-        rubyaa=(0xF575, writeRubyAA),
-        rubyoverhang=(0xF576, {'none':0, 'auto':1}, writeWord),
-        empdotsposition=(0xF577, {'before':1, 'after':2}, writeWord),
-        empdots=(0xF578, writeEmpDots),
-        emplineposition=(0xF579, {'before':1, 'after':2}, writeWord),
-        emplinetype=(0xF57A, LINE_TYPE_ENCODING, writeWord),
-        ChildPageTree=(0xF57B, '<I'),
-        ParentPageTree=(0xF57C, '<I'),
-        Italic=(0xF581,),
-        ItalicEnd=(0xF582,),
-        pstart=(0xF5A1, writeDWord),  # what goes in the dword? refesound
-        pend=(0xF5A2,),
-        CharButton=(0xF5A7, writeDWord),
-        CharButtonEnd=(0xF5A8,),
-        Rubi=(0xF5A9,),
-        RubiEnd=(0xF5AA,),
-        Oyamoji=(0xF5AB,),
-        OyamojiEnd=(0xF5AC,),
-        Rubimoji=(0xF5AD,),
-        RubimojiEnd=(0xF5AE,),
-        Yoko=(0xF5B1,),
-        YokoEnd=(0xF5B2,),
-        Tate=(0xF5B3,),
-        TateEnd=(0xF5B4,),
-        Nekase=(0xF5B5,),
-        NekaseEnd=(0xF5B6,),
-        Sup=(0xF5B7,),
-        SupEnd=(0xF5B8,),
-        Sub=(0xF5B9,),
-        SubEnd=(0xF5BA,),
-        NoBR=(0xF5BB,),
-        NoBREnd=(0xF5BC,),
-        EmpDots=(0xF5BD,),
-        EmpDotsEnd=(0xF5BE,),
-        EmpLine=(0xF5C1,),
-        EmpLineEnd=(0xF5C2,),
-        DrawChar=(0xF5C3, '<H'),
-        DrawCharEnd=(0xF5C4,),
-        Box=(0xF5C6, LINE_TYPE_ENCODING, writeWord),
-        BoxEnd=(0xF5C7,),
-        Space=(0xF5CA, writeSignedWord),
-        textstring=(0xF5CC, writeUnicode),
-        Plot=(0xF5D1, '<HHII'),
-        CR=(0xF5D2,),
-        RegisterFont=(0xF5D8, writeDWord),
-        setwaitprop=(0xF5DA, {'replay':1, 'noreplay':2}, writeWord),
-        charspace=(0xF5DD, writeSignedWord),
-        textlinewidth=(0xF5F1, writeLineWidth),
-        linecolor=(0xF5F2, writeColor)
-    )
+    rawtext=(0, writeRaw),
+    ObjectStart=(0xF500, '<IH'),
+    ObjectEnd=(0xF501,),
+    # InfoLink (0xF502)
+    Link=(0xF503, '<I'),
+    StreamSize=(0xF504, writeDWord),
+    StreamData=(0xF505, writeString),
+    StreamEnd=(0xF506,),
+    oddheaderid=(0xF507, writeDWord),
+    evenheaderid=(0xF508, writeDWord),
+    oddfooterid=(0xF509, writeDWord),
+    evenfooterid=(0xF50A, writeDWord),
+    ObjectList=(0xF50B, writeIdList),
+    fontsize=(0xF511, writeSignedWord),
+    fontwidth=(0xF512, writeSignedWord),
+    fontescapement=(0xF513, writeSignedWord),
+    fontorientation=(0xF514, writeSignedWord),
+    fontweight=(0xF515, writeWord),
+    fontfacename=(0xF516, writeUnicode),
+    textcolor=(0xF517, writeColor),
+    textbgcolor=(0xF518, writeColor),
+    wordspace=(0xF519, writeSignedWord),
+    letterspace=(0xF51A, writeSignedWord),
+    baselineskip=(0xF51B, writeSignedWord),
+    linespace=(0xF51C, writeSignedWord),
+    parindent=(0xF51D, writeSignedWord),
+    parskip=(0xF51E, writeSignedWord),
+    # F51F, F520
+    topmargin=(0xF521, writeWord),
+    headheight=(0xF522, writeWord),
+    headsep=(0xF523, writeWord),
+    oddsidemargin=(0xF524, writeWord),
+    textheight=(0xF525, writeWord),
+    textwidth=(0xF526, writeWord),
+    canvaswidth=(0xF551, writeWord),
+    canvasheight=(0xF552, writeWord),
+    footspace=(0xF527, writeWord),
+    footheight=(0xF528, writeWord),
+    bgimage=(0xF529, writeBgImage),
+    setemptyview=(0xF52A, {'show': 1, 'empty': 0}, writeWord),
+    pageposition=(0xF52B, {'any': 0, 'upper': 1, 'lower': 2}, writeWord),
+    evensidemargin=(0xF52C, writeWord),
+    framemode=(0xF52E, {'None': 0, 'curve': 2, 'square': 1}, writeWord),
+    blockwidth=(0xF531, writeWord),
+    blockheight=(0xF532, writeWord),
+    blockrule=(
+        0xF533,
+        {
+            'horz-fixed': 0x14,
+            'horz-adjustable': 0x12,
+            'vert-fixed': 0x41,
+            'vert-adjustable': 0x21,
+            'block-fixed': 0x44,
+            'block-adjustable': 0x22,
+        },
+        writeWord,
+    ),
+    bgcolor=(0xF534, writeColor),
+    layout=(0xF535, {'TbRl': 0x41, 'LrTb': 0x34}, writeWord),
+    framewidth=(0xF536, writeWord),
+    framecolor=(0xF537, writeColor),
+    topskip=(0xF538, writeWord),
+    sidemargin=(0xF539, writeWord),
+    footskip=(0xF53A, writeWord),
+    align=(0xF53C, {'head': 1, 'center': 4, 'foot': 8}, writeWord),
+    column=(0xF53D, writeWord),
+    columnsep=(0xF53E, writeSignedWord),
+    minipagewidth=(0xF541, writeWord),
+    minipageheight=(0xF542, writeWord),
+    yspace=(0xF546, writeWord),
+    xspace=(0xF547, writeWord),
+    PutObj=(0xF549, '<HHI'),
+    ImageRect=(0xF54A, '<HHHH'),
+    ImageSize=(0xF54B, '<HH'),
+    RefObjId=(0xF54C, '<I'),
+    PageDiv=(0xF54E, '<HIHI'),
+    StreamFlags=(0xF554, writeWord),
+    Comment=(0xF555, writeUnicode),
+    FontFilename=(0xF559, writeUnicode),
+    PageList=(0xF55C, writeIdList),
+    FontFacename=(0xF55D, writeUnicode),
+    buttonflags=(0xF561, writeWord),
+    PushButtonStart=(0xF566,),
+    PushButtonEnd=(0xF567,),
+    buttonactions=(0xF56A,),
+    endbuttonactions=(0xF56B,),
+    jumpto=(0xF56C, '<II'),
+    RuledLine=(0xF573, writeRuledLine),
+    rubyaa=(0xF575, writeRubyAA),
+    rubyoverhang=(0xF576, {'none': 0, 'auto': 1}, writeWord),
+    empdotsposition=(0xF577, {'before': 1, 'after': 2}, writeWord),
+    empdots=(0xF578, writeEmpDots),
+    emplineposition=(0xF579, {'before': 1, 'after': 2}, writeWord),
+    emplinetype=(0xF57A, LINE_TYPE_ENCODING, writeWord),
+    ChildPageTree=(0xF57B, '<I'),
+    ParentPageTree=(0xF57C, '<I'),
+    Italic=(0xF581,),
+    ItalicEnd=(0xF582,),
+    pstart=(0xF5A1, writeDWord),  # what goes in the dword? refesound
+    pend=(0xF5A2,),
+    CharButton=(0xF5A7, writeDWord),
+    CharButtonEnd=(0xF5A8,),
+    Rubi=(0xF5A9,),
+    RubiEnd=(0xF5AA,),
+    Oyamoji=(0xF5AB,),
+    OyamojiEnd=(0xF5AC,),
+    Rubimoji=(0xF5AD,),
+    RubimojiEnd=(0xF5AE,),
+    Yoko=(0xF5B1,),
+    YokoEnd=(0xF5B2,),
+    Tate=(0xF5B3,),
+    TateEnd=(0xF5B4,),
+    Nekase=(0xF5B5,),
+    NekaseEnd=(0xF5B6,),
+    Sup=(0xF5B7,),
+    SupEnd=(0xF5B8,),
+    Sub=(0xF5B9,),
+    SubEnd=(0xF5BA,),
+    NoBR=(0xF5BB,),
+    NoBREnd=(0xF5BC,),
+    EmpDots=(0xF5BD,),
+    EmpDotsEnd=(0xF5BE,),
+    EmpLine=(0xF5C1,),
+    EmpLineEnd=(0xF5C2,),
+    DrawChar=(0xF5C3, '<H'),
+    DrawCharEnd=(0xF5C4,),
+    Box=(0xF5C6, LINE_TYPE_ENCODING, writeWord),
+    BoxEnd=(0xF5C7,),
+    Space=(0xF5CA, writeSignedWord),
+    textstring=(0xF5CC, writeUnicode),
+    Plot=(0xF5D1, '<HHII'),
+    CR=(0xF5D2,),
+    RegisterFont=(0xF5D8, writeDWord),
+    setwaitprop=(0xF5DA, {'replay': 1, 'noreplay': 2}, writeWord),
+    charspace=(0xF5DD, writeSignedWord),
+    textlinewidth=(0xF5F1, writeLineWidth),
+    linecolor=(0xF5F2, writeColor),
+)
 
 
 class ObjectTableEntry:
-
     def __init__(self, objId, offset, size):
         self.objId = objId
         self.offset = offset
@@ -367,7 +377,6 @@ class ObjectTableEntry:
 
 
 class LrfTag:
-
     def __init__(self, name, *parameters):
         try:
             tagInfo = TAG_INFO[name]
@@ -418,7 +427,6 @@ STREAM_TOC = 0x0051
 
 
 class LrfStreamBase:
-
     def __init__(self, streamFlags, streamData=None):
         self.streamFlags = streamFlags
         self.streamData = streamData
@@ -454,14 +462,15 @@ class LrfStreamBase:
             else:
                 streamBuffer = struct.pack('<I', uncompLen) + compStreamBuffer
 
-        return [LrfTag('StreamFlags', flags & 0x01FF),
-                LrfTag('StreamSize', len(streamBuffer)),
-                LrfTag('StreamData', streamBuffer),
-                LrfTag('StreamEnd')]
+        return [
+            LrfTag('StreamFlags', flags & 0x01FF),
+            LrfTag('StreamSize', len(streamBuffer)),
+            LrfTag('StreamData', streamBuffer),
+            LrfTag('StreamEnd'),
+        ]
 
 
 class LrfTagStream(LrfStreamBase):
-
     def __init__(self, streamFlags, streamTags=None):
         LrfStreamBase.__init__(self, streamFlags)
         if streamTags is None:
@@ -472,8 +481,12 @@ class LrfTagStream(LrfStreamBase):
     def appendLrfTag(self, tag):
         self.tags.append(tag)
 
-    def getStreamTags(self, encoding,  # ty: ignore[invalid-method-override]
-            optimizeTags=False, optimizeCompression=False):
+    def getStreamTags(  # ty: ignore[invalid-method-override]
+        self,
+        encoding,
+        optimizeTags=False,
+        optimizeCompression=False,
+    ):
         stream = io.BytesIO()
         if optimizeTags:
             tagListOptimizer(self.tags)
@@ -487,7 +500,6 @@ class LrfTagStream(LrfStreamBase):
 
 
 class LrfFileStream(LrfStreamBase):
-
     def __init__(self, streamFlags, filename):
         LrfStreamBase.__init__(self, streamFlags)
         with open(filename, 'rb') as f:
@@ -495,7 +507,6 @@ class LrfFileStream(LrfStreamBase):
 
 
 class LrfObject:
-
     def __init__(self, name, objId):
         if objId <= 0:
             raise LrfError('invalid objId for ' + name)
@@ -531,8 +542,14 @@ class LrfObject:
             if name == 'rubyAlignAndAdjust':
                 continue
             if name in {
-                    'bgimagemode', 'bgimageid', 'rubyalign', 'rubyadjust',
-                    'empdotscode', 'empdotsfontname', 'refempdotsfont'}:
+                'bgimagemode',
+                'bgimageid',
+                'rubyalign',
+                'rubyadjust',
+                'empdotscode',
+                'empdotsfontname',
+                'refempdotsfont',
+            }:
                 composites[name] = value
             else:
                 self.append(LrfTag(name, value))
@@ -553,14 +570,11 @@ class LrfObject:
 
             self.append(LrfTag('bgimage', (imode, iid)))
 
-        if 'empdotscode' in composites or 'empdotsfontname' in composites or \
-                'refempdotsfont' in composites:
+        if 'empdotscode' in composites or 'empdotsfontname' in composites or 'refempdotsfont' in composites:
             dotscode = composites.get('empdotscode', '0x002E')
-            dotsfontname = composites.get('empdotsfontname',
-                    'Dutch801 Rm BT Roman')
+            dotsfontname = composites.get('empdotsfontname', 'Dutch801 Rm BT Roman')
             refdotsfont = composites.get('refempdotsfont', 0)
-            self.append(LrfTag('empdots', (refdotsfont, dotsfontname,
-                dotscode)))
+            self.append(LrfTag('empdots', (refdotsfont, dotsfontname, dotscode)))
 
     def write(self, lrf, encoding=None):
         # print('Writing object', self.name)
@@ -573,10 +587,10 @@ class LrfObject:
 
 
 class LrfToc(LrfObject):
-    '''
-        Table of contents.  Format of toc is:
-        [ (pageid, objid, string)...]
-    '''
+    """
+    Table of contents.  Format of toc is:
+    [ (pageid, objid, string)...]
+    """
 
     def __init__(self, objId, toc, se):
         LrfObject.__init__(self, 'TOC', objId)
@@ -597,7 +611,7 @@ class LrfToc(LrfObject):
         writeDWord(stream, lastOffset)
         for i in range(nEntries - 1):
             pageId, objId, label = toc[i]
-            entryLen = 4 + 4 + 2 + len(label)*2
+            entryLen = 4 + 4 + 2 + len(label) * 2
             lastOffset += entryLen
             writeDWord(stream, lastOffset)
 
@@ -618,7 +632,6 @@ class LrfToc(LrfObject):
 
 
 class LrfWriter:
-
     def __init__(self, sourceEncoding):
         self.sourceEncoding = sourceEncoding
 
@@ -744,8 +757,7 @@ class LrfWriter:
             objStart = lrf.tell()
             obj.write(lrf, self.sourceEncoding)
             objEnd = lrf.tell()
-            self.objectTable.append(
-                    ObjectTableEntry(obj.objId, objStart, objEnd-objStart))
+            self.objectTable.append(ObjectTableEntry(obj.objId, objStart, objEnd - objStart))
 
     def updateObjectTableOffset(self, lrf):
         # update the offset of the object table

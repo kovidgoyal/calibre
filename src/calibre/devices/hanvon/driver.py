@@ -1,10 +1,9 @@
-__license__   = 'GPL v3'
-__copyright__ = '2009, John Schember <john at nachtimwald.com>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2009, John Schember <john at nachtimwald.com>
 
-'''
+"""
 Device driver for Hanvon devices
-'''
+"""
+
 import os
 import re
 
@@ -14,29 +13,27 @@ from calibre.utils.localization import _
 
 
 def is_alex(device_info):
-    return device_info[3] == 'Linux 2.6.28 with pxa3xx_u2d' and \
-            device_info[4] == 'Seleucia Disk'
+    return device_info[3] == 'Linux 2.6.28 with pxa3xx_u2d' and device_info[4] == 'Seleucia Disk'
 
 
 class N516(USBMS):
-
-    name           = 'N516 driver'
-    gui_name       = 'N516'
-    description    = _('Communicate with the Hanvon N520 e-book reader.')
-    author         = 'John Schember'
+    name = 'N516 driver'
+    gui_name = 'N516'
+    description = _('Communicate with the Hanvon N520 e-book reader.')
+    author = 'John Schember'
     supported_platforms = ['windows', 'osx', 'linux']
 
     # Ordered list of supported formats
-    FORMATS     = ['epub', 'prc', 'mobi', 'html', 'pdf', 'txt']
+    FORMATS = ['epub', 'prc', 'mobi', 'html', 'pdf', 'txt']
 
-    VENDOR_ID   = [0x0525]
-    PRODUCT_ID  = [0xa4a5]
-    BCD         = [0x323, 0x326, 0x327]
+    VENDOR_ID = [0x0525]
+    PRODUCT_ID = [0xA4A5]
+    BCD = [0x323, 0x326, 0x327]
 
-    VENDOR_NAME      = 'INGENIC'
+    VENDOR_NAME = 'INGENIC'
     WINDOWS_MAIN_MEM = '_FILE-STOR_GADGE'
 
-    MAIN_MEMORY_VOLUME_LABEL  = 'N520 Internal Memory'
+    MAIN_MEMORY_VOLUME_LABEL = 'N520 Internal Memory'
 
     EBOOK_DIR_MAIN = 'e_book'
     SUPPORTS_SUB_DIRS = True
@@ -46,58 +43,54 @@ class N516(USBMS):
 
 
 class KIBANO(N516):
-
     name = 'Kibano driver'
     gui_name = 'Kibano'
-    description    = _('Communicate with the Kibano e-book reader.')
-    FORMATS     = ['epub', 'pdf', 'txt']
-    BCD         = [0x323]
+    description = _('Communicate with the Kibano e-book reader.')
+    FORMATS = ['epub', 'pdf', 'txt']
+    BCD = [0x323]
 
-    VENDOR_NAME      = 'EBOOK'
+    VENDOR_NAME = 'EBOOK'
     # We use EXTERNAL_SD_CARD for main mem as some devices have not working
     # main memories
-    WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = ['INTERNAL_SD_CARD',
-                                             'EXTERNAL_SD_CARD']
+    WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = ['INTERNAL_SD_CARD', 'EXTERNAL_SD_CARD']
 
 
 class THEBOOK(N516):
     name = 'The Book driver'
     gui_name = 'Book'
-    description    = _('Communicate with The Book reader.')
-    author         = 'Kovid Goyal'
+    description = _('Communicate with The Book reader.')
+    author = 'Kovid Goyal'
 
     BCD = [0x399]
-    MAIN_MEMORY_VOLUME_LABEL  = 'The Book Main Memory'
+    MAIN_MEMORY_VOLUME_LABEL = 'The Book Main Memory'
     EBOOK_DIR_MAIN = 'My books'
-    WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = ['_FILE-STOR_GADGE',
-            'FILE-STOR_GADGET']
+    WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = ['_FILE-STOR_GADGE', 'FILE-STOR_GADGET']
 
 
 class LIBREAIR(N516):
     name = 'Libre Air Driver'
     gui_name = 'Libre Air'
-    description    = _('Communicate with the Libre Air reader.')
-    author         = 'Kovid Goyal'
+    description = _('Communicate with the Libre Air reader.')
+    author = 'Kovid Goyal'
     FORMATS = ['epub', 'mobi', 'prc', 'fb2', 'rtf', 'txt', 'pdf']
 
     BCD = [0x399]
-    VENDOR_NAME      = ['ALURATEK', 'LINUX']
+    VENDOR_NAME = ['ALURATEK', 'LINUX']
     WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = 'FILE-STOR_GADGET'
     EBOOK_DIR_MAIN = 'Books'
 
 
 class ALEX(N516):
-
     name = 'Alex driver'
     gui_name = 'SpringDesign Alex'
-    description    = _('Communicate with the SpringDesign Alex e-book reader.')
-    author         = 'Kovid Goyal'
+    description = _('Communicate with the SpringDesign Alex e-book reader.')
+    author = 'Kovid Goyal'
 
-    FORMATS     = ['epub', 'fb2', 'pdf']
-    VENDOR_NAME      = 'ALEX'
+    FORMATS = ['epub', 'fb2', 'pdf']
+    VENDOR_NAME = 'ALEX'
     WINDOWS_MAIN_MEM = 'READER'
 
-    MAIN_MEMORY_VOLUME_LABEL  = 'Alex Internal Memory'
+    MAIN_MEMORY_VOLUME_LABEL = 'Alex Internal Memory'
 
     EBOOK_DIR_MAIN = 'eBooks'
     SUPPORTS_SUB_DIRS = False
@@ -114,15 +107,14 @@ class ALEX(N516):
     def upload_cover(self, path, filename, metadata, filepath):
         from calibre.ebooks.covers import calibre_cover2
         from calibre.utils.img import scale_image
+
         coverdata = getattr(metadata, 'thumbnail', None)
         if coverdata and coverdata[2]:
             cover = coverdata[2]
         else:
-            cover = calibre_cover2(metadata.get('title', _('Unknown')),
-                    metadata.get('authors', _('Unknown')))
+            cover = calibre_cover2(metadata.get('title', _('Unknown')), metadata.get('authors', _('Unknown')))
 
-        cover = scale_image(cover, width=self.THUMBNAIL_HEIGHT,
-                height=self.THUMBNAIL_HEIGHT, as_png=True)[-1]
+        cover = scale_image(cover, width=self.THUMBNAIL_HEIGHT, height=self.THUMBNAIL_HEIGHT, as_png=True)[-1]
 
         cpath = self.alex_cpath(os.path.join(path, filename))
         cdir = os.path.dirname(cpath)
@@ -134,7 +126,7 @@ class ALEX(N516):
 
     def delete_books(self, paths, end_session=True):
         for i, path in enumerate(paths):
-            self.report_progress((i+1) / float(len(paths)), _('Removing books from device...'))
+            self.report_progress((i + 1) / float(len(paths)), _('Removing books from device...'))
             path = self.normalize_path(path)
             if os.path.exists(path):
                 # Delete the ebook
@@ -149,15 +141,14 @@ class ALEX(N516):
 
 
 class AZBOOKA(ALEX):
-
     name = 'Azbooka driver'
     gui_name = 'Azbooka'
     description = _('Communicate with the Azbooka')
 
-    VENDOR_NAME      = 'LINUX'
+    VENDOR_NAME = 'LINUX'
     WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = 'FILE-STOR_GADGET'
 
-    MAIN_MEMORY_VOLUME_LABEL  = 'Azbooka Internal Memory'
+    MAIN_MEMORY_VOLUME_LABEL = 'Azbooka Internal Memory'
 
     EBOOK_DIR_MAIN = ''
     SUPPORTS_SUB_DIRS = True
@@ -170,19 +161,19 @@ class AZBOOKA(ALEX):
 
 
 class EB511(USBMS):
-    name           = 'Elonex EB 511 driver'
-    gui_name       = 'EB 511'
-    description    = _('Communicate with the Elonex EB 511 e-book reader.')
-    author         = 'Kovid Goyal'
+    name = 'Elonex EB 511 driver'
+    gui_name = 'EB 511'
+    description = _('Communicate with the Elonex EB 511 e-book reader.')
+    author = 'Kovid Goyal'
     supported_platforms = ['windows', 'osx', 'linux']
 
-    FORMATS     = ['epub', 'html', 'pdf', 'txt']
+    FORMATS = ['epub', 'html', 'pdf', 'txt']
 
-    VENDOR_ID   = [0x45e]
-    PRODUCT_ID  = [0xffff]
-    BCD         = [0x0]
+    VENDOR_ID = [0x45E]
+    PRODUCT_ID = [0xFFFF]
+    BCD = [0x0]
 
-    MAIN_MEMORY_VOLUME_LABEL  = 'EB 511 Internal Memory'
+    MAIN_MEMORY_VOLUME_LABEL = 'EB 511 Internal Memory'
 
     EBOOK_DIR_MAIN = 'e_book'
     SUPPORTS_SUB_DIRS = True
@@ -191,15 +182,15 @@ class EB511(USBMS):
 
 
 class ODYSSEY(N516):
-    name  = 'Cybook Odyssey driver'
-    gui_name       = 'Odyssey'
-    description    = _('Communicate with the Cybook Odyssey e-book reader.')
+    name = 'Cybook Odyssey driver'
+    gui_name = 'Odyssey'
+    description = _('Communicate with the Cybook Odyssey e-book reader.')
 
     BCD = [0x316]
-    VENDOR_NAME      = ['LINUX', 'BOOKEEN']
+    VENDOR_NAME = ['LINUX', 'BOOKEEN']
     WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = ['FILE-STOR_GADGET', 'FLASH_DISK']
 
-    FORMATS     = ['epub', 'fb2', 'html', 'pdf', 'txt']
+    FORMATS = ['epub', 'fb2', 'html', 'pdf', 'txt']
 
     EBOOK_DIR_MAIN = 'Digital Editions'
 

@@ -28,7 +28,7 @@ class LaRepubblica(BasicNewsRecipe):
     publication_type = 'newspaper'
     articles_are_obfuscated = True
     temp_files = []
-    extra_css               = '''
+    extra_css = '''
                                img{display: block}
                               '''
 
@@ -44,7 +44,7 @@ class LaRepubblica(BasicNewsRecipe):
 
     def get_obfuscated_article(self, url):
         count = 0
-        while (count < 10):
+        while count < 10:
             try:
                 response = self.browser.open(url)
                 html = response.read()
@@ -62,45 +62,40 @@ class LaRepubblica(BasicNewsRecipe):
         dict(attrs={'class': 'body-text'}),
         dict(name='p', attrs={'class': 'disclaimer clearfix'}),
         dict(name='div', attrs={'id': 'main'}),
-        dict(attrs={'id': 'contA'})
+        dict(attrs={'id': 'contA'}),
     ]
 
     remove_tags = [
         dict(name=['object', 'link', 'meta', 'iframe', 'embed']),
         dict(name='span', attrs={'class': 'linkindice'}),
-        dict(name='div', attrs={
-             'class': ['bottom-mobile', 'adv adv-middle-inline']}),
-        dict(name='div', attrs={
-             'id': ['rssdiv', 'blocco', 'fb-like-head', 'sidebar']}),
-        dict(name='div', attrs={
-             'class': ['utility', 'fb-like-button', 'archive-button']}),
+        dict(name='div', attrs={'class': ['bottom-mobile', 'adv adv-middle-inline']}),
+        dict(name='div', attrs={'id': ['rssdiv', 'blocco', 'fb-like-head', 'sidebar']}),
+        dict(name='div', attrs={'class': ['utility', 'fb-like-button', 'archive-button']}),
         dict(name='div', attrs={'class': 'generalbox'}),
-        dict(name='ul', attrs={'id': 'hystory'})
+        dict(name='ul', attrs={'id': 'hystory'}),
     ]
 
     feeds = [
-        (u'Homepage', u'http://www.repubblica.it/rss/homepage/rss2.0.xml'),
-        (u'Cronaca', u'http://www.repubblica.it/rss/cronaca/rss2.0.xml'),
-        (u'Esteri', u'http://www.repubblica.it/rss/esteri/rss2.0.xml'),
-        (u'Economia', u'http://www.repubblica.it/rss/economia/rss2.0.xml'),
-        (u'Politica', u'http://www.repubblica.it/rss/politica/rss2.0.xml'),
-        (u'Scienze', u'http://www.repubblica.it/rss/scienze/rss2.0.xml'),
-        (u'Tecnologia',
-         u'http://www.repubblica.it/rss/tecnologia/rss2.0.xml'),
-        (u'Scuola e Universita',
-         u'http://www.repubblica.it/rss/scuola_e_universita/rss2.0.xml'),
-        (u'Ambiente', u'http://www.repubblica.it/rss/ambiente/rss2.0.xml'),
-        (u'Cultura', u'http://www.repubblica.it/rss/spettacoli_e_cultura/rss2.0.xml'),
-        (u'Persone', u'http://www.repubblica.it/rss/persone/rss2.0.xml'),
-        (u'Sport', u'http://www.repubblica.it/rss/sport/rss2.0.xml'),
-        (u'Calcio', u'http://www.repubblica.it/rss/sport/calcio/rss2.0.xml'),
-        (u'Motori', u'http://www.repubblica.it/rss/motori/rss2.0.xml'),
-        (u'Roma', u'http://roma.repubblica.it/rss/rss2.0.xml'),
-        (u'Torino', u'http://torino.repubblica.it/rss/rss2.0.xml'),
-        (u'Milano', u'feed://milano.repubblica.it/rss/rss2.0.xml'),
-        (u'Napoli', u'feed://napoli.repubblica.it/rss/rss2.0.xml'),
-        (u'Bari', u'http://bari.repubblica.it/rss/rss2.0.xml'),
-        (u'Palermo', u'feed://palermo.repubblica.it/rss/rss2.0.xml')
+        ('Homepage', 'http://www.repubblica.it/rss/homepage/rss2.0.xml'),
+        ('Cronaca', 'http://www.repubblica.it/rss/cronaca/rss2.0.xml'),
+        ('Esteri', 'http://www.repubblica.it/rss/esteri/rss2.0.xml'),
+        ('Economia', 'http://www.repubblica.it/rss/economia/rss2.0.xml'),
+        ('Politica', 'http://www.repubblica.it/rss/politica/rss2.0.xml'),
+        ('Scienze', 'http://www.repubblica.it/rss/scienze/rss2.0.xml'),
+        ('Tecnologia', 'http://www.repubblica.it/rss/tecnologia/rss2.0.xml'),
+        ('Scuola e Universita', 'http://www.repubblica.it/rss/scuola_e_universita/rss2.0.xml'),
+        ('Ambiente', 'http://www.repubblica.it/rss/ambiente/rss2.0.xml'),
+        ('Cultura', 'http://www.repubblica.it/rss/spettacoli_e_cultura/rss2.0.xml'),
+        ('Persone', 'http://www.repubblica.it/rss/persone/rss2.0.xml'),
+        ('Sport', 'http://www.repubblica.it/rss/sport/rss2.0.xml'),
+        ('Calcio', 'http://www.repubblica.it/rss/sport/calcio/rss2.0.xml'),
+        ('Motori', 'http://www.repubblica.it/rss/motori/rss2.0.xml'),
+        ('Roma', 'http://roma.repubblica.it/rss/rss2.0.xml'),
+        ('Torino', 'http://torino.repubblica.it/rss/rss2.0.xml'),
+        ('Milano', 'feed://milano.repubblica.it/rss/rss2.0.xml'),
+        ('Napoli', 'feed://napoli.repubblica.it/rss/rss2.0.xml'),
+        ('Bari', 'http://bari.repubblica.it/rss/rss2.0.xml'),
+        ('Palermo', 'feed://palermo.repubblica.it/rss/rss2.0.xml'),
     ]
 
     def preprocess_html(self, soup):
@@ -112,4 +107,4 @@ class LaRepubblica(BasicNewsRecipe):
         return soup
 
     def preprocess_raw_html(self, raw, url):
-        return '<html><head>' + raw[raw.find('</head>'):]
+        return '<html><head>' + raw[raw.find('</head>') :]

@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
-
 import os
 import time
 from collections import deque, namedtuple
@@ -19,7 +18,6 @@ DoneEvent = namedtuple('DoneEvent', 'job_id')
 
 
 class Job(Thread):
-
     daemon = True
 
     def __init__(self, start_event, events_queue):
@@ -28,7 +26,14 @@ class Job(Thread):
         self.events_queue = events_queue
         self.job_name = start_event.name
         self.job_id = start_event.job_id
-        self.func = partial(fork_job, start_event.module, start_event.function, start_event.args, start_event.kwargs, abort=self.abort_event)
+        self.func = partial(
+            fork_job,
+            start_event.module,
+            start_event.function,
+            start_event.args,
+            start_event.kwargs,
+            abort=self.abort_event,
+        )
         self.data, self.callback = start_event.data, start_event.callback
         self.result = self.traceback = None
         self.done = False
@@ -44,6 +49,7 @@ class Job(Thread):
             result = func()
         except WorkerError as err:
             import traceback
+
             self.traceback = err.orig_tb or traceback.format_exc()
             self.log_path = getattr(err, 'log_path', None)
         else:
@@ -83,7 +89,6 @@ class Job(Thread):
 
 
 class JobsManager:
-
     def __init__(self, opts, log):
         mj = opts.max_jobs
         if mj < 1:
@@ -226,6 +231,7 @@ class JobsManager:
                     job.callback(job)
                 except Exception:
                     import traceback
+
                     self.log.error(f'Error running callback for job: {job.name}:\n{traceback.format_exc()}')
         self.prune_finished_jobs()
         if job.traceback and not job.was_aborted:
@@ -243,6 +249,7 @@ class JobsManager:
                     remove.append(job_id)
             for job_id in remove:
                 del self.finished_jobs[job_id]
+
     # }}}
 
 

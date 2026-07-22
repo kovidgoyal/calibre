@@ -22,7 +22,6 @@ def unix_socket(timeout=10):
 
 
 class Listener(QLocalServer):
-
     message_received = pyqtSignal(object)
 
     def __init__(self, address=None, parent=None):
@@ -100,6 +99,7 @@ def send_message_via_worker(msg, address=None, timeout=5, wait_till_sent=True):
     # same named pipe in a different thread deadlocks, so we do the actual sending in
     # a simple worker process
     from calibre.utils.ipc.simple_worker import start_pipe_worker
+
     if isinstance(msg, str):
         msg = msg.encode('utf-8')
     p = start_pipe_worker(f'from calibre.gui2.listener import *; send_message_in_worker({address!r}, {timeout!r})')
@@ -111,9 +111,11 @@ def send_message_via_worker(msg, address=None, timeout=5, wait_till_sent=True):
 
 def listener_for_test(address):
     from qt.core import QCoreApplication, QTimer
+
     app = QCoreApplication([])
     s = Listener(address=address, parent=app)
     s.start_listening()
+
     def got_message(msg):
         if msg == b'quit':
             app.quit()
@@ -121,6 +123,7 @@ def listener_for_test(address):
         sys.stdout.buffer.write(msg)
         sys.stdout.buffer.write(os.linesep.encode())
         sys.stdout.buffer.flush()
+
     s.message_received.connect(got_message)
     QTimer.singleShot(0, lambda: print('started', flush=True))
     app.exec()
@@ -132,18 +135,21 @@ def winkill_main(hang=True):
 
     def exit_sequence():
         from calibre.gui2.main import workaround_windows_shutdown_hang
+
         workaround_windows_shutdown_hang(0.1, 17)
         time.sleep(10 if hang else 0.1)
+
     atexit.register(exit_sequence)
 
 
 def find_tests():
     import unittest
-    class TestIPC(unittest.TestCase):
 
+    class TestIPC(unittest.TestCase):
         @unittest.skipUnless(iswindows, 'Only needed on windows')
         def test_windows_exit_kill_workaround(self):
             from calibre.utils.ipc.simple_worker import start_pipe_worker
+
             p = start_pipe_worker('from calibre.gui2.listener import winkill_main; winkill_main(hang=False)')
             self.assertEqual(0, p.wait())
             p = start_pipe_worker('from calibre.gui2.listener import winkill_main; winkill_main(hang=True)')
@@ -151,6 +157,7 @@ def find_tests():
 
         def test_listener_ipc(self):
             from calibre.utils.ipc.simple_worker import start_pipe_worker
+
             address = socket_address('test')
             server = start_pipe_worker(f'from calibre.gui2.listener import *; listener_for_test({address!r})')
             try:
@@ -174,6 +181,7 @@ def find_tests():
 
 def test():
     from qt.core import QApplication, QLabel, QTimer
+
     app = QApplication([])
     l = QLabel()
     l.setText('Waiting for message...')

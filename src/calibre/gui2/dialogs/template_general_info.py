@@ -1,13 +1,9 @@
 #!/usr/bin/env python
+# License: GPLv3 Copyright: 2024, Kovid Goyal kovid@kovidgoyal.net
 
-
-__copyright__ = '2024, Kovid Goyal kovid@kovidgoyal.net'
-__docformat__ = 'restructuredtext en'
-__license__   = 'GPL v3'
-
-'''
+"""
 @author: Charles Haley
-'''
+"""
 
 from qt.core import QDialogButtonBox, QVBoxLayout
 
@@ -129,12 +125,15 @@ Note: HTML output contains no CSS and does not start with a tag such as <DIV> or
 
 
 class GeneralInformationDialog(Dialog):
-
     def __init__(self, include_general_doc=False, include_ffml_doc=False, parent=None):
         self.include_general_doc = include_general_doc
         self.include_ffml_doc = include_ffml_doc
-        super().__init__(title=_('Template function general information'), name='template_editor_gen_info_dialog',
-                         default_buttons=QDialogButtonBox.StandardButton.Close, parent=parent)
+        super().__init__(
+            title=_('Template function general information'),
+            name='template_editor_gen_info_dialog',
+            default_buttons=QDialogButtonBox.StandardButton.Close,
+            parent=parent,
+        )
 
     def setup_ui(self):
         l = QVBoxLayout(self)
@@ -155,6 +154,7 @@ class GeneralInformationDialog(Dialog):
 
 if __name__ == '__main__':
     from calibre.gui2 import Application
+
     app = Application([])
     d = GeneralInformationDialog()
     d.exec()

@@ -24,12 +24,7 @@ class Volkskrant(BasicNewsRecipe):
                 ]
             }
         ),
-        dict(
-            name=['div'],
-            attrs={
-                'class': ['mb-2']
-            }
-        ),
+        dict(name=['div'], attrs={'class': ['mb-2']}),
         dict(id=['comments']),
         dict(name=['script', 'noscript', 'style']),
     ]
@@ -55,21 +50,11 @@ class Volkskrant(BasicNewsRecipe):
             if url[0] == '/':
                 url = 'https://revista22.ro' + url
             article_title = self.tag_to_string(a.find('h3')).strip()
-            author = self.tag_to_string(
-                container.find('span', attrs={'class': 'text-red'})
-            ).strip()
+            author = self.tag_to_string(container.find('span', attrs={'class': 'text-red'})).strip()
             summary = self.tag_to_string(container.find('p')).strip()
             pubdate = self.tag_to_string(a.find('span'))
             description = author + ' - ' + summary
-            articles.append(
-                dict(
-                    title=article_title,
-                    url=url,
-                    date=pubdate,
-                    description=description,
-                    content=''
-                )
-            )
+            articles.append(dict(title=article_title, url=url, date=pubdate, description=description, content=''))
 
         sections = [('Numărul curent', articles)]
         return sections

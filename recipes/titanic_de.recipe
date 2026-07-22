@@ -2,7 +2,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class Titanic(BasicNewsRecipe):
-    title = u'Titanic'
+    title = 'Titanic'
     language = 'de'
     __author__ = 'Krittika Goyal'
     oldest_article = 14  # days
@@ -13,6 +13,5 @@ class Titanic(BasicNewsRecipe):
     auto_cleanup = True
 
     feeds = [
-        ('News',
-         'http://www.titanic-magazin.de/ich.war.bei.der.waffen.rss'),
+        ('News', 'http://www.titanic-magazin.de/ich.war.bei.der.waffen.rss'),
     ]

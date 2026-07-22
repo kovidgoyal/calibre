@@ -1,8 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__ = 'GPL v3'
-__copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
+# License: GPLv3 Copyright: 2013, Kovid Goyal <kovid at kovidgoyal.net>
 
 from functools import partial
 from typing import TYPE_CHECKING
@@ -43,7 +40,6 @@ if TYPE_CHECKING:
 
 
 class SelectNames(QDialog):  # {{{
-
     def __init__(self, names, txt, parent=None):
         QDialog.__init__(self, parent)
         self.l = l = QVBoxLayout(self)
@@ -67,8 +63,8 @@ class SelectNames(QDialog):  # {{{
         self._names.setSelectionMode(QAbstractItemView.SelectionMode.MultiSelection)
         l.addWidget(self._names)
 
-        self._or = QRadioButton(_('Match any of the selected %s')%txt)
-        self._and = QRadioButton(_('Match all of the selected %s')%txt)
+        self._or = QRadioButton(_('Match any of the selected %s') % txt)
+        self._and = QRadioButton(_('Match all of the selected %s') % txt)
         self._or.setChecked(True)
         l.addWidget(self._or)
         l.addWidget(self._and)
@@ -89,8 +85,8 @@ class SelectNames(QDialog):  # {{{
     def match_type(self):
         return ' and ' if self._and.isChecked() else ' or '
 
-# }}}
 
+# }}}
 
 MAX_VIRTUAL_LIBRARY_NAME_LENGTH = 40
 
@@ -104,7 +100,7 @@ def _build_full_search_string(gui):
         '{sb}',
         '(({cl}) and ({sb}))',
         '(({cr}) and ({sb}))',
-        '(({cl}) and ({cr}) and ({sb}))'
+        '(({cl}) and ({cr}) and ({sb}))',
     )
 
     sb = gui.search.current_text
@@ -123,7 +119,6 @@ def _build_full_search_string(gui):
 
 
 class CreateVirtualLibrary(QDialog):  # {{{
-
     @property
     def search_expression(self) -> str:
         return ' '.join(x.strip() for x in self.vl_text.toPlainText().strip().splitlines())
@@ -179,20 +174,25 @@ class CreateVirtualLibrary(QDialog):  # {{{
         self.search_expression = ' '
         self.search_expression = _build_full_search_string(self.gui)
 
-        self.sl = sl = QLabel('<p>'+_('Create a Virtual library based on: ')+
-            ('<a href="author.{0}">{0}</a>, '
-            '<a href="tag.{1}">{1}</a>, '
-            '<a href="publisher.{2}">{2}</a>, '
-            '<a href="series.{3}">{3}</a>, '
-            '<a href="search.{4}">{4}</a>.').format(_('Authors'), _('Tags'),
-                                            _('Publishers'), ngettext('Series', 'Series', 2), _('Saved searches')))
+        self.sl = sl = QLabel(
+            '<p>'
+            + _('Create a Virtual library based on: ')
+            + (
+                '<a href="author.{0}">{0}</a>, '
+                '<a href="tag.{1}">{1}</a>, '
+                '<a href="publisher.{2}">{2}</a>, '
+                '<a href="series.{3}">{3}</a>, '
+                '<a href="search.{4}">{4}</a>.'
+            ).format(_('Authors'), _('Tags'), _('Publishers'), ngettext('Series', 'Series', 2), _('Saved searches'))
+        )
         sl.setWordWrap(True)
         sl.setTextInteractionFlags(Qt.TextInteractionFlag.LinksAccessibleByMouse)
         sl.linkActivated.connect(self.link_activated)
         gl.addWidget(sl, 3, 0, 1, 2)
-        gl.setRowStretch(3,10)
+        gl.setRowStretch(3, 10)
 
-        self.hl = hl = QLabel(_('''
+        self.hl = hl = QLabel(
+            _('''
             <h2>Virtual libraries</h2>
 
             <p>With <i>Virtual libraries</i>, you can restrict calibre to only show
@@ -207,7 +207,9 @@ class CreateVirtualLibrary(QDialog):  # {{{
 
             <p>More information and examples are available in the
             <a href="%s">User Manual</a>.</p>
-            ''') % localize_user_manual_link('https://manual.calibre-ebook.com/virtual_libraries.html'))
+            ''')
+            % localize_user_manual_link('https://manual.calibre-ebook.com/virtual_libraries.html')
+        )
         hl.setWordWrap(True)
         hl.setOpenExternalLinks(True)
         hl.setFrameStyle(QFrame.Shape.StyledPanel)
@@ -221,7 +223,7 @@ class CreateVirtualLibrary(QDialog):  # {{{
         if editing:
             db = self.gui.current_db
             virt_libs = db.new_api.pref('virtual_libraries', {})
-            for dex,vl in enumerate(sorted(virt_libs.keys(), key=sort_key)):
+            for dex, vl in enumerate(sorted(virt_libs.keys(), key=sort_key)):
                 self.vl_name.addItem(vl, virt_libs.get(vl, ''))
                 if vl == editing:
                     self.vl_name.setCurrentIndex(dex)
@@ -234,7 +236,7 @@ class CreateVirtualLibrary(QDialog):  # {{{
             assert vl_le2 is not None
             vl_le2.textEdited.connect(self.name_text_edited)
 
-        self.resize(self.sizeHint()+QSize(150, 25))
+        self.resize(self.sizeHint() + QSize(150, 25))
         self.restore_geometry(gprefs, 'create-virtual-library-dialog')
 
     def search_text_changed(self):
@@ -262,8 +264,7 @@ class CreateVirtualLibrary(QDialog):  # {{{
                     search_name = possible_search[0]
                     search_name = search_name.removeprefix('=')
                     if search_name in db.saved_search_names():
-                        searches.append(search_name + '=' +
-                                        db.saved_search_lookup(search_name))
+                        searches.append(search_name + '=' + db.saved_search_lookup(search_name))
                 else:
                     txt = ''
             else:
@@ -274,12 +275,13 @@ class CreateVirtualLibrary(QDialog):  # {{{
         self.new_name = str(new_name)
 
     def name_index_changed(self, dex):
-        if self.editing and (self.search_expression != self.original_search or
-                             self.new_name != self.editing):
-            if not question_dialog(self.gui, _('Search text changed'),
-                         _('The Virtual library name or the search text has changed. '
-                           'Do you want to discard these changes?'),
-                         default_yes=False):
+        if self.editing and (self.search_expression != self.original_search or self.new_name != self.editing):
+            if not question_dialog(
+                self.gui,
+                _('Search text changed'),
+                _('The Virtual library name or the search text has changed. Do you want to discard these changes?'),
+                default_yes=False,
+            ):
                 self.vl_name.blockSignals(True)
                 self.vl_name.setCurrentIndex(self.original_index)
                 vl_le3 = self.vl_name.lineEdit()
@@ -301,7 +303,7 @@ class CreateVirtualLibrary(QDialog):  # {{{
             names = getattr(db, f'all_{f}_names')()
         d = SelectNames(names, txt, parent=self)
         if d.exec() == QDialog.DialogCode.Accepted:
-            prefix = f+'s' if f in {'tag', 'author'} else f
+            prefix = f + 's' if f in {'tag', 'author'} else f
             if f == 'search':
                 search = [f'({db.saved_search_lookup(x)})' for x in d.names]
             else:
@@ -318,45 +320,45 @@ class CreateVirtualLibrary(QDialog):  # {{{
     def accept(self):
         n = str(self.vl_name.currentText()).strip()
         if not n:
-            error_dialog(self.gui, _('No name'),
-                         _('You must provide a name for the new Virtual library'),
-                         show=True)
+            error_dialog(self.gui, _('No name'), _('You must provide a name for the new Virtual library'), show=True)
             return
 
         if n.startswith('*'):
-            error_dialog(self.gui, _('Invalid name'),
-                         _('A Virtual library name cannot begin with "*"'),
-                         show=True)
+            error_dialog(self.gui, _('Invalid name'), _('A Virtual library name cannot begin with "*"'), show=True)
             return
 
         if n in self.existing_names and n != self.editing:
-            if not question_dialog(self.gui, _('Name already in use'),
-                         _('That name is already in use. Do you want to replace it '
-                           'with the new search?'),
-                            default_yes=False):
+            if not question_dialog(
+                self.gui,
+                _('Name already in use'),
+                _('That name is already in use. Do you want to replace it with the new search?'),
+                default_yes=False,
+            ):
                 return
 
         v = self.search_expression
         if not v:
-            error_dialog(self.gui, _('No search string'),
-                         _('You must provide a search to define the new Virtual library'),
-                         show=True)
+            error_dialog(
+                self.gui,
+                _('No search string'),
+                _('You must provide a search to define the new Virtual library'),
+                show=True,
+            )
             return
 
         try:
             db = self.gui.library_view.model().db
             recs = db.data.search_getting_ids('', v, use_virtual_library=False, sort_results=False)
         except ParseException as e:
-            error_dialog(self.gui, _('Invalid search'),
-                         _('The search in the search box is not valid'),
-                         det_msg=e.msg, show=True)
+            error_dialog(self.gui, _('Invalid search'), _('The search in the search box is not valid'), det_msg=e.msg, show=True)
             return
 
         if not recs and not question_dialog(
-                self.gui, _('Search found no books'),
-                _('The search found no books, so the Virtual library '
-                'will be empty. Do you really want to use that search?'),
-                default_yes=False):
+            self.gui,
+            _('Search found no books'),
+            _('The search found no books, so the Virtual library will be empty. Do you really want to use that search?'),
+            default_yes=False,
+        ):
             return
 
         self.library_name = n
@@ -371,11 +373,12 @@ class CreateVirtualLibrary(QDialog):  # {{{
     def reject(self):
         self.save_geometry(gprefs, 'create-virtual-library-dialog')
         QDialog.reject(self)
+
+
 # }}}
 
 
 class SearchRestrictionMixin:
-
     no_restriction = '<' + _('None') + '>'
 
     def init_search_restriction_mixin(self: Main):
@@ -385,9 +388,13 @@ class SearchRestrictionMixin:
         self.current_search_action.triggered.connect(partial(self.apply_virtual_library, library='*'))
         self.addAction(self.current_search_action)
         self.keyboard.register_shortcut(
-            'vl-from-current-search', _('Virtual library from current search'), description=_(
-                'Create a temporary Virtual library from the current search'), group=_('Virtual library'),
-            default_keys=('Ctrl+*',), action=self.current_search_action)
+            'vl-from-current-search',
+            _('Virtual library from current search'),
+            description=_('Create a temporary Virtual library from the current search'),
+            group=_('Virtual library'),
+            default_keys=('Ctrl+*',),
+            action=self.current_search_action,
+        )
 
         self.search_based_vl_name = None
         self.search_based_vl = None
@@ -399,8 +406,7 @@ class SearchRestrictionMixin:
 
         self.clear_vl.clicked.connect(lambda x: (self.apply_virtual_library(), self.clear_additional_restriction()))
 
-        self.virtual_library_tooltip = \
-            _('Use a "Virtual library" to show only a subset of the books present in this library')
+        self.virtual_library_tooltip = _('Use a "Virtual library" to show only a subset of the books present in this library')
         self.virtual_library.setToolTip(self.virtual_library_tooltip)
 
         self.search_restriction = ComboBoxWithHelp(self)
@@ -478,9 +484,9 @@ class SearchRestrictionMixin:
         if self.search_based_vl_name:
             a = m.addAction(
                 self.checked if db.data.get_base_restriction_name().startswith('*') else self.empty,
-                self.search_based_vl_name)
-            a.triggered.connect(partial(self.apply_virtual_library,
-                                library=self.search_based_vl_name))
+                self.search_based_vl_name,
+            )
+            a.triggered.connect(partial(self.apply_virtual_library, library=self.search_based_vl_name))
 
         m.addSeparator()
 
@@ -522,9 +528,13 @@ class SearchRestrictionMixin:
                 try:
                     db.data.search_getting_ids('', txt, use_virtual_library=False)
                 except ParseException as e:
-                    error_dialog(self, _('Invalid search'),
-                                 _('The search in the search box is not valid'),
-                                 det_msg=e.msg, show=True)
+                    error_dialog(
+                        self,
+                        _('Invalid search'),
+                        _('The search in the search box is not valid'),
+                        det_msg=e.msg,
+                        show=True,
+                    )
                     return
 
                 self.search_based_vl = txt
@@ -539,10 +549,8 @@ class SearchRestrictionMixin:
             db.data.set_base_restriction_name(library)
             self.previous_virtual_library = self.currently_applied_virtual_library
             self.currently_applied_virtual_library = library
-        self.virtual_library.setToolTip(self.virtual_library_tooltip + '\n' +
-                                        db.data.get_base_restriction())
-        self._apply_search_restriction(db.data.get_search_restriction(),
-                                       db.data.get_search_restriction_name())
+        self.virtual_library.setToolTip(self.virtual_library_tooltip + '\n' + db.data.get_base_restriction())
+        self._apply_search_restriction(db.data.get_search_restriction(), db.data.get_search_restriction_name())
         if update_tabs:
             self.vl_tabs.update_current()
 
@@ -568,20 +576,21 @@ class SearchRestrictionMixin:
     def remove_vl_triggered(self: Main, name=None):
         if not confirm(
             _('Are you sure you want to remove the Virtual library <b>{0}</b>?').format(name),
-            'confirm_vl_removal', parent=self):
+            'confirm_vl_removal',
+            parent=self,
+        ):
             return
         self._remove_vl(name, reapply=True)
         self.library_view._model.refresh()
 
     def choose_vl_triggerred(self: Main):
         from calibre.gui2.tweak_book.widgets import QuickOpen, emphasis_style
+
         db = self.current_db
         virt_libs = db.new_api.pref('virtual_libraries', {})
         if not virt_libs:
-            return error_dialog(self, _('No Virtual libraries'), _(
-                'No Virtual libraries present, create some first'), show=True)
-        example = '<pre>{0}S{1}ome {0}B{1}ook {0}C{1}ollection</pre>'.format(
-            f'<span style="{emphasis_style()}">', '</span>')
+            return error_dialog(self, _('No Virtual libraries'), _('No Virtual libraries present, create some first'), show=True)
+        example = '<pre>{0}S{1}ome {0}B{1}ook {0}C{1}ollection</pre>'.format(f'<span style="{emphasis_style()}">', '</span>')
         chars = f'<pre style="{emphasis_style()}">sbc</pre>'
         help_text = _('''<p>Quickly choose a Virtual library by typing in just a few characters from the library name into the field above.
         For example, if want to choose the VL:
@@ -591,8 +600,13 @@ class SearchRestrictionMixin:
         and press Enter.''').format(example=example, chars=chars)
 
         d = QuickOpen(
-                sorted(virt_libs.keys(), key=sort_key), parent=self, title=_('Choose Virtual library'),
-                name='vl-open', level1=' ', help_text=help_text)
+            sorted(virt_libs.keys(), key=sort_key),
+            parent=self,
+            title=_('Choose Virtual library'),
+            name='vl-open',
+            level1=' ',
+            help_text=help_text,
+        )
         if d.exec() == QDialog.DialogCode.Accepted and d.selected_result:
             self.apply_virtual_library(library=d.selected_result)
 
@@ -628,11 +642,13 @@ class SearchRestrictionMixin:
         m.setIcon(self.checked if current_restriction else self.empty)
 
         dex = 0
+
         def add_action(current_menu, name, last):
             nonlocal dex
+
             def compare_fix_amps(name1, name2):
-                return (self._trim_restriction_name(name1).replace('&&', '&') ==
-                        self._trim_restriction_name(name2).replace('&&', '&'))
+                return self._trim_restriction_name(name1).replace('&&', '&') == self._trim_restriction_name(name2).replace('&&', '&')
+
             self.search_restriction.addItem(name)
             txt = self._trim_restriction_name(last)
             if compare_fix_amps(name, current_restriction):
@@ -725,10 +741,8 @@ class SearchRestrictionMixin:
 
     def set_number_of_books_shown(self: Main):
         db = self.current_db
-        if self.current_view() == self.library_view and db is not None and \
-                                            db.data.search_restriction_applied():
-            restrictions = [x for x in (db.data.get_base_restriction_name(),
-                            db.data.get_search_restriction_name()) if x]
+        if self.current_view() == self.library_view and db is not None and db.data.search_restriction_applied():
+            restrictions = [x for x in (db.data.get_base_restriction_name(), db.data.get_search_restriction_name()) if x]
             t = ' :: '.join(restrictions)
             if len(t) > 20:
                 t = t[:19] + '…'
@@ -742,6 +756,7 @@ class SearchRestrictionMixin:
 if __name__ == '__main__':
     from calibre.gui2 import Application
     from calibre.gui2.preferences import init_gui
+
     app = Application([])
     app
     gui = init_gui()

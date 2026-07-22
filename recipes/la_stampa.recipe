@@ -11,8 +11,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class LaStampa(BasicNewsRecipe):
-
-    title = u'La Stampa'
+    title = 'La Stampa'
     language = 'it'
     __author__ = 'Gabriele Marini'
     oldest_articlce = 7  # for daily schedule
@@ -34,45 +33,59 @@ class LaStampa(BasicNewsRecipe):
             return link[0]['href']
 
     keep_only_tags = [
-        dict(attrs={'class': ['boxocchiello2', 'titoloRub', 'titologir', 'autore-girata', 'luogo-girata', 'catenaccio', 'sezione', 'articologirata', 'bodytext', 'news-single-img', 'ls-articoloCorpo', 'ls-blog-list-1col']}),  # noqa: E501
-        dict(name='div', attrs={'id': 'corpoarticolo'})
+        dict(
+            attrs={
+                'class': [
+                    'boxocchiello2',
+                    'titoloRub',
+                    'titologir',
+                    'autore-girata',
+                    'luogo-girata',
+                    'catenaccio',
+                    'sezione',
+                    'articologirata',
+                    'bodytext',
+                    'news-single-img',
+                    'ls-articoloCorpo',
+                    'ls-blog-list-1col',
+                ]
+            }
+        ),  # noqa: E501
+        dict(name='div', attrs={'id': 'corpoarticolo'}),
     ]
 
-    remove_tags = [dict(name='div', attrs={'id': ['menutop', 'fwnetblocco']}),
-                   dict(
-                       attrs={'class': ['ls-toolbarCommenti', 'ls-boxCommentsBlog']}),
-                   dict(name='table', attrs={
-                        'id': ['strumenti', 'imgesterna']}),
-                   dict(name='a', attrs={'class': ['linkblu', 'link']}),
-                   dict(name='span', attrs={
-                        'class': ['boxocchiello', 'boxocchiello2', 'sezione']})
-                   ]
-    feeds = [(u'BuonGiorno', u'http://www.lastampa.it/cultura/opinioni/buongiorno/rss.xml'),
-             (u'Jena', u'http://www.lastampa.it/cultura/opinioni/jena/rss.xml'),
-             (u'Editoriali', u'http://www.lastampa.it/cultura/opinioni/editoriali'),
-             (u'Finestra sull America',
-                 u'http://lastampa.feedsportal.com/c/32418/f/625713/index.rss'),
-             (u'HomePage', u'http://www.lastampa.it/rss.xml'),
-             (u'Politica Italia', u'http://www.lastampa.it/italia/politica/rss.xml'),
-             (u'ArciItaliana', u'http://www.lastampa.it/rss/blog/arcitaliana'),
-             (u'Cronache', u'http://www.lastampa.it/italia/cronache/rss.xml'),
-             (u'Esteri', u'http://www.lastampa.it/esteri/rss.xml'),
-             (u'Danni Collaterali',
-                 u'http://www.lastampa.it/rss/blog/danni-collaterali'),
-             (u'Economia', u'http://www.lastampa.it/economia/rss.xml'),
-             (u'Tecnologia ', u'http://www.lastampa.it/tecnologia/rss.xml'),
-             (u'Spettacoli', u'http://www.lastampa.it/spettacoli/rss.xml'),
-             (u'Sport', u'http://www.lastampa.it/sport/rss.xml'),
-             (u'Torino', u'http://www.lastampa.it/cronaca/rss.xml'),
-             (u'Motori', u'http://www.lastampa.it/motori/rss.xml'),
-             (u'Scienza', u'http://www.lastampa.it/scienza/rss.xml'),
-             (u'Cultura', u'http://www.lastampa.it/cultura/rss.xml'),
-             (u'Scuola', u'http://www.lastampa.it/cultura/scuola/rss.xml'),
-             (u'Benessere', u'http://www.lastampa.it/scienza/benessere/rss.xml'),
-             (u'Cucina', u'http://www.lastampa.it/societa/cucina/rss.xml'),
-             (u'Casa', u'http://www.lastampa.it/societa/casa/rss.xml'),
-             (u'Moda', u'http://www.lastampa.it/societa/moda/rss.xml'),
-             (u'Giochi', u'http://www.lastampa.it/tecnologia/giochi/rss.xml'),
-             (u'Viaggi', u'http://www.lastampa.it/societa/viaggi/rss.xml'),
-             (u'Ambiente', u'http://www.lastampa.it/scienza/ambiente/rss.xml')
-             ]
+    remove_tags = [
+        dict(name='div', attrs={'id': ['menutop', 'fwnetblocco']}),
+        dict(attrs={'class': ['ls-toolbarCommenti', 'ls-boxCommentsBlog']}),
+        dict(name='table', attrs={'id': ['strumenti', 'imgesterna']}),
+        dict(name='a', attrs={'class': ['linkblu', 'link']}),
+        dict(name='span', attrs={'class': ['boxocchiello', 'boxocchiello2', 'sezione']}),
+    ]
+    feeds = [
+        ('BuonGiorno', 'http://www.lastampa.it/cultura/opinioni/buongiorno/rss.xml'),
+        ('Jena', 'http://www.lastampa.it/cultura/opinioni/jena/rss.xml'),
+        ('Editoriali', 'http://www.lastampa.it/cultura/opinioni/editoriali'),
+        ('Finestra sull America', 'http://lastampa.feedsportal.com/c/32418/f/625713/index.rss'),
+        ('HomePage', 'http://www.lastampa.it/rss.xml'),
+        ('Politica Italia', 'http://www.lastampa.it/italia/politica/rss.xml'),
+        ('ArciItaliana', 'http://www.lastampa.it/rss/blog/arcitaliana'),
+        ('Cronache', 'http://www.lastampa.it/italia/cronache/rss.xml'),
+        ('Esteri', 'http://www.lastampa.it/esteri/rss.xml'),
+        ('Danni Collaterali', 'http://www.lastampa.it/rss/blog/danni-collaterali'),
+        ('Economia', 'http://www.lastampa.it/economia/rss.xml'),
+        ('Tecnologia ', 'http://www.lastampa.it/tecnologia/rss.xml'),
+        ('Spettacoli', 'http://www.lastampa.it/spettacoli/rss.xml'),
+        ('Sport', 'http://www.lastampa.it/sport/rss.xml'),
+        ('Torino', 'http://www.lastampa.it/cronaca/rss.xml'),
+        ('Motori', 'http://www.lastampa.it/motori/rss.xml'),
+        ('Scienza', 'http://www.lastampa.it/scienza/rss.xml'),
+        ('Cultura', 'http://www.lastampa.it/cultura/rss.xml'),
+        ('Scuola', 'http://www.lastampa.it/cultura/scuola/rss.xml'),
+        ('Benessere', 'http://www.lastampa.it/scienza/benessere/rss.xml'),
+        ('Cucina', 'http://www.lastampa.it/societa/cucina/rss.xml'),
+        ('Casa', 'http://www.lastampa.it/societa/casa/rss.xml'),
+        ('Moda', 'http://www.lastampa.it/societa/moda/rss.xml'),
+        ('Giochi', 'http://www.lastampa.it/tecnologia/giochi/rss.xml'),
+        ('Viaggi', 'http://www.lastampa.it/societa/viaggi/rss.xml'),
+        ('Ambiente', 'http://www.lastampa.it/scienza/ambiente/rss.xml'),
+    ]

@@ -31,13 +31,13 @@ class WSJ(BasicNewsRecipe):
         'days': {
             'short': 'Oldest article to download from this news source. In days ',
             'long': 'For example, 0.5, gives you articles from the past 12 hours',
-            'default': str(oldest_article)
+            'default': str(oldest_article),
         },
         'res': {
             'short': 'For hi-res images, select a resolution from the\nfollowing options: 800, 1000, 1200 or 1500',
             'long': 'This is useful for non e-ink devices, and for a lower file size\nthan the default, use 400 or 300.',
-            'default': '600'
-        }
+            'default': '600',
+        },
     }
 
     def __init__(self, *args, **kwargs):
@@ -54,20 +54,35 @@ class WSJ(BasicNewsRecipe):
     '''
 
     remove_tags = [
-        dict(name='panel', attrs={'id':'summary-image'}),
-        dict(name='panel', attrs={'layout':'inline'}),
-        dict(name='panel', attrs={'embed':'inner-article-ad'}),
-        dict(name='span', attrs={'embed':'ticker'}),
+        dict(name='panel', attrs={'id': 'summary-image'}),
+        dict(name='panel', attrs={'layout': 'inline'}),
+        dict(name='panel', attrs={'embed': 'inner-article-ad'}),
+        dict(name='span', attrs={'embed': 'ticker'}),
         classes('lamrelated-articles-inset-panel'),
-        dict(name='p', attrs={'id':[
-            'keywords', 'orig-pubdate-number', 'type', 'is-custom-flashline', 'grouphed', 'author-ids', 'article-manifest',
-            'body-extract', 'category', 'sub-category', 'socialhed', 'summary', 'deckline', 'article-flashline'
-        ]}),
+        dict(
+            name='p',
+            attrs={
+                'id': [
+                    'keywords',
+                    'orig-pubdate-number',
+                    'type',
+                    'is-custom-flashline',
+                    'grouphed',
+                    'author-ids',
+                    'article-manifest',
+                    'body-extract',
+                    'category',
+                    'sub-category',
+                    'socialhed',
+                    'summary',
+                    'deckline',
+                    'article-flashline',
+                ]
+            },
+        ),
     ]
 
-    remove_tags_before = [
-        dict(name='p', attrs={'id':'orig-pubdate-string'})
-    ]
+    remove_tags_before = [dict(name='p', attrs={'id': 'orig-pubdate-string'})]
 
     def media_bucket(self, x):
         res = '?width=600'
@@ -76,12 +91,8 @@ class WSJ(BasicNewsRecipe):
             res = '?width=' + w
         if x.get('type', '') == 'image':
             if x.get('subtype', '') == 'graphic' or 'images.wsj.net' not in x['manifest-url']:
-                return '<br><img src="{}"><div class="figc">{}</div>\n'.format(
-                    x['manifest-url'], x['caption'] + '<i> ' + x['credit'] + '</i>'
-                )
-            return '<br><img src="{}"><div class="figc">{}</div>\n'.format(
-                x['manifest-url'].split('?')[0] + res, x['caption'] + '<i> ' + x['credit'] + '</i>'
-            )
+                return '<br><img src="{}"><div class="figc">{}</div>\n'.format(x['manifest-url'], x['caption'] + '<i> ' + x['credit'] + '</i>')
+            return '<br><img src="{}"><div class="figc">{}</div>\n'.format(x['manifest-url'].split('?')[0] + res, x['caption'] + '<i> ' + x['credit'] + '</i>')
         if x.get('type', '') == 'video':
             return '<br><a href="{}"><img src="{}"></a><div class="figc">{}</div>\n'.format(
                 x['share_link'], x['thumbnail_url'].split('?')[0] + res, x['caption'] + '<i> ' + x['credit'] + '</i>'
@@ -92,32 +103,32 @@ class WSJ(BasicNewsRecipe):
         jpml = soup.find('jpml')
         if jpml:
             jpml.name = 'article'
-        h1 = soup.find('p', attrs={'id':'headline'})
+        h1 = soup.find('p', attrs={'id': 'headline'})
         if h1:
             h1.name = 'h1'
         for h2 in soup.findAll('h2'):
             h2.name = 'h4'
-        dt = soup.find('p', attrs={'id':'orig-pubdate-string'})
-        read = soup.find('p', attrs={'id':'time-to-read'})
-        byl = soup.find('p', attrs={'id':'byline'})
-        fl = soup.find('p', attrs={'id':'flashline'})
+        dt = soup.find('p', attrs={'id': 'orig-pubdate-string'})
+        read = soup.find('p', attrs={'id': 'time-to-read'})
+        byl = soup.find('p', attrs={'id': 'byline'})
+        fl = soup.find('p', attrs={'id': 'flashline'})
         if dt and byl and read and fl:
             dt.name = read.name = byl.name = fl.name = 'div'
             byl.insert(0, dt)
             byl.insert(0, read)
-        url = soup.find('p', attrs={'id':'share-link'})
+        url = soup.find('p', attrs={'id': 'share-link'})
         if url:
             url.name = 'div'
             url['title'] = self.tag_to_string(url).strip()
             url.string = ''
-        panel = soup.find('panel', attrs={'id':'metadata'})
+        panel = soup.find('panel', attrs={'id': 'metadata'})
         if panel:
-            buck = panel.find('p', attrs={'id':'media-bucket'})
+            buck = panel.find('p', attrs={'id': 'media-bucket'})
             if buck:
                 data = json.loads(buck.string)
                 buck.extract()
                 i_lst = [self.media_bucket(x) for x in data['items']]
-                m_itm = soup.findAll('panel', attrs={'class':'media-item'})
+                m_itm = soup.findAll('panel', attrs={'class': 'media-item'})
                 if i_lst and m_itm:
                     for x, y in list(zip_longest(m_itm, i_lst)):
                         x.insert_after(BeautifulSoup(y, 'html.parser'))
@@ -134,17 +145,18 @@ class WSJ(BasicNewsRecipe):
 
         from calibre import browser
         from calibre.utils.img import save_cover_data_to
+
         br = browser()
         raw = br.open('https://frontpages.freedomforum.org/newspapers/wsj-The_Wall_Street_Journal')
         soup = BeautifulSoup(raw.read())
         cu = soup.find(
-                'img',
-                attrs={
-                    'alt': 'Front Page Image',
-                    'src': lambda x: x and x.endswith('front-page-large.jpg'),
-                },
-            )['src'].replace('-large', '-medium')
-        self.report_progress(1, _('Downloading cover from %s')%cu)
+            'img',
+            attrs={
+                'alt': 'Front Page Image',
+                'src': lambda x: x and x.endswith('front-page-large.jpg'),
+            },
+        )['src'].replace('-large', '-medium')
+        self.report_progress(1, _('Downloading cover from %s') % cu)
         with closing(br.open(cu, timeout=self.timeout)) as r:
             cdata = r.read()
         cpath = os.path.join(self.output_dir, 'cover.jpg')
@@ -157,7 +169,7 @@ class WSJ(BasicNewsRecipe):
         br.addheaders += [
             ('Accept-Encoding', 'gzip'),
             ('cache-control', 'no-cache'),
-            ('x-api-key', ('e''b''2''4''0''8''c''d''2''7''f''8''9''1''3''d''4''2''1''f''a''3''d''5''c''3''d''0''7''c''c''f''0''3''4''c''b''4''4''8')),  # noqa: ISC001
+            ('x-api-key', ('eb2408cd27f8913d421fa3d5c3d07ccf034cb448')),  # noqa: ISC001
         ]
         return br
 
@@ -194,7 +206,7 @@ class WSJ(BasicNewsRecipe):
                         desc = data[art]['summary']
                         url = index + manifest.rsplit('/', 1)[0] + '/' + data[art]['filename']
                         self.log('          ', title, '\n\t', desc)
-                        articles.append({'title': title, 'description':desc, 'url': url})
+                        articles.append({'title': title, 'description': desc, 'url': url})
                     feeds.append((section, articles))
         return feeds
 
@@ -202,6 +214,6 @@ class WSJ(BasicNewsRecipe):
         return BeautifulSoup(raw).prettify()
 
     def populate_article_metadata(self, article, soup, first):
-        lnk = soup.find('div', attrs={'id':'share-link'})
+        lnk = soup.find('div', attrs={'id': 'share-link'})
         if lnk:
             article.url = lnk['title']

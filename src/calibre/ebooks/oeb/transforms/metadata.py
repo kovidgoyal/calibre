@@ -1,9 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__   = 'GPL v3'
-__copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2009, Kovid Goyal <kovid@kovidgoyal.net>
 
 import os
 import re
@@ -14,6 +10,7 @@ from calibre.utils.date import isoformat, now
 
 def meta_info_to_oeb_metadata(mi, m, log, override_input_metadata=False):
     from calibre.ebooks.oeb.base import OPF
+
     if not mi.is_null('title'):
         m.clear('title')
         m.add('title', mi.title)
@@ -25,7 +22,7 @@ def meta_info_to_oeb_metadata(mi, m, log, override_input_metadata=False):
     if not mi.is_null('authors'):
         m.filter('creator', lambda x: x.role.lower() in ['aut', ''])
         for a in mi.authors:
-            attrib = {'role':'aut'}
+            attrib = {'role': 'aut'}
             if mi.author_sort:
                 attrib[OPF('file-as')] = mi.author_sort
             m.add('creator', a, attrib=attrib)
@@ -102,25 +99,23 @@ def meta_info_to_oeb_metadata(mi, m, log, override_input_metadata=False):
 
 
 class MergeMetadata:
-    'Merge in user metadata, including cover'
+    "Merge in user metadata, including cover"
 
     def __call__(self, oeb, mi, opts, override_input_metadata=False):
         self.oeb, self.log = oeb, oeb.log
         m = self.oeb.metadata
         self.log('Merging user specified metadata...')
-        meta_info_to_oeb_metadata(mi, m, oeb.log,
-                override_input_metadata=override_input_metadata)
+        meta_info_to_oeb_metadata(mi, m, oeb.log, override_input_metadata=override_input_metadata)
         cover_id = self.set_cover(mi, opts.prefer_metadata_cover)
         m.clear('cover')
         if cover_id is not None:
             m.add('cover', cover_id)
         if mi.uuid is not None:
-            m.filter('identifier', lambda x:x.id=='uuid_id')
-            self.oeb.metadata.add('identifier', mi.uuid, id='uuid_id',
-                                  scheme='uuid')
+            m.filter('identifier', lambda x: x.id == 'uuid_id')
+            self.oeb.metadata.add('identifier', mi.uuid, id='uuid_id', scheme='uuid')
             self.oeb.uid = self.oeb.metadata.identifier[-1]
         if mi.application_id is not None:
-            m.filter('identifier', lambda x:x.scheme=='calibre')
+            m.filter('identifier', lambda x: x.scheme == 'calibre')
             self.oeb.metadata.add('identifier', mi.application_id, scheme='calibre')
 
     def set_cover(self, mi, prefer_metadata_cover):
@@ -159,8 +154,8 @@ class MergeMetadata:
                 return id
         new_cover_item = None
         if cdata:
-            id, href = self.oeb.manifest.generate('cover', 'cover.'+ext)
-            new_cover_item = self.oeb.manifest.add(id, href, guess_type('cover.'+ext)[0], data=cdata)
+            id, href = self.oeb.manifest.generate('cover', 'cover.' + ext)
+            new_cover_item = self.oeb.manifest.add(id, href, guess_type('cover.' + ext)[0], data=cdata)
             self.oeb.guide.add('cover', 'Cover', href)
         if do_remove_old_cover:
             assert new_cover_item is not None
@@ -213,8 +208,7 @@ class MergeMetadata:
                 text = ''
             text = re.sub(r'\s+', '', text)
             if not text and not XPath('//h:img|//svg:svg')(item.data):
-                self.log(f'Removing {item.href} as it is a wrapper around'
-                        ' the cover image')
+                self.log(f'Removing {item.href} as it is a wrapper around the cover image')
                 self.oeb.spine.remove(item)
                 self.oeb.manifest.remove(item)
                 self.oeb.guide.remove_by_href(item.href)

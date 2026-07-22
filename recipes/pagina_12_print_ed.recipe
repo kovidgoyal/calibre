@@ -2,7 +2,7 @@
 
 from __future__ import print_function
 
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 '''
 pagina12.com.ar
@@ -21,7 +21,6 @@ def new_tag(soup, name, attrs=()):
 
 
 class Pagina12(BasicNewsRecipe):
-
     title = 'Pagina/12 - Edicion Impresa'
     __author__ = 'Pablo Marfil'
     description = 'Diario argentino'
@@ -30,16 +29,14 @@ class Pagina12(BasicNewsRecipe):
     encoding = 'cp1252'
     remove_tags_before = dict(id='fecha')
     remove_tags_after = dict(id='fin')
-    remove_tags = [dict(id=['fecha', 'fin', 'pageControls',
-                            'logo', 'logo_suple', 'fecha_suple', 'volver'])]
+    remove_tags = [dict(id=['fecha', 'fin', 'pageControls', 'logo', 'logo_suple', 'fecha_suple', 'volver'])]
     masthead_url = 'http://www.pagina12.com.ar/commons/imgs/logo-home.gif'
     no_stylesheets = True
 
-    preprocess_regexps = [(re.compile(r'<!DOCTYPE[^>]+>', re.I), lambda m:'')]
+    preprocess_regexps = [(re.compile(r'<!DOCTYPE[^>]+>', re.I), lambda m: '')]
 
     def get_cover_url(self):
-        soup = self.index_to_soup(
-            'http://www.pagina12.com.ar/diario/principal/diario/index.html')
+        soup = self.index_to_soup('http://www.pagina12.com.ar/diario/principal/diario/index.html')
         for image in soup.findAll('img', alt=True):
             if image['alt'].startswith('Tapa de la fecha'):
                 return image['src']
@@ -49,8 +46,7 @@ class Pagina12(BasicNewsRecipe):
     def parse_index(self):
         articles = []
         numero = 1
-        raw = self.index_to_soup(
-            'http://www.pagina12.com.ar/diario/secciones/index.html', raw=True)
+        raw = self.index_to_soup('http://www.pagina12.com.ar/diario/secciones/index.html', raw=True)
         raw = re.sub(r'(?i)<!DOCTYPE[^>]+>', '', raw)
         soup = self.index_to_soup(raw)
 
@@ -60,8 +56,7 @@ class Pagina12(BasicNewsRecipe):
         for section in soup.findAll('div', 'seccionx'):
             numero += 1
             print(numero)
-            section_title = self.tag_to_string(section.find(
-                'div', 'desplegable_titulo on_principal right'))
+            section_title = self.tag_to_string(section.find('div', 'desplegable_titulo on_principal right'))
             self.log('Found section:', section_title)
             articles = []
             for post in section.findAll('h2'):
@@ -80,8 +75,7 @@ class Pagina12(BasicNewsRecipe):
                 if p is not None:
                     desc = self.tag_to_string(p)
                     self.log('\t\t', desc)
-                articles.append({'title': title, 'url': url, 'description': desc,
-                                 'date': ''})
+                articles.append({'title': title, 'url': url, 'description': desc, 'date': ''})
             if articles:
                 feeds.append((section_title, articles))
         return feeds

@@ -1,10 +1,9 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
-
-'''
+"""
 Generate UUID encoded using a user specified alphabet.
-'''
+"""
 
 import math
 import string
@@ -30,14 +29,13 @@ def string_to_num(string, alphabet_map, alphabet_len):
 
 
 class ShortUUID:
-
     def __init__(self, alphabet=None):
         # We do not include zero and one in the default alphabet as they can be
         # confused with the letters O and I in some fonts. And removing them
         # does not change the uuid_pad_len.
         self.alphabet = tuple(sorted(str(alphabet or (string.digits + string.ascii_letters)[2:])))
         self.alphabet_len = len(self.alphabet)
-        self.alphabet_map = {c:i for i, c in enumerate(self.alphabet)}
+        self.alphabet_map = {c: i for i, c in enumerate(self.alphabet)}
         self.uuid_pad_len = math.ceil(math.log(1 << 128, self.alphabet_len))
 
     def uuid4(self, pad_to_length=None):

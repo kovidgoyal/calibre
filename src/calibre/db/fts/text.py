@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # License: GPL v3 Copyright: 2022, Kovid Goyal <kovid at kovidgoyal.net>
 
-
 import contextlib
 import os
 import re
@@ -19,7 +18,6 @@ from calibre.utils.logging import default_log
 
 
 class SimpleContainer(ContainerBase):
-
     tweak_mode = True
 
 
@@ -71,6 +69,7 @@ def pdftotext(path):
 
     from calibre.ebooks.pdf.pdftohtml import PDFTOTEXT, popen
     from calibre.utils.cleantext import clean_ascii_chars
+
     cmd = [PDFTOTEXT] + '-enc UTF-8 -nodiag -eol unix'.split() + [os.path.basename(path), '-']
     p = popen(cmd, cwd=os.path.dirname(path), stdout=subprocess.PIPE, stdin=subprocess.DEVNULL)
     raw = p.stdout.read()

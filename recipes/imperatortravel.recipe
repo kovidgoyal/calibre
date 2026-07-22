@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 __license__ = 'GPL v3'
-__copyright__ = u'2011, Silviu Cotoar\u0103'
+__copyright__ = '2011, Silviu Cotoar\u0103'
 '''
 imperatortravel.ro
 '''
@@ -11,10 +11,10 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class Imperatortravel(BasicNewsRecipe):
-    title = u'Imperator Travel'
-    __author__ = u'Silviu Cotoar\u0103'
-    description = u'C\u0103l\u0103torii'
-    publisher = u'Imperator Travel'
+    title = 'Imperator Travel'
+    __author__ = 'Silviu Cotoar\u0103'
+    description = 'C\u0103l\u0103torii'
+    publisher = 'Imperator Travel'
     oldest_article = 25
     language = 'ro'
     max_articles_per_feed = 100
@@ -24,9 +24,7 @@ class Imperatortravel(BasicNewsRecipe):
     encoding = 'utf-8'
     cover_url = 'http://www.imperatortravel.ro/images/header-1.jpg'
 
-    conversion_options = {
-        'comments': description, 'tags': category, 'language': language, 'publisher': publisher
-    }
+    conversion_options = {'comments': description, 'tags': category, 'language': language, 'publisher': publisher}
 
     extra_css = '''
                     h1{font-family:Arial,Helvetica,sans-serif; font-weight:bold;font-size:large;}
@@ -43,22 +41,18 @@ class Imperatortravel(BasicNewsRecipe):
                     body{font-family:Helvetica,Arial,sans-serif;font-size:small;}
                 '''
 
-    keep_only_tags = [
-        dict(name='div', attrs={'class': 'article first_main_article'})
-    ]
+    keep_only_tags = [dict(name='div', attrs={'class': 'article first_main_article'})]
 
     remove_tags = [
-        dict(name='div', attrs={'class': ['meta']}), dict(name='body', attrs={'class': ['transparent_widget ff3 win  Locale_en_US']}), dict(
-            name='div', attrs={'class': ['connect_widget']}), dict(name='ul', attrs={'class': ['similar-posts']})
+        dict(name='div', attrs={'class': ['meta']}),
+        dict(name='body', attrs={'class': ['transparent_widget ff3 win  Locale_en_US']}),
+        dict(name='div', attrs={'class': ['connect_widget']}),
+        dict(name='ul', attrs={'class': ['similar-posts']}),
     ]
 
-    remove_tags_after = [
-        dict(name='ul', attrs={'class': ['similar-posts']})
-    ]
+    remove_tags_after = [dict(name='ul', attrs={'class': ['similar-posts']})]
 
-    feeds = [
-        (u'Feeds', u'http://feeds.feedburner.com/ImperatorTravels')
-    ]
+    feeds = [('Feeds', 'http://feeds.feedburner.com/ImperatorTravels')]
 
     def preprocess_html(self, soup):
         return self.adeify_images(soup)

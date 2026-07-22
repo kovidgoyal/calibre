@@ -13,7 +13,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class Acrimed(BasicNewsRecipe):
-    title = u'Acrimed'
+    title = 'Acrimed'
     __author__ = 'Gaëtan Lehmann'
     oldest_article = 30
     max_articles_per_feed = 100
@@ -21,13 +21,13 @@ class Acrimed(BasicNewsRecipe):
     auto_cleanup_keep = '//div[@class="crayon article-chapo-4112 chapo"]'
     language = 'fr'
     masthead_url = 'http://www.acrimed.org/IMG/siteon0.gif'
-    feeds = [(u'Acrimed', u'http://www.acrimed.org/spip.php?page=backend')]
+    feeds = [('Acrimed', 'http://www.acrimed.org/spip.php?page=backend')]
 
     preprocess_regexps = [
-        (re.compile(r'<title>(.*) - Acrimed \| Action Critique M.*dias</title>'),
-         lambda m: '<title>' + m.group(1) + '</title>'),
-        (re.compile(r'<h2>(.*) - Acrimed \| Action Critique M.*dias</h2>'), lambda m: '<h2>' + m.group(1) + '</h2>')]
+        (re.compile(r'<title>(.*) - Acrimed \| Action Critique M.*dias</title>'), lambda m: '<title>' + m.group(1) + '</title>'),
+        (re.compile(r'<h2>(.*) - Acrimed \| Action Critique M.*dias</h2>'), lambda m: '<h2>' + m.group(1) + '</h2>'),
+    ]
 
-    extra_css              = '''
+    extra_css = '''
                                 .chapo{font-style:italic; margin: 1em 0 0.5em}
                             '''

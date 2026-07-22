@@ -11,13 +11,13 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class ABCNews(BasicNewsRecipe):
-    title          = 'ABC News'
-    language       = 'en_AU'
-    __author__     = 'Pat Stapleton'
+    title = 'ABC News'
+    language = 'en_AU'
+    __author__ = 'Pat Stapleton'
     description = 'From the Australian Broadcasting Corporation. The ABC is owned and funded by the Australian Government, but is editorially independent.'
     masthead_url = 'https://www.abc.net.au/cm/lb/8212706/data/news-logo-2017---desktop-print-data.png'
     cover_url = 'https://www.abc.net.au/news/linkableblob/8413676/data/abc-news-og-data.jpg'
-    cover_margins = (0,20,'#000000')
+    cover_margins = (0, 20, '#000000')
     scale_news_images_to_device = True
     oldest_article = 2  # days
     simultaneous_downloads = 10
@@ -28,7 +28,7 @@ class ABCNews(BasicNewsRecipe):
         'days': {
             'short': 'Oldest article to download from this news source. In days ',
             'long': 'For example, 0.5, gives you articles from the past 12 hours',
-            'default': str(oldest_article)
+            'default': str(oldest_article),
         }
     }
 
@@ -58,16 +58,28 @@ class ABCNews(BasicNewsRecipe):
     # ************************************
     remove_tags = [
         # dict(name='aside', attrs={'name': re.compile(aside_reg_exp, re.IGNORECASE)})
-        {
-            'name': ['meta', 'link', 'noscript', 'aside']
-        },
+        {'name': ['meta', 'link', 'noscript', 'aside']},
         {
             'attrs': {
-                'data-component': ['Ticker', 'PublishedDate', 'Timestamp', 'Link', 'ShareLink', 'ShareUtility',
-                'RelatedStories', 'ArticleTopStories', 'ArticleTopStoriesCard', 'ArticleJustInStories',
-                'RelatedTopics', 'Player', 'ArticleSidebar', 'TopStoriesSidebar', 'UtilityBar']
+                'data-component': [
+                    'Ticker',
+                    'PublishedDate',
+                    'Timestamp',
+                    'Link',
+                    'ShareLink',
+                    'ShareUtility',
+                    'RelatedStories',
+                    'ArticleTopStories',
+                    'ArticleTopStoriesCard',
+                    'ArticleJustInStories',
+                    'RelatedTopics',
+                    'Player',
+                    'ArticleSidebar',
+                    'TopStoriesSidebar',
+                    'UtilityBar',
+                ]
             }
-        }
+        },
     ]
 
     # ************************************
@@ -85,9 +97,10 @@ class ABCNews(BasicNewsRecipe):
                 if '/' in x:
                     img['src'] = x
         return soup
+
     compress_news_images = True
 
-    feeds          = [
+    feeds = [
         ('Top Stories', 'https://www.abc.net.au/news/feed/45910/rss.xml'),
         ('Politics', 'https://www.abc.net.au/news/feed/1534/rss.xml'),
         ('World', 'https://www.abc.net.au/news/feed/4405318/rss.xml'),

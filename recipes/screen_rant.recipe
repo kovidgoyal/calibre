@@ -4,11 +4,12 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class AdvancedUserRecipe1716109928(BasicNewsRecipe):
-    title          = 'Screen Rant'
+    title = 'Screen Rant'
     description = (
-            'ScreenRant is a digital publication. ScreenRant has grown into one of the'
-            ' world’s most prominent entertainment news sources. ScreenRant don’t just break and report news;'
-            ' they analyze and editorialize it with unique insight and inside information.')
+        'ScreenRant is a digital publication. ScreenRant has grown into one of the'
+        ' world’s most prominent entertainment news sources. ScreenRant don’t just break and report news;'
+        ' they analyze and editorialize it with unique insight and inside information.'
+    )
     __author__ = 'Spicy Poison'
     encoding = 'utf-8'
     language = 'en'
@@ -18,9 +19,9 @@ class AdvancedUserRecipe1716109928(BasicNewsRecipe):
     ignore_duplicate_articles = {'title', 'url'}
     oldest_article = 30
     max_articles_per_feed = 100
-    auto_cleanup   = True
+    auto_cleanup = True
 
-    feeds          = [
+    feeds = [
         ('Movies', 'https://screenrant.com/feed/movies/'),
         ('Movie Features', 'https://screenrant.com/feed/movie-features/'),
         ('Movie News', 'https://screenrant.com/feed/movie-news/'),

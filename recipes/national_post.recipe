@@ -8,12 +8,10 @@ from calibre.web.feeds.recipes import BasicNewsRecipe
 
 def classes(classes):
     q = frozenset(classes.split(' '))
-    return dict(attrs={
-        'class': lambda x: x and frozenset(x.split()).intersection(q)})
+    return dict(attrs={'class': lambda x: x and frozenset(x.split()).intersection(q)})
 
 
 class NationalPost(BasicNewsRecipe):
-
     title = 'National Post'
     __author__ = 'Kovid Goyal'
     description = 'Canadian national newspaper'
@@ -27,7 +25,7 @@ class NationalPost(BasicNewsRecipe):
         'days': {
             'short': 'Oldest article to download from this news source. In days ',
             'long': 'For example, 0.5, gives you articles from the past 12 hours',
-            'default': str(oldest_article)
+            'default': str(oldest_article),
         }
     }
 

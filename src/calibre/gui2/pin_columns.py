@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2018, Kovid Goyal <kovid at kovidgoyal.net>
 
-
 from typing import TYPE_CHECKING, cast
 
 from qt.core import QAbstractItemDelegate, QAction, QHeaderView, QMenu, QModelIndex, QSplitter, Qt, QTableView
@@ -38,7 +37,6 @@ class ColumnHeaderMenu(QMenu):
 
 
 class TableView(MomentumScrollMixin, QTableView):
-
     column_header: QHeaderView
     column_header_context_menu: ColumnHeaderMenu | None = None
     column_map: list[str]
@@ -142,7 +140,7 @@ class TableView(MomentumScrollMixin, QTableView):
                 cc = bm.custom_columns[colhead]
                 if cc['datatype'] == 'datetime':
                     delegate = CcDateDelegate(self)
-                    delegate.set_format(cc['display'].get('date_format',''))
+                    delegate.set_format(cc['display'].get('date_format', ''))
                     set_item_delegate(colhead, delegate)
                 elif cc['datatype'] == 'comments':
                     ctype = cc['display'].get('interpret_as', 'html')
@@ -176,9 +174,9 @@ class TableView(MomentumScrollMixin, QTableView):
                 elif cc['datatype'] == 'enumeration':
                     set_item_delegate(colhead, self.cc_enum_delegate)
             else:
-                dattr = colhead+'_delegate'
+                dattr = colhead + '_delegate'
                 delegate = colhead if hasattr(self, dattr) else 'text'
-                set_item_delegate(colhead, getattr(self, delegate+'_delegate'))
+                set_item_delegate(colhead, getattr(self, delegate + '_delegate'))
 
     def refresh_composite_edit(self):
         self.cc_template_delegate.refresh()
@@ -193,6 +191,7 @@ class TableView(MomentumScrollMixin, QTableView):
 
     def keyPressEvent(self, e):
         from calibre.gui2.library.alternate_views import handle_enter_press
+
         if handle_enter_press(self, e):
             return
         if e.key() == Qt.Key.Key_F2:
@@ -201,7 +200,6 @@ class TableView(MomentumScrollMixin, QTableView):
 
 
 class PinTableView(TableView):
-
     disable_save_state = False
 
     def __init__(self, books_view, parent=None):
@@ -225,7 +223,7 @@ class PinTableView(TableView):
     def get_default_state(self):
         old_state = {
             'hidden_columns': ['last_modified', 'languages'],
-            'sort_history':[DEFAULT_SORT],
+            'sort_history': [DEFAULT_SORT],
             'column_positions': {},
             'column_sizes': {},
         }
@@ -235,9 +233,7 @@ class PinTableView(TableView):
             name = cm[i]
             old_state['column_positions'][name] = i
             if name != 'ondevice':
-                old_state['column_sizes'][name] = \
-                    min(350, max(self.sizeHintForColumn(i),
-                        h.sectionSizeHint(i)))
+                old_state['column_sizes'][name] = min(350, max(self.sizeHintForColumn(i), h.sectionSizeHint(i)))
                 if name in ('timestamp', 'last_modified'):
                     old_state['column_sizes'][name] += 12
         return old_state
@@ -290,8 +286,7 @@ class PinTableView(TableView):
         h = self.column_header
         cm = self.column_map
         state = {}
-        state['hidden_columns'] = [cm[i] for i in range(h.count())
-                if h.isSectionHidden(i) and cm[i] != 'ondevice']
+        state['hidden_columns'] = [cm[i] for i in range(h.count()) if h.isSectionHidden(i) and cm[i] != 'ondevice']
         state['column_positions'] = {}
         state['column_sizes'] = {}
         for i in range(h.count()):
@@ -320,7 +315,6 @@ class PinTableView(TableView):
 
 
 class PinContainer(QSplitter):
-
     def __init__(self, books_view, parent=None):
         super().__init__(parent)
         self.setChildrenCollapsible(False)

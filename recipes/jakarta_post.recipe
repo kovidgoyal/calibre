@@ -13,10 +13,10 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class JakartaPost(BasicNewsRecipe):
-    title = u'Jakarta Post'
+    title = 'Jakarta Post'
 
-    __author__ = u'Kovid Goyal'
-    description = u'Indonesian Newspaper in English from Jakarta Post Online Edition'
+    __author__ = 'Kovid Goyal'
+    description = 'Indonesian Newspaper in English from Jakarta Post Online Edition'
     category = 'breaking news, national, business, international, Indonesia'
     language = 'en_ID'
     oldest_article = 2
@@ -35,8 +35,7 @@ class JakartaPost(BasicNewsRecipe):
         dict(attrs={'class': lambda x: x and 'byline' in x.split()}),
         dict(attrs={'class': lambda x: x and 'span-13' in x.split()}),
     ]
-    remove_tags_after = dict(
-        attrs={'class': lambda x: x and 'span-12' in x.split()})
+    remove_tags_after = dict(attrs={'class': lambda x: x and 'span-12' in x.split()})
 
     def parse_jp_section(self, url):
         soup = self.index_to_soup(url)
@@ -51,11 +50,11 @@ class JakartaPost(BasicNewsRecipe):
 
     def parse_index(self):
         ans = []
-        for sec in ('editors_choice channel/headlines channel/business channel/national channel/archipelago'
-                    ' channel/jakarta channel/world channel/sports').split():
+        for sec in (
+            'editors_choice channel/headlines channel/business channel/national channel/archipelago channel/jakarta channel/world channel/sports'
+        ).split():
             title = (sec.partition('/')[2] or sec).replace('_', ' ').capitalize()
-            articles = list(self.parse_jp_section(
-                'http://www.thejakartapost.com/' + sec))
+            articles = list(self.parse_jp_section('http://www.thejakartapost.com/' + sec))
             self.log('Found section:', title)
             if articles:
                 ans.append((title, articles))

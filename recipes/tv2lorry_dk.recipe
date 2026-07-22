@@ -11,15 +11,14 @@ TV 2 Lorry
 
 
 class Tv2lorry_dk(BasicNewsRecipe):
-    __author__            = 'CoderAllan.github.com'
-    title                 = 'TV 2 Lorry'
-    description           = ('Ved at abonnere på vores RSS-feed kan du få de '
-                             'seneste regionale nyheder til at dukke op på din skærm.')
-    category              = 'news, localnews, sport, culture, Denmark'
-    oldest_article        = 7
+    __author__ = 'CoderAllan.github.com'
+    title = 'TV 2 Lorry'
+    description = 'Ved at abonnere på vores RSS-feed kan du få de seneste regionale nyheder til at dukke op på din skærm.'
+    category = 'news, localnews, sport, culture, Denmark'
+    oldest_article = 7
     max_articles_per_feed = 50
-    auto_cleanup          = True
-    language              = 'da'
+    auto_cleanup = True
+    language = 'da'
 
     # Feed are found here: http://www.tv2lorry.dk/tv2lorry/rss
     feeds = [

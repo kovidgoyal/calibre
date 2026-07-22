@@ -20,5 +20,5 @@ class AdvancedUserRecipe1282101454(BasicNewsRecipe):
         ('Obits', 'http://www.mdjonline.com/search/?f=rss&amp;t=article&amp;c=obituaries&amp;l=50&amp;s=start_time&amp;sd=desc'),
         ('Editorial & oped', 'http://www.mdjonline.com/search/?f=rss&amp;t=article&amp;c=opinion/mdj_editorials&amp;l=50&amp;s=start_time&amp;sd=desc'),
         ('Lifestyle', 'http://www.mdjonline.com/search/?f=rss&amp;t=article&amp;c=news/lifestyle&amp;l=50&amp;s=start_time&amp;sd=desc'),
-        ('Blogs', 'http://www.mdjonline.com/search/?f=rss&amp;t=article&amp;c=opinion/blogs&amp;l=50&amp;s=start_time&amp;sd=desc')
+        ('Blogs', 'http://www.mdjonline.com/search/?f=rss&amp;t=article&amp;c=opinion/blogs&amp;l=50&amp;s=start_time&amp;sd=desc'),
     ]

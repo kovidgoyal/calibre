@@ -1,8 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__ = 'GPL v3'
-__copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
+# License: GPLv3 Copyright: 2013, Kovid Goyal <kovid at kovidgoyal.net>
 
 import os
 import textwrap
@@ -23,8 +20,7 @@ from calibre.utils.zipfile import ZipFile
 def xml2str(root, pretty_print=False, with_tail=False):
     if hasattr(etree, 'cleanup_namespaces'):
         etree.cleanup_namespaces(root)
-    ans = etree.tostring(root, encoding='utf-8', xml_declaration=True,
-                          pretty_print=pretty_print, with_tail=with_tail)
+    ans = etree.tostring(root, encoding='utf-8', xml_declaration=True, pretty_print=pretty_print, with_tail=with_tail)
     return ans
 
 
@@ -54,7 +50,8 @@ def create_skeleton(opts, namespaces=None):
 
     def w(x):
         return '{{{}}}{}'.format(namespaces['w'], x)
-    dn = {k:v for k, v in namespaces.items() if k in {'w', 'r', 'm', 've', 'o', 'wp', 'w10', 'wne', 'a', 'pic'}}
+
+    dn = {k: v for k, v in namespaces.items() if k in {'w', 'r', 'm', 've', 'o', 'wp', 'w10', 'wne', 'a', 'pic'}}
     E = ElementMaker(namespace=dn['w'], nsmap=dn)
     doc = E.document()
     body = E.body()
@@ -65,30 +62,34 @@ def create_skeleton(opts, namespaces=None):
     def margin(which):
         val = page_margin(opts, which)
         return w(which), str(int(val * 20))
-    body.append(E.sectPr(
-        E.pgSz(**{w('w'):str(width), w('h'):str(height)}),
-        E.pgMar(**dict(map(margin, 'left top right bottom'.split()))),
-        E.cols(**{w('space'):'720'}),
-        E.docGrid(**{w('linePitch'):'360'}),
-    ))
 
-    dn = {k:v for k, v in namespaces.items() if k in tuple('wra') + ('wp',)}
+    body.append(
+        E.sectPr(
+            E.pgSz(**{w('w'): str(width), w('h'): str(height)}),
+            E.pgMar(**dict(map(margin, 'left top right bottom'.split()))),
+            E.cols(**{w('space'): '720'}),
+            E.docGrid(**{w('linePitch'): '360'}),
+        )
+    )
+
+    dn = {k: v for k, v in namespaces.items() if k in tuple('wra') + ('wp',)}
     E = ElementMaker(namespace=dn['w'], nsmap=dn)
     styles = E.styles(
         E.docDefaults(
             E.rPrDefault(
                 E.rPr(
-                    E.rFonts(**{w('asciiTheme'):'minorHAnsi', w('eastAsiaTheme'):'minorEastAsia', w('hAnsiTheme'):'minorHAnsi', w('cstheme'):'minorBidi'}),
-                    E.sz(**{w('val'):'22'}),
-                    E.szCs(**{w('val'):'22'}),
-                    E.lang(**{w('val'):'en-US', w('eastAsia'):'en-US', w('bidi'):'ar-SA'})
+                    E.rFonts(**{
+                        w('asciiTheme'): 'minorHAnsi',
+                        w('eastAsiaTheme'): 'minorEastAsia',
+                        w('hAnsiTheme'): 'minorHAnsi',
+                        w('cstheme'): 'minorBidi',
+                    }),
+                    E.sz(**{w('val'): '22'}),
+                    E.szCs(**{w('val'): '22'}),
+                    E.lang(**{w('val'): 'en-US', w('eastAsia'): 'en-US', w('bidi'): 'ar-SA'}),
                 )
             ),
-            E.pPrDefault(
-                E.pPr(
-                    E.spacing(**{w('after'):'0', w('line'):'276', w('lineRule'):'auto'})
-                )
-            )
+            E.pPrDefault(E.pPr(E.spacing(**{w('after'): '0', w('line'): '276', w('lineRule'): 'auto'}))),
         )
     )
     return doc, styles, body
@@ -103,6 +104,7 @@ def update_doc_props(root, mi, namespace):
         ans.text = text
         root.append(ans)
         return ans
+
     setm('title', mi.title)
     setm('creator', authors_to_string(mi.authors))
     if mi.tags:
@@ -115,15 +117,14 @@ def update_doc_props(root, mi, namespace):
 
 
 class DocumentRelationships:
-
     def __init__(self, namespace):
         self.rmap = {}
         self.namespace = namespace
         for typ, target in {
-                namespace.names['STYLES']: 'styles.xml',
-                namespace.names['NUMBERING']: 'numbering.xml',
-                namespace.names['WEB_SETTINGS']: 'webSettings.xml',
-                namespace.names['FONTS']: 'fontTable.xml',
+            namespace.names['STYLES']: 'styles.xml',
+            namespace.names['NUMBERING']: 'numbering.xml',
+            namespace.names['WEB_SETTINGS']: 'webSettings.xml',
+            namespace.names['FONTS']: 'fontTable.xml',
         }.items():
             self.add_relationship(target, typ)
 
@@ -142,7 +143,7 @@ class DocumentRelationships:
 
     def serialize(self):
         namespaces = self.namespace.namespaces
-        E = ElementMaker(namespace=namespaces['pr'], nsmap={None:namespaces['pr']})
+        E = ElementMaker(namespace=namespaces['pr'], nsmap={None: namespaces['pr']})
         relationships = E.Relationships()
         for (target, rtype, target_mode), rid in self.rmap.items():
             r = E.Relationship(Id=rid, Type=rtype, Target=target)
@@ -153,15 +154,14 @@ class DocumentRelationships:
 
 
 class DOCX:
-
     def __init__(self, opts, log):
         self.namespace = DOCXNamespace()
         namespaces = self.namespace.namespaces
         self.opts, self.log = opts, log
         self.document_relationships = DocumentRelationships(self.namespace)
-        self.font_table = etree.Element('{{{}}}fonts'.format(namespaces['w']), nsmap={k:namespaces[k] for k in 'wr'})
-        self.numbering = etree.Element('{{{}}}numbering'.format(namespaces['w']), nsmap={k:namespaces[k] for k in 'wr'})
-        E = ElementMaker(namespace=namespaces['pr'], nsmap={None:namespaces['pr']})
+        self.font_table = etree.Element('{{{}}}fonts'.format(namespaces['w']), nsmap={k: namespaces[k] for k in 'wr'})
+        self.numbering = etree.Element('{{{}}}numbering'.format(namespaces['w']), nsmap={k: namespaces[k] for k in 'wr'})
+        E = ElementMaker(namespace=namespaces['pr'], nsmap={None: namespaces['pr']})
         self.embedded_fonts = E.Relationships()
         self.fonts = {}
         self.images = {}
@@ -169,7 +169,7 @@ class DOCX:
     # Boilerplate {{{
     @property
     def contenttypes(self):
-        E = ElementMaker(namespace=self.namespace.namespaces['ct'], nsmap={None:self.namespace.namespaces['ct']})
+        E = ElementMaker(namespace=self.namespace.namespaces['ct'], nsmap={None: self.namespace.namespaces['ct']})
         types = E.Types()
         for partname, mt in {
             '/word/footnotes.xml': 'application/vnd.openxmlformats-officedocument.wordprocessingml.footnotes+xml',
@@ -187,7 +187,7 @@ class DOCX:
             types.append(E.Override(PartName=partname, ContentType=mt))
         added = {'png', 'gif', 'jpeg', 'jpg', 'svg', 'xml'}
         for ext in added:
-            types.append(E.Default(Extension=ext, ContentType=guess_type('a.'+ext)[0]))
+            types.append(E.Default(Extension=ext, ContentType=guess_type('a.' + ext)[0]))
         for ext, mt in {
             'rels': 'application/vnd.openxmlformats-package.relationships+xml',
             'odttf': 'application/vnd.openxmlformats-officedocument.obfuscatedFont',
@@ -205,7 +205,7 @@ class DOCX:
 
     @property
     def appproperties(self):
-        E = ElementMaker(namespace=self.namespace.namespaces['ep'], nsmap={None:self.namespace.namespaces['ep']})
+        E = ElementMaker(namespace=self.namespace.namespaces['ep'], nsmap={None: self.namespace.namespaces['ep']})
         props = E.Properties(
             E.Application(__appname__),
             E.AppVersion(f'{numeric_version[0]:02}.{numeric_version[1]:04}'),
@@ -221,30 +221,34 @@ class DOCX:
 
     @property
     def containerrels(self):
-        return textwrap.dedent('''\
+        return textwrap.dedent(
+            '''\
         <?xml version='1.0' encoding='utf-8'?>
         <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
             <Relationship Id="rId3" Type="{APPPROPS}" Target="docProps/app.xml"/>
             <Relationship Id="rId2" Type="{DOCPROPS}" Target="docProps/core.xml"/>
             <Relationship Id="rId1" Type="{DOCUMENT}" Target="word/document.xml"/>
-        </Relationships>'''.format(**self.namespace.names)).encode('utf-8')
+        </Relationships>'''.format(**self.namespace.names)
+        ).encode('utf-8')
 
     @property
     def websettings(self):
-        E = ElementMaker(namespace=self.namespace.namespaces['w'], nsmap={'w':self.namespace.namespaces['w']})
-        ws = E.webSettings(
-            E.optimizeForBrowser, E.allowPNG, E.doNotSaveAsSingleFile)
+        E = ElementMaker(namespace=self.namespace.namespaces['w'], nsmap={'w': self.namespace.namespaces['w']})
+        ws = E.webSettings(E.optimizeForBrowser, E.allowPNG, E.doNotSaveAsSingleFile)
         return xml2str(ws)
 
     # }}}
 
     def convert_metadata(self, mi):
         namespaces = self.namespace.namespaces
-        E = ElementMaker(namespace=namespaces['cp'], nsmap={x:namespaces[x] for x in 'cp dc dcterms xsi'.split()})
+        E = ElementMaker(namespace=namespaces['cp'], nsmap={x: namespaces[x] for x in 'cp dc dcterms xsi'.split()})
         cp = E.coreProperties(E.revision('1'), E.lastModifiedBy('calibre'))
         ts = utcnow().isoformat('T').rpartition('.')[0] + 'Z'
         for x in 'created modified'.split():
-            x = cp.makeelement('{{{}}}{}'.format(namespaces['dcterms'], x), attrib={'{{{}}}type'.format(namespaces['xsi']):'dcterms:W3CDTF'})
+            x = cp.makeelement(
+                '{{{}}}{}'.format(namespaces['dcterms'], x),
+                attrib={'{{{}}}type'.format(namespaces['xsi']): 'dcterms:W3CDTF'},
+            )
             x.text = ts
             cp.append(x)
         self.mi = mi

@@ -33,11 +33,6 @@ class NewStatesman(BasicNewsRecipe):
         img{margin-top:1em; margin-bottom: 1em; display:block}
     '''
 
-    conversion_options = {
-        'comment': description,
-        'tags': category,
-        'publisher': publisher,
-        'language': language
-    }
+    conversion_options = {'comment': description, 'tags': category, 'publisher': publisher, 'language': language}
 
-    feeds = [(u'Articles', u'https://www.newstatesman.com/feed')]
+    feeds = [('Articles', 'https://www.newstatesman.com/feed')]

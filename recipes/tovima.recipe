@@ -14,33 +14,20 @@ class Tovima(BasicNewsRecipe):
     no_stylesheets = True
     use_embedded_content = False
     remove_empty_feeds = True
-    extra_css       = '''
+    extra_css = '''
                         .article_title{font-family :Arial,Helvetica,sans-serif; font-weight: bold; font-size:large;}
                         .article_text{font-family :Arial,Helvetica,sans-serif; font-size:x-small;}
                      '''
-    keep_only_tags = [
-
-        dict(name='div', attrs={'class': ['article_title']}),
-        dict(name='div', attrs={'class': ['article_text']})
-    ]
-    remove_tags = [
-        dict(name='div', attrs={'class': ['article_cat']})
-    ]
+    keep_only_tags = [dict(name='div', attrs={'class': ['article_title']}), dict(name='div', attrs={'class': ['article_text']})]
+    remove_tags = [dict(name='div', attrs={'class': ['article_cat']})]
     feeds = [
-        (u'\u03C0\u03BF\u03BB\u03B9\u03C4\u03B9\u03BA\u03AE',
-         'http://www.tovima.gr/feed/politics/'),
-        (u'\u03BF\u03B9\u03BA\u03BF\u03BD\u03BF\u03BC\u03AF\u03B1',
-         'http://www.tovima.gr/feed/finance/'),
-        (u'\u03B3\u03BD\u03CE\u03BC\u03B5\u03C2',
-         'http://www.tovima.gr/feed/opinions/'),
-        (u'blogs', 'http://www.tovima.gr/feed/blogs/'),
-        (u'\u03BA\u03CC\u03C3\u03BC\u03BF\u03C2',
-         'http://www.tovima.gr/feed/world/'),
-        (u'science', 'http://www.tovima.gr/feed/science/'),
-        (u'\u03BA\u03BF\u03B9\u03BD\u03C9\u03BD\u03AF\u03B1',
-         'http://www.tovima.gr/feed/society/'),
-        (u'\u03C0\u03BF\u03BB\u03B9\u03C4\u03B9\u03C3\u03BC\u03CC\u03C2',
-         'http://www.tovima.gr/feed/culture/'),
-        (u'\u03B1\u03B8\u03BB\u03B7\u03C4\u03B9\u03C3\u03BC\u03CC\u03C2',
-         'http://www.tovima.gr/feed/sports/')
+        ('\u03c0\u03bf\u03bb\u03b9\u03c4\u03b9\u03ba\u03ae', 'http://www.tovima.gr/feed/politics/'),
+        ('\u03bf\u03b9\u03ba\u03bf\u03bd\u03bf\u03bc\u03af\u03b1', 'http://www.tovima.gr/feed/finance/'),
+        ('\u03b3\u03bd\u03ce\u03bc\u03b5\u03c2', 'http://www.tovima.gr/feed/opinions/'),
+        ('blogs', 'http://www.tovima.gr/feed/blogs/'),
+        ('\u03ba\u03cc\u03c3\u03bc\u03bf\u03c2', 'http://www.tovima.gr/feed/world/'),
+        ('science', 'http://www.tovima.gr/feed/science/'),
+        ('\u03ba\u03bf\u03b9\u03bd\u03c9\u03bd\u03af\u03b1', 'http://www.tovima.gr/feed/society/'),
+        ('\u03c0\u03bf\u03bb\u03b9\u03c4\u03b9\u03c3\u03bc\u03cc\u03c2', 'http://www.tovima.gr/feed/culture/'),
+        ('\u03b1\u03b8\u03bb\u03b7\u03c4\u03b9\u03c3\u03bc\u03cc\u03c2', 'http://www.tovima.gr/feed/sports/'),
     ]

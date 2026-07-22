@@ -1,10 +1,8 @@
 #!/usr/bin/env python
 # vim:fileencoding=UTF-8
-from __future__ import absolute_import, division, print_function, unicode_literals
+# License: GPLv3 Copyright: 2013, Kovid Goyal <kovid@kovidgoyal.net>
 
-__license__   = 'GPL v3'
-__copyright__ = '2013, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 from collections import OrderedDict
 
@@ -23,6 +21,7 @@ def parse_html(raw):
     except ImportError:
         # Old versions of calibre
         import html5lib
+
         return html5lib.parse(raw, treebuilder='lxml', namespaceHTMLElements=False)
     else:
         return parse(raw)
@@ -30,6 +29,7 @@ def parse_html(raw):
 
 def imgurl_from_id(raw, tbnid):
     from json import JSONDecoder
+
     q = '"{}",['.format(tbnid)
     start_pos = raw.index(q)
     if start_pos < 100:
@@ -64,7 +64,6 @@ def parse_google_markup(raw):
 
 
 class GoogleImages(Source):
-
     name = 'Google Images'
     version = (1, 0, 6)
     minimum_calibre_version = (2, 80, 0)
@@ -72,24 +71,58 @@ class GoogleImages(Source):
     capabilities = frozenset(['cover'])
     can_get_multiple_covers = True
     supports_gzip_transfer_encoding = True
-    options = (Option('max_covers', 'number', 5, _('Maximum number of covers to get'),
-                      _('The maximum number of covers to process from the Google search result')),
-               Option('size', 'choices', 'svga', _('Cover size'),
-                      _('Search for covers larger than the specified size'),
-                      choices=OrderedDict((
-                          ('any', _('Any size'),),
-                          ('l', _('Large'),),
-                          ('qsvga', _('Larger than %s')%'400x300',),
-                          ('vga', _('Larger than %s')%'640x480',),
-                          ('svga', _('Larger than %s')%'600x800',),
-                          ('xga', _('Larger than %s')%'1024x768',),
-                          ('2mp', _('Larger than %s')%'2 MP',),
-                          ('4mp', _('Larger than %s')%'4 MP',),
-                      ))),
+    options = (
+        Option(
+            'max_covers',
+            'number',
+            5,
+            _('Maximum number of covers to get'),
+            _('The maximum number of covers to process from the Google search result'),
+        ),
+        Option(
+            'size',
+            'choices',
+            'svga',
+            _('Cover size'),
+            _('Search for covers larger than the specified size'),
+            choices=OrderedDict((
+                (
+                    'any',
+                    _('Any size'),
+                ),
+                (
+                    'l',
+                    _('Large'),
+                ),
+                (
+                    'qsvga',
+                    _('Larger than %s') % '400x300',
+                ),
+                (
+                    'vga',
+                    _('Larger than %s') % '640x480',
+                ),
+                (
+                    'svga',
+                    _('Larger than %s') % '600x800',
+                ),
+                (
+                    'xga',
+                    _('Larger than %s') % '1024x768',
+                ),
+                (
+                    '2mp',
+                    _('Larger than %s') % '2 MP',
+                ),
+                (
+                    '4mp',
+                    _('Larger than %s') % '4 MP',
+                ),
+            )),
+        ),
     )
 
-    def download_cover(self, log, result_queue, abort,
-            title=None, authors=None, identifiers={}, timeout=30, get_best_cover=False):
+    def download_cover(self, log, result_queue, abort, title=None, authors=None, identifiers={}, timeout=30, get_best_cover=False):
         if not title:
             return
         timeout = max(60, timeout)  # Needs at least a minute
@@ -104,12 +137,13 @@ class GoogleImages(Source):
 
     def get_image_urls(self, title, author, log, abort, timeout):
         from calibre.utils.cleantext import clean_ascii_chars
+
         try:
             from urllib.parse import urlencode
         except ImportError:
             from urllib import urlencode  # type: ignore
         br = self.browser
-        q = urlencode({'as_q': ('%s %s'%(title, author)).encode('utf-8')})
+        q = urlencode({'as_q': ('%s %s' % (title, author)).encode('utf-8')})
         if isinstance(q, bytes):
             q = q.decode('utf-8')
         sz = self.prefs['size']
@@ -128,6 +162,7 @@ class GoogleImages(Source):
         template = b'\x08\x01\x128\x08\x14\x12+boq_identityfrontenduiserver_20231107.05_p0\x1a\x05en-US \x03\x1a\x06\x08\x80\xf1\xca\xaa\x06'
         from base64 import standard_b64encode
         from datetime import date
+
         template.replace(b'20231107', date.today().strftime('%Y%m%d').encode('ascii'))
         br.set_simple_cookie('SOCS', standard_b64encode(template).decode('ascii').rstrip('='), '.google.com', path='/')
         # br.set_debug_http(True)
@@ -139,6 +174,7 @@ class GoogleImages(Source):
 
 def test_raw():
     import sys
+
     raw = open(sys.argv[-1]).read()
     for x in parse_google_markup(raw):
         print(x)
@@ -152,6 +188,7 @@ def test(title='Star Trek: Section 31: Control', authors=('David Mack',)):
     from threading import Event
 
     from calibre.utils.logging import default_log
+
     p = GoogleImages(None)
     setattr(p, 'log', default_log)
     rq = Queue()

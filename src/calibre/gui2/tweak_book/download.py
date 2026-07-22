@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
-
 from threading import Thread
 
 from qt.core import (
@@ -30,7 +29,6 @@ from calibre.utils.localization import _, ngettext
 
 
 class ChooseResources(QWidget):
-
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
         self.l = l = QVBoxLayout(self)
@@ -54,8 +52,9 @@ class ChooseResources(QWidget):
 
     @property
     def resources(self):
-        return {i.data(Qt.ItemDataRole.UserRole):self.original_resources[i.data(Qt.ItemDataRole.UserRole)]
-                for i in self if i.checkState() == Qt.CheckState.Checked}
+        return {
+            i.data(Qt.ItemDataRole.UserRole): self.original_resources[i.data(Qt.ItemDataRole.UserRole)] for i in self if i.checkState() == Qt.CheckState.Checked
+        }
 
     @resources.setter
     def resources(self, resources):
@@ -76,7 +75,6 @@ class ChooseResources(QWidget):
 
 
 class DownloadStatus(QScrollArea):
-
     def __init__(self, parent=None):
         QScrollArea.__init__(self, parent)
         self.setWidgetResizable(True)
@@ -93,9 +91,9 @@ class DownloadStatus(QScrollArea):
             self.l.addWidget(p, self.l.rowCount(), 0)
             la = QLabel('\xa0' + url)
             self.labels.append(la)
-            self.l.addWidget(la, self.l.rowCount()-1, 1)
+            self.l.addWidget(la, self.l.rowCount() - 1, 1)
         self.l.addWidget(QLabel(''))
-        self.l.setRowStretch(self.l.rowCount()-1, 10)
+        self.l.setRowStretch(self.l.rowCount() - 1, 10)
 
     def progress(self, url, done, total):
         p = self.url_map.get(url)
@@ -108,7 +106,6 @@ class DownloadStatus(QScrollArea):
 
 
 class DownloadResources(Dialog):
-
     get_done = pyqtSignal(object, object)
     progress = pyqtSignal(object, object, object)
     download_done = pyqtSignal(object, object)
@@ -150,6 +147,7 @@ class DownloadResources(Dialog):
             ret = get_external_resources(current_container())
         except Exception as err:
             import traceback
+
             ret, tb = err, traceback.format_exc()
         self.get_done.emit(ret, tb)
 
@@ -157,17 +155,25 @@ class DownloadResources(Dialog):
         if not self.isVisible():
             return self.reject()
         if tb is not None:
-            error_dialog(self, _('Scan failed'), _(
-                'Failed to scan for external resources, click "Show details" for more information.'),
-                         det_msg=tb, show=True)
+            error_dialog(
+                self,
+                _('Scan failed'),
+                _('Failed to scan for external resources, click "Show details" for more information.'),
+                det_msg=tb,
+                show=True,
+            )
             self.reject()
         else:
             self.wait.stop()
             self.state = 1
             resources = x
             if not resources:
-                info_dialog(self, _('No external resources found'), _(
-                    'No external resources were found in this book.'), show=True)
+                info_dialog(
+                    self,
+                    _('No external resources found'),
+                    _('No external resources were found in this book.'),
+                    show=True,
+                )
                 self.reject()
                 return
             self.choose_resources.resources = resources
@@ -179,6 +185,7 @@ class DownloadResources(Dialog):
             ret = download_external_resources(current_container(), resources, progress_report=self.progress.emit)
         except Exception as err:
             import traceback
+
             ret, tb = err, traceback.format_exc()
         self.download_done.emit(ret, tb)
 
@@ -186,29 +193,44 @@ class DownloadResources(Dialog):
         if not self.isVisible():
             return self.reject()
         if tb is not None:
-            error_dialog(self, _('Download failed'), _(
-                'Failed to download external resources, click "Show details" for more information.'),
-                         det_msg=tb, show=True)
+            error_dialog(
+                self,
+                _('Download failed'),
+                _('Failed to download external resources, click "Show details" for more information.'),
+                det_msg=tb,
+                show=True,
+            )
             self.reject()
         else:
             replacements, failures = ret
             if failures:
                 tb = [f'{url}\n\t{err}\n' for url, err in failures.items()]
                 if not replacements:
-                    error_dialog(self, _('Download failed'), _(
-                        'Failed to download external resources, click "Show details" for more information.'),
-                                det_msg='\n'.join(tb), show=True)
+                    error_dialog(
+                        self,
+                        _('Download failed'),
+                        _('Failed to download external resources, click "Show details" for more information.'),
+                        det_msg='\n'.join(tb),
+                        show=True,
+                    )
                     self.reject()
                     return
                 else:
-                    warning_dialog(self, _('Some downloads failed'), _(
-                        'Failed to download some external resources, click "Show details" for more information.'),
-                                det_msg='\n'.join(tb), show=True)
+                    warning_dialog(
+                        self,
+                        _('Some downloads failed'),
+                        _('Failed to download some external resources, click "Show details" for more information.'),
+                        det_msg='\n'.join(tb),
+                        show=True,
+                    )
             self.state = 2
             self.wait.msg = _('Updating resources in book...')
             self.wait.start()
             t = ngettext(
-                'Successfully processed the external resource', 'Successfully processed {} external resources', len(replacements)).format(len(replacements))
+                'Successfully processed the external resource',
+                'Successfully processed {} external resources',
+                len(replacements),
+            ).format(len(replacements))
             if failures:
                 t += '<br>' + ngettext('Could not download one image', 'Could not download {} images', len(failures)).format(len(failures))
             self.success.setText('<p style="text-align:center">' + t)
@@ -223,14 +245,19 @@ class DownloadResources(Dialog):
             ret = replace_resources(current_container(), resources, replacements)
         except Exception as err:
             import traceback
+
             ret, tb = err, traceback.format_exc()
         self.replace_done.emit(ret, tb)
 
     def _replace_done(self, ret, tb):
         if tb is not None:
-            error_dialog(self, _('Replace failed'), _(
-                'Failed to replace external resources, click "Show details" for more information.'),
-                         det_msg=tb, show=True)
+            error_dialog(
+                self,
+                _('Replace failed'),
+                _('Failed to replace external resources, click "Show details" for more information.'),
+                det_msg=tb,
+                show=True,
+            )
             Dialog.reject(self)
         else:
             self.wait.setCurrentIndex(3)
@@ -276,9 +303,11 @@ if __name__ == '__main__':
     import sys
 
     from calibre.gui2 import Application
+
     app = Application([])
     from calibre.gui2.tweak_book import set_current_container
     from calibre.gui2.tweak_book.boss import get_container
+
     set_current_container(get_container(sys.argv[-1]))
     d = DownloadResources()
     d.exec()

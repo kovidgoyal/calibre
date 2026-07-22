@@ -1,9 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__   = 'GPL v3'
-__copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2009, Kovid Goyal <kovid@kovidgoyal.net>
 
 import sys
 
@@ -20,7 +16,7 @@ def get_saved_field_data(name, all_fields):
     val = db.new_api.pref('catalog-field-data-for-' + name)
     if val is None:
         sort_order = gprefs.get(name + '_db_fields_sort_order', {})
-        fields = frozenset(gprefs.get(name+'_db_fields', all_fields))
+        fields = frozenset(gprefs.get(name + '_db_fields', all_fields))
     else:
         sort_order = val['sort_order']
         fields = frozenset(val['fields'])
@@ -30,12 +26,11 @@ def get_saved_field_data(name, all_fields):
 def set_saved_field_data(name, fields, sort_order):
     db = get_gui(fail_if_absent=True).current_db
     db.new_api.set_pref('catalog-field-data-for-' + name, {'fields': fields, 'sort_order': sort_order})
-    gprefs.set(name+'_db_fields', fields)
+    gprefs.set(name + '_db_fields', fields)
     gprefs.set(name + '_db_fields_sort_order', sort_order)
 
 
 class ListWidgetItem(QListWidgetItem):
-
     def __init__(self, colname, human_name, position_in_booklist, parent):
         super().__init__(human_name, parent)
         self.setData(Qt.ItemDataRole.UserRole, colname)
@@ -49,9 +44,8 @@ class ListWidgetItem(QListWidgetItem):
 
 
 class PluginWidget(QWidget):
-
     TITLE = _('CSV/XML options')
-    HELP  = _('Options specific to')+' CSV/XML '+_('output')
+    HELP = _('Options specific to') + ' CSV/XML ' + _('output')
     sync_enabled = False
     formats = {'csv', 'xml'}
     handles_scrolling = True
@@ -115,6 +109,7 @@ class PluginWidget(QWidget):
     def initialize(self, catalog_name, db):
         self.name = catalog_name
         from calibre.library.catalogs import FIELDS
+
         db = get_gui(fail_if_absent=True).current_db
         self.all_fields = {x for x in FIELDS if x != 'all'} | set(db.field_metadata.custom_field_keys())
         sort_order, fields = get_saved_field_data(self.name, self.all_fields)
@@ -126,7 +121,7 @@ class PluginWidget(QWidget):
             if x == 'library_name':
                 return _('Library name')
             if x.endswith('_index'):
-                return name(x[:-len('_index')]) + ' ' + _('Number')
+                return name(x[: -len('_index')]) + ' ' + _('Number')
             return fm[x].get('name') or x
 
         state = get_gui(fail_if_absent=True).library_view.get_state()
@@ -160,10 +155,10 @@ class PluginWidget(QWidget):
             all_fields.append(str(item.data(Qt.ItemDataRole.UserRole)))
             if item.checkState() == Qt.CheckState.Checked:
                 fields.append(str(item.data(Qt.ItemDataRole.UserRole)))
-        set_saved_field_data(self.name, fields, {x:i for i, x in enumerate(all_fields)})
+        set_saved_field_data(self.name, fields, {x: i for i, x in enumerate(all_fields)})
 
         # Return a dictionary with current options for this widget
         if fields:
-            return {'fields':fields}
+            return {'fields': fields}
         else:
-            return {'fields':['all']}
+            return {'fields': ['all']}

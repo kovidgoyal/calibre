@@ -16,7 +16,7 @@ class Base(AmazonStore):
     BY = 'di'
     KINDLE_EDITION = 'Formato Kindle'
     DETAILS_URL = 'https://amazon.it/dp/'
-    STORE_LINK =  'https://www.amazon.it'
+    STORE_LINK = 'https://www.amazon.it'
 
 
 class AmazonKindleStore(Base, StorePlugin):

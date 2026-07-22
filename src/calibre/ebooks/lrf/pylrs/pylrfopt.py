@@ -7,7 +7,7 @@ def _optimize(tagList, tagName, conversion):
 
     # now, eliminate any duplicates (leaving the last one)
     for i, newTag in enumerate(newTagList[:-1]):
-        if newTag.name == tagName and newTagList[i+1].name == tagName:
+        if newTag.name == tagName and newTagList[i + 1].name == tagName:
             tagList.remove(newTag)
 
     # eliminate redundant settings to same value across text strings
@@ -18,9 +18,9 @@ def _optimize(tagList, tagName, conversion):
 
     for i, newTag in enumerate(newTagList[:-1]):
         value = conversion(newTag.parameter)
-        nextValue = conversion(newTagList[i+1].parameter)
+        nextValue = conversion(newTagList[i + 1].parameter)
         if value == nextValue:
-            tagList.remove(newTagList[i+1])
+            tagList.remove(newTagList[i + 1])
 
     # eliminate any setting that don't have text after them
     while len(tagList) > 0 and tagList[-1].name == tagName:

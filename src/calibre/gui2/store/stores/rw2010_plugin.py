@@ -1,11 +1,9 @@
 # -*- coding: utf-8 -*-
+# License: GPLv3 Copyright: 2011, Tomasz Długosz <tomek3d@gmail.com>
+
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 store_version = 2  # Needed for dynamic plugin loading
-
-__license__ = 'GPL 3'
-__copyright__ = '2011, Tomasz Długosz <tomek3d@gmail.com>'
-__docformat__ = 'restructuredtext en'
 
 import re
 from contextlib import closing
@@ -27,7 +25,6 @@ except ImportError:
 
 
 class RW2010Store(BasicStoreConfig, StorePlugin):
-
     def open(self, gui=None, parent=None, detail_item=None, external=False):
         url = 'http://www.rw2010.pl/'
 
@@ -41,10 +38,7 @@ class RW2010Store(BasicStoreConfig, StorePlugin):
 
     def search(self, query, max_results=10, timeout=60):
         url = 'http://www.rw2010.pl/go.live.php/?launch_macro=catalogue-search-rd'
-        values={
-            'fkeyword': query,
-            'file_type':''
-            }
+        values = {'fkeyword': query, 'file_type': ''}
 
         br = browser()
 
@@ -59,7 +53,7 @@ class RW2010Store(BasicStoreConfig, StorePlugin):
                 if not id:
                     continue
 
-                with closing(br.open(id.strip(), timeout=timeout/4)) as nf:
+                with closing(br.open(id.strip(), timeout=timeout / 4)) as nf:
                     idata = safe_html_fromstring(nf.read())
                     cover_url = ''.join(idata.xpath('//div[@class="boxa"]//div[@class="img"]/img/@src'))
                     author = ''.join(idata.xpath('//div[@class="boxb"]//h3[text()="Autor: "]/span/text()'))

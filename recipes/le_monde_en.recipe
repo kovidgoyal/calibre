@@ -15,8 +15,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 def classes(classes):
     q = frozenset(classes.split(' '))
-    return dict(attrs={
-        'class': lambda x: x and frozenset(x.split()).intersection(q)})
+    return dict(attrs={'class': lambda x: x and frozenset(x.split()).intersection(q)})
 
 
 class LeMonde(BasicNewsRecipe):
@@ -34,9 +33,7 @@ class LeMonde(BasicNewsRecipe):
     remove_empty_feeds = True
     ignore_duplicate_articles = {'title', 'url'}
 
-    conversion_options = {
-        'publisher': publisher
-    }
+    conversion_options = {'publisher': publisher}
 
     masthead_url = 'http://upload.wikimedia.org/wikipedia/commons/thumb/5/54/Le_monde_logo.svg/800px-Le_monde_logo.svg.png'
 
@@ -54,31 +51,22 @@ class LeMonde(BasicNewsRecipe):
         ('Our Times', 'https://www.lemonde.fr/en/our-times/rss_full.xml'),
     ]
 
-    keep_only_tags = [
-        classes('article__header'),
-        dict(name='section', attrs={'class': ['article__content', 'article__heading',
-                                              'article__wrapper']})
-    ]
+    keep_only_tags = [classes('article__header'), dict(name='section', attrs={'class': ['article__content', 'article__heading', 'article__wrapper']})]
 
     remove_tags = [
         classes('article__status meta__date meta__reading-time meta__social multimedia-embed'),
         dict(name=['footer', 'link']),
         dict(name='img', attrs={'class': ['article__author-picture']}),
-        dict(name='section', attrs={'class': ['article__reactions', 'author', 'catcher',
-                                              'portfolio', 'services-inread']})
+        dict(name='section', attrs={'class': ['article__reactions', 'author', 'catcher', 'portfolio', 'services-inread']}),
     ]
 
-    remove_attributes = [
-        'data-sizes', 'height', 'sizes', 'width'
-    ]
+    remove_attributes = ['data-sizes', 'height', 'sizes', 'width']
 
     preprocess_regexps = [
         # insert space between author name and description
-        (re.compile(r'(<span class="[^"]*author__desc[^>]*>)([^<]*</span>)',
-                    re.IGNORECASE), lambda match: match.group(1) + ' ' + match.group(2)),
+        (re.compile(r'(<span class="[^"]*author__desc[^>]*>)([^<]*</span>)', re.IGNORECASE), lambda match: match.group(1) + ' ' + match.group(2)),
         # insert " | " between article type and description
-        (re.compile(r'(<span class="[^"]*article__kicker[^>]*>[^<]*)(</span>)',
-                    re.IGNORECASE), lambda match: match.group(1) + ' | ' + match.group(2))
+        (re.compile(r'(<span class="[^"]*article__kicker[^>]*>[^<]*)(</span>)', re.IGNORECASE), lambda match: match.group(1) + ' | ' + match.group(2)),
     ]
 
     extra_css = '''

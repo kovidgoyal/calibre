@@ -21,10 +21,7 @@ class AdvancedUserRecipe1282101454(BasicNewsRecipe):
                     body{font-family:Helvetica,Arial,sans-serif;font-size:small;}
     '''
 
-    remove_tags = [
-        dict(name='div', attrs={'id': ['sidebar', 'print-actions']})
-
-    ]
+    remove_tags = [dict(name='div', attrs={'id': ['sidebar', 'print-actions']})]
 
     feeds = [
         ('TOP 20', 'http://www.tmz.com/rss.xml'),
@@ -44,7 +41,7 @@ class AdvancedUserRecipe1282101454(BasicNewsRecipe):
         ('Party All The Time', 'http://www.tmz.com/category/party-all-the-time/rss.xml'),
         ('Ride Me!', 'http://www.tmz.com/category/ride-me/rss.xml'),
         ('Stars in Heat', 'http://www.tmz.com/category/stars-in-heat/rss.xml'),
-        ('Vegas', 'http://www.tmz.com/category/hot-vegas/rss.xml')
+        ('Vegas', 'http://www.tmz.com/category/hot-vegas/rss.xml'),
     ]
 
     def print_version(self, url):

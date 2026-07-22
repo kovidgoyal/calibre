@@ -3,9 +3,9 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class Gram_pl(BasicNewsRecipe):
-    title = u'Gram.pl'
+    title = 'Gram.pl'
     __author__ = 'fenuks'
-    description = u'Serwis społecznościowy o grach: recenzje, newsy, zapowiedzi, encyklopedia gier, forum. Gry PC, PS3, X360, PS Vita, sprzęt dla graczy.'
+    description = 'Serwis społecznościowy o grach: recenzje, newsy, zapowiedzi, encyklopedia gier, forum. Gry PC, PS3, X360, PS Vita, sprzęt dla graczy.'
     category = 'games'
     language = 'pl'
     oldest_article = 8
@@ -14,35 +14,29 @@ class Gram_pl(BasicNewsRecipe):
     ignore_duplicate_articles = {'title', 'url'}
     no_stylesheets = True
     remove_empty_feeds = True
-    cover_url = u'http://www.gram.pl/www/01/img/grampl_zima.png'
+    cover_url = 'http://www.gram.pl/www/01/img/grampl_zima.png'
     keep_only_tags = [dict(id='articleModule')]
-    remove_tags = [dict(attrs={'class': ['breadCrump', 'dymek', 'articleFooter',
-                                         'twitter-share-button']}), dict(name='aside'), dict(id='metaColumn')]
-    feeds = [(u'Informacje', u'http://www.gram.pl/feed_news.asp'),
-             (u'Publikacje', u'http://www.gram.pl/feed_news.asp?type=articles')
-             ]
+    remove_tags = [dict(attrs={'class': ['breadCrump', 'dymek', 'articleFooter', 'twitter-share-button']}), dict(name='aside'), dict(id='metaColumn')]
+    feeds = [('Informacje', 'http://www.gram.pl/feed_news.asp'), ('Publikacje', 'http://www.gram.pl/feed_news.asp?type=articles')]
 
     def parse_feeds(self):
         feeds = BasicNewsRecipe.parse_feeds(self)
         for feed in feeds:
             for article in feed.articles[:]:
-                if 'REKLAMA SKLEP' in article.title.upper() or u'ARTYKUŁ:' in article.title.upper():
+                if 'REKLAMA SKLEP' in article.title.upper() or 'ARTYKUŁ:' in article.title.upper():
                     feed.articles.remove(article)
         return feeds
 
     def preprocess_html(self, soup):
         tag = soup.find(name='div', attrs={'class': 'summary'})
         if tag:
-            tag.find(attrs={'class': 'pros'}).insert(
-                0, BeautifulSoup('<h2>Plusy:</h2>').h2)
-            tag.find(attrs={'class': 'cons'}).insert(
-                0, BeautifulSoup('<h2>Minusy:</h2>').h2)
+            tag.find(attrs={'class': 'pros'}).insert(0, BeautifulSoup('<h2>Plusy:</h2>').h2)
+            tag.find(attrs={'class': 'cons'}).insert(0, BeautifulSoup('<h2>Minusy:</h2>').h2)
             tag = soup.find(name='section', attrs={'class': 'cenzurka'})
             if tag:
                 rate = tag.p.img['data-ocena']
                 tag.p.img.extract()
-                tag.p.insert(len(tag.p.contents) - 2,
-                             BeautifulSoup('<h2>Ocena: {0}</h2>'.format(rate)).h2)
+                tag.p.insert(len(tag.p.contents) - 2, BeautifulSoup('<h2>Ocena: {0}</h2>'.format(rate)).h2)
         for a in soup.findAll('a', href=True):
             if 'http://' not in a['href'] and 'https://' not in a['href']:
                 a['href'] = self.index + a['href']

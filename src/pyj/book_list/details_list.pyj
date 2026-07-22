@@ -14,6 +14,7 @@ from utils import fmt_sidx, safe_set_inner_html, sandboxed_html
 DETAILS_LIST_CLASS = 'book-list-details-list'
 ITEM_CLASS = DETAILS_LIST_CLASS + '-item'
 
+
 def description():
     return _('A list with thumbnails and some book details')
 
@@ -83,7 +84,7 @@ def details_list_css():
     )
     # Make the cover fill the full row height
     ans += build_rule(s + ' > img',
-        border_radius=BORDER_RADIUS+'px',
+        border_radius=BORDER_RADIUS + 'px',
         width=f'{THUMBNAIL_MAX_WIDTH}px',
         height=f'{THUMBNAIL_MAX_HEIGHT}px',
         display='block',
@@ -257,7 +258,7 @@ def on_img_load(img, load_type):
             E.div(_('by'), style='text-align: center'),
             E.h2(img.dataset.authors, style='text-align:center; font-size:larger; font-weight: bold')
         ))
-        set_css(div, border='dashed 1px currentColor', border_radius=BORDER_RADIUS+'px')
+        set_css(div, border='dashed 1px currentColor', border_radius=BORDER_RADIUS + 'px')
 
 
 def sandbox_css():
@@ -296,6 +297,7 @@ def create_item(book_id, metadata, create_image, show_book_details, href):
 
     # Extra metadata line (publisher / published / formats / languages / tags)
     meta = E.div(class_='details-meta')
+
     def add_badge(icon, text, title=None):
         if not text:
             return

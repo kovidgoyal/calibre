@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2008, Kovid Goyal <kovid at kovidgoyal.net>
 
-
 import textwrap
 from collections.abc import Callable
 from contextlib import suppress
@@ -48,7 +47,6 @@ from calibre.utils.localization import _
 
 
 class Cover(CoverView):
-
     open_with_requested = pyqtSignal(object)
     choose_open_with_requested = pyqtSignal()
     copy_to_clipboard_requested = pyqtSignal()
@@ -66,7 +64,7 @@ class Cover(CoverView):
     def sizeHint(self):
         return self.size_hint_callback(super().sizeHint())
 
-    def copy_to_clipboard(self):
+    def copy_to_clipboard(self) -> None:
         self.copy_to_clipboard_requested.emit()
 
     def build_context_menu(self):
@@ -95,13 +93,13 @@ class Cover(CoverView):
 
 
 class Configure(Dialog):
-
     def __init__(self, db, parent=None):
         self.db = db
         Dialog.__init__(self, _('Configure the Book details window'), 'book-details-popup-conf', parent)
 
     def setup_ui(self):
         from calibre.gui2.preferences.look_feel_tabs import DisplayedFields, move_field_down, move_field_up
+
         self.l = QVBoxLayout(self)
         self.field_display_order = fdo = QListView(self)
         self.model = DisplayedFields(self.db, fdo, pref_name='popup_book_display_fields')
@@ -118,24 +116,24 @@ class Configure(Dialog):
         s.activated.connect(b.click)
         connect_lambda(b.clicked, self, lambda self: move_field_up(fdo, self.model))
         b.setIcon(QIcon.ic('arrow-up.png'))
-        b.setToolTip(_('Move the selected field up [{}]').format(
-            str(s.key().toString(QKeySequence.SequenceFormat.NativeText))))
+        b.setToolTip(_('Move the selected field up [{}]').format(str(s.key().toString(QKeySequence.SequenceFormat.NativeText))))
         v.addWidget(b), v.addStretch(10)
 
         self.mud = b = QToolButton(self)
         self.ds = s = QShortcut(QKeySequence('Ctrl+Down'), self)
         s.activated.connect(b.click)
         b.setIcon(QIcon.ic('arrow-down.png'))
-        b.setToolTip(_('Move the selected field down [{}]').format(
-            str(s.key().toString(QKeySequence.SequenceFormat.NativeText))))
+        b.setToolTip(_('Move the selected field down [{}]').format(str(s.key().toString(QKeySequence.SequenceFormat.NativeText))))
         connect_lambda(b.clicked, self, lambda self: move_field_down(fdo, self.model))
         v.addWidget(b)
         h.addLayout(v)
 
         self.l.addLayout(h)
-        txt = QLabel('<p>' + _(
-            'Note: <b>comments</b>-like columns will always be displayed at '
-            'the end unless their "Heading position" is "Show heading to the side"')+'</p>')
+        txt = QLabel(
+            '<p>'
+            + _('Note: <b>comments</b>-like columns will always be displayed at the end unless their "Heading position" is "Show heading to the side"')
+            + '</p>'
+        )
         txt.setWordWrap(True)
         self.l.addWidget(txt)
 
@@ -166,7 +164,6 @@ class Configure(Dialog):
 
 
 class Details(HTMLDisplay):
-
     notes_resource_scheme = RESOURCE_URL_SCHEME
 
     def __init__(self, book_info, parent=None, allow_context_menu=True, is_locked=False):
@@ -185,8 +182,7 @@ class Details(HTMLDisplay):
 
     def contextMenuEvent(self, e):
         if self.allow_context_menu:
-            details_context_menu_event(self, e, self.book_info,
-                           edit_metadata=None if self.is_locked else self.edit_metadata)
+            details_context_menu_event(self, e, self.book_info, edit_metadata=None if self.is_locked else self.edit_metadata)
 
 
 class DialogNumbers(IntEnum):
@@ -207,17 +203,20 @@ listener_object = ListenerSignal()
 
 
 def book_metatada_changed(event_type: EventType, library_id, event_data):
-    if event_type not in (EventType.book_created, EventType.books_removed, EventType.book_edited, EventType.indexing_progress_changed):
+    if event_type not in (
+        EventType.book_created,
+        EventType.books_removed,
+        EventType.book_edited,
+        EventType.indexing_progress_changed,
+    ):
         listener_object.metadata_changed.emit()
 
 
 class BookInfo(QDialog, DropMixin):
-
     closed = pyqtSignal(object)
     open_cover_with = pyqtSignal(object, object)
 
-    def __init__(self, parent, view, row, link_delegate, dialog_number=None,
-                 library_id=None, library_path=None, book_id=None):
+    def __init__(self, parent, view, row, link_delegate, dialog_number=None, library_id=None, library_path=None, book_id=None):
         QDialog.__init__(self, parent)
         DropMixin.__init__(self)
         self.files_dropped.connect(self.on_files_dropped)
@@ -243,9 +242,12 @@ class BookInfo(QDialog, DropMixin):
         self.cover.size_hint_callback = self.details_size_hint
         self.splitter.addWidget(self.cover)
 
-        self.details = Details(parent.book_details.book_info, self,
-                               allow_context_menu=library_path is None,
-                               is_locked=dialog_number == DialogNumbers.Locked)
+        self.details = Details(
+            parent.book_details.book_info,
+            self,
+            allow_context_menu=library_path is None,
+            is_locked=dialog_number == DialogNumbers.Locked,
+        )
         self.details.anchor_clicked.connect(self.on_link_clicked)
         self.link_delegate = link_delegate
         self.details.setAttribute(Qt.WidgetAttribute.WA_OpaquePaintEvent, False)
@@ -278,10 +280,8 @@ class BookInfo(QDialog, DropMixin):
             self.ns.activated.connect(self.next)
             self.ps = QShortcut(QKeySequence('Alt+Left'), self)
             self.ps.activated.connect(self.previous)
-            self.next_button.setToolTip(_('Next [%s]')%
-                    str(self.ns.key().toString(QKeySequence.SequenceFormat.NativeText)))
-            self.previous_button.setToolTip(_('Previous [%s]')%
-                    str(self.ps.key().toString(QKeySequence.SequenceFormat.NativeText)))
+            self.next_button.setToolTip(_('Next [%s]') % str(self.ns.key().toString(QKeySequence.SequenceFormat.NativeText)))
+            self.previous_button.setToolTip(_('Previous [%s]') % str(self.ps.key().toString(QKeySequence.SequenceFormat.NativeText)))
 
         self.path_to_book = None
         self.current_row = None
@@ -337,8 +337,11 @@ class BookInfo(QDialog, DropMixin):
             a.setShortcut(vb.shortcut())
             a.triggered.connect(self.view_book)
             self.addAction(a)
-            self.clabel = QLabel('<div style="text-align: right"><a href="calibre:conf" title="{}" style="text-decoration: none">{}</a>'.format(
-                _('Configure this view'), _('Configure')))
+            self.clabel = QLabel(
+                '<div style="text-align: right"><a href="calibre:conf" title="{}" style="text-decoration: none">{}</a>'.format(
+                    _('Configure this view'), _('Configure')
+                )
+            )
             self.clabel.linkActivated.connect(self.configure)
             hl.addWidget(self.clabel)
         self.fit_cover.stateChanged.connect(self.toggle_cover_fit)
@@ -382,7 +385,7 @@ class BookInfo(QDialog, DropMixin):
             geom = screen.availableSize()
             screen_height = geom.height() - 100
             screen_width = geom.width() - 100
-            return QSize(max(int(screen_width/2), 700), screen_height)
+            return QSize(max(int(screen_width / 2), 700), screen_height)
         except Exception:
             return QSize(800, 600)
 
@@ -446,7 +449,7 @@ class BookInfo(QDialog, DropMixin):
         if ci.isValid():
             view.model().current_changed(ci, ci)
 
-    def details_size_hint(self, sz: QSize=QSize()) -> QSize:
+    def details_size_hint(self, sz: QSize = QSize()) -> QSize:
         return QSize(350, 550)
 
     def toggle_cover_fit(self, state):
@@ -490,16 +493,18 @@ class BookInfo(QDialog, DropMixin):
             return
         pixmap = self.cover_pixmap
         if self.fit_cover.isChecked() and not pixmap.isNull():
-            scaled, new_width, new_height = fit_image(pixmap.width(),
-                    pixmap.height(), self.cover.size().width()-10,
-                    self.cover.size().height()-10)
+            scaled, new_width, new_height = fit_image(pixmap.width(), pixmap.height(), self.cover.size().width() - 10, self.cover.size().height() - 10)
             if scaled:
                 try:
                     dpr = self.devicePixelRatioF()
                 except AttributeError:
                     dpr = self.devicePixelRatio()
-                pixmap = pixmap.scaled(int(dpr * new_width), int(dpr * new_height),
-                        Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
+                pixmap = pixmap.scaled(
+                    int(dpr * new_width),
+                    int(dpr * new_height),
+                    Qt.AspectRatioMode.KeepAspectRatio,
+                    Qt.TransformationMode.SmoothTransformation,
+                )
                 pixmap.setDevicePixelRatio(dpr)
         self.cover.set_pixmap(pixmap)
         self.cover.set_marked(self.marked)
@@ -513,6 +518,7 @@ class BookInfo(QDialog, DropMixin):
 
     def download_cover(self):
         from calibre.gui2.book_details import download_cover
+
         if self.current_row is not None:
             view = self.view
             assert view is not None
@@ -523,8 +529,7 @@ class BookInfo(QDialog, DropMixin):
     def update_cover_tooltip(self):
         tt = ''
         if self.marked:
-            tt += _('This book is marked') if self.marked in {True, 'true'} else _(
-                'This book is marked as: %s') % self.marked
+            tt += _('This book is marked') if self.marked in {True, 'true'} else _('This book is marked as: %s') % self.marked
             tt += '\n\n'
 
         if self.path_to_book is not None:
@@ -533,7 +538,7 @@ class BookInfo(QDialog, DropMixin):
 
         if self.cover_pixmap is not None:
             sz = self.cover_pixmap.size()
-            tt += _('Cover size: %(width)d x %(height)d pixels')%dict(width=sz.width(), height=sz.height())
+            tt += _('Cover size: %(width)d x %(height)d pixels') % dict(width=sz.width(), height=sz.height())
         self.cover.setToolTip(tt)
         self.cover.pixmap_size = sz.width(), sz.height()
 
@@ -551,7 +556,7 @@ class BookInfo(QDialog, DropMixin):
             return
         if self.dialog_number == DialogNumbers.Slaved:
             self.previous_button.setEnabled(False if row == 0 else True)
-            self.next_button.setEnabled(False if row == view.model().rowCount(QModelIndex())-1 else True)
+            self.next_button.setEnabled(False if row == view.model().rowCount(QModelIndex()) - 1 else True)
             self.setWindowTitle(mi.title + ' ' + _('(the current book)'))
         elif self.library_id is not None:
             self.setWindowTitle(mi.title + ' ' + _('(from {})').format(self.library_id))
@@ -579,6 +584,7 @@ class BookInfo(QDialog, DropMixin):
 
     def choose_open_with(self):
         from calibre.gui2.open_with import choose_program
+
         entry = choose_program('cover_image', self)
         if entry is not None:
             self.open_with(entry)
@@ -587,6 +593,7 @@ class BookInfo(QDialog, DropMixin):
 if __name__ == '__main__':
     from calibre.gui2 import Application
     from calibre.library import db
+
     app = Application([])
     dbx = db()
     setattr(app, 'current_db', dbx)

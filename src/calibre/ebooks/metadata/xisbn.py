@@ -1,9 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__   = 'GPL v3'
-__copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2010, Kovid Goyal <kovid@kovidgoyal.net>
 
 import json
 import re
@@ -35,7 +31,7 @@ class xISBN:
         # xisbn service has been de-comissioned see
         # https://www.oclc.org/developer/news/2018/xid-decommission.en.html
         return []
-        url = self.QUERY%isbn
+        url = self.QUERY % isbn
         data = browser().open_novisit(url).read()
         data = json.loads(data)
         if data.get('stat', None) != 'ok':
@@ -62,6 +58,7 @@ class xISBN:
                     data = self.fetch_data(isbn)
                 except Exception:
                     import traceback
+
                     traceback.print_exc()
                     data = []
                 id_ = len(self._data)
@@ -103,6 +100,7 @@ xisbn = xISBN()
 if __name__ == '__main__':
     import pprint
     import sys
+
     isbn = sys.argv[-1]
     print(pprint.pprint(xisbn.get_data(isbn)))
     print()

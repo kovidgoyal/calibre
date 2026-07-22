@@ -1,4 +1,4 @@
-'''
+"""
 Based on the OpenSearch Python module by Ed Summers <ehs@pobox.com> from
 https://github.com/edsu/opensearch .
 
@@ -18,7 +18,6 @@ of data.
 
 The module was also rewritten to use lxml instead of MiniDom.
 
-
 Usage:
 
 description = Description(open_search_url)
@@ -34,4 +33,4 @@ query.count = max_results
 
 search_url = oquery.url()
 
-'''
+"""

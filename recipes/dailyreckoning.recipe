@@ -22,18 +22,13 @@ class dailyreckoning_us(BasicNewsRecipe):
     language = 'en_US'
     extra_css = ' #BlogTitle{font-size: x-large; font-weight: bold} #BlogDate{font-size: small} '
 
-    conversion_options = {
-        'comment': description, 'tags': category, 'publisher': publisher, 'language': language
-    }
+    conversion_options = {'comment': description, 'tags': category, 'publisher': publisher, 'language': language}
 
-    feeds = [(u'Articles', u'http://feeds.feedburner.com/dailyreckoning?format=xml')]
+    feeds = [('Articles', 'http://feeds.feedburner.com/dailyreckoning?format=xml')]
 
     keep_only_tags = [dict(name='div', attrs={'id': 'Outline'})]
 
-    remove_tags = [
-        dict(name=['object', 'link', 'base']), dict(
-            name='hr', attrs={'class': 'Divider'})
-    ]
+    remove_tags = [dict(name=['object', 'link', 'base']), dict(name='hr', attrs={'class': 'Divider'})]
 
     remove_tags_after = dict(name='hr', attrs={'class': 'Divider'})
 

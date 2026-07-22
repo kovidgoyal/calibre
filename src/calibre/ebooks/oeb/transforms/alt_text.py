@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2024, Kovid Goyal <kovid at kovidgoyal.net>
 
-
 from io import BytesIO
 
 from PIL import Image
@@ -28,7 +27,6 @@ def process_spine_item(item, hrefs, log):
 
 
 class AddAltText:
-
     def __call__(self, oeb, opts):
         oeb.logger.info('Add alt text to images...')
         hrefs = oeb.manifest.hrefs

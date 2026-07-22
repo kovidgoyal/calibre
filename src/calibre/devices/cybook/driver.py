@@ -1,10 +1,8 @@
-__license__   = 'GPL v3'
-__copyright__ = '2009, John Schember <john at nachtimwald.com>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2009, John Schember <john at nachtimwald.com>
 
-'''
+"""
 Device driver for Bookeen's Cybook Gen 3 and Opus and Orizon
-'''
+"""
 
 import os
 import re
@@ -17,20 +15,19 @@ from calibre.utils.localization import _
 
 
 class CYBOOK(USBMS):
-
-    name           = 'Cybook Gen 3 / Opus Device Interface'
-    gui_name       = 'Cybook Gen 3/Opus'
-    description    = _('Communicate with the Cybook Gen 3/Opus e-book reader.')
-    author         = 'John Schember'
+    name = 'Cybook Gen 3 / Opus Device Interface'
+    gui_name = 'Cybook Gen 3/Opus'
+    description = _('Communicate with the Cybook Gen 3/Opus e-book reader.')
+    author = 'John Schember'
     supported_platforms = ['windows', 'osx', 'linux']
 
     # Ordered list of supported formats
     # Be sure these have an entry in calibre.devices.mime
-    FORMATS     = ['epub', 'mobi', 'prc', 'html', 'pdf', 'rtf', 'txt']
+    FORMATS = ['epub', 'mobi', 'prc', 'html', 'pdf', 'rtf', 'txt']
 
-    VENDOR_ID   = [0x0bda, 0x3034]
-    PRODUCT_ID  = [0x0703, 0x1795]
-    BCD         = [0x110, 0x132]
+    VENDOR_ID = [0x0BDA, 0x3034]
+    PRODUCT_ID = [0x0703, 0x1795]
+    BCD = [0x110, 0x132]
 
     VENDOR_NAME = 'BOOKEEN'
     WINDOWS_MAIN_MEM = re.compile(r'CYBOOK_(OPUS|GEN3)__-FD')
@@ -61,14 +58,13 @@ class CYBOOK(USBMS):
 
 
 class ORIZON(CYBOOK):
+    name = 'Cybook Orizon Device Interface'
+    gui_name = 'Orizon'
+    description = _('Communicate with the Cybook Orizon e-book reader.')
 
-    name           = 'Cybook Orizon Device Interface'
-    gui_name       = 'Orizon'
-    description    = _('Communicate with the Cybook Orizon e-book reader.')
+    BCD = [0x319]
 
-    BCD         = [0x319]
-
-    FORMATS     = ['epub', 'html', 'pdf', 'rtf', 'txt']
+    FORMATS = ['epub', 'html', 'pdf', 'rtf', 'txt']
 
     VENDOR_NAME = ['BOOKEEN', 'LINUX']
     WINDOWS_MAIN_MEM = re.compile(r'(CYBOOK_ORIZON__-FD)|(FILE-STOR_GADGET)')
@@ -77,9 +73,10 @@ class ORIZON(CYBOOK):
     EBOOK_DIR_MAIN = EBOOK_DIR_CARD_A = 'Digital Editions'
 
     EXTRA_CUSTOMIZATION_MESSAGE = [
-        _('Card A folder') + ':::<p>' + _(
-            'Enter the folder where the books are to be stored when sent to the '
-            'memory card. This folder is prepended to any send to device template') + '</p>',
+        _('Card A folder')
+        + ':::<p>'
+        + _('Enter the folder where the books are to be stored when sent to the memory card. This folder is prepended to any send to device template')
+        + '</p>',
     ]
     EXTRA_CUSTOMIZATION_DEFAULT = [EBOOK_DIR_CARD_A]
 
@@ -113,17 +110,16 @@ class ORIZON(CYBOOK):
 
 
 class MUSE(CYBOOK):
+    name = 'Cybook Muse Device Interface'
+    gui_name = 'Muse'
+    description = _('Communicate with the Cybook Muse e-book reader.')
+    author = 'Kovid Goyal'
 
-    name           = 'Cybook Muse Device Interface'
-    gui_name       = 'Muse'
-    description    = _('Communicate with the Cybook Muse e-book reader.')
-    author         = 'Kovid Goyal'
+    FORMATS = ['epub', 'html', 'fb2', 'txt', 'pdf', 'djvu']
 
-    FORMATS     = ['epub', 'html', 'fb2', 'txt', 'pdf', 'djvu']
-
-    VENDOR_ID   = [0x0525]
-    PRODUCT_ID  = [0xa4a5]
-    BCD         = [0x0230]
+    VENDOR_ID = [0x0525]
+    PRODUCT_ID = [0xA4A5]
+    BCD = [0x0230]
 
     VENDOR_NAME = 'USB_2.0'
     WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = 'USB_FLASH_DRIVER'
@@ -134,22 +130,29 @@ class MUSE(CYBOOK):
     @classmethod
     def can_handle(cls, device_info, debug=False):
         if isunix:
-            return device_info[3] == 'Bookeen' and device_info[4] in ('Cybook', 'Lev', 'Nolimbook', 'Letto', 'Nolim', 'Saga', 'NolimbookXL')
+            return device_info[3] == 'Bookeen' and device_info[4] in (
+                'Cybook',
+                'Lev',
+                'Nolimbook',
+                'Letto',
+                'Nolim',
+                'Saga',
+                'NolimbookXL',
+            )
         return True
 
 
 class DIVA(CYBOOK):
+    name = 'Bookeen Diva HD Device Interface'
+    gui_name = 'Diva HD'
+    description = _('Communicate with the Bookeen Diva HD e-book reader.')
+    author = 'Kovid Goyal'
 
-    name           = 'Bookeen Diva HD Device Interface'
-    gui_name       = 'Diva HD'
-    description    = _('Communicate with the Bookeen Diva HD e-book reader.')
-    author         = 'Kovid Goyal'
-
-    VENDOR_ID = [0x1d6b]
+    VENDOR_ID = [0x1D6B]
     PRODUCT_ID = [0x0104]
     BCD = [0x100]
 
-    FORMATS     = ['epub', 'html', 'fb2', 'txt', 'pdf']
+    FORMATS = ['epub', 'html', 'fb2', 'txt', 'pdf']
     EBOOK_DIR_MAIN = 'Books'
     SCAN_FROM_ROOT = True
 

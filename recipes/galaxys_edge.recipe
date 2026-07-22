@@ -19,7 +19,7 @@ class AdvancedUserRecipe1515196393(BasicNewsRecipe):
     delay = 2
     oldest_article = 7
     max_articles_per_feed = 100
-    auto_cleanup   = True
+    auto_cleanup = True
     language = 'en'
     encoding = 'utf8'
     no_stylesheets = True
@@ -28,12 +28,12 @@ class AdvancedUserRecipe1515196393(BasicNewsRecipe):
 
     def parse_index(self):
         soup = self.index_to_soup('http://www.galaxysedge.com/')
-        cover_image = soup.find('div', attrs={'class':'ci-img'})
+        cover_image = soup.find('div', attrs={'class': 'ci-img'})
         cover_image = cover_image.find('img')
         self.cover_url = cover_image['src']
         issue_title = soup.find('h1')
         self.title = "Galaxy's Edge: " + self.tag_to_string(issue_title).lower().title()
-        toc = soup.find('div', attrs={'class':'nav-tabs'})
+        toc = soup.find('div', attrs={'class': 'nav-tabs'})
         current_section = 'Articles'
         current_articles = []
         feeds = []
@@ -49,12 +49,12 @@ class AdvancedUserRecipe1515196393(BasicNewsRecipe):
             self.log('\t\tdata-parent-id', parent_id)
             self.log('\t\tdata-cat-id', cat_id)
             self.log('\t\tdata-post-id', post_id)
-            data = urlencode({'action':'get_content', 'cat_id':cat_id, 'parent_id':parent_id, 'post_id':post_id})
-            r=br.open('http://www.galaxysedge.com/wp-content/themes/galaxyedge/get_content.php', data)
+            data = urlencode({'action': 'get_content', 'cat_id': cat_id, 'parent_id': parent_id, 'post_id': post_id})
+            r = br.open('http://www.galaxysedge.com/wp-content/themes/galaxyedge/get_content.php', data)
             content_file = PersistentTemporaryFile(suffix='.html', dir=self.ctdir)
             content_file.write(r.read())
             content_file.close()
-            current_articles.append({'title': title, 'url':'file://' + content_file.name, 'description':'', 'date':''})
+            current_articles.append({'title': title, 'url': 'file://' + content_file.name, 'description': '', 'date': ''})
         if current_articles and current_section:
             feeds.append((current_section, current_articles))
 

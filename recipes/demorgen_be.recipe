@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
-'''
+"""
 demorgen.be
-'''
+"""
 
 from calibre.web.feeds.news import BasicNewsRecipe
 

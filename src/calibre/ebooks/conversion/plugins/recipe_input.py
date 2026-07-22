@@ -1,9 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__   = 'GPL v3'
-__copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2009, Kovid Goyal <kovid@kovidgoyal.net>
 
 import os
 
@@ -18,11 +14,10 @@ class RecipeDisabled(Exception):
 
 
 class RecipeInput(InputFormatPlugin):
-
-    name        = 'Recipe Input'
-    author      = 'Kovid Goyal'
+    name = 'Recipe Input'
+    author = 'Kovid Goyal'
     description = _('Download periodical content from the Internet')
-    file_types  = {'recipe', 'downloaded_recipe'}
+    file_types = {'recipe', 'downloaded_recipe'}
     commit_name = 'recipe_input'
 
     recommendations = {
@@ -33,40 +28,49 @@ class RecipeInput(InputFormatPlugin):
         ('input_profile', 'default', OptionRecommendation.HIGH),
         ('page_breaks_before', None, OptionRecommendation.HIGH),
         ('insert_metadata', False, OptionRecommendation.HIGH),
-        }
+    }
 
     options = {
-        OptionRecommendation(name='test', recommended_value=False,
-            help=_(
-            'Useful for recipe development. Forces'
-            ' max_articles_per_feed to 2 and downloads at most 2 feeds.'
-            ' You can change the number of feeds and articles by supplying optional arguments.'
-            ' For example: --test 3 1 will download at most 3 feeds and only 1 article per feed.')),
-        OptionRecommendation(name='username', recommended_value=None,
-            help=_('Username for sites that require a login to access '
-                'content.')),
-        OptionRecommendation(name='password', recommended_value=None,
-            help=_('Password for sites that require a login to access '
-                'content.')),
-        OptionRecommendation(name='recipe_specific_option',
-            help=_('Recipe specific options.')),
-        OptionRecommendation(name='dont_download_recipe',
+        OptionRecommendation(
+            name='test',
             recommended_value=False,
-            help=_('Do not download latest version of builtin recipes from the calibre server')),
-        OptionRecommendation(name='lrf', recommended_value=False,
-            help='Optimize fetching for subsequent conversion to LRF.'),
-        }
+            help=_(
+                'Useful for recipe development. Forces'
+                ' max_articles_per_feed to 2 and downloads at most 2 feeds.'
+                ' You can change the number of feeds and articles by supplying optional arguments.'
+                ' For example: --test 3 1 will download at most 3 feeds and only 1 article per feed.'
+            ),
+        ),
+        OptionRecommendation(
+            name='username',
+            recommended_value=None,
+            help=_('Username for sites that require a login to access content.'),
+        ),
+        OptionRecommendation(
+            name='password',
+            recommended_value=None,
+            help=_('Password for sites that require a login to access content.'),
+        ),
+        OptionRecommendation(name='recipe_specific_option', help=_('Recipe specific options.')),
+        OptionRecommendation(
+            name='dont_download_recipe',
+            recommended_value=False,
+            help=_('Do not download latest version of builtin recipes from the calibre server'),
+        ),
+        OptionRecommendation(name='lrf', recommended_value=False, help='Optimize fetching for subsequent conversion to LRF.'),
+    }
 
-    def convert(self, stream, options, file_ext, log,
-            accelerators):
+    def convert(self, stream, options, file_ext, log, accelerators):
         recipe_or_file = stream
         opts = options
         listing_recipe_specific_options = 'list' in (opts.recipe_specific_option or ())
         from calibre.web.feeds.recipes import compile_recipe
+
         opts.output_profile.flow_size = 0
         orig_no_inline_navbars = opts.no_inline_navbars
         if file_ext == 'downloaded_recipe':
             from calibre.utils.zipfile import ZipFile
+
             zf = ZipFile(recipe_or_file, 'r')
             zf.extractall()
             zf.close()
@@ -78,6 +82,7 @@ class RecipeInput(InputFormatPlugin):
         else:
             if os.environ.get('CALIBRE_RECIPE_URN'):
                 from calibre.web.feeds.recipes.collection import get_builtin_recipe_by_id, get_custom_recipe
+
                 urn = os.environ['CALIBRE_RECIPE_URN']
                 log('Downloading recipe urn: ' + urn)
                 rtype, recipe_id = urn.partition(':')[::2]
@@ -99,6 +104,7 @@ class RecipeInput(InputFormatPlugin):
                 log('Using custom recipe')
             else:
                 from calibre.web.feeds.recipes.collection import get_builtin_recipe_by_title, get_builtin_recipe_titles
+
                 title = getattr(opts, 'original_recipe_input_arg', recipe_or_file)
                 title = os.path.basename(title).rpartition('.')[0]
                 titles = frozenset(get_builtin_recipe_titles())
@@ -106,26 +112,26 @@ class RecipeInput(InputFormatPlugin):
                     title = getattr(opts, 'original_recipe_input_arg', recipe_or_file)
                     title = title.rpartition('.')[0]
 
-                raw = get_builtin_recipe_by_title(title, log=log,
-                        download_recipe=not opts.dont_download_recipe and not listing_recipe_specific_options)
+                raw = get_builtin_recipe_by_title(
+                    title,
+                    log=log,
+                    download_recipe=not opts.dont_download_recipe and not listing_recipe_specific_options,
+                )
                 builtin = False
                 try:
                     recipe = compile_recipe(raw)
                     self.recipe_source = raw
                     if recipe.requires_version > numeric_version:
-                        log.warn(
-                        'Downloaded recipe needs calibre version at least: {}'.format('.'.join(recipe.requires_version)))
+                        log.warn('Downloaded recipe needs calibre version at least: {}'.format('.'.join(recipe.requires_version)))
                         builtin = True
                 except Exception:
-                    log.exception('Failed to compile downloaded recipe. Falling '
-                            'back to builtin one')
+                    log.exception('Failed to compile downloaded recipe. Falling back to builtin one')
                     builtin = True
                 if builtin:
                     log('Using bundled builtin recipe')
-                    raw = get_builtin_recipe_by_title(title, log=log,
-                            download_recipe=False)
+                    raw = get_builtin_recipe_by_title(title, log=log, download_recipe=False)
                     if raw is None:
-                        raise ValueError('Failed to find builtin recipe: '+title)
+                        raise ValueError('Failed to find builtin recipe: ' + title)
                     recipe = compile_recipe(raw)
                     self.recipe_source = raw
                 else:
@@ -138,7 +144,7 @@ class RecipeInput(InputFormatPlugin):
             if disabled is not None:
                 raise RecipeDisabled(disabled)
             if listing_recipe_specific_options:
-                rso = (getattr(recipe, 'recipe_specific_options', None) or {})
+                rso = getattr(recipe, 'recipe_specific_options', None) or {}
                 if rso:
                     log(recipe.title, _('specific options:'))
                     name_maxlen = max(map(len, rso))
@@ -146,8 +152,9 @@ class RecipeInput(InputFormatPlugin):
                         log(' ', name.ljust(name_maxlen), '-', meta.get('short'))
                         if 'long' in meta:
                             from textwrap import wrap
+
                             for line in wrap(meta['long'], 70 - name_maxlen + 5):
-                                log(' '*(name_maxlen + 4), line)
+                                log(' ' * (name_maxlen + 4), line)
                 else:
                     log(recipe.title, _('has no recipe specific options'))
                 raise SystemExit(0)
@@ -156,6 +163,7 @@ class RecipeInput(InputFormatPlugin):
                 ro.download()
             finally:
                 from calibre.scraper.simple import cleanup_overseers
+
                 cleanup_overseers()
             self.recipe_object = ro
 
@@ -179,6 +187,7 @@ class RecipeInput(InputFormatPlugin):
     def specialize(self, oeb, opts, log, output_fmt):
         if opts.no_inline_navbars:
             from calibre.ebooks.oeb.base import XPath
+
             for item in oeb.spine:
                 for div in XPath('//h:div[contains(@class, "calibre_navbar")]')(item.data):
                     div.getparent().remove(div)

@@ -1,8 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__ = 'GPL v3'
-__copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
+# License: GPLv3 Copyright: 2014, Kovid Goyal <kovid at kovidgoyal.net>
 
 import numbers
 import unittest
@@ -11,14 +8,13 @@ from calibre.ebooks.epub.cfi.parse import cfi_sort_key, decode_cfi, parser
 
 
 class Tests(unittest.TestCase):
-
     def test_sorting(self):
         null_offsets = (0, (0, 0), 0)
         for path, key in [
-                ('/1/2/3', ((1, 2, 3), null_offsets)),
-                ('/1[id]:34[yyyy]', ((1,), (0, (0, 0), 34))),
-                ('/1@1:2', ((1,), (0, (2, 1), 0))),
-                ('/1~1.2', ((1,), (1.2, (0, 0), 0))),
+            ('/1/2/3', ((1, 2, 3), null_offsets)),
+            ('/1[id]:34[yyyy]', ((1,), (0, (0, 0), 34))),
+            ('/1@1:2', ((1,), (0, (2, 1), 0))),
+            ('/1~1.2', ((1,), (1.2, (0, 0), 0))),
         ]:
             self.assertEqual(cfi_sort_key(path), key)
 
@@ -28,25 +24,25 @@ class Tests(unittest.TestCase):
         def step(x):
             if isinstance(x, numbers.Integral):
                 return {'num': x}
-            return {'num':x[0], 'id':x[1]}
+            return {'num': x[0], 'id': x[1]}
 
         def s(*args):
-            return {'steps':list(map(step, args))}
+            return {'steps': list(map(step, args))}
 
         def r(*args):
             idx = args.index('!')
             ans = s(*args[:idx])
-            ans['redirect'] = s(*args[idx+1:])
+            ans['redirect'] = s(*args[idx + 1 :])
             return ans
 
         def o(*args):
             ans = s(1)
             step = ans['steps'][-1]
             typ, val = args[:2]
-            step[{'@':'spatial_offset', '~':'temporal_offset', ':':'text_offset'}[typ]] = val
+            step[{'@': 'spatial_offset', '~': 'temporal_offset', ':': 'text_offset'}[typ]] = val
             if len(args) == 4:
                 typ, val = args[2:]
-                step[{'@':'spatial_offset', '~':'temporal_offset'}[typ]] = val
+                step[{'@': 'spatial_offset', '~': 'temporal_offset'}[typ]] = val
             return ans
 
         def a(before=None, after=None, **params):
@@ -58,7 +54,7 @@ class Tests(unittest.TestCase):
             if after is not None:
                 ta['after'] = after
             if params:
-                ta['params'] = {str(k):(v,) if isinstance(v, str) else v for k, v in params.items()}
+                ta['params'] = {str(k): (v,) if isinstance(v, str) else v for k, v in params.items()}
             if ta:
                 step['text_assertion'] = ta
             return ans
@@ -71,7 +67,6 @@ class Tests(unittest.TestCase):
             ('/1/2!/3/4', r(1, 2, '!', 3, 4), ''),
             ('/1/2[id]!/3/4', r(1, (2, 'id'), '!', 3, 4), ''),
             ('/1!/2[id]/3/4', r(1, '!', (2, 'id'), 3, 4), ''),
-
             # Test parsing of offsets
             ('/1~0', o('~', 0), ''),
             ('/1~7', o('~', 7), ''),
@@ -83,7 +78,6 @@ class Tests(unittest.TestCase):
             ('/1~3@3.1:2.3', o('~', 3.0, '@', (3.1, 2.3)), ''),
             ('/1:0', o(':', 0), ''),
             ('/1:3', o(':', 3), ''),
-
             # Test parsing of text assertions
             ('/1:3[aa^,b]', a('aa,b'), ''),
             ('/1:3[aa-b]', a('aa-b'), ''),
@@ -94,13 +88,14 @@ class Tests(unittest.TestCase):
             ('/1:3[;s=a]', a(s='a'), ''),
             ('/1:3[a;s=a]', a('a', s='a'), ''),
             ('/1:3[a;s=a^,b,c^;d;x=y]', a('a', s=('a,b', 'c;d'), x='y'), ''),
-
         ]:
             self.assertEqual(p.parse_path(raw), (path, leftover))
 
     def test_cfi_decode(self):
         from calibre.ebooks.oeb.polish.parsing import parse
-        root = parse('''
+
+        root = parse(
+            '''
 <html>
 <head></head>
 <body id="body01">
@@ -116,7 +111,10 @@ class Tests(unittest.TestCase):
         <p><span>hello</span><span>goodbye</span>text here<em>adieu</em>text there</p>
     </body>
 </html>
-''', line_numbers=True, linenumber_attribute='data-lnum')
+''',
+            line_numbers=True,
+            linenumber_attribute='data-lnum',
+        )
         body = root[-1]
 
         def test(cfi, expected):
@@ -126,7 +124,7 @@ class Tests(unittest.TestCase):
             test(cfi, body)
 
         for i in range(len(body)):
-            test(f'/4/{(i + 1)*2}', body[i])
+            test(f'/4/{(i + 1) * 2}', body[i])
 
         p = body[4]
         test('/4/999[para05]', p)

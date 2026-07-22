@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
-
 import os
 import subprocess
 import sys
@@ -39,13 +38,12 @@ vprefs = JSONConfig('viewer')
 
 
 class PrintDialog(Dialog):
-
     OUTPUT_NAME = 'print-to-pdf-choose-file'
 
     def __init__(self, book_title, parent=None, prefs=vprefs):
         self.book_title = book_title
         self.default_file_name = sanitize_file_name(book_title[:75] + '.pdf')
-        self.paper_size_map = {a:getattr(QPageSize.PageSizeId, a.capitalize()) for a in PAPER_SIZES}
+        self.paper_size_map = {a: getattr(QPageSize.PageSizeId, a.capitalize()) for a in PAPER_SIZES}
         Dialog.__init__(self, _('Print to PDF'), 'print-to-pdf', prefs=prefs, parent=parent)
 
     def setup_ui(self):
@@ -75,10 +73,10 @@ class PrintDialog(Dialog):
         ps.set_value_for_config = vprefs.get('print-to-pdf-page-size', None)
         l.addRow(_('Paper &size:'), ps)
         tmap = {
-                'left':_('&Left margin:'),
-                'top':_('&Top margin:'),
-                'right':_('&Right margin:'),
-                'bottom':_('&Bottom margin:'),
+            'left': _('&Left margin:'),
+            'top': _('&Top margin:'),
+            'right': _('&Right margin:'),
+            'bottom': _('&Bottom margin:'),
         }
         for edge in 'left top right bottom'.split():
             m = QDoubleSpinBox(self)
@@ -110,16 +108,22 @@ class PrintDialog(Dialog):
         ans = {
             'output': fpath,
             'paper_size': self.paper_size.get_value_for_config,
-            'page_numbers':self.pnum.isChecked(),
-            'show_file':self.show_file.isChecked(),
+            'page_numbers': self.pnum.isChecked(),
+            'show_file': self.show_file.isChecked(),
         }
         for edge in 'left top right bottom'.split():
             ans['margin_' + edge] = getattr(self, f'{edge}_margin').value()
         return ans
 
     def choose_file(self):
-        ans = choose_save_file(self, self.OUTPUT_NAME, _('PDF file'), filters=[(_('PDF file'), ['pdf'])],
-                               all_files=False, initial_filename=self.default_file_name)
+        ans = choose_save_file(
+            self,
+            self.OUTPUT_NAME,
+            _('PDF file'),
+            filters=[(_('PDF file'), ['pdf'])],
+            all_files=False,
+            initial_filename=self.default_file_name,
+        )
         if ans:
             self.file_name.setText(ans)
 
@@ -134,17 +138,24 @@ class PrintDialog(Dialog):
     def accept(self):
         fname = self.file_name.text().strip()
         if not fname:
-            return error_dialog(self, _('No filename specified'), _(
-                'You must specify a filename for the PDF file to generate'), show=True)
+            return error_dialog(
+                self,
+                _('No filename specified'),
+                _('You must specify a filename for the PDF file to generate'),
+                show=True,
+            )
         if not fname.lower().endswith('.pdf'):
-            return error_dialog(self, _('Incorrect filename specified'), _(
-                'The filename for the PDF file must end with .pdf'), show=True)
+            return error_dialog(
+                self,
+                _('Incorrect filename specified'),
+                _('The filename for the PDF file must end with .pdf'),
+                show=True,
+            )
         self.save_used_values()
         return Dialog.accept(self)
 
 
 class DoPrint(Thread):
-
     daemon = True
 
     def __init__(self, data):
@@ -167,19 +178,31 @@ class DoPrint(Thread):
                 pass
         except Exception:
             import traceback
+
             self.tb = traceback.format_exc()
 
 
 def do_print():
     from calibre.customize.ui import plugin_for_input_format
+
     stdin = getattr(sys.stdin, 'buffer', sys.stdin)
     data = msgpack_loads(stdin.read())
     ext = data['input'].lower().rpartition('.')[-1]
     input_plugin = plugin_for_input_format(ext)
     if input_plugin is None:
         raise ValueError(f'Not a supported file type: {ext.upper()}')
-    args = ['ebook-convert', data['input'], data['output'], '--paper-size', data['paper_size'], '--pdf-add-toc',
-            '--disable-remove-fake-margins', '--chapter-mark', 'none', '-vv']
+    args = [
+        'ebook-convert',
+        data['input'],
+        data['output'],
+        '--paper-size',
+        data['paper_size'],
+        '--pdf-add-toc',
+        '--disable-remove-fake-margins',
+        '--chapter-mark',
+        'none',
+        '-vv',
+    ]
     if input_plugin.is_image_collection:
         args.append('--no-process')
     else:
@@ -190,11 +213,11 @@ def do_print():
     for edge in 'left top right bottom'.split():
         args.append('--pdf-page-margin-' + edge), args.append('{:.1f}'.format(data['margin_' + edge] * 72))
     from calibre.ebooks.conversion.cli import main
+
     main(args)
 
 
 class Printing(QProgressDialog):
-
     def __init__(self, thread, show_file, parent=None):
         QProgressDialog.__init__(self, _('Printing, this will take a while, please wait...'), _('&Cancel'), 0, 0, parent)
         self.show_file = show_file
@@ -210,8 +233,13 @@ class Printing(QProgressDialog):
         if self.print_thread.is_alive():
             return
         if self.print_thread.tb or self.print_thread.log:
-            error_dialog(self, _('Failed to convert to PDF'), _(
-                'Failed to generate PDF file, click "Show details" for more information.'), det_msg=self.print_thread.tb or self.print_thread.log, show=True)
+            error_dialog(
+                self,
+                _('Failed to convert to PDF'),
+                _('Failed to generate PDF file, click "Show details" for more information.'),
+                det_msg=self.print_thread.tb or self.print_thread.log,
+                show=True,
+            )
         elif self.show_file:
             open_local_file(self.print_thread.data['output'])
         self.accept()
@@ -223,6 +251,7 @@ class Printing(QProgressDialog):
                     self.print_thread.worker.kill()
             except OSError:
                 import traceback
+
                 traceback.print_exc()
         self.timer.stop()
         self.reject()

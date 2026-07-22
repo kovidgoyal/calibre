@@ -1,9 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__   = 'GPL v3'
-__copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2010, Kovid Goyal <kovid@kovidgoyal.net>
 
 import errno
 import os
@@ -20,7 +16,6 @@ from calibre.utils.localization import _, localize_user_manual_link
 
 
 class ProgressDialog(PD):
-
     on_progress_update = pyqtSignal(object, object, object)
     finished_moving = pyqtSignal()
 
@@ -42,12 +37,14 @@ class ProgressDialog(PD):
 
 
 class ChooseLibrary(QDialog, Ui_Dialog):
-
     def __init__(self, db, callback, parent):
         super().__init__(parent)
         self.setupUi(self)
-        self.nas_warning.setText(self.nas_warning.text().format(localize_user_manual_link(
-            'https://manual.calibre-ebook.com/faq.html#i-am-getting-errors-with-my-calibre-library-on-a-networked-drive-nas')))
+        self.nas_warning.setText(
+            self.nas_warning.text().format(
+                localize_user_manual_link('https://manual.calibre-ebook.com/faq.html#i-am-getting-errors-with-my-calibre-library-on-a-networked-drive-nas')
+            )
+        )
         self.nas_warning.setOpenExternalLinks(True)
         self.db = db
         self.new_db = None
@@ -69,14 +66,10 @@ class ChooseLibrary(QDialog, Ui_Dialog):
     def choose_loc(self, *args):
         base = get_portable_base()
         if base is None:
-            loc = choose_dir(self, 'choose library location',
-                    _('Choose location for calibre library'))
+            loc = choose_dir(self, 'choose library location', _('Choose location for calibre library'))
         else:
-            name = force_unicode('choose library loc at' + base,
-                    filesystem_encoding)
-            loc = choose_dir(self, name,
-                    _('Choose location for calibre library'), default_dir=base,
-                    no_save_dir=True)
+            name = force_unicode('choose library loc at' + base, filesystem_encoding)
+            loc = choose_dir(self, name, _('Choose location for calibre library'), default_dir=base, no_save_dir=True)
         if loc is not None:
             self.location.setText(loc)
 
@@ -84,48 +77,52 @@ class ChooseLibrary(QDialog, Ui_Dialog):
         exists = self.db.exists_at(loc)
         base = get_portable_base()
         if patheq(loc, self.db.library_path):
-            error_dialog(self, _('Same as current'),
-                    _('The location %s contains the current calibre'
-                        ' library')%loc, show=True)
+            error_dialog(self, _('Same as current'), _('The location %s contains the current calibre library') % loc, show=True)
             return False
 
         if base is not None and ac in ('new', 'move'):
             abase = os.path.normcase(os.path.abspath(base))
-            cal = os.path.normcase(os.path.abspath(os.path.join(abase,
-                'Calibre')))
+            cal = os.path.normcase(os.path.abspath(os.path.join(abase, 'Calibre')))
             aloc = os.path.normcase(os.path.abspath(loc))
-            if (aloc.startswith(cal+os.sep) or aloc == cal):
-                error_dialog(self, _('Bad location'),
-                    _('You should not create a library inside the calibre'
-                        ' folder as this folder is automatically deleted during upgrades.'),
-                    show=True)
+            if aloc.startswith(cal + os.sep) or aloc == cal:
+                error_dialog(
+                    self,
+                    _('Bad location'),
+                    _('You should not create a library inside the calibre folder as this folder is automatically deleted during upgrades.'),
+                    show=True,
+                )
                 return False
             if aloc.startswith(abase) and os.path.dirname(aloc) != abase:
-                error_dialog(self, _('Bad location'),
-                    _('You can only create libraries inside %s at the top '
-                        'level, not in sub-folders')%base, show=True)
+                error_dialog(
+                    self,
+                    _('Bad location'),
+                    _('You can only create libraries inside %s at the top level, not in sub-folders') % base,
+                    show=True,
+                )
                 return False
 
         empty = not os.listdir(loc)
         if ac == 'existing' and not exists:
-            error_dialog(self, _('No existing library found'),
-                    _('There is no existing calibre library at %s')%loc,
-                    show=True)
+            error_dialog(self, _('No existing library found'), _('There is no existing calibre library at %s') % loc, show=True)
             return False
         if ac in ('new', 'move'):
             from calibre.db.legacy import LibraryDatabase
+
             if not empty:
-                error_dialog(self, _('Not empty'),
-                    _('The folder %s is not empty. Please choose an empty'
-                       ' folder.')%loc,
-                    show=True)
+                error_dialog(
+                    self,
+                    _('Not empty'),
+                    _('The folder %s is not empty. Please choose an empty folder.') % loc,
+                    show=True,
+                )
                 return False
-            if (iswindows and len(loc) >
-                    LibraryDatabase.WINDOWS_LIBRARY_PATH_LIMIT):
-                error_dialog(self, _('Too long'),
-                    _('Path to library too long. It must be less than'
-                    ' %d characters.')%LibraryDatabase.WINDOWS_LIBRARY_PATH_LIMIT,
-                    show=True)
+            if iswindows and len(loc) > LibraryDatabase.WINDOWS_LIBRARY_PATH_LIMIT:
+                error_dialog(
+                    self,
+                    _('Too long'),
+                    _('Path to library too long. It must be less than %d characters.') % LibraryDatabase.WINDOWS_LIBRARY_PATH_LIMIT,
+                    show=True,
+                )
                 return False
 
         return True
@@ -140,6 +137,7 @@ class ChooseLibrary(QDialog, Ui_Dialog):
             pd = ProgressDialog(_('Moving library, please wait...'), _('Scanning...'), max=0, min=0, icon='lt.png', parent=self)
             pd.canceled_signal.connect(abort_move.set)
             from calibre.gui2.ui import get_gui
+
             get_gui(fail_if_absent=True).library_view._model.stop_metadata_backup()
             move_error = []
 
@@ -148,6 +146,7 @@ class ChooseLibrary(QDialog, Ui_Dialog):
                     self.db.new_api.move_library_to(loc, abort=abort_move, progress=pd.show_new_progress)
                 except Exception:
                     import traceback
+
                     move_error.append(traceback.format_exc())
                 finally:
                     pd.finished_moving.emit()
@@ -159,9 +158,13 @@ class ChooseLibrary(QDialog, Ui_Dialog):
                 self.callback(self.db.library_path)
                 return
             if move_error:
-                error_dialog(self.parent(), _('Failed to move library'), _(
-                    'There was an error while moving the library. The operation has been aborted. Click'
-                    ' "Show details" for details.'), det_msg=move_error[0], show=True)
+                error_dialog(
+                    self.parent(),
+                    _('Failed to move library'),
+                    _('There was an error while moving the library. The operation has been aborted. Click "Show details" for details.'),
+                    det_msg=move_error[0],
+                    show=True,
+                )
                 self.callback(self.db.library_path)
                 return
             self.callback(loc, library_renamed=True)
@@ -174,8 +177,7 @@ class ChooseLibrary(QDialog, Ui_Dialog):
             action = 'new'
         text = str(self.location.text()).strip()
         if not text:
-            return error_dialog(self, _('No location'), _('No location selected'),
-                    show=True)
+            return error_dialog(self, _('No location'), _('No location selected'), show=True)
         loc = os.path.abspath(text)
         if action == 'move':
             try:
@@ -187,8 +189,7 @@ class ChooseLibrary(QDialog, Ui_Dialog):
             if action == 'new' and not os.path.exists(loc):
                 os.makedirs(loc)
             else:
-                return error_dialog(self, _('Bad location'),
-                        _('%s is not an existing folder')%loc, show=True)
+                return error_dialog(self, _('Bad location'), _('%s is not an existing folder') % loc, show=True)
         if not self.check_action(action, loc):
             return
         self.location.save_history()

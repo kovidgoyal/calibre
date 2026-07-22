@@ -9,7 +9,6 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class anan(BasicNewsRecipe):
-
     title = 'Anandtech'
     description = 'comprehensive Hardware Tests'
     __author__ = 'Oliver Niesner, Armin Geller'  # 2014-02-27 AGE: update
@@ -29,10 +28,17 @@ class anan(BasicNewsRecipe):
         dict(name='section', attrs={'class': ['main_cont']}),
     ]
     remove_tags = [
-        dict(name='div', attrs={'class': ['print',
-                                          'breadcrumb_area noprint',
-                                          'fl-rt noprint',
-                                          'blog_top_right', ]})
+        dict(
+            name='div',
+            attrs={
+                'class': [
+                    'print',
+                    'breadcrumb_area noprint',
+                    'fl-rt noprint',
+                    'blog_top_right',
+                ]
+            },
+        )
     ]
 
     feeds = [('Anandtech', 'http://www.anandtech.com/rss/')]

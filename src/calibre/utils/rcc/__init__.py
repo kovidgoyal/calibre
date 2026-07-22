@@ -59,8 +59,12 @@ def safe_link(src, dest):
 
 
 def compile_icon_dir_as_themes(
-    path_to_dir, output_path, theme_name='calibre-default', inherits='',
-    for_theme='any', prefix='/icons',
+    path_to_dir,
+    output_path,
+    theme_name='calibre-default',
+    inherits='',
+    for_theme='any',
+    prefix='/icons',
 ):
     with tempfile.TemporaryDirectory(dir=path_to_dir) as tdir, open(os.path.join(tdir, 'icons.qrc'), 'w') as qrc:
         print('<RCC>', file=qrc)

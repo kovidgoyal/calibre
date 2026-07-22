@@ -1,9 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__   = 'GPL v3'
-__copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2012, Kovid Goyal <kovid at kovidgoyal.net>
 
 from functools import wraps
 from typing import Any
@@ -24,6 +20,7 @@ def synchronous(func):
     def synchronizer(self, *args, **kwargs):
         with self.lock:
             return func(self, *args, **kwargs)
+
     return synchronizer
 
 
@@ -43,8 +40,7 @@ class MTPDeviceBase(DevicePlugin):
         self.report_progress = lambda x, y: None
         self.current_serial_num = None
 
-    def reset(self, key='-1', log_packets=False, report_progress=None,
-            detected_device=None):
+    def reset(self, key='-1', log_packets=False, report_progress=None, detected_device=None):
         pass
 
     def set_progress_reporter(self, report_progress):
@@ -53,8 +49,7 @@ class MTPDeviceBase(DevicePlugin):
     def get_gui_name(self):
         return getattr(self, 'current_friendly_name', self.gui_name)
 
-    def is_usb_connected(self, devices_on_system, debug=False,
-            only_presence=False):
+    def is_usb_connected(self, devices_on_system, debug=False, only_presence=False):
         # We manage device presence ourselves, so this method should always
         # return False
         return False
@@ -71,6 +66,7 @@ class MTPDeviceBase(DevicePlugin):
 
     def build_template_regexp(self):
         from calibre.devices.utils import build_template_regexp
+
         return build_template_regexp(self.save_template)
 
     def is_customizable(self):

@@ -58,6 +58,6 @@ def thumbnail():
 
 if __name__ == '__main__':
     icon = thumbnail()
-    f = open('thumbnail.png','wb')
+    f = open('thumbnail.png', 'wb')
     f.write(icon)
     f.close()

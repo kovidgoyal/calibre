@@ -18,8 +18,8 @@ from calibre.web.feeds.recipes import BasicNewsRecipe
 class expansion_spanish(BasicNewsRecipe):
     __author__ = 'Gerardo Diez & desUBIKado'
     description = 'Financial news from Spain'
-    title = u'Expansion'
-    publisher = u'Unidad Editorial Internet, S.L.'
+    title = 'Expansion'
+    publisher = 'Unidad Editorial Internet, S.L.'
     category = 'news, finances, Spain'
     oldest_article = 2
     simultaneous_downloads = 10
@@ -32,72 +32,69 @@ class expansion_spanish(BasicNewsRecipe):
     no_stylesheets = True
     remove_empty_feeds = True
 
-    keep_only_tags = dict(
-        name='div', attrs={'class': ['noticia primer_elemento']})
+    keep_only_tags = dict(name='div', attrs={'class': ['noticia primer_elemento']})
 
     remove_tags = [
-        dict(name='div', attrs={'class': ['compartir', 'metadata_desarrollo_noticia', 'relacionadas', 'mas_info',
-                                          'publicidad publicidad_textlink', 'ampliarfoto', 'tit_relacionadas', 'interact', 'paginacion estirar', 'sumario derecha']}),  # noqa: E501
-        dict(name='ul', attrs={
-             'class': ['bolos_desarrollo_noticia', 'not_logged']}),
+        dict(
+            name='div',
+            attrs={
+                'class': [
+                    'compartir',
+                    'metadata_desarrollo_noticia',
+                    'relacionadas',
+                    'mas_info',
+                    'publicidad publicidad_textlink',
+                    'ampliarfoto',
+                    'tit_relacionadas',
+                    'interact',
+                    'paginacion estirar',
+                    'sumario derecha',
+                ]
+            },
+        ),  # noqa: E501
+        dict(name='ul', attrs={'class': ['bolos_desarrollo_noticia', 'not_logged']}),
         dict(name='span', attrs={'class': ['comentarios']}),
-        dict(name='p', attrs={
-             'class': ['cintillo_comentarios', 'cintillo_comentarios formulario']}),
-        dict(name='div', attrs={
-             'id': ['comentarios_lectores_listado', 'comentar']})
+        dict(name='p', attrs={'class': ['cintillo_comentarios', 'cintillo_comentarios formulario']}),
+        dict(name='div', attrs={'id': ['comentarios_lectores_listado', 'comentar']}),
     ]
     feeds = [
-        (u'Portada', u'http://estaticos.expansion.com/rss/portada.xml'),
-        (u'Portada: Bolsas', u'http://estaticos.expansion.com/rss/mercados.xml'),
-        (u'Divisas', u'http://estaticos.expansion.com/rss/mercadosdivisas.xml'),
-        (u'Euribor', u'http://estaticos.expansion.com/rss/mercadoseuribor.xml'),
-        (u'Materias Primas',
-         u'http://estaticos.expansion.com/rss/mercadosmateriasprimas.xml'),
-        (u'Renta Fija', u'http://estaticos.expansion.com/rss/mercadosrentafija.xml'),
-        (u'Portada: Mi Dinero',
-         u'http://estaticos.expansion.com/rss/midinero.xml'),
-        (u'Hipotecas', u'http://estaticos.expansion.com/rss/midinerohipotecas.xml'),
-        (u'Cr\xe9ditos', u'http://estaticos.expansion.com/rss/midinerocreditos.xml'),
-        (u'Pensiones', u'http://estaticos.expansion.com/rss/midineropensiones.xml'),
-        (u'Fondos de Inversi\xf3n',
-         u'http://estaticos.expansion.com/rss/midinerofondos.xml'),
-        (u'Motor', u'http://estaticos.expansion.com/rss/midineromotor.xml'),
-        (u'Portada: Empresas',
-         u'http://estaticos.expansion.com/rss/empresas.xml'),
-        (u'Banca', u'http://estaticos.expansion.com/rss/empresasbanca.xml'),
-        (u'TMT', u'http://estaticos.expansion.com/rss/empresastmt.xml'),
-        (u'Energ\xeda', u'http://estaticos.expansion.com/rss/empresasenergia.xml'),
-        (u'Inmobiliario y Construcci\xf3n',
-         u'http://estaticos.expansion.com/rss/empresasinmobiliario.xml'),
-        (u'Transporte y Turismo',
-         u'http://estaticos.expansion.com/rss/empresastransporte.xml'),
-        (u'Automoci\xf3n e Industria',
-         u'http://estaticos.expansion.com/rss/empresasauto-industria.xml'),
-        (u'Distribuci\xf3n',
-         u'http://estaticos.expansion.com/rss/empresasdistribucion.xml'),
-        (u'Deporte y Negocio',
-         u' [url]http://estaticos.expansion.com/rss/empresasdeporte.xml[/url]'),
-        (u'Mi Negocio', u'http://estaticos.expansion.com/rss/empresasminegocio.xml'),
-        (u'Interiores', u'http://estaticos.expansion.com/rss/empresasinteriores.xml'),
-        (u'Digitech', u'http://estaticos.expansion.com/rss/empresasdigitech.xml'),
-        (u'Portada: Econom\xeda y Pol\xedtica',
-         u'http://estaticos.expansion.com/rss/economiapolitica.xml'),
-        (u'Pol\xedtica', u'http://estaticos.expansion.com/rss/economia.xml'),
-        (u'Portada: Sociedad', u'http://estaticos.expansion.com/rss/entorno.xml'),
-        (u'Portada: Opini\xf3n',
-         u'http://estaticos.expansion.com/rss/opinion.xml'),
-        (u'Llaves y editoriales',
-         u'http://estaticos.expansion.com/rss/opinioneditorialyllaves.xml'),
-        (u'Tribunas', u'http://estaticos.expansion.com/rss/opiniontribunas.xml'),
-        (u'Portada: Jur\xeddico',
-         u'http://estaticos.expansion.com/rss/juridico.xml'),
-        (u'Entrevistas', u'http://estaticos.expansion.com/rss/juridicoentrevistas.xml'),
-        (u'Opini\xf3n', u'http://estaticos.expansion.com/rss/juridicoopinion.xml'),
-        (u'Sentencias', u'http://estaticos.expansion.com/rss/juridicosentencias.xml'),
-        (u'Mujer', u'http://estaticos.expansion.com/rss/mujer-empresa.xml'),
-        (u'Catalu\xf1a', u'http://estaticos.expansion.com/rss/catalunya.xml'),
-        (u'Funci\xf3n p\xfablica',
-         u'http://estaticos.expansion.com/rss/funcion-publica.xml')
+        ('Portada', 'http://estaticos.expansion.com/rss/portada.xml'),
+        ('Portada: Bolsas', 'http://estaticos.expansion.com/rss/mercados.xml'),
+        ('Divisas', 'http://estaticos.expansion.com/rss/mercadosdivisas.xml'),
+        ('Euribor', 'http://estaticos.expansion.com/rss/mercadoseuribor.xml'),
+        ('Materias Primas', 'http://estaticos.expansion.com/rss/mercadosmateriasprimas.xml'),
+        ('Renta Fija', 'http://estaticos.expansion.com/rss/mercadosrentafija.xml'),
+        ('Portada: Mi Dinero', 'http://estaticos.expansion.com/rss/midinero.xml'),
+        ('Hipotecas', 'http://estaticos.expansion.com/rss/midinerohipotecas.xml'),
+        ('Cr\xe9ditos', 'http://estaticos.expansion.com/rss/midinerocreditos.xml'),
+        ('Pensiones', 'http://estaticos.expansion.com/rss/midineropensiones.xml'),
+        ('Fondos de Inversi\xf3n', 'http://estaticos.expansion.com/rss/midinerofondos.xml'),
+        ('Motor', 'http://estaticos.expansion.com/rss/midineromotor.xml'),
+        ('Portada: Empresas', 'http://estaticos.expansion.com/rss/empresas.xml'),
+        ('Banca', 'http://estaticos.expansion.com/rss/empresasbanca.xml'),
+        ('TMT', 'http://estaticos.expansion.com/rss/empresastmt.xml'),
+        ('Energ\xeda', 'http://estaticos.expansion.com/rss/empresasenergia.xml'),
+        ('Inmobiliario y Construcci\xf3n', 'http://estaticos.expansion.com/rss/empresasinmobiliario.xml'),
+        ('Transporte y Turismo', 'http://estaticos.expansion.com/rss/empresastransporte.xml'),
+        ('Automoci\xf3n e Industria', 'http://estaticos.expansion.com/rss/empresasauto-industria.xml'),
+        ('Distribuci\xf3n', 'http://estaticos.expansion.com/rss/empresasdistribucion.xml'),
+        ('Deporte y Negocio', ' [url]http://estaticos.expansion.com/rss/empresasdeporte.xml[/url]'),
+        ('Mi Negocio', 'http://estaticos.expansion.com/rss/empresasminegocio.xml'),
+        ('Interiores', 'http://estaticos.expansion.com/rss/empresasinteriores.xml'),
+        ('Digitech', 'http://estaticos.expansion.com/rss/empresasdigitech.xml'),
+        ('Portada: Econom\xeda y Pol\xedtica', 'http://estaticos.expansion.com/rss/economiapolitica.xml'),
+        ('Pol\xedtica', 'http://estaticos.expansion.com/rss/economia.xml'),
+        ('Portada: Sociedad', 'http://estaticos.expansion.com/rss/entorno.xml'),
+        ('Portada: Opini\xf3n', 'http://estaticos.expansion.com/rss/opinion.xml'),
+        ('Llaves y editoriales', 'http://estaticos.expansion.com/rss/opinioneditorialyllaves.xml'),
+        ('Tribunas', 'http://estaticos.expansion.com/rss/opiniontribunas.xml'),
+        ('Portada: Jur\xeddico', 'http://estaticos.expansion.com/rss/juridico.xml'),
+        ('Entrevistas', 'http://estaticos.expansion.com/rss/juridicoentrevistas.xml'),
+        ('Opini\xf3n', 'http://estaticos.expansion.com/rss/juridicoopinion.xml'),
+        ('Sentencias', 'http://estaticos.expansion.com/rss/juridicosentencias.xml'),
+        ('Mujer', 'http://estaticos.expansion.com/rss/mujer-empresa.xml'),
+        ('Catalu\xf1a', 'http://estaticos.expansion.com/rss/catalunya.xml'),
+        ('Funci\xf3n p\xfablica', 'http://estaticos.expansion.com/rss/funcion-publica.xml'),
     ]
 
     # Obtener la imagen de portada
@@ -150,7 +147,7 @@ class expansion_spanish(BasicNewsRecipe):
                 ('0L0S', 'www.'),
                 ('0A', '0'),
             )
-            for a,b in t:
+            for a, b in t:
                 link = link.replace(a, b)
             link = 'http://' + link
 
@@ -173,9 +170,7 @@ class expansion_spanish(BasicNewsRecipe):
     # Para presentar la imagen de los videos incrustados
 
     preprocess_regexps = [
-        (re.compile(r'var imagen', re.DOTALL | re.IGNORECASE),
-         lambda match: '--></script><img src'),
+        (re.compile(r'var imagen', re.DOTALL | re.IGNORECASE), lambda match: '--></script><img src'),
         (re.compile(r'.jpg";', re.DOTALL | re.IGNORECASE), lambda match: '.jpg">'),
-        (re.compile(r'var id_reproductor', re.DOTALL | re.IGNORECASE),
-         lambda match: '<script language="Javascript" type="text/javascript"><!--'),
+        (re.compile(r'var id_reproductor', re.DOTALL | re.IGNORECASE), lambda match: '<script language="Javascript" type="text/javascript"><!--'),
     ]

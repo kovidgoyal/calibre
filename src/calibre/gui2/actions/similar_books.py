@@ -1,10 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__   = 'GPL v3'
-__copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
-
+# License: GPLv3 Copyright: 2010, Kovid Goyal <kovid@kovidgoyal.net>
 
 from qt.core import QToolButton
 
@@ -16,7 +11,6 @@ from calibre.utils.localization import _
 
 
 class SimilarBooksAction(InterfaceAction):
-
     name = 'Similar Books'
     action_spec = (_('Similar books'), 'similar.png', _('Show books similar to the current book'), None)
     popup_type = QToolButton.ToolButtonPopupMode.InstantPopup
@@ -28,13 +22,11 @@ class SimilarBooksAction(InterfaceAction):
         assert m is not None
         for text, icon, target, shortcut in [
             (_('Books by same author'), 'user_profile.png', 'authors', 'Alt+A'),
-            (_('Books in this series'), 'books_in_series.png', 'series',
-                'Alt+Shift+S'),
+            (_('Books in this series'), 'books_in_series.png', 'series', 'Alt+Shift+S'),
             (_('Books by this publisher'), 'publisher.png', 'publisher', 'Alt+P'),
             (_('Books with the same tags'), 'tags.png', 'tags', 'Alt+T'),
         ]:
-            ac = self.create_action(spec=(text, icon, None, shortcut),
-                    attr=target)
+            ac = self.create_action(spec=(text, icon, None, shortcut), attr=target)
             ac.setObjectName(target)
             m.addAction(ac)
             connect_lambda(ac.triggered, self, lambda self: self.show_similar_books(self.gui.sender().objectName()))
@@ -47,6 +39,7 @@ class SimilarBooksAction(InterfaceAction):
 
     def ask_ai(self):
         from calibre.gui2.dialogs.llm_book import read_next_action
+
         self.gui.iactions['Discuss book with AI'].ask_ai_with_action(read_next_action())
 
     def show_similar_books(self, typ, *args):
@@ -99,10 +92,11 @@ class SimilarBooksAction(InterfaceAction):
             val = [val]
         if typ == 'authors':
             import re
+
             def remove_et_al(au):
                 return re.sub(r'\s+et al\.$', '', au)
+
             val = list(map(remove_et_al, val))
-        search = [col + ':"='+str(t).replace('"', '\\"')+'"' for t in val]
+        search = [col + ':"=' + str(t).replace('"', '\\"') + '"' for t in val]
         if search:
-            self.gui.search.set_search_string(join.join(search),
-                    store_in_history=True)
+            self.gui.search.set_search_string(join.join(search), store_in_history=True)

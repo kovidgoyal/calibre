@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 __license__ = 'GPL v3'
-__copyright__ = u'Łukasz Grąbczewski 2013'
+__copyright__ = 'Łukasz Grąbczewski 2013'
 __version__ = '1.0'
 
 '''
@@ -13,9 +13,9 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class nowyobywatel(BasicNewsRecipe):
-    __author__ = u'Łukasz Grączewski'
-    title = u'Nowy Obywatel'
-    description = u'Pismo na rzecz sprawiedliwości społecznej'
+    __author__ = 'Łukasz Grączewski'
+    title = 'Nowy Obywatel'
+    description = 'Pismo na rzecz sprawiedliwości społecznej'
     language = 'pl'
     publisher = 'Stowarzyszenie „Obywatele Obywatelom”'
     publication_type = 'magazine'
@@ -30,11 +30,10 @@ class nowyobywatel(BasicNewsRecipe):
     simultaneous_downloads = 20
 
     feeds = [
-        (u'Aktualności', u'http://nowyobywatel.pl/category/aktualnosci/feed/'),
-        (u'Opinie', u'http://nowyobywatel.pl/category/opinie/feed/'),
-        (u'Nasze rozmowy',
-         u'http://nowyobywatel.pl/category/nasze-rozmowy/feed/'),
-        (u'Inspiracje', u'http://nowyobywatel.pl/category/inspiracje/feed/')
+        ('Aktualności', 'http://nowyobywatel.pl/category/aktualnosci/feed/'),
+        ('Opinie', 'http://nowyobywatel.pl/category/opinie/feed/'),
+        ('Nasze rozmowy', 'http://nowyobywatel.pl/category/nasze-rozmowy/feed/'),
+        ('Inspiracje', 'http://nowyobywatel.pl/category/inspiracje/feed/'),
     ]
 
     remove_tags = []

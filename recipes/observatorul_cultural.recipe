@@ -8,7 +8,7 @@ coverpage = None
 
 
 class ObservatorulCultural(BasicNewsRecipe):
-    title = u'Observatorul cultural'
+    title = 'Observatorul cultural'
     __author__ = 'song2'  # prelucrat dupa un script de http://www.thenowhereman.com
     encoding = 'utf-8'
     language = 'ro'
@@ -17,20 +17,18 @@ class ObservatorulCultural(BasicNewsRecipe):
     no_stylesheets = True
     remove_javascript = True
     masthead_url = 'http://www.observatorcultural.ro/userfiles/article/sigla%20Observator%20cultural_02231058.JPG'
-    keep_only_tags = [
-        dict(name='div', attrs={'class': 'detaliuArticol'})]
-    remove_tags = [dict(name='div', attrs={'class': 'comentariiArticol'}),
-                   dict(name='div', attrs={'class': 'postComment'}),
-                   dict(name='div', attrs={'class': 'utileArticol'}),
-                   dict(name='p', attrs={'class': 'butonComenteaza'}),
-                   dict(name='h5'),
-                   dict(name='div', attrs={
-                        'style': 'margin-top: 0px; padding-top: 0px;'})
-                   ]
+    keep_only_tags = [dict(name='div', attrs={'class': 'detaliuArticol'})]
+    remove_tags = [
+        dict(name='div', attrs={'class': 'comentariiArticol'}),
+        dict(name='div', attrs={'class': 'postComment'}),
+        dict(name='div', attrs={'class': 'utileArticol'}),
+        dict(name='p', attrs={'class': 'butonComenteaza'}),
+        dict(name='h5'),
+        dict(name='div', attrs={'style': 'margin-top: 0px; padding-top: 0px;'}),
+    ]
 
     def parse_index(self):
-        soup = self.index_to_soup(
-            'http://www.observatorcultural.ro/Arhiva*-archive.html')
+        soup = self.index_to_soup('http://www.observatorcultural.ro/Arhiva*-archive.html')
         issueTag = soup.find('a', href=re.compile(r'observatorcultural.ro/Numarul'))
         issueURL = issueTag['href']
         print(issueURL)
@@ -44,17 +42,9 @@ class ObservatorulCultural(BasicNewsRecipe):
                 for bucatele in story.findAll('a'):
                     title.append(bucatele)
                 if len(title) == 1:  # daca articolul nu are autor
-                    stories.append({
-                        'title': self.tag_to_string(title[0]),
-                        'url': title[0]['href'],
-                        'date': '',
-                        'author': ''})
+                    stories.append({'title': self.tag_to_string(title[0]), 'url': title[0]['href'], 'date': '', 'author': ''})
                 else:  # daca articolul are autor len(title)=2
-                    stories.append({
-                        'title': self.tag_to_string(title[1]),
-                        'url': title[1]['href'],
-                        'date': '',
-                        'author': self.tag_to_string(title[0])})
+                    stories.append({'title': self.tag_to_string(title[1]), 'url': title[1]['href'], 'date': '', 'author': self.tag_to_string(title[0])})
                     print(self.tag_to_string(title[0]))
                 if 'Editorial' in categ:
                     global coverpage
@@ -64,7 +54,8 @@ class ObservatorulCultural(BasicNewsRecipe):
             stories = []
         print(feeds)
         return feeds
-# procedura de luat coperta
+
+    # procedura de luat coperta
 
     def get_cover_url(self):
         soup = self.index_to_soup(coverpage)

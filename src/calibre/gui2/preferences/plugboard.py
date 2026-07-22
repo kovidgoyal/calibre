@@ -1,9 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__   = 'GPL v3'
-__copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2010, Kovid Goyal <kovid@kovidgoyal.net>
 
 import copy
 from collections import defaultdict
@@ -24,7 +20,6 @@ from calibre.utils.localization import _
 
 
 class ConfigWidget(ConfigWidgetBase, Ui_Form):
-
     def genesis(self, gui):
         self.gui = gui
         self.db = gui.library_view.model().db
@@ -32,13 +27,12 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
     def initialize(self):
         ConfigWidgetBase.initialize(self)
 
-        self.current_plugboards = copy.deepcopy(self.db.prefs.get('plugboards',{}))
+        self.current_plugboards = copy.deepcopy(self.db.prefs.get('plugboards', {}))
         self.current_device = None
         self.current_format = None
 
         if self.gui.device_manager.connected_device is not None:
-            self.device_label.setText(_('Device currently connected: ') +
-                    self.gui.device_manager.connected_device.__class__.__name__)
+            self.device_label.setText(_('Device currently connected: ') + self.gui.device_manager.connected_device.__class__.__name__)
         else:
             self.device_label.setText(_('Device currently connected: None'))
 
@@ -63,11 +57,9 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.devices.sort(key=lambda x: x.lower())
         self.devices.insert(1, plugboard_save_to_disk_value)
         self.devices.insert(1, plugboard_content_server_value)
-        self.device_to_formats_map[plugboard_content_server_value] = \
-                        plugboard_content_server_formats
+        self.device_to_formats_map[plugboard_content_server_value] = plugboard_content_server_formats
         self.devices.insert(1, plugboard_email_value)
-        self.device_to_formats_map[plugboard_email_value] = \
-                        plugboard_email_formats
+        self.device_to_formats_map[plugboard_email_value] = plugboard_email_formats
         self.devices.insert(1, plugboard_any_device_value)
         self.new_device.addItems(self.devices)
 
@@ -83,20 +75,29 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.formats.insert(1, plugboard_any_format_value)
         self.new_format.addItems(self.formats)
 
-        self.dest_fields = ['',
-                            'authors', 'author_sort', 'language', 'publisher',
-                            'series', 'series_index', 'tags', 'title', 'title_sort',
-                            'comments']
+        self.dest_fields = [
+            '',
+            'authors',
+            'author_sort',
+            'language',
+            'publisher',
+            'series',
+            'series_index',
+            'tags',
+            'title',
+            'title_sort',
+            'comments',
+        ]
 
         self.source_widgets = []
         self.dest_widgets = []
-        for i in range(len(self.dest_fields)-1):
+        for i in range(len(self.dest_fields) - 1):
             w = TemplateLineEditor(self)
             self.source_widgets.append(w)
-            self.fields_layout.addWidget(w, 5+i, 0, 1, 1)
+            self.fields_layout.addWidget(w, 5 + i, 0, 1, 1)
             w = QComboBox(self)
             self.dest_widgets.append(w)
-            self.fields_layout.addWidget(w, 5+i, 1, 1, 1)
+            self.fields_layout.addWidget(w, 5 + i, 1, 1, 1)
 
         self.edit_device.currentIndexChanged.connect(self.edit_device_changed)
         self.edit_format.currentIndexChanged.connect(self.edit_format_changed)
@@ -153,7 +154,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             print('edit_device_changed: none device!')
             return
         self.set_fields()
-        for i,op in enumerate(dpb):
+        for i, op in enumerate(dpb):
             self.set_field(i, op[0], op[1])
         self.ok_button.setEnabled(True)
         self.del_button.setEnabled(True)
@@ -188,10 +189,12 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             if not is_disabled(writer):
                 show_message = False
         if show_message:
-            warning_dialog(self, '',
-                     _('That format has no metadata writers enabled. A plugboard '
-                       'will probably have no effect.'),
-                     show=True)
+            warning_dialog(
+                self,
+                '',
+                _('That format has no metadata writers enabled. A plugboard will probably have no effect.'),
+                show=True,
+            )
 
     def new_device_changed(self, idx):
         txt = self.new_device.currentText()
@@ -202,25 +205,20 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.clear_fields(edit_boxes=True)
         self.current_device = str(txt)
 
-        if self.current_format in self.current_plugboards and \
-                self.current_device in self.current_plugboards[self.current_format]:
-            error_dialog(self, '',
-                     _('That format and device already has a plugboard.'),
-                     show=True)
+        if self.current_format in self.current_plugboards and self.current_device in self.current_plugboards[self.current_format]:
+            error_dialog(self, '', _('That format and device already has a plugboard.'), show=True)
             self.new_device.setCurrentIndex(0)
             return
 
         # If we have a specific format/device combination, check if a more
         # general combination matches.
-        if self.current_format != plugboard_any_format_value and \
-                self.current_device != plugboard_any_device_value:
-            if find_plugboard(self.current_device, self.current_format,
-                      self.current_plugboards):
-                if not question_dialog(self.gui,
-                        _('Possibly override plugboard?'),
-                        _('A more general plugboard already exists for '
-                          'that format and device. '
-                          'Are you sure you want to add the new plugboard?')):
+        if self.current_format != plugboard_any_format_value and self.current_device != plugboard_any_device_value:
+            if find_plugboard(self.current_device, self.current_format, self.current_plugboards):
+                if not question_dialog(
+                    self.gui,
+                    _('Possibly override plugboard?'),
+                    _('A more general plugboard already exists for that format and device. Are you sure you want to add the new plugboard?'),
+                ):
                     self.new_device.setCurrentIndex(0)
                     return
 
@@ -229,11 +227,11 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         if self.current_format != plugboard_any_format_value:
             if self.current_format in self.current_plugboards:
                 if self.current_device == plugboard_any_device_value:
-                    if not question_dialog(self.gui,
-                               _('Add possibly overridden plugboard?'),
-                               _('More specific device plugboards exist for '
-                                 'that format. '
-                                 'Are you sure you want to add the new plugboard?')):
+                    if not question_dialog(
+                        self.gui,
+                        _('Add possibly overridden plugboard?'),
+                        _('More specific device plugboards exist for that format. Are you sure you want to add the new plugboard?'),
+                    ):
                         self.new_device.setCurrentIndex(0)
                         return
         # We are adding an 'any format' entry. Check if we are adding a specific
@@ -241,40 +239,43 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         elif self.current_device != plugboard_any_device_value:
             for fmt in self.current_plugboards:
                 if find_plugboard(self.current_device, fmt, self.current_plugboards):
-                    if not question_dialog(self.gui,
-                            _('Really add plugboard?'),
-                            _('A different plugboard matches that format and '
-                              'device combination. '
-                              'Are you sure you want to add the new plugboard?')):
+                    if not question_dialog(
+                        self.gui,
+                        _('Really add plugboard?'),
+                        _('A different plugboard matches that format and device combination. Are you sure you want to add the new plugboard?'),
+                    ):
                         self.new_device.setCurrentIndex(0)
                         return
         # We are adding an any format/any device entry, which will be overridden
         # by any other entry. Ask if such entries exist.
         elif len(self.current_plugboards):
-            if not question_dialog(self.gui,
-                       _('Add possibly overridden plugboard?'),
-                       _('More specific format and device plugboards '
-                         'already exist. '
-                         'Are you sure you want to add the new plugboard?')):
+            if not question_dialog(
+                self.gui,
+                _('Add possibly overridden plugboard?'),
+                _('More specific format and device plugboards already exist. Are you sure you want to add the new plugboard?'),
+            ):
                 self.new_device.setCurrentIndex(0)
                 return
 
-        if self.current_format != plugboard_any_format_value and \
-                    self.current_device in self.device_to_formats_map:
+        if self.current_format != plugboard_any_format_value and self.current_device in self.device_to_formats_map:
             allowable_formats = self.device_to_formats_map[self.current_device]
             if self.current_format not in allowable_formats:
-                error_dialog(self, '',
-                     _('The {0} device does not support the {1} format.').
-                                format(self.current_device, self.current_format), show=True)
+                error_dialog(
+                    self,
+                    '',
+                    _('The {0} device does not support the {1} format.').format(self.current_device, self.current_format),
+                    show=True,
+                )
                 self.new_device.setCurrentIndex(0)
                 return
 
-        if self.current_format == plugboard_any_format_value and \
-                    self.current_device == plugboard_content_server_value:
-            warning_dialog(self, '',
-                 _('The {0} device supports only the {1} format(s).').
-                            format(plugboard_content_server_value,
-                                   ', '.join(plugboard_content_server_formats)), show=True)
+        if self.current_format == plugboard_any_format_value and self.current_device == plugboard_content_server_value:
+            warning_dialog(
+                self,
+                '',
+                _('The {0} device supports only the {1} format(s).').format(plugboard_content_server_value, ', '.join(plugboard_content_server_formats)),
+                show=True,
+            )
 
         self.set_fields()
 
@@ -301,16 +302,17 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                     try:
                         validation_formatter.validate(s)
                     except Exception as err:
-                        error_dialog(self, _('Invalid template'),
-                                '<p>'+_('The template %s is invalid:')%s +
-                                '<br>'+str(err), show=True)
+                        error_dialog(
+                            self,
+                            _('Invalid template'),
+                            '<p>' + _('The template %s is invalid:') % s + '<br>' + str(err),
+                            show=True,
+                        )
                         return
                     pb.append((s, self.dest_fields[d]))
                     comments_in_dests = comments_in_dests or self.dest_fields[d] == 'comments'
                 else:
-                    error_dialog(self, _('Invalid destination'),
-                            '<p>'+_('The destination field cannot be blank'),
-                            show=True)
+                    error_dialog(self, _('Invalid destination'), '<p>' + _('The destination field cannot be blank'), show=True)
                     return
         if len(pb) == 0:
             if self.current_format in self.current_plugboards:
@@ -320,13 +322,16 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                 if len(fpb) == 0:
                     del self.current_plugboards[self.current_format]
         else:
-            if comments_in_dests and not question_dialog(self.gui, _('Plugboard modifies comments'),
-                     _('This plugboard modifies the comments metadata. '
-                       'If the comments are set to invalid HTML, it could cause problems on the device. '
-                       'Are you sure you wish to save this plugboard?'
-                       ),
-                        skip_dialog_name='plugboard_comments_in_dests'
-                        ):
+            if comments_in_dests and not question_dialog(
+                self.gui,
+                _('Plugboard modifies comments'),
+                _(
+                    'This plugboard modifies the comments metadata. '
+                    'If the comments are set to invalid HTML, it could cause problems on the device. '
+                    'Are you sure you wish to save this plugboard?'
+                ),
+                skip_dialog_name='plugboard_comments_in_dests',
+            ):
                 return
             if self.current_format not in self.current_plugboards:
                 self.current_plugboards[self.current_format] = {}
@@ -347,13 +352,11 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
     def existing_pb_clicked(self, qitem):
         item = qitem.data(Qt.ItemDataRole.UserRole)
-        if (qitem.flags() & Qt.ItemFlag.ItemIsEnabled):
+        if qitem.flags() & Qt.ItemFlag.ItemIsEnabled:
             self.edit_format.setCurrentIndex(self.edit_format.findText(item[0]))
             self.edit_device.setCurrentIndex(self.edit_device.findText(item[1]))
         else:
-            warning_dialog(self, '',
-                 _('The {0} device plugin is disabled.').format(item[1]),
-                 show=True)
+            warning_dialog(self, '', _('The {0} device plugin is disabled.').format(item[1]), show=True)
 
     def refill_all_boxes(self):
         if self.refilling:
@@ -374,7 +377,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         for f in self.formats:
             if f not in self.current_plugboards:
                 continue
-            for d in sorted(self.devices + self.disabled_devices, key=lambda x:x.lower()):
+            for d in sorted(self.devices + self.disabled_devices, key=lambda x: x.lower()):
                 if d not in self.current_plugboards[f]:
                     continue
                 ops = []
@@ -404,5 +407,6 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
 if __name__ == '__main__':
     from qt.core import QApplication
+
     app = QApplication([])
     test_widget('Import/Export', 'Plugboard')

@@ -1,8 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__ = 'GPL v3'
-__copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
+# License: GPLv3 Copyright: 2013, Kovid Goyal <kovid at kovidgoyal.net>
 
 import errno
 import math
@@ -37,7 +34,6 @@ NBSP = '\xa0'
 
 
 class Text:
-
     def __init__(self, elem, attr, buf):
         self.elem, self.attr, self.buf = elem, attr, buf
         self.elems = [self.elem]
@@ -60,8 +56,16 @@ def html_lang(docx_lang):
 
 
 class Convert:
-
-    def __init__(self, path_or_stream, dest_dir=None, log=None, detect_cover=True, notes_text=None, notes_nopb=False, nosupsub=False):
+    def __init__(
+        self,
+        path_or_stream,
+        dest_dir=None,
+        log=None,
+        detect_cover=True,
+        notes_text=None,
+        notes_nopb=False,
+        nosupsub=False,
+    ):
         self.docx = DOCX(path_or_stream, log=log)
         self.namespace = self.docx.namespace
         self.ms_pat = re.compile(r'\s{2,}')
@@ -88,11 +92,11 @@ class Convert:
                 TITLE(self.mi.title or _('Unknown')),
                 LINK(rel='stylesheet', type='text/css', href='docx.css'),
             ),
-            self.body
+            self.body,
         )
-        self.html.text='\n\t'
-        self.html[0].text='\n\t\t'
-        self.html[0].tail='\n'
+        self.html.text = '\n\t'
+        self.html[0].text = '\n\t\t'
+        self.html[0].tail = '\n'
         for child in self.html[0]:
             child.tail = '\n\t\t'
         self.html[0][-1].tail = '\n\t'
@@ -203,7 +207,7 @@ class Convert:
                 lvl, num_id = raw.partition(':')[0::2]
                 try:
                     lvl = int(lvl)
-                except (TypeError, ValueError):
+                except TypeError, ValueError:
                     lvl = 0
                 numbered.append((html_obj, num_id, lvl))
         self.numbering.apply_markup(numbered, self.body, self.styles, self.object_map, self.images)
@@ -406,8 +410,8 @@ class Convert:
 
         def process_guide(E, guide):
             if self.toc_anchor is not None:
-                guide.append(E.reference(
-                    href='index.html#' + self.toc_anchor, title=_('Table of Contents'), type='toc'))
+                guide.append(E.reference(href='index.html#' + self.toc_anchor, title=_('Table of Contents'), type='toc'))
+
         toc_file = os.path.join(self.dest_dir, 'toc.ncx')
         with open(os.path.join(self.dest_dir, 'metadata.opf'), 'wb') as of, open(toc_file, 'wb') as ncx:
             opf.render(of, ncx, 'toc.ncx', process_guide=process_guide)
@@ -419,7 +423,7 @@ class Convert:
         doc_anchors = frozenset(self.namespace.XPath('./w:body/w:bookmarkStart[@w:name]')(doc))
         if doc_anchors:
             current_bm = set()
-            rmap = {v:k for k, v in self.object_map.items()}
+            rmap = {v: k for k, v in self.object_map.items()}
             for p in self.namespace.descendants(doc, 'w:p', 'w:bookmarkStart[@w:name]'):
                 if p.tag.endswith('}p'):
                     if current_bm and p in rmap:
@@ -607,7 +611,7 @@ class Convert:
             # hrefs that point nowhere give epubcheck a hernia. The element
             # should be styled explicitly by Word anyway.
             # span.set('href', '#')
-        rmap = {v:k for k, v in self.object_map.items()}
+        rmap = {v: k for k, v in self.object_map.items()}
         for hyperlink, runs in self.fields.hyperlink_fields:
             spans = [rmap[r] for r in runs if r in rmap]
             if not spans:
@@ -772,7 +776,7 @@ class Convert:
 
         if not self.block_runs:
             return
-        rmap = {v:k for k, v in self.object_map.items()}
+        rmap = {v: k for k, v in self.object_map.items()}
         for border_style, blocks in self.block_runs:
             paras = tuple(rmap[p] for p in blocks)
             for p in paras:
@@ -788,6 +792,7 @@ class Convert:
                 idx = parent.index(ul)
                 frame = DIV(ul)
             elif has_li:
+
                 def top_level_tag(x):
                     while True:
                         q = x.getparent()
@@ -795,6 +800,7 @@ class Convert:
                             break
                         x = q
                     return x
+
                 paras = tuple(map(top_level_tag, paras))
                 idx = parent.index(paras[0])
                 frame = DIV(*paras)
@@ -834,7 +840,7 @@ class Convert:
                 if p is not run[-1]:
                     style.apply_between_border()
             if has_visible_border:
-                border_style.margin_left, border_style.margin_right = max_left,max_right
+                border_style.margin_left, border_style.margin_right = max_left, max_right
                 self.block_runs.append((border_style, run))
 
         run = []
@@ -856,6 +862,7 @@ if __name__ == '__main__':
     import shutil
 
     from calibre.utils.logging import default_log
+
     default_log.filter_level = default_log.DEBUG
     dest_dir = os.path.join(os.getcwd(), 'docx_input')
     if os.path.exists(dest_dir):

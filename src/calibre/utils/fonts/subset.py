@@ -9,6 +9,7 @@ from queue import Empty, SimpleQueue
 
 def subset(input_file_object_or_path, output_file_object_or_path, container_type, chars_or_text=''):
     from fontTools.subset import Subsetter, load_font, log, save_font
+
     log_messages = SimpleQueue()
     log_handler = QueueHandler(log_messages)
     log.addHandler(log_handler)
@@ -38,6 +39,7 @@ def subset(input_file_object_or_path, output_file_object_or_path, container_type
 
 if __name__ == '__main__':
     import tempfile
+
     src = sys.argv[-1]
     with open(os.path.join(tempfile.gettempdir(), os.path.basename(src)), 'wb') as output:
         print('\n'.join(subset(src, output, os.path.splitext(sys.argv[-1])[1][1:], 'abcdefghijk')))

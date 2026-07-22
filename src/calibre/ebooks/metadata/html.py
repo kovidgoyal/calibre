@@ -1,11 +1,9 @@
 #!/usr/bin/env python
+# License: GPLv3 Copyright: 2013, Kovid Goyal <kovid at kovidgoyal.net>
 
-
-__license__   = 'GPL v3'
-__copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
-'''
+"""
 Try to read metadata from an HTML file.
-'''
+"""
 
 import re
 import unittest
@@ -48,7 +46,14 @@ META_NAMES = {
     'publisher': ('publisher', 'dc.publisher', 'dcterms.publisher'),
     'isbn': ('isbn',),
     'languages': ('dc.language', 'dcterms.language'),
-    'pubdate': ('pubdate', 'date of publication', 'dc.date.published', 'dc.date.publication', 'dc.date.issued', 'dcterms.issued'),
+    'pubdate': (
+        'pubdate',
+        'date of publication',
+        'dc.date.published',
+        'dc.date.publication',
+        'dc.date.issued',
+        'dcterms.issued',
+    ),
     'timestamp': ('timestamp', 'date of creation', 'dc.date.created', 'dc.date.creation', 'dcterms.created'),
     'series': ('series',),
     'series_index': ('seriesnumber', 'series_index', 'series.index'),
@@ -56,14 +61,12 @@ META_NAMES = {
     'comments': ('comments', 'dc.description'),
     'tags': ('tags', 'subject'),
 }
-rmap_comment = {v:k for k, v in COMMENT_NAMES.items()}
-rmap_meta = {v:k for k, l in META_NAMES.items() for v in l}
-
+rmap_comment = {v: k for k, v in COMMENT_NAMES.items()}
+rmap_meta = {v: k for k, l in META_NAMES.items() for v in l}
 
 # Extract an HTML attribute value, supports both single and double quotes and
 # single quotes inside double quotes and vice versa.
 attr_pat = r'''(?:(?P<sq>')|(?P<dq>"))(?P<content>(?(sq)[^']+|[^"]+))(?(sq)'|")'''
-
 
 _handle_comment_pat: re.Pattern[str] | None = None
 
@@ -182,7 +185,11 @@ def get_metadata_(src, encoding=None):
     for field in ('comments',):
         val = get(field)
         if val:
-            setattr(mi, field, val.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;').replace('"', '&quot;').replace("'", '&apos;'))
+            setattr(
+                mi,
+                field,
+                val.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;').replace('"', '&quot;').replace("'", '&apos;'),
+            )
 
     # Date fields
     for field in ('pubdate', 'timestamp'):
@@ -235,7 +242,7 @@ def get_metadata_(src, encoding=None):
             mi.tags = tags
 
     # IDENTIFIERS
-    for k,v in meta_tag_ids.items():
+    for k, v in meta_tag_ids.items():
         v = [x.strip() for x in v if x.strip()]
         if v:
             mi.set_identifier(k, v[0])
@@ -244,11 +251,21 @@ def get_metadata_(src, encoding=None):
 
 
 class MetadataHtmlTest(unittest.TestCase):
-
     def compare_metadata(self, meta_a, meta_b):
         for attr in (
-            'title', 'authors', 'publisher', 'isbn', 'languages', 'pubdate', 'timestamp', 'series',
-            'series_index', 'rating', 'comments', 'tags', 'identifiers'
+            'title',
+            'authors',
+            'publisher',
+            'isbn',
+            'languages',
+            'pubdate',
+            'timestamp',
+            'series',
+            'series_index',
+            'rating',
+            'comments',
+            'tags',
+            'identifiers',
         ):
             self.assertEqual(getattr(meta_a, attr), getattr(meta_b, attr))
 

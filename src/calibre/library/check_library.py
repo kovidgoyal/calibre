@@ -1,9 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__   = 'GPL v3'
-__copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2010, Kovid Goyal <kovid@kovidgoyal.net>
 
 import fnmatch
 import os
@@ -18,7 +14,12 @@ from calibre.utils.localization import _
 EBOOK_EXTENSIONS = frozenset(BOOK_EXTENSIONS)
 NORMALS = frozenset({METADATA_FILE_NAME, COVER_FILE_NAME, DATA_DIR_NAME})
 IGNORE_AT_TOP_LEVEL = frozenset({
-    'metadata.db', 'metadata_db_prefs_backup.json', 'metadata_pre_restore.db', 'full-text-search.db', TRASH_DIR_NAME, NOTES_DIR_NAME
+    'metadata.db',
+    'metadata_db_prefs_backup.json',
+    'metadata_pre_restore.db',
+    'full-text-search.db',
+    TRASH_DIR_NAME,
+    NOTES_DIR_NAME,
 })
 
 '''
@@ -30,23 +31,23 @@ Checks fields:
   array name
 '''
 
-CHECKS = [('invalid_titles',    _('Invalid titles'), True, False),
-          ('extra_titles',      _('Extra titles'), True, False),
-          ('invalid_authors',   _('Invalid authors'), True, False),
-          ('extra_authors',     _('Extra authors'), True, False),
-          ('missing_formats',   _('Missing book formats'), False, True),
-          ('extra_formats',     _('Extra book formats'), True, False),
-          ('extra_files',       _('Unknown files in books'), True, False),
-          ('missing_covers',    _('Missing cover files'), False, True),
-          ('extra_covers',      _('Cover files not in database'), True, True),
-          ('malformed_formats', _('Malformed formats'), False, True),  # need to be perform before malformed_paths
-          ('malformed_paths',   _('Malformed book paths'), False, True),
-          ('failed_folders',    _('Folders raising exception'), False, False),
-      ]
+CHECKS = [
+    ('invalid_titles', _('Invalid titles'), True, False),
+    ('extra_titles', _('Extra titles'), True, False),
+    ('invalid_authors', _('Invalid authors'), True, False),
+    ('extra_authors', _('Extra authors'), True, False),
+    ('missing_formats', _('Missing book formats'), False, True),
+    ('extra_formats', _('Extra book formats'), True, False),
+    ('extra_files', _('Unknown files in books'), True, False),
+    ('missing_covers', _('Missing cover files'), False, True),
+    ('extra_covers', _('Cover files not in database'), True, True),
+    ('malformed_formats', _('Malformed formats'), False, True),  # need to be perform before malformed_paths
+    ('malformed_paths', _('Malformed book paths'), False, True),
+    ('failed_folders', _('Folders raising exception'), False, False),
+]
 
 
 class CheckLibrary:
-
     def __init__(self, library_path, db):
         if isinstance(library_path, bytes):
             library_path = library_path.decode(filesystem_encoding)
@@ -99,7 +100,7 @@ class CheckLibrary:
 
     def scan_library(self, name_ignores, extension_ignores):
         self.ignore_names = frozenset(name_ignores)
-        self.ignore_ext = frozenset('.'+ e for e in extension_ignores)
+        self.ignore_ext = frozenset('.' + e for e in extension_ignores)
 
         lib = self.src_library_path
         for auth_dir in os.listdir(lib):
@@ -169,7 +170,7 @@ class CheckLibrary:
                 title_dir = os.path.basename(path)
                 book_formats = frozenset(x for x in self.db.format_files(id_, index_is_id=True))
                 for fmt in book_formats:
-                    self.missing_formats.append((title_dir, os.path.join(path, fmt[0]+'.'+fmt[1].lower()), id_))
+                    self.missing_formats.append((title_dir, os.path.join(path, fmt[0] + '.' + fmt[1].lower()), id_))
                 if self.db.has_cover(id_):
                     self.missing_covers.append((title_dir, os.path.join(path, COVER_FILE_NAME), id_))
 
@@ -185,18 +186,18 @@ class CheckLibrary:
 
     def process_book(self, lib, book_info):
         db_path, title_dir, book_id = book_info
-        filenames = frozenset(f for f in os.listdir(os.path.join(lib, db_path))
-                               if not self.ignore_name(f) and (
-                                   os.path.splitext(f)[1] not in self.ignore_ext or
-                                   f == COVER_FILE_NAME))
+        filenames = frozenset(
+            f
+            for f in os.listdir(os.path.join(lib, db_path))
+            if not self.ignore_name(f) and (os.path.splitext(f)[1] not in self.ignore_ext or f == COVER_FILE_NAME)
+        )
         book_id = int(book_id)
         formats = frozenset(filter(self.is_ebook_file, filenames))
         formats_lower = frozenset(map(str.lower, filenames))
-        book_formats = frozenset(x[0]+'.'+x[1].lower() for x in
-                            self.db.format_files(book_id, index_is_id=True))
+        book_formats = frozenset(x[0] + '.' + x[1].lower() for x in self.db.format_files(book_id, index_is_id=True))
 
         if self.is_case_sensitive:
-            unknowns = frozenset(filenames-formats-NORMALS)
+            unknowns = frozenset(filenames - formats - NORMALS)
             missing = book_formats - formats
             missing_lower = frozenset(map(str.lower, missing))
 
@@ -223,6 +224,7 @@ class CheckLibrary:
                 else:
                     self.extra_formats.append((title_dir, os.path.join(db_path, e), book_id))
         else:
+
             def lc_map(fnames, fset):
                 fn = {}
                 for f in fnames:
@@ -233,18 +235,18 @@ class CheckLibrary:
 
             filenames_lc = frozenset(f.lower() for f in filenames)
             formats_lc = frozenset(f.lower() for f in formats)
-            unknowns = frozenset(filenames_lc-formats_lc-NORMALS)
+            unknowns = frozenset(filenames_lc - formats_lc - NORMALS)
             book_formats_lc = frozenset(f.lower() for f in book_formats)
             missing = book_formats_lc - formats_lc
 
             # Check: any books that aren't formats or normally there?
-            for lcfn,ccfn in lc_map(filenames, unknowns).items():
+            for lcfn, ccfn in lc_map(filenames, unknowns).items():
                 if lcfn in missing:  # An unknown format correctly registered
                     continue
                 self.extra_files.append((title_dir, os.path.join(db_path, ccfn), book_id))
 
             # Check: any book formats that should be there?
-            for lcfn,ccfn in lc_map(book_formats, missing).items():
+            for lcfn, ccfn in lc_map(book_formats, missing).items():
                 if lcfn in unknowns:  # An unknown format correctly registered
                     continue
                 self.missing_formats.append((title_dir, os.path.join(db_path, ccfn), book_id))

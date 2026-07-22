@@ -18,9 +18,9 @@ class Hurriyet(BasicNewsRecipe):
     __license__ = 'GPLv3'
     __copyright__ = '2015, Adrian Tennessee <adrian.tennessee at domainthatnobodytakes.com)'
 
-    title = u'Hürriyet'
+    title = 'Hürriyet'
     language = 'tr'
-    description = u'Hürriyet web site ebook'
+    description = 'Hürriyet web site ebook'
     publisher = 'Doğan Media Group'
     category = 'news'
     cover_url = 'https://upload.wikimedia.org/wikipedia/en/4/4f/H%C3%BCrriyet_ilk_sayi.jpg'
@@ -52,15 +52,15 @@ class Hurriyet(BasicNewsRecipe):
     ]
 
     feeds = [
-        (u'Anasayfa', 'https://www.hurriyet.com.tr/rss/anasayfa'),
-        (u'Gündem', 'https://www.hurriyet.com.tr/rss/gundem'),
-        (u'Ekonomi', 'https://www.hurriyet.com.tr/rss/ekonomi'),
-        (u'Magazin', 'https://www.hurriyet.com.tr/rss/magazin'),
-        (u'Spor', 'https://www.hurriyet.com.tr/rss/spor'),
-        (u'Planet', 'https://www.hurriyet.com.tr/rss/dunya'),
-        (u'Teknoloji', 'https://www.hurriyet.com.tr/rss/teknoloji'),
-        (u'Sağlık', 'https://www.hurriyet.com.tr/rss/saglik'),
-        (u'Astroloji', 'https://www.hurriyet.com.tr/rss/astroloji'),
-        (u'Ankara', 'https://www.hurriyet.com.tr/rss/ankara'),
-        (u'Ege', 'https://www.hurriyet.com.tr/rss/ege')
+        ('Anasayfa', 'https://www.hurriyet.com.tr/rss/anasayfa'),
+        ('Gündem', 'https://www.hurriyet.com.tr/rss/gundem'),
+        ('Ekonomi', 'https://www.hurriyet.com.tr/rss/ekonomi'),
+        ('Magazin', 'https://www.hurriyet.com.tr/rss/magazin'),
+        ('Spor', 'https://www.hurriyet.com.tr/rss/spor'),
+        ('Planet', 'https://www.hurriyet.com.tr/rss/dunya'),
+        ('Teknoloji', 'https://www.hurriyet.com.tr/rss/teknoloji'),
+        ('Sağlık', 'https://www.hurriyet.com.tr/rss/saglik'),
+        ('Astroloji', 'https://www.hurriyet.com.tr/rss/astroloji'),
+        ('Ankara', 'https://www.hurriyet.com.tr/rss/ankara'),
+        ('Ege', 'https://www.hurriyet.com.tr/rss/ege'),
     ]

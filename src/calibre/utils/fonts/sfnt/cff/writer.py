@@ -1,9 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__   = 'GPL v3'
-__copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2012, Kovid Goyal <kovid at kovidgoyal.net>
 
 from collections import OrderedDict
 from struct import pack
@@ -12,7 +8,6 @@ from calibre.utils.fonts.sfnt.cff.constants import cff_standard_strings
 
 
 class Index(list):
-
     def __init__(self):
         list.__init__(self)
         self.raw = None
@@ -40,19 +35,17 @@ class Index(list):
             if offsize == 3:
                 offsets = b''.join(pack(b'>L', x)[1:] for x in offsets)
             else:
-                fmt = {1:'B', 2:'H', 4:'L'}[offsize]
-                offsets = pack(f'>{len(offsets)}{fmt}'.encode('ascii'),
-                        *offsets)
+                fmt = {1: 'B', 2: 'H', 4: 'L'}[offsize]
+                offsets = pack(f'>{len(offsets)}{fmt}'.encode('ascii'), *offsets)
 
             self.raw = prefix + offsets + obj_data
         return self.raw
 
 
 class Strings(Index):
-
     def __init__(self):
         Index.__init__(self)
-        self.added = {x:i for i, x in enumerate(cff_standard_strings)}
+        self.added = {x: i for i, x in enumerate(cff_standard_strings)}
 
     def __call__(self, x):
         ans = self.added.get(x, None)
@@ -64,7 +57,6 @@ class Strings(Index):
 
 
 class Dict(Index):
-
     def __init__(self, src, strings):
         Index.__init__(self)
         self.src, self.strings = src, strings
@@ -75,7 +67,6 @@ class Dict(Index):
 
 
 class PrivateDict:
-
     def __init__(self, src, subrs, strings):
         self.src, self.strings = src, strings
         self.subrs = None
@@ -94,7 +85,6 @@ class PrivateDict:
 
 
 class Charsets(list):
-
     def __init__(self, strings):
         list.__init__(self)
         self.strings = strings
@@ -108,7 +98,6 @@ class Charsets(list):
 
 
 class Subset:
-
     def __init__(self, cff, keep_charnames):
         self.cff = cff
         keep_charnames.add(b'.notdef')
@@ -152,8 +141,7 @@ class Subset:
 
         private_dict = None
         if cff.private_dict is not None:
-            private_dict = PrivateDict(cff.private_dict, cff.private_subrs,
-                    strings)
+            private_dict = PrivateDict(cff.private_dict, cff.private_subrs, strings)
             private_dict.compile()  # Add strings
 
         fixed_prefix = header + font_names.compile()
@@ -181,8 +169,7 @@ class Subset:
             t['Private'] = (len(private_dict.raw), pos)
         top_dict.compile()
 
-        self.raw = (fixed_prefix + top_dict.raw + strings.raw +
-                global_subrs.raw + charsets.raw + char_strings.raw)
+        self.raw = fixed_prefix + top_dict.raw + strings.raw + global_subrs.raw + charsets.raw + char_strings.raw
         if private_dict is not None:
             self.raw += private_dict.raw
             if private_dict.subrs is not None:

@@ -1,6 +1,4 @@
-__license__ = 'GPL 3'
-__copyright__ = '2011, John Schember <john@nachtimwald.com>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2011, John Schember <john@nachtimwald.com>
 
 import traceback
 from contextlib import closing
@@ -14,11 +12,11 @@ from polyglot.binary import from_base64_bytes
 
 
 class GenericDownloadThreadPool:
-    '''
+    """
     add_task must be implemented in a subclass and must
     GenericDownloadThreadPool.add_task must be called
     at the end of the function.
-    '''
+    """
 
     def __init__(self, thread_type, thread_count=1):
         self.thread_type = thread_type
@@ -32,7 +30,7 @@ class GenericDownloadThreadPool:
         self.thread_count = thread_count
 
     def add_task(self, *args, **kwargs):
-        '''
+        """
         This must be implemented in a sub class and this function
         must be called at the end of the add_task function in
         the sub class.
@@ -40,7 +38,7 @@ class GenericDownloadThreadPool:
         The implementation of this function (in this base class)
         starts any threads necessary to fill the pool if it is
         not already full.
-        '''
+        """
         for i in range(self.thread_count - self.running_threads_count()):
             t = self.thread_type(self.tasks, self.results)
             self.threads.append(t)
@@ -80,7 +78,7 @@ class GenericDownloadThreadPool:
 
 
 class SearchThreadPool(GenericDownloadThreadPool):
-    '''
+    """
     Threads will run until there is no work or
     abort is called. Create and start new threads
     using start_threads(). Reset by calling abort().
@@ -88,7 +86,7 @@ class SearchThreadPool(GenericDownloadThreadPool):
     Example:
     sp = SearchThreadPool(3)
     sp.add_task(...)
-    '''
+    """
 
     def __init__(self, thread_count):
         GenericDownloadThreadPool.__init__(self, SearchThread, thread_count)
@@ -99,7 +97,6 @@ class SearchThreadPool(GenericDownloadThreadPool):
 
 
 class SearchThread(Thread):
-
     def __init__(self, tasks, results):
         Thread.__init__(self)
         self.daemon = True
@@ -129,7 +126,6 @@ class SearchThread(Thread):
 
 
 class CoverThreadPool(GenericDownloadThreadPool):
-
     def __init__(self, thread_count):
         GenericDownloadThreadPool.__init__(self, CoverThread, thread_count)
 
@@ -143,7 +139,6 @@ def decode_data_url(url):
 
 
 class CoverThread(Thread):
-
     def __init__(self, tasks, results):
         Thread.__init__(self)
         self.daemon = True
@@ -175,7 +170,6 @@ class CoverThread(Thread):
 
 
 class DetailsThreadPool(GenericDownloadThreadPool):
-
     def __init__(self, thread_count):
         GenericDownloadThreadPool.__init__(self, DetailsThread, thread_count)
 
@@ -185,7 +179,6 @@ class DetailsThreadPool(GenericDownloadThreadPool):
 
 
 class DetailsThread(Thread):
-
     def __init__(self, tasks, results):
         Thread.__init__(self)
         self.daemon = True
@@ -210,7 +203,6 @@ class DetailsThread(Thread):
 
 
 class CacheUpdateThreadPool(GenericDownloadThreadPool):
-
     def __init__(self, thread_count):
         GenericDownloadThreadPool.__init__(self, CacheUpdateThread, thread_count)
 
@@ -220,7 +212,6 @@ class CacheUpdateThreadPool(GenericDownloadThreadPool):
 
 
 class CacheUpdateThread(Thread):
-
     def __init__(self, tasks, results):
         Thread.__init__(self)
         self.daemon = True

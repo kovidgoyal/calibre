@@ -1,6 +1,4 @@
-__license__ = 'GPL 3'
-__copyright__ = '2011, John Schember <john@nachtimwald.com>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2011, John Schember <john@nachtimwald.com>
 
 from functools import partial
 
@@ -13,7 +11,6 @@ from calibre.utils.localization import _
 
 
 class ResultsView(QTreeView):
-
     def __init__(self, parent=None):
         QTreeView.__init__(self, parent)
 

@@ -7,13 +7,15 @@ bad_attrs = ['width', 'height', 'style', '[-a-z]*color', 'background[-a-z]*', 'o
 single_quoted = "'[^']+'"
 double_quoted = '"[^"]+"'
 non_space = '[^ "\'>]+'
-htmlstrip = re.compile('<'  # open
+htmlstrip = re.compile(
+    '<'  # open
     '([^>]+) '  # prefix
-    '(?:{}) *'.format('|'.join(bad_attrs)) +  # undesirable attributes
-    f'= *(?:{non_space}|{single_quoted}|{double_quoted})' +  # value
-    '([^>]*)'  # postfix
-    '>'        # end
-, re.I)
+    '(?:{}) *'.format('|'.join(bad_attrs))  # undesirable attributes
+    + f'= *(?:{non_space}|{single_quoted}|{double_quoted})'  # value
+    + '([^>]*)'  # postfix
+    '>',  # end
+    re.I,
+)
 
 
 def clean_attributes(html):
@@ -30,8 +32,21 @@ def normalize_spaces(s):
     return ' '.join(s.split())
 
 
-html_cleaner = Cleaner(scripts=True, javascript=True, comments=True,
-                  style=True, links=True, meta=False, add_nofollow=False,
-                  page_structure=False, processing_instructions=True, embedded=False,
-                  frames=False, forms=False, annoying_tags=False, remove_tags=(),
-                  remove_unknown_tags=False, safe_attrs_only=False)
+html_cleaner = Cleaner(
+    scripts=True,
+    javascript=True,
+    comments=True,
+    style=True,
+    links=True,
+    meta=False,
+    add_nofollow=False,
+    page_structure=False,
+    processing_instructions=True,
+    embedded=False,
+    frames=False,
+    forms=False,
+    annoying_tags=False,
+    remove_tags=(),
+    remove_unknown_tags=False,
+    safe_attrs_only=False,
+)

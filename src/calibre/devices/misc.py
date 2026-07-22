@@ -1,9 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__   = 'GPL v3'
-__copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2010, Kovid Goyal <kovid@kovidgoyal.net>
 
 import os
 
@@ -13,19 +9,18 @@ from calibre.utils.localization import _
 
 
 class PALMPRE(USBMS):
-
-    name           = 'Palm Pre Device Interface'
-    gui_name       = 'Palm Pre'
-    description    = _('Communicate with the Palm Pre')
-    author         = 'Kovid Goyal'
+    name = 'Palm Pre Device Interface'
+    gui_name = 'Palm Pre'
+    description = _('Communicate with the Palm Pre')
+    author = 'Kovid Goyal'
     supported_platforms = ['windows', 'osx', 'linux']
 
     # Ordered list of supported formats
-    FORMATS     = ['epub', 'mobi', 'prc', 'pdb', 'txt']
+    FORMATS = ['epub', 'mobi', 'prc', 'pdb', 'txt']
 
-    VENDOR_ID   = [0x0830]
-    PRODUCT_ID  = [0x8004, 0x8002, 0x0101, 0x8042]
-    BCD         = [0x0316]
+    VENDOR_ID = [0x0830]
+    PRODUCT_ID = [0x8004, 0x8002, 0x0101, 0x8042]
+    BCD = [0x0316]
 
     VENDOR_NAME = 'PALM'
     WINDOWS_MAIN_MEM = ['PRE', 'PALM_DEVICE']
@@ -34,18 +29,18 @@ class PALMPRE(USBMS):
 
 
 class AVANT(USBMS):
-    name           = 'Booq Avant Device Interface'
-    gui_name       = 'Bq Avant'
-    description    = _('Communicate with the Bq Avant')
-    author         = 'Kovid Goyal'
+    name = 'Booq Avant Device Interface'
+    gui_name = 'Bq Avant'
+    description = _('Communicate with the Bq Avant')
+    author = 'Kovid Goyal'
     supported_platforms = ['windows', 'osx', 'linux']
 
     # Ordered list of supported formats
-    FORMATS     = ['epub', 'fb2', 'html', 'rtf', 'pdf', 'txt']
+    FORMATS = ['epub', 'fb2', 'html', 'rtf', 'pdf', 'txt']
 
-    VENDOR_ID   = [0x0525]
-    PRODUCT_ID  = [0xa4a5]
-    BCD         = [0x0319]
+    VENDOR_ID = [0x0525]
+    PRODUCT_ID = [0xA4A5]
+    BCD = [0x0319]
 
     VENDOR_NAME = 'E-BOOK'
     WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = 'READER'
@@ -56,18 +51,18 @@ class AVANT(USBMS):
 
 class SWEEX(USBMS):
     # Identical to the Promedia
-    name           = 'Sweex Device Interface'
-    gui_name       = 'Sweex/Kogan/Q600/Wink'
-    description    = _('Communicate with the Sweex/Kogan/Q600/Wink')
-    author         = 'Kovid Goyal'
+    name = 'Sweex Device Interface'
+    gui_name = 'Sweex/Kogan/Q600/Wink'
+    description = _('Communicate with the Sweex/Kogan/Q600/Wink')
+    author = 'Kovid Goyal'
     supported_platforms = ['windows', 'osx', 'linux']
 
     # Ordered list of supported formats
-    FORMATS     = ['epub', 'mobi', 'prc', 'fb2', 'html', 'rtf', 'chm', 'pdf', 'txt']
+    FORMATS = ['epub', 'mobi', 'prc', 'fb2', 'html', 'rtf', 'chm', 'pdf', 'txt']
 
-    VENDOR_ID   = [0x0525, 0x177f]
-    PRODUCT_ID  = [0xa4a5, 0x300]
-    BCD         = [0x0319, 0x110, 0x325]
+    VENDOR_ID = [0x0525, 0x177F]
+    PRODUCT_ID = [0xA4A5, 0x300]
+    BCD = [0x0319, 0x110, 0x325]
 
     VENDOR_NAME = ['SWEEX', 'LINUX']
     WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = ['EBOOKREADER', 'FILE-STOR_GADGET']
@@ -84,9 +79,9 @@ class PDNOVEL(USBMS):
     supported_platforms = ['windows', 'linux', 'osx']
     FORMATS = ['epub', 'pdf']
 
-    VENDOR_ID   = [0x18d1]
-    PRODUCT_ID  = [0xb004, 0xa004]
-    BCD         = [0x224]
+    VENDOR_ID = [0x18D1]
+    PRODUCT_ID = [0xB004, 0xA004]
+    BCD = [0x224]
 
     VENDOR_NAME = 'ANDROID'
     WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = '__UMS_COMPOSITE'
@@ -109,7 +104,7 @@ class PDNOVEL_KOBO(PDNOVEL):
     gui_name = 'PD Novel (Kobo)'
     description = _('Communicate with the Pandigital Novel')
 
-    BCD         = [0x222]
+    BCD = [0x222]
 
     EBOOK_DIR_MAIN = 'eBooks'
 
@@ -119,7 +114,7 @@ class PDNOVEL_KOBO(PDNOVEL):
             dirpath = os.path.join(path, '.thumbnail')
             if not os.path.exists(dirpath):
                 os.makedirs(dirpath)
-            with open(os.path.join(dirpath, filename+'.jpg'), 'wb') as coverfile:
+            with open(os.path.join(dirpath, filename + '.jpg'), 'wb') as coverfile:
                 coverfile.write(coverdata[2])
                 fsync(coverfile)
 
@@ -132,9 +127,9 @@ class VELOCITYMICRO(USBMS):
     supported_platforms = ['windows', 'linux', 'osx']
     FORMATS = ['epub', 'pdb', 'txt', 'html', 'pdf']
 
-    VENDOR_ID   = [0x18d1]
-    PRODUCT_ID  = [0xb015]
-    BCD         = [0x224]
+    VENDOR_ID = [0x18D1]
+    PRODUCT_ID = [0xB015]
+    BCD = [0x224]
 
     VENDOR_NAME = 'ANDROID'
     WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = '__UMS_COMPOSITE'
@@ -144,18 +139,18 @@ class VELOCITYMICRO(USBMS):
 
 
 class GEMEI(USBMS):
-    name           = 'Gemei Device Interface'
-    gui_name       = 'GM2000'
-    description    = _('Communicate with the GM2000')
-    author         = 'Kovid Goyal'
+    name = 'Gemei Device Interface'
+    gui_name = 'GM2000'
+    description = _('Communicate with the GM2000')
+    author = 'Kovid Goyal'
     supported_platforms = ['windows', 'osx', 'linux']
 
     # Ordered list of supported formats
-    FORMATS     = ['epub', 'chm', 'html', 'pdb', 'pdf', 'txt']
+    FORMATS = ['epub', 'chm', 'html', 'pdb', 'pdf', 'txt']
 
-    VENDOR_ID   = [0x07c4]
-    PRODUCT_ID  = [0xa4a5]
-    BCD         = None
+    VENDOR_ID = [0x07C4]
+    PRODUCT_ID = [0xA4A5]
+    BCD = None
 
     VENDOR_NAME = 'CHINA'
     WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = 'CHIP'
@@ -165,18 +160,18 @@ class GEMEI(USBMS):
 
 
 class LUMIREAD(USBMS):
-    name           = 'Acer Lumiread Device Interface'
-    gui_name       = 'Lumiread'
-    description    = _('Communicate with the Acer Lumiread')
-    author         = 'Kovid Goyal'
+    name = 'Acer Lumiread Device Interface'
+    gui_name = 'Lumiread'
+    description = _('Communicate with the Acer Lumiread')
+    author = 'Kovid Goyal'
     supported_platforms = ['windows', 'osx', 'linux']
 
     # Ordered list of supported formats
-    FORMATS     = ['epub', 'pdf', 'mobi', 'chm', 'txt', 'doc', 'docx', 'rtf']
+    FORMATS = ['epub', 'pdf', 'mobi', 'chm', 'txt', 'doc', 'docx', 'rtf']
 
-    VENDOR_ID   = [0x1025]
-    PRODUCT_ID  = [0x048d]
-    BCD         = [0x323]
+    VENDOR_ID = [0x1025]
+    PRODUCT_ID = [0x048D]
+    BCD = [0x323]
 
     EBOOK_DIR_MAIN = EBOOK_DIR_CARD_A = 'books'
     SUPPORTS_SUB_DIRS = True
@@ -189,85 +184,101 @@ class LUMIREAD(USBMS):
     def upload_cover(self, path, filename, metadata, filepath):
         if metadata.thumbnail and metadata.thumbnail[-1]:
             cfilepath = filepath.replace('/', os.sep)
-            cfilepath = cfilepath.replace(os.sep+'books'+os.sep,
-                    os.sep+'covers'+os.sep, 1)
+            cfilepath = cfilepath.replace(os.sep + 'books' + os.sep, os.sep + 'covers' + os.sep, 1)
             pdir = os.path.dirname(cfilepath)
             if not os.path.exists(pdir):
                 os.makedirs(pdir)
-            with open(cfilepath+'.jpg', 'wb') as f:
+            with open(cfilepath + '.jpg', 'wb') as f:
                 f.write(metadata.thumbnail[-1])
                 fsync(f)
 
 
 class ALURATEK_COLOR(USBMS):
-
-    name           = 'Aluratek Color Device Interface'
-    gui_name       = 'Aluratek Color'
-    description    = _('Communicate with the Aluratek Color')
-    author         = 'Kovid Goyal'
+    name = 'Aluratek Color Device Interface'
+    gui_name = 'Aluratek Color'
+    description = _('Communicate with the Aluratek Color')
+    author = 'Kovid Goyal'
     supported_platforms = ['windows', 'osx', 'linux']
 
     # Ordered list of supported formats
-    FORMATS     = ['epub', 'fb2', 'txt', 'pdf']
+    FORMATS = ['epub', 'fb2', 'txt', 'pdf']
 
-    VENDOR_ID   = [0x1f3a]
-    PRODUCT_ID  = [0x1000]
-    BCD         = [0x0002]
+    VENDOR_ID = [0x1F3A]
+    PRODUCT_ID = [0x1000]
+    BCD = [0x0002]
 
     EBOOK_DIR_MAIN = EBOOK_DIR_CARD_A = 'books'
 
     VENDOR_NAME = ['USB_2.0', 'EZREADER', 'C4+', 'WOXTER', 'KIANO', 'SAD', 'LARK']
-    WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = ['USB_FLASH_DRIVER', '.', 'TOUCH', 'SCRIBA_190', 'BOOKYLIGHT', 'SAPIENS_V2', 'EBOOK']
+    WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = [
+        'USB_FLASH_DRIVER',
+        '.',
+        'TOUCH',
+        'SCRIBA_190',
+        'BOOKYLIGHT',
+        'SAPIENS_V2',
+        'EBOOK',
+    ]
     SCAN_FROM_ROOT = True
     SUPPORTS_SUB_DIRS_FOR_SCAN = True
 
 
 class TREKSTOR(USBMS):
-
-    name           = 'Trekstor E-book player device interface'
-    gui_name       = 'Trekstor'
-    description    = _('Communicate with the Trekstor')
-    author         = 'Kovid Goyal'
+    name = 'Trekstor E-book player device interface'
+    gui_name = 'Trekstor'
+    description = _('Communicate with the Trekstor')
+    author = 'Kovid Goyal'
     supported_platforms = ['windows', 'osx', 'linux']
 
     # Ordered list of supported formats
-    FORMATS     = ['epub', 'txt', 'pdf']
+    FORMATS = ['epub', 'txt', 'pdf']
 
-    VENDOR_ID   = [0x1e68]
-    PRODUCT_ID  = [0x0041, 0x0042, 0x0052, 0x004e, 0x0056,
-            0x0067,  # This is for the Pyrus Mini
-            0x006f,  # This is for the Pyrus Maxi
-            0x003e,  # This is for the EBOOK_PLAYER_5M https://bugs.launchpad.net/bugs/792091
-            0x05c,  # This is for the 4ink https://www.mobileread.com/forums/showthread.php?t=191318
-            0x006c,  # This is for the 4ink https://www.mobileread.com/forums/showthread.php?t=218273
-            0x006d,  # Another Pyrus? https://www.mobileread.com/forums/showthread.php?t=231982
-            0x73,    # This is for the Pyrus 2 LED https://bugs.launchpad.net/bugs/1376018
-            ]
-    BCD         = [0x0002, 0x100, 0x0222, 0x2]
+    VENDOR_ID = [0x1E68]
+    PRODUCT_ID = [
+        0x0041,
+        0x0042,
+        0x0052,
+        0x004E,
+        0x0056,
+        0x0067,  # This is for the Pyrus Mini
+        0x006F,  # This is for the Pyrus Maxi
+        0x003E,  # This is for the EBOOK_PLAYER_5M https://bugs.launchpad.net/bugs/792091
+        0x05C,  # This is for the 4ink https://www.mobileread.com/forums/showthread.php?t=191318
+        0x006C,  # This is for the 4ink https://www.mobileread.com/forums/showthread.php?t=218273
+        0x006D,  # Another Pyrus? https://www.mobileread.com/forums/showthread.php?t=231982
+        0x73,  # This is for the Pyrus 2 LED https://bugs.launchpad.net/bugs/1376018
+    ]
+    BCD = [0x0002, 0x100, 0x0222, 0x2]
 
     EBOOK_DIR_MAIN = 'Ebooks'
 
     VENDOR_NAME = 'TREKSTOR'
-    WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = ['EBOOK_PLAYER_7',
-            'EBOOK_PLAYER_5M', 'EBOOK-READER_3.0', 'EREADER_PYRUS', 'PYRUS_MINI', 'PYRUS_MAXI', 'PYRUS_2_LED']
+    WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = [
+        'EBOOK_PLAYER_7',
+        'EBOOK_PLAYER_5M',
+        'EBOOK-READER_3.0',
+        'EREADER_PYRUS',
+        'PYRUS_MINI',
+        'PYRUS_MAXI',
+        'PYRUS_2_LED',
+    ]
     SUPPORTS_SUB_DIRS = True
     SUPPORTS_SUB_DIRS_DEFAULT = False
 
 
 class EEEREADER(USBMS):
-
-    name           = 'Asus EEE Reader device interface'
-    gui_name       = 'EEE Reader'
-    description    = _('Communicate with the EEE Reader')
-    author         = 'Kovid Goyal'
+    name = 'Asus EEE Reader device interface'
+    gui_name = 'EEE Reader'
+    description = _('Communicate with the EEE Reader')
+    author = 'Kovid Goyal'
     supported_platforms = ['windows', 'osx', 'linux']
 
     # Ordered list of supported formats
-    FORMATS     = ['epub', 'fb2', 'txt', 'pdf']
+    FORMATS = ['epub', 'fb2', 'txt', 'pdf']
 
-    VENDOR_ID   = [0x0b05]
-    PRODUCT_ID  = [0x178f, 0x17a1]
-    BCD         = [0x0319]
+    VENDOR_ID = [0x0B05]
+    PRODUCT_ID = [0x178F, 0x17A1]
+    BCD = [0x0319]
 
     EBOOK_DIR_MAIN = EBOOK_DIR_CARD_A = 'Book'
 
@@ -276,20 +287,19 @@ class EEEREADER(USBMS):
 
 
 class ADAM(USBMS):
-
     name = 'Notion Ink Adam device interface'
     gui_name = 'Adam'
 
-    description    = _('Communicate with the Adam tablet')
-    author         = 'Kovid Goyal'
+    description = _('Communicate with the Adam tablet')
+    author = 'Kovid Goyal'
     supported_platforms = ['windows', 'osx', 'linux']
 
     # Ordered list of supported formats
-    FORMATS     = ['epub', 'pdf', 'doc']
+    FORMATS = ['epub', 'pdf', 'doc']
 
-    VENDOR_ID   = [0x0955]
-    PRODUCT_ID  = [0x7100]
-    BCD         = [0x9999]
+    VENDOR_ID = [0x0955]
+    PRODUCT_ID = [0x7100]
+    BCD = [0x9999]
 
     EBOOK_DIR_MAIN = 'eBooks'
 
@@ -299,19 +309,18 @@ class ADAM(USBMS):
 
 
 class NEXTBOOK(USBMS):
-
-    name           = 'Nextbook device interface'
-    gui_name       = 'Nextbook'
-    description    = _('Communicate with the Nextbook Reader')
-    author         = 'Kovid Goyal'
+    name = 'Nextbook device interface'
+    gui_name = 'Nextbook'
+    description = _('Communicate with the Nextbook Reader')
+    author = 'Kovid Goyal'
     supported_platforms = ['windows', 'osx', 'linux']
 
     # Ordered list of supported formats
-    FORMATS     = ['epub', 'fb2', 'txt', 'pdf']
+    FORMATS = ['epub', 'fb2', 'txt', 'pdf']
 
-    VENDOR_ID   = [0x05e3]
-    PRODUCT_ID  = [0x0726]
-    BCD         = [0x021a]
+    VENDOR_ID = [0x05E3]
+    PRODUCT_ID = [0x0726]
+    BCD = [0x021A]
 
     EBOOK_DIR_MAIN = ''
 
@@ -351,19 +360,18 @@ class NEXTBOOK(USBMS):
 
 
 class MOOVYBOOK(USBMS):
-
-    name           = 'Moovybook device interface'
-    gui_name       = 'Moovybook'
-    description    = _('Communicate with the Moovybook Reader')
-    author         = 'Kovid Goyal'
+    name = 'Moovybook device interface'
+    gui_name = 'Moovybook'
+    description = _('Communicate with the Moovybook Reader')
+    author = 'Kovid Goyal'
     supported_platforms = ['windows', 'osx', 'linux']
 
     # Ordered list of supported formats
-    FORMATS     = ['epub', 'txt', 'pdf']
+    FORMATS = ['epub', 'txt', 'pdf']
 
-    VENDOR_ID   = [0x1cae]
-    PRODUCT_ID  = [0x9b08]
-    BCD         = [0x02]
+    VENDOR_ID = [0x1CAE]
+    PRODUCT_ID = [0x9B08]
+    BCD = [0x02]
 
     EBOOK_DIR_MAIN = ''
 
@@ -374,19 +382,18 @@ class MOOVYBOOK(USBMS):
 
 
 class COBY(USBMS):
-
-    name           = 'COBY MP977 device interface'
-    gui_name       = 'COBY'
-    description    = _('Communicate with the COBY')
-    author         = 'Kovid Goyal'
+    name = 'COBY MP977 device interface'
+    gui_name = 'COBY'
+    description = _('Communicate with the COBY')
+    author = 'Kovid Goyal'
     supported_platforms = ['windows', 'osx', 'linux']
 
     # Ordered list of supported formats
-    FORMATS     = ['epub', 'pdf']
+    FORMATS = ['epub', 'pdf']
 
-    VENDOR_ID   = [0x1e74]
-    PRODUCT_ID  = [0x7121]
-    BCD         = [0x02]
+    VENDOR_ID = [0x1E74]
+    PRODUCT_ID = [0x7121]
+    BCD = [0x02]
     VENDOR_NAME = 'USB_2.0'
     WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = 'MP977_DRIVER'
 
@@ -401,20 +408,19 @@ class COBY(USBMS):
 
 
 class EX124G(USBMS):
-
     name = 'Motorola Ex124G device interface'
     gui_name = 'Ex124G'
     description = _('Communicate with the Ex124G')
 
-    author         = 'Kovid Goyal'
+    author = 'Kovid Goyal'
     supported_platforms = ['windows', 'osx', 'linux']
 
     # Ordered list of supported formats
-    FORMATS     = ['mobi', 'prc', 'azw']
+    FORMATS = ['mobi', 'prc', 'azw']
 
-    VENDOR_ID   = [0x0e8d]
-    PRODUCT_ID  = [0x0002]
-    BCD         = [0x0100]
+    VENDOR_ID = [0x0E8D]
+    PRODUCT_ID = [0x0002]
+    BCD = [0x0100]
     VENDOR_NAME = 'MOTOROLA'
     WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = '_PHONE'
 
@@ -429,19 +435,18 @@ class EX124G(USBMS):
 
 
 class WAYTEQ(USBMS):
-
-    name           = 'WayteQ device interface'
-    gui_name       = 'WayteQ xBook'
-    description    = _('Communicate with the WayteQ and SPC Dickens Readers')
-    author         = 'Kovid Goyal'
+    name = 'WayteQ device interface'
+    gui_name = 'WayteQ xBook'
+    description = _('Communicate with the WayteQ and SPC Dickens Readers')
+    author = 'Kovid Goyal'
     supported_platforms = ['windows', 'osx', 'linux']
 
     # Ordered list of supported formats
-    FORMATS     = ['epub', 'mobi', 'prc', 'fb2', 'txt', 'pdf', 'html', 'rtf', 'chm', 'djvu', 'doc']
+    FORMATS = ['epub', 'mobi', 'prc', 'fb2', 'txt', 'pdf', 'html', 'rtf', 'chm', 'djvu', 'doc']
 
-    VENDOR_ID   = [0x05e3, 0x05e8]
-    PRODUCT_ID  = [0x0726, 0x0728]
-    BCD         = [0x0222]
+    VENDOR_ID = [0x05E3, 0x05E8]
+    PRODUCT_ID = [0x0726, 0x0728]
+    BCD = [0x0222]
 
     EBOOK_DIR_MAIN = 'Documents'
     SCAN_FROM_ROOT = True
@@ -454,7 +459,7 @@ class WAYTEQ(USBMS):
         try:
             detected_device = self.detected_device
             assert detected_device is not None
-            if detected_device.idVendor == 0x05e8:
+            if detected_device.idVendor == 0x05E8:
                 return 'SPC Dickens'
         except Exception:
             pass
@@ -499,19 +504,18 @@ class WAYTEQ(USBMS):
 
 
 class WOXTER(USBMS):
-
-    name           = 'Woxter Scriba device interface'
-    gui_name       = 'Woxter Scriba'
-    description    = _('Communicate with the Woxter Scriba reader')
-    author         = 'Kovid Goyal'
+    name = 'Woxter Scriba device interface'
+    gui_name = 'Woxter Scriba'
+    description = _('Communicate with the Woxter Scriba reader')
+    author = 'Kovid Goyal'
     supported_platforms = ['windows', 'osx', 'linux']
 
     # Ordered list of supported formats
-    FORMATS     = ['epub', 'mobi', 'fb2', 'txt', 'pdf', 'html', 'rtf', 'djvu', 'doc']
+    FORMATS = ['epub', 'mobi', 'fb2', 'txt', 'pdf', 'html', 'rtf', 'djvu', 'doc']
 
-    VENDOR_ID   = [0x2207]
-    PRODUCT_ID  = [0x2818]
-    BCD         = [0x0100]
+    VENDOR_ID = [0x2207]
+    PRODUCT_ID = [0x2818]
+    BCD = [0x0100]
 
     EBOOK_DIR_MAIN = 'Books'
     SCAN_FROM_ROOT = True
@@ -522,17 +526,16 @@ class WOXTER(USBMS):
 
 
 class POCKETBOOK626(USBMS):
-
-    name  = 'PocketBook Touch Lux 2'
+    name = 'PocketBook Touch Lux 2'
     gui_name = 'PocketBook Touch Lux 2'
-    description    = _('Communicate with the PocketBook Touch Lux 2 and Inkpad X readers')
-    author         = 'Kovid Goyal'
+    description = _('Communicate with the PocketBook Touch Lux 2 and Inkpad X readers')
+    author = 'Kovid Goyal'
     supported_platforms = ['windows', 'osx', 'linux']
     # Ordered list of supported formats
-    FORMATS     = ['epub', 'pdf', 'fb2', 'txt', 'pdf', 'html', 'djvu', 'doc', 'docx', 'rtf', 'chm']
-    VENDOR_ID   = [0xfffe]
-    PRODUCT_ID  = [0x0001]
-    BCD         = [0x0230, 0x101]
+    FORMATS = ['epub', 'pdf', 'fb2', 'txt', 'pdf', 'html', 'djvu', 'doc', 'docx', 'rtf', 'chm']
+    VENDOR_ID = [0xFFFE]
+    PRODUCT_ID = [0x0001]
+    BCD = [0x0230, 0x101]
 
     EBOOK_DIR_MAIN = 'Books'
     SCAN_FROM_ROOT = True
@@ -543,17 +546,16 @@ class POCKETBOOK626(USBMS):
 
 
 class SONYDPTS1(USBMS):
-
-    name  = 'SONY DPT-S1'
+    name = 'SONY DPT-S1'
     gui_name = 'SONY DPT'
-    description    = _('Communicate with the SONY DPT-S1')
-    author         = 'Kovid Goyal'
+    description = _('Communicate with the SONY DPT-S1')
+    author = 'Kovid Goyal'
     supported_platforms = ['windows', 'osx', 'linux']
     # Ordered list of supported formats
-    FORMATS     = ['pdf']
-    VENDOR_ID   = [0x054c]
-    PRODUCT_ID  = [0x0854]
-    BCD         = [0x0226]
+    FORMATS = ['pdf']
+    VENDOR_ID = [0x054C]
+    PRODUCT_ID = [0x0854]
+    BCD = [0x0226]
 
     EBOOK_DIR_MAIN = 'Books'
     SCAN_FROM_ROOT = True
@@ -565,16 +567,15 @@ class SONYDPTS1(USBMS):
 
 
 class CERVANTES(USBMS):
-
     name = 'Bq Cervantes Device Interface'
     gui_name = 'Bq Cervantes'
-    description    = _('Communicate with the Bq Cervantes')
-    author         = 'Kovid Goyal'
+    description = _('Communicate with the Bq Cervantes')
+    author = 'Kovid Goyal'
     supported_platforms = ['windows', 'osx', 'linux']
     FORMATS = ['epub', 'fb2', 'mobi', 'doc', 'rtf', 'pdf', 'txt']
-    VENDOR_ID   = [0x2a47]
-    PRODUCT_ID  = [0xad79, 0xad78, 0xad77, 0xad75]
-    BCD         = [0x0110]
+    VENDOR_ID = [0x2A47]
+    PRODUCT_ID = [0xAD79, 0xAD78, 0xAD77, 0xAD75]
+    BCD = [0x0110]
 
     EBOOK_DIR_MAIN = 'Books'
     SCAN_FROM_ROOT = True

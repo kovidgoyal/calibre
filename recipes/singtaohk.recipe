@@ -23,27 +23,23 @@ class STHKRecipe(BasicNewsRecipe):
         .caption-text, .media-library-item__attributes { font-size:small; text-align:center; }
     '''
 
-    keep_only_tags = [
-        dict(name='article', attrs={'class':'content'})
-    ]
+    keep_only_tags = [dict(name='article', attrs={'class': 'content'})]
     remove_tags = [
         dict(name=['video', 'svg', 'button']),
-        dict(attrs={'id':'articleShareIcons'}),
-        classes('in-article-banner stick-box-gray article-pagination comments')
+        dict(attrs={'id': 'articleShareIcons'}),
+        classes('in-article-banner stick-box-gray article-pagination comments'),
     ]
 
     def parse_index(self):
         index = 'https://std.stheadline.com/'
-        sections = [
-            'daily', 'realtime', 'supplement'
-        ]
+        sections = ['daily', 'realtime', 'supplement']
         feeds = []
         soup = self.index_to_soup(index)
         for sec in sections:
             section = sec.capitalize()
             self.log(section)
             articles = []
-            for a in soup.findAll('a', attrs={'href':lambda x: x and x.startswith(index + sec + '/')}):
+            for a in soup.findAll('a', attrs={'href': lambda x: x and x.startswith(index + sec + '/')}):
                 url = a['href']
                 if url in {index + sec + '/', index + sec}:
                     continue

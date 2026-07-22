@@ -58,9 +58,7 @@ class HBR(BasicNewsRecipe):
         script = root.xpath('//script[@id="__NEXT_DATA__"]')
         data = json.loads(script[0].text)
         data = data['props']['pageProps']['article']
-        endpoint_url = (
-            'https://platform.hbr.org/hbr/bff/content/article' + urlparse(url).path
-        )
+        endpoint_url = 'https://platform.hbr.org/hbr/bff/content/article' + urlparse(url).path
 
         topic = ''
         if data.get('primaryTopic'):
@@ -94,16 +92,7 @@ class HBR(BasicNewsRecipe):
         res = br.open(req)
         body = json.loads(res.read())['content']
 
-        return (
-            '<html><body><article>'
-            + topic
-            + title
-            + dek
-            + hero
-            + auth
-            + body
-            + '</article></body></html>'
-        )
+        return '<html><body><article>' + topic + title + dek + hero + auth + body + '</article></body></html>'
 
     recipe_specific_options = {
         'issue': {
@@ -149,11 +138,7 @@ class HBR(BasicNewsRecipe):
                 des = self.tag_to_string(dek)
             desc = des + ' |' + auth.title()
             section_title = 'Articles'
-            sec = (
-                h3.findParent('li')
-                .find_previous_sibling('div', **classes('stream-section-label'))
-                .find('h4')
-            )
+            sec = h3.findParent('li').find_previous_sibling('div', **classes('stream-section-label')).find('h4')
             if sec:
                 section_title = self.tag_to_string(sec).title()
             self.log(section_title, '\n\t', title, '\n\t', desc, '\n\t\t', url)
@@ -173,9 +158,7 @@ class HBR(BasicNewsRecipe):
                 by.extract()
             for li in dek.findAll('li'):
                 li.name = 'span'
-        for div in soup.findAll(
-            'div', attrs={'class': ['article-summary', 'article-callout']}
-        ):
+        for div in soup.findAll('div', attrs={'class': ['article-summary', 'article-callout']}):
             div.name = 'blockquote'
         for sidebar in soup.findAll(('article-sidebar', 'article-ideainbrief')):
             sidebar.name = 'blockquote'

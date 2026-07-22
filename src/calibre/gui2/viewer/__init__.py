@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # License: GPL v3 Copyright: 2018, Kovid Goyal <kovid at kovidgoyal.net>
 
-
 import sys
 from time import monotonic_ns
 
@@ -61,7 +60,6 @@ def url_for_book_in_library():
 
 
 class PerformanceMonitor:
-
     def __init__(self):
         self.start_time = monotonic_ns()
 

@@ -1,9 +1,8 @@
-__license__   = 'GPL v3'
-__copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
+# License: GPLv3 Copyright: 2008, Marshall T. Vandegrift <llasram@gmail.com>
 
-'''
+"""
 Microsoft LIT HTML tag and attribute tables, copied from ConvertLIT.
-'''
+"""
 
 TAGS = [
     None,
@@ -115,22 +114,22 @@ TAGS = [
     'var',
     'wbr',
     None,
-    ]
+]
 
 ATTRS0 = {
     0x8010: 'tabindex',
     0x8046: 'title',
-    0x804b: 'style',
-    0x804d: 'disabled',
-    0x83ea: 'class',
-    0x83eb: 'id',
-    0x83fe: 'datafld',
-    0x83ff: 'datasrc',
+    0x804B: 'style',
+    0x804D: 'disabled',
+    0x83EA: 'class',
+    0x83EB: 'id',
+    0x83FE: 'datafld',
+    0x83FF: 'datasrc',
     0x8400: 'dataformatas',
-    0x87d6: 'accesskey',
+    0x87D6: 'accesskey',
     0x9392: 'lang',
-    0x93ed: 'language',
-    0x93fe: 'dir',
+    0x93ED: 'language',
+    0x93FE: 'dir',
     0x9771: 'onmouseover',
     0x9772: 'onmouseout',
     0x9773: 'onmousedown',
@@ -140,479 +139,479 @@ ATTRS0 = {
     0x9777: 'onkeyup',
     0x9778: 'onkeypress',
     0x9779: 'onclick',
-    0x977a: 'ondblclick',
-    0x977e: 'onhelp',
-    0x977f: 'onfocus',
+    0x977A: 'ondblclick',
+    0x977E: 'onhelp',
+    0x977F: 'onfocus',
     0x9780: 'onblur',
     0x9783: 'onrowexit',
     0x9784: 'onrowenter',
     0x9786: 'onbeforeupdate',
     0x9787: 'onafterupdate',
-    0x978a: 'onreadystatechange',
+    0x978A: 'onreadystatechange',
     0x9790: 'onscroll',
     0x9794: 'ondragstart',
     0x9795: 'onresize',
     0x9796: 'onselectstart',
     0x9797: 'onerrorupdate',
     0x9799: 'ondatasetchanged',
-    0x979a: 'ondataavailable',
-    0x979b: 'ondatasetcomplete',
-    0x979c: 'onfilterchange',
-    0x979f: 'onlosecapture',
-    0x97a0: 'onpropertychange',
-    0x97a2: 'ondrag',
-    0x97a3: 'ondragend',
-    0x97a4: 'ondragenter',
-    0x97a5: 'ondragover',
-    0x97a6: 'ondragleave',
-    0x97a7: 'ondrop',
-    0x97a8: 'oncut',
-    0x97a9: 'oncopy',
-    0x97aa: 'onpaste',
-    0x97ab: 'onbeforecut',
-    0x97ac: 'onbeforecopy',
-    0x97ad: 'onbeforepaste',
-    0x97af: 'onrowsdelete',
-    0x97b0: 'onrowsinserted',
-    0x97b1: 'oncellchange',
-    0x97b2: 'oncontextmenu',
-    0x97b6: 'onbeforeeditfocus',
-    }
+    0x979A: 'ondataavailable',
+    0x979B: 'ondatasetcomplete',
+    0x979C: 'onfilterchange',
+    0x979F: 'onlosecapture',
+    0x97A0: 'onpropertychange',
+    0x97A2: 'ondrag',
+    0x97A3: 'ondragend',
+    0x97A4: 'ondragenter',
+    0x97A5: 'ondragover',
+    0x97A6: 'ondragleave',
+    0x97A7: 'ondrop',
+    0x97A8: 'oncut',
+    0x97A9: 'oncopy',
+    0x97AA: 'onpaste',
+    0x97AB: 'onbeforecut',
+    0x97AC: 'onbeforecopy',
+    0x97AD: 'onbeforepaste',
+    0x97AF: 'onrowsdelete',
+    0x97B0: 'onrowsinserted',
+    0x97B1: 'oncellchange',
+    0x97B2: 'oncontextmenu',
+    0x97B6: 'onbeforeeditfocus',
+}
 ATTRS3 = {
     0x0001: 'href',
-    0x03ec: 'target',
-    0x03ee: 'rel',
-    0x03ef: 'rev',
-    0x03f0: 'urn',
-    0x03f1: 'methods',
+    0x03EC: 'target',
+    0x03EE: 'rel',
+    0x03EF: 'rev',
+    0x03F0: 'urn',
+    0x03F1: 'methods',
     0x8001: 'name',
     0x8046: 'title',
-    0x804b: 'style',
-    0x83ea: 'class',
-    0x83eb: 'id',
-    }
+    0x804B: 'style',
+    0x83EA: 'class',
+    0x83EB: 'id',
+}
 ATTRS5 = {
     0x9399: 'clear',
-    }
+}
 ATTRS6 = {
     0x8001: 'name',
     0x8006: 'width',
     0x8007: 'height',
-    0x804a: 'align',
-    0x8bbb: 'classid',
-    0x8bbc: 'data',
-    0x8bbf: 'codebase',
-    0x8bc0: 'codetype',
-    0x8bc1: 'code',
-    0x8bc2: 'type',
-    0x8bc5: 'vspace',
-    0x8bc6: 'hspace',
-    0x978e: 'onerror',
-    }
+    0x804A: 'align',
+    0x8BBB: 'classid',
+    0x8BBC: 'data',
+    0x8BBF: 'codebase',
+    0x8BC0: 'codetype',
+    0x8BC1: 'code',
+    0x8BC2: 'type',
+    0x8BC5: 'vspace',
+    0x8BC6: 'hspace',
+    0x978E: 'onerror',
+}
 ATTRS7 = {
     0x0001: 'href',
-    0x03ea: 'shape',
-    0x03eb: 'coords',
-    0x03ed: 'target',
-    0x03ee: 'alt',
-    0x03ef: 'nohref',
+    0x03EA: 'shape',
+    0x03EB: 'coords',
+    0x03ED: 'target',
+    0x03EE: 'alt',
+    0x03EF: 'nohref',
     0x8046: 'title',
-    0x804b: 'style',
-    0x83ea: 'class',
-    0x83eb: 'id',
-    }
+    0x804B: 'style',
+    0x83EA: 'class',
+    0x83EB: 'id',
+}
 ATTRS8 = {
     0x8046: 'title',
-    0x804b: 'style',
-    0x83ea: 'class',
-    0x83eb: 'id',
-    }
+    0x804B: 'style',
+    0x83EA: 'class',
+    0x83EB: 'id',
+}
 ATTRS9 = {
-    0x03ec: 'href',
-    0x03ed: 'target',
-    }
+    0x03EC: 'href',
+    0x03ED: 'target',
+}
 ATTRS10 = {
-    0x938b: 'color',
-    0x939b: 'face',
-    0x93a3: 'size',
-    }
+    0x938B: 'color',
+    0x939B: 'face',
+    0x93A3: 'size',
+}
 ATTRS12 = {
-    0x03ea: 'src',
-    0x03eb: 'loop',
-    0x03ec: 'volume',
-    0x03ed: 'balance',
-    }
+    0x03EA: 'src',
+    0x03EB: 'loop',
+    0x03EC: 'volume',
+    0x03ED: 'balance',
+}
 ATTRS13 = {
     0x8046: 'title',
-    0x804b: 'style',
-    0x83ea: 'class',
-    0x83eb: 'id',
-    }
+    0x804B: 'style',
+    0x83EA: 'class',
+    0x83EB: 'id',
+}
 ATTRS15 = {
     0x8046: 'title',
-    0x804b: 'style',
-    0x83ea: 'class',
-    0x83eb: 'id',
+    0x804B: 'style',
+    0x83EA: 'class',
+    0x83EB: 'id',
     0x9399: 'clear',
-    }
+}
 ATTRS16 = {
-    0x07db: 'link',
-    0x07dc: 'alink',
-    0x07dd: 'vlink',
+    0x07DB: 'link',
+    0x07DC: 'alink',
+    0x07DD: 'vlink',
     0x8046: 'title',
-    0x804b: 'style',
-    0x83ea: 'class',
-    0x83eb: 'id',
-    0x938a: 'background',
-    0x938b: 'text',
-    0x938e: 'nowrap',
-    0x93ae: 'topmargin',
-    0x93af: 'rightmargin',
-    0x93b0: 'bottommargin',
-    0x93b1: 'leftmargin',
-    0x93b6: 'bgproperties',
-    0x93d8: 'scroll',
-    0x977b: 'onselect',
+    0x804B: 'style',
+    0x83EA: 'class',
+    0x83EB: 'id',
+    0x938A: 'background',
+    0x938B: 'text',
+    0x938E: 'nowrap',
+    0x93AE: 'topmargin',
+    0x93AF: 'rightmargin',
+    0x93B0: 'bottommargin',
+    0x93B1: 'leftmargin',
+    0x93B6: 'bgproperties',
+    0x93D8: 'scroll',
+    0x977B: 'onselect',
     0x9791: 'onload',
     0x9792: 'onunload',
     0x9798: 'onbeforeunload',
-    0x97b3: 'onbeforeprint',
-    0x97b4: 'onafterprint',
-    0xfe0c: 'bgcolor',
-    }
+    0x97B3: 'onbeforeprint',
+    0x97B4: 'onafterprint',
+    0xFE0C: 'bgcolor',
+}
 ATTRS17 = {
     0x8046: 'title',
-    0x804b: 'style',
-    0x83ea: 'class',
-    0x83eb: 'id',
+    0x804B: 'style',
+    0x83EA: 'class',
+    0x83EB: 'id',
     0x9399: 'clear',
-    }
+}
 ATTRS18 = {
-    0x07d1: 'type',
+    0x07D1: 'type',
     0x8001: 'name',
-    }
+}
 ATTRS19 = {
     0x8046: 'title',
     0x8049: 'align',
-    0x804b: 'style',
-    0x83ea: 'class',
-    0x83eb: 'id',
-    0x93a8: 'valign',
-    }
+    0x804B: 'style',
+    0x83EA: 'class',
+    0x83EB: 'id',
+    0x93A8: 'valign',
+}
 ATTRS20 = {
     0x8046: 'title',
-    0x804b: 'style',
-    0x83ea: 'class',
-    0x83eb: 'id',
+    0x804B: 'style',
+    0x83EA: 'class',
+    0x83EB: 'id',
     0x9399: 'clear',
-    }
+}
 ATTRS21 = {
     0x8046: 'title',
-    0x804b: 'style',
-    0x83ea: 'class',
-    0x83eb: 'id',
-    }
+    0x804B: 'style',
+    0x83EA: 'class',
+    0x83EB: 'id',
+}
 ATTRS22 = {
     0x8046: 'title',
-    0x804b: 'style',
-    0x83ea: 'class',
-    0x83eb: 'id',
-    }
+    0x804B: 'style',
+    0x83EA: 'class',
+    0x83EB: 'id',
+}
 ATTRS23 = {
-    0x03ea: 'span',
+    0x03EA: 'span',
     0x8006: 'width',
     0x8049: 'align',
-    0x93a8: 'valign',
-    0xfe0c: 'bgcolor',
-    }
+    0x93A8: 'valign',
+    0xFE0C: 'bgcolor',
+}
 ATTRS24 = {
-    0x03ea: 'span',
+    0x03EA: 'span',
     0x8006: 'width',
     0x8049: 'align',
-    0x93a8: 'valign',
-    0xfe0c: 'bgcolor',
-    }
+    0x93A8: 'valign',
+    0xFE0C: 'bgcolor',
+}
 ATTRS27 = {
     0x8046: 'title',
-    0x804b: 'style',
-    0x83ea: 'class',
-    0x83eb: 'id',
-    0x938e: 'nowrap',
-    }
+    0x804B: 'style',
+    0x83EA: 'class',
+    0x83EB: 'id',
+    0x938E: 'nowrap',
+}
 ATTRS29 = {
     0x8046: 'title',
-    0x804b: 'style',
-    0x83ea: 'class',
-    0x83eb: 'id',
-    }
+    0x804B: 'style',
+    0x83EA: 'class',
+    0x83EB: 'id',
+}
 ATTRS31 = {
     0x8046: 'title',
     0x8049: 'align',
-    0x804b: 'style',
-    0x83ea: 'class',
-    0x83eb: 'id',
-    0x938e: 'nowrap',
-    }
+    0x804B: 'style',
+    0x83EA: 'class',
+    0x83EB: 'id',
+    0x938E: 'nowrap',
+}
 ATTRS32 = {
-    0x03ea: 'compact',
+    0x03EA: 'compact',
     0x8046: 'title',
-    0x804b: 'style',
-    0x83ea: 'class',
-    0x83eb: 'id',
-    }
+    0x804B: 'style',
+    0x83EA: 'class',
+    0x83EB: 'id',
+}
 ATTRS33 = {
     0x8046: 'title',
-    0x804b: 'style',
-    0x83ea: 'class',
-    0x83eb: 'id',
-    0x938e: 'nowrap',
-    }
+    0x804B: 'style',
+    0x83EA: 'class',
+    0x83EB: 'id',
+    0x938E: 'nowrap',
+}
 ATTRS34 = {
     0x8046: 'title',
-    0x804b: 'style',
-    0x83ea: 'class',
-    0x83eb: 'id',
-    }
+    0x804B: 'style',
+    0x83EA: 'class',
+    0x83EB: 'id',
+}
 ATTRS35 = {
     0x8001: 'name',
     0x8006: 'width',
     0x8007: 'height',
-    0x804a: 'align',
-    0x8bbd: 'palette',
-    0x8bbe: 'pluginspage',
+    0x804A: 'align',
+    0x8BBD: 'palette',
+    0x8BBE: 'pluginspage',
     # 0x8bbf: "codebase",
-    0x8bbf: 'src',
-    0x8bc1: 'units',
-    0x8bc2: 'type',
-    0x8bc3: 'hidden',
-    }
+    0x8BBF: 'src',
+    0x8BC1: 'units',
+    0x8BC2: 'type',
+    0x8BC3: 'hidden',
+}
 ATTRS36 = {
-    0x804a: 'align',
-    }
+    0x804A: 'align',
+}
 ATTRS37 = {
     0x8046: 'title',
-    0x804b: 'style',
-    0x83ea: 'class',
-    0x83eb: 'id',
-    0x938b: 'color',
-    0x939b: 'face',
-    0x939c: 'size',
-    }
+    0x804B: 'style',
+    0x83EA: 'class',
+    0x83EB: 'id',
+    0x938B: 'color',
+    0x939B: 'face',
+    0x939C: 'size',
+}
 ATTRS38 = {
-    0x03ea: 'action',
-    0x03ec: 'enctype',
-    0x03ed: 'method',
-    0x03ef: 'target',
-    0x03f4: 'accept-charset',
+    0x03EA: 'action',
+    0x03EC: 'enctype',
+    0x03ED: 'method',
+    0x03EF: 'target',
+    0x03F4: 'accept-charset',
     0x8001: 'name',
-    0x977c: 'onsubmit',
-    0x977d: 'onreset',
-    }
+    0x977C: 'onsubmit',
+    0x977D: 'onreset',
+}
 ATTRS39 = {
     0x8000: 'align',
     0x8001: 'name',
-    0x8bb9: 'src',
-    0x8bbb: 'border',
-    0x8bbc: 'frameborder',
-    0x8bbd: 'framespacing',
-    0x8bbe: 'marginwidth',
-    0x8bbf: 'marginheight',
-    0x8bc0: 'noresize',
-    0x8bc1: 'scrolling',
-    0x8fa2: 'bordercolor',
-    }
+    0x8BB9: 'src',
+    0x8BBB: 'border',
+    0x8BBC: 'frameborder',
+    0x8BBD: 'framespacing',
+    0x8BBE: 'marginwidth',
+    0x8BBF: 'marginheight',
+    0x8BC0: 'noresize',
+    0x8BC1: 'scrolling',
+    0x8FA2: 'bordercolor',
+}
 ATTRS40 = {
-    0x03e9: 'rows',
-    0x03ea: 'cols',
-    0x03eb: 'border',
-    0x03ec: 'bordercolor',
-    0x03ed: 'frameborder',
-    0x03ee: 'framespacing',
+    0x03E9: 'rows',
+    0x03EA: 'cols',
+    0x03EB: 'border',
+    0x03EC: 'bordercolor',
+    0x03ED: 'frameborder',
+    0x03EE: 'framespacing',
     0x8001: 'name',
     0x9791: 'onload',
     0x9792: 'onunload',
     0x9798: 'onbeforeunload',
-    0x97b3: 'onbeforeprint',
-    0x97b4: 'onafterprint',
-    }
+    0x97B3: 'onbeforeprint',
+    0x97B4: 'onafterprint',
+}
 ATTRS42 = {
     0x8046: 'title',
     0x8049: 'align',
-    0x804b: 'style',
-    0x83ea: 'class',
-    0x83eb: 'id',
+    0x804B: 'style',
+    0x83EA: 'class',
+    0x83EB: 'id',
     0x9399: 'clear',
-    }
+}
 ATTRS43 = {
     0x8046: 'title',
     0x8049: 'align',
-    0x804b: 'style',
-    0x83ea: 'class',
-    0x83eb: 'id',
+    0x804B: 'style',
+    0x83EA: 'class',
+    0x83EB: 'id',
     0x9399: 'clear',
-    }
+}
 ATTRS44 = {
     0x8046: 'title',
     0x8049: 'align',
-    0x804b: 'style',
-    0x83ea: 'class',
-    0x83eb: 'id',
+    0x804B: 'style',
+    0x83EA: 'class',
+    0x83EB: 'id',
     0x9399: 'clear',
-    }
+}
 ATTRS45 = {
     0x8046: 'title',
     0x8049: 'align',
-    0x804b: 'style',
-    0x83ea: 'class',
-    0x83eb: 'id',
+    0x804B: 'style',
+    0x83EA: 'class',
+    0x83EB: 'id',
     0x9399: 'clear',
-    }
+}
 ATTRS46 = {
     0x8046: 'title',
     0x8049: 'align',
-    0x804b: 'style',
-    0x83ea: 'class',
-    0x83eb: 'id',
+    0x804B: 'style',
+    0x83EA: 'class',
+    0x83EB: 'id',
     0x9399: 'clear',
-    }
+}
 ATTRS47 = {
     0x8046: 'title',
     0x8049: 'align',
-    0x804b: 'style',
-    0x83ea: 'class',
-    0x83eb: 'id',
+    0x804B: 'style',
+    0x83EA: 'class',
+    0x83EB: 'id',
     0x9399: 'clear',
-    }
+}
 ATTRS49 = {
-    0x03ea: 'noshade',
+    0x03EA: 'noshade',
     0x8006: 'width',
     0x8007: 'size',
     0x8046: 'title',
     0x8049: 'align',
-    0x804b: 'style',
-    0x83ea: 'class',
-    0x83eb: 'id',
-    0x938b: 'color',
-    }
+    0x804B: 'style',
+    0x83EA: 'class',
+    0x83EB: 'id',
+    0x938B: 'color',
+}
 ATTRS51 = {
     0x8046: 'title',
-    0x804b: 'style',
-    0x83ea: 'class',
-    0x83eb: 'id',
-    }
+    0x804B: 'style',
+    0x83EA: 'class',
+    0x83EB: 'id',
+}
 ATTRS52 = {
     0x8001: 'name',
     0x8006: 'width',
     0x8007: 'height',
-    0x804a: 'align',
-    0x8bb9: 'src',
-    0x8bbb: 'border',
-    0x8bbc: 'frameborder',
-    0x8bbd: 'framespacing',
-    0x8bbe: 'marginwidth',
-    0x8bbf: 'marginheight',
-    0x8bc0: 'noresize',
-    0x8bc1: 'scrolling',
-    0x8fa2: 'vspace',
-    0x8fa3: 'hspace',
-    }
+    0x804A: 'align',
+    0x8BB9: 'src',
+    0x8BBB: 'border',
+    0x8BBC: 'frameborder',
+    0x8BBD: 'framespacing',
+    0x8BBE: 'marginwidth',
+    0x8BBF: 'marginheight',
+    0x8BC0: 'noresize',
+    0x8BC1: 'scrolling',
+    0x8FA2: 'vspace',
+    0x8FA3: 'hspace',
+}
 ATTRS53 = {
-    0x03eb: 'alt',
-    0x03ec: 'src',
-    0x03ed: 'border',
-    0x03ee: 'vspace',
-    0x03ef: 'hspace',
-    0x03f0: 'lowsrc',
-    0x03f1: 'vrml',
-    0x03f2: 'dynsrc',
-    0x03f4: 'loop',
-    0x03f6: 'start',
-    0x07d3: 'ismap',
-    0x07d9: 'usemap',
+    0x03EB: 'alt',
+    0x03EC: 'src',
+    0x03ED: 'border',
+    0x03EE: 'vspace',
+    0x03EF: 'hspace',
+    0x03F0: 'lowsrc',
+    0x03F1: 'vrml',
+    0x03F2: 'dynsrc',
+    0x03F4: 'loop',
+    0x03F6: 'start',
+    0x07D3: 'ismap',
+    0x07D9: 'usemap',
     0x8001: 'name',
     0x8006: 'width',
     0x8007: 'height',
     0x8046: 'title',
-    0x804a: 'align',
-    0x804b: 'style',
-    0x83ea: 'class',
-    0x83eb: 'id',
-    0x978d: 'onabort',
-    0x978e: 'onerror',
+    0x804A: 'align',
+    0x804B: 'style',
+    0x83EA: 'class',
+    0x83EB: 'id',
+    0x978D: 'onabort',
+    0x978E: 'onerror',
     0x9791: 'onload',
-    }
+}
 ATTRS54 = {
-    0x07d1: 'type',
-    0x07d3: 'size',
-    0x07d4: 'maxlength',
-    0x07d6: 'readonly',
-    0x07d8: 'indeterminate',
-    0x07da: 'checked',
-    0x07db: 'alt',
-    0x07dc: 'src',
-    0x07dd: 'border',
-    0x07de: 'vspace',
-    0x07df: 'hspace',
-    0x07e0: 'lowsrc',
-    0x07e1: 'vrml',
-    0x07e2: 'dynsrc',
-    0x07e4: 'loop',
-    0x07e5: 'start',
+    0x07D1: 'type',
+    0x07D3: 'size',
+    0x07D4: 'maxlength',
+    0x07D6: 'readonly',
+    0x07D8: 'indeterminate',
+    0x07DA: 'checked',
+    0x07DB: 'alt',
+    0x07DC: 'src',
+    0x07DD: 'border',
+    0x07DE: 'vspace',
+    0x07DF: 'hspace',
+    0x07E0: 'lowsrc',
+    0x07E1: 'vrml',
+    0x07E2: 'dynsrc',
+    0x07E4: 'loop',
+    0x07E5: 'start',
     0x8001: 'name',
     0x8006: 'width',
     0x8007: 'height',
-    0x804a: 'align',
-    0x93ee: 'value',
-    0x977b: 'onselect',
-    0x978d: 'onabort',
-    0x978e: 'onerror',
-    0x978f: 'onchange',
+    0x804A: 'align',
+    0x93EE: 'value',
+    0x977B: 'onselect',
+    0x978D: 'onabort',
+    0x978E: 'onerror',
+    0x978F: 'onchange',
     0x9791: 'onload',
-    }
+}
 ATTRS56 = {
     0x8046: 'title',
-    0x804b: 'style',
-    0x83ea: 'class',
-    0x83eb: 'id',
-    }
+    0x804B: 'style',
+    0x83EA: 'class',
+    0x83EB: 'id',
+}
 ATTRS57 = {
-    0x03e9: 'for',
-    }
+    0x03E9: 'for',
+}
 ATTRS58 = {
-    0x804a: 'align',
-    }
+    0x804A: 'align',
+}
 ATTRS59 = {
-    0x03ea: 'value',
+    0x03EA: 'value',
     0x8046: 'title',
-    0x804b: 'style',
-    0x83ea: 'class',
-    0x83eb: 'id',
-    0x939a: 'type',
-    }
+    0x804B: 'style',
+    0x83EA: 'class',
+    0x83EB: 'id',
+    0x939A: 'type',
+}
 ATTRS60 = {
-    0x03ee: 'href',
-    0x03ef: 'rel',
-    0x03f0: 'rev',
-    0x03f1: 'type',
-    0x03f9: 'media',
-    0x03fa: 'target',
+    0x03EE: 'href',
+    0x03EF: 'rel',
+    0x03F0: 'rev',
+    0x03F1: 'type',
+    0x03F9: 'media',
+    0x03FA: 'target',
     0x8046: 'title',
-    0x804b: 'style',
-    0x83ea: 'class',
-    0x83eb: 'id',
-    0x978e: 'onerror',
+    0x804B: 'style',
+    0x83EA: 'class',
+    0x83EB: 'id',
+    0x978E: 'onerror',
     0x9791: 'onload',
-    }
+}
 ATTRS61 = {
     0x9399: 'clear',
-    }
+}
 ATTRS62 = {
     0x8001: 'name',
     0x8046: 'title',
-    0x804b: 'style',
-    0x83ea: 'class',
-    0x83eb: 'id',
-    }
+    0x804B: 'style',
+    0x83EA: 'class',
+    0x83EB: 'id',
+}
 ATTRS63 = {
     0x1771: 'scrolldelay',
     0x1772: 'direction',
@@ -625,20 +624,20 @@ ATTRS63 = {
     0x8006: 'width',
     0x8007: 'height',
     0x9785: 'onbounce',
-    0x978b: 'onfinish',
-    0x978c: 'onstart',
-    0xfe0c: 'bgcolor',
-    }
+    0x978B: 'onfinish',
+    0x978C: 'onstart',
+    0xFE0C: 'bgcolor',
+}
 ATTRS65 = {
-    0x03ea: 'http-equiv',
-    0x03eb: 'content',
-    0x03ec: 'url',
-    0x03f6: 'charset',
+    0x03EA: 'http-equiv',
+    0x03EB: 'content',
+    0x03EC: 'url',
+    0x03F6: 'charset',
     0x8001: 'name',
-    }
+}
 ATTRS66 = {
-    0x03f5: 'n',
-    }
+    0x03F5: 'n',
+}
 ATTRS71 = {
     # 0x8000: "border",
     0x8000: 'usemap',
@@ -646,276 +645,276 @@ ATTRS71 = {
     0x8006: 'width',
     0x8007: 'height',
     0x8046: 'title',
-    0x804a: 'align',
-    0x804b: 'style',
-    0x83ea: 'class',
-    0x83eb: 'id',
-    0x8bbb: 'classid',
-    0x8bbc: 'data',
-    0x8bbf: 'codebase',
-    0x8bc0: 'codetype',
-    0x8bc1: 'code',
-    0x8bc2: 'type',
-    0x8bc5: 'vspace',
-    0x8bc6: 'hspace',
-    0x978e: 'onerror',
-    }
+    0x804A: 'align',
+    0x804B: 'style',
+    0x83EA: 'class',
+    0x83EB: 'id',
+    0x8BBB: 'classid',
+    0x8BBC: 'data',
+    0x8BBF: 'codebase',
+    0x8BC0: 'codetype',
+    0x8BC1: 'code',
+    0x8BC2: 'type',
+    0x8BC5: 'vspace',
+    0x8BC6: 'hspace',
+    0x978E: 'onerror',
+}
 ATTRS72 = {
-    0x03eb: 'compact',
-    0x03ec: 'start',
+    0x03EB: 'compact',
+    0x03EC: 'start',
     0x8046: 'title',
-    0x804b: 'style',
-    0x83ea: 'class',
-    0x83eb: 'id',
-    0x939a: 'type',
-    }
+    0x804B: 'style',
+    0x83EA: 'class',
+    0x83EB: 'id',
+    0x939A: 'type',
+}
 ATTRS73 = {
-    0x03ea: 'selected',
-    0x03eb: 'value',
-    }
+    0x03EA: 'selected',
+    0x03EB: 'value',
+}
 ATTRS74 = {
     0x8046: 'title',
     0x8049: 'align',
-    0x804b: 'style',
-    0x83ea: 'class',
-    0x83eb: 'id',
+    0x804B: 'style',
+    0x83EA: 'class',
+    0x83EB: 'id',
     0x9399: 'clear',
-    }
+}
 ATTRS75 = {
     # 0x8000: "name",
     # 0x8000: "value",
     0x8000: 'type',
-    }
+}
 ATTRS76 = {
     0x9399: 'clear',
-    }
+}
 ATTRS77 = {
     0x8046: 'title',
-    0x804b: 'style',
-    0x83ea: 'class',
-    0x83eb: 'id',
+    0x804B: 'style',
+    0x83EA: 'class',
+    0x83EB: 'id',
     0x9399: 'clear',
-    }
+}
 ATTRS78 = {
     0x8046: 'title',
-    0x804b: 'style',
-    0x83ea: 'class',
-    0x83eb: 'id',
-    }
+    0x804B: 'style',
+    0x83EA: 'class',
+    0x83EB: 'id',
+}
 ATTRS82 = {
     0x8046: 'title',
-    0x804b: 'style',
-    0x83ea: 'class',
-    0x83eb: 'id',
-    }
+    0x804B: 'style',
+    0x83EA: 'class',
+    0x83EB: 'id',
+}
 ATTRS83 = {
     0x8046: 'title',
-    0x804b: 'style',
-    0x83ea: 'class',
-    0x83eb: 'id',
-    }
+    0x804B: 'style',
+    0x83EA: 'class',
+    0x83EB: 'id',
+}
 ATTRS84 = {
-    0x03ea: 'src',
-    0x03ed: 'for',
-    0x03ee: 'event',
-    0x03f0: 'defer',
-    0x03f2: 'type',
-    0x978e: 'onerror',
-    }
+    0x03EA: 'src',
+    0x03ED: 'for',
+    0x03EE: 'event',
+    0x03F0: 'defer',
+    0x03F2: 'type',
+    0x978E: 'onerror',
+}
 ATTRS85 = {
-    0x03eb: 'size',
-    0x03ec: 'multiple',
+    0x03EB: 'size',
+    0x03EC: 'multiple',
     0x8000: 'align',
     0x8001: 'name',
-    0x978f: 'onchange',
-    }
+    0x978F: 'onchange',
+}
 ATTRS86 = {
     0x8046: 'title',
-    0x804b: 'style',
-    0x83ea: 'class',
-    0x83eb: 'id',
-    }
+    0x804B: 'style',
+    0x83EA: 'class',
+    0x83EB: 'id',
+}
 ATTRS87 = {
     0x8046: 'title',
-    0x804b: 'style',
-    0x83ea: 'class',
-    0x83eb: 'id',
-    }
+    0x804B: 'style',
+    0x83EA: 'class',
+    0x83EB: 'id',
+}
 ATTRS88 = {
     0x8046: 'title',
-    0x804b: 'style',
-    0x83ea: 'class',
-    0x83eb: 'id',
-    }
+    0x804B: 'style',
+    0x83EA: 'class',
+    0x83EB: 'id',
+}
 ATTRS89 = {
     0x8046: 'title',
-    0x804b: 'style',
-    0x83ea: 'class',
-    0x83eb: 'id',
-    }
+    0x804B: 'style',
+    0x83EA: 'class',
+    0x83EB: 'id',
+}
 ATTRS90 = {
-    0x03eb: 'type',
-    0x03ef: 'media',
+    0x03EB: 'type',
+    0x03EF: 'media',
     0x8046: 'title',
-    0x978e: 'onerror',
+    0x978E: 'onerror',
     0x9791: 'onload',
-    }
+}
 ATTRS91 = {
     0x8046: 'title',
-    0x804b: 'style',
-    0x83ea: 'class',
-    0x83eb: 'id',
-    }
+    0x804B: 'style',
+    0x83EA: 'class',
+    0x83EB: 'id',
+}
 ATTRS92 = {
     0x8046: 'title',
-    0x804b: 'style',
-    0x83ea: 'class',
-    0x83eb: 'id',
-    }
+    0x804B: 'style',
+    0x83EA: 'class',
+    0x83EB: 'id',
+}
 ATTRS93 = {
-    0x03ea: 'cols',
-    0x03eb: 'border',
-    0x03ec: 'rules',
-    0x03ed: 'frame',
-    0x03ee: 'cellspacing',
-    0x03ef: 'cellpadding',
-    0x03fa: 'datapagesize',
+    0x03EA: 'cols',
+    0x03EB: 'border',
+    0x03EC: 'rules',
+    0x03ED: 'frame',
+    0x03EE: 'cellspacing',
+    0x03EF: 'cellpadding',
+    0x03FA: 'datapagesize',
     0x8006: 'width',
     0x8007: 'height',
     0x8046: 'title',
-    0x804a: 'align',
-    0x804b: 'style',
-    0x83ea: 'class',
-    0x83eb: 'id',
-    0x938a: 'background',
-    0x93a5: 'bordercolor',
-    0x93a6: 'bordercolorlight',
-    0x93a7: 'bordercolordark',
-    0xfe0c: 'bgcolor',
-    }
+    0x804A: 'align',
+    0x804B: 'style',
+    0x83EA: 'class',
+    0x83EB: 'id',
+    0x938A: 'background',
+    0x93A5: 'bordercolor',
+    0x93A6: 'bordercolorlight',
+    0x93A7: 'bordercolordark',
+    0xFE0C: 'bgcolor',
+}
 ATTRS94 = {
     0x8049: 'align',
-    0x93a8: 'valign',
-    0xfe0c: 'bgcolor',
-    }
+    0x93A8: 'valign',
+    0xFE0C: 'bgcolor',
+}
 ATTRS95 = {
     0x8049: 'align',
-    0x93a8: 'valign',
-    }
+    0x93A8: 'valign',
+}
 ATTRS96 = {
-    0x07d2: 'rowspan',
-    0x07d3: 'colspan',
+    0x07D2: 'rowspan',
+    0x07D3: 'colspan',
     0x8006: 'width',
     0x8007: 'height',
     0x8046: 'title',
     0x8049: 'align',
-    0x804b: 'style',
-    0x83ea: 'class',
-    0x83eb: 'id',
-    0x938a: 'background',
-    0x938e: 'nowrap',
-    0x93a5: 'bordercolor',
-    0x93a6: 'bordercolorlight',
-    0x93a7: 'bordercolordark',
-    0x93a8: 'valign',
-    0xfe0c: 'bgcolor',
-    }
+    0x804B: 'style',
+    0x83EA: 'class',
+    0x83EB: 'id',
+    0x938A: 'background',
+    0x938E: 'nowrap',
+    0x93A5: 'bordercolor',
+    0x93A6: 'bordercolorlight',
+    0x93A7: 'bordercolordark',
+    0x93A8: 'valign',
+    0xFE0C: 'bgcolor',
+}
 ATTRS97 = {
-    0x1b5a: 'rows',
-    0x1b5b: 'cols',
-    0x1b5c: 'wrap',
-    0x1b5d: 'readonly',
+    0x1B5A: 'rows',
+    0x1B5B: 'cols',
+    0x1B5C: 'wrap',
+    0x1B5D: 'readonly',
     0x8001: 'name',
-    0x977b: 'onselect',
-    0x978f: 'onchange',
-    }
+    0x977B: 'onselect',
+    0x978F: 'onchange',
+}
 ATTRS98 = {
     0x8049: 'align',
-    0x93a8: 'valign',
-    0xfe0c: 'bgcolor',
-    }
+    0x93A8: 'valign',
+    0xFE0C: 'bgcolor',
+}
 ATTRS99 = {
-    0x07d2: 'rowspan',
-    0x07d3: 'colspan',
+    0x07D2: 'rowspan',
+    0x07D3: 'colspan',
     0x8006: 'width',
     0x8007: 'height',
     0x8046: 'title',
     0x8049: 'align',
-    0x804b: 'style',
-    0x83ea: 'class',
-    0x83eb: 'id',
-    0x938a: 'background',
-    0x938e: 'nowrap',
-    0x93a5: 'bordercolor',
-    0x93a6: 'bordercolorlight',
-    0x93a7: 'bordercolordark',
-    0x93a8: 'valign',
-    0xfe0c: 'bgcolor',
-    }
+    0x804B: 'style',
+    0x83EA: 'class',
+    0x83EB: 'id',
+    0x938A: 'background',
+    0x938E: 'nowrap',
+    0x93A5: 'bordercolor',
+    0x93A6: 'bordercolorlight',
+    0x93A7: 'bordercolordark',
+    0x93A8: 'valign',
+    0xFE0C: 'bgcolor',
+}
 ATTRS100 = {
     0x8049: 'align',
-    0x93a8: 'valign',
-    0xfe0c: 'bgcolor',
-    }
+    0x93A8: 'valign',
+    0xFE0C: 'bgcolor',
+}
 ATTRS102 = {
     0x8007: 'height',
     0x8046: 'title',
     0x8049: 'align',
-    0x804b: 'style',
-    0x83ea: 'class',
-    0x83eb: 'id',
-    0x93a5: 'bordercolor',
-    0x93a6: 'bordercolorlight',
-    0x93a7: 'bordercolordark',
-    0x93a8: 'valign',
-    0xfe0c: 'bgcolor',
-    }
+    0x804B: 'style',
+    0x83EA: 'class',
+    0x83EB: 'id',
+    0x93A5: 'bordercolor',
+    0x93A6: 'bordercolorlight',
+    0x93A7: 'bordercolordark',
+    0x93A8: 'valign',
+    0xFE0C: 'bgcolor',
+}
 ATTRS103 = {
     0x8046: 'title',
-    0x804b: 'style',
-    0x83ea: 'class',
-    0x83eb: 'id',
-    }
+    0x804B: 'style',
+    0x83EA: 'class',
+    0x83EB: 'id',
+}
 ATTRS104 = {
     0x8046: 'title',
-    0x804b: 'style',
-    0x83ea: 'class',
-    0x83eb: 'id',
-    }
+    0x804B: 'style',
+    0x83EA: 'class',
+    0x83EB: 'id',
+}
 ATTRS105 = {
-    0x03eb: 'compact',
+    0x03EB: 'compact',
     0x8046: 'title',
-    0x804b: 'style',
-    0x83ea: 'class',
-    0x83eb: 'id',
-    0x939a: 'type',
-    }
+    0x804B: 'style',
+    0x83EA: 'class',
+    0x83EB: 'id',
+    0x939A: 'type',
+}
 ATTRS106 = {
     0x8046: 'title',
-    0x804b: 'style',
-    0x83ea: 'class',
-    0x83eb: 'id',
-    }
+    0x804B: 'style',
+    0x83EA: 'class',
+    0x83EB: 'id',
+}
 ATTRS108 = {
     0x9399: 'clear',
-    }
+}
 
 TAGS_ATTRS = [
     None,
     None,
     None,
-    ATTRS3,   # a
-    None,     # acronym
-    ATTRS5,   # address
-    ATTRS6,   # applet
-    ATTRS7,   # area
-    ATTRS8,   # b
-    ATTRS9,   # base
+    ATTRS3,  # a
+    None,  # acronym
+    ATTRS5,  # address
+    ATTRS6,  # applet
+    ATTRS7,  # area
+    ATTRS8,  # b
+    ATTRS9,  # base
     ATTRS10,  # basefont
-    None,     # bdo
+    None,  # bdo
     ATTRS12,  # bgsound
     ATTRS13,  # big
-    None,     # blink
+    None,  # blink
     ATTRS15,  # blockquote
     ATTRS16,  # body
     ATTRS17,  # br
@@ -929,9 +928,9 @@ TAGS_ATTRS = [
     None,
     None,
     ATTRS27,  # dd
-    None,     # del
+    None,  # del
     ATTRS29,  # dfn
-    None,     # dir
+    None,  # dir
     ATTRS31,  # div
     ATTRS32,  # dl
     ATTRS33,  # dt
@@ -949,14 +948,14 @@ TAGS_ATTRS = [
     ATTRS45,  # h4
     ATTRS46,  # h5
     ATTRS47,  # h6
-    None,     # head
+    None,  # head
     ATTRS49,  # hr
-    None,     # html
+    None,  # html
     ATTRS51,  # i
     ATTRS52,  # iframe
     ATTRS53,  # img
     ATTRS54,  # input
-    None,     # ins
+    None,  # ins
     ATTRS56,  # kbd
     ATTRS57,  # label
     ATTRS58,  # legend
@@ -965,13 +964,13 @@ TAGS_ATTRS = [
     ATTRS61,  # tag61
     ATTRS62,  # map
     ATTRS63,  # tag63
-    None,     # tag64
+    None,  # tag64
     ATTRS65,  # meta
     ATTRS66,  # nextid
-    None,     # nobr
-    None,     # noembed
-    None,     # noframes
-    None,     # noscript
+    None,  # nobr
+    None,  # noembed
+    None,  # noframes
+    None,  # noscript
     ATTRS71,  # object
     ATTRS72,  # ol
     ATTRS73,  # option
@@ -980,9 +979,9 @@ TAGS_ATTRS = [
     ATTRS76,  # plaintext
     ATTRS77,  # pre
     ATTRS78,  # q
-    None,     # rp
-    None,     # rt
-    None,     # ruby
+    None,  # rp
+    None,  # rt
+    None,  # ruby
     ATTRS82,  # s
     ATTRS83,  # samp
     ATTRS84,  # script
@@ -1002,14 +1001,14 @@ TAGS_ATTRS = [
     ATTRS98,  # tfoot
     ATTRS99,  # th
     ATTRS100,  # thead
-    None,     # title
+    None,  # title
     ATTRS102,  # tr
     ATTRS103,  # tt
     ATTRS104,  # u
     ATTRS105,  # ul
     ATTRS106,  # var
-    None,     # wbr
+    None,  # wbr
     None,
-    ]
+]
 
 MAP = (TAGS, ATTRS0, TAGS_ATTRS)

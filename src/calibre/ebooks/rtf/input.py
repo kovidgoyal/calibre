@@ -1,12 +1,9 @@
-__license__   = 'GPL v3'
-__copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
-
+# License: GPLv3 Copyright: 2008, Kovid Goyal <kovid at kovidgoyal.net>
 
 from lxml import etree
 
 
 class InlineClass(etree.XSLTExtension):
-
     FMTS = ('italics', 'bold', 'strike-through', 'small-caps')
 
     def __init__(self, log):

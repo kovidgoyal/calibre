@@ -1,8 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__ = 'GPL v3'
-__copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
+# License: GPLv3 Copyright: 2013, Kovid Goyal <kovid at kovidgoyal.net>
 
 import re
 from collections import namedtuple
@@ -38,7 +35,7 @@ space_chars = ' \t\r\n\u000c'
 attribute_name_pat = re.compile(rf'''[^{space_chars}"'/><=]+''')
 self_closing_pat = re.compile(r'/\s*>')
 unquoted_val_pat = re.compile(rf'''[^{space_chars}'"=<>`]+''')
-cdata_close_pats = {x:re.compile(rf'</{x}', flags=re.I) for x in cdata_tags}
+cdata_close_pats = {x: re.compile(rf'</{x}', flags=re.I) for x in cdata_tags}
 nbsp_pat = re.compile(r'[\xa0\u2000-\u200A\u202F\u205F\u3000\u2011-\u2015\uFE58\uFE63\uFF0D]+')  # special spaces and hyphens
 
 NORMAL = 0
@@ -119,7 +116,7 @@ def close_tag(state, name):
     else:
         return  # No matching open tag found, ignore the closing tag
     # Remove all tags up to the matching open tag
-    state.tags = state.tags[:-len(removed_tags)]
+    state.tags = state.tags[: -len(removed_tags)]
     state.sub_parser_state = None
     # Check if we should still be bold or italic
     if state.is_bold:
@@ -143,7 +140,6 @@ def close_tag(state, name):
 
 
 class HTMLUserData(QTextBlockUserData):
-
     def __init__(self):
         QTextBlockUserData.__init__(self)
         self.tags = []
@@ -164,7 +160,6 @@ class HTMLUserData(QTextBlockUserData):
 
 
 class XMLUserData(HTMLUserData):
-
     @classmethod
     def tag_ok_for_spell(cls, name):
         return name in xml_spell_tags
@@ -182,13 +177,13 @@ def add_attr_data(user_data, data_type, data, offset):
 
 
 def css(state, text, i, formats, user_data):
-    ' Inside a <style> tag '
+    "Inside a <style> tag"
     pat = cdata_close_pats['style']
     m = pat.search(text, i)
     if m is None:
         css_text = text[i:]
     else:
-        css_text = text[i:m.start()]
+        css_text = text[i : m.start()]
     ans = []
     css_user_data = user_data.css_user_data = user_data.css_user_data or CSSUserData()
     state.sub_parser_state = css_user_data.state = state.sub_parser_state or CSSState()
@@ -203,7 +198,7 @@ def css(state, text, i, formats, user_data):
 
 
 def cdata(state, text, i, formats, user_data):
-    'CDATA inside tags like <title> or <style>'
+    "CDATA inside tags like <title> or <style>"
     name = state.tags[-1].name
     pat = cdata_close_pats[name]
     m = pat.search(text, i)
@@ -246,7 +241,7 @@ def process_text(state, text, nbsp_format, spell_format, user_data):
             if fmt is nbsp_format:
                 split_ans.append((tlen, fmt))
             else:
-                split_ans.extend(check_spelling(text[tpos:tpos+tlen], tlen, fmt, locale, sfmt, store_locale.enabled))
+                split_ans.extend(check_spelling(text[tpos : tpos + tlen], tlen, fmt, locale, sfmt, store_locale.enabled))
 
             tpos += tlen
         ans = split_ans
@@ -255,20 +250,20 @@ def process_text(state, text, nbsp_format, spell_format, user_data):
 
 
 def normal(state, text, i, formats, user_data):
-    ' The normal state in between tags '
+    "The normal state in between tags"
     ch = text[i]
     if ch == '<':
-        if text[i:i+4] == '<!--':
+        if text[i : i + 4] == '<!--':
             state.parse, fmt = IN_COMMENT, formats['comment']
             user_data.non_tag_structures.append(NonTagBoundary(i, True, IN_COMMENT))
             return [(4, fmt)]
 
-        if text[i:i+2] == '<?':
+        if text[i : i + 2] == '<?':
             state.parse, fmt = IN_PI, formats['preproc']
             user_data.non_tag_structures.append(NonTagBoundary(i, True, IN_PI))
             return [(2, fmt)]
 
-        if text[i:i+2] == '<!' and text[i+2:].lstrip().lower().startswith('doctype'):
+        if text[i : i + 2] == '<!' and text[i + 2 :].lstrip().lower().startswith('doctype'):
             state.parse, fmt = IN_DOCTYPE, formats['preproc']
             user_data.non_tag_structures.append(NonTagBoundary(i, True, IN_DOCTYPE))
             return [(2, fmt)]
@@ -289,7 +284,7 @@ def normal(state, text, i, formats, user_data):
             return [(len(m.group()) + 1, formats['only-prefix'])]
         ans = [(2 if closing else 1, formats['end_tag' if closing else 'tag'])]
         if prefix:
-            ans.append((len(prefix)+1, formats['nsprefix']))
+            ans.append((len(prefix) + 1, formats['nsprefix']))
         ans.append((len(name), formats['tag_name']))
         state.parse = IN_CLOSING_TAG if closing else IN_OPENING_TAG
         add_tag_data(user_data, TagStart(i, prefix, name, closing, True))
@@ -315,7 +310,7 @@ def normal(state, text, i, formats, user_data):
 
 
 def opening_tag(cdata_tags, state, text, i, formats, user_data):
-    'An opening tag, like <a>'
+    "An opening tag, like <a>"
     ch = text[i]
     if ch in space_chars:
         return [(1, None)]
@@ -346,7 +341,7 @@ def opening_tag(cdata_tags, state, text, i, formats, user_data):
 
 
 def attribute_name(state, text, i, formats, user_data):
-    ' After attribute name '
+    "After attribute name"
     ch = text[i]
     if ch in space_chars:
         return [(1, None)]
@@ -360,7 +355,7 @@ def attribute_name(state, text, i, formats, user_data):
 
 
 def attribute_value(state, text, i, formats, user_data):
-    ' After attribute = '
+    "After attribute ="
     ch = text[i]
     if ch in space_chars:
         return [(1, None)]
@@ -376,7 +371,7 @@ def attribute_value(state, text, i, formats, user_data):
 
 
 def quoted_val(state, text, i, formats, user_data):
-    ' A quoted attribute value '
+    "A quoted attribute value"
     quote = '"' if state.parse is DQ_VAL else "'"
     add_attr_data(user_data, ATTR_VALUE, ATTR_START, i)
     pos = text.find(quote, i)
@@ -396,7 +391,7 @@ def quoted_val(state, text, i, formats, user_data):
         is_class = not is_link and state.attribute_name == 'class'
 
     if is_link:
-        if verify_link(text[i:i+num - 1], user_data.doc_name) is False:
+        if verify_link(text[i : i + num - 1], user_data.doc_name) is False:
             return [(num - 1, formats['bad_link']), (1, formats['string'])]
         return [(num - 1, formats['link']), (1, formats['string'])]
     elif is_class:
@@ -405,7 +400,7 @@ def quoted_val(state, text, i, formats, user_data):
 
 
 def closing_tag(state, text, i, formats, user_data):
-    ' A closing tag like </a> '
+    "A closing tag like </a>"
     ch = text[i]
     if ch in space_chars:
         return [(1, None)]
@@ -422,8 +417,8 @@ def closing_tag(state, text, i, formats, user_data):
 
 
 def in_comment(state, text, i, formats, user_data):
-    ' Comment, processing instruction or doctype '
-    end = {IN_COMMENT:'-->', IN_PI:'?>'}.get(state.parse, '>')
+    "Comment, processing instruction or doctype"
+    end = {IN_COMMENT: '-->', IN_PI: '?>'}.get(state.parse, '>')
     pos = text.find(end, i)
     fmt = formats['comment' if state.parse is IN_COMMENT else 'preproc']
     if pos == -1:
@@ -436,7 +431,7 @@ def in_comment(state, text, i, formats, user_data):
 
 
 state_map = {
-    NORMAL:normal,
+    NORMAL: normal,
     IN_OPENING_TAG: partial(opening_tag, cdata_tags),
     IN_CLOSING_TAG: closing_tag,
     ATTRIBUTE_NAME: attribute_name,
@@ -472,14 +467,14 @@ def create_formats(highlighter, add_css=True):
         'spell': t['SpellError'],
     }
     for name, msg in {
-            '<': _('An unescaped < is not allowed. Replace it with &lt;'),
-            '&': _('An unescaped ampersand is not allowed. Replace it with &amp;'),
-            '>': _('An unescaped > is not allowed. Replace it with &gt;'),
-            '/': _('/ not allowed except at the end of the tag'),
-            '?': _('Unknown character'),
-            'bad-closing': _('A closing tag must contain only the tag name and nothing else'),
-            'no-attr-value': _('Expecting an attribute value'),
-            'only-prefix': _('A tag name cannot end with a colon'),
+        '<': _('An unescaped < is not allowed. Replace it with &lt;'),
+        '&': _('An unescaped ampersand is not allowed. Replace it with &amp;'),
+        '>': _('An unescaped > is not allowed. Replace it with &gt;'),
+        '/': _('/ not allowed except at the end of the tag'),
+        '?': _('Unknown character'),
+        'bad-closing': _('A closing tag must contain only the tag name and nothing else'),
+        'no-attr-value': _('Expecting an attribute value'),
+        'only-prefix': _('A tag name cannot end with a colon'),
     }.items():
         f = formats[name] = syntax_text_char_format(formats['error'])
         f.setToolTip(msg)
@@ -503,7 +498,6 @@ def create_formats(highlighter, add_css=True):
 
 
 class Highlighter(SyntaxHighlighter):
-
     state_map = state_map
     create_formats_func = create_formats
     spell_attributes = ('alt', 'title')
@@ -514,7 +508,6 @@ class Highlighter(SyntaxHighlighter):
 
 
 class XMLHighlighter(Highlighter):
-
     state_map = xml_state_map
     spell_attributes = ('opf:file-as',)
     user_data_factory = XMLUserData
@@ -535,6 +528,7 @@ def profile():
     from calibre.gui2 import Application
     from calibre.gui2.tweak_book import set_book_locale
     from calibre.gui2.tweak_book.editor.themes import get_theme
+
     app = Application([])
     set_book_locale('en')
     with open(sys.argv[-2], 'rb') as f:
@@ -547,9 +541,10 @@ def profile():
     h.set_document(doc)
     h.join()
     import cProfile
+
     print('Running profile on', sys.argv[-2])
     h.rehighlight()
-    cProfile.runctx('h.join()', {}, {'h':h}, sys.argv[-1])
+    cProfile.runctx('h.join()', {}, {'h': h}, sys.argv[-1])
     print('Stats saved to:', sys.argv[-1])
     del h
     del doc
@@ -558,7 +553,9 @@ def profile():
 
 if __name__ == '__main__':
     from calibre.gui2.tweak_book.editor.widget import launch_editor
-    launch_editor('''\
+
+    launch_editor(
+        '''\
 <!DOCTYPE html>
 <html xml:lang="en" lang="en">
 <!--
@@ -587,4 +584,6 @@ if __name__ == '__main__':
         <p>Some non-BMP unicode text:\U0001f431\U0001f431\U0001f431</p>
     </body>
 </html>
-''', path_is_raw=True)
+''',
+        path_is_raw=True,
+    )

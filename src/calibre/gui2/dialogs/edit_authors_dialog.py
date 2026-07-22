@@ -1,9 +1,5 @@
 #!/usr/bin/env python
-
-
-__copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
-__docformat__ = 'restructuredtext en'
-__license__   = 'GPL v3'
+# License: GPLv3 Copyright: 2008, Kovid Goyal kovid@kovidgoyal.net
 
 from contextlib import contextmanager
 from functools import partial
@@ -39,7 +35,6 @@ QT_HIDDEN_CLEAR_ACTION = '_q_qlineeditclearaction'
 
 
 class TableItem(QTableWidgetItem):
-
     def __init__(self, txt, skey=None):
         QTableWidgetItem.__init__(self, txt)
         self.sort_key = sort_key(str(txt)) if skey is None else skey
@@ -59,11 +54,10 @@ class TableItem(QTableWidgetItem):
 
 
 class CountTableItem(QTableWidgetItem):
-
     def __init__(self, val):
         QTableWidgetItem.__init__(self, str(val))
         self.val = val
-        self.setTextAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignVCenter)
+        self.setTextAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
         self.setFlags(Qt.ItemFlag.ItemIsEnabled)
 
     def setText(self, atext):
@@ -88,7 +82,6 @@ NOTES_COLUMN = 4
 
 
 class EditColumnDelegate(QStyledItemDelegate):
-
     def __init__(self, completion_data, table, notes_utilities, item_id_getter):
         super().__init__(table)
         self.table = table
@@ -100,6 +93,7 @@ class EditColumnDelegate(QStyledItemDelegate):
         if index.column() == AUTHOR_COLUMN:
             if self.completion_data:
                 from calibre.gui2.complete2 import EditWithComplete
+
                 editor = EditWithComplete(parent)
                 editor.set_separator(None)
                 editor.update_items_cache(self.completion_data)
@@ -110,27 +104,25 @@ class EditColumnDelegate(QStyledItemDelegate):
         if index.column() == COUNTS_COLUMN:
             return None
         from calibre.gui2.widgets import EnLineEdit
+
         editor = EnLineEdit(parent)
         editor.setClearButtonEnabled(True)
         return editor
 
 
 class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
-
-    def __init__(self, parent, db, id_to_select, select_sort, select_link,
-                 find_aut_func, is_first_letter=False):
+    def __init__(self, parent, db, id_to_select, select_sort, select_link, find_aut_func, is_first_letter=False):
         QDialog.__init__(self, parent)
         Ui_EditAuthorsDialog.__init__(self)
         self.setupUi(self)
 
         # Remove help icon on title bar
         icon = self.windowIcon()
-        self.setWindowFlags(self.windowFlags()&(~Qt.WindowType.WindowContextHelpButtonHint))
+        self.setWindowFlags(self.windowFlags() & (~Qt.WindowType.WindowContextHelpButtonHint))
         self.setWindowIcon(icon)
 
         try:
-            self.table_column_widths = \
-                        gprefs.get('manage_authors_table_widths', None)
+            self.table_column_widths = gprefs.get('manage_authors_table_widths', None)
             self.restore_geometry(gprefs, 'manage_authors_dialog_geometry')
         except Exception:
             pass
@@ -216,8 +208,7 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
         l.setVisible(False)
         self.not_found_label_timer = QTimer()
         self.not_found_label_timer.setSingleShot(True)
-        self.not_found_label_timer.timeout.connect(
-                self.not_found_label_timer_event, type=Qt.ConnectionType.QueuedConnection)
+        self.not_found_label_timer.timeout.connect(self.not_found_label_timer_event, type=Qt.ConnectionType.QueuedConnection)
 
         self.table.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self.table.customContextMenuRequested.connect(self.show_context_menu)
@@ -234,7 +225,7 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
             name = v['name']
             name = name.replace('|', ',')
             self.completion_data.append(name)
-            vals = {'name': name, 'sort': v['sort'], 'link': v['link'], 'count':counts.get(id_, 0)}
+            vals = {'name': name, 'sort': v['sort'], 'link': v['link'], 'count': counts.get(id_, 0)}
             self.authors[id_] = vals
             self.original_authors[id_] = vals.copy()
 
@@ -249,8 +240,7 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
         self.link_order = 1
         self.notes_order = 1
         self.count_order = 1
-        self.table.setItemDelegate(EditColumnDelegate(self.completion_data, self.table,
-                                                      self.notes_utilities, self.get_item_id))
+        self.table.setItemDelegate(EditColumnDelegate(self.completion_data, self.table, self.notes_utilities, self.get_item_id))
         self.show_table(id_to_select, select_sort, select_link, is_first_letter)
 
     def edit_cell(self):
@@ -296,9 +286,7 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
         auts_to_show = {t[0] for t in self.find_aut_func(self.selection_to_apply())}
         filter_text = icu_lower(str(self.filter_box.text()))
         if filter_text:
-            auts_to_show = {id_ for id_ in auts_to_show
-                if self.string_contains(filter_text,
-                                        icu_lower(self.authors[id_]['name'])) != self.inverted_filter}
+            auts_to_show = {id_ for id_ in auts_to_show if self.string_contains(filter_text, icu_lower(self.authors[id_]['name'])) != self.inverted_filter}
 
         self.table.blockSignals(True)
         self.table.clear()
@@ -307,6 +295,7 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
         self.table.setRowCount(len(auts_to_show))
         row = 0
         from calibre.gui2.ui import get_gui
+
         all_items_that_have_notes = get_gui(fail_if_absent=True).current_db.new_api.get_all_items_that_have_notes('authors')
         for id_, v in self.authors.items():
             if id_ not in auts_to_show:
@@ -341,7 +330,7 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
             _('Notes'): _('Whether this author has a note attached. The icon changes if the note was created or edited'),
         }
         self.table.setHorizontalHeaderLabels(headers.keys())
-        for i,tt in enumerate(headers.values()):
+        for i, tt in enumerate(headers.values()):
             header_item = self.table.horizontalHeaderItem(i)
             assert header_item is not None
             header_item.setToolTip(tt)
@@ -369,8 +358,7 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
                 _row_aus_item = self.table.item(row, AUTHOR_SORT_COLUMN)
                 assert _row_aus_item is not None
                 if is_first_letter:
-                    item_txt = str(_row_aus_item.text() if use_as
-                                                else _row_au_item.text())
+                    item_txt = str(_row_aus_item.text() if use_as else _row_au_item.text())
                     if primary_startswith(item_txt, id_to_select):
                         select_item = self.table.item(row, AUTHOR_SORT_COLUMN if use_as else 0)
                         break
@@ -380,8 +368,7 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
                     elif select_link:
                         select_item = self.table.item(row, LINK_COLUMN)
                     else:
-                        select_item = (self.table.item(row, AUTHOR_SORT_COLUMN) if use_as
-                                        else self.table.item(row, AUTHOR_COLUMN))
+                        select_item = self.table.item(row, AUTHOR_SORT_COLUMN) if use_as else self.table.item(row, AUTHOR_COLUMN)
                     break
         if select_item:
             self.table.setCurrentItem(select_item)
@@ -421,7 +408,7 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
     def resizeEvent(self, a0=None):
         QDialog.resizeEvent(self, a0)
         if self.table_column_widths is not None:
-            for c,w in enumerate(self.table_column_widths):
+            for c, w in enumerate(self.table_column_widths):
                 self.table.setColumnWidth(c, w)
         else:
             # the vertical scroll bar might not be rendered, so might not yet
@@ -474,8 +461,7 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
         id_ = int(au_col_item.data(Qt.ItemDataRole.UserRole))
         sub = self.get_column_name(idx.column())
         if sub == 'notes':
-            self.notes_utilities.context_menu(m, self.context_item,
-                                              au_col_item.text())
+            self.notes_utilities.context_menu(m, self.context_item, au_col_item.text())
         else:
             ca = m.addAction(QIcon.cached_icon('edit-copy.png'), _('Copy'))
             assert ca is not None
@@ -486,8 +472,7 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
 
             ca = m.addAction(QIcon.cached_icon('edit-undo.png'), _('Undo'))
             assert ca is not None
-            ca.triggered.connect(partial(self.undo_cell,
-                                         old_value=self.original_authors[id_].get(sub)))
+            ca.triggered.connect(partial(self.undo_cell, old_value=self.original_authors[id_].get(sub)))
             ca.setEnabled(self.context_item is not None and self.item_is_modified(self.context_item, id_))
 
             ca = m.addAction(QIcon.cached_icon('edit_input.png'), _('Edit'))
@@ -527,6 +512,7 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
 
     def search_in_book_list(self):
         from calibre.gui2.ui import get_gui
+
         context_item = self.context_item
         assert context_item is not None
         row = context_item.row()
@@ -565,12 +551,14 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
 
     def title_case(self):
         from calibre.utils.titlecase import titlecase
+
         context_item = self.context_item
         assert context_item is not None
         context_item.setText(titlecase(str(context_item.text())))
 
     def capitalize(self):
         from calibre.utils.icu import capitalize
+
         context_item = self.context_item
         assert context_item is not None
         context_item.setText(capitalize(str(context_item.text())))
@@ -618,9 +606,9 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
         st = icu_lower(str(self.find_box.currentText()))
         if not st:
             return
-        for _x in range(self.table.rowCount()*2):
-            self.start_find_pos = (self.start_find_pos + 1) % (self.table.rowCount()*2)
-            r = (self.start_find_pos//2) % self.table.rowCount()
+        for _x in range(self.table.rowCount() * 2):
+            self.start_find_pos = (self.start_find_pos + 1) % (self.table.rowCount() * 2)
+            r = (self.start_find_pos // 2) % self.table.rowCount()
             c = self.start_find_pos % 2
             item = self.table.item(r, c)
             assert item is not None
@@ -634,8 +622,13 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
         self.not_found_label_timer.start(1500)
 
     def do_sort(self, section):
-        (self.do_sort_by_author, self.do_sort_by_author_sort, self.do_sort_by_count,
-         self.do_sort_by_link, self.do_sort_by_notes)[section]()
+        (
+            self.do_sort_by_author,
+            self.do_sort_by_author_sort,
+            self.do_sort_by_count,
+            self.do_sort_by_link,
+            self.do_sort_by_notes,
+        )[section]()
 
     def do_sort_by_author(self):
         self.last_sorted_by = 'author'
@@ -663,6 +656,7 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
         self.table.sortByColumn(NOTES_COLUMN, Qt.SortOrder(self.notes_order))
 
     result_val: list[tuple[int, str, str, str, str]] = []
+
     def accepted(self):
         self.save_state()
         self.result_val = []
@@ -681,7 +675,7 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
                 item_aut = self.table.item(row, AUTHOR_COLUMN)
                 assert item_aut is not None
                 id_ = int(item_aut.data(Qt.ItemDataRole.UserRole))
-                aut  = str(item_aut.text()).strip()
+                aut = str(item_aut.text()).strip()
                 item_aus = self.table.item(row, AUTHOR_SORT_COLUMN)
                 assert item_aus is not None
                 # Sometimes trailing commas are left by changing between copy algs
@@ -707,7 +701,7 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
             for row in range(self.table.rowCount()):
                 aus_item = self.table.item(row, AUTHOR_SORT_COLUMN)
                 assert aus_item is not None
-                aus  = str(aus_item.text()).strip()
+                aus = str(aus_item.text()).strip()
                 item_aut = self.table.item(row, AUTHOR_COLUMN)
                 assert item_aut is not None
                 id_ = int(item_aut.data(Qt.ItemDataRole.UserRole))
@@ -732,11 +726,10 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
             if col == AUTHOR_COLUMN:
                 assert isinstance(_au_item, TableItem)
                 item = _au_item
-                aut  = str(item.text()).strip()
+                aut = str(item.text()).strip()
                 aut_list = string_to_authors(aut)
                 if len(aut_list) != 1:
-                    error_dialog(self.parent(), _('Invalid author name'),
-                            _('You cannot change an author to multiple authors.')).exec()
+                    error_dialog(self.parent(), _('Invalid author name'), _('You cannot change an author to multiple authors.')).exec()
                     aut = ' % '.join(aut_list)
                     _au_item.setText(aut)
                 item.set_sort_key()
@@ -749,7 +742,7 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
                 c.setText(txt)  # This triggers another cellChanged event
                 item = c
             else:
-                item  = self.table.item(row, col)
+                item = self.table.item(row, col)
                 assert item is not None
                 name = self.get_column_name(col)
                 if name != 'notes':

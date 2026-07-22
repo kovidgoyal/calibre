@@ -1,9 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__   = 'GPL v3'
-__copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2010, Kovid Goyal <kovid@kovidgoyal.net>
 
 import os
 import shutil
@@ -19,6 +15,7 @@ if iswindows:
 
     from calibre.utils.ipc import eintr_retry_call
     from calibre_extensions import winutil
+
     recycler = None
     rlock = Lock()
 
@@ -26,6 +23,7 @@ if iswindows:
         global recycler
         if recycler is None:
             from calibre.utils.ipc.simple_worker import start_pipe_worker
+
             recycler = start_pipe_worker('from calibre.utils.recycle_bin import recycler_main; recycler_main()')
 
     def recycle_path(path):
@@ -40,7 +38,7 @@ if iswindows:
                 break
             try:
                 path = path.decode('utf-8').rstrip()
-            except (ValueError, TypeError):
+            except ValueError, TypeError:
                 break
             try:
                 recycle_path(path)
@@ -49,6 +47,7 @@ if iswindows:
                 stdout.flush()
                 try:
                     import traceback
+
                     traceback.print_exc()  # goes to stderr, which is the same as for parent process
                 except Exception:
                     pass  # Ignore failures to write the traceback, since GUI processes on windows have no stderr
@@ -96,6 +95,7 @@ elif ismacos:
         if isinstance(path, bytes):
             path = path.decode(filesystem_encoding)
         send2trash(path)
+
     recycle = osx_recycle
 elif islinux:
     from calibre.utils.linux_trash import send2trash
@@ -105,6 +105,7 @@ elif islinux:
             path = path.decode(filesystem_encoding)
         path = os.path.abspath(path)
         send2trash(path)
+
     recycle = fdo_recycle
 
 can_recycle = callable(recycle)
@@ -127,6 +128,7 @@ def delete_file(path, permanent=False):
             return
         except Exception:
             import traceback
+
             traceback.print_exc()
     os.remove(path)
 
@@ -140,6 +142,7 @@ def delete_tree(path, permanent=False):
             shutil.rmtree(path)
         except Exception:
             import traceback
+
             traceback.print_exc()
             time.sleep(1)
             shutil.rmtree(path)
@@ -150,5 +153,6 @@ def delete_tree(path, permanent=False):
                 return
             except Exception:
                 import traceback
+
                 traceback.print_exc()
         delete_tree(path, permanent=True)

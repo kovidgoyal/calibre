@@ -39,7 +39,6 @@ def load_plugin(src):
 
 
 class PatchedSearchEngines:
-
     def __init__(self, ns):
         self.__ns = ns
 
@@ -70,6 +69,7 @@ def patch_search_engines(src):
 
 def patch_plugins():
     from calibre.customize.ui import patch_metadata_plugins
+
     patches = {}
     for name, val in iteritems(cache):
         if name == 'hashes':
@@ -88,8 +88,7 @@ def patch_plugins():
 def update_needed():
     needed = {}
     current_hashes = cache.get('hashes', {})
-    hashes = get_https_resource_securely(
-        'https://code.calibre-ebook.com/metadata-sources/hashes.json')
+    hashes = get_https_resource_securely('https://code.calibre-ebook.com/metadata-sources/hashes.json')
     hashes = bz2.decompress(hashes)
     hashes = json.loads(hashes)
     for k, v in iteritems(hashes):
@@ -128,8 +127,7 @@ def main(report_error=prints, report_action=prints):
             report_action('Fetching metadata source hashes...')
             needed = update_needed()
         except Exception as e:
-            report_error(
-                'Failed to get metadata sources hashes with error: {}'.format(as_unicode(e)))
+            report_error('Failed to get metadata sources hashes with error: {}'.format(as_unicode(e)))
             return
         if not needed:
             cache.touch()
@@ -140,8 +138,7 @@ def main(report_error=prints, report_action=prints):
             try:
                 update_plugin(name, updated, expected_hash)
             except Exception as e:
-                report_error('Failed to get plugin {} with error: {}'.format(
-                    name, as_unicode(e)))
+                report_error('Failed to get plugin {} with error: {}'.format(name, as_unicode(e)))
                 break
         else:
             hashes = cache.get('hashes', {})
@@ -160,8 +157,7 @@ def update_sources(wait_for_completion: bool = False) -> bool:
     if _update_sources_worker is not None:
         return False
     _update_sources_errors = errs = []
-    _update_sources_worker = t = Thread(
-        target=main, args=(errs.append, debug_print), name='MSourcesUpdater')
+    _update_sources_worker = t = Thread(target=main, args=(errs.append, debug_print), name='MSourcesUpdater')
     t.daemon = True
     t.start()
     if wait_for_completion:

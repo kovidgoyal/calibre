@@ -1,9 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__   = 'GPL v3'
-__copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2012, Kovid Goyal <kovid@kovidgoyal.net>
 
 import os
 import struct
@@ -22,25 +18,25 @@ from polyglot.builtins import print_to_binary_file
 
 
 class FDST:
-
     def __init__(self, raw):
         if raw[:4] != b'FDST':
             raise ValueError('KF8 does not have a valid FDST record')
         self.sec_off, self.num_sections = struct.unpack_from(b'>LL', raw, 4)
         if self.sec_off != 12:
             raise ValueError('FDST record has unknown extra fields')
-        secf = b'>%dL' % (self.num_sections*2)
+        secf = b'>%dL' % (self.num_sections * 2)
         secs = struct.unpack_from(secf, raw, self.sec_off)
-        rest = raw[self.sec_off+struct.calcsize(secf):]
+        rest = raw[self.sec_off + struct.calcsize(secf) :]
         if rest:
-            raise ValueError('FDST record has trailing data: '
-                    f'{format_bytes(rest)}')
+            raise ValueError(f'FDST record has trailing data: {format_bytes(rest)}')
         self.sections = tuple(zip(secs[::2], secs[1::2]))
 
     def __str__(self):
         ans = ['FDST record']
+
         def a(k, v):
             return ans.append(f'{k}: {v}')
+
         a('Offset to sections', self.sec_off)
         a('Number of section records', self.num_sections)
         ans.append(f'**** {len(self.sections)} Sections ****')
@@ -51,7 +47,6 @@ class FDST:
 
 
 class File:
-
     def __init__(self, skel, skeleton, text, first_aid, sections):
         self.name = f'part{skel.file_number:04}'
         self.skeleton, self.text, self.first_aid = skeleton, text, first_aid
@@ -71,7 +66,6 @@ class File:
 
 
 class MOBIFile:
-
     def __init__(self, mf):
         self.mf = mf
         h, h8 = mf.mobi_header, mf.mobi8_header
@@ -82,10 +76,10 @@ class MOBIFile:
             offset = h.exth.kf8_header_index
             self.resource_ranges.insert(0, (h.first_resource_record, h.last_resource_record, h.first_image_index))
 
-        self.text_records = [TextRecord(i, r, h8.extra_data_flags,
-            mf.decompress8) for i, r in
-            enumerate(mf.records[first_text_record+offset:
-                first_text_record+offset+h8.number_of_text_records])]
+        self.text_records = [
+            TextRecord(i, r, h8.extra_data_flags, mf.decompress8)
+            for i, r in enumerate(mf.records[first_text_record + offset : first_text_record + offset + h8.number_of_text_records])
+        ]
 
         self.raw_text = b''.join(r.raw for r in self.text_records)
         self.header = self.mf.mobi8_header
@@ -116,28 +110,24 @@ class MOBIFile:
                 raise ValueError('KF8 Header contains invalid FDST count')
 
     def read_indices(self):
-        self.skel_index = SKELIndex(self.header.skel_idx, self.mf.records,
-                self.header.encoding)
-        self.sect_index = SECTIndex(self.header.sect_idx, self.mf.records,
-                self.header.encoding)
-        self.ncx_index = NCXIndex(self.header.primary_index_record,
-                self.mf.records, self.header.encoding)
-        self.guide_index = GuideIndex(self.header.oth_idx, self.mf.records,
-                self.header.encoding)
+        self.skel_index = SKELIndex(self.header.skel_idx, self.mf.records, self.header.encoding)
+        self.sect_index = SECTIndex(self.header.sect_idx, self.mf.records, self.header.encoding)
+        self.ncx_index = NCXIndex(self.header.primary_index_record, self.mf.records, self.header.encoding)
+        self.guide_index = GuideIndex(self.header.oth_idx, self.mf.records, self.header.encoding)
 
     def build_files(self):
         text = self.raw_text
         self.files = []
         for skel in self.skel_index.records:
             sects = [x for x in self.sect_index.records if x.file_number == skel.file_number]
-            skeleton = text[skel.start_position:skel.start_position+skel.length]
+            skeleton = text[skel.start_position : skel.start_position + skel.length]
             ftext = skeleton
             first_aid = sects[0].toc_text
             sections = []
 
             for sect in sects:
                 start_pos = skel.start_position + skel.length + sect.start_pos
-                sect_text = text[start_pos:start_pos+sect.length]
+                sect_text = text[start_pos : start_pos + sect.length]
                 insert_pos = sect.insert_pos - skel.start_position
                 ftext = ftext[:insert_pos] + sect_text + ftext[insert_pos:]
                 sections.append(sect_text)
@@ -157,13 +147,26 @@ class MOBIFile:
     def extract_resources(self, records):
         self.resource_map = []
         self.containers = []
-        known_types = {b'FLIS', b'FCIS', b'SRCS',
-                    b'\xe9\x8e\r\n', b'RESC', b'BOUN', b'FDST', b'DATP',
-                    b'AUDI', b'VIDE', b'CRES', b'CONT', b'CMET', b'PAGE'}
+        known_types = {
+            b'FLIS',
+            b'FCIS',
+            b'SRCS',
+            b'\xe9\x8e\r\n',
+            b'RESC',
+            b'BOUN',
+            b'FDST',
+            b'DATP',
+            b'AUDI',
+            b'VIDE',
+            b'CRES',
+            b'CONT',
+            b'CMET',
+            b'PAGE',
+        }
         container = None
 
         for i, rec in enumerate(records):
-            for (l, r, offset) in self.resource_ranges:
+            for l, r, offset in self.resource_ranges:
                 if l <= i <= r:
                     resource_index = i + 1
                     if offset is not None and resource_index >= offset:
@@ -182,9 +185,8 @@ class MOBIFile:
             if sig == b'FONT':
                 font = read_font_record(rec.raw)
                 if font['err']:
-                    raise ValueError('Failed to read font record: {} Headers: {}'.format(
-                        font['err'], font['headers']))
-                payload = (font['font_data'] or font['raw_data'])
+                    raise ValueError('Failed to read font record: {} Headers: {}'.format(font['err'], font['headers']))
+                payload = font['font_data'] or font['raw_data']
                 prefix, ext = 'fonts', font['ext']
             elif sig == b'CONT':
                 if payload == b'CONTBOUNDARY':
@@ -221,8 +223,7 @@ class MOBIFile:
                 elif sig in known_types:
                     suffix = '-' + sig.decode('ascii')
 
-            self.resource_map.append((f'{prefix}/{resource_index:06}{suffix}.{ext}',
-                payload))
+            self.resource_map.append((f'{prefix}/{resource_index:06}{suffix}.{ext}', payload))
 
     def read_tbs(self):
         from calibre.ebooks.mobi.writer8.tbs import (
@@ -234,21 +235,25 @@ class MOBIFile:
             encode_strands_as_sequences,
             sequences_to_bytes,
         )
+
         entry_map = []
         for index in self.ncx_index:
             vals = list(index)[:-1] + [None, None, None, None]
             entry_map.append(Entry(*(vals[:12])))
 
-        indexing_data = collect_indexing_data(entry_map, list(map(len,
-            self.text_records)))
-        self.indexing_data = [DOC + '\n' +textwrap.dedent('''\
+        indexing_data = collect_indexing_data(entry_map, list(map(len, self.text_records)))
+        self.indexing_data = [
+            DOC
+            + '\n'
+            + textwrap.dedent('''\
                 Index Entry lines are of the form:
                 depth:index_number [action] parent (index_num-parent) Geometry
 
                 Where Geometry is the start and end of the index entry w.r.t
                 the start of the text record.
 
-                ''')]
+                ''')
+        ]
 
         tbs_type = 8
         try:
@@ -266,10 +271,16 @@ class MOBIFile:
                 for entries in strand.values():
                     for e in entries:
                         desc.append(
-                        ' {}{} [{:<9}] parent: {} ({}) Geometry: ({}, {})'.format(
-                            e.depth * ('  ') + '- ', e.index, e.action, e.parent,
-                            e.index-(e.parent or 0), e.start-i*RECORD_SIZE,
-                            e.start+e.length-i*RECORD_SIZE))
+                            ' {}{} [{:<9}] parent: {} ({}) Geometry: ({}, {})'.format(
+                                e.depth * ('  ') + '- ',
+                                e.index,
+                                e.action,
+                                e.parent,
+                                e.index - (e.parent or 0),
+                                e.start - i * RECORD_SIZE,
+                                e.start + e.length - i * RECORD_SIZE,
+                            )
+                        )
             desc.append('TBS Bytes: ' + format_bytes(tbs_bytes))
             flag_sz = 3
             sequences = []
@@ -281,14 +292,13 @@ class MOBIFile:
                     break
                 flag_sz = 4
                 tbs_bytes = tbs_bytes[consumed:]
-                extra = {bin(k):v for k, v in extra.items()}
+                extra = {bin(k): v for k, v in extra.items()}
                 sequences.append((val, extra))
             for j, seq in enumerate(sequences):
                 desc.append(f'Sequence #{j}: {seq[0]!r} {seq[1]!r}')
             if tbs_bytes:
                 desc.append(f'Remaining bytes: {format_bytes(tbs_bytes)}')
-            calculated_sequences = encode_strands_as_sequences(strands,
-                    tbs_type=tbs_type)
+            calculated_sequences = encode_strands_as_sequences(strands, tbs_type=tbs_type)
             try:
                 calculated_bytes = sequences_to_bytes(calculated_sequences)
             except Exception:
@@ -310,7 +320,15 @@ def inspect_mobi(mobi_file, ddir):
     with open(alltext, 'wb') as of:
         of.write(f.raw_text)
 
-    for x in ('text_records', 'images', 'fonts', 'binary', 'files', 'flows', 'hd-images',):
+    for x in (
+        'text_records',
+        'images',
+        'fonts',
+        'binary',
+        'files',
+        'flows',
+        'hd-images',
+    ):
         os.mkdir(os.path.join(ddir, x))
 
     for rec in f.text_records:

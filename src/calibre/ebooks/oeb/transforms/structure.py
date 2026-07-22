@@ -1,9 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__   = 'GPL v3'
-__copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2009, Kovid Goyal <kovid@kovidgoyal.net>
 
 import re
 import uuid
@@ -21,8 +17,7 @@ def XPath(x):
     try:
         return etree.XPath(x, namespaces=XPNSMAP)
     except etree.XPathSyntaxError:
-        raise ConversionError(
-        f'The syntax of the XPath expression {x!r} is invalid.')
+        raise ConversionError(f'The syntax of the XPath expression {x!r} is invalid.')
 
 
 def isspace(x):
@@ -30,7 +25,7 @@ def isspace(x):
 
 
 def at_start(elem):
-    ' Return True if there is no content before elem '
+    "Return True if there is no content before elem"
     body = XPath('ancestor-or-self::h:body')(elem)
     if not body:
         return True
@@ -48,7 +43,6 @@ def at_start(elem):
 
 
 class DetectStructure:
-
     def __call__(self, oeb, opts):
         self.log = oeb.log
         self.oeb = oeb
@@ -83,11 +77,8 @@ class DetectStructure:
             for item in oeb.spine:
                 for elem in pb_xpath(item.data):
                     try:
-                        prev = next(elem.itersiblings(tag=etree.Element,
-                                preceding=True))
-                        if (barename(elem.tag) in {'h1', 'h2'} and barename(
-                                prev.tag) in {'h1', 'h2'} and (not prev.tail or
-                                    not prev.tail.split())):
+                        prev = next(elem.itersiblings(tag=etree.Element, preceding=True))
+                        if barename(elem.tag) in {'h1', 'h2'} and barename(prev.tag) in {'h1', 'h2'} and (not prev.tail or not prev.tail.split()):
                             # We have two adjacent headings, do not put a page
                             # break on the second one
                             continue
@@ -97,7 +88,7 @@ class DetectStructure:
                     style = elem.get('style', '')
                     if style:
                         style += '; '
-                    elem.set('style', style+'page-break-before:always')
+                    elem.set('style', style + 'page-break-before:always')
 
         for node in self.oeb.toc.iter():
             if not node.title or not node.title.strip():
@@ -111,8 +102,7 @@ class DetectStructure:
         try:
             expr = XPath(expr)
         except Exception:
-            self.log.warn(
-                f'Invalid start reading at XPath expression, ignoring: {expr}')
+            self.log.warn(f'Invalid start reading at XPath expression, ignoring: {expr}')
             return
         for item in self.oeb.spine:
             if not hasattr(item.data, 'xpath'):
@@ -122,11 +112,11 @@ class DetectStructure:
                 elem = matches[0]
                 eid = elem.get('id', None)
                 if not eid:
-                    eid = 'start_reading_at_'+str(uuid.uuid4()).replace('-', '')
+                    eid = 'start_reading_at_' + str(uuid.uuid4()).replace('-', '')
                     elem.set('id', eid)
                 if 'text' in self.oeb.guide:
                     self.oeb.guide.remove('text')
-                self.oeb.guide.add('text', 'Start', item.href+'#'+eid)
+                self.oeb.guide.add('text', 'Start', item.href + '#' + eid)
                 self.log(f'Setting start reading at position to {self.opts.start_reading_at} in {item.href}')
                 return
         self.log.warn(f'Failed to find start reading at position: {self.opts.start_reading_at}')
@@ -137,7 +127,7 @@ class DetectStructure:
         title_attribute_regex = re.compile(r'/@([-\w]+)$')
         match = title_attribute_regex.search(expr)
         if match is not None:
-            return expr[0:match.start()], match.group(1)
+            return expr[0 : match.start()], match.group(1)
 
         return expr, None
 
@@ -220,18 +210,15 @@ class DetectStructure:
                     if not self.oeb.toc.has_href(href):
                         text = xml2text(a)
                         text = text[:100].strip()
-                        if (not self.opts.duplicate_links_in_toc and
-                                self.oeb.toc.has_text(text)):
+                        if not self.opts.duplicate_links_in_toc and self.oeb.toc.has_text(text):
                             continue
                         try:
-                            self.oeb.toc.add(text, href,
-                                play_order=self.oeb.toc.next_play_order())
+                            self.oeb.toc.add(text, href, play_order=self.oeb.toc.next_play_order())
                             num += 1
                         except ValueError:
                             self.oeb.log.exception(f'Failed to process link: {href!r}')
                             continue  # Most likely an incorrectly URL encoded link
-                        if self.opts.max_toc_links > 0 and \
-                                num >= self.opts.max_toc_links:
+                        if self.opts.max_toc_links > 0 and num >= self.opts.max_toc_links:
                             self.log('Maximum TOC links reached, stopping.')
                             return
 
@@ -275,8 +262,7 @@ class DetectStructure:
                 text, _href = self.elem_to_link(document, elem, level1_title, counter)
                 counter += 1
                 if text:
-                    node = self.oeb.toc.add(text, _href,
-                            play_order=self.oeb.toc.next_play_order())
+                    node = self.oeb.toc.add(text, _href, play_order=self.oeb.toc.next_play_order())
                     added[elem] = node
                     # node.add(_('Top'), _href)
 
@@ -295,8 +281,7 @@ class DetectStructure:
                             text, _href = self.elem_to_link(document, elem, level2_title, counter)
                             counter += 1
                             if text:
-                                added2[elem] = level1.add(text, _href,
-                                    play_order=self.oeb.toc.next_play_order())
+                                added2[elem] = level1.add(text, _href, play_order=self.oeb.toc.next_play_order())
                             break
 
                 if self.opts.level3_toc is not None and added2:
@@ -311,10 +296,8 @@ class DetectStructure:
                                     if previous_level2 is None:
                                         break
                                     level2 = previous_level2
-                                text, _href = \
-                                        self.elem_to_link(document, elem, level3_title, counter)
+                                text, _href = self.elem_to_link(document, elem, level3_title, counter)
                                 counter += 1
                                 if text:
-                                    level2.add(text, _href,
-                                        play_order=self.oeb.toc.next_play_order())
+                                    level2.add(text, _href, play_order=self.oeb.toc.next_play_order())
                                 break

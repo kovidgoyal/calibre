@@ -1,8 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__ = 'GPL v3'
-__copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
+# License: GPLv3 Copyright: 2014, Kovid Goyal <kovid at kovidgoyal.net>
 
 import numbers
 from functools import partial
@@ -17,10 +14,10 @@ NORMAL = 0
 
 
 def create_lexer(base_class):
-    '''
+    """
     Subclass the pygments RegexLexer to lex line by line instead of lexing full
     text. The statestack at the end of each line is stored in the Qt block state.
-    '''
+    """
 
     def get_tokens_unprocessed(self, text, statestack):
         pos = 0
@@ -67,7 +64,7 @@ def create_lexer(base_class):
                     break
 
     def lex_a_line(self, state, text, i, formats_map, user_data):
-        ' Get formats for a single block (line) '
+        "Get formats for a single block (line)"
         statestack = list(state.pygments_stack) if state.pygments_stack is not None else ['root']
 
         # Lex the text using Pygments
@@ -83,6 +80,7 @@ def create_lexer(base_class):
                     formats.append((len(txt), formats_map(token)))
         except Exception:
             import traceback
+
             traceback.print_exc()
             state.pygments_stack = None
             return [(len(text) - i, formats_map(Error))]
@@ -92,14 +90,17 @@ def create_lexer(base_class):
 
     name_type = type(base_class.__name__)
 
-    return type(name_type('Qt'+base_class.__name__), (base_class,), {
-        'get_tokens_unprocessed': get_tokens_unprocessed,
-        'lex_a_line':lex_a_line,
-    })
+    return type(
+        name_type('Qt' + base_class.__name__),
+        (base_class,),
+        {
+            'get_tokens_unprocessed': get_tokens_unprocessed,
+            'lex_a_line': lex_a_line,
+        },
+    )
 
 
 class State:
-
     __slots__ = ('parse', 'pygments_stack')
 
     def __init__(self):
@@ -112,19 +113,18 @@ class State:
         return s
 
     def __eq__(self, other):
-        return self.parse == getattr(other, 'parse', -1) and \
-            self.pygments_stack == getattr(other, 'pygments_stack', False)
+        return self.parse == getattr(other, 'parse', -1) and self.pygments_stack == getattr(other, 'pygments_stack', False)
 
     def __ne__(self, other):
         return not self.__eq__(other)
 
     def __repr__(self):
         return f'PythonState({self.pygments_stack!r})'
+
     __str__ = __repr__
 
 
 class PygmentsUserData(QTextBlockUserData):
-
     def __init__(self):
         QTextBlockUserData.__init__(self)
         self.state = State()
@@ -144,8 +144,12 @@ def create_formats(highlighter):
 
 def create_highlighter(name, lexer_class):
     name_type = type(lexer_class.__name__)
-    return type(name_type(name), (SyntaxHighlighter,), {
-        'state_map': {NORMAL:create_lexer(lexer_class)().lex_a_line},
-        'create_formats_func': create_formats,
-        'user_data_factory': PygmentsUserData,
-    })
+    return type(
+        name_type(name),
+        (SyntaxHighlighter,),
+        {
+            'state_map': {NORMAL: create_lexer(lexer_class)().lex_a_line},
+            'create_formats_func': create_formats,
+            'user_data_factory': PygmentsUserData,
+        },
+    )

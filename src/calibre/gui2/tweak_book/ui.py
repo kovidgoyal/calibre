@@ -1,8 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__ = 'GPL v3'
-__copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
+# License: GPLv3 Copyright: 2013, Kovid Goyal <kovid at kovidgoyal.net>
 
 import os
 from functools import partial
@@ -66,17 +63,14 @@ def open_donate():
 
 
 class Central(QStackedWidget):  # {{{
-
-    ' The central widget, hosts the editors '
+    "The central widget, hosts the editors"
 
     current_editor_changed = pyqtSignal()
     close_requested = pyqtSignal(object)
 
     def __init__(self, parent=None):
         QStackedWidget.__init__(self, parent)
-        self.welcome = w = QLabel('<p>'+_(
-            'Double click a file in the left panel to start editing'
-            ' it.'))
+        self.welcome = w = QLabel('<p>' + _('Double click a file in the left panel to start editing it.'))
         self.addWidget(w)
         w.setWordWrap(True)
         w.setAlignment(Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignHCenter)
@@ -114,7 +108,7 @@ class Central(QStackedWidget):  # {{{
     @property
     def tab_order(self):
         ans = []
-        rmap = {v:k for k, v in editors.items()}
+        rmap = {v: k for k, v in editors.items()}
         for i in range(self.editor_tabs.count()):
             name = rmap.get(self.editor_tabs.widget(i))
             if name is not None:
@@ -207,8 +201,11 @@ class Central(QStackedWidget):  # {{{
 
     def eventFilter(self, a0, a1):
         base = super()
-        if a0 is not self.editor_tabs.tabBar() or a1.type() != QEvent.Type.MouseButtonPress or a1.button() not in (
-                Qt.MouseButton.RightButton, Qt.MouseButton.MiddleButton):
+        if (
+            a0 is not self.editor_tabs.tabBar()
+            or a1.type() != QEvent.Type.MouseButtonPress
+            or a1.button() not in (Qt.MouseButton.RightButton, Qt.MouseButton.MiddleButton)
+        ):
             return base.eventFilter(a0, a1)
         tab_bar = self.editor_tabs.tabBar()
         assert tab_bar is not None
@@ -223,15 +220,20 @@ class Central(QStackedWidget):  # {{{
             menu.addAction(actions['close-current-tab'].icon(), _('Close tab'), partial(self.close_requested.emit, ed))
             menu.addSeparator()
             menu.addAction(actions['close-all-but-current-tab'].icon(), _('Close other tabs'), partial(self.close_all_but, ed))
-            menu.addAction(actions['close-tabs-to-right-of'].icon(), _('Close tabs to the right of this tab'), partial(self.close_to_right, ed))
+            menu.addAction(
+                actions['close-tabs-to-right-of'].icon(),
+                _('Close tabs to the right of this tab'),
+                partial(self.close_to_right, ed),
+            )
             menu.exec(tab_bar.mapToGlobal(a1.pos()))
 
         return True
+
+
 # }}}
 
 
 class CursorPositionWidget(QWidget):  # {{{
-
     def __init__(self, parent):
         QWidget.__init__(self, parent)
         self.l = QHBoxLayout(self)
@@ -253,15 +255,18 @@ class CursorPositionWidget(QWidget):  # {{{
                 name = None
             text = _('Line: {0} : {1}').format(line, col)
             if not name:
-                name = {'\t':'TAB'}.get(character, None)
+                name = {'\t': 'TAB'}.get(character, None)
             if name and tprefs['editor_show_char_under_cursor']:
                 text = name + ' : ' + text
             self.la.setText(text)
+
+
 # }}}
 
 
 def install_new_plugins():
     from calibre.utils.config import JSONConfig
+
     prefs = JSONConfig('newly-installed-editor-plugins')
     pl = prefs.get('newly_installed_plugins', ())
     if pl:
@@ -273,7 +278,6 @@ def install_new_plugins():
 
 
 class Main(MainWindow):
-
     APP_NAME = _('Edit book')
     STATE_VERSION = 0
     undo_requested = pyqtSignal(object)
@@ -286,6 +290,7 @@ class Main(MainWindow):
             install_new_plugins()
         except Exception:
             import traceback
+
             traceback.print_exc()
         self.setWindowTitle(self.APP_NAME)
         self.boss = Boss(self, notify=notify)
@@ -332,7 +337,7 @@ class Main(MainWindow):
         screen = self.screen()
         assert screen is not None
         g = screen.availableSize()
-        self.resize(g.width()-50, g.height()-50)
+        self.resize(g.width() - 50, g.height() - 50)
 
         self.apply_settings()
         QTimer.singleShot(0, self.restore_state)
@@ -343,7 +348,7 @@ class Main(MainWindow):
         for v, h in product(('top', 'bottom'), ('left', 'right')):
             p = f'dock_{v}_{h}'
             pref = tprefs[p] or tprefs.defaults[p]
-            area = getattr(Qt.DockWidgetArea, '{}DockWidgetArea'.format(capitalize({'vertical':h, 'horizontal':v}[pref])))
+            area = getattr(Qt.DockWidgetArea, '{}DockWidgetArea'.format(capitalize({'vertical': h, 'horizontal': v}[pref])))
             self.setCorner(getattr(Qt.Corner, '{}{}Corner'.format(*tuple(map(capitalize, (v, h))))), area)
         self.preview.apply_settings()
         self.live_css.apply_theme()
@@ -353,7 +358,7 @@ class Main(MainWindow):
     def show_status_message(self, msg, timeout=5):
         status_bar = self.status_bar
         assert status_bar is not None
-        status_bar.showMessage(msg, int(timeout*1000))
+        status_bar.showMessage(msg, int(timeout * 1000))
 
     def update_status_bar_default_message(self, path=''):
         m = self.status_bar_default_msg
@@ -383,60 +388,153 @@ class Main(MainWindow):
                 ac.triggered.connect(target)
             if isinstance(keys, str):
                 keys = (keys,)
-            self.keyboard.register_shortcut(
-                sid, str(ac.text()).replace('&', ''), default_keys=keys, description=description, action=ac, group=group)
+            self.keyboard.register_shortcut(sid, str(ac.text()).replace('&', ''), default_keys=keys, description=description, action=ac, group=group)
             self.addAction(ac)
             return ac
 
         def treg(icon, text, target, sid, keys, description):
             return reg(icon, text, target, sid, keys, description, toolbar_allowed=icon is not None)
 
-        self.action_new_file = treg('document-new.png', _('&New file (images/fonts/HTML/etc.)'), self.boss.add_file,
-                                   'new-file', (), _('Create a new file in the current book'))
-        self.action_import_files = treg('document-import.png', _('&Import files into book'), self.boss.add_files, 'new-files', (), _('Import files into book'))
+        self.action_new_file = treg(
+            'document-new.png',
+            _('&New file (images/fonts/HTML/etc.)'),
+            self.boss.add_file,
+            'new-file',
+            (),
+            _('Create a new file in the current book'),
+        )
+        self.action_import_files = treg(
+            'document-import.png',
+            _('&Import files into book'),
+            self.boss.add_files,
+            'new-files',
+            (),
+            _('Import files into book'),
+        )
         self.action_open_book = treg('document_open.png', _('&Open book'), self.boss.open_book, 'open-book', 'Ctrl+O', _('Open a book'))
-        self.action_open_book_folder = treg('mimetypes/dir.png', _('Open &folder (unzipped EPUB) as book'), partial(self.boss.open_book, open_folder=True),
-                                            'open-folder-as-book', (), _('Open a folder (unzipped EPUB) as a book'))
-        self.action_edit_next_file = treg('arrow-down.png', _('Edit &next file'), partial(self.boss.edit_next_file, backwards=False),
-                'edit-next-file', 'Ctrl+Alt+Down', _('Edit the next file in the spine'))
-        self.action_edit_previous_file = treg('arrow-up.png', _('Edit &previous file'), partial(self.boss.edit_next_file, backwards=True),
-                'edit-previous-file', 'Ctrl+Alt+Up', _('Edit the previous file in the spine'))
+        self.action_open_book_folder = treg(
+            'mimetypes/dir.png',
+            _('Open &folder (unzipped EPUB) as book'),
+            partial(self.boss.open_book, open_folder=True),
+            'open-folder-as-book',
+            (),
+            _('Open a folder (unzipped EPUB) as a book'),
+        )
+        self.action_edit_next_file = treg(
+            'arrow-down.png',
+            _('Edit &next file'),
+            partial(self.boss.edit_next_file, backwards=False),
+            'edit-next-file',
+            'Ctrl+Alt+Down',
+            _('Edit the next file in the spine'),
+        )
+        self.action_edit_previous_file = treg(
+            'arrow-up.png',
+            _('Edit &previous file'),
+            partial(self.boss.edit_next_file, backwards=True),
+            'edit-previous-file',
+            'Ctrl+Alt+Up',
+            _('Edit the previous file in the spine'),
+        )
         # Qt does not generate shortcut overrides for cmd+arrow on os x which
         # means these shortcuts interfere with editing
-        self.action_global_undo = treg('back.png', _('&Revert to before'), self.boss.do_global_undo, 'global-undo', () if ismacos else 'Ctrl+Left',
-                                      _('Revert book to before the last action (Undo)'))
-        self.action_global_redo = treg('forward.png', _('&Revert to after'), self.boss.do_global_redo, 'global-redo', () if ismacos else 'Ctrl+Right',
-                                      _('Revert book state to after the next action (Redo)'))
+        self.action_global_undo = treg(
+            'back.png',
+            _('&Revert to before'),
+            self.boss.do_global_undo,
+            'global-undo',
+            () if ismacos else 'Ctrl+Left',
+            _('Revert book to before the last action (Undo)'),
+        )
+        self.action_global_redo = treg(
+            'forward.png',
+            _('&Revert to after'),
+            self.boss.do_global_redo,
+            'global-redo',
+            () if ismacos else 'Ctrl+Right',
+            _('Revert book state to after the next action (Redo)'),
+        )
         self.action_save = treg('save.png', _('&Save'), self.boss.save_book, 'save-book', 'Ctrl+S', _('Save book'))
         self.action_save.setEnabled(False)
         self.action_save_copy = treg('save.png', _('Save a &copy'), self.boss.save_copy, 'save-copy', 'Ctrl+Alt+S', _('Save a copy of the book'))
-        self.action_save_copy_edit = treg('save.png', _('Save a &copy and edit in new window'), partial(self.boss._save_copy, 'edit'), 'save-copy-edit',
-                                          'Ctrl+Shift+S', _('Save a copy of the book and edit it in a new window'))
-        self.action_save_copy_replace = treg('save.png', _('Save a &copy and edit here'), partial(self.boss._save_copy, 'replace'),
-                                             'save-copy-replace', 'Ctrl+Alt+Shift+S', _('Save a copy of the book and edit it in this window'))
+        self.action_save_copy_edit = treg(
+            'save.png',
+            _('Save a &copy and edit in new window'),
+            partial(self.boss._save_copy, 'edit'),
+            'save-copy-edit',
+            'Ctrl+Shift+S',
+            _('Save a copy of the book and edit it in a new window'),
+        )
+        self.action_save_copy_replace = treg(
+            'save.png',
+            _('Save a &copy and edit here'),
+            partial(self.boss._save_copy, 'replace'),
+            'save-copy-replace',
+            'Ctrl+Alt+Shift+S',
+            _('Save a copy of the book and edit it in this window'),
+        )
         self.action_quit = treg('window-close.png', _('&Quit'), self.boss.quit, 'quit', 'Ctrl+Q', _('Quit'))
         self.action_preferences = treg('config.png', _('&Preferences'), self.boss.preferences, 'preferences', 'Ctrl+P', _('Preferences'))
         self.action_new_book = treg('plus.png', _('Create new, &empty book'), self.boss.new_book, 'new-book', (), _('Create a new, empty book'))
-        self.action_import_book = treg('add_book.png', _('&Import an HTML or DOCX file as a new book'),
-                                      self.boss.import_book, 'import-book', (), _('Import an HTML or DOCX file as a new book'))
-        self.action_quick_edit = treg('modified.png', _('&Quick open a file to edit'), self.boss.quick_open, 'quick-open', ('Ctrl+T'), _(
-            'Quickly open a file from the book to edit it'))
+        self.action_import_book = treg(
+            'add_book.png',
+            _('&Import an HTML or DOCX file as a new book'),
+            self.boss.import_book,
+            'import-book',
+            (),
+            _('Import an HTML or DOCX file as a new book'),
+        )
+        self.action_quick_edit = treg(
+            'modified.png',
+            _('&Quick open a file to edit'),
+            self.boss.quick_open,
+            'quick-open',
+            ('Ctrl+T'),
+            _('Quickly open a file from the book to edit it'),
+        )
         self.action_editor_toggle_wrap = treg(
-            'format-justify-fill.png', _('Toggle code line &wrapping'), self.boss.toggle_line_wrapping_in_all_editors, 'editor-toggle-wrap', (), _(
-                'Toggle line wrapping in all code editor tabs'))
+            'format-justify-fill.png',
+            _('Toggle code line &wrapping'),
+            self.boss.toggle_line_wrapping_in_all_editors,
+            'editor-toggle-wrap',
+            (),
+            _('Toggle line wrapping in all code editor tabs'),
+        )
 
         # Editor actions
         group = _('Editor actions')
-        self.action_editor_undo = reg('edit-undo.png', _('&Undo'), self.boss.do_editor_undo, 'editor-undo', 'Ctrl+Z',
-                                      _('Undo typing'))
-        self.action_editor_redo = reg('edit-redo.png', _('R&edo'), self.boss.do_editor_redo, 'editor-redo', 'Ctrl+Y',
-                                      _('Redo typing'))
-        self.action_editor_cut = reg('edit-cut.png', _('Cut &text'), self.boss.do_editor_cut, 'editor-cut', ('Ctrl+X', 'Shift+Delete', ),
-                                      _('Cut text'))
-        self.action_editor_copy = reg('edit-copy.png', _('&Copy to clipboard'), self.boss.do_editor_copy, 'editor-copy', ('Ctrl+C', 'Ctrl+Insert'),
-                                      _('Copy to clipboard'))
-        self.action_editor_paste = reg('edit-paste.png', _('P&aste from clipboard'), self.boss.do_editor_paste, 'editor-paste', ('Ctrl+V', 'Shift+Insert', ),
-                                      _('Paste from clipboard'))
+        self.action_editor_undo = reg('edit-undo.png', _('&Undo'), self.boss.do_editor_undo, 'editor-undo', 'Ctrl+Z', _('Undo typing'))
+        self.action_editor_redo = reg('edit-redo.png', _('R&edo'), self.boss.do_editor_redo, 'editor-redo', 'Ctrl+Y', _('Redo typing'))
+        self.action_editor_cut = reg(
+            'edit-cut.png',
+            _('Cut &text'),
+            self.boss.do_editor_cut,
+            'editor-cut',
+            (
+                'Ctrl+X',
+                'Shift+Delete',
+            ),
+            _('Cut text'),
+        )
+        self.action_editor_copy = reg(
+            'edit-copy.png',
+            _('&Copy to clipboard'),
+            self.boss.do_editor_copy,
+            'editor-copy',
+            ('Ctrl+C', 'Ctrl+Insert'),
+            _('Copy to clipboard'),
+        )
+        self.action_editor_paste = reg(
+            'edit-paste.png',
+            _('P&aste from clipboard'),
+            self.boss.do_editor_paste,
+            'editor-paste',
+            (
+                'Ctrl+V',
+                'Shift+Insert',
+            ),
+            _('Paste from clipboard'),
+        )
         self.action_editor_cut.setEnabled(False)
         self.action_editor_copy.setEnabled(False)
         self.action_editor_undo.setEnabled(False)
@@ -445,154 +543,418 @@ class Main(MainWindow):
         # Tool actions
         group = _('Tools')
         self.action_toc = treg('toc.png', _('&Edit Table of Contents'), self.boss.edit_toc, 'edit-toc', (), _('Edit Table of Contents'))
-        self.action_inline_toc = treg('chapters.png', _('&Insert inline Table of Contents'),
-                                     self.boss.insert_inline_toc, 'insert-inline-toc', (), _('Insert inline Table of Contents'))
-        self.action_fix_html_current = reg('html-fix.png', _('&Fix HTML'), partial(self.boss.fix_html, True), 'fix-html-current', (),
-                                           _('Fix HTML in the current file'))
-        self.action_fix_html_all = treg('html-fix.png', _('&Fix HTML - all files'), partial(self.boss.fix_html, False), 'fix-html-all', (),
-                                       _('Fix HTML in all files'))
-        self.action_pretty_current = reg('beautify.png', _('&Beautify current file'), partial(self.boss.pretty_print, True), 'pretty-current', (),
-                                           _('Beautify current file'))
-        self.action_pretty_all = treg('beautify.png', _('&Beautify all files'), partial(self.boss.pretty_print, False), 'pretty-all', (),
-                                       _('Beautify all files'))
-        self.action_insert_char = treg('character-set.png', _('&Insert special character'), self.boss.insert_character, 'insert-character', (),
-                                      _('Insert special character'))
-        self.action_rationalize_folders = treg('mimetypes/dir.png', _('&Arrange into folders'), self.boss.rationalize_folders, 'rationalize-folders', (),
-                                      _('Arrange into folders'))
-        self.action_set_semantics = treg('tags.png', _('Set &semantics'), self.boss.set_semantics, 'set-semantics', (),
-                                        _('Set semantics'))
-        self.action_filter_css = treg('filter.png', _('&Filter style information'), self.boss.filter_css, 'filter-css', (),
-                                     _('Filter style information'))
+        self.action_inline_toc = treg(
+            'chapters.png',
+            _('&Insert inline Table of Contents'),
+            self.boss.insert_inline_toc,
+            'insert-inline-toc',
+            (),
+            _('Insert inline Table of Contents'),
+        )
+        self.action_fix_html_current = reg(
+            'html-fix.png',
+            _('&Fix HTML'),
+            partial(self.boss.fix_html, True),
+            'fix-html-current',
+            (),
+            _('Fix HTML in the current file'),
+        )
+        self.action_fix_html_all = treg(
+            'html-fix.png',
+            _('&Fix HTML - all files'),
+            partial(self.boss.fix_html, False),
+            'fix-html-all',
+            (),
+            _('Fix HTML in all files'),
+        )
+        self.action_pretty_current = reg(
+            'beautify.png',
+            _('&Beautify current file'),
+            partial(self.boss.pretty_print, True),
+            'pretty-current',
+            (),
+            _('Beautify current file'),
+        )
+        self.action_pretty_all = treg(
+            'beautify.png',
+            _('&Beautify all files'),
+            partial(self.boss.pretty_print, False),
+            'pretty-all',
+            (),
+            _('Beautify all files'),
+        )
+        self.action_insert_char = treg(
+            'character-set.png',
+            _('&Insert special character'),
+            self.boss.insert_character,
+            'insert-character',
+            (),
+            _('Insert special character'),
+        )
+        self.action_rationalize_folders = treg(
+            'mimetypes/dir.png',
+            _('&Arrange into folders'),
+            self.boss.rationalize_folders,
+            'rationalize-folders',
+            (),
+            _('Arrange into folders'),
+        )
+        self.action_set_semantics = treg('tags.png', _('Set &semantics'), self.boss.set_semantics, 'set-semantics', (), _('Set semantics'))
+        self.action_filter_css = treg(
+            'filter.png',
+            _('&Filter style information'),
+            self.boss.filter_css,
+            'filter-css',
+            (),
+            _('Filter style information'),
+        )
         self.action_manage_fonts = treg('font.png', _('&Manage fonts'), self.boss.manage_fonts, 'manage-fonts', (), _('Manage fonts in the book'))
         self.action_add_cover = treg('default_cover.png', _('Add &cover'), self.boss.add_cover, 'add-cover', (), _('Add a cover to the book'))
         self.action_reports = treg(
-            'reports.png', _('&Reports'), self.boss.show_reports, 'show-reports', ('Ctrl+Shift+R',), _('Show a report on various aspects of the book'))
-        self.action_check_external_links = treg('insert-link.png', _('Check &external links'), self.boss.check_external_links, 'check-external-links', (), _(
-            'Check external links in the book'))
-        self.action_compress_images = treg('compress-image.png', _('C&ompress images losslessly'), self.boss.compress_images, 'compress-images', (), _(
-            'Compress images losslessly'))
-        self.action_transform_styles = treg('wizard.png', _('Transform &styles'), self.boss.transform_styles, 'transform-styles', (), _(
-            'Transform styles used in the book'))
-        self.action_transform_html = treg('wizard.png', _('Transform &HTML'), self.boss.transform_html, 'transform-html', (), _(
-            'Transform HTML used in the book'))
-        self.action_get_ext_resources = treg('download-metadata.png', _('Download external &resources'),
-                                             self.boss.get_external_resources, 'get-external-resources', (), _(
-            'Download external resources in the book (images/stylesheets/etc/ that are not included in the book)'))
-        self.action_embed_tts = treg('bullhorn.png', _('Add Text-to-speech narration'), self.boss.embed_tts, 'embed-tts', (), _(
-            'Add audio narration for all the book text using Text-to-speech generation'))
+            'reports.png',
+            _('&Reports'),
+            self.boss.show_reports,
+            'show-reports',
+            ('Ctrl+Shift+R',),
+            _('Show a report on various aspects of the book'),
+        )
+        self.action_check_external_links = treg(
+            'insert-link.png',
+            _('Check &external links'),
+            self.boss.check_external_links,
+            'check-external-links',
+            (),
+            _('Check external links in the book'),
+        )
+        self.action_compress_images = treg(
+            'compress-image.png',
+            _('C&ompress images losslessly'),
+            self.boss.compress_images,
+            'compress-images',
+            (),
+            _('Compress images losslessly'),
+        )
+        self.action_transform_styles = treg(
+            'wizard.png',
+            _('Transform &styles'),
+            self.boss.transform_styles,
+            'transform-styles',
+            (),
+            _('Transform styles used in the book'),
+        )
+        self.action_transform_html = treg(
+            'wizard.png',
+            _('Transform &HTML'),
+            self.boss.transform_html,
+            'transform-html',
+            (),
+            _('Transform HTML used in the book'),
+        )
+        self.action_get_ext_resources = treg(
+            'download-metadata.png',
+            _('Download external &resources'),
+            self.boss.get_external_resources,
+            'get-external-resources',
+            (),
+            _('Download external resources in the book (images/stylesheets/etc/ that are not included in the book)'),
+        )
+        self.action_embed_tts = treg(
+            'bullhorn.png',
+            _('Add Text-to-speech narration'),
+            self.boss.embed_tts,
+            'embed-tts',
+            (),
+            _('Add audio narration for all the book text using Text-to-speech generation'),
+        )
 
         def ereg(icon, text, target, sid, keys, description):
             return reg(icon, text, partial(self.boss.editor_action, target), sid, keys, description)
+
         register_text_editor_actions(ereg, self.palette())
 
         # Polish actions
         group = _('Polish book')
         self.action_subset_fonts = treg(
-            'subset-fonts.png', _('&Subset embedded fonts'), partial(
-                self.boss.polish, 'subset', _('Subset fonts')), 'subset-fonts', (), _('Subset embedded fonts'))
+            'subset-fonts.png',
+            _('&Subset embedded fonts'),
+            partial(self.boss.polish, 'subset', _('Subset fonts')),
+            'subset-fonts',
+            (),
+            _('Subset embedded fonts'),
+        )
         self.action_embed_fonts = treg(
-            'embed-fonts.png', _('&Embed referenced fonts'), partial(
-                self.boss.polish, 'embed', _('Embed fonts')), 'embed-fonts', (), _('Embed referenced fonts'))
+            'embed-fonts.png',
+            _('&Embed referenced fonts'),
+            partial(self.boss.polish, 'embed', _('Embed fonts')),
+            'embed-fonts',
+            (),
+            _('Embed referenced fonts'),
+        )
         self.action_smarten_punctuation = treg(
-            'smarten-punctuation.png', _('&Smarten punctuation (works best for English)'), partial(
-                self.boss.polish, 'smarten_punctuation', _('Smarten punctuation')),
-            'smarten-punctuation', (), _('Smarten punctuation'))
+            'smarten-punctuation.png',
+            _('&Smarten punctuation (works best for English)'),
+            partial(self.boss.polish, 'smarten_punctuation', _('Smarten punctuation')),
+            'smarten-punctuation',
+            (),
+            _('Smarten punctuation'),
+        )
         self.action_remove_unused_css = treg(
-            'edit-clear.png', _('Remove &unused CSS rules'), partial(
-                self.boss.polish, 'remove_unused_css', _('Remove unused CSS rules')), 'remove-unused-css', (), _('Remove unused CSS rules'))
+            'edit-clear.png',
+            _('Remove &unused CSS rules'),
+            partial(self.boss.polish, 'remove_unused_css', _('Remove unused CSS rules')),
+            'remove-unused-css',
+            (),
+            _('Remove unused CSS rules'),
+        )
         self.action_remove_unused_images = treg(
-            'edit-clear.png', _('Remove unused &images'), partial(
-                self.boss.polish, 'remove_unused_images', _('Remove unused images')), 'remove-unused-images', (), _('Remove unused images'))
+            'edit-clear.png',
+            _('Remove unused &images'),
+            partial(self.boss.polish, 'remove_unused_images', _('Remove unused images')),
+            'remove-unused-images',
+            (),
+            _('Remove unused images'),
+        )
         self.action_upgrade_book_internals = treg(
-            'arrow-up.png', _('&Upgrade book internals'), partial(
-                self.boss.polish, 'upgrade_book', _('Upgrade book internals')), 'upgrade-book', (), _('Upgrade book internals'))
+            'arrow-up.png',
+            _('&Upgrade book internals'),
+            partial(self.boss.polish, 'upgrade_book', _('Upgrade book internals')),
+            'upgrade-book',
+            (),
+            _('Upgrade book internals'),
+        )
 
         # Preview actions
         group = _('Preview')
         self.action_auto_reload_preview = reg('auto-reload.png', _('Auto reload preview'), None, 'auto-reload-preview', (), _('Auto reload preview'))
-        self.action_auto_sync_preview = reg('sync-right.png', _('Sync preview position to editor position'), None, 'sync-preview-to-editor', (), _(
-            'Sync preview position to editor position'))
+        self.action_auto_sync_preview = reg(
+            'sync-right.png',
+            _('Sync preview position to editor position'),
+            None,
+            'sync-preview-to-editor',
+            (),
+            _('Sync preview position to editor position'),
+        )
         self.action_reload_preview = reg('view-refresh.png', _('Refresh preview'), None, 'reload-preview', ('F5',), _('Refresh preview'))
-        self.action_split_in_preview = reg('document-split.png', _('Split this file'), None, 'split-in-preview', (), _(
-            'Split file in the preview panel'))
+        self.action_split_in_preview = reg(
+            'document-split.png',
+            _('Split this file'),
+            None,
+            'split-in-preview',
+            (),
+            _('Split file in the preview panel'),
+        )
         self.action_find_next_preview = reg('arrow-down.png', _('Find next'), None, 'find-next-preview', (), _('Find next in preview'))
         self.action_find_prev_preview = reg('arrow-up.png', _('Find previous'), None, 'find-prev-preview', (), _('Find previous in preview'))
-        self.action_copy_from_preview = reg('edit-copy.png', _('Copy from preview'), None, 'copy-from-preview', ('Ctrl+Alt+c',), _(
-            'Copy the current selection from the preview panel to the clipboard'))
+        self.action_copy_from_preview = reg(
+            'edit-copy.png',
+            _('Copy from preview'),
+            None,
+            'copy-from-preview',
+            ('Ctrl+Alt+c',),
+            _('Copy the current selection from the preview panel to the clipboard'),
+        )
 
         # Search actions
         group = _('Search')
-        self.action_find = treg('search.png', _('&Find/replace'), self.boss.show_find, 'find-replace', ('Ctrl+F',), _('Show the Find/replace panel'))
+        self.action_find = treg(
+            'search.png',
+            _('&Find/replace'),
+            self.boss.show_find,
+            'find-replace',
+            ('Ctrl+F',),
+            _('Show the Find/replace panel'),
+        )
 
         def sreg(name, text, action, overrides={}, keys=(), description=None, icon=None):
-            return reg(icon, text, partial(self.boss.search_action_triggered, action, overrides), name, keys, description or text.replace('&', ''))
-        self.action_find_next = sreg('find-next', _('Find &next'),
-                                     'find', {'direction':'down'}, ('F3', 'Ctrl+G'), _('Find next match'))
-        self.action_find_previous = sreg('find-previous', _('Find &previous'),
-                                         'find', {'direction':'up'}, ('Shift+F3', 'Shift+Ctrl+G'), _('Find previous match'))
-        self.action_replace = sreg('replace', _('&Replace'),
-                                   'replace', keys=('Ctrl+R'), description=_('Replace current match'))
-        self.action_replace_next = sreg('replace-next', _('Replace and find ne&xt'),
-                                        'replace-find', {'direction':'down'}, ('Ctrl+]'), _('Replace current match and find next'))
-        self.action_replace_previous = sreg('replace-previous', _('R&eplace and find previous'),
-                                        'replace-find', {'direction':'up'}, ('Ctrl+['), _('Replace current match and find previous'))
-        self.action_replace_all = sreg('replace-all', _('Replace &all'),
-                                   'replace-all', keys=('Ctrl+A'), description=_('Replace all matches'))
-        self.action_count = sreg('count-matches', _('&Count all'),
-                                   'count', keys=('Ctrl+N'), description=_('Count number of matches'))
-        self.action_mark = reg(None, _('&Mark selected text'), self.boss.mark_selected_text, 'mark-selected-text', ('Ctrl+Shift+M',),
-                               _('Mark selected text or unmark already marked text'))
+            return reg(
+                icon,
+                text,
+                partial(self.boss.search_action_triggered, action, overrides),
+                name,
+                keys,
+                description or text.replace('&', ''),
+            )
+
+        self.action_find_next = sreg('find-next', _('Find &next'), 'find', {'direction': 'down'}, ('F3', 'Ctrl+G'), _('Find next match'))
+        self.action_find_previous = sreg(
+            'find-previous',
+            _('Find &previous'),
+            'find',
+            {'direction': 'up'},
+            ('Shift+F3', 'Shift+Ctrl+G'),
+            _('Find previous match'),
+        )
+        self.action_replace = sreg('replace', _('&Replace'), 'replace', keys=('Ctrl+R'), description=_('Replace current match'))
+        self.action_replace_next = sreg(
+            'replace-next',
+            _('Replace and find ne&xt'),
+            'replace-find',
+            {'direction': 'down'},
+            ('Ctrl+]'),
+            _('Replace current match and find next'),
+        )
+        self.action_replace_previous = sreg(
+            'replace-previous',
+            _('R&eplace and find previous'),
+            'replace-find',
+            {'direction': 'up'},
+            ('Ctrl+['),
+            _('Replace current match and find previous'),
+        )
+        self.action_replace_all = sreg('replace-all', _('Replace &all'), 'replace-all', keys=('Ctrl+A'), description=_('Replace all matches'))
+        self.action_count = sreg('count-matches', _('&Count all'), 'count', keys=('Ctrl+N'), description=_('Count number of matches'))
+        self.action_mark = reg(
+            None,
+            _('&Mark selected text'),
+            self.boss.mark_selected_text,
+            'mark-selected-text',
+            ('Ctrl+Shift+M',),
+            _('Mark selected text or unmark already marked text'),
+        )
         self.action_mark.default_text = self.action_mark.text()
-        self.action_go_to_line = reg(None, _('Go to &line'), self.boss.go_to_line_number, 'go-to-line-number', ('Ctrl+.',), _('Go to line number'))
-        self.action_saved_searches = treg('folder_saved_search.png', _('Sa&ved searches'),
-                                          self.boss.saved_searches, 'saved-searches', (), _('Show the saved searches dialog'))
-        self.action_text_search = treg('view.png', _('&Search ignoring HTML markup'),
-                                          self.boss.show_text_search, 'text-search', (), _('Show the text search panel'))
+        self.action_go_to_line = reg(
+            None,
+            _('Go to &line'),
+            self.boss.go_to_line_number,
+            'go-to-line-number',
+            ('Ctrl+.',),
+            _('Go to line number'),
+        )
+        self.action_saved_searches = treg(
+            'folder_saved_search.png',
+            _('Sa&ved searches'),
+            self.boss.saved_searches,
+            'saved-searches',
+            (),
+            _('Show the saved searches dialog'),
+        )
+        self.action_text_search = treg(
+            'view.png',
+            _('&Search ignoring HTML markup'),
+            self.boss.show_text_search,
+            'text-search',
+            (),
+            _('Show the text search panel'),
+        )
 
         # Check Book actions
         group = _('Check book')
         self.action_check_book = treg('debug.png', _('C&heck book'), self.boss.check_requested, 'check-book', ('F7'), _('Check book for errors'))
-        self.action_spell_check_book = treg('spell-check.png', _('Check &spelling'), self.boss.spell_check_requested, 'spell-check-book', ('Alt+F7'), _(
-            'Check book for spelling errors'))
-        self.action_check_book_next = reg('forward.png', _('&Next error'), partial(
-            self.check_book.next_error, delta=1), 'check-book-next', ('Ctrl+F7'), _('Show next error'))
-        self.action_check_book_previous = reg('back.png', _('&Previous error'), partial(
-            self.check_book.next_error, delta=-1), 'check-book-previous', ('Ctrl+Shift+F7'), _('Show previous error'))
-        self.action_spell_check_next = reg('forward.png', _('&Next spelling mistake'),
-            self.boss.next_spell_error, 'spell-next', ('F8'), _('Go to next spelling mistake'))
+        self.action_spell_check_book = treg(
+            'spell-check.png',
+            _('Check &spelling'),
+            self.boss.spell_check_requested,
+            'spell-check-book',
+            ('Alt+F7'),
+            _('Check book for spelling errors'),
+        )
+        self.action_check_book_next = reg(
+            'forward.png',
+            _('&Next error'),
+            partial(self.check_book.next_error, delta=1),
+            'check-book-next',
+            ('Ctrl+F7'),
+            _('Show next error'),
+        )
+        self.action_check_book_previous = reg(
+            'back.png',
+            _('&Previous error'),
+            partial(self.check_book.next_error, delta=-1),
+            'check-book-previous',
+            ('Ctrl+Shift+F7'),
+            _('Show previous error'),
+        )
+        self.action_spell_check_next = reg(
+            'forward.png',
+            _('&Next spelling mistake'),
+            self.boss.next_spell_error,
+            'spell-next',
+            ('F8'),
+            _('Go to next spelling mistake'),
+        )
 
         # Miscellaneous actions
         group = pgettext('edit book actions', 'Miscellaneous')
         self.action_create_checkpoint = treg(
-            'marked.png', _('&Create checkpoint'), self.boss.create_checkpoint, 'create-checkpoint', (), _(
-                'Create a checkpoint with the current state of the book'))
+            'marked.png',
+            _('&Create checkpoint'),
+            self.boss.create_checkpoint,
+            'create-checkpoint',
+            (),
+            _('Create a checkpoint with the current state of the book'),
+        )
         self.action_close_current_tab = reg(
-            'window-close.png', _('&Close current tab'), self.central.close_current_editor, 'close-current-tab', 'Ctrl+W', _(
-                'Close the currently open tab'))
+            'window-close.png',
+            _('&Close current tab'),
+            self.central.close_current_editor,
+            'close-current-tab',
+            'Ctrl+W',
+            _('Close the currently open tab'),
+        )
         self.action_close_all_but_current_tab = reg(
-            'edit-clear.png', _('C&lose other tabs'), self.central.close_all_but_current_editor, 'close-all-but-current-tab', 'Ctrl+Alt+W', _(
-                'Close all tabs except the current tab'))
+            'edit-clear.png',
+            _('C&lose other tabs'),
+            self.central.close_all_but_current_editor,
+            'close-all-but-current-tab',
+            'Ctrl+Alt+W',
+            _('Close all tabs except the current tab'),
+        )
         self.action_close_to_right = reg(
-            'edit-clear.png', _('Close tabs to the &right'), self.central.close_to_right_of_current_editor, 'close-tabs-to-right-of', 'Ctrl+Shift+W', _(
-                'Close tabs to the right of the current tab'))
+            'edit-clear.png',
+            _('Close tabs to the &right'),
+            self.central.close_to_right_of_current_editor,
+            'close-tabs-to-right-of',
+            'Ctrl+Shift+W',
+            _('Close tabs to the right of the current tab'),
+        )
         self.action_help = treg(
-            'help.png', _('User &Manual'), lambda: open_url(QUrl(localize_user_manual_link(
-                'https://manual.calibre-ebook.com/edit.html'))), 'user-manual', 'F1', _(
-                'Show User Manual'))
+            'help.png',
+            _('User &Manual'),
+            lambda: open_url(QUrl(localize_user_manual_link('https://manual.calibre-ebook.com/edit.html'))),
+            'user-manual',
+            'F1',
+            _('Show User Manual'),
+        )
         self.action_browse_images = treg(
-            'view-image.png', _('&Browse images in book'), self.boss.browse_images, 'browse-images', (), _(
-                'Browse images in the books visually'))
+            'view-image.png',
+            _('&Browse images in book'),
+            self.boss.browse_images,
+            'browse-images',
+            (),
+            _('Browse images in the books visually'),
+        )
         self.action_multiple_split = treg(
-            'document-split.png', _('&Split at multiple locations'), self.boss.multisplit, 'multisplit', (), _(
-                'Split HTML file at multiple locations'))
-        self.action_compare_book = treg('diff.png', _('Compare to &another book'), self.boss.compare_book, 'compare-book', (), _(
-            'Compare to another book'))
+            'document-split.png',
+            _('&Split at multiple locations'),
+            self.boss.multisplit,
+            'multisplit',
+            (),
+            _('Split HTML file at multiple locations'),
+        )
+        self.action_compare_book = treg(
+            'diff.png',
+            _('Compare to &another book'),
+            self.boss.compare_book,
+            'compare-book',
+            (),
+            _('Compare to another book'),
+        )
         self.action_manage_snippets = treg(
-            'snippets.png', _('Manage &Snippets'), self.boss.manage_snippets, 'manage-snippets', (), _(
-                'Manage user created Snippets'))
+            'snippets.png',
+            _('Manage &Snippets'),
+            self.boss.manage_snippets,
+            'manage-snippets',
+            (),
+            _('Manage user created Snippets'),
+        )
         self.action_merge_files = treg(
-            'merge.png', _('&Merge files'), self.boss.merge_files, 'merge-files', 'Ctrl+M', _(
-                'Merge two or more selected files'))
+            'merge.png',
+            _('&Merge files'),
+            self.boss.merge_files,
+            'merge-files',
+            'Ctrl+M',
+            _('Merge two or more selected files'),
+        )
 
         self.plugin_menu_actions = []
 
@@ -754,6 +1116,7 @@ class Main(MainWindow):
             actions[name] = b.toggleViewAction()
             b.setIconSize(QSize(tprefs['toolbar_icon_size'], tprefs['toolbar_icon_size']))
             return b
+
         self.global_bar = create(_('Book tool bar'), 'global')
         self.tools_bar = create(_('Tools tool bar'), 'tools')
         self.plugins_bar = create(_('Plugins tool bar'), 'plugins')
@@ -798,8 +1161,7 @@ class Main(MainWindow):
             d.setObjectName(oname)  # Needed for saveState
             ac = d.toggleViewAction()
             desc = _('Toggle %s') % name.replace('&', '')
-            self.keyboard.register_shortcut(
-                oname, desc, description=desc, action=ac, group=_('Windows'))
+            self.keyboard.register_shortcut(oname, desc, description=desc, action=ac, group=_('Windows'))
             actions[oname] = ac
             setattr(self, oname.replace('-', '_'), d)
             return d
@@ -818,8 +1180,11 @@ class Main(MainWindow):
 
         d = create(_('Live CSS'), 'live-css')
         d.setAllowedAreas(
-            Qt.DockWidgetArea.LeftDockWidgetArea | Qt.DockWidgetArea.RightDockWidgetArea |
-            Qt.DockWidgetArea.BottomDockWidgetArea | Qt.DockWidgetArea.TopDockWidgetArea)
+            Qt.DockWidgetArea.LeftDockWidgetArea
+            | Qt.DockWidgetArea.RightDockWidgetArea
+            | Qt.DockWidgetArea.BottomDockWidgetArea
+            | Qt.DockWidgetArea.TopDockWidgetArea
+        )
         self.live_css = LiveCSS(self.preview, parent=d)
         d.setWidget(self.live_css)
         self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, d)
@@ -827,16 +1192,22 @@ class Main(MainWindow):
 
         d = create(_('Check book'), 'check-book')
         d.setAllowedAreas(
-            Qt.DockWidgetArea.LeftDockWidgetArea | Qt.DockWidgetArea.RightDockWidgetArea |
-            Qt.DockWidgetArea.BottomDockWidgetArea | Qt.DockWidgetArea.TopDockWidgetArea)
+            Qt.DockWidgetArea.LeftDockWidgetArea
+            | Qt.DockWidgetArea.RightDockWidgetArea
+            | Qt.DockWidgetArea.BottomDockWidgetArea
+            | Qt.DockWidgetArea.TopDockWidgetArea
+        )
         d.setWidget(self.check_book)
         self.addDockWidget(Qt.DockWidgetArea.TopDockWidgetArea, d)
         d.close()  # By default the check window is closed
 
         d = create(_('Inspector'), 'inspector')
         d.setAllowedAreas(
-            Qt.DockWidgetArea.LeftDockWidgetArea | Qt.DockWidgetArea.RightDockWidgetArea |
-            Qt.DockWidgetArea.BottomDockWidgetArea | Qt.DockWidgetArea.TopDockWidgetArea)
+            Qt.DockWidgetArea.LeftDockWidgetArea
+            | Qt.DockWidgetArea.RightDockWidgetArea
+            | Qt.DockWidgetArea.BottomDockWidgetArea
+            | Qt.DockWidgetArea.TopDockWidgetArea
+        )
         d.setWidget(self.preview.inspector)
         self.preview.inspector.setParent(d)
         self.addDockWidget(Qt.DockWidgetArea.BottomDockWidgetArea, d)
@@ -845,24 +1216,33 @@ class Main(MainWindow):
 
         d = create(_('Table of Contents'), 'toc-viewer')
         d.setAllowedAreas(
-            Qt.DockWidgetArea.LeftDockWidgetArea | Qt.DockWidgetArea.RightDockWidgetArea |
-            Qt.DockWidgetArea.BottomDockWidgetArea | Qt.DockWidgetArea.TopDockWidgetArea)
+            Qt.DockWidgetArea.LeftDockWidgetArea
+            | Qt.DockWidgetArea.RightDockWidgetArea
+            | Qt.DockWidgetArea.BottomDockWidgetArea
+            | Qt.DockWidgetArea.TopDockWidgetArea
+        )
         d.setWidget(self.toc_view)
         self.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea, d)
         d.close()  # Hidden by default
 
         d = create(_('Text search'), 'text-search')
         d.setAllowedAreas(
-            Qt.DockWidgetArea.LeftDockWidgetArea | Qt.DockWidgetArea.RightDockWidgetArea |
-            Qt.DockWidgetArea.BottomDockWidgetArea | Qt.DockWidgetArea.TopDockWidgetArea)
+            Qt.DockWidgetArea.LeftDockWidgetArea
+            | Qt.DockWidgetArea.RightDockWidgetArea
+            | Qt.DockWidgetArea.BottomDockWidgetArea
+            | Qt.DockWidgetArea.TopDockWidgetArea
+        )
         d.setWidget(self.text_search)
         self.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea, d)
         d.close()  # Hidden by default
 
         d = create(_('Checkpoints'), 'checkpoints')
         d.setAllowedAreas(
-            Qt.DockWidgetArea.LeftDockWidgetArea | Qt.DockWidgetArea.RightDockWidgetArea |
-            Qt.DockWidgetArea.BottomDockWidgetArea | Qt.DockWidgetArea.TopDockWidgetArea)
+            Qt.DockWidgetArea.LeftDockWidgetArea
+            | Qt.DockWidgetArea.RightDockWidgetArea
+            | Qt.DockWidgetArea.BottomDockWidgetArea
+            | Qt.DockWidgetArea.TopDockWidgetArea
+        )
         self.checkpoints = CheckpointView(self.boss.global_undo, parent=d)
         d.setWidget(self.checkpoints)
         self.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea, d)
@@ -870,8 +1250,11 @@ class Main(MainWindow):
 
         d = create(_('Saved searches'), 'saved-searches')
         d.setAllowedAreas(
-            Qt.DockWidgetArea.LeftDockWidgetArea | Qt.DockWidgetArea.RightDockWidgetArea |
-            Qt.DockWidgetArea.BottomDockWidgetArea | Qt.DockWidgetArea.TopDockWidgetArea)
+            Qt.DockWidgetArea.LeftDockWidgetArea
+            | Qt.DockWidgetArea.RightDockWidgetArea
+            | Qt.DockWidgetArea.BottomDockWidgetArea
+            | Qt.DockWidgetArea.TopDockWidgetArea
+        )
         d.setWidget(self.saved_searches)
         self.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea, d)
         d.close()  # Hidden by default

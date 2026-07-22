@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2013, Kovid Goyal <kovid at kovidgoyal.net>
 
-
 import importlib
 import os
 import re
@@ -62,17 +61,17 @@ def get_highlighter(syntax):
     if syntax:
         try:
             return importlib.import_module('calibre.gui2.tweak_book.editor.syntax.' + syntax).Highlighter
-        except (ImportError, AttributeError):
+        except ImportError, AttributeError:
             pass
     return SyntaxHighlighter
 
 
 def get_smarts(syntax):
     if syntax:
-        smartsname = {'xml':'html'}.get(syntax, syntax)
+        smartsname = {'xml': 'html'}.get(syntax, syntax)
         try:
             return importlib.import_module('calibre.gui2.tweak_book.editor.smarts.' + smartsname).Smarts
-        except (ImportError, AttributeError):
+        except ImportError, AttributeError:
             pass
 
 
@@ -93,7 +92,6 @@ def default_font_family():
 
 
 class LineNumbers(QWidget):  # {{{
-
     def __init__(self, parent):
         QWidget.__init__(self, parent)
 
@@ -102,11 +100,12 @@ class LineNumbers(QWidget):  # {{{
 
     def paintEvent(self, a0):
         self.parent().paint_line_numbers(a0)  # type: ignore
+
+
 # }}}
 
 
 class TextEdit(PlainTextEdit):
-
     link_clicked = pyqtSignal(object)
     class_clicked = pyqtSignal(object)
     smart_highlighting_updated = pyqtSignal()
@@ -141,9 +140,7 @@ class TextEdit(PlainTextEdit):
     def get_droppable_files(self, md):
 
         def is_mt_ok(mt):
-            return self.syntax == 'html' and (
-                mt in OEB_DOCS or mt in OEB_STYLES or mt.startswith('image/')
-            )
+            return self.syntax == 'html' and (mt in OEB_DOCS or mt in OEB_STYLES or mt.startswith('image/'))
 
         if md.hasFormat(CONTAINER_DND_MIMETYPE):
             for line in as_unicode(bytes(md.data(CONTAINER_DND_MIMETYPE))).splitlines():
@@ -192,6 +189,7 @@ class TextEdit(PlainTextEdit):
 
         def add_file(name, data, mt=None):
             from calibre.gui2.tweak_book.boss import get_boss
+
             name = current_container().add_file(name, data, media_type=mt, modify_name_if_needed=True)
             get_boss().refresh_file_list()
             return name
@@ -229,8 +227,8 @@ class TextEdit(PlainTextEdit):
 
     @property
     def is_modified(self):
-        ''' True if the document has been modified since it was loaded or since
-        the last time is_modified was set to False. '''
+        """True if the document has been modified since it was loaded or since
+        the last time is_modified was set to False."""
         if (d := self.document()) is None:
             return False
         return d.isModified()
@@ -290,7 +288,7 @@ class TextEdit(PlainTextEdit):
         font.setFamily(ff)
         font.setPointSizeF(tprefs['editor_font_size'])
         self.tooltip_font = QFont(font)
-        self.tooltip_font.setPointSizeF(font.pointSizeF() - 1.)
+        self.tooltip_font.setPointSizeF(font.pointSizeF() - 1.0)
         self.setFont(font)
         self.highlighter.apply_theme(theme)
         fm = self.fontMetrics()
@@ -299,6 +297,7 @@ class TextEdit(PlainTextEdit):
         self.highlight_color = theme_color(theme, 'HighlightRegion', 'bg')
         self.highlight_cursor_line()
         self.completion_popup.clear_caches(), self.completion_popup.update()
+
     # }}}
 
     def load_text(self, text, syntax='html', process_template=False, doc_name=None):
@@ -445,12 +444,14 @@ class TextEdit(PlainTextEdit):
             count = len(pat.findall(raw))
         else:
             from calibre.gui2.tweak_book.function_replace import Function
+
             repl_is_func = isinstance(template, Function)
             if repl_is_func:
                 template.init_env()
             raw, count = pat.subn(template, raw)
             if repl_is_func:
                 from calibre.gui2.tweak_book.search import show_function_debug_output
+
                 if getattr(template.func, 'append_final_output_to_marked', False):
                     retval = template.end()
                     if retval:
@@ -468,17 +469,27 @@ class TextEdit(PlainTextEdit):
 
     def smart_comment(self):
         from calibre.gui2.tweak_book.editor.comments import smart_comment
+
         smart_comment(self, self.syntax)
 
     def sort_css(self):
         from calibre.gui2.dialogs.confirm_delete import confirm
-        if confirm(_('Sorting CSS rules can in rare cases change the effective styles applied to the book.'
-                     ' Are you sure you want to proceed?'), 'edit-book-confirm-sort-css', parent=self, config_set=tprefs):
+
+        if confirm(
+            _('Sorting CSS rules can in rare cases change the effective styles applied to the book. Are you sure you want to proceed?'),
+            'edit-book-confirm-sort-css',
+            parent=self,
+            config_set=tprefs,
+        ):
             c = self.textCursor()
             c.beginEditBlock()
-            c.movePosition(QTextCursor.MoveOperation.Start), c.movePosition(QTextCursor.MoveOperation.End, QTextCursor.MoveMode.KeepAnchor)
+            (
+                c.movePosition(QTextCursor.MoveOperation.Start),
+                c.movePosition(QTextCursor.MoveOperation.End, QTextCursor.MoveMode.KeepAnchor),
+            )
             text = str(c.selectedText()).replace(PARAGRAPH_SEPARATOR, '\n').rstrip('\0')
             from calibre.ebooks.oeb.polish.css import sort_sheet
+
             text = css_text(sort_sheet(current_container(), text))
             c.insertText(text)
             c.movePosition(QTextCursor.MoveOperation.Start)
@@ -745,14 +756,21 @@ class TextEdit(PlainTextEdit):
                     f.setBold(True)
                     painter.setFont(f)
                     self.last_current_lnum = (top, bottom - top)
-                painter.drawText(0, top, self.line_number_area.width() - 5, self.fontMetrics().height(),
-                              Qt.AlignmentFlag.AlignRight, str(num + 1))
+                painter.drawText(
+                    0,
+                    top,
+                    self.line_number_area.width() - 5,
+                    self.fontMetrics().height(),
+                    Qt.AlignmentFlag.AlignRight,
+                    str(num + 1),
+                )
                 if current == num:
                     painter.restore()
             block = block.next()
             top = bottom
             bottom = top + int(self.blockBoundingRect(block).height())
             num += 1
+
     # }}}
 
     def override_shortcut(self, ev):
@@ -761,8 +779,11 @@ class TextEdit(PlainTextEdit):
         # instead of the one from Qt (which makes copy() work), and allows proper customization
         # of the shortcuts
         if ev in (
-            QKeySequence.StandardKey.Copy, QKeySequence.StandardKey.Cut, QKeySequence.StandardKey.Paste,
-            QKeySequence.StandardKey.Undo, QKeySequence.StandardKey.Redo
+            QKeySequence.StandardKey.Copy,
+            QKeySequence.StandardKey.Cut,
+            QKeySequence.StandardKey.Paste,
+            QKeySequence.StandardKey.Undo,
+            QKeySequence.StandardKey.Redo,
         ):
             ev.ignore()
             return True
@@ -822,6 +843,7 @@ class TextEdit(PlainTextEdit):
                 return
         QToolTip.hideText()
         ev.ignore()
+
     # }}}
 
     def link_for_position(self, pos):
@@ -903,7 +925,7 @@ class TextEdit(PlainTextEdit):
             gtpos = raw.find('>', right)
             ltpos = raw.find('<', right)
             if ltpos > gtpos:
-                ltpos = raw.rfind('<', left, right+1)
+                ltpos = raw.rfind('<', left, right + 1)
                 right = max(ltpos, left)
         return left, right
 
@@ -916,7 +938,10 @@ class TextEdit(PlainTextEdit):
         if formatting in {'color', 'background-color'}:
             color = QColorDialog.getColor(
                 QColor(Qt.GlobalColor.black if formatting == 'color' else Qt.GlobalColor.white),
-                self, _('Choose color'), QColorDialog.ColorDialogOption.ShowAlphaChannel)
+                self,
+                _('Choose color'),
+                QColorDialog.ColorDialogOption.ShowAlphaChannel,
+            )
             if not color.isValid():
                 return
             r, g, b, a = color.getRgb()
@@ -1004,9 +1029,19 @@ version="1.1" width="100%%" height="100%%" viewBox="0 0 {w} {h}" preserveAspectR
             return
         code = ev.key()
         if code in (
-            0, Qt.Key.Key_unknown, Qt.Key.Key_Shift, Qt.Key.Key_Control, Qt.Key.Key_Alt,
-            Qt.Key.Key_Meta, Qt.Key.Key_AltGr, Qt.Key.Key_CapsLock, Qt.Key.Key_NumLock,
-            Qt.Key.Key_ScrollLock, Qt.Key.Key_Up, Qt.Key.Key_Down):
+            0,
+            Qt.Key.Key_unknown,
+            Qt.Key.Key_Shift,
+            Qt.Key.Key_Control,
+            Qt.Key.Key_Alt,
+            Qt.Key.Key_Meta,
+            Qt.Key.Key_AltGr,
+            Qt.Key.Key_CapsLock,
+            Qt.Key.Key_NumLock,
+            Qt.Key.Key_ScrollLock,
+            Qt.Key.Key_Up,
+            Qt.Key.Key_Down,
+        ):
             # We ignore up/down arrow so as to not break scrolling through the
             # text with the arrow keys
             return
@@ -1041,7 +1076,7 @@ version="1.1" width="100%%" height="100%%" viewBox="0 0 {w} {h}" preserveAspectR
             num = int(text, 16)
         except ValueError:
             return False
-        if num > 0x10ffff or num < 1:
+        if num > 0x10FFFF or num < 1:
             return False
         end_pos = max(c.anchor(), c.position())
         c.setPosition(end_pos - len(text)), c.setPosition(end_pos, QTextCursor.MoveMode.KeepAnchor)
@@ -1076,6 +1111,7 @@ version="1.1" width="100%%" height="100%%" viewBox="0 0 {w} {h}" preserveAspectR
 
     def goto_css_rule(self, rule_address, sourceline_address=None):
         from calibre.gui2.tweak_book.editor.smarts.css import find_rule
+
         block = None
         d = self.document()
         if d is None:
@@ -1104,6 +1140,6 @@ version="1.1" width="100%%" height="100%%" viewBox="0 0 {w} {h}" preserveAspectR
     def change_case(self, action, cursor=None):
         cursor = cursor or self.textCursor()
         text = self.selected_text_from_cursor(cursor)
-        text = {'lower':lower, 'upper':upper, 'capitalize':capitalize, 'title':titlecase, 'swap':swapcase}[action](text)
+        text = {'lower': lower, 'upper': upper, 'capitalize': capitalize, 'title': titlecase, 'swap': swapcase}[action](text)
         cursor.insertText(text)
         self.setTextCursor(cursor)

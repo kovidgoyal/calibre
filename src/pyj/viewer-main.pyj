@@ -2,17 +2,17 @@
 # License: GPL v3 Copyright: 2018, Kovid Goyal <kovid at kovidgoyal.net>
 from __python__ import bound_methods, hash_literals
 
+import traceback
 from elementmaker import E
+from gettext import gettext as _, install
 
 import initialize  # noqa: unused-import
-import traceback
 from ajax import absolute_path, ajax, workaround_qt_bug
 from book_list.globals import get_session_data, set_session_data
 from book_list.library_data import library_data
 from book_list.theme import css_for_variables, get_color
 from date import format_date
 from dom import get_widget_css, set_css
-from gettext import gettext as _, install
 from modals import create_modal_container
 from qt import from_python, to_python
 from read_book.db import new_book
@@ -76,7 +76,9 @@ def get_file(book, name, proceed):
 
 profiles_callbacks = {'all': None, 'saved': None}
 
+
 @from_python
+@no_prune
 def profile_response(which, x):
     if which is 'all-profiles':
         profiles_callbacks.all(x)
@@ -93,7 +95,7 @@ def profile_response(which, x):
     elif which is 'request-save':
         sd = get_session_data()
         settings = settings_for_reader_profile(sd)
-        save_profile(x, settings, def(): pass;)
+        save_profile(x, settings, def (): pass;)
 
 
 def get_all_profiles(proceed):
@@ -164,7 +166,6 @@ def clone(x):
 
 
 class SessionData:
-
     def __init__(self, prefs):
         defaults = session_defaults()
         self.data = {k: clone(defaults[k]) if prefs[k] is undefined else clone(prefs[k]) for k in defaults}
@@ -201,7 +202,6 @@ class SessionData:
 
 
 class LocalStorage:
-
     def __init__(self, data):
         self.data = data
 
@@ -229,6 +229,7 @@ def create_session_data(prefs, local_storage_data):
 
 
 @from_python
+@no_prune
 def create_view(prefs, local_storage, field_metadata, ui_data):
     nonlocal view
     set_system_colors(ui_data.system_colors)
@@ -251,6 +252,7 @@ def create_view(prefs, local_storage, field_metadata, ui_data):
 
 
 @from_python
+@no_prune
 def set_system_palette(system_colors):
     set_system_colors(system_colors)
     if view:
@@ -258,12 +260,14 @@ def set_system_palette(system_colors):
 
 
 @from_python
+@no_prune
 def highlight_action(uuid, which):
     if view:
         view.highlight_action(uuid, which)
 
 
 @from_python
+@no_prune
 def generic_action(which, data):
     if which is 'set-notes-in-highlight':
         view.set_notes_for_highlight(data.uuid, data.notes or '')
@@ -276,16 +280,19 @@ def generic_action(which, data):
 
 
 @from_python
+@no_prune
 def tts_event(which, data):
     view.read_aloud.handle_tts_event(which, data)
 
 
 @from_python
+@no_prune
 def show_home_page():
     view.overlay.open_book(False)
 
 
 @from_python
+@no_prune
 def redraw_tts_bar(pos):
     sd = get_session_data()
     sd.set('tts_bar_position', pos)
@@ -294,39 +301,50 @@ def redraw_tts_bar(pos):
 
 
 @from_python
+@no_prune
 def start_book_load(key, initial_position, pathtoebook, highlights, book_url, reading_rates, book_in_library_url):
-    xhr = ajax('manifest', manifest_received.bind(None, key, initial_position, pathtoebook, highlights, book_url, reading_rates, book_in_library_url), ok_code=0)
+    xhr = ajax(
+        'manifest',
+        manifest_received.bind(None, key, initial_position, pathtoebook, highlights, book_url, reading_rates, book_in_library_url),
+        ok_code=0
+    )
     xhr.responseType = 'json'
     xhr.send()
 
 
 @from_python
+@no_prune
 def goto_toc_node(node_id):
     view.goto_toc_node(node_id)
 
 
 @from_python
+@no_prune
 def goto_cfi(cfi, add_to_history):
     return view.goto_cfi(cfi, v'!!add_to_history')
 
 
 @from_python
+@no_prune
 def full_screen_state_changed(viewer_in_full_screen):
     runtime.viewer_in_full_screen = viewer_in_full_screen
 
 
 @from_python
+@no_prune
 def get_current_cfi(request_id):
     view.get_current_cfi(request_id, ui_operations.report_cfi)
 
 
 @from_python
+@no_prune
 def goto_frac(frac):
     if view:
         view.goto_frac(frac)
 
 
 @from_python
+@no_prune
 def background_image_changed(img_id, url):
     img = document.getElementById(img_id)
     if img:
@@ -335,12 +353,14 @@ def background_image_changed(img_id, url):
 
 
 @from_python
+@no_prune
 def trigger_shortcut(which):
     if view:
         view.on_handle_shortcut({'name': which})
 
 
 @from_python
+@no_prune
 def show_search_result(sr):
     if view:
         if sr.on_discovery:
@@ -348,7 +368,9 @@ def show_search_result(sr):
         else:
             view.show_search_result(sr)
 
+
 @from_python
+@no_prune
 def prepare_for_close():
     if view:
         view.prepare_for_close()
@@ -357,20 +379,47 @@ def prepare_for_close():
 
 
 @from_python
+@no_prune
 def repair_after_fullscreen_switch():
     if view:
         view.show_status_message('...', 200)
 
 
 @from_python
+@no_prune
 def viewer_font_size_changed():
     if view:
         view.viewer_font_size_changed()
 
+
 @from_python
+@no_prune
 def native_gesture(gesture):
     if view:
         view.native_gesture(gesture)
+
+
+source_map_set = False
+
+
+def source_map_received(data, end_type, xhr, ev):
+    end_type = workaround_qt_bug(xhr, end_type)
+    if end_type is 'abort':
+        return
+    if end_type is 'load' and xhr.responseType is 'json':
+        traceback.set_source_map_data(xhr.response)
+    error_object = traceback.unserialize_error_for_formatting(data.error)
+    details = traceback.format_exception(error_object).join('')
+    show_error(data.title, data.msg, details)
+
+
+def load_source_map(data):
+    nonlocal source_map_set
+    xhr = ajax('viewer.js.map', source_map_received.bind(None, data))
+    xhr.responseType = 'json'
+    xhr.send()
+    source_map_set = True
+
 
 def onerror(msg, script_url, line_number, column_number, error_object):
     if not error_object:
@@ -380,65 +429,69 @@ def onerror(msg, script_url, line_number, column_number, error_object):
     msg += '<br><span style="font-size:smaller">' + 'Error at {}:{}:{}'.format(fname, line_number, column_number or '') + '</span>'
     details = ''
     console.log(error_object)
-    details = traceback.format_exception(error_object).join('')
-    show_error(_('Unhandled error'), msg, details)
+    title = _('Unhandled error')
+    if source_map_set:
+        details = traceback.format_exception(error_object).join('')
+        show_error(title, msg, details)
+    else:
+        load_source_map({'title': title, 'msg': msg, 'error': traceback.serialize_error_for_formatting(error_object)})
     return True
 
 
 if window is window.top:
     # main
-    TRANSLATIONS_DATA = v'__TRANSLATIONS_DATA__'
-    if TRANSLATIONS_DATA:
-        install(TRANSLATIONS_DATA)
+    if window.calibre_translations_data:
+        install(window.calibre_translations_data)
+        window.calibre_translations_data = None
     ui_operations.get_all_profiles = get_all_profiles
     ui_operations.save_profile = save_profile
-    ui_operations.apply_profile = def(profile):
-        to_python.profile_op('apply-profile-to-viewer-ui', "", profile)
+    ui_operations.apply_profile = def (profile):
+        to_python.profile_op('apply-profile-to-viewer-ui', '', profile)
     ui_operations.get_file = get_file
     ui_operations.get_url_for_book_file_name = get_url_for_book_file_name
     ui_operations.get_mathjax_files = get_mathjax_files
     ui_operations.update_url_state = update_url_state
     ui_operations.show_error = show_error
-    ui_operations.redisplay_book = def():
+    ui_operations.redisplay_book = def ():
         view.redisplay_book()
-    ui_operations.reload_book = def():
+    ui_operations.reload_book = def ():
         to_python.reload_book()
-    ui_operations.forward_gesture = def(gesture):
+    ui_operations.forward_gesture = def (gesture):
         view.forward_gesture(gesture)
-    ui_operations.update_color_scheme = def():
+    ui_operations.update_color_scheme = def ():
         view.update_color_scheme()
-    ui_operations.update_font_size = def():
+    ui_operations.update_font_size = def ():
         view.update_font_size()
-    ui_operations.focus_iframe = def():
+    ui_operations.focus_iframe = def ():
         view.focus_iframe()
-    ui_operations.goto_cfi = def(cfi):
+    ui_operations.goto_cfi = def (cfi):
         return view.goto_cfi(cfi)
-    ui_operations.goto_frac = def(frac):
+    ui_operations.goto_frac = def (frac):
         return view.goto_frac(frac)
-    ui_operations.goto_book_position = def(bpos):
+    ui_operations.goto_book_position = def (bpos):
         return view.goto_book_position(bpos)
-    ui_operations.goto_reference = def(ref):
+    ui_operations.goto_reference = def (ref):
         return view.goto_reference(ref)
-    ui_operations.toggle_toc = def():
+    ui_operations.toggle_toc = def ():
         to_python.toggle_toc()
-    ui_operations.toggle_bookmarks = def():
+    ui_operations.toggle_bookmarks = def ():
         to_python.toggle_bookmarks()
-    ui_operations.toggle_highlights = def():
+    ui_operations.toggle_highlights = def ():
         to_python.toggle_highlights()
-    ui_operations.new_bookmark = def(request_id, data):
+    ui_operations.new_bookmark = def (request_id, data):
         if request_id is 'new-bookmark':
             to_python.new_bookmark(data)
-    ui_operations.toggle_inspector = def():
+    ui_operations.toggle_inspector = def ():
         to_python.toggle_inspector()
-    ui_operations.content_file_changed = def(name):
+    ui_operations.content_file_changed = def (name):
         to_python.content_file_changed(name)
-    ui_operations.update_last_read_position = def(cfi, pos_frac):
+    ui_operations.update_last_read_position = def (cfi, pos_frac):
         to_python.update_last_read_position(cfi, pos_frac)
-    ui_operations.show_search = def(text, trigger):
+    ui_operations.show_search = def (text, trigger):
         to_python.show_search(text, v'!!trigger')
-    ui_operations.find_next = def(previous):
+    ui_operations.find_next = def (previous):
         to_python.find_next(previous)
-    ui_operations.reset_interface = def():
+    ui_operations.reset_interface = def ():
         sd = get_session_data()
         defaults = session_defaults()
         m = sd.get('standalone_misc_settings', {})
@@ -450,78 +503,78 @@ if window is window.top:
         sd.set('footer', defaults.footer)
         view.update_header_footer()
         to_python.reset_interface()
-    ui_operations.open_url = def(url):
+    ui_operations.open_url = def (url):
         to_python.open_url(url)
-    ui_operations.quit = def():
+    ui_operations.quit = def ():
         to_python.quit()
-    ui_operations.toggle_lookup = def(force_show):
+    ui_operations.toggle_lookup = def (force_show):
         to_python.toggle_lookup(v'!!force_show')
-    ui_operations.selection_changed = def(selected_text, annot_id):
+    ui_operations.selection_changed = def (selected_text, annot_id):
         to_python.selection_changed(selected_text, annot_id or None)
-    ui_operations.update_current_toc_nodes = def(families):
+    ui_operations.update_current_toc_nodes = def (families):
         to_python.update_current_toc_nodes(families)
-    ui_operations.toggle_full_screen = def():
+    ui_operations.toggle_full_screen = def ():
         to_python.toggle_full_screen()
-    ui_operations.report_cfi = def(request_id, data):
+    ui_operations.report_cfi = def (request_id, data):
         to_python.report_cfi(request_id, data)
-    ui_operations.ask_for_open = def(path):
+    ui_operations.ask_for_open = def (path):
         to_python.ask_for_open(path)
-    ui_operations.copy_selection = def(text, html):
+    ui_operations.copy_selection = def (text, html):
         to_python.copy_selection(text or None, html or None)
-    ui_operations.view_image = def(name):
+    ui_operations.view_image = def (name):
         to_python.view_image(name)
-    ui_operations.copy_image = def(name):
+    ui_operations.copy_image = def (name):
         to_python.copy_image(name)
-    ui_operations.change_background_image = def(img_id):
+    ui_operations.change_background_image = def (img_id):
         to_python.change_background_image(img_id)
-    ui_operations.quit = def():
+    ui_operations.quit = def ():
         to_python.quit()
-    ui_operations.overlay_visibility_changed = def(visible):
+    ui_operations.overlay_visibility_changed = def (visible):
         to_python.overlay_visibility_changed(visible)
-    ui_operations.reference_mode_changed = def(enabled):
+    ui_operations.reference_mode_changed = def (enabled):
         to_python.reference_mode_changed(enabled)
-    ui_operations.show_loading_message = def(msg):
+    ui_operations.show_loading_message = def (msg):
         to_python.show_loading_message(msg)
-    ui_operations.export_shortcut_map = def(smap):
+    ui_operations.export_shortcut_map = def (smap):
         to_python.export_shortcut_map(smap)
-    ui_operations.print_book = def():
+    ui_operations.print_book = def ():
         to_python.print_book()
-    ui_operations.clear_history = def():
+    ui_operations.clear_history = def ():
         to_python.clear_history()
-    ui_operations.customize_toolbar = def():
+    ui_operations.customize_toolbar = def ():
         to_python.customize_toolbar()
-    ui_operations.autoscroll_state_changed = def(active):
+    ui_operations.autoscroll_state_changed = def (active):
         to_python.autoscroll_state_changed(active)
-    ui_operations.read_aloud_state_changed = def(active):
+    ui_operations.read_aloud_state_changed = def (active):
         to_python.read_aloud_state_changed(active)
-    ui_operations.search_result_not_found = def(sr):
+    ui_operations.search_result_not_found = def (sr):
         to_python.search_result_not_found(sr)
-    ui_operations.search_result_discovered = def(sr):
+    ui_operations.search_result_discovered = def (sr):
         to_python.search_result_discovered(sr)
-    ui_operations.scrollbar_context_menu = def(x, y, frac):
+    ui_operations.scrollbar_context_menu = def (x, y, frac):
         to_python.scrollbar_context_menu(x, y, frac)
-    ui_operations.close_prep_finished = def(cfi):
+    ui_operations.close_prep_finished = def (cfi):
         to_python.close_prep_finished(cfi)
-    ui_operations.annots_changed = def(amap):
+    ui_operations.annots_changed = def (amap):
         if amap.highlight:
             to_python.highlights_changed(amap.highlight)
-    ui_operations.speak_simple_text = def(text):
+    ui_operations.speak_simple_text = def (text):
         to_python.speak_simple_text(text)
-    ui_operations.tts = def(action, data):
+    ui_operations.tts = def (action, data):
         to_python.tts(action, data or v'{}')
     ui_operations.edit_book = def (spine_name, frac, selected_text):
         to_python.edit_book(spine_name, frac, selected_text or '')
-    ui_operations.show_book_folder = def():
+    ui_operations.show_book_folder = def ():
         to_python.show_book_folder()
-    ui_operations.show_help = def(which):
+    ui_operations.show_help = def (which):
         to_python.show_help(which)
-    ui_operations.on_iframe_ready = def():
+    ui_operations.on_iframe_ready = def ():
         to_python.on_iframe_ready()
-    ui_operations.update_reading_rates = def(rates):
+    ui_operations.update_reading_rates = def (rates):
         to_python.update_reading_rates(rates)
-    ui_operations.reset_reading_rates = def():
+    ui_operations.reset_reading_rates = def ():
         to_python.reset_reading_rates()
-    document.addEventListener('focusin', def(ev):
+    document.addEventListener('focusin', def (ev):
         elem = ev.target
         if elem and (elem.isContentEditable or (elem.nodeName is 'TEXTAREA' or elem.nodeName is 'INPUT')):
             to_python.html_input_focusin()
@@ -531,7 +584,7 @@ if window is window.top:
     create_modal_container()
     document.head.appendChild(E.style(css_for_variables() + '\n\n' + get_widget_css()))
     set_css(document.body, background_color=get_color('window-background'), color=get_color('window-foreground'))
-    setTimeout(def():
+    setTimeout(def ():
             window.onpopstate = on_pop_state
         , 0)  # We do this after event loop ticks over to avoid catching popstate events that some browsers send on page load
 else:

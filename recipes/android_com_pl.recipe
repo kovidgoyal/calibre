@@ -4,9 +4,9 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class Android_com_pl(BasicNewsRecipe):
-    title = u'Android.com.pl'
+    title = 'Android.com.pl'
     __author__ = 'fenuks'
-    description = u'Android.com.pl - to największe w Polsce centrum Android OS. Znajdziesz tu: nowości, forum, pomoc, recenzje, gry, aplikacje.'
+    description = 'Android.com.pl - to największe w Polsce centrum Android OS. Znajdziesz tu: nowości, forum, pomoc, recenzje, gry, aplikacje.'
     category = 'Android, mobile'
     language = 'pl'
     cover_url = 'http://android.com.pl/wp-content/themes/android/images/logo.png'
@@ -15,6 +15,5 @@ class Android_com_pl(BasicNewsRecipe):
     keep_only_tags = [dict(name='div', attrs={'class': ['title', 'post-content']})]
     remove_tags_after = [{'class': 'post-content'}]
     remove_tags = [dict(name='ul', attrs={'class': 'tags small-tags'}), dict(name='a', attrs={'onclick': 'return ss_plugin_loadpopup_js(this);'})]
-    preprocess_regexps = [
-        (re.compile(r'<p>.{,1}</p>', re.DOTALL), lambda match: '')]
-    feeds = [(u'Android', u'http://android.com.pl/feed/')]
+    preprocess_regexps = [(re.compile(r'<p>.{,1}</p>', re.DOTALL), lambda match: '')]
+    feeds = [('Android', 'http://android.com.pl/feed/')]

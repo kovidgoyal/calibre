@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2009, Kovid Goyal <kovid at kovidgoyal.net>
 
-
 import os
 import shutil
 import sys
@@ -14,6 +13,7 @@ from calibre.utils.ipc.simple_worker import WorkerError, fork_job
 
 def get_podofo():
     from calibre_extensions import podofo
+
     return podofo
 
 
@@ -30,11 +30,15 @@ def set_metadata(stream, mi):
         with open(os.path.join(tdir, 'input.pdf'), 'wb') as f:
             shutil.copyfileobj(stream, f)
         from calibre.ebooks.metadata.xmp import metadata_to_xmp_packet
+
         xmp_packet = metadata_to_xmp_packet(mi)
 
         try:
-            result = fork_job('calibre.utils.podofo', 'set_metadata_', (tdir,
-                mi.title, mi.authors, mi.book_producer, mi.tags, xmp_packet))
+            result = fork_job(
+                'calibre.utils.podofo',
+                'set_metadata_',
+                (tdir, mi.title, mi.authors, mi.book_producer, mi.tags, xmp_packet),
+            )
             touched = result['result']
         except WorkerError as e:
             raise Exception(f'Failed to set PDF metadata in ({mi.title}): {e.orig_tb}')
@@ -82,6 +86,7 @@ def set_metadata_implementation(pdf_doc, title, authors, bkp, tags, xmp_packet):
         current_xmp_packet = pdf_doc.get_xmp_metadata()
         if current_xmp_packet:
             from calibre.ebooks.metadata.xmp import merge_xmp_packet
+
             xmp_packet = merge_xmp_packet(current_xmp_packet, xmp_packet)
         pdf_doc.set_xmp_metadata(xmp_packet)
         touched = True
@@ -169,10 +174,10 @@ def test_dedup_type3_fonts(src):
 def add_image_page(pdf_doc, image_data, page_size=None, page_num=1, preserve_aspect_ratio=True):
     if page_size is None:
         from qt.core import QPageSize
+
         p = QPageSize(QPageSize.PageSizeId.A4).rect(QPageSize.Unit.Point)
         page_size = p.left(), p.top(), p.width(), p.height()
-    pdf_doc.add_image_page(
-        image_data, *page_size, *page_size, page_num, preserve_aspect_ratio)
+    pdf_doc.add_image_page(image_data, *page_size, *page_size, page_num, preserve_aspect_ratio)
 
 
 def get_page_count(path: str) -> int:
@@ -199,6 +204,7 @@ def test_list_fonts(src):
         raw = f.read()
     p.load(raw)
     import pprint
+
     pprint.pprint(list_fonts(p))
 
 
@@ -232,6 +238,7 @@ def test_podofo():
 
     from calibre.ebooks.metadata.book.base import Metadata
     from calibre.ebooks.metadata.xmp import metadata_to_xmp_packet
+
     mi = Metadata('title1', ['xmp_author'])
     podofo = get_podofo()
     p = podofo.PDFDoc()
@@ -257,8 +264,9 @@ def test_podofo():
         p = podofo.PDFDoc()
         p.open(f.name)
         if (p.title, p.author, p.keywords) != ('info title', 'info author', 'a, b'):
-            raise ValueError('podofo failed to set title and author in Info dict {} != {}'.format(
-                (p.title, p.author, p.keywords), ('info title', 'info author', 'a, b')))
+            raise ValueError(
+                'podofo failed to set title and author in Info dict {} != {}'.format((p.title, p.author, p.keywords), ('info title', 'info author', 'a, b'))
+            )
         xmp = p.get_xmp_metadata().decode()
         if 'xmp_author' not in xmp:
             raise ValueError('Failed to set XML block, received:\n' + xmp)

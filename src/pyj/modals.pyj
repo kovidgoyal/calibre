@@ -6,17 +6,17 @@ from elementmaker import E
 from gettext import gettext as _
 
 from ajax import ajax, ajax_send
+from book_list.globals import get_session_data
 from book_list.theme import get_color, get_font_size
 from dom import add_extra_css, build_rule, clear, set_css, svgicon, unique_id
 from popups import MODAL_Z_INDEX
 from utils import safe_set_inner_html
 from widgets import create_button
-from book_list.globals import get_session_data
 
 modal_container = None
 modal_count = 0
 
-add_extra_css(def():
+add_extra_css(def ():
     modal_max = 'min(48rem, calc(100vw - 2rem))'
     style = build_rule(
         '#modal-container > div > a:hover',
@@ -110,8 +110,8 @@ add_extra_css(def():
     return style
 )
 
-class Modal:
 
+class Modal:
     def __init__(self, create_func, on_close, show_close, onkeydown):
         nonlocal modal_count
         self.create_func, self.on_close, self.show_close = create_func, on_close, show_close
@@ -121,7 +121,6 @@ class Modal:
 
 
 class ModalContainer:
-
     def __init__(self):
         div = E.div(id='modal-container', tabindex='0',
             E.div(  # popup
@@ -134,7 +133,7 @@ class ModalContainer:
 
         # Container style
         set_css(div,
-            position='fixed', top='0', right='0', bottom='0', left='0', # Stretch over entire window
+            position='fixed', top='0', right='0', bottom='0', left='0',  # Stretch over entire window
             background_color='rgba(0,0,0,0.5)', backdrop_filter='blur(2px)', webkit_backdrop_filter='blur(2px)',
             z_index=MODAL_Z_INDEX + '',
             display='none', user_select='none', justify_content='center', align_items='center',
@@ -180,7 +179,7 @@ class ModalContainer:
         self.modals.push(Modal(create_func, on_close, show_close, onkeydown))
         modal_id = self.modals[-1].id
         self.update()
-        window.setTimeout(def(): self.modal_container.focus();, 0)
+        window.setTimeout(def (): self.modal_container.focus();, 0)
         return modal_id
 
     def hide_modal(self, modal_id):
@@ -238,7 +237,7 @@ class ModalContainer:
 def create_simple_dialog_markup(title, msg, details, icon, prefix, icon_color, parent):
     details = details or ''
     show_details = E.a(class_='blue-link', style='padding-top:1em; display:inline-block; margin-left: auto', _('Show details'))
-    show_details.addEventListener('click', def():
+    show_details.addEventListener('click', def ():
         show_details.style.display = 'none'
         show_details.nextSibling.style.display = 'block'
     )
@@ -255,22 +254,7 @@ def create_simple_dialog_markup(title, msg, details, icon, prefix, icon_color, p
         prefix = E.span(' ' + prefix + ' ', style='white-space:pre; font-variant: small-caps')
     else:
         prefix = '\xa0'
-    parent.appendChild(
-        E.div(
-            style='max-width:100%; min-width:0; box-sizing:border-box; text-align:left; overflow-wrap:anywhere; word-break:break-word',
-            E.h2(
-                E.span(svgicon(icon), style=f'color:{icon_color}'), prefix, title,
-                style='font-weight: bold; font-size: ' + get_font_size('title') + '; overflow-wrap:anywhere; word-break:break-word'
-            ),
-            E.div((html_container if is_html_msg else msg), style='padding-top: 1em; margin-top: 1em; border-top: 1px solid currentColor; min-width:0; overflow-wrap:anywhere; word-break:break-word'),
-            E.div(style='display: ' + ('block' if details else 'none'),
-                show_details,
-                E.div(details_container,
-                        style='display:none; white-space:pre-wrap; font-size: smaller; margin-top: 1em; border-top: solid 1px currentColor; padding-top: 1em'
-                )
-            )
-        )
-    )
+    parent.appendChild(E.div(style='max-width:100%; min-width:0; box-sizing:border-box; text-align:left; overflow-wrap:anywhere; word-break:break-word', E.h2(E.span(svgicon(icon), style=f'color:{icon_color}'), prefix, title, style='font-weight: bold; font-size: ' + get_font_size('title') + '; overflow-wrap:anywhere; word-break:break-word'), E.div((html_container if is_html_msg else msg), style='padding-top: 1em; margin-top: 1em; border-top: 1px solid currentColor; min-width:0; overflow-wrap:anywhere; word-break:break-word'), E.div(style='display: ' + ('block' if details else 'none'), show_details, E.div(details_container, style='display:none; white-space:pre-wrap; font-size: smaller; margin-top: 1em; border-top: solid 1px currentColor; padding-top: 1em'))))
 
 
 def create_simple_dialog(title, msg, details, icon, prefix, on_close=None, icon_color='red'):
@@ -311,7 +295,7 @@ def get_text_dialog(title, callback, initial_text=None, msg=None, rows=12):
             keyaction(False, close_modal)
 
     create_custom_dialog(
-        title, def(parent, close_modal):
+        title, def (parent, close_modal):
             parent.appendChild(E.div(
                 E.textarea(initial_text or '', placeholder=msg or '', id=cid, rows=rows + '', style='width:100%; max-width:100%; min-width:0; box-sizing:border-box; resize:vertical'),
                 E.div(class_='button-box',
@@ -319,10 +303,10 @@ def get_text_dialog(title, callback, initial_text=None, msg=None, rows=12):
                     create_button(_('OK'), 'check', keyaction.bind(None, True, close_modal), highlight=True),
                 ),
             ))
-            window.setTimeout(def(): parent.querySelector('textarea').focus();, 10)
+            window.setTimeout(def (): parent.querySelector('textarea').focus();, 10)
         ,
-        on_close=keyaction.bind(None, False, None),
-        onkeydown=on_keydown
+        on_close = keyaction.bind(None, False, None),
+        onkeydown = on_keydown
     )
 
 
@@ -373,7 +357,7 @@ def question_dialog(
         skip_box.style.display = 'none'
 
     create_custom_dialog(
-        title, def(parent, close_modal):
+        title, def (parent, close_modal):
             parent.appendChild(E.div(
                 E.div(msg),
                 skip_box,
@@ -383,23 +367,23 @@ def question_dialog(
                 ))
             )
         ,
-        on_close=keyaction.bind(None, False, None),
-        onkeydown=on_keydown
+        on_close = keyaction.bind(None, False, None),
+        onkeydown = on_keydown
     )
-
 
 
 def create_progress_dialog(msg, on_close):
     msg = msg or _('Loading, please wait...')
     pbar, msg_div = E.progress(style='display:inline-block'), E.div(msg, style='text-align:center; padding-top:1ex')
+
     def create_func(parent):
         parent.appendChild(E.div(style='text-align: center; max-width:100%; min-width:0; box-sizing:border-box', pbar, msg_div))
     show_close = on_close is not None
     modal_id = show_modal(create_func, on_close, show_close)
     return {
-        'close': def(): modal_container.hide_modal(modal_id);,
-        'update_progress': def(amount, total): pbar.max, pbar.value = total, amount;,
-        'set_msg': def(new_msg): safe_set_inner_html(msg_div, new_msg);,
+        'close': def (): modal_container.hide_modal(modal_id);,
+        'update_progress': def (amount, total): pbar.max, pbar.value = total, amount;,
+        'set_msg': def (new_msg): safe_set_inner_html(msg_div, new_msg);,
     }
 
 # def test_progress():
@@ -426,6 +410,7 @@ def create_progress_dialog(msg, on_close):
 #         ['a word ' for i in range(10000)].join(' ')
 #     )
 
+
 def create_modal_container():
     nonlocal modal_container
     if modal_container is None:
@@ -434,6 +419,7 @@ def create_modal_container():
     #     document.getElementById('books-view-1').addEventListener('click', test_progress)
     # , 10)
     return modal_container
+
 
 def show_modal(create_func, on_close=None, show_close=True, onkeydown=None):
     return modal_container.show_modal(create_func, on_close, show_close, onkeydown)
@@ -464,13 +450,16 @@ def progress_dialog(msg, on_close=None):
     # Call close() once the task being performed is finished
     return create_progress_dialog(msg, on_close)
 
+
 def ajax_progress_dialog(path, on_complete, msg, extra_data_for_callback=None, **kw):
     pd = None
+
     def on_complete_callback(event_type, xhr, ev):
         nonlocal pd
         pd.close()
         pd = undefined
         return on_complete(event_type, xhr, ev)
+
     def on_progress_callback(loaded, total, xhr):
         pd.update_progress(loaded, total)
     xhr = ajax(path, on_complete_callback, on_progress=on_progress_callback, **kw)
@@ -479,13 +468,16 @@ def ajax_progress_dialog(path, on_complete, msg, extra_data_for_callback=None, *
     xhr.send()
     return xhr, pd
 
+
 def ajax_send_progress_dialog(path, data, on_complete, msg, **kw):
     pd = None
+
     def on_complete_callback(event_type, xhr, ev):
         nonlocal pd
         pd.close()
         pd = undefined
         return on_complete(event_type, xhr, ev)
+
     def on_progress_callback(loaded, total, xhr):
         pd.update_progress(loaded, total)
     xhr = ajax_send(path, data, on_complete_callback, on_progress=on_progress_callback, **kw)

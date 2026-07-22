@@ -1,10 +1,9 @@
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
-class Star (BasicNewsRecipe):
-
-    title = u'Star Gazetesi'
-    __author__ = u'thomass'
+class Star(BasicNewsRecipe):
+    title = 'Star Gazetesi'
+    __author__ = 'thomass'
     description = "Yeni Türkiye'nin Gazetesi"
     oldest_article = 1
     max_articles_per_feed = 10
@@ -19,7 +18,7 @@ class Star (BasicNewsRecipe):
     compress_news_images = True
 
     # h1 and h2 tag classes respectively
-    extra_css  = '.title-1 {font-size: 20px; color: #ed0000; text-align: center;}'
+    extra_css = '.title-1 {font-size: 20px; color: #ed0000; text-align: center;}'
     extra_css += '.title-2 {font-size: 16px;}'
 
     keep_only_tags = [

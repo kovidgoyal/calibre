@@ -1,6 +1,4 @@
-__license__ = 'GPL 3'
-__copyright__ = '2009, John Schember <john@nachtimwald.com>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2009, John Schember <john@nachtimwald.com>
 
 from typing import ClassVar
 
@@ -9,7 +7,6 @@ from calibre.utils.localization import _
 
 
 class DeviceConfig:
-
     FORMATS: ClassVar[list[str]]
 
     HELP_MESSAGE = _('Configure device')
@@ -51,6 +48,7 @@ class DeviceConfig:
     @classmethod
     def _default_save_template(cls):
         from calibre.library.save_to_disk import config
+
         return cls.SAVE_TEMPLATE or config().parse().send_template
 
     @classmethod
@@ -62,47 +60,50 @@ class DeviceConfig:
     def _config(cls):
         name = cls._config_base_name()
         c = Config(f'device_drivers_{name}', _('settings for device drivers'))
-        c.add_opt('format_map', default=cls.FORMATS,
-                help=_('Ordered list of formats the device will accept'))
-        c.add_opt('use_subdirs', default=cls.SUPPORTS_SUB_DIRS_DEFAULT,
-                help=_('Place files in sub-folders if the device supports them'))
-        c.add_opt('read_metadata', default=True,
-                help=_('Read metadata from files on device'))
-        c.add_opt('use_author_sort', default=False,
-                help=_('Use author sort instead of author'))
-        c.add_opt('save_template', default=cls._default_save_template(),
-                help=_('Template to control how books are saved'))
-        c.add_opt('extra_customization',
-                default=cls.EXTRA_CUSTOMIZATION_DEFAULT,
-                help=_('Extra customization'))
+        c.add_opt('format_map', default=cls.FORMATS, help=_('Ordered list of formats the device will accept'))
+        c.add_opt(
+            'use_subdirs',
+            default=cls.SUPPORTS_SUB_DIRS_DEFAULT,
+            help=_('Place files in sub-folders if the device supports them'),
+        )
+        c.add_opt('read_metadata', default=True, help=_('Read metadata from files on device'))
+        c.add_opt('use_author_sort', default=False, help=_('Use author sort instead of author'))
+        c.add_opt('save_template', default=cls._default_save_template(), help=_('Template to control how books are saved'))
+        c.add_opt('extra_customization', default=cls.EXTRA_CUSTOMIZATION_DEFAULT, help=_('Extra customization'))
         return c
 
     @classmethod
     def _configProxy(cls):
         return ConfigProxy(cls._config())
 
-    @classmethod
-    def config_widget(cls):
+    def config_widget(self):
         from calibre.gui2.device_drivers.configwidget import ConfigWidget
-        cw = ConfigWidget(cls.settings(), cls.FORMATS, cls.SUPPORTS_SUB_DIRS,
-            cls.MUST_READ_METADATA, cls.SUPPORTS_USE_AUTHOR_SORT,
-            cls.EXTRA_CUSTOMIZATION_MESSAGE, cls, extra_customization_choices=cls.EXTRA_CUSTOMIZATION_CHOICES)
+
+        cw = ConfigWidget(
+            self.settings(),
+            self.FORMATS,
+            self.SUPPORTS_SUB_DIRS,
+            self.MUST_READ_METADATA,
+            self.SUPPORTS_USE_AUTHOR_SORT,
+            self.EXTRA_CUSTOMIZATION_MESSAGE,
+            self,
+            extra_customization_choices=self.EXTRA_CUSTOMIZATION_CHOICES,
+        )
         return cw
 
-    @classmethod
-    def save_settings(cls, config_widget):
-        proxy = cls._configProxy()
+    def save_settings(self, config_widget):
+        proxy = self._configProxy()
         proxy['format_map'] = config_widget.format_map()
-        if cls.SUPPORTS_SUB_DIRS:
+        if self.SUPPORTS_SUB_DIRS:
             proxy['use_subdirs'] = config_widget.use_subdirs()
-        if not cls.MUST_READ_METADATA:
+        if not self.MUST_READ_METADATA:
             proxy['read_metadata'] = config_widget.read_metadata()
-        if cls.SUPPORTS_USE_AUTHOR_SORT:
+        if self.SUPPORTS_USE_AUTHOR_SORT:
             proxy['use_author_sort'] = config_widget.use_author_sort()
-        if cls.EXTRA_CUSTOMIZATION_MESSAGE:
-            if isinstance(cls.EXTRA_CUSTOMIZATION_MESSAGE, list):
+        if self.EXTRA_CUSTOMIZATION_MESSAGE:
+            if isinstance(self.EXTRA_CUSTOMIZATION_MESSAGE, list):
                 ec = []
-                for i in range(len(cls.EXTRA_CUSTOMIZATION_MESSAGE)):
+                for i in range(len(self.EXTRA_CUSTOMIZATION_MESSAGE)):
                     if config_widget.opt_extra_customization[i] is None:
                         ec.append(None)
                         continue
@@ -132,7 +133,7 @@ class DeviceConfig:
                 opts.extra_customization = []
             if not isinstance(opts.extra_customization, list):
                 opts.extra_customization = [opts.extra_customization]
-            for i,d in enumerate(cls.EXTRA_CUSTOMIZATION_DEFAULT):
+            for i, d in enumerate(cls.EXTRA_CUSTOMIZATION_DEFAULT):
                 if i >= len(opts.extra_customization):
                     opts.extra_customization.append(d)
             opts.extra_customization = cls.migrate_extra_customization(opts.extra_customization)
@@ -146,6 +147,5 @@ class DeviceConfig:
         else:
             return cls._default_save_template()
 
-    @classmethod
-    def customization_help(cls, gui=False):
-        return cls.HELP_MESSAGE
+    def customization_help(self, gui=False):
+        return self.HELP_MESSAGE

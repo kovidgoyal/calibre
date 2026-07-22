@@ -1,9 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__ = 'GPL v3'
-__copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2012, Kovid Goyal <kovid@kovidgoyal.net>
 
 import datetime
 import os
@@ -22,7 +18,7 @@ Option = namedtuple('Option', 'option, default, dest, action, help')
 
 
 class EPUB_MOBI(CatalogPlugin):
-    'EPUB catalog generator'
+    "EPUB catalog generator"
 
     name = 'Catalog_EPUB_MOBI'
     description = _('AZW3/EPUB/MOBI catalog generator')
@@ -35,158 +31,188 @@ class EPUB_MOBI(CatalogPlugin):
     THUMB_SMALLEST = '1.0'
     THUMB_LARGEST = '3.0'
 
-    cli_options = [Option('--catalog-title',  # {{{
-                          default='My Books',
-                          dest='catalog_title',
-                          action=None,
-                          help=_('Title of generated catalog used as title in metadata.\n'
-                          "Default: '%default'\n"
-                          "Applies to: AZW3, EPUB, MOBI output formats")),
-                   Option('--cross-reference-authors',
-                          default=False,
-                          dest='cross_reference_authors',
-                          action='store_true',
-                          help=_("Create cross-references in Authors section for books with multiple authors.\n"
-                          "Default: '%default'\n"
-                          "Applies to: AZW3, EPUB, MOBI output formats")),
-                   Option('--debug-pipeline',
-                           default=None,
-                           dest='debug_pipeline',
-                           action=None,
-                           help=_("Save the output from different stages of the conversion "
-                           "pipeline to the specified "
-                           "folder. Useful if you are unsure at which stage "
-                           "of the conversion process a bug is occurring.\n"
-                           "Default: '%default'\n"
-                           "Applies to: AZW3, EPUB, MOBI output formats")),
-                   Option('--exclude-genre',
-                          default=r'\[.+\]|^\+$',
-                          dest='exclude_genre',
-                          action=None,
-                          help=_("Regex describing tags to exclude as genres.\n"
-                          "Default: '%default' excludes bracketed tags, e.g. '[Project Gutenberg]', and '+', the default tag for read books.\n"
-                          "Applies to: AZW3, EPUB, MOBI output formats")),
-                   Option('--exclusion-rules',
-                          default="(('Catalogs','Tags','Catalog'),)",
-                          dest='exclusion_rules',
-                          action=None,
-                          help=_("Specifies the rules used to exclude books from the generated catalog.\n"
-                          "The model for an exclusion rule is either\n('<rule name>','Tags','<comma-separated list of tags>') or\n"
-                          "('<rule name>','<custom column>','<pattern>').\n"
-                          "For example:\n"
-                          "(('Archived books','#status','Archived'),)\n"
-                          "will exclude a book with a value of 'Archived' in the custom column 'status'.\n"
-                          "When multiple rules are defined, all rules will be applied.\n"
-                          "Default: \n" + '"' + '%default' + '"' + '\n'
-                          'Applies to: AZW3, EPUB, MOBI output formats')),
-                   Option('--generate-authors',
-                          default=False,
-                          dest='generate_authors',
-                          action='store_true',
-                          help=_("Include 'Authors' section in catalog.\n"
-                          "Default: '%default'\n"
-                          "Applies to: AZW3, EPUB, MOBI output formats")),
-                   Option('--generate-descriptions',
-                          default=False,
-                          dest='generate_descriptions',
-                          action='store_true',
-                          help=_("Include 'Descriptions' section in catalog.\n"
-                          "Default: '%default'\n"
-                          "Applies to: AZW3, EPUB, MOBI output formats")),
-                   Option('--generate-genres',
-                          default=False,
-                          dest='generate_genres',
-                          action='store_true',
-                          help=_("Include 'Genres' section in catalog.\n"
-                          "Default: '%default'\n"
-                          "Applies to: AZW3, EPUB, MOBI output formats")),
-                   Option('--generate-titles',
-                          default=False,
-                          dest='generate_titles',
-                          action='store_true',
-                          help=_("Include 'Titles' section in catalog.\n"
-                          "Default: '%default'\n"
-                          "Applies to: AZW3, EPUB, MOBI output formats")),
-                   Option('--generate-series',
-                          default=False,
-                          dest='generate_series',
-                          action='store_true',
-                          help=_("Include 'Series' section in catalog.\n"
-                          "Default: '%default'\n"
-                          "Applies to: AZW3, EPUB, MOBI output formats")),
-                   Option('--generate-recently-added',
-                          default=False,
-                          dest='generate_recently_added',
-                          action='store_true',
-                          help=_("Include 'Recently Added' section in catalog.\n"
-                          "Default: '%default'\n"
-                          "Applies to: AZW3, EPUB, MOBI output formats")),
-                   Option('--genre-source-field',
-                          default=_('Tags'),
-                          dest='genre_source_field',
-                          action=None,
-                          help=_("Source field for 'Genres' section.\n"
-                          "Default: '%default'\n"
-                          "Applies to: AZW3, EPUB, MOBI output formats")),
-                   Option('--header-note-source-field',
-                          default='',
-                          dest='header_note_source_field',
-                          action=None,
-                          help=_("Custom field containing note text to insert in Description header.\n"
-                          "Default: '%default'\n"
-                          "Applies to: AZW3, EPUB, MOBI output formats")),
-                   Option('--merge-comments-rule',
-                          default='::',
-                          dest='merge_comments_rule',
-                          action=None,
-                          help=_("#<custom field>:[before|after]:[True|False] specifying:\n"
-                          " <custom field> Custom field containing notes to merge with comments\n"
-                          " [before|after] Placement of notes with respect to comments\n"
-                          " [True|False] - A horizontal rule is inserted between notes and comments\n"
-                          "Default: '%default'\n"
-                          "Applies to: AZW3, EPUB, MOBI output formats")),
-                   Option('--output-profile',
-                          default=None,
-                          dest='output_profile',
-                          action=None,
-                          help=_("Specifies the output profile. In some cases, an output profile is required to optimize"
-                                 " the catalog for the device. For example, 'kindle' or 'kindle_dx' creates a structured"
-                                 " Table of Contents with Sections and Articles.\n"
-                                 "Default: '%default'\n"
-                                 "Applies to: AZW3, EPUB, MOBI output formats")),
-                   Option('--prefix-rules',
-                          default="(('Read books','tags','+','✓'),('Wishlist item','tags','Wishlist','×'))",
-                          dest='prefix_rules',
-                          action=None,
-                          help=_("Specifies the rules used to include prefixes indicating read books, wishlist items and other user-specified prefixes.\n"
-                          "The model for a prefix rule is ('<rule name>','<source field>','<pattern>','<prefix>').\n"
-                          "When multiple rules are defined, the first matching rule will be used.\n"
-                          "Default:\n" + '"' + '%default' + '"' + '\n'
-                          'Applies to: AZW3, EPUB, MOBI output formats')),
-                   Option('--preset',
-                          default=None,
-                          dest='preset',
-                          action=None,
-                          help=_("Use a named preset created with the GUI catalog builder.\n"
-                          "A preset specifies all settings for building a catalog.\n"
-                          "Default: '%default'\n"
-                          "Applies to: AZW3, EPUB, MOBI output formats")),
-                   Option('--use-existing-cover',
-                          default=False,
-                          dest='use_existing_cover',
-                          action='store_true',
-                          help=_("Replace existing cover when generating the catalog.\n"
-                          "Default: '%default'\n"
-                          "Applies to: AZW3, EPUB, MOBI output formats")),
-                   Option('--thumb-width',
-                          default='1.0',
-                          dest='thumb_width',
-                          action=None,
-                          help=_("Size hint (in inches) for book covers in catalog.\n"
-                          "Range: 1.0 - 2.0\n"
-                          "Default: '%default'\n"
-                          "Applies to: AZW3, EPUB, MOBI output formats")),
-                          ]
+    cli_options = [
+        Option(
+            '--catalog-title',  # {{{
+            default='My Books',
+            dest='catalog_title',
+            action=None,
+            help=_("Title of generated catalog used as title in metadata.\nDefault: '%default'\nApplies to: AZW3, EPUB, MOBI output formats"),
+        ),
+        Option(
+            '--cross-reference-authors',
+            default=False,
+            dest='cross_reference_authors',
+            action='store_true',
+            help=_(
+                "Create cross-references in Authors section for books with multiple authors.\nDefault: '%default'\nApplies to: AZW3, EPUB, MOBI output formats"
+            ),
+        ),
+        Option(
+            '--debug-pipeline',
+            default=None,
+            dest='debug_pipeline',
+            action=None,
+            help=_(
+                "Save the output from different stages of the conversion "
+                "pipeline to the specified "
+                "folder. Useful if you are unsure at which stage "
+                "of the conversion process a bug is occurring.\n"
+                "Default: '%default'\n"
+                "Applies to: AZW3, EPUB, MOBI output formats"
+            ),
+        ),
+        Option(
+            '--exclude-genre',
+            default=r'\[.+\]|^\+$',
+            dest='exclude_genre',
+            action=None,
+            help=_(
+                "Regex describing tags to exclude as genres.\n"
+                "Default: '%default' excludes bracketed tags, e.g. '[Project Gutenberg]', and '+', the default tag for read books.\n"
+                "Applies to: AZW3, EPUB, MOBI output formats"
+            ),
+        ),
+        Option(
+            '--exclusion-rules',
+            default="(('Catalogs','Tags','Catalog'),)",
+            dest='exclusion_rules',
+            action=None,
+            help=_(
+                "Specifies the rules used to exclude books from the generated catalog.\n"
+                "The model for an exclusion rule is either\n('<rule name>','Tags','<comma-separated list of tags>') or\n"
+                "('<rule name>','<custom column>','<pattern>').\n"
+                "For example:\n"
+                "(('Archived books','#status','Archived'),)\n"
+                "will exclude a book with a value of 'Archived' in the custom column 'status'.\n"
+                "When multiple rules are defined, all rules will be applied.\n"
+                "Default: \n" + '"' + '%default' + '"' + '\n'
+                'Applies to: AZW3, EPUB, MOBI output formats'
+            ),
+        ),
+        Option(
+            '--generate-authors',
+            default=False,
+            dest='generate_authors',
+            action='store_true',
+            help=_("Include 'Authors' section in catalog.\nDefault: '%default'\nApplies to: AZW3, EPUB, MOBI output formats"),
+        ),
+        Option(
+            '--generate-descriptions',
+            default=False,
+            dest='generate_descriptions',
+            action='store_true',
+            help=_("Include 'Descriptions' section in catalog.\nDefault: '%default'\nApplies to: AZW3, EPUB, MOBI output formats"),
+        ),
+        Option(
+            '--generate-genres',
+            default=False,
+            dest='generate_genres',
+            action='store_true',
+            help=_("Include 'Genres' section in catalog.\nDefault: '%default'\nApplies to: AZW3, EPUB, MOBI output formats"),
+        ),
+        Option(
+            '--generate-titles',
+            default=False,
+            dest='generate_titles',
+            action='store_true',
+            help=_("Include 'Titles' section in catalog.\nDefault: '%default'\nApplies to: AZW3, EPUB, MOBI output formats"),
+        ),
+        Option(
+            '--generate-series',
+            default=False,
+            dest='generate_series',
+            action='store_true',
+            help=_("Include 'Series' section in catalog.\nDefault: '%default'\nApplies to: AZW3, EPUB, MOBI output formats"),
+        ),
+        Option(
+            '--generate-recently-added',
+            default=False,
+            dest='generate_recently_added',
+            action='store_true',
+            help=_("Include 'Recently Added' section in catalog.\nDefault: '%default'\nApplies to: AZW3, EPUB, MOBI output formats"),
+        ),
+        Option(
+            '--genre-source-field',
+            default=_('Tags'),
+            dest='genre_source_field',
+            action=None,
+            help=_("Source field for 'Genres' section.\nDefault: '%default'\nApplies to: AZW3, EPUB, MOBI output formats"),
+        ),
+        Option(
+            '--header-note-source-field',
+            default='',
+            dest='header_note_source_field',
+            action=None,
+            help=_("Custom field containing note text to insert in Description header.\nDefault: '%default'\nApplies to: AZW3, EPUB, MOBI output formats"),
+        ),
+        Option(
+            '--merge-comments-rule',
+            default='::',
+            dest='merge_comments_rule',
+            action=None,
+            help=_(
+                "#<custom field>:[before|after]:[True|False] specifying:\n"
+                " <custom field> Custom field containing notes to merge with comments\n"
+                " [before|after] Placement of notes with respect to comments\n"
+                " [True|False] - A horizontal rule is inserted between notes and comments\n"
+                "Default: '%default'\n"
+                "Applies to: AZW3, EPUB, MOBI output formats"
+            ),
+        ),
+        Option(
+            '--output-profile',
+            default=None,
+            dest='output_profile',
+            action=None,
+            help=_(
+                "Specifies the output profile. In some cases, an output profile is required to optimize"
+                " the catalog for the device. For example, 'kindle' or 'kindle_dx' creates a structured"
+                " Table of Contents with Sections and Articles.\n"
+                "Default: '%default'\n"
+                "Applies to: AZW3, EPUB, MOBI output formats"
+            ),
+        ),
+        Option(
+            '--prefix-rules',
+            default="(('Read books','tags','+','✓'),('Wishlist item','tags','Wishlist','×'))",
+            dest='prefix_rules',
+            action=None,
+            help=_(
+                "Specifies the rules used to include prefixes indicating read books, wishlist items and other user-specified prefixes.\n"
+                "The model for a prefix rule is ('<rule name>','<source field>','<pattern>','<prefix>').\n"
+                "When multiple rules are defined, the first matching rule will be used.\n"
+                "Default:\n" + '"' + '%default' + '"' + '\n'
+                'Applies to: AZW3, EPUB, MOBI output formats'
+            ),
+        ),
+        Option(
+            '--preset',
+            default=None,
+            dest='preset',
+            action=None,
+            help=_(
+                "Use a named preset created with the GUI catalog builder.\n"
+                "A preset specifies all settings for building a catalog.\n"
+                "Default: '%default'\n"
+                "Applies to: AZW3, EPUB, MOBI output formats"
+            ),
+        ),
+        Option(
+            '--use-existing-cover',
+            default=False,
+            dest='use_existing_cover',
+            action='store_true',
+            help=_("Replace existing cover when generating the catalog.\nDefault: '%default'\nApplies to: AZW3, EPUB, MOBI output formats"),
+        ),
+        Option(
+            '--thumb-width',
+            default='1.0',
+            dest='thumb_width',
+            action=None,
+            help=_("Size hint (in inches) for book covers in catalog.\nRange: 1.0 - 2.0\nDefault: '%default'\nApplies to: AZW3, EPUB, MOBI output formats"),
+        ),
+    ]
     # }}}
 
     def run(self, path_to_output, opts, db, ids=None, notification=DummyReporter()):
@@ -212,13 +238,13 @@ class EPUB_MOBI(CatalogPlugin):
 
             # Provide an unconnected device
             opts.connected_device = {
-                         'is_device_connected': False,
-                         'kind': None,
-                         'name': None,
-                         'save_template': None,
-                         'serial': None,
-                         'storage': None,
-                        }
+                'is_device_connected': False,
+                'kind': None,
+                'name': None,
+                'save_template': None,
+                'serial': None,
+                'storage': None,
+            }
 
             # Convert prefix_rules and exclusion_rules from JSON lists to tuples
             prs = []
@@ -267,13 +293,16 @@ class EPUB_MOBI(CatalogPlugin):
 
         build_log = []
 
-        build_log.append("{}('{}'): Generating {} {}in {} environment, locale: '{}'".format(self.name,
-             current_library_name(),
-             self.fmt,
-             f'for {opts.output_profile} ' if opts.output_profile else '',
-             'CLI' if opts.cli_environment else 'GUI',
-             calibre_langcode_to_name(canonicalize_lang(get_lang()), localize=False))
-             )
+        build_log.append(
+            "{}('{}'): Generating {} {}in {} environment, locale: '{}'".format(
+                self.name,
+                current_library_name(),
+                self.fmt,
+                f'for {opts.output_profile} ' if opts.output_profile else '',
+                'CLI' if opts.cli_environment else 'GUI',
+                calibre_langcode_to_name(canonicalize_lang(get_lang()), localize=False),
+            )
+        )
 
         # If exclude_genre is blank, assume user wants all tags as genres
         if opts.exclude_genre.strip() == '':
@@ -281,14 +310,10 @@ class EPUB_MOBI(CatalogPlugin):
             # build_log.append(" converting empty exclude_genre to '\[^.\]'")
             opts.exclude_genre = 'a^'
             build_log.append(" converting empty exclude_genre to 'a^'")
-        if isinstance(connected_device, dict) and \
-           connected_device['is_device_connected'] and \
-           connected_device['kind'] == 'device':
+        if isinstance(connected_device, dict) and connected_device['is_device_connected'] and connected_device['kind'] == 'device':
             serial = connected_device['serial']
             if isinstance(serial, str) and serial:
-                build_log.append(" connected_device: '{}' #{}{} ".format(connected_device['name'],
-                     serial[0:4],
-                     'x' * (len(serial) - 4)))
+                build_log.append(" connected_device: '{}' #{}{} ".format(connected_device['name'], serial[0:4], 'x' * (len(serial) - 4)))
                 storage_list = connected_device['storage']
                 if isinstance(storage_list, list):
                     for storage in storage_list:
@@ -364,6 +389,7 @@ class EPUB_MOBI(CatalogPlugin):
         if isinstance(opts.prefix_rules, str):
             try:
                 import ast
+
                 opts.prefix_rules = ast.literal_eval(opts.prefix_rules)
             except Exception:
                 log.error(f'malformed --prefix-rules: {opts.prefix_rules}')
@@ -376,6 +402,7 @@ class EPUB_MOBI(CatalogPlugin):
         if isinstance(opts.exclusion_rules, str):
             try:
                 import ast
+
                 opts.exclusion_rules = ast.literal_eval(opts.exclusion_rules)
             except Exception:
                 log.error(f'malformed --exclusion-rules: {opts.exclusion_rules}')
@@ -388,13 +415,33 @@ class EPUB_MOBI(CatalogPlugin):
         keys = sorted(opts_dict.keys())
         build_log.append(' opts:')
         for key in keys:
-            if key in ['catalog_title', 'author_clip', 'connected_kindle', 'creator',
-                       'cross_reference_authors', 'description_clip', 'exclude_book_marker',
-                       'exclude_genre', 'exclude_tags', 'exclusion_rules', 'fmt',
-                       'genre_source_field', 'header_note_source_field', 'merge_comments_rule',
-                       'output_profile', 'prefix_rules', 'preset', 'read_book_marker',
-                       'search_text', 'sort_by', 'sort_descriptions_by_author', 'sync',
-                       'thumb_width', 'use_existing_cover', 'wishlist_tag']:
+            if key in [
+                'catalog_title',
+                'author_clip',
+                'connected_kindle',
+                'creator',
+                'cross_reference_authors',
+                'description_clip',
+                'exclude_book_marker',
+                'exclude_genre',
+                'exclude_tags',
+                'exclusion_rules',
+                'fmt',
+                'genre_source_field',
+                'header_note_source_field',
+                'merge_comments_rule',
+                'output_profile',
+                'prefix_rules',
+                'preset',
+                'read_book_marker',
+                'search_text',
+                'sort_by',
+                'sort_descriptions_by_author',
+                'sync',
+                'thumb_width',
+                'use_existing_cover',
+                'wishlist_tag',
+            ]:
                 build_log.append(f'  {key}: {opts_dict[key]!r}')
         if opts.verbose:
             log('\n'.join(line for line in build_log))
@@ -422,8 +469,7 @@ class EPUB_MOBI(CatalogPlugin):
 
         else:
             recommendations = []
-            recommendations.append(('remove_fake_margins', False,
-                OptionRecommendation.HIGH))
+            recommendations.append(('remove_fake_margins', False, OptionRecommendation.HIGH))
             recommendations.append(('comments', '', OptionRecommendation.HIGH))
 
             # >>> Use to debug generated catalog code before pipeline conversion <<<
@@ -434,26 +480,20 @@ class EPUB_MOBI(CatalogPlugin):
 
             dp = getattr(opts, 'debug_pipeline', None)
             if dp is not None:
-                recommendations.append(('debug_pipeline', dp,
-                    OptionRecommendation.HIGH))
+                recommendations.append(('debug_pipeline', dp, OptionRecommendation.HIGH))
 
             if opts.output_profile and opts.output_profile.startswith('kindle'):
-                recommendations.append(('output_profile', opts.output_profile,
-                    OptionRecommendation.HIGH))
-                recommendations.append(('book_producer', opts.output_profile,
-                    OptionRecommendation.HIGH))
+                recommendations.append(('output_profile', opts.output_profile, OptionRecommendation.HIGH))
+                recommendations.append(('book_producer', opts.output_profile, OptionRecommendation.HIGH))
                 if opts.fmt == 'mobi':
-                    recommendations.append(('no_inline_toc', True,
-                        OptionRecommendation.HIGH))
-                    recommendations.append(('verbose', 2,
-                        OptionRecommendation.HIGH))
+                    recommendations.append(('no_inline_toc', True, OptionRecommendation.HIGH))
+                    recommendations.append(('verbose', 2, OptionRecommendation.HIGH))
 
             # Use existing cover or generate new cover
             cpath = None
             existing_cover = False
             try:
-                search_text = 'title:"{}" author:{}'.format(
-                        opts.catalog_title.replace('"', '\\"'), 'calibre')
+                search_text = 'title:"{}" author:{}'.format(opts.catalog_title.replace('"', '\\"'), 'calibre')
                 matches = db.search(search_text, return_matches=True, sort_results=False)
                 if matches:
                     cpath = db.cover(matches[0], index_is_id=True, as_path=True)
@@ -470,6 +510,7 @@ class EPUB_MOBI(CatalogPlugin):
                 log.info('using existing catalog cover')
             else:
                 from calibre.ebooks.covers import calibre_cover2
+
                 log.info('replacing catalog cover')
                 new_cover_path = PersistentTemporaryFile(suffix='.jpg')
                 new_cover = calibre_cover2(opts.catalog_title, 'calibre')
@@ -479,9 +520,14 @@ class EPUB_MOBI(CatalogPlugin):
 
             # Run ebook-convert
             from calibre.ebooks.conversion.plumber import Plumber
-            plumber = Plumber(os.path.join(catalog.catalog_path, opts.basename + '.opf'),
-                            path_to_output, log, report_progress=notification,
-                            abort_after_input_dump=False)
+
+            plumber = Plumber(
+                os.path.join(catalog.catalog_path, opts.basename + '.opf'),
+                path_to_output,
+                log,
+                report_progress=notification,
+                abort_after_input_dump=False,
+            )
             plumber.merge_ui_recommendations(recommendations)
             plumber.run()
 
@@ -495,6 +541,7 @@ class EPUB_MOBI(CatalogPlugin):
                 from calibre.ebooks.epub import initialize_container
                 from calibre.ebooks.tweak import zip_rebuilder
                 from calibre.utils.zipfile import ZipFile
+
                 input_path = os.path.join(catalog_debug_path, 'input')
                 epub_shell = os.path.join(catalog_debug_path, 'epub_shell.zip')
                 initialize_container(epub_shell, opf_name='content.opf')

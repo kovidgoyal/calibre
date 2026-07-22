@@ -1,18 +1,14 @@
-'''
+# License: GPLv3 Copyright: 2010, John Schember <john@nachtimwald.com>
+
+"""
 Read content from palmdoc pdb file.
-'''
-
-__license__   = 'GPL v3'
-__copyright__ = '2010, John Schember <john@nachtimwald.com>'
-__docformat__ = 'restructuredtext en'
-
+"""
 
 from calibre.ebooks.pdb.formatreader import FormatReader
 from calibre.ptempfile import PersistentTemporaryFile
 
 
 class Reader(FormatReader):
-
     def __init__(self, header, stream, log, options):
         self.header = header
         self.stream = stream

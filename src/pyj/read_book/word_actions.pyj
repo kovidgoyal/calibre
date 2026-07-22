@@ -52,7 +52,7 @@ def add_custom(container_id):
     if not container:
         return
     clear(container)
-    container.appendChild(E.div(style="margin: 1rem",
+    container.appendChild(E.div(style='margin: 1rem',
         _('Enter the name and URL for a custom lookup source. The URL must contain '
           ' {0} in it, which will be replaced by the word being looked up. For example: '
           ' {1}').format('{word}', 'https://google.com/search?q={word}')
@@ -88,7 +88,7 @@ def remove_custom(container_id):
     if not container:
         return
     clear(container)
-    container.appendChild(E.div(style="margin: 1rem", _('Choose a custom lookup to remove')))
+    container.appendChild(E.div(style='margin: 1rem', _('Choose a custom lookup to remove')))
     items = [create_item(_('Cancel (no removals)'), toggle_custom_container.bind(None, container_id, False))]
     sd = get_session_data()
     actions = sd.get('word_actions', v'[]')
@@ -142,4 +142,4 @@ def create_word_actions_panel(container, word, close_panel_func):
 
 def develop(container):
     container.appendChild(E.div())
-    create_word_actions_panel(container, 'develop', def():pass;)
+    create_word_actions_panel(container, 'develop', def (): pass;)

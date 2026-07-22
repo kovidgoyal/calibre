@@ -1,8 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__ = 'GPL v3'
-__copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
+# License: GPLv3 Copyright: 2013, Kovid Goyal <kovid at kovidgoyal.net>
 
 from time import monotonic
 
@@ -36,7 +33,6 @@ from calibre_extensions.progress_indicator import set_no_activate_on_click
 
 
 class TOCEditor(QDialog):
-
     explode_done = pyqtSignal(object)
     writing_done = pyqtSignal(object)
 
@@ -46,7 +42,7 @@ class TOCEditor(QDialog):
 
         t = title or current_container().mi.title
         self.book_title = t
-        self.setWindowTitle(_('Edit the ToC in %s')%t)
+        self.setWindowTitle(_('Edit the ToC in %s') % t)
         self.setWindowIcon(QIcon.ic('toc.png'))
 
         l = self.l = QVBoxLayout()
@@ -60,7 +56,7 @@ class TOCEditor(QDialog):
         self.item_edit = ItemEdit(self, tprefs)
         s.addWidget(self.item_edit)
 
-        bb = self.bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok|QDialogButtonBox.StandardButton.Cancel)
+        bb = self.bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)
         l.addWidget(bb)
         bb.accepted.connect(self.accept)
         bb.rejected.connect(self.reject)
@@ -105,9 +101,13 @@ class TOCEditor(QDialog):
     def really_accept(self, tb):
         self.save_geometry(tprefs, 'toc_editor_window_geom')
         if tb:
-            error_dialog(self, _('Failed to write book'),
-                _('Could not write %s. Click "Show details" for'
-                  ' more information.')%self.book_title, det_msg=tb, show=True)
+            error_dialog(
+                self,
+                _('Failed to write book'),
+                _('Could not write %s. Click "Show details" for more information.') % self.book_title,
+                det_msg=tb,
+                show=True,
+            )
             super().reject()
             return
 
@@ -134,8 +134,7 @@ class TOCEditor(QDialog):
     def write_toc(self):
         toc = self.toc_view.create_toc()
         toc.toc_title = getattr(self.toc_view, 'toc_title', None)
-        commit_toc(current_container(), toc, lang=self.toc_view.toc_lang,
-                uid=self.toc_view.toc_uid)
+        commit_toc(current_container(), toc, lang=self.toc_view.toc_lang, uid=self.toc_view.toc_uid)
 
 
 DEST_ROLE = Qt.ItemDataRole.UserRole
@@ -143,7 +142,6 @@ FRAG_ROLE = DEST_ROLE + 1
 
 
 class Delegate(QStyledItemDelegate):
-
     def sizeHint(self, option=None, index=None):
         assert option is not None and index is not None
         ans = QStyledItemDelegate.sizeHint(self, option, index)
@@ -151,7 +149,6 @@ class Delegate(QStyledItemDelegate):
 
 
 class TOCViewer(QWidget):
-
     navigate_requested = pyqtSignal(object, object)
     refresh_requested = pyqtSignal()
 
@@ -194,6 +191,7 @@ class TOCViewer(QWidget):
             except Exception:
                 # ignore errors during live refresh of the toc
                 import traceback
+
                 traceback.print_exc()
 
     def refresh(self):
@@ -243,8 +241,7 @@ class TOCViewer(QWidget):
                 node.setText(0, child.title or '')
                 node.setData(0, DEST_ROLE, child.dest or '')
                 node.setData(0, FRAG_ROLE, child.frag or '')
-                tt = _('File: {0}\nAnchor: {1}').format(
-                    child.dest or '', child.frag or _('Top of file'))
+                tt = _('File: {0}\nAnchor: {1}').format(child.dest or '', child.frag or _('Top of file'))
                 node.setData(0, Qt.ItemDataRole.ToolTipRole, tt)
                 process_node(child, node)
 

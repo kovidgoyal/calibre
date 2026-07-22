@@ -1,10 +1,8 @@
-__license__ = 'GPL 3'
-__copyright__ = '2009, John Schember <john@nachtimwald.com>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2009, John Schember <john@nachtimwald.com>
 
-'''
+"""
 Transform OEB content into PML markup
-'''
+"""
 
 import re
 
@@ -15,21 +13,21 @@ from calibre.ebooks.pml import unipmlcode
 from calibre.utils.xml_parse import safe_xml_fromstring
 
 TAG_MAP = {
-    'b'       : 'B',
-    'strong'  : 'B',
-    'i'       : 'i',
-    'small'   : 'k',
-    'sub'     : 'Sb',
-    'sup'     : 'Sp',
-    'big'     : 'l',
-    'del'     : 'o',
-    'h1'      : 'x',
-    'h2'      : 'X0',
-    'h3'      : 'X1',
-    'h4'      : 'X2',
-    'h5'      : 'X3',
-    'h6'      : 'X4',
-    '!--'     : 'v',
+    'b': 'B',
+    'strong': 'B',
+    'i': 'i',
+    'small': 'k',
+    'sub': 'Sb',
+    'sup': 'Sp',
+    'big': 'l',
+    'del': 'o',
+    'h1': 'x',
+    'h2': 'X0',
+    'h3': 'X1',
+    'h4': 'X2',
+    'h5': 'X3',
+    'h6': 'X4',
+    '!--': 'v',
 }
 
 STYLES = [
@@ -71,7 +69,6 @@ SEPARATE_TAGS = [
 
 
 class PMLMLizer:
-
     def __init__(self, log):
         self.log = log
         self.image_hrefs = {}
@@ -121,8 +118,7 @@ class PMLMLizer:
             href = self.oeb_book.guide['titlepage'].href
             item = self.oeb_book.manifest.hrefs[href]
             if item.spine_position is None:
-                stylizer = Stylizer(item.data, item.href, self.oeb_book,
-                        self.opts, self.opts.output_profile)
+                stylizer = Stylizer(item.data, item.href, self.oeb_book, self.opts, self.opts.output_profile)
                 output += ''.join(self.dump_text(item.data.find(XHTML('body')), stylizer, item))
         return output
 
@@ -187,7 +183,11 @@ class PMLMLizer:
             text = text.replace(rf'\Q="{unused}"', '')
 
         # Remove \Cn tags that are within \x and \Xn tags
-        text = re.sub(r'(?msu)(?P<t>\\(x|X[0-4]))(?P<a>.*?)(?P<c>\\C[0-4]\s*=\s*"[^"]*")(?P<b>.*?)(?P=t)', r'\g<t>\g<a>\g<b>\g<t>', text)
+        text = re.sub(
+            r'(?msu)(?P<t>\\(x|X[0-4]))(?P<a>.*?)(?P<c>\\C[0-4]\s*=\s*"[^"]*")(?P<b>.*?)(?P=t)',
+            r'\g<t>\g<a>\g<b>\g<t>',
+            text,
+        )
 
         # Replace bad characters.
         text = text.replace('\xc2', '')
@@ -212,8 +212,11 @@ class PMLMLizer:
         if self.opts.remove_paragraph_spacing:
             text = re.sub(r'\n{2,}', '\n', text)
             # Only indent lines that don't have special formatting
-            text = re.sub(r'(?imu)^(?P<text>.+)$', lambda mo: mo.group('text')
-                          if re.search(r'\\[XxCmrctTp]', mo.group('text')) else '        {}'.format(mo.group('text')), text)
+            text = re.sub(
+                r'(?imu)^(?P<text>.+)$',
+                lambda mo: mo.group('text') if re.search(r'\\[XxCmrctTp]', mo.group('text')) else '        {}'.format(mo.group('text')),
+                text,
+            )
         else:
             text = re.sub(r'\n{3,}', '\n\n', text)
 
@@ -224,8 +227,7 @@ class PMLMLizer:
 
         if not isinstance(elem.tag, (str, bytes)) or namespace(elem.tag) != XHTML_NS:
             p = elem.getparent()
-            if p is not None and isinstance(p.tag, (str, bytes)) and namespace(p.tag) == XHTML_NS \
-                    and elem.tail:
+            if p is not None and isinstance(p.tag, (str, bytes)) and namespace(p.tag) == XHTML_NS and elem.tail:
                 return [elem.tail]
             return []
 
@@ -233,8 +235,7 @@ class PMLMLizer:
         tags = []
         style = stylizer.style(elem)
 
-        if style['display'] in ('none', 'oeb-page-head', 'oeb-page-foot') \
-           or style['visibility'] == 'hidden':
+        if style['display'] in ('none', 'oeb-page-head', 'oeb-page-foot') or style['visibility'] == 'hidden':
             if hasattr(elem, 'tail') and elem.tail:
                 return [elem.tail]
             return []
@@ -253,8 +254,9 @@ class PMLMLizer:
                     if len(self.image_hrefs.keys()) == 0:
                         self.image_hrefs[page.abshref(elem.attrib['src'])] = 'cover.png'
                     else:
-                        self.image_hrefs[page.abshref(elem.attrib['src'])] = image_name(
-                            f'{len(self.image_hrefs.keys())}.png', self.image_hrefs.keys()).strip('\x00')
+                        self.image_hrefs[page.abshref(elem.attrib['src'])] = image_name(f'{len(self.image_hrefs.keys())}.png', self.image_hrefs.keys()).strip(
+                            '\x00'
+                        )
                 text.append('\\m="{}"'.format(self.image_hrefs[page.abshref(elem.attrib['src'])]))
         elif tag == 'hr':
             w = r'\w'
@@ -273,18 +275,23 @@ class PMLMLizer:
         toc_name = elem.attrib.get('name', None)
         toc_id = elem.attrib.get('id', None)
         # Only write the TOC marker if the tag isn't a heading and we aren't in one.
-        if (toc_id or toc_name) and tag not in ('h1', 'h2','h3','h4','h5','h6') and \
-            'x' not in tag_stack+tags and 'X0' not in tag_stack+tags and \
-            'X1' not in tag_stack+tags and 'X2' not in tag_stack+tags and \
-            'X3' not in tag_stack+tags and 'X4' not in tag_stack+tags:
-
+        if (
+            (toc_id or toc_name)
+            and tag not in ('h1', 'h2', 'h3', 'h4', 'h5', 'h6')
+            and 'x' not in tag_stack + tags
+            and 'X0' not in tag_stack + tags
+            and 'X1' not in tag_stack + tags
+            and 'X2' not in tag_stack + tags
+            and 'X3' not in tag_stack + tags
+            and 'X4' not in tag_stack + tags
+        ):
             toc_page = page.href
             if self.toc.get(toc_page, None):
                 for toc_x in (toc_name, toc_id):
                     toc_title, toc_depth = self.toc[toc_page].get(toc_x, (None, 0))
                     if toc_title:
                         toc_depth = max(min(toc_depth, 4), 0)
-                        text.append(fr'\C{toc_depth}="{toc_title}"')
+                        text.append(rf'\C{toc_depth}="{toc_title}"')
 
         # Process style information that needs holds a single tag.
         # Commented out because every page in an OEB book starts with this style.
@@ -293,13 +300,13 @@ class PMLMLizer:
 
         # Process basic PML tags.
         pml_tag = TAG_MAP.get(tag, None)
-        if pml_tag and pml_tag not in tag_stack+tags:
+        if pml_tag and pml_tag not in tag_stack + tags:
             text.append(rf'\{pml_tag}')
             tags.append(pml_tag)
 
         # Special processing of tags that require an argument.
         # Anchors links
-        if tag in LINK_TAGS and 'q' not in tag_stack+tags:
+        if tag in LINK_TAGS and 'q' not in tag_stack + tags:
             href = elem.get('href')
             if href:
                 href = page.abshref(href)
@@ -322,7 +329,7 @@ class PMLMLizer:
         # Processes style information
         for s in STYLES:
             style_tag = s[1].get(style[s[0]], None)
-            if style_tag and style_tag not in tag_stack+tags:
+            if style_tag and style_tag not in tag_stack + tags:
                 text.append(rf'\{style_tag}')
                 tags.append(style_tag)
 
@@ -348,7 +355,7 @@ class PMLMLizer:
 
         # Process inner tags
         for item in elem:
-            text += self.dump_text(item, stylizer, page, tag_stack+tags)
+            text += self.dump_text(item, stylizer, page, tag_stack + tags)
 
         # Close opened tags.
         tags.reverse()

@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
-
 from qt.core import QDialog
 
 from calibre.gui2 import gprefs
@@ -10,7 +9,6 @@ from calibre.utils.localization import _, ngettext
 
 
 class AuthorMapAction(InterfaceAction):
-
     name = 'Author Mapper'
     action_spec = (_('Author mapper'), 'user_profile.png', _('Transform the authors for books in the library'), None)
     action_type = 'current'
@@ -31,16 +29,23 @@ class AuthorMapAction(InterfaceAction):
         from calibre.ebooks.metadata.author_mapper import compile_rules, map_authors
         from calibre.gui2.author_mapper import RulesDialog
         from calibre.gui2.widgets import BusyCursor
+
         d = RulesDialog(self.gui)
-        d.setWindowTitle(ngettext(
-            'Map authors for one book in the library',
-            'Map authors for {} books in the library', len(book_ids)).format(len(book_ids)))
+        d.setWindowTitle(ngettext('Map authors for one book in the library', 'Map authors for {} books in the library', len(book_ids)).format(len(book_ids)))
         d.rules = gprefs.get('library-author-mapper-ruleset', ())
-        txt = ngettext(
-            'The changes will be applied to the <b>selected book</b>',
-            'The changes will be applied to the <b>{} selected books</b>', len(book_ids)) if selected else ngettext(
-            'The changes will be applied to <b>one book in the library</b>',
-            'The changes will be applied to <b>{} books in the library</b>', len(book_ids))
+        txt = (
+            ngettext(
+                'The changes will be applied to the <b>selected book</b>',
+                'The changes will be applied to the <b>{} selected books</b>',
+                len(book_ids),
+            )
+            if selected
+            else ngettext(
+                'The changes will be applied to <b>one book in the library</b>',
+                'The changes will be applied to <b>{} books in the library</b>',
+                len(book_ids),
+            )
+        )
         d.edit_widget.msg_label.setText(d.edit_widget.msg_label.text() + '<p>' + txt.format(len(book_ids)))
         if d.exec() != QDialog.DialogCode.Accepted:
             return

@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2012, Kovid Goyal <kovid at kovidgoyal.net>
 
-
 from collections import OrderedDict
 from io import BytesIO
 from struct import calcsize, pack
@@ -23,7 +22,6 @@ from calibre.utils.resources import get_path as P
 
 
 class Sfnt:
-
     TABLE_MAP = {
         b'head': HeadTable,
         b'hhea': HorizontalHeader,
@@ -44,27 +42,51 @@ class Sfnt:
         if isinstance(raw_or_get_table, bytes):
             raw = raw_or_get_table
             self.sfnt_version = raw[:4]
-            if self.sfnt_version not in {b'\x00\x01\x00\x00', b'OTTO', b'true',
-                    b'type1'}:
+            if self.sfnt_version not in {b'\x00\x01\x00\x00', b'OTTO', b'true', b'type1'}:
                 raise UnsupportedFont(f'Font has unknown sfnt version: {self.sfnt_version!r}')
             for table_tag, table, table_index, table_offset, table_checksum in get_tables(raw):
-                self.tables[table_tag] = self.TABLE_MAP.get(
-                    table_tag, UnknownTable)(table)
+                self.tables[table_tag] = self.TABLE_MAP.get(table_tag, UnknownTable)(table)
         else:
             for table_tag in (
-                b'cmap', b'hhea', b'head', b'hmtx', b'maxp', b'name', b'OS/2',
-                b'post', b'cvt ', b'fpgm', b'glyf', b'loca', b'prep', b'CFF ',
-                b'VORG', b'EBDT', b'EBLC', b'EBSC', b'BASE', b'GSUB', b'GPOS',
-                b'GDEF', b'JSTF', b'gasp', b'hdmx', b'kern', b'LTSH', b'PCLT',
-                b'VDMX', b'vhea', b'vmtx', b'MATH'):
+                b'cmap',
+                b'hhea',
+                b'head',
+                b'hmtx',
+                b'maxp',
+                b'name',
+                b'OS/2',
+                b'post',
+                b'cvt ',
+                b'fpgm',
+                b'glyf',
+                b'loca',
+                b'prep',
+                b'CFF ',
+                b'VORG',
+                b'EBDT',
+                b'EBLC',
+                b'EBSC',
+                b'BASE',
+                b'GSUB',
+                b'GPOS',
+                b'GDEF',
+                b'JSTF',
+                b'gasp',
+                b'hdmx',
+                b'kern',
+                b'LTSH',
+                b'PCLT',
+                b'VDMX',
+                b'vhea',
+                b'vmtx',
+                b'MATH',
+            ):
                 table = bytes(raw_or_get_table(table_tag))
                 if table:
-                    self.tables[table_tag] = self.TABLE_MAP.get(
-                        table_tag, UnknownTable)(table)
+                    self.tables[table_tag] = self.TABLE_MAP.get(table_tag, UnknownTable)(table)
             if not self.tables:
                 raise UnsupportedFont('This font has no tables')
-            self.sfnt_version = (b'\0\x01\0\0' if b'glyf' in self.tables
-                                    else b'OTTO')
+            self.sfnt_version = b'\0\x01\0\0' if b'glyf' in self.tables else b'OTTO'
 
     def __getitem__(self, key):
         return self.tables[key]
@@ -76,7 +98,7 @@ class Sfnt:
         del self.tables[key]
 
     def __iter__(self):
-        '''Iterate over the table tags in order.'''
+        """Iterate over the table tags in order."""
         yield from sorted(self.tables)
         # Although the optimal order is not alphabetical, the OTF spec says
         # they should be alphabetical, so we stick with that. See
@@ -115,8 +137,7 @@ class Sfnt:
         num_tables = len(self.tables)
         ln2 = max_power_of_two(num_tables)
         srange = (2**ln2) * 16
-        spack(b'>4s4H',
-            self.sfnt_version, num_tables, srange, ln2, num_tables * 16 - srange)
+        spack(b'>4s4H', self.sfnt_version, num_tables, srange, ln2, num_tables * 16 - srange)
 
         # Write tables
         head_offset = 0
@@ -141,7 +162,7 @@ class Sfnt:
             stream.write(x)
 
         checksum = checksum_of_block(stream.getvalue())
-        q = (0xB1B0AFBA - checksum) & 0xffffffff
+        q = (0xB1B0AFBA - checksum) & 0xFFFFFFFF
         stream.seek(head_offset + 8)
         spack(b'>L', q)
 
@@ -164,4 +185,5 @@ def test_roundtrip(ff=None):
 
 if __name__ == '__main__':
     import sys
+
     test_roundtrip(sys.argv[-1])

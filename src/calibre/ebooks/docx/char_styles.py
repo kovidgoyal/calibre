@@ -1,8 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__ = 'GPL v3'
-__copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
+# License: GPLv3 Copyright: 2013, Kovid Goyal <kovid at kovidgoyal.net>
 
 from collections import OrderedDict
 
@@ -29,7 +26,7 @@ def read_text_border(parent, dest, XPath, get):
         if space is not None:
             try:
                 padding = float(space)
-            except (ValueError, TypeError):
+            except ValueError, TypeError:
                 pass
         sz = get(elem, 'w:sz')
         if sz is not None:
@@ -37,7 +34,7 @@ def read_text_border(parent, dest, XPath, get):
             try:
                 # A border of less than 1pt is not rendered by WebKit
                 border_width = min(96, max(8, float(sz))) / 8
-            except (ValueError, TypeError):
+            except ValueError, TypeError:
                 pass
 
     setattr(dest, 'border_color', border_color)
@@ -58,9 +55,15 @@ def read_color(parent, dest, XPath, get):
 
 def convert_highlight_color(val):
     return {
-        'darkBlue': '#000080', 'darkCyan': '#008080', 'darkGray': '#808080',
-        'darkGreen': '#008000', 'darkMagenta': '#800080', 'darkRed': '#800000', 'darkYellow': '#808000',
-        'lightGray': '#c0c0c0'}.get(val, val)
+        'darkBlue': '#000080',
+        'darkCyan': '#008080',
+        'darkGray': '#808080',
+        'darkGreen': '#008000',
+        'darkMagenta': '#800080',
+        'darkRed': '#800000',
+        'darkYellow': '#808000',
+        'lightGray': '#c0c0c0',
+    }.get(val, val)
 
 
 def read_highlight(parent, dest, XPath, get):
@@ -85,10 +88,11 @@ def read_lang(parent, dest, XPath, get):
             continue
         try:
             code = int(val, 16)
-        except (ValueError, TypeError):
+        except ValueError, TypeError:
             ans = val
         else:
             from calibre.ebooks.docx.lcid import lcid
+
             val = lcid.get(code, None)
             if val:
                 ans = val
@@ -110,10 +114,25 @@ def read_underline(parent, dest, XPath, get):
         val = get(col, 'w:val')
         if val:
             style = {
-                'dotted': 'dotted', 'dash': 'dashed', 'dashDotDotHeavy': 'dotted', 'dashDotHeavy': 'dashed', 'dashedHeavy': 'dashed',
-                'dashLong': 'dashed', 'dashLongHeavy': 'dashed', 'dotDash': 'dotted', 'dotDotDash': 'dotted', 'dottedHeavy': 'dotted',
-                'double': 'double', 'none': 'none', 'single': 'solid', 'thick': 'solid', 'wave': 'wavy', 'wavyDouble': 'wavy',
-                'wavyHeavy': 'wavy', 'words': 'solid'}.get(val, 'solid')
+                'dotted': 'dotted',
+                'dash': 'dashed',
+                'dashDotDotHeavy': 'dotted',
+                'dashDotHeavy': 'dashed',
+                'dashedHeavy': 'dashed',
+                'dashLong': 'dashed',
+                'dashLongHeavy': 'dashed',
+                'dotDash': 'dotted',
+                'dotDotDash': 'dotted',
+                'dottedHeavy': 'dotted',
+                'double': 'double',
+                'none': 'none',
+                'single': 'solid',
+                'thick': 'solid',
+                'wave': 'wavy',
+                'wavyDouble': 'wavy',
+                'wavyHeavy': 'wavy',
+                'words': 'solid',
+            }.get(val, 'solid')
             if style == 'none':
                 ans = 'none'
             else:
@@ -138,7 +157,7 @@ def read_position(parent, dest, XPath, get):
     for col in XPath('./w:position[@w:val]')(parent):
         val = get(col, 'w:val')
         try:
-            ans = float(val)/2.0
+            ans = float(val) / 2.0
         except Exception:
             pass
     setattr(dest, 'position', ans)
@@ -181,22 +200,57 @@ def read_font_cs(parent, dest, XPath, get):
             return
     setattr(dest, 'cs_font_size', inherit)
 
+
 # }}}
 
 
 class RunStyle:
-
     all_properties = {
-        'b', 'bCs', 'caps', 'cs', 'dstrike', 'emboss', 'i', 'iCs', 'imprint',
-        'rtl', 'shadow', 'smallCaps', 'strike', 'vanish', 'webHidden',
-
-        'border_color', 'border_style', 'border_width', 'padding', 'color', 'highlight', 'background_color',
-        'letter_spacing', 'font_size', 'text_decoration', 'vert_align', 'lang', 'font_family', 'position',
-        'cs_font_size', 'cs_font_family'
+        'b',
+        'bCs',
+        'caps',
+        'cs',
+        'dstrike',
+        'emboss',
+        'i',
+        'iCs',
+        'imprint',
+        'rtl',
+        'shadow',
+        'smallCaps',
+        'strike',
+        'vanish',
+        'webHidden',
+        'border_color',
+        'border_style',
+        'border_width',
+        'padding',
+        'color',
+        'highlight',
+        'background_color',
+        'letter_spacing',
+        'font_size',
+        'text_decoration',
+        'vert_align',
+        'lang',
+        'font_family',
+        'position',
+        'cs_font_size',
+        'cs_font_family',
     }
 
     toggle_properties = {
-        'b', 'bCs', 'caps', 'emboss', 'i', 'iCs', 'imprint', 'shadow', 'smallCaps', 'strike', 'vanish',
+        'b',
+        'bCs',
+        'caps',
+        'emboss',
+        'i',
+        'iCs',
+        'imprint',
+        'shadow',
+        'smallCaps',
+        'strike',
+        'vanish',
     }
     linked_style = None
     b = bCs = caps = cs = dstrike = inherit
@@ -216,8 +270,21 @@ class RunStyle:
         else:
             X, g = namespace.XPath, namespace.get
             for p in (
-                'b', 'bCs', 'caps', 'cs', 'dstrike', 'emboss', 'i', 'iCs', 'imprint', 'rtl', 'shadow',
-                'smallCaps', 'strike', 'vanish', 'webHidden',
+                'b',
+                'bCs',
+                'caps',
+                'cs',
+                'dstrike',
+                'emboss',
+                'i',
+                'iCs',
+                'imprint',
+                'rtl',
+                'shadow',
+                'smallCaps',
+                'strike',
+                'vanish',
+                'webHidden',
             ):
                 setattr(self, p, binary_property(rPr, p, X, g))
 
@@ -254,7 +321,7 @@ class RunStyle:
 
     def get_border_css(self, ans):
         for x in ('color', 'style', 'width'):
-            val = getattr(self, 'border_'+x)
+            val = getattr(self, 'border_' + x)
             if x == 'width' and val is not inherit:
                 val = f'{val:.3g}pt'
             if val is not inherit:
@@ -262,7 +329,7 @@ class RunStyle:
 
     def clear_border_css(self):
         for x in ('color', 'style', 'width'):
-            setattr(self, 'border_'+x, inherit)
+            setattr(self, 'border_' + x, inherit)
 
     @property
     def css(self):

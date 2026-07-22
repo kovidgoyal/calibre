@@ -8,40 +8,41 @@ from calibre.web.feeds.recipes import BasicNewsRecipe
 
 
 class KopalniaWiedzy(BasicNewsRecipe):
-    title = u'Kopalnia Wiedzy'
-    publisher = u'Kopalnia Wiedzy'
-    description = u'Ciekawostki ze świata nauki i techniki'
+    title = 'Kopalnia Wiedzy'
+    publisher = 'Kopalnia Wiedzy'
+    description = 'Ciekawostki ze świata nauki i techniki'
     encoding = 'utf-8'
     __author__ = 'Attis & Tomasz Długosz'
     language = 'pl'
     oldest_article = 7
     max_articles_per_feed = 100
-    INDEX = u'http://kopalniawiedzy.pl/'
+    INDEX = 'http://kopalniawiedzy.pl/'
     remove_javascript = True
     remove_empty_feeds = True
     no_stylesheets = True
 
-    remove_tags = [{'name': 'p', 'attrs': {'class': 'keywords'}}, {'name': 'div', 'attrs': {'class': 'sexy-bookmarks sexy-bookmarks-bg-caring'}},
-                   {'name': 'div', 'attrs': {'class': 'article-time-and-cat'}}, {'name': 'p', 'attrs': {'class': 'tags'}}]
+    remove_tags = [
+        {'name': 'p', 'attrs': {'class': 'keywords'}},
+        {'name': 'div', 'attrs': {'class': 'sexy-bookmarks sexy-bookmarks-bg-caring'}},
+        {'name': 'div', 'attrs': {'class': 'article-time-and-cat'}},
+        {'name': 'p', 'attrs': {'class': 'tags'}},
+    ]
     remove_tags_after = dict(attrs={'class': 'ad-square'})
-    keep_only_tags = [
-        dict(name='div', attrs={'class': 'article-text text-small'})]
+    keep_only_tags = [dict(name='div', attrs={'class': 'article-text text-small'})]
     extra_css = '.topimage {margin-top: 30px}'
 
     preprocess_regexps = [
-        (re.compile(r'<a .* rel="lightboxText" .*><img (.*)></a>'),
-         lambda match: '<img class="topimage" ' + match.group(1) + '>'),
-        (re.compile(r'<br  /><br  />'),
-         lambda match: '<br/>')
+        (re.compile(r'<a .* rel="lightboxText" .*><img (.*)></a>'), lambda match: '<img class="topimage" ' + match.group(1) + '>'),
+        (re.compile(r'<br  /><br  />'), lambda match: '<br/>'),
     ]
 
     feeds = [
-        (u'Biologia', u'http://kopalniawiedzy.pl/wiadomosci_biologia.rss'),
-        (u'Medycyna', u'http://kopalniawiedzy.pl/wiadomosci_medycyna.rss'),
-        (u'Psychologia', u'http://kopalniawiedzy.pl/wiadomosci_psychologia.rss'),
-        (u'Technologie', u'http://kopalniawiedzy.pl/wiadomosci_technologie.rss'),
-        (u'Ciekawostki', u'http://kopalniawiedzy.pl/wiadomosci_ciekawostki.rss'),
-        (u'Artykuły', u'http://kopalniawiedzy.pl/artykuly.rss')
+        ('Biologia', 'http://kopalniawiedzy.pl/wiadomosci_biologia.rss'),
+        ('Medycyna', 'http://kopalniawiedzy.pl/wiadomosci_medycyna.rss'),
+        ('Psychologia', 'http://kopalniawiedzy.pl/wiadomosci_psychologia.rss'),
+        ('Technologie', 'http://kopalniawiedzy.pl/wiadomosci_technologie.rss'),
+        ('Ciekawostki', 'http://kopalniawiedzy.pl/wiadomosci_ciekawostki.rss'),
+        ('Artykuły', 'http://kopalniawiedzy.pl/artykuly.rss'),
     ]
 
     def is_link_wanted(self, url, tag):

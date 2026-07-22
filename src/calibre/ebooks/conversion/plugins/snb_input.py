@@ -1,6 +1,4 @@
-__license__ = 'GPL 3'
-__copyright__ = '2010, Li Fanxi <lifanxi@freemindworld.com>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2010, Li Fanxi <lifanxi@freemindworld.com>
 
 import os
 
@@ -13,21 +11,28 @@ HTML_TEMPLATE = '<html><head><meta http-equiv="Content-Type" content="text/html;
 
 
 def html_encode(s):
-    return s.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;').replace('"', '&quot;').replace("'", '&apos;').replace('\n', '<br/>').replace(' ', '&nbsp;')  # noqa: E501
+    return (
+        s
+        .replace('&', '&amp;')
+        .replace('<', '&lt;')
+        .replace('>', '&gt;')
+        .replace('"', '&quot;')
+        .replace("'", '&apos;')
+        .replace('\n', '<br/>')
+        .replace(' ', '&nbsp;')
+    )  # noqa: E501
 
 
 class SNBInput(InputFormatPlugin):
-
-    name        = 'SNB Input'
-    author      = 'Li Fanxi'
+    name = 'SNB Input'
+    author = 'Li Fanxi'
     description = _('Convert SNB files to OEB')
-    file_types  = {'snb'}
+    file_types = {'snb'}
     commit_name = 'snb_input'
 
     options = set()
 
-    def convert(self, stream, options, file_ext, log,
-                accelerators):
+    def convert(self, stream, options, file_ext, log, accelerators):
         import uuid
 
         from calibre.ebooks.oeb.base import DirContainer
@@ -45,18 +50,18 @@ class SNBInput(InputFormatPlugin):
             raise ValueError('Invalid SNB file')
         log.debug('Handle meta data ...')
         from calibre.ebooks.conversion.plumber import create_oebbook
-        oeb = create_oebbook(log, None, options,
-                encoding=options.input_encoding, populate=False)
+
+        oeb = create_oebbook(log, None, options, encoding=options.input_encoding, populate=False)
         meta = snbFile.GetFileStream('snbf/book.snbf')
         if meta is not None:
             meta = safe_xml_fromstring(meta)
             l = {
-                  'title'    : './/head/name',
-                  'creator'  : './/head/author',
-                  'language' : './/head/language',
-                  'generator': './/head/generator',
-                  'publisher': './/head/publisher',
-                  'cover'    : './/head/cover',
+                'title': './/head/name',
+                'creator': './/head/author',
+                'language': './/head/language',
+                'generator': './/head/generator',
+                'publisher': './/head/publisher',
+                'cover': './/head/cover',
             }
             d = {}
             for item, path in l.items():
@@ -67,7 +72,7 @@ class SNBInput(InputFormatPlugin):
                     d[item] = ''
 
             oeb.metadata.add('title', d['title'])
-            oeb.metadata.add('creator', d['creator'], attrib={'role':'aut'})
+            oeb.metadata.add('creator', d['creator'], attrib={'role': 'aut'})
             oeb.metadata.add('language', d['language'].lower().replace('_', '-'))
             oeb.metadata.add('generator', d['generator'])
             oeb.metadata.add('publisher', d['publisher'])
@@ -89,7 +94,7 @@ class SNBInput(InputFormatPlugin):
                 toc = safe_xml_fromstring(toc)
                 i = 1
                 toc_body = toc.find('.//body')
-                for ch in (toc_body if toc_body is not None else []):
+                for ch in toc_body if toc_body is not None else []:
                     chapterName = ch.text
                     chapterSrc = ch.get('src')
                     fname = f'ch_{i}.htm'
@@ -100,7 +105,7 @@ class SNBInput(InputFormatPlugin):
                     snbc = safe_xml_fromstring(data)
                     lines = []
                     snbc_body = snbc.find('.//body')
-                    for line in (snbc_body if snbc_body is not None else []):
+                    for line in snbc_body if snbc_body is not None else []:
                         if line.tag == 'text':
                             lines.append(f'<p>{html_encode(line.text)}</p>')
                         elif line.tag == 'img':
@@ -108,16 +113,14 @@ class SNBInput(InputFormatPlugin):
                     with open(os.path.join(tdir, fname), 'wb') as f:
                         f.write((HTML_TEMPLATE % (chapterName, '\n'.join(lines))).encode('utf-8', 'replace'))
                     oeb.toc.add(ch.text, fname)
-                    id, href = oeb.manifest.generate(id='html',
-                        href=ascii_filename(fname))
+                    id, href = oeb.manifest.generate(id='html', href=ascii_filename(fname))
                     item = oeb.manifest.add(id, href, 'text/html')
                     item.html_input_href = fname
                     oeb.spine.add(item, True)
                     i = i + 1
                 imageFiles = snbFile.OutputImageFiles(tdir)
                 for f, m in imageFiles:
-                    id, href = oeb.manifest.generate(id='image',
-                        href=ascii_filename(f))
+                    id, href = oeb.manifest.generate(id='image', href=ascii_filename(f))
                     item = oeb.manifest.add(id, href, m)
                     item.html_input_href = f
 

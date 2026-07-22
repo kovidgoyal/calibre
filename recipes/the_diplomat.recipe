@@ -4,7 +4,7 @@ from calibre.web.feeds.news import BasicNewsRecipe, classes
 
 
 class Diplomat(BasicNewsRecipe):
-    title = u'The Diplomat'
+    title = 'The Diplomat'
     description = 'The Diplomat is the premier international current-affairs magazine for the Asia-Pacific region. READ THE DIPLOMAT, KNOW THE ASIA-PACIFIC'
     language = 'en'
     __author__ = 'unkn0wn'
@@ -28,8 +28,7 @@ class Diplomat(BasicNewsRecipe):
         tag = soup.find(attrs={'class': 'td-nav-mag'})
         if tag:
             url = tag.find('img')['src'].split('/')[-1]
-            self.cover_url = ('https://magazine.thediplomat.com/media/1080/' +
-                              url)
+            self.cover_url = 'https://magazine.thediplomat.com/media/1080/' + url
             # /ads/magazine/cover/td-mag-s-1/issue_89_cover.jpg
             # https://magazine.thediplomat.com/media/1080/issue_89_cover.jpg
         return super().get_cover_url()
@@ -53,8 +52,7 @@ class Diplomat(BasicNewsRecipe):
         ('East Asia', 'https://thediplomat.com/regions/east-asia/feed'),
         ('Oceania', 'https://thediplomat.com/regions/oceania-region/feed'),
         ('South Asia', 'https://thediplomat.com/regions/south-asia/feed'),
-        ('South East Asia',
-         'https://thediplomat.com/regions/southeast-asia/feed'),
+        ('South East Asia', 'https://thediplomat.com/regions/southeast-asia/feed'),
         # TOPICS
         ('Diplomacy', 'https://thediplomat.com/topics/diplomacy/feed'),
         ('Economy', 'https://thediplomat.com/topics/economy/feed'),

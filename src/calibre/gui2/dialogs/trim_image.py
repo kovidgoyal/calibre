@@ -1,8 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__ = 'GPL v3'
-__copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
+# License: GPLv3 Copyright: 2013, Kovid Goyal <kovid at kovidgoyal.net>
 
 import os
 import sys
@@ -36,7 +33,6 @@ def reduce_to_ratio(w, h, r):
 
 
 class Region(QDialog):
-
     ignore_value_changes = False
 
     def __init__(self, parent, width, height, max_width, max_height):
@@ -53,7 +49,7 @@ class Region(QDialog):
         h.valueChanged.connect(self.value_changed)
         l.addRow(_('&Height:'), h)
         self.ratio_input = r = QDoubleSpinBox(self)
-        r.setRange(0.0, 5.00), r.setDecimals(2), r.setValue(max_width/max_height), r.setSingleStep(0.01)
+        r.setRange(0.0, 5.00), r.setDecimals(2), r.setValue(max_width / max_height), r.setSingleStep(0.01)
         r.setToolTip(_('For example, use 0.75 for kindle devices.'))
         self.m_width = max_width
         self.m_height = max_height
@@ -63,8 +59,10 @@ class Region(QDialog):
         ca.toggled.connect(self.const_aspect_toggled)
         l.addRow(ca)
         k = QKeySequence('alt+1', QKeySequence.SequenceFormat.PortableText).toString(QKeySequence.SequenceFormat.NativeText).partition('+')[0]
-        la = QLabel('<p>'+_('Note that holding down the {} key while dragging the selection handles'
-                          ' will resize the selection while preserving its aspect ratio.').format(k))
+        la = QLabel(
+            '<p>'
+            + _('Note that holding down the {} key while dragging the selection handles will resize the selection while preserving its aspect ratio.').format(k)
+        )
         la.setWordWrap(True)
         la.setMinimumWidth(400)
         l.addRow(la)
@@ -78,7 +76,7 @@ class Region(QDialog):
 
     def aspect_changed(self):
         inp = float(self.ratio_input.value())
-        if inp > 0 and inp != round(self.m_width/self.m_height, 2):
+        if inp > 0 and inp != round(self.m_width / self.m_height, 2):
             rw, rh = reduce_to_ratio(self.m_width, self.m_height, inp)
             self.width_input.setValue(rw)
             self.height_input.setValue(rh)
@@ -108,7 +106,6 @@ class Region(QDialog):
 
 
 class TrimImage(QDialog):
-
     def __init__(self, img_data, parent=None):
         QDialog.__init__(self, parent)
         self.l = l = QVBoxLayout(self)
@@ -119,8 +116,7 @@ class TrimImage(QDialog):
         b.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
         b.setIconSize(QSize(32, 32))
 
-        self.msg = la = QLabel('\xa0' + _(
-            'Select a region by dragging with your mouse, and then click trim'))
+        self.msg = la = QLabel('\xa0' + _('Select a region by dragging with your mouse, and then click trim'))
         self.msg_txt = self.msg.text()
         self.sz = QLabel('')
 
@@ -136,8 +132,12 @@ class TrimImage(QDialog):
         self.trim_action = ac = self.bar.addAction(QIcon.ic('trim.png'), _('&Trim'), self.do_trim)
         assert ac is not None
         ac.setShortcut(QKeySequence('Ctrl+T'))
-        ac.setToolTip('{} [{}]'.format(_('Trim image by removing borders outside the selected region'),
-                                   ac.shortcut().toString(QKeySequence.SequenceFormat.NativeText)))
+        ac.setToolTip(
+            '{} [{}]'.format(
+                _('Trim image by removing borders outside the selected region'),
+                ac.shortcut().toString(QKeySequence.SequenceFormat.NativeText),
+            )
+        )
         ac.setEnabled(False)
         self.size_selection = ac = self.bar.addAction(QIcon.ic('resize.png'), _('&Region'), self.do_region)
         assert ac is not None
@@ -225,6 +225,7 @@ class TrimImage(QDialog):
 
 if __name__ == '__main__':
     from calibre.gui2 import Application
+
     app = Application([])
     fname = sys.argv[-1]
     with open(fname, 'rb') as f:

@@ -1,10 +1,8 @@
-__license__   = 'GPL v3'
-__copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2008, Kovid Goyal kovid@kovidgoyal.net
 
-'''
+"""
 Perform various initialization tasks.
-'''
+"""
 
 import builtins
 import locale
@@ -31,6 +29,7 @@ def get_debug_executable(headless=False, exe_name='calibre-debug'):
         base = os.path.dirname(sys.frameworks_dir)
         if headless:
             from calibre.utils.ipc.launch import headless_exe_path
+
             return [headless_exe_path(exe_name)]
         return [os.path.join(base, 'MacOS', exe_name)]
     if getattr(sys, 'run_local', None):
@@ -50,6 +49,7 @@ def get_debug_executable(headless=False, exe_name='calibre-debug'):
 
 def connect_lambda(bound_signal, self, func, **kw):
     import weakref
+
     r = weakref.ref(self)
     del self
     num_args = func.__code__.co_argcount - 1
@@ -76,15 +76,18 @@ def initialize_calibre():
     _calibre_initialized = True
     # Ensure that all temp files/dirs are created under a calibre tmp dir
     from calibre.ptempfile import fix_tempfile_module
+
     fix_tempfile_module()
 
     # Ensure that the max number of open files is at least 1024
     if iswindows:
         # See https://msdn.microsoft.com/en-us/library/6e3b887c.aspx
         from calibre_extensions import winutil
+
         winutil.setmaxstdio(max(1024, winutil.getmaxstdio()))
     else:
         import resource
+
         soft, hard = resource.getrlimit(resource.RLIMIT_NOFILE)
         if soft < 1024:
             try:
@@ -92,6 +95,7 @@ def initialize_calibre():
             except Exception:
                 if DEBUG:
                     import traceback
+
                     traceback.print_exc()
 
     #
@@ -105,6 +109,7 @@ def initialize_calibre():
         prog = ', '.join('{}={!r}'.format(*item) for item in kwds.items())
         prog = f'from multiprocessing.spawn import spawn_main; spawn_main({prog})'
         return get_executable() + ['__multiprocessing__', prog]
+
     spawn.get_command_line = get_command_line  # type: ignore
     spawn._fixup_main_from_path = lambda *a: None  # type: ignore
     if iswindows:
@@ -118,6 +123,7 @@ def initialize_calibre():
         def r(tdir, *a, **kw):
             if tdir and os.path.exists(tdir):
                 rmtree(tdir, *a, **kw)
+
         return r
 
     def safe_remove_temp_dir(rmtree, tdir):
@@ -133,14 +139,16 @@ def initialize_calibre():
             idx = args.index('-c')
         except ValueError:
             return wrapped_orig_spawn_fds(args, passfds)
-        patched_args = get_executable() + ['__multiprocessing__'] + args[idx + 1:]
+        patched_args = get_executable() + ['__multiprocessing__'] + args[idx + 1 :]
         return wrapped_orig_spawn_fds(patched_args, passfds)
+
     util.spawnv_passfds = spawnv_passfds  # type: ignore
     util._remove_temp_dir = safe_remove_temp_dir  # type: ignore
 
     #
     # Setup resources
     from calibre.utils import resources
+
     resources
 
     #
@@ -156,6 +164,7 @@ def initialize_calibre():
     # Before the delay load optimizations, string was loaded before this point
     # anyway, so we preserve the old behavior explicitly.
     import string
+
     string
     try:
         locale.setlocale(locale.LC_ALL, '')  # set the locale to the user's default locale
@@ -171,6 +180,7 @@ def initialize_calibre():
     from calibre.utils.icu import lower as icu_lower
     from calibre.utils.icu import title_case
     from calibre.utils.icu import upper as icu_upper
+
     builtins.__dict__['icu_lower'] = icu_lower
     builtins.__dict__['icu_upper'] = icu_upper
     builtins.__dict__['icu_title'] = title_case
@@ -200,4 +210,5 @@ def initialize_calibre():
                     speedup.set_thread_name(name[:15])
             except Exception:
                 pass  # Don't care about failure to set name
+
         threading.Thread.start = new_start

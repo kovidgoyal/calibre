@@ -1,8 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__ = 'GPL v3'
-__copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
+# License: GPLv3 Copyright: 2014, Kovid Goyal <kovid at kovidgoyal.net>
 
 from tinycss.fonts3 import parse_font, parse_font_family, serialize_font, serialize_font_family
 
@@ -121,12 +118,12 @@ def change_font_in_sheet(container, sheet, old_name, new_name, sheet_name):
 
 
 def change_font(container, old_name, new_name=None):
-    '''
+    """
     Change a font family from old_name to new_name. Changes all occurrences of
     the font family in stylesheets, style tags and style attributes.
     If the old_name refers to an embedded font, it is removed. You can set
     new_name to None to remove the font family instead of changing it.
-    '''
+    """
     changed = False
     for name, mt in tuple(container.mime_map.items()):
         if mt in OEB_STYLES:

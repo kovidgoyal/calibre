@@ -1,9 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__   = 'GPL v3'
-__copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2013, Kovid Goyal <kovid at kovidgoyal.net>
 
 import io
 import re
@@ -21,7 +17,6 @@ from calibre.utils.config import JSONConfig
 
 
 class VersionMismatch(ValueError):
-
     def __init__(self, ver):
         ValueError.__init__(self, 'calibre too old')
         self.ver = ver
@@ -29,7 +24,8 @@ class VersionMismatch(ValueError):
 
 def download_updates(ver_map={}, server='https://code.calibre-ebook.com'):
     from calibre.utils.https import get_https_resource_securely
-    data = {k:str(v) for k, v in ver_map.items()}
+
+    data = {k: str(v) for k, v in ver_map.items()}
     data['ver'] = '1'
     url = f'{server}/stores?{urlencode(data)}'
     # We use a timeout here to ensure the non-daemonic update thread does not
@@ -51,7 +47,6 @@ def download_updates(ver_map={}, server='https://code.calibre-ebook.com'):
 
 
 class Stores(OrderedDict):
-
     CHECK_INTERVAL = 24 * 60 * 60
 
     def builtins_loaded(self):
@@ -84,7 +79,7 @@ class Stores(OrderedDict):
                 if m is not None:
                     try:
                         self.cached_version_map[name] = int(m.group(1))
-                    except (TypeError, ValueError):
+                    except TypeError, ValueError:
                         pass
                 continue
 
@@ -95,6 +90,7 @@ class Stores(OrderedDict):
                 continue
             except Exception:
                 import traceback
+
                 prints('Failed to load cached store:', name)
                 traceback.print_exc()
             else:
@@ -115,7 +111,7 @@ class Stores(OrderedDict):
         self.last_check_time = time.time()
         try:
             self.update_thread.start()
-        except (RuntimeError, AttributeError):
+        except RuntimeError, AttributeError:
             self.update_thread = Thread(target=self.do_update)
             self.update_thread.start()
 
@@ -123,12 +119,12 @@ class Stores(OrderedDict):
         hasattr(self, 'update_thread') and self.update_thread.join(timeout)
 
     def download_updates(self):
-        ver_map = {name:max(ver, self.cached_version_map.get(name, -1))
-            for name, ver in self.version_map.items()}
+        ver_map = {name: max(ver, self.cached_version_map.get(name, -1)) for name, ver in self.version_map.items()}
         try:
             updates = download_updates(ver_map)
         except Exception:
             import traceback
+
             traceback.print_exc()
         else:
             yield from updates
@@ -151,6 +147,7 @@ class Stores(OrderedDict):
                 continue
             except Exception:
                 import traceback
+
                 prints('Failed to load downloaded store:', name)
                 traceback.print_exc()
             else:
@@ -165,8 +162,7 @@ class Stores(OrderedDict):
     def replace_plugin(self, ver, name, obj, source):
         if ver > self.version_map[name]:
             if DEBUG:
-                prints('Loaded', source, 'store plugin for:',
-                       self.name_rmap[name], 'at version:', ver)
+                prints('Loaded', source, 'store plugin for:', self.name_rmap[name], 'at version:', ver)
             self[self.name_rmap[name]] = obj
             self.version_map[name] = ver
             return True
@@ -179,16 +175,14 @@ class Stores(OrderedDict):
         ver = namespace['store_version']
         cls = None
         for x in namespace.values():
-            if (isinstance(x, type) and issubclass(x, StorePlugin) and x is not
-                StorePlugin):
+            if isinstance(x, type) and issubclass(x, StorePlugin) and x is not StorePlugin:
                 cls = x
                 break
         if cls is None:
             raise ValueError('No store plugin found')
         if cls.minimum_calibre_version > numeric_version:
             raise VersionMismatch(ver)
-        return cls(builtin.gui, builtin.name, config=builtin.config,
-                   base_plugin=builtin.base_plugin), ver
+        return cls(builtin.gui, builtin.name, config=builtin.config, base_plugin=builtin.base_plugin), ver
 
 
 if __name__ == '__main__':
@@ -198,5 +192,5 @@ if __name__ == '__main__':
         count += 1
         print(name)
         print(code.encode('utf-8'))
-        print('\n', '_'*80, '\n', sep='')
+        print('\n', '_' * 80, '\n', sep='')
     print(f'Time to download all {count} plugins: {time.time() - st:.2f} seconds')

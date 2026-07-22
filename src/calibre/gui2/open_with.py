@@ -1,8 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__ = 'GPL v3'
-__copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
+# License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
 import os
 import uuid
@@ -54,6 +51,7 @@ def pixmap_to_data(pixmap):
 
 def run_program(entry, path, parent):
     import subprocess
+
     cmdline = entry_to_cmdline(entry, path)
     print('Running Open With commandline:', repr(cmdline))
     try:
@@ -61,9 +59,11 @@ def run_program(entry, path, parent):
             process = subprocess.Popen(cmdline)
     except Exception as err:
         return error_dialog(
-            parent, _('Failed to run'), _(
-            'Failed to run program, click "Show details" for more information'),
-            det_msg=f'Command line: {cmdline!r}\n{as_unicode(err)}')
+            parent,
+            _('Failed to run'),
+            _('Failed to run program, click "Show details" for more information'),
+            det_msg=f'Command line: {cmdline!r}\n{as_unicode(err)}',
+        )
     t = Thread(name='WaitProgram', target=process.wait)
     t.daemon = True
     t.start()
@@ -76,6 +76,7 @@ def entry_to_icon_text(entry, only_text=False):
     if isinstance(data, str):
         with suppress(Exception):
             from base64 import standard_b64decode
+
             data = bytearray(standard_b64decode(data))
     if not isinstance(data, (bytearray, bytes)):
         icon = QIcon.ic('blank.png')
@@ -96,6 +97,7 @@ if iswindows:
     from calibre.utils.open_with.windows import load_icon_for_cmdline, load_icon_resource
     from calibre.utils.winreg.default_programs import find_programs, friendly_app_name
     from calibre_extensions import winutil
+
     oprefs = JSONConfig('windows_open_with')
 
     def entry_sort_key(entry):
@@ -109,6 +111,7 @@ if iswindows:
             return load_icon_resource(res, as_data=as_data)
         except Exception:
             import traceback
+
             traceback.print_exc()
         return load_icon_for_cmdline(entry['cmdline'], as_data=as_data)
 
@@ -118,6 +121,7 @@ if iswindows:
         except Exception:
             data = None
             import traceback
+
             traceback.print_exc()
         if isinstance(data, (bytes, bytearray)) or data is None:
             entry['icon_data'] = data
@@ -132,6 +136,7 @@ if iswindows:
         except Exception:
             icon = None
             import traceback
+
             traceback.print_exc()
         if not icon:
             icon = entry_to_icon_text(entry)[0]
@@ -141,18 +146,20 @@ if iswindows:
 
     def choose_manually(filetype, parent):
         ans = choose_files(
-            parent, 'choose-open-with-program-manually-win',
+            parent,
+            'choose-open-with-program-manually-win',
             _('Choose a program to open %s files') % filetype.upper(),
-            filters=[(_('Executable files'), ['exe', 'bat', 'com', 'cmd'])], select_only_single_file=True)
+            filters=[(_('Executable files'), ['exe', 'bat', 'com', 'cmd'])],
+            select_only_single_file=True,
+        )
         if ans:
             ans = os.path.abspath(ans[0])
             if not os.access(ans, os.X_OK):
-                error_dialog(parent, _('Cannot execute'), _(
-                    'The program %s is not an executable file') % ans, show=True)
+                error_dialog(parent, _('Cannot execute'), _('The program %s is not an executable file') % ans, show=True)
                 return
             qans = ans.replace('"', r'\"')
             name = friendly_app_name(exe=ans) or os.path.splitext(os.path.basename(ans))[0]
-            return {'cmdline':f'"{qans}" "%1"', 'name':name}
+            return {'cmdline': f'"{qans}" "%1"', 'name': name}
 
     def entry_to_cmdline(entry, path):
         cmdline = entry['cmdline']
@@ -174,9 +181,12 @@ if iswindows:
                 os.startfile(exe, 'open', rest)
         except Exception as err:
             return error_dialog(
-                parent, _('Failed to run'), _(
-                'Failed to run program, click "Show details" for more information'),
-                det_msg=f'Command line: {cmdline!r}\n{err}')
+                parent,
+                _('Failed to run'),
+                _('Failed to run program, click "Show details" for more information'),
+                det_msg=f'Command line: {cmdline!r}\n{err}',
+            )
+
     # }}}
 
 elif ismacos:
@@ -214,16 +224,19 @@ elif ismacos:
             if os.path.isdir(ans):
                 app = get_bundle_data(ans)
                 if app is None:
-                    error_dialog(parent, _('Invalid application'), _(
-                        '%s is not a valid macOS application bundle.') % ans, show=True)
+                    error_dialog(
+                        parent,
+                        _('Invalid application'),
+                        _('%s is not a valid macOS application bundle.') % ans,
+                        show=True,
+                    )
                     return
                 return app
             if not os.access(ans, os.X_OK):
-                error_dialog(parent, _('Cannot execute'), _(
-                    'The program %s is not an executable file') % ans, show=True)
+                error_dialog(parent, _('Cannot execute'), _('The program %s is not an executable file') % ans, show=True)
                 return
 
-            return {'path':ans, 'name': os.path.basename(ans)}
+            return {'path': ans, 'name': os.path.basename(ans)}
 
     # }}}
 
@@ -241,22 +254,26 @@ else:
             icon_path = I('blank.png')
         ans = QListWidgetItem(QIcon(icon_path), entry.get('Name') or _('Unknown'), parent)
         ans.setData(ENTRY_ROLE, entry)
-        comment = (entry.get('Comment') or '')
+        comment = entry.get('Comment') or ''
         if comment:
             comment += '\n'
         ans.setToolTip(comment + _('Command line:') + '\n' + (' '.join(entry['Exec'])))
 
     def choose_manually(filetype, parent):
         dd = '/usr/bin' if os.path.isdir('/usr/bin') else '~'
-        ans = choose_files(parent, 'choose-open-with-program-manually', _('Choose a program to open %s files') % filetype.upper(),
-                           select_only_single_file=True, default_dir=dd)
+        ans = choose_files(
+            parent,
+            'choose-open-with-program-manually',
+            _('Choose a program to open %s files') % filetype.upper(),
+            select_only_single_file=True,
+            default_dir=dd,
+        )
         if ans:
             ans = ans[0]
             if not os.access(ans, os.X_OK):
-                error_dialog(parent, _('Cannot execute'), _(
-                    'The program %s is not an executable file') % ans, show=True)
+                error_dialog(parent, _('Cannot execute'), _('The program %s is not an executable file') % ans, show=True)
                 return
-            return {'Exec':[ans, '%f'], 'Name':os.path.basename(ans)}
+            return {'Exec': [ans, '%f'], 'Name': os.path.basename(ans)}
 
     def finalize_entry(entry):
         icon_path = entry.get('Icon')
@@ -275,7 +292,6 @@ else:
 
 
 class ChooseProgram(Dialog):  # {{{
-
     found = pyqtSignal()
 
     def __init__(self, file_type='jpeg', parent=None, prefs=oprefs):
@@ -326,14 +342,19 @@ class ChooseProgram(Dialog):  # {{{
             self.programs = find_programs(self.file_type.split())
         except Exception:
             import traceback
+
             self.find_error = traceback.print_exc()
         self.found.emit()
 
     def programs_found(self):
         if self.find_error is not None:
-            error_dialog(self, _('Error finding programs'), _(
-                'Failed to find programs on your computer, click "Show details" for'
-                ' more information'), det_msg=self.find_error, show=True)
+            error_dialog(
+                self,
+                _('Error finding programs'),
+                _('Failed to find programs on your computer, click "Show details" for more information'),
+                det_msg=self.find_error,
+                show=True,
+            )
             self.select_manually = True
             return self.reject()
         if not self.programs:
@@ -359,7 +380,7 @@ oprefs.defaults['entries'] = {}
 
 def choose_program(file_type='jpeg', parent=None, prefs=oprefs):
     oft = file_type = file_type.lower()
-    file_type = {'cover_image':'jpeg'}.get(oft, oft)
+    file_type = {'cover_image': 'jpeg'}.get(oft, oft)
     d = ChooseProgram(file_type, parent, prefs)
     d.exec()
     entry = choose_manually(file_type, parent) if d.select_manually else d.selected_entry
@@ -388,14 +409,19 @@ def populate_menu(menu, connect_action, file_type):
         connect_action(ac, entry)
     return menu
 
+
 # }}}
 
 
 class EditPrograms(Dialog):  # {{{
-
     def __init__(self, file_type='jpeg', parent=None):
         self.file_type = file_type.lower()
-        Dialog.__init__(self, _('Edit the applications used for %s files') % file_type.upper(), 'edit-open-with-programs', parent=parent)
+        Dialog.__init__(
+            self,
+            _('Edit the applications used for %s files') % file_type.upper(),
+            'edit-open-with-programs',
+            parent=parent,
+        )
 
     def setup_ui(self):
         self.l = l = QVBoxLayout(self)
@@ -428,15 +454,12 @@ class EditPrograms(Dialog):  # {{{
     def change_icon(self):
         ci = self.plist.currentItem()
         if ci is None:
-            return error_dialog(self, _('No selection'), _(
-                'No application selected'), show=True)
-        paths = choose_images(self, 'choose-new-icon-for-open-with-program', _(
-            'Choose new icon'))
+            return error_dialog(self, _('No selection'), _('No application selected'), show=True)
+        paths = choose_images(self, 'choose-new-icon-for-open-with-program', _('Choose new icon'))
         if paths:
             ic = QIcon(paths[0])
             if ic.isNull():
-                return error_dialog(self, _('Invalid icon'), _(
-                    'Could not load image from %s') % paths[0], show=True)
+                return error_dialog(self, _('Invalid icon'), _('Could not load image from %s') % paths[0], show=True)
             pmap = ic.pixmap(48, 48)
             if not pmap.isNull():
                 entry = ci.data(ENTRY_ROLE)
@@ -448,8 +471,7 @@ class EditPrograms(Dialog):  # {{{
     def change_name(self):
         ci = self.plist.currentItem()
         if ci is None:
-            return error_dialog(self, _('No selection'), _(
-                'No application selected'), show=True)
+            return error_dialog(self, _('No selection'), _('No application selected'), show=True)
         name = ci.data(Qt.ItemDataRole.DisplayRole)
         name, ok = QInputDialog.getText(self, _('Enter new name'), _('New name for {}').format(name), text=name)
         if ok and name:
@@ -462,8 +484,7 @@ class EditPrograms(Dialog):  # {{{
     def remove(self):
         ci = self.plist.currentItem()
         if ci is None:
-            return error_dialog(self, _('No selection'), _(
-                'No application selected'), show=True)
+            return error_dialog(self, _('No selection'), _('No application selected'), show=True)
         row = self.plist.row(ci)
         self.plist.takeItem(row)
         self.update_stored_config()
@@ -482,8 +503,9 @@ class EditPrograms(Dialog):  # {{{
 def edit_programs(file_type, parent):
     d = EditPrograms(file_type, parent)
     d.exec()
-# }}}
 
+
+# }}}
 
 registered_shortcuts = {}
 
@@ -491,6 +513,7 @@ registered_shortcuts = {}
 def register_keyboard_shortcuts(gui=None, finalize=False):
     if gui is None:
         from calibre.gui2.ui import get_gui
+
         gui = get_gui()
     if gui is None:
         return
@@ -517,6 +540,7 @@ def register_keyboard_shortcuts(gui=None, finalize=False):
 
 if __name__ == '__main__':
     from pprint import pprint
+
     app = Application([])
     pprint(choose_program('pdf'))
     del app

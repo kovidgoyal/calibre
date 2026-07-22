@@ -1,16 +1,11 @@
 #!/usr/bin/env python
-
-
-__license__   = 'GPL v3'
-__copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2013, Kovid Goyal <kovid at kovidgoyal.net>
 
 import glob
 import os
 
 
 class MTPDetect:
-
     SYSFS_PATH = os.environ.get('SYSFS_PATH', '/sys')
 
     def __init__(self):
@@ -39,15 +34,13 @@ class MTPDetect:
             raw = read(x)
             if not raw or raw.strip() != b'MTP':
                 continue
-            raw = read(os.path.join(os.path.dirname(os.path.dirname(x)),
-                                    'devnum'))
+            raw = read(os.path.join(os.path.dirname(os.path.dirname(x)), 'devnum'))
             try:
                 if raw and int(raw) == dev.devnum:
                     if debug is not None:
-                        debug(f'Unknown device {dev} claims to be an MTP device'
-                              )
+                        debug(f'Unknown device {dev} claims to be an MTP device')
                     return True
-            except (ValueError, TypeError):
+            except ValueError, TypeError:
                 continue
 
         return False

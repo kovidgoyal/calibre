@@ -2,7 +2,7 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 
 
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 from collections import defaultdict
@@ -70,10 +70,10 @@ def generate_template_language_help(language, log):
             categories[category][name] = func
         for cat_name in sorted(categories):
             a(cat_name + '\n')
-            a(('-' * (4*len(cat_name))) + '\n\n')
+            a(('-' * (4 * len(cat_name))) + '\n\n')
             for name in sorted(categories[cat_name]):
                 func = categories[cat_name][name]
-                a(f"\n\n.. _ff_{name}:\n\n{name}\n{'^'*len(name)}\n\n")
+                a(f"\n\n.. _ff_{name}:\n\n{name}\n{'^' * len(name)}\n\n")
                 a(f'.. class:: {func.__class__.__name__}\n\n')
                 try:
                     a(ffml.document_to_rst(func.doc, name))

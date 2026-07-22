@@ -4,7 +4,7 @@ from calibre.web.feeds.news import BasicNewsRecipe, prefixed_classes
 
 
 class NYTCooking(BasicNewsRecipe):
-    title          = 'NY Times Cooking'
+    title = 'NY Times Cooking'
     description = 'NY Times Cooking Magazine'
     __author__ = 'gourav'
     language = 'en_US'
@@ -19,7 +19,8 @@ class NYTCooking(BasicNewsRecipe):
     remove_tags = [
         prefixed_classes(
             'adunit_ad-unit__ recipeintro_tools-block__ notessection_notesPrintLayout__ notessection_notesSection__'
-            ' ratingssection_ratingsSection__ ingredients_buttons__'),
+            ' ratingssection_ratingsSection__ ingredients_buttons__'
+        ),
         dict(name='source'),
     ]
 

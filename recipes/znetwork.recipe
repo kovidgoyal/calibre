@@ -21,7 +21,7 @@ class znetwork(BasicNewsRecipe):
         'days': {
             'short': 'Oldest article to download from this news source. In days ',
             'long': 'For example, 0.5, gives you articles from the past 12 hours',
-            'default': str(oldest_article)
+            'default': str(oldest_article),
         }
     }
 
@@ -39,17 +39,9 @@ class znetwork(BasicNewsRecipe):
         .wp-caption-text, .wp-element-caption { font-size:small; text-align:center; }
     '''
 
-    keep_only_tags = [
-        classes(
-            'cat-labels post-title z-post-source sub-title post-author date'
-            ' read-time featured entry-content author-info'
-        )
-    ]
+    keep_only_tags = [classes('cat-labels post-title z-post-source sub-title post-author date read-time featured entry-content author-info')]
 
-    remove_tags = [
-        dict(name=['aside', 'svg', 'source', 'iframe']),
-        classes('support-z-text yarpp-related yarpp-related-website')
-    ]
+    remove_tags = [dict(name=['aside', 'svg', 'source', 'iframe']), classes('support-z-text yarpp-related yarpp-related-website')]
 
     remove_tags_after = [classes('author-info')]
 

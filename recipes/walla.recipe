@@ -6,7 +6,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class AdvancedUserRecipe1283848012(BasicNewsRecipe):
     description = 'The WallaNews.'
     cover_url = 'https://images.wcdn.co.il//2/5/4/2/2542044-46.jpg'
-    title = u'Walla'
+    title = 'Walla'
     language = 'he'
     __author__ = 'marbs & barakplasma'
     extra_css = 'body{direction: rtl;},title{direction: rtl; } ,article_description{direction: rtl; }, a.article{direction: rtl; } ,calibre_feed_description{direction: rtl; }'  # noqa: E501
@@ -21,19 +21,19 @@ class AdvancedUserRecipe1283848012(BasicNewsRecipe):
     ]
 
     feeds = [
-        (u'חדשות', u'https://rss.walla.co.il/feed/1?type=main'),
-        (u'ספורט', u'https://rss.walla.co.il/feed/3?type=main'),
-        (u'כסף', u'https://rss.walla.co.il/feed/2?type=main'),
-        (u'רכב', u'https://rss.walla.co.il/feed/31?type=main'),
-        (u'תרבות', u'https://rss.walla.co.il/feed/4?type=main'),
-        (u'סלבס', u'https://rss.walla.co.il/feed/22?type=main'),
-        (u'אופנה', u'https://rss.walla.co.il/feed/24?type=main'),
-        (u'אוכל', u'https://rss.walla.co.il/feed/9?type=main'),
-        (u'בריאות', u'https://rss.walla.co.il/feed/139?type=main'),
-        (u'תיירות', u'https://rss.walla.co.il/feed/14?type=main'),
-        (u'TECH', u'https://rss.walla.co.il/feed/6?type=main'),
-        (u'כיף', u'https://rss.walla.co.il/feed/13?type=main'),
-        (u'בית ועיצוב', u'https://rss.walla.co.il/feed/35?type=main'),
-        (u'יהדות', u'https://rss.walla.co.il/feed/138?type=main'),
-        (u'מקומי', u'https://rss.walla.co.il/feed/430?type=main')
+        ('חדשות', 'https://rss.walla.co.il/feed/1?type=main'),
+        ('ספורט', 'https://rss.walla.co.il/feed/3?type=main'),
+        ('כסף', 'https://rss.walla.co.il/feed/2?type=main'),
+        ('רכב', 'https://rss.walla.co.il/feed/31?type=main'),
+        ('תרבות', 'https://rss.walla.co.il/feed/4?type=main'),
+        ('סלבס', 'https://rss.walla.co.il/feed/22?type=main'),
+        ('אופנה', 'https://rss.walla.co.il/feed/24?type=main'),
+        ('אוכל', 'https://rss.walla.co.il/feed/9?type=main'),
+        ('בריאות', 'https://rss.walla.co.il/feed/139?type=main'),
+        ('תיירות', 'https://rss.walla.co.il/feed/14?type=main'),
+        ('TECH', 'https://rss.walla.co.il/feed/6?type=main'),
+        ('כיף', 'https://rss.walla.co.il/feed/13?type=main'),
+        ('בית ועיצוב', 'https://rss.walla.co.il/feed/35?type=main'),
+        ('יהדות', 'https://rss.walla.co.il/feed/138?type=main'),
+        ('מקומי', 'https://rss.walla.co.il/feed/430?type=main'),
     ]

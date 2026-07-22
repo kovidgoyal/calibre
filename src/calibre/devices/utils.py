@@ -1,9 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__   = 'GPL v3'
-__copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2012, Kovid Goyal <kovid at kovidgoyal.net>
 
 import os
 import re
@@ -16,17 +12,25 @@ from calibre.utils.localization import _
 
 def sanity_check(on_card, files, card_prefixes, free_space):
     if on_card == 'carda' and not card_prefixes[0]:
-        raise WrongDestinationError(_(
-            'The reader has no storage card %s. You may have changed '
-            'the default send to device action. Right click on the "Send '
-            'to device" button and reset the default action to be '
-            '"Send to main memory".')%'A')
+        raise WrongDestinationError(
+            _(
+                'The reader has no storage card %s. You may have changed '
+                'the default send to device action. Right click on the "Send '
+                'to device" button and reset the default action to be '
+                '"Send to main memory".'
+            )
+            % 'A'
+        )
     elif on_card == 'cardb' and not card_prefixes[1]:
-        raise WrongDestinationError(_(
-            'The reader has no storage card %s. You may have changed '
-            'the default send to device action. Right click on the "Send '
-            'to device" button and reset the default action to be '
-            '"Send to main memory".')%'B')
+        raise WrongDestinationError(
+            _(
+                'The reader has no storage card %s. You may have changed '
+                'the default send to device action. Right click on the "Send '
+                'to device" button and reset the default action to be '
+                '"Send to main memory".'
+            )
+            % 'B'
+        )
     elif on_card and on_card not in ('carda', 'cardb'):
         raise DeviceError(_('Selected slot: %s is not supported.') % on_card)
 
@@ -34,11 +38,11 @@ def sanity_check(on_card, files, card_prefixes, free_space):
     for f in files:
         size += os.path.getsize(getattr(f, 'name', f))
 
-    if not on_card and size > free_space[0] - 2*1024*1024:
+    if not on_card and size > free_space[0] - 2 * 1024 * 1024:
         raise FreeSpaceError(_('There is insufficient free space in main memory'))
-    if on_card == 'carda' and size > free_space[1] - 1024*1024:
+    if on_card == 'carda' and size > free_space[1] - 1024 * 1024:
         raise FreeSpaceError(_('There is insufficient free space on the storage card'))
-    if on_card == 'cardb' and size > free_space[2] - 1024*1024:
+    if on_card == 'cardb' and size > free_space[2] - 1024 * 1024:
         raise FreeSpaceError(_('There is insufficient free space on the storage card'))
 
 
@@ -55,6 +59,7 @@ def build_template_regexp(template):
                 seen.add(v)
                 return '(?P<' + v + '>.+?)'
         return '(.+?)'
+
     s = set()
     f = partial(replfunc, seen=s)
 
@@ -67,15 +72,19 @@ def build_template_regexp(template):
         return re.compile(re.sub(r'{([^}]*)}', f, template) + r'([_\d]*$)')
 
 
-def create_upload_path(mdata, fname, template, sanitize,
-        prefix_path='',
-        path_type=os.path,
-        maxlen=250,
-        use_subdirs=True,
-        news_in_folder=True,
-        filename_callback=lambda x, y:x,
-        sanitize_path_components=lambda x: x
-        ):
+def create_upload_path(
+    mdata,
+    fname,
+    template,
+    sanitize,
+    prefix_path='',
+    path_type=os.path,
+    maxlen=250,
+    use_subdirs=True,
+    news_in_folder=True,
+    filename_callback=lambda x, y: x,
+    sanitize_path_components=lambda x: x,
+):
     from calibre.library.save_to_disk import config, get_components
     from calibre.utils.filenames import shorten_components_to
 
@@ -89,7 +98,7 @@ def create_upload_path(mdata, fname, template, sanitize,
     if mdata.tags and _('News') in mdata.tags:
         try:
             p = mdata.pubdate
-            date  = (p.year, p.month, p.day)
+            date = (p.year, p.month, p.day)
         except Exception:
             today = time.localtime()
             date = (today[0], today[1], today[2])
@@ -103,14 +112,19 @@ def create_upload_path(mdata, fname, template, sanitize,
         template = template.decode('utf-8')
     app_id = str(getattr(mdata, 'application_id', ''))
     id_ = mdata.get('id', fname)
-    extra_components = get_components(template, mdata, id_,
-            timefmt=opts.send_timefmt, length=maxlen-len(app_id)-1,
-            sanitize_func=sanitize, last_has_extension=False)
+    extra_components = get_components(
+        template,
+        mdata,
+        id_,
+        timefmt=opts.send_timefmt,
+        length=maxlen - len(app_id) - 1,
+        sanitize_func=sanitize,
+        last_has_extension=False,
+    )
     if not extra_components:
-        extra_components.append(sanitize(filename_callback(fname,
-            mdata)))
+        extra_components.append(sanitize(filename_callback(fname, mdata)))
     else:
-        extra_components[-1] = sanitize(filename_callback(extra_components[-1]+ext, mdata))
+        extra_components[-1] = sanitize(filename_callback(extra_components[-1] + ext, mdata))
 
     if extra_components[-1] and extra_components[-1][0] in ('.', '_'):
         extra_components[-1] = 'x' + extra_components[-1][1:]

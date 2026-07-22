@@ -5,9 +5,8 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class TheDailyWTF(BasicNewsRecipe):
-
-    title = u'The Daily WTF'
-    publisher = u'Mark Bowytz'
+    title = 'The Daily WTF'
+    publisher = 'Mark Bowytz'
     __author__ = 'Jelle van der Waa'
     description = 'The Daily WTF is your how-not-to guide for developing software. We recount tales of disastrous development, from project management gone spectacularly bad to inexplicable coding choices.'  # noqa: E501
     category = 'software, programming'
@@ -19,6 +18,5 @@ class TheDailyWTF(BasicNewsRecipe):
     use_embedded_content = False
     language = 'en'
     remove_empty_feeds = True
-    keep_only_tags = [dict(name='h1'),
-                      dict(name='div', attrs={'class': ['article-body']})]
-    feeds = [(u'The Daily WTF', u'http://syndication.thedailywtf.com/TheDailyWtf')]
+    keep_only_tags = [dict(name='h1'), dict(name='div', attrs={'class': ['article-body']})]
+    feeds = [('The Daily WTF', 'http://syndication.thedailywtf.com/TheDailyWtf')]

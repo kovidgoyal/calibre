@@ -11,7 +11,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class Inteligencer(BasicNewsRecipe):
-    title = u'Intelligencer'
+    title = 'Intelligencer'
     oldest_article = 7
     max_articles_per_feed = 100
     encoding = 'utf-8'
@@ -21,20 +21,14 @@ class Inteligencer(BasicNewsRecipe):
     use_embedded_content = False
     lang = 'en-CA'
 
-    conversion_options = {
-        'language': lang, 'pretty_print': True
-    }
+    conversion_options = {'language': lang, 'pretty_print': True}
 
-    remove_attributes = ['style', 'width', 'height',
-                         'font', 'border', 'align', 'action', 'onload']
+    remove_attributes = ['style', 'width', 'height', 'font', 'border', 'align', 'action', 'onload']
 
     keep_only_tags = [dict(name='td', attrs={'colspan': '2'})]
 
-    remove_tags = [
-        dict(name=['object', 'link', 'embed', 'iframe']), dict(
-            name='div', attrs={'id': 'header'})
-    ]
-    feeds = [(u'Recent News', u'http://www.intelligencer.ca/rss/')]
+    remove_tags = [dict(name=['object', 'link', 'embed', 'iframe']), dict(name='div', attrs={'id': 'header'})]
+    feeds = [('Recent News', 'http://www.intelligencer.ca/rss/')]
 
     def print_version(self, url):
         return url.replace('/ArticleDisplay.aspx?', '/PrintArticle.aspx?')

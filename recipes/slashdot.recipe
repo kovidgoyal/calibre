@@ -9,8 +9,8 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class Slashdot(BasicNewsRecipe):
-    title = u'Slashdot.org'
-    description    = '''Tech news. WARNING: This recipe downloads a lot
+    title = 'Slashdot.org'
+    description = '''Tech news. WARNING: This recipe downloads a lot
     of content and may result in your IP being banned from slashdot.org'''
     oldest_article = 7
     simultaneous_downloads = 1
@@ -28,14 +28,9 @@ class Slashdot(BasicNewsRecipe):
     ]
 
     feeds = [
-        (u'Slashdot',
-         u'http://rss.slashdot.org/Slashdot/slashdot'),
-        (u'/. IT',
-         u'http://rss.slashdot.org/Slashdot/slashdotIT'),
-        (u'/. Hardware',
-         u'http://rss.slashdot.org/Slashdot/slashdotHardware'),
-        (u'/. Linux',
-         u'http://rss.slashdot.org/Slashdot/slashdotLinux'),
-        (u'/. Your Rights Online',
-         u'http://rss.slashdot.org/Slashdot/slashdotYourRightsOnline')
+        ('Slashdot', 'http://rss.slashdot.org/Slashdot/slashdot'),
+        ('/. IT', 'http://rss.slashdot.org/Slashdot/slashdotIT'),
+        ('/. Hardware', 'http://rss.slashdot.org/Slashdot/slashdotHardware'),
+        ('/. Linux', 'http://rss.slashdot.org/Slashdot/slashdotLinux'),
+        ('/. Your Rights Online', 'http://rss.slashdot.org/Slashdot/slashdotYourRightsOnline'),
     ]

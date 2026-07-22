@@ -1,9 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__   = 'GPL v3'
-__copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2010, Kovid Goyal <kovid@kovidgoyal.net>
 
 from calibre.gui2 import error_dialog
 from calibre.gui2.actions import InterfaceAction
@@ -12,7 +8,6 @@ from calibre.utils.localization import _
 
 
 class ShowTemplateTesterAction(InterfaceAction):
-
     name = 'Template tester'
     action_spec = (_('Template tester'), 'debug.png', None, ())
     dont_add_to = frozenset(('context-menu-device',))
@@ -40,14 +35,15 @@ class ShowTemplateTesterAction(InterfaceAction):
     def show_template_editor(self, *args):
         view = self.gui.current_view()
         if view is not self.gui.library_view:
-            return error_dialog(self.gui, _('No template tester available'),
-                _('Template tester is not available for books '
-                  'on the device.')).exec()
+            return error_dialog(
+                self.gui,
+                _('No template tester available'),
+                _('Template tester is not available for books on the device.'),
+            ).exec()
 
         rows = view.selectionModel().selectedRows()
         if not rows:
-            return error_dialog(self.gui, _('No books selected'),
-                    _('At least one book must be selected'), show=True)
+            return error_dialog(self.gui, _('No books selected'), _('At least one book must be selected'), show=True)
         mi = []
         db = view.model().db
         for row in rows:
@@ -65,11 +61,9 @@ class ShowTemplateTesterAction(InterfaceAction):
                 self.non_modal_dialogs.append(True)
             else:
                 self.non_modal_dialogs[dn] = True
-            t = TemplateDialog(self.gui, self.previous_text,
-                               mi, text_is_placeholder=self.first_time,
-                               dialog_number=dn)
+            t = TemplateDialog(self.gui, self.previous_text, mi, text_is_placeholder=self.first_time, dialog_number=dn)
             self.non_modal_dialogs[dn] = t
-            t.setWindowTitle(self.window_title, dialog_number=dn+1)
+            t.setWindowTitle(self.window_title, dialog_number=dn + 1)
             t.tester_closed.connect(self.save_template_text)
             t.show()
 

@@ -1,13 +1,9 @@
 #!/usr/bin/env python
+# License: GPLv3 Copyright: 2008, Kovid Goyal kovid@kovidgoyal.net
 
-
-__license__   = 'GPL v3'
-__copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
-__docformat__ = 'restructuredtext en'
-
-'''
+"""
 Convert CBR/CBZ files to LRF.
-'''
+"""
 
 import sys
 

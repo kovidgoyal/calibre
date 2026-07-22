@@ -1,9 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__   = 'GPL v3'
-__copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2009, Kovid Goyal <kovid@kovidgoyal.net>
 
 from qt.core import QComboBox, QDialog, QDialogButtonBox, QHBoxLayout, QIcon, QLabel, QSize, Qt, QToolButton, QVBoxLayout, QWidget
 
@@ -13,13 +9,11 @@ from calibre.utils.localization import _, localize_user_manual_link
 
 
 class WizardWidget(QWidget, Ui_Form):
-
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
         self.setupUi(self)
         try:
-            self.example_label.setText(self.example_label.text() % localize_user_manual_link(
-                'https://manual.calibre-ebook.com/xpath.html'))
+            self.example_label.setText(self.example_label.text() % localize_user_manual_link('https://manual.calibre-ebook.com/xpath.html'))
         except TypeError:
             pass
 
@@ -27,7 +21,7 @@ class WizardWidget(QWidget, Ui_Form):
     def xpath(self):
         tag = str(self.tag.currentText()).strip()
         if tag != '*':
-            tag = 'h:'+tag
+            tag = 'h:' + tag
         attr, val = map(str, (self.attribute.text(), self.value.text()))
         attr, val = attr.strip(), val.strip()
         q = ''
@@ -38,12 +32,11 @@ class WizardWidget(QWidget, Ui_Form):
                 q = f'[@{attr}]'
         elif val:
             q = f'[re:test(., "{val}", "i")]'
-        expr = '//'+tag + q
+        expr = '//' + tag + q
         return expr
 
 
 class Wizard(QDialog):
-
     def __init__(self, parent=None):
         QDialog.__init__(self, parent)
         self.resize(440, 480)
@@ -52,7 +45,7 @@ class Wizard(QDialog):
         self.verticalLayout.addWidget(self.widget)
         self.buttonBox = QDialogButtonBox(self)
         self.buttonBox.setOrientation(Qt.Orientation.Horizontal)
-        self.buttonBox.setStandardButtons(QDialogButtonBox.StandardButton.Cancel|QDialogButtonBox.StandardButton.Ok)
+        self.buttonBox.setStandardButtons(QDialogButtonBox.StandardButton.Cancel | QDialogButtonBox.StandardButton.Ok)
         self.verticalLayout.addWidget(self.buttonBox)
 
         self.buttonBox.accepted.connect(self.accept)
@@ -65,7 +58,6 @@ class Wizard(QDialog):
 
 
 class XPathEdit(QWidget):
-
     def __init__(self, parent=None, object_name='', show_msg=True):
         QWidget.__init__(self, parent)
         self.h = h = QHBoxLayout(self)
@@ -104,7 +96,7 @@ class XPathEdit(QWidget):
     def setObjectName(self, name):
         QWidget.setObjectName(self, name)
         if hasattr(self, 'edit'):
-            self.edit.initialize('xpath_edit_'+str(self.objectName()))
+            self.edit.initialize('xpath_edit_' + str(self.objectName()))
 
     def set_msg(self, msg):
         self.msg.setText(msg)
@@ -116,6 +108,7 @@ class XPathEdit(QWidget):
     @text.setter
     def text(self, val):
         self.edit.setText(str(val))
+
     value = text
 
     @property
@@ -124,11 +117,13 @@ class XPathEdit(QWidget):
 
     def check(self):
         from calibre.ebooks.oeb.base import XPath
+
         try:
             if self.text.strip():
                 XPath(self.text)
         except Exception:
             import traceback
+
             traceback.print_exc()
             return False
         return True
@@ -136,6 +131,7 @@ class XPathEdit(QWidget):
 
 if __name__ == '__main__':
     from qt.core import QApplication
+
     app = QApplication([])
     w = XPathEdit()
     w.setObjectName('test')

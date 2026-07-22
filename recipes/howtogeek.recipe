@@ -4,7 +4,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class AdvancedUserRecipe1716091656(BasicNewsRecipe):
-    title          = 'How-To Geek'
+    title = 'How-To Geek'
     language = 'en'
     description = 'How-To Geek is an digital publication focused on technology, reaching millions of readers each month.'
     __author__ = 'Spicy Poison'
@@ -17,9 +17,9 @@ class AdvancedUserRecipe1716091656(BasicNewsRecipe):
     remove_empty_feeds = True
     oldest_article = 7
     max_articles_per_feed = 50
-    auto_cleanup   = True
+    auto_cleanup = True
 
-    feeds          = [
+    feeds = [
         # Desktop
         ('Desktop', 'https://www.howtogeek.com/feed/category/desktop/'),
         ('Windows', 'https://www.howtogeek.com/feed/category/windows/'),
@@ -58,11 +58,9 @@ class AdvancedUserRecipe1716091656(BasicNewsRecipe):
         ('Streaming', 'https://www.howtogeek.com/feed/category/cord-cutting-streaming/'),
         ('Photography', 'https://www.howtogeek.com/feed/category/photography/'),
         ('DIY', 'https://www.howtogeek.com/feed/category/diy/'),
-
         ('Product Reviews', 'https://www.howtogeek.com/feed/category/product-reviews/'),
         ('Buying Guides', 'https://www.howtogeek.com/feed/buying-guides/'),
         ('Deals', 'https://www.howtogeek.com/feed/tag/deals/'),
-
         # Discontinued Feeds
         # ('Electric Vehicles', 'https://www.howtogeek.com/feed/category/electric-vehicles/'),
         # ('Cryptocurrency', 'https://www.howtogeek.com/feed/category/cryptocurrency/'),

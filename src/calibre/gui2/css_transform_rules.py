@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
-
 from qt.core import QComboBox, QDialogButtonBox, QHBoxLayout, QLabel, QLineEdit, QMenu, QPushButton, QSize, QTextCursor, QVBoxLayout, QWidget, pyqtSignal
 
 from calibre.ebooks.css_transform_rules import (
@@ -27,7 +26,6 @@ from calibre.utils.localization import _, localize_user_manual_link
 
 
 class RuleEdit(QWidget):  # {{{
-
     MSG = _('Create the rule below, the rule can be used to transform style properties')
 
     def __init__(self, parent=None):
@@ -49,9 +47,13 @@ class RuleEdit(QWidget):  # {{{
                 self.preamble = w = QLabel(_('If the &property:'))
             elif clause == '{property}':
                 self.property_widget = w = QLineEdit(self)
-                w.setToolTip(_('The name of a CSS property, for example: font-size\n'
-                               'Do not use shorthand properties, they will not work.\n'
-                               'For instance use margin-top, not margin.'))
+                w.setToolTip(
+                    _(
+                        'The name of a CSS property, for example: font-size\n'
+                        'Do not use shorthand properties, they will not work.\n'
+                        'For instance use margin-top, not margin.'
+                    )
+                )
             elif clause == '{match_type}':
                 self.match_type = w = QComboBox(self)
                 for action, text in MATCH_TYPE_MAP.items():
@@ -83,8 +85,7 @@ class RuleEdit(QWidget):  # {{{
             if clause is not parts[-1]:
                 h.addWidget(QLabel('\xa0'))
 
-        self.regex_help = la = QLabel('<p>' + RE.REGEXP_HELP_TEXT % localize_user_manual_link(
-        'https://manual.calibre-ebook.com/regexp.html'))
+        self.regex_help = la = QLabel('<p>' + RE.REGEXP_HELP_TEXT % localize_user_manual_link('https://manual.calibre-ebook.com/regexp.html'))
         la.setOpenExternalLinks(True)
         la.setWordWrap(True)
         l.addWidget(la)
@@ -107,18 +108,22 @@ class RuleEdit(QWidget):  # {{{
         if 'matches' in mt:
             tt = _('A regular expression')
         elif mt in '< > <= >='.split():
-            tt = _('Either a CSS length, such as 10pt or a unit less number. If a unit less'
-                   ' number is used it will be compared with the CSS value using whatever unit'
-                   ' the value has. Note that comparison automatically converts units, except'
-                   ' for relative units like percentage or em, for which comparison fails'
-                   ' if the units are different.')
+            tt = _(
+                'Either a CSS length, such as 10pt or a unit less number. If a unit less'
+                ' number is used it will be compared with the CSS value using whatever unit'
+                ' the value has. Note that comparison automatically converts units, except'
+                ' for relative units like percentage or em, for which comparison fails'
+                ' if the units are different.'
+            )
         self.query.setToolTip(tt)
         tt = ''
         ac = r['action']
         if ac == 'append':
-            tt = _('CSS properties to add to the rule that contains the matching style. You'
-                   ' can specify more than one property, separated by semi-colons, for example:'
-                   ' color:red; font-weight: bold')
+            tt = _(
+                'CSS properties to add to the rule that contains the matching style. You'
+                ' can specify more than one property, separated by semi-colons, for example:'
+                ' color:red; font-weight: bold'
+            )
         elif ac in '+=*/':
             tt = _('A number')
         self.action_data.setToolTip(tt)
@@ -127,7 +132,7 @@ class RuleEdit(QWidget):  # {{{
     @property
     def rule(self):
         return {
-            'property':self.property_widget.text().strip().lower(),
+            'property': self.property_widget.text().strip().lower(),
             'match_type': self.match_type.currentData(),
             'query': self.query.text().strip(),
             'action': self.action.currentData(),
@@ -141,6 +146,7 @@ class RuleEdit(QWidget):  # {{{
             idx = c.findData(str(rule.get(name, '')))
             idx = max(idx, 0)
             c.setCurrentIndex(idx)
+
         sc('action'), sc('match_type')
         self.property_widget.setText(str(rule.get('property', '')).strip())
         self.query.setText(str(rule.get('query', '')).strip())
@@ -154,50 +160,56 @@ class RuleEdit(QWidget):  # {{{
             error_dialog(self, title, msg, show=True)
             return False
         return True
+
+
 # }}}
 
 
 class RuleEditDialog(RuleEditDialogBase):  # {{{
-
     PREFS_NAME = 'edit-css-transform-rule'
     DIALOG_TITLE = _('Edit rule')
     RuleEditClass = RuleEdit
+
+
 # }}}
 
 
 class RuleItem(RuleItemBase):  # {{{
-
     @staticmethod
     def text_from_rule(rule, parent):
         try:
             query = elided_text(rule['query'], font=parent.font(), width=200, pos='right')
-            text = _(
-                'If the property <i>{property}</i> <b>{match_type}</b> <b>{query}</b><br>{action}').format(
-                    property=rule['property'], action=ACTION_MAP[rule['action']],
-                    match_type=MATCH_TYPE_MAP[rule['match_type']], query=query)
+            text = _('If the property <i>{property}</i> <b>{match_type}</b> <b>{query}</b><br>{action}').format(
+                property=rule['property'],
+                action=ACTION_MAP[rule['action']],
+                match_type=MATCH_TYPE_MAP[rule['match_type']],
+                query=query,
+            )
             if rule['action_data']:
                 ad = elided_text(rule['action_data'], font=parent.font(), width=200, pos='right')
                 text += f' <code>{ad}</code>'
         except Exception:
             import traceback
+
             traceback.print_exc()
             text = _('This rule is invalid, please remove it')
         return text
+
+
 # }}}
 
 
 class Rules(RulesBase):  # {{{
-
     RuleItemClass = RuleItem
     RuleEditDialogClass = RuleEditDialog
 
-    MSG = _('You can specify rules to transform styles here. Click the "Add rule" button'
-            ' below to get started.')
+    MSG = _('You can specify rules to transform styles here. Click the "Add rule" button below to get started.')
+
+
 # }}}
 
 
 class Tester(Dialog):  # {{{
-
     DIALOG_TITLE = _('Test style transform rules')
     PREFS_NAME = 'test-style-transform-rules'
     LABEL = _('Enter a CSS stylesheet below and click the "Test" button')
@@ -213,6 +225,7 @@ class Tester(Dialog):  # {{{
 
     def setup_ui(self):
         from calibre.gui2.tweak_book.editor.text import TextEdit
+
         self.l = l = QVBoxLayout(self)
         self.bb.setStandardButtons(QDialogButtonBox.StandardButton.Close)
         self.la = la = QLabel(self.LABEL)
@@ -251,11 +264,12 @@ class Tester(Dialog):  # {{{
 
     def sizeHint(self):
         return QSize(800, 600)
+
+
 # }}}
 
 
 class RulesDialog(RulesDialogBase):  # {{{
-
     DIALOG_TITLE = _('Edit style transform rules')
     PREFS_NAME = 'edit-style-transform-rules'
     PREFS_OBJECT_NAME = 'style-transform-rules'
@@ -267,11 +281,12 @@ class RulesDialog(RulesDialogBase):  # {{{
         # multiple processes
         self.PREFS_OBJECT = JSONConfig(self.PREFS_OBJECT_NAME)
         RulesDialogBase.__init__(self, *args, **kw)
+
+
 # }}}
 
 
 class RulesWidget(QWidget, SaveLoadMixin):  # {{{
-
     changed = pyqtSignal()
     PREFS_NAME = 'style-transform-rules'
     INITIAL_FILE_NAME = 'css-rules.txt'
@@ -318,8 +333,7 @@ class RulesWidget(QWidget, SaveLoadMixin):  # {{{
     def export_rules(self):
         rules = self.rules_widget.rules
         if not rules:
-            return error_dialog(self, _('No rules'), _(
-                'There are no rules to export'), show=True)
+            return error_dialog(self, _('No rules'), _('There are no rules to export'), show=True)
         path = choose_save_file(self, self.DIR_SAVE_NAME, _('Choose file for exported rules'), initial_filename=self.INITIAL_FILE_NAME)
         if path:
             f = self.__class__.export_func
@@ -353,19 +367,23 @@ class RulesWidget(QWidget, SaveLoadMixin):  # {{{
             self.rules_widget.rules = val or []
         except Exception:
             import traceback
+
             traceback.print_exc()
             self.rules_widget.rules = []
-# }}}
 
+
+# }}}
 
 if __name__ == '__main__':
     from calibre.gui2 import Application
+
     app = Application([])
     d = RulesDialog()
     d.rules = [
-        {'property':'color', 'match_type':'*', 'query':'', 'action':'change', 'action_data':'green'},
+        {'property': 'color', 'match_type': '*', 'query': '', 'action': 'change', 'action_data': 'green'},
     ]
     d.exec()
     from pprint import pprint
+
     pprint(d.rules)
     del d, app

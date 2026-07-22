@@ -1,8 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__ = 'GPL v3'
-__copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
+# License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
 import os
 from typing import NamedTuple
@@ -21,7 +18,6 @@ from calibre.utils.localization import _
 
 
 class Target(QTextBrowser):
-
     def __init__(self, mi, parent=None):
         QTextBrowser.__init__(self, parent)
         series = ''
@@ -34,12 +30,11 @@ class Target(QTextBrowser):
             cover_html = f'<img src="{QUrl.fromLocalFile(mi.cover).toString()}">'.format()
             doc = self.document()
             assert doc is not None
-            doc.setDefaultStyleSheet(
-                'img { max-width: 100%; width: 100%; height: auto; display: block; }'
-            )
+            doc.setDefaultStyleSheet('img { max-width: 100%; width: 100%; height: auto; display: block; }')
         else:
             has_cover_row = f"<tr><td>{_('Has cover')}:</td><td>{_('Yes') if mi.has_cover else _('No')}</td></tr>"
-        self.setHtml('''
+        self.setHtml(
+            '''
 <h3 style="text-align:center">{mb}</h3>
 <p><b>{title}</b> - <i>{authors}</i><br></p>
 <table>
@@ -52,15 +47,19 @@ class Target(QTextBrowser):
 </table>
 {cover_html}
         '''.format(
-            mb=_('Target book'),
-            title=mi.title, book_id=getattr(mi, 'id', ''),
-            has_cover_row=has_cover_row,
-            authors=authors_to_string(mi.authors),
-            date=format_date(mi.timestamp, tweaks['gui_timestamp_display_format']), fm=fm,
-            published=(format_date(mi.pubdate, tweaks['gui_pubdate_display_format']) if mi.pubdate else ''),
-            formats=', '.join(mi.formats or ()),
-            series=series, cover_html=cover_html,
-        ))
+                mb=_('Target book'),
+                title=mi.title,
+                book_id=getattr(mi, 'id', ''),
+                has_cover_row=has_cover_row,
+                authors=authors_to_string(mi.authors),
+                date=format_date(mi.timestamp, tweaks['gui_timestamp_display_format']),
+                fm=fm,
+                published=(format_date(mi.pubdate, tweaks['gui_pubdate_display_format']) if mi.pubdate else ''),
+                formats=', '.join(mi.formats or ()),
+                series=series,
+                cover_html=cover_html,
+            )
+        )
 
     def sizeHint(self):
         ans = super().sizeHint()
@@ -69,7 +68,6 @@ class Target(QTextBrowser):
 
 
 class ConfirmMerge(Dialog):
-
     def __init__(self, msg, name, parent, mi, ask_about_save_alternate_cover=False):
         self.msg, self.mi, self.conf_name = msg, mi, name
         self.ask_about_save_alternate_cover = ask_about_save_alternate_cover
@@ -127,7 +125,6 @@ def confirm_merge(msg, name, parent, mi, ask_about_save_alternate_cover=False):
 
 
 class ChooseMerge(Dialog):
-
     merge_metadata: QCheckBox
     merge_formats: QCheckBox
     delete_books: QCheckBox
@@ -163,22 +160,31 @@ class ChooseMerge(Dialog):
             prefs_key = 'choose-merge-cb-' + name
             ans.setObjectName(prefs_key)
             ans.setChecked(gprefs.get(prefs_key, defval))
-            connect_lambda(ans.stateChanged, self, lambda self, state: self.state_changed(getattr(self, name), state), type=Qt.ConnectionType.QueuedConnection)
+            connect_lambda(
+                ans.stateChanged,
+                self,
+                lambda self, state: self.state_changed(getattr(self, name), state),
+                type=Qt.ConnectionType.QueuedConnection,
+            )
             if tt:
                 ans.setToolTip(tt)
             setattr(self, name, ans)
             return ans
 
-        cb('merge_metadata', _('Merge metadata'), _(
-            'Merge the metadata of the selected books into the target book'))
-        cb('merge_formats', _('Merge formats'), _(
-            'Merge the book files of the selected books into the target book'))
-        cb('delete_books', _('Delete merged books'), _(
-            'Delete the selected books after merging'))
-        cb('replace_cover', _('Replace existing cover'), _(
-            'Replace the cover in the target book with the dragged cover'))
-        cb('save_alternate_cover', _('Save alternate cover'), _(
-            'Save the replaced or discarded cover in the data files associated with the target book as an alternate cover'), defval=False)
+        cb('merge_metadata', _('Merge metadata'), _('Merge the metadata of the selected books into the target book'))
+        cb('merge_formats', _('Merge formats'), _('Merge the book files of the selected books into the target book'))
+        cb('delete_books', _('Delete merged books'), _('Delete the selected books after merging'))
+        cb(
+            'replace_cover',
+            _('Replace existing cover'),
+            _('Replace the cover in the target book with the dragged cover'),
+        )
+        cb(
+            'save_alternate_cover',
+            _('Save alternate cover'),
+            _('Save the replaced or discarded cover in the data files associated with the target book as an alternate cover'),
+            defval=False,
+        )
         l.addStretch(10)
         self.msg = la = QLabel(self)
         la.setWordWrap(True)
@@ -203,19 +209,17 @@ class ChooseMerge(Dialog):
         rc = self.replace_cover.isChecked()
         msg = '<p>'
         if mm and mf:
-            msg += _(
-                'Book formats and metadata from the selected books'
-                ' will be merged into the target book ({title}).')
+            msg += _('Book formats and metadata from the selected books will be merged into the target book ({title}).')
             if rc or not self.mi.has_cover:
                 msg += ' ' + _('The dragged cover will be used.')
         elif mf:
-            msg += _('Book formats from the selected books '
-            'will be merged into to the target book ({title}).'
-            ' Metadata and cover in the target book will not be changed.')
+            msg += _(
+                'Book formats from the selected books '
+                'will be merged into to the target book ({title}).'
+                ' Metadata and cover in the target book will not be changed.'
+            )
         elif mm:
-            msg += _('Metadata from the selected books '
-            'will be merged into to the target book ({title}).'
-            ' Formats will not be merged.')
+            msg += _('Metadata from the selected books will be merged into to the target book ({title}). Formats will not be merged.')
             if rc or not self.mi.has_cover:
                 msg += ' ' + _('The dragged cover will be used.')
         msg += '<br>'
@@ -223,12 +227,9 @@ class ChooseMerge(Dialog):
         if rm:
             msg += _('After being merged, the selected books will be <b>deleted</b>.')
             if mf:
-                msg += '<br><br>' + _(
-                'Any duplicate formats in the selected books '
-                'will be permanently <b>deleted</b> from your calibre library.')
+                msg += '<br><br>' + _('Any duplicate formats in the selected books will be permanently <b>deleted</b> from your calibre library.')
         elif mf:
-            msg += _(
-                'Any formats not in the target book will be added to it from the selected books.')
+            msg += _('Any formats not in the target book will be added to it from the selected books.')
         if not msg.endswith('<br>'):
             msg += '<br><br>'
 
@@ -239,8 +240,11 @@ class ChooseMerge(Dialog):
     @property
     def merge_type(self):
         return MergeData(
-            self.merge_metadata.isChecked(), self.merge_formats.isChecked(), self.delete_books.isChecked(),
-            self.replace_cover.isChecked(), self.save_alternate_cover.isChecked(),
+            self.merge_metadata.isChecked(),
+            self.merge_formats.isChecked(),
+            self.delete_books.isChecked(),
+            self.replace_cover.isChecked(),
+            self.save_alternate_cover.isChecked(),
         )
 
 

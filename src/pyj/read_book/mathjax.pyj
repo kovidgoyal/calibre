@@ -21,7 +21,7 @@ def postprocess(link_uid):
         href = a.getAttribute('href')
         if href and href.startswith('#'):
             a.setAttribute('href', 'javascript: void(0)')
-            a.setAttribute('data-' + link_uid, JSON.stringify({'frag':href[1:]}))
+            a.setAttribute('data-' + link_uid, JSON.stringify({'frag': href[1:]}))
 
 
 def load_mathjax(src):
@@ -49,7 +49,7 @@ def apply_mathjax(mathjax_files, link_uid, proceed):
     if runtime.is_standalone_viewer:
         if not standalone_proceed_data.event_listender_added:
             standalone_proceed_data.event_listender_added = True
-            document.documentElement.addEventListener("calibre-mathjax-typeset-done", standalone_proceed)
+            document.documentElement.addEventListener('calibre-mathjax-typeset-done', standalone_proceed)
         if standalone_proceed_data.proceed:
             print('MathJax apply called while a previous apply is still running')
         standalone_proceed_data.link_uid = link_uid
@@ -74,7 +74,7 @@ def apply_mathjax(mathjax_files, link_uid, proceed):
                     src = get_url(mathjax_files, full_name)
                     clone.src = clone.src.replace(/".+?"/, f'"{src}"')
                     styles[name] = clone
-            window.MathJax.startup.promise.then(def():
+            window.MathJax.startup.promise.then(def ():
                 postprocess(link_uid)
                 proceed()
             )

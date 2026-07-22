@@ -1,9 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__   = 'GPL v3'
-__copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2013, Kovid Goyal <kovid at kovidgoyal.net>
 
 import copy
 import sys
@@ -17,14 +13,11 @@ Stop = namedtuple('Stop', 't color')
 
 
 class LinearGradientPattern(Dictionary):
-
     def __init__(self, brush, matrix, pdf, pixel_page_width, pixel_page_height):
-        self.matrix = (matrix.m11(), matrix.m12(), matrix.m21(), matrix.m22(),
-                       matrix.dx(), matrix.dy())
+        self.matrix = (matrix.m11(), matrix.m12(), matrix.m21(), matrix.m22(), matrix.dx(), matrix.dy())
         gradient = sip.cast(brush.gradient(), QLinearGradient)  # type: ignore
 
-        start, stop, stops = self.spread_gradient(gradient, pixel_page_width,
-                                                  pixel_page_height, matrix)
+        start, stop, stops = self.spread_gradient(gradient, pixel_page_width, pixel_page_height, matrix)
 
         # TODO: Handle colors with different opacities
         self.const_opacity = stops[0].color[-1]
@@ -35,7 +28,7 @@ class LinearGradientPattern(Dictionary):
 
         for i, current_stop in enumerate(stops):
             if i < len(stops) - 1:
-                next_stop = stops[i+1]
+                next_stop = stops[i + 1]
                 func = Dictionary({
                     'FunctionType': 2,
                     'Domain': Array([0, 1]),
@@ -45,7 +38,7 @@ class LinearGradientPattern(Dictionary):
                 })
                 funcs.append(func)
                 encode.extend((0, 1))
-                if i+1 < len(stops) - 1:
+                if i + 1 < len(stops) - 1:
                     bounds.append(next_stop.t)
 
         func = Dictionary({
@@ -65,28 +58,37 @@ class LinearGradientPattern(Dictionary):
             'Extend': Array([True, True]),
         })
 
-        Dictionary.__init__(self, {
-            'Type': Name('Pattern'),
-            'PatternType': 2,
-            'Shading': shader,
-            'Matrix': Array(self.matrix),
-        })
+        Dictionary.__init__(
+            self,
+            {
+                'Type': Name('Pattern'),
+                'PatternType': 2,
+                'Shading': shader,
+                'Matrix': Array(self.matrix),
+            },
+        )
 
-        self.cache_key = (self.__class__.__name__, self.matrix,
-                          tuple(shader['Coords']), stops)
+        self.cache_key = (self.__class__.__name__, self.matrix, tuple(shader['Coords']), stops)
 
-    def spread_gradient(self, gradient, pixel_page_width, pixel_page_height,
-                        matrix):
+    def spread_gradient(self, gradient, pixel_page_width, pixel_page_height, matrix):
         start = gradient.start()
         stop = gradient.finalStop()
         stops = [[x[0], x[1].getRgbF()] for x in gradient.stops()]
         spread = gradient.spread()
         if spread != gradient.PadSpread:
             inv = matrix.inverted()[0]
-            page_rect = tuple(map(inv.map, (
-                QPointF(0, 0), QPointF(pixel_page_width, 0), QPointF(0, pixel_page_height),
-                QPointF(pixel_page_width, pixel_page_height))))
-            maxx = maxy = -sys.maxsize-1
+            page_rect = tuple(
+                map(
+                    inv.map,
+                    (
+                        QPointF(0, 0),
+                        QPointF(pixel_page_width, 0),
+                        QPointF(0, pixel_page_height),
+                        QPointF(pixel_page_width, pixel_page_height),
+                    ),
+                )
+            )
+            maxx = maxy = -sys.maxsize - 1
             minx = miny = sys.maxsize
 
             for p in page_rect:
@@ -94,7 +96,7 @@ class LinearGradientPattern(Dictionary):
                 miny, maxy = min(miny, p.y()), max(maxy, p.y())
 
             def in_page(point):
-                return (minx <= point.x() <= maxx and miny <= point.y() <= maxy)
+                return minx <= point.x() <= maxx and miny <= point.y() <= maxy
 
             offset = stop - start
             llimit, rlimit = start, stop
@@ -104,8 +106,7 @@ class LinearGradientPattern(Dictionary):
             reversed_stops = list(reversed(stops))
             do_reflect = spread == gradient.ReflectSpread
             totl = abs(stops[-1][0] - stops[0][0])
-            intervals = [abs(stops[i+1][0] - stops[i][0])/totl
-                         for i in range(len(stops)-1)]
+            intervals = [abs(stops[i + 1][0] - stops[i][0]) / totl for i in range(len(stops) - 1)]
 
             while in_page(llimit):
                 reflect ^= True
@@ -128,20 +129,19 @@ class LinearGradientPattern(Dictionary):
             if num > 1:
                 # Adjust the stop parameter values
                 t = base_stops[0][0]
-                rlen = totl/num
+                rlen = totl / num
                 reflect = first_is_reflected ^ True
-                intervals = [i*rlen for i in intervals]
+                intervals = [i * rlen for i in intervals]
                 rintervals = list(reversed(intervals))
 
                 for i in range(num):
                     reflect ^= True
                     pos = i * len(base_stops)
                     tvals = [t]
-                    for ival in (rintervals if reflect and do_reflect else
-                                 intervals):
+                    for ival in rintervals if reflect and do_reflect else intervals:
                         tvals.append(tvals[-1] + ival)
                     for j in range(len(base_stops)):
-                        stops[pos+j][0] = tvals[j]
+                        stops[pos + j][0] = tvals[j]
                     t = tvals[-1]
 
                 # In case there were rounding errors

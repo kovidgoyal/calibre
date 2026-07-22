@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2023, Kovid Goyal <kovid at kovidgoyal.net>
 
-
 import re
 
 from qt.core import QBrush, QColor, QFont, QSyntaxHighlighter, QTextCharFormat, QTextCursor, QTextLayout
@@ -12,7 +11,6 @@ from calibre.gui2.palette import dark_link_color, light_link_color
 
 
 class MarkdownHighlighter(QSyntaxHighlighter):
-
     MARKDOWN_KEYS_REGEX = {
         'Bold': re.compile(r'(?<!\\)(?P<delim>\*\*)(?P<text>.+?)(?P=delim)'),
         'Italic': re.compile(r'(?<![\*\\])(?P<delim>\*)(?!\*)(?P<text>([^\*]{2,}?|[^\*]))(?<![\*\\])(?P=delim)'),
@@ -60,37 +58,37 @@ class MarkdownHighlighter(QSyntaxHighlighter):
     }
 
     light_theme = {
-        'bold': {'font-weight':'bold'},
-        'emphasis': {'font-style':'italic'},
-        'boldemphasis': {'font-weight':'bold', 'font-style':'italic'},
-        'link': {'color':light_link_color.name(), 'font-weight':'normal', 'font-style':'normal'},
-        'image': {'color':'#cb4b16', 'font-weight':'normal', 'font-style':'normal'},
-        'header': {'color':'#2aa198', 'font-weight':'bold', 'font-style':'normal'},
-        'unorderedlist': {'color':'red', 'font-weight':'normal', 'font-style':'normal'},
-        'orderedlist': {'color':'red', 'font-weight':'normal', 'font-style':'normal'},
-        'blockquote': {'color':'red', 'font-weight':'bold', 'font-style':'normal'},
-        'codespan': {'color':'#ff5800', 'font-weight':'normal', 'font-style':'normal'},
-        'codeblock': {'color':'#ff5800', 'font-weight':'normal', 'font-style':'normal'},
-        'line': {'color':'#2aa198', 'font-weight':'normal', 'font-style':'normal'},
-        'html': {'color':'#c000c0', 'font-weight':'normal', 'font-style':'normal'},
-        'entity': {'color':'#006496'},
+        'bold': {'font-weight': 'bold'},
+        'emphasis': {'font-style': 'italic'},
+        'boldemphasis': {'font-weight': 'bold', 'font-style': 'italic'},
+        'link': {'color': light_link_color.name(), 'font-weight': 'normal', 'font-style': 'normal'},
+        'image': {'color': '#cb4b16', 'font-weight': 'normal', 'font-style': 'normal'},
+        'header': {'color': '#2aa198', 'font-weight': 'bold', 'font-style': 'normal'},
+        'unorderedlist': {'color': 'red', 'font-weight': 'normal', 'font-style': 'normal'},
+        'orderedlist': {'color': 'red', 'font-weight': 'normal', 'font-style': 'normal'},
+        'blockquote': {'color': 'red', 'font-weight': 'bold', 'font-style': 'normal'},
+        'codespan': {'color': '#ff5800', 'font-weight': 'normal', 'font-style': 'normal'},
+        'codeblock': {'color': '#ff5800', 'font-weight': 'normal', 'font-style': 'normal'},
+        'line': {'color': '#2aa198', 'font-weight': 'normal', 'font-style': 'normal'},
+        'html': {'color': '#c000c0', 'font-weight': 'normal', 'font-style': 'normal'},
+        'entity': {'color': '#006496'},
     }
 
     dark_theme = {
-        'bold': {'font-weight':'bold'},
-        'emphasis': {'font-style':'italic'},
-        'boldemphasis': {'font-weight':'bold', 'font-style':'italic'},
-        'link': {'color':dark_link_color.name(), 'font-weight':'normal', 'font-style':'normal'},
-        'image': {'color':'#cb4b16', 'font-weight':'normal', 'font-style':'normal'},
-        'header': {'color':'#2aa198', 'font-weight':'bold', 'font-style':'normal'},
-        'unorderedlist': {'color':'yellow', 'font-weight':'normal', 'font-style':'normal'},
-        'orderedlist': {'color':'yellow', 'font-weight':'normal', 'font-style':'normal'},
-        'blockquote': {'color':'yellow', 'font-weight':'bold', 'font-style':'normal'},
-        'codespan': {'color':'#90ee90', 'font-weight':'normal', 'font-style':'normal'},
-        'codeblock': {'color':'#ff9900', 'font-weight':'normal', 'font-style':'normal'},
-        'line': {'color':'#2aa198', 'font-weight':'normal', 'font-style':'normal'},
-        'html': {'color':'#f653a6', 'font-weight':'normal', 'font-style':'normal'},
-        'entity': {'color':'#ff82ac'},
+        'bold': {'font-weight': 'bold'},
+        'emphasis': {'font-style': 'italic'},
+        'boldemphasis': {'font-weight': 'bold', 'font-style': 'italic'},
+        'link': {'color': dark_link_color.name(), 'font-weight': 'normal', 'font-style': 'normal'},
+        'image': {'color': '#cb4b16', 'font-weight': 'normal', 'font-style': 'normal'},
+        'header': {'color': '#2aa198', 'font-weight': 'bold', 'font-style': 'normal'},
+        'unorderedlist': {'color': 'yellow', 'font-weight': 'normal', 'font-style': 'normal'},
+        'orderedlist': {'color': 'yellow', 'font-weight': 'normal', 'font-style': 'normal'},
+        'blockquote': {'color': 'yellow', 'font-weight': 'bold', 'font-style': 'normal'},
+        'codespan': {'color': '#90ee90', 'font-weight': 'normal', 'font-style': 'normal'},
+        'codeblock': {'color': '#ff9900', 'font-weight': 'normal', 'font-style': 'normal'},
+        'line': {'color': '#2aa198', 'font-weight': 'normal', 'font-style': 'normal'},
+        'html': {'color': '#f653a6', 'font-weight': 'normal', 'font-style': 'normal'},
+        'entity': {'color': '#ff82ac'},
     }
 
     def __init__(self, parent):
@@ -102,17 +100,17 @@ class MarkdownHighlighter(QSyntaxHighlighter):
         self.theme = theme
         self.MARKDOWN_KWS_FORMAT = {}
 
-        for k in ['Bold', 'Italic','BoldItalic']:
+        for k in ['Bold', 'Italic', 'BoldItalic']:
             # generate dynamically keys and theme for EntityBold, EntityItalic, EntityBoldItalic
             t = self.key_theme_maps[k]
             newtheme = theme['entity'].copy()
             newtheme.update(theme[t])
-            newthemekey = 'entity'+t
-            newmapkey = 'Entity'+k
+            newthemekey = 'entity' + t
+            newmapkey = 'Entity' + k
             theme[newthemekey] = newtheme
             self.key_theme_maps[newmapkey] = newthemekey
 
-        for k,t in self.key_theme_maps.items():
+        for k, t in self.key_theme_maps.items():
             subtheme = theme[t]
             format = QTextCharFormat()
             if 'color' in subtheme:
@@ -163,17 +161,17 @@ class MarkdownHighlighter(QSyntaxHighlighter):
 
     def highlightBlockQuote(self, text, cursor, bf):
         found = False
-        mo = re.match(self.MARKDOWN_KEYS_REGEX['BlockQuote'],text)
+        mo = re.match(self.MARKDOWN_KEYS_REGEX['BlockQuote'], text)
         if mo:
-            self.setFormat(self.offset+ mo.start(), mo.end() - mo.start(), self.MARKDOWN_KWS_FORMAT['BlockQuote'])
+            self.setFormat(self.offset + mo.start(), mo.end() - mo.start(), self.MARKDOWN_KWS_FORMAT['BlockQuote'])
             self.offset += mo.end()
-            unquote = text[mo.end():]
+            unquote = text[mo.end() :]
             self.highlightMarkdown(unquote)
             found = True
         return found
 
     def highlightEmptyLine(self, text, cursor, bf):
-        textAscii = str(text.replace('\u2029','\n'))
+        textAscii = str(text.replace('\u2029', '\n'))
         if textAscii.strip():
             return False
         else:
@@ -182,11 +180,11 @@ class MarkdownHighlighter(QSyntaxHighlighter):
     def highlightHorizontalLine(self, text, cursor, bf):
         found = False
 
-        for mo in re.finditer(self.MARKDOWN_KEYS_REGEX['HeaderLine'],text):
+        for mo in re.finditer(self.MARKDOWN_KEYS_REGEX['HeaderLine'], text):
             prevBlock = self.currentBlock().previous()
             prevCursor = QTextCursor(prevBlock)
             prev = prevBlock.text()
-            prevAscii = str(prev.replace('\u2029','\n'))
+            prevAscii = str(prev.replace('\u2029', '\n'))
             if self.offset == 0 and prevAscii.strip():
                 # print('Its a header')
                 prevCursor.select(QTextCursor.SelectionType.LineUnderCursor)
@@ -198,57 +196,57 @@ class MarkdownHighlighter(QSyntaxHighlighter):
                 layout = prevCursor.block().layout()
                 assert layout is not None
                 layout.setFormats([formatRange])
-                self.setFormat(self.offset+ mo.start(), mo.end() - mo.start(), self.MARKDOWN_KWS_FORMAT['HeaderLine'])
+                self.setFormat(self.offset + mo.start(), mo.end() - mo.start(), self.MARKDOWN_KWS_FORMAT['HeaderLine'])
                 return True
 
-        for mo in re.finditer(self.MARKDOWN_KEYS_REGEX['HR'],text):
-            self.setFormat(self.offset+ mo.start(), mo.end() - mo.start(), self.MARKDOWN_KWS_FORMAT['HR'])
+        for mo in re.finditer(self.MARKDOWN_KEYS_REGEX['HR'], text):
+            self.setFormat(self.offset + mo.start(), mo.end() - mo.start(), self.MARKDOWN_KWS_FORMAT['HR'])
             found = True
         return found
 
     def highlightHeader(self, text, cursor, bf):
         found = False
-        for mo in re.finditer(self.MARKDOWN_KEYS_REGEX['Header'],text):
+        for mo in re.finditer(self.MARKDOWN_KEYS_REGEX['Header'], text):
             # bf.setBackground(QBrush(QColor(7,54,65)))
             # cursor.movePosition(QTextCursor.End)
             # cursor.mergeBlockFormat(bf)
-            self.setFormat(self.offset+ mo.start(), mo.end() - mo.start(), self.MARKDOWN_KWS_FORMAT['Header'])
+            self.setFormat(self.offset + mo.start(), mo.end() - mo.start(), self.MARKDOWN_KWS_FORMAT['Header'])
             found = True
         return found
 
     def highlightList(self, text, cursor, bf):
         found = False
-        for mo in re.finditer(self.MARKDOWN_KEYS_REGEX['UnorderedList'],text):
-            self.setFormat(self.offset+ mo.start(), mo.end() - mo.start(), self.MARKDOWN_KWS_FORMAT['UnorderedList'])
+        for mo in re.finditer(self.MARKDOWN_KEYS_REGEX['UnorderedList'], text):
+            self.setFormat(self.offset + mo.start(), mo.end() - mo.start(), self.MARKDOWN_KWS_FORMAT['UnorderedList'])
             found = True
 
-        for mo in re.finditer(self.MARKDOWN_KEYS_REGEX['OrderedList'],text):
-            self.setFormat(self.offset+ mo.start(), mo.end() - mo.start(), self.MARKDOWN_KWS_FORMAT['OrderedList'])
+        for mo in re.finditer(self.MARKDOWN_KEYS_REGEX['OrderedList'], text):
+            self.setFormat(self.offset + mo.start(), mo.end() - mo.start(), self.MARKDOWN_KWS_FORMAT['OrderedList'])
             found = True
         return found
 
     def highlightLink(self, text, cursor, bf):
         found = False
-        for mo in re.finditer(self.MARKDOWN_KEYS_REGEX['Link'],text):
-            self.setFormat(self.offset+ mo.start(), mo.end() - mo.start(), self.MARKDOWN_KWS_FORMAT['Link'])
+        for mo in re.finditer(self.MARKDOWN_KEYS_REGEX['Link'], text):
+            self.setFormat(self.offset + mo.start(), mo.end() - mo.start(), self.MARKDOWN_KWS_FORMAT['Link'])
             found = True
 
-        for mo in re.finditer(self.MARKDOWN_KEYS_REGEX['LinkRef'],text):
-            self.setFormat(self.offset+ mo.start(), mo.end() - mo.start(), self.MARKDOWN_KWS_FORMAT['LinkRef'])
+        for mo in re.finditer(self.MARKDOWN_KEYS_REGEX['LinkRef'], text):
+            self.setFormat(self.offset + mo.start(), mo.end() - mo.start(), self.MARKDOWN_KWS_FORMAT['LinkRef'])
             found = True
         return found
 
     def highlightImage(self, text, cursor, bf):
         found = False
-        for mo in re.finditer(self.MARKDOWN_KEYS_REGEX['Image'],text):
-            self.setFormat(self.offset+ mo.start(), mo.end() - mo.start(), self.MARKDOWN_KWS_FORMAT['Image'])
+        for mo in re.finditer(self.MARKDOWN_KEYS_REGEX['Image'], text):
+            self.setFormat(self.offset + mo.start(), mo.end() - mo.start(), self.MARKDOWN_KWS_FORMAT['Image'])
             found = True
         return found
 
     def highlightCodeSpan(self, text, cursor, bf):
         found = False
-        for mo in re.finditer(self.MARKDOWN_KEYS_REGEX['CodeSpan'],text):
-            self.setFormat(self.offset+ mo.start(), mo.end() - mo.start(), self.MARKDOWN_KWS_FORMAT['CodeSpan'])
+        for mo in re.finditer(self.MARKDOWN_KEYS_REGEX['CodeSpan'], text):
+            self.setFormat(self.offset + mo.start(), mo.end() - mo.start(), self.MARKDOWN_KWS_FORMAT['CodeSpan'])
             found = True
         return found
 
@@ -266,39 +264,47 @@ class MarkdownHighlighter(QSyntaxHighlighter):
 
         def apply(match, bold, emphasis):
             if bold and emphasis:
-                self.setFormat(self.offset+offset+ match.start(), match.end() - match.start(), self.MARKDOWN_KWS_FORMAT['BoldItalic'])
+                self.setFormat(
+                    self.offset + offset + match.start(),
+                    match.end() - match.start(),
+                    self.MARKDOWN_KWS_FORMAT['BoldItalic'],
+                )
             elif bold:
-                self.setFormat(self.offset+offset+ match.start(), match.end() - match.start(), self.MARKDOWN_KWS_FORMAT['Bold'])
+                self.setFormat(self.offset + offset + match.start(), match.end() - match.start(), self.MARKDOWN_KWS_FORMAT['Bold'])
             elif emphasis:
-                self.setFormat(self.offset+offset+ match.start(), match.end() - match.start(), self.MARKDOWN_KWS_FORMAT['Italic'])
+                self.setFormat(
+                    self.offset + offset + match.start(),
+                    match.end() - match.start(),
+                    self.MARKDOWN_KWS_FORMAT['Italic'],
+                )
 
         def recursive(match, extra_offset, bold, emphasis):
             apply(match, bold, emphasis)
             if bold and emphasis:
                 return  # max deep => return, do not process extra Bold/Italic
 
-            sub_txt = text[match.start()+extra_offset : match.end()-extra_offset]
+            sub_txt = text[match.start() + extra_offset : match.end() - extra_offset]
             sub_offset = offset + extra_offset + mo.start()
             self._highlightBoldEmphasis(sub_txt, cursor, bf, sub_offset, bold, emphasis)
 
-        for mo in re.finditer(self.MARKDOWN_KEYS_REGEX['Italic'],text):
+        for mo in re.finditer(self.MARKDOWN_KEYS_REGEX['Italic'], text):
             recursive(mo, 1, bold, True)
             found = True
-        for mo in re.finditer(self.MARKDOWN_KEYS_REGEX['uItalic'],text):
+        for mo in re.finditer(self.MARKDOWN_KEYS_REGEX['uItalic'], text):
             recursive(mo, 1, bold, True)
             found = True
 
-        for mo in re.finditer(self.MARKDOWN_KEYS_REGEX['Bold'],text):
+        for mo in re.finditer(self.MARKDOWN_KEYS_REGEX['Bold'], text):
             recursive(mo, 2, True, emphasis)
             found = True
-        for mo in re.finditer(self.MARKDOWN_KEYS_REGEX['uBold'],text):
+        for mo in re.finditer(self.MARKDOWN_KEYS_REGEX['uBold'], text):
             recursive(mo, 2, True, emphasis)
             found = True
 
-        for mo in re.finditer(self.MARKDOWN_KEYS_REGEX['BoldItalic'],text):
+        for mo in re.finditer(self.MARKDOWN_KEYS_REGEX['BoldItalic'], text):
             apply(mo, True, True)
             found = True
-        for mo in re.finditer(self.MARKDOWN_KEYS_REGEX['uBoldItalic'],text):
+        for mo in re.finditer(self.MARKDOWN_KEYS_REGEX['uBoldItalic'], text):
             apply(mo, True, True)
             found = True
 
@@ -306,17 +312,17 @@ class MarkdownHighlighter(QSyntaxHighlighter):
 
     def highlightCodeBlock(self, text, cursor, bf):
         found = False
-        for mo in re.finditer(self.MARKDOWN_KEYS_REGEX['CodeBlock'],text):
+        for mo in re.finditer(self.MARKDOWN_KEYS_REGEX['CodeBlock'], text):
             stripped = text.lstrip()
-            if stripped[0] not in ('*','-','+') and not re.match(self.MARKDOWN_KEYS_REGEX['OrderedList'], stripped):
-                self.setFormat(self.offset+ mo.start(), mo.end() - mo.start(), self.MARKDOWN_KWS_FORMAT['CodeBlock'])
+            if stripped[0] not in ('*', '-', '+') and not re.match(self.MARKDOWN_KEYS_REGEX['OrderedList'], stripped):
+                self.setFormat(self.offset + mo.start(), mo.end() - mo.start(), self.MARKDOWN_KWS_FORMAT['CodeBlock'])
                 found = True
         return found
 
     def highlightEntity(self, text, cursor, bf):
         found = False
-        for mo in re.finditer(self.MARKDOWN_KEYS_REGEX['Entity'],text):
-            charformat = self.format(self.offset+ mo.start())
+        for mo in re.finditer(self.MARKDOWN_KEYS_REGEX['Entity'], text):
+            charformat = self.format(self.offset + mo.start())
             charbold = charformat.fontWeight() == QFont.Weight.Bold
             charitalic = charformat.fontItalic()
             if charbold and charitalic:
@@ -327,7 +333,7 @@ class MarkdownHighlighter(QSyntaxHighlighter):
                 format = self.MARKDOWN_KWS_FORMAT['EntityItalic']
             else:
                 format = self.MARKDOWN_KWS_FORMAT['Entity']
-            self.setFormat(self.offset+ mo.start(), mo.end() - mo.start(), format)
+            self.setFormat(self.offset + mo.start(), mo.end() - mo.start(), format)
             found = True
         return found
 

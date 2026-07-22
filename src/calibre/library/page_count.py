@@ -33,17 +33,18 @@ else:
 
 
 class SimpleContainer(ContainerBase):
-
     tweak_mode = True
 
 
 def count_pages_pdf(pathtoebook: str) -> int:
     from calibre.utils.podofo import get_page_count
+
     try:
         return get_page_count(pathtoebook)
     except Exception:
         from calibre.ebooks.metadata.pdf import get_tools
         from calibre.ebooks.pdf.pdftohtml import creationflags
+
         pdfinfo = get_tools()[0]
         with open(pathtoebook, 'rb') as f:
             for line in subprocess.check_output([pdfinfo, '-'], stdin=f, creationflags=creationflags).decode().splitlines():
@@ -56,36 +57,39 @@ def count_pages_pdf(pathtoebook: str) -> int:
 def fname_ok_cb(fname):
     from calibre.ebooks.metadata.archive import fname_ok
     from calibre.libunzip import comic_exts
+
     return fname_ok(fname) and fname.rpartition('.')[-1].lower() in comic_exts
 
 
 def count_pages_cbz(pathtoebook: str) -> int:
     from calibre.utils.zipfile import ZipFile
+
     with closing(ZipFile(pathtoebook)) as zf:
         return sum(1 for _ in filter(fname_ok_cb, zf.namelist()))
 
 
 def count_pages_cbr(pathtoebook: str) -> int:
     from calibre.ebooks.metadata.archive import RAR
+
     with closing(RAR(pathtoebook)) as zf:
         return sum(1 for _ in filter(fname_ok_cb, zf.namelist()))
 
 
 def count_pages_cb7(pathtoebook: str) -> int:
     from calibre.ebooks.metadata.archive import SevenZip
+
     with closing(SevenZip(pathtoebook)) as zf:
         return sum(1 for _ in filter(fname_ok_cb, zf.namelist()))
 
 
 def get_length(root: etree.Element) -> int:
-    ' Used for position/length display in the viewer '
+    "Used for position/length display in the viewer"
     return max(CHARS_PER_PAGE, get_line_count(root) * CHARS_PER_LINE)
 
 
 CHARS_PER_LINE = 70
 LINES_PER_PAGE = 36
 CHARS_PER_PAGE = CHARS_PER_LINE * LINES_PER_PAGE
-
 
 head_map = {
     'h1': (30, 2),
@@ -124,7 +128,7 @@ def count_line(block_elem: etree.Element) -> int:
 
 
 def get_line_count(document_root: etree.Element) -> int:
-    '''Emulate lines rendering of the content to return the page count.'''
+    """Emulate lines rendering of the content to return the page count."""
     ans = 0
     # Visits every non-block tag twice and every other tag once
     for elem in document_root.iterdescendants('*'):
@@ -212,7 +216,6 @@ def count_pages(pathtoebook: str, executor: Executor | None = None) -> int:
 
 
 class Server:
-
     ALGORITHM = 4
 
     def __init__(self, max_jobs_per_worker: int = 2048):
@@ -229,8 +232,8 @@ class Server:
         with write_pipe:
             cmd = f'from calibre.library.page_count import worker_main; worker_main({write_pipe.fileno()})'
             from calibre.utils.ipc.simple_worker import start_pipe_worker
-            self.worker = start_pipe_worker(
-                cmd, pass_fds=(write_pipe.fileno(),), stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
+            self.worker = start_pipe_worker(cmd, pass_fds=(write_pipe.fileno(),), stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         self.tasks_run_by_worker = 0
 
     def shutdown_worker(self) -> None:
@@ -276,6 +279,7 @@ def serve_requests(pipe: Connection) -> None:
                 result = count_pages(path, executor)
             except Exception as e:
                 import traceback
+
                 result = str(e), traceback.format_exc()
             try:
                 eintr_retry_call(pipe.send, result)
@@ -285,6 +289,7 @@ def serve_requests(pipe: Connection) -> None:
 
 def worker_main(pipe_fd: int) -> None:
     from calibre.utils.formatter import set_template_error_reporter
+
     set_template_error_reporter()
     with suppress(KeyboardInterrupt), Connection(pipe_fd, False, True) as pipe:
         serve_requests(pipe)
@@ -293,9 +298,11 @@ def worker_main(pipe_fd: int) -> None:
 def test_line_counting(self):
     line = 'a ' * CHARS_PER_LINE
     h1_line = 'h ' * head_map['h1'][0]
+
     def t(doc: str, expected: int):
         root = parse(doc)
         self.assertEqual(expected, get_line_count(root), doc)
+
     t(f'<p><!--{line}-->{line}<br>{line}', 2)
     t(f'<body>{line}<script>{line}</script>', 1)
     t(f'<body>{line}<span>{line}<p>', 2)
@@ -310,10 +317,14 @@ def test_line_counting(self):
 
 def test_page_count(self) -> None:
     from calibre.utils.resources import get_path as P
+
     test_line_counting(self)
     files = (
-        P('quick_start/eng.epub'), P('quick_start/swe.epub'), P('quick_start/fra.epub'),
-        P('common-english-words.txt'))
+        P('quick_start/eng.epub'),
+        P('quick_start/swe.epub'),
+        P('quick_start/fra.epub'),
+        P('common-english-words.txt'),
+    )
     with Server(max_jobs_per_worker=2) as s:
         for x in files:
             res = s.count_pages(x)
@@ -323,6 +334,7 @@ def test_page_count(self) -> None:
 
 def develop():
     import time
+
     paths = sys.argv[1:]
     executor = ThreadPoolExecutor()
     for x in paths:

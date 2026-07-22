@@ -11,14 +11,14 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class LeCanardEnchaine(BasicNewsRecipe):
-    title       = 'Le Canard Enchaîné'
-    __author__  = 'Kabonix'
+    title = 'Le Canard Enchaîné'
+    __author__ = 'Kabonix'
     description = 'Articles du Canard Enchaîné (sans login — CSS paywall)'
-    language    = 'fr'
-    no_stylesheets   = True
-    auto_cleanup      = False
+    language = 'fr'
+    no_stylesheets = True
+    auto_cleanup = False
     remove_javascript = True
-    max_image_width  = 600
+    max_image_width = 600
     max_image_height = 800
 
     # Spoofer le referer Google pour contourner le paywall CSS
@@ -30,7 +30,7 @@ class LeCanardEnchaine(BasicNewsRecipe):
         br.set_handle_robots(False)
         br.addheaders = [
             ('User-Agent', self.browser_user_agent),
-            ('Referer',         'https://www.google.fr/'),
+            ('Referer', 'https://www.google.fr/'),
             ('X-Forwarded-For', '66.249.66.1'),  # IP officielle Googlebot
             ('Accept-Language', 'fr-FR,fr;q=0.9'),
         ]
@@ -41,10 +41,8 @@ class LeCanardEnchaine(BasicNewsRecipe):
     # ------------------------------------------------------------------ #
     def get_cover_url(self):
         try:
-            br   = self.get_browser()
-            soup = self.index_to_soup(
-                br.open('https://boutique.lecanardenchaine.fr/acheter-au-numero/').read()
-            )
+            br = self.get_browser()
+            soup = self.index_to_soup(br.open('https://boutique.lecanardenchaine.fr/acheter-au-numero/').read())
             li = soup.find('li', {'class': 'list-item'})
             if li:
                 img = li.find('img')
@@ -66,10 +64,19 @@ class LeCanardEnchaine(BasicNewsRecipe):
 
     remove_tags = [
         dict(name=['script', 'style', 'nav', 'header', 'footer', 'button', 'form']),
-        dict(name='div', attrs={'class': [
-            'share-mobile', 'share-sticky', 'article__author',
-            'article__tags', 'list-breadcrumb', 'modal',
-        ]}),
+        dict(
+            name='div',
+            attrs={
+                'class': [
+                    'share-mobile',
+                    'share-sticky',
+                    'article__author',
+                    'article__tags',
+                    'list-breadcrumb',
+                    'modal',
+                ]
+            },
+        ),
     ]
 
     extra_css = '''
@@ -88,7 +95,7 @@ class LeCanardEnchaine(BasicNewsRecipe):
         # Déverrouiller le contenu caché par CSS
         for div in soup.findAll('div', attrs={'id': 'paywall'}):
             div['class'] = ''
-            div['id']    = ''
+            div['id'] = ''
         for div in soup.findAll('div', attrs={'class': 'paywall'}):
             div['class'] = ''
         # Nettoyer les overlays de paywall
@@ -107,44 +114,44 @@ class LeCanardEnchaine(BasicNewsRecipe):
     #  Index des sections                                                  #
     # ------------------------------------------------------------------ #
     SECTIONS = {
-        'Politique':             '/politique/',
-        'Économie':              '/economie/',
-        'International':         '/international/',
-        'Défense':               '/defense/',
-        'Société':               '/societe/',
-        'Police-Justice':        '/police-justice/',
-        'Santé':                 '/sante/',
-        'Éducation':             '/education/',
-        'Environnement':         '/environnement/',
-        'Technologie-Sciences':  '/technologie-sciences/',
-        'Culture-Idées':         '/culture-idees/',
-        'Médias':                '/medias/',
-        'Sport':                 '/sport/',
-        'Social':                '/social/',
-        'Brèves':                '/breves/',
+        'Politique': '/politique/',
+        'Économie': '/economie/',
+        'International': '/international/',
+        'Défense': '/defense/',
+        'Société': '/societe/',
+        'Police-Justice': '/police-justice/',
+        'Santé': '/sante/',
+        'Éducation': '/education/',
+        'Environnement': '/environnement/',
+        'Technologie-Sciences': '/technologie-sciences/',
+        'Culture-Idées': '/culture-idees/',
+        'Médias': '/medias/',
+        'Sport': '/sport/',
+        'Social': '/social/',
+        'Brèves': '/breves/',
     }
 
     def parse_index(self):
-        br      = self.get_browser()
-        feeds   = []
-        today   = datetime.now(ZoneInfo('Europe/Paris'))
+        br = self.get_browser()
+        feeds = []
+        today = datetime.now(ZoneInfo('Europe/Paris'))
         week_ago = today - timedelta(days=7)
 
         for section_title, section_url in self.SECTIONS.items():
             articles = []
             try:
-                url  = 'https://www.lecanardenchaine.fr' + section_url
+                url = 'https://www.lecanardenchaine.fr' + section_url
                 soup = self.index_to_soup(br.open(url).read())
 
                 for article in soup.findAll('article', {'class': 'article-item'}):
-                    link     = article.find('a', href=True)
+                    link = article.find('a', href=True)
                     date_div = article.find('div', {'class': 'article-item__date'})
 
                     if not (link and date_div):
                         continue
 
-                    href         = link['href']
-                    title        = link.get_text(separator=' ').strip()
+                    href = link['href']
+                    title = link.get_text(separator=' ').strip()
                     time_element = date_div.find('time')
 
                     if not (time_element and time_element.get('datetime')):
@@ -158,10 +165,10 @@ class LeCanardEnchaine(BasicNewsRecipe):
                         href = 'https://www.lecanardenchaine.fr' + href
 
                     articles.append({
-                        'title':       title,
-                        'url':         href,
+                        'title': title,
+                        'url': href,
                         'description': f"Publié le {article_date.strftime('%d/%m/%Y')}",
-                        'date':        article_date.strftime('%a, %d %b %Y %H:%M:%S %z'),
+                        'date': article_date.strftime('%a, %d %b %Y %H:%M:%S %z'),
                     })
 
             except Exception as e:

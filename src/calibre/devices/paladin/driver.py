@@ -1,10 +1,9 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
-
-'''
+"""
 Device driver for the Paladin devices
-'''
+"""
 
 import os
 import sys
@@ -22,43 +21,39 @@ DBPATH = 'paladin/database/books.db'
 
 
 class ImageWrapper:
-
     def __init__(self, image_path):
         self.image_path = image_path
 
 
 class PALADIN(USBMS):
-    name           = 'Paladin Device Interface'
-    gui_name       = 'Paladin eLibrary'
-    description    = _('Communicate with the Paladin readers')
-    author         = 'David Hobley'
+    name = 'Paladin Device Interface'
+    gui_name = 'Paladin eLibrary'
+    description = _('Communicate with the Paladin readers')
+    author = 'David Hobley'
     supported_platforms = ['windows', 'osx', 'linux']
     path_sep = '/'
     booklist_class = CollectionsBookList
 
-    FORMATS      = ['epub', 'pdf']
+    FORMATS = ['epub', 'pdf']
     CAN_SET_METADATA = ['collections']
     CAN_DO_DEVICE_DB_PLUGBOARD = True
 
-    VENDOR_ID    = [0x2207]   #: Onyx Vendor Id (currently)
-    PRODUCT_ID   = [0x0010]
-    BCD          = None
+    VENDOR_ID = [0x2207]  #: Onyx Vendor Id (currently)
+    PRODUCT_ID = [0x0010]
+    BCD = None
 
     SUPPORTS_SUB_DIRS = True
     SUPPORTS_USE_AUTHOR_SORT = True
     MUST_READ_METADATA = True
-    EBOOK_DIR_MAIN   = 'paladin/books'
+    EBOOK_DIR_MAIN = 'paladin/books'
 
     EXTRA_CUSTOMIZATION_MESSAGE = [
-        _(
-            'Comma separated list of metadata fields '
-            'to turn into collections on the device. Possibilities include: '
-        ) + 'series, tags, authors',
+        _('Comma separated list of metadata fields to turn into collections on the device. Possibilities include: ') + 'series, tags, authors',
     ]
     EXTRA_CUSTOMIZATION_DEFAULT = [
         ', '.join(['series', 'tags']),
     ]
-    OPT_COLLECTIONS    = 0
+    OPT_COLLECTIONS = 0
 
     plugboards = None
     plugboard_func = None
@@ -67,12 +62,10 @@ class PALADIN(USBMS):
 
     def books(self, oncard=None, end_session=True):
         import apsw
+
         dummy_bl = BookList(None, None, None)
 
-        if (
-                (oncard == 'carda' and not self._card_a_prefix) or
-                (oncard and oncard != 'carda')
-            ):
+        if (oncard == 'carda' and not self._card_a_prefix) or (oncard and oncard != 'carda'):
             self.report_progress(1.0, _('Getting list of books on device...'))
             return dummy_bl
 
@@ -114,7 +107,7 @@ class PALADIN(USBMS):
                 for i, row in enumerate(cursor):
                     try:
                         comp_date = int(os.path.getmtime(self.normalize_path(prefix + row[0])) * 1000)
-                    except (OSError, TypeError):
+                    except OSError, TypeError:
                         # In case the db has incorrect path info
                         continue
                     device_date = int(row[1])
@@ -154,8 +147,7 @@ class PALADIN(USBMS):
 
         opts = self.settings()
         if opts.extra_customization:
-            collections = [x.strip() for x in
-                    opts.extra_customization[self.OPT_COLLECTIONS].split(',')]
+            collections = [x.strip() for x in opts.extra_customization[self.OPT_COLLECTIONS].split(',')]
         else:
             collections = []
         debug_print('PALADIN: collection fields:', collections)
@@ -170,12 +162,12 @@ class PALADIN(USBMS):
 
     def update_device_database(self, booklist, collections_attributes, oncard):
         import apsw
+
         debug_print('PALADIN: starting update_device_database')
 
         plugboard = None
         if self.plugboard_func:
-            plugboard = self.plugboard_func(self.__class__.__name__,
-                    'device_db', self.plugboards)
+            plugboard = self.plugboard_func(self.__class__.__name__, 'device_db', self.plugboards)
             debug_print('PALADIN: Using Plugboard', plugboard)
 
         prefix = self._card_a_prefix if oncard == 'carda' else self._main_prefix
@@ -191,8 +183,7 @@ class PALADIN(USBMS):
 
         with closing(apsw.Connection(dbpath)) as connection:
             self.remove_orphaned_records(connection, dbpath)
-            self.update_device_books(connection, booklist, source_id,
-                    plugboard, dbpath)
+            self.update_device_books(connection, booklist, source_id, plugboard, dbpath)
             self.update_device_collections(connection, booklist, collections, source_id, dbpath)
 
         debug_print('PALADIN: finished update_device_database')
@@ -214,14 +205,20 @@ class PALADIN(USBMS):
             cursor.close()
         except Exception:
             import traceback
+
             tb = traceback.format_exc()
-            raise DeviceError(('The Paladin database is corrupted. '
+            raise DeviceError(
+                (
+                    'The Paladin database is corrupted. '
                     f' Delete the file {dbpath} on your reader and then disconnect '
                     ' reconnect it. If you are using an SD card, you '
                     ' should delete the file on the card as well. Note that '
                     ' deleting this file will cause your reader to forget '
-                    ' any notes/highlights, etc.')+' Underlying error:'
-                    '\n'+tb)
+                    ' any notes/highlights, etc.'
+                )
+                + ' Underlying error:'
+                '\n' + tb
+            )
 
     def get_database_min_id(self, source_id):
         sequence_min = 0
@@ -235,14 +232,22 @@ class PALADIN(USBMS):
 
         # Update the sequence Id if it exists
         query = 'UPDATE sqlite_sequence SET seq = ? WHERE name = ?'
-        t = (sequence_id, table,)
+        t = (
+            sequence_id,
+            table,
+        )
         cursor.execute(query, t)
 
         # Insert the sequence Id if it doesn't
-        query = ('INSERT INTO sqlite_sequence (name, seq) '
-                'SELECT ?, ? '
-                'WHERE NOT EXISTS (SELECT 1 FROM sqlite_sequence WHERE name = ?)')
-        cursor.execute(query, (table, sequence_id, table,))
+        query = 'INSERT INTO sqlite_sequence (name, seq) SELECT ?, ? WHERE NOT EXISTS (SELECT 1 FROM sqlite_sequence WHERE name = ?)'
+        cursor.execute(
+            query,
+            (
+                table,
+                sequence_id,
+                table,
+            ),
+        )
 
         cursor.close()
 
@@ -261,14 +266,20 @@ class PALADIN(USBMS):
             cursor.execute(query)
         except Exception:
             import traceback
+
             tb = traceback.format_exc()
-            raise DeviceError(('The Paladin database is corrupted. '
+            raise DeviceError(
+                (
+                    'The Paladin database is corrupted. '
                     f' Delete the file {dbpath} on your reader and then disconnect '
                     ' reconnect it. If you are using an SD card, you '
                     ' should delete the file on the card as well. Note that '
                     ' deleting this file will cause your reader to forget '
-                    ' any notes/highlights, etc.')+' Underlying error:'
-                    '\n'+tb)
+                    ' any notes/highlights, etc.'
+                )
+                + ' Underlying error:'
+                '\n' + tb
+            )
 
         # Get the books themselves, but keep track of any that are less than the minimum.
         # Record what the max id being used is as well.
@@ -295,11 +306,17 @@ class PALADIN(USBMS):
 
                     # Fix the Books DB
                     query = 'UPDATE books SET _id = ? WHERE filename = ?'
-                    t = (db_books[book], book,)
+                    t = (
+                        db_books[book],
+                        book,
+                    )
                     cursor.execute(query, t)
 
                     # Fix any references so that they point back to the right book
-                    t = (db_books[book], bookId,)
+                    t = (
+                        db_books[book],
+                        bookId,
+                    )
                     query = 'UPDATE booktags SET tag_id = ? WHERE tag_id = ?'
                     cursor.execute(query, t)
 
@@ -309,10 +326,10 @@ class PALADIN(USBMS):
         cursor.close()
         return db_books
 
-    def update_device_books(self, connection, booklist, source_id, plugboard,
-            dbpath):
+    def update_device_books(self, connection, booklist, source_id, plugboard, dbpath):
         from calibre.ebooks.metadata import authors_to_sort_string, authors_to_string
         from calibre.ebooks.metadata.meta import path_to_ext
+
         opts = self.settings()
 
         db_books = self.read_device_books(connection, source_id, dbpath)
@@ -352,9 +369,16 @@ class PALADIN(USBMS):
                 (bookname, authorname, description, addeddate, seriesname, seriesorder, filename, mimetype)
                 values (?,?,?,?,?,?,?,?)
                 '''
-                t = (title, author, book.get('comments', None), int(time.time() * 1000),
-                        book.get('series', None), book.get('series_index', sys.maxsize), lpath,
-                        book.mime or mime_type_ext(path_to_ext(lpath)))
+                t = (
+                    title,
+                    author,
+                    book.get('comments', None),
+                    int(time.time() * 1000),
+                    book.get('series', None),
+                    book.get('series_index', sys.maxsize),
+                    lpath,
+                    book.mime or mime_type_ext(path_to_ext(lpath)),
+                )
                 cursor.execute(query, t)
                 book.bookId = connection.last_insert_rowid()
                 debug_print(f'Inserted New Book: ({book.bookId}) ' + book.title)
@@ -398,14 +422,20 @@ class PALADIN(USBMS):
             cursor.execute(query)
         except Exception:
             import traceback
+
             tb = traceback.format_exc()
-            raise DeviceError(('The Paladin database is corrupted. '
+            raise DeviceError(
+                (
+                    'The Paladin database is corrupted. '
                     f' Delete the file {dbpath} on your reader and then disconnect '
                     ' reconnect it. If you are using an SD card, you '
                     ' should delete the file on the card as well. Note that '
                     ' deleting this file will cause your reader to forget '
-                    ' any notes/highlights, etc.')+' Underlying error:'
-                    '\n'+tb)
+                    ' any notes/highlights, etc.'
+                )
+                + ' Underlying error:'
+                '\n' + tb
+            )
 
         db_collections = {}
         for i, row in enumerate(cursor):
@@ -427,12 +457,18 @@ class PALADIN(USBMS):
 
                     # Fix the collection DB
                     query = 'UPDATE tags SET _id = ? WHERE tagname = ?'
-                    t = (db_collections[collection], collection, )
+                    t = (
+                        db_collections[collection],
+                        collection,
+                    )
                     cursor.execute(query, t)
 
                     # Fix any references in existing collections
                     query = 'UPDATE booktags SET tag_id = ? WHERE tag_id = ?'
-                    t = (db_collections[collection], collectionId,)
+                    t = (
+                        db_collections[collection],
+                        collectionId,
+                    )
                     cursor.execute(query, t)
 
             self.set_database_sequence_id(connection, 'tags', sequence_max)
@@ -462,7 +498,10 @@ class PALADIN(USBMS):
                 if pairId < sequence_min:
                     # Record the new Id and write it to the DB
                     query = 'UPDATE booktags SET _id = ? WHERE _id = ?'
-                    t = (sequence_max, pairId,)
+                    t = (
+                        sequence_max,
+                        pairId,
+                    )
                     cursor.execute(query, t)
                     sequence_max = sequence_max + 1
 
@@ -472,8 +511,7 @@ class PALADIN(USBMS):
         cursor.close()
         return db_collections
 
-    def update_device_collections(self, connection, booklist, collections,
-            source_id, dbpath):
+    def update_device_collections(self, connection, booklist, collections, source_id, dbpath):
 
         if collections:
             db_collections = self.read_device_collections(connection, source_id, dbpath)
@@ -510,16 +548,17 @@ class PALADIN(USBMS):
                         '''
                         t = (db_collections[collection], book.bookId)
                         cursor.execute(query, t)
-                        debug_print('Inserted Book Into Collection: ' +
-                                book.title + ' -> ' + collection)
+                        debug_print('Inserted Book Into Collection: ' + book.title + ' -> ' + collection)
 
                     db_books[book.lpath] = None
 
                 for bookPath, bookId in db_books.items():
                     if bookId is not None:
-                        query = ('DELETE FROM booktags '
-                                'WHERE book_id = ? AND tag_id = ? ')
-                        t = (bookId, db_collections[collection],)
+                        query = 'DELETE FROM booktags WHERE book_id = ? AND tag_id = ? '
+                        t = (
+                            bookId,
+                            db_collections[collection],
+                        )
                         cursor.execute(query, t)
                         debug_print('Deleted Book From Collection: ' + bookPath + ' -> ' + collection)
 
@@ -528,13 +567,11 @@ class PALADIN(USBMS):
             for collection, collectionId in db_collections.items():
                 if collectionId is not None:
                     # Remove Books from Collection
-                    query = ('DELETE FROM booktags '
-                            'WHERE tag_id = ?')
+                    query = 'DELETE FROM booktags WHERE tag_id = ?'
                     t = (collectionId,)
                     cursor.execute(query, t)
                     # Remove Collection
-                    query = ('DELETE FROM tags '
-                            'WHERE _id = ?')
+                    query = 'DELETE FROM tags WHERE _id = ?'
                     t = (collectionId,)
                     cursor.execute(query, t)
                     debug_print('Deleted Collection: ' + repr(collection))
@@ -546,8 +583,7 @@ class PALADIN(USBMS):
 
         opts = self.settings()
         if opts.extra_customization:
-            collections = [x.strip() for x in
-                    opts.extra_customization[self.OPT_COLLECTIONS].split(',')]
+            collections = [x.strip() for x in opts.extra_customization[self.OPT_COLLECTIONS].split(',')]
         else:
             collections = []
         debug_print('PALADIN: collection fields:', collections)

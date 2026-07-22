@@ -2,8 +2,7 @@ from calibre.web.feeds.recipes import BasicNewsRecipe
 
 
 class AdvancedUserRecipe1303841067(BasicNewsRecipe):
-
-    title = u'Golem.de'
+    title = 'Golem.de'
     __author__ = 'schuster'
 
     oldest_article = 7
@@ -19,24 +18,23 @@ class AdvancedUserRecipe1303841067(BasicNewsRecipe):
 
                 '''
     remove_javascript = True
-    remove_tags_befor = [
-        dict(name='header', attrs={'class': 'cluster-header'})]
+    remove_tags_befor = [dict(name='header', attrs={'class': 'cluster-header'})]
     remove_tags_after = [dict(name='p', attrs={'class': 'meta'})]
-    remove_tags = [dict(rel='nofollow'),
-                   dict(name='header', attrs={'id': 'header'}),
-                   dict(name='div', attrs={'class': 'dh1'}),
-                   dict(name='label', attrs={'class': 'implied'}),
-                   dict(name='section', attrs={'id': 'comments'}),
-                   dict(name='li', attrs={'class': 'gg_prebackcounterItem'}),
-                   dict(name='li', attrs={
-                       'class': 'gg_prebackcounterItem gg_embeddedIndexCounter'}),
-                   dict(name='img', attrs={
-                       'class': 'gg_embeddedIconRight gg_embeddedIconFS gg_cursorpointer'}),
-                   dict(name='div', attrs={'target': '_blank'})
-                   ]
+    remove_tags = [
+        dict(rel='nofollow'),
+        dict(name='header', attrs={'id': 'header'}),
+        dict(name='div', attrs={'class': 'dh1'}),
+        dict(name='label', attrs={'class': 'implied'}),
+        dict(name='section', attrs={'id': 'comments'}),
+        dict(name='li', attrs={'class': 'gg_prebackcounterItem'}),
+        dict(name='li', attrs={'class': 'gg_prebackcounterItem gg_embeddedIndexCounter'}),
+        dict(name='img', attrs={'class': 'gg_embeddedIconRight gg_embeddedIconFS gg_cursorpointer'}),
+        dict(name='div', attrs={'target': '_blank'}),
+    ]
 
     def get_browser(self, *args, **kwargs):
         from calibre import browser
+
         kwargs['user_agent'] = 'mozilla'
         return browser(*args, **kwargs)
 
@@ -50,26 +48,24 @@ class AdvancedUserRecipe1303841067(BasicNewsRecipe):
                 alink.replaceWith(tstr)
         return soup
 
-    feeds = [(u'Audio/Video', u'http://rss.golem.de/rss.php?tp=av&feed=RSS2.0'),
-             (u'Foto', u'http://rss.golem.de/rss.php?tp=foto&feed=RSS2.0'),
-             (u'Games', u'http://rss.golem.de/rss.php?tp=games&feed=RSS2.0'),
-             (u'Handy', u'http://rss.golem.de/rss.php?tp=handy&feed=RSS2.0'),
-             (u'Internet', u'http://rss.golem.de/rss.php?tp=inet&feed=RSS2.0'),
-             (u'Mobile', u'http://rss.golem.de/rss.php?tp=mc&feed=RSS2.0'),
-             (u'OSS', u'http://rss.golem.de/rss.php?tp=oss&feed=RSS2.0'),
-             (u'Politik/Recht', u'http://rss.golem.de/rss.php?tp=pol&feed=RSS2.0'),
-             (u'Security', u'http://rss.golem.de/rss.php?tp=sec&feed=RSS2.0'),
-             (u'Desktop-Applikationen',
-              u'http://rss.golem.de/rss.php?tp=apps&feed=RSS2.0'),
-             (u'Software-Entwicklung',
-              u'http://rss.golem.de/rss.php?tp=dev&feed=RSS2.0'),
-             (u'Wirtschaft', u'http://rss.golem.de/rss.php?tp=wirtschaft&feed=RSS2.0'),
-             (u'Hardware', u'http://rss.golem.de/rss.php?r=hw&feed=RSS2.0'),
-             (u'Software', u'http://rss.golem.de/rss.php?r=sw&feed=RSS2.0'),
-             (u'Networld', u'http://rss.golem.de/rss.php?r=nw&feed=RSS2.0'),
-             (u'Entertainment', u'http://rss.golem.de/rss.php?r=et&feed=RSS2.0'),
-             (u'TK', u'http://rss.golem.de/rss.php?r=tk&feed=RSS2.0'),
-             (u'Wirtschaft', u'http://rss.golem.de/rss.php?r=wi&feed=RSS2.0'),
-             (u'E-Commerce', u'http://rss.golem.de/rss.php?r=ec&feed=RSS2.0')
-
-             ]
+    feeds = [
+        ('Audio/Video', 'http://rss.golem.de/rss.php?tp=av&feed=RSS2.0'),
+        ('Foto', 'http://rss.golem.de/rss.php?tp=foto&feed=RSS2.0'),
+        ('Games', 'http://rss.golem.de/rss.php?tp=games&feed=RSS2.0'),
+        ('Handy', 'http://rss.golem.de/rss.php?tp=handy&feed=RSS2.0'),
+        ('Internet', 'http://rss.golem.de/rss.php?tp=inet&feed=RSS2.0'),
+        ('Mobile', 'http://rss.golem.de/rss.php?tp=mc&feed=RSS2.0'),
+        ('OSS', 'http://rss.golem.de/rss.php?tp=oss&feed=RSS2.0'),
+        ('Politik/Recht', 'http://rss.golem.de/rss.php?tp=pol&feed=RSS2.0'),
+        ('Security', 'http://rss.golem.de/rss.php?tp=sec&feed=RSS2.0'),
+        ('Desktop-Applikationen', 'http://rss.golem.de/rss.php?tp=apps&feed=RSS2.0'),
+        ('Software-Entwicklung', 'http://rss.golem.de/rss.php?tp=dev&feed=RSS2.0'),
+        ('Wirtschaft', 'http://rss.golem.de/rss.php?tp=wirtschaft&feed=RSS2.0'),
+        ('Hardware', 'http://rss.golem.de/rss.php?r=hw&feed=RSS2.0'),
+        ('Software', 'http://rss.golem.de/rss.php?r=sw&feed=RSS2.0'),
+        ('Networld', 'http://rss.golem.de/rss.php?r=nw&feed=RSS2.0'),
+        ('Entertainment', 'http://rss.golem.de/rss.php?r=et&feed=RSS2.0'),
+        ('TK', 'http://rss.golem.de/rss.php?r=tk&feed=RSS2.0'),
+        ('Wirtschaft', 'http://rss.golem.de/rss.php?r=wi&feed=RSS2.0'),
+        ('E-Commerce', 'http://rss.golem.de/rss.php?r=ec&feed=RSS2.0'),
+    ]

@@ -23,28 +23,24 @@ class JeuxVideoCom(BasicNewsRecipe):
     no_stylesheets = True
     ignore_duplicate_articles = {'title', 'url'}
     keep_only_tags = [dict(id=['news_detail', 'test_txt', 'test_avis'])]
-    remove_tags = [
-        dict(name='div', attrs={'id': 'player_video_article'}),
-        dict(name='div', attrs={'class': 'liste-fiches'})
-    ]
-    masthead_url = u'https://upload.wikimedia.org/wikipedia/commons/3/39/Jeuxvideocom.png'
+    remove_tags = [dict(name='div', attrs={'id': 'player_video_article'}), dict(name='div', attrs={'class': 'liste-fiches'})]
+    masthead_url = 'https://upload.wikimedia.org/wikipedia/commons/3/39/Jeuxvideocom.png'
     feeds = [
-        (u'Section PC', u'http://www.jeuxvideo.com/rss/rss-pc.xml'),
-        (u'Section Xbox One', u'http://www.jeuxvideo.com/rss/rss-xo.xml'),
-        (u'Section PlayStation 4', u'http://www.jeuxvideo.com/rss/rss-ps4.xml'),
-        (u'Section Xbox 360', u'http://www.jeuxvideo.com/rss/rss-360.xml'),
-        (u'Section PlayStation 3', u'http://www.jeuxvideo.com/rss/rss-ps3.xml'),
-        (u'Section Wii U', u'http://www.jeuxvideo.com/rss/rss-wiiu.xml'),
-        (u'Section Wii', u'http://www.jeuxvideo.com/rss/rss-wii.xml'),
-        (u'Section Nintendo 3DS', u'http://www.jeuxvideo.com/rss/rss-3ds.xml'),
-        (u'Section Nintendo DS', u'http://www.jeuxvideo.com/rss/rss-ds.xml'),
-        (u'Section PlayStation Vita', u'http://www.jeuxvideo.com/rss/rss-vita.xml'),
-        (u'Section PlayStation Protable',
-         u'http://www.jeuxvideo.com/rss/rss-psp.xml'),
-        (u'Section Android', u'http://www.jeuxvideo.com/rss/rss-android.xml'),
-        (u'Section Iphone', u'http://www.jeuxvideo.com/rss/rss-iphone.xml'),
-        (u'Section Web', u'http://www.jeuxvideo.com/rss/rss-wb.xml'),
-        (u'Autres news', u'http://www.jeuxvideo.com/rss/rss-news.xml'),
-        (u'Autres vidéos', u'http://www.jeuxvideo.com/rss/rss-videos.xml'),
-        (u'Autres articles', u'http://www.jeuxvideo.com/rss/rss.xml'),
+        ('Section PC', 'http://www.jeuxvideo.com/rss/rss-pc.xml'),
+        ('Section Xbox One', 'http://www.jeuxvideo.com/rss/rss-xo.xml'),
+        ('Section PlayStation 4', 'http://www.jeuxvideo.com/rss/rss-ps4.xml'),
+        ('Section Xbox 360', 'http://www.jeuxvideo.com/rss/rss-360.xml'),
+        ('Section PlayStation 3', 'http://www.jeuxvideo.com/rss/rss-ps3.xml'),
+        ('Section Wii U', 'http://www.jeuxvideo.com/rss/rss-wiiu.xml'),
+        ('Section Wii', 'http://www.jeuxvideo.com/rss/rss-wii.xml'),
+        ('Section Nintendo 3DS', 'http://www.jeuxvideo.com/rss/rss-3ds.xml'),
+        ('Section Nintendo DS', 'http://www.jeuxvideo.com/rss/rss-ds.xml'),
+        ('Section PlayStation Vita', 'http://www.jeuxvideo.com/rss/rss-vita.xml'),
+        ('Section PlayStation Protable', 'http://www.jeuxvideo.com/rss/rss-psp.xml'),
+        ('Section Android', 'http://www.jeuxvideo.com/rss/rss-android.xml'),
+        ('Section Iphone', 'http://www.jeuxvideo.com/rss/rss-iphone.xml'),
+        ('Section Web', 'http://www.jeuxvideo.com/rss/rss-wb.xml'),
+        ('Autres news', 'http://www.jeuxvideo.com/rss/rss-news.xml'),
+        ('Autres vidéos', 'http://www.jeuxvideo.com/rss/rss-videos.xml'),
+        ('Autres articles', 'http://www.jeuxvideo.com/rss/rss.xml'),
     ]

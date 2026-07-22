@@ -9,18 +9,19 @@ from book_list.globals import get_session_data
 from book_list.theme import get_color
 from dom import add_extra_css, rule, unique_id
 from read_book.globals import ui_operations
-from widgets import create_button
 from session import session_defaults
+from widgets import create_button
 
 CONTAINER = unique_id('font-size-prefs')
 MIN_FONT_SIZE = 8
 MAX_FONT_SIZE = 80
 
-add_extra_css(def():
+add_extra_css(def ():
     style = rule(CONTAINER, 'option.current', background_color='var(--calibre-color-primary-light)')
     style += rule(CONTAINER, 'option:hover', background_color='var(--calibre-color-primary-light)')
     return style
 )
+
 
 def change_font_size(sz):
     sd = get_session_data()
@@ -82,7 +83,7 @@ def create_font_size_panel(container, close):
         E.div(
             id=CONTAINER,
             style='max-width: 500px; width: 80vw; border-radius: 8px; border: solid 1px currentColor; padding:1ex 1rem;',
-            onclick=def(ev): ev.preventDefault(), ev.stopPropagation()
+            onclick=def (ev): ev.preventDefault(), ev.stopPropagation()
     )))
     container = container.lastChild.lastChild
     container.style.backgroundColor = get_color('window-background')
@@ -95,7 +96,7 @@ def create_font_size_panel(container, close):
             class_='current' if cfs is sz else '',
             value=sz + '',
             style=f'display: inline-block; font-size:{sz}px; padding: 5px; cursor: pointer; border-radius: 4px; margin: 0 0.5rem',
-            onclick=def(ev):
+            onclick=def (ev):
                 set_quick_size(ev)
         ))
 
@@ -114,7 +115,6 @@ def create_font_size_panel(container, close):
             type='range', min=MIN_FONT_SIZE + '', max=MAX_FONT_SIZE + '', value=cfs + '', style='flex-grow: 4',
             oninput=set_quick_size,
         ),
-
         E.span('\xa0', E.input(
             value=f'{cfs}', oninput=set_size, type='number', min=MIN_FONT_SIZE + '', max=MAX_FONT_SIZE + '',
             step='1',
@@ -128,7 +128,7 @@ def create_font_size_panel(container, close):
 
     container.appendChild(E.div(
         style='margin-top: 1rem; text-align: right',
-        create_button(_('OK'), highlight=True, action=def():
+        create_button(_('OK'), highlight=True, action=def ():
             apply_font_size()
             close()
         ),
@@ -138,4 +138,4 @@ def create_font_size_panel(container, close):
 
 
 def develop(container):
-    create_font_size_panel(container, def():pass;)
+    create_font_size_panel(container, def (): pass;)

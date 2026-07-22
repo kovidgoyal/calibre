@@ -1,10 +1,8 @@
-__license__ = 'GPL 3'
-__copyright__ = '2009, John Schember <john@nachtimwald.com>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2009, John Schember <john@nachtimwald.com>
 
-'''
+"""
 Transform OEB content into RTF markup
-'''
+"""
 
 import io
 import os
@@ -57,9 +55,7 @@ BLOCK_TAGS = [
     'li',
 ]
 
-BLOCK_STYLES = [
-    'block'
-]
+BLOCK_STYLES = ['block']
 
 '''
 TODO:
@@ -92,7 +88,6 @@ def txt2rtf(text):
 
 
 class RTFMLizer:
-
     def __init__(self, log):
         self.log = log
 
@@ -106,13 +101,13 @@ class RTFMLizer:
         from calibre.ebooks.oeb.base import XHTML
         from calibre.ebooks.oeb.stylizer import Stylizer
         from calibre.utils.xml_parse import safe_xml_fromstring
+
         output = self.header()
         if 'titlepage' in self.oeb_book.guide:
             href = self.oeb_book.guide['titlepage'].href
             item = self.oeb_book.manifest.hrefs[href]
             if item.spine_position is None:
-                stylizer = Stylizer(item.data, item.href, self.oeb_book,
-                        self.opts, self.opts.output_profile)
+                stylizer = Stylizer(item.data, item.href, self.oeb_book, self.opts, self.opts.output_profile)
                 self.currently_dumping_item = item
                 output += self.dump_text(item.data.find(XHTML('body')), stylizer)
                 output += r'{\page }'
@@ -187,7 +182,7 @@ class RTFMLizer:
         lines = []
         v = memoryview(data)
         for i in range(0, len(data), 64):
-            lines.append(hexlify(v[i:i+64]))
+            lines.append(hexlify(v[i : i + 64]))
         hex_string = b'\n'.join(lines).decode('ascii')
         return hex_string, width, height
 
@@ -212,19 +207,16 @@ class RTFMLizer:
     def dump_text(self, elem, stylizer, tag_stack=[]):
         from calibre.ebooks.oeb.base import XHTML_NS, barename, namespace, urlnormalize
 
-        if not isinstance(elem.tag, (str, bytes)) \
-           or namespace(elem.tag) != XHTML_NS:
+        if not isinstance(elem.tag, (str, bytes)) or namespace(elem.tag) != XHTML_NS:
             p = elem.getparent()
-            if p is not None and isinstance(p.tag, (str, bytes)) and namespace(p.tag) == XHTML_NS \
-                    and elem.tail:
+            if p is not None and isinstance(p.tag, (str, bytes)) and namespace(p.tag) == XHTML_NS and elem.tail:
                 return elem.tail
             return ''
 
         text = ''
         style = stylizer.style(elem)
 
-        if style['display'] in ('none', 'oeb-page-head', 'oeb-page-foot') \
-           or style['visibility'] == 'hidden':
+        if style['display'] in ('none', 'oeb-page-head', 'oeb-page-foot') or style['visibility'] == 'hidden':
             if hasattr(elem, 'tail') and elem.tail:
                 return elem.tail
             return ''

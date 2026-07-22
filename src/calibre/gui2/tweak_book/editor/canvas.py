@@ -1,8 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__ = 'GPL v3'
-__copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
+# License: GPLv3 Copyright: 2013, Kovid Goyal <kovid at kovidgoyal.net>
 
 import sys
 import weakref
@@ -54,6 +51,7 @@ def painter(func):
             return func(self, painter)
         finally:
             painter.restore()
+
     return ans
 
 
@@ -77,7 +75,6 @@ class SelectionState:
 
 
 class Command(QUndoCommand):
-
     TEXT = ''
 
     def __call__(self, canvas):
@@ -105,16 +102,16 @@ class Command(QUndoCommand):
 
 
 def get_selection_rect(img, sr, target):
-    ' Given selection rect return the corresponding rectangle in the underlying image as left, top, width, height '
-    left_border = (abs(sr.left() - target.left())/target.width()) * img.width()
-    top_border = (abs(sr.top() - target.top())/target.height()) * img.height()
-    right_border = (abs(target.right() - sr.right())/target.width()) * img.width()
-    bottom_border = (abs(target.bottom() - sr.bottom())/target.height()) * img.height()
+    "Given selection rect return the corresponding rectangle in the underlying image as left, top, width, height"
+    left_border = (abs(sr.left() - target.left()) / target.width()) * img.width()
+    top_border = (abs(sr.top() - target.top()) / target.height()) * img.height()
+    right_border = (abs(target.right() - sr.right()) / target.width()) * img.width()
+    bottom_border = (abs(target.bottom() - sr.bottom()) / target.height()) * img.height()
     return left_border, top_border, img.width() - left_border - right_border, img.height() - top_border - bottom_border
 
 
 class Trim(Command):
-    ''' Remove the areas of the image outside the current selection. '''
+    """Remove the areas of the image outside the current selection."""
 
     TEXT = _('Trim image')
 
@@ -123,7 +120,8 @@ class Trim(Command):
 
 
 class AutoTrim(Trim):
-    ''' Auto trim borders from the image '''
+    """Auto trim borders from the image"""
+
     TEXT = _('Auto-trim image')
 
     def __call__(self, canvas):
@@ -131,7 +129,6 @@ class AutoTrim(Trim):
 
 
 class Rotate(Command):
-
     TEXT = _('Rotate image')
 
     def __call__(self, canvas):
@@ -142,7 +139,6 @@ class Rotate(Command):
 
 
 class Scale(Command):
-
     TEXT = _('Resize image')
 
     def __init__(self, width, height, canvas):
@@ -155,7 +151,6 @@ class Scale(Command):
 
 
 class Sharpen(Command):
-
     TEXT = _('Sharpen image')
     FUNC = 'sharpen'
 
@@ -168,7 +163,6 @@ class Sharpen(Command):
 
 
 class Blur(Sharpen):
-
     TEXT = _('Blur image')
     FUNC = 'blur'
 
@@ -177,7 +171,6 @@ class Blur(Sharpen):
 
 
 class Oilify(Command):
-
     TEXT = _('Make image look like an oil painting')
 
     def __init__(self, radius, canvas):
@@ -189,7 +182,6 @@ class Oilify(Command):
 
 
 class Despeckle(Command):
-
     TEXT = _('De-speckle image')
 
     def __call__(self, canvas):
@@ -197,7 +189,6 @@ class Despeckle(Command):
 
 
 class Normalize(Command):
-
     TEXT = _('Normalize image')
 
     def __call__(self, canvas):
@@ -205,8 +196,8 @@ class Normalize(Command):
 
 
 class Replace(Command):
-    ''' Replace the current image with another image. If there is a selection,
-    only the region of the selection is replaced. '''
+    """Replace the current image with another image. If there is a selection,
+    only the region of the selection is replaced."""
 
     def __init__(self, img, text, canvas):
         self.after_image = img
@@ -237,11 +228,11 @@ def imageop(func):
             return func(self, *args, **kwargs)
         finally:
             QApplication.restoreOverrideCursor()
+
     return ans
 
 
 class Canvas(QWidget):
-
     BACKGROUND = QColor(60, 60, 60)
     SHADE_COLOR = QColor(0, 0, 0, 180)
     SELECT_PEN = QPen(QColor(Qt.GlobalColor.white))
@@ -291,6 +282,7 @@ class Canvas(QWidget):
 
     def dragMoveEvent(self, a0):
         a0.acceptProposedAction()
+
     # }}}
 
     def __init__(self, parent=None):
@@ -330,8 +322,7 @@ class Canvas(QWidget):
         self.original_image_format = fmt.decode('ascii').lower()
         self.selection_state.reset()
         self.original_image_data = data
-        self.current_image = i = self.original_image = (
-            QImage.fromData(data, format=fmt) if fmt else QImage.fromData(data))
+        self.current_image = i = self.original_image = QImage.fromData(data, format=fmt) if fmt else QImage.fromData(data)
         self.is_valid = not i.isNull()
         self.current_scaled_pixmap = None
         self.update()
@@ -353,6 +344,7 @@ class Canvas(QWidget):
             if fmt.lower() == 'gif':
                 data = image_to_data(self.current_image, fmt='PNG', png_compression_level=0)
                 from PIL import Image
+
                 i = Image.open(BytesIO(data))
                 buf = BytesIO()
                 i.save(buf, 'gif')
@@ -384,8 +376,7 @@ class Canvas(QWidget):
             if not img.isNull():
                 self.undo_stack.push(Replace(img, _('Paste image'), self))
         else:
-            error_dialog(self, _('No image'), _(
-                'No image available in the clipboard'), show=True)
+            error_dialog(self, _('No image'), _('No image available in the clipboard'), show=True)
 
     def break_cycles(self):
         self.undo_stack.clear()
@@ -401,8 +392,12 @@ class Canvas(QWidget):
     @imageop
     def trim_image(self):
         if self.selection_state.rect is None:
-            error_dialog(self, _('No selection'), _(
-                'No active selection, first select a region in the image, by dragging with your mouse'), show=True)
+            error_dialog(
+                self,
+                _('No selection'),
+                _('No active selection, first select a region in the image, by dragging with your mouse'),
+                show=True,
+            )
             return False
         self.undo_stack.push(Trim(self))
         return True
@@ -616,6 +611,7 @@ class Canvas(QWidget):
                     self.selection_state.current_mode = 'select'
                     self.selection_state.rect = None
                     self.selection_state_changed.emit(False)
+
     @property
     def selection_rect_in_image_coords(self):
         if self.selection_state.current_mode == 'selected':
@@ -629,8 +625,12 @@ class Canvas(QWidget):
         self.selection_state.reset()
         i = self.current_image
         assert i is not None
-        self.selection_state.rect = QRectF(self.target.left(), self.target.top(),
-                                           width * self.target.width() / i.width(), height * self.target.height() / i.height())
+        self.selection_state.rect = QRectF(
+            self.target.left(),
+            self.target.top(),
+            width * self.target.width() / i.width(),
+            height * self.target.height() / i.height(),
+        )
         self.selection_state.current_mode = 'selected'
         self.update()
         self.selection_state_changed.emit(self.has_selection)
@@ -656,7 +656,10 @@ class Canvas(QWidget):
                         self.selection_state.drag_corner = self.selection_state.dragging
                         dp = pos - self.selection_state.last_drag_pos
                         self.selection_state.last_drag_pos = pos
-                        self.move_selection(dp, preserve_aspect_ratio=a0.modifiers() & Qt.KeyboardModifier.AltModifier == Qt.KeyboardModifier.AltModifier)
+                        self.move_selection(
+                            dp,
+                            preserve_aspect_ratio=a0.modifiers() & Qt.KeyboardModifier.AltModifier == Qt.KeyboardModifier.AltModifier,
+                        )
                         cursor = self.get_cursor()
                         changed = True
             else:
@@ -683,8 +686,9 @@ class Canvas(QWidget):
                 else:
                     self.selection_state.current_mode = 'selected'
                 self.selection_state_changed.emit(self.has_selection)
-            elif self.selection_state.current_mode == 'selected' and self.selection_state.rect is not None and self.selection_state.rect.contains(
-                    a0.position()):
+            elif (
+                self.selection_state.current_mode == 'selected' and self.selection_state.rect is not None and self.selection_state.rect.contains(a0.position())
+            ):
                 self.setCursor(self.get_cursor())
             self.update()
 
@@ -702,6 +706,7 @@ class Canvas(QWidget):
             self.update()
         else:
             return QWidget.keyPressEvent(self, a0)
+
     # }}}
 
     # Painting {{{
@@ -750,11 +755,11 @@ class Canvas(QWidget):
             dpr = self.devicePixelRatioF()
         except AttributeError:
             dpr = self.devicePixelRatio()
-        width, height = int(p.width()/dpr), int(p.height()/dpr)
+        width, height = int(p.width() / dpr), int(p.height() / dpr)
         assert self.last_canvas_size is not None
         pwidth, pheight = self.last_canvas_size
-        x = int(abs(pwidth - width)/2.)
-        y = int(abs(pheight - height)/2.)
+        x = int(abs(pwidth - width) / 2.0)
+        y = int(abs(pheight - height) / 2.0)
         self.target = QRectF(x, y, width, height)
         painter.drawPixmap(self.target, p, QRectF(p.rect()))
 
@@ -803,6 +808,7 @@ class Canvas(QWidget):
                 self.draw_selection_rect(p)
         finally:
             p.end()
+
     # }}}
 
 

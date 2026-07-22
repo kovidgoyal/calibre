@@ -61,11 +61,11 @@ def extract_html(soup):
     raw = script[0].contents[0]
     return json_to_html(raw)
 
+
 # }}}
 
 
 class Reason(BasicNewsRecipe):
-
     title = 'Reason'
     description = 'Free minds and free markets'
     INDEX = 'https://reason.com/magazine/'
@@ -144,11 +144,7 @@ class Reason(BasicNewsRecipe):
                     title = h3.find_next_sibling().a.text
                     url = h3.find_next_sibling().a['href']
                     desc = h3.find_next_sibling().p.text
-                    current_articles.append({
-                        'title': title,
-                        'url': url,
-                        'description': desc
-                    })
+                    current_articles.append({'title': title, 'url': url, 'description': desc})
             for h2 in div.findAll('h2', attrs={'class': True}):
                 cls = h2['class']
                 if hasattr(cls, 'split'):
@@ -168,11 +164,7 @@ class Reason(BasicNewsRecipe):
                         title = ''
                         url = ''
                     desc = h4.find_next_sibling().text
-                    current_articles.append({
-                        'title': title,
-                        'url': url,
-                        'description': desc
-                    })
+                    current_articles.append({'title': title, 'url': url, 'description': desc})
 
         if current_articles:
             feeds.append((current_section, current_articles))
@@ -183,4 +175,5 @@ if __name__ == '__main__':
     import sys
 
     from calibre.ebooks.BeautifulSoup import BeautifulSoup
+
     print(extract_html(BeautifulSoup(open(sys.argv[-1]).read())))

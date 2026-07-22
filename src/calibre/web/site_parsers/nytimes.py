@@ -42,11 +42,7 @@ def parse_vid(v):
     if v.get('promotionalMedia'):
         headline = v.get('headline', {}).get('default', '')
         rendition = v.get('renditions')
-        yield (
-            f'<div><b><a href="{rendition[0]["url"]}">Video</a>: {headline}</b></div>'
-            if rendition
-            else f'<div><b>{headline}</b></div>'
-        )
+        yield (f'<div><b><a href="{rendition[0]["url"]}">Video</a>: {headline}</b></div>' if rendition else f'<div><b>{headline}</b></div>')
         yield ''.join(parse_types(v['promotionalMedia']))
         if v.get('promotionalSummary'):
             yield f'<div class="cap">{v["promotionalSummary"]}</div>'
@@ -205,12 +201,7 @@ def article_parse(data):
 
 def clean_js_json(text):
     text = re.sub(r'\bundefined\b', 'null', text)
-    text = re.sub(
-        r'{\"checkGate\":.*',
-        'null}}',
-        text,
-        flags=re.DOTALL
-    )
+    text = re.sub(r'{\"checkGate\":.*', 'null}}', text, flags=re.DOTALL)
     return text
 
 
@@ -291,11 +282,7 @@ def live_json_to_html(data):
 
 def extract_html(soup, url):
     if '/interactive/' in url:
-        return (
-            '<html><body><p><em>'
-            'This is an interactive article, which is supposed to be read in a browser.'
-            '</p></em></body></html>'
-        )
+        return '<html><body><p><em>This is an interactive article, which is supposed to be read in a browser.</p></em></body></html>'
     candidates = soup.find_all('script', string=lambda x: x and 'window.__preloadedData' in x)
     if not candidates:
         if soup.find('script', src='https://ct.captcha-delivery.com/c.js'):

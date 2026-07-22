@@ -1,9 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__   = 'GPL v3'
-__copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2013, Kovid Goyal <kovid at kovidgoyal.net>
 
 import copy
 from collections import OrderedDict
@@ -19,7 +15,6 @@ CATEGORY_SORTS = ('name', 'popularity', 'rating')  # This has to be a tuple not 
 
 
 class Tag:
-
     __slots__ = (
         'avg_rating',
         'category',
@@ -38,10 +33,22 @@ class Tag:
         'use_sort_as_name',
     )
 
-    def __init__(self, name, id=None, count=0, state=0, avg=0, sort=None,
-                 category=None, id_set=None, search_expression=None,
-                 is_editable=True, is_searchable=True, use_sort_as_name=False,
-                 original_categories=None):
+    def __init__(
+        self,
+        name,
+        id=None,
+        count=0,
+        state=0,
+        avg=0,
+        sort=None,
+        category=None,
+        id_set=None,
+        search_expression=None,
+        is_editable=True,
+        is_searchable=True,
+        use_sort_as_name=False,
+        original_categories=None,
+    ):
         self.name = self.original_name = name
         self.id = id
         self.count = count
@@ -50,7 +57,7 @@ class Tag:
         self.is_editable = is_editable
         self.is_searchable = is_searchable
         self.id_set = id_set if id_set is not None else set()
-        self.avg_rating = avg/2.0 if avg is not None else 0
+        self.avg_rating = avg / 2.0 if avg is not None else 0
         self.sort = sort
         self.use_sort_as_name = use_sort_as_name
         self.category = category
@@ -82,37 +89,26 @@ class Tag:
 
 def find_categories(field_metadata):
     for category, cat in field_metadata.iter_items():
-        if (cat['is_category'] and cat['kind'] not in {'user', 'search'}):
+        if cat['is_category'] and cat['kind'] not in {'user', 'search'}:
             yield (category, cat['is_multiple'].get('cache_to_list', None), False)
-        elif (cat['datatype'] == 'composite' and
-              cat['display'].get('make_category', False)):
+        elif cat['datatype'] == 'composite' and cat['display'].get('make_category', False):
             yield (category, cat['is_multiple'].get('cache_to_list', None), True)
 
 
 def create_tag_class(category, fm):
     cat = fm[category]
     dt = cat['datatype']
-    is_editable = category not in {'news', 'rating', 'languages', 'formats',
-                                   'identifiers'} and dt != 'composite'
+    is_editable = category not in {'news', 'rating', 'languages', 'formats', 'identifiers'} and dt != 'composite'
 
     if (
-        (
-            (category == 'authors' or
-                (cat['display'].get('is_names', False) and
-                 cat['is_custom'] and cat['is_multiple'] and
-                 dt == 'text')
-            ) and tweaks['categories_use_field_for_author_name'] == 'author_sort'
-        ) or (
-            dt == 'series' and
-            tweaks['categories_use_field_for_series_name'] == 'series_sort'
-        )
-       ):
+        (category == 'authors' or (cat['display'].get('is_names', False) and cat['is_custom'] and cat['is_multiple'] and dt == 'text'))
+        and tweaks['categories_use_field_for_author_name'] == 'author_sort'
+    ) or (dt == 'series' and tweaks['categories_use_field_for_series_name'] == 'series_sort'):
         use_sort_as_name = True
     else:
         use_sort_as_name = False
 
-    return partial(Tag, use_sort_as_name=use_sort_as_name,
-                   is_editable=is_editable, category=category)
+    return partial(Tag, use_sort_as_name=use_sort_as_name, is_editable=is_editable, category=category)
 
 
 def clean_user_categories(dbcache):
@@ -183,6 +179,7 @@ def sort_key_for_rating(x, hierarchical_categories=None):
 # sort above "foo a.bar". Without this substitution "foo.bar" sorts below "foo
 # a.bar" because '.' sorts higher than space.
 
+
 def sort_key_for_name_and_first_letter(x, hierarchical_categories=()):
     v1 = icu_upper(x.sort or x.name)
     if x.category in hierarchical_categories:
@@ -191,8 +188,7 @@ def sort_key_for_name_and_first_letter(x, hierarchical_categories=()):
     # The idea is that '9999999999' is larger than any digit so all digits
     # will sort in front. Non-digits will sort according to their ICU first letter
     c = v2[0]
-    return (c if numeric_collation and c.isdigit() else '9999999999',
-            collation_order(v2), sort_key(v1))
+    return (c if numeric_collation and c.isdigit() else '9999999999', collation_order(v2), sort_key(v1))
 
 
 def sort_key_for_name(x, hierarchical_categories=()):
@@ -202,7 +198,7 @@ def sort_key_for_name(x, hierarchical_categories=()):
     return sort_key(v.replace('.', '\t'))
 
 
-category_sort_keys = {True:{}, False: {}}
+category_sort_keys = {True: {}, False: {}}
 category_sort_keys[True]['popularity'] = category_sort_keys[False]['popularity'] = sort_key_for_popularity
 category_sort_keys[True]['rating'] = category_sort_keys[False]['rating'] = sort_key_for_rating
 category_sort_keys[True]['name'] = sort_key_for_name_and_first_letter
@@ -242,8 +238,7 @@ def get_categories(dbcache, sort='name', book_ids=None, first_letter_sort=False,
         if is_composite:
             if bids is None:
                 bids = dbcache._all_book_ids() if book_ids is None else book_ids
-            cats = dbcache.fields[category].get_composite_categories(
-                tag_class, book_rating_map, bids, is_multiple, get_metadata)
+            cats = dbcache.fields[category].get_composite_categories(tag_class, book_rating_map, bids, is_multiple, get_metadata)
         elif category == 'news':
             cats = dbcache.fields['tags'].get_news_category(tag_class, book_ids)
         else:
@@ -255,15 +250,14 @@ def get_categories(dbcache, sort='name', book_ids=None, first_letter_sort=False,
                     brm = dbcache.fields[category].book_value_map
                 if sort_on == 'name':
                     sort_on, reverse = 'rating', True
-            cats = dbcache.fields[category].get_categories(
-                tag_class, brm, lang_map, book_ids)
-            if (category != 'authors' and dt == 'text' and
-                cat['is_multiple'] and cat['display'].get('is_names', False)):
+            cats = dbcache.fields[category].get_categories(tag_class, brm, lang_map, book_ids)
+            if category != 'authors' and dt == 'text' and cat['is_multiple'] and cat['display'].get('is_names', False):
                 for item in cats:
                     item.sort = author_to_author_sort(item.sort)
-        cats.sort(key=partial(category_sort_keys[fl_sort][sort_on],
-                              hierarchical_categories=hierarchical_categories),
-                  reverse=reverse)
+        cats.sort(
+            key=partial(category_sort_keys[fl_sort][sort_on], hierarchical_categories=hierarchical_categories),
+            reverse=reverse,
+        )
         categories[category] = cats
 
     # Needed for legacy databases that have multiple ratings that
@@ -327,10 +321,10 @@ def get_categories(dbcache, sort='name', book_ids=None, first_letter_sort=False,
                             for id_ in t.id_set:
                                 rating = book_rating_map.get(id_, 0)
                                 if rating:
-                                    total_rating += rating/2
+                                    total_rating += rating / 2
                                     count += 1
                             if total_rating and count:
-                                t.avg_rating = total_rating/count
+                                t.avg_rating = total_rating / count
                         else:
                             # Must deepcopy so we don't share the id_set between nodes
                             t = copy.deepcopy(taglist[label][n])
@@ -341,16 +335,14 @@ def get_categories(dbcache, sort='name', book_ids=None, first_letter_sort=False,
                         items.append(taglist[label][n])
                 # else: do nothing, to not include nodes w zero counts
             cat_name = '@' + user_cat  # add the '@' to avoid name collision
-            items.sort(key=partial(category_sort_keys[False][sort],
-                                   hierarchical_categories=hierarchical_categories))
+            items.sort(key=partial(category_sort_keys[False][sort], hierarchical_categories=hierarchical_categories))
             categories[cat_name] = items
 
     # ### Finally, the saved searches category ####
     items = []
     queries = dbcache._search_api.saved_searches.queries
     for srch in sorted(queries, key=sort_key):
-        items.append(Tag(srch, sort=srch, search_expression=queries[srch],
-                         category='search', is_editable=False))
+        items.append(Tag(srch, sort=srch, search_expression=queries[srch], category='search', is_editable=False))
     if items:
         categories['search'] = items
 

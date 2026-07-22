@@ -1,24 +1,24 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2026, Kovid Goyal <kovid at kovidgoyal.net>
 
-from dom import add_extra_css, clear, svgicon
 from elementmaker import E
-from utils import parse_url_params
 from gettext import gettext as _
 
-from book_list.router import home
 from book_list.globals import get_session_data
 from book_list.library_data import browse_fields, current_library_id, current_virtual_library
-from book_list.ui import show_panel
+from book_list.router import home
 from book_list.saved_virtual_libraries import (
     DEFAULT_SAVED_VIRTUAL_LIBRARY_ICON, get_saved_virtual_libraries, normalize_saved_virtual_library_icon,
     remove_saved_virtual_library, replace_saved_virtual_library, saved_virtual_library_nav_initial,
     saved_virtual_library_query, save_saved_virtual_library
 )
 from book_list.saved_virtual_library_dialog import show_saved_virtual_library_dialog
+from book_list.ui import show_panel
+from dom import add_extra_css, clear, svgicon
+from utils import parse_url_params
 
 
-add_extra_css(def():
+add_extra_css(def ():
     return '''
     .cs-left-nav {
         width: var(--cs-sidebar-width); flex: 0 0 var(--cs-sidebar-width);
@@ -219,7 +219,7 @@ def create_sidebar():
 
     def nav_image_icon(icon_url, fallback_icon):
         img = E.img(src=icon_url, alt='', class_='cs-nav-icon cs-nav-icon-image')
-        img.onerror = def():
+        img.onerror = def ():
             img.onerror = None
             if img.parentNode:
                 img.parentNode.replaceChild(nav_svg_icon(fallback_icon), img)
@@ -239,7 +239,7 @@ def create_sidebar():
         a = E.a(left, href='#', title=title)
         if chevron:
             a.appendChild(E.span('›', class_='cs-nav-chevron'))
-        a.addEventListener('click', def(evt):
+        a.addEventListener('click', def (evt):
             evt.preventDefault()
             action()
         )
@@ -296,11 +296,11 @@ def create_sidebar():
 
     home_link = nav_link(_('Home'), home, _('Go to Home'), icon='home')
     g1.appendChild(home_link)
-    go_search = def():
+    go_search = def ():
         show_panel('book_list^search')
     search_link = nav_link(_('Search'), go_search, _('Search for books'), icon='search')
     g1.appendChild(search_link)
-    go_reader = def():
+    go_reader = def ():
         show_panel('local_books')
     reader_link = nav_link(_('Downloaded books'), go_reader, _('Read previously downloaded books'), icon='cloud-download')
     g1.appendChild(reader_link)
@@ -313,7 +313,7 @@ def create_sidebar():
     g2 = E.div(class_='cs-nav-group')
 
     def nav_section(label, field, tooltip='', icon='toc', icon_url=''):
-        action = def():
+        action = def ():
             show_panel('nav_list', {'field': field})
         t = nav_link(label, action, tooltip, icon=icon, icon_url=icon_url, chevron=True)
         return t
@@ -344,7 +344,7 @@ def create_sidebar():
     left.appendChild(E.div(class_='cs-nav-divider'))
 
     # Bottom: settings
-    settings_link = nav_link(_('Settings'), def(): show_panel('book_list^prefs');, _('Configure web interface'), icon='cog')
+    settings_link = nav_link(_('Settings'), def (): show_panel('book_list^prefs');, _('Configure web interface'), icon='cog')
     settings_link.classList.add('cs-sidebar-toggle')
     left.appendChild(settings_link)
 
@@ -401,7 +401,7 @@ def create_sidebar():
             icon_name = (item.icon or DEFAULT_SAVED_VIRTUAL_LIBRARY_ICON) + ''
             if not name or not search_expr:
                 continue
-            action = def(saved_item=item):
+            action = def (saved_item = item):
                 show_panel('book_list', saved_virtual_library_query(saved_item), replace=True)
             row = E.div(class_='cs-vl-row')
             show_icon = item.use_icon is not False
@@ -413,7 +413,7 @@ def create_sidebar():
             link.style.flex = '1 1 auto'
             link.style.minWidth = '0'
             cfg = E.a(svgicon('cog'), href='#', title=_('Configure virtual library'), style='padding: 0.2rem; border-radius:10px; flex:0 0 auto;')
-            cfg.addEventListener('click', def(ev, saved_item=item):
+            cfg.addEventListener('click', def (ev, saved_item = item):
                 ev.preventDefault()
                 ev.stopPropagation()
                 edit_saved_virtual_library(saved_item)

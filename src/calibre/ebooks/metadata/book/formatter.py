@@ -1,8 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__ = 'GPL v3'
-__copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
+# License: GPLv3 Copyright: 2013, Kovid Goyal <kovid at kovidgoyal.net>
 
 from numbers import Number
 
@@ -12,7 +9,6 @@ from calibre.utils.localization import _
 
 
 class SafeFormat(TemplateFormatter):
-
     def __init__(self):
         TemplateFormatter.__init__(self)
 
@@ -20,12 +16,11 @@ class SafeFormat(TemplateFormatter):
         if not key or isinstance(key, Number):
             return ''
         orig_key = key = key.lower()
-        if (key != 'title_sort' and key not in TOP_LEVEL_IDENTIFIERS and
-                key not in ALL_METADATA_FIELDS):
+        if key != 'title_sort' and key not in TOP_LEVEL_IDENTIFIERS and key not in ALL_METADATA_FIELDS:
             from calibre.ebooks.metadata.book.base import field_metadata
+
             key = field_metadata.search_term_to_field_key(key)
-            if key is None or (self.book and
-                                key not in self.book.all_field_keys()):
+            if key is None or (self.book and key not in self.book.all_field_keys()):
                 if hasattr(self.book, orig_key):
                     key = orig_key
                 else:

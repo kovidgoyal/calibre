@@ -6,7 +6,7 @@ from calibre.web.feeds.news import BasicNewsRecipe, classes
 
 
 class Frontline(BasicNewsRecipe):
-    title = u'Frontline'
+    title = 'Frontline'
     __author__ = 'unkn0wn'
     description = 'Frontline, the fortnightly English magazine from the stable of The Hindu, has been a distinguished presence in the media world since 1984.'
     language = 'en_IN'
@@ -25,24 +25,19 @@ class Frontline(BasicNewsRecipe):
         .question {font-weight:bold;}
     '''
 
-    keep_only_tags = [
-        dict(name='div', attrs={'class':'container article-section'})
-    ]
+    keep_only_tags = [dict(name='div', attrs={'class': 'container article-section'})]
 
     remove_tags = [
-        classes(
-            'breadcrumb comments-shares share-page article-video '
-            'referpara slide-mobile title-patch hide-mobile related-stories'
-        ),
+        classes('breadcrumb comments-shares share-page article-video referpara slide-mobile title-patch hide-mobile related-stories'),
     ]
 
     def preprocess_html(self, soup):
-        for img in soup.findAll('img', attrs={'data-original':True}):
+        for img in soup.findAll('img', attrs={'data-original': True}):
             if img['data-original'].endswith('1x1_spacer.png'):
                 source = img.findPrevious('source', srcset=True)
                 img.extract()
                 if source:
-                    source['src'] = source['srcset'].replace('_320','_1200')
+                    source['src'] = source['srcset'].replace('_320', '_1200')
                     source.name = 'img'
             else:
                 img['src'] = img['data-original']
@@ -55,12 +50,7 @@ class Frontline(BasicNewsRecipe):
             src.extract()
         return soup
 
-    recipe_specific_options = {
-        'issue': {
-            'short': 'Enter the Issue Number you want to download\n(Volume-Issue format)',
-            'long': 'For example, 41-12'
-        }
-    }
+    recipe_specific_options = {'issue': {'short': 'Enter the Issue Number you want to download\n(Volume-Issue format)', 'long': 'For example, 41-12'}}
 
     def parse_index(self):
         issue_url = 'https://frontline.thehindu.com/current-issue/'
@@ -70,7 +60,7 @@ class Frontline(BasicNewsRecipe):
 
         soup = self.index_to_soup(issue_url)
 
-        if cover := soup.find('div', attrs={'class':'magazine'}):
+        if cover := soup.find('div', attrs={'class': 'magazine'}):
             self.cover_url = cover.find(**classes('sptar-image')).img['data-original'].replace('SQUARE_80', 'FREE_615')
             self.log('Cover ', self.cover_url)
             if desc := cover.find(**classes('sub-text')):
@@ -79,7 +69,7 @@ class Frontline(BasicNewsRecipe):
         feeds_dict = defaultdict(list)
 
         mag = soup.find(**classes('current-issue-in-this-issue'))
-        for div in mag.findAll('div', attrs={'class':'content'}):
+        for div in mag.findAll('div', attrs={'class': 'content'}):
             a = div.find(**classes('title')).find('a')
             url = a['href']
             title = self.tag_to_string(a)

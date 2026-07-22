@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 __license__ = 'GPL v3'
-__copyright__ = u'2011, Silviu Cotoar\u0103'
+__copyright__ = '2011, Silviu Cotoar\u0103'
 '''
 zf.ro
 '''
@@ -12,8 +12,8 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 class ZiarulFinanciar(BasicNewsRecipe):
     title = 'Ziarul Financiar'
-    __author__ = u'Silviu Cotoar\u0103'
-    description = u'\u0218tiri din Business'
+    __author__ = 'Silviu Cotoar\u0103'
+    description = '\u0218tiri din Business'
     publisher = 'Ziarul Financiar'
     oldest_article = 5
     language = 'ro'
@@ -24,17 +24,11 @@ class ZiarulFinanciar(BasicNewsRecipe):
     encoding = 'utf-8'
     cover_url = 'http://storage0.dms.mpinteractiv.ro/media/1/1/1706/7462721/1/ziarul-financiar-big.jpg?width=400'
 
-    conversion_options = {
-        'comments': description, 'tags': category, 'language': language, 'publisher': publisher
-    }
+    conversion_options = {'comments': description, 'tags': category, 'language': language, 'publisher': publisher}
 
-    keep_only_tags = [
-        dict(name='div', attrs={'class': 'article'})
-    ]
+    keep_only_tags = [dict(name='div', attrs={'class': 'article'})]
 
-    feeds = [
-        (u'\u0218tiri', u'http://www.zf.ro/rss/zf-24/')
-    ]
+    feeds = [('\u0218tiri', 'http://www.zf.ro/rss/zf-24/')]
 
     def preprocess_html(self, soup):
         return self.adeify_images(soup)

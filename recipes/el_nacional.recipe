@@ -8,7 +8,8 @@ class ElNacional(BasicNewsRecipe):
     description = (
         'ElNacional.cat is an online Catalan-language newspaper edited in Barcelona.'
         ' It is ranked 1st by unique monthly visitors among Catalan newspapers,'
-        ' with over 3.3 million monthly visitors as at March 2022.')
+        ' with over 3.3 million monthly visitors as at March 2022.'
+    )
     oldest_article = 2  # days
     max_articles_per_feed = 30  # articles
     auto_cleanup = True

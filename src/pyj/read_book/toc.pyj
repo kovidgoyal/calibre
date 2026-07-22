@@ -3,10 +3,10 @@
 from __python__ import hash_literals
 
 from elementmaker import E
+from gettext import gettext as _
 
 from complete import create_search_bar
 from dom import ensure_id, set_css, svgicon
-from gettext import gettext as _
 from modals import error_dialog
 from read_book.anchor_visibility import position_for_anchor
 from read_book.globals import (
@@ -43,7 +43,7 @@ def get_toc_nodes_bordering_spine_item(toc, csi):
             which = spine_after
         else:
             which[name] = True
-    iter_toc_descendants(toc, def(node):
+    iter_toc_descendants(toc, def (node):
         nonlocal prev, before, after
         if node.dest:
             if spine_before[node.dest]:
@@ -179,10 +179,11 @@ def get_highlighted_toc_nodes(toc, parent_map, id_map, skip_parents):
                 p = parent_map[p.id]
     return ans
 
+
 def get_toc_maps(toc):
     if not toc:
         toc = current_book().manifest.toc
-    parent_map, id_map = {}, {}
+    parent_map, id_map = {}, {}
 
     def process_node(node, parent):
         id_map[node.id] = node
@@ -192,6 +193,7 @@ def get_toc_maps(toc):
 
     process_node(toc)
     return parent_map, id_map
+
 
 def get_book_mark_title():
     toc = current_book().manifest.toc
@@ -219,6 +221,7 @@ def create_toc_tree(toc, onclick):
 
     return create_tree(toc, populate_data, onclick)
 
+
 def do_search(text):
     container = document.getElementById(this)
     a = find_text_in_tree(container, text)
@@ -228,6 +231,7 @@ def do_search(text):
         return error_dialog(_('No matches found'), _(
             'The text "{}" was not found in the Table of Contents').format(text))
     scroll_tree_item_into_view(a)
+
 
 def create_toc_panel(book, container, onclick):
     def handle_click(event, li):
@@ -239,7 +243,7 @@ def create_toc_panel(book, container, onclick):
     set_css(toc_panel, flex_grow='10')
     container.appendChild(toc_panel)
     search_button = E.a(class_='calibre-icon-button', svgicon('search'), href='javascript:void(0)', title=_('Search'),
-                        onmousedown=def(e): e.preventDefault();)
+                        onmousedown=def (e): e.preventDefault();)
     t = _('Search Table of Contents')
     search_bar = create_search_bar(do_search.bind(toc_panel_id), 'search-book-toc', button=search_button, placeholder=t)
     set_css(search_bar, flex_grow='10', margin_right='1em')
@@ -249,6 +253,7 @@ def create_toc_panel(book, container, onclick):
     toc_panel.style.flexGrow = '100'
     toc_panel.style.flexShrink = '1'
     toc_panel.style.overflow = 'auto'
+
 
 def recalculate_toc_anchor_positions(tam, plam):
     name = current_spine_item().name
@@ -263,7 +268,13 @@ def recalculate_toc_anchor_positions(tam, plam):
     # stable sort by position in document
     anchors.sort(def (a, b): return anchor_funcs.cmp(am[a], am[b]) or (pos_map[a] - pos_map[b]);)
 
-    current_map = {'layout_mode': current_layout_mode(), 'width': scroll_viewport.width(), 'height': scroll_viewport.height(), 'pos_map': am, 'sorted_anchors':anchors}
+    current_map = {
+        'layout_mode': current_layout_mode(),
+        'width': scroll_viewport.width(),
+        'height': scroll_viewport.height(),
+        'pos_map': am,
+        'sorted_anchors': anchors,
+    }
     am = {}
     anchors = v'[]'
     pos_map = {}
@@ -309,7 +320,7 @@ def update_visible_toc_anchors(toc_anchor_map, page_list_anchor_map, recalculate
         elif visibility > 0:
             after = anchor_id
             break
-    ans = {'visible_anchors':visible_anchors, 'has_visible':has_visible, 'before':before, 'after':after, 'sorted_anchors':tam.sorted_anchors}
+    ans = {'visible_anchors': visible_anchors, 'has_visible': has_visible, 'before': before, 'after': after, 'sorted_anchors': tam.sorted_anchors}
 
     before = after = None
     visible_anchors = {}
@@ -325,7 +336,13 @@ def update_visible_toc_anchors(toc_anchor_map, page_list_anchor_map, recalculate
         elif visibility > 0:
             after = anchor_id
             break
-    ans.page_list = {'visible_anchors':visible_anchors, 'has_visible':has_visible, 'before':before, 'after':after, 'sorted_anchors':tam.page_list_sorted_anchors}
+    ans.page_list = {
+        'visible_anchors': visible_anchors,
+        'has_visible': has_visible,
+        'before': before,
+        'after': after,
+        'sorted_anchors': tam.page_list_sorted_anchors,
+    }
     return ans
 
 

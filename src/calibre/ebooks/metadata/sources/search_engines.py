@@ -37,7 +37,6 @@ webcache = {}
 webcache_lock = Lock()
 prints = partial(safe_print, file=sys.stderr)
 
-
 Result = namedtuple('Result', 'url title cached_url')
 
 
@@ -92,6 +91,7 @@ def parse_html(raw):
     except ImportError:
         # Old versions of calibre
         import html5lib
+
         return html5lib.parse(raw, treebuilder='lxml', namespaceHTMLElements=False)
     else:
         return parse(raw)
@@ -121,6 +121,7 @@ def quote_term(x):
 
 # DDG + Wayback machine DDG does a captcha after 2-3 requests {{{
 
+
 def ddg_url_processor(url):
     return url
 
@@ -145,8 +146,14 @@ def wayback_machine_cached_url(url, br=None, log=prints, timeout=60):
     q = quote_term(url)
     br = br or browser()
     try:
-        data = query(br, 'https://archive.org/wayback/available?url=' +
-                    q, 'wayback', parser=json.loads, limit=0.25, timeout=timeout)
+        data = query(
+            br,
+            'https://archive.org/wayback/available?url=' + q,
+            'wayback',
+            parser=json.loads,
+            limit=0.25,
+            timeout=timeout,
+        )
     except Exception as e:
         log('Wayback machine query failed for url: ' + url + ' with error: ' + str(e))
         return None
@@ -160,6 +167,7 @@ def wayback_machine_cached_url(url, br=None, log=prints, timeout=60):
     except Exception:
         pass
     from pprint import pformat
+
     log('Response from wayback machine:', pformat(data))
 
 
@@ -171,7 +179,7 @@ def wayback_url_processor(url):
         if m is None:
             url = 'https://web.archive.org' + url
         else:
-            url = url[m.start():]
+            url = url[m.start() :]
     return url
 
 
@@ -184,10 +192,10 @@ def ddg_search(terms, site=None, br=None, log=prints, safe_search=False, dump_ra
     if site is not None:
         terms.append(quote_term(('site:' + site)))
     q = '+'.join(terms)
-    url = 'https://duckduckgo.com/html/?q={q}&kp={kp}'.format(
-        q=q, kp=1 if safe_search else -1)
+    url = 'https://duckduckgo.com/html/?q={q}&kp={kp}'.format(q=q, kp=1 if safe_search else -1)
     log('Making ddg query: ' + url)
     from calibre.scraper.simple import read_url
+
     br = br or browser()
     root = query(br, url, 'ddg', dump_raw, timeout=timeout, simple_scraper=partial(read_url, ddg_scraper_storage))
     ans = []
@@ -207,10 +215,12 @@ def ddg_develop():
             print(' ', result.url)
             print(' ', get_cached_url(result.url, br))
             print()
+
+
 # }}}
 
-
 # Bing uses a CAPTCHA {{{
+
 
 def bing_term(t):
     t = t.replace('"', '')
@@ -237,8 +247,15 @@ bing_scraper_storage = []
 
 
 def bing_search(
-    terms, site=None, br=None, log=prints, safe_search=False, dump_raw=None, timeout=60,
-    show_user_agent=False, result_url_is_ok=lambda x: True
+    terms,
+    site=None,
+    br=None,
+    log=prints,
+    safe_search=False,
+    dump_raw=None,
+    timeout=60,
+    show_user_agent=False,
+    result_url_is_ok=lambda x: True,
 ):
     # http://vlaurie.com/computers2/Articles/bing_advanced_search.htm
     terms = [quote_term(bing_term(t)) for t in terms]
@@ -248,6 +265,7 @@ def bing_search(
     url = 'https://www.bing.com/search?q={q}'.format(q=q)
     log('Making bing query: ' + url)
     from calibre.scraper.simple import read_url
+
     root = query(br, url, 'bing', dump_raw, timeout=timeout, simple_scraper=partial(read_url, bing_scraper_storage))
     ans = []
     result_items = root.xpath('//*[@id="b_results"]/li[@class="b_algo"]')
@@ -278,10 +296,12 @@ def bing_develop(terms='heroes abercrombie'):
             print(' ', result.url)
             print(' ', result.cached_url)
             print()
+
+
 # }}}
 
-
 # Google only serves JS enabled search pages as of Sep 11, 2025 {{{
+
 
 def google_term(t):
     t = t.replace('"', '')
@@ -360,6 +380,7 @@ def google_consent_cookies():
     # See https://github.com/benbusby/whoogle-search/pull/1054 for cookies
     from base64 import standard_b64encode
     from datetime import date
+
     base = {'domain': '.google.com', 'path': '/'}
     b = base.copy()
     b['name'], b['value'] = 'CONSENT', 'PENDING+987'
@@ -378,7 +399,7 @@ def google_specialize_browser(br):
                 br.set_simple_cookie(c['name'], c['value'], c['domain'], path=c['path'])
             br.google_consent_cookie_added = True
     # google serves JS based pages without the right user agent
-    br.set_user_agent('L''y''nx''/2.''8.''6rel''.5 lib''ww''w-F''M/2.''1''4')  # noqa
+    br.set_user_agent('Lynx/2.8.6rel.5 libwww-FM/2.14')  # noqa
     return br
 
 
@@ -388,6 +409,7 @@ def is_probably_book_asin(t):
 
 def is_asin_or_isbn(t):
     from calibre.ebooks.metadata import check_isbn
+
     return bool(check_isbn(t) or is_probably_book_asin(t))
 
 
@@ -433,6 +455,8 @@ def google_develop(search_terms='1423146786', raw_from=''):
             print(' ', result.url)
             print(' ', result.cached_url)
             print()
+
+
 # }}}
 
 
@@ -466,7 +490,16 @@ def yandex_search(terms, site=None, br=None, dump_raw=None, log=prints, timeout=
     br = browser()
     r = []
     from calibre.scraper.simple import read_url
-    root = query(br, url, 'yandex', dump_raw, timeout=timeout, save_raw=r.append, simple_scraper=partial(read_url, yandex_scraper_storage))
+
+    root = query(
+        br,
+        url,
+        'yandex',
+        dump_raw,
+        timeout=timeout,
+        save_raw=r.append,
+        simple_scraper=partial(read_url, yandex_scraper_storage),
+    )
     return yandex_parse_results(root, r[0], log=log), url
 
 
@@ -484,6 +517,7 @@ def yandex_develop(search_terms='1423146786', raw_from=''):
             print(' ', result.cached_url)
             print()
 
+
 # }}}
 
 
@@ -491,6 +525,7 @@ def get_cached_url(url, br=None, log=prints, timeout=60):
     from threading import Lock, Thread
 
     from polyglot.queue import Queue
+
     print_lock = Lock()
     q = Queue()
 

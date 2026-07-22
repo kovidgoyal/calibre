@@ -1,10 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__   = 'GPL v3'
-__copyright__ = ('2008, Kovid Goyal kovid@kovidgoyal.net'
-                 '2010, John Schember <john@nachtimwald.com>')
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2008, Kovid Goyal kovid@kovidgoyal.net2010, John Schember <john@nachtimwald.com>
 
 from qt.core import QDialog, QHBoxLayout, QIcon, QLabel, QPushButton, QSizePolicy, Qt, QVBoxLayout
 
@@ -13,7 +8,6 @@ from calibre.utils.localization import _
 
 
 class Dialog(QDialog):
-
     def __init__(self, msg, name, parent, icon='dialog_warning.png'):
         super().__init__(parent)
         ic = QIcon.ic(icon)
@@ -61,7 +55,7 @@ class Dialog(QDialog):
 
     def break_cycles(self):
         for x in ('lib', 'device', 'both'):
-            b = getattr(self, 'button_'+x)
+            b = getattr(self, 'button_' + x)
             try:
                 b.clicked.disconnect()
             except Exception:
@@ -77,5 +71,6 @@ def confirm_location(msg, name, parent=None, pixmap='dialog_warning.png'):
 
 if __name__ == '__main__':
     from calibre.gui2 import Application
+
     app = Application([])
     confirm_location('testing this dialog', 'test dialog')

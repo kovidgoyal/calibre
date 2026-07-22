@@ -23,12 +23,10 @@ class IndiaLegalLive(BasicNewsRecipe):
 
     keep_only_tags = [
         dict(name='h1'),
-        classes(
-            'tdb_single_subtitle tdb_single_date tdb_single_featured_image tdb_single_content'
-        ),
+        classes('tdb_single_subtitle tdb_single_date tdb_single_featured_image tdb_single_content'),
     ]
     remove_tags = [
-        dict(name='div', attrs={'style':'position:absolute;top:0;left:-9999px;'}),
+        dict(name='div', attrs={'style': 'position:absolute;top:0;left:-9999px;'}),
     ]
 
     feeds = [

@@ -1,8 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__ = 'GPL v3'
-__copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
+# License: GPLv3 Copyright: 2013, Kovid Goyal <kovid at kovidgoyal.net>
 
 import os
 import weakref
@@ -55,11 +52,10 @@ from calibre.utils.localization import _, ngettext
 
 Widgets = namedtuple('Widgets', 'new old label button')
 
-
 # Widgets {{{
 
-class LineEdit(EditWithComplete):
 
+class LineEdit(EditWithComplete):
     changed = pyqtSignal()
 
     def __init__(self, field, is_new, parent, metadata, extra):
@@ -136,7 +132,6 @@ class LineEdit(EditWithComplete):
 
 
 class LanguagesEdit(LE):
-
     changed = pyqtSignal()
 
     def __init__(self, field, is_new, parent, metadata, extra):
@@ -177,7 +172,6 @@ class LanguagesEdit(LE):
 
 
 class RatingsEdit(RatingEdit):
-
     changed = pyqtSignal()
 
     def __init__(self, field, is_new, parent, metadata, extra):
@@ -202,7 +196,6 @@ class RatingsEdit(RatingEdit):
 
 
 class DateEdit(PubdateEdit):
-
     changed = pyqtSignal()
 
     def __init__(self, field, is_new, parent, metadata, extra):
@@ -233,10 +226,9 @@ class DateEdit(PubdateEdit):
 
 
 class SeriesEdit(LineEdit):
-
     def __init__(self, *args, **kwargs):
         LineEdit.__init__(self, *args, **kwargs)
-        self.dbref = lambda : None
+        self.dbref = lambda: None
         self.item_selected.connect(self.insert_series_index)
 
     def from_mi(self, mi):
@@ -270,7 +262,6 @@ class SeriesEdit(LineEdit):
 
 
 class IdentifiersEdit(LineEdit):
-
     def from_mi(self, mi):
         self.as_dict = mi.identifiers
 
@@ -280,7 +271,7 @@ class IdentifiersEdit(LineEdit):
     @property
     def as_dict(self):
         parts = (x.strip() for x in self.current_val.split(',') if x.strip())
-        return {k:v for k, v in {x.partition(':')[0].strip():x.partition(':')[-1].strip() for x in parts}.items() if k and v}
+        return {k: v for k, v in {x.partition(':')[0].strip(): x.partition(':')[-1].strip() for x in parts}.items() if k and v}
 
     @as_dict.setter
     def as_dict(self, val):
@@ -290,7 +281,6 @@ class IdentifiersEdit(LineEdit):
 
 
 class CommentsEdit(Editor):
-
     changed = pyqtSignal()
 
     def __init__(self, field, is_new, parent, metadata, extra):
@@ -336,7 +326,6 @@ class CommentsEdit(Editor):
 
 
 class CoverView(QWidget):
-
     changed = pyqtSignal()
     zoom_requested = pyqtSignal(object)
 
@@ -421,23 +410,42 @@ class CoverView(QWidget):
             f.setBold(True)
             p.setFont(f)
             sz = f'\xa0{self.pixmap.width()} x {self.pixmap.height()}\xa0'
-            flags = int(Qt.AlignmentFlag.AlignBottom|Qt.AlignmentFlag.AlignRight|Qt.TextFlag.TextSingleLine)
+            flags = int(Qt.AlignmentFlag.AlignBottom | Qt.AlignmentFlag.AlignRight | Qt.TextFlag.TextSingleLine)
             szrect = p.boundingRect(sztgt, flags, sz)
             p.fillRect(szrect.adjusted(0, 0, 0, 4), QColor(0, 0, 0, 200))
-            p.setPen(QPen(QColor(255,255,255)))
+            p.setPen(QPen(QColor(255, 255, 255)))
             p.drawText(sztgt, flags, sz)
         p.end()
+
+
 # }}}
 
 
 class CompareSingle(QWidget):
-
     zoom_requested = pyqtSignal(object)
 
     def __init__(
-            self, field_metadata, parent=None, revert_tooltip=None,
-            datetime_fmt='MMMM yyyy', blank_as_equal=True,
-            fields=('title', 'authors', 'series', 'tags', 'rating', 'publisher', 'pubdate', 'identifiers', 'languages', 'comments', 'cover'), db=None):
+        self,
+        field_metadata,
+        parent=None,
+        revert_tooltip=None,
+        datetime_fmt='MMMM yyyy',
+        blank_as_equal=True,
+        fields=(
+            'title',
+            'authors',
+            'series',
+            'tags',
+            'rating',
+            'publisher',
+            'pubdate',
+            'identifiers',
+            'languages',
+            'comments',
+            'cover',
+        ),
+        db=None,
+    ):
         QWidget.__init__(self, parent)
         self.l = l = QGridLayout()
         # l.setContentsMargins(0, 0, 0, 0)
@@ -634,7 +642,6 @@ class ZoomedCover(QWidget):
 
 
 class CoverZoom(QWidget):
-
     def __init__(self, parent):
         QWidget.__init__(self, parent)
         self.l = l = QVBoxLayout(self)
@@ -655,16 +662,21 @@ class CoverZoom(QWidget):
 
 
 class CompareMany(QDialog):
-
-    def __init__(self, ids, get_metadata, field_metadata, parent=None,
-                 window_title=None,
-                 reject_button_tooltip=None,
-                 accept_all_tooltip=None,
-                 reject_all_tooltip=None,
-                 revert_tooltip=None,
-                 intro_msg=None,
-                 action_button=None,
-                 **kwargs):
+    def __init__(
+        self,
+        ids,
+        get_metadata,
+        field_metadata,
+        parent=None,
+        window_title=None,
+        reject_button_tooltip=None,
+        accept_all_tooltip=None,
+        reject_all_tooltip=None,
+        revert_tooltip=None,
+        intro_msg=None,
+        action_button=None,
+        **kwargs,
+    ):
         QDialog.__init__(self, parent)
         self.stack = s = QStackedLayout(self)
         self.w = w = QWidget(self)
@@ -708,7 +720,6 @@ class CompareMany(QDialog):
         bb.rejected.connect(self.reject)
 
         if self.total > 1:
-
             self.aarb = b = bb.addButton(_('&Accept all remaining'), QDialogButtonBox.ButtonRole.YesRole)
             assert b is not None
             b.setIcon(QIcon.ic('ok.png')), b.setAutoDefault(False)
@@ -778,8 +789,8 @@ class CompareMany(QDialog):
         screen = (parent or self).screen()
         assert screen is not None
         geom = screen.availableSize()
-        width = max(700, min(950, geom.width()-50))
-        height = max(650, min(1000, geom.height()-100))
+        width = max(700, min(950, geom.width() - 50))
+        height = max(650, min(1000, geom.height() - 100))
         self.resize(QSize(width, height))
         self.restore_geometry(gprefs, 'diff_dialog_geom')
         b.setFocus(Qt.FocusReason.OtherFocusReason)
@@ -805,9 +816,10 @@ class CompareMany(QDialog):
         if self.stack.currentIndex() == 1:
             self.stack.setCurrentIndex(0)
             return
-        if self.next_called and not confirm(_(
-            'All reviewed changes will be lost! Are you sure you want to Cancel?'),
-            'confirm-metadata-diff-dialog-cancel'):
+        if self.next_called and not confirm(
+            _('All reviewed changes will be lost! Are you sure you want to Cancel?'),
+            'confirm-metadata-diff-dialog-cancel',
+        ):
             return
         self.save_geometry(gprefs, 'diff_dialog_geom')
         self.compare_widget.save_comments_controls_state()
@@ -818,8 +830,7 @@ class CompareMany(QDialog):
         return self.compare_widget.current_mi
 
     def show_current_item(self):
-        self.setWindowTitle(self.window_title + _(' [%(num)d of %(tot)d]') % dict(
-            num=(self.total - len(self.ids) + 1), tot=self.total))
+        self.setWindowTitle(self.window_title + _(' [%(num)d of %(tot)d]') % dict(num=(self.total - len(self.ids) + 1), tot=self.total))
         oldmi, newmi = self.get_metadata(self.ids[0])
         self.compare_widget(oldmi, newmi)
         self.update_back_button_state()
@@ -880,10 +891,16 @@ class CompareMany(QDialog):
 
     def reject_all_remaining(self):
         from calibre.gui2.dialogs.confirm_delete import confirm
-        if not confirm(ngettext(
+
+        if not confirm(
+            ngettext(
                 'Are you sure you want to reject the remaining result?',
-                'Are you sure you want to reject all {} remaining results?', len(self.ids)).format(len(self.ids)),
-                       'confirm_metadata_review_reject', parent=self):
+                'Are you sure you want to reject all {} remaining results?',
+                len(self.ids),
+            ).format(len(self.ids)),
+            'confirm_metadata_review_reject',
+            parent=self,
+        ):
             return
         self.next_item(False)
         for id_ in self.ids:
@@ -903,6 +920,7 @@ class CompareMany(QDialog):
 if __name__ == '__main__':
     from calibre.gui2 import Application
     from calibre.library import db
+
     app = Application([])
     db = db()
     ids = sorted(db.all_ids(), reverse=True)
@@ -911,6 +929,7 @@ if __name__ == '__main__':
 
     def get_metadata(x):
         return list(map(gm, ids[x]))
+
     d = CompareMany(list(range(len(ids))), get_metadata, db.field_metadata, db=db)
     d.exec()
     for changed, mi in d.accepted_map.values():

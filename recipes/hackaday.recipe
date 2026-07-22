@@ -5,19 +5,20 @@ from calibre.web.feeds.news import AutomaticNewsRecipe
 
 
 class HackADayRecipe(AutomaticNewsRecipe):
-    __author__     = 'rui-rebelo'
-    title          = 'Hack a Day'
-    description    = (
+    __author__ = 'rui-rebelo'
+    title = 'Hack a Day'
+    description = (
         'Hackaday is a website and community focused on hardware hacking, technology projects, and DIY electronics.'
-        ' It features daily articles about innovative projects, news, tutorials, and the latest in hardware engineering news.')
+        ' It features daily articles about innovative projects, news, tutorials, and the latest in hardware engineering news.'
+    )
     oldest_article = 10
     max_articles_per_feed = 100
-    auto_cleanup   = True
-    language       = 'en-US'
+    auto_cleanup = True
+    language = 'en-US'
 
-    publisher      = 'Hack a Day'
+    publisher = 'Hack a Day'
 
-    feeds          = [
+    feeds = [
         ('Hack a Day', 'https://hackaday.com/blog/feed/'),
     ]
 

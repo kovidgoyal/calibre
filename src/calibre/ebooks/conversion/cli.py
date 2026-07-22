@@ -1,10 +1,8 @@
-__license__ = 'GPL 3'
-__copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2009, Kovid Goyal <kovid@kovidgoyal.net>
 
-'''
+"""
 Command line interface to conversion sub-system
-'''
+"""
 
 import numbers
 import os
@@ -19,7 +17,9 @@ from calibre.utils.config import OptionParser
 from calibre.utils.localization import _, localize_user_manual_link
 from calibre.utils.logging import Log
 
-USAGE = '%prog ' + _('''\
+USAGE = (
+    '%prog '
+    + _('''\
 input_file output_file [options]
 
 Convert an e-book from one format to another.
@@ -43,14 +43,22 @@ To get help on them specify the input and output file and then use the -h \
 option.
 
 For full documentation of the conversion system see
-''') + localize_user_manual_link('https://manual.calibre-ebook.com/conversion.html')
+''')
+    + localize_user_manual_link('https://manual.calibre-ebook.com/conversion.html')
+)
 
-HEURISTIC_OPTIONS = ['markup_chapter_headings',
-                      'italicize_common_cases', 'fix_indents',
-                      'html_unwrap_factor', 'unwrap_lines',
-                      'delete_blank_paragraphs', 'format_scene_breaks',
-                      'dehyphenate', 'renumber_headings',
-                      'replace_scene_breaks']
+HEURISTIC_OPTIONS = [
+    'markup_chapter_headings',
+    'italicize_common_cases',
+    'fix_indents',
+    'html_unwrap_factor',
+    'unwrap_lines',
+    'delete_blank_paragraphs',
+    'format_scene_breaks',
+    'dehyphenate',
+    'renumber_headings',
+    'replace_scene_breaks',
+]
 
 DEFAULT_TRUE_OPTIONS = HEURISTIC_OPTIONS + ['remove_fake_margins']
 
@@ -66,17 +74,15 @@ def check_command_line_options(parser, args, log):
         raise SystemExit(1)
 
     input = os.path.abspath(args[1])
-    if not input.endswith('.recipe') and not os.access(input, os.R_OK) and not \
-            ('-h' in args or '--help' in args):
+    if not input.endswith('.recipe') and not os.access(input, os.R_OK) and not ('-h' in args or '--help' in args):
         log.error('Cannot read from', input)
         raise SystemExit(1)
     if input.endswith('.recipe') and not os.access(input, os.R_OK):
         input = args[1]
 
     output = args[2]
-    if (output.startswith('.') and output[:2] not in {'..', '.'} and '/' not in
-            output and '\\' not in output):
-        output = os.path.splitext(os.path.basename(input))[0]+output
+    if output.startswith('.') and output[:2] not in {'..', '.'} and '/' not in output and '\\' not in output:
+        output = os.path.splitext(os.path.basename(input))[0] + output
     output = os.path.abspath(output)
 
     return input, output
@@ -84,13 +90,11 @@ def check_command_line_options(parser, args, log):
 
 def option_recommendation_to_cli_option(add_option, rec):
     opt = rec.option
-    switches = ['-'+opt.short_switch] if opt.short_switch else []
-    switches.append('--'+opt.long_switch)
-    attrs = dict(dest=opt.name, help=opt.help,
-                 choices=opt.choices, default=rec.recommended_value)
+    switches = ['-' + opt.short_switch] if opt.short_switch else []
+    switches.append('--' + opt.long_switch)
+    attrs = dict(dest=opt.name, help=opt.help, choices=opt.choices, default=rec.recommended_value)
     if isinstance(rec.recommended_value, bool):
-        attrs['action'] = 'store_false' if rec.recommended_value else \
-                          'store_true'
+        attrs['action'] = 'store_false' if rec.recommended_value else 'store_true'
     elif isinstance(rec.recommended_value, numbers.Integral):
         attrs['type'] = 'int'
     elif isinstance(rec.recommended_value, numbers.Real):
@@ -128,7 +132,7 @@ def option_recommendation_to_cli_option(add_option, rec):
             ' for a recipe, use {list}.'
         ).format(example='--recipe-specific-option=date:2030-11-31', list='--recipe-specific-option=list')
     if opt.name in DEFAULT_TRUE_OPTIONS and rec.recommended_value is True:
-        switches = ['--disable-'+opt.long_switch]
+        switches = ['--disable-' + opt.long_switch]
     add_option(Option(*switches, **attrs))
 
 
@@ -156,11 +160,11 @@ def recipe_test(option, opt_str, value, parser):
             break
         try:
             value.append(int(arg))
-        except (TypeError, ValueError, AttributeError):
+        except TypeError, ValueError, AttributeError:
             break
         if len(value) == 2:
             break
-    del parser.rargs[:len(value)]
+    del parser.rargs[: len(value)]
 
     while len(value) < 2:
         value.append(2)
@@ -169,8 +173,7 @@ def recipe_test(option, opt_str, value, parser):
 
 
 def add_input_output_options(parser, plumber):
-    input_options, output_options = \
-                                plumber.input_options, plumber.output_options
+    input_options, output_options = plumber.input_options, plumber.output_options
 
     def add_options(group, options):
         for opt in options:
@@ -181,95 +184,147 @@ def add_input_output_options(parser, plumber):
 
     if input_options:
         title = group_titles()[0]
-        io = OptionGroup(parser, title, _('Options to control the processing'
-                          ' of the input %s file')%plumber.input_fmt)
+        io = OptionGroup(parser, title, _('Options to control the processing of the input %s file') % plumber.input_fmt)
         add_options(io.add_option, input_options)
         parser.add_option_group(io)
 
     if output_options:
         title = group_titles()[1]
-        oo = OptionGroup(parser, title, _('Options to control the processing'
-                          ' of the output %s')%plumber.output_fmt)
+        oo = OptionGroup(parser, title, _('Options to control the processing of the output %s') % plumber.output_fmt)
         add_options(oo.add_option, output_options)
         parser.add_option_group(oo)
 
 
 def add_pipeline_options(parser, plumber):
     groups = OrderedDict((
-              ('', ('',
-                    [
-                     'input_profile',
-                     'output_profile',
-                     ]
-                    )),
-              (_('LOOK AND FEEL'), (
-                  _('Options to control the look and feel of the output'),
-                  [
-                      'base_font_size', 'disable_font_rescaling',
-                      'font_size_mapping', 'embed_font_family',
-                      'subset_embedded_fonts', 'embed_all_fonts',
-                      'line_height', 'minimum_line_height',
-                      'linearize_tables', 'transform_html_rules',
-                      'extra_css', 'filter_css', 'transform_css_rules', 'expand_css',
-                      'smarten_punctuation', 'unsmarten_punctuation',
-                      'margin_top', 'margin_left', 'margin_right',
-                      'margin_bottom', 'change_justification',
-                      'insert_blank_line', 'insert_blank_line_size',
-                      'remove_paragraph_spacing',
-                      'remove_paragraph_spacing_indent_size',
-                      'asciiize', 'keep_ligatures',
-                  ]
-                  )),
-
-              (_('HEURISTIC PROCESSING'), (
-                  _('Modify the document text and structure using common'
-                     ' patterns. Disabled by default. Use %(en)s to enable. '
-                     ' Individual actions can be disabled with the %(dis)s options.')
-                  % dict(en='--enable-heuristics', dis='--disable-*'),
-                  ['enable_heuristics'] + HEURISTIC_OPTIONS
-                  )),
-
-              (_('SEARCH AND REPLACE'), (
-                 _('Modify the document text and structure using user defined patterns.'),
-                 [
-                     'sr1_search', 'sr1_replace',
-                     'sr2_search', 'sr2_replace',
-                     'sr3_search', 'sr3_replace',
-                     'search_replace',
-                 ]
-              )),
-
-              (_('STRUCTURE DETECTION'), (
-                  _('Control auto-detection of document structure.'),
-                  [
-                      'chapter', 'chapter_mark',
-                      'prefer_metadata_cover', 'remove_first_image',
-                      'insert_metadata', 'page_breaks_before',
-                      'remove_fake_margins', 'start_reading_at', 'add_alt_text_to_img',
-                  ]
-                  )),
-
-              (_('TABLE OF CONTENTS'), (
-                  _('Control the automatic generation of a Table of Contents. By '
-                  'default, if the source file has a Table of Contents, it will '
-                  'be used in preference to the automatically generated one.'),
-                  [
-                    'level1_toc', 'level2_toc', 'level3_toc',
-                    'toc_threshold', 'max_toc_links', 'no_chapters_in_toc',
-                    'use_auto_toc', 'toc_filter', 'duplicate_links_in_toc',
-                  ]
-                  )),
-
-              (_('METADATA'), (_('Options to set metadata in the output'),
-                            plumber.metadata_option_names + ['read_metadata_from_opf'],
-                            )),
-              (_('DEBUG'), (_('Options to help with debugging the conversion'),
-                        [
-                         'verbose',
-                         'debug_pipeline',
-                         ])),
-
-              ))
+        (
+            '',
+            (
+                '',
+                [
+                    'input_profile',
+                    'output_profile',
+                ],
+            ),
+        ),
+        (
+            _('LOOK AND FEEL'),
+            (
+                _('Options to control the look and feel of the output'),
+                [
+                    'base_font_size',
+                    'disable_font_rescaling',
+                    'font_size_mapping',
+                    'embed_font_family',
+                    'subset_embedded_fonts',
+                    'embed_all_fonts',
+                    'line_height',
+                    'minimum_line_height',
+                    'linearize_tables',
+                    'transform_html_rules',
+                    'extra_css',
+                    'filter_css',
+                    'transform_css_rules',
+                    'expand_css',
+                    'smarten_punctuation',
+                    'unsmarten_punctuation',
+                    'margin_top',
+                    'margin_left',
+                    'margin_right',
+                    'margin_bottom',
+                    'change_justification',
+                    'insert_blank_line',
+                    'insert_blank_line_size',
+                    'remove_paragraph_spacing',
+                    'remove_paragraph_spacing_indent_size',
+                    'asciiize',
+                    'keep_ligatures',
+                ],
+            ),
+        ),
+        (
+            _('HEURISTIC PROCESSING'),
+            (
+                _(
+                    'Modify the document text and structure using common'
+                    ' patterns. Disabled by default. Use %(en)s to enable. '
+                    ' Individual actions can be disabled with the %(dis)s options.'
+                )
+                % dict(en='--enable-heuristics', dis='--disable-*'),
+                ['enable_heuristics'] + HEURISTIC_OPTIONS,
+            ),
+        ),
+        (
+            _('SEARCH AND REPLACE'),
+            (
+                _('Modify the document text and structure using user defined patterns.'),
+                [
+                    'sr1_search',
+                    'sr1_replace',
+                    'sr2_search',
+                    'sr2_replace',
+                    'sr3_search',
+                    'sr3_replace',
+                    'search_replace',
+                ],
+            ),
+        ),
+        (
+            _('STRUCTURE DETECTION'),
+            (
+                _('Control auto-detection of document structure.'),
+                [
+                    'chapter',
+                    'chapter_mark',
+                    'prefer_metadata_cover',
+                    'remove_first_image',
+                    'insert_metadata',
+                    'page_breaks_before',
+                    'remove_fake_margins',
+                    'start_reading_at',
+                    'add_alt_text_to_img',
+                ],
+            ),
+        ),
+        (
+            _('TABLE OF CONTENTS'),
+            (
+                _(
+                    'Control the automatic generation of a Table of Contents. By '
+                    'default, if the source file has a Table of Contents, it will '
+                    'be used in preference to the automatically generated one.'
+                ),
+                [
+                    'level1_toc',
+                    'level2_toc',
+                    'level3_toc',
+                    'toc_threshold',
+                    'max_toc_links',
+                    'no_chapters_in_toc',
+                    'use_auto_toc',
+                    'toc_filter',
+                    'duplicate_links_in_toc',
+                ],
+            ),
+        ),
+        (
+            _('METADATA'),
+            (
+                _('Options to set metadata in the output'),
+                plumber.metadata_option_names + ['read_metadata_from_opf'],
+            ),
+        ),
+        (
+            _('DEBUG'),
+            (
+                _('Options to help with debugging the conversion'),
+                [
+                    'verbose',
+                    'debug_pipeline',
+                ],
+            ),
+        ),
+    ))
 
     for group, (desc, options) in groups.items():
         if group:
@@ -285,39 +340,42 @@ def add_pipeline_options(parser, plumber):
 
 def option_parser():
     parser = OptionParser(usage=USAGE)
-    parser.add_option('--list-recipes', default=False, action='store_true',
-            help=_('List builtin recipe names. You can create an e-book from '
-                'a builtin recipe like this: ebook-convert "Recipe Name.recipe" '
-                'output.epub'))
+    parser.add_option(
+        '--list-recipes',
+        default=False,
+        action='store_true',
+        help=_('List builtin recipe names. You can create an e-book from a builtin recipe like this: ebook-convert "Recipe Name.recipe" output.epub'),
+    )
     return parser
 
 
 class ProgressBar:
-
     def __init__(self, log):
         self.log = log
 
     def __call__(self, frac, msg=''):
         if msg:
-            percent = int(frac*100)
+            percent = int(frac * 100)
             self.log(f'{percent}% {msg}')
 
 
 def create_option_parser(args, log):
     if '--version' in args:
         from calibre.constants import __appname__, __author__, __version__
-        log(os.path.basename(args[0]), '('+__appname__, __version__+')')
+
+        log(os.path.basename(args[0]), '(' + __appname__, __version__ + ')')
         log('Created by:', __author__)
         raise SystemExit(0)
     if '--list-recipes' in args:
         from calibre.web.feeds.recipes.collection import get_builtin_recipe_titles
+
         log('Available recipes:')
         titles = sorted(get_builtin_recipe_titles())
         for title in titles:
             try:
-                log('\t'+title)
+                log('\t' + title)
             except Exception:
-                log('\t'+repr(title))
+                log('\t' + repr(title))
         log(f'{len(titles)} recipes available')
         raise SystemExit(0)
 
@@ -357,6 +415,7 @@ def escape_sr_pattern(exp):
 def read_sr_patterns(path, log=None):
     import json
     import re
+
     pats = []
     with open(path, 'rb') as f:
         lines = f.read().decode('utf-8').splitlines()
@@ -396,6 +455,7 @@ def main(args=sys.argv):
         opts.search_replace = read_sr_patterns(opts.search_replace, log)
     if opts.transform_css_rules:
         from calibre.ebooks.css_transform_rules import import_rules, validate_rule
+
         with open(opts.transform_css_rules, 'rb') as tcr:
             opts.transform_css_rules = rules = list(import_rules(tcr.read()))
             for rule in rules:
@@ -407,6 +467,7 @@ def main(args=sys.argv):
                     return 1
     if opts.transform_html_rules:
         from calibre.ebooks.html_transform_rules import import_rules, validate_rule
+
         with open(opts.transform_html_rules, 'rb') as tcr:
             opts.transform_html_rules = rules = list(import_rules(tcr.read()))
             for rule in rules:
@@ -417,17 +478,13 @@ def main(args=sys.argv):
                     log.error(msg)
                     return 1
 
-    recommendations = [(n.dest, getattr(opts, n.dest),
-                        OptionRecommendation.HIGH)
-                                        for n in parser.options_iter()
-                                        if n.dest]
+    recommendations = [(n.dest, getattr(opts, n.dest), OptionRecommendation.HIGH) for n in parser.options_iter() if n.dest]
     plumber.merge_ui_recommendations(recommendations)
 
     try:
         plumber.run()
     except ConversionUserFeedBack as e:
-        ll = {'info': log.info, 'warn': log.warn,
-                'error':log.error}.get(e.level, log.info)
+        ll = {'info': log.info, 'warn': log.warn, 'error': log.error}.get(e.level, log.info)
         ll(e.title)
         if e.det_msg:
             log.debug(e.det_msg)

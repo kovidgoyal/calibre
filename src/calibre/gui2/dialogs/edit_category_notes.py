@@ -45,7 +45,6 @@ IMAGE_EXTENSIONS = 'png', 'jpeg', 'jpg', 'gif', 'svg', 'webp'
 
 
 class AskLink(Dialog):  # {{{
-
     def __init__(self, initial_name='', parent=None):
         super().__init__(_('Create link'), 'create-link-for-notes', parent=parent)
         self.setWindowIcon(QIcon.ic('insert-link.png'))
@@ -78,6 +77,7 @@ class AskLink(Dialog):  # {{{
     def url(self):
         return self.url_edit.text().strip()
 
+
 # }}}
 
 
@@ -91,7 +91,6 @@ class ImageResource(NamedTuple):
 
 
 class AskImage(Dialog):
-
     def __init__(self, local_images, db, parent=None):
         self.local_images = local_images
         self.db = db
@@ -181,8 +180,7 @@ class AskImage(Dialog):
             digest = hash_data(data)
             p = QPixmap()
             if not p.loadFromData(data) or p.isNull():
-                return error_dialog(self, _('Bad image'), _(
-                    'Failed to render the image in {}').format(files[0]), show=True)
+                return error_dialog(self, _('Bad image'), _('Failed to render the image in {}').format(files[0]), show=True)
             ir = ImageResource(os.path.basename(files[0]), digest, path=files[0])
             self.local_images[digest] = ir
             self.image_preview.set_pixmap(p)
@@ -192,8 +190,7 @@ class AskImage(Dialog):
 
     def paste_image(self):
         if not self.image_preview.paste_from_clipboard():
-            return error_dialog(self, _('Could not paste'), _(
-                'No image is present in the system clipboard'), show=True)
+            return error_dialog(self, _('Could not paste'), _('No image is present in the system clipboard'), show=True)
 
     @property
     def image_layout(self) -> QTextFrameFormat.Position:
@@ -212,11 +209,12 @@ class AskImage(Dialog):
     @property
     def bounding_size(self) -> tuple[int, int]:
         return (self.width_spin.value() or sys.maxsize), (self.height_spin.value() or sys.maxsize)
+
+
 # }}}
 
 
 class NoteEditorWidget(EditorWidget):
-
     insert_images_separately = True
     db = field = item_id = item_val = None
     images: dict[str, ImageResource] | None = None
@@ -320,7 +318,6 @@ class NoteEditorWidget(EditorWidget):
 
 
 class NoteEditor(Editor):
-
     editor_class = NoteEditorWidget
     editor: NoteEditorWidget
 
@@ -347,7 +344,6 @@ class NoteEditor(Editor):
 
 
 class EditNoteWidget(QWidget):
-
     def __init__(self, db, field, item_id, item_val, parent=None):
         super().__init__(parent)
         self.l = l = QVBoxLayout(self)
@@ -373,7 +369,6 @@ class EditNoteWidget(QWidget):
 
 
 class EditNoteDialog(Dialog):
-
     def __init__(self, field, item_id, db, parent=None):
         self.db = db.new_api
         self.field, self.item_id = field, item_id
@@ -395,16 +390,28 @@ class EditNoteDialog(Dialog):
         l.addWidget(self.bb)
 
     def export_note(self):
-        dest = choose_save_file(self, 'save-exported-note', _('Export note to a file'), filters=[(_('HTML files'), ['html'])],
-                         initial_filename=f'{sanitize_file_name(self.item_val)}.html', all_files=False)
+        dest = choose_save_file(
+            self,
+            'save-exported-note',
+            _('Export note to a file'),
+            filters=[(_('HTML files'), ['html'])],
+            initial_filename=f'{sanitize_file_name(self.item_val)}.html',
+            all_files=False,
+        )
         if dest:
             html = self.edit_note_widget.editor.export_note()
             with open(dest, 'wb') as f:
                 f.write(html.encode('utf-8'))
 
     def import_note(self):
-        dest = choose_files(self, 'load-imported-note', _('Import note from a file'), filters=[(_('HTML files'), ['html'])],
-                            all_files=False, select_only_single_file=True)
+        dest = choose_files(
+            self,
+            'load-imported-note',
+            _('Import note from a file'),
+            filters=[(_('HTML files'), ['html'])],
+            all_files=False,
+            select_only_single_file=True,
+        )
         if dest:
             self.edit_note_widget.editor.import_note(dest[0])
 
@@ -418,6 +425,7 @@ class EditNoteDialog(Dialog):
 
 def develop_edit_note():
     from calibre.library import db as dbc
+
     app = Application([])
     d = EditNoteDialog('authors', 1, dbc(os.path.expanduser('~/test library')))
     d.exec()
@@ -427,7 +435,8 @@ def develop_edit_note():
 def develop_ask_image():
     app = Application([])
     from calibre.library import db as dbc
-    d = AskImage({},dbc(os.path.expanduser('~/test library')))
+
+    d = AskImage({}, dbc(os.path.expanduser('~/test library')))
     d.exec()
     del d, app
 

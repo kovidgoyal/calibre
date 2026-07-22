@@ -9,10 +9,8 @@ from calibre.utils.localization import _
 
 
 class SavedSearchesAction(InterfaceAction):
-
     name = 'Saved searches'
-    action_spec = (_('Saved searches'), 'folder_saved_search.png',
-                   _('Show a menu of saved searches'), None)
+    action_spec = (_('Saved searches'), 'folder_saved_search.png', _('Show a menu of saved searches'), None)
     action_type = 'current'
     popup_type = QToolButton.ToolButtonPopupMode.InstantPopup
     action_add_menu = True
@@ -26,11 +24,12 @@ class SavedSearchesAction(InterfaceAction):
         # Create a "hidden" menu that can have a shortcut.
         self.hidden_menu = QMenu()
         self.shortcut_action = self.create_menu_action(
-                        menu=self.hidden_menu,
-                        unique_name='Saved searches',
-                        text=_('Show a menu of saved searches'),
-                        icon='folder_saved_search.png',
-                        triggered=self.show_menu)
+            menu=self.hidden_menu,
+            unique_name='Saved searches',
+            text=_('Show a menu of saved searches'),
+            icon='folder_saved_search.png',
+            triggered=self.show_menu,
+        )
 
     # We want to show the menu when a shortcut is used. Apparently the only way
     # to do that is to scan the toolbar(s) for the action button then exec the

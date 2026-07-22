@@ -26,7 +26,7 @@ class Vreme(BasicNewsRecipe):
     language = 'sr'
     publication_type = 'magazine'
     masthead_url = 'http://www.vreme.com/g/vreme-logo.gif'
-    extra_css            = '''
+    extra_css = '''
                               @font-face {font-family: "serif1";src:url(res:///opt/sony/ebook/FONT/tt0011m_.ttf)}
                               @font-face {font-family: "sans1";src:url(res:///opt/sony/ebook/FONT/tt0003m_.ttf)}
                               body{font-family: serif1, serif}
@@ -37,11 +37,9 @@ class Vreme(BasicNewsRecipe):
                               .large{font-family: sans1, sans-serif; font-size: large}
                            '''
 
-    conversion_options = {
-        'comment': description, 'tags': category, 'publisher': publisher, 'language': language, 'linearize_tables': True
-    }
+    conversion_options = {'comment': description, 'tags': category, 'publisher': publisher, 'language': language, 'linearize_tables': True}
 
-    preprocess_regexps = [(re.compile(u'\u0110'), lambda match: u'\u00D0')]  # noqa: RUF039
+    preprocess_regexps = [(re.compile('\u0110'), lambda match: '\u00d0')]  # noqa: RUF039
     remove_tags_before = dict(attrs={'class': 'toc-heading'})
     remove_tags_after = dict(attrs={'class': 'footer'})
 
@@ -62,8 +60,8 @@ class Vreme(BasicNewsRecipe):
         if cover_item:
             self.cover_url = self.INDEX + cover_item.img['src']
         for item in soup.findAll(['h3', 'h4']):
-            description = u''
-            title_prefix = u''
+            description = ''
+            title_prefix = ''
             feed_link = item.find('a', href=True)
             if feed_link and (feed_link['href'].startswith('cms/view.php') or feed_link['href'].startswith('/cms/view.php')):
                 if feed_link['href'].startswith('cms/view.php'):
@@ -72,15 +70,10 @@ class Vreme(BasicNewsRecipe):
                     url = self.INDEX + feed_link['href']
                 title = title_prefix + self.tag_to_string(feed_link)
                 date = strftime(self.timefmt)
-                articles.append({
-                    'title': title, 'date': date, 'url': url, 'description': description
-                })
+                articles.append({'title': title, 'date': date, 'url': url, 'description': description})
         return [('Nedeljnik Vreme', articles)]
 
-    remove_tags = [
-        dict(name=['object', 'link']), dict(
-            name='table', attrs={'xclass': 'image'})
-    ]
+    remove_tags = [dict(name=['object', 'link']), dict(name='table', attrs={'xclass': 'image'})]
 
     def print_version(self, url):
         return url + '&print=yes'

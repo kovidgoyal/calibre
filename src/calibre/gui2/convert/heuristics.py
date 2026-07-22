@@ -1,6 +1,4 @@
-__license__ = 'GPL 3'
-__copyright__ = '2011, John Schember <john@nachtimwald.com>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2011, John Schember <john@nachtimwald.com>
 
 from qt.core import Qt
 
@@ -12,17 +10,15 @@ from calibre.utils.localization import _, localize_user_manual_link
 
 
 class HeuristicsWidget(Widget, Ui_Form):
-
     TITLE = _('Heuristic\nprocessing')
-    HELP  = _('Modify the document text and structure using common patterns.')
+    HELP = _('Modify the document text and structure using common patterns.')
     COMMIT_NAME = 'heuristics'
     ICON = 'heuristics.png'
 
     def __init__(self, parent, get_option, get_help, db=None, book_id=None):
         Widget.__init__(self, parent, OPTIONS['pipe']['heuristics'])
         self.db, self.book_id = db, book_id
-        self.rssb_defaults = ['', '<hr />', '∗ ∗ ∗', '• • •', '♦ ♦ ♦',
-                '† †', '‡ ‡ ‡', '∞ ∞ ∞', '¤ ¤ ¤', '§']
+        self.rssb_defaults = ['', '<hr />', '∗ ∗ ∗', '• • •', '♦ ♦ ♦', '† †', '‡ ‡ ‡', '∞ ∞ ∞', '¤ ¤ ¤', '§']
         self.initialize_options(get_option, get_help, db, book_id)
 
         self.load_histories()
@@ -32,8 +28,7 @@ class HeuristicsWidget(Widget, Ui_Form):
 
         self.enable_heuristics(self.opt_enable_heuristics.checkState())
         try:
-            self.help_label.setText(self.help_label.text() % localize_user_manual_link(
-                'https://manual.calibre-ebook.com/conversion.html#heuristic-processing'))
+            self.help_label.setText(self.help_label.text() % localize_user_manual_link('https://manual.calibre-ebook.com/conversion.html#heuristic-processing'))
         except TypeError:
             pass  # link already localized
 
@@ -92,8 +87,7 @@ class HeuristicsWidget(Widget, Ui_Form):
         rssb_history = []
         _rsb_le2 = self.opt_replace_scene_breaks.lineEdit()
         assert _rsb_le2 is not None
-        history_pats = [str(_rsb_le2.text())] + [str(self.opt_replace_scene_breaks.itemText(i))
-                                for i in range(self.opt_replace_scene_breaks.count())]
+        history_pats = [str(_rsb_le2.text())] + [str(self.opt_replace_scene_breaks.itemText(i)) for i in range(self.opt_replace_scene_breaks.count())]
         for p in history_pats[:10]:
             # Ensure we don't have duplicate items.
             if p not in rssb_history:

@@ -4,7 +4,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class AdvancedUserRecipe1718109535(BasicNewsRecipe):
-    title          = 'The Gamer'
+    title = 'The Gamer'
     language = 'en'
     __author__ = 'Spicy Poison'
     description = 'TheGamer is a gaming site with a different spin on things, and we break some of the biggest stories around.'
@@ -17,9 +17,9 @@ class AdvancedUserRecipe1718109535(BasicNewsRecipe):
     encoding = 'utf-8'
     masthead_url = 'https://www.valnetinc.com/images/brand/tg-logo-full-colored-dark.svg'
     remove_empty_feeds = True
-    auto_cleanup   = True
+    auto_cleanup = True
 
-    feeds          = [
+    feeds = [
         ('Game Guides', 'https://www.thegamer.com/feed/category/game-guides/'),
         # AAA Games
         ('AAA Games', 'https://www.thegamer.com/feed/aaa-games/'),
@@ -44,7 +44,6 @@ class AdvancedUserRecipe1718109535(BasicNewsRecipe):
         ('Movies & Shows', 'https://www.thegamer.com/feed/movies-tv-anime/'),
         ('Movies & Shows Features', 'https://www.thegamer.com/feed/movies-tv-anime/features/'),
         ('Movies & Shows News', 'https://www.thegamer.com/feed/movies-tv-anime/news/'),
-
         ('Game News', 'https://www.thegamer.com/feed/category/game-news/'),
         ('The Gamer Originals', 'https://www.thegamer.com/feed/category/tg-originals/'),
         ('The Gamer Lists', 'https://www.thegamer.com/feed/category/lists/'),

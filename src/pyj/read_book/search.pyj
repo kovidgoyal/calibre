@@ -3,13 +3,13 @@
 from __python__ import bound_methods, hash_literals
 
 from elementmaker import E
+from gettext import gettext as _, ngettext
 
 from book_list.globals import get_session_data
 from book_list.theme import get_color
 from book_list.top_bar import create_top_bar
 from complete import create_search_bar
 from dom import clear, add_extra_css, build_rule
-from gettext import gettext as _, ngettext
 from modals import error_dialog
 from read_book.globals import current_book, ui_operations
 from read_book.search_worker import (
@@ -63,7 +63,6 @@ def get_toc_data(book):
 
 
 class SearchOverlay:
-
     display_type = 'flex'
     CONTAINER_ID = 'book-search-overlay'
 
@@ -105,7 +104,7 @@ Whole words: Search for whole words that equal the entered text
 Regex: Interpret the entered text as a regular expression'''),
         mode, contains=_('Contains'), word=_('Whole words'), regex=_('Regex'))
         ss.setAttribute('name', 'mode')
-        ss.addEventListener('change', def(ev):
+        ss.addEventListener('change', def (ev):
             get_session_data().set('book_search_mode', ev.target.value)
         )
 
@@ -115,7 +114,7 @@ Regex: Interpret the entered text as a regular expression'''),
             E.div('\xa0\xa0'),
             E.label(E.input(
                 type='checkbox', name='case_sensitive', checked=bool(sd.get('book_search_case_sensitive'))),
-                onchange=def(event):
+                onchange=def (event):
                         get_session_data().set('book_search_case_sensitive', event.target.checked)
                 , _('Case sensitive'),
             ),
@@ -201,7 +200,7 @@ Regex: Interpret the entered text as a regular expression'''),
         if msg.type is 'error':
             emsg, details = parse_error_msg(msg)
             self.view.hide_loading()
-            window.setTimeout(def():
+            window.setTimeout(def ():
                 error_dialog(_('Could not search'), emsg, details)
             , 1000)
             self.result_handler = None
@@ -277,7 +276,7 @@ Regex: Interpret the entered text as a regular expression'''),
                     E.span('+\xa0', style='display: none'),
                     E.span(toc_node?.title or _('Unknown')),
                     title=_('Click to show/hide the results in this chapter'),
-                    onclick=def(ev):
+                    onclick=def (ev):
                         ev.target.closest('[data-toc-node-id]').classList.toggle('collapsed')
                 ),
                 E.ul()
@@ -420,7 +419,7 @@ Regex: Interpret the entered text as a regular expression'''),
             self.queue_search(q, current_book(), self.view.currently_showing.name)
 
 
-add_extra_css(def():
+add_extra_css(def ():
     css = ''
     sel = f'#{SearchOverlay.CONTAINER_ID} '
     sel += ' div[data-toc-node-id]'

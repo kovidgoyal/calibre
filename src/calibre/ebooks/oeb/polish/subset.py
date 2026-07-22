@@ -1,9 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__   = 'GPL v3'
-__copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2013, Kovid Goyal <kovid at kovidgoyal.net>
 
 import os
 import sys
@@ -24,7 +20,7 @@ def remove_font_face_rules(container, sheet, remove_names, base):
             continue
         try:
             uri = rule.style.getProperty('src').propertyValue[0].uri
-        except (IndexError, KeyError, AttributeError, TypeError, ValueError):
+        except IndexError, KeyError, AttributeError, TypeError, ValueError:
             continue
         name = container.href_to_name(uri, base)
         if name in remove_names:
@@ -35,7 +31,7 @@ def remove_font_face_rules(container, sheet, remove_names, base):
 
 def iter_subsettable_fonts(container):
     for name, mt in container.mime_map.items():
-        if (mt in OEB_FONTS or name.rpartition('.')[-1].lower() in {'otf', 'ttf'}):
+        if mt in OEB_FONTS or name.rpartition('.')[-1].lower() in {'otf', 'ttf'}:
             yield name, mt
 
 
@@ -50,25 +46,23 @@ def subset_all_fonts(container, font_stats, report):
             font_size = f.tell()
         if not chars:
             remove.add(name)
-            report(_('Removed unused font: %s')%name)
+            report(_('Removed unused font: %s') % name)
             continue
         with container.open(name, 'r+b') as f:
             raw = f.read()
             try:
                 font_name = get_font_names(raw)[-1]
             except Exception as e:
-                report(
-                    f'Corrupted font: {name}, ignoring.  Error: {as_unicode(e)}')
+                report(f'Corrupted font: {name}, ignoring.  Error: {as_unicode(e)}')
                 continue
             warnings = []
-            report('Subsetting font: %s'%(font_name or name))
+            report('Subsetting font: %s' % (font_name or name))
             font_type = os.path.splitext(name)[1][1:].lower()
             output = BytesIO()
             try:
                 warnings = subset(BytesIO(raw), output, font_type, chars)
             except Exception as e:
-                report(
-                    f'Unsupported font: {name}, ignoring. Error: {as_unicode(e)}')
+                report(f'Unsupported font: {name}, ignoring. Error: {as_unicode(e)}')
                 continue
             nraw = output.getvalue()
             total_old += font_size
@@ -79,10 +73,9 @@ def subset_all_fonts(container, font_stats, report):
             nlen = len(nraw)
             total_new += len(nraw)
             if nlen == olen:
-                report(_('The font %s was already subset')%font_name)
+                report(_('The font %s was already subset') % font_name)
             else:
-                report(_('Decreased the font {0} to {1} of its original size').format(
-                    font_name, (f'{nlen/olen*100:.1f}%')))
+                report(_('Decreased the font {0} to {1} of its original size').format(font_name, (f'{nlen / olen * 100:.1f}%')))
                 changed = True
             f.seek(0), f.truncate(), f.write(nraw)
 
@@ -104,8 +97,7 @@ def subset_all_fonts(container, font_stats, report):
                             style.text = css_text(sheet)
                             container.dirty(name)
     if total_old > 0:
-        report(_('Reduced total font size to %.1f%% of original')%(
-            total_new/total_old*100))
+        report(_('Reduced total font size to %.1f%% of original') % (total_new / total_old * 100))
     else:
         report(_('No embedded fonts found'))
     return changed
@@ -115,6 +107,7 @@ if __name__ == '__main__':
     from calibre.ebooks.oeb.polish.container import get_container
     from calibre.ebooks.oeb.polish.stats import StatsCollector
     from calibre.utils.logging import default_log
+
     default_log.filter_level = default_log.DEBUG
     inbook = sys.argv[-1]
     ebook = get_container(inbook, default_log)
@@ -122,7 +115,7 @@ if __name__ == '__main__':
     stats = StatsCollector(ebook).font_stats
     subset_all_fonts(ebook, stats, report.append)
     outbook, ext = inbook.rpartition('.')[0::2]
-    outbook += '_subset.'+ext
+    outbook += '_subset.' + ext
     ebook.commit(outbook)
     prints('\nReport:')
     for msg in report:

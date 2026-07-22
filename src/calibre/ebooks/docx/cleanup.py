@@ -1,8 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__ = 'GPL v3'
-__copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
+# License: GPLv3 Copyright: 2013, Kovid Goyal <kovid at kovidgoyal.net>
 
 import os
 
@@ -120,7 +117,7 @@ def cleanup_markup(log, root, styles, dest_dir, detect_cover, XPath, uuid):
         span.attrib.pop('data-noteref-container')
         parent = span.getparent()
         idx = parent.index(span)
-        if idx + 1 < len(parent) and len(ns := parent[idx+1]) and hasattr(ns, 'get') and ns.get('data-noteref-container'):
+        if idx + 1 < len(parent) and len(ns := parent[idx + 1]) and hasattr(ns, 'get') and ns.get('data-noteref-container'):
             if len(span) and not span[-1].tail:
                 span[-1].tail = '\xa0'
 
@@ -134,7 +131,7 @@ def cleanup_markup(log, root, styles, dest_dir, detect_cover, XPath, uuid):
             if descendants[-1] is hr:
                 parent = p.getparent()
                 idx = parent.index(p)
-                parent.insert(idx+1, hr)
+                parent.insert(idx + 1, hr)
                 hr.tail = '\n\t'
 
     # Merge consecutive spans that have the same styling
@@ -195,10 +192,10 @@ def cleanup_markup(log, root, styles, dest_dir, detect_cover, XPath, uuid):
     for span in root.xpath('//span[@class and not(@style)]'):
         css = class_map.get(span.get('class', None), {})
         if len(css) == 1:
-            if css == {'font-style':'italic'}:
+            if css == {'font-style': 'italic'}:
                 span.tag = 'i'
                 del span.attrib['class']
-            elif css == {'font-weight':'bold'}:
+            elif css == {'font-weight': 'bold'}:
                 span.tag = 'b'
                 del span.attrib['class']
 
@@ -225,6 +222,7 @@ def cleanup_markup(log, root, styles, dest_dir, detect_cover, XPath, uuid):
             path = os.path.join(dest_dir, img.get('src'))
             if os.path.exists(path) and before_count(root, img, limit=10) < 5:
                 from calibre.utils.imghdr import identify
+
                 try:
                     with open(path, 'rb') as imf:
                         fmt, width, height = identify(imf)
@@ -232,7 +230,7 @@ def cleanup_markup(log, root, styles, dest_dir, detect_cover, XPath, uuid):
                     width, height, fmt = 0, 0, None
                 del fmt
                 try:
-                    is_cover = 0.8 <= height/width <= 1.8 and height*width >= 160000
+                    is_cover = 0.8 <= height / width <= 1.8 and height * width >= 160000
                 except ZeroDivisionError:
                     is_cover = False
                 if is_cover:

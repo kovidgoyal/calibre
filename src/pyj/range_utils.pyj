@@ -157,6 +157,7 @@ def wrap_range(r, wrapper):
         wrapper.appendChild(r.extractContents())
         r.insertNode(wrapper)
 
+
 def create_wrapper_function(wrapper_elem, r, intersecting_wrappers, process_wrapper, all_wrappers):
     start_node = r.startContainer
     end_node = r.endContainer

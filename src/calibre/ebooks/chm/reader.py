@@ -1,7 +1,6 @@
-''' CHM File decoding support '''
-__license__ = 'GPL v3'
-__copyright__  = ('2008, Kovid Goyal <kovid at kovidgoyal.net>,'
-                  ' and Alex Bramley <a.bramley at gmail.com>.')
+# License: GPLv3 Copyright: 2008, Kovid Goyal <kovid at kovidgoyal.net>, and Alex Bramley <a.bramley at gmail.com>.
+
+"""CHM File decoding support"""
 
 import codecs
 import os
@@ -20,7 +19,7 @@ from polyglot.builtins import as_unicode
 
 def match_string(s1, s2_already_lowered):
     if s1 is not None and s2_already_lowered is not None:
-        if s1.lower()==s2_already_lowered:
+        if s1.lower() == s2_already_lowered:
             return True
     return False
 
@@ -42,7 +41,6 @@ class CHMError(Exception):
 
 
 class CHMReader(CHMFile):
-
     def __init__(self, input, log, input_encoding=None):
         CHMFile.__init__(self)
         if isinstance(input, str):
@@ -51,6 +49,7 @@ class CHMReader(CHMFile):
                 input = input.encode(enc)
             except UnicodeEncodeError:
                 from calibre.ptempfile import PersistentTemporaryFile
+
                 with PersistentTemporaryFile(suffix='.chm') as t:
                     t.write(open(input, 'rb').read())
                 input = t.name
@@ -84,7 +83,7 @@ class CHMReader(CHMFile):
             code, length_of_data = struct.unpack_from('<HH', data, pos)
             pos += 4
             if code == 2:
-                default_topic = data[pos:pos+length_of_data].rstrip(b'\0')
+                default_topic = data[pos : pos + length_of_data].rstrip(b'\0')
                 break
             pos += length_of_data
         else:
@@ -188,6 +187,7 @@ class CHMReader(CHMFile):
 
         if debug_dump:
             import shutil
+
             shutil.copytree(output_dir, os.path.join(debug_dump, 'debug_dump'))
         for lpath in html_files:
             with open(make_long_path_useable(lpath), 'r+b') as f:
@@ -200,8 +200,7 @@ class CHMReader(CHMFile):
                 f.write(data)
 
         self._extracted = True
-        files = [y for y in os.listdir(output_dir) if
-                os.path.isfile(os.path.join(output_dir, y))]
+        files = [y for y in os.listdir(output_dir) if os.path.isfile(os.path.join(output_dir, y))]
         if self.hhc_path not in files:
             for f in files:
                 if f.lower() == self.hhc_path.lower():
@@ -209,16 +208,15 @@ class CHMReader(CHMFile):
                     break
         if self.hhc_path not in files and files:
             for f in files:
-                if f.partition('.')[-1].lower() in {'html', 'htm', 'xhtm',
-                        'xhtml'}:
+                if f.partition('.')[-1].lower() in {'html', 'htm', 'xhtm', 'xhtml'}:
                     self.hhc_path = f
                     break
 
         if self.hhc_path == '.hhc' and self.hhc_path not in files:
             from calibre import walk
+
             for x in walk(output_dir):
-                if os.path.basename(x).lower() in ('index.htm', 'index.html',
-                        'contents.htm', 'contents.html'):
+                if os.path.basename(x).lower() in ('index.htm', 'index.html', 'contents.htm', 'contents.html'):
                     self.hhc_path = os.path.relpath(x, output_dir)
                     break
 
@@ -252,14 +250,14 @@ class CHMReader(CHMFile):
         # containing prev, next or team
         t = soup('table')
         if t:
-            if (t[0].previousSibling is None or t[0].previousSibling.previousSibling is None):
+            if t[0].previousSibling is None or t[0].previousSibling.previousSibling is None:
                 try:
                     alt = t[0].img['alt'].lower()
                     if alt.find('prev') != -1 or alt.find('next') != -1 or alt.find('team') != -1:
                         t[0].extract()
                 except Exception:
                     pass
-            if (t[-1].nextSibling is None or t[-1].nextSibling.nextSibling is None):
+            if t[-1].nextSibling is None or t[-1].nextSibling.nextSibling is None:
                 try:
                     alt = t[-1].img['alt'].lower()
                     if alt.find('prev') != -1 or alt.find('next') != -1 or alt.find('team') != -1:
@@ -328,6 +326,7 @@ class CHMReader(CHMFile):
             if path[-1] != '/':
                 # and make paths relative
                 paths.append(path.lstrip('/'))
+
         chmlib.chm_enumerate(self.file, chmlib.CHM_ENUMERATE_NORMAL, get_paths, None)
         self._contents = paths
         return self._contents

@@ -6,10 +6,10 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class naszdziennik(BasicNewsRecipe):
-    title = u'Nasz Dziennik'
+    title = 'Nasz Dziennik'
     __author__ = 'Artur Stachecki <artur.stachecki@gmail.com>'
     language = 'pl'
-    description = u'Nasz Dziennik - Ogólnopolska gazeta codzienna. Podejmuje tematykę dotyczącą życia społecznego, kulturalnego, politycznego i religijnego. Propaguje wartości chrześcijańskie oraz tradycję i kulturę polską.'  # noqa: E501
+    description = 'Nasz Dziennik - Ogólnopolska gazeta codzienna. Podejmuje tematykę dotyczącą życia społecznego, kulturalnego, politycznego i religijnego. Propaguje wartości chrześcijańskie oraz tradycję i kulturę polską.'  # noqa: E501
     masthead_url = 'http://www.naszdziennik.pl/images/logo-male.png'
     max_articles_per_feed = 100
     remove_javascript = True
@@ -46,8 +46,7 @@ class naszdziennik(BasicNewsRecipe):
                 # pusta lista
                 articles[section] = []
             # przeszukujemy kolejny tag "title-datetime"
-            article_title_datetime = item.find(
-                attrs={'class': 'title-datetime'})
+            article_title_datetime = item.find(attrs={'class': 'title-datetime'})
             # w tagu title-datetime znajdujemy pierwszy link
             article_a = article_title_datetime.find('a')
             # i tworzymy z niego link absolutny do właściwego artykułu
@@ -56,11 +55,9 @@ class naszdziennik(BasicNewsRecipe):
             article_title = self.tag_to_string(article_a)
             # a data będzie tekstem z pierwszego taga h4 znalezionego w tagu
             # title-datetime
-            article_date = self.tag_to_string(
-                article_title_datetime.find('h4'))
+            article_date = self.tag_to_string(article_title_datetime.find('h4'))
             # zebrane elementy dodajemy do listy zadeklarowanej w linijce 44
-            articles[section].append(
-                {'title': article_title, 'url': article_url, 'date': article_date})
+            articles[section].append({'title': article_title, 'url': article_url, 'date': article_date})
         # po dodaniu wszystkich artykułów dodajemy sekcje do listy feedów,
         # korzystając z list sekcji znajdujących się w słowniku
         for section in sections:

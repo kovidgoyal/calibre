@@ -4,9 +4,9 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class Tablety_pl(BasicNewsRecipe):
-    title = u'Tablety.pl'
+    title = 'Tablety.pl'
     __author__ = 'fenuks'
-    description = u'Tablety, gry i aplikacje na tablety.'
+    description = 'Tablety, gry i aplikacje na tablety.'
     masthead_url = 'http://www.tablety.pl/wp-content/themes/kolektyw/img/logo.png'
     cover_url = 'http://www.tablety.pl/wp-content/themes/kolektyw/img/logo.png'
     category = 'IT'
@@ -15,9 +15,12 @@ class Tablety_pl(BasicNewsRecipe):
     no_stylesheets = True
     oldest_article = 8
     max_articles_per_feed = 100
-    preprocess_regexps = [(re.compile(u'<p><strong>Przeczytaj także.*?</a></strong></p>', re.DOTALL), lambda match: ''),  # noqa: RUF039
-                          (re.compile(u'<p><strong>Przeczytaj koniecznie.*?</a></strong></p>', re.DOTALL), lambda match: '')]  # noqa: RUF039
+    preprocess_regexps = [
+        (re.compile('<p><strong>Przeczytaj także.*?</a></strong></p>', re.DOTALL), lambda match: ''),  # noqa: RUF039
+        (re.compile(r'<p><strong>Przeczytaj koniecznie.*?</a></strong></p>', re.DOTALL), lambda match: ''),
+    ]  # noqa: RUF039
     keep_only_tags = [dict(attrs={'class': ['featured-image', 'article-content clearfix']})]
-    remove_tags = [dict(attrs={'class': ['comments_icon', 'wp-polls', 'entry-comments',
-                                         'wp-polls-loading', 'ts-fab-wrapper', 'entry-footer', 'social-custom']})]
-    feeds = [(u'Najnowsze posty', u'http://www.tablety.pl/feed/')]
+    remove_tags = [
+        dict(attrs={'class': ['comments_icon', 'wp-polls', 'entry-comments', 'wp-polls-loading', 'ts-fab-wrapper', 'entry-footer', 'social-custom']})
+    ]
+    feeds = [('Najnowsze posty', 'http://www.tablety.pl/feed/')]

@@ -1,8 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__ = 'GPL v3'
-__copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
+# License: GPLv3 Copyright: 2013, Kovid Goyal <kovid at kovidgoyal.net>
 
 import os
 import sys
@@ -34,11 +31,11 @@ def create_toc(mi, opf, html_name, lang):
         uuid = u.text
     toc = TOC()
     toc.add(_('Start'), html_name)
-    return create_ncx(toc, lambda x:x, mi.title, lang, uuid)
+    return create_ncx(toc, lambda x: x, mi.title, lang, uuid)
 
 
 def create_book(mi, path, fmt='epub', opf_name='metadata.opf', html_name='start.xhtml', toc_name='toc.ncx'):
-    ''' Create an empty book in the specified format at the specified location. '''
+    """Create an empty book in the specified format at the specified location."""
     if fmt not in valid_empty_formats:
         raise ValueError(f'Cannot create empty book in the {fmt} format')
     if fmt == 'txt':
@@ -55,6 +52,7 @@ def create_book(mi, path, fmt='epub', opf_name='metadata.opf', html_name='start.
         from calibre.ebooks.conversion.plumber import Plumber
         from calibre.ebooks.docx.writer.container import DOCX
         from calibre.utils.logging import default_log
+
         p = Plumber('a.docx', 'b.docx', default_log)
         p.setup_options()
         # Use the word default of one inch page margins
@@ -92,13 +90,14 @@ def create_book(mi, path, fmt='epub', opf_name='metadata.opf', html_name='start.
    </rootfiles>
 </container>
     '''.encode()
-    HTML = P('templates/new_book.html', data=True).decode('utf-8').replace(
-        '_LANGUAGE_', prepare_string_for_xml(lang, True)
-    ).replace(
-        '_TITLE_', prepare_string_for_xml(mi.title)
-    ).replace(
-        '_AUTHORS_', prepare_string_for_xml(authors_to_string(mi.authors))
-    ).encode('utf-8')
+    HTML = (
+        P('templates/new_book.html', data=True)
+        .decode('utf-8')
+        .replace('_LANGUAGE_', prepare_string_for_xml(lang, True))
+        .replace('_TITLE_', prepare_string_for_xml(mi.title))
+        .replace('_AUTHORS_', prepare_string_for_xml(authors_to_string(mi.authors)))
+        .encode('utf-8')
+    )
     h = parse(HTML)
     pretty_html_tree(None, h)
     HTML = serialize(h, 'text/html')
@@ -124,6 +123,7 @@ def create_book(mi, path, fmt='epub', opf_name='metadata.opf', html_name='start.
 
 if __name__ == '__main__':
     from calibre.ebooks.metadata.book.base import Metadata
+
     mi = Metadata('Test book', authors=('Kovid Goyal',))
     path = sys.argv[-1]
     ext = path.rpartition('.')[-1].lower()

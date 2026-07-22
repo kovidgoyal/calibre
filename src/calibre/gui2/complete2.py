@@ -1,9 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__   = 'GPL v3'
-__copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2012, Kovid Goyal <kovid@kovidgoyal.net>
 
 from contextlib import suppress
 from functools import partial
@@ -57,7 +53,6 @@ def get_completion_mode() -> str:
 
 
 class CompleteModel(QAbstractListModel):  # {{{
-
     def __init__(self, parent=None, sort_func=sort_key, strip_completion_entries=True):
         QAbstractListModel.__init__(self, parent)
         self.strip_completion_entries = strip_completion_entries
@@ -109,6 +104,7 @@ class CompleteModel(QAbstractListModel):  # {{{
         self.beginResetModel()
         self.current_items = tuple(x for x in universe if func(x, prefix))
         if func is containsq:
+
             def skey(x):
                 sk = primary_sort_key(x)
                 x = x.lower()
@@ -119,12 +115,15 @@ class CompleteModel(QAbstractListModel):  # {{{
                     return ans, sk
                 except Exception:
                     return len(x) + 10, sk
+
             self.current_items = tuple(sorted(self.current_items, key=skey))
         elif func is word_prefix_match:
+
             def skey(x):
                 sk = primary_sort_key(x)
                 pos = word_prefix_find(collator, word_iterator, x, prefix)
                 return (pos if pos >= 0 else len(x) + 10), sk
+
             self.current_items = tuple(sorted(self.current_items, key=skey))
         self.endResetModel()
 
@@ -138,10 +137,10 @@ class CompleteModel(QAbstractListModel):  # {{{
                 if not self.strip_completion_entries:
                     ls = ans.lstrip()
                     if len(ls) < len(ans):
-                        ans = '␣'*(len(ans) - len(ls)) + ls
+                        ans = '␣' * (len(ans) - len(ls)) + ls
                     rs = ans.rstrip()
                     if len(rs) < len(ans):
-                        ans = rs + '␣'*(len(ans) - len(rs))
+                        ans = rs + '␣' * (len(ans) - len(rs))
                 return ans
         if role == Qt.ItemDataRole.UserRole:
             with suppress(IndexError):
@@ -151,11 +150,12 @@ class CompleteModel(QAbstractListModel):  # {{{
         for i, item in enumerate(self.current_items):
             if primary_startswith(item, prefix):
                 return self.index(i)
+
+
 # }}}
 
 
 class Completer(QListView):  # {{{
-
     item_selected = pyqtSignal(object)
     apply_current_text = pyqtSignal()
     relayout_needed = pyqtSignal()
@@ -177,8 +177,7 @@ class Completer(QListView):  # {{{
         self.pressed.connect(self.item_chosen)
         self.installEventFilter(self)
         self.setFocusPolicy(Qt.FocusPolicy.NoFocus)
-        self.tab_accepts_uncompleted_text = (tweaks['tab_accepts_uncompleted_text'] and
-                                             not tweaks['preselect_first_completion'])
+        self.tab_accepts_uncompleted_text = tweaks['tab_accepts_uncompleted_text'] and not tweaks['preselect_first_completion']
 
     def hide(self):
         self.setCurrentIndex(QModelIndex())
@@ -262,8 +261,7 @@ class Completer(QListView):  # {{{
 
         p.setGeometry(pos.x(), pos.y(), w, h)
 
-        if (tweaks['preselect_first_completion'] and select_first and not
-                self.currentIndex().isValid() and m.rowCount() > 0):
+        if tweaks['preselect_first_completion'] and select_first and not self.currentIndex().isValid() and m.rowCount() > 0:
             self.setCurrentIndex(m.index(0, 0))
 
         if not p.isVisible():
@@ -271,6 +269,7 @@ class Completer(QListView):  # {{{
 
     def debug_event(self, ev):
         from calibre.gui2 import event_type_name
+
         print('Event:', event_type_name(ev))
         if ev.type() in (QEvent.Type.KeyPress, QEvent.Type.ShortcutOverride, QEvent.Type.KeyRelease):
             print('\tkey:', QKeySequence(ev.key()).toString())
@@ -284,7 +283,7 @@ class Completer(QListView):  # {{{
         return QListView.mouseMoveEvent(self, e)
 
     def eventFilter(self, object, event):
-        'Redirect key presses from the popup to the widget'
+        "Redirect key presses from the popup to the widget"
         widget = self.parent()
         if widget is None or sip.isdeleted(widget) or not isinstance(widget, QWidget):
             return False
@@ -344,8 +343,12 @@ class Completer(QListView):  # {{{
                 self.hide()
             if event.isAccepted():
                 return True
-        elif ismacos and etype == QEvent.Type.InputMethodQuery and event.queries() == (
-            Qt.InputMethodQuery.ImHints | Qt.InputMethodQuery.ImEnabled) and self.isVisible():
+        elif (
+            ismacos
+            and etype == QEvent.Type.InputMethodQuery
+            and event.queries() == (Qt.InputMethodQuery.ImHints | Qt.InputMethodQuery.ImEnabled)
+            and self.isVisible()
+        ):
             # In Qt 5 the Esc key causes this event and the line edit does not
             # handle it, which causes the parent dialog to be closed
             # See https://bugreports.qt-project.org/browse/QTBUG-41806
@@ -371,11 +374,13 @@ class Completer(QListView):  # {{{
         elif etype in (QEvent.Type.InputMethod, QEvent.Type.ShortcutOverride):
             QApplication.sendEvent(widget, event)
         return False
+
+
 # }}}
 
 
 class LineEdit(QLineEdit, LineEditECM):
-    '''
+    """
     A line edit that completes on multiple items separated by a
     separator. Use the :meth:`update_items_cache` to set the list of
     all possible completions. Separator can be controlled with the
@@ -383,7 +388,8 @@ class LineEdit(QLineEdit, LineEditECM):
 
     A call to self.set_separator(None) will allow this widget to be used
     to complete non multiple fields as well.
-    '''
+    """
+
     item_selected = pyqtSignal(object)
 
     def __init__(self, parent=None, completer_widget=None, sort_func=sort_key, strip_completion_entries=True):
@@ -395,14 +401,11 @@ class LineEdit(QLineEdit, LineEditECM):
         self.add_separator = True
         self.hierarchy_separator = ''
         self.original_cursor_pos = None
-        completer_widget = (self if completer_widget is None else
-                completer_widget)
+        completer_widget = self if completer_widget is None else completer_widget
 
         self.mcompleter = Completer(completer_widget, sort_func=sort_func, strip_completion_entries=strip_completion_entries)
-        self.mcompleter.item_selected.connect(self.completion_selected,
-                type=Qt.ConnectionType.QueuedConnection)
-        self.mcompleter.apply_current_text.connect(self.apply_current_text,
-                type=Qt.ConnectionType.QueuedConnection)
+        self.mcompleter.item_selected.connect(self.completion_selected, type=Qt.ConnectionType.QueuedConnection)
+        self.mcompleter.apply_current_text.connect(self.apply_current_text, type=Qt.ConnectionType.QueuedConnection)
         self.mcompleter.relayout_needed.connect(self.relayout)
         self.mcompleter.setFocusProxy(completer_widget)
         self.textEdited.connect(self.text_edited)
@@ -449,14 +452,16 @@ class LineEdit(QLineEdit, LineEditECM):
 
     def set_elide_mode(self, val):
         self.mcompleter.setTextElideMode(val)
+
     # }}}
 
     def event(self, a0):
         # See https://bugreports.qt.io/browse/QTBUG-46911
         try:
             if a0.type() == QEvent.Type.ShortcutOverride and (
-                    a0.key() in (Qt.Key.Key_Left, Qt.Key.Key_Right) and (
-                        a0.modifiers() & ~Qt.KeyboardModifier.KeypadModifier) == Qt.KeyboardModifier.ControlModifier):
+                a0.key() in (Qt.Key.Key_Left, Qt.Key.Key_Right)
+                and (a0.modifiers() & ~Qt.KeyboardModifier.KeypadModifier) == Qt.KeyboardModifier.ControlModifier
+            ):
                 a0.accept()
         except AttributeError:
             pass
@@ -498,7 +503,7 @@ class LineEdit(QLineEdit, LineEditECM):
         self.complete(select_first=select_first)
 
     def update_completions(self):
-        ' Update the list of completions '
+        "Update the list of completions"
         self.original_cursor_pos = cpos = self.cursorPosition()
         text = str(self.text())
         prefix = text[:cpos]
@@ -508,7 +513,7 @@ class LineEdit(QLineEdit, LineEditECM):
         self.mcompleter.set_completion_prefix(complete_prefix, self.hierarchy_separator)
 
     def get_completed_text(self, text):
-        'Get completed text in before and after parts'
+        "Get completed text in before and after parts"
         if self.sep is None:
             return text, ''
         else:
@@ -547,19 +552,23 @@ class LineEdit(QLineEdit, LineEditECM):
             txt = str(self.text())
             sep_pos = txt.rfind(self.sep)
             if sep_pos:
-                ntxt = txt[sep_pos+1:].strip()
+                ntxt = txt[sep_pos + 1 :].strip()
                 self.completion_selected(ntxt)
 
 
 class EditWithComplete(EnComboBox):
-
     item_selected = pyqtSignal(object)
 
     def __init__(self, *args, **kwargs):
         EnComboBox.__init__(self, *args)
-        self.setLineEdit(LineEdit(
-            self, completer_widget=self, sort_func=kwargs.get('sort_func', sort_key),
-            strip_completion_entries=kwargs.get('strip_completion_entries', False)))
+        self.setLineEdit(
+            LineEdit(
+                self,
+                completer_widget=self,
+                sort_func=kwargs.get('sort_func', sort_key),
+                strip_completion_entries=kwargs.get('strip_completion_entries', False),
+            )
+        )
         self._line_edit().item_selected.connect(self.item_selected)
         self.setCompleter(None)
         self.eat_focus_out = True
@@ -632,6 +641,7 @@ class EditWithComplete(EnComboBox):
 
     def set_clear_button_enabled(self, val=True):
         self._line_edit().setClearButtonEnabled(bool(val))
+
     # }}}
 
     def text(self):
@@ -685,6 +695,7 @@ if __name__ == '__main__':
     from qt.core import QDialog, QVBoxLayout
 
     from calibre.gui2 import Application
+
     app = Application([])
     d = QDialog()
     d.setLayout(QVBoxLayout())
@@ -693,9 +704,31 @@ if __name__ == '__main__':
     layout = d.layout()
     assert layout is not None
     layout.addWidget(le)
-    items = ['oane\n line2\n line3', 'otwo', 'othree', 'ooone', 'ootwo', 'other', 'odd', 'over', 'orc', 'oven', 'owe',
-        'oothree', 'a1', 'a2','Edgas', 'Èdgar', 'Édgaq', 'Edgar', 'Édgar', 'Asimov', 'Isaac Asimov', 'Quasimodo',
-        'Fiction.Cozy Mystery', 'Fiction.Mystery',
+    items = [
+        'oane\n line2\n line3',
+        'otwo',
+        'othree',
+        'ooone',
+        'ootwo',
+        'other',
+        'odd',
+        'over',
+        'orc',
+        'oven',
+        'owe',
+        'oothree',
+        'a1',
+        'a2',
+        'Edgas',
+        'Èdgar',
+        'Édgaq',
+        'Edgar',
+        'Édgar',
+        'Asimov',
+        'Isaac Asimov',
+        'Quasimodo',
+        'Fiction.Cozy Mystery',
+        'Fiction.Mystery',
     ]
     le.set_hierarchy_separator('.')
     le.update_items_cache(items)

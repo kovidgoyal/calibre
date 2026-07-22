@@ -26,10 +26,11 @@
 /resources/template-functions.json
 /resources/editor-functions.json
 /resources/user-manual-translation-stats.json
-/resources/editor.js
-/resources/viewer.js
+/resources/editor.js*
+/resources/viewer.js*
 /resources/viewer.html
 /resources/content-server/index-generated.html
+/resources/content-server/index.js.map
 /resources/content-server/locales.zip
 /resources/mathjax
 /resources/fonts/liberation

@@ -1,6 +1,4 @@
-__license__ = 'GPL 3'
-__copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2009, Kovid Goyal <kovid@kovidgoyal.net>
 
 import os
 import re
@@ -10,7 +8,6 @@ from calibre.customize.conversion import OptionRecommendation, OutputFormatPlugi
 
 
 class OEBOutput(OutputFormatPlugin):
-
     name = 'OEB Output'
     author = 'Kovid Goyal'
     file_type = 'oeb'
@@ -29,6 +26,7 @@ class OEBOutput(OutputFormatPlugin):
             os.makedirs(output_path)
         from calibre.ebooks.oeb.base import NCX_MIME, OEB_STYLES, OPF_MIME, PAGE_MAP_MIME
         from calibre.ebooks.oeb.normalize_css import condense_sheet
+
         with CurrentDir(output_path):
             results = oeb_book.to_opf2(page_map=True)
             for key in (OPF_MIME, NCX_MIME, PAGE_MAP_MIME):
@@ -38,28 +36,28 @@ class OEBOutput(OutputFormatPlugin):
                         try:
                             self.workaround_nook_cover_bug(root)
                         except Exception:
-                            self.log.exception('Something went wrong while trying to'
-                                    ' workaround Nook cover bug, ignoring')
+                            self.log.exception('Something went wrong while trying to workaround Nook cover bug, ignoring')
                         try:
                             self.workaround_pocketbook_cover_bug(root)
                         except Exception:
-                            self.log.exception('Something went wrong while trying to'
-                                    ' workaround Pocketbook cover bug, ignoring')
+                            self.log.exception('Something went wrong while trying to workaround Pocketbook cover bug, ignoring')
                         self.migrate_lang_code(root)
                         self.adjust_mime_types(root)
-                    raw = etree.tostring(root, pretty_print=True,
-                            encoding='utf-8', xml_declaration=True)
+                    raw = etree.tostring(root, pretty_print=True, encoding='utf-8', xml_declaration=True)
                     if key == OPF_MIME:
                         # Needed as I can't get lxml to output opf:role and
                         # not output <opf:metadata> as well
-                        raw = re.sub(br'(<[/]{0,1})opf:', br'\1', raw)
+                        raw = re.sub(rb'(<[/]{0,1})opf:', rb'\1', raw)
                     with open(href, 'wb') as f:
                         f.write(raw)
 
             for item in oeb_book.manifest:
                 if (
-                        not self.opts.expand_css and item.media_type in OEB_STYLES and hasattr(
-                            item.data, 'cssText') and 'nook' not in self.opts.output_profile.short_name):
+                    not self.opts.expand_css
+                    and item.media_type in OEB_STYLES
+                    and hasattr(item.data, 'cssText')
+                    and 'nook' not in self.opts.output_profile.short_name
+                ):
                     condense_sheet(item.data)
                 path = os.path.abspath(unquote(item.href))
                 dir = os.path.dirname(path)
@@ -71,6 +69,7 @@ class OEBOutput(OutputFormatPlugin):
 
     def adjust_mime_types(self, root):
         from calibre.ebooks.oeb.polish.utils import adjust_mime_for_epub
+
         for x in root.xpath('//*[local-name() = "manifest"]/*[local-name() = "item"]'):
             mt = x.get('media-type')
             if mt:
@@ -79,12 +78,10 @@ class OEBOutput(OutputFormatPlugin):
                     x.set('media-type', nmt)
 
     def workaround_nook_cover_bug(self, root):  # {{{
-        cov = root.xpath('//*[local-name() = "meta" and @name="cover" and'
-                ' @content != "cover"]')
+        cov = root.xpath('//*[local-name() = "meta" and @name="cover" and @content != "cover"]')
 
         def manifest_items_with_id(id_):
-            return root.xpath('//*[local-name() = "manifest"]/*[local-name() = "item" '
-                f' and @id="{id_}"]')
+            return root.xpath(f'//*[local-name() = "manifest"]/*[local-name() = "item"  and @id="{id_}"]')
 
         if len(cov) == 1:
             cov = cov[0]
@@ -92,13 +89,11 @@ class OEBOutput(OutputFormatPlugin):
 
             if covid:
                 manifest_item = manifest_items_with_id(covid)
-                if len(manifest_item) == 1 and \
-                        manifest_item[0].get('media-type',
-                                '').startswith('image/'):
-                    self.log.warn('The cover image has an id != "cover". Renaming'
-                            ' to work around bug in Nook Color')
+                if len(manifest_item) == 1 and manifest_item[0].get('media-type', '').startswith('image/'):
+                    self.log.warn('The cover image has an id != "cover". Renaming to work around bug in Nook Color')
 
                     from calibre.ebooks.oeb.base import uuid_id
+
                     newid = uuid_id()
 
                     for item in manifest_items_with_id('cover'):
@@ -110,22 +105,25 @@ class OEBOutput(OutputFormatPlugin):
                     manifest_item = manifest_item[0]
                     manifest_item.set('id', 'cover')
                     cov.set('content', 'cover')
+
     # }}}
 
     def workaround_pocketbook_cover_bug(self, root):  # {{{
-        m = root.xpath('//*[local-name() = "manifest"]/*[local-name() = "item" '
-                ' and @id="cover"]')
+        m = root.xpath('//*[local-name() = "manifest"]/*[local-name() = "item"  and @id="cover"]')
         if len(m) == 1:
             m = m[0]
             p = m.getparent()
             p.remove(m)
             p.insert(0, m)
+
     # }}}
 
     def migrate_lang_code(self, root):  # {{{
         from calibre.utils.localization import lang_as_iso639_1
+
         for lang in root.xpath('//*[local-name() = "language"]'):
             clc = lang_as_iso639_1(lang.text)
             if clc:
                 lang.text = clc
+
     # }}}

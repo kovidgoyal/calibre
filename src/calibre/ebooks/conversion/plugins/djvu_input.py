@@ -1,6 +1,4 @@
-__license__ = 'GPL 3'
-__copyright__ = '2011, Anthon van der Neut <anthon@mnt.org>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2011, Anthon van der Neut <anthon@mnt.org>
 
 import os
 from io import BytesIO
@@ -10,11 +8,10 @@ from calibre.utils.localization import _
 
 
 class DJVUInput(InputFormatPlugin):
-
-    name        = 'DJVU Input'
-    author      = 'Anthon van der Neut'
+    name = 'DJVU Input'
+    author = 'Anthon van der Neut'
     description = _('Convert OCR-ed DJVU files (.djvu) to HTML')
-    file_types  = {'djvu', 'djv'}
+    file_types = {'djvu', 'djv'}
     commit_name = 'djvu_input'
 
     def convert(self, stream, options, file_ext, log, accelerators):
@@ -22,17 +19,19 @@ class DJVUInput(InputFormatPlugin):
 
         stdout = BytesIO()
         from calibre.ebooks.djvu.djvu import DJVUFile
+
         x = DJVUFile(stream)
         x.get_text(stdout)
         raw_text = stdout.getvalue()
         if not raw_text:
-            raise ValueError('The DJVU file contains no text, only images, probably page scans.'
-                    ' calibre only supports conversion of DJVU files with actual text in them.')
+            raise ValueError(
+                'The DJVU file contains no text, only images, probably page scans. calibre only supports conversion of DJVU files with actual text in them.'
+            )
 
-        html = convert_basic(raw_text.replace(b'\n', b' ').replace(
-            b'\037', b'\n\n'))
+        html = convert_basic(raw_text.replace(b'\n', b' ').replace(b'\037', b'\n\n'))
         # Run the HTMLized text through the html processing plugin.
         from calibre.customize.ui import plugin_for_input_format
+
         html_input = plugin_for_input_format('html')
         for opt in html_input.options:
             setattr(options, opt.option.name, opt.recommended_value)
@@ -49,14 +48,14 @@ class DJVUInput(InputFormatPlugin):
         options.debug_pipeline = None
         # Generate oeb from html conversion.
         with open(htmlfile, 'rb') as f:
-            oeb = html_input.convert(f, options, 'html', log,
-                {})
+            oeb = html_input.convert(f, options, 'html', log, {})
         options.debug_pipeline = odi
         os.remove(htmlfile)
 
         # Set metadata from file.
         from calibre.customize.ui import get_file_type_metadata
         from calibre.ebooks.oeb.transforms.metadata import meta_info_to_oeb_metadata
+
         mi = get_file_type_metadata(stream, file_ext)
         meta_info_to_oeb_metadata(mi, oeb.metadata, log)
 

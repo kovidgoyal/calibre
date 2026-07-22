@@ -1,6 +1,4 @@
-__license__ = 'GPL 3'
-__copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2009, Kovid Goyal <kovid@kovidgoyal.net>
 
 from calibre import guess_type
 
@@ -14,8 +12,8 @@ def _mt(path):
 
 def mime_type_ext(ext):
     if not ext.startswith('.'):
-        ext = '.'+ext
-    return _mt('a'+ext)
+        ext = '.' + ext
+    return _mt('a' + ext)
 
 
 def mime_type_path(path):

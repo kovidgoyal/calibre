@@ -12,16 +12,17 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 def classes(classes):
     q = frozenset(classes.split(' '))
-    return dict(attrs={
-        'class': lambda x: x and frozenset(x.split()).intersection(q)})
+    return dict(attrs={'class': lambda x: x and frozenset(x.split()).intersection(q)})
 
 
 class DailyTelegraph(BasicNewsRecipe):
-    title = u'The Australian'
-    __author__ = u'Kovid Goyal'
-    description = (u'National broadsheet newspaper from down under - colloquially known as The Oz'
-                   '. You will need to have a subscription to '
-                   'http://www.theaustralian.com.au to get full articles.')
+    title = 'The Australian'
+    __author__ = 'Kovid Goyal'
+    description = (
+        'National broadsheet newspaper from down under - colloquially known as The Oz'
+        '. You will need to have a subscription to '
+        'http://www.theaustralian.com.au to get full articles.'
+    )
     language = 'en_AU'
 
     oldest_article = 2
@@ -39,21 +40,23 @@ class DailyTelegraph(BasicNewsRecipe):
     ]
     remove_tags = [
         dict(id='comments'),
-        classes('story-info story-header-tools module-controls story-sidebar'
-        ' story-footer story-footer-tools story-extras story-related vms-nav'
-        ' vms-endcard vms-discover share-tools story-comments-link'
-        ' vms-controls ooyala-player vms-countdown vms-header comments')
+        classes(
+            'story-info story-header-tools module-controls story-sidebar'
+            ' story-footer story-footer-tools story-extras story-related vms-nav'
+            ' vms-endcard vms-discover share-tools story-comments-link'
+            ' vms-controls ooyala-player vms-countdown vms-header comments'
+        ),
     ]
 
     feeds = [
-        (u'National News', u'https://www.news.com.au/content-feeds/latest-news-national/'),
-        (u'World News', u'https://www.news.com.au/content-feeds/latest-news-world/'),
-        (u'Entertainment', u'https://www.news.com.au/content-feeds/latest-news-entertainment/'),
-        (u'Technology', u'https://www.news.com.au/content-feeds/latest-news-technology/'),
-        (u'Lifestyle', u'https://www.news.com.au/content-feeds/latest-news-lifestyle/'),
-        (u'Sport', u'https://www.news.com.au/content-feeds/latest-news-sport/'),
-        (u'Finance', u'https://www.news.com.au/content-feeds/latest-news-finance/'),
-        (u'Travel', u'https://www.news.com.au/content-feeds/latest-news-travel/'),
+        ('National News', 'https://www.news.com.au/content-feeds/latest-news-national/'),
+        ('World News', 'https://www.news.com.au/content-feeds/latest-news-world/'),
+        ('Entertainment', 'https://www.news.com.au/content-feeds/latest-news-entertainment/'),
+        ('Technology', 'https://www.news.com.au/content-feeds/latest-news-technology/'),
+        ('Lifestyle', 'https://www.news.com.au/content-feeds/latest-news-lifestyle/'),
+        ('Sport', 'https://www.news.com.au/content-feeds/latest-news-sport/'),
+        ('Finance', 'https://www.news.com.au/content-feeds/latest-news-finance/'),
+        ('Travel', 'https://www.news.com.au/content-feeds/latest-news-travel/'),
     ]
 
     def get_browser(self):

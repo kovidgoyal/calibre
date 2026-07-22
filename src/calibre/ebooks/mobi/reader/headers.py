@@ -1,9 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__   = 'GPL v3'
-__copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2012, Kovid Goyal <kovid@kovidgoyal.net>
 
 import os
 import re
@@ -18,11 +14,11 @@ from calibre.utils.config_base import tweaks
 from calibre.utils.date import parse_date
 from calibre.utils.localization import _, canonicalize_lang
 
-NULL_INDEX = 0xffffffff
+NULL_INDEX = 0xFFFFFFFF
 
 
 def uniq(vals):
-    ''' Remove all duplicates from vals, while preserving order.  '''
+    """Remove all duplicates from vals, while preserving order."""
     vals = vals or ()
     seen = set()
     seen_add = seen.add
@@ -30,7 +26,6 @@ def uniq(vals):
 
 
 class EXTHHeader:  # {{{
-
     def __init__(self, raw, codec, title):
         self.doctype = raw[:4]
         self.length, self.num_items = struct.unpack('>LL', raw[4:12])
@@ -49,19 +44,19 @@ class EXTHHeader:  # {{{
 
         while left > 0:
             left -= 1
-            idx, size = struct.unpack('>LL', raw[pos:pos + 8])
-            content = raw[pos + 8:pos + size]
+            idx, size = struct.unpack('>LL', raw[pos : pos + 8])
+            content = raw[pos + 8 : pos + size]
             pos += size
             if idx >= 100 and idx < 200:
                 self.process_metadata(idx, content, codec)
             elif idx == 203:
                 self.has_fake_cover = bool(struct.unpack('>L', content)[0])
             elif idx == 201:
-                co, = struct.unpack('>L', content)
+                (co,) = struct.unpack('>L', content)
                 if co < NULL_INDEX:
                     self.cover_offset = co
             elif idx == 202:
-                self.thumbnail_offset, = struct.unpack('>L', content)
+                (self.thumbnail_offset,) = struct.unpack('>L', content)
             elif idx == 501:
                 try:
                     self.cdetype = content.decode('ascii')
@@ -136,7 +131,7 @@ class EXTHHeader:  # {{{
             if self.mi.publisher in {'Unknown', _('Unknown')}:
                 self.mi.publisher = None
         elif idx == 103:
-            self.mi.comments  = clean_xml_chars(self.decode(content).strip())
+            self.mi.comments = clean_xml_chars(self.decode(content).strip())
         elif idx == 104:
             raw = check_isbn(self.decode(content).strip().replace('-', ''))
             if raw:
@@ -160,13 +155,13 @@ class EXTHHeader:  # {{{
                 content = content.decode(codec).strip()
                 isig = 'urn:isbn:'
                 if content.lower().startswith(isig):
-                    raw = check_isbn(content[len(isig):])
+                    raw = check_isbn(content[len(isig) :])
                     if raw and not self.mi.isbn:
                         self.mi.isbn = raw
                 elif content.startswith('calibre:'):
                     # calibre book uuid is stored here by recent calibre
                     # releases
-                    cid = content[len('calibre:'):]
+                    cid = content[len('calibre:') :]
                     if cid:
                         self.mi.application_id = self.mi.uuid = cid
             except Exception:
@@ -178,25 +173,26 @@ class EXTHHeader:  # {{{
             except Exception:
                 self.uuid = None
         elif idx == 116:
-            self.start_offset, = struct.unpack(b'>L', content)
+            (self.start_offset,) = struct.unpack(b'>L', content)
         elif idx == 121:
-            self.kf8_header, = struct.unpack(b'>L', content)
+            (self.kf8_header,) = struct.unpack(b'>L', content)
             if self.kf8_header == NULL_INDEX:
                 self.kf8_header = None
         # else:
         #     print('unhandled metadata record', idx, repr(content))
+
+
 # }}}
 
 
 class BookHeader:
-
     def __init__(self, raw, ident, user_encoding, log, try_extra_data_fix=False):
         self.log = log
         self.kf8_first_image_index: int | None = None
         self.mobi6_records: int | None = None
         self.compression_type = raw[:2]
         self.records, self.records_size = struct.unpack('>HH', raw[8:12])
-        self.encryption_type, = struct.unpack('>H', raw[12:14])
+        (self.encryption_type,) = struct.unpack('>H', raw[12:14])
         if ident == b'TEXTREAD':
             self.codepage = 1252
         if len(raw) <= 16:
@@ -212,51 +208,46 @@ class BookHeader:
         else:
             self.ancient = False
             self.doctype = raw[16:20]
-            self.length, self.type, self.codepage, self.unique_id, \
-                self.version = struct.unpack('>LLLLL', raw[20:40])
+            self.length, self.type, self.codepage, self.unique_id, self.version = struct.unpack('>LLLLL', raw[20:40])
 
             try:
                 self.codec = {
                     1252: 'cp1252',
                     65001: 'utf-8',
-                    }[self.codepage]
-            except (IndexError, KeyError):
+                }[self.codepage]
+            except IndexError, KeyError:
                 self.codec = 'cp1252' if not user_encoding else user_encoding
                 log.warn(f'Unknown codepage {self.codepage}. Assuming {self.codec}')
             # Some KF8 files have header length == 264 (generated by kindlegen
             # 2.9?). See https://bugs.launchpad.net/bugs/1179144
             max_header_length = 500  # We choose 500 for future versions of kindlegen
 
-            if (ident == b'TEXTREAD' or self.length < 0xE4 or
-                    self.length > max_header_length or
-                    (try_extra_data_fix and self.length == 0xE4)):
+            if ident == b'TEXTREAD' or self.length < 0xE4 or self.length > max_header_length or (try_extra_data_fix and self.length == 0xE4):
                 self.extra_flags = 0
             else:
-                self.extra_flags, = struct.unpack('>H', raw[0xF2:0xF4])
+                (self.extra_flags,) = struct.unpack('>H', raw[0xF2:0xF4])
 
             if self.compression_type == b'DH':
-                self.huff_offset, self.huff_number = struct.unpack('>LL',
-                        raw[0x70:0x78])
+                self.huff_offset, self.huff_number = struct.unpack('>LL', raw[0x70:0x78])
 
-            toff, tlen = struct.unpack('>II', raw[0x54:0x5c])
+            toff, tlen = struct.unpack('>II', raw[0x54:0x5C])
             tend = toff + tlen
             self.title = raw[toff:tend] if tend < len(raw) else _('Unknown')
-            langcode  = struct.unpack('!L', raw[0x5C:0x60])[0]
-            langid    = langcode & 0xFF
+            langcode = struct.unpack('!L', raw[0x5C:0x60])[0]
+            langid = langcode & 0xFF
             sublangid = (langcode >> 10) & 0xFF
             self.language = main_language.get(langid, 'ENGLISH')
             self.sublanguage = sub_language.get(sublangid, 'NEUTRAL')
-            self.mobi_version = struct.unpack('>I', raw[0x68:0x6c])[0]
-            self.first_image_index = struct.unpack('>L', raw[0x6c:0x6c + 4])[0]
+            self.mobi_version = struct.unpack('>I', raw[0x68:0x6C])[0]
+            self.first_image_index = struct.unpack('>L', raw[0x6C : 0x6C + 4])[0]
 
-            self.exth_flag, = struct.unpack('>L', raw[0x80:0x84])
+            (self.exth_flag,) = struct.unpack('>L', raw[0x80:0x84])
             self.exth = None
             if not isinstance(self.title, str):
                 self.title = self.title.decode(self.codec, 'replace')
             if self.exth_flag & 0x40:
                 try:
-                    self.exth = EXTHHeader(raw[16 + self.length:], self.codec,
-                            self.title)
+                    self.exth = EXTHHeader(raw[16 + self.length :], self.codec, self.title)
                     self.exth.mi.uid = self.unique_id
                     if self.exth.mi.is_null('language'):
                         try:
@@ -269,13 +260,12 @@ class BookHeader:
 
             self.ncxidx = NULL_INDEX
             if len(raw) >= 0xF8:
-                self.ncxidx, = struct.unpack_from(b'>L', raw, 0xF4)
+                (self.ncxidx,) = struct.unpack_from(b'>L', raw, 0xF4)
 
             # Ancient PRC files from Baen can have random values for
             # mobi_version, so be conservative
             if self.mobi_version == 8 and len(raw) >= (0xF8 + 16):
-                self.dividx, self.skelidx, self.datpidx, self.othidx = \
-                        struct.unpack_from(b'>4L', raw, 0xF8)
+                self.dividx, self.skelidx, self.datpidx, self.othidx = struct.unpack_from(b'>4L', raw, 0xF8)
 
                 # need to use the FDST record to find out how to properly
                 # unpack the raw_ml into pieces it is simply a table of start
@@ -285,12 +275,10 @@ class BookHeader:
                 if self.fdstcnt <= 1:
                     self.fdstidx = NULL_INDEX
             else:  # Null values
-                self.skelidx = self.dividx = self.othidx = self.fdstidx = \
-                        NULL_INDEX
+                self.skelidx = self.dividx = self.othidx = self.fdstidx = NULL_INDEX
 
 
 class MetadataHeader(BookHeader):
-
     def __init__(self, stream, log):
         self.stream = stream
         self.ident = self.identity()
@@ -303,15 +291,14 @@ class MetadataHeader(BookHeader):
 
     @property
     def kf8_type(self):
-        if (self.mobi_version == 8 and getattr(self, 'skelidx', NULL_INDEX) !=
-                NULL_INDEX):
+        if self.mobi_version == 8 and getattr(self, 'skelidx', NULL_INDEX) != NULL_INDEX:
             return 'standalone'
 
         kf8_header_index = getattr(self.exth, 'kf8_header', None)
         if kf8_header_index is None:
             return None
         try:
-            if self.section_data(kf8_header_index-1) == b'BOUNDARY':
+            if self.section_data(kf8_header_index - 1) == b'BOUNDARY':
                 return 'joint'
         except Exception:
             pass
@@ -346,7 +333,7 @@ class MetadataHeader(BookHeader):
 
     def section_data(self, number):
         start = self.section_offset(number)
-        if number == self.num_sections -1:
+        if number == self.num_sections - 1:
             end = os.stat(self.stream.name).st_size
         else:
             end = self.section_offset(number + 1)

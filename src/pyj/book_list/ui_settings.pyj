@@ -2,18 +2,18 @@
 # License: GPL v3 Copyright: 2026
 from __python__ import hash_literals, bound_methods
 
-from dom import add_extra_css, build_rule, clear
 from elementmaker import E
 from gettext import gettext as _
-from session import all_settings
 
+from book_list.globals import get_session_data
 from book_list.library_data import browse_field_settings, set_browse_fields
 from book_list.prefs import create_prefs_widget
 from book_list.search import get_prefs as get_tb_prefs
-from book_list.globals import get_session_data
 from book_list.theme import apply_book_list_theme
 from book_list.top_bar import create_top_bar
 from book_list.ui import set_panel_handler
+from dom import add_extra_css, build_rule, clear
+from session import all_settings
 
 
 CLASS_NAME = 'cs-ui-settings'
@@ -21,7 +21,7 @@ DEFAULT_PRIMARY_HEX = all_settings.ui_highlight_colors.default.light
 DEFAULT_PRIMARY_DARK_HEX = all_settings.ui_highlight_colors.default.dark
 
 
-add_extra_css(def():
+add_extra_css(def ():
     sel = '.' + CLASS_NAME + ' '
     style = ''
     # Reuse cs-prefs layout/classes; keep UI-settings-specific overrides only.
@@ -194,9 +194,9 @@ def create_tabs_widget(root):
             p.setAttribute('hidden', '')
         panel.removeAttribute('hidden')
 
-    tab_interface_btn.addEventListener('click', def(ev): select_tab(tab_interface_btn, panel_interface);)
-    tab_browse_btn.addEventListener('click', def(ev): select_tab(tab_browse_btn, panel_browse);)
-    tab_tagbrowser_btn.addEventListener('click', def(ev): select_tab(tab_tagbrowser_btn, panel_tagbrowser);)
+    tab_interface_btn.addEventListener('click', def (ev): select_tab(tab_interface_btn, panel_interface);)
+    tab_browse_btn.addEventListener('click', def (ev): select_tab(tab_browse_btn, panel_browse);)
+    tab_tagbrowser_btn.addEventListener('click', def (ev): select_tab(tab_tagbrowser_btn, panel_tagbrowser);)
 
     def on_tablist_keydown(ev):
         tabs = tablist.querySelectorAll('[role="tab"]')
@@ -353,4 +353,5 @@ def init(container_id):
     create_prefs_widget(panel_tagbrowser, get_tb_prefs())
 
 
-set_panel_handler('book_list^prefs', init)
+def set_panel_handlers():
+    set_panel_handler('book_list^prefs', init)

@@ -33,7 +33,7 @@ class Nspm(BasicNewsRecipe):
     remove_empty_feeds = True
     publication_type = 'magazine'
     masthead_url = 'http://www.nspm.rs/templates/jsn_epic_pro/images/logol.jpg'
-    extra_css             = ''' @font-face {font-family: "serif1";src:url(res:///opt/sony/ebook/FONT/tt0011m_.ttf)}
+    extra_css = ''' @font-face {font-family: "serif1";src:url(res:///opt/sony/ebook/FONT/tt0011m_.ttf)}
                                 @font-face {font-family: "sans1";src:url(res:///opt/sony/ebook/FONT/tt0003m_.ttf)}
                                 body{font-family: "Times New Roman", serif1, serif}
                                 .article_description{font-family: Arial, sans1, sans-serif}
@@ -41,14 +41,11 @@ class Nspm(BasicNewsRecipe):
                                 .author{color: #990000; font-weight: bold}
                                 .author,.createdate{font-size: 0.9em} '''
 
-    conversion_options = {
-        'comment': description, 'tags': category, 'publisher': publisher, 'language': language, 'pretty_print': True
-    }
+    conversion_options = {'comment': description, 'tags': category, 'publisher': publisher, 'language': language, 'pretty_print': True}
 
-    preprocess_regexps = [(re.compile(u'\u0110'), lambda match: u'\u00D0')]  # noqa: RUF039
+    preprocess_regexps = [(re.compile('\u0110'), lambda match: '\u00d0')]  # noqa: RUF039
     remove_tags = [dict(name=['link', 'script', 'meta', 'base', 'img'])]
-    remove_attributes = ['width', 'height', 'lang', 'xmlns:fb',
-                         'xmlns:og', 'vspace', 'hspace', 'type', 'start', 'size']
+    remove_attributes = ['width', 'height', 'lang', 'xmlns:fb', 'xmlns:og', 'vspace', 'hspace', 'type', 'start', 'size']
 
     def get_browser(self):
         br = BasicNewsRecipe.get_browser(self)
@@ -56,15 +53,14 @@ class Nspm(BasicNewsRecipe):
         return br
 
     feeds = [
-
-    (u'Rubrike', u'http://www.nspm.rs/rubrike/feed/rss.html'),
-    (u'Debate', u'http://www.nspm.rs/debate/feed/rss.html'),
-    (u'Reci i misli', u'http://www.nspm.rs/reci-i-misli/feed/rss.html'),
-    (u'Samo smeh srbina spasava', u'http://www.nspm.rs/samo-smeh-srbina-spasava/feed/rss.html'),
-    (u'Polemike', u'http://www.nspm.rs/polemike/feed/rss.html'),
-    (u'Prikazi', u'http://www.nspm.rs/prikazi/feed/rss.html'),
-    (u'Prenosimo', u'http://www.nspm.rs/prenosimo/feed/rss.html'),
-    (u'Hronika', u'http://www.nspm.rs/tabela/hronika/feed/rss.html')
+        ('Rubrike', 'http://www.nspm.rs/rubrike/feed/rss.html'),
+        ('Debate', 'http://www.nspm.rs/debate/feed/rss.html'),
+        ('Reci i misli', 'http://www.nspm.rs/reci-i-misli/feed/rss.html'),
+        ('Samo smeh srbina spasava', 'http://www.nspm.rs/samo-smeh-srbina-spasava/feed/rss.html'),
+        ('Polemike', 'http://www.nspm.rs/polemike/feed/rss.html'),
+        ('Prikazi', 'http://www.nspm.rs/prikazi/feed/rss.html'),
+        ('Prenosimo', 'http://www.nspm.rs/prenosimo/feed/rss.html'),
+        ('Hronika', 'http://www.nspm.rs/tabela/hronika/feed/rss.html'),
     ]
 
     def preprocess_html(self, soup):

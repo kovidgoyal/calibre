@@ -1,9 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__   = 'GPL v3'
-__copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2009, Kovid Goyal <kovid@kovidgoyal.net>
 
 import operator
 import textwrap
@@ -16,7 +12,6 @@ from polyglot.builtins import as_bytes
 
 
 class Canvas(etree.XSLTExtension):
-
     def __init__(self, doc, styles, text_block, log):
         self.doc = doc
         self.styles = styles
@@ -92,7 +87,6 @@ class Canvas(etree.XSLTExtension):
 
 
 class MediaType(etree.XSLTExtension):
-
     def execute(self, context, self_node, input_node, output_parent):
         name = input_node.get('file', None)
         typ = guess_type(name)[0]
@@ -102,7 +96,6 @@ class MediaType(etree.XSLTExtension):
 
 
 class ImageBlock(etree.XSLTExtension):
-
     def __init__(self, canvas):
         etree.XSLTExtension.__init__(self)
         self.canvas = canvas
@@ -112,14 +105,12 @@ class ImageBlock(etree.XSLTExtension):
 
 
 class RuledLine(etree.XSLTExtension):
-
     def execute(self, context, self_node, input_node, output_parent):
         hr = etree.Element('hr')
         output_parent.append(hr)
 
 
 class TextBlock(etree.XSLTExtension):
-
     def __init__(self, styles, char_button_map, plot_map, log):
         etree.XSLTExtension.__init__(self)
         self.styles = styles
@@ -203,7 +194,7 @@ class TextBlock(etree.XSLTExtension):
                     child.attrib.update(attrib)
 
             for child in reversed(children):
-                gp.insert(pidx+1, child)
+                gp.insert(pidx + 1, child)
 
         # with open('/t/after.xml', 'wb') as f:
         #     f.write(etree.tostring(node, method='xml'))
@@ -212,8 +203,7 @@ class TextBlock(etree.XSLTExtension):
         if text:
             if getattr(self.add_text_to[0], self.add_text_to[1]) is None:
                 setattr(self.add_text_to[0], self.add_text_to[1], '')
-            setattr(self.add_text_to[0], self.add_text_to[1],
-                    getattr(self.add_text_to[0], self.add_text_to[1])+ text)
+            setattr(self.add_text_to[0], self.add_text_to[1], getattr(self.add_text_to[0], self.add_text_to[1]) + text)
 
     def process_container(self, child, tgt):
         idx = self.styles.get_text_styles(child)
@@ -245,7 +235,7 @@ class TextBlock(etree.XSLTExtension):
             span = self.root.makeelement('span')
             if child.tag == 'EmpLine':
                 td = 'underline' if child.get('emplineposition', 'before') == 'before' else 'overline'
-                span.set('style', 'text-decoration: '+td)
+                span.set('style', 'text-decoration: ' + td)
             self.process_container(child, span)
         elif child.tag == 'Sup':
             sup = self.root.makeelement('sup')
@@ -263,8 +253,8 @@ class TextBlock(etree.XSLTExtension):
                 a.set('href', self.char_button_map[oid])
             self.process_container(child, a)
         elif child.tag == 'Plot':
-            xsize = self.styles.to_num(child.get('xsize', None), 166/720)
-            ysize = self.styles.to_num(child.get('ysize', None), 166/720)
+            xsize = self.styles.to_num(child.get('xsize', None), 166 / 720)
+            ysize = self.styles.to_num(child.get('ysize', None), 166 / 720)
             img = self.root.makeelement('img')
             if xsize is not None:
                 img.set('width', str(int(xsize)))
@@ -281,7 +271,6 @@ class TextBlock(etree.XSLTExtension):
 
 
 class Styles(etree.XSLTExtension):
-
     def __init__(self):
         etree.XSLTExtension.__init__(self)
         self.text_styles, self.block_styles = [], []
@@ -300,8 +289,7 @@ class Styles(etree.XSLTExtension):
 
         with open(name, 'wb') as f:
             f.write(as_bytes(self.CSS))
-            for w,sel in [(self.text_styles, 'ts'), (self.block_styles,
-                'bs')]:
+            for w, sel in [(self.text_styles, 'ts'), (self.block_styles, 'bs')]:
                 for i, s in enumerate(w):
                     if not s:
                         continue
@@ -320,14 +308,14 @@ class Styles(etree.XSLTExtension):
 
     def px_to_pt(self, px):
         try:
-            return px * 72/166
+            return px * 72 / 166
         except Exception:
             return None
 
     def color(self, val):
         try:
             val = int(val, 16)
-            r, g, b, a = val & 0xFF, (val>>8)&0xFF, (val>>16)&0xFF, (val>>24)&0xFF
+            r, g, b, a = val & 0xFF, (val >> 8) & 0xFF, (val >> 16) & 0xFF, (val >> 24) & 0xFF
             if a == 255:
                 return None
             if a == 0:
@@ -361,9 +349,9 @@ class Styles(etree.XSLTExtension):
             self.block_styles.append(ans)
         return self.block_styles.index(ans)
 
-    def to_num(self, val, factor=1.):
+    def to_num(self, val, factor=1.0):
         try:
-            return float(val)*factor
+            return float(val) * factor
         except Exception:
             return None
 
@@ -374,7 +362,7 @@ class Styles(etree.XSLTExtension):
             ans['font-size'] = f'{fs:f}pt'
         fw = self.to_num(node.get('fontweight', None))
         if fw is not None:
-            ans['font-weight'] = ('bold' if fw >= 700 else 'normal')
+            ans['font-weight'] = 'bold' if fw >= 700 else 'normal'
         # fn = getattr(obj, 'fontfacename', None)
         # if fn is not None:
         #     fn = cls.FONT_MAP[fn]

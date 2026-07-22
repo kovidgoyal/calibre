@@ -1,9 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__   = 'GPL v3'
-__copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2010, Kovid Goyal <kovid@kovidgoyal.net>
 
 import os
 import re
@@ -27,10 +23,7 @@ from calibre.ptempfile import TemporaryDirectory
 from calibre.utils.date import utcfromtimestamp
 from calibre.utils.localization import _
 
-NON_EBOOK_EXTENSIONS = frozenset((
-    'jpg', 'jpeg', 'gif', 'png', 'bmp',
-    'opf', 'swp', 'swo'
-))
+NON_EBOOK_EXTENSIONS = frozenset(('jpg', 'jpeg', 'gif', 'png', 'bmp', 'opf', 'swp', 'swo'))
 
 
 def read_opf(dirpath, read_annotations=True):
@@ -54,10 +47,12 @@ def is_ebook_file(filename):
 
 
 class Restorer(Cache):
-
-    def __init__(self, library_path, default_prefs=None, restore_all_prefs=False, progress_callback=lambda x, y:True):
+    def __init__(self, library_path, default_prefs=None, restore_all_prefs=False, progress_callback=lambda x, y: True):
         backend = DB(
-            library_path, default_prefs=default_prefs, restore_all_prefs=restore_all_prefs, progress_callback=progress_callback
+            library_path,
+            default_prefs=default_prefs,
+            restore_all_prefs=restore_all_prefs,
+            progress_callback=progress_callback,
         )
         Cache.__init__(self, backend)
         for x in ('update_path', 'mark_as_dirty'):
@@ -70,7 +65,6 @@ class Restorer(Cache):
 
 
 class Restore(Thread):
-
     def __init__(self, library_path, progress_callback: Callable[..., Any] | None = None):
         super().__init__()
         if isinstance(library_path, bytes):
@@ -91,27 +85,24 @@ class Restore(Thread):
 
     @property
     def errors_occurred(self):
-        return (self.failed_dirs or self.mismatched_dirs or
-                self.conflicting_custom_cols or self.failed_restores or self.notes_errors)
+        return self.failed_dirs or self.mismatched_dirs or self.conflicting_custom_cols or self.failed_restores or self.notes_errors
 
     @property
     def report(self):
         ans = ''
-        failures = list(self.failed_dirs) + [(x['dirpath'], tb) for x, tb in
-                self.failed_restores]
+        failures = list(self.failed_dirs) + [(x['dirpath'], tb) for x, tb in self.failed_restores]
         if failures:
             ans += 'Failed to restore the books in the following folders:\n'
             for dirpath, tb in failures:
                 ans += '\t' + force_unicode(dirpath, filesystem_encoding) + ' with error:\n'
-                ans += '\n'.join('\t\t'+force_unicode(x, filesystem_encoding) for x in tb.splitlines())
+                ans += '\n'.join('\t\t' + force_unicode(x, filesystem_encoding) for x in tb.splitlines())
                 ans += '\n\n'
 
         if self.conflicting_custom_cols:
             ans += '\n\n'
-            ans += ('The following custom columns have conflicting definitions '
-                    'and were not fully restored:\n')
+            ans += 'The following custom columns have conflicting definitions and were not fully restored:\n'
             for x in self.conflicting_custom_cols:
-                ans += '\t#'+x+'\n'
+                ans += '\t#' + x + '\n'
                 ans += f'\tused:\t{self.custom_columns[x][1]}, {self.custom_columns[x][2]}, {self.custom_columns[x][3]}, {self.custom_columns[x][5]}\n'
                 for coldef in self.conflicting_custom_cols[x]:
                     ans += f'\tother:\t{coldef[1]}, {coldef[2]}, {coldef[3]}, {coldef[5]}\n'
@@ -174,9 +165,7 @@ class Restore(Thread):
             return False
         try:
             prefs = DBPrefs.read_serialized(self.src_library_path, recreate_prefs=False)
-            db = Restorer(self.library_path, default_prefs=prefs,
-                                 restore_all_prefs=True,
-                                 progress_callback=self.progress_callback)
+            db = Restorer(self.library_path, default_prefs=prefs, restore_all_prefs=True, progress_callback=self.progress_callback)
             db.close()
             self.progress_callback(None, 1)
             if 'field_metadata' in prefs:
@@ -208,10 +197,11 @@ class Restore(Thread):
             except Exception:
                 self.failed_dirs.append((dirpath, traceback.format_exc()))
                 traceback.print_exc()
-            self.progress_callback(_('Processed') + ' ' + dirpath, i+1)
+            self.progress_callback(_('Processed') + ' ' + dirpath, i + 1)
 
     def process_dir(self, dirpath, dirnames, filenames, book_id):
         book_id = int(book_id)
+
         def safe_mtime(path):
             with suppress(OSError):
                 return os.path.getmtime(path)
@@ -240,7 +230,7 @@ class Restore(Thread):
                 'id': book_id,
                 'dirpath': dirpath,
                 'path': path,
-                'annotations': annotations
+                'annotations': annotations,
             })
         else:
             self.mismatched_dirs.append(dirpath)
@@ -256,8 +246,7 @@ class Restore(Thread):
     def create_cc_metadata(self):
         self.books.sort(key=itemgetter('timestamp'))
         self.custom_columns = {}
-        fields = ('label', 'name', 'datatype', 'is_multiple', 'is_editable',
-                    'display')
+        fields = ('label', 'name', 'datatype', 'is_multiple', 'is_editable', 'display')
         for b in self.books:
             for key in b['mi'].custom_field_keys():
                 cfm = b['mi'].metadata_for_field(key)
@@ -283,7 +272,7 @@ class Restore(Thread):
         if len(self.custom_columns):
             for i, args in enumerate(self.custom_columns.values()):
                 db.create_custom_column(*args)
-                self.progress_callback(_('Creating custom column ') + str(args[0]), i+1)
+                self.progress_callback(_('Creating custom column ') + str(args[0]), i + 1)
         db.close()
 
     def restore_books(self):
@@ -301,17 +290,24 @@ class Restore(Thread):
             with db.new_api:
                 for i, book in enumerate(self.books):
                     try:
-                        db.restore_book(book['id'], book['mi'], utcfromtimestamp(book['timestamp']), book['path'], book['formats'], book['annotations'])
+                        db.restore_book(
+                            book['id'],
+                            book['mi'],
+                            utcfromtimestamp(book['timestamp']),
+                            book['path'],
+                            book['formats'],
+                            book['annotations'],
+                        )
                         self.successes += 1
                     except Exception:
                         self.failed_restores.append((book, traceback.format_exc()))
                         traceback.print_exc()
-                    self.progress_callback(book['mi'].title, i+1)
+                    self.progress_callback(book['mi'].title, i + 1)
 
             with db.new_api:
                 for field, lmap in self.link_maps.items():
                     with suppress(Exception):
-                        db.set_link_map(field, {k:v[0] for k, v in lmap.items()})
+                        db.set_link_map(field, {k: v[0] for k, v in lmap.items()})
             self.notes_errors = db.backend.restore_notes(self.progress_callback)
 
     def replace_db(self):
@@ -319,7 +315,7 @@ class Restore(Thread):
         ndbpath = os.path.join(self.library_path, 'metadata.db')
         sleep_time = 30 if iswindows else 0
 
-        save_path = self.olddb = os.path.splitext(dbpath)[0]+'_pre_restore.db'
+        save_path = self.olddb = os.path.splitext(dbpath)[0] + '_pre_restore.db'
         if os.path.exists(save_path):
             os.remove(save_path)
         if os.path.exists(dbpath):

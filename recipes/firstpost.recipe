@@ -24,9 +24,7 @@ class firstpost(BasicNewsRecipe):
         .wp-caption-text { font-size:small; text-align:center; }
     '''
 
-    keep_only_tags = [
-        classes('article-sect')
-    ]
+    keep_only_tags = [classes('article-sect')]
 
     remove_tags = [
         classes('art-rel-articles tags-wrap'),
@@ -36,8 +34,17 @@ class firstpost(BasicNewsRecipe):
     feeds = []
 
     sections = [
-        'india', 'politics', 'opinion', 'explainers', 'business',
-        'world', 'web-stories', 'tech', 'artandculture', 'health', 'health-supplement',
+        'india',
+        'politics',
+        'opinion',
+        'explainers',
+        'business',
+        'world',
+        'web-stories',
+        'tech',
+        'artandculture',
+        'health',
+        'health-supplement',
         # 'photos', 'entertainment', 'living', 'education', 'sports', 'firstcricket',
     ]
 
@@ -47,10 +54,10 @@ class firstpost(BasicNewsRecipe):
         feeds.append((sec.capitalize(), a.format(sec)))
 
     def preprocess_html(self, soup):
-        if h2 := soup.find('h2', attrs={'class':'category-name'}):
+        if h2 := soup.find('h2', attrs={'class': 'category-name'}):
             h2.name = 'p'
-        if h := soup.find('h2', attrs={'class':'inner-copy'}):
+        if h := soup.find('h2', attrs={'class': 'inner-copy'}):
             h.name = 'p'
-        for img in soup.findAll('img', attrs={'data-src':True}):
+        for img in soup.findAll('img', attrs={'data-src': True}):
             img['src'] = img['data-src']
         return soup

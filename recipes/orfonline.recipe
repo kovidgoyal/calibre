@@ -27,7 +27,7 @@ class ORF(BasicNewsRecipe):
         'days': {
             'short': 'Oldest article to download from this news source. In days ',
             'long': 'For example, 0.5, gives you articles from the past 12 hours',
-            'default': str(oldest_article)
+            'default': str(oldest_article),
         }
     }
 
@@ -52,16 +52,8 @@ class ORF(BasicNewsRecipe):
     resolve_internal_links = True
     remove_empty_feeds = True
 
-    keep_only_tags = [
-        dict(name='h1'),
-        classes('author_panel espert_speak_panel expert_panel_content')
-    ]
-    remove_tags = [
-        classes(
-            'social socialshare comment-area-section telegramhtml post-tag '
-            'research-prev research-next col-md-4 button_group sharethis-p tags'
-        )
-    ]
+    keep_only_tags = [dict(name='h1'), classes('author_panel espert_speak_panel expert_panel_content')]
+    remove_tags = [classes('social socialshare comment-area-section telegramhtml post-tag research-prev research-next col-md-4 button_group sharethis-p tags')]
 
     def parse_index(self):
         index = 'https://www.orfonline.org'
@@ -71,7 +63,7 @@ class ORF(BasicNewsRecipe):
             ('Commentary', '/content-type/commentary'),
             ('Issue Briefs', '/content-type/issue-briefs'),
             ('Books', '/content-type/books'),
-            ('Special Reports', '/content-type/special-reports')
+            ('Special Reports', '/content-type/special-reports'),
         ]
 
         feeds = []
@@ -83,16 +75,13 @@ class ORF(BasicNewsRecipe):
             articles = []
 
             soup = self.index_to_soup(index + y)
-            for a in soup.findAll('a', attrs={'href':True}):
+            for a in soup.findAll('a', attrs={'href': True}):
                 if not a.find('h3'):
                     continue
-                div = a.find_previous_sibling(attrs={'class':'topic_story'})
+                div = a.find_previous_sibling(attrs={'class': 'topic_story'})
                 if div:
                     if div.find(**classes('show_date')):
-                        date = parse_date(self.tag_to_string(
-                                    div.find(**classes('show_date'))
-                                )
-                            ).replace(tzinfo=None)
+                        date = parse_date(self.tag_to_string(div.find(**classes('show_date')))).replace(tzinfo=None)
                         if (datetime.now() - date) > timedelta(self.oldest_article):
                             self.log('      Skipping ', self.tag_to_string(a))
                             continue
@@ -101,8 +90,8 @@ class ORF(BasicNewsRecipe):
                 desc = ''
                 if a.find_next_sibling('p'):
                     desc = self.tag_to_string(a.find_next_sibling('p'))
-                if a.find_next_sibling(attrs={'class':'author_name'}):
-                    desc = self.tag_to_string(a.find_next_sibling(attrs={'class':'author_name'})) + ' | ' + desc
+                if a.find_next_sibling(attrs={'class': 'author_name'}):
+                    desc = self.tag_to_string(a.find_next_sibling(attrs={'class': 'author_name'})) + ' | ' + desc
                 self.log('\t', title, '\n\t', desc, '\n\t\t', url)
                 articles.append({'title': title, 'url': url, 'description': desc})
             if articles:

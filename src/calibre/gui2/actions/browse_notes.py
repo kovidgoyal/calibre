@@ -1,16 +1,18 @@
 #!/usr/bin/env python
 # License: GPL v3 Copyright: 2020, Kovid Goyal <kovid at kovidgoyal.net>
 
-
 from calibre.gui2.actions import InterfaceAction
 from calibre.utils.localization import _
 
 
 class BrowseNotesAction(InterfaceAction):
-
     name = 'Browse Notes'
-    action_spec = (_('Browse notes'), 'notes.png',
-                   _('Browse notes for authors, tags, etc. in the library'), _('Ctrl+Shift+N'))
+    action_spec = (
+        _('Browse notes'),
+        'notes.png',
+        _('Browse notes for authors, tags, etc. in the library'),
+        _('Ctrl+Shift+N'),
+    )
     dont_add_to = frozenset(('context-menu-device',))
     action_type = 'current'
 
@@ -23,5 +25,6 @@ class BrowseNotesAction(InterfaceAction):
             self.d.raise_and_focus()
         else:
             from calibre.gui2.library.notes import NotesBrowser
+
             self.d = NotesBrowser(self.gui)
             self.d.show()

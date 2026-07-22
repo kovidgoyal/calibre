@@ -10,6 +10,7 @@ from calibre.constants import iswindows
 
 def open_archive(path_or_stream, mode='r'):
     from py7zr import SevenZipFile
+
     return SevenZipFile(path_or_stream, mode=mode)
 
 
@@ -19,13 +20,11 @@ def names(path_or_stream):
 
 
 class DataSavingWriter(io.BytesIO):
-
     def close(self):
         return  # make this a no-op as we need to call getvalue() after close
 
 
 class Writer:
-
     def __init__(self):
         self.outputs = {}
 
@@ -62,8 +61,7 @@ def extract_member(path_or_stream, match=None, name=None):
     def is_match(fname):
         if iswindows:
             fname = fname.replace(os.sep, '/')
-        return (name is not None and fname == name) or \
-               (match is not None and match.search(fname) is not None)
+        return (name is not None and fname == name) or (match is not None and match.search(fname) is not None)
 
     with open_archive(path_or_stream) as ar:
         all_names = list(filter(is_match, ar.getnames()))
@@ -74,6 +72,7 @@ def extract_member(path_or_stream, match=None, name=None):
 def extract_cover_image(stream):
     pos = stream.tell()
     from calibre.libunzip import name_ok, sort_key
+
     all_names = sorted(names(stream), key=sort_key)
     stream.seek(pos)
     for name in all_names:
@@ -88,6 +87,7 @@ def extract(path_or_stream, location):
 
 # Test {{{
 
+
 def test_basic():
     from tempfile import TemporaryDirectory
 
@@ -101,7 +101,8 @@ def test_basic():
         'one.txt': b'one\n',
         'symlink': b'2/sub-two.txt',
         'uncompressed': b'uncompressed\n',
-        '\u8bf6\u6bd4\u5c41.txt': b'chinese unicode\n'}
+        '\u8bf6\u6bd4\u5c41.txt': b'chinese unicode\n',
+    }
 
     def do_test():
         for name, data in tdata.items():

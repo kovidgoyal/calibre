@@ -98,337 +98,281 @@ def common_shortcuts():  # {{{
         _('Scroll to the beginning of the current file'),
         _('When the e-book is made of multiple individual files, scroll to the start of the current file'),
     ),
-
     'start_of_book': desc(
         'Ctrl+Home',
         'scroll',
         _('Scroll to the beginning of the book'),
     ),
-
     'end_of_book': desc(
         'Ctrl+End',
         'scroll',
         _('Scroll to the end of the book'),
     ),
-
     'end_of_file': desc(
         v"['Ctrl+ArrowDown', 'Ctrl+ArrowRight', 'End']",
         'scroll',
         _('Scroll to the end of the current file'),
         _('When the e-book is made of multiple individual files, scroll to the end of the current file'),
     ),
-
     'up': desc(
         'ArrowUp',
         'scroll',
         _('Scroll backwards smoothly (by screen-fulls in paged mode)'),
         _('Scroll backwards, smoothly in flow mode and by screen fulls in paged mode'),
     ),
-
     'down': desc(
         'ArrowDown',
         'scroll',
         _('Scroll forwards smoothly (by screen-fulls in paged mode)'),
         _('Scroll forwards, smoothly in flow mode and by screen fulls in paged mode'),
     ),
-
     'left': desc(
         'ArrowLeft',
         'scroll',
         _('Scroll left'),
         _('Scroll leftwards by a little in flow mode and by a page in paged mode'),
     ),
-
     'right': desc(
         'ArrowRight',
         'scroll',
         _('Scroll right'),
         _('Scroll rightwards by a little in flow mode and by a page in paged mode'),
     ),
-
     'pageup': desc(
         v"['PageUp', 'Shift+ ']",
         'scroll',
         _('Scroll backwards by screen-fulls'),
     ),
-
     'pagedown': desc(
         v"[' ', 'PageDown']",
         'scroll',
         _('Scroll forwards by screen-fulls'),
     ),
-
     'previous_section': desc(
         'Ctrl+PageUp',
         'scroll',
         _('Scroll to the previous section')
     ),
-
     'next_section': desc(
         'Ctrl+PageDown',
         'scroll',
         _('Scroll to the next section')
     ),
-
     'back': desc(
         v"['Alt+ArrowLeft']",
         'scroll',
         _('Back'),
     ),
-
     'forward': desc(
         v"['Alt+ArrowRight']",
         'scroll',
         _('Forward'),
     ),
-
     'toggle_toc': desc(
         'Ctrl+t',
         'ui',
         _('Show/hide Table of Contents'),
     ),
-
     'read_aloud': desc(
         'Ctrl+s',
         'ui',
         _('Read aloud')
     ),
-
     'toggle_hints': desc(
         'Alt+f',
         'ui',
         _('Follow links with the keyboard')
     ),
-
     'copy_to_clipboard': desc(
         v"['Ctrl+c', 'Meta+c']",
         'ui',
         _('Copy to clipboard'),
     ),
-
     'copy_location_to_clipboard': desc(
         v"['Alt+c']",
         'ui',
         _('Copy current location to clipboard'),
     ),
-
     'copy_location_as_url_to_clipboard': desc(
         v"['Ctrl+Shift+c']",
         'ui',
         _('Copy current location as calibre:// URL to clipboard'),
     ),
-
     'start_search': desc(
         v"['/', 'Ctrl+f', 'Cmd+f']",
         'ui',
         _('Start search'),
     ),
-
     'next_match': desc(
         v"['F3', 'Enter']",
         'ui',
         _('Find next'),
     ),
-
     'previous_match': desc(
         v"['Shift+F3', 'Shift+Enter']",
         'ui',
         _('Find previous'),
     ),
-
     'increase_font_size': desc(
         v"['Ctrl+=', 'Ctrl++', 'Ctrl+Shift++', 'Ctrl+Shift+=', 'Meta++', 'Meta+Shift++', 'Meta+Shift+=']",
         'ui',
         _('Increase font size'),
     ),
-
     'decrease_font_size': desc(
         v"['Ctrl+-', 'Ctrl+_', 'Ctrl+Shift+-', 'Ctrl+Shift+_', 'Meta+-', 'Meta+_']",
         'ui',
         _('Decrease font size'),
     ),
-
     'default_font_size': desc(
-        "Ctrl+0",
+        'Ctrl+0',
         'ui',
         _('Restore default font size'),
     ),
-
     'increase_number_of_columns': desc(
         v"['Ctrl+]']",
         'ui',
         _('Increase number of pages per screen'),
     ),
-
     'decrease_number_of_columns': desc(
         v"['Ctrl+[']",
         'ui',
         _('Decrease number of pages per screen'),
     ),
-
     'reset_number_of_columns': desc(
         v"['Ctrl+Alt+c']",
         'ui',
         _('Make number of pages per screen automatic'),
     ),
-
     'toggle_full_screen': desc(
         v"['F11', 'Ctrl+Shift+f']",
         'ui',
         _('Toggle full screen'),
     ),
-
     'toggle_paged_mode': desc(
         'Ctrl+m',
         'ui',
         _('Toggle between Paged mode and Flow mode for text layout')
     ),
-
     'toggle_scrollbar': desc(
         'Ctrl+w',
         'ui',
         _('Toggle the scrollbar')
     ),
-
     'toggle_reference_mode': desc(
         'Ctrl+x',
         'ui',
         _('Toggle the Reference mode')
     ),
-
     'toggle_bookmarks': desc(
         v"['Ctrl+b']",
         'ui',
         _('Show/hide bookmarks'),
     ),
-
     'new_bookmark': desc(
         v"['Ctrl+Alt+b']",
         'ui',
         _('Create a new bookmark'),
     ),
-
     'metadata': desc(
         v"['Ctrl+n', 'Ctrl+e']",
         'ui',
         _('Show the book metadata')
     ),
-
     'show_profiles': desc(
         v"['Alt+p']",
         'ui',
         _('Change settings quickly by creating and switching to "profiles"')
     ),
-
     'reload_book': desc(
         v"['Ctrl+Alt+F5', 'Ctrl+Alt+r']",
         'ui',
         _('Reload book'),
     ),
-
     'extend_selection_by_word': desc(
         v"['Ctrl+Shift+ArrowRight']",
         'ui',
         _('Alter the current selection forward by a word'),
     ),
-
     'shrink_selection_by_word': desc(
         v"['Ctrl+Shift+ArrowLeft']",
         'ui',
         _('Alter the current selection backwards by a word'),
     ),
-
     'extend_selection_by_character': desc(
         v"['Shift+ArrowRight']",
         'ui',
         _('Alter the current selection forward by a character'),
     ),
-
     'shrink_selection_by_character': desc(
         v"['Shift+ArrowLeft']",
         'ui',
         _('Alter the current selection backwards by a character'),
     ),
-
     'extend_selection_by_line': desc(
         v"['Shift+ArrowDown']",
         'ui',
         _('Alter the current selection forward by a line'),
     ),
-
     'extend_selection_to_start_of_line': desc(
         v"['Shift+Home']",
         'ui',
         _('Extend the current selection to the start of the line'),
     ),
-
     'extend_selection_to_end_of_line': desc(
         v"['Shift+End']",
         'ui',
         _('Extend the current selection to the end of the line'),
     ),
-
     'select_all': desc(
         v'["Ctrl+a"]',
         'ui',
         _('Select all')
     ),
-
     'shrink_selection_by_line': desc(
         v"['Shift+ArrowUp']",
         'ui',
         _('Alter the current selection backwards by a line'),
     ),
-
     'extend_selection_by_paragraph': desc(
         v"['Ctrl+Shift+ArrowDown']",
         'ui',
         _('Alter the current selection forward by a paragraph'),
     ),
-
     'shrink_selection_by_paragraph': desc(
         v"['Ctrl+Shift+ArrowUp']",
         'ui',
         _('Alter the current selection backwards by a paragraph'),
     ),
-
-
     'show_chrome': desc(
         v"['Escape', 'ContextMenu']",
         'ui',
         _('Show the E-book viewer controls'),
     ),
-
     'preferences': desc(
         v"['Ctrl+,', 'Ctrl+Escape', 'Meta+Escape', 'Meta+,']",
         'ui',
         _('Show E-book viewer preferences'),
     ),
-
     'goto_location': desc(
         v"[';', ':', 'Shift+:', 'Shift+;', 'Ctrl+g']",
         'ui',
         _('Go to a specified book location or position'),
     ),
-
     'toggle_autoscroll': desc(
-        "Ctrl+ ",
+        'Ctrl+ ',
         'scroll',
         _('Toggle auto-scroll'),
     ),
-
     'scrollspeed_increase': desc(
-        "Alt+ArrowUp",
+        'Alt+ArrowUp',
         'scroll',
         _('Auto scroll faster'),
     ),
-
     'scrollspeed_decrease': desc(
-        "Alt+ArrowDown",
+        'Alt+ArrowDown',
         'scroll',
         _('Auto scroll slower'),
     ),
-
     }  # }}}
 
 
@@ -459,7 +403,6 @@ def shortcuts_group_desc():
     return ans
 
 
-
 def add_standalone_viewer_shortcuts(sc):
     ismacos = 'macos' in window.navigator.userAgent
     sc['toggle_inspector'] = desc(
@@ -482,29 +425,28 @@ def add_standalone_viewer_shortcuts(sc):
     )
 
     sc['print'] = desc(
-        "Ctrl+p",
+        'Ctrl+p',
         'ui',
         _('Print book to PDF'),
     )
 
     sc['toggle_toolbar'] = desc(
-        "Ctrl+F11",
+        'Ctrl+F11',
         'ui',
         _('Toggle the toolbar'),
     )
 
     sc['toggle_highlights'] = desc(
-        "Ctrl+h",
+        'Ctrl+h',
         'ui',
         _('Toggle the highlights panel')
     )
 
     sc['edit_book'] = desc(
-        "Ctrl+d",
+        'Ctrl+d',
         'ui',
         _('Edit this book')
     )
-
 
 
 def create_shortcut_map(custom_shortcuts):

@@ -1,9 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__   = 'GPL v3'
-__copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2010, Kovid Goyal <kovid@kovidgoyal.net>
 
 import json
 import os
@@ -14,7 +10,6 @@ from calibre.utils.config import from_json, to_json
 
 
 class DBPrefs(dict):
-
     def __init__(self, db):
         dict.__init__(self)
         self.db = db
@@ -54,8 +49,7 @@ class DBPrefs(dict):
         if self.disable_setting:
             return
         raw = self.to_raw(val)
-        self.db.conn.execute('INSERT OR REPLACE INTO preferences (key,val) VALUES (?,?)', (key,
-            raw))
+        self.db.conn.execute('INSERT OR REPLACE INTO preferences (key,val) VALUES (?,?)', (key, raw))
         self.db.conn.commit()
         dict.__setitem__(self, key, val)
 
@@ -73,8 +67,7 @@ class DBPrefs(dict):
         if ':' in key:
             raise KeyError('Colons are not allowed in keys')
         if ':' in namespace:
-            raise KeyError('Colons are not allowed in'
-                ' the namespace')
+            raise KeyError('Colons are not allowed in the namespace')
         key = f'namespaced:{namespace}:{key}'
         self[key] = val
 
@@ -88,29 +81,29 @@ class DBPrefs(dict):
                 f.write(data)
         except Exception:
             import traceback
+
             traceback.print_exc()
 
     @classmethod
     def read_serialized(cls, library_path, recreate_prefs=False):
         try:
-            from_filename = os.path.join(library_path,
-                    'metadata_db_prefs_backup.json')
+            from_filename = os.path.join(library_path, 'metadata_db_prefs_backup.json')
             with open(from_filename, 'rb') as f:
                 d = json.load(f, object_hook=from_json)
                 if not recreate_prefs:
                     return d
                 cls.clear()
                 cls.db.conn.execute('DELETE FROM preferences')
-                for k,v in d.items():
+                for k, v in d.items():
                     raw = cls.to_raw(v)
-                    cls.db.conn.execute(
-                        'INSERT INTO preferences (key,val) VALUES (?,?)', (k, raw))
+                    cls.db.conn.execute('INSERT INTO preferences (key,val) VALUES (?,?)', (k, raw))
                 cls.db.conn.commit()
                 cls.clear()
                 cls.update(d)
                 return d
         except Exception:
             import traceback
+
             traceback.print_exc()
             raise
         return None

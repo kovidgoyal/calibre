@@ -120,6 +120,7 @@ def chat_with_error_handler(it: Iterable[ChatResponse]) -> Iterator[ChatResponse
         yield ChatResponse(exception=e, error_details=f'Network error: {e.reason}')
     except Exception as e:
         import traceback
+
         yield ChatResponse(exception=e, error_details=traceback.format_exc())
 
 
@@ -136,15 +137,14 @@ def add_citation(text: str, citation: Citation, web_links: Sequence[WebLink], es
         wl = web_links[citation.links[0]]
         escaped_title = escaped_titles[citation.links[0]]
         return (
-            text[:citation.start_offset] +
-            f'[{text[citation.start_offset:citation.end_offset]}]({wl.uri} "{escaped_title}")' +
-            text[citation.end_offset:])
+            text[: citation.start_offset] + f'[{text[citation.start_offset : citation.end_offset]}]({wl.uri} "{escaped_title}")' + text[citation.end_offset :]
+        )
     citation_links = []
     for i, link_num in enumerate(citation.links):
         wl = web_links[link_num]
         title = escaped_titles[link_num]
-        citation_links.append(f'[{i+1}]({wl.uri} "{title}")')
-    return text[:citation.end_offset] + '<sup>' + ', '.join(citation_links) + '</sup>' + text[citation.end_offset:]
+        citation_links.append(f'[{i + 1}]({wl.uri} "{title}")')
+    return text[: citation.end_offset] + '<sup>' + ', '.join(citation_links) + '</sup>' + text[citation.end_offset :]
 
 
 def add_citations(text: str, metadata: ChatResponse) -> str:
@@ -159,7 +159,6 @@ def add_citations(text: str, metadata: ChatResponse) -> str:
 
 
 class StreamedResponseAccumulator:
-
     def __init__(self):
         self.all_reasoning = self.all_content = ''
         self.all_reasoning_details: list[dict[str, Any]] = []
@@ -186,43 +185,42 @@ class StreamedResponseAccumulator:
             self.response_id = m.id
 
     def finalize(self) -> None:
-        self.messages.append(ChatMessage(
-            type=ChatMessageType.assistant, query=add_citations(self.all_content, self.metadata), reasoning=self.all_reasoning,
-            reasoning_details=tuple(self.all_reasoning_details), response_id=self.response_id,
-        ))
+        self.messages.append(
+            ChatMessage(
+                type=ChatMessageType.assistant,
+                query=add_citations(self.all_content, self.metadata),
+                reasoning=self.all_reasoning,
+                reasoning_details=tuple(self.all_reasoning_details),
+                response_id=self.response_id,
+            )
+        )
 
 
 @lru_cache(2)
 def markdown_patterns(detect_code: bool = False) -> dict[re.Pattern[str], float]:
-    ans = {re.compile(pat): score for pat, score in {
-        # Check for Markdown headers (# Header, ## Subheader, etc.)
-        r'(?m)^#{1,6}\s+.+$': 0.15,
-
-        # Check for Markdown two part links and footnotes [..]:
-        r'(?m)^\[\.+?\]: ': 0.15,
-
-        # Check for bold (**text**)
-        r'\*\*.+?\*\*': 0.05,
-
-        # Check for italics (*text*)
-        r'\*[^*\n]+\*': 0.05,
-
-        # Check for unordered lists
-        r'(?m)^[\s]*[-*+][\s]+.+$': 0.1,
-
-        # Check for ordered lists
-        r'(?m)^[\s]*\d+\.[\s]+.+$': 0.1,
-
-        # Check for blockquotes
-        r'(?m)^[\s]*>[\s]*.+$': 0.1,
-
-        # Check for links ([text](url))
-        r'\[.+?\]\(.+?\)': 0.15,
-
-        # Check for tables
-        r'\|.+\|[\s]*\n\|[\s]*[-:]+[-|\s:]+[\s]*\n': 0.1,
-
-    }.items()}
+    ans = {
+        re.compile(pat): score
+        for pat, score in {
+            # Check for Markdown headers (# Header, ## Subheader, etc.)
+            r'(?m)^#{1,6}\s+.+$': 0.15,
+            # Check for Markdown two part links and footnotes [..]:
+            r'(?m)^\[\.+?\]: ': 0.15,
+            # Check for bold (**text**)
+            r'\*\*.+?\*\*': 0.05,
+            # Check for italics (*text*)
+            r'\*[^*\n]+\*': 0.05,
+            # Check for unordered lists
+            r'(?m)^[\s]*[-*+][\s]+.+$': 0.1,
+            # Check for ordered lists
+            r'(?m)^[\s]*\d+\.[\s]+.+$': 0.1,
+            # Check for blockquotes
+            r'(?m)^[\s]*>[\s]*.+$': 0.1,
+            # Check for links ([text](url))
+            r'\[.+?\]\(.+?\)': 0.15,
+            # Check for tables
+            r'\|.+\|[\s]*\n\|[\s]*[-:]+[-|\s:]+[\s]*\n': 0.1,
+        }.items()
+    }
     if detect_code:
         # Check for inline code (`code`)
         ans[re.compile(r'`[^`\n]+`')] = 0.1
@@ -250,20 +248,23 @@ def response_to_html(text: str, content_type: ContentType = ContentType.unknown,
     is_markdown = is_probably_markdown(text, detect_code=detect_code) if ContentType is ContentType.unknown else True
     if is_markdown:
         from calibre.ebooks.txt.processor import create_markdown_object
+
         md = create_markdown_object(('tables', 'footnotes'))
         return md.convert(text)
     from html import escape
+
     return escape(text).replace('\n', '<br>')
 
 
 def develop_text_chat(
-    text_chat: Callable[[Iterable[ChatMessage], str], Iterator[ChatResponse]], use_model: str = '',
+    text_chat: Callable[[Iterable[ChatMessage], str], Iterator[ChatResponse]],
+    use_model: str = '',
     messages: Sequence[ChatMessage] = (),
 ):
     acc = StreamedResponseAccumulator()
     messages = messages or (
         ChatMessage(type=ChatMessageType.system, query='You are William Shakespeare.'),
-        ChatMessage('Write twenty lines on my supremely beautiful wife. Assume she has honey gold skin and a brilliant smile.')
+        ChatMessage('Write twenty lines on my supremely beautiful wife. Assume she has honey gold skin and a brilliant smile.'),
     )
     for x in text_chat(messages, use_model):
         if x.exception:
@@ -287,6 +288,7 @@ def develop_text_chat(
     messages.extend(acc.messages)
     print('Messages:')
     from pprint import pprint
+
     for msg in messages:
         pprint(msg)
 
@@ -302,9 +304,11 @@ def configure(plugin_name: str, parent: Any = None) -> None:
     from qt.core import QDialog, QDialogButtonBox, QVBoxLayout
 
     from calibre.gui2 import ensure_app
+
     ensure_app(headless=False)
     plugin = plugin_for_name(plugin_name)
     cw = plugin.config_widget()
+
     class D(QDialog):
         def accept(self):
             if not cw.validate():
@@ -325,6 +329,7 @@ def configure(plugin_name: str, parent: Any = None) -> None:
 
 def reasoning_strategy_config_widget(current_val: str = 'auto', parent: Any = None) -> Any:
     from qt.core import QComboBox
+
     rs = QComboBox(parent)
     rs.addItem(_('Automatic'), 'auto')
     rs.addItem(_('Medium'), 'medium')
@@ -332,40 +337,50 @@ def reasoning_strategy_config_widget(current_val: str = 'auto', parent: Any = No
     rs.addItem(_('Low'), 'low')
     rs.addItem(_('No reasoning'), 'none')
     rs.setCurrentIndex(max(0, rs.findData(current_val)))
-    rs.setToolTip('<p>'+_(
-        'Select how much "reasoning" AI does when answering queries. More reasoning leads to'
-        ' better quality responses at the cost of increased cost and reduced speed.'))
+    rs.setToolTip(
+        '<p>'
+        + _(
+            'Select how much "reasoning" AI does when answering queries. More reasoning leads to'
+            ' better quality responses at the cost of increased cost and reduced speed.'
+        )
+    )
     return rs
 
 
 def model_choice_strategy_config_widget(current_val: str = 'medium', parent: Any = None) -> Any:
     from qt.core import QComboBox
+
     ms = QComboBox(parent)
     ms.addItem(_('Cheap and fastest'), 'low')
     ms.addItem(_('Medium'), 'medium')
     ms.addItem(_('High quality, expensive and slower'), 'high')
     ms.setCurrentIndex(max(0, ms.findData(current_val)))
-    ms.setToolTip('<p>' + _(
-        'The model choice strategy controls how a model to query is chosen. Cheaper and faster models give lower'
-        ' quality results.'
-    ))
+    ms.setToolTip('<p>' + _('The model choice strategy controls how a model to query is chosen. Cheaper and faster models give lower quality results.'))
     return ms
 
 
 def find_tests():
     import unittest
-    class TestAIUtils(unittest.TestCase):
 
+    class TestAIUtils(unittest.TestCase):
         def test_ai_response_accumulator(self):
             a = StreamedResponseAccumulator()
             a.accumulate(ChatResponse('an initial msg'))
             a.accumulate(ChatResponse('. more text.'))
-            a.accumulate(ChatResponse(has_metadata=True, citations=[
-                Citation([0], 3, 3 + len('initial')),
-                Citation([0, 1], 3 + len('initial '), 3 + len('initial msg'))
-            ], web_links=[WebLink('link1', 'dest1'), WebLink('link2', 'dest2')]
-            ))
+            a.accumulate(
+                ChatResponse(
+                    has_metadata=True,
+                    citations=[
+                        Citation([0], 3, 3 + len('initial')),
+                        Citation([0, 1], 3 + len('initial '), 3 + len('initial msg')),
+                    ],
+                    web_links=[WebLink('link1', 'dest1'), WebLink('link2', 'dest2')],
+                )
+            )
             a.finalize()
-            self.assertEqual(a.messages[-1].query, 'an [initial](dest1 "link1") msg<sup>[1](dest1 "link1"), [2](dest2 "link2")</sup>. more text.')
+            self.assertEqual(
+                a.messages[-1].query,
+                'an [initial](dest1 "link1") msg<sup>[1](dest1 "link1"), [2](dest2 "link2")</sup>. more text.',
+            )
 
     return unittest.defaultTestLoader.loadTestsFromTestCase(TestAIUtils)

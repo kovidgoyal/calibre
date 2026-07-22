@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # License: GPL v3 Copyright: 2022, Kovid Goyal <kovid at kovidgoyal.net>
 
-
 import os
 import subprocess
 import sys
@@ -20,7 +19,6 @@ quit = object()
 
 
 class Job:
-
     def __init__(self, book_id, fmt, path, fmt_size, fmt_hash, start_time):
         self.book_id = book_id
         self.fmt = fmt
@@ -31,7 +29,6 @@ class Job:
 
 
 class Result:
-
     def __init__(self, job, err_msg=''):
         self.book_id = job.book_id
         self.fmt = job.fmt
@@ -51,7 +48,6 @@ class Result:
 
 
 class Worker(Thread):
-
     code_to_exec = 'from calibre.db.fts.text import main; main({!r})'
     max_duration = 30  # minutes
     poll_interval = 0.1  # seconds
@@ -90,7 +86,10 @@ class Worker(Thread):
             with open(errpath, 'wb') as error:
                 p = start_pipe_worker(
                     self.code_to_exec.format(job.path),
-                    stdout=subprocess.DEVNULL, stderr=error, stdin=subprocess.DEVNULL, priority='low',
+                    stdout=subprocess.DEVNULL,
+                    stderr=error,
+                    stdin=subprocess.DEVNULL,
+                    priority='low',
                 )
                 while self.keep_going and monotonic() <= time_limit:
                     with suppress(subprocess.TimeoutExpired):
@@ -100,8 +99,10 @@ class Worker(Thread):
                     p.kill()
                     if not self.keep_going:
                         return
-                    return Result(job, _('Extracting text from the {0} file of size {1} took too long').format(
-                        job.fmt, human_readable(job.fmt_size)))
+                    return Result(
+                        job,
+                        _('Extracting text from the {0} file of size {1} took too long').format(job.fmt, human_readable(job.fmt_size)),
+                    )
                 if os.path.exists(txtpath):
                     return Result(job)
             with open(errpath, 'rb') as f:
@@ -117,7 +118,6 @@ class Worker(Thread):
 
 
 class Pool:
-
     def __init__(self, dbref):
         self.max_workers = 1
         self.jobs_queue = Queue()
@@ -203,7 +203,7 @@ class Pool:
                 self.supervise_queue.put(quit)
             for w in self.workers:
                 w.keep_going = False
-                for i in range(2*len(self.workers)):
+                for i in range(2 * len(self.workers)):
                     self.jobs_queue.put(quit)
             self.initialized.clear()
 
@@ -214,6 +214,7 @@ class Pool:
             with suppress(PythonFinalizationError):
                 w.join()
         self.workers = []
+
     # }}}
 
     def do_check_for_work(self):

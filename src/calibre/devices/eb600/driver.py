@@ -1,8 +1,6 @@
-__license__   = 'GPL v3'
-__copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2009, Kovid Goyal <kovid@kovidgoyal.net>
 
-'''
+"""
 Device driver for the Netronix EB600
 
 Windows PNP strings:
@@ -11,7 +9,8 @@ Windows PNP strings:
         ('USBSTOR\\DISK&VEN_NETRONIX&PROD_EBOOK&REV_062E\\6&1A275569&0&EB6001009
 2W00000&1', 3, 'G:\\')
 
-'''
+"""
+
 import re
 
 from calibre.devices.usbms.driver import USBMS
@@ -19,30 +18,28 @@ from calibre.utils.localization import _
 
 
 class EB600(USBMS):
-
-    name           = 'Netronix EB600 Device Interface'
-    gui_name       = 'Netronix EB600'
-    description    = _('Communicate with the EB600 e-book reader.')
-    author         = 'Kovid Goyal'
+    name = 'Netronix EB600 Device Interface'
+    gui_name = 'Netronix EB600'
+    description = _('Communicate with the EB600 e-book reader.')
+    author = 'Kovid Goyal'
     supported_platforms = ['windows', 'osx', 'linux']
 
     # Ordered list of supported formats
-    FORMATS     = ['epub', 'mobi', 'prc', 'chm', 'djvu', 'html', 'rtf', 'txt',
-        'pdf']
+    FORMATS = ['epub', 'mobi', 'prc', 'chm', 'djvu', 'html', 'rtf', 'txt', 'pdf']
     DRM_FORMATS = ['prc', 'mobi', 'html', 'pdf', 'txt']
 
-    VENDOR_ID   = [0x1f85]
-    PRODUCT_ID  = [0x1688]
-    BCD         = [0x110]
+    VENDOR_ID = [0x1F85]
+    PRODUCT_ID = [0x1688]
+    BCD = [0x110]
 
-    VENDOR_NAME      = ['NETRONIX', 'WOLDER', 'MD86371']
+    VENDOR_NAME = ['NETRONIX', 'WOLDER', 'MD86371']
     WINDOWS_MAIN_MEM = ['EBOOK', 'MIBUK_GAMMA_6.2', 'MD86371']
     WINDOWS_CARD_A_MEM = ['EBOOK', 'MD86371']
 
     OSX_MAIN_MEM = 'EB600 Internal Storage Media'
     OSX_CARD_A_MEM = 'EB600 Card Storage Media'
 
-    MAIN_MEMORY_VOLUME_LABEL  = 'EB600 Main Memory'
+    MAIN_MEMORY_VOLUME_LABEL = 'EB600 Main Memory'
     STORAGE_CARD_VOLUME_LABEL = 'EB600 Storage Card'
 
     EBOOK_DIR_MAIN = ''
@@ -51,29 +48,30 @@ class EB600(USBMS):
 
 
 class TOLINO(EB600):
-
     name = 'Tolino Shine Device Interface'
     gui_name = 'Tolino Shine'
-    description    = _('Communicate with the Tolino Shine and Vision readers')
+    description = _('Communicate with the Tolino Shine and Vision readers')
     FORMATS = ['epub', 'pdf', 'txt']
 
-    EPOS_PRODUCT_ID         = [0x6053]
-    VISION6_PRODUCT_ID      = [0x8000]
+    EPOS_PRODUCT_ID = [0x6053]
+    VISION6_PRODUCT_ID = [0x8000]
     OTHER_TOLINO_PRODUCT_ID = [0x6033, 0x6052]
     PRODUCT_ID = EB600.PRODUCT_ID + OTHER_TOLINO_PRODUCT_ID + EPOS_PRODUCT_ID + VISION6_PRODUCT_ID
 
-    KOBO_VENDOR_ID = [0x4173]   # Some newer Tolino devices have the Kobo Vendor ID. But, they still use different software.
-    VENDOR_ID   = EB600.VENDOR_ID + KOBO_VENDOR_ID
-    BCD         = [0x226, 0x9999]
-    VENDOR_NAME      = ['DEUTSCHE', 'LINUX']
+    KOBO_VENDOR_ID = [0x4173]  # Some newer Tolino devices have the Kobo Vendor ID. But, they still use different software.
+    VENDOR_ID = EB600.VENDOR_ID + KOBO_VENDOR_ID
+    BCD = [0x226, 0x9999]
+    VENDOR_NAME = ['DEUTSCHE', 'LINUX']
     WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = ['_TELEKOMTOLINO', 'FILE-CD_GADGET']
     EBOOK_DIR_MAIN = ''
 
     EXTRA_CUSTOMIZATION_MESSAGE = [
-        _('Swap main and card A') +
-        ':::' +
-        _("Check this box if the device's main memory is being seen as card a and the card "
-            'is being seen as main memory. Some tolino devices may need this option.'),
+        _('Swap main and card A')
+        + ':::'
+        + _(
+            "Check this box if the device's main memory is being seen as card a and the card "
+            'is being seen as main memory. Some tolino devices may need this option.'
+        ),
     ]
 
     EXTRA_CUSTOMIZATION_DEFAULT = [
@@ -156,7 +154,6 @@ class TOLINO(EB600):
 
 
 class COOL_ER(EB600):
-
     name = 'Cool-er device interface'
     gui_name = 'Cool-er'
 
@@ -171,16 +168,15 @@ class COOL_ER(EB600):
 
 
 class SHINEBOOK(EB600):
-
     name = 'ShineBook device Interface'
 
     gui_name = 'ShineBook'
 
     FORMATS = ['epub', 'prc', 'rtf', 'pdf', 'txt']
 
-    VENDOR_NAME      = 'LONGSHIN'
+    VENDOR_NAME = 'LONGSHIN'
     WINDOWS_MAIN_MEM = 'ESHINEBOOK'
-    MAIN_MEMORY_VOLUME_LABEL  = 'ShineBook Main Memory'
+    MAIN_MEMORY_VOLUME_LABEL = 'ShineBook Main Memory'
     STORAGE_CARD_VOLUME_LABEL = 'ShineBook Storage Card'
 
     @classmethod
@@ -189,22 +185,20 @@ class SHINEBOOK(EB600):
 
 
 class POCKETBOOK360(EB600):
-
     # Device info on OS X
     # (8069L, 5768L, 272L,'', '', '1.00')
 
     name = 'PocketBook 360 Device Interface'
 
     gui_name = 'PocketBook 360'
-    VENDOR_ID   = [0x1f85, 0x525]
-    PRODUCT_ID  = [0x1688, 0xa4a5]
-    BCD         = [0x110]
+    VENDOR_ID = [0x1F85, 0x525]
+    PRODUCT_ID = [0x1688, 0xA4A5]
+    BCD = [0x110]
 
     FORMATS = ['epub', 'fb2', 'prc', 'mobi', 'pdf', 'djvu', 'rtf', 'chm', 'txt']
 
     VENDOR_NAME = ['PHILIPS', '__POCKET', 'POCKETBO']
-    WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = ['MASS_STORAGE', 'BOOK_USB_STORAGE',
-            'OK_POCKET_611_61', 'OK_POCKET_360+61']
+    WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = ['MASS_STORAGE', 'BOOK_USB_STORAGE', 'OK_POCKET_611_61', 'OK_POCKET_360+61']
 
     OSX_MAIN_MEM = OSX_CARD_A_MEM = 'Philips Mass Storage Media'
     OSX_MAIN_MEM_VOL_PAT = re.compile(r'/Pocket')
@@ -215,24 +209,22 @@ class POCKETBOOK360(EB600):
 
 
 class POCKETBOOKHD(EB600):
-
     name = 'Pocket Touch HD Device Interface'
     gui_name = 'PocketBook HD'
-    PRODUCT_ID  = [0x6a42]
-    BCD         = [0x9999]
+    PRODUCT_ID = [0x6A42]
+    BCD = [0x9999]
     FORMATS = ['epub', 'fb2', 'prc', 'mobi', 'docx', 'doc', 'pdf', 'djvu', 'rtf', 'chm', 'txt']
 
 
 class GER2(EB600):
-
     name = 'Ganaxa GeR2 Device Interface'
     gui_name = 'Ganaxa GeR2'
 
     FORMATS = ['pdf']
 
-    VENDOR_ID   = [0x3034]
-    PRODUCT_ID  = [0x1795]
-    BCD         = [0x132]
+    VENDOR_ID = [0x3034]
+    PRODUCT_ID = [0x1795]
+    BCD = [0x132]
 
     VENDOR_NAME = 'GANAXA'
     WINDOWS_MAIN_MEN = 'GER2_________-FD'
@@ -240,7 +232,6 @@ class GER2(EB600):
 
 
 class ITALICA(EB600):
-
     name = 'Italica Device Interface'
     gui_name = 'Italica'
     icon = 'devices/italica.png'
@@ -254,12 +245,11 @@ class ITALICA(EB600):
     OSX_MAIN_MEM = 'Italica eReader Media'
     OSX_CARD_A_MEM = OSX_MAIN_MEM
 
-    MAIN_MEMORY_VOLUME_LABEL  = 'Italica Main Memory'
+    MAIN_MEMORY_VOLUME_LABEL = 'Italica Main Memory'
     STORAGE_CARD_VOLUME_LABEL = 'Italica Storage Card'
 
 
 class ECLICTO(EB600):
-
     name = 'eClicto Device Interface'
     gui_name = 'eClicto'
 
@@ -274,7 +264,6 @@ class ECLICTO(EB600):
 
 
 class DBOOK(EB600):
-
     name = 'Airis Dbook Device Interface'
     gui_name = 'Airis Dbook'
 
@@ -286,16 +275,14 @@ class DBOOK(EB600):
 
 
 class INVESBOOK(EB600):
-
     name = 'Inves Book Device Interface'
     gui_name = 'Inves Book 600'
 
     FORMATS = ['epub', 'mobi', 'prc', 'fb2', 'html', 'pdf', 'rtf', 'txt']
-    BCD         = [0x110, 0x323]
+    BCD = [0x110, 0x323]
 
     VENDOR_NAME = ['INVES_E6', 'INVES-WI', 'POCKETBO']
-    WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = ['00INVES_E600', 'INVES-WIBOOK',
-            'OK_POCKET_611_61']
+    WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = ['00INVES_E600', 'INVES-WIBOOK', 'OK_POCKET_611_61']
 
 
 class BOOQ(EB600):
@@ -309,7 +296,6 @@ class BOOQ(EB600):
 
 
 class MENTOR(EB600):
-
     name = 'Astak Mentor EB600'
     gui_name = 'Mentor'
     description = _('Communicate with the Astak Mentor EB600')
@@ -319,7 +305,6 @@ class MENTOR(EB600):
 
 
 class ELONEX(EB600):
-
     name = 'Elonex 600EB'
     gui_name = 'Elonex'
 
@@ -335,68 +320,62 @@ class ELONEX(EB600):
 
 
 class POCKETBOOK301(USBMS):
-
-    name           = 'PocketBook 301 Device Interface'
+    name = 'PocketBook 301 Device Interface'
     gui_name = 'PocketBook 301'
-    description    = _('Communicate with the PocketBook 301 Reader.')
-    author         = 'Kovid Goyal'
+    description = _('Communicate with the PocketBook 301 Reader.')
+    author = 'Kovid Goyal'
     supported_platforms = ['windows', 'osx', 'linux']
     FORMATS = ['epub', 'fb2', 'prc', 'mobi', 'pdf', 'djvu', 'rtf', 'chm', 'txt']
 
     SUPPORTS_SUB_DIRS = True
 
-    MAIN_MEMORY_VOLUME_LABEL  = 'PocketBook 301 Main Memory'
+    MAIN_MEMORY_VOLUME_LABEL = 'PocketBook 301 Main Memory'
     STORAGE_CARD_VOLUME_LABEL = 'PocketBook 301 Storage Card'
 
-    VENDOR_ID   = [0x1]
-    PRODUCT_ID  = [0x301]
-    BCD         = [0x132]
+    VENDOR_ID = [0x1]
+    PRODUCT_ID = [0x301]
+    BCD = [0x132]
 
 
 class POCKETBOOK602(USBMS):
-
     name = 'PocketBook Pro 602/902 Device Interface'
     gui_name = 'PocketBook Pro'
-    description    = _('Communicate with the PocketBook 515/602/603/902/903/Pro 912 reader.')
-    author         = 'Kovid Goyal'
+    description = _('Communicate with the PocketBook 515/602/603/902/903/Pro 912 reader.')
+    author = 'Kovid Goyal'
     supported_platforms = ['windows', 'osx', 'linux']
-    FORMATS = ['epub', 'fb2', 'prc', 'mobi', 'pdf', 'djvu', 'rtf', 'chm',
-            'doc', 'tcr', 'txt']
+    FORMATS = ['epub', 'fb2', 'prc', 'mobi', 'pdf', 'djvu', 'rtf', 'chm', 'doc', 'tcr', 'txt']
 
     EBOOK_DIR_MAIN = 'books'
     SUPPORTS_SUB_DIRS = True
     SCAN_FROM_ROOT = True
 
-    VENDOR_ID   = [0x0525]
-    PRODUCT_ID  = [0xa4a5]
-    BCD         = [0x0324, 0x0330, 0x0399]
+    VENDOR_ID = [0x0525]
+    PRODUCT_ID = [0xA4A5]
+    BCD = [0x0324, 0x0330, 0x0399]
 
     VENDOR_NAME = ['', 'LINUX']
-    WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = ['PB602', 'PB603', 'PB902',
-            'PB903', 'Pocket912', 'PB', 'FILE-STOR_GADGET']
+    WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = ['PB602', 'PB603', 'PB902', 'PB903', 'Pocket912', 'PB', 'FILE-STOR_GADGET']
 
 
 class POCKETBOOK622(POCKETBOOK602):
-
     name = 'PocketBook 622 Device Interface'
     gui_name = 'PocketBook 622'
-    description    = _('Communicate with the PocketBook 622 and 623 readers.')
+    description = _('Communicate with the PocketBook 622 and 623 readers.')
     EBOOK_DIR_MAIN = ''
 
-    VENDOR_ID   = [0x0489]
-    PRODUCT_ID  = [0xe107, 0xcff1]
-    BCD         = [0x0326]
+    VENDOR_ID = [0x0489]
+    PRODUCT_ID = [0xE107, 0xCFF1]
+    BCD = [0x0326]
 
     VENDOR_NAME = 'LINUX'
     WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = 'FILE-STOR_GADGET'
 
 
 class POCKETBOOK360P(POCKETBOOK602):
-
     name = 'PocketBook 360+ Device Interface'
     gui_name = 'PocketBook 360+'
-    description    = _('Communicate with the PocketBook 360+ reader.')
-    BCD         = [0x0323]
+    description = _('Communicate with the PocketBook 360+ reader.')
+    BCD = [0x0323]
     EBOOK_DIR_MAIN = ''
 
     VENDOR_NAME = '__POCKET'
@@ -404,22 +383,20 @@ class POCKETBOOK360P(POCKETBOOK602):
 
 
 class POCKETBOOK701(USBMS):
-
     name = 'PocketBook 701 Device Interface'
     gui_name = 'PocketBook 701'
     description = _('Communicate with the PocketBook 701')
     author = _('Kovid Goyal')
 
     supported_platforms = ['windows', 'osx', 'linux']
-    FORMATS = ['epub', 'fb2', 'prc', 'mobi', 'pdf', 'djvu', 'rtf', 'chm',
-            'doc', 'tcr', 'txt']
+    FORMATS = ['epub', 'fb2', 'prc', 'mobi', 'pdf', 'djvu', 'rtf', 'chm', 'doc', 'tcr', 'txt']
 
     EBOOK_DIR_MAIN = 'books'
     SUPPORTS_SUB_DIRS = True
 
-    VENDOR_ID   = [0x18d1]
-    PRODUCT_ID  = [0xa004]
-    BCD         = [0x0224]
+    VENDOR_ID = [0x18D1]
+    PRODUCT_ID = [0xA004]
+    BCD = [0x0224]
 
     VENDOR_NAME = 'ANDROID'
     WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = '__UMS_COMPOSITE'
@@ -436,35 +413,31 @@ class POCKETBOOK701(USBMS):
 
 
 class POCKETBOOK740(USBMS):
-
     name = 'PocketBook 740 Device Interface'
     gui_name = 'PocketBook 740'
     description = _('Communicate with the PocketBook 740')
     supported_platforms = ['windows', 'osx', 'linux']
-    FORMATS = ['epub', 'fb2', 'prc', 'mobi', 'pdf', 'djvu', 'rtf', 'chm',
-            'doc', 'tcr', 'txt']
+    FORMATS = ['epub', 'fb2', 'prc', 'mobi', 'pdf', 'djvu', 'rtf', 'chm', 'doc', 'tcr', 'txt']
     EBOOK_DIR_MAIN = 'books'
     SUPPORTS_SUB_DIRS = True
     SCAN_FROM_ROOT = True
 
-    VENDOR_ID   = [0x18d1]
-    PRODUCT_ID  = [0x0001]
-    BCD         = [0x0101]
+    VENDOR_ID = [0x18D1]
+    PRODUCT_ID = [0x0001]
+    BCD = [0x0101]
 
 
 class PI2(EB600):
-
-    name           = 'Infibeam Pi2 Device Interface'
-    gui_name       = 'Infibeam Pi2'
-    author         = 'Michael Scalet'
-    description    = _('Communicate with the Infibeam Pi2 reader.')
-    version        = (1,0,1)
+    name = 'Infibeam Pi2 Device Interface'
+    gui_name = 'Infibeam Pi2'
+    author = 'Michael Scalet'
+    description = _('Communicate with the Infibeam Pi2 reader.')
+    version = (1, 0, 1)
 
     # Ordered list of supported formats
-    FORMATS     = ['epub', 'mobi', 'prc', 'html', 'htm', 'doc', 'pdf', 'rtf',
-            'txt']
+    FORMATS = ['epub', 'mobi', 'prc', 'html', 'htm', 'doc', 'pdf', 'rtf', 'txt']
 
-    VENDOR_NAME      = 'INFIBEAM'
+    VENDOR_NAME = 'INFIBEAM'
     WINDOWS_MAIN_MEM = 'INFIBEAM_PI'
     WINDOWS_CARD_A_MEM = 'INFIBEAM_PI'
 

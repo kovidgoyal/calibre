@@ -8,7 +8,7 @@ from calibre.web.feeds.recipes import BasicNewsRecipe
 
 
 class AlMasryAlyoum(BasicNewsRecipe):
-    title = u'المصري اليوم (Al-Masry Alyoum)'
+    title = 'المصري اليوم (Al-Masry Alyoum)'
     __author__ = 'Hassan Williamson'
     description = 'The Arabic version of the Al-Masry Alyoum (Egypt Independent) newspaper.'
     language = 'ar_eg'
@@ -24,9 +24,7 @@ class AlMasryAlyoum(BasicNewsRecipe):
 
     extra_css = ' body{ font-family: Verdana,Helvetica,Arial,sans-serif; direction: rtl; } .tit_2{ font-weight: bold; font-size: 2em; } .pinfo{ font-size: 1.3em; } .articleimg img{ max-width: 100%; } .imgauther{ display: block; font-size: 0.7em; } .caption{ font-size: 0.7em; } '  # noqa: E501
 
-    keep_only_tags = [
-        dict(name='div', attrs={'class': ['article']})
-    ]
+    keep_only_tags = [dict(name='div', attrs={'class': ['article']})]
 
     remove_tags = [
         dict(name='div', attrs={'class': ['share_buttons_container']}),
@@ -41,45 +39,37 @@ class AlMasryAlyoum(BasicNewsRecipe):
         dict(name='div', attrs={'id': ['comments']}),
     ]
 
-    remove_attributes = [
-        'width', 'height', 'style'
-    ]
+    remove_attributes = ['width', 'height', 'style']
 
     feeds = [
-        (u'أخر الأخبار', 'http://www.almasryalyoum.com/rss/RssFeeds'),
-        (u'الصفحة الرئيسية',
-         'http://www.almasryalyoum.com/rss/RssFeeds?homePage=true'),
-        (u'أقلام وآراء', 'http://www.almasryalyoum.com/rss/RssFeeds?typeId=2&homePage=false'),
-        (u'أخبار مصر', 'http://www.almasryalyoum.com/rss/RssFeeds?sectionId=3'),
-        (u'رياضة', 'http://www.almasryalyoum.com/rss/RssFeeds?sectionId=8'),
-        (u'اقتصاد', 'http://www.almasryalyoum.com/rss/RssFeeds?sectionId=4'),
-        (u'حوادث', 'http://www.almasryalyoum.com/rss/RssFeeds?sectionId=7'),
-        (u'فنون', 'http://www.almasryalyoum.com/rss/RssFeeds?sectionId=10'),
-        (u'منوعاتنون', 'http://www.almasryalyoum.com/rss/RssFeeds?sectionId=12'),
-        (u'ثقافة', 'http://www.almasryalyoum.com/rss/RssFeeds?sectionId=6'),
-        (u'علوم وتكنولوجيا',
-         'http://www.almasryalyoum.com/rss/RssFeeds?sectionId=9'),
-        (u'تحقيقات وحوارات',
-         'http://www.almasryalyoum.com/rss/RssFeeds?sectionId=5'),
-        (u'المرأة', 'http://www.almasryalyoum.com/rss/RssFeeds?sectionId=69'),
-        (u'رأي', 'http://www.almasryalyoum.com/rss/RssFeeds?sectionId=2'),
-        (u'وسط الناس', 'http://www.almasryalyoum.com/rss/RssFeeds?sectionId=13'),
-        (u'مركز المصري للدراسات و المعلومات',
-         'http://www.almasryalyoum.com/rss/RssFeeds?sectionId=56'),
-        (u'مطبخ', 'http://www.almasryalyoum.com/rss/RssFeeds?sectionId=81'),
-        (u'برلمان مصر', 'http://www.almasryalyoum.com/rss/RssFeeds?sectionId=78'),
-        (u'تقارير', 'http://www.almasryalyoum.com/rss/RssFeeds?sectionId=54'),
-        (u'تحليلات', 'http://www.almasryalyoum.com/rss/RssFeeds?sectionId=60'),
-        (u'عروض نقدية', 'http://www.almasryalyoum.com/rss/RssFeeds?sectionId=61'),
-        (u'دراسات', 'http://www.almasryalyoum.com/rss/RssFeeds?sectionId=62'),
-        (u'كتاب المصري اليوم',
-         'http://www.almasryalyoum.com/rss/RssFeeds?sectionId=65'),
-        (u'فعاليات', 'http://www.almasryalyoum.com/rss/RssFeeds?sectionId=66'),
-        (u'إسلامي', 'http://www.almasryalyoum.com/rss/RssFeeds?sectionId=75'),
-        (u'مطبخي', 'http://www.almasryalyoum.com/rss/RssFeeds?sectionId=76'),
-        (u'مسلسلاتيطبخي',
-         'http://www.almasryalyoum.com/rss/RssFeeds?sectionId=77'),
-        (u'رمضان زمان', 'http://www.almasryalyoum.com/rss/RssFeeds?sectionId=82'),
-        (u'تقارير', 'http://www.almasryalyoum.com/rss/RssFeeds?sectionId=85'),
-        (u'سيارات', 'http://www.almasryalyoum.com/rss/RssFeeds?sectionId=86'),
+        ('أخر الأخبار', 'http://www.almasryalyoum.com/rss/RssFeeds'),
+        ('الصفحة الرئيسية', 'http://www.almasryalyoum.com/rss/RssFeeds?homePage=true'),
+        ('أقلام وآراء', 'http://www.almasryalyoum.com/rss/RssFeeds?typeId=2&homePage=false'),
+        ('أخبار مصر', 'http://www.almasryalyoum.com/rss/RssFeeds?sectionId=3'),
+        ('رياضة', 'http://www.almasryalyoum.com/rss/RssFeeds?sectionId=8'),
+        ('اقتصاد', 'http://www.almasryalyoum.com/rss/RssFeeds?sectionId=4'),
+        ('حوادث', 'http://www.almasryalyoum.com/rss/RssFeeds?sectionId=7'),
+        ('فنون', 'http://www.almasryalyoum.com/rss/RssFeeds?sectionId=10'),
+        ('منوعاتنون', 'http://www.almasryalyoum.com/rss/RssFeeds?sectionId=12'),
+        ('ثقافة', 'http://www.almasryalyoum.com/rss/RssFeeds?sectionId=6'),
+        ('علوم وتكنولوجيا', 'http://www.almasryalyoum.com/rss/RssFeeds?sectionId=9'),
+        ('تحقيقات وحوارات', 'http://www.almasryalyoum.com/rss/RssFeeds?sectionId=5'),
+        ('المرأة', 'http://www.almasryalyoum.com/rss/RssFeeds?sectionId=69'),
+        ('رأي', 'http://www.almasryalyoum.com/rss/RssFeeds?sectionId=2'),
+        ('وسط الناس', 'http://www.almasryalyoum.com/rss/RssFeeds?sectionId=13'),
+        ('مركز المصري للدراسات و المعلومات', 'http://www.almasryalyoum.com/rss/RssFeeds?sectionId=56'),
+        ('مطبخ', 'http://www.almasryalyoum.com/rss/RssFeeds?sectionId=81'),
+        ('برلمان مصر', 'http://www.almasryalyoum.com/rss/RssFeeds?sectionId=78'),
+        ('تقارير', 'http://www.almasryalyoum.com/rss/RssFeeds?sectionId=54'),
+        ('تحليلات', 'http://www.almasryalyoum.com/rss/RssFeeds?sectionId=60'),
+        ('عروض نقدية', 'http://www.almasryalyoum.com/rss/RssFeeds?sectionId=61'),
+        ('دراسات', 'http://www.almasryalyoum.com/rss/RssFeeds?sectionId=62'),
+        ('كتاب المصري اليوم', 'http://www.almasryalyoum.com/rss/RssFeeds?sectionId=65'),
+        ('فعاليات', 'http://www.almasryalyoum.com/rss/RssFeeds?sectionId=66'),
+        ('إسلامي', 'http://www.almasryalyoum.com/rss/RssFeeds?sectionId=75'),
+        ('مطبخي', 'http://www.almasryalyoum.com/rss/RssFeeds?sectionId=76'),
+        ('مسلسلاتيطبخي', 'http://www.almasryalyoum.com/rss/RssFeeds?sectionId=77'),
+        ('رمضان زمان', 'http://www.almasryalyoum.com/rss/RssFeeds?sectionId=82'),
+        ('تقارير', 'http://www.almasryalyoum.com/rss/RssFeeds?sectionId=85'),
+        ('سيارات', 'http://www.almasryalyoum.com/rss/RssFeeds?sectionId=86'),
     ]

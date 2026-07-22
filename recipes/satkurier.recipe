@@ -6,10 +6,10 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class SATKurier(BasicNewsRecipe):
-    title = u'SATKurier.pl'
+    title = 'SATKurier.pl'
     __author__ = 'Artur Stachecki <artur.stachecki@gmail.com>'
     language = 'pl'
-    description = u'Serwis poświęcony telewizji cyfrowej'
+    description = 'Serwis poświęcony telewizji cyfrowej'
     oldest_article = 7
     masthead_url = 'http://satkurier.pl/img/header_sk_logo.gif'
     max_articles_per_feed = 100
@@ -19,14 +19,15 @@ class SATKurier(BasicNewsRecipe):
 
     keep_only_tags = [dict(name='div', attrs={'id': ['leftNewsContainer', 'content']})]
 
-    remove_tags = [dict(name='div', attrs={'class': ['col-xs-20', 'coverNews','btn-group']})]
+    remove_tags = [dict(name='div', attrs={'class': ['col-xs-20', 'coverNews', 'btn-group']})]
 
-    remove_tags_after = [dict(name='div',attrs={'class':'btn-group'})]
+    remove_tags_after = [dict(name='div', attrs={'class': 'btn-group'})]
 
-    feeds = [(u'Najnowsze wiadomości', u'http://feeds.feedburner.com/satkurierpl?format=xml'),
-             (u'Sport w telewizji',
-              u'http://feeds.feedburner.com/satkurier/sport?format=xml'),
-             (u'Blog', u'http://feeds.feedburner.com/satkurier/blog?format=xml')]
+    feeds = [
+        ('Najnowsze wiadomości', 'http://feeds.feedburner.com/satkurierpl?format=xml'),
+        ('Sport w telewizji', 'http://feeds.feedburner.com/satkurier/sport?format=xml'),
+        ('Blog', 'http://feeds.feedburner.com/satkurier/blog?format=xml'),
+    ]
 
     def preprocess_html(self, soup):
         image = soup.find(attrs={'id': 'news_mini_photo'})

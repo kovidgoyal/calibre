@@ -1,8 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__ = 'GPL v3'
-__copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
+# License: GPLv3 Copyright: 2013, Kovid Goyal <kovid at kovidgoyal.net>
 
 lcid = {
     1078: 'af',  # Afrikaans - South Africa
@@ -227,5 +224,5 @@ lcid = {
     1144: 'ii',  # Yi
     1085: 'yi',  # Yiddish
     1130: 'yo',  # Yoruba
-    1077: 'zu'  # Zulu
+    1077: 'zu',  # Zulu
 }

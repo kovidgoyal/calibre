@@ -27,19 +27,14 @@ class afr(BasicNewsRecipe):
     no_stylesheets = True
     remove_attributes = ['style', 'height', 'width']
 
-    keep_only_tags = [
-        dict(name=['article', 'main'], attrs={'id':'content'})
-    ]
+    keep_only_tags = [dict(name=['article', 'main'], attrs={'id': 'content'})]
 
     remove_tags = [
-        dict(attrs={'data-testid': [
-                'ArticleTools', 'ArticleBreadcrumb-Links', 'ad-wrapper', 'ArticleFooter', 'ArticleTags',
-                'beyondwords-player-wrapper'
-        ]}),
+        dict(attrs={'data-testid': ['ArticleTools', 'ArticleBreadcrumb-Links', 'ad-wrapper', 'ArticleFooter', 'ArticleTags', 'beyondwords-player-wrapper']}),
         dict(name=['button', 'aside', 'svg']),
     ]
 
-    remove_tags_after= [dict(name='aside', attrs={'id':'stickyContainer'})]
+    remove_tags_after = [dict(name='aside', attrs={'id': 'stickyContainer'})]
 
     extra_css = '''
         #img-cap {font-size:small; text-align:center;}
@@ -47,11 +42,11 @@ class afr(BasicNewsRecipe):
     '''
 
     ignore_duplicate_articles = {'title', 'url'}
-    resolve_internal_links  = True
+    resolve_internal_links = True
     remove_empty_feeds = True
 
     def preprocess_html(self, soup):
-        for img in soup.findAll('img', attrs={'data-src':True}):
+        for img in soup.findAll('img', attrs={'data-src': True}):
             img['src'] = img['data-src']
         for fig in soup.findAll('figcaption'):
             fig['id'] = 'img-cap'
@@ -60,8 +55,18 @@ class afr(BasicNewsRecipe):
     def parse_index(self):
         index = 'https://www.afr.com/'
         sections = [
-            'companies', 'market', 'politics', 'policy', 'world', 'wealth', 'street-talk',
-            'chaticleer', 'rear-window', 'life-and-luxury', 'technology', 'property',
+            'companies',
+            'market',
+            'politics',
+            'policy',
+            'world',
+            'wealth',
+            'street-talk',
+            'chaticleer',
+            'rear-window',
+            'life-and-luxury',
+            'technology',
+            'property',
             'work-and-careers',
         ]
         feeds = []
@@ -70,7 +75,7 @@ class afr(BasicNewsRecipe):
             section = sec.capitalize()
             self.log(section)
             articles = []
-            for a in soup.findAll('a', attrs={'href':lambda x: x and x.startswith('/' + sec + '/')}):
+            for a in soup.findAll('a', attrs={'href': lambda x: x and x.startswith('/' + sec + '/')}):
                 url = absurl(a['href'].split('?')[0])
                 if url in {index + sec + '/', index + sec}:
                     continue

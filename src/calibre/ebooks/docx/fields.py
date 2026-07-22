@@ -1,8 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__ = 'GPL v3'
-__copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
+# License: GPLv3 Copyright: 2013, Kovid Goyal <kovid at kovidgoyal.net>
 
 import re
 
@@ -10,7 +7,6 @@ from calibre.ebooks.docx.index import polish_index_markup, process_index
 
 
 class Field:
-
     def __init__(self, start):
         self.start = start
         self.end = None
@@ -40,12 +36,18 @@ class Field:
 
 
 WORD, FLAG = 0, 1
-scanner = re.Scanner([  # type: ignore
-    (r'\\\S{1}', lambda s, t: (t, FLAG)),  # A flag of the form \x
-    (r'"[^"]*"', lambda s, t: (t[1:-1], WORD)),  # Quoted word
-    (r'[^\s\\"]\S*', lambda s, t: (t, WORD)),  # A non-quoted word, must not start with a backslash or a space or a quote
-    (r'\s+', None),
-], flags=re.DOTALL)
+scanner = re.Scanner(  # type: ignore
+    [
+        (r'\\\S{1}', lambda s, t: (t, FLAG)),  # A flag of the form \x
+        (r'"[^"]*"', lambda s, t: (t[1:-1], WORD)),  # Quoted word
+        (
+            r'[^\s\\"]\S*',
+            lambda s, t: (t, WORD),
+        ),  # A non-quoted word, must not start with a backslash or a space or a quote
+        (r'\s+', None),
+    ],
+    flags=re.DOTALL,
+)
 
 null = object()
 
@@ -78,26 +80,23 @@ def parser(name, field_map, default_field_name=None):
     return parse
 
 
-parse_hyperlink = parser('hyperlink',
-    'l:anchor m:image-map n:target o:title t:target', 'url')
+parse_hyperlink = parser('hyperlink', 'l:anchor m:image-map n:target o:title t:target', 'url')
 
-parse_xe = parser('xe',
-    'b:bold i:italic f:entry-type r:page-range-bookmark t:page-number-text y:yomi', 'text')
+parse_xe = parser('xe', 'b:bold i:italic f:entry-type r:page-range-bookmark t:page-number-text y:yomi', 'text')
 
-parse_index = parser('index',
+parse_index = parser(
+    'index',
     'b:bookmark c:columns-per-page d:sequence-separator e:first-page-number-separator'
     ' f:entry-type g:page-range-separator h:heading k:crossref-separator'
-    ' l:page-number-separator p:letter-range s:sequence-name r:run-together y:yomi z:langcode')
+    ' l:page-number-separator p:letter-range s:sequence-name r:run-together y:yomi z:langcode',
+)
 
-parse_ref = parser('ref',
-    'd:separator f:footnote h:hyperlink n:number p:position r:relative-number t:suppress w:number-full-context')
+parse_ref = parser('ref', 'd:separator f:footnote h:hyperlink n:number p:position r:relative-number t:suppress w:number-full-context')
 
-parse_noteref = parser('noteref',
-                   'f:footnote h:hyperlink p:position')
+parse_noteref = parser('noteref', 'f:footnote h:hyperlink p:position')
 
 
 class Fields:
-
     def __init__(self, namespace):
         self.namespace = namespace
         self.fields = []
@@ -118,7 +117,8 @@ class Fields:
             '//*[name()="w:p" or name()="w:r" or'
             ' name()="w:instrText" or'
             ' (name()="w:fldChar" and (@w:fldCharType="begin" or @w:fldCharType="end") or'
-            ' name()="w:fldSimple")]')(doc):
+            ' name()="w:fldSimple")]'
+        )(doc):
             if elem.tag.endswith('}fldChar'):
                 typ = self.namespace.get(elem, 'w:fldCharType')
                 if typ == 'begin':
@@ -144,10 +144,10 @@ class Fields:
                 stack[-1].contents.append(elem)
 
         field_types = ('hyperlink', 'xe', 'index', 'ref', 'noteref')
-        parsers = {x.upper():getattr(self, 'parse_'+x) for x in field_types}
-        parsers.update({x:getattr(self, 'parse_'+x) for x in field_types})
-        field_parsers = {f.upper():globals()[f'parse_{f}'] for f in field_types}
-        field_parsers.update({f:globals()[f'parse_{f}'] for f in field_types})
+        parsers = {x.upper(): getattr(self, 'parse_' + x) for x in field_types}
+        parsers.update({x: getattr(self, 'parse_' + x) for x in field_types})
+        field_parsers = {f.upper(): globals()[f'parse_{f}'] for f in field_types}
+        field_parsers.update({f: globals()[f'parse_{f}'] for f in field_types})
 
         for f in field_types:
             setattr(self, f'{f}_fields', [])
@@ -193,7 +193,7 @@ class Fields:
         dest = ref.get(None, None)
         if dest is not None and 'hyperlink' in ref:
             for runs in self.get_runs(field):
-                self.hyperlink_fields.append(({'anchor':dest}, runs))
+                self.hyperlink_fields.append(({'anchor': dest}, runs))
         else:
             log.warn(f'Unsupported reference field ({field.name}), ignoring: {ref!r}')
 
@@ -209,6 +209,7 @@ class Fields:
             # can link to it later
             def WORD(x):
                 return self.namespace.expand('w:' + x)
+
             self.index_bookmark_counter += 1
             bmark = xe['anchor'] = f'{self.index_bookmark_prefix}{self.index_bookmark_counter}'
             p = field.start.getparent()
@@ -230,14 +231,14 @@ class Fields:
         if not blocks:
             return
         for anchor, run in hyperlinks:
-            self.hyperlink_fields.append(({'anchor':anchor}, [run]))
+            self.hyperlink_fields.append(({'anchor': anchor}, [run]))
 
         self.index_fields.append((idx, blocks))
 
     def polish_markup(self, object_map):
         if not self.index_fields:
             return
-        rmap = {v:k for k, v in object_map.items()}
+        rmap = {v: k for k, v in object_map.items()}
         for idx, blocks in self.index_fields:
             polish_index_markup(idx, [rmap[b] for b in blocks])
 
@@ -246,28 +247,33 @@ def test_parse_fields(return_tests=False):
     import unittest
 
     class TestParseFields(unittest.TestCase):
-
         def test_hyperlink(self):
             def ae(x, y):
                 return self.assertEqual(parse_hyperlink(x, None), y)
-            ae(r'\l anchor1', {'anchor':'anchor1'})
-            ae(r'www.calibre-ebook.com', {'url':'www.calibre-ebook.com'})
-            ae(r'www.calibre-ebook.com \t target \o tt', {'url':'www.calibre-ebook.com', 'target':'target', 'title': 'tt'})
+
+            ae(r'\l anchor1', {'anchor': 'anchor1'})
+            ae(r'www.calibre-ebook.com', {'url': 'www.calibre-ebook.com'})
+            ae(
+                r'www.calibre-ebook.com \t target \o tt',
+                {'url': 'www.calibre-ebook.com', 'target': 'target', 'title': 'tt'},
+            )
             ae(r'"c:\\Some Folder"', {'url': 'c:\\Some Folder'})
             ae(r'xxxx \y yyyy', {'url': 'xxxx'})
 
         def test_xe(self):
             def ae(x, y):
                 return self.assertEqual(parse_xe(x, None), y)
-            ae(r'"some name"', {'text':'some name'})
-            ae(r'name \b \i', {'text':'name', 'bold':None, 'italic':None})
-            ae(r'xxx \y a', {'text':'xxx', 'yomi':'a'})
+
+            ae(r'"some name"', {'text': 'some name'})
+            ae(r'name \b \i', {'text': 'name', 'bold': None, 'italic': None})
+            ae(r'xxx \y a', {'text': 'xxx', 'yomi': 'a'})
 
         def test_index(self):
             def ae(x, y):
                 return self.assertEqual(parse_index(x, None), y)
+
             ae(r'', {})
-            ae(r'\b \c 1', {'bookmark':None, 'columns-per-page': '1'})
+            ae(r'\b \c 1', {'bookmark': None, 'columns-per-page': '1'})
 
     suite = unittest.TestLoader().loadTestsFromTestCase(TestParseFields)
     if return_tests:

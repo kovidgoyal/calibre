@@ -1,6 +1,4 @@
-__license__ = 'GPL 3'
-__copyright__ = '2010, Li Fanxi <lifanxi@freemindworld.com>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2010, Li Fanxi <lifanxi@freemindworld.com>
 
 from calibre.ebooks.conversion.config import OPTIONS
 from calibre.gui2.convert import Widget
@@ -11,9 +9,8 @@ newline_model = None
 
 
 class PluginWidget(Widget, Ui_Form):
-
     TITLE = _('SNB output')
-    HELP = _('Options specific to')+' SNB '+_('output')
+    HELP = _('Options specific to') + ' SNB ' + _('output')
     COMMIT_NAME = 'snb_output'
     ICON = 'mimetypes/snb.png'
 

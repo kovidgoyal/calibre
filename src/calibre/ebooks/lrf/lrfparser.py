@@ -1,6 +1,6 @@
-__license__   = 'GPL v3'
-__copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
-''''''
+# License: GPLv3 Copyright: 2008, Kovid Goyal <kovid at kovidgoyal.net>
+
+""""""
 
 import array
 import logging
@@ -18,7 +18,6 @@ from calibre.utils.localization import _
 
 
 class LRFDocument(LRFMetaFile):
-
     class temp:
         title: str
         title_reading: str
@@ -52,8 +51,18 @@ class LRFDocument(LRFMetaFile):
     def parse(self):
         self._parse_objects()
         self.metadata = LRFDocument.temp()
-        for a in ('title', 'title_reading', 'author', 'author_reading', 'book_id',
-                  'classification', 'free_text', 'publisher', 'label', 'category'):
+        for a in (
+            'title',
+            'title_reading',
+            'author',
+            'author_reading',
+            'book_id',
+            'classification',
+            'free_text',
+            'publisher',
+            'label',
+            'category',
+        ):
             setattr(self.metadata, a, getattr(self, a))
         self.doc_info = LRFDocument.temp()
         for a in ('thumbnail', 'language', 'creator', 'producer', 'page'):
@@ -66,13 +75,13 @@ class LRFDocument(LRFMetaFile):
     def _parse_objects(self):
         self.objects = {}
         self._file.seek(self.object_index_offset)
-        obj_array = array.array('I', self._file.read(4*4*self.number_of_objects))
-        if ord(array.array('i',[1]).tobytes()[0:1])==0:  # big-endian
+        obj_array = array.array('I', self._file.read(4 * 4 * self.number_of_objects))
+        if ord(array.array('i', [1]).tobytes()[0:1]) == 0:  # big-endian
             obj_array.byteswap()
         for i in range(self.number_of_objects):
             if not self.keep_parsing:
                 break
-            objid, objoff, objsize = obj_array[i*4:i*4+3]
+            objid, objoff, objsize = obj_array[i * 4 : i * 4 + 3]
             self._parse_object(objid, objoff, objsize)
         for obj in self.objects.values():
             if not self.keep_parsing:
@@ -115,9 +124,9 @@ class LRFDocument(LRFMetaFile):
         th = self.doc_info.thumbnail
         if th:
             prefix = ascii_filename(self.metadata.title)
-            bookinfo += '<CThumbnail file="{}" />\n'.format(prefix+'_thumbnail.'+self.doc_info.thumbnail_extension)
+            bookinfo += '<CThumbnail file="{}" />\n'.format(prefix + '_thumbnail.' + self.doc_info.thumbnail_extension)
             if write_files:
-                with open(prefix+'_thumbnail.'+self.doc_info.thumbnail_extension, 'wb') as f:
+                with open(prefix + '_thumbnail.' + self.doc_info.thumbnail_extension, 'wb') as f:
                     f.write(th)
         bookinfo += f'<Language reading="">{self.doc_info.language}</Language>\n'
         bookinfo += f'<Creator reading="">{self.doc_info.creator}</Creator>\n'
@@ -141,7 +150,7 @@ class LRFDocument(LRFMetaFile):
         traversed_objects = [int(i) for i in re.findall(r'objid="(\w+)"', pages)] + [pt_id]
 
         objects = '\n<Objects>\n'
-        styles  = '\n<Style>\n'
+        styles = '\n<Style>\n'
         for obj in self.objects:
             obj = self.objects[obj]
             if obj.id in traversed_objects:
@@ -162,9 +171,13 @@ class LRFDocument(LRFMetaFile):
 def option_parser():
     parser = OptionParser(usage=_('%prog book.lrf\nConvert an LRF file into an LRS (XML UTF-8 encoded) file'))
     parser.add_option('--output', '-o', default=None, help=_('Output LRS file'), dest='out')
-    parser.add_option('--dont-output-resources', default=True, action='store_false',
-                      help=_('Do not save embedded image and font files to disk'),
-                      dest='output_resources')
+    parser.add_option(
+        '--dont-output-resources',
+        default=True,
+        action='store_false',
+        help=_('Do not save embedded image and font files to disk'),
+        dest='output_resources',
+    )
     parser.add_option('--verbose', default=False, action='store_true', dest='verbose', help=_('Be more verbose'))
     return parser
 
@@ -180,7 +193,7 @@ def main(args=sys.argv, logger=None):
         parser.print_help()
         return 1
     if opts.out is None:
-        opts.out = os.path.join(os.path.dirname(args[1]), os.path.splitext(os.path.basename(args[1]))[0]+'.lrs')
+        opts.out = os.path.join(os.path.dirname(args[1]), os.path.splitext(os.path.basename(args[1]))[0] + '.lrs')
     logger.info(_('Parsing LRF...'))
     d = LRFDocument(open(args[1], 'rb'))
     d.parse()
@@ -188,7 +201,7 @@ def main(args=sys.argv, logger=None):
     with open(os.path.abspath(os.path.expanduser(opts.out)), 'w', encoding='utf-8') as f:
         f.write('<?xml version="1.0" encoding="UTF-8"?>\n')
         f.write(d.to_xml(write_files=opts.output_resources))
-    logger.info(_('LRS written to ')+opts.out)
+    logger.info(_('LRS written to ') + opts.out)
     return 0
 
 

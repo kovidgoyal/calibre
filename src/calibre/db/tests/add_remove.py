@@ -1,9 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__   = 'GPL v3'
-__copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2013, Kovid Goyal <kovid at kovidgoyal.net>
 
 import glob
 import os
@@ -22,19 +18,19 @@ from calibre.utils.resources import get_image_path
 
 def import_test(replacement_data, replacement_fmt=None):
     def func(path, fmt):
-        if not path.endswith('.'+fmt.lower()):
+        if not path.endswith('.' + fmt.lower()):
             raise AssertionError('path extension does not match format')
         ext = (replacement_fmt or fmt).lower()
-        with PersistentTemporaryFile('.'+ext) as f:
+        with PersistentTemporaryFile('.' + ext) as f:
             f.write(replacement_data)
         return f.name
+
     return func
 
 
 class AddRemoveTest(BaseTest):
-
     def test_add_format(self):  # {{{
-        'Test adding formats to an existing book record'
+        "Test adding formats to an existing book record"
         af, ae, at = self.assertFalse, self.assertEqual, self.assertTrue
 
         cache = self.init_cache()
@@ -53,7 +49,7 @@ class AddRemoveTest(BaseTest):
         ae(cache.format_metadata(1, 'FMT1')['size'], len(NF))
         at(cache.field_for('size', 1) >= len(NF))
         at(cache.field_for('last_modified', 1) > lm)
-        ae(('FMT2','FMT1'), cache.formats(1))
+        ae(('FMT2', 'FMT1'), cache.formats(1))
         at(1 in table.col_book_map['FMT1'])
 
         # Test adding a format to a record with no formats
@@ -64,10 +60,11 @@ class AddRemoveTest(BaseTest):
         at(3 in table.col_book_map['FMT1'])
         at(cache.add_format(3, 'FMTX', BytesIO(NF), replace=True))
         at(3 in table.col_book_map['FMTX'])
-        ae(('FMT1','FMTX'), cache.formats(3))
+        ae(('FMT1', 'FMTX'), cache.formats(3))
 
         # Test running on import plugins
         import calibre.db.cache as c
+
         orig = c.run_plugins_on_import
         try:
             c.run_plugins_on_import = import_test(b'replacement data')
@@ -107,15 +104,15 @@ class AddRemoveTest(BaseTest):
     # }}}
 
     def test_remove_formats(self):  # {{{
-        'Test removal of formats from book records'
+        "Test removal of formats from book records"
         af, ae, at = self.assertFalse, self.assertEqual, self.assertTrue
 
         cache = self.init_cache()
 
         # Test removal of non-existing format does nothing
-        formats = {bid:tuple(cache.formats(bid)) for bid in (1, 2, 3)}
-        cache.remove_formats({1:{'NF'}, 2:{'NF'}, 3:{'NF'}})
-        nformats = {bid:tuple(cache.formats(bid)) for bid in (1, 2, 3)}
+        formats = {bid: tuple(cache.formats(bid)) for bid in (1, 2, 3)}
+        cache.remove_formats({1: {'NF'}, 2: {'NF'}, 3: {'NF'}})
+        nformats = {bid: tuple(cache.formats(bid)) for bid in (1, 2, 3)}
         ae(formats, nformats)
 
         # Test full removal of format
@@ -123,7 +120,7 @@ class AddRemoveTest(BaseTest):
         at(cache.has_format(1, 'FMT1'))
         ap = cache.format_abspath(1, 'FMT1')
         at(os.path.exists(ap))
-        cache.remove_formats({1:{'FMT1'}})
+        cache.remove_formats({1: {'FMT1'}})
         at(cache.format(1, 'FMT1') is None)
         af(bool(cache.format_metadata(1, 'FMT1')))
         af(bool(cache.format_metadata(1, 'FMT1', allow_cache=False)))
@@ -135,7 +132,7 @@ class AddRemoveTest(BaseTest):
         at(cache.has_format(1, 'FMT2'))
         ap = cache.format_abspath(1, 'FMT2')
         if ap and os.path.exists(ap):
-            cache.remove_formats({1:{'FMT2'}}, db_only=True)
+            cache.remove_formats({1: {'FMT2'}}, db_only=True)
             af(bool(cache.format_metadata(1, 'FMT2')))
             af(cache.has_format(1, 'FMT2'))
             at(os.path.exists(ap))
@@ -146,11 +143,13 @@ class AddRemoveTest(BaseTest):
 
         db.close()
         del db
+
     # }}}
 
     def test_create_book_entry(self):  # {{{
-        'Test the creation of new book entries'
+        "Test the creation of new book entries"
         from calibre.ebooks.metadata.book.base import Metadata
+
         cache = self.init_cache()
         cache.set_field('authors', {1: 'Creator Two'})
         cache.set_link_map('authors', {'Creator Two': 'original'})
@@ -161,16 +160,32 @@ class AddRemoveTest(BaseTest):
         self.assertIsNot(book_id, None)
 
         def do_test(cache, book_id):
-            for field in ('path', 'uuid', 'author_sort', 'timestamp', 'pubdate', 'title', 'authors', 'series_index', 'sort'):
+            for field in (
+                'path',
+                'uuid',
+                'author_sort',
+                'timestamp',
+                'pubdate',
+                'title',
+                'authors',
+                'series_index',
+                'sort',
+            ):
                 self.assertTrue(cache.field_for(field, book_id))
             for field in ('size', 'cover'):
                 self.assertFalse(cache.field_for(field, book_id))
             self.assertEqual(book_id, cache.fields['uuid'].table.uuid_to_id_map[cache.field_for('uuid', book_id)])
             self.assertLess(now() - cache.field_for('timestamp', book_id), timedelta(seconds=30))
-            self.assertEqual(('Created One', ('Creator One', 'Creator Two')), (cache.field_for('title', book_id), cache.field_for('authors', book_id)))
+            self.assertEqual(
+                ('Created One', ('Creator One', 'Creator Two')),
+                (cache.field_for('title', book_id), cache.field_for('authors', book_id)),
+            )
             self.assertEqual(cache.field_for('series_index', book_id), 1.0)
             self.assertEqual(cache.field_for('pubdate', book_id), UNDEFINED_DATE)
-            self.assertEqual(cache.get_all_link_maps_for_book(book_id), {'authors': {'Creator One': 'link1', 'Creator Two': 'original'}})
+            self.assertEqual(
+                cache.get_all_link_maps_for_book(book_id),
+                {'authors': {'Creator One': 'link1', 'Creator Two': 'original'}},
+            )
 
         do_test(cache, book_id)
         # Test that the db contains correct data
@@ -183,8 +198,9 @@ class AddRemoveTest(BaseTest):
         self.assertEqual(IMG, cache.cover(book_id))
 
         import calibre.db.cache as c
+
         orig = c.prefs
-        c.prefs = {'new_book_tags':('newbook', 'newbook2')}
+        c.prefs = {'new_book_tags': ('newbook', 'newbook2')}
         try:
             book_id = cache.create_book_entry(mi)
             self.assertEqual(('newbook', 'newbook2'), cache.field_for('tags', book_id))
@@ -198,15 +214,17 @@ class AddRemoveTest(BaseTest):
         mi.uuid = 'a preserved uuid'
         book_id = cache.create_book_entry(mi, preserve_uuid=True)
         self.assertEqual(mi.uuid, cache.field_for('uuid', book_id))
+
     # }}}
 
     def test_add_books(self):  # {{{
-        'Test the adding of new books'
+        "Test the adding of new books"
         from calibre.ebooks.metadata.book.base import Metadata
+
         cache = self.init_cache()
         mi = Metadata('Created One', authors=('Creator One', 'Creator Two'))
         FMT1, FMT2 = b'format1', b'format2'
-        format_map = {'FMT1':BytesIO(FMT1), 'FMT2':BytesIO(FMT2)}
+        format_map = {'FMT1': BytesIO(FMT1), 'FMT2': BytesIO(FMT2)}
         ids, duplicates = cache.add_books([(mi, format_map)])
         self.assertTrue(len(ids) == 1)
         self.assertFalse(duplicates)
@@ -214,10 +232,11 @@ class AddRemoveTest(BaseTest):
         self.assertEqual(set(cache.formats(book_id)), {'FMT1', 'FMT2'})
         self.assertEqual(cache.format(book_id, 'FMT1'), FMT1)
         self.assertEqual(cache.format(book_id, 'FMT2'), FMT2)
+
     # }}}
 
     def test_remove_books(self):  # {{{
-        'Test removal of books'
+        "Test removal of books"
         cl = self.cloned_library
         cl2 = self.cloned_library
         cl3 = self.cloned_library
@@ -228,7 +247,7 @@ class AddRemoveTest(BaseTest):
         # Delete a single book, with no formats and check cleaning
         self.assertIn('Unknown', set(authors.id_map.values()))
         olen = len(authors.id_map)
-        item_id = {v:k for k, v in authors.id_map.items()}['Unknown']
+        item_id = {v: k for k, v in authors.id_map.items()}['Unknown']
         cache.remove_books((3,))
         for c in (cache, self.init_cache()):
             table = c.fields['authors'].table
@@ -236,7 +255,7 @@ class AddRemoveTest(BaseTest):
             self.assertNotIn('Unknown', set(table.id_map.values()))
             self.assertNotIn(item_id, table.asort_map)
             self.assertNotIn(item_id, table.link_map)
-            ae(len(table.id_map), olen-1)
+            ae(len(table.id_map), olen - 1)
 
         # Check that files are removed
         fmtpath = cache.format_abspath(1, 'FMT1')
@@ -244,7 +263,7 @@ class AddRemoveTest(BaseTest):
         authorpath = os.path.dirname(bookpath)
         os.mkdir(os.path.join(authorpath, '.DS_Store'))
         open(os.path.join(authorpath, 'Thumbs.db'), 'wb').close()
-        item_id = {v:k for k, v in cache.fields['#series'].table.id_map.items()}['My Series Two']
+        item_id = {v: k for k, v in cache.fields['#series'].table.id_map.items()}['My Series Two']
         cache.remove_books((1,), permanent=True)
         for x in (fmtpath, bookpath, authorpath):
             af(os.path.exists(x), f'The file {x} exists, when it should not')
@@ -275,7 +294,7 @@ class AddRemoveTest(BaseTest):
         os.mkdir(os.path.join(bookpath, 'xyz'))
         open(os.path.join(bookpath, 'xyz', 'abc'), 'w').close()
         authorpath = os.path.dirname(bookpath)
-        item_id = {v:k for k, v in cache.fields['#series'].table.id_map.items()}['My Series Two']
+        item_id = {v: k for k, v in cache.fields['#series'].table.id_map.items()}['My Series Two']
         cache.remove_books((1,))
         for x in (fmtpath, bookpath, authorpath):
             af(os.path.exists(x), f'The file {x} exists, when it should not')
@@ -296,7 +315,10 @@ class AddRemoveTest(BaseTest):
         bookpath = os.path.dirname(fmtpath)
         cache.set_annotations_for_book(1, 'FMT1', [({'title': 'else', 'type': 'bookmark', 'timestamp': utcnow().isoformat()}, 1)])
         annots_before = cache.all_annotations_for_book(1)
-        fm_before = cache.format_metadata(1, 'FMT1', allow_cache=False), cache.format_metadata(1, 'FMT2', allow_cache=False)
+        fm_before = (
+            cache.format_metadata(1, 'FMT1', allow_cache=False),
+            cache.format_metadata(1, 'FMT2', allow_cache=False),
+        )
         os.mkdir(os.path.join(bookpath, 'xyz'))
         open(os.path.join(bookpath, 'xyz', 'abc'), 'w').close()
         with suppress(FileNotFoundError):
@@ -307,7 +329,10 @@ class AddRemoveTest(BaseTest):
         self.assertEqual(len(b), 0)
         self.assertEqual(len(f), 0)
         self.assertEqual(fmtpath, cache.format_abspath(1, 'FMT1'))
-        self.assertEqual(fm_before, (cache.format_metadata(1, 'FMT1', allow_cache=False), cache.format_metadata(1, 'FMT2', allow_cache=False)))
+        self.assertEqual(
+            fm_before,
+            (cache.format_metadata(1, 'FMT1', allow_cache=False), cache.format_metadata(1, 'FMT2', allow_cache=False)),
+        )
         self.assertEqual(annots_before, cache.all_annotations_for_book(1))
         self.assertTrue(cache.cover(1))
         self.assertTrue(os.path.exists(os.path.join(bookpath, 'xyz', 'abc')))
@@ -326,10 +351,11 @@ class AddRemoveTest(BaseTest):
             cache.move_format_from_trash(1, fmt)
         self.assertEqual(all_formats, cache.formats(1))
         self.assertFalse(os.listdir(os.path.join(cache.backend.trash_dir, 'f')))
+
     # }}}
 
     def test_original_fmt(self):  # {{{
-        ' Test management of original fmt '
+        "Test management of original fmt"
         af, ae, at = self.assertFalse, self.assertEqual, self.assertTrue
         db = self.init_cache()
         fmts = db.formats(1)
@@ -344,10 +370,11 @@ class AddRemoveTest(BaseTest):
         ae(raw, db.format(1, 'FMT1'))
         af(db.has_format(1, 'ORIGINAL_FMT1'))
         ae(set(fmts), set(db.formats(1, verify_formats=False)))
+
     # }}}
 
     def test_format_orphan(self):  # {{{
-        ' Test that adding formats does not create orphans if the file name algorithm changes '
+        "Test that adding formats does not create orphans if the file name algorithm changes"
         cache = self.init_cache()
         path = cache.format_abspath(1, 'FMT1')
         base, name = os.path.split(path)
@@ -360,12 +387,14 @@ class AddRemoveTest(BaseTest):
         self.assertNotEqual(old, new)
         self.assertEqual(len(old), len(new))
         self.assertNotIn(prefix, cache.fields['formats'].format_fname(1, 'FMT1'))
+
     # }}}
 
     def test_copy_to_library(self):  # {{{
         from calibre.db.copy_to_library import copy_one_book
         from calibre.ebooks.metadata import authors_to_string
         from calibre.utils.date import EPOCH, utcnow
+
         src_db = self.init_cache()
         dest_db = self.init_cache(self.cloned_library)
 
@@ -393,10 +422,12 @@ class AddRemoveTest(BaseTest):
 
         def make_rdata(book_id=1, new_book_id=None, action='add'):
             return {
-                    'title': src_db.field_for('title', book_id),
-                    'authors': list(src_db.field_for('authors', book_id)),
-                    'author': authors_to_string(src_db.field_for('authors', book_id)),
-                    'book_id': book_id, 'new_book_id': new_book_id, 'action': action
+                'title': src_db.field_for('title', book_id),
+                'authors': list(src_db.field_for('authors', book_id)),
+                'author': authors_to_string(src_db.field_for('authors', book_id)),
+                'book_id': book_id,
+                'new_book_id': new_book_id,
+                'action': action,
             }
 
         def compare_field(field, func=self.assertEqual):
@@ -480,25 +511,43 @@ class AddRemoveTest(BaseTest):
         add_extra(2, 'one'), add_extra(2, 'sub/one'), add_extra(2, 'two/two')
         add_extra(3, 'one'), add_extra(3, 'sub/one'), add_extra(3, 'three')
 
-        self.assertEqual(extra_files_for(1), {
-            'one': '1:one', 'sub/one': '1:sub/one',
-        })
+        self.assertEqual(
+            extra_files_for(1),
+            {
+                'one': '1:one',
+                'sub/one': '1:sub/one',
+            },
+        )
         db.merge_extra_files(1, (2, 3))
-        self.assertEqual(extra_files_for(1), {
-            'one': '1:one', 'sub/one': '1:sub/one',
-            'merge conflict/one': '2:one', 'sub/merge conflict/one': '2:sub/one', 'two/two': '2:two/two',
-            'three': '3:three', 'merge conflict 1/one': '3:one', 'sub/merge conflict 1/one': '3:sub/one',
-        })
+        self.assertEqual(
+            extra_files_for(1),
+            {
+                'one': '1:one',
+                'sub/one': '1:sub/one',
+                'merge conflict/one': '2:one',
+                'sub/merge conflict/one': '2:sub/one',
+                'two/two': '2:two/two',
+                'three': '3:three',
+                'merge conflict 1/one': '3:one',
+                'sub/merge conflict 1/one': '3:sub/one',
+            },
+        )
+
     # }}}
 
     def test_custom_column_defaults(self):  # {{{
-        'Test that custom column defaults are applied correctly when adding books'
+        "Test that custom column defaults are applied correctly when adding books"
         from calibre.ebooks.metadata.book.base import Metadata
 
         cache = self.init_cache()
         # Create an enumeration column with a default value
-        cache.create_custom_column('status', 'Status', 'enumeration', False,
-            display={'enum_values': ['new', 'in-progress', 'done'], 'default_value': 'new'})
+        cache.create_custom_column(
+            'status',
+            'Status',
+            'enumeration',
+            False,
+            display={'enum_values': ['new', 'in-progress', 'done'], 'default_value': 'new'},
+        )
         cache.close()
         cache = self.init_cache()
 
@@ -510,8 +559,7 @@ class AddRemoveTest(BaseTest):
         for mi in (mi_without_fm, mi_with_fm):
             book_id = cache.create_book_entry(mi)
             self.assertIsNotNone(book_id)
-            self.assertEqual(cache.field_for('#status', book_id), 'new',
-                'Default value not applied to new book entry')
+            self.assertEqual(cache.field_for('#status', book_id), 'new', 'Default value not applied to new book entry')
 
         # Test the original bug fix: duplicating a book that already has a value
         # for the custom column should preserve that value, not override with the default
@@ -520,6 +568,10 @@ class AddRemoveTest(BaseTest):
         mi = cache.get_metadata(book_id)
         dup_book_id = cache.create_book_entry(mi)
         self.assertIsNotNone(dup_book_id)
-        self.assertEqual(cache.field_for('#status', dup_book_id), 'done',
-            'Duplicated book value was overridden by column default value')
+        self.assertEqual(
+            cache.field_for('#status', dup_book_id),
+            'done',
+            'Duplicated book value was overridden by column default value',
+        )
+
     # }}}

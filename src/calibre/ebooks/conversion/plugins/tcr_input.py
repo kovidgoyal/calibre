@@ -1,6 +1,4 @@
-__license__ = 'GPL 3'
-__copyright__ = '2009, John Schember <john@nachtimwald.com>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2009, John Schember <john@nachtimwald.com>
 
 from io import BytesIO
 
@@ -9,11 +7,10 @@ from calibre.utils.localization import _
 
 
 class TCRInput(InputFormatPlugin):
-
-    name        = 'TCR Input'
-    author      = 'John Schember'
+    name = 'TCR Input'
+    author = 'John Schember'
     description = _('Convert TCR files to HTML')
-    file_types  = {'tcr'}
+    file_types = {'tcr'}
     commit_name = 'tcr_input'
 
     def convert(self, stream, options, file_ext, log, accelerators):
@@ -33,5 +30,4 @@ class TCRInput(InputFormatPlugin):
                 setattr(options, opt.option.name, opt.recommended_value)
 
         stream.seek(0)
-        return txt_plugin.convert(stream, options,
-                'txt', log, accelerators)
+        return txt_plugin.convert(stream, options, 'txt', log, accelerators)

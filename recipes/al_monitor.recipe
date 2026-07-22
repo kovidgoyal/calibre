@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import print_function, unicode_literals
 
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2014, spswerling'
 '''
 http://www.al-monitor.com/
@@ -17,8 +17,8 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class AlMonitor(BasicNewsRecipe):
-    title = u'Al Monitor'
-    __author__ = u'spswerling'
+    title = 'Al Monitor'
+    __author__ = 'spswerling'
     description = 'a The Pulse of the Middle East'
     no_stylesheets = True
     encoding = 'utf-8'
@@ -39,15 +39,15 @@ class AlMonitor(BasicNewsRecipe):
     max_articles_per_section = 15
 
     sections = [
-        (u'egypt', u'http://www.al-monitor.com/pulse/egypt-pulse'),
-        (u'gulf', u'http://www.al-monitor.com/pulse/gulf-pulse'),
-        (u'iran', u'http://www.al-monitor.com/pulse/iran-pulse'),
-        (u'iraq', u'http://www.al-monitor.com/pulse/iraq-pulse'),
-        (u'israel', u'http://www.al-monitor.com/pulse/israel-pulse'),
-        (u'lebanon', u'http://www.al-monitor.com/pulse/lebanon-pulse'),
-        (u'palistine', u'http://www.al-monitor.com/pulse/palistine-pulse'),
-        (u'syria', u'http://www.al-monitor.com/pulse/syria-pulse'),
-        (u'turkey', u'http://www.al-monitor.com/pulse/turkey-pulse'),
+        ('egypt', 'http://www.al-monitor.com/pulse/egypt-pulse'),
+        ('gulf', 'http://www.al-monitor.com/pulse/gulf-pulse'),
+        ('iran', 'http://www.al-monitor.com/pulse/iran-pulse'),
+        ('iraq', 'http://www.al-monitor.com/pulse/iraq-pulse'),
+        ('israel', 'http://www.al-monitor.com/pulse/israel-pulse'),
+        ('lebanon', 'http://www.al-monitor.com/pulse/lebanon-pulse'),
+        ('palistine', 'http://www.al-monitor.com/pulse/palistine-pulse'),
+        ('syria', 'http://www.al-monitor.com/pulse/syria-pulse'),
+        ('turkey', 'http://www.al-monitor.com/pulse/turkey-pulse'),
     ]
 
     # util for creating remove_tags and keep_tags style regex matchers
@@ -55,17 +55,21 @@ class AlMonitor(BasicNewsRecipe):
         return dict(name=elt, attrs={attr: re.compile(rgx_str, re.IGNORECASE)})
 
     remove_tags = [
-        dict(attrs={'id': [
-            'header',
-            'pulsebanner',
-            'relatedarticles',
-            'sidecolumn',
-            'disqus',
-            'footer',
-            'footer2',
-            'footer3',
-            'mobile-extras',
-        ]}),
+        dict(
+            attrs={
+                'id': [
+                    'header',
+                    'pulsebanner',
+                    'relatedarticles',
+                    'sidecolumn',
+                    'disqus',
+                    'footer',
+                    'footer2',
+                    'footer3',
+                    'mobile-extras',
+                ]
+            }
+        ),
         tag_matcher('hr', 'id', 'spacer'),
         tag_matcher('a', 'title', 'print this article'),
         tag_matcher('div', 'class', 'extras'),
@@ -124,13 +128,7 @@ class AlMonitor(BasicNewsRecipe):
         self.urls_done.append(full_url)
         if len(self.articles[section]) >= self.max_articles_per_section:
             return
-        self.articles[section].append(
-            dict(title=title,
-                 url=full_url,
-                 date='',
-                 description='',
-                 author='',
-                 content=''))
+        self.articles[section].append(dict(title=title, url=full_url, date='', description='', author='', content=''))
 
     def preprocess_raw_html(self, raw_html, url):
         reason_to_skip = self.should_skip_article(BeautifulSoup(raw_html))
@@ -157,7 +155,7 @@ class AlMonitor(BasicNewsRecipe):
             return False
 
         age = (datetime.datetime.now() - date).days
-        if (age > self.oldest_article):
+        if age > self.oldest_article:
             return 'too old'
         return False
 
@@ -203,10 +201,16 @@ class AlMonitor(BasicNewsRecipe):
         return self.tag_to_string(n).strip()
 
     def _dbg_soup_node(self, node):
-        return ('   cls: ' + str(node.get('class')).strip() +
-                '  id: ' + str(node.get('id')).strip() +
-                '  role: ' + str(node.get('role')).strip() +
-                ' txt: ' + self.text(node))
+        return (
+            '   cls: '
+            + str(node.get('class')).strip()
+            + '  id: '
+            + str(node.get('id')).strip()
+            + '  role: '
+            + str(node.get('role')).strip()
+            + ' txt: '
+            + self.text(node)
+        )
 
     def _p(self, msg):
         curframe = inspect.currentframe()

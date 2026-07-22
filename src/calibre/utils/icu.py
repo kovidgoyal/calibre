@@ -1,8 +1,5 @@
 #!/usr/bin/env python
-
-__license__   = 'GPL v3'
-__copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2010, Kovid Goyal <kovid@kovidgoyal.net>
 
 # Setup code {{{
 import codecs
@@ -21,14 +18,14 @@ _none2 = b''
 _cmap = {}
 
 icu_unicode_version = _icu.unicode_version
-_nmodes = {m:getattr(_icu, m) for m in ('NFC', 'NFD', 'NFKC', 'NFKD')}
+_nmodes = {m: getattr(_icu, m) for m in ('NFC', 'NFD', 'NFKC', 'NFKD')}
 
 
 # Ensure that the python internal filesystem and default encodings are not ASCII
 def is_ascii(name):
     try:
         return codecs.lookup(name).name == b'ascii'
-    except (TypeError, LookupError):
+    except TypeError, LookupError:
         return True
 
 
@@ -37,6 +34,7 @@ try:
         _icu.set_default_encoding(b'utf-8')
 except Exception:
     import traceback
+
     traceback.print_exc()
 
 try:
@@ -44,12 +42,12 @@ try:
         _icu.set_filesystem_encoding(b'utf-8')
 except Exception:
     import traceback
+
     traceback.print_exc()
 del is_ascii
 
 
 class ThreadLocalCollatorCache(threading.local):
-
     def __init__(self):
         self.cache = {}
 
@@ -64,6 +62,7 @@ def collator(strength=None, numeric=None, ignore_alternate_chars=None, upper_fir
             _locale = tweaks['locale_for_sorting']
         else:
             from calibre.utils.localization import get_lang
+
             _locale = get_lang()
     key = strength, numeric, ignore_alternate_chars, upper_first
     if (ans := thread_local_collator_cache.cache.get(key)) is not None:
@@ -100,32 +99,32 @@ def change_locale(locale=None):
 
 
 def primary_collator():
-    'Ignores case differences and accented chars'
+    "Ignores case differences and accented chars"
     return collator(strength=_icu.UCOL_PRIMARY)
 
 
 def primary_collator_without_punctuation():
-    'Ignores space and punctuation and case differences and accented chars'
+    "Ignores space and punctuation and case differences and accented chars"
     return collator(strength=_icu.UCOL_PRIMARY, ignore_alternate_chars=True)
 
 
 def sort_collator():
-    'Ignores case differences and recognizes numbers in strings (if the tweak is set)'
+    "Ignores case differences and recognizes numbers in strings (if the tweak is set)"
     return collator(strength=_icu.UCOL_SECONDARY, numeric=prefs['numeric_collation'])
 
 
 def non_numeric_sort_collator():
-    'Ignores case differences only'
+    "Ignores case differences only"
     return collator(strength=_icu.UCOL_SECONDARY, numeric=False)
 
 
 def numeric_collator():
-    'Uses natural sorting for numbers inside strings so something2 will sort before something10'
+    "Uses natural sorting for numbers inside strings so something2 will sort before something10"
     return collator(strength=_icu.UCOL_SECONDARY, numeric=True)
 
 
 def case_sensitive_collator():
-    'Always sorts upper case letter before lower case'
+    "Always sorts upper case letter before lower case"
     return collator(numeric=prefs['numeric_collation'], upper_first=True)
 
 
@@ -199,10 +198,12 @@ def make_change_case_func(which, name):
                     return x
                 return _icu.change_case(x, which, _locale)
             raise
+
     change_case.__name__ = name
     return change_case
-# }}}
 
+
+# }}}
 
 # ################ The string functions ########################################
 sort_key = make_sort_key_func(sort_collator)
@@ -223,7 +224,7 @@ title_case = make_change_case_func(_icu.TITLE_CASE, 'title_case')
 def capitalize(x):
     try:
         return upper(x[0]) + lower(x[1:])
-    except (IndexError, TypeError, AttributeError):
+    except IndexError, TypeError, AttributeError:
         return x
 
 
@@ -245,14 +246,14 @@ word_prefix_find = _icu.word_prefix_find
 def character_name(string):
     try:
         return _icu.character_name(str(string)) or None
-    except (TypeError, ValueError, KeyError):
+    except TypeError, ValueError, KeyError:
         pass
 
 
 def character_name_from_code(code):
     try:
         return _icu.character_name_from_code(code) or ''
-    except (TypeError, ValueError, KeyError):
+    except TypeError, ValueError, KeyError:
         return ''
 
 
@@ -275,10 +276,11 @@ def contractions(col=None):
     return ans
 
 
-def partition_by_first_letter(items, reverse=False, key=lambda x:x):
+def partition_by_first_letter(items, reverse=False, key=lambda x: x):
     # Build a list of 'equal' first letters by noticing changes
     # in ICU's 'ordinal' for the first letter.
     from collections import OrderedDict
+
     items = sorted(items, key=lambda x: sort_key(key(x)), reverse=reverse)
     ans = OrderedDict()
     last_c, last_ordnum = ' ', 0
@@ -305,11 +307,14 @@ utf16_length = _icu.utf16_length
 def remove_accents_icu(txt: str) -> str:
     t = getattr(remove_accents_icu, 'transliterator', None)
     if t is None:
-        t = _icu.Transliterator('remove_accents', '''\
+        t = _icu.Transliterator(
+            'remove_accents',
+            '''\
 :: NFD (NFC);
 :: [:Nonspacing Mark:] Remove;
 :: NFC (NFD);
-''')
+''',
+        )
         setattr(remove_accents_icu, 'transliterator', t)
     return t.transliterate(txt)
 
@@ -320,8 +325,10 @@ _remove_accents_pat = None
 def remove_accents_regex(txt: str) -> str:
     global _remove_accents_pat
     import unicodedata
+
     if _remove_accents_pat is None:
         import regex
+
         _remove_accents_pat = regex.compile(r'\p{Mn}', flags=regex.UNICODE)
     return unicodedata.normalize('NFKC', _remove_accents_pat.sub('', unicodedata.normalize('NFKD', txt)))
 
@@ -331,4 +338,5 @@ remove_accents = remove_accents_regex  # more robust and faster
 ################################################################################
 if __name__ == '__main__':
     from calibre.utils.icu_test import run
+
     run(verbosity=4)

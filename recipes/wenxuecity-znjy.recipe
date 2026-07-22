@@ -11,7 +11,6 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class TheCND(BasicNewsRecipe):
-
     title = 'wenxuecity - znjy'
     __author__ = 'Derek Liang'
     description = ''
@@ -21,8 +20,7 @@ class TheCND(BasicNewsRecipe):
 
     remove_tags_before = dict(name='div', id='message')
     remove_tags_after = dict(name='div', id='message')
-    remove_tags = [dict(name='div', id='postmeta'),
-                   dict(name='div', id='footer')]
+    remove_tags = [dict(name='div', id='postmeta'), dict(name='div', id='footer')]
     no_stylesheets = True
 
     preprocess_regexps = [(re.compile(r'<!--.*?-->', re.DOTALL), lambda m: '')]
@@ -42,14 +40,11 @@ class TheCND(BasicNewsRecipe):
                 url = 'http://bbs.wenxuecity.com' + url
             title = self.tag_to_string(a)
             self.log('\tFound article: ', title, ' at:', url)
-            dateReg = re.search(r'(\d\d?)/(\d\d?)/(\d\d)',
-                                self.tag_to_string(a.parent))
-            date = '%(y)s/%(m)02d/%(d)02d' % {'y': dateReg.group(3),
-                                              'm': int(dateReg.group(1)), 'd': int(dateReg.group(2))}
+            dateReg = re.search(r'(\d\d?)/(\d\d?)/(\d\d)', self.tag_to_string(a.parent))
+            date = '%(y)s/%(m)02d/%(d)02d' % {'y': dateReg.group(3), 'm': int(dateReg.group(1)), 'd': int(dateReg.group(2))}
             if date not in articles:
                 articles[date] = []
-            articles[date].append(
-                {'title': title, 'url': url, 'description': '', 'date': ''})
+            articles[date].append({'title': title, 'url': url, 'description': '', 'date': ''})
             self.log('\t\tAppend to : ', date)
 
         self.log('log articles', articles)

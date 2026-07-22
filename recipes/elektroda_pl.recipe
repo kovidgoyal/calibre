@@ -3,7 +3,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class Elektroda(BasicNewsRecipe):
-    title = u'Elektroda'
+    title = 'Elektroda'
     oldest_article = 8
     __author__ = 'fenuks'
     description = 'Międzynarodowy portal elektroniczny udostępniający bogate zasoby z dziedziny elektroniki oraz forum dyskusyjne.'
@@ -12,11 +12,9 @@ class Elektroda(BasicNewsRecipe):
     language = 'pl'
     max_articles_per_feed = 100
     no_stylesheets = True
-    feeds = [(u'Elektroda', u'http://www.elektroda.pl/rtvforum/rss.php')]
+    feeds = [('Elektroda', 'http://www.elektroda.pl/rtvforum/rss.php')]
 
-    keep_only_tags = [dict(name='div', attrs={'class': 'title-wrap pull-left'}),
-                      dict(name='ul', attrs={'class': 'topic-lists clearfix'})
-    ]
+    keep_only_tags = [dict(name='div', attrs={'class': 'title-wrap pull-left'}), dict(name='ul', attrs={'class': 'topic-lists clearfix'})]
 
     def preprocess_html(self, soup):
         tag = soup.find('span', attrs={'class': 'postbody'})
@@ -29,5 +27,5 @@ class Elektroda(BasicNewsRecipe):
         feeds = BasicNewsRecipe.parse_feeds(self)
         for feed in feeds:
             for article in feed.articles[:]:
-                article.title = article.title[article.title.find('::') + 3:]
+                article.title = article.title[article.title.find('::') + 3 :]
         return feeds

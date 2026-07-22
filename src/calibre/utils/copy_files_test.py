@@ -19,16 +19,17 @@ if iswindows:
 
 
 class TestCopyFiles(unittest.TestCase):
-
     ae = unittest.TestCase.assertEqual
 
     def setUp(self):
         self.tdir = t = tempfile.mkdtemp()
+
         def wf(*parts):
             d = os.path.join(t, *parts)
             os.makedirs(os.path.dirname(d), exist_ok=True)
             with open(d, 'w') as f:
                 f.write(' '.join(parts))
+
         wf('base'), wf('src/one'), wf('src/sub/a')
         if not iswindows:
             os.symlink('sub/a', os.path.join(t, 'src/link'))
@@ -73,7 +74,15 @@ class TestCopyFiles(unittest.TestCase):
         self.ae(good, os.path.join(root, 'data', 'file.txt'))
         self.assertTrue(is_path_inside(root, good))
         self.assertTrue(is_path_inside(os.path.join(self.tdir, 'ROOT'), good, case_sensitive=False))
-        for bad in '../Root sibling/file.txt', 'data/../../Root sibling/file.txt', '/tmp/x', 'C:/x', 'C:x', 'data//x', 'data/./x':
+        for bad in (
+            '../Root sibling/file.txt',
+            'data/../../Root sibling/file.txt',
+            '/tmp/x',
+            'C:/x',
+            'C:x',
+            'data//x',
+            'data/./x',
+        ):
             with self.assertRaises(ValueError):
                 path_from_root(root, bad)
         self.assertTrue(path_from_root(root, 'name:with-colon.txt').endswith('name:with-colon.txt'))
@@ -82,15 +91,14 @@ class TestCopyFiles(unittest.TestCase):
 
     def test_pread_all(self):
         from calibre_extensions.speedup import pread_all
+
         n = os.path.join(self.tdir, 'base')
-        data = os.urandom(1137*1024)
+        data = os.urandom(1137 * 1024)
         with open(n, 'wb') as f:
             f.write(data)
         with open(n, 'rb') as f:
-            for n, offset in {
-                0:0, 3:0, 13:13
-            }.items():
-                self.assertEqual(data[offset:offset+n], pread_all(f.fileno(), n, offset))
+            for n, offset in {0: 0, 3: 0, 13: 13}.items():
+                self.assertEqual(data[offset : offset + n], pread_all(f.fileno(), n, offset))
             self.assertEqual(data, pread_all(f.fileno(), len(data)))
 
     def test_copying_of_trees(self):
@@ -138,9 +146,12 @@ class TestCopyFiles(unittest.TestCase):
             shutil.rmtree(dest)
             os.mkdir(dest)
             h = winutil.create_file(
-                self.s('lockdir'), winutil.GENERIC_READ|winutil.GENERIC_WRITE|winutil.DELETE,
-                winutil.FILE_SHARE_READ|winutil.FILE_SHARE_WRITE|winutil.FILE_SHARE_DELETE, winutil.OPEN_EXISTING,
-                winutil.FILE_FLAG_BACKUP_SEMANTICS)
+                self.s('lockdir'),
+                winutil.GENERIC_READ | winutil.GENERIC_WRITE | winutil.DELETE,
+                winutil.FILE_SHARE_READ | winutil.FILE_SHARE_WRITE | winutil.FILE_SHARE_DELETE,
+                winutil.OPEN_EXISTING,
+                winutil.FILE_FLAG_BACKUP_SEMANTICS,
+            )
             with closing(h):
                 self.assertRaises(IOError, copy_tree, src, dest, delete_source=True)
                 self.ae(set(os.listdir(self.d())), {'sub', 'lockdir'})

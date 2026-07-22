@@ -1,6 +1,4 @@
-__license__   = 'GPL v3'
-__copyright__ = '2009, John Schember <john@nachtimwald.com>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2009, John Schember <john@nachtimwald.com>
 
 import glob
 import os
@@ -12,12 +10,11 @@ from calibre.utils.localization import _
 
 
 class PMLInput(InputFormatPlugin):
-
-    name        = 'PML Input'
-    author      = 'John Schember'
+    name = 'PML Input'
+    author = 'John Schember'
     description = _('Convert PML to OEB')
     # pmlz is a zip file containing pml files and png images.
-    file_types  = {'pml', 'pmlz'}
+    file_types = {'pml', 'pmlz'}
     commit_name = 'pml_input'
 
     def process_pml(self, pml_path, html_path, close_all=False):
@@ -86,8 +83,7 @@ class PMLInput(InputFormatPlugin):
 
         return images
 
-    def convert(self, stream, options, file_ext, log,
-                accelerators):
+    def convert(self, stream, options, file_ext, log, accelerators):
         from calibre.ebooks.metadata.opf2 import OPFCreator
         from calibre.ebooks.metadata.toc import TOC
         from calibre.utils.zipfile import ZipFile
@@ -105,7 +101,7 @@ class PMLInput(InputFormatPlugin):
 
                 pmls = glob.glob(os.path.join(tdir, '*.pml'))
                 for pml in pmls:
-                    html_name = os.path.splitext(os.path.basename(pml))[0]+'.html'
+                    html_name = os.path.splitext(os.path.basename(pml))[0] + '.html'
                     html_path = os.path.join(os.getcwd(), html_name)
 
                     pages.append(html_name)
@@ -124,10 +120,11 @@ class PMLInput(InputFormatPlugin):
         pages.sort()
 
         manifest_items = []
-        for item in pages+images:
+        for item in pages + images:
             manifest_items.append((item, None))
 
         from calibre.ebooks.metadata.meta import get_metadata
+
         log.debug('Reading metadata from input file...')
         mi = get_metadata(stream, 'pml')
         if 'images/cover.png' in images:
@@ -145,6 +142,7 @@ class PMLInput(InputFormatPlugin):
 
     def postprocess_book(self, oeb, opts, log):
         from calibre.ebooks.oeb.base import XHTML, barename
+
         for item in oeb.spine:
             if hasattr(item.data, 'xpath'):
                 for heading in item.data.iterdescendants(*map(XHTML, 'h1 h2 h3 h4 h5 h6'.split())):

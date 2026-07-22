@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2025, Kovid Goyal <kovid at kovidgoyal.net>
 
-
 from functools import partial
 
 from qt.core import QCheckBox, QFormLayout, QLabel, QLineEdit, QWidget
@@ -16,21 +15,24 @@ pref = partial(pref_for_provider, GoogleAI.name)
 
 
 class ConfigWidget(QWidget):
-
     def __init__(self, parent: QWidget | None = None):
         super().__init__(parent)
         l = QFormLayout(self)
         l.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.ExpandingFieldsGrow)
-        la = QLabel('<p>'+_(
-            'You have to create an account at {0}, then generate an'
-            ' API key. After that, you can use the Google AI services a limited number of times a day for free.'
-            ' For more extensive use, you will need to setup a <a href="{1}">Google Cloud billing account</a>.'
-            ' Note that Google will use your prompts for their training data unless you setup the billing account.'
-            ' <a href="{2}>Pricing details</a> for different models.'
-        ).format(
-            '<a href="https://aistudio.google.com/">Google AI Studio</a>',
-            'https://aistudio.google.com/usage', 'https://ai.google.dev/gemini-api/docs/pricing',
-        ))
+        la = QLabel(
+            '<p>'
+            + _(
+                'You have to create an account at {0}, then generate an'
+                ' API key. After that, you can use the Google AI services a limited number of times a day for free.'
+                ' For more extensive use, you will need to setup a <a href="{1}">Google Cloud billing account</a>.'
+                ' Note that Google will use your prompts for their training data unless you setup the billing account.'
+                ' <a href="{2}>Pricing details</a> for different models.'
+            ).format(
+                '<a href="https://aistudio.google.com/">Google AI Studio</a>',
+                'https://aistudio.google.com/usage',
+                'https://ai.google.dev/gemini-api/docs/pricing',
+            )
+        )
         la.setWordWrap(True)
         la.setOpenExternalLinks(True)
         l.addRow(la)
@@ -67,8 +69,10 @@ class ConfigWidget(QWidget):
     @property
     def settings(self) -> dict[str, str | bool]:
         return {
-            'api_key': encode_secret(self.api_key), 'model_choice_strategy': self.model_choice_strategy,
-            'reasoning_strategy': self.reasoning_strategy, 'allow_web_searches': self.allow_web_searches,
+            'api_key': encode_secret(self.api_key),
+            'model_choice_strategy': self.model_choice_strategy,
+            'reasoning_strategy': self.reasoning_strategy,
+            'allow_web_searches': self.allow_web_searches,
         }
 
     @property

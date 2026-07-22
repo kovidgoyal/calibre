@@ -1,9 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__   = 'GPL v3'
-__copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2010, Kovid Goyal <kovid@kovidgoyal.net>
 
 import os
 from collections import defaultdict
@@ -65,28 +61,28 @@ def ask_about_cc_mismatch(gui, db, newdb, missing_cols, incompatible_cols):  # {
     w.setLayout(l)
     d.setMinimumWidth(600)
     d.setMinimumHeight(500)
-    bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok|QDialogButtonBox.StandardButton.Cancel)
+    bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)
 
-    msg = _('The custom columns in the <i>{0}</i> library are different from the '
-        'custom columns in the <i>{1}</i> library. As a result, some metadata might not be copied.').format(
-        os.path.basename(db.library_path), ndbname)
+    msg = _(
+        'The custom columns in the <i>{0}</i> library are different from the '
+        'custom columns in the <i>{1}</i> library. As a result, some metadata might not be copied.'
+    ).format(os.path.basename(db.library_path), ndbname)
     la = QLabel(msg)
     la.setWordWrap(True)
     la.setStyleSheet('QLabel { margin-bottom: 1.5ex }')
     l.addRow(la)
     if incompatible_cols:
-        la = QLabel(_('The following columns are incompatible - they have the same name'
-                ' but different data types. They will be ignored: ') +
-                    ', '.join(sorted(incompatible_cols, key=sort_key)))
+        la = QLabel(
+            _('The following columns are incompatible - they have the same name but different data types. They will be ignored: ')
+            + ', '.join(sorted(incompatible_cols, key=sort_key))
+        )
         la.setWordWrap(True)
         la.setStyleSheet('QLabel { margin-bottom: 1.5ex }')
         l.addRow(la)
 
     missing_widgets = []
     if missing_cols:
-        la = QLabel(_('The following columns are missing in the <i>{0}</i> library.'
-                                ' You can choose to add them automatically below.').format(
-                                    ndbname))
+        la = QLabel(_('The following columns are missing in the <i>{0}</i> library. You can choose to add them automatically below.').format(ndbname))
         la.setWordWrap(True)
         l.addRow(la)
         for k in missing_cols:
@@ -107,23 +103,29 @@ def ask_about_cc_mismatch(gui, db, newdb, missing_cols, incompatible_cols):  # {
             if cb.isChecked():
                 col_meta = source_metadata[k]
                 newdb.create_custom_column(
-                            col_meta['label'], col_meta['name'], col_meta['datatype'],
-                            len(col_meta['is_multiple']) > 0,
-                            col_meta['is_editable'], col_meta['display'])
+                    col_meta['label'],
+                    col_meta['name'],
+                    col_meta['datatype'],
+                    len(col_meta['is_multiple']) > 0,
+                    col_meta['is_editable'],
+                    col_meta['display'],
+                )
                 changes_made = True
         if changes_made:
             # Unload the db so that the changes are available
             # when it is next accessed
             from calibre.gui2.ui import get_gui
+
             library_broker = get_gui(fail_if_absent=True).library_broker
             library_broker.unload_library(dest_library_path)
         return True
     return False
+
+
 # }}}
 
 
 class Worker(Thread):  # {{{
-
     def __init__(self, ids, db, loc, progress, done, delete_after, add_duplicates):
         Thread.__init__(self)
         self.was_canceled = False
@@ -150,6 +152,7 @@ class Worker(Thread):  # {{{
             self.doit()
         except Exception as err:
             import traceback
+
             try:
                 err = str(err)
             except Exception:
@@ -160,6 +163,7 @@ class Worker(Thread):  # {{{
 
     def doit(self):
         from calibre.gui2.ui import get_gui
+
         library_broker = get_gui(fail_if_absent=True).library_broker
         newdb = library_broker.get_library(self.loc)
         self.find_identical_books_data = None
@@ -179,6 +183,7 @@ class Worker(Thread):  # {{{
                 self.do_one(i, x, newdb)
             except Exception as err:
                 import traceback
+
                 err = as_unicode(err)
                 self.failed_books[x] = (err, as_unicode(traceback.format_exc()))
 
@@ -187,11 +192,14 @@ class Worker(Thread):  # {{{
         if self.check_for_duplicates:
             duplicate_action = 'add_formats_to_existing' if prefs['add_formats_to_existing'] else 'ignore'
         rdata = copy_one_book(
-                book_id, self.db, newdb,
-                preserve_date=gprefs['preserve_date_on_ctl'],
-                duplicate_action=duplicate_action, automerge_action=gprefs['automerge'],
-                identical_books_data=self.find_identical_books_data,
-                preserve_uuid=self.delete_after
+            book_id,
+            self.db,
+            newdb,
+            preserve_date=gprefs['preserve_date_on_ctl'],
+            duplicate_action=duplicate_action,
+            automerge_action=gprefs['automerge'],
+            identical_books_data=self.find_identical_books_data,
+            preserve_uuid=self.delete_after,
         )
         self.progress(num, rdata['title'])
         if rdata['action'] == 'automerge':
@@ -199,11 +207,12 @@ class Worker(Thread):  # {{{
         elif rdata['action'] == 'duplicate':
             self.duplicate_ids[book_id] = (rdata['title'], rdata['authors'])
         self.processed.add(book_id)
+
+
 # }}}
 
 
 class ChooseLibrary(Dialog):  # {{{
-
     def __init__(self, parent, locations):
         self.locations = locations
         Dialog.__init__(self, _('Choose library'), 'copy_to_choose_library_dialog', parent)
@@ -234,9 +243,11 @@ class ChooseLibrary(Dialog):  # {{{
         sa.setChecked(bool(gprefs.get('copy_to_library_choose_library_sort_alphabetically', True)))
         sa.stateChanged.connect(self.resort)
 
-        connect_lambda(sa.stateChanged, self, lambda self:
-                gprefs.set('copy_to_library_choose_library_sort_alphabetically',
-                bool(self.sort_alphabetically.isChecked())))
+        connect_lambda(
+            sa.stateChanged,
+            self,
+            lambda self: gprefs.set('copy_to_library_choose_library_sort_alphabetically', bool(self.sort_alphabetically.isChecked())),
+        )
         la = self.la = QLabel(_('Library &path:'))
         v.addWidget(la)
         le = self.le = QLineEdit(self)
@@ -275,26 +286,27 @@ class ChooseLibrary(Dialog):  # {{{
             self.le.setText(loc)
 
     def browse(self):
-        d = choose_dir(self, 'choose_library_for_copy',
-                       _('Choose library'))
+        d = choose_dir(self, 'choose_library_for_copy', _('Choose library'))
         if d:
             self.le.setText(d)
 
     @property
     def args(self):
         return (str(self.le.text()), self.delete_after_copy)
+
+
 # }}}
 
 
 class DuplicatesQuestion(QDialog):  # {{{
-
     def __init__(self, parent, duplicates, loc):
         QDialog.__init__(self, parent)
         l = QVBoxLayout()
         self.setLayout(l)
-        self.la = la = QLabel(_('Books with the same, title, author and language as the following already exist in the library %s.'
-                                ' Select which books you want copied anyway.') %
-                              os.path.basename(loc))
+        self.la = la = QLabel(
+            _('Books with the same, title, author and language as the following already exist in the library %s. Select which books you want copied anyway.')
+            % os.path.basename(loc)
+        )
         la.setWordWrap(True)
         l.addWidget(la)
         self.setWindowTitle(_('Duplicate books'))
@@ -323,8 +335,7 @@ class DuplicatesQuestion(QDialog):  # {{{
         self.resize(600, 400)
 
     def copy_to_clipboard(self):
-        items = [('✓' if item.checkState() == Qt.CheckState.Checked else '✗') + ' ' + str(item.text())
-                 for item in self.items]
+        items = [('✓' if item.checkState() == Qt.CheckState.Checked else '✗') + ' ' + str(item.text()) for item in self.items]
         _clipboard = QApplication.clipboard()
         assert _clipboard is not None
         _clipboard.setText('\n'.join(items))
@@ -340,8 +351,9 @@ class DuplicatesQuestion(QDialog):  # {{{
     @property
     def ids(self):
         return {int(i.data(Qt.ItemDataRole.UserRole)) for i in self.items if i.checkState() == Qt.CheckState.Checked}
-# }}}
 
+
+# }}}
 
 # Static session-long set of pairs of libraries that have had their custom columns
 # checked for compatibility
@@ -349,10 +361,8 @@ libraries_with_checked_columns = defaultdict(set)
 
 
 class CopyToLibraryAction(InterfaceAction):
-
     name = 'Copy To Library'
-    action_spec = (_('Copy to library'), 'copy-to-library.png',
-            _('Copy selected books to the specified library'), None)
+    action_spec = (_('Copy to library'), 'copy-to-library.png', _('Copy selected books to the specified library'), None)
     popup_type = QToolButton.ToolButtonPopupMode.InstantPopup
     dont_add_to = frozenset(['context-menu-device'])
     action_type = 'current'
@@ -391,11 +401,10 @@ class CopyToLibraryAction(InterfaceAction):
         for name, loc in locations:
             ic = library_qicon(name)
             name = name.replace('&', '&&')
-            self.menu.addAction(ic, name, partial(self.copy_to_library,
-                loc)).setStatusTip(_('Copy to: {}').format(loc))
-            self.menu.addAction(ic, name + ' ' + _('(delete after copy)'),
-                    partial(self.copy_to_library, loc, delete_after=True)).setStatusTip(
-                            _('Move to: {}').format(loc))
+            self.menu.addAction(ic, name, partial(self.copy_to_library, loc)).setStatusTip(_('Copy to: {}').format(loc))
+            self.menu.addAction(ic, name + ' ' + _('(delete after copy)'), partial(self.copy_to_library, loc, delete_after=True)).setStatusTip(
+                _('Move to: {}').format(loc)
+            )
             self.menu.addSeparator()
         if len(locations) <= 5:
             self.menu.addAction(_('Choose library...'), self.choose_library)
@@ -416,25 +425,22 @@ class CopyToLibraryAction(InterfaceAction):
             db = self.gui.library_view.model().db
             current = os.path.normcase(os.path.abspath(db.library_path))
             if current == os.path.normcase(os.path.abspath(path)):
-                return error_dialog(self.gui, _('Cannot copy'),
-                    _('Cannot copy to current library.'), show=True)
+                return error_dialog(self.gui, _('Cannot copy'), _('Cannot copy to current library.'), show=True)
             self.copy_to_library(path, delete_after)
 
     def _column_is_compatible(self, source_metadata, dest_metadata):
-        return (source_metadata['datatype'] == dest_metadata['datatype'] and
-                    (source_metadata['datatype'] != 'text' or
-                     source_metadata['is_multiple'] == dest_metadata['is_multiple']))
+        return source_metadata['datatype'] == dest_metadata['datatype'] and (
+            source_metadata['datatype'] != 'text' or source_metadata['is_multiple'] == dest_metadata['is_multiple']
+        )
 
     def copy_to_library(self, loc, delete_after=False):
         rows = self.gui.library_view.selectionModel().selectedRows()
         if not rows or len(rows) == 0:
-            return error_dialog(self.gui, _('Cannot copy'),
-                    _('No books selected'), show=True)
+            return error_dialog(self.gui, _('Cannot copy'), _('No books selected'), show=True)
         ids = list(map(self.gui.library_view.model().id, rows))
         db = self.gui.library_view.model().db
         if not db.exists_at(loc):
-            return error_dialog(self.gui, _('No library'),
-                    _('No library found at %s')%loc, show=True)
+            return error_dialog(self.gui, _('No library'), _('No library found at %s') % loc, show=True)
 
         # Open the new db so we can check the custom columns. We use only the
         # backend since we only need the custom column definitions, not the
@@ -443,12 +449,12 @@ class CopyToLibraryAction(InterfaceAction):
         global libraries_with_checked_columns
 
         from calibre.db.legacy import create_backend
+
         newdb = create_backend(loc, load_user_formatter_functions=False)
 
         continue_processing = True
         with closing(newdb):
             if newdb.library_id not in libraries_with_checked_columns[db.library_id]:
-
                 newdb_meta = newdb.field_metadata.custom_field_metadata()
                 incompatible_columns = []
                 missing_columns = []
@@ -462,8 +468,7 @@ class CopyToLibraryAction(InterfaceAction):
                         incompatible_columns.append(k)
 
                 if missing_columns or incompatible_columns:
-                    continue_processing = ask_about_cc_mismatch(self.gui, db, newdb,
-                                            missing_columns, incompatible_columns)
+                    continue_processing = ask_about_cc_mismatch(self.gui, db, newdb, missing_columns, incompatible_columns)
                 if continue_processing:
                     libraries_with_checked_columns[db.library_id].add(newdb.library_id)
 
@@ -482,17 +487,24 @@ class CopyToLibraryAction(InterfaceAction):
     def do_copy(self, ids, db, loc, delete_after, add_duplicates=False):
         aname = _('Moving to') if delete_after else _('Copying to')
         dtitle = f'{aname} {os.path.basename(loc)}'
-        self.pd = ProgressDialog(dtitle, min=0, max=len(ids)-1,
-                parent=self.gui, cancelable=True, icon='lt.png', cancel_confirm_msg=_(
-                    'Aborting this operation means that only some books will be copied'
-                    ' and resuming a partial copy is not supported. Are you sure you want to abort?'))
+        self.pd = ProgressDialog(
+            dtitle,
+            min=0,
+            max=len(ids) - 1,
+            parent=self.gui,
+            cancelable=True,
+            icon='lt.png',
+            cancel_confirm_msg=_(
+                'Aborting this operation means that only some books will be copied'
+                ' and resuming a partial copy is not supported. Are you sure you want to abort?'
+            ),
+        )
 
         def progress(idx, title):
             self.pd.set_msg(title)
             self.pd.set_value(idx)
 
-        self.worker = Worker(ids, db, loc, Dispatcher(progress),
-                             Dispatcher(self.pd.accept), delete_after, add_duplicates)
+        self.worker = Worker(ids, db, loc, Dispatcher(progress), Dispatcher(self.pd.accept), delete_after, add_duplicates)
         self.worker.start()
         self.pd.canceled_signal.connect(self.worker.cancel_processing)
 
@@ -503,34 +515,39 @@ class CopyToLibraryAction(InterfaceAction):
             msg = _('The copying process was interrupted. {} books were copied.').format(len(self.worker.processed))
             if delete_after:
                 msg += ' ' + _('No books were deleted from this library.')
-            msg += ' ' + _('The best way to resume this operation is to re-copy all the books with the option to'
-                     ' "Check for duplicates when copying to library" in Preferences->Import/export->Adding books turned on.')
+            msg += ' ' + _(
+                'The best way to resume this operation is to re-copy all the books with the option to'
+                ' "Check for duplicates when copying to library" in Preferences->Import/export->Adding books turned on.'
+            )
             warning_dialog(self.gui, _('Canceled'), msg, show=True)
             return
 
         if self.worker.error is not None:
             e, tb = self.worker.error
-            error_dialog(self.gui, _('Failed'), _('Could not copy books: ') + e,
-                    det_msg=tb, show=True)
+            error_dialog(self.gui, _('Failed'), _('Could not copy books: ') + e, det_msg=tb, show=True)
             return
 
         if delete_after:
-            donemsg = _('Moved the book to {loc}') if len(self.worker.processed) == 1 else _(
-                'Moved {num} books to {loc}')
+            donemsg = _('Moved the book to {loc}') if len(self.worker.processed) == 1 else _('Moved {num} books to {loc}')
         else:
-            donemsg = _('Copied the book to {loc}') if len(self.worker.processed) == 1 else _(
-                'Copied {num} books to {loc}')
+            donemsg = _('Copied the book to {loc}') if len(self.worker.processed) == 1 else _('Copied {num} books to {loc}')
 
         self.gui.status_bar.show_message(donemsg.format(num=len(self.worker.processed), loc=loc), 2000)
         if self.worker.auto_merged_ids:
             books = '\n'.join(self.worker.auto_merged_ids.values())
-            info_dialog(self.gui, _('Auto merged'),
-                    _('Some books were automatically merged into existing '
-                        'records in the target library. Click "Show '
-                        'details" to see which ones. This behavior is '
-                        'controlled by the Auto-merge option in '
-                        'Preferences->Import/export->Adding books->Adding actions.'), det_msg=books,
-                    show=True)
+            info_dialog(
+                self.gui,
+                _('Auto merged'),
+                _(
+                    'Some books were automatically merged into existing '
+                    'records in the target library. Click "Show '
+                    'details" to see which ones. This behavior is '
+                    'controlled by the Auto-merge option in '
+                    'Preferences->Import/export->Adding books->Adding actions.'
+                ),
+                det_msg=books,
+                show=True,
+            )
         done_ids = frozenset(self.worker.processed) - frozenset(self.worker.duplicate_ids)
         if delete_after and done_ids:
             v = self.gui.library_view
@@ -543,21 +560,38 @@ class CopyToLibraryAction(InterfaceAction):
             self.gui.iactions['Remove Books'].library_ids_deleted(done_ids, row)
 
         if self.worker.failed_books:
+
             def fmt_err(book_id):
                 err, tb = self.worker.failed_books[book_id]
                 title = db.title(book_id, index_is_id=True)
                 return _('Copying: {0} failed, with error:\n{1}').format(title, tb)
-            title, msg = _('Failed to copy some books'), _('Could not copy some books, click "Show details" for more information.')
+
+            title, msg = (
+                _('Failed to copy some books'),
+                _('Could not copy some books, click "Show details" for more information.'),
+            )
             tb = '\n\n'.join(map(fmt_err, self.worker.failed_books))
-            tb = ngettext('Failed to copy a book, see below for details',
-                          'Failed to copy {} books, see below for details', len(self.worker.failed_books)).format(
-                len(self.worker.failed_books)) + '\n\n' + tb
+            tb = (
+                ngettext(
+                    'Failed to copy a book, see below for details',
+                    'Failed to copy {} books, see below for details',
+                    len(self.worker.failed_books),
+                ).format(len(self.worker.failed_books))
+                + '\n\n'
+                + tb
+            )
             if len(ids) == len(self.worker.failed_books):
-                title, msg = _('Failed to copy books'), _('Could not copy any books, click "Show details" for more information.')
+                title, msg = (
+                    _('Failed to copy books'),
+                    _('Could not copy any books, click "Show details" for more information.'),
+                )
             error_dialog(self.gui, title, msg, det_msg=tb, show=True)
         return self.worker.duplicate_ids
 
     def cannot_do_dialog(self):
-        warning_dialog(self.gui, _('Not allowed'),
-                    _('You cannot use other libraries while using the environment'
-                      ' variable CALIBRE_OVERRIDE_DATABASE_PATH.'), show=True)
+        warning_dialog(
+            self.gui,
+            _('Not allowed'),
+            _('You cannot use other libraries while using the environment variable CALIBRE_OVERRIDE_DATABASE_PATH.'),
+            show=True,
+        )

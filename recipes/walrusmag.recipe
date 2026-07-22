@@ -2,7 +2,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class AdvancedUserRecipe1371743239(BasicNewsRecipe):
-    title = u'The Walrus Mag'
+    title = 'The Walrus Mag'
     description = 'National general interest magazine about Canada and its place in the world'
     language = 'en'
     __author__ = 'Bert'
@@ -10,7 +10,7 @@ class AdvancedUserRecipe1371743239(BasicNewsRecipe):
     max_articles_per_feed = 100
     auto_cleanup = True
 
-    feeds = [(u'The Walrus Mag', u'https://thewalrus.ca/feed/')]
+    feeds = [('The Walrus Mag', 'https://thewalrus.ca/feed/')]
 
     def get_article_url(self, article):
         ans = BasicNewsRecipe.get_article_url(self, article)

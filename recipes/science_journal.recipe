@@ -12,16 +12,13 @@ class science(BasicNewsRecipe):
     title = 'Science Journal'
     __author__ = 'unkn0wn'
     description = (
-        'Science continues to publish the very best in research across the sciences, with articles that '
-        'consistently rank among the most cited in the world.'
+        'Science continues to publish the very best in research across the sciences, with articles that consistently rank among the most cited in the world.'
     )
     encoding = 'utf-8'
     no_javascript = True
     no_stylesheets = True
     remove_attributes = ['style', 'height', 'width']
-    masthead_url = (
-        'https://www.science.org/pb-assets/images/styleguide/logo-1672180580750.svg'
-    )
+    masthead_url = 'https://www.science.org/pb-assets/images/styleguide/logo-1672180580750.svg'
     language = 'en'
     simultaneous_downloads = 1
     browser_type = 'webengine'
@@ -37,17 +34,13 @@ class science(BasicNewsRecipe):
     ignore_duplicate_articles = {'url'}
 
     keep_only_tags = [
-        classes(
-            'meta-panel__left-content news-article__hero__info news-article__hero__figure bodySection'
-        ),
+        classes('meta-panel__left-content news-article__hero__info news-article__hero__figure bodySection'),
         dict(name='h1', attrs={'property': 'name'}),
         dict(name='div', **classes('core-lede contributors core-self-citation')),
         dict(attrs={'data-core-wrapper': 'content'}),
     ]
 
-    remove_tags = [
-        classes('pb-ad news-article__hero__scroller news-article__version-of-story')
-    ]
+    remove_tags = [classes('pb-ad news-article__hero__scroller news-article__version-of-story')]
 
     recipe_specific_options = {
         'issue': {

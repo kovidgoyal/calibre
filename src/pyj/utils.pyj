@@ -2,14 +2,15 @@
 # License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 from __python__ import hash_literals
 
-from ajax import encode_query
 from encodings import hexlify
+
+from ajax import encode_query
 from book_list.theme import get_font_family
 
 
 is_ios = v'!!navigator.platform && /iPad|iPhone|iPod/.test(navigator.platform)'
 ios_major_version = 0
-if !is_ios and v'!!navigator.platform' and window? and window.navigator.platform is 'MacIntel' and window.navigator.maxTouchPoints > 1:
+if ! is_ios and v'!!navigator.platform' and window? and window.navigator.platform is 'MacIntel' and window.navigator.maxTouchPoints > 1:
     # iPad Safari in desktop mode https://stackoverflow.com/questions/57765958/how-to-detect-ipad-and-ipad-os-version-in-ios-13-and-up
     is_ios = True
 if is_ios:
@@ -33,6 +34,7 @@ def debounce(func, wait, immediate=False):
     return def debounce_inner():  # noqa: unused-local
         nonlocal timeout
         context, args = this, arguments
+
         def later():
             nonlocal timeout
             timeout = None
@@ -49,7 +51,7 @@ if Object.assign:
         return Object.assign({}, obj)
 else:
     copy_hash = def (obj):
-        return {k:obj[k] for k in Object.keys(obj)}
+        return {k: obj[k] for k in Object.keys(obj)}
 
 
 def parse_url_params(url=None, allow_multiple=False):
@@ -66,7 +68,7 @@ def parse_url_params(url=None, allow_multiple=False):
     if not q:
         cache[url] = ans
         return copy_hash(ans)
-    pairs = q.replace(/\+/g, " ").split("&")
+    pairs = q.replace(/\+/g, ' ').split('&')
     for pair in pairs:
         key, val = pair.partition('=')[::2]
         key, val = decodeURIComponent(key), decodeURIComponent(val)
@@ -109,9 +111,10 @@ def full_screen_element():
 
 
 _roman = list(zip(
-[1000,900,500,400,100,90,50,40,10,9,5,4,1],
-["M","CM","D","CD","C","XC","L","XL","X","IX","V","IV","I"]
+[1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1],
+['M', 'CM', 'D', 'CD', 'C', 'XC', 'L', 'XL', 'X', 'IX', 'V', 'IV', 'I']
 ))
+
 
 def roman(num):
     if num <= 0 or num >= 4000 or int(num) is not num:
@@ -123,6 +126,7 @@ def roman(num):
             num -= d
     return result.join('')
 
+
 def fmt_sidx(val, fmt='{:.2f}', use_roman=True):
     if val is undefined or val is None or val is '':
         return '1'
@@ -132,6 +136,7 @@ def fmt_sidx(val, fmt='{:.2f}', use_roman=True):
         return int(val) + ''
     return fmt.format(float(val))
 
+
 def rating_to_stars(value, allow_half_stars=False, star='★', half='⯨'):
     r = max(0, min(int(value or 0), 10))
     if allow_half_stars:
@@ -139,7 +144,7 @@ def rating_to_stars(value, allow_half_stars=False, star='★', half='⯨'):
         if r % 2:
             ans += half
     else:
-        ans = star.repeat(int(r/2.0))
+        ans = star.repeat(int(r / 2.0))
     return ans
 
 
@@ -158,11 +163,13 @@ def document_height():
     html = document.documentElement
     return max(document.body.scrollHeight, document.body.offsetHeight, html.clientHeight, html.scrollHeight, html.offsetHeight)
 
+
 def document_width():
     html = document.documentElement
     return max(document.body.scrollWidth, document.body.offsetWidth, html.clientWidth, html.scrollWidth, html.offsetWidth)
 
 _data_ns = None
+
 
 def data_ns(name):
     nonlocal _data_ns
@@ -172,21 +179,26 @@ def data_ns(name):
         _data_ns = 'data-' + hexlify(rand) + '-'
     return _data_ns + name
 
+
 def get_elem_data(elem, name, defval):
     ans = elem.getAttribute(data_ns(name))
     if ans is None:
         return defval ? None
     return JSON.parse(ans)
 
+
 def set_elem_data(elem, name, val):
     elem.setAttribute(data_ns(name), JSON.stringify(val))
+
 
 def username_key(username):
     return ('u' if username else 'n') + username
 
+
 def html_escape(text):
-    repl = { '&': "&amp;", '"': "&quot;", '<': "&lt;", '>': "&gt;" }
+    repl = {'&': '&amp;', '"': '&quot;', '<': '&lt;', '>': '&gt;'}
     return String.prototype.replace.call(text, /[&"<>]/g, def (c): return repl[c];)
+
 
 def uniq(vals):
     # Remove all duplicates from vals, while preserving order
@@ -197,6 +209,7 @@ def uniq(vals):
             seen[x] = True
             ans.push(x)
     return ans
+
 
 def conditional_timeout(elem_id, timeout, func):
     def ct_impl():
@@ -235,7 +248,10 @@ def sandboxed_html(html, style, sandbox):
     ans.setAttribute('seamless', '')
     ans.style.width = '100%'
     html = html or ''
-    css = 'html, body { margin: 0; padding: 0; font-family: __FONT__ } p:first-child { margin-top: 0; padding-top: 0; -webkit-margin-before: 0 }'.replace('__FONT__', get_font_family())
+    css = 'html, body { margin: 0; padding: 0; font-family: __FONT__ } p:first-child { margin-top: 0; padding-top: 0; -webkit-margin-before: 0 }'.replace(
+        '__FONT__',
+        get_font_family()
+    )
     css += style or ''
     final_html = f'<!DOCTYPE html><html><head><style>{css}</style></head><body>{html}</body></html>'
     ans.srcdoc = final_html

@@ -30,7 +30,7 @@ class LeMondeDiplomatiqueEn(BasicNewsRecipe):
     INDEX = PREFIX + strftime('%Y/%m/')
     use_embedded_content = False
     language = 'en'
-    extra_css              = '''
+    extra_css = '''
                                 body{font-family: "Luxi sans","Lucida sans","Lucida Grande",Lucida,"Lucida Sans Unicode",sans-serif}
                                 .surtitre{font-size: 1.2em; font-variant: small-caps; margin-bottom: 0.5em}
                                 .chapo{font-size: 1.2em; font-weight: bold; margin: 1em 0 0.5em}
@@ -38,23 +38,17 @@ class LeMondeDiplomatiqueEn(BasicNewsRecipe):
                                 .notes{border-top: 1px solid #CCCCCC; font-size: 0.9em; line-height: 1.4em}
                             '''
 
-    conversion_options = {
-        'comment': description, 'tags': category, 'publisher': publisher, 'language': language
-    }
+    conversion_options = {'comment': description, 'tags': category, 'publisher': publisher, 'language': language}
 
     def get_browser(self):
         br = BasicNewsRecipe.get_browser(self)
         br.open(self.LOGIN)
         if self.username is not None and self.password is not None:
-            data = urlencode({'login': self.username, 'pass': self.password, 'enter': 'enter'
-                                     })
+            data = urlencode({'login': self.username, 'pass': self.password, 'enter': 'enter'})
             br.open(self.LOGIN, data)
         return br
 
-    keep_only_tags = [
-        dict(name='div', attrs={'id': 'contenu'}), dict(
-            name='div', attrs={'class': 'notes surlignable'})
-    ]
+    keep_only_tags = [dict(name='div', attrs={'id': 'contenu'}), dict(name='div', attrs={'class': 'notes surlignable'})]
     remove_tags = [dict(name=['object', 'link', 'script', 'iframe', 'base'])]
     remove_attributes = ['height', 'width', 'name', 'lang']
 
@@ -73,9 +67,7 @@ class LeMondeDiplomatiqueEn(BasicNewsRecipe):
             url = self.PREFIX + feed_link['href'].partition('/../')[2]
             title = self.tag_to_string(feed_link)
             date = strftime(self.timefmt)
-            articles.append({
-                'title': title, 'date': date, 'url': url, 'description': description
-            })
+            articles.append({'title': title, 'date': date, 'url': url, 'description': description})
         return [(self.title, articles)]
 
     def get_cover_url(self):

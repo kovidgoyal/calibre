@@ -1,9 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__   = 'GPL v3'
-__copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2010, Kovid Goyal <kovid@kovidgoyal.net>
 
 import os
 import shutil
@@ -21,7 +17,6 @@ from calibre.utils.localization import _
 
 
 class UnpackBook(QDialog):
-
     def __init__(self, parent, book_id, fmts, db):
         QDialog.__init__(self, parent)
         self.setWindowIcon(QIcon.ic('unpack-book.png'))
@@ -31,11 +26,10 @@ class UnpackBook(QDialog):
         self._cleanup_files = []
 
         self.setup_ui()
-        self.setWindowTitle(_('Unpack book') + ' - ' + db.title(book_id,
-            index_is_id=True))
+        self.setWindowTitle(_('Unpack book') + ' - ' + db.title(book_id, index_is_id=True))
 
         button = self.fmt_choice_buttons[0]
-        button_map = {str(x.text()):x for x in self.fmt_choice_buttons}
+        button_map = {str(x.text()): x for x in self.fmt_choice_buttons}
         of = prefs['output_format'].upper()
         df = tweaks.get('default_tweak_format', None)
         lf = gprefs.get('last_tweak_format', None)
@@ -69,12 +63,12 @@ class UnpackBook(QDialog):
         self.fmt_choice_box.setLayout(self._fl)
         self.fmt_choice_buttons = [QRadioButton(y, self) for y in fmts]
         for x in self.fmt_choice_buttons:
-            fl.addWidget(x, stretch=10 if x is self.fmt_choice_buttons[-1] else
-                    0)
+            fl.addWidget(x, stretch=10 if x is self.fmt_choice_buttons[-1] else 0)
         l.addWidget(self.fmt_choice_box)
         self.fmt_choice_box.setVisible(len(fmts) > 1)
 
-        self.help_label = QLabel(_('''\
+        self.help_label = QLabel(
+            _('''\
             <h2>About Unpack book</h2>
             <p>Unpack book allows you to fine tune the appearance of an e-book by
             making small changes to its internals. In order to use Unpack book,
@@ -90,7 +84,8 @@ class UnpackBook(QDialog):
             and the editor windows you used to make your tweaks</b>. Then click
             the "Rebuild book" button, to update the book in your calibre
             library.</li>
-            </ol>'''))
+            </ol>''')
+        )
         self.help_label.setWordWrap(True)
         self._fr = QFrame()
         self._fr.setFrameShape(QFrame.Shape.VLine)
@@ -105,26 +100,22 @@ class UnpackBook(QDialog):
 
         self.explode_button = QPushButton(QIcon.ic('wizard.png'), _('&Explode book'))
         self.preview_button = QPushButton(QIcon.ic('view.png'), _('&Preview book'))
-        self.cancel_button  = QPushButton(QIcon.ic('window-close.png'), _('&Cancel'))
+        self.cancel_button = QPushButton(QIcon.ic('window-close.png'), _('&Cancel'))
         self.rebuild_button = QPushButton(QIcon.ic('exec.png'), _('&Rebuild book'))
 
-        self.explode_button.setToolTip(
-                _('Explode the book to edit its components'))
-        self.preview_button.setToolTip(
-                _('Preview the result of your changes'))
-        self.cancel_button.setToolTip(
-                _('Abort without saving any changes'))
-        self.rebuild_button.setToolTip(
-            _('Save your changes and update the book in the calibre library'))
+        self.explode_button.setToolTip(_('Explode the book to edit its components'))
+        self.preview_button.setToolTip(_('Preview the result of your changes'))
+        self.cancel_button.setToolTip(_('Abort without saving any changes'))
+        self.rebuild_button.setToolTip(_('Save your changes and update the book in the calibre library'))
 
         a = b.addWidget
         a(self.explode_button, 0, 0, 1, 1)
         a(self.preview_button, 0, 1, 1, 1)
-        a(self.cancel_button,  1, 0, 1, 1)
+        a(self.cancel_button, 1, 0, 1, 1)
         a(self.rebuild_button, 1, 1, 1, 1)
 
         for x in ('explode', 'preview', 'cancel', 'rebuild'):
-            getattr(self, x+'_button').clicked.connect(getattr(self, x))
+            getattr(self, x + '_button').clicked.connect(getattr(self, x))
 
         self.msg = QLabel('dummy', self)
         self.msg.setVisible(False)
@@ -142,13 +133,13 @@ class UnpackBook(QDialog):
         ''')
 
         self.resize(self.sizeHint() + QSize(40, 10))
+
     # }}}
 
     def show_msg(self, msg):
         self.msg.setText(msg)
         self.msg.resize(self.size() - QSize(50, 25))
-        self.msg.move((self.width() - self.msg.width())//2,
-                (self.height() - self.msg.height())//2)
+        self.msg.move((self.width() - self.msg.width()) // 2, (self.height() - self.msg.height()) // 2)
         self.msg.setVisible(True)
 
     def hide_msg(self):
@@ -165,31 +156,39 @@ class UnpackBook(QDialog):
 
     def do_explode(self):
         from calibre.ebooks.tweak import Error, WorkerError, get_tools
+
         tdir = PersistentTemporaryDirectory('_tweak_explode')
         self._cleanup_dirs.append(tdir)
         det_msg = None
         try:
-            src = self.db.format(self.book_id, self.current_format,
-                    index_is_id=True, as_path=True)
+            src = self.db.format(self.book_id, self.current_format, index_is_id=True, as_path=True)
             self._cleanup_files.append(src)
             exploder = get_tools(self.current_format)[0]
             opf = exploder(src, tdir, question=self.ask_question)
         except WorkerError as e:
             det_msg = e.orig_tb
         except Error as e:
-            return error_dialog(self, _('Failed to unpack'),
-                (_('Could not explode the %s file.')%self.current_format) + ' ' + as_unicode(e), show=True)
+            return error_dialog(
+                self,
+                _('Failed to unpack'),
+                (_('Could not explode the %s file.') % self.current_format) + ' ' + as_unicode(e),
+                show=True,
+            )
         except Exception:
             import traceback
+
             det_msg = traceback.format_exc()
         finally:
             self.hide_msg()
 
         if det_msg is not None:
-            return error_dialog(self, _('Failed to unpack'),
-                _('Could not explode the %s file. Click "Show details" for '
-                    'more information.')%self.current_format, det_msg=det_msg,
-                show=True)
+            return error_dialog(
+                self,
+                _('Failed to unpack'),
+                _('Could not explode the %s file. Click "Show details" for more information.') % self.current_format,
+                det_msg=det_msg,
+                show=True,
+            )
 
         if opf is None:
             # The question was answered with No
@@ -203,9 +202,10 @@ class UnpackBook(QDialog):
 
     def rebuild_it(self):
         from calibre.ebooks.tweak import WorkerError, get_tools
+
         src_dir = self._exploded
         det_msg = None
-        of = PersistentTemporaryFile('_tweak_rebuild.'+self.current_format.lower())
+        of = PersistentTemporaryFile('_tweak_rebuild.' + self.current_format.lower())
         of.close()
         of = of.name
         self._cleanup_files.append(of)
@@ -216,15 +216,19 @@ class UnpackBook(QDialog):
             det_msg = e.orig_tb
         except Exception:
             import traceback
+
             det_msg = traceback.format_exc()
         finally:
             self.hide_msg()
 
         if det_msg is not None:
-            error_dialog(self, _('Failed to rebuild file'),
-                    _('Failed to rebuild %s. For more information, click '
-                        '"Show details".')%self.current_format,
-                    det_msg=det_msg, show=True)
+            error_dialog(
+                self,
+                _('Failed to rebuild file'),
+                _('Failed to rebuild %s. For more information, click "Show details".') % self.current_format,
+                det_msg=det_msg,
+                show=True,
+            )
             return None
 
         return of
@@ -237,6 +241,7 @@ class UnpackBook(QDialog):
         rebuilt = self.rebuild_it()
         if rebuilt is not None:
             from calibre.gui2.ui import get_gui
+
             g = get_gui()
             assert g is not None
             g.iactions['View']._view_file(rebuilt)
@@ -260,6 +265,7 @@ class UnpackBook(QDialog):
         if ismacos and self._exploded:
             try:
                 from calibre_extensions.cocoa import close_finder_window
+
                 close_finder_window(os.path.basename(self._exploded))
             except Exception:
                 pass
@@ -288,10 +294,13 @@ class UnpackBook(QDialog):
 
 
 class UnpackBookAction(InterfaceActionWithLibraryDrop):
-
     name = 'Unpack Book'
-    action_spec = (_('Unpack book'), 'unpack-book.png',
-            _('Unpack books in the EPUB, AZW3, HTMLZ formats into their individual components'), 'U')
+    action_spec = (
+        _('Unpack book'),
+        'unpack-book.png',
+        _('Unpack books in the EPUB, AZW3, HTMLZ formats into their individual components'),
+        'U',
+    )
     dont_add_to = frozenset(['context-menu-device'])
     action_type = 'current'
 
@@ -307,8 +316,7 @@ class UnpackBookAction(InterfaceActionWithLibraryDrop):
     def tweak_book(self):
         row = self.gui.library_view.currentIndex()
         if not row.isValid():
-            return error_dialog(self.gui, _('Cannot unpack book'),
-                    _('No book selected'), show=True)
+            return error_dialog(self.gui, _('Cannot unpack book'), _('No book selected'), show=True)
 
         book_id = self.gui.library_view.model().id(row)
         self.do_tweak(book_id)
@@ -317,13 +325,14 @@ class UnpackBookAction(InterfaceActionWithLibraryDrop):
         db = self.gui.library_view.model().db
         fmts = db.formats(book_id, index_is_id=True) or ''
         fmts = [x.lower().strip() for x in fmts.split(',')]
-        tweakable_fmts = set(fmts).intersection({'epub', 'htmlz', 'azw3',
-            'mobi', 'azw'})
+        tweakable_fmts = set(fmts).intersection({'epub', 'htmlz', 'azw3', 'mobi', 'azw'})
         if not tweakable_fmts:
-            return error_dialog(self.gui, _('Cannot unpack book'),
-                    _('The book must be in EPUB, HTMLZ or AZW3 formats to unpack.'
-                        '\n\nFirst convert the book to one of these formats.'),
-                    show=True)
+            return error_dialog(
+                self.gui,
+                _('Cannot unpack book'),
+                _('The book must be in EPUB, HTMLZ or AZW3 formats to unpack.\n\nFirst convert the book to one of these formats.'),
+                show=True,
+            )
         dlg = UnpackBook(self.gui, book_id, tweakable_fmts, db)
         dlg.exec()
         dlg.cleanup()

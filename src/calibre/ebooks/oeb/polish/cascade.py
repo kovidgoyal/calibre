@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
-
 import re
 from collections import defaultdict, namedtuple
 from functools import partial
@@ -36,8 +35,16 @@ def media_allowed(media):
     return media_ok(media.mediaText)
 
 
-def iterrules(container, sheet_name, rules=None, media_rule_ok=media_allowed, rule_index_counter=None, rule_type=None, importing=None):
-    ''' Iterate over all style rules in the specified sheet. Import and Media rules are
+def iterrules(
+    container,
+    sheet_name,
+    rules=None,
+    media_rule_ok=media_allowed,
+    rule_index_counter=None,
+    rule_type=None,
+    importing=None,
+):
+    """Iterate over all style rules in the specified sheet. Import and Media rules are
     automatically resolved. Yields (rule, sheet_name, rule_number).
 
     :param rules: List of CSSRules or a CSSStyleSheet instance or None in which case it is read from container using sheet_name
@@ -47,13 +54,20 @@ def iterrules(container, sheet_name, rules=None, media_rule_ok=media_allowed, ru
     :param rule_type: Only yield rules of this type, where type is a string type name, see css_parser.css.CSSRule for the names (
                     by default all rules are yielded)
     :return: (CSSRule object, the name of the sheet from which it comes, rule index - a monotonically increasing number)
-    '''
+    """
 
     rule_index_counter = rule_index_counter or count()
     if importing is None:
         importing = set()
     importing.add(sheet_name)
-    riter = partial(iterrules, container, rule_index_counter=rule_index_counter, media_rule_ok=media_rule_ok, rule_type=rule_type, importing=importing)
+    riter = partial(
+        iterrules,
+        container,
+        rule_index_counter=rule_index_counter,
+        media_rule_ok=media_rule_ok,
+        rule_type=rule_type,
+        importing=importing,
+    )
     if rules is None:
         rules = container.parsed(sheet_name)
     if rule_type is not None:
@@ -101,9 +115,9 @@ def iterdeclaration(decl):
 
 
 class Values(tuple):
-    ''' A tuple of `css_parser.css.Value ` (and its subclasses) objects. Also has a
+    """A tuple of `css_parser.css.Value ` (and its subclasses) objects. Also has a
     `sheet_name` attribute that is the canonical name relative to which URLs
-    for this property should be resolved. '''
+    for this property should be resolved."""
 
     def __new__(typ, pv, sheet_name=None, priority=''):
         ans = tuple.__new__(typ, pv)
@@ -113,7 +127,7 @@ class Values(tuple):
 
     @property
     def cssText(self):
-        ' This will return either a string or a tuple of strings '
+        "This will return either a string or a tuple of strings"
         if len(self) == 1:
             return css_text(self[0])
         return tuple(css_text(x) for x in self)
@@ -152,7 +166,7 @@ def resolve_pseudo_declarations(decls):
     groups = defaultdict(list)
     for d in decls:
         groups[d.pseudo_element].append(d)
-    return {k:resolve_declarations(v) for k, v in groups.items()}
+    return {k: resolve_declarations(v) for k, v in groups.items()}
 
 
 def resolve_styles(container, name, select=None, sheet_callback=None):
@@ -192,9 +206,11 @@ def resolve_styles(container, name, select=None, sheet_callback=None):
             sheet = container.parse_css(elem.text)
             sheet_name = name
         else:
-            if (elem.get('type') or 'text/css').lower() not in OEB_STYLES or \
-                    (elem.get('rel') or 'stylesheet').lower() != 'stylesheet' or \
-                    not media_ok(elem.get('media')):
+            if (
+                (elem.get('type') or 'text/css').lower() not in OEB_STYLES
+                or (elem.get('rel') or 'stylesheet').lower() != 'stylesheet'
+                or not media_ok(elem.get('media'))
+            ):
                 continue
             href = elem.get('href')
             if not href:
@@ -217,8 +233,8 @@ def resolve_styles(container, name, select=None, sheet_callback=None):
         for x in l.values():
             x.sort(key=itemgetter(0), reverse=True)
 
-    style_map = {elem:resolve_declarations(x) for elem, x in style_map.items()}
-    pseudo_style_map = {elem:resolve_pseudo_declarations(x) for elem, x in pseudo_style_map.items()}
+    style_map = {elem: resolve_declarations(x) for elem, x in style_map.items()}
+    pseudo_style_map = {elem: resolve_pseudo_declarations(x) for elem, x in pseudo_style_map.items()}
 
     return partial(resolve_property, style_map), partial(resolve_pseudo_property, style_map, pseudo_style_map), select
 
@@ -229,16 +245,16 @@ _defvals = None
 def defvals():
     global _defvals
     if _defvals is None:
-        _defvals = {k:Values(Property(k, str(val)).propertyValue) for k, val in DEFAULTS.items()}
+        _defvals = {k: Values(Property(k, str(val)).propertyValue) for k, val in DEFAULTS.items()}
     return _defvals
 
 
 def resolve_property(style_map, elem, name):
-    ''' Given a `style_map` previously generated by :func:`resolve_styles()` and
+    """Given a `style_map` previously generated by :func:`resolve_styles()` and
     a property `name`, returns the effective value of that property for the
     specified element. Handles inheritance and CSS cascading rules. Returns
     an instance of :class:`Values`. If the property was never set and
-    is not a known property, then it will return None. '''
+    is not a known property, then it will return None."""
 
     inheritable = name in INHERITED
     q = elem
@@ -253,8 +269,14 @@ def resolve_property(style_map, elem, name):
 
 
 def resolve_pseudo_property(
-    style_map, pseudo_style_map, elem, prop, name,
-    abort_on_missing=False, check_if_pseudo_applies=False, check_ancestors=False
+    style_map,
+    pseudo_style_map,
+    elem,
+    prop,
+    name,
+    abort_on_missing=False,
+    check_if_pseudo_applies=False,
+    check_ancestors=False,
 ):
     if check_if_pseudo_applies:
         q = elem

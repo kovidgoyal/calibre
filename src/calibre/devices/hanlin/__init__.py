@@ -1,2 +1,1 @@
-__license__   = 'GPL v3'
-__copyright__ = '2009, Tijmen Ruizendaal <tijmen at mybebook.com>'
+# License: GPLv3 Copyright: 2009, Tijmen Ruizendaal <tijmen at mybebook.com>

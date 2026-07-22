@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # License: GPL v3 Copyright: 2019, Kovid Goyal <kovid at kovidgoyal.net>
 
-
 import json
 import os
 import shutil
@@ -24,7 +23,6 @@ from polyglot.binary import as_base64_bytes, from_base64_bytes
 
 
 class DownloadItem(QWidget):
-
     def __init__(self, download_id, filename, parent=None):
         QWidget.__init__(self, parent)
         self.l = l = QHBoxLayout(self)
@@ -44,7 +42,6 @@ class DownloadItem(QWidget):
 
 
 class DownloadProgress(QWidget):
-
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
         self.setVisible(False)
@@ -85,7 +82,6 @@ def create_profile() -> QWebEngineProfile:
 
 
 class Central(QWidget):
-
     home = pyqtSignal()
 
     def __init__(self, parent=None):
@@ -137,7 +133,6 @@ class Central(QWidget):
 
 
 class Main(MainWindow):
-
     def __init__(self, data):
         MainWindow.__init__(self, None)
         self.setWindowIcon(QIcon.ic('store.png'))
@@ -193,26 +188,39 @@ class Main(MainWindow):
         fname = download_item.downloadFileName()
         path = os.path.join(download_item.downloadDirectory(), fname)
         if download_item.state() == QWebEngineDownloadRequest.DownloadState.DownloadInterrupted:
-            error_dialog(self, _('Download failed'), _(
-                'Download of {0} failed with error: {1}').format(fname, download_item.interruptReasonString()), show=True)
+            error_dialog(
+                self,
+                _('Download failed'),
+                _('Download of {0} failed with error: {1}').format(fname, download_item.interruptReasonString()),
+                show=True,
+            )
             return
         ext = fname.rpartition('.')[-1].lower()
         if ext not in BOOK_EXTENSIONS:
             if ext == 'acsm':
-                if not confirm('<p>' + _(
-                    'This e-book is a DRMed EPUB file.  '
-                    'You will be prompted to save this file to your '
-                    'computer. Once it is saved, open it with '
-                    '<a href="{}">'
-                    'Adobe Digital Editions</a> (ADE).<p>ADE, in turn '
-                    'will download the actual e-book, which will be a '
-                    '.epub file. You can add this book to calibre '
-                    'using "Add Books" and selecting the file from '
-                    'the ADE library folder.').format('https://www.adobe.com/solutions/ebook/digital-editions.html'),
-                    'acsm_download', self):
+                if not confirm(
+                    '<p>'
+                    + _(
+                        'This e-book is a DRMed EPUB file.  '
+                        'You will be prompted to save this file to your '
+                        'computer. Once it is saved, open it with '
+                        '<a href="{}">'
+                        'Adobe Digital Editions</a> (ADE).<p>ADE, in turn '
+                        'will download the actual e-book, which will be a '
+                        '.epub file. You can add this book to calibre '
+                        'using "Add Books" and selecting the file from '
+                        'the ADE library folder.'
+                    ).format('https://www.adobe.com/solutions/ebook/digital-editions.html'),
+                    'acsm_download',
+                    self,
+                ):
                     return
-            name = choose_save_file(self, 'web-store-download-unknown', _(
-                'File is not a supported e-book type. Save to disk?'), initial_filename=fname)
+            name = choose_save_file(
+                self,
+                'web-store-download-unknown',
+                _('File is not a supported e-book type. Save to disk?'),
+                initial_filename=fname,
+            )
             if name:
                 shutil.copyfile(path, name)
                 os.remove(path)
@@ -227,14 +235,21 @@ class Main(MainWindow):
         try:
             send_message_in_process(b'web-store:' + data)
         except Exception as err:
-            error_dialog(self, _('Could not contact calibre'), _(
-                'No running calibre instance found. Please start calibre before trying to'
-                ' download books.'), det_msg=str(err), show=True)
+            error_dialog(
+                self,
+                _('Could not contact calibre'),
+                _('No running calibre instance found. Please start calibre before trying to download books.'),
+                det_msg=str(err),
+                show=True,
+            )
             return
 
-        info_dialog(self, _('Download completed'), _(
-            'Download of {0} has been completed, the book was added to'
-            ' your calibre library').format(fname), show=True)
+        info_dialog(
+            self,
+            _('Download completed'),
+            _('Download of {0} has been completed, the book was added to your calibre library').format(fname),
+            show=True,
+        )
 
 
 def main(args):
@@ -264,7 +279,7 @@ if __name__ == '__main__':
             'window_title': 'MobileRead',
             'base_url': 'https://www.mobileread.com/',
             'detail_url': 'http://www.mobileread.com/forums/showthread.php?t=54477',
-            'id':1,
+            'id': 1,
             'tags': '',
         })
     )

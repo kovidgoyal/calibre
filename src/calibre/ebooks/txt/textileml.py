@@ -1,10 +1,9 @@
-__license__ = 'GPL 3'
-__copyright__ = '2011, Leigh Parry <leighparry@blueyonder.co.uk>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2011, Leigh Parry <leighparry@blueyonder.co.uk>
 
-'''
+"""
 Transform OEB content into Textile formatted plain text
-'''
+"""
+
 import re
 from functools import partial
 
@@ -16,7 +15,6 @@ from calibre.ebooks.textile.unsmarten import unsmarten
 
 
 class TextileMLizer(OEB2HTML):
-
     MAX_EM = 10
 
     def extract_content(self, oeb_book, opts):
@@ -69,9 +67,9 @@ class TextileMLizer(OEB2HTML):
                 # I'm not checking for duplicated spans '%' as any that follow each other were being incorrectly merged
                 txt = f'{t}'
                 if txt != '%':
-                    text = re.sub(r'([^'+t+'|^\n])'+t+r'\]\['+t+'([^'+t+'])', r'\1\2', text)
-                    text = re.sub(r'([^'+t+'|^\n])'+t+t+'([^'+t+'])', r'\1\2', text)
-                text = re.sub(r'(\s|[*_\'"])\[('+t+'[a-zA-Z0-9 \'",.*_]+'+t+r')\](\s|[*_\'"?!,.])', r'\1\2\3', text)
+                    text = re.sub(r'([^' + t + '|^\n])' + t + r'\]\[' + t + '([^' + t + '])', r'\1\2', text)
+                    text = re.sub(r'([^' + t + '|^\n])' + t + t + '([^' + t + '])', r'\1\2', text)
+                text = re.sub(r'(\s|[*_\'"])\[(' + t + '[a-zA-Z0-9 \'",.*_]+' + t + r')\](\s|[*_\'"?!,.])', r'\1\2\3', text)
             return text
 
         # Now tidyup links and ids - remove ones that don't have a corresponding opposite
@@ -79,10 +77,10 @@ class TextileMLizer(OEB2HTML):
             for i in self.our_links:
                 if i[0] == '#':
                     if i not in self.our_ids:
-                        text = re.sub(r'"(.+)":'+i+r'(\s)', r'\1\2', text)
+                        text = re.sub(r'"(.+)":' + i + r'(\s)', r'\1\2', text)
             for i in self.our_ids:
                 if i not in self.our_links:
-                    text = re.sub(r'%?\('+i+'\\)\xa0?%?', '', text)
+                    text = re.sub(r'%?\(' + i + '\\)\xa0?%?', '', text)
 
         # Remove obvious non-needed escaping, add sub/sup-script ones
         text = check_escaping(text, [r'\*', '_', r'\*'])
@@ -146,24 +144,24 @@ class TextileMLizer(OEB2HTML):
         txt = '{'
         if self.opts.keep_color:
             if 'color' in style.cssdict() and style['color'] != 'black':
-                txt += 'color:'+style['color']+';'
+                txt += 'color:' + style['color'] + ';'
             if 'background' in style.cssdict():
-                txt += 'background:'+style['background']+';'
+                txt += 'background:' + style['background'] + ';'
         txt += '}'
         if txt == '{}':
             txt = ''
         return txt
 
     def check_halign(self, style):
-        tests = {'left':'<','justify':'<>','center':'=','right':'>'}
-        for i,v in tests.items():
+        tests = {'left': '<', 'justify': '<>', 'center': '=', 'right': '>'}
+        for i, v in tests.items():
             if style['text-align'] == i:
                 return v
         return ''
 
     def check_valign(self, style):
-        tests = {'top':'^','bottom':'~'}  # , 'middle':'-'}
-        for i,v in tests.items():
+        tests = {'top': '^', 'bottom': '~'}  # , 'middle':'-'}
+        for i, v in tests.items():
             if style['vertical-align'] == i:
                 return v
         return ''
@@ -178,7 +176,7 @@ class TextileMLizer(OEB2HTML):
                 x = 0
             if isinstance(y, str):
                 y = 0
-            return x +y
+            return x + y
 
         if 'padding-left' in style.cssdict() and style['padding-left'] != 'auto':
             left_padding_pts = unit_convert(style['padding-left'], style.width, style.fontSize, stylizer.profile.dpi)
@@ -204,8 +202,8 @@ class TextileMLizer(OEB2HTML):
     def check_id_tag(self, attribs):
         txt = ''
         if 'id' in attribs:
-            txt = '(#'+attribs['id']+ ')'
-            self.our_ids.append('#'+attribs['id'])
+            txt = '(#' + attribs['id'] + ')'
+            self.our_ids.append('#' + attribs['id'])
             self.id_no_text = '\xa0'
         return txt
 
@@ -224,17 +222,15 @@ class TextileMLizer(OEB2HTML):
         return txt
 
     def dump_text(self, elem, stylizer, page=None):
-        '''
+        """
         @elem: The element in the etree that we are working on.
         @stylizer: The style information attached to the element.
-        '''
+        """
 
         # We can only processes tags. If there isn't a tag return any text.
-        if not isinstance(elem.tag, (str, bytes)) \
-           or namespace(elem.tag) != XHTML_NS:
+        if not isinstance(elem.tag, (str, bytes)) or namespace(elem.tag) != XHTML_NS:
             p = elem.getparent()
-            if p is not None and isinstance(p.tag, (str, bytes)) and namespace(p.tag) == XHTML_NS \
-                    and elem.tail:
+            if p is not None and isinstance(p.tag, (str, bytes)) and namespace(p.tag) == XHTML_NS and elem.tail:
                 return [elem.tail]
             return ['']
 
@@ -246,8 +242,7 @@ class TextileMLizer(OEB2HTML):
         attribs = elem.attrib
 
         # Ignore anything that is set to not be displayed.
-        if style['display'] in ('none', 'oeb-page-head', 'oeb-page-foot') \
-           or style['visibility'] == 'hidden':
+        if style['display'] in ('none', 'oeb-page-head', 'oeb-page-foot') or style['visibility'] == 'hidden':
             if hasattr(elem, 'tail') and elem.tail:
                 return [elem.tail]
             return ['']
@@ -447,8 +442,24 @@ class TextileMLizer(OEB2HTML):
                 text.append(self.check_id_tag(attribs))
 
         # Process the styles for any that we want to keep
-        if tag not in ('body', 'div', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'hr', 'a', 'img',
-                'span', 'table', 'tr', 'td'):
+        if tag not in (
+            'body',
+            'div',
+            'h1',
+            'h2',
+            'h3',
+            'h4',
+            'h5',
+            'h6',
+            'p',
+            'hr',
+            'a',
+            'img',
+            'span',
+            'table',
+            'tr',
+            'td',
+        ):
             if not self.in_a_link:
                 text.append(self.check_styles(style))
 

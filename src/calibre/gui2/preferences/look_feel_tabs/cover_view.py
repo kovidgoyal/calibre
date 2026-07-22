@@ -1,10 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__   = 'GPL v3'
-__copyright__ = '2025, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
-
+# License: GPLv3 Copyright: 2025, Kovid Goyal <kovid@kovidgoyal.net>
 
 from qt.core import QKeySequence
 
@@ -16,7 +11,6 @@ from calibre.utils.localization import _
 
 
 class CoverView(LazyConfigWidgetBase, Ui_cover_browser_tab):
-
     def genesis(self, gui):
         self.gui = gui
         db = self.gui.library_view.model().db
@@ -26,29 +20,39 @@ class CoverView(LazyConfigWidgetBase, Ui_cover_browser_tab):
         r('cover_flow_queue_length', config, restart_required=True)
         r('cover_browser_reflections', gprefs)
         r('cover_browser_max_font_size', gprefs)
-        r('cover_browser_narrow_view_position', gprefs,
-                            choices=[(_('Automatic'), 'automatic'),  # Automatic must be first
-                                     (_('On top'), 'on_top'),
-                                     (_('On right'), 'on_right')])
+        r(
+            'cover_browser_narrow_view_position',
+            gprefs,
+            choices=[
+                (_('Automatic'), 'automatic'),  # Automatic must be first
+                (_('On top'), 'on_top'),
+                (_('On right'), 'on_right'),
+            ],
+        )
         r('cover_browser_title_template', db.prefs)
         fm = db.field_metadata
-        r('cover_browser_subtitle_field', db.prefs, choices=[(_('No subtitle'), 'none')] + sorted(
-            (fm[k].get('name'), k) for k in fm.all_field_keys() if fm[k].get('name')
-        ))
+        r(
+            'cover_browser_subtitle_field',
+            db.prefs,
+            choices=[(_('No subtitle'), 'none')] + sorted((fm[k].get('name'), k) for k in fm.all_field_keys() if fm[k].get('name')),
+        )
         self.cover_browser_title_template_button.clicked.connect(self.edit_cb_title_template)
         r('separate_cover_flow', config, restart_required=True)
         r('cb_fullscreen', gprefs)
         r('cb_preserve_aspect_ratio', gprefs)
         r('cb_double_click_to_activate', gprefs)
-        self.fs_help_msg.setText(self.fs_help_msg.text()%(
-            QKeySequence(QKeySequence.StandardKey.FullScreen).toString(QKeySequence.SequenceFormat.NativeText)))
+        self.fs_help_msg.setText(self.fs_help_msg.text() % (QKeySequence(QKeySequence.StandardKey.FullScreen).toString(QKeySequence.SequenceFormat.NativeText)))
 
-        set_help_tips(self.opt_cover_browser_narrow_view_position, _(
-            'This option controls the position of the cover browser when using the Narrow user '
-            'interface layout.  "Automatic" will place the cover browser on top or on the right '
-            'of the book list depending on the aspect ratio of the calibre window. "On top" '
-            'places it over the book list, and "On right" places it to the right of the book '
-            'list. This option has no effect when using the Wide user interface layout.'))
+        set_help_tips(
+            self.opt_cover_browser_narrow_view_position,
+            _(
+                'This option controls the position of the cover browser when using the Narrow user '
+                'interface layout.  "Automatic" will place the cover browser on top or on the right '
+                'of the book list depending on the aspect ratio of the calibre window. "On top" '
+                'places it over the book list, and "On right" places it to the right of the book '
+                'list. This option has no effect when using the Wide user interface layout.'
+            ),
+        )
 
     def edit_cb_title_template(self):
         rows = self.gui.library_view.selectionModel().selectedRows()
@@ -57,7 +61,7 @@ class CoverView(LazyConfigWidgetBase, Ui_cover_browser_tab):
         if rows:
             ids = list(map(self.gui.library_view.model().id, rows))
             mi = []
-            for bk in ids[0:min(10, len(ids))]:
+            for bk in ids[0 : min(10, len(ids))]:
                 mi.append(db.get_proxy_metadata(bk))
         t = TemplateDialog(self, self.opt_cover_browser_title_template.text(), mi=mi, fm=db.field_metadata)
         t.setWindowTitle(_('Edit template for caption'))

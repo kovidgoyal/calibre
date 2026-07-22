@@ -1,9 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__   = 'GPL v3'
-__copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2012, Kovid Goyal <kovid@kovidgoyal.net>
 
 import re
 
@@ -11,7 +7,6 @@ from calibre import guess_type
 
 
 class EntityDeclarationProcessor:  # {{{
-
     def __init__(self, html):
         self.declared_entities = {}
         for match in re.finditer(r'<!\s*ENTITY\s+([^>]+)>', html):
@@ -21,6 +16,8 @@ class EntityDeclarationProcessor:  # {{{
         self.processed_html = html
         for key, val in self.declared_entities.items():
             self.processed_html = self.processed_html.replace(f'&{key};', val)
+
+
 # }}}
 
 
@@ -45,10 +42,18 @@ def load_as_html(html):
     return re.search(r'<[a-zA-Z0-9-]+:svg', html) is None and xml_detect_pat.search(html) is None
 
 
-def load_html(path, view, codec='utf-8', mime_type=None,
-              pre_load_callback=lambda x:None, path_is_html=False,
-              force_as_html=False, loading_url=None):
+def load_html(
+    path,
+    view,
+    codec='utf-8',
+    mime_type=None,
+    pre_load_callback=lambda x: None,
+    path_is_html=False,
+    force_as_html=False,
+    loading_url=None,
+):
     from qt.core import QByteArray, QUrl
+
     if mime_type is None:
         mime_type = guess_type(path)[0]
         if not mime_type:
@@ -66,8 +71,7 @@ def load_html(path, view, codec='utf-8', mime_type=None,
     if force_as_html or load_as_html(html):
         view.setHtml(html, loading_url)
     else:
-        view.setContent(QByteArray(html.encode(codec)), mime_type,
-                loading_url)
+        view.setContent(QByteArray(html.encode(codec)), mime_type, loading_url)
         mf = view.page().mainFrame()
         elem = mf.findFirstElement('parsererror')
         if not elem.isNull():

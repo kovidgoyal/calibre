@@ -4,15 +4,16 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class AdvancedUserRecipe1718370494(BasicNewsRecipe):
-    title          = 'The Travel'
+    title = 'The Travel'
     language = 'en'
     __author__ = 'Spicy Poison'
     description = (
-            'TheTravel covers all angles of tourism and bucket list destinations, answering every how,'
-            ' what, why, when, and where. Their goal has always been to create a publication that caters'
-            ' to the needs of readers, as well as inspiring wanderlust for those seeking the itineraries of their dreams.'
-            ' Throughout every travel season, TheTravel is there - bringing trending destinations, underrated spots, hidden gems,'
-            ' and the most beautiful landscapes to the top of your feed.')
+        'TheTravel covers all angles of tourism and bucket list destinations, answering every how,'
+        ' what, why, when, and where. Their goal has always been to create a publication that caters'
+        ' to the needs of readers, as well as inspiring wanderlust for those seeking the itineraries of their dreams.'
+        ' Throughout every travel season, TheTravel is there - bringing trending destinations, underrated spots, hidden gems,'
+        ' and the most beautiful landscapes to the top of your feed.'
+    )
     publisher = 'Valnet Publishing Group'
     oldest_article = 7
     max_articles_per_feed = 50
@@ -22,9 +23,9 @@ class AdvancedUserRecipe1718370494(BasicNewsRecipe):
     encoding = 'utf-8'
     masthead_url = 'https://www.valnetinc.com/images/brand/tv-logo-full-colored-dark.svg'
     remove_empty_feeds = True
-    auto_cleanup   = True
+    auto_cleanup = True
 
-    feeds          = [
+    feeds = [
         ('Travel Guides', 'https://www.thetravel.com/feed/category/travel-guides/'),
         ('Travel', 'https://www.thetravel.com/feed/category/travel/'),
         ('Food', 'https://www.thetravel.com/feed/category/food/'),

@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2018, Kovid Goyal <kovid at kovidgoyal.net>
 
-
 from collections import defaultdict
 
 from calibre.utils.icu import ord_string
@@ -9,6 +8,7 @@ from calibre.utils.icu import ord_string
 
 def character_name_from_code(code):
     from calibre_extensions.unicode_names import name_for_codepoint
+
     return name_for_codepoint(code) or f'U+{code:X}'
 
 
@@ -19,6 +19,7 @@ def html_entities():
     global _html_entities_cache
     if _html_entities_cache is None:
         from calibre.ebooks.html_entities import html5_entities
+
         ans = defaultdict(set)
         for name, char in html5_entities.items():
             try:
@@ -34,11 +35,12 @@ _points_for_word_cache: dict = {}
 
 
 def points_for_word(w):
-    '''Returns the set of all codepoints that contain ``word`` in their names'''
+    """Returns the set of all codepoints that contain ``word`` in their names"""
     w = w.lower()
     ans = _points_for_word_cache.get(w)
     if ans is None:
         from calibre_extensions.unicode_names import codepoints_for_word
+
         ans = codepoints_for_word(w) | html_entities().get(w, set())
         _points_for_word_cache[w] = ans
     return ans

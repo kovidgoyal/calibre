@@ -1,11 +1,9 @@
 # -*- coding: utf-8 -*-
+# License: GPLv3 Copyright: 2011, John Schember <john@nachtimwald.com>
+
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 store_version = 3  # Needed for dynamic plugin loading
-
-__license__ = 'GPL 3'
-__copyright__ = '2011, John Schember <john@nachtimwald.com>'
-__docformat__ = 'restructuredtext en'
 
 from contextlib import closing
 from urllib.parse import quote
@@ -26,10 +24,9 @@ except ImportError:
 
 
 class EBookNLStore(BasicStoreConfig, StorePlugin):
-
     def open(self, gui=None, parent=None, detail_item=None, external=False):
         url = 'http://www.ebook.nl/'
-        url_details = ('http://www.ebook.nl/store/{0}')
+        url_details = 'http://www.ebook.nl/store/{0}'
 
         if external or self.config.get('open_external', False):
             if detail_item:
@@ -45,7 +42,7 @@ class EBookNLStore(BasicStoreConfig, StorePlugin):
             d.exec()
 
     def search(self, query, max_results=10, timeout=60):
-        url = ('http://www.ebook.nl/store/advanced_search_result.php?keywords=' + quote(query))
+        url = 'http://www.ebook.nl/store/advanced_search_result.php?keywords=' + quote(query)
         br = browser()
 
         counter = max_results
@@ -90,9 +87,11 @@ class EBookNLStore(BasicStoreConfig, StorePlugin):
                 formats.append('PDF')
             search_result.formats = ', '.join(formats)
 
-            if idata.xpath('.//div[@id="book_detail_body"]/ul/li[strong[contains(., "Type")]]'
-                           '//span[@class="ePubAdobeDRM" or @class="ePubwatermerk" or'
-                           ' @class="Pdfwatermark" or @class="PdfAdobeDRM"]'):
+            if idata.xpath(
+                './/div[@id="book_detail_body"]/ul/li[strong[contains(., "Type")]]'
+                '//span[@class="ePubAdobeDRM" or @class="ePubwatermerk" or'
+                ' @class="Pdfwatermark" or @class="PdfAdobeDRM"]'
+            ):
                 search_result.drm = SearchResult.DRM_LOCKED
             if idata.xpath('.//div[@id="book_detail_body"]/ul/li[strong[contains(., "Type")]]//span[@class="ePubzonderDRM"]'):
                 search_result.drm = SearchResult.DRM_UNLOCKED

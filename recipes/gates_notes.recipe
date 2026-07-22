@@ -4,7 +4,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class AdvancedUserRecipe1716089864(BasicNewsRecipe):
-    title          = 'Gates Notes'
+    title = 'Gates Notes'
     description = 'The Blog of Bill Gates.'
     language = 'en'
     __author__ = 'Spicy Poison'
@@ -17,8 +17,8 @@ class AdvancedUserRecipe1716089864(BasicNewsRecipe):
     no_stylesheets = True
     remove_attributes = ['style', 'height', 'width']
     ignore_duplicate_articles = {'title', 'url'}
-    auto_cleanup   = True
+    auto_cleanup = True
 
-    feeds          = [
+    feeds = [
         ('All Articles', 'https://www.gatesnotes.com/rss'),
     ]

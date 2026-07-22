@@ -1,11 +1,9 @@
 # -*- coding: utf-8 -*-
+# License: GPLv3 Copyright: 2011-2023, Tomasz Długosz <tomek3d@gmail.com>
+
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 store_version = 13  # Needed for dynamic plugin loading
-
-__license__ = 'GPL 3'
-__copyright__ = '2011-2023, Tomasz Długosz <tomek3d@gmail.com>'
-__docformat__ = 'restructuredtext en'
 
 import re
 from base64 import b64encode
@@ -37,7 +35,6 @@ def as_base64(data):
 
 
 class VirtualoStore(BasicStoreConfig, StorePlugin):
-
     def open(self, gui=None, parent=None, detail_item=None, external=False):
         aff_root = 'https://www.a4b-tracking.com/pl/stat-click-text-link/12/58/'
 
@@ -74,8 +71,9 @@ class VirtualoStore(BasicStoreConfig, StorePlugin):
                 if not id:
                     continue
 
-                price = ''.join(data.xpath(
-                    './/div[@class="info"]//div[@class="price"]/div/text()|.//div[@class="info"]//div[@class="price price--no-promo"]/div/text()'))
+                price = ''.join(
+                    data.xpath('.//div[@class="info"]//div[@class="price"]/div/text()|.//div[@class="info"]//div[@class="price price--no-promo"]/div/text()')
+                )
                 cover_url = ''.join(data.xpath('.//img[@class="cover"]/@src'))
                 title = ''.join(data.xpath('.//h3[@class="title"]/a//text()'))
                 author = ', '.join(data.xpath('.//div[@class="info"]//div[@class="authors"]/a//text()'))
@@ -88,7 +86,7 @@ class VirtualoStore(BasicStoreConfig, StorePlugin):
                 s.cover_url = cover_url
                 s.title = title.strip()
                 s.author = author.strip()
-                s.price = re.sub(r'\.',',',price.strip())
+                s.price = re.sub(r'\.', ',', price.strip())
                 s.detail_item = id
                 s.formats = ', '.join(list(filter(None, formats))).upper()
                 s.drm = SearchResult.DRM_UNLOCKED if nodrm else SearchResult.DRM_LOCKED

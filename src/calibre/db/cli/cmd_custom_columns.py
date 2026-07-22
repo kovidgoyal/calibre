@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
 
-
 from pprint import pformat
 
 from calibre import prints
@@ -25,13 +24,7 @@ List available custom columns. Shows column labels and ids.
     '''
         )
     )
-    parser.add_option(
-        '-d',
-        '--details',
-        default=False,
-        action='store_true',
-        help=_('Show details for each column.')
-    )
+    parser.add_option('-d', '--details', default=False, action='store_true', help=_('Show details for each column.'))
     return parser
 
 

@@ -17,8 +17,7 @@ CSIDL_PROGRAM_FILESX86 = 42
 def get_program_files_location(which=CSIDL_PROGRAM_FILESX86):
     SHGFP_TYPE_CURRENT = 0
     buf = ctypes.create_unicode_buffer(ctypes.wintypes.MAX_PATH)
-    ctypes.windll.shell32.SHGetFolderPathW(
-        0, which, 0, SHGFP_TYPE_CURRENT, buf)
+    ctypes.windll.shell32.SHGetFolderPathW(0, which, 0, SHGFP_TYPE_CURRENT, buf)
     return buf.value
 
 
@@ -26,8 +25,7 @@ def get_program_files_location(which=CSIDL_PROGRAM_FILESX86):
 def find_vswhere():
     for which in (CSIDL_PROGRAM_FILESX86, CSIDL_PROGRAM_FILES):
         root = get_program_files_location(which)
-        vswhere = os.path.join(root, 'Microsoft Visual Studio', 'Installer',
-                               'vswhere.exe')
+        vswhere = os.path.join(root, 'Microsoft Visual Studio', 'Installer', 'vswhere.exe')
         if os.path.exists(vswhere):
             return vswhere
     raise SystemExit('Could not find vswhere.exe')
@@ -40,28 +38,15 @@ def get_output(*cmd):
 @lru_cache
 def find_visual_studio():
     path = get_output(
-        find_vswhere(),
-        '-latest',
-        '-requires',
-        'Microsoft.VisualStudio.Component.VC.Tools.x86.x64',
-        '-property',
-        'installationPath',
-        '-products',
-        '*'
+        find_vswhere(), '-latest', '-requires', 'Microsoft.VisualStudio.Component.VC.Tools.x86.x64', '-property', 'installationPath', '-products', '*'
     ).strip()
     return os.path.join(path, 'VC', 'Auxiliary', 'Build')
 
 
 @lru_cache
 def find_msbuild():
-    base_path = get_output(
-        find_vswhere(),
-        '-latest',
-        '-requires', 'Microsoft.Component.MSBuild',
-        '-property', 'installationPath'
-    ).strip()
-    return glob(os.path.join(
-        base_path, 'MSBuild', '*', 'Bin', 'MSBuild.exe'))[0]
+    base_path = get_output(find_vswhere(), '-latest', '-requires', 'Microsoft.Component.MSBuild', '-property', 'installationPath').strip()
+    return glob(os.path.join(base_path, 'MSBuild', '*', 'Bin', 'MSBuild.exe'))[0]
 
 
 def find_vcvarsall():
@@ -69,8 +54,7 @@ def find_vcvarsall():
     vcvarsall = os.path.join(productdir, 'vcvarsall.bat')
     if os.path.isfile(vcvarsall):
         return vcvarsall
-    raise SystemExit('Unable to find vcvarsall.bat in productdir: ' +
-                     productdir)
+    raise SystemExit('Unable to find vcvarsall.bat in productdir: ' + productdir)
 
 
 def remove_dups(variable):
@@ -86,9 +70,7 @@ def query_process(cmd, is64bit):
     if is64bit and 'PROGRAMFILES(x86)' not in os.environ:
         os.environ['PROGRAMFILES(x86)'] = get_program_files_location()
     result = {}
-    popen = subprocess.Popen(cmd,
-                             stdout=subprocess.PIPE,
-                             stderr=subprocess.PIPE)
+    popen = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     try:
         stdout, stderr = popen.communicate()
         if popen.wait() != 0:

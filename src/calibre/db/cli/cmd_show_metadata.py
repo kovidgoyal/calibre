@@ -1,9 +1,7 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
 
-
 import os
-import sys
 
 from calibre import prints
 from calibre.ebooks.metadata.opf2 import OPFCreator
@@ -31,12 +29,7 @@ id is an id number from the search command.
 '''
         )
     )
-    parser.add_option(
-        '--as-opf',
-        default=False,
-        action='store_true',
-        help=_('Print metadata in OPF form (XML)')
-    )
+    parser.add_option('--as-opf', default=False, action='store_true', help=_('Print metadata in OPF form (XML)'))
     return parser
 
 
@@ -48,9 +41,8 @@ def main(opts, args, dbctx):
     if mi is None:
         raise SystemExit(f'Id #{book_id} is not present in database.')
     if opts.as_opf:
-        stdout = getattr(sys.stdout, 'buffer', sys.stdout)
         mi = OPFCreator(os.getcwd(), mi)
-        mi.render(stdout)
+        mi.render()
     else:
         prints(str(mi))
 

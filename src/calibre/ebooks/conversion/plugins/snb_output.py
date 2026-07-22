@@ -1,6 +1,4 @@
-__license__ = 'GPL 3'
-__copyright__ = '2010, Li Fanxi <lifanxi@freemindworld.com>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2010, Li Fanxi <lifanxi@freemindworld.com>
 
 import os
 
@@ -11,40 +9,55 @@ from calibre.utils.localization import _
 
 
 class SNBOutput(OutputFormatPlugin):
-
     name = 'SNB Output'
     author = 'Li Fanxi'
     file_type = 'snb'
     commit_name = 'snb_output'
 
     options = {
-        OptionRecommendation(name='snb_output_encoding', recommended_value='utf-8',
+        OptionRecommendation(
+            name='snb_output_encoding',
+            recommended_value='utf-8',
             level=OptionRecommendation.LOW,
-            help=_('Specify the character encoding of the output document. '
-            'The default is utf-8.')),
-        OptionRecommendation(name='snb_max_line_length',
-            recommended_value=0, level=OptionRecommendation.LOW,
-            help=_('The maximum number of characters per line. This splits on '
-            'the first space before the specified value. If no space is found '
-            'the line will be broken at the space after and will exceed the '
-            'specified value. Also, there is a minimum of 25 characters. '
-            'Use 0 to disable line splitting.')),
-        OptionRecommendation(name='snb_insert_empty_line',
-            recommended_value=False, level=OptionRecommendation.LOW,
-            help=_('Specify whether or not to insert an empty line between '
-            'two paragraphs.')),
-        OptionRecommendation(name='snb_dont_indent_first_line',
-            recommended_value=False, level=OptionRecommendation.LOW,
-            help=_('Specify whether or not to insert two space characters '
-            'to indent the first line of each paragraph.')),
-        OptionRecommendation(name='snb_hide_chapter_name',
-            recommended_value=False, level=OptionRecommendation.LOW,
-            help=_('Specify whether or not to hide the chapter title for each '
-            'chapter. Useful for image-only output (eg. comics).')),
-        OptionRecommendation(name='snb_full_screen',
-            recommended_value=False, level=OptionRecommendation.LOW,
-            help=_('Resize all the images for full screen mode. ')),
-     }
+            help=_('Specify the character encoding of the output document. The default is utf-8.'),
+        ),
+        OptionRecommendation(
+            name='snb_max_line_length',
+            recommended_value=0,
+            level=OptionRecommendation.LOW,
+            help=_(
+                'The maximum number of characters per line. This splits on '
+                'the first space before the specified value. If no space is found '
+                'the line will be broken at the space after and will exceed the '
+                'specified value. Also, there is a minimum of 25 characters. '
+                'Use 0 to disable line splitting.'
+            ),
+        ),
+        OptionRecommendation(
+            name='snb_insert_empty_line',
+            recommended_value=False,
+            level=OptionRecommendation.LOW,
+            help=_('Specify whether or not to insert an empty line between two paragraphs.'),
+        ),
+        OptionRecommendation(
+            name='snb_dont_indent_first_line',
+            recommended_value=False,
+            level=OptionRecommendation.LOW,
+            help=_('Specify whether or not to insert two space characters to indent the first line of each paragraph.'),
+        ),
+        OptionRecommendation(
+            name='snb_hide_chapter_name',
+            recommended_value=False,
+            level=OptionRecommendation.LOW,
+            help=_('Specify whether or not to hide the chapter title for each chapter. Useful for image-only output (eg. comics).'),
+        ),
+        OptionRecommendation(
+            name='snb_full_screen',
+            recommended_value=False,
+            level=OptionRecommendation.LOW,
+            help=_('Resize all the images for full screen mode. '),
+        ),
+    }
 
     def convert(self, oeb_book, output, input_plugin, opts, log):
         output_path = output
@@ -55,6 +68,7 @@ class SNBOutput(OutputFormatPlugin):
 
         self.opts = opts
         from calibre.ebooks.oeb.transforms.rasterize import SVGRasterizer, Unavailable
+
         try:
             rasterizer = SVGRasterizer()
             rasterizer(oeb_book, opts)
@@ -122,8 +136,7 @@ class SNBOutput(OutputFormatPlugin):
             tocBody = etree.SubElement(tocInfoTree, 'body')
             outputFiles = {}
             if oeb_book.toc.count() == 0:
-                log.warn('This SNB file has no Table of Contents. '
-                    'Creating a default TOC')
+                log.warn('This SNB file has no Table of Contents. Creating a default TOC')
                 first = next(iter(oeb_book.spine))
                 oeb_book.toc.add(_('Start page'), first.href)
             else:
@@ -174,6 +187,7 @@ class SNBOutput(OutputFormatPlugin):
             lastName = None
             for item in s:
                 from calibre.ebooks.oeb.base import OEB_DOCS, OEB_IMAGES
+
                 if m.hrefs[item.href].media_type in OEB_DOCS:
                     if item.href not in outputFiles:
                         log.debug(f'File {item.href} is unused in TOC. Continue in last chapter')
@@ -224,6 +238,7 @@ class SNBOutput(OutputFormatPlugin):
 
     def HandleImage(self, imageData, imagePath):
         from calibre.utils.img import image_from_data, image_to_data, resize_image
+
         img = image_from_data(imageData)
         x, y = img.width(), img.height()
         if self.opts:
@@ -261,6 +276,7 @@ if __name__ == '__main__':
 
     html_preprocessor = HTMLPreProcessor(None, None, opts)
     from calibre.utils.logging import default_log
+
     oeb = OEBBook(default_log, html_preprocessor)
     reader = OEBReader
     reader()(oeb, '/tmp/bbb/processed/')

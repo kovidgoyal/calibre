@@ -2,9 +2,10 @@
 # License: GPL v3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 from __python__ import hash_literals, bound_methods
 
+from elementmaker import E
+
 from book_list.theme import get_color
 from dom import set_css, ensure_id, clear, build_rule, add_extra_css
-from elementmaker import E
 
 MODAL_Z_INDEX = 1000
 POPUP_Z_INDEX = MODAL_Z_INDEX + 1
@@ -13,9 +14,11 @@ popup_count = 0
 shown_popups = set()
 associated_widgets = {}
 
+
 def element_contains_click_event(element, event):
     r = element.getBoundingClientRect()
     return r.left <= event.clientX <= r.right and r.top <= event.clientY <= r.bottom
+
 
 def click_in_popup(event):
     for popup_id in shown_popups:
@@ -30,6 +33,7 @@ def click_in_popup(event):
                     return True
     return False
 
+
 def filter_clicks(event):
     if shown_popups.length:
         if not click_in_popup(event):
@@ -38,8 +42,10 @@ def filter_clicks(event):
             shown_popups.clear()
             event.stopPropagation(), event.preventDefault()
 
+
 def install_event_filters():
     window.addEventListener('click', filter_clicks, True)
+
 
 def create_popup(parent, idprefix):
     nonlocal popup_count
@@ -52,11 +58,13 @@ def create_popup(parent, idprefix):
     parent.appendChild(div)
     return div
 
+
 def show_popup(popup_id, associated_widget_ids=None):
     elem = document.getElementById(popup_id)
     elem.style.display = 'block'
     shown_popups.add(popup_id)
     associated_widgets[popup_id] = associated_widget_ids
+
 
 def hide_popup(popup_id):
     elem = document.getElementById(popup_id)
@@ -64,8 +72,8 @@ def hide_popup(popup_id):
         elem.style.display = 'none'
     v'delete associated_widgets[popup_id]'
 
-class CompletionPopup:
 
+class CompletionPopup:
     CLASS = 'popup-completion-items'
     CURRENT_ITEM_CLASS = 'popup-completion-current-item'
 
@@ -212,7 +220,7 @@ class CompletionPopup:
         finally:
             self.hide()
 
-add_extra_css(def():
+add_extra_css(def ():
     sel = 'div.' + CompletionPopup.CLASS
     style = build_rule(sel, overflow='hidden', text_align='left', background_color=get_color('window-background'), border='solid 1px ' + get_color('window-foreground'))
     sel += ' > div'

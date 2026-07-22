@@ -24,16 +24,10 @@ class ScottHanselman(BasicNewsRecipe):
     use_embedded_content = True
     encoding = 'utf-8'
 
-    html2lrf_options = [
-        '--comment', description, '--category', category, '--publisher', publisher, '--author', author
-    ]
+    html2lrf_options = ['--comment', description, '--category', category, '--publisher', publisher, '--author', author]
 
-    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + \
-        '"\ntags="' + category + '"\nauthors="' + author + '"'
+    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"\nauthors="' + author + '"'
 
-    remove_tags = [
-        dict(name=['object', 'link']), dict(
-            name='div', attrs={'class': 'feedflare'})
-    ]
+    remove_tags = [dict(name=['object', 'link']), dict(name='div', attrs={'class': 'feedflare'})]
 
-    feeds = [(u'Articles', u'http://feeds2.feedburner.com/ScottHanselman')]
+    feeds = [('Articles', 'http://feeds2.feedburner.com/ScottHanselman')]

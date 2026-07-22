@@ -1,9 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__   = 'GPL v3'
-__copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2009, Kovid Goyal <kovid@kovidgoyal.net>
 
 from qt.core import QAbstractListModel, QItemSelectionModel, QModelIndex, Qt
 
@@ -15,7 +11,6 @@ from calibre.utils.localization import _
 
 
 class ProfileModel(QAbstractListModel):
-
     def __init__(self, profiles):
         QAbstractListModel.__init__(self)
         self.profiles = list(profiles)
@@ -36,12 +31,11 @@ class ProfileModel(QAbstractListModel):
             else:
                 ss = _('%(width)d x %(height)d pixels') % dict(width=w, height=h)
             ss = _('Screen size: %s') % ss
-            return (f'{profile.description} [{ss}]')
+            return f'{profile.description} [{ss}]'
         return None
 
 
 class PageSetupWidget(Widget, Ui_Form):
-
     TITLE = _('Page setup')
     COMMIT_NAME = 'page_setup'
 

@@ -1,6 +1,4 @@
-__license__ = 'GPL 3'
-__copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2009, Kovid Goyal <kovid@kovidgoyal.net>
 
 import os
 import posixpath
@@ -19,7 +17,7 @@ def decrypt_font_data(key, data, algorithm):
     crypt_len = 1024 if is_adobe else 1040
     crypt = bytearray(data[:crypt_len])
     key = cycle(iter(bytearray(key)))
-    decrypt = bytes(bytearray(x^next(key) for x in crypt))
+    decrypt = bytes(bytearray(x ^ next(key) for x in crypt))
     return decrypt + data[crypt_len:]
 
 
@@ -30,11 +28,10 @@ def decrypt_font(key, path, algorithm):
 
 
 class EPUBInput(InputFormatPlugin):
-
-    name        = 'EPUB Input'
-    author      = 'Kovid Goyal'
+    name = 'EPUB Input'
+    author = 'Kovid Goyal'
     description = _('Convert EPUB files (.epub) to HTML')
-    file_types  = {'epub', 'kepub'}
+    file_types = {'epub', 'kepub'}
     output_encoding = None
     commit_name = 'epub_input'
 
@@ -47,6 +44,7 @@ class EPUBInput(InputFormatPlugin):
         from lxml import etree
 
         from calibre.utils.filenames import is_existing_subpath
+
         idpf_key = opf.raw_unique_identifier
         if idpf_key:
             idpf_key = re.sub(r'[ \t\r\n]', '', idpf_key)
@@ -57,13 +55,13 @@ class EPUBInput(InputFormatPlugin):
             for xkey in item.attrib.keys():
                 if xkey.endswith('scheme'):
                     scheme = item.get(xkey)
-            if (scheme and scheme.lower() == 'uuid') or \
-                    (item.text and item.text.startswith('urn:uuid:')):
+            if (scheme and scheme.lower() == 'uuid') or (item.text and item.text.startswith('urn:uuid:')):
                 try:
                     key = item.text.rpartition(':')[-1]
                     key = uuid.UUID(key).bytes
                 except Exception:
                     import traceback
+
                     traceback.print_exc()
                     key = None
 
@@ -78,13 +76,14 @@ class EPUBInput(InputFormatPlugin):
                 cr = em.getparent().xpath('descendant::*[contains(name(), "CipherReference")]')[0]
                 uri = cr.get('URI')
                 path = os.path.abspath(os.path.join(base, '..', *uri.split('/')))
-                tkey = (key if algorithm == ADOBE_OBFUSCATION else idpf_key)
-                if (tkey and is_existing_subpath(path, container_base)):
+                tkey = key if algorithm == ADOBE_OBFUSCATION else idpf_key
+                if tkey and is_existing_subpath(path, container_base):
                     self._encrypted_font_uris.append(uri)
                     decrypt_font(tkey, path, algorithm)
             return True
         except Exception:
             import traceback
+
             traceback.print_exc()
         return False
 
@@ -105,10 +104,11 @@ class EPUBInput(InputFormatPlugin):
             return t
 
     def rationalize_cover3(self, opf, log):
-        ''' If there is a reference to the cover/titlepage via manifest properties, convert to
-        entries in the <guide> so that the rest of the pipeline picks it up. '''
+        """If there is a reference to the cover/titlepage via manifest properties, convert to
+        entries in the <guide> so that the rest of the pipeline picks it up."""
         from calibre.ebooks.metadata.opf3 import items_with_property
         from calibre.utils.localization import __
+
         removed = guide_titlepage_href = guide_titlepage_id = None
 
         # Look for titlepages incorrectly marked in the <guide> as covers
@@ -153,14 +153,16 @@ class EPUBInput(InputFormatPlugin):
                         return removed
 
     def rationalize_cover2(self, opf, log):
-        ''' Ensure that the cover information in the guide is correct. That
+        '''Ensure that the cover information in the guide is correct. That
         means, at most one entry with type="cover" that points to a raster
         cover and at most one entry with type="titlepage" that points to an
-        HTML titlepage. '''
+        HTML titlepage.'''
         from calibre.ebooks.oeb.base import OPF
         from calibre.utils.localization import __
+
         removed = None
         from lxml import etree
+
         guide_cover, guide_elem = None, None
         for guide_elem in opf.iterguide():
             if guide_elem.get('type', '').lower() == 'cover':
@@ -175,7 +177,7 @@ class EPUBInput(InputFormatPlugin):
                 else:
                     g = guide_elem.getparent()
                 guide_cover = raster_cover
-                guide_elem = g.makeelement(OPF('reference'), attrib={'href':raster_cover, 'type':'cover'})
+                guide_elem = g.makeelement(OPF('reference'), attrib={'href': raster_cover, 'type': 'cover'})
                 g.append(guide_elem)
             return
         spine = list(opf.iterspine())
@@ -225,9 +227,9 @@ class EPUBInput(InputFormatPlugin):
         else:
             # Render the titlepage to create a raster cover
             from calibre.ebooks import render_html_svg_workaround
+
             guide_elem.set('href', 'calibre_raster_cover.jpg')
-            t = etree.SubElement(
-                elem[0].getparent(), OPF('item'), href=guide_elem.get('href'), id='calibre_raster_cover')
+            t = etree.SubElement(elem[0].getparent(), OPF('item'), href=guide_elem.get('href'), id='calibre_raster_cover')
             t.set('media-type', 'image/jpeg')
             if os.path.exists(guide_cover):
                 renderer = render_html_svg_workaround(guide_cover, log, root=os.getcwd())
@@ -246,6 +248,7 @@ class EPUBInput(InputFormatPlugin):
             for k, v in n.attrib.items():
                 if k.endswith(attr):
                     return v
+
         try:
             with open('META-INF/container.xml', 'rb') as f:
                 root = safe_xml_fromstring(f.read())
@@ -260,6 +263,7 @@ class EPUBInput(InputFormatPlugin):
                         return path
         except Exception:
             import traceback
+
             traceback.print_exc()
 
     def convert(self, stream, options, file_ext, log, accelerators):
@@ -267,22 +271,22 @@ class EPUBInput(InputFormatPlugin):
         from calibre.ebooks import DRMError
         from calibre.ebooks.metadata.opf2 import OPF
         from calibre.utils.zipfile import ZipFile
+
         is_kepub = file_ext.lower() == 'kepub'
         try:
             zf = ZipFile(stream)
             zf.extractall(os.getcwd())
         except Exception:
-            log.exception('EPUB appears to be invalid ZIP file, trying a'
-                    ' more forgiving ZIP parser')
+            log.exception('EPUB appears to be invalid ZIP file, trying a more forgiving ZIP parser')
             from calibre.utils.localunzip import extractall
+
             stream.seek(0)
             extractall(stream)
         encfile = os.path.abspath(os.path.join('META-INF', 'encryption.xml'))
         opf = self.find_opf()
         if opf is None:
             for f in walk('.'):
-                if f.lower().endswith('.opf') and '__MACOSX' not in f and \
-                        not os.path.basename(f).startswith('.'):
+                if f.lower().endswith('.opf') and '__MACOSX' not in f and not os.path.basename(f).startswith('.'):
                     opf = os.path.abspath(f)
                     break
         path = getattr(stream, 'name', 'stream')
@@ -304,7 +308,7 @@ class EPUBInput(InputFormatPlugin):
         self.encrypted_fonts = self._encrypted_font_uris
 
         if len(parts) > 1 and parts[0]:
-            delta = '/'.join(parts[:-1])+'/'
+            delta = '/'.join(parts[:-1]) + '/'
 
             def normpath(x):
                 return posixpath.normpath(delta + elem.get('href'))
@@ -324,8 +328,7 @@ class EPUBInput(InputFormatPlugin):
 
         for x in opf.itermanifest():
             if x.get('media-type', '') == 'application/x-dtbook+xml':
-                raise ValueError(
-                    'EPUB files with DTBook markup are not supported')
+                raise ValueError('EPUB files with DTBook markup are not supported')
 
         not_for_spine = set()
         for y in opf.itermanifest():
@@ -333,11 +336,11 @@ class EPUBInput(InputFormatPlugin):
             if id_:
                 mt = y.get('media-type', None)
                 if mt in {
-                        'application/vnd.adobe-page-template+xml',
-                        'application/vnd.adobe.page-template+xml',
-                        'application/adobe-page-template+xml',
-                        'application/adobe.page-template+xml',
-                        'application/text'
+                    'application/vnd.adobe-page-template+xml',
+                    'application/vnd.adobe.page-template+xml',
+                    'application/adobe-page-template+xml',
+                    'application/adobe.page-template+xml',
+                    'application/text',
                 }:
                     not_for_spine.add(id_)
                 ext = y.get('href', '').rpartition('.')[-1].lower()
@@ -367,6 +370,7 @@ class EPUBInput(InputFormatPlugin):
         from calibre.ebooks.oeb.polish.container import Container
         from calibre.ebooks.oeb.polish.errors import drm_message
         from calibre.ebooks.oeb.polish.kepubify import check_for_kobo_drm, unkepubify_container
+
         container = Container(os.getcwd(), opf, log)
         if self.for_viewer:
             log('Checking for Kobo DRM...')
@@ -388,6 +392,7 @@ class EPUBInput(InputFormatPlugin):
         from calibre.ebooks.oeb.polish.parsing import parse
         from calibre.ebooks.oeb.polish.toc import first_child
         from calibre.utils.xml_parse import safe_xml_fromstring
+
         with open(nav_path, 'rb') as f:
             raw = f.read()
         raw = xml_to_unicode(raw, strip_encoding_pats=True, assume_utf8=True)[0]
@@ -400,9 +405,9 @@ class EPUBInput(InputFormatPlugin):
         def add_from_li(li, parent):
             href = text = None
             for x in li.iterchildren(XHTML('a'), XHTML('span')):
-                text = etree.tostring(
-                    x, method='text', encoding='unicode', with_tail=False).strip() or ' '.join(
-                            x.xpath('descendant-or-self::*/@title')).strip()
+                text = (
+                    etree.tostring(x, method='text', encoding='unicode', with_tail=False).strip() or ' '.join(x.xpath('descendant-or-self::*/@title')).strip()
+                )
                 href = x.get('href')
                 if href:
                     if href.startswith('#'):
@@ -414,7 +419,7 @@ class EPUBInput(InputFormatPlugin):
             np[0].append(np.makeelement(NCX('text')))
             np[0][0].text = text
             if href:
-                np.append(np.makeelement(NCX('content'), attrib={'src':href}))
+                np.append(np.makeelement(NCX('content'), attrib={'src': href}))
             return np
 
         def process_nav_node(node, toc_parent):
@@ -464,5 +469,5 @@ class EPUBInput(InputFormatPlugin):
                     cover_toc_item = item
                     break
             spine = {x.href for x in oeb.spine}
-            if (cover_toc_item is not None and cover_toc_item not in spine):
+            if cover_toc_item is not None and cover_toc_item not in spine:
                 oeb.toc.item_that_refers_to_cover = cover_toc_item

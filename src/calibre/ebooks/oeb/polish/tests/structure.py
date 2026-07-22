@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
-
 import os
 from functools import partial
 from io import BytesIO
@@ -41,8 +40,7 @@ cmi = create_manifest_item
 def create_epub(manifest, spine=(), guide=(), meta_cover=None, ver=3):
     mo = []
     for name, data, properties in manifest:
-        mo.append('<item id="{}" href="{}" media-type="{}" {}/>'.format(
-            name, name, guess_type(name), (f'properties="{properties}"' if properties else '')))
+        mo.append('<item id="{}" href="{}" media-type="{}" {}/>'.format(name, name, guess_type(name), (f'properties="{properties}"' if properties else '')))
     mo = ''.join(mo)
     metadata = ''
     if meta_cover:
@@ -54,12 +52,15 @@ def create_epub(manifest, spine=(), guide=(), meta_cover=None, ver=3):
     opf = OPF_TEMPLATE.format(manifest=mo, ver=f'{ver}.0', metadata=metadata, spine=spine, guide=guide)
     buf = BytesIO()
     with ZipFile(buf, 'w', ZIP_STORED) as zf:
-        zf.writestr('META-INF/container.xml', b'''
+        zf.writestr(
+            'META-INF/container.xml',
+            b'''
 <container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container">
    <rootfiles>
       <rootfile full-path="content.opf" media-type="application/oebps-package+xml"/>
    </rootfiles>
-</container>''')
+</container>''',
+        )
         zf.writestr('content.opf', opf.encode('utf-8'))
         for name, data, properties in manifest:
             if isinstance(data, str):
@@ -73,7 +74,6 @@ counter = count()
 
 
 class Structure(BaseTest):
-
     def create_epub(self, *args, **kw):
         n = next(counter)
         ep = os.path.join(self.tdir, str(n) + 'book.epub')
@@ -91,9 +91,12 @@ class Structure(BaseTest):
         c.opf.set('version', '3.0')
         self.assertEqual(3, c.opf_version_parsed.major)
         self.assertTrue(len(get_toc(c)))  # detect NCX toc even in epub 3 files
-        c.add_file('nav.html', b'<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops">'
-                   b'<body><nav epub:type="toc"><ol><li><a href="start.xhtml">EPUB 3 nav</a></li></ol></nav></body></html>',
-                   process_manifest_item=lambda item: item.set('properties', 'nav'))
+        c.add_file(
+            'nav.html',
+            b'<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops">'
+            b'<body><nav epub:type="toc"><ol><li><a href="start.xhtml">EPUB 3 nav</a></li></ol></nav></body></html>',
+            process_manifest_item=lambda item: item.set('properties', 'nav'),
+        )
         toc = get_toc(c)
         self.assertTrue(len(toc))
         self.assertEqual(toc.as_dict['children'][0]['title'], 'EPUB 3 nav')
@@ -104,7 +107,7 @@ class Structure(BaseTest):
             html += '<body>{}</body></html>'.format('\n'.join(items))
             with c.open('nav.html', 'wb') as f:
                 f.write(html.encode('utf-8'))
-            toc = toc_from_xpaths(c, ['//h:t'+x for x in sorted(set(linear))])
+            toc = toc_from_xpaths(c, ['//h:t' + x for x in sorted(set(linear))])
 
             def p(node):
                 ans = ''
@@ -114,6 +117,7 @@ class Structure(BaseTest):
                         ans += c.title + p(c)
                     ans += ']'
                 return ans
+
             self.assertEqual(f'[{expected}]', p(toc))
 
         tfx('121333', '1[2]1[333]')
@@ -124,19 +128,30 @@ class Structure(BaseTest):
     def test_landmarks_detection(self):
         c = self.create_epub([cmi('xxx.html'), cmi('a.html')], guide=[('xxx.html#moo', 'x', 'XXX'), ('a.html', '', 'YYY')], ver=2)
         self.assertEqual(2, c.opf_version_parsed.major)
-        self.assertEqual([
-            {'dest':'xxx.html', 'frag':'moo', 'type':'x', 'title':'XXX'}, {'dest':'a.html', 'frag':'', 'type':'', 'title':'YYY'}
-        ], get_landmarks(c))
+        self.assertEqual(
+            [
+                {'dest': 'xxx.html', 'frag': 'moo', 'type': 'x', 'title': 'XXX'},
+                {'dest': 'a.html', 'frag': '', 'type': '', 'title': 'YYY'},
+            ],
+            get_landmarks(c),
+        )
         c = self.create_epub([cmi('xxx.html'), cmi('a.html')], ver=3)
         self.assertEqual(3, c.opf_version_parsed.major)
-        c.add_file('xxx/nav.html', b'<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops">'
-                   b'<body><nav epub:type="landmarks"><ol><li><a epub:type="x" href="../xxx.html#moo">XXX </a></li>'
-                   b'<li><a href="../a.html"> YYY </a></li>'
-                   b'</ol></nav></body></html>',
-                   process_manifest_item=lambda item: item.set('properties', 'nav'))
-        self.assertEqual([
-            {'dest':'xxx.html', 'frag':'moo', 'type':'x', 'title':'XXX'}, {'dest':'a.html', 'frag':'', 'type':'', 'title':'YYY'}
-        ], get_landmarks(c))
+        c.add_file(
+            'xxx/nav.html',
+            b'<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops">'
+            b'<body><nav epub:type="landmarks"><ol><li><a epub:type="x" href="../xxx.html#moo">XXX </a></li>'
+            b'<li><a href="../a.html"> YYY </a></li>'
+            b'</ol></nav></body></html>',
+            process_manifest_item=lambda item: item.set('properties', 'nav'),
+        )
+        self.assertEqual(
+            [
+                {'dest': 'xxx.html', 'frag': 'moo', 'type': 'x', 'title': 'XXX'},
+                {'dest': 'a.html', 'frag': '', 'type': '', 'title': 'YYY'},
+            ],
+            get_landmarks(c),
+        )
 
     def test_epub3_covers(self):
         # cover image
@@ -162,8 +177,11 @@ class Structure(BaseTest):
         self.assertEqual('a.html', next(c.spine_names)[0])
 
         # clean opf of all cover information
-        c = ce([cmi('c.jpg', b'z', 'cover-image'), cmi('c.html', b'', 'calibre:title-page'), cmi('d.html')],
-                             meta_cover='c.jpg', guide=[('c.jpg', 'cover', ''), ('d.html', 'cover', '')])
+        c = ce(
+            [cmi('c.jpg', b'z', 'cover-image'), cmi('c.html', b'', 'calibre:title-page'), cmi('d.html')],
+            meta_cover='c.jpg',
+            guide=[('c.jpg', 'cover', ''), ('d.html', 'cover', '')],
+        )
         self.assertEqual(set(clean_opf(c)), {'c.jpg', 'c.html', 'd.html'})
         self.assertFalse(c.opf_xpath('//*/@name'))
         self.assertFalse(c.opf_xpath('//*/@type'))
@@ -181,7 +199,7 @@ class Structure(BaseTest):
         self.assertEqual('c.jpg', find_cover_image(c))
         mark_as_cover(c, 'd.jpg')
         self.assertEqual('d.jpg', find_cover_image(c))
-        self.assertEqual({'cover':'d.jpg'}, c.guide_type_map)
+        self.assertEqual({'cover': 'd.jpg'}, c.guide_type_map)
 
         # title page
         c = ce([cmi('c.html'), cmi('a.html')])
@@ -201,64 +219,42 @@ class Structure(BaseTest):
 
         def normalize_markup(root):
             actual = html.tostring(root, encoding='unicode')
-            actual = actual[actual.find('<body'):]
-            actual = actual[:actual.rfind('</body>')]
+            actual = actual[actual.find('<body') :]
+            actual = actual[: actual.rfind('</body>')]
             return actual.replace(id_prefix, '')
 
-        for text, expected in reversed({
-            '<p id=1>hello cruel world': '<body><p id="1"><span id="1">hello cruel world</span></p>',
-
-            '<p>hello <b>cruel</b> world': '<body><p><span id="1">hello <b>cruel</b> world</span></p>',
-
-            '<p>Yes, please. Hello <b>cruel</b> world.':
-            '<body><p><span id="1">Yes, please. </span><span id="2">Hello <b>cruel</b> world.</span></p>',
-
-            '<p>Hello <b>cruel</b> <i>world.  </i>':
-            '<body><p><span id="1">Hello <b>cruel</b> <i>world.  </i></span></p>',
-
-            '<p>Yes, <b>please.</b> Well done! Bravissima! ':
-            '<body><p><span id="1">Yes, <b>please.</b> </span><span id="2">Well done! </span><span id="3">Bravissima! </span></p>',
-
-            '<p>Yes, <b>please.</b> Well <i>done! </i>Bravissima! ':
-            '<body><p><span id="1">Yes, <b>please.</b> </span><span id="2">Well <i>done! </i></span><span id="3">Bravissima! </span></p>',
-
-            '<p><i>Hello</i>, world! Good day to you':
-            '<body><p><span id="1"><i>Hello</i>, world! </span><span id="2">Good day to you</span></p>',
-
-            '<p><i>Hello, world! </i>Good day to you':
-            '<body><p><i id="1">Hello, world! </i><span id="2">Good day to you</span></p>',
-
-            '<p><i>Hello, </i><b>world!</b>Good day to you':
-            '<body><p><span id="1"><i>Hello, </i><b>world!</b></span><span id="2">Good day to you</span></p>',
-
-            '<p><i>Hello, </i><b>world</b>! Good day to you':
-            '<body><p><span id="1"><i>Hello, </i><b>world</b>! </span><span id="2">Good day to you</span></p>',
-
-            '<p>Hello, <span lang="fr">world!':
-            '<body><p><span id="1">Hello, </span><span lang="fr"><span id="2">world!</span></span></p>',
-
-            '<p>Hello, <span data-calibre-tts="moose">world!':
-            '<body><p><span id="1">Hello, </span><span data-calibre-tts="moose"><span id="2">world!</span></span></p>',
-
-            '<p>One<p>Two':
-            '<body><p><span id="1">One</span></p><p><span id="2">Two</span></p>',
-
-            '<div><p>something':
-            '<body><div><p><span id="1">something</span></p></div>',
-
-            '<p>One</p> Two. Three <p>Four':
-            '<body><p><span id="1">One</span></p><span id="2"> Two. </span><span id="3">Three </span><p><span id="4">Four</span></p>',
-
-            '<p>Here is some <b>bold, </b><i>italic, </i><u>underline, </u> text.':
-            '<body><p><span id="1">Here is some <b>bold, </b><i>italic, </i><u>underline, </u> text.</span></p>',
-
-            '<p>A sentence wrapped\nonto multiple lines.':
-            '<body><p><span id="1">A sentence wrapped\nonto multiple lines.</span></p>',
-        }.items()):
+        for text, expected in reversed(
+            {
+                '<p id=1>hello cruel world': '<body><p id="1"><span id="1">hello cruel world</span></p>',
+                '<p>hello <b>cruel</b> world': '<body><p><span id="1">hello <b>cruel</b> world</span></p>',
+                '<p>Yes, please. Hello <b>cruel</b> world.': '<body><p><span id="1">Yes, please. </span><span id="2">Hello <b>cruel</b> world.</span></p>',
+                '<p>Hello <b>cruel</b> <i>world.  </i>': '<body><p><span id="1">Hello <b>cruel</b> <i>world.  </i></span></p>',
+                '<p>Yes, <b>please.</b> Well done! Bravissima! ': '<body><p><span id="1">Yes, <b>please.</b> </span>'
+                '<span id="2">Well done! </span><span id="3">Bravissima! </span></p>',
+                '<p>Yes, <b>please.</b> Well <i>done! </i>Bravissima! ': '<body><p><span id="1">Yes, <b>please.</b> </span>'
+                '<span id="2">Well <i>done! </i></span><span id="3">Bravissima! </span></p>',
+                '<p><i>Hello</i>, world! Good day to you': '<body><p><span id="1"><i>Hello</i>, world! </span><span id="2">Good day to you</span></p>',
+                '<p><i>Hello, world! </i>Good day to you': '<body><p><i id="1">Hello, world! </i><span id="2">Good day to you</span></p>',
+                '<p><i>Hello, </i><b>world!</b>Good day to you': '<body><p><span id="1"><i>Hello, </i><b>world!</b></span>'
+                '<span id="2">Good day to you</span></p>',
+                '<p><i>Hello, </i><b>world</b>! Good day to you': '<body><p><span id="1"><i>Hello, </i><b>world</b>! </span>'
+                '<span id="2">Good day to you</span></p>',
+                '<p>Hello, <span lang="fr">world!': '<body><p><span id="1">Hello, </span><span lang="fr"><span id="2">world!</span></span></p>',
+                '<p>Hello, <span data-calibre-tts="moose">world!': '<body><p><span id="1">Hello, </span>'
+                '<span data-calibre-tts="moose"><span id="2">world!</span></span></p>',
+                '<p>One<p>Two': '<body><p><span id="1">One</span></p><p><span id="2">Two</span></p>',
+                '<div><p>something': '<body><div><p><span id="1">something</span></p></div>',
+                '<p>One</p> Two. Three <p>Four': '<body><p><span id="1">One</span></p><span id="2"> Two. </span>'
+                '<span id="3">Three </span><p><span id="4">Four</span></p>',
+                '<p>Here is some <b>bold, </b><i>italic, </i><u>underline, </u> text.': '<body>'
+                '<p><span id="1">Here is some <b>bold, </b><i>italic, </i><u>underline, </u> text.</span></p>',
+                '<p>A sentence wrapped\nonto multiple lines.': '<body><p><span id="1">A sentence wrapped\nonto multiple lines.</span></p>',
+            }.items()
+        ):
             root = parse(text, namespace_elements=True)
             orig = normalize_markup(root)
             sentences = mark_sentences_in_html(root)
-            ids = tuple(int(s.elem_id[len(id_prefix):]) for s in sentences)
+            ids = tuple(int(s.elem_id[len(id_prefix) :]) for s in sentences)
             self.assertEqual(len(ids), ids[-1])
             marked = normalize_markup(root)
             self.assertEqual(expected, marked)
@@ -270,9 +266,11 @@ class Structure(BaseTest):
 
 def find_tests():
     import unittest
+
     return unittest.defaultTestLoader.loadTestsFromTestCase(Structure)
 
 
 def run_tests():
     from calibre.utils.run_tests import run_tests
+
     run_tests(find_tests)

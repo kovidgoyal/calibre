@@ -1,11 +1,9 @@
-__license__   = 'GPL v3'
-__copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2008, Kovid Goyal kovid@kovidgoyal.net
 
-'''
+"""
 Wrapper for multi-threaded access to a single sqlite database connection. Serializes
 all calls.
-'''
+"""
 
 import os
 import reprlib
@@ -41,8 +39,7 @@ def _c_convert_timestamp(val):
         return parse_date(val, as_utc=False)
     year, month, day, hour, minutes, seconds, tzsecs = ret
     try:
-        return datetime(year, month, day, hour, minutes, seconds,
-                tzinfo=timezone(tzsecs)).astimezone(local_tz)
+        return datetime(year, month, day, hour, minutes, seconds, tzinfo=timezone(tzsecs)).astimezone(local_tz)
     except OverflowError:
         return UNDEFINED_DATE.astimezone(local_tz)
 
@@ -51,25 +48,23 @@ def _py_convert_timestamp(val):
     if val:
         tzsecs = 0
         try:
-            sign = {'+':1, '-':-1}.get(val[-6], None)
+            sign = {'+': 1, '-': -1}.get(val[-6], None)
             if sign is not None:
-                tzsecs = 60*((int(val[-5:-3])*60 + int(val[-2:])) * sign)
+                tzsecs = 60 * ((int(val[-5:-3]) * 60 + int(val[-2:])) * sign)
             year = int(val[0:4])
             month = int(val[5:7])
             day = int(val[8:10])
             hour = int(val[11:13])
             min = int(val[14:16])
             sec = int(val[17:19])
-            return datetime(year, month, day, hour, min, sec,
-                    tzinfo=timezone(tzsecs))
+            return datetime(year, month, day, hour, min, sec, tzinfo=timezone(tzsecs))
         except Exception:
             pass
         return parse_date(val, as_utc=False)
     return None
 
 
-convert_timestamp = _py_convert_timestamp if _c_speedup is None else \
-                    _c_convert_timestamp
+convert_timestamp = _py_convert_timestamp if _c_speedup is None else _c_convert_timestamp
 
 
 def adapt_datetime(dt):
@@ -90,7 +85,6 @@ sqlite.register_converter('BOOL', convert_bool)
 
 
 class DynamicFilter:
-
     def __init__(self, name):
         self.name = name
         self.ids = frozenset()
@@ -103,7 +97,7 @@ class DynamicFilter:
 
 
 class Concatenate:
-    '''String concatenation aggregator for sqlite'''
+    """String concatenation aggregator for sqlite"""
 
     def __init__(self, sep=','):
         self.sep = sep
@@ -120,12 +114,14 @@ class Concatenate:
             return self.sep.join(self.ans)
         except Exception:
             import traceback
+
             traceback.print_exc()
             raise
 
 
 class SortedConcatenate:
-    '''String concatenation aggregator for sqlite, sorted by supplied index'''
+    """String concatenation aggregator for sqlite, sorted by supplied index"""
+
     sep = ','
 
     def __init__(self):
@@ -142,6 +138,7 @@ class SortedConcatenate:
             return self.sep.join(map(self.ans.get, sorted(self.ans.keys())))
         except Exception:
             import traceback
+
             traceback.print_exc()
             raise
 
@@ -155,7 +152,7 @@ class SortedConcatenateAmper(SortedConcatenate):
 
 
 class IdentifiersConcat:
-    '''String concatenation aggregator for the identifiers map'''
+    """String concatenation aggregator for the identifiers map"""
 
     def __init__(self):
         self.ans = []
@@ -168,12 +165,13 @@ class IdentifiersConcat:
             return ','.join(self.ans)
         except Exception:
             import traceback
+
             traceback.print_exc()
             raise
 
 
 class AumSortedConcatenate:
-    '''String concatenation aggregator for the author sort map'''
+    """String concatenation aggregator for the author sort map"""
 
     def __init__(self):
         self.ans = {}
@@ -193,12 +191,12 @@ class AumSortedConcatenate:
             return ':#:'.join([self.ans[v] for v in sorted(keys)])
         except Exception:
             import traceback
+
             traceback.print_exc()
             raise
 
 
 class Connection(sqlite.Connection):
-
     def get(self, *args, **kw):
         ans = self.execute(*args)
         if not kw.get('all', True):
@@ -230,15 +228,13 @@ def pynocase(one, two, encoding='utf-8'):
 
 
 def icu_collator(s1, s2):
-    return cmp(sort_key(force_unicode(s1, 'utf-8')),
-               sort_key(force_unicode(s2, 'utf-8')))
+    return cmp(sort_key(force_unicode(s1, 'utf-8')), sort_key(force_unicode(s2, 'utf-8')))
 
 
 def load_c_extensions(conn, debug=DEBUG):
     try:
         conn.enable_load_extension(True)
-        ext_path = os.path.join(plugins_loc, 'sqlite_custom.'+
-                ('pyd' if iswindows else 'so'))
+        ext_path = os.path.join(plugins_loc, 'sqlite_custom.' + ('pyd' if iswindows else 'so'))
         conn.load_extension(ext_path)
         conn.enable_load_extension(False)
         return True
@@ -261,11 +257,9 @@ def do_connect(path, row_factory=None):
     conn.row_factory = sqlite.Row if row_factory else (lambda cursor, row: list(row))
     conn.create_aggregate('concat', 1, Concatenate)
     conn.create_aggregate('aum_sortconcat', 4, AumSortedConcatenate)
-    conn.create_collation('PYNOCASE', partial(pynocase,
-        encoding=encoding))
+    conn.create_collation('PYNOCASE', partial(pynocase, encoding=encoding))
     conn.create_function('title_sort', 1, title_sort)
-    conn.create_function('author_to_author_sort', 1,
-            _author_to_author_sort)
+    conn.create_function('author_to_author_sort', 1, _author_to_author_sort)
     conn.create_function('uuid4', 0, lambda: str(uuid.uuid4()))
     # Dummy functions for dynamically created filters
     conn.create_function('books_list_filter', 1, lambda x: 1)
@@ -275,7 +269,6 @@ def do_connect(path, row_factory=None):
 
 
 class DBThread(Thread):
-
     CLOSE = '-------close---------'
 
     def __init__(self, path, row_factory):
@@ -284,7 +277,7 @@ class DBThread(Thread):
         self.unhandled_error = (None, '')
         self.row_factory = row_factory
         self.requests = Queue(1)
-        self.results  = Queue(1)
+        self.results = Queue(1)
         self.conn = None
 
     def connect(self):
@@ -325,9 +318,12 @@ class DBThread(Thread):
                                 e = str(err)
                                 if 'unable to open' not in e or i == 2:
                                     if 'unable to open' in e:
-                                        prints('Unable to open database for func',
-                                            func, reprlib.repr(args),
-                                            reprlib.repr(kwargs))
+                                        prints(
+                                            'Unable to open database for func',
+                                            func,
+                                            reprlib.repr(args),
+                                            reprlib.repr(kwargs),
+                                        )
                                     raise
                             time.sleep(0.5)
                     except Exception as err:
@@ -338,20 +334,19 @@ class DBThread(Thread):
 
 
 class DatabaseException(Exception):
-
     def __init__(self, err, tb):
-        tb = '\n\t'.join(('\tRemote'+tb).splitlines())
+        tb = '\n\t'.join(('\tRemote' + tb).splitlines())
         try:
-            msg = str(err) +'\n' + tb
+            msg = str(err) + '\n' + tb
         except Exception:
             msg = repr(err) + '\n' + tb
         Exception.__init__(self, msg)
         self.orig_err = err
-        self.orig_tb  = tb
+        self.orig_tb = tb
 
 
 def proxy(fn):
-    ''' Decorator to call methods on the database connection in the proxy thread '''
+    """Decorator to call methods on the database connection in the proxy thread"""
 
     def run(self, *args, **kwargs):
         if self.closed:
@@ -366,11 +361,11 @@ def proxy(fn):
                     raise IntegrityError(str(res[0]))
                 raise DatabaseException(*res)
             return res
+
     return run
 
 
 class ConnectionProxy:
-
     def __init__(self, proxy):
         self.proxy = proxy
         self.closed = False

@@ -5,7 +5,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class ElDiario(BasicNewsRecipe):
-    title = u'elDiario.es'
+    title = 'elDiario.es'
     oldest_article = 7.0
     __author__ = 'Dirk Gómez'
     description = 'elDiario.es - Noticias a pesar de todo'
@@ -17,5 +17,5 @@ class ElDiario(BasicNewsRecipe):
     remove_javascript = True
 
     feeds = [
-        (u'Últimas Noticias de eldiario.es', u'https://www.eldiario.es/rss/'),
+        ('Últimas Noticias de eldiario.es', 'https://www.eldiario.es/rss/'),
     ]

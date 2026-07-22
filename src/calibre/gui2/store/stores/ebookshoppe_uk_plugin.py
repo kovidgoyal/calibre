@@ -1,11 +1,9 @@
 # -*- coding: utf-8 -*-
+# License: GPLv3 Copyright: 2011, John Schember <john@nachtimwald.com>
+
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 store_version = 2  # Needed for dynamic plugin loading
-
-__license__ = 'GPL 3'
-__copyright__ = '2011, John Schember <john@nachtimwald.com>'
-__docformat__ = 'restructuredtext en'
 
 from contextlib import closing
 from urllib.parse import quote
@@ -26,7 +24,6 @@ except ImportError:
 
 
 class EBookShoppeUKStore(BasicStoreConfig, StorePlugin):
-
     def open(self, gui=None, parent=None, detail_item=None, external=False):
         url_details = 'http://www.awin1.com/cread.php?awinmid=1414&awinaffid=120917&clickref=&p={0}'
         url = 'http://www.awin1.com/awclick.php?mid=2666&id=120917'
@@ -56,8 +53,7 @@ class EBookShoppeUKStore(BasicStoreConfig, StorePlugin):
                 if counter <= 0:
                     break
 
-                id = ''.join(data.xpath('./div[@class="ProductDetails"]/'
-                                        'strong/a/@href')).strip()
+                id = ''.join(data.xpath('./div[@class="ProductDetails"]/strong/a/@href')).strip()
                 if not id:
                     continue
                 cover_url = ''.join(data.xpath('./div[@class="ProductImage"]/a/img/@src'))
@@ -85,8 +81,7 @@ class EBookShoppeUKStore(BasicStoreConfig, StorePlugin):
             author = ''.join(idata.xpath('//div[@id="ProductOtherDetails"]/dl/dd[1]/text()'))
             if author:
                 search_result.author = author
-            formats = idata.xpath('//dl[@class="ProductAddToCart"]/dd/'
-                                  'ul[@class="ProductOptionList"]/li/label/text()')
+            formats = idata.xpath('//dl[@class="ProductAddToCart"]/dd/ul[@class="ProductOptionList"]/li/label/text()')
             if formats:
                 search_result.formats = ', '.join(formats)
             search_result.drm = SearchResult.DRM_UNKNOWN

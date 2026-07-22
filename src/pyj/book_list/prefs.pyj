@@ -2,21 +2,21 @@
 # License: GPL v3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 from __python__ import hash_literals
 
-from dom import clear, ensure_id, add_extra_css, build_rule
 from elementmaker import E
-from widgets import create_button, create_select
 from gettext import gettext as _
 
 from book_list.globals import get_session_data
-from book_list.top_bar import create_top_bar
 from book_list.router import back
+from book_list.top_bar import create_top_bar
+from dom import clear, ensure_id, add_extra_css, build_rule
+from widgets import create_button, create_select
 
 pp_counter = 0
 widget_counter = 0
 
 CLASS_NAME = 'cs-prefs'
 
-add_extra_css(def():
+add_extra_css(def ():
     sel = '.' + CLASS_NAME + ' '
     style = ''
     # Match page gutter + readable width
@@ -125,8 +125,8 @@ add_extra_css(def():
     return style
 )
 
-class ConfigItem:
 
+class ConfigItem:
     def __init__(self, item_data):
         nonlocal widget_counter
         widget_counter += 1
@@ -185,8 +185,8 @@ class ConfigItem:
     def from_ui(self):
         pass
 
-class Choices(ConfigItem):
 
+class Choices(ConfigItem):
     def __init__(self, item_data, container, onfocus):
         ConfigItem.__init__(self, item_data)
         options = {}
@@ -216,7 +216,6 @@ class Choices(ConfigItem):
 
 
 class CheckBox(ConfigItem):
-
     def __init__(self, item_data, container, onfocus):
         ConfigItem.__init__(self, item_data)
         div = E.div(
@@ -247,8 +246,8 @@ class CheckBox(ConfigItem):
         self.to_ui(not self.from_ui())
         self.ui_value_changed()
 
-class SpinBox(ConfigItem):
 
+class SpinBox(ConfigItem):
     def __init__(self, item_data, container, onfocus):
         ConfigItem.__init__(self, item_data)
         div = E.div(
@@ -273,8 +272,8 @@ class SpinBox(ConfigItem):
     def from_ui(self):
         return self.control.value
 
-class LineEdit(ConfigItem):
 
+class LineEdit(ConfigItem):
     def __init__(self, item_data, container, onfocus):
         ConfigItem.__init__(self, item_data)
         div = E.div(
@@ -297,7 +296,6 @@ class LineEdit(ConfigItem):
 
 
 class ColorEdit(ConfigItem):
-
     def __init__(self, item_data, container, onfocus):
         ConfigItem.__init__(self, item_data)
         div = E.div(
@@ -321,7 +319,7 @@ class ColorEdit(ConfigItem):
 
 
 def onfocus(state, name):
-    return def(ev):
+    return def (ev):
         c = document.getElementById(state.container_id)
         div = c.querySelector('div[data-name="{}"]'.format(name))
         if div?.lastChild:
@@ -376,12 +374,10 @@ def reset_to_defaults(state):
 
 
 def prefs_panel_handler(title_func, get_prefs_data, on_close=None, icon='close'):
-
     def onkeydown(container_id, close_action, ev):
         if ev.key is 'Escape':
             ev.preventDefault(), ev.stopPropagation()
             close_action()
-
 
     def close_action():
         if on_close is not None:

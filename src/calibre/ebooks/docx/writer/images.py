@@ -1,8 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__ = 'GPL v3'
-__copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
+# License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
 import os
 import posixpath
@@ -40,7 +37,6 @@ def get_image_margins(style):
 
 
 class ImagesManager:
-
     def __init__(self, oeb, document_relationships, opts, svg_rasterizer):
         self.oeb, self.log = oeb, oeb.log
         self.svg_rasterizer = svg_rasterizer
@@ -139,7 +135,10 @@ class ImagesManager:
         scaled, width, height = fit_image(width, height, self.page_width, self.page_height)
         width, height = map(pt_to_emu, (width, height))
 
-        makeelement, namespaces = self.document_relationships.namespace.makeelement, self.document_relationships.namespace.namespaces
+        makeelement, namespaces = (
+            self.document_relationships.namespace.makeelement,
+            self.document_relationships.namespace.namespaces,
+        )
 
         root = etree.Element('root', nsmap=namespaces)
         ans = makeelement(root, 'w:drawing', append=False)
@@ -149,7 +148,12 @@ class ImagesManager:
             parent = makeelement(ans, 'wp:anchor', **get_image_margins(style))
             # The next three lines are boilerplate that Word requires, even
             # though the DOCX specs define defaults for all of them
-            parent.set('simplePos', '0'), parent.set('relativeHeight', '1'), parent.set('behindDoc','0'), parent.set('locked', '0')
+            (
+                parent.set('simplePos', '0'),
+                parent.set('relativeHeight', '1'),
+                parent.set('behindDoc', '0'),
+                parent.set('locked', '0'),
+            )
             parent.set('layoutInCell', '1'), parent.set('allowOverlap', '1')
             makeelement(parent, 'wp:simplePos', x='0', y='0')
             makeelement(makeelement(parent, 'wp:positionH', relativeFrom='margin'), 'wp:align').text = floating
@@ -158,7 +162,7 @@ class ImagesManager:
         if fake_margins:
             # DOCX does not support setting margins for inline images, so we
             # fake it by using effect extents to simulate margins
-            makeelement(parent, 'wp:effectExtent', **{k[-1].lower():v for k, v in get_image_margins(style).items()})
+            makeelement(parent, 'wp:effectExtent', **{k[-1].lower(): v for k, v in get_image_margins(style).items()})
         else:
             makeelement(parent, 'wp:effectExtent', l='0', r='0', t='0', b='0')
         if floating is not None:
@@ -171,7 +175,10 @@ class ImagesManager:
         return ans
 
     def create_docx_image_markup(self, parent, name, alt, img_rid, width, height, svg_rid=''):
-        makeelement, namespaces = self.document_relationships.namespace.makeelement, self.document_relationships.namespace.namespaces
+        makeelement, namespaces = (
+            self.document_relationships.namespace.makeelement,
+            self.document_relationships.namespace.namespaces,
+        )
         makeelement(parent, 'wp:docPr', id=str(self.count), name=name, descr=alt)
         makeelement(makeelement(parent, 'wp:cNvGraphicFramePr'), 'a:graphicFrameLocks', noChangeAspect='1')
         g = makeelement(parent, 'a:graphic')
@@ -223,7 +230,10 @@ class ImagesManager:
 
     def create_cover_markup(self, img, preserve_aspect_ratio, width, height):
         self.count += 1
-        makeelement, namespaces = self.document_relationships.namespace.makeelement, self.document_relationships.namespace.namespaces
+        makeelement, namespaces = (
+            self.document_relationships.namespace.makeelement,
+            self.document_relationships.namespace.namespaces,
+        )
         if preserve_aspect_ratio:
             if img.width >= img.height:
                 ar = img.height / img.width
@@ -234,8 +244,13 @@ class ImagesManager:
 
         root = etree.Element('root', nsmap=namespaces)
         ans = makeelement(root, 'w:drawing', append=False)
-        parent = makeelement(ans, 'wp:anchor', **{'dist'+edge:'0' for edge in 'LRTB'})
-        parent.set('simplePos', '0'), parent.set('relativeHeight', '1'), parent.set('behindDoc','0'), parent.set('locked', '0')
+        parent = makeelement(ans, 'wp:anchor', **{'dist' + edge: '0' for edge in 'LRTB'})
+        (
+            parent.set('simplePos', '0'),
+            parent.set('relativeHeight', '1'),
+            parent.set('behindDoc', '0'),
+            parent.set('locked', '0'),
+        )
         parent.set('layoutInCell', '1'), parent.set('allowOverlap', '1')
         makeelement(parent, 'wp:simplePos', x='0', y='0')
         makeelement(makeelement(parent, 'wp:positionH', relativeFrom='page'), 'wp:align').text = 'center'
@@ -248,7 +263,10 @@ class ImagesManager:
         return ans
 
     def write_cover_block(self, body, cover_image):
-        makeelement, namespaces = self.document_relationships.namespace.makeelement, self.document_relationships.namespace.namespaces
+        makeelement, namespaces = (
+            self.document_relationships.namespace.makeelement,
+            self.document_relationships.namespace.namespaces,
+        )
         pbb = body[0].xpath('//*[local-name()="pageBreakBefore"]')[0]
         pbb.set('{{{}}}val'.format(namespaces['w']), 'on')
         p = makeelement(body, 'w:p', append=False)

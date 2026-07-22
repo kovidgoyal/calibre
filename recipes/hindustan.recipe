@@ -23,7 +23,7 @@ class LiveHindustan(BasicNewsRecipe):
 
     remove_tags = [
         classes('prlads ads'),
-        dict(name='section', attrs={'class':'glry-cnt mostvdtm main-wdgt glry-bg'}),
+        dict(name='section', attrs={'class': 'glry-cnt mostvdtm main-wdgt glry-bg'}),
     ]
     remove_tags_after = [classes('stry-bdy')]
 
@@ -40,7 +40,7 @@ class LiveHindustan(BasicNewsRecipe):
         ('क्राइम', 'https://feed.livehindustan.com/rss/469651'),
         ('करियर', 'https://feed.livehindustan.com/rss/4979'),
         # https://www.livehindustan.com/rss/#collapseOne3116
-        ]
+    ]
 
     def get_cover_url(self):
         soup = self.index_to_soup('https://www.magzter.com/IN/HT-Digital-Streams-Ltd./Hindustan-Times-Hindi-New-Delhi/Newspaper/')

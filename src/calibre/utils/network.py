@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2010, Kovid Goyal <kovid at kovidgoyal.net>
 
-
 from contextlib import suppress
 
 from calibre.constants import isbsd, islinux, iswindows
@@ -9,7 +8,6 @@ from calibre.utils.config_base import tweaks
 
 
 class LinuxNetworkStatus:
-
     # Map of NetworkManager connectivity values to their XDP/GLib equivalents
     NM_XDP_CONNECTIVITY_MAP = {
         0: 4,  # NM_CONNECTIVITY_UNKNOWN → Full network
@@ -21,19 +19,28 @@ class LinuxNetworkStatus:
 
     def __init__(self):
         from jeepney import DBusAddress, Properties, new_method_call
+
         # Prefer desktop portal interface here since it can theoretically
         # work with network management solutions other than NetworkManager
         # and is controlled by the current desktop session
         #
         # There is no difference in terms of “features” provided between
         # the two APIs from our point of view.
-        self.xdp_call = lambda: new_method_call(DBusAddress(
-            '/org/freedesktop/portal/desktop',
-            bus_name='org.freedesktop.portal.Desktop',
-            interface='org.freedesktop.portal.NetworkMonitor'), 'GetConnectivity')
-        self.nm_call = lambda: Properties(DBusAddress('/org/freedesktop/NetworkManager',
+        self.xdp_call = lambda: new_method_call(
+            DBusAddress(
+                '/org/freedesktop/portal/desktop',
+                bus_name='org.freedesktop.portal.Desktop',
+                interface='org.freedesktop.portal.NetworkMonitor',
+            ),
+            'GetConnectivity',
+        )
+        self.nm_call = lambda: Properties(
+            DBusAddress(
+                '/org/freedesktop/NetworkManager',
                 bus_name='org.freedesktop.NetworkManager',
-                interface='org.freedesktop.NetworkManager')).get('Connectivity')
+                interface='org.freedesktop.NetworkManager',
+            )
+        ).get('Connectivity')
 
         if self.xdp() is not None:
             self.get_connectivity = self.xdp
@@ -44,6 +51,7 @@ class LinuxNetworkStatus:
 
     def connect(self, which='SESSION'):
         from jeepney.io.blocking import open_dbus_connection
+
         if not hasattr(self, 'connection'):
             self.connection = open_dbus_connection(which)
 
@@ -65,6 +73,7 @@ class LinuxNetworkStatus:
 
     def send(self, msg):
         from jeepney import DBusErrorResponse, MessageType
+
         reply = self.connection.send_and_get_reply(msg)
         if reply.header.message_type is MessageType.error:
             raise DBusErrorResponse(reply)
@@ -82,9 +91,9 @@ class LinuxNetworkStatus:
 
 
 class WindowsNetworkStatus:
-
     def __init__(self):
         from calibre_extensions import winutil
+
         self.winutil = winutil
 
     def __call__(self):
@@ -94,7 +103,6 @@ class WindowsNetworkStatus:
 
 
 class DummyNetworkStatus:
-
     def __call__(self):
         return True
 
@@ -107,15 +115,14 @@ def internet_connected():
     if tweaks['skip_network_check']:
         return True
     if _internet_checker is None:
-        _internet_checker = WindowsNetworkStatus() if iswindows else \
-        LinuxNetworkStatus() if (islinux or isbsd) else \
-        DummyNetworkStatus()
+        _internet_checker = WindowsNetworkStatus() if iswindows else LinuxNetworkStatus() if (islinux or isbsd) else DummyNetworkStatus()
 
     return _internet_checker()
 
 
 def is_ipv6_addr(addr):
     import socket
+
     try:
         socket.inet_pton(socket.AF_INET6, addr)
     except Exception:
@@ -131,4 +138,5 @@ def format_addr_for_url(addr):
 
 def get_fallback_server_addr():
     from socket import has_dualstack_ipv6
+
     return '::' if has_dualstack_ipv6() else '0.0.0.0'

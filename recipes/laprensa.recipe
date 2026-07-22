@@ -26,26 +26,28 @@ class LaPrensa(BasicNewsRecipe):
     language = 'es_AR'
     lang = 'es'
 
-    html2lrf_options = [
-        '--comment', description, '--category', category, '--publisher', publisher
-    ]
+    html2lrf_options = ['--comment', description, '--category', category, '--publisher', publisher]
 
-    html2epub_options = 'publisher="' + publisher + \
-        '"\ncomments="' + description + '"\ntags="' + category + '"'
+    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"'
     filter_regexps = [r'.*archive.aspx.*']
 
     remove_tags = [
         dict(name='td', attrs={'class': ['link-registro', 'link-buscador']}),
-        dict(name='td', attrs={
-             'id': ['TDTabItem1', 'TDTabItem2', 'TDTabItem3', 'TDTabItem4']}),
+        dict(name='td', attrs={'id': ['TDTabItem1', 'TDTabItem2', 'TDTabItem3', 'TDTabItem4']}),
         dict(name='table', attrs={'class': ['marco-botonera']}),
         dict(name='tr', attrs={'class': ['messages', 'IUTabItemSelected']}),
         dict(name='input', attrs={'id': 'txt_allfields'}),
-        dict(name='div', attrs={
-             'id': ['TabItem1', 'TabItem2', 'TabItem3', 'TabItem4', 'RCPanel']}),
+        dict(name='div', attrs={'id': ['TabItem1', 'TabItem2', 'TabItem3', 'TabItem4', 'RCPanel']}),
         dict(name='span', attrs={'id': ['GWCNavigatorControl', '_ctl15']}),
         dict(name='span', attrs={'class': ['ranking-titulo', 'IUTab']}),
-        dict(name='a', attrs={'class': ['link-registro', ]}),
+        dict(
+            name='a',
+            attrs={
+                'class': [
+                    'link-registro',
+                ]
+            },
+        ),
         dict(name='img', src='/versions/1/imgs/icono-comentario.gif'),
         dict(name='img', src='/versions/1/imgs/logo.gif'),
         dict(name='img', src='/versions/1/imgs/boton-ingresar-roll.gif'),
@@ -61,7 +63,7 @@ class LaPrensa(BasicNewsRecipe):
         dict(name='img', src='/versions/1/imgs/separador-linea-azul.gif'),
         dict(name='img', src=' /versions/1/imgs/separador-linea.gif'),
         dict(name='a', text='Powered by Civinext Groupware - V. 2.0.3567.23706'),
-        dict(name='img', height='0')
+        dict(name='img', height='0'),
     ]
 
     extra_css = '''
@@ -74,14 +76,13 @@ class LaPrensa(BasicNewsRecipe):
                 '''
 
     feeds = [
-
-    (u'Politica', u'http://www.laprensa.com.ar/ResourcesManager.aspx?Resource=Rss.aspx&Rss=4'),
-    (u'Economia', u'http://www.laprensa.com.ar/ResourcesManager.aspx?Resource=Rss.aspx&Rss=5'),
-    (u'Opinion', u'http://www.laprensa.com.ar/ResourcesManager.aspx?Resource=Rss.aspx?Rss=6'),
-    (u'El Mundo', u'http://www.laprensa.com.ar/ResourcesManager.aspx?Resource=Rss.aspx?Rss=7'),
-    (u'Actualidad', u'http://www.laprensa.com.ar/ResourcesManager.aspx?Resource=Rss.aspx?Rss=8'),
-    (u'Deportes', u'http://www.laprensa.com.ar/ResourcesManager.aspx?Resource=Rss.aspx?Rss=9'),
-    (u'Espectaculos', u'http://www.laprensa.com.ar/ResourcesManager.aspx?Resource=Rss.aspx?Rss=10')
+        ('Politica', 'http://www.laprensa.com.ar/ResourcesManager.aspx?Resource=Rss.aspx&Rss=4'),
+        ('Economia', 'http://www.laprensa.com.ar/ResourcesManager.aspx?Resource=Rss.aspx&Rss=5'),
+        ('Opinion', 'http://www.laprensa.com.ar/ResourcesManager.aspx?Resource=Rss.aspx?Rss=6'),
+        ('El Mundo', 'http://www.laprensa.com.ar/ResourcesManager.aspx?Resource=Rss.aspx?Rss=7'),
+        ('Actualidad', 'http://www.laprensa.com.ar/ResourcesManager.aspx?Resource=Rss.aspx?Rss=8'),
+        ('Deportes', 'http://www.laprensa.com.ar/ResourcesManager.aspx?Resource=Rss.aspx?Rss=9'),
+        ('Espectaculos', 'http://www.laprensa.com.ar/ResourcesManager.aspx?Resource=Rss.aspx?Rss=10'),
     ]
 
     def preprocess_html(self, soup):

@@ -25,9 +25,7 @@ class InquirerNet(BasicNewsRecipe):
     no_stylesheets = True
     auto_cleanup = True
 
-    feeds = [
-        (u'Inquirer', u'http://www.inquirer.net/fullfeed')
-    ]
+    feeds = [('Inquirer', 'http://www.inquirer.net/fullfeed')]
 
     def get_browser(self):
         br = BasicNewsRecipe.get_browser(self)

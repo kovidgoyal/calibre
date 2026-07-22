@@ -86,6 +86,7 @@ def source_read_handler(app, docname, source):
                 src = re.sub(r':ffsum:`(.+?)`', partial(ffsum, app.config.language), src)
             except Exception:
                 import traceback
+
                 traceback.print_exc()
                 raise
     # Sphinx does not call source_read_handle for the .. include directive
@@ -93,11 +94,11 @@ def source_read_handler(app, docname, source):
         included_doc_name = m.group(1).lstrip('/')
         ss = [open(included_doc_name, 'rb').read().decode('utf-8')]
         source_read_handler(app, included_doc_name.partition('.')[0], ss)
-        src = src[:m.start()] + ss[0] + src[m.end():]
+        src = src[: m.start()] + ss[0] + src[m.end() :]
     source[0] = src
 
 
-CLI_INDEX='''
+CLI_INDEX = '''
 .. _cli:
 
 %s
@@ -124,7 +125,7 @@ CLI_INDEX='''
 %s
 '''
 
-CLI_PREAMBLE='''\
+CLI_PREAMBLE = '''\
 .. _{cmdref}:
 
 .. raw:: html
@@ -145,13 +146,15 @@ CLI_PREAMBLE='''\
 def titlecase(language, x):
     if x and language == 'en':
         from calibre.utils.titlecase import titlecase as tc
+
         x = tc(x)
     return x
 
 
 def generate_calibredb_help(preamble, language):
     from calibre.db.cli.main import COMMANDS, get_parser, option_parser_for
-    preamble = preamble[:preamble.find('\n\n\n', preamble.find('code-block'))]
+
+    preamble = preamble[: preamble.find('\n\n\n', preamble.find('code-block'))]
     preamble += '\n\n'
     preamble += _('''\
 :command:`calibredb` is the command line interface to the calibre database. It has
@@ -201,25 +204,28 @@ details and examples.
     for cmd in COMMANDS:
         parser = option_parser_for(cmd)()
         lines += [f'.. _calibredb-{language}-{cmd}:', '']
-        lines += [cmd, '~'*20, '']
+        lines += [cmd, '~' * 20, '']
         usage = parser.usage.strip()
         usage = usage.replace('%prog', 'calibredb').splitlines()
-        cmdline = '    '+usage[0]
+        cmdline = '    ' + usage[0]
         usage = usage[1:]
         usage = [re.sub(rf'({cmd})([^a-zA-Z0-9])', r':command:`\1`\2', i) for i in usage]
         lines += ['.. code-block:: none', '', cmdline, '']
         lines += usage
         groups = [(None, None, parser.option_list)]
         lines += ['']
-        lines += render_options('calibredb '+cmd, groups, False)
+        lines += render_options('calibredb ' + cmd, groups, False)
         lines += ['']
         for group in parser.option_groups:
             if not getattr(group, 'is_global_options', False):
-                lines.extend(render_options(
-                    'calibredb_' + cmd, [[titlecase(language, group.title), group.description, group.option_list]], False, False, header_level='^'))
+                lines.extend(
+                    render_options(
+                        'calibredb_' + cmd, [[titlecase(language, group.title), group.description, group.option_list]], False, False, header_level='^'
+                    )
+                )
         lines += ['']
 
-    raw = preamble + '\n\n'+'.. contents::\n  :local:'+ '\n\n' + global_options+'\n\n'+'\n'.join(lines)
+    raw = preamble + '\n\n' + '.. contents::\n  :local:' + '\n\n' + global_options + '\n\n' + '\n'.join(lines)
     update_cli_doc('calibredb', raw, language)
 
 
@@ -227,11 +233,11 @@ def generate_ebook_convert_help(preamble, app):
     from calibre.customize.ui import input_format_plugins, output_format_plugins
     from calibre.ebooks.conversion.cli import create_option_parser, manual_index_strings
     from calibre.utils.logging import default_log
+
     preamble = re.sub(r'http.*\.html', ':ref:`conversion`', preamble)
 
     raw = preamble + '\n\n' + manual_index_strings() % 'ebook-convert myfile.input_format myfile.output_format -h'
-    parser, plumber = create_option_parser(['ebook-convert',
-        'dummyi.mobi', 'dummyo.epub', '-h'], default_log)
+    parser, plumber = create_option_parser(['ebook-convert', 'dummyi.mobi', 'dummyo.epub', '-h'], default_log)
     groups = [(None, None, parser.option_list)]
     for grp in parser.option_groups:
         if grp.title not in {'INPUT OPTIONS', 'OUTPUT OPTIONS'}:
@@ -242,18 +248,14 @@ def generate_ebook_convert_help(preamble, app):
 
     raw += '\n\n' + options
     for pl in sorted(input_format_plugins(), key=lambda x: x.name):
-        parser, plumber = create_option_parser(['ebook-convert',
-            'dummyi.'+sorted(pl.file_types)[0], 'dummyo.epub', '-h'], default_log)
-        groups = [(pl.name+ ' Options', '', g.option_list) for g in
-                parser.option_groups if g.title == 'INPUT OPTIONS']
-        prog = 'ebook-convert-'+(pl.name.lower().replace(' ', '-'))
+        parser, plumber = create_option_parser(['ebook-convert', 'dummyi.' + sorted(pl.file_types)[0], 'dummyo.epub', '-h'], default_log)
+        groups = [(pl.name + ' Options', '', g.option_list) for g in parser.option_groups if g.title == 'INPUT OPTIONS']
+        prog = 'ebook-convert-' + (pl.name.lower().replace(' ', '-'))
         raw += '\n\n' + '\n'.join(render_options(prog, groups, False, True))
     for pl in sorted(output_format_plugins(), key=lambda x: x.name):
-        parser, plumber = create_option_parser(['ebook-convert', 'd.epub',
-            'dummyi.'+pl.file_type, '-h'], default_log)
-        groups = [(pl.name+ ' Options', '', g.option_list) for g in
-                parser.option_groups if g.title == 'OUTPUT OPTIONS']
-        prog = 'ebook-convert-'+(pl.name.lower().replace(' ', '-'))
+        parser, plumber = create_option_parser(['ebook-convert', 'd.epub', 'dummyi.' + pl.file_type, '-h'], default_log)
+        groups = [(pl.name + ' Options', '', g.option_list) for g in parser.option_groups if g.title == 'OUTPUT OPTIONS']
+        prog = 'ebook-convert-' + (pl.name.lower().replace(' ', '-'))
         raw += '\n\n' + '\n'.join(render_options(prog, groups, False, True))
 
     update_cli_doc('ebook-convert', raw, app)
@@ -266,13 +268,13 @@ def update_cli_doc(name, raw, language):
     old_raw = open(path, encoding='utf-8').read() if os.path.exists(path) else ''
     if not os.path.exists(path) or old_raw != raw:
         import difflib
+
         print(path, 'has changed')
         if old_raw:
-            lines = difflib.unified_diff(old_raw.splitlines(), raw.splitlines(),
-                    path, path)
+            lines = difflib.unified_diff(old_raw.splitlines(), raw.splitlines(), path, path)
             for line in lines:
                 print(line)
-        info('creating '+os.path.splitext(os.path.basename(path))[0])
+        info('creating ' + os.path.splitext(os.path.basename(path))[0])
         p = os.path.dirname(path)
         if p and not os.path.exists(p):
             os.makedirs(p)
@@ -282,9 +284,9 @@ def update_cli_doc(name, raw, language):
 def render_options(cmd, groups, options_header=True, add_program=True, header_level='~'):
     lines = ['']
     if options_header:
-        lines = [_('[options]'), '-'*40, '']
+        lines = [_('[options]'), '-' * 40, '']
     if add_program:
-        lines += ['.. program:: '+cmd, '']
+        lines += ['.. program:: ' + cmd, '']
     for title, desc, options in groups:
         if title:
             lines.extend([title, header_level * (len(title) + 4)])
@@ -299,7 +301,7 @@ def render_options(cmd, groups, options_header=True, add_program=True, header_le
             help = mark_options(help)
             opt_strings = (x.strip() for x in tuple(opt._long_opts or ()) + tuple(opt._short_opts or ()))
             opt = '.. option:: ' + ', '.join(opt_strings)
-            lines.extend([opt, '', '    '+help, ''])
+            lines.extend([opt, '', '    ' + help, ''])
     return lines
 
 
@@ -314,6 +316,7 @@ def mark_options(raw):
         a = ':option:`' + a + '`'
         b = (' = ``' + b + '``') if b else ''
         return a + b
+
     raw = re.sub(r'(--[|()a-zA-Z0-9_=,-]+)', sub, raw)
     return raw
 
@@ -322,8 +325,8 @@ def get_cli_docs():
     documented_cmds = []
     undocumented_cmds = []
     for script in entry_points['console_scripts'] + entry_points['gui_scripts']:
-        module = script[script.index('=')+1:script.index(':')].strip()
-        cmd = script[:script.index('=')].strip()
+        module = script[script.index('=') + 1 : script.index(':')].strip()
+        cmd = script[: script.index('=')].strip()
         if cmd in ('calibre-complete', 'calibre-parallel'):
             continue
         module = __import__(module, fromlist=[module.split('.')[-1]])
@@ -344,11 +347,10 @@ def cli_docs(language):
     documented_cmds.sort(key=lambda x: x[0])
     undocumented_cmds.sort()
 
-    documented = [' '*4 + c[0] for c in documented_cmds]
+    documented = [' ' * 4 + c[0] for c in documented_cmds]
     undocumented = ['  * ' + c for c in undocumented_cmds]
 
-    raw = (CLI_INDEX % cli_index_strings()[:5]).format(documented='\n'.join(documented),
-            undocumented='\n'.join(undocumented))
+    raw = (CLI_INDEX % cli_index_strings()[:5]).format(documented='\n'.join(documented), undocumented='\n'.join(undocumented))
     if not os.path.exists('cli'):
         os.makedirs('cli')
     update_cli_doc('cli-index', raw, language)
@@ -370,7 +372,7 @@ def cli_docs(language):
                 groups.append((grp.title, grp.description, grp.option_list))
             raw = preamble
             lines = render_options(cmd, groups)
-            raw += '\n'+'\n'.join(lines)
+            raw += '\n' + '\n'.join(lines)
             update_cli_doc(cmd, raw, language)
 
 
@@ -381,6 +383,7 @@ def generate_docs(language):
 
 def template_docs(language):
     from template_ref_generate import generate_template_language_help
+
     raw = generate_template_language_help(language, getLogger(__name__))
     update_cli_doc('template_ref', raw, language)
 
@@ -402,6 +405,7 @@ def add_html_context(app, pagename, templatename, context, *args):
 
 def guilabel_role(typ, rawtext, text, *args, **kwargs):
     from sphinx.roles import GUILabel
+
     text = text.replace('->', '\N{THIN SPACE}\N{RIGHTWARDS ARROW}\N{THIN SPACE}')
     return GUILabel()(typ, rawtext, text, *args, **kwargs)
 
@@ -411,14 +415,13 @@ def setup_man_pages(app):
     man_pages = []
     for cmd, _option_parser in documented_cmds:
         path = f'generated/{app.config.language}/{cmd}'
-        man_pages.append((
-            path, cmd, cmd, 'Kovid Goyal', 1
-        ))
+        man_pages.append((path, cmd, cmd, 'Kovid Goyal', 1))
     app.config['man_pages'] = man_pages
 
 
 def setup(app):
     from docutils.parsers.rst import roles
+
     setup_man_pages(app)
     generate_docs(app.config.language)
     app.add_css_file('custom.css')

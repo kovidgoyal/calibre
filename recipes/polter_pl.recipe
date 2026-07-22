@@ -5,9 +5,9 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class Polter(BasicNewsRecipe):
-    title = u'Polter.pl'
+    title = 'Polter.pl'
     __author__ = 'fenuks'
-    description = u'Największy polski serwis poświęcony ogólno pojętej fantastyce - grom fabularnym (RPG), książkom, filmowi, komiksowi, grom planszowym, karcianym i bitewnym.'  # noqa: E501
+    description = 'Największy polski serwis poświęcony ogólno pojętej fantastyce - grom fabularnym (RPG), książkom, filmowi, komiksowi, grom planszowym, karcianym i bitewnym.'  # noqa: E501
     category = 'fantasy, books, rpg, games'
     language = 'pl'
     extra_css = '.image, .floatright {float: right; margin-left: 10px;} .floatleft {float: left; margin-right: 10px;} .calibre_navbar {clear: both;} .p_title {font-weight: bold;} .p_image {margin-left: auto; margin-right: auto; display: block;} .italic {font-style: italic;}'  # noqa: E501
@@ -22,23 +22,22 @@ class Polter(BasicNewsRecipe):
     ignore_duplicate_articles = {'title', 'url'}
 
     keep_only_tags = [dict(attrs={'class': 'boxcontent'})]
-    remove_tags = [dict(id='komentarze'),
-        dict(name='div',attrs={'class':'ostatnieArtykuly'})]
+    remove_tags = [dict(id='komentarze'), dict(name='div', attrs={'class': 'ostatnieArtykuly'})]
     remove_tags_after = dict(id='komentarze')
 
     feeds = [
-    (u'Wieści', 'http://polter.pl/wiesci,rss.html'),
-    (u'RPG', 'http://rpg.polter.pl/wiesci,rss.html'),
-    (u'Książki', 'http://ksiazki.polter.pl/wiesci,rss.html'),
-    (u'Film', 'http://film.polter.pl/wiesci,rss.html'),
-    (u'Komiks', 'http://komiks.polter.pl/wiesci,rss.html'),
-    (u'Gry bitewne', 'http://bitewniaki.polter.pl/wiesci,rss.html'),
-
-    (u'Gry karciane', 'http://karcianki.polter.pl/wiesci,rss.html'),
-    (u'Gry planszowe', 'http://planszowki.polter.pl/wiesci,rss.html'),
-    (u'Gry PC', 'http://gry.polter.pl/wiesci,rss.html'),
-    (u'Gry konsolowe', 'http://konsole.polter.pl/wiesci,rss.html'),
-    (u'Konwenty', 'http://konwenty.polter.pl/wiesci,rss.html')]
+        ('Wieści', 'http://polter.pl/wiesci,rss.html'),
+        ('RPG', 'http://rpg.polter.pl/wiesci,rss.html'),
+        ('Książki', 'http://ksiazki.polter.pl/wiesci,rss.html'),
+        ('Film', 'http://film.polter.pl/wiesci,rss.html'),
+        ('Komiks', 'http://komiks.polter.pl/wiesci,rss.html'),
+        ('Gry bitewne', 'http://bitewniaki.polter.pl/wiesci,rss.html'),
+        ('Gry karciane', 'http://karcianki.polter.pl/wiesci,rss.html'),
+        ('Gry planszowe', 'http://planszowki.polter.pl/wiesci,rss.html'),
+        ('Gry PC', 'http://gry.polter.pl/wiesci,rss.html'),
+        ('Gry konsolowe', 'http://konsole.polter.pl/wiesci,rss.html'),
+        ('Konwenty', 'http://konwenty.polter.pl/wiesci,rss.html'),
+    ]
 
     def preprocess_html(self, soup):
         for s in soup.findAll(attrs={'style': re.compile(r'float: ?left')}):

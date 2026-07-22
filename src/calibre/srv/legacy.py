@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
-
 from functools import partial
 from urllib.parse import urlencode
 
@@ -32,10 +31,9 @@ def clean(x):
 
 
 class _EBuilder:
-
     def __call__(self, tag, *children, **attribs):
         children = list(map(clean, children))
-        attribs = {k.rstrip('_').replace('_', '-'):clean(v) for k, v in attribs.items()}
+        attribs = {k.rstrip('_').replace('_', '-'): clean(v) for k, v in attribs.items()}
         return getattr(E_, tag)(*children, **attribs)
 
     def __getattr__(self, tag):
@@ -50,7 +48,14 @@ def html(ctx, rd, endpoint, output):
     if isinstance(output, bytes):
         ans = output  # Assume output is already UTF-8 encoded html
     else:
-        ans = tostring(output, include_meta_content_type=True, pretty_print=True, encoding='utf-8', doctype='<!DOCTYPE html>', with_tail=False)
+        ans = tostring(
+            output,
+            include_meta_content_type=True,
+            pretty_print=True,
+            encoding='utf-8',
+            doctype='<!DOCTYPE html>',
+            with_tail=False,
+        )
         if not isinstance(ans, bytes):
             ans = ans.encode('utf-8')
     return ans
@@ -65,7 +70,7 @@ def build_search_box(num, search, sort, order, ctx, field_metadata, library_id):
 
     num_select = E.select(name='num')
     for option in (5, 10, 25, 100):
-        kwargs = {'value':str(option)}
+        kwargs = {'value': str(option)}
         if option == num:
             kwargs['SELECTED'] = 'SELECTED'
         num_select.append(E.option(str(option), **kwargs))
@@ -77,17 +82,17 @@ def build_search_box(num, search, sort, order, ctx, field_metadata, library_id):
     form.append(searchf)
 
     sort_select = E.select(name='sort')
-    for option in ('date','author','title','rating','size','tags','series'):
+    for option in ('date', 'author', 'title', 'rating', 'size', 'tags', 'series'):
         q = sanitize_sort_field_name(field_metadata, option)
-        kwargs = {'value':option}
+        kwargs = {'value': option}
         if q == sanitize_sort_field_name(field_metadata, sort):
             kwargs['SELECTED'] = 'SELECTED'
         sort_select.append(E.option(option, **kwargs))
     form.append(sort_select)
 
     order_select = E.select(name='order')
-    for option in ('ascending','descending'):
-        kwargs = {'value':option}
+    for option in ('ascending', 'descending'):
+        kwargs = {'value': option}
         if option == order:
             kwargs['SELECTED'] = 'SELECTED'
         order_select.append(E.option(option, **kwargs))
@@ -99,28 +104,29 @@ def build_search_box(num, search, sort, order, ctx, field_metadata, library_id):
     form.append(E.input(id='go', type='submit', value=_('Search')))
 
     return div
+
+
 # }}}
 
 
 def build_navigation(start, num, total, url_base):  # {{{
-    end = min((start+num-1), total)
-    tagline = E.span(f'Books {start} to {end} of {total}',
-            style='display: block; text-align: center;')
+    end = min((start + num - 1), total)
+    tagline = E.span(f'Books {start} to {end} of {total}', style='display: block; text-align: center;')
     left_buttons = E.td(class_='button', style='text-align:left')
     right_buttons = E.td(class_='button', style='text-align:right')
 
     if start > 1:
-        for t,s in [('First', 1), ('Previous', max(start-num, 1))]:
+        for t, s in [('First', 1), ('Previous', max(start - num, 1))]:
             left_buttons.append(E.a(t, href=f'{url_base}&start={s}'))
 
     if total > start + num:
-        for t,s in [('Next', start+num), ('Last', total-num+1)]:
+        for t, s in [('Next', start + num), ('Last', total - num + 1)]:
             right_buttons.append(E.a(t, href=f'{url_base}&start={s}'))
 
-    buttons = E.table(
-            E.tr(left_buttons, right_buttons),
-            class_='buttons')
+    buttons = E.table(E.tr(left_buttons, right_buttons), class_='buttons')
     return E.div(tagline, buttons, class_='navigation')
+
+
 # }}}
 
 
@@ -130,10 +136,16 @@ def build_choose_library(ctx, library_map):
         select.append(E.option(library_name, value=library_id))
     return E.div(
         E.form(
-            _('Change library to: '), select, ' ', E.input(type='submit', value=_('Change library')),
-            method='GET', action=ctx.url_for('/mobile'), accept_charset='UTF-8'
+            _('Change library to: '),
+            select,
+            ' ',
+            E.input(type='submit', value=_('Change library')),
+            method='GET',
+            action=ctx.url_for('/mobile'),
+            accept_charset='UTF-8',
         ),
-        id='choose_library')
+        id='choose_library',
+    )
 
 
 def build_index(rd, books, num, search, sort, order, start, total, url_base, field_metadata, ctx, library_map, library_id):  # {{{
@@ -145,15 +157,7 @@ def build_index(rd, books, num, search, sort, order, start, total, url_base, fie
         choose_library = build_choose_library(ctx, library_map)
     books_table = E.table(id='listing')
 
-    body = E.body(
-        logo,
-        search_box,
-        navigation,
-        E.hr(class_='spacer'),
-        books_table,
-        E.hr(class_='spacer'),
-        navigation2
-    )
+    body = E.body(logo, search_box, navigation, E.hr(class_='spacer'), books_table, E.hr(class_='spacer'), navigation2)
 
     for book in books:
         # Link to book details page (legacy-safe)
@@ -162,11 +166,12 @@ def build_index(rd, books, num, search, sort, order, start, total, url_base, fie
         thumbnail = E.td(
             E.a(
                 E.img(
-                    type='image/jpeg', border='0',
+                    type='image/jpeg',
+                    border='0',
                     src=ctx.url_for('/get', what='thumb', book_id=book.id, library_id=library_id),
-                    class_='thumbnail'
+                    class_='thumbnail',
                 ),
-                href=book_link  # Make cover clickable
+                href=book_link,  # Make cover clickable
             )
         )
 
@@ -177,9 +182,15 @@ def build_index(rd, books, num, search, sort, order, start, total, url_base, fie
             s = E.span(
                 E.a(
                     fmt.lower(),
-                    href=ctx.url_for('/legacy/get', what=fmt, book_id=book.id, library_id=library_id, filename=book_filename(rd, book.id, book, fmt))
+                    href=ctx.url_for(
+                        '/legacy/get',
+                        what=fmt,
+                        book_id=book.id,
+                        library_id=library_id,
+                        filename=book_filename(rd, book.id, book, fmt),
+                    ),
                 ),
-                class_='button'
+                class_='button',
             )
             s.tail = ''
             data.append(s)
@@ -200,10 +211,7 @@ def build_index(rd, books, num, search, sort, order, start, total, url_base, fie
                 ctext += f'{name}=[{val}] '
 
         # Make title clickable
-        first = E.span(
-            E.a(f'{book.title} {series} by {authors_to_string(book.authors)}', href=book_link),
-            class_='first-line'
-        )
+        first = E.span(E.a(f'{book.title} {series} by {authors_to_string(book.authors)}', href=book_link), class_='first-line')
         div.append(first)
 
         ds = '' if is_date_undefined(book.timestamp) else strftime('%d %b, %Y', t=dt_as_local(book.timestamp).timetuple())
@@ -214,13 +222,16 @@ def build_index(rd, books, num, search, sort, order, start, total, url_base, fie
 
     if library_map:
         body.append(choose_library)
-    body.append(E.div(
-        E.a(_('Switch to the full interface (non-mobile interface)'),
-            href=ctx.url_for(None),
-            style='text-decoration: none; color: blue',
-            title=_('The full interface gives you many more features, '
-                    'but it may not work well on a small screen')),
-        style='text-align:center')
+    body.append(
+        E.div(
+            E.a(
+                _('Switch to the full interface (non-mobile interface)'),
+                href=ctx.url_for(None),
+                style='text-decoration: none; color: blue',
+                title=_('The full interface gives you many more features, but it may not work well on a small screen'),
+            ),
+            style='text-align:center',
+        )
     )
 
     return E.html(
@@ -229,10 +240,12 @@ def build_index(rd, books, num, search, sort, order, start, total, url_base, fie
             E.link(rel='icon', href=ctx.url_for('/favicon.png'), type='image/png'),
             E.link(rel='stylesheet', type='text/css', href=ctx.url_for('/static', what='mobile.css')),
             E.link(rel='apple-touch-icon', href=ctx.url_for('/static', what='calibre.png')),
-            E.meta(name='robots', content='noindex')
+            E.meta(name='robots', content='noindex'),
         ),
-        body
+        body,
     )
+
+
 # }}}
 
 
@@ -258,13 +271,21 @@ def mobile(ctx, rd):
         except Exception:
             sort_by = 'date'
             book_ids = db.multisort([(sort_by, ascending)], book_ids)
-        books = [db.get_metadata(book_id) for book_id in book_ids[(start-1):(start-1)+num]]
+        books = [db.get_metadata(book_id) for book_id in book_ids[(start - 1) : (start - 1) + num]]
     rd.outheaders['Last-Modified'] = http_date(timestampfromdt(db.last_modified()))
     order = 'ascending' if ascending else 'descending'
-    q = {b'search':search.encode('utf-8'), b'order':order.encode('ascii'), b'sort':sort_by.encode('utf-8'), b'num':as_bytes(num), 'library_id':library_id}
+    q = {
+        b'search': search.encode('utf-8'),
+        b'order': order.encode('ascii'),
+        b'sort': sort_by.encode('utf-8'),
+        b'num': as_bytes(num),
+        'library_id': library_id,
+    }
     url_base = ctx.url_for('/mobile') + '?' + urlencode(q)
-    lm = {k:v for k, v in library_map.items() if k != library_id}
+    lm = {k: v for k, v in library_map.items() if k != library_id}
     return build_index(rd, books, num, search, sort_by, order, start, total, url_base, db.field_metadata, ctx, lm, library_id)
+
+
 # }}}
 
 
@@ -279,13 +300,18 @@ def browse(ctx, rd, rest):
         # redirect old server book URLs to new URLs
         redirect = ctx.url_for(None) + f'#book_id={book_id}&amp;panel=book_details'
         from lxml import etree as ET
-        return html(ctx, rd, endpoint,
-                 E.html(E.head(
-                     ET.XML('<meta http-equiv="refresh" content="0;url=' + redirect + '"/>'),
-                     ET.XML('<script language="javascript">' +
-                         'window.location.href = "' + redirect + '"' +
-                         '</script>'
-                         ))))
+
+        return html(
+            ctx,
+            rd,
+            endpoint,
+            E.html(
+                E.head(
+                    ET.XML('<meta http-equiv="refresh" content="0;url=' + redirect + '"/>'),
+                    ET.XML('<script language="javascript">' + 'window.location.href = "' + redirect + '"' + '</script>'),
+                )
+            ),
+        )
     else:
         raise HTTPRedirect(ctx.url_for(None))
 

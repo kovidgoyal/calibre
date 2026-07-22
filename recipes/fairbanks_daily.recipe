@@ -2,7 +2,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class FairbanksDailyNewsminer(BasicNewsRecipe):
-    title = u'Fairbanks Daily News-miner'
+    title = 'Fairbanks Daily News-miner'
     __author__ = 'Roger'
     oldest_article = 7
     max_articles_per_feed = 100
@@ -18,16 +18,10 @@ class FairbanksDailyNewsminer(BasicNewsRecipe):
     auto_cleanup = True
 
     feeds = [
-        (u'Alaska News',
-         u'http://www.newsminer.com/search/?f=rss&t=article&c=news/alaska_news&l=50&s=start_time&sd=desc'),
-        (u'Local News',
-         u'http://www.newsminer.com/search/?f=rss&t=article&c=news/local_news&l=50&s=start_time&sd=desc'),
-        (u'Business',
-         u'http://www.newsminer.com/search/?f=rss&t=article&c=business&l=50&s=start_time&sd=desc'),
-        (u'Politics',
-         u'http://www.newsminer.com/search/?f=rss&t=article&c=news/politics&l=50&s=start_time&sd=desc'),
-        (u'Sports',
-         u'http://www.newsminer.com/search/?f=rss&t=article&c=sports&l=50&s=start_time&sd=desc'),
-        (u'Opinion',
-         u'http://www.newsminer.com/search/?f=rss&t=article&c=opinion&l=50&s=start_time&sd=desc'),
+        ('Alaska News', 'http://www.newsminer.com/search/?f=rss&t=article&c=news/alaska_news&l=50&s=start_time&sd=desc'),
+        ('Local News', 'http://www.newsminer.com/search/?f=rss&t=article&c=news/local_news&l=50&s=start_time&sd=desc'),
+        ('Business', 'http://www.newsminer.com/search/?f=rss&t=article&c=business&l=50&s=start_time&sd=desc'),
+        ('Politics', 'http://www.newsminer.com/search/?f=rss&t=article&c=news/politics&l=50&s=start_time&sd=desc'),
+        ('Sports', 'http://www.newsminer.com/search/?f=rss&t=article&c=sports&l=50&s=start_time&sd=desc'),
+        ('Opinion', 'http://www.newsminer.com/search/?f=rss&t=article&c=opinion&l=50&s=start_time&sd=desc'),
     ]

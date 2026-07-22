@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # License: GPL v3 Copyright: 2018, Kovid Goyal <kovid at kovidgoyal.net>
 
-
 from collections import OrderedDict
 
 from calibre.ebooks.metadata.tag_mapper import map_tags
@@ -19,7 +18,6 @@ series_maps = JSONConfig('series-mapping-rules')
 
 
 class RuleEdit(RuleEditBase):
-
     ACTION_MAP = OrderedDict((
         ('replace', _('Change')),
         ('capitalize', _('Capitalize')),
@@ -70,41 +68,42 @@ class RuleEdit(RuleEditBase):
             idx = c.findData(str(rule.get(name, '')))
             idx = max(idx, 0)
             c.setCurrentIndex(idx)
+
         sc('match_type'), sc('action')
         self.query.setText(str(rule.get('query', '')).strip())
         self.replace.setText(str(rule.get('replace', '')).strip())
 
 
 class RuleEditDialog(RuleEditDialogBase):
-
     PREFS_NAME = 'edit-series-mapping-rule'
     RuleEditClass = RuleEdit
 
 
 class RuleItem(RuleItemBase):
-
     @staticmethod
     def text_from_rule(rule, parent):
         query = elided_text(rule['query'], font=parent.font(), width=200, pos='right')
-        text = _(
-            '<b>{action}</b> the series name, if it <i>{match_type}</i>: <b>{query}</b>').format(
-                action=RuleEdit.ACTION_MAP[rule['action']], match_type=RuleEdit.MATCH_TYPE_MAP[rule['match_type']], query=query)
+        text = _('<b>{action}</b> the series name, if it <i>{match_type}</i>: <b>{query}</b>').format(
+            action=RuleEdit.ACTION_MAP[rule['action']],
+            match_type=RuleEdit.MATCH_TYPE_MAP[rule['match_type']],
+            query=query,
+        )
         if rule['action'] == 'replace':
             text += '<br>' + _('to the name') + ' <b>{}</b>'.format(rule['replace'])
         return '<div style="white-space: nowrap">' + text + '</div>'
 
 
 class Rules(RulesBase):
-
     RuleItemClass = RuleItem
     RuleEditDialogClass = RuleEditDialog
-    MSG = _('You can specify rules to manipulate series names here.'
-            ' Click the "Add Rule" button'
-            ' below to get started. The rules will be processed in order for every series.')
+    MSG = _(
+        'You can specify rules to manipulate series names here.'
+        ' Click the "Add Rule" button'
+        ' below to get started. The rules will be processed in order for every series.'
+    )
 
 
 class Tester(TesterBase):
-
     DIALOG_TITLE = _('Test series mapping rules')
     PREFS_NAME = 'test-series-mapping-rules'
     LABEL = _('Enter a series name to test:')
@@ -118,7 +117,6 @@ class Tester(TesterBase):
 
 
 class RulesDialog(RulesDialogBase):
-
     DIALOG_TITLE = _('Edit series mapping rules')
     PREFS_NAME = 'edit-series-mapping-rules'
     RulesClass = Rules
@@ -130,9 +128,10 @@ if __name__ == '__main__':
     app = Application([])
     d = RulesDialog()
     d.rules = [
-            {'action':'replace', 'query':'alice Bob, moose', 'match_type':'one_of', 'replace':'Alice Bob, Moose'},
+        {'action': 'replace', 'query': 'alice Bob, moose', 'match_type': 'one_of', 'replace': 'Alice Bob, Moose'},
     ]
     d.exec()
     from pprint import pprint
+
     pprint(d.rules)
     del d, app

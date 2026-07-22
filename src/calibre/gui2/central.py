@@ -65,7 +65,7 @@ def migrate_settings(width=-1, height=-1):
             'book_details': int(height * nd.book_details_height),
             'cover_browser': int(width * nd.cover_browser_width),
             'quick_view': int(height * nd.quick_view_height),
-        }
+        },
     }
     for which, hor_is_wide in {
         'tag_browser': True,
@@ -86,7 +86,7 @@ def migrate_settings(width=-1, height=-1):
                 sizes[key][which] = val[1]
     if gprefs.get('quickview visible'):
         ans['wide_visibility']['quick_view'] = ans['narrow_visibility']['quick_view'] = True
-    qdh = gprefs.get('quickview_dialog_heights') or (int(2*height/3), int(height/3))
+    qdh = gprefs.get('quickview_dialog_heights') or (int(2 * height / 3), int(height / 3))
 
     # Migrate wide sizes
     s, a = sizes['wide'], ans['wide_desires']
@@ -122,7 +122,6 @@ class Placeholder(QLabel):
 
 
 class LayoutButton(QToolButton):
-
     on_action_trigger = pyqtSignal(bool)
     shortcut: str | None
 
@@ -146,8 +145,12 @@ class LayoutButton(QToolButton):
             self.action_toggle.triggered.connect(self.toggle)
             gui.addAction(self.action_toggle)
             gui.keyboard.register_shortcut(
-                f'toggle_central_panel_{self.name}', self.action_toggle.text(), group=_('Main window layout'),
-                default_keys=(self.shortcut,), action=self.action_toggle)
+                f'toggle_central_panel_{self.name}',
+                self.action_toggle.text(),
+                group=_('Main window layout'),
+                default_keys=(self.shortcut,),
+                action=self.action_toggle,
+            )
 
     @property
     def is_visible(self):
@@ -157,8 +160,7 @@ class LayoutButton(QToolButton):
         if not isinstance(action_toggle, QAction):
             action_toggle = getattr(self, 'action_toggle', None)
         if action_toggle:
-            sc = ', '.join(sc.toString(QKeySequence.SequenceFormat.NativeText)
-                                for sc in action_toggle.shortcuts())
+            sc = ', '.join(sc.toString(QKeySequence.SequenceFormat.NativeText) for sc in action_toggle.shortcuts())
             self.shortcut = sc or ''
             self.update_text()
 
@@ -183,22 +185,23 @@ class LayoutButton(QToolButton):
     def mouseReleaseEvent(self, a0):
         if a0.button() == Qt.MouseButton.RightButton:
             from calibre.gui2.ui import get_gui
+
             gui = get_gui(fail_if_absent=True)
             if self.name == 'search':
                 gui.iactions['Preferences'].do_config(initial_plugin=('Interface', 'Search'), close_after_initial=True)
                 a0.accept()
                 return
             tab_name = {
-                'book_details':'book_details',
-                'cover_grid':'cover_grid',
-                'bookshelf_view':'bookshelf',
-                'cover_browser':'cover_browser',
-                'tag_browser':'tag_browser',
-                'quick_view':'quickview',
+                'book_details': 'book_details',
+                'cover_grid': 'cover_grid',
+                'bookshelf_view': 'bookshelf',
+                'cover_browser': 'cover_browser',
+                'tag_browser': 'tag_browser',
+                'quick_view': 'quickview',
             }.get(self.name)
             if tab_name:
                 if gui is not None:
-                    gui.iactions['Preferences'].do_config(initial_plugin=('Interface', 'Look & Feel', tab_name+'_tab'), close_after_initial=True)
+                    gui.iactions['Preferences'].do_config(initial_plugin=('Interface', 'Look & Feel', tab_name + '_tab'), close_after_initial=True)
                     a0.accept()
                     return
         return QToolButton.mouseReleaseEvent(self, a0)
@@ -211,7 +214,6 @@ class HandleState(Enum):
 
 
 class SplitterHandle(QWidget):
-
     dragged_to = pyqtSignal(QPointF)
     toggle_requested = pyqtSignal()
 
@@ -277,7 +279,6 @@ class SplitterHandle(QWidget):
 
 
 class Layout(Enum):
-
     wide = auto()
     narrow = auto()
 
@@ -350,7 +351,6 @@ class Visibility:
 
 
 class CentralContainer(QWidget):
-
     layout: Layout = Layout.wide
 
     def __init__(self, parent=None, prefs_name='main_window_central_widget_state', separate_cover_browser=None, for_develop=False):
@@ -407,8 +407,7 @@ class CentralContainer(QWidget):
 
     @property
     def cb_on_top_changed(self):
-        return (self._last_cb_position is None or
-                gprefs['cover_browser_narrow_view_position'] != self._last_cb_position)
+        return self._last_cb_position is None or gprefs['cover_browser_narrow_view_position'] != self._last_cb_position
 
     @property
     def is_visible(self):
@@ -431,8 +430,12 @@ class CentralContainer(QWidget):
         self.set_widget('tag_browser', gui.tb_widget)
         self.set_widget('book_list', book_list_widget)
         gui.keyboard.register_shortcut(
-            'toggle_layout_type', _('Toggle layout between wide and narrow'), group=_('Main window layout'),
-            default_keys=('Alt+Shift+L',), action=self.action_toggle_layout)
+            'toggle_layout_type',
+            _('Toggle layout between wide and narrow'),
+            group=_('Main window layout'),
+            default_keys=('Alt+Shift+L',),
+            action=self.action_toggle_layout,
+        )
         gui.addAction(self.action_toggle_layout)
         # cover browser is set in CoverFlowMixin
         # Quickview is set in quickview.py code
@@ -474,7 +477,7 @@ class CentralContainer(QWidget):
             'wide_visibility': self.wide_is_visible.serialize(),
             'narrow_visibility': self.narrow_is_visible.serialize(),
             'wide_desires': self.wide_desires.serialize(),
-            'narrow_desires': self.narrow_desires.serialize()
+            'narrow_desires': self.narrow_desires.serialize(),
         }
 
     def layout_button_toggled(self):
@@ -753,7 +756,10 @@ class CentralContainer(QWidget):
                 self.is_visible.quick_view = False
                 self.wide_desires.quick_view_height = 0
             else:
-                available_height = max(0, self.height() - self.top_handle.height() - self.bottom_handle.height() - self.cover_browser.minimumHeight() - 50)
+                available_height = max(
+                    0,
+                    self.height() - self.top_handle.height() - self.bottom_handle.height() - self.cover_browser.minimumHeight() - 50,
+                )
                 self.wide_desires.quick_view_height = max(HIDE_THRESHOLD, min(h, available_height)) / self.height()
 
     def size_panel_on_initial_show_wide(self, which):
@@ -763,13 +769,20 @@ class CentralContainer(QWidget):
             if current < SHOW_THRESHOLD:
                 setattr(self.wide_desires, which, getattr(WideDesires, which))
         elif which == 'cover_browser':
-            self.wide_desires.cover_browser_height = max(int(self.height() * self.wide_desires.cover_browser_height),
-                                                         self.cover_browser.minimumHeight()) / self.height()
+            self.wide_desires.cover_browser_height = (
+                max(int(self.height() * self.wide_desires.cover_browser_height), self.cover_browser.minimumHeight()) / self.height()
+            )
         else:
             self.wide_desires.quick_view_height = max(int(self.height() * self.wide_desires.quick_view_height), 150) / self.height()
 
     def panel_name_for_handle_wide(self, handle):
-        return {self.left_handle: 'tag_browser', self.right_handle: 'book_details', self.top_handle: 'cover_browser', self.bottom_handle: 'quick_view'}[handle]
+        return {
+            self.left_handle: 'tag_browser',
+            self.right_handle: 'book_details',
+            self.top_handle: 'cover_browser',
+            self.bottom_handle: 'quick_view',
+        }[handle]
+
     # }}}
 
     # Narrow {{{
@@ -873,8 +886,11 @@ class CentralContainer(QWidget):
             h.resize(int(width), int(central_height))
             available_width -= width
         tb = int(self.narrow_desires.tag_browser_width * self.width()) if self.is_visible.tag_browser else 0
-        cb = max(self.cover_browser.minimumWidth(),
-                 int(self.narrow_desires.cover_browser_width * self.width())) if self.is_visible.cover_browser and not self.separate_cover_browser else 0
+        cb = (
+            max(self.cover_browser.minimumWidth(), int(self.narrow_desires.cover_browser_width * self.width()))
+            if self.is_visible.cover_browser and not self.separate_cover_browser
+            else 0
+        )
         min_central_width = self.min_central_width_narrow()
         if tb + cb > max(0, available_width - min_central_width):
             width_to_share = max(0, available_width - min_central_width)
@@ -974,13 +990,20 @@ class CentralContainer(QWidget):
                 self.narrow_desires.quick_view_height = NarrowDesires.quick_view_height
 
     def panel_name_for_handle_narrow(self, handle):
-        return {self.left_handle: 'tag_browser', self.right_handle: 'cover_browser', self.top_handle: 'quick_view', self.bottom_handle: 'book_details'}[handle]
+        return {
+            self.left_handle: 'tag_browser',
+            self.right_handle: 'cover_browser',
+            self.top_handle: 'quick_view',
+            self.bottom_handle: 'book_details',
+        }[handle]
+
     # }}}
 
 
 # develop {{{
 def develop():
     app = Application([])
+
     class d(QDialog):
         def __init__(self):
             super().__init__()
@@ -995,6 +1018,7 @@ def develop():
             h.addWidget(self.central.quick_view_button)
             l.addWidget(self.central)
             self.resize(self.sizeHint())
+
         def keyPressEvent(self, a0):
             if a0.key() == Qt.Key.Key_Q:
                 self.central.toggle_quick_view()

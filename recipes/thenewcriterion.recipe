@@ -15,35 +15,33 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class TheNewCriterion(BasicNewsRecipe):
-    title                = 'The New Criterion'
-    __author__           = 'Darko Miletic'
-    description          = 'On the front lines of the battle for culture'
-    publisher            = 'The Foundation for Cultural Review'
-    category             = 'art, politics, USA, world'
-    oldest_article       = 40
-    no_stylesheets       = True
-    encoding             = 'utf8'
+    title = 'The New Criterion'
+    __author__ = 'Darko Miletic'
+    description = 'On the front lines of the battle for culture'
+    publisher = 'The Foundation for Cultural Review'
+    category = 'art, politics, USA, world'
+    oldest_article = 40
+    no_stylesheets = True
+    encoding = 'utf8'
     use_embedded_content = False
-    language             = 'en'
-    remove_empty_feeds   = True
-    publication_type     = 'magazine'
-    needs_subscription   = 'optional'
-    delay                = 1
+    language = 'en'
+    remove_empty_feeds = True
+    publication_type = 'magazine'
+    needs_subscription = 'optional'
+    delay = 1
     simultaneous_downloads = 1
-    timeout                = 8
+    timeout = 8
     ignore_duplicate_articles = {'url'}
     articles_are_obfuscated = True
-    temp_files              = []
-    fetch_retries           = 10
-    auto_cleanup         = True
-    masthead_url         = 'https://www.newcriterion.com/themes/thenewcriterion/assets/img/horizontal-logo.svg'
-    extra_css            = '''
+    temp_files = []
+    fetch_retries = 10
+    auto_cleanup = True
+    masthead_url = 'https://www.newcriterion.com/themes/thenewcriterion/assets/img/horizontal-logo.svg'
+    extra_css = '''
         body{font-family: Galliard, serif}
     '''
 
-    conversion_options = {
-        'comment': description, 'tags': category, 'publisher': publisher, 'language': language
-    }
+    conversion_options = {'comment': description, 'tags': category, 'publisher': publisher, 'language': language}
 
     def get_browser(self):
         br = BasicNewsRecipe.get_browser(self)
@@ -57,8 +55,7 @@ class TheNewCriterion(BasicNewsRecipe):
         return br
 
     def parse_index(self):
-        months = ('january', 'february', 'march', 'april', 'may', 'june',
-                  'july', 'august', 'september', 'october', 'november', 'december')
+        months = ('january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december')
         slug = months[int(strftime('%m')) - 1] + '-' + strftime('%Y')
         currentIssue_url = 'https://newcriterion.com/issues/' + slug + '/'
         self.log(currentIssue_url)
@@ -89,7 +86,7 @@ class TheNewCriterion(BasicNewsRecipe):
     def get_obfuscated_article(self, url):
         result = None
         count = 0
-        while (count < self.fetch_retries):
+        while count < self.fetch_retries:
             try:
                 response = self.browser.open(url, timeout=self.timeout)
                 html = response.read()

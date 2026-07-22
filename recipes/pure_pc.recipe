@@ -2,17 +2,17 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class PurePC(BasicNewsRecipe):
-    title = u'PurePC'
+    title = 'PurePC'
     oldest_article = 7
     max_articles_per_feed = 100
     __author__ = 'fenuks'
-    description = u'Artykuły, aktualności, sprzęt, forum, chłodzenie, modding, urządzenia mobilne - wszystko w jednym miejscu.'
+    description = 'Artykuły, aktualności, sprzęt, forum, chłodzenie, modding, urządzenia mobilne - wszystko w jednym miejscu.'
     category = 'IT'
     language = 'pl'
     cover_url = 'http://www.purepc.pl/themes/new/images/purepc.jpg'
     extra_css = '.wykres_logo {float: left; margin-right: 5px;}'
     no_stylesheets = True
 
-    keep_only_tags = [dict(name='div', attrs={'class':'node page0'})]
-    remove_tags = [dict(name='div', attrs={'class':'article-options'})]
-    feeds = [(u'Wiadomo\u015bci', u'http://www.purepc.pl/node/feed')]
+    keep_only_tags = [dict(name='div', attrs={'class': 'node page0'})]
+    remove_tags = [dict(name='div', attrs={'class': 'article-options'})]
+    feeds = [('Wiadomo\u015bci', 'http://www.purepc.pl/node/feed')]

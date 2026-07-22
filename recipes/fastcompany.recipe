@@ -32,17 +32,13 @@ class FastCompany(BasicNewsRecipe):
     lang = 'en'
     language = 'en'
 
-    html2lrf_options = [
-        '--comment', description, '--category', category, '--publisher', publisher
-    ]
+    html2lrf_options = ['--comment', description, '--category', category, '--publisher', publisher]
 
-    html2epub_options = 'publisher="' + publisher + \
-        '"\ncomments="' + description + '"\ntags="' + category + '"'
+    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"'
 
-    remove_tags = [dict(name=['embed', 'object']), dict(
-        name='div', attrs={'class': 'feedflare'})]
+    remove_tags = [dict(name=['embed', 'object']), dict(name='div', attrs={'class': 'feedflare'})]
 
-    feeds = [(u'All News', u'http://feeds.feedburner.com/fastcompany/headlines')]
+    feeds = [('All News', 'http://feeds.feedburner.com/fastcompany/headlines')]
 
     def get_article_url(self, article):
         return article.get('guid', None)
@@ -50,10 +46,8 @@ class FastCompany(BasicNewsRecipe):
     def preprocess_html(self, soup):
         soup.html['xml:lang'] = self.lang
         soup.html['lang'] = self.lang
-        mlang = new_tag(soup, 'meta', [
-                    ('http-equiv', 'Content-Language'), ('content', self.lang)])
-        mcharset = new_tag(soup, 'meta', [
-                       ('http-equiv', 'Content-Type'), ('content', 'text/html; charset=UTF-8')])
+        mlang = new_tag(soup, 'meta', [('http-equiv', 'Content-Language'), ('content', self.lang)])
+        mcharset = new_tag(soup, 'meta', [('http-equiv', 'Content-Type'), ('content', 'text/html; charset=UTF-8')])
         soup.head.insert(0, mlang)
         soup.head.insert(1, mcharset)
         for item in soup.findAll('a'):

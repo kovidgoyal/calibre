@@ -23,21 +23,17 @@ class MercuryNews(BasicNewsRecipe):
     encoding = 'utf-8'
     language = 'en_US'
 
-    conversion_options = {
-        'comment': description, 'tags': category, 'publisher': publisher, 'language': language
-    }
+    conversion_options = {'comment': description, 'tags': category, 'publisher': publisher, 'language': language}
 
     keep_only_tags = [
         dict(name='h1'),
-        dict(attrs={'class':['byline', 'time', 'article-body']}),
-        dict(attrs={'class':lambda x: x and 'header-features' in x.split()}),
+        dict(attrs={'class': ['byline', 'time', 'article-body']}),
+        dict(attrs={'class': lambda x: x and 'header-features' in x.split()}),
     ]
 
-    feeds = [
-        ('News', 'http://www.mercurynews.com/feed/')
-    ]
+    feeds = [('News', 'http://www.mercurynews.com/feed/')]
 
     def preprocess_html(self, soup, *a):
-        for img in soup.findAll(name='img', attrs={'data-src':True}):
+        for img in soup.findAll(name='img', attrs={'data-src': True}):
             img['src'] = img['data-src']
         return soup

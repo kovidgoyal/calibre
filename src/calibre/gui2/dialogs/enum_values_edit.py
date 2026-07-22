@@ -25,11 +25,10 @@ from calibre.utils.localization import _, ngettext
 
 
 class CountTableWidgetItem(QTableWidgetItem):
-
     def __init__(self, count):
         QTableWidgetItem.__init__(self, str(count) if count is not None else '0')
-        self.setTextAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignVCenter)
-        self.setFlags(self.flags() & ~(Qt.ItemFlag.ItemIsSelectable|Qt.ItemFlag.ItemIsEditable))
+        self.setTextAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
+        self.setFlags(self.flags() & ~(Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEditable))
         self._count = count
 
     def set_count(self, count):
@@ -37,7 +36,6 @@ class CountTableWidgetItem(QTableWidgetItem):
 
 
 class EnumValuesEdit(QDialog):
-
     VALUE_COLUMN = 0
     WAS_COLUMN = 1
     COLOR_COLUMN = 2
@@ -52,16 +50,15 @@ class EnumValuesEdit(QDialog):
 
         bbox = QVBoxLayout()
         bbox.addStretch(10)
-        self.move_up_button= QToolButton()
+        self.move_up_button = QToolButton()
         self.move_up_button.setIcon(QIcon.ic('arrow-up.png'))
         self.del_button = QToolButton()
         self.del_button.setIcon(QIcon.ic('trash.png'))
-        self.del_button.setToolTip(_('Remove the currently selected value. The '
-                                     'value will be removed from all books.'))
+        self.del_button.setToolTip(_('Remove the currently selected value. The value will be removed from all books.'))
         self.ins_button = QToolButton()
         self.ins_button.setIcon(QIcon.ic('plus.png'))
         self.ins_button.setToolTip(_('Add a new permissible value'))
-        self.move_down_button= QToolButton()
+        self.move_down_button = QToolButton()
         self.move_down_button.setIcon(QIcon.ic('arrow-down.png'))
         bbox.addWidget(self.move_up_button)
         bbox.addStretch(1)
@@ -88,15 +85,14 @@ class EnumValuesEdit(QDialog):
         tl.addWidget(t)
 
         counts = self.db.new_api.get_usage_count_by_id(key)
-        self.name_to_count = {lower(self.db.new_api.get_item_name(key, item_id)):count
-                              for item_id,count in counts.items()}
+        self.name_to_count = {lower(self.db.new_api.get_item_name(key, item_id)): count for item_id, count in counts.items()}
 
         self.key = key
         self.fm = fm = db.field_metadata[key]
         permitted_values = fm.get('display', {}).get('enum_values', '')
         colors = fm.get('display', {}).get('enum_colors', '')
         t.setRowCount(len(permitted_values))
-        for i,v in enumerate(permitted_values):
+        for i, v in enumerate(permitted_values):
             self.make_name_item(i, v)
             c = self.make_color_combobox(i, -1)
             if colors:
@@ -157,8 +153,9 @@ class EnumValuesEdit(QDialog):
         c = QComboBox(self)
         c.addItem('')
         c.addItems(QColor.colorNames())
-        c.setToolTip('<p>' + _('Selects the color of the text when displayed in the book list. '
-                               'Either all rows must have a color or no rows have a color') + '</p>')
+        c.setToolTip(
+            '<p>' + _('Selects the color of the text when displayed in the book list. Either all rows must have a color or no rows have a color') + '</p>'
+        )
         self.table.setCellWidget(row, self.COLOR_COLUMN, c)
         if dex >= 0:
             c.setCurrentIndex(dex)
@@ -175,8 +172,7 @@ class EnumValuesEdit(QDialog):
     def move_up_clicked(self):
         row = self.table.currentRow()
         if row < 0:
-            error_dialog(self, _('Select a cell'),
-                               _('Select a cell before clicking the button'), show=True)
+            error_dialog(self, _('Select a cell'), _('Select a cell before clicking the button'), show=True)
             return
         if row == 0:
             return
@@ -201,8 +197,7 @@ class EnumValuesEdit(QDialog):
     def move_down_clicked(self):
         row = self.table.currentRow()
         if row < 0:
-            error_dialog(self, _('Select a cell'),
-                               _('Select a cell before clicking the button'), show=True)
+            error_dialog(self, _('Select a cell'), _('Select a cell before clicking the button'), show=True)
             return
         if row >= self.table.rowCount() - 1:
             return
@@ -216,11 +211,15 @@ class EnumValuesEdit(QDialog):
             txt = _item.text()
             count = self.name_to_count.get(lower(txt), 0)
             if count > 0:
-                r = question_dialog(self,
+                r = question_dialog(
+                    self,
                     _('Value "{}" is used').format(txt),
-                    ngettext('The value "{0}" is used in {1} book. Do you really want to remove it?',
-                             'The value "{0}" is used in {1} books. Do you really want to remove it?',
-                             count).format(txt, count))
+                    ngettext(
+                        'The value "{0}" is used in {1} book. Do you really want to remove it?',
+                        'The value "{0}" is used in {1} books. Do you really want to remove it?',
+                        count,
+                    ).format(txt, count),
+                )
                 if r != QDialog.DialogCode.Accepted:
                     return
             self.deleted_values[lower(txt)] = txt
@@ -229,8 +228,7 @@ class EnumValuesEdit(QDialog):
     def ins_button_clicked(self):
         row = self.table.currentRow()
         if row < 0:
-            error_dialog(self, _('Select a cell'),
-                               _('Select a cell before clicking the button'), show=True)
+            error_dialog(self, _('Select a cell'), _('Select a cell before clicking the button'), show=True)
             return
         self.table.insertRow(row)
         self.make_name_item(row, '')
@@ -251,8 +249,7 @@ class EnumValuesEdit(QDialog):
             assert it is not None
             v = str(it.text())
             if not v:
-                error_dialog(self, _('Empty value'),
-                                   _('Empty values are not allowed'), show=True)
+                error_dialog(self, _('Empty value'), _('Empty values are not allowed'), show=True)
                 return
             ov = str(it.data(Qt.ItemDataRole.UserRole))
             if v != ov:
@@ -265,17 +262,18 @@ class EnumValuesEdit(QDialog):
             if c:
                 colors.append(c)
         l_lower = [v.lower() for v in values]
-        for i,v in enumerate(l_lower):
-            if v in l_lower[i+1:]:
-                error_dialog(self, _('Duplicate value'),
-                                   _('The value "{0}" is in the list more than '
-                                     'once, perhaps with different case').format(values[i]),
-                             show=True)
+        for i, v in enumerate(l_lower):
+            if v in l_lower[i + 1 :]:
+                error_dialog(
+                    self,
+                    _('Duplicate value'),
+                    _('The value "{0}" is in the list more than once, perhaps with different case').format(values[i]),
+                    show=True,
+                )
                 return
 
         if colors and len(colors) != len(values):
-            error_dialog(self, _('Invalid colors specification'), _(
-                'Either all values or no values must have colors'), show=True)
+            error_dialog(self, _('Invalid colors specification'), _('Either all values or no values must have colors'), show=True)
             return
 
         # Process deleted values. It is possible that a value was deleted then
@@ -296,8 +294,7 @@ class EnumValuesEdit(QDialog):
 
         disp['enum_values'] = values
         disp['enum_colors'] = colors
-        self.db.set_custom_column_metadata(self.fm['colnum'], display=disp,
-                                           update_last_modified=True)
+        self.db.set_custom_column_metadata(self.fm['colnum'], display=disp, update_last_modified=True)
         if id_map:
             self.db.new_api.rename_items(self.key, id_map)
         self.save_geometry()

@@ -12,8 +12,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 def classes(classes):
     q = frozenset(classes.split(' '))
-    return dict(attrs={
-        'class': lambda x: x and frozenset(x.split()).intersection(q)})
+    return dict(attrs={'class': lambda x: x and frozenset(x.split()).intersection(q)})
 
 
 class WiredDailyNews(BasicNewsRecipe):
@@ -48,7 +47,7 @@ class WiredDailyNews(BasicNewsRecipe):
         'days': {
             'short': 'Oldest article to download from this news source. In days ',
             'long': 'For example, 0.5, gives you articles from the past 12 hours',
-            'default': str(oldest_article)
+            'default': str(oldest_article),
         }
     }
 
@@ -73,22 +72,16 @@ class WiredDailyNews(BasicNewsRecipe):
     handle_gzip = True
 
     feeds = [
-        (u'Top Stories', u'https://www.wired.com/feed/rss'),
-        (u'Business', u'https://www.wired.com/feed/category/business/latest/rss'),
-        (u'Culture', u'https://www.wired.com/feed/category/culture/latest/rss'),
-        (u'Gear', u'https://www.wired.com/feed/category/gear/latest/rss'),
-        (u'Ideas', u'https://www.wired.com/feed/category/ideas/latest/rss'),
-        (u'Science', u'https://www.wired.com/feed/category/science/latest/rss'),
-        (u'Security', u'https://www.wired.com/feed/category/security/latest/rss'),
-        (
-            u'Transportation',
-            u'https://www.wired.com/feed/category/transportation/latest/rss'
-        ),
-        (
-            u'Backchannel',
-            u'https://www.wired.com/feed/category/backchannel/latest/rss'
-        ),
-        (u'WIRED Guides', u'https://www.wired.com/feed/tag/wired-guide/latest/rss'),
+        ('Top Stories', 'https://www.wired.com/feed/rss'),
+        ('Business', 'https://www.wired.com/feed/category/business/latest/rss'),
+        ('Culture', 'https://www.wired.com/feed/category/culture/latest/rss'),
+        ('Gear', 'https://www.wired.com/feed/category/gear/latest/rss'),
+        ('Ideas', 'https://www.wired.com/feed/category/ideas/latest/rss'),
+        ('Science', 'https://www.wired.com/feed/category/science/latest/rss'),
+        ('Security', 'https://www.wired.com/feed/category/security/latest/rss'),
+        ('Transportation', 'https://www.wired.com/feed/category/transportation/latest/rss'),
+        ('Backchannel', 'https://www.wired.com/feed/category/backchannel/latest/rss'),
+        ('WIRED Guides', 'https://www.wired.com/feed/tag/wired-guide/latest/rss'),
         #    (u'Photo', u'https://www.wired.com/feed/category/photo/latest/rss'),
     ]
 

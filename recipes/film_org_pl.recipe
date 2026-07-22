@@ -3,9 +3,9 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class FilmOrgPl(BasicNewsRecipe):
-    title = u'Film.org.pl'
+    title = 'Film.org.pl'
     __author__ = 'fenuks'
-    description = u"Recenzje, analizy, artykuły, rankingi - wszystko o filmie dla miłośników kina. Opisy efektów specjalnych, wersji reżyserskich, remake'ów, sequeli. No i forum filmowe. Jedne z największych w Polsce."  # noqa: E501
+    description = "Recenzje, analizy, artykuły, rankingi - wszystko o filmie dla miłośników kina. Opisy efektów specjalnych, wersji reżyserskich, remake'ów, sequeli. No i forum filmowe. Jedne z największych w Polsce."  # noqa: E501
     category = 'film'
     language = 'pl'
     cover_url = 'http://film.org.pl/wp-content/uploads/2015/02/film.org.pl_film.org_.pl_kmfviolet4.png'
@@ -21,12 +21,13 @@ class FilmOrgPl(BasicNewsRecipe):
     remove_tags = [dict(attrs={'class': 'shortcode-box right'})]
 
     feeds = [
-        (u'Recenzje', u'http://film.org.pl/r/recenzje/feed/'),
-        (u'Artyku\u0142', u'http://film.org.pl/a/artykul/feed/'),
-        (u'Analiza', u'http://film.org.pl/a/analiza/feed/'),
-        (u'Ranking', u'http://film.org.pl/a/ranking/feed/'),
-        (u'Blog', u'http://film.org.pl/kmf/blog/feed/'),
-        (u'Ludzie', u'http://film.org.pl/a/ludzie/feed/'),
-        (u'Seriale', u'http://film.org.pl/a/seriale/feed/'),
-        (u'Oceanarium', u'http://film.org.pl/a/ocenarium/feed/'),
-        (u'VHS', u'http://film.org.pl/a/vhs-a/feed/'), ]
+        ('Recenzje', 'http://film.org.pl/r/recenzje/feed/'),
+        ('Artyku\u0142', 'http://film.org.pl/a/artykul/feed/'),
+        ('Analiza', 'http://film.org.pl/a/analiza/feed/'),
+        ('Ranking', 'http://film.org.pl/a/ranking/feed/'),
+        ('Blog', 'http://film.org.pl/kmf/blog/feed/'),
+        ('Ludzie', 'http://film.org.pl/a/ludzie/feed/'),
+        ('Seriale', 'http://film.org.pl/a/seriale/feed/'),
+        ('Oceanarium', 'http://film.org.pl/a/ocenarium/feed/'),
+        ('VHS', 'http://film.org.pl/a/vhs-a/feed/'),
+    ]

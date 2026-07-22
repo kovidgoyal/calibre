@@ -11,7 +11,6 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class Politico(BasicNewsRecipe):
-
     title = 'Politico'
     __author__ = 'Darko Miletic and Sujata Raman'
     description = 'Political news from USA'
@@ -25,12 +24,9 @@ class Politico(BasicNewsRecipe):
     encoding = 'UTF-8'
     language = 'en'
 
-    html2lrf_options = [
-        '--comment', description, '--category', category, '--publisher', publisher, '--ignore-tables'
-    ]
+    html2lrf_options = ['--comment', description, '--category', category, '--publisher', publisher, '--ignore-tables']
 
-    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + \
-        description + '"\ntags="' + category + '"\nlinearize_tables=True'
+    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"\nlinearize_tables=True'
 
     keep_only_tags = [
         dict(name=['article']),
@@ -38,16 +34,11 @@ class Politico(BasicNewsRecipe):
 
     remove_tags = [
         dict(name=['notags', 'embed', 'aside', 'object', 'link', 'img', 'figure', 'svg', 'button']),
-        dict(
-            attrs={'class': lambda x: x and 'story-tools' in x.split()}),
-        dict(
-            attrs={'class': lambda x: x and 'story-continued' in x.split()}),
-        dict(
-            attrs={'class': lambda x: x and 'story-supplement' in x.split()}),
-        dict(
-            attrs={'class': lambda x: x and 'story-share' in x.split()}),
-        dict(
-            attrs={'class': lambda x: x and 'suggested' in x.split()}),
+        dict(attrs={'class': lambda x: x and 'story-tools' in x.split()}),
+        dict(attrs={'class': lambda x: x and 'story-continued' in x.split()}),
+        dict(attrs={'class': lambda x: x and 'story-supplement' in x.split()}),
+        dict(attrs={'class': lambda x: x and 'story-share' in x.split()}),
+        dict(attrs={'class': lambda x: x and 'suggested' in x.split()}),
     ]
 
     extra_css = '''
@@ -61,17 +52,16 @@ class Politico(BasicNewsRecipe):
                 '''
 
     feeds = [
-
-    (u'Top Stories', u'http://www.politico.com/rss/politicopicks.xml'),
-    (u'Congress', u'http://www.politico.com/rss/congress.xml'),
-    (u'Ideas', u'http://www.politico.com/rss/ideas.xml'),
-    (u'Life', u'http://www.politico.com/rss/life.xml'),
-    (u'Lobbyists', u'http://www.politico.com/rss/lobbyists.xml'),
-    (u'Pitboss', u'http://www.politico.com/rss/pitboss.xml'),
-    (u'Politics', u'http://www.politico.com/rss/politics.xml'),
-    (u'Roger Simon', u'http://www.politico.com/rss/rogersimon.xml'),
-    (u'Suite Talk', u'http://www.politico.com/rss/suitetalk.xml'),
-    (u'Playbook', u'http://www.politico.com/rss/playbook.xml')
+        ('Top Stories', 'http://www.politico.com/rss/politicopicks.xml'),
+        ('Congress', 'http://www.politico.com/rss/congress.xml'),
+        ('Ideas', 'http://www.politico.com/rss/ideas.xml'),
+        ('Life', 'http://www.politico.com/rss/life.xml'),
+        ('Lobbyists', 'http://www.politico.com/rss/lobbyists.xml'),
+        ('Pitboss', 'http://www.politico.com/rss/pitboss.xml'),
+        ('Politics', 'http://www.politico.com/rss/politics.xml'),
+        ('Roger Simon', 'http://www.politico.com/rss/rogersimon.xml'),
+        ('Suite Talk', 'http://www.politico.com/rss/suitetalk.xml'),
+        ('Playbook', 'http://www.politico.com/rss/playbook.xml'),
     ]
 
     def preprocess_html(self, soup):

@@ -5,7 +5,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class DesiringGodEnglish(BasicNewsRecipe):
-    title = u'Desiring God'
+    title = 'Desiring God'
     __author__ = 'Peter Grungi'
     language = 'en'
 
@@ -17,4 +17,4 @@ class DesiringGodEnglish(BasicNewsRecipe):
     publisher = 'Desiring God Ministries'
     author = 'Desiring God Ministries'
 
-    feeds = [(u'Desiring God Blog', u'http://feeds.feedburner.com/DGBlog?format=xml')]
+    feeds = [('Desiring God Blog', 'http://feeds.feedburner.com/DGBlog?format=xml')]

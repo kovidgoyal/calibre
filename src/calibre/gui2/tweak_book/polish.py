@@ -1,8 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__ = 'GPL v3'
-__copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
+# License: GPLv3 Copyright: 2014, Kovid Goyal <kovid at kovidgoyal.net>
 
 import re
 from threading import Thread
@@ -58,34 +55,37 @@ def customize_remove_unused_css(name, parent, ans):
         l.addWidget(la)
         return la
 
-    label(_(
-        'This will remove all CSS rules that do not match any actual content.'
-        ' There are a couple of additional cleanups you can enable, below:'))
+    label(_('This will remove all CSS rules that do not match any actual content. There are a couple of additional cleanups you can enable, below:'))
     c = QCheckBox(_('Remove unused &class attributes'))
     c.setChecked(tprefs['remove_unused_classes'])
     l.addWidget(c)
-    label('<span style="font-size:small; font-style: italic">' + _(
-        'Remove all class attributes from the HTML that do not match any existing CSS rules'))
+    label('<span style="font-size:small; font-style: italic">' + _('Remove all class attributes from the HTML that do not match any existing CSS rules'))
     m = QCheckBox(_('Merge CSS rules with identical &selectors'))
     m.setChecked(tprefs['merge_identical_selectors'])
     l.addWidget(m)
-    label('<span style="font-size:small; font-style: italic">' + _(
-        'Merge CSS rules in the same stylesheet that have identical selectors.'
-    ' Note that in rare cases merging can result in a change to the effective styling'
-    ' of the book, so use with care.'))
+    label(
+        '<span style="font-size:small; font-style: italic">'
+        + _(
+            'Merge CSS rules in the same stylesheet that have identical selectors.'
+            ' Note that in rare cases merging can result in a change to the effective styling'
+            ' of the book, so use with care.'
+        )
+    )
     p = QCheckBox(_('Merge CSS rules with identical &properties'))
     p.setChecked(tprefs['merge_rules_with_identical_properties'])
     l.addWidget(p)
-    label('<span style="font-size:small; font-style: italic">' + _(
-        'Merge CSS rules in the same stylesheet that have identical properties.'
-    ' Note that in rare cases merging can result in a change to the effective styling'
-    ' of the book, so use with care.'))
+    label(
+        '<span style="font-size:small; font-style: italic">'
+        + _(
+            'Merge CSS rules in the same stylesheet that have identical properties.'
+            ' Note that in rare cases merging can result in a change to the effective styling'
+            ' of the book, so use with care.'
+        )
+    )
     u = QCheckBox(_('Remove &unreferenced style sheets'))
     u.setChecked(tprefs['remove_unreferenced_sheets'])
     l.addWidget(u)
-    label('<span style="font-size:small; font-style: italic">' + _(
-        'Remove stylesheets that are not referenced by any content.'
-    ))
+    label('<span style="font-size:small; font-style: italic">' + _('Remove stylesheets that are not referenced by any content.'))
 
     bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)
     l.addWidget(bb)
@@ -107,15 +107,19 @@ def get_customization(action, name, parent):
             customize_remove_unused_css(name, parent, ans)
         elif action == 'upgrade_book':
             ans['remove_ncx'] = tprefs['remove_ncx'] = question_dialog(
-                parent, _('Remove NCX ToC file'),
+                parent,
+                _('Remove NCX ToC file'),
                 _('Remove the legacy Table of Contents in NCX form?'),
-                _('This form of Table of Contents is superseded by the new HTML based Table of Contents.'
-                  ' Leaving it behind is useful only if you expect this book to be read on very'
-                  ' old devices that lack proper support for EPUB 3'),
+                _(
+                    'This form of Table of Contents is superseded by the new HTML based Table of Contents.'
+                    ' Leaving it behind is useful only if you expect this book to be read on very'
+                    ' old devices that lack proper support for EPUB 3'
+                ),
                 skip_dialog_name='edit-book-remove-ncx',
                 skip_dialog_msg=_('Ask this question again in the future'),
                 skip_dialog_skipped_value=tprefs['remove_ncx'],
-                yes_text=_('Remove NCX'), no_text=_('Keep NCX')
+                yes_text=_('Remove NCX'),
+                no_text=_('Keep NCX'),
             )
     except Abort:
         return None
@@ -124,6 +128,7 @@ def get_customization(action, name, parent):
 
 def format_report(title, report):
     from markdown import markdown
+
     report = [force_unicode(line) for line in report]
     return markdown(f'# {force_unicode(title)}\n\n' + '\n\n'.join(report), output_format='html4')
 
@@ -171,15 +176,15 @@ def show_report(changed, title, report, parent, show_current_diff):
 
 # CompressImages {{{
 
-class ImageItemDelegate(QStyledItemDelegate):
 
+class ImageItemDelegate(QStyledItemDelegate):
     def sizeHint(self, option, index):
         return QSize(300, 100)
 
     def paint(self, painter, option, index):
         name = index.data(Qt.ItemDataRole.DisplayRole)
         sz = human_readable(index.data(Qt.ItemDataRole.UserRole))
-        pmap = index.data(Qt.ItemDataRole.UserRole+1)
+        pmap = index.data(Qt.ItemDataRole.UserRole + 1)
         irect = option.rect.adjusted(0, 5, 0, -5)
         irect.setRight(irect.left() + 70)
         if pmap is None:
@@ -187,8 +192,8 @@ class ImageItemDelegate(QStyledItemDelegate):
             scaled, nwidth, nheight = fit_image(pmap.width(), pmap.height(), irect.width(), irect.height())
             if scaled:
                 pmap = pmap.scaled(nwidth, nheight, transformMode=Qt.TransformationMode.SmoothTransformation)
-            index.model().setData(index, pmap, Qt.ItemDataRole.UserRole+1)
-        x, y = (irect.width() - pmap.width())//2, (irect.height() - pmap.height())//2
+            index.model().setData(index, pmap, Qt.ItemDataRole.UserRole + 1)
+        x, y = (irect.width() - pmap.width()) // 2, (irect.height() - pmap.height()) // 2
         r = irect.adjusted(x, y, -x, -y)
         QStyledItemDelegate.paint(self, painter, option, empty_index)
         painter.drawPixmap(r, pmap)
@@ -202,14 +207,17 @@ class ImageItemDelegate(QStyledItemDelegate):
 
 
 class LossyCompression(QWidget):
-
     def __init__(self, image_type, default_compression=80, parent=None):
         super().__init__(parent)
         l = QVBoxLayout(self)
         image_type = image_type.upper()
         self.enable_lossy = el = QCheckBox(_('Enable &lossy compression of {} images').format(image_type))
-        el.setToolTip(_('This allows you to change the quality factor used for {} images.\nBy lowering'
-                        ' the quality you can greatly reduce file size, at the expense of the image looking blurred.').format(image_type))
+        el.setToolTip(
+            _(
+                'This allows you to change the quality factor used for {} images.\nBy lowering'
+                ' the quality you can greatly reduce file size, at the expense of the image looking blurred.'
+            ).format(image_type)
+        )
         l.addWidget(el)
         self.h2 = h = QHBoxLayout()
         l.addLayout(h)
@@ -231,12 +239,12 @@ class LossyCompression(QWidget):
 
 
 class CompressImages(Dialog):
-
     def __init__(self, parent=None):
         Dialog.__init__(self, _('Compress images'), 'compress-images', parent=parent)
 
     def setup_ui(self):
         from calibre.ebooks.oeb.polish.images import get_compressible_images
+
         self.setWindowIcon(QIcon.ic('compress-image.png'))
         self.h = h = QHBoxLayout(self)
         self.images = i = QListWidget(self)
@@ -252,9 +260,12 @@ class CompressImages(Dialog):
         i.selectAll(), i.setSpacing(5)
         self.delegate = ImageItemDelegate(self)
         i.setItemDelegate(self.delegate)
-        self.la = la = QLabel(_(
-            'You can compress the images in this book losslessly, reducing the file size of the book,'
-            ' without affecting image quality. Typically image size is reduced by 5 - 15%.'))
+        self.la = la = QLabel(
+            _(
+                'You can compress the images in this book losslessly, reducing the file size of the book,'
+                ' without affecting image quality. Typically image size is reduced by 5 - 15%.'
+            )
+        )
         la.setWordWrap(True)
         la.setMinimumWidth(250)
         l.addWidget(la)
@@ -278,12 +289,14 @@ class CompressImages(Dialog):
         pc.addItem(_('JPEG'), 'jpeg')
         pc.addItem(_('WEBP (lossy)'), 'webp')
         pc.addItem(_('WEBP Lossless'), 'webp-lossless')
-        pc.setToolTip(_(
-            'Optionally convert PNG images to a different format before compression.'
-            ' JPEG and WEBP (lossy) reduce file size at the expense of image quality.'
-            ' WEBP Lossless produces smaller files than PNG with no quality loss.'
-            ' When enabled, conversion is performed before all other image optimisation.'
-        ))
+        pc.setToolTip(
+            _(
+                'Optionally convert PNG images to a different format before compression.'
+                ' JPEG and WEBP (lossy) reduce file size at the expense of image quality.'
+                ' WEBP Lossless produces smaller files than PNG with no quality loss.'
+                ' When enabled, conversion is performed before all other image optimisation.'
+            )
+        )
         saved = tprefs.get('compress_images_png_to_format', '')
         idx = pc.findData(saved)
         if idx >= 0:
@@ -326,7 +339,6 @@ class CompressImages(Dialog):
 
 
 class CompressImagesProgress(Dialog):
-
     gui_loop = pyqtSignal(object, object, object)
     cidone = pyqtSignal()
 
@@ -347,16 +359,25 @@ class CompressImagesProgress(Dialog):
     def run_compress(self):
         from calibre.ebooks.oeb.polish.images import compress_images
         from calibre.gui2.tweak_book import current_container
+
         report = []
         try:
-            self.compress_result = (compress_images(
-                current_container(), report=report.append, names=self.names, jpeg_quality=self.jpeg_quality,
-                webp_quality=self.webp_quality, compress_png=self.compress_png,
-                png_to_format=self.png_to_format,
-                progress_callback=self.progress_callback
-            )[0], report)
+            self.compress_result = (
+                compress_images(
+                    current_container(),
+                    report=report.append,
+                    names=self.names,
+                    jpeg_quality=self.jpeg_quality,
+                    webp_quality=self.webp_quality,
+                    compress_png=self.compress_png,
+                    png_to_format=self.png_to_format,
+                    progress_callback=self.progress_callback,
+                )[0],
+                report,
+            )
         except Exception:
             import traceback
+
             self.compress_result = (None, traceback.format_exc())
         self.cidone.emit()
 
@@ -366,7 +387,11 @@ class CompressImagesProgress(Dialog):
         self.setMinimumWidth(350)
         self.l = l = QVBoxLayout(self)
         self.la = la = QLabel(_('Compressing images, please wait...'))
-        la.setStyleSheet('QLabel { font-weight: bold }'), la.setAlignment(Qt.AlignmentFlag.AlignCenter), la.setTextFormat(Qt.TextFormat.PlainText)
+        (
+            la.setStyleSheet('QLabel { font-weight: bold }'),
+            la.setAlignment(Qt.AlignmentFlag.AlignCenter),
+            la.setTextFormat(Qt.TextFormat.PlainText),
+        )
         l.addWidget(la)
         self.progress = p = QProgressBar(self)
         p.setMinimum(0), p.setMaximum(0)
@@ -393,17 +418,19 @@ class CompressImagesProgress(Dialog):
         self.progress.setMaximum(total), self.progress.setValue(num)
         self.msg.setText(name)
 
-# }}}
 
+# }}}
 
 if __name__ == '__main__':
     from qt.core import sip
 
     from calibre.gui2 import Application
+
     app = Application([])
     import sys
 
     from calibre.ebooks.oeb.polish.container import get_container
+
     c = get_container(sys.argv[-1], tweak_mode=True)
     set_current_container(c)
     d = CompressImages()

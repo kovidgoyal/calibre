@@ -1,9 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__   = 'GPL v3'
-__copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2010, Kovid Goyal <kovid@kovidgoyal.net>
 
 from qt.core import QListWidgetItem, QMenu, QPoint, Qt, QTabWidget
 
@@ -13,12 +9,11 @@ from calibre.utils.localization import _
 
 
 class ConfigWidget(ConfigWidgetBase, Ui_Form):
-
     def genesis(self, gui):
         self.gui = gui
 
         self.tabWidget.setCurrentIndex(0)
-        if (tab_bar := self.tabWidget.tabBar()):
+        if tab_bar := self.tabWidget.tabBar():
             tab_bar.setVisible(False)
 
         for i in range(self.tabWidget.count()):
@@ -28,7 +23,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.sections_view.setMaximumWidth(self.sections_view.sizeHintForColumn(0) + 16)
         self.sections_view.setSpacing(4)
         self.sections_view.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
-        self.sections_view.setContextMenuPolicy(Qt. ContextMenuPolicy.CustomContextMenu)
+        self.sections_view.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self.sections_view.customContextMenuRequested.connect(self.show_context_menu_for_section)
 
         self.tabWidget.currentWidget().setFocus(Qt.FocusReason.OtherFocusReason)
@@ -72,5 +67,6 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
 if __name__ == '__main__':
     from calibre.gui2 import Application
+
     app = Application([])
     test_widget('Interface', 'Look & Feel')

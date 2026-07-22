@@ -1,11 +1,9 @@
 # -*- coding: utf-8 -*-
+# License: GPLv3 Copyright: 2011-2013, Roman Mukhin <ramses_ru at hotmail.com>
+
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 store_version = 3  # Needed for dynamic plugin loading
-
-__license__ = 'GPL 3'
-__copyright__ = '2011-2013, Roman Mukhin <ramses_ru at hotmail.com>'
-__docformat__ = 'restructuredtext en'
 
 from contextlib import closing
 from urllib.parse import quote_plus
@@ -28,6 +26,7 @@ def parse_html(raw):
     except ImportError:
         # Old versions of calibre
         import html5lib
+
         return html5lib.parse(raw, treebuilder='lxml', namespaceHTMLElements=False)
     else:
         return parse(raw)
@@ -59,7 +58,6 @@ def search(query, max_results=15, timeout=60):
 
 
 class OzonRUStore(StorePlugin):
-
     def open(self, gui=None, parent=None, detail_item=None, external=False):
         url = detail_item or shop_url
         if external or self.config.get('open_external', False):
@@ -76,17 +74,18 @@ class OzonRUStore(StorePlugin):
 
 
 def format_price_in_RUR(price):
-    '''
+    """
     Try to format price according ru locale: '12 212,34 руб.'
     @param price: price in format like 25.99
     @return: formatted price if possible otherwise original value
     @rtype: unicode
-    '''
+    """
     price = price.replace('\xa0', '').replace(',', '.').strip() + ' py6'
     return price
 
 
 if __name__ == '__main__':
     import sys
+
     for r in search(sys.argv[-1]):
         print(r)

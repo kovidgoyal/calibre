@@ -20,7 +20,7 @@ class DeutscheWelle_en(BasicNewsRecipe):
         'days': {
             'short': 'Oldest article to download from this news source. In days ',
             'long': 'For example, 0.5, gives you articles from the past 12 hours',
-            'default': str(oldest_article)
+            'default': str(oldest_article),
         }
     }
 
@@ -30,15 +30,9 @@ class DeutscheWelle_en(BasicNewsRecipe):
         if d and isinstance(d, str):
             self.oldest_article = float(d)
 
-    keep_only_tags = [
-        dict(name='article')
-    ]
+    keep_only_tags = [dict(name='article')]
 
-    remove_tags = [
-        dict(name=['footer', 'source']),
-        dict(attrs={'data-tracking-name':'sharing-icons-inline'}),
-        classes('kicker advertisement vjs-wrapper')
-    ]
+    remove_tags = [dict(name=['footer', 'source']), dict(attrs={'data-tracking-name': 'sharing-icons-inline'}), classes('kicker advertisement vjs-wrapper')]
 
     feeds = [
         ('World', 'http://rss.dw.de/rdf/rss-en-world'),

@@ -1,9 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__   = 'GPL v3'
-__copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2012, Kovid Goyal <kovid at kovidgoyal.net>
 
 import os
 import shutil
@@ -45,9 +41,13 @@ from calibre.utils.localization import _
 
 
 def add_fonts(parent):
-    files = choose_files(parent, 'add fonts to calibre',
-            _('Select font files'), filters=[(_('TrueType/OpenType Fonts'),
-                ['ttf', 'otf', 'woff', 'woff2'])], all_files=False)
+    files = choose_files(
+        parent,
+        'add fonts to calibre',
+        _('Select font files'),
+        filters=[(_('TrueType/OpenType Fonts'), ['ttf', 'otf', 'woff', 'woff2'])],
+        all_files=False,
+    )
     if not files:
         return
     families = set()
@@ -57,8 +57,7 @@ def add_fonts(parent):
         if r.isValid():
             families.add(r.familyName())
         else:
-            error_dialog(parent, _('Corrupt font'),
-                    _('Failed to load font from the file: {}').format(f), show=True)
+            error_dialog(parent, _('Corrupt font'), _('Failed to load font from the file: {}').format(f), show=True)
             return
     families = sorted(families)
 
@@ -82,7 +81,7 @@ def writing_system_for_font(font):
 
     system = QFontDatabase.WritingSystem.Any
 
-    if (QFontDatabase.WritingSystem.Latin not in systems):
+    if QFontDatabase.WritingSystem.Latin not in systems:
         has_latin = False
         # we need to show something
         if systems:
@@ -93,24 +92,27 @@ def writing_system_for_font(font):
     if not systems:
         return system, has_latin
 
-    if (len(systems) == 1 and systems[0].value > QFontDatabase.WritingSystem.Cyrillic.value):
+    if len(systems) == 1 and systems[0].value > QFontDatabase.WritingSystem.Cyrillic.value:
         return systems[0], has_latin
 
-    if (len(systems) <= 2 and
-        systems[-1].value > QFontDatabase.WritingSystem.Armenian.value and
-        systems[-1].value < QFontDatabase.WritingSystem.Vietnamese.value):
+    if (
+        len(systems) <= 2
+        and systems[-1].value > QFontDatabase.WritingSystem.Armenian.value
+        and systems[-1].value < QFontDatabase.WritingSystem.Vietnamese.value
+    ):
         return systems[-1], has_latin
 
-    if (len(systems) <= 5 and
-        systems[-1].value >= QFontDatabase.WritingSystem.SimplifiedChinese.value and
-        systems[-1].value <= QFontDatabase.WritingSystem.Korean.value):
+    if (
+        len(systems) <= 5
+        and systems[-1].value >= QFontDatabase.WritingSystem.SimplifiedChinese.value
+        and systems[-1].value <= QFontDatabase.WritingSystem.Korean.value
+    ):
         system = systems[-1]
 
     return system, has_latin
 
 
 class FontFamilyDelegate(QStyledItemDelegate):
-
     def sizeHint(self, option, index):
         try:
             return self.do_size_hint(option, index)
@@ -131,6 +133,7 @@ class FontFamilyDelegate(QStyledItemDelegate):
             self.do_paint(painter, option, index)
         except Exception:
             import traceback
+
             traceback.print_exc()
         painter.restore()
 
@@ -152,31 +155,30 @@ class FontFamilyDelegate(QStyledItemDelegate):
             color = option.palette.highlightedText()
         painter.setPen(QPen(color, 0))
 
-        if (option.direction == Qt.LayoutDirection.RightToLeft):
+        if option.direction == Qt.LayoutDirection.RightToLeft:
             r.setRight(r.right() - 4)
         else:
             r.setLeft(r.left() + 4)
 
         painter.setFont(font)
-        painter.drawText(r, Qt.AlignmentFlag.AlignVCenter|Qt.AlignmentFlag.AlignLeading|Qt.TextFlag.TextSingleLine, text)
+        painter.drawText(r, Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignLeading | Qt.TextFlag.TextSingleLine, text)
 
-        if (system != QFontDatabase.WritingSystem.Any):
+        if system != QFontDatabase.WritingSystem.Any:
             w = painter.fontMetrics().horizontalAdvance(text + '  ')
             painter.setFont(font2)
             sample = QFontDatabase.writingSystemSample(system)
-            if (option.direction == Qt.LayoutDirection.RightToLeft):
+            if option.direction == Qt.LayoutDirection.RightToLeft:
                 r.setRight(r.right() - w)
             else:
                 r.setLeft(r.left() + w)
-            painter.drawText(r, Qt.AlignmentFlag.AlignVCenter|Qt.AlignmentFlag.AlignLeading|Qt.TextFlag.TextSingleLine, sample)
+            painter.drawText(r, Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignLeading | Qt.TextFlag.TextSingleLine, sample)
 
 
 class Typefaces(QLabel):
-
     def __init__(self, parent=None):
         QLabel.__init__(self, parent)
         self.setMinimumWidth(400)
-        self.base_msg = '<h3>'+_('Choose a font family')+'</h3>'
+        self.base_msg = '<h3>' + _('Choose a font family') + '</h3>'
         self.setText(self.base_msg)
         self.setWordWrap(True)
 
@@ -189,24 +191,23 @@ class Typefaces(QLabel):
         <dl style="font-size: smaller">
         {0}
         </dl>
-        '''%(_('Available faces for %s')%family)
+        ''' % (_('Available faces for %s') % family)
         entries = []
         for font in faces:
-            sf = (font['wws_subfamily_name'] or font['preferred_subfamily_name'] or
-                  font['subfamily_name'])
-            entries.append('''
+            sf = font['wws_subfamily_name'] or font['preferred_subfamily_name'] or font['subfamily_name']
+            entries.append(
+                '''
             <dt><b>{sf}</b></dt>
             <dd>font-stretch: <i>{width}</i> font-weight: <i>{weight}</i> font-style:
             <i>{style}</i></dd>
 
-            '''.format(sf=sf, width=font['font-stretch'],
-                    weight=font['font-weight'], style=font['font-style']))
+            '''.format(sf=sf, width=font['font-stretch'], weight=font['font-weight'], style=font['font-style'])
+            )
         msg = msg.format('\n\n'.join(entries))
         self.setText(msg)
 
 
 class FontsView(QListView):
-
     changed = pyqtSignal()
 
     def __init__(self, parent):
@@ -222,12 +223,12 @@ class FontsView(QListView):
 
 
 class FontFamilyDialog(QDialog):
-
     def __init__(self, current_family, parent=None):
         QDialog.__init__(self, parent)
         self.setWindowTitle(_('Choose font family'))
         self.setWindowIcon(QIcon.ic('font.png'))
         from calibre.utils.fonts.scanner import font_scanner
+
         self.font_scanner = font_scanner
 
         self.m = QStringListModel(self)
@@ -243,14 +244,12 @@ class FontFamilyDialog(QDialog):
                     self.view.setCurrentIndex(self.m.index(i))
                     break
         self.view.doubleClicked.connect(self.accept, type=Qt.ConnectionType.QueuedConnection)
-        self.view.changed.connect(self.current_changed,
-                type=Qt.ConnectionType.QueuedConnection)
+        self.view.changed.connect(self.current_changed, type=Qt.ConnectionType.QueuedConnection)
         self.faces = Typefaces(self)
-        self.bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok|QDialogButtonBox.StandardButton.Cancel)
+        self.bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)
         self.bb.accepted.connect(self.accept)
         self.bb.rejected.connect(self.reject)
-        self.add_fonts_button = afb = self.bb.addButton(_('Add &fonts'),
-                QDialogButtonBox.ButtonRole.ActionRole)
+        self.add_fonts_button = afb = self.bb.addButton(_('Add &fonts'), QDialogButtonBox.ButtonRole.ActionRole)
         assert afb is not None
         afb.setIcon(QIcon.ic('plus.png'))
         afb.clicked.connect(self.add_fonts)
@@ -292,8 +291,7 @@ class FontFamilyDialog(QDialog):
         q = icu_lower(str(self.search.text())).strip()
         if not q:
             return
-        r = (range(i-1, -1, -1) if backwards else range(i+1,
-            len(self.families)))
+        r = range(i - 1, -1, -1) if backwards else range(i + 1, len(self.families))
         for j in r:
             f = self.families[j]
             if q in icu_lower(f):
@@ -313,6 +311,7 @@ class FontFamilyDialog(QDialog):
             self.families = []
             print('WARNING: Could not load fonts')
             import traceback
+
             traceback.print_exc()
         self.families.insert(0, _('None'))
         self.m.setStringList(self.families)
@@ -332,9 +331,7 @@ class FontFamilyDialog(QDialog):
                     self.view.setCurrentIndex(self.m.index(i))
                     break
 
-        info_dialog(self, _('Added fonts'),
-                _('Added font families: %s')%(
-                    ', '.join(families)), show=True)
+        info_dialog(self, _('Added fonts'), _('Added font families: %s') % (', '.join(families)), show=True)
 
     @property
     def font_family(self):
@@ -345,12 +342,10 @@ class FontFamilyDialog(QDialog):
 
     def current_changed(self):
         fam = self.font_family
-        self.faces.show_family(fam, self.font_scanner.fonts_for_family(fam)
-                if fam else None)
+        self.faces.show_family(fam, self.font_scanner.fonts_for_family(fam) if fam else None)
 
 
 class FontFamilyChooser(QWidget):
-
     family_changed = pyqtSignal(object)
 
     def __init__(self, parent=None):
@@ -401,6 +396,7 @@ class FontFamilyChooser(QWidget):
 
 def test():
     from calibre.gui2 import Application
+
     app = Application([])
     app
     d = QDialog()

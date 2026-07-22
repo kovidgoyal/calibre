@@ -1,9 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__   = 'GPL v3'
-__copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2012, Kovid Goyal <kovid@kovidgoyal.net>
 
 
 def base64_decode(raw):
@@ -36,7 +32,7 @@ def base64_decode(raw):
             elif zero <= byt <= nine:
                 num = byt - zero + 52
             else:
-                num = {plus:62, slash:63, equal:64}.get(byt, None)
+                num = {plus: 62, slash: 63, equal: 64}.get(byt, None)
                 if num is None:
                     # Ignore this byte
                     continue
@@ -44,7 +40,7 @@ def base64_decode(raw):
             i += 1
         triple = bytearray(3)
         for j in (2, 1, 0):
-            triple[j] = tot & 0xff
+            triple[j] = tot & 0xFF
             tot >>= 8
         out.write(bytes(triple))
     return out.getvalue()

@@ -1,14 +1,9 @@
 #!/usr/bin/env python
+# License: GPLv3 Copyright: 2009, Kovid Goyal <kovid@kovidgoyal.net>
 
-
-__license__   = 'GPL v3'
-__copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
-
-
-'''
+"""
 Input plugin for HTML or OPF ebooks.
-'''
+"""
 
 import errno as gerrno
 import os
@@ -24,9 +19,9 @@ from calibre.utils.filenames import case_ignoring_open_file
 
 
 class Link:
-    '''
+    """
     Represents a link in a HTML file.
-    '''
+    """
 
     @classmethod
     def url_to_local_path(cls, url, base):
@@ -42,18 +37,18 @@ class Link:
         return os.path.abspath(os.path.join(base, path))
 
     def __init__(self, url, base):
-        '''
+        """
         :param url:  The url this link points to. Must be an unquoted unicode string.
         :param base: The base folder that relative URLs are with respect to.
                      Must be a unicode string.
-        '''
+        """
         assert isinstance(url, str) and isinstance(base, str)
-        self.url         = url
-        self.parsed_url  = urlparse(self.url)
-        self.is_local    = self.parsed_url.scheme in ('', 'file')
+        self.url = url
+        self.parsed_url = urlparse(self.url)
+        self.is_local = self.parsed_url.scheme in ('', 'file')
         self.is_internal = self.is_local and not bool(self.parsed_url.path)
-        self.path        = None
-        self.fragment    = urlunquote(self.parsed_url.fragment)
+        self.path = None
+        self.fragment = urlunquote(self.parsed_url.fragment)
         if self.is_local and not self.is_internal:
             self.path = self.url_to_local_path(self.parsed_url, base)
 
@@ -70,7 +65,6 @@ class Link:
 
 
 class IgnoreFile(Exception):
-
     def __init__(self, msg, errno):
         Exception.__init__(self, msg)
         self.doesnt_exist = errno == gerrno.ENOENT
@@ -78,32 +72,33 @@ class IgnoreFile(Exception):
 
 
 class HTMLFile:
-    '''
+    """
     Contains basic information about an HTML file. This
     includes a list of links to other files as well as
     the encoding of each file. Also tries to detect if the file is not a HTML
     file in which case :member:`is_binary` is set to True.
 
     The encoding of the file is available as :member:`encoding`.
-    '''
+    """
 
-    HTML_PAT  = re.compile(r'<\s*html', re.IGNORECASE)
-    HTML_PAT_BIN  = re.compile(br'<\s*html', re.IGNORECASE)
+    HTML_PAT = re.compile(r'<\s*html', re.IGNORECASE)
+    HTML_PAT_BIN = re.compile(rb'<\s*html', re.IGNORECASE)
     TITLE_PAT = re.compile(r'<title>([^<>]+)</title>', re.IGNORECASE)
-    LINK_PAT  = re.compile(
-    r'<\s*a\s+.*?href\s*=\s*(?:(?:"(?P<url1>[^"]+)")|(?:\'(?P<url2>[^\']+)\')|(?P<url3>[^\s>]+))',
-    re.DOTALL|re.IGNORECASE)
+    LINK_PAT = re.compile(
+        r'<\s*a\s+.*?href\s*=\s*(?:(?:"(?P<url1>[^"]+)")|(?:\'(?P<url2>[^\']+)\')|(?P<url3>[^\s>]+))',
+        re.DOTALL | re.IGNORECASE,
+    )
 
     def __init__(self, path_to_html_file, level, encoding, verbose, referrer=None, correct_case_mismatches=False):
-        '''
+        """
         :param level: The level of this file. Should be 0 for the root file.
         :param encoding: Use `encoding` to decode HTML.
         :param referrer: The :class:`HTMLFile` that first refers to this file.
-        '''
-        self.path     = unicode_path(path_to_html_file, abs=True)
-        self.level    = level
+        """
+        self.path = unicode_path(path_to_html_file, abs=True)
+        self.level = level
         self.referrer = referrer
-        self.links    = []
+        self.links = []
 
         try:
             with (case_ignoring_open_file if correct_case_mismatches else open)(self.path, 'rb') as f:
@@ -185,6 +180,7 @@ def depth_first(root, flat):
     visited = set()
     visited.add(root)
     from collections import deque
+
     stack = deque()
 
     def add_links_from(item):
@@ -228,7 +224,6 @@ def find_tests():
             return self.path
 
     class TestHTMLInput(unittest.TestCase):
-
         def test_depth_first(self):
             root = HF('root')
             a = root.a(HF('a'))
@@ -244,7 +239,7 @@ def find_tests():
 
 
 def traverse(path_to_html_file, max_levels=sys.maxsize, verbose=0, encoding=None, correct_case_mismatches=False):
-    '''
+    """
     Recursively traverse all links in the HTML file.
 
     :param max_levels: Maximum levels of recursion. Must be non-negative. 0
@@ -253,7 +248,7 @@ def traverse(path_to_html_file, max_levels=sys.maxsize, verbose=0, encoding=None
                        auto-detected.
     :return:           A pair of lists (breadth_first, depth_first). Each list contains
                        :class:`HTMLFile` objects.
-    '''
+    """
     assert max_levels >= 0
     level = 0
     flat = [HTMLFile(path_to_html_file, level, encoding, verbose, correct_case_mismatches=correct_case_mismatches)]
@@ -268,7 +263,14 @@ def traverse(path_to_html_file, max_levels=sys.maxsize, verbose=0, encoding=None
                 if link.path is None or link.path in seen:
                     continue
                 try:
-                    nf = HTMLFile(link.path, level, encoding, verbose, referrer=hf, correct_case_mismatches=correct_case_mismatches)
+                    nf = HTMLFile(
+                        link.path,
+                        level,
+                        encoding,
+                        verbose,
+                        referrer=hf,
+                        correct_case_mismatches=correct_case_mismatches,
+                    )
                     if nf.path in seen:
                         continue
                     seen.add(nf.path)
@@ -288,14 +290,18 @@ def traverse(path_to_html_file, max_levels=sys.maxsize, verbose=0, encoding=None
 
 
 def get_filelist(htmlfile, dir, opts, log):
-    '''
+    """
     Build list of files referenced by html file or try to detect and use an
     OPF file instead.
-    '''
+    """
     log.info('Building file list...')
-    filelist = traverse(htmlfile, max_levels=int(opts.max_levels),
-                        verbose=opts.verbose, correct_case_mismatches=getattr(opts, 'correct_case_mismatches', False),
-                        encoding=opts.input_encoding)[0 if opts.breadth_first else 1]
+    filelist = traverse(
+        htmlfile,
+        max_levels=int(opts.max_levels),
+        verbose=opts.verbose,
+        correct_case_mismatches=getattr(opts, 'correct_case_mismatches', False),
+        encoding=opts.input_encoding,
+    )[0 if opts.breadth_first else 1]
     if opts.verbose:
         log.debug('\tFound files...')
         for f in filelist:

@@ -21,21 +21,22 @@ from . import open_for_read, open_for_write
 
 
 class GroupStyles:
-    '''
+    """
     Form lists.
     Use RTF's own formatting to determine if a paragraph definition is part of a
     list.
     Use indents to determine items and how lists are nested.
-    '''
+    """
 
-    def __init__(self,
-            in_file,
-            bug_handler,
-            copy=None,
-            run_level=1,
-            wrap=0,
-            ):
-        '''
+    def __init__(
+        self,
+        in_file,
+        bug_handler,
+        copy=None,
+        run_level=1,
+        wrap=0,
+    ):
+        """
         Required:
             'file'
         Optional:
@@ -44,7 +45,7 @@ class GroupStyles:
             directory from which the script is run.)
         Returns:
             nothing
-        '''
+        """
         self.__file = in_file
         self.__bug_handler = bug_handler
         self.__copy = copy
@@ -53,7 +54,7 @@ class GroupStyles:
         self.__wrap = wrap
 
     def __initiate_values(self):
-        '''
+        """
         Required:
             Nothing
         Return:
@@ -61,58 +62,58 @@ class GroupStyles:
         Logic:
             The self.__end_list is a list of tokens that will force a list to end.
             Likewise, the self.__end_lines is a list of lines that forces a list to end.
-        '''
+        """
         self.__state = 'default'
         self.__left_indent = 0
         self.__list_type = 'not-defined'
         self.__pard_def = ''
         self.__all_lists = []
         self.__list_chunk = ''
-        self.__state_dict={
-        'default'   : self.__default_func,
-        'in_pard'   : self.__in_pard_func,
-        'after_pard': self.__after_pard_func,
+        self.__state_dict = {
+            'default': self.__default_func,
+            'in_pard': self.__in_pard_func,
+            'after_pard': self.__after_pard_func,
         }
         # section end
         self.__end_list = [
-        # section end
-        'mi<mk<sect-close',
-        'mi<mk<sect-start',
-        # table begin
-        'mi<mk<tabl-start',
-        # field block begin
-        'mi<mk<fldbk-end_',
-        'mi<mk<fldbkstart',
-        # cell end
-        'mi<mk<close_cell',
-        # item end
-        'mi<tg<item_end__',
-        # footnote end
-        'mi<mk<foot___clo',
-        'mi<mk<footnt-ope',
-        # heading end
-        'mi<mk<header-beg',
-        'mi<mk<header-end',
-        'mi<mk<head___clo',
-        # lists
-        'mi<tg<item_end__',
-        'mi<tg<item_end__',
-        'mi<mk<list_start'
-        # body close
-        # don't use
-        # 'mi<mk<body-close',
-        # 'mi<mk<par-in-fld',
-        # 'cw<tb<cell______',
-        # 'cw<tb<row-def___',
-        # 'cw<tb<row_______',
-        # 'mi<mk<sec-fd-beg',
+            # section end
+            'mi<mk<sect-close',
+            'mi<mk<sect-start',
+            # table begin
+            'mi<mk<tabl-start',
+            # field block begin
+            'mi<mk<fldbk-end_',
+            'mi<mk<fldbkstart',
+            # cell end
+            'mi<mk<close_cell',
+            # item end
+            'mi<tg<item_end__',
+            # footnote end
+            'mi<mk<foot___clo',
+            'mi<mk<footnt-ope',
+            # heading end
+            'mi<mk<header-beg',
+            'mi<mk<header-end',
+            'mi<mk<head___clo',
+            # lists
+            'mi<tg<item_end__',
+            'mi<tg<item_end__',
+            'mi<mk<list_start',
+            # body close
+            # don't use
+            # 'mi<mk<body-close',
+            # 'mi<mk<par-in-fld',
+            # 'cw<tb<cell______',
+            # 'cw<tb<row-def___',
+            # 'cw<tb<row_______',
+            # 'mi<mk<sec-fd-beg',
         ]
         self.__name_regex = re.compile(r'<name>')
         self.__found_appt = 0
         self.__line_num = 0
 
     def __in_pard_func(self, line):
-        '''
+        """
         Required:
             line -- the line of current text.
         Return:
@@ -120,27 +121,24 @@ class GroupStyles:
         Logic:
             You are in a list, but in the middle of a paragraph definition.
             Don't do anything until you find the end of the paragraph definition.
-        '''
-        if self.__token_info == 'mi<tg<close_____' \
-            and line[17:-1] == 'paragraph-definition':
+        """
+        if self.__token_info == 'mi<tg<close_____' and line[17:-1] == 'paragraph-definition':
             self.__state = 'after_pard'
         else:
             self.__write_obj.write(line)
 
     def __after_pard_func(self, line):
-        '''
+        """
         Required:
             line -- the line of current text.
         Return:
             Nothing
         Logic:
-        '''
-        if self.__token_info == 'mi<tg<open-att__' \
-            and line[17:37] == 'paragraph-definition':
+        """
+        if self.__token_info == 'mi<tg<open-att__' and line[17:37] == 'paragraph-definition':
             # found paragraph definition
             self.__pard_after_par_def_func(line)
-        elif self.__token_info == 'mi<tg<close_____' \
-            and line[17:-1] == 'paragraph-definition':
+        elif self.__token_info == 'mi<tg<close_____' and line[17:-1] == 'paragraph-definition':
             sys.stderr.write('Wrong flag in __after_pard_func\n')
             if self.__run_level > 2:
                 msg = 'wrong flag'
@@ -175,14 +173,14 @@ class GroupStyles:
             self.__write_obj.write('mi<mk<stylegend_\n')
 
     def __pard_after_par_def_func(self, line):
-        '''
+        """
         Required:
             line -- the line of current text.
             id -- the id of the current list
         Return:
             Nothing
         Logic:
-        '''
+        """
         if self.__last_style_name == self.__style_name:
             # just keep going
             if self.__wrap:
@@ -204,7 +202,7 @@ class GroupStyles:
             self.__list_chunk = ''
 
     def __default_func(self, line):
-        '''
+        """
         Required:
             self, line
         Returns:
@@ -213,9 +211,8 @@ class GroupStyles:
             Look for the start of a paragraph definition. If one is found, check if
             it contains a list-id. If it does, start a list. Change the state to
             in_pard.
-        '''
-        if self.__token_info == 'mi<tg<open-att__' \
-            and line[17:37] == 'paragraph-definition':
+        """
+        if self.__token_info == 'mi<tg<open-att__' and line[17:37] == 'paragraph-definition':
             self.__state = 'in_pard'
             self.__last_style_name = self.__style_name
             self.__write_start_wrap(self.__last_style_name)
@@ -228,13 +225,13 @@ class GroupStyles:
             self.__style_name = line[17:-1]
 
     def group_styles(self):
-        '''
+        """
         Required:
             nothing
         Returns:
             original file will be changed
         Logic:
-        '''
+        """
         self.__initiate_values()
         read_obj = open_for_read(self.__file)
         self.__write_obj = open_for_write(self.__write_to)

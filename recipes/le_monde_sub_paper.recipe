@@ -17,20 +17,16 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class LeMondeAbonne(BasicNewsRecipe):
-
-    title = u'Le Monde: Édition abonnés papier'
-    __author__ = u'Rémi Vanicat'
-    description = u'Actualités'
-    category = u'Actualités, France, Monde'
+    title = 'Le Monde: Édition abonnés papier'
+    __author__ = 'Rémi Vanicat'
+    description = 'Actualités'
+    category = 'Actualités, France, Monde'
     publisher = 'Le Monde'
     language = 'fr'
     needs_subscription = True
     no_stylesheets = True
     smarten_punctuation = True
-    remove_attributes = [
-        'border', 'cellspacing', 'display', 'align', 'cellpadding', 'colspan',
-        'valign', 'vscape', 'hspace', 'alt', 'width', 'height'
-    ]
+    remove_attributes = ['border', 'cellspacing', 'display', 'align', 'cellpadding', 'colspan', 'valign', 'vscape', 'hspace', 'alt', 'width', 'height']
     extra_css = ''' li{margin:6pt 0}
                     ul{margin:0}
 
@@ -58,13 +54,10 @@ class LeMondeAbonne(BasicNewsRecipe):
         dict(name='div', attrs={'class': 'photo'}),
         dict(name='div', attrs={'class': 'po-ti2'}),
         dict(name='div', attrs={'class': 'ar-txt'}),
-        dict(name='div', attrs={'class': 'po_rtcol'})
+        dict(name='div', attrs={'class': 'po_rtcol'}),
     ]
 
-    remove_tags = [
-        dict(name='div', attrs={'class': 'po-ti'}),
-        dict(name='div', attrs={'class': 'po-copy'})
-    ]
+    remove_tags = [dict(name='div', attrs={'class': 'po-ti'}), dict(name='div', attrs={'class': 'po-copy'})]
 
     article_id_pattern = re.compile(r'[0-9]+\.html')
     article_url_format = 'http://www.lemonde.fr/journalelectronique/donnees/protege/%Y%m%d/html/'
@@ -92,8 +85,7 @@ class LeMondeAbonne(BasicNewsRecipe):
 
         for i in range(7):
             self.ltime = time.gmtime(second)
-            self.timefmt = time.strftime(' %A %d %B %Y',
-                                         self.ltime).decode(preferred_encoding)
+            self.timefmt = time.strftime(' %A %d %B %Y', self.ltime).decode(preferred_encoding)
             url = time.strftime(self.zipurl_format, self.ltime)
             try:
                 response = browser.open(url)
@@ -112,17 +104,13 @@ class LeMondeAbonne(BasicNewsRecipe):
         zfile.extractall(self.output_dir)
         zfile.close()
 
-        path = os.path.join(
-            self.output_dir, time.strftime(self.path_format, self.ltime), 'data'
-        )
+        path = os.path.join(self.output_dir, time.strftime(self.path_format, self.ltime), 'data')
 
         self.articles_path = path
 
         files = os.listdir(path)
 
-        nb_index_files = len([
-            name for name in files if re.match(r'frame_gauche_[0-9]+.html', name)
-        ])
+        nb_index_files = len([name for name in files if re.match(r'frame_gauche_[0-9]+.html', name)])
 
         flux = []
 
@@ -164,12 +152,7 @@ class LeMondeAbonne(BasicNewsRecipe):
             for link in soup.findAll('a'):
                 article_file = link['href']
                 article_id = self.article_id_pattern.search(article_file).group()
-                article = {
-                    'title': link.contents[0],
-                    'url': article_url + article_id,
-                    'description': '',
-                    'content': ''
-                }
+                article = {'title': link.contents[0], 'url': article_url + article_id, 'description': '', 'content': ''}
                 articles.append(article)
             tmp.close()
 

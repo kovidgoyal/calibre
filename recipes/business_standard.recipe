@@ -40,19 +40,15 @@ class BusinessStandard(BasicNewsRecipe):
         'days': {
             'short': 'Oldest article to download from this news source. In days ',
             'long': 'For example, 0.5, gives you articles from the past 12 hours',
-            'default': str(oldest_article)
+            'default': str(oldest_article),
         }
     }
 
     def get_cover_url(self):
         d = self.recipe_specific_options.get('date')
         if not (d and isinstance(d, str)):
-            soup = self.index_to_soup(
-                'https://www.magzter.com/IN/Business-Standard-Private-Ltd/Business-Standard/Newspaper/'
-            )
-            for citem in soup.findAll(
-                'meta', content=lambda s: s and s.endswith('view/3.jpg')
-            ):
+            soup = self.index_to_soup('https://www.magzter.com/IN/Business-Standard-Private-Ltd/Business-Standard/Newspaper/')
+            for citem in soup.findAll('meta', content=lambda s: s and s.endswith('view/3.jpg')):
                 return citem['content']
 
     def __init__(self, *args, **kwargs):
@@ -74,7 +70,7 @@ class BusinessStandard(BasicNewsRecipe):
         ('Politics', 'https://www.business-standard.com/rss/budget-110.rss'),
         ('World', 'https://www.business-standard.com/rss/industry-217.rss'),
         ('Technology', 'https://www.business-standard.com/rss/technology-108.rss'),
-        ('Latest', 'https://www.business-standard.com/rss/latest.rss')
+        ('Latest', 'https://www.business-standard.com/rss/latest.rss'),
     ]
 
     def preprocess_raw_html(self, raw, *a):
@@ -96,59 +92,33 @@ class BusinessStandard(BasicNewsRecipe):
         cat = subhead = lede = auth = caption = ''
 
         if 'defaultArticleCat' in data and data['defaultArticleCat'] is not None:
-            if (
-                'h1_tag' in data['defaultArticleCat']
-                and data['defaultArticleCat']['h1_tag'] is not None
-            ):
+            if 'h1_tag' in data['defaultArticleCat'] and data['defaultArticleCat']['h1_tag'] is not None:
                 cat = '<div class="cat">' + data['defaultArticleCat']['h1_tag'] + '</div>'
 
         if 'metaDescription' in data and data['metaDescription'] is not None:
             subhead = '<p class="sub">' + data['metaDescription'] + '</p>'
             self.art_desc = data['metaDescription']
 
-        date = (datetime.fromtimestamp(int(data['publishDate']))).strftime(
-            '%b %d, %Y | %I:%M %p'
-        )
+        date = (datetime.fromtimestamp(int(data['publishDate']))).strftime('%b %d, %Y | %I:%M %p')
 
         authors = []
         if 'articleMappedMultipleAuthors' in data:
             for aut in data['articleMappedMultipleAuthors']:
                 authors.append(data['articleMappedMultipleAuthors'][str(aut)])
-        auth = (
-            '<div><p class="auth">'
-            + ', '.join(authors)
-            + ' | '
-            + data['placeName']
-            + ' | '
-            + date
-            + '</p></div>'
-        )
+        auth = '<div><p class="auth">' + ', '.join(authors) + ' | ' + data['placeName'] + ' | ' + date + '</p></div>'
 
         if 'featuredImageObj' in data:
             if 'url' in data['featuredImageObj']:
                 if img_url is not None:
                     lede = '<p class="cap"><img src="{}">'.format(img_url)
                 else:
-                    lede = '<p class="cap"><img src="{}">'.format(
-                        data['featuredImageObj']['url']
-                    )
+                    lede = '<p class="cap"><img src="{}">'.format(data['featuredImageObj']['url'])
             if 'alt_text' in data['featuredImageObj']:
                 caption = '<span>' + data['featuredImageObj']['alt_text'] + '</span></p>'
 
         body = data['htmlContent']
 
-        return (
-            '<html><body>'
-            + cat
-            + title
-            + subhead
-            + auth
-            + lede
-            + caption
-            + '<div><br>'
-            + body
-            + '</div></body></html>'
-        )
+        return '<html><body>' + cat + title + subhead + auth + lede + caption + '<div><br>' + body + '</div></body></html>'
 
     def preprocess_html(self, soup):
         for img in soup.findAll('img'):

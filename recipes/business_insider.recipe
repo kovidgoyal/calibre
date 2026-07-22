@@ -22,31 +22,26 @@ class Business_insider(BasicNewsRecipe):
     remove_empty_feeds = True
     publication_type = 'newsportal'
     masthead_url = 'http://static.businessinsider.com/assets/images/logos/tbi_print.jpg'
-    extra_css             = '''
+    extra_css = '''
                                body{font-family: Arial,Helvetica,sans-serif }
                                img{margin-bottom: 0.4em; display:block}
                             '''
 
-    conversion_options = {
-        'comment': description, 'tags': category, 'publisher': publisher, 'language': language
-    }
+    conversion_options = {'comment': description, 'tags': category, 'publisher': publisher, 'language': language}
 
-    remove_tags = [
-        dict(name=['meta', 'link']), dict(attrs={'class': 'feedflare'})
-    ]
+    remove_tags = [dict(name=['meta', 'link']), dict(attrs={'class': 'feedflare'})]
     remove_attributes = ['lang', 'border']
 
     feeds = [
-
-    (u'Latest', u'http://feeds2.feedburner.com/businessinsider'),
-    (u'Markets', u'http://feeds.feedburner.com/TheMoneyGame'),
-    (u'Wall Street', u'http://feeds.feedburner.com/clusterstock'),
-    (u'Tech', u'http://feeds.feedburner.com/typepad/alleyinsider/silicon_alley_insider'),
-    (u'The Wire', u'http://feeds.feedburner.com/businessinsider/thewire'),
-    (u'War Room', u'http://feeds.feedburner.com/businessinsider/warroom'),
-    (u'Sports', u'http://feeds.feedburner.com/businessinsider/sportspage'),
-    (u'Tools', u'http://feeds.feedburner.com/businessinsider/tools'),
-    (u'Travel', u'http://feeds.feedburner.com/businessinsider/travel')
+        ('Latest', 'http://feeds2.feedburner.com/businessinsider'),
+        ('Markets', 'http://feeds.feedburner.com/TheMoneyGame'),
+        ('Wall Street', 'http://feeds.feedburner.com/clusterstock'),
+        ('Tech', 'http://feeds.feedburner.com/typepad/alleyinsider/silicon_alley_insider'),
+        ('The Wire', 'http://feeds.feedburner.com/businessinsider/thewire'),
+        ('War Room', 'http://feeds.feedburner.com/businessinsider/warroom'),
+        ('Sports', 'http://feeds.feedburner.com/businessinsider/sportspage'),
+        ('Tools', 'http://feeds.feedburner.com/businessinsider/tools'),
+        ('Travel', 'http://feeds.feedburner.com/businessinsider/travel'),
     ]
 
     def preprocess_html(self, soup):

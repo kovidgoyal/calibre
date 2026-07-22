@@ -6,9 +6,9 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class EsensjaRSS(BasicNewsRecipe):
-    title = u'Esensja (RSS)'
+    title = 'Esensja (RSS)'
     __author__ = 'fenuks'
-    description = u'Magazyn kultury popularnej'
+    description = 'Magazyn kultury popularnej'
     category = 'reading, fantasy, reviews, boardgames, culture'
     language = 'pl'
     encoding = 'utf-8'
@@ -22,38 +22,39 @@ class EsensjaRSS(BasicNewsRecipe):
     remove_empty_feeds = True
     remove_javascript = True
     ignore_duplicate_articles = {'title', 'url'}
-    preprocess_regexps = [(re.compile(r'alt="[^"]*"'), lambda match: ''),
-                          (re.compile(r'(title|alt)="[^"]*?"', re.DOTALL), lambda match: '')]
+    preprocess_regexps = [(re.compile(r'alt="[^"]*"'), lambda match: ''), (re.compile(r'(title|alt)="[^"]*?"', re.DOTALL), lambda match: '')]
     remove_attributes = ['style', 'bgcolor', 'alt', 'color']
-    keep_only_tags = [dict(attrs={'class': 'sekcja'}), ]
+    keep_only_tags = [
+        dict(attrs={'class': 'sekcja'}),
+    ]
     remove_tags_after = dict(id='tekst')
 
-    remove_tags = [dict(name='img', attrs={'src': ['../../../2000/01/img/tab_top.gif', '../../../2000/01/img/tab_bot.gif']}),
-                   dict(name='div', attrs={'class': 't-title2 nextpage'}),
-                   # dict(attrs={'rel':'lightbox[galeria]'})
-                   dict(attrs={'class': ['tekst_koniec', 'ref', 'wykop']}),
-                   dict(attrs={'itemprop': ['copyrightHolder', 'publisher']}),
-                   dict(id='komentarze')
-                   ]
+    remove_tags = [
+        dict(name='img', attrs={'src': ['../../../2000/01/img/tab_top.gif', '../../../2000/01/img/tab_bot.gif']}),
+        dict(name='div', attrs={'class': 't-title2 nextpage'}),
+        # dict(attrs={'rel':'lightbox[galeria]'})
+        dict(attrs={'class': ['tekst_koniec', 'ref', 'wykop']}),
+        dict(attrs={'itemprop': ['copyrightHolder', 'publisher']}),
+        dict(id='komentarze'),
+    ]
 
-    feeds = [(u'Książka', u'http://esensja.pl/rss/ksiazka.rss'),
-             (u'Film', u'http://esensja.pl/rss/film.rss'),
-             (u'Komiks', u'http://esensja.pl/rss/komiks.rss'),
-             (u'Gry', u'http://esensja.pl/rss/gry.rss'),
-             (u'Muzyka', u'http://esensja.pl/rss/muzyka.rss'),
-             (u'Twórczość', u'http://esensja.pl/rss/tworczosc.rss'),
-             (u'Varia', u'http://esensja.pl/rss/varia.rss'),
-             (u'Zgryźliwi Tetrycy', u'http://esensja.pl/rss/tetrycy.rss'),
-             (u'Nowe książki', u'http://esensja.pl/rss/xnowosci.rss'),
-             (u'Ostatnio dodane książki', u'http://esensja.pl/rss/xdodane.rss'),
-             ]
+    feeds = [
+        ('Książka', 'http://esensja.pl/rss/ksiazka.rss'),
+        ('Film', 'http://esensja.pl/rss/film.rss'),
+        ('Komiks', 'http://esensja.pl/rss/komiks.rss'),
+        ('Gry', 'http://esensja.pl/rss/gry.rss'),
+        ('Muzyka', 'http://esensja.pl/rss/muzyka.rss'),
+        ('Twórczość', 'http://esensja.pl/rss/tworczosc.rss'),
+        ('Varia', 'http://esensja.pl/rss/varia.rss'),
+        ('Zgryźliwi Tetrycy', 'http://esensja.pl/rss/tetrycy.rss'),
+        ('Nowe książki', 'http://esensja.pl/rss/xnowosci.rss'),
+        ('Ostatnio dodane książki', 'http://esensja.pl/rss/xdodane.rss'),
+    ]
 
     def get_cover_url(self):
         soup = self.index_to_soup(self.INDEX)
         cover = soup.find(id='panel_1')
-        self.cover_url = (self.INDEX
-            + cover.find('a')['href'].replace('index.html', '')
-            + 'img/ilustr/cover_b.jpg')
+        self.cover_url = self.INDEX + cover.find('a')['href'].replace('index.html', '') + 'img/ilustr/cover_b.jpg'
         return getattr(self, 'cover_url', self.cover_url)
 
     def append_page(self, soup, appendtag):
@@ -64,8 +65,7 @@ class EsensjaRSS(BasicNewsRecipe):
                 nr = int(nr.a.string)
             except Exception:
                 return
-            baseurl = soup.find(attrs={'property': 'og:url'})[
-                'content'] + '&strona={0}'
+            baseurl = soup.find(attrs={'property': 'og:url'})['content'] + '&strona={0}'
             for number in range(2, nr + 1):
                 soup2 = self.index_to_soup(baseurl.format(number))
                 pagetext = soup2.find(attrs={'class': 'tresc'})
@@ -76,8 +76,7 @@ class EsensjaRSS(BasicNewsRecipe):
             for r in appendtag.findAll('script'):
                 r.extract()
 
-            comments = appendtag.findAll(
-                text=lambda text: isinstance(text, Comment))
+            comments = appendtag.findAll(text=lambda text: isinstance(text, Comment))
             for comment in comments:
                 comment.extract()
 
@@ -99,8 +98,7 @@ class EsensjaRSS(BasicNewsRecipe):
                     src = src[5:].replace('//', '/')
             if src:
                 tag.contents = []
-                tag.insert(0, BeautifulSoup(
-                    '<img src="{0}{1}" />'.format(self.INDEX, src)))
+                tag.insert(0, BeautifulSoup('<img src="{0}{1}" />'.format(self.INDEX, src)))
             if info:
                 tag.insert(len(tag.contents), info)
         return soup

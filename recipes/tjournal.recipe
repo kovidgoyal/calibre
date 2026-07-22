@@ -5,7 +5,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class TJournal(BasicNewsRecipe):
-    title = u'TJournal'
+    title = 'TJournal'
     __author__ = 'bug_me_not (with fixes by bugmen00t)'
     description = 'TJournal: издание о медиа, технологиях и трендах'
     publisher = 'tjournal.ru'
@@ -19,16 +19,10 @@ class TJournal(BasicNewsRecipe):
 
     remove_tags_before = dict(name='div', attrs={'class': 'content-title"'})
 
-    remove_tags_after = dict(
-        name='div',
-        attrs={'class': 'content-footer content-footer--full l-island-a'}
-    )
+    remove_tags_after = dict(name='div', attrs={'class': 'content-footer content-footer--full l-island-a'})
 
     remove_tags = [
-        dict(
-            name='div',
-            attrs={'class': 'content-footer content-footer--full l-island-a'}
-        ),
+        dict(name='div', attrs={'class': 'content-footer content-footer--full l-island-a'}),
         dict(name='div', attrs={'air-module': 'module.distributionFloating'}),
         dict(name='span', attrs={'class': 'content-editorial-tick'}),
         dict(name='vue'),
@@ -37,32 +31,19 @@ class TJournal(BasicNewsRecipe):
         dict(name='div', attrs={'class': 'propaganda propaganda--with-footer'}),
         dict(name='div', attrs={'air-module': 'module.gallery'}),
         dict(name='div', attrs={'class': 'content-container'}),
-        dict(
-            name='div',
-            attrs={'class': 'content-header__item content-header-number'}
-        ),
+        dict(name='div', attrs={'class': 'content-header__item content-header-number'}),
         dict(name='span', attrs={'class': 'views__value'}),
-        dict(name='span', attrs={'class': 'views__label'})
+        dict(name='span', attrs={'class': 'views__label'}),
     ]
 
-    feeds = [(
-        '\u041F\u043E\u043F\u0443\u043B\u044F\u0440\u043D\u043E\u0435',
-        'https://tjournal.ru/rss'
-    ), (
-        '\u041D\u043E\u0432\u043E\u0441\u0442\u0438', 'https://tjournal.ru/rss/news'
-    ), ('\u0421\u0432\u0435\u0436\u0435\u0435', 'https://tjournal.ru/rss/new'),
-             (
-                 '\u0422\u0435\u0445\u043D\u043E\u043B\u043E\u0433\u0438\u0438',
-                 'https://tjournal.ru/rss/tech'
-             ),
-             (
-                 '\u0420\u0430\u0437\u0431\u043E\u0440\u044B',
-                 'https://tjournal.ru/rss/analysis'
-             ),
-             (
-                 '\u0418\u043D\u0442\u0435\u0440\u043D\u0435\u0442',
-                 'https://tjournal.ru/rss/internet'
-             )]
+    feeds = [
+        ('\u041f\u043e\u043f\u0443\u043b\u044f\u0440\u043d\u043e\u0435', 'https://tjournal.ru/rss'),
+        ('\u041d\u043e\u0432\u043e\u0441\u0442\u0438', 'https://tjournal.ru/rss/news'),
+        ('\u0421\u0432\u0435\u0436\u0435\u0435', 'https://tjournal.ru/rss/new'),
+        ('\u0422\u0435\u0445\u043d\u043e\u043b\u043e\u0433\u0438\u0438', 'https://tjournal.ru/rss/tech'),
+        ('\u0420\u0430\u0437\u0431\u043e\u0440\u044b', 'https://tjournal.ru/rss/analysis'),
+        ('\u0418\u043d\u0442\u0435\u0440\u043d\u0435\u0442', 'https://tjournal.ru/rss/internet'),
+    ]
 
     def preprocess_html(self, soup):
         for img in soup.findAll('img', attrs={'data-image-src': True}):

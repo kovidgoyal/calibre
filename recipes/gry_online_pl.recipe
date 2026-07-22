@@ -7,9 +7,9 @@ from calibre.web.feeds.recipes import BasicNewsRecipe
 
 
 class GryOnlinePl(BasicNewsRecipe):
-    title = u'Gry-Online.pl'
+    title = 'Gry-Online.pl'
     __author__ = 'fenuks'
-    description = u'Wiadomości o grach, recenzje, zapowiedzi. Encyklopedia Gier zawiera opisy gier na PC, konsole Xbox360, PS3 i inne platformy.'
+    description = 'Wiadomości o grach, recenzje, zapowiedzi. Encyklopedia Gier zawiera opisy gier na PC, konsole Xbox360, PS3 i inne platformy.'
     category = 'games'
     language = 'pl'
     oldest_article = 13
@@ -18,13 +18,26 @@ class GryOnlinePl(BasicNewsRecipe):
     cover_url = 'http://www.gry-online.pl/im/gry-online-logo.png'
     max_articles_per_feed = 100
     no_stylesheets = True
-    keep_only_tags = [dict(name='div', attrs={'class': [
-                           'gc660', 'gc660 S013', 'news_endpage_tit', 'news_container', 'news']})]
+    keep_only_tags = [dict(name='div', attrs={'class': ['gc660', 'gc660 S013', 'news_endpage_tit', 'news_container', 'news']})]
     remove_tags = [
-        {'class': ['nav-social', 'add-info', 'smlb', 'lista lista3 lista-gry', 'S013po', 'S013-npb', 'zm_gfx_cnt_bottom', 'ocen-txt', 'wiecej-txt', 'wiecej-txt2', 'social-for-old-news', 'social-for-old-rec']}]  # noqa: E501
-    feeds = [
-        (u'Newsy', 'http://www.gry-online.pl/rss/news.xml'),
-        ('Teksty', u'http://www.gry-online.pl/rss/teksty.xml')]
+        {
+            'class': [
+                'nav-social',
+                'add-info',
+                'smlb',
+                'lista lista3 lista-gry',
+                'S013po',
+                'S013-npb',
+                'zm_gfx_cnt_bottom',
+                'ocen-txt',
+                'wiecej-txt',
+                'wiecej-txt2',
+                'social-for-old-news',
+                'social-for-old-rec',
+            ]
+        }
+    ]  # noqa: E501
+    feeds = [('Newsy', 'http://www.gry-online.pl/rss/news.xml'), ('Teksty', 'http://www.gry-online.pl/rss/teksty.xml')]
 
     def append_page(self, soup, appendtag):
         tag = appendtag.find('div', attrs={'class': 'n5p'})
@@ -51,16 +64,14 @@ class GryOnlinePl(BasicNewsRecipe):
                 appendtag.insert(pos, pagetext)
             for r in appendtag.findAll(attrs={'class': ['n5p', 'add-info', 'twitter-share-button', 'lista lista3 lista-gry', 'imh10b']}):
                 r.extract()
-            comments = appendtag.findAll(
-                text=lambda text: isinstance(text, Comment))
+            comments = appendtag.findAll(text=lambda text: isinstance(text, Comment))
             for comment in comments:
                 comment.extract()
         else:
             tag = appendtag.find('div', attrs={'class': 'S018stronyr'})
             if tag:
                 nexturl = tag.a
-                url_part = soup.find(
-                    'link', attrs={'rel': 'canonical'})['href']
+                url_part = soup.find('link', attrs={'rel': 'canonical'})['href']
                 url_part = url_part[25:].rpartition('?')[0]
                 while tag:
                     end = tag.find(attrs={'class': 'right left-dead'})
@@ -83,15 +94,13 @@ class GryOnlinePl(BasicNewsRecipe):
                     for r in pagetext.findAll(attrs={'itemprop': 'description'}):
                         r.extract()
 
-                    comments = pagetext.findAll(
-                        text=lambda text: isinstance(text, Comment))
+                    comments = pagetext.findAll(text=lambda text: isinstance(text, Comment))
                     [comment.extract() for comment in comments]
                     pos = len(appendtag.contents)
                     appendtag.insert(pos, pagetext)
                 for r in appendtag.findAll(attrs={'class': ['n5p', 'add-info', 'twitter-share-button', 'lista lista3 lista-gry', 'S018strony', 'imh10b']}):
                     r.extract()
-                comments = appendtag.findAll(
-                    text=lambda text: isinstance(text, Comment))
+                comments = appendtag.findAll(text=lambda text: isinstance(text, Comment))
                 for comment in comments:
                     comment.extract()
 

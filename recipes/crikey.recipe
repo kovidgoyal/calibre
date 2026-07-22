@@ -10,8 +10,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 def classes(classes):
     q = frozenset(classes.split(' '))
-    return dict(attrs={
-        'class': lambda x: x and frozenset(x.split()).intersection(q)})
+    return dict(attrs={'class': lambda x: x and frozenset(x.split()).intersection(q)})
 
 
 class Crikey(BasicNewsRecipe):
@@ -34,7 +33,6 @@ class Crikey(BasicNewsRecipe):
         ('Buisness', 'https://www.crikey.com.au/business/feed'),
         ('Coronavirus', 'https://www.crikey.com.au/coronavirus/feed'),
         ('Culture', 'https://www.crikey.com.au/life/feed'),
-
     ]
 
     def get_browser(self):
@@ -42,15 +40,8 @@ class Crikey(BasicNewsRecipe):
         br.open('https://www.crikey.com.au/')
 
         if self.username is not None and self.password is not None:
-            postdata = urlencode({
-                'username': self.username,
-                'password': self.password
-            })
-            br.open(
-                'https://www.crikey.com.au',
-                data=postdata,
-                timeout=self.timeout
-            )
+            postdata = urlencode({'username': self.username, 'password': self.password})
+            br.open('https://www.crikey.com.au', data=postdata, timeout=self.timeout)
 
             br.set_handle_refresh(True)
 

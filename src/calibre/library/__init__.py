@@ -1,8 +1,6 @@
-__license__   = 'GPL v3'
-__copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
+# License: GPLv3 Copyright: 2008, Kovid Goyal <kovid at kovidgoyal.net>
 
-''' Code to manage ebook library'''
-
+"""Code to manage ebook library"""
 
 import os
 
@@ -10,20 +8,21 @@ import os
 def db(path=None, read_only=False):
     from calibre.db.legacy import LibraryDatabase
     from calibre.utils.config import prefs
-    return LibraryDatabase(os.path.expanduser(path) if path else prefs['library_path'],
-            read_only=read_only)
+
+    return LibraryDatabase(os.path.expanduser(path) if path else prefs['library_path'], read_only=read_only)
 
 
-def generate_test_db(library_path,  # {{{
-        num_of_records=20000,
-        num_of_authors=6000,
-        num_of_tags=10000,
-        tag_length=7,
-        author_length=7,
-        title_length=10,
-        max_authors=10,
-        max_tags=10
-        ):
+def generate_test_db(
+    library_path,  # {{{
+    num_of_records=20000,
+    num_of_authors=6000,
+    num_of_tags=10000,
+    tag_length=7,
+    author_length=7,
+    title_length=10,
+    max_authors=10,
+    max_tags=10,
+):
     import os
     import random
     import string
@@ -36,8 +35,7 @@ def generate_test_db(library_path,  # {{{
     letters = string.ascii_letters
 
     def randstr(length):
-        return ''.join(random.choice(letters) for i in
-                range(length))
+        return ''.join(random.choice(letters) for i in range(length))
 
     all_tags = [randstr(tag_length) for j in range(num_of_tags)]
     print('Generated', num_of_tags, 'tags')
@@ -53,25 +51,29 @@ def generate_test_db(library_path,  # {{{
     start = time.time()
 
     for i, title in enumerate(all_titles):
-        print(i+1, end=' ')
+        print(i + 1, end=' ')
         sys.stdout.flush()
         authors = random.randint(1, max_authors)
         authors = [random.choice(all_authors) for i in range(authors)]
         tags = random.randint(0, max_tags)
         tags = [random.choice(all_tags) for i in range(tags)]
         from calibre.ebooks.metadata.book.base import Metadata
+
         mi = Metadata(title, authors)
         mi.tags = tags
         testdb.import_book(mi, [])
 
     t = time.time() - start
     print('\nGenerated', num_of_records, 'records in:', t, 'seconds')
-    print('Time per record:', t/num_of_records)
+    print('Time per record:', t / num_of_records)
+
+
 # }}}
 
 
 def current_library_path():
     from calibre.utils.config import prefs
+
     path = prefs['library_path']
     if path:
         path = path.replace('\\', '/')
@@ -82,6 +84,7 @@ def current_library_path():
 
 def current_library_name():
     import posixpath
+
     path = current_library_path()
     if path:
         return posixpath.basename(path)

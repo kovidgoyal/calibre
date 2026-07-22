@@ -7,10 +7,10 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class MoscowTimes(BasicNewsRecipe):
     title = 'The Moscow Times'
     __author__ = 'bugmen00t'
-    description = '\u0410\u043D\u0433\u043B\u043E\u044F\u0437\u044B\u0447\u043D\u043E\u0435 \u0438\u0437\u0434\u0430\u043D\u0438\u0435 \u043E \u0420\u043E\u0441\u0441\u0438\u0438. \u041D\u0430\u0448\u0430 \u0440\u0435\u0434\u0430\u043A\u0446\u0438\u044F \u0434\u0435\u043B\u0438\u0442\u0441\u044F \u0441 \u0447\u0438\u0442\u0430\u0442\u0435\u043B\u044F\u043C\u0438 \u043F\u043E \u0432\u0441\u0435\u043C\u0443 \u043C\u0438\u0440\u0443 \u043F\u043E\u0441\u043B\u0435\u0434\u043D\u0438\u043C\u0438 \u043D\u043E\u0432\u043E\u0441\u0442\u044F\u043C\u0438 \u0438 \u0441\u0430\u043C\u044B\u043C\u0438 \u0438\u043D\u0442\u0435\u0440\u0435\u0441\u043D\u044B\u043C\u0438 \u0441\u043E\u0431\u044B\u0442\u0438\u044F\u043C\u0438 \u0441\u0430\u043C\u043E\u0439 \u0431\u043E\u043B\u044C\u0448\u043E\u0439 \u0441\u0442\u0440\u0430\u043D\u044B \u043D\u0430 \u0417\u0435\u043C\u043B\u0435.'  # noqa: E501
-    publisher = '\u041E\u041E\u041E \u0422\u0438\u044D\u043C\u0442\u0438'
+    description = '\u0410\u043d\u0433\u043b\u043e\u044f\u0437\u044b\u0447\u043d\u043e\u0435 \u0438\u0437\u0434\u0430\u043d\u0438\u0435 \u043e \u0420\u043e\u0441\u0441\u0438\u0438. \u041d\u0430\u0448\u0430 \u0440\u0435\u0434\u0430\u043a\u0446\u0438\u044f \u0434\u0435\u043b\u0438\u0442\u0441\u044f \u0441 \u0447\u0438\u0442\u0430\u0442\u0435\u043b\u044f\u043c\u0438 \u043f\u043e \u0432\u0441\u0435\u043c\u0443 \u043c\u0438\u0440\u0443 \u043f\u043e\u0441\u043b\u0435\u0434\u043d\u0438\u043c\u0438 \u043d\u043e\u0432\u043e\u0441\u0442\u044f\u043c\u0438 \u0438 \u0441\u0430\u043c\u044b\u043c\u0438 \u0438\u043d\u0442\u0435\u0440\u0435\u0441\u043d\u044b\u043c\u0438 \u0441\u043e\u0431\u044b\u0442\u0438\u044f\u043c\u0438 \u0441\u0430\u043c\u043e\u0439 \u0431\u043e\u043b\u044c\u0448\u043e\u0439 \u0441\u0442\u0440\u0430\u043d\u044b \u043d\u0430 \u0417\u0435\u043c\u043b\u0435.'  # noqa: E501
+    publisher = '\u041e\u041e\u041e \u0422\u0438\u044d\u043c\u0442\u0438'
     category = 'newspaper'
-    cover_url = u'https://static.themoscowtimes.com/img/share_default.jpg'
+    cover_url = 'https://static.themoscowtimes.com/img/share_default.jpg'
     language = 'ru'
     no_stylesheets = False
     remove_javascript = True
@@ -28,21 +28,14 @@ class MoscowTimes(BasicNewsRecipe):
         dict(name='section', attrs={'class': 'cluster'}),
         dict(name='div', attrs={'class': 'article__tags'}),
         dict(name='div', attrs={'class': 'social'}),
-        dict(name='div', attrs={'class': 'related-article__content'})
+        dict(name='div', attrs={'class': 'related-article__content'}),
     ]
 
-    feeds = [(
-        '\u041D\u043E\u0432\u043E\u0441\u0442\u0438',
-        'https://www.moscowtimes.ru/rss/news'
-    ),
-             (
-                 '\u041C\u043D\u0435\u043D\u0438\u044F',
-                 'https://www.moscowtimes.ru/rss/opinion'
-             ),
-             (
-                 '\u041F\u0435\u0440\u0435\u0432\u043E\u0434\u044B Financial Times',
-                 'https://www.moscowtimes.ru/rss/ft'
-             )]
+    feeds = [
+        ('\u041d\u043e\u0432\u043e\u0441\u0442\u0438', 'https://www.moscowtimes.ru/rss/news'),
+        ('\u041c\u043d\u0435\u043d\u0438\u044f', 'https://www.moscowtimes.ru/rss/opinion'),
+        ('\u041f\u0435\u0440\u0435\u0432\u043e\u0434\u044b Financial Times', 'https://www.moscowtimes.ru/rss/ft'),
+    ]
 
     def preprocess_html(self, soup):
         for img in soup.findAll('img', attrs={'data-src': True}):

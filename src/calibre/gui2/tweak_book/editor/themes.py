@@ -1,8 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__ = 'GPL v3'
-__copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
+# License: GPLv3 Copyright: 2013, Kovid Goyal <kovid at kovidgoyal.net>
 
 from collections import namedtuple
 
@@ -54,14 +51,47 @@ def default_theme():
 
 
 # The solarized themes {{{
-SLDX = {'base03':'1c1c1c', 'base02':'262626', 'base01':'585858', 'base00':'626262', 'base0':'808080', 'base1':'8a8a8a', 'base2':'e4e4e4', 'base3':'ffffd7', 'yellow':'af8700', 'orange':'d75f00', 'red':'d70000', 'magenta':'af005f', 'violet':'5f5faf', 'blue':'0087ff', 'cyan':'00afaf', 'green':'5f8700'}  # noqa: E501
-SLD  = {'base03':'002b36', 'base02':'073642', 'base01':'586e75', 'base00':'657b83', 'base0':'839496', 'base1':'93a1a1', 'base2':'eee8d5', 'base3':'fdf6e3', 'yellow':'b58900', 'orange':'cb4b16', 'red':'dc322f', 'magenta':'d33682', 'violet':'6c71c4', 'blue':'268bd2', 'cyan':'2aa198', 'green':'859900'}  # noqa: E501
-m = {f'base{n}':f'base{n:02}' for n in range(1, 4)}
-m.update({f'base{n:02}':f'base{n}' for n in range(1, 4)})
-SLL =  {m.get(k, k): v for k, v in SLD.items()}
+SLDX = {
+    'base03': '1c1c1c',
+    'base02': '262626',
+    'base01': '585858',
+    'base00': '626262',
+    'base0': '808080',
+    'base1': '8a8a8a',
+    'base2': 'e4e4e4',
+    'base3': 'ffffd7',
+    'yellow': 'af8700',
+    'orange': 'd75f00',
+    'red': 'd70000',
+    'magenta': 'af005f',
+    'violet': '5f5faf',
+    'blue': '0087ff',
+    'cyan': '00afaf',
+    'green': '5f8700',
+}  # noqa: E501
+SLD = {
+    'base03': '002b36',
+    'base02': '073642',
+    'base01': '586e75',
+    'base00': '657b83',
+    'base0': '839496',
+    'base1': '93a1a1',
+    'base2': 'eee8d5',
+    'base3': 'fdf6e3',
+    'yellow': 'b58900',
+    'orange': 'cb4b16',
+    'red': 'dc322f',
+    'magenta': 'd33682',
+    'violet': '6c71c4',
+    'blue': '268bd2',
+    'cyan': '2aa198',
+    'green': '859900',
+}  # noqa: E501
+m = {f'base{n}': f'base{n:02}' for n in range(1, 4)}
+m.update({f'base{n:02}': f'base{n}' for n in range(1, 4)})
+SLL = {m.get(k, k): v for k, v in SLD.items()}
 SLLX = {m.get(k, k): v for k, v in SLDX.items()}
-SOLARIZED = \
-    '''
+SOLARIZED = '''
     CursorLine   bg={base02}
     CursorColumn bg={base02}
     ColorColumn  bg={base02}
@@ -151,8 +181,8 @@ THEMES = {
         string='95e454',
         keyword='8ac6f2',
         constant='e5786d',
-        special='e7f6da'),  # }}}
-
+        special='e7f6da',
+    ),  # }}}
     'pyte-light':  # {{{
     '''
     CursorLine   bg={cursor_loc}
@@ -200,13 +230,12 @@ THEMES = {
         string='4070a0',
         keyword='007020',
         constant='a07040',
-        special='70a0d0'),  # }}}
-
+        special='70a0d0',
+    ),  # }}}
     'solarized-x-dark': SOLARIZED.format(**SLDX),
     'solarized-dark': SOLARIZED.format(**SLD),
     'solarized-light': SOLARIZED.format(**SLL),
     'solarized-x-light': SOLARIZED.format(**SLLX),
-
 }
 
 
@@ -258,17 +287,17 @@ def read_theme(raw):
     return ans
 
 
-THEMES: dict[str, dict[str, Highlight]] = {k:read_theme(raw) for k, raw in THEMES.items()}
+THEMES: dict[str, dict[str, Highlight]] = {k: read_theme(raw) for k, raw in THEMES.items()}
 
 
 def u(x):
-    x = {'spell':'SpellCheck', 'dash_dot':'DashDot', 'dash_dot_dot':'DashDotDot'}.get(x, x.capitalize())
+    x = {'spell': 'SpellCheck', 'dash_dot': 'DashDot', 'dash_dot_dot': 'DashDotDot'}.get(x, x.capitalize())
     if 'Dot' in x:
         return x + 'Line'
     return x + 'Underline'
 
 
-underline_styles: dict[str, QTextCharFormat.UnderlineStyle] = {x:getattr(QTextCharFormat.UnderlineStyle, u(x)) for x in underline_styles}
+underline_styles: dict[str, QTextCharFormat.UnderlineStyle] = {x: getattr(QTextCharFormat.UnderlineStyle, u(x)) for x in underline_styles}
 
 
 def to_highlight(data):
@@ -280,7 +309,7 @@ def to_highlight(data):
 
 def read_custom_theme(data):
     dt = THEMES[default_theme()].copy()
-    dt.update({k:to_highlight(v) for k, v in data.items()})
+    dt.update({k: to_highlight(v) for k, v in data.items()})
     return dt
 
 
@@ -316,7 +345,7 @@ def highlight_to_char_format(h):
 def theme_color(theme, name, attr):
     try:
         return getattr(theme[name], attr).color()
-    except (KeyError, AttributeError):
+    except KeyError, AttributeError:
         return getattr(THEMES[default_theme()][name], attr).color()
 
 
@@ -342,8 +371,8 @@ def all_theme_names():
 
 # Custom theme creation/editing {{{
 
-class CreateNewTheme(Dialog):
 
+class CreateNewTheme(Dialog):
     def __init__(self, parent=None):
         Dialog.__init__(self, _('Create custom theme'), 'custom-theme-create', parent=parent)
 
@@ -370,11 +399,14 @@ class CreateNewTheme(Dialog):
 
     def accept(self):
         if not self.theme_name:
-            return error_dialog(self, _('No name specified'), _(
-                'You must specify a name for your theme'), show=True)
+            return error_dialog(self, _('No name specified'), _('You must specify a name for your theme'), show=True)
         if '*' + self.theme_name in custom_theme_names():
-            return error_dialog(self, _('Name already used'), _(
-                'A custom theme with the name %s already exists') % self.theme_name, show=True)
+            return error_dialog(
+                self,
+                _('Name already used'),
+                _('A custom theme with the name %s already exists') % self.theme_name,
+                show=True,
+            )
         return Dialog.accept(self)
 
 
@@ -383,7 +415,6 @@ def col_to_string(color):
 
 
 class ColorButton(QPushButton):
-
     changed = pyqtSignal()
 
     def __init__(self, data, name, text, parent):
@@ -430,7 +461,6 @@ class ColorButton(QPushButton):
 
 
 class Bool(QCheckBox):
-
     changed = pyqtSignal()
 
     def __init__(self, data, key, text, parent):
@@ -449,7 +479,6 @@ class Bool(QCheckBox):
 
 
 class Property(QWidget):
-
     changed = pyqtSignal()
 
     def __init__(self, name, data, parent=None):
@@ -570,14 +599,13 @@ p.someclass {{
 
 
 class ThemeEditor(Dialog):
-
     def __init__(self, parent=None):
         Dialog.__init__(self, _('Create/edit custom theme'), 'custom-theme-editor', parent=parent)
 
     def setup_ui(self):
         self.block_show = False
         self.properties = []
-        self.l = l  = QVBoxLayout(self)
+        self.l = l = QVBoxLayout(self)
         self.setLayout(l)
         h = QHBoxLayout()
         l.addLayout(h)
@@ -608,11 +636,25 @@ class ThemeEditor(Dialog):
         w.setLayout(cl)
 
         from calibre.gui2.tweak_book.editor.text import TextEdit
+
         self.preview = p = TextEdit(self, expected_geometry=(73, 50))
-        t = {x: f'<b>{x}</b>' for x in (
-            'Normal', 'Visual', 'CursorLine', 'LineNr', 'MatchParen',
-            'Function', 'Type', 'Statement', 'Constant', 'SpecialCharacter',
-            'Error', 'SpellError', 'Comment')
+        t = {
+            x: f'<b>{x}</b>'
+            for x in (
+                'Normal',
+                'Visual',
+                'CursorLine',
+                'LineNr',
+                'MatchParen',
+                'Function',
+                'Type',
+                'Statement',
+                'Constant',
+                'SpecialCharacter',
+                'Error',
+                'SpellError',
+                'Comment',
+            )
         }
         t['nbsp'] = '\xa0'
         t['endash'] = '–'
@@ -685,7 +727,7 @@ class ThemeEditor(Dialog):
             base = str(d.base.currentText())
             theme = {}
             for key, val in THEMES[base].items():
-                theme[key] = {k:col_to_string(v.color()) if isinstance(v, QBrush) else v for k, v in val._asdict().items()}
+                theme[key] = {k: col_to_string(v.color()) if isinstance(v, QBrush) else v for k, v in val._asdict().items()}
             tprefs['custom_themes'][name] = theme
             tprefs['custom_themes'] = tprefs['custom_themes']
             t = self.theme
@@ -713,11 +755,13 @@ class ThemeEditor(Dialog):
         assert screen is not None
         g = screen.availableSize()
         return QSize(min(1500, g.width() - 25), 650)
-# }}}
 
+
+# }}}
 
 if __name__ == '__main__':
     from calibre.gui2 import Application
+
     app = Application([])
     d = ThemeEditor()
     d.exec()

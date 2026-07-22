@@ -1,8 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__   = 'GPL v3'
-__copyright__ = '2011, Anthon van der Neut <A.van.der.Neut@ruamel.eu>'
+# License: GPLv3 Copyright: 2011, Anthon van der Neut <A.van.der.Neut@ruamel.eu>
 
 # this code is based on:
 # Lizardtech DjVu Reference
@@ -16,27 +13,26 @@ from calibre.ebooks.djvu.djvubzzdec import BZZDecoder
 
 
 class DjvuChunk:
-
-    def __init__(self, buf, start, end, align=True, bigendian=True,
-            inclheader=False, verbose=0):
+    def __init__(self, buf, start, end, align=True, bigendian=True, inclheader=False, verbose=0):
         from calibre_extensions import bzzdec
+
         self.speedup = bzzdec
         self.subtype = None
         self._subchunks = []
         self.buf = buf
         pos = start + 4
         self.type = buf[start:pos]
-        self.align = align      # whether to align to word (2-byte) boundaries
+        self.align = align  # whether to align to word (2-byte) boundaries
         self.headersize = 0 if inclheader else 8
         if bigendian:
             self.strflag = b'>'
         else:
             self.strflag = b'<'
-        oldpos, pos = pos, pos+4
-        self.size = struct.unpack(self.strflag+b'L', buf[oldpos:pos])[0]
+        oldpos, pos = pos, pos + 4
+        self.size = struct.unpack(self.strflag + b'L', buf[oldpos:pos])[0]
         self.dataend = pos + self.size - (8 if inclheader else 0)
         if self.type == b'FORM':
-            oldpos, pos = pos, pos+4
+            oldpos, pos = pos, pos + 4
             # print(oldpos, pos)
             self.subtype = buf[oldpos:pos]
             # self.headersize += 4
@@ -48,7 +44,7 @@ class DjvuChunk:
                 print(f'processing substuff {pos} {self.dataend} ({self.dataend:x})')
             numchunks = 0
             while pos < self.dataend:
-                x = DjvuChunk(buf, pos, start+self.size, verbose=verbose)
+                x = DjvuChunk(buf, pos, start + self.size, verbose=verbose)
                 numchunks += 1
                 self._subchunks.append(x)
                 newpos = pos + x.size + x.headersize + (1 if (x.size % 2) else 0)
@@ -61,14 +57,13 @@ class DjvuChunk:
     def dump(self, verbose=0, indent=1, out=None, txtout=None, maxlevel=100):
         if out:
             out.write(b'  ' * indent)
-            out.write(b'%s%s [%d]\n' % (self.type,
-                b':' + self.subtype if self.subtype else b'', self.size))
+            out.write(b'%s%s [%d]\n' % (self.type, b':' + self.subtype if self.subtype else b'', self.size))
         if txtout and self.type == b'TXTz':
             if True:
                 # Use the C BZZ decode implementation
-                txtout.write(self.speedup.decompress(self.buf[self.datastart:self.dataend]))
+                txtout.write(self.speedup.decompress(self.buf[self.datastart : self.dataend]))
             else:
-                inbuf = bytearray(self.buf[self.datastart: self.dataend])
+                inbuf = bytearray(self.buf[self.datastart : self.dataend])
                 outbuf = bytearray()
                 decoder = BZZDecoder(inbuf, outbuf)
                 while True:
@@ -84,26 +79,25 @@ class DjvuChunk:
                     l += x
                 if verbose > 0 and out:
                     print(l, file=out)
-                txtout.write(res[3:3+l])
+                txtout.write(res[3 : 3 + l])
             txtout.write(b'\037')
         if txtout and self.type == b'TXTa':
-            res = self.buf[self.datastart: self.dataend]
+            res = self.buf[self.datastart : self.dataend]
             l = 0
             for x in bytearray(res[:3]):
                 l <<= 8
                 l += x
             if verbose > 0 and out:
                 print(l, file=out)
-            txtout.write(res[3:3+l])
+            txtout.write(res[3 : 3 + l])
             txtout.write(b'\037')
         if indent >= maxlevel:
             return
         for schunk in self._subchunks:
-            schunk.dump(verbose=verbose, indent=indent+1, out=out, txtout=txtout)
+            schunk.dump(verbose=verbose, indent=indent + 1, out=out, txtout=txtout)
 
 
 class DJVUFile:
-
     def __init__(self, instream, verbose=0):
         self.instream = instream
         buf = self.instream.read(4)

@@ -1,9 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__   = 'GPL v3'
-__copyright__ = '2025, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2025, Kovid Goyal <kovid@kovidgoyal.net>
 
 from functools import partial
 
@@ -20,20 +16,21 @@ class TBDisplayedFields(DisplayedFields):
     def __init__(self, db, parent=None, category_icons=None):
         DisplayedFields.__init__(self, db, parent, category_icons=category_icons)
         from calibre.gui2.ui import get_gui
+
         self.gui = get_gui(fail_if_absent=True)
 
     def initialize(self, use_defaults=False, pref_data_override=None):
         from calibre.gui2.tag_browser.model import TagsModel
+
         tv = self.gui.tags_view
         model = tv.model()
         assert isinstance(model, TagsModel)
-        cat_ord = model.get_ordered_categories(use_defaults=use_defaults,
-                                               pref_data_override=pref_data_override)
+        cat_ord = model.get_ordered_categories(use_defaults=use_defaults, pref_data_override=pref_data_override)
         if use_defaults:
             hc = []
             self.changed = True
         elif pref_data_override:
-            hc = [k for k,v in pref_data_override if not v]
+            hc = [k for k, v in pref_data_override if not v]
             self.changed = True
         else:
             hc = tv.hidden_categories
@@ -44,12 +41,11 @@ class TBDisplayedFields(DisplayedFields):
 
     def commit(self):
         if self.changed:
-            self.db.prefs.set('tag_browser_hidden_categories', sorted(k for k,v in self.fields if not v))
-            self.db.prefs.set('tag_browser_category_order', [k for k,v in self.fields])
+            self.db.prefs.set('tag_browser_hidden_categories', sorted(k for k, v in self.fields if not v))
+            self.db.prefs.set('tag_browser_category_order', [k for k, v in self.fields])
 
 
 class TbDisplayTab(LazyConfigWidgetBase, Ui_Form):
-
     def genesis(self, gui):
         self.gui = gui
         r = self.register
@@ -66,8 +62,7 @@ class TbDisplayTab(LazyConfigWidgetBase, Ui_Form):
         r('show_notes_in_tag_browser', gprefs)
         r('icons_on_right_in_tag_browser', gprefs)
 
-        self.tb_display_model = TBDisplayedFields(self.gui.current_db, self.tb_display_order,
-                                  category_icons=self.gui.tags_view.model().category_custom_icons)
+        self.tb_display_model = TBDisplayedFields(self.gui.current_db, self.tb_display_order, category_icons=self.gui.tags_view.model().category_custom_icons)
         self.tb_display_model.dataChanged.connect(self.changed_signal)
         self.tb_display_order.setModel(self.tb_display_model)
         self.tb_reset_layout_button.clicked.connect(partial(reset_layout, self, model=self.tb_display_model))

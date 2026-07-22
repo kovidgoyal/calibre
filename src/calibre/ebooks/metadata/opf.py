@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
-
 from lxml import etree
 
 from calibre.ebooks.metadata import MetaInformation
@@ -11,7 +10,6 @@ from calibre.ebooks.metadata.utils import create_manifest_item, normalize_langua
 
 
 class DummyFile:
-
     def __init__(self, raw):
         self.raw = raw
 
@@ -46,8 +44,16 @@ def get_metadata(stream, ftype='epub'):
 
 
 def set_metadata_opf2(
-    root, cover_prefix, mi, opf_version,
-    cover_data=None, apply_null=False, update_timestamp=False, force_identifiers=False, add_missing_cover=True, ftype='epub',
+    root,
+    cover_prefix,
+    mi,
+    opf_version,
+    cover_data=None,
+    apply_null=False,
+    update_timestamp=False,
+    force_identifiers=False,
+    add_missing_cover=True,
+    ftype='epub',
 ):
     mi = MetaInformation(mi)
     for x in ('guide', 'toc', 'manifest', 'spine'):
@@ -64,7 +70,7 @@ def set_metadata_opf2(
     else:
         orig = opf.get_identifiers()
         orig.update(mi.get_identifiers())
-        opf.set_identifiers({k:v for k, v in orig.items() if k and v})
+        opf.set_identifiers({k: v for k, v in orig.items() if k and v})
     if update_timestamp and mi.timestamp is not None:
         opf.timestamp = mi.timestamp
     raster_cover = opf.raster_cover
@@ -96,26 +102,56 @@ def set_metadata_opf2(
 
 
 def set_metadata_opf3(
-    root, cover_prefix, mi, opf_version,
-    cover_data=None, apply_null=False, update_timestamp=False, force_identifiers=False, add_missing_cover=True, ftype='epub',
+    root,
+    cover_prefix,
+    mi,
+    opf_version,
+    cover_data=None,
+    apply_null=False,
+    update_timestamp=False,
+    force_identifiers=False,
+    add_missing_cover=True,
+    ftype='epub',
 ):
     raster_cover = apply_metadata(
-        root, mi, cover_prefix=cover_prefix, cover_data=cover_data,
-        apply_null=apply_null, update_timestamp=update_timestamp,
-        force_identifiers=force_identifiers, add_missing_cover=add_missing_cover)
+        root,
+        mi,
+        cover_prefix=cover_prefix,
+        cover_data=cover_data,
+        apply_null=apply_null,
+        update_timestamp=update_timestamp,
+        force_identifiers=force_identifiers,
+        add_missing_cover=add_missing_cover,
+    )
     return etree.tostring(root, encoding='utf-8'), raster_cover
 
 
 def set_metadata(
-    stream, mi, cover_prefix='', cover_data=None, apply_null=False, update_timestamp=False, force_identifiers=False, add_missing_cover=True, ftype='epub'
-    ):
+    stream,
+    mi,
+    cover_prefix='',
+    cover_data=None,
+    apply_null=False,
+    update_timestamp=False,
+    force_identifiers=False,
+    add_missing_cover=True,
+    ftype='epub',
+):
     if isinstance(stream, bytes):
         stream = DummyFile(stream)
     root = parse_opf(stream)
     ver = parse_opf_version(root.get('version'))
     f = set_metadata_opf2 if ver.major < 3 else set_metadata_opf3
     opfbytes, raster_cover = f(
-        root, cover_prefix, mi, ver, cover_data=cover_data, ftype=ftype,
-        apply_null=apply_null, update_timestamp=update_timestamp,
-        force_identifiers=force_identifiers, add_missing_cover=add_missing_cover)
+        root,
+        cover_prefix,
+        mi,
+        ver,
+        cover_data=cover_data,
+        ftype=ftype,
+        apply_null=apply_null,
+        update_timestamp=update_timestamp,
+        force_identifiers=force_identifiers,
+        add_missing_cover=add_missing_cover,
+    )
     return opfbytes, ver, raster_cover

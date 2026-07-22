@@ -1,8 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__ = 'GPL v3'
-__copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
+# License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
 from collections import namedtuple
 
@@ -16,12 +13,10 @@ class Dummy:
 
 
 Border = namedtuple('Border', 'css_style style width color level')
-border_style_weight = {
-    x:100-i for i, x in enumerate(('double', 'solid', 'dashed', 'dotted', 'ridge', 'outset', 'groove', 'inset'))}
+border_style_weight = {x: 100 - i for i, x in enumerate(('double', 'solid', 'dashed', 'dotted', 'ridge', 'outset', 'groove', 'inset'))}
 
 
 class SpannedCell:
-
     def __init__(self, spanning_cell, horizontal=True):
         self.spanning_cell = spanning_cell
         self.horizontal = horizontal
@@ -44,13 +39,17 @@ def read_css_block_borders(self, css):
     obj = Dummy()
     rcbb(obj, css, store_css_style=True)
     for edge in border_edges:
-        setattr(self, 'border_' + edge, Border(
-            getattr(obj, f'border_{edge}_css_style'),
-            getattr(obj, f'border_{edge}_style'),
-            getattr(obj, f'border_{edge}_width'),
-            getattr(obj, f'border_{edge}_color'),
-            self.BLEVEL
-        ))
+        setattr(
+            self,
+            'border_' + edge,
+            Border(
+                getattr(obj, f'border_{edge}_css_style'),
+                getattr(obj, f'border_{edge}_style'),
+                getattr(obj, f'border_{edge}_width'),
+                getattr(obj, f'border_{edge}_color'),
+                self.BLEVEL,
+            ),
+        )
         setattr(self, 'padding_' + edge, getattr(obj, 'padding_' + edge))
 
 
@@ -79,7 +78,6 @@ def convert_width(tag_style):
 
 
 class Cell:
-
     BLEVEL = 2
 
     def __init__(self, row, html_tag, tag_style=None):
@@ -97,7 +95,7 @@ class Cell:
         if tag_style is None:
             self.valign = 'center'
         else:
-            self.valign = {'top':'top', 'bottom':'bottom', 'middle':'center'}.get(tag_style._get('vertical-align'))
+            self.valign = {'top': 'top', 'bottom': 'bottom', 'middle': 'center'}.get(tag_style._get('vertical-align'))
         self.items = []
         self.width = convert_width(tag_style)
         self.background_color = None if tag_style is None else convert_color(tag_style.backgroundColor)
@@ -173,7 +171,7 @@ class Cell:
         neighbor = self.neighbor(edge)
         borders = self.applicable_borders(edge)
         if neighbor is not None:
-            nedge = {'left':'right', 'top':'bottom', 'right':'left', 'bottom':'top'}[edge]
+            nedge = {'left': 'right', 'top': 'bottom', 'right': 'left', 'bottom': 'top'}[edge]
             borders |= neighbor.applicable_borders(nedge)
 
         for b in borders:
@@ -185,33 +183,34 @@ class Cell:
                 0 if border.css_style == 'none' else 1,
                 border.width,
                 border_style_weight.get(border.css_style, 0),
-                border.level)
+                border.level,
+            )
+
         border = sorted(borders, key=weight)[-1]
         return border
 
     def resolve_borders(self):
-        self.borders = {edge:self.resolve_border(edge) for edge in border_edges}
+        self.borders = {edge: self.resolve_border(edge) for edge in border_edges}
 
     def neighbor(self, edge):
         idx = self.row.cells.index(self)
         ans = None
         if edge == 'left':
-            ans = self.row.cells[idx-1] if idx > 0 else None
+            ans = self.row.cells[idx - 1] if idx > 0 else None
         elif edge == 'right':
-            ans = self.row.cells[idx+1] if (idx + 1) < len(self.row.cells) else None
+            ans = self.row.cells[idx + 1] if (idx + 1) < len(self.row.cells) else None
         elif edge == 'top':
             ridx = self.table.rows.index(self.row)
-            if ridx > 0 and idx < len(self.table.rows[ridx-1].cells):
-                ans = self.table.rows[ridx-1].cells[idx]
+            if ridx > 0 and idx < len(self.table.rows[ridx - 1].cells):
+                ans = self.table.rows[ridx - 1].cells[idx]
         elif edge == 'bottom':
             ridx = self.table.rows.index(self.row)
-            if ridx + 1 < len(self.table.rows) and idx < len(self.table.rows[ridx+1].cells):
-                ans = self.table.rows[ridx+1].cells[idx]
+            if ridx + 1 < len(self.table.rows) and idx < len(self.table.rows[ridx + 1].cells):
+                ans = self.table.rows[ridx + 1].cells[idx]
         return getattr(ans, 'spanning_cell', ans)
 
 
 class Row:
-
     BLEVEL = 1
 
     def __init__(self, table, html_tag, tag_style=None):
@@ -258,7 +257,6 @@ class Row:
 
 
 class Table:
-
     BLEVEL = 0
 
     def __init__(self, namespace, html_tag, tag_style=None):
@@ -308,14 +306,14 @@ class Table:
         for row in self.rows:
             for cell in tuple(row.cells):
                 idx = row.cells.index(cell)
-                if cell.col_span > 1 and (cell is row.cells[-1] or not isinstance(row.cells[idx+1], SpannedCell)):
-                    row.cells[idx:idx+1] = [cell] + [SpannedCell(cell, horizontal=True) for i in range(1, cell.col_span)]
+                if cell.col_span > 1 and (cell is row.cells[-1] or not isinstance(row.cells[idx + 1], SpannedCell)):
+                    row.cells[idx : idx + 1] = [cell] + [SpannedCell(cell, horizontal=True) for i in range(1, cell.col_span)]
 
         # Expand vertically
         for r, row in enumerate(self.rows):
             for idx, cell in enumerate(row.cells):
                 if cell.row_span > 1:
-                    for nrow in self.rows[r+1:]:
+                    for nrow in self.rows[r + 1 :]:
                         sc = SpannedCell(cell, horizontal=False)
                         try:
                             tcell = nrow.cells[idx]
@@ -360,12 +358,12 @@ class Table:
         tblPr = makeelement(tbl, 'w:tblPr')
         makeelement(tblPr, 'w:tblW', w_type=self.width[0], w_w=str(self.width[1]))
         if self.float in {'left', 'right'}:
-            kw = {'w_vertAnchor':'text', 'w_horzAnchor':'text', 'w_tblpXSpec':self.float}
+            kw = {'w_vertAnchor': 'text', 'w_horzAnchor': 'text', 'w_tblpXSpec': self.float}
             for edge in border_edges:
                 val = getattr(self, 'margin_' + edge) or 0
                 if {self.float, edge} == {'left', 'right'}:
                     val = max(val, 2)
-                kw['w_' + edge + 'FromText'] = str(max(0, int(val *20)))
+                kw['w_' + edge + 'FromText'] = str(max(0, int(val * 20)))
             makeelement(tblPr, 'w:tblpPr', **kw)
         if self.jc is not None:
             makeelement(tblPr, 'w:jc', w_val=self.jc)

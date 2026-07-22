@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
-
 from calibre.utils.img import blend_on_canvas, image_from_data, image_to_data, scale_image
 
 
@@ -16,7 +15,7 @@ def rescale_image(data, scale_news_images, compress_news_images_max_size, compre
     if compress_news_images_max_size is None:
         if compress_news_images_auto_size is None:  # not compressing
             return data
-        maxsizeb = (orig_w * orig_h)/compress_news_images_auto_size
+        maxsizeb = (orig_w * orig_h) / compress_news_images_auto_size
     else:
         maxsizeb = compress_news_images_max_size * 1024
 
@@ -48,5 +47,6 @@ def prepare_masthead_image(path_to_image, out_path, mi_width, mi_height):
 
 if __name__ == '__main__':
     import sys
+
     data = sys.stdin.read()
     sys.stdout.write(rescale_image(data, (768, 1024), None, 8))

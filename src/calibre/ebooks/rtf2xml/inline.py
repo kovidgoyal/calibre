@@ -20,17 +20,19 @@ States.
 
 
 class Inline:
-    '''
+    """
     Make inline tags within lists.
     Logic:
-    '''
+    """
 
-    def __init__(self,
-            in_file,
-            bug_handler,
-            copy=None,
-            run_level=1,):
-        '''
+    def __init__(
+        self,
+        in_file,
+        bug_handler,
+        copy=None,
+        run_level=1,
+    ):
+        """
         Required:
             'file'--file to parse
         Optional:
@@ -39,7 +41,7 @@ class Inline:
             directory from which the script is run.)
         Returns:
             nothing
-        '''
+        """
         self.__file = in_file
         self.__bug_handler = bug_handler
         self.__copy = copy
@@ -47,37 +49,37 @@ class Inline:
         self.__write_to = better_mktemp()
 
     def __initiate_values(self):
-        '''
+        """
         Initiate all values.
-        '''
+        """
         self.__state_dict = {
-            'default'           : self.__default_func,
+            'default': self.__default_func,
             'after_open_bracket': self.__after_open_bracket_func,
         }
         self.__default_dict = {
-            'ob<nu<open-brack'  : self.__found_open_bracket_func,
-            'tx<nu<__________'  : self.__found_text_func,
-            'tx<hx<__________'  : self.__found_text_func,
-            'tx<ut<__________'  : self.__found_text_func,
-            'mi<mk<inline-fld'  : self.__found_text_func,
-            'text'              : self.__found_text_func,
-            'cb<nu<clos-brack'  : self.__close_bracket_func,
-            'mi<mk<par-end___'  : self.__end_para_func,
-            'mi<mk<footnt-ope'  : self.__end_para_func,
-            'mi<mk<footnt-ind'  : self.__end_para_func,
+            'ob<nu<open-brack': self.__found_open_bracket_func,
+            'tx<nu<__________': self.__found_text_func,
+            'tx<hx<__________': self.__found_text_func,
+            'tx<ut<__________': self.__found_text_func,
+            'mi<mk<inline-fld': self.__found_text_func,
+            'text': self.__found_text_func,
+            'cb<nu<clos-brack': self.__close_bracket_func,
+            'mi<mk<par-end___': self.__end_para_func,
+            'mi<mk<footnt-ope': self.__end_para_func,
+            'mi<mk<footnt-ind': self.__end_para_func,
         }
         self.__after_open_bracket_dict = {
-            'cb<nu<clos-brack'  : self.__close_bracket_func,
-            'tx<nu<__________'  : self.__found_text_func,
-            'tx<hx<__________'  : self.__found_text_func,
-            'tx<ut<__________'  : self.__found_text_func,
-            'text'              : self.__found_text_func,
-            'mi<mk<inline-fld'  : self.__found_text_func,
-            'ob<nu<open-brack'  : self.__found_open_bracket_func,
-            'mi<mk<par-end___'  : self.__end_para_func,
-            'mi<mk<footnt-ope'  : self.__end_para_func,
-            'mi<mk<footnt-ind'  : self.__end_para_func,
-            'cw<fd<field_____'  : self.__found_field_func,
+            'cb<nu<clos-brack': self.__close_bracket_func,
+            'tx<nu<__________': self.__found_text_func,
+            'tx<hx<__________': self.__found_text_func,
+            'tx<ut<__________': self.__found_text_func,
+            'text': self.__found_text_func,
+            'mi<mk<inline-fld': self.__found_text_func,
+            'ob<nu<open-brack': self.__found_open_bracket_func,
+            'mi<mk<par-end___': self.__end_para_func,
+            'mi<mk<footnt-ope': self.__end_para_func,
+            'mi<mk<footnt-ind': self.__end_para_func,
+            'cw<fd<field_____': self.__found_field_func,
         }
         self.__state = 'default'
         self.__brac_count = 0  # do I need this?
@@ -91,42 +93,42 @@ class Inline:
         self.__in_para = 0  # not in paragraph
         self.__char_dict = {
             # character info => ci
-            'annotation':   'annotation',
-            'blue______':   'blue',
-            'bold______':   'bold',
-            'caps______':   'caps',
-            'char-style':   'character-style',
-            'dbl-strike':   'double-strike-through',
-            'emboss____':   'emboss',
-            'engrave___':   'engrave',
-            'font-color':   'font-color',
-            'font-down_':   'subscript',
-            'font-size_':   'font-size',
-            'font-style':   'font-style',
-            'font-up___':   'superscript',
-            'footnot-mk':   'footnote-marker',
-            'green_____':   'green',
-            'hidden____':   'hidden',
-            'italics___':   'italics',
-            'outline___':   'outline',
-            'red_______':   'red',
-            'shadow____':   'shadow',
-            'small-caps':   'small-caps',
-            'strike-thr':   'strike-through',
-            'subscript_':   'subscript',
-            'superscrip':   'superscript',
-            'underlined':   'underlined',
+            'annotation': 'annotation',
+            'blue______': 'blue',
+            'bold______': 'bold',
+            'caps______': 'caps',
+            'char-style': 'character-style',
+            'dbl-strike': 'double-strike-through',
+            'emboss____': 'emboss',
+            'engrave___': 'engrave',
+            'font-color': 'font-color',
+            'font-down_': 'subscript',
+            'font-size_': 'font-size',
+            'font-style': 'font-style',
+            'font-up___': 'superscript',
+            'footnot-mk': 'footnote-marker',
+            'green_____': 'green',
+            'hidden____': 'hidden',
+            'italics___': 'italics',
+            'outline___': 'outline',
+            'red_______': 'red',
+            'shadow____': 'shadow',
+            'small-caps': 'small-caps',
+            'strike-thr': 'strike-through',
+            'subscript_': 'subscript',
+            'superscrip': 'superscript',
+            'underlined': 'underlined',
         }
         self.__caps_list = ['false']
 
     def __set_list_func(self, line):
-        '''
+        """
         Requires:
             line--line of text
         Returns:
             nothing
         Logic:
-        '''
+        """
         if self.__place == 'in_list':
             if self.__token_info == 'mi<mk<lst-tx-end':
                 self.__place = 'not_in_list'
@@ -138,28 +140,28 @@ class Inline:
             self.__groups_in_waiting = self.__groups_in_waiting_list
 
     def __default_func(self, line):
-        '''
+        """
         Requires:
             line-- line of text
         Returns:
             nothing
         Logic:
             Write if not hardline break
-        '''
+        """
         action = self.__default_dict.get(self.__token_info)
         if action:
             action(line)
         self.__write_obj.write(line)
 
     def __found_open_bracket_func(self, line):
-        '''
+        """
         Requires:
             line -- current line of text
         Returns:
             nothing
         Logic:
             Change the state to 'after_open_bracket'
-        '''
+        """
         self.__state = 'after_open_bracket'
         self.__brac_count += 1
         self.__groups_in_waiting[0] += 1
@@ -167,7 +169,7 @@ class Inline:
         self.__inline_list[-1]['contains_inline'] = 0
 
     def __after_open_bracket_func(self, line):
-        '''
+        """
         Requires:
             line --line of text
         Returns:
@@ -177,7 +179,7 @@ class Inline:
             method to add to the dictionary.
             Use the dictionary to get the appropriate function.
             Always print out the line.
-        '''
+        """
         if line[0:5] == 'cw<ci':  # calibre: bug in original function no diff between cw<ci and cw<pf
             self.__handle_control_word(line)
         else:
@@ -188,7 +190,7 @@ class Inline:
         self.__write_obj.write(line)
 
     def __handle_control_word(self, line):
-        '''
+        """
         Required:
             line --line of text
         Returns:
@@ -199,7 +201,7 @@ class Inline:
             If the font style of Symbol, Wingdings, or Dingbats is found,
             always mark this. I need this later to convert the text to
             the right utf.
-        '''
+        """
         # cw<ci<shadow_____<nu<true
         # self.__char_dict = {
         char_info = line[6:16]
@@ -217,7 +219,7 @@ class Inline:
             #         self.__write_obj.write('mi<mk<font-dingb\n')
 
     def __close_bracket_func(self, line):
-        '''
+        """
         Requires:
             line --line of text
         Returns:
@@ -227,7 +229,7 @@ class Inline:
             Get the keys of the last dictionary in the inline_groups.
             If 'contains_inline' in the keys, write a close tag.
             If the_dict contains font information, write a mk tag.
-        '''
+        """
         if len(self.__inline_list) == 0:
             # nothing to add
             return
@@ -235,16 +237,14 @@ class Inline:
         the_keys = the_dict.keys()
         # always close out
         if self.__place == 'in_list':
-            if 'contains_inline' in the_keys and the_dict['contains_inline'] == 1\
-                and self.__groups_in_waiting[0] == 0:
+            if 'contains_inline' in the_keys and the_dict['contains_inline'] == 1 and self.__groups_in_waiting[0] == 0:
                 self.__write_obj.write('mi<tg<close_____<inline\n')
                 if 'font-style' in the_keys:
                     self.__write_obj.write('mi<mk<font-end__\n')
                 if 'caps' in the_keys:
                     self.__write_obj.write('mi<mk<caps-end__\n')
         # close out only if in a paragraph
-        elif 'contains_inline' in the_keys and the_dict['contains_inline'] == 1\
-            and self.__in_para and self.__groups_in_waiting[0] == 0:
+        elif 'contains_inline' in the_keys and the_dict['contains_inline'] == 1 and self.__in_para and self.__groups_in_waiting[0] == 0:
             self.__write_obj.write('mi<tg<close_____<inline\n')
             if 'font-style' in the_keys:
                 self.__write_obj.write('mi<mk<font-end__\n')
@@ -255,7 +255,7 @@ class Inline:
             self.__groups_in_waiting[0] -= 1
 
     def __found_text_func(self, line):
-        '''
+        """
         Required:
             line--line of text
         Return:
@@ -267,7 +267,7 @@ class Inline:
                 Text can mark the start of a paragraph.
                 If already in a paragraph, check to see if any groups are waiting
                 to be added. If so, use another method to write these groups.
-        '''
+        """
         if self.__place == 'in_list':
             self.__write_inline()
         elif not self.__in_para:
@@ -321,7 +321,7 @@ class Inline:
         self.__groups_in_waiting[0] = 0
 
     def __end_para_func(self, line):
-        '''
+        """
         Requires:
             line -- line of text
         Returns:
@@ -330,7 +330,7 @@ class Inline:
             Slice from the end the groups in waiting.
             Iterate through the list. If the dictionary contaings info, write
             a closing tag.
-        '''
+        """
         if not self.__in_para:
             return
         if self.__groups_in_waiting[0] == 0:
@@ -350,7 +350,7 @@ class Inline:
         self.__in_para = 0
 
     def __start_para_func(self, line):
-        '''
+        """
         Requires:
             line -- line of text
         Returns:
@@ -359,7 +359,7 @@ class Inline:
             Iterate through the self.__inline_list to get each dict.
             If the dict containst inline info, get the keys.
             Iterate through the keys and print out the key and value.
-        '''
+        """
         for the_dict in self.__inline_list:
             contains_info = the_dict.get('contains_inline')
             if contains_info:
@@ -378,14 +378,14 @@ class Inline:
         self.__groups_in_waiting[0] = 0
 
     def __found_field_func(self, line):
-        '''
+        """
         Just a default function to make sure I don't prematurely exit
         default state
-        '''
+        """
         pass
 
     def form_tags(self):
-        '''
+        """
         Requires:
             area--area to parse (list or non-list)
         Returns:
@@ -393,7 +393,7 @@ class Inline:
         Logic:
             Read one line in at a time. Determine what action to take based on
             the state.
-        '''
+        """
         self.__initiate_values()
         with open_for_read(self.__file) as read_obj:
             with open_for_write(self.__write_to) as self.__write_obj:

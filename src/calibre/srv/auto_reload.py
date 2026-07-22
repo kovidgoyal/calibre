@@ -1,8 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__ = 'GPL v3'
-__copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
+# License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
 import errno
 import os
@@ -36,7 +33,6 @@ class NoAutoReload(EnvironmentError):
 
 
 class WatcherBase:
-
     EXTENSIONS_TO_WATCH = frozenset('py pyj svg js css'.split())
     BOUNCE_INTERVAL = 2  # seconds
 
@@ -73,7 +69,6 @@ if islinux:
     from calibre.utils.inotify import INotifyTreeWatcher
 
     class Watcher(WatcherBase):
-
         def __init__(self, root_dirs, worker, log):
             WatcherBase.__init__(self, worker, log)
             self.client_sock, self.srv_sock = create_sock_pair()
@@ -106,7 +101,6 @@ elif iswindows:
     from calibre_extensions import winutil
 
     class TreeWatcher(Thread):
-
         def __init__(self, path_to_watch, modified_queue):
             Thread.__init__(self, name='TreeWatcher', daemon=True)
             self.modified_queue = modified_queue
@@ -126,14 +120,15 @@ elif iswindows:
                 while True:
                     try:
                         results = winutil.read_directory_changes(
-                            dir_handle, buffer,
+                            dir_handle,
+                            buffer,
                             True,  # Watch sub-directories as well
-                            winutil.FILE_NOTIFY_CHANGE_FILE_NAME |
-                            winutil.FILE_NOTIFY_CHANGE_DIR_NAME |
-                            winutil.FILE_NOTIFY_CHANGE_ATTRIBUTES |
-                            winutil.FILE_NOTIFY_CHANGE_SIZE |
-                            winutil.FILE_NOTIFY_CHANGE_LAST_WRITE |
-                            winutil.FILE_NOTIFY_CHANGE_SECURITY,
+                            winutil.FILE_NOTIFY_CHANGE_FILE_NAME
+                            | winutil.FILE_NOTIFY_CHANGE_DIR_NAME
+                            | winutil.FILE_NOTIFY_CHANGE_ATTRIBUTES
+                            | winutil.FILE_NOTIFY_CHANGE_SIZE
+                            | winutil.FILE_NOTIFY_CHANGE_LAST_WRITE
+                            | winutil.FILE_NOTIFY_CHANGE_SECURITY,
                         )
                         for action, filename in results:
                             if WatcherBase.file_is_watched(filename):
@@ -142,10 +137,10 @@ elif iswindows:
                         pass  # the buffer overflowed, there are unknown changes
             except Exception:
                 import traceback
+
                 traceback.print_exc()
 
     class Watcher(WatcherBase):
-
         def __init__(self, root_dirs, worker, log):
             WatcherBase.__init__(self, worker, log)
             self.watchers = []
@@ -173,7 +168,6 @@ elif ismacos:
     from fsevents import Observer, Stream  # type: ignore
 
     class Watcher(WatcherBase):
-
         def __init__(self, root_dirs, worker, log):
             WatcherBase.__init__(self, worker, log)
             self.stream = Stream(self.notify, *root_dirs, file_events=True)
@@ -215,6 +209,7 @@ def find_dirs_to_watch(fpath, dirs, add_default_dirs):
     def add(x):
         if os.path.isdir(x):
             dirs.add(x)
+
     if add_default_dirs:
         d = os.path.dirname
         srv = d(fpath)
@@ -225,6 +220,8 @@ def find_dirs_to_watch(fpath, dirs, add_default_dirs):
         add(os.path.join(base, 'src', 'pyj'))
         add(os.path.join(base, 'imgsrc', 'srv'))
     return dirs
+
+
 # }}}
 
 
@@ -237,7 +234,6 @@ def join_process(p, timeout=5):
 
 
 class Worker:
-
     def __init__(self, cmd, log, server, timeout=5):
         self.cmd = cmd
         self.log = log
@@ -252,7 +248,7 @@ class Worker:
             except ValueError:
                 cmd = ['srv']
             else:
-                cmd = ['srv'] + cmd[idx+1:]
+                cmd = ['srv'] + cmd[idx + 1 :]
 
         opts = create_option_parser().parse_args(cmd)[0]
         self.port = opts.port
@@ -289,6 +285,7 @@ class Worker:
 
     def restart(self, forced=False):
         from calibre.utils.rapydscript import CompileFailure, compile_srv
+
         self.clean_kill()
         if forced:
             self.retry_count += 1
@@ -338,8 +335,8 @@ class Worker:
 
 # WebSocket reload notifier {{{
 
-class ReloadHandler(DummyHandler):
 
+class ReloadHandler(DummyHandler):
     def __init__(self, *args, **kw):
         DummyHandler.__init__(self, *args, **kw)
         self.connections = {}
@@ -369,7 +366,6 @@ class ReloadHandler(DummyHandler):
 
 
 class ReloadServer(Thread):
-
     daemon = True
 
     def __init__(self, listen_on):
@@ -377,7 +373,8 @@ class ReloadServer(Thread):
         self.reload_handler = ReloadHandler()
         self.loop = ServerLoop(
             create_http_handler(websocket_handler=self.reload_handler),
-            opts=Options(shutdown_timeout=0.1, listen_on=(listen_on or '127.0.0.1'), port=0))
+            opts=Options(shutdown_timeout=0.1, listen_on=(listen_on or '127.0.0.1'), port=0),
+        )
         self.loop.LISTENING_MSG = None
         self.notify_reload = self.reload_handler.notify_reload
         self.ping = self.reload_handler.ping
@@ -400,6 +397,8 @@ class ReloadServer(Thread):
     def __exit__(self, *args):
         self.loop.stop()
         self.join(self.loop.opts.shutdown_timeout)
+
+
 # }}}
 
 

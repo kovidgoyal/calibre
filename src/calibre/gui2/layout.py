@@ -1,9 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__   = 'GPL v3'
-__copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2010, Kovid Goyal <kovid@kovidgoyal.net>
 
 from functools import partial
 from typing import TYPE_CHECKING
@@ -40,7 +36,6 @@ if TYPE_CHECKING:
 
 
 class LocationManager(QObject):  # {{{
-
     locations_changed = pyqtSignal()
     unmount_device = pyqtSignal()
     location_selected = pyqtSignal(object)
@@ -97,17 +92,12 @@ class LocationManager(QObject):  # {{{
             self.all_actions.append(ac)
             return ac
 
-        self.library_action = self.location_library = ac(
-                'library', _('Library'), 'lt.png', _('Show books in calibre library'))
-        self.location_main = ac(
-                'main', _('Device'), 'reader.png', _('Show books in the main memory of the device'))
-        self.location_carda = ac(
-                'carda', _('Card A'), 'sd.png', _('Show books in storage card A'))
-        self.location_cardb = ac(
-                'cardb', _('Card B'), 'sd.png', _('Show books in storage card B'))
+        self.library_action = self.location_library = ac('library', _('Library'), 'lt.png', _('Show books in calibre library'))
+        self.location_main = ac('main', _('Device'), 'reader.png', _('Show books in the main memory of the device'))
+        self.location_carda = ac('carda', _('Card A'), 'sd.png', _('Show books in storage card A'))
+        self.location_cardb = ac('cardb', _('Card B'), 'sd.png', _('Show books in storage card B'))
 
-    def set_switch_actions(self, quick_actions, rename_actions, delete_actions,
-            switch_actions, choose_action):
+    def set_switch_actions(self, quick_actions, rename_actions, delete_actions, switch_actions, choose_action):
         self.switch_menu = self.library_action.menu()
         if self.switch_menu:
             self.switch_menu.addSeparator()
@@ -116,9 +106,11 @@ class LocationManager(QObject):  # {{{
 
         self.switch_menu.addAction(choose_action)
         self.cs_menus = []
-        for t, acs in [(_('Quick switch'), quick_actions),
-                (_('Rename library'), rename_actions),
-                (_('Delete library'), delete_actions)]:
+        for t, acs in [
+            (_('Quick switch'), quick_actions),
+            (_('Rename library'), rename_actions),
+            (_('Delete library'), delete_actions),
+        ]:
             if acs:
                 self.cs_menus.append(QMenu(t))
                 for ac in acs:
@@ -132,11 +124,10 @@ class LocationManager(QObject):  # {{{
             self.library_action.setMenu(self.switch_menu)
 
     def _location_selected(self, location, *args):
-        if location != self.current_location and hasattr(self,
-                'location_'+location):
+        if location != self.current_location and hasattr(self, 'location_' + location):
             self.current_location = location
             self.location_selected.emit(location)
-            getattr(self, 'location_'+location).setChecked(True)
+            getattr(self, 'location_' + location).setChecked(True)
 
     def _eject_requested(self, *args):
         self.unmount_device.emit()
@@ -171,7 +162,7 @@ class LocationManager(QObject):  # {{{
             t = self.tooltips[loc]
             if self.free[i] > -1:
                 t += f'\n\n{human_readable(self.free[i])} ' + _('available')
-            ac = getattr(self, 'location_'+loc)
+            ac = getattr(self, 'location_' + loc)
             ac.setToolTip(t)
             ac.setWhatsThis(t)
             ac.setStatusTip(t)
@@ -185,8 +176,9 @@ class LocationManager(QObject):  # {{{
         ans = [self.location_library]
         for i, loc in enumerate(('main', 'carda', 'cardb')):
             if self.free[i] > -1:
-                ans.append(getattr(self, 'location_'+loc))
+                ans.append(getattr(self, 'location_' + loc))
         return ans
+
 
 # }}}
 
@@ -194,6 +186,7 @@ class LocationManager(QObject):  # {{{
 def search_as_url(text):
     if text:
         from calibre.gui2.ui import get_gui
+
         db = get_gui(fail_if_absent=True).current_db
         lid = db.new_api.server_library_id
         lid = lid.encode('utf-8').hex()
@@ -207,7 +200,6 @@ def search_as_url(text):
 
 
 class SearchBar(QFrame):  # {{{
-
     def __init__(self, parent: Main):
         QFrame.__init__(self, parent)
         self.setFrameStyle(QFrame.Shape.NoFrame)
@@ -257,8 +249,12 @@ class SearchBar(QFrame):  # {{{
         gb.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
         gb.setToolTip(_('Change how the displayed books are grouped'))
         parent.keyboard.register_shortcut(
-            'show group by menu', _('Show the Group by menu for grouping books in the Bookshelf view'),
-            action=ac, group=_('Main window layout'), default_keys=())
+            'show group by menu',
+            _('Show the Group by menu for grouping books in the Bookshelf view'),
+            action=ac,
+            group=_('Main window layout'),
+            default_keys=(),
+        )
         gb.setCursor(Qt.CursorShape.PointingHandCursor)
         gb.setPopupMode(QToolButton.ToolButtonPopupMode.InstantPopup)
         gb.setAutoRaise(True)
@@ -274,8 +270,7 @@ class SearchBar(QFrame):  # {{{
         x = parent.search = SearchBox2(self, as_url=search_as_url)
         x.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
         x.setObjectName('search')
-        x.setToolTip(_('<p>Search the list of books by title, author, publisher, '
-                       'tags, comments, etc.<br><br>Words separated by spaces are ANDed'))
+        x.setToolTip(_('<p>Search the list of books by title, author, publisher, tags, comments, etc.<br><br>Words separated by spaces are ANDed'))
         x.setMinimumContentsLength(10)
         l.addWidget(x)
 
@@ -286,9 +281,7 @@ class SearchBar(QFrame):  # {{{
         parent.advanced_search_toggle_action = ac = parent.search.add_action('gear.png', QLineEdit.ActionPosition.LeadingPosition)
         parent.addAction(ac)
         ac.setToolTip(_('Advanced search'))
-        parent.keyboard.register_shortcut('advanced search toggle',
-                _('Advanced search'), default_keys=('Shift+Ctrl+F',),
-                action=ac)
+        parent.keyboard.register_shortcut('advanced search toggle', _('Advanced search'), default_keys=('Shift+Ctrl+F',), action=ac)
 
         # This error icon will be placed after the clear button icon
         parent.search.parse_error_action = ac = parent.search.add_action('dialog_error.png', QLineEdit.ActionPosition.TrailingPosition)
@@ -303,11 +296,9 @@ class SearchBar(QFrame):  # {{{
         self.search_button.setAutoRaise(True)
         self.search_button.setCursor(Qt.CursorShape.PointingHandCursor)
         l.addWidget(self.search_button)
-        self.search_button.setSizePolicy(QSizePolicy.Policy.Minimum,
-                QSizePolicy.Policy.Minimum)
+        self.search_button.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Minimum)
         self.search_button.clicked.connect(parent.do_search_button)
-        self.search_button.setToolTip(
-            _('Do quick search (you can also press the Enter key)'))
+        self.search_button.setToolTip(_('Do quick search (you can also press the Enter key)'))
 
         x = parent.highlight_only_button = QToolButton(self)
         x.setAutoRaise(True)
@@ -322,10 +313,12 @@ class SearchBar(QFrame):  # {{{
 
     def populate_sort_menu(self):
         from calibre.gui2.ui import get_gui
+
         get_gui(fail_if_absent=True).iactions['Sort By'].update_menu(self.sort_button.menu())
 
     def populate_group_by_menu(self):
         from calibre.gui2.ui import get_gui
+
         m = self.group_by_button.menu()
         assert m is not None
         get_gui(fail_if_absent=True).bookshelf_view.populate_group_by_menu(m)
@@ -336,23 +329,25 @@ class SearchBar(QFrame):  # {{{
 
     def do_fts(self):
         from calibre.gui2.ui import get_gui
+
         get_gui(fail_if_absent=True).iactions['Full Text Search'].show_fts()
+
 
 # }}}
 
 
 class Spacer(QWidget):  # {{{
-
     def __init__(self, parent):
         QWidget.__init__(self, parent)
         self.l = QHBoxLayout()
         self.setLayout(self.l)
         self.l.addStretch(10)
+
+
 # }}}
 
 
 class MainWindowMixin:  # {{{
-
     virtual_library: QToolButton
     clear_vl: QToolButton
     sort_button: QToolButton
@@ -377,8 +372,7 @@ class MainWindowMixin:  # {{{
 
         self.iactions['Fetch News'].init_scheduler()
 
-        self.bars_manager = BarsManager(self.donate_action,
-                self.location_manager, self)
+        self.bars_manager = BarsManager(self.donate_action, self.location_manager, self)
         # instantiating SearchBar must happen after setting bars manager
         self.search_bar = SearchBar(self)
         for bar in self.bars_manager.main_bars:
@@ -423,4 +417,6 @@ class MainWindowMixin:  # {{{
         if self.bars_manager.search_tool_bar.has_sort_by_button:
             show = False
         self.sort_button.setVisible(show)
+
+
 # }}}

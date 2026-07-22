@@ -355,6 +355,50 @@ get_appearance(PyObject *self, PyObject *args) {
 }
 
 
+static PyObject*
+airdrop_share(PyObject *self, PyObject *args) {
+    (void)self;
+    Py_ssize_t num = PyTuple_GET_SIZE(args);
+    if (num < 1) {
+        PyErr_SetString(PyExc_TypeError, "must specify at least one file to share");
+        return NULL;
+    }
+
+    @autoreleasepool {
+        NSMutableArray *items = [NSMutableArray arrayWithCapacity:num];
+        for (Py_ssize_t i = 0; i < num; i++) {
+            PyObject *pypath = PyTuple_GET_ITEM(args, i);
+            if (!PyUnicode_Check(pypath)) {
+                PyErr_SetString(PyExc_TypeError, "paths must be strings");
+                return NULL;
+            }
+            const char *path = PyUnicode_AsUTF8(pypath);
+            if (!path) return NULL;
+            NSURL *url = [NSURL fileURLWithPath:@(path)];
+            if (!url) {
+                PyErr_Format(PyExc_ValueError, "invalid path: %s", path);
+                return NULL;
+            }
+            [items addObject:url];
+        }
+
+        NSSharingService *service = [NSSharingService sharingServiceNamed:NSSharingServiceNameSendViaAirDrop];
+        if (!service) {
+            PyErr_SetString(PyExc_OSError, "AirDrop service not available on this system");
+            return NULL;
+        }
+
+        if (![service canPerformWithItems:items]) {
+            PyErr_SetString(PyExc_OSError, "AirDrop cannot share the specified files");
+            return NULL;
+        }
+
+        [service performWithItems:items];
+    }
+    Py_RETURN_NONE;
+}
+
+
 static PyMethodDef module_methods[] = {
     {"close_finder_window", (PyCFunction)close_finder_window, METH_VARARGS, "close_finder_window(name) -> None -- Close a Finder window whose title matches name."},
     {"get_appearance", (PyCFunction)get_appearance, METH_VARARGS, ""},
@@ -371,6 +415,7 @@ static PyMethodDef module_methods[] = {
     {"locale_names", (PyCFunction)locale_names, METH_VARARGS, ""},
     {"create_io_pm_assertion", (PyCFunction)create_io_pm_assertion, METH_VARARGS, ""},
     {"release_io_pm_assertion", (PyCFunction)release_io_pm_assertion, METH_VARARGS, ""},
+    {"airdrop_share", (PyCFunction)airdrop_share, METH_VARARGS, "airdrop_share(*paths) -> None -- Share the specified files via AirDrop."},
     {NULL, NULL, 0, NULL}        /* Sentinel */
 };
 

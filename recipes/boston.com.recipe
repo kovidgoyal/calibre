@@ -17,8 +17,7 @@ oldest_article = 1  # days, includes articles that were published no more than t
 
 def classes(classes):
     q = frozenset(classes.split(' '))
-    return dict(attrs={
-        'class': lambda x: x and frozenset(x.split()).intersection(q)})
+    return dict(attrs={'class': lambda x: x and frozenset(x.split()).intersection(q)})
 
 
 def class_as_string(x):
@@ -59,7 +58,7 @@ comics_to_fetch = {
     'RHYMES WITH ORANGE': 'kfrwo',
     # "ROSE IS ROSE": 'rr',
     # "ZIPPY THE PINHEAD": 'kfzpy',
-    'ZITS': 'kfzt'
+    'ZITS': 'kfzt',
 }
 
 
@@ -67,7 +66,7 @@ def extract_json(raw_html):
     idx = raw_html.find('Fusion.contentCache={')
     close_idx = raw_html.find('</script>', idx)
     raw = raw_html[idx:close_idx]
-    raw = raw[raw.find('{'):]
+    raw = raw[raw.find('{') :]
     idx = raw.find(';Fusion')
     raw = raw[:idx]
     # open('/t/raw.html', 'w').write(raw)
@@ -105,7 +104,7 @@ def parse_section(raw_html):
                 url = absolutize_url(elem['canonical_url'])
             except KeyError:
                 continue
-            yield {'title': title, 'url': url, 'description': description, 'date': ' '  + str(date.date())}
+            yield {'title': title, 'url': url, 'description': description, 'date': ' ' + str(date.date())}
 
 
 def main():
@@ -119,7 +118,6 @@ def main():
 
 
 class BostonGlobeSubscription(BasicNewsRecipe):
-
     title = 'Boston Globe'
     __author__ = 'Kovid Goyal'
     description = 'The Boston Globe'
@@ -128,12 +126,8 @@ class BostonGlobeSubscription(BasicNewsRecipe):
     keep_only_tags = [
         class_startswith('headline |', 'subheader |', 'byline |', 'image |', 'lead |', 'body |', 'comic-debug'),
     ]
-    remove_tags = [
-        classes('inline-newsletter ad skip-nav article-footer sharebar arc_ad'),
-        dict(id='continue_button'),
-        dict(name=['meta', 'link'])
-    ]
-    remove_tags_after = dict(attrs={'class': lambda x:x and x.startswith('body |')})
+    remove_tags = [classes('inline-newsletter ad skip-nav article-footer sharebar arc_ad'), dict(id='continue_button'), dict(name=['meta', 'link'])]
+    remove_tags_after = dict(attrs={'class': lambda x: x and x.startswith('body |')})
     remove_attributes = ['style']
     no_stylesheets = True
     scale_news_images = 1600, 1200
@@ -152,13 +146,13 @@ class BostonGlobeSubscription(BasicNewsRecipe):
                 self.log(pprint.pformat(articles))
                 feeds.append((sec.capitalize(), articles))
                 if self.test:
-                    del articles[self.test[1]:]
+                    del articles[self.test[1] :]
                     if len(feeds) >= self.test[0]:
                         break
 
         articles = []
         for title, slug in comics_to_fetch.items():
-            articles.append({'title':title, 'url':'https://www.bostonglobe.com/games-comics/comics/{}/'.format(slug)})
+            articles.append({'title': title, 'url': 'https://www.bostonglobe.com/games-comics/comics/{}/'.format(slug)})
         if articles:
             feeds.append(('Comics', articles))
         return feeds

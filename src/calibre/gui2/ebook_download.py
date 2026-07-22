@@ -1,6 +1,4 @@
-__license__ = 'GPL 3'
-__copyright__ = '2011, John Schember <john@nachtimwald.com>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2011, John Schember <john@nachtimwald.com>
 
 import os
 import shutil
@@ -26,13 +24,14 @@ if TYPE_CHECKING:
 
 
 class DownloadInfo(MessageBox):
-
     def __init__(self, filename, parent=None):
         MessageBox.__init__(
-            self, MessageBox.INFO, _('Downloading book'), _(
-                'The book {0} will be downloaded and added to your'
-                ' calibre library automatically.').format(filename),
-            show_copy_button=False, parent=parent
+            self,
+            MessageBox.INFO,
+            _('Downloading book'),
+            _('The book {0} will be downloaded and added to your calibre library automatically.').format(filename),
+            show_copy_button=False,
+            parent=parent,
         )
         self.toggle_checkbox.setChecked(True)
         self.toggle_checkbox.setVisible(True)
@@ -82,9 +81,20 @@ def download_file(url, cookie_file=None, filename=None, create_browser=None):
 
 
 class EbookDownload:
-
-    def __call__(self, gui, cookie_file=None, url='', filename='', save_loc='', add_to_lib=True, tags=[], create_browser=None,
-                 log=None, abort=None, notifications=None):
+    def __call__(
+        self,
+        gui,
+        cookie_file=None,
+        url='',
+        filename='',
+        save_loc='',
+        add_to_lib=True,
+        tags=[],
+        create_browser=None,
+        log=None,
+        abort=None,
+        notifications=None,
+    ):
         dfilename = ''
         try:
             dfilename = self._download(cookie_file, url, filename, save_loc, add_to_lib, create_browser)
@@ -124,10 +134,12 @@ class EbookDownload:
             db = gui.current_db
             if gprefs.get('tag_map_on_add_rules'):
                 from calibre.ebooks.metadata.tag_mapper import map_tags
+
                 mi.tags = map_tags(mi.tags, gprefs['tag_map_on_add_rules'])
             if gprefs.get('author_map_on_add_rules'):
                 from calibre.ebooks.metadata.author_mapper import compile_rules as acr
                 from calibre.ebooks.metadata.author_mapper import map_authors
+
                 author_map_rules = acr(gprefs['author_map_on_add_rules'])
                 new_authors = map_authors(mi.authors, author_map_rules)
                 if new_authors != mi.authors:
@@ -147,21 +159,49 @@ class EbookDownload:
 gui_ebook_download = EbookDownload()
 
 
-def start_ebook_download(callback, job_manager, gui, cookie_file=None, url='', filename='', save_loc='', add_to_lib=True, tags=[], create_browser=None):
+def start_ebook_download(
+    callback,
+    job_manager,
+    gui,
+    cookie_file=None,
+    url='',
+    filename='',
+    save_loc='',
+    add_to_lib=True,
+    tags=[],
+    create_browser=None,
+):
     description = _('Downloading %s') % as_unicode(filename or url, errors='replace')
-    job = ThreadedJob('ebook_download', description, gui_ebook_download, (
-        gui, cookie_file, url, filename, save_loc, add_to_lib, tags, create_browser), {},
-                      callback, max_concurrent_count=2, killable=False)
+    job = ThreadedJob(
+        'ebook_download',
+        description,
+        gui_ebook_download,
+        (gui, cookie_file, url, filename, save_loc, add_to_lib, tags, create_browser),
+        {},
+        callback,
+        max_concurrent_count=2,
+        killable=False,
+    )
     job_manager.run_threaded_job(job)
 
 
 class EbookDownloadMixin:
-
     def download_ebook(self: Main, url='', cookie_file=None, filename='', save_loc='', add_to_lib=True, tags=[], create_browser=None):
         if tags:
             if isinstance(tags, (str, bytes)):
                 tags = tags.split(',')
-        start_ebook_download(Dispatcher(self.downloaded_ebook), self.job_manager, self, cookie_file, url, filename, save_loc, add_to_lib, tags, create_browser)
+        start_ebook_download(
+            Dispatcher(self.downloaded_ebook),
+            self.job_manager,
+            self,
+            cookie_file,
+            url,
+            filename,
+            save_loc,
+            add_to_lib,
+            tags,
+            create_browser,
+        )
         self.status_bar.show_message(_('Downloading') + ' ' + as_unicode(filename or url, errors='replace'), 3000)
 
     def downloaded_ebook(self: Main, job):

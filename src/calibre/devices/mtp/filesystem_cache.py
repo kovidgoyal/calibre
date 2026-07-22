@@ -1,9 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__   = 'GPL v3'
-__copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2012, Kovid Goyal <kovid at kovidgoyal.net>
 
 import json
 import sys
@@ -35,7 +31,6 @@ def convert_timestamp(md):
 
 
 class ListEntry:
-
     def __init__(self, entry: FileOrFolder):
         self.is_dir = entry.is_folder
         self.is_readonly = not entry.can_delete
@@ -46,7 +41,6 @@ class ListEntry:
 
 
 class FileOrFolder:
-
     def __init__(self, entry, fs_cache: FilesystemCache, is_storage: bool = False):
         self.object_id = entry['id']
         self.is_storage = is_storage
@@ -95,8 +89,7 @@ class FileOrFolder:
             self.storage_prefix = f'mtp:::{self.persistent_id}:::'
 
         # Ignore non ebook files and AppleDouble files
-        self.is_ebook = (not self.is_folder and not self.is_storage and
-                self.name.rpartition('.')[-1].lower() in bexts and not self.name.startswith('._'))
+        self.is_ebook = not self.is_folder and not self.is_storage and self.name.rpartition('.')[-1].lower() in bexts and not self.name.startswith('._')
 
         # allow Kindle Scribe notebooks to be imported and preserve the notebook name
         if self.name == 'nbk' and not (self.is_folder or self.is_storage):
@@ -116,7 +109,7 @@ class FileOrFolder:
             path = ''
         datum = f'size={self.size}'
         if self.is_folder or self.is_storage:
-            datum = f'children={len(self.files)+len(self.folders)}'
+            datum = f'children={len(self.files) + len(self.folders)}'
         return f'{name}(id={self.object_id}, storage_id={self.storage_id}, {datum}, path={path}, modified={self.last_mod_string})'
 
     __str__ = __repr__
@@ -185,14 +178,13 @@ class FileOrFolder:
 
     def dump(self, prefix='', out=sys.stdout):
         c = '+' if self.is_folder else '-'
-        data = (f'{sum(map(len, (self.files, self.folders)))} children'
-            if self.is_folder else human_readable(self.size))
+        data = f'{sum(map(len, (self.files, self.folders)))} children' if self.is_folder else human_readable(self.size)
         data += f' modified={self.last_mod_string}'
         line = f'{prefix}{c} {self.name} [id:{self.object_id} {data}]'
         prints(line, file=out)
         for c in (self.folders, self.files):
             for e in sorted(c, key=lambda x: sort_key(x.name)):
-                e.dump(prefix=prefix+'  ', out=out)
+                e.dump(prefix=prefix + '  ', out=out)
 
     def list(self, recurse=False):
         if not self.is_folder:
@@ -220,11 +212,11 @@ class FileOrFolder:
         return None
 
     def find_path(self, path):
-        '''
+        """
         Find a path in this folder, where path is a
         tuple of folder and file names like ('eBooks', 'newest',
         'calibre.epub'). Finding is case-insensitive.
-        '''
+        """
         parent = self
         components = list(path)
         while components:
@@ -248,7 +240,6 @@ class FileOrFolder:
 
 
 class FilesystemCache:
-
     def __init__(self, all_storage, entries):
         self.entries = []
         self.id_maps = defaultdict(dict)

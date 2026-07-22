@@ -4,7 +4,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class AdvancedUserRecipe1283848012(BasicNewsRecipe):
     description = 'This is Globes.co.il.'
     cover_url = 'https://images.globes.co.il/globes/logo-138-35-2.svg?ver=1'
-    title = u'Globes'
+    title = 'Globes'
     language = 'he'
     __author__ = 'marbs & barakplasma'
     extra_css = 'img {max-width:100%;} body{direction: rtl;max-width:100%;}title{direction: rtl; } article_description{direction: rtl; }, a.article{direction: rtl;max-width:100%;} calibre_feed_description{direction: rtl; }'  # noqa: E501
@@ -21,21 +21,21 @@ class AdvancedUserRecipe1283848012(BasicNewsRecipe):
     remove_attributes = ['width', 'style']
 
     feeds = [
-        (u'עידכוני RSS ', u'https://www.globes.co.il/webservice/rss/rssfeeder.asmx/FeederNode?iID=3038'),
-        (u'כל הכתבות', u'https://www.globes.co.il/webservice/rss/rssfeeder.asmx/FeederNode?iID=2'),
-        (u'שוק ההון', u'https://www.globes.co.il/webservice/rss/rssfeeder.asmx/FeederNode?iID=585'),
-        (u'בארץ', u'https://www.globes.co.il/webservice/rss/rssfeeder.asmx/FeederNode?iID=9917'),
-        (u'גלובלי ושוקי עולם', u'https://www.globes.co.il/webservice/rss/rssfeeder.asmx/FeederNode?iID=1225'),
-        (u'גלובסטק', u'https://www.globes.co.il/webservice/rss/rssfeeder.asmx/FeederNode?iID=594'),
-        (u'דין וחשבון', u'https://www.globes.co.il/webservice/rss/rssfeeder.asmx/FeederNode?iID=829'),
-        (u'דעות', u'https://www.globes.co.il/webservice/rss/rssfeeder.asmx/FeederNode?iID=845'),
-        (u'וידאו', u'https://www.globes.co.il/webservice/rss/rssfeeder.asmx/FeederNode?iID=2007'),
-        (u'ליידי גלובס', u'https://www.globes.co.il/webservice/rss/rssfeeder.asmx/FeederNode?iID=3314'),
-        (u'מגזין G', u'https://www.globes.co.il/webservice/rss/rssfeeder.asmx/FeederNode?iID=3312'),
-        (u'nadlan', u'https://www.globes.co.il/webservice/rss/rssfeeder.asmx/FeederNode?iID=607'),
-        (u'נתח שוק וצרכנות', u'https://www.globes.co.il/webservice/rss/rssfeeder.asmx/FeederNode?iID=821'),
-        (u'מטבעות דיגיטליים', u'https://www.globes.co.il/webservice/rss/rssfeeder.asmx/FeederNode?iID=9758'),
-        (u'קריירה', u'https://www.globes.co.il/webservice/rss/rssfeeder.asmx/FeederNode?iid=3266'),
-        (u'תיירות', u'https://www.globes.co.il/webservice/rss/rssfeeder.asmx/FeederNode?iid=9010'),
-        (u'רכב', u'https://www.globes.co.il/webservice/rss/rssfeeder.asmx/FeederNode?iID=3220')
+        ('עידכוני RSS ', 'https://www.globes.co.il/webservice/rss/rssfeeder.asmx/FeederNode?iID=3038'),
+        ('כל הכתבות', 'https://www.globes.co.il/webservice/rss/rssfeeder.asmx/FeederNode?iID=2'),
+        ('שוק ההון', 'https://www.globes.co.il/webservice/rss/rssfeeder.asmx/FeederNode?iID=585'),
+        ('בארץ', 'https://www.globes.co.il/webservice/rss/rssfeeder.asmx/FeederNode?iID=9917'),
+        ('גלובלי ושוקי עולם', 'https://www.globes.co.il/webservice/rss/rssfeeder.asmx/FeederNode?iID=1225'),
+        ('גלובסטק', 'https://www.globes.co.il/webservice/rss/rssfeeder.asmx/FeederNode?iID=594'),
+        ('דין וחשבון', 'https://www.globes.co.il/webservice/rss/rssfeeder.asmx/FeederNode?iID=829'),
+        ('דעות', 'https://www.globes.co.il/webservice/rss/rssfeeder.asmx/FeederNode?iID=845'),
+        ('וידאו', 'https://www.globes.co.il/webservice/rss/rssfeeder.asmx/FeederNode?iID=2007'),
+        ('ליידי גלובס', 'https://www.globes.co.il/webservice/rss/rssfeeder.asmx/FeederNode?iID=3314'),
+        ('מגזין G', 'https://www.globes.co.il/webservice/rss/rssfeeder.asmx/FeederNode?iID=3312'),
+        ('nadlan', 'https://www.globes.co.il/webservice/rss/rssfeeder.asmx/FeederNode?iID=607'),
+        ('נתח שוק וצרכנות', 'https://www.globes.co.il/webservice/rss/rssfeeder.asmx/FeederNode?iID=821'),
+        ('מטבעות דיגיטליים', 'https://www.globes.co.il/webservice/rss/rssfeeder.asmx/FeederNode?iID=9758'),
+        ('קריירה', 'https://www.globes.co.il/webservice/rss/rssfeeder.asmx/FeederNode?iid=3266'),
+        ('תיירות', 'https://www.globes.co.il/webservice/rss/rssfeeder.asmx/FeederNode?iid=9010'),
+        ('רכב', 'https://www.globes.co.il/webservice/rss/rssfeeder.asmx/FeederNode?iID=3220'),
     ]

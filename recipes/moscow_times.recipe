@@ -23,10 +23,10 @@ class Moscowtimes(BasicNewsRecipe):
     auto_cleanup = True
 
     feeds = [
-        (u'Top Stories', u'https://themoscowtimes.com/feeds/main.xml'),
-        (u'Moscow', u'https://themoscowtimes.com/feeds/moscow.xml'),
-        (u'Russia', u'https://themoscowtimes.com/feeds/russia.xml'),
-        (u'World', u'https://themoscowtimes.com/feeds/world.xml'),
-        (u'Business', u'https://themoscowtimes.com/feeds/business.xml'),
-        (u'Opinion', u'https://themoscowtimes.com/feeds/opinion.xml')
+        ('Top Stories', 'https://themoscowtimes.com/feeds/main.xml'),
+        ('Moscow', 'https://themoscowtimes.com/feeds/moscow.xml'),
+        ('Russia', 'https://themoscowtimes.com/feeds/russia.xml'),
+        ('World', 'https://themoscowtimes.com/feeds/world.xml'),
+        ('Business', 'https://themoscowtimes.com/feeds/business.xml'),
+        ('Opinion', 'https://themoscowtimes.com/feeds/opinion.xml'),
     ]

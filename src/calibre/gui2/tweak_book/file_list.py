@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2013, Kovid Goyal <kovid at kovidgoyal.net>
 
-
 import os
 import posixpath
 import sys
@@ -108,20 +107,27 @@ def name_is_ok(name, show_error):
     return True
 
 
-def get_bulk_rename_settings(parent, number, msg=None, sanitize=sanitize_file_name,
-        leading_zeros=True, prefix=None, category='text', allow_spine_order=False):  # {{{
+def get_bulk_rename_settings(
+    parent,
+    number,
+    msg=None,
+    sanitize=sanitize_file_name,
+    leading_zeros=True,
+    prefix=None,
+    category='text',
+    allow_spine_order=False,
+):  # {{{
     d = QDialog(parent)
     d.setWindowTitle(_('Bulk rename items'))
     l = QFormLayout(d)
     d.setLayout(l)
     p = QLineEdit(d)
-    default_prefix = {k:v for k, __, v in category_defs()}.get(category, _('Chapter-'))
+    default_prefix = {k: v for k, __, v in category_defs()}.get(category, _('Chapter-'))
     previous = tprefs.get('file-list-bulk-rename-prefix', {})
     prefix = prefix or previous.get(category, default_prefix)
     p.setText(prefix)
     p.selectAll()
-    la = QLabel(msg or _(
-        'All selected files will be renamed to the form prefix-number'))
+    la = QLabel(msg or _('All selected files will be renamed to the form prefix-number'))
     l.addRow(la)
     l.addRow(_('&Prefix:'), p)
     spinbox = QSpinBox(d)
@@ -130,8 +136,9 @@ def get_bulk_rename_settings(parent, number, msg=None, sanitize=sanitize_file_na
     spine_order_cb = None
     if allow_spine_order:
         spine_order_cb = QCheckBox(_('Rename files according to their book order'))
-        spine_order_cb.setToolTip(textwrap.fill(_(
-            'Rename the selected files according to the order they appear in the book, instead of the order they were selected in.')))
+        spine_order_cb.setToolTip(
+            textwrap.fill(_('Rename the selected files according to the order they appear in the book, instead of the order they were selected in.'))
+        )
         l.addRow(spine_order_cb)
     bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)
     bb.accepted.connect(d.accept), bb.rejected.connect(d.reject)
@@ -152,11 +159,12 @@ def get_bulk_rename_settings(parent, number, msg=None, sanitize=sanitize_file_na
         if allow_spine_order and spine_order_cb is not None:
             ans['spine_order'] = spine_order_cb.isChecked()
     return ans
+
+
 # }}}
 
 
 class ItemDelegate(QStyledItemDelegate):  # {{{
-
     rename_requested = pyqtSignal(object, object, object)
 
     def setEditorData(self, editor, index):
@@ -174,7 +182,7 @@ class ItemDelegate(QStyledItemDelegate):  # {{{
         if slash_pos == -1 and ext_pos > 0:
             editor.setSelection(0, ext_pos)
         elif ext_pos > -1 and slash_pos > -1 and ext_pos > slash_pos + 1:
-            editor.setSelection(slash_pos+1, ext_pos - slash_pos - 1)
+            editor.setSelection(slash_pos + 1, ext_pos - slash_pos - 1)
         else:
             editor.selectAll()
 
@@ -209,7 +217,7 @@ class ItemDelegate(QStyledItemDelegate):  # {{{
                 suffix = f'{NBSP}{count}@{total_size}'
             else:
                 suffix = NBSP + human_readable(safe_size(index))
-            br = painter.boundingRect(option.rect, Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignVCenter, suffix)
+            br = painter.boundingRect(option.rect, Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter, suffix)
         if top_level and index.row() > 0:
             option.rect.adjust(0, 5, 0, 0)
             painter.drawLine(option.rect.topLeft(), option.rect.topRight())
@@ -219,14 +227,16 @@ class ItemDelegate(QStyledItemDelegate):  # {{{
         QStyledItemDelegate.paint(self, painter, option, index)
         if hover:
             option.rect.adjust(0, 0, br.width(), 0)
-            painter.drawText(option.rect, Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignVCenter, suffix)
+            painter.drawText(option.rect, Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter, suffix)
+
+
 # }}}
 
 
 class OpenWithHandler:  # {{{
-
     def add_open_with_actions(self, menu, file_name):
         from calibre.gui2.open_with import edit_programs, populate_menu
+
         fmt = file_name.rpartition('.')[-1].lower()
         if not fmt:
             return
@@ -247,17 +257,19 @@ class OpenWithHandler:  # {{{
 
     def choose_open_with(self, file_name, fmt):
         from calibre.gui2.open_with import choose_program
+
         entry = choose_program(fmt, self)
         if entry is not None:
             self.open_with(file_name, fmt, entry)
 
     def open_with(self, file_name, fmt, entry):
         raise NotImplementedError()
+
+
 # }}}
 
 
 class FileList(QTreeWidget, OpenWithHandler):
-
     delete_requested = pyqtSignal(object, object)
     reorder_spine = pyqtSignal(object)
     rename_requested = pyqtSignal(object, object)
@@ -297,7 +309,7 @@ class FileList(QTreeWidget, OpenWithHandler):
         self.setDropIndicatorShown(True)
         self.setDragDropMode(QAbstractItemView.DragDropMode.InternalMove)
         self.setAutoScroll(True)
-        self.setAutoScrollMargin(TOP_ICON_SIZE*2)
+        self.setAutoScrollMargin(TOP_ICON_SIZE * 2)
         self.setDefaultDropAction(Qt.DropAction.MoveAction)
         self.setAutoExpandDelay(1000)
         self.setAnimated(True)
@@ -311,12 +323,13 @@ class FileList(QTreeWidget, OpenWithHandler):
         self.top_level_pixmap_cache = {
             name: QIcon.ic(icon).pixmap(TOP_ICON_SIZE, TOP_ICON_SIZE)
             for name, icon in {
-                'text':'keyboard-prefs.png',
-                'styles':'lookfeel.png',
-                'fonts':'font.png',
-                'misc':'mimetypes/dir.png',
-                'images':'view-image.png',
-            }.items()}
+                'text': 'keyboard-prefs.png',
+                'styles': 'lookfeel.png',
+                'fonts': 'font.png',
+                'misc': 'mimetypes/dir.png',
+                'images': 'view-image.png',
+            }.items()
+        }
         self.itemActivated.connect(self.item_double_clicked)
 
     def possible_rename_requested(self, index, old, new):
@@ -380,7 +393,7 @@ class FileList(QTreeWidget, OpenWithHandler):
 
     def handle_merge_drop(self, target_node, names):
         category_node = target_node.parent()
-        current_order = {category_node.child(i).data(0, NAME_ROLE):i for i in range(category_node.childCount())}
+        current_order = {category_node.child(i).data(0, NAME_ROLE): i for i in range(category_node.childCount())}
         names = sorted(names, key=lambda x: current_order.get(x, -1))
         target_name = target_node.data(0, NAME_ROLE)
         if len(names) == 1:
@@ -394,7 +407,7 @@ class FileList(QTreeWidget, OpenWithHandler):
 
     def handle_reorder_drop(self, category_node, idx, names):
         current_order = tuple(category_node.child(i).data(0, NAME_ROLE) for i in range(category_node.childCount()))
-        linear_map = {category_node.child(i).data(0, NAME_ROLE):category_node.child(i).data(0, LINEAR_ROLE) for i in range(category_node.childCount())}
+        linear_map = {category_node.child(i).data(0, NAME_ROLE): category_node.child(i).data(0, LINEAR_ROLE) for i in range(category_node.childCount())}
         order_map = {name: i for i, name in enumerate(current_order)}
         try:
             insert_before = current_order[idx]
@@ -415,7 +428,7 @@ class FileList(QTreeWidget, OpenWithHandler):
         # Ensure that all non-linear items are at the end, by making any non-linear
         # items not at the end, linear
         for i, (name, linear) in tuple(enumerate(order)):
-            if not linear and i < len(order) - 1 and order[i+1][1]:
+            if not linear and i < len(order) - 1 and order[i + 1][1]:
                 order[i][1] = True
         self.reorder_spine.emit(order)
 
@@ -435,7 +448,7 @@ class FileList(QTreeWidget, OpenWithHandler):
     def get_state(self):
         vsb = self.verticalScrollBar()
         assert vsb is not None
-        s = {'pos':vsb.value()}
+        s = {'pos': vsb.value()}
         s['expanded'] = {c for c, item in self.categories.items() if item.isExpanded()}
         s['selected'] = {str(i.data(0, NAME_ROLE) or '') for i in self.selectedItems()}
         return s
@@ -585,12 +598,12 @@ class FileList(QTreeWidget, OpenWithHandler):
                 if num == 1:
                     icon = self.rendered_emblem_cache[emblems] = QIcon(pixmaps[0])
                 else:
-                    canvas = QPixmap((num * w) + ((num-1)*2), h)
+                    canvas = QPixmap((num * w) + ((num - 1) * 2), h)
                     canvas.setDevicePixelRatio(pixmaps[0].devicePixelRatio())
                     canvas.fill(Qt.GlobalColor.transparent)
                     painter = QPainter(canvas)
                     for i, pm in enumerate(pixmaps):
-                        painter.drawPixmap(int(i * (w + 2)/canvas.devicePixelRatio()), 0, pm)
+                        painter.drawPixmap(int(i * (w + 2) / canvas.devicePixelRatio()), 0, pm)
                     painter.end()
                     icon = self.rendered_emblem_cache[emblems] = canvas
             item.setData(0, Qt.ItemDataRole.DecorationRole, icon)
@@ -602,7 +615,7 @@ class FileList(QTreeWidget, OpenWithHandler):
         def create_item(name, linear=None):
             imt = container.mime_map.get(name, guess_type(name))
             icat = get_category(name, imt)
-            category = 'text' if linear is not None else ({'text':'misc'}.get(icat, icat))
+            category = 'text' if linear is not None else ({'text': 'misc'}.get(icat, icat))
             item = QTreeWidgetItem(self.categories['text' if linear is not None else category], 1)
             flags = Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsSelectable
             if category == 'text':
@@ -757,12 +770,25 @@ class FileList(QTreeWidget, OpenWithHandler):
             m.addSeparator()
             if num > 1:
                 m.addAction(QIcon.ic('modified.png'), _('&Bulk rename the selected files'), self.request_bulk_rename)
-            m.addAction(QIcon.ic('modified.png'), _('Change the file extensions for the selected files'), self.request_change_ext)
-            m.addAction(QIcon.ic('trash.png'), ngettext(
-                '&Delete the selected file', '&Delete the {} selected files', num).format(num), self.request_delete)
-            m.addAction(QIcon.ic('edit-copy.png'), ngettext(
-                '&Copy the selected file to another editor instance',
-                '&Copy the {} selected files to another editor instance', num).format(num), self.copy_selected_files)
+            m.addAction(
+                QIcon.ic('modified.png'),
+                _('Change the file extensions for the selected files'),
+                self.request_change_ext,
+            )
+            m.addAction(
+                QIcon.ic('trash.png'),
+                ngettext('&Delete the selected file', '&Delete the {} selected files', num).format(num),
+                self.request_delete,
+            )
+            m.addAction(
+                QIcon.ic('edit-copy.png'),
+                ngettext(
+                    '&Copy the selected file to another editor instance',
+                    '&Copy the {} selected files to another editor instance',
+                    num,
+                ).format(num),
+                self.copy_selected_files,
+            )
             m.addSeparator()
         _cb = qapplication_or_fail().clipboard()
         assert _cb is not None
@@ -770,11 +796,16 @@ class FileList(QTreeWidget, OpenWithHandler):
         assert md is not None
         if md.hasUrls() and md.hasFormat(FILE_COPY_MIME):
             import json
+
             name_map = json.loads(bytes(md.data(FILE_COPY_MIME)))
-            m.addAction(ngettext(
-                _('Paste file from other editor instance'),
-                _('Paste {} files from other editor instance'),
-                len(name_map)).format(len(name_map)), self.paste_from_other_instance)
+            m.addAction(
+                ngettext(
+                    _('Paste file from other editor instance'),
+                    _('Paste {} files from other editor instance'),
+                    len(name_map),
+                ).format(len(name_map)),
+                self.paste_from_other_instance,
+            )
 
         selected_map = defaultdict(list)
         for item in sel:
@@ -784,16 +815,29 @@ class FileList(QTreeWidget, OpenWithHandler):
             items.sort(key=self.index_of_name)
 
         if selected_map['text']:
-            m.addAction(QIcon.ic('format-text-color.png'), _('Link &stylesheets...'), partial(self.link_stylesheets, selected_map['text']))
+            m.addAction(
+                QIcon.ic('format-text-color.png'),
+                _('Link &stylesheets...'),
+                partial(self.link_stylesheets, selected_map['text']),
+            )
 
         if len(selected_map['text']) > 1:
-            m.addAction(QIcon.ic('merge.png'), _('&Merge selected text files'), partial(self.start_merge, 'text', selected_map['text']))
+            m.addAction(
+                QIcon.ic('merge.png'),
+                _('&Merge selected text files'),
+                partial(self.start_merge, 'text', selected_map['text']),
+            )
         if len(selected_map['styles']) > 1:
-            m.addAction(QIcon.ic('merge.png'), _('&Merge selected style files'), partial(self.start_merge, 'styles', selected_map['styles']))
+            m.addAction(
+                QIcon.ic('merge.png'),
+                _('&Merge selected style files'),
+                partial(self.start_merge, 'styles', selected_map['styles']),
+            )
         return m
 
     def choose_open_with(self, file_name, fmt):
         from calibre.gui2.open_with import choose_program
+
         entry = choose_program(fmt, self)
         if entry is not None:
             self.open_with(file_name, fmt, entry)
@@ -822,8 +866,12 @@ class FileList(QTreeWidget, OpenWithHandler):
         elif len(selected_map['styles']) > 1:
             self.start_merge('styles', selected_map['styles'])
         else:
-            error_dialog(self, _('Cannot merge'), _(
-                'No files selected. Select two or more HTML files or two or more CSS files in the Files browser before trying to merge'), show=True)
+            error_dialog(
+                self,
+                _('Cannot merge'),
+                _('No files selected. Select two or more HTML files or two or more CSS files in the Files browser before trying to merge'),
+                show=True,
+            )
 
     def start_merge(self, category, names):
         d = MergeDialog(names, self)
@@ -832,10 +880,17 @@ class FileList(QTreeWidget, OpenWithHandler):
 
     def edit_current_item(self):
         if not current_container().SUPPORTS_FILENAMES:
-            error_dialog(self, _('Cannot rename'), _(
-                '%s books do not support file renaming as they do not use file names'
-                ' internally. The filenames you see are automatically generated from the'
-                ' internal structures of the original file.') % current_container().book_type.upper(), show=True)
+            error_dialog(
+                self,
+                _('Cannot rename'),
+                _(
+                    '%s books do not support file renaming as they do not use file names'
+                    ' internally. The filenames you see are automatically generated from the'
+                    ' internal structures of the original file.'
+                )
+                % current_container().book_type.upper(),
+                show=True,
+            )
             return
         if self.currentItem() is not None:
             self.editItem(self.currentItem())
@@ -847,12 +902,13 @@ class FileList(QTreeWidget, OpenWithHandler):
         first = str(self.categories['text'].child(0).data(0, NAME_ROLE) or '') == name
         move_to_start = False
         if not first:
-            move_to_start = question_dialog(self, _('Not first item'), _(
-                '%s is not the first text item. You should only mark the'
-                ' first text item as cover. Do you want to make it the'
-                ' first item?') % elided_text(name),
+            move_to_start = question_dialog(
+                self,
+                _('Not first item'),
+                _('%s is not the first text item. You should only mark the first text item as cover. Do you want to make it the first item?')
+                % elided_text(name),
                 skip_dialog_name='edit-book-mark-as-titlepage-move-confirm',
-                skip_dialog_skip_precheck=False
+                skip_dialog_skip_precheck=False,
             )
         self.mark_requested.emit(name, f'titlepage:{move_to_start!r}')
 
@@ -862,15 +918,20 @@ class FileList(QTreeWidget, OpenWithHandler):
     def keyPressEvent(self, event):
         k = event.key()
         mods = event.modifiers() & (
-            Qt.KeyboardModifier.ShiftModifier | Qt.KeyboardModifier.AltModifier | Qt.KeyboardModifier.ControlModifier | Qt.KeyboardModifier.MetaModifier)
+            Qt.KeyboardModifier.ShiftModifier | Qt.KeyboardModifier.AltModifier | Qt.KeyboardModifier.ControlModifier | Qt.KeyboardModifier.MetaModifier
+        )
         if k in (Qt.Key.Key_Delete, Qt.Key.Key_Backspace):
             event.accept()
             self.request_delete()
         elif mods == (Qt.KeyboardModifier.ControlModifier | Qt.KeyboardModifier.ShiftModifier):
             m = self.categories['text'].childCount()
             amt = {
-                Qt.Key.Key_Up: -1, Qt.Key.Key_Down: 1, Qt.Key.Key_Home: -m, Qt.Key.Key_End: m,
-                Qt.Key.Key_Left: -m, Qt.Key.Key_Right: m
+                Qt.Key.Key_Up: -1,
+                Qt.Key.Key_Down: 1,
+                Qt.Key.Key_Home: -m,
+                Qt.Key.Key_End: m,
+                Qt.Key.Key_Left: -m,
+                Qt.Key.Key_Right: m,
             }.get(k)
             if amt is not None:
                 event.accept()
@@ -882,16 +943,27 @@ class FileList(QTreeWidget, OpenWithHandler):
 
     def request_rename_common(self):
         if not current_container().SUPPORTS_FILENAMES:
-            error_dialog(self, _('Cannot rename'), _(
-                '%s books do not support file renaming as they do not use file names'
-                ' internally. The filenames you see are automatically generated from the'
-                ' internal structures of the original file.') % current_container().book_type.upper(), show=True)
+            error_dialog(
+                self,
+                _('Cannot rename'),
+                _(
+                    '%s books do not support file renaming as they do not use file names'
+                    ' internally. The filenames you see are automatically generated from the'
+                    ' internal structures of the original file.'
+                )
+                % current_container().book_type.upper(),
+                show=True,
+            )
             return
         names = {str(item.data(0, NAME_ROLE) or '') for item in self.selectedItems()}
         bad = names & current_container().names_that_must_not_be_changed
         if bad:
-            error_dialog(self, _('Cannot rename'),
-                         _('The file(s) %s cannot be renamed.') % ('<b>{}</b>'.format(', '.join(bad))), show=True)
+            error_dialog(
+                self,
+                _('Cannot rename'),
+                _('The file(s) %s cannot be renamed.') % ('<b>{}</b>'.format(', '.join(bad))),
+                show=True,
+            )
             return
         names = sorted(names, key=self.index_of_name)
         return names
@@ -903,20 +975,23 @@ class FileList(QTreeWidget, OpenWithHandler):
             settings = get_bulk_rename_settings(self, len(names), category=categories.most_common(1)[0][0], allow_spine_order=True)
             fmt, num = settings['prefix'], settings['start']
             if fmt is not None:
+
                 def change_name(name, num):
                     parts = name.split('/')
                     base, ext = parts[-1].rpartition('.')[0::2]
                     parts[-1] = (fmt % num) + '.' + ext
                     return '/'.join(parts)
+
                 if settings['spine_order']:
                     order_map = get_spine_order_for_all_files(current_container())
-                    select_map = {n:i for i, n in enumerate(names)}
+                    select_map = {n: i for i, n in enumerate(names)}
 
                     def key(n):
                         return order_map.get(n, (sys.maxsize, select_map[n]))
+
                     name_map = {n: change_name(n, num + i) for i, n in enumerate(sorted(names, key=key))}
                 else:
-                    name_map = {n:change_name(n, num + i) for i, n in enumerate(names)}
+                    name_map = {n: change_name(n, num + i) for i, n in enumerate(names)}
                 self.bulk_rename_requested.emit(name_map)
 
     def request_change_ext(self):
@@ -929,7 +1004,8 @@ class FileList(QTreeWidget, OpenWithHandler):
                 def change_name(name):
                     base = posixpath.splitext(name)[0]
                     return base + '.' + ext
-                name_map = {n:change_name(n) for n in names}
+
+                name_map = {n: change_name(n) for n in names}
                 self.bulk_rename_requested.emit(name_map)
 
     @property
@@ -960,7 +1036,7 @@ class FileList(QTreeWidget, OpenWithHandler):
         if not selected_names or amt == 0:
             return False
         current_order = tuple(c.data(0, NAME_ROLE) for c in children)
-        linear_map = {c.data(0, NAME_ROLE):c.data(0, LINEAR_ROLE) for c in children}
+        linear_map = {c.data(0, NAME_ROLE): c.data(0, LINEAR_ROLE) for c in children}
         order_map = {name: i for i, name in enumerate(current_order)}
         new_order = list(current_order)
         changed = False
@@ -992,14 +1068,17 @@ class FileList(QTreeWidget, OpenWithHandler):
         names = self.selected_names
         bad = names & current_container().names_that_must_not_be_removed
         if bad:
-            return error_dialog(self, _('Cannot delete'),
-                         _('The file(s) %s cannot be deleted.') % ('<b>{}</b>'.format(', '.join(bad))), show=True)
+            return error_dialog(
+                self,
+                _('Cannot delete'),
+                _('The file(s) %s cannot be deleted.') % ('<b>{}</b>'.format(', '.join(bad))),
+                show=True,
+            )
 
         text = self.categories['text']
         children = (text.child(i) for i in range(text.childCount()))
         spine_removals = [(str(item.data(0, NAME_ROLE) or ''), item.isSelected()) for item in children]
-        other_removals = {str(item.data(0, NAME_ROLE) or '') for item in self.selectedItems()
-                          if str(item.data(0, CATEGORY_ROLE) or '') != 'text'}
+        other_removals = {str(item.data(0, NAME_ROLE) or '') for item in self.selectedItems() if str(item.data(0, CATEGORY_ROLE) or '') != 'text'}
         self.delete_requested.emit(spine_removals, other_removals)
 
     def delete_done(self, spine_removals, other_removals):
@@ -1016,7 +1095,7 @@ class FileList(QTreeWidget, OpenWithHandler):
 
         # The sorting by index is necessary otherwise Qt crashes with recursive
         # repaint detected message
-        for c in sorted(removals, key=lambda x:x.parent().indexOfChild(x), reverse=True):
+        for c in sorted(removals, key=lambda x: x.parent().indexOfChild(x), reverse=True):
             sip.delete(c)
 
         # A bug in the raster paint engine on linux causes a crash if the scrollbar
@@ -1037,7 +1116,7 @@ class FileList(QTreeWidget, OpenWithHandler):
     def selectedIndexes(self):
         ans = QTreeWidget.selectedIndexes(self)
         if self.ordered_selected_indexes:
-            ans = list(sorted(ans, key=lambda idx:idx.row()))
+            ans = list(sorted(ans, key=lambda idx: idx.row()))
         return ans
 
     def item_double_clicked(self, item, column):
@@ -1049,7 +1128,7 @@ class FileList(QTreeWidget, OpenWithHandler):
         category = str(item.data(0, CATEGORY_ROLE) or '')
         mime = str(item.data(0, MIME_ROLE) or '')
         name = str(item.data(0, NAME_ROLE) or '')
-        syntax = {'text':'html', 'styles':'css'}.get(category, None)
+        syntax = {'text': 'html', 'styles': 'css'}.get(category, None)
         self.edit_file.emit(name, syntax, mime)
 
     def request_edit(self, name):
@@ -1057,8 +1136,7 @@ class FileList(QTreeWidget, OpenWithHandler):
         if item is not None:
             self._request_edit(item)
         else:
-            error_dialog(self, _('Cannot edit'),
-                         _('No item with the name %s was found') % name, show=True)
+            error_dialog(self, _('Cannot edit'), _('No item with the name %s was found') % name, show=True)
 
     def edit_next_file(self, currently_editing=None, backwards=False):
         category = self.categories['text']
@@ -1081,7 +1159,7 @@ class FileList(QTreeWidget, OpenWithHandler):
 
     @property
     def searchable_names(self):
-        ans = {'text':OrderedDict(), 'styles':OrderedDict(), 'selected':OrderedDict(), 'open':OrderedDict()}
+        ans = {'text': OrderedDict(), 'styles': OrderedDict(), 'selected': OrderedDict(), 'open': OrderedDict()}
         for item in self.all_files:
             category = str(item.data(0, CATEGORY_ROLE) or '')
             mime = str(item.data(0, MIME_ROLE) or '')
@@ -1091,7 +1169,7 @@ class FileList(QTreeWidget, OpenWithHandler):
                 ans[category][name] = syntax_from_mime(name, mime)
             if not ok:
                 if category == 'misc':
-                    ok = mime in {guess_type('a.'+x) for x in ('opf', 'ncx', 'txt', 'xml')}
+                    ok = mime in {guess_type('a.' + x) for x in ('opf', 'ncx', 'txt', 'xml')}
                 elif category == 'images':
                     ok = mime == guess_type('a.svg')
             if ok:
@@ -1105,8 +1183,14 @@ class FileList(QTreeWidget, OpenWithHandler):
         return ans
 
     def export(self, name):
-        path = choose_save_file(self, 'tweak_book_export_file', _('Choose location'), filters=[
-            (_('Files'), [name.rpartition('.')[-1].lower()])], all_files=False, initial_filename=name.split('/')[-1])
+        path = choose_save_file(
+            self,
+            'tweak_book_export_file',
+            _('Choose location'),
+            filters=[(_('Files'), [name.rpartition('.')[-1].lower()])],
+            all_files=False,
+            initial_filename=name.split('/')[-1],
+        )
         if path:
             self.export_requested.emit(name, path)
 
@@ -1147,9 +1231,12 @@ class FileList(QTreeWidget, OpenWithHandler):
         s = self.categories['styles']
         sheets = [str(s.child(i).data(0, NAME_ROLE) or '') for i in range(s.childCount())]
         if not sheets:
-            return error_dialog(self, _('No stylesheets'), _(
-                'This book currently has no stylesheets. You must first create a stylesheet'
-                ' before linking it.'), show=True)
+            return error_dialog(
+                self,
+                _('No stylesheets'),
+                _('This book currently has no stylesheets. You must first create a stylesheet before linking it.'),
+                show=True,
+            )
         d = QDialog(self)
         l = QVBoxLayout(d)
         d.setLayout(l)
@@ -1189,14 +1276,16 @@ class FileList(QTreeWidget, OpenWithHandler):
 
 
 class NewFileDialog(QDialog):  # {{{
-
     def __init__(self, parent=None):
         QDialog.__init__(self, parent)
         self.l = l = QVBoxLayout()
         self.setLayout(l)
-        self.la = la = QLabel(_(
-            'Choose a name for the new (blank) file. To place the file in a'
-            ' specific folder in the book, include the folder name, for example: <i>text/chapter1.html'))
+        self.la = la = QLabel(
+            _(
+                'Choose a name for the new (blank) file. To place the file in a'
+                ' specific folder in the book, include the folder name, for example: <i>text/chapter1.html'
+            )
+        )
         la.setWordWrap(True)
         self.setWindowTitle(_('Choose file'))
         l.addWidget(la)
@@ -1216,8 +1305,7 @@ class NewFileDialog(QDialog):  # {{{
         self.imp_button = b = bb.addButton(_('Import resource file (image/font/etc.)'), QDialogButtonBox.ButtonRole.ActionRole)
         assert b is not None
         b.setIcon(QIcon.ic('view-image.png'))
-        b.setToolTip(_('Import a file from your computer as a new'
-                       ' file into the book.'))
+        b.setToolTip(_('Import a file from your computer as a new file into the book.'))
         b.clicked.connect(self.import_file)
 
         self.ok_button = bb.button(QDialogButtonBox.StandardButton.Ok)
@@ -1261,8 +1349,12 @@ class NewFileDialog(QDialog):  # {{{
 
     def accept(self):
         if not self.name_is_ok:
-            return error_dialog(self, _('No name specified'), _(
-                'You must specify a name for the new file, with an extension, for example, chapter1.html'), show=True)
+            return error_dialog(
+                self,
+                _('No name specified'),
+                _('You must specify a name for the new file, with an extension, for example, chapter1.html'),
+                show=True,
+            )
         tprefs['auto_link_stylesheets'] = self.link_css.isChecked()
         name = str(self.name.text())
         name, ext = name.rpartition('.')[0::2]
@@ -1281,11 +1373,12 @@ class NewFileDialog(QDialog):  # {{{
                 self.using_template = True
         self.file_name = name
         QDialog.accept(self)
+
+
 # }}}
 
 
 class MergeDialog(QDialog):  # {{{
-
     def __init__(self, names, parent=None):
         QDialog.__init__(self, parent)
         self.names = names
@@ -1319,11 +1412,11 @@ class MergeDialog(QDialog):  # {{{
             if b.isChecked():
                 return n
 
+
 # }}}
 
 
 class FileListWidget(QWidget):
-
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
         self.setLayout(QGridLayout(self))
@@ -1333,7 +1426,14 @@ class FileListWidget(QWidget):
         layout.addWidget(self.file_list)
         layout.setContentsMargins(0, 0, 0, 0)
         self.forwarded_signals = {k for k, o in vars(self.file_list.__class__).items() if isinstance(o, pyqtSignal) and '_' in k and not hasattr(self, k)}
-        for x in ('delete_done', 'select_name', 'select_names', 'request_edit', 'mark_name_as_current', 'clear_currently_edited_name'):
+        for x in (
+            'delete_done',
+            'select_name',
+            'select_names',
+            'request_edit',
+            'mark_name_as_current',
+            'clear_currently_edited_name',
+        ):
             setattr(self, x, getattr(self.file_list, x))
         self.setFocusProxy(self.file_list)
         self.edit_next_file = self.file_list.edit_next_file

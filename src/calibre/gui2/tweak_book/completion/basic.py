@@ -1,8 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__ = 'GPL v3'
-__copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
+# License: GPLv3 Copyright: 2014, Kovid Goyal <kovid at kovidgoyal.net>
 
 from collections import OrderedDict, namedtuple
 from threading import Event
@@ -52,7 +49,7 @@ def names_data(request_data):
 
 @data
 def file_data(name):
-    'Get the data for name. Returns a unicode string if name is a text document/stylesheet'
+    "Get the data for name. Returns a unicode string if name is a text document/stylesheet"
     if name in editors:
         return editors[name].get_raw_data()
     return current_container().raw_data(name)
@@ -88,16 +85,21 @@ def complete_names(names_data, data_conn):
         names_cache['font'] = frozenset(n for n in all_names if n.mime_type in OEB_FONTS)
         names_cache['css_resource'] = names_cache['image'] | names_cache['font']
         names_cache['descriptions'] = d = {}
-        for x, desc in {'text_link':_('Text'), 'stylesheet':_('Stylesheet'), 'image':_('Image'), 'font':_('Font')}.items():
+        for x, desc in {
+            'text_link': _('Text'),
+            'stylesheet': _('Stylesheet'),
+            'image': _('Image'),
+            'font': _('Font'),
+        }.items():
             for n in names_cache[x]:
                 d[n] = desc
     names_type, base, root = names_data
-    quote = (lambda x:x) if base.lower().endswith('.css') else prepare_string_for_xml
+    quote = (lambda x: x) if base.lower().endswith('.css') else prepare_string_for_xml
     names = names_cache.get(names_type, names_cache[None])
-    nmap = {name:name_to_href(name, root, base, quote) for name in names}
+    nmap = {name: name_to_href(name, root, base, quote) for name in names}
     items = tuple(sorted(frozenset(nmap.values()), key=numeric_sort_key))
     d = names_cache['descriptions'].get
-    descriptions = {href:d(name) for name, href in nmap.items()}
+    descriptions = {href: d(name) for name, href in nmap.items()}
     return items, descriptions, {}
 
 
@@ -116,7 +118,7 @@ def complete_anchor(name, data_conn):
         data = raw = get_data(data_conn, 'file_data', name)
         if isinstance(raw, str):
             try:
-                root = parse(raw, decoder=lambda x:x.decode('utf-8'))
+                root = parse(raw, decoder=lambda x: x.decode('utf-8'))
             except Exception:
                 pass
             else:
@@ -149,7 +151,6 @@ def handle_control_request(request, data_conn):
 
 
 class HandleDataRequest(QObject):
-
     # Ensure data is obtained in the GUI thread
 
     call = pyqtSignal(object, object)
@@ -164,6 +165,7 @@ class HandleDataRequest(QObject):
             self.result, self.tb = func(data), None
         except Exception:
             import traceback
+
             self.result, self.tb = None, traceback.format_exc()
         finally:
             self.called.set()
@@ -175,6 +177,7 @@ class HandleDataRequest(QObject):
                 return func(request.data), None
             except Exception:
                 import traceback
+
                 return None, traceback.format_exc()
         self.called.clear()
         self.call.emit(func, request.data)
@@ -187,5 +190,5 @@ class HandleDataRequest(QObject):
 
 handle_data_request = HandleDataRequest()
 
-control_funcs = {name:func for name, func in globals().items() if getattr(func, 'function_type', None) == 'control'}
-data_funcs = {name:func for name, func in globals().items() if getattr(func, 'function_type', None) == 'data'}
+control_funcs = {name: func for name, func in globals().items() if getattr(func, 'function_type', None) == 'control'}
+data_funcs = {name: func for name, func in globals().items() if getattr(func, 'function_type', None) == 'data'}

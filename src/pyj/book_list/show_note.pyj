@@ -3,6 +3,7 @@
 from __python__ import bound_methods, hash_literals
 
 from elementmaker import E
+from gettext import gettext as _
 
 from ajax import ajax
 from book_list.comments_editor import (
@@ -15,7 +16,6 @@ from book_list.library_data import book_metadata
 from book_list.router import back, home, show_note
 from book_list.top_bar import add_button, create_top_bar
 from book_list.ui import set_panel_handler
-from gettext import gettext as _
 from modals import ajax_send_progress_dialog, error_dialog
 from utils import parse_url_params, safe_set_inner_html, sandboxed_html
 
@@ -140,7 +140,7 @@ def get_close_action():
         q = parse_url_params()
         ca = q.close_action
         if ca is 'home':
-            close_action, close_icon = def(): home();, 'home'
+            close_action, close_icon = def (): home();, 'home'
     else:
         close_action, close_icon = back, 'close'
     return close_action, close_icon
@@ -153,7 +153,7 @@ def create_note_display(container):
 
 
 def reroute_with_item_id(container, q):
-    container.lastChild.appendChild(E.div(_('Loading') +  '…', style='margin: 0.5rem', class_='loading'))
+    container.lastChild.appendChild(E.div(_('Loading') + '…', style='margin: 0.5rem', class_='loading'))
     url = 'get-note-from-item-val/' + encodeURIComponent(q.field) + '/' + encodeURIComponent(q.item)
     if q.library_id:
         url += '/' + encodeURIComponent(q.library_id)
@@ -174,7 +174,7 @@ def init_display_note(container_id):
     if current_note_markup and current_note_markup.library_id is q.library_id and current_note_markup.field is q.field and current_note_markup.item_id is q.item_id:
         create_note_display(container)
     else:
-        container.lastChild.appendChild(E.div(_('Loading') +  '…', style='margin: 0.5rem', class_='loading'))
+        container.lastChild.appendChild(E.div(_('Loading') + '…', style='margin: 0.5rem', class_='loading'))
         url = 'get-note/' + encodeURIComponent(q.field) + '/' + encodeURIComponent(q.item_id)
         if q.library_id:
             url += '/' + encodeURIComponent(q.library_id)
@@ -215,7 +215,12 @@ def save(container_id, book_id):
         close_action()
 
     def on_got_html(html, extra_data):
-        ajax_send_progress_dialog(url, {'html': html, 'searchable_text': extra_data.text, 'images': extra_data.images}, on_complete, _('Sending note data to calibre server...'))
+        ajax_send_progress_dialog(
+            url,
+            {'html': html, 'searchable_text': extra_data.text, 'images': extra_data.images},
+            on_complete,
+            _('Sending note data to calibre server...')
+        )
 
     get_comments_html(c, on_got_html)
 
@@ -233,7 +238,7 @@ def init_edit(container_id):
     if current_note_markup and current_note_markup.library_id is q.library_id and current_note_markup.field is q.field and current_note_markup.item_id is q.item_id:
         create_editor(container.lastChild, current_note_markup.html)
     else:
-        container.lastChild.appendChild(E.div(_('Loading') +  '…', style='margin: 0.5rem', class_='loading'))
+        container.lastChild.appendChild(E.div(_('Loading') + '…', style='margin: 0.5rem', class_='loading'))
         url = 'get-note/' + encodeURIComponent(q.field) + '/' + encodeURIComponent(q.item_id)
         if q.library_id:
             url += '/' + encodeURIComponent(q.library_id)
@@ -253,5 +258,6 @@ def create_editor(container, html):
     editor.init()
 
 
-set_panel_handler('show_note', init_display_note)
-set_panel_handler('edit_note', init_edit)
+def set_panel_handlers():
+    set_panel_handler('show_note', init_display_note)
+    set_panel_handler('edit_note', init_edit)

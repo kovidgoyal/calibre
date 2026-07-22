@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # License: GPLv3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
 
-
 import os
 import shutil
 import subprocess
@@ -36,23 +35,16 @@ def run_worker(mod, func, **kw):
     try:
         exe = [sys.executable, os.path.join(sys.setup_dir, 'run-calibre-worker.py')]
     except AttributeError:
-        exe = [
-            os.path.join(
-                os.path.dirname(os.path.abspath(sys.executable)),
-                'calibre-parallel' + ('.exe' if iswindows else '')
-            )
-        ]
+        exe = [os.path.join(os.path.dirname(os.path.abspath(sys.executable)), 'calibre-parallel' + ('.exe' if iswindows else ''))]
     env = kw.get('env', os.environ.copy())
     env['CALIBRE_SIMPLE_WORKER'] = mod + ':' + func
     if iswindows:
         kw['creationflags'] = subprocess.CREATE_NO_WINDOW
-    kw['env'] = {str(k): str(v)
-                 for k, v in env.items()}  # windows needs bytes in env
+    kw['env'] = {str(k): str(v) for k, v in env.items()}  # windows needs bytes in env
     return subprocess.Popen(exe, **kw)
 
 
 class IPCLockTest(unittest.TestCase):
-
     def setUp(self):
         self.cwd = os.getcwd()
         self.tdir = tempfile.mkdtemp()
@@ -80,10 +72,9 @@ class IPCLockTest(unittest.TestCase):
             self.assertIs(t.locked, False)
         if not iswindows:
             import fcntl
+
             with unix_open(fname) as f:
-                self.assertEqual(
-                    1, fcntl.fcntl(f.fileno(), fcntl.F_GETFD) & fcntl.FD_CLOEXEC
-                )
+                self.assertEqual(1, fcntl.fcntl(f.fileno(), fcntl.F_GETFD) & fcntl.FD_CLOEXEC)
 
     def run_other_ef_op(self, clean_exit):
         child = run_worker('calibre.utils.test_lock', 'other1')
@@ -199,6 +190,7 @@ def find_tests():
 
 def run_tests():
     from calibre.utils.run_tests import run_tests
+
     run_tests(find_tests)
 
 

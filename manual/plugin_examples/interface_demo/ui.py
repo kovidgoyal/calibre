@@ -2,7 +2,7 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 
 
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
@@ -18,15 +18,13 @@ from calibre_plugins.interface_demo.main import DemoDialog
 
 
 class InterfacePlugin(InterfaceAction):
-
     name = 'Interface Plugin Demo'
 
     # Declare the main action associated with this plugin
     # The keyboard shortcut can be None if you don't want to use a keyboard
     # shortcut. Remember that currently calibre has no central management for
     # keyboard shortcuts, so try to use an unusual/unused shortcut.
-    action_spec = ('Interface Plugin Demo', None,
-            'Run the Interface Plugin Demo', 'Ctrl+Shift+F1')
+    action_spec = ('Interface Plugin Demo', None, 'Run the Interface Plugin Demo', 'Ctrl+Shift+F1')
 
     def genesis(self):
         # This method is called once per plugin, do initial setup here
@@ -66,6 +64,7 @@ class InterfacePlugin(InterfaceAction):
 
     def apply_settings(self):
         from calibre_plugins.interface_demo.config import prefs
+
         # In an actual non trivial plugin, you would probably need to
         # do something based on the settings in prefs
         prefs

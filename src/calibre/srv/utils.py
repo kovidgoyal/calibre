@@ -1,8 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__ = 'GPL v3'
-__copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
+# License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
 import errno
 import os
@@ -25,7 +22,7 @@ from polyglot.binary import as_hex_unicode as encode_name
 from polyglot.binary import from_hex_unicode as decode_name
 from polyglot.builtins import as_unicode
 
-HTTP1  = 'HTTP/1.0'
+HTTP1 = 'HTTP/1.0'
 HTTP11 = 'HTTP/1.1'
 DESIRED_SEND_BUFFER_SIZE = 16 * 1024  # windows 7 uses an 8KB sndbuf
 encode_name, decode_name
@@ -40,7 +37,6 @@ def http_date(timeval=None):
 
 
 class MultiDict(dict):  # {{{
-
     def __setitem__(self, key, val):
         vals = dict.get(self, key, [])
         vals.append(val)
@@ -70,6 +66,7 @@ class MultiDict(dict):  # {{{
                     yield k, x
             else:
                 yield k, v[-1]
+
     iteritems = items
 
     def values(self, duplicates=True):
@@ -79,6 +76,7 @@ class MultiDict(dict):  # {{{
                 yield from v
             else:
                 yield v[-1]
+
     itervalues = values
 
     def set(self, key, val, replace_all=False):
@@ -106,16 +104,20 @@ class MultiDict(dict):  # {{{
 
     def __repr__(self):
         return '{' + ', '.join(f'{reprlib.repr(k)}: {reprlib.repr(v)}' for k, v in self.items()) + '}'
+
     __str__ = __unicode__ = __repr__
 
     def pretty(self, leading_whitespace=''):
         return leading_whitespace + ('\n' + leading_whitespace).join(
-            f'{k}: {(repr(v) if isinstance(v, bytes) else v)}' for k, v in sorted(self.items(), key=itemgetter(0)))
+            f'{k}: {(repr(v) if isinstance(v, bytes) else v)}' for k, v in sorted(self.items(), key=itemgetter(0))
+        )
+
+
 # }}}
 
 
 def error_codes(*errnames):
-    ''' Return error numbers for error names, ignoring non-existent names '''
+    """Return error numbers for error names, ignoring non-existent names"""
     ans = {getattr(errno, x, None) for x in errnames}
     ans.discard(None)
     return ans
@@ -125,19 +127,28 @@ socket_errors_eintr = error_codes('EINTR', 'WSAEINTR')
 
 socket_errors_socket_closed = error_codes(  # errors indicating a disconnected connection
     'EPIPE',
-    'EBADF', 'WSAEBADF',
-    'ENOTSOCK', 'WSAENOTSOCK',
-    'ENOTCONN', 'WSAENOTCONN',
-    'ESHUTDOWN', 'WSAESHUTDOWN',
-    'ETIMEDOUT', 'WSAETIMEDOUT',
-    'ECONNREFUSED', 'WSAECONNREFUSED',
-    'ECONNRESET', 'WSAECONNRESET',
-    'ECONNABORTED', 'WSAECONNABORTED',
-    'ENETRESET', 'WSAENETRESET',
-    'EHOSTDOWN', 'EHOSTUNREACH',
+    'EBADF',
+    'WSAEBADF',
+    'ENOTSOCK',
+    'WSAENOTSOCK',
+    'ENOTCONN',
+    'WSAENOTCONN',
+    'ESHUTDOWN',
+    'WSAESHUTDOWN',
+    'ETIMEDOUT',
+    'WSAETIMEDOUT',
+    'ECONNREFUSED',
+    'WSAECONNREFUSED',
+    'ECONNRESET',
+    'WSAECONNRESET',
+    'ECONNABORTED',
+    'WSAECONNABORTED',
+    'ENETRESET',
+    'WSAENETRESET',
+    'EHOSTDOWN',
+    'EHOSTUNREACH',
 )
-socket_errors_nonblocking = error_codes(
-    'EAGAIN', 'EWOULDBLOCK', 'WSAEWOULDBLOCK')
+socket_errors_nonblocking = error_codes('EAGAIN', 'EWOULDBLOCK', 'WSAEWOULDBLOCK')
 
 
 def start_cork(sock):
@@ -151,21 +162,21 @@ def stop_cork(sock):
 
 
 def create_sock_pair():
-    '''Create socket pair. '''
+    """Create socket pair."""
     client_sock, srv_sock = socket.socketpair()
     set_socket_inherit(client_sock, False), set_socket_inherit(srv_sock, False)
     return client_sock, srv_sock
 
 
 def parse_http_list(header_val):
-    '''Parse lists as described by RFC 2068 Section 2.
+    """Parse lists as described by RFC 2068 Section 2.
 
     In particular, parse comma-separated lists where the elements of
     the list may include quoted-strings.  A quoted-string could
     contain a comma.  A non-quoted string could have quotes in the
     middle.  Neither commas nor quotes count if they are escaped.
     Only double-quotes count, not single-quotes.
-    '''
+    """
     if isinstance(header_val, bytes):
         slash, dquote, comma = b'\\",'
         empty = b''
@@ -219,7 +230,7 @@ def parse_http_dict(header_val):
 
 
 def sort_q_values(header_val):
-    'Get sorted items from an HTTP header of type: a;q=0.5, b;q=0.7...'
+    "Get sorted items from an HTTP header of type: a;q=0.5, b;q=0.7..."
     if not header_val:
         return []
 
@@ -233,6 +244,7 @@ def sort_q_values(header_val):
             except Exception:
                 pass
         return e.strip(), q
+
     return tuple(map(itemgetter(0), sorted(map(item, parse_http_list(header_val)), key=itemgetter(1), reverse=True)))
 
 
@@ -256,12 +268,11 @@ def get_translator_for_lang(cache, bcp_47_code):
 
 
 def encode_path(*components):
-    'Encode the path specified as a list of path components using URL encoding'
+    "Encode the path specified as a list of path components using URL encoding"
     return '/' + '/'.join(urlquote(x.encode('utf-8'), '') for x in components)
 
 
 class Cookie(SimpleCookie):
-
     def _BaseCookie__set(self, key, real_value, coded_value):
         return SimpleCookie._BaseCookie__set(self, key, real_value, coded_value)  # type: ignore
 
@@ -272,12 +283,12 @@ def custom_fields_to_display(db):
 
 # Logging {{{
 
+
 class ServerLog(ThreadSafeLog):
     exception_traceback_level = ThreadSafeLog.WARN
 
 
 class RotatingStream:
-
     def __init__(self, filename, max_size=None, history=5):
         self.filename, self.history, self.max_size = filename, history, max_size
         if iswindows:
@@ -289,7 +300,7 @@ class RotatingStream:
             self.stream = share_open(self.filename, 'a', newline='')
         else:
             # see https://bugs.python.org/issue27805
-            self.stream = open(os.open(self.filename, os.O_WRONLY|os.O_APPEND|os.O_CREAT|os.O_CLOEXEC, mode=0o666), 'w')
+            self.stream = open(os.open(self.filename, os.O_WRONLY | os.O_APPEND | os.O_CREAT | os.O_CLOEXEC, mode=0o666), 'w')
         try:
             self.stream.tell()
         except OSError:
@@ -308,6 +319,7 @@ class RotatingStream:
         try:
             if iswindows:
                 from calibre_extensions import winutil
+
                 winutil.move_file(src, dest)
             else:
                 os.rename(src, dest)
@@ -335,6 +347,7 @@ class RotatingStream:
         except OSError as e:
             failed[self.filename] = e
         import glob
+
         for f in glob.glob(self.filename + '.*'):
             try:
                 os.remove(f)
@@ -345,7 +358,6 @@ class RotatingStream:
 
 
 class RotatingLog(ServerLog):
-
     def __init__(self, filename, max_size=None, history=5):
         ServerLog.__init__(self)
         self.outputs = [RotatingStream(filename, max_size, history)]
@@ -353,11 +365,12 @@ class RotatingLog(ServerLog):
     def flush(self):
         for o in self.outputs:
             o.flush()
+
+
 # }}}
 
 
 class HandleInterrupt:  # {{{
-
     # On windows socket functions like accept(), recv(), send() are not
     # interrupted by a Ctrl-C in the console. So to make Ctrl-C work we have to
     # use this special context manager. See the echo server example at the
@@ -386,25 +399,29 @@ class HandleInterrupt:  # {{{
                     self.action = None
                     return 1
             return 0
+
         self.handle = handle
 
     def __enter__(self):
         if iswindows:
             if self.SetConsoleCtrlHandler(self.handle, 1) == 0:
                 import ctypes
+
                 raise ctypes.WinError()
 
     def __exit__(self, *args):
         if iswindows:
             if self.SetConsoleCtrlHandler(self.handle, 0) == 0:
                 import ctypes
+
                 raise ctypes.WinError()
+
+
 # }}}
 
 
 class Accumulator:  # {{{
-
-    'Optimized replacement for BytesIO when the usage pattern is many writes followed by a single getvalue()'
+    "Optimized replacement for BytesIO when the usage pattern is many writes followed by a single getvalue()"
 
     def __init__(self):
         self._buf = []
@@ -419,6 +436,8 @@ class Accumulator:  # {{{
         self._buf = []
         self.total_length = 0
         return ans
+
+
 # }}}
 
 
@@ -441,7 +460,7 @@ def get_library_data(ctx, rd, strict_library_id=False):
 
 
 class Offsets:
-    'Calculate offsets for a paginated view'
+    "Calculate offsets for a paginated view"
 
     def __init__(self, offset, delta, total):
         offset = max(offset, 0)
@@ -449,15 +468,14 @@ class Offsets:
             raise HTTPNotFound(f'Invalid offset: {offset!r}')
         last_allowed_index = total - 1
         last_current_index = offset + delta - 1
-        self.slice_upper_bound = offset+delta
+        self.slice_upper_bound = offset + delta
         self.offset = offset
         self.next_offset = last_current_index + 1
         if self.next_offset > last_allowed_index:
             self.next_offset = -1
         self.previous_offset = self.offset - delta
         self.previous_offset = max(self.previous_offset, 0)
-        self.last_offset = last_allowed_index - delta
-        self.last_offset = max(self.last_offset, 0)
+        self.last_offset = (last_allowed_index // delta) * delta
 
 
 _use_roman = None
@@ -467,5 +485,6 @@ def get_use_roman():
     global _use_roman
     if _use_roman is None:
         from calibre.gui2 import config
+
         _use_roman = config['use_roman_numerals_for_series_number']
     return _use_roman

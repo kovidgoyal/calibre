@@ -19,11 +19,11 @@ class MyDealzDE(BasicNewsRecipe):
     # ---- can be edit by user
     simultaneous_downloads = 10
     # description, some Reader show this in titlepage
-    description = u'MyDealz - Shopping Deals for Germany'
+    description = 'MyDealz - Shopping Deals for Germany'
     # Who published the content?
-    publisher = u'https://www.mydealz.de'
+    publisher = 'https://www.mydealz.de'
     # What is the content of?
-    category = u'Shopping'
+    category = 'Shopping'
     # describes itself,                                                     ---- can be edit by user
     use_embedded_content = False
     # describes itself,                                                     ---- can be edit by user

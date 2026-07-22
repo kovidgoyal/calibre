@@ -1,10 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__   = 'GPL v3'
-__copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
-
+# License: GPLv3 Copyright: 2009, Kovid Goyal <kovid@kovidgoyal.net>
 
 from qt.core import QApplication, QDialog, QDialogButtonBox, QIcon, QPlainTextEdit, QPushButton, QTimer, QVBoxLayout
 
@@ -13,7 +8,6 @@ from calibre.utils.localization import _
 
 
 class DebugDevice(QDialog):
-
     def __init__(self, gui, parent=None):
         QDialog.__init__(self, parent)
         self.gui = gui
@@ -21,7 +15,7 @@ class DebugDevice(QDialog):
         self.setLayout(self._layout)
         self.log = QPlainTextEdit(self)
         self._layout.addWidget(self.log)
-        self.log.setPlainText(_('Getting debug information, please wait')+'...')
+        self.log.setPlainText(_('Getting debug information, please wait') + '...')
         self.copy = QPushButton(_('Copy to &clipboard'))
         self.copy.setDefault(True)
         self.setWindowTitle(_('Debug device detection'))
@@ -40,12 +34,13 @@ class DebugDevice(QDialog):
 
     def debug(self):
         if self.gui.device_manager.is_device_connected:
-            error_dialog(self, _('Device already detected'),
-                    _('A device (%s) is already detected by calibre.'
-                        ' If you wish to debug the detection of another device'
-                        ', first disconnect this device.')%
-                    self.gui.device_manager.connected_device.get_gui_name(),
-                    show=True)
+            error_dialog(
+                self,
+                _('Device already detected'),
+                _('A device (%s) is already detected by calibre. If you wish to debug the detection of another device, first disconnect this device.')
+                % self.gui.device_manager.connected_device.get_gui_name(),
+                show=True,
+            )
             self.bbox.setEnabled(True)
             return
         self.gui.debug_detection(self)
@@ -55,10 +50,13 @@ class DebugDevice(QDialog):
             return
         self.bbox.setEnabled(True)
         if job.failed:
-            return error_dialog(self, _('Debugging failed'),
-                    _('Running debug device detection failed. Click Show '
-                        'Details for more information.'), det_msg=job.details,
-                    show=True)
+            return error_dialog(
+                self,
+                _('Debugging failed'),
+                _('Running debug device detection failed. Click Show Details for more information.'),
+                det_msg=job.details,
+                show=True,
+            )
         self.log.setPlainText(job.result)
 
     def copy_to_clipboard(self):

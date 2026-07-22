@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-__license__  = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = "2008, Derry FitzGerald. 2009 Modified by Ray Kinsella and David O'Callaghan, 2011 Modified by Phil Burns, 2013 Tom Scholl, 2016 by leo738"
 '''
 irishtimes.com
@@ -18,8 +18,8 @@ from calibre.web.feeds.news import BasicNewsRecipe, classes
 
 
 class IrishTimes(BasicNewsRecipe):
-    title          = u'The Irish Times'
-    __author__    = "Derry FitzGerald, Ray Kinsella, David O'Callaghan, Phil Burns, Tom Scholl, unkn0wn"
+    title = 'The Irish Times'
+    __author__ = "Derry FitzGerald, Ray Kinsella, David O'Callaghan, Phil Burns, Tom Scholl, unkn0wn"
     description = 'Daily news from The Irish Times'
     needs_subscription = True
 
@@ -36,10 +36,7 @@ class IrishTimes(BasicNewsRecipe):
     temp_files = []
 
     keep_only_tags = [
-        classes(
-            'b-it-headline b-it-subheadline b-it-byline-block__text '
-            'b-it-lead-art__wrapper b-it-article-body'
-        ),
+        classes('b-it-headline b-it-subheadline b-it-byline-block__text b-it-lead-art__wrapper b-it-article-body'),
     ]
 
     remove_tags_after = [
@@ -48,9 +45,7 @@ class IrishTimes(BasicNewsRecipe):
 
     remove_tags = [
         dict(name=['button', 'svg']),
-        classes(
-            'b-top-table-list arcad-feature c-unordered-list b-it-article-body__podcast'
-        ),
+        classes('b-top-table-list arcad-feature c-unordered-list b-it-article-body__podcast'),
     ]
 
     remove_attributes = ['width', 'height', 'style']
@@ -106,21 +101,26 @@ class IrishTimes(BasicNewsRecipe):
         # br.set_debug_http(True)
         br.open(url).read()
         from pprint import pprint
+
         pprint(ip_data)
         br.set_cookie('IT_country', ip_data['country_code'], '.irishtimes.com')
         br.set_cookie('IT_eu', 'true' if ip_data['in_eu'] else 'false', '.irishtimes.com')
         rurl = 'https://www.irishtimes.com/auth-rest-api/v1/paywall/login'
-        rq = Request(rurl, headers={
-            'Accept': '*/*',
-            'Accept-Language': 'en-US,en;q=0.5',
-            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-            'Origin': 'https://www.irishtimes.com',
-            'Referer': url,
-            'X-Requested-With': 'XMLHttpRequest',
-            'sec-fetch-site': 'same-origin',
-            'sec-fetch-dest': 'empty',
-            'sec-fetch-mode': 'cors',
-        }, data=urlencode({'username': self.username, 'password': self.password, 'deviceid':deviceid, 'persistent':'on', 'rid': ''}))
+        rq = Request(
+            rurl,
+            headers={
+                'Accept': '*/*',
+                'Accept-Language': 'en-US,en;q=0.5',
+                'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+                'Origin': 'https://www.irishtimes.com',
+                'Referer': url,
+                'X-Requested-With': 'XMLHttpRequest',
+                'sec-fetch-site': 'same-origin',
+                'sec-fetch-dest': 'empty',
+                'sec-fetch-mode': 'cors',
+            },
+            data=urlencode({'username': self.username, 'password': self.password, 'deviceid': deviceid, 'persistent': 'on', 'rid': ''}),
+        )
 
         r = br.open(rq)
         raw = r.read()

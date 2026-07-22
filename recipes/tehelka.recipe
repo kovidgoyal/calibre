@@ -12,12 +12,12 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class Tehelka(BasicNewsRecipe):
-    title          = 'Tehelka'
+    title = 'Tehelka'
     oldest_article = 7
     max_articles_per_feed = 10
-    auto_cleanup   = True
+    auto_cleanup = True
     __author__ = 'Aareet Mahadevan'
-    description = u'Free. Fair. Fearless.'
+    description = 'Free. Fair. Fearless.'
     category = 'news, india'
     encoding = 'utf-8'
     language = 'en_IN'
@@ -27,6 +27,6 @@ class Tehelka(BasicNewsRecipe):
     use_embedded_content = False
     ignore_duplicate_articles = {'title', 'url'}
 
-    feeds          = [
+    feeds = [
         ('Tehelka', 'http://tehelka.com/rss'),
     ]

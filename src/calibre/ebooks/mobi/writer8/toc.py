@@ -1,9 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__   = 'GPL v3'
-__copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
+# License: GPLv3 Copyright: 2012, Kovid Goyal <kovid@kovidgoyal.net>
 
 from calibre.ebooks.oeb.base import XHTML, XHTML_MIME, XHTML_NS, XPath, css_text, urlnormalize
 from calibre.utils.localization import __
@@ -37,12 +33,11 @@ def find_previous_calibre_inline_toc(oeb):
         href = urlnormalize(oeb.guide['toc'].href.partition('#')[0])
         if href in oeb.manifest.hrefs:
             item = oeb.manifest.hrefs[href]
-            if (hasattr(item.data, 'xpath') and XPath('//h:body[@id="calibre_generated_inline_toc"]')(item.data)):
+            if hasattr(item.data, 'xpath') and XPath('//h:body[@id="calibre_generated_inline_toc"]')(item.data):
                 return item
 
 
 class TOCAdder:
-
     def __init__(self, oeb, opts, replace_previous_inline_toc=True, ignore_existing_toc=False):
         self.oeb, self.opts, self.log = oeb, opts, oeb.log
         self.title = opts.toc_title or DEFAULT_TITLE
@@ -63,8 +58,7 @@ class TOCAdder:
             href = urlnormalize(oeb.guide['toc'].href.partition('#')[0])
             if href in oeb.manifest.hrefs:
                 item = oeb.manifest.hrefs[href]
-                if (hasattr(item.data, 'xpath') and
-                    XPath('//h:a[@href]')(item.data)):
+                if hasattr(item.data, 'xpath') and XPath('//h:a[@href]')(item.data):
                     if oeb.spine.index(item) < 0:
                         oeb.spine.add(item, linear=False)
                     return
@@ -73,8 +67,7 @@ class TOCAdder:
             else:
                 oeb.guide.remove('toc')
 
-        if (not self.has_toc or 'toc' in oeb.guide or opts.no_inline_toc or
-            getattr(opts, 'mobi_passthrough', False)):
+        if not self.has_toc or 'toc' in oeb.guide or opts.no_inline_toc or getattr(opts, 'mobi_passthrough', False):
             return
 
         self.log('\tGenerating in-line ToC')
@@ -83,13 +76,10 @@ class TOCAdder:
         s = getattr(oeb, 'store_embed_font_rules', None)
         if getattr(s, 'body_font_family', None):
             assert s is not None
-            css = [css_text(x) for x in s.rules] + [
-                    f'body {{ font-family: {s.body_font_family} }}']
+            css = [css_text(x) for x in s.rules] + [f'body {{ font-family: {s.body_font_family} }}']
             embed_css = '\n\n'.join(css)
 
-        root = safe_xml_fromstring(TEMPLATE.format(xhtmlns=XHTML_NS,
-            title=self.title, embed_css=embed_css,
-            extra_css=(opts.extra_css or '')))
+        root = safe_xml_fromstring(TEMPLATE.format(xhtmlns=XHTML_NS, title=self.title, embed_css=embed_css, extra_css=(opts.extra_css or '')))
         parent = XPath('//h:ul')(root)[0]
         parent.text = '\n\t'
         for child in self.oeb.toc:
@@ -102,8 +92,7 @@ class TOCAdder:
             tocitem.data = root
         else:
             id, href = oeb.manifest.generate('contents', 'contents.xhtml')
-            tocitem = self.generated_item = oeb.manifest.add(id, href, XHTML_MIME,
-                    data=root)
+            tocitem = self.generated_item = oeb.manifest.add(id, href, XHTML_MIME, data=root)
         if self.at_start:
             oeb.spine.insert(0, tocitem, linear=True)
         else:
@@ -113,7 +102,7 @@ class TOCAdder:
 
     def process_toc_node(self, toc, parent, level=0):
         li = parent.makeelement(XHTML('li'))
-        li.tail = '\n'+ ('\t'*level)
+        li.tail = '\n' + ('\t' * level)
         parent.append(li)
         href = toc.href
         if self.tocitem is not None and href:
@@ -124,11 +113,11 @@ class TOCAdder:
         if toc.count() > 0:
             parent = li.makeelement(XHTML('ul'))
             li.append(parent)
-            a.tail = '\n' + ('\t'*level)
-            parent.text = '\n'+('\t'*(level+1))
-            parent.tail = '\n' + ('\t'*level)
+            a.tail = '\n' + ('\t' * level)
+            parent.text = '\n' + ('\t' * (level + 1))
+            parent.tail = '\n' + ('\t' * level)
             for child in toc:
-                self.process_toc_node(child, parent, level+1)
+                self.process_toc_node(child, parent, level + 1)
 
     def remove_generated_toc(self):
         if self.generated_item is not None:

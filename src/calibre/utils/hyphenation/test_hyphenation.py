@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # License: GPL v3 Copyright: 2019, Kovid Goyal <kovid at kovidgoyal.net>
 
-
 import os
 import shutil
 import unittest
@@ -15,7 +14,6 @@ from calibre.utils.hyphenation.hyphenate import add_soft_hyphens, add_soft_hyphe
 
 
 class TestHyphenation(unittest.TestCase):
-
     ae = unittest.TestCase.assertEqual
 
     def setUp(self):
@@ -40,10 +38,7 @@ class TestHyphenation(unittest.TestCase):
     def test_locale_to_hyphen_dictionary(self):
 
         def t(x, expected=None):
-            self.ae(
-                dictionary_name_for_locale(x),
-                f'hyph_{expected}.dic' if expected else None
-            )
+            self.ae(dictionary_name_for_locale(x), f'hyph_{expected}.dic' if expected else None)
 
         t('en', 'en_US')
         t('en_IN', 'en_GB')
@@ -59,14 +54,10 @@ class TestHyphenation(unittest.TestCase):
             cache[0] = True
 
         dp = path_to_dictionary(dictionary_name_for_locale('en'), cache_callback)
-        self.assertTrue(
-            os.path.exists(dp), f'The dictionary {dp} does not exist'
-        )
+        self.assertTrue(os.path.exists(dp), f'The dictionary {dp} does not exist')
         self.assertTrue(cache[0])
         cache[0] = False
-        self.assertTrue(
-            os.path.exists(path_to_dictionary(dictionary_name_for_locale('es'), cache_callback))
-        )
+        self.assertTrue(os.path.exists(path_to_dictionary(dictionary_name_for_locale('es'), cache_callback)))
         self.assertFalse(cache[0])
 
     def test_add_soft_hyphens(self):
@@ -86,9 +77,11 @@ class TestHyphenation(unittest.TestCase):
         w(' A\n beautiful  day. ', ' A\n beau=ti=ful  day. ')
 
     def test_hyphenate_html(self):
-        root = parse_html5('''
+        root = parse_html5(
+            '''
 <p>beautiful, <span lang="sv"><!-- x -->tillata\n<span lang="en">Expand</span></span> "latitude!''',
-        line_numbers=False)
+            line_numbers=False,
+        )
         add_soft_hyphens_to_html(root, hyphen_char='=')
         raw = etree.tostring(root, method='text', encoding='unicode')
         self.ae(raw, 'beau=ti=ful, tilla=ta\nEx=pand "lat=i=tude!')

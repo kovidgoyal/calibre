@@ -1,8 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__ = 'GPL v3'
-__copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
+# License: GPLv3 Copyright: 2013, Kovid Goyal <kovid at kovidgoyal.net>
 
 import os
 import shutil
@@ -18,6 +15,7 @@ from calibre.utils.resources import get_path as P
 
 def get_cache():
     from calibre.constants import cache_dir
+
     cache = os.path.join(cache_dir(), 'polish-test')
     if not os.path.exists(cache):
         os.mkdir(cache)
@@ -46,6 +44,7 @@ def needs_recompile(obj, srcs):
 
 def build_book(src, dest, args=()):
     from calibre.ebooks.conversion.cli import main
+
     main(['ebook-convert', src, dest, '-vv'] + list(args))
 
 
@@ -60,12 +59,15 @@ def add_resources(raw, rmap):
 def setup_simple_book(src):
     with open(src, 'rb') as sf:
         raw = sf.read().decode('utf-8')
-    raw = add_resources(raw, {
-        'LMONOI': P('fonts/liberation/LiberationMono-Italic.ttf'),
-        'LMONOR': P('fonts/liberation/LiberationMono-Regular.ttf'),
-        'IMAGE1': I('marked.png'),
-        'IMAGE2': I('textures/light_wood.png'),
-    })
+    raw = add_resources(
+        raw,
+        {
+            'LMONOI': P('fonts/liberation/LiberationMono-Italic.ttf'),
+            'LMONOR': P('fonts/liberation/LiberationMono-Regular.ttf'),
+            'IMAGE1': I('marked.png'),
+            'IMAGE2': I('textures/light_wood.png'),
+        },
+    )
     shutil.copy2(I('lt.png'), '.')
     x = 'index.html'
     with open(x, 'wb') as f:
@@ -75,19 +77,18 @@ def setup_simple_book(src):
 
 def get_simple_book(fmt='epub'):
     cache = get_cache()
-    ans = os.path.join(cache, 'simple.'+fmt)
+    ans = os.path.join(cache, 'simple.' + fmt)
     src = os.path.join(os.path.dirname(__file__), 'simple.html')
     if needs_recompile(ans, src):
         with TemporaryDirectory('bpt') as tdir, CurrentDir(tdir):
             x = setup_simple_book(src)
-            build_book(x, ans, args=[
-                '--level1-toc=//h:h2', '--language=en', '--authors=Kovid Goyal', '--cover=lt.png'])
+            build_book(x, ans, args=['--level1-toc=//h:h2', '--language=en', '--authors=Kovid Goyal', '--cover=lt.png'])
     return ans
 
 
 def get_split_book(fmt='epub'):
     cache = get_cache()
-    ans = os.path.join(cache, 'split.'+fmt)
+    ans = os.path.join(cache, 'split.' + fmt)
     src = os.path.join(os.path.dirname(__file__), 'split.html')
     if needs_recompile(ans, src):
         x = src.replace('split.html', 'index.html')
@@ -96,8 +97,7 @@ def get_split_book(fmt='epub'):
         try:
             with open(x, 'wb') as f:
                 f.write(raw.encode('utf-8'))
-            build_book(x, ans, args=['--level1-toc=//h:h2', '--language=en', '--authors=Kovid Goyal',
-                                        '--cover=' + I('lt.png')])
+            build_book(x, ans, args=['--level1-toc=//h:h2', '--language=en', '--authors=Kovid Goyal', '--cover=' + I('lt.png')])
         finally:
             os.remove(x)
     return ans
@@ -130,7 +130,6 @@ devnull = DevNull()
 
 
 class BaseTest(unittest.TestCase):
-
     longMessage = True
     maxDiff = None
 

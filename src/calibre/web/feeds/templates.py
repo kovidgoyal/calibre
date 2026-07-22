@@ -1,9 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__   = 'GPL v3'
-__copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
-
+# License: GPLv3 Copyright: 2008, Kovid Goyal <kovid at kovidgoyal.net>
 
 import copy
 
@@ -26,8 +22,8 @@ def attrs(*args, **kw):
 
 # Regular templates
 
-class Template:
 
+class Template:
     IS_HTML = True
     root: html.HtmlElement
 
@@ -58,14 +54,11 @@ class Template:
 
     def render(self, *args, **kwargs):
         if self.IS_HTML:
-            return html.tostring(self.root, encoding='utf-8',
-                    include_meta_content_type=True, pretty_print=True)
-        return etree.tostring(self.root, encoding='utf-8', xml_declaration=True,
-                pretty_print=True)
+            return html.tostring(self.root, encoding='utf-8', include_meta_content_type=True, pretty_print=True)
+        return etree.tostring(self.root, encoding='utf-8', xml_declaration=True, pretty_print=True)
 
 
 class EmbeddedContent(Template):
-
     def _generate(self, article, style=None, extra_css=None):
         content = article.content or ''
         summary = article.summary or ''
@@ -79,8 +72,7 @@ class EmbeddedContent(Template):
         if isinstance(text, bytes):
             text = text.decode('utf-8', 'replace')
         elements = html.fragments_fromstring(text)
-        self.root = HTML(head,
-                BODY(H2(article.title), DIV()))
+        self.root = HTML(head, BODY(H2(article.title), DIV()))
         body = self.root.find('body')
         assert body is not None
         div = body.find('div')
@@ -99,7 +91,6 @@ class EmbeddedContent(Template):
 
 
 class IndexTemplate(Template):
-
     def _generate(self, title, masthead, datefmt, feeds, extra_css=None, style=None):
         self.IS_HTML = False
         date = strftime(datefmt)
@@ -111,33 +102,31 @@ class IndexTemplate(Template):
         ul = UL(attrs('calibre_feed_list'))
         for i, feed in enumerate(feeds):
             if len(feed):
-                li = LI(A(feed.title, attrs('feed', rescale=120,
-                    href=f'feed_{i}/index.html')), id=f'feed_{i}')
+                li = LI(A(feed.title, attrs('feed', rescale=120, href=f'feed_{i}/index.html')), id=f'feed_{i}')
                 ul.append(li)
         div = DIV(
-                PT(IMG(src=masthead, alt='masthead'), style='text-align:center'),
-                PT(date, style='text-align:right'),
-                ul,
-                attrs(rescale=100))
+            PT(IMG(src=masthead, alt='masthead'), style='text-align:center'),
+            PT(date, style='text-align:right'),
+            ul,
+            attrs(rescale=100),
+        )
         self.root = HTML(head, BODY(div))
         if self.html_lang:
             self.root.set('lang', self.html_lang)
 
 
 class FeedTemplate(Template):
-
     def get_navbar(self, f, feeds, top=True):
         if len(feeds) < 2:
             return DIV()
-        navbar = DIV('| ', attrs('calibre_navbar', rescale=70,
-            style='text-align:center'))
+        navbar = DIV('| ', attrs('calibre_navbar', rescale=70, style='text-align:center'))
         if not top:
             hr = HR()
             navbar.append(hr)
             navbar.text = None
             hr.tail = '| '
 
-        if f+1 < len(feeds):
+        if f + 1 < len(feeds):
             link = A(_('Next section'), href=f'../feed_{f + 1}/index.html')
             link.tail = ' | '
             navbar.append(link)
@@ -154,6 +143,7 @@ class FeedTemplate(Template):
 
     def _generate(self, f, feeds, cutoff, extra_css=None, style=None):
         from calibre.utils.cleantext import clean_xml_chars
+
         feed = feeds[f]
         head = HEAD(TITLE(feed.title))
         if style:
@@ -163,18 +153,10 @@ class FeedTemplate(Template):
         body = BODY()
         body.append(self.get_navbar(f, feeds))
 
-        div = DIV(
-                H2(feed.title,
-                    attrs('calibre_feed_title', rescale=160)),
-                attrs(rescale=100)
-              )
+        div = DIV(H2(feed.title, attrs('calibre_feed_title', rescale=160)), attrs(rescale=100))
         body.append(div)
         if getattr(feed, 'image', None):
-            div.append(DIV(IMG(
-                alt=feed.image_alt or '',
-                src=feed.image_url
-                ),
-                attrs('calibre_feed_image')))
+            div.append(DIV(IMG(alt=feed.image_alt or '', src=feed.image_url), attrs('calibre_feed_image')))
         if getattr(feed, 'description', None):
             d = DIV(clean_xml_chars(feed.description), attrs('calibre_feed_description', rescale=80))
             d.append(BR())
@@ -184,15 +166,12 @@ class FeedTemplate(Template):
             if not getattr(article, 'downloaded', False):
                 continue
             li = LI(
-                    A(article.title, attrs('article', rescale=120,
-                                    href=article.url)),
-                    SPAN(article.formatted_date, attrs('article_date')),
-                    attrs(rescale=100, id=f'article_{i}',
-                            style='padding-bottom:0.5em')
-                    )
+                A(article.title, attrs('article', rescale=120, href=article.url)),
+                SPAN(article.formatted_date, attrs('article_date')),
+                attrs(rescale=100, id=f'article_{i}', style='padding-bottom:0.5em'),
+            )
             if article.summary:
-                li.append(DIV(clean_xml_chars(cutoff(article.text_summary)),
-                    attrs('article_description', rescale=70)))
+                li.append(DIV(clean_xml_chars(cutoff(article.text_summary)), attrs('article_description', rescale=70)))
             ul.append(li)
         div.append(ul)
         div.append(self.get_navbar(f, feeds, top=False))
@@ -202,10 +181,20 @@ class FeedTemplate(Template):
 
 
 class NavBarTemplate(Template):
-
-    def _generate(self, bottom, feed, art, number_of_articles_in_feed,
-                 two_levels, url, __appname__, prefix='', center=True,
-                 extra_css=None, style=None):
+    def _generate(
+        self,
+        bottom,
+        feed,
+        art,
+        number_of_articles_in_feed,
+        two_levels,
+        url,
+        __appname__,
+        prefix='',
+        center=True,
+        extra_css=None,
+        style=None,
+    ):
         head = HEAD(TITLE('navbar'))
         if style:
             head.append(STYLE(style, type='text/css'))
@@ -216,21 +205,23 @@ class NavBarTemplate(Template):
             prefix += '/'
         align = 'center' if center else 'left'
 
-        navbar = DIV(attrs('calibre_navbar', rescale=70,
-            style='text-align:'+align))
+        navbar = DIV(attrs('calibre_navbar', rescale=70, style='text-align:' + align))
         if bottom:
             if not url.startswith('file://'):
                 navbar.append(HR())
                 text = 'This article was downloaded by '
-                p = PT(text, STRONG(__appname__), A(url, href=url, rel='calibre-downloaded-from'),
-                        style='text-align:left; max-width: 100%; overflow: hidden;')
+                p = PT(
+                    text,
+                    STRONG(__appname__),
+                    A(url, href=url, rel='calibre-downloaded-from'),
+                    style='text-align:left; max-width: 100%; overflow: hidden;',
+                )
                 p[0].tail = ' from '
                 navbar.append(p)
                 navbar.append(BR())
             navbar.append(BR())
         else:
-            next_art = f'feed_{feed + 1}' if art == number_of_articles_in_feed - 1 \
-                    else f'article_{art + 1}'
+            next_art = f'feed_{feed + 1}' if art == number_of_articles_in_feed - 1 else f'article_{art + 1}'
             up = '../..' if art == number_of_articles_in_feed - 1 else '..'
             href = f'{prefix}{up}/{next_art}/index.html'
             navbar.text = '| '
@@ -254,15 +245,14 @@ class NavBarTemplate(Template):
 
 # Touchscreen templates
 class TouchscreenIndexTemplate(Template):
-
     def _generate(self, title, masthead, datefmt, feeds, extra_css=None, style=None):
         self.IS_HTML = False
         date = '{}, {} {}, {}'.format(strftime('%A'), strftime('%B'), strftime('%d').lstrip('0'), strftime('%Y'))
         masthead_p = etree.Element('p')
-        masthead_p.set('style','text-align:center')
+        masthead_p.set('style', 'text-align:center')
         masthead_img = etree.Element('img')
-        masthead_img.set('src',masthead)
-        masthead_img.set('alt','masthead')
+        masthead_img.set('src', masthead)
+        masthead_img.set('alt', 'masthead')
         masthead_p.append(masthead_img)
 
         head = HEAD(TITLE(title))
@@ -271,30 +261,25 @@ class TouchscreenIndexTemplate(Template):
         if extra_css:
             head.append(STYLE(extra_css, type='text/css'))
 
-        toc = TABLE(attrs('toc'),width='100%',border='0',cellpadding='3px')
+        toc = TABLE(attrs('toc'), width='100%', border='0', cellpadding='3px')
         for i, feed in enumerate(feeds):
             if len(feed):
                 tr = TR()
                 tr.append(TD(attrs(rescale=120), A(feed.title, href=f'feed_{i}/index.html')))
                 tr.append(TD(f'{len(feed.articles)}', style='text-align:right'))
                 toc.append(tr)
-        div = DIV(
-                masthead_p,
-                H3(attrs('publish_date'),date),
-                DIV(attrs('divider')),
-                toc)
+        div = DIV(masthead_p, H3(attrs('publish_date'), date), DIV(attrs('divider')), toc)
         self.root = HTML(head, BODY(div))
         if self.html_lang:
             self.root.set('lang', self.html_lang)
 
 
 class TouchscreenFeedTemplate(Template):
-
     def _generate(self, f, feeds, cutoff, extra_css=None, style=None):
         from calibre.utils.cleantext import clean_xml_chars
 
         def trim_title(title, clip=18):
-            if len(title)>clip:
+            if len(title) > clip:
                 tokens = title.split(' ')
                 new_title_tokens = []
                 new_title_len = 0
@@ -320,22 +305,18 @@ class TouchscreenFeedTemplate(Template):
         # Previous Section
         link = ''
         if f > 0:
-            link = A(attrs('feed_link'),
-                     trim_title(feeds[f-1].title),
-                     href=f'../feed_{int(f-1)}/index.html')
-        navbar_tr.append(TD(attrs('feed_prev'),link))
+            link = A(attrs('feed_link'), trim_title(feeds[f - 1].title), href=f'../feed_{int(f - 1)}/index.html')
+        navbar_tr.append(TD(attrs('feed_prev'), link))
 
         # Up to Sections
         link = A(_('Sections'), href='../index.html')
-        navbar_tr.append(TD(attrs('feed_up'),link))
+        navbar_tr.append(TD(attrs('feed_up'), link))
 
         # Next Section
         link = ''
-        if f < len(feeds)-1:
-            link = A(attrs('feed_link'),
-                     trim_title(feeds[f+1].title),
-                     href=f'../feed_{int(f+1)}/index.html')
-        navbar_tr.append(TD(attrs('feed_next'),link))
+        if f < len(feeds) - 1:
+            link = A(attrs('feed_link'), trim_title(feeds[f + 1].title), href=f'../feed_{int(f + 1)}/index.html')
+        navbar_tr.append(TD(attrs('feed_next'), link))
         navbar_t.append(navbar_tr)
         top_navbar = navbar_t
         bottom_navbar = copy.copy(navbar_t)
@@ -348,18 +329,11 @@ class TouchscreenFeedTemplate(Template):
         if extra_css:
             head.append(STYLE(extra_css, type='text/css'))
         body = BODY()
-        div = DIV(
-                top_navbar,
-                H2(feed.title, attrs('feed_title'))
-                )
+        div = DIV(top_navbar, H2(feed.title, attrs('feed_title')))
         body.append(div)
 
         if getattr(feed, 'image', None):
-            div.append(DIV(IMG(
-                alt=feed.image_alt or '',
-                src=feed.image_url
-                ),
-                attrs('calibre_feed_image')))
+            div.append(DIV(IMG(alt=feed.image_alt or '', src=feed.image_url), attrs('calibre_feed_image')))
         if getattr(feed, 'description', None):
             d = DIV(clean_xml_chars(feed.description), attrs('calibre_feed_description', rescale=80))
             d.append(BR())
@@ -369,15 +343,11 @@ class TouchscreenFeedTemplate(Template):
             if not getattr(article, 'downloaded', False):
                 continue
 
-            div_td = DIV(attrs('article_summary'),
-                    A(article.title, attrs('summary_headline',rescale=120,
-                                    href=article.url)))
+            div_td = DIV(attrs('article_summary'), A(article.title, attrs('summary_headline', rescale=120, href=article.url)))
             if article.author:
-                div_td.append(DIV(article.author,
-                    attrs('summary_byline', rescale=100)))
+                div_td.append(DIV(article.author, attrs('summary_byline', rescale=100)))
             if article.summary:
-                div_td.append(DIV(cutoff(article.text_summary),
-                    attrs('summary_text', rescale=100)))
+                div_td.append(DIV(cutoff(article.text_summary), attrs('summary_text', rescale=100)))
             div.append(div_td)
 
         div.append(bottom_navbar)
@@ -387,10 +357,20 @@ class TouchscreenFeedTemplate(Template):
 
 
 class TouchscreenNavBarTemplate(Template):
-
-    def _generate(self, bottom, feed, art, number_of_articles_in_feed,
-                 two_levels, url, __appname__, prefix='', center=True,
-                 extra_css=None, style=None):
+    def _generate(
+        self,
+        bottom,
+        feed,
+        art,
+        number_of_articles_in_feed,
+        two_levels,
+        url,
+        __appname__,
+        prefix='',
+        center=True,
+        extra_css=None,
+        style=None,
+    ):
         head = HEAD(TITLE('navbar'))
         if style:
             head.append(STYLE(style, type='text/css'))
@@ -404,32 +384,40 @@ class TouchscreenNavBarTemplate(Template):
         if bottom and not url.startswith('file://'):
             navbar.append(HR())
             text = 'This article was downloaded by '
-            p = PT(text, STRONG(__appname__), A(url, href=url, rel='calibre-downloaded-from'),
-                    style='text-align:left; max-width: 100%; overflow: hidden;')
+            p = PT(
+                text,
+                STRONG(__appname__),
+                A(url, href=url, rel='calibre-downloaded-from'),
+                style='text-align:left; max-width: 100%; overflow: hidden;',
+            )
             p[0].tail = ' from '
             navbar.append(p)
             navbar.append(BR())
         # | Previous
         if art > 0:
-            link = A(attrs('article_link'),_('Previous'), rel='articleprevlink', href=f'{prefix}../article_{art - 1}/index.html')
-            navbar_tr.append(TD(attrs('article_prev'),link))
+            link = A(
+                attrs('article_link'),
+                _('Previous'),
+                rel='articleprevlink',
+                href=f'{prefix}../article_{art - 1}/index.html',
+            )
+            navbar_tr.append(TD(attrs('article_prev'), link))
         else:
-            navbar_tr.append(TD(attrs('article_prev'),''))
+            navbar_tr.append(TD(attrs('article_prev'), ''))
 
         # | Articles | Sections |
-        link = A(attrs('articles_link'),_('Articles'), href=f'{prefix}../index.html#article_{art}')
-        navbar_tr.append(TD(attrs('article_articles_list'),link))
+        link = A(attrs('articles_link'), _('Articles'), href=f'{prefix}../index.html#article_{art}')
+        navbar_tr.append(TD(attrs('article_articles_list'), link))
 
-        link = A(attrs('sections_link'),_('Sections'), href=f'{prefix}../../index.html#feed_{feed}')
-        navbar_tr.append(TD(attrs('article_sections_list'),link))
+        link = A(attrs('sections_link'), _('Sections'), href=f'{prefix}../../index.html#feed_{feed}')
+        navbar_tr.append(TD(attrs('article_sections_list'), link))
 
         # | Next
-        next_art = f'feed_{feed + 1}' if art == number_of_articles_in_feed - 1 \
-                else f'article_{art + 1}'
+        next_art = f'feed_{feed + 1}' if art == number_of_articles_in_feed - 1 else f'article_{art + 1}'
         up = '../..' if art == number_of_articles_in_feed - 1 else '..'
 
         link = A(attrs('article_link'), _('Next'), rel='articlenextlink', href=f'{prefix}{up}/{next_art}/index.html')
-        navbar_tr.append(TD(attrs('article_next'),link))
+        navbar_tr.append(TD(attrs('article_next'), link))
         navbar_t.append(navbar_tr)
         navbar.append(navbar_t)
         # print('\n%s\n' % etree.tostring(navbar, pretty_print=True))

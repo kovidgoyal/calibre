@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 __license__ = 'GPL v3'
-__copyright__ = u'2011, Silviu Cotoar\u0103'
+__copyright__ = '2011, Silviu Cotoar\u0103'
 '''
 csid.ro
 '''
@@ -11,9 +11,9 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class CSID(BasicNewsRecipe):
-    title = u'Ce se \u00eent\u00e2mpl\u0103 doctore?'
-    __author__ = u'Silviu Cotoar\u0103'
-    description = u'Ce se \u00eent\u00e2mpl\u0103 doctore?'
+    title = 'Ce se \u00eent\u00e2mpl\u0103 doctore?'
+    __author__ = 'Silviu Cotoar\u0103'
+    description = 'Ce se \u00eent\u00e2mpl\u0103 doctore?'
     publisher = 'CSID'
     oldest_article = 5
     language = 'ro'
@@ -24,26 +24,15 @@ class CSID(BasicNewsRecipe):
     encoding = 'utf-8'
     cover_url = 'http://www.csid.ro/images/default/csid.gif'
 
-    conversion_options = {
-        'comments': description, 'tags': category, 'language': language, 'publisher': publisher
-    }
+    conversion_options = {'comments': description, 'tags': category, 'language': language, 'publisher': publisher}
 
-    keep_only_tags = [
-        dict(name='div', attrs={'class': 'content floatleft'})
-    ]
+    keep_only_tags = [dict(name='div', attrs={'class': 'content floatleft'})]
 
-    remove_tags = [
-        dict(name='div', attrs={'id': ['article_links']}), dict(
-            name='div', attrs={'id': ['tags']}), dict(name='p', attrs={'id': ['tags']})
-    ]
+    remove_tags = [dict(name='div', attrs={'id': ['article_links']}), dict(name='div', attrs={'id': ['tags']}), dict(name='p', attrs={'id': ['tags']})]
 
-    remove_tags_after = [
-        dict(name='p', attrs={'id': ['tags']})
-    ]
+    remove_tags_after = [dict(name='p', attrs={'id': ['tags']})]
 
-    feeds = [
-        (u'Feeds', u'http://www.csid.ro/rss/')
-    ]
+    feeds = [('Feeds', 'http://www.csid.ro/rss/')]
 
     def preprocess_html(self, soup):
         return self.adeify_images(soup)

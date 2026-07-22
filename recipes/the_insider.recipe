@@ -7,7 +7,9 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 class TheInsider(BasicNewsRecipe):
     title = 'The Insider'
-    cover_url = 'https://s3-us-west-2.amazonaws.com/anchor-generated-image-bank/production/podcast_uploaded_nologo400/10331708/10331708-1604408816914-d03520fb339d5.jpg'  # noqa: E501
+    cover_url = (
+        'https://s3-us-west-2.amazonaws.com/anchor-generated-image-bank/production/podcast_uploaded_nologo400/10331708/10331708-1604408816914-d03520fb339d5.jpg'  # noqa: E501
+    )
     __author__ = 'bugmen00t'
     description = 'Расследования Репортажи Аналитика'
     publisher = 'theins.ru'
@@ -27,9 +29,7 @@ class TheInsider(BasicNewsRecipe):
         dict(name='div', attrs={'class': 'pre-content-line'}),
         dict(name='div', attrs={'class': 'author-opinions'}),
         dict(name='div', attrs={'class': 'content-banner'}),
-        dict(name='div', attrs={'id': 'sidebar'})
+        dict(name='div', attrs={'id': 'sidebar'}),
     ]
 
-    feeds = [
-        (u'\u041D\u043E\u0432\u043E\u0441\u0442\u0438', u'https://theins.ru/feed')
-    ]
+    feeds = [('\u041d\u043e\u0432\u043e\u0441\u0442\u0438', 'https://theins.ru/feed')]

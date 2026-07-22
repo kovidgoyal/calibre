@@ -8,7 +8,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class GlasgowHerald(BasicNewsRecipe):
-    title = u'Glasgow Herald'
+    title = 'Glasgow Herald'
     oldest_article = 1
     max_articles_per_feed = 100
     language = 'en_GB'
@@ -20,12 +20,14 @@ class GlasgowHerald(BasicNewsRecipe):
     auto_cleanup = True
 
     feeds = [
-        (u'News', u'https://www.heraldscotland.com/news/rss/'),
-        (u'Sport', u'https://www.heraldscotland.com/sport/rss/'),
-        (u'Business', u'https://www.heraldscotland.com/business_hq/rss/'),
-        (u'Lifestyle', u'https://www.heraldscotland.com/life_style/rss/'),
-        (u'Arts & Entertainment', u'https://www.heraldscotland.com/arts_ents/rss/',),
-        (u'Politics', u'https://www.heraldscotland.com/politics/rss/'),
-        (u'Columnists', u'https://www.heraldscotland.com/opinion/columnists/rss/')
-
-        ]
+        ('News', 'https://www.heraldscotland.com/news/rss/'),
+        ('Sport', 'https://www.heraldscotland.com/sport/rss/'),
+        ('Business', 'https://www.heraldscotland.com/business_hq/rss/'),
+        ('Lifestyle', 'https://www.heraldscotland.com/life_style/rss/'),
+        (
+            'Arts & Entertainment',
+            'https://www.heraldscotland.com/arts_ents/rss/',
+        ),
+        ('Politics', 'https://www.heraldscotland.com/politics/rss/'),
+        ('Columnists', 'https://www.heraldscotland.com/opinion/columnists/rss/'),
+    ]

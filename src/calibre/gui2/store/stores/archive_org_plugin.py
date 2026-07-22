@@ -1,11 +1,9 @@
 # -*- coding: utf-8 -*-
+# License: GPLv3 Copyright: 2011, John Schember <john@nachtimwald.com>
+
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 store_version = 4  # Needed for dynamic plugin loading
-
-__license__ = 'GPL 3'
-__copyright__ = '2011, John Schember <john@nachtimwald.com>'
-__docformat__ = 'restructuredtext en'
 
 from calibre.gui2.store.basic_config import BasicStoreConfig
 from calibre.gui2.store.opensearch_store import OpenSearchOPDSStore, open_search
@@ -20,7 +18,6 @@ def search(query, max_results=10, timeout=60):
 
 
 class ArchiveOrgStore(BasicStoreConfig, OpenSearchOPDSStore):
-
     open_search_url = SEARCH_URL
     web_url = 'http://www.archive.org/details/texts'
 
@@ -36,5 +33,6 @@ class ArchiveOrgStore(BasicStoreConfig, OpenSearchOPDSStore):
 
 if __name__ == '__main__':
     import sys
+
     for s in search(' '.join(sys.argv[1:])):
         print(s)

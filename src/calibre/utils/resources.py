@@ -1,10 +1,5 @@
 #!/usr/bin/env python
-
-
-__license__   = 'GPL v3'
-__copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
-
+# License: GPLv3 Copyright: 2009, Kovid Goyal <kovid@kovidgoyal.net>
 
 import builtins
 import os
@@ -16,15 +11,13 @@ user_dir = os.path.join(config_dir, 'resources')
 
 
 class PathResolver:
-
     def __init__(self):
         self.locations = [getattr(sys, 'resources_location')]
         self.cache = {}
 
         def suitable(path):
             try:
-                return os.path.exists(path) and os.path.isdir(path) and \
-                       os.listdir(path)
+                return os.path.exists(path) and os.path.isdir(path) and os.listdir(path)
             except Exception:
                 pass
             return False
@@ -34,8 +27,7 @@ class PathResolver:
         dev_path = os.environ.get('CALIBRE_DEVELOP_FROM', None)
         self.using_develop_from = False
         if dev_path is not None:
-            dev_path = os.path.join(os.path.abspath(
-                os.path.dirname(dev_path)), 'resources')
+            dev_path = os.path.join(os.path.abspath(os.path.dirname(dev_path)), 'resources')
             if suitable(dev_path):
                 self.locations.insert(0, dev_path)
                 self.default_path = dev_path
@@ -94,7 +86,7 @@ def get_path(path, data=False, allow_user_override=True):
 def get_image_path(path, data=False, allow_user_override=True):
     if not path:
         return get_path('images', allow_user_override=allow_user_override)
-    return get_path('images/'+path, data=data, allow_user_override=allow_user_override)
+    return get_path('images/' + path, data=data, allow_user_override=allow_user_override)
 
 
 def set_data(path, data=None):
