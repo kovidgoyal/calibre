@@ -11,9 +11,8 @@ from calibre.utils.localization import _
 
 
 class PluginWidget(Widget, Ui_Form):
-
     TITLE = _('DOCX input')
-    HELP = _('Options specific to')+' DOCX '+_('input')
+    HELP = _('Options specific to') + ' DOCX ' + _('input')
     COMMIT_NAME = 'docx_input'
     ICON = 'mimetypes/docx.png'
 

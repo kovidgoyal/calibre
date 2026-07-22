@@ -25,6 +25,7 @@ from calibre.utils.webengine import create_script, insert_scripts, setup_profile
 
 def create_base_profile(cache_name='', allow_js=False):
     from calibre.utils.random_ua import random_common_chrome_user_agent
+
     if cache_name:
         ans = QWebEngineProfile(cache_name, QApplication.instance())
     else:
@@ -47,7 +48,6 @@ def create_base_profile(cache_name='', allow_js=False):
 
 
 class DownloadRequest(QObject):
-
     aborted_on_timeout: bool = False
     response_received = pyqtSignal(object)
 
@@ -60,15 +60,24 @@ class DownloadRequest(QObject):
         self.timeout = timeout
         self.bytes_received = 0
         self.result = {
-            'action': 'finished', 'id': self.req_id, 'url': self.url, 'output': self.output_path,
-            'headers': [], 'final_url': self.url, 'worth_retry': False,
+            'action': 'finished',
+            'id': self.req_id,
+            'url': self.url,
+            'output': self.output_path,
+            'headers': [],
+            'final_url': self.url,
+            'worth_retry': False,
         }
 
     def metadata_received(self, r: dict) -> None:
         if r['response_type'] != 'basic':
             print(f'WARNING: response type for {self.url} indicates headers are restricted: {r["type"]}')
         self.result['worth_retry'] = r['status_code'] in (
-            HTTPStatus.TOO_MANY_REQUESTS, HTTPStatus.REQUEST_TIMEOUT, HTTPStatus.SERVICE_UNAVAILABLE, HTTPStatus.GATEWAY_TIMEOUT)
+            HTTPStatus.TOO_MANY_REQUESTS,
+            HTTPStatus.REQUEST_TIMEOUT,
+            HTTPStatus.SERVICE_UNAVAILABLE,
+            HTTPStatus.GATEWAY_TIMEOUT,
+        )
         self.result['final_url'] = r['url']
         self.result['headers'] = r['headers']
         self.result['http_code'] = r['status_code']
@@ -113,7 +122,13 @@ class Worker(QWebEnginePage):
     def javaScriptPrompt(self, securityOrigin, msg, defaultValue):
         return True, defaultValue
 
-    def javaScriptConsoleMessage(self, level: QWebEnginePage.JavaScriptConsoleMessageLevel, message: str | None, lineNumber: int, sourceID: str | None) -> None:
+    def javaScriptConsoleMessage(
+        self,
+        level: QWebEnginePage.JavaScriptConsoleMessageLevel,
+        message: str | None,
+        lineNumber: int,
+        sourceID: str | None,
+    ) -> None:
         if sourceID == 'userscript:scraper.js':
             if level == QWebEnginePage.JavaScriptConsoleMessageLevel.InfoMessageLevel and message is not None and message.startswith(self.token):
                 msg = json.loads(message.partition(' ')[2])
@@ -174,7 +189,6 @@ class Worker(QWebEnginePage):
 
 
 class FetchBackend(QObject):
-
     request_download = pyqtSignal(object)
     input_finished = pyqtSignal(str)
     set_cookies = pyqtSignal(object)
@@ -182,8 +196,13 @@ class FetchBackend(QObject):
     download_finished = pyqtSignal(object)
 
     def __init__(
-            self, output_dir: str = '', cache_name: str = '',
-            parent: QObject | None = None, user_agent: str = '', verify_ssl_certificates: bool = True) -> None:
+        self,
+        output_dir: str = '',
+        cache_name: str = '',
+        parent: QObject | None = None,
+        user_agent: str = '',
+        verify_ssl_certificates: bool = True,
+    ) -> None:
         profile = create_base_profile(cache_name)
         self.token = secrets.token_hex()
         js = P('scraper.js', allow_user_override=False, data=True).decode('utf-8').replace('TOKEN', self.token)
@@ -315,6 +334,7 @@ def worker(tdir: str, user_agent: str, verify_ssl_certificates: bool) -> None:
 
 def develop(*urls: str) -> None:
     from calibre.scraper.qt import WebEngineBrowser
+
     br = WebEngineBrowser()
     for url in urls:
         print(url)

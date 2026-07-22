@@ -111,6 +111,7 @@ class FB2MLizer:
 
     def fb2_header(self):
         from calibre.ebooks.oeb.base import OPF
+
         metadata = {}
         metadata['title'] = self.oeb_book.metadata.title[0].value
         metadata['appname'] = __appname__
@@ -203,10 +204,12 @@ class FB2MLizer:
             metadata['comments'] = ''
         else:
             from calibre.utils.html2text import html2text
+
             metadata['comments'] = f'<annotation><p>{prepare_string_for_xml(html2text(comments.value).strip())}</p></annotation>'
 
         # Keep the indentation level of the description the same as the body.
-        header = textwrap.dedent('''\
+        header = (
+            textwrap.dedent('''\
             <FictionBook xmlns="http://www.gribuser.ru/xml/fictionbook/2.0" xmlns:l="http://www.w3.org/1999/xlink">
             <description>
                 <title-info>
@@ -231,7 +234,9 @@ class FB2MLizer:
                     %(year)s
                     %(isbn)s
                 </publish-info>
-            </description>''') % metadata
+            </description>''')
+            % metadata
+        )
 
         # Remove empty lines.
         return '\n'.join(filter(str.strip, header.splitlines()))
@@ -276,6 +281,7 @@ class FB2MLizer:
     def get_text(self):
         from calibre.ebooks.oeb.base import XHTML
         from calibre.ebooks.oeb.stylizer import Stylizer
+
         text = ['<body>']
 
         # Create main section if there are no others to create
@@ -330,11 +336,10 @@ class FB2MLizer:
                         content_type = item.media_type
                     # Don't put the encoded image on a single line.
                     step = 72
-                    data = '\n'.join(raw_data[i:i+step] for i in range(0, len(raw_data), step))
+                    data = '\n'.join(raw_data[i : i + step] for i in range(0, len(raw_data), step))
                     images.append(f'<binary id="{self.image_hrefs[item.href]}" content-type="{content_type}">{data}</binary>')
                 except Exception as e:
-                    self.log.error(f'Error: Could not include file {item.href} because '
-                        f'{e}.')
+                    self.log.error(f'Error: Could not include file {item.href} because {e}.')
         return '\n'.join(images)
 
     def create_flat_toc(self, nodes, level):
@@ -404,19 +409,18 @@ class FB2MLizer:
         @return: List of string representing the XHTML converted to FB2 markup.
         """
         from calibre.ebooks.oeb.base import XHTML_NS, barename, namespace
+
         elem = elem_tree
 
         # Ensure what we are converting is not a string and that the fist tag is part of the XHTML namespace.
         if not isinstance(elem_tree.tag, (str, bytes)) or namespace(elem_tree.tag) != XHTML_NS:
             p = elem.getparent()
-            if p is not None and isinstance(p.tag, (str, bytes)) and namespace(p.tag) == XHTML_NS \
-                    and elem.tail:
+            if p is not None and isinstance(p.tag, (str, bytes)) and namespace(p.tag) == XHTML_NS and elem.tail:
                 return [elem.tail]
             return []
 
         style = stylizer.style(elem_tree)
-        if style['display'] in ('none', 'oeb-page-head', 'oeb-page-foot') \
-           or style['visibility'] == 'hidden':
+        if style['display'] in ('none', 'oeb-page-head', 'oeb-page-foot') or style['visibility'] == 'hidden':
             if hasattr(elem, 'tail') and elem.tail:
                 return [elem.tail]
             return []
@@ -488,7 +492,7 @@ class FB2MLizer:
                 multiplier = ems
             if self.in_p:
                 closed_tags = []
-                open_tags = tag_stack+tags
+                open_tags = tag_stack + tags
                 open_tags.reverse()
                 for t in open_tags:
                     fb2_out.append(f'</{t}>')
@@ -502,7 +506,7 @@ class FB2MLizer:
             else:
                 fb2_out.append('<empty-line/>' * multiplier)
         if tag in ('div', 'li', 'p'):
-            p_text, added_p = self.close_open_p(tag_stack+tags)
+            p_text, added_p = self.close_open_p(tag_stack + tags)
             fb2_out += p_text
             if added_p:
                 tags.append('p')
@@ -515,23 +519,23 @@ class FB2MLizer:
                 fb2_out.append('<a l:href="{}">'.format(urlnormalize(elem_tree.attrib['href'])))
                 tags.append('a')
         if tag == 'b' or style['font-weight'] in ('bold', 'bolder'):
-            s_out, s_tags = self.handle_simple_tag('strong', tag_stack+tags)
+            s_out, s_tags = self.handle_simple_tag('strong', tag_stack + tags)
             fb2_out += s_out
             tags += s_tags
         if tag == 'i' or style['font-style'] == 'italic':
-            s_out, s_tags = self.handle_simple_tag('emphasis', tag_stack+tags)
+            s_out, s_tags = self.handle_simple_tag('emphasis', tag_stack + tags)
             fb2_out += s_out
             tags += s_tags
         if tag in ('del', 'strike') or style['text-decoration'] == 'line-through':
-            s_out, s_tags = self.handle_simple_tag('strikethrough', tag_stack+tags)
+            s_out, s_tags = self.handle_simple_tag('strikethrough', tag_stack + tags)
             fb2_out += s_out
             tags += s_tags
         if tag == 'sub':
-            s_out, s_tags = self.handle_simple_tag('sub', tag_stack+tags)
+            s_out, s_tags = self.handle_simple_tag('sub', tag_stack + tags)
             fb2_out += s_out
             tags += s_tags
         if tag == 'sup':
-            s_out, s_tags = self.handle_simple_tag('sup', tag_stack+tags)
+            s_out, s_tags = self.handle_simple_tag('sup', tag_stack + tags)
             fb2_out += s_out
             tags += s_tags
 
@@ -545,7 +549,7 @@ class FB2MLizer:
 
         # Process sub-elements.
         for item in elem_tree:
-            fb2_out += self.dump_text(item, stylizer, page, tag_stack+tags)
+            fb2_out += self.dump_text(item, stylizer, page, tag_stack + tags)
 
         # Close open FB2 tags.
         tags.reverse()

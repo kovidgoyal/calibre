@@ -9,8 +9,7 @@ from calibre.web.feeds.recipes import BasicNewsRecipe
 
 def classes(classes):
     q = frozenset(classes.split(' '))
-    return dict(attrs={
-        'class': lambda x: x and frozenset(x.split()).intersection(q)})
+    return dict(attrs={'class': lambda x: x and frozenset(x.split()).intersection(q)})
 
 
 class MsNBC(BasicNewsRecipe):
@@ -26,9 +25,7 @@ class MsNBC(BasicNewsRecipe):
     language = 'en_US'
     remove_empty_feeds = True
     ignore_duplicate_articles = {'title', 'url'}
-    keep_only_tags = [
-        classes('article-hero__container article-body')
-    ]
+    keep_only_tags = [classes('article-hero__container article-body')]
     remove_tags = [
         dict(name=['iframe', 'button', 'meta', 'link']),
         classes('widget_video ad-container related'),

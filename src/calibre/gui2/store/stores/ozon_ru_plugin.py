@@ -28,6 +28,7 @@ def parse_html(raw):
     except ImportError:
         # Old versions of calibre
         import html5lib
+
         return html5lib.parse(raw, treebuilder='lxml', namespaceHTMLElements=False)
     else:
         return parse(raw)
@@ -59,7 +60,6 @@ def search(query, max_results=15, timeout=60):
 
 
 class OzonRUStore(StorePlugin):
-
     def open(self, gui=None, parent=None, detail_item=None, external=False):
         url = detail_item or shop_url
         if external or self.config.get('open_external', False):
@@ -88,5 +88,6 @@ def format_price_in_RUR(price):
 
 if __name__ == '__main__':
     import sys
+
     for r in search(sys.argv[-1]):
         print(r)

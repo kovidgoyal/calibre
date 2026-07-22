@@ -4,12 +4,12 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class FilmWebPl(BasicNewsRecipe):
-    title          = 'FilmWeb'
-    __author__        = 'fenuks'
-    description   = u'Filmweb.pl - Filmy takie jak Ty Filmweb to największy i najczęściej odwiedzany polski serwis filmowy.'
-    cover_url      = 'https://1.fwcdn.pl/an/np/49468/2018/15037.2.jpg'
-    category       = 'movies'
-    language       = 'pl'
+    title = 'FilmWeb'
+    __author__ = 'fenuks'
+    description = 'Filmweb.pl - Filmy takie jak Ty Filmweb to największy i najczęściej odwiedzany polski serwis filmowy.'
+    cover_url = 'https://1.fwcdn.pl/an/np/49468/2018/15037.2.jpg'
+    category = 'movies'
+    language = 'pl'
     index = 'https://www.filmweb.pl'
     oldest_article = 8
     max_articles_per_feed = 100
@@ -18,30 +18,37 @@ class FilmWebPl(BasicNewsRecipe):
     ignore_duplicate_articles = {'title', 'url'}
     remove_javascript = True
     use_embedded_content = False
-    extra_css      = ('.hdrBig {font-size:22px;} ul {list-style-type:none;} '
-                      'ul.inline > li {display: inline;} '
-                      'ul.sep-line > li + li::before {content: " | "} '
-                      'ul.inline {padding:0px;} .vertical-align {display: inline-block;}')
-    preprocess_regexps = [(re.compile(r'<body.+?</head>', re.DOTALL), lambda match: ''),  # fix malformed HTML with 2 body tags...
-    (re.compile(u'(?:<sup>)?\\(kliknij\\,\\ aby powiększyć\\)(?:</sup>)?', re.IGNORECASE), lambda m: ''),  # noqa: RUF039
-    (re.compile(type(u'')(r'(<br ?/?>\s*?<br ?/?>\s*?)+'), re.IGNORECASE), lambda m: '<br />')
+    extra_css = (
+        '.hdrBig {font-size:22px;} ul {list-style-type:none;} '
+        'ul.inline > li {display: inline;} '
+        'ul.sep-line > li + li::before {content: " | "} '
+        'ul.inline {padding:0px;} .vertical-align {display: inline-block;}'
+    )
+    preprocess_regexps = [
+        (re.compile(r'<body.+?</head>', re.DOTALL), lambda match: ''),  # fix malformed HTML with 2 body tags...
+        (re.compile('(?:<sup>)?\\(kliknij\\,\\ aby powiększyć\\)(?:</sup>)?', re.IGNORECASE), lambda m: ''),  # noqa: RUF039
+        (re.compile(type('')(r'(<br ?/?>\s*?<br ?/?>\s*?)+'), re.IGNORECASE), lambda m: '<br />'),
     ]
-    remove_tags = [dict(attrs={'class':['infoParent', 'likeBar',
-                    'droptions-box pull-right', 'photoDesc', 'imageLicense', 'play big', 'shadow embed__icon--svg']})]
-    remove_attributes = ['style',]
+    remove_tags = [
+        dict(attrs={'class': ['infoParent', 'likeBar', 'droptions-box pull-right', 'photoDesc', 'imageLicense', 'play big', 'shadow embed__icon--svg']})
+    ]
+    remove_attributes = [
+        'style',
+    ]
     keep_only_tags = [dict(attrs={'class': ['newsHdr hdrWithAuthor ', 'reviewHdr', 'newsContent newsPage', 'newsContent', 'hdr hdr-mega']})]
-    feeds          = [(u'Filmy', u'https://www.filmweb.pl/feed/news/category/film'),
-                         (u'Seriale', u'https://www.filmweb.pl/feed/news/category/serial'),
-                         (u'Box office', u'https://www.filmweb.pl/feed/news/category/boxoffice'),
-                         (u'Telewizja', u'https://www.filmweb.pl/feed/news/category/tv'),
-                         (u'Festiwale, nagrody i przeglądy', u'https://www.filmweb.pl/feed/news/category/festival'),
-                         (u'Multimedia', u'https://www.filmweb.pl/feed/news/category/multimedia'),
-                         (u'Dystrybucja dvd/blu-ray', u'https://www.filmweb.pl/feed/news/category/dvd'),
-                         (u'Gry wideo', u'https://www.filmweb.pl/feed/news/category/game'),
-                         (u'Różne', u'https://www.filmweb.pl/feed/news/category/other'),
-                         (u'Recenzje redakcji', u'https://www.filmweb.pl/feed/reviews/latest'),
-                         (u'Recenzje użytkowników', u'https://www.filmweb.pl/feed/user-reviews/latest')
-                          ]
+    feeds = [
+        ('Filmy', 'https://www.filmweb.pl/feed/news/category/film'),
+        ('Seriale', 'https://www.filmweb.pl/feed/news/category/serial'),
+        ('Box office', 'https://www.filmweb.pl/feed/news/category/boxoffice'),
+        ('Telewizja', 'https://www.filmweb.pl/feed/news/category/tv'),
+        ('Festiwale, nagrody i przeglądy', 'https://www.filmweb.pl/feed/news/category/festival'),
+        ('Multimedia', 'https://www.filmweb.pl/feed/news/category/multimedia'),
+        ('Dystrybucja dvd/blu-ray', 'https://www.filmweb.pl/feed/news/category/dvd'),
+        ('Gry wideo', 'https://www.filmweb.pl/feed/news/category/game'),
+        ('Różne', 'https://www.filmweb.pl/feed/news/category/other'),
+        ('Recenzje redakcji', 'https://www.filmweb.pl/feed/reviews/latest'),
+        ('Recenzje użytkowników', 'https://www.filmweb.pl/feed/user-reviews/latest'),
+    ]
 
     def preprocess_html(self, soup):
         for a in soup('a', href=True):

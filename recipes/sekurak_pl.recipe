@@ -2,9 +2,9 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class Sekurak(BasicNewsRecipe):
-    title = u'Sekurak'
+    title = 'Sekurak'
     __author__ = 'fenuks'
-    description = u'Wiadomości z dziedziny bezpieczeństwa'
+    description = 'Wiadomości z dziedziny bezpieczeństwa'
     category = 'it, security'
     language = 'pl'
     cover_url = 'http://www.securitum.pl/aktualnosci/sekurak.pl/image'
@@ -20,4 +20,4 @@ class Sekurak(BasicNewsRecipe):
 
     keep_only_tags = [dict(id='articleContent')]
 
-    feeds = [(u'Wpisy', u'http://feeds.feedburner.com/sekurak')]
+    feeds = [('Wpisy', 'http://feeds.feedburner.com/sekurak')]

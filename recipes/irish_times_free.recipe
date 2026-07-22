@@ -29,10 +29,7 @@ class IrishTimes(BasicNewsRecipe):
     '''
 
     keep_only_tags = [
-        classes(
-            'b-it-headline b-it-subheadline b-it-byline-block__text '
-            'b-it-lead-art__wrapper b-it-article-body'
-        ),
+        classes('b-it-headline b-it-subheadline b-it-byline-block__text b-it-lead-art__wrapper b-it-article-body'),
     ]
 
     remove_tags_after = [
@@ -41,9 +38,7 @@ class IrishTimes(BasicNewsRecipe):
 
     remove_tags = [
         dict(name=['button', 'svg']),
-        classes(
-            'b-top-table-list arcad-feature c-unordered-list b-it-article-body__podcast'
-        ),
+        classes('b-top-table-list arcad-feature c-unordered-list b-it-article-body__podcast'),
     ]
 
     remove_attributes = ['width', 'height', 'style']
@@ -61,9 +56,21 @@ class IrishTimes(BasicNewsRecipe):
     def parse_index(self):
         index = 'https://www.irishtimes.com/'
         sections = [
-            'ireland', 'world', 'opinion', 'politics', 'crime-law', 'culture', 'business',
-            'life-style', 'health', 'sport', 'property', 'food', 'abroad', 'environment',
-            'obituaries'
+            'ireland',
+            'world',
+            'opinion',
+            'politics',
+            'crime-law',
+            'culture',
+            'business',
+            'life-style',
+            'health',
+            'sport',
+            'property',
+            'food',
+            'abroad',
+            'environment',
+            'obituaries',
         ]
         feeds = []
         soup = self.index_to_soup(index)
@@ -71,9 +78,7 @@ class IrishTimes(BasicNewsRecipe):
             section = sec.capitalize()
             self.log(section)
             articles = []
-            for a in soup.findAll(
-                'a', attrs={'href': lambda x: x and x.startswith('/' + sec + '/')}
-            ):
+            for a in soup.findAll('a', attrs={'href': lambda x: x and x.startswith('/' + sec + '/')}):
                 url = absurl(a['href'].split('?')[0])
                 if url in {index + sec + '/', index + sec}:
                     continue

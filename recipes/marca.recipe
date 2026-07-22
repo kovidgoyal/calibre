@@ -23,22 +23,18 @@ class Marca(BasicNewsRecipe):
     language = 'es'
     publication_type = 'newsportal'
     masthead_url = 'http://estaticos.marca.com/deporte/img/v3.0/img_marca-com.png'
-    extra_css             = '''
+    extra_css = '''
                                 body{font-family: Tahoma,Geneva,sans-serif}
                                 h1,h2,h3,h4,h5,h6{font-family: 'LatoBlack',Tahoma,Geneva,sans-serif}
                                 .cab_articulo h4 {font-family: Georgia,"Times New Roman",Times,serif}
                                 .antetitulo{text-transform: uppercase}
                             '''
 
-    feeds = [(u'Portada', u'http://estaticos.marca.com/rss/portada.xml')]
+    feeds = [('Portada', 'http://estaticos.marca.com/rss/portada.xml')]
 
-    keep_only_tags = [
-        dict(name='div', attrs={'class': ['cab_articulo', 'cuerpo_articulo']})]
+    keep_only_tags = [dict(name='div', attrs={'class': ['cab_articulo', 'cuerpo_articulo']})]
     remove_attributes = ['lang']
-    remove_tags = [
-        dict(name=['object', 'link', 'script', 'embed', 'iframe',
-                   'meta', 'base']), dict(name='div', attrs={'class': 'tabs'})
-    ]
+    remove_tags = [dict(name=['object', 'link', 'script', 'embed', 'iframe', 'meta', 'base']), dict(name='div', attrs={'class': 'tabs'})]
 
     def preprocess_html(self, soup):
         for item in soup.findAll(style=True):

@@ -79,7 +79,6 @@ def open_search(url, query, max_results=10, timeout=60):
 
 
 class OpenSearchOPDSStore(StorePlugin):
-
     open_search_url = ''
     web_url = ''
 

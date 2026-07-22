@@ -8,24 +8,24 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class AdvancedUserRecipe1467571059(BasicNewsRecipe):
-    title                 = 'De Standaard'
-    __author__            = 'Darko Miletic, Aimylios, oCkz7bJ_'
-    description           = 'De Standaard'
-    publisher             = 'Mediahuis'
-    category              = 'news, politics, Belgium'
-    language              = 'nl_BE'
+    title = 'De Standaard'
+    __author__ = 'Darko Miletic, Aimylios, oCkz7bJ_'
+    description = 'De Standaard'
+    publisher = 'Mediahuis'
+    category = 'news, politics, Belgium'
+    language = 'nl_BE'
 
-    oldest_article        = 2
+    oldest_article = 2
     max_articles_per_feed = 100
-    no_stylesheets        = True
-    use_embedded_content  = False
-    remove_javascript     = True
+    no_stylesheets = True
+    use_embedded_content = False
+    remove_javascript = True
 
-    cover_url    = 'http://www.standaard.be/extra/assets/extra/dslive/headers/ds-black.svg'
+    cover_url = 'http://www.standaard.be/extra/assets/extra/dslive/headers/ds-black.svg'
     masthead_url = 'http://tonysweb.be/m/img/tijdschriften/de_standaard.svg'
 
     # Source: http://www.standaard.be/rssfeeds
-    feeds          = [
+    feeds = [
         # Nieuws
         ('Binnenland', 'http://www.standaard.be/rss/section/1f2838d4-99ea-49f0-9102-138784c7ea7c'),
         ('Buitenland', 'http://www.standaard.be/rss/section/e70ccf13-a2f0-42b0-8bd3-e32d424a0aa0'),
@@ -58,23 +58,23 @@ class AdvancedUserRecipe1467571059(BasicNewsRecipe):
         ('Marketingblog', 'http://www.standaard.be/rss/tag/marketingblog'),
         ('TV-blog', 'http://www.standaard.be/rss/tag/tv-blog'),
         # Interactie
-        ('Opinies', 'http://feeds.feedburner.com/dso-meningen-opinie')
+        ('Opinies', 'http://feeds.feedburner.com/dso-meningen-opinie'),
     ]
 
     keep_only_tags = [
-        dict(name='header', attrs={'class':'article__header'}),
-        dict(name='footer', attrs={'class':'article__meta'}),
-        dict(name='article', attrs={'class':'article-full'}),
-        dict(name='figure', attrs={'class':'article__image'})
+        dict(name='header', attrs={'class': 'article__header'}),
+        dict(name='footer', attrs={'class': 'article__meta'}),
+        dict(name='article', attrs={'class': 'article-full'}),
+        dict(name='figure', attrs={'class': 'article__image'}),
     ]
 
     remove_tags = [
         dict(name=['embed', 'object']),
-        dict(name='div', attrs={'class':['note NotePortrait', 'note']}),
-        dict(name='ul', attrs={'class':re.compile(r'article__share')}),
-        dict(name='div', attrs={'class':'slideshow__controls'}),
-        dict(name='a', attrs={'role':'button'}),
-        dict(name='figure', attrs={'class':re.compile(r'video')})
+        dict(name='div', attrs={'class': ['note NotePortrait', 'note']}),
+        dict(name='ul', attrs={'class': re.compile(r'article__share')}),
+        dict(name='div', attrs={'class': 'slideshow__controls'}),
+        dict(name='a', attrs={'role': 'button'}),
+        dict(name='figure', attrs={'class': re.compile(r'video')}),
     ]
 
     remove_attributes = ['width', 'height']

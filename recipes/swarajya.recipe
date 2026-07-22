@@ -48,12 +48,7 @@ class SwarajyaMag(BasicNewsRecipe):
         ans = []
 
         cont = soup.find(attrs={'id': 'container'})
-        self.cover_url = (
-            cont.find('a', href=lambda x: x and x.startswith('/issue/'))
-            .img['src']
-            .split('?')[0]
-            + '?w=600'
-        )
+        self.cover_url = cont.find('a', href=lambda x: x and x.startswith('/issue/')).img['src'].split('?')[0] + '?w=600'
         for div in cont.findAll('div', attrs={'class': 'rounded'}):
             url = div.findParent('a')['href']
             if url.startswith('/'):
@@ -67,9 +62,7 @@ class SwarajyaMag(BasicNewsRecipe):
         return [('Articles', ans)]
 
     def preprocess_raw_html(self, raw, url):
-        app = re.search(
-            r'<script type=\"application/ld\+json\">({\"headline.+})', raw
-        ).group(1)
+        app = re.search(r'<script type=\"application/ld\+json\">({\"headline.+})', raw).group(1)
         data = json.JSONDecoder().raw_decode(app)[0]
 
         title = f'<h1>{data["headline"]}</h1>'

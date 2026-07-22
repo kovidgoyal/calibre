@@ -21,15 +21,15 @@ from . import open_for_read, open_for_write
 
 
 class HeadingsToSections:
-    """
-    """
+    """ """
 
-    def __init__(self,
-            in_file,
-            bug_handler,
-            copy=None,
-            run_level=1,
-            ):
+    def __init__(
+        self,
+        in_file,
+        bug_handler,
+        copy=None,
+        run_level=1,
+    ):
         """
         Required:
             'file'
@@ -58,32 +58,38 @@ class HeadingsToSections:
         self.__state = 'default'
         self.__all_sections = []
         self.__chunk = ''
-        self.__state_dict={
-        'default'   : self.__default_func,
-        'in_table'  : self.__in_table_func,
-        'in_list'   : self.__in_list_func,
-        'after_body': self.__after_body_func,
+        self.__state_dict = {
+            'default': self.__default_func,
+            'in_table': self.__in_table_func,
+            'in_list': self.__in_list_func,
+            'after_body': self.__after_body_func,
         }
         self.__list_depth = 0
         self.__end_list = [
-        'mi<mk<body-close',
-        # changed 2004-04-26
-        # 'mi<mk<par-in-fld',
-        'mi<mk<sect-close',  # right before close of section
-        'mi<mk<sect-start',  # right before section start
-                            # this should be sect-close!
-        # 'mi<mk<header-beg',
-        # 'mi<mk<header-end',
-        # 'mi<mk<head___clo',
-        #
-        # changed 2004-04-26
-        # 'mi<mk<fldbk-end_',
-        # 'mi<mk<sec-fd-beg',
+            'mi<mk<body-close',
+            # changed 2004-04-26
+            # 'mi<mk<par-in-fld',
+            'mi<mk<sect-close',  # right before close of section
+            'mi<mk<sect-start',  # right before section start
+            # this should be sect-close!
+            # 'mi<mk<header-beg',
+            # 'mi<mk<header-end',
+            # 'mi<mk<head___clo',
+            #
+            # changed 2004-04-26
+            # 'mi<mk<fldbk-end_',
+            # 'mi<mk<sec-fd-beg',
         ]
         self.__headings = [
-        'heading 1', 'heading 2', 'heading 3', 'heading 4',
-        'heading 5', 'heading 6', 'heading 7', 'heading 8',
-        'heading 9'
+            'heading 1',
+            'heading 2',
+            'heading 3',
+            'heading 4',
+            'heading 5',
+            'heading 6',
+            'heading 7',
+            'heading 8',
+            'heading 9',
         ]
         self.__section_num = [0]
         self.__id_regex = re.compile(r'\<list-id\>(\d+)')
@@ -137,13 +143,8 @@ class HeadingsToSections:
         num_in_level = len(self.__all_sections)
         num_in_level = self.__section_num[num_in_level]
         level = len(self.__all_sections)
-        self.__write_obj.write(
-            'mi<mk<sect-start\n'
-                )
-        self.__write_obj.write(
-                f'mi<tg<open-att__<section<num>{section_num}<num-in-level>{num_in_level}<level>{level}'
-                f'<type>{name}\n'
-                )
+        self.__write_obj.write('mi<mk<sect-start\n')
+        self.__write_obj.write(f'mi<tg<open-att__<section<num>{section_num}<num-in-level>{num_in_level}<level>{level}<type>{name}\n')
 
     def __write_end_section(self):
         self.__write_obj.write('mi<mk<sect-close\n')

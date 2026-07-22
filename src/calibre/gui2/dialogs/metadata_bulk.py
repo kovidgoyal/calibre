@@ -82,7 +82,19 @@ class MyBlockingBusy(QDialog):  # {{{
     progress_finished_cur_step = pyqtSignal()
     progress_next_step_range = pyqtSignal(int)
 
-    def __init__(self, args, ids, db, refresh_books, cc_widgets, s_r_func, do_sr, sr_calls, parent=None, window_title=_('Working')):
+    def __init__(
+        self,
+        args,
+        ids,
+        db,
+        refresh_books,
+        cc_widgets,
+        s_r_func,
+        do_sr,
+        sr_calls,
+        parent=None,
+        window_title=_('Working'),
+    ):
         QDialog.__init__(self, parent)
 
         self._layout = l = QVBoxLayout()
@@ -232,7 +244,13 @@ class MyBlockingBusy(QDialog):  # {{{
                 fmts = db.formats(book_id, verify_formats=False)
                 paths = list(filter(None, [db.format_abspath(book_id, fmt) for fmt in fmts]))
                 if paths:
-                    ret = worker('calibre.ebooks.metadata.worker', 'read_metadata_bulk', args.read_file_metadata, args.cover_action == 'fromfmt', paths)
+                    ret = worker(
+                        'calibre.ebooks.metadata.worker',
+                        'read_metadata_bulk',
+                        args.read_file_metadata,
+                        args.cover_action == 'fromfmt',
+                        paths,
+                    )
                     if ret['tb'] is not None:
                         prints(ret['tb'])
                     else:
@@ -656,14 +674,22 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         if 'tags' in cuh:
             self.tags.set_hierarchy_separator('.')
             self.remove_tags.set_hierarchy_separator('.')
-        self.casing_algorithm.addItems([_('Title case'), _('Capitalize'), _('Upper case'), _('Lower case'), _('Swap case')])
+        self.casing_algorithm.addItems([
+            _('Title case'),
+            _('Capitalize'),
+            _('Upper case'),
+            _('Lower case'),
+            _('Swap case'),
+        ])
         self.casing_map = ['title_case', 'capitalize', 'upper_case', 'lower_case', 'swap_case']
         prevca = gprefs.get('bulk-mde-casing-algorithm', 'title_case')
         idx = max(0, self.casing_map.index(prevca))
         self.casing_algorithm.setCurrentIndex(idx)
         self.casing_algorithm.setEnabled(False)
         connect_lambda(
-            self.change_title_to_title_case.toggled, self, lambda self: self.casing_algorithm.setEnabled(self.change_title_to_title_case.isChecked())
+            self.change_title_to_title_case.toggled,
+            self,
+            lambda self: self.casing_algorithm.setEnabled(self.change_title_to_title_case.isChecked()),
         )
 
         if len(self.db.custom_field_keys(include_composites=False)) == 0:
@@ -691,7 +717,11 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         self.button_transform_series.clicked.connect(self.transform_series)
         self.tag_map_rules = self.author_map_rules = self.publisher_map_rules = self.series_map_rules = ()
         tuple(
-            (b.clicked.connect(self.clear_transform_rules_for), b.setIcon(QIcon.ic('clear_left.png')), b.setToolTip(_('Clear the rules')))
+            (
+                b.clicked.connect(self.clear_transform_rules_for),
+                b.setIcon(QIcon.ic('clear_left.png')),
+                b.setToolTip(_('Clear the rules')),
+            )
             for b in (self.button_clear_tags_rules, self.button_clear_authors_rules, self.button_clear_publishers_rules)
         )
         self.update_transform_labels()
@@ -1287,7 +1317,12 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
                                 'pairs of strings separated by a colon.\n\n'
                                 'Do you want to continue processing books?'
                             ).format(mi.title, mi.id),
-                            det_msg='\n'.join([_('Result identifier string: '), ', '.join(val), '-----', traceback.format_exc()]),
+                            det_msg='\n'.join([
+                                _('Result identifier string: '),
+                                ', '.join(val),
+                                '-----',
+                                traceback.format_exc(),
+                            ]),
                             show_copy_button=True,
                         )
                         return ans
@@ -1386,7 +1421,12 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         do_sr = source and self.s_r_obj
 
         if self.s_r_error is not None and do_sr:
-            error_dialog(self, _('Search/replace invalid'), _('Search/replace is invalid: %s') % error_message(self.s_r_error), show=True)
+            error_dialog(
+                self,
+                _('Search/replace invalid'),
+                _('Search/replace is invalid: %s') % error_message(self.s_r_error),
+                show=True,
+            )
             return False
         self.changed = bool(self.ids)
         # Cache values from GUI so that Qt widgets are not used in
@@ -1537,7 +1577,11 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         if self.query_field.currentIndex() == 0:
             return
 
-        if not question_dialog(self, _('Delete saved search/replace'), _('The selected saved search/replace will be deleted. Are you sure?')):
+        if not question_dialog(
+            self,
+            _('Delete saved search/replace'),
+            _('The selected saved search/replace will be deleted. Are you sure?'),
+        ):
             return
 
         item_id = self.query_field.currentIndex()
@@ -1569,7 +1613,11 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         new = True
         name = str(name)
         if name in list(self.queries.keys()):
-            if not question_dialog(self, _('Save search/replace'), _('That saved search/replace already exists and will be overwritten. Are you sure?')):
+            if not question_dialog(
+                self,
+                _('Save search/replace'),
+                _('That saved search/replace already exists and will be overwritten. Are you sure?'),
+            ):
                 return
             new = False
 

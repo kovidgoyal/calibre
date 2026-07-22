@@ -19,7 +19,6 @@ if is_sanitized:
 
 
 class Handler(http.server.BaseHTTPRequestHandler):
-
     def __init__(self, test_obj, *a):
         self.test_obj = test_obj
         super().__init__(*a)
@@ -73,7 +72,6 @@ class Handler(http.server.BaseHTTPRequestHandler):
 
 @unittest.skipIf(skip, skip)
 class TestFetchBackend(unittest.TestCase):
-
     ae = unittest.TestCase.assertEqual
 
     def setUp(self):
@@ -183,7 +181,6 @@ class TestFetchBackend(unittest.TestCase):
             return ans
 
         class Server(HTTPServer):
-
             def server_bind(self):
                 # Avoid calling socket.getfqdn() which is slow on some systems
                 TCPServer.server_bind(self)

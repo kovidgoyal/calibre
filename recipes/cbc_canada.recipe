@@ -2,19 +2,21 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class AdvancedUserRecipe1384137533(BasicNewsRecipe):
-    title = u'CBC Canada'
+    title = 'CBC Canada'
     language = 'en_CA'
     __author__ = 'rty'
     oldest_article = 7
     max_articles_per_feed = 50
     auto_cleanup = True
 
-    feeds = [(u'Top Stories', u'https://www.cbc.ca/webfeed/rss/rss-topstories'),
-             (u'World', u'https://www.cbc.ca/webfeed/rss/rss-world'),
-             (u'Canada', u'https://www.cbc.ca/webfeed/rss/rss-canada'),
-             (u'Politics', u'https://www.cbc.ca/webfeed/rss/rss-politics'),
-             (u'Business', u'https://www.cbc.ca/webfeed/rss/rss-business'),
-             (u'Arts', u'https://www.cbc.ca/webfeed/rss/rss-arts'),
-             (u'Health', u'https://www.cbc.ca/webfeed/rss/rss-health'),
-             (u'Technology', u'https://www.cbc.ca/webfeed/rss/rss-technology'),
-             (u'Indigenous', u'https://www.cbc.ca/webfeed/rss/rss-Indigenous'),]
+    feeds = [
+        ('Top Stories', 'https://www.cbc.ca/webfeed/rss/rss-topstories'),
+        ('World', 'https://www.cbc.ca/webfeed/rss/rss-world'),
+        ('Canada', 'https://www.cbc.ca/webfeed/rss/rss-canada'),
+        ('Politics', 'https://www.cbc.ca/webfeed/rss/rss-politics'),
+        ('Business', 'https://www.cbc.ca/webfeed/rss/rss-business'),
+        ('Arts', 'https://www.cbc.ca/webfeed/rss/rss-arts'),
+        ('Health', 'https://www.cbc.ca/webfeed/rss/rss-health'),
+        ('Technology', 'https://www.cbc.ca/webfeed/rss/rss-technology'),
+        ('Indigenous', 'https://www.cbc.ca/webfeed/rss/rss-Indigenous'),
+    ]

@@ -1,4 +1,4 @@
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 
 '''
@@ -113,6 +113,7 @@ def get_first_opf_name(zf):
 
 def _write_new_cover(new_cdata, cpath):
     from calibre.utils.img import save_cover_data_to
+
     new_cover = PersistentTemporaryFile(suffix=os.path.splitext(cpath)[1])
     new_cover.close()
     save_cover_data_to(new_cdata, new_cover.name)

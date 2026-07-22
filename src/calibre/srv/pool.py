@@ -12,7 +12,6 @@ from calibre.utils.monotonic import monotonic
 
 
 class Worker(Thread):
-
     daemon = True
 
     def __init__(self, log, notify_server, num, request_queue, result_queue):
@@ -47,7 +46,6 @@ class Worker(Thread):
 
 
 class ThreadPool:
-
     def __init__(self, log, notify_server, count=10, queue_size=1000):
         self.request_queue, self.result_queue = Queue(queue_size), Queue(queue_size)
         self.workers = [Worker(log, notify_server, i, self.request_queue, self.result_queue) for i in range(count)]
@@ -85,14 +83,12 @@ class ThreadPool:
 
 
 class PluginThread(Thread):
-
     def __init__(self, plugin, target, name):
         super().__init__(target=target, args=(plugin,), name=name, daemon=True)
         self.plugin = plugin
 
 
 class PluginPool:
-
     def __init__(self, loop, plugins):
         self.workers: list[PluginThread] = []
         self.loop = loop

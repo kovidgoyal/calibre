@@ -22,10 +22,12 @@ if islinux:
     import ctypes
 
     class SOCKADDR_NL(ctypes.Structure):
-        _fields_ = [('nl_family', ctypes.c_ushort),
-                    ('nl_pad',    ctypes.c_ushort),
-                    ('nl_pid',    ctypes.c_int),
-                    ('nl_groups', ctypes.c_int)]
+        _fields_ = [
+            ('nl_family', ctypes.c_ushort),
+            ('nl_pad', ctypes.c_ushort),
+            ('nl_pid', ctypes.c_int),
+            ('nl_groups', ctypes.c_int),
+        ]
 
     def getsockfamily(fd):
         addr = SOCKADDR_NL(0, 0, 0, 0)
@@ -37,6 +39,7 @@ if islinux:
 
     try:
         from ctypes.util import find_library
+
         systemd = ctypes.CDLL(find_library('systemd'))
         systemd.sd_listen_fds
     except Exception:
@@ -59,6 +62,7 @@ if islinux:
                 raise OSError('Failed to check the systemd socket file descriptor for validity')
             family = getsockfamily(fd)
             return socket.fromfd(fd, family, socket.SOCK_STREAM)
+
 
 if __name__ == '__main__':
     # Run as:

@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 __license__ = 'GPL v3'
-__copyright__ = u'2011, Silviu Cotoar\u0103'
+__copyright__ = '2011, Silviu Cotoar\u0103'
 '''
 kudika.ro
 '''
@@ -11,9 +11,9 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class Kudika(BasicNewsRecipe):
-    title = u'Kudika'
-    __author__ = u'Silviu Cotoar\u0103'
-    description = u'Revist\u0103 pentru femei'
+    title = 'Kudika'
+    __author__ = 'Silviu Cotoar\u0103'
+    description = 'Revist\u0103 pentru femei'
     publisher = 'Kudika'
     oldest_article = 5
     language = 'ro'
@@ -24,21 +24,17 @@ class Kudika(BasicNewsRecipe):
     encoding = 'utf-8'
     cover_url = 'http://img.kudika.ro/images/template/page-logo.png'
 
-    conversion_options = {
-        'comments': description, 'tags': category, 'language': language, 'publisher': publisher
-    }
+    conversion_options = {'comments': description, 'tags': category, 'language': language, 'publisher': publisher}
 
-    keep_only_tags = [
-        dict(name='div', attrs={'class': 'header_recommend_article'}),
-        dict(name='div', attrs={'id': 'intertext_women'})
-    ]
+    keep_only_tags = [dict(name='div', attrs={'class': 'header_recommend_article'}), dict(name='div', attrs={'id': 'intertext_women'})]
 
     remove_tags = [
-        dict(name='p', attrs={'class': ['page_breadcrumbs']}), dict(name='div', attrs={
-            'class': ['standard']}), dict(name='div', attrs={'id': ['recommend_allover']})
+        dict(name='p', attrs={'class': ['page_breadcrumbs']}),
+        dict(name='div', attrs={'class': ['standard']}),
+        dict(name='div', attrs={'id': ['recommend_allover']}),
     ]
 
-    feeds = [(u'Feeds', u'http://www.kudika.ro/feed.xml')]
+    feeds = [('Feeds', 'http://www.kudika.ro/feed.xml')]
 
     def preprocess_html(self, soup):
         return self.adeify_images(soup)

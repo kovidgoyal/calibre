@@ -23,11 +23,8 @@ class StackOverflowBlog(BasicNewsRecipe):
     use_embedded_content = True
     encoding = 'utf-8'
 
-    html2lrf_options = [
-        '--comment', description, '--category', category, '--publisher', publisher
-    ]
+    html2lrf_options = ['--comment', description, '--category', category, '--publisher', publisher]
 
-    html2epub_options = 'publisher="' + publisher + \
-        '"\ncomments="' + description + '"\ntags="' + category + '"'
+    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"'
 
-    feeds = [(u'Articles', u'http://blog.stackoverflow.com/feed/')]
+    feeds = [('Articles', 'http://blog.stackoverflow.com/feed/')]

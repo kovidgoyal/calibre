@@ -17,7 +17,6 @@ from calibre.utils.search_query_parser import SearchQueryParser
 
 
 class Delegate(QStyledItemDelegate):
-
     def paint(self, painter, option, index):
         icon = index.data(Qt.ItemDataRole.DecorationRole)
         if icon and not icon.isNull():
@@ -37,7 +36,6 @@ class Delegate(QStyledItemDelegate):
 
 
 class Matches(QAbstractItemModel):
-
     HEADERS = [_('Enabled'), _('Name'), _('No DRM'), _('Headquarters'), _('Affiliate'), _('Formats')]
     HTML_COLS = (1,)
     CENTERED_COLUMNS = (0, 2, 3, 4)
@@ -119,27 +117,27 @@ class Matches(QAbstractItemModel):
         if orientation == Qt.Orientation.Horizontal:
             if section < len(self.HEADERS):
                 text = self.HEADERS[section]
-            return (text)
+            return text
         else:
-            return (section+1)
+            return section + 1
 
     def data(self, index, role=...):
         row, col = index.row(), index.column()
         result = self.matches[row]
         if role in (Qt.ItemDataRole.DisplayRole, Qt.ItemDataRole.EditRole):
             if col == 1:
-                return (f'<b>{result.name}</b><br><i>{result.description}</i>')
+                return f'<b>{result.name}</b><br><i>{result.description}</i>'
             elif col == 3:
-                return (result.headquarters)
+                return result.headquarters
             elif col == 5:
-                return (', '.join(result.formats).upper())
+                return ', '.join(result.formats).upper()
         elif role == Qt.ItemDataRole.DecorationRole:
             if col == 2:
                 if result.drm_free_only:
-                    return (self.NO_DRM_ICON)
+                    return self.NO_DRM_ICON
             if col == 4:
                 if result.affiliate:
-                    return (self.DONATE_ICON)
+                    return self.DONATE_ICON
         elif role == Qt.ItemDataRole.CheckStateRole:
             if col == 0:
                 if is_disabled(result):
@@ -152,23 +150,34 @@ class Matches(QAbstractItemModel):
         elif role == Qt.ItemDataRole.ToolTipRole:
             if col == 0:
                 if is_disabled(result):
-                    return ('<p>' + _('This store is currently disabled and cannot be used in other parts of calibre.') + '</p>')
+                    return '<p>' + _('This store is currently disabled and cannot be used in other parts of calibre.') + '</p>'
                 else:
-                    return ('<p>' + _('This store is currently enabled and can be used in other parts of calibre.') + '</p>')
+                    return '<p>' + _('This store is currently enabled and can be used in other parts of calibre.') + '</p>'
             elif col == 1:
-                return (f'<p>{result.description}</p>')
+                return f'<p>{result.description}</p>'
             elif col == 2:
                 if result.drm_free_only:
-                    return ('<p>' + _('This store only distributes e-books without DRM.') + '</p>')
+                    return '<p>' + _('This store only distributes e-books without DRM.') + '</p>'
                 else:
-                    return ('<p>' + _('This store distributes e-books with DRM. It may have some titles without DRM, but you will need to check on a per title basis.') + '</p>')  # noqa: E501
+                    return (
+                        '<p>'
+                        + _('This store distributes e-books with DRM. It may have some titles without DRM, but you will need to check on a per title basis.')
+                        + '</p>'
+                    )  # noqa: E501
             elif col == 3:
-                return ('<p>' + _('This store is headquartered in %s. This is a good indication of what market the store caters to. However, this does not necessarily mean that the store is limited to that market only.') % result.headquarters + '</p>')  # noqa: E501
+                return (
+                    '<p>'
+                    + _(
+                        'This store is headquartered in %s. This is a good indication of what market the store caters to. However, this does not necessarily mean that the store is limited to that market only.'  # noqa: E501
+                    )
+                    % result.headquarters
+                    + '</p>'
+                )
             elif col == 4:
                 if result.affiliate:
-                    return ('<p>' + _('Buying from this store supports the calibre developer: %s.') % result.author + '</p>')
+                    return '<p>' + _('Buying from this store supports the calibre developer: %s.') % result.author + '</p>'
             elif col == 5:
-                return ('<p>' + _('This store distributes e-books in the following formats: %s') % ', '.join(result.formats) + '</p>')
+                return '<p>' + _('This store distributes e-books in the following formats: %s') % ', '.join(result.formats) + '</p>'
         return None
 
     def setData(self, index, value, role=...):
@@ -214,7 +223,6 @@ class Matches(QAbstractItemModel):
 
 
 class SearchFilter(SearchQueryParser):
-
     USABLE_LOCATIONS = [
         'all',
         'affiliate',
@@ -306,5 +314,6 @@ class SearchFilter(SearchQueryParser):
                         break
                 except ValueError:  # Unicode errors
                     import traceback
+
                     traceback.print_exc()
         return matches

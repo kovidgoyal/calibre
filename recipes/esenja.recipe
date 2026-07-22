@@ -10,8 +10,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class Esensja(BasicNewsRecipe):
-
-    title = u'Esensja'
+    title = 'Esensja'
     __author__ = 'matek09 & fenuks'
     description = 'Magazyn kultury popularnej'
     encoding = 'utf-8'
@@ -23,17 +22,20 @@ class Esensja(BasicNewsRecipe):
     URL = 'http://esensja.pl'
     HREF = '0'
     remove_attributes = ['style', 'bgcolor', 'alt', 'color']
-    keep_only_tags = [dict(attrs={'class': 'sekcja'}), ]
+    keep_only_tags = [
+        dict(attrs={'class': 'sekcja'}),
+    ]
     # keep_only_tags.append(dict(name = 'div', attrs = {'class' : 'article'})
     remove_tags_after = dict(id='tekst')
 
-    remove_tags = [dict(name='img', attrs={'src': ['../../../2000/01/img/tab_top.gif', '../../../2000/01/img/tab_bot.gif']}),
-                   dict(name='div', attrs={'class': 't-title2 nextpage'}),
-                   # dict(attrs={'rel':'lightbox[galeria]'})
-                   dict(attrs={'class': ['tekst_koniec', 'ref', 'wykop']}),
-                   dict(attrs={'itemprop': ['copyrightHolder', 'publisher']}),
-                   dict(id='komentarze')
-                   ]
+    remove_tags = [
+        dict(name='img', attrs={'src': ['../../../2000/01/img/tab_top.gif', '../../../2000/01/img/tab_bot.gif']}),
+        dict(name='div', attrs={'class': 't-title2 nextpage'}),
+        # dict(attrs={'rel':'lightbox[galeria]'})
+        dict(attrs={'class': ['tekst_koniec', 'ref', 'wykop']}),
+        dict(attrs={'itemprop': ['copyrightHolder', 'publisher']}),
+        dict(id='komentarze'),
+    ]
 
     extra_css = '''
                                     .t-title {font-size: x-large; font-weight: bold; text-align: left}
@@ -43,8 +45,7 @@ class Esensja(BasicNewsRecipe):
                                     .annot-ref {font-style: italic; text-align: left}
                             '''
 
-    preprocess_regexps = [(re.compile(r'alt="[^"]*"'), lambda match: ''),
-                          (re.compile(r'(title|alt)="[^"]*?"', re.DOTALL), lambda match: '')]
+    preprocess_regexps = [(re.compile(r'alt="[^"]*"'), lambda match: ''), (re.compile(r'(title|alt)="[^"]*?"', re.DOTALL), lambda match: '')]
 
     def parse_index(self):
         soup = self.index_to_soup('http://www.esensja.pl/magazyn/')
@@ -87,8 +88,7 @@ class Esensja(BasicNewsRecipe):
             finalurl = tag.a['href']
             if not finalurl.startswith('http'):
                 finalurl = self.HREF + finalurl
-            articles.append({'title': self.tag_to_string(
-                tag.a), 'url': finalurl, 'date': '', 'description': ''})
+            articles.append({'title': self.tag_to_string(tag.a), 'url': finalurl, 'date': '', 'description': ''})
 
             a = self.index_to_soup(finalurl)
             i = 1
@@ -100,8 +100,7 @@ class Esensja(BasicNewsRecipe):
                     if not link.startswith('http'):
                         link = self.HREF + link
                     a = self.index_to_soup(link)
-                    articles.append({'title': self.tag_to_string(
-                        tag.a) + ' c. d. ' + str(i), 'url': link, 'date': '', 'description': ''})
+                    articles.append({'title': self.tag_to_string(tag.a) + ' c. d. ' + str(i), 'url': link, 'date': '', 'description': ''})
                     i = i + 1
                 else:
                     break
@@ -116,8 +115,7 @@ class Esensja(BasicNewsRecipe):
                 nr = int(nr.a.string)
             except Exception:
                 return
-            baseurl = soup.find(attrs={'property': 'og:url'})[
-                'content'] + '&strona={0}'
+            baseurl = soup.find(attrs={'property': 'og:url'})['content'] + '&strona={0}'
             for number in range(2, nr + 1):
                 soup2 = self.index_to_soup(baseurl.format(number))
                 pagetext = soup2.find(attrs={'class': 'tresc'})
@@ -128,8 +126,7 @@ class Esensja(BasicNewsRecipe):
             for r in appendtag.findAll('script'):
                 r.extract()
 
-            comments = appendtag.findAll(
-                text=lambda text: isinstance(text, Comment))
+            comments = appendtag.findAll(text=lambda text: isinstance(text, Comment))
             for comment in comments:
                 comment.extract()
 
@@ -151,8 +148,7 @@ class Esensja(BasicNewsRecipe):
                     src = src[5:].replace('//', '/')
             if src:
                 tag.contents = []
-                tag.insert(0, BeautifulSoup(
-                    '<img src="{0}{1}" />'.format(self.URL, src)))
+                tag.insert(0, BeautifulSoup('<img src="{0}{1}" />'.format(self.URL, src)))
             if info:
                 tag.insert(len(tag.contents), info)
         return soup

@@ -30,7 +30,7 @@ user_functions = JSONConfig('editor-search-replace-functions')
 
 def compile_code(src, name='<string>'):
     if not isinstance(src, str):
-        match = re.search(br'coding[:=]\s*([-\w.]+)', src[:200])
+        match = re.search(rb'coding[:=]\s*([-\w.]+)', src[:200])
         enc = match.group(1).decode('utf-8') if match else 'utf-8'
         src = src.decode(enc)
     if not src or not src.strip():
@@ -47,7 +47,6 @@ def compile_code(src, name='<string>'):
 
 
 class Function:
-
     def __init__(self, name, source=None, func=None):
         self._source = source
         self.is_builtin = source is None
@@ -64,12 +63,13 @@ class Function:
 
     def init_env(self, name=''):
         from calibre.gui2.tweak_book.boss import get_boss
+
         self.context_name = name or ''
         self.match_index = 0
         self.boss = get_boss()
         self.data = {}
         self.debug_buf = PolyglotStringIO()
-        self.functions = {name:func.mod for name, func in functions().items() if func.mod is not None}
+        self.functions = {name: func.mod for name, func in functions().items() if func.mod is not None}
 
     def __hash__(self):
         return hash(self.name)
@@ -86,7 +86,15 @@ class Function:
         try:
             boss = self.boss
             assert boss is not None
-            return self.func(match, self.match_index, self.context_name, boss.current_metadata, dictionaries, self.data, self.functions)
+            return self.func(
+                match,
+                self.match_index,
+                self.context_name,
+                boss.current_metadata,
+                dictionaries,
+                self.data,
+                self.functions,
+            )
         finally:
             sys.stdout, sys.stderr = oo, oe
 
@@ -94,6 +102,7 @@ class Function:
     def source(self):
         if self.is_builtin:
             import json
+
             return json.loads(P('editor-functions.json', data=True, allow_user_override=False))[self.name]
         return self._source
 
@@ -103,14 +112,21 @@ class Function:
             try:
                 boss = self.boss
                 assert boss is not None
-                return self.func(None, self.match_index, self.context_name, boss.current_metadata, dictionaries, self.data, self.functions)
+                return self.func(
+                    None,
+                    self.match_index,
+                    self.context_name,
+                    boss.current_metadata,
+                    dictionaries,
+                    self.data,
+                    self.functions,
+                )
             finally:
                 sys.stdout, sys.stderr = oo, oe
         self.data, self.boss, self.functions = {}, None, {}
 
 
 class DebugOutput(Dialog):
-
     def __init__(self, parent=None):
         Dialog.__init__(self, 'Debug output', 'sr-function-debug-output')
         self.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose, False)
@@ -175,12 +191,15 @@ def remove_function(name, gui_parent=None):
     if not name:
         return False
     if name not in funcs:
-        error_dialog(gui_parent, _('No such function'), _(
-            'There is no function named %s') % name, show=True)
+        error_dialog(gui_parent, _('No such function'), _('There is no function named %s') % name, show=True)
         return False
     if name not in user_functions:
-        error_dialog(gui_parent, _('Cannot remove builtin function'), _(
-            'The function %s is a builtin function, it cannot be removed.') % name, show=True)
+        error_dialog(
+            gui_parent,
+            _('Cannot remove builtin function'),
+            _('The function %s is a builtin function, it cannot be removed.') % name,
+            show=True,
+        )
     del user_functions[name]
     functions(refresh=True)
     refresh_boxes()
@@ -198,7 +217,6 @@ def refresh_boxes():
 
 
 class FunctionBox(EditWithComplete):
-
     save_search = pyqtSignal()
     show_saved_searches = pyqtSignal()
 
@@ -226,7 +244,6 @@ class FunctionBox(EditWithComplete):
 
 
 class FunctionEditor(Dialog):
-
     def __init__(self, func_name='', parent=None):
         self._func_name = func_name
         Dialog.__init__(self, _('Create/edit a function'), 'edit-sr-func', parent=parent)
@@ -256,9 +273,10 @@ class FunctionEditor(Dialog):
         else:
             self.source_code.setPlainText('\n' + EMPTY_FUNC)
 
-        self.la2 = la = QLabel(_(
-            'For help with creating functions, see the <a href="%s">User Manual</a>') %
-            localize_user_manual_link('https://manual.calibre-ebook.com/function_mode.html'))
+        self.la2 = la = QLabel(
+            _('For help with creating functions, see the <a href="%s">User Manual</a>')
+            % localize_user_manual_link('https://manual.calibre-ebook.com/function_mode.html')
+        )
         la.setOpenExternalLinks(True)
         l.addWidget(la)
 
@@ -279,17 +297,24 @@ class FunctionEditor(Dialog):
 
     def accept(self):
         if not self.func_name:
-            return error_dialog(self, _('Must specify name'), _(
-                'You must specify a name for this function.'), show=True)
+            return error_dialog(self, _('Must specify name'), _('You must specify a name for this function.'), show=True)
         source = self.source
         try:
             mod = compile_code(source, self.func_name)
         except Exception as err:
-            return error_dialog(self, _('Invalid Python code'), _(
-                'The code you created is not valid Python code, with error: %s') % err, show=True)
+            return error_dialog(
+                self,
+                _('Invalid Python code'),
+                _('The code you created is not valid Python code, with error: %s') % err,
+                show=True,
+            )
         if not callable(mod.get('replace')):
-            return error_dialog(self, _('No replace function'), _(
-                'You must create a Python function named replace in your code'), show=True)
+            return error_dialog(
+                self,
+                _('No replace function'),
+                _('You must create a Python function named replace in your code'),
+                show=True,
+            )
         user_functions[self.func_name] = source
         functions(refresh=True)
         refresh_boxes()
@@ -298,10 +323,15 @@ class FunctionEditor(Dialog):
 
     def reject(self):
         if self.source != self.initial_source:
-            if not confirm(_('All unsaved changes will be lost. Are you sure?'), 'function-replace-close-confirm',
-                           parent=self, config_set=tprefs):
+            if not confirm(
+                _('All unsaved changes will be lost. Are you sure?'),
+                'function-replace-close-confirm',
+                parent=self,
+                config_set=tprefs,
+            ):
                 return
         return super().reject()
+
 
 # Builtin functions ##########################################################
 
@@ -311,6 +341,7 @@ def builtin(name, *args):
         func.name = name
         func.imports = args
         return func
+
     return f
 
 

@@ -28,16 +28,17 @@ class MakeLists:
     Use indents to determine items and how lists are nested.
     """
 
-    def __init__(self,
-            in_file,
-            bug_handler,
-            headings_to_sections,
-            list_of_lists,
-            copy=None,
-            run_level=1,
-            no_headings_as_list=1,
-            write_list_info=0,
-            ):
+    def __init__(
+        self,
+        in_file,
+        bug_handler,
+        headings_to_sections,
+        list_of_lists,
+        copy=None,
+        run_level=1,
+        no_headings_as_list=1,
+        write_list_info=0,
+    ):
         """
         Required:
             'file'
@@ -75,35 +76,41 @@ class MakeLists:
         self.__all_lists = []
         self.__level = 0
         self.__list_chunk = ''
-        self.__state_dict={
-        'default'   : self.__default_func,
-        'in_pard'   : self.__in_pard_func,
-        'after_pard': self.__after_pard_func,
+        self.__state_dict = {
+            'default': self.__default_func,
+            'in_pard': self.__in_pard_func,
+            'after_pard': self.__after_pard_func,
         }
         self.__headings = [
-        'heading 1', 'heading 2', 'heading 3', 'heading 4',
-        'heading 5', 'heading 6', 'heading 7', 'heading 8',
-        'heading 9'
+            'heading 1',
+            'heading 2',
+            'heading 3',
+            'heading 4',
+            'heading 5',
+            'heading 6',
+            'heading 7',
+            'heading 8',
+            'heading 9',
         ]
         self.__allow_levels = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
         self.__style_name = ''
         self.__end_list = [
-        'mi<mk<body-close',
-        'mi<mk<par-in-fld',
-        'cw<tb<cell______',
-        'cw<tb<row-def___',
-        'cw<tb<row_______',
-        'mi<mk<sect-close',
-        'mi<mk<sect-start',
-        'mi<mk<header-beg',
-        'mi<mk<header-end',
-        'mi<mk<head___clo',
-        'mi<mk<fldbk-end_',
-        'mi<mk<close_cell',
-        'mi<mk<footnt-ope',
-        'mi<mk<foot___clo',
-        'mi<mk<tabl-start',
-        # 'mi<mk<sec-fd-beg',
+            'mi<mk<body-close',
+            'mi<mk<par-in-fld',
+            'cw<tb<cell______',
+            'cw<tb<row-def___',
+            'cw<tb<row_______',
+            'mi<mk<sect-close',
+            'mi<mk<sect-start',
+            'mi<mk<header-beg',
+            'mi<mk<header-end',
+            'mi<mk<head___clo',
+            'mi<mk<fldbk-end_',
+            'mi<mk<close_cell',
+            'mi<mk<footnt-ope',
+            'mi<mk<foot___clo',
+            'mi<mk<tabl-start',
+            # 'mi<mk<sec-fd-beg',
         ]
         self.__end_lines = [
             'mi<tg<close_____<cell\n',
@@ -173,7 +180,7 @@ class MakeLists:
                 self.__list_chunk = ''
                 self.__write_obj.write(line)
                 if len(self.__all_lists) == 0:
-                    self.__state= 'default'
+                    self.__state = 'default'
                 else:
                     self.__state = 'in_pard'
         # section to end lists
@@ -286,17 +293,13 @@ class MakeLists:
         the_dict['left-indent'] = self.__left_indent
         the_dict['id'] = id
         self.__all_lists.append(the_dict)
-        self.__write_obj.write(
-            'mi<mk<list_start\n'
-                )
+        self.__write_obj.write('mi<mk<list_start\n')
         # bogus levels are sometimes written for empty paragraphs
         if str(self.__level) not in self.__allow_levels:
             lev_num = '0'
         else:
             lev_num = self.__level
-        self.__write_obj.write(
-            f'mi<tg<open-att__<list<list-id>{id}<level>{lev_num}'
-                )
+        self.__write_obj.write(f'mi<tg<open-att__<list<list-id>{id}<level>{lev_num}')
         list_dict = {}
         if self.__list_of_lists:  # older RTF won't generate a list_of_lists
             index_of_list = self.__get_index_of_list(id)
@@ -312,19 +315,18 @@ class MakeLists:
                     list_type = 'unordered'
                 else:
                     list_type = 'ordered'
-                self.__write_obj.write(
-                    f'<list-type>{list_type}')
+                self.__write_obj.write(f'<list-type>{list_type}')
             else:  # no matching id
-                self.__write_obj.write(
-                    f'<list-type>{self.__list_type}')
+                self.__write_obj.write(f'<list-type>{self.__list_type}')
         else:  # older RTF
-            self.__write_obj.write(
-                f'<list-type>{self.__list_type}')
+            self.__write_obj.write(f'<list-type>{self.__list_type}')
         # if you want to dump all the info to the list, rather than
         # keeping it in the table above, change self.__write_list_info
         # to true.
         if self.__list_of_lists and self.__write_list_info and list_dict:
-            not_allow = ['list-id',]
+            not_allow = [
+                'list-id',
+            ]
             the_keys_list = list_dict.keys()
             for the_key in the_keys_list:
                 if the_key in not_allow:
@@ -334,9 +336,7 @@ class MakeLists:
             for the_key in the_keys_level:
                 self.__write_obj.write(f'<{the_key}>{level_dict[the_key]}')
         self.__write_obj.write('\n')
-        self.__write_obj.write(
-            'mi<mk<liststart_\n'
-                )
+        self.__write_obj.write('mi<mk<liststart_\n')
         self.__write_start_item()
 
     def __get_index_of_list(self, id):
@@ -364,10 +364,7 @@ class MakeLists:
                 return the_index
             the_index += 1
         if self.__run_level > 0:
-            sys.stderr.write('Module is make_lists.py\n'
-                'Method is __get_index_of_list\n'
-                f'The main list does not appear to have a matching id for {id} \n'
-                )
+            sys.stderr.write(f'Module is make_lists.py\nMethod is __get_index_of_list\nThe main list does not appear to have a matching id for {id} \n')
             # sys.stderr.write(repr(self.__list_of_lists))
         # if self.__run_level > 3:
         #     msg = 'level is "%s"\n' % self.__run_level

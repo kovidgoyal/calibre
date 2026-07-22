@@ -10,6 +10,7 @@ def handle_changes(changes, gui=None):
         return
     if gui is None:
         from calibre.gui2.ui import get_gui
+
         gui = get_gui()
     if gui is None:
         return

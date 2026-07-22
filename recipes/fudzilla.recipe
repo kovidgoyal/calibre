@@ -12,7 +12,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class Fudzilla(BasicNewsRecipe):
-    title = u'Fudzilla'
+    title = 'Fudzilla'
     __author__ = 'Starson17'
     language = 'en'
 
@@ -25,21 +25,15 @@ class Fudzilla(BasicNewsRecipe):
 
     remove_tags_before = dict(name='div', attrs={'class': ['padding']})
 
-    remove_tags = [dict(name='td', attrs={'class': ['left', 'right']}),
-                   dict(name='div', attrs={'id': ['toolbar', 'buttons']}),
-                   dict(name='div', attrs={
-                        'class': ['artbannersxtd', 'back_button']}),
-                   dict(name='span', attrs={'class': ['pathway']}),
-                   dict(name='th', attrs={
-                        'class': ['pagenav_next', 'pagenav_prev']}),
-                   dict(name='table', attrs={'class': ['headlines']}),
-                   ]
-
-    feeds = [
-        (u'Posts', u'http://www.fudzilla.com/?format=feed')
+    remove_tags = [
+        dict(name='td', attrs={'class': ['left', 'right']}),
+        dict(name='div', attrs={'id': ['toolbar', 'buttons']}),
+        dict(name='div', attrs={'class': ['artbannersxtd', 'back_button']}),
+        dict(name='span', attrs={'class': ['pathway']}),
+        dict(name='th', attrs={'class': ['pagenav_next', 'pagenav_prev']}),
+        dict(name='table', attrs={'class': ['headlines']}),
     ]
 
-    preprocess_regexps = [
-        (re.compile(r'<p class="MsoNormal"> Welcome.*</p> ',
-                    re.DOTALL | re.IGNORECASE), lambda match: '')
-    ]
+    feeds = [('Posts', 'http://www.fudzilla.com/?format=feed')]
+
+    preprocess_regexps = [(re.compile(r'<p class="MsoNormal"> Welcome.*</p> ', re.DOTALL | re.IGNORECASE), lambda match: '')]

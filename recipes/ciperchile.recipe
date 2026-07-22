@@ -23,7 +23,7 @@ class CiperChile(BasicNewsRecipe):
     remove_empty_feeds = True
     publication_type = 'blog'
     masthead_url = 'https://www.ciperchile.cl/wp-content/themes/syms/assets/img/ciper_logo_full_dark.svg'
-    extra_css             = '''
+    extra_css = '''
                                body{font-family: Arial,sans-serif}
                                .excerpt{font-family: Georgia,"Times New Roman",Times,serif; font-style: italic; font-size: 1.25em}
                                .author{font-family: Georgia,"Times New Roman",Times,serif; font-style: italic; font-size: small}
@@ -32,20 +32,14 @@ class CiperChile(BasicNewsRecipe):
                                img{margin-bottom: 0.4em; display:block}
                             '''
 
-    conversion_options = {
-        'comment': description, 'tags': category, 'publisher': publisher, 'language': language
-    }
+    conversion_options = {'comment': description, 'tags': category, 'publisher': publisher, 'language': language}
 
-    remove_tags = [
-        dict(name=['meta', 'link']),
-        dict(attrs={'class': ['articleSharingTools', 'articleNav']})
-    ]
+    remove_tags = [dict(name=['meta', 'link']), dict(attrs={'class': ['articleSharingTools', 'articleNav']})]
     remove_attributes = ['lang']
     remove_tags_before = dict(name='p', attrs={'class': 'epigrafe'})
     remove_tags_after = dict(name='div', attrs={'class': 'articleBody'})
     keep_only_tags = [dict(name='div', attrs={'class': 'articleElements'})]
 
     feeds = [
-
-    (u'Noticias de portada', u'https://www.ciperchile.cl/feed'),
+        ('Noticias de portada', 'https://www.ciperchile.cl/feed'),
     ]

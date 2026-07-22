@@ -8,23 +8,17 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 def classes(classes):
     q = frozenset(classes.split(' '))
-    return dict(
-        attrs={'class': lambda x: x and frozenset(x.split()).intersection(q)}
-    )
+    return dict(attrs={'class': lambda x: x and frozenset(x.split()).intersection(q)})
 
 
 class AnimalPolitico(BasicNewsRecipe):
-    title = u'Animal Político'
-    description = u'Noticias Políticas'
+    title = 'Animal Político'
+    description = 'Noticias Políticas'
     __author__ = 'Jose Ortiz'
     masthead_url = 'https://www.animalpolitico.com/wp-content/themes/animalpolitico-2019/static/assets/logo_black.svg'
     language = 'es_MX'
     ignore_duplicate_articles = {'title', 'url'}
-    conversion_options = {
-        'tags': 'News, Mexico',
-        'publisher': 'Animal Politico',
-        'comments': description
-    }
+    conversion_options = {'tags': 'News, Mexico', 'publisher': 'Animal Politico', 'comments': description}
 
     keep_only_tags = [classes('ap_single_first ap_single_content ax_single')]
     remove_tags = [classes('ap_single_sharers_head ap_single_sharers_share')]
@@ -32,19 +26,13 @@ class AnimalPolitico(BasicNewsRecipe):
     def parse_index(self):
         soup = self.index_to_soup('http://www.animalpolitico.com/')
         articles = []
-        for a in soup(name='a', attrs={
-                    'href': True, 'title': True,
-                    'data-author': True, 'data-type': True,
-                    'data-home-title': True
-                }):
+        for a in soup(name='a', attrs={'href': True, 'title': True, 'data-author': True, 'data-type': True, 'data-home-title': True}):
             title = a['title']
             url = a['href']
             author = a['data-author']
             self.log('\t', title, ' at ', url)
 
-            articles.append({'title':  title,
-                             'author': author,
-                             'url':    url})
+            articles.append({'title': title, 'author': author, 'url': url})
         ans = {}
         for article in articles:
             if re.match(r'https?://www\.animalpolitico\.com/elsabueso/.', article['url'], re.I):
@@ -58,7 +46,4 @@ class AnimalPolitico(BasicNewsRecipe):
 
     def populate_article_metadata(self, article, soup, first):
         if re.match(r'https?://www\.animalpolitico\.com/.', article.url, re.I):
-            article.formatted_date = self.tag_to_string(
-                soup.find(
-                    **classes('ap_single_first')).find(
-                        **classes('ap_single_first_info_date')))
+            article.formatted_date = self.tag_to_string(soup.find(**classes('ap_single_first')).find(**classes('ap_single_first_info_date')))

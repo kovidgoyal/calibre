@@ -1,13 +1,11 @@
-""" elements.py -- replacements and helpers for ElementTree """
+"""elements.py -- replacements and helpers for ElementTree"""
 
 
 class ElementWriter:
-
-    def __init__(self, e, header=False, sourceEncoding='ascii',
-                 spaceBeforeClose=True, outputEncodingName='UTF-16'):
+    def __init__(self, e, header=False, sourceEncoding='ascii', spaceBeforeClose=True, outputEncodingName='UTF-16'):
         self.header = header
         self.e = e
-        self.sourceEncoding=sourceEncoding
+        self.sourceEncoding = sourceEncoding
         self.spaceBeforeClose = spaceBeforeClose
         self.outputEncodingName = outputEncodingName
 
@@ -62,6 +60,7 @@ class ElementWriter:
     def toString(self):
         class x:
             write: object
+
         buffer = []
         x.write = buffer.append
         self.write(x)

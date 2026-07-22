@@ -4,7 +4,16 @@ def unique_lcs_c(a: Sequence[str], b: Sequence[str]) -> list[tuple[int, int]]:
     "Find the longest common subsequence of unique lines in a and b"
     pass
 
-def recurse_matches_c(a: Sequence[str], b: Sequence[str], alo: int, blo: int, ahi: int, bhi: int, answer: list[tuple[int, int]], maxrecursion: int) -> None:
+def recurse_matches_c(
+    a: Sequence[str],
+    b: Sequence[str],
+    alo: int,
+    blo: int,
+    ahi: int,
+    bhi: int,
+    answer: list[tuple[int, int]],
+    maxrecursion: int,
+) -> None:
     "Recursively find pairs of lines that match uniquely, appending (a, b) index pairs to answer"
     pass
 

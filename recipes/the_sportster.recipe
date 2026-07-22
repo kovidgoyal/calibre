@@ -4,13 +4,14 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class AdvancedUserRecipe1718381004(BasicNewsRecipe):
-    title          = 'The Sportster'
+    title = 'The Sportster'
     language = 'en'
     __author__ = 'Spicy Poison'
     description = (
-            'The Sportster has delivered the latest breaking news from across WWE, AEW'
-            ' and more wrestling promotions. In addition, their long form publications delivered'
-            ' accurate statistical insights, thought-provoking opinion pieces and historical retrospectives on the biggest stories from wrestling’s past.')
+        'The Sportster has delivered the latest breaking news from across WWE, AEW'
+        ' and more wrestling promotions. In addition, their long form publications delivered'
+        ' accurate statistical insights, thought-provoking opinion pieces and historical retrospectives on the biggest stories from wrestling’s past.'
+    )
     publisher = 'Valnet Publishing Group'
     oldest_article = 7
     max_articles_per_feed = 50
@@ -20,9 +21,9 @@ class AdvancedUserRecipe1718381004(BasicNewsRecipe):
     encoding = 'utf-8'
     masthead_url = 'https://www.valnetinc.com/images/brand/ts-logo-full-colored-dark.svg'
     remove_empty_feeds = True
-    auto_cleanup   = True
+    auto_cleanup = True
 
-    feeds          = [
+    feeds = [
         # WWE
         ('World Wrestling Entertainment', 'https://www.thesportster.com/feed/category/wwe/'),
         ('WWE News', 'https://www.thesportster.com/feed/category/news/'),
@@ -34,7 +35,6 @@ class AdvancedUserRecipe1718381004(BasicNewsRecipe):
         ('All Elite Wrestling', 'https://www.thesportster.com/feed/category/aew/'),
         ('AEW News', 'https://www.thesportster.com/feed/category/news/'),
         ('AEW Lists', 'https://www.thesportster.com/feed/category/wrestling/'),
-
         ('World Championship Wrestling', 'https://www.thesportster.com/feed/tag/wcw/'),
         ('Mixed Martial Arts', 'https://www.thesportster.com/feed/category/mma/'),
         ('Boxing', 'https://www.thesportster.com/feed/category/boxing/'),

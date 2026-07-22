@@ -30,15 +30,15 @@ ENTITY_MAGIC = b'ENTY'
 ION_MAGIC = b'\xe0\x01\x00\xea'
 
 # ION data types (comment shows equivalent python data type produced)
-DT_BOOLEAN = 1          # True/False
-DT_INTEGER = 2          # int
+DT_BOOLEAN = 1  # True/False
+DT_INTEGER = 2  # int
 # str (using non-unicode to distinguish symbols from strings)
 DT_PROPERTY = 7
-DT_STRING = 8           # unicode
-DT_STRUCT = 11          # tuple
-DT_LIST = 12            # list
-DT_OBJECT = 13          # dict of property/value pairs
-DT_TYPED_DATA = 14      # type, name, value
+DT_STRING = 8  # unicode
+DT_STRUCT = 11  # tuple
+DT_LIST = 12  # list
+DT_OBJECT = 13  # dict of property/value pairs
+DT_TYPED_DATA = 14  # type, name, value
 
 # property names (non-unicode strings to distinguish them from ION strings in this program)
 # These are place holders. The correct property names are unknown.
@@ -50,7 +50,7 @@ PROP_METADATA_VALUE = b'P307'
 PROP_IMAGE = b'P417'
 
 METADATA_PROPERTIES = {
-    b'P10' : 'languages',
+    b'P10': 'languages',
     b'P153': 'title',
     b'P154': 'description',
     b'P222': 'author',
@@ -88,7 +88,7 @@ class PackedData:
         return result
 
     def extract(self, size):
-        data = self.buffer[self.offset:self.offset + size]
+        data = self.buffer[self.offset : self.offset + size]
         self.advance(size)
         return data
 
@@ -131,8 +131,7 @@ class Container(PackedBlock):
         while self.unpack_one('4s', advance=False) != ION_MAGIC:
             entity_id, entity_type, entity_offset, entity_len = self.unpack_multi('<LLQQ')
             entity_start = self.header_len + entity_offset
-            self.entities.append(
-                Entity(self.data[entity_start:entity_start + entity_len], entity_type, entity_id))
+            self.entities.append(Entity(self.data[entity_start : entity_start + entity_len], entity_type, entity_id))
 
     def decode(self):
         return [entity.decode() for entity in self.entities]
@@ -147,7 +146,7 @@ class Entity(PackedBlock):
         PackedBlock.__init__(self, data, ENTITY_MAGIC)
         self.entity_type = entity_type
         self.entity_id = entity_id
-        self.entity_data = data[self.header_len:]
+        self.entity_data = data[self.header_len :]
 
     def decode(self):
         if PackedData(self.entity_data).unpack_one('4s') == ION_MAGIC:
@@ -176,7 +175,7 @@ class PackedIon(PackedData):
         cmd = self.unpack_one('B')
 
         data_type = cmd >> 4
-        data_len = cmd & 0x0f
+        data_len = cmd & 0x0F
         if data_len == 14:
             data_len = self.unpack_number()
 
@@ -210,7 +209,7 @@ class PackedIon(PackedData):
             ion = PackedIon(self.extract(data_len))
             result = {}
 
-            while (ion.remaining()):
+            while ion.remaining():
                 symbol = property_name(ion.unpack_number())
                 result[symbol] = ion.unpack_typed_value()
 
@@ -229,7 +228,7 @@ class PackedIon(PackedData):
     def unpack_number(self):
         # variable length numbers, MSB first, 7 bits per byte, last byte is
         # flagged by MSB set
-        raw = self.buffer[self.offset:self.offset+10]
+        raw = self.buffer[self.offset : self.offset + 10]
         number, consumed = decint(raw)
         self.advance(consumed)
         return number
@@ -277,11 +276,12 @@ def dump_metadata(m):
     d = dict(m)
     d[COVER_KEY] = bool(d.get(COVER_KEY))
     from pprint import pprint
+
     pprint(d)
 
 
 def read_book_key_kfx(stream, read_cover=True):
-    " Read the metadata.kfx file that is found in the sdr book folder for KFX files "
+    "Read the metadata.kfx file that is found in the sdr book folder for KFX files"
     c = Container(stream.read())
     m = extract_metadata(c.decode())
 
@@ -292,7 +292,7 @@ def read_book_key_kfx(stream, read_cover=True):
 
 
 def read_metadata_kfx(stream, read_cover=True):
-    " Read the metadata.kfx file that is found in the sdr book folder for KFX files "
+    "Read the metadata.kfx file that is found in the sdr book folder for KFX files"
     c = Container(stream.read())
     m = extract_metadata(c.decode())
     # dump_metadata(m)
@@ -319,7 +319,7 @@ def read_metadata_kfx(stream, read_cover=True):
                 return m.group(2) + ' ' + m.group(1)
         return x
 
-    unique_authors = []     # remove duplicates while retaining order
+    unique_authors = []  # remove duplicates while retaining order
     for f in [fix_author(x) for x in authors]:
         if f not in unique_authors:
             unique_authors.append(f)
@@ -356,6 +356,7 @@ def read_metadata_kfx(stream, read_cover=True):
 
 if __name__ == '__main__':
     from calibre import prints
+
     with open(sys.argv[-1], 'rb') as f:
         mi = read_metadata_kfx(f)
         prints(str(mi))

@@ -21,9 +21,7 @@ class Tagespost(BasicNewsRecipe):
     ignore_duplicate_articles = {'url'}
     masthead_url = 'https://www.die-tagespost.de/design2020/images/tp_logo_small.webp'
     remove_javascript = True
-    keep_only_tags = [
-        classes('topline headline description datetime autor-name article_main')
-    ]
+    keep_only_tags = [classes('topline headline description datetime autor-name article_main')]
     remove_tags = [
         dict(name=['source', 'svg', 'aside', 'clearfix', 'footer']),
         classes('content-box extras jwnIconTeaser behindWall'),

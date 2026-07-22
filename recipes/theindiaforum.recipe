@@ -9,10 +9,7 @@ from calibre.web.feeds.news import BasicNewsRecipe, classes
 class mains(BasicNewsRecipe):
     title = 'The India Forum'
     __author__ = 'unkn0wn'
-    description = (
-        'The India Forum is an independent online journal-magazine that seeks to widen and '
-        'deepen our conversations on the issues that concern us.'
-    )
+    description = 'The India Forum is an independent online journal-magazine that seeks to widen and deepen our conversations on the issues that concern us.'
     language = 'en_IN'
     encoding = 'utf-8'
     ignore_duplicate_articles = {'url'}
@@ -31,28 +28,22 @@ class mains(BasicNewsRecipe):
 
     keep_only_tags = [
         classes('article-lead-container block-views-blockarticle-block-1'),
-        dict(name='section', attrs={'id':'article-author-top-container'}),
-        classes('block-field-blocknodearticlebody block-field-blocknodearticlefield-references')
+        dict(name='section', attrs={'id': 'article-author-top-container'}),
+        classes('block-field-blocknodearticlebody block-field-blocknodearticlefield-references'),
     ]
 
-    remove_tags = [
-        dict(name=['source', 'svg']),
-        dict(attrs={'src':lambda x: x and x.endswith('quote_logo.png')}),
-        classes('s_info')
-    ]
+    remove_tags = [dict(name=['source', 'svg']), dict(attrs={'src': lambda x: x and x.endswith('quote_logo.png')}), classes('s_info')]
 
     def parse_index(self):
         soup = self.index_to_soup('https://www.theindiaforum.in/')
-        ul = soup.find('ul', attrs={'class':'float-left'})
+        ul = soup.find('ul', attrs={'class': 'float-left'})
 
         section_list = []
 
         for x in ul.findAll('a', href=True):
             if '/podcast' in x['href']:
                 continue
-            section_list.append(
-                (self.tag_to_string(x).strip().replace('■','■ '), 'https://www.theindiaforum.in' + x['href'])
-            )
+            section_list.append((self.tag_to_string(x).strip().replace('■', '■ '), 'https://www.theindiaforum.in' + x['href']))
 
         feeds = []
 
@@ -68,7 +59,7 @@ class mains(BasicNewsRecipe):
 
     def articles_from_soup(self, soup):
         ans = []
-        for art in soup.findAll('div', attrs={'class':lambda x: x and 'views-col' in x.split()}):
+        for art in soup.findAll('div', attrs={'class': lambda x: x and 'views-col' in x.split()}):
             h2 = art.find(['h2', 'h3'])
             url = 'https://www.theindiaforum.in' + h2.a['href']
             title = self.tag_to_string(h2).strip()

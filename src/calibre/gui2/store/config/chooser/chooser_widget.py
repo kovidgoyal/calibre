@@ -11,7 +11,6 @@ from calibre.utils.localization import _
 
 
 class StoreChooserWidget(QWidget, Ui_Form):
-
     def __init__(self):
         QWidget.__init__(self)
         self.setupUi(self)

@@ -17,5 +17,4 @@ class AdvancedUserRecipe1282101454(BasicNewsRecipe):
 
     feeds = [
         ('kansascity.com', 'http://www.kansascity.com/?widgetName=rssfeed&widgetContentId=6199&getXmlFeed=true'),
-
     ]

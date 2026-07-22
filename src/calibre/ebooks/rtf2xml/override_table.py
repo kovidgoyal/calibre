@@ -22,10 +22,10 @@ class OverrideTable:
     """
 
     def __init__(
-                self,
-                list_of_lists,
-                run_level=1,
-                ):
+        self,
+        list_of_lists,
+        run_level=1,
+    ):
         self.__list_of_lists = list_of_lists
         self.__initiate_values()
         self.__run_level = run_level
@@ -35,13 +35,13 @@ class OverrideTable:
         self.__state = 'default'
         self.__override_list = []
         self.__state_dict = {
-            'default'   : self.__default_func,
-            'override'  : self.__override_func,
-            'unsure_ob' : self.__after_bracket_func,
+            'default': self.__default_func,
+            'override': self.__override_func,
+            'unsure_ob': self.__after_bracket_func,
         }
         self.__override_dict = {
-            'cw<ls<lis-tbl-id'  : 'list-table-id',
-            'cw<ls<list-id___'  : 'list-id',
+            'cw<ls<lis-tbl-id': 'list-table-id',
+            'cw<ls<list-id___': 'list-id',
         }
 
     def __override_func(self, line):
@@ -55,8 +55,7 @@ class OverrideTable:
             Check for the end of the group.
             Otherwise, add appropriate tokens to the override dictionary.
         """
-        if self.__token_info == 'cb<nu<clos-brack' and\
-            self.__cb_count == self.__override_ob_count:
+        if self.__token_info == 'cb<nu<clos-brack' and self.__cb_count == self.__override_ob_count:
             self.__state = 'default'
             self.__parse_override_dict()
         else:
@@ -186,8 +185,7 @@ class OverrideTable:
             self.__override_table_final += 'mi<tg<empty-att_<override-list'
             the_keys = the_dict.keys()
             for the_key in the_keys:
-                self.__override_table_final += \
-                    f'<{the_key}>{the_dict[the_key]}'
+                self.__override_table_final += f'<{the_key}>{the_dict[the_key]}'
             self.__override_table_final += '\n'
         self.__override_table_final += '\n'
         self.__override_table_final += 'mi<mk<overri-end\n' + 'mi<tg<close_____<override-table\n'

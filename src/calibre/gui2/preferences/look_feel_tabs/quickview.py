@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2025, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
@@ -16,14 +16,12 @@ from calibre.gui2.preferences.look_feel_tabs.quickview_ui import Ui_Form
 
 
 class QVDisplayedFields(DisplayedFields):
-
     def __init__(self, db, parent=None):
         DisplayedFields.__init__(self, db, parent)
 
     def initialize(self, use_defaults=False):
         self.beginResetModel()
-        self.fields = [[x[0], x[1]] for x in
-                get_qv_field_list(self.db.field_metadata, use_defaults=use_defaults)]
+        self.fields = [[x[0], x[1]] for x in get_qv_field_list(self.db.field_metadata, use_defaults=use_defaults)]
         self.endResetModel()
         self.changed = True
 
@@ -33,7 +31,6 @@ class QVDisplayedFields(DisplayedFields):
 
 
 class QuickviewTab(LazyConfigWidgetBase, Ui_Form):
-
     def genesis(self, gui):
         self.gui = gui
         r = self.register

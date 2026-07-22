@@ -22,16 +22,14 @@ import re
 from calibre import strftime
 from calibre.web.feeds.news import BasicNewsRecipe
 
-__copyright__ = (
-    '2014 - 2017 Martin Račák <martin.racak@riseup.net>,'
-    '2011 Miroslav Vasko <zemiak@gmail.com>')
+__copyright__ = '2014 - 2017 Martin Račák <martin.racak@riseup.net>,2011 Miroslav Vasko <zemiak@gmail.com>'
 __license__ = 'GPL-3.0+'
 
 
 class Tyzden(BasicNewsRecipe):
-    title = u'.týždeň'
-    __author__ = u'Martin Račák, zemiak'
-    description = u'Politicko-spoločenský týždenník.'
+    title = '.týždeň'
+    __author__ = 'Martin Račák, zemiak'
+    description = 'Politicko-spoločenský týždenník.'
     publisher = 'www.tyzden.sk'
     publication_type = 'magazine'
     language = 'sk'
@@ -41,14 +39,9 @@ class Tyzden(BasicNewsRecipe):
     issue_url = 'http://www.tyzden.sk/casopis/'
 
     keep_only_tags = [
-        {
-            'name': 'div',
-            'attrs': {
-                'class': 'section__content section__content--archive'}},
-        {
-            'name': 'article',
-            'attrs': {
-                'class': re.compile(r'\barticle\b')}}, ]
+        {'name': 'div', 'attrs': {'class': 'section__content section__content--archive'}},
+        {'name': 'article', 'attrs': {'class': re.compile(r'\barticle\b')}},
+    ]
 
     extra_css = '''.theme-highlight {
         color: #999;
@@ -112,13 +105,9 @@ class Tyzden(BasicNewsRecipe):
         teasers = soup.findAll('div', {'class': re.compile(r'\bteaser--list\b')})
         for teaser in teasers:
             section = self.tag_to_string(teaser.find('a', 'theme-heading__wrapper'))
-            article_title = self.tag_to_string(
-                teaser.find('h1', {'class': re.compile(r'\bteaser__title\b')}))
+            article_title = self.tag_to_string(teaser.find('h1', {'class': re.compile(r'\bteaser__title\b')}))
             article_link = teaser.find('a', 'teaser__link--main')
-            article = {
-                'title': article_title,
-                'url': article_link['href'],
-                'date': strftime(' %a, %d %b')}
+            article = {'title': article_title, 'url': article_link['href'], 'date': strftime(' %a, %d %b')}
 
             if not feeds:
                 # First iteration.

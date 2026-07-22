@@ -19,21 +19,19 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class NRCNext(BasicNewsRecipe):
-
-    title = u'nrc•next'
-    description = u'De ePaper-versie van nrc•next'
+    title = 'nrc•next'
+    description = 'De ePaper-versie van nrc•next'
     language = 'nl'
     needs_subscription = True
     requires_version = (1, 24, 0)
 
     __author__ = 'Niels Giesen'
 
-    conversion_options = {
-        'no_default_epub_cover': True
-    }
+    conversion_options = {'no_default_epub_cover': True}
 
     def build_index(self):
         import mechanize
+
         br = mechanize.Browser()
         br.open('https://login.nrc.nl/login', timeout=60)
         br.select_form(nr=0)
@@ -44,7 +42,10 @@ class NRCNext(BasicNewsRecipe):
         if b'niet ingelogd' in raw:  # in body class
             raise ValueError('Failed to login, check username and password')
         epubraw = None
-        for today in (date.today(), date.today() - timedelta(days=1),):
+        for today in (
+            date.today(),
+            date.today() - timedelta(days=1),
+        ):
             url = 'http://digitaleeditie.nrc.nl/digitaleeditie/helekrant/epub/nn_%s.epub' % today.strftime('%Y%m%d')
             self.log('Trying to download epub from:', url)
             try:

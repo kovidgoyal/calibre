@@ -10,7 +10,7 @@ class Coda(BasicNewsRecipe):
     description = 'Coda Story reports on major currents shaping our world from disinformation to authoritarian technologies to the war on science. Coda stays on these stories to reveal why they matter, how they are connected and where they are heading next.'  # noqa: E501
     publisher = 'Natalia Antelava & Ilan Greenberg'
     category = 'blog'
-    cover_url = u'https://www.codastory.com/wp-content/uploads/2021/05/AT_thumbnail_512x512.png'
+    cover_url = 'https://www.codastory.com/wp-content/uploads/2021/05/AT_thumbnail_512x512.png'
     language = 'en_RU'
     no_stylesheets = False
     remove_javascript = False
@@ -22,9 +22,6 @@ class Coda(BasicNewsRecipe):
 
     remove_tags_after = dict(name='div', attrs={'class': 'article'})
 
-    remove_tags = [
-        dict(name='li', attrs={'class': 'material-meta__type'}),
-        dict(name='div', attrs={'class': 'more'})
-    ]
+    remove_tags = [dict(name='li', attrs={'class': 'material-meta__type'}), dict(name='div', attrs={'class': 'more'})]
 
     feeds = [('CODA', 'https://www.codastory.com/feed/')]

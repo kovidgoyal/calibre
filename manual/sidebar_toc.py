@@ -54,8 +54,7 @@ class checkbox(nodes.Element):
 def visit_checkbox(self, node):
     cid = node['ids'][0]
     node['classes'] = []
-    self.body.append(f'<input id="{cid}" type="checkbox" />'
-                     f'<label for="{cid}">&nbsp;</label>')
+    self.body.append(f'<input id="{cid}" type="checkbox" /><label for="{cid}">&nbsp;</label>')
 
 
 def modify_li(li):
@@ -82,8 +81,7 @@ def create_toc(app, pagename):
         for li in subtree.traverse(nodes.list_item):
             modify_li(li)
         subtree['ids'] = [ID]
-        return '<style>' + CSS + '</style>' + app.builder.render_partial(
-            subtree)['fragment']
+        return '<style>' + CSS + '</style>' + app.builder.render_partial(subtree)['fragment']
 
 
 def add_html_context(app, pagename, templatename, context, *args):

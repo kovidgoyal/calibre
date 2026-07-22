@@ -34,18 +34,15 @@ class eenadu_ap(BasicNewsRecipe):
 
     def get_browser(self, *args, **kw):
         br = BasicNewsRecipe.get_browser(self, *args, **kw)
-        br.addheaders += [
-            ('Referer', 'https://www.eenadu.net/')
-        ]
+        br.addheaders += [('Referer', 'https://www.eenadu.net/')]
         return br
 
     def get_cover_url(self):
         import json
         from datetime import date
+
         today = quote(date.today().strftime('%d/%m/%Y'), safe='')
-        raw = self.index_to_soup(
-            'https://epaper.eenadu.net/Home/GetAllpages?editionid=2&editiondate=' + today, raw=True
-        )
+        raw = self.index_to_soup('https://epaper.eenadu.net/Home/GetAllpages?editionid=2&editiondate=' + today, raw=True)
         for cov in json.loads(raw):
             if cov['NewsProPageTitle'].lower().startswith('front'):
                 return cov['HighResolution']
@@ -80,7 +77,7 @@ class eenadu_ap(BasicNewsRecipe):
         return feeds
 
     def articles_from_soup(self, soup):
-        div = soup.find('div', attrs={'class':['col-left', 'district-more']})
+        div = soup.find('div', attrs={'class': ['col-left', 'district-more']})
         ans = []
         for link in div.findAll(attrs={'class': ['telugu_uni_body', 'thumb-content-more', 'owl-carousel']}):
             for a in link.findAll('a', attrs={'href': True}):
@@ -97,7 +94,7 @@ class eenadu_ap(BasicNewsRecipe):
         return ans
 
     def populate_article_metadata(self, article, soup, first):
-        desc = soup.find(attrs={'class':'srtdes'})
+        desc = soup.find(attrs={'class': 'srtdes'})
         if desc:
             article.summary = self.tag_to_string(desc)
             article.text_summary = article.summary

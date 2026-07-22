@@ -5,10 +5,7 @@ from calibre.web.feeds.news import BasicNewsRecipe, classes
 
 class Unz(BasicNewsRecipe):
     title = 'The Unz Review'
-    description = (
-        'A Collection of Interesting, Important, and Controversial Perspectives '
-        'Largely Excluded from the American Mainstream Media.'
-    )
+    description = 'A Collection of Interesting, Important, and Controversial Perspectives Largely Excluded from the American Mainstream Media.'
     __author__ = 'unkn0wn'
     oldest_article = 7
     language = 'en_US'

@@ -4,11 +4,13 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class AdvancedUserRecipe1718380039(BasicNewsRecipe):
-    title          = 'Football League World'
+    title = 'Football League World'
     language = 'en_GB'
     __author__ = 'Spicy Poison'
-    description = ('Football League World is a digital publication that provides breaking news,'
-                   ' views and opinions on the hot topics and key narratives within the Championship, League One and Two.')
+    description = (
+        'Football League World is a digital publication that provides breaking news,'
+        ' views and opinions on the hot topics and key narratives within the Championship, League One and Two.'
+    )
     publisher = 'Valnet Publishing Group'
     oldest_article = 7
     max_articles_per_feed = 50
@@ -18,9 +20,9 @@ class AdvancedUserRecipe1718380039(BasicNewsRecipe):
     encoding = 'utf-8'
     masthead_url = 'https://www.valnetinc.com/images/brand/flw-logo-full-colored-dark.svg'
     remove_empty_feeds = True
-    auto_cleanup   = True
+    auto_cleanup = True
 
-    feeds          = [
+    feeds = [
         # Transfer Rumours
         ('Transfer Rumours', 'https://footballleagueworld.co.uk/feed/transfer-rumours/'),
         ('Alex Scott', 'https://footballleagueworld.co.uk/feed/tag/alex-scott/'),
@@ -49,7 +51,6 @@ class AdvancedUserRecipe1718380039(BasicNewsRecipe):
         ('Notts County', 'https://footballleagueworld.co.uk/feed/tag/notts-county/'),
         ('Swindon Town', 'https://footballleagueworld.co.uk/feed/tag/swindon-town/'),
         ('Wrexham', 'https://footballleagueworld.co.uk/feed/tag/wrexham/'),
-
         ('Football Association Challenge Cup', 'https://footballleagueworld.co.uk/feed/tag/fa-cup/'),
         ('English Football League Cup', 'https://footballleagueworld.co.uk/feed/tag/efl-cup/'),
         ('English Football League Trophy', 'https://footballleagueworld.co.uk/feed/tag/efl-trophy/'),

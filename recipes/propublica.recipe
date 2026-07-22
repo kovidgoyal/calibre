@@ -1,11 +1,9 @@
-
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
 def classes(classes):
     q = frozenset(classes.split(' '))
-    return dict(attrs={
-        'class': lambda x: x and frozenset(x.split()).intersection(q)})
+    return dict(attrs={'class': lambda x: x and frozenset(x.split()).intersection(q)})
 
 
 class ProPublicaRecipe(BasicNewsRecipe):
@@ -14,10 +12,10 @@ class ProPublicaRecipe(BasicNewsRecipe):
     language = 'en'
     version = 1
 
-    title = u'Pro Publica'
-    publisher = u'ProPublica.org'
-    category = u'Political blog'
-    description = u'Independent investigative journalism in the public interest.'
+    title = 'Pro Publica'
+    publisher = 'ProPublica.org'
+    category = 'Political blog'
+    description = 'Independent investigative journalism in the public interest.'
 
     oldest_article = 14
     max_articles_per_feed = 100
@@ -27,9 +25,7 @@ class ProPublicaRecipe(BasicNewsRecipe):
     no_stylesheets = True
     remove_javascript = True
 
-    keep_only_tags = [
-        classes('title-wrapper content-wrapper article-header lead-art article-body')
-    ]
+    keep_only_tags = [classes('title-wrapper content-wrapper article-header lead-art article-body')]
     remove_tags = [
         classes('email-signup story-tools newsletter topics-list'),
         classes('wp-block-propublica-notes--top'),
@@ -37,7 +33,7 @@ class ProPublicaRecipe(BasicNewsRecipe):
     remove_tags_after = classes('article-body')
 
     feeds = [
-        (u'Top Stories', u'http://feeds.propublica.org/propublica/main'),
+        ('Top Stories', 'http://feeds.propublica.org/propublica/main'),
     ]
 
     def preprocess_html(self, soup):

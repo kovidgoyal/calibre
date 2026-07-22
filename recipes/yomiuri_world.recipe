@@ -10,7 +10,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class YOLNews(BasicNewsRecipe):
-    title = u'Yomiuri Online (World)'
+    title = 'Yomiuri Online (World)'
     __author__ = 'Hiroshi Miura'
     oldest_article = 2
     max_articles_per_feed = 50
@@ -21,7 +21,7 @@ class YOLNews(BasicNewsRecipe):
     encoding = 'UTF-8'
     index = 'http://www.yomiuri.co.jp/world/'
     remove_javascript = True
-    masthead_title = u'YOMIURI ONLINE'
+    masthead_title = 'YOMIURI ONLINE'
 
     keep_only_tags = [{'class': 'article text-resizeable'}]
 
@@ -35,7 +35,7 @@ class YOLNews(BasicNewsRecipe):
             if len(delList) > 0:
                 for d in delList:
                     index = curfeed.articles.index(d)
-                    curfeed.articles[index:index + 1] = []
+                    curfeed.articles[index : index + 1] = []
         return feeds
 
     def parse_index(self):
@@ -49,24 +49,16 @@ class YOLNews(BasicNewsRecipe):
                 for itt in topstories.findAll('li'):
                     itema = itt.find('a', href=True)
                     if itema:
-                        item_headline = itema.find(
-                            'span', attrs={'class': 'headline'})
-                        item_date = item_headline.find(
-                            'span', attrs={'class': 'update'})
-                        newsarticles.append({
-                            'title': item_headline.contents[0], 'date': item_date, 'url': itema['href'], 'description': ''
-                        })
+                        item_headline = itema.find('span', attrs={'class': 'headline'})
+                        item_date = item_headline.find('span', attrs={'class': 'update'})
+                        newsarticles.append({'title': item_headline.contents[0], 'date': item_date, 'url': itema['href'], 'description': ''})
             secondstories = mainspan.find('ul', attrs={'class': 'list-common'})
             if secondstories:
                 for itt in secondstories.findAll('li'):
                     itema = itt.find('a', href=True)
                     if itema:
-                        item_headline = itema.find(
-                            'span', attrs={'class': 'headline'})
-                        item_date = item_headline.find(
-                            'span', attrs={'class': 'update'})
-                        newsarticles.append({
-                            'title': item_headline.contents[0], 'date': item_date, 'url': itema['href'], 'description': ''
-                        })
+                        item_headline = itema.find('span', attrs={'class': 'headline'})
+                        item_date = item_headline.find('span', attrs={'class': 'update'})
+                        newsarticles.append({'title': item_headline.contents[0], 'date': item_date, 'url': itema['href'], 'description': ''})
         feeds.append(('World', newsarticles))
         return feeds

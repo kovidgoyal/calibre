@@ -2,7 +2,7 @@
 Read the header data from a pdb file.
 """
 
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
@@ -12,7 +12,6 @@ import time
 
 
 class PdbHeaderReader:
-
     def __init__(self, stream):
         self.stream = stream
         self.ident = self.identity()
@@ -30,7 +29,7 @@ class PdbHeaderReader:
 
     def name(self):
         self.stream.seek(0)
-        return re.sub(br'[^-A-Za-z0-9 ]+', b'_', self.stream.read(32).replace(b'\x00', b''))
+        return re.sub(rb'[^-A-Za-z0-9 ]+', b'_', self.stream.read(32).replace(b'\x00', b''))
 
     def full_section_info(self, number):
         if not (0 <= number < self.num_sections):
@@ -53,7 +52,7 @@ class PdbHeaderReader:
             raise ValueError(f'Not a valid section number {number}')
 
         start = self.section_offset(number)
-        if number == self.num_sections -1:
+        if number == self.num_sections - 1:
             self.stream.seek(0, 2)
             end = self.stream.tell()
         else:
@@ -63,12 +62,11 @@ class PdbHeaderReader:
 
 
 class PdbHeaderBuilder:
-
     def __init__(self, identity, title):
         self.identity = identity.ljust(3, '\x00')[:8].encode('utf-8')
         if isinstance(title, str):
             title = title.encode('ascii', 'replace')
-        self.title = b'%s\x00' % re.sub(br'[^-A-Za-z0-9 ]+', b'_', title).ljust(31, b'\x00')[:31]
+        self.title = b'%s\x00' % re.sub(rb'[^-A-Za-z0-9 ]+', b'_', title).ljust(31, b'\x00')[:31]
 
     def build_header(self, section_lengths, out_stream):
         """

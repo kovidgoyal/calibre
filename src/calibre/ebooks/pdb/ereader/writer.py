@@ -2,7 +2,7 @@
 Write content to ereader pdb file.
 """
 
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
@@ -27,7 +27,6 @@ MAX_RECORD_SIZE = 8192
 
 
 class Writer(FormatWriter):
-
     def __init__(self, opts, log):
         self.opts = opts
         self.log = log
@@ -38,10 +37,10 @@ class Writer(FormatWriter):
         pml = str(pmlmlizer.extract_content(oeb_book, self.opts)).encode('cp1252', 'replace')
 
         text, text_sizes = self._text(pml)
-        chapter_index = self._index_item(br'(?s)\\C(?P<val>[0-4])="(?P<text>.+?)"', pml)
-        chapter_index += self._index_item(br'(?s)\\X(?P<val>[0-4])(?P<text>.+?)\\X[0-4]', pml)
-        chapter_index += self._index_item(br'(?s)\\x(?P<text>.+?)\\x', pml)
-        link_index = self._index_item(br'(?s)\\Q="(?P<text>.+?)"', pml)
+        chapter_index = self._index_item(rb'(?s)\\C(?P<val>[0-4])="(?P<text>.+?)"', pml)
+        chapter_index += self._index_item(rb'(?s)\\X(?P<val>[0-4])(?P<text>.+?)\\X[0-4]', pml)
+        chapter_index += self._index_item(rb'(?s)\\x(?P<text>.+?)\\x', pml)
+        link_index = self._index_item(rb'(?s)\\Q="(?P<text>.+?)"', pml)
         images = self._images(oeb_book.manifest, pmlmlizer.image_hrefs)
         metadata = [self._metadata(metadata)]
         hr = [self._header_record(len(text), len(chapter_index), len(link_index), len(images))]
@@ -62,7 +61,7 @@ class Writer(FormatWriter):
            12. Text block size record
            13. "MeTaInFo\x00" word record
         '''
-        sections = hr+text+chapter_index+link_index+images+metadata+[text_sizes]+[b'MeTaInFo\x00']
+        sections = hr + text + chapter_index + link_index + images + metadata + [text_sizes] + [b'MeTaInFo\x00']
 
         lengths = [len(i) if i not in images else len(i[0]) + len(i[1]) for i in sections]
 
@@ -93,7 +92,7 @@ class Writer(FormatWriter):
                     split = len_end
             if split == 0:
                 split = 1
-            pml_pages.append(zlib.compress(pml[index:index+split]))
+            pml_pages.append(zlib.compress(pml[index : index + split]))
             text_sizes += struct.pack('>H', split)
             index += split
 
@@ -107,9 +106,9 @@ class Writer(FormatWriter):
                 item += struct.pack('>L', mo.start())
                 text = mo.group('text')
                 # Strip all PML tags from text
-                text = re.sub(br'\\U[0-9a-z]{4}', b'', text)
-                text = re.sub(br'\\a\d{3}', b'', text)
-                text = re.sub(br'\\.', b'', text)
+                text = re.sub(rb'\\U[0-9a-z]{4}', b'', text)
+                text = re.sub(rb'\\a\d{3}', b'', text)
+                text = re.sub(rb'\\.', b'', text)
                 # Add appropriate spacing to denote the various levels of headings
                 if 'val' in mo.groupdict().keys():
                     text = b'%s%s' % (b' ' * 4 * int(mo.group('val')), text)
@@ -137,7 +136,7 @@ class Writer(FormatWriter):
             if item.media_type in OEB_RASTER_IMAGES and item.href in image_hrefs.keys():
                 try:
                     im = Image.open(io.BytesIO(item.data)).convert('P')
-                    im.thumbnail((300,300), Image.Resampling.LANCZOS)
+                    im.thumbnail((300, 300), Image.Resampling.LANCZOS)
 
                     data = io.BytesIO()
                     im.save(data, 'PNG')
@@ -153,8 +152,7 @@ class Writer(FormatWriter):
                     if len(data) + len(header) < 65505:
                         images.append((header, data))
                 except Exception as e:
-                    self.log.error(f'Error: Could not include file {item.href} because '
-                        f'{e}.')
+                    self.log.error(f'Error: Could not include file {item.href} because {e}.')
 
         return images
 
@@ -179,6 +177,7 @@ class Writer(FormatWriter):
                 title = metadata.title[0].value
             if len(metadata.creator) >= 1:
                 from calibre.ebooks.metadata import authors_to_string
+
                 author = authors_to_string([x.value for x in metadata.creator])
             if len(metadata.rights) >= 1:
                 copyright = metadata.rights[0].value
@@ -214,35 +213,35 @@ class Writer(FormatWriter):
 
         record = b''
 
-        record += struct.pack('>H', compression)            # [0:2]    # Compression. Specifies compression and drm. 2 = palmdoc, 10 = zlib. 260 and 272 = DRM
-        record += struct.pack('>H', 0)                      # [2:4]    # Unknown.
-        record += struct.pack('>H', 0)                      # [4:6]    # Unknown.
-        record += struct.pack('>H', 25152)                  # [6:8]    # 25152 is MAGIC. Somehow represents the cp1252 encoding of the text
-        record += struct.pack('>H', 0)                      # [8:10]   # Number of small font pages. 0 if page index is not built.
-        record += struct.pack('>H', 0)                      # [10:12]  # Number of large font pages. 0 if page index is not built.
-        record += struct.pack('>H', non_text_offset)        # [12:14]  # Non-Text record start.
-        record += struct.pack('>H', chapter_count)          # [14:16]  # Number of chapter index records.
-        record += struct.pack('>H', 0)                      # [16:18]  # Number of small font page index records.
-        record += struct.pack('>H', 0)                      # [18:20]  # Number of large font page index records.
-        record += struct.pack('>H', image_count)            # [20:22]  # Number of images.
-        record += struct.pack('>H', link_count)             # [22:24]  # Number of links.
-        record += struct.pack('>H', 1)                      # [24:26]  # 1 if has metadata, 0 if not.
-        record += struct.pack('>H', 0)                      # [26:28]  # Unknown.
-        record += struct.pack('>H', 0)                      # [28:30]  # Number of Footnotes.
-        record += struct.pack('>H', 0)                      # [30:32]  # Number of Sidebars.
-        record += struct.pack('>H', chapter_offset)         # [32:34]  # Chapter index offset.
-        record += struct.pack('>H', 2560)                   # [34:36]  # 2560 is MAGIC.
-        record += struct.pack('>H', last_data_offset)       # [36:38]  # Small font page offset. This will be the last data offset if there are none.
-        record += struct.pack('>H', last_data_offset)       # [38:40]  # Large font page offset. This will be the last data offset if there are none.
-        record += struct.pack('>H', image_data_offset)      # [40:42]  # Image offset. This will be the last data offset if there are none.
-        record += struct.pack('>H', link_offset)            # [42:44]  # Links offset. This will be the last data offset if there are none.
-        record += struct.pack('>H', meta_data_offset)       # [44:46]  # Metadata offset. This will be the last data offset if there are none.
-        record += struct.pack('>H', 0)                      # [46:48]  # Unknown.
-        record += struct.pack('>H', last_data_offset)       # [48:50]  # Footnote offset. This will be the last data offset if there are none.
-        record += struct.pack('>H', last_data_offset)       # [50:52]  # Sidebar offset. This will be the last data offset if there are none.
-        record += struct.pack('>H', last_data_offset)       # [52:54]  # Last data offset.
+        record += struct.pack('>H', compression)  # [0:2]    # Compression. Specifies compression and drm. 2 = palmdoc, 10 = zlib. 260 and 272 = DRM
+        record += struct.pack('>H', 0)  # [2:4]    # Unknown.
+        record += struct.pack('>H', 0)  # [4:6]    # Unknown.
+        record += struct.pack('>H', 25152)  # [6:8]    # 25152 is MAGIC. Somehow represents the cp1252 encoding of the text
+        record += struct.pack('>H', 0)  # [8:10]   # Number of small font pages. 0 if page index is not built.
+        record += struct.pack('>H', 0)  # [10:12]  # Number of large font pages. 0 if page index is not built.
+        record += struct.pack('>H', non_text_offset)  # [12:14]  # Non-Text record start.
+        record += struct.pack('>H', chapter_count)  # [14:16]  # Number of chapter index records.
+        record += struct.pack('>H', 0)  # [16:18]  # Number of small font page index records.
+        record += struct.pack('>H', 0)  # [18:20]  # Number of large font page index records.
+        record += struct.pack('>H', image_count)  # [20:22]  # Number of images.
+        record += struct.pack('>H', link_count)  # [22:24]  # Number of links.
+        record += struct.pack('>H', 1)  # [24:26]  # 1 if has metadata, 0 if not.
+        record += struct.pack('>H', 0)  # [26:28]  # Unknown.
+        record += struct.pack('>H', 0)  # [28:30]  # Number of Footnotes.
+        record += struct.pack('>H', 0)  # [30:32]  # Number of Sidebars.
+        record += struct.pack('>H', chapter_offset)  # [32:34]  # Chapter index offset.
+        record += struct.pack('>H', 2560)  # [34:36]  # 2560 is MAGIC.
+        record += struct.pack('>H', last_data_offset)  # [36:38]  # Small font page offset. This will be the last data offset if there are none.
+        record += struct.pack('>H', last_data_offset)  # [38:40]  # Large font page offset. This will be the last data offset if there are none.
+        record += struct.pack('>H', image_data_offset)  # [40:42]  # Image offset. This will be the last data offset if there are none.
+        record += struct.pack('>H', link_offset)  # [42:44]  # Links offset. This will be the last data offset if there are none.
+        record += struct.pack('>H', meta_data_offset)  # [44:46]  # Metadata offset. This will be the last data offset if there are none.
+        record += struct.pack('>H', 0)  # [46:48]  # Unknown.
+        record += struct.pack('>H', last_data_offset)  # [48:50]  # Footnote offset. This will be the last data offset if there are none.
+        record += struct.pack('>H', last_data_offset)  # [50:52]  # Sidebar offset. This will be the last data offset if there are none.
+        record += struct.pack('>H', last_data_offset)  # [52:54]  # Last data offset.
 
         for i in range(54, 132, 2):
-            record += struct.pack('>H', 0)                  # [54:132]
+            record += struct.pack('>H', 0)  # [54:132]
 
         return record

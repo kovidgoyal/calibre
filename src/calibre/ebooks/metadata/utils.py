@@ -41,9 +41,9 @@ def parse_opf(stream_or_path):
         if needs_close:
             stream.close()
     if not raw:
-        raise ValueError('Empty file: '+getattr(stream, 'name', 'stream'))
+        raise ValueError('Empty file: ' + getattr(stream, 'name', 'stream'))
     raw, encoding = xml_to_unicode(raw, strip_encoding_pats=True, resolve_entities=True, assume_utf8=True)
-    raw = raw[raw.find('<'):]
+    raw = raw[raw.find('<') :]
     root = safe_xml_fromstring(clean_xml_chars(raw))
     if root is None:
         raise ValueError('Not an OPF file')
@@ -51,14 +51,16 @@ def parse_opf(stream_or_path):
 
 
 def normalize_languages(opf_languages, mi_languages):
-    " Preserve original country codes and use 2-letter lang codes where possible "
+    "Preserve original country codes and use 2-letter lang codes where possible"
+
     def parse(x):
         try:
             return parse_lang_code(x)
         except ValueError:
             return None
+
     opf_languages = filter(None, map(parse, opf_languages))
-    cc_map = {c.langcode:c.countrycode for c in opf_languages}
+    cc_map = {c.langcode: c.countrycode for c in opf_languages}
     mi_languages = filter(None, map(parse, mi_languages))
 
     def norm(x):
@@ -68,6 +70,7 @@ def normalize_languages(opf_languages, mi_languages):
         if cc:
             lc += '-' + cc
         return lc
+
     return list(map(norm, mi_languages))
 
 
@@ -101,5 +104,6 @@ def create_manifest_item(root, href_template, id_template, media_type=None):
 
 def pretty_print_opf(root):
     from calibre.ebooks.oeb.polish.pretty import pretty_opf, pretty_xml_tree
+
     pretty_opf(root)
     pretty_xml_tree(root)

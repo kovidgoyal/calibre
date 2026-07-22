@@ -20,8 +20,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 def classes(classes):
     q = frozenset(classes.split(' '))
-    return dict(attrs={
-        'class': lambda x: x and frozenset(x.split()).intersection(q)})
+    return dict(attrs={'class': lambda x: x and frozenset(x.split()).intersection(q)})
 
 
 class CnetNews(BasicNewsRecipe):
@@ -44,10 +43,8 @@ class CnetNews(BasicNewsRecipe):
     remove_tags = [
         dict(name='div', attrs={'id': 'livefyreContainer'}),
         dict(section=['tag', 'shortcodeRelatedLinks']),
-        dict(attrs={'class': ['ad-inline-product-carousel-top',
-                              'author-social', 'row controls', 'launchGallery', 'topWrap']}),
-        dict(name='a', attrs={'class': 'subHead',
-                              'data-component': 'imageGalleryModal'}),
+        dict(attrs={'class': ['ad-inline-product-carousel-top', 'author-social', 'row controls', 'launchGallery', 'topWrap']}),
+        dict(name='a', attrs={'class': 'subHead', 'data-component': 'imageGalleryModal'}),
         dict(attrs={'data-component': 'sharebar'}),
         dict(name=['link', 'meta']),
         classes('playerControls video share-button'),
@@ -62,15 +59,15 @@ class CnetNews(BasicNewsRecipe):
 
     feeds = [
         # (u'All of CNET', u'http://www.cnet.com/rss/all/'),
-        (u'CNET News', u'http://www.cnet.com/rss/news/'),
-        (u'CNET Reviews', u'http://www.cnet.com/rss/reviews/'),
-        (u'CNET How To', u'http://www.cnet.com/rss/how-to/'),
-        (u'CNET iPhone Update', u'http://www.cnet.com/rss/iphone-update/'),
-        (u'CNET Crave', u'http://www.cnet.com/rss/crave/'),
-        (u'CNET Car Tech', u'http://www.cnet.com/rss/car-tech/'),
-        (u'CNET Android Update', u'http://www.cnet.com/rss/android-update/'),
-        (u'CNET Gaming', u'http://www.cnet.com/rss/gaming/'),
-        (u'CNET Cheapskate', u'http://www.cnet.com/rss/cheapskate/'),
+        ('CNET News', 'http://www.cnet.com/rss/news/'),
+        ('CNET Reviews', 'http://www.cnet.com/rss/reviews/'),
+        ('CNET How To', 'http://www.cnet.com/rss/how-to/'),
+        ('CNET iPhone Update', 'http://www.cnet.com/rss/iphone-update/'),
+        ('CNET Crave', 'http://www.cnet.com/rss/crave/'),
+        ('CNET Car Tech', 'http://www.cnet.com/rss/car-tech/'),
+        ('CNET Android Update', 'http://www.cnet.com/rss/android-update/'),
+        ('CNET Gaming', 'http://www.cnet.com/rss/gaming/'),
+        ('CNET Cheapskate', 'http://www.cnet.com/rss/cheapskate/'),
     ]
 
     def get_article_url(self, article):

@@ -28,6 +28,7 @@ def fromstring(raw, parser=None):
 
 # Read metadata {{{
 
+
 def read_doc_props(raw, mi, XPath):
     root = fromstring(raw)
     titles = XPath('//dc:title')(root)
@@ -84,11 +85,12 @@ def read_default_style_language(raw, mi, XPath):
         if lang:
             mi.languages = [lang]
             break
+
+
 # }}}
 
 
 class DOCX:
-
     def __init__(self, path_or_stream, log=None, extract=True):
         self.docx_is_transitional = True
         stream = path_or_stream if hasattr(path_or_stream, 'read') else open(path_or_stream, 'rb')
@@ -112,9 +114,9 @@ class DOCX:
             zf = ZipFile(stream)
             zf.extractall(self.tdir)
         except Exception:
-            self.log.exception('DOCX appears to be invalid ZIP file, trying a'
-                    ' more forgiving ZIP parser')
+            self.log.exception('DOCX appears to be invalid ZIP file, trying a more forgiving ZIP parser')
             from calibre.utils.localunzip import extractall
+
             stream.seek(0)
             extractall(stream, self.tdir)
 

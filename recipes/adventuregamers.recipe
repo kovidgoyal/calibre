@@ -8,7 +8,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class AdventureGamers(BasicNewsRecipe):
-    title = u'Adventure Gamers'
+    title = 'Adventure Gamers'
     language = 'en'
     __author__ = 'Darko Miletic'
     description = 'Adventure games portal'
@@ -20,8 +20,8 @@ class AdventureGamers(BasicNewsRecipe):
     encoding = 'utf8'
     remove_javascript = True
     use_embedded_content = False
-    INDEX = u'http://www.adventuregamers.com'
-    extra_css             = '''
+    INDEX = 'http://www.adventuregamers.com'
+    extra_css = '''
                                 .pageheader_type{font-size: x-large; font-weight: bold; color: #828D74}
                                 .pageheader_title,.page_title{font-size: xx-large; color: #394128}
                                 .pageheader_byline{font-size: small; font-weight: bold; color: #394128}
@@ -34,19 +34,18 @@ class AdventureGamers(BasicNewsRecipe):
                                 body{font-family: 'Open Sans',Helvetica,Arial,sans-serif}
                             '''
 
-    conversion_options = {
-        'comment': description, 'tags': category, 'publisher': publisher, 'language': language
-    }
+    conversion_options = {'comment': description, 'tags': category, 'publisher': publisher, 'language': language}
 
     keep_only_tags = [dict(name='div', attrs={'class': 'cleft_inn'})]
     remove_tags = [
-        dict(name=['object', 'link', 'embed', 'form', 'iframe', 'meta']), dict(name='a', attrs={
-            'href': 'http://www.adventuregamers.com/about/scoring'}), dict(name='a', attrs={'href': 'http://www.adventuregamers.com/about/policies'})
+        dict(name=['object', 'link', 'embed', 'form', 'iframe', 'meta']),
+        dict(name='a', attrs={'href': 'http://www.adventuregamers.com/about/scoring'}),
+        dict(name='a', attrs={'href': 'http://www.adventuregamers.com/about/policies'}),
     ]
     remove_tags_after = [dict(name='div', attrs={'class': 'bodytext'})]
     remove_attributes = ['width', 'height']
 
-    feeds = [(u'Articles', u'http://www.adventuregamers.com/rss/')]
+    feeds = [('Articles', 'http://www.adventuregamers.com/rss/')]
 
     def get_article_url(self, article):
         url = BasicNewsRecipe.get_article_url(self, article)

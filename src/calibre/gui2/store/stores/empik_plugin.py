@@ -36,7 +36,6 @@ def as_base64(data):
 
 
 class EmpikStore(BasicStoreConfig, StorePlugin):
-
     def open(self, gui=None, parent=None, detail_item=None, external=False):
         aff_root = 'https://www.a4b-tracking.com/pl/stat-click-text-link/78/58/'
 

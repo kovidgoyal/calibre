@@ -4,7 +4,7 @@ Read content from azw4 file.
 azw4 is essentially a PDF stuffed into a MOBI container.
 """
 
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
@@ -17,7 +17,7 @@ from calibre.ebooks.pdb.formatreader import FormatReader
 
 def unwrap(stream, output_path):
     raw_data = stream.read()
-    m = re.search(br'%PDF.+%%EOF', raw_data, flags=re.DOTALL)
+    m = re.search(rb'%PDF.+%%EOF', raw_data, flags=re.DOTALL)
     if m is None:
         raise ValueError('No embedded PDF found in AZW4 file')
     with open(output_path, 'wb') as f:
@@ -25,7 +25,6 @@ def unwrap(stream, output_path):
 
 
 class Reader(FormatReader):
-
     def __init__(self, header, stream, log, options):
         self.header = header
         self.stream = stream
@@ -38,7 +37,7 @@ class Reader(FormatReader):
         self.stream.seek(0)
         raw_data = self.stream.read()
         data = b''
-        mo = re.search(br'%PDF.+%%EOF', raw_data, flags=re.DOTALL)
+        mo = re.search(rb'%PDF.+%%EOF', raw_data, flags=re.DOTALL)
         if mo:
             data = mo.group()
 

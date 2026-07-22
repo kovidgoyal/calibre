@@ -21,7 +21,6 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class DiscoverMagazine(BasicNewsRecipe):
-
     title = 'Discover Magazine Monthly'
     __author__ = 'Kovid Goyal'
     description = 'Monthly magazine version of Discover Magazine (not rss feed).'
@@ -32,11 +31,9 @@ class DiscoverMagazine(BasicNewsRecipe):
     INDEX = 'http://discovermagazine.com'
 
     keep_only_tags = [
-        {'attrs': {'class': ['headline', 'deck', 'belowDeck',
-                             'mediaContainer', 'segment', 'cover']}},
+        {'attrs': {'class': ['headline', 'deck', 'belowDeck', 'mediaContainer', 'segment', 'cover']}},
     ]
-    remove_tags = [dict(name='div', attrs={
-                        'class': ['ladder', 'mobile', 'popular', 'open', 'scistarter']})]
+    remove_tags = [dict(name='div', attrs={'class': ['ladder', 'mobile', 'popular', 'open', 'scistarter']})]
 
     # Login {{{
     needs_subscription = True
@@ -44,14 +41,16 @@ class DiscoverMagazine(BasicNewsRecipe):
     def get_browser(self):
         br = BasicNewsRecipe.get_browser(self)
         rq = mechanize.Request(
-            'https://secure.kalmbach.com/kserv/api/authentication/login', headers={
+            'https://secure.kalmbach.com/kserv/api/authentication/login',
+            headers={
                 'Content-Type': 'application/json; charset=UTF-8',
                 'Referer': 'http://discovermagazine.com',
                 'Accept': 'application/json, text/javascript, */*; q=0.01',
                 'Accept-Language': 'en-US,en;q=0.5',
                 'Origin': 'http://discovermagazine.com',
-            }, data=json.dumps(
-                {'appId': '2', 'email': self.username, 'password': self.password}))
+            },
+            data=json.dumps({'appId': '2', 'email': self.username, 'password': self.password}),
+        )
         br.set_debug_http(True)
         br.open(rq)
         data = json.loads(br.open(rq).read())
@@ -61,12 +60,7 @@ class DiscoverMagazine(BasicNewsRecipe):
         if hasattr(br, 'set_cookie'):
             br.set_cookie('KSERV', session_id, 'discovermagazine.com')
         else:
-            c = Cookie(
-                None, 'KSERV', session_id,
-                None, False,
-                'discovermagazine.com', True, False,
-                '/', True,
-                False, None, False, None, None, None)
+            c = Cookie(None, 'KSERV', session_id, None, False, 'discovermagazine.com', True, False, '/', True, False, None, False, None, None, None)
             br.cookiejar.set_cookie(c)
         res = br.open('http://discovermagazine.com')
         br.set_debug_http(False)
@@ -78,8 +72,7 @@ class DiscoverMagazine(BasicNewsRecipe):
     # End login }}}
 
     no_stylesheets = True
-    preprocess_regexps = [(re.compile(r'<br[ ]*/>', re.IGNORECASE), lambda m: ''),
-                          (re.compile(r'<br[ ]*clear.*/>', re.IGNORECASE), lambda m: '')]
+    preprocess_regexps = [(re.compile(r'<br[ ]*/>', re.IGNORECASE), lambda m: ''), (re.compile(r'<br[ ]*clear.*/>', re.IGNORECASE), lambda m: '')]
 
     extra_css = '''body { font-family: helvetica, sans-serif; }
                    .belowdeck {font-style: italic; padding=bottom: 10px; max-width: none}
@@ -90,8 +83,7 @@ class DiscoverMagazine(BasicNewsRecipe):
     def parse_index(self):
         # gets current month from homepage and append to index
         soup = self.index_to_soup(self.INDEX)
-        c = soup.find(name=['a'], attrs={
-                      'title': ['See inside the current issue of Discover Magazine']})
+        c = soup.find(name=['a'], attrs={'title': ['See inside the current issue of Discover Magazine']})
         currentMonth = self.tag_to_string(c['href'])
         self.INDEX = self.INDEX + currentMonth
         # continue parsing
@@ -121,8 +113,7 @@ class DiscoverMagazine(BasicNewsRecipe):
                     if title and url:
                         p = tag.find('div', attrs={'class': 'snippet'})
                         desc = self.tag_to_string(p) if p is not None else ''
-                        current_articles.append(
-                            {'title': title, 'url': url, 'description': desc})
+                        current_articles.append({'title': title, 'url': url, 'description': desc})
                         self.log('\tArticle:', title, '[%s]' % url)
                         self.log('\t\t', desc)
         if current_section and current_articles:

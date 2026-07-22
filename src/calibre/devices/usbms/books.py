@@ -49,7 +49,6 @@ def none_cmp(xx, yy):
 
 
 class Book(Metadata):
-
     _thumbnail_value = None
 
     def __init__(self, prefix, lpath, size=None, other=None):
@@ -98,7 +97,6 @@ class Book(Metadata):
 
 
 class BookList(_BookList):
-
     def __init__(self, oncard, prefix, settings):
         _BookList.__init__(self, oncard, prefix, settings)
         self._bookmap = {}
@@ -116,7 +114,7 @@ class BookList(_BookList):
         """
         try:
             b = self.index(book) if check_for_duplicates else None
-        except (ValueError, IndexError):
+        except ValueError, IndexError:
             b = None
         if b is None:
             self.append(book)
@@ -134,19 +132,19 @@ class BookList(_BookList):
 
 
 class CollectionsBookList(BookList):
-
     def supports_collections(self):
         return True
 
     def in_category_sort_rules(self, attr):
         sorts = tweaks['sony_collection_sorting_rules']
-        for attrs,sortattr in sorts:
+        for attrs, sortattr in sorts:
             if attr in attrs or '*' in attrs:
                 return sortattr
         return None
 
     def compute_category_name(self, field_key, field_value, field_meta):
         from calibre.utils.formatter import EvalFormatter
+
         renames = tweaks['sony_collection_renaming_rules']
         field_name = renames.get(field_key, None)
         if field_name is None:
@@ -155,13 +153,16 @@ class CollectionsBookList(BookList):
             else:
                 field_name = ''
         cat_name = EvalFormatter().safe_format(
-                        tweaks['sony_collection_name_template'],
-                        kwargs={'category':field_name, 'value':field_value},
-                        error_value='GET_CATEGORY', book=None)
+            tweaks['sony_collection_name_template'],
+            kwargs={'category': field_name, 'value': field_value},
+            error_value='GET_CATEGORY',
+            book=None,
+        )
         return cat_name.strip()
 
     def get_collections(self, collection_attributes=None):
         from calibre.utils.config import device_prefs
+
         debug_print('Starting get_collections:', device_prefs['manage_device_metadata'])
         debug_print('Renaming rules:', tweaks['sony_collection_renaming_rules'])
         debug_print('Formatting template:', tweaks['sony_collection_name_template'])
@@ -179,7 +180,7 @@ class CollectionsBookList(BookList):
         all_by_title = ''
         ca = []
         all_by_something = []
-        for c in (collection_attributes or []):
+        for c in collection_attributes or []:
             if c.startswith('aba:') and c[4:].strip():
                 all_by_author = c[4:].strip()
             elif c.startswith('abt:') and c[4:].strip():
@@ -196,8 +197,7 @@ class CollectionsBookList(BookList):
         collection_attributes = ca
 
         for book in self:
-            tsval = book.get('_pb_title_sort',
-                             book.get('title_sort', book.get('title', 'zzzz')))
+            tsval = book.get('_pb_title_sort', book.get('title_sort', book.get('title', 'zzzz')))
             asval = book.get('_pb_author_sort', book.get('author_sort', ''))
             # Make sure we can identify this book via the lpath
             lpath = getattr(book, 'lpath', None)
@@ -243,8 +243,7 @@ class CollectionsBookList(BookList):
                 elif fm['datatype'] == 'text' and fm['is_multiple']:
                     val = orig_val
                 elif fm['datatype'] == 'composite' and fm['is_multiple']:
-                    val = [v.strip() for v in
-                           val.split(fm['is_multiple']['ui_to_list'])]
+                    val = [v.strip() for v in val.split(fm['is_multiple']['ui_to_list'])]
                 else:
                     val = [val]
 
@@ -257,18 +256,14 @@ class CollectionsBookList(BookList):
                         if category == book.series:
                             is_series = True
                     elif fm['is_custom']:  # is a custom field
-                        if fm['datatype'] == 'text' and len(category) > 1 and \
-                                category[0] == '[' and category[-1] == ']':
+                        if fm['datatype'] == 'text' and len(category) > 1 and category[0] == '[' and category[-1] == ']':
                             continue
                         if fm['datatype'] == 'series':
                             is_series = True
-                    else:                       # is a standard field
-                        if attr == 'tags' and len(category) > 1 and \
-                                category[0] == '[' and category[-1] == ']':
+                    else:  # is a standard field
+                        if attr == 'tags' and len(category) > 1 and category[0] == '[' and category[-1] == ']':
                             continue
-                        if attr == 'series' or \
-                                ('series' in collection_attributes and
-                                 book.get('series', None) == category):
+                        if attr == 'series' or ('series' in collection_attributes and book.get('series', None) == category):
                             is_series = True
                     if use_renaming_rules:
                         cat_name = self.compute_category_name(attr, category, fm)
@@ -282,11 +277,9 @@ class CollectionsBookList(BookList):
                         collections[cat_name][lpath] = (book, sort_val, tsval)
                     elif is_series:
                         if doing_dc:
-                            collections[cat_name][lpath] = \
-                                (book, book.get('series_index', sys.maxsize), tsval)
+                            collections[cat_name][lpath] = (book, book.get('series_index', sys.maxsize), tsval)
                         else:
-                            collections[cat_name][lpath] = \
-                                (book, book.get(attr+'_index', sys.maxsize), tsval)
+                            collections[cat_name][lpath] = (book, book.get(attr + '_index', sys.maxsize), tsval)
                     elif lpath not in collections[cat_name]:
                         collections[cat_name][lpath] = (book, tsval, tsval)
 
@@ -300,7 +293,7 @@ class CollectionsBookList(BookList):
                 if all_by_title not in collections:
                     collections[all_by_title] = {}
                 collections[all_by_title][lpath] = (book, tsval, asval)
-            for n,sb in all_by_something:
+            for n, sb in all_by_something:
                 if n not in collections:
                     collections[n] = {}
                 collections[n][lpath] = (book, book.get(sb, ''), tsval)

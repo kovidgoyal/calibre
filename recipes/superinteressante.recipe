@@ -10,11 +10,7 @@ class SuperInteressante(BasicNewsRecipe):
     __author__ = 'Pedro Souza'
 
     recipe_specific_options = {
-        'edicao_numero': {
-            'short': 'Número da edição',
-            'long': 'Digite o número da edição (ex: 485). Deixe em branco para a mais recente:',
-            'default': ''
-        }
+        'edicao_numero': {'short': 'Número da edição', 'long': 'Digite o número da edição (ex: 485). Deixe em branco para a mais recente:', 'default': ''}
     }
 
     no_shortcuts = True
@@ -32,14 +28,18 @@ class SuperInteressante(BasicNewsRecipe):
     keep_only_tags = [
         dict(name='article'),
         dict(name='div', attrs={'class': ['content-body', 'article-content', 'entry-content']}),
-        dict(name='header', attrs={'class': ['article-header']})
+        dict(name='header', attrs={'class': ['article-header']}),
     ]
 
     remove_tags = [
         dict(name='div', attrs={'class': lambda x: x and any(c in x.split() for c in ['ads', 'post-ads', 'noreadme-audima', 'top-share'])}),
         dict(name='div', attrs={'class': ['banner-container', 'trending', 'sidebar', 'social-share', 'tags', 'related-posts', 'newsletter-box']}),
         dict(name='section', attrs={'class': ['newsletter', 'comments', 'recommended']}),
-        dict(name='footer'), dict(name='nav'), dict(name='script'), dict(name='style'), dict(name='aside')
+        dict(name='footer'),
+        dict(name='nav'),
+        dict(name='script'),
+        dict(name='style'),
+        dict(name='aside'),
     ]
 
     def _get_edicao_input(self):

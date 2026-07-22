@@ -1,7 +1,8 @@
 """
 Read content from ereader pdb file with a 116 and 202 byte header created by Makebook.
 """
-__license__   = 'GPL v3'
+
+__license__ = 'GPL v3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
@@ -22,18 +23,18 @@ class HeaderRecord:
     in the file. This is used in conjunction with the sections
     defined in the file header.
     """
+
     num_image_pages: int
     image_data_offset: int
 
     def __init__(self, raw):
-        self.version, = struct.unpack('>H', raw[0:2])
-        self.non_text_offset, = struct.unpack('>H', raw[8:10])
+        (self.version,) = struct.unpack('>H', raw[0:2])
+        (self.non_text_offset,) = struct.unpack('>H', raw[8:10])
 
         self.num_text_pages = self.non_text_offset - 1
 
 
 class Reader202(FormatReader):
-
     def __init__(self, header, stream, log, options):
         self.log = log
         self.encoding = options.input_encoding
@@ -50,6 +51,7 @@ class Reader202(FormatReader):
             raise EreaderError(f'Unknown book version {self.header_record.version}.')
 
         from calibre.ebooks.metadata.pdb import get_metadata
+
         self.mi = get_metadata(stream, False)
 
     def section_data(self, number):
@@ -57,6 +59,7 @@ class Reader202(FormatReader):
 
     def decompress_text(self, number):
         from calibre.ebooks.compression.palmdoc import decompress_doc
+
         data = bytearray(self.section_data(number))
         data = bytes(bytearray(x ^ 0xA5 for x in data))
         return decompress_doc(data).decode(self.encoding or 'cp1252', 'replace')
@@ -67,7 +70,7 @@ class Reader202(FormatReader):
 
         data = self.section_data(number)
         if data.startswith(b'PNG'):
-            name = data[4:4 + 32].strip(b'\x00')
+            name = data[4 : 4 + 32].strip(b'\x00')
             img = data[62:]
 
         return name, img

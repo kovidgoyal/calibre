@@ -6,7 +6,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class AdvancedUserRecipe1311450855(BasicNewsRecipe):
-    title = u'Dagens Industri'
+    title = 'Dagens Industri'
     __author__ = 'Jonas Svensson'
     description = 'Economy news from Sweden'
     publisher = 'DI'
@@ -19,10 +19,18 @@ class AdvancedUserRecipe1311450855(BasicNewsRecipe):
     encoding = 'utf-8'
     language = 'sv'
 
-    feeds = [(u'DI', u'https://di.se/rss')]
+    feeds = [('DI', 'https://di.se/rss')]
 
-    keep_only_tags = [dict(name='h1', attrs={'id': 'ctl00_ExtraWideContentRegion_WideContentRegion_MainRegion_MainContentRegion_MainBodyRegion_headlineNormal'}), dict(name='div', attrs={'id': 'articleBody'})]  # noqa: E501
+    keep_only_tags = [
+        dict(name='h1', attrs={'id': 'ctl00_ExtraWideContentRegion_WideContentRegion_MainRegion_MainContentRegion_MainBodyRegion_headlineNormal'}),
+        dict(name='div', attrs={'id': 'articleBody'}),
+    ]  # noqa: E501
 
     remove_tags = [
-        dict(name='div', attrs={'class': 'article-actions clear'}), dict(name='div', attrs={'class': 'article-action-popup'}), dict(name='div', attrs={'class': 'header'}), dict(name='div', attrs={'class': 'content clear'}), dict(name='div', attrs={'id': 'articleAdvertisementDiv'}), dict(name='ul', attrs={'class': 'action-list'})  # noqa: E501
+        dict(name='div', attrs={'class': 'article-actions clear'}),
+        dict(name='div', attrs={'class': 'article-action-popup'}),
+        dict(name='div', attrs={'class': 'header'}),
+        dict(name='div', attrs={'class': 'content clear'}),
+        dict(name='div', attrs={'id': 'articleAdvertisementDiv'}),
+        dict(name='ul', attrs={'class': 'action-list'}),  # noqa: E501
     ]

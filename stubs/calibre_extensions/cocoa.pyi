@@ -33,7 +33,13 @@ def set_notification_activated_callback(callback: Callable[[str | None], Any]) -
     "Set the function called with the notification identifier when a user notification is activated"
     pass
 
-def send_notification(identifier: str | None, title: str, informative_text: str | None, use_sound: bool = False, subtitle: str | None = None) -> None:
+def send_notification(
+    identifier: str | None,
+    title: str,
+    informative_text: str | None,
+    use_sound: bool = False,
+    subtitle: str | None = None,
+) -> None:
     "Schedule display of a user notification via UNUserNotificationCenter"
     pass
 

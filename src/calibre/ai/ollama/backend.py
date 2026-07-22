@@ -30,9 +30,7 @@ def is_ready_for_use() -> bool:
 
 
 def headers() -> tuple[tuple[str, str]]:
-    return (
-        ('Content-Type', 'application/json'),
-    )
+    return (('Content-Type', 'application/json'),)
 
 
 class Model(NamedTuple):
@@ -48,8 +46,12 @@ class Model(NamedTuple):
     def from_dict(cls, x: dict[str, Any], details: dict[str, Any]) -> Model:
         d = x.get('details', {})
         return Model(
-            name=x['name'], id=x['model'], family=d.get('family', ''), families=d.get('families', ()),
-            modified_at=datetime.datetime.fromisoformat(x['modified_at']), can_think='thinking' in details['capabilities'],
+            name=x['name'],
+            id=x['model'],
+            family=d.get('family', ''),
+            families=d.get('families', ()),
+            modified_at=datetime.datetime.fromisoformat(x['modified_at']),
+            can_think='thinking' in details['capabilities'],
         )
 
 
@@ -70,7 +72,12 @@ def get_available_models(use_api_url: str | None = None, headers: Sequence[tuple
     if headers is None:
         headers = pref('headers') or ()
     for model in json.loads(download_data(api_url('api/tags', use_api_url), headers=headers))['models']:
-        rq = Request(api_url('api/show', use_api_url), headers=dict(headers), data=json.dumps({'model': model['model']}).encode(), method='POST')
+        rq = Request(
+            api_url('api/show', use_api_url),
+            headers=dict(headers),
+            data=json.dumps({'model': model['model']}).encode(),
+            method='POST',
+        )
         with o.open(rq) as f:
             details = json.loads(f.read())
         e = Model.from_dict(model, details)
@@ -87,6 +94,7 @@ def does_model_exist_locally(model_id: str, use_api_url: str | None = None, head
 
 def config_widget():
     from calibre.ai.ollama.config import ConfigWidget
+
     return ConfigWidget()
 
 
@@ -109,13 +117,16 @@ def chat_request(data: dict[str, Any], model: Model) -> Request:
     data['stream'] = True
     if model.can_think:
         data['think'] = True
-    return Request(
-        api_url('api/chat'), data=json.dumps(data).encode('utf-8'),
-        headers=dict(headers()), method='POST')
+    return Request(api_url('api/chat'), data=json.dumps(data).encode('utf-8'), headers=dict(headers()), method='POST')
 
 
 def for_assistant(self: ChatMessage) -> dict[str, Any]:
-    if self.type not in (ChatMessageType.assistant, ChatMessageType.system, ChatMessageType.user, ChatMessageType.developer):
+    if self.type not in (
+        ChatMessageType.assistant,
+        ChatMessageType.system,
+        ChatMessageType.user,
+        ChatMessageType.developer,
+    ):
         raise ValueError(f'Unsupported message type: {self.type}')
     return {'role': self.type.value, 'content': self.query}
 
@@ -130,7 +141,13 @@ def as_chat_responses(d: dict[str, Any], model: Model) -> Iterator[ChatResponse]
     reasoning = msg.get('thinking') or ''
     if has_metadata or content or reasoning:
         yield ChatResponse(
-            type=ChatMessageType.assistant, reasoning=reasoning, content=content, has_metadata=has_metadata, model=model.id, plugin_name=OllamaAI.name)
+            type=ChatMessageType.assistant,
+            reasoning=reasoning,
+            content=content,
+            has_metadata=has_metadata,
+            model=model.id,
+            plugin_name=OllamaAI.name,
+        )
 
 
 def read_streaming_response(rq: Request) -> Iterator[dict[str, Any]]:

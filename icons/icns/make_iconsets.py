@@ -18,63 +18,32 @@ base = d(a(__file__))
 # To generate this template create an icon using Icon Composer on macOS and in
 # the saved .icon (which is a folder) look for icon.js
 icon_settings = {
-  'fill-specializations' : [
-    {
-      'value' : {
-        'automatic-gradient' : 'extended-gray:1.00000,1.00000'
-      }
-    },
-    {
-      'appearance' : 'dark',
-      'value' : {
-        'automatic-gradient' : 'display-p3:0.20500,0.20500,0.20500,1.00000'
-      }
-    }
-  ],
-  'groups' : [
-    {
-      'layers' : [
-        {
-          'blend-mode' : 'normal',
-          'glass' : False,
-          'hidden' : False,
-          'image-name' : 'icon.svg',
-          'name' : 'icon',
-          'opacity' : 1,
-          'position' : {
-            'scale' : 0.9,
-            'translation-in-points' : [
-              0,
-              0
-            ]
-          }
-        }
-      ],
-      'shadow' : {
-        'kind' : 'neutral',
-        'opacity' : 0.5
-      },
-      'translucency' : {
-        'enabled' : True,
-        'value' : 0.5
-      }
-    }
-  ],
-  'supported-platforms' : {
-    'circles' : [
-      'watchOS'
+    'fill-specializations': [
+        {'value': {'automatic-gradient': 'extended-gray:1.00000,1.00000'}},
+        {'appearance': 'dark', 'value': {'automatic-gradient': 'display-p3:0.20500,0.20500,0.20500,1.00000'}},
     ],
-    'squares' : 'shared'
-  }
+    'groups': [
+        {
+            'layers': [
+                {
+                    'blend-mode': 'normal',
+                    'glass': False,
+                    'hidden': False,
+                    'image-name': 'icon.svg',
+                    'name': 'icon',
+                    'opacity': 1,
+                    'position': {'scale': 0.9, 'translation-in-points': [0, 0]},
+                }
+            ],
+            'shadow': {'kind': 'neutral', 'opacity': 0.5},
+            'translucency': {'enabled': True, 'value': 0.5},
+        }
+    ],
+    'supported-platforms': {'circles': ['watchOS'], 'squares': 'shared'},
 }
 
 imgsrc = j(d(d(base)), 'imgsrc')
-sources = {
-    'calibre':j(imgsrc, 'calibre.svg'),
-    'ebook-edit':j(imgsrc, 'tweak.svg'),
-    'ebook-viewer':j(imgsrc, 'viewer.svg'),
-    'book':j(imgsrc, 'book.svg')
-}
+sources = {'calibre': j(imgsrc, 'calibre.svg'), 'ebook-edit': j(imgsrc, 'tweak.svg'), 'ebook-viewer': j(imgsrc, 'viewer.svg'), 'book': j(imgsrc, 'book.svg')}
 
 frames = {
     'light': j(imgsrc, 'frame.svg'),
@@ -121,8 +90,17 @@ def create_icon(name: str, svg_path: str, output_path: str) -> str:
 def create_assets():
     os.chdir(base)
     actool = [
-        'xcrun', 'actool', '--warnings', '--platform', 'macosx', '--compile', '.',
-        '--minimum-deployment-target', '15.0', '--output-partial-info-plist', '/dev/stdout',
+        'xcrun',
+        'actool',
+        '--warnings',
+        '--platform',
+        'macosx',
+        '--compile',
+        '.',
+        '--minimum-deployment-target',
+        '15.0',
+        '--output-partial-info-plist',
+        '/dev/stdout',
     ]
     primary = ''
     icons = []

@@ -17,7 +17,7 @@ class IlMessaggero(BasicNewsRecipe):
     description = 'Italian News'
 
     # cover_url      = 'http://www.ilmessaggero.it/img_tst/logomsgr.gif'
-    title = u'Il Messaggero'
+    title = 'Il Messaggero'
     publisher = 'Caltagirone Editore'
     category = 'News, politics, culture, economy, general interest'
 
@@ -32,12 +32,12 @@ class IlMessaggero(BasicNewsRecipe):
     remove_javascript = True
     extra_css = ' .bianco31lucida{color: black} '
 
-    keep_only_tags = [dict(name='h1', attrs={'class': ['titoloLettura2', 'titoloart', 'bianco31lucida']}),
-                      dict(name='h2', attrs={
-                          'class': ['sottotitLettura', 'grigio16']}),
-                      dict(name='span', attrs={'class': 'testoArticoloG'}),
-                      dict(name='div', attrs={'id': 'testodim'})
-                      ]
+    keep_only_tags = [
+        dict(name='h1', attrs={'class': ['titoloLettura2', 'titoloart', 'bianco31lucida']}),
+        dict(name='h2', attrs={'class': ['sottotitLettura', 'grigio16']}),
+        dict(name='span', attrs={'class': 'testoArticoloG'}),
+        dict(name='div', attrs={'id': 'testodim'}),
+    ]
 
     def get_cover_url(self):
         cover = None
@@ -56,16 +56,16 @@ class IlMessaggero(BasicNewsRecipe):
         return cover
 
     feeds = [
-        (u'HomePage', u'http://www.ilmessaggero.it/rss/home.xml'),
-        (u'Primo Piano', u'http://www.ilmessaggero.it/rss/initalia_primopiano.xml'),
-        (u'Economia e Finanza', u'http://www.ilmessaggero.it/rss/economia.xml'),
-        (u'Politica', u'http://www.ilmessaggero.it/rss/initalia_politica.xml'),
-        (u'Cultura', u'http://www.ilmessaggero.it/rss/cultura.xml'),
-        (u'Tecnologia', u'http://www.ilmessaggero.it/rss/tecnologia.xml'),
-        (u'Spettacoli', u'http://www.ilmessaggero.it/rss/spettacoli.xml'),
-        (u'Edizioni Locali', u'http://www.ilmessaggero.it/rss/edlocali.xml'),
-        (u'Roma', u'http://www.ilmessaggero.it/rss/roma.xml'),
-        (u'Benessere', u'http://www.ilmessaggero.it/rss/benessere.xml'),
-        (u'Sport', u'http://www.ilmessaggero.it/rss/sport.xml'),
-        (u'Moda', u'http://www.ilmessaggero.it/rss/moda.xml')
+        ('HomePage', 'http://www.ilmessaggero.it/rss/home.xml'),
+        ('Primo Piano', 'http://www.ilmessaggero.it/rss/initalia_primopiano.xml'),
+        ('Economia e Finanza', 'http://www.ilmessaggero.it/rss/economia.xml'),
+        ('Politica', 'http://www.ilmessaggero.it/rss/initalia_politica.xml'),
+        ('Cultura', 'http://www.ilmessaggero.it/rss/cultura.xml'),
+        ('Tecnologia', 'http://www.ilmessaggero.it/rss/tecnologia.xml'),
+        ('Spettacoli', 'http://www.ilmessaggero.it/rss/spettacoli.xml'),
+        ('Edizioni Locali', 'http://www.ilmessaggero.it/rss/edlocali.xml'),
+        ('Roma', 'http://www.ilmessaggero.it/rss/roma.xml'),
+        ('Benessere', 'http://www.ilmessaggero.it/rss/benessere.xml'),
+        ('Sport', 'http://www.ilmessaggero.it/rss/sport.xml'),
+        ('Moda', 'http://www.ilmessaggero.it/rss/moda.xml'),
     ]

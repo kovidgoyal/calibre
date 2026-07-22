@@ -59,28 +59,30 @@ ICON_SIZE = 24
 
 
 class XPathDialog(QDialog):  # {{{
-
     def __init__(self, parent, prefs):
         QDialog.__init__(self, parent)
         self.prefs = prefs
         self.setWindowTitle(_('Create ToC from XPath'))
         self.l = l = QVBoxLayout()
         self.setLayout(l)
-        self.la = la = QLabel(_(
-            'Specify a series of XPath expressions for the different levels of'
-            ' the Table of Contents. You can use the wizard buttons to help'
-            ' you create XPath expressions.'))
+        self.la = la = QLabel(
+            _(
+                'Specify a series of XPath expressions for the different levels of'
+                ' the Table of Contents. You can use the wizard buttons to help'
+                ' you create XPath expressions.'
+            )
+        )
         la.setWordWrap(True)
         l.addWidget(la)
         self.widgets = []
         for i in range(5):
-            la = _('Level %s ToC:')%(f'&{i + 1}')
+            la = _('Level %s ToC:') % (f'&{i + 1}')
             xp = XPathEdit(self)
             xp.set_msg(la)
             self.widgets.append(xp)
             l.addWidget(xp)
 
-        self.bb = bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok|QDialogButtonBox.StandardButton.Cancel)
+        self.bb = bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)
         bb.accepted.connect(self.accept)
         bb.rejected.connect(self.reject)
         self.ssb = b = bb.addButton(_('&Save settings'), QDialogButtonBox.ButtonRole.ActionRole)
@@ -101,18 +103,16 @@ class XPathDialog(QDialog):  # {{{
     def save_settings(self):
         xpaths = self.xpaths
         if not xpaths:
-            return error_dialog(self, _('No XPaths'),
-                                _('No XPaths have been entered'), show=True)
+            return error_dialog(self, _('No XPaths'), _('No XPaths have been entered'), show=True)
         if not self.check():
             return
-        name, ok = QInputDialog.getText(self, _('Choose name'),
-                _('Choose a name for these settings'))
+        name, ok = QInputDialog.getText(self, _('Choose name'), _('Choose a name for these settings'))
         if ok:
             name = str(name).strip()
             if name:
                 saved = self.prefs.get('xpath_toc_settings', {})
                 # in JSON all keys have to be strings
-                saved[name] = {str(i):x for i, x in enumerate(xpaths)}
+                saved[name] = {str(i): x for i, x in enumerate(xpaths)}
                 self.prefs.set('xpath_toc_settings', saved)
                 self.setup_load_button()
 
@@ -143,9 +143,7 @@ class XPathDialog(QDialog):  # {{{
     def check(self):
         for w in self.widgets:
             if not w.check():
-                error_dialog(self, _('Invalid XPath'),
-                    _('The XPath expression %s is not valid.')%w.xpath,
-                             show=True)
+                error_dialog(self, _('Invalid XPath'), _('The XPath expression %s is not valid.') % w.xpath, show=True)
                 return False
         return True
 
@@ -157,6 +155,8 @@ class XPathDialog(QDialog):  # {{{
     @property
     def xpaths(self):
         return [w.xpath for w in self.widgets if w.xpath.strip()]
+
+
 # }}}
 
 
@@ -165,7 +165,6 @@ class ItemPane(QWidget):
 
 
 class ItemView(QStackedWidget):  # {{{
-
     add_new_item = pyqtSignal(object, object)
     delete_item = pyqtSignal()
     flatten_item = pyqtSignal()
@@ -191,12 +190,16 @@ class ItemView(QStackedWidget):  # {{{
         sa.setWidget(ip)
         self.addWidget(sa)
 
-        self.l1 = la = QLabel('<p>'+_(
-            'You can edit existing entries in the Table of Contents by clicking them'
-            ' in the panel to the left.')+'<p>'+_(
-            'Entries with a green tick next to them point to a location that has '
-            'been verified to exist. Entries with a red dot are broken and may need'
-            ' to be fixed.'))
+        self.l1 = la = QLabel(
+            '<p>'
+            + _('You can edit existing entries in the Table of Contents by clicking them in the panel to the left.')
+            + '<p>'
+            + _(
+                'Entries with a green tick next to them point to a location that has '
+                'been verified to exist. Entries with a red dot are broken and may need'
+                ' to be fixed.'
+            )
+        )
         la.setStyleSheet('QLabel { margin-bottom: 20px }')
         la.setWordWrap(True)
         l = QVBoxLayout()
@@ -209,60 +212,77 @@ class ItemView(QStackedWidget):  # {{{
 
         self.cfmhb = b = QPushButton(_('Generate ToC from &major headings'))
         b.clicked.connect(self.create_from_major_headings)
-        b.setToolTip(textwrap.fill(_(
-            'Generate a Table of Contents from the major headings in the book.'
-            ' This will work if the book identifies its headings using HTML'
-            ' heading tags. Uses the <h1>, <h2> and <h3> tags.')))
+        b.setToolTip(
+            textwrap.fill(
+                _(
+                    'Generate a Table of Contents from the major headings in the book.'
+                    ' This will work if the book identifies its headings using HTML'
+                    ' heading tags. Uses the <h1>, <h2> and <h3> tags.'
+                )
+            )
+        )
         l.addWidget(b)
         self.cfmab = b = QPushButton(_('Generate ToC from &all headings'))
         b.clicked.connect(self.create_from_all_headings)
-        b.setToolTip(textwrap.fill(_(
-            'Generate a Table of Contents from all the headings in the book.'
-            ' This will work if the book identifies its headings using HTML'
-            ' heading tags. Uses the <h1-6> tags.')))
+        b.setToolTip(
+            textwrap.fill(
+                _(
+                    'Generate a Table of Contents from all the headings in the book.'
+                    ' This will work if the book identifies its headings using HTML'
+                    ' heading tags. Uses the <h1-6> tags.'
+                )
+            )
+        )
         l.addWidget(b)
 
         self.lb = b = QPushButton(_('Generate ToC from &links'))
         b.clicked.connect(self.create_from_links)
-        b.setToolTip(textwrap.fill(_(
-            'Generate a Table of Contents from all the links in the book.'
-            ' Links that point to destinations that do not exist in the book are'
-            ' ignored. Also multiple links with the same destination or the same'
-            ' text are ignored.'
-        )))
+        b.setToolTip(
+            textwrap.fill(
+                _(
+                    'Generate a Table of Contents from all the links in the book.'
+                    ' Links that point to destinations that do not exist in the book are'
+                    ' ignored. Also multiple links with the same destination or the same'
+                    ' text are ignored.'
+                )
+            )
+        )
         l.addWidget(b)
 
         self.cfb = b = QPushButton(_('Generate ToC from &files'))
         b.clicked.connect(self.create_from_files)
-        b.setToolTip(textwrap.fill(_(
-            'Generate a Table of Contents from individual files in the book.'
-            ' Each entry in the ToC will point to the start of the file, the'
-            ' text of the entry will be the "first line" of text from the file.'
-        )))
+        b.setToolTip(
+            textwrap.fill(
+                _(
+                    'Generate a Table of Contents from individual files in the book.'
+                    ' Each entry in the ToC will point to the start of the file, the'
+                    ' text of the entry will be the "first line" of text from the file.'
+                )
+            )
+        )
         l.addWidget(b)
 
         self.xpb = b = QPushButton(_('Generate ToC from &XPath'))
         b.clicked.connect(self.create_from_user_xpath)
-        b.setToolTip(textwrap.fill(_(
-            'Generate a Table of Contents from arbitrary XPath expressions.'
-        )))
+        b.setToolTip(textwrap.fill(_('Generate a Table of Contents from arbitrary XPath expressions.')))
         l.addWidget(b)
 
         self.fal = b = QPushButton(_('&Flatten the ToC'))
         b.clicked.connect(self.flatten_toc)
-        b.setToolTip(textwrap.fill(_(
-            'Flatten the Table of Contents, putting all entries at the top level'
-        )))
+        b.setToolTip(textwrap.fill(_('Flatten the Table of Contents, putting all entries at the top level')))
         l.addWidget(b)
 
         l.addStretch()
-        self.w1 = la = QLabel(_('<b>WARNING:</b> calibre only supports the '
-                                'creation of linear ToCs in AZW3 files. In a '
-                                'linear ToC every entry must point to a '
-                                'location after the previous entry. If you '
-                                'create a non-linear ToC it will be '
-                                'automatically re-arranged inside the AZW3 file.'
-                            ))
+        self.w1 = la = QLabel(
+            _(
+                '<b>WARNING:</b> calibre only supports the '
+                'creation of linear ToCs in AZW3 files. In a '
+                'linear ToC every entry must point to a '
+                'location after the previous entry. If you '
+                'create a non-linear ToC it will be '
+                'automatically re-arranged inside the AZW3 file.'
+            )
+        )
         la.setWordWrap(True)
         l.addWidget(la)
 
@@ -271,9 +291,7 @@ class ItemView(QStackedWidget):  # {{{
         la = ip.heading = QLabel('')
         l.addWidget(la, 0, 0, 1, 2)
         la.setWordWrap(True)
-        la = QLabel(_(
-            'You can move this entry around the Table of Contents by drag '
-            'and drop or using the up and down buttons to the left'))
+        la = QLabel(_('You can move this entry around the Table of Contents by drag and drop or using the up and down buttons to the left'))
         la.setWordWrap(True)
         l.addWidget(la, 1, 0, 1, 2)
 
@@ -285,19 +303,17 @@ class ItemView(QStackedWidget):  # {{{
         self.status_label = QLabel()
         self.status_label.setWordWrap(True)
         l.addWidget(self.icon_label, l.rowCount(), 0)
-        l.addWidget(self.status_label, l.rowCount()-1, 1)
+        l.addWidget(self.status_label, l.rowCount() - 1, 1)
         hl = QFrame()
         hl.setFrameShape(QFrame.Shape.HLine)
         l.addWidget(hl, l.rowCount(), 0, 1, 2)
 
         # Edit/remove item
         rs = l.rowCount()
-        b = QPushButton(QIcon.ic('edit_input.png'),
-            _('Change the &location this entry points to'), self)
+        b = QPushButton(QIcon.ic('edit_input.png'), _('Change the &location this entry points to'), self)
         b.clicked.connect(self.edit_item)
-        l.addWidget(b, l.rowCount()+1, 0, 1, 2)
-        b = QPushButton(QIcon.ic('trash.png'),
-            _('&Remove this entry'), self)
+        l.addWidget(b, l.rowCount() + 1, 0, 1, 2)
+        b = QPushButton(QIcon.ic('trash.png'), _('&Remove this entry'), self)
         l.addWidget(b, l.rowCount(), 0, 1, 2)
         b.clicked.connect(self.delete_item)
         hl = QFrame()
@@ -309,7 +325,7 @@ class ItemView(QStackedWidget):  # {{{
         rs = l.rowCount()
         b = QPushButton(QIcon.ic('plus.png'), _('New entry &inside this entry'))
         connect_lambda(b.clicked, self, lambda self: self.add_new('inside'))
-        l.addWidget(b, l.rowCount()+1, 0, 1, 2)
+        l.addWidget(b, l.rowCount() + 1, 0, 1, 2)
         b = QPushButton(QIcon.ic('plus.png'), _('New entry &above this entry'))
         connect_lambda(b.clicked, self, lambda self: self.add_new('before'))
         l.addWidget(b, l.rowCount(), 0, 1, 2)
@@ -319,9 +335,8 @@ class ItemView(QStackedWidget):  # {{{
         # Flatten entry
         b = QPushButton(QIcon.ic('heuristics.png'), _('&Flatten this entry'))
         b.clicked.connect(self.flatten_item)
-        b.setToolTip(_('All children of this entry are brought to the same '
-                       'level as this entry.'))
-        l.addWidget(b, l.rowCount()+1, 0, 1, 2)
+        b.setToolTip(_('All children of this entry are brought to the same level as this entry.'))
+        l.addWidget(b, l.rowCount() + 1, 0, 1, 2)
 
         hl = QFrame()
         hl.setFrameShape(QFrame.Shape.HLine)
@@ -333,13 +348,13 @@ class ItemView(QStackedWidget):  # {{{
         b = QPushButton(QIcon.ic('back.png'), _('&Return to welcome screen'))
         b.clicked.connect(self.go_to_root)
         b.setToolTip(_('Go back to the top level view'))
-        l.addWidget(b, l.rowCount()+1, 0, 1, 2)
+        l.addWidget(b, l.rowCount() + 1, 0, 1, 2)
 
         l.setRowMinimumHeight(rs, 20)
 
         l.addWidget(QLabel(), l.rowCount(), 0, 1, 2)
         l.setColumnStretch(1, 10)
-        l.setRowStretch(l.rowCount()-1, 10)
+        l.setRowStretch(l.rowCount() - 1, 10)
         self.w2 = la = QLabel(self.w1.text())
         self.w2.setWordWrap(True)
         l.addWidget(la, l.rowCount(), 0, 1, 2)
@@ -358,9 +373,14 @@ class ItemView(QStackedWidget):  # {{{
                 rd.setChecked(bool(self.prefs.get('toc_from_headings_remove_duplicates', True)))
                 s.prefer_title_cb = pt = QCheckBox(_('Use the &title attribute for ToC text'))
                 l.addWidget(pt)
-                pt.setToolTip(textwrap.fill(_(
-                    'When a heading tag has the "title" attribute use its contents as the text for the ToC entry,'
-                    ' instead of the text inside the heading tag itself.')))
+                pt.setToolTip(
+                    textwrap.fill(
+                        _(
+                            'When a heading tag has the "title" attribute use its contents as the text for the ToC entry,'
+                            ' instead of the text inside the heading tag itself.'
+                        )
+                    )
+                )
                 pt.setChecked(bool(self.prefs.get('toc_from_headings_prefer_title')))
                 l.addWidget(s.bb)
 
@@ -407,8 +427,7 @@ class ItemView(QStackedWidget):  # {{{
         assert item is not None
         name = str(item.data(0, Qt.ItemDataRole.DisplayRole) or '')
         self.item_pane.heading.setText(f'<h2>{name}</h2>')
-        self.icon_label.setPixmap(item.data(0, Qt.ItemDataRole.DecorationRole
-                                            ).pixmap(32, 32))
+        self.icon_label.setPixmap(item.data(0, Qt.ItemDataRole.DecorationRole).pixmap(32, 32))
         tt = _('This entry points to an existing destination')
         toc = item.data(0, Qt.ItemDataRole.UserRole)
         if toc.dest_exists is False:
@@ -421,14 +440,16 @@ class ItemView(QStackedWidget):  # {{{
         if item is self.current_item:
             self.populate_item_pane()
 
+
 # }}}
 
 
-NODE_FLAGS = (Qt.ItemFlag.ItemIsDragEnabled|Qt.ItemFlag.ItemIsEditable|Qt.ItemFlag.ItemIsEnabled|Qt.ItemFlag.ItemIsSelectable|Qt.ItemFlag.ItemIsDropEnabled)
+NODE_FLAGS = (
+    Qt.ItemFlag.ItemIsDragEnabled | Qt.ItemFlag.ItemIsEditable | Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsDropEnabled
+)
 
 
 class TreeWidget(QTreeWidget):  # {{{
-
     edit_item = pyqtSignal()
     history_state_changed = pyqtSignal()
 
@@ -445,7 +466,7 @@ class TreeWidget(QTreeWidget):  # {{{
         self.setDropIndicatorShown(True)
         self.setDragDropMode(QAbstractItemView.DragDropMode.InternalMove)
         self.setAutoScroll(True)
-        self.setAutoScrollMargin(ICON_SIZE*2)
+        self.setAutoScrollMargin(ICON_SIZE * 2)
         self.setDefaultDropAction(Qt.DropAction.MoveAction)
         self.setAutoExpandDelay(1000)
         self.setAnimated(True)
@@ -482,9 +503,8 @@ class TreeWidget(QTreeWidget):  # {{{
         if c is not None:
             frag = c.frag or ''
             if frag:
-                frag = '#'+frag
-            item.setStatusTip(0, _('<b>Title</b>: {0} <b>Dest</b>: {1}{2}').format(
-                c.title, c.dest, frag))
+                frag = '#' + frag
+            item.setStatusTip(0, _('<b>Title</b>: {0} <b>Dest</b>: {1}{2}').format(c.title, c.dest, frag))
 
     def serialize_tree(self):
 
@@ -538,7 +558,7 @@ class TreeWidget(QTreeWidget):  # {{{
             # For order to be preserved when moving by drag and drop, we
             # have to ensure that selectedIndexes returns an ordered list of
             # indexes.
-            sort_map = {self.indexFromItem(item):i for i, item in enumerate(self.iter_items())}
+            sort_map = {self.indexFromItem(item): i for i, item in enumerate(self.iter_items())}
             ans = sorted(ans, key=lambda x: sort_map.get(x, -1))
         return ans
 
@@ -592,7 +612,7 @@ class TreeWidget(QTreeWidget):  # {{{
 
             # all former lower siblings become children of indented item
             for _x in range(old_parent.childCount() - old_index - 1):
-                lower_sibling = old_parent.child(old_index+1)
+                lower_sibling = old_parent.child(old_index + 1)
                 old_parent.removeChild(lower_sibling)
                 item.addChild(lower_sibling)
 
@@ -628,7 +648,7 @@ class TreeWidget(QTreeWidget):  # {{{
             else:
                 failed_parent = None
 
-            new_parent = old_parent.child(old_idx-1)
+            new_parent = old_parent.child(old_idx - 1)
             assert new_parent is not None
             old_parent.removeChild(item)
             new_parent.addChild(item)
@@ -660,11 +680,7 @@ class TreeWidget(QTreeWidget):  # {{{
             focus_item = items_[0]
 
         if focus_item:
-            self.setCurrentItem(
-                focus_item,
-                0,
-                QItemSelectionModel.SelectionFlag.ClearAndSelect
-            )
+            self.setCurrentItem(focus_item, 0, QItemSelectionModel.SelectionFlag.ClearAndSelect)
 
         for item in items:
             item.setSelected(True)
@@ -720,11 +736,7 @@ class TreeWidget(QTreeWidget):  # {{{
                 self.expandItem(item)
 
         if focus_item:
-            self.setCurrentItem(
-                focus_item,
-                0,
-                QItemSelectionModel.SelectionFlag.ClearAndSelect
-            )
+            self.setCurrentItem(focus_item, 0, QItemSelectionModel.SelectionFlag.ClearAndSelect)
 
         for item in selected_items:
             item.setSelected(True)
@@ -766,11 +778,7 @@ class TreeWidget(QTreeWidget):  # {{{
                 self.expandItem(item)
 
         if focus_item:
-            self.setCurrentItem(
-                focus_item,
-                0,
-                QItemSelectionModel.SelectionFlag.ClearAndSelect
-            )
+            self.setCurrentItem(focus_item, 0, QItemSelectionModel.SelectionFlag.ClearAndSelect)
 
         for item in selected_items:
             item.setSelected(True)
@@ -785,6 +793,7 @@ class TreeWidget(QTreeWidget):  # {{{
     def title_case(self):
         self.push_history()
         from calibre.utils.titlecase import titlecase
+
         for item in self.selectedItems():
             t = str(item.data(0, Qt.ItemDataRole.DisplayRole) or '')
             item.setData(0, Qt.ItemDataRole.DisplayRole, titlecase(t))
@@ -804,6 +813,7 @@ class TreeWidget(QTreeWidget):  # {{{
     def swap_case(self):
         self.push_history()
         from calibre.utils.icu import swapcase
+
         for item in self.selectedItems():
             t = str(item.data(0, Qt.ItemDataRole.DisplayRole) or '')
             item.setData(0, Qt.ItemDataRole.DisplayRole, swapcase(t))
@@ -811,16 +821,24 @@ class TreeWidget(QTreeWidget):  # {{{
     def capitalize(self):
         self.push_history()
         from calibre.utils.icu import capitalize
+
         for item in self.selectedItems():
             t = str(item.data(0, Qt.ItemDataRole.DisplayRole) or '')
             item.setData(0, Qt.ItemDataRole.DisplayRole, capitalize(t))
 
     def bulk_rename(self):
         from calibre.gui2.tweak_book.file_list import get_bulk_rename_settings
-        sort_map = {id(item):i for i, item in enumerate(self.iter_items())}
+
+        sort_map = {id(item): i for i, item in enumerate(self.iter_items())}
         items = sorted(self.selectedItems(), key=lambda x: sort_map.get(id(x), -1))
-        settings = get_bulk_rename_settings(self, len(items), prefix=_('Chapter '), msg=_(
-            'All selected items will be renamed to the form prefix-number'), sanitize=lambda x:x, leading_zeros=False)
+        settings = get_bulk_rename_settings(
+            self,
+            len(items),
+            prefix=_('Chapter '),
+            msg=_('All selected items will be renamed to the form prefix-number'),
+            sanitize=lambda x: x,
+            leading_zeros=False,
+        )
         fmt, num = settings['prefix'], settings['start']
         if fmt is not None and num is not None:
             self.push_history()
@@ -838,7 +856,8 @@ class TreeWidget(QTreeWidget):  # {{{
             self.move_up()
             event.accept()
         elif event.key() == Qt.Key.Key_Down and (
-                event.modifiers() & Qt.KeyboardModifier.ControlModifier or event.modifiers() & Qt.KeyboardModifier.AltModifier):
+            event.modifiers() & Qt.KeyboardModifier.ControlModifier or event.modifiers() & Qt.KeyboardModifier.AltModifier
+        ):
             self.move_down()
             event.accept()
         elif event.key() in (Qt.Key.Key_Delete, Qt.Key.Key_Backspace):
@@ -865,13 +884,13 @@ class TreeWidget(QTreeWidget):  # {{{
             assert p is not None
             idx = p.indexOfChild(item)
             if idx > 0:
-                m.addAction(QIcon.ic('arrow-up.png'), (_('Move "%s" up')%ci)+key(Qt.Key.Key_Up), self.move_up)
+                m.addAction(QIcon.ic('arrow-up.png'), (_('Move "%s" up') % ci) + key(Qt.Key.Key_Up), self.move_up)
             if idx + 1 < p.childCount():
-                m.addAction(QIcon.ic('arrow-down.png'), (_('Move "%s" down')%ci)+key(Qt.Key.Key_Down), self.move_down)
+                m.addAction(QIcon.ic('arrow-down.png'), (_('Move "%s" down') % ci) + key(Qt.Key.Key_Down), self.move_down)
             if item.parent() is not None:
-                m.addAction(QIcon.ic('back.png'), (_('Unindent "%s"')%ci)+key(Qt.Key.Key_Left), self.move_left)
+                m.addAction(QIcon.ic('back.png'), (_('Unindent "%s"') % ci) + key(Qt.Key.Key_Left), self.move_left)
             if idx > 0:
-                m.addAction(QIcon.ic('forward.png'), (_('Indent "%s"')%ci)+key(Qt.Key.Key_Right), self.move_right)
+                m.addAction(QIcon.ic('forward.png'), (_('Indent "%s"') % ci) + key(Qt.Key.Key_Right), self.move_right)
 
             m.addSeparator()
             case_menu = QMenu(_('Change case'), m)
@@ -883,11 +902,12 @@ class TreeWidget(QTreeWidget):  # {{{
             m.addMenu(case_menu)
 
             m.exec(self.mapToGlobal(point))
+
+
 # }}}
 
 
 class TOCView(QWidget):  # {{{
-
     add_new_item = pyqtSignal(object, object)
 
     def __init__(self, parent, prefs):
@@ -1006,7 +1026,7 @@ class TOCView(QWidget):  # {{{
             children = [item.child(i) for i in range(item.childCount())]
             for child in reversed(children):
                 item.removeChild(child)
-                p.insertChild(idx+1, child)
+                p.insertChild(idx + 1, child)
 
     def go_to_root(self):
         self.tocw.setCurrentItem(None)
@@ -1023,7 +1043,7 @@ class TOCView(QWidget):  # {{{
     def data_changed(self, top_left, bottom_right):
         model = self.tocw.model()
         assert model is not None
-        for r in range(top_left.row(), bottom_right.row()+1):
+        for r in range(top_left.row(), bottom_right.row() + 1):
             idx = model.index(r, 0, top_left.parent())
             new_title = str(idx.data(Qt.ItemDataRole.DisplayRole) or '').strip()
             toc = idx.data(Qt.ItemDataRole.UserRole)
@@ -1048,9 +1068,11 @@ class TOCView(QWidget):  # {{{
         c.setFlags(NODE_FLAGS)
         c.setData(0, Qt.ItemDataRole.DecorationRole, self.icon_map[child.dest_exists])
         if child.dest_exists is False:
-            c.setData(0, Qt.ItemDataRole.ToolTipRole, _(
-                'The location this entry point to does not exist:\n%s')
-                %child.dest_error)
+            c.setData(
+                0,
+                Qt.ItemDataRole.ToolTipRole,
+                _('The location this entry point to does not exist:\n%s') % child.dest_error,
+            )
         else:
             c.setData(0, Qt.ItemDataRole.ToolTipRole, None)
 
@@ -1066,7 +1088,7 @@ class TOCView(QWidget):  # {{{
         self.blank = QIcon.ic('blank.png')
         self.ok = QIcon.ic('ok.png')
         self.err = QIcon.ic('dot_red.png')
-        self.icon_map = {None:self.blank, True:self.ok, False:self.err}
+        self.icon_map = {None: self.blank, True: self.ok, False: self.err}
 
         def process_item(toc_node, parent):
             for child in toc_node:
@@ -1145,8 +1167,12 @@ class TOCView(QWidget):  # {{{
     def create_from_xpath(self, xpaths, remove_duplicates=True, prefer_title=False):
         toc = from_xpaths(self.ebook, xpaths, prefer_title=prefer_title)
         if len(toc) == 0:
-            return error_dialog(self, _('No items found'),
-                _('No items were found that could be added to the Table of Contents.'), show=True)
+            return error_dialog(
+                self,
+                _('No items found'),
+                _('No items were found that could be added to the Table of Contents.'),
+                show=True,
+            )
         if remove_duplicates:
             toc.remove_duplicates()
         self.insert_toc_fragment(toc)
@@ -1154,19 +1180,28 @@ class TOCView(QWidget):  # {{{
     def create_from_links(self):
         toc = from_links(self.ebook)
         if len(toc) == 0:
-            return error_dialog(self, _('No items found'),
-                _('No links were found that could be added to the Table of Contents.'), show=True)
+            return error_dialog(
+                self,
+                _('No items found'),
+                _('No links were found that could be added to the Table of Contents.'),
+                show=True,
+            )
         self.insert_toc_fragment(toc)
 
     def create_from_files(self):
         toc = from_files(self.ebook)
         if len(toc) == 0:
-            return error_dialog(self, _('No items found'),
-                _('No files were found that could be added to the Table of Contents.'), show=True)
+            return error_dialog(
+                self,
+                _('No items found'),
+                _('No files were found that could be added to the Table of Contents.'),
+                show=True,
+            )
         self.insert_toc_fragment(toc)
 
     def undo(self):
         self.tocw.pop_history()
+
 
 # }}}
 
@@ -1175,7 +1210,6 @@ te_prefs = JSONConfig('toc-editor')
 
 
 class TOCEditor(QDialog):  # {{{
-
     explode_done = pyqtSignal(object)
     writing_done = pyqtSignal(object)
 
@@ -1189,7 +1223,7 @@ class TOCEditor(QDialog):  # {{{
 
         t = title or os.path.basename(pathtobook)
         self.book_title = t
-        self.setWindowTitle(_('Edit the ToC in %s')%t)
+        self.setWindowTitle(_('Edit the ToC in %s') % t)
         self.setWindowIcon(QIcon.ic('highlight_only_on.png'))
 
         l = self.l = QVBoxLayout()
@@ -1203,12 +1237,12 @@ class TOCEditor(QDialog):  # {{{
         self.pi = pi = ProgressIndicator()
         pi.setDisplaySize(QSize(200, 200))
         pi.startAnimation()
-        ll.addWidget(pi, alignment=Qt.AlignmentFlag.AlignHCenter|Qt.AlignmentFlag.AlignCenter)
-        la = self.wait_label = QLabel(_('Loading %s, please wait...')%t)
+        ll.addWidget(pi, alignment=Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignCenter)
+        la = self.wait_label = QLabel(_('Loading %s, please wait...') % t)
         la.setWordWrap(True)
         f = la.font()
         f.setPointSize(20), la.setFont(f)
-        ll.addWidget(la, alignment=Qt.AlignmentFlag.AlignHCenter|Qt.AlignmentFlag.AlignTop)
+        ll.addWidget(la, alignment=Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignTop)
         self.toc_view = TOCView(self, self.prefs)
         self.toc_view.add_new_item.connect(self.add_new_item)
         self.toc_view.tocw.history_state_changed.connect(self.update_history_buttons)
@@ -1216,7 +1250,7 @@ class TOCEditor(QDialog):  # {{{
         self.item_edit = ItemEdit(self)
         s.addWidget(self.item_edit)
 
-        bb = self.bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok|QDialogButtonBox.StandardButton.Cancel)
+        bb = self.bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)
         l.addWidget(bb)
         bb.accepted.connect(self.accept)
         bb.rejected.connect(self.reject)
@@ -1267,17 +1301,20 @@ class TOCEditor(QDialog):  # {{{
             self.working = False
             Thread(target=self.write_toc).start()
             self.pi.startAnimation()
-            self.wait_label.setText(_('Writing %s, please wait...')%
-                                    self.book_title)
+            self.wait_label.setText(_('Writing %s, please wait...') % self.book_title)
             self.stacks.setCurrentIndex(0)
             self.bb.setEnabled(False)
 
     def really_accept(self, tb):
         self.save_geometry(self.prefs, 'toc_editor_window_geom')
         if tb:
-            error_dialog(self, _('Failed to write book'),
-                _('Could not write %s. Click "Show details" for'
-                  ' more information.')%self.book_title, det_msg=tb, show=True)
+            error_dialog(
+                self,
+                _('Failed to write book'),
+                _('Could not write %s. Click "Show details" for more information.') % self.book_title,
+                det_msg=tb,
+                show=True,
+            )
             super().reject()
             return
         self.write_result(0)
@@ -1318,6 +1355,7 @@ class TOCEditor(QDialog):  # {{{
             self.ebook = get_container(self.pathtobook, log=self.log)
         except Exception:
             import traceback
+
             tb = traceback.format_exc()
         if self.working:
             self.working = False
@@ -1325,9 +1363,13 @@ class TOCEditor(QDialog):  # {{{
 
     def read_toc(self, tb):
         if tb:
-            error_dialog(self, _('Failed to load book'),
-                _('Could not load %s. Click "Show details" for'
-                  ' more information.')%self.book_title, det_msg=tb, show=True)
+            error_dialog(
+                self,
+                _('Failed to load book'),
+                _('Could not load %s. Click "Show details" for more information.') % self.book_title,
+                det_msg=tb,
+                show=True,
+            )
             self.reject()
             return
         self.pi.stopAnimation()
@@ -1340,21 +1382,24 @@ class TOCEditor(QDialog):  # {{{
         try:
             toc = self.toc_view.create_toc()
             toc.toc_title = getattr(self.toc_view, 'toc_title', None)
-            commit_toc(self.ebook, toc, lang=self.toc_view.toc_lang,
-                    uid=self.toc_view.toc_uid)
+            commit_toc(self.ebook, toc, lang=self.toc_view.toc_lang, uid=self.toc_view.toc_uid)
             self.ebook.commit()
         except Exception:
             import traceback
+
             tb = traceback.format_exc()
         self.writing_done.emit(tb)
+
 
 # }}}
 
 
 def develop():
     from calibre.gui2 import Application
+
     app = Application([])
     from calibre.utils.webengine import setup_default_profile, setup_fake_protocol
+
     setup_fake_protocol()
     setup_default_profile()
     d = TOCEditor(sys.argv[-1])
@@ -1391,6 +1436,7 @@ def main(shm_name=None):
         override = 'calibre-gui' if islinux else None
         app = Application([], override_program_name=override)
         from calibre.utils.webengine import setup_default_profile, setup_fake_protocol
+
         setup_fake_protocol()
         setup_default_profile()
         d = TOCEditor(path, title=title, write_result_to=path + '.result')

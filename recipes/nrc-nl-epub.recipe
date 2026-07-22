@@ -17,21 +17,19 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class NRCHandelsblad(BasicNewsRecipe):
-
-    title = u'NRC Handelsblad'
-    description = u'De ePaper-versie van NRC'
+    title = 'NRC Handelsblad'
+    description = 'De ePaper-versie van NRC'
     language = 'nl'
     needs_subscription = True
     requires_version = (1, 24, 0)
 
     __author__ = 'Kovid Goyal'
 
-    conversion_options = {
-        'no_default_epub_cover': True
-    }
+    conversion_options = {'no_default_epub_cover': True}
 
     def build_index(self):
         from calibre.web.jsbrowser.browser import Browser, ElementNotFound
+
         br = Browser()
         br.visit('http://login.nrc.nl/login', timeout=60)
         f = br.select_form('#fm1')
@@ -42,14 +40,19 @@ class NRCHandelsblad(BasicNewsRecipe):
         if '>Uitloggen<' not in raw:
             raise ValueError('Failed to login, check username and password')
         epubraw = None
-        for today in (date.today(), date.today() - timedelta(days=1),):
+        for today in (
+            date.today(),
+            date.today() - timedelta(days=1),
+        ):
             url = 'http://digitaleeditie.nrc.nl/digitaleeditie/NH/%s/%d/%s___/downloads.html' % (
-                today.strftime('%Y'), today.month - 1, today.strftime('%Y%m%d'))
+                today.strftime('%Y'),
+                today.month - 1,
+                today.strftime('%Y%m%d'),
+            )
             self.log('Trying to download epub from:', url)
             br.start_load(url, timeout=60)
             try:
-                epubraw = br.download_file(
-                    '#CompleteDownloads .download-list .download-button')
+                epubraw = br.download_file('#CompleteDownloads .download-list .download-button')
                 break
             except ElementNotFound:
                 self.log('%r not available yet' % url)

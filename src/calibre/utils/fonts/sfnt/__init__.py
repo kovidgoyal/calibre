@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
@@ -16,11 +16,10 @@ def align_block(raw, multiple=4, pad=b'\0'):
     extra = len(raw) % multiple
     if extra == 0:
         return raw
-    return raw + pad*(multiple - extra)
+    return raw + pad * (multiple - extra)
 
 
 class UnknownTable:
-
     def __init__(self, raw):
         self.raw = raw
 
@@ -32,13 +31,11 @@ class UnknownTable:
 
 
 class DateTimeProperty:
-
     def __init__(self, name):
         self.name = name
 
     def __get__(self, obj, type=None):
-        return datetime(1904, 1, 1) + timedelta(seconds=getattr(obj,
-            self.name))
+        return datetime(1904, 1, 1) + timedelta(seconds=getattr(obj, self.name))
 
     def __set__(self, obj, val):
         td = val - datetime(1904, 1, 1)
@@ -46,7 +43,6 @@ class DateTimeProperty:
 
 
 class FixedProperty:
-
     def __init__(self, name):
         self.name = name
 
@@ -55,13 +51,13 @@ class FixedProperty:
         return val / 0x10000
 
     def __set__(self, obj, val):
-        return round(val*(0x10000))
+        return round(val * (0x10000))
 
 
 def max_power_of_two(x):
     """
-Return the highest exponent of two, so that
-    (2 ** exponent) <= x
+    Return the highest exponent of two, so that
+        (2 ** exponent) <= x
     """
     exponent = 0
     while x:
@@ -75,4 +71,5 @@ def load_font(stream_or_path):
     if hasattr(raw, 'read'):
         raw = raw.read()
     from calibre.utils.fonts.sfnt.container import Sfnt
+
     return Sfnt(raw)

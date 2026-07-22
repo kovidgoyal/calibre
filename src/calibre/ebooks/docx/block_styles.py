@@ -9,7 +9,6 @@ from collections import OrderedDict
 
 
 class Inherit:
-
     def __eq__(self, other):
         return other is self
 
@@ -47,21 +46,21 @@ def binary_property(parent, name, XPath, get):
 def simple_color(col, auto='currentColor'):
     if not col or col == 'auto' or len(col) != 6:
         return auto
-    return '#'+col
+    return '#' + col
 
 
 def simple_float(val, mult=1.0):
     try:
         return float(val) * mult
-    except (ValueError, TypeError, AttributeError, KeyError):
+    except ValueError, TypeError, AttributeError, KeyError:
         pass
 
 
 def twips(val, mult=0.05):
-    """ Parse val as either a pure number representing twentieths of a point or a number followed by the suffix pt, representing pts."""
+    """Parse val as either a pure number representing twentieths of a point or a number followed by the suffix pt, representing pts."""
     try:
         return float(val) * mult
-    except (ValueError, TypeError, AttributeError, KeyError):
+    except ValueError, TypeError, AttributeError, KeyError:
         if val and val.endswith('pt') and mult == 0.05:
             return twips(val[:-2], mult=1.0)
 
@@ -117,20 +116,20 @@ def read_single_border(parent, edge, XPath, get):
         if space is not None:
             try:
                 padding = float(space)
-            except (ValueError, TypeError):
+            except ValueError, TypeError:
                 pass
         sz = get(elem, 'w:sz')
         if sz is not None:
             # we don't care about art borders (they are only used for page borders)
             try:
                 width = min(96, max(2, float(sz))) / 8
-            except (ValueError, TypeError):
+            except ValueError, TypeError:
                 pass
     return dict(zip(border_props, (padding, width, style, color)))
 
 
 def read_border(parent, dest, XPath, get, border_edges=border_edges, name='pBdr'):
-    vals = {k % edge:inherit for edge in border_edges for k in border_props}
+    vals = {k % edge: inherit for edge in border_edges for k in border_props}
 
     for border in XPath('./w:' + name)(parent):
         for edge in border_edges:
@@ -183,10 +182,19 @@ def read_indent(parent, dest, XPath, get):
 
         h, hc = get(indent, 'w:hanging'), get(indent, 'w:hangingChars')
         fl, flc = get(indent, 'w:firstLine'), get(indent, 'w:firstLineChars')
-        h = h if h is None else '-'+h
-        hc = hc if hc is None else '-'+hc
-        ti = (simple_float(hc, 0.01) if hc is not None else simple_float(h, 0.05) if h is not None else
-              simple_float(flc, 0.01) if flc is not None else simple_float(fl, 0.05) if fl is not None else None)
+        h = h if h is None else '-' + h
+        hc = hc if hc is None else '-' + hc
+        ti = (
+            simple_float(hc, 0.01)
+            if hc is not None
+            else simple_float(h, 0.05)
+            if h is not None
+            else simple_float(flc, 0.01)
+            if flc is not None
+            else simple_float(fl, 0.05)
+            if fl is not None
+            else None
+        )
         if ti is not None:
             text_indent = '{:.3g}{}'.format(ti, 'em' if hc is not None or (h is None and flc is not None) else 'pt')
 
@@ -206,7 +214,7 @@ def read_justification(parent, dest, XPath, get):
         elif val in {'left', 'center', 'right', 'start', 'end'}:
             ans = val
         elif val in {'start', 'end'}:
-            ans = {'start':'left'}.get(val, 'right')
+            ans = {'start': 'left'}.get(val, 'right')
     setattr(dest, 'text_align', ans)
 
 
@@ -225,7 +233,7 @@ def read_spacing(parent, dest, XPath, get):
 
         l, lr = get(s, 'w:line'), get(s, 'w:lineRule', 'auto')
         if l is not None:
-            lh = simple_float(l, 0.05) if lr in {'exact', 'atLeast'} else simple_float(l, 1/240.0)
+            lh = simple_float(l, 0.05) if lr in {'exact', 'atLeast'} else simple_float(l, 1 / 240.0)
             if lh is not None:
                 line_height = '{:.3g}{}'.format(lh, 'pt' if lr in {'exact', 'atLeast'} else '')
 
@@ -249,7 +257,7 @@ def read_numbering(parent, dest, XPath, get):
         for ilvl in XPath('./w:ilvl[@w:val]')(np):
             try:
                 lvl = int(get(ilvl, 'w:val'))
-            except (ValueError, TypeError):
+            except ValueError, TypeError:
                 pass
         for num in XPath('./w:numId[@w:val]')(np):
             num_id = get(num, 'w:val')
@@ -258,27 +266,40 @@ def read_numbering(parent, dest, XPath, get):
 
 
 class Frame:
-
-    all_attributes = ('drop_cap', 'h', 'w', 'h_anchor', 'h_rule', 'v_anchor', 'wrap',
-                      'h_space', 'v_space', 'lines', 'x_align', 'y_align', 'x', 'y')
+    all_attributes = (
+        'drop_cap',
+        'h',
+        'w',
+        'h_anchor',
+        'h_rule',
+        'v_anchor',
+        'wrap',
+        'h_space',
+        'v_space',
+        'lines',
+        'x_align',
+        'y_align',
+        'x',
+        'y',
+    )
 
     def __init__(self, fp, XPath, get):
         self.drop_cap = get(fp, 'w:dropCap', 'none')
         try:
-            self.h = int(get(fp, 'w:h'))/20
-        except (ValueError, TypeError):
+            self.h = int(get(fp, 'w:h')) / 20
+        except ValueError, TypeError:
             self.h = 0
         try:
-            self.w = int(get(fp, 'w:w'))/20
-        except (ValueError, TypeError):
+            self.w = int(get(fp, 'w:w')) / 20
+        except ValueError, TypeError:
             self.w = None
         try:
-            self.x = int(get(fp, 'w:x'))/20
-        except (ValueError, TypeError):
+            self.x = int(get(fp, 'w:x')) / 20
+        except ValueError, TypeError:
             self.x = 0
         try:
-            self.y = int(get(fp, 'w:y'))/20
-        except (ValueError, TypeError):
+            self.y = int(get(fp, 'w:y')) / 20
+        except ValueError, TypeError:
             self.y = 0
 
         self.h_anchor = get(fp, 'w:hAnchor', 'page')
@@ -289,16 +310,16 @@ class Frame:
         self.y_align = get(fp, 'w:yAlign')
 
         try:
-            self.h_space = int(get(fp, 'w:hSpace'))/20
-        except (ValueError, TypeError):
+            self.h_space = int(get(fp, 'w:hSpace')) / 20
+        except ValueError, TypeError:
             self.h_space = 0
         try:
-            self.v_space = int(get(fp, 'w:vSpace'))/20
-        except (ValueError, TypeError):
+            self.v_space = int(get(fp, 'w:vSpace')) / 20
+        except ValueError, TypeError:
             self.v_space = 0
         try:
             self.lines = int(get(fp, 'w:lines'))
-        except (ValueError, TypeError):
+        except ValueError, TypeError:
             self.lines = 1
 
     def css(self, page):
@@ -319,7 +340,7 @@ class Frame:
             if self.wrap not in {None, 'none'}:
                 ans['padding-left'] = ans['padding-right'] = f'{self.h_space:.3g}pt'
                 if self.x_align is None:
-                    fl = 'left' if self.x/page.width < 0.5 else 'right'
+                    fl = 'left' if self.x / page.width < 0.5 else 'right'
                 else:
                     fl = 'right' if self.x_align == 'right' else 'left'
                 ans['float'] = fl
@@ -341,29 +362,65 @@ def read_frame(parent, dest, XPath, get):
         ans = Frame(fp, XPath, get)
     setattr(dest, 'frame', ans)
 
+
 # }}}
 
 
 class ParagraphStyle:
-
     all_properties = (
-        'adjustRightInd', 'autoSpaceDE', 'autoSpaceDN', 'bidi',
-        'contextualSpacing', 'keepLines', 'keepNext', 'mirrorIndents',
-        'pageBreakBefore', 'snapToGrid', 'suppressLineNumbers',
-        'suppressOverlap', 'topLinePunct', 'widowControl', 'wordWrap',
-
+        'adjustRightInd',
+        'autoSpaceDE',
+        'autoSpaceDN',
+        'bidi',
+        'contextualSpacing',
+        'keepLines',
+        'keepNext',
+        'mirrorIndents',
+        'pageBreakBefore',
+        'snapToGrid',
+        'suppressLineNumbers',
+        'suppressOverlap',
+        'topLinePunct',
+        'widowControl',
+        'wordWrap',
         # Border margins padding
-        'border_left_width', 'border_left_style', 'border_left_color', 'padding_left',
-        'border_top_width', 'border_top_style', 'border_top_color', 'padding_top',
-        'border_right_width', 'border_right_style', 'border_right_color', 'padding_right',
-        'border_bottom_width', 'border_bottom_style', 'border_bottom_color', 'padding_bottom',
-        'border_between_width', 'border_between_style', 'border_between_color', 'padding_between',
-        'margin_left', 'margin_top', 'margin_right', 'margin_bottom',
-
+        'border_left_width',
+        'border_left_style',
+        'border_left_color',
+        'padding_left',
+        'border_top_width',
+        'border_top_style',
+        'border_top_color',
+        'padding_top',
+        'border_right_width',
+        'border_right_style',
+        'border_right_color',
+        'padding_right',
+        'border_bottom_width',
+        'border_bottom_style',
+        'border_bottom_color',
+        'padding_bottom',
+        'border_between_width',
+        'border_between_style',
+        'border_between_color',
+        'padding_between',
+        'margin_left',
+        'margin_top',
+        'margin_right',
+        'margin_bottom',
         # Misc.
-        'text_indent', 'text_align', 'line_height', 'background_color',
-        'numbering_id', 'numbering_level', 'font_family', 'font_size', 'color', 'frame',
-        'cs_font_size', 'cs_font_family',
+        'text_indent',
+        'text_align',
+        'line_height',
+        'background_color',
+        'numbering_id',
+        'numbering_level',
+        'font_family',
+        'font_size',
+        'color',
+        'frame',
+        'cs_font_size',
+        'cs_font_family',
     )
     adjustRightInd = autoSpaceDE = autoSpaceDN = bidi = inherit
     contextualSpacing = keepLines = keepNext = mirrorIndents = inherit
@@ -389,10 +446,21 @@ class ParagraphStyle:
                 setattr(self, p, inherit)
         else:
             for p in (
-                'adjustRightInd', 'autoSpaceDE', 'autoSpaceDN', 'bidi',
-                'contextualSpacing', 'keepLines', 'keepNext', 'mirrorIndents',
-                'pageBreakBefore', 'snapToGrid', 'suppressLineNumbers',
-                'suppressOverlap', 'topLinePunct', 'widowControl', 'wordWrap',
+                'adjustRightInd',
+                'autoSpaceDE',
+                'autoSpaceDN',
+                'bidi',
+                'contextualSpacing',
+                'keepLines',
+                'keepNext',
+                'mirrorIndents',
+                'pageBreakBefore',
+                'snapToGrid',
+                'suppressLineNumbers',
+                'suppressOverlap',
+                'topLinePunct',
+                'widowControl',
+                'wordWrap',
             ):
                 setattr(self, p, binary_property(pPr, p, namespace.XPath, namespace.get))
 
@@ -453,7 +521,7 @@ class ParagraphStyle:
             ta = self.text_align
             if ta is not inherit:
                 if self.bidi is True:
-                    ta = {'left':'right', 'right':'left'}.get(ta, ta)
+                    ta = {'left': 'right', 'right': 'left'}.get(ta, ta)
                 c['text-align'] = ta
 
         return self._css
@@ -497,4 +565,4 @@ class ParagraphStyle:
         return False
 
 
-read_funcs = {k[5:]:v for k, v in globals().items() if k.startswith('read_')}
+read_funcs = {k[5:]: v for k, v in globals().items() if k.startswith('read_')}

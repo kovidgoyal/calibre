@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
@@ -19,6 +19,7 @@ def get_opts_from_parser(parser):
     def do_opt(opt):
         yield from opt._long_opts
         yield from opt._short_opts
+
     for o in parser.option_list:
         yield from do_opt(o)
     for g in parser.option_groups:
@@ -27,7 +28,6 @@ def get_opts_from_parser(parser):
 
 
 class CACerts(Command):  # {{{
-
     description = 'Get updated mozilla CA certificate bundle'
     CA_PATH = os.path.join(Command.RESOURCES, 'mozilla-ca-certs')
 
@@ -36,8 +36,10 @@ class CACerts(Command):  # {{{
 
     def run(self, opts):
         import calibre  # needed to ensure calibre_extensions is available
+
         _ = calibre
         from calibre_extensions.certgen import create_CA_dir
+
         if opts.path_to_cacerts:
             with open(opts.path_to_cacerts, 'rb') as f:
                 raw = f.read()
@@ -53,12 +55,14 @@ class CACerts(Command):  # {{{
 
     def verify_ca_certs(self):
         from calibre.utils.https import get_https_resource_securely
+
         get_https_resource_securely('https://calibre-ebook.com', cadir=self.CA_PATH)
+
+
 # }}}
 
 
 class RecentUAs(Command):  # {{{
-
     description = 'Get updated list of common browser user agents'
     UA_PATH = os.path.join(Command.RESOURCES, 'user-agent-data.json')
 
@@ -67,6 +71,7 @@ class RecentUAs(Command):  # {{{
 
     def run(self, opts):
         from setup.browser_data import get_data
+
         if opts.path_to_user_agent_data:
             shutil.copyfile(opts.path_to_user_agent_data, self.UA_PATH)
             os.chmod(self.UA_PATH, 0o644)
@@ -74,19 +79,20 @@ class RecentUAs(Command):  # {{{
             data = get_data()
             with open(self.UA_PATH, 'w', encoding='utf-8') as f:
                 json.dump(data, f, indent=2, ensure_ascii=False, sort_keys=True)
+
+
 # }}}
 
 
 class RapydScript(Command):  # {{{
-
     description = 'Compile RapydScript to JavaScript'
 
     def add_options(self, parser):
-        parser.add_option('--only-module', default=None,
-                help='Only compile the specified module')
+        parser.add_option('--only-module', default=None, help='Only compile the specified module')
 
     def run(self, opts):
         from calibre.utils.rapydscript import compile_all, compile_editor, compile_srv, compile_viewer
+
         if opts.only_module:
             match opts.only_module:
                 case 'editor':
@@ -99,16 +105,18 @@ class RapydScript(Command):  # {{{
                     raise KeyError(f'Unknown RapydScript --only-module: {opts.only_module}')
         else:
             compile_all()
+
+
 # }}}
 
 
 class Resources(Command):  # {{{
-
     description = 'Compile various needed calibre resources'
     sub_commands = ['liberation_fonts', 'mathjax', 'rapydscript', 'hyphenation', 'piper_voices']
 
     def run(self, opts):
         from calibre.utils.serialize import msgpack_dumps
+
         scripts = {}
         for x in ('console', 'gui'):
             for name in basenames[x]:
@@ -133,8 +141,7 @@ class Resources(Command):  # {{{
             with open(dest, 'wb') as f:
                 f.write(xml)
 
-        recipe_icon_dir = self.a(self.j(self.RESOURCES, '..', 'recipes',
-            'icons'))
+        recipe_icon_dir = self.a(self.j(self.RESOURCES, '..', 'recipes', 'icons'))
         dest = os.path.splitext(dest)[0] + '.zip'
         files += glob.glob(self.j(recipe_icon_dir, '*.png'))
         if self.newer(dest, files):
@@ -154,25 +161,26 @@ class Resources(Command):  # {{{
             self.info('\tCreating ' + self.b(dest))
             complete = {}
             from calibre.ebooks.conversion.plumber import supported_input_formats
+
             complete['input_fmts'] = set(supported_input_formats())
             from calibre.web.feeds.recipes.collection import get_builtin_recipe_titles
-            complete['input_recipes'] = [t+'.recipe ' for t in
-                    get_builtin_recipe_titles()]
+
+            complete['input_recipes'] = [t + '.recipe ' for t in get_builtin_recipe_titles()]
             from calibre.customize.ui import available_output_formats
+
             complete['output'] = set(available_output_formats())
             from calibre.ebooks.conversion.cli import create_option_parser
             from calibre.utils.logging import Log
+
             log = Log()
             # log.outputs = []
             for inf in supported_input_formats():
                 if inf in ('zip', 'rar', 'oebzip'):
                     continue
                 for ouf in available_output_formats():
-                    of = ouf if ouf == 'oeb' else 'dummy.'+ouf
-                    p = create_option_parser(('ec', 'dummy1.'+inf, of, '-h'),
-                            log)[0]
-                    complete[(inf, ouf)] = [x+' 'for x in
-                            get_opts_from_parser(p)]
+                    of = ouf if ouf == 'oeb' else 'dummy.' + ouf
+                    p = create_option_parser(('ec', 'dummy1.' + inf, of, '-h'), log)[0]
+                    complete[(inf, ouf)] = [x + ' ' for x in get_opts_from_parser(p)]
 
             with open(dest, 'wb') as f:
                 f.write(msgpack_dumps(only_unicode_recursive(complete)))
@@ -183,9 +191,9 @@ class Resources(Command):  # {{{
         import inspect
 
         from calibre.utils.formatter_functions import formatter_functions
+
         for obj in formatter_functions().get_builtins().values():
-            eval_func = inspect.getmembers(obj,
-                    lambda x: inspect.ismethod(x) and x.__name__ == 'evaluate')
+            eval_func = inspect.getmembers(obj, lambda x: inspect.ismethod(x) and x.__name__ == 'evaluate')
             try:
                 lines = [l[4:] for l in inspect.getsourcelines(eval_func[0][1])[0]]
             except Exception:
@@ -198,6 +206,7 @@ class Resources(Command):  # {{{
         dest = self.j(self.RESOURCES, 'editor-functions.json')
         function_dict = {}
         from calibre.gui2.tweak_book.function_replace import builtin_functions
+
         for func in builtin_functions():
             try:
                 src = ''.join(inspect.getsourcelines(func)[0][1:])
@@ -221,17 +230,19 @@ class Resources(Command):  # {{{
         if self.newer(dest, [src]):
             self.info('\tCreating changelog.json')
             from setup.changelog import parse
+
             with open(src, encoding='utf-8') as f:
                 dump_json(parse(f.read(), parse_dates=False), dest)
 
     def clean(self):
         for x in ('scripts', 'ebook-convert-complete'):
-            x = self.j(self.RESOURCES, x+'.pickle')
+            x = self.j(self.RESOURCES, x + '.pickle')
             if os.path.exists(x):
                 os.remove(x)
-        for x in ('builtin_recipes.xml', 'builtin_recipes.zip',
-                'template-functions.json', 'user-manual-translation-stats.json'):
+        for x in ('builtin_recipes.xml', 'builtin_recipes.zip', 'template-functions.json', 'user-manual-translation-stats.json'):
             x = self.j(self.RESOURCES, x)
             if os.path.exists(x):
                 os.remove(x)
+
+
 # }}}

@@ -29,11 +29,13 @@ class AddBrackets:
     to facilitate the treatment of the file
     """
 
-    def __init__(self, in_file,
-            bug_handler,
-            copy=None,
-            run_level=1,
-            ):
+    def __init__(
+        self,
+        in_file,
+        bug_handler,
+        copy=None,
+        run_level=1,
+    ):
         """
         Required:
             'file'--file to parse
@@ -50,10 +52,10 @@ class AddBrackets:
         self.__write_to = better_mktemp()
         self.__run_level = run_level
         self.__state_dict = {
-            'before_body'       : self.__before_body_func,
-            'in_body'           : self.__in_body_func,
+            'before_body': self.__before_body_func,
+            'in_body': self.__in_body_func,
             'after_control_word': self.__after_control_word_func,
-            'in_ignore'         : self.__ignore_func,
+            'in_ignore': self.__ignore_func,
         }
         self.__accept = [
             'cw<ci<bold______',
@@ -115,9 +117,7 @@ class AddBrackets:
             4-Else simply write the line
         """
         if line == 'cb<nu<clos-brack<0001\n' and self.__open_bracket:
-            self.__write_obj.write(
-                'cb<nu<clos-brack<0003\n'
-                    )
+            self.__write_obj.write('cb<nu<clos-brack<0003\n')
             self.__write_obj.write(line)
         elif self.__token_info == 'ob<nu<open-brack':
             self.__found_brackets = True
@@ -158,17 +158,12 @@ class AddBrackets:
         Scheme: open brackets, write cw then go to body and back with cw after
         """
         if self.__open_bracket:
-            self.__write_obj.write(
-                'cb<nu<clos-brack<0003\n'
-                )
+            self.__write_obj.write('cb<nu<clos-brack<0003\n')
             self.__open_bracket = False
 
-        inline_string = ''.join([f'{k}<nu<{v}\n'
-                for k, v in self.__inline.items()
-                    if v != 'false'])
+        inline_string = ''.join([f'{k}<nu<{v}\n' for k, v in self.__inline.items() if v != 'false'])
         if inline_string:
-            self.__write_obj.write('ob<nu<open-brack<0003\n'
-                f'{inline_string}')
+            self.__write_obj.write(f'ob<nu<open-brack<0003\n{inline_string}')
             self.__open_bracket = True
         self.__temp_group = []
 
@@ -179,18 +174,19 @@ class AddBrackets:
         What is the interest as it is build to accept only accepted cw
         in __after_control_word_func?
         """
-        self.__inline = {line[:16]: line[20:-1]
-            for line in self.__temp_group\
+        self.__inline = {
+            line[:16]: line[20:-1]
+            for line in self.__temp_group
             # Is this really necessary?
-                if line[:16] in self.__accept}
+            if line[:16] in self.__accept
+        }
 
     def __ignore_func(self, line):
         """
         Just copy data inside of RTF brackets already here.
         """
         self.__write_obj.write(line)
-        if self.__token_info == 'cb<nu<clos-brack'\
-            and self.__cb_count == self.__ignore_count:
+        if self.__token_info == 'cb<nu<clos-brack' and self.__cb_count == self.__ignore_count:
             self.__state = 'in_body'
 
     def __check_brackets(self, in_file):
@@ -201,8 +197,7 @@ class AddBrackets:
         return check_brack_obj.check_brackets()[0]
 
     def add_brackets(self):
-        """
-        """
+        """ """
         self.__initiate_values()
         with open_for_read(self.__file) as read_obj:
             with open_for_write(self.__write_to) as self.__write_obj:
@@ -214,9 +209,7 @@ class AddBrackets:
                         self.__cb_count = line[-5:-1]
                     action = self.__state_dict.get(self.__state)
                     if action is None:
-                        sys.stderr.write(
-                            'No matching state in module add_brackets.py\n'
-                            f'{self.__state}\n')
+                        sys.stderr.write(f'No matching state in module add_brackets.py\n{self.__state}\n')
                     else:
                         action(line)
         # Check bad brackets
@@ -226,7 +219,5 @@ class AddBrackets:
                 copy_obj.copy_file(self.__write_to, 'add_brackets.data')
             copy_obj.rename(self.__write_to, self.__file)
         elif self.__run_level > 0:
-            sys.stderr.write(
-                'Sorry, but this files has a mix of old and new RTF.\n'
-                'Some characteristics cannot be converted.\n')
+            sys.stderr.write('Sorry, but this files has a mix of old and new RTF.\nSome characteristics cannot be converted.\n')
         os.remove(self.__write_to)

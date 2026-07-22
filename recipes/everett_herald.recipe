@@ -2,7 +2,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class AdvancedUserRecipe1295088390(BasicNewsRecipe):
-    title = u'Everett Herald'
+    title = 'Everett Herald'
     language = 'en'
     __author__ = '77ja65'
     oldest_article = 7
@@ -10,4 +10,4 @@ class AdvancedUserRecipe1295088390(BasicNewsRecipe):
     no_stylesheets = True
     auto_cleanup = True
 
-    feeds = [(u'Local News', u'http://www.heraldnet.com/feed/')]
+    feeds = [('Local News', 'http://www.heraldnet.com/feed/')]

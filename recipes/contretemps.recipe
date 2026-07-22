@@ -29,7 +29,7 @@ class ContretempsRecipe(BasicNewsRecipe):
     feeds = [
         ('Théorie', 'https://www.contretemps.eu/category/theorie/feed/'),
         ('Stratégie', 'https://www.contretemps.eu/category/strategie/feed/'),
-        ('Conjoncture', 'https://www.contretemps.eu/category/conjoncture/feed/')
+        ('Conjoncture', 'https://www.contretemps.eu/category/conjoncture/feed/'),
     ]
 
     def get_cover_url(self):
@@ -42,6 +42,7 @@ class ContretempsRecipe(BasicNewsRecipe):
         from qt.core import QColor, QFont, QImage, QPainter, QPen, QRect, Qt
 
         from calibre.gui2 import ensure_app, load_builtin_fonts, pixmap_to_data
+
         try:
             # Préparation de l'environnement Qt
             ensure_app()
@@ -50,9 +51,21 @@ class ContretempsRecipe(BasicNewsRecipe):
             # Date en français
             today = datetime.now(ZoneInfo('Europe/Paris'))
             wkd = today.weekday()
-            french_weekday = {0:'Lundi',1:'Mardi',2:'Mercredi',3:'Jeudi',4:'Vendredi',5:'Samedi',6:'Dimanche'}
-            french_month = {1:'janvier', 2:'février', 3:'mars', 4:'avril', 5:'mai', 6:'juin',
-                          7:'juillet', 8:'août', 9:'septembre', 10:'octobre', 11:'novembre', 12:'décembre'}
+            french_weekday = {0: 'Lundi', 1: 'Mardi', 2: 'Mercredi', 3: 'Jeudi', 4: 'Vendredi', 5: 'Samedi', 6: 'Dimanche'}
+            french_month = {
+                1: 'janvier',
+                2: 'février',
+                3: 'mars',
+                4: 'avril',
+                5: 'mai',
+                6: 'juin',
+                7: 'juillet',
+                8: 'août',
+                9: 'septembre',
+                10: 'octobre',
+                11: 'novembre',
+                12: 'décembre',
+            }
 
             weekday = french_weekday[wkd]
             month = french_month[today.month]
@@ -81,7 +94,7 @@ class ContretempsRecipe(BasicNewsRecipe):
             # Ajout des textes
             painters = [
                 (36, 'Liberation Serif', False, False, date_str, (0, y + logo_img.height() + 100, 1200, 100)),
-                (32, 'Liberation Serif', True, True, edition, (0, y + logo_img.height() + 200, 1200, 100))
+                (32, 'Liberation Serif', True, True, edition, (0, y + logo_img.height() + 200, 1200, 100)),
             ]
 
             for font_size, font_family, is_bold, is_italic, text, rect in painters:
@@ -110,9 +123,7 @@ class ContretempsRecipe(BasicNewsRecipe):
             self.log.error(f'Erreur lors de la création de la couverture: {e}')
             return False
 
-    keep_only_tags = [
-        dict(name='article', attrs={'class': 'post'})
-    ]
+    keep_only_tags = [dict(name='article', attrs={'class': 'post'})]
 
     remove_tags = [
         dict(name='div', attrs={'class': ['tags', 'share-buttons', 'related-posts']}),
@@ -121,7 +132,7 @@ class ContretempsRecipe(BasicNewsRecipe):
         dict(name='section', attrs={'class': 'comments-area'}),
         dict(name='footer'),
         dict(name='div', attrs={'class': 'yarpp-related'}),
-        dict(name='div', attrs={'class': 'related-posts'})
+        dict(name='div', attrs={'class': 'related-posts'}),
     ]
 
     def preprocess_html(self, soup):

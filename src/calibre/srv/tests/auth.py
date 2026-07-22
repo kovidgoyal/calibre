@@ -47,10 +47,18 @@ def android2(ctx, data):
 
 def router(prefer_basic_auth=False, ban_for=0, ban_after=5):
     from calibre.srv.auth import AuthController
-    return Router(globals().values(), auth_controller=AuthController(
-        {'testuser':'testpw', '!@#$%^&*()-=_+':'!@#$%^&*()-=_+'},
-        ban_time_in_minutes=ban_for, ban_after=ban_after,
-        prefer_basic_auth=prefer_basic_auth, realm=REALM, max_age_seconds=1))
+
+    return Router(
+        globals().values(),
+        auth_controller=AuthController(
+            {'testuser': 'testpw', '!@#$%^&*()-=_+': '!@#$%^&*()-=_+'},
+            ban_time_in_minutes=ban_for,
+            ban_after=ban_after,
+            prefer_basic_auth=prefer_basic_auth,
+            realm=REALM,
+            max_age_seconds=1,
+        ),
+    )
 
 
 def urlopen(server, path='/closed', un='testuser', pw='testpw', method='digest'):
@@ -60,30 +68,69 @@ def urlopen(server, path='/closed', un='testuser', pw='testpw', method='digest')
     return build_opener(auth_handler).open(url)
 
 
-def digest(un, pw, nonce=None, uri=None, method='GET', nc=1, qop='auth', realm=REALM, cnonce=None, algorithm='MD5', body=b'', modify=lambda x:None):
+def digest(
+    un,
+    pw,
+    nonce=None,
+    uri=None,
+    method='GET',
+    nc=1,
+    qop='auth',
+    realm=REALM,
+    cnonce=None,
+    algorithm='MD5',
+    body=b'',
+    modify=lambda x: None,
+):
     "Create the payload for a digest based Authorization header"
     from calibre.srv.auth import DigestAuth
-    templ = ('username="{un}", realm="{realm}", qop={qop}, method="{method}",'
-    ' nonce="{nonce}", uri="{uri}", nc={nc}, algorithm="{algorithm}", cnonce="{cnonce}", response="{response}"')
-    h = templ.format(un=un, realm=realm, qop=qop, uri=uri, method=method, nonce=nonce, nc=nc, cnonce=cnonce, algorithm=algorithm, response=None)
+
+    templ = (
+        'username="{un}", realm="{realm}", qop={qop}, method="{method}",'
+        ' nonce="{nonce}", uri="{uri}", nc={nc}, algorithm="{algorithm}", cnonce="{cnonce}", response="{response}"'
+    )
+    h = templ.format(
+        un=un,
+        realm=realm,
+        qop=qop,
+        uri=uri,
+        method=method,
+        nonce=nonce,
+        nc=nc,
+        cnonce=cnonce,
+        algorithm=algorithm,
+        response=None,
+    )
     da = DigestAuth(h)
     modify(da)
     pw = getattr(da, 'pw', pw)
 
     class Data:
-
         def __init__(self):
             self.method = method
 
         def peek(self):
             return body
+
     response = da.request_digest(pw, Data())
-    return ('Digest ' + templ.format(
-        un=un, realm=realm, qop=qop, uri=uri, method=method, nonce=nonce, nc=nc, cnonce=cnonce, algorithm=algorithm, response=response)).encode('ascii')
+    return (
+        'Digest '
+        + templ.format(
+            un=un,
+            realm=realm,
+            qop=qop,
+            uri=uri,
+            method=method,
+            nonce=nonce,
+            nc=nc,
+            cnonce=cnonce,
+            algorithm=algorithm,
+            response=response,
+        )
+    ).encode('ascii')
 
 
 class TestAuth(BaseTest):
-
     def test_basic_auth(self):  # {{{
         "Test HTTP Basic auth"
         r = router(prefer_basic_auth=True)
@@ -122,12 +169,14 @@ class TestAuth(BaseTest):
             self.ae((http.client.BAD_REQUEST, b'The username or password was empty'), request('testuser', ''))
             self.ae((http.client.BAD_REQUEST, b'The username or password was empty'), request(''))
             self.ae((http.client.UNAUTHORIZED, b''), request('asf', 'testpw'))
+
     # }}}
 
     def test_library_restrictions(self):  # {{{
         from calibre.db.legacy import create_backend
         from calibre.srv.handler import Handler
         from calibre.srv.opts import Options
+
         opts = Options(userdb=':memory:')
         Data = namedtuple('Data', 'username')
         with TemporaryDirectory() as base:
@@ -143,19 +192,19 @@ class TestAuth(BaseTest):
 
             def library_info(username=None):
                 lmap, defaultlib = ctx.library_info(Data(username))
-                lmap = {k:os.path.basename(v) for k, v in lmap.items()}
+                lmap = {k: os.path.basename(v) for k, v in lmap.items()}
                 return lmap, defaultlib
 
             self.assertEqual(get_library(), 'l1')
-            self.assertEqual(library_info()[0], {f'l{i}':f'l{i}' for i in range(1, 4)})
+            self.assertEqual(library_info()[0], {f'l{i}': f'l{i}' for i in range(1, 4)})
             self.assertEqual(library_info()[1], 'l1')
             self.assertRaises(HTTPForbidden, get_library, 'xxx')
             um.add_user('a', 'a')
-            self.assertEqual(library_info('a')[0], {f'l{i}':f'l{i}' for i in range(1, 4)})
+            self.assertEqual(library_info('a')[0], {f'l{i}': f'l{i}' for i in range(1, 4)})
             um.update_user_restrictions('a', {'blocked_library_names': ['L2']})
-            self.assertEqual(library_info('a')[0], {f'l{i}':f'l{i}' for i in range(1, 4) if i != 2})
+            self.assertEqual(library_info('a')[0], {f'l{i}': f'l{i}' for i in range(1, 4) if i != 2})
             um.update_user_restrictions('a', {'allowed_library_names': ['l3']})
-            self.assertEqual(library_info('a')[0], {f'l{i}':f'l{i}' for i in range(1, 4) if i == 3})
+            self.assertEqual(library_info('a')[0], {f'l{i}': f'l{i}' for i in range(1, 4) if i == 3})
             self.assertEqual(library_info('a')[1], 'l3')
             self.assertRaises(HTTPForbidden, get_library, 'a', 'l1')
             self.assertRaises(HTTPForbidden, get_library, 'xxx')
@@ -166,6 +215,7 @@ class TestAuth(BaseTest):
         "Test HTTP Digest auth"
         from calibre.srv.http_request import normalize_header_name
         from calibre.srv.utils import parse_http_dict
+
         r = router()
         with TestServer(r.dispatch) as server:
             r.auth_controller.log = server.log
@@ -175,7 +225,8 @@ class TestAuth(BaseTest):
                 r = conn.getresponse()
                 self.ae(r.status, status)
                 self.ae(r.read(), body)
-                return {normalize_header_name(k):v for k, v in r.getheaders()}
+                return {normalize_header_name(k): v for k, v in r.getheaders()}
+
             conn = server.connect()
             test(conn, '/open', body=b'open')
             auth = parse_http_dict(test(conn, '/closed', status=http.client.UNAUTHORIZED)['WWW-Authenticate'].partition(' ')[2])
@@ -191,7 +242,7 @@ class TestAuth(BaseTest):
 
             def ok_test(conn, dh, **args):
                 args['body'] = args.get('body', b'closed')
-                return test(conn, '/closed', headers={'Authorization':dh}, **args)
+                return test(conn, '/closed', headers={'Authorization': dh}, **args)
 
             ok_test(conn, digest(**args))
             # Check that server ignores repeated nc values
@@ -201,8 +252,9 @@ class TestAuth(BaseTest):
             server.loop.log.warn = lambda *args, **kwargs: warnings.append(' '.join(args))
             # Check stale nonces
             orig, r.auth_controller.max_age_seconds = r.auth_controller.max_age_seconds, -1
-            auth = parse_http_dict(test(conn, '/closed', headers={
-                'Authorization':digest(**args)},status=http.client.UNAUTHORIZED)['WWW-Authenticate'].partition(' ')[2])
+            auth = parse_http_dict(
+                test(conn, '/closed', headers={'Authorization': digest(**args)}, status=http.client.UNAUTHORIZED)['WWW-Authenticate'].partition(' ')[2]
+            )
             self.assertIn('stale', auth)
             r.auth_controller.max_age_seconds = orig
             ok_test(conn, digest(**args))
@@ -211,7 +263,7 @@ class TestAuth(BaseTest):
                 kw['body'] = kw.get('body', b'')
                 kw['status'] = kw.get('status', http.client.UNAUTHORIZED)
                 args['modify'] = modify
-                return test(conn, '/closed', headers={'Authorization':digest(**args)}, **kw)
+                return test(conn, '/closed', headers={'Authorization': digest(**args)}, **kw)
 
             # Check modified nonce fails
             fail_test(conn, lambda da: setattr(da, 'nonce', 'xyz'))
@@ -227,7 +279,7 @@ class TestAuth(BaseTest):
             fail_test(conn, lambda da: setattr(da, 'username', '/'))
             fail_test(conn, lambda da: setattr(da, 'username', ''))
             fail_test(conn, lambda da: setattr(da, 'pw', ''))
-            fail_test(conn, lambda da:(setattr(da, 'pw', ''), setattr(da, 'username', '')))
+            fail_test(conn, lambda da: (setattr(da, 'pw', ''), setattr(da, 'username', '')))
 
             # Check against python's stdlib
             self.ae(urlopen(server).read(), b'closed')
@@ -235,20 +287,23 @@ class TestAuth(BaseTest):
             # Check using curl
             curl = shutil.which('curl')
             if curl and not (is_ci and ismacos):  # curl mysteriously returns b'' in CI with no errors
+
                 def docurl(data, *args):
                     cmd = [curl, '--silent'] + list(args) + [f'http://localhost:{server.address[1]}/closed']
                     p = subprocess.Popen(cmd, stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
                     stdout, stderr = p.communicate()
                     p.wait()
                     self.ae(stdout, data, f'stderr:\n{stderr.decode(errors="replace")}')
+
                 docurl(b'')
                 docurl(b'', '--digest', '--user', 'xxxx:testpw')
                 docurl(b'', '--digest', '--user', 'testuser:xtestpw')
                 docurl(b'closed', '--digest', '--user', 'testuser:testpw')
+
     # }}}
 
     def test_fail_ban(self):  # {{{
-        ban_for = 0.5/60.0
+        ban_for = 0.5 / 60.0
         r = router(prefer_basic_auth=True, ban_for=ban_for, ban_after=2)
         with TestServer(r.dispatch) as server:
             r.auth_controller.log = server.log
@@ -268,6 +323,7 @@ class TestAuth(BaseTest):
             self.ae(http.client.FORBIDDEN, request()[0])
             time.sleep(ban_for * 60 + 0.01)
             self.ae((http.client.OK, b'closed'), request())
+
     # }}}
 
     def test_android_auth_workaround(self):  # {{{
@@ -299,7 +355,7 @@ class TestAuth(BaseTest):
             self.ae(r.read(), b'android')
             # Test that a replay attack against a different URL does not work
             try:
-                build_opener(cookie_handler).open(url+'2')
+                build_opener(cookie_handler).open(url + '2')
                 assert True, 'Replay attack succeeded'
             except HTTPError as e:
                 self.ae(e.code, http.client.UNAUTHORIZED)

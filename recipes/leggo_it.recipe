@@ -17,7 +17,7 @@ class LeggoIT(BasicNewsRecipe):
     description = 'Italian Free daily newspaper'
 
     # cover_url      = 'http://www.leggo.it/img/logo-leggo2.gif'
-    title = u'Leggo.it'
+    title = 'Leggo.it'
     publisher = 'Ced Caltagirone Editore S.p.A.'
     category = 'News, politics, culture, economy, general interest'
 
@@ -33,20 +33,17 @@ class LeggoIT(BasicNewsRecipe):
     remove_javascript = True
     conversion_options = {'linearize_tables': True}
 
-    keep_only_tags = [
-        dict(name='h1', attrs={'class': 'nero22'}),
-        dict(name='div', attrs={'id': 'testodim'})
-    ]
+    keep_only_tags = [dict(name='h1', attrs={'class': 'nero22'}), dict(name='div', attrs={'id': 'testodim'})]
     feeds = [
-        (u'Home Page', u'http://www.leggo.it/rss/home.xml'),
-        (u'Italia', u'http://www.leggo.it/rss/italia.xml'),
-        (u'Esteri', u'http://www.leggo.it/rss/esteri.xml'),
-        (u'Economia', u'http://www.leggo.it/rss/economia.xml'),
-        (u'Sport', u'http://www.leggo.it/rss/sport.xml'),
-        (u'Gossip', u'http://www.leggo.it/rss/gossip.xml'),
-        (u'Spettacoli', u'http://www.leggo.it/rss/spettacoli.xml'),
-        (u'Salute', u'http://www.leggo.it/rss/salute.xml'),
-        (u'Scienza', u'http://www.leggo.it/rss/scienza.xml')
+        ('Home Page', 'http://www.leggo.it/rss/home.xml'),
+        ('Italia', 'http://www.leggo.it/rss/italia.xml'),
+        ('Esteri', 'http://www.leggo.it/rss/esteri.xml'),
+        ('Economia', 'http://www.leggo.it/rss/economia.xml'),
+        ('Sport', 'http://www.leggo.it/rss/sport.xml'),
+        ('Gossip', 'http://www.leggo.it/rss/gossip.xml'),
+        ('Spettacoli', 'http://www.leggo.it/rss/spettacoli.xml'),
+        ('Salute', 'http://www.leggo.it/rss/salute.xml'),
+        ('Scienza', 'http://www.leggo.it/rss/scienza.xml'),
     ]
 
     def get_cover_url(self):

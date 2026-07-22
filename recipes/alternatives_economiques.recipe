@@ -54,30 +54,99 @@ class AlternativesEconomiques(BasicNewsRecipe):
         base_url = 'https://www.alternatives-economiques.fr'
 
         thematiques = [
-            'biodiversite', 'ideesdebats', 'entreprise', 'europe', 'direct-de-recherche',
-            'asie', 'a-la-carte', 'chine', 'culture', 'des-idees-pour-sortir-de-la-crise',
-            'amerique-du-sud', 'idees-0', 'transport', 'services-publics', 'allemagne',
-            'face-a-face', 'politique-monetaire', 'logement', 'climat', 'innovation',
-            'agir', 'economie-sociale-et-solidaire', 'societe', 'theorie', 'revenus',
-            'tribune', 'conditions-de-travail', 'familles', 'politique', 'numerique',
-            'histoire', 'sociorama', 'mondialisation', 'opinions', 'consommation',
-            'dette', 'assurance-chomage', 'finance', 'temps-de-travail', 'emploi',
-            'protection-sociale', 'refugies', 'royaume-uni', 'conjoncture', 'population',
-            'libertes', 'jeunes', 'droit-du-travail', 'responsabilite-sociale', 'industrie',
-            'economie', 'ukraine', 'immigration', 'travail', 'etats-unis',
-            'inflation', 'relations-sociales', 'inegalites', 'management', 'energie',
-            'environnement', 'fiscalite', 'social', 'elections-europeennes', 'retraites',
-            'international', 'commerce-exterieur', 'sante', 'gestion', 'salaires',
-            'education', 'lanceurs-dalerte', 'japon', 'geopolitique', 'afrique',
-            'commerce', 'politiques-publiques', 'budget', 'grece', 'genre',
-            'services', 'pollution', 'agriculture', 'legislatives', 'chomage',
-            'graphorama', 'formation', 'budget-2025', 'territoires', 'espagne'
+            'biodiversite',
+            'ideesdebats',
+            'entreprise',
+            'europe',
+            'direct-de-recherche',
+            'asie',
+            'a-la-carte',
+            'chine',
+            'culture',
+            'des-idees-pour-sortir-de-la-crise',
+            'amerique-du-sud',
+            'idees-0',
+            'transport',
+            'services-publics',
+            'allemagne',
+            'face-a-face',
+            'politique-monetaire',
+            'logement',
+            'climat',
+            'innovation',
+            'agir',
+            'economie-sociale-et-solidaire',
+            'societe',
+            'theorie',
+            'revenus',
+            'tribune',
+            'conditions-de-travail',
+            'familles',
+            'politique',
+            'numerique',
+            'histoire',
+            'sociorama',
+            'mondialisation',
+            'opinions',
+            'consommation',
+            'dette',
+            'assurance-chomage',
+            'finance',
+            'temps-de-travail',
+            'emploi',
+            'protection-sociale',
+            'refugies',
+            'royaume-uni',
+            'conjoncture',
+            'population',
+            'libertes',
+            'jeunes',
+            'droit-du-travail',
+            'responsabilite-sociale',
+            'industrie',
+            'economie',
+            'ukraine',
+            'immigration',
+            'travail',
+            'etats-unis',
+            'inflation',
+            'relations-sociales',
+            'inegalites',
+            'management',
+            'energie',
+            'environnement',
+            'fiscalite',
+            'social',
+            'elections-europeennes',
+            'retraites',
+            'international',
+            'commerce-exterieur',
+            'sante',
+            'gestion',
+            'salaires',
+            'education',
+            'lanceurs-dalerte',
+            'japon',
+            'geopolitique',
+            'afrique',
+            'commerce',
+            'politiques-publiques',
+            'budget',
+            'grece',
+            'genre',
+            'services',
+            'pollution',
+            'agriculture',
+            'legislatives',
+            'chomage',
+            'graphorama',
+            'formation',
+            'budget-2025',
+            'territoires',
+            'espagne',
         ]
 
-        special_sections = {
-            'grands-formats': '/grands-formats',
-            'dessin': '/dessin'
-        }
+        special_sections = {'grands-formats': '/grands-formats', 'dessin': '/dessin'}
 
         sections = {t: f'/thematiques/{t}' for t in thematiques}
         sections.update(special_sections)
@@ -90,7 +159,7 @@ class AlternativesEconomiques(BasicNewsRecipe):
                 feed_articles = self.extract_articles(soup, base_url)
                 if feed_articles:
                     display_name = section_name.replace('-', ' ').title()
-                    articles.append((display_name, feed_articles[:self.max_articles_per_feed]))
+                    articles.append((display_name, feed_articles[: self.max_articles_per_feed]))
             except Exception as e:
                 self.log.error(f'Error processing {section_name}: {e}')
                 continue
@@ -127,11 +196,7 @@ class AlternativesEconomiques(BasicNewsRecipe):
                                 title = article_url.split('/')[-2].replace('-', ' ').title()
 
                     if title:
-                        feed_articles.append({
-                            'title': title,
-                            'url': article_url,
-                            'description': ''
-                        })
+                        feed_articles.append({'title': title, 'url': article_url, 'description': ''})
                 except Exception as e:
                     self.log.error(f'Error getting H1 title for {article_url}: {e}')
                     continue
@@ -144,25 +209,50 @@ class AlternativesEconomiques(BasicNewsRecipe):
         dict(name='time', class_='o-infos__date-full'),
         dict(name='div', class_='o-page__content__who'),
         dict(name='div', class_='field-item even'),
-        dict(name='div', attrs={'property': 'content:encoded'})
+        dict(name='div', attrs={'property': 'content:encoded'}),
     ]
 
     remove_tags = [
         dict(name=['script', 'style', 'iframe', 'svg', 'audio', 'video', 'button', 'form', 'input']),
-        dict(name='div', class_=[
-            'c-article__social', 'social-buttons', 'social-sharing', 'social-media',
-            'share-buttons', 'share-links', 'social-links', 'social-icons',
-            'embedded-content', 'embed-container', 'embed-wrapper', 'media-embed',
-            'twitter-embed', 'facebook-embed', 'social-embed',
-            'c-kiosk--single', 'c-comments', 'c-article__toolbar',
-            'c-article__related', 'c-epigraph', 'newsletter-signup',
-            'twitter-tweet', 'twitter-timeline', 'twitter-follow-button',
-            'c-footer__promo', 'o-page__block--offset--invert',
-            'newsletter-form', 'newsletter-block', 'newsletter',
-            'c-kiosk--single__content', 'c-kiosk--single__figure',
-            'c-kiosk--single__body', 'c-kiosk--single__cta',
-            'field-name-field-issue-cover'
-        ])
+        dict(
+            name='div',
+            class_=[
+                'c-article__social',
+                'social-buttons',
+                'social-sharing',
+                'social-media',
+                'share-buttons',
+                'share-links',
+                'social-links',
+                'social-icons',
+                'embedded-content',
+                'embed-container',
+                'embed-wrapper',
+                'media-embed',
+                'twitter-embed',
+                'facebook-embed',
+                'social-embed',
+                'c-kiosk--single',
+                'c-comments',
+                'c-article__toolbar',
+                'c-article__related',
+                'c-epigraph',
+                'newsletter-signup',
+                'twitter-tweet',
+                'twitter-timeline',
+                'twitter-follow-button',
+                'c-footer__promo',
+                'o-page__block--offset--invert',
+                'newsletter-form',
+                'newsletter-block',
+                'newsletter',
+                'c-kiosk--single__content',
+                'c-kiosk--single__figure',
+                'c-kiosk--single__body',
+                'c-kiosk--single__cta',
+                'field-name-field-issue-cover',
+            ],
+        ),
     ]
 
     extra_css = '''

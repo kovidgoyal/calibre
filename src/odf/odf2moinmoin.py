@@ -28,20 +28,19 @@ from .elementtypes import empty_elements, inline_elements
 from .namespaces import nsdict
 
 IGNORED_TAGS = [
-    'draw:a'
-    'draw:g',
+    'draw:adraw:g',
     'draw:line',
     'draw:object-ole',
     'office:annotation',
     'presentation:notes',
     'svg:desc',
-] + [nsdict[item[0]]+':'+item[1] for item in empty_elements]
+] + [nsdict[item[0]] + ':' + item[1] for item in empty_elements]
 
-INLINE_TAGS = [nsdict[item[0]]+':'+item[1] for item in inline_elements]
+INLINE_TAGS = [nsdict[item[0]] + ':' + item[1] for item in inline_elements]
 
 
 class TextProps:
-    """ Holds properties for a text style. """
+    """Holds properties for a text style."""
 
     def __init__(self):
 
@@ -89,7 +88,7 @@ class TextProps:
                 self.superscript = True
                 self.subscript = False
         else:
-            itextpos = int(textpos[:textpos.find('%')])
+            itextpos = int(textpos[: textpos.find('%')])
             if itextpos > 10:
                 self.superscript = False
                 self.subscript = True
@@ -100,11 +99,12 @@ class TextProps:
     def __unicode__(self):
 
         return f'[italic={self.italic!s}, bold=i{self.bold!s}, fixed={self.fixed!s}]'
+
     __str__ = __unicode__
 
 
 class ParagraphProps:
-    """ Holds properties of a paragraph style. """
+    """Holds properties of a paragraph style."""
 
     def __init__(self):
 
@@ -129,11 +129,12 @@ class ParagraphProps:
     def __unicode__(self):
 
         return f'[bq={self.blockquote!s}, h={self.headingLevel}, code={self.code!s}]'
+
     __str__ = __unicode__
 
 
 class ListProperties:
-    """ Holds properties for a list style. """
+    """Holds properties for a list style."""
 
     def __init__(self):
         self.ordered = False
@@ -143,7 +144,6 @@ class ListProperties:
 
 
 class ODF2MoinMoin:
-
     def __init__(self, filepath):
         self.footnotes = []
         self.footnoteCounter = 0
@@ -175,15 +175,15 @@ class ODF2MoinMoin:
         self.load(filepath)
 
     def processFontDeclarations(self, fontDecl):
-        """ Extracts necessary font information from a font-declaration
-            element.
+        """Extracts necessary font information from a font-declaration
+        element.
         """
         for fontFace in fontDecl.getElementsByTagName('style:font-face'):
             if fontFace.getAttribute('style:font-pitch') == 'fixed':
                 self.fixedFonts.append(fontFace.getAttribute('style:name'))
 
     def extractTextProperties(self, style, parent=None):
-        """ Extracts text properties from a style element. """
+        """Extracts text properties from a style element."""
 
         textProps = TextProps()
 
@@ -205,7 +205,7 @@ class ODF2MoinMoin:
         return textProps
 
     def extractParagraphProperties(self, style, parent=None):
-        """ Extracts paragraph properties from a style element. """
+        """Extracts paragraph properties from a style element."""
 
         paraProps = ParagraphProps()
 
@@ -241,11 +241,9 @@ class ODF2MoinMoin:
         return paraProps
 
     def processStyles(self, styleElements):
-        ''' Runs through "style" elements extracting necessary information.
-        '''
+        '''Runs through "style" elements extracting necessary information.'''
 
         for style in styleElements:
-
             name = style.getAttribute('style:name')
 
             if name == 'Standard':
@@ -258,8 +256,7 @@ class ODF2MoinMoin:
                 self.textStyles[name] = self.extractTextProperties(style, parent)
 
             elif family == 'paragraph':
-                self.paragraphStyles[name] = \
-                                 self.extractParagraphProperties(style, parent)
+                self.paragraphStyles[name] = self.extractParagraphProperties(style, parent)
                 self.textStyles[name] = self.extractTextProperties(style, parent)
 
     def processListStyles(self, listStyleElements):
@@ -269,15 +266,14 @@ class ODF2MoinMoin:
 
             prop = ListProperties()
             if style.hasChildNodes():
-                subitems = [el for el in style.childNodes
-                     if el.nodeType == xml.dom.Node.ELEMENT_NODE and el.tagName == 'text:list-level-style-number']
+                subitems = [el for el in style.childNodes if el.nodeType == xml.dom.Node.ELEMENT_NODE and el.tagName == 'text:list-level-style-number']
                 if len(subitems) > 0:
                     prop.setOrdered(True)
 
             self.listStyles[name] = prop
 
     def load(self, filepath):
-        """ Loads an ODT file. """
+        """Loads an ODT file."""
 
         zip = zipfile.ZipFile(filepath)
 
@@ -297,27 +293,24 @@ class ODF2MoinMoin:
         self.processListStyles(self.content.getElementsByTagName('text:list-style'))
 
     def compressCodeBlocks(self, text):
-        """ Removes extra blank lines from code blocks. """
+        """Removes extra blank lines from code blocks."""
 
         return text
         lines = text.split('\n')
         buffer = []
         numLines = len(lines)
         for i in range(numLines):
-
-            if (lines[i].strip() or i == numLines-1 or i == 0 or
-                not (lines[i-1].startswith('    ') and lines[i+1].startswith('    '))):
+            if lines[i].strip() or i == numLines - 1 or i == 0 or not (lines[i - 1].startswith('    ') and lines[i + 1].startswith('    ')):
                 buffer.append('\n' + lines[i])
 
         return ''.join(buffer)
 
-# -----------------------------------
+    # -----------------------------------
     def do_nothing(self, node):
         return ''
 
     def draw_image(self, node):
-        """
-        """
+        """ """
 
         link = node.getAttribute('xlink:href')
         if link and link[:2] == './':  # Indicates a sub-object, which isn't supported
@@ -338,17 +331,15 @@ class ODF2MoinMoin:
         return '[[BR]]'
 
     def text_note(self, node):
-        cite = (node.getElementsByTagName('text:note-citation')[0]
-                    .childNodes[0].nodeValue)
-        body = (node.getElementsByTagName('text:note-body')[0]
-                    .childNodes[0])
+        cite = node.getElementsByTagName('text:note-citation')[0].childNodes[0].nodeValue
+        body = node.getElementsByTagName('text:note-body')[0].childNodes[0]
         self.footnotes.append((cite, self.textToString(body)))
         return f'^{cite}^'
 
     def text_s(self, node):
         try:
             num = int(node.getAttribute('text:c'))
-            return ' '*num
+            return ' ' * num
         except Exception:
             return ' '
 
@@ -385,7 +376,7 @@ class ODF2MoinMoin:
         revmark.reverse()
         return '{}{}{}'.format(''.join(mark), text, ''.join(revmark))
 
-# -----------------------------------
+    # -----------------------------------
     def listToString(self, listElement, indent=0):
 
         self.lastsegment = listElement.tagName
@@ -396,7 +387,7 @@ class ODF2MoinMoin:
 
         i = 0
         for item in listElement.childNodes:
-            buffer.append(' '*indent)
+            buffer.append(' ' * indent)
             i += 1
             if props.ordered:
                 number = str(i)
@@ -404,14 +395,13 @@ class ODF2MoinMoin:
                 buffer.append(' 1. ')
             else:
                 buffer.append(' * ')
-            subitems = [el for el in item.childNodes
-                          if el.tagName in ['text:p', 'text:h', 'text:list']]
+            subitems = [el for el in item.childNodes if el.tagName in ['text:p', 'text:h', 'text:list']]
             for subitem in subitems:
                 if subitem.tagName == 'text:list':
                     buffer.append('\n')
-                    buffer.append(self.listToString(subitem, indent+3))
+                    buffer.append(self.listToString(subitem, indent + 3))
                 else:
-                    buffer.append(self.paragraphToString(subitem, indent+3))
+                    buffer.append(self.paragraphToString(subitem, indent + 3))
                 self.lastsegment = subitem.tagName
             self.lastsegment = item.tagName
             buffer.append('\n')
@@ -419,8 +409,7 @@ class ODF2MoinMoin:
         return ''.join(buffer)
 
     def tableToString(self, tableElement):
-        """ MoinMoin uses || to delimit table cells
-        """
+        """MoinMoin uses || to delimit table cells"""
 
         self.lastsegment = tableElement.tagName
         buffer = []
@@ -438,18 +427,19 @@ class ODF2MoinMoin:
         return ''.join(buffer)
 
     def toString(self):
-        """ Converts the document to a string.
-            FIXME: Result from second call differs from first call
+        """Converts the document to a string.
+        FIXME: Result from second call differs from first call
         """
         body = self.content.getElementsByTagName('office:body')[0]
         text = body.childNodes[0]
 
         buffer = []
 
-        paragraphs = [el for el in text.childNodes
-                      if isinstance(el, xml.dom.minidom.Element) and el.tagName in [
-                          'draw:page', 'text:p', 'text:h', 'text:section',
-                          'text:list', 'table:table']]
+        paragraphs = [
+            el
+            for el in text.childNodes
+            if isinstance(el, xml.dom.minidom.Element) and el.tagName in ['draw:page', 'text:p', 'text:h', 'text:section', 'text:list', 'table:table']
+        ]
 
         for paragraph in paragraphs:
             if paragraph.tagName == 'text:list':
@@ -464,7 +454,6 @@ class ODF2MoinMoin:
                 buffer.append(text)
 
         if self.footnotes:
-
             buffer.append('----')
             for cite, body in self.footnotes:
                 buffer.append(f'{cite}: {body}')
@@ -477,7 +466,6 @@ class ODF2MoinMoin:
         buffer = []
 
         for node in element.childNodes:
-
             if node.nodeType == xml.dom.Node.TEXT_NODE:
                 buffer.append(node.nodeValue)
 
@@ -524,7 +512,6 @@ class ODF2MoinMoin:
 
         outlinelevel = paragraph.getAttribute('text:outline-level')
         if outlinelevel:
-
             level = int(outlinelevel)
             if self.hasTitle:
                 level += 1
@@ -553,9 +540,8 @@ class ODF2MoinMoin:
         return ''.join(buffer) + text
         # Unused from here
         for token in text.split():
-
             if counter > LIMIT - indent:
-                buffer.append('\n' + ' '*indent)
+                buffer.append('\n' + ' ' * indent)
                 if blockquote:
                     buffer.append('  ')
                 counter = 0

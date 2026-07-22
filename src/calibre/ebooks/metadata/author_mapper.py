@@ -21,25 +21,22 @@ def cap_author_token(token):
         return '. '.join(map(capitalize, parts)).strip()
     scots_name = None
     for x in ('mc', 'mac'):
-        if (token.lower().startswith(x) and len(token) > len(x) and
-                (
-                    token[len(x)] == upper(token[len(x)]) or
-                    lt == token
-                )):
+        if token.lower().startswith(x) and len(token) > len(x) and (token[len(x)] == upper(token[len(x)]) or lt == token):
             scots_name = len(x)
             break
     ans = capitalize(token)
     if scots_name is not None:
-        ans = ans[:scots_name] + upper(ans[scots_name]) + ans[scots_name+1:]
+        ans = ans[:scots_name] + upper(ans[scots_name]) + ans[scots_name + 1 :]
     for x in ('-', "'"):
         idx = ans.find(x)
-        if idx > -1 and len(ans) > idx+2:
-            ans = ans[:idx+1] + upper(ans[idx+1]) + ans[idx+2:]
+        if idx > -1 and len(ans) > idx + 2:
+            ans = ans[: idx + 1] + upper(ans[idx + 1]) + ans[idx + 2 :]
     return ans
 
 
 def compile_pat(pat):
     import regex
+
     REGEX_FLAGS = regex.VERSION1 | regex.WORD | regex.FULLCASE | regex.IGNORECASE | regex.UNICODE
     return regex.compile(pat, flags=REGEX_FLAGS)
 
@@ -121,8 +118,8 @@ def apply_rules(author, rules):
 
 
 def uniq(vals, kmap=icu_lower):
-    """ Remove all duplicates from vals, while preserving order. kmap must be a
-    callable that returns a hashable value for every item in vals """
+    """Remove all duplicates from vals, while preserving order. kmap must be a
+    callable that returns a hashable value for every item in vals"""
     vals = vals or ()
     lvals = (kmap(x) for x in vals)
     seen = set()
@@ -149,11 +146,10 @@ def find_tests():
     import unittest
 
     class TestAuthorMapper(unittest.TestCase):
-
         def test_author_mapper(self):
 
             def rule(action, query, replace=None, match_type='one_of'):
-                ans = {'action':action, 'query': query, 'match_type':match_type}
+                ans = {'action': action, 'query': query, 'match_type': match_type}
                 if replace is not None:
                     ans['replace'] = replace
                 return ans
@@ -180,9 +176,11 @@ def find_tests():
             run(rule('replace', 'a', 'A'), 'a&b', 'A&b')
             run(rule('replace', 'a&b', 'A&B'), 'a&b', 'A&B')
             run(rule('replace', 'L', 'T', 'has'), 'L', 'T')
+
     return unittest.defaultTestLoader.loadTestsFromTestCase(TestAuthorMapper)
 
 
 if __name__ == '__main__':
     from calibre.utils.run_tests import run_cli
+
     run_cli(find_tests())

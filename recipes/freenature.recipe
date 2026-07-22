@@ -3,12 +3,11 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 def classes(classes):
     q = frozenset(classes.split(' '))
-    return dict(attrs={
-        'class': lambda x: x and frozenset(x.split()).intersection(q)})
+    return dict(attrs={'class': lambda x: x and frozenset(x.split()).intersection(q)})
 
 
 class NatureNews(BasicNewsRecipe):
-    title = u'Nature News'
+    title = 'Nature News'
     language = 'en'
     __author__ = 'Kovid Goyal'
     oldest_article = 31  # days
@@ -28,7 +27,7 @@ class NatureNews(BasicNewsRecipe):
     ]
 
     # News and comments
-    feeds = [(u'Nature News', 'http://feeds.nature.com/nature/rss/current')]
+    feeds = [('Nature News', 'http://feeds.nature.com/nature/rss/current')]
 
     def preprocess_html(self, soup):
         for img in soup.findAll('img', src=lambda x: x and x.startswith('//')):

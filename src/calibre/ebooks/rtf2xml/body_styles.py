@@ -28,12 +28,14 @@ class BodyStyles:
     Logic:
     """
 
-    def __init__(self,
-            in_file,
-            list_of_styles,
-            bug_handler,
-            copy=None,
-            run_level=1,):
+    def __init__(
+        self,
+        in_file,
+        list_of_styles,
+        bug_handler,
+        copy=None,
+        run_level=1,
+    ):
         """
         Required:
             'file'--file to parse
@@ -54,8 +56,7 @@ class BodyStyles:
         # self.__write_to = 'table_info.data'
 
     def insert_info(self):
-        """
-        """
+        """ """
         read_obj = open_for_read(self.__file)
         self.__write_obj = open_for_write(self.__write_to)
         line_to_read = 1

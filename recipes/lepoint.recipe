@@ -8,7 +8,6 @@ from calibre.web.feeds.recipes import BasicNewsRecipe
 
 
 class lepoint(BasicNewsRecipe):
-
     title = 'Le Point'
     __author__ = 'calibre'
     description = 'Actualités'
@@ -38,26 +37,25 @@ class lepoint(BasicNewsRecipe):
         dict(name='div', attrs={'class': ['col_article']}),
         dict(name='div', attrs={'class': ['signature_article']}),
         dict(name='div', attrs={'class': ['util_font util_article']}),
-        dict(name='div', attrs={'class': ['util_article bottom']})
+        dict(name='div', attrs={'class': ['util_article bottom']}),
     ]
 
     keep_only_tags = [dict(name='div', attrs={'class': ['page_article']})]
 
-    remove_tags_after = dict(
-        name='div', attrs={'class': ['util_article bottom']})
+    remove_tags_after = dict(name='div', attrs={'class': ['util_article bottom']})
 
     feeds = [
-        (u'À la une', 'http://www.lepoint.fr/rss.xml'),
+        ('À la une', 'http://www.lepoint.fr/rss.xml'),
         ('International', 'http://www.lepoint.fr/monde/rss.xml'),
         ('Tech/Web', 'http://www.lepoint.fr/high-tech-internet/rss.xml'),
         ('Sciences', 'http://www.lepoint.fr/science/rss.xml'),
         ('Economie', 'http://www.lepoint.fr/economie/rss.xml'),
-        (u'Socièté', 'http://www.lepoint.fr/societe/rss.xml'),
+        ('Socièté', 'http://www.lepoint.fr/societe/rss.xml'),
         ('Politique', 'http://www.lepoint.fr/politique/rss.xml'),
-        (u'Médias', 'http://www.lepoint.fr/medias/rss.xml'),
+        ('Médias', 'http://www.lepoint.fr/medias/rss.xml'),
         ('Culture', 'http://www.lepoint.fr/culture/rss.xml'),
-        (u'Santé', 'http://www.lepoint.fr/sante/rss.xml'),
-        ('Sport', 'http://www.lepoint.fr/sport/rss.xml')
+        ('Santé', 'http://www.lepoint.fr/sante/rss.xml'),
+        ('Sport', 'http://www.lepoint.fr/sport/rss.xml'),
     ]
 
     def preprocess_html(self, soup):

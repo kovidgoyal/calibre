@@ -19,15 +19,14 @@ force_issue_download = None
 
 def classes(classes):
     q = frozenset(classes.split(' '))
-    return dict(attrs={
-        'class': lambda x: x and frozenset(x.split()).intersection(q)})
+    return dict(attrs={'class': lambda x: x and frozenset(x.split()).intersection(q)})
 
 
 def plus_with_unknown_component(first_comp, second_comp, result):
     if result is None:
         return first_comp + second_comp
 
-    component = (first_comp if second_comp is None else second_comp)
+    component = first_comp if second_comp is None else second_comp
     return result - component
 
 
@@ -42,7 +41,7 @@ def multiply_with_unknown_component(first_comp, second_comp, result):
     if result is None:
         return first_comp * second_comp
 
-    component = (first_comp if second_comp is None else second_comp)
+    component = first_comp if second_comp is None else second_comp
     return result / component
 
 
@@ -54,11 +53,13 @@ def solve_captcha(captcha):
 
     # Parse into parts
     pattern = re.compile(
-            r'(?P<first_component>[0-9]+)?'
-            u'\\s*(?P<operator>[+×−])\\s*'  # noqa: RUF039
-            r'(?P<second_component>[0-9]+)'
-            r'\s*(=)\s*'
-            r'(?P<result>[0-9]+)?', re.UNICODE)
+        r'(?P<first_component>[0-9]+)?'
+        '\\s*(?P<operator>[+×−])\\s*'  # noqa: RUF039
+        r'(?P<second_component>[0-9]+)'
+        r'\s*(=)\s*'
+        r'(?P<result>[0-9]+)?',
+        re.UNICODE,
+    )
 
     calculationParts = re.search(pattern, numeric_problem)
     if calculationParts is None:
@@ -77,14 +78,16 @@ def solve_captcha(captcha):
 
     # Calculate answer
     answer = 0
-    if operator == u'+':
+    if operator == '+':
         answer = plus_with_unknown_component(component_one, component_two, result)
-    elif operator == u'×':
+    elif operator == '×':
         answer = multiply_with_unknown_component(component_one, component_two, result)
-    elif operator == u'−':
+    elif operator == '−':
         answer = subtract_with_unknown_component(component_one, component_two, result)
 
     return answer
+
+
 ##################################################################
 
 
@@ -119,21 +122,21 @@ Small = {
     'sixty': 60,
     'seventy': 70,
     'eighty': 80,
-    'ninety': 90
+    'ninety': 90,
 }
 
 Magnitude = {
-    'thousand':     1000,
-    'million':      1000000,
-    'billion':      1000000000,
-    'trillion':     1000000000000,
-    'quadrillion':  1000000000000000,
-    'quintillion':  1000000000000000000,
-    'sextillion':   1000000000000000000000,
-    'septillion':   1000000000000000000000000,
-    'octillion':    1000000000000000000000000000,
-    'nonillion':    1000000000000000000000000000000,
-    'decillion':    1000000000000000000000000000000000,
+    'thousand': 1000,
+    'million': 1000000,
+    'billion': 1000000000,
+    'trillion': 1000000000000,
+    'quadrillion': 1000000000000000,
+    'quintillion': 1000000000000000000,
+    'sextillion': 1000000000000000000000,
+    'septillion': 1000000000000000000000000,
+    'octillion': 1000000000000000000000000000,
+    'nonillion': 1000000000000000000000000000000,
+    'decillion': 1000000000000000000000000000000000,
 }
 
 
@@ -155,13 +158,14 @@ def text2num(s):
             else:
                 return s
     return n + g
+
+
 ##################################################################
 
 
 class Granta(BasicNewsRecipe):
-
-    title = u'Granta'
-    description = u'The Magazine of New Writing'
+    title = 'Granta'
+    description = 'The Magazine of New Writing'
     language = 'en'
 
     __author__ = 'Gary Arnold'
@@ -169,14 +173,9 @@ class Granta(BasicNewsRecipe):
     needs_subscription = 'optional'
 
     keep_only_tags = [
-        classes(
-            'article-header article-content article-feature-image-standard-container article-feature-image-full-width-container'
-        ),
+        classes('article-header article-content article-feature-image-standard-container article-feature-image-full-width-container'),
     ]
-    remove_tags = [
-        classes('social-share-container'),
-        classes('article-sidebar__right__social-share-btns')
-    ]
+    remove_tags = [classes('social-share-container'), classes('article-sidebar__right__social-share-btns')]
     remove_attributes = ['style']
 
     def get_browser(self):
@@ -245,8 +244,7 @@ class Granta(BasicNewsRecipe):
             desc = ''
             for p in item.findAll('p'):
                 desc += self.tag_to_string(p)
-            sections[section].append({
-                'title': title, 'url': url, 'description': 'by ' + author + '. ' + desc})
+            sections[section].append({'title': title, 'url': url, 'description': 'by ' + author + '. ' + desc})
 
             self.log.info('Found article:', title)
             self.log.info('\t', url)

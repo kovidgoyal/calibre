@@ -38,19 +38,18 @@ class TheEconomicTimes(BasicNewsRecipe):
         ),
     ]
 
-    feeds = [(u'Top Stories', u'http://economictimes.indiatimes.com/rssfeedstopstories.cms'),
-             (u'News', u'http://economictimes.indiatimes.com/News/rssfeeds/1715249553.cms'),
-             (u'Market', u'http://economictimes.indiatimes.com/Markets/markets/rssfeeds/1977021501.cms'),
-             (u'Personal Finance',
-              u'http://economictimes.indiatimes.com/rssfeeds/837555174.cms'),
-             (u'Infotech', u'http://economictimes.indiatimes.com/Infotech/rssfeeds/13357270.cms'),
-             (u'Job', u'http://economictimes.indiatimes.com/Infotech/rssfeeds/107115.cms'),
-             (u'Opinion', u'http://economictimes.indiatimes.com/opinion/opinionshome/rssfeeds/897228639.cms'),
-             (u'Features', u'http://economictimes.indiatimes.com/Features/etfeatures/rssfeeds/1466318837.cms'),
-             (u'Environment',
-              u'http://economictimes.indiatimes.com/rssfeeds/2647163.cms'),
-             (u'NRI', u'http://economictimes.indiatimes.com/rssfeeds/7771250.cms')
-             ]
+    feeds = [
+        ('Top Stories', 'http://economictimes.indiatimes.com/rssfeedstopstories.cms'),
+        ('News', 'http://economictimes.indiatimes.com/News/rssfeeds/1715249553.cms'),
+        ('Market', 'http://economictimes.indiatimes.com/Markets/markets/rssfeeds/1977021501.cms'),
+        ('Personal Finance', 'http://economictimes.indiatimes.com/rssfeeds/837555174.cms'),
+        ('Infotech', 'http://economictimes.indiatimes.com/Infotech/rssfeeds/13357270.cms'),
+        ('Job', 'http://economictimes.indiatimes.com/Infotech/rssfeeds/107115.cms'),
+        ('Opinion', 'http://economictimes.indiatimes.com/opinion/opinionshome/rssfeeds/897228639.cms'),
+        ('Features', 'http://economictimes.indiatimes.com/Features/etfeatures/rssfeeds/1466318837.cms'),
+        ('Environment', 'http://economictimes.indiatimes.com/rssfeeds/2647163.cms'),
+        ('NRI', 'http://economictimes.indiatimes.com/rssfeeds/7771250.cms'),
+    ]
 
     def preprocess_html(self, soup):
         for image in soup.findAll('img', attrs={'src': True}):

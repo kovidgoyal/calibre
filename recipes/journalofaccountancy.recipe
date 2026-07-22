@@ -21,15 +21,13 @@ def absolutize(url):
 
 def classes(classes):
     q = frozenset(classes.split(' '))
-    return dict(
-        attrs={'class': lambda x: x and frozenset(x.split()).intersection(q)}
-    )
+    return dict(attrs={'class': lambda x: x and frozenset(x.split()).intersection(q)})
 
 
 class JournalOfAccountancy(BasicNewsRecipe):
     __author__ = 'Jose Ortiz'
     language = 'en'
-    title = u'Journal of Accountancy'
+    title = 'Journal of Accountancy'
     description = (
         'A monthly journal of tax, financial reporting, auditing and other'
         ' topics of accountancy from American Institute of Certified Public'
@@ -40,11 +38,7 @@ class JournalOfAccountancy(BasicNewsRecipe):
     no_stylesheets = True
     remove_javascript = True
 
-    conversion_options = {
-        'comments': description,
-        'tags': 'News, Accountancy',
-        'publisher': 'American Institute of Certified Public Accountants (AICPA)'
-    }
+    conversion_options = {'comments': description, 'tags': 'News, Accountancy', 'publisher': 'American Institute of Certified Public Accountants (AICPA)'}
 
     keep_only_tags = [classes('contentSectionArticlePage')]
 
@@ -60,7 +54,7 @@ class JournalOfAccountancy(BasicNewsRecipe):
             'Accept': 'application/json, text/javascript, */*; q=0.01',
             'DNT': '1',
             'Pragma': 'no-cache',
-            'Cache-Control': 'no-cache'
+            'Cache-Control': 'no-cache',
         }
 
         URL_TEMPLATE = 'https://www.journalofaccountancy.com/content/jofa-home/issues/jcr:content/main-content-section/issuelibrary.%s.service'
@@ -81,9 +75,7 @@ class JournalOfAccountancy(BasicNewsRecipe):
         filter_headers.update(init_headers)
 
         self.log('\nFILTER URL at ', filter_url)
-        with closing(
-            self.browser.open(Request(filter_url, None, filter_headers))
-        ) as r:
+        with closing(self.browser.open(Request(filter_url, None, filter_headers))) as r:
             issue_data = json.loads(r.read())[0]
         ########################################
 
@@ -104,10 +96,7 @@ class JournalOfAccountancy(BasicNewsRecipe):
         service_headers.update(common_headers)
 
         def get_data(service):
-            service_url = (
-                'https://www.journalofaccountancy.com' + issue_path +
-                '/jcr:content/main-content-section/' + service + '.en.service'
-            )
+            service_url = 'https://www.journalofaccountancy.com' + issue_path + '/jcr:content/main-content-section/' + service + '.en.service'
             self.log('\nSERIVICE URL at ', service_url)
             req = Request(service_url, None, service_headers)
             with closing(self.browser.open(req)) as r:
@@ -124,10 +113,7 @@ class JournalOfAccountancy(BasicNewsRecipe):
                 topic[1].append({'title': title, 'url': url, 'description': desc})
             return topic
 
-        ans = [
-            make_topic('SPOTLIGHT', get_data('issuelanding/articles1')),
-            make_topic('FEATURES', get_data('issuelanding/articles2'))
-        ]
+        ans = [make_topic('SPOTLIGHT', get_data('issuelanding/articles1')), make_topic('FEATURES', get_data('issuelanding/articles2'))]
 
         for category, articles in get_data('articletypelist').items():
             ans.append(make_topic(category, articles))

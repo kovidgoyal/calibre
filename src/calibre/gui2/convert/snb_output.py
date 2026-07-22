@@ -11,9 +11,8 @@ newline_model = None
 
 
 class PluginWidget(Widget, Ui_Form):
-
     TITLE = _('SNB output')
-    HELP = _('Options specific to')+' SNB '+_('output')
+    HELP = _('Options specific to') + ' SNB ' + _('output')
     COMMIT_NAME = 'snb_output'
     ICON = 'mimetypes/snb.png'
 

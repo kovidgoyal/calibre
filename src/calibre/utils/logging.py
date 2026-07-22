@@ -14,13 +14,12 @@ from calibre.prints import prints
 from polyglot.builtins import as_unicode
 
 DEBUG = 0
-INFO  = 1
-WARN  = 2
+INFO = 1
+WARN = 2
 ERROR = 3
 
 
 class Stream:
-
     def __init__(self, stream=None):
         if stream is None:
             stream = io.StringIO()
@@ -46,7 +45,6 @@ stdout_sentinel = object()
 
 
 class ANSIStream(Stream):
-
     def __init__(self, stream=stdout_sentinel):
         if stream is stdout_sentinel:
             stream = sys.stdout
@@ -60,12 +58,12 @@ class ANSIStream(Stream):
 
     def prints(self, level, *args, **kwargs):
         from calibre.utils.terminal import ColoredStream
+
         with ColoredStream(self.stream, self.color[level]):
             self._prints(*args, **kwargs)
 
 
 class FileStream(Stream):
-
     def __init__(self, stream=None):
         Stream.__init__(self, stream)
 
@@ -74,12 +72,11 @@ class FileStream(Stream):
 
 
 class HTMLStream(Stream):
-
     color = {
         DEBUG: '<span style="color:green">',
         INFO: '<span>',
         WARN: '<span style="color:blue">',
-        ERROR: '<span style="color:red">'
+        ERROR: '<span style="color:red">',
     }
     normal = '</span>'
 
@@ -95,7 +92,6 @@ class HTMLStream(Stream):
 
 
 class UnicodeHTMLStream(HTMLStream):
-
     def __init__(self):
         self.clear()
 
@@ -110,13 +106,13 @@ class UnicodeHTMLStream(HTMLStream):
             self.data.append(col)
             self.last_col = col
 
-        sep  = kwargs.get('sep', ' ')
-        end  = kwargs.get('end', '\n')
+        sep = kwargs.get('sep', ' ')
+        end = kwargs.get('end', '\n')
 
         for arg in args:
             arg = as_unicode(arg)
-            self.data.append(arg+sep)
-            self.plain_text.append(arg+sep)
+            self.data.append(arg + sep)
+            self.plain_text.append(arg + sep)
         self.data.append(end)
         self.plain_text.append(end)
 
@@ -144,10 +140,9 @@ class UnicodeHTMLStream(HTMLStream):
 
 
 class Log:
-
     DEBUG = DEBUG
-    INFO  = INFO
-    WARN  = WARN
+    INFO = INFO
+    WARN = WARN
     ERROR = ERROR
 
     def __init__(self, level=INFO):
@@ -156,8 +151,8 @@ class Log:
         self.outputs = [default_output]
 
         self.debug = partial(self.print_with_flush, DEBUG)
-        self.info  = partial(self.print_with_flush, INFO)
-        self.warn  = self.warning = partial(self.print_with_flush, WARN)
+        self.info = partial(self.print_with_flush, INFO)
+        self.warn = self.warning = partial(self.print_with_flush, WARN)
         self.error = partial(self.print_with_flush, ERROR)
 
     def prints(self, level, *args, **kwargs):
@@ -200,7 +195,6 @@ class Log:
 
 
 class DevNull(Log):
-
     def __init__(self):
         Log.__init__(self, level=Log.ERROR)
         self.outputs = []
@@ -229,7 +223,6 @@ class ThreadSafeLog(Log):
 
 
 class ThreadSafeWrapper(Log):
-
     def __init__(self, other_log):
         Log.__init__(self, level=other_log.filter_level)
         self.outputs = list(other_log.outputs)

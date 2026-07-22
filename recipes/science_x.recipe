@@ -32,7 +32,7 @@ class scix(BasicNewsRecipe):
         'days': {
             'short': 'Oldest article to download from this news source. In days ',
             'long': 'For example, 0.5, gives you articles from the past 12 hours',
-            'default': str(oldest_article)
+            'default': str(oldest_article),
         }
     }
 
@@ -45,15 +45,15 @@ class scix(BasicNewsRecipe):
     resolve_internal_links = True
     remove_empty_feeds = True
 
-    keep_only_tags = [dict(name='article', attrs={'class':'news-article'})]
+    keep_only_tags = [dict(name='article', attrs={'class': 'news-article'})]
 
     feeds = [
-            ('Tech Xplore', 'https://techxplore.com/rss-feed/'),
-            ('Medical Xpress', 'https://medicalxpress.com/rss-feed/'),
-            ('Phys.org', 'https://phys.org/rss-feed/')
-            # https://medicalxpress.com/feeds/
-            # https://techxplore.com/feeds/
-        ]
+        ('Tech Xplore', 'https://techxplore.com/rss-feed/'),
+        ('Medical Xpress', 'https://medicalxpress.com/rss-feed/'),
+        ('Phys.org', 'https://phys.org/rss-feed/'),
+        # https://medicalxpress.com/feeds/
+        # https://techxplore.com/feeds/
+    ]
 
     def preprocess_html(self, soup):
         for figure in soup.findAll('figure'):

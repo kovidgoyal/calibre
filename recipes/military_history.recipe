@@ -3,6 +3,7 @@
 """
 https://www.military-history.org/
 """
+
 from calibre import browser
 from calibre.web.feeds.news import BasicNewsRecipe
 
@@ -30,17 +31,13 @@ class milthist(BasicNewsRecipe):
     '''
 
     keep_only_tags = [
-        dict(attrs={'class': lambda x: x and any(tag in x for tag in [
-            '__image', '__header', '__background',
-            '__body_area', '__author__text', '__date'
-        ])})
+        dict(attrs={'class': lambda x: x and any(tag in x for tag in ['__image', '__header', '__background', '__body_area', '__author__text', '__date'])})
     ]
 
     remove_tags = [
-        dict(attrs={'class':'ad-break'}),
-        dict(attrs={'class': lambda x: x and any(cls in x.split()
-        for cls in ['avatar', 'what-mag-row'])}),
-        dict(attrs={'class':lambda x: x and '--share' in x})
+        dict(attrs={'class': 'ad-break'}),
+        dict(attrs={'class': lambda x: x and any(cls in x.split() for cls in ['avatar', 'what-mag-row'])}),
+        dict(attrs={'class': lambda x: x and '--share' in x}),
     ]
 
     def preprocess_html(self, soup):
@@ -51,16 +48,13 @@ class milthist(BasicNewsRecipe):
                 if w and isinstance(w, str):
                     res = '?w=' + w
                 img['src'] = img['src'].split('?')[0] + res
-        exp = soup.find(attrs={'class':lambda x: x and 'post-subtitle' in x.split()})
+        exp = soup.find(attrs={'class': lambda x: x and 'post-subtitle' in x.split()})
         if exp:
             exp.name = 'p'
         return soup
 
     recipe_specific_options = {
-        'issue': {
-            'short': 'Enter the Issue Number you want to download ',
-            'long': 'For example, 136'
-        },
+        'issue': {'short': 'Enter the Issue Number you want to download ', 'long': 'For example, 136'},
         'res': {
             'short': 'For hi-res images, select a resolution from the\nfollowing options: 800, 1000, 1200 or 1500',
             'long': 'This is useful for non e-ink devices, and for a lower file size\nthan the default, use 400 or 300.',
@@ -70,7 +64,7 @@ class milthist(BasicNewsRecipe):
 
     def parse_index(self):
         soup = self.index_to_soup('https://the-past.com/category/magazines/mhm/')
-        art = soup.find('article', attrs={'class':lambda x: x and 'tag-magazines' in x.split()})
+        art = soup.find('article', attrs={'class': lambda x: x and 'tag-magazines' in x.split()})
         url = art.h2.a['href']
 
         d = self.recipe_specific_options.get('issue')
@@ -78,37 +72,37 @@ class milthist(BasicNewsRecipe):
             url = 'https://the-past.com/magazines/military-history-matters-' + d + '/'
 
         issue = self.index_to_soup(url)
-        ti = issue.find('h1', attrs={'class':lambda x: x and 'post-title' in x.split()})
+        ti = issue.find('h1', attrs={'class': lambda x: x and 'post-title' in x.split()})
         if ti:
             self.title = self.tag_to_string(ti).strip()
-        dt = soup.find(attrs={'class':lambda x: x and '__date' in x})
+        dt = soup.find(attrs={'class': lambda x: x and '__date' in x})
         if dt:
             self.timefmt = ' [' + self.tag_to_string(dt).strip() + ']'
-        edit = issue.find('h2', attrs={'id':'from-the-editor'})
+        edit = issue.find('h2', attrs={'id': 'from-the-editor'})
         if edit and edit.findParent('div'):
             self.description = self.tag_to_string(edit.findParent('div'))
-        cov = issue.find('figure', attrs={'class':lambda x: x and 'wp-block-image' in x.split()})
+        cov = issue.find('figure', attrs={'class': lambda x: x and 'wp-block-image' in x.split()})
         if cov:
             self.cover_url = cov.img['src'].split('?')[0] + '?w=600'
-        div = issue.find('div', attrs={'class':lambda x: x and 'entry-content' in x.split()})
+        div = issue.find('div', attrs={'class': lambda x: x and 'entry-content' in x.split()})
 
         feeds = []
 
-        h2 = div.findAll('h2', attrs={'class':lambda x: x and 'wp-block-heading' in x.split()})
-        lt = div.findAll(attrs={'class':'display-posts-listing'})
+        h2 = div.findAll('h2', attrs={'class': lambda x: x and 'wp-block-heading' in x.split()})
+        lt = div.findAll(attrs={'class': 'display-posts-listing'})
         for x, y in zip(h2, lt):
             section = self.tag_to_string(x).strip()
             self.log(section)
             articles = []
-            for a in y.findAll('a', href=True, attrs={'class':'title'}):
+            for a in y.findAll('a', href=True, attrs={'class': 'title'}):
                 url = a['href']
                 title = self.tag_to_string(a).strip()
                 desc = ''
-                exp = a.findNext(attrs={'class':'excerpt'})
+                exp = a.findNext(attrs={'class': 'excerpt'})
                 if exp:
                     desc = self.tag_to_string(exp).strip()
                 self.log('\t', title, '\n\t', desc, '\n\t\t', url)
-                articles.append({'title': title, 'description':desc, 'url': url})
+                articles.append({'title': title, 'description': desc, 'url': url})
             if articles:
                 feeds.append((section, articles))
         return feeds

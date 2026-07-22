@@ -20,12 +20,16 @@ from calibre.gui2.store.web_store_dialog import WebStoreDialog
 try:
     from calibre.utils.xml_parse import safe_html_fromstring
 except ImportError:
+
     def safe_html_fromstring(string_or_bytes, recover=True):
         return html.fromstring(string_or_bytes)
 
 
 def search_bn(query, max_results=10, timeout=60, write_html_to=''):
-    url = 'https://www.barnesandnoble.com/s/%s?keyword=%s&store=ebook&view=list' % (query.replace(' ', '-'), quote_plus(query))
+    url = 'https://www.barnesandnoble.com/s/%s?keyword=%s&store=ebook&view=list' % (
+        query.replace(' ', '-'),
+        quote_plus(query),
+    )
 
     br = browser()
 
@@ -83,7 +87,6 @@ def search_bn(query, max_results=10, timeout=60, write_html_to=''):
 
 
 class BNStore(BasicStoreConfig, StorePlugin):
-
     def open(self, gui=None, parent=None, detail_item=None, external=False):
         url = 'https://bn.com'
 
@@ -101,5 +104,6 @@ class BNStore(BasicStoreConfig, StorePlugin):
 
 if __name__ == '__main__':
     import sys
+
     for result in search_bn(' '.join(sys.argv[1:]), write_html_to='/t/bn.html'):
         print(result)

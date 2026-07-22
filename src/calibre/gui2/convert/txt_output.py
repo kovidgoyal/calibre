@@ -10,9 +10,8 @@ from calibre.utils.localization import _
 
 
 class PluginWidget(Widget, Ui_Form):
-
     TITLE = _('TXT output')
-    HELP = _('Options specific to')+' TXT '+_('output')
+    HELP = _('Options specific to') + ' TXT ' + _('output')
     COMMIT_NAME = 'txt_output'
     ICON = 'mimetypes/txt.png'
 
@@ -25,9 +24,12 @@ class PluginWidget(Widget, Ui_Form):
             self.opt_txt_output_formatting.addItem(x)
         self.initialize_options(get_option, get_help, db, book_id)
         if self.COMMIT_NAME != 'txt_output':
-            self.image_note_label.setText(_(
-                'Note that for images to be preserved, the formatting option above must be markdown or textile'
-                ' and also enable the setting to not remove image references.'))
+            self.image_note_label.setText(
+                _(
+                    'Note that for images to be preserved, the formatting option above must be markdown or textile'
+                    ' and also enable the setting to not remove image references.'
+                )
+            )
 
     def break_cycles(self):
         Widget.break_cycles(self)

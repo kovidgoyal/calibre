@@ -29,7 +29,7 @@ def set_guide_item(container, item_type, title, name, frag=None):
 
     guides = container.opf_xpath('//opf:guide')
     if not guides and href:
-        g = container.opf.makeelement('{{{}}}guide'.format(OPF_NAMESPACES['opf']), nsmap={'opf':OPF_NAMESPACES['opf']})
+        g = container.opf.makeelement('{{{}}}guide'.format(OPF_NAMESPACES['opf']), nsmap={'opf': OPF_NAMESPACES['opf']})
         container.insert_into_xml(container.opf, g)
         guides = [g]
 
@@ -39,7 +39,7 @@ def set_guide_item(container, item_type, title, name, frag=None):
             if child.tag == ref_tag and child.get('type', '').lower() == item_type.lower():
                 matches.append(child)
         if not matches and href:
-            r = guide.makeelement(ref_tag, type=item_type, nsmap={'opf':OPF_NAMESPACES['opf']})
+            r = guide.makeelement(ref_tag, type=item_type, nsmap={'opf': OPF_NAMESPACES['opf']})
             container.insert_into_xml(guide, r)
             matches.append(r)
         for m in matches:

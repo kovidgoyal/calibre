@@ -42,15 +42,15 @@ class Fokus(BasicNewsRecipe):
     ]
 
     keep_only_tags = [
-        dict(name='h1', class_='Single__title'),                # Title of "Single" type articles.
-        dict(name='h1', class_='Longread__title'),              # Title of "Longread" type articles.
-        dict(name='p', class_='Single__lead'),                  # Lead text of "Single" type articles.
-        dict(name='p', class_='Longread__lead'),                # Lead text of "Longread" type articles.
-        dict(name='p', class_='article-metadata'),              # Dynamically created by the recipe.
-        dict(name='figure', class_='Single__thumbnail'),        # Image of "Single" type articles.
-        dict(name='figure', class_='Longread__thumbnail'),      # Image of "Longread" type articles.
-        dict(name='div', class_='Single__content'),             # Article body of "Single" type articles.
-        dict(name='div', class_='Longread__content'),           # Article body of "Longread" type articles.
+        dict(name='h1', class_='Single__title'),  # Title of "Single" type articles.
+        dict(name='h1', class_='Longread__title'),  # Title of "Longread" type articles.
+        dict(name='p', class_='Single__lead'),  # Lead text of "Single" type articles.
+        dict(name='p', class_='Longread__lead'),  # Lead text of "Longread" type articles.
+        dict(name='p', class_='article-metadata'),  # Dynamically created by the recipe.
+        dict(name='figure', class_='Single__thumbnail'),  # Image of "Single" type articles.
+        dict(name='figure', class_='Longread__thumbnail'),  # Image of "Longread" type articles.
+        dict(name='div', class_='Single__content'),  # Article body of "Single" type articles.
+        dict(name='div', class_='Longread__content'),  # Article body of "Longread" type articles.
     ]
 
     def extract_cover_url(self, a_tag) -> str:
@@ -87,20 +87,14 @@ class Fokus(BasicNewsRecipe):
             a_tags = soup.find_all('a', class_='Issue', href=True)
 
             # Keep only the href, and subset to only those links that contain the current year.
-            edition_links = [
-                a_tag['href'] for a_tag in a_tags if str(current_year) in a_tag['href']
-            ]
+            edition_links = [a_tag['href'] for a_tag in a_tags if str(current_year) in a_tag['href']]
 
             # To successfully sort the links chronologically, first convert the data structure to a dict, wherein the
             # key consists of only the date part of the URL and the value consists of the entire (unmodified) URL.
-            edition_links = {
-                link.removesuffix('/').split('/')[-1]: link for link in edition_links
-            }
+            edition_links = {link.removesuffix('/').split('/')[-1]: link for link in edition_links}
 
             # Shorten the key by removing the year prefix.
-            edition_links = {
-                key.split('-', 1)[-1]: value for key, value in edition_links.items()
-            }
+            edition_links = {key.split('-', 1)[-1]: value for key, value in edition_links.items()}
 
             # Most keys in the `edition_links` dict now correspond to calendar week numbers, e.g., '1', '02', '21' or
             # '52'. Note however that editions can sometimes cover multiples weeks, e.g., '1-2', '01-03', '50-51-52',

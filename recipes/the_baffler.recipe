@@ -4,13 +4,12 @@ from calibre.web.feeds.news import BasicNewsRecipe, classes
 class TheBaffler(BasicNewsRecipe):
     title = 'The Baffler'
     __author__ = 'flobotnik and unkn0wn'
-    description = ('This magazine contains left-wing criticism, cultural analysis, shorts'
-                   ' stories, poems and art.  They publish six print issues annually.')
+    description = 'This magazine contains left-wing criticism, cultural analysis, shorts stories, poems and art.  They publish six print issues annually.'
     language = 'en'
     encoding = 'UTF-8'
     no_javascript = True
     no_stylesheets = True
-    remove_attributes = ['style','height','width']
+    remove_attributes = ['style', 'height', 'width']
 
     extra_css = '''
         .entry-subtitle{color:#202020; font-style:italic; text:align:left;}
@@ -21,14 +20,12 @@ class TheBaffler(BasicNewsRecipe):
         .author-meta{font-size:small; color:gray;}
     '''
 
-    keep_only_tags = [
-        dict(name='main', attrs={'id':'main'})
-    ]
+    keep_only_tags = [dict(name='main', attrs={'id': 'main'})]
 
     remove_tags = [
         classes('entry-date issue-number-segment single-article-vertical donation-footer story-footer ml-4 mt-14'),
         dict(name='footer'),
-        dict(name='a', class_='ml-4 pr-px font-sans text-sm lg:text-xs whitespace-nowrap')
+        dict(name='a', class_='ml-4 pr-px font-sans text-sm lg:text-xs whitespace-nowrap'),
     ]
 
     def get_cover_url(self):
@@ -48,14 +45,11 @@ class TheBaffler(BasicNewsRecipe):
         self.timefmt = ' [' + self.tag_to_string(issue.find('div', **classes('font-lion'))).strip() + ']'
         a = issue.find('a')
 
-        self.description = (
-            u'\n\n' + self.tag_to_string(a).strip() +
-            u'\n\n' + self.description
-        )
+        self.description = '\n\n' + self.tag_to_string(a).strip() + '\n\n' + self.description
 
         soup = self.index_to_soup(a['href'])
         ans = []
-        main = soup.find('main', attrs={'id':'main'})
+        main = soup.find('main', attrs={'id': 'main'})
         for section in main.findAll('section'):
             current_section = self.tag_to_string(section.h3).strip()
             self.log(current_section)
@@ -71,16 +65,15 @@ class TheBaffler(BasicNewsRecipe):
                 if span2:
                     desc = self.tag_to_string(span2).strip() + ' | ' + desc
                 self.log('\t', title, '\n\t', desc, '\n\t\t', url)
-                articles.append(
-                    {'title': title, 'url': url, 'description': desc})
+                articles.append({'title': title, 'url': url, 'description': desc})
             if articles:
-                ans.append((current_section,articles))
+                ans.append((current_section, articles))
         return ans
 
     def preprocess_html(self, soup):
         div = soup.find('div', **classes('entry-title'))
         if div:
             div.name = 'h1'
-        for p in soup.findAll('p', attrs={'class':'parasectionhed'}):
+        for p in soup.findAll('p', attrs={'class': 'parasectionhed'}):
             p.name = 'h4'
         return soup

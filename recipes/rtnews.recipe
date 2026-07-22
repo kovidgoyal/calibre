@@ -32,7 +32,7 @@ class RT_eng(BasicNewsRecipe):
         'days': {
             'short': 'Oldest article to download from this news source. In days ',
             'long': 'For example, 0.5, gives you articles from the past 12 hours',
-            'default': str(oldest_article)
+            'default': str(oldest_article),
         }
     }
 
@@ -50,20 +50,13 @@ class RT_eng(BasicNewsRecipe):
         .media__footer { font-size:small; text-align:center; }
     '''
 
-    conversion_options = {
-        'comment': description, 'tags': category, 'publisher': publisher, 'language': language
-    }
+    conversion_options = {'comment': description, 'tags': category, 'publisher': publisher, 'language': language}
 
-    keep_only_tags = [
-        dict(name='div', attrs={'class':'article'})
-    ]
+    keep_only_tags = [dict(name='div', attrs={'class': 'article'})]
 
     remove_tags = [
         dict(name=['meta', 'link', 'svg', 'button', 'style', 'iframe', 'noscript']),
-        classes(
-            'update_date_visible breadcrumbs read-more Read-more-text-only article__share '
-            'article__social-wrapper article__share_bottom'
-        )
+        classes('update_date_visible breadcrumbs read-more Read-more-text-only article__share article__social-wrapper article__share_bottom'),
     ]
 
     feeds = [
@@ -74,7 +67,7 @@ class RT_eng(BasicNewsRecipe):
         ('Business', 'https://www.rt.com/rss/business/'),
         ('Opinion', 'https://www.rt.com/rss/op-ed/'),
         ('Culture', 'https://www.rt.com/rss/pop-culture/'),
-        ('Others', 'https://www.rt.com/rss/')
+        ('Others', 'https://www.rt.com/rss/'),
     ]
 
     def get_article_url(self, article):
@@ -83,7 +76,7 @@ class RT_eng(BasicNewsRecipe):
 
     def preprocess_html(self, soup):
         for img in soup.findAll('img'):
-            srcset = img.find_previous_sibling('source', attrs={'data-srcset':True})
+            srcset = img.find_previous_sibling('source', attrs={'data-srcset': True})
             if srcset:
                 for x in srcset['data-srcset'].split(','):
                     if '/l/' in x.split()[0].strip():

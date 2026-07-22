@@ -4,11 +4,11 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class GC_gl(BasicNewsRecipe):
-    title = u'Galicia Confidencial (RSS)'
-    __author__ = u'Susana Sotelo Docío'
-    description = u'Unha fiestra de información aberta a todos'
-    publisher = u'Galicia Confidencial'
-    category = u'news, society, politics, Galicia'
+    title = 'Galicia Confidencial (RSS)'
+    __author__ = 'Susana Sotelo Docío'
+    description = 'Unha fiestra de información aberta a todos'
+    publisher = 'Galicia Confidencial'
+    category = 'news, society, politics, Galicia'
     encoding = 'utf-8'
     language = 'gl'
     direction = 'ltr'
@@ -17,9 +17,9 @@ class GC_gl(BasicNewsRecipe):
     max_articles_per_feed = 100
     center_navbar = False
 
-    feeds = [(u'Novas no RSS', u'http://galiciaconfidencial.com/rss2/xeral.rss')]
+    feeds = [('Novas no RSS', 'http://galiciaconfidencial.com/rss2/xeral.rss')]
 
-    extra_css = u' p{text-align:left} '
+    extra_css = ' p{text-align:left} '
 
     def print_version(self, url):
         return url.replace('http://galiciaconfidencial.com/nova/', 'http://galiciaconfidencial.com/imprimir/')
@@ -38,10 +38,6 @@ class GC_gl(BasicNewsRecipe):
         for feed in feedObject:
             newArticles = []
             for article in feed.articles:
-                newArt = {
-                    'title': article.title,
-                    'url': article.url,
-                    'date': article.date
-                }
+                newArt = {'title': article.title, 'url': article.url, 'date': article.date}
                 newArticles.append(newArt)
             masterFeed.append((feed.title, newArticles))

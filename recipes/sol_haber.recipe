@@ -16,7 +16,7 @@ from calibre.web.feeds.recipes import BasicNewsRecipe
 
 
 class SolHaberRecipe(BasicNewsRecipe):
-    title = u'soL Haber'
+    title = 'soL Haber'
     oldest_article = 7
     max_articles_per_feed = 100
 
@@ -26,32 +26,37 @@ class SolHaberRecipe(BasicNewsRecipe):
     publisher = 'soL Haber'
     tags = 'news, haberler, siyaset, türkiye, turkey, politics'
 
-    conversion_options = {
-        'comment': description, 'tags': tags, 'publisher': publisher, 'language': language
+    conversion_options = {'comment': description, 'tags': tags, 'publisher': publisher, 'language': language}
+
+    category_dict = {
+        'sonuncu-kavga': 'Sonuncu Kavga',
+        'devlet-ve-siyaset': 'Devlet ve Siyaset',
+        'ekonomi': 'Ekonomi',
+        'enternasyonal-gundem': 'Enternasyonel Gündem',
+        'kent-gundemleri': 'Kent Gündemleri',
+        'kultur-sanat': 'Kültür Sanat',
+        'dunyadan': 'Dünyadan',
+        'serbest-kursu': 'Serbest Kürsü',
+        'medya': 'Medya',
+        'liseliler': 'Liseliler',
+        'yazarlar': 'Köşe Yazıları',
     }
 
-    category_dict = {'sonuncu-kavga': 'Sonuncu Kavga',
-                     'devlet-ve-siyaset': 'Devlet ve Siyaset',
-                     'ekonomi': 'Ekonomi',
-                     'enternasyonal-gundem': 'Enternasyonel Gündem',
-                     'kent-gundemleri': 'Kent Gündemleri',
-                     'kultur-sanat': 'Kültür Sanat',
-                     'dunyadan': 'Dünyadan',
-                     'serbest-kursu': 'Serbest Kürsü',
-                     'medya': 'Medya',
-                     'liseliler': 'Liseliler',
-                     'yazarlar': 'Köşe Yazıları'}
-
     end_date = datetime.date.today().isoformat()
-    start_date = (datetime.date.today() -
-                  datetime.timedelta(days=1)).isoformat()
+    start_date = (datetime.date.today() - datetime.timedelta(days=1)).isoformat()
 
-    section_tuples = [['Köşe Yazıları', 'http://haber.sol.org.tr/arsiv?icerik=kose_yazisi&tarih%%5Bmin%%5D%%5Bdate%%5D=%s&tarih%%5Bmax%%5D%%5Bdate%%5D=%s' % (start_date, end_date)],  # noqa: E501
-                      ['Haberler', 'http://haber.sol.org.tr/arsiv?icerik=haber&tarih%%5Bmin%%5D%%5Bdate%%5D=%s&tarih%%5Bmax%%5D%%5Bdate%%5D=%s' %
-                          (start_date, end_date)],
-                      ['soL postal', 'http://haber.sol.org.tr/arsiv?icerik=postal&tarih%%5Bmin%%5D%%5Bdate%%5D=%s&tarih%%5Bmax%%5D%%5Bdate%%5D=%s' %
-                          (start_date, end_date)],
-                      ['Bizim Amerika', 'http://haber.sol.org.tr/arsiv?icerik=bizim_amerika&tarih%%5Bmin%%5D%%5Bdate%%5D=%s&tarih%%5Bmax%%5D%%5Bdate%%5D=%s' % (start_date, end_date)]]  # noqa: E501
+    section_tuples = [
+        [
+            'Köşe Yazıları',
+            'http://haber.sol.org.tr/arsiv?icerik=kose_yazisi&tarih%%5Bmin%%5D%%5Bdate%%5D=%s&tarih%%5Bmax%%5D%%5Bdate%%5D=%s' % (start_date, end_date),
+        ],  # noqa: E501
+        ['Haberler', 'http://haber.sol.org.tr/arsiv?icerik=haber&tarih%%5Bmin%%5D%%5Bdate%%5D=%s&tarih%%5Bmax%%5D%%5Bdate%%5D=%s' % (start_date, end_date)],
+        ['soL postal', 'http://haber.sol.org.tr/arsiv?icerik=postal&tarih%%5Bmin%%5D%%5Bdate%%5D=%s&tarih%%5Bmax%%5D%%5Bdate%%5D=%s' % (start_date, end_date)],
+        [
+            'Bizim Amerika',
+            'http://haber.sol.org.tr/arsiv?icerik=bizim_amerika&tarih%%5Bmin%%5D%%5Bdate%%5D=%s&tarih%%5Bmax%%5D%%5Bdate%%5D=%s' % (start_date, end_date),
+        ],
+    ]  # noqa: E501
 
     # Disable stylesheets from site.
     no_stylesheets = True
@@ -62,11 +67,9 @@ class SolHaberRecipe(BasicNewsRecipe):
 
     comments_reg_exp = r'^\s*makale-elestiri\s*$'
 
-    remove_tags = [
-        dict(name='div', attrs={'class': re.compile(comments_reg_exp, re.IGNORECASE)})]
+    remove_tags = [dict(name='div', attrs={'class': re.compile(comments_reg_exp, re.IGNORECASE)})]
 
-    keep_only_tags = [
-        dict(name='div', attrs={'class': re.compile(storybody_reg_exp, re.IGNORECASE)})]
+    keep_only_tags = [dict(name='div', attrs={'class': re.compile(storybody_reg_exp, re.IGNORECASE)})]
 
     def get_masthead_title(self):
         return self.title + '(' + self.end_date + ')'
@@ -80,7 +83,6 @@ class SolHaberRecipe(BasicNewsRecipe):
         category_regexp = re.compile(r'^http://.*?/(.+?)/.*$')
 
         for section_tuple in self.section_tuples:
-
             section_title = section_tuple[0]
             section_index_url = section_tuple[1]
 
@@ -94,8 +96,7 @@ class SolHaberRecipe(BasicNewsRecipe):
                 if self.cover_url.startswith('/'):
                     self.cover_url = 'http://haber.sol.org.tr' + self.cover_url
 
-            view_content = soup.find(
-                'div', id='ana-icerik').find('div', attrs={'class': 'view-content'})
+            view_content = soup.find('div', id='ana-icerik').find('div', attrs={'class': 'view-content'})
             if view_content is None:
                 break
             rows = view_content.find('tbody').findAll('tr')
@@ -125,10 +126,8 @@ class SolHaberRecipe(BasicNewsRecipe):
                 if author_match_result:
                     author = author_match_result.group(1)
 
-                self.log('\tFound article:', title, 'at', url,
-                         'published at ', date, 'by', author)
-                article = {'title': title, 'url': url,
-                           'description': None, 'date': date, 'author': author}
+                self.log('\tFound article:', title, 'at', url, 'published at ', date, 'by', author)
+                article = {'title': title, 'url': url, 'description': None, 'date': date, 'author': author}
                 if category in articles_dict:
                     articles_dict[category].append(article)
                 else:

@@ -5,9 +5,9 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class DziennikWschodni(BasicNewsRecipe):
-    title = u'Dziennik Wschodni'
+    title = 'Dziennik Wschodni'
     __author__ = 'fenuks'
-    description = u'Dziennik Wschodni - portal regionalny województwa lubelskiego.'
+    description = 'Dziennik Wschodni - portal regionalny województwa lubelskiego.'
     category = 'newspaper'
     language = 'pl'
     encoding = 'iso-8859-2'
@@ -20,36 +20,56 @@ class DziennikWschodni(BasicNewsRecipe):
     no_stylesheets = True
     ignore_duplicate_articles = {'title', 'url'}
 
-    preprocess_regexps = [(re.compile(u'Czytaj:.*?</a>', re.DOTALL), lambda match: ''), (re.compile(u'Przeczytaj także:.*?</a>', re.DOTALL | re.IGNORECASE), lambda match: ''),  # noqa: E501, RUF039
-                          (re.compile(u'Przeczytaj również:.*?</a>', re.DOTALL | re.IGNORECASE), lambda match: ''), (re.compile(u'Zobacz też:.*?</a>', re.DOTALL | re.IGNORECASE), lambda match: '')]  # noqa: E501, RUF039
+    preprocess_regexps = [
+        (re.compile(r'Czytaj:.*?</a>', re.DOTALL), lambda match: ''),
+        (re.compile('Przeczytaj także:.*?</a>', re.DOTALL | re.IGNORECASE), lambda match: ''),  # noqa: E501, RUF039
+        (re.compile(r'Przeczytaj również:.*?</a>', re.DOTALL | re.IGNORECASE), lambda match: ''),
+        (re.compile(r'Zobacz też:.*?</a>', re.DOTALL | re.IGNORECASE), lambda match: ''),
+    ]  # noqa: E501, RUF039
 
     keep_only_tags = [dict(id=['article', 'cover', 'photostory'])]
-    remove_tags = [dict(id=['articleTags', 'articleMeta', 'boxReadIt', 'articleGalleries', 'articleConnections',
-                            'ForumArticleComments', 'articleRecommend', 'jedynkiLinks', 'articleGalleryConnections',
-                            'photostoryConnections', 'articleEpaper', 'articlePoll', 'articleAlarm', 'articleByline']),
-                   dict(attrs={'class': 'articleFunctions'})]
+    remove_tags = [
+        dict(
+            id=[
+                'articleTags',
+                'articleMeta',
+                'boxReadIt',
+                'articleGalleries',
+                'articleConnections',
+                'ForumArticleComments',
+                'articleRecommend',
+                'jedynkiLinks',
+                'articleGalleryConnections',
+                'photostoryConnections',
+                'articleEpaper',
+                'articlePoll',
+                'articleAlarm',
+                'articleByline',
+            ]
+        ),
+        dict(attrs={'class': 'articleFunctions'}),
+    ]
 
-    feeds = [(u'Wszystkie', u'http://www.dziennikwschodni.pl/rss.xml'),
-             (u'Lublin', u'http://www.dziennikwschodni.pl/lublin.xml'),
-             (u'Zamość', u'http://www.dziennikwschodni.pl/zamosc.xml'),
-             (u'Biała Podlaska',
-              u'http://www.dziennikwschodni.pl/biala_podlaska.xml'),
-             (u'Chełm', u'http://www.dziennikwschodni.pl/chelm.xml'),
-             (u'Kraśnik', u'http://www.dziennikwschodni.pl/krasnik.xml'),
-             (u'Puławy', u'http://www.dziennikwschodni.pl/pulawy.xml'),
-             (u'Świdnik', u'http://www.dziennikwschodni.pl/swidnik.xml'),
-             (u'Łęczna', u'http://www.dziennikwschodni.pl/leczna.xml'),
-             (u'Lubartów', u'http://www.dziennikwschodni.pl/lubartow.xml'),
-             (u'Sport', u'http://www.dziennikwschodni.pl/sport.xml'),
-             (u'Praca', u'http://www.dziennikwschodni.pl/praca.xml'),
-             (u'Dom', u'http://www.dziennikwschodni.pl/dom.xml'),
-             (u'Moto', u'http://www.dziennikwschodni.pl/moto.xml'),
-             (u'Zdrowie', u'http://www.dziennikwschodni.pl/zdrowie.xml'),
-             ]
+    feeds = [
+        ('Wszystkie', 'http://www.dziennikwschodni.pl/rss.xml'),
+        ('Lublin', 'http://www.dziennikwschodni.pl/lublin.xml'),
+        ('Zamość', 'http://www.dziennikwschodni.pl/zamosc.xml'),
+        ('Biała Podlaska', 'http://www.dziennikwschodni.pl/biala_podlaska.xml'),
+        ('Chełm', 'http://www.dziennikwschodni.pl/chelm.xml'),
+        ('Kraśnik', 'http://www.dziennikwschodni.pl/krasnik.xml'),
+        ('Puławy', 'http://www.dziennikwschodni.pl/pulawy.xml'),
+        ('Świdnik', 'http://www.dziennikwschodni.pl/swidnik.xml'),
+        ('Łęczna', 'http://www.dziennikwschodni.pl/leczna.xml'),
+        ('Lubartów', 'http://www.dziennikwschodni.pl/lubartow.xml'),
+        ('Sport', 'http://www.dziennikwschodni.pl/sport.xml'),
+        ('Praca', 'http://www.dziennikwschodni.pl/praca.xml'),
+        ('Dom', 'http://www.dziennikwschodni.pl/dom.xml'),
+        ('Moto', 'http://www.dziennikwschodni.pl/moto.xml'),
+        ('Zdrowie', 'http://www.dziennikwschodni.pl/zdrowie.xml'),
+    ]
 
     def get_cover_url(self):
-        soup = self.index_to_soup(
-            self.INDEX + '/apps/pbcs.dll/section?Category=JEDYNKI')
+        soup = self.index_to_soup(self.INDEX + '/apps/pbcs.dll/section?Category=JEDYNKI')
         nexturl = self.INDEX + soup.find(id='covers').find('a')['href']
         soup = self.index_to_soup(nexturl)
         self.cover_url = self.INDEX + soup.find(id='cover').find(name='img')['src']
@@ -78,8 +98,7 @@ class DziennikWschodni(BasicNewsRecipe):
                     pos = len(appendtag.contents)
                     appendtag.insert(pos, pagetext)
 
-            comments = appendtag.findAll(
-                text=lambda text: isinstance(text, Comment))
+            comments = appendtag.findAll(text=lambda text: isinstance(text, Comment))
             for comment in comments:
                 comment.extract()
 

@@ -3,6 +3,7 @@
 """
 harpers.org
 """
+
 from calibre import browser
 from calibre.web.feeds.news import BasicNewsRecipe, classes
 
@@ -27,14 +28,10 @@ class Harpers(BasicNewsRecipe):
     remove_attributes = ['style', 'height', 'width']
 
     keep_only_tags = [
-        dict(attrs={'class':lambda x: x and (
-            'title-header desktop ' in x or 'col-md-8 col-xl-9' in x
-        )}),
-        classes('article-hero-img entry-content pdf-only')
+        dict(attrs={'class': lambda x: x and ('title-header desktop ' in x or 'col-md-8 col-xl-9' in x)}),
+        classes('article-hero-img entry-content pdf-only'),
     ]
-    remove_tags = [
-        classes('header-controls')
-    ]
+    remove_tags = [classes('header-controls')]
 
     extra_css = '''
         img {display:block; margin:0 auto;}
@@ -46,10 +43,10 @@ class Harpers(BasicNewsRecipe):
     '''
 
     def preprocess_html(self, soup):
-        sub = soup.find(attrs={'class':'subheading'})
+        sub = soup.find(attrs={'class': 'subheading'})
         if sub:
             sub.name = 'p'
-        for img in soup.findAll('img', attrs={'srcset':True}):
+        for img in soup.findAll('img', attrs={'srcset': True}):
             for src in img['srcset'].split(','):
                 if '768w' in src:
                     img['src'] = src.split()[0]
@@ -65,7 +62,7 @@ class Harpers(BasicNewsRecipe):
     def parse_index(self):
         issues_soup = self.index_to_soup('https://harpers.org/issues/')
         a_ele = issues_soup.select_one('div.issue-card a')
-        self.timefmt = ' [' + self.tag_to_string(a_ele.find(attrs={'class':'issue-title'})) + ']'
+        self.timefmt = ' [' + self.tag_to_string(a_ele.find(attrs={'class': 'issue-title'})) + ']'
         url = 'https://harpers.org' + a_ele['href']
 
         edition = self.recipe_specific_options.get('date')
@@ -76,17 +73,17 @@ class Harpers(BasicNewsRecipe):
         self.log('Fetching articles from:', url)
         soup = self.index_to_soup(url)
         # open('/t/raw.html', 'w').write(str(soup))
-        cov_div = soup.find('div', attrs={'class':'issue-cover'})
+        cov_div = soup.find('div', attrs={'class': 'issue-cover'})
         if cov_div:
-            self.cover_url = cov_div.find('img', attrs={'class':'cover-img'})['src']
+            self.cover_url = cov_div.find('img', attrs={'class': 'cover-img'})['src']
         ans = []
-        for a in soup.findAll('a', attrs={'href':lambda x: x and x.startswith('/')}):
+        for a in soup.findAll('a', attrs={'href': lambda x: x and x.startswith('/')}):
             if not a.find('img') and a.find(['h1', 'h2', 'h3', 'h4']):
                 url = a['href']
                 url = 'https://harpers.org' + url
                 title = self.tag_to_string(a).strip()
                 desc = ''
-                div = a.findParent('div').find('div', attrs={'class':'byline'})
+                div = a.findParent('div').find('div', attrs={'class': 'byline'})
                 if div:
                     desc = self.tag_to_string(div).strip()
                 self.log('      ', title, '\n\t', desc[:-1], '\n\t', url)

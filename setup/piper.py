@@ -9,7 +9,6 @@ from setup.revendor import ReVendor
 
 
 class PiperVoices(ReVendor):
-
     description = 'Download the list of Piper voices'
     NAME = 'piper_voices'
     TAR_NAME = 'piper voice list'

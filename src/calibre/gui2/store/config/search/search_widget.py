@@ -9,7 +9,6 @@ from calibre.gui2.store.config.search.search_widget_ui import Ui_Form
 
 
 class StoreConfigWidget(QWidget, Ui_Form):
-
     def __init__(self, config=None):
         QWidget.__init__(self)
         self.setupUi(self)

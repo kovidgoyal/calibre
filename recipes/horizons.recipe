@@ -65,9 +65,9 @@ class horizons(BasicNewsRecipe):
         self.log('Downloading Issue: ', self.title)
 
         soup = self.index_to_soup(url)
-        toc = soup.find('div', attrs={'class':'horizon-toc'})
+        toc = soup.find('div', attrs={'class': 'horizon-toc'})
         feeds = []
-        for section in toc.findAll('div', attrs={'class':'horizon-section'}):
+        for section in toc.findAll('div', attrs={'class': 'horizon-section'}):
             secname = self.tag_to_string(section.h3).strip()
             self.log(secname)
             articles = []

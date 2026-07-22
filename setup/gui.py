@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
@@ -13,13 +13,12 @@ from setup import Command, __appname__
 
 class GUI(Command):
     description = 'Compile all GUI forms'
-    PATH  = os.path.join(Command.SRC, __appname__, 'gui2')
+    PATH = os.path.join(Command.SRC, __appname__, 'gui2')
     QRC = os.path.join(Command.RESOURCES, 'images.qrc')
     RCC = os.path.join(Command.RESOURCES, 'icons.rcc')
 
     def add_options(self, parser):
-        parser.add_option('--summary', default=False, action='store_true',
-                help='Only display a summary about how many files were compiled')
+        parser.add_option('--summary', default=False, action='store_true', help='Only display a summary about how many files were compiled')
 
     def find_forms(self):
         # We do not use the calibre function find_forms as
@@ -40,7 +39,7 @@ class GUI(Command):
     def form_to_compiled_form(cls, form):
         # We do not use the calibre function form_to_compiled_form as
         # importing calibre.gui2 may not work
-        return form.rpartition('.')[0]+'_ui.py'
+        return form.rpartition('.')[0] + '_ui.py'
 
     def run(self, opts):
         self.build_forms(summary=opts.summary)
@@ -57,6 +56,7 @@ class GUI(Command):
             if self.newer(self.RCC, sources):
                 self.info('Creating icon theme resource file')
                 from calibre.utils.rcc import compile_icon_dir_as_themes
+
                 compile_icon_dir_as_themes('images', self.RCC)
             if self.newer(self.QRC, sources):
                 self.info('Creating images.qrc')
@@ -72,6 +72,7 @@ class GUI(Command):
 
     def build_forms(self, summary=False):
         from calibre.build_forms import build_forms
+
         build_forms(self.SRC, info=self.info, summary=summary, check_icons=False)
 
     def clean(self):

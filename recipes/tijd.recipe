@@ -33,34 +33,26 @@ class DeTijd(BasicNewsRecipe):
     direction = 'ltr'
 
     keep_only_tags = [
-        dict(name='div', attrs={'id': 'lcol'}), dict(
-            name='div', attrs={'class': 'l-main-container-article__asset-container'}
-        ), dict(
-            name='div',
-            attrs={
-                'class': 'l-main-container-article__body clearfix highlightable '
-            }
-        ), dict(
-            name='div',
-            attrs={'class': 'l-main-container-article__intro highlightable '}
-        ), dict(
-            name='div', attrs={'class': 'l-main-container-article__sidebar-inline'}
-        ), dict(name='div', attrs={'class': 'l-main-container-article__title '})
+        dict(name='div', attrs={'id': 'lcol'}),
+        dict(name='div', attrs={'class': 'l-main-container-article__asset-container'}),
+        dict(name='div', attrs={'class': 'l-main-container-article__body clearfix highlightable '}),
+        dict(name='div', attrs={'class': 'l-main-container-article__intro highlightable '}),
+        dict(name='div', attrs={'class': 'l-main-container-article__sidebar-inline'}),
+        dict(name='div', attrs={'class': 'l-main-container-article__title '}),
     ]
-    remove_tags = [
-        dict(name=['embed', 'object']),
-        dict(name='div', attrs={'id': 'art_reactwrap'})
-    ]
+    remove_tags = [dict(name=['embed', 'object']), dict(name='div', attrs={'id': 'art_reactwrap'})]
     remove_tags_after = dict(name='div', attrs={'id': 'art_author'})
 
-    feeds = [(u'Volledig nieuwsaanbod', u'https://www.tijd.be/rss/nieuws.xml'),
-             (u'Ondernemen', u'https://www.tijd.be/rss/ondernemen.xml'),
-             (u'Politiek en Economie', u'https://www.tijd.be/rss/politiek.xml'),
-             (u'Markten', u'https://www.tijd.be/rss/markten_live.xml'),
-             (u'Opinie', u'https://www.tijd.be/rss/opinie.xml'),
-             (u'Cultuur', u'https://www.tijd.be/rss/cultuur.xml'),
-             (u'Netto', u'https://www.tijd.be/rss/netto.xml'),
-             (u'Sabato', u'https://www.tijd.be/rss/sabato.xml')]
+    feeds = [
+        ('Volledig nieuwsaanbod', 'https://www.tijd.be/rss/nieuws.xml'),
+        ('Ondernemen', 'https://www.tijd.be/rss/ondernemen.xml'),
+        ('Politiek en Economie', 'https://www.tijd.be/rss/politiek.xml'),
+        ('Markten', 'https://www.tijd.be/rss/markten_live.xml'),
+        ('Opinie', 'https://www.tijd.be/rss/opinie.xml'),
+        ('Cultuur', 'https://www.tijd.be/rss/cultuur.xml'),
+        ('Netto', 'https://www.tijd.be/rss/netto.xml'),
+        ('Sabato', 'https://www.tijd.be/rss/sabato.xml'),
+    ]
 
     def preprocess_html(self, soup):
         del soup.body['onload']
@@ -68,14 +60,8 @@ class DeTijd(BasicNewsRecipe):
             del item['style']
         soup.html['lang'] = self.lang
         soup.html['dir'] = self.direction
-        mlang = new_tag(
-            soup, 'meta', [('http-equiv', 'Content-Language'),
-                           ('content', self.lang)]
-        )
-        mcharset = new_tag(
-            soup, 'meta', [('http-equiv', 'Content-Type'),
-                           ('content', 'text/html; charset=utf-8')]
-        )
+        mlang = new_tag(soup, 'meta', [('http-equiv', 'Content-Language'), ('content', self.lang)])
+        mcharset = new_tag(soup, 'meta', [('http-equiv', 'Content-Type'), ('content', 'text/html; charset=utf-8')])
         soup.head.insert(0, mlang)
         soup.head.insert(1, mcharset)
         return soup

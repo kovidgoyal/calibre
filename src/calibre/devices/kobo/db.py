@@ -46,10 +46,10 @@ def copy_db(conn: apsw.Connection, dest_path: str):
 
 
 class Database:
-
     def __init__(self, path_on_device: str):
         self.path_on_device = self.dbpath = path_on_device
         self.dbversion = 0
+
         def connect(path: str = path_on_device) -> None:
             if INJECT_9P_ERROR:
                 raise apsw.IOError('Fake I/O error to test 9p codepath')
@@ -62,6 +62,7 @@ class Database:
                     self.dbversion = result['version']
                 debug_print('Kobo database version: ', self.dbversion)
                 self.dbpath = path
+
         self.needs_copy = True
         self.use_row_factory = True
         with kobo_db_lock:

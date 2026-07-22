@@ -40,22 +40,26 @@ def human_readable_model_name(model_id: str) -> str:
 
 class Pricing(NamedTuple):
     # Values are in credits per token/request/unit
-    input_token: float        = 0  # cost per input token
-    output_token: float       = 0  # cost per output token
-    request: float            = 0  # per API request
-    image: float              = 0  # per image
-    web_search: float         = 0  # per web search
+    input_token: float = 0  # cost per input token
+    output_token: float = 0  # cost per output token
+    request: float = 0  # per API request
+    image: float = 0  # per image
+    web_search: float = 0  # per web search
     internal_reasoning: float = 0  # cost per internal reasoning token
-    input_cache_read: float   = 0  # cost per cached input token read
-    input_cache_write: float  = 0  # cost per cached input token write
+    input_cache_read: float = 0  # cost per cached input token read
+    input_cache_write: float = 0  # cost per cached input token write
 
     @classmethod
     def from_dict(cls, x: dict[str, str]) -> Pricing:
         return Pricing(
-            input_token=float(x['prompt']), output_token=float(x['completion']), request=float(x.get('request', 0)),
-            image=float(x.get('image', 0)), web_search=float(x.get('web_search', 0)),
+            input_token=float(x['prompt']),
+            output_token=float(x['completion']),
+            request=float(x.get('request', 0)),
+            image=float(x.get('image', 0)),
+            web_search=float(x.get('web_search', 0)),
             internal_reasoning=float(x.get('internal_reasoning', 0)),
-            input_cache_read=float(x.get('input_cache_read', 0)), input_cache_write=float(x.get('input_cache_write', 0)),
+            input_cache_read=float(x.get('input_cache_read', 0)),
+            input_cache_write=float(x.get('input_cache_write', 0)),
         )
 
     @property
@@ -106,10 +110,16 @@ class Model(NamedTuple):
                 capabilities |= AICapabilities.text_to_image
 
         return Model(
-            name=x['name'], id=x['id'], created=datetime.datetime.fromtimestamp(x['created'], datetime.UTC),
-            description=x['description'], context_length=x['context_length'], slug=x['canonical_slug'],
-            parameters=tuple(x['supported_parameters']), pricing=Pricing.from_dict(x['pricing']),
-            is_moderated=x['top_provider']['is_moderated'], tokenizer=arch['tokenizer'],
+            name=x['name'],
+            id=x['id'],
+            created=datetime.datetime.fromtimestamp(x['created'], datetime.UTC),
+            description=x['description'],
+            context_length=x['context_length'],
+            slug=x['canonical_slug'],
+            parameters=tuple(x['supported_parameters']),
+            pricing=Pricing.from_dict(x['pricing']),
+            is_moderated=x['top_provider']['is_moderated'],
+            tokenizer=arch['tokenizer'],
             capabilities=capabilities,
         )
 
@@ -124,6 +134,7 @@ def parse_models_list(entries: dict[str, Any]) -> dict[str, Model]:
 
 def config_widget():
     from calibre.ai.open_router.config import ConfigWidget
+
     return ConfigWidget()
 
 
@@ -140,9 +151,7 @@ def is_ready_for_use() -> bool:
 
 
 @lru_cache(64)
-def free_model_choice(
-    capabilities: AICapabilities = AICapabilities.text_to_text, allow_paid: bool = False
-) -> tuple[Model, ...]:
+def free_model_choice(capabilities: AICapabilities = AICapabilities.text_to_text, allow_paid: bool = False) -> tuple[Model, ...]:
     gemini_free, gemini_paid = [], []
     deep_seek_free, deep_seek_paid = [], []
     grok_free, grok_paid = [], []
@@ -271,11 +280,21 @@ def text_chat_implementation(messages: Iterable[ChatMessage], use_model: str = '
             rd = d.get('reasoning_details') or ()
             role = d.get('role') or 'assistant'
             if c or r or rd:
-                yield ChatResponse(content=c, reasoning=r, reasoning_details=rd, type=ChatMessageType(role), plugin_name=OpenRouterAI.name)
+                yield ChatResponse(
+                    content=c,
+                    reasoning=r,
+                    reasoning_details=rd,
+                    type=ChatMessageType(role),
+                    plugin_name=OpenRouterAI.name,
+                )
         if u := data.get('usage'):
             yield ChatResponse(
-                cost=float(u['cost'] or 0), currency=_('credits'), provider=data.get('provider') or '',
-                model=data.get('model') or '', has_metadata=True, plugin_name=OpenRouterAI.name
+                cost=float(u['cost'] or 0),
+                currency=_('credits'),
+                provider=data.get('provider') or '',
+                model=data.get('model') or '',
+                has_metadata=True,
+                plugin_name=OpenRouterAI.name,
             )
 
 

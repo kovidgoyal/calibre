@@ -1,23 +1,29 @@
 #!/usr/bin/env python
 
 
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 
 class Clean:
-    """Clean up guide, leaving only known values """
+    """Clean up guide, leaving only known values"""
 
     def __call__(self, oeb, opts):
         self.oeb, self.log, self.opts = oeb, oeb.log, opts
 
         if 'cover' not in self.oeb.guide:
             covers = []
-            for x in ('other.ms-coverimage-standard', 'coverimagestandard',
-                    'other.ms-titleimage-standard', 'other.ms-titleimage',
-                    'other.ms-coverimage', 'other.ms-thumbimage-standard',
-                    'other.ms-thumbimage', 'thumbimagestandard'):
+            for x in (
+                'other.ms-coverimage-standard',
+                'coverimagestandard',
+                'other.ms-titleimage-standard',
+                'other.ms-titleimage',
+                'other.ms-coverimage',
+                'other.ms-thumbimage-standard',
+                'other.ms-thumbimage',
+                'thumbimagestandard',
+            ):
                 if x in self.oeb.guide:
                     href = self.oeb.guide[x].href
                     try:
@@ -35,7 +41,7 @@ class Clean:
                 ref.type = 'cover'
                 self.oeb.guide.refs['cover'] = ref
 
-        if ('start' in self.oeb.guide and 'text' not in self.oeb.guide):
+        if 'start' in self.oeb.guide and 'text' not in self.oeb.guide:
             # Prefer text to start as per the OPF 2.0 spec
             x = self.oeb.guide['start']
             self.oeb.guide.add('text', x.title, x.href)
@@ -43,11 +49,27 @@ class Clean:
 
         for x in list(self.oeb.guide):
             if x.lower() not in {
-                    'cover', 'titlepage', 'masthead', 'toc', 'title-page',
-                    'copyright-page', 'text', 'index', 'glossary',
-                    'acknowledgements', 'bibliography', 'colophon',
-                    'copyright-page', 'dedication', 'epigraph', 'foreword',
-                    'loi', 'lot', 'notes', 'preface'}:
+                'cover',
+                'titlepage',
+                'masthead',
+                'toc',
+                'title-page',
+                'copyright-page',
+                'text',
+                'index',
+                'glossary',
+                'acknowledgements',
+                'bibliography',
+                'colophon',
+                'copyright-page',
+                'dedication',
+                'epigraph',
+                'foreword',
+                'loi',
+                'lot',
+                'notes',
+                'preface',
+            }:
                 item = self.oeb.guide[x]
                 if item.title and item.title.lower() == 'start':
                     continue

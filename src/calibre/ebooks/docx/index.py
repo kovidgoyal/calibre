@@ -20,8 +20,10 @@ def get_applicable_xe_fields(index, xe_fields, XPath, expand):
         sl, el = lr.partition('-')[0::2]
         sl, el = sl.strip(), el.strip()
         if sl and el:
+
             def inrange(text):
                 return sl <= text[0] <= el
+
             xe_fields = [xe for xe in xe_fields if inrange(xe.get('text', ''))]
 
     bmark = index.get('bookmark', None)
@@ -134,13 +136,13 @@ def split_up_block(block, a, text, parts, ldict):
     for i, prefix in enumerate(prefix):
         m = 1.5 * i
         span = parent.makeelement('span', style=style % m)
-        ldict[span]    = i
+        ldict[span] = i
         parent.append(span)
         span.text = prefix
     span = parent.makeelement('span', style=style % ((i + 1) * 1.5))
     parent.append(span)
     span.append(a)
-    ldict[span]    = len(prefix)
+    ldict[span] = len(prefix)
 
 
 '''
@@ -182,11 +184,11 @@ def find_match(prev_block, pind, nextent, ldict):
     curlevel = ldict.get(prev_block[pind], -1)
     if curlevel < 0:
         return -1
-    for p in range(pind+1, len(prev_block)):
+    for p in range(pind + 1, len(prev_block)):
         trylev = ldict.get(prev_block[p], -1)
         if trylev <= curlevel:
             return -1
-        if trylev > (curlevel+1):
+        if trylev > (curlevel + 1):
             continue
         if prev_block[p].text_content() == nextent.text_content():
             return p

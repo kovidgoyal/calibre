@@ -10,7 +10,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class OrangeCountyRegister(BasicNewsRecipe):
-    title = u'Orange County Register'
+    title = 'Orange County Register'
     __author__ = 'TechnoCat'
     description = 'The O.C. Register\nRecipe: Nov 2016'
     cover_url = 'http://www.realclearpolitics.com/dev/mt-static/images/logo.gif'
@@ -29,10 +29,12 @@ class OrangeCountyRegister(BasicNewsRecipe):
     max_articles_per_feed = 400
     debugMessages = False
 
-    feeds = [('News', 'https://www.ocregister.com/news/'),
-             ('Opinion', 'https://www.ocregister.com/opinion/'),
-             ('Politics', 'https://www.ocregister.com/news/politics/'),
-             ('Business', 'https://www.ocregister.com/business/')]
+    feeds = [
+        ('News', 'https://www.ocregister.com/news/'),
+        ('Opinion', 'https://www.ocregister.com/opinion/'),
+        ('Politics', 'https://www.ocregister.com/news/politics/'),
+        ('Business', 'https://www.ocregister.com/business/'),
+    ]
 
     def parsePage(self, index):
         if self.debugMessages is True:
@@ -52,20 +54,11 @@ class OrangeCountyRegister(BasicNewsRecipe):
             print('URL')
             print(url)
             pubdate = time.strftime('%a, %d %b')
-            articleList.append(
-                dict(
-                    title=title,
-                    url=url,
-                    date=pubdate,
-                    description=title,
-                    content=''
-                )
-            )
+            articleList.append(dict(title=title, url=url, date=pubdate, description=title, content=''))
         return articleList
 
     def extract_readable_article(self, html, url):
-        cleanedHTML = super(OrangeCountyRegister,
-                            self).extract_readable_article(html, url)
+        cleanedHTML = super(OrangeCountyRegister, self).extract_readable_article(html, url)
         print('Processing html for author')
         # Find the attribs...
         attribDict = self.htmlToAttribsDict(html)
@@ -76,10 +69,7 @@ class OrangeCountyRegister(BasicNewsRecipe):
             # add author code after <body>
             print('Adding author in meta')
             print(author)
-            cleanedHTML = cleanedHTML.replace(
-                '<body>',
-                '<body>\n<div class="metaAuthor" value="' + author + '"></div>\n'
-            )
+            cleanedHTML = cleanedHTML.replace('<body>', '<body>\n<div class="metaAuthor" value="' + author + '"></div>\n')
         else:
             print('no author found')
             print(html)
@@ -94,13 +84,13 @@ class OrangeCountyRegister(BasicNewsRecipe):
         tokenEnd = '});'
         print('1')
         startJSON = rawHTML.find(tokenStart)
-        if (startJSON < 0):
+        if startJSON < 0:
             return
-        JSONBeginning = rawHTML[startJSON + len(tokenStart) - 1:]
+        JSONBeginning = rawHTML[startJSON + len(tokenStart) - 1 :]
         endJSON = JSONBeginning.find(tokenEnd)
-        if (endJSON < 0):
+        if endJSON < 0:
             return
-        JSON = JSONBeginning[:endJSON + 1]
+        JSON = JSONBeginning[: endJSON + 1]
         JSONQuoted = JSON.replace("'", '"')
         try:
             metadata = json.loads(JSONQuoted)

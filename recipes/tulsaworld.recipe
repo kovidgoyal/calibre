@@ -22,17 +22,17 @@ class TulsaWorld(BasicNewsRecipe):
     use_embedded_content = False
     language = 'en_US'
     country = 'US'
-    auto_cleanup=True
+    auto_cleanup = True
     remove_empty_feeds = True
-    masthead_url = 'https://bloximages.newyork1.vip.townnews.com/tulsaworld.com/content/tncms/custom/image/cfd1ce2e-7ec7-11e7-b919-8754a2b60fa6.png?_dc=1502478231'  # noqa: E501
+    masthead_url = (
+        'https://bloximages.newyork1.vip.townnews.com/tulsaworld.com/content/tncms/custom/image/cfd1ce2e-7ec7-11e7-b919-8754a2b60fa6.png?_dc=1502478231'  # noqa: E501
+    )
     extra_css = ' body{font-family: Arial,Verdana,sans-serif } img{margin-bottom: 0.4em} .articleHeadline{font-size: xx-large; font-weight: bold} .articleKicker{font-size: x-large; font-weight: bold} .articleByline,.articleDate{font-size: small} .leadp{font-size: 1.1em} '  # noqa: E501
 
-    conversion_options = {
-        'comment': description, 'publisher': publisher, 'language': language
-    }
+    conversion_options = {'comment': description, 'publisher': publisher, 'language': language}
 
     feeds = [
-    (u'News', u'http://www.tulsaworld.com/search/?f=rss&t=article&c=news&l=150&s=start_time&sd=desc'),
-    (u'Business', u'http://www.tulsaworld.com/search/?f=rss&t=article&c=business&l=150&s=start_time&sd=desc'),
-    (u'Opinion', u'http://www.tulsaworld.com/search/?f=rss&t=article&c=opinion&l=150&s=start_time&sd=desc')
+        ('News', 'http://www.tulsaworld.com/search/?f=rss&t=article&c=news&l=150&s=start_time&sd=desc'),
+        ('Business', 'http://www.tulsaworld.com/search/?f=rss&t=article&c=business&l=150&s=start_time&sd=desc'),
+        ('Opinion', 'http://www.tulsaworld.com/search/?f=rss&t=article&c=opinion&l=150&s=start_time&sd=desc'),
     ]

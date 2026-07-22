@@ -2,7 +2,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class HindustanTimes(BasicNewsRecipe):
-    title = u'PhysOrg'
+    title = 'PhysOrg'
     language = 'en'
     __author__ = 'Krittika Goyal'
     oldest_article = 1  # days
@@ -13,18 +13,11 @@ class HindustanTimes(BasicNewsRecipe):
     auto_cleanup = True
 
     feeds = [
-        ('Nanotechnology',
-         'http://phys.org/rss-feed/nanotech-news/'),
-        ('Physics',
-         'http://phys.org/rss-feed/physics-news/'),
-        ('Space and Earth',
-         'http://phys.org/rss-feed/space-news/'),
-        ('Chemistry',
-         'http://phys.org/rss-feed/chemistry-news/'),
-        ('Biology',
-         'http://phys.org/rss-feed/biology-news/'),
-        ('Technology',
-         'http://phys.org/rss-feed/technology-news/'),
-        ('Other Sciences',
-         'http://phys.org/rss-feed/science-news/'),
+        ('Nanotechnology', 'http://phys.org/rss-feed/nanotech-news/'),
+        ('Physics', 'http://phys.org/rss-feed/physics-news/'),
+        ('Space and Earth', 'http://phys.org/rss-feed/space-news/'),
+        ('Chemistry', 'http://phys.org/rss-feed/chemistry-news/'),
+        ('Biology', 'http://phys.org/rss-feed/biology-news/'),
+        ('Technology', 'http://phys.org/rss-feed/technology-news/'),
+        ('Other Sciences', 'http://phys.org/rss-feed/science-news/'),
     ]

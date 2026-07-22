@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
@@ -63,7 +63,7 @@ def show_menu_under_widget(gui, menu, action, name):
                 if p.geometry().width() < (r.x() + r.width()):
                     continue
                 # Show the menu under the name in the menu bar
-                menu.exec(p.mapToGlobal(QPoint(r.x()+2, r.height()-2)))
+                menu.exec(p.mapToGlobal(QPoint(r.x() + 2, r.height() - 2)))
                 return
             except Exception:
                 continue
@@ -72,7 +72,7 @@ def show_menu_under_widget(gui, menu, action, name):
         if name == button.action_name and button.isVisible():
             r = button.geometry()
             p = gui.status_bar
-            menu.exec(p.mapToGlobal(QPoint(r.x()+2, r.height()-2)))
+            menu.exec(p.mapToGlobal(QPoint(r.x() + 2, r.height() - 2)))
             return
     # No visible button found. Fall back to displaying in upper left corner
     # of the library view.
@@ -159,9 +159,18 @@ class InterfaceAction(QObject):
     #: See :attr:`all_locations` for a list of possible locations
     dont_remove_from = frozenset()
 
-    all_locations = frozenset(['toolbar', 'toolbar-device', 'context-menu',
-        'context-menu-device', 'toolbar-child', 'menubar', 'menubar-device',
-        'context-menu-cover-browser', 'context-menu-split', 'searchbar'])
+    all_locations = frozenset([
+        'toolbar',
+        'toolbar-device',
+        'context-menu',
+        'context-menu-device',
+        'toolbar-child',
+        'menubar',
+        'menubar-device',
+        'context-menu-cover-browser',
+        'context-menu-split',
+        'searchbar',
+    ])
 
     #: Type of action
     #: 'current' means acts on the current view
@@ -184,19 +193,19 @@ class InterfaceAction(QObject):
         self.interface_action_base_plugin = None
 
     def accept_enter_event(self, event, mime_data):
-        """ This method should return True iff this interface action is capable
+        """This method should return True iff this interface action is capable
         of handling the drag event. Do not call accept/ignore on the event,
         that will be taken care of by the calibre UI."""
         return False
 
     def accept_drag_move_event(self, event, mime_data):
-        """ This method should return True iff this interface action is capable
+        """This method should return True iff this interface action is capable
         of handling the drag event. Do not call accept/ignore on the event,
         that will be taken care of by the calibre UI."""
         return False
 
     def drop_event(self, event, mime_data):
-        """ This method should perform some useful action and return True
+        """This method should perform some useful action and return True
         iff this interface action is capable of handling the drop event. Do not
         call accept/ignore on the event, that will be taken care of by the
         calibre UI. You should not perform blocking/long operations in this
@@ -236,7 +245,7 @@ class InterfaceAction(QObject):
                 mt = action.text()
             self.menuless_qaction = ma = QAction(action.icon(), mt, self.gui)
             ma.triggered.connect(action.trigger)
-        for a in ((action, ma) if attr == 'qaction' else (action,)):
+        for a in (action, ma) if attr == 'qaction' else (action,):
             a.setAutoRepeat(self.auto_repeat)
             text = tooltip or text
             a.setToolTip(text)
@@ -247,28 +256,29 @@ class InterfaceAction(QObject):
         if attr == 'qaction':
             shortcut_action = ma
         if shortcut is not None:
-            keys = ((shortcut,) if isinstance(shortcut, (str, bytes)) else
-                    tuple(shortcut))
+            keys = (shortcut,) if isinstance(shortcut, (str, bytes)) else tuple(shortcut)
             if shortcut_name is None:
                 if self.action_shortcut_name is not None:
                     shortcut_name = self.action_shortcut_name
                 elif spec[0]:
                     shortcut_name = str(spec[0])
-            if shortcut_name and self.action_spec[0] and not (
-                    attr == 'qaction' and self.popup_type == QToolButton.ToolButtonPopupMode.InstantPopup):
+            if shortcut_name and self.action_spec[0] and not (attr == 'qaction' and self.popup_type == QToolButton.ToolButtonPopupMode.InstantPopup):
                 try:
-                    self.gui.keyboard.register_shortcut(self.unique_name + ' - ' + attr,
-                        shortcut_name, default_keys=keys,
-                        action=shortcut_action, description=desc,
+                    self.gui.keyboard.register_shortcut(
+                        self.unique_name + ' - ' + attr,
+                        shortcut_name,
+                        default_keys=keys,
+                        action=shortcut_action,
+                        description=desc,
                         group=self.action_spec[0],
-                        persist_shortcut=persist_shortcut)
+                        persist_shortcut=persist_shortcut,
+                    )
                 except NameConflict as e:
                     try:
                         prints(str(e))
                     except Exception:
                         pass
-                    shortcut_action.setShortcuts([QKeySequence(key,
-                        QKeySequence.SequenceFormat.PortableText) for key in keys])
+                    shortcut_action.setShortcuts([QKeySequence(key, QKeySequence.SequenceFormat.PortableText) for key in keys])
                 else:
                     self.shortcut_action_for_context_menu = shortcut_action
                     if ismacos:
@@ -285,8 +295,18 @@ class InterfaceAction(QObject):
                 menu.addAction(self.menuless_qaction)
         return action
 
-    def create_menu_action(self, menu, unique_name, text, icon=None, shortcut=None,
-            description=None, triggered=None, shortcut_name=None, persist_shortcut=False):
+    def create_menu_action(
+        self,
+        menu,
+        unique_name,
+        text,
+        icon=None,
+        shortcut=None,
+        description=None,
+        triggered=None,
+        shortcut_name=None,
+        persist_shortcut=False,
+    ):
         """
         Convenience method to easily add actions to a QMenu.
         Returns the created QAction. This action has one extra attribute
@@ -327,8 +347,7 @@ class InterfaceAction(QObject):
             ac.setIcon(icon)
         keys = ()
         if shortcut is not None and shortcut is not False:
-            keys = ((shortcut,) if isinstance(shortcut, (str, bytes)) else
-                    tuple(shortcut))
+            keys = (shortcut,) if isinstance(shortcut, (str, bytes)) else tuple(shortcut)
         unique_name = menu_action_unique_name(self, unique_name)
         if description is not None:
             ac.setToolTip(description)
@@ -337,10 +356,15 @@ class InterfaceAction(QObject):
 
         ac.calibre_shortcut_unique_name = unique_name
         if shortcut is not False:
-            self.gui.keyboard.register_shortcut(unique_name,
-                shortcut_name, default_keys=keys,
-                action=ac, description=description, group=self.action_spec[0],
-                persist_shortcut=persist_shortcut)
+            self.gui.keyboard.register_shortcut(
+                unique_name,
+                shortcut_name,
+                default_keys=keys,
+                action=ac,
+                description=description,
+                group=self.action_spec[0],
+                persist_shortcut=persist_shortcut,
+            )
             # In Qt 5 keyboard shortcuts don't work unless the
             # action is explicitly added to the main window and on OSX and
             # Unity since the menu might be exported, the shortcuts won't work

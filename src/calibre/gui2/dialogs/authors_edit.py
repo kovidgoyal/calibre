@@ -31,7 +31,6 @@ from calibre.utils.localization import _
 
 
 class ItemDelegate(QStyledItemDelegate):
-
     edited = pyqtSignal(object)
 
     def __init__(self, all_authors, parent):
@@ -59,7 +58,6 @@ class ItemDelegate(QStyledItemDelegate):
 
 
 class List(QListWidget):
-
     def __init__(self, all_authors, parent):
         QListWidget.__init__(self, parent)
         self.setDragEnabled(True)
@@ -116,7 +114,6 @@ class List(QListWidget):
 
 
 class Edit(EditWithComplete):
-
     returnPressed = pyqtSignal()
 
     def keyPressEvent(self, e):
@@ -135,15 +132,13 @@ def init_line_edit(a, all_authors):
 
 
 class AuthorsEdit(QDialog):
-
     def __init__(self, all_authors, current_authors, parent=None):
         QDialog.__init__(self, parent)
         self.l = l = QGridLayout()
         self.setLayout(l)
         self.setWindowTitle(_('Edit authors'))
 
-        self.la = QLabel(_(
-            'Edit the authors for this book. You can drag and drop to re-arrange authors'))
+        self.la = QLabel(_('Edit the authors for this book. You can drag and drop to re-arrange authors'))
         self.la.setWordWrap(True)
         l.addWidget(self.la, 0, 0, 1, 3)
 

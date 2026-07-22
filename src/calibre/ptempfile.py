@@ -1,4 +1,4 @@
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 '''
 Provides platform independent temporary files that persist even after
@@ -25,6 +25,7 @@ def osx_cache_dir():
     if _osx_cache_dir is None:
         _osx_cache_dir = False
         import ctypes
+
         libc = ctypes.CDLL(None)
         buf = ctypes.create_string_buffer(512)
         l = libc.confstr(65538, ctypes.byref(buf), len(buf))  # _CS_DARWIN_USER_CACHE_DIR = 65538
@@ -55,6 +56,7 @@ def base_dir():
         if td is not None:
             from calibre.utils.serialize import msgpack_loads
             from polyglot.binary import from_hex_bytes
+
             try:
                 td = msgpack_loads(from_hex_bytes(td))
             except Exception:
@@ -141,6 +143,7 @@ class PersistentTemporaryFile:
     A file-like object that is a temporary file that is available even after being closed on
     all platforms. It is automatically deleted on normal program termination.
     """
+
     _file: IO[bytes]
 
     def __init__(self, suffix='', prefix='', dir=None, mode='w+b'):
@@ -267,7 +270,6 @@ class TemporaryDirectory:
 
 
 class TemporaryFile:
-
     def __init__(self, suffix='', prefix='', dir=None, mode='w+b'):
         if prefix is None:
             prefix = ''
@@ -290,9 +292,7 @@ class TemporaryFile:
 
 
 class SpooledTemporaryFile(tempfile.SpooledTemporaryFile):
-
-    def __init__(self, max_size=0, suffix='', prefix='', dir=None, mode='w+b',
-            bufsize=-1):
+    def __init__(self, max_size=0, suffix='', prefix='', dir=None, mode='w+b', bufsize=-1):
         if prefix is None:
             prefix = ''
         if suffix is None:
@@ -300,8 +300,7 @@ class SpooledTemporaryFile(tempfile.SpooledTemporaryFile):
         if dir is None:
             dir = base_dir()
         self._name = None
-        tempfile.SpooledTemporaryFile.__init__(self, max_size=max_size,
-                suffix=suffix, prefix=prefix, dir=dir, mode=mode)
+        tempfile.SpooledTemporaryFile.__init__(self, max_size=max_size, suffix=suffix, prefix=prefix, dir=dir, mode=mode)
 
     @property
     def name(self):

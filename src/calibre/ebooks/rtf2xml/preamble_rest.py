@@ -26,14 +26,16 @@ class Preamble:
     table, I will make these methods more functional.
     """
 
-    def __init__(self, file,
-                bug_handler,
-                platform,
-                default_font,
-                code_page,
-                copy=None,
-                temp_dir=None,
-                ):
+    def __init__(
+        self,
+        file,
+        bug_handler,
+        platform,
+        default_font,
+        code_page,
+        copy=None,
+        temp_dir=None,
+    ):
         """
         Required:
             file--file to parse
@@ -47,14 +49,14 @@ class Preamble:
         Returns:
             nothing
         """
-        self.__file=file
+        self.__file = file
         self.__bug_handler = bug_handler
         self.__copy = copy
         self.__default_font = default_font
         self.__code_page = code_page
         self.__platform = platform
         if temp_dir:
-            self.__write_to = os.path.join(temp_dir,'info_table_info.data')
+            self.__write_to = os.path.join(temp_dir, 'info_table_info.data')
         else:
             self.__write_to = 'info_table_info.data'
 
@@ -65,16 +67,16 @@ class Preamble:
         self.__state = 'default'
         self.__text_string = ''
         self.__state_dict = {
-        'default'   : self.__default_func,
-        'revision'  : self.__revision_table_func,
-        'list_table': self.__list_table_func,
-        'body'      : self.__body_func,
+            'default': self.__default_func,
+            'revision': self.__revision_table_func,
+            'list_table': self.__list_table_func,
+            'body': self.__body_func,
         }
         self.__default_dict = {
-        'mi<mk<rtfhed-beg'  : self.__found_rtf_head_func,
-        'mi<mk<listabbeg_'  : self.__found_list_table_func,
-        'mi<mk<revtbl-beg'  : self.__found_revision_table_func,
-        'mi<mk<body-open_'  : self.__found_body_func,
+            'mi<mk<rtfhed-beg': self.__found_rtf_head_func,
+            'mi<mk<listabbeg_': self.__found_list_table_func,
+            'mi<mk<revtbl-beg': self.__found_revision_table_func,
+            'mi<mk<body-open_': self.__found_body_func,
         }
 
     def __default_func(self, line):
@@ -94,11 +96,7 @@ class Preamble:
             Write to the output file the default font info, the code page
             info, and the platform info.
         """
-        self.__write_obj.write(
-            'mi<tg<empty-att_<rtf-definition'
-            f'<default-font>{self.__default_font}<code-page>{self.__code_page}'
-            f'<platform>{self.__platform}\n'
-        )
+        self.__write_obj.write(f'mi<tg<empty-att_<rtf-definition<default-font>{self.__default_font}<code-page>{self.__code_page}<platform>{self.__platform}\n')
 
     def __found_list_table_func(self, line):
         self.__state = 'list_table'
@@ -147,8 +145,7 @@ class Preamble:
                     self.__token_info = line[:16]
                     action = self.__state_dict.get(self.__state)
                     if action is None:
-                        sys.stderr.write(
-                        'no matching state in module preamble_rest.py\n' + self.__state + '\n')
+                        sys.stderr.write('no matching state in module preamble_rest.py\n' + self.__state + '\n')
                     else:
                         action(line)
         copy_obj = copy.Copy(bug_handler=self.__bug_handler)

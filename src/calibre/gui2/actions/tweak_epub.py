@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
@@ -16,15 +16,13 @@ from calibre.utils.localization import _
 
 
 class Choose(QDialog):
-
     def __init__(self, title, fmts, parent=None):
         QDialog.__init__(self, parent)
         self.l = l = QVBoxLayout(self)
         self.setLayout(l)
         self.setWindowTitle(_('Choose format to edit'))
 
-        self.la = la = QLabel(_(
-            'The book "{}" has multiple formats that can be edited. Choose the format you want to edit.').format(title))
+        self.la = la = QLabel(_('The book "{}" has multiple formats that can be edited. Choose the format you want to edit.').format(title))
         l.addWidget(la)
 
         self.rem = QCheckBox(_('Always ask when more than one format is available'))
@@ -50,12 +48,12 @@ class Choose(QDialog):
 
     def accept(self):
         from calibre.gui2.tweak_book import tprefs
+
         tprefs['choose_tweak_fmt'] = self.rem.isChecked()
         QDialog.accept(self)
 
 
 class TweakEpubAction(InterfaceActionWithLibraryDrop):
-
     name = 'Tweak ePub'
     action_spec = (_('Edit book'), 'edit_book.png', _('Edit books in the EPUB or AZW formats'), _('T'))
     dont_add_to = frozenset(('context-menu-device',))
@@ -73,10 +71,8 @@ class TweakEpubAction(InterfaceActionWithLibraryDrop):
     def tweak_book(self):
         ids = self.gui.library_view.get_selected_ids()
         if not ids:
-            return error_dialog(self.gui, _('Cannot Edit book'),
-                    _('No book selected'), show=True)
-        if len(ids) > 10 and not question_dialog(self.gui, _('Are you sure?'), _(
-                'You are trying to edit {} books at once. Are you sure?').format(len(ids))):
+            return error_dialog(self.gui, _('Cannot Edit book'), _('No book selected'), show=True)
+        if len(ids) > 10 and not question_dialog(self.gui, _('Are you sure?'), _('You are trying to edit {} books at once. Are you sure?').format(len(ids))):
             return
 
         for book_id in ids:
@@ -84,9 +80,9 @@ class TweakEpubAction(InterfaceActionWithLibraryDrop):
 
     def do_tweak(self, book_id):
         if self.gui.current_view() is not self.gui.library_view:
-            return error_dialog(self.gui, _('Cannot edit book'), _(
-                'Editing of books on the device is not supported'), show=True)
+            return error_dialog(self.gui, _('Cannot edit book'), _('Editing of books on the device is not supported'), show=True)
         from calibre.ebooks.oeb.polish.main import SUPPORTED
+
         db = self.gui.library_view.model().db
         fmts = db.formats(book_id, index_is_id=True) or ''
         fmts = [x.upper().strip() for x in fmts.split(',') if x]
@@ -94,8 +90,11 @@ class TweakEpubAction(InterfaceActionWithLibraryDrop):
         title = db.new_api.field_for('title', book_id)
         if not tweakable_fmts:
             if not fmts:
-                if not question_dialog(self.gui, _('No editable formats'),
-                    _('Do you want to create an empty EPUB file in the book "{}" to edit?').format(title)):
+                if not question_dialog(
+                    self.gui,
+                    _('No editable formats'),
+                    _('Do you want to create an empty EPUB file in the book "{}" to edit?').format(title),
+                ):
                     return
                 tweakable_fmts = {'EPUB'}
                 self.gui.iactions['Add Books'].add_empty_format_to_book(book_id, 'EPUB')
@@ -103,19 +102,26 @@ class TweakEpubAction(InterfaceActionWithLibraryDrop):
                 if current_idx.isValid():
                     self.gui.library_view.model().current_changed(current_idx, current_idx)
             else:
-                return error_dialog(self.gui, _('Cannot edit book'), _(
-                    'The book "{0}" must be in the {1} formats to edit.'
-                    '\n\nFirst convert the book to one of these formats.'
-                ).format(title, _(' or ').join(SUPPORTED)), show=True)
+                return error_dialog(
+                    self.gui,
+                    _('Cannot edit book'),
+                    _('The book "{0}" must be in the {1} formats to edit.\n\nFirst convert the book to one of these formats.').format(
+                        title, _(' or ').join(SUPPORTED)
+                    ),
+                    show=True,
+                )
         from calibre.gui2.tweak_book import tprefs
+
         tprefs.refresh()  # In case they were changed in a Tweak Book process
         if len(tweakable_fmts) > 1:
             if tprefs['choose_tweak_fmt']:
+
                 def index(x):
                     try:
                         return tprefs.defaults['tweak_fmt_order'].index(x)
                     except Exception:
                         return len(tprefs.defaults['tweak_fmt_order'])
+
                 d = Choose(title, sorted(tweakable_fmts, key=index), self.gui)
                 if d.exec() != QDialog.DialogCode.Accepted:
                     return
@@ -136,12 +142,16 @@ class TweakEpubAction(InterfaceActionWithLibraryDrop):
         """
         db = self.gui.library_view.model().db
         from calibre.gui2.tweak_book import tprefs
+
         tprefs.refresh()  # In case they were changed in a Tweak Book process
         path = db.new_api.format_abspath(book_id, fmt)
         if path is None:
-            return error_dialog(self.gui, _('File missing'), _(
-                'The %s format is missing from the calibre library. You should run'
-                ' library maintenance.') % fmt, show=True)
+            return error_dialog(
+                self.gui,
+                _('File missing'),
+                _('The %s format is missing from the calibre library. You should run library maintenance.') % fmt,
+                show=True,
+            )
         try:
             self.gui.setCursor(Qt.CursorShape.BusyCursor)
             if tprefs['update_metadata_from_calibre']:

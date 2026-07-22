@@ -35,13 +35,13 @@ class pcAdvisor(BasicNewsRecipe):
     auto_cleanup = True
 
     feeds = [
-        (u'Latest', u'http://www.pcadvisor.co.uk/latest/rss'),
-        (u'News', u'http://www.pcadvisor.co.uk/news/rss'),
-        (u'How-tos', u'http://www.pcadvisor.co.uk/how-to/rss'),
-        (u'Reviews', u'http://www.pcadvisor.co.uk/review/rss'),
-        (u'Video Content', u'http://www.pcadvisor.co.uk/video/rss'),
-        (u'iPhone', u'http://www.pcadvisor.co.uk/latest/iphone/rss'),
-        (u'iPad', u'http://www.pcadvisor.co.uk/latest/ipad/rss'),
-        (u'Mac', u'http://www.pcadvisor.co.uk/latest/mac/rss'),
-        (u'Apple', u'http://www.pcadvisor.co.uk/latest/apple/rss'),
+        ('Latest', 'http://www.pcadvisor.co.uk/latest/rss'),
+        ('News', 'http://www.pcadvisor.co.uk/news/rss'),
+        ('How-tos', 'http://www.pcadvisor.co.uk/how-to/rss'),
+        ('Reviews', 'http://www.pcadvisor.co.uk/review/rss'),
+        ('Video Content', 'http://www.pcadvisor.co.uk/video/rss'),
+        ('iPhone', 'http://www.pcadvisor.co.uk/latest/iphone/rss'),
+        ('iPad', 'http://www.pcadvisor.co.uk/latest/ipad/rss'),
+        ('Mac', 'http://www.pcadvisor.co.uk/latest/mac/rss'),
+        ('Apple', 'http://www.pcadvisor.co.uk/latest/apple/rss'),
     ]

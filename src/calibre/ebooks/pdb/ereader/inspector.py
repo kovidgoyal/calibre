@@ -2,8 +2,7 @@
 Inspect the header of ereader files. This is primarily used for debugging.
 """
 
-
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
@@ -72,7 +71,7 @@ def ereader_header_info132(h0):
     print(f"52-54 Last Data Offset:  {struct.unpack('>H', h0[52:54])[0]}")
 
     for i in range(54, 131, 2):
-        print(f"{i}-{i + 2}:                   {struct.unpack('>H', h0[i:i + 2])[0]}")
+        print(f"{i}-{i + 2}:                   {struct.unpack('>H', h0[i : i + 2])[0]}")
 
     print()
 
@@ -95,15 +94,15 @@ def ereader_header_info202(h0):
     print(f"24-26:                   {struct.unpack('>H', h0[24:26])[0]}")
     print(f"26-28:                   {struct.unpack('>H', h0[26:28])[0]}")
     for i in range(28, 98, 2):
-        print(f"{i}-{i + 2} Garbage:           {struct.unpack('>H', h0[i:i + 2])[0]}")
+        print(f"{i}-{i + 2} Garbage:           {struct.unpack('>H', h0[i : i + 2])[0]}")
     print(f"98-100:                  {struct.unpack('>H', h0[98:100])[0]}")
     for i in range(100, 110, 2):
-        print(f"{i}-{i + 2} Garbage:         {struct.unpack('>H', h0[i:i + 2])[0]}")
+        print(f"{i}-{i + 2} Garbage:         {struct.unpack('>H', h0[i : i + 2])[0]}")
     print(f"110-112:                 {struct.unpack('>H', h0[110:112])[0]}")
     print(f"112-114:                 {struct.unpack('>H', h0[112:114])[0]}")
     print(f"114-116 Garbage:         {struct.unpack('>H', h0[114:116])[0]}")
     for i in range(116, 202, 2):
-        print(f"{i}-{i + 2}:                 {struct.unpack('>H', h0[i:i + 2])[0]}")
+        print(f"{i}-{i + 2}:                 {struct.unpack('>H', h0[i : i + 2])[0]}")
 
     print()
     print('* Garbage: Random values.')

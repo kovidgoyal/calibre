@@ -5,7 +5,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class AdvancedUserRecipe1308302002(BasicNewsRecipe):
-    title = u'Words Without Borders'
+    title = 'Words Without Borders'
     language = 'en'
     __author__ = 'sexymax15'
     oldest_article = 90
@@ -16,10 +16,9 @@ class AdvancedUserRecipe1308302002(BasicNewsRecipe):
     no_stylesheets = True
     remove_javascript = True
     keep_only_tags = {'class': 'span-14 article'}
-    remove_tags_after = [
-        {'class': 'addthis_toolbox addthis_default_style no_print'}]
+    remove_tags_after = [{'class': 'addthis_toolbox addthis_default_style no_print'}]
     remove_tags = [{'class': ['posterous_quote_citation', 'button']}]
-    extra_css             = '''
+    extra_css = '''
                                h1{font-family: Georgia,serif; font-size: large}h2{font-family: Georgia,serif; font-size: large} '''
 
-    feeds = [(u'wwb', u'http://feeds.feedburner.com/wwborders?format=xml')]
+    feeds = [('wwb', 'http://feeds.feedburner.com/wwborders?format=xml')]

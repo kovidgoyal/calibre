@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
@@ -13,10 +13,10 @@ from calibre.ebooks.mobi.utils import count_set_bits, decint, decode_string
 TagX = namedtuple('TagX', 'tag num_of_values bitmask eof')
 PTagX = namedtuple('PTagX', 'tag value_count value_bytes num_of_values')
 INDEX_HEADER_FIELDS = (
-            'len', 'nul1', 'type', 'gen', 'start', 'count', 'code',
-            'lng', 'total', 'ordt', 'ligt', 'nligt', 'ncncx'
-    ) + tuple(f'unknown{i}' for i in range(27)) + ('ocnt', 'oentries',
-            'ordt1', 'ordt2', 'tagx')
+    ('len', 'nul1', 'type', 'gen', 'start', 'count', 'code', 'lng', 'total', 'ordt', 'ligt', 'nligt', 'ncncx')
+    + tuple(f'unknown{i}' for i in range(27))
+    + ('ocnt', 'oentries', 'ordt1', 'ordt2', 'tagx')
+)
 
 
 class InvalidFile(ValueError):
@@ -24,7 +24,7 @@ class InvalidFile(ValueError):
 
 
 def check_signature(data, signature):
-    if data[:len(signature)] != signature:
+    if data[: len(signature)] != signature:
         raise InvalidFile(f'Not a valid {signature!r} section')
 
 
@@ -46,19 +46,19 @@ def parse_indx_header(data):
     check_signature(data, b'INDX')
     words = INDEX_HEADER_FIELDS
     num = len(words)
-    values = struct.unpack(f'>{num}L', data[4:4*(num+1)])
+    values = struct.unpack(f'>{num}L', data[4 : 4 * (num + 1)])
     ans = dict(zip(words, values))
-    ans['idx_header_end_pos'] = 4 * (num+1)
+    ans['idx_header_end_pos'] = 4 * (num + 1)
     ordt1, ordt2 = ans['ordt1'], ans['ordt2']
     ans['ordt1_raw'], ans['ordt2_raw'] = [], []
     ans['ordt_map'] = ''
 
-    if ordt1 > 0 and data[ordt1:ordt1+4] == b'ORDT':
+    if ordt1 > 0 and data[ordt1 : ordt1 + 4] == b'ORDT':
         # I don't know what this is, but using it seems to be unnecessary, so
         # just leave it as the raw bytestring
-        ans['ordt1_raw'] = data[ordt1+4:ordt1+4+ans['oentries']]
-    if ordt2 > 0 and data[ordt2:ordt2+4] == b'ORDT':
-        ans['ordt2_raw'] = raw = bytearray(data[ordt2+4:ordt2+4+2*ans['oentries']])
+        ans['ordt1_raw'] = data[ordt1 + 4 : ordt1 + 4 + ans['oentries']]
+    if ordt2 > 0 and data[ordt2 : ordt2 + 4] == b'ORDT':
+        ans['ordt2_raw'] = raw = bytearray(data[ordt2 + 4 : ordt2 + 4 + 2 * ans['oentries']])
         if ans['code'] == 65002:
             # This appears to be EBCDIC-UTF (65002) encoded. I can't be
             # bothered to write a decoder for this (see
@@ -71,17 +71,16 @@ def parse_indx_header(data):
             # ascii character. If we cannot, we map to the ? char.
 
             parsed = bytearray(ans['oentries'])
-            for i in range(0, 2*ans['oentries'], 2):
-                parsed[i//2] = raw[i+1] if 0x20 < raw[i+1] < 0x7f else ord(b'?')
+            for i in range(0, 2 * ans['oentries'], 2):
+                parsed[i // 2] = raw[i + 1] if 0x20 < raw[i + 1] < 0x7F else ord(b'?')
             ans['ordt_map'] = bytes(parsed).decode('ascii')
         else:
-            ans['ordt_map'] = '?'*ans['oentries']
+            ans['ordt_map'] = '?' * ans['oentries']
 
     return ans
 
 
 class CNCX:  # {{{
-
     """
     Parses the records that contain the compiled NCX (all strings from the
     NCX). Presents a simple offset : string mapping interface to access the
@@ -97,15 +96,14 @@ class CNCX:  # {{{
                 length, consumed = decint(raw[pos:])
                 if length > 0:
                     try:
-                        self.records[pos+record_offset] = raw[
-                            pos+consumed:pos+consumed+length].decode(codec)
+                        self.records[pos + record_offset] = raw[pos + consumed : pos + consumed + length].decode(codec)
                     except Exception:
                         byts = raw[pos:]
                         r = format_bytes(byts)
                         print(f'CNCX entry at offset {pos + record_offset} has unknown format {r}')
-                        self.records[pos+record_offset] = r
+                        self.records[pos + record_offset] = r
                         pos = len(raw)
-                pos += consumed+length
+                pos += consumed + length
             record_offset += 0x10000
 
     def __getitem__(self, offset):
@@ -116,6 +114,7 @@ class CNCX:  # {{{
 
     def __bool__(self):
         return bool(self.records)
+
     __nonzero__ = __bool__
 
     def iteritems(self):
@@ -123,6 +122,8 @@ class CNCX:  # {{{
 
     def items(self):
         return self.records.items()
+
+
 # }}}
 
 
@@ -130,11 +131,11 @@ def parse_tagx_section(data):
     check_signature(data, b'TAGX')
 
     tags = []
-    first_entry_offset, = struct.unpack_from(b'>L', data, 4)
-    control_byte_count, = struct.unpack_from(b'>L', data, 8)
+    (first_entry_offset,) = struct.unpack_from(b'>L', data, 4)
+    (control_byte_count,) = struct.unpack_from(b'>L', data, 8)
 
     for i in range(12, first_entry_offset, 4):
-        vals = list(bytearray(data[i:i+4]))
+        vals = list(bytearray(data[i : i + 4]))
         tags.append(TagX(*vals))
     return control_byte_count, tags
 
@@ -170,8 +171,7 @@ def get_tag_map(control_byte_count, tagx, data, strict=False):
                     mask >>= 1
                     value >>= 1
                 value_count = value
-            ptags.append(PTagX(x.tag, value_count, value_bytes,
-                x.num_of_values))
+            ptags.append(PTagX(x.tag, value_count, value_bytes, x.num_of_values))
 
     for x in ptags:
         values = []
@@ -191,7 +191,7 @@ def get_tag_map(control_byte_count, tagx, data, strict=False):
                 total_consumed += consumed
                 values.append(byts)
             if total_consumed != x.value_bytes:
-                err = (f'Error: Should consume {x.value_bytes} bytes, but consumed {total_consumed}')
+                err = f'Error: Should consume {x.value_bytes} bytes, but consumed {total_consumed}'
                 if strict:
                     raise ValueError(err)
                 else:
@@ -199,7 +199,7 @@ def get_tag_map(control_byte_count, tagx, data, strict=False):
         ans[x.tag] = values
     # Test that all bytes have been processed
     if data.replace(b'\0', b''):
-        err = (f'Warning: There are unprocessed index bytes left: {format_bytes(data)}')
+        err = f'Warning: There are unprocessed index bytes left: {format_bytes(data)}'
         if strict:
             raise ValueError(err)
         else:
@@ -208,18 +208,17 @@ def get_tag_map(control_byte_count, tagx, data, strict=False):
     return ans
 
 
-def parse_index_record(table, data, control_byte_count, tags, codec,
-        ordt_map, strict=False):
+def parse_index_record(table, data, control_byte_count, tags, codec, ordt_map, strict=False):
     header = parse_indx_header(data)
     idxt_pos = header['start']
-    if data[idxt_pos:idxt_pos+4] != b'IDXT':
+    if data[idxt_pos : idxt_pos + 4] != b'IDXT':
         print('WARNING: Invalid INDX record')
     entry_count = header['count']
 
     # loop through to build up the IDXT position starts
-    idx_positions= []
+    idx_positions = []
     for j in range(entry_count):
-        pos, = struct.unpack_from(b'>H', data, idxt_pos + 4 + (2 * j))
+        (pos,) = struct.unpack_from(b'>H', data, idxt_pos + 4 + (2 * j))
         idx_positions.append(pos)
     # The last entry ends before the IDXT tag (but there might be zero fill
     # bytes we need to ignore!)
@@ -228,7 +227,7 @@ def parse_index_record(table, data, control_byte_count, tags, codec,
     # For each entry in the IDXT build up the tag map and any associated
     # text
     for j in range(entry_count):
-        start, end = idx_positions[j:j+2]
+        start, end = idx_positions[j : j + 2]
         rec = data[start:end]
         # Sometimes (in the guide table if the type attribute has non ascii
         # values) the ident is UTF-16 encoded. Try to handle that.
@@ -238,8 +237,7 @@ def parse_index_record(table, data, control_byte_count, tags, codec,
             ident, consumed = decode_string(rec, codec='utf-16', ordt_map=ordt_map)
         if '\x00' in ident:
             try:
-                ident, consumed = decode_string(rec, codec='utf-16',
-                        ordt_map=ordt_map)
+                ident, consumed = decode_string(rec, codec='utf-16', ordt_map=ordt_map)
             except UnicodeDecodeError:
                 ident = ident.replace('u\x00', '')
         rec = rec[consumed:]
@@ -250,7 +248,7 @@ def parse_index_record(table, data, control_byte_count, tags, codec,
 
 def get_tag_section_start(data, indx_header):
     tag_section_start = indx_header['tagx']
-    if data[tag_section_start:tag_section_start + 4] != b'TAGX':
+    if data[tag_section_start : tag_section_start + 4] != b'TAGX':
         tpos = data.find(b'TAGX', indx_header['idx_header_end_pos'])
         if tpos > -1:
             tag_section_start = tpos
@@ -267,7 +265,7 @@ def read_index(sections, idx, codec):
 
     if indx_header['ncncx'] > 0:
         off = idx + indx_count + 1
-        cncx_records = [x[0] for x in sections[off:off+indx_header['ncncx']]]
+        cncx_records = [x[0] for x in sections[off : off + indx_header['ncncx']]]
         cncx = CNCX(cncx_records, codec)
 
     tag_section_start = get_tag_section_start(data, indx_header)
@@ -276,6 +274,5 @@ def read_index(sections, idx, codec):
     for i in range(idx + 1, idx + 1 + indx_count):
         # Index record
         data = sections[i][0]
-        parse_index_record(table, data, control_byte_count, tags, codec,
-                indx_header['ordt_map'])
+        parse_index_record(table, data, control_byte_count, tags, codec, indx_header['ordt_map'])
     return table, cncx

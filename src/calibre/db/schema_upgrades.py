@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
@@ -12,7 +12,6 @@ from calibre.utils.date import DEFAULT_DATE, isoformat
 
 
 class SchemaUpgrade:
-
     def __init__(self, db, library_path, field_metadata):
         db.execute('BEGIN EXCLUSIVE TRANSACTION')
         self.db = db
@@ -52,7 +51,7 @@ class SchemaUpgrade:
         ''')
 
     def upgrade_version_2(self):
-        """ Fix Foreign key constraints for deleting from link tables. """
+        """Fix Foreign key constraints for deleting from link tables."""
         assert self.db is not None
         script = '''\
         DROP TRIGGER IF EXISTS fkc_delete_books_%(ltable)s_link;
@@ -66,13 +65,13 @@ class SchemaUpgrade:
         END;
         DELETE FROM %(table)s WHERE (SELECT COUNT(id) FROM books_%(ltable)s_link WHERE %(ltable_col)s=%(table)s.id) < 1;
         '''
-        self.db.execute(script%dict(ltable='authors', table='authors', ltable_col='author'))
-        self.db.execute(script%dict(ltable='publishers', table='publishers', ltable_col='publisher'))
-        self.db.execute(script%dict(ltable='tags', table='tags', ltable_col='tag'))
-        self.db.execute(script%dict(ltable='series', table='series', ltable_col='series'))
+        self.db.execute(script % dict(ltable='authors', table='authors', ltable_col='author'))
+        self.db.execute(script % dict(ltable='publishers', table='publishers', ltable_col='publisher'))
+        self.db.execute(script % dict(ltable='tags', table='tags', ltable_col='tag'))
+        self.db.execute(script % dict(ltable='series', table='series', ltable_col='series'))
 
     def upgrade_version_3(self):
-        " Add path to result cache "
+        "Add path to result cache"
         assert self.db is not None
         self.db.execute('''
         DROP VIEW IF EXISTS meta;
@@ -173,8 +172,7 @@ class SchemaUpgrade:
         END;
 
         UPDATE books SET sort=title_sort(title) WHERE sort IS NULL;
-        '''
-        )
+        ''')
 
     def upgrade_version_6(self):
         "Show authors in order"
@@ -249,6 +247,7 @@ class SchemaUpgrade:
     def upgrade_version_8(self):
         "Add Tag Browser views"
         assert self.db is not None
+
         def create_tag_browser_view(table_name, column_name):
             assert self.db is not None
             self.db.execute(f'''
@@ -290,8 +289,9 @@ class SchemaUpgrade:
         "Add restricted Tag Browser views"
         assert self.db is not None
         assert self.field_metadata is not None
+
         def create_tag_browser_view(table_name, column_name, view_column_name):
-            script = (f'''
+            script = f'''
                 DROP VIEW IF EXISTS tag_browser_{table_name};
                 CREATE VIEW tag_browser_{table_name} AS SELECT
                     id,
@@ -305,7 +305,7 @@ class SchemaUpgrade:
                     (SELECT COUNT(books_{table_name}_link.id) FROM books_{table_name}_link WHERE
                         {column_name}={table_name}.id AND books_list_filter(book)) count
                 FROM {table_name};
-                ''')
+                '''
             assert self.db is not None
             self.db.execute(script)
 
@@ -313,7 +313,9 @@ class SchemaUpgrade:
             if field['is_category'] and not field['is_custom'] and 'link_column' in field:
                 table = self.db.get(
                     "SELECT name FROM sqlite_master WHERE type='table' AND name=?",
-                    ('books_{}_link'.format(field['table']),), all=False)
+                    ('books_{}_link'.format(field['table']),),
+                    all=False,
+                )
                 if table is not None:
                     create_tag_browser_view(field['table'], field['link_column'], field['column'])
 
@@ -321,9 +323,9 @@ class SchemaUpgrade:
         "Add average rating to tag browser views"
         assert self.db is not None
         assert self.field_metadata is not None
-        def create_std_tag_browser_view(table_name, column_name,
-                                        view_column_name, sort_column_name):
-            script = (f'''
+
+        def create_std_tag_browser_view(table_name, column_name, view_column_name, sort_column_name):
+            script = f'''
                 DROP VIEW IF EXISTS tag_browser_{table_name};
                 CREATE VIEW tag_browser_{table_name} AS SELECT
                     id,
@@ -349,7 +351,7 @@ class SchemaUpgrade:
                      {sort_column_name} AS sort
                 FROM {table_name};
 
-                ''')
+                '''
             assert self.db is not None
             self.db.execute(script)
 
@@ -392,10 +394,11 @@ class SchemaUpgrade:
             if field['is_category'] and not field['is_custom'] and 'link_column' in field:
                 table = self.db.get(
                     "SELECT name FROM sqlite_master WHERE type='table' AND name=?",
-                    ('books_{}_link'.format(field['table']),), all=False)
+                    ('books_{}_link'.format(field['table']),),
+                    all=False,
+                )
                 if table is not None:
-                    create_std_tag_browser_view(field['table'], field['link_column'],
-                                            field['column'], field['category_sort'])
+                    create_std_tag_browser_view(field['table'], field['link_column'], field['column'], field['category_sort'])
 
         db_tables = self.db.get('''SELECT name FROM sqlite_master
                                      WHERE type='table'
@@ -442,8 +445,7 @@ class SchemaUpgrade:
 
         def has_cover(path):
             if path:
-                path = os.path.join(self.library_path, path.replace('/', os.sep),
-                    'cover.jpg')
+                path = os.path.join(self.library_path, path.replace('/', os.sep), 'cover.jpg')
                 return os.path.exists(path)
             return False
 
@@ -614,6 +616,7 @@ class SchemaUpgrade:
         recipes = self.db.get('SELECT id,title,script FROM feeds')
         if recipes:
             from calibre.web.feeds.recipes import custom_recipe_filename, custom_recipes
+
             bdir = os.path.dirname(custom_recipes.file_path)
             for id_, title, script in recipes:
                 existing = frozenset(map(int, custom_recipes))
@@ -663,7 +666,7 @@ class SchemaUpgrade:
         self.db.execute(script)
 
     def upgrade_version_22(self):
-        """ Create the last_read_positions table """
+        """Create the last_read_positions table"""
         assert self.db is not None
         self.db.execute('''
 DROP TABLE IF EXISTS last_read_positions;
@@ -720,7 +723,7 @@ CREATE TRIGGER fkc_lrp_update
         ''')
 
     def upgrade_version_23(self):
-        """ Create the annotations table """
+        """Create the annotations table"""
         assert self.db is not None
         self.db.execute('''
 DROP TABLE IF EXISTS annotations_dirtied;
@@ -822,18 +825,17 @@ CREATE TRIGGER fkc_annot_update
     def upgrade_version_25(self):
         assert self.db is not None
         alters = []
-        for record in self.db.execute(
-                'SELECT label,name,datatype,editable,display,normalized,id,is_multiple FROM custom_columns'):
+        for record in self.db.execute('SELECT label,name,datatype,editable,display,normalized,id,is_multiple FROM custom_columns'):
             data = {
-                    'label':record[0],
-                    'name':record[1],
-                    'datatype':record[2],
-                    'editable':bool(record[3]),
-                    'display':record[4],
-                    'normalized':bool(record[5]),
-                    'num':record[6],
-                    'is_multiple':bool(record[7]),
-                    }
+                'label': record[0],
+                'name': record[1],
+                'datatype': record[2],
+                'editable': bool(record[3]),
+                'display': record[4],
+                'normalized': bool(record[5]),
+                'num': record[6],
+                'is_multiple': bool(record[7]),
+            }
             if data['normalized']:
                 tn = 'custom_column_{}'.format(data['num'])
                 alters.append(f"ALTER TABLE {tn} ADD COLUMN link TEXT NOT NULL DEFAULT '';")
@@ -848,7 +850,7 @@ CREATE TRIGGER fkc_annot_update
         self.db.execute('\n'.join(alters))
 
     def upgrade_version_26(self):
-        " Drop unused columns from books and create pages table "
+        "Drop unused columns from books and create pages table"
         assert self.db is not None
         columns = {x[0] for x in self.db.execute('SELECT name FROM pragma_table_info("books")')}
         statements = [

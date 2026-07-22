@@ -43,12 +43,8 @@ class BostonGlobePrint(BasicNewsRecipe):
     keep_only_tags = [
         class_startswith('headline |', 'subheader |', 'byline |', 'image |', 'lead |', 'body |', 'comic-debug'),
     ]
-    remove_tags = [
-        classes('inline-newsletter ad skip-nav article-footer sharebar arc_ad'),
-        dict(id='continue_button'),
-        dict(name=['meta', 'link'])
-    ]
-    remove_tags_after = dict(attrs={'class': lambda x:x and x.startswith('body |')})
+    remove_tags = [classes('inline-newsletter ad skip-nav article-footer sharebar arc_ad'), dict(id='continue_button'), dict(name=['meta', 'link'])]
+    remove_tags_after = dict(attrs={'class': lambda x: x and x.startswith('body |')})
     remove_attributes = ['style', 'height', 'width']
     no_stylesheets = True
     scale_news_images = 1600, 1200
@@ -59,10 +55,15 @@ class BostonGlobePrint(BasicNewsRecipe):
         return absolutize_url(url)
 
     def get_cover_url(self):
-        cover = 'https://img.kiosko.net/' + str(
-            date.today().year
-        ) + '/' + date.today().strftime('%m') + '/' + date.today(
-        ).strftime('%d') + '/us/boston_globe.750.jpg'
+        cover = (
+            'https://img.kiosko.net/'
+            + str(date.today().year)
+            + '/'
+            + date.today().strftime('%m')
+            + '/'
+            + date.today().strftime('%d')
+            + '/us/boston_globe.750.jpg'
+        )
         br = BasicNewsRecipe.get_browser(self, verify_ssl_certificates=False)
         try:
             br.open(cover)
@@ -84,7 +85,7 @@ class BostonGlobePrint(BasicNewsRecipe):
 
         feeds_dict = defaultdict(list)
 
-        for div in soup.findAll('section', attrs={'id':['sp-top-main', 'sp-middle-main']}):
+        for div in soup.findAll('section', attrs={'id': ['sp-top-main', 'sp-middle-main']}):
             for a in div.findAll('a', href=lambda x: x and x.startswith('/' + str(date.today().year) + '/')):
                 section = 'Front Page'
                 if bar := a.findParent(**classes('container')).find_previous_sibling(**classes('title_bar')):

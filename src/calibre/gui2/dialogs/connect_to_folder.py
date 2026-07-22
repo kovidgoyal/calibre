@@ -27,7 +27,6 @@ from calibre.utils.localization import _
 
 
 class ChooseFolder(QWidget):
-
     def __init__(self, parent=None):
         super().__init__(parent)
         self.folder_edit = fe = HistoryLineEdit2(parent=self)
@@ -62,7 +61,6 @@ class ChooseFolder(QWidget):
 
 
 class Model(QStandardItemModel):
-
     def __init__(self, parent=None):
         super().__init__(parent=parent)
         root = self.invisibleRootItem()
@@ -100,7 +98,6 @@ class Model(QStandardItemModel):
 
 
 class ConnectToFolder(Dialog):
-
     def __init__(self, parent=None):
         super().__init__(_('Connect to folder'), 'connect-to-folder', parent=parent)
 
@@ -113,14 +110,17 @@ class ConnectToFolder(Dialog):
         self.l = l = QVBoxLayout(self)
         self.folder_chooser = fc = ChooseFolder(self)
         l.addWidget(fc)
-        self.la = la = QLabel('<p>' + _(
-            'Choose a device to connect as below. If no device is chosen a generic <i>Folder device</i>'
-            ' will be used.'))
-        self.la2 = la2 = QLabel('<p>' + _('<b>WARNING</b>: Connecting as a specific device will work only'
-            ' if the chosen folder above contains the actual files from an actual device, as the'
-            ' device drivers often expect to find certain device specific files. So only choose'
-            ' a device below if you have copied the files from a real device or mounted it at the'
-            ' chosen location.'))
+        self.la = la = QLabel('<p>' + _('Choose a device to connect as below. If no device is chosen a generic <i>Folder device</i> will be used.'))
+        self.la2 = la2 = QLabel(
+            '<p>'
+            + _(
+                '<b>WARNING</b>: Connecting as a specific device will work only'
+                ' if the chosen folder above contains the actual files from an actual device, as the'
+                ' device drivers often expect to find certain device specific files. So only choose'
+                ' a device below if you have copied the files from a real device or mounted it at the'
+                ' chosen location.'
+            )
+        )
         la.setWordWrap(True), la2.setWordWrap(True)
         l.addWidget(la)
         self.devices_group = dg = QGroupBox(_('Connect as device'), self)

@@ -2,6 +2,7 @@
 """
 frieze.com - Magazine d'art contemporain
 """
+
 import re
 from datetime import datetime
 from zoneinfo import ZoneInfo
@@ -30,7 +31,7 @@ class FriezeMagazineRecipe(BasicNewsRecipe):
         {'class': 'article-header-headline'},
         {'class': 'article-header-author'},
         {'class': 'body-text'},
-        {'class': 'body-field'}
+        {'class': 'body-field'},
     ]
 
     remove_tags = [
@@ -42,7 +43,7 @@ class FriezeMagazineRecipe(BasicNewsRecipe):
         {'class': 'article-footer-container'},
         {'class': 'ad-surround'},
         {'id': re.compile(r'ad-.*')},
-        {'class': 'hidden'}
+        {'class': 'hidden'},
     ]
 
     extra_css = '''
@@ -187,7 +188,7 @@ class FriezeMagazineRecipe(BasicNewsRecipe):
                     'url': article_url,
                     'description': description,
                     'author': author,
-                    'date': datetime.now(ZoneInfo('Europe/Paris')).strftime('%Y-%m-%d')
+                    'date': datetime.now(ZoneInfo('Europe/Paris')).strftime('%Y-%m-%d'),
                 })
                 self.log.debug(f'Article trouvé: {title} - {article_url}')
 
@@ -224,7 +225,7 @@ class FriezeMagazineRecipe(BasicNewsRecipe):
         for class_name, style in [
             ('article-header-title', 'font-size: 2em; font-weight: bold;'),
             ('article-header-headline', 'font-style: italic;'),
-            ('article-header-author', 'color: #555;')
+            ('article-header-author', 'color: #555;'),
         ]:
             element = soup.find('div', class_=class_name)
             if element:

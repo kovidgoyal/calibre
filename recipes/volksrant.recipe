@@ -40,9 +40,7 @@ class Volkskrant(BasicNewsRecipe):
     ignore_duplicate_articles = {'url'}
 
     def parse_index(self):
-        soup = self.index_to_soup(
-            'https://www.volkskrant.nl/privacy-wall/accept?redirectUri=%2Feditie%2Fvandaag%2F&authId=' + str(uuid.uuid4())
-        )
+        soup = self.index_to_soup('https://www.volkskrant.nl/privacy-wall/accept?redirectUri=%2Feditie%2Fvandaag%2F&authId=' + str(uuid.uuid4()))
         containers = soup.findAll('section', attrs={'class': 'section--horizontal'})
         sections = []
         for container in containers:
@@ -57,18 +55,9 @@ class Volkskrant(BasicNewsRecipe):
                 if '/editie/' not in url:
                     continue
                 header = a.find('header')
-                teaser_label = self.tag_to_string(
-                    header.find('h4').find('span', attrs={'class': 'teaser__label'})
-                ).strip()
-                teaser_sublabel = self.tag_to_string(
-                    header.find('h4'
-                                ).find('span', attrs={'class': 'teaser__sublabel'})
-                ).strip()
-                teaser_title = self.tag_to_string(
-                    header.find('h3').find(
-                        'span', attrs={'class': 'teaser__title__value--short'}
-                    )
-                ).strip()
+                teaser_label = self.tag_to_string(header.find('h4').find('span', attrs={'class': 'teaser__label'})).strip()
+                teaser_sublabel = self.tag_to_string(header.find('h4').find('span', attrs={'class': 'teaser__sublabel'})).strip()
+                teaser_title = self.tag_to_string(header.find('h3').find('span', attrs={'class': 'teaser__title__value--short'})).strip()
                 if teaser_label.lower() == 'podcast':
                     continue
                 parts = []
@@ -81,15 +70,7 @@ class Volkskrant(BasicNewsRecipe):
                 article_title = ' \u2022 '.join(parts)
                 pubdate = ''
                 description = ''
-                articles.append(
-                    dict(
-                        title=article_title,
-                        url=url,
-                        date=pubdate,
-                        description=description,
-                        content=''
-                    )
-                )
+                articles.append(dict(title=article_title, url=url, date=pubdate, description=description, content=''))
 
             sections.append((section_title, articles))
         return sections

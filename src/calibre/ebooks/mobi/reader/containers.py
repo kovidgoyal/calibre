@@ -14,7 +14,6 @@ def find_imgtype(data):
 
 
 class Container:
-
     def __init__(self, data):
         self.is_image_container = False
         self.resource_index = 0
@@ -32,7 +31,7 @@ class Container:
                 if size < 0:
                     break
                 if idx == 539:
-                    self.is_image_container = data[pos:pos+size] == b'application/image'
+                    self.is_image_container = data[pos : pos + size] == b'application/image'
                     break
                 pos += size
 

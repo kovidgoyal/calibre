@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
@@ -37,7 +37,6 @@ to_ref = partial(to_base, base=32, min_num_digits=4)
 
 
 class KF8Writer:
-
     def __init__(self, oeb, opts, resources):
         self.oeb, self.opts, self.log = oeb, opts, oeb.log
         try:
@@ -74,8 +73,8 @@ class KF8Writer:
         self.toc_adder.remove_generated_toc()
 
     def dup_data(self):
-        """ Duplicate data so that any changes we make to markup/CSS only
-        affect KF8 output and not MOBI 6 output """
+        """Duplicate data so that any changes we make to markup/CSS only
+        affect KF8 output and not MOBI 6 output"""
         self._data_cache = {}
         # Suppress css_parser logging output as it is duplicated anyway earlier
         # in the pipeline
@@ -87,8 +86,7 @@ class KF8Writer:
                 # I can't figure out how to make an efficient copy of the
                 # in-memory CSSStylesheet, as deepcopy doesn't work (raises an
                 # exception)
-                self._data_cache[item.href] = css_parser.parseString(
-                        item.data.cssText, validate=False)
+                self._data_cache[item.href] = css_parser.parseString(item.data.cssText, validate=False)
 
     def data(self, item):
         return self._data_cache.get(item.href, item.data)
@@ -108,16 +106,16 @@ class KF8Writer:
                 tag.attrib.pop('aid', None), tag.attrib.pop('cid', None)
 
     def replace_resource_links(self):
-        """ Replace links to resources (raster images/fonts) with pointers to
+        """Replace links to resources (raster images/fonts) with pointers to
         the MOBI record containing the resource. The pointers are of the form:
         kindle:embed:XXXX?mime=image/* The ?mime= is apparently optional and
-        not used for fonts. """
+        not used for fonts."""
 
         def pointer(item, oref):
             ref = urlnormalize(item.abshref(oref))
             idx = self.resources.item_map.get(ref, None)
             if idx is not None:
-                is_image = self.resources.records[idx-1][:4] != b'FONT'
+                is_image = self.resources.records[idx - 1][:4] != b'FONT'
                 idx = to_ref(idx)
                 if is_image:
                     self.used_images.add(ref)
@@ -127,7 +125,6 @@ class KF8Writer:
             return oref
 
         for item in self.oeb.manifest:
-
             if item.media_type in XML_DOCS:
                 root = self.data(item)
                 for tag in XPath('//h:img|//svg:image')(root):
@@ -139,12 +136,11 @@ class KF8Writer:
                     if tag.text:
                         sheet = css_parser.parseString(tag.text, validate=False)
                         replacer = partial(pointer, item)
-                        css_parser.replaceUrls(sheet, replacer,
-                                ignoreImportRules=True)
+                        css_parser.replaceUrls(sheet, replacer, ignoreImportRules=True)
                         repl = sheet.cssText
                         if isinstance(repl, bytes):
                             repl = repl.decode('utf-8')
-                        tag.text = '\n'+ repl + '\n'
+                        tag.text = '\n' + repl + '\n'
 
             elif item.media_type in OEB_STYLES:
                 sheet = self.data(item)
@@ -197,9 +193,8 @@ class KF8Writer:
                 if fix_import_rules(sheet):
                     raw = force_unicode(sheet.cssText, 'utf-8')
 
-                repl = etree.Element(XHTML('link'), type='text/css',
-                        rel='stylesheet')
-                repl.tail='\n'
+                repl = etree.Element(XHTML('link'), type='text/css', rel='stylesheet')
+                repl.tail = '\n'
                 p.insert(idx, repl)
                 extract(tag)
                 inlines[raw].append(repl)
@@ -227,8 +222,7 @@ class KF8Writer:
             if item.media_type == SVG_MIME:
                 data = self.data(item)
                 images[item.href] = len(self.flows)
-                self.flows.append(etree.tostring(data, encoding='UTF-8',
-                    with_tail=True, xml_declaration=True))
+                self.flows.append(etree.tostring(data, encoding='UTF-8', with_tail=True, xml_declaration=True))
 
         for item in self.oeb.spine:
             root = self.data(item)
@@ -239,8 +233,7 @@ class KF8Writer:
                 self.flows.append(raw)
                 p = svg.getparent()
                 pos = p.index(svg)
-                img = etree.Element(XHTML('img'),
-                        src=f'kindle:flow:{to_ref(idx)}?mime=image/svg+xml')
+                img = etree.Element(XHTML('img'), src=f'kindle:flow:{to_ref(idx)}?mime=image/svg+xml')
                 p.insert(pos, img)
                 extract(svg)
 
@@ -287,6 +280,7 @@ class KF8Writer:
                 if barename(p.tag).lower() == 'table':
                     return True
                 return in_table(p)
+
             for tag in root.iterdescendants(etree.Element):
                 id_ = tag.attrib.get('id', None)
                 if id_ is None and tag.tag == XHTML('a'):
@@ -332,9 +326,7 @@ class KF8Writer:
         self.flows[0] = chunker.text
 
     def create_text_records(self):
-        encoded_flows: list[bytes] = [
-            x.encode('utf-8') if isinstance(x, str) else x for x in self.flows
-        ]
+        encoded_flows: list[bytes] = [x.encode('utf-8') if isinstance(x, str) else x for x in self.flows]
         self.flows.clear()
         self.flows.extend(encoded_flows)
         text = b''.join(encoded_flows)
@@ -364,7 +356,7 @@ class KF8Writer:
         self.first_non_text_record_idx = nrecords + 1
         # Pad so that the next records starts at a 4 byte boundary
         if records_size % 4 != 0:
-            self.records.append(b'\x00'*(records_size % 4))
+            self.records.append(b'\x00' * (records_size % 4))
             self.first_non_text_record_idx += 1
 
     def create_fdst_records(self):
@@ -375,8 +367,7 @@ class KF8Writer:
             start = 0 if i == 0 else self.fdst_table[-1].end
             self.fdst_table.append(FDST(start, start + len(flow)))
             entries.extend(self.fdst_table[-1])
-        rec = (b'FDST' + pack(b'>LL', 12, len(self.fdst_table)) +
-                pack(b'>%dL'%len(entries), *entries))
+        rec = b'FDST' + pack(b'>LL', 12, len(self.fdst_table)) + pack(b'>%dL' % len(entries), *entries)
         self.fdst_records = [rec]
         self.fdst_count = len(self.fdst_table)
 
@@ -394,8 +385,7 @@ class KF8Writer:
         # Flatten the ToC into a depth first list
         fl = toc.iterdescendants()
         for i, item in enumerate(fl):
-            entry = {'id': id(item), 'index': i, 'label':(item.title or
-                _('Unknown')), 'children':[]}
+            entry = {'id': id(item), 'index': i, 'label': (item.title or _('Unknown')), 'children': []}
             entry['depth'] = getattr(item, 'ncx_hlvl', 0)
             p = getattr(item, 'ncx_parent', None)
             if p is not None:
@@ -432,10 +422,8 @@ class KF8Writer:
         # the ToC to be linear. A non-linear ToC causes section to section
         # jumping to not work. kindlegen somehow handles non-linear tocs, but I
         # cannot figure out how.
-        original = sorted(entries,
-                key=lambda entry: (entry['depth'], entry['index']))
-        linearized = sorted(entries,
-                key=lambda entry: (entry['depth'], entry['offset']))
+        original = sorted(entries, key=lambda entry: (entry['depth'], entry['index']))
+        linearized = sorted(entries, key=lambda entry: (entry['depth'], entry['offset']))
         is_non_linear = original != linearized
         entries = linearized
         is_non_linear = False  # False as we are using the linearized entries
@@ -446,7 +434,7 @@ class KF8Writer:
 
         for i, entry in enumerate(entries):
             entry['index'] = i
-        id_to_index = {entry['id']:entry['index'] for entry in entries}
+        id_to_index = {entry['id']: entry['index'] for entry in entries}
 
         # Write the hierarchical information
         for entry in entries:
@@ -460,16 +448,15 @@ class KF8Writer:
 
         # Write the lengths
         def get_next_start(entry):
-            enders = [e['offset'] for e in entries if e['depth'] <=
-                    entry['depth'] and e['offset'] > entry['offset']]
+            enders = [e['offset'] for e in entries if e['depth'] <= entry['depth'] and e['offset'] > entry['offset']]
             if enders:
                 return min(enders)
             return len(self.flows[0])
+
         for entry in entries:
             entry['length'] = get_next_start(entry) - entry['offset']
 
-        self.has_tbs = apply_trailing_byte_sequences(entries, self.records,
-                self.uncompressed_record_lengths)
+        self.has_tbs = apply_trailing_byte_sequences(entries, self.records, self.uncompressed_record_lengths)
         idx_type = NonLinearNCXIndex if is_non_linear else NCXIndex
         self.ncx_records = idx_type(entries)()
 
@@ -488,11 +475,10 @@ class KF8Writer:
             pos, fid, offset = self.aid_offset_map[aid]
             if is_guide_ref_start(ref):
                 self.start_offset = offset
-            self.guide_table.append(GuideRef(ref.title or
-                _('Unknown'), ref.type, (pos, fid)))
+            self.guide_table.append(GuideRef(ref.title or _('Unknown'), ref.type, (pos, fid)))
 
         if self.guide_table:
-            self.guide_table.sort(key=lambda x:x.type)  # Needed by the Kindle
+            self.guide_table.sort(key=lambda x: x.type)  # Needed by the Kindle
             self.guide_records = GuideIndex(self.guide_table)()
 
 

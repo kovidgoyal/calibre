@@ -24,13 +24,14 @@ class Fonts:
     Change lines with font info from font numbers to the actual font names.
     """
 
-    def __init__(self,
-            in_file,
-            bug_handler,
-            default_font_num,
-            copy=None,
-            run_level=1,
-            ):
+    def __init__(
+        self,
+        in_file,
+        bug_handler,
+        default_font_num,
+        copy=None,
+        run_level=1,
+    ):
         """
         Required:
             'file'--file to parse
@@ -54,19 +55,17 @@ class Fonts:
         Initiate all values.
         """
         self.__special_font_dict: dict = {
-        'Symbol'        : 0,
-        'Wingdings'     : 0,
-        'Zapf Dingbats' : 0,
+            'Symbol': 0,
+            'Wingdings': 0,
+            'Zapf Dingbats': 0,
         }
-        self.__special_font_list = [
-        'Symbol', 'Wingdings', 'Zapf Dingbats'
-        ]
+        self.__special_font_list = ['Symbol', 'Wingdings', 'Zapf Dingbats']
         self.__state = 'default'
         self.__state_dict = {
-        'default'           : self.__default_func,
-        'font_table'        : self.__font_table_func,
-        'after_font_table'  : self.__after_font_table_func,
-        'font_in_table'     : self.__font_in_table_func,
+            'default': self.__default_func,
+            'font_table': self.__font_table_func,
+            'after_font_table': self.__after_font_table_func,
+            'font_in_table': self.__font_in_table_func,
         }
         self.__font_table = {}
         # individual font written
@@ -133,10 +132,7 @@ class Fonts:
             self.__state = 'font_table'
             self.__text_line = self.__text_line[:-1]  # get rid of last ';'
             self.__font_table[self.__font_num] = self.__text_line
-            self.__write_obj.write(
-            'mi<tg<empty-att_'
-            f'<font-in-table<name>{self.__text_line}<num>{self.__font_num}\n'
-            )
+            self.__write_obj.write(f'mi<tg<empty-att_<font-in-table<name>{self.__text_line}<num>{self.__font_num}\n')
         elif self.__token_info == 'cw<ci<font-style':
             self.__font_num = line[20:-1]
         elif self.__token_info in {'tx<nu<__________', 'tx<ut<__________'}:
@@ -155,9 +151,7 @@ class Fonts:
             If not individual fonts have been written, write one out
         """
         if not self.__wrote_ind_font:
-            self.__write_obj.write(
-            'mi<tg<empty-att_'
-            '<font-in-table<name>Times<num>0\n')
+            self.__write_obj.write('mi<tg<empty-att_<font-in-table<name>Times<num>0\n')
 
     def __after_font_table_func(self, line):
         """
@@ -185,9 +179,7 @@ class Fonts:
                 # self.__special_font_dict
                 if font_name in self.__special_font_list:
                     self.__special_font_dict[font_name] = 1
-                self.__write_obj.write(
-                f'cw<ci<font-style<nu<{font_name}\n'
-                )
+                self.__write_obj.write(f'cw<ci<font-style<nu<{font_name}\n')
         else:
             self.__write_obj.write(line)
 

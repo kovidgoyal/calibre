@@ -28,7 +28,6 @@ from calibre.utils.resources import get_path as P
 
 
 class ConfigWidget(ConfigWidgetBase, Ui_Form):
-
     def genesis(self, gui):
         self.gui = gui
         self.db = gui.library_view.model().db
@@ -155,14 +154,12 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
     def initialize(self):
         try:
-            self.builtin_source_dict = json.loads(P('template-functions.json', data=True,
-                allow_user_override=False).decode('utf-8'))
+            self.builtin_source_dict = json.loads(P('template-functions.json', data=True, allow_user_override=False).decode('utf-8'))
         except Exception:
             traceback.print_exc()
             self.builtin_source_dict = {}
 
-        self.funcs = {k:v for k,v in formatter_functions().get_functions().items()
-                                if v.object_type is StoredObjectType.PythonFunction}
+        self.funcs = {k: v for k, v in formatter_functions().get_functions().items() if v.object_type is StoredObjectType.PythonFunction}
 
         self.builtins = formatter_functions().get_builtins_and_aliases()
 
@@ -170,13 +167,15 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         try:
             for v in self.db.prefs.get('user_template_functions', []):
                 if function_object_type(v) is not StoredObjectType.PythonFunction:
-                    self.st_funcs.update({function_pref_name(v):compile_user_function(*v)})
+                    self.st_funcs.update({function_pref_name(v): compile_user_function(*v)})
         except Exception:
-            if question_dialog(self, _('Template functions'),
-                    _('The template functions saved in the library are corrupt. '
-                      "Do you want to delete them? Answering 'Yes' will delete all "
-                      "the functions."), det_msg=traceback.format_exc(),
-                               show_copy_button=True):
+            if question_dialog(
+                self,
+                _('Template functions'),
+                _("The template functions saved in the library are corrupt. Do you want to delete them? Answering 'Yes' will delete all the functions."),
+                det_msg=traceback.format_exc(),
+                show_copy_button=True,
+            ):
                 self.db.prefs['user_template_functions'] = []
             raise AbortInitialize()
 
@@ -279,11 +278,11 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.function_name.clear()
         self.function_name.addItem('')
         scroll_to_index = 0
-        for idx,n in enumerate(func_names):
+        for idx, n in enumerate(func_names):
             self.function_name.addItem(n + self.function_type_string(n))
-            self.function_name.setItemData(idx+1, n)
+            self.function_name.setItemData(idx + 1, n)
             if scroll_to and n == scroll_to:
-                scroll_to_index = idx+1
+                scroll_to_index = idx + 1
         self.function_name.setCurrentIndex(0)
         self.function_name.blockSignals(False)
         if scroll_to_index:
@@ -294,8 +293,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
     def delete_button_clicked(self):
         name = str(self.function_name.itemData(self.function_name.currentIndex()))
         if name in self.builtins:
-            error_dialog(self.gui, _('Template functions'),
-                         _('You cannot delete a built-in function'), show=True)
+            error_dialog(self.gui, _('Template functions'), _('You cannot delete a built-in function'), show=True)
         if name in self.funcs:
             del self.funcs[name]
             self.changed_signal.emit()
@@ -304,47 +302,52 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             self.build_function_names_box()
             self.program.setReadOnly(False)
         else:
-            error_dialog(self.gui, _('Template functions'),
-                         _('Function not defined'), show=True)
+            error_dialog(self.gui, _('Template functions'), _('Function not defined'), show=True)
 
     def check_errors_before_save(self, name, for_replace=False):
         # Returns True if there is an error
         if not name:
-            error_dialog(self.gui, _('Template functions'),
-                         _('Name cannot be empty'), show=True)
+            error_dialog(self.gui, _('Template functions'), _('Name cannot be empty'), show=True)
             return True
         if not for_replace and name in self.funcs:
-            error_dialog(self.gui, _('Template functions'),
-                         _('Name %s already used')%(name,), show=True)
+            error_dialog(self.gui, _('Template functions'), _('Name %s already used') % (name,), show=True)
             return True
-        if name in {function_pref_name(v) for v in
-                        self.db.prefs.get('user_template_functions', [])
-                        if function_object_type(v) is not StoredObjectType.PythonFunction}:
-            error_dialog(self.gui, _('Template functions'),
-                         _('The name {} is already used for stored template').format(name), show=True)
+        if name in {
+            function_pref_name(v) for v in self.db.prefs.get('user_template_functions', []) if function_object_type(v) is not StoredObjectType.PythonFunction
+        }:
+            error_dialog(
+                self.gui,
+                _('Template functions'),
+                _('The name {} is already used for stored template').format(name),
+                show=True,
+            )
             return True
         if self.argument_count.value() == 0:
-            if not question_dialog(self.gui, _('Template functions'),
-                         _('Setting argument count to zero means that this '
-                           'function cannot be used in single function mode. '
-                           'Is this OK?'),
-                         det_msg='',
-                         show_copy_button=False,
-                         default_yes=False,
-                         skip_dialog_name='template_functions_zero_args_warning',
-                         skip_dialog_msg='Ask this question again',
-                         yes_text=_('Save the function'),
-                         no_text=_('Cancel the save')):
+            if not question_dialog(
+                self.gui,
+                _('Template functions'),
+                _('Setting argument count to zero means that this function cannot be used in single function mode. Is this OK?'),
+                det_msg='',
+                show_copy_button=False,
+                default_yes=False,
+                skip_dialog_name='template_functions_zero_args_warning',
+                skip_dialog_msg='Ask this question again',
+                yes_text=_('Save the function'),
+                no_text=_('Cancel the save'),
+            ):
                 print('cancelled')
                 return True
         try:
             prog = str(self.program.toPlainText())
-            compile_user_function(name, str(self.documentation.toPlainText()),
-                                        self.argument_count.value(), prog)
+            compile_user_function(name, str(self.documentation.toPlainText()), self.argument_count.value(), prog)
         except Exception:
-            error_dialog(self.gui, _('Template functions'),
-                         _('Exception while compiling function'), show=True,
-                         det_msg=traceback.format_exc())
+            error_dialog(
+                self.gui,
+                _('Template functions'),
+                _('Exception while compiling function'),
+                show=True,
+                det_msg=traceback.format_exc(),
+            )
             return True
         return False
 
@@ -356,14 +359,17 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.changed_signal.emit()
         try:
             prog = str(self.program.toPlainText())
-            cls = compile_user_function(name, str(self.documentation.toPlainText()),
-                                        self.argument_count.value(), prog)
+            cls = compile_user_function(name, str(self.documentation.toPlainText()), self.argument_count.value(), prog)
             self.funcs[name] = cls
             self.build_function_names_box(scroll_to=name)
         except Exception:
-            error_dialog(self.gui, _('Template functions'),
-                         _('Exception while compiling function'), show=True,
-                         det_msg=traceback.format_exc())
+            error_dialog(
+                self.gui,
+                _('Template functions'),
+                _('Exception while compiling function'),
+                show=True,
+                det_msg=traceback.format_exc(),
+            )
 
     def function_name_edited(self, txt):
         txt = txt.split(' -- ')[0]
@@ -423,18 +429,22 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         if self.mi:
             self.st_replace_button_clicked()
             all_funcs = copy.copy(formatter_functions().get_functions())
-            for n,f in self.st_funcs.items():
+            for n, f in self.st_funcs.items():
                 all_funcs[n] = f
-            t = TemplateDialog(self.gui, self.st_previous_text,
-                   mi=self.mi, fm=self.fm, text_is_placeholder=self.st_first_time,
-                   all_functions=all_funcs)
+            t = TemplateDialog(
+                self.gui,
+                self.st_previous_text,
+                mi=self.mi,
+                fm=self.fm,
+                text_is_placeholder=self.st_first_time,
+                all_functions=all_funcs,
+            )
             t.setWindowTitle(_('Template tester'))
             if t.exec() == QDialog.DialogCode.Accepted:
                 self.st_previous_text = t.rule[1]
                 self.st_first_time = False
         else:
-            error_dialog(self.gui, _('Template functions'),
-                         _('Cannot "test" when no books are selected'), show=True)
+            error_dialog(self.gui, _('Template functions'), _('Cannot "test" when no books are selected'), show=True)
 
     def st_clear_button_clicked(self):
         self.st_build_function_names_box()
@@ -462,13 +472,20 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
     def st_import_button_clicked(self):
         if self.st_replace_button.isEnabled():
-            error_dialog(self, _('Import stored template'),
-                         _('You are currently editing a stored template. Save or clear it'), show=True)
+            error_dialog(
+                self,
+                _('Import stored template'),
+                _('You are currently editing a stored template. Save or clear it'),
+                show=True,
+            )
             return
-        filename = choose_files(self, 'st_import_export_stored_template',
-                _('Import template from file'),
-                filters=[(_('Saved stored template'), ['txt'])],
-                select_only_single_file=True)
+        filename = choose_files(
+            self,
+            'st_import_export_stored_template',
+            _('Import template from file'),
+            filters=[(_('Saved stored template'), ['txt'])],
+            select_only_single_file=True,
+        )
         if filename:
             self.st_clear_button_clicked()
             try:
@@ -476,39 +493,52 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                     fields = json.load(f)
                     name = fields['name']
                     if name in self.st_funcs:
-                        if not question_dialog(self, _('Import stored template'),
-                                               _('A template with the name "{}" already exists. '
-                                                 'Do you want to overwrite it?').format(name),
-                                               show_copy_button=False):
+                        if not question_dialog(
+                            self,
+                            _('Import stored template'),
+                            _('A template with the name "{}" already exists. Do you want to overwrite it?').format(name),
+                            show_copy_button=False,
+                        ):
                             return
                 self.te_name.setCurrentText(name)
                 self.te_textbox.setPlainText(fields['template'])
                 self.template_editor.new_doc.setPlainText(fields['doc'])
             except Exception as err:
                 traceback.print_exc()
-                error_dialog(self, _('Import template'),
-                             _('<p>Could not import the template. Error:<br>%s')%err, show=True)
+                error_dialog(self, _('Import template'), _('<p>Could not import the template. Error:<br>%s') % err, show=True)
 
     def st_export_button_clicked(self):
         if not self.te_name.currentText() or not self.te_textbox.toPlainText():
-            error_dialog(self, _('Export stored template'),
-                         _('No template has been selected for export'), show_copy_button=False, show=True)
+            error_dialog(
+                self,
+                _('Export stored template'),
+                _('No template has been selected for export'),
+                show_copy_button=False,
+                show=True,
+            )
             return
-        filename = choose_save_file(self, 'st_import_export_stored_template',
-                _('Export template to file'),
-                filters=[(_('Saved stored template'), ['txt'])],
-                initial_filename=self.te_name.currentText())
+        filename = choose_save_file(
+            self,
+            'st_import_export_stored_template',
+            _('Export template to file'),
+            filters=[(_('Saved stored template'), ['txt'])],
+            initial_filename=self.te_name.currentText(),
+        )
         if filename:
             try:
                 with open(filename, 'w') as f:
-                    json.dump({'name': self.te_name.currentText(),
-                               'template': self.te_textbox.toPlainText(),
-                               'doc': self.template_editor.new_doc.toPlainText()},
-                               f, indent=1)
+                    json.dump(
+                        {
+                            'name': self.te_name.currentText(),
+                            'template': self.te_textbox.toPlainText(),
+                            'doc': self.template_editor.new_doc.toPlainText(),
+                        },
+                        f,
+                        indent=1,
+                    )
             except Exception as err:
                 traceback.print_exc()
-                error_dialog(self, _('Export template'),
-                             _('<p>Could not export the template. Error:<br>%s')%err, show=True)
+                error_dialog(self, _('Export template'), _('<p>Could not export the template. Error:<br>%s') % err, show=True)
 
     def st_delete_button_clicked(self):
         name = str(self.te_name.currentText())
@@ -522,30 +552,40 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             self.te_textbox.setReadOnly(False)
             self.st_current_program_name = ''
         else:
-            error_dialog(self.gui, _('Stored templates'),
-                         _('Function not defined'), show=True)
+            error_dialog(self.gui, _('Stored templates'), _('Function not defined'), show=True)
 
     def st_create_button_clicked(self, use_name=None):
         self.changed_signal.emit()
         name = use_name or str(self.te_name.currentText())
-        for k,v in formatter_functions().get_functions().items():
+        for k, v in formatter_functions().get_functions().items():
             if k == name and v.object_type is StoredObjectType.PythonFunction:
-                error_dialog(self.gui, _('Stored templates'),
-                         _('The name {} is already used by a template function').format(name), show=True)
+                error_dialog(
+                    self.gui,
+                    _('Stored templates'),
+                    _('The name {} is already used by a template function').format(name),
+                    show=True,
+                )
         try:
             prog = str(self.te_textbox.toPlainText())
             if not prog.startswith(('program:', 'python:')):
-                error_dialog(self.gui, _('Stored templates'),
-                     _("The stored template must begin with '{0}' or '{1}'").format('program:', 'python:'), show=True)
+                error_dialog(
+                    self.gui,
+                    _('Stored templates'),
+                    _("The stored template must begin with '{0}' or '{1}'").format('program:', 'python:'),
+                    show=True,
+                )
 
-            cls = compile_user_function(name, str(self.template_editor.new_doc.toPlainText()),
-                                        0, prog)
+            cls = compile_user_function(name, str(self.template_editor.new_doc.toPlainText()), 0, prog)
             self.st_funcs[name] = cls
             self.st_build_function_names_box(scroll_to=name)
         except Exception:
-            error_dialog(self.gui, _('Stored templates'),
-                         _('Exception while storing template'), show=True,
-                         det_msg=traceback.format_exc())
+            error_dialog(
+                self.gui,
+                _('Stored templates'),
+                _('Exception while storing template'),
+                show=True,
+                det_msg=traceback.format_exc(),
+            )
 
     def st_template_name_edited(self, txt):
         b = txt in self.st_funcs
@@ -560,11 +600,15 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         txt = self.te_name.currentText()
         if self.st_current_program_name:
             if self.st_current_program_text != self.te_textbox.toPlainText():
-                box = warning_dialog(self.gui, _('Template functions'),
-                         _('Changes to the current template will be lost. OK?'), det_msg='',
-                         show=False, show_copy_button=False)
-                box.bb.setStandardButtons(box.bb.standardButtons() |
-                                          QDialogButtonBox.StandardButton.Cancel)
+                box = warning_dialog(
+                    self.gui,
+                    _('Template functions'),
+                    _('Changes to the current template will be lost. OK?'),
+                    det_msg='',
+                    show=False,
+                    show_copy_button=False,
+                )
+                box.bb.setStandardButtons(box.bb.standardButtons() | QDialogButtonBox.StandardButton.Cancel)
                 box.det_msg_toggle.setVisible(False)
                 if not box.exec():
                     self.te_name.blockSignals(True)
@@ -616,6 +660,7 @@ if __name__ == '__main__':
     from calibre.gui2 import Application
     from calibre.gui2.ui import get_gui
     from calibre.library import db
+
     app = Application([])
     setattr(app, 'current_db', db())
     setattr(get_gui, 'ans', app)

@@ -2,7 +2,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class AdvancedUserRecipe1287519083(BasicNewsRecipe):
-    title = u'Hannoversche Allgemeine Zeitung'
+    title = 'Hannoversche Allgemeine Zeitung'
     oldest_article = 1
     __author__ = 'Artemis'
     max_articles_per_feed = 30
@@ -11,17 +11,17 @@ class AdvancedUserRecipe1287519083(BasicNewsRecipe):
 
     feeds = [
         # (u'Schlagzeilen', u'http://www.haz.de/rss/feed/haz_schlagzeilen'),
-        (u'Politik', u'http://www.haz.de/rss/feed/haz_politik'),
-        (u'Wirtschaft', u'http://www.haz.de/rss/feed/haz_wirtschaft'),
-        (u'Panorama', u'http://www.haz.de/rss/feed/haz_panorama'),
-        (u'Wissen', u'http://www.haz.de/rss/feed/haz_wissen'),
-        (u'Kultur', u'http://www.haz.de/rss/feed/haz_kultur'),
-        (u'Sp\xe4tvorstellung', u'http://www.haz.de/rss/feed/haz_spaetvorstellung'),
-        (u'Hannover & Region', u'http://www.haz.de/rss/feed/haz_hannoverregion'),
-        (u'Netzgefl\xfcster', u'http://www.haz.de/rss/feed/haz_netzgefluester'),
-        (u'Meinung', u'http://www.haz.de/rss/feed/haz_meinung'),
-        (u'ZiSH', u'http://www.haz.de/rss/feed/haz_zish'),
-        (u'Medien', u'http://www.haz.de/rss/feed/haz_medien'),
+        ('Politik', 'http://www.haz.de/rss/feed/haz_politik'),
+        ('Wirtschaft', 'http://www.haz.de/rss/feed/haz_wirtschaft'),
+        ('Panorama', 'http://www.haz.de/rss/feed/haz_panorama'),
+        ('Wissen', 'http://www.haz.de/rss/feed/haz_wissen'),
+        ('Kultur', 'http://www.haz.de/rss/feed/haz_kultur'),
+        ('Sp\xe4tvorstellung', 'http://www.haz.de/rss/feed/haz_spaetvorstellung'),
+        ('Hannover & Region', 'http://www.haz.de/rss/feed/haz_hannoverregion'),
+        ('Netzgefl\xfcster', 'http://www.haz.de/rss/feed/haz_netzgefluester'),
+        ('Meinung', 'http://www.haz.de/rss/feed/haz_meinung'),
+        ('ZiSH', 'http://www.haz.de/rss/feed/haz_zish'),
+        ('Medien', 'http://www.haz.de/rss/feed/haz_medien'),
         # (u'Sport', u'http://www.haz.de/rss/feed/haz_sport'),
         # (u'Hannover 96', u'http://www.haz.de/rss/feed/haz_hannover96')
     ]
@@ -31,7 +31,5 @@ class AdvancedUserRecipe1287519083(BasicNewsRecipe):
 
     remove_tags = [
         dict(id='articlesidebar'),
-        dict(name='div', attrs={'class': ['articlecomment',
-                                          'articlebookmark', 'teaser_anzeige', 'teaser_umfrage',
-                                          'navigation', 'subnavigation']})
+        dict(name='div', attrs={'class': ['articlecomment', 'articlebookmark', 'teaser_anzeige', 'teaser_umfrage', 'navigation', 'subnavigation']}),
     ]

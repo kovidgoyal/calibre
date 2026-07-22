@@ -86,7 +86,6 @@ class AnimatablePushButton(QPushButton):
 
 
 class PushButton(AnimatablePushButton):
-
     def __init__(self, text, action, parent):
         AnimatablePushButton.__init__(self, text, parent)
         connect_lambda(self.clicked, parent, lambda parent: parent.search_triggered.emit(action))
@@ -98,20 +97,18 @@ def expand_template(line_edit):
     if text:
         snip, trigger = find_matching_snip(text)
         if snip is None:
-            error_dialog(line_edit, _('No snippet found'), _(
-                'No matching snippet was found'), show=True)
+            error_dialog(line_edit, _('No snippet found'), _('No matching snippet was found'), show=True)
             return False
         text, tab_stops = parse_template(snip['template'])
         ft = line_edit.text()
         l = string_length(trigger)
-        line_edit.setText(ft[:pos - l] + text + ft[pos:])
+        line_edit.setText(ft[: pos - l] + text + ft[pos:])
         line_edit.setCursorPosition(pos - l + string_length(text))
         return True
     return False
 
 
 class HistoryBox(HistoryComboBox):
-
     max_history_items = 100
     save_search = pyqtSignal()
     show_saved_searches = pyqtSignal()
@@ -144,8 +141,10 @@ class HistoryBox(HistoryComboBox):
         assert menu is not None
         menu.addSeparator()
         menu.addAction(self.clear_msg, self.clear_history)
-        menu.addAction((_('Enable completion based on search history') if self.disable_popup else _(
-            'Disable completion based on search history')), self.toggle_popups)
+        menu.addAction(
+            (_('Enable completion based on search history') if self.disable_popup else _('Disable completion based on search history')),
+            self.toggle_popups,
+        )
         menu.addSeparator()
         menu.addAction(_('Save current search'), self.save_search.emit)
         menu.addAction(_('Show saved searches'), self.show_saved_searches.emit)
@@ -157,12 +156,20 @@ class HistoryBox(HistoryComboBox):
 
 
 class WhereBox(QComboBox):
-
     def __init__(self, parent, emphasize=False):
         QComboBox.__init__(self)
-        self.addItems([_('Current file'), _('All text files'), _('All style files'), _('Selected files'), _('Open files'), _('Marked text')])
-        self.setToolTip('<style>dd {margin-bottom: 1.5ex}</style>' + _(
-            '''
+        self.addItems([
+            _('Current file'),
+            _('All text files'),
+            _('All style files'),
+            _('Selected files'),
+            _('Open files'),
+            _('Marked text'),
+        ])
+        self.setToolTip(
+            '<style>dd {margin-bottom: 1.5ex}</style>'
+            + _(
+                '''
             Where to search/replace:
             <dl>
             <dt><b>Current file</b></dt>
@@ -177,7 +184,9 @@ class WhereBox(QComboBox):
             <dd>Search in the files currently open in the editor</dd>
             <dt><b>Marked text</b></dt>
             <dd>Search only within the marked text in the currently opened file. You can mark text using the Search menu.</dd>
-            </dl>'''))
+            </dl>'''
+            )
+        )
         self.emphasize = emphasize
         self.ofont = QFont(self.font())
         if emphasize:
@@ -187,13 +196,13 @@ class WhereBox(QComboBox):
 
     @property
     def where(self):
-        wm = {0:'current', 1:'text', 2:'styles', 3:'selected', 4:'open', 5:'selected-text'}
+        wm = {0: 'current', 1: 'text', 2: 'styles', 3: 'selected', 4: 'open', 5: 'selected-text'}
         return wm[self.currentIndex()]
 
     @where.setter
     def where(self, val):
-        wm = {0:'current', 1:'text', 2:'styles', 3:'selected', 4:'open', 5:'selected-text'}
-        self.setCurrentIndex({v:k for k, v in wm.items()}[val])
+        wm = {0: 'current', 1: 'text', 2: 'styles', 3: 'selected', 4: 'open', 5: 'selected-text'}
+        self.setCurrentIndex({v: k for k, v in wm.items()}[val])
 
     def showPopup(self):
         # We do it like this so that the popup uses a normal font
@@ -208,19 +217,22 @@ class WhereBox(QComboBox):
 
 
 class DirectionBox(QComboBox):
-
     def __init__(self, parent):
         QComboBox.__init__(self, parent)
         self.addItems([_('Down'), _('Up')])
-        self.setToolTip('<style>dd {margin-bottom: 1.5ex}</style>' + _(
-            '''
+        self.setToolTip(
+            '<style>dd {margin-bottom: 1.5ex}</style>'
+            + _(
+                '''
             Direction to search:
             <dl>
             <dt><b>Down</b></dt>
             <dd>Search for the next match from your current position</dd>
             <dt><b>Up</b></dt>
             <dd>Search for the previous match from your current position</dd>
-            </dl>'''))
+            </dl>'''
+            )
+        )
 
     @property
     def direction(self):
@@ -232,12 +244,13 @@ class DirectionBox(QComboBox):
 
 
 class ModeBox(QComboBox):
-
     def __init__(self, parent):
         QComboBox.__init__(self, parent)
         self.addItems([_('Normal'), _('Fuzzy'), _('Regex'), _('Regex-function')])
-        self.setToolTip('<style>dd {margin-bottom: 1.5ex}</style>' + _(
-            '''Select how the search expression is interpreted
+        self.setToolTip(
+            '<style>dd {margin-bottom: 1.5ex}</style>'
+            + _(
+                '''Select how the search expression is interpreted
             <dl>
             <dt><b>Normal</b></dt>
             <dd>The search expression is treated as normal text, calibre will look for the exact text</dd>
@@ -248,7 +261,9 @@ class ModeBox(QComboBox):
             <dd>The search expression is interpreted as a regular expression. See the User Manual for more help on using regular expressions.</dd>
             <dt><b>Regex-function</b></dt>
             <dd>The search expression is interpreted as a regular expression. The replace expression is an arbitrarily powerful Python function.</dd>
-            </dl>'''))
+            </dl>'''
+            )
+        )
 
     @property
     def mode(self):
@@ -256,11 +271,10 @@ class ModeBox(QComboBox):
 
     @mode.setter
     def mode(self, val):
-        self.setCurrentIndex({'fuzzy': 1, 'regex':2, 'function':3}.get(val, 0))
+        self.setCurrentIndex({'fuzzy': 1, 'regex': 2, 'function': 3}.get(val, 0))
 
 
 class SearchWidget(QWidget):
-
     DEFAULT_STATE = {
         'mode': 'normal',
         'where': 'current',
@@ -361,11 +375,11 @@ class SearchWidget(QWidget):
         ol.addWidget(cs)
 
         self.wr = wr = QCheckBox(_('&Wrap'))
-        wr.setToolTip('<p>'+_('When searching reaches the end, wrap around to the beginning and continue the search'))
+        wr.setToolTip('<p>' + _('When searching reaches the end, wrap around to the beginning and continue the search'))
         ol.addWidget(wr)
 
         self.da = da = QCheckBox(_('&Dot all'))
-        da.setToolTip('<p>'+_("Make the '.' special character match any character at all, including a newline"))
+        da.setToolTip('<p>' + _("Make the '.' special character match any character at all, including a newline"))
         ol.addWidget(da)
 
         self.mode_box.currentIndexChanged.connect(self.mode_changed)
@@ -459,7 +473,7 @@ class SearchWidget(QWidget):
 
     @property
     def state(self):
-        return {x:getattr(self, x) for x in self.DEFAULT_STATE}
+        return {x: getattr(self, x) for x in self.DEFAULT_STATE}
 
     @state.setter
     def state(self, val):
@@ -481,7 +495,7 @@ class SearchWidget(QWidget):
         self.find = text
         find_text_le = self.find_text.lineEdit()
         assert find_text_le is not None
-        find_text_le.setSelection(0, len(text)+10)
+        find_text_le.setSelection(0, len(text) + 10)
 
     def paste_saved_search(self, s):
         self.case_sensitive = s.get('case_sensitive') or False
@@ -491,11 +505,12 @@ class SearchWidget(QWidget):
         self.mode = s.get('mode') or 'normal'
         self.find = s.get('find') or ''
         self.replace = s.get('replace') or ''
+
+
 # }}}
 
 
 class SearchPanel(QWidget):  # {{{
-
     search_triggered = pyqtSignal(object)
     save_search = pyqtSignal()
     show_saved_searches = pyqtSignal()
@@ -559,11 +574,12 @@ class SearchPanel(QWidget):  # {{{
             a0.accept()
         else:
             return QWidget.keyPressEvent(self, a0)
+
+
 # }}}
 
 
 class SearchDescription(QScrollArea):
-
     def __init__(self, parent):
         QScrollArea.__init__(self, parent)
         self.label = QLabel(' \n \n ')
@@ -575,7 +591,6 @@ class SearchDescription(QScrollArea):
 
 
 class SearchesModel(QAbstractListModel):
-
     def __init__(self, parent):
         QAbstractListModel.__init__(self, parent)
         self.searches = tprefs['saved_searches']
@@ -624,11 +639,11 @@ class SearchesModel(QAbstractListModel):
                 break
         insert_before = id(self.searches[self.filtered_searches[insert_at]]) if insert_at < len(self.filtered_searches) else None
         visible_searches = {id(self.searches[self.filtered_searches[r]]) for r in self.filtered_searches}
-        unmoved_searches = list(filter(lambda s:id(s) not in moved_searches_q, self.searches))
+        unmoved_searches = list(filter(lambda s: id(s) not in moved_searches_q, self.searches))
         if insert_before is None:
             searches = unmoved_searches + moved_searches
         else:
-            idx = {id(x):i for i, x in enumerate(unmoved_searches)}[insert_before]
+            idx = {id(x): i for i, x in enumerate(unmoved_searches)}[insert_before]
             searches = unmoved_searches[:idx] + moved_searches + unmoved_searches[idx:]
         filtered_searches = []
         for i, s in enumerate(searches):
@@ -662,10 +677,7 @@ class SearchesModel(QAbstractListModel):
         self.filtered_searches = []
         filter_keywords = text.split()
         for i, search in enumerate(self.searches):
-            if not filter_keywords or all(
-                any(primary_contains(fk, nk) for nk in search['name'].split())
-                for fk in filter_keywords
-            ):
+            if not filter_keywords or all(any(primary_contains(fk, nk) for nk in search['name'].split()) for fk in filter_keywords):
                 self.filtered_searches.append(i)
         self.endResetModel()
 
@@ -705,7 +717,6 @@ class SearchesModel(QAbstractListModel):
 
 
 class EditSearch(QFrame):  # {{{
-
     done = pyqtSignal(object)
 
     def __init__(self, parent=None):
@@ -863,20 +874,17 @@ class EditSearch(QFrame):  # {{{
         all_names = {x['name'] for x in searches} - {self.original_name}
         n = self.search_name.text().strip()
         if not n:
-            error_dialog(self, _('Must specify name'), _(
-                'You must specify a search name'), show=True)
+            error_dialog(self, _('Must specify name'), _('You must specify a search name'), show=True)
             return False
         if n in all_names:
-            error_dialog(self, _('Name exists'), _(
-                'Another search with the name %s already exists') % n, show=True)
+            error_dialog(self, _('Name exists'), _('Another search with the name %s already exists') % n, show=True)
             return False
         search = self.search
         search['name'] = n
 
         f = str(self.find_widget.toPlainText())
         if not f:
-            error_dialog(self, _('Must specify find'), _(
-                'You must specify a find expression'), show=True)
+            error_dialog(self, _('Must specify find'), _('You must specify a find expression'), show=True)
             return False
         search['find'] = f
         search['mode'] = self.mode_box.mode
@@ -884,8 +892,12 @@ class EditSearch(QFrame):  # {{{
         if search['mode'] == 'function':
             r = self.function.text()
             if not r:
-                error_dialog(self, _('Must specify function'), _(
-                    'You must specify a function name in Function-Regex mode'), show=True)
+                error_dialog(
+                    self,
+                    _('Must specify function'),
+                    _('You must specify a function name in Function-Regex mode'),
+                    show=True,
+                )
                 return False
         else:
             r = str(self.replace.toPlainText())
@@ -901,11 +913,11 @@ class EditSearch(QFrame):  # {{{
         tprefs.set('saved_searches', searches)
         return True
 
+
 # }}}
 
 
 class SearchDelegate(QStyledItemDelegate):
-
     def sizeHint(self, option, index):
         ans = QStyledItemDelegate.sizeHint(self, option, index)
         ans.setHeight(ans.height() + 4)
@@ -913,7 +925,6 @@ class SearchDelegate(QStyledItemDelegate):
 
 
 class SavedSearches(QWidget):
-
     run_saved_searches = pyqtSignal(object, object)
     copy_search_to_search_panel = pyqtSignal(object)
 
@@ -954,7 +965,11 @@ class SavedSearches(QWidget):
         self.delegate = SearchDelegate(searches)
         searches.setItemDelegate(self.delegate)
         searches.setAlternatingRowColors(True)
-        searches.setDragEnabled(True), searches.setAcceptDrops(True), searches.setDragDropMode(QAbstractItemView.DragDropMode.InternalMove)
+        (
+            searches.setDragEnabled(True),
+            searches.setAcceptDrops(True),
+            searches.setDragDropMode(QAbstractItemView.DragDropMode.InternalMove),
+        )
         searches.setDropIndicatorShown(True)
         h.addLayout(stack, stretch=10)
         self.v = v = QVBoxLayout()
@@ -974,11 +989,15 @@ class SavedSearches(QWidget):
         self.action_button_map = {}
 
         for text, action, tooltip in [
-                (_('&Find'), 'find', _('Run the search using the selected entries.') + mulmsg),
-                (_('&Replace'), 'replace', _('Run replace using the selected entries.') + mulmsg),
-                (_('Replace a&nd Find'), 'replace-find', _('Run replace and then find using the selected entries.') + mulmsg),
-                (_('Replace &all'), 'replace-all', _('Run Replace all for all selected entries in the order selected')),
-                (_('&Count all'), 'count', _('Run Count all for all selected entries')),
+            (_('&Find'), 'find', _('Run the search using the selected entries.') + mulmsg),
+            (_('&Replace'), 'replace', _('Run replace using the selected entries.') + mulmsg),
+            (
+                _('Replace a&nd Find'),
+                'replace-find',
+                _('Run replace and then find using the selected entries.') + mulmsg,
+            ),
+            (_('Replace &all'), 'replace-all', _('Run Replace all for all selected entries in the order selected')),
+            (_('&Count all'), 'count', _('Run Count all for all selected entries')),
         ]:
             self.action_button_map[action] = b = pb(text, tooltip, action)
             v.addWidget(b)
@@ -1033,7 +1052,7 @@ class SavedSearches(QWidget):
         v.addWidget(db)
 
         self.wr = wr = QCheckBox(_('&Wrap'))
-        wr.setToolTip('<p>'+_('When searching reaches the end, wrap around to the beginning and continue the search'))
+        wr.setToolTip('<p>' + _('When searching reaches the end, wrap around to the beginning and continue the search'))
         self.wr.setChecked(bool(SearchWidget.DEFAULT_STATE['wrap']))
         v.addWidget(wr)
 
@@ -1061,7 +1080,7 @@ class SavedSearches(QWidget):
 
     @property
     def state(self):
-        return {'wrap':self.wrap, 'direction':self.direction, 'where':self.where}
+        return {'wrap': self.wrap, 'direction': self.direction, 'where': self.where}
 
     @state.setter
     def state(self, val):
@@ -1153,8 +1172,7 @@ class SavedSearches(QWidget):
                 fill_in_search(search)
                 searches.append(search)
         if not searches:
-            return error_dialog(self, _('Cannot search'), _(
-                'No saved search is selected'), show=True)
+            return error_dialog(self, _('Cannot search'), _('No saved search is selected'), show=True)
         if overrides:
             [sc.update(overrides) for sc in searches]
         self.run_saved_searches.emit(searches, action)
@@ -1199,8 +1217,7 @@ class SavedSearches(QWidget):
     def edit_search(self):
         index = self.searches.currentIndex()
         if not index.isValid():
-            return error_dialog(self, _('Cannot edit'), _(
-                'Cannot edit search - no search selected.'), show=True)
+            return error_dialog(self, _('Cannot edit'), _('Cannot edit search - no search selected.'), show=True)
         if not self.editing_search:
             search_index, search = index.data(Qt.ItemDataRole.UserRole)
             self.edit_search_widget.show_search(search=search, search_index=search_index)
@@ -1210,8 +1227,11 @@ class SavedSearches(QWidget):
     def remove_search(self):
         if self.editing_search:
             return
-        if confirm(_('Are you sure you want to permanently delete the selected saved searches?'),
-                   'confirm-remove-editor-saved-search', config_set=tprefs):
+        if confirm(
+            _('Are you sure you want to permanently delete the selected saved searches?'),
+            'confirm-remove-editor-saved-search',
+            config_set=tprefs,
+        ):
             remove_sm = self.searches.selectionModel()
             assert remove_sm is not None
             rows = {index.row() for index in remove_sm.selectedIndexes()} - {-1}
@@ -1255,27 +1275,34 @@ class SavedSearches(QWidget):
                 ts = _('(Case sensitive: {0} Dot all: {1})').format(cs, da)
             else:
                 ts = _('(Case sensitive: {0} [Normal search])').format(cs)
-            self.description.set_text(_('{2} {3}\nFind: {0}\nReplace: {1}').format(
-                search.get('find', ''), search.get('replace', ''), search.get('name', ''), ts))
+            self.description.set_text(
+                _('{2} {3}\nFind: {0}\nReplace: {1}').format(search.get('find', ''), search.get('replace', ''), search.get('name', ''), ts)
+            )
 
     def import_searches(self):
-        path = choose_files(self, 'import_saved_searches', _('Choose file'), filters=[
-            (_('Saved searches'), ['json'])], all_files=False, select_only_single_file=True)
+        path = choose_files(
+            self,
+            'import_saved_searches',
+            _('Choose file'),
+            filters=[(_('Saved searches'), ['json'])],
+            all_files=False,
+            select_only_single_file=True,
+        )
         if path:
             with open(path[0], 'rb') as f:
                 obj = json.loads(f.read())
             needed_keys = {'name', 'find', 'replace', 'case_sensitive', 'dot_all', 'mode'}
 
             def err():
-                error_dialog(self, _('Invalid data'), _(
-                    'The file %s does not contain valid saved searches') % path, show=True)
+                error_dialog(self, _('Invalid data'), _('The file %s does not contain valid saved searches') % path, show=True)
+
             if not isinstance(obj, dict) or 'version' not in obj or 'searches' not in obj or obj['version'] != 1:
                 return err()
             searches = []
             for item in obj['searches']:
                 if not isinstance(item, dict) or not set(item).issuperset(needed_keys):
                     return err
-                searches.append({k:item[k] for k in needed_keys})
+                searches.append({k: item[k] for k in needed_keys})
 
             if searches:
                 tprefs['saved_searches'] = tprefs['saved_searches'] + searches
@@ -1283,7 +1310,10 @@ class SavedSearches(QWidget):
                 self.model.add_searches(count=count)
                 sm = self.searches.selectionModel()
                 assert sm is not None
-                top, bottom = self.model.index(self.model.rowCount() - count), self.model.index(self.model.rowCount() - 1)
+                top, bottom = (
+                    self.model.index(self.model.rowCount() - count),
+                    self.model.index(self.model.rowCount() - 1),
+                )
                 sm.select(QItemSelection(top, bottom), QItemSelectionModel.SelectionFlag.ClearAndSelect)
                 self.searches.scrollTo(bottom)
 
@@ -1299,8 +1329,7 @@ class SavedSearches(QWidget):
         if all:
             searches = copy.deepcopy(tprefs['saved_searches'])
             if not searches:
-                return error_dialog(self, _('No searches'), _(
-                    'No searches available to be saved'), show=True)
+                return error_dialog(self, _('No searches'), _('No searches available to be saved'), show=True)
         else:
             searches = []
             export_sm = self.searches.selectionModel()
@@ -1309,15 +1338,13 @@ class SavedSearches(QWidget):
                 search = index.data(Qt.ItemDataRole.UserRole)[-1]
                 searches.append(search.copy())
             if not searches:
-                return error_dialog(self, _('No searches'), _(
-                    'No searches selected'), show=True)
+                return error_dialog(self, _('No searches'), _('No searches selected'), show=True)
         [s.__setitem__('mode', s.get('mode', 'regex')) for s in searches]
-        path = choose_save_file(self, 'export-saved-searches', _('Choose file'), filters=[
-            (_('Saved searches'), ['json'])], all_files=False)
+        path = choose_save_file(self, 'export-saved-searches', _('Choose file'), filters=[(_('Saved searches'), ['json'])], all_files=False)
         if path:
             if not path.lower().endswith('.json'):
                 path += '.json'
-            raw = json.dumps({'version':1, 'searches':searches}, ensure_ascii=False, indent=2, sort_keys=True)
+            raw = json.dumps({'version': 1, 'searches': searches}, ensure_ascii=False, indent=2, sort_keys=True)
             with open(path, 'wb') as f:
                 f.write(raw.encode('utf-8'))
 
@@ -1330,8 +1357,7 @@ def validate_search_request(name, searchable_names, has_marked_text, state, gui_
     elif where == 'selected' and not searchable_names['selected']:
         err = _('No files are selected in the File browser')
     elif where == 'selected-text' and not has_marked_text:
-        err = _('No text is marked. First select some text, and then use'
-                ' The "Mark selected text" action in the Search menu to mark it.')
+        err = _('No text is marked. First select some text, and then use The "Mark selected text" action in the Search menu to mark it.')
     if not err and not state['find']:
         err = _('No search query specified')
     if err:
@@ -1341,7 +1367,6 @@ def validate_search_request(name, searchable_names, has_marked_text, state, gui_
 
 
 class InvalidRegex(regex.error):
-
     def __init__(self, raw, e):
         regex.error.__init__(self, error_message(e))
         self.regex = raw
@@ -1353,6 +1378,7 @@ def get_search_regex(state):
     if not is_regex:
         if state['mode'] == 'fuzzy':
             from calibre.gui2.viewer.search import text_to_regex
+
             raw = text_to_regex(raw)
         else:
             raw = regex.escape(raw, special_only=True)
@@ -1410,7 +1436,7 @@ def initialize_search_request(state, action, current_editor, current_editor_name
             # first.
             lfiles = list(files)
             idx = lfiles.index(current_editor_name)
-            before, after = lfiles[:idx], lfiles[idx+1:]
+            before, after = lfiles[:idx], lfiles[idx + 1 :]
             if state['direction'] == 'up':
                 lfiles = list(reversed(before))
                 if do_all:
@@ -1437,19 +1463,31 @@ def show_function_debug_output(func):
         func.debug_buf.truncate(0)
         if val:
             from calibre.gui2.tweak_book.boss import get_boss
+
             get_boss().gui.sr_debug_output.show_log(func.name, val)
 
 
 def reorder_files(names, order):
     reverse = order in {'spine-reverse', 'reverse-spine'}
-    spine_order = {name:i for i, (name, _is_linear) in enumerate(current_container().spine_names)}
+    spine_order = {name: i for i, (name, _is_linear) in enumerate(current_container().spine_names)}
     last = len(spine_order)
     return sorted(frozenset(names), key=lambda n: spine_order.get(n, last), reverse=reverse)
 
 
 def run_search(
-    searches, action, current_editor, current_editor_name, searchable_names,
-    gui_parent, show_editor, edit_file, show_current_diff, add_savepoint, rewind_savepoint, set_modified):
+    searches,
+    action,
+    current_editor,
+    current_editor_name,
+    searchable_names,
+    gui_parent,
+    show_editor,
+    edit_file,
+    show_current_diff,
+    add_savepoint,
+    rewind_savepoint,
+    set_modified,
+):
 
     if isinstance(searches, dict):
         searches = [searches]
@@ -1466,22 +1504,30 @@ def run_search(
     try:
         searches = [(get_search_regex(search), get_search_function(search)) for search in searches]
     except InvalidRegex as e:
-        return error_dialog(gui_parent, _('Invalid regex'), '<p>' + _(
-            'The regular expression you entered is invalid: <pre>{0}</pre>With error: {1}').format(
-                prepare_string_for_xml(e.regex), error_message(e)), show=True)
+        return error_dialog(
+            gui_parent,
+            _('Invalid regex'),
+            '<p>' + _('The regular expression you entered is invalid: <pre>{0}</pre>With error: {1}').format(prepare_string_for_xml(e.regex), error_message(e)),
+            show=True,
+        )
     except NoSuchFunction as e:
-        return error_dialog(gui_parent, _('No such function'), '<p>' + _(
-            'No replace function with the name: %s exists') % prepare_string_for_xml(error_message(e)), show=True)
+        return error_dialog(
+            gui_parent,
+            _('No such function'),
+            '<p>' + _('No replace function with the name: %s exists') % prepare_string_for_xml(error_message(e)),
+            show=True,
+        )
 
     def no_match():
         QApplication.restoreOverrideCursor()
         msg = '<p>' + _('No matches were found for %s') % ('<pre style="font-style:italic">' + prepare_string_for_xml(errfind) + '</pre>')
         if not wrap:
-            msg += '<p>' + _('You have turned off search wrapping, so all text might not have been searched.'
+            msg += '<p>' + _(
+                'You have turned off search wrapping, so all text might not have been searched.'
                 ' Try the search again, with wrapping enabled. Wrapping is enabled via the'
-                ' "Wrap" checkbox at the bottom of the search panel.')
-        return error_dialog(
-            gui_parent, _('Not found'), msg, show=True)
+                ' "Wrap" checkbox at the bottom of the search panel.'
+            )
+        return error_dialog(gui_parent, _('Not found'), msg, show=True)
 
     def do_find():
         for p, __ in searches:
@@ -1511,8 +1557,11 @@ def run_search(
         if prefix:
             prefix += ' '
         error_dialog(
-            gui_parent, _('Cannot replace'), prefix + _(
-            'You must first click "Find", before trying to replace'), show=True)
+            gui_parent,
+            _('Cannot replace'),
+            prefix + _('You must first click "Find", before trying to replace'),
+            show=True,
+        )
         return False
 
     def do_replace():
@@ -1527,8 +1576,7 @@ def run_search(
                     repl.end()
                     show_function_debug_output(repl)
                 return True
-        return no_replace(_(
-                'Currently selected text does not match the search query.'))
+        return no_replace(_('Currently selected text does not match the search query.'))
 
     def count_message(replaced, count, show_diff=False, show_dialog=True, count_map=None):
         if show_dialog:
@@ -1542,7 +1590,14 @@ def run_search(
                 for k in sorted(count_map):
                     det_msg += _('{0}: {1} occurrences').format(k, count_map[k]) + '\n'
             if show_diff and count > 0:
-                d = MessageBox(MessageBox.INFO, _('Searching done'), '<p>'+msg, parent=gui_parent, show_copy_button=False, det_msg=det_msg)
+                d = MessageBox(
+                    MessageBox.INFO,
+                    _('Searching done'),
+                    '<p>' + msg,
+                    parent=gui_parent,
+                    show_copy_button=False,
+                    det_msg=det_msg,
+                )
                 b = d.bb.addButton(_('See what &changed'), QDialogButtonBox.ButtonRole.AcceptRole)
                 show_changes = [False]
                 assert b is not None
@@ -1561,7 +1616,7 @@ def run_search(
         count_map = Counter()
         if not files and editor is None:
             return 0
-        lfiles = files or {current_editor_name:editor.syntax}
+        lfiles = files or {current_editor_name: editor.syntax}
         updates = set()
         raw_data = {}
         for n in lfiles:

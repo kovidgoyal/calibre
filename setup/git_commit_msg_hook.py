@@ -29,7 +29,6 @@ socket.setdefaulttimeout(90)
 
 
 class Bug:
-
     def __init__(self):
         self.seen = set()
 
@@ -59,10 +58,7 @@ class Bug:
 
     def close_bug(self, bug, action):
         print(f'Closing bug #{bug}')
-        suffix = (
-            'The fix will be in the next release. '
-            'calibre is usually released every alternate Friday.'
-        )
+        suffix = 'The fix will be in the next release. calibre is usually released every alternate Friday.'
         action += 'ed'
         msg = '{} in branch {}. {}'.format(action, 'master', suffix)
         msg = msg.replace('Fixesed', 'Fixed')

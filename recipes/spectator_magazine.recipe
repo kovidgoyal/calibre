@@ -29,19 +29,11 @@ class spectator(BasicNewsRecipe):
         img {display:block; margin:0 auto;}
     '''
 
-    keep_only_tags = [
-        classes(
-            'writers-link entry-header__author entry-header__title entry-header__thumbnail entry-content '
-            'author-bio__content '
-        )
-    ]
+    keep_only_tags = [classes('writers-link entry-header__author entry-header__title entry-header__thumbnail entry-content author-bio__content ')]
 
     remove_tags = [
         dict(name=['svg', 'button']),
-        classes(
-            'entry-meta audio-read-block insert--most-popular ad-slot ad-slot--in-content ad-content '
-            'subscription-banner '
-        )
+        classes('entry-meta audio-read-block insert--most-popular ad-slot ad-slot--in-content ad-content subscription-banner '),
     ]
 
     def preprocess_html(self, soup):
@@ -52,18 +44,10 @@ class spectator(BasicNewsRecipe):
     def get_browser(self, *args, **kwargs):
         kwargs['user_agent'] = 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)'
         br = BasicNewsRecipe.get_browser(self, *args, **kwargs)
-        br.addheaders += [
-            ('Referer', 'https://www.google.com/'),
-            ('X-Forwarded-For', '66.249.66.1')
-        ]
+        br.addheaders += [('Referer', 'https://www.google.com/'), ('X-Forwarded-For', '66.249.66.1')]
         return br
 
-    recipe_specific_options = {
-        'date': {
-            'short': 'The date of the edition to download (DD-MM-YYYY format)',
-            'long': 'For example, 20-07-2024'
-        }
-    }
+    recipe_specific_options = {'date': {'short': 'The date of the edition to download (DD-MM-YYYY format)', 'long': 'For example, 20-07-2024'}}
 
     def parse_index(self):
         index = 'https://www.spectator.co.uk/magazine'
@@ -71,10 +55,8 @@ class spectator(BasicNewsRecipe):
         if d and isinstance(d, str):
             index = index + '/' + d + '/'
         soup = self.index_to_soup(index)
-        self.cover_url = soup.find(**classes(
-            'magazine-header__container')).img['src'].split('?')[0]
-        issue = self.tag_to_string(soup.find(**classes(
-            'magazine-header__title'))).strip()
+        self.cover_url = soup.find(**classes('magazine-header__container')).img['src'].split('?')[0]
+        issue = self.tag_to_string(soup.find(**classes('magazine-header__title'))).strip()
         time = soup.find('time')
         self.title = 'The Spectator ' + issue
         self.timefmt = ' [' + self.tag_to_string(time) + ']'
@@ -83,8 +65,7 @@ class spectator(BasicNewsRecipe):
         section_list = []
 
         for x in nav_div.findAll(['a']):
-            section_list.append((
-                self.tag_to_string(x).strip(), absurl(x['href'])))
+            section_list.append((self.tag_to_string(x).strip(), absurl(x['href'])))
         feeds = []
 
         # For each section title, fetch the article urls
@@ -100,10 +81,8 @@ class spectator(BasicNewsRecipe):
 
     def articles_from_soup(self, soup):
         ans = []
-        for div in soup.findAll('div', **classes(
-            'mosaic__tile mosaic__tile--lead-up'
-        )):
-            a = div.find('a', href=True, attrs={'class':'article__title-link'})
+        for div in soup.findAll('div', **classes('mosaic__tile mosaic__tile--lead-up')):
+            a = div.find('a', href=True, attrs={'class': 'article__title-link'})
             url = absurl(a['href'])
             title = self.tag_to_string(a).strip()
             teaser = div.find('p', **classes('article__excerpt-text'))
@@ -118,5 +97,5 @@ class spectator(BasicNewsRecipe):
                 desc = self.tag_to_string(sec).strip() + ' | ' + desc
 
             self.log('\t', title, '\n\t', desc, '\n\t\t', url)
-            ans.append({'title': title, 'description':desc, 'url': url})
+            ans.append({'title': title, 'description': desc, 'url': url})
         return ans

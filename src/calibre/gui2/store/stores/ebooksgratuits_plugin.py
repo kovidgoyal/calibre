@@ -14,7 +14,6 @@ from calibre.utils.filenames import ascii_text
 
 
 class EbooksGratuitsStore(BasicStoreConfig, OpenSearchOPDSStore):
-
     open_search_url = 'http://www.ebooksgratuits.com/opds/opensearch.xml'
     web_url = 'http://www.ebooksgratuits.com/'
 
@@ -22,7 +21,7 @@ class EbooksGratuitsStore(BasicStoreConfig, OpenSearchOPDSStore):
         return ascii_text(s)
 
     def search(self, query, max_results=10, timeout=60):
-        query = self.strip_accents(type(u'')(query))
+        query = self.strip_accents(type('')(query))
         for s in OpenSearchOPDSStore.search(self, query, max_results, timeout):
             if s.downloads:
                 s.drm = SearchResult.DRM_UNLOCKED

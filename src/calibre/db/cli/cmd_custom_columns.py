@@ -25,13 +25,7 @@ List available custom columns. Shows column labels and ids.
     '''
         )
     )
-    parser.add_option(
-        '-d',
-        '--details',
-        default=False,
-        action='store_true',
-        help=_('Show details for each column.')
-    )
+    parser.add_option('-d', '--details', default=False, action='store_true', help=_('Show details for each column.'))
     return parser
 
 

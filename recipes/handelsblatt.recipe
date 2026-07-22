@@ -30,8 +30,7 @@ class Handelsblatt(BasicNewsRecipe):
     remove_empty_feeds = True
     ignore_duplicate_articles = {'title', 'url'}
 
-    conversion_options = {'smarten_punctuation': True,
-                          'publisher': publisher}
+    conversion_options = {'smarten_punctuation': True, 'publisher': publisher}
 
     # uncomment this to reduce file size
     # compress_news_images          = True
@@ -47,29 +46,38 @@ class Handelsblatt(BasicNewsRecipe):
         ('Unternehmen', 'http://www.handelsblatt.com/contentexport/feed/unternehmen'),
         ('Finanzen', 'http://www.handelsblatt.com/contentexport/feed/finanzen'),
         ('Technologie', 'http://www.handelsblatt.com/contentexport/feed/technologie'),
-        ('Panorama', 'http://www.handelsblatt.com/contentexport/feed/panorama')
+        ('Panorama', 'http://www.handelsblatt.com/contentexport/feed/panorama'),
     ]
 
-    keep_only_tags = [
-        dict(name='div', attrs={'class': ['vhb-article-container']})
-    ]
+    keep_only_tags = [dict(name='div', attrs={'class': ['vhb-article-container']})]
 
     remove_tags = [
         dict(name='span', attrs={'class': ['vhb-colon', 'vhb-label-premium']}),
-        dict(name='aside', attrs={'class': ['vhb-article-element vhb-left',
-                                            'vhb-article-element vhb-left vhb-teasergallery',
-                                            'vhb-article-element vhb-left vhb-shorttexts']}),
+        dict(
+            name='aside',
+            attrs={'class': ['vhb-article-element vhb-left', 'vhb-article-element vhb-left vhb-teasergallery', 'vhb-article-element vhb-left vhb-shorttexts']},
+        ),
         dict(name='aside', attrs={'class': re.compile(r'vhb-club-events')}),
-        dict(name='article', attrs={'class': ['vhb-imagegallery vhb-teaser',
-                                              'vhb-teaser vhb-type-video']}),
+        dict(name='article', attrs={'class': ['vhb-imagegallery vhb-teaser', 'vhb-teaser vhb-type-video']}),
         dict(name='small', attrs={'class': ['vhb-credit']}),
-        dict(name='div', attrs={'class': ['dg_health', 'fb-post', 'header-bar',
-                                          'lb_consent--placeholder',
-                                          'lb-item embed', 'lb-post-actions',
-                                          'mod--displaynone', 'white_content',
-                                          'opinary-widget-wrapper',
-                                          'vhb-article__content-element--shorttextgallery',
-                                          'vhb-hollow-area vhb-hollow-area--col-1']}),
+        dict(
+            name='div',
+            attrs={
+                'class': [
+                    'dg_health',
+                    'fb-post',
+                    'header-bar',
+                    'lb_consent--placeholder',
+                    'lb-item embed',
+                    'lb-post-actions',
+                    'mod--displaynone',
+                    'white_content',
+                    'opinary-widget-wrapper',
+                    'vhb-article__content-element--shorttextgallery',
+                    'vhb-hollow-area vhb-hollow-area--col-1',
+                ]
+            },
+        ),
         dict(name='div', attrs={'class': re.compile(r'stepstone')}),
         dict(name='div', attrs={'class': re.compile(r'vhb-imagegallery')}),
         dict(name='div', attrs={'id': ['highcharts_infografik']}),
@@ -78,18 +86,19 @@ class Handelsblatt(BasicNewsRecipe):
         dict(name='a', attrs={'class': ['twitter-follow-button']}),
         dict(name='img', attrs={'class': ['highlight-icon', 'lb-author__avatar', 'pin-icon']}),
         dict(name='img', attrs={'alt': re.compile(r'Handelsblatt Morning Briefing')}),
-        dict(name=['blockquote', 'button', 'link'])
+        dict(name=['blockquote', 'button', 'link']),
     ]
 
     preprocess_regexps = [
         # insert ". " after the location at the beginning of an article
-        (re.compile(r'(<span class="hcf-location-mark">[^<]+)(</span>)',
-                    re.IGNORECASE), lambda match: match.group(1) + '. ' + match.group(2)),
+        (re.compile(r'(<span class="hcf-location-mark">[^<]+)(</span>)', re.IGNORECASE), lambda match: match.group(1) + '. ' + match.group(2)),
         # insert ": " between title and text of captions
-        (re.compile(r'(<em itemtype="text" itemprop="name" class="vhb-title">[^<]+)(</em>)',
-                    re.IGNORECASE), lambda match: match.group(1) + ': ' + match.group(2)),
+        (
+            re.compile(r'(<em itemtype="text" itemprop="name" class="vhb-title">[^<]+)(</em>)', re.IGNORECASE),
+            lambda match: match.group(1) + ': ' + match.group(2),
+        ),
         # convert "data-src" to "src" attributes
-        (re.compile(r'( data-src=")([^"]*")', re.IGNORECASE), lambda match: ' src="' + match.group(2))
+        (re.compile(r'( data-src=")([^"]*")', re.IGNORECASE), lambda match: ' src="' + match.group(2)),
     ]
 
     extra_css = '''h2 {font-size: 1em; text-align: left}

@@ -3,13 +3,13 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 class RzeczpospolitaRecipe(BasicNewsRecipe):
     __license__ = 'GPL v3'
-    __author__ = u'kwetal, Tomasz Dlugosz, adrianf0'
+    __author__ = 'kwetal, Tomasz Dlugosz, adrianf0'
     language = 'pl'
 
-    title = u'Rzeczpospolita OnLine'
-    publisher = u'Presspublica Sp.'
-    category = u'News'
-    description = u'Newspaper'
+    title = 'Rzeczpospolita OnLine'
+    publisher = 'Presspublica Sp.'
+    category = 'News'
+    description = 'Newspaper'
     oldest_article = 1
     max_articles_per_feed = 100
 
@@ -19,19 +19,25 @@ class RzeczpospolitaRecipe(BasicNewsRecipe):
     simultaneous_downloads = 5
 
     feeds = []
-    feeds.append((u'Wiadomości', u'http://www.rp.pl/rss/1056'))  # Wydarzenia
-    feeds.append((u'Ekonomia', u'http://www.rp.pl/rss/1004'))  # Ekonomia
-    feeds.append((u'Prawo', u'http://www.rp.pl/rss/1037'))  # Prawo
+    feeds.append(('Wiadomości', 'http://www.rp.pl/rss/1056'))  # Wydarzenia
+    feeds.append(('Ekonomia', 'http://www.rp.pl/rss/1004'))  # Ekonomia
+    feeds.append(('Prawo', 'http://www.rp.pl/rss/1037'))  # Prawo
 
     keep_only_tags = []
     keep_only_tags.append(dict(name='h1', attrs={'id': 'article-title'}))
     keep_only_tags.append(dict(name='img', attrs={'class': 'img-responsive article__image'}))
-    keep_only_tags.append(dict(name='div', attrs={'class': ['article-content', 'article__lead js-voice-read',
-        'article__content js-voice-read','article__image-desc','article__image-author']}))
+    keep_only_tags.append(
+        dict(
+            name='div',
+            attrs={
+                'class': ['article-content', 'article__lead js-voice-read', 'article__content js-voice-read', 'article__image-desc', 'article__image-author']
+            },
+        )
+    )
 
     remove_tags = []
     remove_tags.append(dict(name='div', attrs={'class': 'related-articles__wrapper'}))
-    remove_tags.append(dict(name='span', attrs={'class': ['article__premium-player','ad-label']}))
+    remove_tags.append(dict(name='span', attrs={'class': ['article__premium-player', 'ad-label']}))
 
     extra_css = '''
             div.article__image-desc {font-style:italic; font-size:70%;text-align:right}

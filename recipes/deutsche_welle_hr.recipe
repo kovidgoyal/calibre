@@ -24,7 +24,7 @@ class DeutscheWelle_hr(BasicNewsRecipe):
         'days': {
             'short': 'Oldest article to download from this news source. In days ',
             'long': 'For example, 0.5, gives you articles from the past 12 hours',
-            'default': str(oldest_article)
+            'default': str(oldest_article),
         }
     }
 
@@ -34,21 +34,15 @@ class DeutscheWelle_hr(BasicNewsRecipe):
         if d and isinstance(d, str):
             self.oldest_article = float(d)
 
-    keep_only_tags = [
-        dict(name='article')
-    ]
+    keep_only_tags = [dict(name='article')]
 
-    remove_tags = [
-        dict(name=['footer', 'source']),
-        dict(attrs={'data-tracking-name':'sharing-icons-inline'}),
-        classes('kicker advertisement vjs-wrapper')
-    ]
+    remove_tags = [dict(name=['footer', 'source']), dict(attrs={'data-tracking-name': 'sharing-icons-inline'}), classes('kicker advertisement vjs-wrapper')]
 
     feeds = [
-        (u'Svijet', u'http://rss.dw-world.de/rdf/rss-cro-svijet'),
-        (u'Europa', u'http://rss.dw-world.de/rdf/rss-cro-eu'),
-        (u'Njemacka', u'http://rss.dw-world.de/rdf/rss-cro-ger'),
-        (u'Vijesti', u'http://rss.dw-world.de/rdf/rss-cro-all')
+        ('Svijet', 'http://rss.dw-world.de/rdf/rss-cro-svijet'),
+        ('Europa', 'http://rss.dw-world.de/rdf/rss-cro-eu'),
+        ('Njemacka', 'http://rss.dw-world.de/rdf/rss-cro-ger'),
+        ('Vijesti', 'http://rss.dw-world.de/rdf/rss-cro-all'),
     ]
 
     def preprocess_html(self, soup):

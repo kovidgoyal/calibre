@@ -34,9 +34,7 @@ class ElDiplo2023(BasicNewsRecipe):
     handle_gzip = True
     compress_news_images = True
     scale_news_images_to_device = True
-    masthead_url = (
-        'https://www.eldiplo.org/wp-content/themes/_polenta_/assets/diplo.png'
-    )
+    masthead_url = 'https://www.eldiplo.org/wp-content/themes/_polenta_/assets/diplo.png'
     INDEX = 'https://www.eldiplo.org/'
 
     conversion_options = {'series': 'El Dipló', 'publisher': publisher, 'base_font_size': 8, 'tags': category}

@@ -1,4 +1,4 @@
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
@@ -66,9 +66,7 @@ def split_txt(txt, epub_split_size_kb=0):
             # if there are chunks with a superior size then go and break
             parts = txt.split(b'\n\n')
             if parts and max(map(len, parts)) > chunk_size:
-                txt = b'\n\n'.join(
-                    split_string_separator(line, chunk_size) for line in parts
-                )
+                txt = b'\n\n'.join(split_string_separator(line, chunk_size) for line in parts)
     if isinstance(txt, bytes):
         txt = txt.decode('utf-8')
 
@@ -123,6 +121,7 @@ def create_markdown_object(extensions=DEFAULT_MD_EXTENSIONS):
             raise ImportError(f'No extension class in {ext_name}')
 
     from calibre.ebooks.conversion.plugins.txt_input import MD_EXTENSIONS
+
     extensions = [x.lower() for x in extensions]
     extensions = [x for x in extensions if x in MD_EXTENSIONS]
     md = NotBrainDeadMarkdown(extensions=extensions)
@@ -138,6 +137,7 @@ def convert_markdown_with_metadata(txt, title='', extensions=DEFAULT_MD_EXTENSIO
     from calibre.db.write import get_series_values
     from calibre.ebooks.metadata.book.base import Metadata
     from calibre.utils.date import parse_only_date
+
     extensions = list(extensions)
     if 'meta' not in extensions:
         extensions.append('meta')
@@ -145,7 +145,7 @@ def convert_markdown_with_metadata(txt, title='', extensions=DEFAULT_MD_EXTENSIO
     html = md.convert(txt)
     mi = Metadata(title or _('Unknown'))
     m = md.Meta
-    for k, v in {'date':'pubdate', 'summary':'comments'}.items():
+    for k, v in {'date': 'pubdate', 'summary': 'comments'}.items():
         if v not in m and k in m:
             m[v] = m.pop(k)
     for k in 'title authors series tags pubdate comments publisher rating'.split():
@@ -173,6 +173,7 @@ def convert_markdown_with_metadata(txt, title='', extensions=DEFAULT_MD_EXTENSIO
 
 def convert_textile(txt, title=''):
     from calibre.ebooks.textile import textile
+
     html = textile(txt, encoding='utf-8')
     return HTML_TEMPLATE % (title, html)
 
@@ -199,6 +200,7 @@ def separate_hard_scene_breaks(txt):
             return f'\n{line}\n'
         else:
             return line
+
     txt = re.sub(r'(?miu)^[ \t-=~\/_]+$', lambda mo: sep_break(mo.group()), txt)
     return txt
 
@@ -239,7 +241,7 @@ def split_utf8(s, n):
     s = memoryview(s)
     while len(s) > n:
         k = n
-        while (s[k] & 0xc0) == 0x80:
+        while (s[k] & 0xC0) == 0x80:
             k -= 1
         yield bytes(s[:k])
         s = s[k:]
@@ -258,7 +260,7 @@ def split_string_separator(txt, size):
             if idx == -1:
                 part += b'\n\n'
             else:
-                part = part[:idx + 1] + b'\n\n' + part[idx:]
+                part = part[: idx + 1] + b'\n\n' + part[idx:]
             ans.append(part)
         txt = b''.join(ans)
     return txt
@@ -282,7 +284,7 @@ def detect_paragraph_type(txt):
 
     # Check for hard line breaks - true if 55% of the doc breaks in the same region
     docanalysis = DocAnalysis('txt', txt)
-    hardbreaks = docanalysis.line_histogram(.55)
+    hardbreaks = docanalysis.line_histogram(0.55)
 
     if hardbreaks:
         # Determine print percentage
@@ -296,9 +298,9 @@ def detect_paragraph_type(txt):
         # Compare the two types - the type with the larger number of instances wins
         # in cases where only one or the other represents the vast majority of the document neither wins
         if print_percent >= block_percent:
-            if .15 <= print_percent <= .75:
+            if 0.15 <= print_percent <= 0.75:
                 return 'print'
-        elif .15 <= block_percent <= .75:
+        elif 0.15 <= block_percent <= 0.75:
             return 'block'
 
         # Assume unformatted text with hardbreaks if nothing else matches
@@ -358,6 +360,7 @@ def detect_formatting_type(txt):
 def get_images_from_polyglot_text(txt: str, base_dir: str = '', file_ext: str = 'txt') -> set:
     from calibre import guess_type
     from calibre.ebooks.oeb.base import OEB_IMAGES
+
     if not base_dir:
         base_dir = os.getcwd()
     images = set()
@@ -375,8 +378,10 @@ def get_images_from_polyglot_text(txt: str, base_dir: str = '', file_ext: str = 
     if file_ext in ('txt', 'text', 'md', 'markdown'):
         # Markdown
         from markdown import Markdown
+
         html = HTML_TEMPLATE % ('', Markdown().convert(txt))
         from html5_parser import parse
+
         root = parse(html)
         for img in root.iterdescendants('img'):
             path = img.get('src')

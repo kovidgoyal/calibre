@@ -154,9 +154,9 @@ def parse_raw_html(html, abort_article):
     if idx < 0:
         print('Failed to find JSON')
         return html
-    data = html[idx + len(q) - 2:]
+    data = html[idx + len(q) - 2 :]
     idx = data.find('}";</script>')
-    data = data[:idx+2]
+    data = data[: idx + 2]
     data = json.loads(data)
     root = json.loads(data)
     return parse_article_json(root, abort_article)
@@ -180,21 +180,19 @@ class BBC(BasicNewsRecipe):
     category = 'news, UK, world'
     language = 'en_GB'
     conversion_options = {
-        'comments': description, 'tags': category, 'language': language, 'publisher': publisher,
+        'comments': description,
+        'tags': category,
+        'language': language,
+        'publisher': publisher,
     }
     # Removes empty feeds - why keep them!?
     remove_empty_feeds = True
     ignore_duplicate_articles = {'title', 'url'}
     resolve_internal_links = True
 
-    keep_only_tags = [
-        dict(name='article')
-    ]
+    keep_only_tags = [dict(name='article')]
 
-    remove_tags = [
-        dict(name=['button', 'svg', 'iframe']),
-        dict(attrs={'data-component': ['ad-slot', 'tags', 'links-block', 'metadata-block', 'topic-list']})
-    ]
+    remove_tags = [dict(name=['button', 'svg', 'iframe']), dict(attrs={'data-component': ['ad-slot', 'tags', 'links-block', 'metadata-block', 'topic-list']})]
 
     remove_attributes = ['style', 'height', 'width']
     extra_css = '''
@@ -221,7 +219,7 @@ class BBC(BasicNewsRecipe):
         'days': {
             'short': 'Oldest article to download from this news source. In days ',
             'long': 'For example, 0.5, gives you articles from the past 12 hours',
-            'default': str(oldest_article)
+            'default': str(oldest_article),
         }
     }
 
@@ -232,11 +230,9 @@ class BBC(BasicNewsRecipe):
             self.oldest_article = float(d)
 
     feeds = [
-        ('Science/Environment',
-         'https://feeds.bbci.co.uk/news/science_and_environment/rss.xml'),
+        ('Science/Environment', 'https://feeds.bbci.co.uk/news/science_and_environment/rss.xml'),
         ('Technology', 'https://feeds.bbci.co.uk/news/technology/rss.xml'),
-        ('Entertainment/Arts',
-         'https://feeds.bbci.co.uk/news/entertainment_and_arts/rss.xml'),
+        ('Entertainment/Arts', 'https://feeds.bbci.co.uk/news/entertainment_and_arts/rss.xml'),
         ('Business', 'https://feeds.bbci.co.uk/news/business/rss.xml'),
         ('Politics', 'https://feeds.bbci.co.uk/news/politics/rss.xml'),
         ('Health', 'https://feeds.bbci.co.uk/news/health/rss.xml'),

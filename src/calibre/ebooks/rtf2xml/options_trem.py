@@ -3,37 +3,37 @@ import sys
 
 class ParseOptions:
     """
-        Requires:
-           system_string --The string from the command line
-           options_dict -- a dictionary with the key equal to the option, and
-           a list describing that option. (See below)
-        Returns:
-            A tuple. The first item in the tuple is a dictionary containing
-            the arguments for each options. The second is a list of the
-            arguments.
-            If invalid options are passed to the module, 0,0 is returned.
-        Examples:
-            Your script has the option '--indents', and '--output=file'.
-            You want to give short option names as well:
-                --i and -o=file
-            Use this:
-                options_dict = {'output':   [1, 'o'],
-                                'indents':  [0, 'i']
-                                }
-                options_obj = ParseOptions(
-                                                system_string = sys.argv,
-                                                options_dict = options_dict
-                        )
-                options, arguments = options_obj.parse_options()
-                print options
-                print arguments
-            The result will be:
-                {indents:None, output:'/home/paul/file'}, ['/home/paul/input']
-        """
+    Requires:
+       system_string --The string from the command line
+       options_dict -- a dictionary with the key equal to the option, and
+       a list describing that option. (See below)
+    Returns:
+        A tuple. The first item in the tuple is a dictionary containing
+        the arguments for each options. The second is a list of the
+        arguments.
+        If invalid options are passed to the module, 0,0 is returned.
+    Examples:
+        Your script has the option '--indents', and '--output=file'.
+        You want to give short option names as well:
+            --i and -o=file
+        Use this:
+            options_dict = {'output':   [1, 'o'],
+                            'indents':  [0, 'i']
+                            }
+            options_obj = ParseOptions(
+                                            system_string = sys.argv,
+                                            options_dict = options_dict
+                    )
+            options, arguments = options_obj.parse_options()
+            print options
+            print arguments
+        The result will be:
+            {indents:None, output:'/home/paul/file'}, ['/home/paul/input']
+    """
 
     def __init__(self, system_string, options_dict):
         self.__system_string = system_string[1:]
-        long_list  = self.__make_long_list_func(options_dict)
+        long_list = self.__make_long_list_func(options_dict)
         # print(long_list)
         short_list = self.__make_short_list_func(options_dict)
         # print(short_list)
@@ -159,7 +159,7 @@ class ParseOptions:
                 new_system_string.append(arg)
             # option and argument already paired
             elif '=' in arg:
-                new_system_string .append(arg)
+                new_system_string.append(arg)
             # this option takes an argument
             elif arg in self.__opt_with_args:
                 # option is the last in the list
@@ -202,8 +202,8 @@ class ParseOptions:
                 found_options = 1
             counter += 1
         if found_options:
-            just_options = self.__system_string[:highest + 1]
-            arguments = self.__system_string[highest + 1:]
+            just_options = self.__system_string[: highest + 1]
+            arguments = self.__system_string[highest + 1 :]
         else:
             just_options = []
             arguments = self.__system_string
@@ -257,7 +257,7 @@ class ParseOptions:
         # print('subbed list is  %s' % self.__system_string)
         self.__system_string = self.__pair_arg_with_option()
         # print('list with pairing is %s' % self.__system_string)
-        options, arguments  = self.__get_just_options()
+        options, arguments = self.__get_just_options()
         # print('options are %s ' % options)
         # print('arguments are %s ' % arguments)
         self.__is_legal_option_func()
@@ -266,7 +266,7 @@ class ParseOptions:
             # print(options_dict)
             return options_dict, arguments
         else:
-            return 0,0
+            return 0, 0
 
 
 if __name__ == '__main__':
@@ -275,9 +275,7 @@ if __name__ == '__main__':
         'output': [1, 'o'],
         'test3': [1, 't'],
     }
-    test_obj = ParseOptions(system_string=sys.argv,
-                    options_dict=this_dict
-            )
+    test_obj = ParseOptions(system_string=sys.argv, options_dict=this_dict)
     options, the_args = test_obj.parse_options()
     print(options, the_args)
     # this_options = ['--foo', '-o']

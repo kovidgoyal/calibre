@@ -12,14 +12,13 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 def classes(classes):
     q = frozenset(classes.split(' '))
-    return dict(attrs={
-        'class': lambda x: x and frozenset(x.split()).intersection(q)})
+    return dict(attrs={'class': lambda x: x and frozenset(x.split()).intersection(q)})
 
 
 class DerStandardRecipe(BasicNewsRecipe):
-    title = u'derStandard'
+    title = 'derStandard'
     __author__ = 'Gerhard Aigner and Sujata Raman and Marcel Jira and Peter Reschenhofer'
-    description = u'Nachrichten aus Österreich'
+    description = 'Nachrichten aus Österreich'
     publisher = 'derStandard.at'
     category = 'news, politics, nachrichten, Austria'
     use_embedded_content = False
@@ -35,28 +34,28 @@ class DerStandardRecipe(BasicNewsRecipe):
     masthead_url = 'http://images.derstandard.at/2012/06/19/derStandardat_1417x274.gif'
 
     feeds = [
-        (u'International', u'https://www.derstandard.at/rss/international'),
-        (u'Inland', u'https://www.derstandard.at/rss/inland'),
-        (u'Wirtschaft', u'https://www.derstandard.at/rss/wirtschaft'),
-        (u'Web', u'https://www.derstandard.at/rss/web'),
-        (u'Sport', u'https://derStandard.at/rss/Sport'),
-        (u'Panorama', u'https://derStandard.at/rss/Panorama'),
-        (u'Etat', u'https://derStandard.at/rss/Etat'),
-        (u'Kultur', u'https://derStandard.at/rss/Kultur'),
-        (u'Wissenschaft', u'https://derStandard.at/rss/Wissenschaft'),
-        (u'Gesundheit', u'https://derStandard.at/rss/Gesundheit'),
+        ('International', 'https://www.derstandard.at/rss/international'),
+        ('Inland', 'https://www.derstandard.at/rss/inland'),
+        ('Wirtschaft', 'https://www.derstandard.at/rss/wirtschaft'),
+        ('Web', 'https://www.derstandard.at/rss/web'),
+        ('Sport', 'https://derStandard.at/rss/Sport'),
+        ('Panorama', 'https://derStandard.at/rss/Panorama'),
+        ('Etat', 'https://derStandard.at/rss/Etat'),
+        ('Kultur', 'https://derStandard.at/rss/Kultur'),
+        ('Wissenschaft', 'https://derStandard.at/rss/Wissenschaft'),
+        ('Gesundheit', 'https://derStandard.at/rss/Gesundheit'),
         # (u'Bildung', u'https://derStandard.at/rss/Bildung'),
         # (u'Meinung', u'https://derStandard.at/rss/Meinung'),
-        (u'Lifestyle', u'https://derStandard.at/rss/Lifestyle'),
+        ('Lifestyle', 'https://derStandard.at/rss/Lifestyle'),
         # (u'Reisen', u'https://derStandard.at/rss/Reisen'),
         # (u'Familie', u'https://derstandard.at/rss/Familie'),
         # (u'Meinung', u'https://derStandard.at/rss/Meinung'),
         # (u'User', u'https://derStandard.at/rss/User'),
-        (u'Karriere', u'https://derStandard.at/rss/Karriere'),
+        ('Karriere', 'https://derStandard.at/rss/Karriere'),
         # (u'Immobilien', u'https://derstandard.at/rss/Immobilien'),
         # (u'Automobil', u'https://derstandard.at/rss/Automobil'),
-        (u'dieStandard', u'https://derStandard.at/rss/diestandard'),
-        (u'Newsroom', u'https://www.derstandard.at/rss'),
+        ('dieStandard', 'https://derStandard.at/rss/diestandard'),
+        ('Newsroom', 'https://www.derstandard.at/rss'),
     ]
 
     def get_browser(self):
@@ -67,9 +66,10 @@ class DerStandardRecipe(BasicNewsRecipe):
             'Content-Type': 'application/json; charset=UTF-8',
             'DNT': '1',
             'Pragma': 'no-cache',
-            'Cache-Control': 'no-cache'
+            'Cache-Control': 'no-cache',
         }
         import mechanize
+
         req = mechanize.Request(url='https://apps.derstandard.at/privacyprotection/api/agree', data=None, headers=headers, method='POST')
         br.open(req)
         return br
@@ -82,10 +82,8 @@ class DerStandardRecipe(BasicNewsRecipe):
         dict(name=['link', 'iframe', 'style', 'hr']),
         dict(attrs={'class': ['lookup-links', 'media-list']}),
         dict(name='form', attrs={'name': 'sitesearch'}),
-        dict(name='div', attrs={'class': ['socialsharing', 'block video',
-                                          'blog-browsing section',
-                                          'diashow', 'supplemental']}),
-        dict(name='div', attrs={'id': 'highlighted'})
+        dict(name='div', attrs={'class': ['socialsharing', 'block video', 'blog-browsing section', 'diashow', 'supplemental']}),
+        dict(name='div', attrs={'id': 'highlighted'}),
     ]
 
     remove_attributes = ['width', 'height']

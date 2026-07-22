@@ -37,6 +37,7 @@ def normalize_format_name(fmt):
 
 def get_exe_path(name):
     from calibre.ebooks.pdf.pdftohtml import PDFTOHTML
+
     base = os.path.dirname(PDFTOHTML)
     if iswindows:
         name += '-calibre.exe'
@@ -59,13 +60,16 @@ def load_jxr_data(data):
             raise NotImage('Failed to convert JPEG-XR image')
         return i
 
+
 # }}}
 
 
 # png <-> gif {{{
 
+
 def png_data_to_gif_data(data):
     from PIL import Image
+
     img = Image.open(BytesIO(data))
     buf = BytesIO()
     if img.mode in ('p', 'P'):
@@ -76,7 +80,7 @@ def png_data_to_gif_data(data):
             img.save(buf, 'gif')
     elif img.mode in ('rgba', 'RGBA'):
         alpha = img.split()[3]
-        mask = Image.eval(alpha, lambda a: 255 if a <=128 else 0)
+        mask = Image.eval(alpha, lambda a: 255 if a <= 128 else 0)
         img = img.convert('RGB').convert('P', palette=Image.ADAPTIVE, colors=255)  # type: ignore
         img.paste(255, mask)
         img.save(buf, 'gif', transparency=255)
@@ -92,6 +96,7 @@ class AnimatedGIF(ValueError):
 
 def gif_data_to_png_data(data, discard_animation=False):
     from PIL import Image
+
     img = Image.open(BytesIO(data))
     try:
         is_animated = img.is_animated  # type: ignore
@@ -103,23 +108,26 @@ def gif_data_to_png_data(data, discard_animation=False):
     img.save(buf, 'png')
     return buf.getvalue()
 
+
 # }}}
 
 
 # Loading images {{{
 
+
 def set_image_allocation_limit(size_in_mb=1024):
     from calibre_extensions.progress_indicator import set_image_allocation_limit as impl
+
     impl(size_in_mb)
 
 
 def null_image():
-    " Create an invalid image. For internal use. "
+    "Create an invalid image. For internal use."
     return QImage()
 
 
 def image_from_data(data):
-    " Create an image object from data, which should be a bytestring. "
+    "Create an image object from data, which should be a bytestring."
     if isinstance(data, QImage):
         return data
     set_image_allocation_limit()
@@ -140,13 +148,13 @@ def image_from_data(data):
 
 
 def image_from_path(path):
-    " Load an image from the specified path. "
+    "Load an image from the specified path."
     with open(path, 'rb') as f:
         return image_from_data(f.read())
 
 
 def image_from_x(x):
-    " Create an image from a bytestring or a path or a file like object. "
+    "Create an image from a bytestring or a path or a file like object."
     if isinstance(x, str):
         return image_from_path(x)
     if hasattr(x, 'read'):
@@ -161,7 +169,7 @@ def image_from_x(x):
 
 
 def image_and_format_from_data(data):
-    " Create an image object from the specified data which should be a bytestring and also return the format of the image "
+    "Create an image object from the specified data which should be a bytestring and also return the format of the image"
     ba = QByteArray(data)
     buf = QBuffer(ba)
     buf.open(QIODevice.OpenModeFlag.ReadOnly)
@@ -171,10 +179,13 @@ def image_and_format_from_data(data):
     buf.close()
     del r
     return ans, fmt
+
+
 # }}}
 
 
 # Saving images {{{
+
 
 def image_to_data(img, compression_quality=95, fmt='JPEG', png_compression_level=9, jpeg_optimized=True, jpeg_progressive=False):
     """
@@ -209,7 +220,7 @@ def image_to_data(img, compression_quality=95, fmt='JPEG', png_compression_level
         w.setQuality(compression_quality)
     elif fmt == 'PNG':
         cl = min(9, max(0, png_compression_level))
-        w.setQuality(10 * (9-cl))
+        w.setQuality(10 * (9 - cl))
     elif fmt == 'WEBP':
         w.setQuality(compression_quality)
     if not w.write(img):
@@ -218,9 +229,9 @@ def image_to_data(img, compression_quality=95, fmt='JPEG', png_compression_level
 
 
 def save_image(img, path, **kw):
-    """ Save image to the specified path. Image format is taken from the file
+    """Save image to the specified path. Image format is taken from the file
     extension. You can pass the same keyword arguments as for the
-    `image_to_data()` function. """
+    `image_to_data()` function."""
     fmt = path.rpartition('.')[-1]
     kw['fmt'] = kw.get('fmt', fmt)
     with open(path, 'wb') as f:
@@ -228,7 +239,8 @@ def save_image(img, path, **kw):
 
 
 def save_cover_data_to(
-    data, path=None,
+    data,
+    path=None,
     bgcolor='#ffffff',
     resize_to=None,
     compression_quality=90,
@@ -237,7 +249,7 @@ def save_cover_data_to(
     eink=False,
     letterbox=False,
     letterbox_color='#000000',
-    data_fmt='jpeg'
+    data_fmt='jpeg',
 ):
     """
     Saves image in data to path, in the format specified by the path
@@ -277,7 +289,12 @@ def save_cover_data_to(
         changed = fmt != orig_fmt
     if resize_to is not None:
         changed = True
-        img = img.scaled(int(resize_to[0]), int(resize_to[1]), Qt.AspectRatioMode.IgnoreAspectRatio, Qt.TransformationMode.SmoothTransformation)
+        img = img.scaled(
+            int(resize_to[0]),
+            int(resize_to[1]),
+            Qt.AspectRatioMode.IgnoreAspectRatio,
+            Qt.TransformationMode.SmoothTransformation,
+        )
     owidth, oheight = img.width(), img.height()
     if minify_to is None:
         nwidth, nheight = tweaks['maximum_cover_size']
@@ -294,7 +311,12 @@ def save_cover_data_to(
         scaled, nwidth, nheight = fit_image(owidth, oheight, nwidth, nheight)
         if scaled:
             changed = True
-            img = img.scaled(int(nwidth), int(nheight), Qt.AspectRatioMode.IgnoreAspectRatio, Qt.TransformationMode.SmoothTransformation)
+            img = img.scaled(
+                int(nwidth),
+                int(nheight),
+                Qt.AspectRatioMode.IgnoreAspectRatio,
+                Qt.TransformationMode.SmoothTransformation,
+            )
     if img.hasAlphaChannel():
         changed = True
         img = blend_image(img, bgcolor)
@@ -311,13 +333,16 @@ def save_cover_data_to(
         return image_to_data(img, compression_quality, fmt, compression_quality // 10) if changed else data
     with open(path, 'wb') as f:
         f.write(image_to_data(img, compression_quality, fmt, compression_quality // 10) if changed else data)
+
+
 # }}}
 
 
 # Overlaying images {{{
 
+
 def blend_on_canvas(img, width, height, bgcolor='#ffffff'):
-    " Blend the `img` onto a canvas with the specified background color and size "
+    "Blend the `img` onto a canvas with the specified background color and size"
     w, h = img.width(), img.height()
     scaled, nw, nh = fit_image(w, h, width, height)
     if scaled:
@@ -325,12 +350,11 @@ def blend_on_canvas(img, width, height, bgcolor='#ffffff'):
         w, h = nw, nh
     canvas = QImage(int(width), int(height), QImage.Format.Format_RGB32)
     canvas.fill(QColor(bgcolor))
-    overlay_image(img, canvas, (width - w)//2, (height - h)//2)
+    overlay_image(img, canvas, (width - w) // 2, (height - h) // 2)
     return canvas
 
 
 class Canvas:
-
     def __init__(self, width, height, bgcolor='#ffffff'):
         self.img = QImage(int(width), int(height), QImage.Format.Format_RGB32)
         self.img.fill(QColor(bgcolor))
@@ -350,14 +374,14 @@ class Canvas:
 
 
 def create_canvas(width, height, bgcolor='#ffffff'):
-    "Create a blank canvas of the specified size and color "
+    "Create a blank canvas of the specified size and color"
     img = QImage(int(width), int(height), QImage.Format.Format_RGB32)
     img.fill(QColor(bgcolor))
     return img
 
 
 def overlay_image(img, canvas=None, left=0, top=0):
-    " Overlay the `img` onto the canvas at the specified position "
+    "Overlay the `img` onto the canvas at the specified position"
     if canvas is None:
         canvas = QImage(img.size(), QImage.Format.Format_RGB32)
         canvas.fill(Qt.GlobalColor.white)
@@ -367,22 +391,25 @@ def overlay_image(img, canvas=None, left=0, top=0):
 
 
 def texture_image(canvas, texture):
-    " Repeatedly tile the image `texture` across and down the image `canvas` "
+    "Repeatedly tile the image `texture` across and down the image `canvas`"
     if canvas.hasAlphaChannel():
         canvas = blend_image(canvas)
     return imageops.texture_image(canvas, texture)
 
 
 def blend_image(img, bgcolor='#ffffff'):
-    " Used to convert images that have semi-transparent pixels to opaque by blending with the specified color "
+    "Used to convert images that have semi-transparent pixels to opaque by blending with the specified color"
     canvas = QImage(img.size(), QImage.Format.Format_RGB32)
     canvas.fill(QColor(bgcolor))
     overlay_image(img, canvas)
     return canvas
+
+
 # }}}
 
 
 # Image borders {{{
+
 
 def add_borders_to_image(img, left=0, top=0, right=0, bottom=0, border_color='#ffffff'):
     img = image_from_data(img)
@@ -395,18 +422,21 @@ def add_borders_to_image(img, left=0, top=0, right=0, bottom=0, border_color='#f
 
 
 def remove_borders_from_image(img, fuzz=None):
-    """ Try to auto-detect and remove any borders from the image. Returns
+    """Try to auto-detect and remove any borders from the image. Returns
     the image itself if no borders could be removed. `fuzz` is a measure of
     what colors are considered identical (must be a number between 0 and 255 in
-    absolute intensity units). Default is from a tweak whose default value is 10. """
+    absolute intensity units). Default is from a tweak whose default value is 10."""
     fuzz = tweaks['cover_trim_fuzz_value'] if fuzz is None else fuzz
     img = image_from_data(img)
     ans = imageops.remove_borders(img, int(max(0, fuzz)))
     return ans if ans.size() != img.size() else img
+
+
 # }}}
 
 
 # Cropping/scaling of images {{{
+
 
 def resize_image(img, width, height):
     return img.scaled(int(width), int(height), Qt.AspectRatioMode.IgnoreAspectRatio, Qt.TransformationMode.SmoothTransformation)
@@ -421,22 +451,27 @@ def resize_to_fit(img, width, height):
 
 
 def clone_image(img):
-    """ Returns a shallow copy of the image. However, the underlying data buffer
-    will be automatically copied-on-write """
+    """Returns a shallow copy of the image. However, the underlying data buffer
+    will be automatically copied-on-write"""
     return QImage(img)
 
 
 def scale_image(data, width=60, height=80, compression_quality=70, as_png=False, preserve_aspect_ratio=True):
-    """ Scale an image, returning it as either JPEG or PNG data (bytestring).
+    """Scale an image, returning it as either JPEG or PNG data (bytestring).
     Transparency is alpha blended with white when converting to JPEG. Is thread
-    safe and does not require a QApplication. """
+    safe and does not require a QApplication."""
     # We use Qt instead of ImageMagick here because ImageMagick seems to use
     # some kind of memory pool, causing memory consumption to sky rocket.
     img = image_from_data(data)
     if preserve_aspect_ratio:
         scaled, nwidth, nheight = fit_image(img.width(), img.height(), width, height)
         if scaled:
-            img = img.scaled(int(nwidth), int(nheight), Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
+            img = img.scaled(
+                int(nwidth),
+                int(nheight),
+                Qt.AspectRatioMode.KeepAspectRatio,
+                Qt.TransformationMode.SmoothTransformation,
+            )
     elif img.width() != width or img.height() != height:
         img = img.scaled(int(width), int(height), Qt.AspectRatioMode.IgnoreAspectRatio, Qt.TransformationMode.SmoothTransformation)
     fmt = 'PNG' if as_png else 'JPEG'
@@ -458,19 +493,21 @@ def crop_image(img, x, y, width, height):
     height = min(height, img.height() - y)
     return img.copy(int(x), int(y), int(width), int(height))
 
+
 # }}}
 
 
 # Image transformations {{{
+
 
 def grayscale_image(img):
     return imageops.grayscale(image_from_data(img))
 
 
 def set_image_opacity(img, alpha=0.5):
-    """ Change the opacity of `img`. Note that the alpha value is multiplied to
+    """Change the opacity of `img`. Note that the alpha value is multiplied to
     any existing alpha values, so you cannot use this function to convert a
-    semi-transparent image to an opaque one. For that use `blend_image()`. """
+    semi-transparent image to an opaque one. For that use `blend_image()`."""
     return imageops.set_opacity(image_from_data(img), alpha)
 
 
@@ -479,7 +516,7 @@ def flip_image(img, horizontal=False, vertical=False):
 
 
 def image_has_transparent_pixels(img):
-    " Return True iff the image has at least one semi-transparent pixel "
+    "Return True iff the image has at least one semi-transparent pixel"
     img = image_from_data(img)
     if img.isNull():
         return False
@@ -513,7 +550,7 @@ def normalize_image(img):
 
 
 def quantize_image(img, max_colors=256, dither=True, palette=''):
-    """ Quantize the image to contain a maximum of `max_colors` colors. By
+    """Quantize the image to contain a maximum of `max_colors` colors. By
     default a palette is chosen automatically, if you want to use a fixed
     palette, then pass in a list of color names in the `palette` variable. If
     you, specify a palette `max_colors` is ignored. Note that it is possible
@@ -532,7 +569,7 @@ def quantize_image(img, max_colors=256, dither=True, palette=''):
 
 
 def eink_dither_image(img):
-    """ Dither the source image down to the eInk palette of 16 shades of grey,
+    """Dither the source image down to the eInk palette of 16 shades of grey,
     using ImageMagick's OrderedDither algorithm.
 
     NOTE: No need to call grayscale_image first, as this will inline a grayscaling pass if need be.
@@ -544,10 +581,12 @@ def eink_dither_image(img):
         img = blend_image(img)
     return imageops.ordered_dither(img)
 
+
 # }}}
 
 
 # Optimization of images {{{
+
 
 def run_optimizer(file_path, cmd, as_filter=False, input_data=None):
     file_path = os.path.abspath(file_path)
@@ -566,6 +605,7 @@ def run_optimizer(file_path, cmd, as_filter=False, input_data=None):
 
         def repl(q, r):
             cmd[cmd.index(q)] = r
+
         if not as_filter:
             repl(True, iname), repl(False, oname)
         stdin = subprocess.PIPE if as_filter else None
@@ -584,6 +624,7 @@ def run_optimizer(file_path, cmd, as_filter=False, input_data=None):
                     shutil.copyfileobj(src, dest)
                 finally:
                     src.close(), dest.close()
+
             inw = Thread(name='CopyInput', target=copy, args=(src, p.stdin))
             inw.daemon = True
             inw.start()
@@ -639,7 +680,7 @@ def optimize_jpeg(file_path):
 
 
 def optimize_png(file_path, level=7):
-    " level goes from 1 to 7 with 7 being maximum compression "
+    "level goes from 1 to 7 with 7 being maximum compression"
     exe = get_exe_path('optipng')
     cmd = [exe] + f'-fix -clobber -strip all -o{level} -out'.split() + [False, True]
     return run_optimizer(file_path, cmd)
@@ -656,12 +697,13 @@ def run_cwebp(file_path, lossless, q, m, metadata):
 
 
 def optimize_webp(file_path, q=100, m=6, metadata='all'):
-    " metadata can be a comma seaprated list of all, none, exif, icc, xmp "
+    "metadata can be a comma seaprated list of all, none, exif, icc, xmp"
     return run_cwebp(file_path, True, q, m, metadata)
 
 
 def encode_jpeg(file_path, quality=80):
     from calibre.utils.speedups import ReadOnlyFileBuffer
+
     quality = max(0, min(100, int(quality)))
     exe = get_exe_path('cjpeg')
     cmd = [exe] + '-optimize -progressive -maxmemory 100M -quality'.split() + [str(quality)]
@@ -680,6 +722,7 @@ def encode_jpeg(file_path, quality=80):
 
 def encode_webp(file_path, quality=75, m=6, metadata='all'):
     return run_cwebp(file_path, False, quality, m, metadata)
+
 
 # }}}
 
@@ -703,10 +746,7 @@ def align8to32(bytes, width, mode):
     if not extra_padding:
         return bytes
 
-    new_data = [
-        bytes[i * bytes_per_line : (i + 1) * bytes_per_line] + b'\x00' * extra_padding
-        for i in range(len(bytes) // bytes_per_line)
-    ]
+    new_data = [bytes[i * bytes_per_line : (i + 1) * bytes_per_line] + b'\x00' * extra_padding for i in range(len(bytes) // bytes_per_line)]
 
     return b''.join(new_data)
 
@@ -773,6 +813,7 @@ def read_text_from_container(container, target_lang=''):
     if target_lang in lang_map:
         return lang_map[target_lang]
     from calibre.utils.localization import canonicalize_lang
+
     target_lang = canonicalize_lang(target_lang)
     if target_lang:
         for lang, ans in lang_map.items():
@@ -785,6 +826,7 @@ def read_alt_text_from_xmp(xmp, target_lang='') -> str:
     from lxml import etree
 
     from calibre.utils.xml_parse import safe_xml_fromstring
+
     try:
         root = safe_xml_fromstring(xmp)
     except Exception:
@@ -803,6 +845,7 @@ def read_alt_text_from_xmp(xmp, target_lang='') -> str:
 def read_alt_text(pil_im_or_path, target_lang='') -> str:
     if isinstance(pil_im_or_path, str):
         from PIL import Image
+
         im = Image.open(pil_im_or_path)
     else:
         im = pil_im_or_path
@@ -816,6 +859,7 @@ def read_alt_text(pil_im_or_path, target_lang='') -> str:
             return desc.strip()
     return ''
 
+
 # }}}
 
 
@@ -824,6 +868,7 @@ def test():  # {{{
 
     from calibre import CurrentDir
     from calibre.ptempfile import TemporaryDirectory
+
     img = image_from_data(I('lt.png', data=True, allow_user_override=False))
     with TemporaryDirectory() as tdir, CurrentDir(tdir):
         save_image(img, 'test.jpg')
@@ -850,13 +895,17 @@ def test():  # {{{
     despeckle_image(img)
     remove_borders_from_image(img)
     image_to_data(img, fmt='GIF')
-    p = subprocess.Popen([get_exe_path('JxrDecApp'), '-h'],
-                           creationflags=subprocess.DETACHED_PROCESS if iswindows else 0,
-                           stdout=subprocess.PIPE)
+    p = subprocess.Popen(
+        [get_exe_path('JxrDecApp'), '-h'],
+        creationflags=subprocess.DETACHED_PROCESS if iswindows else 0,
+        stdout=subprocess.PIPE,
+    )
     raw, _ = p.communicate()
     p.wait()
     if b'JPEG XR Decoder Utility' not in raw:
         raise SystemExit('Failed to run JxrDecApp')
+
+
 # }}}
 
 

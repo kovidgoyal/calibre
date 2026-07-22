@@ -31,17 +31,19 @@ pref = partial(pref_for_provider, OpenAICompatible.name)
 
 
 class ConfigWidget(QWidget):
-
     def __init__(self, parent: QWidget | None = None):
         super().__init__(parent)
         l = QFormLayout(self)
         l.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.ExpandingFieldsGrow)
 
-        la = QLabel('<p>' + _(
-            'Connect calibre to any self-hosted or third-party service that implements the OpenAI compatible'
-            ' <code>/v1/chat/completions</code> API. This is useful for gateways, local servers and other'
-            ' services that are not listed as dedicated providers.'
-        ))
+        la = QLabel(
+            '<p>'
+            + _(
+                'Connect calibre to any self-hosted or third-party service that implements the OpenAI compatible'
+                ' <code>/v1/chat/completions</code> API. This is useful for gateways, local servers and other'
+                ' services that are not listed as dedicated providers.'
+            )
+        )
         la.setWordWrap(True)
         l.addRow(la)
 

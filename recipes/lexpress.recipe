@@ -9,12 +9,10 @@ from calibre.web.feeds.recipes import BasicNewsRecipe
 
 def classes(classes):
     q = frozenset(classes.split(' '))
-    return dict(attrs={
-        'class': lambda x: x and frozenset(x.split()).intersection(q)})
+    return dict(attrs={'class': lambda x: x and frozenset(x.split()).intersection(q)})
 
 
 class lepoint(BasicNewsRecipe):
-
     title = "L'express"
     __author__ = 'calibre'
     description = 'Actualités'
@@ -41,25 +39,23 @@ class lepoint(BasicNewsRecipe):
         dict(name='div', attrs={'class': ['barre-outil-fb']}),
         dict(name='div', attrs={'class': ['barre-outils']}),
         dict(id='bloc-sommaire'),
-        dict(id='footer-article')
+        dict(id='footer-article'),
     ]
 
-    keep_only_tags = [
-            classes('article_header_content article_content')
-    ]
+    keep_only_tags = [classes('article_header_content article_content')]
 
     feeds = [
-        (u'À la une', 'http://www.lexpress.fr/rss/alaune.xml'),
+        ('À la une', 'http://www.lexpress.fr/rss/alaune.xml'),
         ('International', 'http://www.lexpress.fr/rss/monde.xml'),
         ('Tech/Web', 'http://www.lexpress.fr/rss/high-tech.xml'),
-        (u'Sciences/Santé', 'http://www.lexpress.fr/rss/science-et-sante.xml'),
-        (u'Envronnement', 'http://www.lexpress.fr/rss/environnement.xml'),
+        ('Sciences/Santé', 'http://www.lexpress.fr/rss/science-et-sante.xml'),
+        ('Envronnement', 'http://www.lexpress.fr/rss/environnement.xml'),
         ('Economie', 'http://www.lepoint.fr/economie/rss.xml'),
-        (u'Socièté', 'http://www.lexpress.fr/rss/societe.xml'),
+        ('Socièté', 'http://www.lexpress.fr/rss/societe.xml'),
         ('Politique', 'http://www.lexpress.fr/rss/politique.xml'),
-        (u'Médias', 'http://www.lexpress.fr/rss/medias.xml'),
+        ('Médias', 'http://www.lexpress.fr/rss/medias.xml'),
         ('Culture', 'http://www.lexpress.fr/rss/culture.xml'),
-        ('Sport', 'http://www.lexpress.fr/rss/sport.xml')
+        ('Sport', 'http://www.lexpress.fr/rss/sport.xml'),
     ]
 
     def preprocess_html(self, soup):

@@ -22,24 +22,18 @@ class DN_se(BasicNewsRecipe):
     encoding = 'utf-8'
     language = 'sv'
 
-    conversion_options = {
-        'comment': description, 'tags': category, 'publisher': publisher, 'language': language
-    }
+    conversion_options = {'comment': description, 'tags': category, 'publisher': publisher, 'language': language}
 
     feeds = [
-
-    (u'Nyheter', u'https://www.dn.se/m/rss/toppnyheter'),
-    (u'Ekonomi', u'https://www.dn.se/ekonomi-rss'),
-    (u'Sport', u'https://www.dn.se/sport-rss'),
-    (u'Debatt', u'https://www.dn.se/debatt-rss'),
-    (u'Ledare', u'https://www.dn.se/ledare-rss'),
-    (u'Kultur', u'https://www.dn.se/kultur-rss')
+        ('Nyheter', 'https://www.dn.se/m/rss/toppnyheter'),
+        ('Ekonomi', 'https://www.dn.se/ekonomi-rss'),
+        ('Sport', 'https://www.dn.se/sport-rss'),
+        ('Debatt', 'https://www.dn.se/debatt-rss'),
+        ('Ledare', 'https://www.dn.se/ledare-rss'),
+        ('Kultur', 'https://www.dn.se/kultur-rss'),
     ]
 
     keep_only_tags = [dict(name='div', attrs={'id': 'article-content'})]
     remove_tags_before = dict(name='h1')
     remove_tags_after = dict(name='div', attrs={'id': 'byline'})
-    remove_tags = [
-        dict(name=['object', 'link', 'base']), dict(
-            name='div', attrs={'id': 'hook'})
-    ]
+    remove_tags = [dict(name=['object', 'link', 'base']), dict(name='div', attrs={'id': 'hook'})]

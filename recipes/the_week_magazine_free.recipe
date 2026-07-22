@@ -2,6 +2,7 @@
 """
 www.theweek.com
 """
+
 from calibre.web.feeds.news import BasicNewsRecipe, classes
 
 
@@ -34,6 +35,7 @@ class TheWeek(BasicNewsRecipe):
 
     def get_cover_url(self):
         import json
+
         url = 'https://usmagazine.theweek.com/timelines.json'
         data = json.loads(self.index_to_soup(url, raw=True))
         for x in data['timelines'][:5]:
@@ -41,25 +43,18 @@ class TheWeek(BasicNewsRecipe):
                 if '-cover-' in x['image']:
                     return 'https://usmagazine.theweek.com' + x['image'][1:]
 
-    keep_only_tags = [
-        classes('article-type__breadcrumb header__title header__strapline image image--hero author-byline__author-text article__body')
-    ]
+    keep_only_tags = [classes('article-type__breadcrumb header__title header__strapline image image--hero author-byline__author-text article__body')]
 
-    remove_tags = [
-        dict(name=['aside', 'source']),
-        classes(
-            'blueconic-article__wrapper ad-unit van_vid_carousel tag-links'
-        )
-    ]
+    remove_tags = [dict(name=['aside', 'source']), classes('blueconic-article__wrapper ad-unit van_vid_carousel tag-links')]
 
     def preprocess_html(self, soup):
-        for img in soup.findAll('img', attrs={'data-pin-media':True}):
+        for img in soup.findAll('img', attrs={'data-pin-media': True}):
             img['src'] = img['data-pin-media'].replace('.jpg', '-768-80.jpg')
         return soup
 
     def parse_index(self):
         soup = self.index_to_soup('https://theweek.com/archive')
-        list = soup.find('ul', attrs={'class':'archive__list'})
+        list = soup.find('ul', attrs={'class': 'archive__list'})
 
         feeds = []
 

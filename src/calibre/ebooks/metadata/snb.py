@@ -1,7 +1,6 @@
 """Read meta information from SNB files"""
 
-
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2010, Li Fanxi <lifanxi@freemindworld.com>'
 
 import io
@@ -14,7 +13,7 @@ from calibre.utils.xml_parse import safe_xml_fromstring
 
 
 def get_metadata(stream, extract_cover=True):
-    """ Return metadata as a L{MetaInfo} object """
+    """Return metadata as a L{MetaInfo} object"""
     mi = MetaInformation(_('Unknown'), [_('Unknown')])
     snbFile = SNBFile()
 
@@ -54,6 +53,7 @@ def get_metadata(stream, extract_cover=True):
 
     except Exception:
         import traceback
+
         traceback.print_exc()
 
     return mi

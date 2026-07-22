@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
@@ -88,13 +88,22 @@ else:
 
 # }}}
 
-CUSTOM_DATA_TYPES = frozenset(('rating', 'text', 'comments', 'datetime',
-    'int', 'float', 'bool', 'series', 'composite', 'enumeration'))
+CUSTOM_DATA_TYPES = frozenset((
+    'rating',
+    'text',
+    'comments',
+    'datetime',
+    'int',
+    'float',
+    'bool',
+    'series',
+    'composite',
+    'enumeration',
+))
 WINDOWS_RESERVED_NAMES = frozenset('CON PRN AUX NUL COM1 COM2 COM3 COM4 COM5 COM6 COM7 COM8 COM9 LPT1 LPT2 LPT3 LPT4 LPT5 LPT6 LPT7 LPT8 LPT9'.split())
 
 
 class DynamicFilter:  # {{{
-
     "No longer used, present for legacy compatibility"
 
     def __init__(self, name):
@@ -106,11 +115,12 @@ class DynamicFilter:  # {{{
 
     def change(self, ids):
         self.ids = frozenset(ids)
+
+
 # }}}
 
 
 class DBPrefs(dict):  # {{{
-
     "Store preferences as key:value pairs in the db"
 
     def __init__(self, db):
@@ -199,18 +209,21 @@ class DBPrefs(dict):  # {{{
                 f.write(data)
         except Exception:
             import traceback
+
             traceback.print_exc()
 
     @classmethod
     def read_serialized(cls, library_path, recreate_prefs=False):
-        from_filename = os.path.join(library_path,
-                'metadata_db_prefs_backup.json')
+        from_filename = os.path.join(library_path, 'metadata_db_prefs_backup.json')
         with open(from_filename, 'rb') as f:
             return json.load(f, object_hook=from_json)
+
+
 # }}}
 
 
 # Extra collators {{{
+
 
 def pynocase(one, two, encoding='utf-8'):
     if isinstance(one, bytes):
@@ -233,13 +246,14 @@ def _author_to_author_sort(x):
 
 
 def icu_collator(s1, s2):
-    return cmp(sort_key(force_unicode(s1, 'utf-8')),
-               sort_key(force_unicode(s2, 'utf-8')))
+    return cmp(sort_key(force_unicode(s1, 'utf-8')), sort_key(force_unicode(s2, 'utf-8')))
+
 
 # }}}
 
 
 # Unused aggregators {{{
+
 
 def Concatenate(sep=','):
     """String concatenation aggregator for sqlite"""
@@ -255,6 +269,7 @@ def Concatenate(sep=','):
             return sep.join(ctxt)
         except Exception:
             import traceback
+
             traceback.print_exc()
             raise
 
@@ -275,6 +290,7 @@ def SortedConcatenate(sep=','):
             return sep.join(map(ctxt.get, sorted(ctxt)))
         except Exception:
             import traceback
+
             traceback.print_exc()
             raise
 
@@ -292,6 +308,7 @@ def IdentifiersConcat():
             return ','.join(ctxt)
         except Exception:
             import traceback
+
             traceback.print_exc()
             raise
 
@@ -316,10 +333,12 @@ def AumSortedConcatenate():
             return ':#:'.join([ctxt[v] for v in sorted(keys)])
         except Exception:
             import traceback
+
             traceback.print_exc()
             raise
 
     return ({}, step, finalize)
+
 
 # }}}
 
@@ -328,7 +347,7 @@ def AumSortedConcatenate():
 def annotations_for_book(cursor, book_id, fmt, user_type='local', user='viewer'):
     for (data,) in cursor.execute(
         'SELECT annot_data FROM annotations WHERE book=? AND format=? AND user_type=? AND user=?',
-        (book_id, fmt.upper(), user_type, user)
+        (book_id, fmt.upper(), user_type, user),
     ):
         try:
             yield json.loads(data)
@@ -349,11 +368,14 @@ def save_annotations_for_book(cursor, book_id, fmt, annots_list, user_type='loca
     cursor.execute('DELETE FROM annotations WHERE book=? AND format=? AND user_type=? AND user=?', (book_id, fmt, user_type, user))
     cursor.executemany(
         'INSERT OR REPLACE INTO annotations (book, format, user_type, user, timestamp, annot_id, annot_type, annot_data, searchable_text)'
-        ' VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', data)
+        ' VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+        data,
+    )
 
 
 def save_annotations_list_to_cursor(cursor, alist, sync_annots_user, book_id, book_fmt):
     from calibre.db.annotations import annotations_as_copied_list, merge_annotations
+
     book_fmt = book_fmt.upper()
     amap = {}
     for annot in annotations_for_book(cursor, book_id, book_fmt):
@@ -374,24 +396,26 @@ def save_annotations_list_to_cursor(cursor, alist, sync_annots_user, book_id, bo
 def save_last_read_position_to_cursor(cursor, book_id, fmt, user='_', device='_', cfi=None, epoch=None, pos_frac=0):
     if cfi:
         cursor.execute(
-            'INSERT OR REPLACE INTO last_read_positions'
-            '(book,format,user,device,cfi,epoch,pos_frac) VALUES (?,?,?,?,?,?,?)',
-            (book_id, fmt.upper(), user, device, cfi, epoch or time.time(), pos_frac))
+            'INSERT OR REPLACE INTO last_read_positions(book,format,user,device,cfi,epoch,pos_frac) VALUES (?,?,?,?,?,?,?)',
+            (book_id, fmt.upper(), user, device, cfi, epoch or time.time(), pos_frac),
+        )
     else:
         cursor.execute(
             'DELETE FROM last_read_positions WHERE book=? AND format=? AND user=? AND device=?',
-            (book_id, fmt.upper(), user, device))
+            (book_id, fmt.upper(), user, device),
+        )
+
 
 # }}}
 
 
 class Connection(apsw.Connection):  # {{{
-
     BUSY_TIMEOUT = 10000  # milliseconds
 
     def __init__(self, path):
         from calibre.utils.localization import get_lang
         from calibre_extensions.sqlite_extension import set_ui_language
+
         set_ui_language(get_lang())
         super().__init__(path)
         plugins.load_apsw_extension(self, 'sqlite_extension')
@@ -401,12 +425,10 @@ class Connection(apsw.Connection):  # {{{
         self.execute('PRAGMA cache_size=-5000; PRAGMA temp_store=2; PRAGMA foreign_keys=ON;')
 
         encoding = next(self.execute('PRAGMA encoding'))[0]
-        self.createcollation('PYNOCASE', partial(pynocase,
-            encoding=encoding))
+        self.createcollation('PYNOCASE', partial(pynocase, encoding=encoding))
 
         self.createscalarfunction('title_sort', cast(ScalarProtocol, title_sort))
-        self.createscalarfunction('author_to_author_sort',
-                cast(ScalarProtocol, _author_to_author_sort), 1)
+        self.createscalarfunction('author_to_author_sort', cast(ScalarProtocol, _author_to_author_sort), 1)
         self.createscalarfunction('uuid4', lambda *a: str(uuid.uuid4()), 0)
 
         # Dummy functions for dynamically created filters
@@ -415,15 +437,11 @@ class Connection(apsw.Connection):  # {{{
 
         # Legacy aggregators (never used) but present for backwards compat
         self.createaggregatefunction('sortconcat', SortedConcatenate, 2)
-        self.createaggregatefunction('sortconcat_bar',
-                partial(SortedConcatenate, sep='|'), 2)
-        self.createaggregatefunction('sortconcat_amper',
-                partial(SortedConcatenate, sep='&'), 2)
-        self.createaggregatefunction('identifiers_concat',
-                IdentifiersConcat, 2)
+        self.createaggregatefunction('sortconcat_bar', partial(SortedConcatenate, sep='|'), 2)
+        self.createaggregatefunction('sortconcat_amper', partial(SortedConcatenate, sep='&'), 2)
+        self.createaggregatefunction('identifiers_concat', IdentifiersConcat, 2)
         self.createaggregatefunction('concat', Concatenate, 1)
-        self.createaggregatefunction('aum_sortconcat',
-                AumSortedConcatenate, 4)
+        self.createaggregatefunction('aum_sortconcat', AumSortedConcatenate, 4)
 
     def create_dynamic_filter(self, name):
         f = DynamicFilter(name)
@@ -459,12 +477,12 @@ class Connection(apsw.Connection):  # {{{
         with self:  # Disable autocommit mode, for performance
             return self.cursor().executemany(statements, sequenceofbindings, can_cache=True, prepare_flags=prepare_flags, explain=explain)
 
+
 # }}}
 
 
 def set_global_state(backend):
-    load_user_template_functions(
-        backend.library_id, (), precompiled_user_functions=backend.get_user_template_functions())
+    load_user_template_functions(backend.library_id, (), precompiled_user_functions=backend.get_user_template_functions())
 
 
 def rmtree_with_retry(path, sleep_time=1):
@@ -479,15 +497,21 @@ def rmtree_with_retry(path, sleep_time=1):
 
 
 class DB:
-
     PATH_LIMIT = 40 if iswindows else 100
     WINDOWS_LIBRARY_PATH_LIMIT = 75
 
     # Initialize database {{{
 
-    def __init__(self, library_path, default_prefs=None, read_only=False,
-                 restore_all_prefs=False, progress_callback=lambda x, y:True,
-                 load_user_formatter_functions=True, temp_db_path=None):
+    def __init__(
+        self,
+        library_path,
+        default_prefs=None,
+        read_only=False,
+        restore_all_prefs=False,
+        progress_callback=lambda x, y: True,
+        load_user_formatter_functions=True,
+        temp_db_path=None,
+    ):
         self.is_closed = False
         if isinstance(library_path, bytes):
             library_path = library_path.decode(filesystem_encoding)
@@ -497,18 +521,16 @@ class DB:
         self.dbpath = os.path.join(library_path, 'metadata.db')
         self.dbpath = os.environ.get('CALIBRE_OVERRIDE_DATABASE_PATH', self.dbpath)
 
-        if iswindows and len(self.library_path) + 4*self.PATH_LIMIT + 10 > 259:
-            raise ValueError(_(
-                'Path to library ({0}) too long. It must be less than'
-                ' {1} characters.').format(self.library_path, 259-4*self.PATH_LIMIT-10))
+        if iswindows and len(self.library_path) + 4 * self.PATH_LIMIT + 10 > 259:
+            raise ValueError(
+                _('Path to library ({0}) too long. It must be less than {1} characters.').format(self.library_path, 259 - 4 * self.PATH_LIMIT - 10)
+            )
         exists = self._exists = os.path.exists(self.dbpath)
         if not exists:
             # Be more strict when creating new libraries as the old calculation
             # allowed for max path lengths of 265 chars.
-            if (iswindows and len(self.library_path) > self.WINDOWS_LIBRARY_PATH_LIMIT):
-                raise ValueError(_(
-                    'Path to library too long. It must be less than'
-                    ' %d characters.')%self.WINDOWS_LIBRARY_PATH_LIMIT)
+            if iswindows and len(self.library_path) > self.WINDOWS_LIBRARY_PATH_LIMIT:
+                raise ValueError(_('Path to library too long. It must be less than %d characters.') % self.WINDOWS_LIBRARY_PATH_LIMIT)
 
         if temp_db_path is not None:
             if not os.path.exists(temp_db_path):
@@ -565,8 +587,7 @@ class DB:
         self.initialize_prefs(default_prefs, restore_all_prefs, progress_callback)
         self.initialize_custom_columns()
         self.initialize_tables()
-        self.set_user_template_functions(compile_user_template_functions(
-                                 self.prefs.get('user_template_functions', [])))
+        self.set_user_template_functions(compile_user_template_functions(self.prefs.get('user_template_functions', [])))
         if self.prefs['last_expired_trash_at'] > 0:
             self.ensure_trash_dir(during_init=True)
         if load_user_formatter_functions:
@@ -606,17 +627,20 @@ class DB:
                 # be sure that prefs not to be copied are listed below
                 if restore_all_prefs or key != 'news_to_be_synced':
                     self.prefs[key] = default_prefs[key]
-                    progress_callback(_('restored preference ') + key, i+1)
+                    progress_callback(_('restored preference ') + key, i + 1)
             if 'field_metadata' in default_prefs:
-                fmvals = [f for f in default_prefs['field_metadata'].values()
-                                if f['is_custom']]
+                fmvals = [f for f in default_prefs['field_metadata'].values() if f['is_custom']]
                 progress_callback(None, len(fmvals))
                 for i, f in enumerate(fmvals):
                     progress_callback(_('creating custom column ') + f['label'], i)
-                    self.create_custom_column(f['label'], f['name'],
-                            f['datatype'],
-                            (f['is_multiple'] is not None and len(f['is_multiple']) > 0),
-                            f['is_editable'], f['display'])
+                    self.create_custom_column(
+                        f['label'],
+                        f['name'],
+                        f['datatype'],
+                        (f['is_multiple'] is not None and len(f['is_multiple']) > 0),
+                        f['is_editable'],
+                        f['display'],
+                    )
 
         defs = self.prefs.defaults
         defs['gui_restriction'] = defs['cs_restriction'] = ''
@@ -636,12 +660,26 @@ class DB:
         defs['last_expired_trash_at'] = 0.0
         defs['expire_old_trash_after'] = DEFAULT_TRASH_EXPIRY_TIME_SECONDS
         defs['book_display_fields'] = [
-        ('title', False), ('authors', True), ('series', True),
-        ('identifiers', True), ('tags', True), ('formats', True),
-        ('path', True), ('publisher', False), ('rating', False),
-        ('author_sort', False), ('sort', False), ('timestamp', False),
-        ('uuid', False), ('comments', True), ('id', False), ('pubdate', False),
-        ('last_modified', False), ('size', False), ('languages', False), ('pages', False),
+            ('title', False),
+            ('authors', True),
+            ('series', True),
+            ('identifiers', True),
+            ('tags', True),
+            ('formats', True),
+            ('path', True),
+            ('publisher', False),
+            ('rating', False),
+            ('author_sort', False),
+            ('sort', False),
+            ('timestamp', False),
+            ('uuid', False),
+            ('comments', True),
+            ('id', False),
+            ('pubdate', False),
+            ('last_modified', False),
+            ('size', False),
+            ('languages', False),
+            ('pages', False),
         ]
         defs['popup_book_display_fields'] = [('title', True)] + [(f[0], True) for f in defs['book_display_fields'] if f[0] != 'title']
         defs['qv_display_fields'] = [('title', True), ('authors', True), ('series', True)]
@@ -667,14 +705,14 @@ class DB:
             self.prefs.set('bookshelf_grouping_mode', '')
 
         # Migrate the bool tristate tweak
-        defs['bools_are_tristate'] = \
-                tweaks.get('bool_custom_columns_are_tristate', 'yes') == 'yes'
+        defs['bools_are_tristate'] = tweaks.get('bool_custom_columns_are_tristate', 'yes') == 'yes'
         if self.prefs.get('bools_are_tristate') is None:
             self.prefs.set('bools_are_tristate', defs['bools_are_tristate'])
 
         # Migrate column coloring rules
         if self.prefs.get('column_color_name_1', None) is not None:
             from calibre.library.coloring import migrate_old_rule
+
             old_rules = []
             for i in range(1, 6):
                 col = self.prefs.get(f'column_color_name_{i}', None)
@@ -747,12 +785,13 @@ class DB:
                 suffix = 1
                 while icu_lower(cat + str(suffix)) in catmap:
                     suffix += 1
-                prints(f'Renaming user category {cat} to {cat+str(suffix)}')
+                prints(f'Renaming user category {cat} to {cat + str(suffix)}')
                 user_cats[cat + str(suffix)] = user_cats[cat]
                 del user_cats[cat]
                 cats_changed = True
         if cats_changed:
             self.prefs.set('user_categories', user_cats)
+
     # }}}
 
     def initialize_custom_columns(self):  # {{{
@@ -760,8 +799,7 @@ class DB:
         self.deleted_fields = []
         with self.conn:
             # Delete previously marked custom columns
-            for num, label in self.conn.get(
-                    'SELECT id,label FROM custom_columns WHERE mark_for_delete=1'):
+            for num, label in self.conn.get('SELECT id,label FROM custom_columns WHERE mark_for_delete=1'):
                 table, lt = self.custom_table_names(num)
                 self.execute(f'''\
                         DROP INDEX   IF EXISTS {table}_idx;
@@ -777,10 +815,9 @@ class DB:
                         DROP VIEW    IF EXISTS tag_browser_filtered_{table};
                         DROP TABLE   IF EXISTS {table};
                         DROP TABLE   IF EXISTS {lt};
-                        '''
-                )
+                        ''')
                 self.prefs.set('update_all_last_mod_dates_on_start', True)
-                self.deleted_fields.append('#'+label)
+                self.deleted_fields.append('#' + label)
             self.execute('DELETE FROM custom_columns WHERE mark_for_delete=1')
 
         # Load metadata for custom columns
@@ -789,18 +826,17 @@ class DB:
         triggers = []
         remove = []
         custom_tables = self.custom_tables
-        for record in self.conn.get(
-                'SELECT label,name,datatype,editable,display,normalized,id,is_multiple FROM custom_columns'):
+        for record in self.conn.get('SELECT label,name,datatype,editable,display,normalized,id,is_multiple FROM custom_columns'):
             data = {
-                    'label':record[0],
-                    'name':record[1],
-                    'datatype':record[2],
-                    'editable':bool(record[3]),
-                    'display':json.loads(record[4]),
-                    'normalized':bool(record[5]),
-                    'num':record[6],
-                    'is_multiple':bool(record[7]),
-                    }
+                'label': record[0],
+                'name': record[1],
+                'datatype': record[2],
+                'editable': bool(record[3]),
+                'display': json.loads(record[4]),
+                'normalized': bool(record[5]),
+                'num': record[6],
+                'is_multiple': bool(record[7]),
+            }
             if data['display'] is None:
                 data['display'] = {}
             # set up the is_multiple separator dict
@@ -816,13 +852,11 @@ class DB:
             data['multiple_seps'] = seps
 
             table, lt = self.custom_table_names(data['num'])
-            if table not in custom_tables or (data['normalized'] and lt not in
-                    custom_tables):
+            if table not in custom_tables or (data['normalized'] and lt not in custom_tables):
                 remove.append(data)
                 continue
 
-            self.custom_column_num_map[data['num']] = \
-                self.custom_column_label_map[data['label']] = data
+            self.custom_column_num_map[data['num']] = self.custom_column_label_map[data['label']] = data
             self.custom_column_num_to_label_map[data['num']] = data['label']
 
             # Create Foreign Key triggers
@@ -836,18 +870,19 @@ class DB:
             with self.conn:
                 for data in remove:
                     prints('WARNING: Custom column {!r} not found, removing.'.format(data['label']))
-                    self.execute('DELETE FROM custom_columns WHERE id=?',
-                            (data['num'],))
+                    self.execute('DELETE FROM custom_columns WHERE id=?', (data['num'],))
 
         if triggers:
             with self.conn:
-                self.execute('''\
+                self.execute(
+                    '''\
                     CREATE TEMP TRIGGER custom_books_delete_trg
                         AFTER DELETE ON books
                         BEGIN
                         {}
                     END;
-                    '''.format(' \n'.join(triggers)))
+                    '''.format(' \n'.join(triggers))
+                )
 
         # Setup data adapters
         def adapt_text(x, d):
@@ -857,12 +892,10 @@ class DB:
                 if isinstance(x, (str, bytes)):
                     x = x.split(d['multiple_seps']['ui_to_list'])
                 x = [y.strip() for y in x if y.strip()]
-                x = [y.decode(preferred_encoding, 'replace') if not isinstance(y,
-                    str) else y for y in x]
+                x = [y.decode(preferred_encoding, 'replace') if not isinstance(y, str) else y for y in x]
                 return [' '.join(y.split()) for y in x]
             else:
-                return x if x is None or isinstance(x, str) else \
-                        x.decode(preferred_encoding, 'replace')
+                return x if x is None or isinstance(x, str) else x.decode(preferred_encoding, 'replace')
 
         def adapt_datetime(x, d):
             if isinstance(x, (str, bytes)):
@@ -905,15 +938,15 @@ class DB:
             return float(x)
 
         self.custom_data_adapters = {
-                'float': adapt_number,
-                'int': adapt_number,
-                'rating':lambda x,d: x if x is None else min(10., max(0., float(x))),
-                'bool': adapt_bool,
-                'comments': lambda x,d: adapt_text(x, {'is_multiple':False}),
-                'datetime': adapt_datetime,
-                'text':adapt_text,
-                'series':adapt_text,
-                'enumeration': adapt_enum
+            'float': adapt_number,
+            'int': adapt_number,
+            'rating': lambda x, d: x if x is None else min(10.0, max(0.0, float(x))),
+            'bool': adapt_bool,
+            'comments': lambda x, d: adapt_text(x, {'is_multiple': False}),
+            'datetime': adapt_datetime,
+            'text': adapt_text,
+            'series': adapt_text,
+            'enumeration': adapt_enum,
         }
 
         # Create Tag Browser categories for custom columns
@@ -925,25 +958,43 @@ class DB:
                 is_category = False
             is_m = v['multiple_seps']
             tn = 'custom_column_{}'.format(v['num'])
-            self.field_metadata.add_custom_field(label=v['label'],
-                    table=tn, column='value', datatype=v['datatype'],
-                    colnum=v['num'], name=v['name'], display=v['display'],
-                    is_multiple=is_m, is_category=is_category,
-                    is_editable=v['editable'], is_csp=False)
+            self.field_metadata.add_custom_field(
+                label=v['label'],
+                table=tn,
+                column='value',
+                datatype=v['datatype'],
+                colnum=v['num'],
+                name=v['name'],
+                display=v['display'],
+                is_multiple=is_m,
+                is_category=is_category,
+                is_editable=v['editable'],
+                is_csp=False,
+            )
 
     # }}}
 
     def initialize_tables(self):  # {{{
         tables = self.tables = {}
-        for col in ('title', 'sort', 'author_sort', 'series_index', 'comments',
-                'timestamp', 'pubdate', 'uuid', 'path', 'cover', 'pages',
-                'last_modified'):
+        for col in (
+            'title',
+            'sort',
+            'author_sort',
+            'series_index',
+            'comments',
+            'timestamp',
+            'pubdate',
+            'uuid',
+            'path',
+            'cover',
+            'pages',
+            'last_modified',
+        ):
             metadata = self.field_metadata[col].copy()
             if col == 'comments':
                 metadata['table'], metadata['column'] = 'comments', 'text'
             if not metadata['table']:
-                metadata['table'], metadata['column'] = 'books', ('has_cover'
-                        if col == 'cover' else col)
+                metadata['table'], metadata['column'] = 'books', ('has_cover' if col == 'cover' else col)
             if not metadata['column']:
                 metadata['column'] = col
             tables[col] = (PathTable if col == 'path' else UUIDTable if col == 'uuid' else OneToOneTable)(col, metadata)
@@ -953,24 +1004,42 @@ class DB:
 
         for col in ('authors', 'tags', 'formats', 'identifiers', 'languages', 'rating'):
             cls = {
-                    'authors':AuthorsTable,
-                    'formats':FormatsTable,
-                    'identifiers':IdentifiersTable,
-                    'rating':RatingTable,
-                  }.get(col, ManyToManyTable)
+                'authors': AuthorsTable,
+                'formats': FormatsTable,
+                'identifiers': IdentifiersTable,
+                'rating': RatingTable,
+            }.get(col, ManyToManyTable)
             tables[col] = cls(col, self.field_metadata[col].copy())
 
         tables['size'] = SizeTable('size', self.field_metadata['size'].copy())
 
         self.FIELD_MAP = {
-            'id':0, 'title':1, 'authors':2, 'timestamp':3, 'size':4,
-            'rating':5, 'tags':6, 'comments':7, 'series':8, 'publisher':9,
-            'series_index':10, 'sort':11, 'author_sort':12, 'formats':13,
-            'path':14, 'pubdate':15, 'uuid':16, 'cover':17, 'au_map':18,
-            'last_modified':19, 'identifiers':20, 'languages':21, 'pages':22,
+            'id': 0,
+            'title': 1,
+            'authors': 2,
+            'timestamp': 3,
+            'size': 4,
+            'rating': 5,
+            'tags': 6,
+            'comments': 7,
+            'series': 8,
+            'publisher': 9,
+            'series_index': 10,
+            'sort': 11,
+            'author_sort': 12,
+            'formats': 13,
+            'path': 14,
+            'pubdate': 15,
+            'uuid': 16,
+            'cover': 17,
+            'au_map': 18,
+            'last_modified': 19,
+            'identifiers': 20,
+            'languages': 21,
+            'pages': 22,
         }
 
-        for k,v in self.FIELD_MAP.items():
+        for k, v in self.FIELD_MAP.items():
             self.field_metadata.set_field_record_index(k, v, prefer_custom=False)
 
         base = max(self.FIELD_MAP.values())
@@ -980,24 +1049,20 @@ class DB:
             label = self.field_metadata.custom_field_prefix + label_
             metadata = self.field_metadata[label].copy()
             link_table = self.custom_table_names(data['num'])[1]
-            self.FIELD_MAP[data['num']] = base = base+1
-            self.field_metadata.set_field_record_index(label_, base,
-                    prefer_custom=True)
+            self.FIELD_MAP[data['num']] = base = base + 1
+            self.field_metadata.set_field_record_index(label_, base, prefer_custom=True)
             if data['datatype'] == 'series':
                 # account for the series index column. Field_metadata knows that
                 # the series index is one larger than the series. If you change
                 # it here, be sure to change it there as well.
-                self.FIELD_MAP[str(data['num'])+'_index'] = base = base+1
-                self.field_metadata.set_field_record_index(label_+'_index', base,
-                            prefer_custom=True)
+                self.FIELD_MAP[str(data['num']) + '_index'] = base = base + 1
+                self.field_metadata.set_field_record_index(label_ + '_index', base, prefer_custom=True)
 
             if data['normalized']:
                 if metadata['is_multiple']:
-                    tables[label] = ManyToManyTable(label, metadata,
-                            link_table=link_table)
+                    tables[label] = ManyToManyTable(label, metadata, link_table=link_table)
                 else:
-                    tables[label] = ManyToOneTable(label, metadata,
-                            link_table=link_table)
+                    tables[label] = ManyToOneTable(label, metadata, link_table=link_table)
                     if metadata['datatype'] == 'series':
                         # Create series index table
                         label += '_index'
@@ -1010,19 +1075,20 @@ class DB:
             else:
                 tables[label] = OneToOneTable(label, metadata)
 
-        self.FIELD_MAP['ondevice'] = base = base+1
+        self.FIELD_MAP['ondevice'] = base = base + 1
         self.field_metadata.set_field_record_index('ondevice', base, prefer_custom=False)
-        self.FIELD_MAP['marked'] = base = base+1
+        self.FIELD_MAP['marked'] = base = base + 1
         self.field_metadata.set_field_record_index('marked', base, prefer_custom=False)
-        self.FIELD_MAP['series_sort'] = base = base+1
+        self.FIELD_MAP['series_sort'] = base = base + 1
         self.field_metadata.set_field_record_index('series_sort', base, prefer_custom=False)
-        self.FIELD_MAP['in_tag_browser'] = base = base+1
+        self.FIELD_MAP['in_tag_browser'] = base = base + 1
         self.field_metadata.set_field_record_index('in_tag_browser', base, prefer_custom=False)
 
     # }}}
 
     def initialize_notes(self):
         from .notes.connect import Notes
+
         self.notes = Notes(self)
 
     def clear_notes_for_category_items(self, field_name, item_map):
@@ -1041,8 +1107,10 @@ class DB:
         # For custom series this means that the series index can
         # potentially have duplicates/be incorrect, but there is no way to
         # handle that in this context.
-        self.execute(f'UPDATE {link_table_name} SET {link_col_name}=? WHERE {link_col_name}=?; DELETE FROM {table_name} WHERE id=?',
-                     (new_item_id, old_item_id, old_item_id))
+        self.execute(
+            f'UPDATE {link_table_name} SET {link_col_name}=? WHERE {link_col_name}=?; DELETE FROM {table_name} WHERE id=?',
+            (new_item_id, old_item_id, old_item_id),
+        )
 
     def notes_for(self, field_name, item_id):
         return self.notes.get_note(self.conn, field_name, item_id) or ''
@@ -1079,15 +1147,34 @@ class DB:
     def unretire_note(self, field, item_id, item_val):
         return self.notes.unretire(self.conn, field, item_id, item_val)
 
-    def search_notes(self,
-        fts_engine_query, use_stemming, highlight_start, highlight_end, snippet_size, restrict_to_fields, return_text, process_each_result, limit
+    def search_notes(
+        self,
+        fts_engine_query,
+        use_stemming,
+        highlight_start,
+        highlight_end,
+        snippet_size,
+        restrict_to_fields,
+        return_text,
+        process_each_result,
+        limit,
     ):
         yield from self.notes.search(
-            self.conn, fts_engine_query, use_stemming, highlight_start, highlight_end, snippet_size, restrict_to_fields, return_text,
-            process_each_result, limit)
+            self.conn,
+            fts_engine_query,
+            use_stemming,
+            highlight_start,
+            highlight_end,
+            snippet_size,
+            restrict_to_fields,
+            return_text,
+            process_each_result,
+            limit,
+        )
 
     def export_notes_data(self, outfile):
         import zipfile
+
         with zipfile.ZipFile(outfile, mode='w') as zf:
             pt = PersistentTemporaryFile()
             try:
@@ -1120,6 +1207,7 @@ class DB:
         if not self.prefs['fts_enabled']:
             return
         from .fts.connect import FTS
+
         self.fts = FTS(dbref)
         return self.fts
 
@@ -1185,12 +1273,28 @@ class DB:
         assert self.fts is not None
         return self.fts.dirty_book(book_id, *fmts)
 
-    def fts_search(self,
-        fts_engine_query, use_stemming, highlight_start, highlight_end, snippet_size, restrict_to_book_ids, return_text, process_each_result
+    def fts_search(
+        self,
+        fts_engine_query,
+        use_stemming,
+        highlight_start,
+        highlight_end,
+        snippet_size,
+        restrict_to_book_ids,
+        return_text,
+        process_each_result,
     ):
         assert self.fts is not None
         yield from self.fts.search(
-            fts_engine_query, use_stemming, highlight_start, highlight_end, snippet_size, restrict_to_book_ids, return_text, process_each_result)
+            fts_engine_query,
+            use_stemming,
+            highlight_start,
+            highlight_end,
+            snippet_size,
+            restrict_to_book_ids,
+            return_text,
+            process_each_result,
+        )
 
     def shutdown_fts(self):
         if self.fts_enabled:
@@ -1246,7 +1350,7 @@ class DB:
             return ans.fetchall()
         try:
             return next(ans)[0]
-        except (StopIteration, IndexError):
+        except StopIteration, IndexError:
             return None
 
     def last_insert_rowid(self):
@@ -1285,20 +1389,19 @@ class DB:
 
     def create_custom_column(self, label, name, datatype, is_multiple, editable=True, display={}):  # {{{
         import re
+
         if not label:
             raise ValueError(_('No label was provided'))
         if re.match(r'^\w*$', label) is None or not label[0].isalpha() or label.lower() != label:
             raise ValueError(_('The label must contain only lower case letters, digits and underscores, and start with a letter'))
         if datatype not in CUSTOM_DATA_TYPES:
             raise ValueError(f'{datatype!r} is not a supported data type')
-        normalized  = datatype not in ('datetime', 'comments', 'int', 'bool',
-                'float', 'composite')
+        normalized = datatype not in ('datetime', 'comments', 'int', 'bool', 'float', 'composite')
         is_multiple = is_multiple and datatype in ('text', 'composite')
         self.execute(
-                ('INSERT INTO '
-                'custom_columns(label,name,datatype,is_multiple,editable,display,normalized)'
-                'VALUES (?,?,?,?,?,?,?)'),
-                (label, name, datatype, is_multiple, editable, json.dumps(display), normalized))
+            ('INSERT INTO custom_columns(label,name,datatype,is_multiple,editable,display,normalized)VALUES (?,?,?,?,?,?,?)'),
+            (label, name, datatype, is_multiple, editable, json.dumps(display), normalized),
+        )
         num = self.conn.last_insert_rowid()
 
         if datatype in ('rating', 'int'):
@@ -1326,9 +1429,7 @@ class DB:
                     link TEXT NOT NULL DEFAULT "",
                     UNIQUE(value));
                 ''',
-
                 f'CREATE INDEX {table}_idx ON {table} (value {collate});',
-
                 f'''\
                 CREATE TABLE {lt}(
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -1337,10 +1438,8 @@ class DB:
                     {s_index}
                     UNIQUE(book, value)
                     );''',
-
                 f'CREATE INDEX {lt}_aidx ON {lt} (value);',
                 f'CREATE INDEX {lt}_bidx ON {lt} (book);',
-
                 f'''\
                 CREATE TRIGGER fkc_update_{lt}_a
                         BEFORE UPDATE OF book ON {lt}
@@ -1403,7 +1502,6 @@ class DB:
                 FROM {table};
 
                 ''',
-
             ]
         else:
             lines = [
@@ -1414,9 +1512,7 @@ class DB:
                     value {dt} NOT NULL {collate},
                     UNIQUE(book));
                 ''',
-
                 f'CREATE INDEX {table}_idx ON {table} (book);',
-
                 f'''\
                 CREATE TRIGGER fkc_insert_{table}
                         BEFORE INSERT ON {table}
@@ -1440,6 +1536,7 @@ class DB:
         self.execute(script)
         self.prefs.set('update_all_last_mod_dates_on_start', True)
         return num
+
     # }}}
 
     def delete_custom_column(self, label=None, num=None):
@@ -1469,9 +1566,12 @@ class DB:
 
     def dump_and_restore(self, callback=None, sql=None):
         from apsw import Shell  # type: ignore
+
         if callback is None:
+
             def callback(x):
                 return x
+
         uv = int(self.user_version)
 
         with TemporaryFile(suffix='.sql') as fname:
@@ -1518,12 +1618,12 @@ class DB:
         self.execute(f'PRAGMA user_version={int(val)}')
 
     def initialize_database(self):
-        metadata_sqlite = P('metadata_sqlite.sql', data=True,
-                allow_user_override=False).decode('utf-8')
+        metadata_sqlite = P('metadata_sqlite.sql', data=True, allow_user_override=False).decode('utf-8')
         with self.conn:
             self.conn.cursor().execute(metadata_sqlite)
             if self.user_version == 0:
                 self.user_version = 1
+
     # }}}
 
     def __enter__(self):
@@ -1561,7 +1661,7 @@ class DB:
         book_id = BOOK_ID_PATH_TEMPLATE.format(book_id)
         l = self.PATH_LIMIT - (len(book_id) // 2) - 2
         author = ascii_filename(author)[:l]
-        title  = ascii_filename(title.lstrip())[:l].rstrip()
+        title = ascii_filename(title.lstrip())[:l].rstrip()
         if not title:
             title = 'Unknown'[:l]
         try:
@@ -1588,10 +1688,10 @@ class DB:
         if l < 5:
             raise ValueError(f'Extension length too long: {extlen}')
         author = ascii_filename(author)[:l]
-        title  = ascii_filename(title.lstrip())[:l].rstrip()
+        title = ascii_filename(title.lstrip())[:l].rstrip()
         if not title:
             title = 'Unknown'[:l]
-        name   = title + ' - ' + author
+        name = title + ' - ' + author
         while name.endswith('.'):
             name = name[:-1]
         if not name:
@@ -1605,9 +1705,10 @@ class DB:
 
     @property
     def custom_tables(self):
-        return {x[0] for x in self.conn.get(
-            "SELECT name FROM sqlite_master WHERE type='table' AND "
-            "(name GLOB 'custom_column_*' OR name GLOB 'books_custom_column_*')")}
+        return {
+            x[0]
+            for x in self.conn.get("SELECT name FROM sqlite_master WHERE type='table' AND (name GLOB 'custom_column_*' OR name GLOB 'books_custom_column_*')")
+        }
 
     @classmethod
     def exists_at(cls, path):
@@ -1629,13 +1730,16 @@ class DB:
     @library_id.setter
     def library_id(self, val):
         self._library_id_ = str(val)
-        self.execute('''
+        self.execute(
+            '''
                 DELETE FROM library_id;
                 INSERT INTO library_id (uuid) VALUES (?);
-                ''', (self._library_id_,))
+                ''',
+            (self._library_id_,),
+        )
 
     def last_modified(self):
-        """ Return last modified time as a UTC datetime object """
+        """Return last modified time as a UTC datetime object"""
         return utcfromtimestamp(os.stat(self.dbpath).st_mtime)
 
     def read_tables(self):
@@ -1650,6 +1754,7 @@ class DB:
                 except Exception:
                     prints('Failed to read table:', table.name)
                     import pprint
+
                     pprint.pprint(table.metadata)
                     raise
 
@@ -1670,7 +1775,7 @@ class DB:
     def format_abspath(self, book_id, fmt, fname, book_path, do_file_rename=True):
         path = os.path.join(self.library_path, book_path)
         fmt = ('.' + fmt.lower()) if fmt else ''
-        fmt_path = os.path.join(path, fname+fmt)
+        fmt_path = os.path.join(path, fname + fmt)
         if os.path.exists(fmt_path):
             return fmt_path
         if not fmt:
@@ -1691,7 +1796,7 @@ class DB:
                         return fmt_path
                     try:
                         shutil.move(x, fmt_path)
-                    except (shutil.SameFileError, OSError):
+                    except shutil.SameFileError, OSError:
                         # some other process synced in the file since the last
                         # os.path.exists()
                         return x
@@ -1776,8 +1881,7 @@ class DB:
         path = os.path.abspath(os.path.join(self.library_path, path, COVER_FILE_NAME))
         if windows_atomic_move is not None:
             if not isinstance(dest, (str, bytes)):
-                raise Exception('Error, you must pass the dest as a path when'
-                        ' using windows_atomic_move')
+                raise Exception('Error, you must pass the dest as a path when using windows_atomic_move')
             if os.access(path, os.R_OK) and dest and not samefile(dest, path):
                 windows_atomic_move.copy_path_to(path, dest)
                 return True
@@ -1827,6 +1931,7 @@ class DB:
         with f:
             if as_what == 'pil_image':
                 from PIL import Image
+
                 data = Image.open(f)
                 data.load()
             else:
@@ -1844,8 +1949,10 @@ class DB:
     def compress_covers(self, path_map, jpeg_quality, progress_callback):
         cpath_map = {}
         if not progress_callback:
+
             def progress_callback(book_id, old_sz, new_sz):
                 return None
+
         for book_id, path in path_map.items():
             path = os.path.abspath(os.path.join(self.library_path, path, COVER_FILE_NAME))
             try:
@@ -1855,6 +1962,7 @@ class DB:
             else:
                 cpath_map[book_id] = (path, sz)
         from calibre.db.covers import compress_covers
+
         compress_covers(cpath_map, jpeg_quality, progress_callback)
 
     def set_cover(self, book_id, path, data, no_processing=False):
@@ -1864,6 +1972,7 @@ class DB:
         path = os.path.join(path, COVER_FILE_NAME)
         if callable(getattr(data, 'save', None)):
             from calibre.gui2 import pixmap_to_data
+
             data = pixmap_to_data(data)
         elif callable(getattr(data, 'read', None)):
             data = data.read()
@@ -1880,6 +1989,7 @@ class DB:
                 f.write(data)
         else:
             from calibre.utils.img import save_cover_data_to
+
             try:
                 save_cover_data_to(data, path)
             except OSError:
@@ -1887,15 +1997,13 @@ class DB:
                     time.sleep(0.2)
                 save_cover_data_to(data, path)
 
-    def copy_format_to(self, book_id, fmt, fname, path, dest,
-                       windows_atomic_move=None, use_hardlink=False, report_file_size=None):
+    def copy_format_to(self, book_id, fmt, fname, path, dest, windows_atomic_move=None, use_hardlink=False, report_file_size=None):
         path = self.format_abspath(book_id, fmt, fname, path)
         if path is None:
             return False
         if windows_atomic_move is not None:
             if not isinstance(dest, (str, bytes)):
-                raise Exception('Error, you must pass the dest as a path when'
-                        ' using windows_atomic_move')
+                raise Exception('Error, you must pass the dest as a path when using windows_atomic_move')
             if dest:
                 if samefile(dest, path):
                     # Ensure that the file has the same case as dest
@@ -1967,6 +2075,7 @@ class DB:
                         # Failing to rename the old format will at worst leave a
                         # harmless orphan, so log and ignore the error
                         import traceback
+
                         traceback.print_exc()
 
         if isinstance(stream, str) and stream:
@@ -1979,7 +2088,7 @@ class DB:
                 else:
                     raise
             size = os.path.getsize(dest)
-        elif (not getattr(stream, 'name', False) or not samefile(dest, stream.name)):
+        elif not getattr(stream, 'name', False) or not samefile(dest, stream.name):
             with open(dest, 'wb') as f:
                 shutil.copyfileobj(stream, f)
                 size = f.tell()
@@ -2085,7 +2194,12 @@ class DB:
             return os.path.join(os.path.dirname(dest_path), fname + '.' + fmt)
 
         if os.path.exists(spath):
-            copy_tree(os.path.abspath(spath), tpath, delete_source=True, transform_destination_filename=transform_format_filenames)
+            copy_tree(
+                os.path.abspath(spath),
+                tpath,
+                delete_source=True,
+                transform_destination_filename=transform_format_filenames,
+            )
             parent = os.path.dirname(spath)
             with suppress(OSError):
                 remove_dir_if_empty(parent, ignore_metadata_caches=True)
@@ -2117,22 +2231,27 @@ class DB:
         full_book_path = os.path.abspath(os.path.join(self.library_path, book_path))
         if pattern:
             from pathlib import Path
+
             try:
                 path_from_root(full_book_path, pattern, case_sensitive=self.is_case_sensitive)
             except ValueError:
                 return
+
             def iterator():
                 p = Path(full_book_path)
                 for x in p.glob(pattern):
                     path = str(x)
                     if is_path_inside(full_book_path, path, case_sensitive=self.is_case_sensitive):
                         yield path
+
         else:
+
             def iterator():
                 for dirpath, dirnames, filenames in os.walk(full_book_path):
                     for fname in filenames:
                         path = os.path.join(dirpath, fname)
                         yield path
+
         for path in iterator():
             if os.access(path, os.R_OK):
                 relpath = os.path.relpath(path, full_book_path)
@@ -2177,10 +2296,12 @@ class DB:
                         os.remove(make_long_path_useable(path))
                 else:
                     from calibre.utils.recycle_bin import recycle
+
                     assert recycle is not None
                     recycle(make_long_path_useable(path))
             except Exception as e:
                 import traceback
+
                 traceback.print_exc()
                 errors[relpath] = e
         return errors
@@ -2280,6 +2401,7 @@ class DB:
         os.makedirs(os.path.join(tdir, 'f'), exist_ok=True)
         if iswindows:
             from calibre_extensions import winutil
+
             winutil.set_file_attributes(tdir, winutil.FILE_ATTRIBUTE_HIDDEN | winutil.FILE_ATTRIBUTE_NOT_CONTENT_INDEXED)
         if time.time() - self.last_expired_trash_at >= 3600:
             self.expire_old_trash(during_init=during_init)
@@ -2313,6 +2435,7 @@ class DB:
                 if not during_init:
                     raise
                 import traceback
+
                 traceback.print_exc()
 
     def move_book_to_trash(self, book_id, book_dir_abspath):
@@ -2334,6 +2457,7 @@ class DB:
 
     def get_metadata_for_trash_book(self, book_id, read_annotations=True):
         from .restore import read_opf
+
         bdir = os.path.join(self.trash_dir, 'b', str(book_id))
         if not os.path.isdir(bdir):
             raise ValueError(f'The book {book_id} not present in the trash folder')
@@ -2378,6 +2502,7 @@ class DB:
 
     def list_trash_entries(self):
         from calibre.ebooks.metadata.opf2 import OPF
+
         self.ensure_trash_dir()
         books, files = [], []
         base = os.path.join(self.trash_dir, 'b')
@@ -2392,9 +2517,18 @@ class DB:
                         opf = OPF(opf_stream, basedir=x.path)
                 except Exception:
                     import traceback
+
                     traceback.print_exc()
                     continue
-                books.append(TrashEntry(book_id, opf.title or unknown, (opf.authors or au)[0], os.path.join(x.path, COVER_FILE_NAME), mtime))
+                books.append(
+                    TrashEntry(
+                        book_id,
+                        opf.title or unknown,
+                        (opf.authors or au)[0],
+                        os.path.join(x.path, COVER_FILE_NAME),
+                        mtime,
+                    )
+                )
         base = os.path.join(self.trash_dir, 'f')
         um = {'title': unknown, 'authors': au}
         for x in os.scandir(base):
@@ -2414,6 +2548,7 @@ class DB:
                                     metadata = json.loads(mf.read())
                             except Exception:
                                 import traceback
+
                                 traceback.print_exc()
                                 continue
                         else:
@@ -2425,8 +2560,7 @@ class DB:
 
     def remove_books(self, path_map, permanent=False):
         self.ensure_trash_dir()
-        self.executemany(
-            'DELETE FROM books WHERE id=?', [(x,) for x in path_map])
+        self.executemany('DELETE FROM books WHERE id=?', [(x,) for x in path_map])
         parent_paths = set()
         for book_id, path in path_map.items():
             if path:
@@ -2439,11 +2573,11 @@ class DB:
 
     def add_custom_data(self, name, val_map, delete_first):
         if delete_first:
-            self.execute('DELETE FROM books_plugin_data WHERE name=?', (name, ))
+            self.execute('DELETE FROM books_plugin_data WHERE name=?', (name,))
         self.executemany(
             'INSERT OR REPLACE INTO books_plugin_data (book, name, val) VALUES (?, ?, ?)',
-            [(book_id, name, json.dumps(val, default=to_json))
-                    for book_id, val in val_map.items()])
+            [(book_id, name, json.dumps(val, default=to_json)) for book_id, val in val_map.items()],
+        )
 
     def get_custom_book_data(self, name, book_ids, default=None):
         book_ids = frozenset(book_ids)
@@ -2456,13 +2590,11 @@ class DB:
 
         if len(book_ids) == 1:
             bid = next(iter(book_ids))
-            ans = {book_id:safe_load(val) for book_id, val in
-                   self.execute('SELECT book, val FROM books_plugin_data WHERE book=? AND name=?', (bid, name))}
-            return ans or {bid:default}
+            ans = {book_id: safe_load(val) for book_id, val in self.execute('SELECT book, val FROM books_plugin_data WHERE book=? AND name=?', (bid, name))}
+            return ans or {bid: default}
 
         ans = {}
-        for book_id, val in self.execute(
-            'SELECT book, val FROM books_plugin_data WHERE name=?', (name,)):
+        for book_id, val in self.execute('SELECT book, val FROM books_plugin_data WHERE name=?', (name,)):
             if not book_ids or book_id in book_ids:
                 val = safe_load(val)
                 ans[book_id] = val
@@ -2470,8 +2602,7 @@ class DB:
 
     def delete_custom_book_data(self, name, book_ids):
         if book_ids:
-            self.executemany('DELETE FROM books_plugin_data WHERE book=? AND name=?',
-                                  [(book_id, name) for book_id in book_ids])
+            self.executemany('DELETE FROM books_plugin_data WHERE book=? AND name=?', [(book_id, name) for book_id in book_ids])
         else:
             self.execute('DELETE FROM books_plugin_data WHERE name=?', (name,))
 
@@ -2496,9 +2627,18 @@ class DB:
         with conn:
             save_annotations_list_to_cursor(conn.cursor(), alist, sync_annots_user, book_id, book_fmt)
 
-    def search_annotations(self,
-        fts_engine_query, use_stemming, highlight_start, highlight_end, snippet_size, annotation_type,
-        restrict_to_book_ids, restrict_to_user, ignore_removed=False, annotation_style=None,
+    def search_annotations(
+        self,
+        fts_engine_query,
+        use_stemming,
+        highlight_start,
+        highlight_end,
+        snippet_size,
+        annotation_type,
+        restrict_to_book_ids,
+        restrict_to_user,
+        ignore_removed=False,
+        annotation_style=None,
     ):
         fts_engine_query = unicode_normalize(fts_engine_query)
         fts_table = 'annotations_fts_stemmed' if use_stemming else 'annotations_fts'
@@ -2527,7 +2667,7 @@ class DB:
         query_style = None if annotation_style is None else tuple(annotation_style.items())
         sentinel = object()
         try:
-            for (rowid, book_id, fmt, user_type, user, annot_data, text) in self.execute(query, tuple(data)):
+            for rowid, book_id, fmt, user_type, user, annot_data, text in self.execute(query, tuple(data)):
                 if restrict_to_book_ids is not None and book_id not in restrict_to_book_ids:
                     continue
                 try:
@@ -2536,8 +2676,7 @@ class DB:
                     continue
                 if ignore_removed and parsed_annot.get('removed'):
                     continue
-                if query_style is not None and ((s := parsed_annot.get('style')) is None
-                        or not all(s.get(k, sentinel) == v for k, v in query_style)):
+                if query_style is not None and ((s := parsed_annot.get('style')) is None or not all(s.get(k, sentinel) == v for k, v in query_style)):
                     continue
                 yield {
                     'id': rowid,
@@ -2552,9 +2691,7 @@ class DB:
             raise FTSQueryError(fts_engine_query, query, e)
 
     def all_annotations_for_book(self, book_id, ignore_removed=False):
-        for (fmt, user_type, user, data) in self.execute(
-            'SELECT format, user_type, user, annot_data FROM annotations WHERE book=?', (book_id,)
-        ):
+        for fmt, user_type, user, data in self.execute('SELECT format, user_type, user, annot_data FROM annotations WHERE book=?', (book_id,)):
             try:
                 annot = json.loads(data)
             except Exception:
@@ -2598,10 +2735,20 @@ class DB:
                 aid, text = annot_db_data(annot)
                 if aid is not None:
                     annot['timestamp'] = ts
-                    self.execute('UPDATE annotations SET annot_data=?, timestamp=?, annot_type=?, searchable_text=?, annot_id=? WHERE id=?',
-                        (json.dumps(annot), timestamp, atype, text, aid, annot_id))
+                    self.execute(
+                        'UPDATE annotations SET annot_data=?, timestamp=?, annot_type=?, searchable_text=?, annot_id=? WHERE id=?',
+                        (json.dumps(annot), timestamp, atype, text, aid, annot_id),
+                    )
 
-    def all_annotations(self, restrict_to_user=None, limit=None, annotation_type=None, annotation_style=None, ignore_removed=False, restrict_to_book_ids=None):
+    def all_annotations(
+        self,
+        restrict_to_user=None,
+        limit=None,
+        annotation_type=None,
+        annotation_style=None,
+        ignore_removed=False,
+        restrict_to_book_ids=None,
+    ):
         ls = json.loads
         q = 'SELECT id, book, format, user_type, user, annot_data FROM annotations'
         data = []
@@ -2618,7 +2765,7 @@ class DB:
         count = 0
         query_style = None if annotation_style is None else tuple(annotation_style.items())
         sentinel = object()
-        for (rowid, book_id, fmt, user_type, user, annot_data) in self.execute(q, tuple(data)):
+        for rowid, book_id, fmt, user_type, user, annot_data in self.execute(q, tuple(data)):
             if restrict_to_book_ids is not None and book_id not in restrict_to_book_ids:
                 continue
             try:
@@ -2632,8 +2779,7 @@ class DB:
             if atype == 'bookmark':
                 text = annot['title']
             elif atype == 'highlight':
-                if query_style is not None and ((s := annot.get('style')) is None
-                        or not all(s.get(k, sentinel) == v for k, v in query_style)):
+                if query_style is not None and ((s := annot.get('style')) is None or not all(s.get(k, sentinel) == v for k, v in query_style)):
                     continue
                 text = annot.get('highlighted_text') or ''
             yield {
@@ -2657,8 +2803,9 @@ class DB:
             yield x[0]
 
     def all_annotation_styles(self):
-        all_styles = [{'kind': 'color', 'which': style} for style in builtin_colors_light.keys()] + \
-            [{'kind': 'decoration', 'which': style} for style in builtin_decorations.keys()]
+        all_styles = [{'kind': 'color', 'which': style} for style in builtin_colors_light.keys()] + [
+            {'kind': 'decoration', 'which': style} for style in builtin_decorations.keys()
+        ]
         ans = {style['which']: style for style in all_styles}
         # Merge in custom highlight styles found in the database.  Custom
         # styles are stored as JSON inside the annot_data column with
@@ -2666,9 +2813,7 @@ class DB:
         # discover them, since they are not part of the built-in set.
         try:
             for (raw_annot_data,) in self.execute(
-                "SELECT annot_data FROM annotations"
-                " WHERE json_extract(annot_data, '$.style.type') = 'custom'"
-                " AND json_extract(annot_data, '$.removed') IS NULL"
+                "SELECT annot_data FROM annotations WHERE json_extract(annot_data, '$.style.type') = 'custom' AND json_extract(annot_data, '$.removed') IS NULL"
             ):
                 try:
                     style = json.loads(raw_annot_data).get('style')
@@ -2706,18 +2851,23 @@ class DB:
         return changed
 
     def annotation_count_for_book(self, book_id):
-        for (count,) in self.execute('''
+        for (count,) in self.execute(
+            '''
                  SELECT count(id) FROM annotations
                  WHERE book=? AND json_extract(annot_data, '$.removed') IS NULL
-                 ''', (book_id,)):
+                 ''',
+            (book_id,),
+        ):
             return count
         return 0
 
     def reindex_annotations(self):
-        self.execute('''
+        self.execute(
+            '''
             INSERT INTO {0}({0}) VALUES('rebuild');
             INSERT INTO {1}({1}) VALUES('rebuild');
-        '''.format('annotations_fts', 'annotations_fts_stemmed'))
+        '''.format('annotations_fts', 'annotations_fts_stemmed')
+        )
 
     def set_last_read_position(self, book_id, fmt, user='_', device='_', cfi=None, epoch=None, pos_frac=0):
         save_last_read_position_to_cursor(self.conn.cursor(), book_id, fmt, user, device, cfi, epoch, pos_frac)
@@ -2736,13 +2886,14 @@ class DB:
             self.execute('DROP TABLE IF EXISTS conversion_options_temp; CREATE TEMP TABLE conversion_options_temp (id INTEGER PRIMARY KEY);')
             self.executemany('INSERT INTO conversion_options_temp VALUES (?)', [(x,) for x in ids])
             for (book_id,) in self.conn.get(
-                'SELECT book FROM conversion_options WHERE format=? AND book IN (SELECT id FROM conversion_options_temp)', (fmt.upper(),)):
+                'SELECT book FROM conversion_options WHERE format=? AND book IN (SELECT id FROM conversion_options_temp)',
+                (fmt.upper(),),
+            ):
                 return True
             return False
 
     def delete_conversion_options(self, book_ids, fmt):
-        self.executemany('DELETE FROM conversion_options WHERE book=? AND format=?',
-            [(book_id, fmt.upper()) for book_id in book_ids])
+        self.executemany('DELETE FROM conversion_options WHERE book=? AND format=?', [(book_id, fmt.upper()) for book_id in book_ids])
 
     def set_conversion_options(self, options, fmt):
         def map_data(x):
@@ -2751,6 +2902,7 @@ class DB:
             x = x.encode('utf-8') if isinstance(x, str) else x
             x = pickle_binary_string(x)
             return x
+
         options = [(book_id, fmt.upper(), map_data(data)) for book_id, data in options.items()]
         self.executemany('INSERT OR REPLACE INTO conversion_options(book,format,data) VALUES (?,?,?)', options)
 
@@ -2758,7 +2910,7 @@ class DB:
         items = set(os.listdir(self.library_path))
         paths = set(all_paths)
         paths.update({'metadata.db', 'full-text-search.db', 'metadata_db_prefs_backup.json', NOTES_DIR_NAME})
-        path_map = {x:x for x in paths}
+        path_map = {x: x for x in paths}
         if not self.is_case_sensitive:
             for x in items:
                 path_map[x.lower()] = x
@@ -2791,7 +2943,7 @@ class DB:
             x = path_map[x]
             if not isinstance(x, str):
                 x = x.decode(filesystem_encoding, 'replace')
-            progress(x, i+1, total)
+            progress(x, i + 1, total)
 
         dbpath = os.path.join(newloc, os.path.basename(self.dbpath))
         odir = self.library_path
@@ -2848,4 +3000,5 @@ class DB:
             with suppress(OSError):
                 fts_size = os.path.getsize(self.conn.fts_dbpath)
         return {'main': main_size, 'fts': fts_size, 'notes': notes_size}
+
     # }}}

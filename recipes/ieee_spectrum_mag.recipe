@@ -18,9 +18,7 @@ class IEEESpectrumMagazine(BasicNewsRecipe):
     # RSS feed for the current month
     now = datetime.datetime.now()
     year_month = now.strftime('%Y/%B').lower()
-    month_feed_url = 'https://spectrum.ieee.org/feeds/magazine/{}.rss'.format(
-        year_month
-    )
+    month_feed_url = 'https://spectrum.ieee.org/feeds/magazine/{}.rss'.format(year_month)
 
     feeds = [
         ('IEEE Spectrum Magazine', month_feed_url),

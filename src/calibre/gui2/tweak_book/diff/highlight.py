@@ -16,7 +16,6 @@ from calibre.gui2.tweak_book.editor.themes import get_theme, highlight_to_char_f
 
 
 class QtHighlighter(QTextDocument):
-
     def __init__(self, parent, text, hlclass):
         QTextDocument.__init__(self, parent)
         self.l = QPlainTextDocumentLayout(self)
@@ -27,9 +26,9 @@ class QtHighlighter(QTextDocument):
         self.setPlainText(text)
 
     def copy_lines(self, lo, hi, cursor):
-        """ Copy specified lines from the syntax highlighted buffer into the
+        """Copy specified lines from the syntax highlighted buffer into the
         destination cursor, preserving all formatting created by the syntax
-        highlighter. """
+        highlighter."""
         self.highlighter.join()
         num = hi - lo
         if num > 0:
@@ -55,7 +54,6 @@ class QtHighlighter(QTextDocument):
 
 
 class NullHighlighter:
-
     def __init__(self, text):
         self.lines = text.splitlines()
 
@@ -71,8 +69,10 @@ def pygments_lexer(filename):
         from pygments.util import ClassNotFound
     except ImportError:
         return None
+
     def glff(n):
         return get_lexer_for_filename(n, stripnl=False)
+
     try:
         return glff(filename)
     except ClassNotFound:
@@ -82,16 +82,16 @@ def pygments_lexer(filename):
 
 
 class PygmentsHighlighter:
-
     def __init__(self, text, lexer):
         theme, cache = get_theme(tprefs['editor_theme']), {}
-        theme = {k:highlight_to_char_format(v) for k, v in theme.items()}
+        theme = {k: highlight_to_char_format(v) for k, v in theme.items()}
         theme[None] = NULL_FMT
 
         def fmt(token):
             return format_for_pygments_token(theme, cache, token)
 
         from pygments import lex
+
         lines = self.lines = [[]]
         current_line = lines[0]
         for token, val in lex(text, lexer):

@@ -9,9 +9,8 @@ from calibre.utils.localization import _
 
 
 class PluginWidget(Widget, Ui_Form):
-
     TITLE = _('FB2 input')
-    HELP = _('Options specific to')+' FB2 '+_('input')
+    HELP = _('Options specific to') + ' FB2 ' + _('input')
     COMMIT_NAME = 'fb2_input'
     ICON = 'mimetypes/fb2.png'
 

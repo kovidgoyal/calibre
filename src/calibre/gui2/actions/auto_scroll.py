@@ -7,10 +7,13 @@ from calibre.utils.localization import _
 
 
 class AutoscrollBooksAction(InterfaceAction):
-
     name = 'Autoscroll Books'
-    action_spec = (_('Auto scroll through the book list'), 'auto-scroll.png',
-                   _('Auto scroll through the book list, particularly useful with the cover browser open'), _('X'))
+    action_spec = (
+        _('Auto scroll through the book list'),
+        'auto-scroll.png',
+        _('Auto scroll through the book list, particularly useful with the cover browser open'),
+        _('X'),
+    )
     dont_add_to = frozenset(('context-menu-device', 'menubar-device'))
     action_type = 'current'
 

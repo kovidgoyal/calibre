@@ -2,7 +2,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class DiarioSport(BasicNewsRecipe):
-    title = u'Diario Sport'
+    title = 'Diario Sport'
     oldest_article = 2
     max_articles_per_feed = 75
     __author__ = 'Jefferson Frantz'
@@ -11,16 +11,37 @@ class DiarioSport(BasicNewsRecipe):
     language = 'es'
     no_stylesheets = True
 
-    feeds = [(u'Sport', u'http://feeds.feedburner.com/sport/ultimahora')]
+    feeds = [('Sport', 'http://feeds.feedburner.com/sport/ultimahora')]
 
-    extra_css              = '''
+    extra_css = '''
                                 h2{font-family: serif; font-size: small; font-weight: bold; color: #000000; text-align: justify}
                                 '''
 
     keep_only_tags = [dict(name='div', attrs={'id': ['noticiasMedio']})]
 
     remove_tags = [
-        dict(name=['object', 'link', 'script', 'ul']), dict(name='div', attrs={'id': ['scrAdSense', 'herramientas2', 'participacion', 'participacion2', 'bloque1resultados', 'bloque2resultados', 'cont_vinyetesAnt', 'tinta', 'noticiasSuperior', 'cintillopublicidad2']}), dict(name='p', attrs={'class': ['masinformacion', 'hora']}), dict(name='a', attrs={'class': ["'link'"]}), dict(name='div', attrs={'class': ['addthis_toolbox addthis_default_style', 'firma', 'pretitularnoticia']}), dict(name='form', attrs={'id': ['formularioDeBusquedaAvanzada']})  # noqa: E501
+        dict(name=['object', 'link', 'script', 'ul']),
+        dict(
+            name='div',
+            attrs={
+                'id': [
+                    'scrAdSense',
+                    'herramientas2',
+                    'participacion',
+                    'participacion2',
+                    'bloque1resultados',
+                    'bloque2resultados',
+                    'cont_vinyetesAnt',
+                    'tinta',
+                    'noticiasSuperior',
+                    'cintillopublicidad2',
+                ]
+            },
+        ),
+        dict(name='p', attrs={'class': ['masinformacion', 'hora']}),
+        dict(name='a', attrs={'class': ["'link'"]}),
+        dict(name='div', attrs={'class': ['addthis_toolbox addthis_default_style', 'firma', 'pretitularnoticia']}),
+        dict(name='form', attrs={'id': ['formularioDeBusquedaAvanzada']}),  # noqa: E501
     ]
 
     def preprocess_html(self, soup):

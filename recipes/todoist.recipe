@@ -61,7 +61,6 @@ def parse_env_list(val):
 
 
 class Todoist2ebook(BasicNewsRecipe):
-
     recipe_specific_options = {
         'ARCHIVE_DOWNLOADED': {
             'short': 'Mark as read',
@@ -81,7 +80,8 @@ class Todoist2ebook(BasicNewsRecipe):
     description = (
         'Calibre recipe to fetch articles from a Todoist project. The recipe is available in Calibre and in'
         ' the original repository https://github.com/rga5321/todoist2ebook, where an script to automate'
-        ' the ebook conversion and email sending is also available.')
+        ' the ebook conversion and email sending is also available.'
+    )
     publisher = 'Todoist.com'
     category = 'info, custom, Todoist'
 
@@ -112,26 +112,16 @@ class Todoist2ebook(BasicNewsRecipe):
         super().__init__(*args, **kwargs)
 
         # Init optional configuration parameters
-        self.archive_downloaded = parse_env_bool(
-            self.recipe_specific_options['ARCHIVE_DOWNLOADED']
-        )
-        self.keyword_exceptions = parse_env_list(
-            self.recipe_specific_options['URL_KEYWORD_EXCEPTIONS']
-        )
+        self.archive_downloaded = parse_env_bool(self.recipe_specific_options['ARCHIVE_DOWNLOADED'])
+        self.keyword_exceptions = parse_env_list(self.recipe_specific_options['URL_KEYWORD_EXCEPTIONS'])
 
         # Init mandatory configuration parameters
-        if (
-            self.recipe_specific_options.get('TODOIST_PROJECT_ID')
-        ):
+        if self.recipe_specific_options.get('TODOIST_PROJECT_ID'):
             self.todoist_project_id = self.recipe_specific_options['TODOIST_PROJECT_ID']
         else:
-            self.abort_recipe_processing(
-                'TODOIST_PROJECT_ID mandatory parameter missing'
-            )
+            self.abort_recipe_processing('TODOIST_PROJECT_ID mandatory parameter missing')
 
-        if (
-            self.recipe_specific_options.get('TODOIST_API_KEY')
-        ):
+        if self.recipe_specific_options.get('TODOIST_API_KEY'):
             self.todoist_api_key = self.recipe_specific_options['TODOIST_API_KEY']
         else:
             self.abort_recipe_processing('TODOIST_API_KEY mandatory parameter missing')
@@ -166,24 +156,17 @@ class Todoist2ebook(BasicNewsRecipe):
                 title = match.group(1).strip()
                 url = match.group(2).strip()
                 date_added = task.get('created_at', datetime.now().isoformat())
-                articles_todoist.append(
-                    {
-                        'title': title or url,
-                        'url': url,
-                        'date_added': date_added,
-                        'item_id': task['id'],
-                    }
-                )
+                articles_todoist.append({
+                    'title': title or url,
+                    'url': url,
+                    'date_added': date_added,
+                    'item_id': task['id'],
+                })
 
         if not articles_todoist:
-            self.abort_recipe_processing(
-                'No unread articles in the Todoist project "{}"'.format(
-                    self.todoist_project_id
-                )
-            )
+            self.abort_recipe_processing('No unread articles in the Todoist project "{}"'.format(self.todoist_project_id))
         else:
             for item in articles_todoist:
-
                 # If the URL contains any URL_KEYWORD_EXCEPTIONS, ignore article
                 if any(pattern in item['url'] for pattern in self.keyword_exceptions):
                     print('Ignoring article due to keyword patterns:' + item['url'])
@@ -217,24 +200,16 @@ class Todoist2ebook(BasicNewsRecipe):
                     except KeyError:
                         url = 'error: url'
 
-                    arts.append(
-                        {'title': title, 'url': url, 'date': item['date_added']}
-                    )
+                    arts.append({'title': title, 'url': url, 'date': item['date_added']})
 
-                    if (
-                        self.archive_downloaded
-                        and item['item_id'] not in self.to_archive
-                    ):
+                    if self.archive_downloaded and item['item_id'] not in self.to_archive:
                         self.to_archive.append(item['item_id'])
 
                 if arts:
                     articles.append((section, arts))
 
             if not articles:
-                self.abort_recipe_processing(
-                    'No articles in the Todoist project account %s to download'
-                    % (self.todoist_project_id)
-                )
+                self.abort_recipe_processing('No articles in the Todoist project account %s to download' % (self.todoist_project_id))
             return articles
 
     def get_browser(self, *args, **kwargs):

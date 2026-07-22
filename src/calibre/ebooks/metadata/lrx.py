@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
 
@@ -40,6 +40,7 @@ def short_be(buf):
 def get_metadata(f):
     def read(at, amount):
         return _read(f, at, amount)
+
     f.seek(0)
     buf = f.read(12)
     if buf[4:] == b'ftypLRX2':
@@ -57,7 +58,7 @@ def get_metadata(f):
         if buf[:8].decode('utf-16-le') != 'LRF\x00':
             raise ValueError('Not a valid LRX file')
         lrf_version = word_le(buf[8:12])
-        offset += 0x4c
+        offset += 0x4C
         compressed_size = short_le(read(offset, 2))
         offset += 2
         if lrf_version >= 800:

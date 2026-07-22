@@ -35,7 +35,6 @@ minimum_calibre_version = 5, 7, 0
 
 
 class Strategy(Enum):
-
     download_now = auto()
     download_if_old = auto()
     fast = auto()
@@ -49,7 +48,7 @@ def start_worker():
             worker.start()
 
 
-def stop_worker(timeout=2*DEFAULT_TIMEOUT):
+def stop_worker(timeout=2 * DEFAULT_TIMEOUT):
     global worker
     with worker_lock:
         if worker is not None:
@@ -68,6 +67,7 @@ def async_stop_worker():
 def report_failure(full_name):
     print(f'Failed to download live module {full_name}', file=sys.stderr)
     import traceback
+
     traceback.print_exc()
 
 
@@ -88,18 +88,22 @@ def queue_for_download(full_name):
 
 def parse_metadata(full_name, raw_bytes):
     q = raw_bytes[:2048]
-    m = re.search(br'^module_version\s*=\s*(\d+)', q, flags=re.MULTILINE)
+    m = re.search(rb'^module_version\s*=\s*(\d+)', q, flags=re.MULTILINE)
     if m is None:
         raise ValueError(f'No module_version in downloaded source of {full_name}')
     module_version = int(m.group(1))
 
-    m = re.search(br'^minimum_calibre_version\s*=\s*(.+?)$', q, flags=re.MULTILINE)
+    m = re.search(rb'^minimum_calibre_version\s*=\s*(.+?)$', q, flags=re.MULTILINE)
     minimum_calibre_version = 0, 0, 0
     if m is not None:
         minimum_calibre_version = ast.literal_eval(m.group(1).decode('utf-8'))
-        if not isinstance(minimum_calibre_version, tuple) or len(minimum_calibre_version) != 3 or \
-                not isinstance(minimum_calibre_version[0], int) or not isinstance(minimum_calibre_version[1], int) or\
-                not isinstance(minimum_calibre_version[2], int):
+        if (
+            not isinstance(minimum_calibre_version, tuple)
+            or len(minimum_calibre_version) != 3
+            or not isinstance(minimum_calibre_version[0], int)
+            or not isinstance(minimum_calibre_version[1], int)
+            or not isinstance(minimum_calibre_version[2], int)
+        ):
             raise ValueError(f'minimum_calibre_version invalid: {minimum_calibre_version!r}')
 
     return module_version, minimum_calibre_version
@@ -159,10 +163,9 @@ def write_to_cache(full_name, etag, data):
     module_version, minimum_calibre_version = parse_metadata(full_name, data)
     mcv = ','.join(map(str, minimum_calibre_version))
     db().cursor().execute(
-        table_definition() +
-        'INSERT OR REPLACE INTO modules (full_name, etag, data, date, atime, module_version, minimum_calibre_version)'
+        table_definition() + 'INSERT OR REPLACE INTO modules (full_name, etag, data, date, atime, module_version, minimum_calibre_version)'
         ' VALUES (?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, ?, ?)',
-        (full_name, etag, data, module_version, mcv)
+        (full_name, etag, data, module_version, mcv),
     )
 
 
@@ -170,8 +173,7 @@ def read_from_cache(full_name):
     rowid = etag = data = date = None
     c = db().cursor()
     with suppress(StopIteration):
-        rowid, etag, data, date = next(c.execute(
-            table_definition() + 'SELECT id, etag, data, date FROM modules WHERE full_name=? LIMIT 1', (full_name,)))
+        rowid, etag, data, date = next(c.execute(table_definition() + 'SELECT id, etag, data, date FROM modules WHERE full_name=? LIMIT 1', (full_name,)))
     if rowid is not None:
         with suppress(apsw.BusyError):
             c.execute('UPDATE modules SET atime=CURRENT_TIMESTAMP WHERE id=?', (rowid,))
@@ -334,4 +336,5 @@ def find_tests():
 
 if __name__ == '__main__':
     from calibre.utils.run_tests import run_cli
+
     run_cli(find_tests())

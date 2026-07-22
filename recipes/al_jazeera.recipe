@@ -21,27 +21,23 @@ class AlJazeera(BasicNewsRecipe):
     max_articles_per_feed = 100
     no_stylesheets = True
     use_embedded_content = False
-    extra_css              = '''
+    extra_css = '''
                                 body{font-family: Arial,sans-serif}
                              '''
-    conversion_options = {
-        'comment': description, 'tags': category,
-        'publisher': publisher, 'language': language
-    }
+    conversion_options = {'comment': description, 'tags': category, 'publisher': publisher, 'language': language}
     keep_only_tags = [
         classes('article-header article-featured-image wysiwyg--all-content'),
     ]
 
     remove_tags = [
-        dict(name=['object', 'link', 'table',
-                   'meta', 'base', 'iframe', 'embed']),
+        dict(name=['object', 'link', 'table', 'meta', 'base', 'iframe', 'embed']),
     ]
 
     recipe_specific_options = {
         'days': {
             'short': 'Oldest article to download from this news source. In days ',
             'long': 'For example, 0.5, gives you articles from the past 12 hours',
-            'default': str(oldest_article)
+            'default': str(oldest_article),
         }
     }
 
@@ -51,8 +47,7 @@ class AlJazeera(BasicNewsRecipe):
         if d and isinstance(d, str):
             self.oldest_article = float(d)
 
-    feeds = [(u'Al Jazeera English',
-              u'http://www.aljazeera.com/xml/rss/all.xml')]
+    feeds = [('Al Jazeera English', 'http://www.aljazeera.com/xml/rss/all.xml')]
 
     def get_article_url(self, article):
         artlurl = article.get('link', None)

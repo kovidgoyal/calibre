@@ -1,17 +1,17 @@
-''' Hyphenation, using Frank Liang's algorithm.
+'''Hyphenation, using Frank Liang's algorithm.
 
-    This module provides a single function to hyphenate words.  hyphenate_word takes
-    a string (the word), and returns a list of parts that can be separated by hyphens.
+This module provides a single function to hyphenate words.  hyphenate_word takes
+a string (the word), and returns a list of parts that can be separated by hyphens.
 
-    >>> hyphenate_word("hyphenation")
-    ['hy', 'phen', 'ation']
-    >>> hyphenate_word("supercalifragilisticexpialidocious")
-    ['su', 'per', 'cal', 'ifrag', 'ilis', 'tic', 'ex', 'pi', 'ali', 'do', 'cious']
-    >>> hyphenate_word("project")
-    ['project']
+>>> hyphenate_word("hyphenation")
+['hy', 'phen', 'ation']
+>>> hyphenate_word("supercalifragilisticexpialidocious")
+['su', 'per', 'cal', 'ifrag', 'ilis', 'tic', 'ex', 'pi', 'ali', 'do', 'cious']
+>>> hyphenate_word("project")
+['project']
 
-    Ned Batchelder, July 2007.
-    This Python code is in the public domain.
+Ned Batchelder, July 2007.
+This Python code is in the public domain.
 '''
 
 import re
@@ -20,7 +20,6 @@ __version__ = '1.0.20070709'
 
 
 class Hyphenator:
-
     def __init__(self, patterns, exceptions=''):
         self.tree = {}
         for pattern in patterns.split():
@@ -48,8 +47,8 @@ class Hyphenator:
         t[None] = points
 
     def hyphenate_word(self, word):
-        """ Given a word, returns a list of pieces, broken at the possible
-            hyphenation points.
+        """Given a word, returns a list of pieces, broken at the possible
+        hyphenation points.
         """
         # Short words aren't hyphenated.
         if len(word) <= 4:
@@ -59,7 +58,7 @@ class Hyphenator:
             points = self.exceptions[word.lower()]
         else:
             work = '.' + word.lower() + '.'
-            points = [0] * (len(work)+1)
+            points = [0] * (len(work) + 1)
             for i in range(len(work)):
                 t = self.tree
                 for c in work[i:]:
@@ -68,7 +67,7 @@ class Hyphenator:
                         if None in t:
                             p = t[None]
                             for j in range(len(p)):
-                                points[i+j] = max(points[i+j], p[j])
+                                points[i + j] = max(points[i + j], p[j])
                     else:
                         break
             # No hyphens in the first two chars or the last two.
@@ -84,9 +83,9 @@ class Hyphenator:
 
 
 patterns = (
-# Knuth and Liang's original hyphenation patterns from classic TeX.
-# In the public domain.
-'''
+    # Knuth and Liang's original hyphenation patterns from classic TeX.
+    # In the public domain.
+    '''
 .ach4 .ad4der .af1t .al3t .am5at .an5c .ang4 .ani5m .ant4 .an3te .anti5s .ar5s
 .ar4tie .ar4ty .as3c .as1p .as1s .aster5 .atom5 .au1d .av4i .awn4 .ba4g .ba5na
 .bas4e .ber4 .be5ra .be3sm .be5sto .bri2 .but4ti .cam4pe .can5c .capa5b .car5ol
@@ -437,16 +436,16 @@ yper5 yp3i y3po y4poc yp2ta y5pu yra5m yr5ia y3ro yr4r ys4c y3s2e ys3ica ys3io
 3ysis y4so yss4 ys1t ys3ta ysur4 y3thin yt3ic y1w za1 z5a2b zar2 4zb 2ze ze4n
 ze4p z1er ze3ro zet4 2z1i z4il z4is 5zl 4zm 1zo zo4m zo5ol zte4 4z1z2 z4zy
 '''
-# Extra patterns, from ushyphmax.tex, dated 2005-05-30.
-# Copyright (C) 1990, 2004, 2005 Gerard D.C. Kuiken.
-# Copying and distribution of this file, with or without modification,
-# are permitted in any medium without royalty provided the copyright
-# notice and this notice are preserved.
-#
-# These patterns are based on the Hyphenation Exception Log
-# published in TUGboat, Volume 10 (1989), No. 3, pp. 337-341,
-# and a large number of incorrectly hyphenated words not yet published.
-'''
+    # Extra patterns, from ushyphmax.tex, dated 2005-05-30.
+    # Copyright (C) 1990, 2004, 2005 Gerard D.C. Kuiken.
+    # Copying and distribution of this file, with or without modification,
+    # are permitted in any medium without royalty provided the copyright
+    # notice and this notice are preserved.
+    #
+    # These patterns are based on the Hyphenation Exception Log
+    # published in TUGboat, Volume 10 (1989), No. 3, pp. 337-341,
+    # and a large number of incorrectly hyphenated words not yet published.
+    '''
 .con5gr .de5riva .dri5v4 .eth1y6l1 .eu4ler .ev2 .ever5si5b .ga4s1om1 .ge4ome
 .ge5ot1 .he3mo1 .he3p6a .he3roe .in5u2t .kil2n3i .ko6r1te1 .le6ices .me4ga1l
 .met4ala .mim5i2c1 .mi1s4ers .ne6o3f .noe1th .non1e2m .poly1s .post1am .pre1am
@@ -502,7 +501,8 @@ uea1m u2r1al. uri4al. us2er. v1ativ v1oir5du1 va6guer vaude3v 1verely. v1er1eig
 ves1tite vi1vip3a3r voice1p waste3w6a2 wave1g4 w3c week1n wide5sp wo4k1en
 wrap3aro writ6er. x1q xquis3 y5che3d ym5e5try y1stro yes5ter1y z3ian. z3o1phr
 z2z3w
-''')
+'''
+)
 
 exceptions = '''
 as-so-ciate as-so-ciates dec-li-na-tion oblig-a-tory phil-an-thropic present
@@ -518,9 +518,11 @@ del exceptions
 
 if __name__ == '__main__':
     import sys
+
     if len(sys.argv) > 1:
         for word in sys.argv[1:]:
             print('-'.join(hyphenate_word(word)))
     else:
         import doctest
+
         doctest.testmod(verbose=True)

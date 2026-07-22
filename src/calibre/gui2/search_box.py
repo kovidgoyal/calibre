@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
@@ -24,7 +24,6 @@ if TYPE_CHECKING:
 
 
 class AsYouType(str):
-
     def __new__(cls, text):
         self = str.__new__(cls, text)
         self.as_you_type = True
@@ -80,10 +79,12 @@ class SearchLineEdit(QLineEdit):  # {{{
         if self.as_url is not None:
             url = self.as_url(self.text())
             if url:
+
                 def copy_as_url():
                     cb = QApplication.clipboard()
                     assert cb is not None
                     cb.setText(url)
+
                 menu.addAction(_('Copy search as URL'), copy_as_url)
         clear_ac = menu.addAction(_('&Clear search history'))
         assert clear_ac is not None
@@ -123,11 +124,12 @@ class SearchLineEdit(QLineEdit):  # {{{
         if self.select_on_mouse_press is not None and abs(time.time() - self.select_on_mouse_press) < 0.2:
             self.selectAll()
         self.select_on_mouse_press = None
+
+
 # }}}
 
 
 class SearchBox2(QComboBox):  # {{{
-
     """
     To use this class:
 
@@ -146,7 +148,7 @@ class SearchBox2(QComboBox):  # {{{
     INTERVAL = 1500  #: Time to wait before emitting search signal
     MAX_COUNT = 25
 
-    search  = pyqtSignal(object)
+    search = pyqtSignal(object)
     cleared = pyqtSignal()
     changed = pyqtSignal()
     focus_to_library = pyqtSignal()
@@ -208,6 +210,7 @@ class SearchBox2(QComboBox):  # {{{
         config[self.opt_name] = []
         super().clear()
         self.clear()
+
     clear_search_history = clear_history
 
     def hide_completer_popup(self):
@@ -266,9 +269,17 @@ class SearchBox2(QComboBox):  # {{{
     # Comes from the lineEdit control
     def key_pressed(self, event):
         k = event.key()
-        if k in (Qt.Key.Key_Left, Qt.Key.Key_Right, Qt.Key.Key_Up, Qt.Key.Key_Down,
-                Qt.Key.Key_Home, Qt.Key.Key_End, Qt.Key.Key_PageUp, Qt.Key.Key_PageDown,
-                Qt.Key.Key_unknown):
+        if k in (
+            Qt.Key.Key_Left,
+            Qt.Key.Key_Right,
+            Qt.Key.Key_Up,
+            Qt.Key.Key_Down,
+            Qt.Key.Key_Home,
+            Qt.Key.Key_End,
+            Qt.Key.Key_PageUp,
+            Qt.Key.Key_PageDown,
+            Qt.Key.Key_unknown,
+        ):
             return
         self.normalize_state()
         if self._in_a_search:
@@ -322,7 +333,7 @@ class SearchBox2(QComboBox):  # {{{
         self.search.emit(text)
 
         if store_in_history:
-            idx = self.findText(text, Qt.MatchFlag.MatchFixedString|Qt.MatchFlag.MatchCaseSensitive)
+            idx = self.findText(text, Qt.MatchFlag.MatchFixedString | Qt.MatchFlag.MatchCaseSensitive)
             self.block_signals(True)
             if idx < 0:
                 self.insertItem(0, text)
@@ -332,8 +343,7 @@ class SearchBox2(QComboBox):  # {{{
                 self.insertItem(0, t)
             self.setCurrentIndex(0)
             self.block_signals(False)
-            history = [str(self.itemText(i)) for i in
-                    range(self.count())]
+            history = [str(self.itemText(i)) for i in range(self.count())]
             config[self.opt_name] = history
 
     def do_search(self, *args):
@@ -386,28 +396,23 @@ class SearchBox2(QComboBox):  # {{{
 
 
 class SearchBoxMixin:  # {{{
-
     def init_search_box_mixin(self: Main):
-        self.search.initialize('main_search_history',
-                help_text=_('Search (For advanced search click the gear icon to the left)'))
+        self.search.initialize('main_search_history', help_text=_('Search (For advanced search click the gear icon to the left)'))
         self.search.cleared.connect(self.search_box_cleared)
         # Queued so that search.current_text will be correct
-        self.search.changed.connect(self.search_box_changed,
-                type=Qt.ConnectionType.QueuedConnection)
+        self.search.changed.connect(self.search_box_changed, type=Qt.ConnectionType.QueuedConnection)
         self.search.focus_to_library.connect(self.focus_to_library)
         self.advanced_search_toggle_action.triggered.connect(self.do_advanced_search)
 
         self.search.clear()
-        self.search.setMaximumWidth(self.width()-150)
+        self.search.setMaximumWidth(self.width() - 150)
         self.action_focus_search = QAction(self)
         shortcuts = [str(x.toString(QKeySequence.SequenceFormat.PortableText)) for x in QKeySequence.keyBindings(QKeySequence.StandardKey.Find)]
         shortcuts += ['/', 'Alt+S']
-        self.keyboard.register_shortcut('start search', _('Start search'),
-                default_keys=shortcuts, action=self.action_focus_search)
+        self.keyboard.register_shortcut('start search', _('Start search'), default_keys=shortcuts, action=self.action_focus_search)
         self.action_focus_search.triggered.connect(self.focus_search_box)
         self.addAction(self.action_focus_search)
-        self.search.setStatusTip(re.sub(r'<\w+>', ' ',
-            str(self.search.toolTip())))
+        self.search.setStatusTip(re.sub(r'<\w+>', ' ', str(self.search.toolTip())))
         self.set_highlight_only_button_icon()
         self.highlight_only_button.clicked.connect(self.highlight_only_clicked)
         tt = _('Enable or disable search highlighting.') + '<br><br>'
@@ -428,10 +433,16 @@ class SearchBoxMixin:  # {{{
             self.search_bar.search_button.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonIconOnly)
 
     def highlight_only_clicked(self: Main, state):
-        if not config['highlight_search_matches'] and not question_dialog(self, _('Are you sure?'),
-            _('This will change how searching works. When you search, instead of showing only the '
+        if not config['highlight_search_matches'] and not question_dialog(
+            self,
+            _('Are you sure?'),
+            _(
+                'This will change how searching works. When you search, instead of showing only the '
                 'matching books, all books will be shown with the matching books highlighted. '
-                'Are you sure this is what you want?'), skip_dialog_name='confirm_search_highlight_toggle'):
+                'Are you sure this is what you want?'
+            ),
+            skip_dialog_name='confirm_search_highlight_toggle',
+        ):
             return
         config['highlight_search_matches'] = not config['highlight_search_matches']
         self.set_highlight_only_button_icon()
@@ -488,7 +499,6 @@ class SearchBoxMixin:  # {{{
 
 
 class SavedSearchBoxMixin:  # {{{
-
     def init_saved_seach_box_mixin(self: Main):
         pass
 
@@ -510,7 +520,7 @@ class SavedSearchBoxMixin:  # {{{
                 hierarchy = components[:-1]
                 last = components[-1]
                 # Walk the hierarchy, creating submenus as needed
-                for i,c in enumerate(hierarchy, start=1):
+                for i, c in enumerate(hierarchy, start=1):
                     hierarchical_prefix = '.'.join(hierarchy[:i])
                     if hierarchical_prefix not in submenus:
                         current_menu = current_menu.addMenu(c.replace('&', '&&'))
@@ -518,11 +528,19 @@ class SavedSearchBoxMixin:  # {{{
                         submenus[hierarchical_prefix] = current_menu
                     else:
                         current_menu = submenus[hierarchical_prefix]
-                ac = add_action(current_menu, display_name, last.replace('&', '&&'),
-                                partial(self.search.set_search_string, 'search:"='+name+'"'))
+                ac = add_action(
+                    current_menu,
+                    display_name,
+                    last.replace('&', '&&'),
+                    partial(self.search.set_search_string, 'search:"=' + name + '"'),
+                )
             else:
-                ac = add_action(current_menu, display_name, display_name,
-                                partial(self.search.set_search_string, 'search:"='+name+'"'))
+                ac = add_action(
+                    current_menu,
+                    display_name,
+                    display_name,
+                    partial(self.search.set_search_string, 'search:"=' + name + '"'),
+                )
             if ac.icon().isNull():
                 ac.setIcon(search_icon)
 
@@ -530,10 +548,8 @@ class SavedSearchBoxMixin:  # {{{
         m = to_menu
         m.clear()
         m.addAction(QIcon.ic('search_add_saved.png'), _('Add Saved search'), self.add_saved_search)
-        m.addAction(QIcon.ic('search_copy_saved.png'), _('Get Saved search expression'),
-                     self.get_saved_search_text)
-        m.addAction(QIcon.ic('folder_saved_search.png'), _('Manage Saved searches'),
-                     partial(self.do_saved_search_edit, None))
+        m.addAction(QIcon.ic('search_copy_saved.png'), _('Get Saved search expression'), self.get_saved_search_text)
+        m.addAction(QIcon.ic('folder_saved_search.png'), _('Manage Saved searches'), partial(self.do_saved_search_edit, None))
         m.addSeparator()
         self.add_saved_searches_to_menu(m, self.current_db)
 
@@ -555,6 +571,7 @@ class SavedSearchBoxMixin:  # {{{
 
     def add_saved_search(self: Main):
         from calibre.gui2.dialogs.saved_search_editor import AddSavedSearch
+
         d = AddSavedSearch(parent=self, search=self.search.current_text)
         if d.exec() == QDialog.DialogCode.Accepted:
             self.current_db.new_api.ensure_has_search_category(fail_on_existing=False)
@@ -575,5 +592,7 @@ class SavedSearchBoxMixin:  # {{{
             self.search.set_search_string(current_search)
         except Exception:
             from calibre.gui2.ui import get_gui
+
             get_gui(fail_if_absent=True).status_bar.show_message(_('Current search is not a saved search'), 3000)
+
     # }}}

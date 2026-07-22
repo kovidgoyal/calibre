@@ -10,7 +10,6 @@ from calibre.devices.kindle.apnx_page_generator.pages import Pages
 
 
 class FastPageGenerator(IPageGenerator):
-
     instance: ClassVar[FastPageGenerator]
 
     def name(self) -> str:

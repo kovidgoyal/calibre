@@ -13,8 +13,10 @@ Nordjyske.dk
 class Nordjyske_dk(BasicNewsRecipe):
     __author__ = 'CoderAllan.github.com'
     title = 'Nordjyske.dk'
-    description = ('Nordjyske.dk er hele tiden klar med de nyheder, der handler om dig og dit liv.'
-                   ' Og du får dem lige der, hvor du er - på din computer, tablet eller mobiltelefon.')
+    description = (
+        'Nordjyske.dk er hele tiden klar med de nyheder, der handler om dig og dit liv.'
+        ' Og du får dem lige der, hvor du er - på din computer, tablet eller mobiltelefon.'
+    )
     category = 'newspaper, news, localnews, sport, culture, Denmark'
     oldest_article = 7
     max_articles_per_feed = 25
@@ -36,5 +38,4 @@ class Nordjyske_dk(BasicNewsRecipe):
         ('Vesthimmerland', 'http://nordjyske.dk/rss/vesthimmerland'),
         ('Thisted', 'http://nordjyske.dk/rss/thisted'),
         ('Aalborg', 'http://nordjyske.dk/rss/aalborg'),
-
     ]

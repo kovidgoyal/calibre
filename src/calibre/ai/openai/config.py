@@ -15,22 +15,24 @@ pref = partial(pref_for_provider, OpenAI.name)
 
 
 class ConfigWidget(QWidget):
-
     def __init__(self, parent: QWidget | None = None):
         super().__init__(parent)
         l = QFormLayout(self)
         l.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.ExpandingFieldsGrow)
-        la = QLabel('<p>'+_(
-            'You have to create an account at {0}, then generate an <i>API key</i>.'
-            ' Then, buy some credits. Finally, <a href="{1}">{1}</a>'
-            '. OpenAI models cannot be used free of charge via this plugin.'
-            ' OpenAI <a href="{2}">claims not to store prompts</a> and other data and not use it'
-            ' for training except for a small period of retention to prevent abuse and misuse.'
-        ).format(
-            '<a href="https://platform.openai.com">OpenAI</a>',
-            'https://platform.openai.com/settings/organization/general',
-            'https://platform.openai.com/docs/guides/your-data',
-        ))
+        la = QLabel(
+            '<p>'
+            + _(
+                'You have to create an account at {0}, then generate an <i>API key</i>.'
+                ' Then, buy some credits. Finally, <a href="{1}">{1}</a>'
+                '. OpenAI models cannot be used free of charge via this plugin.'
+                ' OpenAI <a href="{2}">claims not to store prompts</a> and other data and not use it'
+                ' for training except for a small period of retention to prevent abuse and misuse.'
+            ).format(
+                '<a href="https://platform.openai.com">OpenAI</a>',
+                'https://platform.openai.com/settings/organization/general',
+                'https://platform.openai.com/docs/guides/your-data',
+            )
+        )
         la.setWordWrap(True)
         la.setOpenExternalLinks(True)
         l.addRow(la)
@@ -67,8 +69,10 @@ class ConfigWidget(QWidget):
     @property
     def settings(self) -> dict[str, str | bool]:
         ans: dict[str, str | bool] = {
-            'api_key': encode_secret(self.api_key), 'model_choice_strategy': self.model_choice_strategy,
-            'reasoning_strategy': self.reasoning_strategy, 'allow_web_searches': self.allow_web_searches,
+            'api_key': encode_secret(self.api_key),
+            'model_choice_strategy': self.model_choice_strategy,
+            'reasoning_strategy': self.reasoning_strategy,
+            'allow_web_searches': self.allow_web_searches,
         }
         return ans
 

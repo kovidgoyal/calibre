@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
@@ -16,7 +16,6 @@ from calibre.utils.icu import lower
 
 
 class ProgressCallback:
-
     def __init__(self):
         self.count = 0
         self.end_called = False
@@ -28,7 +27,6 @@ class ProgressCallback:
 
 
 class TestDeviceInteraction(unittest.TestCase):
-
     @classmethod
     def setUpClass(cls):
         cls.dev = cls.storage = None
@@ -42,7 +40,7 @@ class TestDeviceInteraction(unittest.TestCase):
             cls.dev = None
             return
         cls.dev.open(cd, 'test_library')
-        if cls.dev.free_space()[0] < 10*(1024**2):
+        if cls.dev.free_space()[0] < 10 * (1024**2):
             return
         cls.dev.filesystem_cache
         cls.storage = cls.dev.filesystem_cache.entries[0]
@@ -69,7 +67,7 @@ class TestDeviceInteraction(unittest.TestCase):
             self.skipTest('The connected device does not have enough free space')
 
     def test_folder_operations(self):
-        """ Test the creation of folders, duplicate folders and sub folders """
+        """Test the creation of folders, duplicate folders and sub folders"""
         self.check_setup()
         dev = self.dev
         assert dev is not None
@@ -96,19 +94,20 @@ class TestDeviceInteraction(unittest.TestCase):
 
         # Check that creating an existing folder returns that folder (case
         # insensitively)
-        self.assertIs(subfolder, dev.create_folder(folder,
-            'SUB-FOLDER'),
-            msg='Creating an existing folder did not return the existing folder')
+        self.assertIs(
+            subfolder,
+            dev.create_folder(folder, 'SUB-FOLDER'),
+            msg='Creating an existing folder did not return the existing folder',
+        )
 
         # Check that creating folders as children of files is not allowed
-        root_file = [f for f in dev.filesystem_cache.entries[0].files if
-                not f.is_folder]
+        root_file = [f for f in dev.filesystem_cache.entries[0].files if not f.is_folder]
         if root_file:
             with self.assertRaises(ValueError):
                 dev.create_folder(root_file[0], 'sub-folder')
 
     def test_file_transfer(self):
-        """ Test transferring files to and from the device """
+        """Test transferring files to and from the device"""
         self.check_setup()
         dev = self.dev
         assert dev is not None
@@ -123,7 +122,7 @@ class TestDeviceInteraction(unittest.TestCase):
 
         # Check simple file put/get
         size = 1024**2
-        raw = io.BytesIO(b'a'*size)
+        raw = io.BytesIO(b'a' * size)
         raw.seek(0)
         name = 'test-file.txt'
         pc = ProgressCallback()
@@ -133,19 +132,15 @@ class TestDeviceInteraction(unittest.TestCase):
         self.assertEqual(f.size, size)
         self.assertEqual(f.parent_id, folder.object_id)
         self.assertEqual(f.storage_id, folder.storage_id)
-        self.assertTrue(pc.end_called,
-                msg='Progress callback not called with equal values (put_file)')
-        self.assertTrue(pc.count > 1,
-                msg='Progress callback only called once (put_file)')
+        self.assertTrue(pc.end_called, msg='Progress callback not called with equal values (put_file)')
+        self.assertTrue(pc.count > 1, msg='Progress callback only called once (put_file)')
 
         raw2 = io.BytesIO()
         pc = ProgressCallback()
         dev.get_mtp_file(f, raw2, callback=pc)
         self.assertEqual(raw.getvalue(), raw2.getvalue())
-        self.assertTrue(pc.end_called,
-                msg='Progress callback not called with equal values (get_file)')
-        self.assertTrue(pc.count > 1,
-                msg='Progress callback only called once (get_file)')
+        self.assertTrue(pc.end_called, msg='Progress callback not called with equal values (get_file)')
+        self.assertTrue(pc.count > 1, msg='Progress callback only called once (get_file)')
 
         # Check file replacement
         raw = io.BytesIO(b'abcd')
@@ -179,6 +174,7 @@ class TestDeviceInteraction(unittest.TestCase):
 
     def measure_memory_usage(self, repetitions, func, *args, **kwargs):
         from calibre.utils.mem import memory
+
         gc.disable()
         try:
             start_mem = memory()
@@ -194,13 +190,13 @@ class TestDeviceInteraction(unittest.TestCase):
     def check_memory(self, once, many, msg, factor=2):
         msg += f' for once: {once:g} for many: {many:g}'
         if once > 0:
-            self.assertTrue(many <= once*factor, msg=msg)
+            self.assertTrue(many <= once * factor, msg=msg)
         else:
             self.assertTrue(many <= 0.01, msg=msg)
 
     @unittest.skipUnless(iswindows or islinux, 'Can only test for leaks on windows and linux')
     def test_memory_leaks(self):
-        """ Test for memory leaks in the C module """
+        """Test for memory leaks in the C module"""
         self.check_setup()
         dev = self.dev
         assert dev is not None
@@ -208,20 +204,15 @@ class TestDeviceInteraction(unittest.TestCase):
         assert storage is not None
 
         # Test device scanning
-        used_by_one = self.measure_memory_usage(1,
-                dev.detect_managed_devices, self.scanner.devices,
-                force_refresh=True)
+        used_by_one = self.measure_memory_usage(1, dev.detect_managed_devices, self.scanner.devices, force_refresh=True)
 
-        used_by_many = self.measure_memory_usage(100,
-                dev.detect_managed_devices, self.scanner.devices,
-                force_refresh=True)
+        used_by_many = self.measure_memory_usage(100, dev.detect_managed_devices, self.scanner.devices, force_refresh=True)
 
-        self.check_memory(used_by_one, used_by_many,
-                'Memory consumption during device scan')
+        self.check_memory(used_by_one, used_by_many, 'Memory consumption during device scan')
 
         # Test file transfer
-        size = 1024*100
-        raw = io.BytesIO(b'a'*size)
+        size = 1024 * 100
+        raw = io.BytesIO(b'a' * size)
         raw.seek(0)
         name = 'zzz-test-file.txt'
 
@@ -232,13 +223,10 @@ class TestDeviceInteraction(unittest.TestCase):
             self.cleanup.append(f)
             del pc
 
-        used_once = self.measure_memory_usage(1, send_file, storage, name,
-                raw, size)
-        used_many = self.measure_memory_usage(20, send_file, storage, name,
-                raw, size)
+        used_once = self.measure_memory_usage(1, send_file, storage, name, raw, size)
+        used_many = self.measure_memory_usage(20, send_file, storage, name, raw, size)
 
-        self.check_memory(used_once, used_many,
-                'Memory consumption during put_file:')
+        self.check_memory(used_once, used_many, 'Memory consumption during put_file:')
 
         def get_file(f):
             raw = io.BytesIO()
@@ -251,21 +239,15 @@ class TestDeviceInteraction(unittest.TestCase):
         f = storage.file_named(name)
         used_once = self.measure_memory_usage(1, get_file, f)
         used_many = self.measure_memory_usage(20, get_file, f)
-        self.check_memory(used_once, used_many,
-                'Memory consumption during get_file:')
+        self.check_memory(used_once, used_many, 'Memory consumption during get_file:')
 
         # Test get_filesystem
         assert dev.dev is not None
-        used_by_one = self.measure_memory_usage(1,
-                dev.dev.get_filesystem, storage.object_id,
-                                                lambda x, l:True)
+        used_by_one = self.measure_memory_usage(1, dev.dev.get_filesystem, storage.object_id, lambda x, l: True)
 
-        used_by_many = self.measure_memory_usage(5,
-                dev.dev.get_filesystem, storage.object_id,
-                                                 lambda x, l: True)
+        used_by_many = self.measure_memory_usage(5, dev.dev.get_filesystem, storage.object_id, lambda x, l: True)
 
-        self.check_memory(used_by_one, used_by_many,
-                'Memory consumption during get_filesystem')
+        self.check_memory(used_by_one, used_by_many, 'Memory consumption during get_filesystem')
 
 
 def tests():

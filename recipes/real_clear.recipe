@@ -15,7 +15,7 @@ except ImportError:
 
 
 class RealClear(BasicNewsRecipe):
-    title = u'Real Clear'
+    title = 'Real Clear'
     __author__ = 'TMcN'
     description = 'Real Clear Politics/Science/etc... aggregation of news\n'
     cover_url = 'http://www.realclearpolitics.com/dev/mt-static/images/logo.gif'
@@ -35,17 +35,17 @@ class RealClear(BasicNewsRecipe):
 
     # Numeric parameter is type, controls whether we look for
     feedsets = [
-        ['Politics',        'http://www.realclearpolitics.com/index.xml', 0],
-        ['Policy',          'http://www.realclearpolicy.com/index.xml', 0],
-        ['Science',         'http://www.realclearscience.com/index.xml', 0],
-        ['Tech',            'http://www.realcleartechnology.com/index.xml', 0],
+        ['Politics', 'http://www.realclearpolitics.com/index.xml', 0],
+        ['Policy', 'http://www.realclearpolicy.com/index.xml', 0],
+        ['Science', 'http://www.realclearscience.com/index.xml', 0],
+        ['Tech', 'http://www.realcleartechnology.com/index.xml', 0],
         # The feedburner is essentially the same as the top feed, politics.
         # ["Politics Burner", "http://feeds.feedburner.com/realclearpolitics/qlMj", 1],
         # ["Commentary",      "http://feeds.feedburner.com/Realclearpolitics-Articles", 1],
-        ['Markets Home',    'http://www.realclearmarkets.com/index.xml', 0],
-        ['Markets',         'http://www.realclearmarkets.com/articles/index.xml', 0],
-        ['World',           'http://www.realclearworld.com/index.xml', 0],
-        ['World Blog',      'http://www.realclearworld.com/blog/index.xml', 2]
+        ['Markets Home', 'http://www.realclearmarkets.com/index.xml', 0],
+        ['Markets', 'http://www.realclearmarkets.com/articles/index.xml', 0],
+        ['World', 'http://www.realclearworld.com/index.xml', 0],
+        ['World Blog', 'http://www.realclearworld.com/blog/index.xml', 2],
     ]
     # Hints to extractPrintURL.
     # First column is the URL snippet.  Then the string to search for as text,
@@ -53,17 +53,17 @@ class RealClear(BasicNewsRecipe):
     # drill down.
     phUrlSnip, phLinkText, phMainSearch, phHrefSearch = range(4)
 
-    printhints = [['realclear',           '',                       '', 'printpage'],
-                  ['billoreilly.com',     'Print this entry',       'a', ''],
-                  ['billoreilly.com',     'Print This Article',     'a', ''],
-                  ['politico.com',        'Print',                  'a', 'share-print'],
-                  ['nationalreview.com',  '>Print<',                'a', ''],
-                  ['reason.com',          '',                       'a', 'printer']
-                  # The following are not supported due to JavaScripting, and would require obfuscated_article to handle
-                  # forbes,
-                  # usatoday - just prints with all current crap anyhow
-
-                  ]
+    printhints = [
+        ['realclear', '', '', 'printpage'],
+        ['billoreilly.com', 'Print this entry', 'a', ''],
+        ['billoreilly.com', 'Print This Article', 'a', ''],
+        ['politico.com', 'Print', 'a', 'share-print'],
+        ['nationalreview.com', '>Print<', 'a', ''],
+        ['reason.com', '', 'a', 'printer'],
+        # The following are not supported due to JavaScripting, and would require obfuscated_article to handle
+        # forbes,
+        # usatoday - just prints with all current crap anyhow
+    ]
     # The print link isn't obvious, and only the end is needed (the -full append.)  SO maybe try that first?s
     # http://www.realclearpolitics.com/printpage/?url=http://www.realclearpolitics.com/articles/2012/01/24/in_speech_obama_to_call_for_fairness_--_and_four_more_years_112879-full.html
     # Single page articles don't have a _full; e.g. http://www.realclearpolitics.com/articles/2012/01/25/obamas_green_robber_barons_112897.html
@@ -95,28 +95,21 @@ class RealClear(BasicNewsRecipe):
             if len(self.printhints[x][self.phHrefSearch]) > 0 and len(self.printhints[x][self.phLinkText]) == 0:
                 # e.g. RealClear
                 if self.debugMessages is True:
-                    print('Search by href: ' +
-                          self.printhints[x][self.phHrefSearch])
-                printFind = soup.find(href=re.compile(
-                    self.printhints[x][self.phHrefSearch]))
+                    print('Search by href: ' + self.printhints[x][self.phHrefSearch])
+                printFind = soup.find(href=re.compile(self.printhints[x][self.phHrefSearch]))
             elif len(self.printhints[x][3]) > 0 and len(self.printhints[x][1]) == 0:
                 if self.debugMessages is True:
-                    print('Search 1: ' +
-                          self.printhints[x][2] + ' Attributes: ')
+                    print('Search 1: ' + self.printhints[x][2] + ' Attributes: ')
                     print(self.printhints[x][3])
-                printFind = soup.find(
-                    self.printhints[x][2], attrs=self.printhints[x][3])
+                printFind = soup.find(self.printhints[x][2], attrs=self.printhints[x][3])
             elif len(self.printhints[x][3]) > 0:
                 if self.debugMessages is True:
                     print('search2')
-                printFind = soup.find(self.printhints[x][2], attrs=self.printhints[
-                                      x][3], text=self.printhints[x][1])
+                printFind = soup.find(self.printhints[x][2], attrs=self.printhints[x][3], text=self.printhints[x][1])
             else:
                 if self.debugMessages is True:
-                    print(
-                        'Default Search: ' + self.printhints[x][2] + ' Text: ' + self.printhints[x][1])
-                printFind = soup.find(
-                    self.printhints[x][2], text=self.printhints[x][1])
+                    print('Default Search: ' + self.printhints[x][2] + ' Text: ' + self.printhints[x][1])
+                printFind = soup.find(self.printhints[x][2], text=self.printhints[x][1])
             if printFind is None:
                 if self.debugMessages is True:
                     print('Not Found')
@@ -127,8 +120,7 @@ class RealClear(BasicNewsRecipe):
             print(printFind)
             if isinstance(printFind, NavigableString) is False:
                 if printFind['href'] is not None:
-                    print('Check ' + printFind['href'] +
-                          ' for base of ' + baseURL)
+                    print('Check ' + printFind['href'] + ' for base of ' + baseURL)
                     if printFind['href'].find('http') != 0:
                         return baseURL + printFind['href']
                     return printFind['href']
@@ -197,8 +189,7 @@ class RealClear(BasicNewsRecipe):
             print(url)
             # url +=re.sub(r'\?.*', '', div['href'])
             pubdate = time.strftime('%a, %d %b')
-            articleList.append(
-                dict(title=title, url=url, date=pubdate, description=description, content=''))
+            articleList.append(dict(title=title, url=url, date=pubdate, description=description, content=''))
         return articleList
 
     # calibre.web.feeds.news.BasicNewsRecipe.parse_index() fetches the list of articles.

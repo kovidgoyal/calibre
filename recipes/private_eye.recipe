@@ -32,8 +32,8 @@ class PrivateEyeRecipe(BasicNewsRecipe):
     #               Added:  inclusion of About page,
     #                       identifying series number and publication date and setting metadata.
 
-    title = u'Private Eye (Online Edition)'
-    description = u'Private Eye is a fortnightly British satirical and current affairs magazine, edited by Ian Hislop'
+    title = 'Private Eye (Online Edition)'
+    description = 'Private Eye is a fortnightly British satirical and current affairs magazine, edited by Ian Hislop'
     publication_type = 'magazine'
     language = 'en_GB'
     encoding = 'utf-8'
@@ -42,26 +42,26 @@ class PrivateEyeRecipe(BasicNewsRecipe):
     remove_javascript = True
     ignore_duplicate_articles = {'url'}
 
-    __author__ = u'Martyn Pritchard & Sophist-UK'
+    __author__ = 'Martyn Pritchard & Sophist-UK'
     __copyright__ = '© 2020-2026, Martyn Pritchard <MPritchard2k9@gmail.com> & Sophist-UK <sophist-uk@sodalis.co.uk>'
 
-    base_url            = 'https://www.private-eye.co.uk/'
-    current_issue       = 'https://www.private-eye.co.uk/news'
-    about_page          = 'https://www.private-eye.co.uk/about'
-    number_crunching    = 'https://www.private-eye.co.uk/number-crunching'
-    masthead_url        = 'https://www.private-eye.co.uk/grfx/logos/logo-new.png'
-    classified_ads      = 'https://www.eyeads.co.uk'
-    next_issue_date     = 'Next issue on sale:'
+    base_url = 'https://www.private-eye.co.uk/'
+    current_issue = 'https://www.private-eye.co.uk/news'
+    about_page = 'https://www.private-eye.co.uk/about'
+    number_crunching = 'https://www.private-eye.co.uk/number-crunching'
+    masthead_url = 'https://www.private-eye.co.uk/grfx/logos/logo-new.png'
+    classified_ads = 'https://www.eyeads.co.uk'
+    next_issue_date = 'Next issue on sale:'
 
     author = 'Private Eye'
     series = title = 'Private Eye Online'
     conversion_options = {
-        'authors':      author,
-        'author_sort':  author,
-        'series':       series,
+        'authors': author,
+        'author_sort': author,
+        'series': series,
         'series_index': 0,
-        'title':        title,
-        'title_sort':   title,
+        'title': title,
+        'title_sort': title,
     }
 
     index_attrs_to_include = [
@@ -99,14 +99,14 @@ class PrivateEyeRecipe(BasicNewsRecipe):
     def add_article(self, title, url):
         if url in self.urls:
             return
-        known_url = url.rsplit('/',1)[-1]
+        known_url = url.rsplit('/', 1)[-1]
         if known_url and known_url in self.url_to_section_name:
             title = self.url_to_section_name[known_url]
         if not title:
             return
         self.articles.append({
-            'title':    title,
-            'url':      url,
+            'title': title,
+            'url': url,
         })
         self.urls.append(url)
         self.log('Adding:', title, '(', url, ')')
@@ -114,16 +114,16 @@ class PrivateEyeRecipe(BasicNewsRecipe):
     def get_cover_url(self):
         soup = self.index_to_soup(self.current_issue)
 
-        for img in soup.findAll('img',  {'class': 'issue-cover'}):
+        for img in soup.findAll('img', {'class': 'issue-cover'}):
             src = img['src']
             if src.endswith('_big.jpg'):
-                file_name = src.rsplit('/',1)[1]
+                file_name = src.rsplit('/', 1)[1]
                 if file_name is None:
                     file_name = src
                 try:
-                    self.conversion_options.update({'series_index': int(file_name[:-len('_big.jpg')])})
+                    self.conversion_options.update({'series_index': int(file_name[: -len('_big.jpg')])})
                     self.log('series-index:', self.conversion_options['series_index'])
-                except (TypeError, ValueError):
+                except TypeError, ValueError:
                     # wrong big image
                     continue
                 return src
@@ -146,7 +146,7 @@ class PrivateEyeRecipe(BasicNewsRecipe):
         self.log('Authors:', self.__author__)
         self.log('Copyright:', self.__copyright__)
         self.log('')
-        self.log('Support:', u'If this recipe stops working email sophist-uk@sodalis.co.uk to let them know.')
+        self.log('Support:', 'If this recipe stops working email sophist-uk@sodalis.co.uk to let them know.')
         self.log('')
 
         soup = self.index_to_soup(self.current_issue)
@@ -166,7 +166,7 @@ class PrivateEyeRecipe(BasicNewsRecipe):
             title = self.title + ' ' + datetime.strftime(pub_date, '%Y-%m-%d')
             self.conversion_options.update({'title': title})
             self.conversion_options.update({'title_sort': title})
-        except (TypeError, ValueError):
+        except TypeError, ValueError:
             # Bad date
             self.log('Cannot parse next issue date from:', next_issue_date)
 
@@ -236,7 +236,7 @@ class PrivateEyeRecipe(BasicNewsRecipe):
         {'name': 'div', 'id': 'about-covers'},
         {'name': 'script', 'id': 'about-covers'},
         {'name': 'a', 'attrs': {'href': 'https://shop.private-eye.co.uk'}},
-#        {'name': 'img', 'attrs': {'src': re.compile(r'/grfx/logos/')}},
+        #        {'name': 'img', 'attrs': {'src': re.compile(r'/grfx/logos/')}},
     ])
     # Remove non-sibling content
     remove_tags = [
@@ -253,7 +253,7 @@ class PrivateEyeRecipe(BasicNewsRecipe):
         {'name': 'div', 'attrs': {'id': 'sections-sidebar'}},
         # Spacers
         {'name': 'div', 'attrs': {'class': 'gap'}},
-#        {'name': 'div', 'attrs': {'class': 'gap-small'}},
+        #        {'name': 'div', 'attrs': {'class': 'gap-small'}},
         {'name': 'div', 'attrs': {'class': 'gap-bigger'}},
         {'name': 'div', 'attrs': {'class': 'gap-biggest'}},
         # Bottom
@@ -262,8 +262,8 @@ class PrivateEyeRecipe(BasicNewsRecipe):
         {'name': 'div', 'attrs': {'id': 'page-94-strip-wide'}},
         {'name': 'div', 'attrs': {'id': 'footer-wide'}},
         {'name': 'div', 'attrs': {'id': 'about-covers'}},
-#        {'name': 'div', 'attrs': {'id': 'follow-buttons'}},
-#        {'name': 'div', 'attrs': {'id': 'sidebar'}},
+        #        {'name': 'div', 'attrs': {'id': 'follow-buttons'}},
+        #        {'name': 'div', 'attrs': {'id': 'sidebar'}},
         {'name': 'a', '  attrs': {'href': 'https://www.private-eye.co.uk/shop'}},
         {'name': 'a', '  attrs': {'href': 'https://shop.private-eye.co.uk'}},
         {'name': 'a', '  attrs': {'href': 'https://shop.private-eye.co.uk/'}},
@@ -292,19 +292,12 @@ class PrivateEyeRecipe(BasicNewsRecipe):
         (
             re.compile(
                 r'<span class="headline(?:-new)?">(.*?)</span>\s*(?:<br/?>\s*)*((?:<span class="text">(.*?)</span>)|(?:<font .*?>(.*?)</font>))?',
-                re.DOTALL | re.IGNORECASE
+                re.DOTALL | re.IGNORECASE,
             ),
-            lambda match: '<h1 class="myheadline">' + match[1] + '</h1>' +
-                         (('<h4 class="mystrapline">' + match[2] + '</h4>') if match[2] else '')
+            lambda match: '<h1 class="myheadline">' + match[1] + '</h1>' + (('<h4 class="mystrapline">' + match[2] + '</h4>') if match[2] else ''),
         ),
         # Remove broken links for this issue
-        (
-            re.compile(
-                r'<a href="/issue-.*?".*?>(.*?)</a>',
-                re.DOTALL | re.IGNORECASE
-            ),
-            lambda match: match[1]
-        ),
+        (re.compile(r'<a href="/issue-.*?".*?>(.*?)</a>', re.DOTALL | re.IGNORECASE), lambda match: match[1]),
     ]
 
     # The following extra css is to tweak the formatting of various elements of various article pages.

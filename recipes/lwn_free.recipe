@@ -13,8 +13,8 @@ class LWNFree(BasicNewsRecipe):
     max_articles_per_feed = 100
     extra_css = '.FeatureByline { font-size:small; }'
 
-    keep_only_tags = [dict(name='div', attrs={'class':['ArticleText', 'PageHeadline']})]
-    remove_tags = [dict(name='blockquote', attrs={'class':'ad'}), dict(name='form')]
+    keep_only_tags = [dict(name='div', attrs={'class': ['ArticleText', 'PageHeadline']})]
+    remove_tags = [dict(name='blockquote', attrs={'class': 'ad'}), dict(name='form')]
 
     feeds = [
         ('LWN Articles', 'https://lwn.net/headlines/Features'),
@@ -29,7 +29,6 @@ class LWNFree(BasicNewsRecipe):
         weekly_count = 0
 
         for article in prev_feeds[0]:
-
             # Paid article
             if '[$]' in article.title:
                 remove_articles.append(article)

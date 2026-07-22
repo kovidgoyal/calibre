@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
@@ -48,11 +48,9 @@ def create_cover_file(db, book_id):
 
 
 class MetadataWidget(Widget, Ui_Form):
-
     TITLE = _('Metadata')
-    ICON  = 'dialog_information.png'
-    HELP  = _('Set the metadata. The output file will contain as much of this '
-            'metadata as possible.')
+    ICON = 'dialog_information.png'
+    HELP = _('Set the metadata. The output file will contain as much of this metadata as possible.')
     COMMIT_NAME = 'metadata'
 
     def __init__(self, parent, get_option, get_help, db=None, book_id=None):
@@ -135,8 +133,7 @@ class MetadataWidget(Widget, Ui_Form):
         self.series_index.setEnabled(len(self.series.currentText().strip()) > 0)
 
     def set_cover_tooltip(self, pm):
-        tt = _('Cover size: %(width)d x %(height)d pixels') % dict(
-                width=pm.width(), height=pm.height())
+        tt = _('Cover size: %(width)d x %(height)d pixels') % dict(width=pm.width(), height=pm.height())
         self.cover.setToolTip(tt)
 
     def initialize_combos(self):
@@ -204,16 +201,14 @@ class MetadataWidget(Widget, Ui_Form):
         return mi
 
     def select_cover(self):
-        files = choose_images(self, 'change cover dialog',
-                             _('Choose cover for ') + str(self.title.text()))
+        files = choose_images(self, 'change cover dialog', _('Choose cover for ') + str(self.title.text()))
         if not files:
             return
         _file = files[0]
         if _file:
             _file = os.path.abspath(_file)
             if not os.access(_file, os.R_OK):
-                d = error_dialog(self.parent(), _('Cannot read'),
-                        _('You do not have permission to read the file: ') + _file)
+                d = error_dialog(self.parent(), _('Cannot read'), _('You do not have permission to read the file: ') + _file)
                 d.exec()
                 return
             cover = None
@@ -221,16 +216,18 @@ class MetadataWidget(Widget, Ui_Form):
                 with open(_file, 'rb') as f:
                     cover = f.read()
             except OSError as e:
-                d = error_dialog(self.parent(), _('Error reading file'),
-                        _('<p>There was an error reading from file: <br /><b>') + _file + '</b></p><br />'+str(e))
+                d = error_dialog(
+                    self.parent(),
+                    _('Error reading file'),
+                    _('<p>There was an error reading from file: <br /><b>') + _file + '</b></p><br />' + str(e),
+                )
                 d.exec()
             if cover:
                 pix = QPixmap()
                 pix.loadFromData(cover)
                 pix.setDevicePixelRatio(getattr(self, 'devicePixelRatioF', self.devicePixelRatio)())
                 if pix.isNull():
-                    d = error_dialog(self.parent(), _('Error reading file'),
-                                      _file + _(' is not a valid picture'))
+                    d = error_dialog(self.parent(), _('Error reading file'), _file + _(' is not a valid picture'))
                     d.exec()
                 else:
                     self.cover_path.setText(_file)
@@ -252,12 +249,12 @@ class MetadataWidget(Widget, Ui_Form):
         title, authors = self.get_title_and_authors()
         try:
             if title != db.field_for('title', self.book_id):
-                db.set_field('title', {self.book_id:title})
+                db.set_field('title', {self.book_id: title})
                 langs = db.field_for('languages', self.book_id)
                 if langs:
-                    db.set_field('sort', {self.book_id:title_sort(title, langs[0])})
+                    db.set_field('sort', {self.book_id: title_sort(title, langs[0])})
             if list(authors) != list(db.field_for('authors', self.book_id)):
-                db.set_field('authors', {self.book_id:authors})
+                db.set_field('authors', {self.book_id: authors})
             if self.cover_changed and self.cover_data is not None:
                 self.db.set_cover(self.book_id, self.cover_data)
         except OSError as err:
@@ -265,19 +262,19 @@ class MetadataWidget(Widget, Ui_Form):
             raise
         publisher = self.publisher.text().strip()
         if publisher != db.field_for('publisher', self.book_id):
-            db.set_field('publisher', {self.book_id:publisher})
+            db.set_field('publisher', {self.book_id: publisher})
         author_sort = self.author_sort.text().strip()
         if author_sort != db.field_for('author_sort', self.book_id):
-            db.set_field('author_sort', {self.book_id:author_sort})
+            db.set_field('author_sort', {self.book_id: author_sort})
         tags = [t.strip() for t in self.tags.text().strip().split(',')]
         if tags != list(db.field_for('tags', self.book_id)):
-            db.set_field('tags', {self.book_id:tags})
+            db.set_field('tags', {self.book_id: tags})
         series_index = float(self.series_index.value())
         series = self.series.currentText().strip()
         if series != db.field_for('series', self.book_id):
-            db.set_field('series', {self.book_id:series})
+            db.set_field('series', {self.book_id: series})
         if series and series_index != db.field_for('series_index', self.book_id):
-            db.set_field('series_index', {self.book_id:series_index})
+            db.set_field('series_index', {self.book_id: series_index})
         return True
 
     def commit(self, save_defaults=False):

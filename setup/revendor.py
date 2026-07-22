@@ -11,17 +11,16 @@ from setup import Command, download_securely, is_ci
 
 
 class ReVendor(Command):
-
     # NAME = TAR_NAME = VERSION = DOWNLOAD_URL = ''
     CAN_USE_SYSTEM_VERSION = True
 
     def add_options(self, parser):
         parser.add_option(f'--path-to-{self.NAME}', help=f'Path to the extracted {self.TAR_NAME} source')
-        parser.add_option(f'--{self.NAME}-url', default=self.DOWNLOAD_URL,
-                help=f'URL to {self.TAR_NAME} source archive in tar.gz format')
+        parser.add_option(f'--{self.NAME}-url', default=self.DOWNLOAD_URL, help=f'URL to {self.TAR_NAME} source archive in tar.gz format')
         if self.CAN_USE_SYSTEM_VERSION:
-            parser.add_option(f'--system-{self.NAME}', default=False, action='store_true',
-                    help=f'Treat {self.TAR_NAME} as system copy and symlink instead of copy')
+            parser.add_option(
+                f'--system-{self.NAME}', default=False, action='store_true', help=f'Treat {self.TAR_NAME} as system copy and symlink instead of copy'
+            )
 
     def download_securely(self, url: str) -> bytes:
         num = 5 if is_ci else 1
@@ -61,7 +60,7 @@ class ReVendor(Command):
             with open(dest, 'wb') as f:
                 f.write(raw)
 
-    def add_tree(self, base, prefix, ignore=lambda n:False):
+    def add_tree(self, base, prefix, ignore=lambda n: False):
         for dirpath, dirnames, filenames in os.walk(base):
             for fname in filenames:
                 f = os.path.join(dirpath, fname)

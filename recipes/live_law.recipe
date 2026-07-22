@@ -10,10 +10,7 @@ def absurl(url):
 class livelaw(BasicNewsRecipe):
     title = 'Live Law'
     __author__ = 'unkn0wn'
-    description = (
-        'Live Law is a comprehensive legal news portal which is committed to providing accurate'
-        ' and honest news about legal developments.'
-    )
+    description = 'Live Law is a comprehensive legal news portal which is committed to providing accurate and honest news about legal developments.'
     no_stylesheets = True
     use_embedded_content = False
     encoding = 'utf-8'
@@ -30,23 +27,16 @@ class livelaw(BasicNewsRecipe):
         .news-description { color:#202020; font-style:italic; }
     '''
 
-    keep_only_tags = [
-        dict(name='div', attrs={'id':'page-content-wrapper'})
-    ]
+    keep_only_tags = [dict(name='div', attrs={'id': 'page-content-wrapper'})]
 
     remove_tags = [
-        classes(
-            'in-image-ad-wrap news_details_social_media_icons news_details_social_icon_desktop '
-            'audioSection news_details_tags_row nextpage'
-        ),
-        dict(attrs={'class':lambda x: x and 'inside-post-ad' in x}),
-        dict(attrs={'id':[
-            'news_buzz_updates', 'after_tags', 'comments_before', 'comments', 'comments_after'
-        ]})
+        classes('in-image-ad-wrap news_details_social_media_icons news_details_social_icon_desktop audioSection news_details_tags_row nextpage'),
+        dict(attrs={'class': lambda x: x and 'inside-post-ad' in x}),
+        dict(attrs={'id': ['news_buzz_updates', 'after_tags', 'comments_before', 'comments', 'comments_after']}),
     ]
 
     def preprocess_html(self, soup):
-        for img in soup.findAll('img', attrs={'data-src':True}):
+        for img in soup.findAll('img', attrs={'data-src': True}):
             img['src'] = img['data-src']
         for h2 in soup.findAll(['h2', 'h6']):
             h2.name = 'p'
@@ -54,17 +44,14 @@ class livelaw(BasicNewsRecipe):
 
     def parse_index(self):
         index = 'https://www.livelaw.in/'
-        sections = [
-            'top-stories', 'supreme-court', 'high-court', 'news-updates', 'consumer-cases', 'articles',
-            'lawschool', 'law-firms', 'round-ups'
-        ]
+        sections = ['top-stories', 'supreme-court', 'high-court', 'news-updates', 'consumer-cases', 'articles', 'lawschool', 'law-firms', 'round-ups']
         feeds = []
         soup = self.index_to_soup(index)
         for sec in sections:
             section = sec.capitalize()
             self.log(section)
             articles = []
-            for a in soup.findAll('a', attrs={'href':lambda x: x and x.startswith('/' + sec + '/')}):
+            for a in soup.findAll('a', attrs={'href': lambda x: x and x.startswith('/' + sec + '/')}):
                 url = absurl(a['href'].split('?')[0])
                 if url in {index + sec + '/', index + sec}:
                     continue

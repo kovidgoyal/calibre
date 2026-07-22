@@ -24,7 +24,6 @@ except ImportError:
 
 
 class BiblioStore(BasicStoreConfig, StorePlugin):
-
     web_url = 'https://biblio.bg'
 
     def open(self, gui=None, parent=None, detail_item=None, external=False):

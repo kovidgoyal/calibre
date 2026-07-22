@@ -12,8 +12,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class AdvancedUserRecipe1294946868(BasicNewsRecipe):
-
-    title = u'Europa Press'
+    title = 'Europa Press'
     author = 'Luis Hernandez'
     description = 'spanish news agency'
 
@@ -28,23 +27,59 @@ class AdvancedUserRecipe1294946868(BasicNewsRecipe):
     timefmt = '[%a, %d %b, %Y]'
 
     remove_tags_before = dict(name='div', attrs={'class': ['nivel1 bg_3col']})
-    remove_tags_after = dict(
-        name='div', attrs={'id': ['ImprimirEnviarNoticia']})
+    remove_tags_after = dict(name='div', attrs={'id': ['ImprimirEnviarNoticia']})
 
     remove_tags = [
-        dict(name='ul', attrs={'id': ['entidadesNoticia', 'MenuSecciones']}), dict(name='div', attrs={'id': ['ImprimirEnviarNoticia', 'PublicidadSuperior', 'CabeceraDerecha', 'Comentarios', 'comentarios full fbConnectAPI', 'ComentarEstaNoticia', 'ctl00_Superior_Main_MasEnChance_cajamasnoticias', 'gl_chn', 'videos_portada_derecha', 'galeria_portada_central', 'galeria_portada_central_boxes']}), dict(  # noqa: E501
-            name='div', attrs={'class': ['infoRelacionada', 'col_1', 'buscador', 'caja doblecolumna strong', 'CHANCE_EP_Encuesta_frontal text', 'seccionportada col_0', 'seccion header', 'text', 'pie caption_over']}), dict(name='a', attrs={'class': ['buscadorLabel']}), dict(name='span', attrs={'class': ['editado']}), dict(name='table'), dict(name='li')]  # noqa: E501
+        dict(name='ul', attrs={'id': ['entidadesNoticia', 'MenuSecciones']}),
+        dict(
+            name='div',
+            attrs={
+                'id': [
+                    'ImprimirEnviarNoticia',
+                    'PublicidadSuperior',
+                    'CabeceraDerecha',
+                    'Comentarios',
+                    'comentarios full fbConnectAPI',
+                    'ComentarEstaNoticia',
+                    'ctl00_Superior_Main_MasEnChance_cajamasnoticias',
+                    'gl_chn',
+                    'videos_portada_derecha',
+                    'galeria_portada_central',
+                    'galeria_portada_central_boxes',
+                ]
+            },
+        ),
+        dict(  # noqa: E501
+            name='div',
+            attrs={
+                'class': [
+                    'infoRelacionada',
+                    'col_1',
+                    'buscador',
+                    'caja doblecolumna strong',
+                    'CHANCE_EP_Encuesta_frontal text',
+                    'seccionportada col_0',
+                    'seccion header',
+                    'text',
+                    'pie caption_over',
+                ]
+            },
+        ),
+        dict(name='a', attrs={'class': ['buscadorLabel']}),
+        dict(name='span', attrs={'class': ['editado']}),
+        dict(name='table'),
+        dict(name='li'),
+    ]  # noqa: E501
 
     feeds = [
-
-    (u'Portada', u'http://www.europapress.es/rss/rss.aspx'),
-    (u'Nacional', u'http://www.europapress.es/rss/rss.aspx?ch=66'),
-    (u'Internacional', u'http://www.europapress.es/rss/rss.aspx?ch=69'),
-    (u'Economia', u'http://www.europapress.es/rss/rss.aspx?ch=136'),
-    (u'Deportes', u'http://www.europapress.es/rss/rss.aspx?ch=67'),
-    (u'Cultura', u'http://www.europapress.es/rss/rss.aspx?ch=126'),
-    (u'Sociedad', u'http://www.europapress.es/rss/rss.aspx?ch=73'),
-    (u'Motor', u'http://www.europapress.es/rss/rss.aspx?ch=435'),
-    (u'CHANCE', u'http://www.europapress.es/rss/rss.aspx?ch=549'),
-    (u'Comunicados', u'http://www.europapress.es/rss/rss.aspx?ch=137')
+        ('Portada', 'http://www.europapress.es/rss/rss.aspx'),
+        ('Nacional', 'http://www.europapress.es/rss/rss.aspx?ch=66'),
+        ('Internacional', 'http://www.europapress.es/rss/rss.aspx?ch=69'),
+        ('Economia', 'http://www.europapress.es/rss/rss.aspx?ch=136'),
+        ('Deportes', 'http://www.europapress.es/rss/rss.aspx?ch=67'),
+        ('Cultura', 'http://www.europapress.es/rss/rss.aspx?ch=126'),
+        ('Sociedad', 'http://www.europapress.es/rss/rss.aspx?ch=73'),
+        ('Motor', 'http://www.europapress.es/rss/rss.aspx?ch=435'),
+        ('CHANCE', 'http://www.europapress.es/rss/rss.aspx?ch=549'),
+        ('Comunicados', 'http://www.europapress.es/rss/rss.aspx?ch=137'),
     ]

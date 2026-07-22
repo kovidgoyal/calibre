@@ -10,7 +10,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class BBCVietnamese(BasicNewsRecipe):
-    title = u'BBC Vietnamese'
+    title = 'BBC Vietnamese'
     __author__ = 'Huan Komrade T'
     description = 'Vietnam news and current affairs from the British Broadcasting Corporation'
     no_stylesheets = True

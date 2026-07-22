@@ -26,9 +26,7 @@ class Espresso(BasicNewsRecipe):
         'Maximise your understanding of the most significant business, '
         'economic, political and cultural developments globally.'
     )
-    cover_url = (
-        'https://downloadr2.apkmirror.com/wp-content/uploads/2021/10/75/615777cc6611b.png'
-    )
+    cover_url = 'https://downloadr2.apkmirror.com/wp-content/uploads/2021/10/75/615777cc6611b.png'
     no_stylesheets = True
     remove_attributes = ['height', 'width']
     use_embedded_content = False
@@ -47,10 +45,8 @@ class Espresso(BasicNewsRecipe):
 
     remove_tags = [
         dict(attrs={'data-testid': 'twib-page-navigation-bar'}),
-        dict(attrs={'class': lambda c: c and 'adComponent' in
-                    (' '.join(c) if isinstance(c, list) else c)}),
-        dict(attrs={'class': lambda c: c and 'teaser' in
-                    (' '.join(c) if isinstance(c, list) else c)}),
+        dict(attrs={'class': lambda c: c and 'adComponent' in (' '.join(c) if isinstance(c, list) else c)}),
+        dict(attrs={'class': lambda c: c and 'teaser' in (' '.join(c) if isinstance(c, list) else c)}),
         dict(name='time'),
         dict(attrs={'data-testid': 'progress-bar'}),
         dict(attrs={'data-testid': 'rule-standard'}),
@@ -138,5 +134,6 @@ class Espresso(BasicNewsRecipe):
 
     def get_browser(self, *args, **kwargs):
         from calibre.utils.random_ua import common_english_word_ua
+
         kwargs['user_agent'] = common_english_word_ua()
         return BasicNewsRecipe.get_browser(self, *args, **kwargs)

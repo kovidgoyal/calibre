@@ -175,13 +175,12 @@ def sanitize_color(color):
 
 def color_contrasting(hex_color):
     hex_color = hex_color.lstrip('#')
-    rgb = tuple(int(hex_color[i:i+2], 16) for i in (0, 2, 4))
+    rgb = tuple(int(hex_color[i : i + 2], 16) for i in (0, 2, 4))
     contrasting_rgb = tuple(255 - c for c in rgb)
     return '#{:02x}{:02x}{:02x}'.format(*contrasting_rgb)
 
 
 class ChapterGroup:
-
     def __init__(self, title='', level=0):
         self.title = title
         self.subgroups = {}
@@ -198,7 +197,7 @@ class ChapterGroup:
     def group_for_title(self, title):
         ans = self.subgroups.get(title)
         if ans is None:
-            ans = ChapterGroup(title, self.level+1)
+            ans = ChapterGroup(title, self.level + 1)
             self.subgroups[title] = ans
         return ans
 
@@ -245,7 +244,7 @@ class ChapterGroup:
                     used_decorations[fname] = {
                         'text-decoration-color': '#000000',
                         'text-decoration-line': 'underline',
-                        'text-decoration-style': fname
+                        'text-decoration-style': fname,
                     }
 
         for sg in self.subgroups.values():
@@ -255,8 +254,7 @@ class ChapterGroup:
         if self.title:
             level = min(self.level, 6)
             hid = prepare_string_for_xml(getattr(self, 'html_id', ''), attribute=True)
-            lines.append(
-                f'<h{level} id="{hid}">{prepare_string_for_xml(self.title)}</h{level}>')
+            lines.append(f'<h{level} id="{hid}">{prepare_string_for_xml(self.title)}</h{level}>')
         for hl in self.annotations:
             atype = hl.get('type', 'highlight')
             hl_prefix = hl.get('_link_prefix', link_prefix)
@@ -274,8 +272,7 @@ class ChapterGroup:
         used_decorations = {}
 
         # Traverse the tree to populate outline, colors, and decorations
-        self._collect_outline_and_colors(
-            outline_headings, heading_id_counts, used_colors, used_decorations)
+        self._collect_outline_and_colors(outline_headings, heading_id_counts, used_colors, used_decorations)
 
         # Render the HTML content
         content_lines = []
@@ -330,8 +327,7 @@ class ChapterGroup:
             '}',
             'body { background: var(--ca-bg); color: var(--ca-text); margin: 0; }',
             '.calibre-annotations-container { font-family: sans-serif; }',
-            '.calibre-filter-controls {'
-            ' margin-bottom: 20px; display: flex; gap: 10px; flex-wrap: wrap; }',
+            '.calibre-filter-controls { margin-bottom: 20px; display: flex; gap: 10px; flex-wrap: wrap; }',
             '.calibre-filter-label {'
             ' padding: 5px 15px; border-radius: 20px; cursor: pointer;'
             ' border: 2px solid var(--ca-filter-label-border);'
@@ -339,10 +335,8 @@ class ChapterGroup:
             ' font-size: 14px; font-weight: bold; }',
             '.calibre-filter-label:hover { opacity: 0.8; }',
             '.calibre-show-all { background: var(--ca-show-all-bg) !important; }',
-            'input.calibre-filter-cb:checked ~ .calibre-annotation'
-            ' { display: none !important; }',
-            'input.calibre-filter-cb:checked ~ .calibre-annotation + hr'
-            ' { display: none !important; }',
+            'input.calibre-filter-cb:checked ~ .calibre-annotation { display: none !important; }',
+            'input.calibre-filter-cb:checked ~ .calibre-annotation + hr { display: none !important; }',
         ])
         ids = []
         filter_inputs = []
@@ -350,42 +344,41 @@ class ChapterGroup:
         filter_labels.append(
             f'<button type="reset" class="calibre-filter-label calibre-show-all"'
             f' title="{prepare_string_for_xml(_("Remove filter and show all annotations"), attribute=True)}"'
-            f'>{prepare_string_for_xml(_("Show All"))}</button>')
+            f'>{prepare_string_for_xml(_("Show All"))}</button>'
+        )
 
         if not used_colors and self.annotations:
             used_colors.add('default')
 
         link_colors = {
-            'yellow': '#795548', 'blue': '#0d47a1',
-            'green': '#1b5e20', 'red': '#b71c1c', 'default': '#333333',
+            'yellow': '#795548',
+            'blue': '#0d47a1',
+            'green': '#1b5e20',
+            'red': '#b71c1c',
+            'default': '#333333',
         }
         builtin_border = {
-            'yellow': '#ffeb3b', 'blue': '#2196f3',
-            'green': '#4caf50', 'red': '#f44336',
+            'yellow': '#ffeb3b',
+            'blue': '#2196f3',
+            'green': '#4caf50',
+            'red': '#f44336',
         }
         for color in sorted(used_colors):
             sanitized_color = sanitize_color(color)
             if not sanitized_color:
                 continue
-            border_color = (
-                builtin_border.get(color)
-                or (color if sanitized_color != 'default' else '#cccccc'))
-            filter_inputs.append(
-                f'<input type="checkbox" id="filter-color-{sanitized_color}"'
-                f' class="calibre-filter-cb" style="display:none;">')
+            border_color = builtin_border.get(color) or (color if sanitized_color != 'default' else '#cccccc')
+            filter_inputs.append(f'<input type="checkbox" id="filter-color-{sanitized_color}" class="calibre-filter-cb" style="display:none;">')
             filter_labels.append(
                 f'<label for="filter-color-{sanitized_color}"'
                 f' class="calibre-filter-label"'
                 f' title="{prepare_string_for_xml(_("Show only {color} highlights").format(color=color), attribute=True)}"'
                 f' style="border-color:{border_color};">'
-                f'{prepare_string_for_xml(color)}</label>')
+                f'{prepare_string_for_xml(color)}</label>'
+            )
             ids.append(f'filter-color-{sanitized_color}')
-            style_lines.append(
-                f'input#filter-color-{sanitized_color}:checked'
-                f' ~ .bq-{sanitized_color} {{ display: block !important; }}')
-            style_lines.append(
-                f'input#filter-color-{sanitized_color}:checked'
-                f' ~ .bq-{sanitized_color} + hr {{ display: block !important; }}')
+            style_lines.append(f'input#filter-color-{sanitized_color}:checked ~ .bq-{sanitized_color} {{ display: block !important; }}')
+            style_lines.append(f'input#filter-color-{sanitized_color}:checked ~ .bq-{sanitized_color} + hr {{ display: block !important; }}')
             link_color = link_colors.get(sanitized_color)
             if link_color is None:
                 try:
@@ -399,8 +392,7 @@ class ChapterGroup:
                 '  margin: 1em 0;',
                 '}',
                 f'.bq-{sanitized_color} a {{ color: {link_color}; font-weight: bold; }}',
-                f'.bq-{sanitized_color} em {{'
-                f' font-style: italic; font-weight: bold; color: {link_color}; }}',
+                f'.bq-{sanitized_color} em {{ font-style: italic; font-weight: bold; color: {link_color}; }}',
             ])
 
         for fname, dec_style in used_decorations.items():
@@ -408,23 +400,18 @@ class ChapterGroup:
             dec_color = dec_style.get('text-decoration-color', '#000')
             dec_line = dec_style.get('text-decoration-line', 'underline')
             dec_style_type = dec_style.get('text-decoration-style', 'solid')
-            filter_inputs.append(
-                f'<input type="checkbox" id="filter-decor-{safe_fname}"'
-                f' class="calibre-filter-cb" style="display:none;">')
+            filter_inputs.append(f'<input type="checkbox" id="filter-decor-{safe_fname}" class="calibre-filter-cb" style="display:none;">')
             filter_labels.append(
                 f'<label for="filter-decor-{safe_fname}"'
                 f' class="calibre-filter-label"'
                 f' title="{prepare_string_for_xml(_("Show only {name} style annotations").format(name=fname), attribute=True)}"'
                 f' style="text-decoration: {dec_line} {dec_style_type} {dec_color};">'
-                f'{prepare_string_for_xml(fname)}</label>')
+                f'{prepare_string_for_xml(fname)}</label>'
+            )
             ids.append(f'filter-decor-{safe_fname}')
             # Filter logic overrides the generic hide rule
-            style_lines.append(
-                f'input#filter-decor-{safe_fname}:checked'
-                f' ~ .decor-{safe_fname} {{ display: block !important; }}')
-            style_lines.append(
-                f'input#filter-decor-{safe_fname}:checked'
-                f' ~ .decor-{safe_fname} + hr {{ display: block !important; }}')
+            style_lines.append(f'input#filter-decor-{safe_fname}:checked ~ .decor-{safe_fname} {{ display: block !important; }}')
+            style_lines.append(f'input#filter-decor-{safe_fname}:checked ~ .decor-{safe_fname} + hr {{ display: block !important; }}')
             style_lines.extend([
                 f'.decor-{safe_fname} {{',
                 f'  text-decoration-color: {dec_color};',
@@ -437,14 +424,13 @@ class ChapterGroup:
 
         # Add CSS active state to indicate selected pills
         if ids:
-            bevel_selectors = ', '.join(
-                f'form.calibre-annotations-container:has(#{i}:checked) label[for="{i}"]'
-                for i in ids)
+            bevel_selectors = ', '.join(f'form.calibre-annotations-container:has(#{i}:checked) label[for="{i}"]' for i in ids)
             style_lines.append(
                 f'{bevel_selectors} {{'
                 f' background: var(--ca-filter-active-bg) !important;'
                 f' color: var(--ca-filter-active-color) !important;'
-                f' border-color: var(--ca-filter-active-bg) !important; }}')
+                f' border-color: var(--ca-filter-active-bg) !important; }}'
+            )
 
         # Styles for the generated outline sidebar and main content
         style_lines.extend([
@@ -470,77 +456,53 @@ class ChapterGroup:
             ' transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1),'
             ' background-color 0.2s, color 0.2s, transform 0.2s;'
             ' font-size: 1.25em; color: var(--ca-toggle-color); }',
-            '.calibre-toggle:hover'
-            ' { background: var(--ca-toggle-hover-bg);'
-            ' color: var(--ca-toggle-hover-color); transform: scale(1.05); }',
+            '.calibre-toggle:hover { background: var(--ca-toggle-hover-bg); color: var(--ca-toggle-hover-color); transform: scale(1.05); }',
             '#theme-toggle { top: 70px; }',
-            '.calibre-wrapper.sidebar-collapsed .calibre-outline'
-            ' { transform: translateX(-100%); }',
-            '.calibre-wrapper.sidebar-collapsed .calibre-main'
-            ' { margin-left: 0; padding-left: 5em; }',
+            '.calibre-wrapper.sidebar-collapsed .calibre-outline { transform: translateX(-100%); }',
+            '.calibre-wrapper.sidebar-collapsed .calibre-main { margin-left: 0; padding-left: 5em; }',
             '.calibre-wrapper.sidebar-collapsed .calibre-toggle { left: 20px; }',
             '.calibre-outline-list { list-style: none; padding-left: 0; margin: 0; }',
-            '.calibre-outline-list ul {'
-            ' list-style: none; padding-left: 1.2em;'
-            ' margin: 0.25em 0; border-left: 1px solid var(--ca-outline-nested-border); }',
+            '.calibre-outline-list ul { list-style: none; padding-left: 1.2em; margin: 0.25em 0; border-left: 1px solid var(--ca-outline-nested-border); }',
             '.calibre-outline-item { margin: 0.4em 0; }',
             '.calibre-outline a {'
             ' color: var(--ca-outline-link); text-decoration: none; font-size: 0.9em;'
             ' transition: color 0.15s ease; display: inline-block; padding: 2px 0; }',
             '.calibre-outline a:hover { color: var(--ca-outline-link-hover); }',
-            '.calibre-outline a.active'
-            ' { font-weight: 600; color: var(--ca-outline-link-active); }',
-            '.calibre-search-box {'
-            ' margin-bottom: 1em; display: flex; flex-direction: column; gap: 4px; }',
+            '.calibre-outline a.active { font-weight: 600; color: var(--ca-outline-link-active); }',
+            '.calibre-search-box { margin-bottom: 1em; display: flex; flex-direction: column; gap: 4px; }',
             '#calibre-search-input {'
             ' width: 100%; padding: 5px 8px;'
             ' border: 1px solid var(--ca-search-input-border);'
             ' border-radius: 4px; font-size: 0.85em; font-family: sans-serif;'
             ' box-sizing: border-box; outline: none;'
             ' background: var(--ca-search-input-bg); color: var(--ca-search-input-color); }',
-            '#calibre-search-input:focus { border-color: #3182ce;'
-            ' box-shadow: 0 0 0 2px rgba(49,130,206,0.2); }',
-            '.calibre-search-nav {'
-            ' display: flex; align-items: center; gap: 4px; }',
+            '#calibre-search-input:focus { border-color: #3182ce; box-shadow: 0 0 0 2px rgba(49,130,206,0.2); }',
+            '.calibre-search-nav { display: flex; align-items: center; gap: 4px; }',
             '.calibre-search-nav button {'
             ' padding: 2px 7px; border: 1px solid var(--ca-search-btn-border);'
             ' background: var(--ca-search-btn-bg);'
             ' border-radius: 3px; cursor: pointer; font-size: 0.85em;'
             ' color: var(--ca-search-btn-color); }',
-            '.calibre-search-nav button:hover {'
-            ' background: var(--ca-search-btn-hover-bg);'
-            ' color: var(--ca-search-btn-hover-color); }',
-            '#calibre-search-count {'
-            ' font-size: 0.8em; color: var(--ca-search-count-color); margin-left: 2px; }',
-            'mark.calibre-search-match {'
-            ' background: var(--ca-search-match-bg); color: var(--ca-search-match-color);'
-            ' padding: 0; border-radius: 2px; }',
-            'mark.calibre-search-match.current {'
-            ' background: var(--ca-search-match-current-bg);'
-            ' outline: 2px solid var(--ca-search-match-current-outline); }',
+            '.calibre-search-nav button:hover { background: var(--ca-search-btn-hover-bg); color: var(--ca-search-btn-hover-color); }',
+            '#calibre-search-count { font-size: 0.8em; color: var(--ca-search-count-color); margin-left: 2px; }',
+            'mark.calibre-search-match { background: var(--ca-search-match-bg); color: var(--ca-search-match-color); padding: 0; border-radius: 2px; }',
+            'mark.calibre-search-match.current { background: var(--ca-search-match-current-bg); outline: 2px solid var(--ca-search-match-current-outline); }',
             '@media (max-width: 900px) {',
-            '  .calibre-outline'
-            ' { transform: translateX(-100%);'
-            ' box-shadow: 4px 0 15px rgba(0, 0, 0, 0.1); }',
+            '  .calibre-outline { transform: translateX(-100%); box-shadow: 4px 0 15px rgba(0, 0, 0, 0.1); }',
             '  .calibre-main { margin-left: 0; padding: 1.5em; padding-top: 5em; }',
             '  .calibre-toggle { left: 20px !important; top: 20px; }',
-            '  .calibre-wrapper.sidebar-open .calibre-outline'
-            ' { transform: translateX(0); }',
+            '  .calibre-wrapper.sidebar-open .calibre-outline { transform: translateX(0); }',
             '  .calibre-sidebar-overlay {'
             ' display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;'
             ' background: rgba(0, 0, 0, 0.4); z-index: 90; opacity: 0;'
             ' transition: opacity 0.3s ease; }',
-            '  .calibre-wrapper.sidebar-open .calibre-sidebar-overlay'
-            ' { display: block; opacity: 1; }',
+            '  .calibre-wrapper.sidebar-open .calibre-sidebar-overlay { display: block; opacity: 1; }',
             '}',
         ])
         style_lines.append('</style>')
 
         outline_html = generate_outline_html(outline_headings)
-        filter_controls = (
-            '<div class="calibre-filter-controls">\n'
-            + '\n'.join(filter_labels)
-            + '\n</div>')
+        filter_controls = '<div class="calibre-filter-controls">\n' + '\n'.join(filter_labels) + '\n</div>'
 
         html_output = (
             '<!DOCTYPE html>\n<html lang="en">\n<head>\n'
@@ -845,8 +807,8 @@ def url(text: str, s: int, e: int):
     while text[e - 1] in '.,?!' and e > 1:  # remove trailing punctuation
         e -= 1
     # truncate url at closing bracket/quote
-    if s > 0 and e <= len(text) and text[s-1] in closing_bracket_map:
-        q = closing_bracket_map[text[s-1]]
+    if s > 0 and e <= len(text) and text[s - 1] in closing_bracket_map:
+        q = closing_bracket_map[text[s - 1]]
         idx = text.find(q, s)
         if idx > s:
             e = idx
@@ -862,12 +824,12 @@ def render_note_line(line):
         yield prepare_string_for_xml(line)
         return
     pos = 0
-    for s,e in urls:
+    for s, e in urls:
         if s > pos:
             yield prepare_string_for_xml(line[pos:s])
         yield '<a href="{0}">{0}</a>'.format(prepare_string_for_xml(line[s:e], True))
     if urls[-1][1] < len(line):
-        yield prepare_string_for_xml(line[urls[-1][1]:])
+        yield prepare_string_for_xml(line[urls[-1][1] :])
 
 
 def render_notes(notes, tag='p'):
@@ -883,7 +845,7 @@ def render_notes(notes, tag='p'):
 
 
 def slugify(text: str, max_length: int = 60) -> str:
-    """ Convert header text into a URL-safe slug suitable for element IDs. """
+    """Convert header text into a URL-safe slug suitable for element IDs."""
     if not text:
         return 'untitled'
     s = text.strip().lower()
@@ -900,16 +862,16 @@ def slugify(text: str, max_length: int = 60) -> str:
 
 
 def get_unique_id(base: str, counts: dict) -> str:
-    """ Return base unchanged on first use; append -1, -2, ... for duplicates. Mutates counts. """
+    """Return base unchanged on first use; append -1, -2, ... for duplicates. Mutates counts."""
     if base not in counts:
         counts[base] = 1
         return base
     counts[base] += 1
-    return f'{base}-{counts[base]-1}'
+    return f'{base}-{counts[base] - 1}'
 
 
 def generate_outline_html(headings: list) -> str:
-    """ Generate a nested HTML outline nav from a flat list of heading dicts. """
+    """Generate a nested HTML outline nav from a flat list of heading dicts."""
     out = ['<nav class="calibre-outline" aria-label="Document outline">']
     out.append(
         '<div class="calibre-search-box">'
@@ -939,9 +901,7 @@ def generate_outline_html(headings: list) -> str:
                 stack_level -= 1
             text = h.get('text', '').strip() or 'Untitled'
             hid = h.get('id')
-            out.append(
-                f'<li class="calibre-outline-item lvl-{lvl}">'
-                f'<a href="#{hid}">{prepare_string_for_xml(text)}</a></li>')
+            out.append(f'<li class="calibre-outline-item lvl-{lvl}"><a href="#{hid}">{prepare_string_for_xml(text)}</a></li>')
         # close remaining open lists
         while stack_level > 1:
             out.append('</ul>')
@@ -967,7 +927,6 @@ def annotation_title(atype, singular=False):
 
 
 class AnnotsResultsDelegate(ResultsDelegate):
-
     add_ellipsis = False
     emphasize_text = False
     has_icons = True
@@ -987,11 +946,13 @@ class AnnotsResultsDelegate(ResultsDelegate):
             text = parts[0]
         return False, before, text, after, bool(result.get('annotation', {}).get('notes'))
 
+
 # }}}
 
 
 def sorted_items(items):
     from calibre.ebooks.epub.cfi.parse import cfi_sort_key
+
     def_spine = 999999999
     defval = cfi_sort_key(f'/{def_spine}')
 
@@ -1042,7 +1003,6 @@ def css_for_highlight_style(style):
 
 
 class Export(Dialog):  # {{{
-
     prefs = gprefs
     pref_name = 'annots_export_format'
 
@@ -1093,8 +1053,12 @@ class Export(Dialog):  # {{{
         fmt = self.export_format.currentData()
         filters = [(self.export_format.currentText(), [fmt])]
         path = choose_save_file(
-            self, 'annots-export-save', _('File for exports'), filters=filters,
-            initial_filename=self.initial_filename() + '.' + fmt)
+            self,
+            'annots-export-save',
+            _('File for exports'),
+            filters=filters,
+            initial_filename=self.initial_filename() + '.' + fmt,
+        )
         if path:
             data = self.exported_data().encode('utf-8')
             with open(path, 'wb') as f:
@@ -1106,11 +1070,16 @@ class Export(Dialog):  # {{{
         fmt = self.export_format.currentData()
         db = current_db()
         if fmt == 'calibre_annotation_collection':
-            return json.dumps({
-                'version': 1,
-                'type': 'calibre_annotation_collection',
-                'annotations': self.annotations,
-            }, ensure_ascii=False, sort_keys=True, indent=2)
+            return json.dumps(
+                {
+                    'version': 1,
+                    'type': 'calibre_annotation_collection',
+                    'annotations': self.annotations,
+                },
+                ensure_ascii=False,
+                sort_keys=True,
+                indent=2,
+            )
 
         def link_prefix_func(book_id, book_format, a):
             library_id = getattr(db, 'server_library_id', None)
@@ -1168,11 +1137,14 @@ class Export(Dialog):  # {{{
             root.render_as_text(lines, as_markdown, link_prefix)
             lines.append('')
         return '\n'.join(lines).strip()
+
+
 # }}}
 
 
 def current_db() -> Cache:
     from calibre.gui2.ui import get_gui
+
     ans = getattr(current_db, 'ans', None)
     if ans is not None:
         return ans.new_api
@@ -1406,10 +1378,16 @@ class ResultsList(QTreeWidget):
                 m.addAction(QIcon.ic('modified.png'), _('Edit notes'), partial(self.edit_notes, item))
         if items:
             m.addSeparator()
-            m.addAction(QIcon.ic('save.png'),
-                        ngettext('Export selected item', 'Export {} selected items', len(items)).format(len(items)), self.export_requested.emit)
-            m.addAction(QIcon.ic('trash.png'),
-                        ngettext('Delete selected item', 'Delete {} selected items', len(items)).format(len(items)), self.delete_requested.emit)
+            m.addAction(
+                QIcon.ic('save.png'),
+                ngettext('Export selected item', 'Export {} selected items', len(items)).format(len(items)),
+                self.export_requested.emit,
+            )
+            m.addAction(
+                QIcon.ic('trash.png'),
+                ngettext('Delete selected item', 'Delete {} selected items', len(items)).format(len(items)),
+                self.delete_requested.emit,
+            )
         m.addSeparator()
         m.addAction(QIcon.ic('plus.png'), _('Expand all'), self.expandAll)
         m.addAction(QIcon.ic('minus.png'), _('Collapse all'), self.collapseAll)
@@ -1489,6 +1467,7 @@ class ResultsList(QTreeWidget):
         Create child items under a parent of the annotations tree.
         """
         from calibre.gui2.viewer.highlights import decoration_for_style
+
         is_dark = is_dark_theme()
         dpr = self.devicePixelRatioF()
         for key, entry in sorted(children.items(), key=lambda kv: kv[0]):
@@ -1572,7 +1551,6 @@ class ResultsList(QTreeWidget):
 
 
 class ComboBox(QComboBox):
-
     def __init__(self, parent: QWidget, label: QLabel):
         super().__init__(parent)
         self.la = label
@@ -1583,7 +1561,6 @@ class ComboBox(QComboBox):
 
 
 class Restrictions(QWidget):
-
     restrictions_changed = pyqtSignal()
 
     def __init__(self, parent, group_by):
@@ -1635,7 +1612,8 @@ class Restrictions(QWidget):
             t = ngettext(
                 '&Show results from only the selected book',
                 '&Show results from only the {} selected books',
-                len(self.restrict_to_book_ids)).format(len(self.restrict_to_book_ids))
+                len(self.restrict_to_book_ids),
+            ).format(len(self.restrict_to_book_ids))
         self.restrict_to_books_cb.setText(t)
 
     def show_only_selected_changed(self):
@@ -1674,6 +1652,7 @@ class Restrictions(QWidget):
         highlight_row = tb.findData({'type': 'highlight'})
         if highlight_row > -1:
             from calibre.gui2.viewer.highlights import decoration_for_style
+
             dpr = self.devicePixelRatioF()
             is_dark = is_dark_theme()
             model = tb.model()
@@ -1765,10 +1744,12 @@ class GroupOptions(QWidget):
         font = QFont()
         font.setItalic(True)
         font.setBold(True)
+
         def add(label, field):
             gb.addItem(label, field)
             if before == field:
-                gb.setItemData(gb.count()-1, font, Qt.ItemDataRole.FontRole)
+                gb.setItemData(gb.count() - 1, font, Qt.ItemDataRole.FontRole)
+
         # Title grouping
         add(_('Title'), 'title')
         # Annotation-specific fields first
@@ -1787,7 +1768,6 @@ class GroupOptions(QWidget):
 
 
 class BrowsePanel(QWidget):
-
     current_result_changed = pyqtSignal(object)
     open_annotation = pyqtSignal(object, object, object)
     show_book = pyqtSignal(object, object)
@@ -1898,26 +1878,32 @@ class BrowsePanel(QWidget):
                 db = current_db()
                 if not q['fts_engine_query']:
                     results = db.all_annotations(
-                        restrict_to_user=q['restrict_to_user'], limit=4096, annotation_type=q['annotation_type'],
+                        restrict_to_user=q['restrict_to_user'],
+                        limit=4096,
+                        annotation_type=q['annotation_type'],
                         annotation_style=q['annotation_style'],
-                        ignore_removed=True, restrict_to_book_ids=q['restrict_to_book_ids'] or None
+                        ignore_removed=True,
+                        restrict_to_book_ids=q['restrict_to_book_ids'] or None,
                     )
                 else:
                     q2 = q.copy()
                     q2['restrict_to_book_ids'] = q.get('restrict_to_book_ids') or None
-                    results = db.search_annotations(
-                        highlight_start='\x1d', highlight_end='\x1d', snippet_size=64,
-                        ignore_removed=True, **q2
-                    )
+                    results = db.search_annotations(highlight_start='\x1d', highlight_end='\x1d', snippet_size=64, ignore_removed=True, **q2)
                 group_order = getattr(self.group_options, 'group_order', ('title',))
                 self.results_list.set_results(results, bool(q['fts_engine_query']), group_order=group_order)
                 self.current_query = q
         except FTSQueryError as err:
-            return error_dialog(self, _('Invalid search expression'), '<p>' + _(
-                'The search expression: {0} is invalid. The search syntax used is the'
-                ' SQLite Full text Search Query syntax, <a href="{1}">described here</a>.').format(
-                    err.query, 'https://www.sqlite.org/fts5.html#full_text_query_syntax'),
-                det_msg=str(err), show=True)
+            return error_dialog(
+                self,
+                _('Invalid search expression'),
+                '<p>'
+                + _(
+                    'The search expression: {0} is invalid. The search syntax used is the'
+                    ' SQLite Full text Search Query syntax, <a href="{1}">described here</a>.'
+                ).format(err.query, 'https://www.sqlite.org/fts5.html#full_text_query_syntax'),
+                det_msg=str(err),
+                show=True,
+            )
 
     def effective_query_changed(self):
         self.do_find()
@@ -1954,7 +1940,6 @@ class BrowsePanel(QWidget):
 
 
 class Details(QTextBrowser):
-
     def __init__(self, parent):
         QTextBrowser.__init__(self, parent)
         self.setFrameShape(QFrame.Shape.NoFrame)
@@ -1967,7 +1952,6 @@ class Details(QTextBrowser):
 
 
 class DetailsPanel(QWidget):
-
     open_annotation = pyqtSignal(object, object, object)
     show_book = pyqtSignal(object, object)
     edit_annotation = pyqtSignal(object, object)
@@ -2052,12 +2036,12 @@ class DetailsPanel(QWidget):
                 p(line)
             notes = annot.get('notes')
             if notes:
-                paras.append('<h4>{} (<a title="{}" href="calibre://edit_result">{}</a>)</h4>'.format(
-                    _('Notes'), _('Edit the notes of this highlight'), _('Edit')))
+                paras.append(
+                    '<h4>{} (<a title="{}" href="calibre://edit_result">{}</a>)</h4>'.format(_('Notes'), _('Edit the notes of this highlight'), _('Edit'))
+                )
                 paras.extend(render_notes(notes))
             else:
-                paras.append('<p><a title="{}" href="calibre://edit_result">{}</a></p>'.format(
-                    _('Add notes to this highlight'), _('Add notes')))
+                paras.append('<p><a title="{}" href="calibre://edit_result">{}</a></p>'.format(_('Add notes to this highlight'), _('Add notes')))
             if 'style' in annot:
                 highlight_css = css_for_highlight_style(annot['style'])
 
@@ -2082,10 +2066,19 @@ class DetailsPanel(QWidget):
         <h3 style="text-align: left; {highlight_css}">{atype}</h3>
         {text}
         '''.format(
-            title=a(title), authors=a(authors), series=a(series_text), book_format=a(book_format),
-            atype=a(atype), text=annot_text, dt=_('Date'), date=a(date), ut=a(_('User')),
-            user=a(friendly_username(r['user_type'], r['user'])), highlight_css=highlight_css,
-            ov=a(_('Open in viewer')), sic=a(_('Show in calibre')),
+            title=a(title),
+            authors=a(authors),
+            series=a(series_text),
+            book_format=a(book_format),
+            atype=a(atype),
+            text=annot_text,
+            dt=_('Date'),
+            date=a(date),
+            ut=a(_('User')),
+            user=a(friendly_username(r['user_type'], r['user'])),
+            highlight_css=highlight_css,
+            ov=a(_('Open in viewer')),
+            sic=a(_('Show in calibre')),
             ovtt=a(_('View the book at this annotation in the calibre E-book viewer')),
             sictt=(_('Show this book in the main calibre book list')),
         )
@@ -2093,11 +2086,9 @@ class DetailsPanel(QWidget):
 
 
 class EditNotes(Dialog):
-
     def __init__(self, notes, parent=None):
         self.initial_notes = notes
-        Dialog.__init__(
-            self, _('Edit notes for highlight'), 'library-annotations-browser-edit-notes', parent=parent)
+        Dialog.__init__(self, _('Edit notes for highlight'), 'library-annotations-browser-edit-notes', parent=parent)
 
     def setup_ui(self):
         self.notes_edit = QPlainTextEdit(self)
@@ -2115,13 +2106,18 @@ class EditNotes(Dialog):
 
 
 class AnnotationsBrowser(Dialog):
-
     open_annotation = pyqtSignal(object, object, object)
     show_book = pyqtSignal(object, object)
 
     def __init__(self, parent=None):
         self.current_restriction = None
-        Dialog.__init__(self, _('Annotations browser'), 'library-annotations-browser', parent=parent, default_buttons=QDialogButtonBox.StandardButton.Close)
+        Dialog.__init__(
+            self,
+            _('Annotations browser'),
+            'library-annotations-browser',
+            parent=parent,
+            default_buttons=QDialogButtonBox.StandardButton.Close,
+        )
         self.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose, False)
         self.setWindowIcon(QIcon.ic('highlight.png'))
 
@@ -2141,9 +2137,13 @@ class AnnotationsBrowser(Dialog):
     def setup_ui(self):
         self.use_stemmer = us = QCheckBox(_('&Match on related words'))
         us.setChecked(gprefs['browse_annots_use_stemmer'])
-        us.setToolTip('<p>' + _(
-            'With this option searching for words will also match on any related words (supported in several languages). For'
-            ' example, in the English language: <i>correction</i> matches <i>correcting</i> and <i>corrected</i> as well'))
+        us.setToolTip(
+            '<p>'
+            + _(
+                'With this option searching for words will also match on any related words (supported in several languages). For'
+                ' example, in the English language: <i>correction</i> matches <i>correcting</i> and <i>corrected</i> as well'
+            )
+        )
         us.stateChanged.connect(lambda state: gprefs.set('browse_annots_use_stemmer', state != Qt.CheckState.Unchecked.value))
 
         l = QVBoxLayout(self)
@@ -2198,22 +2198,24 @@ class AnnotationsBrowser(Dialog):
     def delete_selected(self):
         ids = frozenset(self.browse_panel.selected_annot_ids)
         if not ids:
-            return error_dialog(self, _('No selected annotations'), _(
-                'No annotations have been selected'), show=True)
+            return error_dialog(self, _('No selected annotations'), _('No annotations have been selected'), show=True)
         self.delete_annotations(ids)
 
     def export_selected(self):
         annots = tuple(self.browse_panel.selected_annotations)
         if not annots:
-            return error_dialog(self, _('No selected annotations'), _(
-                'No annotations have been selected'), show=True)
+            return error_dialog(self, _('No selected annotations'), _('No annotations have been selected'), show=True)
         Export(annots, self).exec()
 
     def delete_annotations(self, ids):
-        if confirm(ngettext(
-            'Are you sure you want to <b>permanently</b> delete this annotation?',
-            'Are you sure you want to <b>permanently</b> delete these {} annotations?',
-            len(ids)).format(len(ids)), 'delete-annotation-from-browse', parent=self
+        if confirm(
+            ngettext(
+                'Are you sure you want to <b>permanently</b> delete this annotation?',
+                'Are you sure you want to <b>permanently</b> delete these {} annotations?',
+                len(ids),
+            ).format(len(ids)),
+            'delete-annotation-from-browse',
+            parent=self,
         ):
             db = current_db()
             db.delete_annotations(ids)
@@ -2224,8 +2226,12 @@ class AnnotationsBrowser(Dialog):
 
     def edit_annotation(self, annot_id, annot):
         if annot.get('type') != 'highlight':
-            return error_dialog(self, _('Cannot edit'), _(
-                'Editing is only supported for the notes associated with highlights'), show=True)
+            return error_dialog(
+                self,
+                _('Cannot edit'),
+                _('Editing is only supported for the notes associated with highlights'),
+                show=True,
+            )
         notes = annot.get('notes')
         d = EditNotes(notes, self)
         if d.exec() == QDialog.DialogCode.Accepted:
@@ -2252,6 +2258,7 @@ class AnnotationsBrowser(Dialog):
         gui = self.parent()
         if self.isVisible() and gui is not None:
             from calibre.gui2.ui import Main
+
             assert isinstance(gui, Main)
             self.browse_panel.selection_changed(gui.library_view.get_selected_ids(as_set=True))
 
@@ -2273,6 +2280,7 @@ class AnnotationsBrowser(Dialog):
 
 if __name__ == '__main__':
     from calibre.library import db
+
     app = Application([])
     setattr(current_db, 'ans', db(os.path.expanduser('~/test library')))
     br = AnnotationsBrowser()

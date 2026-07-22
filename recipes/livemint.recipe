@@ -40,12 +40,9 @@ class LiveMint(BasicNewsRecipe):
     def get_cover_url(self):
         today = datetime.today().strftime('%d/%m/%Y')
         if datetime.today().weekday() in (5, 6):
-            today = (
-                datetime.today() - timedelta(days=datetime.today().weekday() - 4)
-            ).strftime('%d/%m/%Y')
+            today = (datetime.today() - timedelta(days=datetime.today().weekday() - 4)).strftime('%d/%m/%Y')
         soup = self.index_to_soup(
-            'https://epaper.livemint.com/Home/GetAllpages?editionid=1&editiondate='
-            + urllib.parse.quote(today, safe=''),
+            'https://epaper.livemint.com/Home/GetAllpages?editionid=1&editiondate=' + urllib.parse.quote(today, safe=''),
             raw=True,
         )
         for x in json.loads(soup):
@@ -68,12 +65,7 @@ class LiveMint(BasicNewsRecipe):
             name='article',
             attrs={'id': lambda x: x and x.startswith(('article_', 'box_'))},
         ),
-        dict(
-            attrs={
-                'class': lambda x: x
-                and x.startswith(('storyPage_storyBox__', 'storyBoxSchema'))
-            }
-        ),
+        dict(attrs={'class': lambda x: x and x.startswith(('storyPage_storyBox__', 'storyBoxSchema'))}),
         classes('contentSec'),
     ]
 
@@ -81,12 +73,14 @@ class LiveMint(BasicNewsRecipe):
         dict(name=['meta', 'link', 'svg', 'button', 'iframe']),
         dict(
             attrs={
-                'class': lambda x: x
-                and x.startswith((
-                    'storyPage_alsoRead__',
-                    'storyPage_firstPublishDate__',
-                    'storyPage_bcrumb__',
-                ))
+                'class': lambda x: (
+                    x
+                    and x.startswith((
+                        'storyPage_alsoRead__',
+                        'storyPage_firstPublishDate__',
+                        'storyPage_bcrumb__',
+                    ))
+                )
             }
         ),
         dict(attrs={'id': ['faqSection', 'seoText', 'ellipsisId', 'gift_redeemed_box ']}),
@@ -123,40 +117,25 @@ class LiveMint(BasicNewsRecipe):
         raw = re.sub(
             r'(<p>\s*)(<[^(\/|a|i|b|em|strong)])',
             r'\g<2>',
-            re.sub(
-                r'(<p>\s*&nbsp;\s*<\/p>)|(<p>\s*<\/p>)|(<p\s*\S+>&nbsp;\s*<\/p>)', '', raw
-            ),
+            re.sub(r'(<p>\s*&nbsp;\s*<\/p>)|(<p>\s*<\/p>)|(<p\s*\S+>&nbsp;\s*<\/p>)', '', raw),
         )
         if '<script>var wsjFlag=true;</script>' in raw:
-            m = re.search(
-                r'type="application/ld\+json">[^<]+?"@type": "NewsArticle"', raw
-            )
+            m = re.search(r'type="application/ld\+json">[^<]+?"@type": "NewsArticle"', raw)
             raw1 = raw[m.start() :]
             raw1 = raw1.split('>', 1)[1].strip()
             data = json.JSONDecoder().raw_decode(raw1)[0]
             value = data['hasPart']['value']
-            body = (
-                data['articleBody']
-                + '</p> <p>'
-                + re.sub(r'(([a-z]|[^A-Z])\.|\.”)([A-Z]|“[A-Z])', r'\1 <p> \3', value)
-            )
+            body = data['articleBody'] + '</p> <p>' + re.sub(r'(([a-z]|[^A-Z])\.|\.”)([A-Z]|“[A-Z])', r'\1 <p> \3', value)
             body = '<div class="FirstEle"> <p>' + body + '</p> </div>'
             raw2 = re.sub(r'<div class="FirstEle">([^}]*)</div>', body, raw)
             return raw2
         return raw
 
     def preprocess_html(self, soup):
-        auth = soup.find(
-            attrs={
-                'class': lambda x: x
-                and x.startswith(('storyPage_authorInfo__', 'storyPage_authorSocial__'))
-            }
-        )
+        auth = soup.find(attrs={'class': lambda x: x and x.startswith(('storyPage_authorInfo__', 'storyPage_authorSocial__'))})
         if auth:
             auth['class'] = 'auth'
-        summ = soup.find(
-            attrs={'class': lambda x: x and x.startswith('storyPage_summary__')}
-        )
+        summ = soup.find(attrs={'class': lambda x: x and x.startswith('storyPage_summary__')})
         if summ:
             summ['class'] = 'summary'
             summ.name = 'p'
@@ -169,9 +148,7 @@ class LiveMint(BasicNewsRecipe):
                 nos.name = 'span'
         for span in soup.findAll('figcaption'):
             span['id'] = 'img-cap'
-        for auth in soup.findAll(
-            'span', attrs={'class': lambda x: x and 'articleInfo' in x.split()}
-        ):
+        for auth in soup.findAll('span', attrs={'class': lambda x: x and 'articleInfo' in x.split()}):
             auth.name = 'div'
         for img in soup.findAll('img', attrs={'data-src': True}):
             img['src'] = img['data-src']

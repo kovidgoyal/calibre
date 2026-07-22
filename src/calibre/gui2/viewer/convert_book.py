@@ -160,12 +160,10 @@ def prepare_convert(temp_path, key, st, book_path):
 
 
 class ConversionFailure(ValueError):
-
     def __init__(self, book_path, worker_output):
         self.book_path = book_path
         self.worker_output = worker_output
-        ValueError.__init__(
-                self, f'Failed to convert book: {book_path} with error:\n{worker_output}')
+        ValueError.__init__(self, f'Failed to convert book: {book_path} with error:\n{worker_output}')
 
 
 preloaded_worker = None
@@ -174,6 +172,7 @@ running_workers = []
 
 def create_worker():
     import subprocess
+
     return start_pipe_worker('from calibre.srv.render_book import viewer_main; viewer_main()', stderr=subprocess.STDOUT)
 
 
@@ -204,7 +203,9 @@ def do_convert(path, temp_path, key, instance):
     preloaded_worker = create_worker()
     running_workers.append(p)
     data = msgpack_dumps((
-        path, tdir, {'size': instance['file_size'], 'mtime': instance['file_mtime'], 'hash': key},
+        path,
+        tdir,
+        {'size': instance['file_size'], 'mtime': instance['file_mtime'], 'hash': key},
     ))
     try:
         stdout, _ = p.communicate(data)
@@ -348,9 +349,11 @@ def find_tests():
             book_src = os.path.join(self.tdir, 'book.epub')
             set_data('a')
             path = prepare_book(book_src, convert_func=convert_mock)
+
             def read(x, mode='r'):
                 with open(x, mode) as f:
                     return f.read()
+
             self.ae(read(os.path.join(path, 'sentinel'), 'rb'), b'test')
 
             # Test that opening the same book uses the cache

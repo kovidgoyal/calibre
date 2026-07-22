@@ -20,9 +20,7 @@ class Reuters(BasicNewsRecipe):
         'reaching billions of people worldwide every day. Reuters provides business, financial, national and international '
         'news to professionals via desktop terminals, the world’s media organizations, industry events and directly to consumers.'
     )
-    masthead_url = (
-        'https://upload.wikimedia.org/wikipedia/commons/9/9e/Reuters_logo_2024.svg'
-    )
+    masthead_url = 'https://upload.wikimedia.org/wikipedia/commons/9/9e/Reuters_logo_2024.svg'
     cover_url = 'https://yt3.googleusercontent.com/ytc/AIdro_mk43b9eQwN15ZBDyMPDaElxvw4V-oUS9XDUvVnYB3gA9yA=s1024'
     language = 'en'
     encoding = 'utf-8'
@@ -71,18 +69,12 @@ class Reuters(BasicNewsRecipe):
 
         sections = []
 
-        sec_api = json.loads(
-            self.index_to_soup(index + '/mobile/api/v1/menu/?outputType=json', raw=True)
-        )
+        sec_api = json.loads(self.index_to_soup(index + '/mobile/api/v1/menu/?outputType=json', raw=True))
 
         for s in sec_api[0]['data']['hierarchy']['children']:
             if s.get('type', '') == 'section':
                 sections.append((s['name'], s['id']))
-                sections.extend(
-                    (s['name'] + ' - ' + s2['name'], s2['id'])
-                    for s2 in s.get('children', [])
-                    if s2.get('type', '') == 'section'
-                )
+                sections.extend((s['name'] + ' - ' + s2['name'], s2['id']) for s2 in s.get('children', []) if s2.get('type', '') == 'section')
 
         feeds = []
 
@@ -97,23 +89,12 @@ class Reuters(BasicNewsRecipe):
 
             articles = []
 
-            data = json.loads(
-                self.index_to_soup(
-                    index + '/mobile/v1' + link + '?outputType=json', raw=True
-                )
-            )
+            data = json.loads(self.index_to_soup(index + '/mobile/v1' + link + '?outputType=json', raw=True))
 
-            for st in (
-                story
-                for x in data
-                if isinstance(x, dict)
-                for story in x.get('data', {}).get('stories', [])
-            ):
+            for st in (story for x in data if isinstance(x, dict) for story in x.get('data', {}).get('stories', [])):
                 title = st['title']
 
-                date = datetime.fromisoformat(st['display_time'][:-1]) + timedelta(
-                    seconds=time.timezone
-                )
+                date = datetime.fromisoformat(st['display_time'][:-1]) + timedelta(seconds=time.timezone)
                 if (today - date) > timedelta(self.oldest_article):
                     continue
 
@@ -141,12 +122,7 @@ class Reuters(BasicNewsRecipe):
             if data.get('description'):
                 body += '<p class="desc">' + data['description'] + '</p>'
             if data.get('authors'):
-                body += (
-                    '<p class="auth">'
-                    + 'By '
-                    + ', '.join(at.get('byline', '') for at in data.get('authors', []))
-                    + '</p>'
-                )
+                body += '<p class="auth">' + 'By ' + ', '.join(at.get('byline', '') for at in data.get('authors', [])) + '</p>'
 
             if data.get('thumbnail') and data['thumbnail'].get('type', '') == 'image':
                 th = data['thumbnail']
@@ -161,20 +137,12 @@ class Reuters(BasicNewsRecipe):
                 + ' minute read | '
                 + str(data['word_count'])
                 + ' words | '
-                + p_dt(
-                    data['updated_time']
-                    if data.get('updated_time')
-                    else data['display_time']
-                )
+                + p_dt(data['updated_time'] if data.get('updated_time') else data['display_time'])
                 + '</p>'
             )
 
             if data.get('summary'):
-                body += (
-                    '<blockquote>'
-                    + ''.join(f'<li>{su["description"]}</li>' for su in data['summary'])
-                    + '</blockquote>'
-                )
+                body += '<blockquote>' + ''.join(f'<li>{su["description"]}</li>' for su in data['summary']) + '</blockquote>'
 
             for y in data['content_elements']:
                 ty = y.get('type', '')
@@ -207,7 +175,4 @@ class Reuters(BasicNewsRecipe):
         return br
 
     def print_version(self, url):
-        return (
-            url.replace('https://www.reuters.com', 'https://www.reuters.com/mobile/v1')
-            + '?outputType=json'
-        )
+        return url.replace('https://www.reuters.com', 'https://www.reuters.com/mobile/v1') + '?outputType=json'

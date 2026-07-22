@@ -26,9 +26,8 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class MWJournal(BasicNewsRecipe):
-
-    title = u'Microwave Journal'
-    description = u'Microwave Journal Monthly Magazine'
+    title = 'Microwave Journal'
+    description = 'Microwave Journal Monthly Magazine'
     publisher = 'Horizon House'
     publication_type = 'magazine'
     INDEX = 'http://www.microwavejournal.com/publications/'
@@ -42,11 +41,10 @@ class MWJournal(BasicNewsRecipe):
     no_stylesheets = True
     remove_javascript = True
     remove_tags = [
-        dict(name='font', attrs={'class': 'footer'}),    # remove fonts
+        dict(name='font', attrs={'class': 'footer'}),  # remove fonts
     ]
 
-    remove_attributes = ['border', 'cellspacing', 'align', 'cellpadding', 'colspan',
-                         'valign', 'vspace', 'hspace', 'alt', 'width', 'height']
+    remove_attributes = ['border', 'cellspacing', 'align', 'cellpadding', 'colspan', 'valign', 'vspace', 'hspace', 'alt', 'width', 'height']
 
     # Specify extra CSS - overrides ALL other CSS (IE. Added last).
     extra_css = '''body { font-family: verdana, helvetica, sans-serif; }
@@ -70,15 +68,15 @@ class MWJournal(BasicNewsRecipe):
 
     # Remove the line breaks, href links and float left/right and picture
     # width/height.
-    preprocess_regexps = [(re.compile(r'<br[ ]*/>', re.IGNORECASE), lambda m: ''),
-                          (re.compile(r'<br[ ]*clear.*/>',
-                                      re.IGNORECASE), lambda m: ''),
-                          (re.compile(r'<a.*?>'), lambda h1: ''),
-                          (re.compile(r'</a>'), lambda h2: ''),
-                          (re.compile(r'float:.*?'), lambda h3: ''),
-                          (re.compile(r'width:.*?px'), lambda h4: ''),
-                          (re.compile(r'height:.*?px'), lambda h5: '')
-                          ]
+    preprocess_regexps = [
+        (re.compile(r'<br[ ]*/>', re.IGNORECASE), lambda m: ''),
+        (re.compile(r'<br[ ]*clear.*/>', re.IGNORECASE), lambda m: ''),
+        (re.compile(r'<a.*?>'), lambda h1: ''),
+        (re.compile(r'</a>'), lambda h2: ''),
+        (re.compile(r'float:.*?'), lambda h3: ''),
+        (re.compile(r'width:.*?px'), lambda h4: ''),
+        (re.compile(r'height:.*?px'), lambda h5: ''),
+    ]
 
     def print_version(self, url):
         return url.replace('/articles/', '/articles/print/')
@@ -87,8 +85,7 @@ class MWJournal(BasicNewsRecipe):
         articles = []
 
         soup = self.index_to_soup(self.INDEX)
-        ts = soup.find(
-            'div', attrs={'class': 'box1 article publications-show'})
+        ts = soup.find('div', attrs={'class': 'box1 article publications-show'})
         ds = self.tag_to_string(ts.find('h2'))
         self.log('Found Current Issue:', ds)
         self.timefmt = ' [%s]' % ds
@@ -125,8 +122,7 @@ class MWJournal(BasicNewsRecipe):
                 if p is not None:
                     desc = self.tag_to_string(p)
                     self.log('\t\t', desc)
-                articles.append({'title': title, 'url': url, 'description': desc,
-                                 'date': self.timefmt})
+                articles.append({'title': title, 'url': url, 'description': desc, 'date': self.timefmt})
             if articles:
                 feeds.append((section_title, articles))
         return feeds

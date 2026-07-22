@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
@@ -30,25 +30,21 @@ DEFAULT_TEMPLATE = '{author_sort}/{title}/{title} - {authors}'
 DEFAULT_SEND_TEMPLATE = '{author_sort}/{title} - {authors}'
 
 FORMAT_ARG_DESCS = {
-        'title': _('The title'),
-        'authors': _('The authors'),
-        'author_sort': _('The author sort string. To use only the first letter '
-            'of the name use {author_sort[0]}'),
-        'tags': _('The tags'),
-        'series': _('The series'),
-        'series_index': _('The series number. '
-            'To get leading zeros use {series_index:0>3s} or '
-            '{series_index:>3s} for leading spaces'),
-        'rating': _('The rating'),
-        'isbn': _('The ISBN'),
-        'publisher': _('The publisher'),
-        'timestamp': _('The date'),
-        'pubdate': _('The published date'),
-        'last_modified': _('The date when the metadata for this book record'
-            ' was last modified'),
-        'languages': _('The language(s) of this book'),
-        'id': _('The calibre internal id'),
-        'pages': _('The calibre internal page count'),
+    'title': _('The title'),
+    'authors': _('The authors'),
+    'author_sort': _('The author sort string. To use only the first letter of the name use {author_sort[0]}'),
+    'tags': _('The tags'),
+    'series': _('The series'),
+    'series_index': _('The series number. To get leading zeros use {series_index:0>3s} or {series_index:>3s} for leading spaces'),
+    'rating': _('The rating'),
+    'isbn': _('The ISBN'),
+    'publisher': _('The publisher'),
+    'timestamp': _('The date'),
+    'pubdate': _('The published date'),
+    'last_modified': _('The date when the metadata for this book record was last modified'),
+    'languages': _('The language(s) of this book'),
+    'id': _('The calibre internal id'),
+    'pages': _('The calibre internal page count'),
 }
 
 FORMAT_ARGS = {}
@@ -82,52 +78,74 @@ def config(defaults=None):
         c = StringConfig(defaults)
 
     x = c.add_opt
-    x('update_metadata', default=True,
-            help=_('Normally, calibre will update the metadata in the saved files from what is'
-            ' in the calibre library. Makes saving to disk slower.'))
-    x('write_opf', default=True,
-            help=_('Normally, calibre will write the metadata into a separate OPF file along with the'
-                ' actual e-book files.'))
-    x('save_cover', default=True,
-            help=_('Normally, calibre will save the cover in a separate file along with the '
-                'actual e-book files.'))
-    x('formats', default='all',
-            help=_('Comma separated list of formats to save for each book.'
-                ' By default all available formats are saved.'))
-    x('template', default=DEFAULT_TEMPLATE,
-            help=_('The template to control the filename and folder structure of the saved files. '
-                'Default is "%(templ)s" which will save books into a per-author '
-                'subfolder with filenames containing title and author. '
-                'Available controls are: {%(controls)s}')%dict(
-                    templ=DEFAULT_TEMPLATE, controls=', '.join(sorted(FORMAT_ARGS))))
-    x('send_template', default=DEFAULT_SEND_TEMPLATE,
-            help=_('The template to control the filename and folder structure of files '
-                'sent to the device. '
-                'Default is "%(templ)s" which will save books into a per-author '
-                'folder with filenames containing title and author. '
-                'Available controls are: {%(controls)s}')%dict(
-                    templ=DEFAULT_SEND_TEMPLATE, controls=', '.join(FORMAT_ARGS)))
-    x('asciiize', default=False,
-            help=_('Have calibre convert all non English characters into English equivalents '
-                'for the file names. This is useful if saving to a legacy filesystem '
-                'without full support for Unicode filenames.'))
-    x('timefmt', default='%b, %Y',
-            help=_('The format in which to display dates. %(day)s - day,'
-                ' %(month)s - month, %(mn)s - month number, %(year)s - year. Default is: %(default)s'
-                )%dict(day='%d', month='%b', mn='%m', year='%Y', default='%b, %Y'))
-    x('send_timefmt', default='%b, %Y',
-            help=_('The format in which to display dates. %(day)s - day,'
-                ' %(month)s - month, %(mn)s - month number, %(year)s - year. Default is: %(default)s'
-                )%dict(day='%d', month='%b', mn='%m', year='%Y', default='%b, %Y'))
-    x('to_lowercase', default=False,
-            help=_('Convert paths to lowercase.'))
-    x('replace_whitespace', default=False,
-            help=_('Replace whitespace with underscores.'))
-    x('single_dir', default=False,
-            help=_('Save into a single folder, ignoring the template'
-                ' folder structure'))
-    x('save_extra_files', default=True, help=_(
-        'Save any data files associated with the book when saving the book'))
+    x(
+        'update_metadata',
+        default=True,
+        help=_('Normally, calibre will update the metadata in the saved files from what is in the calibre library. Makes saving to disk slower.'),
+    )
+    x(
+        'write_opf',
+        default=True,
+        help=_('Normally, calibre will write the metadata into a separate OPF file along with the actual e-book files.'),
+    )
+    x(
+        'save_cover',
+        default=True,
+        help=_('Normally, calibre will save the cover in a separate file along with the actual e-book files.'),
+    )
+    x(
+        'formats',
+        default='all',
+        help=_('Comma separated list of formats to save for each book. By default all available formats are saved.'),
+    )
+    x(
+        'template',
+        default=DEFAULT_TEMPLATE,
+        help=_(
+            'The template to control the filename and folder structure of the saved files. '
+            'Default is "%(templ)s" which will save books into a per-author '
+            'subfolder with filenames containing title and author. '
+            'Available controls are: {%(controls)s}'
+        )
+        % dict(templ=DEFAULT_TEMPLATE, controls=', '.join(sorted(FORMAT_ARGS))),
+    )
+    x(
+        'send_template',
+        default=DEFAULT_SEND_TEMPLATE,
+        help=_(
+            'The template to control the filename and folder structure of files '
+            'sent to the device. '
+            'Default is "%(templ)s" which will save books into a per-author '
+            'folder with filenames containing title and author. '
+            'Available controls are: {%(controls)s}'
+        )
+        % dict(templ=DEFAULT_SEND_TEMPLATE, controls=', '.join(FORMAT_ARGS)),
+    )
+    x(
+        'asciiize',
+        default=False,
+        help=_(
+            'Have calibre convert all non English characters into English equivalents '
+            'for the file names. This is useful if saving to a legacy filesystem '
+            'without full support for Unicode filenames.'
+        ),
+    )
+    x(
+        'timefmt',
+        default='%b, %Y',
+        help=_('The format in which to display dates. %(day)s - day, %(month)s - month, %(mn)s - month number, %(year)s - year. Default is: %(default)s')
+        % dict(day='%d', month='%b', mn='%m', year='%Y', default='%b, %Y'),
+    )
+    x(
+        'send_timefmt',
+        default='%b, %Y',
+        help=_('The format in which to display dates. %(day)s - day, %(month)s - month, %(mn)s - month number, %(year)s - year. Default is: %(default)s')
+        % dict(day='%d', month='%b', mn='%m', year='%Y', default='%b, %Y'),
+    )
+    x('to_lowercase', default=False, help=_('Convert paths to lowercase.'))
+    x('replace_whitespace', default=False, help=_('Replace whitespace with underscores.'))
+    x('single_dir', default=False, help=_('Save into a single folder, ignoring the template folder structure'))
+    x('save_extra_files', default=True, help=_('Save any data files associated with the book when saving the book'))
     return c
 
 
@@ -161,8 +179,7 @@ class Formatter(TemplateFormatter):
                 if key in self.composite_values:
                     return self.composite_values[key]
                 self.composite_values[key] = 'RECURSIVE_COMPOSITE FIELD (S2D) ' + key
-                self.composite_values[key] = \
-                    self.evaluate(b['display']['composite_template'], [], kwargs, {})
+                self.composite_values[key] = self.evaluate(b['display']['composite_template'], [], kwargs, {})
                 return self.composite_values[key]
             if key in kwargs:
                 val = kwargs[key]
@@ -213,8 +230,7 @@ def get_component_metadata(template, mi, book_id, timefmt='%b %Y'):
         format_args['pubdate'] = strftime(timefmt, mi.pubdate.timetuple())
     else:
         format_args.pop('pubdate', None)
-    if (hasattr(mi, 'last_modified') and not is_date_undefined(mi.last_modified) and
-                hasattr(mi.last_modified, 'timetuple')):
+    if hasattr(mi, 'last_modified') and not is_date_undefined(mi.last_modified) and hasattr(mi.last_modified, 'timetuple'):
         format_args['last_modified'] = strftime(timefmt, mi.last_modified.timetuple())
 
     format_args['id'] = str(book_id)
@@ -227,15 +243,14 @@ def get_component_metadata(template, mi, book_id, timefmt='%b %Y'):
             cm = custom_metadata[key]
             if cm['datatype'] == 'series':
                 format_args[key] = title_sort(format_args[key], order=tsorder)
-                if key+'_index' in format_args:
-                    format_args[key+'_index'] = fmt_sidx(format_args[key+'_index'])
+                if key + '_index' in format_args:
+                    format_args[key + '_index'] = fmt_sidx(format_args[key + '_index'])
             elif cm['datatype'] == 'datetime':
                 format_args[key] = strftime(timefmt, as_local_time(format_args[key]).timetuple())
             elif cm['datatype'] == 'bool':
                 format_args[key] = _('yes') if format_args[key] else _('no')
             elif cm['datatype'] == 'rating':
-                format_args[key] = mi.format_rating(format_args[key],
-                        divide_by=2.0)
+                format_args[key] = mi.format_rating(format_args[key], divide_by=2.0)
             elif cm['datatype'] in ['int', 'float']:
                 if format_args[key] != 0:
                     format_args[key] = str(format_args[key])
@@ -244,10 +259,19 @@ def get_component_metadata(template, mi, book_id, timefmt='%b %Y'):
     return format_args
 
 
-def get_components(template, mi, book_id, timefmt='%b %Y', length=250,
-        sanitize_func=ascii_filename, replace_whitespace=False,
-        to_lowercase=False, safe_format=True, last_has_extension=True,
-        single_dir=False):
+def get_components(
+    template,
+    mi,
+    book_id,
+    timefmt='%b %Y',
+    length=250,
+    sanitize_func=ascii_filename,
+    replace_whitespace=False,
+    to_lowercase=False,
+    safe_format=True,
+    last_has_extension=True,
+    single_dir=False,
+):
     format_args = get_component_metadata(template, mi, book_id, timefmt)
     if safe_format:
         components = Formatter().safe_format(template, format_args, 'G_C-EXCEPTION!', mi)
@@ -281,30 +305,36 @@ def save_book_to_disk(book_id, db, root, opts, length):
     mi = db.get_metadata(book_id, index_is_id=True)
     plugboards = db.pref('plugboards', {})
     formats = get_formats(db.formats(book_id), opts.formats)
-    return do_save_book_to_disk(db, book_id, mi, plugboards,
-        formats, root, opts, length)
+    return do_save_book_to_disk(db, book_id, mi, plugboards, formats, root, opts, length)
 
 
 def get_path_components(opts, mi, book_id, path_length):
     try:
-        components = get_components(opts.template, mi, book_id, opts.timefmt, path_length,
+        components = get_components(
+            opts.template,
+            mi,
+            book_id,
+            opts.timefmt,
+            path_length,
             ascii_filename if opts.asciiize else sanitize_file_name,
             to_lowercase=opts.to_lowercase,
-            replace_whitespace=opts.replace_whitespace, safe_format=False,
-            last_has_extension=False, single_dir=opts.single_dir)
+            replace_whitespace=opts.replace_whitespace,
+            safe_format=False,
+            last_has_extension=False,
+            single_dir=opts.single_dir,
+        )
     except Exception as e:
-        raise ValueError(_('Failed to calculate path for '
-            'save to disk. Template: %(templ)s\n'
-            'Error: %(err)s')%dict(templ=opts.template, err=e))
+        raise ValueError(_('Failed to calculate path for save to disk. Template: %(templ)s\nError: %(err)s') % dict(templ=opts.template, err=e))
     if not components:
-        raise ValueError(_('Template evaluation resulted in no'
-            ' path components. Template: %s')%opts.template)
+        raise ValueError(_('Template evaluation resulted in no path components. Template: %s') % opts.template)
     return components
 
 
 def update_metadata(mi, fmt, stream, plugboards, cdata, error_report=None, plugboard_cache=None):
     from calibre.ebooks.metadata.meta import set_metadata
+
     if error_report is not None:
+
         def report_error(mi, fmt, tb):
             error_report(fmt, tb)
 
@@ -329,8 +359,7 @@ def update_metadata(mi, fmt, stream, plugboards, cdata, error_report=None, plugb
             error_report(fmt, traceback.format_exc())
 
 
-def do_save_book_to_disk(db, book_id, mi, plugboards,
-        formats, root, opts, length, extra_files=()):
+def do_save_book_to_disk(db, book_id, mi, plugboards, formats, root, opts, length, extra_files=()):
     originals = mi.cover, mi.pubdate, mi.timestamp
     formats_written = False
     try:
@@ -351,11 +380,12 @@ def do_save_book_to_disk(db, book_id, mi, plugboards,
                 cpath = base_path + '.jpg'
                 with open(make_long_path_useable(cpath), 'wb') as f:
                     f.write(cdata)
-                mi.cover = base_name+'.jpg'
+                mi.cover = base_name + '.jpg'
         if opts.write_opf:
             from calibre.ebooks.metadata.opf2 import metadata_to_opf
+
             opf = metadata_to_opf(mi)
-            with open(make_long_path_useable(base_path+'.opf'), 'wb') as f:
+            with open(make_long_path_useable(base_path + '.opf'), 'wb') as f:
                 f.write(opf)
     finally:
         mi.cover, mi.pubdate, mi.timestamp = originals
@@ -372,7 +402,7 @@ def do_save_book_to_disk(db, book_id, mi, plugboards,
         return not formats_written, book_id, mi.title
 
     for fmt in formats:
-        fmt_path = base_path+'.'+str(fmt)
+        fmt_path = base_path + '.' + str(fmt)
         try:
             db.copy_format_to(book_id, fmt, fmt_path)
             formats_written = True
@@ -432,6 +462,7 @@ def save_to_disk(db, ids, root, opts=None, callback=None):
 def read_serialized_metadata(data):
     from calibre.ebooks.metadata.opf2 import OPF
     from calibre.utils.date import parse_date
+
     mi = OPF(data['opf'], try_to_guess_cover=False, populate_spine=False, basedir=os.path.dirname(data['opf'])).to_book_metadata()
     try:
         mi.last_modified = parse_date(data['last_modified'])
@@ -451,6 +482,7 @@ def update_serialized_metadata(book, common_data):
     plugboard_cache = common_data['plugboard_cache']
     load_user_template_functions(common_data['library_id'], common_data['template_functions'])
     from calibre.customize.ui import apply_null_metadata
+
     with apply_null_metadata:
         fmts = [fp.rpartition(os.extsep)[-1] for fp in book['fmts']]
         mi, cdata = read_serialized_metadata(book)

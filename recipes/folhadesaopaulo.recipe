@@ -6,46 +6,46 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class Folha(BasicNewsRecipe):
-    title          = 'Folha de São Paolo'
-    language       = 'pt_BR'
-    __author__     = 'Bola de Fogo'
+    title = 'Folha de São Paolo'
+    language = 'pt_BR'
+    __author__ = 'Bola de Fogo'
     oldest_article = 1
     max_articles_per_feed = 100
-    auto_cleanup   = True
+    auto_cleanup = True
 
-    feeds          = [
-        (u'Poder', u'http://feeds.folha.uol.com.br/poder/rss091.xml'),
-        (u'Cotidiano', u'http://feeds.folha.uol.com.br/cotidiano/rss091.xml'),
+    feeds = [
+        ('Poder', 'http://feeds.folha.uol.com.br/poder/rss091.xml'),
+        ('Cotidiano', 'http://feeds.folha.uol.com.br/cotidiano/rss091.xml'),
         ('Painel', 'http://painel.blogfolha.uol.com.br/feed/'),
         ('Josias', 'http://josiasdesouza.blogosfera.uol.com.br/feed/'),
         ('Milton Neves', 'http://blogmiltonneves.bol.uol.com.br/feed/'),
         ('Noblat', 'http://noblat.oglobo.globo.com/rss/ultimas.feed'),
-        (u'Mercado', u'http://feeds.folha.uol.com.br/mercado/rss091.xml'),
-        (u'Mundo', u'http://feeds.folha.uol.com.br/mundo/rss091.xml'),
-        (u'Esporte', u'http://feeds.folha.uol.com.br/esporte/rss091.xml'),
-        (u'Comida', u'http://feeds.folha.uol.com.br/comida/rss091.xml'),
-        (u'Tec', u'http://feeds.folha.uol.com.br/tec/rss091.xml'),
-        (u'Ilustrada', u'http://feeds.folha.uol.com.br/ilustrada/rss091.xml'),
-        (u'Opiniao', u'http://feeds.folha.uol.com.br/opiniao/rss091.xml'),
-        (u'Ciência', u'http://feeds.folha.uol.com.br/ciencia/rss091.xml'),
-        (u'Equilíbrio e Saúde', u'http://feeds.folha.uol.com.br/equilibrioesaude/rss091.xml'),
-        (u'Elio Gaspari', u'http://feeds.folha.uol.com.br/colunas/eliogaspari/rss091.xml'),
-        (u'Tati Bernardi', u'http://feeds.folha.uol.com.br/colunas/tatibernardi/rss091.xml'),
-        (u'PVC', u'http://feeds.folha.uol.com.br/colunas/pvc/rss091.xml'),
-        (u'Clóvis Rossi', u'http://feeds.folha.uol.com.br/colunas/clovisrossi/rss091.xml'),
-        (u'Hélio Schwartsman', u'http://feeds.folha.uol.com.br/colunas/helioschwartsman/rss091.xml'),
-        (u'Janio de Freitas', u'http://feeds.folha.uol.com.br/colunas/janiodefreitas/rss091.xml'),
-        (u'João Pereira Coutinho', u'http://feeds.folha.uol.com.br/colunas/joaopereiracoutinho/rss091.xml'),
-        (u'Juca', u'http://feeds.folha.uol.com.br/colunas/jucakfouri/rss091.xml'),
-        (u'Vinicius Torres Freitas', u'http://feeds.folha.uol.com.br/colunas/viniciustorres/rss091.xml'),
-        (u'Monica Bergamo', u'http://feeds.folha.uol.com.br/colunas/monicabergamo/rss091.xml'),
-        (u'Alexandre Schwartsman', u'http://feeds.folha.uol.com.br/colunas/alexandreschwartsman/rss091.xml'),
-        (u'Vinicius Mota', u'http://feeds.folha.uol.com.br/colunas/viniciusmota/rss091.xml'),
-        (u'Tostao', u'http://feeds.folha.uol.com.br/colunas/tostao/rss091.xml'),
-        (u'Reinaldo Azevedo', u'http://feeds.folha.uol.com.br/colunas/reinaldoazevedo/rss091.xml'),
-        (u'Contardo', u'http://feeds.folha.uol.com.br/colunas/contardocalligaris/rss091.xml'),
-        (u'Samuel Pessoa', u'http://feeds.folha.uol.com.br/colunas/samuelpessoa/rss091.xml'),
-        (u'Onbudsman', u'http://feeds.folha.uol.com.br/colunas/paula-cesarino-costa-ombudsman/rss091.xml'),
+        ('Mercado', 'http://feeds.folha.uol.com.br/mercado/rss091.xml'),
+        ('Mundo', 'http://feeds.folha.uol.com.br/mundo/rss091.xml'),
+        ('Esporte', 'http://feeds.folha.uol.com.br/esporte/rss091.xml'),
+        ('Comida', 'http://feeds.folha.uol.com.br/comida/rss091.xml'),
+        ('Tec', 'http://feeds.folha.uol.com.br/tec/rss091.xml'),
+        ('Ilustrada', 'http://feeds.folha.uol.com.br/ilustrada/rss091.xml'),
+        ('Opiniao', 'http://feeds.folha.uol.com.br/opiniao/rss091.xml'),
+        ('Ciência', 'http://feeds.folha.uol.com.br/ciencia/rss091.xml'),
+        ('Equilíbrio e Saúde', 'http://feeds.folha.uol.com.br/equilibrioesaude/rss091.xml'),
+        ('Elio Gaspari', 'http://feeds.folha.uol.com.br/colunas/eliogaspari/rss091.xml'),
+        ('Tati Bernardi', 'http://feeds.folha.uol.com.br/colunas/tatibernardi/rss091.xml'),
+        ('PVC', 'http://feeds.folha.uol.com.br/colunas/pvc/rss091.xml'),
+        ('Clóvis Rossi', 'http://feeds.folha.uol.com.br/colunas/clovisrossi/rss091.xml'),
+        ('Hélio Schwartsman', 'http://feeds.folha.uol.com.br/colunas/helioschwartsman/rss091.xml'),
+        ('Janio de Freitas', 'http://feeds.folha.uol.com.br/colunas/janiodefreitas/rss091.xml'),
+        ('João Pereira Coutinho', 'http://feeds.folha.uol.com.br/colunas/joaopereiracoutinho/rss091.xml'),
+        ('Juca', 'http://feeds.folha.uol.com.br/colunas/jucakfouri/rss091.xml'),
+        ('Vinicius Torres Freitas', 'http://feeds.folha.uol.com.br/colunas/viniciustorres/rss091.xml'),
+        ('Monica Bergamo', 'http://feeds.folha.uol.com.br/colunas/monicabergamo/rss091.xml'),
+        ('Alexandre Schwartsman', 'http://feeds.folha.uol.com.br/colunas/alexandreschwartsman/rss091.xml'),
+        ('Vinicius Mota', 'http://feeds.folha.uol.com.br/colunas/viniciusmota/rss091.xml'),
+        ('Tostao', 'http://feeds.folha.uol.com.br/colunas/tostao/rss091.xml'),
+        ('Reinaldo Azevedo', 'http://feeds.folha.uol.com.br/colunas/reinaldoazevedo/rss091.xml'),
+        ('Contardo', 'http://feeds.folha.uol.com.br/colunas/contardocalligaris/rss091.xml'),
+        ('Samuel Pessoa', 'http://feeds.folha.uol.com.br/colunas/samuelpessoa/rss091.xml'),
+        ('Onbudsman', 'http://feeds.folha.uol.com.br/colunas/paula-cesarino-costa-ombudsman/rss091.xml'),
         ('Mariliz Pereira', 'http://feeds.folha.uol.com.br/colunas/marilizpereirajorge/rss091.xml'),
         ('X', 'http://xdesexo.blogfolha.uol.com.br/feed/'),
     ]

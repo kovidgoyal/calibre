@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
@@ -52,12 +52,13 @@ def newer(targets, sources):
         stimes = (os.stat(x).st_mtime for x in sources)
         newest_source = max(stimes)
     except FileNotFoundError:
-        newest_source = oldest_target +1
+        newest_source = oldest_target + 1
     return newest_source > oldest_target
 
 
 def dump_json(obj, path, indent=4):
     import json
+
     with open(path, 'wb') as f:
         data = json.dumps(obj, indent=indent)
         if not isinstance(data, bytes):
@@ -77,6 +78,7 @@ def _download_securely(url):
     if is_ci and iswindows:
         # curl is failing for wikipedia urls on CI (used for browser_data)
         from urllib.request import urlopen
+
         with urlopen(url) as f:
             return f.read()
     if not curl_supports_etags():
@@ -148,24 +150,22 @@ def initialize_constants():
         src = f.read().decode('utf-8')
     nv = re.search(r'numeric_version\s+=\s+\((\d+), (\d+), (\d+)\)', src)
     __version__ = '.'.join((nv.group(1), nv.group(2), nv.group(3)))
-    __appname__ = re.search(r'__appname__\s+=\s+(u{0,1})[\'"]([^\'"]+)[\'"]',
-            src).group(2)
+    __appname__ = re.search(r'__appname__\s+=\s+(u{0,1})[\'"]([^\'"]+)[\'"]', src).group(2)
     with open(os.path.join(SRC, 'calibre/linux.py'), 'rb') as sf:
-        epsrc = re.compile(r'entry_points = (\{.*?\})', re.DOTALL).\
-                search(sf.read().decode('utf-8')).group(1)
+        epsrc = re.compile(r'entry_points = (\{.*?\})', re.DOTALL).search(sf.read().decode('utf-8')).group(1)
     entry_points = eval(epsrc, {'__appname__': __appname__})
 
     def e2b(ep):
         return re.search(r'\s*(.*?)\s*=', ep).group(1).strip()
 
     def e2s(ep, base='src'):
-        return (base+os.path.sep+re.search(r'.*=\s*(.*?):', ep).group(1).replace('.', '/')+'.py').strip()
+        return (base + os.path.sep + re.search(r'.*=\s*(.*?):', ep).group(1).replace('.', '/') + '.py').strip()
 
     def e2m(ep):
         return re.search(r'.*=\s*(.*?)\s*:', ep).group(1).strip()
 
     def e2f(ep):
-        return ep[ep.rindex(':')+1:].strip()
+        return ep[ep.rindex(':') + 1 :].strip()
 
     basenames, functions, modules, scripts = {}, {}, {}, {}
     for x in ('console', 'gui'):
@@ -187,13 +187,10 @@ def get_warnings():
 
 
 def edit_file(path):
-    return subprocess.Popen([
-        os.environ.get('EDITOR', 'vim'), '-S', os.path.join(SRC, '../session.vim'), '-f', path
-    ]).wait() == 0
+    return subprocess.Popen([os.environ.get('EDITOR', 'vim'), '-S', os.path.join(SRC, '../session.vim'), '-f', path]).wait() == 0
 
 
 class Command:
-
     SRC = SRC
     PROJECT_ROOT = os.path.dirname(SRC)
     RESOURCES = os.path.join(PROJECT_ROOT, 'resources')
@@ -222,6 +219,7 @@ class Command:
 
     def running(self, cmd):
         from setup.commands import command_names
+
         if is_ci:
             self.info('::group::' + command_names[cmd])
         self.info('\n*')
@@ -230,10 +228,11 @@ class Command:
 
     def run_cmd(self, cmd, opts):
         from setup.commands import command_names
+
         cmd.pre_sub_commands(opts)
         if self.drop_privileges_for_subcommands and self.orig_euid is not None and os.getuid() == 0 and self.real_uid is not None:
             if self.real_user is not None:
-                self.info('Dropping privileges to those of', self.real_user+':', self.real_uid)
+                self.info('Dropping privileges to those of', self.real_user + ':', self.real_uid)
 
             pid = os.fork()
             if pid == 0:
@@ -266,8 +265,8 @@ class Command:
 
     def add_command_options(self, command, parser):
         from setup import commands
-        command.sub_commands = [getattr(commands, cmd) for cmd in
-                command.sub_commands]
+
+        command.sub_commands = [getattr(commands, cmd) for cmd in command.sub_commands]
         for cmd in command.sub_commands:
             self.add_command_options(cmd, parser)
 
@@ -306,9 +305,9 @@ class Command:
         sys.stdout.flush()
 
     def warn(self, *args, **kwargs):
-        print('\n'+'_'*20, 'WARNING','_'*20)
+        print('\n' + '_' * 20, 'WARNING', '_' * 20)
         prints(*args, **kwargs)
-        print('_'*50)
+        print('_' * 50)
         warnings.append((args, kwargs))
         sys.stdout.flush()
 

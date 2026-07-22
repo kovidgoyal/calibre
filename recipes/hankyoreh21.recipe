@@ -7,9 +7,9 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class Hankyoreh21(BasicNewsRecipe):
-    title = u'Hankyoreh21'
+    title = 'Hankyoreh21'
     language = 'ko'
-    description = u'The Hankyoreh21 Magazine articles'
+    description = 'The Hankyoreh21 Magazine articles'
     __author__ = 'Seongkyoun Yoo'
     oldest_article = 30
     max_articles_per_feed = 10
@@ -26,12 +26,12 @@ class Hankyoreh21(BasicNewsRecipe):
     feeds = [
         # ('전체기사',  'http://h21.hani.co.kr/rss/'),
         ('표지이야기', 'http://h21.hani.co.kr/rss/cover/'),
-        ('특집',      'http://h21.hani.co.kr/rss/special/'),
-        ('정치',      'http://h21.hani.co.kr/rss/politics/'),
-        ('경제',      'http://h21.hani.co.kr/rss/economy/'),
-        ('사회',      'http://h21.hani.co.kr/rss/society/'),
-        ('세계',      'http://h21.hani.co.kr/rss/world/'),
-        ('문화',      'http://h21.hani.co.kr/rss/culture/'),
+        ('특집', 'http://h21.hani.co.kr/rss/special/'),
+        ('정치', 'http://h21.hani.co.kr/rss/politics/'),
+        ('경제', 'http://h21.hani.co.kr/rss/economy/'),
+        ('사회', 'http://h21.hani.co.kr/rss/society/'),
+        ('세계', 'http://h21.hani.co.kr/rss/world/'),
+        ('문화', 'http://h21.hani.co.kr/rss/culture/'),
     ]
 
     def get_article_url(self, article):

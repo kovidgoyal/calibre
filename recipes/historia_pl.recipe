@@ -2,9 +2,9 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class Historia_org_pl(BasicNewsRecipe):
-    title = u'Historia.org.pl'
+    title = 'Historia.org.pl'
     __author__ = 'fenuks'
-    description = u'Artykuły dotyczące historii w układzie epok i tematów, forum. Najlepsza strona historii. Matura z historii i egzamin gimnazjalny z historii.'  # noqa: E501
+    description = 'Artykuły dotyczące historii w układzie epok i tematów, forum. Najlepsza strona historii. Matura z historii i egzamin gimnazjalny z historii.'  # noqa: E501
     cover_url = 'http://lh3.googleusercontent.com/_QeRQus12wGg/TOvHsZ2GN7I/AAAAAAAAD_o/LY1JZDnq7ro/logo5.jpg'
     category = 'history'
     language = 'pl'
@@ -15,9 +15,11 @@ class Historia_org_pl(BasicNewsRecipe):
     use_embedded_content = True
     max_articles_per_feed = 100
     ignore_duplicate_articles = {'title', 'url'}
-    feeds = [(u'Wszystkie', u'http://historia.org.pl/feed/'),
-             (u'Wiadomości', u'http://historia.org.pl/Kategoria/wiadomosci/feed/'),
-             (u'Publikacje', u'http://historia.org.pl/Kategoria/artykuly/feed/'),
-             (u'Publicystyka', u'http://historia.org.pl/Kategoria/publicystyka/feed/'),
-             (u'Recenzje', u'http://historia.org.pl/Kategoria/recenzje/feed/'),
-             (u'Projekty', u'http://historia.org.pl/Kategoria/projekty/feed/'), ]
+    feeds = [
+        ('Wszystkie', 'http://historia.org.pl/feed/'),
+        ('Wiadomości', 'http://historia.org.pl/Kategoria/wiadomosci/feed/'),
+        ('Publikacje', 'http://historia.org.pl/Kategoria/artykuly/feed/'),
+        ('Publicystyka', 'http://historia.org.pl/Kategoria/publicystyka/feed/'),
+        ('Recenzje', 'http://historia.org.pl/Kategoria/recenzje/feed/'),
+        ('Projekty', 'http://historia.org.pl/Kategoria/projekty/feed/'),
+    ]

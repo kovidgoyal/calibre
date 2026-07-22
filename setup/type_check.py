@@ -10,7 +10,6 @@ from setup import Command, iswindows
 
 
 class TypeCheck(Command):
-
     description = 'Run the ty type checker over the calibre source code'
     usage_help = 'To type check specific files, specify them as command line arguments'
     require_venv = True
@@ -34,24 +33,35 @@ class TypeCheck(Command):
             os.unlink(core)  # uv uses hard links apparently
             with open(core, 'w') as f:
                 f.write(raw)
-        patch('QtCore', {
-            # QByteArray supports Buffer protocol
-            'QByteArray': ['def __buffer__(self, flags: int, /) -> memoryview: ...'],
 
-            # signal.connect() accepts type parameter
-            '!' + re.escape("def connect(self, slot: 'PYQT_SLOT') -> 'QMetaObject.Connection': ..."):
-            ["def connect(self, slot: 'PYQT_SLOT', type: Qt.ConnectionType = ...) -> 'QMetaObject.Connection': ..."],
-
-            # QObject::findChild() can return None
-            '!' + re.escape('def findChild(self, type: type[QObjectT], name: typing.Optional[str] = ..., options: Qt.FindChildOption = ...) -> QObjectT: ...'):
-            ['def findChild(self, type: type[QObjectT], name: typing.Optional[str] = ..., options: Qt.FindChildOption = ...) -> QObjectT | None: ...'],
-            '!' + re.escape(
-                'def findChild(self, types: tuple[type[QObjectT], ...], name: typing.Optional[str] = ..., options: Qt.FindChildOption = ...) -> QObjectT: ...'):
-            ['def findChild('
-            'self, types: tuple[type[QObjectT], ...], name: typing.Optional[str] = ..., options: Qt.FindChildOption = ...) -> QObjectT | None: ...'],
-        })
-        patch('QtGui', {
-            'QIcon': '''\
+        patch(
+            'QtCore',
+            {
+                # QByteArray supports Buffer protocol
+                'QByteArray': ['def __buffer__(self, flags: int, /) -> memoryview: ...'],
+                # signal.connect() accepts type parameter
+                '!' + re.escape("def connect(self, slot: 'PYQT_SLOT') -> 'QMetaObject.Connection': ..."): [
+                    "def connect(self, slot: 'PYQT_SLOT', type: Qt.ConnectionType = ...) -> 'QMetaObject.Connection': ..."
+                ],
+                # QObject::findChild() can return None
+                '!'
+                + re.escape(
+                    'def findChild(self, type: type[QObjectT], name: typing.Optional[str] = ..., options: Qt.FindChildOption = ...) -> QObjectT: ...'
+                ): ['def findChild(self, type: type[QObjectT], name: typing.Optional[str] = ..., options: Qt.FindChildOption = ...) -> QObjectT | None: ...'],
+                '!'
+                + re.escape(
+                    'def findChild(self, types: tuple[type[QObjectT], ...],'
+                    ' name: typing.Optional[str] = ..., options: Qt.FindChildOption = ...) -> QObjectT: ...'
+                ): [
+                    'def findChild('
+                    'self, types: tuple[type[QObjectT], ...], name: typing.Optional[str] = ..., options: Qt.FindChildOption = ...) -> QObjectT | None: ...'
+                ],
+            },
+        )
+        patch(
+            'QtGui',
+            {
+                'QIcon': '''\
 @classmethod
 def ic(cls, name: str | QIcon | None, fallback: bytes = b'') -> QIcon: ...
 @classmethod
@@ -60,25 +70,31 @@ def icon_as_png(cls, name: str, as_bytearray: bool = False, compression_level: i
 def cached_icon(cls, name: str) -> QIcon: ...
 def is_ok(self) -> bool: ...
 '''.splitlines(),
-            'QPalette': '''\
+                'QPalette': '''\
 def is_dark_theme(self) -> bool: ...
 def serialize_as_bytes(self) -> bytes: ...
 def serialize_as_python(self) -> str: ...
 def unserialize_from_bytes(self, b: bytes) -> None: ...
 '''.splitlines(),
-        })
-        patch('QtWidgets', {
-            # QLayout.getContentsMargins() never returns None
-            '!' + re.escape('    def getContentsMargins(self) -> typing.Tuple['
-            'typing.Optional[int], typing.Optional[int], typing.Optional[int], typing.Optional[int]]: ...'):
-            ['    def getContentsMargins(self) -> typing.Tuple[int, int, int, int]: ...'],
-
-            'QWidget': '''\
+            },
+        )
+        patch(
+            'QtWidgets',
+            {
+                # QLayout.getContentsMargins() never returns None
+                '!'
+                + re.escape(
+                    '    def getContentsMargins(self) -> typing.Tuple['
+                    'typing.Optional[int], typing.Optional[int], typing.Optional[int], typing.Optional[int]]: ...'
+                ): ['    def getContentsMargins(self) -> typing.Tuple[int, int, int, int]: ...'],
+                'QWidget': '''\
 def save_geometry(self, prefs: Prefs, name: str) -> None: ...
 def restore_geometry(self, prefs: Prefs, name: str, get_legacy_saved_geometry: typing.Callable[[], bytes] | None = None) -> bool: ...
 def raise_and_focus(self) -> None: ...
 def raise_without_focus(self) -> None: ...
-'''.splitlines()})
+'''.splitlines(),
+            },
+        )
 
     def run(self, opts):
         ty = self.j(self.PROJECT_ROOT, '.venv/bin/ty')

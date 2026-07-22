@@ -5,8 +5,7 @@ from calibre.web.feeds.recipes import BasicNewsRecipe
 
 
 class AdvancedUserRecipe1325006965(BasicNewsRecipe):
-
-    title = u'The Sun UK'
+    title = 'The Sun UK'
     description = 'Articles from The Sun tabloid UK'
     __author__ = 'Dave Asbury'
     # last updated 5/5/13 better cover fetch
@@ -27,7 +26,6 @@ class AdvancedUserRecipe1325006965(BasicNewsRecipe):
         dict(name='div', attrs={'class': 'intro'}),
         dict(name='h3'),
         dict(name='div', attrs={'id': 'articlebody'}),
-
     ]
     remove_tags_after = [dict(id='bodyText')]
     remove_tags = [
@@ -36,10 +34,10 @@ class AdvancedUserRecipe1325006965(BasicNewsRecipe):
     ]
 
     feeds = [
-        (u'News', u'http://www.thesun.co.uk/sol/homepage/news/rss'),
-        (u'Sport', u'http://www.thesun.co.uk/sol/homepage/sport/rss'),
-        (u'Showbiz', u'http://www.thesun.co.uk/sol/homepage/showbiz/rss'),
-        (u'Woman', u'http://www.thesun.co.uk/sol/homepage/woman/rss'),
+        ('News', 'http://www.thesun.co.uk/sol/homepage/news/rss'),
+        ('Sport', 'http://www.thesun.co.uk/sol/homepage/sport/rss'),
+        ('Showbiz', 'http://www.thesun.co.uk/sol/homepage/showbiz/rss'),
+        ('Woman', 'http://www.thesun.co.uk/sol/homepage/woman/rss'),
     ]
     # starsons code
 
@@ -59,11 +57,14 @@ class AdvancedUserRecipe1325006965(BasicNewsRecipe):
         cover_url = 'http://www.thepaperboy.com/frontpages/current/The_Sun_newspaper_front_page.jpg'
 
         try:
-            br.open_novisit(
-                'http://www.thepaperboy.com/frontpages/current/The_Sun_newspaper_front_page.jpg')
+            br.open_novisit('http://www.thepaperboy.com/frontpages/current/The_Sun_newspaper_front_page.jpg')
         except Exception:
             cover_url = random.choice([
-                'http://img.thesun.co.uk/multimedia/archive/00905/errorpage6_677961a_905507a.jpg', 'http://img.thesun.co.uk/multimedia/archive/00905/errorpage7_677962a_905505a.jpg', 'http://img.thesun.co.uk/multimedia/archive/00905/errorpage5_677960a_905512a.jpg', 'http://img.thesun.co.uk/multimedia/archive/00905/errorpage2_677957a_905502a.jpg', 'http://img.thesun.co.uk/multimedia/archive/00905/errorpage3_677958a_905503a.jpg'  # noqa: E501
+                'http://img.thesun.co.uk/multimedia/archive/00905/errorpage6_677961a_905507a.jpg',
+                'http://img.thesun.co.uk/multimedia/archive/00905/errorpage7_677962a_905505a.jpg',
+                'http://img.thesun.co.uk/multimedia/archive/00905/errorpage5_677960a_905512a.jpg',
+                'http://img.thesun.co.uk/multimedia/archive/00905/errorpage2_677957a_905502a.jpg',
+                'http://img.thesun.co.uk/multimedia/archive/00905/errorpage3_677958a_905503a.jpg',  # noqa: E501
             ])
 
         return cover_url

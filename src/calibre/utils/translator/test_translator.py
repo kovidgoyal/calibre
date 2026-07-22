@@ -11,7 +11,6 @@ from calibre_extensions.translator import Translator
 
 
 class TestTranslator(unittest.TestCase):
-
     def test_translator(self):
         test_translator(self, 'und', b'')
         with zipfile.ZipFile(P('localization/locales.zip', allow_user_override=False), 'r') as zf:
@@ -50,7 +49,11 @@ def test_translator(self: TestTranslator, lang: str, data: bytes, q: str = 'mess
         og, ng = o.ngettext, n.ngettext
         for singular, plural in (('Series', 'Series'), ('Folder', 'Folders')):
             for i in range(1, 10):
-                self.assertEqual(og(singular, plural, i), ng(singular, plural, i), f'ngettext({singular!r}, {plural!r}, {i}) not equal for language: {which}')
+                self.assertEqual(
+                    og(singular, plural, i),
+                    ng(singular, plural, i),
+                    f'ngettext({singular!r}, {plural!r}, {i}) not equal for language: {which}',
+                )
         og, ng = o.pgettext, n.pgettext
         for context, msg in (('edit book actions', 'Miscellaneous'), ('edit book file type', 'Miscellaneous')):
             self.assertEqual(og(context, msg), ng(context, msg), f'pgettext({context!r}, {msg!r}) not equal for language: {which}')

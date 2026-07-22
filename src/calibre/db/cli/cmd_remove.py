@@ -29,12 +29,7 @@ list of id numbers (you can get id numbers by using the search command). For exa
 '''
         )
     )
-    p.add_option(
-        '--permanent',
-        default=False,
-        action='store_true',
-        help=_('Do not use the {}').format(trash_name())
-    )
+    p.add_option('--permanent', default=False, action='store_true', help=_('Do not use the {}').format(trash_name()))
     return p
 
 

@@ -11,10 +11,10 @@ class KleineZeitungRecipe(BasicNewsRecipe):
     language = 'de_AT'
     version = 1
 
-    title = u'Kleine Zeitung'
-    publisher = u'Kleine Zeitung GmbH & Co KG'
-    category = u'News, Newspaper'
-    description = u'Nachrichten aus \u00D6sterreich'
+    title = 'Kleine Zeitung'
+    publisher = 'Kleine Zeitung GmbH & Co KG'
+    category = 'News, Newspaper'
+    description = 'Nachrichten aus \u00d6sterreich'
 
     use_embedded_content = False
     remove_empty_feeds = True

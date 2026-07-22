@@ -25,27 +25,28 @@ from .namespaces import DCNS
 
 
 def Creator(**args):
-    return Element(qname=(DCNS,'creator'), **args)
+    return Element(qname=(DCNS, 'creator'), **args)
 
 
 def Date(**args):
-    return Element(qname=(DCNS,'date'), **args)
+    return Element(qname=(DCNS, 'date'), **args)
 
 
 def Description(**args):
-    return Element(qname=(DCNS,'description'), **args)
+    return Element(qname=(DCNS, 'description'), **args)
 
 
 def Language(**args):
-    return Element(qname=(DCNS,'language'), **args)
+    return Element(qname=(DCNS, 'language'), **args)
 
 
 def Subject(**args):
-    return Element(qname=(DCNS,'subject'), **args)
+    return Element(qname=(DCNS, 'subject'), **args)
 
 
 def Title(**args):
-    return Element(qname=(DCNS,'title'), **args)
+    return Element(qname=(DCNS, 'title'), **args)
+
 
 # The following complete the Dublin Core elements, but there is no
 # guarantee a compliant implementation of OpenDocument will preserve

@@ -19,10 +19,10 @@ class ListTable:
     """
 
     def __init__(
-                self,
-                bug_handler,
-                run_level=1,
-                ):
+        self,
+        bug_handler,
+        run_level=1,
+    ):
         self.__bug_handler = bug_handler
         self.__initiate_values()
         self.__run_level = run_level
@@ -40,33 +40,33 @@ class ListTable:
         self.__prefix_string = None
         self.__level_numbers_string = ''
         self.__state_dict = {
-            'default'       : self.__default_func,
-            'level'         : self.__level_func,
-            'list'          : self.__list_func,
-            'unsure_ob'     : self.__after_bracket_func,
-            'level_number'  : self.__level_number_func,
-            'level_text'    : self.__level_text_func,
-            'list_name'     : self.__list_name_func,
+            'default': self.__default_func,
+            'level': self.__level_func,
+            'list': self.__list_func,
+            'unsure_ob': self.__after_bracket_func,
+            'level_number': self.__level_number_func,
+            'level_text': self.__level_text_func,
+            'list_name': self.__list_name_func,
         }
         self.__main_list_dict = {
-            'cw<ls<ls-tem-id_'  : 'list-template-id',
-            'cw<ls<list-hybri'  : 'list-hybrid',
-            'cw<ls<lis-tbl-id'  : 'list-table-id',
+            'cw<ls<ls-tem-id_': 'list-template-id',
+            'cw<ls<list-hybri': 'list-hybrid',
+            'cw<ls<lis-tbl-id': 'list-table-id',
         }
         self.__level_dict = {
-            'cw<ls<level-star'  : 'list-number-start',
-            'cw<ls<level-spac'  : 'list-space',
-            'cw<ls<level-inde'  : 'level-indent',
-            'cw<ls<fir-ln-ind'  : 'first-line-indent',
-            'cw<ls<left-inden'  : 'left-indent',
-            'cw<ls<tab-stop__'  : 'tabs',
-            'cw<ls<level-type'  : 'numbering-type',
-            'cw<pf<right-inde'  : 'right-indent',
-            'cw<pf<left-inden'  : 'left-indent',
-            'cw<pf<fir-ln-ind'  : 'first-line-indent',
-            'cw<ci<italics___'  : 'italics',
-            'cw<ci<bold______'  : 'bold',
-            'cw<ss<para-style'  : 'paragraph-style-name',
+            'cw<ls<level-star': 'list-number-start',
+            'cw<ls<level-spac': 'list-space',
+            'cw<ls<level-inde': 'level-indent',
+            'cw<ls<fir-ln-ind': 'first-line-indent',
+            'cw<ls<left-inden': 'left-indent',
+            'cw<ls<tab-stop__': 'tabs',
+            'cw<ls<level-type': 'numbering-type',
+            'cw<pf<right-inde': 'right-indent',
+            'cw<pf<left-inden': 'left-indent',
+            'cw<pf<fir-ln-ind': 'first-line-indent',
+            'cw<ci<italics___': 'italics',
+            'cw<ci<bold______': 'bold',
+            'cw<ss<para-style': 'paragraph-style-name',
         }
         # all_lists =
         # [{anything here?}
@@ -142,8 +142,7 @@ class ListTable:
             Check for the end of the list. Otherwise, use the self.__mainlist_dict
             to determine if you need to add a lines values to the main list.
         """
-        if self.__token_info == 'cb<nu<clos-brack' and\
-            self.__cb_count == self.__list_ob_count:
+        if self.__token_info == 'cb<nu<clos-brack' and self.__cb_count == self.__list_ob_count:
             self.__state = 'default'
         elif self.__token_info == 'ob<nu<open-brack':
             self.__state = 'unsure_ob'
@@ -194,8 +193,7 @@ class ListTable:
             Change states if an open bracket is found.
             Add attributes to all_dicts if an appropriate token is found.
         """
-        if self.__token_info == 'cb<nu<clos-brack' and\
-            self.__cb_count == self.__level_ob_count:
+        if self.__token_info == 'cb<nu<clos-brack' and self.__cb_count == self.__level_ob_count:
             self.__state = 'list'
         elif self.__token_info == 'ob<nu<open-brack':
             self.__state = 'unsure_ob'
@@ -219,8 +217,7 @@ class ListTable:
             give you something like level1-show-level.
             The show-level attribute means the numbering for this level.
         '''
-        if self.__token_info == 'cb<nu<clos-brack' and\
-            self.__cb_count == self.__level_number_ob_count:
+        if self.__token_info == 'cb<nu<clos-brack' and self.__cb_count == self.__level_number_ob_count:
             self.__state = 'level'
             self.__all_lists[-1][-1][0]['level-numbers'] = self.__level_numbers_string
             self.__level_numbers_string = ''
@@ -250,8 +247,7 @@ class ListTable:
             An example is "level1-marker = '.'"
             Otherwise, check for a level-template-id.
         '''
-        if self.__token_info == 'cb<nu<clos-brack' and\
-            self.__cb_count == self.__level_text_ob_count:
+        if self.__token_info == 'cb<nu<clos-brack' and self.__cb_count == self.__level_text_ob_count:
             if self.__prefix_string:
                 if self.__all_lists[-1][-1][0]['numbering-type'] == 'bullet':
                     self.__prefix_string = self.__prefix_string.replace('_', '')
@@ -309,8 +305,7 @@ class ListTable:
         Logic:
             Simply check for the end of the group and change states.
         """
-        if self.__token_info == 'cb<nu<clos-brack' and\
-            self.__cb_count == self.__list_name_ob_count:
+        if self.__token_info == 'cb<nu<clos-brack' and self.__cb_count == self.__list_name_ob_count:
             self.__state = 'list'
 
     def __after_bracket_func(self, line):
@@ -367,7 +362,9 @@ class ListTable:
             through what is left in the list. Each list will contain one item,
             a dictionary. Get this dictionary and print out key => value pair.
         """
-        not_allow = ['list-id',]
+        not_allow = [
+            'list-id',
+        ]
         id = 0
         self.__list_table_final = 'mi<mk<listabbeg_\n'
         self.__list_table_final += 'mi<tg<open______<list-table\n' + 'mi<mk<listab-beg\n' + self.__list_table_final

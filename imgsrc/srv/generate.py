@@ -25,23 +25,13 @@ def clone_node(node, parent):
 
 def merge():
     base = os.path.dirname(os.path.abspath(__file__))
-    ans = etree.fromstring(
-        f'<svg xmlns="{SVG_NS}" xmlns:xlink="{XLINK_NS}"/>',
-        parser=etree.XMLParser(
-            recover=True, no_network=True, resolve_entities=False
-        )
-    )
+    ans = etree.fromstring(f'<svg xmlns="{SVG_NS}" xmlns:xlink="{XLINK_NS}"/>', parser=etree.XMLParser(recover=True, no_network=True, resolve_entities=False))
     for f in sorted(os.listdir(base)):
         if not f.endswith('.svg'):
             continue
         with open(os.path.join(base, f), 'rb') as ff:
             raw = ff.read()
-        svg = etree.fromstring(
-            raw,
-            parser=etree.XMLParser(
-                recover=True, no_network=True, resolve_entities=False
-            )
-        )
+        svg = etree.fromstring(raw, parser=etree.XMLParser(recover=True, no_network=True, resolve_entities=False))
         symbol = ans.makeelement('{%s}symbol' % SVG_NS)  # noqa: UP031
         symbol.set('viewBox', svg.get('viewBox') or '')
         symbol.set('id', 'icon-' + f.rpartition('.')[0])

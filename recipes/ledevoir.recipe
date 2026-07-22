@@ -14,8 +14,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 def classes(classes):
     q = frozenset(classes.split(' '))
-    return dict(attrs={
-        'class': lambda x: x and frozenset(x.split()).intersection(q)})
+    return dict(attrs={'class': lambda x: x and frozenset(x.split()).intersection(q)})
 
 
 class ledevoir(BasicNewsRecipe):
@@ -23,7 +22,7 @@ class ledevoir(BasicNewsRecipe):
     description = 'Canadian Paper. A subscription is optional, with it you get more content'
 
     cover_url = 'http://www.ledevoir.com/images/ul/graphiques/logo_devoir.gif'
-    title = u'Le Devoir '
+    title = 'Le Devoir '
     publisher = 'leDevoir.com'
     category = 'News, finance, economy, politics'
 
@@ -48,27 +47,21 @@ class ledevoir(BasicNewsRecipe):
         dict(name='h1'),
         dict(attrs={'class': 'col-xs-14 col-sm-7 col-md-9 col-lg-10'}),
     ]
-    remove_tags = [
-            classes('category-nav social')
-    ]
+    remove_tags = [classes('category-nav social')]
 
     feeds = [
-        (u'A la une', 'http://www.ledevoir.com/rss/manchettes.xml'),
-        (u'Édition complete',
-         'http://feeds2.feedburner.com/fluxdudevoir'),
-        (u'Opinions', 'http://www.ledevoir.com/rss/opinions.xml'),
-        (u'Chroniques', 'http://www.ledevoir.com/rss/chroniques.xml'),
-        (u'Politique', 'http://www.ledevoir.com/rss/section/politique.xml?id=51'),
-        (u'International',
-         'http://www.ledevoir.com/rss/section/international.xml?id=76'),
-        (u'Culture', 'http://www.ledevoir.com/rss/section/culture.xml?id=48'),
-        (u'Environnement',
-         'http://www.ledevoir.com/rss/section/environnement.xml?id=78'),
-        (u'Societe', 'http://www.ledevoir.com/rss/section/societe.xml?id=52'),
-        (u'Economie', 'http://www.ledevoir.com/rss/section/economie.xml?id=49'),
-        (u'Sports', 'http://www.ledevoir.com/rss/section/sports.xml?id=85'),
-        (u'Art de vivre',
-         'http://www.ledevoir.com/rss/section/art-de-vivre.xml?id=50')
+        ('A la une', 'http://www.ledevoir.com/rss/manchettes.xml'),
+        ('Édition complete', 'http://feeds2.feedburner.com/fluxdudevoir'),
+        ('Opinions', 'http://www.ledevoir.com/rss/opinions.xml'),
+        ('Chroniques', 'http://www.ledevoir.com/rss/chroniques.xml'),
+        ('Politique', 'http://www.ledevoir.com/rss/section/politique.xml?id=51'),
+        ('International', 'http://www.ledevoir.com/rss/section/international.xml?id=76'),
+        ('Culture', 'http://www.ledevoir.com/rss/section/culture.xml?id=48'),
+        ('Environnement', 'http://www.ledevoir.com/rss/section/environnement.xml?id=78'),
+        ('Societe', 'http://www.ledevoir.com/rss/section/societe.xml?id=52'),
+        ('Economie', 'http://www.ledevoir.com/rss/section/economie.xml?id=49'),
+        ('Sports', 'http://www.ledevoir.com/rss/section/sports.xml?id=85'),
+        ('Art de vivre', 'http://www.ledevoir.com/rss/section/art-de-vivre.xml?id=50'),
     ]
 
     def get_browser(self):

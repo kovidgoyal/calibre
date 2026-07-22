@@ -20,6 +20,7 @@ def initdb(path):
 
 def show_stats(path):
     from pstats import Stats
+
     s = Stats(path)
     s.sort_stats('cumulative')
     s.print_stats(30)

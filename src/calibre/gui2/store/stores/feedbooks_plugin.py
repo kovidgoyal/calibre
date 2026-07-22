@@ -13,7 +13,6 @@ from calibre.gui2.store.search_result import SearchResult
 
 
 class FeedbooksStore(BasicStoreConfig, OpenSearchOPDSStore):
-
     open_search_url = 'http://assets0.feedbooks.net/opensearch.xml?t=1253087147'
     web_url = 'http://feedbooks.com/'
 

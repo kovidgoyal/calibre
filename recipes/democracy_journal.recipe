@@ -4,9 +4,9 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class AdvancedUserRecipe1361743898(BasicNewsRecipe):
-    title = u'Democracy Journal'
+    title = 'Democracy Journal'
     description = '''A journal of ideas. Published quarterly.'''
-    __author__ = u'David Nye'
+    __author__ = 'David Nye'
     language = 'en'
     oldest_article = 90
     max_articles_per_feed = 30
@@ -20,8 +20,7 @@ class AdvancedUserRecipe1361743898(BasicNewsRecipe):
         for x in soup.findAll(href=re.compile(r'http://www\.democracyjournal\.org/\d*/.*php$')):
             url = x.get('href')
             title = self.tag_to_string(x)
-            articles.append({'title': title, 'url': url,
-                             'description': '', 'date': ''})
+            articles.append({'title': title, 'url': url, 'description': '', 'date': ''})
         feeds.append(('Articles', articles))
         return feeds
 

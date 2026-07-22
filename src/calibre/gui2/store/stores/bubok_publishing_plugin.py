@@ -26,7 +26,6 @@ except ImportError:
 
 
 class BubokPublishingStore(BasicStoreConfig, StorePlugin):
-
     def open(self, gui=None, parent=None, detail_item=None, external=False):
         url = 'https://www.bubok.es/tienda'
         if external or self.config.get('open_external', False):

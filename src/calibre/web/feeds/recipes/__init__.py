@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 '''
 Builtin recipes.
@@ -13,16 +13,15 @@ from calibre.ebooks.BeautifulSoup import BeautifulSoup
 from calibre.utils.config import JSONConfig
 from calibre.web.feeds.news import AutomaticNewsRecipe, BasicNewsRecipe, CalibrePeriodical, CustomIndexRecipe
 
-basic_recipes = (BasicNewsRecipe, AutomaticNewsRecipe, CustomIndexRecipe,
-        CalibrePeriodical)
+basic_recipes = (BasicNewsRecipe, AutomaticNewsRecipe, CustomIndexRecipe, CalibrePeriodical)
 
 custom_recipes = JSONConfig('custom_recipes/index.json')
 
 
 def custom_recipe_filename(id_, title):
     from calibre.utils.filenames import ascii_filename
-    return ascii_filename(title[:50]) + \
-                        (f'_{id_}.recipe')
+
+    return ascii_filename(title[:50]) + (f'_{id_}.recipe')
 
 
 def compile_recipe(src):
@@ -34,7 +33,7 @@ def compile_recipe(src):
     :return: Recipe class or None, if no such class was found in src
     """
     if not isinstance(src, str):
-        match = re.search(br'coding[:=]\s*([-\w.]+)', src[:200])
+        match = re.search(rb'coding[:=]\s*([-\w.]+)', src[:200])
         enc = match.group(1).decode('utf-8') if match else 'utf-8'
         src = src.decode(enc)
     # Python complains if there is a coding declaration in a unicode string
@@ -43,20 +42,20 @@ def compile_recipe(src):
     src = io.StringIO(src, newline=None).getvalue()
 
     namespace = {
-            'BasicNewsRecipe':BasicNewsRecipe,
-            'AutomaticNewsRecipe':AutomaticNewsRecipe,
-            'time':time, 're':re,
-            'BeautifulSoup':BeautifulSoup,
-            'unicode': str,
-            'unichr': chr,
-            'xrange': range,
+        'BasicNewsRecipe': BasicNewsRecipe,
+        'AutomaticNewsRecipe': AutomaticNewsRecipe,
+        'time': time,
+        're': re,
+        'BeautifulSoup': BeautifulSoup,
+        'unicode': str,
+        'unichr': chr,
+        'xrange': range,
     }
     exec(src, namespace)
     ua = namespace.get('calibre_most_common_ua')
 
     for x in namespace.values():
-        if (isinstance(x, type) and issubclass(x, BasicNewsRecipe) and x not
-                in basic_recipes):
+        if isinstance(x, type) and issubclass(x, BasicNewsRecipe) and x not in basic_recipes:
             setattr(x, 'calibre_most_common_ua', ua)
             return x
 

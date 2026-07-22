@@ -10,7 +10,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class MainichiDailyScienceNews(BasicNewsRecipe):
-    title = u'\u6bce\u65e5\u65b0\u805e(Science)'
+    title = '\u6bce\u65e5\u65b0\u805e(Science)'
     __author__ = 'Hiroshi Miura'
     oldest_article = 2
     max_articles_per_feed = 20
@@ -20,7 +20,7 @@ class MainichiDailyScienceNews(BasicNewsRecipe):
     language = 'ja'
     index = 'http://mainichi.jp/select/science'
     remove_javascript = True
-    masthead_title = u'MAINICHI DAILY NEWS'
+    masthead_title = 'MAINICHI DAILY NEWS'
 
     remove_tags_before = {'class': 'NewsTitle'}
     remove_tags_after = {'class': 'NewsBody clr'}
@@ -37,7 +37,7 @@ class MainichiDailyScienceNews(BasicNewsRecipe):
             if len(delList) > 0:
                 for d in delList:
                     index = curfeed.articles.index(d)
-                    curfeed.articles[index:index + 1] = []
+                    curfeed.articles[index : index + 1] = []
 
         return feeds
 
@@ -50,8 +50,6 @@ class MainichiDailyScienceNews(BasicNewsRecipe):
             for itt in topstories.findAll('li'):
                 itema = itt.find('a', href=True)
                 if itema:
-                    newsarticles.append({
-                        'title': itema.string, 'date': '', 'url': itema['href'], 'description': ''
-                    })
+                    newsarticles.append({'title': itema.string, 'date': '', 'url': itema['href'], 'description': ''})
             feeds.append(('Science', newsarticles))
         return feeds

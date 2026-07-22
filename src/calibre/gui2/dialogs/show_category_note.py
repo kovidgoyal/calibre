@@ -46,7 +46,6 @@ class Display(HTMLDisplay):
 
 
 class ShowNoteDialog(Dialog):
-
     def __init__(self, field, item_id, db, parent=None):
         self.db = db.new_api
         self.item_val = self.db.get_item_name(field, item_id)
@@ -155,6 +154,7 @@ class ShowNoteDialog(Dialog):
 
 def develop_show_note():
     from calibre.library import db as dbc
+
     app = Application([])
     d = ShowNoteDialog('authors', 1, dbc(os.path.expanduser('~/test library')))
     d.exec()

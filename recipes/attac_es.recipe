@@ -4,14 +4,14 @@ from __future__ import unicode_literals
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
-class AttacEspanaRecipe (BasicNewsRecipe):
+class AttacEspanaRecipe(BasicNewsRecipe):
     __author__ = 'Marc Busqué <marc@lamarciana.com>'
     __url__ = 'http://www.lamarciana.com'
     __version__ = '1.0.2'
     __license__ = 'GPL v3'
     __copyright__ = '2012, Marc Busqué <marc@lamarciana.com>'
-    title = u'attac.es'
-    description = u'La Asociación por la Tasación de las Transacciones Financieras y por la Ayuda a los Ciudadanos (ATTAC) es un movimiento internacional altermundialista que promueve el control democrático de los mercados financieros y las instituciones encargadas de su control mediante la reflexión política y la movilización social.'  # noqa: E501
+    title = 'attac.es'
+    description = 'La Asociación por la Tasación de las Transacciones Financieras y por la Ayuda a los Ciudadanos (ATTAC) es un movimiento internacional altermundialista que promueve el control democrático de los mercados financieros y las instituciones encargadas de su control mediante la reflexión política y la movilización social.'  # noqa: E501
     url = 'http://www.attac.es'
     language = 'es'
     tags = 'contrainformación, información alternativa'
@@ -22,12 +22,13 @@ class AttacEspanaRecipe (BasicNewsRecipe):
     def get_extra_css(self):
         if not self.extra_css:
             br = self.get_browser()
-            self.extra_css = br.open_novisit(
-                'https://raw.githubusercontent.com/laMarciana/gutenweb/master/dist/gutenweb.css').read().replace('@charset "UTF-8";', '')
+            self.extra_css = (
+                br.open_novisit('https://raw.githubusercontent.com/laMarciana/gutenweb/master/dist/gutenweb.css').read().replace('@charset "UTF-8";', '')
+            )
         return self.extra_css
 
-    cover_url = u'http://www.attac.es/wp-content/themes/attacweb/images/attaces.jpg'
+    cover_url = 'http://www.attac.es/wp-content/themes/attacweb/images/attaces.jpg'
 
     feeds = [
-        (u'Attac', u'http://www.attac.es/feed'),
+        ('Attac', 'http://www.attac.es/feed'),
     ]

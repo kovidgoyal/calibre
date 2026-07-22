@@ -73,13 +73,14 @@ def get_allowed_fields() -> set[str]:
 
 
 class Action(ActionData):
-
     def prompt_text(self, books: list[Metadata]) -> str:
         pt = self.prompt_template
         return pt.format(
             books_word='book' if len(books) < 2 else 'books',
             is_are='is' if len(books) < 2 else 'are',
-            title=books[0].title, authors=books[0].format_authors(), series=books[0].series or '',
+            title=books[0].title,
+            authors=books[0].format_authors(),
+            series=books[0].series or '',
         )
 
 
@@ -89,11 +90,19 @@ def default_actions() -> tuple[Action, ...]:
         Action('summarize', _('Summarize'), 'Provide a concise summary of the previously described {books_word}.'),
         Action('chapters', _('Chapters'), 'Provide a chapter by chapter summary of the previously described {books_word}.'),
         Action('read_next', _('Read next'), 'Suggest some good books to read after the previously described {books_word}.'),
-        Action('universe', _('Universe'), 'Describe the fictional universe the previously described {books_word} {is_are} set in.'
-               ' Outline major plots, themes and characters in the universe.'),
-        Action('series', ngettext('Series', 'Series', 1), 'Give the series the previously described {books_word} {is_are} in.'
-               ' List all the books in the series, in both published and internal chronological order.'
-               ' Also describe any prominent spin-off series.')
+        Action(
+            'universe',
+            _('Universe'),
+            'Describe the fictional universe the previously described {books_word} {is_are} set in.'
+            ' Outline major plots, themes and characters in the universe.',
+        ),
+        Action(
+            'series',
+            ngettext('Series', 'Series', 1),
+            'Give the series the previously described {books_word} {is_are} in.'
+            ' List all the books in the series, in both published and internal chronological order.'
+            ' Also describe any prominent spin-off series.',
+        ),
     )
 
 
@@ -110,7 +119,6 @@ def current_actions(include_disabled=False) -> Iterator[Action]:
 
 
 class LLMSettingsWidget(LLMActionsSettingsWidget):
-
     action_edit_help_text = '<p>' + _(
         'The prompt is a template. The expression {0} will be replaced by "book"'
         ' when there is only a single book being discussed and "books" otherwise.'
@@ -137,7 +145,6 @@ def get_current_db() -> Cache:
 
 
 class MetadataSettings(QWidget):
-
     def __init__(self, parent=None):
         super().__init__(parent)
         self.l = l = QVBoxLayout(self)
@@ -182,8 +189,7 @@ class MetadataSettings(QWidget):
             item.setCheckState(Qt.CheckState.Unchecked)
 
     def toggle_item(self, item):
-        item.setCheckState(
-            Qt.CheckState.Unchecked if item.checkState() == Qt.CheckState.Checked else Qt.CheckState.Checked)
+        item.setCheckState(Qt.CheckState.Unchecked if item.checkState() == Qt.CheckState.Checked else Qt.CheckState.Checked)
 
     def commit(self) -> bool:
         allowed_standard = set()
@@ -202,7 +208,6 @@ class MetadataSettings(QWidget):
 
 
 class LLMSettingsDialog(LLMSettingsDialogBase):
-
     def __init__(self, parent=None):
         super().__init__(title=_('AI Settings'), name='llm-book-settings-dialog', prefs=gprefs, parent=parent)
 
@@ -245,6 +250,7 @@ class LLMPanel(ConverseWidget):
         msg += '<p>' + _('Or, type a question to the AI below, for example:') + '<br>'
         msg += '<i>Discuss the literary influences in this book</i>'
         return msg
+
     ready_message = choose_action_message
 
     def create_initial_messages(self, action_prompt: str, **kwargs: Any) -> Iterator[ChatMessage]:
@@ -266,13 +272,14 @@ class LLMPanel(ConverseWidget):
 
 
 class LLMBookDialog(Dialog):
-
     def __init__(self, books: list[Metadata], parent: QWidget | None = None):
         self.books = books
         super().__init__(
-            name='llm-book-dialog', title=_('Ask AI about {}').format(books[0].title) if len(books) < 2 else _(
-                'Ask AI about {} books').format(len(books)),
-            parent=parent, default_buttons=QDialogButtonBox.StandardButton.Close)
+            name='llm-book-dialog',
+            title=_('Ask AI about {}').format(books[0].title) if len(books) < 2 else _('Ask AI about {} books').format(len(books)),
+            parent=parent,
+            default_buttons=QDialogButtonBox.StandardButton.Close,
+        )
 
     def setup_ui(self):
         l = QVBoxLayout(self)
@@ -290,6 +297,7 @@ class LLMBookDialog(Dialog):
 
 def develop():
     from calibre.library import db
+
     setattr(get_current_db, 'ans', db())
     app = Application([])
     LLMBookDialog([Metadata('The Trials of Empire', ['Richard Swan'])]).exec()

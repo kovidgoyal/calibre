@@ -353,10 +353,19 @@ def render_html(mi, vertical, widget, all_fields=False, render_data_func=None, p
     func = render_data_func or partial(render_data, vertical_fields=db.prefs.get('book_details_vertical_categories') or ())
     try:
         table, comment_fields = func(
-            mi, all_fields=all_fields, show_links=show_links, use_roman_numbers=config['use_roman_numerals_for_series_number'], pref_name=pref_name
+            mi,
+            all_fields=all_fields,
+            show_links=show_links,
+            use_roman_numbers=config['use_roman_numerals_for_series_number'],
+            pref_name=pref_name,
         )
     except TypeError:
-        table, comment_fields = func(mi, all_fields=all_fields, show_links=show_links, use_roman_numbers=config['use_roman_numerals_for_series_number'])
+        table, comment_fields = func(
+            mi,
+            all_fields=all_fields,
+            show_links=show_links,
+            use_roman_numbers=config['use_roman_numerals_for_series_number'],
+        )
 
     def color_to_string(col):
         ans = '#000000'
@@ -495,11 +504,19 @@ def add_format_entries(menu, data, book_info, copy_menu, search_menu):
 
         populate_menu(m, connect_action, fmt)
         if len(m.actions()) == 0:
-            menu.addAction(QIcon.ic('exec.png'), _('Open %s with...') % fmt.upper(), partial(book_info.choose_open_with, book_id, fmt))
+            menu.addAction(
+                QIcon.ic('exec.png'),
+                _('Open %s with...') % fmt.upper(),
+                partial(book_info.choose_open_with, book_id, fmt),
+            )
         else:
             m.setIcon(QIcon.ic('exec.png'))
             m.addSeparator()
-            m.addAction(QIcon.ic('plus.png'), _('Add other application for %s files...') % fmt.upper(), partial(book_info.choose_open_with, book_id, fmt))
+            m.addAction(
+                QIcon.ic('plus.png'),
+                _('Add other application for %s files...') % fmt.upper(),
+                partial(book_info.choose_open_with, book_id, fmt),
+            )
             m.addAction(_('Edit Open with applications...'), partial(edit_programs, fmt, book_info))
             menu.addMenu(m)
             menu.ow = m
@@ -516,9 +533,10 @@ def add_format_entries(menu, data, book_info, copy_menu, search_menu):
         copy_menu.addAction(ac)
     if db.is_fts_enabled():
         menu.addSeparator()
-        menu.addAction(_('Re-index the {} format for full text searching').format(fmt.upper()), partial(book_info.reindex_fmt, book_id, fmt)).setIcon(
-            QIcon.ic('fts.png')
-        )
+        menu.addAction(
+            _('Re-index the {} format for full text searching').format(fmt.upper()),
+            partial(book_info.reindex_fmt, book_id, fmt),
+        ).setIcon(QIcon.ic('fts.png'))
 
 
 def add_link_submenu(menu: QMenu, link, book_info, field='', item_name=''):
@@ -526,7 +544,11 @@ def add_link_submenu(menu: QMenu, link, book_info, field='', item_name=''):
         m = menu.addMenu(QIcon.ic('external-link'), _('Associated link'))
         assert m is not None
         m.addAction(QIcon.ic('reference'), _('Open: {}').format(link), lambda: book_info.link_clicked.emit(link))
-        m.addAction(QIcon.ic('minus'), _('Remove the link').format(link), lambda: book_info.link_removal_requested.emit(field, item_name))
+        m.addAction(
+            QIcon.ic('minus'),
+            _('Remove the link').format(link),
+            lambda: book_info.link_removal_requested.emit(field, item_name),
+        )
     else:
         menu.addAction(QIcon.ic('external-link'), _('Open associated link').format(link), lambda: book_info.link_clicked.emit(link))
 
@@ -700,7 +722,10 @@ def create_copy_links(menu, data=None):
             data_files = db.new_api.list_extra_files(book_id, use_cache=True, pattern=DATA_FILE_PATTERN)
             if data_files:
                 data_path = os.path.join(db.backend.library_path, mi.path, DATA_DIR_NAME)
-                link_action(_("Link to open book's data files folder"), bytes(QUrl.fromLocalFile(data_path).toEncoded()).decode('utf-8'))
+                link_action(
+                    _("Link to open book's data files folder"),
+                    bytes(QUrl.fromLocalFile(data_path).toEncoded()).decode('utf-8'),
+                )
     if data:
         if data.get('kind', '') == 'notes':
             field = data['field']
@@ -720,7 +745,10 @@ def create_copy_links(menu, data=None):
             if (field and field in ('tags', 'series', 'publisher', 'authors')) or is_category(field):
                 name = data['name' if data['type'] == 'author' else 'value']
                 eq = f'{field}:"={name}"'.encode().hex()
-                link_action(_('Link to show books matching {} in calibre').format(name), f'calibre://search/{library_id}?eq={eq}')
+                link_action(
+                    _('Link to show books matching {} in calibre').format(name),
+                    f'calibre://search/{library_id}?eq={eq}',
+                )
 
     for fmt in db.formats(book_id):
         fmt = fmt.upper()
@@ -827,7 +855,10 @@ def details_context_menu_event(view, ev, book_info, add_popup_action=False, edit
     # be editing the current book, which this book probably isn't
     elif edit_metadata is not None:
         ema = get_gui(fail_if_absent=True).iactions['Edit Metadata'].menuless_qaction
-        menu.addAction(_('Open the Edit metadata window') + '\t' + ema.shortcut().toString(QKeySequence.SequenceFormat.NativeText), edit_metadata)
+        menu.addAction(
+            _('Open the Edit metadata window') + '\t' + ema.shortcut().toString(QKeySequence.SequenceFormat.NativeText),
+            edit_metadata,
+        )
     menu.addSeparator()
     book_id = get_gui(fail_if_absent=True).library_view.current_id
     if not reindex_fmt_added:
@@ -1119,7 +1150,8 @@ class CoverView(QWidget):  # {{{
 
         mi = get_gui(fail_if_absent=True).current_db.new_api.get_metadata(book_id)
         if not mi.has_cover or confirm(
-            _('Are you sure you want to replace the cover? The existing cover will be permanently lost.'), 'book_details_generate_cover'
+            _('Are you sure you want to replace the cover? The existing cover will be permanently lost.'),
+            'book_details_generate_cover',
         ):
             from calibre.ebooks.covers import generate_cover
 
@@ -1127,7 +1159,11 @@ class CoverView(QWidget):  # {{{
             self.update_cover(cdata=cdata)
 
     def remove_cover(self):
-        if not confirm_delete(_('Are you sure you want to delete the cover permanently?'), 'book-details-confirm-cover-remove', parent=self):
+        if not confirm_delete(
+            _('Are you sure you want to delete the cover permanently?'),
+            'book-details-confirm-cover-remove',
+            parent=self,
+        ):
             return
         id_ = self.data.get('id', None)
         self.pixmap = self.default_pixmap

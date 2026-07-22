@@ -171,14 +171,26 @@ def CATALOG_ENTRY(
         name = item.sort
     else:
         name = item.name
-    return E.entry(TITLE(str(name) + ('' if not add_kind else f' ({item_kind})')), ID(id_), UPDATED(updated), E.content(count, type='text'), link)
+    return E.entry(
+        TITLE(str(name) + ('' if not add_kind else f' ({item_kind})')),
+        ID(id_),
+        UPDATED(updated),
+        E.content(count, type='text'),
+        link,
+    )
 
 
 def CATALOG_GROUP_ENTRY(item: Group, category: str, request_context: RequestContext, updated: datetime.datetime) -> etree.Element:
     id_ = 'calibre:category-group:' + category + ':' + (item.text or '')
     iid = item.text
     link = NAVLINK(href=request_context.url_for('/opds/categorygroup', category=as_hex_unicode(category), which=as_hex_unicode(iid)))
-    return E.entry(TITLE(item.text), ID(id_), UPDATED(updated), E.content(ngettext('one item', '{} items', item.count).format(item.count), type='text'), link)
+    return E.entry(
+        TITLE(item.text),
+        ID(id_),
+        UPDATED(updated),
+        E.content(ngettext('one item', '{} items', item.count).format(item.count), type='text'),
+        link,
+    )
 
 
 def ACQUISITION_ENTRY(book_id: int, updated: datetime.datetime, request_context: RequestContext) -> etree.Element:
@@ -199,7 +211,10 @@ def ACQUISITION_ENTRY(book_id: int, updated: datetime.datetime, request_context:
             datatype = fm['datatype']
             if datatype == 'text' and fm['is_multiple']:
                 extra.append(
-                    '{}: {}<br />'.format(xml(name), xml(format_tag_string(val, fm['is_multiple']['ui_to_list'], joinval=fm['is_multiple']['list_to_ui'])))
+                    '{}: {}<br />'.format(
+                        xml(name),
+                        xml(format_tag_string(val, fm['is_multiple']['ui_to_list'], joinval=fm['is_multiple']['list_to_ui'])),
+                    )
                 )
             elif datatype == 'comments' or (fm['datatype'] == 'composite' and fm['display'].get('contains_html', False)):
                 extra.append(f'{xml(name)}: {comments_to_html(str(val))}<br />')
@@ -329,7 +344,14 @@ class TopLevel(Feed):  # {{{
 
 class NavFeed(Feed):
     def __init__(
-        self, id_: str, updated: datetime.datetime, request_context: RequestContext, offsets: Offsets, page_url: str, up_url: str, title: str | None = None
+        self,
+        id_: str,
+        updated: datetime.datetime,
+        request_context: RequestContext,
+        offsets: Offsets,
+        page_url: str,
+        up_url: str,
+        title: str | None = None,
     ) -> None:
         kwargs: dict[str, Any] = {'up_link': up_url}
         kwargs['first_link'] = page_url
@@ -379,7 +401,15 @@ class CategoryFeed(NavFeed):
             ignore_count = True
         for item in items:
             self.root.append(
-                CATALOG_ENTRY(item, item.category or '', request_context, updated, which, ignore_count=ignore_count, add_kind=which != item.category)
+                CATALOG_ENTRY(
+                    item,
+                    item.category or '',
+                    request_context,
+                    updated,
+                    which,
+                    ignore_count=ignore_count,
+                    add_kind=which != item.category,
+                )
             )
 
 
@@ -478,7 +508,17 @@ def get_all_books(rc: RequestContext, which: str, page_url: str, up_url: str, of
     feed_title = {'newest': _('Newest'), 'title': _('Title')}.get(which, which)
     feed_title = default_feed_title + ' :: ' + _('By %s') % feed_title
     ids = rc.allowed_book_ids()
-    return get_acquisition_feed(rc, ids, offset, page_url, up_url, id_='calibre-all:' + sort, sort_by=sort, ascending=ascending, feed_title=feed_title)
+    return get_acquisition_feed(
+        rc,
+        ids,
+        offset,
+        page_url,
+        up_url,
+        id_='calibre-all:' + sort,
+        sort_by=sort,
+        ascending=ascending,
+        feed_title=feed_title,
+    )
 
 
 def get_navcatalog(request_context: RequestContext, which: str, page_url: str, up_url: str, offset: int = 0) -> etree.Element:

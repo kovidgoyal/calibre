@@ -86,43 +86,25 @@ class ProspectMagazineUKFree(BasicNewsRecipe):
     def parse_index(self):
         if not _issue_url:
             issues_soup = self.index_to_soup(self.INDEX)
-            curr_issue_a_ele = issues_soup.find(
-                'a', class_='pros-collection-landing__item'
-            )
+            curr_issue_a_ele = issues_soup.find('a', class_='pros-collection-landing__item')
             curr_issue_url = urljoin(self.INDEX, curr_issue_a_ele['href'])
         else:
             curr_issue_url = _issue_url
 
         soup = self.index_to_soup(curr_issue_url)
-        issue_name = (
-            self.tag_to_string(soup.find(class_='magazine-lhc__issue-name'))
-            .replace(' issue', '')
-            .strip()
-        )
+        issue_name = self.tag_to_string(soup.find(class_='magazine-lhc__issue-name')).replace(' issue', '').strip()
         self.timefmt = f' [{issue_name}]'
 
-        self.cover_url = soup.find('img', class_='magazine-lhc__cover-image')[
-            'data-src'
-        ].replace('portrait_small_fit', 'portrait_large_fit')
+        self.cover_url = soup.find('img', class_='magazine-lhc__cover-image')['data-src'].replace('portrait_small_fit', 'portrait_large_fit')
 
         articles = OrderedDict()
         sections = soup.find_all('div', class_='pro-magazine-section')
         for section in sections:
-            section_name = self.tag_to_string(
-                section.find(class_='pro-magazine-section__name')
-            )
-            for sect_article in section.find_all(
-                class_='pro-magazine-section__article'
-            ):
-                articles.setdefault(section_name, []).append(
-                    {
-                        'url': urljoin(self.INDEX, sect_article.find('a')['href']),
-                        'title': self.tag_to_string(
-                            sect_article.find(
-                                class_='pro-magazine-section__article-headline'
-                            )
-                        ),
-                    }
-                )
+            section_name = self.tag_to_string(section.find(class_='pro-magazine-section__name'))
+            for sect_article in section.find_all(class_='pro-magazine-section__article'):
+                articles.setdefault(section_name, []).append({
+                    'url': urljoin(self.INDEX, sect_article.find('a')['href']),
+                    'title': self.tag_to_string(sect_article.find(class_='pro-magazine-section__article-headline')),
+                })
 
         return articles.items()

@@ -20,7 +20,6 @@ def search(query, max_results=10, timeout=60):
 
 
 class ArchiveOrgStore(BasicStoreConfig, OpenSearchOPDSStore):
-
     open_search_url = SEARCH_URL
     web_url = 'http://www.archive.org/details/texts'
 
@@ -36,5 +35,6 @@ class ArchiveOrgStore(BasicStoreConfig, OpenSearchOPDSStore):
 
 if __name__ == '__main__':
     import sys
+
     for s in search(' '.join(sys.argv[1:])):
         print(s)

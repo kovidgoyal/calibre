@@ -11,10 +11,10 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class rushisaband(BasicNewsRecipe):
-    title = u'Rushisaband'
+    title = 'Rushisaband'
     __author__ = 'MrStefan <mrstefaan@gmail.com>'
     language = 'en_GB'
-    description = u'A blog devoted to the band RUSH and its members, Neil Peart, Geddy Lee and Alex Lifeson'
+    description = 'A blog devoted to the band RUSH and its members, Neil Peart, Geddy Lee and Alex Lifeson'
     remove_empty_feeds = True
     oldest_article = 7
     max_articles_per_feed = 100
@@ -26,4 +26,4 @@ class rushisaband(BasicNewsRecipe):
     keep_only_tags.append(dict(name='h5'))
     keep_only_tags.append(dict(name='p'))
 
-    feeds = [(u'Rush is a Band', u'http://feeds2.feedburner.com/rushisaband/blog')]
+    feeds = [('Rush is a Band', 'http://feeds2.feedburner.com/rushisaband/blog')]

@@ -1,4 +1,4 @@
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2010-2012, Timothy Legge <timlegge at gmail.com> and David Forrester <davidfor@internode.on.net>'
 __docformat__ = 'restructuredtext en'
 
@@ -16,10 +16,21 @@ from calibre.utils.config_base import prefs
 
 
 class Book(Book_):
-
-    def __init__(self, prefix, lpath, title=None, authors=None, mime=None, date=None, ContentType=None,
-                 thumbnail_name=None, size=None, other=None):
+    def __init__(
+        self,
+        prefix,
+        lpath,
+        title=None,
+        authors=None,
+        mime=None,
+        date=None,
+        ContentType=None,
+        thumbnail_name=None,
+        size=None,
+        other=None,
+    ):
         from calibre.utils.date import parse_date
+
         # debug_print('Book::__init__ - title=', title)
         show_debug = title is not None and title.lower().find('xxxxx') >= 0
         if other is not None:
@@ -53,8 +64,7 @@ class Book(Book_):
                         self.datetime = time.strptime(date.split('+')[0], '%Y-%m-%d')
                     except Exception:
                         try:
-                            self.datetime = parse_date(date,
-                                    assume_utc=True).timetuple()
+                            self.datetime = parse_date(date, assume_utc=True).timetuple()
                         except Exception:
                             try:
                                 self.datetime = time.gmtime(os.path.getctime(self.path))
@@ -62,15 +72,15 @@ class Book(Book_):
                                 self.datetime = time.gmtime()
 
         self.kobo_metadata = Metadata(title, self.authors)
-        self.contentID          = None
-        self.current_shelves    = []
-        self.kobo_collections   = []
+        self.contentID = None
+        self.current_shelves = []
+        self.kobo_collections = []
         self.can_put_on_shelves = True
-        self.kobo_series        = None
+        self.kobo_series = None
         self.kobo_series_number = None  # Kobo stores the series number as string. And it can have a leading "#".
-        self.kobo_series_id     = None
-        self.kobo_subtitle      = None
-        self.kobo_bookstats     = {}
+        self.kobo_series_id = None
+        self.kobo_subtitle = None
+        self.kobo_bookstats = {}
 
         if thumbnail_name is not None:
             self._thumbnail_value = ImageWrapper(thumbnail_name)
@@ -119,13 +129,11 @@ class Book(Book_):
 
 
 class ImageWrapper:
-
     def __init__(self, image_path):
         self.image_path = image_path
 
 
 class KTCollectionsBookList(CollectionsBookList):
-
     def __init__(self, oncard, prefix, settings):
         super().__init__(oncard, prefix, settings)
         self.set_device_managed_collections([])
@@ -136,7 +144,7 @@ class KTCollectionsBookList(CollectionsBookList):
         collections = {}
 
         ca = []
-        for c in (collection_attributes or []):
+        for c in collection_attributes or []:
             ca.append(c.lower())
         collection_attributes = ca
         debug_print('KTCollectionsBookList:get_collections - collection_attributes=', collection_attributes)
@@ -148,7 +156,14 @@ class KTCollectionsBookList(CollectionsBookList):
 
             show_debug = self.is_debugging_title(tsval) or tsval is None
             if show_debug:  # or len(book.device_collections) > 0:
-                debug_print('KTCollectionsBookList:get_collections - tsval=', tsval, 'book.title=', book.title, 'book.title_sort=', book.title_sort)
+                debug_print(
+                    'KTCollectionsBookList:get_collections - tsval=',
+                    tsval,
+                    'book.title=',
+                    book.title,
+                    'book.title_sort=',
+                    book.title_sort,
+                )
                 debug_print('KTCollectionsBookList:get_collections - book.device_collections=', book.device_collections)
                 # debug_print(book)
             # Make sure we can identify this book via the lpath
@@ -188,7 +203,10 @@ class KTCollectionsBookList(CollectionsBookList):
                         if lpath not in collections[cat_name]:
                             collections[cat_name][lpath] = book
                             if show_debug:
-                                debug_print('KTCollectionsBookList:get_collections - Device Managed Collection -added book to cat_name', cat_name)
+                                debug_print(
+                                    'KTCollectionsBookList:get_collections - Device Managed Collection -added book to cat_name',
+                                    cat_name,
+                                )
                 book.device_collections = []
             if show_debug:
                 debug_print('KTCollectionsBookList:get_collections - attrs=', attrs)
@@ -209,13 +227,15 @@ class KTCollectionsBookList(CollectionsBookList):
                     doing_dc = True
                     val = book.device_collections  # is a list
                     if show_debug:
-                        debug_print('KTCollectionsBookList:get_collections - adding book.device_collections', book.device_collections)
+                        debug_print(
+                            'KTCollectionsBookList:get_collections - adding book.device_collections',
+                            book.device_collections,
+                        )
                 elif attr == '%template%':
                     doing_dc = False
                     val = ''
                     if collections_template is not None:
-                        nv = SafeFormat().safe_format(collections_template, book,
-                                                      'KOBO', book, global_vars=template_globals)
+                        nv = SafeFormat().safe_format(collections_template, book, 'KOBO', book, global_vars=template_globals)
                         if show_debug:
                             debug_print('KTCollectionsBookList:get_collections collections_template - result', nv)
                         if nv:
@@ -250,8 +270,7 @@ class KTCollectionsBookList(CollectionsBookList):
                 elif fm is not None and fm['datatype'] == 'composite' and fm['is_multiple']:
                     if show_debug:
                         debug_print('KTCollectionsBookList:get_collections - val is compositeand multiple', val)
-                    val = [v.strip() for v in
-                           val.split(fm['is_multiple']['ui_to_list'])]
+                    val = [v.strip() for v in val.split(fm['is_multiple']['ui_to_list'])]
                 else:
                     val = [val]
                 if show_debug:
@@ -262,11 +281,9 @@ class KTCollectionsBookList(CollectionsBookList):
                     if doing_dc:
                         pass  # No need to do anything with device_collections
                     elif fm is not None and fm['is_custom']:  # is a custom field
-                        if fm['datatype'] == 'text' and len(category) > 1 and \
-                                category[0] == '[' and category[-1] == ']':
+                        if fm['datatype'] == 'text' and len(category) > 1 and category[0] == '[' and category[-1] == ']':
                             continue
-                    elif attr == 'tags' and len(category) > 1 and \
-                            category[0] == '[' and category[-1] == ']':
+                    elif attr == 'tags' and len(category) > 1 and category[0] == '[' and category[-1] == ']':
                         continue
 
                     # The category should not be None, but, it has happened.
@@ -282,7 +299,10 @@ class KTCollectionsBookList(CollectionsBookList):
                     if lpath not in collections[cat_name]:
                         collections[cat_name][lpath] = book
                         if show_debug:
-                            debug_print('KTCollectionsBookList:get_collections - added book to collection for cat_name', cat_name)
+                            debug_print(
+                                'KTCollectionsBookList:get_collections - added book to collection for cat_name',
+                                cat_name,
+                            )
                     if show_debug:
                         debug_print('KTCollectionsBookList:get_collections - cat_name', cat_name)
 
@@ -305,8 +325,12 @@ class KTCollectionsBookList(CollectionsBookList):
         if not DEBUG:
             return False
         # debug_print("KTCollectionsBookList:is_debugging - title=", title, "self.debugging_title=", self.debugging_title)
-        is_debugging = self.debugging_title is not None and len(self.debugging_title) > 0 and title is not None and (
-            title.lower().find(self.debugging_title.lower()) >= 0 or len(title) == 0)
+        is_debugging = (
+            self.debugging_title is not None
+            and len(self.debugging_title) > 0
+            and title is not None
+            and (title.lower().find(self.debugging_title.lower()) >= 0 or len(title) == 0)
+        )
         # debug_print("KTCollectionsBookList:is_debugging - is_debugging=", is_debugging)
 
         return is_debugging

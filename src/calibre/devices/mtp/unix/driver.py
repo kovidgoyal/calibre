@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
@@ -19,15 +19,13 @@ from calibre.devices.mtp.base import MTPDeviceBase, debug, synchronous
 from calibre.ptempfile import SpooledTemporaryFile
 from calibre.utils.localization import _
 
-MTPDevice = namedtuple('MTPDevice', 'busnum devnum vendor_id product_id '
-        'bcd serial manufacturer product')
+MTPDevice = namedtuple('MTPDevice', 'busnum devnum vendor_id product_id bcd serial manufacturer product')
 
 null = object()
 
 
 def fingerprint(d):
-    return MTPDevice(d.busnum, d.devnum, d.vendor_id, d.product_id, d.bcd,
-            d.serial, d.manufacturer, d.product)
+    return MTPDevice(d.busnum, d.devnum, d.vendor_id, d.product_id, d.bcd, d.serial, d.manufacturer, d.product)
 
 
 def sorted_storage(storage_info: list[dict[str, object]]) -> list[dict[str, object]]:
@@ -41,11 +39,10 @@ def sorted_storage(storage_info: list[dict[str, object]]) -> list[dict[str, obje
     return storage
 
 
-APPLE = 0x05ac
+APPLE = 0x05AC
 
 
 class MTP_DEVICE(MTPDeviceBase):
-
     supported_platforms = ['freebsd', 'linux', 'osx']
 
     def __init__(self, *args, **kwargs):
@@ -63,21 +60,22 @@ class MTP_DEVICE(MTPDeviceBase):
         self._is_device_mtp = None
         if islinux:
             from calibre.devices.mtp.unix.sysfs import MTPDetect
+
             self._is_device_mtp = MTPDetect()
         if ismacos and 'osx' in self.supported_platforms:
             from calibre_extensions import usbobserver
+
             self.usbobserver = usbobserver
             self._is_device_mtp = self.osx_is_device_mtp
 
     def is_device_mtp(self, d, debug=None):
-        """ Returns True iff the _is_device_mtp check returns True and libmtp
-        is able to probe the device successfully. """
+        """Returns True iff the _is_device_mtp check returns True and libmtp
+        is able to probe the device successfully."""
         if self._is_device_mtp is None:
             return False
         libmtp = self.libmtp
         assert libmtp is not None
-        return (self._is_device_mtp(d, debug=debug) and
-                libmtp.is_mtp_device(d.busnum, d.devnum))
+        return self._is_device_mtp(d, debug=debug) and libmtp.is_mtp_device(d.busnum, d.devnum)
 
     def osx_is_device_mtp(self, d, debug=None):
         if not d.serial:
@@ -88,6 +86,7 @@ class MTP_DEVICE(MTPDeviceBase):
             except Exception:
                 if debug is not None:
                     import traceback
+
                     traceback.print_stack()
                 return False
         if debug is not None and ans:
@@ -116,8 +115,7 @@ class MTP_DEVICE(MTPDeviceBase):
 
         # Check if the currently connected device is still present
         if self.currently_connected_dev is not None:
-            return (self.currently_connected_dev if
-                    self.currently_connected_dev in devs else None)
+            return self.currently_connected_dev if self.currently_connected_dev in devs else None
 
         # Remove ejected devices
         devs = devs - self.ejected_devices
@@ -129,9 +127,7 @@ class MTP_DEVICE(MTPDeviceBase):
         for d in devs:
             ans = cache.get(d, None)
             if ans is None:
-                ans = (
-                    (d.vendor_id, d.product_id) in self.known_devices or
-                    self.is_device_mtp(d))
+                ans = (d.vendor_id, d.product_id) in self.known_devices or self.is_device_mtp(d)
                 cache[d] = ans
             if ans:
                 return d
@@ -147,9 +143,7 @@ class MTP_DEVICE(MTPDeviceBase):
             err = 'startup() not called on this device driver'
             p(err)
             return False
-        devs = [d for d in devices_on_system if
-            ((d.vendor_id, d.product_id) in self.known_devices or
-               self.is_device_mtp(d, debug=p)) and d.vendor_id != APPLE]
+        devs = [d for d in devices_on_system if ((d.vendor_id, d.product_id) in self.known_devices or self.is_device_mtp(d, debug=p)) and d.vendor_id != APPLE]
         if not devs:
             p('No MTP devices connected to system')
             return False
@@ -185,8 +179,7 @@ class MTP_DEVICE(MTPDeviceBase):
         prod = force_unicode(prod, 'utf-8') if isinstance(prod, bytes) else prod
         libmtp = self.libmtp
         assert libmtp is not None
-        return libmtp.Device(d.busnum, d.devnum, d.vendor_id,
-                d.product_id, man, prod, d.serial)
+        return libmtp.Device(d.busnum, d.devnum, d.vendor_id, d.product_id, man, prod, d.serial)
 
     @synchronous
     def eject(self):
@@ -256,13 +249,17 @@ class MTP_DEVICE(MTPDeviceBase):
                         name = name and (name + ' ')
                         name += connected_device.product
                     name = name or _('Unnamed device')
-                raise OpenActionNeeded(name, _(
-                    'The device {0} is not allowing connections.'
-                    ' Unlock the screen on the {0}, tap "Allow" on any connection popup message you see,'
-                    ' then either wait a minute or restart calibre. You might'
-                    ' also have to change the mode of the USB connection on the {0}'
-                    ' to "Media Transfer mode (MTP)" or similar.'
-                ).format(name), (name, self.dev.serial_number))
+                raise OpenActionNeeded(
+                    name,
+                    _(
+                        'The device {0} is not allowing connections.'
+                        ' Unlock the screen on the {0}, tap "Allow" on any connection popup message you see,'
+                        ' then either wait a minute or restart calibre. You might'
+                        ' also have to change the mode of the USB connection on the {0}'
+                        ' to "Media Transfer mode (MTP)" or similar.'
+                    ).format(name),
+                    (name, self.dev.serial_number),
+                )
             raise
 
         storage = [x for x in storage if x.get('rw', False)]
@@ -273,8 +270,7 @@ class MTP_DEVICE(MTPDeviceBase):
         if snum in self.prefs.get('blacklist', []):
             self.blacklisted_devices.add(connected_device)
             self.dev = None
-            raise BlacklistedDevice(
-                f'The {connected_device} device has been blacklisted by the user')
+            raise BlacklistedDevice(f'The {connected_device} device has been blacklisted by the user')
         self._main_id = storage[0]['id']
         self._carda_id = self._cardb_id = None
         if len(storage) > 1:
@@ -304,7 +300,7 @@ class MTP_DEVICE(MTPDeviceBase):
 
     def _filesystem_callback(self, fs_map, entry, level):
         name = entry.get('name', '')
-        self.filesystem_callback(_('Found object: %s')%name)
+        self.filesystem_callback(_('Found object: %s') % name)
         fs_map[entry.get('id', null)] = entry
         path = [name]
         pid = entry.get('parent_id', 0)
@@ -326,12 +322,12 @@ class MTP_DEVICE(MTPDeviceBase):
             st = time.time()
             debug('Loading filesystem metadata...')
             from calibre.devices.mtp.filesystem_cache import FilesystemCache
+
             with self.lock:
                 dev = self.dev
                 assert dev is not None
                 storage, all_items, all_errs = [], [], []
-                for sid, capacity in zip([self._main_id, self._carda_id,
-                    self._cardb_id], self.total_space()):
+                for sid, capacity in zip([self._main_id, self._carda_id, self._cardb_id], self.total_space()):
                     if sid is None:
                         continue
                     name = _('Unknown')
@@ -339,21 +335,23 @@ class MTP_DEVICE(MTPDeviceBase):
                         if x['id'] == sid:
                             name = x['name']
                             break
-                    storage.append({'id':sid, 'size':capacity,
-                        'is_folder':True, 'name':name, 'can_delete':False,
-                        'is_system':True})
+                    storage.append({
+                        'id': sid,
+                        'size': capacity,
+                        'is_folder': True,
+                        'name': name,
+                        'can_delete': False,
+                        'is_system': True,
+                    })
                     self._currently_getting_sid = str(sid)
-                    items, errs = dev.get_filesystem(sid,
-                            partial(self._filesystem_callback, {}))
+                    items, errs = dev.get_filesystem(sid, partial(self._filesystem_callback, {}))
                     all_items.extend(items), all_errs.extend(errs)
                 if not all_items and all_errs:
-                    raise DeviceError(
-                            f'Failed to read filesystem from {self.current_friendly_name} with errors: {self.format_errorstack(all_errs)}')
+                    raise DeviceError(f'Failed to read filesystem from {self.current_friendly_name} with errors: {self.format_errorstack(all_errs)}')
                 if all_errs:
-                    prints('There were some errors while getting the '
-                            f' filesystem from {self.current_friendly_name}: {self.format_errorstack(all_errs)}')
+                    prints(f'There were some errors while getting the  filesystem from {self.current_friendly_name}: {self.format_errorstack(all_errs)}')
                 self._filesystem_cache = FilesystemCache(storage, all_items)
-            debug(f'Filesystem metadata loaded in {time.time()-st:g} seconds ({len(self._filesystem_cache)} objects)')
+            debug(f'Filesystem metadata loaded in {time.time() - st:g} seconds ({len(self._filesystem_cache)} objects)')
         return self._filesystem_cache
 
     @synchronous
@@ -367,8 +365,7 @@ class MTP_DEVICE(MTPDeviceBase):
         ans = [0, 0, 0]
         assert self.dev is not None
         for s in self.dev.storage_info:
-            i = {self._main_id:0, self._carda_id:1,
-                    self._cardb_id:2}.get(s['id'], None)
+            i = {self._main_id: 0, self._carda_id: 1, self._cardb_id: 2}.get(s['id'], None)
             if i is not None:
                 ans[i] = s['capacity']
         return tuple(ans)
@@ -380,8 +377,7 @@ class MTP_DEVICE(MTPDeviceBase):
         dev.update_storage_info()
         ans = [0, 0, 0]
         for s in dev.storage_info:
-            i = {self._main_id:0, self._carda_id:1,
-                    self._cardb_id:2}.get(s['id'], None)
+            i = {self._main_id: 0, self._carda_id: 1, self._cardb_id: 2}.get(s['id'], None)
             if i is not None:
                 ans[i] = s['freespace_bytes']
         return tuple(ans)
@@ -399,8 +395,7 @@ class MTP_DEVICE(MTPDeviceBase):
         assert self.dev is not None
         ans, errs = self.dev.create_folder(sid, pid, name)
         if ans is None:
-            raise DeviceError(
-                    f'Failed to create folder named {name} in {parent.full_path} with error: {self.format_errorstack(errs)}')
+            raise DeviceError(f'Failed to create folder named {name} in {parent.full_path} with error: {self.format_errorstack(errs)}')
         return parent.add_child(ans)
 
     @synchronous
@@ -429,7 +424,7 @@ class MTP_DEVICE(MTPDeviceBase):
             raise ValueError(f'{f.full_path} if a folder')
         set_name = stream is None
         if stream is None:
-            stream = SpooledTemporaryFile(5*1024*1024, '_wpd_receive_file.dat')
+            stream = SpooledTemporaryFile(5 * 1024 * 1024, '_wpd_receive_file.dat')
         assert self.dev is not None
         ok, errs = self.dev.get_file(f.object_id, stream, callback)
         if not ok:
@@ -474,7 +469,7 @@ class MTP_DEVICE(MTPDeviceBase):
             raise ValueError(f'{parent.full_path} is not a folder')
         set_name = stream is None
         if stream is None:
-            stream = SpooledTemporaryFile(5*1024*1024, '_wpd_receive_file.dat')
+            stream = SpooledTemporaryFile(5 * 1024 * 1024, '_wpd_receive_file.dat')
         libmtp = self.libmtp
         assert libmtp is not None
         assert self.dev is not None

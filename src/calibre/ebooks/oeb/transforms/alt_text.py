@@ -28,7 +28,6 @@ def process_spine_item(item, hrefs, log):
 
 
 class AddAltText:
-
     def __call__(self, oeb, opts):
         oeb.logger.info('Add alt text to images...')
         hrefs = oeb.manifest.hrefs

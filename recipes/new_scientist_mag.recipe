@@ -29,16 +29,12 @@ class NewScientist(BasicNewsRecipe):
     remove_attributes = ['style', 'height', 'width']
     masthead_url = 'https://cdn.shopify.com/s/files/1/0266/6843/3505/files/logo.svg?v=1629189295'
 
-    conversion_options = {
-        'comment': description,
-        'tags': category,
-        'publisher': publisher,
-        'language': language
-    }
+    conversion_options = {'comment': description, 'tags': category, 'publisher': publisher, 'language': language}
 
     def get_browser(self):
         br = BasicNewsRecipe.get_browser(self)
         if self.username is not None and self.password is not None:
+
             def is_login_form(form):
                 return 'action' in form.attrs and form.attrs['action'] == '/login/'
 
@@ -63,24 +59,14 @@ class NewScientist(BasicNewsRecipe):
         .wp-image__caption--credit { font-size:smaller; }
     '''
 
-    keep_only_tags = [
-        classes('article__category article__title article__excerpt article__byline article__date article__content')
-    ]
+    keep_only_tags = [classes('article__category article__title article__excerpt article__byline article__date article__content')]
 
     remove_tags = [
         dict(name=['svg', 'button']),
-        classes(
-            'advert-wrapper read-more__standard '
-            'wp-block-newscientist-newsletter-promotion js-content-prompt-opportunity'
-        )
+        classes('advert-wrapper read-more__standard wp-block-newscientist-newsletter-promotion js-content-prompt-opportunity'),
     ]
 
-    recipe_specific_options = {
-        'issue': {
-            'short': 'Enter the Issue Number you want to download ',
-            'long': 'For example, 3498'
-        }
-    }
+    recipe_specific_options = {'issue': {'short': 'Enter the Issue Number you want to download ', 'long': 'For example, 3498'}}
 
     def parse_index(self):
         issue_url = 'https://www.newscientist.com/issues/current/'
@@ -132,7 +118,7 @@ class NewScientist(BasicNewsRecipe):
         time = soup.find('time', **classes('article__pubdate'))
         if time:
             time.name = 'div'
-        for img in soup.findAll('img', attrs={'data-src':True}):
+        for img in soup.findAll('img', attrs={'data-src': True}):
             img['src'] = img['data-src'].split('?')[0] + '?width=700'
         for figc in soup.findAll('figcaption'):
             for p in figc.findAll('p'):

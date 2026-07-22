@@ -29,26 +29,36 @@ class TimeMagazineUSA(BasicNewsRecipe):
         },
         'res': {
             'short': 'Image resolution (width in pixels)',
-            'long': (
-                'Recommended for e-ink devices: 1200, 1600, or 2000 (default)\n'
-                'Use 400 or 800 for smaller file sizes or non e-ink devices.'
-            ),
+            'long': ('Recommended for e-ink devices: 1200, 1600, or 2000 (default)\nUse 400 or 800 for smaller file sizes or non e-ink devices.'),
             'default': '2000',
         },
     }
 
     keep_only_tags = [
-        dict(name='section', attrs={'aria-labelledby': lambda v: v and (
-            v == 'intro-section' or re.match(r'^[a-z][a-z0-9_]*$', v)
-        )}),
+        dict(name='section', attrs={'aria-labelledby': lambda v: v and (v == 'intro-section' or re.match(r'^[a-z][a-z0-9_]*$', v))}),
         dict(name='article'),
     ]
 
     remove_tags = [
-        dict(attrs={'class': lambda c: c and any(x in c for x in [
-            'bg-warm-grey-ads', 'native-ad', 'advertisement', 'sr-only',
-            'google-source', 'print:hidden', 'rightrail',
-        ])}),
+        dict(
+            attrs={
+                'class': lambda c: (
+                    c
+                    and any(
+                        x in c
+                        for x in [
+                            'bg-warm-grey-ads',
+                            'native-ad',
+                            'advertisement',
+                            'sr-only',
+                            'google-source',
+                            'print:hidden',
+                            'rightrail',
+                        ]
+                    )
+                )
+            }
+        ),
         dict(attrs={'data-testid': 'authors-list'}),
         dict(name='button'),
         dict(name='svg'),
@@ -127,18 +137,14 @@ class TimeMagazineUSA(BasicNewsRecipe):
             return None
 
         sections = []
-        for section_div in toc_container.find_all(
-            'div', class_=lambda c: c and 'break-inside-avoid' in c
-        ):
+        for section_div in toc_container.find_all('div', class_=lambda c: c and 'break-inside-avoid' in c):
             h3 = section_div.find('h3', class_=lambda c: c and 'text-4xl' in c)
             section_name = h3.get_text(strip=True) if h3 else None
             if not section_name:
                 continue
 
             articles = []
-            for title_h3 in section_div.find_all(
-                'h3', class_=lambda c: c and 'font-editorial' in c
-            ):
+            for title_h3 in section_div.find_all('h3', class_=lambda c: c and 'font-editorial' in c):
                 title = title_h3.get_text(strip=True)
                 a = title_h3.find_parent('a', href=True)
                 if not a:
@@ -228,9 +234,7 @@ class TimeMagazineUSA(BasicNewsRecipe):
             archive_soup = self.index_to_soup('https://time.com/vault/year/%d/' % year)
             edition_url, edition_title = self._find_latest_us_edition(archive_soup)
             if not edition_url:
-                archive_soup = self.index_to_soup(
-                    'https://time.com/vault/year/%d/' % (year - 1)
-                )
+                archive_soup = self.index_to_soup('https://time.com/vault/year/%d/' % (year - 1))
                 edition_url, edition_title = self._find_latest_us_edition(archive_soup)
             if not edition_url:
                 raise ValueError('Could not find latest US edition')
@@ -244,6 +248,7 @@ class TimeMagazineUSA(BasicNewsRecipe):
         raw_html = self._sanitize_nested_anchors(raw_html)
 
         from calibre.ebooks.BeautifulSoup import BeautifulSoup
+
         soup = BeautifulSoup(raw_html, 'html.parser')
 
         for span in soup.find_all('span', class_=lambda c: c and 'text-t3' in c):
@@ -276,10 +281,7 @@ class TimeMagazineUSA(BasicNewsRecipe):
             self.log('Extracted %d article URLs from raw payload' % len(sections[0][1]))
             return sections
 
-        raise ValueError(
-            'Could not parse edition TOC from either HTML or raw payload. '
-            'Response length: %d bytes' % len(raw_html)
-        )
+        raise ValueError('Could not parse edition TOC from either HTML or raw payload. Response length: %d bytes' % len(raw_html))
 
     def preprocess_html(self, soup):
         for picture in soup.find_all('picture'):
@@ -310,10 +312,7 @@ class TimeMagazineUSA(BasicNewsRecipe):
                 new_fig = soup.new_tag('figure')
                 new_fig.append(img_tag)
                 if caption_text:
-                    new_cap = soup.new_tag(
-                        'figcaption',
-                        style='font-size:0.8em; color:#555; font-style:italic; text-align:center; margin-top:0.3em;'
-                    )
+                    new_cap = soup.new_tag('figcaption', style='font-size:0.8em; color:#555; font-style:italic; text-align:center; margin-top:0.3em;')
                     new_cap.string = caption_text
                     new_fig.append(new_cap)
                 figure.replace_with(new_fig)
@@ -326,20 +325,15 @@ class TimeMagazineUSA(BasicNewsRecipe):
                     del tag[attr]
             tag['src'] = self._set_img_width(tag.get('src', ''))
 
-        for div in soup.find_all(
-            'div', class_=lambda c: c and 'justify-items-center' in c
-        ):
+        for div in soup.find_all('div', class_=lambda c: c and 'justify-items-center' in c):
             div.unwrap()
-        for div in soup.find_all(
-            'div', class_=lambda c: c and 'container' in c and 'mx-auto' in c
-        ):
+        for div in soup.find_all('div', class_=lambda c: c and 'container' in c and 'mx-auto' in c):
             div.unwrap()
         for div in soup.find_all('div', class_=lambda c: c and 'grid' in c):
             div.unwrap()
 
         for ul in soup.find_all('ul'):
-            tag_links = [a for a in ul.find_all('a', href=True)
-                         if '/section/' in a['href'] or '/tag/' in a['href']]
+            tag_links = [a for a in ul.find_all('a', href=True) if '/section/' in a['href'] or '/tag/' in a['href']]
             if tag_links:
                 p = soup.new_tag('p')
                 for i, a in enumerate(tag_links):
@@ -350,9 +344,7 @@ class TimeMagazineUSA(BasicNewsRecipe):
 
         for p in soup.find_all('p'):
             if p.get_text(strip=True) == 'Advertisement':
-                parent = p.find_parent(attrs={'data-ad-wrapper': True}) or p.find_parent(
-                    class_=lambda c: c and 'bg-warm-grey-ads' in c
-                )
+                parent = p.find_parent(attrs={'data-ad-wrapper': True}) or p.find_parent(class_=lambda c: c and 'bg-warm-grey-ads' in c)
                 if parent:
                     parent.decompose()
                 else:

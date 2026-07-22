@@ -1,4 +1,3 @@
-
 """
 economictimes.indiatimes.com
 """
@@ -30,11 +29,11 @@ class TheEconomicTimes(BasicNewsRecipe):
 
     def get_cover_url(self):
         from datetime import date
+
         yr = str(date.today().year)
         mn = date.today().strftime('%m')
         dy = date.today().strftime('%d')
-        cover = ('https://asset.harnscloud.com/PublicationData/ET/etbg/'
-                 + yr + '/' + mn + '/' + dy + '/Page/' + dy + '_' + mn + '_' + yr + '_001_etbg.jpg')
+        cover = 'https://asset.harnscloud.com/PublicationData/ET/etbg/' + yr + '/' + mn + '/' + dy + '/Page/' + dy + '_' + mn + '_' + yr + '_001_etbg.jpg'
         self.log('cover_url ', cover)
         br = BasicNewsRecipe.get_browser(self)
         try:
@@ -46,9 +45,7 @@ class TheEconomicTimes(BasicNewsRecipe):
 
     keep_only_tags = [
         dict(name='h1'),
-        classes(
-            'artByline pageContent'
-        ),
+        classes('artByline pageContent'),
     ]
     remove_tags = [
         dict(name='button'),
@@ -59,13 +56,8 @@ class TheEconomicTimes(BasicNewsRecipe):
     ]
 
     def parse_index(self):
-        self.log(
-            '\n***\nif this recipe fails, report it on: '
-            'https://www.mobileread.com/forums/forumdisplay.php?f=228\n***\n'
-        )
-        soup = self.index_to_soup(
-            'https://economictimes.indiatimes.com/print_edition.cms'
-        )
+        self.log('\n***\nif this recipe fails, report it on: https://www.mobileread.com/forums/forumdisplay.php?f=228\n***\n')
+        soup = self.index_to_soup('https://economictimes.indiatimes.com/print_edition.cms')
         date = soup.find(**classes('labelDate'))
         if date:
             self.timefmt = ' [' + self.tag_to_string(date).strip() + ']'
@@ -82,11 +74,7 @@ class TheEconomicTimes(BasicNewsRecipe):
             self.log(secname)
             articles = []
             for h3 in section.findAll(('h1', 'h3', 'h4', 'h5')):
-                span = h3.find(
-                    'span',
-                    href=lambda x: x and x.startswith('https://economictimes.indiatimes.com/epaper/'),
-                    attrs={'class': 'banner'}
-                )
+                span = h3.find('span', href=lambda x: x and x.startswith('https://economictimes.indiatimes.com/epaper/'), attrs={'class': 'banner'})
                 url = span['href']
                 title = self.tag_to_string(span)
                 div = h3.find_next_sibling('div', attrs={'class': 'dsc'})

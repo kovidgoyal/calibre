@@ -7,7 +7,7 @@ except ImportError:
 
 
 class EconomiaMagazine(BasicNewsRecipe):
-    title = u'Economia Magazine'
+    title = 'Economia Magazine'
     __author__ = 'Kovid Goyal'
     description = 'Economia - Intelligence & Insight for ICAEW Members'
     language = 'en_GB'
@@ -16,9 +16,8 @@ class EconomiaMagazine(BasicNewsRecipe):
 
     keep_only_tags = [
         dict(name='h1'),
-        dict(name='figure', attrs={
-             'class': lambda x: x and 'figure' in x.split()}),
-        dict(attrs={'class': 'intro articleCopy'.split()})
+        dict(name='figure', attrs={'class': lambda x: x and 'figure' in x.split()}),
+        dict(attrs={'class': 'intro articleCopy'.split()}),
     ]
 
     def image_url_processor(cls, baseurl, iurl):
@@ -34,8 +33,7 @@ class EconomiaMagazine(BasicNewsRecipe):
         img = soup.find('img', src=lambda x: x and 'Magazine covers' in x)
         self.cover_url = self.BASE + quote(img['src'].encode('utf-8'))
         soup = self.index_to_soup(self.BASE + img.parent['href'])
-        self.timefmt = ' [%s]' % self.tag_to_string(
-            soup.find('title')).split('|')[0].strip()
+        self.timefmt = ' [%s]' % self.tag_to_string(soup.find('title')).split('|')[0].strip()
         ans = []
         for div in soup.findAll('div', attrs={'class': 'articlePreview'}):
             h2 = div.find('h2')
@@ -49,8 +47,7 @@ class EconomiaMagazine(BasicNewsRecipe):
                 url = self.BASE + a['href']
                 p = li.find('p')
                 self.log('\t', title, 'at', url)
-                articles.append({'title': title, 'url': url,
-                                 'description': self.tag_to_string(p)})
+                articles.append({'title': title, 'url': url, 'description': self.tag_to_string(p)})
             if articles:
                 ans.append((section_title, articles))
         return ans

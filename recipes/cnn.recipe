@@ -10,7 +10,6 @@ from calibre.web.feeds.news import BasicNewsRecipe, classes
 
 
 class CNN(BasicNewsRecipe):
-
     title = 'CNN'
     description = 'Global news'
     timefmt = ' [%d %b %Y]'
@@ -32,7 +31,7 @@ class CNN(BasicNewsRecipe):
         'days': {
             'short': 'Oldest article to download from this news source. In days ',
             'long': 'For example, 0.5, gives you articles from the past 12 hours',
-            'default': str(oldest_article)
+            'default': str(oldest_article),
         }
     }
 
@@ -56,7 +55,7 @@ class CNN(BasicNewsRecipe):
         ('Entertainment', 'http://rss.cnn.com/rss/cnn_showbiz.rss'),
         ('Education', 'http://rss.cnn.com/rss/cnn_education.rss'),
         ('Offbeat', 'http://rss.cnn.com/rss/cnn_offbeat.rss'),
-        ('Most Popular', 'http://rss.cnn.com/rss/cnn_mostpopular.rss')
+        ('Most Popular', 'http://rss.cnn.com/rss/cnn_mostpopular.rss'),
     ]
 
     def get_article_url(self, article):
@@ -77,6 +76,6 @@ class CNN(BasicNewsRecipe):
         return masthead
 
     def preprocess_html(self, soup):
-        for img in soup.findAll('img', attrs={'src':lambda x: x and x.endswith('.svg')}):
+        for img in soup.findAll('img', attrs={'src': lambda x: x and x.endswith('.svg')}):
             img.extract()
         return soup

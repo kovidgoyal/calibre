@@ -51,7 +51,7 @@ class Volkskrant(BasicNewsRecipe):
             title_parts.append(self.tag_to_string(tag).upper())
         title_parts.append(self.tag_to_string(article.find('div', {'class': 'abstract-article__title'})))
         article_title = ' \u2022 '.join(title_parts)
-        pubdate=''
+        pubdate = ''
         description_parts = []
         author = article.find('div', {'class': 'abstract-article__author'})
         if author:
@@ -60,13 +60,7 @@ class Volkskrant(BasicNewsRecipe):
         if summary:
             description_parts.append(self.tag_to_string(summary))
         description = ' \u2022 '.join(description_parts)
-        return dict(
-            title=article_title,
-            url=url,
-            date=pubdate,
-            description=description,
-            content=''
-        )
+        return dict(title=article_title, url=url, date=pubdate, description=description, content='')
 
     def parse_index(self):
         soup = self.index_to_soup(self.current_number_url)

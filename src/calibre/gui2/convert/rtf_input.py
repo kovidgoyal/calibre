@@ -11,9 +11,8 @@ from calibre.utils.localization import _
 
 
 class PluginWidget(Widget, Ui_Form):
-
     TITLE = _('RTF input')
-    HELP = _('Options specific to')+' RTF '+_('input')
+    HELP = _('Options specific to') + ' RTF ' + _('input')
     COMMIT_NAME = 'rtf_input'
     ICON = 'mimetypes/rtf.png'
 

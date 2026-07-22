@@ -18,7 +18,6 @@ def absurl(x):
 
 
 class NewYorkerCom(BasicNewsRecipe):
-
     if web_version:
         title = 'The New Yorker (All Articles)'
         description = 'All articles from newyorker.com including daily content, reviews, and magazine pieces'
@@ -40,14 +39,10 @@ class NewYorkerCom(BasicNewsRecipe):
     '''
 
     keep_only_tags = [
-        classes(
-            'article__content-header article__body contributors'
-        ),
+        classes('article__content-header article__body contributors'),
     ]
     remove_tags = [
-        classes(
-            'social-icons'
-        ),
+        classes('social-icons'),
         prefixed_classes('ConsentBannerWrapper- ResponsiveCartoonCTA- ContentHeaderContributorImage- ContributorBioAvatar-'),
         dict(childtypes='iframe'),
         dict(name='svg'),
@@ -61,8 +56,8 @@ class NewYorkerCom(BasicNewsRecipe):
                 for x in img['srcset'].split():
                     if w in x:
                         img['src'] = x
-            elif img.find_previous_sibling('source', attrs={'srcset':True}):
-                srcset = img.find_previous_sibling('source', attrs={'srcset':True})
+            elif img.find_previous_sibling('source', attrs={'srcset': True}):
+                srcset = img.find_previous_sibling('source', attrs={'srcset': True})
                 for x in srcset['srcset'].split():
                     if w in x:
                         img['src'] = x
@@ -86,12 +81,7 @@ class NewYorkerCom(BasicNewsRecipe):
     #     img.save(buf, format='JPEG')
     #     return buf.getvalue()
 
-    recipe_specific_options = {
-        'date': {
-            'short': 'The date of the edition to download (YYYY/MM/DD format)',
-            'long': 'For example, 2024/07/08'
-        }
-    }
+    recipe_specific_options = {'date': {'short': 'The date of the edition to download (YYYY/MM/DD format)', 'long': 'For example, 2024/07/08'}}
 
     # The New Yorker changes the content it delivers based on cookies, so the
     # following ensures that we send no cookies
@@ -113,43 +103,42 @@ class NewYorkerCom(BasicNewsRecipe):
             ('The New Yorker', 'https://www.newyorker.com/feed/everything'),
         ]
     else:
+
         def parse_index(self):
             issue_url = 'https://www.newyorker.com/magazine?intcid=magazine'
             d = self.recipe_specific_options.get('date')
             if d and isinstance(d, str):
                 issue_url = 'https://www.newyorker.com/magazine/' + d
             soup = self.index_to_soup(issue_url)
-            cover_img = soup.find('picture',
-                attrs={'class': lambda x: x and 'asset-embed__responsive-asset' in x})
+            cover_img = soup.find('picture', attrs={'class': lambda x: x and 'asset-embed__responsive-asset' in x})
             if cover_img is not None:
                 self.cover_url = cover_img.img['src']
                 self.log('Found cover:', self.cover_url)
                 try:
                     # the src original resolution w_280 was too low, replace w_280 with w_560
                     cover_url_width_index = self.cover_url.find('w_')
-                    old_width = self.cover_url[cover_url_width_index:cover_url_width_index+5]
+                    old_width = self.cover_url[cover_url_width_index : cover_url_width_index + 5]
                     self.cover_url = self.cover_url.replace(old_width, 'w_640')
                 except Exception:
                     self.log('Failed enlarging cover img, using the original one')
 
             feeds_dict = defaultdict(list)
-            for section in soup.findAll('section',
-                attrs={'class': lambda x: x and 'SummaryRiverSection-' in x}):
-                for h2 in section.findAll(attrs={'class':lambda x: x and 'SectionTitleHed-' in x}):
+            for section in soup.findAll('section', attrs={'class': lambda x: x and 'SummaryRiverSection-' in x}):
+                for h2 in section.findAll(attrs={'class': lambda x: x and 'SectionTitleHed-' in x}):
                     secname = self.tag_to_string(h2)
                 self.log(secname)
-                for a in section.findAll('a', href=True, attrs={'class':lambda x: x and 'summary-item__hed-link' in x}):
+                for a in section.findAll('a', href=True, attrs={'class': lambda x: x and 'summary-item__hed-link' in x}):
                     section = secname
                     url = absurl(a['href'])
                     title = self.tag_to_string(a)
                     desc = ''
-                    summ = a.find_next_sibling(attrs={'class':lambda x: x and 'summary-item__dek' in x})
+                    summ = a.find_next_sibling(attrs={'class': lambda x: x and 'summary-item__dek' in x})
                     if summ:
                         desc = self.tag_to_string(summ)
-                    byl = a.find_next_sibling(attrs={'class':lambda x: x and 'summary-item__byline-' in x})
+                    byl = a.find_next_sibling(attrs={'class': lambda x: x and 'summary-item__byline-' in x})
                     if byl:
                         desc = self.tag_to_string(byl) + ' | ' + desc
-                    rub = a.find_previous_sibling(attrs={'class':lambda x: x and 'summary-item__rubric' in x})
+                    rub = a.find_previous_sibling(attrs={'class': lambda x: x and 'summary-item__rubric' in x})
                     if rub:
                         desc = self.tag_to_string(rub) + ' | ' + desc
                     self.log('\t', title, '\n\t', desc, '\n\t\t', url)

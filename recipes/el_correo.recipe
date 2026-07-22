@@ -27,7 +27,7 @@ class elcorreo(BasicNewsRecipe):
         'days': {
             'short': 'Oldest article to download from this news source. In days ',
             'long': 'For example, 0.5, gives you articles from the past 12 hours',
-            'default': str(oldest_article)
+            'default': str(oldest_article),
         }
     }
 
@@ -47,23 +47,20 @@ class elcorreo(BasicNewsRecipe):
 
     def get_cover_url(self):
         from datetime import date
+
         return 'https://portada.iperiodico.es/' + date.today().strftime('%Y/%m/%d') + '_elcorreo.750.jpg'
 
     keep_only_tags = [
-        dict(name='article', attrs={'class': lambda x: x and set(x.split()).intersection(
-            {'v-a--d-bs', 'v-a--d-opn', 'v-a--d-rpg'})}),
-        classes(
-            'v-d--ab-c v-d--rpg'
-        )
+        dict(name='article', attrs={'class': lambda x: x and set(x.split()).intersection({'v-a--d-bs', 'v-a--d-opn', 'v-a--d-rpg'})}),
+        classes('v-d--ab-c v-d--rpg'),
     ]
 
     remove_tags = [
         dict(name=['svg', 'section', 'nav']),
-        dict(attrs={'data-voc-component':['dropdown', 'modal', 'slider-grab']}),
+        dict(attrs={'data-voc-component': ['dropdown', 'modal', 'slider-grab']}),
         classes(
-            'v-mdl-ath__img-c v-adv v-i-b v-mdl-ath__c--2 v-d-cmp-adv v-d-cmp-nws '
-            'v-pill-m--zoom v-stk-adv slider-grab g-artboard v-d-cmp-rld v-pill-m--glly'
-        )
+            'v-mdl-ath__img-c v-adv v-i-b v-mdl-ath__c--2 v-d-cmp-adv v-d-cmp-nws v-pill-m--zoom v-stk-adv slider-grab g-artboard v-d-cmp-rld v-pill-m--glly'
+        ),
     ]
 
     def preprocess_html(self, soup):
@@ -90,10 +87,7 @@ class elcorreo(BasicNewsRecipe):
     def get_browser(self, *args, **kwargs):
         kwargs['user_agent'] = 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)'
         br = BasicNewsRecipe.get_browser(self, *args, **kwargs)
-        br.addheaders += [
-            ('Referer', 'https://www.google.com/'),
-            ('X-Forwarded-For', '66.249.66.1')
-        ]
+        br.addheaders += [('Referer', 'https://www.google.com/'), ('X-Forwarded-For', '66.249.66.1')]
         return br
 
     # https://www.elcorreo.com/rss/

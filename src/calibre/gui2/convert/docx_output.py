@@ -13,9 +13,8 @@ orientation_model = None
 
 
 class PluginWidget(Widget):
-
     TITLE = _('DOCX output')
-    HELP = _('Options specific to')+' DOCX '+_('output')
+    HELP = _('Options specific to') + ' DOCX ' + _('output')
     COMMIT_NAME = 'docx_output'
     ICON = 'mimetypes/docx.png'
 
@@ -36,7 +35,12 @@ class PluginWidget(Widget):
         self.opt_docx_custom_page_size = w = QLineEdit(self)
         w.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
         l.addRow(_('&Custom size:'), w)
-        for i, text in enumerate((_('Page &left margin'), _('Page &top margin'), _('Page &right margin'), _('Page &bottom margin'))):
+        for i, text in enumerate((
+            _('Page &left margin'),
+            _('Page &top margin'),
+            _('Page &right margin'),
+            _('Page &bottom margin'),
+        )):
             m = 'left top right bottom'.split()[i]
             w = QDoubleSpinBox(self)
             w.setRange(-100, 500), w.setSuffix(' pt'), w.setDecimals(1)

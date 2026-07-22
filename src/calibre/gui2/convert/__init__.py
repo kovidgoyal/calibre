@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
@@ -40,14 +40,13 @@ from calibre.utils.localization import _
 def config_widget_for_input_plugin(plugin):
     name = plugin.name.lower().replace(' ', '_')
     try:
-        return importlib.import_module(
-                'calibre.gui2.convert.'+name).PluginWidget
+        return importlib.import_module('calibre.gui2.convert.' + name).PluginWidget
     except ImportError:
         # If this is not a builtin plugin, we have to import it differently
         if plugin.__module__ and plugin.__module__.startswith('calibre_plugins.'):
             try:
-                ans = importlib.import_module(plugin.__module__+'.'+name).PluginWidget
-            except (ImportError, AttributeError, TypeError):
+                ans = importlib.import_module(plugin.__module__ + '.' + name).PluginWidget
+            except ImportError, AttributeError, TypeError:
                 pass
             else:
                 if issubclass(ans, Widget):
@@ -64,10 +63,9 @@ def bulk_defaults_for_input_format(fmt):
 
 
 class Widget(QWidget):
-
     TITLE = _('Unknown')
-    ICON  = 'config.png'
-    HELP  = ''
+    ICON = 'config.png'
+    HELP = ''
     COMMIT_NAME = None
     # If True, leading and trailing spaces are removed from line and text edit
     # fields
@@ -86,9 +84,9 @@ class Widget(QWidget):
         assert self._name is not None
         self._icon = QIcon.ic(self.ICON)
         for name in self._options:
-            if not hasattr(self, 'opt_'+name):
+            if not hasattr(self, 'opt_' + name):
                 raise Exception(f'Option {name} missing in {self.__class__.__name__}')
-            self.connect_gui_obj(getattr(self, 'opt_'+name))
+            self.connect_gui_obj(getattr(self, 'opt_' + name))
 
     def initialize_options(self, get_option, get_help, db=None, book_id=None):
         """
@@ -98,13 +96,11 @@ class Widget(QWidget):
         string.
         """
         defaults = load_defaults(self._name)
-        defaults.merge_recommendations(get_option, OptionRecommendation.LOW,
-                self._options)
+        defaults.merge_recommendations(get_option, OptionRecommendation.LOW, self._options)
 
         if db is not None:
             specifics = load_specifics(db, book_id)
-            specifics.merge_recommendations(get_option, OptionRecommendation.HIGH,
-                    self._options, only_existing=True)
+            specifics.merge_recommendations(get_option, OptionRecommendation.HIGH, self._options, only_existing=True)
             defaults.update(specifics)
 
         self.apply_recommendations(defaults)
@@ -122,12 +118,12 @@ class Widget(QWidget):
                         g.__class__.enterEvent = lambda obj, event: self.set_help(getattr(obj, '_help', obj.toolTip()))
                 else:
                     process_child(g)
+
         process_child(self)
 
     def restore_defaults(self, get_option):
         defaults = GuiRecommendations()
-        defaults.merge_recommendations(get_option, OptionRecommendation.LOW,
-                self._options)
+        defaults.merge_recommendations(get_option, OptionRecommendation.LOW, self._options)
         self.apply_recommendations(defaults)
 
     def commit_options(self, save_defaults=False):
@@ -139,7 +135,7 @@ class Widget(QWidget):
     def create_recommendations(self):
         recs = GuiRecommendations()
         for name in self._options:
-            gui_opt = getattr(self, 'opt_'+name, None)
+            gui_opt = getattr(self, 'opt_' + name, None)
             if gui_opt is None:
                 continue
             recs[name] = self.get_value(gui_opt)
@@ -147,7 +143,7 @@ class Widget(QWidget):
 
     def apply_recommendations(self, recs):
         for name, val in recs.items():
-            gui_opt = getattr(self, 'opt_'+name, None)
+            gui_opt = getattr(self, 'opt_' + name, None)
             if gui_opt is None:
                 continue
             self.set_value(gui_opt, val)
@@ -158,6 +154,7 @@ class Widget(QWidget):
         from calibre.gui2.convert.regex_builder import RegexEdit
         from calibre.gui2.convert.xpath_wizard import XPathEdit
         from calibre.gui2.widgets import EncodingComboBox
+
         ret = self.get_value_handler(g)
         if ret != 'this is a dummy return value, xcswx1avcx4x':
             return ret
@@ -210,6 +207,7 @@ class Widget(QWidget):
             pass
         from calibre.gui2.convert.regex_builder import RegexEdit
         from calibre.gui2.convert.xpath_wizard import XPathEdit
+
         if isinstance(g, (QSpinBox, QDoubleSpinBox)):
             g.valueChanged.connect(f)
         elif isinstance(g, (QLineEdit, QTextEdit, QPlainTextEdit)):
@@ -234,6 +232,7 @@ class Widget(QWidget):
         from calibre.gui2.convert.regex_builder import RegexEdit
         from calibre.gui2.convert.xpath_wizard import XPathEdit
         from calibre.gui2.widgets import EncodingComboBox
+
         if self.set_value_handler(g, val):
             return
         if hasattr(g, 'set_value_for_config'):
@@ -272,7 +271,7 @@ class Widget(QWidget):
         self.post_set_value(g, val)
 
     def set_help(self, msg):
-        if msg and getattr(msg, 'strip', lambda:True)():
+        if msg and getattr(msg, 'strip', lambda: True)():
             try:
                 self.set_help_signal.emit(msg)
             except Exception:
@@ -280,7 +279,7 @@ class Widget(QWidget):
 
     def setup_help(self, help_provider):
         for name in self._options:
-            g = getattr(self, 'opt_'+name, None)
+            g = getattr(self, 'opt_' + name, None)
             if g is None:
                 continue
             help = help_provider(name)

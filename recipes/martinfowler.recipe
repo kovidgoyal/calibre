@@ -7,23 +7,13 @@ class MartinFowler(BasicNewsRecipe):
     language = 'en'
     oldest_article = 14
 
-    keep_only_tags = [
-        dict(name='main')
-    ]
+    keep_only_tags = [dict(name='main')]
 
-    remove_tags = [
-        dict(name='div', attrs={'class': 'bio'}),
-        dict(name='div', attrs={'class': 'article-card'}),
-        dict(name='hr', attrs={'class': 'bodySep'})
-    ]
+    remove_tags = [dict(name='div', attrs={'class': 'bio'}), dict(name='div', attrs={'class': 'article-card'}), dict(name='hr', attrs={'class': 'bodySep'})]
 
-    remove_tags_after = [
-        dict(name='div', attrs={'class': lambda x: x and 'paperBody' in x.split()})
-    ]
+    remove_tags_after = [dict(name='div', attrs={'class': lambda x: x and 'paperBody' in x.split()})]
 
     use_embedded_content = False
     no_stylesheets = True
 
-    feeds = [
-        (u'Martin Fowler Blog', u'https://martinfowler.com/feed.atom')
-    ]
+    feeds = [('Martin Fowler Blog', 'https://martinfowler.com/feed.atom')]

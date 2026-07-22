@@ -25,12 +25,7 @@ class Colors:
     Change lines with color info from color numbers to the actual color names.
     """
 
-    def __init__(self,
-            in_file,
-            bug_handler,
-            copy=None,
-            run_level=1
-            ):
+    def __init__(self, in_file, bug_handler, copy=None, run_level=1):
         """
         Required:
             'file'--file to parse
@@ -55,13 +50,13 @@ class Colors:
         self.__color_dict = {}
         self.__state = 'before_color_table'
         self.__state_dict = {
-        'before_color_table': self.__before_color_func,
-        'in_color_table'    : self.__in_color_func,
-        'after_color_table' : self.__after_color_func,
-        'cw<ci<red_______'  : self.__default_color_func,
-        'cw<ci<green_____'  : self.__default_color_func,
-        'cw<ci<blue______'  : self.__blue_func,
-        'tx<nu<__________'  : self.__do_nothing_func,
+            'before_color_table': self.__before_color_func,
+            'in_color_table': self.__in_color_func,
+            'after_color_table': self.__after_color_func,
+            'cw<ci<red_______': self.__default_color_func,
+            'cw<ci<green_____': self.__default_color_func,
+            'cw<ci<blue______': self.__blue_func,
+            'tx<nu<__________': self.__do_nothing_func,
         }
         self.__color_string = '#'
         self.__color_num = 1
@@ -112,10 +107,7 @@ class Colors:
         hex_num = line[-3:-1]
         self.__color_string += hex_num
         self.__color_dict[self.__color_num] = self.__color_string
-        self.__write_obj.write(
-        'mi<tg<empty-att_'
-        f'<color-in-table<num>{self.__color_num}<value>{self.__color_string}\n'
-        )
+        self.__write_obj.write(f'mi<tg<empty-att_<color-in-table<num>{self.__color_num}<value>{self.__color_string}\n')
         self.__color_num += 1
         self.__color_string = '#'
 
@@ -138,10 +130,7 @@ class Colors:
         else:
             action = self.__state_dict.get(self.__token_info)
             if action is None:
-                sys.stderr.write('in module colors.py\n'
-                'function is self.__in_color_func\n'
-                f'no action for {self.__token_info}'
-                )
+                sys.stderr.write(f'in module colors.py\nfunction is self.__in_color_func\nno action for {self.__token_info}')
             else:
                 action(line)
 
@@ -159,9 +148,7 @@ class Colors:
             hex_num = int(line[20:-1])
             hex_num = self.__figure_num(hex_num)
             if hex_num:
-                self.__write_obj.write(
-                f'cw<ci<font-color<nu<{hex_num}\n'
-                )
+                self.__write_obj.write(f'cw<ci<font-color<nu<{hex_num}\n')
         elif line[0:5] == 'cw<bd':
             the_index = line.find('bdr-color_')
             if the_index > -1:
@@ -241,7 +228,7 @@ class Colors:
         with open_for_read(self.__file) as read_obj:
             with open_for_write(self.__write_to) as self.__write_obj:
                 for line in read_obj:
-                    self.__line+=1
+                    self.__line += 1
                     self.__token_info = line[:16]
                     action = self.__state_dict.get(self.__state)
                     if action is None:

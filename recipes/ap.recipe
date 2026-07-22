@@ -116,8 +116,6 @@ class AssociatedPress(BasicNewsRecipe):
             h.name = 'h4'
         for img in soup.findAll('img', attrs={'srcset': True}):
             img['src'] = img['srcset'].split()[0]
-        for img_ in soup.findAll(
-            'img', attrs={'data-flickity-lazyload-srcset': True, 'srcset': False}
-        ):
+        for img_ in soup.findAll('img', attrs={'data-flickity-lazyload-srcset': True, 'srcset': False}):
             img_['src'] = img_['data-flickity-lazyload-srcset'].split()[0]
         return soup

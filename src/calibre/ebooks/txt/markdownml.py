@@ -15,7 +15,6 @@ from calibre.ebooks.oeb.stylizer import Stylizer
 
 
 class MarkdownMLizer(OEB2HTML):
-
     def extract_content(self, oeb_book, opts):
         self.log.info('Converting XHTML to Markdown formatted TXT...')
         self.opts = opts
@@ -107,11 +106,9 @@ class MarkdownMLizer(OEB2HTML):
         """
 
         # We can only processes tags. If there isn't a tag return any text.
-        if not isinstance(elem.tag, (str, bytes)) \
-           or namespace(elem.tag) != XHTML_NS:
+        if not isinstance(elem.tag, (str, bytes)) or namespace(elem.tag) != XHTML_NS:
             p = elem.getparent()
-            if p is not None and isinstance(p.tag, (str, bytes)) and namespace(p.tag) == XHTML_NS \
-                    and elem.tail:
+            if p is not None and isinstance(p.tag, (str, bytes)) and namespace(p.tag) == XHTML_NS and elem.tail:
                 return [elem.tail]
             return ['']
 
@@ -123,8 +120,7 @@ class MarkdownMLizer(OEB2HTML):
         attribs = elem.attrib
 
         # Ignore anything that is set to not be displayed.
-        if style['display'] in ('none', 'oeb-page-head', 'oeb-page-foot') \
-           or style['visibility'] == 'hidden':
+        if style['display'] in ('none', 'oeb-page-head', 'oeb-page-foot') or style['visibility'] == 'hidden':
             if hasattr(elem, 'tail') and elem.tail:
                 return [elem.tail]
             return ['']

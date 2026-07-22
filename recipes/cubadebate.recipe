@@ -21,23 +21,18 @@ class CubaDebate(BasicNewsRecipe):
     encoding = 'utf-8'
     masthead_url = 'http://www.cubadebate.cu/wp-content/themes/cubadebate/images/logo.gif'
     publication_type = 'newsportal'
-    extra_css             = '''
+    extra_css = '''
                                #BlogTitle{font-size: xx-large; font-weight: bold}
                                body{font-family: Verdana, Arial, Tahoma, sans-serif}
                             '''
 
-    conversion_options = {
-        'comments': description, 'tags': category, 'language': language, 'publisher': publisher
-    }
+    conversion_options = {'comments': description, 'tags': category, 'language': language, 'publisher': publisher}
 
     keep_only_tags = [dict(name='div', attrs={'id': 'Outline'})]
     remove_tags_after = dict(name='div', attrs={'id': 'BlogContent'})
-    remove_tags = [
-        dict(name=['link', 'base', 'embed', 'object', 'meta', 'iframe']), dict(
-            attrs={'id': 'addthis_container'})
-    ]
+    remove_tags = [dict(name=['link', 'base', 'embed', 'object', 'meta', 'iframe']), dict(attrs={'id': 'addthis_container'})]
 
-    feeds = [(u'Articulos', u'http://www.cubadebate.cu/feed/')]
+    feeds = [('Articulos', 'http://www.cubadebate.cu/feed/')]
     remove_attributes = ['width', 'height', 'lang']
 
     def print_version(self, url):

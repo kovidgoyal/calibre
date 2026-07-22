@@ -2,7 +2,7 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
@@ -20,7 +20,6 @@ from polyglot.queue import Empty, Queue
 
 
 class Worker(Thread):
-
     def __init__(self, plugin, abort, title, authors, identifiers, timeout, rq, get_best_cover=False):
         Thread.__init__(self)
         self.daemon = True
@@ -30,8 +29,7 @@ class Worker(Thread):
         self.get_best_cover = get_best_cover
         self.buf = StringIO()
         self.log = create_log(self.buf)
-        self.title, self.authors, self.identifiers = (title, authors,
-                identifiers)
+        self.title, self.authors, self.identifiers = (title, authors, identifiers)
         self.timeout, self.rq = timeout, rq
         self.time_spent = None
 
@@ -40,16 +38,28 @@ class Worker(Thread):
         if not self.abort.is_set():
             try:
                 if self.plugin.can_get_multiple_covers:
-                    self.plugin.download_cover(self.log, self.rq, self.abort,
-                        title=self.title, authors=self.authors, get_best_cover=self.get_best_cover,
-                        identifiers=self.identifiers, timeout=self.timeout)
+                    self.plugin.download_cover(
+                        self.log,
+                        self.rq,
+                        self.abort,
+                        title=self.title,
+                        authors=self.authors,
+                        get_best_cover=self.get_best_cover,
+                        identifiers=self.identifiers,
+                        timeout=self.timeout,
+                    )
                 else:
-                    self.plugin.download_cover(self.log, self.rq, self.abort,
-                        title=self.title, authors=self.authors,
-                        identifiers=self.identifiers, timeout=self.timeout)
+                    self.plugin.download_cover(
+                        self.log,
+                        self.rq,
+                        self.abort,
+                        title=self.title,
+                        authors=self.authors,
+                        identifiers=self.identifiers,
+                        timeout=self.timeout,
+                    )
             except Exception:
-                self.log.exception('Failed to download cover from',
-                        self.plugin.name)
+                self.log.exception('Failed to download cover from', self.plugin.name)
         self.time_spent = time.time() - start_time
 
 
@@ -80,8 +90,7 @@ def process_result(log, result):
     return (plugin, width, height, fmt, data)
 
 
-def run_download(log, results, abort,
-        title=None, authors=None, identifiers={}, timeout=30, get_best_cover=False):
+def run_download(log, results, abort, title=None, authors=None, identifiers={}, timeout=30, get_best_cover=False):
     """
     Run the cover download, putting results into the queue :param:`results`.
 
@@ -98,8 +107,7 @@ def run_download(log, results, abort,
     plugins = [p for p in metadata_plugins(['cover']) if p.is_configured()]
 
     rq = Queue()
-    workers = [Worker(p, abort, title, authors, identifiers, timeout, rq, get_best_cover=get_best_cover) for p
-            in plugins]
+    workers = [Worker(p, abort, title, authors, identifiers, timeout, rq, get_best_cover=get_best_cover) for p in plugins]
     for w in workers:
         w.start()
 
@@ -143,11 +151,11 @@ def run_download(log, results, abort,
 
     for w in workers:
         wlog = w.buf.getvalue().strip()
-        log('\n'+'*'*30, w.plugin.name, 'Covers', '*'*30)
+        log('\n' + '*' * 30, w.plugin.name, 'Covers', '*' * 30)
         log('Request extra headers:', w.plugin.browser.addheaders)
         if w.plugin in found_results:
             result = found_results[w.plugin]
-            log('Downloaded cover:', '%dx%d'%(result[1], result[2]))
+            log('Downloaded cover:', '%dx%d' % (result[1], result[2]))
         else:
             log('Failed to download valid cover')
         if w.time_spent is None:
@@ -156,11 +164,10 @@ def run_download(log, results, abort,
             log('Took', w.time_spent, 'seconds')
         if wlog:
             log(wlog)
-        log('\n'+'*'*80)
+        log('\n' + '*' * 80)
 
 
-def download_cover(log,
-        title=None, authors=None, identifiers={}, timeout=30):
+def download_cover(log, title=None, authors=None, identifiers={}, timeout=30):
     '''
     Synchronous cover download. Returns the "best" cover as per user
     prefs/cover resolution.
@@ -172,8 +179,7 @@ def download_cover(log,
     rq = Queue()
     abort = Event()
 
-    run_download(log, rq, abort, title=title, authors=authors,
-            identifiers=identifiers, timeout=timeout, get_best_cover=True)
+    run_download(log, rq, abort, title=title, authors=authors, identifiers=identifiers, timeout=timeout, get_best_cover=True)
 
     results = []
 
@@ -187,7 +193,7 @@ def download_cover(log,
 
     def keygen(result):
         plugin, width, height, fmt, data = result
-        return (cp.get(plugin.name, 1), 1/(width*height))
+        return (cp.get(plugin.name, 1), 1 / (width * height))
 
     results.sort(key=keygen)
 

@@ -871,7 +871,10 @@ class CoverDelegate(QStyledItemDelegate):
                 delta = 0 if i == 0 else self.emblem_size + self.MARGIN
                 grect.moveLeft(grect.left() + delta) if horizontal else grect.moveTop(grect.top() + delta)
                 rect = QRect(grect)
-                rect.setWidth(int(emblem.width() / emblem.devicePixelRatio())), rect.setHeight(int(emblem.height() / emblem.devicePixelRatio()))
+                (
+                    rect.setWidth(int(emblem.width() / emblem.devicePixelRatio())),
+                    rect.setHeight(int(emblem.height() / emblem.devicePixelRatio())),
+                )
                 painter.drawPixmap(rect, emblem)
         finally:
             painter.restore()
@@ -952,7 +955,8 @@ class CoverDelegate(QStyledItemDelegate):
                 if series:
                     use_roman_numbers = config['use_roman_numerals_for_series_number']
                     val = _('Book %(sidx)s of <span class="series_name">%(series)s</span>') % dict(
-                        sidx=fmt_sidx(db.field_for('series_index', book_id), use_roman=use_roman_numbers), series=p(series)
+                        sidx=fmt_sidx(db.field_for('series_index', book_id), use_roman=use_roman_numbers),
+                        series=p(series),
                     )
                     tt += '<br><br>' + val
                 if on_device:
@@ -1141,7 +1145,9 @@ class GridView(MomentumScrollMixin, QListView):
                         sz = sm.deviceIndependentSize()
                         if sz.width() != r.width() and sz.height() != r.height():
                             sm = pm.scaled(
-                                r.size() * pm.devicePixelRatioF(), Qt.AspectRatioMode.KeepAspectRatioByExpanding, Qt.TransformationMode.SmoothTransformation
+                                r.size() * pm.devicePixelRatioF(),
+                                Qt.AspectRatioMode.KeepAspectRatioByExpanding,
+                                Qt.TransformationMode.SmoothTransformation,
                             )
                             setattr(self, '_scaled_texture_pixmap', sm)
                         pm = sm
@@ -1308,7 +1314,11 @@ class GridView(MomentumScrollMixin, QListView):
         return self._ncols
 
     def default_wheel_event_handler(self, event):
-        if event.phase() not in (Qt.ScrollPhase.ScrollUpdate, Qt.ScrollPhase.NoScrollPhase, Qt.ScrollPhase.ScrollMomentum):
+        if event.phase() not in (
+            Qt.ScrollPhase.ScrollUpdate,
+            Qt.ScrollPhase.NoScrollPhase,
+            Qt.ScrollPhase.ScrollMomentum,
+        ):
             return
         number_of_pixels = event.pixelDelta()
         number_of_degrees = event.angleDelta() / 8.0
@@ -1328,7 +1338,12 @@ class GridView(MomentumScrollMixin, QListView):
         if handle_enter_press(self, e, self.start_view_animation, False):
             return
         k = e.key()
-        if e.modifiers() & Qt.KeyboardModifier.ShiftModifier and k in (Qt.Key.Key_Left, Qt.Key.Key_Right, Qt.Key.Key_Up, Qt.Key.Key_Down):
+        if e.modifiers() & Qt.KeyboardModifier.ShiftModifier and k in (
+            Qt.Key.Key_Left,
+            Qt.Key.Key_Right,
+            Qt.Key.Key_Up,
+            Qt.Key.Key_Down,
+        ):
             ci = self.currentIndex()
             if not ci.isValid():
                 return

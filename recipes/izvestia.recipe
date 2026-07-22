@@ -23,7 +23,7 @@ class Izvestia(BasicNewsRecipe):
     use_embedded_content = False
     language = 'ru'
     publication_type = 'newspaper'
-    cover_url = u'https://cdn.iz.ru/profiles/portal/themes/purple/images/favicons/apple-icon-180x180.png'
+    cover_url = 'https://cdn.iz.ru/profiles/portal/themes/purple/images/favicons/apple-icon-180x180.png'
 
     remove_tags_before = dict(name='div', attrs={'role': 'article'})
 
@@ -40,10 +40,10 @@ class Izvestia(BasicNewsRecipe):
         dict(name='div', attrs={'class': 'recommendation-block'}),
         dict(name='div', attrs={'class': 'plug-text'}),
         dict(name='div', attrs={'class': 'get_news_link'}),
-        dict(name='div', attrs={'itemprop': 'address'})
+        dict(name='div', attrs={'itemprop': 'address'}),
     ]
 
-    feeds = [(u'Новости', u'https://iz.ru/xml/rss/all.xml')]
+    feeds = [('Новости', 'https://iz.ru/xml/rss/all.xml')]
 
     def preprocess_html(self, soup):
         for img in soup.findAll('img', attrs={'data-src': True}):

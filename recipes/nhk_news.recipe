@@ -6,7 +6,6 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class ReutersJa(BasicNewsRecipe):
-
     title = 'NHK News'
     description = 'NHK News in Japanese'
     __author__ = 'Richard A. Steps'
@@ -29,10 +28,10 @@ class ReutersJa(BasicNewsRecipe):
         ('経済', 'https://www.nhk.or.jp/rss/news/cat5.xml?format=xml'),
         ('国際', 'https://www.nhk.or.jp/rss/news/cat6.xml?format=xml'),
         ('スポーツ', 'https://www.nhk.or.jp/rss/news/cat7.xml?format=xml'),
-        ('文化・エンタメ', 'https://www.nhk.or.jp/rss/news/cat2.xml?format=xml')
+        ('文化・エンタメ', 'https://www.nhk.or.jp/rss/news/cat2.xml?format=xml'),
     ]
 
     def preprocess_html(self, soup):
-        for img in soup.findAll('img', attrs={'data-src':True}):
+        for img in soup.findAll('img', attrs={'data-src': True}):
             img['src'] = img['data-src']
         return soup

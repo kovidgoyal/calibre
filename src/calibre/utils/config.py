@@ -1,4 +1,4 @@
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
 
@@ -49,9 +49,9 @@ def check_config_write_access():
 
 
 class CustomHelpFormatter(optparse.IndentedHelpFormatter):
-
     def format_usage(self, usage):
         from calibre.utils.terminal import colored
+
         parts = usage.split(' ')
         if parts:
             parts[0] = colored(parts[0], fg='yellow', bold=True)
@@ -60,7 +60,8 @@ class CustomHelpFormatter(optparse.IndentedHelpFormatter):
 
     def format_heading(self, heading):
         from calibre.utils.terminal import colored
-        return  ' '*self.current_indent + '{}:\n'.format(colored(heading, fg='blue', bold=True))
+
+        return ' ' * self.current_indent + '{}:\n'.format(colored(heading, fg='blue', bold=True))
 
     def format_option(self, option):
         import textwrap
@@ -71,10 +72,13 @@ class CustomHelpFormatter(optparse.IndentedHelpFormatter):
         opts = self.option_strings[option]
         opt_width = self.help_position - self.current_indent - 2
         if len(opts) > opt_width:
-            opts = ' '*self.current_indent + '{}\n'.format(colored(opts, fg='green'))
+            opts = ' ' * self.current_indent + '{}\n'.format(colored(opts, fg='green'))
             indent_first = self.help_position
-        else:                       # start help on same line as opts
-            opts = ' '*self.current_indent + '%-*s  ' % (opt_width+len(colored('', fg='green')), colored(opts, fg='green'))  # noqa: UP031
+        else:  # start help on same line as opts
+            opts = ' ' * self.current_indent + '%-*s  ' % (  # noqa: UP031
+                opt_width + len(colored('', fg='green')),
+                colored(opts, fg='green'),
+            )
             indent_first = 0
         result.append(opts)
         if option.help:
@@ -83,37 +87,49 @@ class CustomHelpFormatter(optparse.IndentedHelpFormatter):
 
             for line in help_text:
                 help_lines.extend(textwrap.wrap(line, self.help_width))
-            result.append(' '*indent_first + f'{help_lines[0]}\n')
-            result.extend(' '*self.help_position + f'{line}\n' for line in help_lines[1:])
+            result.append(' ' * indent_first + f'{help_lines[0]}\n')
+            result.extend(' ' * self.help_position + f'{line}\n' for line in help_lines[1:])
         elif opts[-1] != '\n':
             result.append('\n')
-        return ''.join(result)+'\n'
+        return ''.join(result) + '\n'
 
 
 class OptionParser(optparse.OptionParser):
-
-    def __init__(self,
-                 usage='%prog [options] filename',
-                 version=None,
-                 epilog=None,
-                 gui_mode=False,
-                 conflict_handler='resolve',
-                 **kwds):
+    def __init__(
+        self,
+        usage='%prog [options] filename',
+        version=None,
+        epilog=None,
+        gui_mode=False,
+        conflict_handler='resolve',
+        **kwds,
+    ):
         import textwrap
 
         from calibre.utils.terminal import colored
 
         usage = textwrap.dedent(usage)
         if epilog is None:
-            epilog = _('Created by ')+colored(__author__, fg='cyan')
-        usage += '\n\n'+_('''Whenever you pass arguments to %prog that have spaces in them, '''
-                          '''enclose the arguments in quotation marks. For example: "{}"''').format(
-                               'C:\\some path with spaces' if iswindows else '/some path/with spaces') +'\n'
+            epilog = _('Created by ') + colored(__author__, fg='cyan')
+        usage += (
+            '\n\n'
+            + _(
+                '''Whenever you pass arguments to %prog that have spaces in them, '''
+                '''enclose the arguments in quotation marks. For example: "{}"'''
+            ).format('C:\\some path with spaces' if iswindows else '/some path/with spaces')
+            + '\n'
+        )
         if version is None:
             version = f'%prog ({__appname__} {get_version()})'
-        optparse.OptionParser.__init__(self, usage=usage, version=version, epilog=epilog,
-                               formatter=CustomHelpFormatter(),
-                               conflict_handler=conflict_handler, **kwds)
+        optparse.OptionParser.__init__(
+            self,
+            usage=usage,
+            version=version,
+            epilog=epilog,
+            formatter=CustomHelpFormatter(),
+            conflict_handler=conflict_handler,
+            **kwds,
+        )
         self.gui_mode = gui_mode
         if False:
             # Translatable string from optparse
@@ -123,16 +139,19 @@ class OptionParser(optparse.OptionParser):
 
     def print_usage(self, file=None):
         from calibre.utils.terminal import ANSIStream
+
         s = ANSIStream(file)
         optparse.OptionParser.print_usage(self, file=s)
 
     def print_help(self, file=None):
         from calibre.utils.terminal import ANSIStream
+
         s = ANSIStream(file)
         optparse.OptionParser.print_help(self, file=s)
 
     def print_version(self, file=None):
         from calibre.utils.terminal import ANSIStream
+
         s = ANSIStream(file)
         optparse.OptionParser.print_version(self, file=s)
 
@@ -146,7 +165,7 @@ class OptionParser(optparse.OptionParser):
         Add options from parser to self. In case of conflicts, conflicting options from
         parser are skipped.
         """
-        opts   = list(parser.option_list)
+        opts = list(parser.option_list)
         groups = list(parser.option_groups)
 
         def merge_options(options, container):
@@ -196,8 +215,7 @@ class OptionParser(optparse.OptionParser):
             if dest not in upper.__dict__:
                 continue
             opt = self.option_by_dest(dest)
-            if lower.__dict__[dest] != opt.default and \
-               upper.__dict__[dest] == opt.default:
+            if lower.__dict__[dest] != opt.default and upper.__dict__[dest] == opt.default:
                 upper.__dict__[dest] = lower.__dict__[dest]
 
     def add_option_group(self, *args, **kwargs):
@@ -222,7 +240,7 @@ class DynamicConfig(dict):
 
     @property
     def file_path(self):
-        return os.path.join(config_dir, self.name+'.pickle.json')
+        return os.path.join(config_dir, self.name + '.pickle.json')
 
     def decouple(self, prefix):
         self.name = prefix + self.name
@@ -231,6 +249,7 @@ class DynamicConfig(dict):
     def read_old_serialized_representation(self):
         from calibre.utils.serialize import pickle_loads
         from calibre.utils.shared_file import share_open
+
         path = self.file_path.rpartition('.')[0]
         try:
             with share_open(path, 'rb') as f:
@@ -313,8 +332,7 @@ class XMLConfig(dict):
         self.file_permissions = permissions
         self.no_commit = False
         self.defaults = {}
-        self.file_path = os.path.join(base_path,
-                *(rel_path_to_cf_file.split('/')))
+        self.file_path = os.path.join(base_path, *(rel_path_to_cf_file.split('/')))
         self.file_path = os.path.abspath(self.file_path)
         if not self.file_path.endswith(self.EXTENSION):
             self.file_path += self.EXTENSION
@@ -335,10 +353,12 @@ class XMLConfig(dict):
 
     def raw_to_object(self, raw):
         from plistlib import loads
+
         return loads(raw)
 
     def to_raw(self):
         from plistlib import dumps
+
         return dumps(self)
 
     def decouple(self, prefix):
@@ -358,6 +378,7 @@ class XMLConfig(dict):
                 pass
             except Exception:
                 import traceback
+
                 traceback.print_exc()
                 d = {}
         if clear_current:
@@ -410,7 +431,6 @@ class XMLConfig(dict):
 
 
 class JSONConfig(XMLConfig):
-
     EXTENSION = '.json'
 
     def raw_to_object(self, raw):
@@ -437,7 +457,6 @@ class JSONConfig(XMLConfig):
 
 
 class DevicePrefs:
-
     def __init__(self, global_prefs):
         self.global_prefs = global_prefs
         self.overrides = {}

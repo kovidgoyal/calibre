@@ -9,8 +9,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 def classes(classes):
     q = frozenset(classes.split(' '))
-    return dict(attrs={
-        'class': lambda x: x and frozenset(x.split()).intersection(q)})
+    return dict(attrs={'class': lambda x: x and frozenset(x.split()).intersection(q)})
 
 
 class AdvancedUserRecipe1282101454(BasicNewsRecipe):
@@ -25,9 +24,7 @@ class AdvancedUserRecipe1282101454(BasicNewsRecipe):
     keep_only_tags = [
         classes('Article-header Article-excerpt Article-author Article-thumbnail Article-bodyText article-title article-dek article-paragraph articlebody'),
     ]
-    remove_tags = [
-        dict(name='section', attrs={'class': ['recurrent-share']})
-    ]
+    remove_tags = [dict(name='section', attrs={'class': ['recurrent-share']})]
 
     def parse_section_index(self, slug):
         url = 'https://www.popsci.com/{}/'.format(slug)

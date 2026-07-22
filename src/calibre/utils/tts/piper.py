@@ -77,7 +77,7 @@ def create_voice_config(config_path: str, length_scale_multiplier: float = 0, se
     return cfg
 
 
-def set_voice(config_path: str, model_path:str, length_scale_multiplier: float = 0, sentence_delay: float = 0.2) -> None:
+def set_voice(config_path: str, model_path: str, length_scale_multiplier: float = 0, sentence_delay: float = 0.2) -> None:
     cfg = create_voice_config(config_path, length_scale_multiplier, sentence_delay)
     piper.set_voice(cfg, model_path)
 
@@ -101,11 +101,10 @@ def simple_test():
         raise AssertionError('No phonemes returned by phonemize()')
 
 
-ResultCallback = Callable[[SynthesisResult | None, Exception|None, str|None], None]
+ResultCallback = Callable[[SynthesisResult | None, Exception | None, str | None], None]
 
 
 class Piper(Thread):
-
     def __init__(self):
         piper.initialize(espeak_data_dir())
         Thread.__init__(self, name='PiperSynth', daemon=True)
@@ -139,6 +138,7 @@ class Piper(Thread):
                 cmd()
             except Exception as e:
                 import traceback
+
                 self.result_callback(None, e, traceback.format_exc())
 
     def shutdown(self):
@@ -147,8 +147,12 @@ class Piper(Thread):
         self.join()
 
     def set_voice(
-        self, result_callback: ResultCallback,
-        config_path: str, model_path:str, length_scale_multiplier: float = 0, sentence_delay: float = 0.2,
+        self,
+        result_callback: ResultCallback,
+        config_path: str,
+        model_path: str,
+        length_scale_multiplier: float = 0,
+        sentence_delay: float = 0.2,
         as_16bit_samples: bool = True,
     ) -> int:
         vid = self.increment_voice_id()
@@ -175,7 +179,11 @@ class Piper(Thread):
         while True:
             audio_data, num_samples, sample_rate, is_last = piper.next(self.as_16bit_samples)
             if self.voice_id == voice_id:
-                self.result_callback(SynthesisResult(utterance_id, bytes_per_sample, audio_data, num_samples, sample_rate, is_last), None, None)
+                self.result_callback(
+                    SynthesisResult(utterance_id, bytes_per_sample, audio_data, num_samples, sample_rate, is_last),
+                    None,
+                    None,
+                )
             else:
                 break
             if is_last:
@@ -199,6 +207,7 @@ def global_piper_instance_if_exists() -> Piper | None:
 
 def play_wav_data(wav_data: bytes):
     from qt.core import QAudioOutput, QBuffer, QByteArray, QCoreApplication, QIODevice, QMediaPlayer, QUrl
+
     app = QCoreApplication([])
     m = QMediaPlayer()
     ao = QAudioOutput(m)
@@ -207,9 +216,7 @@ def play_wav_data(wav_data: bytes):
     qbuffer.setData(QByteArray(wav_data))
     qbuffer.open(QIODevice.OpenModeFlag.ReadOnly)
     m.setSourceDevice(qbuffer, QUrl.fromLocalFile('piper.wav'))
-    m.mediaStatusChanged.connect(
-        lambda status: app.quit() if status == QMediaPlayer.MediaStatus.EndOfMedia else print(m.playbackState(), status)
-    )
+    m.mediaStatusChanged.connect(lambda status: app.quit() if status == QMediaPlayer.MediaStatus.EndOfMedia else print(m.playbackState(), status))
     m.errorOccurred.connect(lambda e, s: (print(e, s, file=sys.stderr), app.quit()))
     m.play()
     app.exec()
@@ -217,20 +224,24 @@ def play_wav_data(wav_data: bytes):
 
 def play_pcm_data(pcm_data, sample_rate):
     from calibre_extensions.ffmpeg import wav_header_for_pcm_data
+
     play_wav_data(wav_header_for_pcm_data(len(pcm_data), sample_rate) + pcm_data)
 
 
 def develop():
     from calibre.gui2.tts.piper import piper_cache_dir
+
     p = global_piper_instance()
     model_path = os.path.join(piper_cache_dir(), 'en_US-libritts-high.onnx')
     q = Queue()
+
     def synthesized(*args):
         q.put(args)
-    sample_rate = p.set_voice(synthesized, model_path+'.json', model_path, sentence_delay=0.3)
+
+    sample_rate = p.set_voice(synthesized, model_path + '.json', model_path, sentence_delay=0.3)
     p.synthesize(1, 'Testing speech synthesis with piper. A second sentence.')
     all_data = []
-    while (args := q.get()):
+    while args := q.get():
         sr, exc, tb = args
         if exc is not None:
             print(tb, file=sys.stderr, flush=True)

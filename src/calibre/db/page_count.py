@@ -30,7 +30,6 @@ YIELD_TIME = 0.01
 
 
 class MaintainPageCounts(Thread):
-
     def __init__(self, db_new_api: Cache):
         super().__init__(name='MaintainPageCounts', daemon=True)
         self.shutdown_event = Event()
@@ -100,19 +99,20 @@ class MaintainPageCounts(Thread):
                 self.shutdown_event.wait(YIELD_TIME)
 
     def get_batch(self, size: int = 100) -> Iterator[int]:
-        " Order results by book id to prioritise newer books "
+        "Order results by book id to prioritise newer books"
         if db := self.dbref():
             with db.safe_read_lock:
                 for rec in db.backend.execute(f'SELECT book FROM books_pages_link WHERE needs_scan=1 ORDER BY book DESC LIMIT {size}'):
                     yield rec[0]
 
-    def count_book_and_commit(self, book_id: int, server: Server) ->  Pages | None:
+    def count_book_and_commit(self, book_id: int, server: Server) -> Pages | None:
         if (db := self.dbref()) is None or self.shutdown_event.is_set():
             return
         try:
             pages = self.count_book(db, book_id, server)
         except Exception as e:
             import traceback
+
             traceback.print_exc()
             self.log_failure(book_id, str(e), traceback.format_exc())
             pages = Pages(COUNT_FAILED, 0, '', 0, utcnow())
@@ -155,6 +155,7 @@ class MaintainPageCounts(Thread):
                     fmt_size = os.path.getsize(fmt_file)
                 except Exception as e:
                     import traceback
+
                     traceback.print_exc()
                     self.log_failure(book_id, str(e), traceback.format_exc())
                     continue
@@ -163,6 +164,7 @@ class MaintainPageCounts(Thread):
                     pages = server.count_pages(fmt_file)
                 except Exception as e:
                     import traceback
+
                     traceback.print_exc()
                     self.log_failure(book_id, str(e), traceback.format_exc(), fmt=fmt)
                 else:

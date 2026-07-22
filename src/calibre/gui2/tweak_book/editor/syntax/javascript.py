@@ -13,11 +13,8 @@ from pygments.token import Comment, Keyword, Name, Number, Operator, Punctuation
 from calibre.gui2.tweak_book.editor.syntax.pygments_highlighter import create_highlighter
 from calibre.utils.resources import get_path as P
 
-JS_IDENT_START = ('(?:[$_' + uni.combine('Lu', 'Ll', 'Lt', 'Lm', 'Lo', 'Nl') +
-                  ']|\\\\u[a-fA-F0-9]{4})')
-JS_IDENT_PART = ('(?:[$' + uni.combine('Lu', 'Ll', 'Lt', 'Lm', 'Lo', 'Nl',
-                                       'Mn', 'Mc', 'Nd', 'Pc') +
-                 '\u200c\u200d]|\\\\u[a-fA-F0-9]{4})')
+JS_IDENT_START = '(?:[$_' + uni.combine('Lu', 'Ll', 'Lt', 'Lm', 'Lo', 'Nl') + ']|\\\\u[a-fA-F0-9]{4})'
+JS_IDENT_PART = '(?:[$' + uni.combine('Lu', 'Ll', 'Lt', 'Lm', 'Lo', 'Nl', 'Mn', 'Mc', 'Nd', 'Pc') + '\u200c\u200d]|\\\\u[a-fA-F0-9]{4})'
 JS_IDENT = JS_IDENT_START + '(?:' + JS_IDENT_PART + ')*'
 
 
@@ -35,7 +32,7 @@ class JavascriptLexer(RegexLexer):
             (r'\s+', Text),
             (r'<!--', Comment),
             (r'//.*?$', Comment.Single),
-            (r'/\*', Comment.Multiline, 'comment')
+            (r'/\*', Comment.Multiline, 'comment'),
         ],
         'comment': [
             (r'[^*/]+', Comment.Multiline),
@@ -44,43 +41,59 @@ class JavascriptLexer(RegexLexer):
         ],
         'slashstartsregex': [
             include('commentsandwhitespace'),
-            (r'/(\\.|[^[/\\\n]|\[(\\.|[^\]\\\n])*])+/'
-             r'([gim]+\b|\B)', String.Regex, '#pop'),
+            (
+                r'/(\\.|[^[/\\\n]|\[(\\.|[^\]\\\n])*])+/'
+                r'([gim]+\b|\B)',
+                String.Regex,
+                '#pop',
+            ),
             (r'(?=/)', Text, ('#pop', 'badregex')),
-            default('#pop')
+            default('#pop'),
         ],
-        'badregex': [
-            (r'\n', Text, '#pop')
-        ],
+        'badregex': [(r'\n', Text, '#pop')],
         'root': [
             (r'\A#! ?/.*?\n', Comment),  # shebang lines are recognized by node.js
             (r'^(?=\s|/|<!--)', Text, 'slashstartsregex'),
             include('commentsandwhitespace'),
-            (r'\+\+|--|~|&&|\?|:|\|\||\\(?=\n)|'
-             r'(<<|>>>?|==?|!=?|[-<>+*%&|^/])=?', Operator, 'slashstartsregex'),
+            (
+                r'\+\+|--|~|&&|\?|:|\|\||\\(?=\n)|'
+                r'(<<|>>>?|==?|!=?|[-<>+*%&|^/])=?',
+                Operator,
+                'slashstartsregex',
+            ),
             (r'[{(\[;,]', Punctuation, 'slashstartsregex'),
             (r'[})\].]', Punctuation),
-            (r'(for|in|while|do|break|return|continue|switch|case|default|if|else|'
-             r'throw|try|catch|finally|new|delete|typeof|instanceof|void|yield|'
-             r'this)\b', Keyword, 'slashstartsregex'),
+            (
+                r'(for|in|while|do|break|return|continue|switch|case|default|if|else|'
+                r'throw|try|catch|finally|new|delete|typeof|instanceof|void|yield|'
+                r'this)\b',
+                Keyword,
+                'slashstartsregex',
+            ),
             (r'(var|let|with|function)\b', Keyword.Declaration, 'slashstartsregex'),
-            (r'(abstract|boolean|byte|char|class|const|debugger|double|enum|export|'
-             r'extends|final|float|goto|implements|import|int|interface|long|native|'
-             r'package|private|protected|public|short|static|super|synchronized|throws|'
-             r'transient|volatile)\b', Keyword.Reserved),
+            (
+                r'(abstract|boolean|byte|char|class|const|debugger|double|enum|export|'
+                r'extends|final|float|goto|implements|import|int|interface|long|native|'
+                r'package|private|protected|public|short|static|super|synchronized|throws|'
+                r'transient|volatile)\b',
+                Keyword.Reserved,
+            ),
             (r'(true|false|null|NaN|Infinity|undefined)\b', Keyword.Constant),
-            (r'(Array|Boolean|Date|Error|Function|Math|netscape|'
-             r'Number|Object|Packages|RegExp|String|sun|decodeURI|'
-             r'decodeURIComponent|encodeURI|encodeURIComponent|'
-             r'Error|eval|isFinite|isNaN|parseFloat|parseInt|document|this|'
-             r'window)\b', Name.Builtin),
+            (
+                r'(Array|Boolean|Date|Error|Function|Math|netscape|'
+                r'Number|Object|Packages|RegExp|String|sun|decodeURI|'
+                r'decodeURIComponent|encodeURI|encodeURIComponent|'
+                r'Error|eval|isFinite|isNaN|parseFloat|parseInt|document|this|'
+                r'window)\b',
+                Name.Builtin,
+            ),
             (JS_IDENT, Name.Other),
             (r'[0-9][0-9]*\.[0-9]+([eE][0-9]+)?[fd]?', Number.Float),
             (r'0x[0-9a-fA-F]+', Number.Hex),
             (r'[0-9]+', Number.Integer),
             (r'"(\\\\|\\"|[^"])*"', String.Double),
             (r"'(\\\\|\\'|[^'])*'", String.Single),
-        ]
+        ],
     }
 
 
@@ -88,4 +101,5 @@ Highlighter = create_highlighter('JavascriptHighlighter', JavascriptLexer)
 
 if __name__ == '__main__':
     from calibre.gui2.tweak_book.editor.widget import launch_editor
+
     launch_editor(P('viewer.js'), syntax='javascript')

@@ -7,21 +7,21 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class TInvariant(BasicNewsRecipe):
-    title                 = 'T-Invariant'
-    __author__            = 'bugmen00t'
-    description           = 'T-Invariant is a multimedia project of scientists and science journalists. Our task is to be a bridge between the academic community in Russia and outside Russia. Let’s keep in touch!'  # noqa: E501
-    publisher             = '\u0422-\u0438\u043D\u0432\u0430\u0440\u0438\u0430\u043D\u0442 / T-invariant'
-    category              = 'news'
-    cover_url = u'https://t-invariant.org/wp-content/uploads/2023/02/logo-s.png'
+    title = 'T-Invariant'
+    __author__ = 'bugmen00t'
+    description = 'T-Invariant is a multimedia project of scientists and science journalists. Our task is to be a bridge between the academic community in Russia and outside Russia. Let’s keep in touch!'  # noqa: E501
+    publisher = '\u0422-\u0438\u043d\u0432\u0430\u0440\u0438\u0430\u043d\u0442 / T-invariant'
+    category = 'news'
+    cover_url = 'https://t-invariant.org/wp-content/uploads/2023/02/logo-s.png'
     # cover_url = u'https://tinyurl.com/t-invariant/wp-content/uploads/2023/02/logo-s.png'
     # language              = 'ru'
-    language              = 'en_RU'
+    language = 'en_RU'
     # language              = 'uk'
     # language              = 'de'
     # language              = 'he'
-    no_stylesheets        = False
+    no_stylesheets = False
     remove_javascript = False
-    auto_cleanup   = False
+    auto_cleanup = False
     oldest_article = 45
     max_articles_per_feed = 15
 
@@ -34,8 +34,8 @@ class TInvariant(BasicNewsRecipe):
         dict(name='div', attrs={'class': 'mg-blog-category mb-1'}),
         dict(name='span', attrs={'class': 'newses-tags'}),
         dict(name='div', attrs={'class': 'post-share'}),
-        dict(name='h4')
-        ]
+        dict(name='h4'),
+    ]
 
     feeds = [
         # Russian version
@@ -131,22 +131,18 @@ class TInvariant(BasicNewsRecipe):
         # ('\u042D\u043A\u0441\u043F\u0435\u0440\u0442\u0438\u0437\u0430 \u043D\u0430\u0443\u043A\u0438', 'https://tinyurl.com/t-invariant/category/science-assessment/feed/'),
         # ('\u042D\u043D\u0435\u0440\u0433\u0435\u0442\u0438\u043A\u0430', 'https://tinyurl.com/t-invariant/category/energy/feed/'),
         # ('\u042D\u0442\u0438\u043A\u0430', 'https://tinyurl.com/t-invariant/category/ethics/feed/'),
-
         # English version
         # ('T-invariant (English)', 'https://www.t-invariant.org/en/feed/'),
         # Censorship bypass
         ('T-invariant (English)', 'https://tinyurl.com/t-invariant/en/feed/'),
-
         # Ukrainian version
         # ('T-invariant (\u0423\u043A\u0440\u0430\u0457\u043D\u0441\u044C\u043A\u0430)', 'https://www.t-invariant.org/uk/feed/'),
         # Censorship bypass
         # ('T-invariant (\u0423\u043A\u0440\u0430\u0457\u043D\u0441\u044C\u043A\u0430)', 'https://tinyurl.com/t-invariant/uk/feed/'),
-
         # German version
         # ('T-invariant (Deutsch)', 'https://www.t-invariant.org/de/feed/'),
         # Censorship bypass
         # ('T-invariant (Deutsch)', 'https://tinyurl.com/t-invariant/de/feed/'),
-
         # Hebrew version
         # ('T-invariant (\u05E2\u05D1\u05E8\u05D9\u05EA)', 'https://www.t-invariant.org/he/feed/'),
         # Censorship bypass

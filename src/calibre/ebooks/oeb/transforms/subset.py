@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
@@ -34,16 +34,15 @@ def get_font_properties(rule, default=None):
                 val = parse_font_family(css_text(s.getProperty(q).propertyValue))
                 if val and val[0] == 'inherit':
                     val = None
-        except (IndexError, KeyError, AttributeError, TypeError, ValueError):
+        except IndexError, KeyError, AttributeError, TypeError, ValueError:
             val = None if q in {'src', 'font-family'} else default
         if q in {'font-weight', 'font-stretch', 'font-style'}:
             val = str(val).lower() if (val or val == 0) else val
             if val == 'inherit':
                 val = default
         if q == 'font-weight':
-            val = {'normal':'400', 'bold':'700'}.get(val, val)
-            if val not in {'100', '200', '300', '400', '500', '600', '700',
-                    '800', '900', 'bolder', 'lighter'}:
+            val = {'normal': '400', 'bold': '700'}.get(val, val)
+            if val not in {'100', '200', '300', '400', '500', '600', '700', '800', '900', 'bolder', 'lighter'}:
                 val = default
             if val == 'normal':
                 val = '400'
@@ -51,9 +50,17 @@ def get_font_properties(rule, default=None):
             if val not in {'normal', 'italic', 'oblique'}:
                 val = default
         elif q == 'font-stretch':
-            if val not in {'normal', 'ultra-condensed', 'extra-condensed',
-                    'condensed', 'semi-condensed', 'semi-expanded',
-                    'expanded', 'extra-expanded', 'ultra-expanded'}:
+            if val not in {
+                'normal',
+                'ultra-condensed',
+                'extra-condensed',
+                'condensed',
+                'semi-condensed',
+                'semi-expanded',
+                'expanded',
+                'extra-expanded',
+                'ultra-expanded',
+            }:
                 val = default
         props[q] = val
     return props
@@ -107,16 +114,14 @@ def elem_style(style_rules, cls, inherited_style):
     pwt = inherited_style.get('font-weight', '400')
     if wt == 'bolder':
         style['font-weight'] = {
-                '100':'400',
-                '200':'400',
-                '300':'400',
-                '400':'700',
-                '500':'700',
-                }.get(pwt, '900')
+            '100': '400',
+            '200': '400',
+            '300': '400',
+            '400': '700',
+            '500': '700',
+        }.get(pwt, '900')
     elif wt == 'lighter':
-        style['font-weight'] = {
-                '600':'400', '700':'400',
-                '800':'700', '900':'700'}.get(pwt, '100')
+        style['font-weight'] = {'600': '400', '700': '400', '800': '700', '900': '700'}.get(pwt, '100')
 
     return style
 
@@ -171,14 +176,14 @@ class SubsetFonts:
                 font['item'].data = output.getvalue()
                 nlen = len(font['item'].data)
                 olen = len(old_raw)
-                self.log('Decreased the font {} to {:.1f}% of its original size'.format(font['src'], nlen/olen *100))
+                self.log('Decreased the font {} to {:.1f}% of its original size'.format(font['src'], nlen / olen * 100))
                 totals[0] += nlen
                 totals[1] += olen
 
             font['item'].unload_data_from_memory()
 
         if totals[0]:
-            self.log(f'Reduced total font size to {totals[0]/totals[1]*100:.1f}% of original')
+            self.log(f'Reduced total font size to {totals[0] / totals[1] * 100:.1f}% of original')
 
     def find_embedded_fonts(self):
         """
@@ -206,7 +211,7 @@ class SubsetFonts:
             for i, rule in enumerate(item.data.cssRules):
                 if rule.type != rule.STYLE_RULE:
                     continue
-                props = {k:v for k,v in get_font_properties(rule).items() if v}
+                props = {k: v for k, v in get_font_properties(rule).items() if v}
                 if not props:
                     continue
                 for sel in rule.selectorList:
@@ -225,8 +230,12 @@ class SubsetFonts:
             if not hasattr(item.data, 'xpath'):
                 continue
             for body in item.data.xpath('//*[local-name()="body"]'):
-                base = {'font-family':['serif'], 'font-weight': '400',
-                        'font-style':'normal', 'font-stretch':'normal'}
+                base = {
+                    'font-family': ['serif'],
+                    'font-weight': '400',
+                    'font-style': 'normal',
+                    'font-stretch': 'normal',
+                }
                 self.find_usage_in(body, base)
 
     def used_font(self, style):
@@ -248,30 +257,36 @@ class SubsetFonts:
             return None
 
         # Filter on font-stretch
-        widths = {x:i for i, x in enumerate(('ultra-condensed',
-                'extra-condensed', 'condensed', 'semi-condensed', 'normal',
-                'semi-expanded', 'expanded', 'extra-expanded', 'ultra-expanded'
-                ))}
+        widths = {
+            x: i
+            for i, x in enumerate((
+                'ultra-condensed',
+                'extra-condensed',
+                'condensed',
+                'semi-condensed',
+                'normal',
+                'semi-expanded',
+                'expanded',
+                'extra-expanded',
+                'ultra-expanded',
+            ))
+        }
 
         width = widths[style.get('font-stretch', 'normal')]
         for f in matching_set:
             f['width'] = widths[style.get('font-stretch', 'normal')]
 
-        min_dist = min(abs(width-f['width']) for f in matching_set)
-        nearest = [f for f in matching_set if abs(width-f['width']) ==
-            min_dist]
+        min_dist = min(abs(width - f['width']) for f in matching_set)
+        nearest = [f for f in matching_set if abs(width - f['width']) == min_dist]
         if width <= 4:
             lmatches = [f for f in nearest if f['width'] <= width]
         else:
             lmatches = [f for f in nearest if f['width'] >= width]
-        matching_set = (lmatches or nearest)
+        matching_set = lmatches or nearest
 
         # Filter on font-style
         fs = style.get('font-style', 'normal')
-        order = {
-                'oblique':['oblique', 'italic', 'normal'],
-                'normal':['normal', 'oblique', 'italic']
-            }.get(fs, ['italic', 'oblique', 'normal'])
+        order = {'oblique': ['oblique', 'italic', 'normal'], 'normal': ['normal', 'oblique', 'italic']}.get(fs, ['italic', 'oblique', 'normal'])
         for q in order:
             matches = [f for f in matching_set if f.get('font-style', 'normal') == q]
             if matches:
@@ -285,11 +300,9 @@ class SubsetFonts:
         elif fw == 500:
             q = [500, 400, 300, 200, 100, 600, 700, 800, 900]
         elif fw < 400:
-            q = [fw] + list(range(fw-100, -100, -100)) + list(range(fw+100,
-                100, 1000))
+            q = [fw] + list(range(fw - 100, -100, -100)) + list(range(fw + 100, 100, 1000))
         else:
-            q = [fw] + list(range(fw+100, 100, 1000)) + list(range(fw-100,
-                -100, -100))
+            q = [fw] + list(range(fw + 100, 100, 1000)) + list(range(fw - 100, -100, -100))
         for wt in q:
             matches = [f for f in matching_set if f['weight'] == wt]
             if matches:

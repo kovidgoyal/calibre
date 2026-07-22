@@ -70,7 +70,6 @@ from calibre.utils.localization import _
 
 
 class HistoryMixin:
-
     max_history_items = None
     min_history_entry_length = 3
 
@@ -83,7 +82,7 @@ class HistoryMixin:
 
     @property
     def store_name(self):
-        return 'lineedit_history_'+self._name
+        return 'lineedit_history_' + self._name
 
     def initialize(self, name):
         self._name = name
@@ -108,7 +107,7 @@ class HistoryMixin:
                 pass
             self.history.insert(0, ct)
             if self.max_history_items is not None:
-                del self.history[self.max_history_items:]
+                del self.history[self.max_history_items :]
             history.set(self.store_name, self.history)
             self.update_items_cache(self.history)
 
@@ -119,8 +118,7 @@ class HistoryMixin:
 
 
 class HistoryLineEdit2(LineEdit, HistoryMixin):
-
-    def __init__(self, parent=None, completer_widget=None, sort_func=lambda x:b''):
+    def __init__(self, parent=None, completer_widget=None, sort_func=lambda x: b''):
         LineEdit.__init__(self, parent=parent, completer_widget=completer_widget, sort_func=sort_func)
 
     def set_uniform_item_sizes(self, on=False):
@@ -133,9 +131,8 @@ class HistoryLineEdit2(LineEdit, HistoryMixin):
 
 
 class HistoryComboBox(EditWithComplete, HistoryMixin):
-
     def __init__(self, parent=None, strip_completion_entries=True):
-        EditWithComplete.__init__(self, parent, sort_func=lambda x:b'', strip_completion_entries=strip_completion_entries)
+        EditWithComplete.__init__(self, parent, sort_func=lambda x: b'', strip_completion_entries=strip_completion_entries)
 
     def set_uniform_item_sizes(self, on=False):
         le = self.lineEdit()
@@ -145,7 +142,6 @@ class HistoryComboBox(EditWithComplete, HistoryMixin):
 
 
 class ColorButton(QPushButton):
-
     color_changed = pyqtSignal(object)
 
     def __init__(self, initial_color=None, parent=None, choose_text=None, special_default_color=None):
@@ -216,7 +212,6 @@ def populate_standard_spinbox_context_menu(spinbox, menu, add_clear=False, use_s
 
 
 class RightClickButton(QToolButton):
-
     def mousePressEvent(self, a0):
         if a0.button() == Qt.MouseButton.RightButton and self.menu() is not None:
             self.showMenu()
@@ -226,7 +221,6 @@ class RightClickButton(QToolButton):
 
 
 class CenteredToolButton(RightClickButton):
-
     def __init__(self, icon, text, parent=None):
         super().__init__(parent)
         self.setText(text)
@@ -276,9 +270,12 @@ class Dialog(QDialog):
     splitter: QSplitter | None = None
 
     def __init__(
-            self, title,
-            name, parent=None, prefs=gprefs,
-            default_buttons=QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel
+        self,
+        title,
+        name,
+        parent=None,
+        prefs=gprefs,
+        default_buttons=QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel,
     ):
         QDialog.__init__(self, parent)
         self.prefs_for_persistence = prefs
@@ -313,7 +310,6 @@ class Dialog(QDialog):
 
 
 class UndoCommand(QUndoCommand):
-
     def __init__(self, widget, val):
         QUndoCommand.__init__(self)
         self.widget = weakref.ref(widget)
@@ -335,7 +331,6 @@ def stars(num, is_half_star=False):
 
 
 class RatingItemDelegate(QStyledItemDelegate):
-
     def initStyleOption(self, option, index):
         QStyledItemDelegate.initStyleOption(self, option, index)
         if index.row() <= 0:
@@ -348,7 +343,6 @@ class RatingItemDelegate(QStyledItemDelegate):
 
 
 class RatingEditor(QComboBox):
-
     def __init__(self, parent=None, is_half_star=False):
         QComboBox.__init__(self, parent)
         self.addItem(_('Not rated'))
@@ -388,7 +382,7 @@ class RatingEditor(QComboBox):
 
     @property
     def rating_value(self):
-        " An integer from 0 to 10 "
+        "An integer from 0 to 10"
         ans = self.currentIndex()
         if not self.is_half_star:
             ans *= 2
@@ -414,7 +408,7 @@ class RatingEditor(QComboBox):
             self.redo()
             return e.accept()
         k = e.key()
-        num = {getattr(Qt, f'Key_{i}'):i for i in range(6)}.get(k)
+        num = {getattr(Qt, f'Key_{i}'): i for i in range(6)}.get(k)
         if num is None:
             return QComboBox.keyPressEvent(self, e)
         e.accept()
@@ -430,8 +424,7 @@ class RatingEditor(QComboBox):
 
 
 class FlowLayout(QLayout):  # {{{
-
-    """ A layout that lays out items left-to-right wrapping onto a second line if needed """
+    """A layout that lays out items left-to-right wrapping onto a second line if needed"""
 
     def __init__(self, parent=None):
         QLayout.__init__(self, parent)
@@ -466,6 +459,7 @@ class FlowLayout(QLayout):  # {{{
 
     def count(self):
         return len(self.items)
+
     __len__ = count
 
     def hasHeightForWidth(self):
@@ -489,6 +483,7 @@ class FlowLayout(QLayout):  # {{{
             size = size.expandedTo(item.minimumSize())
         left, top, right, bottom = self.getContentsMargins()
         return size + QSize(left + right, top + bottom)
+
     sizeHint = minimumSize
 
     def smart_spacing(self, horizontal=True):
@@ -519,7 +514,8 @@ class FlowLayout(QLayout):  # {{{
             return wid.style().layoutSpacing(
                 QSizePolicy.ControlType.PushButton,
                 QSizePolicy.ControlType.PushButton,
-                Qt.Orientation.Horizontal if horizontal else Qt.Orientation.Vertical)
+                Qt.Orientation.Horizontal if horizontal else Qt.Orientation.Vertical,
+            )
 
         lines, current_line = [], []
         gmap = {}
@@ -558,13 +554,16 @@ class FlowLayout(QLayout):  # {{{
         s = QSplitter()
         h = QSplitter()
         h.setOrientation(Qt.Orientation.Vertical)
+
         def filler():
             class Label(QLabel):
                 def sizeHint(self):
                     return QSize(10000, 10000)
+
             la = Label(' filler')
             la.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
             return la
+
         w = QWidget()
         h.addWidget(w), h.addWidget(filler())
         s.addWidget(h)
@@ -578,12 +577,13 @@ class FlowLayout(QLayout):  # {{{
         cb.addItems(['Item one'])
         l.addWidget(cb)
         return s
+
+
 # }}}
 
 
 class Separator(QWidget):  # {{{
-
-    """ Vertical separator lines usable in FlowLayout """
+    """Vertical separator lines usable in FlowLayout"""
 
     def __init__(self, parent, widget_for_height=None):
         """
@@ -601,7 +601,7 @@ class Separator(QWidget):  # {{{
         self.update()
 
     def setBuddy(self, widget_for_height):
-        """ See __init__. This is repurposed to support Qt Designer .ui files. """
+        """See __init__. This is repurposed to support Qt Designer .ui files."""
         self.widget_for_height = widget_for_height
 
     def sizeHint(self):
@@ -615,11 +615,12 @@ class Separator(QWidget):  # {{{
         r.setBottom(r.bottom() - 3)
         painter.fillRect(r, self.brush)
         painter.end()
+
+
 # }}}
 
 
 class HTMLDisplay(QTextBrowser):
-
     anchor_clicked = pyqtSignal(object)
     notes_resource_scheme = ''  # set to scheme to use to load resources for notes from the current db
 
@@ -685,17 +686,17 @@ class HTMLDisplay(QTextBrowser):
 
     def load_local_file_resource(self, rtype, qurl, path):
         from calibre.utils.filenames import make_long_path_useable
+
         try:
             with open(make_long_path_useable(path), 'rb') as f:
                 data = f.read()
         except OSError:
             if path.rpartition('.')[-1].lower() in {'jpg', 'jpeg', 'gif', 'png', 'bmp', 'webp'}:
-                r = QByteArray(bytearray.fromhex(
-                    '89504e470d0a1a0a0000000d49484452'
-                    '000000010000000108060000001f15c4'
-                    '890000000a49444154789c6300010000'
-                    '0500010d0a2db40000000049454e44ae'
-                    '426082'))
+                r = QByteArray(
+                    bytearray.fromhex(
+                        '89504e470d0a1a0a0000000d49484452000000010000000108060000001f15c4890000000a49444154789c63000100000500010d0a2db40000000049454e44ae426082'
+                    )
+                )
                 if self.save_resources_in_document:
                     res_doc = self.document()
                     assert res_doc is not None
@@ -722,6 +723,7 @@ class HTMLDisplay(QTextBrowser):
             return r
         if self.notes_resource_scheme and name.scheme() == self.notes_resource_scheme and int(type) == int(QTextDocument.ResourceType.ImageResource):
             from calibre.gui2.ui import get_gui
+
             gui = get_gui()
             if gui is not None:
                 db = gui.current_db.new_api
@@ -745,14 +747,13 @@ class HTMLDisplay(QTextBrowser):
         # isn't. This process also slightly dejitters the mouse FWIW.
         url = super().anchorAt(pos)
         if not url:
-            url = super().anchorAt(QPoint(pos.x()-1, pos.y()-1))
+            url = super().anchorAt(QPoint(pos.x() - 1, pos.y() - 1))
         if not url:
-            url = super().anchorAt(QPoint(pos.x()+1, pos.y()+1))
+            url = super().anchorAt(QPoint(pos.x() + 1, pos.y() + 1))
         return url
 
 
 class ScrollingTabWidget(QTabWidget):
-
     def __init__(self, parent=None):
         QTabWidget.__init__(self, parent)
 
@@ -820,14 +821,12 @@ def to_plain_text(self):
 
 
 class CalendarWidget(QCalendarWidget):
-
     def showEvent(self, a0):
         if self.selectedDate().year() == UNDEFINED_DATE.year:
             self.setSelectedDate(QDate.currentDate())
 
 
 class DateTimeEdit(QDateTimeEdit):
-
     MIME_TYPE = 'application/x-calibre-datetime-value'
 
     def __init__(self, parent=None):
@@ -883,10 +882,14 @@ class DateTimeEdit(QDateTimeEdit):
 
     def create_context_menu(self):
         m = QMenu(self)
-        m.addAction(_('Set date to undefined') + '\t' + QKeySequence(Qt.Key.Key_Minus).toString(QKeySequence.SequenceFormat.NativeText),
-                    self.clear_date)
-        m.addAction(_('Set date to today') + '\t' + QKeySequence(Qt.Key.Key_Equal).toString(QKeySequence.SequenceFormat.NativeText),
-                    self.today_date)
+        m.addAction(
+            _('Set date to undefined') + '\t' + QKeySequence(Qt.Key.Key_Minus).toString(QKeySequence.SequenceFormat.NativeText),
+            self.clear_date,
+        )
+        m.addAction(
+            _('Set date to today') + '\t' + QKeySequence(Qt.Key.Key_Equal).toString(QKeySequence.SequenceFormat.NativeText),
+            self.today_date,
+        )
         m.addSeparator()
         populate_standard_spinbox_context_menu(self, m, use_self_for_copy_actions=True)
         return m
@@ -922,7 +925,6 @@ class DateTimeEdit(QDateTimeEdit):
 
 
 class MessagePopup(QLabel):
-
     undo_requested = pyqtSignal(object)
     OFFSET_FROM_TOP = 25
 
@@ -941,8 +943,7 @@ class MessagePopup(QLabel):
             border-radius: 4px;
             color: {self.color};
             padding: 0.5em;
-        }}'''
-        )
+        }}''')
         self.linkActivated.connect(self.link_activated)
         self.close_timer = t = QTimer()
         t.setSingleShot(True)
@@ -980,6 +981,7 @@ class MessagePopup(QLabel):
 
 if __name__ == '__main__':
     from calibre.gui2 import Application
+
     app = Application([])
     app.load_builtin_fonts()
     d = QDialog()

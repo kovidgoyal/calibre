@@ -43,18 +43,13 @@ d['preview_background'] = 'auto'
 d['preview_foreground'] = 'auto'
 d['preview_link_color'] = 'auto'
 d['remove_existing_links_when_linking_sheets'] = True
-d['charmap_favorites'] = list(map(ord, ('\xa0\u2002\u2003\u2009\xad'
-                                        '‘’“”‹›«»‚„'
-                                        '—–§¶†‡©®™'
-                                        '→⇒•·°±−×÷¼½½¾'
-                                        '…µ¢£€¿¡¨´¸ˆ˜'
-                                        'ÀÁÂÃÄÅÆÇÈÉÊË'
-                                        'ÌÍÎÏÐÑÒÓÔÕÖØ'
-                                        'ŒŠÙÚÛÜÝŸÞßàá'
-                                        'âãäåæçèéêëìí'
-                                        'îïðñòóôõöøœš'
-                                        'ùúûüýÿþªºαΩ∞')))
-d['folders_for_types'] = {'style':'styles', 'image':'images', 'font':'fonts', 'audio':'audio', 'video':'video'}
+d['charmap_favorites'] = list(
+    map(
+        ord,
+        ('\xa0\u2002\u2003\u2009\xad‘’“”‹›«»‚„—–§¶†‡©®™→⇒•·°±−×÷¼½½¾…µ¢£€¿¡¨´¸ˆ˜ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØŒŠÙÚÛÜÝŸÞßàáâãäåæçèéêëìíîïðñòóôõöøœšùúûüýÿþªºαΩ∞'),
+    )
+)
+d['folders_for_types'] = {'style': 'styles', 'image': 'images', 'font': 'fonts', 'audio': 'audio', 'video': 'video'}
 d['pretty_print_on_open'] = False
 d['disable_completion_popup_for_search'] = False
 d['saved_searches'] = []
@@ -69,20 +64,58 @@ d['merge_identical_selectors'] = False
 d['merge_rules_with_identical_properties'] = False
 d['remove_unreferenced_sheets'] = True
 d['global_book_toolbar'] = [
-'new-file', 'open-book', 'save-book', None, 'global-undo', 'global-redo', 'create-checkpoint', None, 'donate', 'user-manual']
+    'new-file',
+    'open-book',
+    'save-book',
+    None,
+    'global-undo',
+    'global-redo',
+    'create-checkpoint',
+    None,
+    'donate',
+    'user-manual',
+]
 d['global_tools_toolbar'] = [
-    'check-book', 'spell-check-book', 'edit-toc', 'insert-character',
-    'manage-fonts', 'smarten-punctuation', 'remove-unused-css', 'show-reports'
+    'check-book',
+    'spell-check-book',
+    'edit-toc',
+    'insert-character',
+    'manage-fonts',
+    'smarten-punctuation',
+    'remove-unused-css',
+    'show-reports',
 ]
 d['global_plugins_toolbar'] = []
 d['editor_common_toolbar'] = [('editor-' + x) if x else None for x in ('undo', 'redo', None, 'cut', 'copy', 'paste', 'smart-comment')]
 d['editor_css_toolbar'] = ['pretty-current', 'editor-sort-css', 'insert-image']
 d['editor_xml_toolbar'] = ['pretty-current', 'insert-tag']
-d['editor_html_toolbar'] = ['fix-html-current', 'pretty-current', 'insert-image', 'insert-hyperlink', 'insert-tag', 'change-paragraph']
-d['editor_format_toolbar'] = [('format-text-' + x) if x else x for x in (
-'bold', 'italic', 'underline', 'strikethrough', 'subscript', 'superscript',
-    None, 'color', 'background-color', None, 'justify-left', 'justify-center',
-    'justify-right', 'justify-fill')]
+d['editor_html_toolbar'] = [
+    'fix-html-current',
+    'pretty-current',
+    'insert-image',
+    'insert-hyperlink',
+    'insert-tag',
+    'change-paragraph',
+]
+d['editor_format_toolbar'] = [
+    ('format-text-' + x) if x else x
+    for x in (
+        'bold',
+        'italic',
+        'underline',
+        'strikethrough',
+        'subscript',
+        'superscript',
+        None,
+        'color',
+        'background-color',
+        None,
+        'justify-left',
+        'justify-center',
+        'justify-right',
+        'justify-fill',
+    )
+]
 d['spell_check_case_sensitive_search'] = False
 d['add_cover_preserve_aspect_ratio'] = False
 d['templates'] = {}
@@ -99,7 +132,7 @@ d['remove_ncx'] = True
 d['html_transform_scope'] = 'current'
 del d
 
-ucase_map = {l:string.ascii_uppercase[i] for i, l in enumerate(string.ascii_lowercase)}
+ucase_map = {l: string.ascii_uppercase[i] for i, l in enumerate(string.ascii_lowercase)}
 
 
 def capitalize(x):
@@ -119,7 +152,6 @@ def set_current_container(container):
 
 
 class NonReplaceDict(dict):
-
     def __setitem__(self, k, v):
         if k in self:
             raise ValueError(f'The key {k} is already present')
@@ -130,7 +162,11 @@ actions = NonReplaceDict()
 editors = NonReplaceDict()
 toolbar_actions = NonReplaceDict()
 editor_toolbar_actions = {
-    'format':NonReplaceDict(), 'html':NonReplaceDict(), 'xml':NonReplaceDict(), 'css':NonReplaceDict()}
+    'format': NonReplaceDict(),
+    'html': NonReplaceDict(),
+    'xml': NonReplaceDict(),
+    'css': NonReplaceDict(),
+}
 
 TOP = object()
 dictionaries = Dictionaries()
@@ -151,6 +187,7 @@ def set_book_locale(lang):
     except ValueError:
         dictionaries.default_locale = dictionaries.ui_locale
     from calibre.gui2.tweak_book.editor.syntax.html import refresh_spell_check_status
+
     refresh_spell_check_status()
 
 

@@ -1,4 +1,4 @@
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2011, Timothy Legge <timlegge@gmail.com> and Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
@@ -16,22 +16,22 @@ class Bookmark:  # {{{
     def __init__(self, db_connection, contentId, path, id, book_format, bookmark_extension):
         self.book_format = book_format
         self.bookmark_extension = bookmark_extension
-        self.book_length = 0            # Not Used
+        self.book_length = 0  # Not Used
         self.id = id
         self.last_read = 0
-        self.last_read_location = 0     # Not Used
+        self.last_read_location = 0  # Not Used
         self.path = path
         self.timestamp = 0
         self.user_notes = None
         self.db_connection = db_connection
         self.contentId = contentId
         self.percent_read = 0
-        self.kepub = (self.contentId.endswith('.kepub.epub') or not os.path.splitext(self.contentId)[1])
+        self.kepub = self.contentId.endswith('.kepub.epub') or not os.path.splitext(self.contentId)[1]
         self.get_bookmark_data()
-        self.get_book_length()          # Not Used
+        self.get_book_length()  # Not Used
 
     def get_bookmark_data(self):
-        """ Return the timestamp and last_read_location """
+        """Return the timestamp and last_read_location"""
         user_notes = {}
         self.timestamp = os.path.getmtime(self.path)
 
@@ -61,11 +61,11 @@ class Bookmark:  # {{{
             try:
                 for chapter_row in cursor:
                     chapter_contentID = chapter_row['ContentID']
-                    chapter_contentID = chapter_contentID[:chapter_contentID.rfind('-')]
+                    chapter_contentID = chapter_contentID[: chapter_contentID.rfind('-')]
                     kepub_chapters[chapter_contentID] = {
-                                                         'chapter_title': chapter_row['Title'],
-                                                         'chapter_index': chapter_row['VolumeIndex']
-                                                        }
+                        'chapter_title': chapter_row['Title'],
+                        'chapter_index': chapter_row['VolumeIndex'],
+                    }
                 debug_print(f'Kobo::Bookmark::get_bookmark_data - getting kepub chapter: kepub chapters={kepub_chapters}')
             except Exception:
                 debug_print('Kobo::Bookmark::get_bookmark_data - No chapters found')
@@ -84,11 +84,11 @@ class Bookmark:  # {{{
                 filename_index = chapter_contentID.find('!')
                 book_contentID_part = chapter_contentID[:filename_index]
                 debug_print(f"Kobo::Bookmark::get_bookmark_data - getting kepub: chapter book_contentID_part='{book_contentID_part}'")
-                file_contentID_part = chapter_contentID[filename_index + 1:]
+                file_contentID_part = chapter_contentID[filename_index + 1 :]
                 filename_index = file_contentID_part.find('!')
                 opf_reference = file_contentID_part[:filename_index]
                 debug_print(f"Kobo::Bookmark::get_bookmark_data - getting kepub: chapter opf_reference='{opf_reference}'")
-                file_contentID_part = file_contentID_part[filename_index + 1:]
+                file_contentID_part = file_contentID_part[filename_index + 1 :]
                 debug_print(f"Kobo::Bookmark::get_bookmark_data - getting kepub: chapter file_contentID_part='{file_contentID_part}'")
                 # from urllib import quote
                 # file_contentID_part = quote(file_contentID_part)
@@ -111,7 +111,7 @@ class Bookmark:  # {{{
             annotation = row['Annotation']
 
             # A dog ear (bent upper right corner) is a bookmark
-            if row['StartContainerChildIndex'] == row['StartOffset'] == 0:   # StartContainerChildIndex = StartOffset = 0
+            if row['StartContainerChildIndex'] == row['StartOffset'] == 0:  # StartContainerChildIndex = StartOffset = 0
                 e_type = 'Bookmark'
                 text = row['Title']
             # highlight is text with no annotation
@@ -125,27 +125,31 @@ class Bookmark:  # {{{
             note_id = current_chapter * 1000 + bm_count
 
             # book_title = row[8]
-            chapter_progress = min(round(float(100*row['ChapterProgress']),2),100)
-            user_notes[note_id] = {'id': self.id,
-                                   'displayed_location': note_id,
-                                   'type': e_type,
-                                   'text': text,
-                                   'annotation': annotation,
-                                   'chapter': current_chapter,
-                                   'chapter_title': chapter_title,
-                                   'chapter_progress': chapter_progress}
+            chapter_progress = min(round(float(100 * row['ChapterProgress']), 2), 100)
+            user_notes[note_id] = {
+                'id': self.id,
+                'displayed_location': note_id,
+                'type': e_type,
+                'text': text,
+                'annotation': annotation,
+                'chapter': current_chapter,
+                'chapter_title': chapter_title,
+                'chapter_progress': chapter_progress,
+            }
             previous_chapter = current_chapter
             # debug_print("e_type:", e_type, '\t', 'loc: ', note_id, 'text: ', text,
             # 'annotation: ', annotation, 'chapter_title: ', chapter_title,
             # 'chapter_progress: ', chapter_progress, 'date: ')
 
-        cursor.execute('SELECT DateLastRead, ___PercentRead, ReadStatus '
-                        'FROM content '
-                        'WHERE bookid IS NULL '
-                        'AND ReadStatus > 0 '
-                        'AND ContentID = ? '
-                        'ORDER BY DateLastRead, ReadStatus',
-                        book_query_values)
+        cursor.execute(
+            'SELECT DateLastRead, ___PercentRead, ReadStatus '
+            'FROM content '
+            'WHERE bookid IS NULL '
+            'AND ReadStatus > 0 '
+            'AND ContentID = ? '
+            'ORDER BY DateLastRead, ReadStatus',
+            book_query_values,
+        )
         for row in cursor:
             self.last_read = row['DateLastRead']
             self.percent_read = 100 if (row['ReadStatus'] == 2) else row['___PercentRead']
@@ -182,5 +186,6 @@ class Bookmark:  # {{{
             fmt('User Notes', self.user_notes)
 
         return '\n'.join(parts) + '\n'
+
 
 # }}}

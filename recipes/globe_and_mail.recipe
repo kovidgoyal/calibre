@@ -13,12 +13,11 @@ def absolutize(href):
 
 def classes(classes):
     q = frozenset(classes.split(' '))
-    return dict(attrs={
-        'class': lambda x: x and frozenset(x.split()).intersection(q)})
+    return dict(attrs={'class': lambda x: x and frozenset(x.split()).intersection(q)})
 
 
 class GlobeMail(BasicNewsRecipe):
-    title = u'The Globe and Mail'
+    title = 'The Globe and Mail'
     __author__ = 'Kovid Goyal'
     encoding = 'utf-8'
     publisher = 'Globe & Mail'
@@ -28,9 +27,7 @@ class GlobeMail(BasicNewsRecipe):
     remove_attributes = ['style']
     delay = 1
 
-    keep_only_tags = [
-        classes('article-title c-article-meta l-article l-article-title')
-    ]
+    keep_only_tags = [classes('article-title c-article-meta l-article l-article-title')]
     remove_tags = [
         classes('c-ad pb-f-commercial-dfp-ads pb-f-article-actions pb-f-article-meta article-toolbar'),
         dict(name='source'),

@@ -6,7 +6,6 @@ from calibre.utils.filenames import ascii_filename
 
 
 class StorePlugin:  # {{{
-
     """
     A plugin representing an online ebook repository (store). The store can
     be a commercial store that sells ebooks or a source of free downloadable
@@ -55,6 +54,7 @@ class StorePlugin:  # {{{
         self.base_plugin = base_plugin
         if config is None:
             from calibre.utils.config import JSONConfig
+
             config = JSONConfig('store/stores/' + ascii_filename(self.name))
         self.config = config
 
@@ -204,5 +204,6 @@ class StorePlugin:  # {{{
         See :class:`calibre.customize.Plugin` for details.
         """
         raise NotImplementedError()
+
 
 # }}}

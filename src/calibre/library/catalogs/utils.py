@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2010, Greg Riker'
 __docformat__ = 'restructuredtext en'
 
@@ -18,12 +18,32 @@ class NumberToText:  # {{{
     456     => four hundred fifty-six
     4:56    => four fifty-six
     """
-    ORDINALS = ['zeroth','first','second','third','fourth','fifth','sixth','seventh','eighth','ninth']
-    lessThanTwenty = ['<zero>','one','two','three','four','five','six','seven','eight','nine',
-                        'ten','eleven','twelve','thirteen','fourteen','fifteen','sixteen','seventeen',
-                        'eighteen','nineteen']
-    tens = ['<zero>','<tens>','twenty','thirty','forty','fifty','sixty','seventy','eighty','ninety']
-    hundreds = ['<zero>','one','two','three','four','five','six','seven','eight','nine']
+
+    ORDINALS = ['zeroth', 'first', 'second', 'third', 'fourth', 'fifth', 'sixth', 'seventh', 'eighth', 'ninth']
+    lessThanTwenty = [
+        '<zero>',
+        'one',
+        'two',
+        'three',
+        'four',
+        'five',
+        'six',
+        'seven',
+        'eight',
+        'nine',
+        'ten',
+        'eleven',
+        'twelve',
+        'thirteen',
+        'fourteen',
+        'fifteen',
+        'sixteen',
+        'seventeen',
+        'eighteen',
+        'nineteen',
+    ]
+    tens = ['<zero>', '<tens>', 'twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety']
+    hundreds = ['<zero>', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine']
 
     def __init__(self, number, verbose=False):
         self.number = number
@@ -43,7 +63,7 @@ class NumberToText:  # {{{
 
         # Build the hundreds component
         if hundredsComponent:
-            hundredsComponentString = f'{self.hundreds[hundredsComponent//100]} hundred'
+            hundredsComponentString = f'{self.hundreds[hundredsComponent // 100]} hundred'
         else:
             hundredsComponentString = ''
 
@@ -87,15 +107,15 @@ class NumberToText:  # {{{
             self.log(f'numberTranslate(): {self.number}')
 
         # Special case ordinals
-        if re.search(r'[st|nd|rd|th]',self.number):
+        if re.search(r'[st|nd|rd|th]', self.number):
             self.number = self.number.replace(',', '')
             ordinal_suffix = re.search(r'[\D]', self.number)
-            ordinal_number = re.sub(r'\D','',self.number.replace(',', ''))
+            ordinal_number = re.sub(r'\D', '', self.number.replace(',', ''))
             if self.verbose:
                 self.log(f'Ordinal: {ordinal_number}')
             self.number_as_float = ordinal_number
             assert ordinal_suffix is not None
-            self.suffix = self.number[ordinal_suffix.start():]
+            self.suffix = self.number[ordinal_suffix.start() :]
             if int(ordinal_number) > 9:
                 # Some typos (e.g., 'twentyth'), acceptable
                 self.text = f'{NumberToText(ordinal_number).text}'
@@ -117,7 +137,7 @@ class NumberToText:  # {{{
             if self.verbose:
                 self.log(f'Percent: {self.number}')
             self.number_as_float = self.number.split('%')[0]
-            self.text = NumberToText(self.number.replace('%',' percent')).text
+            self.text = NumberToText(self.number.replace('%', ' percent')).text
 
         # Test for decimal
         elif '.' in self.number:
@@ -144,7 +164,7 @@ class NumberToText:  # {{{
             self.text = f'{left}-{right}'
 
         # Test for only commas and numbers
-        elif ',' in self.number and not re.search(r'[^0-9,]',self.number):
+        elif ',' in self.number and not re.search(r'[^0-9,]', self.number):
             if self.verbose:
                 self.log(f'Comma(s): {self.number}')
             self.number_as_float = self.number.replace(',', '')
@@ -187,9 +207,9 @@ class NumberToText:  # {{{
                 self.text = 'one billion'
             else:
                 # Isolate the three-digit number groups
-                millionsNumber  = number//10**6
-                thousandsNumber = (number - (millionsNumber * 10**6))//10**3
-                hundredsNumber  = number - (millionsNumber * 10**6) - (thousandsNumber * 10**3)
+                millionsNumber = number // 10**6
+                thousandsNumber = (number - (millionsNumber * 10**6)) // 10**3
+                hundredsNumber = number - (millionsNumber * 10**6) - (thousandsNumber * 10**3)
                 if self.verbose:
                     print(f'Converting {millionsNumber} {thousandsNumber} {hundredsNumber}')
 
@@ -200,7 +220,7 @@ class NumberToText:  # {{{
                 # Convert thousandsNumber
                 if thousandsNumber:
                     if number > 1099 and number < 2000:
-                        resultString = f'{self.lessThanTwenty[number//100]} {self.stringFromInt(number % 100)}'
+                        resultString = f'{self.lessThanTwenty[number // 100]} {self.stringFromInt(number % 100)}'
                         self.text = resultString.strip().capitalize()
                         return
                     else:
@@ -227,4 +247,6 @@ class NumberToText:  # {{{
                 if self.verbose:
                     self.log(f'resultString: {resultString}')
                 self.text = resultString.strip().capitalize()
+
+
 # }}}

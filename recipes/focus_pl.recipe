@@ -2,7 +2,6 @@ from calibre.web.feeds.recipes import BasicNewsRecipe
 
 
 class NYTimes(BasicNewsRecipe):
-
     title = 'Focus'
     __author__ = 'Krittika Goyal'
     language = 'pl'
@@ -44,8 +43,7 @@ class NYTimes(BasicNewsRecipe):
                 url = 'http://www.focus.pl' + url
                 self.log('\t\tFound article:', title)
                 self.log('\t\t\t', url)
-                articles.append({'title': title, 'url': url,
-                                 'description': '', 'date': ''})
+                articles.append({'title': title, 'url': url, 'description': '', 'date': ''})
         feeds.append((section_title, articles))
 
         return feeds

@@ -40,8 +40,7 @@ class EconomicAndPoliticalWeekly(BasicNewsRecipe):
         current_section = None
 
         for div in main.findAll(attrs={'class': lambda x: x and 'views-field-title' in x.split()}):
-            section = self.tag_to_string(div.findParent(
-                attrs={'class': 'block-inner'}).find('h2'))
+            section = self.tag_to_string(div.findParent(attrs={'class': 'block-inner'}).find('h2'))
             if section != current_section:
                 current_section = section
                 if section not in sections:
@@ -54,14 +53,12 @@ class EconomicAndPoliticalWeekly(BasicNewsRecipe):
             if a.get('title'):
                 desc = a['title']
             else:
-                d = div.findNextSibling(
-                    attrs={'class': lambda x: x and 'views-field-body' in x.split()})
+                d = div.findNextSibling(attrs={'class': lambda x: x and 'views-field-body' in x.split()})
                 if d is not None:
                     desc = self.tag_to_string(d)
             self.log('\t', title, url)
             self.log('\t\t', desc)
-            sections[current_section].append(
-                {'title': title, 'url': url, 'description': desc})
+            sections[current_section].append({'title': title, 'url': url, 'description': desc})
 
         current_section = 'Web Exclusive'
         sections[current_section] = []
@@ -76,7 +73,6 @@ class EconomicAndPoliticalWeekly(BasicNewsRecipe):
             url = absurl(elems[-1]['href'])
             self.log('\t', title, url)
             self.log('\t\t', desc)
-            sections[current_section].append(
-                {'title': title, 'url': url, 'description': desc})
+            sections[current_section].append({'title': title, 'url': url, 'description': desc})
 
         return [(t, articles) for t, articles in sections.items() if articles]

@@ -1,6 +1,7 @@
 """
 Defines the plugin system for conversions.
 """
+
 import numbers
 import os
 import re
@@ -16,8 +17,7 @@ class ConversionOption:
     Class representing conversion options
     """
 
-    def __init__(self, name='', help=None, long_switch=None,
-                 short_switch=None, choices=None):
+    def __init__(self, name='', help=None, long_switch=None, short_switch=None, choices=None):
         self.name = name
         self.help = help
         self.long_switch = long_switch
@@ -45,14 +45,18 @@ class ConversionOption:
         return self.name == getattr(other, 'name', other)
 
     def clone(self):
-        return ConversionOption(name=self.name, help=self.help,
-                long_switch=self.long_switch, short_switch=self.short_switch,
-                choices=self.choices)
+        return ConversionOption(
+            name=self.name,
+            help=self.help,
+            long_switch=self.long_switch,
+            short_switch=self.short_switch,
+            choices=self.choices,
+        )
 
 
 class OptionRecommendation:
-    LOW  = 1
-    MED  = 2
+    LOW = 1
+    MED = 2
     HIGH = 3
 
     def __init__(self, recommended_value=None, level=LOW, **kwargs):
@@ -73,20 +77,16 @@ class OptionRecommendation:
         return self.option.help
 
     def clone(self):
-        return OptionRecommendation(recommended_value=self.recommended_value,
-                level=self.level, option=self.option.clone())
+        return OptionRecommendation(recommended_value=self.recommended_value, level=self.level, option=self.option.clone())
 
     def validate_parameters(self):
-        if self.option.choices and self.recommended_value not in \
-                                                    self.option.choices:
+        if self.option.choices and self.recommended_value not in self.option.choices:
             raise ValueError(f'OpRec: {self.option.name}: Recommended value not in choices')
         if not (isinstance(self.recommended_value, (numbers.Number, bytes, str)) or self.recommended_value is None):
-            raise ValueError(f'OpRec: {self.option.name}:' + repr(
-                self.recommended_value) + ' is not a string or a number')
+            raise ValueError(f'OpRec: {self.option.name}:' + repr(self.recommended_value) + ' is not a string or a number')
 
 
 class DummyReporter:
-
     def __init__(self):
         self.cancel_requested = False
 
@@ -94,18 +94,15 @@ class DummyReporter:
         pass
 
 
-def gui_configuration_widget(name, parent, get_option_by_name,
-        get_option_help, db, book_id, for_output=True):
+def gui_configuration_widget(name, parent, get_option_by_name, get_option_help, db, book_id, for_output=True):
     import importlib
 
     def widget_factory(cls):
-        return cls(parent, get_option_by_name,
-            get_option_help, db, book_id)
+        return cls(parent, get_option_by_name, get_option_help, db, book_id)
 
     if for_output:
         try:
-            output_widget = importlib.import_module(
-                    'calibre.gui2.convert.'+name)
+            output_widget = importlib.import_module('calibre.gui2.convert.' + name)
             pw = output_widget.PluginWidget
             pw.ICON = 'back.png'
             pw.HELP = _('Options specific to the output format.')
@@ -114,8 +111,7 @@ def gui_configuration_widget(name, parent, get_option_by_name,
             pass
     else:
         try:
-            input_widget = importlib.import_module(
-                    'calibre.gui2.convert.'+name)
+            input_widget = importlib.import_module('calibre.gui2.convert.' + name)
             pw = input_widget.PluginWidget
             pw.ICON = 'forward.png'
             pw.HELP = _('Options specific to the input format.')
@@ -140,7 +136,7 @@ class InputFormatPlugin(Plugin):
 
     #: Set of file types for which this plugin should be run
     #: For example: ``set(['azw', 'mobi', 'prc'])``
-    file_types     = set()
+    file_types = set()
 
     #: If True, this input plugin generates a collection of images,
     #: one per HTML file. This can be set dynamically, in the convert method
@@ -166,14 +162,19 @@ class InputFormatPlugin(Plugin):
     #: in sub-classes. Use :attr:`options` instead. Every option must be an
     #: instance of :class:`OptionRecommendation`.
     common_options = {
-        OptionRecommendation(name='input_encoding',
-            recommended_value=None, level=OptionRecommendation.LOW,
-            help=_('Specify the character encoding of the input document. If '
-                   'set this option will override any encoding declared by the '
-                   'document itself. Particularly useful for documents that '
-                   'do not declare an encoding or that have erroneous '
-                   'encoding declarations.')
-        )}
+        OptionRecommendation(
+            name='input_encoding',
+            recommended_value=None,
+            level=OptionRecommendation.LOW,
+            help=_(
+                'Specify the character encoding of the input document. If '
+                'set this option will override any encoding declared by the '
+                'document itself. Particularly useful for documents that '
+                'do not declare an encoding or that have erroneous '
+                'encoding declarations.'
+            ),
+        )
+    }
 
     #: Options to customize the behavior of this plugin. Every option must be an
     #: instance of :class:`OptionRecommendation`.
@@ -225,8 +226,7 @@ class InputFormatPlugin(Plugin):
         """
         raise NotImplementedError()
 
-    def __call__(self, stream, options, file_ext, log,
-                 accelerators, output_dir):
+    def __call__(self, stream, options, file_ext, log, accelerators, output_dir):
         try:
             log(f'InputFormatPlugin: {self.name} running')
             if hasattr(stream, 'name'):
@@ -239,8 +239,7 @@ class InputFormatPlugin(Plugin):
             for x in os.listdir('.'):
                 shutil.rmtree(x) if os.path.isdir(x) else os.remove(x)
 
-            ret = self.convert(stream, options, file_ext,
-                               log, accelerators)
+            ret = self.convert(stream, options, file_ext, log, accelerators)
 
         return ret
 
@@ -259,16 +258,14 @@ class InputFormatPlugin(Plugin):
         """
         pass
 
-    def gui_configuration_widget(self, parent, get_option_by_name,
-            get_option_help, db, book_id=None):
+    def gui_configuration_widget(self, parent, get_option_by_name, get_option_help, db, book_id=None):
         """
         Called to create the widget used for configuring this plugin in the
         calibre GUI. The widget must be an instance of the PluginWidget class.
         See the builtin input plugins for examples.
         """
         name = self.name.lower().replace(' ', '_')
-        return gui_configuration_widget(name, parent, get_option_by_name,
-                get_option_help, db, book_id, for_output=False)
+        return gui_configuration_widget(name, parent, get_option_by_name, get_option_help, db, book_id, for_output=False)
 
 
 class OutputFormatPlugin(Plugin):
@@ -287,18 +284,23 @@ class OutputFormatPlugin(Plugin):
 
     #: The file type (extension without leading period) that this
     #: plugin outputs
-    file_type     = None
+    file_type = None
 
     #: Options shared by all Input format plugins. Do not override
     #: in sub-classes. Use :attr:`options` instead. Every option must be an
     #: instance of :class:`OptionRecommendation`.
     common_options = {
-        OptionRecommendation(name='pretty_print',
-            recommended_value=False, level=OptionRecommendation.LOW,
-            help=_('If specified, the output plugin will try to create output '
-            'that is as human readable as possible. May not have any effect '
-            'for some output plugins.')
-        )}
+        OptionRecommendation(
+            name='pretty_print',
+            recommended_value=False,
+            level=OptionRecommendation.LOW,
+            help=_(
+                'If specified, the output plugin will try to create output '
+                'that is as human readable as possible. May not have any effect '
+                'for some output plugins.'
+            ),
+        )
+    }
 
     #: Options to customize the behavior of this plugin. Every option must be an
     #: instance of :class:`OptionRecommendation`.
@@ -310,7 +312,7 @@ class OutputFormatPlugin(Plugin):
 
     @property
     def description(self):
-        return _('Convert e-books to the %s format')%(self.file_type or '').upper()
+        return _('Convert e-books to the %s format') % (self.file_type or '').upper()
 
     def __init__(self, *args):
         Plugin.__init__(self, *args)
@@ -337,8 +339,7 @@ class OutputFormatPlugin(Plugin):
 
     @property
     def is_periodical(self):
-        return self.oeb.metadata.publication_type and \
-            str(self.oeb.metadata.publication_type[0]).startswith('periodical:')
+        return self.oeb.metadata.publication_type and str(self.oeb.metadata.publication_type[0]).startswith('periodical:')
 
     def specialize_options(self, log, opts, input_fmt):
         """
@@ -360,13 +361,11 @@ class OutputFormatPlugin(Plugin):
         """
         pass
 
-    def gui_configuration_widget(self, parent, get_option_by_name,
-            get_option_help, db, book_id=None):
+    def gui_configuration_widget(self, parent, get_option_by_name, get_option_help, db, book_id=None):
         """
         Called to create the widget used for configuring this plugin in the
         calibre GUI. The widget must be an instance of the PluginWidget class.
         See the builtin output plugins for examples.
         """
         name = self.name.lower().replace(' ', '_')
-        return gui_configuration_widget(name, parent, get_option_by_name,
-                get_option_help, db, book_id, for_output=True)
+        return gui_configuration_widget(name, parent, get_option_by_name, get_option_help, db, book_id, for_output=True)

@@ -2,7 +2,7 @@
 Basic support for writing LIT files.
 """
 
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
 
 import copy
@@ -40,7 +40,7 @@ ALL_MS_COVER_TYPES = [
     ('other.ms-thumbimage-standard', 'Standard thumbnail image'),
     ('other.ms-coverimage', 'PocketPC cover image'),
     ('other.ms-thumbimage', 'PocketPC thumbnail image'),
-    ]
+]
 
 
 def invert_tag_map(tag_map):
@@ -68,27 +68,37 @@ LZXCOMPRESS_GUID = '{0A9007C6-4076-11D3-8789-0000F8105754}'
 
 
 def packguid(guid):
-    values = guid[1:9], guid[10:14], guid[15:19], \
-        guid[20:22], guid[22:24], guid[25:27], guid[27:29], \
-        guid[29:31], guid[31:33], guid[33:35], guid[35:37]
+    values = (
+        guid[1:9],
+        guid[10:14],
+        guid[15:19],
+        guid[20:22],
+        guid[22:24],
+        guid[25:27],
+        guid[27:29],
+        guid[29:31],
+        guid[31:33],
+        guid[33:35],
+        guid[35:37],
+    )
     values = [int(value, 16) for value in values]
     return pack('<LHHBBBBBBBB', *values)
 
 
-FLAG_OPENING = (1 << 0)
-FLAG_CLOSING = (1 << 1)
-FLAG_BLOCK = (1 << 2)
-FLAG_HEAD = (1 << 3)
-FLAG_ATOM = (1 << 4)
-FLAG_CUSTOM  = (1 << 15)
-ATTR_NUMBER  = 0xffff
+FLAG_OPENING = 1 << 0
+FLAG_CLOSING = 1 << 1
+FLAG_BLOCK = 1 << 2
+FLAG_HEAD = 1 << 3
+FLAG_ATOM = 1 << 4
+FLAG_CUSTOM = 1 << 15
+ATTR_NUMBER = 0xFFFF
 
 PIECE_SIZE = 16
 PRIMARY_SIZE = 40
 SECONDARY_SIZE = 232
 DCHUNK_SIZE = 0x2000
 CCHUNK_SIZE = 0x0200
-ULL_NEG1 = 0xffffffffffffffff
+ULL_NEG1 = 0xFFFFFFFFFFFFFFFF
 ROOT_OFFSET = 1284508585713721976
 ROOT_SIZE = 4165955342166943123
 
@@ -100,20 +110,9 @@ BLOCK_CAOL = (
     b'\x00\x00\x02\x00\x00\x00\x00\x00'
     b'\x00\x00\x00\x00\x00\x00\x00\x00'
 )
-BLOCK_ITSF = (
-    b'\x49\x54\x53\x46\x04\x00\x00\x00'
-    b'\x20\x00\x00\x00\x01\x00\x00\x00'
-)
-MSDES_CONTROL = (
-    b'\x03\x00\x00\x00\x29\x17\x00\x00'
-    b'\x01\x00\x00\x00\xa5\xa5\x00\x00'
-)
-LZXC_CONTROL = (
-    b'\x07\x00\x00\x00\x4c\x5a\x58\x43'
-    b'\x03\x00\x00\x00\x04\x00\x00\x00'
-    b'\x04\x00\x00\x00\x02\x00\x00\x00'
-    b'\x00\x00\x00\x00\x00\x00\x00\x00'
-)
+BLOCK_ITSF = b'\x49\x54\x53\x46\x04\x00\x00\x00\x20\x00\x00\x00\x01\x00\x00\x00'
+MSDES_CONTROL = b'\x03\x00\x00\x00\x29\x17\x00\x00\x01\x00\x00\x00\xa5\xa5\x00\x00'
+LZXC_CONTROL = b'\x07\x00\x00\x00\x4c\x5a\x58\x43\x03\x00\x00\x00\x04\x00\x00\x00\x04\x00\x00\x00\x02\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00'
 
 COLLAPSE = re.compile(r'[ \t\r\n\v]+')
 
@@ -123,7 +122,7 @@ PAGE_BREAKS = {'always', 'left', 'right'}
 def decint(value):
     ans = bytearray()
     while True:
-        b = value & 0x7f
+        b = value & 0x7F
         value >>= 7
         if ans:
             b |= 0x80
@@ -151,7 +150,7 @@ class ReBinary:
         self.buf = io.BytesIO()
         self.anchors = []
         self.page_breaks = []
-        self.is_html  = is_html = map is HTML_MAP
+        self.is_html = is_html = map is HTML_MAP
         self.stylizer = Stylizer(root, item.href, oeb, opts) if is_html else None
         self.tree_to_binary(root)
         self.content = self.buf.getvalue()
@@ -171,8 +170,7 @@ class ReBinary:
     def is_block(self, style):
         return style['display'] not in ('inline', 'inline-block')
 
-    def tree_to_binary(self, elem, nsrmap=NSRMAP, parents=[],
-                       inhead=False, preserve=False):
+    def tree_to_binary(self, elem, nsrmap=NSRMAP, parents=[], inhead=False, preserve=False):
         if not isinstance(elem.tag, (str, bytes)):
             # Don't emit any comments or raw entities
             return
@@ -203,10 +201,9 @@ class ReBinary:
             if self.tattrs[index]:
                 tattrs = self.tattrs[index]
         else:
-            self.write(FLAG_CUSTOM, len(tag)+1, tag)
+            self.write(FLAG_CUSTOM, len(tag) + 1, tag)
         last_break = self.page_breaks[-1][0] if self.page_breaks else None
-        if style and last_break != tag_offset \
-           and style['page-break-before'] in PAGE_BREAKS:
+        if style and last_break != tag_offset and style['page-break-before'] in PAGE_BREAKS:
             self.page_breaks.append((tag_offset, list(parents)))
         for attr, value in attrib.items():
             attr = prefixname(attr, nsrmap)
@@ -231,15 +228,15 @@ class ReBinary:
             if attr in tattrs:
                 self.write(tattrs[attr])
             else:
-                self.write(FLAG_CUSTOM, len(attr)+1, attr)
+                self.write(FLAG_CUSTOM, len(attr) + 1, attr)
             try:
-                self.write(ATTR_NUMBER, int(value)+1)
+                self.write(ATTR_NUMBER, int(value) + 1)
             except ValueError:
-                self.write(len(value)+1, value)
+                self.write(len(value) + 1, value)
         self.write(0)
         old_preserve = preserve
         if style:
-            preserve = (style['white-space'] in ('pre', 'pre-wrap'))
+            preserve = style['white-space'] in ('pre', 'pre-wrap')
         xml_space = elem.get(XML('space'))
         if xml_space == 'preserve':
             preserve = True
@@ -257,9 +254,7 @@ class ReBinary:
             if self.stylizer:
                 nstyle = None if next is None else self.stylizer.style(next)
             if child is not None:
-                if not preserve \
-                   and (inhead or not nstyle or self.is_block(cstyle) or self.is_block(nstyle)) \
-                   and child.tail and child.tail.isspace():
+                if not preserve and (inhead or not nstyle or self.is_block(cstyle) or self.is_block(nstyle)) and child.tail and child.tail.isspace():
                     child.tail = None
                 self.tree_to_binary(child, nsrmap, parents, inhead, preserve)
             child, cstyle = next, nstyle
@@ -277,8 +272,7 @@ class ReBinary:
 
     def build_ahc(self):
         if len(self.anchors) > 6:
-            self.logger.warn(f'More than six anchors in file {self.item.href!r}. '
-                'Some links may not work properly.')
+            self.logger.warn(f'More than six anchors in file {self.item.href!r}. Some links may not work properly.')
         data = io.BytesIO()
         data.write(chr(len(self.anchors)).encode('utf-8'))
         for anchor, offset in self.anchors:
@@ -300,12 +294,12 @@ def preserve(function):
             return function(self, *args, **kwargs)
         finally:
             self._stream.seek(opos)
+
     functools.update_wrapper(wrapper, function)
     return wrapper
 
 
 class LitWriter:
-
     def __init__(self, opts):
         self.opts = opts
 
@@ -359,8 +353,7 @@ class LitWriter:
 
         # Write headers
         self._write(LIT_MAGIC)
-        self._write(pack('<IIII',
-            1, PRIMARY_SIZE, 5, SECONDARY_SIZE))
+        self._write(pack('<IIII', 1, PRIMARY_SIZE, 5, SECONDARY_SIZE))
         self._write(packguid(LITFILE_GUID))
         offset = self._tell()
         pieces = list(range(offset, offset + (PIECE_SIZE * 5), PIECE_SIZE))
@@ -368,10 +361,38 @@ class LitWriter:
         aoli1 = len(dchunks) if ichunk else ULL_NEG1
         last = len(dchunks) - 1
         ddepth = 2 if ichunk else 1
-        self._write(pack('<IIQQQQIIIIQIIQQQQIIIIQIIIIQ',
-            2, 0x98, aoli1, 0, last, 0, DCHUNK_SIZE, 2, 0, ddepth, 0,
-            len(self._directory), 0, ULL_NEG1, 0, 0, 0, CCHUNK_SIZE, 2,
-            0, 1, 0, len(dcounts), 0, 0x100000, 0x20000, 0))
+        self._write(
+            pack(
+                '<IIQQQQIIIIQIIQQQQIIIIQIIIIQ',
+                2,
+                0x98,
+                aoli1,
+                0,
+                last,
+                0,
+                DCHUNK_SIZE,
+                2,
+                0,
+                ddepth,
+                0,
+                len(self._directory),
+                0,
+                ULL_NEG1,
+                0,
+                0,
+                0,
+                CCHUNK_SIZE,
+                2,
+                0,
+                1,
+                0,
+                len(dcounts),
+                0,
+                0x100000,
+                0x20000,
+                0,
+            )
+        )
         self._write(BLOCK_CAOL)
         self._write(BLOCK_ITSF)
         conoff_offset = self._tell()
@@ -380,28 +401,24 @@ class LitWriter:
 
         # Piece #0
         piece0_offset = self._tell()
-        self._write(pack('<II', 0x1fe, 0))
+        self._write(pack('<II', 0x1FE, 0))
         filesz_offset = self._tell()
         self._write(pack('<QQ', 0, 0))
-        self._writeat(pieces[0], pack('<QQ',
-            piece0_offset, self._tell() - piece0_offset))
+        self._writeat(pieces[0], pack('<QQ', piece0_offset, self._tell() - piece0_offset))
 
         # Piece #1: Directory chunks
         piece1_offset = self._tell()
         number = len(dchunks) + ((ichunk and 1) or 0)
-        self._write(b'IFCM', pack('<IIIQQ',
-            1, DCHUNK_SIZE, 0x100000, ULL_NEG1, number))
+        self._write(b'IFCM', pack('<IIIQQ', 1, DCHUNK_SIZE, 0x100000, ULL_NEG1, number))
         for dchunk in dchunks:
             self._write(dchunk)
         if ichunk:
             self._write(ichunk)
-        self._writeat(pieces[1], pack('<QQ',
-            piece1_offset, self._tell() - piece1_offset))
+        self._writeat(pieces[1], pack('<QQ', piece1_offset, self._tell() - piece1_offset))
 
         # Piece #2: Count chunks
         piece2_offset = self._tell()
-        self._write(b'IFCM', pack('<IIIQQ',
-            1, CCHUNK_SIZE, 0x20000, ULL_NEG1, 1))
+        self._write(b'IFCM', pack('<IIIQQ', 1, CCHUNK_SIZE, 0x20000, ULL_NEG1, 1))
         cchunk = io.BytesIO()
         last = 0
         for i, dcount in zip(count(), dcounts):
@@ -411,24 +428,20 @@ class LitWriter:
             last = dcount
         cchunk = cchunk.getvalue()
         rem = CCHUNK_SIZE - (len(cchunk) + 50)
-        self._write(b'AOLL', pack('<IQQQQQ',
-            rem, 0, ULL_NEG1, ULL_NEG1, 0, 1))
+        self._write(b'AOLL', pack('<IQQQQQ', rem, 0, ULL_NEG1, ULL_NEG1, 0, 1))
         filler = b'\0' * rem
         self._write(cchunk, filler, pack('<H', len(dcounts)))
-        self._writeat(pieces[2], pack('<QQ',
-            piece2_offset, self._tell() - piece2_offset))
+        self._writeat(pieces[2], pack('<QQ', piece2_offset, self._tell() - piece2_offset))
 
         # Piece #3: GUID3
         piece3_offset = self._tell()
         self._write(packguid(PIECE3_GUID))
-        self._writeat(pieces[3], pack('<QQ',
-            piece3_offset, self._tell() - piece3_offset))
+        self._writeat(pieces[3], pack('<QQ', piece3_offset, self._tell() - piece3_offset))
 
         # Piece #4: GUID4
         piece4_offset = self._tell()
         self._write(packguid(PIECE4_GUID))
-        self._writeat(pieces[4], pack('<QQ',
-            piece4_offset, self._tell() - piece4_offset))
+        self._writeat(pieces[4], pack('<QQ', piece4_offset, self._tell() - piece4_offset))
 
         # The actual section content
         content_offset = self._tell()
@@ -443,14 +456,12 @@ class LitWriter:
             section.write(data)
         else:
             offset = 0
-        self._directory.append(
-            DirectoryEntry(name, secnum, offset, len(data)))
+        self._directory.append(DirectoryEntry(name, secnum, offset, len(data)))
 
     def _add_folder(self, name, offset=0, size=0):
         if not name.endswith('/'):
             name += '/'
-        self._directory.append(
-            DirectoryEntry(name, 0, offset, size))
+        self._directory.append(DirectoryEntry(name, 0, offset, size))
 
     def _djoin(self, *names):
         return '/'.join(names)
@@ -471,8 +482,7 @@ class LitWriter:
         self._add_folder('/data')
         for item in self._oeb.manifest.values():
             if item.media_type not in LIT_MIMES:
-                self._logger.warn(f'File {item.href!r} of unknown media-type {item.media_type!r} '
-                    'excluded from output.')
+                self._logger.warn(f'File {item.href!r} of unknown media-type {item.media_type!r} excluded from output.')
                 continue
             name = '/data/' + item.id
             data = item.data
@@ -518,12 +528,9 @@ class LitWriter:
                 elif media_type in OEB_STYLES:
                     media_type = CSS_MIME
                 href = unquote(item.href)
-                item.offset = offset \
-                    if state in ('linear', 'nonlinear') else 0
+                item.offset = offset if state in ('linear', 'nonlinear') else 0
                 data.write(pack('<I', item.offset))
-                entry = [chr(len(id)), str(id),
-                         chr(len(href)), str(href),
-                         chr(len(media_type)), str(media_type)]
+                entry = [chr(len(id)), str(id), chr(len(href)), str(href), chr(len(media_type)), str(media_type)]
                 for value in entry:
                     data.write(value.encode('utf-8'))
                 data.write(b'\0')
@@ -560,7 +567,7 @@ class LitWriter:
                 for parent in parents:
                     pb2.write(pack('<I', parent))
         if bits != 0:
-            pb3cur <<= (8 - bits)
+            pb3cur <<= 8 - bits
             pb3.write(pack('<B', pb3cur))
         self._add_file('/pb1', pb1.getvalue(), 0)
         self._add_file('/pb2', pb2.getvalue(), 0)
@@ -590,9 +597,8 @@ class LitWriter:
 
     def _build_namelist(self):
         data = io.BytesIO()
-        data.write(pack('<HH', 0x3c, len(self._sections)))
-        names = ['Uncompressed', 'MSCompressed', 'EbEncryptDS',
-                 'EbEncryptOnlyDS']
+        data.write(pack('<HH', 0x3C, len(self._sections)))
+        names = ['Uncompressed', 'MSCompressed', 'EbEncryptDS', 'EbEncryptOnlyDS']
         for name in names:
             data.write(pack('<H', len(name)))
             data.write(name.encode('utf-16-le'))
@@ -600,9 +606,11 @@ class LitWriter:
         self._add_file('::DataSpace/NameList', data.getvalue())
 
     def _build_storage(self):
-        mapping = [(1, 'MSCompressed', (LZXCOMPRESS_GUID,)),
-                   (2, 'EbEncryptDS', (LZXCOMPRESS_GUID, DESENCRYPT_GUID)),
-                   (3, 'EbEncryptOnlyDS', (DESENCRYPT_GUID,)),]
+        mapping = [
+            (1, 'MSCompressed', (LZXCOMPRESS_GUID,)),
+            (2, 'EbEncryptDS', (LZXCOMPRESS_GUID, DESENCRYPT_GUID)),
+            (3, 'EbEncryptOnlyDS', (DESENCRYPT_GUID,)),
+        ]
         for secnum, name, transforms in mapping:
             root = '::DataSpace/Storage/' + name
             data = self._sections[secnum].getvalue()
@@ -627,8 +635,7 @@ class LitWriter:
                     lzx = Compressor(17)
                     data, rtable = lzx.compress(data, flush=True)
                     rdata = io.BytesIO()
-                    rdata.write(pack('<IIIIQQQQ',
-                        3, len(rtable), 8, 0x28, unlen, len(data), 0x8000, 0))
+                    rdata.write(pack('<IIIIQQQQ', 3, len(rtable), 8, 0x28, unlen, len(data), 0x8000, 0))
                     for uncomp, comp in rtable[:-1]:
                         rdata.write(pack('<Q', comp))
                     rdata = rdata.getvalue()
@@ -646,7 +653,7 @@ class LitWriter:
 
     def _build_transforms(self):
         for guid in (LZXCOMPRESS_GUID, DESENCRYPT_GUID):
-            self._add_folder('::Transform/'+ guid)
+            self._add_folder('::Transform/' + guid)
 
     def _calculate_deskey(self, hashdata):
         prepad = 2
@@ -681,9 +688,7 @@ class LitWriter:
             en = entry.name
             if not isinstance(en, bytes):
                 en = en.encode('utf-8')
-            nxt = b''.join([decint(len(en)), en,
-                decint(entry.section), decint(entry.offset),
-                decint(entry.size)])
+            nxt = b''.join([decint(len(en)), en, decint(entry.section), decint(entry.offset), decint(entry.size)])
             usedlen = dchunk.tell() + len(nxt) + (len(quickref) * 2) + 52
             if usedlen >= DCHUNK_SIZE:
                 ddata.append((dchunk.getvalue(), quickref, dcount, name))
@@ -728,6 +733,11 @@ class LitWriter:
         if ichunk:
             rem = DCHUNK_SIZE - (ichunk.tell() + 16)
             pad = rem - 2
-            ichunk = b''.join([b'AOLI', pack('<IQ', rem, len(dchunks)),
-                ichunk.getvalue(), (b'\0' * pad), pack('<H', len(dchunks))])
+            ichunk = b''.join([
+                b'AOLI',
+                pack('<IQ', rem, len(dchunks)),
+                ichunk.getvalue(),
+                (b'\0' * pad),
+                pack('<H', len(dchunks)),
+            ])
         return dcounts, dchunks, ichunk

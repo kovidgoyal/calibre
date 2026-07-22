@@ -24,6 +24,4 @@ class TheBudgetFashionista(BasicNewsRecipe):
     language = 'en'
     auto_cleanup = True
 
-    feeds = [(u'Articles',
-              u'http://feeds.feedburner.com/TheBudgetFashionista')
-    ]
+    feeds = [('Articles', 'http://feeds.feedburner.com/TheBudgetFashionista')]

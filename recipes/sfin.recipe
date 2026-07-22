@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 __license__ = 'GPL v3'
-__copyright__ = u'2011, Silviu Cotoar\u0103'
+__copyright__ = '2011, Silviu Cotoar\u0103'
 '''
 sfin.ro
 '''
@@ -11,8 +11,8 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class Sfin(BasicNewsRecipe):
-    title = u'S\u0103pt\u0103m\u00e2na Financiar\u0103'
-    __author__ = u'Silviu Cotoar\u0103'
+    title = 'S\u0103pt\u0103m\u00e2na Financiar\u0103'
+    __author__ = 'Silviu Cotoar\u0103'
     description = 'SFIN'
     publisher = 'SFIN'
     oldest_article = 5
@@ -24,27 +24,21 @@ class Sfin(BasicNewsRecipe):
     encoding = 'utf-8'
     cover_url = 'http://img.9am.ro/images/logo_surse/saptamana_financiara.gif'
 
-    conversion_options = {
-        'comments': description, 'tags': category, 'language': language, 'publisher': publisher
-    }
+    conversion_options = {'comments': description, 'tags': category, 'language': language, 'publisher': publisher}
 
-    keep_only_tags = [
-        dict(name='div', attrs={'class': 'col2ContentLeft'}), dict(
-            name='div', attrs={'id': 'contentArticol'})
-    ]
+    keep_only_tags = [dict(name='div', attrs={'class': 'col2ContentLeft'}), dict(name='div', attrs={'id': 'contentArticol'})]
 
     remove_tags = [
-        dict(name='div', attrs={'class': ['infoArticol']}), dict(name='div', attrs={'class': ['separator']}), dict(name='div', attrs={
-            'class': ['tags']}), dict(name='div', attrs={'id': ['comments']}), dict(name='div', attrs={'class': 'boxForm'})
+        dict(name='div', attrs={'class': ['infoArticol']}),
+        dict(name='div', attrs={'class': ['separator']}),
+        dict(name='div', attrs={'class': ['tags']}),
+        dict(name='div', attrs={'id': ['comments']}),
+        dict(name='div', attrs={'class': 'boxForm'}),
     ]
 
-    remove_tags_after = [
-        dict(name='div', attrs={'class': 'tags'})
-    ]
+    remove_tags_after = [dict(name='div', attrs={'class': 'tags'})]
 
-    feeds = [
-        (u'Feeds', u'http://www.sfin.ro/rss')
-    ]
+    feeds = [('Feeds', 'http://www.sfin.ro/rss')]
 
     def preprocess_html(self, soup):
         return self.adeify_images(soup)

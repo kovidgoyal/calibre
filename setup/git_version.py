@@ -9,7 +9,6 @@ from setup import Command
 
 
 class GitVersion(Command):
-
     description = 'Update the version from git metadata'
 
     def run(self, opts):

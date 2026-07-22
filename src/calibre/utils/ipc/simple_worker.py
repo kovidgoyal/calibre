@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
@@ -27,7 +27,6 @@ else:
 
 
 class WorkerError(Exception):
-
     def __init__(self, msg, orig_tb='', log_path=None):
         Exception.__init__(self, msg)
         self.orig_tb = orig_tb
@@ -40,7 +39,6 @@ class WorkerError(Exception):
 
 
 class ConnectedWorker(Thread):
-
     def __init__(self, conn, args):
         Thread.__init__(self)
         self.daemon = True
@@ -63,7 +61,6 @@ class ConnectedWorker(Thread):
 
 
 class OffloadWorker:
-
     def __init__(self, conn, worker):
         self.conn = conn
         self.worker = worker
@@ -83,6 +80,7 @@ class OffloadWorker:
             pass
         except Exception:
             import traceback
+
             traceback.print_exc()
         finally:
             self.conn = None
@@ -96,8 +94,7 @@ class OffloadWorker:
         return self.worker.is_alive or self.kill_thread.is_alive()
 
 
-def communicate(ans, worker, conn, args, timeout=300, heartbeat=None,
-        abort=None):
+def communicate(ans, worker, conn, args, timeout=300, heartbeat=None, abort=None):
     cw = ConnectedWorker(conn, args)
     cw.start()
     st = monotonic()
@@ -145,8 +142,9 @@ def create_worker(env, priority='normal', cwd=None, func='main'):
 
 def start_pipe_worker(command, env=None, priority='normal', **process_args):
     import subprocess
+
     w = Worker(env or {})
-    args: dict[str, Any] = {'stdout':subprocess.PIPE, 'stdin':subprocess.PIPE, 'env':w.env, 'close_fds': True}
+    args: dict[str, Any] = {'stdout': subprocess.PIPE, 'stdin': subprocess.PIPE, 'env': w.env, 'close_fds': True}
     args.update(process_args)
     pass_fds: Iterable[int] | None = None
     try:
@@ -156,7 +154,7 @@ def start_pipe_worker(command, env=None, priority='normal', **process_args):
             if pass_fds:
                 for fd in pass_fds:
                     os.set_handle_inheritable(fd, True)
-                args['startupinfo'] = subprocess.STARTUPINFO(lpAttributeList={'handle_list':pass_fds})
+                args['startupinfo'] = subprocess.STARTUPINFO(lpAttributeList={'handle_list': pass_fds})
         else:
             niceness = {'normal': 0, 'low': 10, 'high': 20}[priority]
             args['env']['CALIBRE_WORKER_NICENESS'] = str(niceness)
@@ -176,22 +174,35 @@ def two_part_fork_job(env=None, priority='normal', cwd=None):
     conn, w = create_worker(env, priority, cwd)
 
     def run_job(
-        mod_name, func_name, args=(), kwargs=None, timeout=300,  # seconds
-        no_output=False, heartbeat=None, abort=None, module_is_source_code=False
+        mod_name,
+        func_name,
+        args=(),
+        kwargs=None,
+        timeout=300,  # seconds
+        no_output=False,
+        heartbeat=None,
+        abort=None,
+        module_is_source_code=False,
     ):
-        ans = {'result':None, 'stdout_stderr':None}
+        ans = {'result': None, 'stdout_stderr': None}
         kwargs = kwargs or {}
         try:
-            communicate(ans, w, conn, (mod_name, func_name, args, kwargs,
-                module_is_source_code), timeout=timeout, heartbeat=heartbeat,
-                abort=abort)
+            communicate(
+                ans,
+                w,
+                conn,
+                (mod_name, func_name, args, kwargs, module_is_source_code),
+                timeout=timeout,
+                heartbeat=heartbeat,
+                abort=abort,
+            )
         except WorkerError as e:
             if not no_output:
                 e.log_path = w.log_path
             raise
         finally:
             t = Thread(target=w.kill)
-            t.daemon=True
+            t.daemon = True
             t.start()
             if no_output:
                 try:
@@ -201,14 +212,26 @@ def two_part_fork_job(env=None, priority='normal', cwd=None):
         if not no_output:
             ans['stdout_stderr'] = w.log_path
         return ans
+
     setattr(run_job, 'worker', w)
 
     return run_job
 
 
-def fork_job(mod_name, func_name, args=(), kwargs=None, timeout=300,  # seconds
-        cwd=None, priority='normal', env={}, no_output=False, heartbeat=None,
-        abort=None, module_is_source_code=False):
+def fork_job(
+    mod_name,
+    func_name,
+    args=(),
+    kwargs=None,
+    timeout=300,  # seconds
+    cwd=None,
+    priority='normal',
+    env={},
+    no_output=False,
+    heartbeat=None,
+    abort=None,
+    module_is_source_code=False,
+):
     """
     Run a job in a worker process. A job is simply a function that will be
     called with the supplied arguments, in the worker process.
@@ -258,9 +281,15 @@ def fork_job(mod_name, func_name, args=(), kwargs=None, timeout=300,  # seconds
     If you set no_output=True, then this will not be present.
     """
     return two_part_fork_job(env, priority, cwd)(
-        mod_name, func_name, args=args, kwargs=kwargs, timeout=timeout,
-        no_output=no_output, heartbeat=heartbeat, abort=abort,
-        module_is_source_code=module_is_source_code
+        mod_name,
+        func_name,
+        args=args,
+        kwargs=kwargs,
+        timeout=timeout,
+        no_output=no_output,
+        heartbeat=heartbeat,
+        abort=abort,
+        module_is_source_code=module_is_source_code,
     )
 
 
@@ -272,8 +301,9 @@ def offload_worker(env={}, priority='normal', cwd=None):
 def compile_code(src):
     import io
     import re
+
     if not isinstance(src, str):
-        match = re.search(br'coding[:=]\s*([-\w.]+)', src[:200])
+        match = re.search(rb'coding[:=]\s*([-\w.]+)', src[:200])
         enc = match.group(1).decode('utf-8') if match else 'utf-8'
         src = src.decode(enc)
     # Python complains if there is a coding declaration in a unicode string
@@ -282,7 +312,10 @@ def compile_code(src):
     src = io.StringIO(src, newline=None).getvalue()
 
     namespace = {
-            'time':time, 're':re, 'os':os, 'io':io,
+        'time': time,
+        're': re,
+        'os': os,
+        'io': io,
     }
     exec(src, namespace)
     return namespace
@@ -305,7 +338,7 @@ def main():
                     importlib.import_module('calibre.customize.ui')  # Load plugins
                     mod = importlib.import_module(mod_name)
                 func = getattr(mod, func)
-            res = {'result':func(*args, **kwargs)}
+            res = {'result': func(*args, **kwargs)}
         except Exception:
             res = {'tb': traceback.format_exc()}
 
@@ -324,7 +357,7 @@ def offload():
             args = eintr_retry_call(conn.recv)
             if args is None:
                 break
-            res = {'result':None, 'tb':None}
+            res = {'result': None, 'tb': None}
             try:
                 mod, func, args, kwargs = args
                 if mod is None:
@@ -341,6 +374,7 @@ def offload():
                 res['result'] = f(*args, **kwargs)
             except Exception:
                 import traceback
+
                 res['tb'] = traceback.format_exc()
 
             eintr_retry_call(conn.send, res)

@@ -20,13 +20,14 @@ from calibre.utils.cleantext import clean_ascii_chars
 class FixLineEndings:
     """Fix line endings"""
 
-    def __init__(self,
-            bug_handler,
-            in_file=None,
-            copy=None,
-            run_level=1,
-            replace_illegals=1,
-            ):
+    def __init__(
+        self,
+        bug_handler,
+        in_file=None,
+        copy=None,
+        run_level=1,
+        replace_illegals=1,
+    ):
         self.__file = in_file
         self.__bug_handler = bug_handler
         self.__copy = copy

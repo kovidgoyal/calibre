@@ -6,31 +6,29 @@ from datetime import date, timedelta
 
 from calibre.web.feeds.news import BasicNewsRecipe
 
-DIR_COLLECTIONS = [['world'],
-                   ['nation'],
-                   ['politics'],
-                   ['opinion', 'op-ed', 'opinion-la', 'editorials',
-                       'readersreact', 'topoftheticket', 'endorsements'],
-                   ['local', 'lanow', 'california', 'crime',
-                       'abcarian', 'education', 'weather'],
-                   ['business', 'hollywood', 'technology'],
-                   ['sports'],
-                   ['entertainment', 'movies', 'music',
-                       'tv', 'arts', 'gossip', 'envelope'],
-                   ['books'],
-                   ['food', 'jonathon-gold', 'dailydish'],
-                   ['health'],
-                   ['style', 'laaffairs', 'pets'],
-                   ['science', 'sciencenow'],
-                   ['home'],
-                   ['travel'],
-                   ['fashion']]
+DIR_COLLECTIONS = [
+    ['world'],
+    ['nation'],
+    ['politics'],
+    ['opinion', 'op-ed', 'opinion-la', 'editorials', 'readersreact', 'topoftheticket', 'endorsements'],
+    ['local', 'lanow', 'california', 'crime', 'abcarian', 'education', 'weather'],
+    ['business', 'hollywood', 'technology'],
+    ['sports'],
+    ['entertainment', 'movies', 'music', 'tv', 'arts', 'gossip', 'envelope'],
+    ['books'],
+    ['food', 'jonathon-gold', 'dailydish'],
+    ['health'],
+    ['style', 'laaffairs', 'pets'],
+    ['science', 'sciencenow'],
+    ['home'],
+    ['travel'],
+    ['fashion'],
+]
 
 
 def classes(classes):
     q = frozenset(classes.split(' '))
-    return dict(attrs={
-        'class': lambda x: x and frozenset(x.split()).intersection(q)})
+    return dict(attrs={'class': lambda x: x and frozenset(x.split()).intersection(q)})
 
 
 def absurl(url):
@@ -64,12 +62,10 @@ class LATimes(BasicNewsRecipe):
 
     keep_only_tags = [
         classes('headline page-lead-media authors published-date page-article-container'),
-        dict(attrs={'data-element':'story-body'}),
+        dict(attrs={'data-element': 'story-body'}),
     ]
 
-    remove_tags= [
-        classes('google-dfp-ad-wrapper enhancement')
-    ]
+    remove_tags = [classes('google-dfp-ad-wrapper enhancement')]
 
     def parse_index(self):
         index = 'https://www.latimes.com/'
@@ -79,8 +75,7 @@ class LATimes(BasicNewsRecipe):
         # a regex alternation since latimes uses re.compile).
         tdy = date.today().strftime('%Y-%m-%d')
         yest = (date.today() - timedelta(days=1)).strftime('%Y-%m-%d')
-        pat = (r'^https://www\.latimes\.com/[^/]+?/story/('
-               + tdy + '|' + yest + r')/\S+')
+        pat = r'^https://www\.latimes\.com/[^/]+?/story/(' + tdy + '|' + yest + r')/\S+'
         articles = self.find_articles(index, pat)
         for collection in DIR_COLLECTIONS:
             if self.test:
@@ -101,8 +96,9 @@ class LATimes(BasicNewsRecipe):
 
     def preprocess_html(self, soup):
         for img in soup.findAll('img', attrs={'data-src': True}):
-            if img.findParent('a', href='http://www.latimes.com/opinion/la-letter-to-the-editor-htmlstory.html') \
-               is img.parent and img['data-src'].endswith('/la-letter-to-the-editor'):
+            if img.findParent('a', href='http://www.latimes.com/opinion/la-letter-to-the-editor-htmlstory.html') is img.parent and img['data-src'].endswith(
+                '/la-letter-to-the-editor'
+            ):
                 img.parent.extract()
             else:
                 img['src'] = img['data-src']
@@ -145,10 +141,8 @@ class LATimes(BasicNewsRecipe):
             alinks = soup.main.findAll('a', {'href': re.compile(pattern)})
         else:
             alinks = soup.findAll('a', {'href': re.compile(pattern)})
-        alinks = [a for a in alinks if len(
-            a.contents) == 1 and a.find(text=True, recursive=False)]
-        articles = [
-            {'title': self.tag_to_string(a), 'url': absurl(a['href'])} for a in alinks]
+        alinks = [a for a in alinks if len(a.contents) == 1 and a.find(text=True, recursive=False)]
+        articles = [{'title': self.tag_to_string(a), 'url': absurl(a['href'])} for a in alinks]
         # Populate `description` from each article page's
         cache = getattr(self, '_og_desc_cache', None)
         if cache is None:

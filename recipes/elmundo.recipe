@@ -18,7 +18,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class ElMundo(BasicNewsRecipe):
     title = 'El Mundo'
     __author__ = 'Darko Miletic'
-    description = u'Lider de informacion en español'
+    description = 'Lider de informacion en español'
     publisher = 'Unidad Editorial Informacion General S.L.U.'
     category = 'news, politics, Spain'
     oldest_article = 2
@@ -35,7 +35,7 @@ class ElMundo(BasicNewsRecipe):
     articles_are_obfuscated = True
     auto_cleanup = True
     temp_files = []
-    extra_css                 = '''
+    extra_css = '''
                                     body{font-family: "PT serif",Georgia,serif,times}
                                     .metadata_noticia{font-size: small}
                                     .pestana_GDP{font-size: small; font-weight:bold}
@@ -44,39 +44,36 @@ class ElMundo(BasicNewsRecipe):
                                     .update{color: gray}
                                     '''
 
-    conversion_options = {
-        'comments': description, 'tags': category, 'language': language, 'publisher': publisher
-    }
+    conversion_options = {'comments': description, 'tags': category, 'language': language, 'publisher': publisher}
 
     remove_tags = [dict(attrs={'class': lambda x: x and ('aside-tools' or 'publicidad') in x.split()})]
 
     feeds = [
-
-    (u'Portada', u'http://estaticos.elmundo.es/elmundo/rss/portada.xml'),
-    (u'Deportes', u'http://estaticos.elmundo.es/elmundodeporte/rss/portada.xml'),
-    (u'Economia', u'http://estaticos.elmundo.es/elmundo/rss/economia.xml'),
-    (u'Espa\xf1a', u'http://estaticos.elmundo.es/elmundo/rss/espana.xml'),
-    (u'Internacional', u'http://estaticos.elmundo.es/elmundo/rss/internacional.xml'),
-    (u'Cultura', u'http://estaticos.elmundo.es/elmundo/rss/cultura.xml'),
-    (u'Ciencia/Ecolog\xeda', u'http://estaticos.elmundo.es/elmundo/rss/ciencia.xml'),
-    (u'Comunicaci\xf3n', u'http://estaticos.elmundo.es/elmundo/rss/comunicacion.xml'),
-    (u'Televisi\xf3n', u'http://estaticos.elmundo.es/elmundo/rss/television.xml'),
-    (u'Salud', u'http://estaticos.elmundo.es/elmundosalud/rss/portada.xml'),
-    (u'Solidaridad', u'http://estaticos.elmundo.es/elmundo/rss/solidaridad.xml'),
-    (u'Su vivienda', u'http://estaticos.elmundo.es/elmundo/rss/suvivienda.xml'),
-    (u'Motor', u'http://estaticos.elmundo.es/elmundodeporte/rss/motor.xml'),
-    (u'Madrid', u'http://estaticos.elmundo.es/elmundo/rss/madrid.xml'),
-    (u'Barcelona', u'http://estaticos.elmundo.es/elmundo/rss/barcelona.xml'),
-    (u'Pa\xeds Vasco', u'http://estaticos.elmundo.es/elmundo/rss/paisvasco.xml'),
-    (u'Baleares', u'http://estaticos.elmundo.es/elmundo/rss/baleares.xml'),
-    (u'Castilla y Le\xf3n', u'http://estaticos.elmundo.es/elmundo/rss/castillayleon.xml'),
-    (u'Valladolid', u'http://estaticos.elmundo.es/elmundo/rss/valladolid.xml'),
-    (u'Valencia', u'http://estaticos.elmundo.es/elmundo/rss/valencia.xml'),
-    (u'Alicante', u'http://estaticos.elmundo.es/elmundo/rss/alicante.xml'),
-    (u'Castell\xf3n', u'http://estaticos.elmundo.es/elmundo/rss/castellon.xml'),
-    (u'Andaluc\xeda', u'http://estaticos.elmundo.es/elmundo/rss/andalucia.xml'),
-    (u'Sevilla', u'http://estaticos.elmundo.es/elmundo/rss/andalucia_sevilla.xml'),
-    (u'M\xe1laga', u'http://estaticos.elmundo.es/elmundo/rss/andalucia_malaga.xml')
+        ('Portada', 'http://estaticos.elmundo.es/elmundo/rss/portada.xml'),
+        ('Deportes', 'http://estaticos.elmundo.es/elmundodeporte/rss/portada.xml'),
+        ('Economia', 'http://estaticos.elmundo.es/elmundo/rss/economia.xml'),
+        ('Espa\xf1a', 'http://estaticos.elmundo.es/elmundo/rss/espana.xml'),
+        ('Internacional', 'http://estaticos.elmundo.es/elmundo/rss/internacional.xml'),
+        ('Cultura', 'http://estaticos.elmundo.es/elmundo/rss/cultura.xml'),
+        ('Ciencia/Ecolog\xeda', 'http://estaticos.elmundo.es/elmundo/rss/ciencia.xml'),
+        ('Comunicaci\xf3n', 'http://estaticos.elmundo.es/elmundo/rss/comunicacion.xml'),
+        ('Televisi\xf3n', 'http://estaticos.elmundo.es/elmundo/rss/television.xml'),
+        ('Salud', 'http://estaticos.elmundo.es/elmundosalud/rss/portada.xml'),
+        ('Solidaridad', 'http://estaticos.elmundo.es/elmundo/rss/solidaridad.xml'),
+        ('Su vivienda', 'http://estaticos.elmundo.es/elmundo/rss/suvivienda.xml'),
+        ('Motor', 'http://estaticos.elmundo.es/elmundodeporte/rss/motor.xml'),
+        ('Madrid', 'http://estaticos.elmundo.es/elmundo/rss/madrid.xml'),
+        ('Barcelona', 'http://estaticos.elmundo.es/elmundo/rss/barcelona.xml'),
+        ('Pa\xeds Vasco', 'http://estaticos.elmundo.es/elmundo/rss/paisvasco.xml'),
+        ('Baleares', 'http://estaticos.elmundo.es/elmundo/rss/baleares.xml'),
+        ('Castilla y Le\xf3n', 'http://estaticos.elmundo.es/elmundo/rss/castillayleon.xml'),
+        ('Valladolid', 'http://estaticos.elmundo.es/elmundo/rss/valladolid.xml'),
+        ('Valencia', 'http://estaticos.elmundo.es/elmundo/rss/valencia.xml'),
+        ('Alicante', 'http://estaticos.elmundo.es/elmundo/rss/alicante.xml'),
+        ('Castell\xf3n', 'http://estaticos.elmundo.es/elmundo/rss/castellon.xml'),
+        ('Andaluc\xeda', 'http://estaticos.elmundo.es/elmundo/rss/andalucia.xml'),
+        ('Sevilla', 'http://estaticos.elmundo.es/elmundo/rss/andalucia_sevilla.xml'),
+        ('M\xe1laga', 'http://estaticos.elmundo.es/elmundo/rss/andalucia_malaga.xml'),
     ]
 
     def get_cover_url(self):
@@ -96,7 +93,7 @@ class ElMundo(BasicNewsRecipe):
         count = 0
         tries = 5
         html = None
-        while (count < tries):
+        while count < tries:
             try:
                 response = self.browser.open(url)
                 html = response.read()

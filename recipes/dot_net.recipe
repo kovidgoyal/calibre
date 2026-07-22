@@ -8,7 +8,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class creativeblog(BasicNewsRecipe):
-    title = u'Creative Blog'
+    title = 'Creative Blog'
     __author__ = 'Bonni Salles'
     oldest_article = 7
     publication_type = 'blog'
@@ -21,11 +21,11 @@ class creativeblog(BasicNewsRecipe):
     ignore_duplicate_articles = {'title', 'url'}
     remove_empty_feeds = True
     auto_cleanup = True
-# presently this is set to download the whole group of blogs for the feed.  If you want
-# to limit it to the specific sections of the blog that you want to download.
+    # presently this is set to download the whole group of blogs for the feed.  If you want
+    # to limit it to the specific sections of the blog that you want to download.
 
     feeds = [
-        (u'Creative Blog', u'http://www.creativebloq.com/feed/'),
+        ('Creative Blog', 'http://www.creativebloq.com/feed/'),
         #                      (u'3D', u'http://www.creativebloq.com/feed/3d'),
         #                      (u'Adobe', u'http://www.creativebloq.com/feed/adobe'),
         #                      (u'Animation', u'http://www.creativebloq.com/feed/animation'),

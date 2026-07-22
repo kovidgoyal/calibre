@@ -22,6 +22,7 @@ def compress_worker(input_queue, output_queue, jpeg_quality):
                 stderr = encode_jpeg(path, jpeg_quality)
         except Exception:
             import traceback
+
             stderr = traceback.format_exc()
         if stderr:
             output_queue.put((book_id, stderr))
@@ -41,10 +42,7 @@ def compress_covers(path_map, jpeg_quality, progress_callback):
     for book_id, (path, sz) in path_map.items():
         input_queue.put((book_id, path))
         sz_map[book_id] = sz
-    workers = [
-        Thread(target=compress_worker, args=(input_queue, output_queue, jpeg_quality), daemon=True, name=f'CCover-{i}')
-        for i in range(num_workers)
-    ]
+    workers = [Thread(target=compress_worker, args=(input_queue, output_queue, jpeg_quality), daemon=True, name=f'CCover-{i}') for i in range(num_workers)]
     [w.start() for w in workers]
     pending = set(path_map)
     while pending:

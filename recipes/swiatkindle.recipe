@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 __license__ = 'GPL v3'
-__copyright__ = u'2011, Tomasz Dlugosz <tomek3d@gmail.com>'
+__copyright__ = '2011, Tomasz Dlugosz <tomek3d@gmail.com>'
 '''
 swiatczytnikow.pl
 '''
@@ -12,17 +12,15 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class swiatczytnikow(BasicNewsRecipe):
-    title = u'Świat Czytników'
-    description = u'Czytniki e-książek w Polsce. Jak wybrać, kupić i korzystać z Amazon Kindle i innych'
+    title = 'Świat Czytników'
+    description = 'Czytniki e-książek w Polsce. Jak wybrać, kupić i korzystać z Amazon Kindle i innych'
     language = 'pl'
-    __author__ = u'Tomasz D\u0142ugosz'
+    __author__ = 'Tomasz D\u0142ugosz'
     oldest_article = 7
     max_articles_per_feed = 100
 
-    feeds = [(u'Świat Czytników - wpisy', u'http://swiatczytnikow.pl/feed')]
+    feeds = [('Świat Czytników - wpisy', 'http://swiatczytnikow.pl/feed')]
 
-    remove_tags = [dict(name='ul', attrs={'class': 'similar-posts'}),
-                   dict(name='div', attrs={'class': 'feedflare'})]
+    remove_tags = [dict(name='ul', attrs={'class': 'similar-posts'}), dict(name='div', attrs={'class': 'feedflare'})]
 
-    preprocess_regexps = [
-        (re.compile(u'<h3>Czytaj dalej:</h3>'), lambda match: '')]  # noqa: RUF039
+    preprocess_regexps = [(re.compile('<h3>Czytaj dalej:</h3>'), lambda match: '')]  # noqa: RUF039

@@ -2,7 +2,7 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 
 
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
@@ -18,7 +18,6 @@ from calibre_plugins.interface_demo.config import prefs
 
 
 class DemoDialog(QDialog):
-
     def __init__(self, gui, icon, do_user_config):
         QDialog.__init__(self, gui)
         self.gui = gui
@@ -44,23 +43,19 @@ class DemoDialog(QDialog):
         self.about_button.clicked.connect(self.about)
         self.l.addWidget(self.about_button)
 
-        self.marked_button = QPushButton(
-            'Show books with only one format in the calibre GUI', self)
+        self.marked_button = QPushButton('Show books with only one format in the calibre GUI', self)
         self.marked_button.clicked.connect(self.marked)
         self.l.addWidget(self.marked_button)
 
-        self.view_button = QPushButton(
-            'View the most recently added book', self)
+        self.view_button = QPushButton('View the most recently added book', self)
         self.view_button.clicked.connect(self.view)
         self.l.addWidget(self.view_button)
 
-        self.update_metadata_button = QPushButton(
-            "Update metadata in a book's files", self)
+        self.update_metadata_button = QPushButton("Update metadata in a book's files", self)
         self.update_metadata_button.clicked.connect(self.update_metadata)
         self.l.addWidget(self.update_metadata_button)
 
-        self.conf_button = QPushButton(
-                'Configure this plugin', self)
+        self.conf_button = QPushButton('Configure this plugin', self)
         self.conf_button.clicked.connect(self.config)
         self.l.addWidget(self.conf_button)
 
@@ -77,11 +72,10 @@ class DemoDialog(QDialog):
         # get_resources will return a dictionary mapping names to bytes. Names that
         # are not found in the zip file will not be in the returned dictionary.
         text = get_resources('about.txt')
-        QMessageBox.about(self, 'About the Interface Plugin Demo',
-                text.decode('utf-8'))
+        QMessageBox.about(self, 'About the Interface Plugin Demo', text.decode('utf-8'))
 
     def marked(self):
-        """ Show books with only one format """
+        """Show books with only one format"""
         db = self.db.new_api
         matched_ids = {book_id for book_id in db.all_book_ids() if len(db.formats(book_id)) == 1}
         # Mark the records with the matching ids
@@ -94,7 +88,7 @@ class DemoDialog(QDialog):
         self.gui.search.do_search()
 
     def view(self):
-        """ View the most recently added book """
+        """View the most recently added book"""
         most_recent = most_recent_id = None
         db = self.db.new_api
         for book_id, timestamp in db.all_field_for('timestamp', db.all_book_ids()).items():
@@ -119,8 +113,7 @@ class DemoDialog(QDialog):
         # Get currently selected books
         rows = self.gui.library_view.selectionModel().selectedRows()
         if not rows or len(rows) == 0:
-            return error_dialog(self.gui, 'Cannot update metadata',
-                             'No books selected', show=True)
+            return error_dialog(self.gui, 'Cannot update metadata', 'No books selected', show=True)
         # Map the rows to book ids
         ids = list(map(self.gui.library_view.model().id, rows))
         db = self.db.new_api
@@ -144,9 +137,7 @@ class DemoDialog(QDialog):
                 # already run when the file was first added to calibre.
                 db.add_format(book_id, fmt, ffile, run_hooks=False)
 
-        info_dialog(self, 'Updated files',
-                f'Updated the metadata in the files of {len(ids)} book(s)',
-                show=True)
+        info_dialog(self, 'Updated files', f'Updated the metadata in the files of {len(ids)} book(s)', show=True)
 
     def config(self):
         self.do_user_config(parent=self)

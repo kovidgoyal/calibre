@@ -18,7 +18,6 @@ def data(func):
 
 
 class DataError(Exception):
-
     def __init__(self, tb, msg=None):
         Exception.__init__(self, msg or _('Failed to get completion data'))
         self.tb = tb

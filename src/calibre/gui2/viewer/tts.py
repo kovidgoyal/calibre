@@ -6,11 +6,11 @@ from qt.core import QObject, pyqtSignal
 
 def set_sync_override(allowed):
     from calibre.gui2.viewer.lookup import set_sync_override
+
     set_sync_override(allowed)
 
 
 class TTS(QObject):
-
     event_received = pyqtSignal(object, object)
     settings_changed = pyqtSignal(object)
     configured = pyqtSignal()
@@ -23,6 +23,7 @@ class TTS(QObject):
     def manager(self):
         if self._manager is None:
             from calibre.gui2.tts.manager import TTSManager
+
             self._manager = TTSManager(self)
             self._manager.saying.connect(self.saying)
             self._manager.state_event.connect(self.state_event)

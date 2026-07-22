@@ -12,7 +12,7 @@ __date__ = '22, April 2019'
 
 
 class CorriereDellaSeraRecipe(BasicNewsRecipe):
-    title = u'Il Corriere della sera'
+    title = 'Il Corriere della sera'
     publisher = 'RCS Digital'
     category = 'News, politics, culture, economy, general interest'
 
@@ -32,7 +32,7 @@ class CorriereDellaSeraRecipe(BasicNewsRecipe):
         'days': {
             'short': 'Oldest article to download from this news source. In days ',
             'long': 'For example, 0.5, gives you articles from the past 12 hours',
-            'default': str(oldest_article)
+            'default': str(oldest_article),
         }
     }
 

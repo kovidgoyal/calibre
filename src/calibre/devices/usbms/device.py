@@ -1,6 +1,5 @@
-__license__   = 'GPL v3'
-__copyright__ = ('2009, John Schember <john at nachtimwald.com> '
-                 '2009, Kovid Goyal <kovid@kovidgoyal.net>')
+__license__ = 'GPL v3'
+__copyright__ = '2009, John Schember <john at nachtimwald.com> 2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 '''
@@ -40,7 +39,6 @@ def eject_exe():
 
 
 class USBDevice:
-
     def __init__(self, dev):
         self.idVendor = dev[0]
         self.idProduct = dev[1]
@@ -80,9 +78,9 @@ class Device(DeviceConfig, DevicePlugin):
     of USBMS devices on all platforms.
     """
 
-    VENDOR_ID   = 0x0
-    PRODUCT_ID  = 0x0
-    BCD         = None
+    VENDOR_ID = 0x0
+    PRODUCT_ID = 0x0
+    BCD = None
 
     VENDOR_NAME = None
 
@@ -107,7 +105,7 @@ class Device(DeviceConfig, DevicePlugin):
     OSX_MAIN_MEM_VOL_PAT = None
     OSX_EJECT_COMMAND = ['diskutil', 'eject']
 
-    MAIN_MEMORY_VOLUME_LABEL  = ''
+    MAIN_MEMORY_VOLUME_LABEL = ''
     STORAGE_CARD_VOLUME_LABEL = ''
     STORAGE_CARD2_VOLUME_LABEL = None
 
@@ -153,6 +151,7 @@ class Device(DeviceConfig, DevicePlugin):
             else:
                 bcd = cls.BCD
             return vid or 0, pid or 0, bcd or 0
+
         vid, pid, bcd = get_representative_ids()
         try:
             model_name = cls.get_gui_name()
@@ -164,12 +163,9 @@ class Device(DeviceConfig, DevicePlugin):
             manufacturer, model_name = parts
         else:
             manufacturer = _('Miscellaneous')
-        return (
-            ModelMetadata(manufacturer, model_name, vid, pid, bcd, cls),
-        )
+        return (ModelMetadata(manufacturer, model_name, vid, pid, bcd, cls),)
 
-    def reset(self, key='-1', log_packets=False, report_progress=None,
-            detected_device=None):
+    def reset(self, key='-1', log_packets=False, report_progress=None, detected_device=None):
         self._main_prefix = self._card_a_prefix = self._card_b_prefix = None
         self.detected_device = None if detected_device is None else USBDevice(detected_device)
         self.set_progress_reporter(report_progress)
@@ -189,6 +185,7 @@ class Device(DeviceConfig, DevicePlugin):
             return 0, 0
         prefix = prefix[:-1]
         from calibre_extensions import winutil
+
         try:
             available_space, total_space, free_space = winutil.get_disk_free_space(prefix)
         except OSError as err:
@@ -256,6 +253,7 @@ class Device(DeviceConfig, DevicePlugin):
         # Delegate to the unix can_handle function, creating a unix like
         # USBDevice object
         from calibre.devices.winusb import get_usb_info
+
         dev = usb_info_cache.get(usbdevice)
         if dev is None:
             try:
@@ -266,10 +264,14 @@ class Device(DeviceConfig, DevicePlugin):
                     data = get_usb_info(usbdevice, debug=debug)
                 except Exception:
                     data = {}
-            dev = usb_info_cache[usbdevice] = namedtuple(
-                'USBDevice', 'vendor_id product_id bcd manufacturer product serial')(
-                usbdevice.vendor_id, usbdevice.product_id, usbdevice.bcd,
-                data.get('manufacturer') or '', data.get('product') or '', data.get('serial_number') or '')
+            dev = usb_info_cache[usbdevice] = namedtuple('USBDevice', 'vendor_id product_id bcd manufacturer product serial')(
+                usbdevice.vendor_id,
+                usbdevice.product_id,
+                usbdevice.bcd,
+                data.get('manufacturer') or '',
+                data.get('product') or '',
+                data.get('serial_number') or '',
+            )
             if debug:
                 prints(f'USB Info for device: {dev}')
         return self.can_handle(dev, debug=debug)
@@ -277,6 +279,7 @@ class Device(DeviceConfig, DevicePlugin):
     def open_windows(self):
         from calibre.devices.scanner import drive_is_ok
         from calibre.devices.winusb import get_drive_letters_for_device
+
         usbdev = self.device_being_opened
         debug = is_debugging() or getattr(self, 'do_device_debug', False)
         try:
@@ -290,6 +293,7 @@ class Device(DeviceConfig, DevicePlugin):
 
         if debug:
             from pprint import pformat
+
             prints(f'Drive letters for {usbdev}')
             prints(pformat(dlmap))
 
@@ -330,11 +334,10 @@ class Device(DeviceConfig, DevicePlugin):
         ioreg = '/usr/sbin/ioreg'
         if not os.access(ioreg, os.X_OK):
             ioreg = 'ioreg'
-        cmd = (ioreg+' -w 0 -S -c IOMedia').split()
+        cmd = (ioreg + ' -w 0 -S -c IOMedia').split()
         for i in range(3):
             try:
-                return subprocess.Popen(cmd,
-                                    stdout=subprocess.PIPE).communicate()[0]
+                return subprocess.Popen(cmd, stdout=subprocess.PIPE).communicate()[0]
             except OSError:  # Probably an interrupted system call
                 if i == 2:
                     raise
@@ -356,6 +359,7 @@ class Device(DeviceConfig, DevicePlugin):
     @classmethod
     def osx_get_usb_drives(cls):
         from calibre_extensions.usbobserver import get_usb_drives
+
         return get_usb_drives()
 
     def _osx_bsd_names(self):
@@ -380,8 +384,8 @@ class Device(DeviceConfig, DevicePlugin):
                     matches.append(path)
         if not matches:
             from pprint import pformat
-            raise DeviceError(
-                f'Could not detect BSD names for {self.name}. Try rebooting.\nOutput from osx_get_usb_drives():\n{pformat(drives)}')
+
+            raise DeviceError(f'Could not detect BSD names for {self.name}. Try rebooting.\nOutput from osx_get_usb_drives():\n{pformat(drives)}')
 
         pat = re.compile(r'(?P<m>\d+)([a-z]+(?P<p>\d+)){0,1}')
 
@@ -409,7 +413,7 @@ class Device(DeviceConfig, DevicePlugin):
             return has_part, disk_num, part_num
 
         matches.sort(key=cmp_key)
-        drives = {'main':matches[0]}
+        drives = {'main': matches[0]}
         if len(matches) > 1:
             drives['carda'] = matches[1]
         if len(matches) > 2:
@@ -432,6 +436,7 @@ class Device(DeviceConfig, DevicePlugin):
 
     def open_osx(self):
         from calibre_extensions.usbobserver import get_mounted_filesystems
+
         bsd_drives = self.osx_bsd_names()
         drives = self.osx_sort_names(bsd_drives.copy())
         mount_map = get_mounted_filesystems()
@@ -449,6 +454,7 @@ class Device(DeviceConfig, DevicePlugin):
         if is_debugging():
             print()
             from pprint import pprint
+
             pprint({'bsd_drives': bsd_drives, 'mount_map': mount_map, 'drives': drives})
         if drives.get('carda') is None and drives.get('cardb') is not None:
             drives['carda'] = drives.pop('cardb')
@@ -457,7 +463,7 @@ class Device(DeviceConfig, DevicePlugin):
         if drives.get('carda') is None and drives.get('cardb') is not None:
             drives['carda'] = drives.pop('cardb')
         if drives.get('main') is None:
-            raise DeviceError(_('Unable to detect the %s mount point. Try rebooting.')%self.__class__.__name__)
+            raise DeviceError(_('Unable to detect the %s mount point. Try rebooting.') % self.__class__.__name__)
         pat = self.OSX_MAIN_MEM_VOL_PAT
         if pat is not None and len(drives) > 1 and 'main' in drives:
             if pat.search(drives['main']) is None:
@@ -477,6 +483,7 @@ class Device(DeviceConfig, DevicePlugin):
             if ans is not None:
                 ans += os.sep
             return ans
+
         self._card_a_prefix = get_card_prefix('carda')
         self._card_b_prefix = get_card_prefix('cardb')
 
@@ -514,6 +521,7 @@ class Device(DeviceConfig, DevicePlugin):
             def rc(q):
                 with open(j(usb_dir, q), 'rb') as f:
                     return raw2num(f.read().decode('utf-8'))
+
             return rc
 
         for x, isfile in walk('/sys/devices'):
@@ -526,25 +534,23 @@ class Device(DeviceConfig, DevicePlugin):
                 if usb_dir is None:
                     continue
                 ven, prod, bcd = map(getnum(usb_dir), ('idVendor', 'idProduct', 'bcdDevice'))
-                if not (test(ven, 'idVendor') and test(prod, 'idProduct') and
-                        test(bcd, 'bcdDevice')):
+                if not (test(ven, 'idVendor') and test(prod, 'idProduct') and test(bcd, 'bcdDevice')):
                     usb_dir = None
                     continue
                 else:
                     break
 
         if usb_dir is None:
-            raise DeviceError(_('Unable to detect the %s disk drive.')
-                    %self.__class__.__name__)
+            raise DeviceError(_('Unable to detect the %s disk drive.') % self.__class__.__name__)
 
         devnodes, ok = [], {}
         for x, isfile in walk(usb_dir):
             if not isfile and '/block/' in x:
                 parts = x.split('/')
                 idx = parts.index('block')
-                if idx == len(parts)-2:
+                if idx == len(parts) - 2:
                     sz = j(x, 'size')
-                    node = parts[idx+1]
+                    node = parts[idx + 1]
                     try:
                         with open(sz, 'rb') as szf:
                             exists = int(szf.read().decode('utf-8')) > 0
@@ -561,7 +567,7 @@ class Device(DeviceConfig, DevicePlugin):
                     devnodes.append(node)
 
         devnodes += list(repeat(None, 3))
-        ans = ['/dev/'+x if ok.get(x) else None for x in devnodes]
+        ans = ['/dev/' + x if ok.get(x) else None for x in devnodes]
         ans.sort(key=lambda x: x[5:] if x else 'zzzzz')
         return self.linux_swap_drives(ans[:3])
 
@@ -570,12 +576,13 @@ class Device(DeviceConfig, DevicePlugin):
 
     def node_mountpoint(self, node):
         from calibre.devices.udisks import node_mountpoint
+
         return node_mountpoint(node)
 
     def find_largest_partition(self, path):
         node = path.split('/')[-1]
         nodes = []
-        for x in glob.glob(path+'/'+node+'*'):
+        for x in glob.glob(path + '/' + node + '*'):
             sz = x + '/size'
 
             if not os.access(sz, os.R_OK):
@@ -603,40 +610,40 @@ class Device(DeviceConfig, DevicePlugin):
             def do_mount(node):
                 try:
                     from calibre.devices.udisks import mount
+
                     mount(node)
                     return 0
                 except Exception:
                     print('Udisks mount call failed:')
                     import traceback
+
                     traceback.print_exc()
                     return 1
 
             ret = do_mount(node)
             if ret != 0:
                 return None, ret
-            return self.node_mountpoint(node)+'/', 0
+            return self.node_mountpoint(node) + '/', 0
 
         main, carda, cardb = self.find_device_nodes()
         if main is None:
-            raise DeviceError(_('Unable to detect the %s disk drive. Either '
-            'the device has already been ejected, or your '
-            'kernel is exporting a deprecated version of SYSFS.')
-                    %self.__class__.__name__)
+            raise DeviceError(
+                _('Unable to detect the %s disk drive. Either the device has already been ejected, or your kernel is exporting a deprecated version of SYSFS.')
+                % self.__class__.__name__
+            )
         if is_debugging():
             print('\nFound device nodes:', main, carda, cardb)
 
         self._linux_mount_map = {}
         mp, ret = mount(main, 'main')
         if mp is None:
-            raise DeviceError(
-            _('Unable to mount main memory (Error code: %d)')%ret)
+            raise DeviceError(_('Unable to mount main memory (Error code: %d)') % ret)
         if not mp.endswith('/'):
             mp += '/'
         self._linux_mount_map[main] = mp
         self._main_prefix = mp
         self._linux_main_device_node = main
-        cards = [(carda, '_card_a_prefix', 'carda'),
-                 (cardb, '_card_b_prefix', 'cardb')]
+        cards = [(carda, '_card_a_prefix', 'carda'), (cardb, '_card_b_prefix', 'cardb')]
         for card, prefix, typ in cards:
             if card is None:
                 continue
@@ -685,24 +692,22 @@ class Device(DeviceConfig, DevicePlugin):
                     break
 
         if self._main_prefix is None:
-            raise DeviceError(_('The main memory of %s is read only. '
-            'This usually happens because of file system errors.')
-                    %self.__class__.__name__)
+            raise DeviceError(_('The main memory of %s is read only. This usually happens because of file system errors.') % self.__class__.__name__)
 
         if self._card_a_prefix is None and self._card_b_prefix is not None:
             self._card_a_prefix = self._card_b_prefix
             self._card_b_prefix = None
 
-# ------------------------------------------------------
-#
-#  open for FreeBSD
-#      find the device node or nodes that match the S/N we already have from the scanner
-#      and attempt to mount each one
-#              1.  get list of devices via DBUS UDisk2 with matching s/n etc.
-#              2.  get list of volumes associated with each
-#              3.  attempt to mount each one using UDisks2
-#              4.  when finished, we have a list of mount points and associated dbus nodes
-#
+    # ------------------------------------------------------
+    #
+    #  open for FreeBSD
+    #      find the device node or nodes that match the S/N we already have from the scanner
+    #      and attempt to mount each one
+    #              1.  get list of devices via DBUS UDisk2 with matching s/n etc.
+    #              2.  get list of volumes associated with each
+    #              3.  attempt to mount each one using UDisks2
+    #              4.  when finished, we have a list of mount points and associated dbus nodes
+    #
     def open_freebsd(self):
         from calibre.devices.udisks import find_device_vols_by_serial
 
@@ -711,7 +716,7 @@ class Device(DeviceConfig, DevicePlugin):
 
         # this gives us access to the S/N, etc. of the reader that the scanner has found
         # and the match routines for some of that data, like s/n, vendor ID, etc.
-        d=self.detected_device
+        d = self.detected_device
         assert d is not None
 
         if not d.serial:
@@ -736,6 +741,7 @@ class Device(DeviceConfig, DevicePlugin):
                 return mp
 
             from calibre.devices.udisks import mount, rescan
+
             for i in range(6):
                 try:
                     mp = mount(node)
@@ -747,6 +753,7 @@ class Device(DeviceConfig, DevicePlugin):
                     else:
                         print('Udisks mount call failed:')
                         import traceback
+
                         traceback.print_exc()
 
             return mp
@@ -754,9 +761,12 @@ class Device(DeviceConfig, DevicePlugin):
         mp = None
         mtd = 0
         ans = {
-            '_main_prefix': None, '_main_vol': None,
-            '_card_a_prefix': None, '_card_a_vol': None,
-            '_card_b_prefix': None, '_card_b_vol': None,
+            '_main_prefix': None,
+            '_main_vol': None,
+            '_card_a_prefix': None,
+            '_card_a_vol': None,
+            '_card_b_prefix': None,
+            '_card_b_vol': None,
         }
         for vol in vols:
             try:
@@ -764,6 +774,7 @@ class Device(DeviceConfig, DevicePlugin):
             except Exception:
                 print('Failed to mount: ' + vol['Device'])
                 import traceback
+
                 traceback.print_exc()
 
             if mp is None:
@@ -791,15 +802,16 @@ class Device(DeviceConfig, DevicePlugin):
 
         return mtd > 0, ans
 
-#
-# ------------------------------------------------------
-#
-#    this one is pretty simple:
-#        just umount each of the previously
-#        mounted filesystems, using the stored volume object
-#
+    #
+    # ------------------------------------------------------
+    #
+    #    this one is pretty simple:
+    #        just umount each of the previously
+    #        mounted filesystems, using the stored volume object
+    #
     def eject_freebsd(self):
         from calibre.devices.udisks import umount
+
         if self._main_prefix:
             umount(self._main_vol)
         if self._card_a_prefix:
@@ -810,7 +822,8 @@ class Device(DeviceConfig, DevicePlugin):
         self._main_prefix = self._main_vol = None
         self._card_a_prefix = self._card_a_vol = None
         self._card_b_prefix = self._card_b_vol = None
-# ------------------------------------------------------
+
+    # ------------------------------------------------------
 
     def is_folder_still_available(self):
         if self.eject_connected_folder:
@@ -825,7 +838,7 @@ class Device(DeviceConfig, DevicePlugin):
         self._main_prefix = self._card_a_prefix = self._card_b_prefix = None
         self.connected_folder_path = ''
         if getattr(connected_device, 'serial', None) and connected_device.serial.startswith(FAKE_DEVICE_SERIAL):
-            folder_path = connected_device.serial[len(FAKE_DEVICE_SERIAL):]
+            folder_path = connected_device.serial[len(FAKE_DEVICE_SERIAL) :]
             if not os.path.isdir(folder_path):
                 raise DeviceError(f'The path {folder_path} is not a folder cannot connect to it')
             if not os.access(folder_path, os.R_OK | os.W_OK):
@@ -873,6 +886,7 @@ class Device(DeviceConfig, DevicePlugin):
 
     def eject_windows(self):
         from threading import Thread
+
         drives = []
         for x in ('_main_prefix', '_card_a_prefix', '_card_b_prefix'):
             x = getattr(self, x, None)
@@ -898,6 +912,7 @@ class Device(DeviceConfig, DevicePlugin):
 
     def eject_linux(self):
         from calibre.devices.udisks import eject, umount
+
         drives = [d for d in self.find_device_nodes() if d]
         for d in drives:
             try:
@@ -951,6 +966,7 @@ class Device(DeviceConfig, DevicePlugin):
                 self.linux_post_yank()
             except Exception:
                 import traceback
+
                 traceback.print_exc()
         self._main_prefix = self._card_a_prefix = self._card_b_prefix = None
         self.on_device_close()
@@ -966,6 +982,7 @@ class Device(DeviceConfig, DevicePlugin):
 
     def _sanity_check(self, on_card, files):
         from calibre.devices.utils import sanity_check
+
         sanity_check(on_card, files, self.card_prefix(), self.free_space())
 
         def get_dest_dir(prefix, candidates):
@@ -973,9 +990,7 @@ class Device(DeviceConfig, DevicePlugin):
                 candidates = [candidates]
             if not candidates:
                 candidates = ['']
-            candidates = [
-                ((os.path.join(prefix, *(x.split('/')))) if x else prefix)
-                for x in candidates]
+            candidates = [((os.path.join(prefix, *(x.split('/')))) if x else prefix) for x in candidates]
             existing = [x for x in candidates if os.path.exists(x)]
             if not existing:
                 existing = candidates
@@ -1028,15 +1043,20 @@ class Device(DeviceConfig, DevicePlugin):
 
     def create_upload_path(self, path, mdata, fname, create_dirs=True):
         from calibre.devices.utils import create_upload_path
+
         settings = self.settings()
-        filepath = create_upload_path(mdata, fname, self.save_template(), self.sanitize_callback,
-                prefix_path=os.path.abspath(path),
-                maxlen=self.MAX_PATH_LEN,
-                use_subdirs=self.SUPPORTS_SUB_DIRS and settings.use_subdirs,
-                news_in_folder=self.NEWS_IN_FOLDER,
-                filename_callback=self.filename_callback,
-                sanitize_path_components=self.sanitize_path_components
-                )
+        filepath = create_upload_path(
+            mdata,
+            fname,
+            self.save_template(),
+            self.sanitize_callback,
+            prefix_path=os.path.abspath(path),
+            maxlen=self.MAX_PATH_LEN,
+            use_subdirs=self.SUPPORTS_SUB_DIRS and settings.use_subdirs,
+            news_in_folder=self.NEWS_IN_FOLDER,
+            filename_callback=self.filename_callback,
+            sanitize_path_components=self.sanitize_path_components,
+        )
         filedir = os.path.dirname(filepath)
 
         if create_dirs and not os.path.exists(filedir):

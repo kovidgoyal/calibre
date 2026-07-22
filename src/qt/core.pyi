@@ -2,6 +2,7 @@
 from collections.abc import Callable
 from typing import Any, TypeVar, overload
 import PyQt6.QtCore
+
 PYQT_VERSION = PyQt6.QtCore.PYQT_VERSION
 PYQT_VERSION_STR = PyQt6.QtCore.PYQT_VERSION_STR
 QAbstractAnimation = PyQt6.QtCore.QAbstractAnimation
@@ -228,6 +229,7 @@ qVersion = PyQt6.QtCore.qVersion
 qWarning = PyQt6.QtCore.qWarning
 qYieldCpu = PyQt6.QtCore.qYieldCpu
 import PyQt6.QtGui
+
 QAbstractFileIconProvider = PyQt6.QtGui.QAbstractFileIconProvider
 QAbstractTextDocumentLayout = PyQt6.QtGui.QAbstractTextDocumentLayout
 QAccessibilityHints = PyQt6.QtGui.QAccessibilityHints
@@ -416,6 +418,7 @@ qRgba64 = PyQt6.QtGui.qRgba64
 qUnpremultiply = PyQt6.QtGui.qUnpremultiply
 qt_set_sequence_auto_mnemonic = PyQt6.QtGui.qt_set_sequence_auto_mnemonic
 import PyQt6.QtWidgets
+
 QAbstractButton = PyQt6.QtWidgets.QAbstractButton
 QAbstractGraphicsShapeItem = PyQt6.QtWidgets.QAbstractGraphicsShapeItem
 QAbstractItemDelegate = PyQt6.QtWidgets.QAbstractItemDelegate
@@ -610,6 +613,7 @@ qDrawShadeRect = PyQt6.QtWidgets.qDrawShadeRect
 qDrawWinButton = PyQt6.QtWidgets.qDrawWinButton
 qDrawWinPanel = PyQt6.QtWidgets.qDrawWinPanel
 import PyQt6.QtNetwork
+
 QAbstractNetworkCache = PyQt6.QtNetwork.QAbstractNetworkCache
 QAbstractSocket = PyQt6.QtNetwork.QAbstractSocket
 QAuthenticator = PyQt6.QtNetwork.QAuthenticator
@@ -669,9 +673,11 @@ QTcpServer = PyQt6.QtNetwork.QTcpServer
 QTcpSocket = PyQt6.QtNetwork.QTcpSocket
 QUdpSocket = PyQt6.QtNetwork.QUdpSocket
 import PyQt6.QtSvg
+
 QSvgGenerator = PyQt6.QtSvg.QSvgGenerator
 QSvgRenderer = PyQt6.QtSvg.QSvgRenderer
 import PyQt6.QtPrintSupport
+
 QAbstractPrintDialog = PyQt6.QtPrintSupport.QAbstractPrintDialog
 QPageSetupDialog = PyQt6.QtPrintSupport.QPageSetupDialog
 QPrintDialog = PyQt6.QtPrintSupport.QPrintDialog
@@ -681,6 +687,7 @@ QPrintPreviewWidget = PyQt6.QtPrintSupport.QPrintPreviewWidget
 QPrinter = PyQt6.QtPrintSupport.QPrinter
 QPrinterInfo = PyQt6.QtPrintSupport.QPrinterInfo
 import PyQt6.QtOpenGL
+
 QAbstractOpenGLFunctions = PyQt6.QtOpenGL.QAbstractOpenGLFunctions
 QOpenGLBuffer = PyQt6.QtOpenGL.QOpenGLBuffer
 QOpenGLDebugLogger = PyQt6.QtOpenGL.QOpenGLDebugLogger
@@ -703,8 +710,10 @@ QOpenGLVersionProfile = PyQt6.QtOpenGL.QOpenGLVersionProfile
 QOpenGLVertexArrayObject = PyQt6.QtOpenGL.QOpenGLVertexArrayObject
 QOpenGLWindow = PyQt6.QtOpenGL.QOpenGLWindow
 import PyQt6.QtOpenGLWidgets
+
 QOpenGLWidget = PyQt6.QtOpenGLWidgets.QOpenGLWidget
 import PyQt6.QtQuick
+
 QQuickAsyncImageProvider = PyQt6.QtQuick.QQuickAsyncImageProvider
 QQuickCloseEvent = PyQt6.QtQuick.QQuickCloseEvent
 QQuickFramebufferObject = PyQt6.QtQuick.QQuickFramebufferObject
@@ -746,6 +755,7 @@ QSGTextureProvider = PyQt6.QtQuick.QSGTextureProvider
 QSGTransformNode = PyQt6.QtQuick.QSGTransformNode
 QSGVertexColorMaterial = PyQt6.QtQuick.QSGVertexColorMaterial
 import PyQt6.QtMultimedia
+
 QAudio = PyQt6.QtMultimedia.QAudio
 QAudioBuffer = PyQt6.QtMultimedia.QAudioBuffer
 QAudioBufferInput = PyQt6.QtMultimedia.QAudioBufferInput
@@ -779,12 +789,15 @@ QVideoSink = PyQt6.QtMultimedia.QVideoSink
 QWindowCapture = PyQt6.QtMultimedia.QWindowCapture
 QtVideo = PyQt6.QtMultimedia.QtVideo
 import PyQt6.QtMultimediaWidgets
+
 QGraphicsVideoItem = PyQt6.QtMultimediaWidgets.QGraphicsVideoItem
 QVideoWidget = PyQt6.QtMultimediaWidgets.QVideoWidget
 import PyQt6.QtTextToSpeech
+
 QTextToSpeech = PyQt6.QtTextToSpeech.QTextToSpeech
 QVoice = PyQt6.QtTextToSpeech.QVoice
 import PyQt6.sip
+
 sip = PyQt6.sip
 
 _T = TypeVar('_T')
@@ -836,6 +849,5 @@ class pyqtProperty:
     def __get__(self, instance: _T, owner: type[_T] | None = None) -> _R: ...
     def __set__(self, instance: _T, value: _R) -> None: ...
     def __delete__(self, instance: _T) -> None: ...
-
     def setter(self, fset: Callable[[_T, _R], None]) -> pyqtProperty: ...
     def deleter(self, fdel: Callable[[_T], None]) -> pyqtProperty: ...

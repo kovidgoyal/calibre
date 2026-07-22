@@ -29,15 +29,15 @@ def ConfigItem(**args):
 
 
 def ConfigItemMapEntry(**args):
-    return Element(qname=(CONFIGNS,'config-item-map-entry'), **args)
+    return Element(qname=(CONFIGNS, 'config-item-map-entry'), **args)
 
 
 def ConfigItemMapIndexed(**args):
-    return Element(qname=(CONFIGNS,'config-item-map-indexed'), **args)
+    return Element(qname=(CONFIGNS, 'config-item-map-indexed'), **args)
 
 
 def ConfigItemMapNamed(**args):
-    return Element(qname=(CONFIGNS,'config-item-map-named'), **args)
+    return Element(qname=(CONFIGNS, 'config-item-map-named'), **args)
 
 
 def ConfigItemSet(**args):

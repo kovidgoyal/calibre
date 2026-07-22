@@ -14,7 +14,8 @@ from calibre.utils.localization import _
 
 
 class Panel(Enum):
-    " See gui2.init for these "
+    "See gui2.init for these"
+
     SEARCH_BAR = 'sb'
     TAG_BROWSER = 'tb'
     BOOK_DETAILS = 'bd'
@@ -25,7 +26,6 @@ class Panel(Enum):
 
 
 class SaveLayoutDialog(QDialog):
-
     def __init__(self, parent, names):
         QDialog.__init__(self, parent)
         self.names = names
@@ -49,12 +49,14 @@ class SaveLayoutDialog(QDialog):
     def accept(self):
         n = self.current_name()
         if not n:
-            error_dialog(self, _('Invalid name'), _('The settings name cannot be blank'),
-                         show=True, show_copy_button=False)
+            error_dialog(self, _('Invalid name'), _('The settings name cannot be blank'), show=True, show_copy_button=False)
             return
         if self.current_name() in self.names:
-            r = question_dialog(self, _('Replace saved layout'),
-                  _('Do you really want to overwrite the saved layout {0}?').format(self.current_name()))
+            r = question_dialog(
+                self,
+                _('Replace saved layout'),
+                _('Do you really want to overwrite the saved layout {0}?').format(self.current_name()),
+            )
             if r == QDialog.DialogCode.Accepted:
                 super().accept()
             else:
@@ -63,14 +65,19 @@ class SaveLayoutDialog(QDialog):
 
 
 class LayoutActions(InterfaceAction):
-
     name = 'Layout Actions'
-    action_spec = (_('Layout actions'), 'layout.png',
-                   _("Save and restore layout item sizes, and add/remove/toggle "
-                     "layout items such as the search bar, tag browser, etc. "
-                     "Item sizes in saved layouts are saved as a percentage of "
-                     "the window size. Restoring a layout doesn't change the "
-                     "window size, instead fitting the items into the current window."), None)
+    action_spec = (
+        _('Layout actions'),
+        'layout.png',
+        _(
+            "Save and restore layout item sizes, and add/remove/toggle "
+            "layout items such as the search bar, tag browser, etc. "
+            "Item sizes in saved layouts are saved as a percentage of "
+            "the window size. Restoring a layout doesn't change the "
+            "window size, instead fitting the items into the current window."
+        ),
+        None,
+    )
 
     action_type = 'current'
     popup_type = QToolButton.ToolButtonPopupMode.InstantPopup
@@ -86,13 +93,13 @@ class LayoutActions(InterfaceAction):
         # Create a "hidden" menu that can have a shortcut.
         self.hidden_menu = QMenu()
         self.shortcut_action = self.create_menu_action(
-                        menu=self.hidden_menu,
-                        unique_name='Main window layout',
-                        shortcut=None,
-                        text=_('Save and restore layout item sizes, and add/remove/toggle '
-                               'layout items such as the search bar, tag browser, etc. '),
-                        icon='layout.png',
-                        triggered=self.show_menu)
+            menu=self.hidden_menu,
+            unique_name='Main window layout',
+            shortcut=None,
+            text=_('Save and restore layout item sizes, and add/remove/toggle layout items such as the search bar, tag browser, etc. '),
+            icon='layout.png',
+            triggered=self.show_menu,
+        )
 
     # We want to show the menu when a shortcut is used. Apparently the only way
     # to do that is to scan the toolbar(s) for the action button then exec the
@@ -227,9 +234,12 @@ class LayoutActions(InterfaceAction):
         :param:`show_warning`: If True a warning dialog will be shown before deleting the layout.
         """
         if show_warning:
-            if not question_dialog(self.gui, _('Are you sure?'),
-                                   _('Do you really want to delete the saved layout {0}?').format(name),
-                                   skip_dialog_name='delete_saved_gui_layout'):
+            if not question_dialog(
+                self.gui,
+                _('Are you sure?'),
+                _('Do you really want to delete the saved layout {0}?').format(name),
+                skip_dialog_name='delete_saved_gui_layout',
+            ):
                 return
 
         # The information is stored as 2 preferences. Delete them both.

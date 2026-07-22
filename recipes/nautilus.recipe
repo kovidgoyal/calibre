@@ -85,10 +85,7 @@ class Nautilus(BasicNewsRecipe):
         soup = self.index_to_soup('https://nautil.us/shop/category/issues/')
         a = soup.find(
             'a',
-            attrs={
-                'href': lambda x: x
-                and x.startswith('https://nautil.us/shop/issues/issue-')
-            },
+            attrs={'href': lambda x: x and x.startswith('https://nautil.us/shop/issues/issue-')},
         )
         if a:
             listing_url = a['href']
@@ -97,10 +94,7 @@ class Nautilus(BasicNewsRecipe):
             if listing:
                 imgs = listing.find_all(
                     'img',
-                    attrs={
-                        'src': lambda x: x
-                        and x.startswith('https://assets.nautil.us/sites/3/nautilus/')
-                    },
+                    attrs={'src': lambda x: x and x.startswith('https://assets.nautil.us/sites/3/nautilus/')},
                 )
                 if len(imgs) > 1:
                     self.cover_url = imgs[1]['src'].split('?')[0]

@@ -15,8 +15,8 @@ class DiarioDeIbiza(BasicNewsRecipe):
     description = 'Principal periodico de las islas Pitiusas, Ibiza y Formentera (Espanya) - v1.06 (29/04/2011)'
 
     cover_url = 'http://estaticos01.diariodeibiza.es//elementosWeb/mediaweb/images/logo.jpg'
-    title = u'Diario de Ibiza digital'
-    publisher = u'Editorial Prensa Iberica'
+    title = 'Diario de Ibiza digital'
+    publisher = 'Editorial Prensa Iberica'
     category = 'News, politics, culture, economy, general interest'
     language = 'es'
 
@@ -34,23 +34,22 @@ class DiarioDeIbiza(BasicNewsRecipe):
     no_stylesheets = True
 
     keep_only_tags = [
-        dict(name='div', attrs={'class': [
-             'noticia_titular', 'epigrafe', 'subtitulo', 'actualizada', 'noticia_fecha', 'noticia_texto']}),
-        dict(name='font', attrs={'class': ['actualizada']})
+        dict(name='div', attrs={'class': ['noticia_titular', 'epigrafe', 'subtitulo', 'actualizada', 'noticia_fecha', 'noticia_texto']}),
+        dict(name='font', attrs={'class': ['actualizada']}),
     ]
 
     feeds = [
-        (u'Portada de Ibiza', u'http://www.diariodeibiza.es/elementosInt/rss/1'),
-        (u'Pitiuses i Balears', u'http://www.diariodeibiza.es/elementosInt/rss/2'),
-        (u'Opini\xf3n', u'http://www.diariodeibiza.es/elementosInt/rss/3'),
-        (u'Nacional', u'http://www.diariodeibiza.es/elementosInt/rss/4'),
-        (u'Internacional', u'http://www.diariodeibiza.es/elementosInt/rss/5'),
-        (u'Econom\xeda', u'http://www.diariodeibiza.es/elementosInt/rss/6'),
-        (u'Deportes', u'http://www.diariodeibiza.es/elementosInt/rss/7'),
-        (u'Sociedad', u'http://www.diariodeibiza.es/elementosInt/rss/8'),
-        (u'Ciencia', u'http://www.diariodeibiza.es/elementosInt/rss/11'),
-        (u'Tecnolog\xeda', u'http://www.diariodeibiza.es/elementosInt/rss/12'),
-        (u'Gente', u'http://www.diariodeibiza.es/elementosInt/rss/13'),
-        (u'Sucesos', u'http://www.diariodeibiza.es/elementosInt/rss/15'),
-        (u'Cultura', u'http://www.diariodeibiza.es/elementosInt/rss/16Piti')
+        ('Portada de Ibiza', 'http://www.diariodeibiza.es/elementosInt/rss/1'),
+        ('Pitiuses i Balears', 'http://www.diariodeibiza.es/elementosInt/rss/2'),
+        ('Opini\xf3n', 'http://www.diariodeibiza.es/elementosInt/rss/3'),
+        ('Nacional', 'http://www.diariodeibiza.es/elementosInt/rss/4'),
+        ('Internacional', 'http://www.diariodeibiza.es/elementosInt/rss/5'),
+        ('Econom\xeda', 'http://www.diariodeibiza.es/elementosInt/rss/6'),
+        ('Deportes', 'http://www.diariodeibiza.es/elementosInt/rss/7'),
+        ('Sociedad', 'http://www.diariodeibiza.es/elementosInt/rss/8'),
+        ('Ciencia', 'http://www.diariodeibiza.es/elementosInt/rss/11'),
+        ('Tecnolog\xeda', 'http://www.diariodeibiza.es/elementosInt/rss/12'),
+        ('Gente', 'http://www.diariodeibiza.es/elementosInt/rss/13'),
+        ('Sucesos', 'http://www.diariodeibiza.es/elementosInt/rss/15'),
+        ('Cultura', 'http://www.diariodeibiza.es/elementosInt/rss/16Piti'),
     ]

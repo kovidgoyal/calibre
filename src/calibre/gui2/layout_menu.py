@@ -26,7 +26,6 @@ from calibre.utils.localization import _
 
 
 class LayoutItem(QWidget):
-
     mouse_over = False
     VMARGIN = 4
 
@@ -94,7 +93,6 @@ class LayoutItem(QWidget):
 
 
 class LayoutMenuInner(QWidget):
-
     def __init__(self, parent):
         super().__init__(parent)
         self.l = l = QHBoxLayout(self)
@@ -113,9 +111,7 @@ class LayoutMenuInner(QWidget):
             self.initialized = True
             gui = self.gui
             if not hasattr(gui, 'layout_buttons'):
-                buttons = [
-                    QPushButton(QIcon.ic(i + '.png'), i, self)
-                    for i in 'search tags cover_flow grid book'.split()]
+                buttons = [QPushButton(QIcon.ic(i + '.png'), i, self) for i in 'search tags cover_flow grid book'.split()]
                 for b in buttons:
                     b.setVisible(False), b.setCheckable(True), b.setChecked(b.text() in 'tags grid')
                     setattr(b, 'label', b.text().capitalize())
@@ -185,7 +181,6 @@ class LayoutMenuInner(QWidget):
 
 
 class LayoutMenu(QWidget):
-
     def __init__(self, parent):
         super().__init__(parent)
         self.setVisible(False)
@@ -240,6 +235,7 @@ if __name__ == '__main__':
     from qt.core import QMainWindow
 
     from calibre.gui2 import Application
+
     app = Application([])
     w = QMainWindow()
     m = LayoutMenu(w)

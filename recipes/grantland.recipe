@@ -4,7 +4,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class GrantLand(BasicNewsRecipe):
-    title = u'Grantland'
+    title = 'Grantland'
     description = 'Writings on Sports & Pop Culture'
     language = 'en'
     __author__ = 'barty on mobileread.com forum'
@@ -37,8 +37,7 @@ class GrantLand(BasicNewsRecipe):
 
     preprocess_regexps = [
         # remove blog banners
-        (re.compile(r'<a href="/blog/(?:(?!</a>).)+</a>',
-                    re.DOTALL | re.IGNORECASE), lambda m: ''),
+        (re.compile(r'<a href="/blog/(?:(?!</a>).)+</a>', re.DOTALL | re.IGNORECASE), lambda m: ''),
     ]
 
     def parse_index(self):
@@ -46,7 +45,6 @@ class GrantLand(BasicNewsRecipe):
         seen_urls = set()
 
         for category in self.CATEGORIES:
-
             cat_name, tag, max_articles = category
             self.log('Reading category:', cat_name)
             articles = []

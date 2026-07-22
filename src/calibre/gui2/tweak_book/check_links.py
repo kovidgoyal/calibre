@@ -47,7 +47,6 @@ def set_data(name, val):
 
 
 class CheckExternalLinks(Dialog):
-
     progress_made = pyqtSignal(object, object)
 
     def __init__(self, parent=None):
@@ -91,8 +90,9 @@ class CheckExternalLinks(Dialog):
         l.addWidget(s)
         self.bh = h = QHBoxLayout()
         self.check_anchors = ca = QCheckBox(_('Check &anchors'))
-        ca.setToolTip(_('Check HTML anchors in links (the part after the #).\n'
-            ' This can be a little slow, since it requires downloading and parsing all the HTML pages.'))
+        ca.setToolTip(
+            _('Check HTML anchors in links (the part after the #).\n This can be a little slow, since it requires downloading and parsing all the HTML pages.')
+        )
         ca.setChecked(tprefs.get('check_external_link_anchors', True))
         ca.stateChanged.connect(self.anchors_changed)
         h.addWidget(ca), h.addStretch(100), h.addWidget(self.bb)
@@ -114,12 +114,14 @@ class CheckExternalLinks(Dialog):
 
     def run(self):
         from calibre.ebooks.oeb.polish.check.links import check_external_links
+
         self.tb = None
         self.errors = []
         try:
             self.errors = check_external_links(current_container(), self.progress_made.emit, check_anchors=self.check_anchors.isChecked())
         except Exception:
             import traceback
+
             self.tb = traceback.format_exc()
         self.progress_made.emit(None, None)
 
@@ -132,9 +134,13 @@ class CheckExternalLinks(Dialog):
             assert rb is not None
             rb.setEnabled(True)
             if self.tb is not None:
-                return error_dialog(self, _('Checking failed'), _(
-                    'There was an error while checking links, click "Show details" for more information'),
-                             det_msg=self.tb, show=True)
+                return error_dialog(
+                    self,
+                    _('Checking failed'),
+                    _('There was an error while checking links, click "Show details" for more information'),
+                    det_msg=self.tb,
+                    show=True,
+                )
             if not self.errors:
                 self.results.setText(_('No broken links found'))
             else:
@@ -144,15 +150,13 @@ class CheckExternalLinks(Dialog):
 
     def populate_results(self, preserve_pos=False):
         num = len(self.errors) - len(self.fixed_errors)
-        text = '<h3>{}</h3><ol>'.format(ngettext(
-            'Found a broken link', 'Found {} broken links', num).format(num))
+        text = '<h3>{}</h3><ol>'.format(ngettext('Found a broken link', 'Found {} broken links', num).format(num))
         for i, (locations, err, url) in enumerate(self.errors):
             if i in self.fixed_errors:
                 continue
             text += '<li><b>{}</b> \xa0<a href="err:{}">[{}]</a><br>{}<br><ul>'.format(url, i, _('Fix this link'), err)
             for name, href, lnum, col in locations:
-                text += '<li>{name} \xa0<a href="loc:{lnum},{name}">[{line}: {lnum}]</a></li>'.format(
-                    name=name, lnum=lnum, line=_('line number'))
+                text += '<li>{name} \xa0<a href="loc:{lnum},{name}">[{line}: {lnum}]</a></li>'.format(name=name, lnum=lnum, line=_('line number'))
             text += '</ul></li><hr>'
         self.results.setHtml(text)
 
@@ -161,7 +165,7 @@ class CheckExternalLinks(Dialog):
         if url.startswith('err:'):
             errnum = int(url[4:])
             err = self.errors[errnum]
-            newurl, ok = QInputDialog.getText(self, _('Fix URL'), _('Enter the corrected URL:') + '\xa0'*40, text=err[2])
+            newurl, ok = QInputDialog.getText(self, _('Fix URL'), _('Enter the corrected URL:') + '\xa0' * 40, text=err[2])
             if not ok:
                 return
             nmap = defaultdict(set)
@@ -189,6 +193,7 @@ if __name__ == '__main__':
 
     from calibre.gui2 import Application
     from calibre.gui2.tweak_book.boss import get_container
+
     app = Application([])
     set_current_container(get_container(sys.argv[-1]))
     d = CheckExternalLinks()

@@ -3,9 +3,11 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 class crnews(BasicNewsRecipe):
     __author__ = 'Douglas Delgado'
-    title = u'La Nacion Costa Rica'
+    title = 'La Nacion Costa Rica'
     publisher = 'GRUPO NACION GN, S. A.'
-    description = 'Diario de circulacion nacional de Costa Rica. Recipe creado por Douglas Delgado (doudelgado@gmail.com) para su uso con Calibre por Kovid Goyal'  # noqa: E501
+    description = (
+        'Diario de circulacion nacional de Costa Rica. Recipe creado por Douglas Delgado (doudelgado@gmail.com) para su uso con Calibre por Kovid Goyal'  # noqa: E501
+    )
     category = 'Spanish, Entertainment'
     masthead_url = 'http://www.nacion.com/App_Themes/nacioncom/Images/logo_nacioncom.png'
 
@@ -21,17 +23,18 @@ class crnews(BasicNewsRecipe):
     no_stylesheets = True
 
     feeds = [
-    (u'Portada', u'http://www.nacion.com/rss/'),
-    (u'Ultima Hora', u'http://www.nacion.com/rss/latest/'),
-    (u'Nacionales', u'http://www.nacion.com/rss/nacional/'),
-    (u'Entretenimiento', u'http://www.nacion.com/rss/ocio/'),
-    (u'Sucesos', u'http://www.nacion.com/rss/sucesos/'),
-    (u'Deportes', u'http://www.nacion.com/rss/deportes/'),
-    (u'Internacionales', u'http://www.nacion.com/rss/mundo/'),
-    (u'Economia', u'http://www.nacion.com/rss/economia/'),
-    (u'Vivir', u'http://www.nacion.com/rss/vivir/'),
-    (u'Tecnologia', u'http://www.nacion.com/rss/tecnologia/'),
-    (u'Opinion', u'http://www.nacion.com/rss/opinion/')]
+        ('Portada', 'http://www.nacion.com/rss/'),
+        ('Ultima Hora', 'http://www.nacion.com/rss/latest/'),
+        ('Nacionales', 'http://www.nacion.com/rss/nacional/'),
+        ('Entretenimiento', 'http://www.nacion.com/rss/ocio/'),
+        ('Sucesos', 'http://www.nacion.com/rss/sucesos/'),
+        ('Deportes', 'http://www.nacion.com/rss/deportes/'),
+        ('Internacionales', 'http://www.nacion.com/rss/mundo/'),
+        ('Economia', 'http://www.nacion.com/rss/economia/'),
+        ('Vivir', 'http://www.nacion.com/rss/vivir/'),
+        ('Tecnologia', 'http://www.nacion.com/rss/tecnologia/'),
+        ('Opinion', 'http://www.nacion.com/rss/opinion/'),
+    ]
 
     def get_cover_url(self):
         index = 'http://kiosko.net/cr/np/cr_nacion.html'

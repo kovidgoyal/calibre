@@ -13,7 +13,6 @@ from calibre.utils.localization import _
 
 
 class ResultsView(QTreeView):
-
     def __init__(self, parent=None):
         QTreeView.__init__(self, parent)
 

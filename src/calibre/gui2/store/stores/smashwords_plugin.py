@@ -83,7 +83,6 @@ def search(query, max_results=10, timeout=60, save_raw=None):
 
 
 class SmashwordsStore(BasicStoreConfig, StorePlugin):
-
     def open(self, gui=None, parent=None, detail_item=None, external=False):
         url = 'https://www.smashwords.com/'
 
@@ -121,5 +120,6 @@ class SmashwordsStore(BasicStoreConfig, StorePlugin):
 
 if __name__ == '__main__':
     import sys
+
     for r in search(' '.join(sys.argv[1:]), save_raw='/t/raw.html'):
         print(r)

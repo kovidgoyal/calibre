@@ -13,7 +13,7 @@ HSIZE = 120
 
 
 def what(file, h=None):
-    " Recognize image headers "
+    "Recognize image headers"
     if h is None:
         if isinstance(file, (str, bytes)):
             with open(file, 'rb') as f:
@@ -36,9 +36,9 @@ def what(file, h=None):
 
 
 def identify(src):
-    """ Recognize file format and sizes. Returns format, width, height. width
+    """Recognize file format and sizes. Returns format, width, height. width
     and height will be -1 if not found and fmt will be None if the image is not
-    recognized. """
+    recognized."""
     needs_close = False
 
     if isinstance(src, str):
@@ -95,6 +95,7 @@ def _identify(stream):
                 return fmt, width, height
     return fmt, width, height
 
+
 # ---------------------------------#
 # Subroutines per image file type #
 # ---------------------------------#
@@ -139,22 +140,22 @@ def jpeg_dimensions(stream):
     x = None
     while True:
         # Find next marker
-        while x != 0xff:
+        while x != 0xFF:
             x = read_byte()
         # Soak up padding
-        marker = 0xff
-        while marker == 0xff:
+        marker = 0xFF
+        while marker == 0xFF:
             marker = read_byte()
         q = marker
-        if 0xc0 <= q <= 0xcf and q not in {0xc4, 0xcc}:
+        if 0xC0 <= q <= 0xCF and q not in {0xC4, 0xCC}:
             # SOFn marker
             stream.seek(3, os.SEEK_CUR)
             return unpack(b'>HH', read(4))
-        elif 0xd8 <= q <= 0xda:
+        elif 0xD8 <= q <= 0xDA:
             break  # start of image, end of image, start of scan, no point
         elif q == 0:
             return -1, -1  # Corrupted JPEG
-        elif q == 0x01 or 0xd0 <= q <= 0xd7:
+        elif q == 0x01 or 0xD0 <= q <= 0xD7:
             # Standalone marker
             continue
         else:
@@ -204,31 +205,28 @@ def rgb(h):
 @test
 def pbm(h):
     """PBM (portable bitmap)"""
-    if len(h) >= 3 and \
-        h[0] == b'P' and h[1] in b'14' and h[2] in b' \t\n\r':
+    if len(h) >= 3 and h[0] == b'P' and h[1] in b'14' and h[2] in b' \t\n\r':
         return 'pbm'
 
 
 @test
 def pgm(h):
     """PGM (portable graymap)"""
-    if len(h) >= 3 and \
-        h[0] == b'P' and h[1] in b'25' and h[2] in b' \t\n\r':
+    if len(h) >= 3 and h[0] == b'P' and h[1] in b'25' and h[2] in b' \t\n\r':
         return 'pgm'
 
 
 @test
 def ppm(h):
     """PPM (portable pixmap)"""
-    if len(h) >= 3 and \
-        h[0] == b'P' and h[1] in b'36' and h[2] in b' \t\n\r':
+    if len(h) >= 3 and h[0] == b'P' and h[1] in b'36' and h[2] in b' \t\n\r':
         return 'ppm'
 
 
 @test
 def rast(h):
     """Sun raster file"""
-    if h[:4] == b'\x59\xA6\x6A\x95':
+    if h[:4] == b'\x59\xa6\x6a\x95':
         return 'rast'
 
 
@@ -236,7 +234,7 @@ def rast(h):
 def xbm(h):
     """X bitmap (X10 or X11)"""
     s = b'#define '
-    if h[:len(s)] == s:
+    if h[: len(s)] == s:
         return 'xbm'
 
 

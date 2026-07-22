@@ -7,9 +7,9 @@ import unittest
 
 
 class TestWinutil(unittest.TestCase):
-
     def setUp(self):
         from calibre_extensions import winutil
+
         self.winutil = winutil
 
     def tearDown(self):

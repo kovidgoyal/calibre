@@ -12,11 +12,11 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class Politico(BasicNewsRecipe):
-
     title = 'Politico.eu'
     __author__ = 'unkn0wn, Darko Miletic and Sujata Raman'
-    description = ('We connect and empower professionals through nonpartisan journalism and actionable'
-     ' intelligence about European politics and policy. Download Weekly.')
+    description = (
+        'We connect and empower professionals through nonpartisan journalism and actionable intelligence about European politics and policy. Download Weekly.'
+    )
     publisher = 'Axel Springer SE.'
     category = 'news, politics, Europe'
     oldest_article = 7  # days
@@ -31,7 +31,7 @@ class Politico(BasicNewsRecipe):
         'days': {
             'short': 'Oldest article to download from this news source. In days ',
             'long': 'For example, 0.5, gives you articles from the past 12 hours',
-            'default': str(oldest_article)
+            'default': str(oldest_article),
         }
     }
 
@@ -44,22 +44,19 @@ class Politico(BasicNewsRecipe):
     remove_empty_feeds = True
     ignore_duplicate_articles = ['url']
 
-    html2lrf_options = [
-        '--comment', description, '--category', category, '--publisher', publisher, '--ignore-tables'
-    ]
+    html2lrf_options = ['--comment', description, '--category', category, '--publisher', publisher, '--ignore-tables']
 
-    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + \
-        description + '"\ntags="' + category + '"\nlinearize_tables=True'
+    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"\nlinearize_tables=True'
 
     keep_only_tags = [
-        dict(name='div', attrs={'class':['container']}),
+        dict(name='div', attrs={'class': ['container']}),
     ]
 
     remove_tags = [
         dict(name=['notags', 'embed', 'aside', 'object', 'link']),
-        dict(name='div', attrs={'class':'module-article-inline related-articles'}),
-        dict(name='header', attrs={'class':'summary-header'}),
-        dict(name='div', attrs={'class':'amazon-polly-wrapper'}),
+        dict(name='div', attrs={'class': 'module-article-inline related-articles'}),
+        dict(name='header', attrs={'class': 'summary-header'}),
+        dict(name='div', attrs={'class': 'amazon-polly-wrapper'}),
         dict(name='div', attrs={'class': lambda x: x and 'story-meta' in x.split()}),
         dict(attrs={'class': lambda x: x and 'story-tools' in x.split()}),
         dict(attrs={'class': lambda x: x and 'social-sharing' in x.split()}),
@@ -72,14 +69,14 @@ class Politico(BasicNewsRecipe):
         dict(attrs={'class': lambda x: x and 'article__sidebar' in x.split()}),
         dict(name='svg'),
         dict(name='footer'),
-        dict(name='span', attrs={'class':'ad-label'}),
-        dict(name='div', attrs={'class':'pro-pill'}),
-        dict(name='ol', attrs={'class':'breadcrumbs__list'}),
+        dict(name='span', attrs={'class': 'ad-label'}),
+        dict(name='div', attrs={'class': 'pro-pill'}),
+        dict(name='ol', attrs={'class': 'breadcrumbs__list'}),
     ]
 
-    preprocess_regexps = [(re.compile(r'<a\s[^>]*>([^<]*)</a>', re.DOTALL|re.IGNORECASE), lambda match: match.group(1))]
+    preprocess_regexps = [(re.compile(r'<a\s[^>]*>([^<]*)</a>', re.DOTALL | re.IGNORECASE), lambda match: match.group(1))]
 
-    remove_tags_after  = dict(attrs={'class': lambda x: x and 'article__more-from' in x.split()})
+    remove_tags_after = dict(attrs={'class': lambda x: x and 'article__more-from' in x.split()})
 
     extra_css = '''
                 body{font-family:Arial,Sans-serif;}
@@ -101,15 +98,15 @@ class Politico(BasicNewsRecipe):
 
     def get_cover_url(self):
         soup = self.index_to_soup('https://www.politico.eu/')
-        for cov in soup.findAll(attrs={'class':'cta__image'}):
-            if cov.find('a', attrs={'href':lambda x: x and 'edition.pagesuite-professional' in x}):
+        for cov in soup.findAll(attrs={'class': 'cta__image'}):
+            if cov.find('a', attrs={'href': lambda x: x and 'edition.pagesuite-professional' in x}):
                 return cov.a.img['src']
 
     feeds = [
         ('Policy', 'https://www.politico.eu/section/policy/feed'),
         ('Opinion', 'https://www.politico.eu/section/opinion/feed'),
         ('Newsletter', 'https://www.politico.eu/newsletter/feed'),
-        ('Others', 'https://www.politico.eu/feed')
+        ('Others', 'https://www.politico.eu/feed'),
     ]
 
     def postprocess_html(self, soup, first):

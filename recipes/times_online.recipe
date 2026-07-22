@@ -52,23 +52,18 @@ class times(BasicNewsRecipe):
 
     keep_only_tags = [
         prefixed_classes(
-            'responsive__HeadlineContainer- keylines__KeylineItem- responsive__StandfirstContainer- '
-            'responsive__LeadAsset- responsive__ArticleContent-'
+            'responsive__HeadlineContainer- keylines__KeylineItem- responsive__StandfirstContainer- responsive__LeadAsset- responsive__ArticleContent-'
         )
     ]
 
     remove_tags = [
         dict(name=['svg', 'times-datawrapper']),
-        dict(attrs={'id':'iframe-wrapper'}),
-        dict(attrs={'old-position':'sticky'}),
-        prefixed_classes(
-            'responsive__InlineAdWrapper-'
-        )
+        dict(attrs={'id': 'iframe-wrapper'}),
+        dict(attrs={'old-position': 'sticky'}),
+        prefixed_classes('responsive__InlineAdWrapper-'),
     ]
 
-    remove_tags_after = [
-        dict(name='div', attrs={'id':'paywall-portal-article-footer'})
-    ]
+    remove_tags_after = [dict(name='div', attrs={'id': 'paywall-portal-article-footer'})]
 
     def preprocess_html(self, soup):
         h2 = soup.find(**prefixed_classes('responsive__StandfirstContainer-'))
@@ -81,13 +76,11 @@ class times(BasicNewsRecipe):
                     div.extract()
         for img in soup.findAll('img', src=True):
             img['src'] = resize(img['src'])
-        for img in soup.findAll('img', attrs={'old-src':True}):
+        for img in soup.findAll('img', attrs={'old-src': True}):
             img['src'] = resize(img['old-src'])
         for a in soup.findAll('a', href=True):
             a['href'] = 'http' + a['href'].split('http')[-1]
-        div = soup.findAll(attrs={'style': lambda x: x and x.startswith(
-            'color:rgb(51, 51, 51);font-family:TimesDigitalW04-Regular'
-        )})
+        div = soup.findAll(attrs={'style': lambda x: x and x.startswith('color:rgb(51, 51, 51);font-family:TimesDigitalW04-Regular')})
         for p in div:
             p.name = 'p'
         for d in soup.findAll(attrs={'id': lambda x: x and '.' in x}):
@@ -98,12 +91,12 @@ class times(BasicNewsRecipe):
 
     def parse_index(self):
         soup = self.index_to_soup('https://www.thetimes.com/')
-        main = soup.find('div', attrs={'id':'main-container', 'data-edition-date':True})
+        main = soup.find('div', attrs={'id': 'main-container', 'data-edition-date': True})
         self.timefmt = ' [%s]' % main['data-edition-date']
 
         feeds = []
 
-        for sec in main.findAll('section', attrs={'id':lambda x: x and x.startswith('section-')}, recursive=False):
+        for sec in main.findAll('section', attrs={'id': lambda x: x and x.startswith('section-')}, recursive=False):
             section = sec['id'].replace('section-', '').capitalize()
             self.log(section)
 
@@ -125,8 +118,8 @@ class times(BasicNewsRecipe):
             dom = random.choice(('fo', 'is', 'li', 'md', 'ph', 'vn'))
             raw_ar = self.index_to_soup('https://archive.' + dom + '/latest/' + url)
             archive = BeautifulSoup(str(raw_ar))
-            if archive.find('div', attrs={'id':'top'}):
-                content = archive.find('article', attrs={'id':False})
+            if archive.find('div', attrs={'id': 'top'}):
+                content = archive.find('article', attrs={'id': False})
                 soup = BeautifulSoup(raw)
                 article = soup.find(**prefixed_classes('responsive__ArticleContent-'))
                 if article and content:

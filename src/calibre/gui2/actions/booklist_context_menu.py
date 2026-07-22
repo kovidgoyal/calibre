@@ -7,10 +7,8 @@ from calibre.utils.localization import _
 
 
 class BooklistContextMenuAction(InterfaceAction):
-
     name = 'Booklist context menu'
-    action_spec = (_('Book list header menu'), 'context_menu.png',
-                   _('Show the book list header context menu'), ())
+    action_spec = (_('Book list header menu'), 'context_menu.png', _('Show the book list header context menu'), ())
     action_type = 'current'
     action_add_menu = False
     dont_add_to = frozenset(['context-menu-device', 'menubar-device'])

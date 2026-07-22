@@ -64,9 +64,17 @@ def load_icon_resource_as_pixmap(icon_resource, size=ICON_SIZE):
             if area(pmap) == q:
                 return pmap
             return pmap.scaled(
-                int(size), int(size), aspectRatioMode=Qt.AspectRatioMode.KeepAspectRatio, transformMode=Qt.TransformationMode.SmoothTransformation)
+                int(size),
+                int(size),
+                aspectRatioMode=Qt.AspectRatioMode.KeepAspectRatio,
+                transformMode=Qt.TransformationMode.SmoothTransformation,
+            )
     return pixmaps[-1].scaled(
-        int(size), int(size), aspectRatioMode=Qt.AspectRatioMode.KeepAspectRatio, transformMode=Qt.TransformationMode.SmoothTransformation)
+        int(size),
+        int(size),
+        aspectRatioMode=Qt.AspectRatioMode.KeepAspectRatio,
+        transformMode=Qt.TransformationMode.SmoothTransformation,
+    )
 
 
 def load_icon_resource(icon_resource, as_data=False, size=ICON_SIZE):
@@ -88,7 +96,11 @@ def load_icon_for_file(path: str, as_data=False, size=ICON_SIZE):
     if not pmap.isNull():
         if pmap.width() != size:
             pmap = pmap.scaled(
-                int(size), int(size), aspectRatioMode=Qt.AspectRatioMode.KeepAspectRatio, transformMode=Qt.TransformationMode.SmoothTransformation)
+                int(size),
+                int(size),
+                aspectRatioMode=Qt.AspectRatioMode.KeepAspectRatio,
+                transformMode=Qt.TransformationMode.SmoothTransformation,
+            )
         return pixmap_to_data(pmap) if as_data else pmap
 
 

@@ -15,9 +15,11 @@ def pygments_map():
     global _pyg_map
     if _pyg_map is None:
         from pygments.token import Token
+
         _pyg_map = {
             Token: None,
-            Token.Comment: 'Comment', Token.Comment.Preproc: 'PreProc',
+            Token.Comment: 'Comment',
+            Token.Comment.Preproc: 'PreProc',
             Token.String: 'String',
             Token.Number: 'Number',
             Token.Keyword.Type: 'Type',

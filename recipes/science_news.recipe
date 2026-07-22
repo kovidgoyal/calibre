@@ -11,11 +11,13 @@ from calibre.web.feeds.news import BasicNewsRecipe, prefixed_classes
 
 
 class ScienceNewsIssue(BasicNewsRecipe):
-    title = u'Science News'
-    description = ('Science News is an award-winning bi-weekly newsmagazine covering the most important research'
-                   ' in all fields of science. This recipe downloads all the articles from the latest issue.')
-    category = u'Science, Technology, News'
-    publisher = u'Society for Science & the Public'
+    title = 'Science News'
+    description = (
+        'Science News is an award-winning bi-weekly newsmagazine covering the most important research'
+        ' in all fields of science. This recipe downloads all the articles from the latest issue.'
+    )
+    category = 'Science, Technology, News'
+    publisher = 'Society for Science & the Public'
     language = 'en'
     no_stylesheets = True
     use_embedded_content = False
@@ -27,21 +29,13 @@ class ScienceNewsIssue(BasicNewsRecipe):
     keep_only_tags = [
         dict(
             attrs={
-                'class':
-                lambda x: x and (
-                    'single__content___' in x or 'header-default__title___' in x or
-                    'header-default__deck___' in x or 'header-default__figure___' in
-                    x
+                'class': lambda x: (
+                    x and ('single__content___' in x or 'header-default__title___' in x or 'header-default__deck___' in x or 'header-default__figure___' in x)
                 )
             }
         )
     ]
-    remove_tags = [
-        dict(name=['svg', 'button']),
-        dict(
-            attrs={'class': lambda x: x and ('newsletter-signup__wrapper___' in x)}
-        )
-    ]
+    remove_tags = [dict(name=['svg', 'button']), dict(attrs={'class': lambda x: x and ('newsletter-signup__wrapper___' in x)})]
 
     def parse_index(self):
 
@@ -53,12 +47,11 @@ class ScienceNewsIssue(BasicNewsRecipe):
 
         # Get articles
         soup = self.index_to_soup(url)
-        soup = soup.find('main', attrs={'id':'content'})
+        soup = soup.find('main', attrs={'id': 'content'})
         re_article = re.compile(r'https://www.sciencenews.org/article/')
         stories = []
         past_urls = set()
         for sec in soup.find_all(href=re_article):
-
             article_url = sec['href']
             article_title = sec.text.strip()
 

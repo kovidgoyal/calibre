@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
@@ -15,9 +15,8 @@ font_family_model = None
 
 
 class PluginWidget(Widget, Ui_Form):
-
     TITLE = _('MOBI output')
-    HELP = _('Options specific to')+' MOBI '+_('output')
+    HELP = _('Options specific to') + ' MOBI ' + _('output')
     COMMIT_NAME = 'mobi_output'
     ICON = 'mimetypes/mobi.png'
 

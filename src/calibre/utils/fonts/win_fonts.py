@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
@@ -17,7 +17,6 @@ from calibre.utils.resources import get_path as P
 
 
 class WinFonts:
-
     def __init__(self, winfonts):
         self.w = winfonts
         # Windows requires font files to be executable for them to be loaded,
@@ -28,12 +27,13 @@ class WinFonts:
             base = 'fonts/liberation/Liberation%s-%s.ttf'
             self.app_font_families[f'Liberation {f}'] = m = {}
             for weight, is_italic in product((self.w.FW_NORMAL, self.w.FW_BOLD), (False, True)):
-                name = {(self.w.FW_NORMAL, False):'Regular',
-                        (self.w.FW_NORMAL, True):'Italic',
-                        (self.w.FW_BOLD, False):'Bold',
-                        (self.w.FW_BOLD, True):'BoldItalic'}[(weight,
-                            is_italic)]
-                m[(weight, is_italic)] = base%(f, name)
+                name = {
+                    (self.w.FW_NORMAL, False): 'Regular',
+                    (self.w.FW_NORMAL, True): 'Italic',
+                    (self.w.FW_BOLD, False): 'Bold',
+                    (self.w.FW_BOLD, True): 'BoldItalic',
+                }[(weight, is_italic)]
+                m[(weight, is_italic)] = base % (f, name)
 
         # import pprint
         # pprint.pprint(self.app_font_families)
@@ -42,11 +42,12 @@ class WinFonts:
         names = set()
         for font in self.w.enum_font_families():
             if (
-                    font['is_truetype'] and
-                    # Fonts with names starting with @ are designed for
-                    # vertical text
-                    not font['name'].startswith('@')
-                ):
+                font['is_truetype']
+                and
+                # Fonts with names starting with @ are designed for
+                # vertical text
+                not font['name'].startswith('@')
+            ):
                 names.add(font['name'])
         return sorted(names.union(frozenset(self.app_font_families)))
 
@@ -83,8 +84,7 @@ class WinFonts:
             try:
                 weight, is_italic, is_bold, is_regular = get_font_characteristics(data)[:4]
             except Exception as e:
-                prints(f'Failed to get font characteristic for font: {family} [{self.get_normalized_name(is_italic, weight)}]'
-                        f' with error: {e}')
+                prints(f'Failed to get font characteristic for font: {family} [{self.get_normalized_name(is_italic, weight)}] with error: {e}')
                 continue
 
             try:
@@ -93,11 +93,9 @@ class WinFonts:
                 pass
 
             if normalize:
-                ft = {(True, True):'bi', (True, False):'italic', (False,
-                    True):'bold', (False, False):'normal'}[(is_italic,
-                        is_bold)]
+                ft = {(True, True): 'bi', (True, False): 'italic', (False, True): 'bold', (False, False): 'normal'}[(is_italic, is_bold)]
             else:
-                ft = (1 if is_italic else 0, weight//10)
+                ft = (1 if is_italic else 0, weight // 10)
 
             if not (family_name or full_name):
                 # prints('Font %s [%s] has no names'%(family,
@@ -139,6 +137,7 @@ class WinFonts:
 
 def load_winfonts():
     from calibre_extensions import winfonts
+
     return WinFonts(winfonts)
 
 
@@ -158,6 +157,7 @@ def test():
     if os.path.exists(os.path.join(pluginsd, 'winfonts.pyd')):
         sys.path.insert(0, pluginsd)
         import winfonts  # type: ignore
+
         w = WinFonts(winfonts)
     else:
         w = load_winfonts()

@@ -22,19 +22,14 @@ class LinuxMagazine(BasicNewsRecipe):
     no_stylesheets = True
     use_embedded_content = False
 
-    conversion_options = {
-        'comment': description, 'tags': category, 'publisher': publisher, 'language': language
-    }
+    conversion_options = {'comment': description, 'tags': category, 'publisher': publisher, 'language': language}
 
-    keep_only_tags = dict(
-        name='div', attrs={'class': lambda x: 'full' in (x or '').split()})
+    keep_only_tags = dict(name='div', attrs={'class': lambda x: 'full' in (x or '').split()})
 
     remove_tags_after = dict(name='div', attrs={'id': 'disqus_thread'})
     remove_tags = [
-        dict(name='div', attrs={'class': ['attribute-relatedcontent',
-                                          'social_bookmarks',
-                                          'paginate']}), dict(name='div', attrs={'id': 'articlebox'})
+        dict(name='div', attrs={'class': ['attribute-relatedcontent', 'social_bookmarks', 'paginate']}),
+        dict(name='div', attrs={'id': 'articlebox'}),
     ]
 
-    feeds = [(u'Linux Magazine Full Feed',
-              u'http://www.linux-magazine.com/rss/feed/lmi_full')]
+    feeds = [('Linux Magazine Full Feed', 'http://www.linux-magazine.com/rss/feed/lmi_full')]

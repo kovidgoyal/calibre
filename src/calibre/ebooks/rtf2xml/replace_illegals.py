@@ -24,19 +24,19 @@ class ReplaceIllegals:
     reaplace illegal lower ascii characters
     """
 
-    def __init__(self,
-            in_file,
-            copy=None,
-            run_level=1,
-            ):
+    def __init__(
+        self,
+        in_file,
+        copy=None,
+        run_level=1,
+    ):
         self.__file = in_file
         self.__copy = copy
         self.__run_level = run_level
         self.__write_to = better_mktemp()
 
     def replace_illegals(self):
-        """
-        """
+        """ """
         with open_for_read(self.__file) as read_obj:
             with open_for_write(self.__write_to) as write_obj:
                 for line in read_obj:

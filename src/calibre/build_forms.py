@@ -6,7 +6,7 @@ import os
 
 
 def form_to_compiled_form(form):
-    return form.rpartition('.')[0]+'_ui.py'
+    return form.rpartition('.')[0] + '_ui.py'
 
 
 def find_forms(srcdir):
@@ -34,6 +34,7 @@ def ensure_icons_built(resource_dir, force_compile, info):
             return
     info('Building icons.rcc')
     from calibre.utils.rcc import compile_icon_dir_as_themes
+
     compile_icon_dir_as_themes(images_dir, icons)
 
 
@@ -41,10 +42,12 @@ def build_forms(srcdir, info=None, summary=False, check_for_migration=False, che
     import re
 
     from qt.core import QT_VERSION_STR
+
     qt_major = QT_VERSION_STR.split('.')[0]
     m = importlib.import_module(f'PyQt{qt_major}.uic')
 
     from polyglot.io import PolyglotStringIO
+
     forms = find_forms(srcdir)
     if info is None:
         info = print
@@ -58,6 +61,7 @@ def build_forms(srcdir, info=None, summary=False, check_for_migration=False, che
     force_compile = os.environ.get('CALIBRE_FORCE_BUILD_UI_FORMS', '') in ('1', 'yes', 'true')
     if check_for_migration:
         from calibre.gui2 import gprefs
+
         force_compile |= not gprefs.get(f'migrated_forms_to_qt{qt_major}', False)
 
     icon_constructor_pat = re.compile(r'\s*\S+\s+=\s+QtGui.QIcon\(\)')

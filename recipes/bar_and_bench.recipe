@@ -8,7 +8,7 @@ class bar(BasicNewsRecipe):
     description = (
         'Bar & Bench is the premier online portal for Indian legal news. News, interviews,'
         ' and columns related to the Supreme Court of India and the High Courts are published.'
-        )
+    )
     language = 'en_IN'
     masthead_url = 'https://gumlet.assettype.com/barandbench/2019-12/7a743b15-5d5d-44d7-96c2-13616780ed95/brand_2x.png'
 
@@ -16,40 +16,29 @@ class bar(BasicNewsRecipe):
     remove_javascript = True
     remove_attributes = ['height', 'width', 'style']
 
-    keep_only_tags = [
-        prefixed_classes(
-            'text-story-m_header-details__ text-story-m_hero-image__ text-story-m_story-content-inner-wrapper__'
-        )
-    ]
+    keep_only_tags = [prefixed_classes('text-story-m_header-details__ text-story-m_hero-image__ text-story-m_story-content-inner-wrapper__')]
 
-    remove_tags = [
-        prefixed_classes(
-            'text-story-m_story-tags__ story-footer-module__metype__'
-        ),
-        dict(name='svg')
-    ]
+    remove_tags = [prefixed_classes('text-story-m_story-tags__ story-footer-module__metype__'), dict(name='svg')]
 
     def preprocess_html(self, soup):
-        for img in soup.findAll('img', attrs={'data-src':True}):
+        for img in soup.findAll('img', attrs={'data-src': True}):
             img['src'] = img['data-src']
         return soup
 
     ignore_duplicate_articles = {'title'}
-    resolve_internal_links  = True
+    resolve_internal_links = True
     remove_empty_feeds = True
 
     def parse_index(self):
         index = 'https://www.barandbench.com/'
-        sections = [
-            'news', 'columns', 'interviews', 'law-firms', 'apprentice-lawyer', 'legal-jobs'
-        ]
+        sections = ['news', 'columns', 'interviews', 'law-firms', 'apprentice-lawyer', 'legal-jobs']
         feeds = []
         soup = self.index_to_soup(index)
         for sec in sections:
             section = sec.capitalize()
             self.log(section)
             articles = []
-            for a in soup.findAll('a', attrs={'href':lambda x: x and x.startswith(index + sec + '/')}):
+            for a in soup.findAll('a', attrs={'href': lambda x: x and x.startswith(index + sec + '/')}):
                 url = a['href'].split('?')[0]
                 if url in {index + sec + '/', index + sec}:
                     continue

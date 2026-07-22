@@ -7,14 +7,13 @@ from calibre.utils.localization import _
 
 class GitHubAI(AIProviderPlugin):
     name = 'GitHubAI'
-    version        = (1, 0, 0)
-    description    = _('AI services from GitHub, with access to many different AI models')
+    version = (1, 0, 0)
+    description = _('AI services from GitHub, with access to many different AI models')
     author = 'Kovid Goyal'
     builtin_live_module_name = 'calibre.ai.github.backend'
 
     @property
     def capabilities(self):
         from calibre.ai import AICapabilities
-        return (
-            AICapabilities.text_to_text | AICapabilities.embedding
-        )
+
+        return AICapabilities.text_to_text | AICapabilities.embedding

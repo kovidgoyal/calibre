@@ -69,11 +69,11 @@ def extract_html(soup):
     raw = script[0].contents[0]
     return json_to_html(raw)
 
+
 # }}}
 
 
 class TheAtlantic(BasicNewsRecipe):
-
     if web_version:
         title = 'TheAtlantic.com'
         description = 'News and editorial about politics, culture, entertainment, tech, etc. Contains many articles not seen in The Atlantic magazine'
@@ -95,9 +95,7 @@ class TheAtlantic(BasicNewsRecipe):
             'c-article-header__hed c-rubric article-header c-article-meta c-lead-media'
             ' lead-img article-cover-extra article-body article-magazine article-cover-content'
         ),
-        prefix_classes(
-            'ArticleHeader_root__ ArticleLayoutSection_main__ ArticleHero_timestamp__ ArticleBody_root__'
-        ),
+        prefix_classes('ArticleHeader_root__ ArticleLayoutSection_main__ ArticleHero_timestamp__ ArticleBody_root__'),
         dict(itemprop='articleBody'),
         # these are for photos articles
         dict(id=['article-header', 'from-json-by-calibre']),
@@ -109,22 +107,10 @@ class TheAtlantic(BasicNewsRecipe):
             ' offset-wrapper boxtop-most-popular social-icons hints read-more c-article-writer__social'
         ),
         prefix_classes('ArticleRecirc_inline__'),
-        {
-            'name': ['meta', 'link', 'noscript', 'aside', 'h3']
-        },
-        {
-            'attrs': {
-                'class': ['offset-wrapper', 'boxtop-most-popular']
-            }
-        },
-        {
-            'attrs': {
-                'class': lambda x: x and 'article-tools' in x
-            }
-        },
-        {
-            'src': lambda x: x and 'spotxchange.com' in x
-        },
+        {'name': ['meta', 'link', 'noscript', 'aside', 'h3']},
+        {'attrs': {'class': ['offset-wrapper', 'boxtop-most-popular']}},
+        {'attrs': {'class': lambda x: x and 'article-tools' in x}},
+        {'src': lambda x: x and 'spotxchange.com' in x},
     ]
     remove_tags_after = classes('article-body')
 
@@ -174,7 +160,6 @@ class TheAtlantic(BasicNewsRecipe):
         return ans
 
     if web_version and not test_article:
-
         use_embedded_content = False
 
         feeds = [
@@ -198,6 +183,7 @@ class TheAtlantic(BasicNewsRecipe):
             ('Notes | The Atlantic', 'https://feeds.feedburner.com/TheAtlanticNotes'),
         ]
     else:
+
         def parse_index(self):
             if test_article:
                 return [('Articles', [{'title': 'Test article', 'url': test_article}])]
@@ -230,4 +216,5 @@ if __name__ == '__main__':
     import sys
 
     from calibre.ebooks.BeautifulSoup import BeautifulSoup
+
     print(extract_html(BeautifulSoup(open(sys.argv[-1]).read())))

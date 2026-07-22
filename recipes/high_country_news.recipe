@@ -35,8 +35,8 @@ class HighCountryNews(BasicNewsRecipe):
     #               css changes, some cleanup
     #
 
-    title = u'High Country News'
-    description = u'High Country News (RSS Version)'
+    title = 'High Country News'
+    description = 'High Country News (RSS Version)'
     __author__ = 'Armin Geller'
     publisher = 'High Country News'
     category = 'News, Politics, Social, Nature, Environmental, Western United States, Native American'
@@ -58,11 +58,8 @@ class HighCountryNews(BasicNewsRecipe):
 
     def get_cover_url(self):
         cover_source_soup = self.index_to_soup(self.cover_source)
-        preview_image_div = cover_source_soup.find(
-            attrs={'class': 'articles'}
-        )  # AGE 2014-09-18 new
-        return preview_image_div.div.a.figure.img[
-            'src']  # AGE 2014-09-18 newm take always the first one (hopefully)
+        preview_image_div = cover_source_soup.find(attrs={'class': 'articles'})  # AGE 2014-09-18 new
+        return preview_image_div.div.a.figure.img['src']  # AGE 2014-09-18 newm take always the first one (hopefully)
 
     # AGe new extra css to get rid of ugly style
     # li for delete disc style,
@@ -81,44 +78,25 @@ class HighCountryNews(BasicNewsRecipe):
                       '''
 
     feeds = [
-        (u'Most Recent',
-         u'https://www.hcn.org/rss/most-recent/rss.xml'),  # AGE 2019-07-04 new
-        (u'Current Issue',
-         u'https://www.hcn.org/rss/current-issue/rss.xml'),  # AGE 2019-07-04 new
-        (u'The Range blog', u'http://cdn.hcn.org/rss/range/RSS'
-         ),  # AGE 2021-01-13 still available with old entries
-        (u'Features', u'https://www.hcn.org/rss/features/rss.xml'),  # AGE 2021-01-13
-        (u'Ranch Diaries',
-         u'https://www.hcn.org/voices/ranchdiaries/RSS'),  # AGE 2021-01-13
-        (u'Writers on the Range',
-         u'https://www.hcn.org/rss/wotr/rss.xml'),  # AGE 2019-07-04 new
-        (
-            u'West Obsessed',
-            u'https://feeds.soundcloud.com/users/soundcloud:users:299947441/sounds.rss'
-        ),  # AGE 2016-12-04 new
+        ('Most Recent', 'https://www.hcn.org/rss/most-recent/rss.xml'),  # AGE 2019-07-04 new
+        ('Current Issue', 'https://www.hcn.org/rss/current-issue/rss.xml'),  # AGE 2019-07-04 new
+        ('The Range blog', 'http://cdn.hcn.org/rss/range/RSS'),  # AGE 2021-01-13 still available with old entries
+        ('Features', 'https://www.hcn.org/rss/features/rss.xml'),  # AGE 2021-01-13
+        ('Ranch Diaries', 'https://www.hcn.org/voices/ranchdiaries/RSS'),  # AGE 2021-01-13
+        ('Writers on the Range', 'https://www.hcn.org/rss/wotr/rss.xml'),  # AGE 2019-07-04 new
+        ('West Obsessed', 'https://feeds.soundcloud.com/users/soundcloud:users:299947441/sounds.rss'),  # AGE 2016-12-04 new
         #            (u'The Range', u'http://feeds.feedburner.com/hcn/range?format=xml'), # AGE 2016-12-04 old feedburner
-        (
-            u'From the Blogs',
-            u'http://feeds.feedburner.com/hcn/FromTheBlogs?format=xml'
-        ),
-        (
-            u'Heard around the West',
-            u'http://feeds.feedburner.com/hcn/heard?format=xml'
-        ),
-        (u'The GOAT Blog', u'http://feeds.feedburner.com/hcn/goat?format=xml'),
-        (u'High Country Views', u'http://feeds.feedburner.com/hcn/HighCountryViews'),
+        ('From the Blogs', 'http://feeds.feedburner.com/hcn/FromTheBlogs?format=xml'),
+        ('Heard around the West', 'http://feeds.feedburner.com/hcn/heard?format=xml'),
+        ('The GOAT Blog', 'http://feeds.feedburner.com/hcn/goat?format=xml'),
+        ('High Country Views', 'http://feeds.feedburner.com/hcn/HighCountryViews'),
     ]
 
     keep_only_tags = [
         dict(name='div', attrs={'id': 'content'}),
         dict(name='div', attrs={'class': 'opaque'}),
         dict(name='div', attrs={'id': 'main'}),
-        dict(
-            name='div',
-            attrs={
-                'class': ['row feature-row', 'small-12 columns', 'intro', 'dropcap']
-            }
-        ),
+        dict(name='div', attrs={'class': ['row feature-row', 'small-12 columns', 'intro', 'dropcap']}),
     ]
 
     remove_tags = [
@@ -132,14 +110,24 @@ class HighCountryNews(BasicNewsRecipe):
                     'newsletter-signup portlet',
                     'document-actions',
                 ]
-            }
+            },
         ),
-        dict(name='ul', attrs={'class': [
-            'topics',
-        ]}),
-        dict(name='dl', attrs={'id': [
-            'kssPortalMessage',
-        ]}),
+        dict(
+            name='ul',
+            attrs={
+                'class': [
+                    'topics',
+                ]
+            },
+        ),
+        dict(
+            name='dl',
+            attrs={
+                'id': [
+                    'kssPortalMessage',
+                ]
+            },
+        ),
     ]
 
     # AGE 2014-09-18 this will stay for a while

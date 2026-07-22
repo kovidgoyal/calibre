@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
@@ -28,18 +28,17 @@ def read_array(data, fmt='H'):
 
 
 class LocaTable(UnknownTable):
-
     def load_offsets(self, head_table, maxp_table):
         fmt = 'H' if head_table.index_to_loc_format == 0 else four_byte_type_code()
         locs = read_array(self.raw, fmt)
         self.offset_map = locs.tolist()
         if fmt == 'H':
-            self.offset_map = [2*i for i in self.offset_map]
+            self.offset_map = [2 * i for i in self.offset_map]
         self.fmt = fmt
 
     def glyph_location(self, glyph_id):
         offset = self.offset_map[glyph_id]
-        next_offset = self.offset_map[glyph_id+1]
+        next_offset = self.offset_map[glyph_id + 1]
         return offset, next_offset - offset
 
     def update(self, resolved_glyph_map):
@@ -59,12 +58,12 @@ class LocaTable(UnknownTable):
         glyphs.sort(key=itemgetter(1))
         for glyph_id, offset, sz in glyphs:
             self.offset_map[glyph_id] = offset
-            self.offset_map[glyph_id+1] = offset + sz
+            self.offset_map[glyph_id + 1] = offset + sz
         # Fix all zero entries to be the same as the previous entry, which
         # means that if the ith entry is zero, the i-1 glyph is not present.
         for i in range(1, len(self.offset_map)):
             if self.offset_map[i] == 0:
-                self.offset_map[i] = self.offset_map[i-1]
+                self.offset_map[i] = self.offset_map[i - 1]
 
         vals = self.offset_map
         max_offset = max(vals) if vals else 0
@@ -78,12 +77,13 @@ class LocaTable(UnknownTable):
         if sys.byteorder != 'big':
             vals.byteswap()
         self.raw = vals.tobytes()
+
     subset = update
 
     def dump_glyphs(self, sfnt):
         if not hasattr(self, 'offset_map'):
             self.load_offsets(sfnt[b'head'], sfnt[b'maxp'])
-        for i in range(len(self.offset_map)-1):
-            off, noff = self.offset_map[i], self.offset_map[i+1]
+        for i in range(len(self.offset_map) - 1):
+            off, noff = self.offset_map[i], self.offset_map[i + 1]
             if noff != off:
-                print('Glyph id:', i, 'size:', noff-off)
+                print('Glyph id:', i, 'size:', noff - off)

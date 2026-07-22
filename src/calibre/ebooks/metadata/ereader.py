@@ -2,7 +2,7 @@
 Read meta information from eReader pdb files.
 """
 
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
@@ -21,7 +21,7 @@ def get_cover(pheader, eheader):
     for i in range(eheader.image_count):
         raw = pheader.section_data(eheader.image_data_offset + i)
 
-        if raw[4:4 + 32].strip(b'\x00') == b'cover.png':
+        if raw[4 : 4 + 32].strip(b'\x00') == b'cover.png':
             cover_data = raw[62:]
             break
 
@@ -81,9 +81,9 @@ def set_metadata(stream, mi):
         last_data = len(sections) - 1
 
         for i in range(0, 132, 2):
-            val, = struct.unpack('>H', sections[0][i:i + 2])
+            (val,) = struct.unpack('>H', sections[0][i : i + 2])
             if val >= hr.last_data_offset:
-                sections[0][i:i + 2] = struct.pack('>H', last_data)
+                sections[0][i : i + 2] = struct.pack('>H', last_data)
 
         sections[0][24:26] = struct.pack('>H', 1)  # Set has metadata
         sections[0][44:46] = struct.pack('>H', last_data - 1)  # Set location of metadata
@@ -92,8 +92,9 @@ def set_metadata(stream, mi):
     # Merge the metadata into the file
     file_mi = get_metadata(stream, False)
     file_mi.smart_update(mi)
-    sections[hr.metadata_offset] = ('{}\x00{}\x00{}\x00{}\x00{}\x00'.format(
-        file_mi.title, authors_to_string(file_mi.authors), '', file_mi.publisher, file_mi.isbn)).encode('cp1252', 'replace')
+    sections[hr.metadata_offset] = (
+        '{}\x00{}\x00{}\x00{}\x00{}\x00'.format(file_mi.title, authors_to_string(file_mi.authors), '', file_mi.publisher, file_mi.isbn)
+    ).encode('cp1252', 'replace')
 
     # Rebuild the PDB wrapper because the offsets have changed due to the
     # new metadata.

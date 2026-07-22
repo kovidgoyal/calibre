@@ -3,7 +3,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class AdvancedUserRecipe1348151548(BasicNewsRecipe):
-    title = u'Index.hu'
+    title = 'Index.hu'
     __author__ = 'laca'
     oldest_article = 2
     language = 'hu'
@@ -13,14 +13,16 @@ class AdvancedUserRecipe1348151548(BasicNewsRecipe):
     simultaneous_downloads = 1
     max_articles_per_feed = 50
 
-    feeds = [(u'Belföld', u'http://index.hu/belfold/rss/'),
-             (u'Külföld', u'http://index.hu/kulfold/rss/'),
-             (u'Gazdaság', u'http://index.hu/gazdasag/rss/'),
-             (u'Tech', u'http://index.hu/tech/rss/'),
-             (u'Tudomány', u'http://index.hu/tudomany/rss/'),
-             (u'Kultúr', u'http://index.hu/kultur/rss/'),
-             (u'Sport Géza', u'http://sportgeza.hu/24ora/rss/'),
-             (u'Vélemény', u'http://index.hu/velemeny/rss/'),
-             (u'Velvet', u'http://velvet.hu/24ora/rss/'),
-             (u'Totalcar', u'http://totalcar.hu/24ora/rss/'),
-             (u'Dívány', u'http://divany.hu/24ora/rss/')]
+    feeds = [
+        ('Belföld', 'http://index.hu/belfold/rss/'),
+        ('Külföld', 'http://index.hu/kulfold/rss/'),
+        ('Gazdaság', 'http://index.hu/gazdasag/rss/'),
+        ('Tech', 'http://index.hu/tech/rss/'),
+        ('Tudomány', 'http://index.hu/tudomany/rss/'),
+        ('Kultúr', 'http://index.hu/kultur/rss/'),
+        ('Sport Géza', 'http://sportgeza.hu/24ora/rss/'),
+        ('Vélemény', 'http://index.hu/velemeny/rss/'),
+        ('Velvet', 'http://velvet.hu/24ora/rss/'),
+        ('Totalcar', 'http://totalcar.hu/24ora/rss/'),
+        ('Dívány', 'http://divany.hu/24ora/rss/'),
+    ]

@@ -9,7 +9,6 @@ from calibre.utils.monotonic import monotonic
 
 
 class RestartingWebEngineView(QWebEngineView):
-
     render_process_restarted = pyqtSignal()
     render_process_failed = pyqtSignal()
 

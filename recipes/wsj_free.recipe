@@ -81,13 +81,15 @@ class WSJ(BasicNewsRecipe):
         ),
         dict(
             attrs={
-                'id': lambda x: x
-                and x.startswith((
-                    'comments_sector',
-                    'wrapper-INLINE',
-                    'audio-tag-inner-audio-',
-                    'article-comments-tool',
-                ))
+                'id': lambda x: (
+                    x
+                    and x.startswith((
+                        'comments_sector',
+                        'wrapper-INLINE',
+                        'audio-tag-inner-audio-',
+                        'article-comments-tool',
+                    ))
+                )
             }
         ),
         dict(name='div', attrs={'data-message-depth': True}),
@@ -97,6 +99,7 @@ class WSJ(BasicNewsRecipe):
 
     def get_obfuscated_article(self, url):
         from calibre.scraper.simple import read_url
+
         raw = read_url([], 'https://archive.is/latest/' + url)
         return {'data': raw, 'url': url}
 
@@ -123,9 +126,7 @@ class WSJ(BasicNewsRecipe):
         for ph in soup.findAll('a', attrs={'data-type': ['phrase', 'link']}):
             if div := ph.findParent('div'):
                 div.name = 'span'
-        for auth in soup.findAll(
-            'a', attrs={'aria-label': lambda x: x and x.startswith('Author page')}
-        ):
+        for auth in soup.findAll('a', attrs={'aria-label': lambda x: x and x.startswith('Author page')}):
             if div := auth.find_previous_sibling('div'):
                 div.name = 'span'
             if parent := auth.findParent('div'):
@@ -150,9 +151,7 @@ class WSJ(BasicNewsRecipe):
         from calibre.utils.img import save_cover_data_to
 
         br = browser()
-        raw = br.open(
-            'https://frontpages.freedomforum.org/newspapers/wsj-The_Wall_Street_Journal'
-        )
+        raw = br.open('https://frontpages.freedomforum.org/newspapers/wsj-The_Wall_Street_Journal')
         soup = BeautifulSoup(raw.read())
         cu = soup.find(
             'img',
@@ -174,9 +173,7 @@ class WSJ(BasicNewsRecipe):
             'variables': '{"publication":"WSJ","region":"US","masthead":"ITPNEXTGEN"}',
             'extensions': '{"persistedQuery":{"version":1,"sha256Hash":"d938226e7d1c1fff050e7d084c72179e2713dcf4736d3a442c618c55b896f847"}}',
         }
-        url = 'https://shared-data.dowjones.io/gateway/graphql?' + urlencode(
-            query, safe='()!', quote_via=quote
-        )
+        url = 'https://shared-data.dowjones.io/gateway/graphql?' + urlencode(query, safe='()!', quote_via=quote)
         raw = self.index_to_soup(url, raw=True)
 
         cat_data = json.loads(raw)['data']['mobileIssuesByMasthead']
@@ -210,14 +207,10 @@ class WSJ(BasicNewsRecipe):
                 'variables': '{{"id":"{}"}}'.format(cont_id),
                 'extensions': '{"persistedQuery":{"version":1,"sha256Hash":"207fe93376f379bf223ed2734cf9313a28291293366a803db923666fa6b45026"}}',
             }
-            sec_url = 'https://shared-data.dowjones.io/gateway/graphql?' + urlencode(
-                query, safe='()!', quote_via=quote
-            )
+            sec_url = 'https://shared-data.dowjones.io/gateway/graphql?' + urlencode(query, safe='()!', quote_via=quote)
             sec_raw = self.index_to_soup(sec_url, raw=True)
 
-            sec_data = json.loads(sec_raw)['data']['summaryCollectionContent'][
-                'collectionItems'
-            ]
+            sec_data = json.loads(sec_raw)['data']['summaryCollectionContent']['collectionItems']
 
             articles = []
 

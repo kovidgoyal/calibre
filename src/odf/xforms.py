@@ -27,12 +27,12 @@ from .namespaces import XFORMSNS
 
 
 def Model(**args):
-    return Element(qname=(XFORMSNS,'model'), **args)
+    return Element(qname=(XFORMSNS, 'model'), **args)
 
 
 def Instance(**args):
-    return Element(qname=(XFORMSNS,'instance'), **args)
+    return Element(qname=(XFORMSNS, 'instance'), **args)
 
 
 def Bind(**args):
-    return Element(qname=(XFORMSNS,'bind'), **args)
+    return Element(qname=(XFORMSNS, 'bind'), **args)

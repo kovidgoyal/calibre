@@ -24,7 +24,6 @@ nonce_counter, nonce_counter_lock = 0, Lock()
 
 
 class BanList:
-
     def __init__(self, ban_time_in_minutes=0, max_failures_before_ban=5):
         self.interval = max(0, ban_time_in_minutes) * 60
         self.max_failures_before_ban = max(0, max_failures_before_ban)
@@ -124,7 +123,6 @@ def is_nonce_stale(nonce, max_age_seconds=MAX_AGE_SECONDS):
 
 
 class DigestAuth:  # {{{
-
     valid_algorithms = {'MD5', 'MD5-SESS'}
     valid_qops = {'auth', 'auth-int'}
 
@@ -210,6 +208,8 @@ class DigestAuth:  # {{{
                 log.warn(f'Authorization URI mismatch: {data.path} != {path} from client: {data.remote_addr}')
             raise HTTPSimpleResponse(http.client.BAD_REQUEST, 'The uri in the Request Line and the Authorization header do not match')
         return self.response is not None and data.path == path and self.request_digest(pw, data) == self.response
+
+
 # }}}
 
 
@@ -239,17 +239,25 @@ class AuthController:
     not implement the digest auth spec properly (it sends out of order nc
     values).
     """
+
     ANDROID_COOKIE = 'android_workaround'
 
-    def __init__(self,
-                 user_credentials=None, prefer_basic_auth=False, realm='calibre',
-                 max_age_seconds=MAX_AGE_SECONDS, log=None, ban_time_in_minutes=0, ban_after=5):
+    def __init__(
+        self,
+        user_credentials=None,
+        prefer_basic_auth=False,
+        realm='calibre',
+        max_age_seconds=MAX_AGE_SECONDS,
+        log=None,
+        ban_time_in_minutes=0,
+        ban_after=5,
+    ):
         self.user_credentials, self.prefer_basic_auth = user_credentials, prefer_basic_auth
         self.ban_list = BanList(ban_time_in_minutes=ban_time_in_minutes, max_failures_before_ban=ban_after)
         self.log = log
         self.secret = as_hex_unicode(os.urandom(random.randint(20, 30)))
         self.max_age_seconds = max_age_seconds
-        self.key_order = '{%d}:{%d}:{%d}' % random.choice(tuple(permutations((0,1,2))))  # noqa: UP031
+        self.key_order = '{%d}:{%d}:{%d}' % random.choice(tuple(permutations((0, 1, 2))))  # noqa: UP031
         self.realm = realm
         if '"' in realm:
             raise ValueError('Double-quotes are not allowed in the authentication realm')

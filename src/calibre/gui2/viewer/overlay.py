@@ -8,7 +8,6 @@ from calibre.gui2.progress_indicator import ProgressIndicator
 
 
 class LoadingOverlay(QWidget):
-
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
         self.l = l = QVBoxLayout(self)
@@ -73,6 +72,7 @@ class LoadingOverlay(QWidget):
 
 if __name__ == '__main__':
     from calibre.gui2 import Application
+
     app = Application([])
     w = LoadingOverlay()
     w.show()

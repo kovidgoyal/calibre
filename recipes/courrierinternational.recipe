@@ -2,9 +2,7 @@
 # vim:fileencoding=utf-8
 
 __license__ = 'GPL v3'
-__copyright__ = ('2009, Mathieu Godlewski <mathieu at godlewski.fr>, '
-                 '2015, Rémi Vanicat <vanicat at debian.org>, '
-                 '2026, Kabonix')
+__copyright__ = '2009, Mathieu Godlewski <mathieu at godlewski.fr>, 2015, Rémi Vanicat <vanicat at debian.org>, 2026, Kabonix'
 '''
 Courrier International Premium Unlocked
 '''
@@ -30,11 +28,7 @@ class CourrierInternational(BasicNewsRecipe):
     def get_browser(self, *args, **kwargs):
         br = BasicNewsRecipe.get_browser(self, *args, **kwargs)
         # On injecte le Token universel du groupe Le Monde
-        br.addheaders = [
-            ('User-Agent', self.browser_user_agent),
-            ('X-Lmd-Token', 'TWPLMOLMO'),
-            ('Accept', 'application/json')
-        ]
+        br.addheaders = [('User-Agent', self.browser_user_agent), ('X-Lmd-Token', 'TWPLMOLMO'), ('Accept', 'application/json')]
         return br
 
     # --- NOUVEAU : GESTION DE LA COUVERTURE ---
@@ -93,6 +87,7 @@ class CourrierInternational(BasicNewsRecipe):
                 self.log(f'Erreur de décodage pour {url}: {e!s}')
                 return raw_html
         return raw_html
+
     # ---------------------------------------
 
     max_articles_per_feed = 50
@@ -104,15 +99,28 @@ class CourrierInternational(BasicNewsRecipe):
         dict(name='span', attrs={'class': 'strapline'}),
         dict(name='h1', attrs={'class': 'article-title'}),
         dict(name='p', attrs={'class': 'article-lede'}),
-        dict(name='div', attrs={'class': 'article-text'})
+        dict(name='div', attrs={'class': 'article-text'}),
     ]
 
     remove_tags = [
-        dict(attrs={'class': [
-            'asset-read-more', 'article-secondary', 'article-aside', 'item',
-            'source-logo', 'source-lang', 'info-time', 'article-paywall',
-            'article-readmore', 'article-outbrain', 'ci-services', 'article-tools'
-        ]})
+        dict(
+            attrs={
+                'class': [
+                    'asset-read-more',
+                    'article-secondary',
+                    'article-aside',
+                    'item',
+                    'source-logo',
+                    'source-lang',
+                    'info-time',
+                    'article-paywall',
+                    'article-readmore',
+                    'article-outbrain',
+                    'ci-services',
+                    'article-tools',
+                ]
+            }
+        )
     ]
 
     extra_css = '''

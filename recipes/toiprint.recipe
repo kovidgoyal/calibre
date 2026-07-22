@@ -52,7 +52,7 @@ class TOIPring(BasicNewsRecipe):
         # url = 'file:///t/raw.html'
         soup = self.index_to_soup(url)
         ans = []
-        for sec in soup.find_all('section', attrs={'data-content':True}):
+        for sec in soup.find_all('section', attrs={'data-content': True}):
             h1 = sec.find('h1')
             section = self.tag_to_string(h1)
             self.log(section)
@@ -62,7 +62,7 @@ class TOIPring(BasicNewsRecipe):
                 url = a['href']
                 title = self.tag_to_string(a.find('h2'))
                 self.log(' ', title)
-                articles.append({'title': title, 'url':url})
+                articles.append({'title': title, 'url': url})
             if articles:
                 ans.append((section, articles))
         return ans

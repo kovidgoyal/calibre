@@ -15,13 +15,15 @@ class PrivateEyeRecipe(BasicNewsRecipe):
     # Remark:   Version 1.0 2023-08-07
     #               Initial version
 
-    title = u'The Oldie (Online Edition)'
-    description = ('The Oldie has been dubbed ‘Private Eye for grown-ups’ and is read by intelligent people who are fed'
-                   ' up with the formulaic nature of the celebrity-obsessed national press. The Oldie was cooked up in'
-                   ' 1992 by Richard Ingrams (who previously co-founded Private Eye in 1961) as a free-thinking,'
-                   ' funny magazine, a light-hearted alternative to a press obsessed with youth and celebrity.'
-                   ' The editors claim that the Oldie is ageless and timeless, free of retirement advice, crammed'
-                   ' with rejuvenating wit, intelligence and delight.')
+    title = 'The Oldie (Online Edition)'
+    description = (
+        'The Oldie has been dubbed ‘Private Eye for grown-ups’ and is read by intelligent people who are fed'
+        ' up with the formulaic nature of the celebrity-obsessed national press. The Oldie was cooked up in'
+        ' 1992 by Richard Ingrams (who previously co-founded Private Eye in 1961) as a free-thinking,'
+        ' funny magazine, a light-hearted alternative to a press obsessed with youth and celebrity.'
+        ' The editors claim that the Oldie is ageless and timeless, free of retirement advice, crammed'
+        ' with rejuvenating wit, intelligence and delight.'
+    )
     publication_type = 'magazine'
     language = 'en_GB'
     encoding = 'utf-8'
@@ -30,28 +32,28 @@ class PrivateEyeRecipe(BasicNewsRecipe):
     remove_javascript = True
     ignore_duplicate_articles = {'url'}
 
-    __author__ = u'Sophist-UK'
+    __author__ = 'Sophist-UK'
     __copyright__ = '2023, Sophist-UK <sophist-uk@sodalis.co.uk>'
 
-    web_root        = 'https://www.theoldie.co.uk'
-    current_issue   = web_root + '/magazine'
-    about_pages     = {
-        'About Us':         web_root + '/about-us',
-        'Our History':      web_root + '/about-us/history',
+    web_root = 'https://www.theoldie.co.uk'
+    current_issue = web_root + '/magazine'
+    about_pages = {
+        'About Us': web_root + '/about-us',
+        'Our History': web_root + '/about-us/history',
     }
-    masthead_url    = web_root + '/assets/images/theoldie_logo_22.png'
+    masthead_url = web_root + '/assets/images/theoldie_logo_22.png'
     name = 'Oldie Online'
     series = 'The ' + name
     now = datetime.now().strftime(' %Y-%m')
     title = series + now  # noqa: PIE794
     title_sort = name + now + ', The'
     conversion_options = {
-        'authors':      'The Oldie',
-        'author_sort':  'Oldie, The',
-        'series':       series,
+        'authors': 'The Oldie',
+        'author_sort': 'Oldie, The',
+        'series': series,
         'series_index': 0,
-        'title':        title,
-        'title_sort':   title_sort,
+        'title': title,
+        'title_sort': title_sort,
     }
     cover_suburl = '-front-cover-'
 
@@ -82,7 +84,7 @@ class PrivateEyeRecipe(BasicNewsRecipe):
                 try:
                     self.conversion_options.update({'series_index': int(editions[0])})
                     self.log('series-index:', self.conversion_options['series_index'])
-                except (TypeError, ValueError):
+                except TypeError, ValueError:
                     continue
                 self.log('cover_url:', src)
                 return src
@@ -118,11 +120,13 @@ class PrivateEyeRecipe(BasicNewsRecipe):
             for a in article.findAll('a', href=True):
                 for h in a.findAll('h3'):
                     title, author = self.title_author(h.getText())
-                    content_articles.append(self.article_entry(
-                        title=title,
-                        url=self.abs_url(a.get('href')),
-                        author=author,
-                    ))
+                    content_articles.append(
+                        self.article_entry(
+                            title=title,
+                            url=self.abs_url(a.get('href')),
+                            author=author,
+                        )
+                    )
                     break
                 else:
                     continue
@@ -156,11 +160,13 @@ class PrivateEyeRecipe(BasicNewsRecipe):
                 articles.extend(content)
             else:
                 title, author = self.title_author(a.getText())
-                articles.append(self.article_entry(
-                    title=title,
-                    url=self.abs_url(a.get('href')),
-                    author=author,
-                ))
+                articles.append(
+                    self.article_entry(
+                        title=title,
+                        url=self.abs_url(a.get('href')),
+                        author=author,
+                    )
+                )
 
         if not articles:
             raise ValueError('The Oldie Online index of pages not found')
@@ -199,20 +205,11 @@ class PrivateEyeRecipe(BasicNewsRecipe):
     # Remove features not wanted and tweak HTML
     preprocess_regexps = [
         # Remove big blank spaces
-        (
-            re.compile(
-                r'<p>\s*<br\/?>\s*</p>',
-                re.DOTALL | re.IGNORECASE
-            ),
-            lambda match: ''
-        ),
+        (re.compile(r'<p>\s*<br\/?>\s*</p>', re.DOTALL | re.IGNORECASE), lambda match: ''),
         # Local fix for paragraph HTML issues join paragraphs that do not end in a full-stop.
         (
-            re.compile(
-                r'(?<=[^\.\s])\s*</p>\s*<p>',
-                re.DOTALL | re.IGNORECASE
-            ),
-            lambda match: ' '  # space
+            re.compile(r'(?<=[^\.\s])\s*</p>\s*<p>', re.DOTALL | re.IGNORECASE),
+            lambda match: ' ',  # space
         ),
     ]
 

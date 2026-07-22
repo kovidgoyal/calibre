@@ -5,7 +5,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class AdvancedUserRecipe1306061239(BasicNewsRecipe):
-    title = u'The Daily Mirror'
+    title = 'The Daily Mirror'
     description = 'News as provided by The Daily Mirror -UK'
 
     __author__ = 'Dave Asbury'
@@ -29,37 +29,31 @@ class AdvancedUserRecipe1306061239(BasicNewsRecipe):
         dict(name='div', attrs={'class': 'lead-text'}),
         dict(name='figure', attrs={'class': 'inline-image clearfix '}),
         dict(name='div', attrs={'class': 'styleGroup clearfix'}),
-        dict(name='div', attrs={
-            'class': 'widget relatedContents pictures widget-editable viziwyg-section-70 inpage-widget-2230659'}),
+        dict(name='div', attrs={'class': 'widget relatedContents pictures widget-editable viziwyg-section-70 inpage-widget-2230659'}),
         dict(name='div', attrs={'class': 'body '}),
     ]
 
     remove_tags = [
-        dict(attrs={'class': [
-             'article sa-teaser type-opinion', 'image-gallery', 'gallery-caption']}),
+        dict(attrs={'class': ['article sa-teaser type-opinion', 'image-gallery', 'gallery-caption']}),
         dict(attrs={'class': 'comment'}),
         dict(name='title'),
         dict(name='ul'),
-        dict(name='ul', attrs={'class':  'clearfix breadcrumbs '}),
+        dict(name='ul', attrs={'class': 'clearfix breadcrumbs '}),
         dict(name='ul', attrs={'id': 'login-201109171215'}),
-        dict(name='div', attrs={
-             'class': ['inline-ad span-16 last', 'caption']}),
+        dict(name='div', attrs={'class': ['inline-ad span-16 last', 'caption']}),
     ]
 
     preprocess_regexps = [
         (re.compile(r'- mirror.co.uk', re.IGNORECASE | re.DOTALL), lambda match: ''),
-        (re.compile(r'<span class="image-credit">Getty</span>',
-                    re.IGNORECASE | re.DOTALL), lambda match: ''),
+        (re.compile(r'<span class="image-credit">Getty</span>', re.IGNORECASE | re.DOTALL), lambda match: ''),
     ]
 
     feeds = [
-        (u'UK News', u'http://www.mirror.co.uk/news/uk-news/rss.xml'),
-        (u'world News', u'http://www.mirror.co.uk/news/world-news/rss.xml'),
-        (u'Sports', u'http://www.mirror.co.uk/sport/rss.xml'),
-        (u'3AM', u'http://www.mirror.co.uk/3am/rss.xml'),
-        (u'Lifestyle', u'http://www.mirror.co.uk/lifestyle/rss.xml'),
-
-
+        ('UK News', 'http://www.mirror.co.uk/news/uk-news/rss.xml'),
+        ('world News', 'http://www.mirror.co.uk/news/world-news/rss.xml'),
+        ('Sports', 'http://www.mirror.co.uk/sport/rss.xml'),
+        ('3AM', 'http://www.mirror.co.uk/3am/rss.xml'),
+        ('Lifestyle', 'http://www.mirror.co.uk/lifestyle/rss.xml'),
         # example of commented out feed not needed
         # (u'Travel','http://www.mirror.co.uk/advice/travel/rss.xml'),
     ]
@@ -71,21 +65,18 @@ class AdvancedUserRecipe1306061239(BasicNewsRecipe):
     '''
 
     def get_cover_url(self):
-        soup = self.index_to_soup(
-            'http://www.politicshome.com/uk/latest_frontpage.html')
-# look for the block containing the mirror button and url
-        cov = soup.find(attrs={
-                        'style': 'background-image: url(http://www.politicshome.com/images/sources/source_frontpage_button_92.gif);'})
+        soup = self.index_to_soup('http://www.politicshome.com/uk/latest_frontpage.html')
+        # look for the block containing the mirror button and url
+        cov = soup.find(attrs={'style': 'background-image: url(http://www.politicshome.com/images/sources/source_frontpage_button_92.gif);'})
         cov2 = str(cov)
         cov2 = 'http://www.politicshome.com' + cov2[9:-142]
-# cov2 now contains url of the page containing pic
+        # cov2 now contains url of the page containing pic
         soup = self.index_to_soup(cov2)
         cov = soup.find(attrs={'id': 'large'})
         cov = str(cov)
-        cov2 = re.findall(
-            r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', cov)
+        cov2 = re.findall(r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', cov)
         cov2 = str(cov2)
-        cov2 = cov2[2:len(cov2) - 2]
+        cov2 = cov2[2 : len(cov2) - 2]
         # cov2 now is pic url, now  go back to original function
         br = browser()
         br.set_handle_redirect(False)

@@ -11,9 +11,9 @@ from calibre.srv.tests.base import BaseTest
 
 
 class TestRouter(BaseTest):
-
     def test_library_id_construction(self):
         from calibre.srv.library_broker import correct_case_of_last_path_component, db_matches, library_id_from_path
+
         self.ae(library_id_from_path('as'), 'as')
         self.ae(library_id_from_path('as/'), 'as')
         self.ae(library_id_from_path('as////'), 'as')
@@ -23,7 +23,6 @@ class TestRouter(BaseTest):
             self.ae(library_id_from_path('X:' + os.sep), 'X')
 
         class MockDB:
-
             def __init__(self, base):
                 self.new_api = self
                 self.server_library_id = 'lid'
@@ -39,10 +38,10 @@ class TestRouter(BaseTest):
             self.assertTrue(db_matches(db, db.server_library_id.upper(), tdir))
 
     def test_route_construction(self):
-        " Test route construction "
+        "Test route construction"
         from calibre.srv.routes import Route, RouteError, endpoint
 
-        def makeroute(route, func=lambda c,d:None, **kwargs):
+        def makeroute(route, func=lambda c, d: None, **kwargs):
             return Route(endpoint(route, **kwargs)(func))
 
         r = makeroute('/')
@@ -53,6 +52,7 @@ class TestRouter(BaseTest):
 
         def emr(route):
             self.assertRaises(RouteError, makeroute, route)
+
         emr('no_start')
         emr('/{xxx')
         emr('/{+all}/{other}')
@@ -60,11 +60,12 @@ class TestRouter(BaseTest):
         emr('/{+all=1}')
         emr('/{d=1}/no')
         emr('/x/{a=1}')
-        self.assertRaises(RouteError, makeroute, '/a/b', lambda c,d,b,a:None)
+        self.assertRaises(RouteError, makeroute, '/a/b', lambda c, d, b, a: None)
 
     def test_route_finding(self):
         "Test route finding"
         from calibre.srv.routes import HTTPNotFound, Router, endpoint
+
         router = Router()
 
         def find(path):

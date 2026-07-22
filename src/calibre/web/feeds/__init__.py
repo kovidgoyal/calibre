@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 '''
 Contains the logic for parsing feeds.
@@ -19,9 +19,9 @@ from calibre.utils.logging import default_log
 
 
 class Article:
-
     def __init__(self, id, title, url, author, summary, published, content):
         from lxml import html
+
         self.downloaded = False
         self.id = id
         if not title or not isinstance(title, (str, bytes)):
@@ -64,8 +64,7 @@ class Article:
     def formatted_date(self):
 
         if self._formatted_date is None:
-            self._formatted_date = strftime(' [%a, %d %b %H:%M]',
-                    t=self.localtime.timetuple())
+            self._formatted_date = strftime(' [%a, %d %b %H:%M]', t=self.localtime.timetuple())
         return self._formatted_date
 
     @formatted_date.setter
@@ -85,8 +84,7 @@ class Article:
         self._title = clean_ascii_chars(val)
 
     def __repr__(self):
-        return \
-('''\
+        return '''\
 Title       : {}
 URL         : {}
 Author      : {}
@@ -94,9 +92,15 @@ Summary     : {}
 Date        : {}
 TOC thumb   : {}
 Has content : {}
-'''.format(self.title, self.url, self.author, self.summary[:20]+'...',
-     self.localtime.strftime('%a, %d %b, %Y %H:%M'), self.toc_thumbnail,
-     bool(self.content)))
+'''.format(
+            self.title,
+            self.url,
+            self.author,
+            self.summary[:20] + '...',
+            self.localtime.strftime('%a, %d %b, %Y %H:%M'),
+            self.toc_thumbnail,
+            bool(self.content),
+        )
 
     def __str__(self):
         return repr(self)
@@ -110,26 +114,23 @@ Has content : {}
 
 
 class Feed:
-
-    def __init__(self, get_article_url=lambda item: item.get('link', None),
-            log=default_log):
+    def __init__(self, get_article_url=lambda item: item.get('link', None), log=default_log):
         """
         Parse a feed into articles.
         """
         self.logger = log
         self.get_article_url = get_article_url
 
-    def populate_from_feed(self, feed, title=None, oldest_article=7,
-                           max_articles_per_feed=100):
+    def populate_from_feed(self, feed, title=None, oldest_article=7, max_articles_per_feed=100):
         entries = feed.entries
         feed = feed.feed
-        self.title        = feed.get('title', _('Unknown section')) if not title else title
-        self.description  = feed.get('description', '')
-        image             = feed.get('image', {})
-        self.image_url    = image.get('href', None)
-        self.image_width  = image.get('width', 88)
+        self.title = feed.get('title', _('Unknown section')) if not title else title
+        self.description = feed.get('description', '')
+        image = feed.get('image', {})
+        self.image_url = image.get('href', None)
+        self.image_width = image.get('width', 88)
         self.image_height = image.get('height', 31)
-        self.image_alt    = image.get('title', '')
+        self.image_alt = image.get('title', '')
 
         self.articles = []
         self.id_counter = 0
@@ -142,12 +143,11 @@ class Feed:
                 break
             self.parse_article(item)
 
-    def populate_from_preparsed_feed(self, title, articles, oldest_article=7,
-                           max_articles_per_feed=100):
-        self.title      = str(title or _('Unknown feed'))
+    def populate_from_preparsed_feed(self, title, articles, oldest_article=7, max_articles_per_feed=100):
+        self.title = str(title or _('Unknown feed'))
         self.description = ''
-        self.image_url  = None
-        self.articles   = []
+        self.image_url = None
+        self.articles = []
         self.added_articles = []
 
         self.oldest_article = oldest_article
@@ -163,15 +163,15 @@ class Feed:
             if id in self.added_articles:
                 return
             self.added_articles.append(id)
-            published   = time.gmtime(item.get('timestamp', time.time()))
-            title       = item.get('title', _('Untitled article'))
-            link        = item.get('url', None)
+            published = time.gmtime(item.get('timestamp', time.time()))
+            title = item.get('title', _('Untitled article'))
+            link = item.get('url', None)
             description = item.get('description', '')
-            content     = item.get('content', '')
-            author      = item.get('author', '')
+            content = item.get('content', '')
+            author = item.get('author', '')
             article = Article(id, title, link, author, description, published, content)
             delta = utcnow() - article.utctime
-            if delta.days*24*3600 + delta.seconds <= 24*3600*self.oldest_article:
+            if delta.days * 24 * 3600 + delta.seconds <= 24 * 3600 * self.oldest_article:
                 self.articles.append(article)
             else:
                 t = strftime('%a, %d %b, %Y %H:%M', article.localtime.timetuple())
@@ -187,13 +187,13 @@ class Feed:
         if id in self.added_articles:
             return
         published = None
-        for date_field in ('date_parsed', 'published_parsed',
-                           'updated_parsed'):
+        for date_field in ('date_parsed', 'published_parsed', 'updated_parsed'):
             published = item.get(date_field, None)
             if published is not None:
                 break
         if not published:
             from dateutil.parser import parse
+
             for date_field in ('date', 'published', 'updated'):
                 try:
                     published = parse(item[date_field]).timetuple()
@@ -208,7 +208,7 @@ class Feed:
         if title.startswith('<'):
             title = re.sub(r'<.+?>', '', title)
         try:
-            link  = self.get_article_url(item)
+            link = self.get_article_url(item)
         except Exception:
             self.logger.warning(f'Failed to get link for {title}')
             self.logger.debug(traceback.format_exc())
@@ -218,8 +218,7 @@ class Feed:
         author = item.get('author', None)
 
         content = [i.value for i in item.get('content', []) if i.value]
-        content = [i if isinstance(i, str) else i.decode('utf-8', 'replace')
-                for i in content]
+        content = [i if isinstance(i, str) else i.decode('utf-8', 'replace') for i in content]
         content = '\n'.join(content)
         if not content.strip():
             content = None
@@ -227,13 +226,13 @@ class Feed:
             return
         article = Article(id, title, link, author, description, published, content)
         delta = utcnow() - article.utctime
-        if delta.days*24*3600 + delta.seconds <= 24*3600*self.oldest_article:
+        if delta.days * 24 * 3600 + delta.seconds <= 24 * 3600 * self.oldest_article:
             self.articles.append(article)
         else:
             try:
                 self.logger.debug(
-                    'Skipping article {} ({}) from feed {} as it is too old.'.format(
-                        title, article.localtime.strftime('%a, %d %b, %Y %H:%M'), self.title))
+                    'Skipping article {} ({}) from feed {} as it is too old.'.format(title, article.localtime.strftime('%a, %d %b, %Y %H:%M'), self.title)
+                )
             except UnicodeDecodeError:
                 if not isinstance(title, str):
                     title = title.decode('utf-8', 'replace')
@@ -249,9 +248,9 @@ class Feed:
         return len(self.articles)
 
     def __repr__(self):
-        res = ['_'*20 + f'\n{art!r}' for art in self]
+        res = ['_' * 20 + f'\n{art!r}' for art in self]
 
-        return '\n'+'\n'.join(res)+'\n'
+        return '\n' + '\n'.join(res) + '\n'
 
     def __str__(self):
         return repr(self)
@@ -260,8 +259,7 @@ class Feed:
         length = 0
         for a in self:
             if a.content or a.summary:
-                length += max(len(a.content or ''),
-                              len(a.summary or ''))
+                length += max(len(a.content or ''), len(a.summary or ''))
 
         return length > 2000 * len(self)
 
@@ -280,7 +278,7 @@ class Feed:
     def remove(self, article):
         i = self.find(article)
         if i > -1:
-            self.articles[i:i+1] = []
+            self.articles[i : i + 1] = []
 
     def remove_article(self, article):
         try:
@@ -290,7 +288,6 @@ class Feed:
 
 
 class FeedCollection(list):
-
     def __init__(self, feeds):
         list.__init__(self, [f for f in feeds if len(f.articles) > 0])
         found_articles = set()
@@ -338,25 +335,26 @@ class FeedCollection(list):
             feed.articles.append(art)
 
 
-def feed_from_xml(raw_xml, title=None, oldest_article=7,
-                  max_articles_per_feed=100,
-                  get_article_url=lambda item: item.get('link', None),
-                  log=default_log):
+def feed_from_xml(
+    raw_xml,
+    title=None,
+    oldest_article=7,
+    max_articles_per_feed=100,
+    get_article_url=lambda item: item.get('link', None),
+    log=default_log,
+):
     from feedparser import parse
 
     # Handle unclosed escaped entities. They trip up feedparser and HBR for one
     # generates them
-    raw_xml = re.sub(br'(&amp;#\d+)([^0-9;])', br'\1;\2', raw_xml)
+    raw_xml = re.sub(rb'(&amp;#\d+)([^0-9;])', rb'\1;\2', raw_xml)
     feed = parse(raw_xml)
     pfeed = Feed(get_article_url=get_article_url, log=log)
-    pfeed.populate_from_feed(feed, title=title,
-                            oldest_article=oldest_article,
-                            max_articles_per_feed=max_articles_per_feed)
+    pfeed.populate_from_feed(feed, title=title, oldest_article=oldest_article, max_articles_per_feed=max_articles_per_feed)
     return pfeed
 
 
-def feeds_from_index(index, oldest_article=7, max_articles_per_feed=100,
-        log=default_log):
+def feeds_from_index(index, oldest_article=7, max_articles_per_feed=100, log=default_log):
     """
     @param index: A parsed index as returned by L{BasicNewsRecipe.parse_index}.
     @return: A list of L{Feed} objects.
@@ -365,7 +363,6 @@ def feeds_from_index(index, oldest_article=7, max_articles_per_feed=100,
     feeds = []
     for title, articles in index:
         pfeed = Feed(log=log)
-        pfeed.populate_from_preparsed_feed(title, articles, oldest_article=oldest_article,
-                                       max_articles_per_feed=max_articles_per_feed)
+        pfeed.populate_from_preparsed_feed(title, articles, oldest_article=oldest_article, max_articles_per_feed=max_articles_per_feed)
         feeds.append(pfeed)
     return feeds

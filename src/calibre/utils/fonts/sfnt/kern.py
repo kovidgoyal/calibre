@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
@@ -13,7 +13,6 @@ from calibre.utils.fonts.sfnt.errors import UnsupportedFont
 
 
 class KernTable(UnknownTable):
-
     version = FixedProperty('_version')
 
     def __init__(self, *args, **kwargs):
@@ -34,8 +33,8 @@ class KernTable(UnknownTable):
                 table_format = version
             else:
                 length, coverage = unpack_from(b'>LH', self.raw, offset)
-                table_format = coverage & 0xff
-            raw = self.raw[offset:offset+length]
+                table_format = coverage & 0xFF
+            raw = self.raw[offset : offset + length]
             if table_format == 0:
                 raw = self.restrict_format_0(raw, glyph_ids)
                 if not raw:
@@ -66,16 +65,15 @@ class KernTable(UnknownTable):
             offset += entrysz
 
         if offset != len(raw):
-            raise UnsupportedFont('This font has extra data at the end of'
-                    ' a Format 0 kern subtable')
+            raise UnsupportedFont('This font has extra data at the end of a Format 0 kern subtable')
 
         npairs = len(entries)
         if npairs == 0:
             return b''
 
         entry_selector = max_power_of_two(npairs)
-        search_range = (2 ** entry_selector) * 6
-        range_shift = (npairs - (2 ** entry_selector)) * 6
+        search_range = (2**entry_selector) * 6
+        range_shift = (npairs - (2**entry_selector)) * 6
 
         entries = b''.join(entries)
         length = calcsize(headerfmt + b'4H') + len(entries)
@@ -83,5 +81,4 @@ class KernTable(UnknownTable):
             header = pack(headerfmt, version, length, coverage)
         else:
             header = pack(headerfmt, length, coverage, tuple_index)
-        return header + pack(b'>4H', npairs, search_range, entry_selector,
-                range_shift) + entries
+        return header + pack(b'>4H', npairs, search_range, entry_selector, range_shift) + entries

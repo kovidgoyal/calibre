@@ -20,16 +20,17 @@ from . import open_for_read, open_for_write
 
 class ListNumbers:
     """
-        RTF puts list numbers outside of the paragraph. The public method
-        in this class put the list numbers inside the paragraphs.
+    RTF puts list numbers outside of the paragraph. The public method
+    in this class put the list numbers inside the paragraphs.
     """
 
-    def __init__(self,
-            in_file,
-            bug_handler,
-            copy=None,
-            run_level=1,
-            ):
+    def __init__(
+        self,
+        in_file,
+        bug_handler,
+        copy=None,
+        run_level=1,
+    ):
         """
         Required:
             'file'
@@ -57,11 +58,11 @@ class ListNumbers:
         self.__list_chunk = ''
         self.__previous_line = ''
         self.__list_text_ob_count = ''
-        self.__state_dict={
-        'default'           : self.__default_func,
-        'after_ob'          : self.__after_ob_func,
-        'list_text'         : self.__list_text_func,
-        'after_list_text'   : self.__after_list_text_func
+        self.__state_dict = {
+            'default': self.__default_func,
+            'after_ob': self.__after_ob_func,
+            'list_text': self.__list_text_func,
+            'after_list_text': self.__after_list_text_func,
         }
 
     def __after_ob_func(self, line):
@@ -74,8 +75,7 @@ class ListNumbers:
         """
         if self.__token_info == 'cw<ls<list-text_':
             self.__state = 'list_text'
-            self.__list_chunk = self.__list_chunk + \
-            self.__previous_line + line
+            self.__list_chunk = self.__list_chunk + self.__previous_line + line
             self.__list_text_ob = self.__ob_count
             self.__cb_count = 0
         else:
@@ -95,7 +95,8 @@ class ListNumbers:
             self.__write_obj.write('mi<mk<lst-tx-beg\n')
             self.__write_obj.write(
                 # 'mi<tg<open-att__<list-text<type>%s\n' % self.__list_type)
-                'mi<tg<open-att__<list-text\n')
+                'mi<tg<open-att__<list-text\n'
+            )
             self.__write_obj.write(self.__list_chunk)
             self.__write_obj.write('mi<tg<close_____<list-text\n')
             self.__write_obj.write('mi<mk<lst-tx-end\n')

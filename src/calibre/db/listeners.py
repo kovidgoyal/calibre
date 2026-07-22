@@ -51,7 +51,6 @@ class EventType(Enum):
 
 
 class EventDispatcher(Thread):
-
     def __init__(self):
         Thread.__init__(self, name='DBListener', daemon=True)
         self.refs = []

@@ -35,12 +35,18 @@ from .namespaces import OFFICENS
 
 
 class LoadParser(handler.ContentHandler):
-    """ Extract headings from content.xml of an ODT file """
+    """Extract headings from content.xml of an ODT file"""
+
     triggers = (
-       (OFFICENS, 'automatic-styles'), (OFFICENS, 'body'),
-       (OFFICENS, 'font-face-decls'), (OFFICENS, 'master-styles'),
-       (OFFICENS, 'meta'), (OFFICENS, 'scripts'),
-       (OFFICENS, 'settings'), (OFFICENS, 'styles'))
+        (OFFICENS, 'automatic-styles'),
+        (OFFICENS, 'body'),
+        (OFFICENS, 'font-face-decls'),
+        (OFFICENS, 'master-styles'),
+        (OFFICENS, 'meta'),
+        (OFFICENS, 'scripts'),
+        (OFFICENS, 'settings'),
+        (OFFICENS, 'styles'),
+    )
 
     def __init__(self, document):
         self.doc = document
@@ -70,7 +76,7 @@ class LoadParser(handler.ContentHandler):
             self.data = []
         # Create the element
         attrdict = {}
-        for att,value in attrs.items():
+        for att, value in attrs.items():
             attrdict[att] = value
         try:
             e = Element(qname=name, qattributes=attrdict, check_grammar=False)
@@ -86,15 +92,15 @@ class LoadParser(handler.ContentHandler):
             e = self.doc.masterstyles
         elif name == (OFFICENS, 'meta'):
             e = self.doc.meta
-        elif name == (OFFICENS,'scripts'):
+        elif name == (OFFICENS, 'scripts'):
             e = self.doc.scripts
-        elif name == (OFFICENS,'settings'):
+        elif name == (OFFICENS, 'settings'):
             e = self.doc.settings
-        elif name == (OFFICENS,'styles'):
+        elif name == (OFFICENS, 'styles'):
             e = self.doc.styles
         elif self.doc._parsing == 'styles.xml' and name == (OFFICENS, 'font-face-decls'):
             e = self.doc.fontfacedecls
-        elif hasattr(self,'parent'):
+        elif hasattr(self, 'parent'):
             assert self.parent is not None
             self.parent.addElement(e, check_grammar=False)
         self.parent = e

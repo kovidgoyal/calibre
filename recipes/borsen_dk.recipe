@@ -11,15 +11,16 @@ Børsen.dk
 
 
 class Borsen_dk(BasicNewsRecipe):
-    __author__            = 'CoderAllan.github.com'
-    title                 = 'Børsen.dk'
-    description           = ('Meget mere end Danmarks førende erhvervsavis. Børsen sætter dagsordenen for erhvervslivet.'
-                             ' Vi skriver interessant og med kant. På alle platforme.')
-    category              = 'newspaper, news, finance, politics, economy, sport, Denmark'
-    oldest_article        = 7
+    __author__ = 'CoderAllan.github.com'
+    title = 'Børsen.dk'
+    description = (
+        'Meget mere end Danmarks førende erhvervsavis. Børsen sætter dagsordenen for erhvervslivet. Vi skriver interessant og med kant. På alle platforme.'
+    )
+    category = 'newspaper, news, finance, politics, economy, sport, Denmark'
+    oldest_article = 7
     max_articles_per_feed = 50
-    auto_cleanup          = False
-    language              = 'da'
+    auto_cleanup = False
+    language = 'da'
 
     keep_only_tags = [
         dict(name='h1', attrs={'itemprop': 'headline'}),

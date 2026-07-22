@@ -12,12 +12,11 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 def classes(classes):
     q = frozenset(classes.split(' '))
-    return dict(attrs={
-        'class': lambda x: x and frozenset(x.split()).intersection(q)})
+    return dict(attrs={'class': lambda x: x and frozenset(x.split()).intersection(q)})
 
 
 class ArsTechnica(BasicNewsRecipe):
-    title = u'Ars Technica'
+    title = 'Ars Technica'
     language = 'en'
     __author__ = 'Darko Miletic, Sujata Raman, Alexis Rohou, Tom Sparks'
     description = 'Ars Technica: Serving the technologist for 1.2 decades'
@@ -30,7 +29,7 @@ class ArsTechnica(BasicNewsRecipe):
     remove_empty_feeds = True
     ignore_duplicate_articles = {'url', 'title'}
     masthead_url = 'https://upload.wikimedia.org/wikipedia/commons/5/51/Ars_Technica_logo_%282016%29.svg'
-    extra_css             = '''
+    extra_css = '''
         body {font-family: Arial,sans-serif}
         .heading{font-family: "Times New Roman",serif}
         .byline{font-weight: bold; line-height: 1em; font-size: 0.625em; text-decoration: none}
@@ -45,7 +44,7 @@ class ArsTechnica(BasicNewsRecipe):
         'days': {
             'short': 'Oldest article to download from this news source. In days ',
             'long': 'For example, 0.5, gives you articles from the past 12 hours',
-            'default': str(oldest_article)
+            'default': str(oldest_article),
         }
     }
 
@@ -61,10 +60,12 @@ class ArsTechnica(BasicNewsRecipe):
     ]
 
     remove_tags = [
-        classes('xf_thread_iframe_wrapper topnav-sections nav-previous nav-next ars-gallery-caption-credit'
-                ' ars-gallery-caption-text ars-gallery-caption-arrow font-impact sr-only author-mini-bio'
-                ' taboola-container comments site-header site-footer video corner-info article-expander'
-                ' left-column related-stories article-social text-settings-dropdown-story intro-image'),
+        classes(
+            'xf_thread_iframe_wrapper topnav-sections nav-previous nav-next ars-gallery-caption-credit'
+            ' ars-gallery-caption-text ars-gallery-caption-arrow font-impact sr-only author-mini-bio'
+            ' taboola-container comments site-header site-footer video corner-info article-expander'
+            ' left-column related-stories article-social text-settings-dropdown-story intro-image'
+        ),
         dict(name=['object', 'link', 'embed', 'iframe', 'meta']),
         dict(id=['social-left', 'article-footer-wrap']),
         dict(name='nav', attrs={'class': 'subheading'}),
@@ -73,22 +74,22 @@ class ArsTechnica(BasicNewsRecipe):
 
     # Feed are found here: http://arstechnica.com/rss-feeds/
     feeds = [
-            ('Ars Technica', 'https://feeds.arstechnica.com/arstechnica/index'),
-            ('Features', 'https://feeds.arstechnica.com/arstechnica/features'),
-            ('Technology Lab', 'https://feeds.arstechnica.com/arstechnica/technology-lab'),
-            ('Gear & Gadgets', 'https://feeds.arstechnica.com/arstechnica/gadgets'),
-            ('Law & Disorder', 'https://feeds.arstechnica.com/arstechnica/tech-policy'),
-            # ('Health', 'https://arstechnica.com/health/feed/'),
-            # ('Policy', 'https://arstechnica.com/tech-policy/feed/'),
-            # ('Security', 'https://arstechnica.com/security/feed/'),
-            ('Infinite Loop', 'https://feeds.arstechnica.com/arstechnica/apple'),
-            ('Opposable Thumbs', 'https://feeds.arstechnica.com/arstechnica/gaming'),
-            ('Scientific Method', 'https://feeds.arstechnica.com/arstechnica/science'),
-            ('Cars Technica', 'https://feeds.arstechnica.com/arstechnica/cars'),
-            ('Staff', 'https://feeds.arstechnica.com/arstechnica/staff'),
-            # ('AI', 'https://arstechnica.com/staff/ai/feed/'),
-            # ('Space', 'https://arstechnica.com/space/feed/'),
-            ('Ars Cardboard', 'https://feeds.arstechnica.com/arstechnica/cardboard'),
+        ('Ars Technica', 'https://feeds.arstechnica.com/arstechnica/index'),
+        ('Features', 'https://feeds.arstechnica.com/arstechnica/features'),
+        ('Technology Lab', 'https://feeds.arstechnica.com/arstechnica/technology-lab'),
+        ('Gear & Gadgets', 'https://feeds.arstechnica.com/arstechnica/gadgets'),
+        ('Law & Disorder', 'https://feeds.arstechnica.com/arstechnica/tech-policy'),
+        # ('Health', 'https://arstechnica.com/health/feed/'),
+        # ('Policy', 'https://arstechnica.com/tech-policy/feed/'),
+        # ('Security', 'https://arstechnica.com/security/feed/'),
+        ('Infinite Loop', 'https://feeds.arstechnica.com/arstechnica/apple'),
+        ('Opposable Thumbs', 'https://feeds.arstechnica.com/arstechnica/gaming'),
+        ('Scientific Method', 'https://feeds.arstechnica.com/arstechnica/science'),
+        ('Cars Technica', 'https://feeds.arstechnica.com/arstechnica/cars'),
+        ('Staff', 'https://feeds.arstechnica.com/arstechnica/staff'),
+        # ('AI', 'https://arstechnica.com/staff/ai/feed/'),
+        # ('Space', 'https://arstechnica.com/space/feed/'),
+        ('Ars Cardboard', 'https://feeds.arstechnica.com/arstechnica/cardboard'),
     ]
 
     recursions = 1

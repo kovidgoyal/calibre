@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
@@ -63,8 +63,7 @@ class ConfigWidgetInterface:
     supports_restoring_to_defaults = True
 
     #: The tooltip for the "Restore defaults" button
-    restore_defaults_desc = _('Restore settings to default values. '
-            'You have to click Apply to actually save the default settings.')
+    restore_defaults_desc = _('Restore settings to default values. You have to click Apply to actually save the default settings.')
 
     #: If True the Preferences dialog will not allow the user to set any more
     #: preferences. Only has effect if :meth:`commit` returns True.
@@ -143,11 +142,9 @@ def set_help_tips(gui_obj, tt):
 
 
 class Setting:
-
     CHOICES_SEARCH_FLAGS = Qt.MatchFlag.MatchExactly | Qt.MatchFlag.MatchCaseSensitive
 
-    def __init__(self, name, config_obj, widget, gui_name=None,
-            empty_string_is_None=True, choices=None, restart_required=False):
+    def __init__(self, name, config_obj, widget, gui_name=None, empty_string_is_None=True, choices=None, restart_required=False):
         self.name, self.gui_name = name, ('opt_' + name) if gui_name is None else gui_name
         self.empty_string_is_None = empty_string_is_None
         self.restart_required = restart_required
@@ -180,8 +177,7 @@ class Setting:
         else:
             raise ValueError(f'Unknown data type {self.gui_obj.__class__}')
 
-        if isinstance(self.config_obj, ConfigProxy) and \
-                not str(self.gui_obj.toolTip()):
+        if isinstance(self.config_obj, ConfigProxy) and not str(self.gui_obj.toolTip()):
             h = self.config_obj.help(self.name)
             if h:
                 self.gui_obj.setToolTip(h)
@@ -239,8 +235,7 @@ class Setting:
             if isinstance(self.gui_obj, EditWithComplete):
                 self.gui_obj.setText(val)
             else:
-                idx = self.gui_obj.findData((val), role=Qt.ItemDataRole.UserRole,
-                        flags=self.CHOICES_SEARCH_FLAGS)
+                idx = self.gui_obj.findData((val), role=Qt.ItemDataRole.UserRole, flags=self.CHOICES_SEARCH_FLAGS)
                 if idx == -1:
                     idx = 0
                 self.gui_obj.setCurrentIndex(idx)
@@ -265,7 +260,6 @@ class Setting:
 
 
 class CommaSeparatedList(Setting):
-
     def set_gui_val(self, val):
         x = ''
         if val:
@@ -311,8 +305,16 @@ class ConfigWidgetBase(QWidget, ConfigWidgetInterface):
             if isinstance(v, LazyConfigWidgetBase):
                 self.child_tabs.append(v)
 
-    def register(self, name, config_obj, gui_name=None, choices=None,
-            restart_required=False, empty_string_is_None=True, setting=Setting):
+    def register(
+        self,
+        name,
+        config_obj,
+        gui_name=None,
+        choices=None,
+        restart_required=False,
+        empty_string_is_None=True,
+        setting=Setting,
+    ):
         """
         Register a setting.
 
@@ -328,9 +330,15 @@ class ConfigWidgetBase(QWidget, ConfigWidgetInterface):
                         default class handles almost all cases, so this param
                         is rarely used.
         """
-        setting = setting(name, config_obj, self, gui_name=gui_name,
-                choices=choices, restart_required=restart_required,
-                empty_string_is_None=empty_string_is_None)
+        setting = setting(
+            name,
+            config_obj,
+            self,
+            gui_name=gui_name,
+            choices=choices,
+            restart_required=restart_required,
+            empty_string_is_None=empty_string_is_None,
+        )
         return self.register_setting(setting)
 
     def register_setting(self, setting):
@@ -361,8 +369,7 @@ def get_plugin(category, name):
     for plugin in preferences_plugins():
         if plugin.category == category and plugin.name == name:
             return plugin
-    raise ValueError(
-            f'No Preferences Plugin with category: {category} and name: {name} found')
+    raise ValueError(f'No Preferences Plugin with category: {category} and name: {name} found')
 
 
 class LazyConfigWidgetBase(ConfigWidgetBase):
@@ -398,7 +405,6 @@ class LazyConfigWidgetBase(ConfigWidgetBase):
 
 
 class ConfigDialog(QDialog):
-
     def set_widget(self, w):
         self.w = w
 
@@ -414,6 +420,7 @@ def init_gui():
     from calibre.gui2.main import option_parser
     from calibre.gui2.ui import Main
     from calibre.library import db
+
     parser = option_parser()
     opts, args = parser.parse_args([])
     actions = tuple(Main.create_application_menubar())
@@ -423,8 +430,7 @@ def init_gui():
     return gui
 
 
-def show_config_widget(category, name, gui=None, show_restart_msg=False,
-        parent=None, never_shutdown=False, callback=None):
+def show_config_widget(category, name, gui=None, show_restart_msg=False, parent=None, never_shutdown=False, callback=None):
     """
     Show the preferences plugin identified by category and name
 
@@ -437,6 +443,7 @@ def show_config_widget(category, name, gui=None, show_restart_msg=False,
     take effect
     """
     from calibre.gui2 import gprefs
+
     pl = get_plugin(category, name)
     d = ConfigDialog(parent)
     d.resize(750, 550)
@@ -444,15 +451,17 @@ def show_config_widget(category, name, gui=None, show_restart_msg=False,
     d.setWindowTitle(_('Configure ') + pl.gui_name)
     d.setWindowIcon(QIcon.ic('config.png'))
     bb = QDialogButtonBox(d)
-    bb.setStandardButtons(QDialogButtonBox.StandardButton.Apply|QDialogButtonBox.StandardButton.Cancel|QDialogButtonBox.StandardButton.RestoreDefaults)
+    bb.setStandardButtons(QDialogButtonBox.StandardButton.Apply | QDialogButtonBox.StandardButton.Cancel | QDialogButtonBox.StandardButton.RestoreDefaults)
     bb.accepted.connect(d.accept)
     bb.rejected.connect(d.reject)
     w = pl.create_widget(d)
     d.set_widget(w)
+
     def button(which) -> QPushButton:
         ans = bb.button(which)
         assert ans is not None
         return ans
+
     button(QDialogButtonBox.StandardButton.RestoreDefaults).clicked.connect(w.restore_defaults)
     button(QDialogButtonBox.StandardButton.RestoreDefaults).setEnabled(w.supports_restoring_to_defaults)
     button(QDialogButtonBox.StandardButton.Apply).setEnabled(False)
@@ -463,6 +472,7 @@ def show_config_widget(category, name, gui=None, show_restart_msg=False,
         b.setEnabled(True)
         b.setDefault(True)
         b.setAutoDefault(True)
+
     w.changed_signal.connect(onchange)
     button(QDialogButtonBox.StandardButton.Cancel).setFocus(Qt.FocusReason.OtherFocusReason)
     l = QVBoxLayout()
@@ -485,6 +495,7 @@ def show_config_widget(category, name, gui=None, show_restart_msg=False,
     rr = getattr(d, 'restart_required', False)
     if show_restart_msg and rr:
         from calibre.gui2 import warning_dialog
+
         warning_dialog(gui, 'Restart required', 'Restart required', show=True)
     if mygui and not never_shutdown:
         gui.shutdown()
@@ -492,14 +503,12 @@ def show_config_widget(category, name, gui=None, show_restart_msg=False,
 
 
 class ListViewWithMoveByKeyPress(QListView):
-
     def set_movement_functions(self, up_function, down_function):
         self.up_function = partial(up_function, use_kbd_modifiers=False)
         self.down_function = partial(down_function, use_kbd_modifiers=False)
 
     def event(self, e):
-        if (e.type() == QEvent.Type.KeyPress and
-            QApplication.keyboardModifiers() == Qt.KeyboardModifier.ControlModifier):
+        if e.type() == QEvent.Type.KeyPress and QApplication.keyboardModifiers() == Qt.KeyboardModifier.ControlModifier:
             if e.key() == Qt.Key.Key_Up:
                 self.up_function()
             elif e.key() == Qt.Key.Key_Down:
@@ -509,7 +518,6 @@ class ListViewWithMoveByKeyPress(QListView):
 
 
 class ListWidgetWithMoveByKeyPress(QListWidget):
-
     handle_drop_event: Callable[[QDropEvent | None], None] | None = None
 
     def set_movement_functions(self, up_function, down_function):
@@ -517,8 +525,7 @@ class ListWidgetWithMoveByKeyPress(QListWidget):
         self.down_function = partial(down_function, use_kbd_modifiers=False)
 
     def event(self, e):
-        if (e.type() == QEvent.Type.KeyPress and
-            QApplication.keyboardModifiers() == Qt.KeyboardModifier.ControlModifier):
+        if e.type() == QEvent.Type.KeyPress and QApplication.keyboardModifiers() == Qt.KeyboardModifier.ControlModifier:
             if e.key() == Qt.Key.Key_Up:
                 self.up_function()
             elif e.key() == Qt.Key.Key_Down:
@@ -534,14 +541,12 @@ class ListWidgetWithMoveByKeyPress(QListWidget):
 
 
 class TableWidgetWithMoveByKeyPress(QTableWidget):
-
     def set_movement_functions(self, up_function, down_function):
         self.up_function = partial(up_function, use_kbd_modifiers=False)
         self.down_function = partial(down_function, use_kbd_modifiers=False)
 
     def event(self, e):
-        if (e.type() == QEvent.Type.KeyPress and
-            QApplication.keyboardModifiers() == Qt.KeyboardModifier.ControlModifier):
+        if e.type() == QEvent.Type.KeyPress and QApplication.keyboardModifiers() == Qt.KeyboardModifier.ControlModifier:
             if e.key() == Qt.Key.Key_Up:
                 self.up_function()
             elif e.key() == Qt.Key.Key_Down:
@@ -552,12 +557,17 @@ class TableWidgetWithMoveByKeyPress(QTableWidget):
 
 def get_move_count(row_count):
     mods = QApplication.keyboardModifiers() & (
-        Qt.KeyboardModifier.ShiftModifier | Qt.KeyboardModifier.ControlModifier |Qt.KeyboardModifier.AltModifier | Qt.KeyboardModifier.MetaModifier)
-    return {Qt.KeyboardModifier.ShiftModifier | Qt.KeyboardModifier.ControlModifier: row_count,
-            Qt.KeyboardModifier.ShiftModifier: 5, Qt.KeyboardModifier.ControlModifier: 10}.get(mods, 1)
+        Qt.KeyboardModifier.ShiftModifier | Qt.KeyboardModifier.ControlModifier | Qt.KeyboardModifier.AltModifier | Qt.KeyboardModifier.MetaModifier
+    )
+    return {
+        Qt.KeyboardModifier.ShiftModifier | Qt.KeyboardModifier.ControlModifier: row_count,
+        Qt.KeyboardModifier.ShiftModifier: 5,
+        Qt.KeyboardModifier.ControlModifier: 10,
+    }.get(mods, 1)
 
 
 # Testing {{{
+
 
 def test_widget(category, name, gui=None, callback=None):
     show_config_widget(category, name, gui=gui, show_restart_msg=True, callback=callback)
@@ -565,6 +575,7 @@ def test_widget(category, name, gui=None, callback=None):
 
 def test_all():
     from qt.core import QApplication
+
     app = QApplication([])
     app
     gui = init_gui()

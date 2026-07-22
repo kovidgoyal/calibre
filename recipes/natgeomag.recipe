@@ -8,8 +8,7 @@ from calibre.web.feeds.news import BasicNewsRecipe, classes
 
 class NatGeo(BasicNewsRecipe):
     title = 'National Geographic Magazine'
-    description = ('The National Geographic, an American monthly magazine. '
-                   'Inspiring people to care about the planet since 1888')
+    description = 'The National Geographic, an American monthly magazine. Inspiring people to care about the planet since 1888'
     language = 'en'
     encoding = 'utf8'
     publisher = 'nationalgeographic.com'
@@ -68,19 +67,11 @@ class NatGeo(BasicNewsRecipe):
         soup = self.index_to_soup(url)
         # png = re.findall('https://i\.natgeofe\.com\S+?national-geographic-\S+?\.jpg', soup.decode('utf-8'))
         # self.cover_url = png[0] + '?w=1000&h=1000'
-        self.cover_url = (
-            soup.find('meta', attrs={'property': 'og:image'})['content'].split('?')[0]
-            + '?w=1000'
-        )
+        self.cover_url = soup.find('meta', attrs={'property': 'og:image'})['content'].split('?')[0] + '?w=1000'
 
         # self.title = 'National Geographic ' + self.tag_to_string(name)
         ans = {}
-        if photoart := soup.find(
-            attrs={
-                'class': lambda x: x
-                and 'BgImagePromo__Container__Text__Link' in x.split()
-            }
-        ):
+        if photoart := soup.find(attrs={'class': lambda x: x and 'BgImagePromo__Container__Text__Link' in x.split()}):
             section = 'Photo Essay'
             title = self.tag_to_string(photoart)
             url = photoart['href']
@@ -92,9 +83,7 @@ class NatGeo(BasicNewsRecipe):
             if promo.find('a', attrs={'href': True}) and promo.a.get('href'):
                 url = promo.a['href']
                 section = self.tag_to_string(promo.find(**classes('SectionLabel')))
-                title = self.tag_to_string(
-                    promo.find(**classes('Card__Content__Heading'))
-                )
+                title = self.tag_to_string(promo.find(**classes('Card__Content__Heading')))
                 articles = ans.setdefault(section, [])
                 articles.append({'title': title, 'url': url})
         for gird in soup.findAll(attrs={'class': 'GridPromoTile'}):
@@ -106,9 +95,7 @@ class NatGeo(BasicNewsRecipe):
                 if '/graphics/' in url:
                     continue
                 section = self.tag_to_string(article.find(**classes('SectionLabel')))
-                title = self.tag_to_string(
-                    article.find(**classes('PromoTile__Title--truncated'))
-                )
+                title = self.tag_to_string(article.find(**classes('PromoTile__Title--truncated')))
                 articles = ans.setdefault(section, [])
                 articles.append({'title': title, 'url': url})
             self.log(pformat(ans))

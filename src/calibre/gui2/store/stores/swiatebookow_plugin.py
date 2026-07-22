@@ -32,7 +32,6 @@ def as_base64(data):
 
 
 class SwiatEbookowStore(BasicStoreConfig, StorePlugin):
-
     def open(self, gui=None, parent=None, detail_item=None, external=False):
         aff_root = 'https://www.a4b-tracking.com/pl/stat-click-text-link/181/58/'
 
@@ -55,7 +54,7 @@ class SwiatEbookowStore(BasicStoreConfig, StorePlugin):
     def search(self, query, max_results=10, timeout=60):
 
         br = browser()
-        page=1
+        page = 1
 
         counter = max_results
         while counter:
@@ -70,7 +69,7 @@ class SwiatEbookowStore(BasicStoreConfig, StorePlugin):
                         continue
 
                     cover_url = ''.join(data.xpath('.//div[@class="cover-xs"]//img/@data-src'))
-                    price = ''.join(data.xpath('.//span[@class="item-price"]/text()')+data.xpath('.//span[@class="sub-price"]/text()'))
+                    price = ''.join(data.xpath('.//span[@class="item-price"]/text()') + data.xpath('.//span[@class="sub-price"]/text()'))
                     title = ''.join(data.xpath('.//div[@class="largebox-book-info"]//h2/a/text()'))
                     author = ', '.join(data.xpath('.//div[@class="largebox-book-info"]/p/a/text()'))
 
@@ -88,4 +87,4 @@ class SwiatEbookowStore(BasicStoreConfig, StorePlugin):
                     yield s
                 if not doc.xpath('//div[@class="paging_bootstrap pagination"]//a[@class="next"]'):
                     break
-            page+=1
+            page += 1

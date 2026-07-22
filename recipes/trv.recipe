@@ -7,8 +7,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class TrvScience(BasicNewsRecipe):
-
-    title = u'\u0422\u0440\u043e\u0438\u0446\u043a\u0438\u0439 \u0432\u0430\u0440\u0438\u0430\u043d\u0442'
+    title = '\u0422\u0440\u043e\u0438\u0446\u043a\u0438\u0439 \u0432\u0430\u0440\u0438\u0430\u043d\u0442'
     language = 'ru'
     __author__ = 'Vadim Dyadkin (with fixes by bugmen00t)'
     oldest_article = 30
@@ -21,9 +20,7 @@ class TrvScience(BasicNewsRecipe):
 
     remove_tags_before = dict(name='main', attrs={'id': 'main'})
 
-    remove_tags_after = dict(
-        name='div', attrs={'class': 'wpdiscuz-comment-pagination'}
-    )
+    remove_tags_after = dict(name='div', attrs={'class': 'wpdiscuz-comment-pagination'})
 
     remove_tags = [
         dict(name='span', attrs={'class': 'fa fa-user'}),
@@ -34,10 +31,7 @@ class TrvScience(BasicNewsRecipe):
         #        dict(name='div', attrs={'id': 'comments'}),
         dict(name='div', attrs={'class': 'wpd-vote'}),
         dict(name='div', attrs={'class': 'mistape_caption'}),
-        dict(
-            name='div',
-            attrs={'class': 'wpd-comment-share wpd-hidden wpd-tooltip wpd-top'}
-        ),
+        dict(name='div', attrs={'class': 'wpd-comment-share wpd-hidden wpd-tooltip wpd-top'}),
         dict(name='div', attrs={'class': 'wpd-comment-left '}),
         dict(name='div', attrs={'class': 'wpd-space'}),
         dict(name='div', attrs={'class': 'wpd-reply-button'}),
@@ -45,10 +39,7 @@ class TrvScience(BasicNewsRecipe):
         dict(name='div', attrs={'class': 'wpd-comment-last-edited'}),
         dict(name='div', attrs={'class': 'wpd-comment-date'}),
         dict(name='div', attrs={'class': 'wpd-comment-info-bar'}),
-        dict(name='div', attrs={'class': 'wpd-form-wrap'})
+        dict(name='div', attrs={'class': 'wpd-form-wrap'}),
     ]
 
-    feeds = [(
-        u'\u0422\u0440\u043e\u0438\u0446\u043a\u0438\u0439 \u0432\u0430\u0440\u0438\u0430\u043d\u0442',
-        u'https://trv-science.ru/feed/'
-    )]
+    feeds = [('\u0422\u0440\u043e\u0438\u0446\u043a\u0438\u0439 \u0432\u0430\u0440\u0438\u0430\u043d\u0442', 'https://trv-science.ru/feed/')]

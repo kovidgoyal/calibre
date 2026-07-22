@@ -86,7 +86,6 @@ def search(query, max_results=10, timeout=60, write_raw_to=None):
 
 
 class GutenbergStore(StorePlugin):
-
     def search(self, query, max_results=10, timeout=60):
         for result in search(query, max_results, timeout):
             yield result

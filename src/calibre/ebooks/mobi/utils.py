@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
@@ -25,7 +25,6 @@ RECORD_SIZE = 0x1000  # 4096 (Text record size (uncompressed))
 
 
 class PolyglotDict(dict):
-
     def __setitem__(self, key, val):
         if isinstance(key, str):
             key = key.encode('utf-8')
@@ -43,9 +42,9 @@ class PolyglotDict(dict):
 
 
 def decode_string(raw, codec='utf-8', ordt_map=None):
-    length, = struct.unpack(b'>B', raw[0:1])
-    raw = raw[1:1+length]
-    consumed = length+1
+    (length,) = struct.unpack(b'>B', raw[0:1])
+    raw = raw[1 : 1 + length]
+    consumed = length + 1
     if ordt_map:
         return ''.join(ordt_map[x] for x in bytearray(raw)), consumed
     return raw.decode(codec), consumed
@@ -84,7 +83,7 @@ def encode_number_as_hex(num):
     num = f'{num:X}'.encode('ascii')
     nlen = len(num)
     if nlen % 2 != 0:
-        num = b'0'+num
+        num = b'0' + num
     return encode_string(num)
 
 
@@ -196,7 +195,7 @@ def rescale_image(data, maxsizeb=IMAGE_MAX_SIZE, dimen=None):
     while len(data) > maxsizeb and scale >= 0.05:
         img = image_from_data(data)
         w, h = img.width(), img.height()
-        img = resize_image(img, int(scale*w), int(scale*h))
+        img = resize_image(img, int(scale * w), int(scale * h))
         data = image_to_data(img, compression_quality=quality)
         scale -= 0.05
     return data
@@ -263,7 +262,7 @@ def encode_fvwi(val, flags, flag_size=4):
     """
     ans = val << flag_size
     for i in range(flag_size):
-        ans |= (flags & (1 << i))
+        ans |= flags & (1 << i)
     return encint(ans)
 
 
@@ -275,7 +274,7 @@ def decode_fvwi(byts, flag_size=4):
     val = arg >> flag_size
     flags = 0
     for i in range(flag_size):
-        flags |= (arg & (1 << i))
+        flags |= arg & (1 << i)
     return val, flags, consumed
 
 
@@ -354,7 +353,7 @@ def align_block(raw, multiple=4, pad=b'\0'):
     extra = len(raw) % multiple
     if extra == 0:
         return raw
-    return raw + pad*(multiple - extra)
+    return raw + pad * (multiple - extra)
 
 
 def detect_periodical(toc, log=None):
@@ -367,20 +366,15 @@ def detect_periodical(toc, log=None):
     for node in toc.iterdescendants():
         if node.depth() == 1 and node.klass != 'article':
             if log is not None:
-                log.debug(
-                'Not a periodical: Deepest node does not have '
-                'class="article"')
+                log.debug('Not a periodical: Deepest node does not have class="article"')
             return False
         if node.depth() == 2 and node.klass != 'section':
             if log is not None:
-                log.debug(
-                'Not a periodical: Second deepest node does not have'
-                ' class="section"')
+                log.debug('Not a periodical: Second deepest node does not have class="section"')
             return False
         if node.depth() == 3 and node.klass != 'periodical':
             if log is not None:
-                log.debug('Not a periodical: Third deepest node'
-                    ' does not have class="periodical"')
+                log.debug('Not a periodical: Third deepest node does not have class="periodical"')
             return False
         if node.depth() > 3:
             if log is not None:
@@ -394,7 +388,7 @@ def count_set_bits(num):
         num = -num
     ans = 0
     while num > 0:
-        ans += (num & 0b1)
+        ans += num & 0b1
         num >>= 1
     return ans
 
@@ -403,14 +397,14 @@ def to_base(num, base=32, min_num_digits=None):
     digits = string.digits + string.ascii_uppercase
     sign = 1 if num >= 0 else -1
     if num == 0:
-        return ('0' if min_num_digits is None else '0'*min_num_digits)
+        return '0' if min_num_digits is None else '0' * min_num_digits
     num *= sign
     ans = []
     while num:
         ans.append(digits[(num % base)])
         num //= base
     if min_num_digits is not None and len(ans) < min_num_digits:
-        ans.extend('0'*(min_num_digits - len(ans)))
+        ans.extend('0' * (min_num_digits - len(ans)))
     if sign < 0:
         ans.append('-')
     ans.reverse()
@@ -426,6 +420,7 @@ def mobify_image(data):
 
 
 # Font records {{{
+
 
 def read_font_record(data, extent=1040):
     """
@@ -457,28 +452,25 @@ def read_font_record(data, extent=1040):
     # bytes 19 - 23:  offset to start of XOR data
     # The zlib compressed data begins with 2 bytes of header and
     # has 4 bytes of checksum at the end
-    ans = {'raw_data':data, 'font_data':None, 'err':None, 'ext':'failed',
-            'headers':None, 'encrypted':False}
+    ans = {'raw_data': data, 'font_data': None, 'err': None, 'ext': 'failed', 'headers': None, 'encrypted': False}
 
     try:
-        usize, flags, dstart, xor_len, xor_start = struct.unpack_from(
-                b'>LLLLL', data, 4)
+        usize, flags, dstart, xor_len, xor_start = struct.unpack_from(b'>LLLLL', data, 4)
     except Exception:
         ans['err'] = 'Failed to read font record header fields'
         return ans
     font_data = data[dstart:]
-    ans['headers'] = {'usize':usize, 'flags':bin(flags), 'xor_len':xor_len,
-            'xor_start':xor_start, 'dstart':dstart}
+    ans['headers'] = {'usize': usize, 'flags': bin(flags), 'xor_len': xor_len, 'xor_start': xor_start, 'dstart': dstart}
 
     if flags & 0b10:
         # De-obfuscate the data
-        key = bytearray(data[xor_start:xor_start+xor_len])
+        key = bytearray(data[xor_start : xor_start + xor_len])
         buf = bytearray(font_data)
         extent = len(font_data) if extent is None else extent
         extent = min(extent, len(font_data))
 
         for n in range(extent):
-            buf[n] ^= key[n%xor_len]  # XOR of buf and key
+            buf[n] ^= key[n % xor_len]  # XOR of buf and key
 
         font_data = bytes(buf)
         ans['encrypted'] = True
@@ -497,8 +489,7 @@ def read_font_record(data, extent=1040):
 
     ans['font_data'] = font_data
     sig = font_data[:4]
-    ans['ext'] = ('ttf' if sig in {b'\0\1\0\0', b'true', b'ttcf'}
-                    else 'otf' if sig == b'OTTO' else 'dat')
+    ans['ext'] = 'ttf' if sig in {b'\0\1\0\0', b'true', b'ttcf'} else 'otf' if sig == b'OTTO' else 'dat'
 
     return ans
 
@@ -522,16 +513,16 @@ def write_font_record(data, obfuscate=True, compress=True):
         key = bytearray(xor_key)
         data = bytearray(data)
         for i in range(1040):
-            data[i] ^= key[i%key_len]
+            data[i] ^= key[i % key_len]
         data = bytes(data)
 
     key_start = struct.calcsize(b'>5L') + 4
     data_start = key_start + len(xor_key)
 
-    header = b'FONT' + struct.pack(b'>5L', usize, flags, data_start,
-            len(xor_key), key_start)
+    header = b'FONT' + struct.pack(b'>5L', usize, flags, data_start, len(xor_key), key_start)
 
     return header + xor_key + data
+
 
 # }}}
 
@@ -588,7 +579,6 @@ def create_text_record(text):
 
 
 class CNCX:  # {{{
-
     """
     Create the CNCX records. These are records containing all the strings from
     an index. Each record is of the form: <vwi string size><utf-8 encoded
@@ -605,7 +595,7 @@ class CNCX:  # {{{
         buf = BytesIO()
         RECORD_LIMIT = 0x10000 - 1024  # kindlegen appears to use 1024, PDB limit is 0x10000
         for key in self.strings:
-            utf8 = utf8_text(key[:self.MAX_STRING_LENGTH])
+            utf8 = utf8_text(key[: self.MAX_STRING_LENGTH])
             l = len(utf8)
             sz_bytes = encint(l)
             raw = sz_bytes + utf8
@@ -626,25 +616,27 @@ class CNCX:  # {{{
 
     def __bool__(self):
         return bool(self.records)
+
     __nonzero__ = __bool__
 
     def __len__(self):
         return len(self.records)
 
+
 # }}}
 
 
 def is_guide_ref_start(ref):
-    return (ref.title.lower() == 'start' or
-            (ref.type and ref.type.lower() in {'start',
-                    'other.start', 'text'}))
+    return ref.title.lower() == 'start' or (ref.type and ref.type.lower() in {'start', 'other.start', 'text'})
 
 
 def convert_color_for_font_tag(val):
     rgba = parse_color_string(str(val or ''))
     if rgba is None or rgba == 'currentColor':
         return str(val)
+
     def clamp(x):
         return min(x, max(0, x), 1)
+
     rgb = map(clamp, rgba[:3])
     return '#' + ''.join(f'{int(x * 255):02x}' for x in rgb)

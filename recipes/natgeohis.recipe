@@ -5,9 +5,11 @@ from calibre.web.feeds.news import BasicNewsRecipe, classes
 
 class NatGeo(BasicNewsRecipe):
     title = 'National Geographic History'
-    description = ('From Caesar to Napoleon, the Pyramids to the Parthenon, the Trojan War to the Civil War—National Geographic '
-                   'HISTORY draws readers in with more than 5,000 years of people, places, and things to explore. '
-                   'Inspiring people to care about the planet since 1888')
+    description = (
+        'From Caesar to Napoleon, the Pyramids to the Parthenon, the Trojan War to the Civil War—National Geographic '
+        'HISTORY draws readers in with more than 5,000 years of people, places, and things to explore. '
+        'Inspiring people to care about the planet since 1888'
+    )
     language = 'en'
     encoding = 'utf8'
     publisher = 'nationalgeographic.com'
@@ -56,18 +58,14 @@ class NatGeo(BasicNewsRecipe):
         return wrap.img['src']
 
     def parse_index(self):
-        soup = self.index_to_soup(
-            'https://www.nationalgeographic.com/history/history-magazine'
-        )
+        soup = self.index_to_soup('https://www.nationalgeographic.com/history/history-magazine')
         ans = []
         for article in soup.findAll('article'):
             a = article.find('a')
             url = a['href']
             if url.startswith('/'):
                 url = 'https://www.nationalgeographic.com' + url
-            title = self.tag_to_string(
-                article.find(**classes('PromoTile__Title--truncated'))
-            )
+            title = self.tag_to_string(article.find(**classes('PromoTile__Title--truncated')))
             ans.append({'title': title, 'url': url})
             self.log(title, '  ', url)
         return [('Articles', ans)]

@@ -46,17 +46,17 @@ class Tool:
 
     @property
     def boss(self):
-        " The :class:`calibre.gui2.tweak_book.boss.Boss` object. Used to control the user interface. "
+        "The :class:`calibre.gui2.tweak_book.boss.Boss` object. Used to control the user interface."
         return get_boss()
 
     @property
     def gui(self):
-        " The main window of the user interface "
+        "The main window of the user interface"
         return self.boss.gui
 
     @property
     def current_container(self):
-        " Return the current :class:`calibre.ebooks.oeb.polish.container.Container` object that represents the book being edited. "
+        "Return the current :class:`calibre.ebooks.oeb.polish.container.Container` object that represents the book being edited."
         return current_container()
 
     def register_shortcut(self, qaction, unique_name, default_keys=(), short_text=None, description=None, **extra_data):
@@ -83,8 +83,13 @@ class Tool:
         short_text = short_text or str(qaction.text()).replace('&&', '\0').replace('&', '').replace('\0', '&')
         assert self.name is not None
         self.gui.keyboard.register_shortcut(
-            self.name + '_' + unique_name, short_text, default_keys=default_keys, action=qaction,
-            description=description or '', group=_('Plugins'))
+            self.name + '_' + unique_name,
+            short_text,
+            default_keys=default_keys,
+            action=qaction,
+            description=description or '',
+            group=_('Plugins'),
+        )
 
     def create_action(self, for_toolbar=True):
         """
@@ -113,9 +118,10 @@ class Tool:
 
 def load_plugin_tools(plugin):
     try:
-        main = importlib.import_module(plugin.__class__.__module__+'.main')
+        main = importlib.import_module(plugin.__class__.__module__ + '.main')
     except ImportError:
         import traceback
+
         traceback.print_exc()
     else:
         for x in vars(main).values():
@@ -140,6 +146,7 @@ def create_plugin_action(plugin, tool, for_toolbar, actions=None, toolbar_action
     except Exception:
         prints('Failed to create action for tool:', tool.name)
         import traceback
+
         traceback.print_exc()
         return
     sid = plugin_action_sid(plugin, tool, for_toolbar)
@@ -153,8 +160,10 @@ def create_plugin_action(plugin, tool, for_toolbar, actions=None, toolbar_action
             if toolbar_actions is not None:
                 toolbar_actions[sid] = ac
                 plugin_toolbar_actions.append(ac)
-            ac.popup_mode = {'instant':QToolButton.ToolButtonPopupMode.InstantPopup, 'button':QToolButton.ToolButtonPopupMode.MenuButtonPopup}.get(
-                tool.toolbar_button_popup_mode, QToolButton.ToolButtonPopupMode.DelayedPopup)
+            ac.popup_mode = {
+                'instant': QToolButton.ToolButtonPopupMode.InstantPopup,
+                'button': QToolButton.ToolButtonPopupMode.MenuButtonPopup,
+            }.get(tool.toolbar_button_popup_mode, QToolButton.ToolButtonPopupMode.DelayedPopup)
         elif plugin_menu_actions is not None:
             plugin_menu_actions.append(ac)
     return ac
@@ -175,6 +184,7 @@ def create_plugin_actions(actions, toolbar_actions, plugin_menu_actions):
                 raise
             print('Failed to load third-party plugin:', plugin.name, file=sys.stderr)
             import traceback
+
             traceback.print_exc()
             continue
         for tool in tools:

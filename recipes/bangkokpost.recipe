@@ -3,8 +3,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 def classes(classes):
     q = frozenset(classes.split(' '))
-    return dict(attrs={
-        'class': lambda x: x and frozenset(x.split()).intersection(q)})
+    return dict(attrs={'class': lambda x: x and frozenset(x.split()).intersection(q)})
 
 
 class BangkokPostRecipe(BasicNewsRecipe):
@@ -13,10 +12,10 @@ class BangkokPostRecipe(BasicNewsRecipe):
     language = 'en_TH'
     version = 1
 
-    title = u'Bangkok Post'
-    publisher = u'Post Publishing PCL'
-    category = u'News'
-    description = u"The world's window to Thailand"
+    title = 'Bangkok Post'
+    publisher = 'Post Publishing PCL'
+    category = 'News'
+    description = "The world's window to Thailand"
 
     oldest_article = 7
     max_articles_per_feed = 100
@@ -27,24 +26,17 @@ class BangkokPostRecipe(BasicNewsRecipe):
 
     # Feeds from: http://www.bangkokpost.com/rss/
     feeds = []
-    feeds.append(
-        (u'Breaking News', u'http://www.bangkokpost.com/rss/data/breakingnews.xml'))
-    feeds.append(
-        (u'Top Stories', u'http://www.bangkokpost.com/rss/data/topstories.xml'))
-    feeds.append((u'News', u'http://www.bangkokpost.com/rss/data/news.xml'))
-    feeds.append(
-        (u'Business', u'http://www.bangkokpost.com/rss/data/business.xml'))
-    feeds.append(
-        (u'Opinion', u'http://www.bangkokpost.com/rss/data/opinion.xml'))
-    feeds.append(
-        (u'Travel', u'http://www.bangkokpost.com/rss/data/travel.xml'))
-    feeds.append(
-        (u'Leisure', u'http://www.bangkokpost.com/rss/data/leisure.xml'))
-    feeds.append(
-        (u'Entertainment', u'http://www.bangkokpost.com/rss/data/entertainment.xml'))
-    feeds.append((u'Auto', u'http://www.bangkokpost.com/rss/data/auto.xml'))
-    feeds.append((u'Life', u'http://www.bangkokpost.com/rss/data/life.xml'))
-    feeds.append((u'Tech', u'http://www.bangkokpost.com/rss/data/tect.xml'))
+    feeds.append(('Breaking News', 'http://www.bangkokpost.com/rss/data/breakingnews.xml'))
+    feeds.append(('Top Stories', 'http://www.bangkokpost.com/rss/data/topstories.xml'))
+    feeds.append(('News', 'http://www.bangkokpost.com/rss/data/news.xml'))
+    feeds.append(('Business', 'http://www.bangkokpost.com/rss/data/business.xml'))
+    feeds.append(('Opinion', 'http://www.bangkokpost.com/rss/data/opinion.xml'))
+    feeds.append(('Travel', 'http://www.bangkokpost.com/rss/data/travel.xml'))
+    feeds.append(('Leisure', 'http://www.bangkokpost.com/rss/data/leisure.xml'))
+    feeds.append(('Entertainment', 'http://www.bangkokpost.com/rss/data/entertainment.xml'))
+    feeds.append(('Auto', 'http://www.bangkokpost.com/rss/data/auto.xml'))
+    feeds.append(('Life', 'http://www.bangkokpost.com/rss/data/life.xml'))
+    feeds.append(('Tech', 'http://www.bangkokpost.com/rss/data/tect.xml'))
 
     keep_only_tags = [
         classes('article-headline article-content'),

@@ -6,8 +6,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 def classes(classes):
     q = frozenset(classes.split(' '))
-    return dict(attrs={
-        'class': lambda x: x and frozenset(x.split()).intersection(q)})
+    return dict(attrs={'class': lambda x: x and frozenset(x.split()).intersection(q)})
 
 
 def absolutize(href):
@@ -39,7 +38,7 @@ class LondonReviewOfBooksPayed(BasicNewsRecipe):
     resolve_internal_links = True
 
     keep_only_tags = [
-        dict(attrs={'id':['article-tag-holder', 'article-heading-holder']}),
+        dict(attrs={'id': ['article-tag-holder', 'article-heading-holder']}),
         classes('article-copy article-word-count'),
     ]
 
@@ -68,11 +67,7 @@ class LondonReviewOfBooksPayed(BasicNewsRecipe):
         return soup
 
     recipe_specific_options = {
-        'issue_url': {
-            'short': 'The issue URL ',
-            'long': 'For example, https://www.lrb.co.uk/the-paper/v46/n01',
-            'default': 'https://www.lrb.co.uk/the-paper/'
-        }
+        'issue_url': {'short': 'The issue URL ', 'long': 'For example, https://www.lrb.co.uk/the-paper/v46/n01', 'default': 'https://www.lrb.co.uk/the-paper/'}
     }
 
     def parse_index(self):

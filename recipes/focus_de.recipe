@@ -30,7 +30,7 @@ class AdvancedUserRecipe1305567197(BasicNewsRecipe):
 
     def get_cover_url(self):
         soup = self.index_to_soup('https://www.focus-magazin.de/')
-        return soup.find('img', attrs={'class':'main-cover'})['src']
+        return soup.find('img', attrs={'class': 'main-cover'})['src']
 
     feeds = [
         ('Politik', 'http://rss.focus.de/politik/'),
@@ -39,24 +39,18 @@ class AdvancedUserRecipe1305567197(BasicNewsRecipe):
         ('Panorama', 'http://rss.focus.de/panorama/'),
         ('Digital', 'http://rss.focus.de/digital/'),
         ('Reisen', 'http://rss.focus.de/reisen/'),
-        ('Andere', 'http://rss.focus.de')
+        ('Andere', 'http://rss.focus.de'),
     ]
 
-    keep_only_tags = [
-        classes('articleHead articleContent')
-    ]
+    keep_only_tags = [classes('articleHead articleContent')]
 
-    remove_tags = [
-        dict(name=['svg', 'script']),
-        classes('socFbLikeShare video social_frame'),
-        dict(attrs={'id': 'article-social-holder'})
-    ]
+    remove_tags = [dict(name=['svg', 'script']), classes('socFbLikeShare video social_frame'), dict(attrs={'id': 'article-social-holder'})]
 
     def preprocess_html(self, soup):
-        if h1 := soup.find(attrs={'class':'articleIdentH1'}):
+        if h1 := soup.find(attrs={'class': 'articleIdentH1'}):
             h1.name = 'h1'
         if he := soup.find(**classes('posMarker_he')):
             he.name = 'div'
-        for img in soup.findAll('img', attrs={'data-src':True}):
+        for img in soup.findAll('img', attrs={'data-src': True}):
             img['src'] = img['data-src']
         return soup

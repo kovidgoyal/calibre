@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
@@ -26,7 +26,6 @@ def get_quickview_action_plugin():
 
 
 class ShowQuickviewAction(InterfaceAction):
-
     name = 'Quickview'
     action_spec = (_('Quickview'), 'quickview.png', _('Toggle Quickview'), 'Q')
     dont_add_to = frozenset(('context-menu-device',))
@@ -39,36 +38,49 @@ class ShowQuickviewAction(InterfaceAction):
         self.qaction.triggered.connect(self.toggle_quick_view)
         self.focus_action = QAction(self.gui)
         self.gui.addAction(self.focus_action)
-        self.gui.keyboard.register_shortcut('Focus To Quickview', _('Focus to Quickview'),
-                     description=_('Move the focus to the Quickview panel/window'),
-                     default_keys=('Shift+Q',), action=self.focus_action,
-                     group=self.action_spec[0])
+        self.gui.keyboard.register_shortcut(
+            'Focus To Quickview',
+            _('Focus to Quickview'),
+            description=_('Move the focus to the Quickview panel/window'),
+            default_keys=('Shift+Q',),
+            action=self.focus_action,
+            group=self.action_spec[0],
+        )
         self.focus_action.triggered.connect(self.focus_quickview)
 
         self.focus_bl_action = QAction(self.gui)
         self.gui.addAction(self.focus_bl_action)
-        self.gui.keyboard.register_shortcut('Focus from Quickview',
-                     _('Focus from Quickview to the book list'),
-                     description=_('Move the focus from Quickview to the book list'),
-                     default_keys=('Shift+Alt+Q',), action=self.focus_bl_action,
-                     group=self.action_spec[0])
+        self.gui.keyboard.register_shortcut(
+            'Focus from Quickview',
+            _('Focus from Quickview to the book list'),
+            description=_('Move the focus from Quickview to the book list'),
+            default_keys=('Shift+Alt+Q',),
+            action=self.focus_bl_action,
+            group=self.action_spec[0],
+        )
         self.focus_bl_action.triggered.connect(self.focus_booklist)
 
         self.focus_refresh_action = QAction(self.gui)
         self.gui.addAction(self.focus_refresh_action)
-        self.gui.keyboard.register_shortcut('Refresh from Quickview',
-                     _('Refresh Quickview'),
-                     description=_('Refresh the information shown in the Quickview panel'),
-                     action=self.focus_refresh_action,
-                     group=self.action_spec[0])
+        self.gui.keyboard.register_shortcut(
+            'Refresh from Quickview',
+            _('Refresh Quickview'),
+            description=_('Refresh the information shown in the Quickview panel'),
+            action=self.focus_refresh_action,
+            group=self.action_spec[0],
+        )
         self.focus_refresh_action.triggered.connect(self.refill_quickview)
 
         self.search_action = QAction(self.gui)
         self.gui.addAction(self.search_action)
-        self.gui.keyboard.register_shortcut('Search from Quickview', _('Search from Quickview'),
-                     description=_('Search for the currently selected Quickview item'),
-                     default_keys=('Shift+S',), action=self.search_action,
-                     group=self.action_spec[0])
+        self.gui.keyboard.register_shortcut(
+            'Search from Quickview',
+            _('Search from Quickview'),
+            description=_('Search for the currently selected Quickview item'),
+            default_keys=('Shift+S',),
+            action=self.search_action,
+            group=self.action_spec[0],
+        )
         self.search_action.triggered.connect(self.search_quickview)
 
     def update_layout_button(self):
@@ -119,9 +131,7 @@ class ShowQuickviewAction(InterfaceAction):
                 self.current_instance._reject()
             self.current_instance = None
         if self.gui.current_view() is not self.gui.library_view:
-            error_dialog(self.gui, _('No quickview available'),
-                _('Quickview is not available for books '
-                  'on the device.')).exec()
+            error_dialog(self.gui, _('No quickview available'), _('Quickview is not available for books on the device.')).exec()
             return
         self.qv_button.blockSignals(True)
         self.qv_button.set_state_to_hide()
@@ -130,8 +140,7 @@ class ShowQuickviewAction(InterfaceAction):
 
     def _create_current_instance(self):
         index = self.gui.library_view.currentIndex()
-        self.current_instance = Quickview(self.gui, index, self.qaction.shortcut(),
-                                          focus_booklist_shortcut=self.focus_bl_action.shortcut())
+        self.current_instance = Quickview(self.gui, index, self.qaction.shortcut(), focus_booklist_shortcut=self.focus_bl_action.shortcut())
 
         self.current_instance.reopen_after_dock_change.connect(self.open_quickview)
         self.current_instance.show()

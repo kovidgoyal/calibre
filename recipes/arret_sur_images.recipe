@@ -22,9 +22,7 @@ class ArretSurImages(BasicNewsRecipe):
     no_stylesheets = True
     remove_javascript = True
 
-    feeds = [
-        ('Arrêt sur images', 'https://api.arretsurimages.net/api/public/rss/all-content')
-    ]
+    feeds = [('Arrêt sur images', 'https://api.arretsurimages.net/api/public/rss/all-content')]
 
     def default_cover(self, cover_file):
         """
@@ -33,15 +31,28 @@ class ArretSurImages(BasicNewsRecipe):
         from qt.core import QColor, QFont, QImage, QPainter, QPen, QRect, Qt
 
         from calibre.gui2 import ensure_app, load_builtin_fonts, pixmap_to_data
+
         try:
             ensure_app()
             load_builtin_fonts()
 
             today = datetime.now(ZoneInfo('Europe/Paris'))
             wkd = today.weekday()
-            french_weekday = {0:'Lundi',1:'Mardi',2:'Mercredi',3:'Jeudi',4:'Vendredi',5:'Samedi',6:'Dimanche'}
-            french_month = {1:'janvier', 2:'février', 3:'mars', 4:'avril', 5:'mai', 6:'juin',
-                          7:'juillet', 8:'août', 9:'septembre', 10:'octobre', 11:'novembre', 12:'décembre'}
+            french_weekday = {0: 'Lundi', 1: 'Mardi', 2: 'Mercredi', 3: 'Jeudi', 4: 'Vendredi', 5: 'Samedi', 6: 'Dimanche'}
+            french_month = {
+                1: 'janvier',
+                2: 'février',
+                3: 'mars',
+                4: 'avril',
+                5: 'mai',
+                6: 'juin',
+                7: 'juillet',
+                8: 'août',
+                9: 'septembre',
+                10: 'octobre',
+                11: 'novembre',
+                12: 'décembre',
+            }
 
             weekday = french_weekday[wkd]
             month = french_month[today.month]
@@ -56,7 +67,7 @@ class ArretSurImages(BasicNewsRecipe):
             border_pen = QPen(QColor('red'))
             border_pen.setWidth(120)  # Épaisseur de la bordure
             border_painter.setPen(border_pen)
-            border_painter.drawRect(10, 10, img.width()-20, img.height()-20)  # Marge de 10 pixels
+            border_painter.drawRect(10, 10, img.width() - 20, img.height() - 20)  # Marge de 10 pixels
             border_painter.end()
 
             logo_url = 'https://www.arretsurimages.net/assets/img/front/logo-asi-grand.png'
@@ -109,12 +120,12 @@ class ArretSurImages(BasicNewsRecipe):
                 'client_secret': '2r8yd4a8un0fn45d93acfr3efrgthzdheifhrehihidg4dk5kds7ds23',
                 'username': self.username,
                 'password': self.password,
-                'grant_type': 'password'
+                'grant_type': 'password',
             }
             request = mechanize.Request(
                 'https://api.arretsurimages.net/oauth/v2/token',
                 data=json.dumps(auth_data).encode('utf-8'),
-                headers={'Content-Type': 'application/json', 'Accept': 'application/json'}
+                headers={'Content-Type': 'application/json', 'Accept': 'application/json'},
             )
             try:
                 response = br.open(request)

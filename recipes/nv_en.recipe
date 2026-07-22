@@ -10,7 +10,7 @@ class NV(BasicNewsRecipe):
     description = 'Independent Ukrainian socio-political magazine and news resource.'
     publisher = 'Vydavnychyy Dim Media-DK LLC'
     category = 'magazine'
-    cover_url = u'https://static.nv.ua/shared/system/Article/posters/002/439/752/600x300/65730a3918ebad6c86167b53f2b3e98a.jpg'
+    cover_url = 'https://static.nv.ua/shared/system/Article/posters/002/439/752/600x300/65730a3918ebad6c86167b53f2b3e98a.jpg'
     language = 'en_UK'
     no_stylesheets = False
     remove_javascript = False
@@ -37,11 +37,13 @@ class NV(BasicNewsRecipe):
         dict(name='div', attrs={'class': 'col-md-6 col-lg-3'}),
         dict(name='div', attrs={'class': 'copyright'}),
         dict(name='div', attrs={'class': 'media__video'}),
-        dict(name='div', attrs={'class': 'media__embed'})
+        dict(name='div', attrs={'class': 'media__embed'}),
     ]
 
-    feeds = [('All News', 'https://english.nv.ua/rss/all_english.xml'),
-             ('Life', 'https://english.nv.ua/rss/239.xml'),
-             ('Business', 'https://english.nv.ua/rss/238.xml'),
-             ('Nation', 'https://english.nv.ua/rss/237.xml'),
-             ('Opinion', 'https://english.nv.ua/rss/240.xml')]
+    feeds = [
+        ('All News', 'https://english.nv.ua/rss/all_english.xml'),
+        ('Life', 'https://english.nv.ua/rss/239.xml'),
+        ('Business', 'https://english.nv.ua/rss/238.xml'),
+        ('Nation', 'https://english.nv.ua/rss/237.xml'),
+        ('Opinion', 'https://english.nv.ua/rss/240.xml'),
+    ]

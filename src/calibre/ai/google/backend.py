@@ -72,7 +72,7 @@ class Pricing(NamedTuple):
     output: Price
     caching: Price
     caching_storage: Price
-    google_search: Price = Price(35/1e3, 1500)
+    google_search: Price = Price(35 / 1e3, 1500)
     input_audio: Price | None = None
 
     def get_cost_for_input_token_modality(self, mtc: dict[str, int]) -> float:
@@ -100,24 +100,24 @@ def get_model_costs() -> dict[str, Pricing]:
     # https://ai.google.dev/gemini-api/docs/pricing
     return {
         'models/gemini-2.5-pro': Pricing(
-            input=Price(2.5/1e6, 200_000, 1.25/1e6),
-            output=Price(15/1e6, 200_000, 10/1e6),
-            caching=Price(0.25/1e6, 200_000, 0.125/1e6),
-            caching_storage=Price(4.5/1e6),
+            input=Price(2.5 / 1e6, 200_000, 1.25 / 1e6),
+            output=Price(15 / 1e6, 200_000, 10 / 1e6),
+            caching=Price(0.25 / 1e6, 200_000, 0.125 / 1e6),
+            caching_storage=Price(4.5 / 1e6),
         ),
         'models/gemini-2.5-flash': Pricing(
-            input=Price(0.3/1e6),
-            output=Price(2.5/1e6),
-            caching=Price(0.03/1e6),
-            caching_storage=Price(1/1e6),
-            input_audio=Price(1/1e6),
+            input=Price(0.3 / 1e6),
+            output=Price(2.5 / 1e6),
+            caching=Price(0.03 / 1e6),
+            caching_storage=Price(1 / 1e6),
+            input_audio=Price(1 / 1e6),
         ),
         'models/gemini-2.5-flash-lite': Pricing(
-            input=Price(0.1/1e6),
-            input_audio=Price(0.3/1e6),
-            output=Price(0.4/1e6),
-            caching=Price(0.01/1e6),
-            caching_storage=Price(1/1e6),
+            input=Price(0.1 / 1e6),
+            input_audio=Price(0.3 / 1e6),
+            output=Price(0.4 / 1e6),
+            caching=Price(0.01 / 1e6),
+            caching_storage=Price(1 / 1e6),
         ),
     }
 
@@ -162,10 +162,19 @@ class Model(NamedTuple):
                     caps |= AICapabilities.tts
         pmap = get_model_costs()
         return Model(
-            name=x['displayName'], id=mid, description=x.get('description', ''), version=x['version'],
-            context_length=int(x['inputTokenLimit']), output_token_limit=int(x['outputTokenLimit']),
-            capabilities=caps, family=family, family_version=family_version, name_parts=tuple(name_parts),
-            slug=mid, thinking=x.get('thinking', False), pricing=pmap.get(mid),
+            name=x['displayName'],
+            id=mid,
+            description=x.get('description', ''),
+            version=x['version'],
+            context_length=int(x['inputTokenLimit']),
+            output_token_limit=int(x['outputTokenLimit']),
+            capabilities=caps,
+            family=family,
+            family_version=family_version,
+            name_parts=tuple(name_parts),
+            slug=mid,
+            thinking=x.get('thinking', False),
+            pricing=pmap.get(mid),
         )
 
     def get_cost(self, usage_metadata: dict[str, int]) -> tuple[float, str]:
@@ -192,6 +201,7 @@ def get_available_models() -> dict[str, Model]:
 
 def config_widget():
     from calibre.ai.google.config import ConfigWidget
+
     return ConfigWidget()
 
 
@@ -276,7 +286,7 @@ def block_reason(block_reason: str) -> PromptBlockReason:
         'SAFETY': PromptBlockReason.safety,
         'BLOCKLIST': PromptBlockReason.blocklist,
         'PROHIBITED_CONTENT': PromptBlockReason.prohibited_content,
-        'IMAGE_SAFETY': PromptBlockReason.unsafe_image_generated
+        'IMAGE_SAFETY': PromptBlockReason.unsafe_image_generated,
     }.get(block_reason.upper(), PromptBlockReason.unknown)
 
 
@@ -329,8 +339,14 @@ def as_chat_responses(d: dict[str, Any], model: Model) -> Iterator[ChatResponse]
             for s in grounding_supports:
                 if links := tuple(i for i in s['groundingChunkIndices'] if web_links[i]):
                     seg = s['segment']
-                    citations.append(Citation(
-                        links, start_offset=seg.get('startIndex', 0), end_offset=seg.get('endIndex', 0), text=seg.get('text', '')))
+                    citations.append(
+                        Citation(
+                            links,
+                            start_offset=seg.get('startIndex', 0),
+                            end_offset=seg.get('endIndex', 0),
+                            text=seg.get('text', ''),
+                        )
+                    )
         role = ChatMessageType.user if 'user' == content.get('role') else ChatMessageType.assistant
         content_parts = []
         reasoning_parts = []
@@ -341,9 +357,17 @@ def as_chat_responses(d: dict[str, Any], model: Model) -> Iterator[ChatResponse]
             if ts := part.get('thoughtSignature'):
                 reasoning_details.append({'signature': ts})
         yield ChatResponse(
-            type=role, content=''.join(content_parts), reasoning=''.join(reasoning_parts),
-            reasoning_details=tuple(reasoning_details), has_metadata=has_metadata, model=model.id,
-            cost=cost, plugin_name=GoogleAI.name, currency=currency, citations=citations, web_links=web_links,
+            type=role,
+            content=''.join(content_parts),
+            reasoning=''.join(reasoning_parts),
+            reasoning_details=tuple(reasoning_details),
+            has_metadata=has_metadata,
+            model=model.id,
+            cost=cost,
+            plugin_name=GoogleAI.name,
+            currency=currency,
+            citations=citations,
+            web_links=web_links,
         )
 
 

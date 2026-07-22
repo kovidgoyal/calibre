@@ -50,7 +50,7 @@ def clean_ascii_chars(txt, charlist=None):
 
 def allowed(x):
     x = ord(x)
-    return (x != 127 and (31 < x < 0xd7ff or x in (9, 10, 13))) or (0xe000 < x < 0xfffd) or (0x10000 < x < 0x10ffff)
+    return (x != 127 and (31 < x < 0xD7FF or x in (9, 10, 13))) or (0xE000 < x < 0xFFFD) or (0x10000 < x < 0x10FFFF)
 
 
 def py_clean_xml_chars(unicode_string):
@@ -71,6 +71,7 @@ def test_clean_xml_chars():
 #
 # @param text The HTML (or XML) source text.
 # @return The plain text, as a Unicode string, if necessary.
+
 
 def unescape(text, rm=False, rchar=''):
     def fixup(m, rm=rm, rchar=rchar):
@@ -93,4 +94,5 @@ def unescape(text, rm=False, rchar=''):
         if rm:
             return rchar  # replace by char
         return text  # leave as is
+
     return re.sub(r'&#?\w+;', fixup, text)

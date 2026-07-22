@@ -21,9 +21,7 @@ class newslaundry(BasicNewsRecipe):
 
     # keep_only_tags = [classes('headline subheadline authorWithTimeStamp story-card')]
 
-    feeds = [
-        ('Articles', 'https://www.newslaundry.com/stories.rss?time-period=last-7-days')
-    ]
+    feeds = [('Articles', 'https://www.newslaundry.com/stories.rss?time-period=last-7-days')]
 
     # def preprocess_html(self, soup):
     #     if h1 := soup.find(**classes('headline')):

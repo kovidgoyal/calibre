@@ -23,9 +23,18 @@ def resize(x):
 
 
 m_fr = {
-    1: 'Janvier', 2: 'Février', 3: 'Mars', 4: 'Avril',
-    5: 'Mai', 6: 'Juin', 7: 'Juillet', 8: 'Août',
-    9: 'Septembre', 10: 'Octobre', 11: 'Novembre', 12: 'Décembre'
+    1: 'Janvier',
+    2: 'Février',
+    3: 'Mars',
+    4: 'Avril',
+    5: 'Mai',
+    6: 'Juin',
+    7: 'Juillet',
+    8: 'Août',
+    9: 'Septembre',
+    10: 'Octobre',
+    11: 'Novembre',
+    12: 'Décembre',
 }
 
 
@@ -47,8 +56,7 @@ def json_to_html(raw):
     lede = ''
     if data['promo_items']['basic'].get('type', '') == 'image':
         lede = '<br><img src="{}"><div class="figc">{}</div>\n'.format(
-            resize(data['promo_items']['basic']['resized_image_urls']),
-            data['promo_items']['basic'].get('caption', '')
+            resize(data['promo_items']['basic']['resized_image_urls']), data['promo_items']['basic'].get('caption', '')
         )
 
     body = ''
@@ -56,9 +64,7 @@ def json_to_html(raw):
         if c.get('type', '') == 'text':
             body += '\t<p>' + c['content'] + '</p>\n'
         if c.get('type', '') == 'image':
-            body += '\t<br><img src="{}"><div class="figc">{}</div>\n'.format(
-                resize(c['resized_image_urls']), c.get('caption', '')
-            )
+            body += '\t<br><img src="{}"><div class="figc">{}</div>\n'.format(resize(c['resized_image_urls']), c.get('caption', ''))
         if c.get('type', '') == 'header':
             body += '\t<h4>' + c['content'] + '</h4>\n'
         if c.get('type', '') == 'list':
@@ -104,7 +110,7 @@ class Liberation(BasicNewsRecipe):
         'days': {
             'short': 'Oldest article to download from this news source. In days ',
             'long': 'For example, 0.5, gives you articles from the past 12 hours',
-            'default': str(oldest_article)
+            'default': str(oldest_article),
         }
     }
 
@@ -129,7 +135,7 @@ class Liberation(BasicNewsRecipe):
         ('Sports', 'https://www.liberation.fr/arc/outboundfeeds/rss-all/category/sports/?outputType=xml'),
         ('Sciences', 'https://www.liberation.fr/arc/outboundfeeds/rss-all/category/sciences/?outputType=xml'),
         ('Forums & événements', 'https://www.liberation.fr/arc/outboundfeeds/rss-all/category/forums/?outputType=xml'),
-        ('Libération', 'https://www.liberation.fr/arc/outboundfeeds/rss/?outputType=xml')
+        ('Libération', 'https://www.liberation.fr/arc/outboundfeeds/rss/?outputType=xml'),
     ]
 
     def get_obfuscated_article(self, url):
@@ -140,24 +146,13 @@ class Liberation(BasicNewsRecipe):
             'website': 'liberation',
             'website_url': str(slug),
             'published': 'true',
-            '_sourceInclude': '_id,content_restrictions.content_code,credits,promo_items.basic.caption,promo_items.basic.credits,promo_items.basic.url,promo_items.basic.height,promo_items.basic.width,promo_items.basic.resized_image_urls,promo_items.basic.last_updated_date,promo_items.lead_art.caption,promo_items.lead_art.credits,promo_items.lead_art.url,promo_items.lead_art.height,promo_items.lead_art.width,promo_items.lead_art.resized_image_urls,promo_items.lead_art.last_updated_date,source.additional_properties.legacy_url,content_elements,source.source_id,taxonomy.primary_section.additional_properties.original._admin.alias_ids,taxonomy.primary_section.additional_properties.original.navigation.nav_title,taxonomy.primary_section._id,taxonomy.primary_section.name,taxonomy.primary_section.path,taxonomy.tags,label,subheadlines.basic,headlines.basic,source.additional_properties.legacy_url,source.source_type,first_publish_date,display_date,canonical_url'  # noqa: E501
+            '_sourceInclude': '_id,content_restrictions.content_code,credits,promo_items.basic.caption,promo_items.basic.credits,promo_items.basic.url,promo_items.basic.height,promo_items.basic.width,promo_items.basic.resized_image_urls,promo_items.basic.last_updated_date,promo_items.lead_art.caption,promo_items.lead_art.credits,promo_items.lead_art.url,promo_items.lead_art.height,promo_items.lead_art.width,promo_items.lead_art.resized_image_urls,promo_items.lead_art.last_updated_date,source.additional_properties.legacy_url,content_elements,source.source_id,taxonomy.primary_section.additional_properties.original._admin.alias_ids,taxonomy.primary_section.additional_properties.original.navigation.nav_title,taxonomy.primary_section._id,taxonomy.primary_section.name,taxonomy.primary_section.path,taxonomy.tags,label,subheadlines.basic,headlines.basic,source.additional_properties.legacy_url,source.source_type,first_publish_date,display_date,canonical_url',  # noqa: E501
         }
-        headers = {
-            'cache-control': 'public, max-age=5',
-            'x-api-key': b64.decode(),
-            'accept-encoding': 'gzip',
-            'user-agent': 'okhttp/4.11.0'
-        }
+        headers = {'cache-control': 'public, max-age=5', 'x-api-key': b64.decode(), 'accept-encoding': 'gzip', 'user-agent': 'okhttp/4.11.0'}
         api = 'https://arc.api.liberation.fr/content/v4/?' + urlencode(query, safe='()!', quote_via=quote)
-        rq = Request(
-            url=api,
-            headers=headers
-        )
+        rq = Request(url=api, headers=headers)
         raw = br.open(rq).read()
-        data = {
-            'data': json_to_html(raw),
-            'url': url
-        }
+        data = {'data': json_to_html(raw), 'url': url}
         return data
 
     def get_cover_url(self):

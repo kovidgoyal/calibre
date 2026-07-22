@@ -4,12 +4,13 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class AdvancedUserRecipe1718125614(BasicNewsRecipe):
-    title          = 'Dual SHOCKERS'
+    title = 'Dual SHOCKERS'
     language = 'en'
     __author__ = 'Spicy Poison'
     description = (
-            'Over the past 15+ years Dual SHOCKERS become a staple of the games media landscape.'
-            ' Their team of gaming experts have covered some of the biggest events in the gaming industry.')
+        'Over the past 15+ years Dual SHOCKERS become a staple of the games media landscape.'
+        ' Their team of gaming experts have covered some of the biggest events in the gaming industry.'
+    )
     publisher = 'Valnet Publishing Group'
     oldest_article = 7
     max_articles_per_feed = 50
@@ -19,9 +20,9 @@ class AdvancedUserRecipe1718125614(BasicNewsRecipe):
     encoding = 'utf-8'
     masthead_url = 'https://www.valnetinc.com/images/brand/ds-logo-full-colored-dark.svg'
     remove_empty_feeds = True
-    auto_cleanup   = True
+    auto_cleanup = True
 
-    feeds          = [
+    feeds = [
         ('Gaming News', 'https://www.dualshockers.com/feed/video-game-news/'),
         ('Originals', 'https://www.dualshockers.com/feed/originals/'),
         ('Interviews', 'https://www.dualshockers.com/feed/interviews/'),

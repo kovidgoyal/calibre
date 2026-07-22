@@ -15,15 +15,13 @@ class DeutscheWelle(BasicNewsRecipe):
     ignore_duplicate_articles = {'title', 'url'}
     remove_attributes = ['height', 'width', 'style']
 
-    keep_only_tags = [
-        dict(name='article')
-    ]
+    keep_only_tags = [dict(name='article')]
 
     recipe_specific_options = {
         'days': {
             'short': 'Oldest article to download from this news source. In days ',
             'long': 'For example, 0.5, gives you articles from the past 12 hours',
-            'default': str(oldest_article)
+            'default': str(oldest_article),
         }
     }
 
@@ -33,11 +31,7 @@ class DeutscheWelle(BasicNewsRecipe):
         if d and isinstance(d, str):
             self.oldest_article = float(d)
 
-    remove_tags = [
-        dict(name=['footer', 'source']),
-        dict(attrs={'data-tracking-name':'sharing-icons-inline'}),
-        classes('kicker advertisement vjs-wrapper')
-    ]
+    remove_tags = [dict(name=['footer', 'source']), dict(attrs={'data-tracking-name': 'sharing-icons-inline'}), classes('kicker advertisement vjs-wrapper')]
 
     # watch out https://www.dw.com/de/service/rss/s-9773 for description of possible rss feeds
     feeds = [

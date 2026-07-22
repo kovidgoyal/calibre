@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
@@ -13,9 +13,8 @@ from calibre.utils.localization import _
 
 
 class PluginWidget(Widget, Ui_Form):
-
     TITLE = _('Comic input')
-    HELP = _('Options specific to')+' comic '+_('input')
+    HELP = _('Options specific to') + ' comic ' + _('input')
     COMMIT_NAME = 'comic_input'
     ICON = 'mimetypes/png.png'
 

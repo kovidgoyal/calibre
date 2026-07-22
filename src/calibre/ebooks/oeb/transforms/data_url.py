@@ -11,9 +11,9 @@ from polyglot.builtins import as_bytes
 
 
 class DataURL:
-
     def __call__(self, oeb, opts):
         from calibre.utils.imghdr import what
+
         self.log = oeb.log
         attr_path = XPath('//h:img[@src]')
         for item in oeb.spine:
@@ -30,6 +30,7 @@ class DataURL:
                 if ';base64' in header:
                     data = re.sub(r'\s+', '', data)
                     from polyglot.binary import from_base64_bytes
+
                     try:
                         data = from_base64_bytes(data)
                     except Exception:
@@ -47,6 +48,7 @@ class DataURL:
     def convert_image_data_uri(self, data, fmt, oeb):
         self.log('Found image encoded as data URI converting it to normal image')
         from calibre import guess_type
+
         item_id, item_href = oeb.manifest.generate('data-url-image', 'data-url-image.' + fmt)
         oeb.manifest.add(item_id, item_href, guess_type(item_href)[0], data=data)
         return item_href

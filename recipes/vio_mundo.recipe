@@ -17,7 +17,7 @@ class VioMundo(BasicNewsRecipe):
     no_stylesheets = True
     remove_javascript = True
 
-    feeds = [(u'Blog VioMundo', u'http://www.viomundo.com.br/feed')]
+    feeds = [('Blog VioMundo', 'http://www.viomundo.com.br/feed')]
 
     reverse_article_order = True
 
@@ -26,7 +26,4 @@ class VioMundo(BasicNewsRecipe):
 
     remove_tags_after = dict(id='BlogContent')
 
-    preprocess_regexps = [
-        (re.compile(r'\|\ <u>.*</p>'),
-         lambda match: '</p>')
-    ]
+    preprocess_regexps = [(re.compile(r'\|\ <u>.*</p>'), lambda match: '</p>')]

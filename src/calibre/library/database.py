@@ -1,4 +1,4 @@
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 '''
@@ -31,16 +31,16 @@ class Concatenate:
             if not self.ans:
                 return None
             if self.sep:
-                return self.ans[:-len(self.sep)]
+                return self.ans[: -len(self.sep)]
             return self.ans
         except Exception:
             import traceback
+
             traceback.print_exc()
             raise
 
 
 class Connection(sqlite.Connection):
-
     def get(self, *args, **kw):
         ans = self.execute(*args)
         if not kw.get('all', True):
@@ -54,7 +54,7 @@ class Connection(sqlite.Connection):
 def _connect(path):
     if isinstance(path, str):
         path = path.encode('utf-8')
-    conn = sqlite.connect(path, factory=Connection, detect_types=sqlite.PARSE_DECLTYPES|sqlite.PARSE_COLNAMES)
+    conn = sqlite.connect(path, factory=Connection, detect_types=sqlite.PARSE_DECLTYPES | sqlite.PARSE_COLNAMES)
     conn.row_factory = lambda cursor, row: list(row)
     conn.create_aggregate('concat', 1, Concatenate)
     title_pat = re.compile(r'^(A|The|An)\s+', re.IGNORECASE)
@@ -65,12 +65,12 @@ def _connect(path):
             prep = match.group(1)
             title = title.replace(prep, '') + ', ' + prep
         return title.strip()
+
     conn.create_function('title_sort', 1, title_sort)
     return conn
 
 
 class LibraryDatabase:
-
     @staticmethod
     def books_in_old_database(path):
         """
@@ -81,10 +81,15 @@ class LibraryDatabase:
         book = cur.fetchone()
         while book:
             id = book[0]
-            meta = {'title':book[1], 'authors':book[2], 'publisher':book[3],
-                     'tags':book[5], 'comments':book[7], 'rating':book[8],
-                     'timestamp':datetime.datetime.strptime(book[6], '%Y-%m-%d %H:%M:%S'),
-                    }
+            meta = {
+                'title': book[1],
+                'authors': book[2],
+                'publisher': book[3],
+                'tags': book[5],
+                'comments': book[7],
+                'rating': book[8],
+                'timestamp': datetime.datetime.strptime(book[6], '%Y-%m-%d %H:%M:%S'),
+            }
             cover = {}
             query = conn.execute('select uncompressed_size, data from books_cover where id=?', (id,)).fetchone()
             if query:
@@ -92,14 +97,14 @@ class LibraryDatabase:
             query = conn.execute('select extension, uncompressed_size, data from books_data where id=?', (id,)).fetchall()
             formats = {}
             for row in query:
-                formats[row[0]] = {'uncompressed_size':row[1], 'data':row[2]}
+                formats[row[0]] = {'uncompressed_size': row[1], 'data': row[2]}
             yield meta, cover, formats
             book = cur.fetchone()
 
     @staticmethod
     def sizeof_old_database(path):
         conn = sqlite.connect(path)
-        ans  = conn.execute('SELECT COUNT(id) from books_meta').fetchone()[0]
+        ans = conn.execute('SELECT COUNT(id) from books_meta').fetchone()[0]
         conn.close()
         return ans
 
@@ -110,8 +115,10 @@ class LibraryDatabase:
             authors = book['authors']
             if not authors:
                 authors = 'Unknown'
-            obj = conn.execute('INSERT INTO books(title, timestamp, author_sort) VALUES (?,?,?)',
-                               (book['title'], book['timestamp'], authors))
+            obj = conn.execute(
+                'INSERT INTO books(title, timestamp, author_sort) VALUES (?,?,?)',
+                (book['title'], book['timestamp'], authors),
+            )
             id = obj.lastrowid
             authors = string_to_authors(authors)
             for a in authors:
@@ -123,13 +130,11 @@ class LibraryDatabase:
                 conn.execute('INSERT INTO books_authors_link(book, author) VALUES (?,?)', (id, aid))
             if book['publisher']:
                 candidate = conn.execute('SELECT id from publishers WHERE name=?', (book['publisher'],)).fetchone()
-                pid = candidate[0] if candidate else conn.execute('INSERT INTO publishers(name) VALUES (?)',
-                                                              (book['publisher'],)).lastrowid
+                pid = candidate[0] if candidate else conn.execute('INSERT INTO publishers(name) VALUES (?)', (book['publisher'],)).lastrowid
                 conn.execute('INSERT INTO books_publishers_link(book, publisher) VALUES (?,?)', (id, pid))
             if book['rating']:
-                candidate = conn.execute('SELECT id from ratings WHERE rating=?', (2*book['rating'],)).fetchone()
-                rid = candidate[0] if candidate else conn.execute('INSERT INTO ratings(rating) VALUES (?)',
-                                                              (2*book['rating'],)).lastrowid
+                candidate = conn.execute('SELECT id from ratings WHERE rating=?', (2 * book['rating'],)).fetchone()
+                rid = candidate[0] if candidate else conn.execute('INSERT INTO ratings(rating) VALUES (?)', (2 * book['rating'],)).lastrowid
                 conn.execute('INSERT INTO books_ratings_link(book, rating) VALUES (?,?)', (id, rid))
             tags = book['tags']
             if tags:
@@ -148,15 +153,17 @@ class LibraryDatabase:
                 conn.execute('INSERT INTO books_tags_link(book, tag) VALUES (?,?)', (id, tid))
             comments = book['comments']
             if comments:
-                conn.execute('INSERT INTO comments(book, text) VALUES (?, ?)',
-                             (id, comments))
+                conn.execute('INSERT INTO comments(book, text) VALUES (?, ?)', (id, comments))
             if cover:
-                conn.execute('INSERT INTO covers(book, uncompressed_size, data) VALUES (?, ?, ?)',
-                             (id, cover['uncompressed_size'], cover['data']))
+                conn.execute(
+                    'INSERT INTO covers(book, uncompressed_size, data) VALUES (?, ?, ?)',
+                    (id, cover['uncompressed_size'], cover['data']),
+                )
             for format in formats.keys():
-                conn.execute('INSERT INTO data(book, format, uncompressed_size, data) VALUES (?, ?, ?, ?)',
-                             (id, format, formats[format]['uncompressed_size'],
-                              formats[format]['data']))
+                conn.execute(
+                    'INSERT INTO data(book, format, uncompressed_size, data) VALUES (?, ?, ?, ?)',
+                    (id, format, formats[format]['uncompressed_size'], formats[format]['data']),
+                )
             conn.commit()
             count += 1
             if progress:
@@ -165,7 +172,7 @@ class LibraryDatabase:
     @staticmethod
     def create_version1(conn):
         conn.executescript(
-        '''
+            '''
         /**** books table *****/
         CREATE TABLE books ( id        INTEGER PRIMARY KEY AUTOINCREMENT,
                              title     TEXT NOT NULL DEFAULT 'Unknown' COLLATE NOCASE,
@@ -582,7 +589,7 @@ class LibraryDatabase:
     @staticmethod
     def upgrade_version1(conn):
         conn.executescript(
-'''
+            '''
 /***** authors_sort table *****/
         ALTER TABLE books ADD COLUMN author_sort TEXT COLLATE NOCASE;
         UPDATE books SET author_sort=(SELECT name FROM authors WHERE id=\
@@ -636,24 +643,25 @@ class LibraryDatabase:
         DROP TRIGGER publishers_insert_trg;
         DROP TRIGGER publishers_update_trg;
 '''
-                                )
+        )
         conn.execute('pragma user_version=2')
         conn.commit()
 
     @staticmethod
     def upgrade_version2(conn):
         conn.executescript(
-'''
+            '''
 /***** Add ISBN column ******/
 ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
-''')
+'''
+        )
         conn.execute('pragma user_version=3')
         conn.commit()
 
     @staticmethod
     def upgrade_version3(conn):
         conn.executescript(
-'''
+            '''
 /***** Add series_index column to meta view ******/
     DROP VIEW meta;
     CREATE VIEW meta AS
@@ -670,14 +678,15 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
            sort,
            author_sort
     FROM books;
-''')
+'''
+        )
         conn.execute('pragma user_version=4')
         conn.commit()
 
     @staticmethod
     def upgrade_version4(conn):
         conn.executescript(
-'''
+            '''
 /***** Add formats column to meta view ******/
     DROP VIEW meta;
     CREATE VIEW meta AS
@@ -695,14 +704,15 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
            author_sort,
            (SELECT concat(format) FROM data WHERE data.book=books.id) formats
     FROM books;
-''')
+'''
+        )
         conn.execute('pragma user_version=5')
         conn.commit()
 
     @staticmethod
     def upgrade_version5(conn):
         conn.executescript(
-        '''
+            '''
         DROP TRIGGER fkc_delete_books_tags_link;
         CREATE TRIGGER fkc_delete_books_tags_link
         BEFORE DELETE ON tags
@@ -712,7 +722,8 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
                 THEN RAISE(ABORT, 'Foreign key violation: tag is still referenced')
             END;
         END;
-        ''')
+        '''
+        )
         conn.execute('pragma user_version=6')
         conn.commit()
 
@@ -748,8 +759,7 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
                 THEN RAISE(ABORT, 'Foreign key violation: series is still referenced')
             END;
         END;
-        '''
-        )
+        ''')
         conn.execute('pragma user_version=8')
         conn.commit()
 
@@ -770,7 +780,7 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
     def upgrade_version10(conn):
         for id, author_sort in conn.execute('SELECT id, author_sort FROM books').fetchall():
             if not author_sort:
-                aus = conn.execute('SELECT authors FROM meta WHERE id=?',(id,)).fetchone()[0]
+                aus = conn.execute('SELECT authors FROM meta WHERE id=?', (id,)).fetchone()[0]
                 conn.execute('UPDATE books SET author_sort=? WHERE id=?', (aus, id))
         conn.execute('pragma user_version=11')
         conn.commit()
@@ -778,7 +788,7 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
     @staticmethod
     def upgrade_version11(conn):
         conn.executescript(
-'''
+            '''
 /***** Add isbn column to meta view ******/
     DROP VIEW meta;
     CREATE VIEW meta AS
@@ -797,7 +807,8 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
            (SELECT concat(format) FROM data WHERE data.book=books.id) formats,
            isbn
     FROM books;
-''')
+'''
+        )
         conn.execute('pragma user_version=12')
         conn.commit()
 
@@ -807,7 +818,7 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
         if row_factory:
             self.conn.row_factory = sqlite.Row
         self.cache = []
-        self.data  = []
+        self.data = []
         if self.user_version == 0:  # No tables have been created
             LibraryDatabase.create_version1(self.conn)
         i = 0
@@ -840,31 +851,31 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
         Rebuild self.data and self.cache. Filter results are lost.
         """
         FIELDS = {
-                  'title'    : 'sort',
-                  'authors'  : 'author_sort',
-                  'publisher': 'publisher',
-                  'size'     : 'size',
-                  'date'     : 'timestamp',
-                  'timestamp': 'timestamp',
-                  'formats'  : 'formats',
-                  'rating'   : 'rating',
-                  'tags'     : 'tags',
-                  'series'   : 'series',
-                 }
+            'title': 'sort',
+            'authors': 'author_sort',
+            'publisher': 'publisher',
+            'size': 'size',
+            'date': 'timestamp',
+            'timestamp': 'timestamp',
+            'formats': 'formats',
+            'rating': 'rating',
+            'tags': 'tags',
+            'series': 'series',
+        }
         field = FIELDS[sort_field]
         order = 'ASC'
         if not ascending:
             order = 'DESC'
         sort = field + ' ' + order
         if field == 'series':
-            sort += ',series_index '+order
+            sort += ',series_index ' + order
         elif field == 'title':
             sort += ',author_sort ' + order
         else:
-            sort += ',title '+order
+            sort += ',title ' + order
 
-        self.cache = self.conn.get('SELECT * from meta ORDER BY '+sort)
-        self.data  = self.cache
+        self.cache = self.conn.get('SELECT * from meta ORDER BY ' + sort)
+        self.data = self.cache
         self.conn.commit()
 
     def refresh_ids(self, ids):
@@ -922,7 +933,7 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
         if not index_is_id:
             return self.data[index][1]
         try:
-            return self.conn.get('SELECT title FROM meta WHERE id=?',(index,), all=False)
+            return self.conn.get('SELECT title FROM meta WHERE id=?', (index,), all=False)
         except Exception:
             return _('Unknown')
 
@@ -934,17 +945,17 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
         if not index_is_id:
             return self.data[index][2]
         try:
-            return self.conn.get('SELECT authors FROM meta WHERE id=?',(index,), all=False)
+            return self.conn.get('SELECT authors FROM meta WHERE id=?', (index,), all=False)
         except Exception:
             pass
 
     def author_id(self, index, index_is_id=False):
-        id  = index if index_is_id else self.id(index)
+        id = index if index_is_id else self.id(index)
         return self.conn.get('SELECT author from books_authors_link WHERE book=?', (id,), all=False)
 
     def isbn(self, idx, index_is_id=False):
         id = idx if index_is_id else self.id(idx)
-        return self.conn.get('SELECT isbn FROM books WHERE id=?',(id,), all=False)
+        return self.conn.get('SELECT isbn FROM books WHERE id=?', (id,), all=False)
 
     def author_sort(self, index, index_is_id=False):
         id = index if index_is_id else self.id(index)
@@ -956,7 +967,7 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
         return self.data[index][3]
 
     def publisher_id(self, index, index_is_id=False):
-        id  = index if index_is_id else self.id(index)
+        id = index if index_is_id else self.id(index)
         return self.conn.get('SELECT publisher from books_publishers_link WHERE book=?', (id,), all=False)
 
     def rating(self, index, index_is_id=False):
@@ -992,7 +1003,7 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
         return ','.join(matches)
 
     def series_id(self, index, index_is_id=False):
-        id  = index if index_is_id else self.id(index)
+        id = index if index_is_id else self.id(index)
         return self.conn.get('SELECT series from books_series_link WHERE book=?', (id,), all=False)
 
     def series(self, index, index_is_id=False):
@@ -1015,8 +1026,7 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
         Return an ordered list of all books in the series.
         The list contains book ids.
         """
-        ans = self.conn.get('SELECT book from books_series_link WHERE series=?',
-                                (series_id,))
+        ans = self.conn.get('SELECT book from books_series_link WHERE series=?', (series_id,))
         if not ans:
             return []
         ans = [id[0] for id in ans]
@@ -1037,12 +1047,12 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
         return self.conn.get('SELECT text FROM comments WHERE book=?', (id,), all=False)
 
     def formats(self, index, index_is_id=False):
-        """ Return available formats as a comma separated list """
+        """Return available formats as a comma separated list"""
         id = index if index_is_id else self.id(index)
         return self.conn.get('SELECT concat(format) FROM data WHERE data.book=?', (id,), all=False)
 
     def sizeof_format(self, index, format, index_is_id=False):
-        """ Return size of C{format} for book C{index} in bytes"""
+        """Return size of C{format} for book C{index} in bytes"""
         id = index if index_is_id else self.id(index)
         format = format.upper()
         return self.conn.get('SELECT uncompressed_size FROM data WHERE data.book=? AND data.format=?', (id, format), all=False)
@@ -1052,43 +1062,34 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
         return decompress(self.conn.get('SELECT data FROM data WHERE book=? AND format=?', (id, format), all=False))
 
     def all_series(self):
-        return [(i[0], i[1]) for i in
-                self.conn.get('SELECT id, name FROM series')]
+        return [(i[0], i[1]) for i in self.conn.get('SELECT id, name FROM series')]
 
     def series_name(self, series_id):
-        return self.conn.get(f'SELECT name FROM series WHERE id={series_id}',
-                all=False)
+        return self.conn.get(f'SELECT name FROM series WHERE id={series_id}', all=False)
 
     def author_name(self, author_id):
-        return self.conn.get(f'SELECT name FROM authors WHERE id={author_id}',
-                all=False)
+        return self.conn.get(f'SELECT name FROM authors WHERE id={author_id}', all=False)
 
     def tag_name(self, tag_id):
-        return self.conn.get(f'SELECT name FROM tags WHERE id={tag_id}',
-                all=False)
+        return self.conn.get(f'SELECT name FROM tags WHERE id={tag_id}', all=False)
 
     def all_authors(self):
-        return [(i[0], i[1]) for i in
-                self.conn.get('SELECT id, name FROM authors')]
+        return [(i[0], i[1]) for i in self.conn.get('SELECT id, name FROM authors')]
 
     def all_author_names(self):
-        return list(filter(None, [i[0].strip().replace('|', ',') for i in self.conn.get(
-            'SELECT name FROM authors')]))
+        return list(filter(None, [i[0].strip().replace('|', ',') for i in self.conn.get('SELECT name FROM authors')]))
 
     def all_publishers(self):
-        return [(i[0], i[1]) for i in
-                self.conn.get('SELECT id, name FROM publishers')]
+        return [(i[0], i[1]) for i in self.conn.get('SELECT id, name FROM publishers')]
 
     def all_tags(self):
         return [i[0].strip() for i in self.conn.get('SELECT name FROM tags') if i[0].strip()]
 
     def all_tags2(self):
-        return [(i[0], i[1]) for i in
-                self.conn.get('SELECT id, name FROM tags')]
+        return [(i[0], i[1]) for i in self.conn.get('SELECT id, name FROM tags')]
 
     def all_titles(self):
-        return [(i[0], i[1]) for i in
-                self.conn.get('SELECT id, title FROM books')]
+        return [(i[0], i[1]) for i in self.conn.get('SELECT id, title FROM books')]
 
     def conversion_options(self, id, format):
         data = self.conn.get('SELECT data FROM conversion_options WHERE book=? AND format=?', (id, format.upper()), all=False)
@@ -1104,13 +1105,19 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
             ids = f'({ids[0]})'
         else:
             ids = repr(ids)
-        return self.conn.get(f'''
+        return (
+            self.conn.get(
+                f'''
             SELECT data FROM conversion_options WHERE book IN {ids} AND
-        format=? LIMIT 1''', (format,), all=False) is not None
+        format=? LIMIT 1''',
+                (format,),
+                all=False,
+            )
+            is not None
+        )
 
     def delete_conversion_options(self, id, format, commit=True):
-        self.conn.execute('DELETE FROM conversion_options WHERE book=? AND format=?',
-                (id, format.upper()))
+        self.conn.execute('DELETE FROM conversion_options WHERE book=? AND format=?', (id, format.upper()))
         if commit:
             self.conn.commit()
 
@@ -1130,13 +1137,10 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
             ext = ''
         ext = ext.lower()
         if ext in exts:
-            self.conn.execute('UPDATE data SET data=? WHERE format=? AND book=?',
-                              (data, ext, id))
-            self.conn.execute('UPDATE data SET uncompressed_size=? WHERE format=? AND book=?',
-                              (usize, ext, id))
+            self.conn.execute('UPDATE data SET data=? WHERE format=? AND book=?', (data, ext, id))
+            self.conn.execute('UPDATE data SET uncompressed_size=? WHERE format=? AND book=?', (usize, ext, id))
         else:
-            self.conn.execute('INSERT INTO data(book, format, uncompressed_size, data) VALUES (?, ?, ?, ?)',
-                              (id, ext, usize, data))
+            self.conn.execute('INSERT INTO data(book, format, uncompressed_size, data) VALUES (?, ?, ?, ?)', (id, ext, usize, data))
         self.conn.commit()
 
     def remove_format(self, index, ext, index_is_id=False):
@@ -1149,7 +1153,7 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
         Convenience method for setting the title, authors, publisher or rating
         """
         id = self.data[row][0]
-        col = {'title':1, 'authors':2, 'publisher':3, 'rating':4, 'tags':7}[column]
+        col = {'title': 1, 'authors': 2, 'publisher': 3, 'rating': 4, 'tags': 7}[column]
 
         self.data[row][col] = val
         for item in self.cache:
@@ -1174,14 +1178,14 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
         if oid:
             self.conn.execute('UPDATE conversion_options SET data=? WHERE id=?', (data, oid))
         else:
-            self.conn.execute('INSERT INTO conversion_options(book,format,data) VALUES (?,?,?)', (id,format.upper(),data))
+            self.conn.execute('INSERT INTO conversion_options(book,format,data) VALUES (?,?,?)', (id, format.upper(), data))
         self.conn.commit()
 
     def set_authors(self, id, authors):
         """
         @param authors: A list of authors.
         """
-        self.conn.execute('DELETE FROM books_authors_link WHERE book=?',(id,))
+        self.conn.execute('DELETE FROM books_authors_link WHERE book=?', (id,))
         for a in authors:
             if not a:
                 continue
@@ -1214,7 +1218,7 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
         self.conn.commit()
 
     def set_publisher(self, id, publisher):
-        self.conn.execute('DELETE FROM books_publishers_link WHERE book=?',(id,))
+        self.conn.execute('DELETE FROM books_publishers_link WHERE book=?', (id,))
         if publisher:
             pub = self.conn.get('SELECT id from publishers WHERE name=?', (publisher,), all=False)
             if pub:
@@ -1257,14 +1261,12 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
             else:
                 tid = self.conn.execute('INSERT INTO tags(name) VALUES(?)', (tag,)).lastrowid
 
-            if not self.conn.get('SELECT book FROM books_tags_link WHERE book=? AND tag=?',
-                                        (id, tid), all=False):
-                self.conn.execute('INSERT INTO books_tags_link(book, tag) VALUES (?,?)',
-                              (id, tid))
+            if not self.conn.get('SELECT book FROM books_tags_link WHERE book=? AND tag=?', (id, tid), all=False):
+                self.conn.execute('INSERT INTO books_tags_link(book, tag) VALUES (?,?)', (id, tid))
         self.conn.commit()
 
     def set_series(self, id, series):
-        self.conn.execute('DELETE FROM books_series_link WHERE book=?',(id,))
+        self.conn.execute('DELETE FROM books_series_link WHERE book=?', (id,))
         if series:
             s = self.conn.get('SELECT id from series WHERE name=?', (series,), all=False)
             if s:
@@ -1278,7 +1280,7 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
             self.data[row][9] = series
 
     def remove_unused_series(self):
-        for id, in self.conn.get('SELECT id FROM series'):
+        for (id,) in self.conn.get('SELECT id FROM series'):
             if not self.conn.get('SELECT id from books_series_link WHERE series=?', (id,)):
                 self.conn.execute('DELETE FROM series WHERE id=?', (id,))
         self.conn.commit()
@@ -1293,7 +1295,7 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
 
     def set_rating(self, id, rating):
         rating = int(rating)
-        self.conn.execute('DELETE FROM books_ratings_link WHERE book=?',(id,))
+        self.conn.execute('DELETE FROM books_ratings_link WHERE book=?', (id,))
         rat = self.conn.get('SELECT id FROM ratings WHERE rating=?', (rating,), all=False)
         rat = rat or self.conn.execute('INSERT INTO ratings(rating) VALUES (?)', (rating,)).lastrowid
         self.conn.execute('INSERT INTO books_ratings_link(book, rating) VALUES (?,?)', (id, rat))
@@ -1304,8 +1306,7 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
         if data:
             usize = len(data)
             data = compress(data)
-            self.conn.execute('INSERT INTO covers(book, uncompressed_size, data) VALUES (?,?,?)',
-                              (id, usize, sqlite.Binary(data)))
+            self.conn.execute('INSERT INTO covers(book, uncompressed_size, data) VALUES (?,?,?)', (id, usize, sqlite.Binary(data)))
         self.conn.commit()
 
     def set_metadata(self, id, mi):
@@ -1350,8 +1351,10 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
                 continue
             series_index = 1 if mi.series_index is None else mi.series_index
             aus = mi.author_sort or ', '.join(mi.authors)
-            obj = self.conn.execute('INSERT INTO books(title, uri, series_index, author_sort) VALUES (?, ?, ?, ?)',
-                              (mi.title, uri, series_index, aus))
+            obj = self.conn.execute(
+                'INSERT INTO books(title, uri, series_index, author_sort) VALUES (?, ?, ?, ?)',
+                (mi.title, uri, series_index, aus),
+            )
             id = obj.lastrowid
             self.conn.commit()
             self.set_metadata(id, mi)
@@ -1360,16 +1363,18 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
             usize = stream.tell()
             stream.seek(0)
 
-            self.conn.execute('INSERT INTO data(book, format, uncompressed_size, data) VALUES (?,?,?,?)',
-                              (id, format, usize, sqlite.Binary(compress(stream.read()))))
+            self.conn.execute(
+                'INSERT INTO data(book, format, uncompressed_size, data) VALUES (?,?,?,?)',
+                (id, format, usize, sqlite.Binary(compress(stream.read()))),
+            )
             if not hasattr(path, 'read'):
                 stream.close()
         self.conn.commit()
         if duplicates:
-            paths    = tuple(duplicate[0] for duplicate in duplicates)
-            formats  = tuple(duplicate[1] for duplicate in duplicates)
+            paths = tuple(duplicate[0] for duplicate in duplicates)
+            formats = tuple(duplicate[1] for duplicate in duplicates)
             metadata = tuple(duplicate[2] for duplicate in duplicates)
-            uris     = tuple(duplicate[3] for duplicate in duplicates)
+            uris = tuple(duplicate[3] for duplicate in duplicates)
             return (paths, formats, metadata, uris)
         return None
 
@@ -1384,8 +1389,7 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
         yield from feeds
 
     def get_feed(self, id):
-        return self.conn.get(f'SELECT script FROM feeds WHERE id={id}',
-                all=False)
+        return self.conn.get(f'SELECT script FROM feeds WHERE id={id}', all=False)
 
     def update_feed(self, id, script, title):
         self.conn.execute('UPDATE feeds set title=? WHERE id=?', (title, id))
@@ -1402,15 +1406,13 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
             title = title.decode('utf-8')
         if isinstance(script, bytes):
             script = script.decode('utf-8')
-        self.conn.execute('INSERT INTO feeds(title, script) VALUES (?, ?)',
-                                  (title, script))
+        self.conn.execute('INSERT INTO feeds(title, script) VALUES (?, ?)', (title, script))
         self.conn.commit()
 
     def set_feeds(self, feeds):
         self.conn.execute('DELETE FROM feeds')
         for title, script in feeds:
-            self.conn.execute('INSERT INTO feeds(title, script) VALUES (?, ?)',
-                                  (title, script))
+            self.conn.execute('INSERT INTO feeds(title, script) VALUES (?, ?)', (title, script))
         self.conn.commit()
 
     def delete_book(self, id):
@@ -1434,8 +1436,8 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
             aum = [a.strip().replace('|', ',') for a in aum.split(',')]
         mi = MetaInformation(self.title(idx, index_is_id=index_is_id), aum)
         mi.author_sort = self.author_sort(idx, index_is_id=index_is_id)
-        mi.comments    = self.comments(idx, index_is_id=index_is_id)
-        mi.publisher   = self.publisher(idx, index_is_id=index_is_id)
+        mi.comments = self.comments(idx, index_is_id=index_is_id)
+        mi.publisher = self.publisher(idx, index_is_id=index_is_id)
         tags = self.tags(idx, index_is_id=index_is_id)
         if tags:
             mi.tags = [i.strip() for i in tags.split(',')]
@@ -1460,22 +1462,22 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
 
 
 class SearchToken:
-
-    FIELD_MAP = {'title'     : 1,
-                  'author'   : 2,
-                  'publisher': 3,
-                  'tag'      : 7,
-                  'comments' : 8,
-                  'series'   : 9,
-                  'format'   : 13,
-                 }
+    FIELD_MAP = {
+        'title': 1,
+        'author': 2,
+        'publisher': 3,
+        'tag': 7,
+        'comments': 8,
+        'series': 9,
+        'format': 13,
+    }
 
     def __init__(self, text_token):
         self.index = -1
         text_token = text_token.strip()
         for field in self.FIELD_MAP.keys():
-            if text_token.lower().startswith(field+':'):
-                text_token = text_token[len(field)+1:]
+            if text_token.lower().startswith(field + ':'):
+                text_token = text_token[len(field) + 1 :]
                 self.index = self.FIELD_MAP[field]
                 break
 
@@ -1506,7 +1508,7 @@ def text_to_tokens(text):
     quot = re.search(r'"(.*?)"', text)
     while quot:
         tokens.append(quot.group(1))
-        text = text.replace('"'+quot.group(1)+'"', '')
+        text = text.replace('"' + quot.group(1) + '"', '')
         quot = re.search(r'"(.*?)"', text)
     tokens += text.split(' ')
     ans = []

@@ -12,9 +12,9 @@ class LegeArtisRecipe(BasicNewsRecipe):
     __author__ = 'Mori, Tomasz D\u0142ugosz'
     language = 'pl'
 
-    title = u'Lege Artis'
-    publisher = u'Olgierd Rudak'
-    description = u'Prawie wszystko, co chcieliby\u015bcie wiedzie\u0107 o prawie, ale wstydzili\u015bcie si\u0119 zapyta\u0107'
+    title = 'Lege Artis'
+    publisher = 'Olgierd Rudak'
+    description = 'Prawie wszystko, co chcieliby\u015bcie wiedzie\u0107 o prawie, ale wstydzili\u015bcie si\u0119 zapyta\u0107'
 
     max_articles_per_feed = 100
 
@@ -25,6 +25,4 @@ class LegeArtisRecipe(BasicNewsRecipe):
             img{clear: both;}
     '''
 
-    feeds = [
-        (u'Lege Artis', u'http://czasopismo.legeartis.org/feed')
-    ]
+    feeds = [('Lege Artis', 'http://czasopismo.legeartis.org/feed')]

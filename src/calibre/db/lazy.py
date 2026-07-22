@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
@@ -32,6 +32,7 @@ def resolved(f):
             self._resolve()
             self._must_resolve = False
         return f(self, *args, **kwargs)
+
     return wrapper
 
 
@@ -76,7 +77,6 @@ class MutableBase:
 
 
 class FormatMetadata(MutableBase, MutableMapping):
-
     def __init__(self, db, id_, formats):
         self._dbwref = weakref.ref(db)
         self._id = id_
@@ -94,7 +94,6 @@ class FormatMetadata(MutableBase, MutableMapping):
 
 
 class FormatsList(MutableBase, MutableSequence):
-
     def __init__(self, formats, format_metadata):
         self._formats = formats
         self._format_metadata = format_metadata
@@ -105,6 +104,7 @@ class FormatsList(MutableBase, MutableSequence):
     @resolved
     def insert(self, idx, val):
         self._values.insert(idx, val)
+
 
 # }}}
 
@@ -122,6 +122,7 @@ def simple_getter(field, default_value=None):
             db = dbref()
             cache[field] = ret = db.field_for(field, book_id, default_value=default_value)
             return ret
+
     return func
 
 
@@ -133,6 +134,7 @@ def pp_getter(field, postprocess, default_value=None):
             db = dbref()
             cache[field] = ret = postprocess(db.field_for(field, book_id, default_value=default_value))
             return ret
+
     return func
 
 
@@ -147,7 +149,8 @@ def adata_getter(field):
                 adata = db._author_data(author_ids)
             cache['adata'] = (author_ids, adata)
         k = 'sort' if field == 'author_sort_map' else 'link'
-        return {adata[i]['name']:adata[i][k] for i in author_ids}
+        return {adata[i]['name']: adata[i][k] for i in author_ids}
+
     return func
 
 
@@ -168,6 +171,7 @@ def dt_getter(field):
             db = dbref()
             cache[field] = ret = db.field_for(field, book_id, default_value=utcnow())
             return ret
+
     return func
 
 
@@ -180,8 +184,9 @@ def item_getter(field, default_value=None, key=0):
             ret = cache[field] = db.field_for(field, book_id, default_value=default_value)
             try:
                 return ret[key]
-            except (IndexError, KeyError):
+            except IndexError, KeyError:
                 return default_value
+
     return func
 
 
@@ -199,6 +204,7 @@ def fmt_getter(field):
         if field == 'formats':
             return sorted(format_metadata) or None
         return format_metadata
+
     return func
 
 
@@ -224,6 +230,7 @@ def series_index_getter(field='series'):
                 db = dbref()
                 cache[field + '_index'] = ret = db.field_for(field + '_index', book_id, default_value=1.0)
                 return ret
+
     return func
 
 
@@ -237,7 +244,7 @@ def has_cover_getter(dbref, book_id, cache):
 
 
 def fmt_custom(x):
-    return (list(x) if isinstance(x, tuple) else x)
+    return list(x) if isinstance(x, tuple) else x
 
 
 def custom_getter(field, dbref, book_id, cache):
@@ -265,6 +272,7 @@ def composite_getter(mi, field, dbref, book_id, cache, formatter, template_cache
                     ret = cache[field] = fo._render_composite_with_cache(book_id, mi, formatter, template_cache)
         except Exception:
             import traceback
+
             traceback.print_exc()
             return f'ERROR WHILE EVALUATING: {field}'
         return ret
@@ -292,28 +300,28 @@ def user_categories_getter(proxy_metadata):
     except KeyError:
         db = ga(proxy_metadata, '_db')()
         book_id = ga(proxy_metadata, '_book_id')
-        ret = cache['user_categories'] = db.user_categories_for_books((book_id,), {book_id:proxy_metadata})[book_id]
+        ret = cache['user_categories'] = db.user_categories_for_books((book_id,), {book_id: proxy_metadata})[book_id]
         return ret
 
 
 getters = {
-    'title':simple_getter('title', _('Unknown')),
-    'title_sort':simple_getter('sort', _('Unknown')),
-    'authors':pp_getter('authors', list, (_('Unknown'),)),
-    'author_sort':simple_getter('author_sort', _('Unknown')),
-    'uuid':simple_getter('uuid', 'dummy'),
-    'book_size':simple_getter('size', 0),
-    'pages':simple_getter('pages', 0),
-    'ondevice_col':simple_getter('ondevice', ''),
-    'languages':pp_getter('languages', list),
-    'language':item_getter('languages', default_value=NULL_VALUES['language']),
+    'title': simple_getter('title', _('Unknown')),
+    'title_sort': simple_getter('sort', _('Unknown')),
+    'authors': pp_getter('authors', list, (_('Unknown'),)),
+    'author_sort': simple_getter('author_sort', _('Unknown')),
+    'uuid': simple_getter('uuid', 'dummy'),
+    'book_size': simple_getter('size', 0),
+    'pages': simple_getter('pages', 0),
+    'ondevice_col': simple_getter('ondevice', ''),
+    'languages': pp_getter('languages', list),
+    'language': item_getter('languages', default_value=NULL_VALUES['language']),
     'db_approx_formats': approx_fmts_getter,
     'has_cover': has_cover_getter,
-    'tags':pp_getter('tags', list, (_('Unknown'),)),
-    'series_index':series_index_getter(),
-    'application_id':lambda x, book_id, y: book_id,
-    'id':lambda x, book_id, y: book_id,
-    'virtual_libraries':virtual_libraries_getter,
+    'tags': pp_getter('tags', list, (_('Unknown'),)),
+    'series_index': series_index_getter(),
+    'application_id': lambda x, book_id, y: book_id,
+    'id': lambda x, book_id, y: book_id,
+    'virtual_libraries': virtual_libraries_getter,
     'link_maps': link_maps_getter,
 }
 
@@ -335,7 +343,6 @@ for field in ('formats', 'format_metadata'):
 
 
 class ProxyMetadata(Metadata):
-
     def __init__(self, db, book_id, formatter=None):
         sa(self, 'template_cache', db.formatter_template_cache)
         if formatter is None:
@@ -344,7 +351,7 @@ class ProxyMetadata(Metadata):
         sa(self, 'formatter', formatter)
         sa(self, '_db', weakref.ref(db))
         sa(self, '_book_id', book_id)
-        sa(self, '_cache', {'cover_data':(None,None), 'device_collections':[]})
+        sa(self, '_cache', {'cover_data': (None, None), 'device_collections': []})
         sa(self, '_user_metadata', db.field_metadata)
 
     def __getattribute__(self, field):
@@ -367,7 +374,15 @@ class ProxyMetadata(Metadata):
                 if field.endswith('_index') and dt == 'float':
                     return series_index_getter(field[:-6])(ga(self, '_db'), ga(self, '_book_id'), ga(self, '_cache'))
                 return custom_getter(field, ga(self, '_db'), ga(self, '_book_id'), ga(self, '_cache'))
-            return composite_getter(self, field, ga(self, '_db'), ga(self, '_book_id'), ga(self, '_cache'), ga(self, 'formatter'), ga(self, 'template_cache'))
+            return composite_getter(
+                self,
+                field,
+                ga(self, '_db'),
+                ga(self, '_book_id'),
+                ga(self, '_cache'),
+                ga(self, 'formatter'),
+                ga(self, 'template_cache'),
+            )
 
         try:
             return ga(self, '_cache')[field]
@@ -384,15 +399,13 @@ class ProxyMetadata(Metadata):
     # ProxyMetadata cannot set attributes.
 
     def _unimplemented_exception(self, method, add_txt):
-        raise NotImplementedError(f"{method}() cannot be used in this context. "
-                                   f"{'ProxyMetadata is read only' if add_txt else ''}")
+        raise NotImplementedError(f"{method}() cannot be used in this context. {'ProxyMetadata is read only' if add_txt else ''}")
 
     # Metadata returns a seemingly arbitrary set of items. Rather than attempt
     # compatibility, flag __iter__ as unimplemented. This won't break anything
     # because the Metadata version raises AttributeError
     def __iter__(self):
-        raise NotImplementedError('__iter__() cannot be used in this context. '
-                                   'Use the explicit methods such as all_field_keys()')
+        raise NotImplementedError('__iter__() cannot be used in this context. Use the explicit methods such as all_field_keys()')
 
     def has_key(self, key):
         return key in STANDARD_METADATA_FIELDS or key in ga(self, '_user_metadata')
@@ -412,8 +425,7 @@ class ProxyMetadata(Metadata):
                 return getattr(self, field + '_index')
             except AttributeError:
                 return default
-        raise AttributeError(
-                'Metadata object has no attribute named: '+ repr(field))
+        raise AttributeError('Metadata object has no attribute named: ' + repr(field))
 
     def set(self, *args, **kwargs):
         self._unimplemented_exception('set', add_txt=True)

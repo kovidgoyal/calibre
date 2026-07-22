@@ -4,7 +4,7 @@ from calibre.web.feeds.news import BasicNewsRecipe, classes
 
 
 class BT(BasicNewsRecipe):
-    title = u'Business Today Magazine'
+    title = 'Business Today Magazine'
     language = 'en_IN'
     __author__ = 'unkn0wn'
     no_stylesheets = True
@@ -26,18 +26,10 @@ class BT(BasicNewsRecipe):
     remove_tags = [
         dict(name=['link', 'meta', 'svg', 'button', 'script']),
         dict(name='a', attrs={'title': 'videos'}),
-        classes(
-            'tranding-topics-main newsltter-iframe hedlineteg stoybday-ad story-recommended-chunk '
-            'banner_content'
-        )
+        classes('tranding-topics-main newsltter-iframe hedlineteg stoybday-ad story-recommended-chunk banner_content'),
     ]
 
-    recipe_specific_options = {
-        'date': {
-            'short': 'The date of the edition to download (YYYY-MM-DD format)',
-            'long': 'For example, 2024-07-07'
-        }
-    }
+    recipe_specific_options = {'date': {'short': 'The date of the edition to download (YYYY-MM-DD format)', 'long': 'For example, 2024-07-07'}}
 
     extra_css = '''
         img {display:block; margin:0 auto;}
@@ -47,17 +39,14 @@ class BT(BasicNewsRecipe):
     '''
 
     def parse_index(self):
-        self.log(
-            '\n***\nif this recipe fails, report it on: '
-            'https://www.mobileread.com/forums/forumdisplay.php?f=228\n***\n'
-        )
+        self.log('\n***\nif this recipe fails, report it on: https://www.mobileread.com/forums/forumdisplay.php?f=228\n***\n')
 
         d = self.recipe_specific_options.get('date')
         if d and isinstance(d, str):
             url = 'https://www.businesstoday.in/magazine/issue/' + d
         else:
             soup = self.index_to_soup('https://www.businesstoday.in')
-            a = soup.findAll('a', attrs={'class':'mag_sld_img'})[1]
+            a = soup.findAll('a', attrs={'class': 'mag_sld_img'})[1]
             url = a['href']
             self.cover_url = a.img['data-src'].split('?')[0]
 
@@ -67,19 +56,13 @@ class BT(BasicNewsRecipe):
         section = None
         sections = {}
 
-        for tag in soup.findAll(
-            'div', attrs={'class': ['magazin-top-left', 'section-ordering']}
-        ):
+        for tag in soup.findAll('div', attrs={'class': ['magazin-top-left', 'section-ordering']}):
             sec = tag.find(('span', 'h1'))
             section = self.tag_to_string(sec)
             self.log(section)
             sections[section] = []
 
-            for a in tag.findAll(
-                'a',
-                href=lambda x: x and x.
-                startswith('https://www.businesstoday.in/magazine/')
-            ):
+            for a in tag.findAll('a', href=lambda x: x and x.startswith('https://www.businesstoday.in/magazine/')):
                 url = a['href']
                 title = self.tag_to_string(a)
                 self.log('\t', title)
@@ -102,7 +85,7 @@ class BT(BasicNewsRecipe):
 
         # Append what is left over...
 
-        for i,s in sections.items():
+        for i, s in sections.items():
             feeds.append((i, s))
 
         return feeds
@@ -113,9 +96,7 @@ class BT(BasicNewsRecipe):
             ul = auth.find('ul')
             if ul:
                 ul.decompose()
-        for vid in soup.findAll('a', attrs={
-                'href': lambda x: x and 'businesstoday.in/videos' in x
-            }):
+        for vid in soup.findAll('a', attrs={'href': lambda x: x and 'businesstoday.in/videos' in x}):
             vid.decompose()
         summ = soup.find(**classes('summary'))
         if summ:

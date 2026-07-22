@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
@@ -18,7 +18,6 @@ from calibre.ebooks.oeb.base import OEB_DOCS, XHTML, XHTML_NS, XML_NS, namespace
 
 
 class Buf(BytesIO):
-
     def write(self, x):
         if isinstance(x, str):
             x = x.encode('utf-8')
@@ -101,7 +100,7 @@ class Serializer:
         in_sec = in_art = False
         for i, item in enumerate(items):
             try:
-                prev_item = items[i-1]
+                prev_item = items[i - 1]
             except Exception:
                 prev_item = None
             if in_art and item.is_article_start is True:
@@ -165,7 +164,7 @@ class Serializer:
 
             buf.write(b'<reference type="')
             if ref.type.startswith('other.'):
-                self.serialize_text(ref.type.replace('other.',''), quot=True)
+                self.serialize_text(ref.type.replace('other.', ''), quot=True)
             else:
                 self.serialize_text(ref.type, quot=True)
             buf.write(b'" ')
@@ -234,8 +233,7 @@ class Serializer:
                 t = tocref.title
                 if isinstance(t, str):
                     t = t.encode('utf-8')
-                buf.write(b'<div></div> <div> <h2 height="1em"><font size="+2"><b>' + t +
-                          b'</b></font></h2> <div height="1em"></div>')
+                buf.write(b'<div></div> <div> <h2 height="1em"><font size="+2"><b>' + t + b'</b></font></h2> <div height="1em"></div>')
 
             buf.write(b'<ul>')
 
@@ -271,7 +269,6 @@ class Serializer:
         spine.extend([item for item in self.oeb.spine if not item.linear])
 
         for item in spine:
-
             if self.is_periodical and item.is_section_start:
                 for section_toc in top_toc.nodes:
                     if urlnormalize(item.href) == section_toc.href:
@@ -312,8 +309,7 @@ class Serializer:
 
     def serialize_elem(self, elem, item, nsrmap=NSRMAP):
         buf = self.buf
-        if not isinstance(elem.tag, (str, bytes)) \
-            or namespace(elem.tag) not in nsrmap:
+        if not isinstance(elem.tag, (str, bytes)) or namespace(elem.tag) not in nsrmap:
             return
         tag = prefixname(elem.tag, nsrmap)
         # Previous layers take care of @name
@@ -324,9 +320,7 @@ class Serializer:
             key = urlnormalize(href)
             # Only set this id_offset if it wasn't previously seen
             self.id_offsets[key] = self.id_offsets.get(key, offset)
-        if self.anchor_offset is not None and \
-            tag == 'a' and not elem.attrib and \
-            not len(elem) and not elem.text:
+        if self.anchor_offset is not None and tag == 'a' and not elem.attrib and not len(elem) and not elem.text:
             return
         self.anchor_offset = buf.tell()
         buf.write(b'<')
@@ -383,7 +377,7 @@ class Serializer:
         id_offsets = self.id_offsets
         start_href = getattr(self, '_start_href', None)
         for href, hoffs in self.href_offsets.items():
-            is_start = (href and href == start_href)
+            is_start = href and href == start_href
             # Iterate over all filepos items
             if href not in id_offsets:
                 self.logger.warn(f'Hyperlink target {href!r} not found')

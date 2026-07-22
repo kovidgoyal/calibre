@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
@@ -21,6 +21,7 @@ def get_memory():
     "Return memory usage in bytes"
     # See https://pythonhosted.org/psutil/#psutil.Process.memory_info
     import psutil
+
     return psutil.Process(os.getpid()).memory_info().rss
 
 

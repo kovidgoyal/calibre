@@ -14,7 +14,7 @@ class Base(AmazonStore):
     SEARCH_BASE_URL = 'https://www.amazon.in/s/'
     SEARCH_BASE_QUERY = {'url': 'search-alias=digital-text'}
     DETAILS_URL = 'https://amazon.in/dp/'
-    STORE_LINK =  'https://www.amazon.in'
+    STORE_LINK = 'https://www.amazon.in'
 
 
 class AmazonKindleStore(Base, StorePlugin):

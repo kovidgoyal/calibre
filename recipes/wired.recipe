@@ -10,18 +10,19 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 def classes(classes):
     q = frozenset(classes.split(' '))
-    return dict(attrs={
-        'class': lambda x: x and frozenset(x.split()).intersection(q)})
+    return dict(attrs={'class': lambda x: x and frozenset(x.split()).intersection(q)})
 
 
 class WiredDailyNews(BasicNewsRecipe):
     title = 'Wired Magazine, Monthly Edition'
     __author__ = 'Darko Miletic, update by Howard Cornett, Zach Lapidus, Michael Marotta'
-    description = ('Wired is a full-color monthly American magazine, '
-                   'published in both print and online editions, that '
-                   'reports on how emerging technologies affect culture, '
-                   'the economy and politics. '
-                   'Monthly edition, best run at the start of every month.')
+    description = (
+        'Wired is a full-color monthly American magazine, '
+        'published in both print and online editions, that '
+        'reports on how emerging technologies affect culture, '
+        'the economy and politics. '
+        'Monthly edition, best run at the start of every month.'
+    )
     publisher = 'Conde Nast'
     category = 'news, IT, computers, technology'
     oldest_article = 45
@@ -32,7 +33,7 @@ class WiredDailyNews(BasicNewsRecipe):
     language = 'en'
     ignore_duplicate_articles = {'url'}
     remove_empty_feeds = True
-    extra_css             = '''
+    extra_css = '''
                             .entry-header{
                                           text-transform: uppercase;
                                           vertical-align: baseline;
@@ -70,7 +71,7 @@ class WiredDailyNews(BasicNewsRecipe):
                     yield {
                         'title': title,
                         'date': date,
-                        'url': baseurl+url,
+                        'url': baseurl + url,
                     }
 
     def parse_index(self):

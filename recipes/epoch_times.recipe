@@ -23,7 +23,7 @@ class EpochTimes(BasicNewsRecipe):
         'days': {
             'short': 'Oldest article to download from this news source. In days ',
             'long': 'For example, 0.5, gives you articles from the past 12 hours',
-            'default': str(oldest_article)
+            'default': str(oldest_article),
         }
     }
 
@@ -33,13 +33,11 @@ class EpochTimes(BasicNewsRecipe):
         if d and isinstance(d, str):
             self.oldest_article = float(d)
 
-    keep_only_tags = [
-        dict(name='article')
-    ]
+    keep_only_tags = [dict(name='article')]
     remove_tags = [
         classes('print:hidden h-header shortcode aspect-square'),
         dict(name=['button', 'svg']),
-        dict(name='img', attrs={'src':lambda x: x and x.endswith('svg')})
+        dict(name='img', attrs={'src': lambda x: x and x.endswith('svg')}),
     ]
 
     # feeds can be found at https://www.theepochtimes.com/rssfeeds

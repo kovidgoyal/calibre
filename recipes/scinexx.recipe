@@ -13,9 +13,9 @@ from calibre.web.feeds.recipes import BasicNewsRecipe
 
 
 class AdvancedUserRecipe1415718806(BasicNewsRecipe):
-    title = u'Scinexx.de'
+    title = 'Scinexx.de'
     __author__ = 'JSuer'
-    description = u'German  online portal of scinexx'
+    description = 'German  online portal of scinexx'
     publisher = 'MMCD NEW MEDIA GmbH'
     category = 'science and next generation, Germany'
     language = 'de'
@@ -23,4 +23,4 @@ class AdvancedUserRecipe1415718806(BasicNewsRecipe):
     max_articles_per_feed = 100
     auto_cleanup = True
 
-    feeds = [(u'Neueste Nachrichten', u'http://feeds.feedburner.com/scinexx')]
+    feeds = [('Neueste Nachrichten', 'http://feeds.feedburner.com/scinexx')]

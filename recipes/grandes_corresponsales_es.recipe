@@ -4,14 +4,14 @@ from __future__ import unicode_literals
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
-class GrandesCorresponsalesRecipe (BasicNewsRecipe):
+class GrandesCorresponsalesRecipe(BasicNewsRecipe):
     __author__ = 'Marc Busqué <marc@lamarciana.com>'
     __url__ = 'http://www.lamarciana.com'
     __version__ = '1.1.0'
     __license__ = 'GPL v3'
     __copyright__ = '2014, Marc Busqué <marc@lamarciana.com>'
-    title = u'Grandes corresponsales'
-    description = u'Corresponsales de verdad, de los que no se quedan en el hotel.'
+    title = 'Grandes corresponsales'
+    description = 'Corresponsales de verdad, de los que no se quedan en el hotel.'
     language = 'es'
     tags = 'información, internacional '
     oldest_article = 30
@@ -21,20 +21,20 @@ class GrandesCorresponsalesRecipe (BasicNewsRecipe):
     def get_extra_css(self):
         if not self.extra_css:
             br = self.get_browser()
-            self.extra_css = br.open_novisit(
-                'https://raw.githubusercontent.com/laMarciana/gutenweb/master/dist/gutenweb.css').read().replace('@charset "UTF-8";', '')
+            self.extra_css = (
+                br.open_novisit('https://raw.githubusercontent.com/laMarciana/gutenweb/master/dist/gutenweb.css').read().replace('@charset "UTF-8";', '')
+            )
         return self.extra_css
 
     feeds = [
-        (u'Rafael Poch', u'http://blogs.lavanguardia.com/berlin/feed'),
-        (u'Andy Robinson', u'http://blogs.lavanguardia.com/diario-itinerante/feed'),
-        (u'Eugenio García Gascón', u'http://blogs.publico.es/balagan/feed/'),
-        (u'Gervasio Sánchez', u'http://blogs.heraldo.es/gervasiosanchez/?feed=rss2'),
-        (u'Rafael Ramos', u'http://blogs.lavanguardia.com/londres/feed'),
-        (u'Olga Rodríguez', u'http://olgarodriguez.org/feed/'),
-        (u'Mikel Ayestaran', u'http://www.mikelayestaran.com/blog/?feed=rss2'),
-        (u'Hernán Zin', u'http://blogs.20minutos.es/enguerra/tag/corresponsales-guerra/feed/'),
-        (u'Ramón Lobo', u'http://www.ramonlobo.com/feed/'),
-        (u'Arturo Pérez-Reverte',
-         u'http://feeds.feedburner.com/ArtculosDeArturoPrez-reverte'),
+        ('Rafael Poch', 'http://blogs.lavanguardia.com/berlin/feed'),
+        ('Andy Robinson', 'http://blogs.lavanguardia.com/diario-itinerante/feed'),
+        ('Eugenio García Gascón', 'http://blogs.publico.es/balagan/feed/'),
+        ('Gervasio Sánchez', 'http://blogs.heraldo.es/gervasiosanchez/?feed=rss2'),
+        ('Rafael Ramos', 'http://blogs.lavanguardia.com/londres/feed'),
+        ('Olga Rodríguez', 'http://olgarodriguez.org/feed/'),
+        ('Mikel Ayestaran', 'http://www.mikelayestaran.com/blog/?feed=rss2'),
+        ('Hernán Zin', 'http://blogs.20minutos.es/enguerra/tag/corresponsales-guerra/feed/'),
+        ('Ramón Lobo', 'http://www.ramonlobo.com/feed/'),
+        ('Arturo Pérez-Reverte', 'http://feeds.feedburner.com/ArtculosDeArturoPrez-reverte'),
     ]

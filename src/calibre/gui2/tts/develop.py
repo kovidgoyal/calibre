@@ -20,7 +20,6 @@ to see it in action.
 
 
 class MainWindow(MainWindow):
-
     def __init__(self, text):
         super().__init__()
         self.display = d = QPlainTextEdit(self)

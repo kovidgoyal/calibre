@@ -16,13 +16,14 @@ def locales_from_dicts(dicts):
     ans = {}
     for path in dicts:
         name = bname = os.path.basename(path)
-        name = name[len('hyph_'):-len('.dic')]
+        name = name[len('hyph_') : -len('.dic')]
         ans[name.replace('-', '_')] = bname
     return ans
 
 
 def locales_from_xcu(xcu, dicts):
     from lxml import etree
+
     with open(xcu, 'rb') as f:
         root = etree.fromstring(f.read(), parser=etree.XMLParser(recover=True, no_network=True, resolve_entities=False))
     ans = {}
@@ -52,14 +53,11 @@ def process_dictionaries(src, output_dir):
         if not dicts:
             continue
         xcu = os.path.join(q, 'dictionaries.xcu')
-        locales = (
-            locales_from_xcu(xcu, dicts) if os.path.exists(xcu) else
-            locales_from_dicts(dicts))
+        locales = locales_from_xcu(xcu, dicts) if os.path.exists(xcu) else locales_from_dicts(dicts)
         if locales:
             locale_data.update(locales)
             for d in dicts:
-                shutil.copyfile(
-                    d, os.path.join(output_dir, os.path.basename(d)))
+                shutil.copyfile(d, os.path.join(output_dir, os.path.basename(d)))
     data = json.dumps(locale_data, indent=2)
     if not isinstance(data, bytes):
         data = data.encode('utf-8')
@@ -70,11 +68,11 @@ def process_dictionaries(src, output_dir):
 def compress_tar(buf, outf):
     buf.seek(0)
     import lzma
+
     outf.write(lzma.compress(buf.getvalue(), preset=9 | lzma.PRESET_EXTREME))
 
 
 class Hyphenation(ReVendor):
-
     description = 'Download the hyphenation dictionaries'
     NAME = 'hyphenation'
     TAR_NAME = 'hyphenation dictionaries'

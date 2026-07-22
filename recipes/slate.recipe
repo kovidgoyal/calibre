@@ -12,8 +12,7 @@ from calibre.web.feeds.recipes import BasicNewsRecipe
 
 def classes(classes):
     q = frozenset(classes.split(' '))
-    return dict(attrs={
-        'class': lambda x: x and frozenset(x.split()).intersection(q)})
+    return dict(attrs={'class': lambda x: x and frozenset(x.split()).intersection(q)})
 
 
 class Slate(BasicNewsRecipe):
@@ -54,12 +53,12 @@ class Slate(BasicNewsRecipe):
     def parse_index(self):
         ans = []
         for sectitle, url in (
-                ('News & Politics', 'news-and-politics'),
-                ('Culture', 'culture'),
-                ('Technology', 'technology'),
-                ('Business', 'business'),
-                ('Life', 'life'),
-                ('Advice', 'advice'),
+            ('News & Politics', 'news-and-politics'),
+            ('Culture', 'culture'),
+            ('Technology', 'technology'),
+            ('Business', 'business'),
+            ('Life', 'life'),
+            ('Advice', 'advice'),
         ):
             url = self.INDEX + url
             self.log('\nFound section:', sectitle, url)
@@ -70,17 +69,22 @@ class Slate(BasicNewsRecipe):
 
     def slate_section_articles(self, url):
         from datetime import date
+
         soup = self.index_to_soup(url)
         ans = []
         dt = date.today().strftime('/%Y/')
-        for a in soup.findAll('a', attrs={'href':lambda x: x and x.startswith(url + dt)}):
+        for a in soup.findAll('a', attrs={'href': lambda x: x and x.startswith(url + dt)}):
             url = a['href']
-            head = a.find(attrs={'class':[
-                'section-feed-two-column__card-headline',
-                'section-feed-three-column__teaser-headline',
-                'section-feed-two-column__teaser-headline',
-                'topic-story__hed'
-            ]})
+            head = a.find(
+                attrs={
+                    'class': [
+                        'section-feed-two-column__card-headline',
+                        'section-feed-three-column__teaser-headline',
+                        'section-feed-two-column__teaser-headline',
+                        'topic-story__hed',
+                    ]
+                }
+            )
             if head:
                 title = self.tag_to_string(head).strip()
                 self.log('\t' + title)
@@ -89,6 +93,6 @@ class Slate(BasicNewsRecipe):
         return ans
 
     def populate_article_metadata(self, article, soup, first):
-        summ = soup.find(attrs={'class':'article__dek'})
+        summ = soup.find(attrs={'class': 'article__dek'})
         if summ:
             article.summary = article.text_summary = self.tag_to_string(summ)

@@ -22,7 +22,7 @@ class Granma(BasicNewsRecipe):
     encoding = 'utf8'
     masthead_url = 'http://www.granma.cu/static/img/granma-logo.png'
     language = 'es_CU'
-    auto_cleanup      = True
+    auto_cleanup = True
     remove_javascript = True
 
-    feeds = [(u'Noticias', u'http://www.granma.cu/feed')]
+    feeds = [('Noticias', 'http://www.granma.cu/feed')]

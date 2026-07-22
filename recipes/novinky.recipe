@@ -23,24 +23,19 @@ class NovinkyCZ(BasicNewsRecipe):
     extra_css = 'p.acmDescription{font-style:italic;} p.acmAuthor{font-size:0.8em; color:#707070}'
 
     feeds = [
-        (u'Dom\xe1c\xed', u'http://www.novinky.cz/rss/domaci/'),
-        (u'Zahrani\u010d\xed',
-         u'http://www.novinky.cz/rss/zahranicni/'),
-        (u'Krimi', u'http://www.novinky.cz/rss/krimi/'),
-        (u'Ekonomika', u'http://www.novinky.cz/rss/ekonomika/'),
-        (u'Finance', u'http://www.novinky.cz/rss/finance/'),
-        (u'Kultura', u'http://www.novinky.cz/rss/kultura/'),
-        (u'Koktejl', u'http://www.novinky.cz/rss/koktejl/'),
-        (u'Internet a PC', u'http://www.novinky.cz/rss/internet-a-pc/'),
-        (u'Auto-moto', u'http://www.novinky.cz/rss/auto/'),
+        ('Dom\xe1c\xed', 'http://www.novinky.cz/rss/domaci/'),
+        ('Zahrani\u010d\xed', 'http://www.novinky.cz/rss/zahranicni/'),
+        ('Krimi', 'http://www.novinky.cz/rss/krimi/'),
+        ('Ekonomika', 'http://www.novinky.cz/rss/ekonomika/'),
+        ('Finance', 'http://www.novinky.cz/rss/finance/'),
+        ('Kultura', 'http://www.novinky.cz/rss/kultura/'),
+        ('Koktejl', 'http://www.novinky.cz/rss/koktejl/'),
+        ('Internet a PC', 'http://www.novinky.cz/rss/internet-a-pc/'),
+        ('Auto-moto', 'http://www.novinky.cz/rss/auto/'),
     ]
 
     remove_tags_before = dict(id='articleContent')
 
     remove_tags_after = [dict(id='movedArticleAuthors')]
 
-    remove_tags = [
-        dict(name='div', attrs={
-             'id': ['articleColumnInfo', 'pictureInnerBox']}),
-        dict(name='p', attrs={'id': ['articleDate']})
-    ]
+    remove_tags = [dict(name='div', attrs={'id': ['articleColumnInfo', 'pictureInnerBox']}), dict(name='p', attrs={'id': ['articleDate']})]

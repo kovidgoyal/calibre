@@ -4,7 +4,6 @@ from calibre.web.feeds.recipes import BasicNewsRecipe
 
 
 class RevistaElCultural(BasicNewsRecipe):
-
     title = 'Revista El Cultural'
     __author__ = 'Jefferson Frantz'
     description = 'Revista de cultura'
@@ -22,14 +21,9 @@ class RevistaElCultural(BasicNewsRecipe):
 
         return soup
 
-    keep_only_tags = [dict(name='div', attrs={'class': [
-                           'column span-13 last']}), dict(name='div', attrs={'class': ['rtsImgArticulo']})]
+    keep_only_tags = [dict(name='div', attrs={'class': ['column span-13 last']}), dict(name='div', attrs={'class': ['rtsImgArticulo']})]
 
-    remove_tags = [
-        dict(name=['object', 'link', 'script', 'ul']), dict(
-            name='div', attrs={'class': ['rtsRating']})
-
-    ]
+    remove_tags = [dict(name=['object', 'link', 'script', 'ul']), dict(name='div', attrs={'class': ['rtsRating']})]
 
     # TO GET ARTICLES IN SECTION
     def ec_parse_section(self, url, titleSection):
@@ -55,10 +49,9 @@ class RevistaElCultural(BasicNewsRecipe):
             if url.startswith('/version_papel/' + titleSection + '/'):
                 url = 'http://www.elcultural.es' + url
 
-            self.log('\t\tFound article:', title[0:title.find('|') - 1])
+            self.log('\t\tFound article:', title[0 : title.find('|') - 1])
             self.log('\t\t\t', url)
-            current_articles.append({'title': title[0:title.find('|') - 1], 'url': url,
-                                     'description': '', 'date': ''})
+            current_articles.append({'title': title[0 : title.find('|') - 1], 'url': url, 'description': '', 'date': ''})
 
         return current_articles
 
@@ -66,18 +59,13 @@ class RevistaElCultural(BasicNewsRecipe):
     def parse_index(self):
         feeds = []
         for title, url in [
-            ('LETRAS',
-             'http://www.elcultural.es/pdf_sumario/cultural/Sumario_El_Cultural_en_PDF'),
-            ('ARTE',
-             'http://www.elcultural.es/pdf_sumario/cultural/Sumario_El_Cultural_en_PDF'),
-            ('CINE',
-             'http://www.elcultural.es/pdf_sumario/cultural/Sumario_El_Cultural_en_PDF'),
-            ('CIENCIA',
-             'http://www.elcultural.es/pdf_sumario/cultural/Sumario_El_Cultural_en_PDF'),
+            ('LETRAS', 'http://www.elcultural.es/pdf_sumario/cultural/Sumario_El_Cultural_en_PDF'),
+            ('ARTE', 'http://www.elcultural.es/pdf_sumario/cultural/Sumario_El_Cultural_en_PDF'),
+            ('CINE', 'http://www.elcultural.es/pdf_sumario/cultural/Sumario_El_Cultural_en_PDF'),
+            ('CIENCIA', 'http://www.elcultural.es/pdf_sumario/cultural/Sumario_El_Cultural_en_PDF'),
             # ('OPINION',
             # 'http://www.elcultural.es/pdf_sumario/cultural/Sumario_El_Cultural_en_PDF'),
-            ('ESCENARIOS',
-             'http://www.elcultural.es/pdf_sumario/cultural/Sumario_El_Cultural_en_PDF'),
+            ('ESCENARIOS', 'http://www.elcultural.es/pdf_sumario/cultural/Sumario_El_Cultural_en_PDF'),
         ]:
             articles = self.ec_parse_section(url, title)
             if articles:

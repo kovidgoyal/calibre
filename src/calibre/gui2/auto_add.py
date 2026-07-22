@@ -22,7 +22,6 @@ AUTO_ADDED = frozenset(BOOK_EXTENSIONS) - {'pdr', 'mbp', 'tan'}
 
 
 class AllAllowed:
-
     def __init__(self):
         self.disallowed = frozenset(gprefs['blocked_auto_formats'])
 
@@ -31,7 +30,7 @@ class AllAllowed:
 
 
 def allowed_formats():
-    " Return an object that can be used to test if a format (lowercase) is allowed for auto-adding "
+    "Return an object that can be used to test if a format (lowercase) is allowed for auto-adding"
     if gprefs['auto_add_everything']:
         allowed = AllAllowed()
     else:
@@ -40,7 +39,6 @@ def allowed_formats():
 
 
 class Worker(Thread):
-
     def __init__(self, path, callback):
         Thread.__init__(self)
         self.daemon = True
@@ -57,6 +55,7 @@ class Worker(Thread):
         except Exception:
             self.compiled_rules = ()
             import traceback
+
             traceback.print_exc()
 
     def is_filename_allowed(self, filename):
@@ -78,6 +77,7 @@ class Worker(Thread):
                     self.auto_add()
                 except Exception:
                     import traceback
+
                     traceback.print_exc()
         finally:
             shutil.rmtree(self.tdir, ignore_errors=True)
@@ -90,18 +90,25 @@ class Worker(Thread):
         def join(*x):
             return make_long_path_useable(os.path.join(*x))
 
-        files = [x for x in os.listdir(join(self.path)) if
-                    # Must not be in the process of being added to the db
-                    x not in self.staging and
-                    # Firefox creates 0 byte placeholder files when downloading
-                    os.stat(join(self.path, x)).st_size > 0 and
-                    # Must be a file
-                    os.path.isfile(join(self.path, x)) and
-                    # Must have read and write permissions
-                    os.access(join(self.path, x), os.R_OK|os.W_OK) and
-                    # Must be a known ebook file type
-                    self.is_filename_allowed(x)
-                ]
+        files = [
+            x
+            for x in os.listdir(join(self.path))
+            if
+            # Must not be in the process of being added to the db
+            x not in self.staging
+            and
+            # Firefox creates 0 byte placeholder files when downloading
+            os.stat(join(self.path, x)).st_size > 0
+            and
+            # Must be a file
+            os.path.isfile(join(self.path, x))
+            and
+            # Must have read and write permissions
+            os.access(join(self.path, x), os.R_OK | os.W_OK)
+            and
+            # Must be a known ebook file type
+            self.is_filename_allowed(x)
+        ]
         data = []
         # Give any in progress copies time to complete
         time.sleep(2)
@@ -125,13 +132,13 @@ class Worker(Thread):
                 continue
             tdir = tempfile.mkdtemp(dir=self.tdir)
             try:
-                fork_job('calibre.ebooks.metadata.meta',
-                        'forked_read_metadata', (f, tdir), no_output=True)
+                fork_job('calibre.ebooks.metadata.meta', 'forked_read_metadata', (f, tdir), no_output=True)
             except WorkerError as e:
                 prints('Failed to read metadata from:', fname)
                 prints(e.orig_tb)
             except Exception:
                 import traceback
+
                 traceback.print_exc()
 
             # Ensure that the pre-metadata file size is present. If it isn't,
@@ -159,25 +166,20 @@ class Worker(Thread):
 
 
 class AutoAdder(QObject):
-
     metadata_read = pyqtSignal(object)
     auto_convert = pyqtSignal(object)
 
     def __init__(self, path, parent):
         QObject.__init__(self, parent)
-        if path and os.path.isdir(path) and os.access(path, os.R_OK|os.W_OK):
+        if path and os.path.isdir(path) and os.access(path, os.R_OK | os.W_OK):
             self.watcher = QFileSystemWatcher(self)
             self.worker = Worker(path, self.metadata_read.emit)
-            self.watcher.directoryChanged.connect(self.dir_changed,
-                    type=Qt.ConnectionType.QueuedConnection)
-            self.metadata_read.connect(self.add_to_db,
-                    type=Qt.ConnectionType.QueuedConnection)
+            self.watcher.directoryChanged.connect(self.dir_changed, type=Qt.ConnectionType.QueuedConnection)
+            self.metadata_read.connect(self.add_to_db, type=Qt.ConnectionType.QueuedConnection)
             QTimer.singleShot(2000, self.initialize)
-            self.auto_convert.connect(self.do_auto_convert,
-                    type=Qt.ConnectionType.QueuedConnection)
+            self.auto_convert.connect(self.do_auto_convert, type=Qt.ConnectionType.QueuedConnection)
         elif path:
-            prints(path,
-                'is not a valid directory to watch for new ebooks, ignoring')
+            prints(path, 'is not a valid directory to watch for new ebooks, ignoring')
 
     def read_rules(self):
         if hasattr(self, 'worker'):
@@ -192,8 +194,7 @@ class AutoAdder(QObject):
         self.watcher.addPath(self.worker.path)
 
     def dir_changed(self, *args):
-        if os.path.isdir(self.worker.path) and os.access(self.worker.path,
-                os.R_OK|os.W_OK):
+        if os.path.isdir(self.worker.path) and os.access(self.worker.path, os.R_OK | os.W_OK):
             if not self.worker.is_alive():
                 self.worker.start()
             self.worker.wake_up.set()
@@ -221,6 +222,7 @@ class AutoAdder(QObject):
         from calibre.ebooks.metadata.opf2 import OPF
         from calibre.gui2.library.models import BooksModel
         from calibre.gui2.ui import get_gui
+
         gui = get_gui()
         if gui is None:
             return
@@ -245,8 +247,7 @@ class AutoAdder(QObject):
                 with open(sz, 'rb') as f:
                     sz = int(f.read())
                 if sz != os.stat(make_long_path_useable(paths[0])).st_size:
-                    raise Exception('Looks like the file was written to after'
-                            ' we tried to read metadata')
+                    raise Exception('Looks like the file was written to after we tried to read metadata')
             except Exception:
                 needs_rescan = True
                 try:
@@ -262,9 +263,11 @@ class AutoAdder(QObject):
             mi = OPF(open(mi, 'rb'), tdir, populate_spine=False).to_book_metadata()
             if gprefs.get('tag_map_on_add_rules'):
                 from calibre.ebooks.metadata.tag_mapper import map_tags
+
                 mi.tags = map_tags(mi.tags, gprefs['tag_map_on_add_rules'])
             if gprefs.get('author_map_on_add_rules'):
                 from calibre.ebooks.metadata.author_mapper import compile_rules, map_authors
+
                 new_authors = map_authors(mi.authors, compile_rules(gprefs['author_map_on_add_rules']))
                 if new_authors != mi.authors:
                     mi.authors = new_authors
@@ -275,8 +278,7 @@ class AutoAdder(QObject):
             num = len(ids)
             if dups:
                 path = dups[0][0]
-                with open(os.path.join(tdir, 'dup_cache.'+dups[1][0].lower()),
-                        'wb') as dest, open(path, 'rb') as src:
+                with open(os.path.join(tdir, 'dup_cache.' + dups[1][0].lower()), 'wb') as dest, open(path, 'rb') as src:
                     shutil.copyfileobj(src, dest)
                     dups[0][0] = dest.name
                 duplicates.append(dups)
@@ -286,6 +288,7 @@ class AutoAdder(QObject):
                 self.worker.staging.remove(fname)
             except Exception:
                 import traceback
+
                 traceback.print_exc()
             count += num
 
@@ -304,8 +307,7 @@ class AutoAdder(QObject):
                     paths.extend(book_paths)
                     formats.extend([p.rpartition('.')[-1] for p in book_paths])
                     metadata.extend([mi for i in book_paths])
-                ids = m.add_books(paths, formats, metadata,
-                        add_duplicates=True, return_ids=True)[1]
+                ids = m.add_books(paths, formats, metadata, add_duplicates=True, return_ids=True)[1]
                 added_ids |= set(ids)
                 num = len(ids)
                 count += num
@@ -323,7 +325,10 @@ class AutoAdder(QObject):
             m.books_added(count)
             gui.status_bar.show_message(
                 (_('Added a book automatically from {src}') if count == 1 else _('Added {num} books automatically from {src}')).format(
-                    num=count, src=self.worker.path), 2000)
+                    num=count, src=self.worker.path
+                ),
+                2000,
+            )
             gui.refresh_cover_browser()
 
         if needs_rescan:
@@ -331,6 +336,7 @@ class AutoAdder(QObject):
 
     def do_auto_convert(self, added_ids):
         from calibre.gui2.ui import get_gui
+
         gui = get_gui()
         assert gui is not None
         gui.iactions['Convert Books'].auto_convert_auto_add(added_ids)

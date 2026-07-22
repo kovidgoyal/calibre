@@ -52,8 +52,7 @@ def send_reply(rq, mime_type, data):
 
 
 def secure_webengine(view_or_page_or_settings, for_viewer=False):
-    s = view_or_page_or_settings.settings() if hasattr(
-        view_or_page_or_settings, 'settings') else view_or_page_or_settings
+    s = view_or_page_or_settings.settings() if hasattr(view_or_page_or_settings, 'settings') else view_or_page_or_settings
     a = s.setAttribute
     a(QWebEngineSettings.WebAttribute.PluginsEnabled, False)
     if not for_viewer:
@@ -79,9 +78,12 @@ def insert_scripts(profile, *scripts):
 
 
 def create_script(
-    name, src: str = '', world=QWebEngineScript.ScriptWorldId.ApplicationWorld,
+    name,
+    src: str = '',
+    world=QWebEngineScript.ScriptWorldId.ApplicationWorld,
     injection_point=QWebEngineScript.InjectionPoint.DocumentReady,
-    on_subframes=True, path: str = '',
+    on_subframes=True,
+    path: str = '',
 ):
     script = QWebEngineScript()
     if path:
@@ -101,14 +103,13 @@ from_js = pyqtSignal
 
 
 class to_js(str):
-
     def __call__(self, *a):
         print(f'WARNING: Calling {self}() before the javascript bridge is ready')
+
     emit = __call__
 
 
 class to_js_bound(QObject):
-
     def __init__(self, bridge, name):
         QObject.__init__(self, bridge)
         self.name = name
@@ -118,12 +119,13 @@ class to_js_bound(QObject):
         assert isinstance(bridge, Bridge)
         bridge.page.runJavaScript(
             f'if (window.python_comm) python_comm._from_python({json.dumps(self.name)}, {json.dumps(args)})',
-            QWebEngineScript.ScriptWorldId.ApplicationWorld)
+            QWebEngineScript.ScriptWorldId.ApplicationWorld,
+        )
+
     emit = __call__
 
 
 class Bridge(QObject):
-
     bridge_ready = pyqtSignal()
 
     def __init__(self, page):
@@ -178,4 +180,5 @@ class Bridge(QObject):
         except Exception:
             if messages:
                 import traceback
+
                 traceback.print_exc()

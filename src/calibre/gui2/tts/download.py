@@ -29,7 +29,6 @@ from calibre.utils.localization import _, ngettext
 
 
 class ProgressBar(QWidget):
-
     done = pyqtSignal(str)
 
     def __init__(self, qurl: QUrl, path: str, nam: QNetworkAccessManager, text: str, parent: QWidget | None):
@@ -49,7 +48,10 @@ class ProgressBar(QWidget):
         req = QNetworkRequest(qurl)
         fi = QFileInfo(self.path)
         if fi.exists():  # type: ignore
-            req.setHeader(QNetworkRequest.KnownHeaders.IfModifiedSinceHeader, fi.lastModified(QTimeZone(QTimeZone.Initialization.UTC)))
+            req.setHeader(
+                QNetworkRequest.KnownHeaders.IfModifiedSinceHeader,
+                fi.lastModified(QTimeZone(QTimeZone.Initialization.UTC)),
+            )
 
         self.reply = reply = nam.get(req)
         assert reply is not None
@@ -110,7 +112,6 @@ class ProgressBar(QWidget):
 
 
 class DownloadResources(QDialog):
-
     def __init__(self, title: str, message: str, urls: dict[str, tuple[str, str]], parent: QWidget | None = None):
         super().__init__(parent)
         self.setWindowTitle(title)
@@ -158,8 +159,12 @@ class DownloadResources(QDialog):
                 else:
                     msg = _('Could not download some resources.')
                 error_dialog(
-                        self, _('Download failed'), msg + ' ' + _('Click "Show details" for more information'),
-                        det_msg='\n\n'.join(self.failures), show=True)
+                    self,
+                    _('Download failed'),
+                    msg + ' ' + _('Click "Show details" for more information'),
+                    det_msg='\n\n'.join(self.failures),
+                    show=True,
+                )
                 self.reject()
             else:
                 self.accept()
@@ -173,13 +178,12 @@ class DownloadResources(QDialog):
         super().reject()
 
 
-def download_resources(
-    title: str, message: str, urls: dict[str, tuple[str, str]], parent: QWidget | None = None, headless: bool = False
-) -> bool:
+def download_resources(title: str, message: str, urls: dict[str, tuple[str, str]], parent: QWidget | None = None, headless: bool = False) -> bool:
     if not headless:
         d = DownloadResources(title, message, urls, parent=parent)
         return d.exec() == QDialog.DialogCode.Accepted
     from calibre import browser
+
     print(title)
     print(message)
     br = browser()
@@ -193,12 +197,17 @@ def download_resources(
 
 def develop():
     from calibre.gui2 import Application
+
     app = Application([])
     urls = {
         'https://huggingface.co/rhasspy/piper-voices/resolve/v1.0.0/en/en_US/lessac/medium/en_US-lessac-medium.onnx': (
-            '/tmp/model', 'Voice neural network'),
+            '/tmp/model',
+            'Voice neural network',
+        ),
         'https://huggingface.co/rhasspy/piper-voices/resolve/v1.0.0/en/en_US/lessac/medium/en_US-lessac-medium.onnx.json': (
-            '/tmp/config', 'Voice configuration'),
+            '/tmp/config',
+            'Voice configuration',
+        ),
     }
     d = DownloadResources('Test download resources', 'Downloading voice data', urls)
     d.exec()

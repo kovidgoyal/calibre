@@ -2,7 +2,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class AdvancedUserRecipe1306061239(BasicNewsRecipe):
-    title = u'New Musical Express Magazine'
+    title = 'New Musical Express Magazine'
     description = 'UK Rock & Pop Mag.'
     __author__ = 'Dave Asbury, Inge Aning'
     category = 'Music, Film, Tv'
@@ -29,7 +29,7 @@ class AdvancedUserRecipe1306061239(BasicNewsRecipe):
     recursions = 0
 
     feeds = [
-        (u'NME News', u'http://www.nme.com/news/feed'),
-        (u'Reviews', u'http://www.nme.com/reviews/feed/'),
-        (u'Blogs', u'http://www.nme.com/blogs/feed'),
+        ('NME News', 'http://www.nme.com/news/feed'),
+        ('Reviews', 'http://www.nme.com/reviews/feed/'),
+        ('Blogs', 'http://www.nme.com/blogs/feed'),
     ]

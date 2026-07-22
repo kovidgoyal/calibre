@@ -32,8 +32,7 @@ def save_dir_container(container, path):
 def save_container(container, path):
     if container.is_dir:
         return save_dir_container(container, path)
-    temp = PersistentTemporaryFile(
-        prefix=('_' if iswindows else '.'), suffix=os.path.splitext(path)[1], dir=os.path.dirname(path))
+    temp = PersistentTemporaryFile(prefix=('_' if iswindows else '.'), suffix=os.path.splitext(path)[1], dir=os.path.dirname(path))
     if hasattr(os, 'fchown'):
         # Ensure file permissions and owner information is preserved
         fno = temp.fileno()
@@ -58,8 +57,10 @@ def save_container(container, path):
                 if err.errno != errno.EPERM:
                     raise
                 err_code = errno.errorcode.get(err.errno, str(err.errno))
-                raise OSError(f'Failed to change permissions of {temp.name} to {oct(st.st_mode)} ({format_permissions(st.st_mode)}), '
-                              f'with error: {err_code}. Most likely the {os.path.dirname(temp.name)} directory has a restrictive umask')
+                raise OSError(
+                    f'Failed to change permissions of {temp.name} to {oct(st.st_mode)} ({format_permissions(st.st_mode)}), '
+                    f'with error: {err_code}. Most likely the {os.path.dirname(temp.name)} directory has a restrictive umask'
+                )
             try:
                 os.fchown(fno, st.st_uid, st.st_gid)
             except OSError as err:
@@ -82,7 +83,8 @@ def save_container(container, path):
 def send_message(msg=''):
     if msg:
         from calibre.gui2.listener import send_message_in_process
-        send_message_in_process('bookedited:'+msg)
+
+        send_message_in_process('bookedited:' + msg)
 
 
 def find_first_existing_ancestor(path):
@@ -95,7 +97,6 @@ def find_first_existing_ancestor(path):
 
 
 class SaveWidget(QWidget):
-
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
         self.l = l = QHBoxLayout(self)
@@ -121,7 +122,6 @@ class SaveWidget(QWidget):
 
 
 class SaveManager(QObject):
-
     start_save = pyqtSignal()
     report_error = pyqtSignal(object)
     save_done = pyqtSignal()
@@ -161,6 +161,7 @@ class SaveManager(QObject):
                 error_occurred = self.process_save(count, tdir, container)
             except Exception:
                 import traceback
+
                 traceback.print_exc()
             finally:
                 self.requests.task_done()
@@ -177,7 +178,7 @@ class SaveManager(QObject):
         self.notify_data = None
 
     def __empty_queue(self):
-        " Only to be used during shutdown "
+        "Only to be used during shutdown"
         while True:
             try:
                 self.requests.get_nowait()
@@ -197,6 +198,7 @@ class SaveManager(QObject):
             self.do_save(tdir, container)
         except Exception:
             import traceback
+
             self.report_error.emit(traceback.format_exc())
             error_occurred = True
         self.save_done.emit()

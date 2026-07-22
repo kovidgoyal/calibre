@@ -26,10 +26,9 @@ from calibre.ebooks.BeautifulSoup import BeautifulSoup
 
 
 class ZeitDe(BasicNewsRecipe):
-
-    __author__ = 'Armin Geller, Thomas Hollstegge'    # AGe 2014-02-26
-    title = u'Zeit Online'
-    description = u'German online portal of newspaper Die Zeit'
+    __author__ = 'Armin Geller, Thomas Hollstegge'  # AGe 2014-02-26
+    title = 'Zeit Online'
+    description = 'German online portal of newspaper Die Zeit'
     publisher = 'ZEIT ONLINE GmbH'
     category = 'news, Germany'
     timefmt = ' [%a, %d %b %Y]'
@@ -61,7 +60,7 @@ class ZeitDe(BasicNewsRecipe):
         'days': {
             'short': 'Oldest article to download from this news source. In days ',
             'long': 'For example, 0.5, gives you articles from the past 12 hours',
-            'default': str(oldest_article)
+            'default': str(oldest_article),
         }
     }
 
@@ -72,30 +71,18 @@ class ZeitDe(BasicNewsRecipe):
             self.oldest_article = float(d)
 
     feeds = [
-        (u'Startseite – Die wichtigsten Themen auf einen Blick',
-         u'https://newsfeed.zeit.de/index'),
-        (u'Politik – Ausland und Deutschland',
-         u'https://newsfeed.zeit.de/politik/index'),
-        (u'Gesellschaft – Gesellschaft und soziales Leben',
-         u'https://newsfeed.zeit.de/gesellschaft/index'),
-        (u'Wirtschaft – Wirtschaft und Unternehmen',
-         u'https://newsfeed.zeit.de/wirtschaft/index'),
-        (u'Kultur – Literatur, Kunst, Film und Musik',
-         u'https://newsfeed.zeit.de/kultur/index'),
-        (u'Wissen – Wissenschaft, Gesundheit, Umwelt und Geschichte',
-         u'https://newsfeed.zeit.de/wissen/index'),
-        (u'Digital – Hardware, Software, Internet, Datenschutz',
-         u'https://newsfeed.zeit.de/digital/index'),
-        (u'ZEIT Campus Online - Studieren, arbeiten, leben',
-         u'https://newsfeed.zeit.de/campus/index'),
-        (u'Arbeit - Umbruch, Neuanfang, Erfolg, Zweifel',
-         u'https://newsfeed.zeit.de/arbeit/index'),
-        (u'Entdecken - Die Poesie des Alltäglichen',
-         u'https://newsfeed.zeit.de/entdecken/index'),
-        (u'Mobilität – Wie wir uns fortbewegen',
-         u'https://newsfeed.zeit.de/mobilitaet/index'),  # AGe 2014-01-09
-        (u'Sport – Sieg und Niederlage',
-         u'https://newsfeed.zeit.de/sport/index')
+        ('Startseite – Die wichtigsten Themen auf einen Blick', 'https://newsfeed.zeit.de/index'),
+        ('Politik – Ausland und Deutschland', 'https://newsfeed.zeit.de/politik/index'),
+        ('Gesellschaft – Gesellschaft und soziales Leben', 'https://newsfeed.zeit.de/gesellschaft/index'),
+        ('Wirtschaft – Wirtschaft und Unternehmen', 'https://newsfeed.zeit.de/wirtschaft/index'),
+        ('Kultur – Literatur, Kunst, Film und Musik', 'https://newsfeed.zeit.de/kultur/index'),
+        ('Wissen – Wissenschaft, Gesundheit, Umwelt und Geschichte', 'https://newsfeed.zeit.de/wissen/index'),
+        ('Digital – Hardware, Software, Internet, Datenschutz', 'https://newsfeed.zeit.de/digital/index'),
+        ('ZEIT Campus Online - Studieren, arbeiten, leben', 'https://newsfeed.zeit.de/campus/index'),
+        ('Arbeit - Umbruch, Neuanfang, Erfolg, Zweifel', 'https://newsfeed.zeit.de/arbeit/index'),
+        ('Entdecken - Die Poesie des Alltäglichen', 'https://newsfeed.zeit.de/entdecken/index'),
+        ('Mobilität – Wie wir uns fortbewegen', 'https://newsfeed.zeit.de/mobilitaet/index'),  # AGe 2014-01-09
+        ('Sport – Sieg und Niederlage', 'https://newsfeed.zeit.de/sport/index'),
     ]
 
     def get_browser(self):
@@ -104,17 +91,30 @@ class ZeitDe(BasicNewsRecipe):
         # Add a cookie indicating we have accepted the cookie
         # policy
         ck = Cookie(
-            version=0, name='zonconsent', value=datetime.now().isoformat(), port=None,
-            port_specified=False, domain='.zeit.de',
-            domain_specified=False, domain_initial_dot=True, path='/',
-            path_specified=False, secure=True, expires=None, discard=False,
-            comment=None, comment_url=None, rest={'HttpOnly': None}, rfc2109=False)
+            version=0,
+            name='zonconsent',
+            value=datetime.now().isoformat(),
+            port=None,
+            port_specified=False,
+            domain='.zeit.de',
+            domain_specified=False,
+            domain_initial_dot=True,
+            path='/',
+            path_specified=False,
+            secure=True,
+            expires=None,
+            discard=False,
+            comment=None,
+            comment_url=None,
+            rest={'HttpOnly': None},
+            rfc2109=False,
+        )
         br.cookiejar.set_cookie(ck)
         return br
 
     def print_version(self, url):
         # If there is a complete page, use that one
-        req = Request(url=url+'/komplettansicht')
+        req = Request(url=url + '/komplettansicht')
         req.get_method = lambda: 'HEAD'
         try:
             urlopen(req)

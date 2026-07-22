@@ -20,15 +20,13 @@ class DeutscheWelle_bs(BasicNewsRecipe):
     ignore_duplicate_articles = {'title', 'url'}
     remove_attributes = ['height', 'width', 'style']
 
-    keep_only_tags = [
-        dict(name='article')
-    ]
+    keep_only_tags = [dict(name='article')]
 
     recipe_specific_options = {
         'days': {
             'short': 'Oldest article to download from this news source. In days ',
             'long': 'For example, 0.5, gives you articles from the past 12 hours',
-            'default': str(oldest_article)
+            'default': str(oldest_article),
         }
     }
 
@@ -38,19 +36,15 @@ class DeutscheWelle_bs(BasicNewsRecipe):
         if d and isinstance(d, str):
             self.oldest_article = float(d)
 
-    remove_tags = [
-        dict(name=['footer', 'source']),
-        dict(attrs={'data-tracking-name':'sharing-icons-inline'}),
-        classes('kicker advertisement vjs-wrapper')
-    ]
+    remove_tags = [dict(name=['footer', 'source']), dict(attrs={'data-tracking-name': 'sharing-icons-inline'}), classes('kicker advertisement vjs-wrapper')]
 
     feeds = [
-        (u'Politika', u'http://rss.dw-world.de/rdf/rss-bos-pol'),
-        (u'Evropa', u'http://rss.dw-world.de/rdf/rss-bos-eu'),
-        (u'Kiosk', u'http://rss.dw-world.de/rdf/rss-bos-eu'),
-        (u'Ekonomija i Nuka', u'http://rss.dw-world.de/rdf/rss-bos-eco'),
-        (u'Kultura', u'http://rss.dw-world.de/rdf/rss-bos-cul'),
-        (u'Sport', u'http://rss.dw-world.de/rdf/rss-bos-sp')
+        ('Politika', 'http://rss.dw-world.de/rdf/rss-bos-pol'),
+        ('Evropa', 'http://rss.dw-world.de/rdf/rss-bos-eu'),
+        ('Kiosk', 'http://rss.dw-world.de/rdf/rss-bos-eu'),
+        ('Ekonomija i Nuka', 'http://rss.dw-world.de/rdf/rss-bos-eco'),
+        ('Kultura', 'http://rss.dw-world.de/rdf/rss-bos-cul'),
+        ('Sport', 'http://rss.dw-world.de/rdf/rss-bos-sp'),
     ]
 
     def preprocess_html(self, soup):

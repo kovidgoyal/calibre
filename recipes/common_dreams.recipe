@@ -20,10 +20,10 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class CommonDreams(BasicNewsRecipe):
     # Identify the recipe
 
-    title = u'Common Dreams'
-    description = u'Breaking News & Views for the Progressive Community.'
+    title = 'Common Dreams'
+    description = 'Breaking News & Views for the Progressive Community.'
     cover_url = 'https://s3.amazonaws.com/s3.commondreams.org/images/common-dreams.png'
-    __author__ = u'XanthanGum'
+    __author__ = 'XanthanGum'
     language = 'en'
 
     oldest_article = 7
@@ -53,26 +53,35 @@ class CommonDreams(BasicNewsRecipe):
                    h4, h5, h6 { font-size: 100%; font-weight: bold; }'''
 
     # Remove the line breaks and float left/right and picture width/height.
-    preprocess_regexps = [(re.compile(r'<br[ ]*/>', re.IGNORECASE), lambda m: ''),
-                          (re.compile(
-                              r'<br[ ]*clear.*/>', re.IGNORECASE), lambda m: ''),
-                          (re.compile(r'float:.*?'), lambda m: ''),
-                          (re.compile(r'width:.*?px'), lambda m: ''),
-                          (re.compile(r'height:.*?px'), lambda m: ''),
-                          (re.compile(r'<a.*?>'), lambda m: ''),
-                          (re.compile(r'</a>'), lambda m: ''),
-                          ]
+    preprocess_regexps = [
+        (re.compile(r'<br[ ]*/>', re.IGNORECASE), lambda m: ''),
+        (re.compile(r'<br[ ]*clear.*/>', re.IGNORECASE), lambda m: ''),
+        (re.compile(r'float:.*?'), lambda m: ''),
+        (re.compile(r'width:.*?px'), lambda m: ''),
+        (re.compile(r'height:.*?px'), lambda m: ''),
+        (re.compile(r'<a.*?>'), lambda m: ''),
+        (re.compile(r'</a>'), lambda m: ''),
+    ]
 
     # Main article is inside this tag
-    keep_only_tags = [dict(name='h1', attrs={'class': 'node__title managed-node-title'}),
-                      dict(name='div', attrs={'class': ['field field--name-field-article-img field--type-image field--label-hidden',
-                                                        'field field--name-body field--type-text-with-summary field--label-hidden']}),
-                      ]
+    keep_only_tags = [
+        dict(name='h1', attrs={'class': 'node__title managed-node-title'}),
+        dict(
+            name='div',
+            attrs={
+                'class': [
+                    'field field--name-field-article-img field--type-image field--label-hidden',
+                    'field field--name-body field--type-text-with-summary field--label-hidden',
+                ]
+            },
+        ),
+    ]
 
     # Identify the news feeds
 
-    feeds = [(u'Headlines', u'https://www.commondreams.org/feed/headlines_rss'),
-             (u'Further News Articles',
-              u'https://www.commondreams.org/feed/further_rss'),
-             (u'Views', u'https://www.commondreams.org/feed/views_rss'),
-             (u'Progressive Newswire', u'https://www.commondreams.org/feed/newswire_rss')]
+    feeds = [
+        ('Headlines', 'https://www.commondreams.org/feed/headlines_rss'),
+        ('Further News Articles', 'https://www.commondreams.org/feed/further_rss'),
+        ('Views', 'https://www.commondreams.org/feed/views_rss'),
+        ('Progressive Newswire', 'https://www.commondreams.org/feed/newswire_rss'),
+    ]

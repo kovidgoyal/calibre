@@ -28,9 +28,9 @@ class google_news_de(BasicNewsRecipe):
     # ---- can be edit by user
     simultaneous_downloads = 10
     # description, some Reader show this in titlepage
-    description = u'Google News filter by your own recipe. Please read it in calibre software!'
+    description = 'Google News filter by your own recipe. Please read it in calibre software!'
     # What is the content of?
-    category = u'NEWS'
+    category = 'NEWS'
     # describes itself,                                                     ---- can be edit by user
     use_embedded_content = False
     remove_javascript = True
@@ -50,8 +50,11 @@ class google_news_de(BasicNewsRecipe):
             url = e.hdrs.get('location')
         soup = self.index_to_soup(url)
         link = soup.find('a', href=True)
-        skip_sections =[  # add sections you want to skip
-            '/video/', '/videos/', '/media/', 'podcast-'
+        skip_sections = [  # add sections you want to skip
+            '/video/',
+            '/videos/',
+            '/media/',
+            'podcast-',
         ]
         if any(x in link['href'] for x in skip_sections):
             self.log('Aborting Article ', link['href'])
@@ -74,19 +77,16 @@ class google_news_de(BasicNewsRecipe):
         country_code = str(data['country_code']).lower()  # for me this is de
         city = data['city']
         self.feeds = [
-            ('Google news Topnews for ' + country_code,
-             'https://news.google.com/news?pz=1&cf=all&ned=' + country_code +
-             '&hl=' + country_code + '&output=rss'),
+            ('Google news Topnews for ' + country_code, 'https://news.google.com/news?pz=1&cf=all&ned=' + country_code + '&hl=' + country_code + '&output=rss'),
         ]
         if city:
             location = '{},{}'.format(city, country_code)
             self.feeds.append(
-                ('Google news for ' + location, 'https://news.google.' +
-                country_code + '/news/rss/headlines/section/geo/' + location),
+                ('Google news for ' + location, 'https://news.google.' + country_code + '/news/rss/headlines/section/geo/' + location),
             )
         for searchfor in terms_to_search_for:
-            self.feeds.append(
-                ('Google news interested in ' + searchfor,
-                 'https://news.google.com/news?cf=all&hl=' + country_code +
-                 '+&pz=1&ned=' + country_code + '&q=' + searchfor + '&output=rss'))
+            self.feeds.append((
+                'Google news interested in ' + searchfor,
+                'https://news.google.com/news?cf=all&hl=' + country_code + '+&pz=1&ned=' + country_code + '&q=' + searchfor + '&output=rss',
+            ))
         return BasicNewsRecipe.get_feeds(self)

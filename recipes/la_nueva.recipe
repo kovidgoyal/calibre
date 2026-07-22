@@ -12,9 +12,8 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class AdvancedUserRecipe1294946868(BasicNewsRecipe):
-
-    title = u'La Nueva España'
-    publisher = u'Editorial Prensa Iberica'
+    title = 'La Nueva España'
+    publisher = 'Editorial Prensa Iberica'
 
     __author__ = 'Luis Hernandez'
     description = 'Diario independiente de Asturias'
@@ -32,8 +31,8 @@ class AdvancedUserRecipe1294946868(BasicNewsRecipe):
     timefmt = '[%a, %d %b, %Y]'
 
     keep_only_tags = [
-        dict(name='div', attrs={'class': ['noticia_titular', 'subtitulo', 'noticiadd2', 'noticia_texto']}), dict(
-            name='div', attrs={'id': ['noticia_texto']})
+        dict(name='div', attrs={'class': ['noticia_titular', 'subtitulo', 'noticiadd2', 'noticia_texto']}),
+        dict(name='div', attrs={'id': ['noticia_texto']}),
     ]
 
     extra_css = ' p{text-align: justify; font-size: 100%} body{ text-align: left; font-family: serif; font-size: 100% } h1{ font-family: sans-serif; font-size:150%; font-weight: 600; text-align: justify; } h2{ font-family: sans-serif; font-size:120%; font-weight: 500; text-align: justify } '  # noqa: E501
@@ -42,34 +41,50 @@ class AdvancedUserRecipe1294946868(BasicNewsRecipe):
     remove_tags_after = dict(name='div', attrs={'class': ['fin_noticia']})
 
     remove_tags = [
-        dict(name='div', attrs={'class': ['epigrafe', 'antetitulo', 'bloqueclear', 'bloqueclear_video', 'cuadro_multimedia', 'cintillo2',
-                                          'editor_documentos', 'noticiadd', 'noticiadd3', 'noticiainterior', 'fin_noticia']}), dict(name='div', attrs={'id': ['evotos']})  # noqa: E501
+        dict(
+            name='div',
+            attrs={
+                'class': [
+                    'epigrafe',
+                    'antetitulo',
+                    'bloqueclear',
+                    'bloqueclear_video',
+                    'cuadro_multimedia',
+                    'cintillo2',
+                    'editor_documentos',
+                    'noticiadd',
+                    'noticiadd3',
+                    'noticiainterior',
+                    'fin_noticia',
+                ]
+            },
+        ),
+        dict(name='div', attrs={'id': ['evotos']}),  # noqa: E501
     ]
 
     feeds = [
-
-    (u'Al minuto', u'http://www.lne.es/elementosInt/rss/AlMinuto'),
-    (u'General', u'http://www.lne.es/elementosInt/rss/55'),
-    (u'Nacional', u'http://www.lne.es/elementosInt/rss/43'),
-    (u'Internacional', u'http://www.lne.es/elementosInt/rss/44'),
-    (u'Economia', u'http://www.lne.es/elementosInt/rss/45'),
-    (u'Deportes', u'http://www.lne.es/elementosInt/rss/47'),
-    (u'Campeones', u'http://www.lne.es/elementosInt/rss/65'),
-    (u'Sociedad', u'http://www.lne.es/elementosInt/rss/46'),
-    (u'Sucesos', u'http://www.lne.es/elementosInt/rss/48'),
-    (u'Galeria', u'http://www.lne.es/elementosInt/rss/51'),
-    (u'Cultura', u'http://www.lne.es/elementosInt/rss/66'),
-    (u'Motor', u'http://www.lne.es/elementosInt/rss/62'),
-    (u'Opinion', u'http://www.lne.es/elementosInt/rss/52'),
-    (u'Asturias', u'http://www.lne.es/elementosInt/rss/42'),
-    (u'Oviedo', u'http://www.lne.es/elementosInt/rss/31'),
-    (u'Gijon', u'http://www.lne.es/elementosInt/rss/35'),
-    (u'Aviles', u'http://www.lne.es/elementosInt/rss/36'),
-    (u'Nalon', u'http://www.lne.es/elementosInt/rss/37'),
-    (u'Cuencas', u'http://www.lne.es/elementosInt/rss/38'),
-    (u'Caudal', u'http://www.lne.es/elementosInt/rss/39'),
-    (u'Oriente', u'http://www.lne.es/elementosInt/rss/40'),
-    (u'Occidente', u'http://www.lne.es/elementosInt/rss/41'),
-    (u'Mar y Campo', u'http://www.lne.es/elementosInt/rss/63'),
-    (u'Ultima', u'http://www.lne.es/elementosInt/rss/50')
+        ('Al minuto', 'http://www.lne.es/elementosInt/rss/AlMinuto'),
+        ('General', 'http://www.lne.es/elementosInt/rss/55'),
+        ('Nacional', 'http://www.lne.es/elementosInt/rss/43'),
+        ('Internacional', 'http://www.lne.es/elementosInt/rss/44'),
+        ('Economia', 'http://www.lne.es/elementosInt/rss/45'),
+        ('Deportes', 'http://www.lne.es/elementosInt/rss/47'),
+        ('Campeones', 'http://www.lne.es/elementosInt/rss/65'),
+        ('Sociedad', 'http://www.lne.es/elementosInt/rss/46'),
+        ('Sucesos', 'http://www.lne.es/elementosInt/rss/48'),
+        ('Galeria', 'http://www.lne.es/elementosInt/rss/51'),
+        ('Cultura', 'http://www.lne.es/elementosInt/rss/66'),
+        ('Motor', 'http://www.lne.es/elementosInt/rss/62'),
+        ('Opinion', 'http://www.lne.es/elementosInt/rss/52'),
+        ('Asturias', 'http://www.lne.es/elementosInt/rss/42'),
+        ('Oviedo', 'http://www.lne.es/elementosInt/rss/31'),
+        ('Gijon', 'http://www.lne.es/elementosInt/rss/35'),
+        ('Aviles', 'http://www.lne.es/elementosInt/rss/36'),
+        ('Nalon', 'http://www.lne.es/elementosInt/rss/37'),
+        ('Cuencas', 'http://www.lne.es/elementosInt/rss/38'),
+        ('Caudal', 'http://www.lne.es/elementosInt/rss/39'),
+        ('Oriente', 'http://www.lne.es/elementosInt/rss/40'),
+        ('Occidente', 'http://www.lne.es/elementosInt/rss/41'),
+        ('Mar y Campo', 'http://www.lne.es/elementosInt/rss/63'),
+        ('Ultima', 'http://www.lne.es/elementosInt/rss/50'),
     ]

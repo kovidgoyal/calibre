@@ -7,7 +7,6 @@ from calibre.web.feeds.news import BasicNewsRecipe, classes
 
 
 class PhilosophyNow(BasicNewsRecipe):
-
     title = 'Philosophy Now'
     __author__ = 'unkn0wn'
     description = '''Philosophy Now is a lively magazine for everyone
@@ -27,19 +26,14 @@ class PhilosophyNow(BasicNewsRecipe):
     masthead_url = 'https://philosophynow.org/media/images/regulars/logoStructuredData.png'
 
     keep_only_tags = [classes('article_page')]
-    remove_tags = [dict(name='div', attrs={'id':'welcome_box'})]
+    remove_tags = [dict(name='div', attrs={'id': 'welcome_box'})]
     extra_css = '''
         img {display:block; margin:0 auto;}
         .articleImageCaption { font-size:small; text-align:center; }
         em, blockquote { color:#202020; }
     '''
 
-    recipe_specific_options = {
-        'issue': {
-            'short': 'Enter the Issue Number you want to download ',
-            'long': 'For example, 136'
-        }
-    }
+    recipe_specific_options = {'issue': {'short': 'Enter the Issue Number you want to download ', 'long': 'For example, 136'}}
 
     def parse_index(self):
         soup = self.index_to_soup('https://philosophynow.org/')
@@ -59,7 +53,7 @@ class PhilosophyNow(BasicNewsRecipe):
 
         feeds = OrderedDict()
 
-        for h2 in soup.findAll('h2', attrs={'class':'article_list_title'}):
+        for h2 in soup.findAll('h2', attrs={'class': 'article_list_title'}):
             articles = []
             a = h2.find('a', href=True)
             url = a['href']
@@ -73,10 +67,7 @@ class PhilosophyNow(BasicNewsRecipe):
             self.log('\t', title)
             self.log('\t', desc)
             self.log('\t\t', url)
-            articles.append({
-                'title': title,
-                'url': url,
-                'description': desc})
+            articles.append({'title': title, 'url': url, 'description': desc})
 
             if articles:
                 if section_title not in feeds:

@@ -17,26 +17,26 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class LEquipePremium(BasicNewsRecipe):
-    title                = "L'Équipe"
-    __author__           = 'Kabonix'
-    description          = "Articles abonnés L'Équipe avec notes de matchs complètes"
-    publisher            = "L'Équipe"
-    publication_type     = 'newspaper'
-    language             = 'fr'
-    encoding             = 'utf-8'
+    title = "L'Équipe"
+    __author__ = 'Kabonix'
+    description = "Articles abonnés L'Équipe avec notes de matchs complètes"
+    publisher = "L'Équipe"
+    publication_type = 'newspaper'
+    language = 'fr'
+    encoding = 'utf-8'
 
-    oldest_article       = 1
-    no_stylesheets       = True
+    oldest_article = 1
+    no_stylesheets = True
     ignore_duplicate_articles = {'title', 'url'}
-    remove_empty_feeds   = True
-    auto_cleanup         = False
-    delay                = 1
+    remove_empty_feeds = True
+    auto_cleanup = False
+    delay = 1
 
     # ------------------------------------------------------------------ #
     #  Auth — hardcodé dans les DEX natifs de l'APK                       #
     # ------------------------------------------------------------------ #
     browser_user_agent = 'MOBILE-LEQUIPE/android/phone/10.58.2/premium/wifi/test'
-    auth_header        = 'Basic ZXFuOkVRTjIwMTQ='   # eqn:EQN2014
+    auth_header = 'Basic ZXFuOkVRTjIwMTQ='  # eqn:EQN2014
 
     # ------------------------------------------------------------------ #
     #  Couverture dynamique — scraping page kiosque Twipe                 #
@@ -44,15 +44,12 @@ class LEquipePremium(BasicNewsRecipe):
     # ------------------------------------------------------------------ #
     def get_cover_url(self):
         try:
-            req = urllib.request.Request(
-                'https://www.lequipe.fr/abonnement/kiosque/',
-                headers={'User-Agent': 'Mozilla/5.0'}
-            )
+            req = urllib.request.Request('https://www.lequipe.fr/abonnement/kiosque/', headers={'User-Agent': 'Mozilla/5.0'})
             html = urllib.request.urlopen(req, timeout=10).read().decode('utf-8')
             m = re.search(
                 r'https://eqp-eqp-webreader-production\.twipemobile\.com'
                 r'/data/1627/covers/Preview-MEDIUM-\d+\.jpg[^"&]*',
-                html
+                html,
             )
             if m:
                 return m.group(0)
@@ -68,9 +65,9 @@ class LEquipePremium(BasicNewsRecipe):
     def get_browser(self, *args, **kwargs):
         br = BasicNewsRecipe.get_browser(self, *args, **kwargs)
         br.addheaders = [
-            ('User-Agent',    self.browser_user_agent),
+            ('User-Agent', self.browser_user_agent),
             ('Authorization', self.auth_header),
-            ('Accept',        'application/json'),
+            ('Accept', 'application/json'),
         ]
         return br
 
@@ -97,16 +94,13 @@ class LEquipePremium(BasicNewsRecipe):
     # ------------------------------------------------------------------ #
     def parse_playing_field(self, data_url):
         try:
-            req = urllib.request.Request(
-                data_url,
-                headers={'User-Agent': self.browser_user_agent}
-            )
-            raw  = urllib.request.urlopen(req, timeout=10).read().decode('utf-8')
-            d    = json.loads(raw)
+            req = urllib.request.Request(data_url, headers={'User-Agent': self.browser_user_agent})
+            raw = urllib.request.urlopen(req, timeout=10).read().decode('utf-8')
+            d = json.loads(raw)
         except Exception:
             return ''
 
-        html    = '<hr style="margin:1em 0;"/>'
+        html = '<hr style="margin:1em 0;"/>'
         equipes = d.get('equipes', [])
 
         # --- Score et note globale des équipes ---
@@ -133,14 +127,14 @@ class LEquipePremium(BasicNewsRecipe):
         # --- Titulaires et remplaçants par équipe ---
         banc = d.get('banc', [])
         for idx, equipe in enumerate(equipes):
-            couleur       = equipe['couleur']
+            couleur = equipe['couleur']
             couleur_texte = equipe['couleur_texte']
-            nom_equipe    = equipe['nom']
+            nom_equipe = equipe['nom']
 
-            titulaires  = [j for j in d.get('titulaires', []) if j.get('couleur') == couleur]
+            titulaires = [j for j in d.get('titulaires', []) if j.get('couleur') == couleur]
             banc_equipe = banc[idx] if idx < len(banc) else {}
             remplacants = banc_equipe.get('remplacants', [])
-            entraineur  = banc_equipe.get('entraineur', {})
+            entraineur = banc_equipe.get('entraineur', {})
 
             html += (
                 f'<h3 style="background:{couleur};color:{couleur_texte};'
@@ -154,10 +148,10 @@ class LEquipePremium(BasicNewsRecipe):
             )
 
             for j in titulaires:
-                note    = j.get('note', '-')
-                nom     = j.get('nom', '')
-                buts    = ' ⚽' * len(j.get('buts', []))
-                sortie  = f"↓{j['min_sortie']}'" if j.get('min_sortie') else ''
+                note = j.get('note', '-')
+                nom = j.get('nom', '')
+                buts = ' ⚽' * len(j.get('buts', []))
+                sortie = f"↓{j['min_sortie']}'" if j.get('min_sortie') else ''
                 html += (
                     f'<tr>'
                     f'<td style="padding:3px;">{nom}{buts}</td>'
@@ -170,10 +164,10 @@ class LEquipePremium(BasicNewsRecipe):
             for j in remplacants:
                 note = j.get('note', '/')
                 if note and note not in ('/', ''):
-                    nom     = j.get('nom', '')
-                    entree  = f"↑{j['min_entree']}'" if j.get('min_entree') else ''
+                    nom = j.get('nom', '')
+                    entree = f"↑{j['min_entree']}'" if j.get('min_entree') else ''
                     remplace = j.get('remplace', '')
-                    buts    = ' ⚽' * len(j.get('buts', []))
+                    buts = ' ⚽' * len(j.get('buts', []))
                     html += (
                         f'<tr style="color:#555;">'
                         f'<td style="padding:3px;font-style:italic;">'
@@ -188,9 +182,9 @@ class LEquipePremium(BasicNewsRecipe):
             if entraineur:
                 html += (
                     f'<tr style="background:#f0f0f0;">'
-                    f'<td style="padding:3px;"><b>Entr. {entraineur.get("nom","")}</b></td>'
+                    f'<td style="padding:3px;"><b>Entr. {entraineur.get("nom", "")}</b></td>'
                     f'<td style="text-align:center;padding:3px;font-weight:bold;">'
-                    f'{entraineur.get("note","-")}</td>'
+                    f'{entraineur.get("note", "-")}</td>'
                     f'<td></td>'
                     f'</tr>'
                 )
@@ -200,11 +194,7 @@ class LEquipePremium(BasicNewsRecipe):
         # Arbitre
         arbitre = d.get('arbitre', {})
         if arbitre:
-            html += (
-                f'<p style="color:gray;font-size:0.85em;margin-top:4px;">'
-                f'Arbitre : {arbitre.get("nom","")} — Note : {arbitre.get("note","-")}'
-                f'</p>'
-            )
+            html += f'<p style="color:gray;font-size:0.85em;margin-top:4px;">Arbitre : {arbitre.get("nom", "")} — Note : {arbitre.get("note", "-")}</p>'
 
         html += '<hr style="margin:1em 0;"/>'
         return html
@@ -225,12 +215,12 @@ class LEquipePremium(BasicNewsRecipe):
         except Exception:
             return '<html><body><p>Erreur JSON</p></body></html>'
 
-        title      = ''
+        title = ''
         image_html = ''
-        body       = ''
+        body = ''
 
         for item in data.get('items', []):
-            obj      = item.get('objet', {})
+            obj = item.get('objet', {})
             obj_type = obj.get('__type', '')
 
             # --- En-tête article (titre + image) ---
@@ -240,10 +230,7 @@ class LEquipePremium(BasicNewsRecipe):
                 media = obj.get('media', {})
                 img_url = media.get('url', '')
                 if img_url:
-                    img_url = (img_url
-                               .replace('{width}',   '800')
-                               .replace('{height}',  '600')
-                               .replace('{quality}', '85'))
+                    img_url = img_url.replace('{width}', '800').replace('{height}', '600').replace('{quality}', '85')
                     legende = media.get('legende', '')
                     image_html = (
                         f'<figure style="margin:0 0 1em 0;">'
@@ -255,9 +242,9 @@ class LEquipePremium(BasicNewsRecipe):
             # --- Corps de l'article ---
             elif obj_type == 'article_body':
                 for p in obj.get('paragraphs', []):
-                    layout  = p.get('layout', '')
+                    layout = p.get('layout', '')
                     content = p.get('content', '')
-                    ptitle  = p.get('title', '')
+                    ptitle = p.get('title', '')
 
                     if layout == 'chapo':
                         body += f'<p style="font-size:1.1em;font-style:italic;">{self.strip_links(content)}</p>'
@@ -271,24 +258,17 @@ class LEquipePremium(BasicNewsRecipe):
                         note_obj = p.get('note')
                         if note_obj and note_obj.get('layout') == 'team':
                             # Titre de section équipe (ex : "Chelsea — Note : 3,8")
-                            label  = note_obj.get('label', '')
+                            label = note_obj.get('label', '')
                             rating = note_obj.get('rating_label', note_obj.get('rating', ''))
-                            color  = note_obj.get('background_color', '#333')
+                            color = note_obj.get('background_color', '#333')
                             tcolor = note_obj.get('text_color', '#fff')
-                            body += (
-                                f'<h2 style="background:{color};color:{tcolor};'
-                                f'padding:4px 8px;margin-top:1.2em;">'
-                                f'{label} — Note : {rating}</h2>'
-                            )
+                            body += f'<h2 style="background:{color};color:{tcolor};padding:4px 8px;margin-top:1.2em;">{label} — Note : {rating}</h2>'
                         elif content:
                             # Note individuelle joueur avec photo optionnelle
                             img_obj = p.get('image', {})
                             img_url = img_obj.get('url', '') if img_obj else ''
                             if img_url:
-                                img_url = (img_url
-                                           .replace('{width}',   '120')
-                                           .replace('{height}',  '120')
-                                           .replace('{quality}', '80'))
+                                img_url = img_url.replace('{width}', '120').replace('{height}', '120').replace('{quality}', '80')
                                 body += (
                                     f'<table style="margin:0.5em 0;width:100%;">'
                                     f'<tr>'
@@ -312,28 +292,19 @@ class LEquipePremium(BasicNewsRecipe):
 
                     # on ignore aussi layout_DFP / pub_DFP / pub
 
-        return (
-            f'<html>'
-            f'<head><meta charset="utf-8"><title>{title}</title></head>'
-            f'<body>'
-            f'{image_html}'
-            f'<h1>{title}</h1>'
-            f'{body}'
-            f'</body>'
-            f'</html>'
-        )
+        return f'<html><head><meta charset="utf-8"><title>{title}</title></head><body>{image_html}<h1>{title}</h1>{body}</body></html>'
 
     # ------------------------------------------------------------------ #
     #  Flux RSS                                                            #
     # ------------------------------------------------------------------ #
     feeds = [
-        ('À la une',     'https://dwh.lequipe.fr/api/edito/rss?path=/'),
-        ('Football',     'https://dwh.lequipe.fr/api/edito/rss?path=/Football'),
-        ('Tennis',       'https://dwh.lequipe.fr/api/edito/rss?path=/Tennis'),
-        ('Cyclisme',     'https://dwh.lequipe.fr/api/edito/rss?path=/Cyclisme-sur-route'),
-        ('Rugby',        'https://dwh.lequipe.fr/api/edito/rss?path=/Rugby'),
-        ('Basket',       'https://dwh.lequipe.fr/api/edito/rss?path=/Basket'),
-        ('Formule 1',    'https://dwh.lequipe.fr/api/edito/rss?path=/Formule-1'),
-        ('Athlétisme',   'https://dwh.lequipe.fr/api/edito/rss?path=/Athletisme'),
-        ('Handball',     'https://dwh.lequipe.fr/api/edito/rss?path=/Handball'),
+        ('À la une', 'https://dwh.lequipe.fr/api/edito/rss?path=/'),
+        ('Football', 'https://dwh.lequipe.fr/api/edito/rss?path=/Football'),
+        ('Tennis', 'https://dwh.lequipe.fr/api/edito/rss?path=/Tennis'),
+        ('Cyclisme', 'https://dwh.lequipe.fr/api/edito/rss?path=/Cyclisme-sur-route'),
+        ('Rugby', 'https://dwh.lequipe.fr/api/edito/rss?path=/Rugby'),
+        ('Basket', 'https://dwh.lequipe.fr/api/edito/rss?path=/Basket'),
+        ('Formule 1', 'https://dwh.lequipe.fr/api/edito/rss?path=/Formule-1'),
+        ('Athlétisme', 'https://dwh.lequipe.fr/api/edito/rss?path=/Athletisme'),
+        ('Handball', 'https://dwh.lequipe.fr/api/edito/rss?path=/Handball'),
     ]

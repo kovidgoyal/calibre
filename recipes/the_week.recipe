@@ -36,8 +36,7 @@ class TheWeekRecipe(BasicNewsRecipe):
         dict(attrs={'class': lambda cls: cls and 'ad_slot' in cls}),
         dict(attrs={'class': lambda cls: cls and 'article-header__action-block' in cls}),
         classes(
-            'article-header__author-social cmp-social-media__nav advt-pos-wrap '
-            'list-container-wrapper mmtagblock vuuklecomments article-header__author-image'
+            'article-header__author-social cmp-social-media__nav advt-pos-wrap list-container-wrapper mmtagblock vuuklecomments article-header__author-image'
         ),
     ]
 
@@ -59,9 +58,7 @@ class TheWeekRecipe(BasicNewsRecipe):
         # Fetch the cover image URL for the magazine issue
         edition_date = self.recipe_specific_options.get('date')
         if not (edition_date and isinstance(edition_date, str)):
-            soup = self.index_to_soup(
-                'https://www.magzter.com/IN/Malayala_Manorama/THE_WEEK/Business/'
-            )
+            soup = self.index_to_soup('https://www.magzter.com/IN/Malayala_Manorama/THE_WEEK/Business/')
             cover_img = soup.find('img', id=lambda s: s and 'mgd__lhd__cover' in s.split())
             return cover_img['src']
 
@@ -72,9 +69,7 @@ class TheWeekRecipe(BasicNewsRecipe):
             issue_url = f'https://www.theweek.in/theweek/{edition_date}.html'
         else:
             archive_soup = self.index_to_soup('https://www.theweek.in/magazine-archives.html')
-            issue_url = build_absolute_url(
-                archive_soup.find('a', **classes('cmp-story-list__image-link'))['href']
-            )
+            issue_url = build_absolute_url(archive_soup.find('a', **classes('cmp-story-list__image-link'))['href'])
         self.log(issue_url)
 
         soup = self.index_to_soup(issue_url)

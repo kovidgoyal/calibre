@@ -41,7 +41,6 @@ def _make_mock_db(field_for_map=None, field_metadata=None):
 
 
 class GroupKeyTest(unittest.TestCase):
-
     def test_pubdate_year_buckets_without_day_in_format(self):
         from datetime import datetime
 
@@ -67,6 +66,7 @@ class GroupKeyTest(unittest.TestCase):
 
     def test_pubdate_unknown_year_when_no_pubdate(self):
         from calibre.utils.iso8601 import UNDEFINED_DATE
+
         db = _make_mock_db(
             field_for_map={'pubdate': None},
             field_metadata={
@@ -192,6 +192,7 @@ class GroupKeyTest(unittest.TestCase):
         from datetime import datetime
 
         from qt.core import QDateTime, Qt
+
         ts_iso = '2023-06-15T08:00:00.000Z'
         ts_dt = datetime(2023, 6, 15, 8, 0, 0, tzinfo=UTC)
         db = _make_mock_db(
@@ -218,7 +219,6 @@ class GroupKeyTest(unittest.TestCase):
 
 
 class GroupKeysListTest(unittest.TestCase):
-
     def test_single_valued_field_returns_one_entry(self):
         db = _make_mock_db(
             field_for_map={'publisher': 'Tor Books'},
@@ -239,6 +239,7 @@ class GroupKeysListTest(unittest.TestCase):
 
     def test_multi_valued_field_empty_returns_ungrouped(self):
         from calibre.gui2.library.bookshelf_view import all_groupings
+
         db = _make_mock_db(
             field_for_map={'tags': ()},
             field_metadata={'tags': {'datatype': 'text', 'is_multiple': {'cache_to_list': ','}}},

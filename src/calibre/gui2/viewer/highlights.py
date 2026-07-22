@@ -108,7 +108,6 @@ def builtin_highlight_styles():
 
 
 class HighlightColorCombo(QComboBox):
-
     def __init__(self, parent=None):
         super().__init__(parent)
         is_dark = is_dark_theme()
@@ -116,12 +115,10 @@ class HighlightColorCombo(QComboBox):
         dpr = self.devicePixelRatioF()
         self.default_style_name = ''
         for name, style in custom_highlight_styles().items():
-            self.addItem(QIcon(decoration_for_style(
-                self.palette(), style, sz, dpr, is_dark, as_pixmap_only=True)), '', name)
+            self.addItem(QIcon(decoration_for_style(self.palette(), style, sz, dpr, is_dark, as_pixmap_only=True)), '', name)
         for name, style in builtin_highlight_styles().items():
             self.default_style_name = self.default_style_name or name
-            self.addItem(QIcon(decoration_for_style(
-                self.palette(), style, sz, dpr, is_dark, as_pixmap_only=True)), '', name)
+            self.addItem(QIcon(decoration_for_style(self.palette(), style, sz, dpr, is_dark, as_pixmap_only=True)), '', name)
         self.setCurrentIndex(self.findData(self.default_style_name))
 
     @property
@@ -177,14 +174,17 @@ def decoration_for_style(palette, style, icon_size, device_pixel_ratio, is_dark,
         p.setPen(palette.color(QPalette.ColorRole.WindowText))
         irect = QRect(0, 0, icon_size, icon_size)
         adjust = -2
-        text_rect = p.drawText(irect.adjusted(0, adjust, 0, adjust), Qt.AlignmentFlag.AlignHCenter| Qt.AlignmentFlag.AlignTop, 'a')
+        text_rect = p.drawText(irect.adjusted(0, adjust, 0, adjust), Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignTop, 'a')
         p.drawRect(irect)
         fm = p.fontMetrics()
         pen = p.pen()
         if 'text-decoration-color' in style:
             pen.setColor(QColor(style['text-decoration-color']))
         lstyle = style.get('text-decoration-style') or 'solid'
-        q = {'dotted': Qt.PenStyle.DotLine, 'dashed': Qt.PenStyle.DashLine, }.get(lstyle)
+        q = {
+            'dotted': Qt.PenStyle.DotLine,
+            'dashed': Qt.PenStyle.DashLine,
+        }.get(lstyle)
         if q is not None:
             pen.setStyle(q)
         lw = fm.lineWidth()
@@ -219,7 +219,6 @@ def decoration_for_style(palette, style, icon_size, device_pixel_ratio, is_dark,
 
 
 class SwatchList(QListWidget):
-
     def __init__(self, all_styles, selected_styles, parent=None):
         super().__init__(parent)
         self.setSelectionMode(QAbstractItemView.SelectionMode.NoSelection)
@@ -270,7 +269,6 @@ class SwatchList(QListWidget):
 
 
 class FilterDialog(Dialog):
-
     def __init__(self, all_styles, show_only_styles, parent=None):
         self.all_styles, self.show_only_styles = all_styles, show_only_styles
         super().__init__(_('Filter shown highlights'), 'filter-highlights', parent=parent)
@@ -322,11 +320,16 @@ class Export(ExportBase):
             return '\n'.join(lines).strip()
 
         if fmt == 'calibre_highlights':
-            return json.dumps({
-                'version': 1,
-                'type': 'calibre_highlights',
-                'highlights': self.annotations,
-            }, ensure_ascii=False, sort_keys=True, indent=2)
+            return json.dumps(
+                {
+                    'version': 1,
+                    'type': 'calibre_highlights',
+                    'highlights': self.annotations,
+                },
+                ensure_ascii=False,
+                sort_keys=True,
+                indent=2,
+            )
 
         if fmt == 'html':
             root = ChapterGroup()
@@ -347,7 +350,6 @@ class Export(ExportBase):
 
 
 class Highlights(QTreeWidget):
-
     jump_to_highlight = pyqtSignal(object)
     current_highlight_changed = pyqtSignal(object)
     delete_requested = pyqtSignal()
@@ -387,9 +389,11 @@ class Highlights(QTreeWidget):
         if h is not None:
             m.addAction(QIcon.ic('edit_input.png'), _('Modify this highlight'), self.edit_requested.emit)
             m.addAction(QIcon.ic('modified.png'), _('Edit notes for this highlight'), self.edit_notes_requested.emit)
-            m.addAction(QIcon.ic('trash.png'), ngettext(
-                'Delete this highlight', 'Delete selected highlights', len(self.selectedItems())
-            ), self.delete_requested.emit)
+            m.addAction(
+                QIcon.ic('trash.png'),
+                ngettext('Delete this highlight', 'Delete selected highlights', len(self.selectedItems())),
+                self.delete_requested.emit,
+            )
         m.addSeparator()
         if tuple(self.selected_highlights):
             m.addAction(QIcon.ic('save.png'), _('Export selected highlights'), self.export_selected_requested.emit)
@@ -446,7 +450,13 @@ class Highlights(QTreeWidget):
                 key = (spine_index, tsec or '', lsec or '')
             short_title = lsec or tsec or _('Unknown')
             section = {
-                'title': short_title, 'tfam': tfam, 'tsec': tsec, 'lsec': lsec, 'items': [], 'tooltip': tooltip_for(tfam), 'key': key,
+                'title': short_title,
+                'tfam': tfam,
+                'tsec': tsec,
+                'lsec': lsec,
+                'items': [],
+                'tooltip': tooltip_for(tfam),
+                'key': key,
             }
             smap.setdefault(key, section)['items'].append(h)
             repeated_short_titles[short_title].add(key)
@@ -483,6 +493,7 @@ class Highlights(QTreeWidget):
                     dec = decoration_for_style(self.palette(), h.get('style') or {}, icon_size, dpr, is_dark)
                 except Exception:
                     import traceback
+
                     traceback.print_exc()
                     dec = None
                 if dec is None:
@@ -638,7 +649,6 @@ class Highlights(QTreeWidget):
 
 
 class NotesEditDialog(Dialog):
-
     def __init__(self, notes, parent=None):
         self.initial_notes = notes
         Dialog.__init__(self, name='edit-notes-highlight', title=_('Edit notes'), parent=parent)
@@ -660,7 +670,6 @@ class NotesEditDialog(Dialog):
 
 
 class NotesDisplay(Details):
-
     notes_edited = pyqtSignal(object)
 
     def __init__(self, parent=None):
@@ -695,7 +704,6 @@ class NotesDisplay(Details):
 
 
 class HighlightsPanel(QWidget):
-
     request_highlight_action = pyqtSignal(object, object)
     web_action = pyqtSignal(object, object)
     toggle_requested = pyqtSignal()
@@ -767,8 +775,7 @@ class HighlightsPanel(QWidget):
 
     def search_requested(self, query):
         if not self.highlights.find_query(query):
-            error_dialog(self, _('No matches'), _(
-                'No highlights match the search: {}').format(query.text), show=True)
+            error_dialog(self, _('No matches'), _('No highlights match the search: {}').format(query.text), show=True)
 
     def focus(self):
         self.highlights.setFocus(Qt.FocusReason.OtherFocusReason)
@@ -787,8 +794,7 @@ class HighlightsPanel(QWidget):
             nd.show_notes(highlight['notes'])
 
     def no_selected_highlight(self):
-        error_dialog(self, _('No selected highlight'), _(
-            'No highlight is currently selected'), show=True)
+        error_dialog(self, _('No selected highlight'), _('No highlight is currently selected'), show=True)
 
     def edit_highlight(self):
         boss = get_boss()
@@ -808,10 +814,13 @@ class HighlightsPanel(QWidget):
             return self.no_selected_highlight()
         if confirm(
             ngettext(
-            'Are you sure you want to delete this highlight permanently?',
-            'Are you sure you want to delete all {} highlights permanently?',
-            len(highlights)).format(len(highlights)),
-            'delete-highlight-from-viewer', parent=self, config_set=vprefs
+                'Are you sure you want to delete this highlight permanently?',
+                'Are you sure you want to delete all {} highlights permanently?',
+                len(highlights),
+            ).format(len(highlights)),
+            'delete-highlight-from-viewer',
+            parent=self,
+            config_set=vprefs,
         ):
             for h in highlights:
                 self.request_highlight_action.emit(h['uuid'], 'delete')

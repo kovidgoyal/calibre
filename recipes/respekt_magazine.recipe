@@ -3,8 +3,8 @@
 # License:      GNU General Public License v3 - http://www.gnu.org/copyleft/gpl.html
 # Copyright:    tomashnyk@gmail.com
 
-__license__     = 'GNU General Public License v3 - http://www.gnu.org/copyleft/gpl.html'
-__copyright__   = 'tomashnyk@gmail.com'
+__license__ = 'GNU General Public License v3 - http://www.gnu.org/copyleft/gpl.html'
+__copyright__ = 'tomashnyk@gmail.com'
 
 
 # This imports the version bundled with Calibre
@@ -18,10 +18,10 @@ respekt_url = 'https://www.respekt.cz'
 
 
 class respektRecipe(BasicNewsRecipe):
-    __author__  = 'Tomáš Hnyk'
-    publisher = u'Respekt Publishing a. s.'
-    description = u'Articles from the print edition'
-    title = u'Respekt Magazine — Print'
+    __author__ = 'Tomáš Hnyk'
+    publisher = 'Respekt Publishing a. s.'
+    description = 'Articles from the print edition'
+    title = 'Respekt Magazine — Print'
     encoding = 'utf-8'
     language = 'cs'
     delay = 0.001
@@ -29,12 +29,12 @@ class respektRecipe(BasicNewsRecipe):
     remove_tags_before = dict(name='h1')
     remove_tags_after = [dict(id='postcontent')]
     remove_tags = [
-        dict(name='div',attrs={'id':['postsharepopup','survey-respondents']}),
-        dict(name='div',attrs={'class':['ad','ad-content','adinarticle','ad-caption','post-actions','authorship-note','quote','postgallery']}),
-        dict(name='a',attrs={'class':['quote','authorship-face']}),
-        dict(name='span',attrs={'class':'embed'}),
+        dict(name='div', attrs={'id': ['postsharepopup', 'survey-respondents']}),
+        dict(name='div', attrs={'class': ['ad', 'ad-content', 'adinarticle', 'ad-caption', 'post-actions', 'authorship-note', 'quote', 'postgallery']}),
+        dict(name='a', attrs={'class': ['quote', 'authorship-face']}),
+        dict(name='span', attrs={'class': 'embed'}),
         dict(name='svg'),
-        dict(name='script')
+        dict(name='script'),
     ]
 
     extra_css = '''p {text-align:justify;margin-top:0;margin-bottom:0}
@@ -71,7 +71,7 @@ class respektRecipe(BasicNewsRecipe):
     # So that remove_tags_before works for this section
     def preprocess_raw_html(self, raw_html, url):
         root = lxml.html.fromstring(raw_html)
-        if root.xpath('//title')[0].text == (u'Respekt • Despekt • RESPEKT'):
+        if root.xpath('//title')[0].text == ('Respekt • Despekt • RESPEKT'):
             raw_html = raw_html.replace('h2', 'h1')
         return raw_html
 
@@ -87,10 +87,10 @@ class respektRecipe(BasicNewsRecipe):
         s = date_text.split(' ')
         # Are the dates of the issue in the same month and year?
         if len(s) == 4 or len(s) == 7:
-            date = '/'.join([s[1].split('.')[0],s[2].split('.')[0],s[-1]])
+            date = '/'.join([s[1].split('.')[0], s[2].split('.')[0], s[-1]])
         elif len(s) == 8:
-            date = '/'.join([s[1].split('.')[0],s[2].split('.')[0],s[3]])
-        self.conversion_options = {'pubdate':date}
+            date = '/'.join([s[1].split('.')[0], s[2].split('.')[0], s[3]])
+        self.conversion_options = {'pubdate': date}
         self.title = 'Respekt magazine #' + '/'.join(current_edition_url.split('/')[-1:-3:-1])
         ans = []
         for section in root2.xpath("//div[@class='col-md-6']/div[@class='issuedetail-categorized-sectionname']"):
@@ -100,16 +100,16 @@ class respektRecipe(BasicNewsRecipe):
             while hasattr(article, 'text') and not article.text.strip():
                 title = article.xpath("span[@class='issuedetail-categorized-title']")[0].text
                 url = respekt_url + article.xpath('@href')[0]
-                articles.append({'title':title,'url':url})
+                articles.append({'title': title, 'url': url})
                 article = article.getnext()
-            ans.append((section_name,articles))
+            ans.append((section_name, articles))
         return ans
 
     def cleanup(self):
         self.browser.open('https://www.respekt.cz/?do=logout')
 
-    def preprocess_html(self,soup):
-        raw = u''.join(type(u'')(a) for a in soup.contents)
+    def preprocess_html(self, soup):
+        raw = ''.join(type('')(a) for a in soup.contents)
         root = lxml.html.fromstring(raw)
         # Fix Letem světem
         if 'Letem sv' in root.xpath('//title')[0].text:
@@ -118,31 +118,31 @@ class respektRecipe(BasicNewsRecipe):
                 next = par.getnext()
                 if par.getchildren():
                     child = par.getchildren()[0]
-                if hasattr(next,'tag') and next.tag == 'h2' and hasattr(child,'tag') and child.tag == 'strong':
+                if hasattr(next, 'tag') and next.tag == 'h2' and hasattr(child, 'tag') and child.tag == 'strong':
                     text = child.text_content()
                     if next.text:
-                        next.text = next.text + u' • ' + text
+                        next.text = next.text + ' • ' + text
                     elif next.getchildren():
                         next_child = next.getchildren()[0]
-                        next_child.text = next_child.text + u' • ' + text
+                        next_child.text = next_child.text + ' • ' + text
                     par.getparent().remove(par)
         # Insert text length
         text = root.xpath("//div[@id='postcontent']")[0]
-        article_length = u' • ' + str(len(text.text_content().split(' '))) + ' slov'
+        article_length = ' • ' + str(len(text.text_content().split(' '))) + ' slov'
         try:
             aut = root.xpath("//div[@class='authorship-names']")[0]
             if aut.getchildren() and aut.getchildren()[0].tag == 'a':
-                for i,t in enumerate(aut.getchildren()):
+                for i, t in enumerate(aut.getchildren()):
                     if i == 0:
                         t.text = 'Autor: ' + t.text + ' '
                     else:
                         t.text = t.text + ' '
                     # Remove link
                     e = E.span(t.text)
-                    t.getparent().replace(t,e)
+                    t.getparent().replace(t, e)
             else:
                 t = root.xpath("//span[@class='post-author-name']")[0]
-                t.text = ('Autor: ' + t.text + ' ')
+                t.text = 'Autor: ' + t.text + ' '
             root.xpath("//div[@class='authorship-names']")[0].append(E.span(article_length))
         except Exception:
             pass
@@ -151,8 +151,8 @@ class respektRecipe(BasicNewsRecipe):
         for picture in pictures:
             image = picture.xpath('//source')[0]
             image_link = [a for a in image.get('srcset').split(' ') if a[:4] == 'http'][-1]
-            e=E.img({'src':image_link})
-            picture.getparent().replace(picture,e)
+            e = E.img({'src': image_link})
+            picture.getparent().replace(picture, e)
         # Properly indent
         paragraphs = root.xpath('//p')
         paragraphs.reverse()
@@ -160,14 +160,14 @@ class respektRecipe(BasicNewsRecipe):
         for par in paragraphs[:-1]:
             prev = par.getprevious()
             # Do not indent after headings
-            if hasattr(prev,'tag') and prev.tag not in ['h2', 'h3']:
-                par.attrib['class']='indent_first_line'
+            if hasattr(prev, 'tag') and prev.tag not in ['h2', 'h3']:
+                par.attrib['class'] = 'indent_first_line'
         # Fix subtitle for Téma
         try:
             o = root.xpath("//p[@class='post-perex']")[0]
-            e = E.h2({'class':'post-subtitle'})
+            e = E.h2({'class': 'post-subtitle'})
             e.text = o.text
-            o.getparent().replace(o,e)
+            o.getparent().replace(o, e)
         except Exception:
             pass
-        return BeautifulSoup(lxml.etree.tostring(root,encoding='unicode'))
+        return BeautifulSoup(lxml.etree.tostring(root, encoding='unicode'))

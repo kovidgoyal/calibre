@@ -8,8 +8,7 @@ from calibre import prepare_string_for_xml
 from calibre.gui2.tweak_book import current_container, tprefs
 
 DEFAULT_TEMPLATES = {
-    'html':
-'''\
+    'html': '''\
 <?xml version='1.0' encoding='utf-8'?>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
@@ -21,15 +20,11 @@ DEFAULT_TEMPLATES = {
 </body>
 </html>
 ''',
-
-
-    'css':
-'''\
+    'css': '''\
 @charset "utf-8";
 /* Styles for {TITLE} */
 %CURSOR%
 ''',
-
 }
 
 
@@ -40,8 +35,7 @@ def raw_template_for(syntax):
 def template_for(syntax):
     mi = current_container().mi
     data = {
-        'TITLE':mi.title,
+        'TITLE': mi.title,
         'AUTHOR': ' & '.join(mi.authors),
     }
-    return raw_template_for(syntax).format(
-        **{k:prepare_string_for_xml(v, True) for k, v in data.items()})
+    return raw_template_for(syntax).format(**{k: prepare_string_for_xml(v, True) for k, v in data.items()})

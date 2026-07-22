@@ -39,7 +39,7 @@ def pdftohtml(output_dir, pdf_path, no_images, as_xml=False):
     """
 
     pdfsrc = os.path.join(output_dir, 'src.pdf')
-    index = os.path.join(output_dir, 'index.'+('xml' if as_xml else 'html'))
+    index = os.path.join(output_dir, 'index.' + ('xml' if as_xml else 'html'))
 
     with open(pdf_path, 'rb') as src, open(pdfsrc, 'wb') as dest:
         shutil.copyfileobj(src, dest)
@@ -50,8 +50,7 @@ def pdftohtml(output_dir, pdf_path, no_images, as_xml=False):
             return os.path.basename(x)
 
         exe = PDFTOHTML
-        cmd = [exe, '-enc', 'UTF-8', '-noframes', '-p', '-nomerge',
-                '-nodrm', a(pdfsrc), a(index)]
+        cmd = [exe, '-enc', 'UTF-8', '-noframes', '-p', '-nomerge', '-nodrm', a(pdfsrc), a(index)]
 
         if isbsd:
             cmd.remove('-nodrm')
@@ -62,12 +61,10 @@ def pdftohtml(output_dir, pdf_path, no_images, as_xml=False):
 
         logf = PersistentTemporaryFile('pdftohtml_log')
         try:
-            p = popen(cmd, stderr=logf._fd, stdout=logf._fd,
-                    stdin=subprocess.PIPE)
+            p = popen(cmd, stderr=logf._fd, stdout=logf._fd, stdin=subprocess.PIPE)
         except OSError as err:
             if err.errno == errno.ENOENT:
-                raise ConversionError(
-                    _('Could not find pdftohtml, check it is in your PATH'))
+                raise ConversionError(_('Could not find pdftohtml, check it is in your PATH'))
             else:
                 raise
         ret = eintr_retry_call(p.wait)
@@ -100,8 +97,24 @@ def pdftohtml(output_dir, pdf_path, no_images, as_xml=False):
 
                 i.write(raw.encode('utf-8'))
 
-            cmd = [exe, '-f', '1', '-l', '1', '-xml', '-i', '-enc', 'UTF-8', '-noframes', '-p', '-nomerge',
-                    '-nodrm', '-q', '-stdout', a(pdfsrc)]
+            cmd = [
+                exe,
+                '-f',
+                '1',
+                '-l',
+                '1',
+                '-xml',
+                '-i',
+                '-enc',
+                'UTF-8',
+                '-noframes',
+                '-p',
+                '-nomerge',
+                '-nodrm',
+                '-q',
+                '-stdout',
+                a(pdfsrc),
+            ]
             if isbsd:
                 cmd.remove('-nodrm')
             p = popen(cmd, stdout=subprocess.PIPE)
@@ -119,10 +132,12 @@ def parse_outline(raw, output_dir):
     from lxml import etree
 
     from calibre.utils.xml_parse import safe_xml_fromstring
+
     raw = clean_xml_chars(xml_to_unicode(raw, strip_encoding_pats=True, assume_utf8=True)[0])
     outline = safe_xml_fromstring(raw).xpath('(//outline)[1]')
     if outline:
         from calibre.ebooks.oeb.polish.toc import TOC, create_ncx
+
         outline = outline[0]
         toc = TOC()
         count = [0]
@@ -136,15 +151,17 @@ def parse_outline(raw, output_dir):
                     page = child.get('page', '1')
                     toc.add(child.text, 'index.html', 'p' + page)
                     count[0] += 1
+
         process_node(outline, toc)
         if count[0] > 2:
-            root = create_ncx(toc, (lambda x:x), 'pdftohtml', 'en', 'pdftohtml')
+            root = create_ncx(toc, (lambda x: x), 'pdftohtml', 'en', 'pdftohtml')
             with open(os.path.join(output_dir, 'toc.ncx'), 'wb') as f:
                 f.write(etree.tostring(root, pretty_print=True, with_tail=False, encoding='utf-8', xml_declaration=True))
 
 
 def flip_image(img, flip):
     from calibre.utils.img import flip_image, image_and_format_from_data, image_to_data
+
     with open(img, 'r+b') as f:
         img, fmt = image_and_format_from_data(f.read())
         img = flip_image(img, horizontal='x' in flip, vertical='y' in flip)
@@ -166,7 +183,7 @@ def flip_images(raw):
         if not os.path.exists(img):
             continue
         flip_image(img, flip)
-    raw = re.sub(r'<STYLE.+?</STYLE>\s*', '', raw, flags=re.I|re.DOTALL)
+    raw = re.sub(r'<STYLE.+?</STYLE>\s*', '', raw, flags=re.I | re.DOTALL)
 
     counter = 0
 

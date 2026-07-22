@@ -6,7 +6,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class AdvancedUserRecipe1234144423(BasicNewsRecipe):
-    title = u'Cincinnati Enquirer'
+    title = 'Cincinnati Enquirer'
     oldest_article = 7
     language = 'en_US'
 
@@ -30,16 +30,23 @@ class AdvancedUserRecipe1234144423(BasicNewsRecipe):
                    .padding{font-family:Arial,Helvetica,sans-serif; font-size:70%; color:#222222; font-weight:normal;}
                     '''
 
-    keep_only_tags = [
-        dict(name='div', attrs={'class': ['padding', 'sidebar-photo', 'blog caitlin']})]
+    keep_only_tags = [dict(name='div', attrs={'class': ['padding', 'sidebar-photo', 'blog caitlin']})]
 
     remove_tags = [
-        dict(name=['object', 'link', 'table', 'embed']), dict(name='div', attrs={'id': ['pluckcomments', 'StoryChat']}), dict(
-            name='div', attrs={'class': ['articleflex-container', ]}), dict(name='p', attrs={'class': ['posted', 'tags']})
+        dict(name=['object', 'link', 'table', 'embed']),
+        dict(name='div', attrs={'id': ['pluckcomments', 'StoryChat']}),
+        dict(
+            name='div',
+            attrs={
+                'class': [
+                    'articleflex-container',
+                ]
+            },
+        ),
+        dict(name='p', attrs={'class': ['posted', 'tags']}),
     ]
 
-    feeds = [(u'Cincinnati Enquirer',
-              u'http://rss.cincinnati.com/apps/pbcs.dll/section?category=rssenq01&mime=xml')]
+    feeds = [('Cincinnati Enquirer', 'http://rss.cincinnati.com/apps/pbcs.dll/section?category=rssenq01&mime=xml')]
 
     def preprocess_html(self, soup):
         for item in soup.findAll(style=True):

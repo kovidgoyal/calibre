@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
@@ -17,8 +17,7 @@ class FontMetrics:
     """
 
     def __init__(self, sfnt):
-        for table in (b'head', b'hhea', b'hmtx', b'cmap', b'OS/2', b'post',
-                      b'name', b'maxp'):
+        for table in (b'head', b'hhea', b'hmtx', b'cmap', b'OS/2', b'post', b'name', b'maxp'):
             if table not in sfnt:
                 raise UnsupportedFont(f'This font has no {table} table')
         self.sfnt = sfnt
@@ -28,8 +27,7 @@ class FontMetrics:
         hhea.read_data(self.sfnt[b'hmtx'], self.sfnt[b'maxp'].num_glyphs)
         self.ascent = hhea.ascender
         self.descent = hhea.descender
-        self.bbox = (self.head.x_min, self.head.y_min, self.head.x_max,
-                     self.head.y_max)
+        self.bbox = (self.head.x_min, self.head.y_min, self.head.x_max, self.head.y_max)
         self._advance_widths = hhea.advance_widths
         self.cmap = self.sfnt[b'cmap']
         self.units_per_em = self.head.units_per_em
@@ -42,12 +40,10 @@ class FontMetrics:
         self._sig = hash(self.sfnt[b'name'].raw)
 
         # Metrics for embedding in PDF
-        pdf_scale = self.pdf_scale = lambda x: round(x*1000./self.units_per_em)
-        self.pdf_ascent, self.pdf_descent = map(pdf_scale,
-                        (self.os2.typo_ascender, self.os2.typo_descender))
+        pdf_scale = self.pdf_scale = lambda x: round(x * 1000.0 / self.units_per_em)
+        self.pdf_ascent, self.pdf_descent = map(pdf_scale, (self.os2.typo_ascender, self.os2.typo_descender))
         self.pdf_bbox = tuple(map(pdf_scale, self.bbox))
-        self.pdf_capheight = pdf_scale(getattr(self.os2, 'cap_height',
-                                               self.os2.typo_ascender))
+        self.pdf_capheight = pdf_scale(getattr(self.os2, 'cap_height', self.os2.typo_ascender))
         self.pdf_avg_width = pdf_scale(self.os2.average_char_width)
         self.pdf_stemv = 50 + int((self.os2.weight_class / 65.0) ** 2)
 
@@ -98,12 +94,11 @@ class FontMetrics:
         glyph_ids = (cmap[c] for c in chars)
         pixel_size_x = stretch * pixel_size
         xscale = pixel_size_x / self.units_per_em
-        return tuple(i*xscale for i in self.glyph_widths(glyph_ids))
+        return tuple(i * xscale for i in self.glyph_widths(glyph_ids))
 
     def glyph_widths(self, glyph_ids):
         last = len(self._advance_widths)
-        return tuple(self._advance_widths[i if i < last else -1] for i in
-                     glyph_ids)
+        return tuple(self._advance_widths[i if i < last else -1] for i in glyph_ids)
 
     def width(self, string, pixel_size=12.0, stretch=1.0):
         "The width of the string at the specified pixel size and stretch, in pixels"
@@ -114,6 +109,7 @@ if __name__ == '__main__':
     import sys
 
     from calibre.utils.fonts.sfnt.container import Sfnt
+
     with open(sys.argv[-1], 'rb') as f:
         raw = f.read()
     sfnt = Sfnt(raw)

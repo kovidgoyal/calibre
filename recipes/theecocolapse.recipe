@@ -20,24 +20,15 @@ class TheEconomicCollapse(BasicNewsRecipe):
     use_embedded_content = False
     language = 'en'
     remove_empty_feeds = True
-    extra_css             = '''
+    extra_css = '''
                                 body{font-family: Tahoma,Arial,sans-serif }
                                 img{margin-bottom: 0.4em; display: block;}
                             '''
 
-    conversion_options = {
-        'comment': description, 'tags': category, 'publisher': publisher, 'language': language
-    }
+    conversion_options = {'comment': description, 'tags': category, 'publisher': publisher, 'language': language}
 
-    remove_tags = [
-        dict(attrs={'class': 'sociable'}), dict(
-            name=['iframe', 'object', 'embed', 'meta', 'link', 'base'])
-    ]
+    remove_tags = [dict(attrs={'class': 'sociable'}), dict(name=['iframe', 'object', 'embed', 'meta', 'link', 'base'])]
     remove_attributes = ['lang', 'onclick', 'width', 'height']
-    keep_only_tags = [
-        dict(name='div', attrs={'class': 'post-headline'}),
-        dict(name='div', attrs={
-             'class': lambda x: x and 'post-bodycopy' in x.split()})
-    ]
+    keep_only_tags = [dict(name='div', attrs={'class': 'post-headline'}), dict(name='div', attrs={'class': lambda x: x and 'post-bodycopy' in x.split()})]
 
-    feeds = [(u'Posts', u'http://theeconomiccollapseblog.com/feed')]
+    feeds = [('Posts', 'http://theeconomiccollapseblog.com/feed')]

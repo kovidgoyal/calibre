@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
@@ -30,7 +30,7 @@ def process_jpegs_for_amazon(data: bytes) -> bytes:
         if hasattr(img, 'getexif'):
             exif = img.getexif()
             has_exif = bool(exif)
-            if exif.get(0x0112) in (2,3,4,5,6,7,8):
+            if exif.get(0x0112) in (2, 3, 4, 5, 6, 7, 8):
                 changed = True
                 img = ImageOps.exif_transpose(img)
         if changed or has_exif:
@@ -41,9 +41,7 @@ def process_jpegs_for_amazon(data: bytes) -> bytes:
 
 
 class Resources:
-
-    def __init__(self, oeb, opts, is_periodical, add_fonts=False,
-            process_images=True):
+    def __init__(self, oeb, opts, is_periodical, add_fonts=False, process_images=True):
         self.oeb, self.log, self.opts = oeb, oeb.log, opts
         self.is_periodical = is_periodical
         self.process_images = process_images
@@ -72,6 +70,7 @@ class Resources:
                 pt.write(data)
             try:
                 from calibre.utils.img import optimize_png
+
                 optimize_png(pt.name)
                 data = open(pt.name, 'rb').read()
             finally:
@@ -99,8 +98,7 @@ class Resources:
             index += 1
 
         cover_href = self.cover_offset = self.thumbnail_offset = None
-        if (oeb.metadata.cover and
-                str(oeb.metadata.cover[0]) in oeb.manifest.ids):
+        if oeb.metadata.cover and str(oeb.metadata.cover[0]) in oeb.manifest.ids:
             cover_id = str(oeb.metadata.cover[0])
             item = oeb.manifest.ids[cover_id]
             cover_href = item.href
@@ -144,14 +142,14 @@ class Resources:
 
         if add_fonts:
             for item in self.oeb.manifest.values():
-                if item.href and item.href.rpartition('.')[-1].lower() in {
-                        'ttf', 'otf'} and isinstance(item.data, bytes):
+                if item.href and item.href.rpartition('.')[-1].lower() in {'ttf', 'otf'} and isinstance(item.data, bytes):
                     self.records.append(write_font_record(item.data))
                     self.item_map[item.href] = len(self.records)
                     self.has_fonts = True
 
     def convert_webp(self, item):
         from calibre.utils.img import image_and_format_from_data, image_to_data
+
         img, fmt = image_and_format_from_data(item.data)
         if fmt == 'webp' and not img.isNull():
             self.log.info(f'Converting WebP image {item.href} to PNG')
@@ -163,7 +161,7 @@ class Resources:
         Add any images that were created after the call to add_resources()
         """
         for item in self.oeb.manifest.values():
-            if (item.media_type not in OEB_RASTER_IMAGES or item.href in self.item_map):
+            if item.media_type not in OEB_RASTER_IMAGES or item.href in self.item_map:
                 continue
             try:
                 data = self.process_image(item.data)
@@ -176,12 +174,12 @@ class Resources:
                 item.unload_data_from_memory()
 
     def serialize(self, records, used_images):
-        used_image_indices = self.used_image_indices | {
-                v-1 for k, v in self.item_map.items() if k in used_images}
-        for i in self.image_indices-used_image_indices:
+        used_image_indices = self.used_image_indices | {v - 1 for k, v in self.item_map.items() if k in used_images}
+        for i in self.image_indices - used_image_indices:
             self.records[i] = PLACEHOLDER_GIF
         records.extend(self.records)
 
     def __bool__(self):
         return bool(self.records)
+
     __nonzero__ = __bool__

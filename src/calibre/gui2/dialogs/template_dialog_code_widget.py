@@ -14,7 +14,6 @@ from calibre.gui2.tweak_book.editor.themes import get_theme, theme_color
 
 
 class LineNumberArea(LineNumbers):
-
     def mouseDoubleClickEvent(self, a0):
         super().mousePressEvent(a0)
         p = self.parent()
@@ -23,7 +22,6 @@ class LineNumberArea(LineNumbers):
 
 
 class CodeEditor(QPlainTextEdit):
-
     def __init__(self, parent):
         QPlainTextEdit.__init__(self, parent)
 
@@ -52,7 +50,9 @@ class CodeEditor(QPlainTextEdit):
         sel.format.setProperty(QTextFormat.Property.FullWidthSelection, True)
         sel.cursor = self.textCursor()
         sel.cursor.clearSelection()
-        self.setExtraSelections([sel,])
+        self.setExtraSelections([
+            sel,
+        ])
 
     def update_line_number_area_width(self, block_count=0):
         self.gutter_width = self.line_number_area_width()
@@ -67,7 +67,7 @@ class CodeEditor(QPlainTextEdit):
         while limit >= 10:
             limit /= 10
             digits += 1
-        return self.number_width * (digits+1)
+        return self.number_width * (digits + 1)
 
     def update_line_number_area(self, rect, dy):
         if dy:
@@ -82,12 +82,11 @@ class CodeEditor(QPlainTextEdit):
     def resizeEvent(self, e):
         QPlainTextEdit.resizeEvent(self, e)
         cr = self.contentsRect()
-        self.line_number_area.setGeometry(QRect(cr.left(), cr.top(),
-                                                self.line_number_area_width(), cr.height()))
+        self.line_number_area.setGeometry(QRect(cr.left(), cr.top(), self.line_number_area_width(), cr.height()))
 
     def line_area_doubleclick_event(self, event):
         # remember that the result of the divide will be zero-based
-        line = event.y()//self.fontMetrics().height() + 1 + self.firstVisibleBlock().blockNumber()
+        line = event.y() // self.fontMetrics().height() + 1 + self.firstVisibleBlock().blockNumber()
         if line in self.clicked_line_numbers:
             self.clicked_line_numbers.discard(line)
         else:
@@ -118,7 +117,7 @@ class CodeEditor(QPlainTextEdit):
                 set_italic = False
                 if current == num:
                     set_bold = True
-                if num+1 in self.clicked_line_numbers:
+                if num + 1 in self.clicked_line_numbers:
                     set_italic = True
                 painter.save()
                 if set_bold or set_italic:
@@ -130,8 +129,14 @@ class CodeEditor(QPlainTextEdit):
                     painter.setFont(f)
                 else:
                     painter.setFont(self.font())
-                painter.drawText(0, top, self.line_number_area.width() - 5, self.fontMetrics().height(),
-                              Qt.AlignmentFlag.AlignRight, str(num + 1))
+                painter.drawText(
+                    0,
+                    top,
+                    self.line_number_area.width() - 5,
+                    self.fontMetrics().height(),
+                    Qt.AlignmentFlag.AlignRight,
+                    str(num + 1),
+                )
                 painter.restore()
             block = block.next()
             top = bottom
@@ -184,7 +189,7 @@ class CodeEditor(QPlainTextEdit):
                 txt = blk.text()
                 pos = blk.position()
                 curs.setPosition(pos)
-                curs.setPosition(pos+len(txt), QTextCursor.MoveMode.KeepAnchor)
+                curs.setPosition(pos + len(txt), QTextCursor.MoveMode.KeepAnchor)
                 return txt
 
             # Check if there is a selection. If not then only Shift-Tab is valid
@@ -194,14 +199,14 @@ class CodeEditor(QPlainTextEdit):
                     if txt.startswith('\t'):
                         # This works because of the side effect in select_block()
                         cursor.insertText(txt[1:])
-                    cursor.setPosition(start_position-1)
+                    cursor.setPosition(start_position - 1)
                     self.setTextCursor(cursor)
                     e.accept()
                 else:
                     QPlainTextEdit.keyPressEvent(self, e)
                 return
             # There is a selection so both Tab and Shift-Tab do indenting operations
-            for bn in range(start_block, end_block+1):
+            for bn in range(start_block, end_block + 1):
                 txt = select_block(bn, cursor)
                 if key == Qt.Key.Key_Backtab:
                     if txt.startswith('\t'):

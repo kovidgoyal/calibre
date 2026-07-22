@@ -3,12 +3,11 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 def classes(classes):
     q = frozenset(classes.split(' '))
-    return dict(attrs={
-        'class': lambda x: x and frozenset(x.split()).intersection(q)})
+    return dict(attrs={'class': lambda x: x and frozenset(x.split()).intersection(q)})
 
 
 class WinnipegFreePress(BasicNewsRecipe):
-    title = u'Winnipeg Free Press'
+    title = 'Winnipeg Free Press'
     __author__ = 'buyo'
     description = 'News from Winnipeg, Manitoba, Canada'
     oldest_article = 1
@@ -23,19 +22,16 @@ class WinnipegFreePress(BasicNewsRecipe):
     .factbox { border: solid 2px; padding: 1rem }
     '''
 
-    feeds = [(u'Breaking News', u'http://www.winnipegfreepress.com/rss?path=/breakingnews'),
-             (u'Local News', u'http://www.winnipegfreepress.com/rss?path=/local'),
-             (u'Breaking Business News',
-              u'http://www.winnipegfreepress.com/rss?path=/business/finance'),
-             (u'Business', u'http://www.winnipegfreepress.com/rss?path=/business'),
-             (u'Editorials', u'http://www.winnipegfreepress.com/rss?path=/opinion/editorials'),
-             (u'Views from the West',
-              u'http://www.winnipegfreepress.com/rss?path=/opinion/westview'),
-             (u'Life & Style', u'http://www.winnipegfreepress.com/rss?path=/life'),
-             (u'Food & Drink', u'http://www.winnipegfreepress.com/rss?path=/life/food')
-             ]
-
-    keep_only_tags = [
-        classes('article-title topphoto storycontent')
+    feeds = [
+        ('Breaking News', 'http://www.winnipegfreepress.com/rss?path=/breakingnews'),
+        ('Local News', 'http://www.winnipegfreepress.com/rss?path=/local'),
+        ('Breaking Business News', 'http://www.winnipegfreepress.com/rss?path=/business/finance'),
+        ('Business', 'http://www.winnipegfreepress.com/rss?path=/business'),
+        ('Editorials', 'http://www.winnipegfreepress.com/rss?path=/opinion/editorials'),
+        ('Views from the West', 'http://www.winnipegfreepress.com/rss?path=/opinion/westview'),
+        ('Life & Style', 'http://www.winnipegfreepress.com/rss?path=/life'),
+        ('Food & Drink', 'http://www.winnipegfreepress.com/rss?path=/life/food'),
     ]
+
+    keep_only_tags = [classes('article-title topphoto storycontent')]
     remove_tags = [dict(name='button')]

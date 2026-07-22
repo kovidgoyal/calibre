@@ -18,7 +18,6 @@ from calibre.gui2.tweak_book.plugin import Tool
 
 
 class DemoTool(Tool):
-
     #: Set this to a unique name it will be used as a key
     name = 'demo-tool'
 
@@ -43,8 +42,7 @@ class DemoTool(Tool):
     def ask_user(self):
         # Ask the user for a factor by which to multiply all font sizes
         factor, ok = QInputDialog.getDouble(
-            self.gui, 'Enter a magnification factor', 'Allow font sizes in the book will be multiplied by the specified factor',
-            value=2, min=0.1, max=4
+            self.gui, 'Enter a magnification factor', 'Allow font sizes in the book will be multiplied by the specified factor', value=2, min=0.1, max=4
         )
         if ok:
             # Ensure any in progress editing the user is doing is present in the container
@@ -54,9 +52,14 @@ class DemoTool(Tool):
             except Exception:
                 # Something bad happened report the error to the user
                 import traceback
-                error_dialog(self.gui, _('Failed to magnify fonts'), _(
-                    'Failed to magnify fonts, click "Show details" for more info'),
-                    det_msg=traceback.format_exc(), show=True)
+
+                error_dialog(
+                    self.gui,
+                    _('Failed to magnify fonts'),
+                    _('Failed to magnify fonts, click "Show details" for more info'),
+                    det_msg=traceback.format_exc(),
+                    show=True,
+                )
                 # Revert to the saved restore point
                 self.boss.revert_requested(self.boss.global_undo.previous_container)
             else:
@@ -116,7 +119,7 @@ class DemoTool(Tool):
         num = re.search(r'[0-9.]+', val)
         if num is not None:
             num = num.group()
-            val = val.replace(num, f'{float(num)*factor:f}')
+            val = val.replace(num, f'{float(num) * factor:f}')
             style.setProperty('font-size', val)
         # We should also be dealing with the font shorthand property and
         # font sizes specified as non numbers, but those are left as exercises

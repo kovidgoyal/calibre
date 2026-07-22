@@ -23,8 +23,11 @@ class lwn_epub(BasicNewsRecipe):
     needs_subscription = True
 
     conversion_options = {
-        'publisher': publisher, 'language': language, 'comments': description, 'no_default_epub_cover': True,
-        'preserve_cover_aspect_ratio': True
+        'publisher': publisher,
+        'language': language,
+        'comments': description,
+        'no_default_epub_cover': True,
+        'preserve_cover_aspect_ratio': True,
     }
 
     def build_index(self):

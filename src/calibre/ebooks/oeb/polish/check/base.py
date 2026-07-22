@@ -14,7 +14,6 @@ DEBUG, INFO, WARN, ERROR, CRITICAL = range(5)
 
 
 class BaseError:
-
     HELP = ''
     INDIVIDUAL_FIX = ''
     level = ERROR
@@ -39,6 +38,7 @@ def worker(func, args):
     except Exception:
         result = None
         import traceback
+
         tb = traceback.format_exc()
     return result, tb
 

@@ -10,12 +10,10 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 def classes(classes):
     q = frozenset(classes.split(' '))
-    return dict(attrs={
-        'class': lambda x: x and frozenset(x.split()).intersection(q)})
+    return dict(attrs={'class': lambda x: x and frozenset(x.split()).intersection(q)})
 
 
 class NewYorkMagazine(BasicNewsRecipe):
-
     title = 'New York Magazine'
     __author__ = 'Kovid Goyal'
     description = 'Food, culture, arts and entertainment in New York'
@@ -31,15 +29,10 @@ class NewYorkMagazine(BasicNewsRecipe):
             font-size: small;
         }
     '''
-    keep_only_tags = [
-        dict(name='article', attrs={'class': lambda x: x and 'article' in x.split()})
-    ]
+    keep_only_tags = [dict(name='article', attrs={'class': lambda x: x and 'article' in x.split()})]
     remove_tags = [
         dict(name=['svg', 'iframe']),
-        classes(
-            'related-stories start-discussion newsletter-flex-text package-toc '
-            'comments-link tags related secondary-area author-photo error-pop-up'
-        ),
+        classes('related-stories start-discussion newsletter-flex-text package-toc comments-link tags related secondary-area author-photo error-pop-up'),
         dict(id=['minibrowserbox', 'article-related', 'article-tools']),
     ]
     remove_attributes = ['style', 'height', 'width', 'srcset']
@@ -70,12 +63,8 @@ class NewYorkMagazine(BasicNewsRecipe):
         if cover_art := soup.find(**classes('magazine-toc-cover-text')):
             a = cover_art.find('a', **classes('headline-link'))
             c_url = a['href']
-            c_title = self.tag_to_string(
-                a.find(**classes('magazine-toc-cover-headline'))
-            ).strip()
-            c_desc = self.tag_to_string(
-                a.find(**classes('magazine-toc-cover-teaser'))
-            ).strip()
+            c_title = self.tag_to_string(a.find(**classes('magazine-toc-cover-headline'))).strip()
+            c_desc = self.tag_to_string(a.find(**classes('magazine-toc-cover-teaser'))).strip()
             self.log('Cover Story', '\n\t', c_title, c_url)
             feeds.append((
                 'Cover Story',
@@ -105,9 +94,7 @@ class NewYorkMagazine(BasicNewsRecipe):
         return feeds
 
     def preprocess_html(self, soup):
-        if lede := soup.findAll(
-            'div', attrs={'class': lambda x: x and 'lede-image-wrapper' in x.split()}
-        ):
+        if lede := soup.findAll('div', attrs={'class': lambda x: x and 'lede-image-wrapper' in x.split()}):
             if len(lede) > 1:
                 lede[1].extract()
         for img in soup.findAll('img', attrs={'data-src': True}):

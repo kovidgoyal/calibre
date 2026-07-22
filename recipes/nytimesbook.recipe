@@ -22,11 +22,12 @@ def absolutize(url):
 @lru_cache(2)
 def parser_module():
     from calibre.live import load_module
+
     return load_module('calibre.web.site_parsers.nytimes')
 
 
 class NewYorkTimesBookReview(BasicNewsRecipe):
-    title = u'New York Times Book Review'
+    title = 'New York Times Book Review'
     language = 'en_US'
     description = 'The New York Times Sunday Book Review'
     __author__ = 'Kovid Goyal'
@@ -49,8 +50,10 @@ class NewYorkTimesBookReview(BasicNewsRecipe):
     articles_are_obfuscated = use_wayback_machine
 
     if use_wayback_machine:
+
         def get_obfuscated_article(self, url):
             from calibre.ptempfile import PersistentTemporaryFile
+
             with PersistentTemporaryFile() as tf:
                 tf.write(self.get_nyt_page(url))
             return tf.name
@@ -62,6 +65,7 @@ class NewYorkTimesBookReview(BasicNewsRecipe):
     def get_nyt_page(self, url, skip_wayback=False):
         if use_wayback_machine and not skip_wayback:
             from calibre import browser
+
             return self.nyt_parser.download_url(url, browser())
         return self.index_to_soup(url, raw=True)
 
@@ -70,20 +74,13 @@ class NewYorkTimesBookReview(BasicNewsRecipe):
 
     recipe_specific_options = {
         'res': {
-            'short': (
-                'For hi-res images, select a resolution from the following\noptions: '
-                'popup, jumbo, mobileMasterAt3x, superJumbo'
-            ),
+            'short': ('For hi-res images, select a resolution from the following\noptions: popup, jumbo, mobileMasterAt3x, superJumbo'),
             'long': (
                 'This is useful for non e-ink devices, and for a lower file size\nthan '
                 'the default, use mediumThreeByTwo440, mediumThreeByTwo225, articleInline.'
             ),
         },
-        'comp': {
-            'short': 'Compress News Images?',
-            'long': 'enter yes',
-            'default': 'no'
-        }
+        'comp': {'short': 'Compress News Images?', 'long': 'enter yes', 'default': 'no'},
     }
 
     def __init__(self, *args, **kwargs):
@@ -113,11 +110,11 @@ class NewYorkTimesBookReview(BasicNewsRecipe):
         w = self.recipe_specific_options.get('res')
         if w and isinstance(w, str):
             res = '-' + w
-            for img in soup.findAll('img', attrs={'src':True}):
+            for img in soup.findAll('img', attrs={'src': True}):
                 if '-article' in img['src']:
                     ext = img['src'].split('?')[0].split('.')[-1]
                     img['src'] = img['src'].rsplit('-article', 1)[0] + res + '.' + ext
-        for c in soup.findAll('div', attrs={'class':'cap'}):
+        for c in soup.findAll('div', attrs={'class': 'cap'}):
             for p in c.findAll(['p', 'div']):
                 p.name = 'span'
         return soup
@@ -182,6 +179,7 @@ def parse_toc(soup):
 
 if __name__ == '__main__':
     import sys
+
     with open(sys.argv[-1]) as f:
         html = f.read()
     soup = BeautifulSoup(html)

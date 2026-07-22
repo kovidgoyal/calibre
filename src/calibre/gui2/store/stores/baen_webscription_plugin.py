@@ -27,8 +27,11 @@ except ImportError:
 
 
 def search(query, max_results=10, timeout=60):
-    url = 'http://www.baen.com/catalogsearch/result/?' + urlencode(
-        {'q':query.lower(), 'dir':'desc', 'order':'relevance'})
+    url = 'http://www.baen.com/catalogsearch/result/?' + urlencode({
+        'q': query.lower(),
+        'dir': 'desc',
+        'order': 'relevance',
+    })
 
     br = browser()
 
@@ -76,7 +79,6 @@ def search(query, max_results=10, timeout=60):
 
 
 class BaenWebScriptionStore(BasicStoreConfig, StorePlugin):
-
     def open(self, gui=None, parent=None, detail_item=None, external=False):
         url = 'http://www.baenebooks.com/'
         if external or self.config.get('open_external', False):
@@ -94,5 +96,6 @@ class BaenWebScriptionStore(BasicStoreConfig, StorePlugin):
 
 if __name__ == '__main__':
     import sys
+
     for result in search(' '.join(sys.argv[1:])):
         print(result)

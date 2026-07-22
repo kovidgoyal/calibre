@@ -35,13 +35,16 @@ def create_texture(
     weight: int = 3,
     radius: float = 1,
 ) -> bytes:
-    (
-        "Create a texture of the specified width and height from the specified color. The texture is created by blending in random noise of the specified blend"
-        " color into a flat image. All colors are numbers between 0 and 255. 0 <= blend_alpha <= 1 with 0 being fully transparent. 0 <= density <= 1 is used to"
-        " control the amount of noise in the texture. weight and radius control the Gaussian convolution used for blurring of the noise. weight must be an odd"
-        " positive integer. Increasing the weight will tend to blur out the noise. Decreasing it will make it sharper. This function returns an image"
-        " (bytestring) in the PPM format as the texture."
-    )
+    """Create a texture of the specified width and height from the specified color.
+
+    The texture is created by blending in random noise of the specified blend color into
+    a flat image. All colors are numbers between 0 and 255. 0 <= blend_alpha <= 1 with 0
+    being fully transparent. 0 <= density <= 1 is used to control the amount of noise in
+    the texture. weight and radius control the Gaussian convolution used for blurring of
+    the noise. weight must be an odd positive integer. Increasing the weight will tend to
+    blur out the noise. Decreasing it will make it sharper. This function returns an image
+    (bytestring) in the PPM format as the texture.
+    """
     pass
 
 def websocket_mask(data: bytearray | memoryview, mask: bytes | memoryview, offset: int = 0) -> None:
@@ -61,11 +64,13 @@ def set_thread_name(name: str) -> None:
     pass
 
 def pread_all(fd: int, n: int, offset: int = 0) -> bytes:
-    (
-        "Read upto n bytes from the specified fd at offset in a thread safe manner. If less than n bytes are returned it means there were less than n bytes in"
-        " the file at offset. Only works with seekable regular files, not sockets/ttys/etc. Note that on Windows it moves the file pointer so cannot be mixed"
-        " with calls to tell() or ordinary reads."
-    )
+    """Read upto n bytes from the specified fd at offset in a thread safe manner.
+
+    If less than n bytes are returned it means there were less than n bytes in the file
+    at offset. Only works with seekable regular files, not sockets/ttys/etc. Note that on
+    Windows it moves the file pointer so cannot be mixed with calls to tell() or ordinary
+    reads.
+    """
     pass
 
 def get_num_of_significant_chars(elem: Any) -> int:

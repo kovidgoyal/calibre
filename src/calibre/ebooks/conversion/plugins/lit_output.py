@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
@@ -10,7 +10,6 @@ from calibre.customize.conversion import OutputFormatPlugin
 
 
 class LITOutput(OutputFormatPlugin):
-
     name = 'LIT Output'
     author = 'Marshall T. Vandegrift'
     file_type = 'lit'
@@ -25,8 +24,8 @@ class LITOutput(OutputFormatPlugin):
         from calibre.ebooks.oeb.transforms.manglecase import CaseMangler
         from calibre.ebooks.oeb.transforms.rasterize import SVGRasterizer
         from calibre.ebooks.oeb.transforms.split import Split
-        split = Split(split_on_page_breaks=True, max_flow_size=0,
-                remove_css_pagebreaks=False)
+
+        split = Split(split_on_page_breaks=True, max_flow_size=0, remove_css_pagebreaks=False)
         split(self.oeb, self.opts)
 
         tocadder = HTMLTOCAdder()

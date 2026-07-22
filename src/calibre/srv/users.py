@@ -53,8 +53,7 @@ def serialize_restriction(r):
 
 def validate_username(username):
     if re.sub(r'[-a-zA-Z_0-9 ]', '', username):
-        return _('For maximum compatibility you should use only the letters A-Z,'
-                    ' the numbers 0-9, spaces, underscores and hyphens in the username')
+        return _('For maximum compatibility you should use only the letters A-Z, the numbers 0-9, spaces, underscores and hyphens in the username')
 
 
 def validate_password(pw):
@@ -69,7 +68,9 @@ def validate_password(pw):
 def create_user_data(pw, readonly=False, restriction=None, misc_data='{}'):
     misc_data = json.loads(misc_data)
     return {
-        'pw':pw, 'restriction':parse_restriction(restriction or '{}').copy(), 'readonly': readonly,
+        'pw': pw,
+        'restriction': parse_restriction(restriction or '{}').copy(),
+        'readonly': readonly,
         'allow_change_password_via_http': bool(misc_data.get('allow_change_password_via_http', True)),
     }
 
@@ -92,7 +93,6 @@ def connect(path, exc_class=ValueError):
 
 
 class UserManager:
-
     lock = RLock()
 
     @property
@@ -133,8 +133,7 @@ class UserManager:
 
     def get_session_data(self, username):
         with self.lock:
-            for data, in self.conn.cursor().execute(
-                    'SELECT session_data FROM users WHERE name=?', (username,)):
+            for (data,) in self.conn.cursor().execute('SELECT session_data FROM users WHERE name=?', (username,)):
                 return load_json(data)
         return {}
 
@@ -148,10 +147,9 @@ class UserManager:
             c.execute('UPDATE users SET session_data=? WHERE name=?', (data, username))
 
     def get(self, username):
-        " Get password for user, or None if user does not exist "
+        "Get password for user, or None if user does not exist"
         with self.lock:
-            for pw, in self.conn.cursor().execute(
-                    'SELECT pw FROM users WHERE name=?', (username,)):
+            for (pw,) in self.conn.cursor().execute('SELECT pw FROM users WHERE name=?', (username,)):
                 return pw
 
     def has_user(self, username):
@@ -174,7 +172,8 @@ class UserManager:
             misc_data = {'allow_change_password_via_http': allow_change_password_via_http}
             self.conn.cursor().execute(
                 'INSERT INTO users (name, pw, restriction, readonly, misc_data) VALUES (?, ?, ?, ?, ?)',
-                (username, pw, serialize_restriction(restriction), ('y' if readonly else 'n'), json.dumps(misc_data)))
+                (username, pw, serialize_restriction(restriction), ('y' if readonly else 'n'), json.dumps(misc_data)),
+            )
 
     def remove_user(self, username):
         with self.lock:
@@ -184,8 +183,7 @@ class UserManager:
     @property
     def all_user_names(self):
         with self.lock:
-            return {x for x, in self.conn.cursor().execute(
-                'SELECT name FROM users')}
+            return {x for (x,) in self.conn.cursor().execute('SELECT name FROM users')}
 
     @property
     def user_data(self):
@@ -206,9 +204,11 @@ class UserManager:
                 res = serialize_restriction(data['restriction'])
                 misc_data = json.dumps({'allow_change_password_via_http': bool(data.get('allow_change_password_via_http', True))})
                 r = 'y' if data['readonly'] else 'n'
-                c.execute('INSERT INTO USERS (name, pw, restriction, readonly, misc_data) VALUES (?, ?, ?, ?, ?) '
-                          'ON CONFLICT DO UPDATE SET pw=?, restriction=?, readonly=?, misc_data=?',
-                          (name, data['pw'], res, r, misc_data, data['pw'], res, r, misc_data))
+                c.execute(
+                    'INSERT INTO USERS (name, pw, restriction, readonly, misc_data) VALUES (?, ?, ?, ?, ?) '
+                    'ON CONFLICT DO UPDATE SET pw=?, restriction=?, readonly=?, misc_data=?',
+                    (name, data['pw'], res, r, misc_data, data['pw'], res, r, misc_data),
+                )
             self.refresh()
 
     def refresh(self):
@@ -216,32 +216,28 @@ class UserManager:
 
     def is_readonly(self, username):
         with self.lock:
-            for readonly, in self.conn.cursor().execute(
-                    'SELECT readonly FROM users WHERE name=?', (username,)):
+            for (readonly,) in self.conn.cursor().execute('SELECT readonly FROM users WHERE name=?', (username,)):
                 return readonly == 'y'
             return False
 
     def set_readonly(self, username, value):
         with self.lock:
-            self.conn.cursor().execute(
-                'UPDATE users SET readonly=? WHERE name=?', ('y' if value else 'n', username))
+            self.conn.cursor().execute('UPDATE users SET readonly=? WHERE name=?', ('y' if value else 'n', username))
 
     def change_password(self, username, pw):
         with self.lock:
             msg = self.validate_password(pw)
             if msg is not None:
                 raise ValueError(msg)
-            self.conn.cursor().execute(
-                'UPDATE users SET pw=? WHERE name=?', (pw, username))
+            self.conn.cursor().execute('UPDATE users SET pw=? WHERE name=?', (pw, username))
 
     def restrictions(self, username):
         with self.lock:
-            for restriction, in self.conn.cursor().execute(
-                    'SELECT restriction FROM users WHERE name=?', (username,)):
+            for (restriction,) in self.conn.cursor().execute('SELECT restriction FROM users WHERE name=?', (username,)):
                 return parse_restriction(restriction).copy()
 
     def allowed_library_names(self, username, all_library_names):
-        " Get allowed library names for specified user from set of all library names "
+        "Get allowed library names for specified user from set of all library names"
         r = self.restrictions(username)
         if r is None:
             return set()
@@ -251,14 +247,14 @@ class UserManager:
         def check(n):
             n = n.lower()
             return (not inc or n in inc) and n not in exc
+
         return {n for n in all_library_names if check(n)}
 
     def update_user_restrictions(self, username, restrictions):
         if not isinstance(restrictions, dict):
             raise TypeError('restrictions must be a dict')
         with self.lock:
-            self.conn.cursor().execute(
-                'UPDATE users SET restriction=? WHERE name=?', (serialize_restriction(restrictions), username))
+            self.conn.cursor().execute('UPDATE users SET restriction=? WHERE name=?', (serialize_restriction(restrictions), username))
 
     def library_restriction(self, username, library_path):
         r = self.restrictions(username)
@@ -269,8 +265,7 @@ class UserManager:
 
     def misc_data(self, username):
         with self.lock:
-            for misc_data, in self.conn.cursor().execute(
-                    'SELECT misc_data FROM users WHERE name=?', (username,)):
+            for (misc_data,) in self.conn.cursor().execute('SELECT misc_data FROM users WHERE name=?', (username,)):
                 return json.loads(misc_data)
         return {}
 
@@ -281,5 +276,4 @@ class UserManager:
         with self.lock:
             md = self.misc_data(username)
             md['allow_change_password_via_http'] = allow
-            self.conn.cursor().execute(
-                'UPDATE users SET misc_data=? WHERE name=?', (json.dumps(md), username))
+            self.conn.cursor().execute('UPDATE users SET misc_data=? WHERE name=?', (json.dumps(md), username))

@@ -8,12 +8,10 @@ from calibre.web.feeds.recipes import BasicNewsRecipe
 
 def classes(classes):
     q = frozenset(classes.split(' '))
-    return dict(attrs={
-        'class': lambda x: x and frozenset(x.split()).intersection(q)})
+    return dict(attrs={'class': lambda x: x and frozenset(x.split()).intersection(q)})
 
 
 class ReadersDigest(BasicNewsRecipe):
-
     title = 'Readers Digest'
     __author__ = 'BrianG, Gobelinus'
     language = 'en'
@@ -26,7 +24,7 @@ class ReadersDigest(BasicNewsRecipe):
     remove_javascript = True
     remove_attributes = ['style']
 
-    extra_css      = ''' h1 {font-family:georgia,serif;color:#000000;}
+    extra_css = ''' h1 {font-family:georgia,serif;color:#000000;}
                         .mainHd{font-family:georgia,serif;color:#000000;}
                          h2 {font-family:Arial,Sans-serif;}
                         .name{font-family:Arial,Sans-serif; font-size:x-small;font-weight:bold; }
@@ -54,13 +52,9 @@ class ReadersDigest(BasicNewsRecipe):
         ('Advice', 'http://www.rd.com/advice/feed'),
     ]
 
-    keep_only_tags = [
-        classes('post-title post-author post-updated-date post-date featured-image post-body entry-title dek listicle-card')
-    ]
+    keep_only_tags = [classes('post-title post-author post-updated-date post-date featured-image post-body entry-title dek listicle-card')]
 
-    remove_tags = [
-        classes('single-card ad brand-info pure-g')
-    ]
+    remove_tags = [classes('single-card ad brand-info pure-g')]
 
     def preprocess_html(self, soup):
         for img in soup.findAll('img', attrs={'data-lazy-src': True}):

@@ -1,4 +1,4 @@
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 '''Read meta information from PDF files'''
 
@@ -18,6 +18,7 @@ from calibre.utils.localization import _
 
 def get_tools():
     from calibre.ebooks.pdf.pdftohtml import PDFTOHTML
+
     base = os.path.dirname(PDFTOHTML)
     suffix = '.exe' if iswindows else ''
     pdfinfo = os.path.join(base, 'pdfinfo') + suffix
@@ -27,16 +28,18 @@ def get_tools():
 
 def check_output(*a):
     from calibre.ebooks.pdf.pdftohtml import creationflags
+
     return subprocess.check_output(list(a), creationflags=creationflags)
 
 
 def check_call(*a):
     from calibre.ebooks.pdf.pdftohtml import creationflags
+
     subprocess.check_call(list(a), creationflags=creationflags)
 
 
 def read_info(outputdir, get_cover):
-    """ Read info dict and cover from a pdf file named src.pdf in outputdir.
+    """Read info dict and cover from a pdf file named src.pdf in outputdir.
     Note that this function changes the cwd to outputdir and is therefore not
     thread safe. Run it using fork_job. This is necessary as there is no safe
     way to pass unicode paths via command line arguments. This also ensures
@@ -75,7 +78,7 @@ def read_info(outputdir, get_cover):
     except subprocess.CalledProcessError as e:
         prints(f'pdfinfo failed to read XML metadata with return code: {e.returncode}')
     else:
-        parts = re.split(br'^Metadata:', raw, 1, flags=re.MULTILINE)
+        parts = re.split(rb'^Metadata:', raw, 1, flags=re.MULTILINE)
         if len(parts) > 1:
             # old poppler < 0.47.0
             raw = parts[1].strip()
@@ -84,8 +87,7 @@ def read_info(outputdir, get_cover):
 
     if get_cover:
         try:
-            check_call(pdftoppm, '-singlefile', '-jpeg', '-cropbox',
-                'src.pdf', 'cover')
+            check_call(pdftoppm, '-singlefile', '-jpeg', '-cropbox', 'src.pdf', 'cover')
         except subprocess.CalledProcessError as e:
             prints(f'pdftoppm errored out with return code: {e.returncode}')
 
@@ -97,8 +99,16 @@ def page_images(pdfpath, outputdir='.', first=1, last=1, image_format='jpeg', pr
     outputdir = os.path.abspath(outputdir)
     try:
         check_call(
-            pdftoppm, '-cropbox', '-' + image_format, '-f', str(first),
-            '-l', str(last), pdfpath, os.path.join(outputdir, prefix))
+            pdftoppm,
+            '-cropbox',
+            '-' + image_format,
+            '-f',
+            str(first),
+            '-l',
+            str(last),
+            pdfpath,
+            os.path.join(outputdir, prefix),
+        )
     except subprocess.CalledProcessError as e:
         raise ValueError(f'Failed to render PDF, pdftoppm errorcode: {e.returncode}')
 
@@ -106,7 +116,7 @@ def page_images(pdfpath, outputdir='.', first=1, last=1, image_format='jpeg', pr
 def is_pdf_encrypted(path_to_pdf):
     pdfinfo = get_tools()[0]
     raw = check_output(pdfinfo, path_to_pdf)
-    q = re.search(br'^Encrypted:\s*(\S+)', raw, flags=re.MULTILINE)
+    q = re.search(rb'^Encrypted:\s*(\S+)', raw, flags=re.MULTILINE)
     if q is not None:
         return q.group(1) == b'yes'
     return False
@@ -118,8 +128,7 @@ def get_metadata(stream, cover=True):
         with open(os.path.join(pdfpath, 'src.pdf'), 'wb') as f:
             shutil.copyfileobj(stream, f)
         try:
-            res = fork_job('calibre.ebooks.metadata.pdf', 'read_info',
-                    (pdfpath, bool(cover)))
+            res = fork_job('calibre.ebooks.metadata.pdf', 'read_info', (pdfpath, bool(cover)))
         except WorkerError as e:
             prints(e.orig_tb)
             raise RuntimeError('Failed to run pdfinfo')
@@ -165,11 +174,12 @@ def get_metadata(stream, cover=True):
 
     if 'xmp_metadata' in info:
         from calibre.ebooks.metadata.xmp import consolidate_metadata
+
         mi = consolidate_metadata(mi, info)
 
     # Look for recognizable identifiers in the info dict, if they were not
     # found in the XMP metadata
-    for scheme, check_func in {'doi':check_doi, 'isbn':check_isbn}.items():
+    for scheme, check_func in {'doi': check_doi, 'isbn': check_isbn}.items():
         if scheme not in mi.get_identifiers():
             for k, v in info.items():
                 if k != 'xmp_metadata':

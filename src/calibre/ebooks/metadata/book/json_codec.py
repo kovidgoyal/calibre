@@ -20,6 +20,7 @@ from polyglot.builtins import as_bytes
 
 def string_to_datetime(src):
     from calibre.utils.iso8601 import parse_iso8601
+
     if src != 'None':
         try:
             return parse_iso8601(src)
@@ -30,6 +31,7 @@ def string_to_datetime(src):
 
 def datetime_to_string(dateval):
     from calibre.utils.date import UNDEFINED_DATE, isoformat, local_tz
+
     if dateval is None:
         return 'None'
     if not isinstance(dateval, datetime):
@@ -46,6 +48,7 @@ def encode_thumbnail(thumbnail):
     Encode the image part of a thumbnail, then return the 3 part tuple
     """
     from calibre.utils.imghdr import identify
+
     if thumbnail is None:
         return None
     if not isinstance(thumbnail, (tuple, list)):
@@ -112,21 +115,17 @@ def decode_is_multiple(fm):
         if im:
             dt = fm.get('datatype', None)
             if dt == 'composite':
-                im = {'cache_to_list': ',', 'ui_to_list': ',',
-                      'list_to_ui': ', '}
+                im = {'cache_to_list': ',', 'ui_to_list': ',', 'list_to_ui': ', '}
             elif fm.get('display', {}).get('is_names', False):
-                im = {'cache_to_list': '|', 'ui_to_list': '&',
-                      'list_to_ui': ', '}
+                im = {'cache_to_list': '|', 'ui_to_list': '&', 'list_to_ui': ', '}
             else:
-                im = {'cache_to_list': '|', 'ui_to_list': ',',
-                      'list_to_ui': ', '}
+                im = {'cache_to_list': '|', 'ui_to_list': ',', 'list_to_ui': ', '}
         elif im is None:
             im = {}
         fm['is_multiple'] = im
 
 
 class JsonCodec:
-
     def __init__(self, field_metadata=None):
         self.field_metadata = field_metadata or FieldMetadata()
 
@@ -186,7 +185,7 @@ class JsonCodec:
     def raw_to_book(self, json_book, book_class, prefix):
         try:
             book = book_class(prefix, json_book.get('lpath', None))
-            for key,val in json_book.items():
+            for key, val in json_book.items():
                 meta = self.decode_metadata(key, val)
                 if key == 'user_metadata':
                     book.set_all_user_metadata(meta)

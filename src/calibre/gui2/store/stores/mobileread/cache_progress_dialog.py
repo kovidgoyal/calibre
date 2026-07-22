@@ -11,7 +11,6 @@ from calibre.gui2.store.stores.mobileread.cache_progress_dialog_ui import Ui_Dia
 
 
 class CacheProgressDialog(QDialog, Ui_Dialog):
-
     def __init__(self, parent=None, total=None):
         QDialog.__init__(self, parent)
         self.setupUi(self)
@@ -27,6 +26,7 @@ class CacheProgressDialog(QDialog, Ui_Dialog):
         self.completed = 0
         self.canceled = False
         QDialog.exec(self)
+
     exec_ = exec
 
     def open(self):

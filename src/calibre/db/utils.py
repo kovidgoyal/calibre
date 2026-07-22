@@ -57,14 +57,10 @@ def fuzzy_title_patterns():
     global _fuzzy_title_patterns
     if _fuzzy_title_patterns is None:
         from calibre.ebooks.metadata import get_title_sort_pat
-        _fuzzy_title_patterns = tuple((re.compile(pat, re.IGNORECASE) if
-            isinstance(pat, (str, bytes)) else pat, repl) for pat, repl in
-                [
-                    (r'[\[\](){}<>\'";,:#]', ''),
-                    (get_title_sort_pat(), ''),
-                    (r'[-._]', ' '),
-                    (r'\s+', ' ')
-                ]
+
+        _fuzzy_title_patterns = tuple(
+            (re.compile(pat, re.IGNORECASE) if isinstance(pat, (str, bytes)) else pat, repl)
+            for pat, repl in [(r'[\[\](){}<>\'";,:#]', ''), (get_title_sort_pat(), ''), (r'[-._]', ' '), (r'\s+', ' ')]
         )
     return _fuzzy_title_patterns
 
@@ -119,16 +115,17 @@ class CacheError(Exception):
 
 
 class ThumbnailCache:
-    " This is a persistent disk cache to speed up loading and resizing of covers "
+    "This is a persistent disk cache to speed up loading and resizing of covers"
 
-    def __init__(self,
+    def __init__(
+        self,
         max_size=1024,  # The maximum disk space in MB
         name='thumbnail-cache',  # The name of this cache (should be unique in location)
-        thumbnail_size=(100, 100),   # The size of the thumbnails, can be changed
-        location=None,   # The location for this cache, if None cache_dir() is used
+        thumbnail_size=(100, 100),  # The size of the thumbnails, can be changed
+        location=None,  # The location for this cache, if None cache_dir() is used
         test_mode=False,  # Used for testing
         min_disk_cache=0,  # If the size is set less than or equal to this value, the cache is disabled.
-        version=0  # Increase this if the cache content format might have changed.
+        version=0,  # Increase this if the cache content format might have changed.
     ):
         self.version = version
         self.location = os.path.join(location or cache_dir(), name)
@@ -190,10 +187,13 @@ class ThumbnailCache:
                 return os.listdir(os.path.join(*args))
             except OSError:
                 return ()  # not a directory or no permission or whatever
-        entries = ('/'.join((parent, subdir, entry))
-                   for parent in listdir(self.location)
-                   for subdir in listdir(self.location, parent)
-                   for entry in listdir(self.location, parent, subdir))
+
+        entries = (
+            '/'.join((parent, subdir, entry))
+            for parent in listdir(self.location)
+            for subdir in listdir(self.location, parent)
+            for entry in listdir(self.location, parent, subdir)
+        )
 
         invalidate = set()
         try:
@@ -208,6 +208,7 @@ class ThumbnailCache:
             except OSError as err:
                 self.log('Failed to remove thumbnail invalidate data:', as_unicode(err))
             else:
+
                 def record(line):
                     try:
                         uuid, book_id = line.partition(' ')[0::2]
@@ -215,6 +216,7 @@ class ThumbnailCache:
                         return uuid, book_id
                     except Exception:
                         return None
+
                 invalidate = {record(x) for x in raw.splitlines()}
         items = []
         try:
@@ -224,7 +226,7 @@ class ThumbnailCache:
                     book_id, timestamp, size, thumbnail_size = name.split('-')
                     book_id, timestamp, size = int(book_id), float(timestamp), int(size)
                     thumbnail_size = tuple(map(int, thumbnail_size.partition('x')[0::2]))
-                except (ValueError, TypeError, IndexError, KeyError, AttributeError):
+                except ValueError, TypeError, IndexError, KeyError, AttributeError:
                     continue
                 key = (uuid, book_id)
                 path = os.path.join(self.location, entry)
@@ -442,8 +444,10 @@ def atof(string):
 
 def type_safe_sort_key_function(keyfunc=None):
     if keyfunc is None:
+
         def keyfunc(x):
             return x
+
     sentinel = object()
     first_value = sentinel
 
@@ -488,7 +492,6 @@ def human_readable_interval(secs):
 
 
 class IndexingProgress:
-
     def __init__(self):
         self.reset()
 

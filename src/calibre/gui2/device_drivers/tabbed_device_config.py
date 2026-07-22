@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
@@ -69,10 +69,19 @@ class TabbedDeviceConfig(QTabWidget):
     when OK is pressed
     '''
 
-    def __init__(self, device_settings, all_formats, supports_subdirs,
-                    must_read_metadata, supports_use_author_sort,
-                    extra_customization_message, device,
-                    extra_customization_choices=None, parent=None, validate_before_accept=False):
+    def __init__(
+        self,
+        device_settings,
+        all_formats,
+        supports_subdirs,
+        must_read_metadata,
+        supports_use_author_sort,
+        extra_customization_message,
+        device,
+        extra_customization_choices=None,
+        parent=None,
+        validate_before_accept=False,
+    ):
         QTabWidget.__init__(self, parent)
         self._device = weakref.ref(device)
 
@@ -104,33 +113,28 @@ class TabbedDeviceConfig(QTabWidget):
             self.formats.hide()
 
         self.opt_use_subdirs = create_checkbox(
-                                           _('Use sub-folders'),
-                                           _('Place files in sub-folders if the device supports them'),
-                                           device_settings.use_subdirs
-                                           )
+            _('Use sub-folders'),
+            _('Place files in sub-folders if the device supports them'),
+            device_settings.use_subdirs,
+        )
         self.opt_read_metadata = create_checkbox(
-                                             _('Read metadata from files on device'),
-                                             _('Read metadata from files on device'),
-                                             device_settings.read_metadata
-                                             )
+            _('Read metadata from files on device'),
+            _('Read metadata from files on device'),
+            device_settings.read_metadata,
+        )
 
         self.template = TemplateConfig(device_settings.save_template)
-        self.opt_use_author_sort = create_checkbox(
-                                             _('Use author sort for author'),
-                                             _('Use author sort for author'),
-                                             device_settings.read_metadata
-                                             )
+        self.opt_use_author_sort = create_checkbox(_('Use author sort for author'), _('Use author sort for author'), device_settings.read_metadata)
         self.opt_use_author_sort.setObjectName('opt_use_author_sort')
-        la = QLabel(_(
-            'Choose the formats to send to the %s')%self.device_name)
+        la = QLabel(_('Choose the formats to send to the %s') % self.device_name)
         la.setWordWrap(True)
 
-        l.addWidget(la,                         1, 0, 1, 1)
-        l.addWidget(self.formats,               2, 0, 1, 1)
-        l.addWidget(self.opt_read_metadata,     3, 0, 1, 1)
-        l.addWidget(self.opt_use_subdirs,       4, 0, 1, 1)
-        l.addWidget(self.opt_use_author_sort,   5, 0, 1, 1)
-        l.addWidget(self.template,              6, 0, 1, 1)
+        l.addWidget(la, 1, 0, 1, 1)
+        l.addWidget(self.formats, 2, 0, 1, 1)
+        l.addWidget(self.opt_read_metadata, 3, 0, 1, 1)
+        l.addWidget(self.opt_use_subdirs, 4, 0, 1, 1)
+        l.addWidget(self.opt_use_author_sort, 5, 0, 1, 1)
+        l.addWidget(self.template, 6, 0, 1, 1)
         l.setRowStretch(2, 10)
 
         if device.HIDE_FORMATS_CONFIG_BOX:
@@ -149,9 +153,7 @@ class TabbedDeviceConfig(QTabWidget):
         else:
             self.opt_use_author_sort.hide()
 
-        self.extra_tab = ExtraCustomization(self.extra_customization_message,
-                                            self.extra_customization_choices,
-                                            self.device_settings)
+        self.extra_tab = ExtraCustomization(self.extra_customization_message, self.extra_customization_choices, self.device_settings)
         # Only display the extra customization tab if there are options on it.
         if self.extra_tab.has_extra_customizations:
             self.addTab(self.extra_tab, _('Extra customization'))
@@ -254,7 +256,6 @@ class DeviceConfigTab(QWidget):  # {{{
 
 
 class ExtraCustomization(DeviceConfigTab):  # {{{
-
     def __init__(self, extra_customization_message, extra_customization_choices, device_settings):
         super().__init__()
 
@@ -283,13 +284,18 @@ class ExtraCustomization(DeviceConfigTab):  # {{{
             if isinstance(extra_customization_message, list):
                 self.opt_extra_customization = []
                 if len(extra_customization_message) > 6:
+
                     def row_func(x, y):
-                        return (x // 2 * 2 + y)
+                        return x // 2 * 2 + y
+
                     def col_func(x):
-                        return (x % 2)
+                        return x % 2
+
                 else:
+
                     def row_func(x, y):
-                        return (x * 2 + y)
+                        return x * 2 + y
+
                     def col_func(x):
                         return 0
 
@@ -322,8 +328,7 @@ class ExtraCustomization(DeviceConfigTab):  # {{{
                         _opt_line_item.setText(device_settings.extra_customization[i])
                         _opt_line_item.setCursorPosition(0)
                         self.extra_layout.addWidget(l, row_func(i + 2, 0), col_func(i))
-                    self.extra_layout.addWidget(self.opt_extra_customization[i],
-                                                row_func(i + 2, 1), col_func(i))
+                    self.extra_layout.addWidget(self.opt_extra_customization[i], row_func(i + 2, 1), col_func(i))
                 spacerItem1 = QSpacerItem(10, 10, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
                 self.extra_layout.addItem(spacerItem1, row_func(i + 2 + 2, 1), 0, 1, 2)
                 self.extra_layout.setRowStretch(row_func(i + 2 + 2, 1), 2)
@@ -370,8 +375,12 @@ class ExtraCustomization(DeviceConfigTab):  # {{{
 
     @property
     def has_extra_customizations(self):
-        debug_print('ExtraCustomization::has_extra_customizations - self.extra_customization_message', self.extra_customization_message)
+        debug_print(
+            'ExtraCustomization::has_extra_customizations - self.extra_customization_message',
+            self.extra_customization_message,
+        )
         return self.extra_customization_message and len(self.extra_customization_message) > 0
+
 
 # }}}
 
@@ -392,6 +401,7 @@ if __name__ == '__main__':
     from calibre.devices.kobo.driver import KOBO
     from calibre.devices.scanner import DeviceScanner
     from calibre.gui2 import Application
+
     s = DeviceScanner()
     s.scan()
     app = Application([])
@@ -405,7 +415,7 @@ if __name__ == '__main__':
     dl = QVBoxLayout()
     d.setLayout(dl)
     dl.addWidget(cw)
-    bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok|QDialogButtonBox.StandardButton.Cancel)
+    bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)
     dl.addWidget(bb)
     bb.accepted.connect(d.accept)
     bb.rejected.connect(d.reject)

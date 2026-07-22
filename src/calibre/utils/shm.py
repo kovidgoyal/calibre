@@ -42,6 +42,7 @@ class SharedMemory:
 
     WARNING: The actual size of the shared memory may be larger than the requested size.
     """
+
     _fd: int = -1
     _name: str = ''
     _mmap: _MmapType | None = None
@@ -50,9 +51,12 @@ class SharedMemory:
     num_bytes_for_size = struct.calcsize(size_fmt)
 
     def __init__(
-            self, name: str = '', size: int = 0, readonly: bool = False,
-            mode: int = stat.S_IREAD | stat.S_IWRITE,
-            prefix: str = 'calibre-'
+        self,
+        name: str = '',
+        size: int = 0,
+        readonly: bool = False,
+        mode: int = stat.S_IREAD | stat.S_IWRITE,
+        prefix: str = 'calibre-',
     ):
         if size < 0:
             raise TypeError("'size' must be a non-negative integer")
@@ -79,7 +83,7 @@ class SharedMemory:
                     _winapi.PAGE_READONLY if readonly else _winapi.PAGE_READWRITE,
                     (size >> 32) & 0xFFFFFFFF,
                     size & 0xFFFFFFFF,
-                    q
+                    q,
                 )
                 try:
                     last_error_code = _winapi.GetLastError()
@@ -100,19 +104,9 @@ class SharedMemory:
         self._name = name
 
         if not create and iswindows:
-            h_map = _winapi.OpenFileMapping(
-                _winapi.FILE_MAP_READ,
-                False,
-                name
-            )
+            h_map = _winapi.OpenFileMapping(_winapi.FILE_MAP_READ, False, name)
             try:
-                p_buf = _winapi.MapViewOfFile(
-                    h_map,
-                    _winapi.FILE_MAP_READ,
-                    0,
-                    0,
-                    0
-                )
+                p_buf = _winapi.MapViewOfFile(h_map, _winapi.FILE_MAP_READ, 0, 0, 0)
             finally:
                 _winapi.CloseHandle(h_map)
             size = _winapi.VirtualQuerySize(p_buf)
@@ -135,6 +129,7 @@ class SharedMemory:
     @property
     def memory_address(self) -> int:
         import ctypes
+
         obj = ctypes.py_object(self.mmap)
         address = ctypes.c_void_p()
         length = ctypes.c_ssize_t()

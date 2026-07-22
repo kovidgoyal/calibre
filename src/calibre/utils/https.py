@@ -14,7 +14,6 @@ from calibre.utils.resources import get_path as P
 
 
 class HTTPError(ValueError):
-
     def __init__(self, url, code):
         msg = f'{url} returned an unsupported http response code: {code} ({http.client.responses.get(code, None)})'
         ValueError.__init__(self, msg)
@@ -23,7 +22,6 @@ class HTTPError(ValueError):
 
 
 class HTTPSConnection(http.client.HTTPSConnection):
-
     def __init__(self, *args, **kwargs):
         cafile = kwargs.pop('cert_file', None)
         capath = kwargs.pop('cadir', None)
@@ -43,8 +41,13 @@ class HTTPSConnection(http.client.HTTPSConnection):
 
 
 def get_https_resource_securely(
-    url, cacerts='calibre-ebook-root-CA.crt', timeout=60, max_redirects=5,
-    ssl_version=None, headers=None, get_response=False,
+    url,
+    cacerts='calibre-ebook-root-CA.crt',
+    timeout=60,
+    max_redirects=5,
+    ssl_version=None,
+    headers=None,
+    get_response=False,
     cadir='',
 ):
     """
@@ -78,7 +81,14 @@ def get_https_resource_securely(
                 # Invalid proxy, ignore
                 pass
 
-    c = HTTPSConnection(hostname, port, cert_file=cert_file, timeout=timeout, disable_x509_strict_checking=disable_x509_strict_checking, cadir=cadir)
+    c = HTTPSConnection(
+        hostname,
+        port,
+        cert_file=cert_file,
+        timeout=timeout,
+        disable_x509_strict_checking=disable_x509_strict_checking,
+        cadir=cadir,
+    )
     if has_proxy:
         c.set_tunnel(p.hostname, p.port)
 
@@ -95,8 +105,7 @@ def get_https_resource_securely(
             newurl = response.getheader('Location', None)
             if newurl is None:
                 raise ValueError(f'{url} returned a redirect response with no Location header')
-            return get_https_resource_securely(
-                newurl, cacerts=cacerts, timeout=timeout, max_redirects=max_redirects-1, get_response=get_response)
+            return get_https_resource_securely(newurl, cacerts=cacerts, timeout=timeout, max_redirects=max_redirects - 1, get_response=get_response)
         if response.status != http.client.OK:
             raise HTTPError(url, response.status)
         if get_response:

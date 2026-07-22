@@ -20,7 +20,7 @@ def _read_width(elem, get):
     ans = inherit
     try:
         w = int(get(elem, 'w:w'))
-    except (TypeError, ValueError):
+    except TypeError, ValueError:
         w = 0
     typ = get(elem, 'w:type', 'auto')
     if typ == 'nil':
@@ -28,9 +28,9 @@ def _read_width(elem, get):
     elif typ == 'auto':
         ans = 'auto'
     elif typ == 'dxa':
-        ans = f'{w/20:.3g}pt'
+        ans = f'{w / 20:.3g}pt'
     elif typ == 'pct':
-        ans = f'{w/50:.3g}%'
+        ans = f'{w / 50:.3g}%'
     return ans
 
 
@@ -50,7 +50,7 @@ def read_cell_width(parent, dest, XPath, get):
 
 def read_padding(parent, dest, XPath, get):
     name = 'tblCellMar' if parent.tag.endswith('}tblPr') else 'tcMar'
-    ans = {x:inherit for x in edges}
+    ans = {x: inherit for x in edges}
     for mar in XPath(f'./w:{name}')(parent):
         for x in edges:
             for edge in XPath(f'./w:{x}')(mar):
@@ -127,7 +127,7 @@ def read_col_span(parent, dest, XPath, get):
     for gs in XPath('./w:gridSpan')(parent):
         try:
             ans = int(get(gs, 'w:val'))
-        except (TypeError, ValueError):
+        except TypeError, ValueError:
             continue
     setattr(dest, 'col_span', ans)
 
@@ -146,7 +146,7 @@ def read_band_size(parent, dest, XPath, get):
         for y in XPath(f'./w:tblStyle{x}BandSize')(parent):
             try:
                 ans = int(get(y, 'w:val'))
-            except (TypeError, ValueError):
+            except TypeError, ValueError:
                 continue
         setattr(dest, f'{x.lower()}_band_size', ans)
 
@@ -156,9 +156,10 @@ def read_look(parent, dest, XPath, get):
     for x in XPath('./w:tblLook')(parent):
         try:
             ans = int(get(x, 'w:val'), 16)
-        except (ValueError, TypeError):
+        except ValueError, TypeError:
             continue
     setattr(dest, 'look', ans)
+
 
 # }}}
 
@@ -175,7 +176,6 @@ def clone(style):
 
 
 class Style:
-
     is_bidi = False
     all_properties: tuple[str, ...] = ()
     spacing: object = inherit
@@ -217,8 +217,12 @@ class Style:
 
 
 class RowStyle(Style):
-
-    all_properties = ('height', 'cantSplit', 'hidden', 'spacing',)
+    all_properties = (
+        'height',
+        'cantSplit',
+        'hidden',
+        'spacing',
+    )
     height = cantSplit = hidden = spacing = inherit
 
     def __init__(self, namespace, trPr=None):
@@ -247,7 +251,7 @@ class RowStyle(Style):
                 rule, val = height
                 if rule != 'auto' and isinstance(val, str):
                     try:
-                        c['min-height' if rule == 'atLeast' else 'height'] = f'{int(val)/20:.3g}pt'
+                        c['min-height' if rule == 'atLeast' else 'height'] = f'{int(val) / 20:.3g}pt'
                     except ValueError:
                         pass
             c.update(self.convert_spacing())
@@ -255,9 +259,18 @@ class RowStyle(Style):
 
 
 class CellStyle(Style):
-
-    all_properties = ('background_color', 'cell_padding_left', 'cell_padding_right', 'cell_padding_top',
-        'cell_padding_bottom', 'width', 'vertical_align', 'col_span', 'vMerge', 'hMerge', 'row_span',
+    all_properties = (
+        'background_color',
+        'cell_padding_left',
+        'cell_padding_right',
+        'cell_padding_top',
+        'cell_padding_bottom',
+        'width',
+        'vertical_align',
+        'col_span',
+        'vMerge',
+        'hMerge',
+        'row_span',
     ) + tuple(k % edge for edge in border_edges for k in border_props)
     background_color = width = vertical_align = inherit
     col_span = vMerge = hMerge = row_span = inherit
@@ -290,7 +303,7 @@ class CellStyle(Style):
                 if val not in (inherit, 'auto'):
                     c[f'padding-{x}'] = val
                 elif val is inherit and x in {'left', 'right'}:
-                    c[f'padding-{x}'] = f'{115/20:.3g}pt'
+                    c[f'padding-{x}'] = f'{115 / 20:.3g}pt'
             # In Word, tables are apparently rendered with some default top and
             # bottom padding irrespective of the cellMargin values. Simulate
             # that here.
@@ -303,11 +316,23 @@ class CellStyle(Style):
 
 
 class TableStyle(Style):
-
     all_properties = (
-        'width', 'float', 'cell_padding_left', 'cell_padding_right', 'cell_padding_top',
-        'cell_padding_bottom', 'margin_left', 'margin_right', 'background_color',
-        'spacing', 'indent', 'overrides', 'col_band_size', 'row_band_size', 'look', 'bidi',
+        'width',
+        'float',
+        'cell_padding_left',
+        'cell_padding_right',
+        'cell_padding_top',
+        'cell_padding_bottom',
+        'margin_left',
+        'margin_right',
+        'background_color',
+        'spacing',
+        'indent',
+        'overrides',
+        'col_band_size',
+        'row_band_size',
+        'look',
+        'bidi',
     ) + tuple(k % edge for edge in border_edges for k in border_props)
     width = float = cell_padding_left = cell_padding_right = inherit
     cell_padding_top = cell_padding_bottom = inherit
@@ -325,7 +350,18 @@ class TableStyle(Style):
         else:
             self.overrides = inherit
             self.bidi = binary_property(tblPr, 'bidiVisual', namespace.XPath, namespace.get)
-            for x in ('width', 'float', 'padding', 'shd', 'justification', 'spacing', 'indent', 'borders', 'band_size', 'look'):
+            for x in (
+                'width',
+                'float',
+                'padding',
+                'shd',
+                'justification',
+                'spacing',
+                'indent',
+                'borders',
+                'band_size',
+                'look',
+            ):
                 f = globals()[f'read_{x}']
                 f(tblPr, self, self.namespace.XPath, self.namespace.get)
             parent = tblPr.getparent()
@@ -369,8 +405,8 @@ class TableStyle(Style):
                 for x in ('left', 'top', 'right', 'bottom'):
                     raw_fval = float_val.get(f'{x}FromText', 0)
                     try:
-                        val = f'{int(str(raw_fval))/20:.3g}pt'
-                    except (ValueError, TypeError):
+                        val = f'{int(str(raw_fval)) / 20:.3g}pt'
+                    except ValueError, TypeError:
                         val = '0'
                     c[f'margin-{x}'] = val
                 tblpXSpec = float_val.get('tblpXSpec')
@@ -382,9 +418,9 @@ class TableStyle(Style):
                     page_width = page.width - page.margin_left - page.margin_right
                     try:
                         x = int(str(float_val.get('tblpX', 0))) / 20
-                    except (ValueError, TypeError):
+                    except ValueError, TypeError:
                         x = 0
-                    c['float'] = 'left' if (x/page_width) < 0.65 else 'right'
+                    c['float'] = 'left' if (x / page_width) < 0.65 else 'right'
             c.update(self.convert_spacing())
             if 'border-collapse' not in c:
                 c['border-collapse'] = 'collapse'
@@ -394,7 +430,6 @@ class TableStyle(Style):
 
 
 class Table:
-
     def __init__(self, namespace, tbl, styles, para_map, is_sub_table=False):
         self.namespace = namespace
         self.tbl = tbl
@@ -402,7 +437,7 @@ class Table:
         self.is_sub_table = is_sub_table
 
         # Read Table Style
-        style = {'table':TableStyle(self.namespace)}
+        style = {'table': TableStyle(self.namespace)}
         for tblPr in self.namespace.XPath('./w:tblPr')(tbl):
             for ts in self.namespace.XPath('./w:tblStyle[@w:val]')(tblPr):
                 style_id = self.namespace.get(ts, 'w:val')
@@ -451,7 +486,7 @@ class Table:
                     self.resolve_para_style(p, overrides)
 
         self.handle_merged_cells()
-        self.sub_tables = {x:Table(namespace, x, styles, para_map, is_sub_table=True) for x in self.namespace.XPath('./w:tr/w:tc/w:tbl')(tbl)}
+        self.sub_tables = {x: Table(namespace, x, styles, para_map, is_sub_table=True) for x in self.namespace.XPath('./w:tr/w:tc/w:tbl')(tbl)}
 
     @property
     def bidi(self):
@@ -463,8 +498,12 @@ class Table:
             return True
         look = self.table_style.look
         assert isinstance(look, int)
-        if (look & 0x0020 and name == 'firstRow') or (look & 0x0040 and name == 'lastRow') or \
-           (look & 0x0080 and name == 'firstCol') or (look & 0x0100 and name == 'lastCol'):
+        if (
+            (look & 0x0020 and name == 'firstRow')
+            or (look & 0x0040 and name == 'lastRow')
+            or (look & 0x0080 and name == 'firstCol')
+            or (look & 0x0100 and name == 'lastCol')
+        ):
             return True
         if name.startswith('band'):
             if name.endswith('Horz'):
@@ -479,6 +518,7 @@ class Table:
 
         def divisor(m, n):
             return (m - (m % n)) // n
+
         if c is not None:
             col_band_size = self.table_style.col_band_size
             assert isinstance(col_band_size, int)
@@ -547,10 +587,7 @@ class Table:
                 setattr(cs, p, getattr(self.table_style, p))
 
             is_inside_edge = (
-                (x == 'left' and col > 0) or
-                (x == 'top' and row > 0) or
-                (x == 'right' and col < cols_in_row - 1) or
-                (x == 'bottom' and row < rows -1)
+                (x == 'left' and col > 0) or (x == 'top' and row > 0) or (x == 'right' and col < cols_in_row - 1) or (x == 'bottom' and row < rows - 1)
             )
             inside_edge = ('insideH' if x in {'top', 'bottom'} else 'insideV') if is_inside_edge else None
             for prop in border_props:
@@ -699,7 +736,6 @@ class Table:
 
 
 class Tables:
-
     def __init__(self, namespace):
         self.tables = []
         self.para_map = {}
@@ -713,7 +749,7 @@ class Tables:
         self.sub_tables |= set(self.tables[-1].sub_tables)
 
     def apply_markup(self, object_map, page_map):
-        rmap = {v:k for k, v in object_map.items()}
+        rmap = {v: k for k, v in object_map.items()}
         for table in self.tables:
             table.apply_markup(rmap, page_map[table.tbl])
 

@@ -2,7 +2,7 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
@@ -20,6 +20,7 @@ from polyglot.builtins import cmp, iteritems
 
 def create_log(ostream=None):
     from calibre.utils.logging import FileStream, ThreadSafeLog
+
     log = ThreadSafeLog(level=ThreadSafeLog.DEBUG)
     setattr(log, 'outputs', [FileStream(ostream)])
     return log
@@ -27,7 +28,7 @@ def create_log(ostream=None):
 
 # Comparing Metadata objects for relevance {{{
 words = ('the', 'a', 'an', 'of', 'and')
-prefix_pat = re.compile(r'^(%s)\s+'%('|'.join(words)))
+prefix_pat = re.compile(r'^(%s)\s+' % ('|'.join(words)))
 trailing_paren_pat = re.compile(r'\(.*\)$')
 whitespace_pat = re.compile(r'\s+')
 
@@ -74,8 +75,7 @@ class InternalMetadataCompareKeyGen:
 
         all_fields = 1 if source_plugin.test_fields(mi) is None else 2
 
-        exact_title = 1 if title and \
-                cleanup_title(title) == cleanup_title(mi.title) else 2
+        exact_title = 1 if title and cleanup_title(title) == cleanup_title(mi.title) else 2
 
         language = 1
         if mi.language:
@@ -83,8 +83,7 @@ class InternalMetadataCompareKeyGen:
             if mil != 'und' and mil != canonicalize_lang(get_lang()):
                 language = 2
 
-        has_cover = 2 if (not source_plugin.cached_cover_url_is_reliable or
-                source_plugin.get_cached_cover_url(mi.identifiers) is None) else 1
+        has_cover = 2 if (not source_plugin.cached_cover_url_is_reliable or source_plugin.get_cached_cover_url(mi.identifiers) is None) else 1
 
         self.base = (same_identifier, has_cover, all_fields, language, exact_title)
         self.comments_len = len((mi.comments or '').strip())
@@ -120,11 +119,13 @@ class InternalMetadataCompareKeyGen:
     def __ge__(self, other):
         return self.compare_to_other(other) >= 0
 
+
 # }}}
 
 
 def get_cached_cover_urls(mi):
     from calibre.customize.ui import metadata_plugins
+
     plugins = list(metadata_plugins(['identify']))
     for p in plugins:
         url = p.get_cached_cover_url(mi.identifiers)
@@ -134,11 +135,13 @@ def get_cached_cover_urls(mi):
 
 def dump_caches():
     from calibre.customize.ui import metadata_plugins
-    return {p.name:p.dump_caches() for p in metadata_plugins(['identify'])}
+
+    return {p.name: p.dump_caches() for p in metadata_plugins(['identify'])}
 
 
 def load_caches(dump):
     from calibre.customize.ui import metadata_plugins
+
     plugins = list(metadata_plugins(['identify']))
     for p in plugins:
         cache = dump.get(p.name, None)
@@ -158,6 +161,7 @@ def fixauthors(authors):
 def fixcase(x):
     if x:
         from calibre.utils.titlecase import titlecase
+
         x = titlecase(x)
     return x
 
@@ -176,15 +180,13 @@ class Option:
         :param choices: A dict of possible values, used only if type='choices'.
         dict is of the form {key:human readable label, ...}
         """
-        self.name, self.type, self.default, self.label, self.desc = (name,
-                type_, default, label, desc)
+        self.name, self.type, self.default, self.label, self.desc = (name, type_, default, label, desc)
         if choices and not isinstance(choices, dict):
             choices = {x: x for x in choices}
         self.choices = choices
 
 
 class Source(Plugin):
-
     type = _('Metadata source')
     author = 'Kovid Goyal'
 
@@ -264,6 +266,7 @@ class Source(Plugin):
 
     def config_widget(self):
         from calibre.gui2.metadata.config import ConfigWidget
+
         return ConfigWidget(self)
 
     def save_settings(self, config_widget):
@@ -273,8 +276,10 @@ class Source(Plugin):
     def prefs(self):
         if self._config_obj is None:
             from calibre.utils.config import JSONConfig
-            self._config_obj = JSONConfig('metadata_sources/%s.json'%self.name)
+
+            self._config_obj = JSONConfig('metadata_sources/%s.json' % self.name)
         return self._config_obj
+
     # }}}
 
     # Browser {{{
@@ -321,8 +326,10 @@ class Source(Plugin):
 
     def dump_caches(self):
         with self.cache_lock:
-            return {'isbn_to_identifier':self._isbn_to_identifier_cache.copy(),
-                    'identifier_to_cover':self._identifier_to_cover_url_cache.copy()}
+            return {
+                'isbn_to_identifier': self._isbn_to_identifier_cache.copy(),
+                'identifier_to_cover': self._identifier_to_cover_url_cache.copy(),
+            }
 
     def load_caches(self, dump):
         with self.cache_lock:
@@ -356,8 +363,7 @@ class Source(Plugin):
                     parts = parts[1:] + parts[:1]
                 for tok in parts:
                     tok = remove_pat.sub('', tok).strip()
-                    if len(tok) > 2 and tok.lower() not in ('von', 'van',
-                            _('Unknown').lower()):
+                    if len(tok) > 2 and tok.lower() not in ('von', 'van', _('Unknown').lower()):
                         yield tok
 
     def get_title_tokens(self, title, strip_joiners=True, strip_subtitle=False):
@@ -372,20 +378,25 @@ class Source(Plugin):
                 if len(subtitle.sub('', title)) > 1:
                     title = subtitle.sub('', title)
 
-            title_patterns = [(re.compile(pat, re.IGNORECASE), repl) for pat, repl in
-            [
-                # Remove things like: (2010) (Omnibus) etc.
-                (r'(?i)[({\[](\d{4}|omnibus|anthology|hardcover|audiobook|audio\scd|paperback|turtleback|mass\s*market|edition|ed\.)[\])}]', ''),
-                # Remove any strings that contain the substring edition inside
-                # parentheses
-                (r'(?i)[({\[].*?(edition|ed.).*?[\]})]', ''),
-                # Remove commas used a separators in numbers
-                (r'(\d+),(\d+)', r'\1\2'),
-                # Remove hyphens only if they have whitespace before them
-                (r'(\s-)', ' '),
-                # Replace other special chars with a space
-                (r'''[:,;!@$%^&*(){}.`~"\s\[\]/]《》「」“”''', ' '),
-            ]]
+            title_patterns = [
+                (re.compile(pat, re.IGNORECASE), repl)
+                for pat, repl in [
+                    # Remove things like: (2010) (Omnibus) etc.
+                    (
+                        r'(?i)[({\[](\d{4}|omnibus|anthology|hardcover|audiobook|audio\scd|paperback|turtleback|mass\s*market|edition|ed\.)[\])}]',
+                        '',
+                    ),
+                    # Remove any strings that contain the substring edition inside
+                    # parentheses
+                    (r'(?i)[({\[].*?(edition|ed.).*?[\]})]', ''),
+                    # Remove commas used a separators in numbers
+                    (r'(\d+),(\d+)', r'\1\2'),
+                    # Remove hyphens only if they have whitespace before them
+                    (r'(\s-)', ' '),
+                    # Replace other special chars with a space
+                    (r'''[:,;!@$%^&*(){}.`~"\s\[\]/]《》「」“”''', ' '),
+                ]
+            ]
 
             for pat, repl in title_patterns:
                 title = pat.sub(repl, title)
@@ -393,8 +404,7 @@ class Source(Plugin):
             tokens = title.split()
             for token in tokens:
                 token = token.strip().strip('"').strip("'")
-                if token and (not strip_joiners or token.lower() not in ('a',
-                    'and', 'the', '&')):
+                if token and (not strip_joiners or token.lower() not in ('a', 'and', 'the', '&')):
                     yield token
 
     def split_jobs(self, jobs, num):
@@ -439,15 +449,16 @@ class Source(Plugin):
 
     def download_multiple_covers(self, title, authors, urls, get_best_cover, timeout, result_queue, abort, log, prefs_name='max_covers'):
         if not urls:
-            log('No images found for, title: %r and authors: %r'%(title, authors))
+            log('No images found for, title: %r and authors: %r' % (title, authors))
             return
         import time
         from threading import Thread
+
         if prefs_name:
-            urls = urls[:self.prefs[prefs_name]]
+            urls = urls[: self.prefs[prefs_name]]
         if get_best_cover:
             urls = urls[:1]
-        log('Downloading %d covers'%len(urls))
+        log('Downloading %d covers' % len(urls))
         workers = [Thread(target=self.download_image, args=(u, timeout, log, result_queue)) for u in urls]
         for w in workers:
             w.daemon = True
@@ -466,9 +477,9 @@ class Source(Plugin):
         try:
             ans = self.browser.open_novisit(url, timeout=timeout).read()
             result_queue.put((self, ans))
-            log('Downloaded cover from: %s'%url)
+            log('Downloaded cover from: %s' % url)
         except Exception:
-            log.exception('Failed to download cover from: %r'%url)
+            log.exception('Failed to download cover from: %r' % url)
 
     # }}}
 
@@ -524,8 +535,7 @@ class Source(Plugin):
         """
         return
 
-    def identify_results_keygen(self, title=None, authors=None,
-            identifiers={}):
+    def identify_results_keygen(self, title=None, authors=None, identifiers={}):
         """
         Return a function that is used to generate a key that can sort Metadata
         objects by their relevance given a search query (title, authors,
@@ -537,13 +547,13 @@ class Source(Plugin):
         :class:`InternalMetadataCompareKeyGen`. Re-implement this function in
         your plugin if the default algorithm is not suitable.
         """
+
         def keygen(mi):
-            return InternalMetadataCompareKeyGen(mi, self, title, authors,
-                identifiers)
+            return InternalMetadataCompareKeyGen(mi, self, title, authors, identifiers)
+
         return keygen
 
-    def identify(self, log, result_queue, abort, title=None, authors=None,
-            identifiers={}, timeout=30):
+    def identify(self, log, result_queue, abort, title=None, authors=None, identifiers={}, timeout=30):
         """
         Identify a book by its Title/Author/ISBN/etc.
 
@@ -583,8 +593,7 @@ class Source(Plugin):
         """
         return
 
-    def download_cover(self, log, result_queue, abort,
-            title=None, authors=None, identifiers={}, timeout=30, get_best_cover=False):
+    def download_cover(self, log, result_queue, abort, title=None, authors=None, identifiers={}, timeout=30, get_best_cover=False):
         '''
         Download a cover and put it into result_queue. The parameters all have
         the same meaning as for :meth:`identify`. Put (self, cover_data) into

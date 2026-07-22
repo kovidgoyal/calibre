@@ -20,7 +20,6 @@ from calibre.ptempfile import PersistentTemporaryDirectory
 
 
 class FakeResponse:
-
     def __init__(self):
         self.queue = Queue()
         self.done = False
@@ -43,6 +42,7 @@ class FakeResponse:
         self._reason = res.get('http_status_message')
         if not self._reason:
             from http.client import responses
+
             with suppress(KeyError):
                 self._reason = responses[self._status]
         self._headers = res['headers']
@@ -74,12 +74,14 @@ class FakeResponse:
     def status(self) -> int | None:
         self._wait()
         return self._status
+
     code = status
 
     @property
     def headers(self):
         self._wait()
         from email.message import EmailMessage
+
         ans = EmailMessage()
         for k, v in self._headers:
             ans[k] = v
@@ -116,8 +118,13 @@ def shutdown_browser(bref):
 
 
 class Browser:
-
-    def __init__(self, user_agent: str = '', headers: tuple[tuple[str, str], ...] = (), verify_ssl_certificates: bool = True, start_worker: bool = False):
+    def __init__(
+        self,
+        user_agent: str = '',
+        headers: tuple[tuple[str, str], ...] = (),
+        verify_ssl_certificates: bool = True,
+        start_worker: bool = False,
+    ):
         self.tdir = ''
         self.worker = self.dispatcher = None
         self.dispatch_map = {}
@@ -146,7 +153,7 @@ class Browser:
 
         def has_header(x: str) -> bool:
             x = x.lower()
-            for h,v in headers:
+            for h, v in headers:
                 if h.lower() == x:
                     return True
             return False
@@ -166,8 +173,14 @@ class Browser:
             self._ensure_state()
             self.id_counter += 1
             cmd = {
-                'action': 'download', 'id': self.id_counter, 'url': url, 'method': method, 'timeout': timeout,
-                'headers': self.addheaders + headers, 'visit': visit,}
+                'action': 'download',
+                'id': self.id_counter,
+                'url': url,
+                'method': method,
+                'timeout': timeout,
+                'headers': self.addheaders + headers,
+                'visit': visit,
+            }
             if data:
                 with open(os.path.join(self.tdir, f'i{self.id_counter}'), 'wb') as f:
                     if hasattr(data, 'read'):
@@ -201,7 +214,8 @@ class Browser:
         Similarly, by default all paths match, to restrict to certain path use the path parameter.
         """
         c = {'name': name, 'value': value, 'domain': domain, 'path': path}
-        self._send_command({'action': 'set_cookies', 'cookies':[c]})
+        self._send_command({'action': 'set_cookies', 'cookies': [c]})
+
     set_cookie = set_simple_cookie
 
     def set_user_agent(self, val: str = '') -> None:
@@ -250,6 +264,7 @@ class Browser:
         except Exception:
             if not self.shutting_down:
                 import traceback
+
                 traceback.print_exc()
 
     def shutdown(self):
@@ -282,32 +297,37 @@ class Browser:
 
 
 class WebEngineBrowser(Browser):
-
     def run_worker(self) -> subprocess.Popen:
         return run_worker(self.tdir, self.user_agent, self.verify_ssl_certificates, function='webengine_worker')
 
 
 def run_worker(tdir: str, user_agent: str, verify_ssl_certificates: bool, function: str = 'worker'):
     from calibre.utils.ipc.simple_worker import start_pipe_worker
+
     return start_pipe_worker(f'from calibre.scraper.qt import {function}; {function}({tdir!r}, {user_agent!r}, {verify_ssl_certificates!r})')
 
 
 def worker(*args):
     from calibre.gui2 import must_use_qt
+
     must_use_qt()
     from .qt_backend import worker
+
     worker(*args)
 
 
 def webengine_worker(*args):
     from calibre.gui2 import must_use_qt
+
     must_use_qt()
     from .webengine_backend import worker
+
     worker(*args)
 
 
 def develop():
     import sys
+
     br = Browser()
     try:
         for url in sys.argv[1:]:

@@ -42,10 +42,7 @@ class NytMag(BasicNewsRecipe):
             'default': 'no',
         },
         'res': {
-            'short': (
-                'For hi-res images, select a resolution from the following\noptions: '
-                'popup, jumbo, mobileMasterAt3x, superJumbo'
-            ),
+            'short': ('For hi-res images, select a resolution from the following\noptions: popup, jumbo, mobileMasterAt3x, superJumbo'),
             'long': (
                 'This is useful for non e-ink devices, and for a lower file size\nthan '
                 'the default, use mediumThreeByTwo440, mediumThreeByTwo225, articleInline.'

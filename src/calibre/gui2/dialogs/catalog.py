@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
@@ -20,7 +20,7 @@ from calibre.utils.localization import _
 
 
 class Catalog(QDialog, Ui_Dialog):
-    """ Catalog Dialog builder"""
+    """Catalog Dialog builder"""
 
     def __init__(self, parent, dbspec, ids, db):
         import re
@@ -37,8 +37,7 @@ class Catalog(QDialog, Ui_Dialog):
         self.count.setText(str(self.count.text()).format(len(ids)))
 
         # Display the last-used title
-        self.title.setText(dynamic.get('catalog_last_used_title',
-            _('My books')))
+        self.title.setText(dynamic.get('catalog_last_used_title', _('My books')))
 
         self.fmts, self.widgets = [], []
 
@@ -49,7 +48,7 @@ class Catalog(QDialog, Ui_Dialog):
             name = plugin.name.lower().replace(' ', '_')
             if getattr(plugin, 'installation_type', None) is PluginInstallationType.BUILTIN:
                 try:
-                    catalog_widget = importlib.import_module('calibre.gui2.catalog.'+name)
+                    catalog_widget = importlib.import_module('calibre.gui2.catalog.' + name)
                     pw = catalog_widget.PluginWidget()
                     pw.parent_ref = weakref.ref(self)
                     pw.initialize(name, db)
@@ -61,9 +60,9 @@ class Catalog(QDialog, Ui_Dialog):
                     continue
             else:
                 # Load dynamic tab
-                form = os.path.join(plugin.resources_path,f'{name}.ui')
-                klass = os.path.join(plugin.resources_path,f'{name}.py')
-                compiled_form = os.path.join(plugin.resources_path,f'{name}_ui.py')
+                form = os.path.join(plugin.resources_path, f'{name}.ui')
+                klass = os.path.join(plugin.resources_path, f'{name}.py')
+                compiled_form = os.path.join(plugin.resources_path, f'{name}_ui.py')
 
                 if os.path.exists(form) and os.path.exists(klass):
                     # info("Adding widget for user-installed Catalog plugin %s" % plugin.name)
@@ -76,8 +75,7 @@ class Catalog(QDialog, Ui_Dialog):
                         buf = PolyglotStringIO()
                         compileUi(form, buf)
                         dat = buf.getvalue()
-                        dat = re.compile(r'QtGui.QApplication.translate\(.+?,\s+"(.+?)(?<!\\)",.+?\)',
-                                         re.DOTALL).sub(r'_("\1")', dat)
+                        dat = re.compile(r'QtGui.QApplication.translate\(.+?,\s+"(.+?)(?<!\\)",.+?\)', re.DOTALL).sub(r'_("\1")', dat)
                         open(compiled_form, 'wb').write(dat.encode('utf-8'))
 
                     # Import the dynamic PluginWidget() from .py file provided in plugin.zip
@@ -147,7 +145,7 @@ class Catalog(QDialog, Ui_Dialog):
         screen = self.screen()
         assert screen is not None
         geom = screen.availableSize()
-        nh, nw = max(300, geom.height()-50), max(400, geom.width()-70)
+        nh, nw = max(300, geom.height() - 50), max(400, geom.width() - 70)
         return QSize(nw, nh)
 
     @property
@@ -235,14 +233,17 @@ class Catalog(QDialog, Ui_Dialog):
 
         Create the help file at resources/catalog/help_<format>.html
         """
-        if self.tabs.count() > 1 and hasattr(self.options_widget,'show_help'):
+        if self.tabs.count() > 1 and hasattr(self.options_widget, 'show_help'):
             try:
                 self.options_widget.show_help()
             except Exception:
-                info_dialog(self, _('No help available'),
+                info_dialog(
+                    self,
+                    _('No help available'),
                     _('No help available for this output format.'),
                     show_copy_button=False,
-                    show=True)
+                    show=True,
+                )
 
     def reject(self):
         self.save_geometry(dynamic, 'catalog_window_geom')

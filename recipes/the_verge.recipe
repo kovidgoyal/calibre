@@ -4,7 +4,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class HindustanTimes(BasicNewsRecipe):
-    title = u'The Verge'
+    title = 'The Verge'
     language = 'en'
     __author__ = 'Krittika Goyal'
     oldest_article = 1  # days
@@ -19,7 +19,7 @@ class HindustanTimes(BasicNewsRecipe):
         'days': {
             'short': 'Oldest article to download from this news source. In days ',
             'long': 'For example, 0.5, gives you articles from the past 12 hours',
-            'default': str(oldest_article)
+            'default': str(oldest_article),
         }
     }
 
@@ -30,6 +30,5 @@ class HindustanTimes(BasicNewsRecipe):
             self.oldest_article = float(d)
 
     feeds = [
-        ('News',
-         'http://www.theverge.com/rss/index.xml'),
+        ('News', 'http://www.theverge.com/rss/index.xml'),
     ]

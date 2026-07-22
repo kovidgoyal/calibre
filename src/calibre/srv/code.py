@@ -445,7 +445,8 @@ def get_library_init_data(ctx, rd, db, num, sorts, orders, vl):
         sf = db.field_metadata.ui_sortable_field_keys()
         sf.pop('ondevice', None)
         ans['sortable_fields'] = sorted(
-            ((sanitize_sort_field_name(db.field_metadata, k), v) for k, v in sf.items()), key=lambda field_name: sort_key(field_name[1])
+            ((sanitize_sort_field_name(db.field_metadata, k), v) for k, v in sf.items()),
+            key=lambda field_name: sort_key(field_name[1]),
         )
         ans['field_metadata'] = db.field_metadata.all_metadata()
         ans['virtual_libraries'] = db._pref('virtual_libraries', {})
@@ -551,7 +552,13 @@ def more_books(ctx, rd):
         raise HTTPNotFound('Invalid number of books: {!r}'.format(rd.query.get('num')))
     try:
         search_query = load_json_file(rd.request_body_file)
-        query, offset, sorts, orders, vl = search_query['query'], search_query['offset'], search_query['sort'], search_query['sort_order'], search_query['vl']
+        query, offset, sorts, orders, vl = (
+            search_query['query'],
+            search_query['offset'],
+            search_query['sort'],
+            search_query['sort_order'],
+            search_query['vl'],
+        )
     except KeyError as err:
         raise HTTPBadRequest(f'Search query missing key: {as_unicode(err)}')
     except Exception as err:

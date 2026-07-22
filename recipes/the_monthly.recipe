@@ -22,9 +22,7 @@ class monthly(BasicNewsRecipe):
         .article-page__author, .category, .caption {font-size:small; color:#404040;}
         .article__summary, .author-details-bottom-wrapper, em {font-style:italic; color:#202020;}
     '''
-    keep_only_tags = [
-        classes('article-page')
-    ]
+    keep_only_tags = [classes('article-page')]
     remove_tags = [
         classes(
             'node-teaser-hidden article-page__social__icons sidebar-toc article-footer-container'
@@ -41,9 +39,9 @@ class monthly(BasicNewsRecipe):
         feeds = []
         main = soup.find(**classes('main'))
         for art in main.findAll(**classes('article')):
-            if hr := art.find('a', attrs={'href':lambda x: x and x.startswith('/issue/')}):
+            if hr := art.find('a', attrs={'href': lambda x: x and x.startswith('/issue/')}):
                 url = 'https://www.themonthly.com.au' + hr['href']
-            elif hr := art.findParent('a', attrs={'href':lambda x: x and x.startswith('/issue/')}):
+            elif hr := art.findParent('a', attrs={'href': lambda x: x and x.startswith('/issue/')}):
                 url = 'https://www.themonthly.com.au' + hr['href']
             title = self.tag_to_string(art.find(**classes('article__title')))
             desc = ''
@@ -56,5 +54,5 @@ class monthly(BasicNewsRecipe):
             if not title or not url:
                 continue
             self.log(' ', title, '\n\t', url, '\n\t', desc)
-            feeds.append({'title': title, 'url': url, 'description':desc})
+            feeds.append({'title': title, 'url': url, 'description': desc})
         return [('The Monthly', feeds)]

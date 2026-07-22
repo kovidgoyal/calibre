@@ -6,7 +6,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class IndiaToday(BasicNewsRecipe):
-    title = u'India Today Magazine'
+    title = 'India Today Magazine'
     language = 'en_IN'
     __author__ = 'unkn0wn'
     no_stylesheets = True
@@ -26,24 +26,15 @@ class IndiaToday(BasicNewsRecipe):
         blockquote {color:#404040;}
     '''
 
-    remove_tags = [dict(attrs={id:['tab-link-wrapper-plugin']})]
+    remove_tags = [dict(attrs={id: ['tab-link-wrapper-plugin']})]
 
-    recipe_specific_options = {
-        'date': {
-            'short': 'The date of the edition to download (DD-MM-YYYY format)',
-            'long': 'For example, 22-07-2024'
-        }
-    }
+    recipe_specific_options = {'date': {'short': 'The date of the edition to download (DD-MM-YYYY format)', 'long': 'For example, 22-07-2024'}}
 
     def get_cover_url(self):
         d = self.recipe_specific_options.get('date')
         if not (d and isinstance(d, str)):
-            soup = self.index_to_soup(
-                'https://www.readwhere.com/magazine/the-india-today-group/India-Today/1154'
-            )
-            for citem in soup.findAll(
-                'meta', content=lambda s: s and s.endswith('/magazine/300/new')
-            ):
+            soup = self.index_to_soup('https://www.readwhere.com/magazine/the-india-today-group/India-Today/1154')
+            for citem in soup.findAll('meta', content=lambda s: s and s.endswith('/magazine/300/new')):
                 return citem['content'].replace('300', '600')
 
     def parse_index(self):
@@ -63,34 +54,31 @@ class IndiaToday(BasicNewsRecipe):
             sections[section] = []
 
             for art in tag.findAll('article'):
-                title = self.tag_to_string(art.find(attrs={'class':lambda x: x and 'NoCard_articletitle__' in x})).strip()
+                title = self.tag_to_string(art.find(attrs={'class': lambda x: x and 'NoCard_articletitle__' in x})).strip()
                 url = art.find('a', href=True, title=True)['href']
                 if url.startswith('/'):
                     url = 'https://www.indiatoday.in' + url
-                desc = self.tag_to_string(art.find(attrs={'class':lambda x: x and 'NoCard_story__shortcont__' in x})).strip()
+                desc = self.tag_to_string(art.find(attrs={'class': lambda x: x and 'NoCard_story__shortcont__' in x})).strip()
                 self.log('\t', title, '\n\t', desc, '\n\t\t', url)
                 sections[section].append({'title': title, 'url': url, 'description': desc})
 
         def sort_key(x):
             section = x[0]
             try:
-                return (
-                    "Editor's Note", 'Cover Story', 'The Big Story', 'Upfront',
-                    'NATION', 'INTERVIEW'
-                ).index(section)
+                return ("Editor's Note", 'Cover Story', 'The Big Story', 'Upfront', 'NATION', 'INTERVIEW').index(section)
             except Exception:
                 return 99999999
 
         return sorted(sections.items(), key=sort_key)
 
     def preprocess_html(self, soup):
-        for quo in soup.findAll(attrs={'class':'quotes'}):
+        for quo in soup.findAll(attrs={'class': 'quotes'}):
             quo.name = 'blockquote'
         return soup
 
     def preprocess_raw_html(self, raw, *a):
         m = re.search(r'id="__NEXT_DATA__" type="application/json">', raw)
-        raw = raw[m.start():]
+        raw = raw[m.start() :]
         raw = raw.split('>', 1)[1]
         data = json.JSONDecoder().raw_decode(raw)[0]
         data = data['props']['pageProps']['initialState']['server']['page_data']
@@ -114,6 +102,22 @@ class IndiaToday(BasicNewsRecipe):
             if 'image_caption' in data:
                 imagecap = '<div id="imgcap">' + data['image_caption'] + '</div>'
 
-        return ('<html><body>' + slug + '<h1>' + title + '</h1>\n' + desc + '<div id="author">'
-                + author + '<span> ' + city + ' UPDATED: ' + date + '</span></div>\n' + image + imagecap + body +
-                '</body></html>')
+        return (
+            '<html><body>'
+            + slug
+            + '<h1>'
+            + title
+            + '</h1>\n'
+            + desc
+            + '<div id="author">'
+            + author
+            + '<span> '
+            + city
+            + ' UPDATED: '
+            + date
+            + '</span></div>\n'
+            + image
+            + imagecap
+            + body
+            + '</body></html>'
+        )

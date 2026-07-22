@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
@@ -49,8 +49,8 @@ ICON_SIZE = 32
 
 # Title Bar {{{
 
-class Message(QWidget):
 
+class Message(QWidget):
     def __init__(self, parent):
         QWidget.__init__(self, parent)
         self.text_layout = QTextLayout()
@@ -95,7 +95,6 @@ class Message(QWidget):
 
 
 class TitleBar(QWidget):
-
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
         self.l = l = QHBoxLayout(self)
@@ -107,8 +106,7 @@ class TitleBar(QWidget):
         l.addStrut(25)
         self.msg = la = Message(self)
         l.addWidget(la)
-        self.default_message = __appname__ + ' ' + _('version') + ' ' + \
-                __version__ + ' ' + _('created by Kovid Goyal')
+        self.default_message = __appname__ + ' ' + _('version') + ' ' + __version__ + ' ' + _('created by Kovid Goyal')
         self.show_plugin()
         self.show_msg()
 
@@ -120,11 +118,11 @@ class TitleBar(QWidget):
         msg = msg or self.default_message
         self.msg.setText(' '.join(msg.splitlines()).strip())
 
+
 # }}}
 
 
 class Category(QWidget):  # {{{
-
     plugin_activated = pyqtSignal(object)
 
     def __init__(self, name, plugins, gui_name, parent=None):
@@ -143,16 +141,16 @@ class Category(QWidget):  # {{{
         self.plugins = plugins
 
         self.bar = QToolBar(self)
-        self.bar.setStyleSheet(
-                'QToolBar { border: none; background: none }')
+        self.bar.setStyleSheet('QToolBar { border: none; background: none }')
         lh = qapplication_or_fail().line_height
-        self.bar.setIconSize(QSize(2*lh, 2*lh))
+        self.bar.setIconSize(QSize(2 * lh, 2 * lh))
         self.bar.setMovable(False)
         self.bar.setFloatable(False)
         self.bar.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
         self._layout.addWidget(self.bar)
         self._actions = []
         from calibre.gui2.ui import get_gui
+
         iac = get_gui(fail_if_absent=True).iactions['Preferences']
         for p in plugins:
             sc = iac.action_map.get(p.name).shortcut().toString(QKeySequence.SequenceFormat.NativeText)
@@ -175,11 +173,11 @@ class Category(QWidget):  # {{{
     def triggered(self, plugin, *args):
         self.plugin_activated.emit(plugin)
 
+
 # }}}
 
 
 class Browser(QScrollArea):  # {{{
-
     show_plugin = pyqtSignal(object)
 
     def __init__(self, parent=None):
@@ -192,7 +190,7 @@ class Browser(QScrollArea):  # {{{
                 category_map[plugin.category] = plugin.category_order
             category_map[plugin.category] = max(category_map[plugin.category], plugin.category_order)
             if plugin.category not in category_names:
-                category_names[plugin.category] = (plugin.gui_category or plugin.category)
+                category_names[plugin.category] = plugin.gui_category or plugin.category
 
         self.category_names = category_names
 
@@ -222,16 +220,16 @@ class Browser(QScrollArea):  # {{{
             w.plugin_activated.connect(self.show_plugin.emit)
         self._layout.addStretch(1)
 
+
 # }}}
 
 
-must_restart_message = _('The changes you have made require calibre be '
-                         'restarted immediately. You will not be allowed to '
-                         'set any more preferences, until you restart.')
+must_restart_message = _(
+    'The changes you have made require calibre be restarted immediately. You will not be allowed to set any more preferences, until you restart.'
+)
 
 
 class Preferences(QDialog):
-
     run_wizard_requested = pyqtSignal()
     showing_widget: ConfigWidgetBase
 
@@ -251,10 +249,7 @@ class Preferences(QDialog):
         self.l = l = QVBoxLayout(self)
 
         self.stack = QStackedWidget(self)
-        self.bb = QDialogButtonBox(
-            QDialogButtonBox.StandardButton.Close | QDialogButtonBox.StandardButton.Apply |
-            QDialogButtonBox.StandardButton.Cancel
-        )
+        self.bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Close | QDialogButtonBox.StandardButton.Apply | QDialogButtonBox.StandardButton.Cancel)
         apply_button = self.bb.button(QDialogButtonBox.StandardButton.Apply)
         assert apply_button is not None
         apply_button.clicked.connect(self.accept)
@@ -275,8 +270,10 @@ class Preferences(QDialog):
 
         self.setContextMenuPolicy(Qt.ContextMenuPolicy.NoContextMenu)
         self.title_bar = TitleBar(self)
-        for ac, tt in [(QDialogButtonBox.StandardButton.Apply, _('Save changes')),
-                (QDialogButtonBox.StandardButton.Cancel, _('Cancel and return to overview'))]:
+        for ac, tt in [
+            (QDialogButtonBox.StandardButton.Apply, _('Save changes')),
+            (QDialogButtonBox.StandardButton.Cancel, _('Cancel and return to overview')),
+        ]:
             btn = self.bb.button(ac)
             assert btn is not None
             btn.setToolTip(tt)
@@ -284,7 +281,12 @@ class Preferences(QDialog):
         l.addWidget(self.title_bar), l.addWidget(self.stack)
         h = QHBoxLayout()
         l.addLayout(h)
-        h.addWidget(self.wizard_button), h.addWidget(self.restore_defaults_button), h.addStretch(10), h.addWidget(self.bb)
+        (
+            h.addWidget(self.wizard_button),
+            h.addWidget(self.restore_defaults_button),
+            h.addStretch(10),
+            h.addWidget(self.bb),
+        )
 
         if initial_plugin is not None:
             category, name = initial_plugin[:2]
@@ -371,8 +373,10 @@ class Preferences(QDialog):
         self.restore_defaults_button.setEnabled(self.showing_widget.supports_restoring_to_defaults)
         self.restore_defaults_button.setVisible(self.showing_widget.supports_restoring_to_defaults)
         self.restore_defaults_button.setToolTip(
-            self.showing_widget.restore_defaults_desc if self.showing_widget.supports_restoring_to_defaults else
-            (_('Restoring to defaults not supported for') + ' ' + plugin.gui_name))
+            self.showing_widget.restore_defaults_desc
+            if self.showing_widget.supports_restoring_to_defaults
+            else (_('Restoring to defaults not supported for') + ' ' + plugin.gui_name)
+        )
         self.restore_defaults_button.setText(_('Restore &defaults'))
         self.showing_widget.changed_signal.connect(self.changed_signal)
         self.showing_widget.do_on_child_tabs('set_changed_signal', self.changed_signal)
@@ -427,8 +431,7 @@ class Preferences(QDialog):
             if rc:
                 msg = must_restart_message
             else:
-                msg = _('Some of the changes you made require a restart.'
-                        ' Please restart calibre as soon as possible.')
+                msg = _('Some of the changes you made require a restart. Please restart calibre as soon as possible.')
             do_restart = show_restart_warning(msg, parent=self)
 
         # Same with refresh -- do the child widgets first so the main widget has the info
@@ -475,6 +478,7 @@ class Preferences(QDialog):
 
 if __name__ == '__main__':
     from calibre.gui2 import Application
+
     app = Application([])
     app
     gui = init_gui()

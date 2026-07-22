@@ -2,7 +2,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class AdvancedUserRecipe1375900744(BasicNewsRecipe):
-    title = u'News24'
+    title = 'News24'
     description = 'News24.'
     __author__ = 'Nicki de Wet'
     publisher = 'Media24'
@@ -17,35 +17,55 @@ class AdvancedUserRecipe1375900744(BasicNewsRecipe):
     remove_empty_feeds = True
     publication_type = 'newsportal'
     masthead_url = 'http://www.24.com/images/widgethead_news.png'
-    extra_css             = '''
+    extra_css = '''
                                 body{font-family: Arial,Helvetica,sans-serif }
                                 img{display: block}
                             '''
 
-    conversion_options = {
-        'comment': description, 'tags': category, 'publisher': publisher, 'language': language
-    }
+    conversion_options = {'comment': description, 'tags': category, 'publisher': publisher, 'language': language}
 
     remove_tags = [
         dict(name=['object', 'embed', 'iframe', 'table', 'meta', 'link']),
-        dict(attrs={
-            'class': ['TwitterfacebookLink', 'superSportArticleBlock',
-                      'videoHighlights', 'facebookComments', 'share',
-                      'item_block', 'kalahari_product left', 'block red',
-                      'credit']}),
-        dict(attrs={'id': ['comments_wrap', 'article_toolbox_bot',
-                           'inside_news', 'sponsored-links', 'lnkGalleries',
-                           'relatedlinks_box', 'lnkUserGalleries',
-                           'lnkNewsGalleries', 'relatedlinks',
-                           'divRelatedLinks']})]
+        dict(
+            attrs={
+                'class': [
+                    'TwitterfacebookLink',
+                    'superSportArticleBlock',
+                    'videoHighlights',
+                    'facebookComments',
+                    'share',
+                    'item_block',
+                    'kalahari_product left',
+                    'block red',
+                    'credit',
+                ]
+            }
+        ),
+        dict(
+            attrs={
+                'id': [
+                    'comments_wrap',
+                    'article_toolbox_bot',
+                    'inside_news',
+                    'sponsored-links',
+                    'lnkGalleries',
+                    'relatedlinks_box',
+                    'lnkUserGalleries',
+                    'lnkNewsGalleries',
+                    'relatedlinks',
+                    'divRelatedLinks',
+                ]
+            }
+        ),
+    ]
 
     keep_only_tags = [
-        dict(attrs={'class': ['left col633', 'article col626',
-                              'columnWrapperLeft', 'articlecolumn',
-                              'article_img', 'picture_caption', 'DiveTable']})]
+        dict(attrs={'class': ['left col633', 'article col626', 'columnWrapperLeft', 'articlecolumn', 'article_img', 'picture_caption', 'DiveTable']})
+    ]
 
     feeds = [
-        (u'Top Stories', u'http://feeds.news24.com/articles/news24/TopStories/rss'),
-        (u'South Africa', u'http://feeds.news24.com/articles/news24/SouthAfrica/rss'),
-        (u'World', u'http://feeds.news24.com/articles/news24/World/rss'),
-        (u'Sport', u'http://feeds.24.com/articles/sport/featured/topstories/rss')]
+        ('Top Stories', 'http://feeds.news24.com/articles/news24/TopStories/rss'),
+        ('South Africa', 'http://feeds.news24.com/articles/news24/SouthAfrica/rss'),
+        ('World', 'http://feeds.news24.com/articles/news24/World/rss'),
+        ('Sport', 'http://feeds.24.com/articles/sport/featured/topstories/rss'),
+    ]

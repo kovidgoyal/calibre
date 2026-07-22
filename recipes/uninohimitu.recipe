@@ -10,7 +10,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class UniNoHimituKichiBlog(BasicNewsRecipe):
-    title = u'Uni secret base'
+    title = 'Uni secret base'
     __author__ = 'Hiroshi Miura'
     oldest_article = 2
     publication_type = 'blog'
@@ -21,7 +21,7 @@ class UniNoHimituKichiBlog(BasicNewsRecipe):
     language = 'ja'
     encoding = 'utf-8'
     keep_only_tags = [{'class': 'entry_head'}, {'class': 'subContentsInner'}]
-    feeds = [(u'blog', u'http://feedblog.ameba.jp/rss/ameblo/sauta19/rss20.xml')]
+    feeds = [('blog', 'http://feedblog.ameba.jp/rss/ameblo/sauta19/rss20.xml')]
 
     def parse_feeds(self):
         feeds = BasicNewsRecipe.parse_feeds(self)
@@ -33,5 +33,5 @@ class UniNoHimituKichiBlog(BasicNewsRecipe):
             if len(delList) > 0:
                 for d in delList:
                     index = curfeed.articles.index(d)
-                    curfeed.articles[index:index + 1] = []
+                    curfeed.articles[index : index + 1] = []
         return feeds

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import io
@@ -27,7 +27,7 @@ def py_compress_doc(data):
             chunk = b''
             match = -1
             for j in range(10, 2, -1):
-                chunk = data[i:i+j]
+                chunk = data[i : i + j]
                 try:
                     match = data.rindex(chunk, 0, i)
                 except ValueError:
@@ -38,15 +38,15 @@ def py_compress_doc(data):
             if match >= 0:
                 n = len(chunk)
                 m = i - match
-                code = 0x8000 + ((m << 3) & 0x3ff8) + (n - 3)
+                code = 0x8000 + ((m << 3) & 0x3FF8) + (n - 3)
                 out.write(pack('>H', code))
                 i += n
                 continue
-        ch = data[i:i+1]
+        ch = data[i : i + 1]
         och = ord(ch)
         i += 1
         if ch == b' ' and (i + 1) < ldata:
-            onch = ord(data[i:i+1])
+            onch = ord(data[i : i + 1])
             if onch >= 0x40 and onch < 0x80:
                 out.write(pack('>B', onch ^ 0x80))
                 i += 1
@@ -57,7 +57,7 @@ def py_compress_doc(data):
             j = i
             binseq = [ch]
             while j < ldata and len(binseq) < 8:
-                ch = data[j:j+1]
+                ch = data[j : j + 1]
                 och = ord(ch)
                 if och == 0 or (och > 8 and och < 0x80):
                     break
@@ -73,15 +73,13 @@ def find_tests():
     import unittest
 
     class Test(unittest.TestCase):
-
         def test_palmdoc_compression(self):
             for test in [
                 b'abc\x03\x04\x05\x06ms',  # Test binary writing
                 b'a b c \xfed ',  # Test encoding of spaces
                 b'0123456789axyz2bxyz2cdfgfo9iuyerh',
                 b'0123456789asd0123456789asd|yyzzxxffhhjjkk',
-                (b'ciewacnaq eiu743 r787q 0w%  ; sa fd\xef\ffdxosac wocjp acoiecowei '
-                b'owaic jociowapjcivcjpoivjporeivjpoavca; p9aw8743y6r74%$^$^%8 ')
+                (b'ciewacnaq eiu743 r787q 0w%  ; sa fd\xef\ffdxosac wocjp acoiecowei owaic jociowapjcivcjpoivjporeivjpoavca; p9aw8743y6r74%$^$^%8 '),
             ]:
                 x = compress_doc(test)
                 self.assertEqual(py_compress_doc(test), x)

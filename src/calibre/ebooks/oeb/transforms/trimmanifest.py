@@ -2,8 +2,7 @@
 OPF manifest trimming transform.
 """
 
-
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
 
 from urllib.parse import urldefrag
@@ -12,7 +11,6 @@ from calibre.ebooks.oeb.base import CSS_MIME, OEB_DOCS, iterlinks, urlnormalize
 
 
 class ManifestTrimmer:
-
     @classmethod
     def config(cls, cfg):
         return cfg
@@ -23,6 +21,7 @@ class ManifestTrimmer:
 
     def __call__(self, oeb, context):
         import css_parser
+
         oeb.logger.info('Trimming unused files from manifest...')
         self.opts = context
         used = set()
@@ -43,9 +42,7 @@ class ManifestTrimmer:
         while unchecked:
             new = set()
             for item in unchecked:
-                if (item.media_type in OEB_DOCS or
-                    item.media_type[-4:] in ('/xml', '+xml')) and \
-                   item.data is not None:
+                if (item.media_type in OEB_DOCS or item.media_type[-4:] in ('/xml', '+xml')) and item.data is not None:
                     hrefs = [r[2] for r in iterlinks(item.data)]
                     for href in hrefs:
                         if isinstance(href, bytes):

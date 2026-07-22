@@ -18,7 +18,6 @@ from calibre.utils.imghdr import what
 
 
 class LinkedImageNotFound(ValueError):
-
     def __init__(self, fname):
         ValueError.__init__(self, fname)
         self.fname = fname
@@ -41,11 +40,11 @@ def get_image_properties(parent, XPath, get):
     for extent in XPath('./wp:extent')(parent):
         try:
             width = emu_to_pt(int(extent.get('cx')))
-        except (TypeError, ValueError):
+        except TypeError, ValueError:
             pass
         try:
             height = emu_to_pt(int(extent.get('cy')))
-        except (TypeError, ValueError):
+        except TypeError, ValueError:
             pass
     ans = {}
     if width is not None:
@@ -86,12 +85,12 @@ def get_image_properties(parent, XPath, get):
 
 def get_image_margins(elem):
     ans = {}
-    for w, css in {'L':'left', 'T':'top', 'R':'right', 'B':'bottom'}.items():
+    for w, css in {'L': 'left', 'T': 'top', 'R': 'right', 'B': 'bottom'}.items():
         val = elem.get(f'dist{w}', None)
         if val is not None:
             try:
                 val = emu_to_pt(val)
-            except (TypeError, ValueError):
+            except TypeError, ValueError:
                 continue
             ans[f'padding-{css}'] = f'{val:.3g}pt'
     return ans
@@ -105,7 +104,7 @@ def get_hpos(anchor, page_width, XPath, get, width_frac):
         if rp == 'rightMargin':
             return 1 + width_frac
         al = None
-        almap = {'left':0, 'center':0.5, 'right':1}
+        almap = {'left': 0, 'center': 0.5, 'right': 1}
         for align in XPath('./wp:align')(ph):
             al = almap.get(align.text)
             if al is not None:
@@ -115,22 +114,21 @@ def get_hpos(anchor, page_width, XPath, get, width_frac):
         for po in XPath('./wp:posOffset')(ph):
             try:
                 pos = emu_to_pt(int(po.text))
-            except (TypeError, ValueError):
+            except TypeError, ValueError:
                 continue
-            return pos/page_width + width_frac
+            return pos / page_width + width_frac
 
     for sp in XPath('./wp:simplePos')(anchor):
         try:
             x = emu_to_pt(sp.get('x', None))
-        except (TypeError, ValueError):
+        except TypeError, ValueError:
             continue
-        return x/page_width + width_frac
+        return x / page_width + width_frac
 
     return 0
 
 
 class Images:
-
     def __init__(self, namespace, log):
         self.namespace = namespace
         self.rid_map = {}
@@ -146,7 +144,7 @@ class Images:
 
     def read_image_data(self, fname, base=None):
         if fname.startswith('file://'):
-            src = fname[len('file://'):]
+            src = fname[len('file://') :]
             if iswindows and src and src[0] == '/':
                 src = src[1:]
             if not src or not os.path.exists(src):
@@ -164,6 +162,7 @@ class Images:
             # For an example, see: https://bugs.launchpad.net/bugs/1224849
             self.log(f'Found an EMF image: {fname}, trying to extract embedded raster image')
             from calibre.utils.wmf.emf import emf_unwrap
+
             try:
                 raw = emf_unwrap(raw)
             except Exception:
@@ -222,7 +221,7 @@ class Images:
         name = None
         link = None
         for hl in XPath('descendant::a:hlinkClick[@r:id]')(parent):
-            link = {'id':get(hl, 'r:id')}
+            link = {'id': get(hl, 'r:id')}
             tgt = hl.get('tgtFrame', None)
             if tgt:
                 link['target'] = tgt
@@ -288,7 +287,7 @@ class Images:
             hr = HR()
             try:
                 pct = float(get(pict[0], 'o:hrpct'))
-            except (ValueError, TypeError, AttributeError):
+            except ValueError, TypeError, AttributeError:
                 pass
             else:
                 if pct > 0:
@@ -329,7 +328,7 @@ class Images:
             # Ignore margins
             page_width = page.width
 
-        hpos = get_hpos(anchor, page_width, XPath, get, width/(2*page_width))
+        hpos = get_hpos(anchor, page_width, XPath, get, width / (2 * page_width))
 
         wrap_elem = None
         dofloat = False

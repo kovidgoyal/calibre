@@ -8,12 +8,13 @@ from calibre.utils.localization import _
 
 class OpenRouterAI(AIProviderPlugin):
     name = 'OpenRouter'
-    version        = (1, 0, 0)
-    description    = _('AI services from OpenRouter.ai. Allows choosing from hundreds of different AI models to query.')
+    version = (1, 0, 0)
+    description = _('AI services from OpenRouter.ai. Allows choosing from hundreds of different AI models to query.')
     author = 'Kovid Goyal'
     builtin_live_module_name = 'calibre.ai.open_router.backend'
 
     @property
     def capabilities(self):
         from calibre.ai import AICapabilities
+
         return AICapabilities.text_to_text | AICapabilities.text_to_image

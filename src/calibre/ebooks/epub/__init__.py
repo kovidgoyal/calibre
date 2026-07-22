@@ -1,4 +1,4 @@
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
 
@@ -28,8 +28,7 @@ def simple_container_xml(opf_path, extra_entries=''):
     '''
 
 
-def initialize_container(path_to_container, opf_name='metadata.opf',
-        extra_entries=[]):
+def initialize_container(path_to_container, opf_name='metadata.opf', extra_entries=[]):
     """
     Create an empty EPUB document, with a default skeleton.
     """

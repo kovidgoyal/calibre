@@ -24,7 +24,7 @@ class CSMonitor(BasicNewsRecipe):
     remove_empty_feeds = True
     publication_type = 'newspaper'
     masthead_url = 'http://www.csmonitor.com/extension/csm_base/design/csm_design/images/csmlogo_179x46.gif'
-    extra_css             = '''
+    extra_css = '''
                                body{font-family: Arial,Tahoma,Verdana,Helvetica,sans-serif }
                                img{margin-bottom: 0.4em; display:block}
                                .head {font-family: Georgia,"Times New Roman",Times,serif}
@@ -34,36 +34,37 @@ class CSMonitor(BasicNewsRecipe):
                                ul{list-style-type: none}
                             '''
 
-    conversion_options = {
-        'comment': description, 'tags': category, 'publisher': publisher, 'language': language
-    }
+    conversion_options = {'comment': description, 'tags': category, 'publisher': publisher, 'language': language}
 
     remove_tags = [
-        dict(name=['meta', 'link', 'iframe', 'object', 'embed']), dict(attrs={'class': re.compile(r'(^|| )podStoryRel($|| )', re.DOTALL)}), dict(
-            attrs={'class': ['bottom-rel', 'hide']}), dict(attrs={'id': ['pgallerycarousel_enlarge', 'pgallerycarousel_related']})
+        dict(name=['meta', 'link', 'iframe', 'object', 'embed']),
+        dict(attrs={'class': re.compile(r'(^|| )podStoryRel($|| )', re.DOTALL)}),
+        dict(attrs={'class': ['bottom-rel', 'hide']}),
+        dict(attrs={'id': ['pgallerycarousel_enlarge', 'pgallerycarousel_related']}),
     ]
     keep_only_tags = [
-        dict(name='h1', attrs={'class': 'head'}), dict(name='h2', attrs={'class': 'subhead'}), dict(attrs={'class': [
-            'sByline', 'thePhoto', 'ui-body-header']}), dict(attrs={'class': re.compile(r'(^|| )sBody($|| )', re.DOTALL)})
+        dict(name='h1', attrs={'class': 'head'}),
+        dict(name='h2', attrs={'class': 'subhead'}),
+        dict(attrs={'class': ['sByline', 'thePhoto', 'ui-body-header']}),
+        dict(attrs={'class': re.compile(r'(^|| )sBody($|| )', re.DOTALL)}),
     ]
     remove_attributes = ['xmlns:fb']
 
     feeds = [
-
-    (u'USA', u'http://rss.csmonitor.com/feeds/usa'),
-    (u'World', u'http://rss.csmonitor.com/feeds/world'),
-    (u'Politics', u'http://rss.csmonitor.com/feeds/politics'),
-    (u'Business', u'http://rss.csmonitor.com/feeds/wam'),
-    (u'Commentary', u'http://rss.csmonitor.com/feeds/commentary'),
-    (u'Books', u'http://rss.csmonitor.com/feeds/books'),
-    (u'Arts', u'http://rss.csmonitor.com/feeds/arts'),
-    (u'Environment', u'http://rss.csmonitor.com/feeds/environment'),
-    (u'Innovation', u'http://rss.csmonitor.com/feeds/scitech'),
-    (u'Living', u'http://rss.csmonitor.com/feeds/living'),
-    (u'Science', u'http://rss.csmonitor.com/feeds/science'),
-    (u'The Culture', u'http://rss.csmonitor.com/feeds/theculture'),
-    (u'The Home Forum', u'http://rss.csmonitor.com/feeds/homeforum'),
-    (u'Articles', u'http://rss.csmonitor.com/feeds/csarticles')
+        ('USA', 'http://rss.csmonitor.com/feeds/usa'),
+        ('World', 'http://rss.csmonitor.com/feeds/world'),
+        ('Politics', 'http://rss.csmonitor.com/feeds/politics'),
+        ('Business', 'http://rss.csmonitor.com/feeds/wam'),
+        ('Commentary', 'http://rss.csmonitor.com/feeds/commentary'),
+        ('Books', 'http://rss.csmonitor.com/feeds/books'),
+        ('Arts', 'http://rss.csmonitor.com/feeds/arts'),
+        ('Environment', 'http://rss.csmonitor.com/feeds/environment'),
+        ('Innovation', 'http://rss.csmonitor.com/feeds/scitech'),
+        ('Living', 'http://rss.csmonitor.com/feeds/living'),
+        ('Science', 'http://rss.csmonitor.com/feeds/science'),
+        ('The Culture', 'http://rss.csmonitor.com/feeds/theculture'),
+        ('The Home Forum', 'http://rss.csmonitor.com/feeds/homeforum'),
+        ('Articles', 'http://rss.csmonitor.com/feeds/csarticles'),
     ]
 
     def append_page(self, soup):
@@ -73,11 +74,9 @@ class CSMonitor(BasicNewsRecipe):
             if nexttag:
                 nurl = 'http://www.csmonitor.com' + nexttag['href']
                 soup2 = self.index_to_soup(nurl)
-                texttag = soup2.find(
-                    attrs={'class': re.compile(r'(^|| )sBody($|| )', re.DOTALL)})
+                texttag = soup2.find(attrs={'class': re.compile(r'(^|| )sBody($|| )', re.DOTALL)})
                 if texttag:
-                    appendtag = soup.find(
-                        attrs={'class': re.compile(r'(^|| )sBody($|| )', re.DOTALL)})
+                    appendtag = soup.find(attrs={'class': re.compile(r'(^|| )sBody($|| )', re.DOTALL)})
                     for citem in texttag.findAll(attrs={'class': [re.compile(r'(^|| )podStoryRel($|| )', re.DOTALL), 'bottom-rel', 'hide']}):
                         citem.extract()
                     self.append_page(soup2)

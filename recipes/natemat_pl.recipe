@@ -4,18 +4,24 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class NaTemat(BasicNewsRecipe):
-    title = u'NaTemat.pl'
+    title = 'NaTemat.pl'
     oldest_article = 7
     max_articles_per_feed = 100
     __author__ = 'fenuks'
-    description = u'informacje, komentarze, opinie'
+    description = 'informacje, komentarze, opinie'
     category = 'news'
     language = 'pl'
-    preprocess_regexps = [(re.compile(u'Czytaj też\\:.*?</a>', re.IGNORECASE), lambda m: ''), (re.compile(u'Zobacz też\\:.*?</a>', re.IGNORECASE), lambda m: ''),  # noqa: E501, RUF039
-                          (re.compile(u'Czytaj więcej\\:.*?</a>', re.IGNORECASE), lambda m: ''), (re.compile(u'Czytaj również\\:.*?</a>', re.IGNORECASE), lambda m: '')]  # noqa: E501, RUF039
+    preprocess_regexps = [
+        (re.compile('Czytaj też\\:.*?</a>', re.IGNORECASE), lambda m: ''),  # noqa: E501, RUF039
+        (re.compile('Zobacz też\\:.*?</a>', re.IGNORECASE), lambda m: ''),  # noqa: E501, RUF039
+        (re.compile('Czytaj więcej\\:.*?</a>', re.IGNORECASE), lambda m: ''),  # noqa: E501, RUF039
+        (re.compile('Czytaj również\\:.*?</a>', re.IGNORECASE), lambda m: ''),  # noqa: E501, RUF039
+    ]
     cover_url = 'http://blog.plona.pl/wp-content/uploads/2012/05/natemat.png'
     no_stylesheets = True
     keep_only_tags = [dict(id='main')]
-    remove_tags = [dict(attrs={'class': ['button', 'block-inside style_default', 'article-related',
-                                         'user-header', 'links']}), dict(name='img', attrs={'class': 'indent'})]
-    feeds = [(u'Artyku\u0142y', u'http://natemat.pl/rss/wszystkie')]
+    remove_tags = [
+        dict(attrs={'class': ['button', 'block-inside style_default', 'article-related', 'user-header', 'links']}),
+        dict(name='img', attrs={'class': 'indent'}),
+    ]
+    feeds = [('Artyku\u0142y', 'http://natemat.pl/rss/wszystkie')]

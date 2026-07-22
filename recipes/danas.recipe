@@ -37,38 +37,32 @@ class Danas(BasicNewsRecipe):
                                 img{margin-bottom: 0.8em}
                             '''
 
-    conversion_options = {
-        'comment': description,
-        'tags': category,
-        'publisher': publisher,
-        'language': language
-    }
+    conversion_options = {'comment': description, 'tags': category, 'publisher': publisher, 'language': language}
 
     feeds = [
-        (u'Politika', u'https://www.danas.rs/rubrika/politika/feed/'),
-        (u'Drustvo', u'https://www.danas.rs/rubrika/drustvo/feed/'),
-        (u'Dijalog', u'https://www.danas.rs/rubrika/dijalog/feed/'),
-        (u'Ekonomija', u'https://www.danas.rs/rubrika/ekonomija/feed/'),
-        (u'Svet', u'https://www.danas.rs/rubrika/svet/feed/'),
-        (u'Sport', u'https://www.danas.rs/rubrika/sport/feed/'),
-        (u'Kultura', u'https://www.danas.rs/rubrika/kultura/feed/'),
-        (u'Scena', u'https://www.danas.rs/rubrika/scena/feed/'),
-        (u'Zivot', u'https://www.danas.rs/rubrika/zivot/feed/'),
-        (u'Auto', u'https://www.danas.rs/rubrika/auto/feed/'),
-        (u'IT', u'https://www.danas.rs/rubrika/tehnologije/feed/'),
-        (u'Ljudi', u'https://www.danas.rs/rubrika/ljudi/feed/'),
-        (u'Beograd', u'https://www.danas.rs/rubrika/beograd/feed/'),
-        (u'Famozno', u'https://www.danas.rs/kolumnista/svetislav-basara/feed/'),
+        ('Politika', 'https://www.danas.rs/rubrika/politika/feed/'),
+        ('Drustvo', 'https://www.danas.rs/rubrika/drustvo/feed/'),
+        ('Dijalog', 'https://www.danas.rs/rubrika/dijalog/feed/'),
+        ('Ekonomija', 'https://www.danas.rs/rubrika/ekonomija/feed/'),
+        ('Svet', 'https://www.danas.rs/rubrika/svet/feed/'),
+        ('Sport', 'https://www.danas.rs/rubrika/sport/feed/'),
+        ('Kultura', 'https://www.danas.rs/rubrika/kultura/feed/'),
+        ('Scena', 'https://www.danas.rs/rubrika/scena/feed/'),
+        ('Zivot', 'https://www.danas.rs/rubrika/zivot/feed/'),
+        ('Auto', 'https://www.danas.rs/rubrika/auto/feed/'),
+        ('IT', 'https://www.danas.rs/rubrika/tehnologije/feed/'),
+        ('Ljudi', 'https://www.danas.rs/rubrika/ljudi/feed/'),
+        ('Beograd', 'https://www.danas.rs/rubrika/beograd/feed/'),
+        ('Famozno', 'https://www.danas.rs/kolumnista/svetislav-basara/feed/'),
     ]
 
     def get_cover_url(self):
-        months = ['januar', 'februar', 'mart', 'april', 'maj', 'jun', 'jul',
-                  'avgust', 'septembar', 'oktobar', 'novembar', 'decembar']
+        months = ['januar', 'februar', 'mart', 'april', 'maj', 'jun', 'jul', 'avgust', 'septembar', 'oktobar', 'novembar', 'decembar']
         td = date.today()
         monthname = months[td.month - 1]
         lurl = td.strftime('https://www.danas.rs/naslovna/naslovna-strana-za-%d-' + monthname + '-%Y/')
         soup = self.index_to_soup(lurl)
-        al = soup.find('div', attrs={'class':'corax-image'})
+        al = soup.find('div', attrs={'class': 'corax-image'})
         if al and al.img:
             return al.img['src']
         return None

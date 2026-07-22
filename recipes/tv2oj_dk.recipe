@@ -11,14 +11,14 @@ TV 2 | ØSTJYLLAND
 
 
 class Tv2oj_dk(BasicNewsRecipe):
-    __author__            = 'CoderAllan.github.com'
-    title                 = 'TV 2 | ØSTJYLLAND'
-    description           = 'Alle nyheder fra tv2oj.dk kan læses som RSS RSS-feedet kan findes via adressen www.tv2oj.dk/rss'
-    category              = 'newspaper, news, localnews, sport, culture, Denmark'
-    oldest_article        = 7
+    __author__ = 'CoderAllan.github.com'
+    title = 'TV 2 | ØSTJYLLAND'
+    description = 'Alle nyheder fra tv2oj.dk kan læses som RSS RSS-feedet kan findes via adressen www.tv2oj.dk/rss'
+    category = 'newspaper, news, localnews, sport, culture, Denmark'
+    oldest_article = 7
     max_articles_per_feed = 50
-    auto_cleanup          = True
-    language              = 'da'
+    auto_cleanup = True
+    language = 'da'
 
     # Feed are found here: http://www.tv2oj.dk/tv2oj/rss-feeds
     feeds = [

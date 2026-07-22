@@ -59,10 +59,7 @@ command.
         '--append',
         default=False,
         action='store_true',
-        help=_(
-            'If the column stores multiple values, append the specified '
-            'values to the existing ones, instead of replacing them.'
-        )
+        help=_('If the column stores multiple values, append the specified values to the existing ones, instead of replacing them.'),
     )
     return parser
 

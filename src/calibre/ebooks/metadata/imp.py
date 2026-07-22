@@ -1,4 +1,4 @@
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2008, Ashish Kulkarni <kulkarni.ashish@gmail.com>'
 '''Read meta information from IMP files'''
 
@@ -10,7 +10,7 @@ MAGIC = (b'\x00\x01BOOKDOUG', b'\x00\x02BOOKDOUG')
 
 
 def get_metadata(stream):
-    """ Return metadata as a L{MetaInfo} object """
+    """Return metadata as a L{MetaInfo} object"""
     title = 'Unknown'
     mi = MetaInformation(title, ['Unknown'])
     stream.seek(0)

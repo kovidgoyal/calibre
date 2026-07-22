@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
 
@@ -44,13 +44,11 @@ if TYPE_CHECKING:
 
 
 class EmptyImageList(pictureflow.FlowImages):
-
     def __init__(self):
         pictureflow.FlowImages.__init__(self)
 
 
 class FileSystemImages(pictureflow.FlowImages):
-
     def __init__(self, dirpath):
         pictureflow.FlowImages.__init__(self)
         self.images = []
@@ -81,7 +79,6 @@ class FileSystemImages(pictureflow.FlowImages):
 
 
 class DummyImageList(pictureflow.FlowImages):
-
     def __init__(self):
         pictureflow.FlowImages.__init__(self)
         self.num = 40000
@@ -93,7 +90,7 @@ class DummyImageList(pictureflow.FlowImages):
         return self.num
 
     def image(self, index):
-        return self.images[index%2]
+        return self.images[index % 2]
 
     def caption(self, index):
         return f'Number: {index}'
@@ -103,7 +100,6 @@ class DummyImageList(pictureflow.FlowImages):
 
 
 class DatabaseImages(pictureflow.FlowImages):
-
     def __init__(self, model, is_cover_browser_visible):
         pictureflow.FlowImages.__init__(self)
         self.model = model
@@ -130,6 +126,7 @@ class DatabaseImages(pictureflow.FlowImages):
 
     def render_template(self, template, index, db):
         from calibre.utils.formatter import TEMPLATE_ERROR
+
         book_id = self.model.id(index)
         mi = db.get_proxy_metadata(book_id)
         return mi.formatter.safe_format(template, mi, TEMPLATE_ERROR, mi, template_cache=self.template_cache)
@@ -152,6 +149,7 @@ class DatabaseImages(pictureflow.FlowImages):
                     if not self.template_error_reported:
                         self.template_error_reported = True
                         import traceback
+
                         traceback.print_exc()
                     ans = ''
             ans = (ans or '').replace('&', '&&')
@@ -187,6 +185,7 @@ class DatabaseImages(pictureflow.FlowImages):
             if not self.subtitle_error_reported:
                 self.subtitle_error_reported = True
                 import traceback
+
                 traceback.print_exc()
         return ''
 
@@ -207,20 +206,16 @@ class DatabaseImages(pictureflow.FlowImages):
 
 
 class CoverFlow(pictureflow.PictureFlow):
-
     dc_signal = pyqtSignal()
     context_menu_requested = pyqtSignal()
 
     def __init__(self, parent=None):
-        pictureflow.PictureFlow.__init__(self, parent,
-                            config['cover_flow_queue_length']+1)
+        pictureflow.PictureFlow.__init__(self, parent, config['cover_flow_queue_length'] + 1)
         self.created_at = time.monotonic()
         self.setMinimumSize(MIN_SIZE)
         self.setFocusPolicy(Qt.FocusPolicy.WheelFocus)
-        self.setSizePolicy(QSizePolicy(QSizePolicy.Policy.Expanding,
-            QSizePolicy.Policy.Expanding))
-        self.dc_signal.connect(self._data_changed,
-                type=Qt.ConnectionType.QueuedConnection)
+        self.setSizePolicy(QSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding))
+        self.dc_signal.connect(self._data_changed, type=Qt.ConnectionType.QueuedConnection)
         self.context_menu = None
         self.setContextMenuPolicy(Qt.ContextMenuPolicy.DefaultContextMenu)
         self.setPreserveAspectRatio(gprefs['cb_preserve_aspect_ratio'])
@@ -248,6 +243,7 @@ class CoverFlow(pictureflow.PictureFlow):
     def contextMenuEvent(self, a0):
         if self.context_menu is not None:
             from calibre.gui2.main_window import clone_menu
+
             self.context_menu_requested.emit()
             m = clone_menu(self.context_menu) if islinux else self.context_menu
             m.popup(a0.globalPos())
@@ -276,7 +272,6 @@ class CoverFlow(pictureflow.PictureFlow):
 
 
 class CBDialog(QDialog):
-
     closed = pyqtSignal()
 
     def __init__(self, gui, cover_flow):
@@ -304,8 +299,7 @@ class CBDialog(QDialog):
 
         self.view_action = a = QAction(self)
         self.addAction(a)
-        a.setShortcuts(list(iactions['View'].menuless_qaction.shortcuts())+
-                [QKeySequence(Qt.Key.Key_Space)])
+        a.setShortcuts(list(iactions['View'].menuless_qaction.shortcuts()) + [QKeySequence(Qt.Key.Key_Space)])
         a.triggered.connect(iactions['View'].menuless_qaction.trigger)
 
         self.edit_metadata_action = a = QAction(self)
@@ -325,16 +319,15 @@ class CBDialog(QDialog):
 
         self.sd_action = a = QAction(self)
         self.addAction(a)
-        a.setShortcuts(list(iactions['Send To Device'].
-            menuless_qaction.shortcuts()))
+        a.setShortcuts(list(iactions['Send To Device'].menuless_qaction.shortcuts()))
         a.triggered.connect(iactions['Send To Device'].menuless_qaction.trigger)
 
     def sizeHint(self):
         _screen = self.screen()
         assert _screen is not None
         sz = _screen.availableSize()
-        sz.setHeight(sz.height()-60)
-        sz.setWidth(int(sz.width()/1.5))
+        sz.setHeight(sz.height() - 60)
+        sz.setWidth(int(sz.width() / 1.5))
         return sz
 
     def closeEvent(self, a0=...):
@@ -360,7 +353,6 @@ class CBDialog(QDialog):
 
 
 class CoverFlowMixin:
-
     disable_cover_browser_refresh = False
 
     @property
@@ -446,8 +438,7 @@ class CoverFlowMixin:
         self.cover_flow.setCurrentSlide(self.library_view.currentIndex().row())
         self.cover_flow_syncing_enabled = True
         QTimer.singleShot(500, self.cover_flow_do_sync)
-        self.library_view.setCurrentIndex(
-                self.library_view.currentIndex())
+        self.library_view.setCurrentIndex(self.library_view.currentIndex())
         self.library_view.scroll_to_row(self.library_view.currentIndex().row())
 
     def cover_browser_hidden(self: Main):
@@ -456,7 +447,7 @@ class CoverFlowMixin:
         if idx.isValid():
             sm = self.library_view.selectionModel()
             assert sm is not None
-            sm.select(idx, QItemSelectionModel.SelectionFlag.ClearAndSelect|QItemSelectionModel.SelectionFlag.Rows)
+            sm.select(idx, QItemSelectionModel.SelectionFlag.ClearAndSelect | QItemSelectionModel.SelectionFlag.Rows)
             self.library_view.setCurrentIndex(idx)
             self.library_view.scroll_to_row(idx.row())
 
@@ -500,7 +491,7 @@ class CoverFlowMixin:
             pass  # called before init_cover_flow_mixin
 
     def sync_cf_to_listview(self: Main, current, previous):
-        if (self.cover_flow_sync_flag and self.is_cover_browser_visible() and self.cover_flow.currentSlide() != current.row()):
+        if self.cover_flow_sync_flag and self.is_cover_browser_visible() and self.cover_flow.currentSlide() != current.row():
             self.cover_flow.setCurrentSlide(current.row())
         self.cover_flow_sync_flag = True
 
@@ -510,13 +501,13 @@ class CoverFlowMixin:
         index = m.index(row, 0)
         sm = self.library_view.selectionModel()
         assert sm is not None
-        sm.select(index, QItemSelectionModel.SelectionFlag.ClearAndSelect|QItemSelectionModel.SelectionFlag.Rows)
+        sm.select(index, QItemSelectionModel.SelectionFlag.ClearAndSelect | QItemSelectionModel.SelectionFlag.Rows)
         self.library_view.setCurrentIndex(index)
 
     def cover_flow_do_sync(self: Main):
         self.cover_flow_sync_flag = True
         try:
-            if (self.is_cover_browser_visible() and self.cf_last_updated_at is not None and time.time() - self.cf_last_updated_at > 0.5):
+            if self.is_cover_browser_visible() and self.cf_last_updated_at is not None and time.time() - self.cf_last_updated_at > 0.5:
                 self.cf_last_updated_at = None
                 row = self.cover_flow.currentSlide()
                 m = self.library_view._model
@@ -526,6 +517,7 @@ class CoverFlowMixin:
                     self.library_view.select_rows([row], using_ids=False)
         except Exception:
             import traceback
+
             traceback.print_exc()
         if self.cover_flow_syncing_enabled:
             QTimer.singleShot(500, self.cover_flow_do_sync)
@@ -536,10 +528,11 @@ class CoverFlowMixin:
 
 def test():
     from qt.core import QMainWindow
+
     app = QApplication([])
     w = QMainWindow()
     cf = CoverFlow()
-    w.resize(cf.size()+QSize(30, 20))
+    w.resize(cf.size() + QSize(30, 20))
     model = DummyImageList()
     cf.setImages(model)
     cf.setCurrentSlide(39000)
@@ -556,10 +549,11 @@ def main(args=sys.argv):
 
 if __name__ == '__main__':
     from qt.core import QMainWindow
+
     app = QApplication([])
     w = QMainWindow()
     cf = CoverFlow()
-    w.resize(cf.size()+QSize(30, 20))
+    w.resize(cf.size() + QSize(30, 20))
     path = sys.argv[1]
     model = FileSystemImages(sys.argv[1])
     cf.currentChanged[int].connect(model.currentChanged)

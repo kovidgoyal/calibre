@@ -21,14 +21,7 @@ class DistroWatchWeekly(BasicNewsRecipe):
     timefmt = ' [%A, %d %B, %Y]'
     auto_cleanup = False
 
-    keep_only_tags = [
-        dict(
-            attrs={
-                'class':
-                lambda x: x and ('News1' in x)
-            }
-        )
-    ]
+    keep_only_tags = [dict(attrs={'class': lambda x: x and ('News1' in x)})]
 
     def _get_mag_date(self):
         """Return date of latest weekly issue."""
@@ -50,10 +43,12 @@ class DistroWatchWeekly(BasicNewsRecipe):
         title = ld.strftime('DistroWatch Weekly for %Y-%m-%d')
 
         # Get articles
-        stories = [{
-            'url': url,
-            'title': title,
-        },]
+        stories = [
+            {
+                'url': url,
+                'title': title,
+            },
+        ]
         index = [
             ('Articles', stories),
         ]

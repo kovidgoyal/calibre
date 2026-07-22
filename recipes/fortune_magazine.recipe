@@ -3,8 +3,7 @@ from calibre.web.feeds.recipes import BasicNewsRecipe
 
 def classes(classes):
     q = frozenset(classes.split(' '))
-    return dict(attrs={
-        'class': lambda x: x and frozenset(x.split()).intersection(q)})
+    return dict(attrs={'class': lambda x: x and frozenset(x.split()).intersection(q)})
 
 
 def prefix_classes(classes):
@@ -17,11 +16,11 @@ def prefix_classes(classes):
                     if cls.startswith(c):
                         return True
         return False
+
     return dict(attrs={'class': test})
 
 
 class Fortune(BasicNewsRecipe):
-
     title = 'Fortune Magazine'
     __author__ = 'Rick Shang'
 
@@ -65,7 +64,7 @@ class Fortune(BasicNewsRecipe):
             div = li.find(attrs={'class': lambda x: x and 'termArchiveContentListItem__title--' in x})
             title = self.tag_to_string(div)
             if title.startswith('Magazine'):
-                title = title[len('Magazine'):]
+                title = title[len('Magazine') :]
             desc = ''
             div = li.find(attrs={'class': lambda x: x and 'termArchiveContentListItem__excerpt--' in x})
             if div is not None:

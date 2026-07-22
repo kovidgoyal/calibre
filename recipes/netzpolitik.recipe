@@ -2,16 +2,16 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class Netzpolitik(BasicNewsRecipe):
-    title = u'Netzpolitik'
+    title = 'Netzpolitik'
     publication_type = 'newspaper'
     oldest_article = 14
     language = 'de'
     no_stylesheets = True
     __author__ = 'Kovid Goyal'
     max_articles_per_feed = 100
-    use_embedded_content  = True
+    use_embedded_content = True
 
-    feeds = [(u'Netzpolitik.org', u'https://netzpolitik.org/feed/')]
+    feeds = [('Netzpolitik.org', 'https://netzpolitik.org/feed/')]
 
     def preprocess_html(self, soup):
         # Remove the duplicate title image.

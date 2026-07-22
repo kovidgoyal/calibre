@@ -64,7 +64,6 @@ from calibre.ebooks.unihandecode.zhcodepoints import CODEPOINTS as HANCODES
 
 
 class Unidecoder:
-
     codepoints = {}
 
     def __init__(self):
@@ -83,8 +82,7 @@ class Unidecoder:
             # Split the unicode character xABCD into parts 0xAB and 0xCD.
             # 0xAB represents the group within CODEPOINTS to query and 0xCD
             # represents the position in the list of characters for the group.
-            return self.codepoints[self.code_group(codepoint)][self.grouped_point(
-                codepoint)]
+            return self.codepoints[self.code_group(codepoint)][self.grouped_point(codepoint)]
         except Exception:
             return '?'
 

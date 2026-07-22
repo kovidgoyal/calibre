@@ -4,12 +4,13 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class AdvancedUserRecipe1718382046(BasicNewsRecipe):
-    title          = 'Backyard Boss'
+    title = 'Backyard Boss'
     language = 'en'
     __author__ = 'Spicy Poison'
     description = (
-            'Backyard Boss is a place where backyard enthusiasts and lovers of the great outdoors'
-            ' can gather to find everything you need to know about gardening, landscaping, and more.')
+        'Backyard Boss is a place where backyard enthusiasts and lovers of the great outdoors'
+        ' can gather to find everything you need to know about gardening, landscaping, and more.'
+    )
     publisher = 'Valnet Publishing Group'
     oldest_article = 7
     max_articles_per_feed = 50
@@ -19,9 +20,9 @@ class AdvancedUserRecipe1718382046(BasicNewsRecipe):
     encoding = 'utf-8'
     masthead_url = 'https://www.valnetinc.com/images/brand/byb-logo-full-colored-dark.svg'
     remove_empty_feeds = True
-    auto_cleanup   = True
+    auto_cleanup = True
 
-    feeds          = [
+    feeds = [
         # Gardening
         ('Gardening', 'https://www.backyardboss.net/feed/category/gardening/'),
         ('Outdoor Gardening', 'https://www.backyardboss.net/feed/category/gardening/outdoor-gardening/'),

@@ -28,7 +28,6 @@ import json
 
 
 class WolneLekturyStore(BasicStoreConfig, StorePlugin):
-
     def open(self, gui=None, parent=None, detail_item=None, external=False):
 
         url = 'https://wolnelektury.pl'
@@ -85,9 +84,9 @@ class WolneLekturyStore(BasicStoreConfig, StorePlugin):
 
     def _search_formats(self, id: str, timeout: int = 60) -> dict[str, str]:
         # formats used by the site and calibre (as of 01.05.2026)
-        ALLOWED_FORMATS: tuple[str,...] = ('pdf', 'epub', 'mobi', 'txt', 'html', 'fb2')
+        ALLOWED_FORMATS: tuple[str, ...] = ('pdf', 'epub', 'mobi', 'txt', 'html', 'fb2')
         result: dict[str, str] = {}
-        br=browser()
+        br = browser()
         url = f'https://wolnelektury.pl/api/books/{id}/?format=json'
         with closing(br.open(url, timeout=timeout)) as page:
             parsed_data = json.load(page)

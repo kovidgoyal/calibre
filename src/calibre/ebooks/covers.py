@@ -85,6 +85,7 @@ def set_use_roman(val):
     global _use_roman
     _use_roman = bool(val)
 
+
 # }}}
 
 
@@ -96,7 +97,7 @@ def parse_text_formatting(text):
     pos = 0
     tokens = []
     for m in re.finditer(r'</?([a-zA-Z1-6]+)/?>', text):
-        q = text[pos:m.start()]
+        q = text[pos : m.start()]
         if q:
             tokens.append((False, q))
         tokens.append((True, (m.group(1).lower(), '/' in m.group()[:2])))
@@ -145,7 +146,6 @@ def parse_text_formatting(text):
 
 
 class Block:
-
     def __init__(self, text='', width=0, font=None, img=None, max_height=100, align=Qt.AlignmentFlag.AlignCenter):
         self.layouts: list[int | QTextLayout] = []
         self._position = Point(0, 0)
@@ -165,7 +165,7 @@ class Block:
 
             l.beginLayout()
             height = 0
-            while height + 3*self.leading < max_height:
+            while height + 3 * self.leading < max_height:
                 line = l.createLine()
                 if not line.isValid():
                     break
@@ -247,10 +247,12 @@ def layout_text(prefs, img, title, subtitle, footer, max_height, style):
 
     return title_block, subtitle_block, footer_block
 
+
 # }}}
 
 
 # Format text using templates {{{
+
 
 def sanitize(s):
     return unicodedata.normalize('NFC', clean_xml_chars(clean_ascii_chars(force_unicode(s or ''))))
@@ -269,7 +271,6 @@ def unescape_formatting(val):
 
 
 class Formatter(SafeFormat):
-
     def get_value(self, key, args, kwargs):
         ans = SafeFormat.get_value(self, key, args, kwargs)
         return escape_formatting(ans)
@@ -286,9 +287,8 @@ def format_fields(mi, prefs):
     f = formatter()
 
     def safe_format(field):
-        return f.safe_format(
-            getattr(prefs, field), mi, _('Template error'), mi, template_cache=_template_cache
-        )
+        return f.safe_format(getattr(prefs, field), mi, _('Template error'), mi, template_cache=_template_cache)
+
     return map(safe_format, ('title_template', 'subtitle_template', 'footer_template'))
 
 
@@ -297,7 +297,7 @@ def preserve_fields(obj, fields):
     if isinstance(fields, (str, bytes)):
         fields = fields.split()
     null = object()
-    mem = {f:getattr(obj, f, null) for f in fields}
+    mem = {f: getattr(obj, f, null) for f in fields}
     try:
         yield
     finally:
@@ -313,6 +313,8 @@ def format_text(mi, prefs):
         mi.authors = [a for a in mi.authors if a != _('Unknown')]
         mi.formatted_series_index = fmt_sidx(mi.series_index or 0, use_roman=get_use_roman())
         return tuple(format_fields(mi, prefs))
+
+
 # }}}
 
 
@@ -327,15 +329,15 @@ def to_theme(x):
 fallback_colors = to_theme('ffffff 000000 000000 ffffff')
 
 default_color_themes = {
-    'Earth' : to_theme('e8d9ac c7b07b 564628 382d1a'),
-    'Grass' : to_theme('d8edb5 abc8a4 375d3b 183128'),
-    'Water' : to_theme('d3dcf2 829fe4 00448d 00305a'),
+    'Earth': to_theme('e8d9ac c7b07b 564628 382d1a'),
+    'Grass': to_theme('d8edb5 abc8a4 375d3b 183128'),
+    'Water': to_theme('d3dcf2 829fe4 00448d 00305a'),
     'Silver': to_theme('e6f1f5 aab3b6 6e7476 3b3e40'),
 }
 
 
 def theme_to_colors(theme):
-    colors = {k:QColor('#' + theme[k]) for k in ColorTheme._fields}
+    colors = {k: QColor('#' + theme[k]) for k in ColorTheme._fields}
     return ColorTheme(**colors)
 
 
@@ -356,13 +358,14 @@ def color(color_theme, name):
         ans = QColor('#' + fallback_colors[name])
     return ans
 
+
 # }}}
 
 
 # Styles {{{
 
-class Style:
 
+class Style:
     TITLE_ALIGN = SUBTITLE_ALIGN = FOOTER_ALIGN = Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignTop
 
     def __init__(self, color_theme, prefs):
@@ -381,17 +384,20 @@ class Style:
 
 
 class Cross(Style):
-
     NAME = 'The Cross'
     GUI_NAME = _('The Cross')
 
     def __call__(self, painter, rect, color_theme, title_block, subtitle_block, footer_block):
         painter.fillRect(rect, self.color1)
-        r = QRect(0, int(title_block.position.y), rect.width(),
-                  title_block.height + subtitle_block.height + subtitle_block.line_spacing // 2 + title_block.leading)
+        r = QRect(
+            0,
+            int(title_block.position.y),
+            rect.width(),
+            title_block.height + subtitle_block.height + subtitle_block.line_spacing // 2 + title_block.leading,
+        )
         painter.save()
         p = QPainterPath()
-        p.addRoundedRect(QRectF(r), 10, 10 * r.width()/r.height(), Qt.SizeMode.RelativeSize)
+        p.addRoundedRect(QRectF(r), 10, 10 * r.width() / r.height(), Qt.SizeMode.RelativeSize)
         painter.setClipPath(p)
         painter.setRenderHint(QPainter.RenderHint.Antialiasing)
         painter.fillRect(r, self.color2)
@@ -402,7 +408,6 @@ class Cross(Style):
 
 
 class Half(Style):
-
     NAME = 'Half and Half'
     GUI_NAME = _('Half and half')
 
@@ -427,7 +432,6 @@ def draw_curved_line(painter_path, dx, dy, c1_frac, c1_amp, c2_frac, c2_amp):
 
 
 class Banner(Style):
-
     NAME = 'Banner'
     GUI_NAME = _('Banner')
     GRADE = 0.07
@@ -451,7 +455,7 @@ class Banner(Style):
         deltax = self.GRADE * height
         p.lineTo(right + deltax, top + height)
         right_corner = p.currentPosition()
-        draw_curved_line(p, - width - 2 * deltax, 0, 0.1, 0.05, 0.9, 0.05)
+        draw_curved_line(p, -width - 2 * deltax, 0, 0.1, 0.05, 0.9, 0.05)
         left_corner = p.currentPosition()
         p.closeSubpath()
 
@@ -463,15 +467,15 @@ class Banner(Style):
 
         def draw_fold(x, m=1, corner=left_corner):
             ans = p = QPainterPath(QPointF(x, rtop))
-            draw_curved_line(p, rwidth*m, 0, 0.1, 0.1*m, 0.5, -0.2*m)
+            draw_curved_line(p, rwidth * m, 0, 0.1, 0.1 * m, 0.5, -0.2 * m)
             fold_upper = p.currentPosition()
-            p.lineTo(p.currentPosition() + QPointF(-deltax*m, height))
+            p.lineTo(p.currentPosition() + QPointF(-deltax * m, height))
             fold_corner = p.currentPosition()
-            draw_curved_line(p, -rwidth*m, 0, 0.2, -0.1*m, 0.8, -0.1*m)
-            draw_curved_line(p, deltax*m, -height, 0.2, 0.1*m, 0.8, 0.1*m)
+            draw_curved_line(p, -rwidth * m, 0, 0.2, -0.1 * m, 0.8, -0.1 * m)
+            draw_curved_line(p, deltax * m, -height, 0.2, 0.1 * m, 0.8, 0.1 * m)
             p = inner_fold = QPainterPath(corner)
             dp = fold_corner - p.currentPosition()
-            draw_curved_line(p, dp.x(), dp.y(), 0.5, 0.3*m, 1, 0*m)
+            draw_curved_line(p, dp.x(), dp.y(), 0.5, 0.3 * m, 1, 0 * m)
             p.lineTo(fold_upper), p.closeSubpath()
             return ans, inner_fold
 
@@ -497,7 +501,6 @@ class Banner(Style):
 
 
 class Ornamental(Style):
-
     NAME = 'Ornamental'
     GUI_NAME = _('Ornamental')
 
@@ -514,10 +517,12 @@ class Ornamental(Style):
     def __call__(self, painter, rect, color_theme, title_block, subtitle_block, footer_block):
         if not self.PATH_CACHE:
             from calibre.utils.speedups import svg_path_to_painter_path
+
             try:
                 self.__class__.PATH_CACHE['corner'] = svg_path_to_painter_path(self.CORNER_VECTOR)
             except Exception:
                 import traceback
+
                 traceback.print_exc()
         p = painter
         painter.setRenderHint(QPainter.RenderHint.Antialiasing)
@@ -540,6 +545,7 @@ class Ornamental(Style):
             p.rotate(90), p.translate(100, -100), p.scale(1, -1), p.translate(-103, -97)
             p.fillPath(path, b)
             p.setWorldTransform(QTransform())
+
         # Top-left corner
         corner()
         # Top right corner
@@ -564,7 +570,6 @@ class Ornamental(Style):
 
 
 class Blocks(Style):
-
     NAME = 'Blocks'
     GUI_NAME = _('Blocks')
     FOOTER_ALIGN = Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignTop
@@ -582,21 +587,18 @@ class Blocks(Style):
 
 
 def all_styles():
-    return {
-        x.NAME for x in globals().values() if
-        isinstance(x, type) and issubclass(x, Style) and x is not Style
-    }
+    return {x.NAME for x in globals().values() if isinstance(x, type) and issubclass(x, Style) and x is not Style}
 
 
 def load_styles(prefs, respect_disabled=True):
     disabled = frozenset(prefs.disabled_styles) if respect_disabled else ()
-    ans = tuple(x for x in globals().values() if
-            isinstance(x, type) and issubclass(x, Style) and x is not Style and x.NAME not in disabled)
+    ans = tuple(x for x in globals().values() if isinstance(x, type) and issubclass(x, Style) and x is not Style and x.NAME not in disabled)
     if not ans and disabled:
         # If all styles have been disabled, ignore the disabling and return all
         # the styles
         ans = load_styles(prefs, respect_disabled=False)
     return ans
+
 
 # }}}
 
@@ -609,14 +611,13 @@ def init_environment():
 def generate_cover(mi, prefs=None, as_qimage=False):
     init_environment()
     prefs = prefs or cprefs
-    prefs = {k:prefs.get(k) for k in cprefs.defaults}
+    prefs = {k: prefs.get(k) for k in cprefs.defaults}
     prefs = Prefs(**prefs)
     color_theme = random.choice(load_color_themes(prefs))
     style = random.choice(load_styles(prefs))(color_theme, prefs)
     title, subtitle, footer = format_text(mi, prefs)
     img = QImage(prefs.cover_width, prefs.cover_height, QImage.Format.Format_ARGB32)
-    title_block, subtitle_block, footer_block = layout_text(
-        prefs, img, title, subtitle, footer, img.height() // 3, style)
+    title_block, subtitle_block, footer_block = layout_text(prefs, img, title, subtitle, footer, img.height() // 3, style)
     p = QPainter(img)
     rect = QRect(0, 0, img.width(), img.height())
     colors = style(p, rect, color_theme, title_block, subtitle_block, footer_block)
@@ -631,7 +632,7 @@ def generate_cover(mi, prefs=None, as_qimage=False):
 
 
 def override_prefs(base_prefs, **overrides):
-    ans = {k:overrides.get(k, base_prefs[k]) for k in cprefs.defaults}
+    ans = {k: overrides.get(k, base_prefs[k]) for k in cprefs.defaults}
     override_color_theme = overrides.get('override_color_theme')
     if override_color_theme is not None:
         all_themes = set(default_color_themes) | set(ans['color_themes'])
@@ -649,23 +650,31 @@ def override_prefs(base_prefs, **overrides):
 
 
 def create_cover(title, authors, series=None, series_index=1, prefs=None, as_qimage=False):
-    " Create a cover from the specified title, author and series. Any user set"
+    "Create a cover from the specified title, author and series. Any user set"
     ' templates are ignored, to ensure that the specified metadata is used. '
     mi = Metadata(title, authors)
     if series:
         mi.series, mi.series_index = series, series_index
     d = cprefs.defaults
     prefs = override_prefs(
-        prefs or cprefs, title_template=d['title_template'], subtitle_template=d['subtitle_template'], footer_template=d['footer_template'])
+        prefs or cprefs,
+        title_template=d['title_template'],
+        subtitle_template=d['subtitle_template'],
+        footer_template=d['footer_template'],
+    )
     return generate_cover(mi, prefs=prefs, as_qimage=as_qimage)
 
 
 def calibre_cover2(title, author_string='', series_string='', prefs=None, as_qimage=False, logo_path=None):
     init_environment()
-    title, subtitle, footer = '<b>' + escape_formatting(title), '<i>' + escape_formatting(series_string), '<b>' + escape_formatting(author_string)
+    title, subtitle, footer = (
+        '<b>' + escape_formatting(title),
+        '<i>' + escape_formatting(series_string),
+        '<b>' + escape_formatting(author_string),
+    )
     prefs = prefs or cprefs
-    prefs = {k:prefs.get(k) for k in cprefs.defaults}
-    scale = 800. / prefs['cover_height']
+    prefs = {k: prefs.get(k) for k in cprefs.defaults}
+    scale = 800.0 / prefs['cover_height']
     scale_cover(prefs, scale)
     prefs = Prefs(**prefs)
     img = QImage(prefs.cover_width, prefs.cover_height, QImage.Format.Format_ARGB32)
@@ -690,9 +699,9 @@ def calibre_cover2(title, author_string='', series_string='', prefs=None, as_qim
             painter.setRenderHint(QPainter.RenderHint.SmoothPixmapTransform)
             painter.drawImage(rect, logo)
             return self.ccolor1, self.ccolor1, self.ccolor1
+
     style = CalibeLogoStyle(color_theme, prefs)
-    title_block, subtitle_block, footer_block = layout_text(
-        prefs, img, title, subtitle, footer, img.height() // 3, style)
+    title_block, subtitle_block, footer_block = layout_text(prefs, img, title, subtitle, footer, img.height() // 3, style)
     p = QPainter(img)
     rect = QRect(0, 0, img.width(), img.height())
     colors = style(p, rect, color_theme, title_block, subtitle_block, footer_block)
@@ -751,6 +760,7 @@ def test(scale=0.25):
     from qt.core import QGridLayout, QLabel, QMainWindow, QPixmap, QScrollArea, QWidget
 
     from calibre.gui2 import Application
+
     app = Application([])
     mi = Metadata('Unknown', ['Kovid Goyal', 'John & Doe', 'Author'])
     mi.series = 'A series & styles'

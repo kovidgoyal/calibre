@@ -92,36 +92,46 @@ def icon_resource_provider(qurl: QUrl) -> QVariant | QPixmap:
 
 @lru_cache(maxsize=256)
 def button_line(book_id: int, has_book: bool) -> str:
-    template = (
-        f'<a href="calibre://{{which}}/{book_id}" title="{{tt}}">'
-        '<img valign="bottom" src="calibre-icon:///{icon}">\xa0{text}</a>\xa0\xa0\xa0'
-    )
+    template = f'<a href="calibre://{{which}}/{book_id}" title="{{tt}}"><img valign="bottom" src="calibre-icon:///{{icon}}">\xa0{{text}}</a>\xa0\xa0\xa0'
     if has_book:
-        li = template.format(which='reindex', icon='view-refresh.png', text=_('Re-index'), tt=_(
-            'Re-index this book. Useful if the book has been changed'
-            ' outside of calibre, and thus not automatically re-indexed.'))
+        li = template.format(
+            which='reindex',
+            icon='view-refresh.png',
+            text=_('Re-index'),
+            tt=_('Re-index this book. Useful if the book has been changed outside of calibre, and thus not automatically re-indexed.'),
+        )
     else:
-        li = template.format(which='unindex', icon='trash.png', text=_('Un-index'), tt=_(
-            'This book has been deleted from the library but is still present in the'
-            ' full text search index. Remove it.'))
+        li = template.format(
+            which='unindex',
+            icon='trash.png',
+            text=_('Un-index'),
+            tt=_('This book has been deleted from the library but is still present in the full text search index. Remove it.'),
+        )
     return (
-        template.format(which='jump', icon='lt.png', text=_('Select'), tt=_(
-            'Scroll to this book in the calibre library book list and select it')) +
-        template.format(which='mark', icon='marked.png', text=_('Mark'), tt=_(
-            'Mark this book in the calibre library.\n'
-            'You can search for marked books using the search term: {0}').format('marked:true')) +
-        li)
+        template.format(
+            which='jump',
+            icon='lt.png',
+            text=_('Select'),
+            tt=_('Scroll to this book in the calibre library book list and select it'),
+        )
+        + template.format(
+            which='mark',
+            icon='marked.png',
+            text=_('Mark'),
+            tt=_('Mark this book in the calibre library.\nYou can search for marked books using the search term: {0}').format('marked:true'),
+        )
+        + li
+    )
 
 
 class CardData:
-
     _height: int = -1
     width: int = -1
     # Cached layout results (filled by layout pass)
-    row: int = -1            # which row this card lands in
-    col: int = -1            # column index within the row
-    x: int = 0               # final x position
-    y: int = 0               # final y position
+    row: int = -1  # which row this card lands in
+    col: int = -1  # column index within the row
+    x: int = 0  # final x position
+    y: int = 0  # final y position
     doc: QTextDocument | None = None
     cover: QImage | None = None
     cover_requested: bool = False
@@ -176,8 +186,7 @@ class CardData:
             series = _('{series_index} of <i>{series}</i>').format(series_index=sidx, series=prepare_string_for_xml(s))
             series = f' ({series})'
         results = []
-        ftt = _('Open the book, in the {fmt} format.\nWhen using the calibre E-book viewer, it will attempt to scroll\n'
-                       'to this search result automatically.')
+        ftt = _('Open the book, in the {fmt} format.\nWhen using the calibre E-book viewer, it will attempt to scroll\nto this search result automatically.')
         for i, (result, formats) in enumerate(zip(self.results.result_dicts, self.results.formats)):
             text = result['text']
             text = markup_text(text)
@@ -213,14 +222,14 @@ class CardData:
 
 class RowInfo(NamedTuple):
     """Computed metadata for one row of cards."""
-    y: int = 0               # top Y of this row
-    height: int = 0          # tallest card in this row
-    first_index: int = 0     # index of first card in this row
-    card_count: int = 0      # number of cards in this row
+
+    y: int = 0  # top Y of this row
+    height: int = 0  # tallest card in this row
+    first_index: int = 0  # index of first card in this row
+    card_count: int = 0  # number of cards in this row
 
 
 class CardWidget(QWidget):
-
     link_activated = pyqtSignal(QUrl)
 
     def __init__(self, parent=None):
@@ -297,9 +306,12 @@ class CardWidget(QWidget):
             rect = self.rect().adjusted(1, 1, -1, -1)
             path = QPainterPath()
             path.addRoundedRect(
-                float(rect.x()), float(rect.y()),
-                float(rect.width()), float(rect.height()),
-                lc.border_radius, lc.border_radius,
+                float(rect.x()),
+                float(rect.y()),
+                float(rect.width()),
+                float(rect.height()),
+                lc.border_radius,
+                lc.border_radius,
             )
             pal = self.palette()
             p.fillPath(path, pal.color(QPalette.ColorRole.Base))
@@ -312,7 +324,6 @@ class CardWidget(QWidget):
 
 
 class VirtualCardContainer(QWidget):
-
     cover_rendered = pyqtSignal(int, int, QImage)
     link_activated = pyqtSignal(QUrl)
     change_panel = pyqtSignal(int)
@@ -369,17 +380,25 @@ class VirtualCardContainer(QWidget):
         self.generation += 1
         self._clear_live_widgets()
         self.change_panel.emit(0 if num < 0 else 1)
-        Thread(daemon=True, name='FTSCoverRender', target=self.render_covers, args=(
-            self.cover_render_queue, self.devicePixelRatioF(), layout(), default_cover,
-            weakref.ref(get_db()), self.generation)).start()
+        Thread(
+            daemon=True,
+            name='FTSCoverRender',
+            target=self.render_covers,
+            args=(
+                self.cover_render_queue,
+                self.devicePixelRatioF(),
+                layout(),
+                default_cover,
+                weakref.ref(get_db()),
+                self.generation,
+            ),
+        ).start()
         if self.isVisible():
             self._full_relayout()
 
     def on_results_resorted(self):
         # Reorder cards to match the new model order, reusing existing CardData objects
-        self._cards = tuple(
-            self._cards_map[id(r)] for r in self.model.results if id(r) in self._cards_map
-        )
+        self._cards = tuple(self._cards_map[id(r)] for r in self.model.results if id(r) in self._cards_map)
         if self.isVisible():
             self._clear_live_widgets()
             self._full_relayout()
@@ -390,7 +409,15 @@ class VirtualCardContainer(QWidget):
             w.hide()
         self._live_widgets.clear()
 
-    def render_covers(self, queue: Queue[tuple[int, int]], dpr: float, lc: Layout, default_cover: QImage, db_ref: weakref.ref[Cache], generation: int):
+    def render_covers(
+        self,
+        queue: Queue[tuple[int, int]],
+        dpr: float,
+        lc: Layout,
+        default_cover: QImage,
+        db_ref: weakref.ref[Cache],
+        generation: int,
+    ):
         while True:
             try:
                 book_id, idx = queue.get()
@@ -402,6 +429,7 @@ class VirtualCardContainer(QWidget):
                 img = db.cover(book_id, as_image=True)
             except Exception:
                 import traceback
+
                 traceback.print_exc()
                 continue
             if not img or img.isNull():
@@ -561,7 +589,6 @@ class VirtualCardContainer(QWidget):
 
 
 class CardView(QScrollArea):
-
     link_activated = pyqtSignal(QUrl)
     change_panel = pyqtSignal(int)
 
@@ -623,7 +650,6 @@ class CardView(QScrollArea):
 
 
 class CardsView(QWidget):
-
     link_activated = pyqtSignal(QUrl)
 
     def __init__(self, model, parent=None):
@@ -648,6 +674,7 @@ class CardsView(QWidget):
 
 def develop():
     from calibre.gui2.fts.search import develop
+
     develop('cards')
 
 

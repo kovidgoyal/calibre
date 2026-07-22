@@ -32,41 +32,34 @@ class ElPeriodico_cat(BasicNewsRecipe):
     encoding = 'cp1252'
     language = 'es'
 
-    html2lrf_options = [
-        '--comment', description, '--category', category, '--publisher', publisher
+    html2lrf_options = ['--comment', description, '--category', category, '--publisher', publisher]
+
+    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"'
+
+    feeds = [
+        ('Portada', 'http://www.elperiodico.com/es/rss/rss_portada.xml'),
+        ('Internacional', 'http://elperiodico.com/es/rss/internacional/rss.xml'),
+        ('Sociedad', 'http://elperiodico.com/es/rss/sociedad/rss.xml'),
+        ('Ciencia y Tecnolog\xeda', 'http://elperiodico.com/es/rss/ciencia-y-tecnologia/rss.xml'),
+        ('Deportes', 'http://elperiodico.com/es/rss/deportes/rss.xml'),
+        ('Gente', 'http://elperiodico.com/es/rss/gente/rss.xml'),
+        ('Opini\xf3n', 'http://elperiodico.com/es/rss/opinion/rss.xml'),
+        ('Pol\xedtica', 'http://elperiodico.com/es/rss/politica/rss.xml'),
+        ('Barcelona', 'http://elperiodico.com/es/rss/barcelona/rss.xml'),
+        ('Econom\xeda', 'http://elperiodico.com/es/rss/economia/rss.xml'),
+        ('Cultura y espect\xe1culos', 'http://elperiodico.com/es/rss/cultura-y-espectaculos/rss.xml'),
+        ('Tele', 'http://elperiodico.com/es/rss/cultura-y-espectaculos/rss.xml'),
     ]
 
-    html2epub_options = ('publisher="' + publisher +
-        '"\ncomments="' + description + '"\ntags="' + category + '"')
+    keep_only_tags = [dict(name='div', attrs={'class': 'titularnoticia'}), dict(name='div', attrs={'class': 'noticia_completa'})]
 
-    feeds = [(u'Portada', u'http://www.elperiodico.com/es/rss/rss_portada.xml'),
-             (u'Internacional', u'http://elperiodico.com/es/rss/internacional/rss.xml'),
-             (u'Sociedad', u'http://elperiodico.com/es/rss/sociedad/rss.xml'),
-             (u'Ciencia y Tecnolog\xeda',
-              u'http://elperiodico.com/es/rss/ciencia-y-tecnologia/rss.xml'),
-             (u'Deportes', u'http://elperiodico.com/es/rss/deportes/rss.xml'),
-             (u'Gente', u'http://elperiodico.com/es/rss/gente/rss.xml'),
-             (u'Opini\xf3n', u'http://elperiodico.com/es/rss/opinion/rss.xml'),
-             (u'Pol\xedtica', u'http://elperiodico.com/es/rss/politica/rss.xml'),
-             (u'Barcelona', u'http://elperiodico.com/es/rss/barcelona/rss.xml'),
-             (u'Econom\xeda', u'http://elperiodico.com/es/rss/economia/rss.xml'),
-             (u'Cultura y espect\xe1culos',
-              u'http://elperiodico.com/es/rss/cultura-y-espectaculos/rss.xml'),
-             (u'Tele', u'http://elperiodico.com/es/rss/cultura-y-espectaculos/rss.xml')]
-
-    keep_only_tags = [dict(name='div', attrs={'class': 'titularnoticia'}),
-                      dict(name='div', attrs={'class': 'noticia_completa'})]
-
-    remove_tags = [dict(name='div', attrs={'class': ['opcionb', 'opcionb last', 'columna_noticia']}),
-                   dict(name='span', attrs={'class': 'opcionesnoticia'})
-                   ]
+    remove_tags = [dict(name='div', attrs={'class': ['opcionb', 'opcionb last', 'columna_noticia']}), dict(name='span', attrs={'class': 'opcionesnoticia'})]
 
     def print_version(self, url):
         return url.replace('/default.asp?', '/print.asp?')
 
     def preprocess_html(self, soup):
-        mcharset = new_tag(soup, 'meta', [
-                       ('http-equiv', 'Content-Type'), ('content', 'text/html; charset=utf-8')])
+        mcharset = new_tag(soup, 'meta', [('http-equiv', 'Content-Type'), ('content', 'text/html; charset=utf-8')])
         soup.head.insert(0, mcharset)
         for item in soup.findAll(style=True):
             del item['style']

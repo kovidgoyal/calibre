@@ -14,16 +14,17 @@ class ConvertToTags:
     Convert file to XML
     """
 
-    def __init__(self,
-            in_file,
-            bug_handler,
-            dtd_path,
-            no_dtd,
-            encoding,
-            indent=None,
-            copy=None,
-            run_level=1,
-            ):
+    def __init__(
+        self,
+        in_file,
+        bug_handler,
+        dtd_path,
+        no_dtd,
+        encoding,
+        indent=None,
+        copy=None,
+        run_level=1,
+    ):
         """
         Required:
             'file'
@@ -54,28 +55,61 @@ class ConvertToTags:
         """
         self.__state = 'default'
         self.__new_line = 0
-        self.__block = ('doc', 'preamble', 'rtf-definition', 'font-table',
-                'font-in-table', 'color-table', 'color-in-table', 'style-sheet',
-                'paragraph-styles', 'paragraph-style-in-table', 'character-styles',
-                'character-style-in-table', 'list-table', 'doc-information', 'title',
-                'author', 'operator', 'creation-time', 'revision-time',
-                'editing-time', 'time', 'number-of-pages', 'number-of-words',
-                'number-of-characters', 'page-definition', 'section-definition',
-                'headers-and-footers', 'section', 'para', 'body',
-                'paragraph-definition', 'cell', 'row', 'table', 'revision-table',
-                'style-group', 'border-group','styles-in-body', 'paragraph-style-in-body',
-                'list-in-table', 'level-in-table', 'override-table','override-list',
-                )
+        self.__block = (
+            'doc',
+            'preamble',
+            'rtf-definition',
+            'font-table',
+            'font-in-table',
+            'color-table',
+            'color-in-table',
+            'style-sheet',
+            'paragraph-styles',
+            'paragraph-style-in-table',
+            'character-styles',
+            'character-style-in-table',
+            'list-table',
+            'doc-information',
+            'title',
+            'author',
+            'operator',
+            'creation-time',
+            'revision-time',
+            'editing-time',
+            'time',
+            'number-of-pages',
+            'number-of-words',
+            'number-of-characters',
+            'page-definition',
+            'section-definition',
+            'headers-and-footers',
+            'section',
+            'para',
+            'body',
+            'paragraph-definition',
+            'cell',
+            'row',
+            'table',
+            'revision-table',
+            'style-group',
+            'border-group',
+            'styles-in-body',
+            'paragraph-style-in-body',
+            'list-in-table',
+            'level-in-table',
+            'override-table',
+            'override-list',
+        )
         self.__two_new_line = ('section', 'body', 'table', 'row', 'list-table')
         self.__state_dict = {
-        'default'           : self.__default_func,
-        'mi<tg<open______'  : self.__open_func,
-        'mi<tg<close_____'  : self.__close_func,
-        'mi<tg<open-att__'  : self.__open_att_func,
-        'mi<tg<empty-att_'  : self.__empty_att_func,
-        'tx<nu<__________'  : self.__text_func,
-        'tx<ut<__________'  : self.__text_func,
-        'mi<tg<empty_____'  : self.__empty_func,
+            'default': self.__default_func,
+            'mi<tg<open______': self.__open_func,
+            'mi<tg<close_____': self.__close_func,
+            'mi<tg<open-att__': self.__open_att_func,
+            'mi<tg<empty-att_': self.__empty_att_func,
+            'tx<nu<__________': self.__text_func,
+            'tx<ut<__________': self.__text_func,
+            'mi<tg<empty_____': self.__empty_func,
         }
 
     def __open_func(self, line):
@@ -96,8 +130,7 @@ class ConvertToTags:
         Print out empty tag and newlines when needed.
         """
         info = line[17:-1]
-        self.__write_obj.write(
-        f'<{info}/>')
+        self.__write_obj.write(f'<{info}/>')
         self.__new_line = 0
         if info in self.__block:
             self.__write_new_line()
@@ -125,9 +158,7 @@ class ConvertToTags:
                 att = groups[1]
                 att = att.replace('"', '&quot;')
                 att = att.replace("'", '&quot;')
-                self.__write_obj.write(
-                f' {val}="{att}"'
-                )
+                self.__write_obj.write(f' {val}="{att}"')
             except Exception:
                 if self.__run_level > 3:
                     msg = 'index out of range\n'
@@ -155,8 +186,7 @@ class ConvertToTags:
             att = groups[1]
             att = att.replace('"', '&quot;')
             att = att.replace("'", '&quot;')
-            self.__write_obj.write(
-            f' {val}="{att}"')
+            self.__write_obj.write(f' {val}="{att}"')
         self.__write_obj.write('/>')
         self.__new_line = 0
         if element_name in self.__block:
@@ -170,8 +200,7 @@ class ConvertToTags:
         """
         # mi<tg<close_____<style-sheet\n
         info = line[17:-1]
-        self.__write_obj.write(
-        f'</{info}>')
+        self.__write_obj.write(f'</{info}>')
         self.__new_line = 0
         if info in self.__block:
             self.__write_new_line()
@@ -214,8 +243,7 @@ class ConvertToTags:
         Write the XML declaration at the top of the document.
         """
         # keep maximum compatibility with previous version
-        check_encoding_obj = check_encoding.CheckEncoding(
-                    bug_handler=self.__bug_handler)
+        check_encoding_obj = check_encoding.CheckEncoding(bug_handler=self.__bug_handler)
 
         if not check_encoding_obj.check_encoding(self.__file, verbose=False):
             self.__write_obj.write('<?xml version="1.0" encoding="US-ASCII" ?>')
@@ -224,26 +252,20 @@ class ConvertToTags:
             self.__convert_utf = True
         else:
             self.__write_obj.write('<?xml version="1.0" encoding="US-ASCII" ?>')
-            sys.stderr.write('Bad RTF encoding, revert to US-ASCII chars and'
-                    ' hope for the best')
+            sys.stderr.write('Bad RTF encoding, revert to US-ASCII chars and hope for the best')
             self.__bad_encoding = True
         self.__new_line = 0
         self.__write_new_line()
         if self.__no_dtd:
             pass
         elif self.__dtd_path:
-            self.__write_obj.write(
-            f'<!DOCTYPE doc SYSTEM "{self.__dtd_path}">'
-            )
+            self.__write_obj.write(f'<!DOCTYPE doc SYSTEM "{self.__dtd_path}">')
         elif self.__dtd_path == '':
             # don't print dtd if further transformations are going to take
             # place
             pass
         else:
-            self.__write_obj.write(
-                    '<!DOCTYPE doc PUBLIC "publicID" '
-                    f'"http://rtf2xml.sourceforge.net/dtd/{public_dtd}">'
-            )
+            self.__write_obj.write(f'<!DOCTYPE doc PUBLIC "publicID" "http://rtf2xml.sourceforge.net/dtd/{public_dtd}">')
         self.__new_line = 0
         self.__write_new_line()
 

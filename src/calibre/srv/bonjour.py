@@ -8,7 +8,6 @@ from threading import Event
 
 
 class BonJour:  # {{{
-
     def __init__(self, name='Books in calibre', service_type='_calibre._tcp', path='/opds', add_hostname=True, wait_for_stop=True):
         self.service_name = name
         self.wait_for_stop = wait_for_stop
@@ -23,11 +22,10 @@ class BonJour:  # {{{
 
     def start(self, loop):
         from calibre.utils.mdns import publish, unpublish, verify_ip_address
+
         ip_address, port = loop.bound_address[:2]
         prefix = loop.opts.url_prefix or ''
-        mdns_services = (
-            (self.service_name, self.service_type, port, {'path':prefix + self.path}),
-        )
+        mdns_services = ((self.service_name, self.service_type, port, {'path': prefix + self.path}),)
         if self.shutdown.is_set():
             return
         self.services = []
@@ -43,4 +41,6 @@ class BonJour:  # {{{
         for s in mdns_services:
             unpublish(*s, add_hostname=self.add_hostname, wait_for_stop=self.wait_for_stop)
         self.stopped.set()
+
+
 # }}}

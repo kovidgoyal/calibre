@@ -45,9 +45,7 @@ class BusinessStandardPrint(BasicNewsRecipe):
     def get_cover_url(self):
         d = self.recipe_specific_options.get('date')
         if not (d and isinstance(d, str)):
-            soup = self.index_to_soup(
-                'https://www.magzter.com/IN/Business-Standard-Private-Ltd/Business-Standard/Newspaper/'
-            )
+            soup = self.index_to_soup('https://www.magzter.com/IN/Business-Standard-Private-Ltd/Business-Standard/Newspaper/')
             return soup.find('img', id=lambda s: s and 'mgd__lhd__cover' in s.split())['src']
 
     def parse_index(self):
@@ -106,58 +104,33 @@ class BusinessStandardPrint(BasicNewsRecipe):
         cat = subhead = lede = auth = caption = ''
 
         if 'defaultArticleCat' in data and data['defaultArticleCat'] is not None:
-            if (
-                'h1_tag' in data['defaultArticleCat']
-                and data['defaultArticleCat']['h1_tag'] is not None
-            ):
+            if 'h1_tag' in data['defaultArticleCat'] and data['defaultArticleCat']['h1_tag'] is not None:
                 cat = '<div class="cat">' + data['defaultArticleCat']['h1_tag'] + '</div>'
 
         if 'metaDescription' in data and data['metaDescription'] is not None:
             subhead = '<p class="sub">' + data['metaDescription'] + '</p>'
             self.art_desc = data['metaDescription']
 
-        date = (datetime.fromtimestamp(int(data['publishDate']))).strftime(
-            '%b %d, %Y | %I:%M %p'
-        )
+        date = (datetime.fromtimestamp(int(data['publishDate']))).strftime('%b %d, %Y | %I:%M %p')
 
         authors = []
         if 'articleMappedMultipleAuthors' in data:
             for aut in data['articleMappedMultipleAuthors']:
                 authors.append(data['articleMappedMultipleAuthors'][str(aut)])
-        auth = (
-            '<div><p class="auth">'
-            + ', '.join(authors)
-            + ' | '
-            + data['placeName']
-            + ' | '
-            + date
-            + '</p></div>'
-        )
+        auth = '<div><p class="auth">' + ', '.join(authors) + ' | ' + data['placeName'] + ' | ' + date + '</p></div>'
 
         if 'featuredImageObj' in data:
             if 'url' in data['featuredImageObj']:
                 if img_url is not None:
                     lede = '<br><div class="cap"><img src="{}">'.format(img_url)
                 else:
-                    lede = '<br><div class="cap"><img src="{}">'.format(
-                        data['featuredImageObj']['url']
-                    )
+                    lede = '<br><div class="cap"><img src="{}">'.format(data['featuredImageObj']['url'])
             if 'alt_text' in data['featuredImageObj']:
                 caption = '<span>' + data['featuredImageObj']['alt_text'] + '</span></div>'
 
         body = '<div id="bdy">' + data['htmlContent'] + '</div>'
 
-        return (
-            '<html><body>'
-            + cat
-            + title
-            + subhead
-            + auth
-            + lede
-            + caption
-            + body
-            + '</body></html>'
-        )
+        return '<html><body>' + cat + title + subhead + auth + lede + caption + body + '</body></html>'
 
     def preprocess_html(self, soup):
         bdy = soup.find('div', attrs={'id': 'bdy'})

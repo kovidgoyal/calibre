@@ -12,7 +12,7 @@ from calibre_extensions import speedup
 
 tz_name = tzlocal.get_localzone_name() or 'UTC'
 local_tz = ZoneInfo(tz_name)
-UNDEFINED_DATE = datetime(101,1,1, tzinfo=utc_tz)
+UNDEFINED_DATE = datetime(101, 1, 1, tzinfo=utc_tz)
 
 
 def parse_iso8601(date_string, assume_utc=False, as_utc=True, require_aware=False):
@@ -37,4 +37,5 @@ def parse_iso8601(date_string, assume_utc=False, as_utc=True, require_aware=Fals
 
 if __name__ == '__main__':
     import sys
+
     print(parse_iso8601(sys.argv[-1]))

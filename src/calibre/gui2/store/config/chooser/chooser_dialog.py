@@ -9,7 +9,6 @@ from calibre.utils.localization import _
 
 
 class StoreChooserDialog(QDialog):
-
     def __init__(self, parent):
         QDialog.__init__(self, parent)
 

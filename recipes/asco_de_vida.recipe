@@ -2,7 +2,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class HindustanTimes(BasicNewsRecipe):
-    title = u'Asco de vida'
+    title = 'Asco de vida'
     language = 'es'
     __author__ = 'Krittika Goyal'
     oldest_article = 1  # days
@@ -13,6 +13,5 @@ class HindustanTimes(BasicNewsRecipe):
     keep_only_tags = dict(name='div', attrs={'class': 'box story'})
 
     feeds = [
-        ('News',
-         'http://feeds2.feedburner.com/AscoDeVida'),
+        ('News', 'http://feeds2.feedburner.com/AscoDeVida'),
     ]

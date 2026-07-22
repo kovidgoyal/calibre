@@ -12,12 +12,12 @@ def absurl(url):
 
 
 class HamiltonSpectator(BasicNewsRecipe):
-    title = u'Hamilton Spectator'
+    title = 'Hamilton Spectator'
     max_articles_per_feed = 50
-    __author__ = u'unkn0wn'
-    publisher = u'thespec.com'
-    description = u'Ontario Canada Newspaper'
-    category = u'News, Ontario, Canada'
+    __author__ = 'unkn0wn'
+    publisher = 'thespec.com'
+    description = 'Ontario Canada Newspaper'
+    category = 'News, Ontario, Canada'
     remove_javascript = True
     use_embedded_content = False
     no_stylesheets = True
@@ -33,24 +33,20 @@ class HamiltonSpectator(BasicNewsRecipe):
         .authorList, .endnote_contrib { font-size:small; }
     '''
 
-    keep_only_tags = [
-        classes(
-            'headline asset-summary authorList articleMainArt asset-body'
-        )
-    ]
+    keep_only_tags = [classes('headline asset-summary authorList articleMainArt asset-body')]
 
     remove_tags = [
         dict(name=['svg', 'button']),
-        dict(attrs={'id':['tncms-region-article_instory_top', 'tncms-region-article_bottom', 'asset-video-primary']}),
+        dict(attrs={'id': ['tncms-region-article_instory_top', 'tncms-region-article_bottom', 'asset-video-primary']}),
         classes(
             'tnt-blurred-image share-container subscriber-offers access-offers-in-page '
             'access-offers-wrapper tnt-ads-container adLabelWrapperManual shareIcons '
             'articleFeedbackCTA comments-container card-image'
-        )
+        ),
     ]
 
     def preprocess_html(self, soup):
-        for img in soup.findAll('img', attrs={'data-srcset':True}):
+        for img in soup.findAll('img', attrs={'data-srcset': True}):
             for x in img['data-srcset'].split(','):
                 if '640w' in x.split():
                     img['src'] = x.split()[0]
@@ -58,16 +54,14 @@ class HamiltonSpectator(BasicNewsRecipe):
 
     def parse_index(self):
         index = 'https://www.thespec.com/'
-        sections = [
-            'news', 'politics', 'opinion', 'business', 'sports', 'life', 'entertainment'
-        ]
+        sections = ['news', 'politics', 'opinion', 'business', 'sports', 'life', 'entertainment']
         feeds = []
         soup = self.index_to_soup(index)
         for sec in sections:
             section = sec.capitalize()
             self.log(section)
             articles = []
-            for a in soup.findAll('a', attrs={'href':lambda x: x and x.startswith('/' + sec + '/')}):
+            for a in soup.findAll('a', attrs={'href': lambda x: x and x.startswith('/' + sec + '/')}):
                 url = absurl(a['href'].split('#')[0])
                 if url in {index + sec + '/', index + sec}:
                     continue

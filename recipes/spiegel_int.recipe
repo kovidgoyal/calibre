@@ -19,28 +19,26 @@ class Spiegel_int(BasicNewsRecipe):
     category = 'news, politics, Germany'
     publication_type = 'magazine'
     remove_empty_feeds = True
-    remove_attributes = ['style','height','width']
+    remove_attributes = ['style', 'height', 'width']
     ignore_duplicate_articles = {'url'}
     masthead_url = 'https://upload.wikimedia.org/wikipedia/commons/0/06/Logo-Der-Spiegel-de.png'
 
-    conversion_options = {
-        'comments': description, 'tags': category, 'language': language, 'publisher': publisher
-    }
+    conversion_options = {'comments': description, 'tags': category, 'language': language, 'publisher': publisher}
 
     def get_cover_url(self):
         soup = self.index_to_soup('https://www.spiegel.de/spiegel/print/')
-        div = soup.find('div', attrs={'data-component':'MagazineImage'})
-        citem = div.find('img', attrs={'data-src':True})['data-src'].replace('260', '800')
+        div = soup.find('div', attrs={'data-component': 'MagazineImage'})
+        citem = div.find('img', attrs={'data-src': True})['data-src'].replace('260', '800')
         return citem
 
     keep_only_tags = [dict(name='article')]
 
     remove_tags = [
-        dict(name='section', attrs={'data-app-hidden':True}),
-        dict(name='div', attrs={'data-issue-context-hidden':True}),
-        dict(name='div', attrs={'data-area':'related_articles'}),
-        dict(name='div', attrs={'data-component':'HTMLEmbed'}),
-        dict(name=['footer', 'button', 'svg'])
+        dict(name='section', attrs={'data-app-hidden': True}),
+        dict(name='div', attrs={'data-issue-context-hidden': True}),
+        dict(name='div', attrs={'data-area': 'related_articles'}),
+        dict(name='div', attrs={'data-component': 'HTMLEmbed'}),
+        dict(name=['footer', 'button', 'svg']),
     ]
 
     extra_css = '''
@@ -56,11 +54,11 @@ class Spiegel_int(BasicNewsRecipe):
         ('Business', 'https://www.spiegel.de/international/business/index.rss'),
         ('Zeitgeist', 'https://www.spiegel.de/international/zeitgeist/index.rss'),
         ('Tomorrow', 'https://www.spiegel.de/international/tomorrow/index.rss'),
-        ('Others', 'http://www.spiegel.de/international/index.rss')
+        ('Others', 'http://www.spiegel.de/international/index.rss'),
     ]
 
     def preprocess_html(self, soup):
-        for img in soup.findAll('img', attrs={'data-src':True}):
+        for img in soup.findAll('img', attrs={'data-src': True}):
             img['src'] = img['data-src']
         for fig in soup.findAll('figcaption'):
             fig['id'] = 'fig-c'

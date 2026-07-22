@@ -49,6 +49,8 @@ def file_metadata(fileobj):
 def header_list_to_file(buf):  # {{{
     buf.append('')
     return ReadOnlyFileBuffer(b''.join((x + '\r\n').encode('ascii') for x in buf))
+
+
 # }}}
 
 
@@ -80,17 +82,22 @@ def parse_multipart_byterange(buf, content_type):  # {{{
             raise ValueError('Malformed sub-part, length of body not equal to length specified in Content-Range')
         buf.readline()
         return start, ret
+
     while True:
         data = parse_part()
         if data is None:
             break
         ans.append(data)
     return ans
+
+
 # }}}
 
 
 def parse_if_none_match(val):  # {{{
     return {x.strip() for x in val.split(',')}
+
+
 # }}}
 
 
@@ -99,6 +106,8 @@ def acceptable_encoding(val, allowed=frozenset({'gzip'})):  # {{{
         x = x.lower()
         if x in allowed:
             return x
+
+
 # }}}
 
 
@@ -109,12 +118,14 @@ def preferred_lang(val, get_translator_for_lang):  # {{{
         if found:
             return x
     return 'en'
+
+
 # }}}
 
 
 def get_ranges(headervalue, content_length):  # {{{
-    """ Return a list of ranges from the Range header. If this function returns
-    an empty list, it indicates no valid range was found. """
+    """Return a list of ranges from the Range header. If this function returns
+    an empty list, it indicates no valid range was found."""
     if not headervalue:
         return None
 
@@ -148,35 +159,36 @@ def get_ranges(headervalue, content_length):  # {{{
             except Exception:
                 continue
             if stop > content_length:
-                result.append(Range(0, content_length-1, content_length))
+                result.append(Range(0, content_length - 1, content_length))
             else:
                 result.append(Range(content_length - stop, content_length - 1, stop))
 
     return result
+
+
 # }}}
 
 
 # gzip transfer encoding {{{
 
+
 def gzip_prefix():
     # See http://www.gzip.org/zlib/rfc-gzip.html
     return b''.join((
-        b'\x1f\x8b',       # ID1 and ID2: gzip marker
-        b'\x08',           # CM: compression method
-        b'\x00',           # FLG: none set
+        b'\x1f\x8b',  # ID1 and ID2: gzip marker
+        b'\x08',  # CM: compression method
+        b'\x00',  # FLG: none set
         # MTIME: 4 bytes, set to zero so as not to leak timezone information
         b'\0\0\0\0',
-        b'\x02',           # XFL: max compression, slowest algo
-        b'\xff',           # OS: unknown
+        b'\x02',  # XFL: max compression, slowest algo
+        b'\xff',  # OS: unknown
     ))
 
 
 def compress_readable_output(src_file, compress_level=6):
     crc = zlib.crc32(b'')
     size = 0
-    zobj = zlib.compressobj(compress_level,
-                            zlib.DEFLATED, -zlib.MAX_WBITS,
-                            zlib.DEF_MEM_LEVEL, zlib.Z_DEFAULT_STRATEGY)
+    zobj = zlib.compressobj(compress_level, zlib.DEFLATED, -zlib.MAX_WBITS, zlib.DEF_MEM_LEVEL, zlib.Z_DEFAULT_STRATEGY)
     prefix_written = False
     while True:
         data = src_file.read(DEFAULT_BUFFER_SIZE)
@@ -189,7 +201,9 @@ def compress_readable_output(src_file, compress_level=6):
             prefix_written = True
             data = gzip_prefix() + data
         yield data
-    yield zobj.flush() + struct.pack(b'<L', crc & 0xffffffff) + struct.pack(b'<L', size)
+    yield zobj.flush() + struct.pack(b'<L', crc & 0xFFFFFFFF) + struct.pack(b'<L', size)
+
+
 # }}}
 
 
@@ -201,33 +215,68 @@ def get_range_parts(ranges, content_type, content_length):  # {{{
             ans.append(f'Content-Type: {content_type}')
         ans.append('')
         return ('\r\n'.join(ans)).encode('ascii')
+
     return list(map(part, ranges)) + [(f'--{MULTIPART_SEPARATOR}--').encode('ascii')]
+
+
 # }}}
 
 
 class ETaggedFile:  # {{{
-
     def __init__(self, output, etag):
         self.output, self.etag = output, etag
 
     def fileno(self):
         return self.output.fileno()
+
+
 # }}}
 
 
 class RequestData:  # {{{
-
     cookies = {}
     username = None
 
-    def __init__(self, method, path, query, inheaders, request_body_file, outheaders, response_protocol,
-                 static_cache, opts, remote_addr, remote_port, is_trusted_ip, translator_cache,
-                 tdir, forwarded_for, request_original_uri=None):
+    def __init__(
+        self,
+        method,
+        path,
+        query,
+        inheaders,
+        request_body_file,
+        outheaders,
+        response_protocol,
+        static_cache,
+        opts,
+        remote_addr,
+        remote_port,
+        is_trusted_ip,
+        translator_cache,
+        tdir,
+        forwarded_for,
+        request_original_uri=None,
+    ):
 
-        (self.method, self.path, self.query, self.inheaders, self.request_body_file, self.outheaders,
-         self.response_protocol, self.static_cache, self.translator_cache) = (
-            method, path, query, inheaders, request_body_file, outheaders,
-            response_protocol, static_cache, translator_cache
+        (
+            self.method,
+            self.path,
+            self.query,
+            self.inheaders,
+            self.request_body_file,
+            self.outheaders,
+            self.response_protocol,
+            self.static_cache,
+            self.translator_cache,
+        ) = (
+            method,
+            path,
+            query,
+            inheaders,
+            request_body_file,
+            outheaders,
+            response_protocol,
+            static_cache,
+            translator_cache,
         )
 
         self.remote_addr, self.remote_port, self.is_trusted_ip = remote_addr, remote_port, is_trusted_ip
@@ -261,7 +310,7 @@ class RequestData:  # {{{
         return ETaggedFile(output, etag_as_hexencoded_string)
 
     def etagged_dynamic_response(self, etag, func, content_type='text/html; charset=UTF-8'):
-        " A response that is generated only if the etag does not match "
+        "A response that is generated only if the etag does not match"
         ct = self.outheaders.get('Content-Type')
         if not ct:
             self.outheaders.set('Content-Type', content_type, replace_all=True)
@@ -297,11 +346,12 @@ class RequestData:  # {{{
             self.lang_code = lang
             self.gettext_func = t.gettext
             self.ngettext_func = t.ngettext
+
+
 # }}}
 
 
 class ReadableOutput:
-
     name: str | bytes | int | None = None
     ranges: Any = None
 
@@ -348,7 +398,6 @@ def dynamic_output(output, outheaders, etag=None):
 
 
 class ETaggedDynamicOutput:
-
     def __init__(self, func, etag):
         self.func, self.etag = func, etag
 
@@ -357,7 +406,6 @@ class ETaggedDynamicOutput:
 
 
 class GeneratedOutput:
-
     ranges: Any = None
 
     def __init__(self, output, etag=None):
@@ -368,7 +416,6 @@ class GeneratedOutput:
 
 
 class StaticOutput:
-
     def __init__(self, data):
         if isinstance(data, str):
             data = data.encode('utf-8')
@@ -378,7 +425,6 @@ class StaticOutput:
 
 
 class HTTPConnection(HTTPRequest):
-
     use_sendfile = False
 
     def write(self, buf, end=None):
@@ -391,7 +437,7 @@ class HTTPConnection(HTTPRequest):
         if limit <= 0:
             return True
         if self.use_sendfile and not isinstance(buf, (BytesIO, ReadOnlyFileBuffer)):
-            limit = min(limit, 2 ** 30)
+            limit = min(limit, 2**30)
             try:
                 sent = os.sendfile(self.socket.fileno(), buf.fileno(), pos, limit)
             except OSError as e:
@@ -418,9 +464,9 @@ class HTTPConnection(HTTPRequest):
         if self.response_protocol is HTTP1:
             # HTTP/1.0 has no 413/414/303 codes
             status_code = {
-                http.client.REQUEST_ENTITY_TOO_LARGE:http.client.BAD_REQUEST,
-                http.client.REQUEST_URI_TOO_LONG:http.client.BAD_REQUEST,
-                http.client.SEE_OTHER:http.client.FOUND
+                http.client.REQUEST_ENTITY_TOO_LARGE: http.client.BAD_REQUEST,
+                http.client.REQUEST_URI_TOO_LONG: http.client.BAD_REQUEST,
+                http.client.SEE_OTHER: http.client.FOUND,
             }.get(status_code, status_code)
 
         self.close_after_response = close_after_response
@@ -452,10 +498,22 @@ class HTTPConnection(HTTPRequest):
         request_body_file.seek(0)
         outheaders = MultiDict()
         data = RequestData(
-            self.method, self.path, self.query, inheaders, request_body_file,
-            outheaders, self.response_protocol, self.static_cache, self.opts,
-            self.remote_addr, self.remote_port, self.is_trusted_ip,
-            self.translator_cache, self.tdir, self.forwarded_for, self.request_original_uri
+            self.method,
+            self.path,
+            self.query,
+            inheaders,
+            request_body_file,
+            outheaders,
+            self.response_protocol,
+            self.static_cache,
+            self.opts,
+            self.remote_addr,
+            self.remote_port,
+            self.is_trusted_ip,
+            self.translator_cache,
+            self.tdir,
+            self.forwarded_for,
+            self.request_original_uri,
         )
         self.queue_job(self.run_request_handler, data)
 
@@ -556,10 +614,15 @@ class HTTPConnection(HTTPRequest):
         except Exception:
             ts = 'strftime() failed'
         line = '{} port-{} {}{} {} "{}" {} {}'.format(
-            self.remote_addr, self.remote_port, ff or '', username or '-',
+            self.remote_addr,
+            self.remote_port,
+            ff or '',
+            username or '-',
             ts,
             force_unicode(self.request_line or '', 'utf-8'),
-            status_code, ('-' if response_size is None else response_size))
+            status_code,
+            ('-' if response_size is None else response_size),
+        )
         self.access_log(line)
 
     def response_ready(self, header_file, output=None):
@@ -605,7 +668,14 @@ class HTTPConnection(HTTPRequest):
             self.set_state(WRITE, self.write_buf, ReadOnlyFileBuffer(b'\r\n' + range_part))
         else:
             buf.seek(r.start)
-            self.set_state(WRITE, self.write_range_part, ReadOnlyFileBuffer((b'' if first else b'\r\n') + range_part + b'\r\n'), buf, r.stop + 1, ranges)
+            self.set_state(
+                WRITE,
+                self.write_range_part,
+                ReadOnlyFileBuffer((b'' if first else b'\r\n') + range_part + b'\r\n'),
+                buf,
+                r.stop + 1,
+                ranges,
+            )
 
     def write_range_part(self, part_buf, buf, end, ranges, event):
         if self.write(part_buf):
@@ -682,12 +752,15 @@ class HTTPConnection(HTTPRequest):
         else:
             output = GeneratedOutput(output)
         ct = outheaders.get('Content-Type', '').partition(';')[0]
-        compressible = (not ct or ct.startswith(('text/', 'image/svg')) or ct.partition(';')[0] in COMPRESSIBLE_TYPES)
-        compressible = (compressible and request.status_code == http.client.OK and
-                        (opts.compress_min_size > -1 and output.content_length >= opts.compress_min_size) and
-                        acceptable_encoding(request.inheaders.get('Accept-Encoding', '')) and not is_http1)
-        accept_ranges = (not compressible and output.accept_ranges is not None and request.status_code == http.client.OK and
-                        not is_http1)
+        compressible = not ct or ct.startswith(('text/', 'image/svg')) or ct.partition(';')[0] in COMPRESSIBLE_TYPES
+        compressible = (
+            compressible
+            and request.status_code == http.client.OK
+            and (opts.compress_min_size > -1 and output.content_length >= opts.compress_min_size)
+            and acceptable_encoding(request.inheaders.get('Accept-Encoding', ''))
+            and not is_http1
+        )
+        accept_ranges = not compressible and output.accept_ranges is not None and request.status_code == http.client.OK and not is_http1
         ranges = get_ranges(request.inheaders.get('Range'), output.content_length) if output.accept_ranges and self.method in ('GET', 'HEAD') else None
         if_range = (request.inheaders.get('If-Range') or '').strip()
         if if_range and if_range != output.etag:
@@ -742,11 +815,14 @@ class HTTPConnection(HTTPRequest):
 
 def create_http_handler(handler=None, websocket_handler=None):
     from calibre.srv.web_socket import WebSocketConnection
+
     static_cache = {}
     translator_cache = {}
     if handler is None:
+
         def dummy_http_handler(data):
             return 'Hello'
+
         handler = dummy_http_handler
 
     @wraps(handler)
@@ -757,4 +833,5 @@ def create_http_handler(handler=None, websocket_handler=None):
         ans.static_cache = static_cache
         ans.translator_cache = translator_cache
         return ans
+
     return wrapper

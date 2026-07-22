@@ -12,12 +12,11 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 def classes(classes):
     q = frozenset(classes.split(' '))
-    return dict(attrs={
-        'class': lambda x: x and frozenset(x.split()).intersection(q)})
+    return dict(attrs={'class': lambda x: x and frozenset(x.split()).intersection(q)})
 
 
 class ForeignPolicy(BasicNewsRecipe):
-    title = u'Foreign Policy'
+    title = 'Foreign Policy'
     language = 'en'
     __author__ = 'Kovid Goyal'
     description = 'International News'
@@ -35,9 +34,7 @@ class ForeignPolicy(BasicNewsRecipe):
         .figure-image, .caption, .wp-caption { font-size:small; text-align:center; }
     '''
 
-    keep_only_tags = [
-        dict(name='article', attrs={'class':'article'})
-    ]
+    keep_only_tags = [dict(name='article', attrs={'class': 'article'})]
     remove_tags = [
         dict(name=['meta', 'link', 'svg', 'button', 'iframe', 'aside']),
         classes(
@@ -47,12 +44,7 @@ class ForeignPolicy(BasicNewsRecipe):
     ]
     remove_tags_after = [classes('post-content-main')]
 
-    recipe_specific_options = {
-        'issue': {
-            'short': 'Enter the Issue ID you want to download ',
-            'long': 'For example, 411131563'
-        }
-    }
+    recipe_specific_options = {'issue': {'short': 'Enter the Issue ID you want to download ', 'long': 'For example, 411131563'}}
 
     def parse_index(self):
         issue_url = 'https://foreignpolicy.com/the-magazine'
@@ -78,10 +70,10 @@ class ForeignPolicy(BasicNewsRecipe):
                 a = x.parent
                 url = a['href']
                 desc = ''
-                meta = a.findNext(attrs={'class':'meta-data -excerpt'})
+                meta = a.findNext(attrs={'class': 'meta-data -excerpt'})
                 if meta:
                     desc += self.tag_to_string(meta)
-                dek = a.findNext(attrs={'class':'dek-heading -excerpt'})
+                dek = a.findNext(attrs={'class': 'dek-heading -excerpt'})
                 if dek:
                     desc += ' | ' + self.tag_to_string(dek)
                 self.log('\t', title, url, '\n\t', desc)
@@ -89,6 +81,6 @@ class ForeignPolicy(BasicNewsRecipe):
         return list(feeds_dict.items())
 
     def preprocess_html(self, soup):
-        for img in soup.findAll('img', attrs={'src':True}):
+        for img in soup.findAll('img', attrs={'src': True}):
             img['src'] = img['src'].split('?')[0] + '?w=600?quality=90'
         return soup

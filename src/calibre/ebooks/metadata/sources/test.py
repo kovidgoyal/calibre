@@ -2,7 +2,7 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
@@ -28,7 +28,7 @@ def isbn_test(isbn):
         misbn = check_isbn(mi.isbn)
         if misbn and misbn == isbn_:
             return True
-        prints("ISBN test failed. Expected: '%s' found '%s'"%(isbn_, misbn))
+        prints("ISBN test failed. Expected: '%s' found '%s'" % (isbn_, misbn))
         return False
 
     return test
@@ -40,10 +40,9 @@ def title_test(title, exact=False):
 
     def test(mi):
         mt = mi.title.lower()
-        if (exact and mt == title) or \
-                (not exact and title in mt):
+        if (exact and mt == title) or (not exact and title in mt):
             return True
-        prints("Title test failed. Expected: '%s' found '%s'"%(title, mt))
+        prints("Title test failed. Expected: '%s' found '%s'" % (title, mt))
         return False
 
     return test
@@ -55,6 +54,7 @@ def authors_test(authors, subset=False):
     def test(mi):
         au = {x.lower() for x in mi.authors}
         if msprefs['swap_author_names']:
+
             def revert_to_fn_ln(a):
                 if ',' not in a:
                     return a
@@ -70,7 +70,7 @@ def authors_test(authors, subset=False):
             return True
         if au == authors:
             return True
-        prints("Author test failed. Expected: '%s' found '%s'"%(authors, au))
+        prints("Author test failed. Expected: '%s' found '%s'" % (authors, au))
         return False
 
     return test
@@ -83,7 +83,7 @@ def tags_test(tags):
         t = {x.lower() for x in mi.tags}
         if t == tags:
             return True
-        prints("Tags test failed. Expected: '%s' found '%s'"%(tags, t))
+        prints("Tags test failed. Expected: '%s' found '%s'" % (tags, t))
         return False
 
     return test
@@ -97,11 +97,9 @@ def series_test(series, series_index):
         if (ms == series) and (series_index == mi.series_index):
             return True
         if mi.series:
-            prints("Series test failed. Expected: '%s [%d]' found '%s[%d]'"%
-                        (series, series_index, ms, mi.series_index))
+            prints("Series test failed. Expected: '%s [%d]' found '%s[%d]'" % (series, series_index, ms, mi.series_index))
         else:
-            prints("Series test failed. Expected: '%s [%d]' found no series"%
-                        (series, series_index))
+            prints("Series test failed. Expected: '%s [%d]' found no series" % (series, series_index))
         return False
 
     return test
@@ -113,8 +111,9 @@ def comments_test(sentinel):
         comm = mi.comments.lower() if mi.comments else ''
         if sentinel and sentinel.lower() in comm:
             return True
-        prints('comments test failed. %s not in comments'%sentinel)
+        prints('comments test failed. %s not in comments' % sentinel)
         return False
+
     return test
 
 
@@ -157,9 +156,9 @@ def test_identify(tests):  # {{{
 
     for kwargs, test_funcs in tests:
         log('')
-        log('#'*80)
+        log('#' * 80)
         log('### Running test with:', kwargs)
-        log('#'*80)
+        log('#' * 80)
         prints('Running test with:', kwargs)
         args = (log, abort)
         start_time = time.time()
@@ -174,13 +173,12 @@ def test_identify(tests):  # {{{
         prints('Smaller relevance means better match')
 
         for i, mi in enumerate(results):
-            prints('*'*30, 'Relevance:', i, '*'*30)
+            prints('*' * 30, 'Relevance:', i, '*' * 30)
             if mi.rating:
                 mi.rating *= 2
             prints(mi)
-            prints('\nCached cover URLs    :',
-                    [x[0].name for x in get_cached_cover_urls(mi)])
-            prints('*'*75, '\n\n')
+            prints('\nCached cover URLs    :', [x[0].name for x in get_cached_cover_urls(mi)])
+            prints('*' * 75, '\n\n')
 
         possibles = []
         for mi in results:
@@ -203,12 +201,18 @@ def test_identify(tests):  # {{{
 
         log('\n\n')
 
-    prints('Average time per query', sum(times)/len(times))
+    prints('Average time per query', sum(times) / len(times))
+
+
 # }}}
 
 
-def test_identify_plugin(name, tests, modify_plugin=lambda plugin:None,  # {{{
-        fail_missing_meta=True):
+def test_identify_plugin(
+    name,
+    tests,
+    modify_plugin=lambda plugin: None,  # {{{
+    fail_missing_meta=True,
+):
     """
     :param name: Plugin name
     :param tests: List of 2-tuples. Each two tuple is of the form (args,
@@ -232,9 +236,9 @@ def test_identify_plugin(name, tests, modify_plugin=lambda plugin:None,  # {{{
     times = []
     for kwargs, test_funcs in tests:
         log('')
-        log('#'*80)
+        log('#' * 80)
         log('### Running test with:', kwargs)
-        log('#'*80)
+        log('#' * 80)
         prints('Running test with:', kwargs)
         rq = Queue()
         args = (log, rq, abort)
@@ -261,18 +265,21 @@ def test_identify_plugin(name, tests, modify_plugin=lambda plugin:None,  # {{{
         prints('Found', len(results), 'matches:', end=' ')
         prints('Smaller relevance means better match')
 
-        results.sort(key=plugin.identify_results_keygen(
-            title=kwargs.get('title', None), authors=kwargs.get('authors',
-                None), identifiers=kwargs.get('identifiers', {})))
+        results.sort(
+            key=plugin.identify_results_keygen(
+                title=kwargs.get('title', None),
+                authors=kwargs.get('authors', None),
+                identifiers=kwargs.get('identifiers', {}),
+            )
+        )
 
         for i, mi in enumerate(results):
-            prints('*'*30, 'Relevance:', i, '*'*30)
+            prints('*' * 30, 'Relevance:', i, '*' * 30)
             if mi.rating:
                 mi.rating *= 2
             prints(mi)
-            prints('\nCached cover URL    :',
-                    plugin.get_cached_cover_url(mi.identifiers))
-            prints('*'*75, '\n\n')
+            prints('\nCached cover URL    :', plugin.get_cached_cover_url(mi.identifiers))
+            prints('*' * 75, '\n\n')
 
         possibles = []
         for mi in results:
@@ -288,8 +295,7 @@ def test_identify_plugin(name, tests, modify_plugin=lambda plugin:None,  # {{{
             prints('ERROR: No results that passed all tests were found')
             raise SystemExit(1)
 
-        good = [x for x in possibles if plugin.test_fields(x) is
-                None]
+        good = [x for x in possibles if plugin.test_fields(x) is None]
         if not good:
             prints('Failed to find', plugin.test_fields(possibles[0]))
             if fail_missing_meta:
@@ -302,8 +308,7 @@ def test_identify_plugin(name, tests, modify_plugin=lambda plugin:None,  # {{{
         if 'cover' in plugin.capabilities:
             rq = Queue()
             mi = results[0]
-            plugin.download_cover(log, rq, abort, title=mi.title,
-                    authors=mi.authors, identifiers=mi.identifiers)
+            plugin.download_cover(log, rq, abort, title=mi.title, authors=mi.authors, identifiers=mi.identifiers)
             results = []
             while True:
                 try:
@@ -315,9 +320,10 @@ def test_identify_plugin(name, tests, modify_plugin=lambda plugin:None,  # {{{
                 raise SystemExit(1)
             elif results:
                 cdata = results[0]
-                cover = os.path.join(tdir, plugin.name.replace(' ',
-                    '')+'-%s-cover.jpg'%sanitize_file_name(mi.title.replace(' ',
-                        '_')))
+                cover = os.path.join(
+                    tdir,
+                    plugin.name.replace(' ', '') + '-%s-cover.jpg' % sanitize_file_name(mi.title.replace(' ', '_')),
+                )
                 with open(cover, 'wb') as f:
                     f.write(cdata[-1])
 
@@ -327,5 +333,7 @@ def test_identify_plugin(name, tests, modify_plugin=lambda plugin:None,  # {{{
                     prints('Downloaded cover too small')
                     raise SystemExit(1)
 
-    prints('Average time per query', sum(times)/len(times))
+    prints('Average time per query', sum(times) / len(times))
+
+
 # }}}

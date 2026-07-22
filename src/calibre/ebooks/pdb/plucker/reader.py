@@ -1,4 +1,4 @@
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '20011, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
@@ -112,21 +112,21 @@ class HeaderRecord:
     """
 
     def __init__(self, raw):
-        self.uid, = struct.unpack('>H', raw[0:2])
+        (self.uid,) = struct.unpack('>H', raw[0:2])
         # This is labeled version in the spec.
         # 2 is ZLIB compressed,
         # 1 is DOC compressed
-        self.compression, = struct.unpack('>H', raw[2:4])
-        self.records, = struct.unpack('>H', raw[4:6])
+        (self.compression,) = struct.unpack('>H', raw[2:4])
+        (self.records,) = struct.unpack('>H', raw[4:6])
         # uid of the first html file. This should link
         # to other files which in turn may link to others.
         self.home_html = None
 
         self.reserved = {}
         for i in range(self.records):
-            adv = 4*i
-            name, = struct.unpack('>H', raw[6+adv:8+adv])
-            id, = struct.unpack('>H', raw[8+adv:10+adv])
+            adv = 4 * i
+            (name,) = struct.unpack('>H', raw[6 + adv : 8 + adv])
+            (id,) = struct.unpack('>H', raw[8 + adv : 10 + adv])
             self.reserved[id] = name
             if name == 0:
                 self.home_html = id
@@ -139,11 +139,11 @@ class SectionHeader:
     """
 
     def __init__(self, raw):
-        self.uid, = struct.unpack('>H', raw[0:2])
-        self.paragraphs, = struct.unpack('>H', raw[2:4])
-        self.size, = struct.unpack('>H', raw[4:6])
-        self.type, = struct.unpack('>B', raw[6:7])
-        self.flags, = struct.unpack('>B', raw[7:8])
+        (self.uid,) = struct.unpack('>H', raw[0:2])
+        (self.paragraphs,) = struct.unpack('>H', raw[2:4])
+        (self.size,) = struct.unpack('>H', raw[4:6])
+        (self.type,) = struct.unpack('>B', raw[6:7])
+        (self.flags,) = struct.unpack('>B', raw[7:8])
 
 
 class SectionHeaderText:
@@ -161,9 +161,9 @@ class SectionHeaderText:
         self.attributes = []
 
         for i in range(section_header.paragraphs):
-            adv = 4*i
-            self.sizes.append(struct.unpack('>H', raw[adv:2+adv])[0])
-            self.attributes.append(struct.unpack('>H', raw[2+adv:4+adv])[0])
+            adv = 4 * i
+            self.sizes.append(struct.unpack('>H', raw[adv : 2 + adv])[0])
+            self.attributes.append(struct.unpack('>H', raw[2 + adv : 4 + adv])[0])
 
         running_offset = 0
         for size in self.sizes:
@@ -190,7 +190,7 @@ class SectionMetadata:
         self.default_encoding = 'latin-1'
         self.owner_id = None
 
-        record_count, = struct.unpack('>H', raw[0:2])
+        (record_count,) = struct.unpack('>H', raw[0:2])
 
         adv = 0
         for i in range(record_count):
@@ -201,14 +201,14 @@ class SectionMetadata:
 
             # CharSet
             if type == 1:
-                val, = struct.unpack('>H', raw[6+adv:8+adv])
+                (val,) = struct.unpack('>H', raw[6 + adv : 8 + adv])
                 self.default_encoding = MIBNUM_TO_NAME.get(val, 'latin-1')
             # ExceptionalCharSets
             elif type == 2:
                 pass  # not handled
             # OwnerID
             elif type == 3:
-                self.owner_id = struct.unpack('>I', raw[6+adv:10+adv])
+                self.owner_id = struct.unpack('>I', raw[6 + adv : 10 + adv])
             # Author, Title, PubDate
             # Ignored here. The metadata reader plugin
             # will get this info because if it's missing
@@ -220,7 +220,7 @@ class SectionMetadata:
             elif type == 7:
                 pass
 
-            adv += 2*length
+            adv += 2 * length
 
 
 class SectionText:
@@ -230,7 +230,7 @@ class SectionText:
 
     def __init__(self, section_header, raw):
         self.header = SectionHeaderText(section_header, raw)
-        self.data = raw[section_header.paragraphs * 4:]
+        self.data = raw[section_header.paragraphs * 4 :]
 
 
 class SectionCompositeImage:
@@ -241,8 +241,8 @@ class SectionCompositeImage:
     """
 
     def __init__(self, raw):
-        self.columns, = struct.unpack('>H', raw[0:2])
-        self.rows, = struct.unpack('>H', raw[2:4])
+        (self.columns,) = struct.unpack('>H', raw[0:2])
+        (self.rows,) = struct.unpack('>H', raw[2:4])
 
         # [
         #  [uid, uid, uid, ...],
@@ -261,7 +261,7 @@ class SectionCompositeImage:
         for i in range(self.rows):
             col = []
             for j in range(self.columns):
-                col.append(struct.unpack('>H', raw[offset:offset+2])[0])
+                col.append(struct.unpack('>H', raw[offset : offset + 2])[0])
                 offset += 2
             self.layout.append(col)
 
@@ -340,6 +340,7 @@ class Reader(FormatReader):
 
         # Get the metadata (tile, author, ...) with the metadata reader.
         from calibre.ebooks.metadata.pdb import get_metadata
+
         self.mi = get_metadata(stream, False)
 
     def extract_content(self, output_dir):
@@ -431,6 +432,7 @@ class Reader(FormatReader):
 
         # Run the HTML through the html processing plugin.
         from calibre.customize.ui import plugin_for_input_format
+
         html_input = plugin_for_input_format('html')
         for opt in html_input.options:
             setattr(self.options, opt.option.name, opt.recommended_value)
@@ -460,6 +462,7 @@ class Reader(FormatReader):
             return zlib.decompress(data)
         elif self.header_record.compression == 1:
             from calibre.ebooks.compression.palmdoc import decompress_doc
+
             return decompress_doc(data)
 
     def process_phtml(self, d, paragraph_offsets=()):
@@ -481,17 +484,17 @@ class Reader(FormatReader):
                     html += '<p>'
                 paragraph_open = True
 
-            c = ord(d[offset:offset+1])
+            c = ord(d[offset : offset + 1])
             # PHTML "functions"
             if c == 0x0:
                 offset += 1
-                c = ord(d[offset:offset+1])
+                c = ord(d[offset : offset + 1])
                 # Page link begins
                 # 2 Bytes
                 # record ID
-                if c == 0x0a:
+                if c == 0x0A:
                     offset += 1
-                    id = struct.unpack('>H', d[offset:offset+2])[0]
+                    id = struct.unpack('>H', d[offset : offset + 2])[0]
                     if id in self.uid_text_secion_number:
                         html += f'<a href="{id}.html">'
                         link_open = True
@@ -499,16 +502,16 @@ class Reader(FormatReader):
                 # Targeted page link begins
                 # 3 Bytes
                 # record ID, target
-                elif c == 0x0b:
+                elif c == 0x0B:
                     offset += 3
                 # Paragraph link begins
                 # 4 Bytes
                 # record ID, paragraph number
-                elif c == 0x0c:
+                elif c == 0x0C:
                     offset += 1
-                    id = struct.unpack('>H', d[offset:offset+2])[0]
+                    id = struct.unpack('>H', d[offset : offset + 2])[0]
                     offset += 2
-                    pid = struct.unpack('>H', d[offset:offset+2])[0]
+                    pid = struct.unpack('>H', d[offset : offset + 2])[0]
                     if id in self.uid_text_secion_number:
                         html += f'<a href="{id}.html#p{pid}">'
                         link_open = True
@@ -516,7 +519,7 @@ class Reader(FormatReader):
                 # Targeted paragraph link begins
                 # 5 Bytes
                 # record ID, paragraph number, target
-                elif c == 0x0d:
+                elif c == 0x0D:
                     offset += 5
                 # Link ends
                 # 0 Bytes
@@ -581,9 +584,9 @@ class Reader(FormatReader):
                 # Embedded image
                 # 2 Bytes
                 # image record ID
-                elif c == 0x1a:
+                elif c == 0x1A:
                     offset += 1
-                    uid = struct.unpack('>H', d[offset:offset+2])[0]
+                    uid = struct.unpack('>H', d[offset : offset + 2])[0]
                     html += f'<img src="images/{uid}.jpg" />'
                     offset += 1
                 # Set margin
@@ -627,9 +630,9 @@ class Reader(FormatReader):
                 # Multiple embedded image
                 # 4 Bytes
                 # alternate image record ID, image record ID
-                elif c == 0x5c:
+                elif c == 0x5C:
                     offset += 3
-                    uid = struct.unpack('>H', d[offset:offset+2])[0]
+                    uid = struct.unpack('>H', d[offset : offset + 2])[0]
                     html += f'<img src="images/{uid}.jpg" />'
                     offset += 1
                 # Underline text begins
@@ -661,17 +664,17 @@ class Reader(FormatReader):
                 # Begin custom font span
                 # 6 Bytes
                 # font page record ID, X page position, Y page position
-                elif c == 0x8e:
+                elif c == 0x8E:
                     offset += 6
                 # Adjust custom font glyph position
                 # 4 Bytes
                 # X page position, Y page position
-                elif c == 0x8c:
+                elif c == 0x8C:
                     offset += 4
                 # Change font page
                 # 2 Bytes
                 # font record ID
-                elif c == 0x8a:
+                elif c == 0x8A:
                     offset += 2
                 # End custom font span
                 # 0 Bytes
@@ -697,9 +700,9 @@ class Reader(FormatReader):
                 # Targeted Paragraph Link function to specify an exact byte offset within
                 # the paragraph. This function must be followed immediately by the
                 # function it modifies).
-                elif c == 0x9a:
+                elif c == 0x9A:
                     offset += 2
-            elif c == 0xa0:
+            elif c == 0xA0:
                 html += '&nbsp;'
             else:
                 html += chr(c)

@@ -11,8 +11,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class Guardian(BasicNewsRecipe):
-
-    title = u'The Observer'
+    title = 'The Observer'
     __author__ = 'jbambridge'
     language = 'en_GB'
     simultaneous_downloads = 5
@@ -26,16 +25,29 @@ class Guardian(BasicNewsRecipe):
     filter_regexps = [r'r\.kelkoo\.com']
 
     keep_only_tags = [
-        dict(name='div', attrs={
-             'id': ['content', 'article_header', 'main-article-info', ]}),
+        dict(
+            name='div',
+            attrs={
+                'id': [
+                    'content',
+                    'article_header',
+                    'main-article-info',
+                ]
+            },
+        ),
     ]
     remove_tags = [
-        dict(name='div', attrs={
-             'class': ['video-content', 'videos-third-column']}),
-        dict(name='div', attrs={
-             'id': ['article-toolbox', 'subscribe-feeds', ]}),
-        dict(name='div', attrs={
-             'class': ['promo-component bookshop-books-promo bookshop-books']}),
+        dict(name='div', attrs={'class': ['video-content', 'videos-third-column']}),
+        dict(
+            name='div',
+            attrs={
+                'id': [
+                    'article-toolbox',
+                    'subscribe-feeds',
+                ]
+            },
+        ),
+        dict(name='div', attrs={'class': ['promo-component bookshop-books-promo bookshop-books']}),
         dict(name='ul', attrs={'class': ['pagination']}),
         dict(name='ul', attrs={'id': ['content-actions']}),
         dict(name='li', attrs={'id': ['product-image']}),
@@ -55,39 +67,45 @@ class Guardian(BasicNewsRecipe):
                 '''
 
     feeds = [
-        (u'Main Section', u'feed://www.guardian.co.uk/theobserver/news/uknews/rss'),
-        (u'News', u'feed://www.guardian.co.uk/theobserver/news/rss'),
-        (u'World News', u'feed://www.guardian.co.uk/theobserver/news/worldnews/rss'),
-        (u'In Focus', u'feed://www.guardian.co.uk/theobserver/news/focus/rss'),
-        (u'7 Days', u'feed://www.guardian.co.uk/theobserver/news/7days/rss'),
-        (u'Seven Days', u'feed://www.guardian.co.uk/theobserver/news/seven-days/rss'),
-        (u'Media', u'feed://www.guardian.co.uk/theobserver/news/media/rss'),
-        (u'Business', u'feed://www.guardian.co.uk/theobserver/businessandmedia/rss'),
-        (u'Cash', u'feed://www.guardian.co.uk/theobserver/news/cash/rss'),
-        (u'Money', u'feed://feeds.guardian.co.uk/theguardian/money/rss'),
-        (u'Comment', u'feed://www.guardian.co.uk/theobserver/news/comment/rss'),
-        (u'Travel', u'feed://www.guardian.co.uk/theobserver/escape/rss'),
-        (u'Culture', u'feed://www.guardian.co.uk/theobserver/review/rss'),
-        (u'Money', u'feed://feeds.guardian.co.uk/theguardian/money/rss'),
-        (u'TV & Radio', u'feed://www.guardian.co.uk/tv-and-radio/rss'),
-        (u'New Review', u'feed://www.guardian.co.uk/theobserver/new-review/rss'),
-        (u'Agenda', u'feed://www.guardian.co.uk/theobserver/new-review/agenda/rss'),
-        (u'Critics', u'feed://www.guardian.co.uk/theobserver/new-review/critics/rss'),
-        (u'Features', u'feed://www.guardian.co.uk/theobserver/new-review/features/rss'),
-        (u'Discover', u'feed://www.guardian.co.uk/theobserver/new-review/discover/rss'),
-        (u'Books', u'feed://www.guardian.co.uk/theobserver/new-review/books/rss'),
-        (u'Magazine', u'feed://www.guardian.co.uk/theobserver/magazine/rss'),
-        (u'Regulars', u'feed://www.guardian.co.uk/theobserver/magazine/regulars/rss'),
-        (u'Life & Style', u'feed://www.guardian.co.uk/theobserver/magazine/life-and-style/rss'),
-        (u'Mag Features', u'feed://www.guardian.co.uk/theobserver/magazine/features2/rss'),
-        (u'Sport', u'feed://www.guardian.co.uk/theobserver/sport/rss')
+        ('Main Section', 'feed://www.guardian.co.uk/theobserver/news/uknews/rss'),
+        ('News', 'feed://www.guardian.co.uk/theobserver/news/rss'),
+        ('World News', 'feed://www.guardian.co.uk/theobserver/news/worldnews/rss'),
+        ('In Focus', 'feed://www.guardian.co.uk/theobserver/news/focus/rss'),
+        ('7 Days', 'feed://www.guardian.co.uk/theobserver/news/7days/rss'),
+        ('Seven Days', 'feed://www.guardian.co.uk/theobserver/news/seven-days/rss'),
+        ('Media', 'feed://www.guardian.co.uk/theobserver/news/media/rss'),
+        ('Business', 'feed://www.guardian.co.uk/theobserver/businessandmedia/rss'),
+        ('Cash', 'feed://www.guardian.co.uk/theobserver/news/cash/rss'),
+        ('Money', 'feed://feeds.guardian.co.uk/theguardian/money/rss'),
+        ('Comment', 'feed://www.guardian.co.uk/theobserver/news/comment/rss'),
+        ('Travel', 'feed://www.guardian.co.uk/theobserver/escape/rss'),
+        ('Culture', 'feed://www.guardian.co.uk/theobserver/review/rss'),
+        ('Money', 'feed://feeds.guardian.co.uk/theguardian/money/rss'),
+        ('TV & Radio', 'feed://www.guardian.co.uk/tv-and-radio/rss'),
+        ('New Review', 'feed://www.guardian.co.uk/theobserver/new-review/rss'),
+        ('Agenda', 'feed://www.guardian.co.uk/theobserver/new-review/agenda/rss'),
+        ('Critics', 'feed://www.guardian.co.uk/theobserver/new-review/critics/rss'),
+        ('Features', 'feed://www.guardian.co.uk/theobserver/new-review/features/rss'),
+        ('Discover', 'feed://www.guardian.co.uk/theobserver/new-review/discover/rss'),
+        ('Books', 'feed://www.guardian.co.uk/theobserver/new-review/books/rss'),
+        ('Magazine', 'feed://www.guardian.co.uk/theobserver/magazine/rss'),
+        ('Regulars', 'feed://www.guardian.co.uk/theobserver/magazine/regulars/rss'),
+        ('Life & Style', 'feed://www.guardian.co.uk/theobserver/magazine/life-and-style/rss'),
+        ('Mag Features', 'feed://www.guardian.co.uk/theobserver/magazine/features2/rss'),
+        ('Sport', 'feed://www.guardian.co.uk/theobserver/sport/rss'),
     ]
 
     def get_article_url(self, article):
         url = article.get('guid', None)
-        if '/video/' in url or '/flyer/' in url or '/quiz/' in url or \
-            '/gallery/' in url or 'ivebeenthere' in url or \
-                'pickthescore' in url or 'audioslideshow' in url:
+        if (
+            '/video/' in url
+            or '/flyer/' in url
+            or '/quiz/' in url
+            or '/gallery/' in url
+            or 'ivebeenthere' in url
+            or 'pickthescore' in url
+            or 'audioslideshow' in url
+        ):
             url = None
         return url
 
@@ -134,7 +152,9 @@ class Guardian(BasicNewsRecipe):
                         da.extract()
                     desc = self.tag_to_string(tt).strip()
                 yield {
-                    'title': title, 'url': url, 'description': desc,
+                    'title': title,
+                    'url': url,
+                    'description': desc,
                     'date': strftime('%a, %d %b'),
                 }
 

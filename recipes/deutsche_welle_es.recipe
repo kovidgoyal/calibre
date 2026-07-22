@@ -21,7 +21,7 @@ class DeutscheWelle_es(BasicNewsRecipe):
         'days': {
             'short': 'Oldest article to download from this news source. In days ',
             'long': 'For example, 0.5, gives you articles from the past 12 hours',
-            'default': str(oldest_article)
+            'default': str(oldest_article),
         }
     }
 
@@ -31,15 +31,9 @@ class DeutscheWelle_es(BasicNewsRecipe):
         if d and isinstance(d, str):
             self.oldest_article = float(d)
 
-    keep_only_tags = [
-        dict(name='article')
-    ]
+    keep_only_tags = [dict(name='article')]
 
-    remove_tags = [
-        dict(name=['footer', 'source']),
-        dict(attrs={'data-tracking-name':'sharing-icons-inline'}),
-        classes('kicker advertisement vjs-wrapper')
-    ]
+    remove_tags = [dict(name=['footer', 'source']), dict(attrs={'data-tracking-name': 'sharing-icons-inline'}), classes('kicker advertisement vjs-wrapper')]
 
     feeds = [
         ('Titulares', 'http://rss.dw-world.de/rdf/rss-sp-top'),
@@ -51,7 +45,7 @@ class DeutscheWelle_es(BasicNewsRecipe):
         ('La prensa opina', 'http://rss.dw-world.de/rdf/rss-sp-press'),
         ('Ecología', 'http://rss.dw-world.de/rdf/rss-sp-ecol'),
         ('Futbol alemán', 'http://rss.dw-world.de/rdf/rss-sp-fut'),
-        ('Conozca Alemania', 'http://rss.dw-world.de/rdf/rss-sp-con')
+        ('Conozca Alemania', 'http://rss.dw-world.de/rdf/rss-sp-con'),
     ]
 
     def preprocess_html(self, soup):

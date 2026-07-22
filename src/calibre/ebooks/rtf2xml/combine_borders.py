@@ -21,12 +21,13 @@ from . import open_for_read, open_for_write
 class CombineBorders:
     """Combine borders in RTF tokens to make later processing easier"""
 
-    def __init__(self,
-            in_file,
-            bug_handler,
-            copy=None,
-            run_level=1,
-            ):
+    def __init__(
+        self,
+        in_file,
+        bug_handler,
+        copy=None,
+        run_level=1,
+    ):
         self.__file = in_file
         self.__bug_handler = bug_handler
         self.__copy = copy
@@ -54,7 +55,7 @@ class CombineBorders:
         self.__state = 'default'
         self.__bord_string = ''
         if self.__first_five == 'cw<bd':
-            self. found_bd(line)
+            self.found_bd(line)
         else:
             write_obj.write(line)
 

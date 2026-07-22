@@ -46,10 +46,7 @@ class ALD(BasicNewsRecipe):
         for div in soup.findAll('div', attrs={'id': 'dayheader'}):
             date_list.append(self.tag_to_string(div))
         date_list_clean = [re.sub(r'[^\w]', ' ', date) for date in date_list]
-        date_list_bool = [
-            parse_date(date).date() >= oldest_date
-            for date in date_list_clean
-        ]
+        date_list_bool = [parse_date(date).date() >= oldest_date for date in date_list_clean]
         compress_date = list(compress(date_list, date_list_bool))
 
         # Process each paragraph one by one.
@@ -60,29 +57,12 @@ class ALD(BasicNewsRecipe):
                     if p.find('a'):
                         title = self.tag_to_string(p)
                         link = p.find('a')['href']
-                        if self.tag_to_string(p.findPreviousSibling('h3')
-                                              ) == 'Articles of Note':
-                            articles_note.append({
-                                'title': title,
-                                'url': link,
-                                'description': '',
-                                'date': ''
-                            })
-                        elif self.tag_to_string(p.findPreviousSibling('h3')
-                                                ) == 'New Books':
-                            new_books.append({
-                                'title': title,
-                                'url': link,
-                                'description': '',
-                                'date': ''
-                            })
+                        if self.tag_to_string(p.findPreviousSibling('h3')) == 'Articles of Note':
+                            articles_note.append({'title': title, 'url': link, 'description': '', 'date': ''})
+                        elif self.tag_to_string(p.findPreviousSibling('h3')) == 'New Books':
+                            new_books.append({'title': title, 'url': link, 'description': '', 'date': ''})
                         else:
-                            essays.append({
-                                'title': title,
-                                'url': link,
-                                'description': '',
-                                'date': ''
-                            })
+                            essays.append({'title': title, 'url': link, 'description': '', 'date': ''})
                 else:
                     break
         feeds.append(('Articles of Note', articles_note))

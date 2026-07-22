@@ -10,7 +10,7 @@ class Bellingcat(BasicNewsRecipe):
     description = 'Debunking Denialism is a website dedicated to the refutation of pseudoscience and denialism by applying scientific skepticism and defending evidence-based science. Fighting pseudoscience and quackery with reason and evidence.'  # noqa: E501
     publisher = 'Debunking Denialism'
     category = 'blog'
-    cover_url = u'https://i0.wp.com/debunkingdenialism.com/wp-content/uploads/2017/06/cropped-newestblavatar.jpg'
+    cover_url = 'https://i0.wp.com/debunkingdenialism.com/wp-content/uploads/2017/06/cropped-newestblavatar.jpg'
     language = 'en'
     no_stylesheets = True
     remove_javascript = False
@@ -27,13 +27,7 @@ class Bellingcat(BasicNewsRecipe):
         dict(name='time', attrs={'class': 'updated'}),
         dict(name='p', attrs={'class': 'ddtag'}),
         dict(name='div', attrs={'class': 'sharedaddy sd-sharing-enabled'}),
-        dict(
-            name='div',
-            attrs={
-                'class':
-                'sharedaddy sd-block sd-like jetpack-likes-widget-wrapper jetpack-likes-widget-unloaded'
-            }
-        )
+        dict(name='div', attrs={'class': 'sharedaddy sd-block sd-like jetpack-likes-widget-wrapper jetpack-likes-widget-unloaded'}),
     ]
 
     feeds = [('Debunking Denialism', 'https://debunkingdenialism.com/feed/')]

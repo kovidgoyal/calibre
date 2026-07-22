@@ -6,7 +6,6 @@ from qt.core import QPoint, QRect, QSize, QSizePolicy, QStyle, QStyleOption, QSt
 
 
 class Separator(QWidget):
-
     def __init__(self, icon_size, parent=None):
         super().__init__(parent)
         self.desired_height = icon_size.height() * 0.85
@@ -29,7 +28,6 @@ class Separator(QWidget):
 
 
 class Button(QToolButton):
-
     layout_needed = pyqtSignal()
 
     def __init__(self, action, parent=None):
@@ -58,7 +56,6 @@ class Button(QToolButton):
 
 
 class SingleLineToolBar(QToolBar):
-
     def __init__(self, parent=None, icon_size=18):
         super().__init__(parent)
         self.setIconSize(QSize(icon_size, icon_size))
@@ -74,7 +71,6 @@ class SingleLineToolBar(QToolBar):
 
 
 class LayoutItem:
-
     def __init__(self, w):
         self.widget = w
         self.sz = sz = w.sizeHint()
@@ -83,7 +79,6 @@ class LayoutItem:
 
 
 class Group:
-
     def __init__(self, parent=None, leading_separator=None):
         self.items = []
         self.width = self.height = 0
@@ -109,7 +104,8 @@ class Group:
         return wid.style().layoutSpacing(
             QSizePolicy.ControlType.ToolButton,
             QSizePolicy.ControlType.ToolButton,
-            Qt.Orientation.Horizontal if horizontal else Qt.Orientation.Vertical)
+            Qt.Orientation.Horizontal if horizontal else Qt.Orientation.Vertical,
+        )
 
     def add_widget(self, w):
         item = LayoutItem(w)
@@ -122,7 +118,6 @@ class Group:
 
 
 class FlowToolBar(QWidget):
-
     def __init__(self, parent=None, icon_size=18):
         super().__init__(parent)
         self.icon_size = QSize(icon_size, icon_size)
@@ -155,6 +150,7 @@ class FlowToolBar(QWidget):
         for item in self.items:
             size = size.expandedTo(item.minimumSize())
         return size
+
     sizeHint = minimumSize
 
     def paintEvent(self, a0):

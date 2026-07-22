@@ -55,6 +55,7 @@ Codepages as to RTF 1.9.1:
     57010   Gujarati
     57011   Punjabi
 """
+
 import re
 
 from . import open_for_read
@@ -69,29 +70,29 @@ class DefaultEncoding:
     # See http://msdn.microsoft.com/en-us/library/windows/desktop/dd317756%28v=vs.85%29.aspx
     # and src\calibre\gui2\widgets.py for the input list in calibre
     ENCODINGS = {
-                # Special cases
-                'cp1252':'1252',
-                'utf-8':'1252',
-                'ascii':'1252',
-                # Normal cases
-                'big5':'950',
-                'cp1250':'1250',
-                'cp1251':'1251',
-                'cp1253':'1253',
-                'cp1254':'1254',
-                'cp1255':'1255',
-                'cp1256':'1256',
-                'shift_jis':'932',
-                'gb2312':'936',
-                # Not in RTF 1.9.1 codepage specification
-                'hz':'52936',
-                'iso8859_5':'28595',
-                'iso2022_jp':'50222',
-                'iso2022_kr':'50225',
-                'euc_jp':'51932',
-                'euc_kr':'51949',
-                'gb18030':'54936',
-                }
+        # Special cases
+        'cp1252': '1252',
+        'utf-8': '1252',
+        'ascii': '1252',
+        # Normal cases
+        'big5': '950',
+        'cp1250': '1250',
+        'cp1251': '1251',
+        'cp1253': '1253',
+        'cp1254': '1254',
+        'cp1255': '1255',
+        'cp1256': '1256',
+        'shift_jis': '932',
+        'gb2312': '936',
+        # Not in RTF 1.9.1 codepage specification
+        'hz': '52936',
+        'iso8859_5': '28595',
+        'iso2022_jp': '50222',
+        'iso2022_kr': '50225',
+        'euc_jp': '51932',
+        'euc_kr': '51949',
+        'gb18030': '54936',
+    }
 
     def __init__(self, in_file, bug_handler, default_encoding, run_level=1, check_raw=False):
         self.__file = in_file
@@ -139,15 +140,13 @@ class DefaultEncoding:
                         self.__platform = 'IBMPC'
                     elif self.__token_info == 'cw<ri<pca_______':
                         self.__platform = 'OS/2'
-                    if self.__token_info == 'cw<ri<ansi-codpg' \
-                        and int(line[20:-1]):
+                    if self.__token_info == 'cw<ri<ansi-codpg' and int(line[20:-1]):
                         self.__code_page = line[20:-1]
                     if self.__token_info == 'cw<ri<deflt-font':
                         self.__default_num = line[20:-1]
                         cpfound = True
                         # cw<ri<deflt-font<nu<0
-                if self.__platform != 'Windows' and \
-                        not cpfound:
+                if self.__platform != 'Windows' and not cpfound:
                     if self.__platform == 'Macintosh':
                         self.__code_page = '10000'
                     elif self.__platform == 'IBMPC':
@@ -169,8 +168,7 @@ class DefaultEncoding:
                             self.__code_page = cp
                         cpfound = True
                         break
-                if self.__platform != 'Windows' and \
-                        not cpfound:
+                if self.__platform != 'Windows' and not cpfound:
                     if enc == 'mac':
                         self.__code_page = '10000'
                     elif enc == 'pc':
@@ -181,10 +179,11 @@ class DefaultEncoding:
 
 if __name__ == '__main__':
     import sys
+
     encode_obj = DefaultEncoding(
-            in_file=sys.argv[1],
-            default_encoding=sys.argv[2],
-            bug_handler=Exception,
-            check_raw=True,
-            )
+        in_file=sys.argv[1],
+        default_encoding=sys.argv[2],
+        bug_handler=Exception,
+        check_raw=True,
+    )
     print(encode_obj.get_codepage())

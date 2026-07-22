@@ -16,6 +16,7 @@ from typing import Any, BinaryIO, NamedTuple
 class _RemoteTraceback(Exception):
     def __init__(self, tb):
         self.tb = tb
+
     def __str__(self):
         return self.tb
 
@@ -28,6 +29,7 @@ class _ExceptionWithTraceback:
         # contain references to all the objects in the exception scope
         self.exc.__traceback__ = None
         self.tb = f'\n"""\n{tb}"""'
+
     def __reduce__(self):
         return _rebuild_exc, (self.exc, self.tb)
 
@@ -91,7 +93,7 @@ def run_jobs(*jobs: Job) -> Worker:
                         result = Result(False, job.id, _ExceptionWithTraceback(e))
                     pickler.dump(result)
                     pipe.flush()
-        except (BrokenPipeError, KeyboardInterrupt):
+        except BrokenPipeError, KeyboardInterrupt:
             pass
         except BaseException:
             traceback.print_exc()
@@ -101,8 +103,11 @@ def run_jobs(*jobs: Job) -> Worker:
 
 
 def forked_map[T, R](
-    fn: Callable[[T], R], iterable: Sequence[T], *iterables: Sequence[T],
-    timeout: int | float | None = None, num_workers: int = 0
+    fn: Callable[[T], R],
+    iterable: Sequence[T],
+    *iterables: Sequence[T],
+    timeout: int | float | None = None,
+    num_workers: int = 0,
 ) -> Iterator[R]:
     """
     Should be used only in worker processes that have no threads and that do not use/import any non fork safe libraries such as macOS
@@ -159,23 +164,30 @@ def find_tests():
     import random
     import time
     import unittest
+
     class TestForkedMap(unittest.TestCase):
         @unittest.skipUnless(forked_map_is_supported, 'forking not supported on this platform')
         def test_forked_map(self):
             def sleep(x: int) -> int:
                 time.sleep(10 * x)
                 return x
+
             with self.assertRaises(TimeoutError):
                 tuple(forked_map(sleep, range(3), timeout=0.001))
+
             def raise_error(x: int) -> None:
                 raise ReferenceError('testing')
+
             with self.assertRaises(ReferenceError):
                 tuple(forked_map(raise_error, range(3)))
             timings = 0, 1, 2, 3
+
             def echo(x: int) -> int:
                 time.sleep(0.0001 * random.choice(timings))
                 return x
+
             for num_workers in range(1, 9):
                 items = tuple(range(num_workers * 3 + 1))
                 self.assertEqual(tuple(map(echo, items)), tuple(forked_map(echo, items, num_workers=num_workers)))
+
     return unittest.defaultTestLoader.loadTestsFromTestCase(TestForkedMap)

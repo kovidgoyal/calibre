@@ -30,8 +30,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 def classes(classes):
     q = frozenset(classes.split(' '))
-    return dict(attrs={
-        'class': lambda x: x and frozenset(x.split()).intersection(q)})
+    return dict(attrs={'class': lambda x: x and frozenset(x.split()).intersection(q)})
 
 
 class NewScientist(BasicNewsRecipe):
@@ -52,12 +51,7 @@ class NewScientist(BasicNewsRecipe):
     remove_attributes = ['style', 'height', 'width']
     masthead_url = 'https://cdn.shopify.com/s/files/1/0266/6843/3505/files/logo.svg?v=1629189295'
 
-    conversion_options = {
-        'comment': description,
-        'tags': category,
-        'publisher': publisher,
-        'language': language
-    }
+    conversion_options = {'comment': description, 'tags': category, 'publisher': publisher, 'language': language}
 
     extra_css = '''
         img {display:block; margin:0 auto;}
@@ -68,20 +62,15 @@ class NewScientist(BasicNewsRecipe):
         .ArticleImageCaption__Credit { font-size:smaller; }
     '''
 
-    keep_only_tags = [
-        classes('ArticleHeader ArticleContent')
-    ]
+    keep_only_tags = [classes('ArticleHeader ArticleContent')]
 
-    remove_tags = [
-        dict(name=['svg', 'button']),
-        classes('ArticleHeader__SocialWrapper AdvertWrapper ReadMoreWithImage ArticleTopics')
-    ]
+    remove_tags = [dict(name=['svg', 'button']), classes('ArticleHeader__SocialWrapper AdvertWrapper ReadMoreWithImage ArticleTopics')]
 
     def preprocess_html(self, soup):
         time = soup.find(**classes('ArticleHeader__DateTimeWrapper'))
         if time:
             time.name = 'div'
-        for img in soup.findAll('img', attrs={'data-src':True}):
+        for img in soup.findAll('img', attrs={'data-src': True}):
             img['src'] = img['data-src'].split('?')[0] + '?width=700'
         for figc in soup.findAll('figcaption'):
             for p in figc.findAll('p'):
@@ -100,6 +89,7 @@ class NewScientist(BasicNewsRecipe):
     def get_browser(self):
         br = BasicNewsRecipe.get_browser(self)
         if self.username is not None and self.password is not None:
+
             def is_login_form(form):
                 return 'action' in form.attrs and form.attrs['action'] == '/login/'
 
@@ -126,5 +116,5 @@ class NewScientist(BasicNewsRecipe):
 
     def get_cover_url(self):
         soup = self.index_to_soup('https://www.newscientist.com/issues/current/')
-        div = soup.find('div', attrs={'class':'ThisWeeksMagazineHero__CoverInfo'})
+        div = soup.find('div', attrs={'class': 'ThisWeeksMagazineHero__CoverInfo'})
         return div.find(**classes('ThisWeeksMagazineHero__ImageLink')).img['src']

@@ -1,4 +1,4 @@
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 
 from qt.core import QDialog, QIcon, QModelIndex, QTreeWidgetItem
@@ -8,7 +8,6 @@ from calibre.gui2.dialogs.choose_format_device_ui import Ui_ChooseFormatDeviceDi
 
 
 class ChooseFormatDeviceDialog(QDialog, Ui_ChooseFormatDeviceDialog):
-
     def __init__(self, window, msg, formats):
         """
         formats is a list of tuples: [(format, exists, convertible)].

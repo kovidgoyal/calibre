@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 '''
@@ -111,7 +111,6 @@ def save_soup(soup, target):
 
 
 class response(bytes):
-
     newurl: str | None
 
     def __new__(cls, *args):
@@ -125,8 +124,7 @@ def default_is_link_wanted(url, tag):
 
 
 class RecursiveFetcher:
-    LINK_FILTER = tuple(re.compile(i, re.IGNORECASE) for i in
-                (r'.exe\s*$', r'.mp3\s*$', r'.ogg\s*$', r'^\s*mailto:', r'^\s*$'))
+    LINK_FILTER = tuple(re.compile(i, re.IGNORECASE) for i in (r'.exe\s*$', r'.mp3\s*$', r'.ogg\s*$', r'^\s*mailto:', r'^\s*$'))
     # ADBLOCK_FILTER = tuple(re.compile(i, re.IGNORECASE) for it in
     #                       (
     #
@@ -149,11 +147,11 @@ class RecursiveFetcher:
         self.encoding = options.encoding
         self.browser = options.browser if hasattr(options, 'browser') else browser()
         self.max_recursions = options.max_recursions
-        self.match_regexps  = [re.compile(i, re.IGNORECASE) for i in options.match_regexps]
+        self.match_regexps = [re.compile(i, re.IGNORECASE) for i in options.match_regexps]
         self.filter_regexps = [re.compile(i, re.IGNORECASE) for i in options.filter_regexps]
         self.max_files = options.max_files
         self.delay = options.delay
-        self.last_fetch_at = 0.
+        self.last_fetch_at = 0.0
         self.filemap = {}
         self.imagemap = image_map
         self.imagemap_lock = threading.RLock()
@@ -163,19 +161,17 @@ class RecursiveFetcher:
         self.downloaded_paths = []
         self.current_dir = self.base_dir
         self.files = 0
-        self.preprocess_regexps  = getattr(options, 'preprocess_regexps', [])
-        self.remove_tags         = getattr(options, 'remove_tags', [])
-        self.remove_tags_after   = getattr(options, 'remove_tags_after', None)
-        self.remove_tags_before  = getattr(options, 'remove_tags_before', None)
-        self.keep_only_tags      = getattr(options, 'keep_only_tags', [])
+        self.preprocess_regexps = getattr(options, 'preprocess_regexps', [])
+        self.remove_tags = getattr(options, 'remove_tags', [])
+        self.remove_tags_after = getattr(options, 'remove_tags_after', None)
+        self.remove_tags_before = getattr(options, 'remove_tags_before', None)
+        self.keep_only_tags = getattr(options, 'keep_only_tags', [])
         self.preprocess_html_ext = getattr(options, 'preprocess_html', lambda soup: soup)
-        self.preprocess_raw_html = getattr(options, 'preprocess_raw_html',
-                lambda raw, url: raw)
+        self.preprocess_raw_html = getattr(options, 'preprocess_raw_html', lambda raw, url: raw)
         self.prepreprocess_html_ext = getattr(options, 'skip_ad_pages', lambda soup: None)
         self.postprocess_html_ext = getattr(options, 'postprocess_html', None)
         self.preprocess_image_ext = getattr(options, 'preprocess_image', None)
-        self._is_link_wanted     = getattr(options, 'is_link_wanted',
-                default_is_link_wanted)
+        self._is_link_wanted = getattr(options, 'is_link_wanted', default_is_link_wanted)
         self.compress_news_images_max_size = getattr(options, 'compress_news_images_max_size', None)
         self.compress_news_images = getattr(options, 'compress_news_images', False)
         self.compress_news_images_auto_size = getattr(options, 'compress_news_images_auto_size', 16)
@@ -274,7 +270,7 @@ class RecursiveFetcher:
                 url = url[1:]
             with open(url, 'rb') as f:
                 data = response(f.read())
-                data.newurl = 'file:'+url  # This is what mechanize does for
+                data.newurl = 'file:' + url  # This is what mechanize does for
                 # local URLs
             self.log.debug(f'Fetched {url} in {time.monotonic() - st:.1f} seconds')
             return data
@@ -287,7 +283,7 @@ class RecursiveFetcher:
         open_func = getattr(self.browser, 'open_novisit', self.browser.open)
         try:
             with closing(open_func(url, timeout=self.timeout)) as f:
-                data = response(f.read()+f.read())
+                data = response(f.read() + f.read())
                 data.newurl = f.geturl()
         except URLError as err:
             err_code = getattr(err, 'code', None)
@@ -303,7 +299,7 @@ class RecursiveFetcher:
                 self.log.debug('Temporary error, retrying in 1 second')
                 time.sleep(1)
                 with closing(open_func(url, timeout=self.timeout)) as f:
-                    data = response(f.read()+f.read())
+                    data = response(f.read() + f.read())
                     data.newurl = f.geturl()
             else:
                 raise err
@@ -313,7 +309,7 @@ class RecursiveFetcher:
         return data
 
     def start_fetch(self, url):
-        soup = BeautifulSoup('<a href="'+url+'" />')
+        soup = BeautifulSoup('<a href="' + url + '" />')
         res = self.process_links(soup, url, 0, into_dir='')
         self.log.debug(url, 'saved to', res)
         return res
@@ -369,7 +365,7 @@ class RecursiveFetcher:
                 except Exception:
                     self.log.exception('Could not fetch stylesheet ', iurl)
                     continue
-                stylepath = os.path.join(diskpath, 'style'+str(c)+'.css')
+                stylepath = os.path.join(diskpath, 'style' + str(c) + '.css')
                 with self.stylemap_lock:
                     self.stylemap[iurl] = stylepath
                 with open(stylepath, 'wb') as x:
@@ -396,7 +392,7 @@ class RecursiveFetcher:
                             self.log.exception('Could not fetch stylesheet ', iurl)
                             continue
                         c += 1
-                        stylepath = os.path.join(diskpath, 'style'+str(c)+'.css')
+                        stylepath = os.path.join(diskpath, 'style' + str(c) + '.css')
                         with self.stylemap_lock:
                             self.stylemap[iurl] = stylepath
                         with open(stylepath, 'wb') as x:
@@ -442,14 +438,14 @@ class RecursiveFetcher:
                     self.log.exception('Could not fetch image ', iurl)
                     continue
             c += 1
-            fname = ascii_filename('img'+str(c))
+            fname = ascii_filename('img' + str(c))
             data = self.preprocess_image_ext(data, iurl) if self.preprocess_image_ext is not None else data
             if data is None:
                 continue
             itype = what(None, data)
             if itype == 'svg' or (itype is None and b'<svg' in data[:1024]):
                 # SVG image
-                imgpath = os.path.join(diskpath, fname+'.svg')
+                imgpath = os.path.join(diskpath, fname + '.svg')
                 with self.imagemap_lock:
                     self.imagemap[iurl] = imgpath
                 with open(imgpath, 'wb') as x:
@@ -457,6 +453,7 @@ class RecursiveFetcher:
                 tag['src'] = imgpath
             else:
                 from calibre.utils.img import image_from_data, image_to_data
+
                 try:
                     # Ensure image is valid
                     img = image_from_data(data)
@@ -467,11 +464,11 @@ class RecursiveFetcher:
                         try:
                             data = self.rescale_image(data)
                         except Exception:
-                            self.log.exception('failed to compress image '+iurl)
+                            self.log.exception('failed to compress image ' + iurl)
                     # Moon+ apparently cannot handle .jpeg files
                     if itype == 'jpeg':
                         itype = 'jpg'
-                    imgpath = os.path.join(diskpath, fname+'.'+itype)
+                    imgpath = os.path.join(diskpath, fname + '.' + itype)
                     with self.imagemap_lock:
                         self.imagemap[iurl] = imgpath
                     with open(imgpath, 'wb') as x:
@@ -492,7 +489,7 @@ class RecursiveFetcher:
             self.log.debug('Skipping invalid link:', iurl)
             return None
         if filter and not self.is_link_wanted(iurl, tag):
-            self.log.debug('Filtered link: '+iurl)
+            self.log.debug('Filtered link: ' + iurl)
             return None
         return iurl
 
@@ -503,8 +500,8 @@ class RecursiveFetcher:
 
     def localize_link(self, tag, key, path):
         parts = urlsplit(tag[key])
-        suffix = ('#'+parts.fragment) if parts.fragment else ''
-        tag[key] = path+suffix
+        suffix = ('#' + parts.fragment) if parts.fragment else ''
+        tag[key] = path + suffix
 
     def process_return_links(self, soup, baseurl):
         for tag in soup.findAll('a', href=True):
@@ -539,7 +536,7 @@ class RecursiveFetcher:
                     continue
                 if self.files > self.max_files:
                     return res
-                linkdir = 'link'+str(c) if into_dir else ''
+                linkdir = 'link' + str(c) if into_dir else ''
                 linkdiskpath = os.path.join(diskpath, linkdir)
                 if not os.path.exists(linkdiskpath):
                     os.mkdir(linkdiskpath)
@@ -547,8 +544,7 @@ class RecursiveFetcher:
                     self.current_dir = linkdiskpath
                     dsrc = self.fetch_url(iurl)
                     newbaseurl = dsrc.newurl
-                    if len(dsrc) == 0 or \
-                       len(re.compile(br'<!--.*?-->', re.DOTALL).sub(b'', dsrc).strip()) == 0:
+                    if len(dsrc) == 0 or len(re.compile(rb'<!--.*?-->', re.DOTALL).sub(b'', dsrc).strip()) == 0:
                         raise ValueError(f'No content at URL {iurl!r}')
                     if callable(self.encoding):
                         dsrc = self.encoding(dsrc)
@@ -580,7 +576,7 @@ class RecursiveFetcher:
                     self.filemap[nurl] = res
                     if recursion_level < self.max_recursions:
                         self.log.debug('Processing links...')
-                        self.process_links(soup, newbaseurl, recursion_level+1)
+                        self.process_links(soup, newbaseurl, recursion_level + 1)
                     else:
                         self.process_return_links(soup, newbaseurl)
                         self.log.debug('Recursion limit reached. Skipping links in', iurl)
@@ -589,11 +585,13 @@ class RecursiveFetcher:
                         for atag in soup.findAll('a', href=lambda x: x and x.startswith('/')):
                             atag['href'] = urljoin(newbaseurl, atag['href'], True)
                     if callable(self.postprocess_html_ext):
-                        soup = self.postprocess_html_ext(soup,
-                                c==0 and recursion_level==0 and not getattr(self, 'called_first', False),
-                                self.job_info)
+                        soup = self.postprocess_html_ext(
+                            soup,
+                            c == 0 and recursion_level == 0 and not getattr(self, 'called_first', False),
+                            self.job_info,
+                        )
 
-                        if c==0 and recursion_level == 0:
+                        if c == 0 and recursion_level == 0:
                             self.called_first = True
 
                     save_soup(soup, res)
@@ -615,36 +613,89 @@ class RecursiveFetcher:
 
 def option_parser(usage=_('%prog URL\n\nWhere URL is for example: {}').format('https://google.com')):
     parser = OptionParser(usage=usage)
-    parser.add_option('-d', '--base-dir',
-                      help=_('Base folder into which URL is saved. Default is %default'),
-                      default='.', type='string', dest='dir')
-    parser.add_option('-t', '--timeout',
-                      help=_('Timeout in seconds to wait for a response from the server. Default: %default s'),
-                      default=10.0, type='float', dest='timeout')
-    parser.add_option('-r', '--max-recursions', default=1,
-                      help=_('Maximum number of levels to recurse i.e. depth of links to follow. Default %default'),
-                      type='int', dest='max_recursions')
-    parser.add_option('-n', '--max-files', default=sys.maxsize, type='int', dest='max_files',
-                      help=_('The maximum number of files to download. This only applies to files from <a href> tags. Default is %default'))
-    parser.add_option('--delay', default=0, dest='delay', type='float',
-                      help=_('Minimum interval in seconds between consecutive fetches. Default is %default s'))
-    parser.add_option('--encoding', default=None,
-                      help=_('The character encoding for the websites you are trying to download. The default is to try and guess the encoding.'))
-    parser.add_option('--match-regexp', default=[], action='append', dest='match_regexps',
-                      help=_('Only links that match this regular expression will be followed. '
-                             'This option can be specified multiple times, in which case as long '
-                             'as a link matches any one regexp, it will be followed. By default all '
-                             'links are followed.'))
-    parser.add_option('--filter-regexp', default=[], action='append', dest='filter_regexps',
-                      help=_('Any link that matches this regular expression will be ignored.'
-                             ' This option can be specified multiple times, in which case as'
-                             ' long as any regexp matches a link, it will be ignored. By'
-                             ' default, no links are ignored. If both filter regexp and match'
-                             ' regexp are specified, then filter regexp is applied first.'))
-    parser.add_option('--dont-download-stylesheets', action='store_true', default=False,
-                      help=_('Do not download CSS stylesheets.'), dest='no_stylesheets')
-    parser.add_option('--verbose', help=_('Show detailed output information. Useful for debugging'),
-                      default=False, action='store_true', dest='verbose')
+    parser.add_option(
+        '-d',
+        '--base-dir',
+        help=_('Base folder into which URL is saved. Default is %default'),
+        default='.',
+        type='string',
+        dest='dir',
+    )
+    parser.add_option(
+        '-t',
+        '--timeout',
+        help=_('Timeout in seconds to wait for a response from the server. Default: %default s'),
+        default=10.0,
+        type='float',
+        dest='timeout',
+    )
+    parser.add_option(
+        '-r',
+        '--max-recursions',
+        default=1,
+        help=_('Maximum number of levels to recurse i.e. depth of links to follow. Default %default'),
+        type='int',
+        dest='max_recursions',
+    )
+    parser.add_option(
+        '-n',
+        '--max-files',
+        default=sys.maxsize,
+        type='int',
+        dest='max_files',
+        help=_('The maximum number of files to download. This only applies to files from <a href> tags. Default is %default'),
+    )
+    parser.add_option(
+        '--delay',
+        default=0,
+        dest='delay',
+        type='float',
+        help=_('Minimum interval in seconds between consecutive fetches. Default is %default s'),
+    )
+    parser.add_option(
+        '--encoding',
+        default=None,
+        help=_('The character encoding for the websites you are trying to download. The default is to try and guess the encoding.'),
+    )
+    parser.add_option(
+        '--match-regexp',
+        default=[],
+        action='append',
+        dest='match_regexps',
+        help=_(
+            'Only links that match this regular expression will be followed. '
+            'This option can be specified multiple times, in which case as long '
+            'as a link matches any one regexp, it will be followed. By default all '
+            'links are followed.'
+        ),
+    )
+    parser.add_option(
+        '--filter-regexp',
+        default=[],
+        action='append',
+        dest='filter_regexps',
+        help=_(
+            'Any link that matches this regular expression will be ignored.'
+            ' This option can be specified multiple times, in which case as'
+            ' long as any regexp matches a link, it will be ignored. By'
+            ' default, no links are ignored. If both filter regexp and match'
+            ' regexp are specified, then filter regexp is applied first.'
+        ),
+    )
+    parser.add_option(
+        '--dont-download-stylesheets',
+        action='store_true',
+        default=False,
+        help=_('Do not download CSS stylesheets.'),
+        dest='no_stylesheets',
+    )
+    parser.add_option(
+        '--verbose',
+        help=_('Show detailed output information. Useful for debugging'),
+        default=False,
+        action='store_true',
+        dest='verbose',
+    )
     return parser
 
 

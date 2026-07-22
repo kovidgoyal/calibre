@@ -19,8 +19,7 @@ class BigOven(BasicNewsRecipe):
     max_articles_per_feed = 30
     needs_subscription = True
 
-    conversion_options = {'linearize_tables': True, 'comment': description, 'tags': category, 'publisher': publisher, 'language': language
-                          }
+    conversion_options = {'linearize_tables': True, 'comment': description, 'tags': category, 'publisher': publisher, 'language': language}
 
     def get_browser(self):
         br = BasicNewsRecipe.get_browser(self)
@@ -66,5 +65,4 @@ class BigOven(BasicNewsRecipe):
             tag.parent.extract()
         return soup
 
-    feeds = [(u'Recent Raves', u'http://www.bigoven.com/rss/recentraves'),
-             (u'Recipe Of The Day', u'http://feeds.feedburner.com/bigovencom-RecipeOfTheDay')]
+    feeds = [('Recent Raves', 'http://www.bigoven.com/rss/recentraves'), ('Recipe Of The Day', 'http://feeds.feedburner.com/bigovencom-RecipeOfTheDay')]

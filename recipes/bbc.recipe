@@ -154,9 +154,9 @@ def parse_raw_html(html, abort_article):
     if idx < 0:
         print('Failed to find JSON')
         return html
-    data = html[idx + len(q) - 2:]
+    data = html[idx + len(q) - 2 :]
     idx = data.find('}";</script>')
-    data = data[:idx+2]
+    data = data[: idx + 2]
     data = json.loads(data)
     root = json.loads(data)
     return parse_article_json(root, abort_article)
@@ -168,7 +168,6 @@ if __name__ == '__main__':
 
 
 class BBCNews(BasicNewsRecipe):
-
     # Select / de-select the feeds you want in your ebook.
     feeds = [
         ('UK', 'https://feeds.bbci.co.uk/news/uk/rss.xml'),
@@ -184,11 +183,9 @@ class BBCNews(BasicNewsRecipe):
         # ("Middle East", "https://feeds.bbci.co.uk/news/world/middle_east/rss.xml"),
         ('US & Canada', 'https://feeds.bbci.co.uk/news/world/us_and_canada/rss.xml'),
         ('Politics', 'https://feeds.bbci.co.uk/news/politics/rss.xml'),
-        ('Science/Environment',
-         'https://feeds.bbci.co.uk/news/science_and_environment/rss.xml'),
+        ('Science/Environment', 'https://feeds.bbci.co.uk/news/science_and_environment/rss.xml'),
         ('Technology', 'https://feeds.bbci.co.uk/news/technology/rss.xml'),
-        ('Entertainment/Arts',
-         'https://feeds.bbci.co.uk/news/entertainment_and_arts/rss.xml'),
+        ('Entertainment/Arts', 'https://feeds.bbci.co.uk/news/entertainment_and_arts/rss.xml'),
         # ("Health", "https://feeds.bbci.co.uk/news/health/rss.xml"),
         # ("Education/Family", "https://feeds.bbci.co.uk/news/education/rss.xml"),
         ('Business', 'https://feeds.bbci.co.uk/news/business/rss.xml'),
@@ -197,8 +194,7 @@ class BBCNews(BasicNewsRecipe):
         # ("Blog: Mark D'Arcy (Parliamentary Correspondent)", "https://feeds.bbci.co.uk/news/correspondents/markdarcy/rss.sxml"),
         # ("Blog: Robert Peston (Business Editor)", "https://feeds.bbci.co.uk/news/correspondents/robertpeston/rss.sxml"),
         # ("Blog: Stephanie Flanders (Economics Editor)", "https://feeds.bbci.co.uk/news/correspondents/stephanieflanders/rss.sxml"),
-        ('Sport Front Page',
-         'http://newsrss.bbc.co.uk/rss/sportonline_uk_edition/front_page/rss.xml'),
+        ('Sport Front Page', 'http://newsrss.bbc.co.uk/rss/sportonline_uk_edition/front_page/rss.xml'),
         # ("Football", "http://newsrss.bbc.co.uk/rss/sportonline_uk_edition/football/rss.xml"),
         # ("Cricket", "http://newsrss.bbc.co.uk/rss/sportonline_uk_edition/cricket/rss.xml"),
         # ("Rugby Union", "http://newsrss.bbc.co.uk/rss/sportonline_uk_edition/rugby_union/rss.xml"),
@@ -247,7 +243,7 @@ class BBCNews(BasicNewsRecipe):
 
     # A brief description for the ebook.
     #
-    description = u'BBC web site ebook created using rss feeds.'
+    description = 'BBC web site ebook created using rss feeds.'
 
     # The max number of articles which may be downloaded from each feed.
     # I've never seen more than about 70 articles in a single feed in the
@@ -271,7 +267,7 @@ class BBCNews(BasicNewsRecipe):
         'days': {
             'short': 'Oldest article to download from this news source. In days ',
             'long': 'For example, 0.5, gives you articles from the past 12 hours',
-            'default': str(oldest_article)
+            'default': str(oldest_article),
         }
     }
 
@@ -335,14 +331,9 @@ class BBCNews(BasicNewsRecipe):
     def preprocess_raw_html(self, raw_html, url):
         return parse_raw_html(raw_html, self.abort_article)
 
-    keep_only_tags = [
-        dict(name='article')
-    ]
+    keep_only_tags = [dict(name='article')]
 
-    remove_tags = [
-        dict(name=['button', 'svg', 'iframe']),
-        dict(attrs={'data-component': ['ad-slot', 'tags', 'links-block', 'metadata-block', 'topic-list']})
-    ]
+    remove_tags = [dict(name=['button', 'svg', 'iframe']), dict(attrs={'data-component': ['ad-slot', 'tags', 'links-block', 'metadata-block', 'topic-list']})]
 
     remove_attributes = ['style', 'height', 'width']
     no_stylesheets = True

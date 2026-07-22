@@ -25,19 +25,18 @@ from calibre.utils.xml_parse import safe_xml_fromstring
 
 
 class LitResStore(BasicStoreConfig, StorePlugin):
-    shop_url = u'http://www.litres.ru'
+    shop_url = 'http://www.litres.ru'
     # http://robot.litres.ru/pages/biblio_book/?art=174405
 
     def open(self, gui=None, parent=None, detail_item=None, external=False):
 
-        aff_id = u'?' + _get_affiliate_id()
+        aff_id = '?' + _get_affiliate_id()
 
         url = self.shop_url + aff_id
         detail_url = None
         if detail_item:
             # http://www.litres.ru/pages/biblio_book/?art=157074
-            detail_url = self.shop_url + u'/pages/biblio_book/' + aff_id +\
-                u'&art=' + quote(detail_item)
+            detail_url = self.shop_url + '/pages/biblio_book/' + aff_id + '&art=' + quote(detail_item)
 
         if external or self.config.get('open_external', False):
             open_url(QUrl(url_slash_cleaner(detail_url or url)))
@@ -48,17 +47,16 @@ class LitResStore(BasicStoreConfig, StorePlugin):
             d.exec()
 
     def search(self, query, max_results=10, timeout=60):
-        search_url = (u'http://robot.litres.ru/pages/catalit_browser/?checkpoint=2000-01-02'
-                       '&search=%s&limit=0,%s')
+        search_url = 'http://robot.litres.ru/pages/catalit_browser/?checkpoint=2000-01-02&search=%s&limit=0,%s'
         search_url = search_url % (quote(query), max_results)
 
         counter = max_results
         br = browser()
-        br.addheaders.append(['Accept-Encoding','gzip'])
+        br.addheaders.append(['Accept-Encoding', 'gzip'])
 
         with closing(br.open(search_url, timeout=timeout)) as r:
             ungzipResponse(r, br)
-            raw= xml_to_unicode(r.read(), strip_encoding_pats=True, assume_utf8=True)[0]
+            raw = xml_to_unicode(r.read(), strip_encoding_pats=True, assume_utf8=True)[0]
 
             doc = safe_xml_fromstring(raw)
             for data in doc.xpath('//*[local-name() = "fb2-book"]'):
@@ -69,7 +67,7 @@ class LitResStore(BasicStoreConfig, StorePlugin):
                 try:
                     sRes = self.create_search_result(data)
                 except Exception as e:
-                    prints('ERROR: cannot parse search result #%s: %s'%(max_results - counter + 1, e))
+                    prints('ERROR: cannot parse search result #%s: %s' % (max_results - counter + 1, e))
                     continue
                 yield sRes
 
@@ -84,10 +82,8 @@ class LitResStore(BasicStoreConfig, StorePlugin):
         sRes.detail_item = data.xpath(xp_template.format('hub_id'))
         sRes.title = data.xpath('string(.//title-info/book-title/text()|.//publish-info/book-name/text())')
         # aut = concat('.//title-info/author/first-name', ' ')
-        authors = data.xpath('.//title-info/author/first-name/text()|'
-        './/title-info/author/middle-name/text()|'
-        './/title-info/author/last-name/text()')
-        sRes.author = u' '.join(map(type(u''), authors))
+        authors = data.xpath('.//title-info/author/first-name/text()|.//title-info/author/middle-name/text()|.//title-info/author/last-name/text()')
+        sRes.author = ' '.join(map(type(''), authors))
         sRes.price = data.xpath(xp_template.format('price'))
         # cover vs cover_preview
         sRes.cover_url = data.xpath(xp_template.format('cover_preview'))
@@ -108,7 +104,7 @@ def format_price_in_RUR(price):
     """
     if price and re.match(r'^\d*?\.\d*?$', price):
         try:
-            price = u'{:,.2F} \u20bd'.format(float(price))  # \u20bd => руб.
+            price = '{:,.2F} \u20bd'.format(float(price))  # \u20bd => руб.
             price = price.replace(',', ' ').replace('.', ',', 1)
         except Exception:
             pass
@@ -117,7 +113,7 @@ def format_price_in_RUR(price):
 
 def ungzipResponse(r, b):
     headers = r.info()
-    if headers.get('Content-Encoding', '')=='gzip':
+    if headers.get('Content-Encoding', '') == 'gzip':
         try:
             from compression import gzip
         except ImportError:
@@ -131,11 +127,11 @@ def ungzipResponse(r, b):
 
 
 def _get_affiliate_id():
-    aff_id = u'3623565'
+    aff_id = '3623565'
     # Use Kovid's affiliate id 30% of the time.
     if random.randint(1, 10) in (1, 2, 3):
-        aff_id = u'4084465'
-    return u'lfrom=' + aff_id
+        aff_id = '4084465'
+    return 'lfrom=' + aff_id
 
 
 def _parse_ebook_formats(formatsStr):

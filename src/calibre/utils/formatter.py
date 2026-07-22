@@ -3,7 +3,8 @@ Created on 23 Sep 2010
 
 @author: charles
 """
-__license__   = 'GPL v3'
+
+__license__ = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
@@ -274,7 +275,7 @@ class NumericBinaryNode(Node):
 
 class NumericUnaryNode(Node):
     def __init__(self, line_number, operator, expr):
-        Node.__init__(self, line_number, 'unary operator: '+ operator)
+        Node.__init__(self, line_number, 'unary operator: ' + operator)
         self.node_type = self.NODE_UNARY_ARITHOP
         self.operator = operator
         self.expr = expr
@@ -388,7 +389,7 @@ class _Parser:
     def error(self, message):
         ln = None
         try:
-            tval = "'" + self.prog[self.lex_pos-1][1] + "'"
+            tval = "'" + self.prog[self.lex_pos - 1][1] + "'"
         except Exception:
             tval = _('Unknown')
         if self.lex_pos > 0 and self.lex_pos < self.prog_len:
@@ -397,11 +398,9 @@ class _Parser:
         else:
             location = _('the end of the program')
         if ln:
-            raise ValueError(_('{0}: {1} near {2} on line {3}').format(
-                                          'Formatter', message, location, ln))
+            raise ValueError(_('{0}: {1} near {2} on line {3}').format('Formatter', message, location, ln))
         else:
-            raise ValueError(_('{0}: {1} near {2}').format(
-                                          'Formatter', message, location))
+            raise ValueError(_('{0}: {1} near {2}').format('Formatter', message, location))
 
     def check_eol(self):
         while self.lex_pos < len(self.prog) and self.prog[self.lex_pos] == self.LEX_NEWLINE:
@@ -524,20 +523,25 @@ class _Parser:
         line_number = self.line_number
         condition = self.top_expr()
         if not self.token_is('then'):
-            self.error(_("{0} statement: expected '{1}', "
-                         "found '{2}'").format('if', 'then', self.token_text()))
+            self.error(_("{0} statement: expected '{1}', found '{2}'").format('if', 'then', self.token_text()))
         self.consume()
         then_part = self.expression_list()
         if self.token_is('elif'):
-            return IfNode(line_number, condition, then_part, [self.if_expression(),])
+            return IfNode(
+                line_number,
+                condition,
+                then_part,
+                [
+                    self.if_expression(),
+                ],
+            )
         if self.token_is('else'):
             self.consume()
             else_part = self.expression_list()
         else:
             else_part = None
         if not self.token_is('fi'):
-            self.error(_("{0} statement: expected '{1}', "
-                         "found '{2}'").format('if', 'fi', self.token_text()))
+            self.error(_("{0} statement: expected '{1}', found '{2}'").format('if', 'fi', self.token_text()))
         self.consume()
         return IfNode(line_number, condition, then_part, else_part)
 
@@ -548,15 +552,13 @@ class _Parser:
             self.error(_("'{0}' statement: expected an identifier").format('for'))
         variable = self.token()
         if not self.token_is('in'):
-            self.error(_("{0} statement: expected '{1}', "
-                         "found '{2}'").format('for', 'in', self.token_text()))
+            self.error(_("{0} statement: expected '{1}', found '{2}'").format('for', 'in', self.token_text()))
         self.consume()
         if self.token_text() == 'range':
             is_list = False
             self.consume()
             if not self.token_op_is('('):
-                self.error(_("{0} statement: expected '(', "
-                         "found '{1}'").format('for', self.token_text()))
+                self.error(_("{0} statement: expected '(', found '{1}'").format('for', self.token_text()))
             self.consume()
             start_expr = ConstantNode(line_number, '0')
             step_expr = ConstantNode(line_number, '1')
@@ -573,8 +575,7 @@ class _Parser:
                         self.consume()
                         limit_expr = self.top_expr()
             if not self.token_op_is(')'):
-                self.error(_("{0} statement: expected ')', "
-                         "found '{1}'").format('for', self.token_text()))
+                self.error(_("{0} statement: expected ')', found '{1}'").format('for', self.token_text()))
             self.consume()
         else:
             is_list = True
@@ -585,13 +586,11 @@ class _Parser:
             else:
                 separator = None
         if not self.token_op_is(':'):
-            self.error(_("{0} statement: expected '{1}', "
-                         "found '{2}'").format('for', ':', self.token_text()))
+            self.error(_("{0} statement: expected '{1}', found '{2}'").format('for', ':', self.token_text()))
         self.consume()
         block = self.expression_list()
         if not self.token_is('rof'):
-            self.error(_("{0} statement: expected '{1}', "
-                         "found '{2}'").format('for', 'rof', self.token_text()))
+            self.error(_("{0} statement: expected '{1}', found '{2}'").format('for', 'rof', self.token_text()))
         self.consume()
         if is_list:
             return ForNode(line_number, variable, list_expr, separator, block)
@@ -612,8 +611,7 @@ class _Parser:
         while not self.token_op_is(')'):
             a = self.top_expr()
             if a.node_type not in (Node.NODE_ASSIGN, Node.NODE_RVALUE):
-                self.error(_('Parameters to a function must be '
-                             'variables or assignments'))
+                self.error(_('Parameters to a function must be variables or assignments'))
             if a.node_type == Node.NODE_RVALUE:
                 a = AssignNode(line_number, a.name, ConstantNode(self.line_number, ''))
             arguments.append(a)
@@ -641,8 +639,7 @@ class _Parser:
         line_number = self.line_number
         book_id = self.top_expr()
         if not self.token_op_is(':'):
-            self.error(_("{0} statement: expected '{1}', "
-                         "found '{2}'").format('with', ':', self.token_text()))
+            self.error(_("{0} statement: expected '{1}', found '{2}'").format('with', ':', self.token_text()))
         self.consume()
         block = self.expression_list()
         if not self.token_is('htiw'):
@@ -655,11 +652,10 @@ class _Parser:
         if compiled_func is None:
             text = self.funcs[name].program_text
             if function_object_type(text) is StoredObjectType.StoredGPMTemplate:
-                text = text[len('program:'):]
-                compiled_func = _Parser().program(self.parent, self.funcs,
-                                            self.parent.lex_scanner.scan(text))
+                text = text[len('program:') :]
+                compiled_func = _Parser().program(self.parent, self.funcs, self.parent.lex_scanner.scan(text))
             elif function_object_type(text) is StoredObjectType.StoredPythonTemplate:
-                text = text[len('python:'):]
+                text = text[len('python:') :]
                 compiled_func = self.parent.compile_python_template(text)
             else:
                 self.error(_("A stored template must begin with '{0}' or {1}").format('program:', 'python:'))
@@ -701,8 +697,7 @@ class _Parser:
 
     def compare_expr(self):
         left = self.add_subtract_expr()
-        if (self.token_op_is_string_infix_compare() or
-                self.token_is('in') or self.token_is('inlist') or self.token_is('inlist_field')):
+        if self.token_op_is_string_infix_compare() or self.token_is('in') or self.token_is('inlist') or self.token_is('inlist_field'):
             operator = self.token()
             return StringCompareNode(self.line_number, operator, left, self.add_subtract_expr())
         if self.token_op_is_numeric_infix_compare():
@@ -736,37 +731,33 @@ class _Parser:
         return self.expr()
 
     keyword_nodes = {
-            'if':       (lambda self: None, if_expression),
-            'for':      (lambda self: None, for_expression),
-            'break':    (lambda self: self.consume(), lambda self: BreakNode(self.line_number)),
-            'continue': (lambda self: self.consume(), lambda self: ContinueNode(self.line_number)),
-            'return':   (lambda self: self.consume(), lambda self: ReturnNode(self.line_number, self.top_expr())),
-            'def':      (lambda self: None, define_function_expression),
-            'with':     (lambda self: None, with_expression)
+        'if': (lambda self: None, if_expression),
+        'for': (lambda self: None, for_expression),
+        'break': (lambda self: self.consume(), lambda self: BreakNode(self.line_number)),
+        'continue': (lambda self: self.consume(), lambda self: ContinueNode(self.line_number)),
+        'return': (lambda self: self.consume(), lambda self: ReturnNode(self.line_number, self.top_expr())),
+        'def': (lambda self: None, define_function_expression),
+        'with': (lambda self: None, with_expression),
     }
 
     # {inlined_function_name: tuple(constraint on number of length, node builder) }
     inlined_function_nodes = {
-        'field':            (lambda args: len(args) == 1,
-                             lambda ln, args: FieldNode(ln, args[0])),
-        'raw_field':        (lambda args: len(args) == 1,
-                             lambda ln, args: RawFieldNode(ln, *args)),
-        'test':             (lambda args: len(args) == 3,
-                             lambda ln, args: IfNode(ln, args[0], (args[1],), (args[2],))),
-        'first_non_empty':  (lambda args: len(args) >= 1, FirstNonEmptyNode),
-        'switch':           (lambda args: len(args) >= 3 and (len(args) %2) == 0, SwitchNode),
-        'switch_if':        (lambda args: len(args) > 0 and (len(args) %2) == 1, SwitchIfNode),
-        'assign':           (lambda args: len(args) == 2 and len(args[0]) == 1 and args[0][0].node_type == Node.NODE_RVALUE,
-                             lambda ln, args: AssignNode(ln, args[0][0].name, args[1])),
-        'contains':         (lambda args: len(args) == 4, ContainsNode),
-        'character':        (lambda args: len(args) == 1,
-                             lambda ln, args: CharacterNode(ln, args[0])),
-        'print':            (lambda _: True, PrintNode),
-        'strcat':           (lambda _: True, StrcatNode),
-        'list_count_field': (lambda args: len(args) == 1,
-                             lambda ln, args: ListCountFieldNode(ln, args[0])),
-        'f_string':         (lambda args: len(args) == 1,
-                             lambda ln, args: FStringNode(ln, args[0])),
+        'field': (lambda args: len(args) == 1, lambda ln, args: FieldNode(ln, args[0])),
+        'raw_field': (lambda args: len(args) == 1, lambda ln, args: RawFieldNode(ln, *args)),
+        'test': (lambda args: len(args) == 3, lambda ln, args: IfNode(ln, args[0], (args[1],), (args[2],))),
+        'first_non_empty': (lambda args: len(args) >= 1, FirstNonEmptyNode),
+        'switch': (lambda args: len(args) >= 3 and (len(args) % 2) == 0, SwitchNode),
+        'switch_if': (lambda args: len(args) > 0 and (len(args) % 2) == 1, SwitchIfNode),
+        'assign': (
+            lambda args: len(args) == 2 and len(args[0]) == 1 and args[0][0].node_type == Node.NODE_RVALUE,
+            lambda ln, args: AssignNode(ln, args[0][0].name, args[1]),
+        ),
+        'contains': (lambda args: len(args) == 4, ContainsNode),
+        'character': (lambda args: len(args) == 1, lambda ln, args: CharacterNode(ln, args[0])),
+        'print': (lambda _: True, PrintNode),
+        'strcat': (lambda _: True, StrcatNode),
+        'list_count_field': (lambda args: len(args) == 1, lambda ln, args: ListCountFieldNode(ln, args[0])),
+        'f_string': (lambda args: len(args) == 1, lambda ln, args: FStringNode(ln, args[0])),
     }
 
     def expr(self):
@@ -825,8 +816,7 @@ class _Parser:
                 self.consume()
             t = self.token()
             if t != ')':
-                self.error(_("Expected a '{0}' for function call, "
-                             "found '{1}'").format(')', t))
+                self.error(_("Expected a '{0}' for function call, found '{1}'").format(')', t))
 
             # Check for an inlined function
             function_tuple = self.inlined_function_nodes.get(id_, None)
@@ -838,8 +828,7 @@ class _Parser:
                 for arg_list in arguments:
                     arg = arg_list[0]
                     if arg.node_type not in (Node.NODE_ASSIGN, Node.NODE_RVALUE):
-                        self.error(_("Parameters to '{0}' must be "
-                                     "variables or assignments").format(id_))
+                        self.error(_("Parameters to '{0}' must be variables or assignments").format(id_))
                     if arg.node_type == Node.NODE_RVALUE:
                         arg = AssignNode(line_number, arg.name, ConstantNode(self.line_number, ''))
                     new_args.append(arg)
@@ -901,7 +890,6 @@ class StopException(Exception):
 
 
 class PythonTemplateContext:
-
     def __init__(self):
         # Set attributes we already know must exist.
         object.__init__(self)
@@ -918,7 +906,7 @@ class PythonTemplateContext:
         # attributes in the future. However, if a user depends upon the
         # existence of some attribute and the context creator doesn't supply it
         # then the user will get an AttributeError exception.
-        for k,v in kwargs.items():
+        for k, v in kwargs.items():
             self.attrs_set.add(k)
             setattr(self, k, v)
 
@@ -933,7 +921,7 @@ class PythonTemplateContext:
         ans = OrderedDict()
         for k in attrs:
             ans[k] = getattr(self, k, None)
-        return '\n'.join(f'{k}:{v}' for k,v in ans.items())
+        return '\n'.join(f'{k}:{v}' for k, v in ans.items())
 
 
 class FormatterFuncsCaller:
@@ -969,6 +957,7 @@ class FormatterFuncsCaller:
             def call(*args, **kargs):
                 def n(d):
                     return '' if d is None else str(d)
+
                 args = tuple(n(a) for a in args)
 
                 try:
@@ -999,9 +988,9 @@ class FormatterFuncsCaller:
 
                 except Exception as e:
                     # Change the error message to return the name used in the template
-                    e = e.__class__(_('Error in function {0} :: {1}').format(
-                            name,
-                            re.sub(r'\w+\.evaluate\(\)\s*', '', str(e), 1)))  # remove UserFunction.evaluate() | Builtin*.evaluate()
+                    e = e.__class__(
+                        _('Error in function {0} :: {1}').format(name, re.sub(r'\w+\.evaluate\(\)\s*', '', str(e), 1))
+                    )  # remove UserFunction.evaluate() | Builtin*.evaluate()
                     setattr(e, 'is_internal', True)
                     raise e
                 return rslt
@@ -1013,9 +1002,7 @@ class FormatterFuncsCaller:
         raise e
 
     def __dir__(self):
-        return list(set(list(object.__dir__(self)) +
-                        list(self.__formatter__.funcs.keys()) +
-                        [f+'_' for f in self.__formatter__.funcs.keys()]))
+        return list(set(list(object.__dir__(self)) + list(self.__formatter__.funcs.keys()) + [f + '_' for f in self.__formatter__.funcs.keys()]))
 
 
 class _Interpreter:
@@ -1023,13 +1010,12 @@ class _Interpreter:
         m = _('Interpreter: {0} - line number {1}').format(message, line_number)
         raise ValueError(m)
 
-    def program(self, funcs, parent, prog, val, is_call=False, args=None,
-                global_vars=None, break_reporter=None):
+    def program(self, funcs, parent, prog, val, is_call=False, args=None, global_vars=None, break_reporter=None):
         self.parent = parent
         self.parent_kwargs = parent.kwargs
         self.parent_book = parent.book
         self.funcs = funcs
-        self.locals = {'$':val}
+        self.locals = {'$': val}
         self.local_functions = {}
         self.override_line_number = None
         self.global_vars = global_vars if isinstance(global_vars, dict) else {}
@@ -1050,8 +1036,7 @@ class _Interpreter:
         return ret
 
     def call_break_reporter(self, txt, val, line_number):
-        self.real_break_reporter(txt, val, self.locals,
-                                 self.override_line_number or line_number)
+        self.real_break_reporter(txt, val, self.locals, self.override_line_number or line_number)
 
     def expression_list(self, prog):
         val = ''
@@ -1071,8 +1056,7 @@ class _Interpreter:
             book_id = int(self.expr(prog.book_id))
             if self.break_reporter:
                 self.break_reporter("'with': book id ", str(book_id), line_number)
-            self.parent_book = self.parent.book = get_database(
-                    self.parent_book, 'with statement').new_api.get_proxy_metadata(book_id)
+            self.parent_book = self.parent.book = get_database(self.parent_book, 'with statement').new_api.get_proxy_metadata(book_id)
             v = self.expression_list(prog.block)
             if self.break_reporter:
                 self.break_reporter("'with': block value", v, line_number)
@@ -1123,7 +1107,7 @@ class _Interpreter:
                             ret = e.get_value()
                 except BreakExecuted as e:
                     ret = e.get_value()
-                if (self.break_reporter):
+                if self.break_reporter:
                     self.break_reporter("'for' block value", ret, line_number)
             elif self.break_reporter:
                 # Shouldn't get here
@@ -1151,12 +1135,11 @@ class _Interpreter:
             except ValueError:
                 self.error(_('{0}: {1} must be an integer').format('for', 'step'), line_number)
             try:
-                limit_val = (1000 if prog.limit_expr is None else
-                         int(self.float_deal_with_none(self.expr(prog.limit_expr))))
+                limit_val = 1000 if prog.limit_expr is None else int(self.float_deal_with_none(self.expr(prog.limit_expr)))
             except ValueError:
                 self.error(_('{0}: {1} must be an integer').format('for', 'limit'), line_number)
             var = prog.variable
-            if (self.break_reporter):
+            if self.break_reporter:
                 self.break_reporter("'for': start value", str(start_val), line_number)
                 self.break_reporter("'for': stop value", str(stop_val), line_number)
                 self.break_reporter("'for': step value", str(step_val), line_number)
@@ -1166,11 +1149,12 @@ class _Interpreter:
                 range_gen = range(start_val, stop_val, step_val)
                 if len(range_gen) > limit_val:
                     self.error(
-                        _('{0}: the range length ({1}) is larger than the limit ({2})').format(
-                            'for', str(len(range_gen)), str(limit_val)), line_number)
+                        _('{0}: the range length ({1}) is larger than the limit ({2})').format('for', str(len(range_gen)), str(limit_val)),
+                        line_number,
+                    )
                 for x in (str(x) for x in range_gen):
                     try:
-                        if (self.break_reporter):
+                        if self.break_reporter:
                             self.break_reporter(f"'for': assign to loop index '{var}'", x, line_number)
                         self.locals[var] = x
                         ret = self.expression_list(prog.block)
@@ -1178,7 +1162,7 @@ class _Interpreter:
                         ret = e.get_value()
             except BreakExecuted as e:
                 ret = e.get_value()
-            if (self.break_reporter):
+            if self.break_reporter:
                 self.break_reporter("'for' block value", ret, line_number)
             return ret
         except (StopException, ValueError) as e:
@@ -1188,7 +1172,7 @@ class _Interpreter:
 
     def do_node_rvalue(self, prog):
         try:
-            if (self.break_reporter):
+            if self.break_reporter:
                 self.break_reporter(prog.node_name, self.locals[prog.name], prog.line_number)
             return self.locals[prog.name]
         except Exception:
@@ -1202,14 +1186,13 @@ class _Interpreter:
         # Evaluate the function.
         id_ = prog.name.strip()
         cls = self.funcs[id_]
-        res = cls.eval_(self.parent, self.parent_kwargs,
-                        self.parent_book, self.locals, *args)
-        if (self.break_reporter):
+        res = cls.eval_(self.parent, self.parent_kwargs, self.parent_book, self.locals, *args)
+        if self.break_reporter:
             self.break_reporter(prog.node_name, res, prog.line_number)
         return res
 
     def do_node_stored_template_call(self, prog, args=None):
-        if (self.break_reporter):
+        if self.break_reporter:
             self.break_reporter(prog.node_name, _('before evaluating arguments'), prog.line_number)
         if args is None:
             args = []
@@ -1221,11 +1204,11 @@ class _Interpreter:
         self.locals = {}
         self.local_functions = {}
         for dex, v in enumerate(args):
-            self.locals['*arg_'+ str(dex)] = v
-        if (self.break_reporter):
+            self.locals['*arg_' + str(dex)] = v
+        if self.break_reporter:
             self.break_reporter(prog.node_name, _('after evaluating arguments'), prog.line_number)
             saved_line_number = self.override_line_number
-            self.override_line_number = (self.override_line_number or prog.line_number)
+            self.override_line_number = self.override_line_number or prog.line_number
         else:
             saved_line_number = None
         try:
@@ -1238,38 +1221,37 @@ class _Interpreter:
         self.override_line_number = saved_line_number
         self.locals = saved_locals
         self.local_functions = saved_local_functions
-        if (self.break_reporter):
+        if self.break_reporter:
             self.break_reporter(prog.node_name + _(' returned value'), val, prog.line_number)
         return val
 
     def do_node_local_function_define(self, prog):
-        if (self.break_reporter):
+        if self.break_reporter:
             self.break_reporter(prog.node_name, '', prog.line_number)
         self.local_functions[prog.name] = prog
         return ''
 
     def do_node_local_function_call(self, prog):
-        if (self.break_reporter):
+        if self.break_reporter:
             self.break_reporter(prog.node_name, _('before evaluating arguments'), prog.line_number)
-        line_number, argument_list, block  = self.local_functions[prog.name].attributes_to_tuple()
+        line_number, argument_list, block = self.local_functions[prog.name].attributes_to_tuple()
         if len(prog.arguments) > len(argument_list):
-            self.error(_('Function {0}: argument count mismatch -- '
-                         '{1} given, at most {2} required').format(prog.name,
-                                                          len(prog.arguments),
-                                                          len(argument_list)),
-                       prog.line_number)
+            self.error(
+                _('Function {0}: argument count mismatch -- {1} given, at most {2} required').format(prog.name, len(prog.arguments), len(argument_list)),
+                prog.line_number,
+            )
         new_locals = {}
-        for i,arg in enumerate(argument_list):
+        for i, arg in enumerate(argument_list):
             if len(prog.arguments) > i:
                 new_locals[arg.left] = self.expr(prog.arguments[i])
             else:
                 new_locals[arg.left] = self.expr(arg.right)
         saved_locals = self.locals
         self.locals = new_locals
-        if (self.break_reporter):
+        if self.break_reporter:
             self.break_reporter(prog.node_name, _('after evaluating arguments'), prog.line_number)
             saved_line_number = self.override_line_number
-            self.override_line_number = (self.override_line_number or line_number)
+            self.override_line_number = self.override_line_number or line_number
         else:
             saved_line_number = None
         try:
@@ -1279,14 +1261,14 @@ class _Interpreter:
         finally:
             self.locals = saved_locals
             self.override_line_number = saved_line_number
-        if (self.break_reporter):
+        if self.break_reporter:
             self.break_reporter(prog.node_name + _(' returned value'), val, prog.line_number)
         return val
 
     def do_node_arguments(self, prog):
         for dex, arg in enumerate(prog.expression_list):
-            self.locals[arg.left] = self.locals.get('*arg_'+ str(dex), self.expr(arg.right))
-        if (self.break_reporter):
+            self.locals[arg.left] = self.locals.get('*arg_' + str(dex), self.expr(arg.right))
+        if self.break_reporter:
             self.break_reporter(prog.node_name, '', prog.line_number)
         return ''
 
@@ -1294,7 +1276,7 @@ class _Interpreter:
         res = ''
         for arg in prog.expression_list:
             res = self.locals[arg.left] = self.global_vars.get(arg.left, self.expr(arg.right))
-        if (self.break_reporter):
+        if self.break_reporter:
             self.break_reporter(prog.node_name, res, prog.line_number)
         return res
 
@@ -1302,12 +1284,12 @@ class _Interpreter:
         res = ''
         for arg in prog.expression_list:
             res = self.global_vars[arg.left] = self.locals.get(arg.left, self.expr(arg.right))
-        if (self.break_reporter):
+        if self.break_reporter:
             self.break_reporter(prog.node_name, res, prog.line_number)
         return res
 
     def do_node_constant(self, prog):
-        if (self.break_reporter):
+        if self.break_reporter:
             self.break_reporter(prog.node_name, prog.value, prog.line_number)
         return prog.value
 
@@ -1316,18 +1298,17 @@ class _Interpreter:
             name = self.expr(prog.expression)
             try:
                 res = self.parent.get_value(name, [], self.parent_kwargs)
-                if (self.break_reporter):
+                if self.break_reporter:
                     self.break_reporter(prog.node_name, res, prog.line_number)
                 return res
             except StopException:
                 raise
             except Exception:
                 self.error(_("Unknown field '{0}'").format(name), prog.line_number)
-        except (StopException, ValueError):
+        except StopException, ValueError:
             raise
         except Exception:
-            self.error(_("Unknown field '{0}'").format('internal parse error'),
-                       prog.line_number)
+            self.error(_("Unknown field '{0}'").format('internal parse error'), prog.line_number)
 
     def do_node_raw_field(self, prog):
         try:
@@ -1336,7 +1317,7 @@ class _Interpreter:
             res = getattr(self.parent_book, name, None)
             if res is None and prog.default is not None:
                 res = self.expr(prog.default)
-                if (self.break_reporter):
+                if self.break_reporter:
                     self.break_reporter(prog.node_name, res, prog.line_number)
                 return res
             if res is not None:
@@ -1350,19 +1331,18 @@ class _Interpreter:
                     res = str(res)
             else:
                 res = str(res)  # Should be the string "None"
-            if (self.break_reporter):
+            if self.break_reporter:
                 self.break_reporter(prog.node_name, res, prog.line_number)
             return res
         except (StopException, ValueError) as e:
             raise e
         except Exception:
-            self.error(_("Unknown field '{0}'").format('internal parse error'),
-                       prog.line_number)
+            self.error(_("Unknown field '{0}'").format('internal parse error'), prog.line_number)
 
     def do_node_assign(self, prog):
         t = self.expr(prog.right)
         self.locals[prog.left] = t
-        if (self.break_reporter):
+        if self.break_reporter:
             self.break_reporter(prog.node_name, t, prog.line_number)
         return t
 
@@ -1373,36 +1353,36 @@ class _Interpreter:
                 if self.break_reporter:
                     self.break_reporter(prog.node_name, v, prog.line_number)
                 return v
-        if (self.break_reporter):
+        if self.break_reporter:
             self.break_reporter(prog.node_name, '', prog.line_number)
         return ''
 
     def do_node_switch(self, prog):
         val = self.expr(prog.expression_list[0])
-        for i in range(1, len(prog.expression_list)-1, 2):
+        for i in range(1, len(prog.expression_list) - 1, 2):
             v = self.expr(prog.expression_list[i])
             if re.search(v, val, flags=re.I):
-                res = self.expr(prog.expression_list[i+1])
+                res = self.expr(prog.expression_list[i + 1])
                 if self.break_reporter:
                     self.break_reporter(prog.node_name, res, prog.line_number)
                 return res
         res = self.expr(prog.expression_list[-1])
-        if (self.break_reporter):
+        if self.break_reporter:
             self.break_reporter(prog.node_name, res, prog.line_number)
         return res
 
     def do_node_switch_if(self, prog):
-        for i in range(0, len(prog.expression_list)-1, 2):
+        for i in range(0, len(prog.expression_list) - 1, 2):
             tst = self.expr(prog.expression_list[i])
             if self.break_reporter:
                 self.break_reporter('switch_if(): test expr', tst, prog.line_number)
             if tst:
-                res = self.expr(prog.expression_list[i+1])
+                res = self.expr(prog.expression_list[i + 1])
                 if self.break_reporter:
                     self.break_reporter('switch_if(): value expr', res, prog.line_number)
                 return res
         res = self.expr(prog.expression_list[-1])
-        if (self.break_reporter):
+        if self.break_reporter:
             self.break_reporter('switch_if(): default expr', res, prog.line_number)
         return res
 
@@ -1414,10 +1394,14 @@ class _Interpreter:
 
     def do_node_f_string(self, prog):
         def repl(mo):
-            p = self.parent.gpm_parser.program(self.parent, self.funcs,
-                                               self.parent.lex_scanner.scan(mo.group()[1:-1]),
-                                               local_functions=self.local_functions)
+            p = self.parent.gpm_parser.program(
+                self.parent,
+                self.funcs,
+                self.parent.lex_scanner.scan(mo.group()[1:-1]),
+                local_functions=self.local_functions,
+            )
             return self.expr(p)
+
         return str(re.sub(r'\{.*?\}', repl, self.expr(prog.string)))
 
     def do_node_list_count_field(self, prog):
@@ -1431,18 +1415,18 @@ class _Interpreter:
         return ans
 
     def do_node_break(self, prog):
-        if (self.break_reporter):
+        if self.break_reporter:
             self.break_reporter(prog.node_name, '', prog.line_number)
         raise BreakExecuted()
 
     def do_node_continue(self, prog):
-        if (self.break_reporter):
+        if self.break_reporter:
             self.break_reporter(prog.node_name, '', prog.line_number)
         raise ContinueExecuted()
 
     def do_node_return(self, prog):
         v = self.expr(prog.expr)
-        if (self.break_reporter):
+        if self.break_reporter:
             self.break_reporter(prog.node_name, v, prog.line_number)
         e = ReturnExecuted()
         e.set_value(v)
@@ -1455,7 +1439,7 @@ class _Interpreter:
             res = self.expr(prog.match_expression)
         else:
             res = self.expr(prog.not_match_expression)
-        if (self.break_reporter):
+        if self.break_reporter:
             self.break_reporter(prog.node_name, res, prog.line_number)
         return res
 
@@ -1467,9 +1451,8 @@ class _Interpreter:
         '>': lambda x, y: strcmp(x, y) > 0,
         '>=': lambda x, y: strcmp(x, y) >= 0,
         'in': lambda x, y: re.search(x, y, flags=re.I),
-        'inlist': lambda x, y: list(filter(partial(re.search, x, flags=re.I),
-                                           [v.strip() for v in y.split(',') if v.strip()]))
-        }
+        'inlist': lambda x, y: list(filter(partial(re.search, x, flags=re.I), [v.strip() for v in y.split(',') if v.strip()])),
+    }
 
     def do_inlist_field(self, left, right, prog):
         res = getattr(self.parent_book, right, None)
@@ -1477,7 +1460,7 @@ class _Interpreter:
             self.error(_("Field '{0}' is either not a field or not a list").format(right), prog.line_number)
         pat = re.compile(left, flags=re.I)
         if isinstance(res, dict):  # identifiers
-            for k,v in res.items():
+            for k, v in res.items():
                 if re.search(pat, f'{k}:{v}'):
                     return '1'
         else:
@@ -1497,14 +1480,13 @@ class _Interpreter:
                     res = self.do_inlist_field(left, right, prog)
                 else:
                     raise
-            if (self.break_reporter):
+            if self.break_reporter:
                 self.break_reporter(prog.node_name, res, prog.line_number)
             return res
         except (StopException, ValueError) as e:
             raise e
         except Exception:
-            self.error(_("Error during string comparison: "
-                         "operator '{0}'").format(prog.operator), prog.line_number)
+            self.error(_("Error during string comparison: operator '{0}'").format(prog.operator), prog.line_number)
 
     INFIX_NUMERIC_COMPARE_OPS = {
         '==#': lambda x, y: x == y,
@@ -1513,7 +1495,7 @@ class _Interpreter:
         '<=#': lambda x, y: x <= y,
         '>#': lambda x, y: x > y,
         '>=#': lambda x, y: x >= y,
-        }
+    }
 
     def float_deal_with_none(self, v):
         # Undefined values and the string 'None' are assumed to be zero.
@@ -1525,14 +1507,13 @@ class _Interpreter:
             left = self.float_deal_with_none(self.expr(prog.left))
             right = self.float_deal_with_none(self.expr(prog.right))
             res = '1' if self.INFIX_NUMERIC_COMPARE_OPS[prog.operator](left, right) else ''
-            if (self.break_reporter):
+            if self.break_reporter:
                 self.break_reporter(prog.node_name, res, prog.line_number)
             return res
         except (StopException, ValueError) as e:
             raise e
         except Exception:
-            self.error(_("Value used in comparison is not a number: "
-                         "operator '{0}'").format(prog.operator), prog.line_number)
+            self.error(_("Value used in comparison is not a number: operator '{0}'").format(prog.operator), prog.line_number)
 
     LOGICAL_BINARY_OPS = {
         'and': lambda self, x, y: self.expr(x) and self.expr(y),
@@ -1541,15 +1522,14 @@ class _Interpreter:
 
     def do_node_logop(self, prog):
         try:
-            res = ('1' if self.LOGICAL_BINARY_OPS[prog.operator](self, prog.left, prog.right) else '')
-            if (self.break_reporter):
+            res = '1' if self.LOGICAL_BINARY_OPS[prog.operator](self, prog.left, prog.right) else ''
+            if self.break_reporter:
                 self.break_reporter(prog.node_name, res, prog.line_number)
             return res
         except (StopException, ValueError) as e:
             raise e
         except Exception:
-            self.error(_("Error during operator evaluation: "
-                         "operator '{0}'").format(prog.operator), prog.line_number)
+            self.error(_("Error during operator evaluation: operator '{0}'").format(prog.operator), prog.line_number)
 
     LOGICAL_UNARY_OPS = {
         'not': lambda x: not x,
@@ -1558,15 +1538,14 @@ class _Interpreter:
     def do_node_logop_unary(self, prog):
         try:
             expr = self.expr(prog.expr)
-            res = ('1' if self.LOGICAL_UNARY_OPS[prog.operator](expr) else '')
-            if (self.break_reporter):
+            res = '1' if self.LOGICAL_UNARY_OPS[prog.operator](expr) else ''
+            if self.break_reporter:
                 self.break_reporter(prog.node_name, res, prog.line_number)
             return res
         except (StopException, ValueError) as e:
             raise e
         except Exception:
-            self.error(_("Error during operator evaluation: "
-                         "operator '{0}'").format(prog.operator), prog.line_number)
+            self.error(_("Error during operator evaluation: operator '{0}'").format(prog.operator), prog.line_number)
 
     ARITHMETIC_BINARY_OPS = {
         '+': lambda x, y: x + y,
@@ -1578,17 +1557,16 @@ class _Interpreter:
     def do_node_binary_arithop(self, prog):
         try:
             answer = self.ARITHMETIC_BINARY_OPS[prog.operator](
-                            self.float_deal_with_none(self.expr(prog.left)),
-                            self.float_deal_with_none(self.expr(prog.right)))
+                self.float_deal_with_none(self.expr(prog.left)), self.float_deal_with_none(self.expr(prog.right))
+            )
             res = str(answer if modf(answer)[0] != 0 else int(answer))
-            if (self.break_reporter):
+            if self.break_reporter:
                 self.break_reporter(prog.node_name, res, prog.line_number)
             return res
         except (StopException, ValueError) as e:
             raise e
         except Exception:
-            self.error(_("Error during operator evaluation: "
-                         "operator '{0}'").format(prog.operator), prog.line_number)
+            self.error(_("Error during operator evaluation: operator '{0}'").format(prog.operator), prog.line_number)
 
     ARITHMETIC_UNARY_OPS = {
         '+': lambda x: x,
@@ -1599,31 +1577,29 @@ class _Interpreter:
         try:
             expr = self.ARITHMETIC_UNARY_OPS[prog.operator](float(self.expr(prog.expr)))
             res = str(expr if modf(expr)[0] != 0 else int(expr))
-            if (self.break_reporter):
+            if self.break_reporter:
                 self.break_reporter(prog.node_name, res, prog.line_number)
             return res
         except (StopException, ValueError) as e:
             raise e
         except Exception:
-            self.error(_("Error during operator evaluation: "
-                         "operator '{0}'").format(prog.operator), prog.line_number)
+            self.error(_("Error during operator evaluation: operator '{0}'").format(prog.operator), prog.line_number)
 
     def do_node_stringops(self, prog):
         try:
             res = self.expr(prog.left) + self.expr(prog.right)
-            if (self.break_reporter):
+            if self.break_reporter:
                 self.break_reporter(prog.node_name, res, prog.line_number)
             return res
         except (StopException, ValueError) as e:
             raise e
         except Exception:
-            self.error(_("Error during operator evaluation: "
-                         "operator '{0}'").format(prog.operator), prog.line_number)
+            self.error(_("Error during operator evaluation: operator '{0}'").format(prog.operator), prog.line_number)
 
     characters = {
-        'return':    '\r',
-        'newline':   '\n',
-        'tab':       '\t',
+        'return': '\r',
+        'newline': '\n',
+        'tab': '\t',
         'backslash': '\\',
     }
 
@@ -1632,9 +1608,8 @@ class _Interpreter:
             key = self.expr(prog.expression)
             ret = self.characters.get(key, None)
             if ret is None:
-                self.error(_("Function {0}: invalid character name '{1}")
-                           .format('character', key), prog.line_number)
-            if (self.break_reporter):
+                self.error(_("Function {0}: invalid character name '{1}").format('character', key), prog.line_number)
+            if self.break_reporter:
                 self.break_reporter(prog.node_name, ret, prog.line_number)
         except (StopException, ValueError) as e:
             raise e
@@ -1648,41 +1623,41 @@ class _Interpreter:
         return res[0] if res else ''
 
     NODE_OPS = {
-        Node.NODE_IF:                    do_node_if,
-        Node.NODE_ASSIGN:                do_node_assign,
-        Node.NODE_CONSTANT:              do_node_constant,
-        Node.NODE_RVALUE:                do_node_rvalue,
-        Node.NODE_FUNC:                  do_node_func,
-        Node.NODE_FIELD:                 do_node_field,
-        Node.NODE_RAW_FIELD:             do_node_raw_field,
-        Node.NODE_COMPARE_STRING:        do_node_string_infix,
-        Node.NODE_COMPARE_NUMERIC:       do_node_numeric_infix,
-        Node.NODE_ARGUMENTS:             do_node_arguments,
-        Node.NODE_CALL_STORED_TEMPLATE:  do_node_stored_template_call,
-        Node.NODE_FIRST_NON_EMPTY:       do_node_first_non_empty,
-        Node.NODE_SWITCH:                do_node_switch,
-        Node.NODE_SWITCH_IF:             do_node_switch_if,
-        Node.NODE_FOR:                   do_node_for,
-        Node.NODE_RANGE:                 do_node_range,
-        Node.NODE_GLOBALS:               do_node_globals,
-        Node.NODE_SET_GLOBALS:           do_node_set_globals,
-        Node.NODE_CONTAINS:              do_node_contains,
-        Node.NODE_BINARY_LOGOP:          do_node_logop,
-        Node.NODE_UNARY_LOGOP:           do_node_logop_unary,
-        Node.NODE_BINARY_ARITHOP:        do_node_binary_arithop,
-        Node.NODE_UNARY_ARITHOP:         do_node_unary_arithop,
-        Node.NODE_PRINT:                 do_node_print,
-        Node.NODE_BREAK:                 do_node_break,
-        Node.NODE_CONTINUE:              do_node_continue,
-        Node.NODE_RETURN:                do_node_return,
-        Node.NODE_CHARACTER:             do_node_character,
-        Node.NODE_STRCAT:                do_node_strcat,
-        Node.NODE_BINARY_STRINGOP:       do_node_stringops,
+        Node.NODE_IF: do_node_if,
+        Node.NODE_ASSIGN: do_node_assign,
+        Node.NODE_CONSTANT: do_node_constant,
+        Node.NODE_RVALUE: do_node_rvalue,
+        Node.NODE_FUNC: do_node_func,
+        Node.NODE_FIELD: do_node_field,
+        Node.NODE_RAW_FIELD: do_node_raw_field,
+        Node.NODE_COMPARE_STRING: do_node_string_infix,
+        Node.NODE_COMPARE_NUMERIC: do_node_numeric_infix,
+        Node.NODE_ARGUMENTS: do_node_arguments,
+        Node.NODE_CALL_STORED_TEMPLATE: do_node_stored_template_call,
+        Node.NODE_FIRST_NON_EMPTY: do_node_first_non_empty,
+        Node.NODE_SWITCH: do_node_switch,
+        Node.NODE_SWITCH_IF: do_node_switch_if,
+        Node.NODE_FOR: do_node_for,
+        Node.NODE_RANGE: do_node_range,
+        Node.NODE_GLOBALS: do_node_globals,
+        Node.NODE_SET_GLOBALS: do_node_set_globals,
+        Node.NODE_CONTAINS: do_node_contains,
+        Node.NODE_BINARY_LOGOP: do_node_logop,
+        Node.NODE_UNARY_LOGOP: do_node_logop_unary,
+        Node.NODE_BINARY_ARITHOP: do_node_binary_arithop,
+        Node.NODE_UNARY_ARITHOP: do_node_unary_arithop,
+        Node.NODE_PRINT: do_node_print,
+        Node.NODE_BREAK: do_node_break,
+        Node.NODE_CONTINUE: do_node_continue,
+        Node.NODE_RETURN: do_node_return,
+        Node.NODE_CHARACTER: do_node_character,
+        Node.NODE_STRCAT: do_node_strcat,
+        Node.NODE_BINARY_STRINGOP: do_node_stringops,
         Node.NODE_LOCAL_FUNCTION_DEFINE: do_node_local_function_define,
-        Node.NODE_LOCAL_FUNCTION_CALL:   do_node_local_function_call,
-        Node.NODE_LIST_COUNT_FIELD:      do_node_list_count_field,
-        Node.NODE_WITH:                  do_node_with,
-        Node.NODE_FSTRING:               do_node_f_string,
+        Node.NODE_LOCAL_FUNCTION_CALL: do_node_local_function_call,
+        Node.NODE_LIST_COUNT_FIELD: do_node_list_count_field,
+        Node.NODE_WITH: do_node_with,
+        Node.NODE_FSTRING: do_node_f_string,
     }
 
     def expr(self, prog):
@@ -1693,44 +1668,46 @@ class _Interpreter:
         except (ValueError, ExecutionBase, StopException) as e:
             raise e
         except Exception as e:
-            if (DEBUG):
+            if DEBUG:
                 traceback.print_exc()
-            self.error(_("Internal error evaluating an expression: '{0}'").format(str(e)),
-                       prog.line_number)
+            self.error(_("Internal error evaluating an expression: '{0}'").format(str(e)), prog.line_number)
 
 
 @lru_cache(maxsize=2)
 def args_scanner() -> re.Scanner:  # type: ignore
     return re.Scanner([  # type: ignore
-        (r',', lambda x,t: ''),
-        (r'.*?(?:(?<!\\),)', lambda x,t: t[:-1]),
-        (r'.*?\)', lambda x,t: t[:-1]),
+        (r',', lambda x, t: ''),
+        (r'.*?(?:(?<!\\),)', lambda x, t: t[:-1]),
+        (r'.*?\)', lambda x, t: t[:-1]),
     ])
 
 
 @lru_cache(maxsize=2)
 def cached_lex_scanner() -> re.Scanner:  # type: ignore
-    return re.Scanner([  # type: ignore
-        (r'(?:==#|!=#|<=#|<#|>=#|>#)', lambda x,t: (_Parser.LEX_NUMERIC_INFIX, t)),
-        (r'(?:==|!=|<=|<|>=|>)',       lambda x,t: (_Parser.LEX_STRING_INFIX, t)),
-        (r'(?:if|then|else|elif|fi)\b',lambda x,t: (_Parser.LEX_KEYWORD, t)),
-        (r'(?:for|in|rof|separator)\b',lambda x,t: (_Parser.LEX_KEYWORD, t)),
-        (r'(?:separator|limit)\b',     lambda x,t: (_Parser.LEX_KEYWORD, t)),
-        (r'(?:def|fed|continue)\b',    lambda x,t: (_Parser.LEX_KEYWORD, t)),
-        (r'(?:return|inlist|break)\b', lambda x,t: (_Parser.LEX_KEYWORD, t)),
-        (r'(?:inlist_field)\b',        lambda x,t: (_Parser.LEX_KEYWORD, t)),
-        (r'(?:with|htiw)\b',           lambda x,t: (_Parser.LEX_KEYWORD, t)),
-        (r'(?:\|\||&&|!|{|})',         lambda x,t: (_Parser.LEX_OP, t)),
-        (r'[(),=;:\+\-*/&]',           lambda x,t: (_Parser.LEX_OP, t)),
-        (r'-?[\d\.]+',                 lambda x,t: (_Parser.LEX_CONST, t)),
-        (r'\$\$?#?\w+',                lambda x,t: (_Parser.LEX_ID, t)),
-        (r'\$',                        lambda x,t: (_Parser.LEX_ID, t)),
-        (r'\w+',                       lambda x,t: (_Parser.LEX_ID, t)),
-        (r'".*?(?:(?<!\\)")',          lambda x,t: (_Parser.LEX_CONST, t[1:-1])),
-        (r'\'.*?(?:(?<!\\)\')',        lambda x,t: (_Parser.LEX_CONST, t[1:-1])),
-        (r'\n[ \t]*#.*?(?:(?=\n)|$)',  lambda x,t: _Parser.LEX_NEWLINE),
-        (r'\s',                        lambda x,t: _Parser.LEX_NEWLINE if t == '\n' else None),
-    ], flags=re.DOTALL)
+    return re.Scanner(
+        [  # type: ignore
+            (r'(?:==#|!=#|<=#|<#|>=#|>#)', lambda x, t: (_Parser.LEX_NUMERIC_INFIX, t)),
+            (r'(?:==|!=|<=|<|>=|>)', lambda x, t: (_Parser.LEX_STRING_INFIX, t)),
+            (r'(?:if|then|else|elif|fi)\b', lambda x, t: (_Parser.LEX_KEYWORD, t)),
+            (r'(?:for|in|rof|separator)\b', lambda x, t: (_Parser.LEX_KEYWORD, t)),
+            (r'(?:separator|limit)\b', lambda x, t: (_Parser.LEX_KEYWORD, t)),
+            (r'(?:def|fed|continue)\b', lambda x, t: (_Parser.LEX_KEYWORD, t)),
+            (r'(?:return|inlist|break)\b', lambda x, t: (_Parser.LEX_KEYWORD, t)),
+            (r'(?:inlist_field)\b', lambda x, t: (_Parser.LEX_KEYWORD, t)),
+            (r'(?:with|htiw)\b', lambda x, t: (_Parser.LEX_KEYWORD, t)),
+            (r'(?:\|\||&&|!|{|})', lambda x, t: (_Parser.LEX_OP, t)),
+            (r'[(),=;:\+\-*/&]', lambda x, t: (_Parser.LEX_OP, t)),
+            (r'-?[\d\.]+', lambda x, t: (_Parser.LEX_CONST, t)),
+            (r'\$\$?#?\w+', lambda x, t: (_Parser.LEX_ID, t)),
+            (r'\$', lambda x, t: (_Parser.LEX_ID, t)),
+            (r'\w+', lambda x, t: (_Parser.LEX_ID, t)),
+            (r'".*?(?:(?<!\\)")', lambda x, t: (_Parser.LEX_CONST, t[1:-1])),
+            (r'\'.*?(?:(?<!\\)\')', lambda x, t: (_Parser.LEX_CONST, t[1:-1])),
+            (r'\n[ \t]*#.*?(?:(?=\n)|$)', lambda x, t: _Parser.LEX_NEWLINE),
+            (r'\s', lambda x, t: _Parser.LEX_NEWLINE if t == '\n' else None),
+        ],
+        flags=re.DOTALL,
+    )
 
 
 class TemplateFormatter(string.Formatter):
@@ -1775,15 +1752,13 @@ class TemplateFormatter(string.Formatter):
             try:
                 val = int(val)
             except Exception:
-                raise ValueError(
-                    _('format: type {0} requires an integer value, got {1}').format(typ, val))
+                raise ValueError(_('format: type {0} requires an integer value, got {1}').format(typ, val))
         elif 'eEfFgGn%'.find(typ) >= 0:
             try:
                 val = float(val)
             except Exception:
-                raise ValueError(
-                    _('format: type {0} requires a decimal (float) value, got {1}').format(typ, val))
-        return str(('{0:'+fmt+'}').format(val))
+                raise ValueError(_('format: type {0} requires a decimal (float) value, got {1}').format(typ, val))
+        return str(('{0:' + fmt + '}').format(val))
 
     def _explode_format_string(self, fmt):
         try:
@@ -1818,23 +1793,19 @@ class TemplateFormatter(string.Formatter):
                 self.template_cache[column_name] = tree
         else:
             tree = self.gpm_parser.program(self, self.funcs, self.lex_scanner.scan(prog))
-        return self.gpm_interpreter.program(self.funcs, self, tree, val,
-                                global_vars=global_vars, break_reporter=break_reporter)
+        return self.gpm_interpreter.program(self.funcs, self, tree, val, global_vars=global_vars, break_reporter=break_reporter)
 
     def _eval_sfm_call(self, template_name, args, global_vars):
         func = self.funcs[template_name]
         compiled_text = func.cached_compiled_text
         if func.object_type is StoredObjectType.StoredGPMTemplate:
             if compiled_text is None:
-                compiled_text = self.gpm_parser.program(self, self.funcs,
-                               self.lex_scanner.scan(func.program_text[len('program:'):]))
+                compiled_text = self.gpm_parser.program(self, self.funcs, self.lex_scanner.scan(func.program_text[len('program:') :]))
                 func.cached_compiled_text = compiled_text
-            return self.gpm_interpreter.program(self.funcs, self, func, None,
-                                                is_call=True, args=args,
-                                                global_vars=global_vars)
+            return self.gpm_interpreter.program(self.funcs, self, func, None, is_call=True, args=args, global_vars=global_vars)
         elif function_object_type(func) is StoredObjectType.StoredPythonTemplate:
             if compiled_text is None:
-                compiled_text = self.compile_python_template(func.program_text[len('python:'):])
+                compiled_text = self.compile_python_template(func.program_text[len('python:') :])
                 func.cached_compiled_text = compiled_text
             return self._run_python_template(compiled_text, args)
 
@@ -1853,12 +1824,7 @@ class TemplateFormatter(string.Formatter):
             db = get_database(self.book, None)
             db = db if db is not None else self.database
             assert self.python_context_object is not None
-            self.python_context_object.set_values(
-                         db=db,
-                         globals=self.global_vars,
-                         arguments=arguments,
-                         formatter=self,
-                         funcs=self._caller)
+            self.python_context_object.set_values(db=db, globals=self.global_vars, arguments=arguments, formatter=self, funcs=self._caller)
             rslt = compiled_template(self.book, self.python_context_object)
         except StopException:
             raise
@@ -1873,8 +1839,7 @@ class TemplateFormatter(string.Formatter):
                         ss = s
                         break
 
-            raise ValueError(_('Error in function {0} on line {1} : {2} - {3}').format(
-                            ss.name, ss.lineno, type(e).__name__, str(e)))
+            raise ValueError(_('Error in function {0} on line {1} : {2} - {3}').format(ss.name, ss.lineno, type(e).__name__, str(e)))
         if not isinstance(rslt, str):
             raise ValueError(_('The Python template returned a non-string value: {!r}').format(rslt))
         return rslt
@@ -1882,16 +1847,14 @@ class TemplateFormatter(string.Formatter):
     def compile_python_template(self, template):
         if self.allow_python_templates is None:
             if os.environ.get('CALIBRE_ALLOW_PYTHON_TEMPLATES', '1') != '1':
-                raise ValueError(_('Python templates disallowed by the {} environment variable'
-                                ).format('CALIBRE_ALLOW_PYTHON_TEMPLATES'))
+                raise ValueError(_('Python templates disallowed by the {} environment variable').format('CALIBRE_ALLOW_PYTHON_TEMPLATES'))
         elif not self.allow_python_templates:
             raise ValueError(_('Python templates disallowed by policy for this formatter'))
 
         def replace_func(mo):
             return mo.group().replace('\t', '    ')
 
-        prog ='\n'.join([re.sub(r'^\t*', replace_func, line)
-                                           for line in template.splitlines()])
+        prog = '\n'.join([re.sub(r'^\t*', replace_func, line) for line in template.splitlines()])
         locals_ = {}
         if DEBUG and tweaks.get('enable_template_debug_printing', False):
             print(prog)
@@ -1900,8 +1863,7 @@ class TemplateFormatter(string.Formatter):
             func = locals_['evaluate']
             return func
         except SyntaxError as e:
-            raise ValueError(
-                _('Syntax error on line {0} column {1}: text {2}').format(e.lineno, e.offset, e.text))
+            raise ValueError(_('Syntax error on line {0} column {1}: text {2}').format(e.lineno, e.offset, e.text))
         except KeyError:
             raise ValueError(_('The {0} function is not defined in the template').format('evaluate'))
 
@@ -1929,7 +1891,7 @@ class TemplateFormatter(string.Formatter):
             if p >= 0:
                 p += 1
         if p >= 0 and format_spec[-1] == "'":
-            value = self._eval_program(value, format_spec[p+1:-1], None, self.global_vars, None)
+            value = self._eval_program(value, format_spec[p + 1 : -1], None, self.global_vars, None)
             colon = format_spec[0:p].find(':')
             if colon < 0:
                 dispfmt = ''
@@ -1954,18 +1916,16 @@ class TemplateFormatter(string.Formatter):
                     if func.arg_count == 2:
                         # only one arg expected. Don't bother to scan. Avoids need
                         # for escaping characters
-                        args = [format_spec[p+1:-1]]
+                        args = [format_spec[p + 1 : -1]]
                     else:
-                        args = self.arg_parser.scan(format_spec[p+1:])[0]
+                        args = self.arg_parser.scan(format_spec[p + 1 :])[0]
                         args = [self.backslash_comma_to_comma.sub(',', a) for a in args]
                     if func.object_type is not StoredObjectType.PythonFunction:
                         args.insert(0, value)
                         value = self._eval_sfm_call(fname, args, self.global_vars)
                     else:
-                        if (func.arg_count == 1 and (len(args) != 1 or args[0])) or \
-                                (func.arg_count > 1 and func.arg_count != len(args)+1):
-                            raise ValueError(
-                                _('Incorrect number of arguments for function {0}').format(fname))
+                        if (func.arg_count == 1 and (len(args) != 1 or args[0])) or (func.arg_count > 1 and func.arg_count != len(args) + 1):
+                            raise ValueError(_('Incorrect number of arguments for function {0}').format(fname))
                         if func.arg_count == 1:
                             value = func.eval_(self, self.kwargs, self.book, self.locals, value)
                             if self.strip_results:
@@ -1975,7 +1935,7 @@ class TemplateFormatter(string.Formatter):
                             if self.strip_results:
                                 value = value.strip()
                 else:
-                    return _('%s: unknown function')%fname
+                    return _('%s: unknown function') % fname
         if value:
             value = self._do_format(value, dispfmt)
         if not value:
@@ -1984,8 +1944,7 @@ class TemplateFormatter(string.Formatter):
 
     def evaluate(self, format_spec, args, kwargs, global_vars, break_reporter=None):
         if format_spec.startswith('program:'):
-            ans = self._eval_program(kwargs.get('$', None), format_spec[8:],
-                                     self.column_name, global_vars, break_reporter)
+            ans = self._eval_program(kwargs.get('$', None), format_spec[8:], self.column_name, global_vars, break_reporter)
         elif format_spec.startswith('python:'):
             ans = self._eval_python_template(format_spec[7:], self.column_name)
         else:
@@ -2007,33 +1966,36 @@ class TemplateFormatter(string.Formatter):
     def save_state(self):
         self.recursion_level += 1
         return (
-            (self.strip_results,
-             self.column_name,
-             self.template_cache,
-             self.kwargs,
-             self.book,
-             self.global_vars,
-             self.funcs,
-             self.locals,
-             self._caller,
-             self.python_context_object,
-             self.database))
+            self.strip_results,
+            self.column_name,
+            self.template_cache,
+            self.kwargs,
+            self.book,
+            self.global_vars,
+            self.funcs,
+            self.locals,
+            self._caller,
+            self.python_context_object,
+            self.database,
+        )
 
     def restore_state(self, state):
         self.recursion_level -= 1
         if state is None:
             raise ValueError(_('Formatter state restored before saved'))
-        (self.strip_results,
-         self.column_name,
-         self.template_cache,
-         self.kwargs,
-         self.book,
-         self.global_vars,
-         self.funcs,
-         self.locals,
-         self._caller,
-         self.python_context_object,
-         self.database) = state
+        (
+            self.strip_results,
+            self.column_name,
+            self.template_cache,
+            self.kwargs,
+            self.book,
+            self.global_vars,
+            self.funcs,
+            self.locals,
+            self._caller,
+            self.python_context_object,
+            self.database,
+        ) = state
 
     # Allocate an interpreter if the formatter encounters a GPM or TPM template.
     # We need to allocate additional interpreters if there is composite recursion
@@ -2058,8 +2020,7 @@ class TemplateFormatter(string.Formatter):
 
     # ######### a formatter that throws exceptions ############
 
-    def unsafe_format(self, format_spec, kwargs, book, strip_results=True, global_vars=None,
-                      python_context_object=None):
+    def unsafe_format(self, format_spec, kwargs, book, strip_results=True, global_vars=None, python_context_object=None):
         state = self.save_state()
         try:
             self._caller = FormatterFuncsCaller(self)
@@ -2080,11 +2041,21 @@ class TemplateFormatter(string.Formatter):
 
     # ######### a formatter guaranteed not to throw an exception ############
 
-    def safe_format(self, format_spec, kwargs, error_value, book,
-                    column_name=None, template_cache=None,
-                    strip_results=True, template_functions=None,
-                    global_vars=None, break_reporter=None,
-                    python_context_object=None, database=None):
+    def safe_format(
+        self,
+        format_spec,
+        kwargs,
+        error_value,
+        book,
+        column_name=None,
+        template_cache=None,
+        strip_results=True,
+        template_functions=None,
+        global_vars=None,
+        break_reporter=None,
+        python_context_object=None,
+        database=None,
+    ):
         state = self.save_state()
         if self.recursion_level == 0:
             # Initialize the composite values dict and database if this is the
@@ -2130,11 +2101,13 @@ class ValidateFormatter:
 
     def validate(self, template):
         from calibre.gui2 import is_gui_thread
+
         if not is_gui_thread():
             raise ValueError('A ValidateFormatter must only be used in the GUI thread')
 
         from calibre.ebooks.metadata.book.base import get_model_metadata_instance
         from calibre.ebooks.metadata.book.formatter import SafeFormat
+
         return SafeFormat().unsafe_format(template, {}, get_model_metadata_instance())
 
 

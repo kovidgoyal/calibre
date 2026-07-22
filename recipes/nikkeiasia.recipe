@@ -17,10 +17,7 @@ class Nikkei(BasicNewsRecipe):
     __author__ = 'unkn0wn'
     language = 'en'
     no_stylesheets = True
-    description = (
-        'The voice of the Asian century. Trusted independent journalism '
-        'from Asia, the center of global growth.'
-    )
+    description = 'The voice of the Asian century. Trusted independent journalism from Asia, the center of global growth.'
     masthead_url = 'https://upload.wikimedia.org/wikipedia/commons/2/2f/Nikkei_Asia_logo.svg'
     remove_attributes = ['style', 'height', 'width']
     ignore_duplicate_articles = {'url'}
@@ -36,9 +33,7 @@ class Nikkei(BasicNewsRecipe):
         .article__image, .article__caption { font-size:small; text-align:center; }
     '''
 
-    recipe_specific_options = {
-        'date': {'short': 'The edition date (YYYY-MM-DD format)', 'long': '2024-09-19'}
-    }
+    recipe_specific_options = {'date': {'short': 'The edition date (YYYY-MM-DD format)', 'long': '2024-09-19'}}
 
     remove_tags = [dict(name='svg')]
 
@@ -47,42 +42,27 @@ class Nikkei(BasicNewsRecipe):
         if d and isinstance(d, str):
             url = 'https://asia.nikkei.com/Print-Edition/Issue-' + d
         else:
-            archives = self.index_to_soup(
-                'https://asia.nikkei.com/Print-Edition/Archives'
-            )
-            card = archives.find(
-                **prefixed_classes('MagazineIssueCardArchives_magazineIssueCardContent__')
-            )
+            archives = self.index_to_soup('https://asia.nikkei.com/Print-Edition/Archives')
+            card = archives.find(**prefixed_classes('MagazineIssueCardArchives_magazineIssueCardContent__'))
             url = absurl(card.a['href'])
 
         self.timefmt = f' [{url.split("Issue-")[-1]}]'
         self.title = 'Nikkei Asia'
         self.log(self.title, self.timefmt)
         soup = self.index_to_soup(url)
-        self.cover_url = (
-            soup.find(
-                **prefixed_classes('MagazineIssueCard_magazineIssueCardCoverImage__')
-            )['src'].split('?')[0]
-            + '?width=600&source=nar-cms'
-        )
+        self.cover_url = soup.find(**prefixed_classes('MagazineIssueCard_magazineIssueCardCoverImage__'))['src'].split('?')[0] + '?width=600&source=nar-cms'
 
         ans = []
 
         grid = soup.find(**prefixed_classes('MagazineArticles_magazineArticlesGrid__'))
         for a in grid.findAll(
-            **prefixed_classes(
-                'MagazineArticlesSpotlightCard_magazineArticlesSpotlightCardHeadline__ '
-                'StreamArticleCard_streamArticleCardHeadline__'
-            )
+            **prefixed_classes('MagazineArticlesSpotlightCard_magazineArticlesSpotlightCardHeadline__ StreamArticleCard_streamArticleCardHeadline__')
         ):
             title = self.tag_to_string(a)
             url = absurl(a.a['href'])
             desc = ''
             exc = a.findNext(
-                **prefixed_classes(
-                    'MagazineArticlesSpotlightCard_magazineArticlesSpotlightCardSubheadWrapper__ '
-                    'StreamArticleCard_streamArticleCardSubhead__'
-                )
+                **prefixed_classes('MagazineArticlesSpotlightCard_magazineArticlesSpotlightCardSubheadWrapper__ StreamArticleCard_streamArticleCardSubhead__')
             )
             if exc:
                 desc = self.tag_to_string(exc)
@@ -103,15 +83,8 @@ class Nikkei(BasicNewsRecipe):
             auth = f'<p class="byline">{data["byline"]}</p>'
         if data.get('image'):
             img = data['image']
-            image = (
-                f'<div><img src="{img["imageUrl"]}"><div class="article__caption">'
-                f'{data.get("fullCaption", "")}</div></div>'
-            )
-        return (
-            '<html><body>' + sec + title
-            + exp + image + auth + data['body']
-            + '</body></html>'
-        )
+            image = f'<div><img src="{img["imageUrl"]}"><div class="article__caption">{data.get("fullCaption", "")}</div></div>'
+        return '<html><body>' + sec + title + exp + image + auth + data['body'] + '</body></html>'
 
     def preprocess_html(self, soup):
         for attr in self.remove_attributes:

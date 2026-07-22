@@ -24,9 +24,9 @@ SMALL_WORDS = re.compile(rf'^({SMALL})$', re.I)
 INLINE_PERIOD = re.compile(r'[a-z][.][a-z]', re.I)
 UC_ELSEWHERE = re.compile(rf'[{PUNCT}]*?[a-zA-Z]+[A-Z]+?')
 CAPFIRST = re.compile(str(rf'^[{PUNCT}]*?(\w)'), flags=re.UNICODE)
-SMALL_FIRST = re.compile(fr'^([{PUNCT}]*)({SMALL})\b', re.I|re.U)
-SMALL_LAST = re.compile(fr'\b({SMALL})[{PUNCT}]?$', re.I|re.U)
-SMALL_AFTER_NUM = re.compile(r'(\d+\s+)(a|an|the)\b', re.I|re.U)
+SMALL_FIRST = re.compile(rf'^([{PUNCT}]*)({SMALL})\b', re.I | re.U)
+SMALL_LAST = re.compile(rf'\b({SMALL})[{PUNCT}]?$', re.I | re.U)
+SMALL_AFTER_NUM = re.compile(r'(\d+\s+)(a|an|the)\b', re.I | re.U)
 SUBPHRASE = re.compile(rf'([:.;?!][ ])({SMALL})')
 APOS_SECOND = re.compile(r"^[dol]{1}['‘]{1}[a-z]+$", re.I)
 UC_INITIALS = re.compile(r'^(?:[A-Z]{1}\.{1}|[A-Z]{1}\.{1}[A-Z]{1})+$')
@@ -38,6 +38,7 @@ def lang():
     global _lang
     if _lang is None:
         from calibre.utils.localization import get_lang
+
         _lang = get_lang().lower()
     return _lang
 

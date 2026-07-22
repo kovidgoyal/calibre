@@ -15,7 +15,6 @@ from polyglot.io import PolyglotBytesIO
 
 
 class Checker:
-
     def __init__(self, kw):
         for k, v in kw.items():
             setattr(self, k, v)
@@ -49,7 +48,7 @@ class PrintCheckLibraryResultsTest(unittest.TestCase):
         _print_check_library_results(checker, self.check, out=stdout, as_csv=False)
 
         result = stdout.getvalue().decode('utf-8', 'replace').split('\n')
-        self.assertEqual(len(result), len(data)+2)
+        self.assertEqual(len(result), len(data) + 2)
         self.assertEqual(result[0], self.check[1])
 
         result_first = result[1].split('-')[0].strip()

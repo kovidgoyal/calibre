@@ -17,14 +17,8 @@ class LamebookRecipe(BasicNewsRecipe):
     reverse_article_order = True
     encoding = 'utf-8'
 
-    keep_only_tags = [
-        dict(name='div', attrs={'class': 'entry'}), dict(
-            name='ol', attrs={'class': 'commentlist'})
-    ]
+    keep_only_tags = [dict(name='div', attrs={'class': 'entry'}), dict(name='ol', attrs={'class': 'commentlist'})]
 
-    remove_tags = [
-        dict(name='div', attrs={'style': [
-             'clear: left; float: left; margin: 0 15px 0 0;', 'float: left; margin: 0 15px 0 0;']})
-    ]
+    remove_tags = [dict(name='div', attrs={'style': ['clear: left; float: left; margin: 0 15px 0 0;', 'float: left; margin: 0 15px 0 0;']})]
 
     feeds = [('Lamebook', 'http://feeds.feedburner.com/Lamebook')]

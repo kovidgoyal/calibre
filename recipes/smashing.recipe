@@ -4,31 +4,35 @@ from __future__ import unicode_literals
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
-class SmashingMagazine (BasicNewsRecipe):
+class SmashingMagazine(BasicNewsRecipe):
     __author__ = 'Marc Busqué <marc@lamarciana.com>'
     __url__ = 'http://www.lamarciana.com'
     __version__ = '1.0.2'
     __license__ = 'GPL v3'
     __copyright__ = '2012, Marc Busqué <marc@lamarciana.com>'
-    title = u'Smashing Magazine'
-    description = u'Founded in September 2006, Smashing Magazine delivers useful and innovative information to Web designers and developers. Our aim is to inform our readers about the latest trends and techniques in Web development. We try to persuade you not with the quantity but with the quality of the information we present. Smashing Magazine is and always has been independent.'  # noqa: E501
+    title = 'Smashing Magazine'
+    description = 'Founded in September 2006, Smashing Magazine delivers useful and innovative information to Web designers and developers. Our aim is to inform our readers about the latest trends and techniques in Web development. We try to persuade you not with the quantity but with the quality of the information we present. Smashing Magazine is and always has been independent.'  # noqa: E501
     language = 'en'
     tags = 'web development, software'
     oldest_article = 7
     remove_empty_feeds = True
     no_stylesheets = True
     encoding = 'utf8'
-    cover_url = u'http://media.smashingmagazine.com/themes/smashingv4/images/logo.png'
-    remove_attributes = ['border', 'cellspacing', 'align', 'cellpadding',
-                         'colspan', 'valign', 'vspace', 'hspace', 'alt', 'width', 'height', 'style']
+    cover_url = 'http://media.smashingmagazine.com/themes/smashingv4/images/logo.png'
+    remove_attributes = ['border', 'cellspacing', 'align', 'cellpadding', 'colspan', 'valign', 'vspace', 'hspace', 'alt', 'width', 'height', 'style']
 
     def get_extra_css(self):
         if not self.extra_css:
             br = self.get_browser()
-            self.extra_css = br.open_novisit(
-                'https://raw.githubusercontent.com/laMarciana/gutenweb/master/dist/gutenweb.css').read().decode('utf-8').replace('@charset "UTF-8";', '')
+            self.extra_css = (
+                br
+                .open_novisit('https://raw.githubusercontent.com/laMarciana/gutenweb/master/dist/gutenweb.css')
+                .read()
+                .decode('utf-8')
+                .replace('@charset "UTF-8";', '')
+            )
         return self.extra_css
 
     feeds = [
-        (u'Smashing Magazine', u'http://rss1.smashingmagazine.com/feed/'),
+        ('Smashing Magazine', 'http://rss1.smashingmagazine.com/feed/'),
     ]

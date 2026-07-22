@@ -32,30 +32,33 @@ class DeGentenaarOnline(BasicNewsRecipe):
     lang = 'nl-BE'
     direction = 'ltr'
 
-    html2lrf_options = [
-        '--comment', description, '--category', category, '--publisher', publisher
-    ]
+    html2lrf_options = ['--comment', description, '--category', category, '--publisher', publisher]
 
-    html2epub_options = ('publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category +
-        '"\noverride_css=" p {text-indent: 0cm; margin-top: 0em; margin-bottom: 0.5em} "')
+    html2epub_options = (
+        'publisher="'
+        + publisher
+        + '"\ncomments="'
+        + description
+        + '"\ntags="'
+        + category
+        + '"\noverride_css=" p {text-indent: 0cm; margin-top: 0em; margin-bottom: 0.5em} "'
+    )
 
-    keep_only_tags = [dict(name='span', attrs={
-                           'id': ['lblArticleTitle', 'lblArticleIntroduction', 'lblArticleMainText']})]
+    keep_only_tags = [dict(name='span', attrs={'id': ['lblArticleTitle', 'lblArticleIntroduction', 'lblArticleMainText']})]
     remove_tags = [dict(name=['embed', 'object'])]
 
     feeds = [
-
-    (u'Snelnieuws', u'http://feeds.nieuwsblad.be/nieuws/snelnieuws'),
-    (u'Binnenland', u'http://feeds.nieuwsblad.be/nieuws/binnenland'),
-    (u'Buitenland', u'http://feeds.nieuwsblad.be/nieuwsblad/buitenland'),
-    (u'Economie', u'http://feeds.nieuwsblad.be/economie/home'),
-    (u'Economie', u'http://feeds.nieuwsblad.be/economie/home'),
-    (u'Algemeen', u'http://feeds.nieuwsblad.be/life/algemeen'),
-    (u'Film', u'http://feeds.nieuwsblad.be/life/film'),
-    (u'Boek', u'http://feeds.nieuwsblad.be/life/boeken'),
-    (u'Muziek', u'http://feeds.nieuwsblad.be/life/muziek'),
-    (u'Podium', u'http://feeds.nieuwsblad.be/life/podium'),
-    (u'TV & radio', u'http://feeds.nieuwsblad.be/life/tv')
+        ('Snelnieuws', 'http://feeds.nieuwsblad.be/nieuws/snelnieuws'),
+        ('Binnenland', 'http://feeds.nieuwsblad.be/nieuws/binnenland'),
+        ('Buitenland', 'http://feeds.nieuwsblad.be/nieuwsblad/buitenland'),
+        ('Economie', 'http://feeds.nieuwsblad.be/economie/home'),
+        ('Economie', 'http://feeds.nieuwsblad.be/economie/home'),
+        ('Algemeen', 'http://feeds.nieuwsblad.be/life/algemeen'),
+        ('Film', 'http://feeds.nieuwsblad.be/life/film'),
+        ('Boek', 'http://feeds.nieuwsblad.be/life/boeken'),
+        ('Muziek', 'http://feeds.nieuwsblad.be/life/muziek'),
+        ('Podium', 'http://feeds.nieuwsblad.be/life/podium'),
+        ('TV & radio', 'http://feeds.nieuwsblad.be/life/tv'),
     ]
 
     def print_version(self, url):
@@ -75,10 +78,8 @@ class DeGentenaarOnline(BasicNewsRecipe):
 
         soup.html['lang'] = self.lang
         soup.html['dir'] = self.direction
-        mlang = new_tag(soup, 'meta', [
-                    ('http-equiv', 'Content-Language'), ('content', self.lang)])
-        mcharset = new_tag(soup, 'meta', [
-                       ('http-equiv', 'Content-Type'), ('content', 'text/html; charset=utf-8')])
+        mlang = new_tag(soup, 'meta', [('http-equiv', 'Content-Language'), ('content', self.lang)])
+        mcharset = new_tag(soup, 'meta', [('http-equiv', 'Content-Type'), ('content', 'text/html; charset=utf-8')])
         soup.head.insert(0, mlang)
         soup.head.insert(1, mcharset)
         return soup

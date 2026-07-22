@@ -9,12 +9,11 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 def classes(classes):
     q = frozenset(classes.split(' '))
-    return dict(attrs={
-        'class': lambda x: x and frozenset(x.split()).intersection(q)})
+    return dict(attrs={'class': lambda x: x and frozenset(x.split()).intersection(q)})
 
 
 class TheDailyMail(BasicNewsRecipe):
-    title = u'The Daily Mail'
+    title = 'The Daily Mail'
     oldest_article = 2
     language = 'en_GB'
 
@@ -33,25 +32,23 @@ class TheDailyMail(BasicNewsRecipe):
         classes('author-section byline-section'),
         dict(itemprop='articleBody'),
     ]
-    remove_tags = [
-        classes('related-carousel')
-    ]
+    remove_tags = [classes('related-carousel')]
 
     feeds = [
-        (u'Home', u'https://www.dailymail.co.uk/home/index.rss'),
-        (u'News', u'https://www.dailymail.co.uk/news/index.rss'),
-        (u'Sport', u'https://www.dailymail.co.uk/sport/index.rss'),
-        (u'TV and Showbiz', u'https://www.dailymail.co.uk/tvshowbiz/index.rss'),
-        (u'Health', u'https://www.dailymail.co.uk/health/index.rss'),
-        (u'Science and Technology', u'https://www.dailymail.co.uk/sciencetech/index.rss'),
-        (u'Money', u'https://www.dailymail.co.uk/money/index.rss'),
-        (u'Property', u'https://www.dailymail.co.uk/property/index.rss'),
-        (u'Motoring', u'https://www.dailymail.co.uk/motoring/index.rss'),
-        (u'Travel', u'https://www.dailymail.co.uk/travel/index.rss')
+        ('Home', 'https://www.dailymail.co.uk/home/index.rss'),
+        ('News', 'https://www.dailymail.co.uk/news/index.rss'),
+        ('Sport', 'https://www.dailymail.co.uk/sport/index.rss'),
+        ('TV and Showbiz', 'https://www.dailymail.co.uk/tvshowbiz/index.rss'),
+        ('Health', 'https://www.dailymail.co.uk/health/index.rss'),
+        ('Science and Technology', 'https://www.dailymail.co.uk/sciencetech/index.rss'),
+        ('Money', 'https://www.dailymail.co.uk/money/index.rss'),
+        ('Property', 'https://www.dailymail.co.uk/property/index.rss'),
+        ('Motoring', 'https://www.dailymail.co.uk/motoring/index.rss'),
+        ('Travel', 'https://www.dailymail.co.uk/travel/index.rss'),
     ]
 
     def preprocess_html(self, soup):
-        for img in soup.findAll(attrs={'data-src':True}):
+        for img in soup.findAll(attrs={'data-src': True}):
             img['src'] = img['data-src']
         all_h1s = soup.findAll('h1')
         for h1 in all_h1s[1:]:

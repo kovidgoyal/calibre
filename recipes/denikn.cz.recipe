@@ -18,11 +18,8 @@ def cz_title_time():
     """
     today = datetime.today()
     weekday = CZ_DAYS[today.weekday()]
-    month = CZ_MONTHS[today.month-1]
-    return '{weekday}, {day} {month} {year}'.format(weekday=weekday,
-                                                    day=today.day,
-                                                    month=month,
-                                                    year=today.year)
+    month = CZ_MONTHS[today.month - 1]
+    return '{weekday}, {day} {month} {year}'.format(weekday=weekday, day=today.day, month=month, year=today.year)
 
 
 class DenikNRecipe(BasicNewsRecipe):
@@ -30,10 +27,10 @@ class DenikNRecipe(BasicNewsRecipe):
     Recipe for the RSS feed of https://denikn.cz/
     """
 
-    title = u'Deník N'
+    title = 'Deník N'
     __author__ = 'Robert Mihaly'
-    publisher = u'N Media'
-    description = u'Deník N - Nezávislý český deník'
+    publisher = 'N Media'
+    description = 'Deník N - Nezávislý český deník'
 
     # For daily feed
     oldest_article = 1
@@ -43,18 +40,18 @@ class DenikNRecipe(BasicNewsRecipe):
     timeout = 30
 
     # Custom title used in conversion_options below
-    custom_title = u'Deník N - ' + cz_title_time()
+    custom_title = 'Deník N - ' + cz_title_time()
 
     # Select the feeds to process
     feeds = [
         # (u'Vše', 'https://denikn.cz/feed'),
-        (u'Česko', 'https://denikn.cz/cesko/feed/'),
-        (u'Svět', 'https://denikn.cz/svet/feed'),
-        (u'Ekonomika', 'https://denikn.cz/ekonomika/feed'),
+        ('Česko', 'https://denikn.cz/cesko/feed/'),
+        ('Svět', 'https://denikn.cz/svet/feed'),
+        ('Ekonomika', 'https://denikn.cz/ekonomika/feed'),
         # (u'Komentáře', 'https://denikn.cz/nazory/feed'),
-        (u'Kultura', 'https://denikn.cz/kultura/feed'),
-        (u'Věda a technologie', 'https://denikn.cz/veda/feed'),
-        (u'Sport', 'https://denikn.cz/sport/feed'),
+        ('Kultura', 'https://denikn.cz/kultura/feed'),
+        ('Věda a technologie', 'https://denikn.cz/veda/feed'),
+        ('Sport', 'https://denikn.cz/sport/feed'),
     ]
 
     language = 'cs'
@@ -72,7 +69,7 @@ class DenikNRecipe(BasicNewsRecipe):
     # Full articles are not embedded
     use_embedded_content = False
 
-    auto_cleanup   = True
+    auto_cleanup = True
     remove_empty_feeds = True
 
     ignore_duplicate_articles = {'title', 'url'}
@@ -87,11 +84,11 @@ class DenikNRecipe(BasicNewsRecipe):
 
     # Add custom title with Czech dates and correctly display publisher
     conversion_options = {
-        'title'       : custom_title,
+        'title': custom_title,
         # 'comments'    : description,
         # 'tags'        : tags,
         # 'language'    : language,
-        'publisher'   : publisher,
+        'publisher': publisher,
         # 'authors'     : publisher,
         # 'smarten_punctuation' : True
     }
@@ -102,7 +99,7 @@ class DenikNRecipe(BasicNewsRecipe):
         if self.username is not None and self.password is not None:
             br.open('https://predplatne.denikn.cz/sign/in/')
             br.select_form(id='frm-signInForm')
-            br['username']   = self.username
+            br['username'] = self.username
             br['password'] = self.password
             br.submit()
         return br

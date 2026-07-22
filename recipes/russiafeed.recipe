@@ -11,30 +11,28 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class RussiaFeed(BasicNewsRecipe):
-    title                = 'RussiaFeed News'
-    __author__           = 'Darko Miletic'
-    description          = 'News from Russia'
-    publisher            = 'The DRN Media PLC.'
-    category             = 'news, politics, Russia, World'
-    oldest_article       = 10
-    no_stylesheets       = True
-    encoding             = 'utf8'
+    title = 'RussiaFeed News'
+    __author__ = 'Darko Miletic'
+    description = 'News from Russia'
+    publisher = 'The DRN Media PLC.'
+    category = 'news, politics, Russia, World'
+    oldest_article = 10
+    no_stylesheets = True
+    encoding = 'utf8'
     use_embedded_content = False
-    language             = 'en_RU'
-    remove_empty_feeds   = True
-    publication_type     = 'newsportal'
-    auto_cleanup         = True
+    language = 'en_RU'
+    remove_empty_feeds = True
+    publication_type = 'newsportal'
+    auto_cleanup = True
     ignore_duplicate_articles = {'url'}
-    extra_css            = '''
+    extra_css = '''
         body{font-family: Roboto, Arial, sans-serif}
         img{margin-top:1em; margin-bottom: 1em; display:block}
         entry-title,entry-subtitle{font-family: Rajdhani, Poppins, Roboto, Arial, sans-serif}
     '''
 
-    conversion_options = {
-        'comment': description, 'tags': category, 'publisher': publisher, 'language': language
-    }
+    conversion_options = {'comment': description, 'tags': category, 'publisher': publisher, 'language': language}
 
     remove_tags = [dict(name=['meta', 'link'])]
 
-    feeds = [(u'News', u'http://russiafeed.com/category/news/feed/')]
+    feeds = [('News', 'http://russiafeed.com/category/news/feed/')]

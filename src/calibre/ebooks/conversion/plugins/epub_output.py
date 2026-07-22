@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
@@ -43,21 +43,24 @@ block_level_tags = (
     'ul',
 )
 
-dont_split_on_page_breaks = OptionRecommendation(name='dont_split_on_page_breaks',
-    recommended_value=False, level=OptionRecommendation.LOW,
-    help=_('Turn off splitting at page breaks. Normally, input '
-            'files are automatically split at every page break into '
-            'two files. This gives an output e-book that can be '
-            'parsed faster and with less resources. However, '
-            'splitting is slow and if your source file contains a '
-            'very large number of page breaks, you should turn off '
-            'splitting on page breaks.'
-    )
+dont_split_on_page_breaks = OptionRecommendation(
+    name='dont_split_on_page_breaks',
+    recommended_value=False,
+    level=OptionRecommendation.LOW,
+    help=_(
+        'Turn off splitting at page breaks. Normally, input '
+        'files are automatically split at every page break into '
+        'two files. This gives an output e-book that can be '
+        'parsed faster and with less resources. However, '
+        'splitting is slow and if your source file contains a '
+        'very large number of page breaks, you should turn off '
+        'splitting on page breaks.'
+    ),
 )
-extract_to = OptionRecommendation(name='extract_to',
-    help=_('Extract the contents of the generated book to the '
-        'specified folder. The contents of the folder are first '
-        'deleted, so be careful.'))
+extract_to = OptionRecommendation(
+    name='extract_to',
+    help=_('Extract the contents of the generated book to the specified folder. The contents of the folder are first deleted, so be careful.'),
+)
 
 max_image_size_help = _(
     'The maximum image size (width x height). A value of {0} means use the screen size from the output'
@@ -70,7 +73,6 @@ max_image_size_help = _(
 
 
 class EPUBOutput(OutputFormatPlugin):
-
     name = 'EPUB Output'
     author = 'Kovid Goyal'
     file_type = 'epub'
@@ -79,75 +81,83 @@ class EPUBOutput(OutputFormatPlugin):
 
     options = {
         dont_split_on_page_breaks,
-
         extract_to,
-
-        OptionRecommendation(name='flow_size', recommended_value=260,
-            help=_('Split all HTML files larger than this size (in KB). '
+        OptionRecommendation(
+            name='flow_size',
+            recommended_value=260,
+            help=_(
+                'Split all HTML files larger than this size (in KB). '
                 'This is necessary as most EPUB readers cannot handle large '
                 'file sizes. The default of %defaultKB is the size required '
-                'for Adobe Digital Editions. Set to 0 to disable size based splitting.')
+                'for Adobe Digital Editions. Set to 0 to disable size based splitting.'
+            ),
         ),
-
-        OptionRecommendation(name='no_default_epub_cover', recommended_value=False,
-            help=_("Normally, if the input file has no cover and you don't"
-            ' specify one, a default cover is generated with the title, '
-            'authors, etc. This option disables the generation of this cover.')
+        OptionRecommendation(
+            name='no_default_epub_cover',
+            recommended_value=False,
+            help=_(
+                "Normally, if the input file has no cover and you don't"
+                ' specify one, a default cover is generated with the title, '
+                'authors, etc. This option disables the generation of this cover.'
+            ),
         ),
-
-        OptionRecommendation(name='no_svg_cover', recommended_value=False,
-            help=_('Do not use SVG for the book cover. Use this option if '
+        OptionRecommendation(
+            name='no_svg_cover',
+            recommended_value=False,
+            help=_(
+                'Do not use SVG for the book cover. Use this option if '
                 'your EPUB is going to be used on a device that does not '
                 'support SVG, like the iPhone or the JetBook Lite. '
                 'Without this option, such devices will display the cover '
-                'as a blank page.')
+                'as a blank page.'
+            ),
         ),
-
-        OptionRecommendation(name='preserve_cover_aspect_ratio',
-            recommended_value=False, help=_(
-            'When using an SVG cover, this option will cause the cover to scale '
-            'to cover the available screen area, but still preserve its aspect ratio '
-            '(ratio of width to height). That means there may be white borders '
-            'at the sides or top and bottom of the image, but the image will '
-            'never be distorted. Without this option the image may be slightly '
-            'distorted, but there will be no borders.'
-            )
+        OptionRecommendation(
+            name='preserve_cover_aspect_ratio',
+            recommended_value=False,
+            help=_(
+                'When using an SVG cover, this option will cause the cover to scale '
+                'to cover the available screen area, but still preserve its aspect ratio '
+                '(ratio of width to height). That means there may be white borders '
+                'at the sides or top and bottom of the image, but the image will '
+                'never be distorted. Without this option the image may be slightly '
+                'distorted, but there will be no borders.'
+            ),
         ),
-
-        OptionRecommendation(name='epub_flatten', recommended_value=False,
-            help=_('This option is needed only if you intend to use the EPUB'
+        OptionRecommendation(
+            name='epub_flatten',
+            recommended_value=False,
+            help=_(
+                'This option is needed only if you intend to use the EPUB'
                 ' with FBReaderJ. It will flatten the file system inside the'
-                ' EPUB, putting all files into the top level.')
+                ' EPUB, putting all files into the top level.'
+            ),
         ),
-
-        OptionRecommendation(name='epub_inline_toc', recommended_value=False,
-            help=_('Insert an inline Table of Contents that will appear as part of the main book content.')
+        OptionRecommendation(
+            name='epub_inline_toc',
+            recommended_value=False,
+            help=_('Insert an inline Table of Contents that will appear as part of the main book content.'),
         ),
-
-        OptionRecommendation(name='epub_toc_at_end', recommended_value=False,
-            help=_('Put the inserted inline Table of Contents at the end of the book instead of the start.')
+        OptionRecommendation(
+            name='epub_toc_at_end',
+            recommended_value=False,
+            help=_('Put the inserted inline Table of Contents at the end of the book instead of the start.'),
         ),
-
-        OptionRecommendation(name='toc_title', recommended_value=None,
-            help=_('Title for any generated inline table of contents.')
+        OptionRecommendation(name='toc_title', recommended_value=None, help=_('Title for any generated inline table of contents.')),
+        OptionRecommendation(
+            name='epub_version',
+            recommended_value='2',
+            choices=ui_data['versions'],
+            help=_('The version of the EPUB file to generate. EPUB 2 is the most widely compatible, only use EPUB 3 if you know you actually need it.'),
         ),
-
-        OptionRecommendation(name='epub_version', recommended_value='2', choices=ui_data['versions'],
-            help=_('The version of the EPUB file to generate. EPUB 2 is the'
-                ' most widely compatible, only use EPUB 3 if you know you'
-                ' actually need it.')
-        ),
-
-        OptionRecommendation(name='epub_max_image_size', recommended_value='none',
-            help=max_image_size_help
-        ),
-
+        OptionRecommendation(name='epub_max_image_size', recommended_value='none', help=max_image_size_help),
     }
 
     recommendations = {('pretty_print', True, OptionRecommendation.HIGH)}
 
     def workaround_webkit_quirks(self):  # {{{
         from calibre.ebooks.oeb.base import XPath
+
         for x in self.oeb.spine:
             root = x.data
             body = XPath('//h:body')(root)
@@ -160,11 +170,13 @@ class EPUBOutput(OutputFormatPlugin):
             for pre in XPath('//h:pre')(body):
                 if not pre.text and len(pre) == 0:
                     pre.tag = 'div'
+
     # }}}
 
     def upshift_markup(self):  # {{{
         "Upgrade markup to comply with XHTML 1.1 where possible"
         from calibre.ebooks.oeb.base import XML, XPath
+
         for x in self.oeb.spine:
             root = x.data
             if (not root.get(XML('lang'))) and (root.get('lang')):
@@ -201,6 +213,7 @@ class EPUBOutput(OutputFormatPlugin):
 
         if self.opts.epub_inline_toc:
             from calibre.ebooks.mobi.writer8.toc import TOCAdder
+
             opts.mobi_toc_at_start = not opts.epub_toc_at_end
             opts.mobi_passthrough = False
             opts.no_inline_toc = False
@@ -208,9 +221,11 @@ class EPUBOutput(OutputFormatPlugin):
 
         if self.opts.epub_flatten:
             from calibre.ebooks.oeb.transforms.filenames import FlatFilenames
+
             FlatFilenames()(oeb, opts)
         else:
             from calibre.ebooks.oeb.transforms.filenames import UniqueFilenames
+
             UniqueFilenames()(oeb, opts)
 
         self.oeb.set_page_progression_direction_if_needed()
@@ -219,30 +234,32 @@ class EPUBOutput(OutputFormatPlugin):
         self.upshift_markup()
 
         from calibre.ebooks.oeb.transforms.rescale import RescaleImages
+
         RescaleImages(check_colorspaces=True)(oeb, opts, max_size=self.opts.epub_max_image_size)
 
         from calibre.ebooks.oeb.transforms.split import Split
-        split = Split(not self.opts.dont_split_on_page_breaks,
-                max_flow_size=self.opts.flow_size*1024
-                )
+
+        split = Split(not self.opts.dont_split_on_page_breaks, max_flow_size=self.opts.flow_size * 1024)
         split(self.oeb, self.opts)
 
         from calibre.ebooks.oeb.transforms.cover import CoverManager
+
         cm = CoverManager(
-                no_default_cover=self.opts.no_default_epub_cover,
-                no_svg_cover=self.opts.no_svg_cover,
-                preserve_aspect_ratio=self.opts.preserve_cover_aspect_ratio)
+            no_default_cover=self.opts.no_default_epub_cover,
+            no_svg_cover=self.opts.no_svg_cover,
+            preserve_aspect_ratio=self.opts.preserve_cover_aspect_ratio,
+        )
         cm(self.oeb, self.opts, self.log)
 
         self.workaround_sony_quirks()
 
         if self.oeb.toc.count() == 0:
-            self.log.warn('This EPUB file has no Table of Contents. '
-                    'Creating a default TOC')
+            self.log.warn('This EPUB file has no Table of Contents. Creating a default TOC')
             first = next(iter(self.oeb.spine))
             self.oeb.toc.add(_('Start'), first.href)
 
         from calibre.ebooks.oeb.base import OPF
+
         identifiers = oeb.metadata['identifier']
         uuid = None
         for x in identifiers:
@@ -254,6 +271,7 @@ class EPUBOutput(OutputFormatPlugin):
         if uuid is None:
             self.log.warn('No UUID identifier found')
             from uuid import uuid4
+
             uuid = str(uuid4())
             oeb.metadata.add('identifier', uuid, scheme='uuid', id=uuid)
 
@@ -263,22 +281,23 @@ class EPUBOutput(OutputFormatPlugin):
             # to use the obfuscated fonts.
             for x in identifiers:
                 if str(x) == uuid:
-                    x.content = 'urn:uuid:'+uuid
+                    x.content = 'urn:uuid:' + uuid
 
         with TemporaryDirectory('_epub_output') as tdir:
             from calibre.customize.ui import plugin_for_output_format
+
             metadata_xml = None
             extra_entries = []
             if self.is_periodical:
                 if self.opts.output_profile.epub_periodical_format == 'sony':
                     from calibre.ebooks.epub.periodical import sony_metadata
+
                     metadata_xml, atom_xml = sony_metadata(oeb)
                     extra_entries = [('atom.xml', 'application/atom+xml', atom_xml)]
             oeb_output = plugin_for_output_format('oeb')
             oeb_output.convert(oeb, tdir, input_plugin, opts, log)
             opf = [x for x in os.listdir(tdir) if x.endswith('.opf')][0]
-            self.condense_ncx([os.path.join(tdir, x) for x in os.listdir(tdir)
-                    if x.endswith('.ncx')][0])
+            self.condense_ncx([os.path.join(tdir, x) for x in os.listdir(tdir) if x.endswith('.ncx')][0])
             encryption = None
             if encrypted_fonts:
                 encryption = self.encrypt_fonts(encrypted_fonts, tdir, uuid)
@@ -290,16 +309,16 @@ class EPUBOutput(OutputFormatPlugin):
                 encryption = self.end_container(cxpath, encpath)
 
             from calibre.ebooks.epub import initialize_container
-            with initialize_container(output_path, os.path.basename(opf),
-                    extra_entries=extra_entries) as epub:
+
+            with initialize_container(output_path, os.path.basename(opf), extra_entries=extra_entries) as epub:
                 epub.add_dir(tdir)
                 if encryption is not None:
                     epub.writestr('META-INF/encryption.xml', as_bytes(encryption))
                 if metadata_xml is not None:
-                    epub.writestr('META-INF/metadata.xml',
-                            metadata_xml.encode('utf-8'))
+                    epub.writestr('META-INF/metadata.xml', metadata_xml.encode('utf-8'))
             if opts.extract_to is not None:
                 from calibre.utils.zipfile import ZipFile
+
                 if os.path.exists(opts.extract_to):
                     if os.path.isdir(opts.extract_to):
                         shutil.rmtree(opts.extract_to)
@@ -312,6 +331,7 @@ class EPUBOutput(OutputFormatPlugin):
 
     def create_container(self, tdir, opf, encryption):
         from calibre.ebooks.epub import simple_container_xml
+
         try:
             os.mkdir(os.path.join(tdir, 'META-INF'))
         except OSError:
@@ -324,6 +344,7 @@ class EPUBOutput(OutputFormatPlugin):
                 ef.write(as_bytes(encryption))
             enc_file_name = ef.name
         from calibre.ebooks.oeb.polish.container import EpubContainer
+
         container = EpubContainer(tdir, self.log)
         return container, f.name, enc_file_name
 
@@ -339,6 +360,7 @@ class EPUBOutput(OutputFormatPlugin):
         self.log.info('Upgrading to EPUB 3...')
         from calibre.ebooks.oeb.polish.cover import fix_conversion_titlepage_links_in_nav
         from calibre.ebooks.oeb.polish.upgrade import epub_2_to_3
+
         existing_nav = getattr(self.opts, 'epub3_nav_parsed', None)
         nav_href = getattr(self.opts, 'epub3_nav_href', None)
         previous_nav = (nav_href, existing_nav) if existing_nav is not None and nav_href else None
@@ -378,19 +400,21 @@ class EPUBOutput(OutputFormatPlugin):
                     if len(data) >= 1024:
                         data = bytearray(data)
                         f.seek(0)
-                        f.write(bytes(bytearray(data[i] ^ key[i%16] for i in range(1024))))
+                        f.write(bytes(bytearray(data[i] ^ key[i % 16] for i in range(1024))))
                     else:
                         self.log.warn('Font', path, 'is invalid, ignoring')
                 if not isinstance(uri, str):
                     uri = uri.decode('utf-8')
-                fonts.append('''
+                fonts.append(
+                    '''
                 <enc:EncryptedData>
                     <enc:EncryptionMethod Algorithm="http://ns.adobe.com/pdf/enc#RC"/>
                     <enc:CipherData>
                     <enc:CipherReference URI="{}"/>
                     </enc:CipherData>
                 </enc:EncryptedData>
-                '''.format(uri.replace('"', '\\"')))
+                '''.format(uri.replace('"', '\\"'))
+                )
             if fonts:
                 ans = '''<encryption
                     xmlns="urn:oasis:names:tc:opendocument:xmlns:container"
@@ -400,10 +424,12 @@ class EPUBOutput(OutputFormatPlugin):
                 ans += '\n'.join(fonts)
                 ans += '\n</encryption>'
                 return ans
+
     # }}}
 
     def condense_ncx(self, ncx_path):  # {{{
         from lxml import etree
+
         if not self.opts.pretty_print:
             tree = etree.parse(ncx_path)
             for tag in tree.getroot().iter(tag=etree.Element):
@@ -414,6 +440,7 @@ class EPUBOutput(OutputFormatPlugin):
             compressed = etree.tostring(tree.getroot(), encoding='utf-8')
             with open(ncx_path, 'wb') as f:
                 f.write(compressed)
+
     # }}}
 
     def workaround_ade_quirks(self):  # {{{
@@ -433,8 +460,7 @@ class EPUBOutput(OutputFormatPlugin):
                 base, _, frag = href.partition('#')
                 frag = urlunquote(frag)
                 if frag and frag_pat.match(frag) is None:
-                    self.log.warn(
-                            f'Removing fragment identifier {frag!r} from TOC as Adobe Digital Editions cannot handle it')
+                    self.log.warn(f'Removing fragment identifier {frag!r} from TOC as Adobe Digital Editions cannot handle it')
                     node.href = base
 
         for x in self.oeb.spine:
@@ -499,13 +525,12 @@ class EPUBOutput(OutputFormatPlugin):
                 if not tag.text:
                     tag.getparent().remove(tag)
             for tag in XPath('//h:script')(root):
-                if (not tag.text and not tag.get('src', False) and tag.get('type', None) != 'text/x-mathjax-config'):
+                if not tag.text and not tag.get('src', False) and tag.get('type', None) != 'text/x-mathjax-config':
                     tag.getparent().remove(tag)
             for tag in XPath('//h:body/descendant::h:script')(root):
                 tag.getparent().remove(tag)
 
-            formchildren = XPath('./h:input|./h:button|./h:textarea|'
-                    './h:label|./h:fieldset|./h:legend')
+            formchildren = XPath('./h:input|./h:button|./h:textarea|./h:label|./h:fieldset|./h:legend')
             for tag in XPath('//h:form')(root):
                 if formchildren(tag):
                     tag.getparent().remove(tag)
@@ -540,8 +565,9 @@ class EPUBOutput(OutputFormatPlugin):
             if stylesheet is not None:
                 # ADE doesn't render lists correctly if they have left margins
                 from css_parser.css import CSSRule
+
                 for lb in XPath('//h:ul[@class]|//h:ol[@class]')(root):
-                    sel = '.'+lb.get('class')
+                    sel = '.' + lb.get('class')
                     for rule in stylesheet.data.cssRules.rulesOfType(CSSRule.STYLE_RULE):
                         if sel == rule.selectorList.selectorText:
                             rule.style.removeProperty('margin-left')
@@ -579,8 +605,7 @@ class EPUBOutput(OutputFormatPlugin):
                     for x in self.oeb.spine:
                         if x.href == href:
                             if frag_is_at_top(x.data, frag):
-                                self.log.debug('Removing anchor from TOC href:',
-                                        href+'#'+frag)
+                                self.log.debug('Removing anchor from TOC href:', href + '#' + frag)
                                 toc.href = href
                             break
             for x in toc:
@@ -593,7 +618,6 @@ class EPUBOutput(OutputFormatPlugin):
 
 
 class KEPUBOutput(OutputFormatPlugin):
-
     name = 'KEPUB Output'
     author = 'Kovid Goyal'
     file_type = 'kepub'
@@ -602,18 +626,19 @@ class KEPUBOutput(OutputFormatPlugin):
     options = {
         dont_split_on_page_breaks,
         extract_to,
-
-        OptionRecommendation(name='flow_size', recommended_value=512,
-            help=_('Split all HTML files larger than this size (in KB). '
+        OptionRecommendation(
+            name='flow_size',
+            recommended_value=512,
+            help=_(
+                'Split all HTML files larger than this size (in KB). '
                 'This is necessary as some devices cannot handle large '
-                'file sizes. Set to 0 to disable size based splitting.')
+                'file sizes. Set to 0 to disable size based splitting.'
+            ),
         ),
-
-        OptionRecommendation(name='kepub_max_image_size', recommended_value='none',
-            help=max_image_size_help
-        ),
-
-        OptionRecommendation(name='kepub_prefer_justification', recommended_value=False,
+        OptionRecommendation(name='kepub_max_image_size', recommended_value='none', help=max_image_size_help),
+        OptionRecommendation(
+            name='kepub_prefer_justification',
+            recommended_value=False,
             help=_(
                 'The KEPUB renderer on the Kobo has a bug when text justification is turned on.'
                 ' It will either not justify text properly or when highlighting there will be gaps'
@@ -621,33 +646,30 @@ class KEPUBOutput(OutputFormatPlugin):
                 ' KEPUB that avoid the highlighting gaps at the expense of worse text justification.'
                 ' This option reverses that tradeoff. Use this option if you use justification when'
                 ' reading on your Kobo device.'
-        )),
-
-        OptionRecommendation(name='kepub_affect_hyphenation', recommended_value=False,
-            help=_('Modify how hyphenation is performed for this book. Note that hyphenation'
-                   ' does not perform well for all languages, as it depends on the dictionaries'
-                   ' present on the device, which are not always of the highest quality.')
+            ),
         ),
-
-        OptionRecommendation(name='kepub_disable_hyphenation', recommended_value=False,
-            help=_('Override all hyphenation settings in book, forcefully disabling hyphenation completely.')
+        OptionRecommendation(
+            name='kepub_affect_hyphenation',
+            recommended_value=False,
+            help=_(
+                'Modify how hyphenation is performed for this book. Note that hyphenation'
+                ' does not perform well for all languages, as it depends on the dictionaries'
+                ' present on the device, which are not always of the highest quality.'
+            ),
         ),
-
-        OptionRecommendation(name='kepub_hyphenation_min_chars', recommended_value=6,
-            help=_('Minimum word length to hyphenate, in characters.')
+        OptionRecommendation(
+            name='kepub_disable_hyphenation',
+            recommended_value=False,
+            help=_('Override all hyphenation settings in book, forcefully disabling hyphenation completely.'),
         ),
-
-        OptionRecommendation(name='kepub_hyphenation_min_chars_before', recommended_value=3,
-            help=_('Minimum characters before hyphens.')
+        OptionRecommendation(
+            name='kepub_hyphenation_min_chars',
+            recommended_value=6,
+            help=_('Minimum word length to hyphenate, in characters.'),
         ),
-
-        OptionRecommendation(name='kepub_hyphenation_min_chars_after', recommended_value=3,
-            help=_('Minimum characters after hyphens.')
-        ),
-
-        OptionRecommendation(name='kepub_hyphenation_limit_lines', recommended_value=2,
-            help=_('Maximum consecutive hyphenated lines.')
-        ),
+        OptionRecommendation(name='kepub_hyphenation_min_chars_before', recommended_value=3, help=_('Minimum characters before hyphens.')),
+        OptionRecommendation(name='kepub_hyphenation_min_chars_after', recommended_value=3, help=_('Minimum characters after hyphens.')),
+        OptionRecommendation(name='kepub_hyphenation_limit_lines', recommended_value=2, help=_('Maximum consecutive hyphenated lines.')),
     }
 
     recommendations = set(EPUBOutput.recommendations)

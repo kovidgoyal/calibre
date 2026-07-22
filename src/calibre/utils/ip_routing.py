@@ -10,6 +10,7 @@ from calibre.constants import ismacos, iswindows
 
 def get_address_of_default_gateway(family='AF_INET'):
     import netifaces  # type: ignore
+
     ip = netifaces.gateways()['default'][getattr(netifaces, family)][0]
     if isinstance(ip, bytes):
         ip = ip.decode('ascii')
@@ -18,6 +19,7 @@ def get_address_of_default_gateway(family='AF_INET'):
 
 def get_addresses_for_interface(name, family='AF_INET'):
     import netifaces  # type: ignore
+
     for entry in netifaces.ifaddresses(name)[getattr(netifaces, family)]:
         if entry.get('broadcast'):  # Not a point-to-point address
             addr = entry.get('addr')
@@ -48,6 +50,7 @@ if iswindows:
 
     def get_default_route_src_address_api():
         from calibre.utils.iphlpapi import routes
+
         for route in routes():
             if route.interface and route.destination == '0.0.0.0':
                 for addr in get_addresses_for_interface(route.interface):
@@ -66,6 +69,7 @@ elif ismacos:
             interface = m.group(1)
             for addr in get_addresses_for_interface(interface):
                 return addr
+
 else:
 
     def get_default_route_src_address():
@@ -77,6 +81,7 @@ else:
             if len(parts) > 1 and parts[1] == '00000000':
                 for addr in get_addresses_for_interface(parts[0]):
                     return addr
+
 
 if __name__ == '__main__':
     print(get_default_route_src_address())

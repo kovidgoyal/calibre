@@ -8,7 +8,8 @@ class news324cat(BasicNewsRecipe):
     description = (
         '324.cat is the Catalan-language news portal by the public Catalan Corporation of Audiovisual Media (CCMA).'
         ' Its contents are based on reporting material by journalists of TV3 and Catalunya Radio,'
-        ' the leading news sources in Catalan language.')
+        ' the leading news sources in Catalan language.'
+    )
     oldest_article = 2  # days
     max_articles_per_feed = 30  # articles
     auto_cleanup = True
@@ -21,7 +22,5 @@ class news324cat(BasicNewsRecipe):
     ignore_duplicate_articles = {'url'}
 
     feeds = [
-        ('Portada',
-         'https://api.ccma.cat/noticies?_format=rss&origen=frontal&frontal=n324-portada-noticia&version=2.0'
-         ),
+        ('Portada', 'https://api.ccma.cat/noticies?_format=rss&origen=frontal&frontal=n324-portada-noticia&version=2.0'),
     ]

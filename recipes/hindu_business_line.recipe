@@ -25,9 +25,7 @@ class BusinessLine(BasicNewsRecipe):
     )
 
     def get_cover_url(self):
-        soup = self.index_to_soup(
-            'https://www.magzter.com/IN/THG-publishing-pvt-ltd/The-Hindu-Business-Line/Newspaper/'
-        )
+        soup = self.index_to_soup('https://www.magzter.com/IN/THG-publishing-pvt-ltd/The-Hindu-Business-Line/Newspaper/')
         return soup.find('img', id=lambda s: s and 'mgd__lhd__cover' in s.split())['src']
 
     language = 'en_IN'
@@ -47,27 +45,17 @@ class BusinessLine(BasicNewsRecipe):
     '''
 
     recipe_specific_options = {
-        'location': {
-            'short': 'Edition (e.g., chennai, delhi)',
-            'default': 'chennai'
-        },
+        'location': {'short': 'Edition (e.g., chennai, delhi)', 'default': 'chennai'},
         'date': {
             'short': 'Edition date (YYYY-MM-DD)',
-        }
+        },
     }
 
     ignore_duplicate_articles = {'url'}
 
-    keep_only_tags = [
-        classes('article-section'),
-        classes('article-main-col'),
-        dict(id='content-body')
-    ]
+    keep_only_tags = [classes('article-section'), classes('article-main-col'), dict(id='content-body')]
 
-    remove_tags = [
-        dict(id='paywallbox'),
-        classes('comments-shares share-page editiondetails')
-    ]
+    remove_tags = [dict(id='paywallbox'), classes('comments-shares share-page editiondetails')]
 
     def preprocess_html(self, soup):
         keywords = []
@@ -98,12 +86,7 @@ class BusinessLine(BasicNewsRecipe):
         # Normalize ALL images
         # -------------------------
         for img in soup.find_all('img'):
-            src = (
-                img.get('data-original') or
-                img.get('data-src') or
-                img.get('data-src-template') or
-                img.get('src')
-            )
+            src = img.get('data-original') or img.get('data-src') or img.get('data-src-template') or img.get('src')
             if src:
                 img['src'] = absurl(src)
 
@@ -258,11 +241,7 @@ class BusinessLine(BasicNewsRecipe):
 
                     self.log('  ', title)
 
-                    feeds_dict[section].append({
-                        'title': title,
-                        'url': url,
-                        'description': desc
-                    })
+                    feeds_dict[section].append({'title': title, 'url': url, 'description': desc})
 
             return list(feeds_dict.items())
 

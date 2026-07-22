@@ -127,7 +127,11 @@ class FilenamePattern(QWidget, Ui_Form):  # {{{
         re_line_edit.setText(val)
 
         val_hist += gprefs.get(
-            'filename_pattern_history', ['(?P<title>.+)', r'(?P<author>[^_-]+) -?\s*(?P<series>[^_0-9-]*)(?P<series_index>[0-9]*)\s*-\s*(?P<title>[^_].+) ?']
+            'filename_pattern_history',
+            [
+                '(?P<title>.+)',
+                r'(?P<author>[^_-]+) -?\s*(?P<series>[^_0-9-]*)(?P<series_index>[0-9]*)\s*-\s*(?P<title>[^_].+) ?',
+            ],
         )
         if val in val_hist:
             del val_hist[val_hist.index(val)]
@@ -1297,7 +1301,10 @@ class PythonHighlighter(QSyntaxHighlighter):  # {{{
         if self.stringRe.search(text) is not None:
             return
         # This is fooled by triple quotes inside single quoted strings
-        for m, state in ((self.tripleSingleRe.search(text), TRIPLESINGLE), (self.tripleDoubleRe.search(text), TRIPLEDOUBLE)):
+        for m, state in (
+            (self.tripleSingleRe.search(text), TRIPLESINGLE),
+            (self.tripleDoubleRe.search(text), TRIPLEDOUBLE),
+        ):
             i = -1 if m is None else m.start()
             if self.previousBlockState() == state:
                 if i == -1:

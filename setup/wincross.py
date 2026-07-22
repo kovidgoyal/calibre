@@ -33,10 +33,10 @@ class File:
     sha256: str
 
     def __init__(self, pf, filename=''):
-        self.filename=filename or pf['fileName']
-        self.url=pf['url']
-        self.size=pf['size']
-        self.sha256=pf['sha256'].lower()
+        self.filename = filename or pf['fileName']
+        self.url = pf['url']
+        self.size = pf['size']
+        self.sha256 = pf['sha256'].lower()
 
 
 def package_sort_key(p):
@@ -50,7 +50,6 @@ def llvm_arch_to_ms_arch(arch):
 
 
 class Packages:
-
     def __init__(self, manifest_raw, crt_variant, arch):
         arch = llvm_arch_to_ms_arch(arch)
         self.manifest = json.loads(manifest_raw)
@@ -62,8 +61,7 @@ class Packages:
         for v in self.packages.values():
             v.sort(key=package_sort_key)
 
-        build_tools = self.packages[
-            'Microsoft.VisualStudio.Product.BuildTools'.lower()][0]
+        build_tools = self.packages['Microsoft.VisualStudio.Product.BuildTools'.lower()][0]
         pat = re.compile(r'Microsoft\.VisualStudio\.Component\.VC\.(.+)\.x86\.x64')
         latest = (0, 0, 0, 0)
         self.crt_version = ''
@@ -94,7 +92,7 @@ class Packages:
         variants = {}
         for pid in self.packages:
             if pid.startswith(prefix):
-                parts = pid[len(prefix):].split('.')
+                parts = pid[len(prefix) :].split('.')
                 if parts[-1] == 'base':
                     variant = parts[0]
                     if variant not in variants or 'spectre' in parts:
@@ -125,29 +123,23 @@ class Packages:
         for pf in self.packages[sdk_pid][0]['payloads']:
             fname = pf['fileName'].split('\\')[-1]
             if fname.startswith('Windows SDK Desktop Headers '):
-                q = fname[len('Windows SDK Desktop Headers '):]
+                q = fname[len('Windows SDK Desktop Headers ') :]
                 if q.lower() == 'x86-x86_en-us.msi':
-                    self.files_to_download.append(File(
-                        pf, filename=f'{sdk_pid}_headers.msi'))
+                    self.files_to_download.append(File(pf, filename=f'{sdk_pid}_headers.msi'))
                 elif q.lower() == f'{arch}-x86_en-us.msi':
-                    self.files_to_download.append(File(
-                        pf, filename=f'{sdk_pid}_{arch}_headers.msi'))
+                    self.files_to_download.append(File(pf, filename=f'{sdk_pid}_{arch}_headers.msi'))
             elif fname == 'Windows SDK for Windows Store Apps Headers-x86_en-us.msi':
-                self.files_to_download.append(File(
-                    pf, filename=f'{sdk_pid}_store_headers.msi'))
+                self.files_to_download.append(File(pf, filename=f'{sdk_pid}_store_headers.msi'))
             elif fname.startswith('Windows SDK Desktop Libs '):
-                q = fname[len('Windows SDK Desktop Libs '):]
+                q = fname[len('Windows SDK Desktop Libs ') :]
                 if q == f'{arch}-x86_en-us.msi':
-                    self.files_to_download.append(File(
-                        pf, filename=f'{sdk_pid}_libs_x64.msi'))
+                    self.files_to_download.append(File(pf, filename=f'{sdk_pid}_libs_x64.msi'))
             elif fname == 'Windows SDK for Windows Store Apps Libs-x86_en-us.msi':
-                self.files_to_download.append(File(
-                    pf, filename=f'{sdk_pid}_store_libs.msi'))
+                self.files_to_download.append(File(pf, filename=f'{sdk_pid}_store_libs.msi'))
             elif (fl := fname.lower()).endswith('.cab'):
                 self.cabinet_entries[fl] = File(pf, filename=fl)
         # UCRT
-        for pf in self.packages[
-                'Microsoft.Windows.UniversalCRT.HeadersLibsSources.Msi'.lower()][0]['payloads']:
+        for pf in self.packages['Microsoft.Windows.UniversalCRT.HeadersLibsSources.Msi'.lower()][0]['payloads']:
             fname = pf['fileName'].split('\\')[-1]
             if fname == 'Universal CRT Headers Libraries and Sources-x86_en-us.msi':
                 self.files_to_download.append(File(pf))
@@ -173,8 +165,7 @@ def download_item(dest_dir: str, file: File):
                     d.write(buf)
                     m.update(buf)
     if m.hexdigest() != file.sha256:
-        raise SystemExit(f'The hash for {file.filename} does not match.'
-                         f' {m.hexdigest()} != {file.sha256}')
+        raise SystemExit(f'The hash for {file.filename} does not match. {m.hexdigest()} != {file.sha256}')
 
 
 def cabinets_in_msi(path):
@@ -199,7 +190,7 @@ def download(dest_dir, manifest_version=17, manifest_type='release', manifest_pa
     pkgs = Packages(manifest, crt_variant, arch)
     os.makedirs(dest_dir, exist_ok=True)
     total = sum(x.size for x in pkgs.files_to_download)
-    print('Downloading', int(total/(1024*1024)), 'MB in', len(pkgs.files_to_download), 'files...')
+    print('Downloading', int(total / (1024 * 1024)), 'MB in', len(pkgs.files_to_download), 'files...')
     with concurrent.futures.ThreadPoolExecutor(max_workers=4) as executor:
         for _ in executor.map(partial(download_item, dest_dir), pkgs.files_to_download):
             pass
@@ -209,7 +200,7 @@ def download(dest_dir, manifest_version=17, manifest_type='release', manifest_pa
             for cab in cabinets_in_msi(os.path.join(dest_dir, x)):
                 cabs.append(pkgs.cabinet_entries[cab])
     total = sum(x.size for x in cabs)
-    print('Downloading', int(total/(1024*1024)), 'MB in', len(cabs), 'files...')
+    print('Downloading', int(total / (1024 * 1024)), 'MB in', len(cabs), 'files...')
     with concurrent.futures.ThreadPoolExecutor(max_workers=4) as executor:
         for _ in executor.map(partial(download_item, dest_dir), cabs):
             pass
@@ -221,7 +212,7 @@ def merge_trees(src, dest):
     if not os.path.isdir(dest):
         shutil.move(src, dest)
         return
-    destnames = {n.lower():n for n in os.listdir(dest)}
+    destnames = {n.lower(): n for n in os.listdir(dest)}
     for d in os.scandir(src):
         n = d.name
         srcname = os.path.join(src, n)
@@ -268,16 +259,13 @@ def extract_vsix(path, dest_dir):
 
 def move_unpacked_trees(src_dir, dest_dir):
     # CRT
-    crt_src = os.path.dirname(glob.glob(
-        os.path.join(src_dir, 'VC/Tools/MSVC/*/include'))[0])
+    crt_src = os.path.dirname(glob.glob(os.path.join(src_dir, 'VC/Tools/MSVC/*/include'))[0])
     crt_dest = os.path.join(dest_dir, 'crt')
     os.makedirs(crt_dest)
     merge_trees(os.path.join(crt_src, 'include'), os.path.join(crt_dest, 'include'))
     merge_trees(os.path.join(crt_src, 'lib'), os.path.join(crt_dest, 'lib'))
-    merge_trees(os.path.join(crt_src, 'atlmfc', 'include'),
-                os.path.join(crt_dest, 'include'))
-    merge_trees(os.path.join(crt_src, 'atlmfc', 'lib'),
-                os.path.join(crt_dest, 'lib'))
+    merge_trees(os.path.join(crt_src, 'atlmfc', 'include'), os.path.join(crt_dest, 'include'))
+    merge_trees(os.path.join(crt_src, 'atlmfc', 'lib'), os.path.join(crt_dest, 'lib'))
 
     # SDK
     sdk_ver = glob.glob(os.path.join(src_dir, 'win11sdk_*_headers.msi.listing'))[0]
@@ -288,23 +276,19 @@ def move_unpacked_trees(src_dir, dest_dir):
             break
     else:
         raise SystemExit(f'Failed to find sdk_ver: {sdk_ver}')
-    sdk_include_src = glob.glob(os.path.join(
-        src_dir, f'Program Files/Windows Kits/*/Include/{sdk_ver}'))[0]
+    sdk_include_src = glob.glob(os.path.join(src_dir, f'Program Files/Windows Kits/*/Include/{sdk_ver}'))[0]
     sdk_dest = os.path.join(dest_dir, 'sdk')
     os.makedirs(sdk_dest)
     merge_trees(sdk_include_src, os.path.join(sdk_dest, 'include'))
-    sdk_lib_src = glob.glob(os.path.join(
-        src_dir, f'Program Files/Windows Kits/*/Lib/{sdk_ver}'))[0]
+    sdk_lib_src = glob.glob(os.path.join(src_dir, f'Program Files/Windows Kits/*/Lib/{sdk_ver}'))[0]
     merge_trees(sdk_lib_src, os.path.join(sdk_dest, 'lib'))
 
     # UCRT
     if os.path.exists(os.path.join(sdk_include_src, 'ucrt')):
         return
-    ucrt_include_src = glob.glob(os.path.join(
-        src_dir, 'Program Files/Windows Kits/*/Include/*/ucrt'))[0]
+    ucrt_include_src = glob.glob(os.path.join(src_dir, 'Program Files/Windows Kits/*/Include/*/ucrt'))[0]
     merge_trees(ucrt_include_src, os.path.join(sdk_dest, 'include', 'ucrt'))
-    ucrt_lib_src = glob.glob(os.path.join(
-        src_dir, 'Program Files/Windows Kits/*/Lib/*/ucrt'))[0]
+    ucrt_lib_src = glob.glob(os.path.join(src_dir, 'Program Files/Windows Kits/*/Lib/*/ucrt'))[0]
     merge_trees(ucrt_lib_src, os.path.join(sdk_dest, 'lib', 'ucrt'))
 
 
@@ -316,7 +300,7 @@ def unpack(src_dir, dest_dir):
     for x in os.listdir(src_dir):
         path = os.path.join(src_dir, x)
         ext = os.path.splitext(x)[1].lower()
-        if ext =='.msi':
+        if ext == '.msi':
             extract_msi(path, extract_dir)
         elif ext == '.vsix':
             extract_vsix(path, extract_dir)
@@ -363,7 +347,7 @@ def files_in(path):
 
 
 def create_include_symlinks(path, include_root, include_files):
-    " Create symlinks for include entries in header files whose case does not match "
+    "Create symlinks for include entries in header files whose case does not match"
     with open(path, 'rb') as f:
         src = f.read()
     for m in re.finditer(rb'^#include\s+([<"])(.+?)[>"]', src, flags=re.M):
@@ -406,7 +390,7 @@ def setup(splat_dir, root_dir, arch):
         clone_tree(x, os.path.join(root_dir, 'sdk', 'lib', os.path.basename(os.path.dirname(x))))
     include_roots = [x for x in glob.glob(os.path.join(root_dir, 'sdk', 'include', '*')) if os.path.isdir(x)]
     include_roots.append(os.path.join(root_dir, 'crt', 'include'))
-    include_files = {x:set(files_in(x)) for x in include_roots}
+    include_files = {x: set(files_in(x)) for x in include_roots}
     for ir, files in include_files.items():
         files_to_check = []
         for relpath in files:
@@ -419,19 +403,12 @@ def setup(splat_dir, root_dir, arch):
 
 def main(args=sys.argv[1:]):
     stages = ('download', 'unpack', 'setup')
-    p = argparse.ArgumentParser(
-        description='Setup the headers and libraries for cross-compilation of windows binaries')
-    p.add_argument(
-        'stages', metavar='STAGES', nargs='*', help=(
-            f'The stages to run by default all stages are run. Stages are: {" ".join(stages)}'))
-    p.add_argument(
-        '--manifest-version', default=17, type=int, help='The manifest version to use to find the packages to install')
-    p.add_argument(
-        '--manifest-path', default='', help='Path to a local manifest file to use. Causes --manifest-version to be ignored.')
-    p.add_argument(
-        '--crt-variant', default='desktop', choices=('desktop', 'store', 'onecore'), help='The type of CRT to download')
-    p.add_argument(
-        '--arch', default='x86_64', choices=('x86_64', 'aarch64'), help='The architecture to install')
+    p = argparse.ArgumentParser(description='Setup the headers and libraries for cross-compilation of windows binaries')
+    p.add_argument('stages', metavar='STAGES', nargs='*', help=(f'The stages to run by default all stages are run. Stages are: {" ".join(stages)}'))
+    p.add_argument('--manifest-version', default=17, type=int, help='The manifest version to use to find the packages to install')
+    p.add_argument('--manifest-path', default='', help='Path to a local manifest file to use. Causes --manifest-version to be ignored.')
+    p.add_argument('--crt-variant', default='desktop', choices=('desktop', 'store', 'onecore'), help='The type of CRT to download')
+    p.add_argument('--arch', default='x86_64', choices=('x86_64', 'aarch64'), help='The architecture to install')
     p.add_argument('--dest', default='.', help='The directory to install into')
     args = p.parse_args(args)
     if args.dest == '.':

@@ -8,7 +8,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class JijiDotCom(BasicNewsRecipe):
-    title = u'\u6642\u4e8b\u901a\u4fe1'
+    title = '\u6642\u4e8b\u901a\u4fe1'
     __author__ = 'Hiroshi Miura'
     description = 'World News from Jiji Press'
     publisher = 'Jiji Press Ltd.'
@@ -20,8 +20,7 @@ class JijiDotCom(BasicNewsRecipe):
     masthead_url = 'http://jen.jiji.com/images/logo_jijipress.gif'
     top_url = 'http://www.jiji.com/'
 
-    feeds = [(u'\u30cb\u30e5\u30fc\u30b9',
-              u'http://www.jiji.com/rss/ranking.rdf')]
+    feeds = [('\u30cb\u30e5\u30fc\u30b9', 'http://www.jiji.com/rss/ranking.rdf')]
 
     remove_tags_before = dict(id='article-area')
     remove_tags_after = dict(id='ad_google')

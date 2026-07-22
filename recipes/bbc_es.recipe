@@ -12,9 +12,8 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class AdvancedUserRecipe1294946868(BasicNewsRecipe):
-
-    title = u'BBC Mundo'
-    publisher = u'BBC'
+    title = 'BBC Mundo'
+    publisher = 'BBC'
 
     __author__ = 'Luis Hernandez'
     description = 'BBC World for spanish readers'
@@ -36,18 +35,33 @@ class AdvancedUserRecipe1294946868(BasicNewsRecipe):
     remove_tags_after = dict(name='div', attrs={'class': [' g-w8']})
 
     remove_tags = [
-        dict(name='ul', attrs={'class': ['document-tools blq-clearfix', 'blq-clearfix']}), dict(name='div', attrs={'class': ['box bx-quote-bubble', 'socialmedia-links', 'list li-carousel', 'list li-plain rolling-news', 'list li-plain', 'box bx-livestats', 'li-tab content', 'list li-relatedlinks', 'list li-relatedinternetlinks']})  # noqa: E501
+        dict(name='ul', attrs={'class': ['document-tools blq-clearfix', 'blq-clearfix']}),
+        dict(
+            name='div',
+            attrs={
+                'class': [
+                    'box bx-quote-bubble',
+                    'socialmedia-links',
+                    'list li-carousel',
+                    'list li-plain rolling-news',
+                    'list li-plain',
+                    'box bx-livestats',
+                    'li-tab content',
+                    'list li-relatedlinks',
+                    'list li-relatedinternetlinks',
+                ]
+            },
+        ),  # noqa: E501
     ]
 
     feeds = [
-
-    (u'Portada', u'http://www.bbc.co.uk/mundo/index.xml'),
-    (u'Ultimas Noticias', u'http://www.bbc.co.uk/mundo/ultimas_noticias/index.xml'),
-    (u'Internacional', u'http://www.bbc.co.uk/mundo/temas/internacional/index.xml'),
-    (u'Economia', u'http://www.bbc.co.uk/mundo/temas/economia/index.xml'),
-    (u'America Latina', u'http://www.bbc.co.uk/mundo/temas/america_latina/index.xml'),
-    (u'Ciencia', u'http://www.bbc.co.uk/mundo/temas/ciencia/index.xml'),
-    (u'Salud', u'http://www.bbc.co.uk/mundo/temas/salud/index.xml'),
-    (u'Tecnologia', u'http://www.bbc.co.uk/mundo/temas/tecnologia/index.xml'),
-    (u'Cultura', u'http://www.bbc.co.uk/mundo/temas/cultura/index.xml')
+        ('Portada', 'http://www.bbc.co.uk/mundo/index.xml'),
+        ('Ultimas Noticias', 'http://www.bbc.co.uk/mundo/ultimas_noticias/index.xml'),
+        ('Internacional', 'http://www.bbc.co.uk/mundo/temas/internacional/index.xml'),
+        ('Economia', 'http://www.bbc.co.uk/mundo/temas/economia/index.xml'),
+        ('America Latina', 'http://www.bbc.co.uk/mundo/temas/america_latina/index.xml'),
+        ('Ciencia', 'http://www.bbc.co.uk/mundo/temas/ciencia/index.xml'),
+        ('Salud', 'http://www.bbc.co.uk/mundo/temas/salud/index.xml'),
+        ('Tecnologia', 'http://www.bbc.co.uk/mundo/temas/tecnologia/index.xml'),
+        ('Cultura', 'http://www.bbc.co.uk/mundo/temas/cultura/index.xml'),
     ]

@@ -23,6 +23,7 @@ Sourced from:
 http://ginstrom.com/scribbles/2008/05/17/counting-words-etc-in-an-html-file-with-python/
 http://ginstrom.com/scribbles/2007/10/06/counting-words-characters-and-asian-characters-with-python/
 """
+
 __version__ = 0.1
 __author__ = 'Ryan Ginstrom'
 
@@ -72,19 +73,22 @@ def get_wordcount(text):
     non_asian_words = nonj_len(text)
     words = non_asian_words + asian_chars
 
-    return {'characters': characters,
-            'chars_no_spaces': chars_no_spaces,
-            'asian_chars': asian_chars,
-            'non_asian_words': non_asian_words,
-            'words': words}
+    return {
+        'characters': characters,
+        'chars_no_spaces': chars_no_spaces,
+        'asian_chars': asian_chars,
+        'non_asian_words': non_asian_words,
+        'words': words,
+    }
 
 
 def dict2obj(dictionary):
     """Transform a dictionary into an object"""
-    class Obj:
 
+    class Obj:
         def __init__(self, dictionary):
             self.__dict__.update(dictionary)
+
     return Obj(dictionary)
 
 

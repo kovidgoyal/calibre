@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
@@ -11,8 +11,13 @@ from hashlib import sha1
 from calibre.ebooks import BOOK_EXTENSIONS
 
 
-def find_folders_under(root, db, add_root=True,  # {{{
-        follow_links=False, cancel_callback=lambda: False):
+def find_folders_under(
+    root,
+    db,
+    add_root=True,  # {{{
+    follow_links=False,
+    cancel_callback=lambda: False,
+):
     """
     Find all folders under the specified root path, ignoring any folders under
     the library path of db
@@ -45,11 +50,12 @@ def find_folders_under(root, db, add_root=True,  # {{{
         ans.remove(root)
 
     return ans
+
+
 # }}}
 
 
 class FormatCollection:  # {{{
-
     def __init__(self, parent_folder, formats):
         self.path_map = {}
         for x in set(formats):
@@ -98,11 +104,15 @@ class FormatCollection:  # {{{
             self.hash_map[fmt] = other.hash_map[fmt]
             other.remove(fmt)
 
+
 # }}}
 
 
-def books_in_folder(folder, one_per_folder,  # {{{
-        cancel_callback=lambda: False):
+def books_in_folder(
+    folder,
+    one_per_folder,  # {{{
+    cancel_callback=lambda: False,
+):
     dirpath = os.path.abspath(folder)
     if one_per_folder:
         formats = set()
@@ -141,10 +151,12 @@ def books_in_folder(folder, one_per_folder,  # {{{
             books[key].add(path)
 
         return [FormatCollection(folder, x) for x in books.values() if x]
+
+
 # }}}
 
 
-def hash_merge_format_collections(collections, cancel_callback=lambda:False):
+def hash_merge_format_collections(collections, cancel_callback=lambda: False):
     ans = []
 
     collections = list(collections)
@@ -155,7 +167,7 @@ def hash_merge_format_collections(collections, cancel_callback=lambda:False):
         one = collections[i]
         if one.is_empty:
             continue
-        for j in range(i+1, l):
+        for j in range(i + 1, l):
             if cancel_callback():
                 return collections
             two = collections[j]

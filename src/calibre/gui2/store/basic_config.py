@@ -10,7 +10,6 @@ from calibre.utils.config import JSONConfig
 
 
 class BasicStoreConfigWidget(QWidget, Ui_Form):
-
     def __init__(self, store):
         QWidget.__init__(self)
         self.setupUi(self)

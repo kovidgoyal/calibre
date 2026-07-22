@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
@@ -40,16 +40,22 @@ class DIBHeader:
         if hsize == 40:
             parts = struct.unpack(b'<IiiHHIIIIII', raw[:hsize])
             for i, attr in enumerate((
-                'header_size', 'width', 'height', 'color_planes',
-                'bits_per_pixel', 'compression', 'image_size',
-                'hres', 'vres', 'ncols', 'nimpcols'
-                )):
+                'header_size',
+                'width',
+                'height',
+                'color_planes',
+                'bits_per_pixel',
+                'compression',
+                'image_size',
+                'hres',
+                'vres',
+                'ncols',
+                'nimpcols',
+            )):
                 setattr(self, attr, parts[i])
         elif hsize == 12:
             parts = struct.unpack(b'<IHHHH', raw[:hsize])
-            for i, attr in enumerate((
-                'header_size', 'width', 'height', 'color_planes',
-                'bits_per_pixel')):
+            for i, attr in enumerate(('header_size', 'width', 'height', 'color_planes', 'bits_per_pixel')):
                 setattr(self, attr, parts[i])
         else:
             raise ValueError(f'Unsupported DIB header type of size: {hsize}')
@@ -65,15 +71,14 @@ class DIBHeader:
 def create_bmp_from_dib(raw):
     size = len(raw) + 14
     dh = DIBHeader(raw)
-    pixel_array_offset = dh.header_size + dh.bitmasks_size + \
-                            dh.color_table_size
-    parts = [b'BM', struct.pack(b'<I', size), b'\0'*4, struct.pack(b'<I',
-        pixel_array_offset)]
+    pixel_array_offset = dh.header_size + dh.bitmasks_size + dh.color_table_size
+    parts = [b'BM', struct.pack(b'<I', size), b'\0' * 4, struct.pack(b'<I', pixel_array_offset)]
     return b''.join(parts) + raw
 
 
 def to_png(bmp):
     from qt.core import QBuffer, QByteArray, QImage, QIODevice
+
     i = QImage()
     if not i.loadFromData(bmp):
         raise ValueError('Invalid image data')

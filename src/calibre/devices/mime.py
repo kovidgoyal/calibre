@@ -14,8 +14,8 @@ def _mt(path):
 
 def mime_type_ext(ext):
     if not ext.startswith('.'):
-        ext = '.'+ext
-    return _mt('a'+ext)
+        ext = '.' + ext
+    return _mt('a' + ext)
 
 
 def mime_type_path(path):

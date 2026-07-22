@@ -38,12 +38,7 @@ def adjust_split_point(split_point, log):
     sp = split_point
     while True:
         parent = sp.getparent()
-        if (
-            parent is None or
-            barename(parent.tag) in {'body', 'html'} or
-            (parent.text and parent.text.strip()) or
-            parent.index(sp) > 0
-        ):
+        if parent is None or barename(parent.tag) in {'body', 'html'} or (parent.text and parent.text.strip()) or parent.index(sp) > 0:
             break
         sp = parent
 
@@ -70,13 +65,13 @@ def do_split(split_point, log, before=True):
         # parent will cause breakage if the parent contains any content
         # after the original split point
         split_point = adjust_split_point(split_point, log)
-    tree         = split_point.getroottree()
-    path         = tree.getpath(split_point)
+    tree = split_point.getroottree()
+    path = tree.getpath(split_point)
 
-    tree, tree2  = copy.deepcopy(tree), copy.deepcopy(tree)
-    root, root2  = tree.getroot(), tree2.getroot()
-    body, body2  = map(get_body, (root, root2))
-    split_point  = root.xpath(path)[0]
+    tree, tree2 = copy.deepcopy(tree), copy.deepcopy(tree)
+    root, root2 = tree.getroot(), tree2.getroot()
+    body, body2 = map(get_body, (root, root2))
+    split_point = root.xpath(path)[0]
     split_point2 = root2.xpath(path)[0]
 
     def nix_element(elem, top=True):
@@ -87,7 +82,7 @@ def do_split(split_point, log, before=True):
             parent.remove(elem)
         else:
             index = parent.index(elem)
-            parent[index:index+1] = list(elem.iterchildren())
+            parent[index : index + 1] = list(elem.iterchildren())
 
     # Tree 1
     hit_split_point = False
@@ -131,7 +126,7 @@ def do_split(split_point, log, before=True):
                     if idx == 0:
                         parent.text = (parent.text or '') + tail
                     else:
-                        sib = parent[idx-1]
+                        sib = parent[idx - 1]
                         sib.tail = (sib.tail or '') + tail
                 # Remove the element itself
                 nix_element(elem)
@@ -150,7 +145,6 @@ def do_split(split_point, log, before=True):
 
 
 class SplitLinkReplacer:
-
     def __init__(self, base, bottom_anchors, top_name, bottom_name, container):
         self.bottom_anchors, self.bottom_name = bottom_anchors, bottom_name
         self.container, self.top_name = container, top_name
@@ -199,8 +193,7 @@ def split(container, name, loc_or_xpath, before=True, totals=None):
             try:
                 split_point = node_from_loc(root, loc_or_xpath, totals=totals)
             except MalformedMarkup:
-                raise MalformedMarkup(_('The file %s has malformed markup. Try running the Fix HTML tool'
-                                        ' before splitting') % name)
+                raise MalformedMarkup(_('The file %s has malformed markup. Try running the Fix HTML tool before splitting') % name)
             container.replace(name, root)
     if in_table(split_point):
         raise AbortError('Cannot split inside tables')
@@ -299,7 +292,6 @@ def multisplit(container, name, xpath, before=True):
 
 
 class MergeLinkReplacer:
-
     def __init__(self, base, anchor_map, master, container):
         self.container, self.anchor_map = container, anchor_map
         self.master = master
@@ -371,7 +363,7 @@ def merge_html(container, names, master, insert_page_breaks=False):
     seen_stylesheets = set(all_stylesheets(container, master))
     master_body = p(master).findall('h:body', namespaces=XPNSMAP)[-1]
     master_base = os.path.dirname(master)
-    anchor_map = {n:{} for n in names if n != master}
+    anchor_map = {n: {} for n in names if n != master}
     first_anchor_map = {}
 
     for name in names:

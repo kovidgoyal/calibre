@@ -56,6 +56,7 @@ def build_manual(language, base):
             assert p.stdin is not None
             p.stdin.close()
             return p.wait()
+
         try:
             for i in range(3):
                 run_cmd(['xelatex', '-interaction=nonstopmode', 'calibre.tex'])
@@ -96,6 +97,7 @@ def build_man_pages(language, base):
 
 if __name__ == '__main__':
     import argparse
+
     os.chdir(d(a(__file__)))
     os.environ['__appname__'] = __appname__
     os.environ['__version__'] = __version__
@@ -104,6 +106,7 @@ if __name__ == '__main__':
         os.environ['CALIBRE_OVERRIDE_LANG'] = language = 'en'
         if 'ALL_USER_MANUAL_LANGUAGES' not in os.environ:
             import json
+
             os.environ['ALL_USER_MANUAL_LANGUAGES'] = ' '.join(json.load(open('locale/completed.json', 'rb')))
         sphinx_build(language, base, t='online', quiet=False)
         print('Manual built in', j(base, 'html'))

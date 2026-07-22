@@ -24,25 +24,20 @@ class scroll(BasicNewsRecipe):
         .featured-image, .cms-block-image { text-align:center; font-size:small; }
     '''
 
-    keep_only_tags = [
-        dict(name='header'),
-        classes('featured-image article-body')
-    ]
+    keep_only_tags = [dict(name='header'), classes('featured-image article-body')]
 
     remove_tags = [classes('comments-entry-point-meta')]
 
     def parse_index(self):
         index = 'https://scroll.in/'
-        sections = [
-            'article', 'magazine'
-        ]
+        sections = ['article', 'magazine']
         feeds = []
         soup = self.index_to_soup(index)
         for sec in sections:
             section = sec.capitalize()
             self.log(section)
             articles = []
-            for a in soup.findAll('a', attrs={'href':lambda x: x and x.startswith(index + sec + '/')}):
+            for a in soup.findAll('a', attrs={'href': lambda x: x and x.startswith(index + sec + '/')}):
                 url = a['href'].split('?')[0]
                 if url in {index + sec + '/', index + sec}:
                     continue

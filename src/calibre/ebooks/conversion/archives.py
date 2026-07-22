@@ -13,16 +13,16 @@ ARCHIVE_FMTS = ('zip', 'rar', 'oebzip')
 def unarchive(path, tdir):
     extract(path, tdir)
     files = list(walk(tdir))
-    files = [f if isinstance(f, str) else f.decode(filesystem_encoding)
-            for f in files]
+    files = [f if isinstance(f, str) else f.decode(filesystem_encoding) for f in files]
     from calibre.customize.ui import available_input_formats
+
     fmts = set(available_input_formats())
     fmts -= {'htm', 'html', 'xhtm', 'xhtml'}
     fmts -= set(ARCHIVE_FMTS)
 
     for ext in fmts:
         for f in files:
-            if f.lower().endswith('.'+ext):
+            if f.lower().endswith('.' + ext):
                 if ext in ['txt', 'rtf'] and os.stat(f).st_size < 2048:
                     continue
                 return f, ext

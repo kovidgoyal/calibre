@@ -80,7 +80,6 @@ def get_content_length(response):
 
 
 class ProgressTracker:
-
     def __init__(self, fobj, url, sz, progress_report):
         self.fobj = fobj
         self.progress_report = progress_report
@@ -98,6 +97,7 @@ class ProgressTracker:
 
 def sanitize_file_name(x):
     from calibre.ebooks.oeb.polish.check.parsing import make_filename_safe
+
     x = sanitize_file_name_base(x)
     while '..' in x:
         x = x.replace('..', '.')

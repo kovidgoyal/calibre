@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
@@ -20,9 +20,11 @@ if iswindows:
     try:
         windows_null_file = open(os.devnull, 'wb')
     except Exception:
-        raise RuntimeError('NUL file missing in windows. This indicates a'
-                ' corrupted windows. You should contact Microsoft'
-                ' for assistance and/or follow the steps described here: https://bytes.com/topic/net/answers/264804-compile-error-null-device-missing')
+        raise RuntimeError(
+            'NUL file missing in windows. This indicates a'
+            ' corrupted windows. You should contact Microsoft'
+            ' for assistance and/or follow the steps described here: https://bytes.com/topic/net/answers/264804-compile-error-null-device-missing'
+        )
 
 
 def renice(niceness):
@@ -54,8 +56,7 @@ def exe_path(exe_name):
         return [sys.executable, getattr(sys, 'run_local'), exe_name]
     e = exe_name
     if iswindows:
-        return os.path.join(os.path.dirname(sys.executable),
-                e+'.exe' if isfrozen else f'Scripts\\{e}.exe')
+        return os.path.join(os.path.dirname(sys.executable), e + '.exe' if isfrozen else f'Scripts\\{e}.exe')
     if ismacos:
         return os.path.join(getattr(sys, 'executables_location'), e)
 
@@ -77,9 +78,9 @@ def headless_exe_path(exe_name='calibre-parallel'):
 
 def windows_creationflags_for_worker_process(priority: str = 'normal') -> int:
     return {
-        'high'  : subprocess.HIGH_PRIORITY_CLASS,
+        'high': subprocess.HIGH_PRIORITY_CLASS,
         'normal': subprocess.NORMAL_PRIORITY_CLASS,
-        'low'   : subprocess.IDLE_PRIORITY_CLASS
+        'low': subprocess.IDLE_PRIORITY_CLASS,
     }[priority] | subprocess.DETACHED_PROCESS
 
 
@@ -155,7 +156,7 @@ class Worker:
                 try:
                     self.child.terminate()
                     st = time.time()
-                    while self.is_alive and time.time()-st < 2:
+                    while self.is_alive and time.time() - st < 2:
                         time.sleep(0.2)
                 finally:
                     if self.is_alive:
@@ -186,16 +187,16 @@ class Worker:
             priority = prefs['worker_process_priority']
         cmd = [exe] if isinstance(exe, (str, bytes)) else exe
         args = {
-                'env': env,
-                'cwd': _cwd,
-                }
+            'env': env,
+            'cwd': _cwd,
+        }
         if iswindows:
             args['creationflags'] = windows_creationflags_for_worker_process(priority)
         else:
             niceness = {
-                    'normal': 0,
-                    'low'   : 10,
-                    'high'  : 20,
+                'normal': 0,
+                'low': 10,
+                'high': 20,
             }[priority]
             args['env']['CALIBRE_WORKER_NICENESS'] = str(niceness)
         ret = None
@@ -220,7 +221,7 @@ class Worker:
                 if iswindows:
                     for fd in pass_fds:
                         os.set_handle_inheritable(fd, True)
-                    args['startupinfo'] = subprocess.STARTUPINFO(lpAttributeList={'handle_list':pass_fds})
+                    args['startupinfo'] = subprocess.STARTUPINFO(lpAttributeList={'handle_list': pass_fds})
                 else:
                     args['pass_fds'] = pass_fds
             self.child = subprocess.Popen(cmd, **args)  # type: ignore

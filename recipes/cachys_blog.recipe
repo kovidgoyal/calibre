@@ -11,11 +11,11 @@ class cachys_blog(BasicNewsRecipe):
     # Author of the recipe
     __author__ = 'Volker Heggemann, VoHe'
     # description, some Reader show this in titlepage
-    description = u'Smart Home, Software, Hardware, Mobile Computing & Co.'
+    description = 'Smart Home, Software, Hardware, Mobile Computing & Co.'
     # Who published the content?
-    publisher = u'https://stadt-bremerhaven.de/'
+    publisher = 'https://stadt-bremerhaven.de/'
     # What is the content of?
-    category = u'Technik - News'
+    category = 'Technik - News'
     use_embedded_content = False
     language = 'de'
     # Removes empty feeds - why keep them!?

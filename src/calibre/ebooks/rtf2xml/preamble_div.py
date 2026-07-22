@@ -24,12 +24,14 @@ class PreambleDiv:
     Break the preamble into divisions.
     """
 
-    def __init__(self, in_file,
-            bug_handler,
-            copy=None,
-            no_namespace=None,
-            run_level=1,
-            ):
+    def __init__(
+        self,
+        in_file,
+        bug_handler,
+        copy=None,
+        no_namespace=None,
+        run_level=1,
+    ):
         """
         Required:
             'file'
@@ -53,11 +55,11 @@ class PreambleDiv:
         """
         self.__all_lists = {}
         self.__page = {
-        'margin-top'    : 72,
-        'margin-bottom' : 72,
-        'margin-left'   : 90,
-        'margin-right'  : 90,
-        'gutter'        : 0,
+            'margin-top': 72,
+            'margin-bottom': 72,
+            'margin-left': 90,
+            'margin-right': 90,
+            'gutter': 0,
         }
         self.__cb_count = ''
         self.__ob_count = ''
@@ -70,51 +72,51 @@ class PreambleDiv:
         self.__revision_table_final = ''
         self.__doc_info_table_final = ''
         self.__state_dict = {
-        'default'           : self.__default_func,
-        'rtf_header'        : self.__rtf_head_func,
-        'preamble'          : self.__preamble_func,
-        'font_table'        : self.__font_table_func,
-        'color_table'       : self.__color_table_func,
-        'style_sheet'       : self.__style_sheet_func,
-        'list_table'        : self.__list_table_func,
-        'override_table'    : self.__override_table_func,
-        'revision_table'    : self.__revision_table_func,
-        'doc_info'          : self.__doc_info_func,
-        'body'              : self.__body_func,
-        'ignore'            : self.__ignore_func,
-        'cw<ri<rtf_______'  : self.__found_rtf_head_func,
-        'cw<pf<par-def___'  : self.__para_def_func,
-        'tx<nu<__________'  : self.__text_func,
-        'cw<tb<row-def___'  : self.__row_def_func,
-        'cw<sc<section___'  : self.__new_section_func,
-        'cw<sc<sect-defin'  : self.__new_section_func,
-        'cw<it<font-table'  : self.__found_font_table_func,
-        'cw<it<colr-table'  : self.__found_color_table_func,
-        'cw<ss<style-shet'  : self.__found_style_sheet_func,
-        'cw<it<listtable_'  : self.__found_list_table_func,
-        'cw<it<lovr-table'  : self.__found_override_table_func,
-        'cw<it<revi-table'  : self.__found_revision_table_func,
-        'cw<di<doc-info__'  : self.__found_doc_info_func,
-        'cw<pa<margin-lef'  : self.__margin_func,
-        'cw<pa<margin-rig'  : self.__margin_func,
-        'cw<pa<margin-top'  : self.__margin_func,
-        'cw<pa<margin-bot'  : self.__margin_func,
-        'cw<pa<gutter____'  : self.__margin_func,
-        'cw<pa<paper-widt'  : self.__margin_func,
-        'cw<pa<paper-hght'  : self.__margin_func,
-        # 'cw<tb<columns___'  : self.__section_func,
+            'default': self.__default_func,
+            'rtf_header': self.__rtf_head_func,
+            'preamble': self.__preamble_func,
+            'font_table': self.__font_table_func,
+            'color_table': self.__color_table_func,
+            'style_sheet': self.__style_sheet_func,
+            'list_table': self.__list_table_func,
+            'override_table': self.__override_table_func,
+            'revision_table': self.__revision_table_func,
+            'doc_info': self.__doc_info_func,
+            'body': self.__body_func,
+            'ignore': self.__ignore_func,
+            'cw<ri<rtf_______': self.__found_rtf_head_func,
+            'cw<pf<par-def___': self.__para_def_func,
+            'tx<nu<__________': self.__text_func,
+            'cw<tb<row-def___': self.__row_def_func,
+            'cw<sc<section___': self.__new_section_func,
+            'cw<sc<sect-defin': self.__new_section_func,
+            'cw<it<font-table': self.__found_font_table_func,
+            'cw<it<colr-table': self.__found_color_table_func,
+            'cw<ss<style-shet': self.__found_style_sheet_func,
+            'cw<it<listtable_': self.__found_list_table_func,
+            'cw<it<lovr-table': self.__found_override_table_func,
+            'cw<it<revi-table': self.__found_revision_table_func,
+            'cw<di<doc-info__': self.__found_doc_info_func,
+            'cw<pa<margin-lef': self.__margin_func,
+            'cw<pa<margin-rig': self.__margin_func,
+            'cw<pa<margin-top': self.__margin_func,
+            'cw<pa<margin-bot': self.__margin_func,
+            'cw<pa<gutter____': self.__margin_func,
+            'cw<pa<paper-widt': self.__margin_func,
+            'cw<pa<paper-hght': self.__margin_func,
+            # 'cw<tb<columns___'  : self.__section_func,
         }
         self.__margin_dict = {
-        'margin-lef': 'margin-left',
-        'margin-rig': 'margin-right',
-        'margin-top': 'margin-top',
-        'margin-bot': 'margin-bottom',
-        'gutter____': 'gutter',
-        'paper-widt': 'paper-width',
-        'paper-hght': 'paper-height',
+            'margin-lef': 'margin-left',
+            'margin-rig': 'margin-right',
+            'margin-top': 'margin-top',
+            'margin-bot': 'margin-bottom',
+            'gutter____': 'gutter',
+            'paper-widt': 'paper-width',
+            'paper-hght': 'paper-height',
         }
         self.__translate_sec = {
-        'columns___': 'column',
+            'columns___': 'column',
         }
         self.__section = {}
         # self.__write_obj.write(self.__color_table_final)
@@ -125,9 +127,9 @@ class PreambleDiv:
         self.__ob_group = 0  # depth of group
         self.__font_table_final: str = ''
         self.__list_table_obj = list_table.ListTable(
-                run_level=self.__run_level,
-                bug_handler=self.__bug_handler,
-                )
+            run_level=self.__run_level,
+            bug_handler=self.__bug_handler,
+        )
 
     def __ignore_func(self, line):
         """
@@ -142,19 +144,11 @@ class PreambleDiv:
 
     def __rtf_head_func(self, line):
         if self.__ob_count == '0002':
-            self.__rtf_final = (
-            'mi<mk<rtfhed-beg\n' +
-            self.__rtf_final +
-            'mi<mk<rtfhed-end\n'
-            )
+            self.__rtf_final = 'mi<mk<rtfhed-beg\n' + self.__rtf_final + 'mi<mk<rtfhed-end\n'
             self.__state = 'preamble'
         elif self.__token_info in {'tx<nu<__________', 'cw<pf<par-def___'}:
             self.__state = 'body'
-            self.__rtf_final = (
-            'mi<mk<rtfhed-beg\n' +
-            self.__rtf_final +
-            'mi<mk<rtfhed-end\n'
-            )
+            self.__rtf_final = 'mi<mk<rtfhed-beg\n' + self.__rtf_final + 'mi<mk<rtfhed-end\n'
             self.__make_default_font_table()
             self.__write_preamble()
             self.__write_obj.write(line)
@@ -223,11 +217,11 @@ mi<tg<close_____<style-table
 
     def __font_table_func(self, line):
         """
-        Keep adding to the self.__individual_font string until end of group
-        found. If a bracket is found, check that it is only one bracket deep.
-        If it is, then set the marker for an individual font. If it is not,
-        then ignore all data in this group.
-cw<ci<font-style<nu<0
+                Keep adding to the self.__individual_font string until end of group
+                found. If a bracket is found, check that it is only one bracket deep.
+                If it is, then set the marker for an individual font. If it is not,
+                then ignore all data in this group.
+        cw<ci<font-style<nu<0
         """
         if self.__cb_count == self.__close_group_count:
             self.__state = 'preamble'
@@ -323,9 +317,7 @@ cw<ci<font-style<nu<0
     def __list_table_func(self, line):
         if self.__cb_count == self.__close_group_count:
             self.__state = 'preamble'
-            self.__list_table_final, self.__all_lists =\
-                self.__list_table_obj.parse_list_table(
-                self.__list_table_final)
+            self.__list_table_final, self.__all_lists = self.__list_table_obj.parse_list_table(self.__list_table_final)
             # sys.stderr.write(repr(all_lists))
         elif self.__token_info == '':
             pass
@@ -336,7 +328,7 @@ cw<ci<font-style<nu<0
         self.__override_table_obj = override_table.OverrideTable(
             run_level=self.__run_level,
             list_of_lists=self.__all_lists,
-            )
+        )
         self.__state = 'override_table'
         self.__override_table_final = ''
         self.__close_group_count = self.__ob_count
@@ -346,8 +338,7 @@ cw<ci<font-style<nu<0
     def __override_table_func(self, line):
         if self.__cb_count == self.__close_group_count:
             self.__state = 'preamble'
-            self.__override_table_final, self.__all_lists =\
-                self.__override_table_obj.parse_override_table(self.__override_table_final)
+            self.__override_table_final, self.__all_lists = self.__override_table_obj.parse_override_table(self.__override_table_final)
         elif self.__token_info == '':
             pass
         else:
@@ -403,11 +394,10 @@ cw<ci<font-style<nu<0
     def __print_page_info(self):
         self.__write_obj.write('mi<tg<empty-att_<page-definition')
         for key in self.__page.keys():
-            self.__write_obj.write(
-            f'<{key}>{self.__page[key]}'
-            )
+            self.__write_obj.write(f'<{key}>{self.__page[key]}')
         self.__write_obj.write('\n')
-# mi<tg<open-att__<footn
+
+    # mi<tg<open-att__<footn
 
     def __print_sec_info(self):
         """
@@ -415,17 +405,12 @@ cw<ci<font-style<nu<0
         If not, print out an empty tag to satisfy the dtd.
         """
         if len(self.__section.keys()) == 0:
-            self.__write_obj.write(
-            'mi<tg<open______<section-definition\n'
-                    )
+            self.__write_obj.write('mi<tg<open______<section-definition\n')
         else:
-            self.__write_obj.write(
-            'mi<tg<open-att__<section-definition')
+            self.__write_obj.write('mi<tg<open-att__<section-definition')
             keys = self.__section.keys()
             for key in keys:
-                self.__write_obj.write(
-                f'<{key}>{self.__section[key]}'
-                )
+                self.__write_obj.write(f'<{key}>{self.__section[key]}')
             self.__write_obj.write('\n')
 
     def __section_func(self, line):
@@ -500,12 +485,9 @@ cw<ci<font-style<nu<0
         Write a body and section beginning.
         """
         if self.__no_namespace:
-            self.__write_obj.write(
-                'mi<tg<open______<doc\n'
-                    )
+            self.__write_obj.write('mi<tg<open______<doc\n')
         else:
-            self.__write_obj.write(
-                    'mi<tg<open-att__<doc<xmlns>http://rtf2xml.sourceforge.net/\n')
+            self.__write_obj.write('mi<tg<open-att__<doc<xmlns>http://rtf2xml.sourceforge.net/\n')
         self.__write_obj.write('mi<tg<open______<preamble\n')
         self.__write_obj.write(self.__rtf_final)
         if not self.__color_table_final:

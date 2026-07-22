@@ -2,7 +2,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class HindustanTimes(BasicNewsRecipe):
-    title = u'Oxford Mail'
+    title = 'Oxford Mail'
     language = 'en_GB'
     __author__ = 'Krittika Goyal'
     oldest_article = 1  # days
@@ -13,8 +13,6 @@ class HindustanTimes(BasicNewsRecipe):
     auto_cleanup = True
 
     feeds = [
-        ('News',
-         'http://www.oxfordmail.co.uk/news/rss/'),
-        ('Sports',
-         'http://www.oxfordmail.co.uk/sport/rss/'),
+        ('News', 'http://www.oxfordmail.co.uk/news/rss/'),
+        ('Sports', 'http://www.oxfordmail.co.uk/sport/rss/'),
     ]

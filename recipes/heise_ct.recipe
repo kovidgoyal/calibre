@@ -28,13 +28,7 @@ class heise_select(BasicNewsRecipe):
     encoding = 'utf-8'
     language = 'de'
 
-    conversion_options = {
-        'base_font_size': 10,
-        'no_inline_navbars': True,
-        'language': language,
-        'publisher': publisher,
-        'authors': publisher
-    }
+    conversion_options = {'base_font_size': 10, 'no_inline_navbars': True, 'language': language, 'publisher': publisher, 'authors': publisher}
 
     remove_tags = [
         dict(name='meta'),
@@ -56,9 +50,7 @@ class heise_select(BasicNewsRecipe):
         if self.issue is None:
             soup = self.index_to_soup(baseref + '/select')
             sec = soup.find('section', attrs={'class': 'magazine--ct'})
-            self.issue = sec.find('a',
-                                  attrs={'class': 'magazine__link--issue'},
-                                  href=True)['href']
+            self.issue = sec.find('a', attrs={'class': 'magazine__link--issue'}, href=True)['href']
 
         issue_num = self.issue.replace('/select/ct/', '')
         # fix title with issue number to keep them neatly organised
@@ -75,14 +67,8 @@ class heise_select(BasicNewsRecipe):
 
             for li in ul.findAll('li', attrs={'class': 'xp__toc__item'}):
                 article_uri = li.find('a', attrs={'class': 'xp__link'})['href']
-                article_title = li.find('span',
-                                        attrs={
-                                            'class': 'xp__toc__item-subtitle'
-                                        }).text
-                article = {
-                    'title': article_title,
-                    'url': baseref + article_uri
-                }
+                article_title = li.find('span', attrs={'class': 'xp__toc__item-subtitle'}).text
+                article = {'title': article_title, 'url': baseref + article_uri}
                 articles.append(article)
             toc.append((section_title, articles))
 
@@ -105,10 +91,7 @@ class heise_select(BasicNewsRecipe):
         # construct ordinary img from it
         for aimg in soup.findAll('a', attrs={'class': 'js-pswp-image'}):
             if aimg['href'] is not None and aimg['data-pswp-bu'] is not None:
-                img = soup.new_tag('img',
-                                   src=aimg['href'],
-                                   alt=aimg['data-pswp-bu'],
-                                   style='display: block;')
+                img = soup.new_tag('img', src=aimg['href'], alt=aimg['data-pswp-bu'], style='display: block;')
             if img is not None:
                 aimg.replaceWith(img)
 

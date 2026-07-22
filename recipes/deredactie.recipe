@@ -4,7 +4,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class deredactie(BasicNewsRecipe):
-    title = u'Deredactie.be'
+    title = 'Deredactie.be'
     oldest_article = 7
     max_articles_per_feed = 100
     no_stylesheets = True
@@ -29,8 +29,7 @@ class deredactie(BasicNewsRecipe):
     def parse_index(self):
         categories = []
         catnames = {}
-        soup = self.index_to_soup(
-            'http://www.deredactie.be/cm/vrtnieuws.deutsch')
+        soup = self.index_to_soup('http://www.deredactie.be/cm/vrtnieuws.deutsch')
         for elem in soup.findAll('li', attrs={'id': re.compile(r'^navItem[2-9]')}):
             a = elem.find('a', href=True)
             m = re.search(r'(?<=/)[^/]*$', a['href'])
@@ -43,15 +42,13 @@ class deredactie(BasicNewsRecipe):
 
         for cat in categories:
             articles = []
-            soup = self.index_to_soup(
-                'http://www.deredactie.be/cm/vrtnieuws.deutsch/' + cat)
+            soup = self.index_to_soup('http://www.deredactie.be/cm/vrtnieuws.deutsch/' + cat)
             for a in soup.findAll('a', attrs={'href': re.compile(r'deutsch.*/[0-9][0-9][0-9][0-9][0-9][0-9]_')}):
                 skip_this_article = False
                 url = a['href'].strip()
                 if url.startswith('/'):
                     url = 'http://www.deredactie.be' + url
-                myarticle = ({'title': self.tag_to_string(
-                    a), 'url': url, 'description': '', 'date': ''})
+                myarticle = {'title': self.tag_to_string(a), 'url': url, 'description': '', 'date': ''}
                 for article in articles:
                     if article['url'] == url:
                         skip_this_article = True

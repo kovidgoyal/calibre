@@ -17,12 +17,13 @@ from calibre.utils.localization import _
 
 def compile_pat(pat):
     import regex
+
     REGEX_FLAGS = regex.VERSION1 | regex.UNICODE | regex.IGNORECASE
     return regex.compile(pat, flags=REGEX_FLAGS)
 
 
 def all_properties(decl):
-    " This is needed because CSSStyleDeclaration.getProperties(None, all=True) does not work and is slower than it needs to be. "
+    "This is needed because CSSStyleDeclaration.getProperties(None, all=True) does not work and is slower than it needs to be."
     for item in decl.seq:
         p = item.value
         if isinstance(p, Property):
@@ -30,7 +31,6 @@ def all_properties(decl):
 
 
 class StyleDeclaration:
-
     def __init__(self, css_declaration):
         self.css_declaration = css_declaration
         self.expanded_properties = {}
@@ -101,7 +101,18 @@ class StyleDeclaration:
         return force_unicode(self.css_declaration.cssText, 'utf-8')
 
 
-operator_map = {'==':'eq', '!=': 'ne', '<=':'le', '<':'lt', '>=':'ge', '>':'gt', '-':'sub', '+': 'add', '*':'mul', '/':'truediv'}
+operator_map = {
+    '==': 'eq',
+    '!=': 'ne',
+    '<=': 'le',
+    '<': 'lt',
+    '>=': 'ge',
+    '>': 'gt',
+    '-': 'sub',
+    '+': 'add',
+    '*': 'mul',
+    '/': 'truediv',
+}
 
 
 def unit_convert(value, unit, dpi=96.0, body_font_size=12):
@@ -165,7 +176,6 @@ def transform_number(val, op, raw):
 
 
 class Rule:
-
     def __init__(self, property='color', match_type='*', query='', action='remove', action_data=''):
         self.property_name = property.lower()
         self.action, self.action_data = action, action_data
@@ -246,43 +256,37 @@ def validate_rule(rule):
     keys = frozenset(rule)
     extra = keys - allowed_keys
     if extra:
-        return _('Unknown keys'), _(
-            'The rule has unknown keys: %s') % ', '.join(extra)
+        return _('Unknown keys'), _('The rule has unknown keys: %s') % ', '.join(extra)
     missing = allowed_keys - keys
     if missing:
-        return _('Missing keys'), _(
-            'The rule has missing keys: %s') % ', '.join(missing)
+        return _('Missing keys'), _('The rule has missing keys: %s') % ', '.join(missing)
     mt = rule['match_type']
     if not rule['property']:
         return _('Property required'), _('You must specify a CSS property to match')
     if rule['property'] in normalizers:
         return _('Shorthand property not allowed'), _(
             '{0} is a shorthand property. Use the full form of the property,'
-            ' for example, instead of font, use font-family, instead of margin, use margin-top, etc.').format(rule['property'])
+            ' for example, instead of font, use font-family, instead of margin, use margin-top, etc.'
+        ).format(rule['property'])
     if not rule['query'] and mt != '*':
-        _('Query required'), _(
-            'You must specify a value for the CSS property to match')
+        _('Query required'), _('You must specify a value for the CSS property to match')
     if mt not in MATCH_TYPE_MAP:
-        return _('Unknown match type'), _(
-            'The match type %s is not known') % mt
+        return _('Unknown match type'), _('The match type %s is not known') % mt
     if 'matches' in mt:
         try:
             compile_pat(rule['query'])
         except Exception:
-            return _('Query invalid'), _(
-                '%s is not a valid regular expression') % rule['query']
+            return _('Query invalid'), _('%s is not a valid regular expression') % rule['query']
     elif mt in '< > <= >= == !='.split():
         try:
             num = parse_css_length_or_number(rule['query'])[0]
             if num is None:
                 raise Exception('not a number')
         except Exception:
-            return _('Query invalid'), _(
-                '%s is not a valid length or number') % rule['query']
+            return _('Query invalid'), _('%s is not a valid length or number') % rule['query']
     ac, ad = rule['action'], rule['action_data']
     if ac not in ACTION_MAP:
-        return _('Unknown action type'), _(
-            'The action type %s is not known') % mt
+        return _('Unknown action type'), _('The action type %s is not known') % mt
     if not ad and ac != 'remove':
         msg = _('You must specify a number')
         if ac == 'append':
@@ -321,20 +325,26 @@ def transform_sheet(compiled_rules, sheet):
 
 def transform_container(container, serialized_rules, names=()):
     from calibre.ebooks.oeb.polish.css import transform_css
+
     rules = compile_rules(serialized_rules)
     return transform_css(
-        container, transform_sheet=partial(transform_sheet, rules),
-        transform_style=partial(transform_declaration, rules), names=names
+        container,
+        transform_sheet=partial(transform_sheet, rules),
+        transform_style=partial(transform_declaration, rules),
+        names=names,
     )
 
 
 def rule_to_text(rule):
     def get(prop):
         return rule.get(prop) or ''
-    text = _(
-        'If the property {property} {match_type} {query}\n{action}').format(
-            property=get('property'), action=ACTION_MAP[rule['action']],
-            match_type=MATCH_TYPE_MAP[rule['match_type']], query=get('query'))
+
+    text = _('If the property {property} {match_type} {query}\n{action}').format(
+        property=get('property'),
+        action=ACTION_MAP[rule['action']],
+        match_type=MATCH_TYPE_MAP[rule['match_type']],
+        query=get('query'),
+    )
     if get('action_data'):
         text += get('action_data')
     return text
@@ -351,11 +361,12 @@ def export_rules(serialized_rules):
 
 def import_rules(raw_data):
     import regex
+
     pat = regex.compile(r'\s*(\S+)\s*:\s*(.+)', flags=regex.VERSION1)
     current_rule = {}
 
     def sanitize(r):
-        return {k:(r.get(k) or '') for k in allowed_keys}
+        return {k: (r.get(k) or '') for k in allowed_keys}
 
     for line in raw_data.decode('utf-8').splitlines():
         if not line.strip():
@@ -392,9 +403,10 @@ def test(return_tests=False):  # {{{
 
             def m(match_type='*', query='', action_data=''):
                 action = 'change' if action_data else 'remove'
-                self.ae(apply_rule(
-                    css, property=prop, match_type=match_type, query=query, action=action, action_data=action_data
-                ), ecss)
+                self.ae(
+                    apply_rule(css, property=prop, match_type=match_type, query=query, action=action, action_data=action_data),
+                    ecss,
+                )
 
             prop = 'font-size'
             css, ecss = 'font-size: 1.2rem', 'font-size: 1.2em'
@@ -435,20 +447,28 @@ def test(return_tests=False):  # {{{
 
             prop = 'margin-top'
             m('margin: 0', 'margin-bottom: 0;\nmargin-left: 0;\nmargin-right: 0')
-            m('margin: 0 !important', 'margin-bottom: 0 !important;\nmargin-left: 0 !important;\nmargin-right: 0 !important')
+            m(
+                'margin: 0 !important',
+                'margin-bottom: 0 !important;\nmargin-left: 0 !important;\nmargin-right: 0 !important',
+            )
             m('margin: 0', 'margin-bottom: 0;\nmargin-left: 0;\nmargin-right: 0;\nmargin-top: 1pt', 'change', '1pt')
             prop = 'font-family'
-            m('font: 10em "Kovid Goyal", monospace', 'font-size: 10em;\nfont-style: normal;\nfont-variant: normal;\nfont-weight: normal;\nline-height: normal')
+            m(
+                'font: 10em "Kovid Goyal", monospace',
+                'font-size: 10em;\nfont-style: normal;\nfont-variant: normal;\nfont-weight: normal;\nline-height: normal',
+            )
 
         def test_append(self):
             def m(css, ecss, action_data=''):
                 self.ae(ecss, apply_rule(css, property=prop, action='append', action_data=action_data))
+
             prop = 'color'
             m('color: red', 'color: red;\nmargin: 1pt;\nfont-weight: bold', 'margin: 1pt; font-weight: bold')
 
         def test_change(self):
             def m(css, ecss, action='change', action_data=''):
                 self.ae(ecss, apply_rule(css, property=prop, action=action, action_data=action_data))
+
             prop = 'font-family'
             m('font-family: a, b', 'font-family: "c c", d', action_data='"c c", d')
             prop = 'line-height'
@@ -457,11 +477,22 @@ def test(return_tests=False):  # {{{
             m('line-height: 1', 'line-height: 0', '-', '1')
             m('line-height: 2', 'line-height: 1', '/', '2')
             prop = 'border-top-width'
-            m('border-width: 1', 'border-bottom-width: 1;\nborder-left-width: 1;\nborder-right-width: 1;\nborder-top-width: 3', '*', '3')
+            m(
+                'border-width: 1',
+                'border-bottom-width: 1;\nborder-left-width: 1;\nborder-right-width: 1;\nborder-top-width: 3',
+                '*',
+                '3',
+            )
             prop = 'font-size'
 
         def test_export_import(self):
-            rule = {'property':'a', 'match_type':'*', 'query':'some text', 'action':'remove', 'action_data':'color: red; a: b'}
+            rule = {
+                'property': 'a',
+                'match_type': '*',
+                'query': 'some text',
+                'action': 'remove',
+                'action_data': 'color: red; a: b',
+            }
             self.ae(rule, next(import_rules(export_rules([rule]))))
 
     tests = unittest.defaultTestLoader.loadTestsFromTestCase(TestTransforms)

@@ -10,7 +10,6 @@ draw_snake_spinner
 
 
 class WaitPanel(QWidget):
-
     def __init__(self, msg, parent=None, size=256, interval=10):
         QWidget.__init__(self, parent)
         self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
@@ -34,7 +33,6 @@ class WaitPanel(QWidget):
 
 
 class WaitStack(QStackedWidget):
-
     def __init__(self, msg, after=None, parent=None, size=256, interval=10):
         QStackedWidget.__init__(self, parent)
         self.wp = WaitPanel(msg, self, size, interval)
@@ -62,7 +60,6 @@ class WaitStack(QStackedWidget):
 
 
 class WaitLayout(QStackedLayout):
-
     def __init__(self, msg, after=None, parent=None, size=256, interval=10):
         QStackedLayout.__init__(self, parent)
         self.wp = WaitPanel(msg, parent, size, interval)
@@ -95,7 +92,6 @@ def develop():
     from calibre.gui2 import Application
 
     class Widget(QWidget):
-
         def __init__(self):
             QWidget.__init__(self)
             self.a = SpinAnimator(self)
@@ -121,6 +117,7 @@ def develop():
 
 if __name__ == '__main__':
     from calibre.gui2 import Application
+
     app = Application([])
     d = QDialog()
     d.resize(64, 64)

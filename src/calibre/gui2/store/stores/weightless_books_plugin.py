@@ -26,7 +26,6 @@ except ImportError:
 
 
 class WeightlessBooksStore(BasicStoreConfig, StorePlugin):
-
     def open(self, gui=None, parent=None, detail_item=None, external=False):
         url = 'http://weightlessbooks.com/'
 

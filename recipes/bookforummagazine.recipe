@@ -7,10 +7,7 @@ _issue_url = ''
 
 class BookforumMagazine(BasicNewsRecipe):
     title = 'Bookforum'
-    description = (
-        'Bookforum is an American book review magazine devoted to books and '
-        'the discussion of literature. https://www.bookforum.com/print'
-    )
+    description = 'Bookforum is an American book review magazine devoted to books and the discussion of literature. https://www.bookforum.com/print'
     language = 'en'
     __author__ = 'ping'
     publication_type = 'magazine'
@@ -42,9 +39,7 @@ class BookforumMagazine(BasicNewsRecipe):
         return soup
 
     def parse_index(self):
-        soup = self.index_to_soup(
-            _issue_url or 'https://www.bookforum.com/print'
-        )
+        soup = self.index_to_soup(_issue_url or 'https://www.bookforum.com/print')
         meta_ele = soup.find('meta', property='og:title')
         if meta_ele:
             self.timefmt = f' [{meta_ele["content"]}]'
@@ -58,21 +53,13 @@ class BookforumMagazine(BasicNewsRecipe):
 
         articles = {}
         for sect_ele in soup.find_all('div', class_='toc-articles__section'):
-            section_name = self.tag_to_string(
-                sect_ele.find('a', class_='toc__anchor-links__link')
-            )
+            section_name = self.tag_to_string(sect_ele.find('a', class_='toc__anchor-links__link'))
             for article_ele in sect_ele.find_all('article'):
                 title_ele = article_ele.find('h1')
                 sub_title_ele = article_ele.find(class_='toc-article__subtitle')
-                articles.setdefault(section_name, []).append(
-                    {
-                        'title': self.tag_to_string(title_ele),
-                        'url': article_ele.find('a', class_='toc-article__link')[
-                            'href'
-                        ],
-                        'description': self.tag_to_string(sub_title_ele)
-                        if sub_title_ele
-                        else '',
-                    }
-                )
+                articles.setdefault(section_name, []).append({
+                    'title': self.tag_to_string(title_ele),
+                    'url': article_ele.find('a', class_='toc-article__link')['href'],
+                    'description': self.tag_to_string(sub_title_ele) if sub_title_ele else '',
+                })
         return articles.items()

@@ -1,4 +1,4 @@
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 '''
 Device scanner that fetches list of devices on system ina  platform dependent
@@ -21,10 +21,11 @@ if iswindows:
 
     def drive_is_ok(letter, max_tries=10, debug=False):
         from calibre_extensions import winutil
+
         with drive_ok_lock:
             for i in range(max_tries):
                 try:
-                    winutil.get_disk_free_space(letter+':\\')
+                    winutil.get_disk_free_space(letter + ':\\')
                     return True
                 except Exception as e:
                     if i >= max_tries - 1 and debug:
@@ -33,8 +34,8 @@ if iswindows:
                     time.sleep(0.2)
             return False
 
-_USBDevice = namedtuple('_USBDevice',
-    'vendor_id product_id bcd manufacturer product serial')
+
+_USBDevice = namedtuple('_USBDevice', 'vendor_id product_id bcd manufacturer product serial')
 
 
 class USBDevice(_USBDevice):
@@ -47,19 +48,21 @@ class USBDevice(_USBDevice):
         return self
 
     def __repr__(self):
-        return (f'USBDevice(busnum={self.busnum}, devnum={self.devnum}, '
-                f'vendor_id=0x{self.vendor_id:04x}, product_id=0x{self.product_id:04x}, bcd=0x{self.bcd:04x}, '
-                f'manufacturer={self.manufacturer}, product={self.product}, serial={self.serial})')
+        return (
+            f'USBDevice(busnum={self.busnum}, devnum={self.devnum}, '
+            f'vendor_id=0x{self.vendor_id:04x}, product_id=0x{self.product_id:04x}, bcd=0x{self.bcd:04x}, '
+            f'manufacturer={self.manufacturer}, product={self.product}, serial={self.serial})'
+        )
 
     __str__ = __repr__
     __unicode__ = __repr__
 
 
 class LibUSBScanner:
-
     def __call__(self):
         if not hasattr(self, 'libusb'):
             from calibre_extensions import libusb
+
             self.libusb = libusb
 
         ans = set()
@@ -82,6 +85,7 @@ class LibUSBScanner:
         import gc
 
         from calibre.utils.mem import memory
+
         memory()
         for num in (1, 10, 100):
             start = memory()
@@ -94,7 +98,6 @@ class LibUSBScanner:
 
 
 class LinuxScanner:
-
     SYSFS_PATH = os.environ.get('SYSFS_PATH', '/sys')
 
     def __init__(self):
@@ -128,15 +131,15 @@ class LinuxScanner:
             except Exception:
                 continue
             try:
-                dev.append(int(b'0x'+read(ven), 16))
+                dev.append(int(b'0x' + read(ven), 16))
             except Exception:
                 continue
             try:
-                dev.append(int(b'0x'+read(prod), 16))
+                dev.append(int(b'0x' + read(prod), 16))
             except Exception:
                 continue
             try:
-                dev.append(int(b'0x'+read(bcd), 16))
+                dev.append(int(b'0x' + read(bcd), 16))
             except Exception:
                 continue
             try:
@@ -179,13 +182,22 @@ if isnetbsd:
 
 
 class DeviceScanner:
-
     def __init__(self, *args):
         if iswindows:
             from calibre.devices.winusb import scan_usb_devices as win_scanner
-        self.scanner = (win_scanner if iswindows else osx_scanner if ismacos else
-                freebsd_scanner if isfreebsd else netbsd_scanner if isnetbsd
-                else linux_scanner if islinux else libusb_scanner)
+        self.scanner = (
+            win_scanner
+            if iswindows
+            else osx_scanner
+            if ismacos
+            else freebsd_scanner
+            if isfreebsd
+            else netbsd_scanner
+            if isnetbsd
+            else linux_scanner
+            if islinux
+            else libusb_scanner
+        )
         if self.scanner is None:
             self.scanner = libusb_scanner
         self.devices = []
@@ -196,15 +208,15 @@ class DeviceScanner:
             self.devices = self.scanner()
 
     def is_device_connected(self, device, debug=False, only_presence=False):
-        """ If only_presence is True don't perform any expensive checks """
-        return device.is_usb_connected(self.devices, debug=debug,
-                only_presence=only_presence)
+        """If only_presence is True don't perform any expensive checks"""
+        return device.is_usb_connected(self.devices, debug=debug, only_presence=only_presence)
 
 
 def test_for_mem_leak():
     import gc
 
     from calibre.utils.mem import diff_hists, gc_histogram, memory
+
     gc.disable()
     scanner = DeviceScanner()
     scanner.scan()

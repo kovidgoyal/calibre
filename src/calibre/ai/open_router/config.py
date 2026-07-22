@@ -53,7 +53,6 @@ if TYPE_CHECKING:
 
 
 class Model(QWidget):
-
     select_model = pyqtSignal(str, bool)
 
     def __init__(self, for_text: bool = True, parent: QWidget | None = None):
@@ -61,14 +60,17 @@ class Model(QWidget):
         l = QHBoxLayout(self)
         l.setContentsMargins(0, 0, 0, 0)
         self.for_text = for_text
-        self.model_id, self.model_name = pref(
-            'text_model' if for_text else 'text_to_image_model', ('', _('Automatic')))
+        self.model_id, self.model_name = pref('text_model' if for_text else 'text_to_image_model', ('', _('Automatic')))
         self.la = la = QLabel(self.model_name)
-        self.setToolTip(_('The model to use for text related tasks') if for_text else _(
-            'The model to use for generating images from text'))
-        self.setToolTip(self.toolTip() + '\n\n' + _(
-            'If not specified an appropriate model is chosen automatically.\n'
-            'See the option for "Model choice strategy" to control how models are automatically chosen.'))
+        self.setToolTip(_('The model to use for text related tasks') if for_text else _('The model to use for generating images from text'))
+        self.setToolTip(
+            self.toolTip()
+            + '\n\n'
+            + _(
+                'If not specified an appropriate model is chosen automatically.\n'
+                'See the option for "Model choice strategy" to control how models are automatically chosen.'
+            )
+        )
         self.b = b = QPushButton(_('&Change'))
         b.setToolTip(_('Choose a model'))
         l.addWidget(la), l.addWidget(b)
@@ -83,7 +85,6 @@ class Model(QWidget):
 
 
 class ModelsModel(QAbstractListModel):
-
     def __init__(self, capabilities, parent: QObject | None = None):
         super().__init__(parent)
         for plugin in available_ai_provider_plugins():
@@ -93,8 +94,7 @@ class ModelsModel(QAbstractListModel):
         else:
             raise ValueError('Could not find OpenRouterAI plugin')
         self.all_models_map = self.backend.get_available_models()
-        self.all_models = tuple(filter(
-            lambda m: capabilities & m.capabilities == capabilities, self.all_models_map.values()))
+        self.all_models = tuple(filter(lambda m: capabilities & m.capabilities == capabilities, self.all_models_map.values()))
         self.sorts = tuple(primary_sort_key(m.name) for m in self.all_models)
 
     def generate_sorts(self, *sorts):
@@ -118,14 +118,13 @@ class ModelsModel(QAbstractListModel):
 
 
 class ProxyModels(QSortFilterProxyModel):
-
     def __init__(self, capabilities, parent=None):
         super().__init__(parent)
         self.source_model = ModelsModel(capabilities, self)
         self.source_model.generate_sorts(lambda x: primary_sort_key(x.name))
         self.setSourceModel(self.source_model)
         self.filters = []
-        self.setSortRole(Qt.ItemDataRole.UserRole+1)
+        self.setSortRole(Qt.ItemDataRole.UserRole + 1)
 
     def filterAcceptsRow(self, source_row: int, source_parent) -> bool:
         try:
@@ -157,7 +156,6 @@ class ProxyModels(QSortFilterProxyModel):
 
 
 class ModelDetails(QTextBrowser):
-
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setOpenLinks(False)
@@ -167,8 +165,12 @@ class ModelDetails(QTextBrowser):
     def show_help(self):
         self.setText(f'''
         <p>{_('Pick an AI model to use. Generally, newer models are more capable but also more expensive.')}</p>
-        <p>{_('By default, an appropriate AI model is chosen automatically based on the query being made.'
-              ' By picking a model explicitly, you have more control over this process.')}</p>
+        <p>{
+            _(
+                'By default, an appropriate AI model is chosen automatically based on the query being made.'
+                ' By picking a model explicitly, you have more control over this process.'
+            )
+        }</p>
         <p>{_('Another criterion to look for is if the model is <i>moderated</i> (that is, its output is filtered by the provider).')}</p>
         ''')
 
@@ -176,10 +178,12 @@ class ModelDetails(QTextBrowser):
         if m.pricing.is_free:
             price = f"<b>{_('Free')}</b>"
         else:
+
             def fmt(p: float) -> str:
                 ans = f'$ {p:.2f}'
                 ans = ans.removesuffix('.00')
                 return ans
+
             price = ''
             if m.pricing.input_token:
                 price += f'{fmt(m.pricing.input_token * 1e6)}/M {_("input tokens")} '
@@ -215,7 +219,6 @@ class ModelDetails(QTextBrowser):
 
 
 class SortLoc(QComboBox):
-
     def __init__(self, initial='', parent=None):
         super().__init__(parent)
         self.addItem('', '')
@@ -249,9 +252,11 @@ class SortLoc(QComboBox):
 
 
 class ChooseModel(Dialog):
-
     def __init__(
-        self, model_id: str = '', capabilities: AICapabilities = AICapabilities.text_to_text, parent: QWidget | None = None
+        self,
+        model_id: str = '',
+        capabilities: AICapabilities = AICapabilities.text_to_text,
+        parent: QWidget | None = None,
     ):
         self.capabilities = capabilities
         super().__init__(title=_('Choose an AI model'), name='open-router-choose-model', parent=parent)
@@ -327,7 +332,7 @@ class ChooseModel(Dialog):
         b = self.bb.addButton(_('Clear choice'), QDialogButtonBox.ButtonRole.ActionRole)
         assert b is not None
         b.setIcon(QIcon.ic('trash.png'))
-        b.clicked.connect(lambda : setattr(self, 'model_id', ''))
+        b.clicked.connect(lambda: setattr(self, 'model_id', ''))
         b.setToolTip(_('Let the AI model be chosen dynamically based on the query being made'))
         h = QHBoxLayout()
         self.counts = QLabel('')
@@ -356,6 +361,7 @@ class ChooseModel(Dialog):
         text = self.search.text().strip()
         if text:
             search_tokens = text.lower().split()
+
             def model_matches(m):
                 name_tokens = m.name.lower().split()
                 for tok in search_tokens:
@@ -365,6 +371,7 @@ class ChooseModel(Dialog):
                     else:
                         return False
                 return True
+
             filters.append(model_matches)
         with gprefs:
             gprefs.set('openrouter-filter-only-free', self.only_free.isChecked())
@@ -386,18 +393,23 @@ class ChooseModel(Dialog):
 
 
 class ConfigWidget(QWidget):
-
     def __init__(self, parent: QWidget | None = None):
         super().__init__(parent)
         l = QFormLayout(self)
         l.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.ExpandingFieldsGrow)
-        la = QLabel('<p>'+_(
-            'You have to create an account at {0}, then generate an'
-            ' API key and purchase a token amount of credits. After that, you can use any'
-            ' <a href="{1}">AI model</a> you like, including free ones. Your requests are'
-            ' sent to remote providers via OpenRouter.ai, see the <a href="{2}">privacy policy</a>.'
-        ).format('<a href="https://openrouter.ai">OpenRouter.ai</a>', 'https://openrouter.ai/rankings',
-                 'https://openrouter.ai/docs/features/privacy-and-logging'))
+        la = QLabel(
+            '<p>'
+            + _(
+                'You have to create an account at {0}, then generate an'
+                ' API key and purchase a token amount of credits. After that, you can use any'
+                ' <a href="{1}">AI model</a> you like, including free ones. Your requests are'
+                ' sent to remote providers via OpenRouter.ai, see the <a href="{2}">privacy policy</a>.'
+            ).format(
+                '<a href="https://openrouter.ai">OpenRouter.ai</a>',
+                'https://openrouter.ai/rankings',
+                'https://openrouter.ai/docs/features/privacy-and-logging',
+            )
+        )
         la.setWordWrap(True)
         la.setOpenExternalLinks(True)
         l.addRow(la)
@@ -415,29 +427,41 @@ class ConfigWidget(QWidget):
         ms.addItem(_('High quality'), 'native')
         if strat := pref('model_choice_strategy', 'free-or-paid'):
             ms.setCurrentIndex(max(0, ms.findData(strat)))
-        ms.setToolTip('<p>' + _(
-            'The model choice strategy controls how a model to query is chosen when no specific'
-            ' model is specified. The choices are:<ul>\n'
-            '<li><b>Free only</b> - Only uses free models. Can lead to lower quality/slower'
-            ' results, with some rate limiting as well. Prefers unmoderated models where possible. If no free models'
-            ' are available, will fail with an error.\n'
-            '<li><b>Free or paid</b> - Like Free only, but fallback to non-free models if no free ones are available.\n'
-            '<li><b>High quality</b> - Automatically choose a model based on the query, for best possible'
-            " results, regardless of cost. Uses OpenRouter's own automatic model selection."
-        ))
+        ms.setToolTip(
+            '<p>'
+            + _(
+                'The model choice strategy controls how a model to query is chosen when no specific'
+                ' model is specified. The choices are:<ul>\n'
+                '<li><b>Free only</b> - Only uses free models. Can lead to lower quality/slower'
+                ' results, with some rate limiting as well. Prefers unmoderated models where possible. If no free models'
+                ' are available, will fail with an error.\n'
+                '<li><b>Free or paid</b> - Like Free only, but fallback to non-free models if no free ones are available.\n'
+                '<li><b>High quality</b> - Automatically choose a model based on the query, for best possible'
+                " results, regardless of cost. Uses OpenRouter's own automatic model selection."
+            )
+        )
         self._allow_web_searches = aws = QCheckBox(_('Allow &searching the web when generating responses'))
         aws.setChecked(pref('allow_web_searches', False))
-        aws.setToolTip('<p>' + _(
-            'If enabled, OpenRouter will use Exa.ai web searches to return accurate and up-to-date'
-            ' information for queries, where possible. This adds about two cents to the cost of every request.'))
+        aws.setToolTip(
+            '<p>'
+            + _(
+                'If enabled, OpenRouter will use Exa.ai web searches to return accurate and up-to-date'
+                ' information for queries, where possible. This adds about two cents to the cost of every request.'
+            )
+        )
 
         self.reasoning_strat = rs = reasoning_strategy_config_widget(pref('reasoning_strategy', 'auto'), self)
         l.addRow(_('&Reasoning effort:'), rs)
 
         self.data_retention = dr = QCheckBox(_('Allow usage of providers that &store prompts'), self)
-        dr.setToolTip(textwrap.fill(_(
-            'Some AI providers might store your prompts, usually to use as data for training.'
-            ' When disabled, such providers will not be used. This may prevent usage of some models.')))
+        dr.setToolTip(
+            textwrap.fill(
+                _(
+                    'Some AI providers might store your prompts, usually to use as data for training.'
+                    ' When disabled, such providers will not be used. This may prevent usage of some models.'
+                )
+            )
+        )
         dr.setChecked(pref('data_collection', 'deny') == 'allow')
         l.addRow(dr)
 
@@ -470,8 +494,12 @@ class ConfigWidget(QWidget):
 
     @property
     def settings(self) -> dict[str, Any]:
-        ans = {'api_key': encode_secret(self.api_key), 'model_choice_strategy': self.model_choice_strategy,
-               'reasoning_strategy': self.reasoning_strategy, 'data_collection': self.data_collection}
+        ans = {
+            'api_key': encode_secret(self.api_key),
+            'model_choice_strategy': self.model_choice_strategy,
+            'reasoning_strategy': self.reasoning_strategy,
+            'data_collection': self.data_collection,
+        }
         if self.text_model.model_id:
             ans['text_model'] = (self.text_model.model_id, self.text_model.model_name)
         return ans
@@ -483,9 +511,12 @@ class ConfigWidget(QWidget):
     def validate(self) -> bool:
         if self.is_ready_for_use:
             return True
-        error_dialog(self, _('No API key'), _(
-            'You must supply an API key to use OpenRouter. Remember to also buy a few credits, even if you'
-            ' plan on using only free models.'), show=True)
+        error_dialog(
+            self,
+            _('No API key'),
+            _('You must supply an API key to use OpenRouter. Remember to also buy a few credits, even if you plan on using only free models.'),
+            show=True,
+        )
         return False
 
     def save_settings(self):

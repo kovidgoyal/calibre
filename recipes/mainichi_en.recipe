@@ -7,7 +7,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class MainichiEnglishNews(BasicNewsRecipe):
-    title = u'The Mainichi'
+    title = 'The Mainichi'
     __author__ = 'unkn0wn'
 
     description = 'Japanese traditional newspaper Mainichi news in English'
@@ -27,16 +27,14 @@ class MainichiEnglishNews(BasicNewsRecipe):
 
     def parse_index(self):
         index = 'https://mainichi.jp/english/'
-        sections = [
-            'articles'
-        ]
+        sections = ['articles']
         feeds = []
         soup = self.index_to_soup(index)
         for sec in sections:
             section = sec.capitalize()
             self.log(section)
             articles = []
-            for a in soup.findAll('a', attrs={'href':lambda x: x and 'articles' in x}):
+            for a in soup.findAll('a', attrs={'href': lambda x: x and 'articles' in x}):
                 if a.find('img'):
                     continue
                 url = a['href']

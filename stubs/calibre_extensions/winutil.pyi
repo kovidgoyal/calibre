@@ -63,7 +63,13 @@ def get_async_key_state(key: int) -> int:
     pass
 
 def create_named_pipe(
-    name: str, open_mode: int, pipe_mode: int, max_instances: int, out_buffer_size: int, in_buffer_size: int, default_time_out: int
+    name: str,
+    open_mode: int,
+    pipe_mode: int,
+    max_instances: int,
+    out_buffer_size: int,
+    in_buffer_size: int,
+    default_time_out: int,
 ) -> Handle:
     "Wrapper for CreateNamedPipe"
     pass
@@ -141,11 +147,14 @@ def get_computer_name(fmt: int = 3) -> str:
     pass
 
 def special_folder_path(csidl_id: int, flags: int = 0) -> str:
-    (
-        "special_folder_path(csidl_id) -> path\n\nGet paths to common system folders. See windows documentation of SHGetFolderPath. The paths are returned as"
-        " unicode objects. csidl_id should be one of the symbolic constants defined in this module. You can also OR a symbolic constant with CSIDL_FLAG_CREATE"
-        " to force the operating system to create a folder if it does not exist."
-    )
+    """special_folder_path(csidl_id) -> path
+
+    Get paths to common system folders. See windows documentation of SHGetFolderPath.
+    The paths are returned as unicode objects. csidl_id should be one of the symbolic
+    constants defined in this module. You can also OR a symbolic constant with
+    CSIDL_FLAG_CREATE to force the operating system to create a folder if it does not
+    exist.
+    """
     pass
 
 def internet_connected() -> bool:
@@ -229,10 +238,11 @@ def set_file_pointer(handle: Handle, pos: int, method: int = 0) -> int:
     pass
 
 def set_file_handle_delete_on_close(handle: Handle, delete_on_close: bool) -> None:
-    (
-        "set_file_handle_delete_on_close(handle, delete_on_close)\n\nSet the delete on close flag on the specified handle. Note only works if CreateFile() is"
-        " called with DELETE generic access, and without FILE_FLAG_DELETE_ON_CLOSE."
-    )
+    """set_file_handle_delete_on_close(handle, delete_on_close)
+
+    Set the delete on close flag on the specified handle. Note only works if CreateFile()
+    is called with DELETE generic access, and without FILE_FLAG_DELETE_ON_CLOSE.
+    """
     pass
 
 def read_file(handle: Handle, chunk_size: int = 16384) -> bytes:

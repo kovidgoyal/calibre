@@ -11,13 +11,12 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class OSW_Recipe(BasicNewsRecipe):
-
     language = 'pl'
-    title = u'Ośrodek Studiów Wschodnich'
+    title = 'Ośrodek Studiów Wschodnich'
     __author__ = 'teepel <teepel44@gmail.com>'
     INDEX = 'http://www.osw.waw.pl'
-    description = u'Ośrodek Studiów Wschodnich im. Marka Karpia. Centre for Eastern Studies.'
-    category = u'News'
+    description = 'Ośrodek Studiów Wschodnich im. Marka Karpia. Centre for Eastern Studies.'
+    category = 'News'
     oldest_article = 7
     max_articles_per_feed = 100
     cover_url = ''
@@ -34,7 +33,7 @@ class OSW_Recipe(BasicNewsRecipe):
     remove_tags.append(dict(name='table', attrs={'id': 'attachments'}))
     remove_tags.append(dict(name='div', attrs={'class': 'print-submitted'}))
 
-    feeds = [(u'OSW', u'https://www.osw.waw.pl/pl/rss.xml')]
+    feeds = [('OSW', 'https://www.osw.waw.pl/pl/rss.xml')]
 
     def print_version(self, url):
         return url.replace('https://www.osw.waw.pl/pl/', 'https://www.osw.waw.pl/pl/print/')

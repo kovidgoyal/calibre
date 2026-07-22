@@ -45,7 +45,6 @@ SPACE_TAGS = [
 
 
 class TXTMLizer:
-
     def __init__(self, log):
         self.log = log
 
@@ -65,6 +64,7 @@ class TXTMLizer:
         from calibre.ebooks.oeb.base import XHTML
         from calibre.ebooks.oeb.stylizer import Stylizer
         from calibre.utils.xml_parse import safe_xml_fromstring
+
         output = ['']
         output.append(self.get_toc())
         for item in self.oeb_book.spine:
@@ -102,6 +102,7 @@ class TXTMLizer:
             unihandecoder = None
             if getattr(self.opts, 'asciiize', False):
                 from calibre.utils.localization import get_udc
+
                 unihandecoder = get_udc()
             for item in self.toc_titles:
                 if unihandecoder is not None:
@@ -139,7 +140,11 @@ class TXTMLizer:
         if self.opts.remove_paragraph_spacing:
             text = re.sub(r'\n{2,}', '\n', text)
             text = re.sub(r'(?msu)^(?P<t>[^\t\n]+?)$', lambda mo: '{}\n\n'.format(mo.group('t')), text)
-            text = re.sub(r'(?msu)(?P<b>[^\n])\n+(?P<t>[^\t\n]+?)(?=\n)', lambda mo: '{}\n\n\n\n\n\n{}'.format(mo.group('b'), mo.group('t')), text)
+            text = re.sub(
+                r'(?msu)(?P<b>[^\n])\n+(?P<t>[^\t\n]+?)(?=\n)',
+                lambda mo: '{}\n\n\n\n\n\n{}'.format(mo.group('b'), mo.group('t')),
+                text,
+            )
         else:
             text = re.sub(r'\n{7,}', '\n\n\n\n\n\n', text)
 
@@ -164,7 +169,7 @@ class TXTMLizer:
                     if space != -1:
                         # Space was found.
                         short_lines.append(line[:space])
-                        line = line[space + 1:]
+                        line = line[space + 1 :]
                     # Space was not found.
                     elif self.opts.force_max_line_length:
                         # Force breaking at max_lenght.
@@ -176,7 +181,7 @@ class TXTMLizer:
                         if space != -1:
                             # Space was found.
                             short_lines.append(line[:space])
-                            line = line[space + 1:]
+                            line = line[space + 1 :]
                         else:
                             # No space was found cannot break line.
                             short_lines.append(line)
@@ -195,19 +200,16 @@ class TXTMLizer:
         """
         from calibre.ebooks.oeb.base import XHTML_NS, barename, namespace
 
-        if not isinstance(elem.tag, (str, bytes)) \
-           or namespace(elem.tag) != XHTML_NS:
+        if not isinstance(elem.tag, (str, bytes)) or namespace(elem.tag) != XHTML_NS:
             p = elem.getparent()
-            if p is not None and isinstance(p.tag, (str, bytes)) and namespace(p.tag) == XHTML_NS \
-                    and elem.tail:
+            if p is not None and isinstance(p.tag, (str, bytes)) and namespace(p.tag) == XHTML_NS and elem.tail:
                 return [elem.tail]
             return ['']
 
         text = ['']
         style = stylizer.style(elem)
 
-        if style['display'] in ('none', 'oeb-page-head', 'oeb-page-foot') \
-           or style['visibility'] == 'hidden':
+        if style['display'] in ('none', 'oeb-page-head', 'oeb-page-foot') or style['visibility'] == 'hidden':
             if hasattr(elem, 'tail') and elem.tail:
                 return [elem.tail]
             return ['']

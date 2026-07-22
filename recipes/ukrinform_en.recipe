@@ -10,7 +10,7 @@ class UkrInform(BasicNewsRecipe):
     description = 'State information and news agency of Ukraine.'
     publisher = 'Ministry of Culture and Information Policy of Ukraine'
     category = 'newspaper'
-    cover_url = u'https://static.ukrinform.com/photos/2022_05/thumb_files/630_360_1651819943-560.jpg'
+    cover_url = 'https://static.ukrinform.com/photos/2022_05/thumb_files/630_360_1651819943-560.jpg'
     language = 'en_UK'
     no_stylesheets = True
     remove_javascript = False
@@ -26,18 +26,17 @@ class UkrInform(BasicNewsRecipe):
         dict(name='aside'),
         dict(name='img', attrs={'class': 'pixel'}),
         dict(name='section', attrs={'class': 'read'}),
-        dict(name='div', attrs={'data-name': 'int_hidden'})
+        dict(name='div', attrs={'data-name': 'int_hidden'}),
     ]
 
-    feeds = [('Latest news', 'https://www.ukrinform.net/rss/block-lastnews'),
-             ('War', 'https://www.ukrinform.net/rss/rubric-ato'),
-             ('Politics', 'https://www.ukrinform.net/rss/rubric-polytics'),
-             ('Economy', 'https://www.ukrinform.net/rss/rubric-economy'),
-             ('Defense', 'https://www.ukrinform.net/rss/rubric-defense'),
-             ('Society and Culture', 'https://www.ukrinform.net/rss/rubric-society'),
-             ('Sports', 'https://www.ukrinform.net/rss/rubric-sports'),
-             ('Crime', 'https://www.ukrinform.net/rss/rubric-crime'),
-             (
-                 'Accidents and Emergencies',
-                 'https://www.ukrinform.net/rss/rubric-emergencies'
-             )]
+    feeds = [
+        ('Latest news', 'https://www.ukrinform.net/rss/block-lastnews'),
+        ('War', 'https://www.ukrinform.net/rss/rubric-ato'),
+        ('Politics', 'https://www.ukrinform.net/rss/rubric-polytics'),
+        ('Economy', 'https://www.ukrinform.net/rss/rubric-economy'),
+        ('Defense', 'https://www.ukrinform.net/rss/rubric-defense'),
+        ('Society and Culture', 'https://www.ukrinform.net/rss/rubric-society'),
+        ('Sports', 'https://www.ukrinform.net/rss/rubric-sports'),
+        ('Crime', 'https://www.ukrinform.net/rss/rubric-crime'),
+        ('Accidents and Emergencies', 'https://www.ukrinform.net/rss/rubric-emergencies'),
+    ]

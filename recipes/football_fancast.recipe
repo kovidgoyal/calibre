@@ -4,7 +4,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class AdvancedUserRecipe1718373345(BasicNewsRecipe):
-    title          = 'Football Fancast'
+    title = 'Football Fancast'
     language = 'en'
     __author__ = 'Spicy Poison'
     description = 'Football Fancast is a leading independent football news outlet serving with organic content, unique football news and analysis.'
@@ -17,9 +17,9 @@ class AdvancedUserRecipe1718373345(BasicNewsRecipe):
     encoding = 'utf-8'
     masthead_url = 'https://www.valnetinc.com/images/brand/ffc-logo-full-colored-dark.svg'
     remove_empty_feeds = True
-    auto_cleanup   = True
+    auto_cleanup = True
 
-    feeds          = [
+    feeds = [
         # EURO 2024
         ('EURO 2024', 'https://www.footballfancast.com/feed/tag/euro-2024/'),
         ('EURO England', 'https://www.footballfancast.com/feed/tag/england/'),
@@ -60,7 +60,6 @@ class AdvancedUserRecipe1718373345(BasicNewsRecipe):
         # Europa League
         ('ROMA', 'https://www.footballfancast.com/feed/tag/roma/'),
         ('Villarreal', 'https://www.footballfancast.com/feed/tag/villarreal/'),
-
         ('Football Association Challenge Cup', 'https://www.footballfancast.com/feed/fa-cup/'),
         ('English Football League Cup', 'https://www.footballfancast.com/feed/efl-cup/'),
         ('Gaming', 'https://www.footballfancast.com/feed/gaming/'),

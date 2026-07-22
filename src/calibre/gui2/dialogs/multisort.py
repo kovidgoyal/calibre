@@ -16,7 +16,6 @@ descending_symbol = '⏶'
 
 
 class ChooseMultiSort(Dialog):
-
     def __init__(self, db, is_device_connected=False, parent=None, hidden_pref=SORT_HIDDEN_PREF):
         self.db = db.new_api
         self.hidden_fields: set[str] = set(self.db.pref(SORT_HIDDEN_PREF, default=()) or ())
@@ -24,7 +23,7 @@ class ChooseMultiSort(Dialog):
             self.hidden_fields.add('ondevice')
         fm = self.db.field_metadata
         self.key_map = fm.ui_sortable_field_keys().copy()
-        name_map = [(v,k) for k, v in self.key_map.items()]
+        name_map = [(v, k) for k, v in self.key_map.items()]
         self.name_map = sorted(name_map, key=lambda x: primary_sort_key(x[0]))
         self.sort_order_map = dict.fromkeys(self.key_map, True)
         super().__init__(_('Sort by multiple columns'), 'multisort-chooser', parent=parent)
@@ -34,10 +33,13 @@ class ChooseMultiSort(Dialog):
 
     def setup_ui(self):
         self.vl = vl = QVBoxLayout(self)
-        self.la = la = QLabel(_(
-            'Pick multiple columns to sort by. Drag and drop to re-arrange. Higher columns are more important.'
-            ' Ascending or descending order can be toggled by clicking the column name at the bottom'
-            ' of this dialog, after having selected it.'))
+        self.la = la = QLabel(
+            _(
+                'Pick multiple columns to sort by. Drag and drop to re-arrange. Higher columns are more important.'
+                ' Ascending or descending order can be toggled by clicking the column name at the bottom'
+                ' of this dialog, after having selected it.'
+            )
+        )
         la.setWordWrap(True)
         vl.addWidget(la)
         self.order_label = la = QLabel('\xa0')
@@ -126,8 +128,7 @@ class ChooseMultiSort(Dialog):
         self.update_order_label()
 
     def no_column_selected_error(self):
-        return error_dialog(self, _('No sort selected'), _(
-            'You must select at least one column on which to sort'), show=True)
+        return error_dialog(self, _('No sort selected'), _('You must select at least one column on which to sort'), show=True)
 
     def accept(self):
         if not self.current_sort_spec:
@@ -158,8 +159,7 @@ class ChooseMultiSort(Dialog):
                 q[name] = spec
                 self.saved_specs = q
             else:
-                error_dialog(self, _('No name provided'), _(
-                    'You must provide a name for the settings'), show=True)
+                error_dialog(self, _('No name provided'), _('You must provide a name for the settings'), show=True)
 
     def populate_load_menu(self):
         m = self.load_menu
@@ -215,8 +215,10 @@ class ChooseMultiSort(Dialog):
 
 if __name__ == '__main__':
     from calibre.gui2 import Application
+
     app = Application([])
     from calibre.library import db
+
     d = ChooseMultiSort(db())
     d.exec()
     print(d.current_sort_spec)

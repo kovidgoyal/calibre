@@ -1,4 +1,4 @@
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
 
 '''
@@ -50,7 +50,7 @@ TAGS = [
     'guide',
     'reference',
     None,
-   ]
+]
 
 ATTRS = {
     0x0001: 'href',
@@ -75,7 +75,7 @@ ATTRS = {
     0x0014: 'name',
     0x0015: 'content',
     0x0016: 'xml:lang',
-    }
+}
 
 TAGS_ATTRS = [{} for i in range(43)]
 

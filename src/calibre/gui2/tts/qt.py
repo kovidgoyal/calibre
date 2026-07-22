@@ -10,8 +10,7 @@ from calibre.gui2.tts.types import EngineSpecificSettings, TTSBackend, Voice, qv
 
 
 class QtTTSBackend(TTSBackend):
-
-    def __init__(self, engine_name: str = '', parent: QObject|None = None):
+    def __init__(self, engine_name: str = '', parent: QObject | None = None):
         super().__init__(engine_name, parent)
         self.speaking_text = ''
         self.last_word_offset = 0

@@ -9,11 +9,11 @@ class germant3n(BasicNewsRecipe):
     cover_url = 'https://upload.wikimedia.org/wikipedia/commons/6/66/Logo_t3n_mit_Schriftzug.png'
     __author__ = 'Volker Heggemann, VoHe'
     # description, some Reader show this in titlepage
-    description = u'News from t3n.de - there is a pro version too: https://t3n.de/pro/'
+    description = 'News from t3n.de - there is a pro version too: https://t3n.de/pro/'
     # Who published the content?
-    publisher = u't3n.de/social-media newsfeed'
+    publisher = 't3n.de/social-media newsfeed'
     # What is the content of?
-    category = u'Wir sind digitale Pioniere.'
+    category = 'Wir sind digitale Pioniere.'
     use_embedded_content = False
     language = 'de'
     # Removes empty feeds - why keep them!?
@@ -31,24 +31,17 @@ class germant3n(BasicNewsRecipe):
     #
 
     feeds = [
-        ('digitale Wirtschaft',
-         'https://t3n.de/tag/digitale-wirtschaft/rss.xml'),
-        ('Software und Infrastruktur',
-         'https://t3n.de/tag/software-infrastruktur/rss.xml'),
-        ('Entwicklung und Design',
-         'https://t3n.de/tag/entwicklung-design/rss.xml'),
+        ('digitale Wirtschaft', 'https://t3n.de/tag/digitale-wirtschaft/rss.xml'),
+        ('Software und Infrastruktur', 'https://t3n.de/tag/software-infrastruktur/rss.xml'),
+        ('Entwicklung und Design', 'https://t3n.de/tag/entwicklung-design/rss.xml'),
         ('Marketing', 'https://t3n.de/tag/marketing/rss.xml'),
-        ('Gadgets und Livestyle',
-         'https://t3n.de/tag/gadgets-lifestyle/rss.xml'),
+        ('Gadgets und Livestyle', 'https://t3n.de/tag/gadgets-lifestyle/rss.xml'),
         ('Startups', 'https://t3n.de/tag/startups/rss.xml'),
         ('Karriere', 'https://t3n.de/tag/karriere/rss.xml'),
         ('E-Commerce', 'https://t3n.de/tag/e-commerce/rss.xml'),
         ('Mobilität', 'https://t3n.de/tag/mobilitaet/rss.xml'),
-        ('Digitale Gesellschaft',
-         'https://t3n.de/tag/digitale-gesellschaft/rss.xml'),
-        ('Podcast',
-         'http://feeds.soundcloud.com/users/soundcloud:users:213461595/sounds.rss'
-         ),
+        ('Digitale Gesellschaft', 'https://t3n.de/tag/digitale-gesellschaft/rss.xml'),
+        ('Podcast', 'http://feeds.soundcloud.com/users/soundcloud:users:213461595/sounds.rss'),
         # use comment block if you don't need something
         # ('Software und Infrastruktur', ''),
     ]

@@ -23,13 +23,7 @@ class Output:
     Output file
     """
 
-    def __init__(self,
-            file,
-            orig_file,
-            output_dir=None,
-            out_file=None,
-            no_ask=True
-            ):
+    def __init__(self, file, orig_file, output_dir=None, out_file=None, no_ask=True):
         """
         Required:
             'file' -- xml file ready to output
@@ -75,7 +69,7 @@ class Output:
         """
         assert self.__output_dir is not None
         base_name = os.path.basename(self.__orig_file)
-        base_name, ext  = os.path.splitext(base_name)
+        base_name, ext = os.path.splitext(base_name)
         output_file = os.path.join(self.__output_dir, f'{base_name}.xml')
         # change if user wants to output to a specific file
         if self.__out_file:
@@ -84,8 +78,7 @@ class Output:
         user_response = 'o'
         if os.path.isfile(output_file) and not self.__no_ask:
             msg = f'Do you want to overwrite {output_file}?\n'
-            msg += ('Type "o" to overwrite.\n'
-                    'Type any other key to print to standard output.\n')
+            msg += 'Type "o" to overwrite.\nType any other key to print to standard output.\n'
             sys.stderr.write(msg)
             user_response = input()
         if user_response == 'o':

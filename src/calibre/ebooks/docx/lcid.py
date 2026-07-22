@@ -227,5 +227,5 @@ lcid = {
     1144: 'ii',  # Yi
     1085: 'yi',  # Yiddish
     1130: 'yo',  # Yoruba
-    1077: 'zu'  # Zulu
+    1077: 'zu',  # Zulu
 }

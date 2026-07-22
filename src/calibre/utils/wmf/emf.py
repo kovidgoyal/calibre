@@ -21,26 +21,27 @@ RECORD_TYPES = {
     'EMR_STRETCHDIBITS': 0x51,
     'EMR_ALPHABLEND': 0x72,
     'EMR_TRANSPARENTBLT': 0x74,
-    'EOF': 0xe,
+    'EOF': 0xE,
     'HEADER': 0x1,
 }
-RECORD_RMAP = {v:k for k, v in RECORD_TYPES.items()}
+RECORD_RMAP = {v: k for k, v in RECORD_TYPES.items()}
 
 # See http://msdn.microsoft.com/en-us/library/cc230601.aspx
 StretchDiBits = namedtuple(
-    'StretchDiBits', 'left top right bottom x_dest y_dest x_src y_src cx_src'
+    'StretchDiBits',
+    'left top right bottom x_dest y_dest x_src y_src cx_src'
     ' cy_src bmp_hdr_offset bmp_header_size bmp_bits_offset'
-    ' bmp_bits_size usage op dest_width dest_height')
+    ' bmp_bits_size usage op dest_width dest_height',
+)
 # }}}
 
 
 class EMF:
-
     def __init__(self, raw, verbose=0):
         self.pos = 0
         self.found_eof = False
         self.verbose = verbose
-        self.func_map = {v:getattr(self, 'handle_{}'.format(k.replace('EMR_', '').lower()), self.handle_unknown) for k, v in RECORD_TYPES.items()}
+        self.func_map = {v: getattr(self, 'handle_{}'.format(k.replace('EMR_', '').lower()), self.handle_unknown) for k, v in RECORD_TYPES.items()}
         self.bitmaps = []
         while self.pos < len(raw) and not self.found_eof:
             self.read_record(raw)
@@ -55,8 +56,8 @@ class EMF:
 
     def handle_stretchdibits(self, rtype, size, raw):
         data = StretchDiBits(*unpack_from(b'<18I', raw, 8))
-        hdr = raw[data.bmp_hdr_offset:data.bmp_hdr_offset + data.bmp_header_size]
-        bits = raw[data.bmp_bits_offset:data.bmp_bits_offset + data.bmp_bits_size]
+        hdr = raw[data.bmp_hdr_offset : data.bmp_hdr_offset + data.bmp_header_size]
+        bits = raw[data.bmp_bits_offset : data.bmp_bits_offset + data.bmp_bits_size]
         bmp = create_bmp_from_dib(hdr + bits)
         self.bitmaps.append(bmp)
 
@@ -65,7 +66,7 @@ class EMF:
 
     def read_record(self, raw):
         rtype, size = unpack_from(b'<II', raw, self.pos)
-        record = raw[self.pos:self.pos+size]
+        record = raw[self.pos : self.pos + size]
         self.pos += size
         self.func_map.get(rtype, self.handle_unknown)(rtype, size, record)
 

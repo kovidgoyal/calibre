@@ -11,15 +11,13 @@ from calibre.utils.localization import _
 
 
 class HTMLZInput(InputFormatPlugin):
-
-    name        = 'HTLZ Input'
-    author      = 'John Schember'
+    name = 'HTLZ Input'
+    author = 'John Schember'
     description = _('Convert HTMLZ files to HTML')
-    file_types  = {'htmlz'}
+    file_types = {'htmlz'}
     commit_name = 'htmlz_input'
 
-    def convert(self, stream, options, file_ext, log,
-                accelerators):
+    def convert(self, stream, options, file_ext, log, accelerators):
         from calibre.ebooks.chardet import xml_to_unicode
         from calibre.ebooks.metadata.opf2 import OPF
         from calibre.utils.zipfile import ZipFile
@@ -82,6 +80,7 @@ class HTMLZInput(InputFormatPlugin):
 
         # Run the HTML through the html processing plugin.
         from calibre.customize.ui import plugin_for_input_format
+
         html_input = plugin_for_input_format('html')
         for opt in html_input.options:
             setattr(options, opt.option.name, opt.recommended_value)
@@ -98,14 +97,14 @@ class HTMLZInput(InputFormatPlugin):
         options.debug_pipeline = None
         # Generate oeb from html conversion.
         with open(htmlfile, 'rb') as f:
-            oeb = html_input.convert(f, options, 'html', log,
-                {})
+            oeb = html_input.convert(f, options, 'html', log, {})
         options.debug_pipeline = odi
         os.remove(htmlfile)
 
         # Set metadata from file.
         from calibre.customize.ui import get_file_type_metadata
         from calibre.ebooks.oeb.transforms.metadata import meta_info_to_oeb_metadata
+
         mi = get_file_type_metadata(stream, file_ext)
         meta_info_to_oeb_metadata(mi, oeb.metadata, log)
 

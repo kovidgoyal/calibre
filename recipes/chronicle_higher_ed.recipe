@@ -5,7 +5,6 @@ from calibre.web.feeds.recipes import BasicNewsRecipe
 
 
 class Chronicle(BasicNewsRecipe):
-
     title = 'The Chronicle of Higher Education'
     __author__ = 'Rick Shang'
 
@@ -16,10 +15,11 @@ class Chronicle(BasicNewsRecipe):
     keep_only_tags = [
         dict(name='div', attrs={'class': ['article', 'blog-mod']}),
     ]
-    remove_tags = [dict(name='div', attrs={'class': ['related module1', 'maintitle', 'entry-utility', 'object-meta']}),
-                   dict(name='div', attrs={
-                        'id': ['section-nav', 'icon-row', 'enlarge-popup', 'confirm-popup']}),
-                   dict(name='a', attrs={'class': 'show-enlarge enlarge'})]
+    remove_tags = [
+        dict(name='div', attrs={'class': ['related module1', 'maintitle', 'entry-utility', 'object-meta']}),
+        dict(name='div', attrs={'id': ['section-nav', 'icon-row', 'enlarge-popup', 'confirm-popup']}),
+        dict(name='a', attrs={'class': 'show-enlarge enlarge'}),
+    ]
     no_javascript = True
     no_stylesheets = True
 
@@ -43,11 +43,10 @@ class Chronicle(BasicNewsRecipe):
 
         # Find date
         dates = self.tag_to_string(issue.a).split(': ')[-1]
-        self.timefmt = u' [%s]' % dates
+        self.timefmt = ' [%s]' % dates
 
         # Find cover
-        cover = soup0.find('div', attrs={
-                           'class': 'side-content'}).find(attrs={'src': re.compile(r'photos/biz/Current')})
+        cover = soup0.find('div', attrs={'class': 'side-content'}).find(attrs={'src': re.compile(r'photos/biz/Current')})
         if cover is not None:
             if 'chronicle.com' in cover['src']:
                 self.cover_url = cover['src']
@@ -70,8 +69,7 @@ class Chronicle(BasicNewsRecipe):
                     sectiontitle = post.findPrevious('h4')
                 section_title = self.tag_to_string(sectiontitle)
                 desc = self.tag_to_string(post.find('p'))
-                articles.append({'title': title, 'url': url,
-                                 'description': desc, 'date': ''})
+                articles.append({'title': title, 'url': url, 'description': desc, 'date': ''})
 
                 if articles:
                     if section_title not in feeds:
@@ -83,7 +81,6 @@ class Chronicle(BasicNewsRecipe):
     def preprocess_html(self, soup):
         # process all the images
         for div in soup.findAll('div', attrs={'class': 'tableauPlaceholder'}):
-
             noscripts = div.find('noscript').a
             div.replaceWith(noscripts)
         for div0 in soup.findAll('div', text='Powered by Tableau'):

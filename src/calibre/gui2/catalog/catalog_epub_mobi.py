@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
@@ -43,9 +43,8 @@ from .catalog_epub_mobi_ui import Ui_Form
 
 
 class PluginWidget(QWidget, Ui_Form):
-
     TITLE = _('E-book options')
-    HELP  = _('Options specific to')+' AZW3/EPUB/MOBI '+_('output')
+    HELP = _('Options specific to') + ' AZW3/EPUB/MOBI ' + _('output')
     DEBUG = False
     handles_scrolling = True
 
@@ -53,7 +52,7 @@ class PluginWidget(QWidget, Ui_Form):
     sync_enabled = True
 
     # Formats supported by this plugin
-    formats = {'azw3','epub','mobi'}
+    formats = {'azw3', 'epub', 'mobi'}
 
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
@@ -88,50 +87,57 @@ class PluginWidget(QWidget, Ui_Form):
             elif type(self.__dict__[item]) is QTextEdit:
                 TextEditControls.append(self.__dict__[item].objectName())
 
-        option_fields: list[tuple[str, bool | None | str | int | float | dict[str, int | str], str]] = list(zip(
-                            CheckBoxControls,
-                            [True for i in CheckBoxControls],
-                            ['check_box' for i in CheckBoxControls]))
-        option_fields += list(zip(ComboBoxControls,
-                            [None for i in ComboBoxControls],
-                            ['combo_box' for i in ComboBoxControls]))
-        option_fields += list(zip(RadioButtonControls,
-                            [None for i in RadioButtonControls],
-                            ['radio_button' for i in RadioButtonControls]))
+        option_fields: list[tuple[str, bool | None | str | int | float | dict[str, int | str], str]] = list(
+            zip(CheckBoxControls, [True for i in CheckBoxControls], ['check_box' for i in CheckBoxControls])
+        )
+        option_fields += list(zip(ComboBoxControls, [None for i in ComboBoxControls], ['combo_box' for i in ComboBoxControls]))
+        option_fields += list(zip(RadioButtonControls, [None for i in RadioButtonControls], ['radio_button' for i in RadioButtonControls]))
 
         # LineEditControls
-        option_fields += list(zip(['exclude_genre'],[r'\[.+\]|^\+$'],['line_edit']))
+        option_fields += list(zip(['exclude_genre'], [r'\[.+\]|^\+$'], ['line_edit']))
 
         # TextEditControls
         # option_fields += list(zip(['exclude_genre_results'],['excluded genres will appear here'],['text_edit']))
 
         # SpinBoxControls
-        option_fields += list(zip(['thumb_width'],[1.00],['spin_box']))
+        option_fields += list(zip(['thumb_width'], [1.00], ['spin_box']))
 
         # Exclusion rules
-        option_fields += list(zip(['exclusion_rules_tw'],
-                             [{'ordinal':0,
-                               'enabled':True,
-                               'name':_('Catalogs'),
-                               'field':_('Tags'),
-                               'pattern':'Catalog'},],
-                             ['table_widget']))
+        option_fields += list(
+            zip(
+                ['exclusion_rules_tw'],
+                [
+                    {'ordinal': 0, 'enabled': True, 'name': _('Catalogs'), 'field': _('Tags'), 'pattern': 'Catalog'},
+                ],
+                ['table_widget'],
+            )
+        )
 
         # Prefix rules
-        option_fields += list(zip(['prefix_rules_tw','prefix_rules_tw'],
-                             [{'ordinal':0,
-                               'enabled':True,
-                               'name':_('Read book'),
-                               'field':_('Tags'),
-                               'pattern':'+',
-                               'prefix':'✓'},
-                              {'ordinal':1,
-                               'enabled':True,
-                               'name':_('Wishlist item'),
-                               'field':_('Tags'),
-                               'pattern':'Wishlist',
-                               'prefix':'×'},],
-                             ['table_widget','table_widget']))
+        option_fields += list(
+            zip(
+                ['prefix_rules_tw', 'prefix_rules_tw'],
+                [
+                    {
+                        'ordinal': 0,
+                        'enabled': True,
+                        'name': _('Read book'),
+                        'field': _('Tags'),
+                        'pattern': '+',
+                        'prefix': '✓',
+                    },
+                    {
+                        'ordinal': 1,
+                        'enabled': True,
+                        'name': _('Wishlist item'),
+                        'field': _('Tags'),
+                        'pattern': 'Wishlist',
+                        'prefix': '×',
+                    },
+                ],
+                ['table_widget', 'table_widget'],
+            )
+        )
 
         self.OPTION_FIELDS = option_fields
 
@@ -164,14 +170,14 @@ class PluginWidget(QWidget, Ui_Form):
             if rule['field'] != _('Tags'):
                 # Look up custom column friendly name
                 rule['field'] = self.eligible_custom_fields[rule['field']]['field']
-                if rule['pattern'] in [_('any value'),_('any date')]:
+                if rule['pattern'] in [_('any value'), _('any date')]:
                     rule['pattern'] = '.*'
                 elif rule['pattern'] == _('unspecified'):
                     rule['pattern'] = 'None'
             if 'prefix' in rule:
-                pr = (rule['name'],rule['field'],rule['pattern'],rule['prefix'])
+                pr = (rule['name'], rule['field'], rule['pattern'], rule['prefix'])
             else:
-                pr = (rule['name'],rule['field'],rule['pattern'])
+                pr = (rule['name'], rule['field'], rule['pattern'])
 
             rule_set.append(pr)
         opt_value = tuple(rule_set)
@@ -179,7 +185,7 @@ class PluginWidget(QWidget, Ui_Form):
         opts_dict[c_name[:-3]] = opt_value
 
     def exclude_genre_changed(self):
-        """ Dynamically compute excluded genres.
+        """Dynamically compute excluded genres.
 
         Run exclude_genre regex against selected genre_source_field to show excluded tags.
 
@@ -190,6 +196,7 @@ class PluginWidget(QWidget, Ui_Form):
         Output:
          self.exclude_genre_results (QLabel): updated to show tags to be excluded as genres
         """
+
         def _truncated_results(excluded_tags, limit=180):
             """
             Limit number of genres displayed to avoid dialog explosion
@@ -197,7 +204,7 @@ class PluginWidget(QWidget, Ui_Form):
             start = []
             end = []
             lower = 0
-            upper = len(excluded_tags) -1
+            upper = len(excluded_tags) - 1
             excluded_tags.sort()
             while True:
                 if lower > upper:
@@ -260,12 +267,11 @@ class PluginWidget(QWidget, Ui_Form):
     def fetch_eligible_custom_fields(self):
         self.all_custom_fields = self.db.custom_field_keys()
         custom_fields = {}
-        custom_fields[_('Tags')] = {'field':'tag', 'datatype':'text'}
+        custom_fields[_('Tags')] = {'field': 'tag', 'datatype': 'text'}
         for custom_field in self.all_custom_fields:
             field_md = self.db.metadata_for_field(custom_field)
-            if field_md['datatype'] in ['bool','composite','datetime','enumeration','text']:
-                custom_fields[field_md['name']] = {'field':custom_field,
-                                                   'datatype':field_md['datatype']}
+            if field_md['datatype'] in ['bool', 'composite', 'datetime', 'enumeration', 'text']:
+                custom_fields[field_md['name']] = {'field': custom_field, 'datatype': field_md['datatype']}
         self.eligible_custom_fields = custom_fields
 
     def generate_descriptions_changed(self, enabled):
@@ -425,12 +431,10 @@ class PluginWidget(QWidget, Ui_Form):
         self.generate_genres_changed(self.generate_genres.isChecked())
 
         # Initialize exclusion rules
-        self.exclusion_rules_table = ExclusionRules(self, self.exclusion_rules_gb,
-            'exclusion_rules_tw', exclusion_rules)
+        self.exclusion_rules_table = ExclusionRules(self, self.exclusion_rules_gb, 'exclusion_rules_tw', exclusion_rules)
 
         # Initialize prefix rules
-        self.prefix_rules_table = PrefixRules(self, self.prefix_rules_gb,
-            'prefix_rules_tw', prefix_rules)
+        self.prefix_rules_table = PrefixRules(self, self.prefix_rules_gb, 'prefix_rules_tw', prefix_rules)
 
         # Initialize excluded genres preview
         self.exclude_genre_changed()
@@ -501,7 +505,7 @@ class PluginWidget(QWidget, Ui_Form):
             gprefs.set(self.name + '_' + c_name, opt_value)
 
             # Construct opts object for catalog builder
-            if c_name in ['exclusion_rules_tw','prefix_rules_tw']:
+            if c_name in ['exclusion_rules_tw', 'prefix_rules_tw']:
                 self.construct_tw_opts_object(c_name, opt_value, opts_dict)
             else:
                 opts_dict[c_name] = opt_value
@@ -577,16 +581,14 @@ class PluginWidget(QWidget, Ui_Form):
         custom_fields = {}
         for custom_field in self.all_custom_fields:
             field_md = self.db.metadata_for_field(custom_field)
-            if field_md['datatype'] in ['bool','composite','datetime','enumeration','text']:
-                custom_fields[field_md['name']] = {'field':custom_field,
-                                                   'datatype':field_md['datatype']}
+            if field_md['datatype'] in ['bool', 'composite', 'datetime', 'enumeration', 'text']:
+                custom_fields[field_md['name']] = {'field': custom_field, 'datatype': field_md['datatype']}
         # Populate the 'Header note' combo box
         custom_fields = {}
         for custom_field in self.all_custom_fields:
             field_md = self.db.metadata_for_field(custom_field)
-            if field_md['datatype'] in ['bool','composite','datetime','enumeration','text']:
-                custom_fields[field_md['name']] = {'field':custom_field,
-                                                   'datatype':field_md['datatype']}
+            if field_md['datatype'] in ['bool', 'composite', 'datetime', 'enumeration', 'text']:
+                custom_fields[field_md['name']] = {'field': custom_field, 'datatype': field_md['datatype']}
         # Blank field first
         self.header_note_source_field.addItem('')
         # Add the sorted eligible fields to the combo box
@@ -599,9 +601,8 @@ class PluginWidget(QWidget, Ui_Form):
         custom_fields = {}
         for custom_field in self.all_custom_fields:
             field_md = self.db.metadata_for_field(custom_field)
-            if field_md['datatype'] in ['text','comments','composite']:
-                custom_fields[field_md['name']] = {'field':custom_field,
-                                                   'datatype':field_md['datatype']}
+            if field_md['datatype'] in ['text', 'comments', 'composite']:
+                custom_fields[field_md['name']] = {'field': custom_field, 'datatype': field_md['datatype']}
         # Blank field first
         self.merge_source_field.addItem('')
         # Add the sorted eligible fields to the combo box
@@ -614,12 +615,11 @@ class PluginWidget(QWidget, Ui_Form):
         self.include_hr.setEnabled(False)
 
         # Populate the 'Genres' combo box
-        custom_fields = {_('Tags'):{'field':None,'datatype':None}}
+        custom_fields = {_('Tags'): {'field': None, 'datatype': None}}
         for custom_field in self.all_custom_fields:
             field_md = self.db.metadata_for_field(custom_field)
-            if field_md['datatype'] in ['text','enumeration']:
-                custom_fields[field_md['name']] = {'field':custom_field,
-                                                   'datatype':field_md['datatype']}
+            if field_md['datatype'] in ['text', 'enumeration']:
+                custom_fields[field_md['name']] = {'field': custom_field, 'datatype': field_md['datatype']}
         # Add the sorted eligible fields to the combo box
         for cf in sorted(custom_fields, key=sort_key):
             self.genre_source_field.addItem(cf)
@@ -688,13 +688,11 @@ class PluginWidget(QWidget, Ui_Form):
 
         # Reset exclusion rules
         self.exclusion_rules_table.clearLayout()
-        self.exclusion_rules_table = ExclusionRules(self, self.exclusion_rules_gb,
-            'exclusion_rules_tw', exclusion_rules)
+        self.exclusion_rules_table = ExclusionRules(self, self.exclusion_rules_gb, 'exclusion_rules_tw', exclusion_rules)
 
         # Reset prefix rules
         self.prefix_rules_table.clearLayout()
-        self.prefix_rules_table = PrefixRules(self, self.prefix_rules_gb,
-            'prefix_rules_tw', prefix_rules)
+        self.prefix_rules_table = PrefixRules(self, self.prefix_rules_gb, 'prefix_rules_tw', prefix_rules)
 
         # Reset excluded genres preview
         self.exclude_genre_changed()
@@ -713,9 +711,11 @@ class PluginWidget(QWidget, Ui_Form):
         if self.preset_field.currentIndex() == 0:
             return
 
-        if not question_dialog(self, _('Delete saved catalog preset'),
-                _('The selected saved catalog preset will be deleted. '
-                    'Are you sure?')):
+        if not question_dialog(
+            self,
+            _('Delete saved catalog preset'),
+            _('The selected saved catalog preset will be deleted. Are you sure?'),
+        ):
             return
 
         item_id = self.preset_field.currentIndex()
@@ -739,19 +739,19 @@ class PluginWidget(QWidget, Ui_Form):
             dex = 0
         name = ''
         while not name:
-            name, ok = QInputDialog.getItem(self, _('Save catalog preset'),
-                    _('Preset name:'), names, dex, True)
+            name, ok = QInputDialog.getItem(self, _('Save catalog preset'), _('Preset name:'), names, dex, True)
             if not ok:
                 return
             if not name:
-                error_dialog(self, _('Save catalog preset'),
-                        _('You must provide a name.'), show=True)
+                error_dialog(self, _('Save catalog preset'), _('You must provide a name.'), show=True)
         new = True
         name = str(name)
         if name in self.presets.keys():
-            if not question_dialog(self, _('Save catalog preset'),
-                    _('That saved preset already exists and will be overwritten. '
-                        'Are you sure?')):
+            if not question_dialog(
+                self,
+                _('Save catalog preset'),
+                _('That saved preset already exists and will be overwritten. Are you sure?'),
+            ):
                 return
             new = False
 
@@ -786,7 +786,7 @@ class PluginWidget(QWidget, Ui_Form):
 
             preset[c_name] = opt_value
             # Construct cli version of table rules
-            if c_name in ['exclusion_rules_tw','prefix_rules_tw']:
+            if c_name in ['exclusion_rules_tw', 'prefix_rules_tw']:
                 self.construct_tw_opts_object(c_name, opt_value, preset)
 
         format, title = self.get_format_and_title()
@@ -879,7 +879,6 @@ class CheckableTableWidgetItem(QTableWidgetItem):
 
 
 class NoWheelComboBox(QComboBox):
-
     def wheelEvent(self, e):
         # Disable the mouse wheel on top of the combo box changing selection as plays havoc in a grid
         e.ignore()
@@ -912,6 +911,7 @@ class GenericRulesTable(QTableWidget):
     """
     Generic methods for managing rows in a QTableWidget
     """
+
     DEBUG = False
     MAXIMUM_TABLE_HEIGHT = 113
     NAME_FIELD_WIDTH = 225
@@ -1035,7 +1035,7 @@ class GenericRulesTable(QTableWidget):
         first = rows[0].row() + 1
         last = rows[-1].row() + 1
 
-        _name_widget = self.cellWidget(first-1, self.COLUMNS['NAME']['ordinal'])
+        _name_widget = self.cellWidget(first - 1, self.COLUMNS['NAME']['ordinal'])
         assert isinstance(_name_widget, QLineEdit)
         first_rule_name = str(_name_widget.text()).strip()
         message = _("Are you sure you want to delete '%s'?") % (first_rule_name)
@@ -1196,15 +1196,14 @@ class GenericRulesTable(QTableWidget):
         elif source_field == _('Tags'):
             values = sorted(self.db.all_tags(), key=sort_key)
         elif self.eligible_custom_fields[str(source_field)]['datatype'] in ['enumeration', 'text']:
-            values = self.db.all_custom(self.db.field_metadata.key_to_label(
-                                        self.eligible_custom_fields[str(source_field)]['field']))
+            values = self.db.all_custom(self.db.field_metadata.key_to_label(self.eligible_custom_fields[str(source_field)]['field']))
             values = sorted(values, key=sort_key)
         elif self.eligible_custom_fields[str(source_field)]['datatype'] == 'bool':
-            values = [_('True'),_('False'),_('unspecified')]
+            values = [_('True'), _('False'), _('unspecified')]
         elif self.eligible_custom_fields[str(source_field)]['datatype'] == 'composite':
-            values = [_('any value'),_('unspecified')]
+            values = [_('any value'), _('unspecified')]
         elif self.eligible_custom_fields[str(source_field)]['datatype'] == 'datetime':
-            values = [_('any date'),_('unspecified')]
+            values = [_('any date'), _('unspecified')]
 
         values_combo = ComboBox(self, values, pattern)
         values_combo.currentIndexChanged.connect(partial(self.values_index_changed, values_combo))
@@ -1225,11 +1224,12 @@ class GenericRulesTable(QTableWidget):
 
 
 class ExclusionRules(GenericRulesTable):
-
-    COLUMNS: ClassVar[dict[str, _ColumnDef]] = {'ENABLED':{'ordinal': 0, 'name': ''},
-                'NAME':   {'ordinal': 1, 'name': _('Name')},
-                'FIELD':  {'ordinal': 2, 'name': _('Field')},
-                'PATTERN':  {'ordinal': 3, 'name': _('Value')},}
+    COLUMNS: ClassVar[dict[str, _ColumnDef]] = {
+        'ENABLED': {'ordinal': 0, 'name': ''},
+        'NAME': {'ordinal': 1, 'name': _('Name')},
+        'FIELD': {'ordinal': 2, 'name': _('Field')},
+        'PATTERN': {'ordinal': 3, 'name': _('Value')},
+    }
 
     def __init__(self, parent, parent_gb_hl, object_name, rules):
         super().__init__(parent, parent_gb_hl, object_name, rules)
@@ -1238,8 +1238,7 @@ class ExclusionRules(GenericRulesTable):
         self._initialize()
 
     def _init_table_widget(self):
-        header_labels = [self.COLUMNS[index]['name']
-            for index in sorted(self.COLUMNS.keys(), key=lambda c: self.COLUMNS[c]['ordinal'])]
+        header_labels = [self.COLUMNS[index]['name'] for index in sorted(self.COLUMNS.keys(), key=lambda c: self.COLUMNS[c]['ordinal'])]
         self.setColumnCount(len(header_labels))
         self.setHorizontalHeaderLabels(header_labels)
         self.setSortingEnabled(False)
@@ -1284,12 +1283,13 @@ class ExclusionRules(GenericRulesTable):
         data_items = []
         for row in range(self.rowCount()):
             data = self.convert_row_to_data(row)
-            data_items.append(
-                               {'ordinal':data['ordinal'],
-                                'enabled':data['enabled'],
-                                'name':data['name'],
-                                'field':data['field'],
-                                'pattern':data['pattern']})
+            data_items.append({
+                'ordinal': data['ordinal'],
+                'enabled': data['enabled'],
+                'name': data['name'],
+                'field': data['field'],
+                'pattern': data['pattern'],
+            })
         return data_items
 
     def populate_table_row(self, row, data):
@@ -1327,12 +1327,13 @@ class ExclusionRules(GenericRulesTable):
 
 
 class PrefixRules(GenericRulesTable):
-
-    COLUMNS: ClassVar[dict[str, _ColumnDef]] = {'ENABLED':{'ordinal': 0, 'name': ''},
-                'NAME':   {'ordinal': 1, 'name': _('Name')},
-                'PREFIX': {'ordinal': 2, 'name': _('Prefix')},
-                'FIELD':  {'ordinal': 3, 'name': _('Field')},
-                'PATTERN':{'ordinal': 4, 'name': _('Value')},}
+    COLUMNS: ClassVar[dict[str, _ColumnDef]] = {
+        'ENABLED': {'ordinal': 0, 'name': ''},
+        'NAME': {'ordinal': 1, 'name': _('Name')},
+        'PREFIX': {'ordinal': 2, 'name': _('Prefix')},
+        'FIELD': {'ordinal': 3, 'name': _('Field')},
+        'PATTERN': {'ordinal': 4, 'name': _('Value')},
+    }
 
     def __init__(self, parent, parent_gb_hl, object_name, rules):
         super().__init__(parent, parent_gb_hl, object_name, rules)
@@ -1341,8 +1342,7 @@ class PrefixRules(GenericRulesTable):
         self._initialize()
 
     def _init_table_widget(self):
-        header_labels = [self.COLUMNS[index]['name']
-            for index in sorted(self.COLUMNS.keys(), key=lambda c: self.COLUMNS[c]['ordinal'])]
+        header_labels = [self.COLUMNS[index]['name'] for index in sorted(self.COLUMNS.keys(), key=lambda c: self.COLUMNS[c]['ordinal'])]
         self.setColumnCount(len(header_labels))
         self.setHorizontalHeaderLabels(header_labels)
         self.setSortingEnabled(False)
@@ -1518,7 +1518,7 @@ class PrefixRules(GenericRulesTable):
             ('_x', 'x'),
             ('_y', 'y'),
             ('_z', 'z'),
-            ]
+        ]
         raw_prefix_list = sorted(raw_prefix_list, key=prefix_sorter)
         self.prefix_list = [x[1] for x in raw_prefix_list]
 
@@ -1526,13 +1526,14 @@ class PrefixRules(GenericRulesTable):
         data_items = []
         for row in range(self.rowCount()):
             data = self.convert_row_to_data(row)
-            data_items.append(
-                               {'ordinal':data['ordinal'],
-                                'enabled':data['enabled'],
-                                'name':data['name'],
-                                'field':data['field'],
-                                'pattern':data['pattern'],
-                                'prefix':data['prefix']})
+            data_items.append({
+                'ordinal': data['ordinal'],
+                'enabled': data['enabled'],
+                'name': data['name'],
+                'field': data['field'],
+                'pattern': data['pattern'],
+                'prefix': data['prefix'],
+            })
         return data_items
 
     def populate_table_row(self, row, data):

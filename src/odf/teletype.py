@@ -26,23 +26,21 @@ the appropriate <text:s>, <text:tab>, or <text:line-break>
 elements.  This module takes care of that problem.
 """
 
-
 from .element import Node
 from .text import LineBreak, S, Tab
 
 
 class WhitespaceText:
-
     def __init__(self):
         self.textBuffer = []
         self.spaceCount = 0
 
     def addTextToElement(self, odfElement, s):
-        """ Process an input string, inserting
-            <text:tab> elements for '\t',
-            <text:line-break> elements for '\n', and
-            <text:s> elements for runs of more than one blank.
-            These will be added to the given element.
+        """Process an input string, inserting
+        <text:tab> elements for '\t',
+        <text:line-break> elements for '\n', and
+        <text:s> elements for runs of more than one blank.
+        These will be added to the given element.
         """
         i = 0
         ch = ' '
@@ -83,16 +81,16 @@ class WhitespaceText:
         self._emitTextBuffer(odfElement)
 
     def _emitTextBuffer(self, odfElement):
-        """ Creates a Text Node whose contents are the current textBuffer.
-            Side effect: clears the text buffer.
+        """Creates a Text Node whose contents are the current textBuffer.
+        Side effect: clears the text buffer.
         """
         if len(self.textBuffer) > 0:
             odfElement.addText(''.join(self.textBuffer))
         self.textBuffer = []
 
     def _emitSpaces(self, odfElement):
-        """ Creates a <text:s> element for the current spaceCount.
-            Side effect: sets spaceCount back to zero
+        """Creates a <text:s> element for the current spaceCount.
+        Side effect: sets spaceCount back to zero
         """
         if self.spaceCount > 0:
             spaceElement = S(c=self.spaceCount)
@@ -106,11 +104,11 @@ def addTextToElement(odfElement, s):
 
 
 def extractText(odfElement):
-    ''' Extract text content from an Element, with whitespace represented
-        properly. Returns the text, with tabs, spaces, and newlines
-        correctly evaluated. This method recursively descends through the
-        children of the given element, accumulating text and "unwrapping"
-        <text:s>, <text:tab>, and <text:line-break> elements along the way.
+    '''Extract text content from an Element, with whitespace represented
+    properly. Returns the text, with tabs, spaces, and newlines
+    correctly evaluated. This method recursively descends through the
+    children of the given element, accumulating text and "unwrapping"
+    <text:s>, <text:tab>, and <text:line-break> elements along the way.
     '''
     result = []
 

@@ -25,25 +25,23 @@ def mark_words(text: str, lang: str) -> str:
         if offset > pos:
             a(text[pos:offset])
         ans.append(MARK_TEMPLATE.format(f'{offset}:{sz}'))
-        a(text[offset:offset+sz])
+        a(text[offset : offset + sz])
         pos = offset + sz
     return ''.join(ans)
 
 
 def wrap_in_ssml(text):
-    return ('<?xml version="1.0"?>\n<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis"><s>' +
-            text + '</s></speak>')
+    return '<?xml version="1.0"?>\n<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis"><s>' + text + '</s></speak>'
 
 
 class SpeechdTTSBackend(TTSBackend):
-
     saying = pyqtSignal(int, int)
     state_changed = pyqtSignal(QTextToSpeech.State)
     engine_name = 'speechd'
 
     _event_signal = pyqtSignal(object, object)
 
-    def __init__(self, engine_name: str = '', parent: QObject|None = None):
+    def __init__(self, engine_name: str = '', parent: QObject | None = None):
         super().__init__(engine_name, parent)
         self._last_error = ''
         self._state = QTextToSpeech.State.Ready
@@ -159,8 +157,9 @@ class SpeechdTTSBackend(TTSBackend):
             if self._system_default_output_module == '(null)':
                 mods = ssip_client.list_output_modules()
                 if not mods:
-                    self._set_error(_(
-                        'Speech dispatcher on this system is not configured with any available output modules. Install some output modules first.'))
+                    self._set_error(
+                        _('Speech dispatcher on this system is not configured with any available output modules. Install some output modules first.')
+                    )
                     return False
                 self._system_default_output_module = mods[0]
         return self._set_use_ssml(True)
@@ -207,6 +206,7 @@ class SpeechdTTSBackend(TTSBackend):
 
     def _get_all_voices_for_all_output_modules(self) -> dict[str, tuple[Voice, ...]]:
         ans = {}
+
         def v(x) -> Voice:
             name, langcode, variant = x
             return Voice(name, canonicalize_lang(langcode) or 'und', human_name=name, notes=variant)

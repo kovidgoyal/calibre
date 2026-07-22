@@ -13,7 +13,6 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class FirstThings(BasicNewsRecipe):
-
     title = 'First Things'
     __author__ = 'John Hutson'
     description = "America's Most Influential Journal of Religion and Public Life"
@@ -25,9 +24,15 @@ class FirstThings(BasicNewsRecipe):
 
     keep_only_tags = [
         dict(name='h1'),
-        dict(attrs={'itemprop': ['author',]}),
+        dict(
+            attrs={
+                'itemprop': [
+                    'author',
+                ]
+            }
+        ),
         dict(attrs={'itemprop': 'articleBody'}),
-        ]
+    ]
 
     extra_css = '''
         .small-caps { font-variant: small-caps }
@@ -62,8 +67,7 @@ class FirstThings(BasicNewsRecipe):
                     url = 'https://www.firstthings.com/' + url
                 elif div.name == 'a' and div.rel == 'author':
                     desc = self.tag_to_string(div)
-                current_articles.append(
-                    {'title': title, 'url': url, 'description': desc})
+                current_articles.append({'title': title, 'url': url, 'description': desc})
 
         if current_articles:
             feeds.append((current_section, current_articles))

@@ -2,7 +2,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class NewsOnJapan(BasicNewsRecipe):
-    title = u'News On Japan'
+    title = 'News On Japan'
     language = 'en'
     __author__ = 'Krittika Goyal'
     oldest_article = 1  # days
@@ -13,6 +13,5 @@ class NewsOnJapan(BasicNewsRecipe):
     auto_cleanup = True
 
     feeds = [
-        ('News',
-         'http://newsonjapan.com/rss/top.xml'),
+        ('News', 'http://newsonjapan.com/rss/top.xml'),
     ]

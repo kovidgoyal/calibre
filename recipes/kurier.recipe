@@ -29,9 +29,7 @@ class Kurier(BasicNewsRecipe):
     remove_empty_feeds = True
     publication_type = 'newspaper'
 
-    conversion_options = {
-        'comment': description, 'tags': category, 'publisher': publisher, 'language': language
-    }
+    conversion_options = {'comment': description, 'tags': category, 'publisher': publisher, 'language': language}
 
     feeds = [
         ('Politik', 'http://kurier.at/politik/xml/rss'),
@@ -40,12 +38,10 @@ class Kurier(BasicNewsRecipe):
         ('Kultur', 'http://kurier.at/kultur/xml/rss'),
         ('Leben', 'http://kurier.at/leben/xml/rss'),
         ('Menschen', 'http://kurier.at/menschen/xml/rss'),
-        ('Sport', 'http://kurier.at/sport/xml/rss')
+        ('Sport', 'http://kurier.at/sport/xml/rss'),
     ]
 
-    keep_only_tags = [
-        dict(name='article', attrs={'class': re.compile(r'main-article')})
-    ]
+    keep_only_tags = [dict(name='article', attrs={'class': re.compile(r'main-article')})]
 
     remove_tags = [
         dict(name='div', attrs={'class': 'social-media-container'}),
@@ -54,7 +50,7 @@ class Kurier(BasicNewsRecipe):
         dict(name='section', attrs={'class': re.compile(r'related-content')}),
         dict(name='section', attrs={'class': re.compile(r'article-slider')}),
         dict(name='section', attrs={'class': re.compile(r'commentcontainer')}),
-        dict(name='blockquote')
+        dict(name='blockquote'),
     ]
 
     remove_attributes = ['width', 'height']

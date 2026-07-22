@@ -22,28 +22,29 @@ from . import open_for_read, open_for_write
 
 class FieldsSmall:
     """
-=================
-Purpose
-=================
-Write tags for bookmarks, index and toc entry fields in a tokenized file.
-This module does not handle toc or index tables.  (This module won't be any
-use to you unless you use it as part of the other modules.)
------------
-Method
------------
-Look for the beginning of a bookmark, index, or toc entry. When such a token
-is found, store the opening bracket count in a variable. Collect all the text
-until the closing bracket entry is found. Send the string to the module
-field_strings to process it. Write the processed string to the output
-file.
+    =================
+    Purpose
+    =================
+    Write tags for bookmarks, index and toc entry fields in a tokenized file.
+    This module does not handle toc or index tables.  (This module won't be any
+    use to you unless you use it as part of the other modules.)
+    -----------
+    Method
+    -----------
+    Look for the beginning of a bookmark, index, or toc entry. When such a token
+    is found, store the opening bracket count in a variable. Collect all the text
+    until the closing bracket entry is found. Send the string to the module
+    field_strings to process it. Write the processed string to the output
+    file.
     """
 
-    def __init__(self,
-            in_file,
-            bug_handler,
-            copy=None,
-            run_level=1,
-            ):
+    def __init__(
+        self,
+        in_file,
+        bug_handler,
+        copy=None,
+        run_level=1,
+    ):
         """
         Required:
             'file'--file to parse
@@ -69,16 +70,16 @@ file.
         self.__text_string = ''
         self.__marker = 'mi<mk<inline-fld\n'
         self.__state_dict = {
-        'before_body'   : self.__before_body_func,
-        'body'          : self.__body_func,
-        'bookmark'      : self.__bookmark_func,
-        'toc_index'     : self.__toc_index_func,
+            'before_body': self.__before_body_func,
+            'body': self.__body_func,
+            'bookmark': self.__bookmark_func,
+            'toc_index': self.__toc_index_func,
         }
         self.__body_dict = {
-        'cw<an<book-mk-st'  : (self.__found_bookmark_func, 'start'),
-        'cw<an<book-mk-en'  : (self.__found_bookmark_func, 'end'),
-        'cw<an<toc_______'  : (self.__found_toc_index_func, 'toc'),
-        'cw<an<index-mark'  : (self.__found_toc_index_func, 'index'),
+            'cw<an<book-mk-st': (self.__found_bookmark_func, 'start'),
+            'cw<an<book-mk-en': (self.__found_bookmark_func, 'end'),
+            'cw<an<toc_______': (self.__found_toc_index_func, 'toc'),
+            'cw<an<index-mark': (self.__found_toc_index_func, 'index'),
         }
         ob = 'ob<nu<open-brack.....'
         cb = 'cb<nu<clos-brack'
@@ -111,8 +112,7 @@ file.
             This function handles all the lines in the body of the documents.
             Look for a bookmark, index or toc entry and take the appropriate action.
         """
-        action, tag = \
-           self.__body_dict.get(self.__token_info, (None, None))
+        action, tag = self.__body_dict.get(self.__token_info, (None, None))
         if action:
             action(line, tag)
         else:
@@ -151,8 +151,7 @@ file.
             type = f'bookmark-{self.__type_of_bookmark}'
             # change here
             # my_string = self.__string_obj.process_string(self.__text_string, type)
-            my_string = self.__parse_bookmark_func(
-                self.__text_string, type)
+            my_string = self.__parse_bookmark_func(self.__text_string, type)
             self.__write_obj.write(self.__marker)
             self.__write_obj.write(my_string)
             self.__text_string = ''
@@ -292,8 +291,7 @@ file.
         """
         toc_level = 0
         toc_suppress = 0
-        my_string, book_start_string, book_end_string =\
-        self.__parse_bookmark_for_toc(my_string)
+        my_string, book_start_string, book_end_string = self.__parse_bookmark_for_toc(my_string)
         main_entry = ''
         my_changed_string = 'mi<tg<empty-att_<field<type>toc-entry'
         my_changed_string += '<update>static'
@@ -374,8 +372,7 @@ file.
             The type is the name (either bookmark-end or bookmark-start). The
             id is the complete text string.
         """
-        my_changed_string = (f'mi<tg<empty-att_<field<type>{type}'
-        f'<number>{my_string}<update>none\n')
+        my_changed_string = f'mi<tg<empty-att_<field<type>{type}<number>{my_string}<update>none\n'
         return my_changed_string
 
     def __found_toc_index_func(self, line, tag):
@@ -410,11 +407,9 @@ file.
             self.__state = 'body'
             type = self.__tag
             if type == 'index':
-                my_string = self.__parse_index_func(
-                self.__text_string)
+                my_string = self.__parse_index_func(self.__text_string)
             elif type == 'toc':
-                my_string = self.__parse_toc_func(
-                self.__text_string)
+                my_string = self.__parse_toc_func(self.__text_string)
             self.__write_obj.write(self.__marker)
             self.__write_obj.write(my_string)
             self.__text_string = ''

@@ -61,7 +61,6 @@ def url_for_book_in_library():
 
 
 class PerformanceMonitor:
-
     def __init__(self):
         self.start_time = monotonic_ns()
 

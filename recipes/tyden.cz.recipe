@@ -6,16 +6,16 @@ from calibre.web.feeds.recipes import BasicNewsRecipe
 
 class tydenRecipe(BasicNewsRecipe):
     __author__ = 'bubak'
-    title = u'Tyden.cz'
-    publisher = u''
+    title = 'Tyden.cz'
+    publisher = ''
     description = ''
     oldest_article = 1
     max_articles_per_feed = 20
 
     feeds = [
-        (u'Domácí', u'http://www.tyden.cz/rss/rss.php?rubrika_id=6'),
-        (u'Politika', u'http://www.tyden.cz/rss/rss.php?rubrika_id=173'),
-        (u'Kauzy', u'http://www.tyden.cz/rss/rss.php?rubrika_id=340')
+        ('Domácí', 'http://www.tyden.cz/rss/rss.php?rubrika_id=6'),
+        ('Politika', 'http://www.tyden.cz/rss/rss.php?rubrika_id=173'),
+        ('Kauzy', 'http://www.tyden.cz/rss/rss.php?rubrika_id=340'),
     ]
 
     language = 'cs'

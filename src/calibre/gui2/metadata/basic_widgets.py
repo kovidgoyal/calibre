@@ -1104,7 +1104,10 @@ class FormatsManager(QWidget):
         dialog = self.dialog
         assert dialog is not None
         files = choose_files_and_remember_all_files(
-            self, 'add formats dialog', _('Choose formats for ') + dialog.title.current_val, [(_('Books'), BOOK_EXTENSIONS)]
+            self,
+            'add formats dialog',
+            _('Choose formats for ') + dialog.title.current_val,
+            [(_('Books'), BOOK_EXTENSIONS)],
         )
         self._add_formats(files)
 
@@ -1153,7 +1156,13 @@ class FormatsManager(QWidget):
             self.changed = True
             added = True
         if bad_perms:
-            error_dialog(self, _('No permission'), _('You do not have permission to read the following files:'), det_msg='\n'.join(bad_perms), show=True)
+            error_dialog(
+                self,
+                _('No permission'),
+                _('You do not have permission to read the following files:'),
+                det_msg='\n'.join(bad_perms),
+                show=True,
+            )
 
         return added
 
@@ -1236,7 +1245,11 @@ class FormatsManager(QWidget):
                 import traceback
 
                 error_dialog(
-                    self, _('Could not read metadata'), _('Could not read metadata from %s format') % ext.upper(), det_msg=traceback.format_exc(), show=True
+                    self,
+                    _('Could not read metadata'),
+                    _('Could not read metadata from %s format') % ext.upper(),
+                    det_msg=traceback.format_exc(),
+                    show=True,
                 )
             return None, None
         finally:
@@ -1301,7 +1314,13 @@ class Cover(ImageView):  # {{{
         m.addAction(QIcon.ic('config.png'), _('Customize the styles and colors of the generated cover'), self.custom_cover)
         m.addAction(QIcon.ic('edit-undo.png'), _('Undo last Generate cover'), self.undo_generate)
         b.setPopupMode(QToolButton.ToolButtonPopupMode.DelayedPopup)
-        self.buttons = [self.select_cover_button, self.remove_cover_button, self.trim_cover_button, self.download_cover_button, self.generate_cover_button]
+        self.buttons = [
+            self.select_cover_button,
+            self.remove_cover_button,
+            self.trim_cover_button,
+            self.download_cover_button,
+            self.generate_cover_button,
+        ]
 
         self.frame_size = (300, 400)
         self.setSizePolicy(QSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Preferred))
@@ -1401,7 +1420,11 @@ class Cover(ImageView):  # {{{
                 with open(_file, 'rb') as f:
                     cover = f.read()
             except OSError as e:
-                d = error_dialog(self, _('Error reading file'), _('<p>There was an error reading from file: <br /><b>') + _file + '</b></p><br />' + str(e))
+                d = error_dialog(
+                    self,
+                    _('Error reading file'),
+                    _('<p>There was an error reading from file: <br /><b>') + _file + '</b></p><br />' + str(e),
+                )
                 d.exec()
             if cover:
                 orig = self.current_val
@@ -1768,7 +1791,10 @@ class Identifiers(Dialog):
                     ans[k] = v
                 elif validate:
                     error_dialog(
-                        self, _('Invalid identifier'), _('The identifier %s is invalid. Identifiers must be of the form type:value') % line.strip(), show=True
+                        self,
+                        _('Invalid identifier'),
+                        _('The identifier %s is invalid. Identifiers must be of the form type:value') % line.strip(),
+                        show=True,
                     )
                     return
         return ans

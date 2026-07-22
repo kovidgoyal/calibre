@@ -456,7 +456,12 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
 
         r('color', 'format-text-color', _('Foreground color'))
         r('background', 'format-fill-color', _('Background color'))
-        r('insert_link', 'insert-link', _('Insert link') if self.insert_images_separately else _('Insert link or image'), shortcut='Ctrl+l')
+        r(
+            'insert_link',
+            'insert-link',
+            _('Insert link') if self.insert_images_separately else _('Insert link or image'),
+            shortcut='Ctrl+l',
+        )
         r('insert_image', 'view-image', _('Insert image'), shortcut='Ctrl+p')
         r(
             'insert_hr',
@@ -948,7 +953,15 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
             if d.treat_as_image.isChecked():
                 filetypes = [(_('Images'), 'png jpeg jpg gif'.split())]
             if data_dir:
-                files = choose_files(d, 'select link file', _('Choose file'), filetypes, select_only_single_file=True, no_save_dir=True, default_dir=data_path)
+                files = choose_files(
+                    d,
+                    'select link file',
+                    _('Choose file'),
+                    filetypes,
+                    select_only_single_file=True,
+                    no_save_dir=True,
+                    default_dir=data_path,
+                )
             else:
                 files = choose_files(d, 'select link file', _('Choose file'), filetypes, select_only_single_file=True)
             if files:

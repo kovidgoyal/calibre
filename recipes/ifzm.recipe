@@ -40,12 +40,14 @@ class infzm(BasicNewsRecipe):
     def get_obfuscated_article(self, url):
         br = self.get_browser()
         link = url
-        res_link = (link.replace('https://www.infzm.com', 'https://api.infzm.com/mobile') +
-                    '?platform=wap&version=1.89.0&machine_id=35458aa29603f2b246636e5492122b50&user_id=&token=&member_type=')
+        res_link = (
+            link.replace('https://www.infzm.com', 'https://api.infzm.com/mobile')
+            + '?platform=wap&version=1.89.0&machine_id=35458aa29603f2b246636e5492122b50&user_id=&token=&member_type='
+        )
         # if article is paywalled, add code to figure out machine_id
         raw = br.open(res_link).read()
         html = json_to_html(raw, link)
-        return ({'data': html, 'url': link})
+        return {'data': html, 'url': link}
 
     extra_css = '''
         img {display:block; margin:0 auto;}
@@ -54,16 +56,14 @@ class infzm(BasicNewsRecipe):
 
     def parse_index(self):
         index = 'https://www.infzm.com/'
-        sections = [
-            'contents'
-        ]
+        sections = ['contents']
         feeds = []
         soup = self.index_to_soup(index)
         for sec in sections:
             section = sec.capitalize()
             self.log(section)
             articles = []
-            for a in soup.findAll('a', attrs={'href':lambda x: x and x.startswith('/' + sec + '/')}):
+            for a in soup.findAll('a', attrs={'href': lambda x: x and x.startswith('/' + sec + '/')}):
                 url = absurl(a['href'].split('?')[0])
                 if url in {index + sec + '/', index + sec}:
                     continue
@@ -75,5 +75,5 @@ class infzm(BasicNewsRecipe):
         return feeds
 
     def populate_article_metadata(self, article, soup, first):
-        if soup.find(attrs={'class':'intro'}):
-            article.summary = article.text_summary = self.tag_to_string(soup.find(attrs={'class':'intro'}))
+        if soup.find(attrs={'class': 'intro'}):
+            article.summary = article.text_summary = self.tag_to_string(soup.find(attrs={'class': 'intro'}))

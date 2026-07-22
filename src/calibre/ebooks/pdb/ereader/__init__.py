@@ -1,4 +1,4 @@
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
@@ -15,7 +15,7 @@ def image_name(name, taken_names=()):
     if len(name) > 32:
         cut = len(name) - 32
         names = name[:10]
-        namee = name[10+cut:]
+        namee = name[10 + cut :]
         name = f'{names}{namee}.png'
 
     i = 0

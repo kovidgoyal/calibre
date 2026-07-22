@@ -41,9 +41,9 @@ def api_url(path: str = '', use_api_url: str | None = None) -> str:
     if not base_path:
         base_path = '/v1'
     elif base_path.endswith('/chat/completions'):
-        base_path = base_path[:-len('/chat/completions')]
+        base_path = base_path[: -len('/chat/completions')]
     elif base_path.endswith('/models'):
-        base_path = base_path[:-len('/models')]
+        base_path = base_path[: -len('/models')]
     if path:
         base_path = posixpath.join(base_path, path)
     purl = purl._replace(path=base_path)
@@ -56,9 +56,7 @@ def raw_api_key(use_api_key: str | None = None) -> str:
 
 
 @lru_cache(32)
-def request_headers(
-    use_api_key: str | None = None, use_headers: Sequence[tuple[str, str]] | None = None
-) -> tuple[tuple[str, str], ...]:
+def request_headers(use_api_key: str | None = None, use_headers: Sequence[tuple[str, str]] | None = None) -> tuple[tuple[str, str], ...]:
     ans = [('Content-Type', 'application/json')]
     extra_headers = pref('headers', ()) if use_headers is None else use_headers
     extra_headers = tuple(extra_headers or ())
@@ -93,6 +91,7 @@ def human_readable_model_name(model_id: str) -> str:
 
 def config_widget():
     from calibre.ai.openai_compatible.config import ConfigWidget
+
     return ConfigWidget()
 
 
@@ -101,7 +100,12 @@ def save_settings(config_widget):
 
 
 def for_assistant(self: ChatMessage) -> dict[str, Any]:
-    if self.type not in (ChatMessageType.assistant, ChatMessageType.system, ChatMessageType.user, ChatMessageType.developer):
+    if self.type not in (
+        ChatMessageType.assistant,
+        ChatMessageType.system,
+        ChatMessageType.user,
+        ChatMessageType.developer,
+    ):
         raise ValueError(f'Unsupported message type: {self.type}')
     return {'role': self.type.value, 'content': self.query}
 
@@ -118,11 +122,18 @@ def coerce_text(value: Any) -> str:
 
 
 def chat_request(
-    data: dict[str, Any], url_override: str | None = None, use_api_key: str | None = None,
-    use_headers: Sequence[tuple[str, str]] | None = None
+    data: dict[str, Any],
+    url_override: str | None = None,
+    use_api_key: str | None = None,
+    use_headers: Sequence[tuple[str, str]] | None = None,
 ) -> Request:
     url = api_url('chat/completions', url_override)
-    return Request(url, data=json.dumps(data).encode('utf-8'), headers=dict(request_headers(use_api_key, use_headers)), method='POST')
+    return Request(
+        url,
+        data=json.dumps(data).encode('utf-8'),
+        headers=dict(request_headers(use_api_key, use_headers)),
+        method='POST',
+    )
 
 
 def as_chat_responses(d: dict[str, Any], model_id: str) -> Iterator[ChatResponse]:
@@ -133,9 +144,7 @@ def as_chat_responses(d: dict[str, Any], model_id: str) -> Iterator[ChatResponse
         reasoning = coerce_text(delta.get('reasoning_content'))
         role = delta.get('role') or 'assistant'
         if content or reasoning:
-            yield ChatResponse(
-                content=content, reasoning=reasoning, type=ChatMessageType(role), plugin_name=OpenAICompatible.name
-            )
+            yield ChatResponse(content=content, reasoning=reasoning, type=ChatMessageType(role), plugin_name=OpenAICompatible.name)
         if choice.get('finish_reason') == 'content_filter':
             blocked = True
     if blocked:
@@ -143,8 +152,10 @@ def as_chat_responses(d: dict[str, Any], model_id: str) -> Iterator[ChatResponse
         return
     if d.get('usage'):
         yield ChatResponse(
-            has_metadata=True, provider=OpenAICompatible.name, model=d.get('model') or model_id,
-            plugin_name=OpenAICompatible.name
+            has_metadata=True,
+            provider=OpenAICompatible.name,
+            model=d.get('model') or model_id,
+            plugin_name=OpenAICompatible.name,
         )
 
 
@@ -183,26 +194,39 @@ def find_tests():
     import unittest
 
     class TestOpenAICompatibleBackend(unittest.TestCase):
-
         def test_api_url_normalization(self):
             self.assertEqual(api_url('models', 'http://localhost:1234'), 'http://localhost:1234/v1/models')
             self.assertEqual(api_url('models', 'http://localhost:1234/v1'), 'http://localhost:1234/v1/models')
             self.assertEqual(api_url('models', 'https://example.com/custom/api'), 'https://example.com/custom/api/models')
-            self.assertEqual(api_url('chat/completions', 'https://ark.cn-beijing.volces.com/api/v3'), 'https://ark.cn-beijing.volces.com/api/v3/chat/completions')
-            self.assertEqual(api_url('chat/completions', 'https://ark.cn-beijing.volces.com/api/v3/chat/completions'), 'https://ark.cn-beijing.volces.com/api/v3/chat/completions')
+            self.assertEqual(
+                api_url('chat/completions', 'https://ark.cn-beijing.volces.com/api/v3'),
+                'https://ark.cn-beijing.volces.com/api/v3/chat/completions',
+            )
+            self.assertEqual(
+                api_url('chat/completions', 'https://ark.cn-beijing.volces.com/api/v3/chat/completions'),
+                'https://ark.cn-beijing.volces.com/api/v3/chat/completions',
+            )
 
         def test_request_headers_allows_missing_headers_pref(self):
             headers = request_headers()
             self.assertEqual(headers, (('Content-Type', 'application/json'),))
 
         def test_parsing_stream_deltas(self):
-            responses = tuple(as_chat_responses({
-                'model': 'demo-model',
-                'choices': [
-                    {'delta': {'role': 'assistant', 'content': 'Hello', 'reasoning_content': 'Think'}, 'finish_reason': None}
-                ],
-                'usage': {'total_tokens': 42},
-            }, 'demo-model'))
+            responses = tuple(
+                as_chat_responses(
+                    {
+                        'model': 'demo-model',
+                        'choices': [
+                            {
+                                'delta': {'role': 'assistant', 'content': 'Hello', 'reasoning_content': 'Think'},
+                                'finish_reason': None,
+                            }
+                        ],
+                        'usage': {'total_tokens': 42},
+                    },
+                    'demo-model',
+                )
+            )
             self.assertEqual(responses[0].content, 'Hello')
             self.assertEqual(responses[0].reasoning, 'Think')
             self.assertTrue(responses[-1].has_metadata)

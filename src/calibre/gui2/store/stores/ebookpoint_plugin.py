@@ -37,7 +37,6 @@ def as_base64(data):
 
 
 class EbookpointStore(BasicStoreConfig, StorePlugin):
-
     def open(self, gui=None, parent=None, detail_item=None, external=False):
         aff_root = 'https://www.a4b-tracking.com/pl/stat-click-text-link/32/58/'
 
@@ -58,8 +57,11 @@ class EbookpointStore(BasicStoreConfig, StorePlugin):
             d.exec()
 
     def search(self, query, max_results=25, timeout=60):
-        url = 'http://ebookpoint.pl/search?qa=&szukaj=' + quote_plus(
-            query.decode('utf-8').encode('iso-8859-2')) + '&serwisyall=0&wprzyg=0&wsprzed=1&wyczerp=0&formaty=em-p'
+        url = (
+            'http://ebookpoint.pl/search?qa=&szukaj='
+            + quote_plus(query.decode('utf-8').encode('iso-8859-2'))
+            + '&serwisyall=0&wprzyg=0&wsprzed=1&wyczerp=0&formaty=em-p'
+        )
 
         br = browser()
 
@@ -86,7 +88,7 @@ class EbookpointStore(BasicStoreConfig, StorePlugin):
                 s.cover_url = cover_url
                 s.title = title.strip()
                 s.author = author.strip()
-                s.price = re.sub(r'\.',',',price)
+                s.price = re.sub(r'\.', ',', price)
                 s.detail_item = id.strip()
                 s.drm = SearchResult.DRM_UNLOCKED
                 s.formats = formats.upper()

@@ -3,9 +3,9 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class ZnadPlanszy(BasicNewsRecipe):
-    title = u'ZnadPlanszy.pl'
+    title = 'ZnadPlanszy.pl'
     __author__ = 'fenuks'
-    description = u''
+    description = ''
     language = 'pl'
     cover_url = 'http://znadplanszy.pl/wp-content/uploads/2013/05/logo-znadplanszy.png'
     use_embedded_content = False
@@ -18,4 +18,4 @@ class ZnadPlanszy(BasicNewsRecipe):
     ignore_duplicate_articles = {'title', 'url'}
 
     keep_only_tags = dict(name='article')
-    feeds = [(u'Wszystkie', 'http://znadplanszy.pl/full-feed/posts/')]
+    feeds = [('Wszystkie', 'http://znadplanszy.pl/full-feed/posts/')]

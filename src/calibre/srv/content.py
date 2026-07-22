@@ -66,11 +66,11 @@ def open_for_write(fname):
 
 
 def create_file_copy(ctx, rd, prefix, library_id, book_id, ext, mtime, copy_func, extra_etag_data=''):
-    """ We cannot copy files directly from the library folder to the output
+    """We cannot copy files directly from the library folder to the output
     socket, as this can potentially lock the library for an extended period. So
     instead we copy out the data from the library folder into a temp folder. We
     make sure to only do this copy once, using the previous copy, if there have
-    been no changes to the data for the file since the last copy. """
+    been no changes to the data for the file since the last copy."""
     global rename_counter
 
     # Avoid too many items in a single directory for performance
@@ -152,8 +152,10 @@ def cover(ctx, rd, library_id, db, book_id, width=None, height=None):
         return generated_cover(ctx, rd, library_id, db, book_id, width, height)
     prefix = 'cover'
     if width is None and height is None:
+
         def copy_func(dest):
             db.copy_cover_to(book_id, dest)
+
     else:
         prefix += f'-{width}x{height}'
 
@@ -163,6 +165,7 @@ def cover(ctx, rd, library_id, db, book_id, width=None, height=None):
             quality = min(99, max(50, tweaks['content_server_thumbnail_compression_quality']))
             data = scale_image(buf.getvalue(), width=width, height=height, compression_quality=quality)[-1]
             dest.write(data)
+
     return create_file_copy(ctx, rd, prefix, library_id, book_id, 'jpg', mtime, copy_func)
 
 
@@ -225,9 +228,12 @@ def book_fmt(ctx, rd, library_id, db, book_id, fmt):
 
     cd = sanitize_content_disposition(rd.query.get('content_disposition', 'attachment'))
     rd.outheaders['Content-Disposition'] = (
-        f'''{cd}; filename="{book_filename(rd, book_id, mi, fmt)}"; filename*=utf-8''{book_filename(rd, book_id, mi, fmt, as_encoded_unicode=True)}''')
+        f'''{cd}; filename="{book_filename(rd, book_id, mi, fmt)}"; filename*=utf-8''{book_filename(rd, book_id, mi, fmt, as_encoded_unicode=True)}'''
+    )
 
     return create_file_copy(ctx, rd, 'fmt', library_id, book_id, fmt, mtime, copy_func, extra_etag_data=extra_etag_data)
+
+
 # }}}
 
 
@@ -320,7 +326,7 @@ def reader_background(ctx, rd, encoded_fname):
     base = os.path.abspath(os.path.normpath(os.path.join(config_dir, 'viewer', 'background-images')))
     try:
         q = path_from_root(base, bytes.fromhex(encoded_fname).decode('utf-8'), reject_colon=iswindows)
-    except (ValueError, UnicodeDecodeError):
+    except ValueError, UnicodeDecodeError:
         raise HTTPNotFound(f'Reader background {encoded_fname} not found')
     try:
         return share_open(make_long_path_useable(q), 'rb')
@@ -331,6 +337,7 @@ def reader_background(ctx, rd, encoded_fname):
 @endpoint('/reader-profiles/get-all', postprocess=json)
 def get_all_reader_profiles(ctx, rd):
     from calibre.gui2.viewer.config import load_viewer_profiles
+
     which = 'user:'
     if rd.username:
         which += rd.username
@@ -347,6 +354,7 @@ def save_reader_profile(ctx, rd):
     except Exception as err:
         raise HTTPBadRequest(f'Invalid query: {err}')
     from calibre.gui2.viewer.config import save_viewer_profile
+
     which = 'user:'
     if rd.username:
         which += rd.username
@@ -399,6 +407,7 @@ def get(ctx, rd, what, book_id, library_id):
             return metadata_to_opf(mi)
         elif what == 'json':
             from calibre.srv.ajax import book_to_json
+
             data, last_modified = book_to_json(ctx, rd, db, book_id)
             rd.outheaders['Last-Modified'] = http_date(timestampfromdt(last_modified))
             return json(ctx, rd, get, data)
@@ -426,14 +435,19 @@ def _get_note(ctx, rd, db, field, item_id, library_id):
     resources = note_data.pop('resource_hashes', None)
     if resources:
         import re
+
         html = note_data['doc']
+
         def r(x):
             scheme, digest = x.split(':', 1)
             return f'{scheme}/{digest}'
+
         pat = re.compile(rf'{RESOURCE_URL_SCHEME}://({{}})'.format('|'.join(map(r, resources))))
+
         def sub(m):
             s, d = m.group(1).split('/', 1)
             return resource_hash_to_url(ctx, s, d, library_id)
+
         note_data['doc'] = pat.sub(sub, html)
     rd.outheaders['Last-Modified'] = http_date(note_data['mtime'])
     return note_data['doc']
@@ -480,7 +494,8 @@ def get_note_resource(ctx, rd, scheme, digest, library_id):
     name = d['name']
     rd.outheaders['Content-Type'] = guess_type(name)[0] or 'application/octet-stream'
     rd.outheaders['Content-Disposition'] = (
-        f'''inline; filename="{fname_for_content_disposition(name)}"; filename*=utf-8''{fname_for_content_disposition(name, as_encoded_unicode=True)}''')
+        f'''inline; filename="{fname_for_content_disposition(name)}"; filename*=utf-8''{fname_for_content_disposition(name, as_encoded_unicode=True)}'''
+    )
     rd.outheaders['Last-Modified'] = http_date(d['mtime'])
     return d['data']
 
@@ -543,7 +558,8 @@ def sanitize_content_disposition(x: str) -> str:
 def data_file(rd, fname, path, stat_result):
     cd = sanitize_content_disposition(rd.query.get('content_disposition', 'attachment'))
     rd.outheaders['Content-Disposition'] = (
-        f'''{cd}; filename="{fname_for_content_disposition(fname)}"; filename*=utf-8''{fname_for_content_disposition(fname, as_encoded_unicode=True)}''')
+        f'''{cd}; filename="{fname_for_content_disposition(fname)}"; filename*=utf-8''{fname_for_content_disposition(fname, as_encoded_unicode=True)}'''
+    )
     return rd.filesystem_file_with_custom_etag(share_open(path, 'rb'), stat_result.st_dev, stat_result.st_ino, stat_result.st_size, stat_result.st_mtime)
 
 
@@ -572,7 +588,13 @@ def strerr(e: Exception):
     return str(e)
 
 
-@endpoint('/data-files/upload/{book_id}/{library_id=None}', needs_db_write=True, methods={'POST'}, types={'book_id': int}, postprocess=json)
+@endpoint(
+    '/data-files/upload/{book_id}/{library_id=None}',
+    needs_db_write=True,
+    methods={'POST'},
+    types={'book_id': int},
+    postprocess=json,
+)
 def upload_data_files(ctx, rd, book_id, library_id):
     db = get_db_for_data_file(ctx, rd, book_id, library_id)
     files = {}
@@ -593,7 +615,13 @@ def upload_data_files(ctx, rd, book_id, library_id):
     return {'error': err, 'data_files': {e.relpath: encode_stat_result(e.stat_result) for e in data_files}}
 
 
-@endpoint('/data-files/remove/{book_id}/{library_id=None}', needs_db_write=True, methods={'POST'}, types={'book_id': int}, postprocess=json)
+@endpoint(
+    '/data-files/remove/{book_id}/{library_id=None}',
+    needs_db_write=True,
+    methods={'POST'},
+    types={'book_id': int},
+    postprocess=json,
+)
 def remove_data_files(ctx, rd, book_id, library_id):
     db = get_db_for_data_file(ctx, rd, book_id, library_id)
     try:

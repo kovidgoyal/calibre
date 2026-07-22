@@ -27,16 +27,14 @@ class inc42(BasicNewsRecipe):
 
     def parse_index(self):
         index = 'https://inc42.com/'
-        sections = [
-            'features', 'buzz', 'startups', 'resources'
-        ]
+        sections = ['features', 'buzz', 'startups', 'resources']
         feeds = []
         soup = self.index_to_soup(index)
         for sec in sections:
             section = sec.capitalize()
             self.log(section)
             articles = []
-            for a in soup.findAll('a', attrs={'href':lambda x: x and x.startswith(index + sec + '/')}):
+            for a in soup.findAll('a', attrs={'href': lambda x: x and x.startswith(index + sec + '/')}):
                 url = a['href']
                 if url == index + sec + '/':
                     continue
@@ -48,6 +46,6 @@ class inc42(BasicNewsRecipe):
         return feeds
 
     def preprocess_html(self, soup):
-        for img in soup.findAll('img', attrs={'data-src':True}):
+        for img in soup.findAll('img', attrs={'data-src': True}):
             img['src'] = img['data-src']
         return soup

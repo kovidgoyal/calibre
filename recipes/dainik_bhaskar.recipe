@@ -7,7 +7,8 @@ class DainikBhaskar(BasicNewsRecipe):
     title = 'दैनिक भास्कर'
     description = (
         'Dainik Bhaskar is an Indian Hindi-language daily newspaper owned by the Dainik Bhaskar Group.'
-        ' It is ranked 4th in the world by circulation and is the largest newspaper in India by circulation.')
+        ' It is ranked 4th in the world by circulation and is the largest newspaper in India by circulation.'
+    )
     language = 'hi'
     __author__ = 'unkn0wn'
     oldest_article = 1  # days

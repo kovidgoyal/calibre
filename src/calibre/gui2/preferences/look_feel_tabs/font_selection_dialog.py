@@ -147,7 +147,7 @@ class FontSelectionDialog(QDialog):
         systems = tuple(QFontDatabase.writingSystems(family))
         text = ''
         for s in systems:
-            if (t := QFontDatabase.writingSystemSample(s)):
+            if t := QFontDatabase.writingSystemSample(s):
                 text = t
                 break
 
@@ -163,6 +163,7 @@ class FontSelectionDialog(QDialog):
             else:
                 prefix = _('Maximum size:')
             label.setText(prefix + ' ' + text)
+
         s(self.preview_small, self.min_size)
         s(self.preview_medium, self.medium_size)
         s(self.preview_large, self.max_size)
@@ -170,7 +171,7 @@ class FontSelectionDialog(QDialog):
     def selected_font(self):
         """Returns the selected font family and style as a tuple"""
         family_item = self.families_list.currentItem()
-        style_item = self.styles_list. currentItem()
+        style_item = self.styles_list.currentItem()
 
         if family_item and style_item:
             return family_item.text(), style_item.text()
@@ -204,6 +205,6 @@ if __name__ == '__main__':
             family, style = dialog.selected_font()
             selected_font = dialog.get_font(16)
             print(f'Selected:  {family} - {style}')
-            print(f'Font: {selected_font. family()} {selected_font.styleName()} {selected_font.pointSize()}pt')
+            print(f'Font: {selected_font.family()} {selected_font.styleName()} {selected_font.pointSize()}pt')
 
     show_dialog()

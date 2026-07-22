@@ -6,17 +6,17 @@ from calibre.web.feeds.recipes import BasicNewsRecipe
 
 class novinkyRecipe(BasicNewsRecipe):
     __author__ = 'bubak'
-    title = u'novinky.cz'
-    publisher = u'seznam.cz'
+    title = 'novinky.cz'
+    publisher = 'seznam.cz'
     description = 'novinky.cz'
     oldest_article = 1
     max_articles_per_feed = 20
 
     feeds = [
-        (u'Domácí', u'http://www.novinky.cz/rss2/domaci/'),
-        (u'Praha', u'http://www.novinky.cz/rss2/vase-zpravy/praha/'),
-        (u'Ekonomika', u'http://www.novinky.cz/rss2/ekonomika/'),
-        (u'Finance', u'http://www.novinky.cz/rss2/finance/'),
+        ('Domácí', 'http://www.novinky.cz/rss2/domaci/'),
+        ('Praha', 'http://www.novinky.cz/rss2/vase-zpravy/praha/'),
+        ('Ekonomika', 'http://www.novinky.cz/rss2/ekonomika/'),
+        ('Finance', 'http://www.novinky.cz/rss2/finance/'),
     ]
 
     language = 'cs'
@@ -24,12 +24,13 @@ class novinkyRecipe(BasicNewsRecipe):
     remove_javascript = True
     no_stylesheets = True
 
-    remove_tags = [dict(name='div', attrs={'id': ['pictureInnerBox']}),
-                   dict(name='div', attrs={'id': ['discussionEntry']}),
-                   dict(name='span', attrs={
-                        'id': ['mynews-hits', 'mynews-author']}),
-                   dict(name='div', attrs={'class': ['related']}),
-                   dict(name='div', attrs={'id': ['multimediaInfo']})]
+    remove_tags = [
+        dict(name='div', attrs={'id': ['pictureInnerBox']}),
+        dict(name='div', attrs={'id': ['discussionEntry']}),
+        dict(name='span', attrs={'id': ['mynews-hits', 'mynews-author']}),
+        dict(name='div', attrs={'class': ['related']}),
+        dict(name='div', attrs={'id': ['multimediaInfo']}),
+    ]
     remove_tags_before = dict(name='div', attrs={'class': ['articleHeader']})
     remove_tags_after = dict(name='div', attrs={'class': 'related'})
 

@@ -26,11 +26,7 @@ class pcWorld(BasicNewsRecipe):
         .subheadline {font-style:italic; color:#202020;}
     '''
 
-    keep_only_tags = [
-        classes('entry-header post-thumbnail'),
-        dict(name='div', attrs={'id':'link_wrapped_content'}),
-        classes('article_author_box_bio')
-    ]
+    keep_only_tags = [classes('entry-header post-thumbnail'), dict(name='div', attrs={'id': 'link_wrapped_content'}), classes('article_author_box_bio')]
 
     def parse_index(self):
 
@@ -41,7 +37,7 @@ class pcWorld(BasicNewsRecipe):
             ('How-To', 'howto'),
             ('Gaming', 'gaming'),
             ('Windows', 'windows'),
-            ('Best-Picks','best-picks'),
+            ('Best-Picks', 'best-picks'),
             ('Reviews', 'reviews'),
             ('Security', 'security'),
             ('Smart Tech', 'smart-tech'),
@@ -67,19 +63,19 @@ class pcWorld(BasicNewsRecipe):
 
     def articles_from_soup(self, soup):
         ans = []
-        feed = soup.find('div', attrs={'class':lambda x: x and 'articleFeed-inner' in x.split()})
-        for item in feed.findAll('div', attrs={'class':'item-text-inner'}):
+        feed = soup.find('div', attrs={'class': lambda x: x and 'articleFeed-inner' in x.split()})
+        for item in feed.findAll('div', attrs={'class': 'item-text-inner'}):
             a = item.find('h3').find('a', href=True)
             title = self.tag_to_string(a)
             url = a['href']
             desc = ''
-            if span := item.find(attrs={'class':'item-excerpt'}):
+            if span := item.find(attrs={'class': 'item-excerpt'}):
                 desc = self.tag_to_string(span)
-            if byline := item.find(attrs={'class':'item-byline'}):
+            if byline := item.find(attrs={'class': 'item-byline'}):
                 desc = self.tag_to_string(byline) + ' | ' + desc
-            if eye := item.find(attrs={'class':lambda x: x and 'item-eyebrow' in x.split()}):
+            if eye := item.find(attrs={'class': lambda x: x and 'item-eyebrow' in x.split()}):
                 desc = self.tag_to_string(eye) + ' | ' + desc
-            if itdate := item.find(attrs={'class':'item-date'}):
+            if itdate := item.find(attrs={'class': 'item-date'}):
                 date = self.tag_to_string(itdate)
                 check = 'hours', 'day', 'days'  # skipping articles older than a week
                 if not any(x in date for x in check):
@@ -91,7 +87,5 @@ class pcWorld(BasicNewsRecipe):
         return ans
 
     def get_cover_url(self):
-        soup = self.index_to_soup(
-            'https://www.magzter.com/US/IDG-Consumer-and-SMB,-Inc./PCWorld/Computer-&-Mobile/'
-        )
+        soup = self.index_to_soup('https://www.magzter.com/US/IDG-Consumer-and-SMB,-Inc./PCWorld/Computer-&-Mobile/')
         return soup.find('img', id=lambda s: s and 'mgd__lhd__cover' in s.split())['src']

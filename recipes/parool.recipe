@@ -19,10 +19,20 @@ class Parool(BasicNewsRecipe):
     category = 'news, politics, Netherlands'
     resolve_internal_links = True
     remove_tags_before = dict(id='main-content')
-    remove_tags_after  = dict(id='main-content')
+    remove_tags_after = dict(id='main-content')
     remove_tags = [
-        dict(attrs={'class':['article-footer__sharing', 'artstyle__editorial-tips', 'artstyle__advertisement',
-                             'artstyle__container__icon','artstyle__disabled-embed','container__title__icon',]}),
+        dict(
+            attrs={
+                'class': [
+                    'article-footer__sharing',
+                    'artstyle__editorial-tips',
+                    'artstyle__advertisement',
+                    'artstyle__container__icon',
+                    'artstyle__disabled-embed',
+                    'container__title__icon',
+                ]
+            }
+        ),
         dict(attrs={'data-element-id': ['article-element-authors']}),
         dict(name=['script', 'noscript', 'style']),
     ]
@@ -61,9 +71,7 @@ class Parool(BasicNewsRecipe):
                 if teaser_title:
                     parts.append(teaser_title)
                 article_title = ' \u2022 '.join(parts)
-                articles.append(dict(title=article_title,
-                                    url=url,
-                                    content=''))
+                articles.append(dict(title=article_title, url=url, content=''))
 
             sections.append((section_title, articles))
         return sections

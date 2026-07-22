@@ -9,9 +9,8 @@ from calibre.utils.localization import _
 
 
 class PluginWidget(Widget, Ui_Form):
-
     TITLE = _('PDF input')
-    HELP = _('Options specific to')+' PDF '+_('input')
+    HELP = _('Options specific to') + ' PDF ' + _('input')
     COMMIT_NAME = 'pdf_input'
     ICON = 'mimetypes/pdf.png'
 
@@ -19,6 +18,7 @@ class PluginWidget(Widget, Ui_Form):
         Widget.__init__(self, parent, OPTIONS['input']['pdf'])
         self.db, self.book_id = db, book_id
         from calibre.ebooks.conversion.plugins.pdf_input import ENGINES
+
         self.opt_pdf_engine.addItems(ENGINES)
         self.initialize_options(get_option, get_help, db, book_id)
         self.opt_pdf_engine.currentIndexChanged.connect(self.update_engine_opts)

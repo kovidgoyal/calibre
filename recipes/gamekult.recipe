@@ -11,9 +11,9 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class GamekultCom(BasicNewsRecipe):
-    title = u'Gamekult.com'
+    title = 'Gamekult.com'
     __author__ = 'Malah'
-    description = u'Toute l`actualité du jeu vidéo PC, consoles, mobiles.'
+    description = 'Toute l`actualité du jeu vidéo PC, consoles, mobiles.'
     oldest_article = 1.5
     language = 'fr'
     max_articles_per_feed = 100
@@ -30,9 +30,9 @@ class GamekultCom(BasicNewsRecipe):
         dict(name='div', attrs={'class': 'pagination pagination-centered'}),
     ]
 
-    masthead_url = u'https://upload.wikimedia.org/wikipedia/fr/9/9c/Logo_-_GAMEKULT.png'
+    masthead_url = 'https://upload.wikimedia.org/wikipedia/fr/9/9c/Logo_-_GAMEKULT.png'
 
     feeds = [
-        ('Test', u'http://www.gamekult.com/feeds/test.html'),
-        ('Actu', u'http://www.gamekult.com/feeds/actu.html'),
+        ('Test', 'http://www.gamekult.com/feeds/test.html'),
+        ('Actu', 'http://www.gamekult.com/feeds/actu.html'),
     ]

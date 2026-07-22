@@ -6,9 +6,8 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class DRNyheder(BasicNewsRecipe):
-
     # Feeds are found here: https://www.dr.dk/nyheder/dr-nyheder-som-rss-feed
-    feeds          = [
+    feeds = [
         ('Seneste nyt', 'https://www.dr.dk/nyheder/service/feeds/senestenyt'),
         ('Indland', 'https://www.dr.dk/nyheder/service/feeds/indland'),
         ('Udland', 'https://www.dr.dk/nyheder/service/feeds/udland'),
@@ -31,27 +30,27 @@ class DRNyheder(BasicNewsRecipe):
         ('DR Nordjylland', 'https://www.dr.dk/nyheder/service/feeds/regionale/nord'),
         ('DR Trekantområdet', 'https://www.dr.dk/nyheder/service/feeds/regionale/trekanten'),
         ('DR Sjælland', 'https://www.dr.dk/nyheder/service/feeds/regionale/sjaelland'),
-        ('DR Østjylland', 'https://www.dr.dk/nyheder/service/feeds/regionale/oestjylland')
+        ('DR Østjylland', 'https://www.dr.dk/nyheder/service/feeds/regionale/oestjylland'),
     ]
 
-    title                       = 'DR Nyheder'
-    __author__                  = 'Joel Davies'
-    publisher                   = 'DR Nyheder'
-    description                 = 'Her finder du nyheder fra DR.'
-    category                    = 'news, politics, money, culture, sport, science, Denmark'
-    publication_type            = 'newspaper'
-    encoding                    = 'utf8'
-    language                    = 'da'
-    oldest_article              = 4  # 2 might be best
-    max_articles_per_feed       = 50  # 100 better, this is just for testing
-    no_stylesheets              = True
-    use_embedded_content        = False
-    auto_cleanup                = False
-    remove_empty_feeds          = True
-    ignore_duplicate_articles   = {'title', 'url'}
-    simultaneous_downloads      = 20
-    compress_news_images        = True
-    masthead_url                = 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/DR_logo.svg/1024px-DR_logo.svg.png'
+    title = 'DR Nyheder'
+    __author__ = 'Joel Davies'
+    publisher = 'DR Nyheder'
+    description = 'Her finder du nyheder fra DR.'
+    category = 'news, politics, money, culture, sport, science, Denmark'
+    publication_type = 'newspaper'
+    encoding = 'utf8'
+    language = 'da'
+    oldest_article = 4  # 2 might be best
+    max_articles_per_feed = 50  # 100 better, this is just for testing
+    no_stylesheets = True
+    use_embedded_content = False
+    auto_cleanup = False
+    remove_empty_feeds = True
+    ignore_duplicate_articles = {'title', 'url'}
+    simultaneous_downloads = 20
+    compress_news_images = True
+    masthead_url = 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/DR_logo.svg/1024px-DR_logo.svg.png'
 
     extra_css = '''
         .dre-byline__contributions {
@@ -105,7 +104,6 @@ class DRNyheder(BasicNewsRecipe):
         return cover_url
 
     keep_only_tags = [
-
         dict(name='h1', attrs={'class': 'dre-article-title__heading'}),  # Title
         dict(name='div', attrs={'class': 'dre-article-byline'}),  # Author
         dict(name='figure', attrs={'class': 'dre-standard-article__figure'}),  # Comment out to remove images
@@ -119,9 +117,18 @@ class DRNyheder(BasicNewsRecipe):
 
     remove_tags = [
         dict(name='ol', attrs={'class': 'hydra-latest-news-page__list'}),
-        dict(name='div', attrs={'class': [
-            'hydra-latest-news-page-short-news__share', 'hydra-latest-news-page-short-news__a11y-container',
-            'hydra-latest-news-page-short-news__meta', 'hydra-latest-news-page-short-news__image-slider', 'dre-byline__dates']}),
+        dict(
+            name='div',
+            attrs={
+                'class': [
+                    'hydra-latest-news-page-short-news__share',
+                    'hydra-latest-news-page-short-news__a11y-container',
+                    'hydra-latest-news-page-short-news__meta',
+                    'hydra-latest-news-page-short-news__image-slider',
+                    'dre-byline__dates',
+                ]
+            },
+        ),
         dict(name='source'),
         # dict(name='menu', attrs={'class': 'share'}),
         # dict(name='menu', attrs={'class': 'dr-site-share-horizontal'}),

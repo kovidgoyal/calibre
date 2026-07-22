@@ -2,8 +2,7 @@
 Directory output OEBBook writer.
 """
 
-
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
 
 import os
@@ -33,11 +32,19 @@ class OEBWriter:
         """
         oeb = cfg.add_group('oeb', _('OPF/NCX/etc. generation options.'))
         versions = ['1.2', '2.0']
-        oeb('opf_version', ['--opf-version'], default='2.0', choices=versions,
-            help=_('OPF version to generate. Default is %default.'))
-        oeb('adobe_page_map', ['--adobe-page-map'], default=False,
-            help=_('Generate an Adobe "page-map" file if pagination '
-                   'information is available.'))
+        oeb(
+            'opf_version',
+            ['--opf-version'],
+            default='2.0',
+            choices=versions,
+            help=_('OPF version to generate. Default is %default.'),
+        )
+        oeb(
+            'adobe_page_map',
+            ['--adobe-page-map'],
+            default=False,
+            help=_('Generate an Adobe "page-map" file if pagination information is available.'),
+        )
         return cfg
 
     @classmethod
@@ -46,8 +53,7 @@ class OEBWriter:
         version = opts.opf_version
         page_map = opts.adobe_page_map
         pretty_print = opts.pretty_print
-        return cls(version=version, page_map=page_map,
-                   pretty_print=pretty_print)
+        return cls(version=version, page_map=page_map, pretty_print=pretty_print)
 
     def __call__(self, oeb, path):
         """

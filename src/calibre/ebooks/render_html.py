@@ -30,7 +30,6 @@ PRINT_TIMEOUT = 10
 
 
 class RequestInterceptor(QWebEngineUrlRequestInterceptor):
-
     def interceptRequest(self, info):
         method = bytes(info.requestMethod())
         if method not in (b'GET', b'HEAD'):
@@ -45,7 +44,6 @@ class RequestInterceptor(QWebEngineUrlRequestInterceptor):
 
 
 class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
-
     def __init__(self, root, parent=None):
         self.root = root
         super().__init__(parent)
@@ -83,7 +81,6 @@ class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
 
 
 class Render(QWebEnginePage):
-
     def __init__(self, profile):
         QWebEnginePage.__init__(self, profile, QApplication.instance())
         secure_webengine(self)
@@ -101,7 +98,8 @@ class Render(QWebEnginePage):
 
     def load_finished(self, ok):
         if ok:
-            self.runJavaScript('''
+            self.runJavaScript(
+                '''
             var ans = {};
             var meta = document.querySelector('meta[name=calibre-html-render-data]');
             if (meta) {
@@ -111,7 +109,10 @@ class Render(QWebEnginePage):
                 } catch {}
             }
             ans;
-            ''', QWebEngineScript.ScriptWorldId.ApplicationWorld, self.start_print)
+            ''',
+                QWebEngineScript.ScriptWorldId.ApplicationWorld,
+                self.start_print,
+            )
         else:
             self.hang_timer.stop()
             app = QApplication.instance()
@@ -152,6 +153,7 @@ class Render(QWebEnginePage):
                         page_size = QPageSize(getattr(QPageSize, sz))
                     else:
                         from calibre.ebooks.pdf.image_writer import parse_pdf_page_size
+
                         ps = parse_pdf_page_size(sz, data.get('unit', 'inch'))
                         if ps is not None:
                             page_size = ps

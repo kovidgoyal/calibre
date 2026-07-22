@@ -26,11 +26,9 @@ except ImportError:
 
 
 class LibreDEStore(BasicStoreConfig, StorePlugin):
-
     def open(self, gui=None, parent=None, detail_item=None, external=False):
         url = 'https://clk.tradedoubler.com/click?p=324630&a=3252627'
-        url_details = ('https://clk.tradedoubler.com/click?p=324630&a=3252627'
-                       '&url=https%3A%2F%2Fwww.ebook.de%2Fshop%2Faction%2FproductDetails%3FartiId%3D{0}')
+        url_details = 'https://clk.tradedoubler.com/click?p=324630&a=3252627&url=https%3A%2F%2Fwww.ebook.de%2Fshop%2Faction%2FproductDetails%3FartiId%3D{0}'
 
         if external or self.config.get('open_external', False):
             if detail_item:
@@ -46,7 +44,7 @@ class LibreDEStore(BasicStoreConfig, StorePlugin):
             d.exec()
 
     def search(self, query, max_results=10, timeout=60):
-        url = ('http://www.ebook.de/de/pathSearch?nav=52122&searchString=' + quote(query))
+        url = 'http://www.ebook.de/de/pathSearch?nav=52122&searchString=' + quote(query)
         br = browser()
 
         counter = max_results
@@ -67,12 +65,9 @@ class LibreDEStore(BasicStoreConfig, StorePlugin):
                 if author.startswith('von'):
                     author = author[4:]
 
-                pdf = details.xpath(
-                        'boolean(.//span[@class="bindername" and contains(text(), "pdf")]/text())')
-                epub = details.xpath(
-                        'boolean(.//span[@class="bindername" and contains(text(), "epub")]/text())')
-                mobi = details.xpath(
-                        'boolean(.//span[@class="bindername" and contains(text(), "mobipocket")]/text())')
+                pdf = details.xpath('boolean(.//span[@class="bindername" and contains(text(), "pdf")]/text())')
+                epub = details.xpath('boolean(.//span[@class="bindername" and contains(text(), "epub")]/text())')
+                mobi = details.xpath('boolean(.//span[@class="bindername" and contains(text(), "mobipocket")]/text())')
 
                 cover_url = ''.join(data.xpath('.//div[@class="coverimg"]/a/img/@src'))
                 price = ''.join(data.xpath('.//div[@class="preis"]/text()')).replace('*', '').strip()

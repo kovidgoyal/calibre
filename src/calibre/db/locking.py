@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
@@ -24,7 +24,6 @@ def try_lock(lock):
 
 
 class LockingError(RuntimeError):
-
     is_locking_error = True
 
     def __init__(self, msg, extra=None):
@@ -111,7 +110,7 @@ class SHLock:  # {{{
             return self._exclusive_owner is me or me in self._shared_owners
 
     def release(self):
-        """ Release the lock. """
+        """Release the lock."""
         # This decrements the appropriate lock counters, and if the lock
         # becomes free, it looks for a queued thread to hand it off to.
         # By doing the handoff here we ensure fairness.
@@ -220,11 +219,11 @@ class SHLock:  # {{{
     def _return_waiter(self, waiter):
         self._free_waiters.append(waiter)
 
+
 # }}}
 
 
 class RWLockWrapper:
-
     def __init__(self, shlock, is_shared=True):
         self._shlock = shlock
         self._is_shared = is_shared
@@ -243,7 +242,6 @@ class RWLockWrapper:
 
 
 class DebugRWLockWrapper(RWLockWrapper):
-
     def __init__(self, *args, **kwargs):
         RWLockWrapper.__init__(self, *args, **kwargs)
         self.print_lock = Lock()
@@ -274,8 +272,15 @@ class DebugRWLockWrapper(RWLockWrapper):
         at = monotonic() - self.st
         RWLockWrapper.release(self)
         with self.print_lock:
-            print(f'release done at {at:.4f}: thread id:', tid, 'is_shared:', self._shlock.is_shared, 'is_exclusive:', self._shlock.is_exclusive,
-                  file=sys.stderr)
+            print(
+                f'release done at {at:.4f}: thread id:',
+                tid,
+                'is_shared:',
+                self._shlock.is_shared,
+                'is_exclusive:',
+                self._shlock.is_exclusive,
+                file=sys.stderr,
+            )
             print('_' * 120, file=sys.stderr)
 
     __enter__ = acquire
@@ -283,7 +288,6 @@ class DebugRWLockWrapper(RWLockWrapper):
 
 
 class SafeReadLock:
-
     def __init__(self, read_lock):
         self.read_lock = read_lock
         self.acquired = False
@@ -303,4 +307,4 @@ class SafeReadLock:
         self.acquired = False
 
     __enter__ = acquire
-    __exit__  = release
+    __exit__ = release

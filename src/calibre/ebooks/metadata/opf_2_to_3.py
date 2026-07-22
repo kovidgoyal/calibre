@@ -91,11 +91,11 @@ def upgrade_authors(root, data):
                 aid = ensure_id(elem)
                 metadata = elem.getparent()
                 if role:
-                    m = metadata.makeelement(OPF('meta'), attrib={'refines':'#'+aid, 'property':'role', 'scheme':'marc:relators'})
+                    m = metadata.makeelement(OPF('meta'), attrib={'refines': '#' + aid, 'property': 'role', 'scheme': 'marc:relators'})
                     m.text = role
                     metadata.append(m)
                 if sort:
-                    m = metadata.makeelement(OPF('meta'), attrib={'refines':'#'+aid, 'property':'file-as'})
+                    m = metadata.makeelement(OPF('meta'), attrib={'refines': '#' + aid, 'property': 'file-as'})
                     m.text = sort
                     metadata.append(m)
 
@@ -223,6 +223,7 @@ def upgrade_metadata(root):
 
 if __name__ == '__main__':
     import sys
+
     root = parse_opf(open(sys.argv[-1], 'rb'))
     upgrade_metadata(root)
     print(etree.tostring(root))

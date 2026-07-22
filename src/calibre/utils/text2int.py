@@ -18,18 +18,45 @@ numwords = {}
 
 def text2int(textnum):
     if not numwords:
+        units = [
+            'zero',
+            'one',
+            'two',
+            'three',
+            'four',
+            'five',
+            'six',
+            'seven',
+            'eight',
+            'nine',
+            'ten',
+            'eleven',
+            'twelve',
+            'thirteen',
+            'fourteen',
+            'fifteen',
+            'sixteen',
+            'seventeen',
+            'eighteen',
+            'nineteen',
+        ]
 
-        units = ['zero', 'one', 'two', 'three', 'four', 'five', 'six',
-                'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve',
-                'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen',
-                'eighteen', 'nineteen']
+        tens = ['', '', 'twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety']
 
-        tens = ['', '', 'twenty', 'thirty', 'forty', 'fifty', 'sixty',
-                'seventy', 'eighty', 'ninety']
-
-        scales = ['hundred', 'thousand', 'million', 'billion', 'trillion',
-                'quadrillion', 'quintillion', 'sexillion', 'septillion',
-                'octillion', 'nonillion', 'decillion']
+        scales = [
+            'hundred',
+            'thousand',
+            'million',
+            'billion',
+            'trillion',
+            'quadrillion',
+            'quintillion',
+            'sexillion',
+            'septillion',
+            'octillion',
+            'nonillion',
+            'decillion',
+        ]
 
         numwords['and'] = (1, 0)
         for idx, word in enumerate(units):
@@ -39,8 +66,7 @@ def text2int(textnum):
         for idx, word in enumerate(scales):
             numwords[word] = (10 ** (idx * 3 or 2), 0)
 
-    ordinal_words = {'first':1, 'second':2, 'third':3, 'fifth':5,
-            'eighth':8, 'ninth':9, 'twelfth':12}
+    ordinal_words = {'first': 1, 'second': 2, 'third': 3, 'fifth': 5, 'eighth': 8, 'ninth': 9, 'twelfth': 12}
     ordinal_endings = [('ieth', 'y'), ('th', '')]
     current = result = 0
     tokens = re.split(r'[\s-]+', textnum)
@@ -50,7 +76,7 @@ def text2int(textnum):
         else:
             for ending, replacement in ordinal_endings:
                 if word.endswith(ending):
-                    word = f'{word[:-len(ending)]}{replacement}'
+                    word = f'{word[: -len(ending)]}{replacement}'
 
             if word not in numwords:
                 # raise Exception("Illegal word: " + word)

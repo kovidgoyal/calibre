@@ -25,6 +25,7 @@ def is_debugging():
 def debug(*a, **kw):
     if is_debugging():
         from pprint import pformat
+
         items = []
         for x in a:
             if not isinstance(x, str):
@@ -51,6 +52,7 @@ def dict_as_rect(g: dict) -> QRect:
 
 def screen_as_dict(self: QScreen):
     from calibre.gui2 import qapplication_or_fail
+
     try:
         num = qapplication_or_fail().screens().index(self)
     except Exception:
@@ -100,12 +102,12 @@ def save_geometry(self: QWidget, prefs: Prefs, name: str):
 
 def find_matching_screen(screen_as_dict):
     from calibre.gui2 import qapplication_or_fail
+
     screens = qapplication_or_fail().screens()
     size = dict_as_size(screen_as_dict['size_in_logical_pixels'])
     vg = dict_as_rect(screen_as_dict['virtual_geometry'])
     dpr = screen_as_dict['device_pixel_ratio']
-    screens_of_matching_size = tuple(
-        s for s in screens if s.size() == size and vg == s.virtualGeometry() and s.devicePixelRatio() == dpr)
+    screens_of_matching_size = tuple(s for s in screens if s.size() == size and vg == s.virtualGeometry() and s.devicePixelRatio() == dpr)
     if screen_as_dict['serial']:
         for q in screens_of_matching_size:
             if q.serialNumber() == screen_as_dict['serial']:
@@ -166,6 +168,7 @@ def _restore_to_new_screen(self: QWidget, s: QScreen, saved_data: dict) -> bool:
 
 def _restore_geometry(self: QWidget, prefs: Prefs, name: str, get_legacy_saved_geometry: Callable[[], bytes] | None = None) -> bool:
     from calibre.gui2 import qapplication_or_fail
+
     x = prefs.get(geometry_pref_name(name))
     if not x:
         old = get_legacy_saved_geometry() if get_legacy_saved_geometry else prefs.get(name)
@@ -181,7 +184,10 @@ def _restore_geometry(self: QWidget, prefs: Prefs, name: str, get_legacy_saved_g
     debug('Matching screen:', screen_as_dict(s) if s else None)
     if s is None:
         if is_debugging():
-            debug('No screens matched saved screen. Available screens:', tuple(map(screen_as_dict, qapplication_or_fail().screens())))
+            debug(
+                'No screens matched saved screen. Available screens:',
+                tuple(map(screen_as_dict, qapplication_or_fail().screens())),
+            )
         p = self.nativeParentWidget()
         if p is not None:
             s = p.screen()
@@ -201,6 +207,7 @@ screen_debug_has_been_output = False
 
 def restore_geometry(self: QWidget, prefs: Prefs, name: str, get_legacy_saved_geometry: Callable[[], bytes] | None = None) -> bool:
     from calibre.gui2 import qapplication_or_fail
+
     global screen_debug_has_been_output
     if not screen_debug_has_been_output:
         screen_debug_has_been_output = True

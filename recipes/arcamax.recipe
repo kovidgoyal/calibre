@@ -15,7 +15,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class Arcamax(BasicNewsRecipe):
     title = 'Arcamax'
     __author__ = 'Kovid Goyal'
-    description = u'Family Friendly Comics - Customize for more days/comics: Defaults to 7 days, 25 comics - 20 general, 5 editorial.'
+    description = 'Family Friendly Comics - Customize for more days/comics: Defaults to 7 days, 25 comics - 20 general, 5 editorial.'
     category = 'news, comics'
     language = 'en'
     use_embedded_content = False
@@ -29,12 +29,7 @@ class Arcamax(BasicNewsRecipe):
     # CHOOSE COMIC STRIPS BELOW - REMOVE COMMENT '# ' FROM IN FRONT OF DESIRED
     # STRIPS
 
-    recipe_specific_options = {
-        'days': {
-            'short': 'NUMBER OF COMICS TO RETRIEVE',
-            'default': str(num_comics_to_get)
-        }
-    }
+    recipe_specific_options = {'days': {'short': 'NUMBER OF COMICS TO RETRIEVE', 'default': str(num_comics_to_get)}}
 
     def __init__(self, *args, **kwargs):
         BasicNewsRecipe.__init__(self, *args, **kwargs)
@@ -42,8 +37,7 @@ class Arcamax(BasicNewsRecipe):
         if d and isinstance(d, str):
             self.num_comics_to_get = float(d)
 
-    conversion_options = {'linearize_tables': True, 'comment': description, 'tags': category, 'language': language
-                          }
+    conversion_options = {'linearize_tables': True, 'comment': description, 'tags': category, 'language': language}
 
     keep_only_tags = [
         dict(name='header', attrs={'class': 'fn-content-header bluelabel', 'style': False}),
@@ -62,41 +56,41 @@ class Arcamax(BasicNewsRecipe):
         # https://www.arcamax.com/comics
 
         for title, url in [
-                # ####### COMICS - GENERAL ########
-                # (u"9 Chickweed Lane", u"https://www.arcamax.com/thefunnies/ninechickweedlane"),
-                # (u"Agnes", u"https://www.arcamax.com/thefunnies/agnes"),
-                # (u"Andy Capp", u"https://www.arcamax.com/thefunnies/andycapp"),
-                (u'BC', u'https://www.arcamax.com/thefunnies/bc'),
-                # (u"Baby Blues", u"https://www.arcamax.com/thefunnies/babyblues"),
-                # (u"Beetle Bailey", u"https://www.arcamax.com/thefunnies/beetlebailey"),
-                (u'Blondie', u'https://www.arcamax.com/thefunnies/blondie'),
-                # u"Boondocks", u"https://www.arcamax.com/thefunnies/boondocks"),
-                # (u"Cathy", u"https://www.arcamax.com/thefunnies/cathy"),
-                # (u"Daddys Home", u"https://www.arcamax.com/thefunnies/daddyshome"),
-                # (u"Dinette Set", u"https://www.arcamax.com/thefunnies/thedinetteset"),
-                (u'Dog Eat Doug', u'https://www.arcamax.com/thefunnies/dogeatdoug'),
-                # (u"Doonesbury", u"https://www.arcamax.com/thefunnies/doonesbury"),
-                # (u"Dustin", u"https://www.arcamax.com/thefunnies/dustin"),
-                (u'Family Circus', u'https://www.arcamax.com/thefunnies/familycircus'),
-                (u'Garfield', u'https://www.arcamax.com/thefunnies/garfield'),
-                # (u"Get Fuzzy", u"https://www.arcamax.com/thefunnies/getfuzzy"),
-                # (u"Girls and Sports", u"https://www.arcamax.com/thefunnies/girlsandsports"),
-                # (u"Hagar the Horrible", u"https://www.arcamax.com/thefunnies/hagarthehorrible"),
-                # (u"Heathcliff", u"https://www.arcamax.com/thefunnies/heathcliff"),
-                # (u"Jerry King Cartoons", u"https://www.arcamax.com/thefunnies/humorcartoon"),
-                # (u"Luann", u"https://www.arcamax.com/thefunnies/luann"),
-                # (u"Momma", u"https://www.arcamax.com/thefunnies/momma"),
-                # (u"Mother Goose and Grimm", u"https://www.arcamax.com/thefunnies/mothergooseandgrimm"),
-                (u'Mutts', u'https://www.arcamax.com/thefunnies/mutts'),
-                # (u"Non Sequitur", u"https://www.arcamax.com/thefunnies/nonsequitur"),
-                # (u"Pearls Before Swine", u"https://www.arcamax.com/thefunnies/pearlsbeforeswine"),
-                # (u"Pickles", u"https://www.arcamax.com/thefunnies/pickles"),
-                # (u"Red and Rover", u"https://www.arcamax.com/thefunnies/redandrover"),
-                # (u"Rubes", u"https://www.arcamax.com/thefunnies/rubes"),
-                # (u"Rugrats", u"https://www.arcamax.com/thefunnies/rugrats"),
-                (u'Speed Bump', u'https://www.arcamax.com/thefunnies/speedbump'),
-                (u'Wizard of Id', u'https://www.arcamax.com/thefunnies/wizardofid'),
-                (u'Zits', u'https://www.arcamax.com/thefunnies/zits'),
+            # ####### COMICS - GENERAL ########
+            # (u"9 Chickweed Lane", u"https://www.arcamax.com/thefunnies/ninechickweedlane"),
+            # (u"Agnes", u"https://www.arcamax.com/thefunnies/agnes"),
+            # (u"Andy Capp", u"https://www.arcamax.com/thefunnies/andycapp"),
+            ('BC', 'https://www.arcamax.com/thefunnies/bc'),
+            # (u"Baby Blues", u"https://www.arcamax.com/thefunnies/babyblues"),
+            # (u"Beetle Bailey", u"https://www.arcamax.com/thefunnies/beetlebailey"),
+            ('Blondie', 'https://www.arcamax.com/thefunnies/blondie'),
+            # u"Boondocks", u"https://www.arcamax.com/thefunnies/boondocks"),
+            # (u"Cathy", u"https://www.arcamax.com/thefunnies/cathy"),
+            # (u"Daddys Home", u"https://www.arcamax.com/thefunnies/daddyshome"),
+            # (u"Dinette Set", u"https://www.arcamax.com/thefunnies/thedinetteset"),
+            ('Dog Eat Doug', 'https://www.arcamax.com/thefunnies/dogeatdoug'),
+            # (u"Doonesbury", u"https://www.arcamax.com/thefunnies/doonesbury"),
+            # (u"Dustin", u"https://www.arcamax.com/thefunnies/dustin"),
+            ('Family Circus', 'https://www.arcamax.com/thefunnies/familycircus'),
+            ('Garfield', 'https://www.arcamax.com/thefunnies/garfield'),
+            # (u"Get Fuzzy", u"https://www.arcamax.com/thefunnies/getfuzzy"),
+            # (u"Girls and Sports", u"https://www.arcamax.com/thefunnies/girlsandsports"),
+            # (u"Hagar the Horrible", u"https://www.arcamax.com/thefunnies/hagarthehorrible"),
+            # (u"Heathcliff", u"https://www.arcamax.com/thefunnies/heathcliff"),
+            # (u"Jerry King Cartoons", u"https://www.arcamax.com/thefunnies/humorcartoon"),
+            # (u"Luann", u"https://www.arcamax.com/thefunnies/luann"),
+            # (u"Momma", u"https://www.arcamax.com/thefunnies/momma"),
+            # (u"Mother Goose and Grimm", u"https://www.arcamax.com/thefunnies/mothergooseandgrimm"),
+            ('Mutts', 'https://www.arcamax.com/thefunnies/mutts'),
+            # (u"Non Sequitur", u"https://www.arcamax.com/thefunnies/nonsequitur"),
+            # (u"Pearls Before Swine", u"https://www.arcamax.com/thefunnies/pearlsbeforeswine"),
+            # (u"Pickles", u"https://www.arcamax.com/thefunnies/pickles"),
+            # (u"Red and Rover", u"https://www.arcamax.com/thefunnies/redandrover"),
+            # (u"Rubes", u"https://www.arcamax.com/thefunnies/rubes"),
+            # (u"Rugrats", u"https://www.arcamax.com/thefunnies/rugrats"),
+            ('Speed Bump', 'https://www.arcamax.com/thefunnies/speedbump'),
+            ('Wizard of Id', 'https://www.arcamax.com/thefunnies/wizardofid'),
+            ('Zits', 'https://www.arcamax.com/thefunnies/zits'),
         ]:
             self.log('Finding strips for:', title)
             articles = self.make_links(url, title)
@@ -113,22 +107,18 @@ class Arcamax(BasicNewsRecipe):
             num -= 1
             raw = self.index_to_soup(url, raw=True)
             self.panel_counter += 1
-            path = os.path.join(self.panel_tdir, '%d.html' %
-                                self.panel_counter)
+            path = os.path.join(self.panel_tdir, '%d.html' % self.panel_counter)
             with open(path, 'wb') as f:
                 f.write(raw)
             soup = self.index_to_soup(raw)
             a = soup.find(name='a', attrs={'class': ['prev']})
             prev_page_url = 'https://www.arcamax.com' + a['href']
-            title = self.tag_to_string(
-                soup.find('title')).partition('|')[0].strip()
+            title = self.tag_to_string(soup.find('title')).partition('|')[0].strip()
             if 'for' not in title.split():
                 title = title + ' for today'
-            date = self.tag_to_string(
-                soup.find(name='span', attrs={'class': ['cur']}))
+            date = self.tag_to_string(soup.find(name='span', attrs={'class': ['cur']}))
             self.log('\tFound:', title, 'at:', url)
-            current_articles.append(
-                {'title': title, 'url': 'file://' + path, 'description': '', 'date': date})
+            current_articles.append({'title': title, 'url': 'file://' + path, 'description': '', 'date': date})
             if self.test and len(current_articles) >= self.test[1]:
                 break
             url = prev_page_url

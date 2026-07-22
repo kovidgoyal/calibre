@@ -2,9 +2,9 @@ from calibre.web.feeds.news import BasicNewsRecipe, LoginFailed
 
 
 class SCPrintMagazine(BasicNewsRecipe):
-    title = u'SC Print Magazine'
-    __author__ = u'Tony Maro'
-    description = u'Last print version of the data security magazine'
+    title = 'SC Print Magazine'
+    __author__ = 'Tony Maro'
+    description = 'Last print version of the data security magazine'
     INDEX = 'http://www.scmagazineus.com/issuearchive/'
     no_stylesheets = True
     language = 'en'
@@ -29,14 +29,12 @@ class SCPrintMagazine(BasicNewsRecipe):
         if issuelink is not None:
             issue = self.index_to_soup(issuelink)
             if issue is not None:
-                printsections = issue.findAll(
-                    'div', attrs={'class': 'PrintSection'})
+                printsections = issue.findAll('div', attrs={'class': 'PrintSection'})
         if printsections is not None:
             for printsection in printsections:
                 onesection = []
                 sectiontitle = printsection.find('h3').contents[0]
-                articlesec = printsection.findAll(
-                    'div', attrs={'class': 'IssueArchiveFormat'})
+                articlesec = printsection.findAll('div', attrs={'class': 'IssueArchiveFormat'})
                 if articlesec is not None:
                     ''' got articles '''
                     for onearticle in articlesec:
@@ -51,16 +49,12 @@ class SCPrintMagazine(BasicNewsRecipe):
                                     arttitle = 'unknown'
                                 if mylink.get('href'):
                                     artlink = mylink['href']
-                                    artlink = artlink.replace(
-                                        '/article', '/printarticle')
-                                    artlink = artlink.replace(
-                                        '/review', '/printreview')
-                                    deck = onearticle.find(
-                                        'div', attrs={'class': 'deck'})
+                                    artlink = artlink.replace('/article', '/printarticle')
+                                    artlink = artlink.replace('/review', '/printreview')
+                                    deck = onearticle.find('div', attrs={'class': 'deck'})
                                     if deck is not None:
                                         deck = deck.contents[0]
-                                        onesection.append(
-                                            {'title': arttitle, 'url': artlink, 'description': deck, 'date': ''})
+                                        onesection.append({'title': arttitle, 'url': artlink, 'description': deck, 'date': ''})
                     articles.append((sectiontitle, onesection))
 
         return articles
@@ -71,10 +65,7 @@ class SCPrintMagazine(BasicNewsRecipe):
         br.select_form(name='aspnetForm')
         br['ctl00$ctl00$cphAllPageContent$cphMainContent$SubscriberEasyLoginView1$txtEmail'] = self.username
         br['ctl00$ctl00$cphAllPageContent$cphMainContent$SubscriberEasyLoginView1$txtPassword'] = self.password
-        raw = br.submit(
-            'ctl00$ctl00$cphAllPageContent$cphMainContent$SubscriberEasyLoginView1$btnLogin').read()
+        raw = br.submit('ctl00$ctl00$cphAllPageContent$cphMainContent$SubscriberEasyLoginView1$btnLogin').read()
         if 'Logout</a>' not in raw:
-            raise LoginFailed(
-                _('Failed to log in, check your username and password for'
-                  ' the calibre Periodicals service.'))
+            raise LoginFailed(_('Failed to log in, check your username and password for the calibre Periodicals service.'))
         return br

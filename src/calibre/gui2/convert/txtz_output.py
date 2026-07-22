@@ -8,7 +8,6 @@ from calibre.utils.localization import _
 
 
 class PluginWidget(TXTPluginWidget):
-
     TITLE = _('TXTZ output')
-    HELP = _('Options specific to')+' TXTZ '+_('output')
+    HELP = _('Options specific to') + ' TXTZ ' + _('output')
     COMMIT_NAME = 'txtz_output'

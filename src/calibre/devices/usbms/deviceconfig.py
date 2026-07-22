@@ -63,7 +63,11 @@ class DeviceConfig:
         name = cls._config_base_name()
         c = Config(f'device_drivers_{name}', _('settings for device drivers'))
         c.add_opt('format_map', default=cls.FORMATS, help=_('Ordered list of formats the device will accept'))
-        c.add_opt('use_subdirs', default=cls.SUPPORTS_SUB_DIRS_DEFAULT, help=_('Place files in sub-folders if the device supports them'))
+        c.add_opt(
+            'use_subdirs',
+            default=cls.SUPPORTS_SUB_DIRS_DEFAULT,
+            help=_('Place files in sub-folders if the device supports them'),
+        )
         c.add_opt('read_metadata', default=True, help=_('Read metadata from files on device'))
         c.add_opt('use_author_sort', default=False, help=_('Use author sort instead of author'))
         c.add_opt('save_template', default=cls._default_save_template(), help=_('Template to control how books are saved'))

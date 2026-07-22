@@ -2,7 +2,7 @@
 CSS case-mangling transform.
 """
 
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
 
 from lxml import etree
@@ -24,7 +24,6 @@ TEXT_TRANSFORMS = {'capitalize', 'uppercase', 'lowercase'}
 
 
 class CaseMangler:
-
     @classmethod
     def config(cls, cfg):
         return cfg
@@ -46,8 +45,7 @@ class CaseMangler:
         for item in self.oeb.spine:
             html = item.data
             relhref = item.relhref(href)
-            etree.SubElement(html.find(XHTML('head')), XHTML('link'),
-                             rel='stylesheet', href=relhref, type=CSS_MIME)
+            etree.SubElement(html.find(XHTML('head')), XHTML('link'), rel='stylesheet', href=relhref, type=CSS_MIME)
             stylizer = Stylizer(html, item.href, self.oeb, self.opts, self.profile)
             self.mangle_elem(html.find(XHTML('body')), stylizer)
 
@@ -96,8 +94,7 @@ class CaseMangler:
                 last = child
 
     def mangle_elem(self, elem, stylizer):
-        if not isinstance(elem.tag, (str, bytes)) or \
-           namespace(elem.tag) != XHTML_NS:
+        if not isinstance(elem.tag, (str, bytes)) or namespace(elem.tag) != XHTML_NS:
             return
         children = list(elem)
         style = stylizer.style(elem)

@@ -4,7 +4,7 @@ Modified version of SHA-1 used in Microsoft LIT files.
 Adapted from the PyPy pure-Python SHA-1 implementation.
 """
 
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
 
 import copy
@@ -30,7 +30,7 @@ def _long2bytesBigEndian(n, blocksize=0):
     s = b''
     pack = struct.pack
     while n > 0:
-        s = pack('>I', n & 0xffffffff) + s
+        s = pack('>I', n & 0xFFFFFFFF) + s
         n = n >> 32
 
     # Strip off leading zeros.
@@ -47,19 +47,19 @@ def _long2bytesBigEndian(n, blocksize=0):
 def _bytelist2longBigEndian(blist):
     "Transform a list of characters into a list of longs."
 
-    imax = len(blist)//4
+    imax = len(blist) // 4
     hl = [0] * imax
 
     j = 0
     i = 0
     while i < imax:
         b0 = int(blist[j]) << 24
-        b1 = int(blist[j+1]) << 16
-        b2 = int(blist[j+2]) << 8
-        b3 = int(blist[j+3])
+        b1 = int(blist[j + 1]) << 16
+        b2 = int(blist[j + 2]) << 8
+        b3 = int(blist[j + 3])
         hl[i] = b0 | b1 | b2 | b3
-        i = i+1
-        j = j+4
+        i = i + 1
+        j = j + 4
 
     return hl
 
@@ -67,13 +67,14 @@ def _bytelist2longBigEndian(blist):
 def _rotateLeft(x, n):
     "Rotate x (32 bit) left n bits circular."
 
-    return (x << n) | (x >> (32-n))
+    return (x << n) | (x >> (32 - n))
 
 
 # ======================================================================
 # The SHA transformation functions
 #
 # ======================================================================
+
 
 def f0_19(B, C, D):
     return (B & (C ^ D)) ^ D
@@ -90,6 +91,7 @@ def f40_59(B, C, D):
 def f60_79(B, C, D):
     return B ^ C ^ D
 
+
 # Microsoft's lovely addition...
 
 
@@ -97,7 +99,7 @@ def f6_42(B, C, D):
     return (B + C) ^ C
 
 
-f = [f0_19]*20 + [f20_39]*20 + [f40_59]*20 + [f60_79]*20
+f = [f0_19] * 20 + [f20_39] * 20 + [f40_59] * 20 + [f60_79] * 20
 
 # ...and delightful changes
 f[3] = f20_39
@@ -116,8 +118,8 @@ K = [
     0x5A827999,  # ( 0 <= t <= 19)
     0x6ED9EBA1,  # (20 <= t <= 39)
     0x8F1BBCDC,  # (40 <= t <= 59)
-    0xCA62C1D6  # (60 <= t <= 79)
-    ]
+    0xCA62C1D6,  # (60 <= t <= 79)
+]
 
 
 class mssha1:
@@ -153,8 +155,7 @@ class mssha1:
 
     def _transform(self, W):
         for t in range(16, 80):
-            W.append(_rotateLeft(
-                W[t-3] ^ W[t-8] ^ W[t-14] ^ W[t-16], 1) & 0xffffffff)
+            W.append(_rotateLeft(W[t - 3] ^ W[t - 8] ^ W[t - 14] ^ W[t - 16], 1) & 0xFFFFFFFF)
 
         A = self.H0
         B = self.H1
@@ -163,18 +164,18 @@ class mssha1:
         E = self.H4
 
         for t in range(80):
-            TEMP = _rotateLeft(A, 5) + f[t](B, C, D) + E + W[t] + K[t//20]
+            TEMP = _rotateLeft(A, 5) + f[t](B, C, D) + E + W[t] + K[t // 20]
             E = D
             D = C
-            C = _rotateLeft(B, 30) & 0xffffffff
+            C = _rotateLeft(B, 30) & 0xFFFFFFFF
             B = A
-            A = TEMP & 0xffffffff
+            A = TEMP & 0xFFFFFFFF
 
-        self.H0 = (self.H0 + A) & 0xffffffff
-        self.H1 = (self.H1 + B) & 0xffffffff
-        self.H2 = (self.H2 + C) & 0xffffffff
-        self.H3 = (self.H3 + D) & 0xffffffff
-        self.H4 = (self.H4 + E) & 0xffffffff
+        self.H0 = (self.H0 + A) & 0xFFFFFFFF
+        self.H1 = (self.H1 + B) & 0xFFFFFFFF
+        self.H2 = (self.H2 + C) & 0xFFFFFFFF
+        self.H3 = (self.H3 + D) & 0xFFFFFFFF
+        self.H4 = (self.H4 + E) & 0xFFFFFFFF
 
     # Down from here all methods follow the Python Standard Library
     # API of the sha module.
@@ -214,7 +215,7 @@ class mssha1:
             self._transform(_bytelist2longBigEndian(self.input))
             i = partLen
             while i + 63 < leninBuf:
-                self._transform(_bytelist2longBigEndian(inBuf[i:i+64]))
+                self._transform(_bytelist2longBigEndian(inBuf[i : i + 64]))
                 i = i + 64
             self.input = inBuf[i:leninBuf]
         else:
@@ -237,7 +238,7 @@ class mssha1:
         inp = bytearray(self.input)
         count = [] + self.count
 
-        index = (self.count[1] >> 3) & 0x3f
+        index = (self.count[1] >> 3) & 0x3F
 
         if index < 56:
             padLen = 56 - index
@@ -253,11 +254,13 @@ class mssha1:
         self._transform(bits)
 
         # Store state in digest.
-        digest = _long2bytesBigEndian(self.H0, 4) + \
-                 _long2bytesBigEndian(self.H1, 4) + \
-                 _long2bytesBigEndian(self.H2, 4) + \
-                 _long2bytesBigEndian(self.H3, 4) + \
-                 _long2bytesBigEndian(self.H4, 4)
+        digest = (
+            _long2bytesBigEndian(self.H0, 4)
+            + _long2bytesBigEndian(self.H1, 4)
+            + _long2bytesBigEndian(self.H2, 4)
+            + _long2bytesBigEndian(self.H3, 4)
+            + _long2bytesBigEndian(self.H4, 4)
+        )
 
         self.H0 = H0
         self.H1 = H1
@@ -316,8 +319,10 @@ def new(arg=None):
 
 
 if __name__ == '__main__':
+
     def main():
         import sys
+
         file = None
         if len(sys.argv) > 2:
             print(f'usage: {sys.argv[0]} [FILE]')
@@ -334,6 +339,7 @@ if __name__ == '__main__':
         file.close()
         digest = context.hexdigest().upper()
         for i in range(0, 40, 8):
-            print(digest[i:i+8], end=' ')
+            print(digest[i : i + 8], end=' ')
         print()
+
     main()

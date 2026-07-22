@@ -12,8 +12,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 def classes(classes):
     q = frozenset(classes.split(' '))
-    return dict(attrs={
-        'class': lambda x: x and frozenset(x.split()).intersection(q)})
+    return dict(attrs={'class': lambda x: x and frozenset(x.split()).intersection(q)})
 
 
 def absurl(url):
@@ -25,9 +24,8 @@ def absurl(url):
 
 
 class NewYorkReviewOfBooks(BasicNewsRecipe):
-
-    title = u'New York Review of Books'
-    description = u'Book reviews'
+    title = 'New York Review of Books'
+    description = 'Book reviews'
     language = 'en_US'
 
     __author__ = 'Kovid Goyal'
@@ -60,7 +58,7 @@ class NewYorkReviewOfBooks(BasicNewsRecipe):
         # ipython({'soup': soup})
 
         # Find cover
-        cover = soup.find('img', attrs={'class':'border-light-gray', 'src': True})
+        cover = soup.find('img', attrs={'class': 'border-light-gray', 'src': True})
         if cover is not None:
             self.cover_url = absurl(cover['src'])
             self.log('Found cover at:', self.cover_url)
@@ -90,12 +88,11 @@ class NewYorkReviewOfBooks(BasicNewsRecipe):
             self.log('Found article:', title)
             self.log('\t', url)
             self.log('\t', desc)
-            articles.append({'title': title, 'url': url, 'date': '',
-                                'description': desc})
+            articles.append({'title': title, 'url': url, 'date': '', 'description': desc})
 
         return [('Current Issue', articles)]
 
     def preprocess_html(self, soup):
-        for img in soup.findAll('img', attrs={'data-lazy-src':True}):
+        for img in soup.findAll('img', attrs={'data-lazy-src': True}):
             img['src'] = img['data-lazy-src']
         return soup

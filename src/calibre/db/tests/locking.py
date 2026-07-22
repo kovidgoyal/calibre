@@ -22,7 +22,7 @@ def wait_for(period):
 
 
 class TestLock(BaseTest):
-    """Tests for db locking """
+    """Tests for db locking"""
 
     def test_owns_locks(self):
         lock = SHLock()
@@ -41,6 +41,7 @@ class TestLock(BaseTest):
         def test():
             if not lock.owns_lock():
                 done.append(True)
+
         lock.acquire()
         t = Thread(target=test)
         t.daemon = True
@@ -64,6 +65,7 @@ class TestLock(BaseTest):
             w = RWLockWrapper(lock, is_shared=False)
             with w:
                 pass
+
         threads = [Thread(target=two_shared), Thread(target=one_exclusive)]
         for t in threads:
             t.daemon = True
@@ -109,8 +111,7 @@ class TestLock(BaseTest):
             time.sleep(1)
             lock.release()
 
-        threads = [Thread(target=get_lock, args=(x,)) for x in (True,
-            False)]
+        threads = [Thread(target=get_lock, args=(x,)) for x in (True, False)]
         for t in threads:
             t.daemon = True
             t.start()
@@ -165,7 +166,7 @@ class TestLock(BaseTest):
 
         def lots_of_acquires():
             for _ in range(1000):
-                shared = random.choice([True,False])
+                shared = random.choice([True, False])
                 lock.acquire(shared=shared)
                 lock.acquire(shared=shared)
                 wait_for(random.random() * 0.0001)
@@ -176,6 +177,7 @@ class TestLock(BaseTest):
                 lock.release()
                 lock.release()
             done.append(True)
+
         threads = [Thread(target=lots_of_acquires) for _ in range(2)]
         for t in threads:
             t.daemon = True
@@ -195,9 +197,11 @@ class TestLock(BaseTest):
 
 def find_tests():
     import unittest
+
     return unittest.defaultTestLoader.loadTestsFromTestCase(TestLock)
 
 
 def run_tests():
     from calibre.utils.run_tests import run_tests
+
     run_tests(find_tests)

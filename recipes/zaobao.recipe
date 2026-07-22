@@ -14,9 +14,7 @@ class ZAOBAO(BasicNewsRecipe):
     no_stylesheets = True
     language = 'zh'
     encoding = 'utf-8'
-    masthead_url = (
-        'https://upload.wikimedia.org/wikipedia/en/2/29/Lianhe_Zaobao_new_logo.svg'
-    )
+    masthead_url = 'https://upload.wikimedia.org/wikipedia/en/2/29/Lianhe_Zaobao_new_logo.svg'
     remove_javascript = True
     ignore_duplicate_articles = {'url'}
     remove_attributes = ['width', 'height', 'style']
@@ -29,9 +27,7 @@ class ZAOBAO(BasicNewsRecipe):
     '''
 
     def get_cover_url(self):
-        soup = self.index_to_soup(
-            'https://frontpages.freedomforum.org/newspapers/sing_lz-Lianhe_Zaobao'
-        )
+        soup = self.index_to_soup('https://frontpages.freedomforum.org/newspapers/sing_lz-Lianhe_Zaobao')
         return soup.find(
             'img',
             attrs={

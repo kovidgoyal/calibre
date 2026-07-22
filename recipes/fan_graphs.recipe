@@ -10,7 +10,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class FanGraphs(BasicNewsRecipe):
-    title = u'FanGraphs'
+    title = 'FanGraphs'
     oldest_article = 21
     max_articles_per_feed = 100
     no_stylesheets = True
@@ -27,9 +27,10 @@ class FanGraphs(BasicNewsRecipe):
     cover_url = 'http://bit.ly/g0BTdQ'
 
     feeds = [
-        (u'Fangraphs', u'http://feeds.feedburner.com/FanGraphs?format=xml'),
-        (u'Rotographs', u'http://feeds.feedburner.com/RotoGraphs?format=xml'),
-        (u'NotGraphs', u'http://feeds.feedburner.com/NotGraphs?format=xml')]
+        ('Fangraphs', 'http://feeds.feedburner.com/FanGraphs?format=xml'),
+        ('Rotographs', 'http://feeds.feedburner.com/RotoGraphs?format=xml'),
+        ('NotGraphs', 'http://feeds.feedburner.com/NotGraphs?format=xml'),
+    ]
 
     extra_css = '''
                     h1{font-family:Arial,Helvetica,sans-serif; font-weight:bold;font-size:large;}

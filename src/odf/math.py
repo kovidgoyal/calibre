@@ -28,4 +28,4 @@ from .namespaces import MATHNS
 
 
 def Math(**args):
-    return Element(qname=(MATHNS,'math'), **args)
+    return Element(qname=(MATHNS, 'math'), **args)

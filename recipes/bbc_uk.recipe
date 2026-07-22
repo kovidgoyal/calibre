@@ -5,8 +5,8 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class BBC(BasicNewsRecipe):
-    title = u'BBC Ukrainian'
-    description = u'BBC News \u0423\u043A\u0440\u0430\u0457\u043D\u0430'
+    title = 'BBC Ukrainian'
+    description = 'BBC News \u0423\u043a\u0440\u0430\u0457\u043d\u0430'
     __author__ = 'bugmen00t'
     publication_type = 'newspaper'
     oldest_article = 14
@@ -20,13 +20,6 @@ class BBC(BasicNewsRecipe):
 
     remove_tags_after = dict(name='main', attrs={'aria-hidden': 'true'})
 
-    remove_tags = [
-        dict(name='section', attrs={'role': 'region'}),
-        dict(name='footer'),
-        dict(name='aside')
-    ]
+    remove_tags = [dict(name='section', attrs={'role': 'region'}), dict(name='footer'), dict(name='aside')]
 
-    feeds = [(
-        u'\u041D\u043E\u0432\u0438\u043D\u0438 BBC',
-        'https://feeds.bbci.co.uk/ukrainian/rss.xml'
-    )]
+    feeds = [('\u041d\u043e\u0432\u0438\u043d\u0438 BBC', 'https://feeds.bbci.co.uk/ukrainian/rss.xml')]

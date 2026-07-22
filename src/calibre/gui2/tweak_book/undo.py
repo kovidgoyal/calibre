@@ -37,7 +37,6 @@ def cleanup(containers):
 
 
 class State:
-
     def __init__(self, container):
         self.container = container
         self.message = None
@@ -45,7 +44,6 @@ class State:
 
 
 class GlobalUndoHistory(QAbstractListModel):
-
     def __init__(self, parent=None):
         QAbstractListModel.__init__(self, parent)
         self.states = []
@@ -93,11 +91,11 @@ class GlobalUndoHistory(QAbstractListModel):
         self.endResetModel()
 
     def truncate(self):
-        extra = self.states[self.pos+1:]
+        extra = self.states[self.pos + 1 :]
         if extra:
-            self.beginRemoveRows(ROOT, self.pos+1, len(self.states) - 1)
+            self.beginRemoveRows(ROOT, self.pos + 1, len(self.states) - 1)
         cleanup(extra)
-        self.states = self.states[:self.pos+1]
+        self.states = self.states[: self.pos + 1]
         if extra:
             self.endRemoveRows()
 
@@ -106,14 +104,15 @@ class GlobalUndoHistory(QAbstractListModel):
             self.states[self.pos].rewind_message = self.states[self.pos].message
             self.states[self.pos].message = message
         except IndexError:
-            raise IndexError('The checkpoint stack has an incorrect position pointer.'
-                             f' This should never happen: pos={self.pos!r}, len_states={len(self.states)=}')
+            raise IndexError(
+                f'The checkpoint stack has an incorrect position pointer. This should never happen: pos={self.pos!r}, len_states={len(self.states)=}'
+            )
         self.truncate()
-        self.beginInsertRows(ROOT, self.pos+1, self.pos+1)
+        self.beginInsertRows(ROOT, self.pos + 1, self.pos + 1)
         self.states.append(State(new_container))
         self.pos += 1
         self.endInsertRows()
-        self.dataChanged.emit(self.index(self.pos-1), self.index(self.pos))
+        self.dataChanged.emit(self.index(self.pos - 1), self.index(self.pos))
         if len(self.states) > MAX_SAVEPOINTS:
             num = len(self.states) - MAX_SAVEPOINTS
             self.beginRemoveRows(ROOT, 0, num - 1)
@@ -123,11 +122,11 @@ class GlobalUndoHistory(QAbstractListModel):
             self.endRemoveRows()
 
     def rewind_savepoint(self):
-        """ Revert back to the last save point, should only be used immediately
+        """Revert back to the last save point, should only be used immediately
         after a call to add_savepoint. If there are intervening calls to undo
         or redo, behavior is undefined. This is intended to be used in the case
         where you create savepoint, perform some operation, operation fails, so
-        revert to state before creating savepoint. """
+        revert to state before creating savepoint."""
         if self.pos > 0 and self.pos == len(self.states) - 1:
             self.beginRemoveRows(ROOT, self.pos, self.pos)
             self.pos -= 1
@@ -141,13 +140,13 @@ class GlobalUndoHistory(QAbstractListModel):
     def undo(self):
         if self.pos > 0:
             self.pos -= 1
-            self.dataChanged.emit(self.index(self.pos), self.index(self.pos+1))
+            self.dataChanged.emit(self.index(self.pos), self.index(self.pos + 1))
             return self.current_container
 
     def redo(self):
         if self.pos < len(self.states) - 1:
             self.pos += 1
-            self.dataChanged.emit(self.index(self.pos-1), self.index(self.pos))
+            self.dataChanged.emit(self.index(self.pos - 1), self.index(self.pos))
             return self.current_container
 
     def revert_to(self, container):
@@ -185,7 +184,6 @@ class GlobalUndoHistory(QAbstractListModel):
 
 
 class SpacedDelegate(QStyledItemDelegate):
-
     def sizeHint(self, option=None, index=None):
         assert option is not None and index is not None
         ans = QStyledItemDelegate.sizeHint(self, option, index)
@@ -194,7 +192,6 @@ class SpacedDelegate(QStyledItemDelegate):
 
 
 class CheckpointView(QWidget):
-
     revert_requested = pyqtSignal(object)
     compare_requested = pyqtSignal(object)
 
@@ -241,8 +238,7 @@ class CheckpointView(QWidget):
         if row < 0:
             return
         if row == m.pos:
-            return error_dialog(self, _('Cannot revert'), _(
-                'Cannot revert to the current state'), show=True)
+            return error_dialog(self, _('Cannot revert'), _('Cannot revert to the current state'), show=True)
         self.revert_requested.emit(m.states[row].container)
 
     def compare_clicked(self):
@@ -252,6 +248,5 @@ class CheckpointView(QWidget):
         if row < 0:
             return
         if row == m.pos:
-            return error_dialog(self, _('Cannot compare'), _(
-                'There is no point comparing the current state to itself'), show=True)
+            return error_dialog(self, _('Cannot compare'), _('There is no point comparing the current state to itself'), show=True)
         self.compare_requested.emit(m.states[row].container)

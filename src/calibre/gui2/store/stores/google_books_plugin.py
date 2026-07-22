@@ -29,6 +29,7 @@ def parse_html(raw):
     except ImportError:
         # Old versions of calibre
         import html5lib
+
         return html5lib.parse(raw, treebuilder='lxml', namespaceHTMLElements=False)
     else:
         return parse(raw)
@@ -78,7 +79,6 @@ def search_google(query, max_results=10, timeout=60, write_html_to=None):
 
 
 class GoogleBooksStore(BasicStoreConfig, StorePlugin):
-
     def open(self, gui=None, parent=None, detail_item=None, external=False):
         url = 'https://books.google.com/books'
         if True or external or self.config.get('open_external', False):
@@ -119,5 +119,6 @@ class GoogleBooksStore(BasicStoreConfig, StorePlugin):
 
 if __name__ == '__main__':
     import sys
+
     for result in search_google(' '.join(sys.argv[1:]), write_html_to='/t/google.html'):
         print(result)

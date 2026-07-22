@@ -2,7 +2,7 @@
 Read content from palmdoc pdb file.
 """
 
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
@@ -21,12 +21,11 @@ class HeaderRecord:
     """
 
     def __init__(self, raw):
-        self.compression, = struct.unpack('>H', raw[0:2])
-        self.num_records, = struct.unpack('>H', raw[8:10])
+        (self.compression,) = struct.unpack('>H', raw[0:2])
+        (self.num_records,) = struct.unpack('>H', raw[8:10])
 
 
 class Reader(FormatReader):
-
     def __init__(self, header, stream, log, options):
         self.stream = stream
         self.log = log
@@ -46,6 +45,7 @@ class Reader(FormatReader):
             return self.section_data(number)
         if self.header_record.compression in {2, 258}:
             from calibre.ebooks.compression.palmdoc import decompress_doc
+
             return decompress_doc(self.section_data(number))
         return b''
 

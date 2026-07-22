@@ -1,10 +1,11 @@
 from typing import Any
 
 def enum_font_families() -> list[dict[str, Any]]:
-    (
-        "Enumerate all regular (not italic/bold/etc. variants) font families on the system. Note there will be multiple entries for every family (corresponding"
-        " to each charset of the font)."
-    )
+    """Enumerate all regular (not italic/bold/etc. variants) font families on the system.
+
+    Note there will be multiple entries for every family (corresponding to each charset
+    of the font).
+    """
     pass
 
 def font_data(family_name: str, italic: bool, weight: int) -> bytes:

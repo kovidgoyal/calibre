@@ -2,10 +2,7 @@
 # -*- coding: utf-8 -*-
 
 __license__ = 'GPL v3'
-__copyright__ = (
-    '2008-2013, Darko Miletic <darko.miletic at gmail.com>. '
-    '2022, Albert Aparicio Isarn <aaparicio at posteo.net>'
-)
+__copyright__ = '2008-2013, Darko Miletic <darko.miletic at gmail.com>. 2022, Albert Aparicio Isarn <aaparicio at posteo.net>'
 '''
 japantimes.co.jp
 '''
@@ -16,9 +13,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class JapanTimes(BasicNewsRecipe):
     title = 'The Japan Times'
     __author__ = 'Albert Aparicio Isarn (original recipe by Darko Miletic)'
-    description = (
-        "The latest news from Japan Times, Japan's leading English-language daily newspaper"
-    )
+    description = "The latest news from Japan Times, Japan's leading English-language daily newspaper"
     language = 'en_JP'
     category = 'news, politics, japan'
     publisher = 'The Japan Times'
@@ -36,7 +31,7 @@ class JapanTimes(BasicNewsRecipe):
         'days': {
             'short': 'Oldest article to download from this news source. In days ',
             'long': 'For example, 0.5, gives you articles from the past 12 hours',
-            'default': str(oldest_article)
+            'default': str(oldest_article),
         }
     }
 
@@ -66,13 +61,13 @@ class JapanTimes(BasicNewsRecipe):
         {'name': 'ul', 'attrs': {'class': 'single-sns-area'}},
     ]
     feeds = [
-        (u'Top Stories', u'https://www.japantimes.co.jp/feed/topstories/'),
-        (u'News', u'https://www.japantimes.co.jp/news/feed/'),
-        (u'Opinion', u'https://www.japantimes.co.jp/opinion/feed/'),
-        (u'Life', u'https://www.japantimes.co.jp/life/feed/'),
-        (u'Community', u'https://www.japantimes.co.jp/community/feed/'),
-        (u'Culture', u'https://www.japantimes.co.jp/culture/feed/'),
-        (u'Sports', u'https://www.japantimes.co.jp/sports/feed/'),
+        ('Top Stories', 'https://www.japantimes.co.jp/feed/topstories/'),
+        ('News', 'https://www.japantimes.co.jp/news/feed/'),
+        ('Opinion', 'https://www.japantimes.co.jp/opinion/feed/'),
+        ('Life', 'https://www.japantimes.co.jp/life/feed/'),
+        ('Community', 'https://www.japantimes.co.jp/community/feed/'),
+        ('Culture', 'https://www.japantimes.co.jp/culture/feed/'),
+        ('Sports', 'https://www.japantimes.co.jp/sports/feed/'),
     ]
 
     def get_article_url(self, article):

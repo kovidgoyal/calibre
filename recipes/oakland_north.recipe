@@ -4,7 +4,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class AdvancedUserRecipe1299640653(BasicNewsRecipe):
-    title = u'Oakland North'
+    title = 'Oakland North'
     oldest_article = 30
     max_articles_per_feed = 100
 
@@ -16,11 +16,10 @@ class AdvancedUserRecipe1299640653(BasicNewsRecipe):
 
     masthead_url = 'http://oaklandnorth.net/wp-content/themes/oaklandnorth/images/masthead.png'
 
-    keep_only_tags = [
-        dict(name='div', attrs={'class': re.compile(r'\bpost\b(?!-)', re.IGNORECASE)})]
+    keep_only_tags = [dict(name='div', attrs={'class': re.compile(r'\bpost\b(?!-)', re.IGNORECASE)})]
 
     remove_tags_after = [dict(name='p', attrs={'class': 'post-postscript'})]
 
     remove_tags = [dict(name='p', attrs={'class': 'post-postscript'})]
 
-    feeds = [(u'All Headlines', u'http://oaklandnorth.net/feed/')]
+    feeds = [('All Headlines', 'http://oaklandnorth.net/feed/')]

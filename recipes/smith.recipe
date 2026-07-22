@@ -7,12 +7,11 @@ CATEGORIES = {
     'innovation': 'Innovation',
     'arts-culture': 'Arts & Culture',
     'travel': 'Travel',
-    'smithsonian-institution': 'At the Smithsonian'
+    'smithsonian-institution': 'At the Smithsonian',
 }
 
 
 class Smithsonian(BasicNewsRecipe):
-
     title = 'Smithsonian Magazine'
     __author__ = 'Kovid Goyal'
 
@@ -20,14 +19,9 @@ class Smithsonian(BasicNewsRecipe):
     language = 'en'
     category = 'news'
     encoding = 'UTF-8'
-    keep_only_tags = [
-        classes('article-header articleLeft')
-    ]
+    keep_only_tags = [classes('article-header articleLeft')]
     remove_tags = [
-        classes(
-            'hidden-phone hidden-tablet hidden-desktop slideshow-nav associated-container'
-            ' widget-article-pixel tag-list recommended-videos comments'
-        )
+        classes('hidden-phone hidden-tablet hidden-desktop slideshow-nav associated-container widget-article-pixel tag-list recommended-videos comments')
     ]
     no_javascript = True
     no_stylesheets = True

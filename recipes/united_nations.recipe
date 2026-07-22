@@ -4,23 +4,24 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class AdvancedUserRecipe1718094419(BasicNewsRecipe):
-    title          = 'United Nations'
+    title = 'United Nations'
     language = 'en'
     __author__ = 'Spicy Poison'
     description = (
-            'The United Nations is a diplomatic and political international organization whose stated'
-            ' purposes are to maintain international peace and security, develop friendly relations among nations,'
-            ' achieve international cooperation, and serve as a centre for harmonizing the actions of nations.'
-            ' It is the world’s largest international organization.')
+        'The United Nations is a diplomatic and political international organization whose stated'
+        ' purposes are to maintain international peace and security, develop friendly relations among nations,'
+        ' achieve international cooperation, and serve as a centre for harmonizing the actions of nations.'
+        ' It is the world’s largest international organization.'
+    )
     oldest_article = 30
     max_articles_per_feed = 50
     ignore_duplicate_articles = {'title', 'url'}
     encoding = 'utf-8'
     masthead_url = 'https://img.jagranjosh.com/imported/images/E/Others/UNLOGO.jpg'
     remove_empty_feeds = True
-    auto_cleanup   = True
+    auto_cleanup = True
 
-    feeds          = [
+    feeds = [
         ('Top Stories', 'https://news.un.org/feed/subscribe/en/news/all/rss.xml'),
         ('Asia Pacific', 'https://news.un.org/feed/subscribe/en/news/region/asia-pacific/feed/rss.xml'),
         ('Health', 'https://news.un.org/feed/subscribe/en/news/topic/health/feed/rss.xml'),

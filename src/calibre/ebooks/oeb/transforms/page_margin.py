@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
@@ -21,16 +21,15 @@ class RemoveAdobeMargins:
 
         for item in self.oeb.manifest:
             if item.media_type in {
-                'application/vnd.adobe-page-template+xml', 'application/vnd.adobe.page-template+xml',
-                'application/adobe-page-template+xml', 'application/adobe.page-template+xml',
+                'application/vnd.adobe-page-template+xml',
+                'application/vnd.adobe.page-template+xml',
+                'application/adobe-page-template+xml',
+                'application/adobe.page-template+xml',
             } and hasattr(item.data, 'xpath'):
-                self.log('Removing page margins specified in the'
-                        ' Adobe page template')
-                for elem in item.data.xpath(
-                        '//*[@margin-bottom or @margin-top '
-                        'or @margin-left or @margin-right]'):
+                self.log('Removing page margins specified in the Adobe page template')
+                for elem in item.data.xpath('//*[@margin-bottom or @margin-top or @margin-left or @margin-right]'):
                     for margin in ('left', 'right', 'top', 'bottom'):
-                        attr = 'margin-'+margin
+                        attr = 'margin-' + margin
                         elem.attrib.pop(attr, None)
 
 
@@ -64,6 +63,7 @@ class RemoveFakeMargins:
         stylesheet = stylesheet.data
 
         from css_parser.css import CSSRule
+
         for rule in stylesheet.cssRules.rulesOfType(CSSRule.STYLE_RULE):
             self.selector_map[rule.selectorList.selectorText] = rule.style
 
@@ -73,46 +73,45 @@ class RemoveFakeMargins:
             try:
                 self.process_level(level)
             except NegativeTextIndent:
-                self.log.debug('Negative text indent detected at level '
-                        f' {level}, ignoring this level')
+                self.log.debug(f'Negative text indent detected at level  {level}, ignoring this level')
 
     def get_margins(self, elem):
         cls = elem.get('class', None)
         if cls:
-            style = self.selector_map.get('.'+cls, None)
+            style = self.selector_map.get('.' + cls, None)
             if style:
                 try:
                     ti = style['text-indent']
                 except Exception:
                     pass
                 else:
-                    if ((hasattr(ti, 'startswith') and ti.startswith('-')) or (isinstance(ti, numbers.Number) and ti < 0)):
+                    if (hasattr(ti, 'startswith') and ti.startswith('-')) or (isinstance(ti, numbers.Number) and ti < 0):
                         raise NegativeTextIndent()
                 return style.marginLeft, style.marginRight, style
         return '', '', None
 
     def process_level(self, level):
         elems = self.levels[level]
-        self.stats[level+'_left'] = Counter()
-        self.stats[level+'_right'] = Counter()
+        self.stats[level + '_left'] = Counter()
+        self.stats[level + '_right'] = Counter()
 
         for elem in elems:
             lm, rm = self.get_margins(elem)[:2]
-            self.stats[level+'_left'][lm] += 1
-            self.stats[level+'_right'][rm] += 1
+            self.stats[level + '_left'][lm] += 1
+            self.stats[level + '_right'][rm] += 1
 
-        self.log.debug(level, ' left margin stats:', self.stats[level+'_left'])
-        self.log.debug(level, ' right margin stats:', self.stats[level+'_right'])
+        self.log.debug(level, ' left margin stats:', self.stats[level + '_left'])
+        self.log.debug(level, ' right margin stats:', self.stats[level + '_right'])
 
-        remove_left = self.analyze_stats(self.stats[level+'_left'])
-        remove_right = self.analyze_stats(self.stats[level+'_right'])
+        remove_left = self.analyze_stats(self.stats[level + '_left'])
+        remove_right = self.analyze_stats(self.stats[level + '_right'])
 
         if remove_left:
-            mcl = self.stats[level+'_left'].most_common(1)[0][0]
+            mcl = self.stats[level + '_left'].most_common(1)[0][0]
             self.log(f'Removing level {level} left margin of:', mcl)
 
         if remove_right:
-            mcr = self.stats[level+'_right'].most_common(1)[0][0]
+            mcr = self.stats[level + '_right'].most_common(1)[0][0]
             self.log(f'Removing level {level} right margin of:', mcr)
 
         if remove_left or remove_right:
@@ -182,4 +181,4 @@ class RemoveFakeMargins:
             return False
         total = sum(stats.values())
         # True if greater than 95% of elements have the same margin
-        return most_common_count/total > 0.95
+        return most_common_count / total > 0.95

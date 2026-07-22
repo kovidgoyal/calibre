@@ -4,34 +4,33 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class hvg(BasicNewsRecipe):
-    title = u'HVG'
+    title = 'HVG'
     __author__ = 'bubak'
     language = 'hu'
     oldest_article = 1
     max_articles_per_feed = 20
     no_stylesheets = True
 
-    remove_tags_before = dict(name='h1', attrs={'class':['title']})
+    remove_tags_before = dict(name='h1', attrs={'class': ['title']})
 
     remove_tags = [
-        dict(name='div', attrs={'class':re.compile(
-            r'hide-on-mobile|hide-on-tablet|hide-on-desktop|election-popup', re.IGNORECASE)})
-        ,dict(name='section', attrs={'class':re.compile(r'card-section|container-narrow', re.IGNORECASE)})
-        ,dict(name='div', attrs={'class':['Desktop-responsive-display', 'ad-container-wrapper']})
-        ,dict(name='ul', attrs={'class':['tags', 'author-list']})
-        ,dict(name='blockquote', attrs={'class':['embedly-card']})
-        ,dict(name='footer')
-        ,dict(name='iframe')
+        dict(name='div', attrs={'class': re.compile(r'hide-on-mobile|hide-on-tablet|hide-on-desktop|election-popup', re.IGNORECASE)}),
+        dict(name='section', attrs={'class': re.compile(r'card-section|container-narrow', re.IGNORECASE)}),
+        dict(name='div', attrs={'class': ['Desktop-responsive-display', 'ad-container-wrapper']}),
+        dict(name='ul', attrs={'class': ['tags', 'author-list']}),
+        dict(name='blockquote', attrs={'class': ['embedly-card']}),
+        dict(name='footer'),
+        dict(name='iframe'),
     ]
 
     feeds = [
-        (u'Itthon', 'http://hvg.hu/rss/itthon'),
-        (u'Világ', 'http://hvg.hu/rss/vilag'),
-        (u'Gazdaság', 'http://hvg.hu/rss/gazdasag'),
-        (u'Vélemény', 'http://hvg.hu/rss/velemeny'),
-        (u'Tudomány', 'http://hvg.hu/rss/tudomany'),
-        (u'Panoráma', 'http://hvg.hu/rss/panorama'),
-        (u'Helyi érték', 'http://hvg.hu/rss/helyiertek'),
-        (u'Kultúra', 'http://hvg.hu/rss/kultura'),
-        (u'Egészség', 'http://hvg.hu/rss/egeszseg')
+        ('Itthon', 'http://hvg.hu/rss/itthon'),
+        ('Világ', 'http://hvg.hu/rss/vilag'),
+        ('Gazdaság', 'http://hvg.hu/rss/gazdasag'),
+        ('Vélemény', 'http://hvg.hu/rss/velemeny'),
+        ('Tudomány', 'http://hvg.hu/rss/tudomany'),
+        ('Panoráma', 'http://hvg.hu/rss/panorama'),
+        ('Helyi érték', 'http://hvg.hu/rss/helyiertek'),
+        ('Kultúra', 'http://hvg.hu/rss/kultura'),
+        ('Egészség', 'http://hvg.hu/rss/egeszseg'),
     ]

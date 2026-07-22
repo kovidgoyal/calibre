@@ -8,7 +8,6 @@ from calibre.customize.conversion import OutputFormatPlugin
 
 
 class RTFOutput(OutputFormatPlugin):
-
     name = 'RTF Output'
     author = 'John Schember'
     file_type = 'rtf'

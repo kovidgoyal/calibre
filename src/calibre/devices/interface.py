@@ -27,7 +27,14 @@ class ModelMetadata(NamedTuple):
     def detected_device(self, folder_path):
         from calibre.devices.scanner import USBDevice
 
-        return USBDevice(self.vendor_id, self.product_id, self.bcd, self.manufacturer_name, self.model_name, FAKE_DEVICE_SERIAL + folder_path)
+        return USBDevice(
+            self.vendor_id,
+            self.product_id,
+            self.bcd,
+            self.manufacturer_name,
+            self.model_name,
+            FAKE_DEVICE_SERIAL + folder_path,
+        )
 
 
 class OpenPopupMessage:

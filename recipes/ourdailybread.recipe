@@ -1,4 +1,3 @@
-
 __license__ = 'GPL v3'
 __copyright__ = '2009-2010, Darko Miletic <darko.miletic at gmail.com>'
 '''
@@ -23,15 +22,11 @@ class OurDailyBread(BasicNewsRecipe):
     use_embedded_content = False
     encoding = 'utf-8'
 
-    conversion_options = {
-        'comments': description, 'language': language, 'linearize_tables': True
-    }
+    conversion_options = {'comments': description, 'language': language, 'linearize_tables': True}
 
-    keep_only_tags = [dict(attrs={'class': 'calibre-inserted-psalm'}),
-                      {'id': 'content'}]
+    keep_only_tags = [dict(attrs={'class': 'calibre-inserted-psalm'}), {'id': 'content'}]
     remove_tags = [
-        dict(attrs={'class': ['listen-box', 'entry-zoom',
-                              'entry-footer']}),
+        dict(attrs={'class': ['listen-box', 'entry-zoom', 'entry-footer']}),
         {'id': 'nav-single'},
         dict(attrs={'class': lambda x: x and ' sharing ' in x}),
     ]
@@ -44,18 +39,16 @@ class OurDailyBread(BasicNewsRecipe):
                 a{color:#000000;font-family:Arial,Helvetica,sans-serif; font-size:x-small;}
                 '''
 
-    feeds = [(u'Our Daily Bread', u'http://odb.org/feed/')]
+    feeds = [('Our Daily Bread', 'http://odb.org/feed/')]
 
     def preprocess_raw_html(self, raw, url):
         # Convert links to referenced Psalms to the actual psalms
         root = html.fromstring(raw)
-        for a in root.xpath(
-                '//a[starts-with(@href, "http://www.biblegateway.com")]'):
-            uid = type(u'')(uuid.uuid4())
+        for a in root.xpath('//a[starts-with(@href, "http://www.biblegateway.com")]'):
+            uid = type('')(uuid.uuid4())
             raw = self.index_to_soup(a.get('href'), raw=True)
             iroot = html.fromstring(raw)
-            matches = iroot.xpath(
-                '//div[contains(@class, "result-text-style-normal")]')
+            matches = iroot.xpath('//div[contains(@class, "result-text-style-normal")]')
             if matches:
                 div = matches[0]
                 div.getparent().remove(div)

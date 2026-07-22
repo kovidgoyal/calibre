@@ -25,7 +25,6 @@ def expand_tabs(text):
 
 
 class Smarts(NullSmarts):
-
     override_tab_stop_width = tw
 
     def __init__(self, *args, **kwargs):
@@ -77,4 +76,5 @@ if __name__ == '__main__':
     import os
 
     from calibre.gui2.tweak_book.editor.widget import launch_editor
+
     launch_editor(os.path.abspath(__file__), syntax='python')

@@ -16,6 +16,7 @@ def cleanup_overseers():
     def join_all():
         for br in browsers:
             br.shutdown()
+
     return join_all
 
 
@@ -25,6 +26,7 @@ read_url_lock = Lock()
 def read_url(storage, url, timeout=60, as_html=True):
     with read_url_lock:
         from calibre.scraper.qt import WebEngineBrowser
+
         if not storage:
             storage.append(WebEngineBrowser())
             overseers.append(weakref.ref(storage[-1]))
@@ -33,6 +35,7 @@ def read_url(storage, url, timeout=60, as_html=True):
     if not as_html:
         return raw_bytes
     from calibre.ebooks.chardet import xml_to_unicode
+
     return xml_to_unicode(raw_bytes, strip_encoding_pats=True)[0]
 
 

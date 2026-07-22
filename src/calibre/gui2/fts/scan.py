@@ -14,7 +14,6 @@ from calibre.utils.localization import _
 
 
 class ScanProgress(QWidget):
-
     switch_to_search_panel = pyqtSignal()
 
     def __init__(self, parent: ScanStatus):
@@ -27,15 +26,17 @@ class ScanProgress(QWidget):
         l.addWidget(la)
         self.h = h = QHBoxLayout()
         l.addLayout(h)
-        self.wl = la = QLabel(_(
-            'Normally, calibre indexes books slowly, in the background,'
-            ' to avoid overloading your computer. You can instead have'
-            ' calibre speed up indexing. This is useful if you intend to leave your'
-            ' computer running overnight to quickly finish the indexing.'
-            ' Both your computer and calibre will be less responsive while'
-            ' fast indexing is active. Closing this window will automatically reset to'
-            ' slow indexing.'
-        ))
+        self.wl = la = QLabel(
+            _(
+                'Normally, calibre indexes books slowly, in the background,'
+                ' to avoid overloading your computer. You can instead have'
+                ' calibre speed up indexing. This is useful if you intend to leave your'
+                ' computer running overnight to quickly finish the indexing.'
+                ' Both your computer and calibre will be less responsive while'
+                ' fast indexing is active. Closing this window will automatically reset to'
+                ' slow indexing.'
+            )
+        )
         la.setWordWrap(True)
         l.addWidget(la)
         self.h = h = QHBoxLayout()
@@ -50,10 +51,12 @@ class ScanProgress(QWidget):
         h.addStretch(10)
 
         l.addStretch(10)
-        self.warn_label = la = QLabel('<p><span style="color: red">{}</span>: {}'.format(
-            _('WARNING'), _(
-                'Not all the books in this library have been indexed yet.'
-                ' Searching will yield incomplete results.')))
+        self.warn_label = la = QLabel(
+            '<p><span style="color: red">{}</span>: {}'.format(
+                _('WARNING'),
+                _('Not all the books in this library have been indexed yet. Searching will yield incomplete results.'),
+            )
+        )
         la.setWordWrap(True)
         l.addWidget(la)
         self.switch_anyway = sa = QPushButton(self)
@@ -94,7 +97,6 @@ class ScanProgress(QWidget):
 
 
 class ScanStatus(QWidget):
-
     indexing_progress_changed = pyqtSignal(bool, int, int)
     switch_to_search_panel = pyqtSignal()
 
@@ -110,9 +112,13 @@ class ScanStatus(QWidget):
         b.setText(_('&Index books in this library to allow searching their full text'))
         b.setChecked(self.db.is_fts_enabled())
         l.addWidget(b)
-        self.enable_msg = la = QLabel('<p>' + _(
-            'In order to search the full text of books, the text must first be <i>indexed</i>. Once enabled, indexing is done'
-            ' automatically, in the background, whenever new books are added to this calibre library.'))
+        self.enable_msg = la = QLabel(
+            '<p>'
+            + _(
+                'In order to search the full text of books, the text must first be <i>indexed</i>. Once enabled, indexing is done'
+                ' automatically, in the background, whenever new books are added to this calibre library.'
+            )
+        )
         la.setWordWrap(True)
         l.addWidget(la)
         self.scan_progress = sc = ScanProgress(self)
@@ -145,9 +151,11 @@ class ScanStatus(QWidget):
             self.indexing_progress_changed.emit(self.indexing_progress.complete, self.indexing_progress.left, self.indexing_progress.total)
 
     def change_fts_state(self):
-        if not self.enable_fts.isChecked() and not confirm(_(
-            'Disabling indexing will mean that all books will have to be re-checked when re-enabling indexing. Are you sure?'
-        ), 'disable-fts-indexing', self):
+        if not self.enable_fts.isChecked() and not confirm(
+            _('Disabling indexing will mean that all books will have to be re-checked when re-enabling indexing. Are you sure?'),
+            'disable-fts-indexing',
+            self,
+        ):
             self.enable_fts.blockSignals(True)
             self.enable_fts.setChecked(True)
             self.enable_fts.blockSignals(False)
@@ -178,11 +186,14 @@ class ScanStatus(QWidget):
         b.clicked.connect(self.reindex)
 
     def reindex(self):
-        if not confirm(_(
-                'This will force calibre to re-index all the books in this library, which'
-                ' can take a long time. Are you sure?'), 'fts-reindex-confirm', self):
+        if not confirm(
+            _('This will force calibre to re-index all the books in this library, which can take a long time. Are you sure?'),
+            'fts-reindex-confirm',
+            self,
+        ):
             return
         from calibre.gui2.widgets import BusyCursor
+
         with BusyCursor():
             self.db.reindex_fts()
 
@@ -213,6 +224,7 @@ class ScanStatus(QWidget):
 if __name__ == '__main__':
     from calibre.gui2 import Application
     from calibre.library import db
+
     app = Application([])
     d = QDialog()
     l = QVBoxLayout(d)

@@ -14,11 +14,10 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class AdvancedUserRecipe1296604369(BasicNewsRecipe):
-
-    title = u'ABC.es'
+    title = 'ABC.es'
     masthead_url = 'http://www.abc.es/img/logo-abc.gif'
     cover_url = 'http://www.abc.es/img/logo-abc.gif'
-    publisher = u'Grupo VOCENTO'
+    publisher = 'Grupo VOCENTO'
 
     __author__ = 'Ricardo Jurado'
     description = 'Noticias de Spain y el mundo'
@@ -37,7 +36,7 @@ class AdvancedUserRecipe1296604369(BasicNewsRecipe):
         'days': {
             'short': 'Oldest article to download from this news source. In days ',
             'long': 'For example, 0.5, gives you articles from the past 12 hours',
-            'default': str(oldest_article)
+            'default': str(oldest_article),
         }
     }
 
@@ -47,7 +46,7 @@ class AdvancedUserRecipe1296604369(BasicNewsRecipe):
         if d and isinstance(d, str):
             self.oldest_article = float(d)
 
-    extra_css             = '''
+    extra_css = '''
                                p{text-align: justify; font-size: 100%}
                                body{ text-align: left; font-size:100% }
                                h3{font-family: sans-serif; font-size:120%; font-weight:bold; text-align: justify; }
@@ -56,20 +55,19 @@ class AdvancedUserRecipe1296604369(BasicNewsRecipe):
                                  '''
 
     feeds = [
-
-    (u'PORTADA', u'http://www.abc.es/rss/feeds/abcPortada.xml'),
-    (u'ULTIMAS', u'http://www.abc.es/rss/feeds/abc_ultima.xml'),
-    (u'NACIONAL', u'http://www.abc.es/rss/feeds/abc_EspanaEspana.xml'),
-    (u'INTERNACIONAL', u'http://www.abc.es/rss/feeds/abc_Internacional.xml'),
-    (u'OPINION', u'http://www.abc.es/rss/feeds/abc_opinioncompleto.xml'),
-    (u'BLOGS ABC', u'http://www.abc.es/rss/feeds/blogs-abc.xml'),
-    (u'ECONOMIA', u'http://www.abc.es/rss/feeds/abc_Economia.xml'),
-    (u'CIENCIA Y TECNOLOGIA', u'http://www.abc.es/rss/feeds/abc_Ciencia_Tecnologia.xml'),
-    (u'CULTURA', u'http://www.abc.es/rss/feeds/abc_Cultura.xml'),
-    (u'LIBROS', u'http://www.abc.es/rss/feeds/abc_Libros.xml'),
-    (u'MEDIOS Y REDES', u'http://www.abc.es/rss/feeds/ABC_Medios_Redes.xml'),
-    (u'EVASION', u'http://www.abc.es/rss/feeds/abc_evasion.xml'),
-    (u'ESPECTACULOS', u'http://www.abc.es/rss/feeds/abc_Espectaculos.xml'),
-    (u'GENTE', u'http://www.abc.es/rss/feeds/abc_Gente.xml'),
-    (u'DEPORTES', u'http://www.abc.es/rss/feeds/abc_Deportes.xml')
+        ('PORTADA', 'http://www.abc.es/rss/feeds/abcPortada.xml'),
+        ('ULTIMAS', 'http://www.abc.es/rss/feeds/abc_ultima.xml'),
+        ('NACIONAL', 'http://www.abc.es/rss/feeds/abc_EspanaEspana.xml'),
+        ('INTERNACIONAL', 'http://www.abc.es/rss/feeds/abc_Internacional.xml'),
+        ('OPINION', 'http://www.abc.es/rss/feeds/abc_opinioncompleto.xml'),
+        ('BLOGS ABC', 'http://www.abc.es/rss/feeds/blogs-abc.xml'),
+        ('ECONOMIA', 'http://www.abc.es/rss/feeds/abc_Economia.xml'),
+        ('CIENCIA Y TECNOLOGIA', 'http://www.abc.es/rss/feeds/abc_Ciencia_Tecnologia.xml'),
+        ('CULTURA', 'http://www.abc.es/rss/feeds/abc_Cultura.xml'),
+        ('LIBROS', 'http://www.abc.es/rss/feeds/abc_Libros.xml'),
+        ('MEDIOS Y REDES', 'http://www.abc.es/rss/feeds/ABC_Medios_Redes.xml'),
+        ('EVASION', 'http://www.abc.es/rss/feeds/abc_evasion.xml'),
+        ('ESPECTACULOS', 'http://www.abc.es/rss/feeds/abc_Espectaculos.xml'),
+        ('GENTE', 'http://www.abc.es/rss/feeds/abc_Gente.xml'),
+        ('DEPORTES', 'http://www.abc.es/rss/feeds/abc_Deportes.xml'),
     ]

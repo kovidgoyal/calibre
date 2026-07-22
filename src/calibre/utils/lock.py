@@ -18,6 +18,7 @@ if iswindows:
 
     from calibre.constants import get_windows_username
     from calibre_extensions import winutil
+
     excl_file_mode = stat.S_IREAD | stat.S_IWRITE
 else:
     excl_file_mode = stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP | stat.S_IROTH
@@ -51,8 +52,7 @@ def windows_open(path):
         path = os.fsdecode(path)
     h = winutil.create_file(
         path,
-        winutil.GENERIC_READ |
-        winutil.GENERIC_WRITE,  # Open for reading and writing
+        winutil.GENERIC_READ | winutil.GENERIC_WRITE,  # Open for reading and writing
         0,  # Open exclusive
         winutil.OPEN_ALWAYS,  # If file does not exist, create it
         winutil.FILE_ATTRIBUTE_NORMAL,  # Normal attributes
@@ -64,9 +64,7 @@ def windows_open(path):
 
 
 def windows_retry(err):
-    return err.winerror in (
-        winutil.ERROR_SHARING_VIOLATION, winutil.ERROR_LOCK_VIOLATION
-    )
+    return err.winerror in (winutil.ERROR_SHARING_VIOLATION, winutil.ERROR_LOCK_VIOLATION)
 
 
 def retry_for_a_time(timeout, sleep_time, func, error_retry, *args):
@@ -82,15 +80,10 @@ def retry_for_a_time(timeout, sleep_time, func, error_retry, *args):
 
 def lock_file(path, timeout=15, sleep_time=0.2):
     if iswindows:
-        return retry_for_a_time(
-            timeout, sleep_time, windows_open, windows_retry, path
-        )
+        return retry_for_a_time(timeout, sleep_time, windows_open, windows_retry, path)
     f = unix_open(path)
     try:
-        retry_for_a_time(
-            timeout, sleep_time, fcntl.flock, unix_retry,
-            f.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB
-        )
+        retry_for_a_time(timeout, sleep_time, fcntl.flock, unix_retry, f.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
     except Exception:
         f.close()
         raise
@@ -98,7 +91,6 @@ def lock_file(path, timeout=15, sleep_time=0.2):
 
 
 class ExclusiveFile:
-
     def __init__(self, path, timeout=15, sleep_time=0.2):
         if iswindows and isinstance(path, bytes):
             path = path.decode(filesystem_encoding)
@@ -126,10 +118,9 @@ def _clean_lock_file(file_obj):
 
 
 if iswindows:
+
     def create_single_instance_mutex(name, per_user=True):
-        mutexname = '{}-singleinstance-{}-{}'.format(
-            __appname__, (get_windows_username() if per_user else ''), name
-        )
+        mutexname = '{}-singleinstance-{}-{}'.format(__appname__, (get_windows_username() if per_user else ''), name)
         try:
             mutex = winutil.create_mutex(mutexname, False)
         except FileExistsError:
@@ -142,9 +133,8 @@ elif islinux:
         import socket
 
         from calibre.utils.ipc import eintr_retry_call
-        name = '{}-singleinstance-{}-{}'.format(
-            __appname__, (os.geteuid() if per_user else ''), name
-        )
+
+        name = '{}-singleinstance-{}-{}'.format(__appname__, (os.geteuid() if per_user else ''), name)
         address = '\0' + name.replace(' ', '_')
         sock = socket.socket(family=socket.AF_UNIX)
         try:
@@ -162,9 +152,7 @@ elif islinux:
 else:
 
     def singleinstance_path(name, per_user=True):
-        name = '{}-singleinstance-{}-{}.lock'.format(
-            __appname__, (os.geteuid() if per_user else ''), name
-        )
+        name = '{}-singleinstance-{}-{}.lock'.format(__appname__, (os.geteuid() if per_user else ''), name)
         home = os.path.expanduser('~')
         base_dir()  # initialize get_default_tempdir()
         locs = ['/var/lock', home, get_default_tempdir()]
@@ -173,12 +161,11 @@ else:
         for loc in locs:
             if os.access(loc, os.W_OK | os.R_OK | os.X_OK):
                 return os.path.join(loc, ('.' if loc is home else '') + name)
-        raise OSError(
-            'Failed to find a suitable filesystem location for the lock file'
-        )
+        raise OSError('Failed to find a suitable filesystem location for the lock file')
 
     def create_single_instance_mutex(name, per_user=True):
         from calibre.utils.ipc import eintr_retry_call
+
         path = singleinstance_path(name, per_user)
         f = open(path, 'w')
         try:
@@ -191,7 +178,6 @@ else:
 
 
 class SingleInstance:
-
     def __init__(self, name):
         self.name = name
         self.release_mutex = None
@@ -207,7 +193,7 @@ class SingleInstance:
 
 
 def singleinstance(name):
-    " Ensure that only a single process exists with the specified mutex key "
+    "Ensure that only a single process exists with the specified mutex key"
     release_mutex = create_single_instance_mutex(name)
     if release_mutex is None:
         return False

@@ -2,7 +2,7 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 
 
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
@@ -20,17 +20,18 @@ class InterfacePluginDemo(InterfaceActionBase):
     The reason for having two classes is that it allows the command line
     calibre utilities to run without needing to load the GUI libraries.
     """
-    name                = 'Interface Plugin Demo'
-    description         = 'An advanced plugin demo'
+
+    name = 'Interface Plugin Demo'
+    description = 'An advanced plugin demo'
     supported_platforms = ['windows', 'osx', 'linux']
-    author              = 'Kovid Goyal'
-    version             = (1, 0, 0)
+    author = 'Kovid Goyal'
+    version = (1, 0, 0)
     minimum_calibre_version = (0, 7, 53)
 
     #: This field defines the GUI plugin class that contains all the code
     #: that actually does something. Its format is module_path:class_name
     #: The specified class must be defined in the specified module.
-    actual_plugin       = 'calibre_plugins.interface_demo.ui:InterfacePlugin'
+    actual_plugin = 'calibre_plugins.interface_demo.ui:InterfacePlugin'
 
     def is_customizable(self):
         """
@@ -62,6 +63,7 @@ class InterfacePluginDemo(InterfaceActionBase):
         # GUI libraries to be loaded, which we do not want when using calibre
         # from the command line
         from calibre_plugins.interface_demo.config import ConfigWidget
+
         return ConfigWidget()
 
     def save_settings(self, config_widget):

@@ -20,7 +20,6 @@ WindowsFileId = tuple[int, int, int]
 
 
 class UnixFileCopier:
-
     def __init__(self, delete_all=False, allow_move=False):
         self.delete_all = delete_all
         self.allow_move = allow_move
@@ -52,6 +51,7 @@ class UnixFileCopier:
                 except OSError:
                     # Failure to copy metadata is not critical
                     import traceback
+
                     traceback.print_exc()
                 continue
             with suppress(shutil.SameFileError):
@@ -191,7 +191,7 @@ def get_copier(delete_all=False, allow_move=False) -> UnixFileCopier | WindowsFi
 
 
 def rename_files(src_to_dest_map: dict[str, str]) -> None:
-    " Rename a bunch of files. On Windows all files are locked before renaming so no other process can interfere. "
+    "Rename a bunch of files. On Windows all files are locked before renaming so no other process can interfere."
     copier = get_copier(allow_move=True)
     for s, d in src_to_dest_map.items():
         copier.register(s, d)
@@ -213,9 +213,11 @@ def identity_transform(src_path: str, dest_path: str) -> str:
 
 
 def register_folder_recursively(
-    src: str, copier: UnixFileCopier | WindowsFileCopier, dest_dir: str,
+    src: str,
+    copier: UnixFileCopier | WindowsFileCopier,
+    dest_dir: str,
     transform_destination_filename: Callable[[str, str], str] = identity_transform,
-    read_only: bool = False
+    read_only: bool = False,
 ) -> None:
 
     def dest_from_entry(dirpath: str, x: str) -> str:
@@ -227,7 +229,7 @@ def register_folder_recursively(
         raise e
 
     copier.register_folder(src)
-    for (dirpath, dirnames, filenames) in os.walk(src, onerror=raise_error):
+    for dirpath, dirnames, filenames in os.walk(src, onerror=raise_error):
         for d in dirnames:
             path = os.path.join(dirpath, d)
             dest = dest_from_entry(dirpath, d)
@@ -256,9 +258,10 @@ def windows_check_if_files_in_use(src_folder: str) -> None:
 
 
 def copy_tree(
-    src: str, dest: str,
+    src: str,
+    dest: str,
     transform_destination_filename: Callable[[str, str], str] = identity_transform,
-    delete_source: bool = False
+    delete_source: bool = False,
 ) -> None:
     """
     Copy all files in the tree over. On Windows locks all files before starting the copy to ensure that

@@ -38,7 +38,6 @@ def uses_field(template: str, field_name: str) -> bool:
 
 
 class SafeFormatDict(dict):
-
     def __missing__(self, key):
         return '{' + key + '}'
 
@@ -52,7 +51,6 @@ def format_prompt_template(template: str, **kwargs: str) -> str:
 
 
 class Action(ActionData):
-
     @property
     def uses_selected_text(self) -> bool:
         for _x, fname, _x, _x in string.Formatter().parse(self.prompt_template):
@@ -79,10 +77,18 @@ class Action(ActionData):
 def default_actions() -> tuple[Action, ...]:
     return (
         Action('explain', _('Explain'), 'Explain the following text in simple, easy to understand language. {selected}'),
-        Action('define', _('Define'), 'Identify and define any technical or complex terms in the following text. {selected}'),
+        Action(
+            'define',
+            _('Define'),
+            'Identify and define any technical or complex terms in the following text. {selected}',
+        ),
         Action('summarize', _('Summarize'), 'Provide a concise summary of the following text. {selected}'),
         Action('points', _('Key points'), 'Extract the key points from the following text as a bulleted list. {selected}'),
-        Action('grammar', _('Fix grammar'), 'Correct any grammatical errors in the following text and provide the corrected version. {selected}'),
+        Action(
+            'grammar',
+            _('Fix grammar'),
+            'Correct any grammatical errors in the following text and provide the corrected version. {selected}',
+        ),
         Action('translate', _('Translate'), 'Translate the following text into the language {language}. {selected}'),
     )
 
@@ -93,7 +99,6 @@ def current_actions(include_disabled=False) -> Iterator[Action]:
 
 
 class LLMSettingsDialog(LLMSettingsDialogBase):
-
     def __init__(self, parent=None):
         super().__init__(title=_('AI Settings'), name='llm-settings-dialog', prefs=vprefs, parent=parent)
 
@@ -154,8 +159,7 @@ class LLMPanel(ConverseWidget):
         self.update_ui_state()
 
     def per_response_buttons(self, msgnum, msg):
-        yield Button('save.png', f'http://{self.save_note_hostname}/{msgnum}', _(
-            'Save this specific response as the note'))
+        yield Button('save.png', f'http://{self.save_note_hostname}/{msgnum}', _('Save this specific response as the note'))
 
     def create_initial_messages(self, action_prompt: str, **kwargs: Any) -> Iterator[ChatMessage]:
         selected_text = self.latched_conversation_text if kwargs.get('uses_selected_text') else ''
@@ -181,10 +185,9 @@ class LLMPanel(ConverseWidget):
                 st = st[:200] + '…'
             msg = f"<h3>{_('Selected text')}</h3><i>{st}</i>"
             msg += self.quick_actions_as_html(current_actions())
-            msg += '<p>' + _(
-                'Or, type a question to the AI below. Use <b>{0}</b> to include the selected text, for example:'
-                '<br><i>Explain {0}</i>'
-            ).format('{selected}')
+            msg += '<p>' + _('Or, type a question to the AI below. Use <b>{0}</b> to include the selected text, for example:<br><i>Explain {0}</i>').format(
+                '{selected}'
+            )
         return msg
 
     def prompt_text_for_action(self, action) -> str:
@@ -194,17 +197,14 @@ class LLMPanel(ConverseWidget):
         if self.conversation_history.response_count > 0 and self.latched_conversation_text:
             if not self.current_selected_text:
                 return error_dialog(self, _('No selected text'), _('Cannot save note as there is currently no selected text'), show=True)
-            self.add_note_requested.emit(
-                self.conversation_history.format_llm_note(self.assistant_name),
-                vprefs.get('llm_highlight_style', ''))
+            self.add_note_requested.emit(self.conversation_history.format_llm_note(self.assistant_name), vprefs.get('llm_highlight_style', ''))
 
     def save_specific_note(self, message_index: int) -> None:
         if not self.current_selected_text:
             return error_dialog(self, _('No selected text'), _('Cannot save note as there is currently no selected text'), show=True)
         history_for_record = self.get_conversation_history_for_specific_response(message_index)
         if history_for_record is not None:
-            self.add_note_requested.emit(
-                history_for_record.format_llm_note(self.assistant_name), vprefs.get('llm_highlight_style', ''))
+            self.add_note_requested.emit(history_for_record.format_llm_note(self.assistant_name), vprefs.get('llm_highlight_style', ''))
 
     def handle_chat_link(self, qurl: QUrl) -> bool:
         match qurl.host():
@@ -233,8 +233,8 @@ class LLMPanel(ConverseWidget):
 
 # Settings {{{
 
-class HighlightWidget(HighlightColorCombo):
 
+class HighlightWidget(HighlightColorCombo):
     def load_settings(self) -> None:
         if hsn := vprefs.get('llm_highlight_style'):
             self.highlight_style_name = hsn
@@ -246,10 +246,8 @@ class HighlightWidget(HighlightColorCombo):
 
 
 class LLMSettingsWidget(LLMActionsSettingsWidget):
-
     action_edit_help_text = '<p>' + _(
-        'The prompt is a template. If you want the prompt to operate on the currently selected'
-        ' text, add <b>{0}</b> to the end of the prompt.'
+        'The prompt is a template. If you want the prompt to operate on the currently selected text, add <b>{0}</b> to the end of the prompt.'
     ).format('{selected}')
 
     def get_actions_from_prefs(self) -> Iterator[ActionData]:
@@ -261,6 +259,8 @@ class LLMSettingsWidget(LLMActionsSettingsWidget):
     def create_custom_widgets(self) -> Iterator[tuple[str, QWidget]]:
         yield _('&Highlight style:'), HighlightWidget(self)
         yield '', LocalisedResults()
+
+
 # }}}
 
 
@@ -279,7 +279,8 @@ def develop(show_initial_messages: bool = False):
         h.append(ChatMessage('This is a reply from the LLM', type=ChatMessageType.assistant))
         h.append(ChatMessage('Another query from the user'))
         h.append(
-            ChatMessage('''\
+            ChatMessage(
+                '''\
 Nisi nec libero. Cras magna ipsum, scelerisque et, tempor eget, gravida nec, lacus.
 Fusce eros nisi, ullamcorper blandit, ultricies eget, elementum eget, pede.
 Phasellus id risus vitae nisl ullamcorper congue. Proin est.
@@ -288,7 +289,10 @@ Sed eleifend odio sed leo. Mauris tortor turpis, dignissim vel, ornare ac, ultri
 Phasellus lacinia, augue ac dictum tempor, nisi felis ornare magna, eu vehicula tellus enim eu neque.
 Fusce est eros, sagittis eget, interdum a, ornare suscipit, massa. Sed vehicula elementum ligula.
 Aliquam erat volutpat. Donec odio. Quisque nunc. Integer cursus feugiat magna.
-Fusce ac elit ut elit aliquam suscipit. Duis leo est, interdum nec, varius in. ''', type=ChatMessageType.assistant))
+Fusce ac elit ut elit aliquam suscipit. Duis leo est, interdum nec, varius in. ''',
+                type=ChatMessageType.assistant,
+            )
+        )
         h.response_count = 2
         llm.show_ai_conversation()
         llm.update_ui_state()

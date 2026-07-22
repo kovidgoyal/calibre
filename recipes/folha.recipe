@@ -14,7 +14,7 @@ except ImportError:
 
 
 class Folha_de_s_paulo(BasicNewsRecipe):
-    title = u'Folha de São Paulo - portal'
+    title = 'Folha de São Paulo - portal'
     __author__ = 'Darko Miletic'
     description = 'Um Jornala a servicao do Brasil'
     publisher = 'Folhapress'
@@ -28,43 +28,39 @@ class Folha_de_s_paulo(BasicNewsRecipe):
     remove_empty_feeds = True
     publication_type = 'newspaper'
     masthead_url = 'http://f.i.uol.com.br/fsp/furniture/images/lgo-fsp-430x50-ffffff.gif'
-    extra_css             = '''
+    extra_css = '''
                                body{font-family: Arial,Helvetica,sans-serif }
                                img{margin-bottom: 0.4em; display:block}
                             '''
 
-    conversion_options = {
-        'comment': description, 'tags': category, 'publisher': publisher, 'language': language
-    }
+    conversion_options = {'comment': description, 'tags': category, 'publisher': publisher, 'language': language}
 
-    remove_tags = [
-        dict(name=['meta', 'link', 'base', 'iframe', 'embed', 'object'])]
+    remove_tags = [dict(name=['meta', 'link', 'base', 'iframe', 'embed', 'object'])]
     keep_only_tags = [dict(attrs={'id': 'articleNew'})]
 
     feeds = [
-
-    (u'Poder', u'http://feeds.folha.uol.com.br/poder/rss091.xml'),
-    (u'Mundo', u'http://feeds.folha.uol.com.br/mundo/rss091.xml'),
-    (u'Mercado', u'http://feeds.folha.uol.com.br/mercado/rss091.xml'),
-    (u'Cotidiano', u'http://feeds.folha.uol.com.br/cotidiano/rss091.xml'),
-    (u'Esporte', u'http://feeds.folha.uol.com.br/esporte/rss091.xml'),
-    (u'Ilustrada', u'http://feeds.folha.uol.com.br/ilustrada/rss091.xml'),
-    (u'F5', u'http://feeds.folha.uol.com.br/f5/rss091.xml'),
-    (u'Ciência', u'http://feeds.folha.uol.com.br/ciencia/rss091.xml'),
-    (u'Tec', u'http://feeds.folha.uol.com.br/tec/rss091.xml'),
-    (u'Ambiente', u'http://feeds.folha.uol.com.br/ambiente/rss091.xml'),
-    (u'Bichos', u'http://feeds.folha.uol.com.br/bichos/rss091.xml'),
-    (u'Celebridades', u'http://feeds.folha.uol.com.br/celebridades/rss091.xml'),
-    (u'Comida', u'http://feeds.folha.uol.com.br/comida/rss091.xml'),
-    (u'Equilibrio', u'http://feeds.folha.uol.com.br/equilibrioesaude/rss091.xml'),
-    (u'Folhateen', u'http://feeds.folha.uol.com.br/folhateen/rss091.xml'),
-    (u'Folhinha', u'http://feeds.folha.uol.com.br/folhinha/rss091.xml'),
-    (u'Ilustrissima', u'http://feeds.folha.uol.com.br/ilustrissima/rss091.xml'),
-    (u'Saber', u'http://feeds.folha.uol.com.br/saber/rss091.xml'),
-    (u'Turismo', u'http://feeds.folha.uol.com.br/turismo/rss091.xml'),
-    (u'Panel do Leitor', u'http://feeds.folha.uol.com.br/folha/paineldoleitor/rss091.xml'),
-    (u'Publifolha', u'http://feeds.folha.uol.com.br/folha/publifolha/rss091.xml'),
-    (u'Em cima da hora', u'http://feeds.folha.uol.com.br/emcimadahora/rss091.xml')
+        ('Poder', 'http://feeds.folha.uol.com.br/poder/rss091.xml'),
+        ('Mundo', 'http://feeds.folha.uol.com.br/mundo/rss091.xml'),
+        ('Mercado', 'http://feeds.folha.uol.com.br/mercado/rss091.xml'),
+        ('Cotidiano', 'http://feeds.folha.uol.com.br/cotidiano/rss091.xml'),
+        ('Esporte', 'http://feeds.folha.uol.com.br/esporte/rss091.xml'),
+        ('Ilustrada', 'http://feeds.folha.uol.com.br/ilustrada/rss091.xml'),
+        ('F5', 'http://feeds.folha.uol.com.br/f5/rss091.xml'),
+        ('Ciência', 'http://feeds.folha.uol.com.br/ciencia/rss091.xml'),
+        ('Tec', 'http://feeds.folha.uol.com.br/tec/rss091.xml'),
+        ('Ambiente', 'http://feeds.folha.uol.com.br/ambiente/rss091.xml'),
+        ('Bichos', 'http://feeds.folha.uol.com.br/bichos/rss091.xml'),
+        ('Celebridades', 'http://feeds.folha.uol.com.br/celebridades/rss091.xml'),
+        ('Comida', 'http://feeds.folha.uol.com.br/comida/rss091.xml'),
+        ('Equilibrio', 'http://feeds.folha.uol.com.br/equilibrioesaude/rss091.xml'),
+        ('Folhateen', 'http://feeds.folha.uol.com.br/folhateen/rss091.xml'),
+        ('Folhinha', 'http://feeds.folha.uol.com.br/folhinha/rss091.xml'),
+        ('Ilustrissima', 'http://feeds.folha.uol.com.br/ilustrissima/rss091.xml'),
+        ('Saber', 'http://feeds.folha.uol.com.br/saber/rss091.xml'),
+        ('Turismo', 'http://feeds.folha.uol.com.br/turismo/rss091.xml'),
+        ('Panel do Leitor', 'http://feeds.folha.uol.com.br/folha/paineldoleitor/rss091.xml'),
+        ('Publifolha', 'http://feeds.folha.uol.com.br/folha/publifolha/rss091.xml'),
+        ('Em cima da hora', 'http://feeds.folha.uol.com.br/emcimadahora/rss091.xml'),
     ]
 
     def get_article_url(self, article):

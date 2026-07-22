@@ -2,6 +2,7 @@
 """
 orientxxi.info
 """
+
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
@@ -23,9 +24,7 @@ class OrientXXIRecipe(BasicNewsRecipe):
     remove_javascript = True
     scale_news_images_to_device = True
 
-    feeds = [
-        ('Orient XXI', 'https://orientxxi.info/?page=backend&lang=fr')
-    ]
+    feeds = [('Orient XXI', 'https://orientxxi.info/?page=backend&lang=fr')]
 
     extra_css = '''
         img { max-width: 100%; height: auto; display: block; margin: 1em auto; }
@@ -49,9 +48,21 @@ class OrientXXIRecipe(BasicNewsRecipe):
             # Date en français
             today = datetime.now(ZoneInfo('Europe/Paris'))
             wkd = today.weekday()
-            french_weekday = {0:'Lundi',1:'Mardi',2:'Mercredi',3:'Jeudi',4:'Vendredi',5:'Samedi',6:'Dimanche'}
-            french_month = {1:'janvier', 2:'février', 3:'mars', 4:'avril', 5:'mai', 6:'juin',
-                            7:'juillet', 8:'août', 9:'septembre', 10:'octobre', 11:'novembre', 12:'décembre'}
+            french_weekday = {0: 'Lundi', 1: 'Mardi', 2: 'Mercredi', 3: 'Jeudi', 4: 'Vendredi', 5: 'Samedi', 6: 'Dimanche'}
+            french_month = {
+                1: 'janvier',
+                2: 'février',
+                3: 'mars',
+                4: 'avril',
+                5: 'mai',
+                6: 'juin',
+                7: 'juillet',
+                8: 'août',
+                9: 'septembre',
+                10: 'octobre',
+                11: 'novembre',
+                12: 'décembre',
+            }
 
             weekday = french_weekday[wkd]
             month = french_month[today.month]

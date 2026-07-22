@@ -2,7 +2,7 @@
 Read content from palmdoc pdb file.
 """
 
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2010, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
@@ -12,7 +12,6 @@ from calibre.ptempfile import PersistentTemporaryFile
 
 
 class Reader(FormatReader):
-
     def __init__(self, header, stream, log, options):
         self.header = header
         self.stream = stream

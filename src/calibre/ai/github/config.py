@@ -16,21 +16,23 @@ pref = partial(pref_for_provider, GitHubAI.name)
 
 
 class ConfigWidget(QWidget):
-
     def __init__(self, parent: QWidget | None = None):
         super().__init__(parent)
         l = QFormLayout(self)
         l.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.ExpandingFieldsGrow)
-        la = QLabel('<p>'+_(
-            'You have to create an account at {0}, then generate a <a href="{1}">Personal access token</a>'
-            ' with the <code>models:read</code> permission.'
-            ' After that, you can use the GitHub AI services a limited number of times a day for free.'
-            ' For more extensive use, you will need to setup <a href="{2}">GitHub models billing</a>.'
-        ).format(
-            '<a href="https://github.com">GitHub</a>',
-            'https://docs.github.com/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens',
-            'https://docs.github.com/billing/concepts/product-billing/github-models',
-        ))
+        la = QLabel(
+            '<p>'
+            + _(
+                'You have to create an account at {0}, then generate a <a href="{1}">Personal access token</a>'
+                ' with the <code>models:read</code> permission.'
+                ' After that, you can use the GitHub AI services a limited number of times a day for free.'
+                ' For more extensive use, you will need to setup <a href="{2}">GitHub models billing</a>.'
+            ).format(
+                '<a href="https://github.com">GitHub</a>',
+                'https://docs.github.com/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens',
+                'https://docs.github.com/billing/concepts/product-billing/github-models',
+            )
+        )
         la.setWordWrap(True)
         la.setOpenExternalLinks(True)
         l.addRow(la)
@@ -44,10 +46,7 @@ class ConfigWidget(QWidget):
         l.addRow(_('Model &choice strategy:'), ms)
         self.text_model_edit = lm = QLineEdit(self)
         lm.setClearButtonEnabled(True)
-        lm.setToolTip(_(
-            'Enter a name of the model to use for text based tasks.'
-            ' If not specified, one is chosen automatically.'
-        ))
+        lm.setToolTip(_('Enter a name of the model to use for text based tasks. If not specified, one is chosen automatically.'))
         lm.setPlaceholderText(_('Optionally, enter name of model to use'))
         self.browse_label = la = QLabel(f'<a href="https://github.com/marketplace?type=models">{_("Browse")}</a>')
         tm = QWidget()
@@ -72,7 +71,8 @@ class ConfigWidget(QWidget):
     def settings(self) -> dict[str, str | dict[str, str]]:
         name = self.text_model_edit.text().strip()
         ans: dict[str, str | dict[str, str]] = {
-            'api_key': encode_secret(self.api_key), 'model_choice_strategy': self.model_choice_strategy,
+            'api_key': encode_secret(self.api_key),
+            'model_choice_strategy': self.model_choice_strategy,
         }
         if name:
             ans['text_model'] = {'name': name, 'id': self.model_ids_for_name(name)[0]}
@@ -98,7 +98,12 @@ class ConfigWidget(QWidget):
                 error_dialog(self, _('No matching model'), _('No model named {} found on GitHub').format(name), show=True)
                 return False
             if num > 1:
-                error_dialog(self, _('Ambiguous model name'), _('The name {} matches more than one model on GitHub').format(name), show=True)
+                error_dialog(
+                    self,
+                    _('Ambiguous model name'),
+                    _('The name {} matches more than one model on GitHub').format(name),
+                    show=True,
+                )
                 return False
         return True
 

@@ -6,15 +6,15 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class AdvancedUserRecipe(BasicNewsRecipe):
-    title          = 'Macrobusiness'
-    language       = 'en_AU'
-    __author__     = '2018robert'
+    title = 'Macrobusiness'
+    language = 'en_AU'
+    __author__ = '2018robert'
     oldest_article = 1
     max_articles_per_feed = 100
-    auto_cleanup   = True
+    auto_cleanup = True
     needs_subscription = 'optional'
 
-    feeds          = [
+    feeds = [
         ('Macrobusiness', 'https://www.macrobusiness.com.au/feed'),
     ]
 
@@ -23,7 +23,7 @@ class AdvancedUserRecipe(BasicNewsRecipe):
         if self.username is not None and self.password is not None:
             br.open('https://www.macrobusiness.com.au/my-account/')
             br.select_form(class_=lambda x: 'login' in x)
-            br['username']   = self.username
+            br['username'] = self.username
             br['password'] = self.password
             br.submit()
         return br

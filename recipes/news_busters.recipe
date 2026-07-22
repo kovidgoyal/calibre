@@ -2,7 +2,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class NewsBusters(BasicNewsRecipe):
-    title = u'News Busters'
+    title = 'News Busters'
     description = 'Exposing and Combating Liberal Media Bias'
     __author__ = 'jde'
     oldest_article = 1  # day
@@ -17,4 +17,4 @@ class NewsBusters(BasicNewsRecipe):
     no_stylesheets = True
     auto_cleanup = True
 
-    feeds = [(u'Blog', u'http://www.newsbusters.org/rss.xml')]
+    feeds = [('Blog', 'http://www.newsbusters.org/rss.xml')]

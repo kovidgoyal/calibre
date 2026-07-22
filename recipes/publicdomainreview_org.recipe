@@ -4,12 +4,12 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class PublicDomainReview(BasicNewsRecipe):
-    title          = 'The Public Domain Review'
-    __author__        = 'fenuks'
-    description   = u'Online journal dedicated to showcasing the most interesting and unusual out-of-copyright works available on the web'
-    cover_url      = 'http://publicdomainreview.org/wp-content/themes/pdr/assets/img/pdr-logo.gif'
-    category       = 'culture'
-    language       = 'en'
+    title = 'The Public Domain Review'
+    __author__ = 'fenuks'
+    description = 'Online journal dedicated to showcasing the most interesting and unusual out-of-copyright works available on the web'
+    cover_url = 'http://publicdomainreview.org/wp-content/themes/pdr/assets/img/pdr-logo.gif'
+    category = 'culture'
+    language = 'en'
     encoding = 'utf-8'
     oldest_article = 14
     max_articles_per_feed = 100
@@ -25,4 +25,4 @@ class PublicDomainReview(BasicNewsRecipe):
     remove_tags = [dict(attrs={'class': 'synved-social-container synved-social-container-share'})]
     # remove_tags_before = dict()
     remove_tags_after = dict(name='div', attrs={'class': 'entry-content'})
-    feeds          = [('Posts', 'http://publicdomainreview.org/feed/')]
+    feeds = [('Posts', 'http://publicdomainreview.org/feed/')]

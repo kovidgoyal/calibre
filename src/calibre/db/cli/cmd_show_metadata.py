@@ -31,12 +31,7 @@ id is an id number from the search command.
 '''
         )
     )
-    parser.add_option(
-        '--as-opf',
-        default=False,
-        action='store_true',
-        help=_('Print metadata in OPF form (XML)')
-    )
+    parser.add_option('--as-opf', default=False, action='store_true', help=_('Print metadata in OPF form (XML)'))
     return parser
 
 

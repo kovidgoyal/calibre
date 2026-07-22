@@ -71,11 +71,6 @@ def main(opts, args, dbctx):
         dbctx.run('saved_searches', 'remove', args[1])
         prints(args[1], _('removed'))
     else:
-        raise SystemExit(
-            _(
-                'Error: Action %s not recognized, must be one '
-                'of: (add|remove|list)'
-            ) % args[0]
-        )
+        raise SystemExit(_('Error: Action %s not recognized, must be one of: (add|remove|list)') % args[0])
 
     return 0

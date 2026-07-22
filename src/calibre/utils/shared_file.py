@@ -34,22 +34,22 @@ if iswindows:
     from calibre_extensions import winutil
 
     _ACCESS_MASK = os.O_RDONLY | os.O_WRONLY | os.O_RDWR
-    _ACCESS_MAP  = {
+    _ACCESS_MAP = {
         os.O_RDONLY: winutil.GENERIC_READ,
         os.O_WRONLY: winutil.GENERIC_WRITE,
-        os.O_RDWR  : winutil.GENERIC_READ | winutil.GENERIC_WRITE
+        os.O_RDWR: winutil.GENERIC_READ | winutil.GENERIC_WRITE,
     }
 
     _CREATE_MASK = os.O_CREAT | os.O_EXCL | os.O_TRUNC
-    _CREATE_MAP  = {
-        0                                   : winutil.OPEN_EXISTING,
-        os.O_EXCL                           : winutil.OPEN_EXISTING,
-        os.O_CREAT                          : winutil.OPEN_ALWAYS,
-        os.O_CREAT | os.O_EXCL              : winutil.CREATE_NEW,
-        os.O_CREAT | os.O_TRUNC | os.O_EXCL : winutil.CREATE_NEW,
-        os.O_TRUNC                          : winutil.TRUNCATE_EXISTING,
-        os.O_TRUNC | os.O_EXCL              : winutil.TRUNCATE_EXISTING,
-        os.O_CREAT | os.O_TRUNC             : winutil.CREATE_ALWAYS
+    _CREATE_MAP = {
+        0: winutil.OPEN_EXISTING,
+        os.O_EXCL: winutil.OPEN_EXISTING,
+        os.O_CREAT: winutil.OPEN_ALWAYS,
+        os.O_CREAT | os.O_EXCL: winutil.CREATE_NEW,
+        os.O_CREAT | os.O_TRUNC | os.O_EXCL: winutil.CREATE_NEW,
+        os.O_TRUNC: winutil.TRUNCATE_EXISTING,
+        os.O_TRUNC | os.O_EXCL: winutil.TRUNCATE_EXISTING,
+        os.O_CREAT | os.O_TRUNC: winutil.CREATE_ALWAYS,
     }
 
     def os_open(path, flags, mode=0o777, share_flags=winutil.FILE_SHARE_VALID_FLAGS):
@@ -85,8 +85,7 @@ if iswindows:
         if flags & os.O_RANDOM:
             attrib_flags |= winutil.FILE_FLAG_RANDOM_ACCESS
 
-        h = winutil.create_file(
-            path, access_flags, share_flags, create_flags, attrib_flags)
+        h = winutil.create_file(path, access_flags, share_flags, create_flags, attrib_flags)
         ans = msvcrt.open_osfhandle(int(h), flags | os.O_NOINHERIT)
         h.detach()
         return ans
@@ -108,7 +107,6 @@ def find_tests():
     from calibre.ptempfile import TemporaryDirectory
 
     class SharedFileTest(unittest.TestCase):
-
         def test_shared_file(self):
             eq = self.assertEqual
 
@@ -122,8 +120,8 @@ def find_tests():
                 try:
                     eq(f.read(1), b'a')
                     if iswindows:
-                        os.rename(fname, fname+'.moved')
-                        os.remove(fname+'.moved')
+                        os.rename(fname, fname + '.moved')
+                        os.remove(fname + '.moved')
                     else:
                         os.remove(fname)
                     eq(f.read(1), b'a')
@@ -131,7 +129,7 @@ def find_tests():
                     close.append(f2)
                     f2.write(b'b' * 10 * 1024)
                     f2.seek(0)
-                    eq(f.read(10000), b'a'*10000)
+                    eq(f.read(10000), b'a' * 10000)
                     eq(f2.read(100), b'b' * 100)
                     f3 = share_open(fname, 'rb')
                     close.append(f3)
@@ -145,4 +143,5 @@ def find_tests():
 
 def run_tests():
     from calibre.utils.run_tests import run_tests
+
     run_tests(find_tests)

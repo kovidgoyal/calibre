@@ -8,7 +8,6 @@ from setup.revendor import ReVendor
 
 
 class LiberationFonts(ReVendor):
-
     description = 'Download the Liberation fonts'
     NAME = 'liberation_fonts'
     TAR_NAME = 'liberation-fonts'

@@ -29,7 +29,6 @@ lock = Lock()
 
 
 class LastReadCache:
-
     def __init__(self, path='', limit=5):
         self.limit = limit
         self.conn = apsw.Connection(path or os.path.join(cache_dir(), 'srv-last-read.sqlite'))
@@ -51,12 +50,14 @@ class LastReadCache:
             if not cfi:
                 self.execute(
                     'DELETE FROM last_read_positions WHERE library_id=? AND book=? AND format=? AND user=?',
-                    (library_id, book_id, fmt, user))
+                    (library_id, book_id, fmt, user),
+                )
             else:
                 epoch = time_ns()
                 self.execute(
                     'INSERT OR REPLACE INTO last_read_positions(library_id,book,format,user,cfi,epoch,pos_frac,tooltip) VALUES (?,?,?,?,?,?,?,?)',
-                    (library_id, book_id, fmt, user, cfi, epoch, pos_frac, tooltip))
+                    (library_id, book_id, fmt, user, cfi, epoch, pos_frac, tooltip),
+                )
                 items = tuple(self.get('SELECT id FROM last_read_positions WHERE user=? ORDER BY id DESC', (user,), all=True))
                 if len(items) > self.limit:
                     self.execute('DELETE FROM last_read_positions WHERE user=? AND id <= ?', (user, items[self.limit][0]))
@@ -66,11 +67,17 @@ class LastReadCache:
         with lock:
             ans = []
             for library_id, book, fmt, cfi, epoch, pos_frac, tooltip in self.execute(
-                'SELECT library_id,book,format,cfi,epoch,pos_frac,tooltip FROM last_read_positions WHERE user=? ORDER BY epoch DESC', (user,)
+                'SELECT library_id,book,format,cfi,epoch,pos_frac,tooltip FROM last_read_positions WHERE user=? ORDER BY epoch DESC',
+                (user,),
             ):
                 ans.append({
-                    'library_id': library_id, 'book_id': book, 'format': fmt,
-                    'cfi': cfi, 'epoch':epoch, 'pos_frac':pos_frac, 'tooltip': tooltip,
+                    'library_id': library_id,
+                    'book_id': book,
+                    'format': fmt,
+                    'cfi': cfi,
+                    'epoch': epoch,
+                    'pos_frac': pos_frac,
+                    'tooltip': tooltip,
                 })
             return ans
 

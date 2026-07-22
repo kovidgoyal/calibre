@@ -12,336 +12,466 @@ from calibre.utils.icu import lower as icu_lower
 from calibre.utils.localization import _, ngettext
 
 category_icon_map = {
-    'authors'    : 'user_profile.png',
-    'series'     : 'series.png',
-    'formats'    : 'book.png',
-    'publisher'  : 'publisher.png',
-    'rating'     : 'rating.png',
-    'news'       : 'news.png',
-    'tags'       : 'tags.png',
-    'custom:'    : 'column.png',
-    'user:'      : 'tb_folder.png',
-    'search'     : 'search.png',
+    'authors': 'user_profile.png',
+    'series': 'series.png',
+    'formats': 'book.png',
+    'publisher': 'publisher.png',
+    'rating': 'rating.png',
+    'news': 'news.png',
+    'tags': 'tags.png',
+    'custom:': 'column.png',
+    'user:': 'tb_folder.png',
+    'search': 'search.png',
     'identifiers': 'identifiers.png',
-    'gst'        : 'catalog.png',
-    'languages'  : 'languages.png',
+    'gst': 'catalog.png',
+    'languages': 'languages.png',
 }
 
 
 # Builtin metadata {{{
+
 
 def _builtin_field_metadata():
     # This is a function so that changing the UI language allows newly created
     # field metadata objects to have correctly translated labels for builtin
     # fields.
     return [
-            ('authors', {'table':'authors',
-                           'column':'name',
-                           'link_column':'author',
-                           'category_sort':'sort',
-                           'datatype':'text',
-                           'is_multiple':{'cache_to_list': ',',
-                                          'ui_to_list': '&',
-                                          'list_to_ui': ' & '},
-                           'kind':'field',
-                           'name':_('Authors'),
-                           'search_terms':['authors', 'author'],
-                           'is_custom':False,
-                           'is_category':True,
-                           'is_csp': False}),
-            ('languages', {'table':'languages',
-                           'column':'lang_code',
-                           'link_column':'lang_code',
-                           'category_sort':'lang_code',
-                           'datatype':'text',
-                           'is_multiple':{'cache_to_list': ',',
-                                          'ui_to_list': ',',
-                                          'list_to_ui': ', '},
-                           'kind':'field',
-                           'name':_('Languages'),
-                           'search_terms':['languages', 'language'],
-                           'is_custom':False,
-                           'is_category':True,
-                           'is_csp': False}),
+        (
+            'authors',
+            {
+                'table': 'authors',
+                'column': 'name',
+                'link_column': 'author',
+                'category_sort': 'sort',
+                'datatype': 'text',
+                'is_multiple': {'cache_to_list': ',', 'ui_to_list': '&', 'list_to_ui': ' & '},
+                'kind': 'field',
+                'name': _('Authors'),
+                'search_terms': ['authors', 'author'],
+                'is_custom': False,
+                'is_category': True,
+                'is_csp': False,
+            },
+        ),
+        (
+            'languages',
+            {
+                'table': 'languages',
+                'column': 'lang_code',
+                'link_column': 'lang_code',
+                'category_sort': 'lang_code',
+                'datatype': 'text',
+                'is_multiple': {'cache_to_list': ',', 'ui_to_list': ',', 'list_to_ui': ', '},
+                'kind': 'field',
+                'name': _('Languages'),
+                'search_terms': ['languages', 'language'],
+                'is_custom': False,
+                'is_category': True,
+                'is_csp': False,
+            },
+        ),
+        (
+            'series',
+            {
+                'table': 'series',
+                'column': 'name',
+                'link_column': 'series',
+                'category_sort': '(title_sort(name))',
+                'datatype': 'series',
+                'is_multiple': {},
+                'kind': 'field',
+                'name': ngettext('Series', 'Series', 1),
+                'search_terms': ['series'],
+                'is_custom': False,
+                'is_category': True,
+                'is_csp': False,
+            },
+        ),
+        (
+            'formats',
+            {
+                'table': None,
+                'column': None,
+                'datatype': 'text',
+                'is_multiple': {'cache_to_list': ',', 'ui_to_list': ',', 'list_to_ui': ', '},
+                'kind': 'field',
+                'name': _('Formats'),
+                'search_terms': ['formats', 'format'],
+                'is_custom': False,
+                'is_category': True,
+                'is_csp': False,
+            },
+        ),
+        (
+            'publisher',
+            {
+                'table': 'publishers',
+                'column': 'name',
+                'link_column': 'publisher',
+                'category_sort': 'name',
+                'datatype': 'text',
+                'is_multiple': {},
+                'kind': 'field',
+                'name': _('Publisher'),
+                'search_terms': ['publisher'],
+                'is_custom': False,
+                'is_category': True,
+                'is_csp': False,
+            },
+        ),
+        (
+            'rating',
+            {
+                'table': 'ratings',
+                'column': 'rating',
+                'link_column': 'rating',
+                'category_sort': 'rating',
+                'datatype': 'rating',
+                'is_multiple': {},
+                'kind': 'field',
+                'name': _('Rating'),
+                'search_terms': ['rating'],
+                'is_custom': False,
+                'is_category': True,
+                'is_csp': False,
+            },
+        ),
+        (
+            'news',
+            {
+                'table': 'news',
+                'column': 'name',
+                'category_sort': 'name',
+                'datatype': None,
+                'is_multiple': {},
+                'kind': 'category',
+                'name': _('News'),
+                'search_terms': [],
+                'is_custom': False,
+                'is_category': True,
+                'is_csp': False,
+            },
+        ),
+        (
+            'tags',
+            {
+                'table': 'tags',
+                'column': 'name',
+                'link_column': 'tag',
+                'category_sort': 'name',
+                'datatype': 'text',
+                'is_multiple': {'cache_to_list': ',', 'ui_to_list': ',', 'list_to_ui': ', '},
+                'kind': 'field',
+                'name': _('Tags'),
+                'search_terms': ['tags', 'tag'],
+                'is_custom': False,
+                'is_category': True,
+                'is_csp': False,
+            },
+        ),
+        (
+            'identifiers',
+            {
+                'table': None,
+                'column': None,
+                'datatype': 'text',
+                'is_multiple': {'cache_to_list': ',', 'ui_to_list': ',', 'list_to_ui': ', '},
+                'kind': 'field',
+                'name': _('Identifiers'),
+                'search_terms': ['identifiers', 'identifier', 'isbn'],
+                'is_custom': False,
+                'is_category': True,
+                'is_csp': True,
+            },
+        ),
+        (
+            'author_sort',
+            {
+                'table': None,
+                'column': None,
+                'datatype': 'text',
+                'is_multiple': {},
+                'kind': 'field',
+                'name': _('Author sort'),
+                'search_terms': ['author_sort'],
+                'is_custom': False,
+                'is_category': False,
+                'is_csp': False,
+            },
+        ),
+        (
+            'au_map',
+            {
+                'table': None,
+                'column': None,
+                'datatype': 'text',
+                'is_multiple': {'cache_to_list': ',', 'ui_to_list': None, 'list_to_ui': None},
+                'kind': 'field',
+                'name': None,
+                'search_terms': [],
+                'is_custom': False,
+                'is_category': False,
+                'is_csp': False,
+            },
+        ),
+        (
+            'comments',
+            {
+                'table': None,
+                'column': None,
+                'datatype': 'text',
+                'is_multiple': {},
+                'kind': 'field',
+                'name': _('Comments'),
+                'search_terms': ['comments', 'comment'],
+                'is_custom': False,
+                'is_category': False,
+                'is_csp': False,
+            },
+        ),
+        (
+            'cover',
+            {
+                'table': None,
+                'column': None,
+                'datatype': 'int',
+                'is_multiple': {},
+                'kind': 'field',
+                'name': _('Cover'),
+                'search_terms': ['cover'],
+                'is_custom': False,
+                'is_category': False,
+                'is_csp': False,
+            },
+        ),
+        (
+            'id',
+            {
+                'table': None,
+                'column': None,
+                'datatype': 'int',
+                'is_multiple': {},
+                'kind': 'field',
+                'name': _('Id'),
+                'search_terms': ['id'],
+                'is_custom': False,
+                'is_category': False,
+                'is_csp': False,
+            },
+        ),
+        (
+            'pages',
+            {
+                'table': 'books_pages_link',
+                'column': 'pages',
+                'datatype': 'int',
+                'is_multiple': {},
+                'kind': 'field',
+                'name': _('Pages'),
+                'search_terms': ['pages'],
+                'is_custom': False,
+                'is_category': False,
+                'is_csp': False,
+            },
+        ),
+        (
+            'last_modified',
+            {
+                'table': None,
+                'column': None,
+                'datatype': 'datetime',
+                'is_multiple': {},
+                'kind': 'field',
+                'name': _('Modified'),
+                'search_terms': ['last_modified'],
+                'is_custom': False,
+                'is_category': False,
+                'is_csp': False,
+            },
+        ),
+        (
+            'ondevice',
+            {
+                'table': None,
+                'column': None,
+                'datatype': 'text',
+                'is_multiple': {},
+                'kind': 'field',
+                'name': _('On device'),
+                'search_terms': ['ondevice'],
+                'is_custom': False,
+                'is_category': False,
+                'is_csp': False,
+            },
+        ),
+        (
+            'path',
+            {
+                'table': None,
+                'column': None,
+                'datatype': 'text',
+                'is_multiple': {},
+                'kind': 'field',
+                'name': _('Path'),
+                'search_terms': [],
+                'is_custom': False,
+                'is_category': False,
+                'is_csp': False,
+            },
+        ),
+        (
+            'pubdate',
+            {
+                'table': None,
+                'column': None,
+                'datatype': 'datetime',
+                'is_multiple': {},
+                'kind': 'field',
+                'name': _('Published'),
+                'search_terms': ['pubdate'],
+                'is_custom': False,
+                'is_category': False,
+                'is_csp': False,
+            },
+        ),
+        (
+            'marked',
+            {
+                'table': None,
+                'column': None,
+                'datatype': 'text',
+                'is_multiple': {},
+                'kind': 'field',
+                'name': None,
+                'search_terms': ['marked'],
+                'is_custom': False,
+                'is_category': False,
+                'is_csp': False,
+            },
+        ),
+        (
+            'in_tag_browser',
+            {
+                'table': None,
+                'column': None,
+                'datatype': 'text',
+                'is_multiple': {},
+                'kind': 'field',
+                'name': None,
+                'search_terms': ['in_tag_browser'],
+                'is_custom': False,
+                'is_category': False,
+                'is_csp': False,
+            },
+        ),
+        (
+            'series_index',
+            {
+                'table': None,
+                'column': None,
+                'datatype': 'float',
+                'is_multiple': {},
+                'kind': 'field',
+                'name': None,
+                'search_terms': ['series_index'],
+                'is_custom': False,
+                'is_category': False,
+                'is_csp': False,
+            },
+        ),
+        (
+            'series_sort',
+            {
+                'table': None,
+                'column': None,
+                'datatype': 'text',
+                'is_multiple': {},
+                'kind': 'field',
+                'name': _('Series sort'),
+                'search_terms': ['series_sort'],
+                'is_custom': False,
+                'is_category': False,
+                'is_csp': False,
+            },
+        ),
+        (
+            'sort',
+            {
+                'table': None,
+                'column': None,
+                'datatype': 'text',
+                'is_multiple': {},
+                'kind': 'field',
+                'name': _('Title sort'),
+                'search_terms': ['title_sort'],
+                'is_custom': False,
+                'is_category': False,
+                'is_csp': False,
+            },
+        ),
+        (
+            'size',
+            {
+                'table': None,
+                'column': None,
+                'datatype': 'float',
+                'is_multiple': {},
+                'kind': 'field',
+                'name': _('Size'),
+                'search_terms': ['size'],
+                'is_custom': False,
+                'is_category': False,
+                'is_csp': False,
+            },
+        ),
+        (
+            'timestamp',
+            {
+                'table': None,
+                'column': None,
+                'datatype': 'datetime',
+                'is_multiple': {},
+                'kind': 'field',
+                'name': _('Date'),
+                'search_terms': ['date'],
+                'is_custom': False,
+                'is_category': False,
+                'is_csp': False,
+            },
+        ),
+        (
+            'title',
+            {
+                'table': None,
+                'column': None,
+                'datatype': 'text',
+                'is_multiple': {},
+                'kind': 'field',
+                'name': _('Title'),
+                'search_terms': ['title'],
+                'is_custom': False,
+                'is_category': False,
+                'is_csp': False,
+            },
+        ),
+        (
+            'uuid',
+            {
+                'table': None,
+                'column': None,
+                'datatype': 'text',
+                'is_multiple': {},
+                'kind': 'field',
+                'name': None,
+                'search_terms': ['uuid'],
+                'is_custom': False,
+                'is_category': False,
+                'is_csp': False,
+            },
+        ),
+    ]
 
-            ('series', {'table':'series',
-                           'column':'name',
-                           'link_column':'series',
-                           'category_sort':'(title_sort(name))',
-                           'datatype':'series',
-                           'is_multiple':{},
-                           'kind':'field',
-                           'name':ngettext('Series', 'Series', 1),
-                           'search_terms':['series'],
-                           'is_custom':False,
-                           'is_category':True,
-                           'is_csp': False}),
-            ('formats', {'table':None,
-                           'column':None,
-                           'datatype':'text',
-                           'is_multiple':{'cache_to_list': ',',
-                                          'ui_to_list': ',',
-                                          'list_to_ui': ', '},
-                           'kind':'field',
-                           'name':_('Formats'),
-                           'search_terms':['formats', 'format'],
-                           'is_custom':False,
-                           'is_category':True,
-                           'is_csp': False}),
-            ('publisher', {'table':'publishers',
-                           'column':'name',
-                           'link_column':'publisher',
-                           'category_sort':'name',
-                           'datatype':'text',
-                           'is_multiple':{},
-                           'kind':'field',
-                           'name':_('Publisher'),
-                           'search_terms':['publisher'],
-                           'is_custom':False,
-                           'is_category':True,
-                           'is_csp': False}),
-            ('rating', {'table':'ratings',
-                           'column':'rating',
-                           'link_column':'rating',
-                           'category_sort':'rating',
-                           'datatype':'rating',
-                           'is_multiple':{},
-                           'kind':'field',
-                           'name':_('Rating'),
-                           'search_terms':['rating'],
-                           'is_custom':False,
-                           'is_category':True,
-                           'is_csp': False}),
-            ('news', {'table':'news',
-                           'column':'name',
-                           'category_sort':'name',
-                           'datatype':None,
-                           'is_multiple':{},
-                           'kind':'category',
-                           'name':_('News'),
-                           'search_terms':[],
-                           'is_custom':False,
-                           'is_category':True,
-                           'is_csp': False}),
-            ('tags', {'table':'tags',
-                           'column':'name',
-                           'link_column': 'tag',
-                           'category_sort':'name',
-                           'datatype':'text',
-                           'is_multiple':{'cache_to_list': ',',
-                                          'ui_to_list': ',',
-                                          'list_to_ui': ', '},
-                           'kind':'field',
-                           'name':_('Tags'),
-                           'search_terms':['tags', 'tag'],
-                           'is_custom':False,
-                           'is_category':True,
-                           'is_csp': False}),
-            ('identifiers', {'table':None,
-                           'column':None,
-                           'datatype':'text',
-                           'is_multiple':{'cache_to_list': ',',
-                                          'ui_to_list': ',',
-                                          'list_to_ui': ', '},
-                           'kind':'field',
-                           'name':_('Identifiers'),
-                           'search_terms':['identifiers', 'identifier', 'isbn'],
-                           'is_custom':False,
-                           'is_category':True,
-                           'is_csp': True}),
-            ('author_sort',{'table':None,
-                            'column':None,
-                            'datatype':'text',
-                           'is_multiple':{},
-                           'kind':'field',
-                           'name':_('Author sort'),
-                           'search_terms':['author_sort'],
-                           'is_custom':False,
-                           'is_category':False,
-                           'is_csp': False}),
-            ('au_map', {'table':None,
-                           'column':None,
-                           'datatype':'text',
-                           'is_multiple':{'cache_to_list': ',',
-                                          'ui_to_list': None,
-                                          'list_to_ui': None},
-                           'kind':'field',
-                           'name':None,
-                           'search_terms':[],
-                           'is_custom':False,
-                           'is_category':False,
-                           'is_csp': False}),
-            ('comments', {'table':None,
-                           'column':None,
-                           'datatype':'text',
-                           'is_multiple':{},
-                           'kind':'field',
-                           'name':_('Comments'),
-                           'search_terms':['comments', 'comment'],
-                           'is_custom':False,
-                           'is_category':False,
-                           'is_csp': False}),
-            ('cover', {'table':None,
-                           'column':None,
-                           'datatype':'int',
-                           'is_multiple':{},
-                           'kind':'field',
-                           'name':_('Cover'),
-                           'search_terms':['cover'],
-                           'is_custom':False,
-                           'is_category':False,
-                           'is_csp': False}),
-            ('id', {'table':None,
-                           'column':None,
-                           'datatype':'int',
-                           'is_multiple':{},
-                           'kind':'field',
-                           'name': _('Id'),
-                           'search_terms':['id'],
-                           'is_custom':False,
-                           'is_category':False,
-                           'is_csp': False}),
-            ('pages', {'table':'books_pages_link',
-                           'column':'pages',
-                           'datatype':'int',
-                           'is_multiple':{},
-                           'kind':'field',
-                           'name': _('Pages'),
-                           'search_terms':['pages'],
-                           'is_custom':False,
-                           'is_category':False,
-                           'is_csp': False}),
-            ('last_modified', {'table':None,
-                           'column':None,
-                           'datatype':'datetime',
-                           'is_multiple':{},
-                           'kind':'field',
-                           'name':_('Modified'),
-                           'search_terms':['last_modified'],
-                           'is_custom':False,
-                           'is_category':False,
-                           'is_csp': False}),
-            ('ondevice', {'table':None,
-                           'column':None,
-                           'datatype':'text',
-                           'is_multiple':{},
-                           'kind':'field',
-                           'name':_('On device'),
-                           'search_terms':['ondevice'],
-                           'is_custom':False,
-                           'is_category':False,
-                           'is_csp': False}),
-            ('path', {'table':None,
-                           'column':None,
-                           'datatype':'text',
-                           'is_multiple':{},
-                           'kind':'field',
-                           'name':_('Path'),
-                           'search_terms':[],
-                           'is_custom':False,
-                           'is_category':False,
-                           'is_csp': False}),
-            ('pubdate', {'table':None,
-                           'column':None,
-                           'datatype':'datetime',
-                           'is_multiple':{},
-                           'kind':'field',
-                           'name':_('Published'),
-                           'search_terms':['pubdate'],
-                           'is_custom':False,
-                           'is_category':False,
-                           'is_csp': False}),
-            ('marked', {'table':None,
-                           'column':None,
-                           'datatype':'text',
-                           'is_multiple':{},
-                           'kind':'field',
-                           'name': None,
-                           'search_terms':['marked'],
-                           'is_custom':False,
-                           'is_category':False,
-                           'is_csp': False}),
-            ('in_tag_browser', {'table':None,
-                           'column':None,
-                           'datatype':'text',
-                           'is_multiple':{},
-                           'kind':'field',
-                           'name': None,
-                           'search_terms':['in_tag_browser'],
-                           'is_custom':False,
-                           'is_category':False,
-                           'is_csp': False}),
-            ('series_index',{'table':None,
-                             'column':None,
-                             'datatype':'float',
-                             'is_multiple':{},
-                             'kind':'field',
-                             'name':None,
-                             'search_terms':['series_index'],
-                             'is_custom':False,
-                             'is_category':False,
-                           'is_csp': False}),
-            ('series_sort', {'table':None,
-                           'column':None,
-                           'datatype':'text',
-                           'is_multiple':{},
-                           'kind':'field',
-                           'name':_('Series sort'),
-                           'search_terms':['series_sort'],
-                           'is_custom':False,
-                           'is_category':False,
-                           'is_csp': False}),
-            ('sort', {'table':None,
-                           'column':None,
-                           'datatype':'text',
-                           'is_multiple':{},
-                           'kind':'field',
-                           'name':_('Title sort'),
-                           'search_terms':['title_sort'],
-                           'is_custom':False,
-                           'is_category':False,
-                           'is_csp': False}),
-            ('size', {'table':None,
-                           'column':None,
-                           'datatype':'float',
-                           'is_multiple':{},
-                           'kind':'field',
-                           'name':_('Size'),
-                           'search_terms':['size'],
-                           'is_custom':False,
-                           'is_category':False,
-                           'is_csp': False}),
-            ('timestamp', {'table':None,
-                           'column':None,
-                           'datatype':'datetime',
-                           'is_multiple':{},
-                           'kind':'field',
-                           'name':_('Date'),
-                           'search_terms':['date'],
-                           'is_custom':False,
-                           'is_category':False,
-                           'is_csp': False}),
-            ('title', {'table':None,
-                           'column':None,
-                           'datatype':'text',
-                           'is_multiple':{},
-                           'kind':'field',
-                           'name':_('Title'),
-                           'search_terms':['title'],
-                           'is_custom':False,
-                           'is_category':False,
-                           'is_csp': False}),
-            ('uuid', {'table':None,
-                           'column':None,
-                           'datatype':'text',
-                           'is_multiple':{},
-                           'kind':'field',
-                           'name':None,
-                           'search_terms':['uuid'],
-                           'is_custom':False,
-                           'is_category':False,
-                           'is_csp': False}),
-        ]
+
 # }}}
 
 
@@ -399,8 +529,19 @@ class FieldMetadata:
 
     """
 
-    VALID_DATA_TYPES = frozenset([None, 'rating', 'text', 'comments', 'datetime',
-                'int', 'float', 'bool', 'series', 'composite', 'enumeration'])
+    VALID_DATA_TYPES = frozenset([
+        None,
+        'rating',
+        'text',
+        'comments',
+        'datetime',
+        'int',
+        'float',
+        'bool',
+        'series',
+        'composite',
+        'enumeration',
+    ])
 
     # search labels that are not db columns
     search_items = ['all', 'search', 'vl', 'template']
@@ -413,7 +554,7 @@ class FieldMetadata:
         self._tb_custom_fields = {}
         self._search_term_map = {}
         self.custom_label_to_key_map = {}
-        for k,v in self._field_metadata:
+        for k, v in self._field_metadata:
             if v['kind'] == 'field' and v['datatype'] not in self.VALID_DATA_TYPES:
                 raise ValueError('Unknown datatype {} for field {}'.format(v['datatype'], k))
             self._tb_cats[k] = v
@@ -421,12 +562,9 @@ class FieldMetadata:
             self._tb_cats[k]['display'] = {}
             self._tb_cats[k]['is_editable'] = True
             self._add_search_terms_to_map(k, v['search_terms'])
-        self._tb_cats['timestamp']['display'] = {
-                        'date_format': tweaks['gui_timestamp_display_format']}
-        self._tb_cats['pubdate']['display'] = {
-                        'date_format': tweaks['gui_pubdate_display_format']}
-        self._tb_cats['last_modified']['display'] = {
-                        'date_format': tweaks['gui_last_modified_display_format']}
+        self._tb_cats['timestamp']['display'] = {'date_format': tweaks['gui_timestamp_display_format']}
+        self._tb_cats['pubdate']['display'] = {'date_format': tweaks['gui_pubdate_display_format']}
+        self._tb_cats['last_modified']['display'] = {'date_format': tweaks['gui_last_modified_display_format']}
         self.get = self._tb_cats.get
 
     def __getitem__(self, key):
@@ -464,42 +602,53 @@ class FieldMetadata:
         return not self.__eq__(other)
 
     def sortable_field_keys(self):
-        return [k for k in self._tb_cats.keys()
-                if self._tb_cats[k]['kind']=='field' and
-                   self._tb_cats[k]['datatype'] is not None]
+        return [k for k in self._tb_cats.keys() if self._tb_cats[k]['kind'] == 'field' and self._tb_cats[k]['datatype'] is not None]
 
     def ui_sortable_field_keys(self):
-        ans = {k:self._tb_cats[k]['name'] for k in set(self.sortable_field_keys()) - {
-            'sort', 'author_sort', 'au_map', 'series_sort', 'marked',
-            'series_index', 'path', 'formats', 'identifiers', 'uuid',
-            'comments',
-        } if self._tb_cats[k]['name']}
+        ans = {
+            k: self._tb_cats[k]['name']
+            for k in set(self.sortable_field_keys())
+            - {
+                'sort',
+                'author_sort',
+                'au_map',
+                'series_sort',
+                'marked',
+                'series_index',
+                'path',
+                'formats',
+                'identifiers',
+                'uuid',
+                'comments',
+            }
+            if self._tb_cats[k]['name']
+        }
         ans['cover'] = _('Has cover')
         return ans
 
     def displayable_field_keys(self):
-        return [k for k in self._tb_cats.keys()
-                if self._tb_cats[k]['kind']=='field' and
-                   self._tb_cats[k]['datatype'] is not None and
-                   k not in ('au_map', 'marked', 'ondevice', 'cover', 'series_sort', 'in_tag_browser') and
-                   not self.is_series_index(k)]
+        return [
+            k
+            for k in self._tb_cats.keys()
+            if self._tb_cats[k]['kind'] == 'field'
+            and self._tb_cats[k]['datatype'] is not None
+            and k not in ('au_map', 'marked', 'ondevice', 'cover', 'series_sort', 'in_tag_browser')
+            and not self.is_series_index(k)
+        ]
 
     def standard_field_keys(self):
-        return [k for k in self._tb_cats.keys()
-                if self._tb_cats[k]['kind']=='field' and
-                   not self._tb_cats[k]['is_custom']]
+        return [k for k in self._tb_cats.keys() if self._tb_cats[k]['kind'] == 'field' and not self._tb_cats[k]['is_custom']]
 
     def custom_field_keys(self, include_composites=True):
         res = []
         for k in self._tb_cats.keys():
             fm = self._tb_cats[k]
-            if fm['kind']=='field' and fm['is_custom'] and \
-                   (fm['datatype'] != 'composite' or include_composites):
+            if fm['kind'] == 'field' and fm['is_custom'] and (fm['datatype'] != 'composite' or include_composites):
                 res.append(k)
         return res
 
     def all_field_keys(self):
-        return [k for k in self._tb_cats.keys() if self._tb_cats[k]['kind']=='field']
+        return [k for k in self._tb_cats.keys() if self._tb_cats[k]['kind'] == 'field']
 
     def iterkeys(self):
         yield from self._tb_cats
@@ -513,6 +662,7 @@ class FieldMetadata:
     def iteritems(self):
         for key in self._tb_cats:
             yield (key, self._tb_cats[key])
+
     iter_items = iteritems
 
     def custom_iteritems(self):
@@ -534,9 +684,8 @@ class FieldMetadata:
     def is_series_index(self, key):
         try:
             m = self._tb_cats[key]
-            return (m['datatype'] == 'float' and key.endswith('_index') and
-                    key[:-6] in self._tb_cats)
-        except (KeyError, ValueError, TypeError, AttributeError):
+            return m['datatype'] == 'float' and key.endswith('_index') and key[:-6] in self._tb_cats
+        except KeyError, ValueError, TypeError, AttributeError:
             return False
 
     def key_to_label(self, key):
@@ -569,37 +718,55 @@ class FieldMetadata:
             l[k] = self._tb_cats[k]
         return l
 
-    def add_custom_field(self, label, table, column, datatype, colnum, name,
-                         display, is_editable, is_multiple, is_category,
-                         is_csp=False):
+    def add_custom_field(self, label, table, column, datatype, colnum, name, display, is_editable, is_multiple, is_category, is_csp=False):
         key = self.custom_field_prefix + label
         if key in self._tb_cats:
             raise ValueError(f'Duplicate custom field [{label}]')
         if datatype not in self.VALID_DATA_TYPES:
             raise ValueError(f'Unknown datatype {datatype} for field {key}')
-        self._tb_cats[key] = {'table':table,       'column':column,
-                             'datatype':datatype,  'is_multiple':is_multiple,
-                             'kind':'field',       'name':name,
-                             'search_terms':[key], 'label':label,
-                             'colnum':colnum,      'display':display,
-                             'is_custom':True,     'is_category':is_category,
-                             'link_column':'value','category_sort':'value',
-                             'is_csp': is_csp,     'is_editable': is_editable,}
+        self._tb_cats[key] = {
+            'table': table,
+            'column': column,
+            'datatype': datatype,
+            'is_multiple': is_multiple,
+            'kind': 'field',
+            'name': name,
+            'search_terms': [key],
+            'label': label,
+            'colnum': colnum,
+            'display': display,
+            'is_custom': True,
+            'is_category': is_category,
+            'link_column': 'value',
+            'category_sort': 'value',
+            'is_csp': is_csp,
+            'is_editable': is_editable,
+        }
         self._tb_custom_fields[key] = self._tb_cats[key]
         self._add_search_terms_to_map(key, [key])
         self.custom_label_to_key_map[label] = key
         if datatype == 'series':
             key += '_index'
-            self._tb_cats[key] = {'table':None,        'column':None,
-                                 'datatype':'float',   'is_multiple':{},
-                                 'kind':'field',       'name':'',
-                                 'search_terms':[key], 'label':label+'_index',
-                                 'colnum':None,        'display':{},
-                                 'is_custom':False,    'is_category':False,
-                                 'link_column':None,   'category_sort':None,
-                                 'is_editable': False, 'is_csp': False}
+            self._tb_cats[key] = {
+                'table': None,
+                'column': None,
+                'datatype': 'float',
+                'is_multiple': {},
+                'kind': 'field',
+                'name': '',
+                'search_terms': [key],
+                'label': label + '_index',
+                'colnum': None,
+                'display': {},
+                'is_custom': False,
+                'is_category': False,
+                'link_column': None,
+                'category_sort': None,
+                'is_editable': False,
+                'is_csp': False,
+            }
             self._add_search_terms_to_map(key, [key])
-            self.custom_label_to_key_map[label+'_index'] = key
+            self.custom_label_to_key_map[label + '_index'] = key
 
     def remove_dynamic_categories(self):
         for key in list(self._tb_cats.keys()):
@@ -613,15 +780,14 @@ class FieldMetadata:
     def remove_user_categories(self):
         for key in list(self._tb_cats.keys()):
             val = self._tb_cats[key]
-            if val['is_category'] and val['kind']  == 'user':
+            if val['is_category'] and val['kind'] == 'user':
                 for k in self._tb_cats[key]['search_terms']:
                     if k in self._search_term_map:
                         del self._search_term_map[k]
                 del self._tb_cats[key]
 
     def _remove_grouped_search_terms(self):
-        to_remove = [v for v in self._search_term_map
-                        if isinstance(self._search_term_map[v], list)]
+        to_remove = [v for v in self._search_term_map if isinstance(self._search_term_map[v], list)]
         for v in to_remove:
             del self._search_term_map[v]
 
@@ -642,11 +808,18 @@ class FieldMetadata:
         st = [label]
         if icu_lower(label) != label:
             st.append(icu_lower(label))
-        self._tb_cats[label] = {'table':None,          'column':None,
-                                'datatype':None,       'is_multiple':{},
-                                'kind':'user',         'name':name,
-                                'search_terms':st,     'is_custom':False,
-                                'is_category':True,    'is_csp': False}
+        self._tb_cats[label] = {
+            'table': None,
+            'column': None,
+            'datatype': None,
+            'is_multiple': {},
+            'kind': 'user',
+            'name': name,
+            'search_terms': st,
+            'is_custom': False,
+            'is_category': True,
+            'is_csp': False,
+        }
         self._add_search_terms_to_map(label, st)
 
     def add_search_category(self, label, name, fail_on_existing=True):
@@ -654,21 +827,28 @@ class FieldMetadata:
             if not fail_on_existing:
                 return
             raise ValueError(f'Duplicate user field [{label}]')
-        self._tb_cats[label] = {'table':None,        'column':None,
-                                'datatype':None,     'is_multiple':{},
-                                'kind':'search',     'name':name,
-                                'search_terms':[],   'is_custom':False,
-                                'is_category':True,  'is_csp': False}
+        self._tb_cats[label] = {
+            'table': None,
+            'column': None,
+            'datatype': None,
+            'is_multiple': {},
+            'kind': 'search',
+            'name': name,
+            'search_terms': [],
+            'is_custom': False,
+            'is_category': True,
+            'is_csp': False,
+        }
 
     def set_field_record_index(self, label, index, prefer_custom=False):
         if prefer_custom:
-            key = self.custom_field_prefix+label
+            key = self.custom_field_prefix + label
             if key not in self._tb_cats:
                 key = label
         elif label in self._tb_cats:
             key = label
         else:
-            key = self.custom_field_prefix+label
+            key = self.custom_field_prefix + label
         self._tb_cats[key]['rec_index'] = index  # let the exception fly ...
 
     def get_search_terms(self):
@@ -688,9 +868,7 @@ class FieldMetadata:
         return self._search_term_map.get(term, term)
 
     def searchable_fields(self):
-        return [k for k in self._tb_cats.keys()
-                if self._tb_cats[k]['kind']=='field' and
-                   len(self._tb_cats[k]['search_terms']) > 0]
+        return [k for k in self._tb_cats.keys() if self._tb_cats[k]['kind'] == 'field' and len(self._tb_cats[k]['search_terms']) > 0]
 
 
 # The following two methods are to support serialization
@@ -701,8 +879,8 @@ def fm_as_dict(self):
         'custom_fields': self._tb_custom_fields,
         'search_term_map': self._search_term_map,
         'custom_label_to_key_map': self.custom_label_to_key_map,
-        'user_categories': {k:v for k, v in self._tb_cats.items() if v['kind'] == 'user'},
-        'search_categories': {k:v for k, v in self._tb_cats.items() if v['kind'] == 'search'},
+        'user_categories': {k: v for k, v in self._tb_cats.items() if v['kind'] == 'user'},
+        'search_categories': {k: v for k, v in self._tb_cats.items() if v['kind'] == 'search'},
     }
 
 

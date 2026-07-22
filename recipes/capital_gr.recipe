@@ -14,28 +14,25 @@ class Capital(BasicNewsRecipe):
     no_stylesheets = True
     use_embedded_content = False
     remove_empty_feeds = True
-    keep_only_tags = [
-        dict(name='h1'),
-        dict(name='p'),
-        dict(name='span', attrs={'id': ['textbody']})
-    ]
+    keep_only_tags = [dict(name='h1'), dict(name='p'), dict(name='span', attrs={'id': ['textbody']})]
 
-# 3 posts seemed to have utf8 encoding
+    # 3 posts seemed to have utf8 encoding
     feeds = [
-        (u'\u039F\u039B\u0395\u03A3 \u039F\u0399 \u0395\u0399\u0394\u0397\u03A3\u0395\u0399\u03A3',
-         'http://www.capital.gr/news/newsrss.asp?s=-1'),
-        (u'\u0395\u03A0\u0399\u03A7\u0395\u0399\u03A1\u0397\u03A3\u0395\u0399\u03A3',
-         'http://www.capital.gr/news/newsrss.asp?s=-2'),
-        (u'\u0391\u0393\u039F\u03A1\u0395\u03A3',
-         'http://www.capital.gr/news/newsrss.asp?s=-3'),
-        (u'\u039F\u0399\u039A\u039F\u039D\u039F\u039C\u0399\u0391',
-         'http://www.capital.gr/news/newsrss.asp?s=-4'),
-        (u'\u03A7\u03A1\u0397\u039C. \u0391\u039D\u0391\u039A\u039F\u0399\u039D\u03A9\u03A3\u0395\u0399\u03A3',
-         'http://www.capital.gr/news/newsrss.asp?s=-6'),
-        (u'\u039C\u03CC\u03BD\u03B9\u03BC\u03B5\u03C2 \u03C3\u03C4\u03AE\u03BB\u03B5\u03C2: \u039C\u0395 \u0391\u03A0\u039F\u03A8\u0397',
-         'http://www.capital.gr/articles/articlesrss.asp?catid=4'),
-        (u'\u039C\u03CC\u03BD\u03B9\u03BC\u03B5\u03C2 \u03C3\u03C4\u03AE\u03BB\u03B5\u03C2: \u03A3\u0399\u03A9\u03A0\u0397\u03A4\u0397\u03A1\u0399\u039F',
-         'http://www.capital.gr/articles/articlesrss.asp?catid=6'),
-        (u'\u039C\u03CC\u03BD\u03B9\u03BC\u03B5\u03C2 \u03C3\u03C4\u03AE\u03BB\u03B5\u03C2: \u03A0\u0399\u03A3\u03A9 \u0391\u03A0\u039F \u03A4\u0399\u03A3 \u0393\u03A1\u0391\u039C\u039C\u0395\u03A3',  # noqa: E501
-         'http://www.capital.gr/articles/articlesrss.asp?catid=8'),
+        ('\u039f\u039b\u0395\u03a3 \u039f\u0399 \u0395\u0399\u0394\u0397\u03a3\u0395\u0399\u03a3', 'http://www.capital.gr/news/newsrss.asp?s=-1'),
+        ('\u0395\u03a0\u0399\u03a7\u0395\u0399\u03a1\u0397\u03a3\u0395\u0399\u03a3', 'http://www.capital.gr/news/newsrss.asp?s=-2'),
+        ('\u0391\u0393\u039f\u03a1\u0395\u03a3', 'http://www.capital.gr/news/newsrss.asp?s=-3'),
+        ('\u039f\u0399\u039a\u039f\u039d\u039f\u039c\u0399\u0391', 'http://www.capital.gr/news/newsrss.asp?s=-4'),
+        ('\u03a7\u03a1\u0397\u039c. \u0391\u039d\u0391\u039a\u039f\u0399\u039d\u03a9\u03a3\u0395\u0399\u03a3', 'http://www.capital.gr/news/newsrss.asp?s=-6'),
+        (
+            '\u039c\u03cc\u03bd\u03b9\u03bc\u03b5\u03c2 \u03c3\u03c4\u03ae\u03bb\u03b5\u03c2: \u039c\u0395 \u0391\u03a0\u039f\u03a8\u0397',
+            'http://www.capital.gr/articles/articlesrss.asp?catid=4',
+        ),
+        (
+            '\u039c\u03cc\u03bd\u03b9\u03bc\u03b5\u03c2 \u03c3\u03c4\u03ae\u03bb\u03b5\u03c2: \u03a3\u0399\u03a9\u03a0\u0397\u03a4\u0397\u03a1\u0399\u039f',
+            'http://www.capital.gr/articles/articlesrss.asp?catid=6',
+        ),
+        (
+            '\u039c\u03cc\u03bd\u03b9\u03bc\u03b5\u03c2 \u03c3\u03c4\u03ae\u03bb\u03b5\u03c2: \u03a0\u0399\u03a3\u03a9 \u0391\u03a0\u039f \u03a4\u0399\u03a3 \u0393\u03a1\u0391\u039c\u039c\u0395\u03a3',  # noqa: E501
+            'http://www.capital.gr/articles/articlesrss.asp?catid=8',
+        ),
     ]

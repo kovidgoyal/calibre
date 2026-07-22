@@ -5,18 +5,17 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 def classes(classes):
     q = frozenset(classes.split(' '))
-    return dict(
-        attrs={'class': lambda x: x and frozenset(x.split()).intersection(q)})
+    return dict(attrs={'class': lambda x: x and frozenset(x.split()).intersection(q)})
 
 
 class IndiaSpeaksReddit(BasicNewsRecipe):
-    title          = 'IndiaSpeaksReddit'
-    __author__     = 'Vishvas Vasuki'
-    language       = 'en_IN'
+    title = 'IndiaSpeaksReddit'
+    __author__ = 'Vishvas Vasuki'
+    language = 'en_IN'
     oldest_article = 1
     max_articles_per_feed = 100
-    auto_cleanup   = True
+    auto_cleanup = True
 
-    feeds          = [
+    feeds = [
         ('India Speaks Reddit main feed', 'https://www.reddit.com/r/IndiaSpeaks.rss'),
     ]

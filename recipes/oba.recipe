@@ -11,17 +11,14 @@ class AdvancedUserRecipe1510778177(BasicNewsRecipe):
     description = 'Независимый правозащитный медиа-проект, посвященный политическим преследованиям в России.'
     publisher = 'Ovdinfo.Org'
     category = 'news'
-    cover_url = u'https://ovdinfo.org/sites/all/themes/ovdinfo/img/logo-ovdinfo.png'
+    cover_url = 'https://ovdinfo.org/sites/all/themes/ovdinfo/img/logo-ovdinfo.png'
     language = 'ru'
     no_stylesheets = True
     remove_javascript = True
     auto_cleanup = True
 
     feeds = [
-        (
-            '\u041d\u043e\u0432\u043e\u0441\u0442\u0438',
-            'https://ovdinfo.org/rss.xml'
-        ),
+        ('\u041d\u043e\u0432\u043e\u0441\u0442\u0438', 'https://ovdinfo.org/rss.xml'),
     ]
 
     remove_tags = [dict(name='a', attrs={'class': 'overtitle'})]

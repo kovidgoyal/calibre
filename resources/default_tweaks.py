@@ -71,14 +71,26 @@ authors_completer_append_separator = False
 # occur before the surname. So for example, "John von Neumann" would be sorted
 # as "von Neumann, John" and not "Neumann, John von".
 author_sort_copy_method = 'comma'
-author_name_suffixes = ('Jr', 'Sr', 'Inc', 'Ph.D', 'Phd',
-                        'MD', 'M.D', 'I', 'II', 'III', 'IV',
-                        'Junior', 'Senior')
+author_name_suffixes = ('Jr', 'Sr', 'Inc', 'Ph.D', 'Phd', 'MD', 'M.D', 'I', 'II', 'III', 'IV', 'Junior', 'Senior')
 author_name_prefixes = ('Mr', 'Mrs', 'Ms', 'Dr', 'Prof')
 author_name_copywords = (
-    'Agency', 'Corporation', 'Company', 'Co.', 'Council',
-    'Committee', 'Inc.', 'Institute', 'National', 'Society', 'Club', 'Team',
-    'Software', 'Games', 'Entertainment', 'Media', 'Studios',
+    'Agency',
+    'Corporation',
+    'Company',
+    'Co.',
+    'Council',
+    'Committee',
+    'Inc.',
+    'Institute',
+    'National',
+    'Society',
+    'Club',
+    'Team',
+    'Software',
+    'Games',
+    'Entertainment',
+    'Media',
+    'Studios',
 )
 author_use_surname_prefixes = False
 author_surname_prefixes = ('da', 'de', 'di', 'la', 'le', 'van', 'von')
@@ -221,47 +233,58 @@ save_template_title_series_sorting = 'library_order'
 # interface language is used. The setting title_sort_articles is ignored
 # (present only for legacy reasons).
 per_language_title_sort_articles = {
-        # English
-        'eng': (r'A\s+', r'The\s+', r'An\s+'),
-        # Esperanto
-        'epo': (r'La\s+', r"L'", 'L´'),
-        # Spanish
-        'spa': (r'El\s+', r'La\s+', r'Lo\s+', r'Los\s+', r'Las\s+', r'Un\s+',
-                r'Una\s+', r'Unos\s+', r'Unas\s+'),
-        # French
-        'fra': (r'Le\s+', r'La\s+', r"L'", r'L´', r'L’', r'Les\s+', r'Un\s+', r'Une\s+',
-                r'Des\s+', r'De\s+(La\s+)?', r"D'", r'D´', r'D’'),
-        # Polish
-        'pol': (),
-        # Italian
-        'ita': (r'Lo\s+', r'Il\s+', r"L'", r'L´', r'La\s+', r'Gli\s+',
-                r'I\s+', r'Le\s+', r'Uno\s+', r'Un\s+', r'Una\s+', r"Un'",
-                r'Un´', r'Dei\s+', r'Degli\s+', r'Delle\s+', r'Del\s+',
-                r'Della\s+', r'Dello\s+', r"Dell'", r'Dell´'),
-        # Portuguese
-        'por': (r'A\s+', r'O\s+', r'Os\s+', r'As\s+', r'Um\s+', r'Uns\s+',
-                r'Uma\s+', r'Umas\s+'),
-        # Romanian
-        'ron': (r'Un\s+', r'O\s+', r'Nişte\s+'),
-        # German
-        'deu': (r'Der\s+', r'Die\s+', r'Das\s+', r'Den\s+', r'Ein\s+',
-                r'Eine\s+', r'Einen\s+', r'Dem\s+', r'Des\s+', r'Einem\s+',
-                r'Eines\s+'),
-        # Dutch
-        'nld': (r'De\s+', r'Het\s+', r'Een\s+', r"'n\s+", r"'s\s+", r'Ene\s+',
-                r'Ener\s+', r'Enes\s+', r'Den\s+', r'Der\s+', r'Des\s+',
-                r"'t\s+"),
-        # Swedish
-        'swe': (r'En\s+', r'Ett\s+', r'Det\s+', r'Den\s+', r'De\s+'),
-        # Turkish
-        'tur': (r'Bir\s+',),
-        # Afrikaans
-        'afr': (r"'n\s+", r'Die\s+'),
-        # Greek
-        'ell': (r'O\s+', r'I\s+', r'To\s+', r'Ta\s+', r'Tus\s+', r'Tis\s+',
-                r"'Enas\s+", r"'Mia\s+", r"'Ena\s+", r"'Enan\s+"),
-        # Hungarian
-        'hun': (r'A\s+', r'Az\s+', r'Egy\s+'),
+    # English
+    'eng': (r'A\s+', r'The\s+', r'An\s+'),
+    # Esperanto
+    'epo': (r'La\s+', r"L'", 'L´'),
+    # Spanish
+    'spa': (r'El\s+', r'La\s+', r'Lo\s+', r'Los\s+', r'Las\s+', r'Un\s+', r'Una\s+', r'Unos\s+', r'Unas\s+'),
+    # French
+    'fra': (r'Le\s+', r'La\s+', r"L'", r'L´', r'L’', r'Les\s+', r'Un\s+', r'Une\s+', r'Des\s+', r'De\s+(La\s+)?', r"D'", r'D´', r'D’'),
+    # Polish
+    'pol': (),
+    # Italian
+    'ita': (
+        r'Lo\s+',
+        r'Il\s+',
+        r"L'",
+        r'L´',
+        r'La\s+',
+        r'Gli\s+',
+        r'I\s+',
+        r'Le\s+',
+        r'Uno\s+',
+        r'Un\s+',
+        r'Una\s+',
+        r"Un'",
+        r'Un´',
+        r'Dei\s+',
+        r'Degli\s+',
+        r'Delle\s+',
+        r'Del\s+',
+        r'Della\s+',
+        r'Dello\s+',
+        r"Dell'",
+        r'Dell´',
+    ),
+    # Portuguese
+    'por': (r'A\s+', r'O\s+', r'Os\s+', r'As\s+', r'Um\s+', r'Uns\s+', r'Uma\s+', r'Umas\s+'),
+    # Romanian
+    'ron': (r'Un\s+', r'O\s+', r'Nişte\s+'),
+    # German
+    'deu': (r'Der\s+', r'Die\s+', r'Das\s+', r'Den\s+', r'Ein\s+', r'Eine\s+', r'Einen\s+', r'Dem\s+', r'Des\s+', r'Einem\s+', r'Eines\s+'),
+    # Dutch
+    'nld': (r'De\s+', r'Het\s+', r'Een\s+', r"'n\s+", r"'s\s+", r'Ene\s+', r'Ener\s+', r'Enes\s+', r'Den\s+', r'Der\s+', r'Des\s+', r"'t\s+"),
+    # Swedish
+    'swe': (r'En\s+', r'Ett\s+', r'Det\s+', r'Den\s+', r'De\s+'),
+    # Turkish
+    'tur': (r'Bir\s+',),
+    # Afrikaans
+    'afr': (r"'n\s+", r'Die\s+'),
+    # Greek
+    'ell': (r'O\s+', r'I\s+', r'To\s+', r'Ta\s+', r'Tus\s+', r'Tis\s+', r"'Enas\s+", r"'Mia\s+", r"'Ena\s+", r"'Enan\s+"),
+    # Hungarian
+    'hun': (r'A\s+', r'Az\s+', r'Egy\s+'),
 }
 default_language_for_title_sort = None
 title_sort_articles = r'^(A|The|An)\s+'

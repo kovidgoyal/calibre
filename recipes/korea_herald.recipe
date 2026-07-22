@@ -7,21 +7,15 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class KoreaHerald(BasicNewsRecipe):
-    title = u'KoreaHerald'
+    title = 'KoreaHerald'
     language = 'en'
-    description = u'Korea Herald News articles'
+    description = 'Korea Herald News articles'
     __author__ = 'Seongkyoun Yoo'
     oldest_article = 15
     recursions = 3
     max_articles_per_feed = 15
     no_stylesheets = True
-    keep_only_tags = [
-        dict(name='h1', attrs={
-                'class':'title_sec'}),
-        dict(name='h4', attrs={
-                'class':'stitle_sec'}),
-        dict(id='articleText')
-    ]
+    keep_only_tags = [dict(name='h1', attrs={'class': 'title_sec'}), dict(name='h4', attrs={'class': 'stitle_sec'}), dict(id='articleText')]
 
     feeds = [
         ('National', 'http://www.koreaherald.com/rss/020100000000.xml'),
@@ -30,5 +24,5 @@ class KoreaHerald(BasicNewsRecipe):
         ('Entertainment', 'http://www.koreaherald.com/rss/020400000000.xml'),
         ('Sports', 'http://www.koreaherald.com/rss/020500000000.xml'),
         ('Opinion', 'http://www.koreaherald.com/rss/020600000000.xml'),
-        ('English Cafe', 'http://www.koreaherald.com/rss/021000000000.xml')
+        ('English Cafe', 'http://www.koreaherald.com/rss/021000000000.xml'),
     ]

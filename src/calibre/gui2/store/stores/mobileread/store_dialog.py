@@ -14,7 +14,6 @@ from calibre.gui2.store.stores.mobileread.store_dialog_ui import Ui_Dialog
 
 
 class MobileReadStoreDialog(QDialog, Ui_Dialog):
-
     def __init__(self, plugin, *args):
         QDialog.__init__(self, *args)
         self.setupUi(self)
@@ -44,7 +43,7 @@ class MobileReadStoreDialog(QDialog, Ui_Dialog):
         _m = self.results_view.model()
         assert _m is not None
         assert isinstance(_m, BooksModel)
-        _m.search(type(u'')(self.search_query.text()))
+        _m.search(type('')(self.search_query.text()))
 
     def open_store(self, index):
         _m = self.results_view.model()

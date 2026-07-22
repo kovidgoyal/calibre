@@ -32,38 +32,30 @@ class Ambito(BasicNewsRecipe):
         body{font-family: Roboto, sans-serif}
     '''
 
-    conversion_options = {
-        'comment': description,
-        'tags': category,
-        'publisher': publisher,
-        'language': language
-    }
+    conversion_options = {'comment': description, 'tags': category, 'publisher': publisher, 'language': language}
 
     keep_only_tags = [
         classes(
-            'detail-highlighted-multimedia news-headline__publication-date news-headline__title'
-            ' news-headline__author-wrapper news-headline__article-summary'
+            'detail-highlighted-multimedia news-headline__publication-date news-headline__title news-headline__author-wrapper news-headline__article-summary'
         ),
         dict(name='article', attrs={'class': lambda x: x and 'article-body' in x.split()}),
     ]
-    remove_tags = [
-        dict(name=['object', 'link', 'embed', 'iframe', 'meta', 'link'])
-    ]
+    remove_tags = [dict(name=['object', 'link', 'embed', 'iframe', 'meta', 'link'])]
 
     feeds = [
-        (u'Portada', u'https://www.ambito.com/rss/home.xml'),
-        (u'Economia', u'https://www.ambito.com/rss/economia.xml'),
-        (u'Finanzas', u'https://www.ambito.com/rss/finanzas.xml'),
-        (u'Politica', u'https://www.ambito.com/rss/politica.xml'),
-        (u'Opinion', u'https://www.ambito.com/rss/opinion.xml'),
-        (u'Informacion General', u'https://www.ambito.com/rss/informacion-general.xml'),
-        (u'Mundo', u'https://www.ambito.com/rss/mundo.xml'),
-        (u'Deportes', u'https://www.ambito.com/rss/deportes.xml'),
-        (u'Espectaculos', u'https://www.ambito.com/rss/espectaculos.xml'),
-        (u'Nacional', u'https://www.ambito.com/rss/nacional.xml')
+        ('Portada', 'https://www.ambito.com/rss/home.xml'),
+        ('Economia', 'https://www.ambito.com/rss/economia.xml'),
+        ('Finanzas', 'https://www.ambito.com/rss/finanzas.xml'),
+        ('Politica', 'https://www.ambito.com/rss/politica.xml'),
+        ('Opinion', 'https://www.ambito.com/rss/opinion.xml'),
+        ('Informacion General', 'https://www.ambito.com/rss/informacion-general.xml'),
+        ('Mundo', 'https://www.ambito.com/rss/mundo.xml'),
+        ('Deportes', 'https://www.ambito.com/rss/deportes.xml'),
+        ('Espectaculos', 'https://www.ambito.com/rss/espectaculos.xml'),
+        ('Nacional', 'https://www.ambito.com/rss/nacional.xml'),
     ]
 
     def preprocess_html(self, soup):
-        for img in soup.findAll('img', attrs={'data-td-src-property':True}):
+        for img in soup.findAll('img', attrs={'data-td-src-property': True}):
             img['src'] = img['data-td-src-property']
         return soup

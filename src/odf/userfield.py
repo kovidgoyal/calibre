@@ -20,7 +20,6 @@
 
 """Class to show and manipulate user fields in odf documents."""
 
-
 import sys
 import zipfile
 
@@ -40,7 +39,7 @@ VALUE_TYPES = {
     'time': (OFFICENS, 'time-value'),
     'boolean': (OFFICENS, 'boolean-value'),
     'string': (OFFICENS, 'string-value'),
-    }
+}
 
 
 class UserFields:
@@ -110,9 +109,11 @@ class UserFields:
             field_name = f.getAttribute('name')
 
             if field_names is None or field_name in field_names:
-                found_fields.append((field_name.encode(OUTENCODING),
-                                     value_type.encode(OUTENCODING),
-                                     value.encode(OUTENCODING)))
+                found_fields.append((
+                    field_name.encode(OUTENCODING),
+                    value_type.encode(OUTENCODING),
+                    value.encode(OUTENCODING),
+                ))
         return found_fields
 
     def list_values(self, field_names):

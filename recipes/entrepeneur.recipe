@@ -12,10 +12,10 @@ class EntrepeneurMagRecipe(BasicNewsRecipe):
     __author__ = 'Kovid Goyal'
     language = 'en'
 
-    title = u'Entrepeneur Magazine'
-    publisher = u'Entrepreneur Media, Inc'
-    category = u'Business'
-    description = u'Online magazine on business, small business, management and economy'
+    title = 'Entrepeneur Magazine'
+    publisher = 'Entrepreneur Media, Inc'
+    category = 'Business'
+    description = 'Online magazine on business, small business, management and economy'
 
     encoding = 'utf-8'
 

@@ -3,11 +3,11 @@
 """
 Fetch sueddeutsche.de
 """
+
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class Sueddeutsche(BasicNewsRecipe):
-
     title = 'Süddeutsche Zeitung'
     __author__ = 'unkn0wn'
     oldest_article = 1.2
@@ -26,7 +26,7 @@ class Sueddeutsche(BasicNewsRecipe):
         'days': {
             'short': 'Oldest article to download from this news source. In days ',
             'long': 'For example, 0.5, gives you articles from the past 12 hours',
-            'default': str(oldest_article)
+            'default': str(oldest_article),
         }
     }
 
@@ -50,34 +50,31 @@ class Sueddeutsche(BasicNewsRecipe):
                 return 'https://www.frontpages.com' + img['src']
 
     keep_only_tags = [
-        dict(attrs={'data-manual':['overline', 'title', 'date', 'headerImage', 'teaserText', 'author', 'body']}),
+        dict(attrs={'data-manual': ['overline', 'title', 'date', 'headerImage', 'teaserText', 'author', 'body']}),
     ]
-    remove_tags = [
-        dict(name=['svg', 'button', 'meta']),
-        dict(attrs={'data-manual-remove':'true'})
-    ]
+    remove_tags = [dict(name=['svg', 'button', 'meta']), dict(attrs={'data-manual-remove': 'true'})]
 
     # https://www.sueddeutsche.de/service/updates-mit-rss-uebersicht-aller-rss-feeds-fuer-sz-de-sz-magazin-und-jetzt-de-1.393950
     feeds = [
-        (u'Politik', u'http://rss.sueddeutsche.de/rss/Politik'),
-        (u'Wirtschaft', u'http://rss.sueddeutsche.de/rss/Wirtschaft'),
-        (u'Geld', u'http://rss.sueddeutsche.de/rss/Geld'),
-        (u'Kultur', u'http://rss.sueddeutsche.de/rss/Kultur'),
-        (u'Sport', u'http://rss.sueddeutsche.de/rss/Sport'),
-        (u'Leben', u'http://rss.sueddeutsche.de/rss/Leben'),
-        (u'Karriere', u'http://rss.sueddeutsche.de/rss/Karriere'),
-        (u'Bildung', u'http://rss.sueddeutsche.de/rss/Bildung'),
-        (u'Gesundheit', u'http://rss.sueddeutsche.de/rss/gesundheit'),
-        (u'Stil', u'http://rss.sueddeutsche.de/rss/stil'),
-        (u'München & Region', u'http://rss.sueddeutsche.de/rss/muenchen'),
-        (u'Bayern', u'http://rss.sueddeutsche.de/rss/Bayern'),
-        (u'Medien', u'http://rss.sueddeutsche.de/rss/Medien'),
-        (u'Digital', u'http://rss.sueddeutsche.de/rss/Digital'),
-        (u'Auto', u'http://rss.sueddeutsche.de/rss/Auto'),
-        (u'Wissen', u'http://rss.sueddeutsche.de/rss/Wissen'),
-        (u'Panorama', u'http://rss.sueddeutsche.de/rss/Panorama'),
-        (u'Reise', u'http://rss.sueddeutsche.de/rss/Reise'),
-        (u'Alles', u'https://rss.sueddeutsche.de/alles')
+        ('Politik', 'http://rss.sueddeutsche.de/rss/Politik'),
+        ('Wirtschaft', 'http://rss.sueddeutsche.de/rss/Wirtschaft'),
+        ('Geld', 'http://rss.sueddeutsche.de/rss/Geld'),
+        ('Kultur', 'http://rss.sueddeutsche.de/rss/Kultur'),
+        ('Sport', 'http://rss.sueddeutsche.de/rss/Sport'),
+        ('Leben', 'http://rss.sueddeutsche.de/rss/Leben'),
+        ('Karriere', 'http://rss.sueddeutsche.de/rss/Karriere'),
+        ('Bildung', 'http://rss.sueddeutsche.de/rss/Bildung'),
+        ('Gesundheit', 'http://rss.sueddeutsche.de/rss/gesundheit'),
+        ('Stil', 'http://rss.sueddeutsche.de/rss/stil'),
+        ('München & Region', 'http://rss.sueddeutsche.de/rss/muenchen'),
+        ('Bayern', 'http://rss.sueddeutsche.de/rss/Bayern'),
+        ('Medien', 'http://rss.sueddeutsche.de/rss/Medien'),
+        ('Digital', 'http://rss.sueddeutsche.de/rss/Digital'),
+        ('Auto', 'http://rss.sueddeutsche.de/rss/Auto'),
+        ('Wissen', 'http://rss.sueddeutsche.de/rss/Wissen'),
+        ('Panorama', 'http://rss.sueddeutsche.de/rss/Panorama'),
+        ('Reise', 'http://rss.sueddeutsche.de/rss/Reise'),
+        ('Alles', 'https://rss.sueddeutsche.de/alles'),
     ]
 
     def get_article_url(self, article):
@@ -87,13 +84,13 @@ class Sueddeutsche(BasicNewsRecipe):
             return url
 
     def preprocess_html(self, soup):
-        sub = soup.find(attrs={'data-manual':['overline', 'date']})
+        sub = soup.find(attrs={'data-manual': ['overline', 'date']})
         if sub:
             sub.name = 'div'
-        h1 = soup.find(attrs={'data-manual':'title'})
+        h1 = soup.find(attrs={'data-manual': 'title'})
         if h1:
             h1.name = 'h1'
-        for img in soup.findAll('img', attrs={'data-src':True}):
+        for img in soup.findAll('img', attrs={'data-src': True}):
             img['src'] = img['data-src']
         return soup
 

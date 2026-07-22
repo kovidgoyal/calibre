@@ -2,7 +2,7 @@ from calibre.web.feeds.news import BasicNewsRecipe, classes
 
 
 class GKT(BasicNewsRecipe):
-    title = u'General Knowledge Today'
+    title = 'General Knowledge Today'
     language = 'en_IN'
     __author__ = 'Kovid Goyal'
     oldest_article = 7  # days
@@ -41,7 +41,6 @@ class GKT(BasicNewsRecipe):
                 url = a['href']
                 ps = tuple(p_tags(h1))
                 category = find_cat(ps) or 'Unknown'
-                ans.setdefault(category, []).append({
-                    'title': title, 'url': url, 'description': self.tag_to_string(ps[0])})
+                ans.setdefault(category, []).append({'title': title, 'url': url, 'description': self.tag_to_string(ps[0])})
                 self.log('\t' + title + ' ' + url)
         return list(ans.items())

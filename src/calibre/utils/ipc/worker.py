@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
@@ -24,52 +24,24 @@ else:
     from multiprocessing.connection import Connection
 
 PARALLEL_FUNCS = {
-    'lrfviewer':
-    ('calibre.gui2.lrf_renderer.main', 'main', None),
-
-    'ebook-viewer':
-    ('calibre.gui_launch', 'ebook_viewer', None),
-
-    'ebook-edit':
-    ('calibre.gui_launch', 'gui_ebook_edit', None),
-
-    'store-dialog':
-    ('calibre.gui_launch', 'store_dialog', None),
-
-    'toc-dialog':
-    ('calibre.gui_launch', 'toc_dialog', None),
-
-    'webengine-dialog':
-    ('calibre.gui_launch', 'webengine_dialog', None),
-
-    'render_pages':
-    ('calibre.ebooks.comic.input', 'render_pages', 'notification'),
-
-    'gui_convert':
-    ('calibre.gui2.convert.gui_conversion', 'gui_convert', 'notification'),
-
-    'gui_convert_recipe':
-    ('calibre.gui2.convert.gui_conversion', 'gui_convert_recipe', 'notification'),
-
-    'gui_polish':
-    ('calibre.ebooks.oeb.polish.main', 'gui_polish', None),
-
-    'gui_convert_override':
-    ('calibre.gui2.convert.gui_conversion', 'gui_convert_override', 'notification'),
-
-    'gui_catalog':
-    ('calibre.gui2.convert.gui_conversion', 'gui_catalog', 'notification'),
-
-    'arbitrary':
-    ('calibre.utils.ipc.worker', 'arbitrary', None),
-
-    'arbitrary_n':
-    ('calibre.utils.ipc.worker', 'arbitrary_n', 'notification'),
+    'lrfviewer': ('calibre.gui2.lrf_renderer.main', 'main', None),
+    'ebook-viewer': ('calibre.gui_launch', 'ebook_viewer', None),
+    'ebook-edit': ('calibre.gui_launch', 'gui_ebook_edit', None),
+    'store-dialog': ('calibre.gui_launch', 'store_dialog', None),
+    'toc-dialog': ('calibre.gui_launch', 'toc_dialog', None),
+    'webengine-dialog': ('calibre.gui_launch', 'webengine_dialog', None),
+    'render_pages': ('calibre.ebooks.comic.input', 'render_pages', 'notification'),
+    'gui_convert': ('calibre.gui2.convert.gui_conversion', 'gui_convert', 'notification'),
+    'gui_convert_recipe': ('calibre.gui2.convert.gui_conversion', 'gui_convert_recipe', 'notification'),
+    'gui_polish': ('calibre.ebooks.oeb.polish.main', 'gui_polish', None),
+    'gui_convert_override': ('calibre.gui2.convert.gui_conversion', 'gui_convert_override', 'notification'),
+    'gui_catalog': ('calibre.gui2.convert.gui_conversion', 'gui_catalog', 'notification'),
+    'arbitrary': ('calibre.utils.ipc.worker', 'arbitrary', None),
+    'arbitrary_n': ('calibre.utils.ipc.worker', 'arbitrary_n', 'notification'),
 }
 
 
 class Progress(Thread):
-
     def __init__(self, conn):
         Thread.__init__(self)
         self.daemon = True
@@ -124,14 +96,14 @@ def arbitrary(module_name, func_name, args, kwargs={}):
     if module_name.startswith('calibre_plugins'):
         # Initialize the plugin loader by doing this dummy import
         from calibre.customize.ui import find_plugin
+
         find_plugin
     module = importlib.import_module(module_name)
     func = getattr(module, func_name)
     return func(*args, **kwargs)
 
 
-def arbitrary_n(module_name, func_name, args, kwargs={},
-        notification=lambda x, y: y):
+def arbitrary_n(module_name, func_name, args, kwargs={}, notification=lambda x, y: y):
     '''
     Same as :func:`arbitrary` above, except that func_name must support a
     keyword argument "notification". This will be a function that accepts two
@@ -143,6 +115,7 @@ def arbitrary_n(module_name, func_name, args, kwargs={},
     if module_name.startswith('calibre_plugins'):
         # Initialize the plugin loader by doing this dummy import
         from calibre.customize.ui import find_plugin
+
         find_plugin
     module = importlib.import_module(module_name)
     func = getattr(module, func_name)
@@ -158,6 +131,7 @@ def get_func(name):
         # Something windows weird happened, try clearing the zip import cache
         # in case the zipfile was changed from under us
         from zipimport import _zip_directory_cache as zdc  # type: ignore
+
         zdc.clear()
         module = importlib.import_module(module_name)
     func = getattr(module, func)
@@ -167,8 +141,8 @@ def get_func(name):
 def main():
     if '__multiprocessing__' in sys.argv:
         idx = sys.argv.index('__multiprocessing__')
-        payload = sys.argv[idx+1]
-        sys.argv = [sys.argv[0], '--multiprocessing-fork'] + sys.argv[idx + 2:]
+        payload = sys.argv[idx + 1]
+        sys.argv = [sys.argv[0], '--multiprocessing-fork'] + sys.argv[idx + 2 :]
         exec(payload)
         return 0
     if ismacos and 'CALIBRE_WORKER_FD' not in os.environ and 'CALIBRE_SIMPLE_WORKER' not in os.environ and '--pipe-worker' not in sys.argv:
@@ -176,6 +150,7 @@ def main():
         # launch the last run process from the bundle
         # so launch the gui as usual
         from calibre.gui2.main import main as gui_main
+
         return gui_main(['calibre'])
     niceness = os.environ.pop('CALIBRE_WORKER_NICENESS', None)
     if niceness:

@@ -23,16 +23,18 @@ class BaseDirChanged(ValueError):
 
 
 class DirTooLarge(ValueError):
-
     def __init__(self, bdir):
-        ValueError.__init__(self, f'The directory {bdir} is too large to monitor. Try increasing the value in /proc/sys/fs/inotify/max_user_watches')
+        ValueError.__init__(
+            self,
+            f'The directory {bdir} is too large to monitor. Try increasing the value in /proc/sys/fs/inotify/max_user_watches',
+        )
 
 
 _inotify = None
 
 
 def load_inotify():  # {{{
-    """ Initialize the inotify ctypes wrapper """
+    """Initialize the inotify ctypes wrapper"""
     global _inotify
     if _inotify is None:
         if hasattr(sys, 'getwindowsversion'):
@@ -44,6 +46,7 @@ def load_inotify():  # {{{
         if sys.platform == 'darwin':
             raise INotifyError('INotify not available on OS X')
         import ctypes
+
         if not hasattr(ctypes, 'c_ssize_t'):
             raise INotifyError('You need python >= 2.7 to use inotify')
         libc = ctypes.CDLL(None, use_errno=True)
@@ -56,62 +59,81 @@ def load_inotify():  # {{{
 
         # inotify_add_watch()
         prototype = ctypes.CFUNCTYPE(ctypes.c_int, ctypes.c_int, ctypes.c_char_p, ctypes.c_uint32, use_errno=True)
-        add_watch = prototype(('inotify_add_watch', libc), (  # type: ignore
-            (1, 'fd'), (1, 'pathname'), (1, 'mask')), use_errno=True)
+        add_watch = prototype(
+            ('inotify_add_watch', libc),
+            (  # type: ignore
+                (1, 'fd'),
+                (1, 'pathname'),
+                (1, 'mask'),
+            ),
+            use_errno=True,
+        )
 
         # inotify_rm_watch()
         prototype = ctypes.CFUNCTYPE(ctypes.c_int, ctypes.c_int, ctypes.c_int, use_errno=True)
-        rm_watch = prototype(('inotify_rm_watch', libc), (  # type: ignore
-            (1, 'fd'), (1, 'wd')), use_errno=True)
+        rm_watch = prototype(
+            ('inotify_rm_watch', libc),
+            (  # type: ignore
+                (1, 'fd'),
+                (1, 'wd'),
+            ),
+            use_errno=True,
+        )
 
         # read()
         prototype = ctypes.CFUNCTYPE(ctypes.c_ssize_t, ctypes.c_int, ctypes.c_void_p, ctypes.c_size_t, use_errno=True)
-        read = prototype(('read', libc), (  # type: ignore
-            (1, 'fd'), (1, 'buf'), (1, 'count')), use_errno=True)
+        read = prototype(
+            ('read', libc),
+            (  # type: ignore
+                (1, 'fd'),
+                (1, 'buf'),
+                (1, 'count'),
+            ),
+            use_errno=True,
+        )
         _inotify = (init1, add_watch, rm_watch, read)
     return _inotify
+
+
 # }}}
 
 
 class INotify:
-
     # See <sys/inotify.h> for the flags defined below
 
     # Supported events suitable for MASK parameter of INOTIFY_ADD_WATCH.
-    ACCESS = 0x00000001         # File was accessed.
-    MODIFY = 0x00000002         # File was modified.
-    ATTRIB = 0x00000004         # Metadata changed.
-    CLOSE_WRITE = 0x00000008    # Writtable file was closed.
+    ACCESS = 0x00000001  # File was accessed.
+    MODIFY = 0x00000002  # File was modified.
+    ATTRIB = 0x00000004  # Metadata changed.
+    CLOSE_WRITE = 0x00000008  # Writtable file was closed.
     CLOSE_NOWRITE = 0x00000010  # Unwrittable file closed.
-    OPEN = 0x00000020           # File was opened.
-    MOVED_FROM = 0x00000040     # File was moved from X.
-    MOVED_TO = 0x00000080       # File was moved to Y.
-    CREATE = 0x00000100         # Subfile was created.
-    DELETE = 0x00000200         # Subfile was deleted.
-    DELETE_SELF = 0x00000400    # Self was deleted.
-    MOVE_SELF = 0x00000800      # Self was moved.
+    OPEN = 0x00000020  # File was opened.
+    MOVED_FROM = 0x00000040  # File was moved from X.
+    MOVED_TO = 0x00000080  # File was moved to Y.
+    CREATE = 0x00000100  # Subfile was created.
+    DELETE = 0x00000200  # Subfile was deleted.
+    DELETE_SELF = 0x00000400  # Self was deleted.
+    MOVE_SELF = 0x00000800  # Self was moved.
 
     # Events sent by the kernel.
-    UNMOUNT = 0x00002000     # Backing fs was unmounted.
+    UNMOUNT = 0x00002000  # Backing fs was unmounted.
     Q_OVERFLOW = 0x00004000  # Event queued overflowed.
-    IGNORED = 0x00008000     # File was ignored.
+    IGNORED = 0x00008000  # File was ignored.
 
     # Helper events.
-    CLOSE = (CLOSE_WRITE | CLOSE_NOWRITE)  # Close.
-    MOVE = (MOVED_FROM | MOVED_TO)         # Moves.
+    CLOSE = CLOSE_WRITE | CLOSE_NOWRITE  # Close.
+    MOVE = MOVED_FROM | MOVED_TO  # Moves.
 
     # Special flags.
-    ONLYDIR = 0x01000000      # Only watch the path if it is a directory.
+    ONLYDIR = 0x01000000  # Only watch the path if it is a directory.
     DONT_FOLLOW = 0x02000000  # Do not follow a sym link.
     EXCL_UNLINK = 0x04000000  # Exclude events on unlinked objects.
-    MASK_ADD = 0x20000000     # Add to the mask of an already existing watch.
-    ISDIR = 0x40000000        # Event occurred against dir.
-    ONESHOT = 0x80000000      # Only send event once.
+    MASK_ADD = 0x20000000  # Add to the mask of an already existing watch.
+    ISDIR = 0x40000000  # Event occurred against dir.
+    ONESHOT = 0x80000000  # Only send event once.
 
     # All events which a program can wait on.
-    ALL_EVENTS = (ACCESS | MODIFY | ATTRIB | CLOSE_WRITE | CLOSE_NOWRITE |
-                    OPEN | MOVED_FROM | MOVED_TO | CREATE | DELETE |
-                    DELETE_SELF | MOVE_SELF)
+    ALL_EVENTS = ACCESS | MODIFY | ATTRIB | CLOSE_WRITE | CLOSE_NOWRITE | OPEN | MOVED_FROM | MOVED_TO | CREATE | DELETE | DELETE_SELF | MOVE_SELF
 
     # See <bits/inotify.h>
     CLOEXEC = 0x80000
@@ -120,6 +142,7 @@ class INotify:
     def __init__(self, cloexec=True, nonblock=True):
         import ctypes
         import struct
+
         self._init1, self._add_watch, self._rm_watch, self._read = load_inotify()
         flags = 0
         if cloexec:
@@ -142,6 +165,7 @@ class INotify:
 
     def handle_error(self):
         import ctypes
+
         eno = ctypes.get_errno()
         extra = ''
         if eno == errno.ENOSPC:
@@ -154,7 +178,7 @@ class INotify:
         # daemon threads that are trying to call other methods on this object.
         try:
             self.os.close(self._inotify_fd)
-        except (AttributeError, TypeError):
+        except AttributeError, TypeError:
             pass
 
     def close(self):
@@ -173,6 +197,7 @@ class INotify:
 
     def read(self, get_name=True):
         import ctypes
+
         buf = []
         while True:
             num = self._read(self._inotify_fd, self._buf, len(self._buf))
@@ -194,7 +219,7 @@ class INotify:
             pos += self.hdr.size
             name = None
             if get_name:
-                name = raw[pos:pos+name_len].rstrip(b'\0').decode(self.fenc)
+                name = raw[pos : pos + name_len].rstrip(b'\0').decode(self.fenc)
             pos += name_len
             self.process_event(wd, mask, cookie, name)
 
@@ -211,7 +236,6 @@ def realpath(path):
 
 
 class INotifyTreeWatcher(INotify):
-
     is_dummy = False
 
     def __init__(self, basedir, ignore_event=None):
@@ -231,8 +255,8 @@ class INotifyTreeWatcher(INotify):
                 raise DirTooLarge(self.basedir)
 
     def add_watches(self, base, top_level=True):
-        """ Add watches for this directory and all its descendant directories,
-        recursively. """
+        """Add watches for this directory and all its descendant directories,
+        recursively."""
         base = realpath(base)
         # There may exist a link which leads to an endless
         # add_watches loop or to maximum recursion depth exceeded
@@ -274,14 +298,23 @@ class INotifyTreeWatcher(INotify):
 
     def add_watch(self, path):
         import ctypes
-        bpath = path if isinstance(path, bytes) else path.encode(self.fenc)
-        wd = self._add_watch(self._inotify_fd, ctypes.c_char_p(bpath),
-                # Ignore symlinks and watch only directories
-                self.DONT_FOLLOW | self.ONLYDIR |
 
-                self.MODIFY | self.CREATE | self.DELETE |
-                self.MOVE_SELF | self.MOVED_FROM | self.MOVED_TO |
-                self.ATTRIB | self.DELETE_SELF)
+        bpath = path if isinstance(path, bytes) else path.encode(self.fenc)
+        wd = self._add_watch(
+            self._inotify_fd,
+            ctypes.c_char_p(bpath),
+            # Ignore symlinks and watch only directories
+            self.DONT_FOLLOW
+            | self.ONLYDIR
+            | self.MODIFY
+            | self.CREATE
+            | self.DELETE
+            | self.MOVE_SELF
+            | self.MOVED_FROM
+            | self.MOVED_TO
+            | self.ATTRIB
+            | self.DELETE_SELF,
+        )
         if wd == -1:
             eno = ctypes.get_errno()
             if eno == errno.ENOTDIR:

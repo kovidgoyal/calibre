@@ -16,10 +16,7 @@ class herald(BasicNewsRecipe):
     ignore_duplicate_articles = {'url', 'title'}
     encoding = 'utf-8'
 
-    keep_only_tags = [
-        classes('article-title article-author__name'),
-        dict(name='div', attrs={'id':'main-content'})
-    ]
+    keep_only_tags = [classes('article-title article-author__name'), dict(name='div', attrs={'id': 'main-content'})]
 
     remove_tags = [
         classes(
@@ -31,9 +28,7 @@ class herald(BasicNewsRecipe):
 
     def parse_index(self):
         index = 'https://www.deccanherald.com/'
-        sections = [
-            'india', 'world', 'elections', 'opinion', 'specials', 'business', 'sports'
-        ]
+        sections = ['india', 'world', 'elections', 'opinion', 'specials', 'business', 'sports']
         feeds = []
 
         for sec in sections:
@@ -41,7 +36,7 @@ class herald(BasicNewsRecipe):
             section = sec.capitalize()
             self.log(section)
             articles = []
-            for a in soup.findAll('a', attrs={'href':lambda x: x and x.startswith('/' + sec + '/')}):
+            for a in soup.findAll('a', attrs={'href': lambda x: x and x.startswith('/' + sec + '/')}):
                 url = absurl(a['href'].split('?')[0])
                 if url in {index + sec + '/', index + sec}:
                     continue

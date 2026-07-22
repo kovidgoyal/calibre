@@ -23,10 +23,12 @@ class OldRtf:
     in brackets the file will be considered old rtf
     """
 
-    def __init__(self, in_file,
-                bug_handler,
-                run_level,
-                ):
+    def __init__(
+        self,
+        in_file,
+        bug_handler,
+        run_level,
+    ):
         """
         Required:
             'file'--file to parse
@@ -69,9 +71,9 @@ class OldRtf:
             'underlined',
         ]
         self.__action_dict = {
-            'before_body'   : self.__before_body_func,
-            'in_body'       : self.__check_tokens_func,
-            'after_pard'    : self.__after_pard_func,
+            'before_body': self.__before_body_func,
+            'in_body': self.__check_tokens_func,
+            'after_pard': self.__after_pard_func,
         }
 
     def __initiate_values(self):
@@ -136,9 +138,7 @@ class OldRtf:
                     return False
                 elif result == 'old_rtf':
                     if self.__run_level > 3:
-                        sys.stderr.write(
-                            f'Old rtf construction {self.__inline_info} (bracket {self.__ob_group!s}, line {line_num})\n'
-                        )
+                        sys.stderr.write(f'Old rtf construction {self.__inline_info} (bracket {self.__ob_group!s}, line {line_num})\n')
                     return True
                 self.__previous_token = line[6:16]
         return False

@@ -4,51 +4,49 @@ from calibre.web.feeds.recipes import BasicNewsRecipe
 
 
 class plRecipe(BasicNewsRecipe):
-    __author__  = 'bubak'
-    title = u'Parlamentn\u00ed Listy'
-    publisher = u''
+    __author__ = 'bubak'
+    title = 'Parlamentn\u00ed Listy'
+    publisher = ''
     description = ''
     oldest_article = 1
     max_articles_per_feed = 40
 
-    feeds = [
-            (u'Parlamentní listy.cz', u'http://www.parlamentnilisty.cz/export/rss.aspx')
-            ]
+    feeds = [('Parlamentní listy.cz', 'http://www.parlamentnilisty.cz/export/rss.aspx')]
 
     language = 'cs'
     remove_javascript = True
     no_stylesheets = True
     use_embedded_content = False
     remove_attributes = []
-    remove_tags_after  = [
-                        dict(name='div', attrs={'class':re.compile(r'donate-banner|related-articles-wrap', re.IGNORECASE)})
-                        ]
-    remove_tags = [dict(name='div', attrs={'class':['articledetailboxin','crumbs', 'relatedarticles articledetailbox']}),
-              dict(name='div', attrs={'class':['socialshare-1 noprint', 'socialshare-2 noprint', 'advert-caption']}),
-              dict(name='div', attrs={'class':['breadcrumbs', 'marquee', 'navbar', 'header-tags']}),
-              dict(name='div', attrs={'class':['search-mobile', 'related-articles']}),
-              dict(name='ul', attrs={'class':['nav navbar-nav']}),
-              dict(name='ul', attrs={'role':['navigation']}),
-              dict(name='div', attrs={'id':['widget', 'carousel-marquee', 'search-form-radios', 'search-form-profiles']}),
-              dict(name='img'),
-              dict(name='section', attrs={'class':'section-brown section-inarticle related-articles'}),
-              dict(name='section', attrs={'class':'section-blue section-inarticle profile-thumb-card'}),
-              dict(name='section', attrs={'class':'related-articles-wrap'}),
-              dict(name='section', attrs={'class':'section-brown section-inarticle poll'}),  # does not work
-              dict(name='div', attrs={'class':'article-discussion-box noprint'}),
-              dict(name='div', attrs={'class':re.compile(r'login-buttons', re.IGNORECASE)}),
-              dict(name='section', attrs={'class':re.compile(r'poll', re.IGNORECASE)}),
-              dict(name='div', attrs={'class':re.compile(r'social-media-buttons', re.IGNORECASE)}),
-              dict(name='div', attrs={'class':re.compile(r'alert', re.IGNORECASE)}),
-              dict(name='section', attrs={'class':re.compile(r'section-inarticle', re.IGNORECASE)}),
-              dict(attrs={'class':re.compile(r'twitter-tweet', re.IGNORECASE)}),
-              dict(name='figure')
-          ]
+    remove_tags_after = [dict(name='div', attrs={'class': re.compile(r'donate-banner|related-articles-wrap', re.IGNORECASE)})]
+    remove_tags = [
+        dict(name='div', attrs={'class': ['articledetailboxin', 'crumbs', 'relatedarticles articledetailbox']}),
+        dict(name='div', attrs={'class': ['socialshare-1 noprint', 'socialshare-2 noprint', 'advert-caption']}),
+        dict(name='div', attrs={'class': ['breadcrumbs', 'marquee', 'navbar', 'header-tags']}),
+        dict(name='div', attrs={'class': ['search-mobile', 'related-articles']}),
+        dict(name='ul', attrs={'class': ['nav navbar-nav']}),
+        dict(name='ul', attrs={'role': ['navigation']}),
+        dict(name='div', attrs={'id': ['widget', 'carousel-marquee', 'search-form-radios', 'search-form-profiles']}),
+        dict(name='img'),
+        dict(name='section', attrs={'class': 'section-brown section-inarticle related-articles'}),
+        dict(name='section', attrs={'class': 'section-blue section-inarticle profile-thumb-card'}),
+        dict(name='section', attrs={'class': 'related-articles-wrap'}),
+        dict(name='section', attrs={'class': 'section-brown section-inarticle poll'}),  # does not work
+        dict(name='div', attrs={'class': 'article-discussion-box noprint'}),
+        dict(name='div', attrs={'class': re.compile(r'login-buttons', re.IGNORECASE)}),
+        dict(name='section', attrs={'class': re.compile(r'poll', re.IGNORECASE)}),
+        dict(name='div', attrs={'class': re.compile(r'social-media-buttons', re.IGNORECASE)}),
+        dict(name='div', attrs={'class': re.compile(r'alert', re.IGNORECASE)}),
+        dict(name='section', attrs={'class': re.compile(r'section-inarticle', re.IGNORECASE)}),
+        dict(attrs={'class': re.compile(r'twitter-tweet', re.IGNORECASE)}),
+        dict(name='figure'),
+    ]
 
-    preprocess_regexps = [(re.compile(r'<(span|strong|p)[^>]*>\s*Ptejte se politik.*', re.DOTALL|re.IGNORECASE), lambda match: '</body>'),
-                        (re.compile(r'<a\s[^>]*>(<[^>]*>)*([^<]*)(<[^>]*>)*</a>', re.DOTALL|re.IGNORECASE), lambda match: match.group(2)),
-                        (re.compile(r'<(span|strong|p)[^>]*>\s*Jste politik?.*', re.DOTALL|re.IGNORECASE), lambda match: '</body>')
-                        ]
+    preprocess_regexps = [
+        (re.compile(r'<(span|strong|p)[^>]*>\s*Ptejte se politik.*', re.DOTALL | re.IGNORECASE), lambda match: '</body>'),
+        (re.compile(r'<a\s[^>]*>(<[^>]*>)*([^<]*)(<[^>]*>)*</a>', re.DOTALL | re.IGNORECASE), lambda match: match.group(2)),
+        (re.compile(r'<(span|strong|p)[^>]*>\s*Jste politik?.*', re.DOTALL | re.IGNORECASE), lambda match: '</body>'),
+    ]
 
     def get_browser(self, *a, **kw):
         kw['verify_ssl_certificates'] = False

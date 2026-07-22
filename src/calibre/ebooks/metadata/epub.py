@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 '''Read meta information from epub files'''
@@ -37,7 +37,6 @@ class ContainerException(OCFException):
 
 
 class Container(dict):
-
     def __init__(self, stream=None, file_exists=None):
         if not stream:
             return
@@ -61,8 +60,8 @@ class Container(dict):
 
 
 class OCF:
-    MIMETYPE        = 'application/epub+zip'
-    CONTAINER_PATH  = 'META-INF/container.xml'
+    MIMETYPE = 'application/epub+zip'
+    CONTAINER_PATH = 'META-INF/container.xml'
     ENCRYPTION_PATH = 'META-INF/encryption.xml'
 
     def __init__(self):
@@ -70,9 +69,7 @@ class OCF:
 
 
 class Encryption:
-
-    OBFUSCATION_ALGORITHMS = frozenset(['http://ns.adobe.com/pdf/enc#RC',
-            'http://www.idpf.org/2008/embedding'])
+    OBFUSCATION_ALGORITHMS = frozenset(['http://ns.adobe.com/pdf/enc#RC', 'http://www.idpf.org/2008/embedding'])
 
     def __init__(self, raw):
         self.root = safe_xml_fromstring(raw) if raw else None
@@ -146,7 +143,6 @@ class OCFReader(OCF):
 
 
 class OCFZipReader(OCFReader):
-
     def __init__(self, stream, mode='r', root=None):
         if isinstance(stream, (LocalZipFile, ZipFile)):
             self.archive = stream
@@ -191,7 +187,6 @@ def get_zip_reader(stream, root=None):
 
 
 class OCFDirReader(OCFReader):
-
     def __init__(self, path):
         self.root = path
         super().__init__()
@@ -265,7 +260,7 @@ def get_cover(raster_cover, first_spine_item, reader):
 
 
 def get_metadata(stream, extract_cover=True, ftype='epub'):
-    """ Return metadata as a :class:`Metadata` object """
+    """Return metadata as a :class:`Metadata` object"""
     stream.seek(0)
     reader = get_zip_reader(stream)
     opfbytes = reader.read_bytes(reader.opf_path)
@@ -282,6 +277,7 @@ def get_metadata(stream, extract_cover=True, ftype='epub'):
                 mi.cover_data = ('jpg', cdata)
         except Exception:
             import traceback
+
             traceback.print_exc()
     mi.timestamp = None
     return mi
@@ -293,6 +289,7 @@ def get_quick_metadata(stream, ftype='epub'):
 
 def serialize_cover_data(new_cdata, cpath):
     from calibre.utils.img import save_cover_data_to
+
     return save_cover_data_to(new_cdata, data_fmt=os.path.splitext(cpath)[1][1:])
 
 
@@ -312,29 +309,33 @@ def set_metadata(stream, mi, apply_null=False, update_timestamp=False, force_ide
             pass
 
     opfbytes, ver, raster_cover = set_metadata_opf(
-        reader.read_bytes(reader.opf_path), mi, cover_prefix=posixpath.dirname(reader.opf_path),
-        cover_data=new_cdata, apply_null=apply_null, update_timestamp=update_timestamp,
-        force_identifiers=force_identifiers, add_missing_cover=add_missing_cover, ftype=ftype)
+        reader.read_bytes(reader.opf_path),
+        mi,
+        cover_prefix=posixpath.dirname(reader.opf_path),
+        cover_data=new_cdata,
+        apply_null=apply_null,
+        update_timestamp=update_timestamp,
+        force_identifiers=force_identifiers,
+        add_missing_cover=add_missing_cover,
+        ftype=ftype,
+    )
     cpath = None
     replacements = {}
     if new_cdata and raster_cover:
         try:
-            cpath = posixpath.join(posixpath.dirname(reader.opf_path),
-                    raster_cover)
-            cover_replacable = not reader.encryption_meta.is_encrypted(cpath) and \
-                    os.path.splitext(cpath)[1].lower() in ('.png', '.jpg', '.jpeg')
+            cpath = posixpath.join(posixpath.dirname(reader.opf_path), raster_cover)
+            cover_replacable = not reader.encryption_meta.is_encrypted(cpath) and os.path.splitext(cpath)[1].lower() in ('.png', '.jpg', '.jpeg')
             if cover_replacable:
                 replacements[cpath] = serialize_cover_data(new_cdata, cpath)
         except Exception:
             import traceback
+
             traceback.print_exc()
 
     if isinstance(reader.archive, LocalZipFile):
-        reader.archive.safe_replace(reader.container[OPF.MIMETYPE], opfbytes,
-            extra_replacements=replacements, add_missing=True)
+        reader.archive.safe_replace(reader.container[OPF.MIMETYPE], opfbytes, extra_replacements=replacements, add_missing=True)
     else:
-        safe_replace(stream, reader.container[OPF.MIMETYPE], opfbytes,
-            extra_replacements=replacements, add_missing=True)
+        safe_replace(stream, reader.container[OPF.MIMETYPE], opfbytes, extra_replacements=replacements, add_missing=True)
     try:
         if cpath is not None:
             replacements[cpath].close()

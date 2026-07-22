@@ -11,7 +11,6 @@ from calibre.devices.kindle.apnx_page_generator.pages import Pages
 
 
 class AccuratePageGenerator(IPageGenerator):
-
     instance: ClassVar[AccuratePageGenerator]
 
     def name(self) -> str:

@@ -5,7 +5,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class AlbertMohlersBlog(BasicNewsRecipe):
-    title = u"Albert Mohler's Blog"
+    title = "Albert Mohler's Blog"
     __author__ = 'Peter Grungi'
     language = 'en'
     oldest_article = 90
@@ -15,5 +15,4 @@ class AlbertMohlersBlog(BasicNewsRecipe):
     publisher = 'Albert Mohler'
     author = 'Albert Mohler'
 
-    feeds = [(u"Albert Mohler's Blog",
-              u'http://feeds.feedburner.com/AlbertMohlersBlog?format=xml')]
+    feeds = [("Albert Mohler's Blog", 'http://feeds.feedburner.com/AlbertMohlersBlog?format=xml')]

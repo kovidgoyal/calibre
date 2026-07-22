@@ -2,7 +2,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class ElFaroDeVigo(BasicNewsRecipe):
-    title = u'El Faro de Vigo'
+    title = 'El Faro de Vigo'
     oldest_article = 1
     max_articles_per_feed = 100
     __author__ = 'Jefferson Frantz'
@@ -14,19 +14,20 @@ class ElFaroDeVigo(BasicNewsRecipe):
     remove_javascript = True
 
     feeds = [
-        (u'Galicia', u'http://www.farodevigo.es/elementosInt/rss/4'),
-        (u'España', u'http://www.farodevigo.es/elementosInt/rss/6'),
-        (u'Mundo', u'http://www.farodevigo.es/elementosInt/rss/7'),
-        (u'Economía', u'http://www.farodevigo.es/elementosInt/rss/10'),
-        (u'Sociedad y Cultura', u'http://www.farodevigo.es/elementosInt/rss/8'),
-        (u'Sucesos', u'http://www.farodevigo.es/elementosInt/rss/9'),
-        (u'Deportes', u'http://www.farodevigo.es/elementosInt/rss/11'),
-        (u'Agenda', u'http://www.farodevigo.es/elementosInt/rss/21'),
-        (u'Gente', u'http://www.farodevigo.es/elementosInt/rss/24'),
-        (u'Televisión', u'http://www.farodevigo.es/elementosInt/rss/25'),
-        (u'Ciencia y Tecnología', u'http://www.farodevigo.es/elementosInt/rss/26')]
+        ('Galicia', 'http://www.farodevigo.es/elementosInt/rss/4'),
+        ('España', 'http://www.farodevigo.es/elementosInt/rss/6'),
+        ('Mundo', 'http://www.farodevigo.es/elementosInt/rss/7'),
+        ('Economía', 'http://www.farodevigo.es/elementosInt/rss/10'),
+        ('Sociedad y Cultura', 'http://www.farodevigo.es/elementosInt/rss/8'),
+        ('Sucesos', 'http://www.farodevigo.es/elementosInt/rss/9'),
+        ('Deportes', 'http://www.farodevigo.es/elementosInt/rss/11'),
+        ('Agenda', 'http://www.farodevigo.es/elementosInt/rss/21'),
+        ('Gente', 'http://www.farodevigo.es/elementosInt/rss/24'),
+        ('Televisión', 'http://www.farodevigo.es/elementosInt/rss/25'),
+        ('Ciencia y Tecnología', 'http://www.farodevigo.es/elementosInt/rss/26'),
+    ]
 
-    extra_css              = '''.noticia_texto{ font-family: sans-serif; font-size: medium; text-align: justify }
+    extra_css = '''.noticia_texto{ font-family: sans-serif; font-size: medium; text-align: justify }
                                 h1{font-family: serif; font-size: x-large; font-weight: bold; color: #000000; text-align: center}
                                 h2{font-family: serif; font-size: medium; font-weight: bold; color: #000000; text-align: left}
                                 .enlacenegrita10{font-family: serif; font-size: small; font-weight: bold; color: #000000; text-align: left}
@@ -64,7 +65,7 @@ class ElFaroDeVigo(BasicNewsRecipe):
     keep_only_tags = [dict(name='div', attrs={'class': ['noticias']})]
 
     remove_tags = [
-        dict(name=['object', 'link', 'script', 'ul', 'iframe', 'ol']), dict(name='div', attrs={'class': [
-            'noticiadd2', 'cintillo2', 'noticiadd', 'noticiadd2']}), dict(name='div', attrs={'class': ['imagen_derecha', 'noticiadd3', 'extraHTML']})
-
+        dict(name=['object', 'link', 'script', 'ul', 'iframe', 'ol']),
+        dict(name='div', attrs={'class': ['noticiadd2', 'cintillo2', 'noticiadd', 'noticiadd2']}),
+        dict(name='div', attrs={'class': ['imagen_derecha', 'noticiadd3', 'extraHTML']}),
     ]

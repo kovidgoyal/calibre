@@ -18,10 +18,9 @@ from calibre.utils.xml_parse import safe_html_fromstring
 
 
 class CacheUpdateThread(Thread, QObject):
-
     total_changed = pyqtSignal(int)
     update_progress = pyqtSignal(int)
-    update_details = pyqtSignal(type(u''))
+    update_details = pyqtSignal(type(''))
 
     def __init__(self, config, seralize_books_function, timeout):
         Thread.__init__(self)
@@ -67,9 +66,7 @@ class CacheUpdateThread(Thread, QObject):
             self.total_changed.emit(len(raw_books))
 
             for i, book_data in enumerate(raw_books):
-                self.update_details.emit(
-                        _('%(num)s of %(tot)s books processed.') % dict(
-                            num=i, tot=len(raw_books)))
+                self.update_details.emit(_('%(num)s of %(tot)s books processed.') % dict(num=i, tot=len(raw_books)))
                 book = SearchResult()
                 book.detail_item = ''.join(book_data.xpath('.//a/@href'))
                 book.formats = ''.join(book_data.xpath('.//i/text()'))

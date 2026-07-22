@@ -28,7 +28,7 @@ class ZeroDeuxRecipe(BasicNewsRecipe):
         ('Interviews', 'https://www.zerodeux.fr/category/interviews/feed/'),
         ('Reviews', 'https://www.zerodeux.fr/category/reviews/feed/'),
         ('News', 'https://www.zerodeux.fr/category/news/feed/'),
-        ('Special Web', 'https://www.zerodeux.fr/category/specialweb/feed/')
+        ('Special Web', 'https://www.zerodeux.fr/category/specialweb/feed/'),
     ]
 
     def get_cover_url(self):
@@ -40,16 +40,14 @@ class ZeroDeuxRecipe(BasicNewsRecipe):
                 return cover_img['src']
         return None
 
-    keep_only_tags = [
-        dict(name='article', attrs={'id': 'single-post'})
-    ]
+    keep_only_tags = [dict(name='article', attrs={'id': 'single-post'})]
 
     remove_tags = [
         dict(name='div', attrs={'class': ['single-associate', 'single-info', 'transition']}),
         dict(name='div', attrs={'id': ['sidebar', 'menu_footer']}),
         dict(name='ul', attrs={'class': ['single-info']}),  # Supprime le bloc "Partage"
         dict(name='li', text='Du même auteur :'),  # Supprime le titre "Du même auteur"
-        dict(name='p', attrs={'class': ['recomand']})  # Supprime "articles liés"
+        dict(name='p', attrs={'class': ['recomand']}),  # Supprime "articles liés"
     ]
 
     def preprocess_html(self, soup):

@@ -54,11 +54,13 @@ class Table:
     'not_in_table'. Look for either a 'cw<tb<in-table__', or a row definition.
     """
 
-    def __init__(self,
-            in_file,
-            bug_handler,
-            copy=None,
-            run_level=1,):
+    def __init__(
+        self,
+        in_file,
+        bug_handler,
+        copy=None,
+        run_level=1,
+    ):
         """
         Required:
             'file'--file to parse
@@ -80,28 +82,28 @@ class Table:
         Initiate all values.
         """
         self.__state_dict = {
-        'in_table'      : self.__in_table_func,
-        'in_row_def'    : self.__in_row_def_func,
-        'not_in_table'  : self.__not_in_table_func,
-        'in_cell'       : self.__in_cell_func,
-        'in_row'        : self.__in_row_func,
+            'in_table': self.__in_table_func,
+            'in_row_def': self.__in_row_def_func,
+            'not_in_table': self.__not_in_table_func,
+            'in_cell': self.__in_cell_func,
+            'in_row': self.__in_row_func,
         }
         self.__not_in_table_dict = {
-        'cw<tb<row-def___'  : self.__found_row_def_func,
-        'cw<tb<in-table__'  : self.__start_table_func,
-        'mi<mk<in-table__'  : self.__start_table_func,
+            'cw<tb<row-def___': self.__found_row_def_func,
+            'cw<tb<in-table__': self.__start_table_func,
+            'mi<mk<in-table__': self.__start_table_func,
         }
         # can't use this dictionary. When in row_definition, many tokens
         # require multiple definitions
         self.__in_row_definition_dict = {
-        'mi<mk<not-in-tbl'  : self.__end_row_table_func,
-        'mi<mk<pard-start'  : self.__end_row_def_func,
+            'mi<mk<not-in-tbl': self.__end_row_table_func,
+            'mi<mk<pard-start': self.__end_row_def_func,
         }
         self.__in_row_dict = {
-        'mi<mk<not-in-tbl'  : self.__close_table,
-        'mi<mk<pard-start'  : self.__start_cell_func,
-        'cw<tb<row_______'  : self.__end_row_func,
-        'cw<tb<cell______'  : self.__empty_cell,
+            'mi<mk<not-in-tbl': self.__close_table,
+            'mi<mk<pard-start': self.__start_cell_func,
+            'cw<tb<row_______': self.__end_row_func,
+            'cw<tb<cell______': self.__empty_cell,
         }
         # set the default state
         self.__state = ['not_in_table']
@@ -292,20 +294,20 @@ class Table:
 
     def __handle_row_token(self, line):
         """
-        Requires:
-            line -- line to parse
-        Returns:
-            ?
-        Logic:
-            the tokens in the row definition contain the following information:
-               1. row borders.
-               2. cell borders for all cells in the row.
-               3. cell positions for all cells in the row.
-            Put all information about row borders into a row dictionary.
-            Put all information about cell borders into into the dictionary in
-            the last item in the cell list. ([{border:something, width:something},
-                    {border:something, width:something}])
-    cw<bd<bor-t-r-to<nu<bdr-hair__|bdr-li-wid:0.50
+            Requires:
+                line -- line to parse
+            Returns:
+                ?
+            Logic:
+                the tokens in the row definition contain the following information:
+                   1. row borders.
+                   2. cell borders for all cells in the row.
+                   3. cell positions for all cells in the row.
+                Put all information about row borders into a row dictionary.
+                Put all information about cell borders into into the dictionary in
+                the last item in the cell list. ([{border:something, width:something},
+                        {border:something, width:something}])
+        cw<bd<bor-t-r-to<nu<bdr-hair__|bdr-li-wid:0.50
         """
         if line[3:5] == 'bd':
             border_obj = border_parse.BorderParse()
@@ -484,8 +486,7 @@ class Table:
         #     self.__write_obj.write(line)
 
     def __end_row_func(self, line):
-        """
-        """
+        """ """
         if len(self.__state) > 1 and self.__state[-1] == 'in_row':
             self.__state.pop()
             self.__write_obj.write('mi<tg<close_____<row\n')

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
@@ -26,7 +26,6 @@ from calibre.gui2 import config
 
 
 class ThrobbingButton(QToolButton):
-
     @pyqtProperty(int)
     def icon_size(self):
         return self._icon_size
@@ -44,7 +43,7 @@ class ThrobbingButton(QToolButton):
         QToolButton.setIcon(self, QIcon.ic('donate.png'))
         self.setText('\xa0')
         self.animation = QPropertyAnimation(self, b'icon_size', self)
-        self.animation.setDuration(int(60/72.*1000))
+        self.animation.setDuration(int(60 / 72.0 * 1000))
         self.animation.setLoopCount(4)
         self.animation.valueChanged.connect(self.value_changed)
         self.setCursor(Qt.CursorShape.PointingHandCursor)
@@ -93,6 +92,7 @@ class ThrobbingButton(QToolButton):
 
 if __name__ == '__main__':
     from qt.core import QApplication, QHBoxLayout
+
     app = QApplication([])
     w = QWidget()
     w.setLayout(QHBoxLayout())

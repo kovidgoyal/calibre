@@ -15,7 +15,7 @@ class Adnkronos(BasicNewsRecipe):
     __author__ = 'Gabriele Marini'
     description = 'News agency'
     cover_url = 'http://www.adnkronos.com/IGN6/img/popup_ign.jpg'
-    title = u'Adnkronos'
+    title = 'Adnkronos'
     publisher = 'Adnkronos Group - ews agency'
     category = 'News, politics, culture, economy, general interest'
 
@@ -34,25 +34,22 @@ class Adnkronos(BasicNewsRecipe):
         return link
 
     extra_css = ' .newsAbstract{font-style: italic} '
-    keep_only_tags = [dict(name='div', attrs={'class': ['breadCrumbs', 'newsTop', 'newsText']})
-                      ]
+    keep_only_tags = [dict(name='div', attrs={'class': ['breadCrumbs', 'newsTop', 'newsText']})]
 
-    remove_tags = [
-        dict(name='div', attrs={'class': ['leogoo', 'leogoo2']})
-    ]
+    remove_tags = [dict(name='div', attrs={'class': ['leogoo', 'leogoo2']})]
 
     feeds = [
-        (u'Prima Pagina', u'http://rss.adnkronos.com/RSS_PrimaPagina.xml'),
-        (u'Ultima Ora', u'http://rss.adnkronos.com/RSS_Ultimora.xml'),
-        (u'Politica', u'http://rss.adnkronos.com/RSS_Politica.xml'),
-        (u'Esteri', u'http://rss.adnkronos.com/RSS_Esteri.xml'),
-        (u'Cronoca', u'http://rss.adnkronos.com/RSS_Cronaca.xml'),
-        (u'Economia', u'http://rss.adnkronos.com/RSS_Economia.xml'),
-        (u'Finanza', u'http://rss.adnkronos.com/RSS_Finanza.xml'),
-        (u'CyberNews', u'http://rss.adnkronos.com/RSS_CyberNews.xml'),
-        (u'Spettacolo', u'http://rss.adnkronos.com/RSS_Spettacolo.xml'),
-        (u'Cultura', u'http://rss.adnkronos.com/RSS_Cultura.xml'),
-        (u'Sport', u'http://rss.adnkronos.com/RSS_Sport.xml'),
-        (u'Sostenibilita', u'http://rss.adnkronos.com/RSS_Sostenibilita.xml'),
-        (u'Salute', u'http://rss.adnkronos.com/RSS_Salute.xml')
+        ('Prima Pagina', 'http://rss.adnkronos.com/RSS_PrimaPagina.xml'),
+        ('Ultima Ora', 'http://rss.adnkronos.com/RSS_Ultimora.xml'),
+        ('Politica', 'http://rss.adnkronos.com/RSS_Politica.xml'),
+        ('Esteri', 'http://rss.adnkronos.com/RSS_Esteri.xml'),
+        ('Cronoca', 'http://rss.adnkronos.com/RSS_Cronaca.xml'),
+        ('Economia', 'http://rss.adnkronos.com/RSS_Economia.xml'),
+        ('Finanza', 'http://rss.adnkronos.com/RSS_Finanza.xml'),
+        ('CyberNews', 'http://rss.adnkronos.com/RSS_CyberNews.xml'),
+        ('Spettacolo', 'http://rss.adnkronos.com/RSS_Spettacolo.xml'),
+        ('Cultura', 'http://rss.adnkronos.com/RSS_Cultura.xml'),
+        ('Sport', 'http://rss.adnkronos.com/RSS_Sport.xml'),
+        ('Sostenibilita', 'http://rss.adnkronos.com/RSS_Sostenibilita.xml'),
+        ('Salute', 'http://rss.adnkronos.com/RSS_Salute.xml'),
     ]

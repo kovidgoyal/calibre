@@ -5,13 +5,13 @@ from . import open_for_read
 
 
 class Configure:
-
-    def __init__(self,
-                    configuration_file,
-                    bug_handler,
-                    debug_dir=None,
-                    show_config_file=None,
-                    ):
+    def __init__(
+        self,
+        configuration_file,
+        bug_handler,
+        debug_dir=None,
+        show_config_file=None,
+    ):
         """
         Requires:
             file --file to be read
@@ -49,9 +49,9 @@ class Configure:
                 fields = line.split('=')
                 if len(fields) != 2:
                     msg = line
-                    msg += (f'Error in configuration.txt, line {line_num}\n')
-                    msg += ('Options take the form of option = value.\n')
-                    msg += (f'Please correct the configuration file "{self.__configuration_file}" before continuing\n')
+                    msg += f'Error in configuration.txt, line {line_num}\n'
+                    msg += 'Options take the form of option = value.\n'
+                    msg += f'Please correct the configuration file "{self.__configuration_file}" before continuing\n'
                     raise self.__bug_handler(msg)
                 att = fields[0]
                 value = fields[1]
@@ -60,7 +60,7 @@ class Configure:
                 return_dict[att] = value
         return_dict = self.__parse_dict(return_dict)
         if return_dict == 1:
-            msg = (f'Please correct the configuration file "{self.__configuration_file}" before continuing\n')
+            msg = f'Please correct the configuration file "{self.__configuration_file}" before continuing\n'
             raise self.__bug_handler(msg)
         return return_dict
 
@@ -136,16 +136,13 @@ class Configure:
                     sys.stderr.write(f'"{int_option}" must be a number\n')
                     sys.stderr.write(f'You choose "{return_dict[int_option]}" ')
                     return 1
-        fonts = ['convert-symbol', 'convert-wingdings', 'convert-zapf-dingbats',
-            'convert-caps'
-            ]
+        fonts = ['convert-symbol', 'convert-wingdings', 'convert-zapf-dingbats', 'convert-caps']
         for font in fonts:
             value = return_dict.get(font)
             if not value:
                 return_dict[font] = 0
             elif value not in {'true', 'false'}:
-                sys.stderr.write(
-                    f'"{font}" must be true or false.\n')
+                sys.stderr.write(f'"{font}" must be true or false.\n')
             elif value == 'false':
                 return_dict[font] = 0
         return_dict['xslt-processor'] = None

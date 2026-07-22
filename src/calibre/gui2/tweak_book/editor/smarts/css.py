@@ -23,6 +23,7 @@ from calibre.gui2.tweak_book.editor.smarts.utils import (
 
 def find_rule(raw, rule_address):
     import tinycss
+
     parser = tinycss.make_full_parser()
     sheet = parser.parse_stylesheet(raw)
     rules = sheet.rules
@@ -66,7 +67,7 @@ class Smarts(NullSmarts):
             pls = get_leading_whitespace_on_block(editor, previous=True)
             cursor, text = get_text_before_cursor(editor)
             if not text.rstrip() and ls >= pls and len(text) > 1:
-                text = expand_tabs(text, editor.tw)[:-editor.tw]
+                text = expand_tabs(text, editor.tw)[: -editor.tw]
                 cursor.insertText(text + '}')
                 editor.setTextCursor(cursor)
                 return True

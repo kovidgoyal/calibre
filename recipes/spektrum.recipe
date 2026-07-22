@@ -17,18 +17,16 @@ Fetch RSS-Feeds spektrum.de
 
 def classes(classes):
     q = frozenset(classes.split(' '))
-    return dict(
-        attrs={'class': lambda x: x and frozenset(x.split()).intersection(q)}
-    )
+    return dict(attrs={'class': lambda x: x and frozenset(x.split()).intersection(q)})
 
 
 from calibre.web.feeds.recipes import BasicNewsRecipe
 
 
 class Spektrum(BasicNewsRecipe):
-    title = u'Spektrum der Wissenschaft'
+    title = 'Spektrum der Wissenschaft'
     __author__ = 'Armin Geller, Bratzzo, Rainer Zenz, update epubli'
-    description = u'German  online portal of Spektrum der Wissenschaft'
+    description = 'German  online portal of Spektrum der Wissenschaft'
     publisher = 'Spektrum der Wissenschaft Verlagsgesellschaft mbH'
     category = 'science news, Germany'
     oldest_article = 3
@@ -46,12 +44,10 @@ class Spektrum(BasicNewsRecipe):
     masthead_url = 'http://www.spektrum.de/fm/861/spektrum.de.png'
 
     feeds = [
-              (u'Spektrum.de', u'http://www.spektrum.de/alias/rss/spektrum-de-rss-feed/996406'),
-             ]
+        ('Spektrum.de', 'http://www.spektrum.de/alias/rss/spektrum-de-rss-feed/996406'),
+    ]
 
-    keep_only_tags = [
-                        dict(name='article', attrs={'class':'content'}),classes('callout-box')
-                      ]
+    keep_only_tags = [dict(name='article', attrs={'class': 'content'}), classes('callout-box')]
 
     remove_tags = [
         classes('hide-for-print'),

@@ -2,7 +2,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class AdvancedUserRecipe1339974788(BasicNewsRecipe):
-    title = u'\u010cT24'
+    title = '\u010cT24'
     oldest_article = 1
     language = 'cs'
     __author__ = 'zoidozoido'
@@ -10,13 +10,13 @@ class AdvancedUserRecipe1339974788(BasicNewsRecipe):
     auto_cleanup = True
 
     feeds = [
-    (u'Hlavn\xed zpr\xe1vy', u'http://www.ceskatelevize.cz/ct24/rss/hlavni-zpravy/'),
-    (u'Dom\xe1c\xed', u'http://www.ceskatelevize.cz/ct24/rss/domaci/'),
-    (u'Sv\u011bt', u'http://www.ceskatelevize.cz/ct24/rss/svet/'),
-    (u'Regiony', u'http://www.ceskatelevize.cz/ct24/rss/regiony/'),
-
-    (u'Kultura', u'http://www.ceskatelevize.cz/ct24/rss/kultura/'),
-    (u'Ekonomika', u'http://www.ceskatelevize.cz/ct24/rss/ekonomika/'),
-    (u'Sport - hlavn\xed zpr\xe1vy', u'http://www.ceskatelevize.cz/ct4/rss/hlavni-zpravy/'),
-    (u'OH 2012', u'http://www.ceskatelevize.cz/ct4/rss/oh-2012/')]
+        ('Hlavn\xed zpr\xe1vy', 'http://www.ceskatelevize.cz/ct24/rss/hlavni-zpravy/'),
+        ('Dom\xe1c\xed', 'http://www.ceskatelevize.cz/ct24/rss/domaci/'),
+        ('Sv\u011bt', 'http://www.ceskatelevize.cz/ct24/rss/svet/'),
+        ('Regiony', 'http://www.ceskatelevize.cz/ct24/rss/regiony/'),
+        ('Kultura', 'http://www.ceskatelevize.cz/ct24/rss/kultura/'),
+        ('Ekonomika', 'http://www.ceskatelevize.cz/ct24/rss/ekonomika/'),
+        ('Sport - hlavn\xed zpr\xe1vy', 'http://www.ceskatelevize.cz/ct4/rss/hlavni-zpravy/'),
+        ('OH 2012', 'http://www.ceskatelevize.cz/ct4/rss/oh-2012/'),
+    ]
     remove_tags = [dict(name='img')]

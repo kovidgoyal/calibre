@@ -65,7 +65,6 @@ def parse_p(p):
 
 
 class CaravanMagazine(BasicNewsRecipe):
-
     title = 'Caravan Magazine'
     __author__ = 'Kovid Goyal, Gobelinus, unkn0wn'
     description = (
@@ -98,7 +97,7 @@ class CaravanMagazine(BasicNewsRecipe):
         br = BasicNewsRecipe.get_browser(self, *args, **kw)
         if not self.username or not self.password:
             return br
-        data = json.dumps({'0':{'json':{'email':self.username,'password':self.password}}})
+        data = json.dumps({'0': {'json': {'email': self.username, 'password': self.password}}})
         if not isinstance(data, bytes):
             data = data.encode('utf-8')
         rq = Request(
@@ -110,7 +109,7 @@ class CaravanMagazine(BasicNewsRecipe):
                 'Referer': 'https://caravanmagazine.in/',
                 'Content-type': 'application/json;charset=UTF-8',
             },
-            method='POST'
+            method='POST',
         )
         try:
             res = br.open(rq).read()
@@ -123,24 +122,16 @@ class CaravanMagazine(BasicNewsRecipe):
             return br
         return br
 
-    recipe_specific_options = {
-        'date': {
-            'short': 'The date of the edition to download (MM-YYYY format)',
-            'long': 'For example, 07-2024'
-        }
-    }
+    recipe_specific_options = {'date': {'short': 'The date of the edition to download (MM-YYYY format)', 'long': 'For example, 07-2024'}}
 
     def parse_index(self):
-        self.log(
-            '\n***\nif this recipe fails, report it on: '
-            'https://www.mobileread.com/forums/forumdisplay.php?f=228\n***\n'
-        )
+        self.log('\n***\nif this recipe fails, report it on: https://www.mobileread.com/forums/forumdisplay.php?f=228\n***\n')
 
         api = 'https://api.caravanmagazine.in/api/trpc/magazines.getLatestIssue'
         d = self.recipe_specific_options.get('date')
         if d and isinstance(d, str):
             x = d.split('-')
-            inp = json.dumps({'0':{'json':{'month':int(x[0]),'year':int(x[1])}}})
+            inp = json.dumps({'0': {'json': {'month': int(x[0]), 'year': int(x[1])}}})
             api = 'https://api.caravanmagazine.in/api/trpc/magazines.getForMonthAndYear?batch=1&input=' + quote(inp, safe='')
 
         raw = json.loads(self.index_to_soup(api, raw=True))
@@ -176,7 +167,7 @@ class CaravanMagazine(BasicNewsRecipe):
 
     def print_version(self, url):
         slug = urlparse(url).path
-        inp = json.dumps({'0':{'json':{'slug':slug}}})
+        inp = json.dumps({'0': {'json': {'slug': slug}}})
         return 'https://api.caravanmagazine.in/api/trpc/articles.getFromCache?batch=1&input=' + quote(inp, safe='')
 
     def preprocess_raw_html(self, raw, url):
@@ -197,14 +188,15 @@ class CaravanMagazine(BasicNewsRecipe):
         if prim_data.get('writtenAt', '') != '':
             import time
             from datetime import datetime, timedelta
+
             dt = datetime.fromisoformat(prim_data['writtenAt'][:-1]) + timedelta(seconds=time.timezone)
             dt = dt.strftime('%b %d, %Y, %I:%M %p')
-        auth ='<p class="auth">' + ', '.join(authors) + ' | ' + dt + '</p>\n'
+        auth = '<p class="auth">' + ', '.join(authors) + ' | ' + dt + '</p>\n'
         lede = ''.join(parse_body(prim_data.get('cover', {})))
 
         free_cont = ''
         for x in prim_data['data']['content']:
-            free_cont += '\n'+ ''.join(parse_body(x))
+            free_cont += '\n' + ''.join(parse_body(x))
 
         premium_cont = ''
         if self.logged:
@@ -213,6 +205,4 @@ class CaravanMagazine(BasicNewsRecipe):
             for x in art_cont['premiumContent']:
                 premium_cont += '\n' + ''.join(parse_body(x))
 
-        return ('<html><body><div>'
-                + cat + title + desc + auth + lede + free_cont + premium_cont +
-                '</div></body></html>')
+        return '<html><body><div>' + cat + title + desc + auth + lede + free_cont + premium_cont + '</div></body></html>'

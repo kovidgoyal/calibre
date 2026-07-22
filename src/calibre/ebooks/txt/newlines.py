@@ -6,13 +6,7 @@ import os
 
 
 class TxtNewlines:
-
-    NEWLINE_TYPES = {
-                        'system'  : os.linesep,
-                        'unix'    : '\n',
-                        'old_mac' : '\r',
-                        'windows' : '\r\n'
-                     }
+    NEWLINE_TYPES = {'system': os.linesep, 'unix': '\n', 'old_mac': '\r', 'windows': '\r\n'}
 
     def __init__(self, newline_type):
         self.newline = self.NEWLINE_TYPES.get(newline_type.lower(), os.linesep)

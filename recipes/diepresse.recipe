@@ -31,18 +31,18 @@ class DiePresseRecipe(BasicNewsRecipe):
         (re.compile(r'Textversion', re.DOTALL), lambda match: ''),
     ]
 
-    remove_tags = [dict(name='hr'),
-                   dict(name='br'),
-                   dict(name='small'),
-                   dict(name='img'),
-                   dict(name='div', attrs={'class': 'textnavi'}),
-                   dict(name='h1', attrs={'class': 'titel'}),
-                   dict(name='a', attrs={'class': 'print'}),
-                   dict(name='div', attrs={'class': 'hline'})]
-
-    remove_tags_after = [
-        dict(name='div', attrs={'class': 'articletext'})
+    remove_tags = [
+        dict(name='hr'),
+        dict(name='br'),
+        dict(name='small'),
+        dict(name='img'),
+        dict(name='div', attrs={'class': 'textnavi'}),
+        dict(name='h1', attrs={'class': 'titel'}),
+        dict(name='a', attrs={'class': 'print'}),
+        dict(name='div', attrs={'class': 'hline'}),
     ]
+
+    remove_tags_after = [dict(name='div', attrs={'class': 'articletext'})]
 
     feeds = [
         ('Politik', 'http://diepresse.com/rss/Politik'),
@@ -58,7 +58,7 @@ class DiePresseRecipe(BasicNewsRecipe):
         ('Gesundheit', 'http://diepresse.com/rss/Gesundheit'),
         ('Recht', 'http://diepresse.com/rss/Recht'),
         ('Spectrum', 'http://diepresse.com/rss/Spectrum'),
-        ('Meinung', 'http://diepresse.com/rss/Meinung')
+        ('Meinung', 'http://diepresse.com/rss/Meinung'),
     ]
 
     def print_version(self, url):

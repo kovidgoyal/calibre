@@ -18,8 +18,7 @@ def absolutize(url):
 
 def classes(classes):
     q = frozenset(classes.split(' '))
-    return dict(attrs={
-        'class': lambda x: x and frozenset(x.split()).intersection(q)})
+    return dict(attrs={'class': lambda x: x and frozenset(x.split()).intersection(q)})
 
 
 class Esquire(BasicNewsRecipe):
@@ -31,13 +30,9 @@ class Esquire(BasicNewsRecipe):
     encoding = 'utf-8'
     language = 'en'
 
-    keep_only_tags = [
-        classes('article-header gallery-header listicle-header listicle-body standard-header standard-body article-body gallery-main-view')
-    ]
+    keep_only_tags = [classes('article-header gallery-header listicle-header listicle-body standard-header standard-body article-body gallery-main-view')]
 
-    remove_tags = [
-        classes('article-body--share-container tags--top image-share share-gallery embedded-image--expand embedded-image--close')
-    ]
+    remove_tags = [classes('article-body--share-container tags--top image-share share-gallery embedded-image--expand embedded-image--close')]
 
     def preprocess_html(self, soup):
         for img in soup.findAll('img', attrs={'data-src': True}):

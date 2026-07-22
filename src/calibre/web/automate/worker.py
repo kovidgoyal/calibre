@@ -51,7 +51,6 @@ def debug(*a, **kw):
 
 
 class SingleObjectProtocol(asyncio.Protocol):
-
     def __init__(self, handler_callback: Handler):
         self.handler = handler_callback
         self.transport = None
@@ -69,8 +68,8 @@ class SingleObjectProtocol(asyncio.Protocol):
             del self._buffer[:4]
             self.expected_length = struct.unpack('!I', header)[0]
         if self.expected_length is not None and len(self._buffer) >= self.expected_length:
-            complete_data = self._buffer[:self.expected_length]
-            del self._buffer[:self.expected_length]
+            complete_data = self._buffer[: self.expected_length]
+            del self._buffer[: self.expected_length]
             self.expected_length = None
             self.task = asyncio.create_task(self._process_and_respond(complete_data))
 
@@ -89,6 +88,7 @@ class SingleObjectProtocol(asyncio.Protocol):
             payload = {'response': response}
         except Exception as e:
             import traceback
+
             payload = {'exception': str(e), 'traceback': traceback.format_exc()}
         finally:
             assert self.transport is not None
@@ -101,7 +101,6 @@ async def echo(x):
 
 
 class Server:
-
     def __init__(self, platform_implementation: asyncio.Server | list[asyncio.Transport]):
         self.platform_implementation = platform_implementation
 
@@ -146,6 +145,7 @@ async def start_server(
             if iswindows:
                 from asyncio import Transport
                 from asyncio.windows_events import ProactorEventLoop
+
                 wserver = await cast(ProactorEventLoop, loop).start_serving_pipe(protocol_factory, path)
                 server = cast(list[Transport], wserver)
             else:
@@ -165,7 +165,11 @@ async def start_server(
             return path, Server(server)
         except OSError as e:
             if iswindows:
-                exists = e.winerror in (winutil.ERROR_ACCESS_DENIED, winutil.ERROR_ALREADY_EXISTS, winutil.ERROR_PIPE_BUSY)
+                exists = e.winerror in (
+                    winutil.ERROR_ACCESS_DENIED,
+                    winutil.ERROR_ALREADY_EXISTS,
+                    winutil.ERROR_PIPE_BUSY,
+                )
             else:
                 exists = e.errno in (errno.EADDRINUSE, errno.EEXIST)
             if not exists:
@@ -178,9 +182,7 @@ async def no_setup() -> None:
     pass
 
 
-async def handler_with_setup(
-    x: Any, handler: Handler, setup: Callable[[], Awaitable[None]], setup_done: asyncio.Event, setup_lock: asyncio.Lock
-) -> Any:
+async def handler_with_setup(x: Any, handler: Handler, setup: Callable[[], Awaitable[None]], setup_done: asyncio.Event, setup_lock: asyncio.Lock) -> Any:
     if not setup_done.is_set():
         async with setup_lock:
             if not setup_done.is_set():
@@ -235,9 +237,7 @@ def main(*a, **kw) -> None:
     asyncio.run(async_main(*a, **kw))
 
 
-def start_worker(
-    handler: str = '', delayed_setup: str = '', finalizer: str = '', input_data: Any = None
-) -> tuple[str, Callable[[], None]]:
+def start_worker(handler: str = '', delayed_setup: str = '', finalizer: str = '', input_data: Any = None) -> tuple[str, Callable[[], None]]:
     """
     Run the specified handler, delayed_setup and finalizer functions in a worker process, passing input_data (if not None)
     to each function as its first parameter.
@@ -286,9 +286,11 @@ def start_worker(
         socket_path: str = json.loads(path_data)
     except Exception:
         raise ValueError(f'Got invalid response from worker process: {path_data}')
+
     def close_and_reap():
         p.stdin.close()
         return p.wait()
+
     return socket_path, close_and_reap
 
 
@@ -299,7 +301,7 @@ class Response(NamedTuple):
 
 
 def make_request(worker_path: str, data: Any = None) -> Response:
-    " Make a request and get a response from the worker "
+    "Make a request and get a response from the worker"
     data = msgpack_dumps(data)
     datalen = struct.pack('!I', len(data))
     if iswindows:

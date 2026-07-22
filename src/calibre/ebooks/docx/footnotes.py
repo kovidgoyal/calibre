@@ -8,7 +8,6 @@ from collections import OrderedDict
 
 
 class Note:
-
     def __init__(self, namespace, parent, rels):
         self.type = namespace.get(parent, 'w:type', 'normal')
         self.parent = parent
@@ -20,7 +19,6 @@ class Note:
 
 
 class Footnotes:
-
     def __init__(self, namespace):
         self.namespace = namespace
         self.footnotes = {}

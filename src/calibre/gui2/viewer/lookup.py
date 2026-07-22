@@ -78,16 +78,14 @@ vprefs.defaults['lookup_locations'] = [
         'special_processor': 'google_dictionary',
         'langs': [],
     },
-
     {
         'name': 'Google search',
-        'url':  'https://www.google.com/search?q={word}',
+        'url': 'https://www.google.com/search?q={word}',
         'langs': [],
     },
-
     {
         'name': 'Wordnik',
-        'url':  'https://www.wordnik.com/words/{word}',
+        'url': 'https://www.wordnik.com/words/{word}',
         'langs': ['eng'],
     },
 ]
@@ -96,7 +94,6 @@ vprefs.defaults['llm_lookup_tab_index'] = 0
 
 
 class SourceEditor(Dialog):
-
     def __init__(self, parent, source_to_edit=None):
         self.all_names = {x['name'] for x in parent.all_entries}
         self.initial_name = self.initial_url = None
@@ -123,8 +120,7 @@ class SourceEditor(Dialog):
         l.addRow(_('&URL:'), u)
         if self.initial_url:
             u.setText(self.initial_url)
-        la = QLabel(_(
-            'The URL template must starts with https:// and have {word} in it which will be replaced by the actual query'))
+        la = QLabel(_('The URL template must starts with https:// and have {word} in it which will be replaced by the actual query'))
         la.setWordWrap(True)
         l.addRow(la)
         l.addRow(self.bb)
@@ -142,20 +138,20 @@ class SourceEditor(Dialog):
     def accept(self):
         q = self.source_name
         if not q:
-            return error_dialog(self, _('No name'), _(
-                'You must specify a name'), show=True)
+            return error_dialog(self, _('No name'), _('You must specify a name'), show=True)
         if not self.initial_name and q in self.all_names:
-            return error_dialog(self, _('Name already exists'), _(
-                'A lookup source with the name {} already exists').format(q), show=True)
+            return error_dialog(
+                self,
+                _('Name already exists'),
+                _('A lookup source with the name {} already exists').format(q),
+                show=True,
+            )
         if not self.url:
-            return error_dialog(self, _('No name'), _(
-                'You must specify a URL'), show=True)
+            return error_dialog(self, _('No name'), _('You must specify a URL'), show=True)
         if not self.url.startswith('http://') and not self.url.startswith('https://'):
-            return error_dialog(self, _('Invalid URL'), _(
-                'The URL must start with https://'), show=True)
+            return error_dialog(self, _('Invalid URL'), _('The URL must start with https://'), show=True)
         if '{word}' not in self.url:
-            return error_dialog(self, _('Invalid URL'), _(
-                'The URL must contain the placeholder {word}'), show=True)
+            return error_dialog(self, _('Invalid URL'), _('The URL must contain the placeholder {word}'), show=True)
         return Dialog.accept(self)
 
     @property
@@ -164,7 +160,6 @@ class SourceEditor(Dialog):
 
 
 class SourcesEditor(Dialog):
-
     def __init__(self, parent, viewer=None):
         Dialog.__init__(self, _('Edit lookup sources'), 'viewer-edit-lookup-locations', parent=parent)
 
@@ -239,8 +234,7 @@ class SourcesEditor(Dialog):
     def accept(self):
         entries = self.all_entries
         if not entries:
-            return error_dialog(self, _('No sources'), _(
-                'You must specify at least one lookup source'), show=True)
+            return error_dialog(self, _('No sources'), _('You must specify at least one lookup source'), show=True)
         if entries == vprefs.defaults['lookup_locations']:
             del vprefs['lookup_locations']
         else:
@@ -276,11 +270,10 @@ def create_profile():
 
 
 class Page(QWebEnginePage):
-
     def javaScriptConsoleMessage(self, level, message, lineNumber, sourceID):
         prefix = {
             QWebEnginePage.JavaScriptConsoleMessageLevel.InfoMessageLevel: 'INFO',
-            QWebEnginePage.JavaScriptConsoleMessageLevel.WarningMessageLevel: 'WARNING'
+            QWebEnginePage.JavaScriptConsoleMessageLevel.WarningMessageLevel: 'WARNING',
         }.get(level, 'ERROR')
         if sourceID == 'userscript:lookup.js':
             prints(f'{prefix}: {sourceID}:{lineNumber}: {message}', file=sys.stderr)
@@ -308,7 +301,6 @@ class Page(QWebEnginePage):
 
 
 class View(QWebEngineView):
-
     inspect_element = pyqtSignal()
 
     def contextMenuEvent(self, a0):
@@ -418,9 +410,14 @@ class Lookup(QTabWidget):
 
         self.auto_update_query = a = QCheckBox(_('Update on selection change'), self)
         self.disallow_auto_update = False
-        a.setToolTip(textwrap.fill(
-            _('Automatically update the displayed result when selected text in the book changes. With this disabled'
-              ' the lookup is changed only when clicking the Refresh button.')))
+        a.setToolTip(
+            textwrap.fill(
+                _(
+                    'Automatically update the displayed result when selected text in the book changes. With this disabled'
+                    ' the lookup is changed only when clicking the Refresh button.'
+                )
+            )
+        )
         a.setChecked(vprefs['auto_update_lookup'])
         a.stateChanged.connect(self.auto_update_state_changed)
         l.addWidget(a)
@@ -428,12 +425,14 @@ class Lookup(QTabWidget):
         return panel
 
     def _activate_llm_panel(self):
-        " Only load LLM code when actually requested by the user "
+        "Only load LLM code when actually requested by the user"
         if self.llm_panel is not None:
             return
         from calibre.live import start_worker
+
         start_worker()  # needed for live loading of AI backends
         from calibre.gui2.viewer.llm import LLMPanel
+
         self.llm_panel = LLMPanel(self)
         llm_layout = self.llm_container.layout()
         assert llm_layout is not None
@@ -588,7 +587,7 @@ class Lookup(QTabWidget):
                 if isinstance(data, dict):
                     processed_annot_data = data
                     uuid_from_signal = processed_annot_data.get('uuid')
-            except (json.JSONDecodeError, TypeError):
+            except json.JSONDecodeError, TypeError:
                 uuid_from_signal = annot_data
 
         if uuid_from_signal and not processed_annot_data:

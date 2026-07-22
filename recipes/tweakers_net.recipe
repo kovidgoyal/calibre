@@ -17,34 +17,25 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class Tweakers(BasicNewsRecipe):
-    title = u'Tweakers.net'
+    title = 'Tweakers.net'
     __author__ = 'Kovid Goyal'
     language = 'nl'
     oldest_article = 4
     max_articles_per_feed = 40
     cover_url = 'http://tweakers.net/ext/launch/g/logo.gif'
 
-    keep_only_tags = [
-        dict(name='div', attrs={'class': 'columnwrapper news'}),
-        dict(name='div', attrs={'class': 'article'})
-    ]
+    keep_only_tags = [dict(name='div', attrs={'class': 'columnwrapper news'}), dict(name='div', attrs={'class': 'article'})]
 
     remove_tags = [
         dict(name='div', attrs={'class': 'reacties'}),
-        {
-            'id': ['utracker', 'socialButtons', 'b_ac']
-        },
-        {
-            'class': ['sidebar', 'advertorial']
-        },
-        {
-            'class': re.compile(r'nextPrevious')
-        },
+        {'id': ['utracker', 'socialButtons', 'b_ac']},
+        {'class': ['sidebar', 'advertorial']},
+        {'class': re.compile(r'nextPrevious')},
     ]
     no_stylesheets = True
     filter_regexps = [r'ads\.doubleclick\.net', r'ad\.doubleclick\.net']
 
-    feeds = [(u'Tweakers.net', u'http://tweakers.net/feeds/nieuws.xml')]
+    feeds = [('Tweakers.net', 'http://tweakers.net/feeds/nieuws.xml')]
 
     def preprocess_html(self, soup):
         for a in soup.findAll('a', href=True, rel=True):

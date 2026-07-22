@@ -29,6 +29,7 @@ def thread_safe(f):
     def wrapper(*a, **kw):
         with lock:
             return f(*a, **kw)
+
     return wrapper
 
 
@@ -50,6 +51,7 @@ def run_program_now(cmdline: list[str]) -> None:
 def unlink(path):
     with suppress(Exception):
         import os as oss
+
         if oss.path.exists(path):
             oss.remove(path)
 
@@ -61,6 +63,7 @@ def run_program(cmdline: list[str]) -> None:
 
 def close_worker(worker):
     import subprocess
+
     worker.stdin.close()
     try:
         worker.wait(10)
@@ -73,6 +76,7 @@ def ensure_worker():
     global worker
     if worker is None:
         from calibre.utils.ipc.simple_worker import start_pipe_worker
+
         worker = start_pipe_worker('from calibre.utils.safe_atexit import main; main()', stdout=None)
         atexit.register(close_worker, worker)
     return worker
@@ -92,17 +96,21 @@ def _send_command(action: str, payload: str | list[str]) -> None:
 
 
 if iswindows:
+
     def remove_dir(x):
         from calibre.utils.filenames import make_long_path_useable
+
         x = make_long_path_useable(x)
         import shutil
         import time
+
         for i in range(10):
             try:
                 shutil.rmtree(x)
                 return
             except Exception:
                 import os  # noqa
+
                 if os.path.exists(x):
                     # In case some other program has one of the files open.
                     time.sleep(0.1)
@@ -110,9 +118,12 @@ if iswindows:
                     return
         with suppress(Exception):
             shutil.rmtree(x, ignore_errors=True)
+
 else:
+
     def remove_dir(x):
         import shutil
+
         with suppress(Exception):
             shutil.rmtree(x, ignore_errors=True)
 
@@ -120,6 +131,7 @@ else:
 def reset_dll_dir():
     import ctypes
     from ctypes import wintypes
+
     _set_dll_directory_w = ctypes.WinDLL('kernel32', use_last_error=True).SetDllDirectoryW
     _set_dll_directory_w.argtypes = [wintypes.LPCWSTR]
     _set_dll_directory_w.restype = wintypes.BOOL
@@ -133,8 +145,10 @@ def main():
         reset_dll_dir()
     else:
         import signal
+
         signal.signal(signal.SIGINT, signal.SIG_IGN)
     from calibre.constants import sanitize_env_vars
+
     with sanitize_env_vars():
         for line in sys.stdin.buffer:
             if line:
@@ -148,6 +162,7 @@ def main():
                         atexit.register(unlink, cmd['payload'])
                 except Exception:
                     import traceback
+
                     traceback.print_exc()
 
 
@@ -156,6 +171,7 @@ def main_for_test(do_forced_exit=False, check_tdir=False):
         import tempfile
 
         from calibre.ptempfile import base_dir
+
         print(tempfile.gettempdir())
         print(base_dir())
         return
@@ -176,7 +192,6 @@ def find_tests():
     from calibre.utils.ipc.simple_worker import start_pipe_worker
 
     class TestSafeAtexit(unittest.TestCase):
-
         def wait_for_empty(self, tdir, timeout=10):
             st = time.monotonic()
             while time.monotonic() - st < timeout:

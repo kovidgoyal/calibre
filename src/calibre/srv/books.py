@@ -84,9 +84,14 @@ def queue_job(ctx, copy_format_to, bhash, fmt, book_id, size, mtime):
     with os.fdopen(fd, 'wb') as f:
         copy_format_to(f)
     tdir = tempfile.mkdtemp('', '', tdir)
-    job_id = ctx.start_job(f'Render book {book_id} ({fmt})', 'calibre.srv.render_book', 'render', args=(
-        pathtoebook, tdir, {'size':size, 'mtime':mtime, 'hash':bhash}),
-        job_done_callback=job_done, job_data=(bhash, pathtoebook, tdir))
+    job_id = ctx.start_job(
+        f'Render book {book_id} ({fmt})',
+        'calibre.srv.render_book',
+        'render',
+        args=(pathtoebook, tdir, {'size': size, 'mtime': mtime, 'hash': bhash}),
+        job_done_callback=job_done,
+        job_data=(bhash, pathtoebook, tdir),
+    )
     queued_jobs[bhash] = job_id
     return job_id
 
@@ -138,10 +143,11 @@ def job_done(job):
                 rename_with_retry(tdir, dest)
             except Exception:
                 import traceback
+
                 failed_jobs[bhash] = (False, traceback.format_exc())
 
 
-@endpoint('/book-manifest/{book_id}/{fmt}', postprocess=json, types={'book_id':int})
+@endpoint('/book-manifest/{book_id}/{fmt}', postprocess=json, types={'book_id': int})
 def book_manifest(ctx, rd, book_id, fmt):
     db, library_id = get_library_data(ctx, rd)[:2]
     force_reload = rd.query.get('force_reload') == '1'
@@ -153,7 +159,7 @@ def book_manifest(ctx, rd, book_id, fmt):
         fm = db.format_metadata(book_id, fmt, allow_cache=False)
         if not fm:
             raise HTTPNotFound(f'No {fmt} format for the book (id:{book_id}) in the library: {library_id}')
-        size, mtime = map(int, (fm['size'], time.mktime(fm['mtime'].utctimetuple())*10))
+        size, mtime = map(int, (fm['size'], time.mktime(fm['mtime'].utctimetuple()) * 10))
         bhash = book_hash(db.library_id, book_id, fmt, size, mtime)
         with cache_lock:
             mpath = abspath(os.path.join(books_cache_dir(), 'f', bhash, 'calibre-book-manifest.json'))
@@ -173,15 +179,15 @@ def book_manifest(ctx, rd, book_id, fmt):
                     raise
             x = failed_jobs.pop(bhash, None)
             if x is not None:
-                return {'aborted':x[0], 'traceback':x[1], 'job_status':'finished'}
+                return {'aborted': x[0], 'traceback': x[1], 'job_status': 'finished'}
             job_id = queued_jobs.get(bhash)
             if job_id is None:
                 job_id = queue_job(ctx, partial(db.copy_format_to, book_id, fmt), bhash, fmt, book_id, size, mtime)
     status, result, tb, aborted = ctx.job_status(job_id)
-    return {'aborted': aborted, 'traceback':tb, 'job_status':status, 'job_id':job_id}
+    return {'aborted': aborted, 'traceback': tb, 'job_status': status, 'job_id': job_id}
 
 
-@endpoint('/book-file/{book_id}/{fmt}/{size}/{mtime}/{+name}', types={'book_id':int, 'size':int, 'mtime':int})
+@endpoint('/book-file/{book_id}/{fmt}/{size}/{mtime}/{+name}', types={'book_id': int, 'size': int, 'mtime': int})
 def book_file(ctx, rd, book_id, fmt, size, mtime, name):
     db, library_id = get_library_data(ctx, rd)[:2]
     if not ctx.has_id(rd, db, book_id):
@@ -237,8 +243,7 @@ def set_last_read_position(ctx, rd, library_id, book_id, fmt):
     except Exception:
         raise HTTPNotFound('Invalid data')
     cfi = cfi or None
-    db.set_last_read_position(
-        book_id, fmt, user=user, device=device, cfi=cfi, pos_frac=pos_frac)
+    db.set_last_read_position(book_id, fmt, user=user, device=device, cfi=cfi, pos_frac=pos_frac)
     if user:
         with db.safe_read_lock:
             tt = db._field_for('title', book_id)
@@ -269,12 +274,17 @@ def get_annotations(ctx, rd, library_id, which):
         key = f'{book_id}:{fmt}'
         ans[key] = {
             'last_read_positions': db.get_last_read_positions(book_id, fmt, user),
-            'annotations_map': db.annotations_map_for_book(book_id, fmt, user_type='web', user=user) if user else {}
+            'annotations_map': db.annotations_map_for_book(book_id, fmt, user_type='web', user=user) if user else {},
         }
     return ans
 
 
-@endpoint('/book-update-annotations/{library_id}/{book_id}/{+fmt}', types={'book_id': int}, methods=('POST',), needs_db_write=True)
+@endpoint(
+    '/book-update-annotations/{library_id}/{book_id}/{+fmt}',
+    types={'book_id': int},
+    methods=('POST',),
+    needs_db_write=True,
+)
 def update_annotations(ctx, rd, library_id, book_id, fmt):
     db = get_db(ctx, rd, library_id)
     user = rd.username or '*'
