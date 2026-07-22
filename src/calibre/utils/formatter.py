@@ -1684,8 +1684,8 @@ def args_scanner() -> re.Scanner:  # type: ignore
 
 @lru_cache(maxsize=2)
 def cached_lex_scanner() -> re.Scanner:  # type: ignore
-    return re.Scanner(
-        [  # type: ignore
+    return re.Scanner(  # type: ignore
+        [
             (r'(?:==#|!=#|<=#|<#|>=#|>#)', lambda x, t: (_Parser.LEX_NUMERIC_INFIX, t)),
             (r'(?:==|!=|<=|<|>=|>)', lambda x, t: (_Parser.LEX_STRING_INFIX, t)),
             (r'(?:if|then|else|elif|fi)\b', lambda x, t: (_Parser.LEX_KEYWORD, t)),

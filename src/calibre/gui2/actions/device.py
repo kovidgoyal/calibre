@@ -72,6 +72,7 @@ class ShareConnMenu(QMenu):  # {{{
         self.airdrop_action = None
         if ismacos:
             self.airdrop_action = self.addAction(QIcon.ic('send.png'), _('Send via AirDrop'))
+            assert self.airdrop_action is not None
             connect_lambda(self.airdrop_action.triggered, self, lambda self: self.share_airdrop.emit())
         self.addSeparator()
 

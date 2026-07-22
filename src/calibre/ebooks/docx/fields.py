@@ -39,8 +39,8 @@ class Field:
 
 
 WORD, FLAG = 0, 1
-scanner = re.Scanner(
-    [  # type: ignore
+scanner = re.Scanner(  # type: ignore
+    [
         (r'\\\S{1}', lambda s, t: (t, FLAG)),  # A flag of the form \x
         (r'"[^"]*"', lambda s, t: (t[1:-1], WORD)),  # Quoted word
         (

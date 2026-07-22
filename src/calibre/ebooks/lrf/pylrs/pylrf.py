@@ -483,9 +483,9 @@ class LrfTagStream(LrfStreamBase):
     def appendLrfTag(self, tag):
         self.tags.append(tag)
 
-    def getStreamTags(
+    def getStreamTags(  # ty: ignore[invalid-method-override]
         self,
-        encoding,  # ty: ignore[invalid-method-override]
+        encoding,
         optimizeTags=False,
         optimizeCompression=False,
     ):
