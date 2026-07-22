@@ -75,6 +75,7 @@ class SpooledFile(SpooledTemporaryFile):  # {{{
 
 class Saver(QObject):
     do_one_signal = pyqtSignal()
+    pd_title = ''
 
     def __init__(self, book_ids, db, opts, root, parent=None, pool=None):
         QObject.__init__(self, parent)
@@ -93,7 +94,7 @@ class Saver(QObject):
         self._book_id_data = {}
         self.all_book_ids = frozenset(book_ids)
         self.pd = ProgressDialog(
-            _('Saving %d books...') % len(self.all_book_ids),
+            self.pd_title or (_('Saving %d books...') % len(self.all_book_ids)),
             _('Collecting metadata...'),
             min=0,
             max=0,
@@ -410,6 +411,9 @@ class Saver(QObject):
         pd.deleteLater()
         self.report()
         self.break_cycles()
+        self.on_complete()
+
+    def on_complete(self):
         if gprefs['show_files_after_save']:
             open_local_file(self.root)
 

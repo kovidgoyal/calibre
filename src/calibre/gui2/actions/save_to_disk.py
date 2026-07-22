@@ -71,14 +71,15 @@ class SaveToDiskAction(InterfaceAction):
     def save_single_fmt_to_single_dir(self, *args):
         self.save_to_disk(False, single_dir=True, single_format=prefs['output_format'])
 
-    def save_to_disk(self, checked, single_dir=False, single_format=None, rows=None, write_opf=None, save_cover=None):
+    def save_to_disk(self, checked, single_dir=False, single_format=None, rows=None, write_opf=None, save_cover=None, saver_class=None, path=None):
         if rows is None:
             rows = self.gui.current_view().selectionModel().selectedRows()
         if not rows or len(rows) == 0:
             return error_dialog(self.gui, _('Cannot save to disk'), _('No books selected'), show=True)
-        path = choose_dir(self.gui, 'save to disk dialog', _('Choose destination folder'))
         if not path:
-            return
+            path = choose_dir(self.gui, 'save to disk dialog', _('Choose destination folder'))
+            if not path:
+                return
         dpath = os.path.abspath(path).replace('/', os.sep) + os.sep
         lpath = self.gui.library_view.model().db.library_path.replace('/', os.sep) + os.sep
         if dpath.startswith(lpath):
@@ -116,17 +117,20 @@ class SaveToDiskAction(InterfaceAction):
             if save_cover is not None:
                 opts.save_cover = save_cover
             book_ids = set(map(self.gui.library_view.model().id, rows))
-            Saver(book_ids, self.gui.current_db, opts, path, parent=self.gui, pool=self.gui.spare_pool())
+            if saver_class is None:
+                saver_class = Saver
+            assert issubclass(saver_class, Saver)
+            saver_class(book_ids, self.gui.current_db, opts, path, parent=self.gui, pool=self.gui.spare_pool())
         else:
             paths = self.gui.current_view().model().paths(rows)
             self.gui.device_manager.save_books(Dispatcher(self.books_saved), paths, path)
 
-    def save_library_format_by_ids(self, book_ids, fmt, single_dir=True):
+    def save_library_format_by_ids(self, book_ids, fmt, single_dir=True, path=None, saver_class=None):
         if isinstance(book_ids, numbers.Integral):
             book_ids = [book_ids]
         rows = list(self.gui.library_view.ids_to_rows(book_ids).values())
         rows = [self.gui.library_view.model().index(r, 0) for r in rows]
-        self.save_to_disk(True, single_dir=single_dir, single_format=fmt, rows=rows, write_opf=False, save_cover=False)
+        self.save_to_disk(True, single_dir=single_dir, single_format=fmt, rows=rows, write_opf=False, save_cover=False, path=path, saver_class=saver_class)
 
     def books_saved(self, job):
         if job.failed:
