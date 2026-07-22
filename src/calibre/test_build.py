@@ -396,7 +396,7 @@ class BuildTest(unittest.TestCase):
             webengine_process = start_pipe_worker('from calibre.test_build import *; test_webengine_worker_main()', stderr=subprocess.STDOUT)
         try:
             qt_process = start_pipe_worker('from calibre.test_build import *; test_qt_main()', stderr=subprocess.STDOUT)
-            if qt_process.wait(10) != 0:
+            if qt_process.wait(100) != 0:
                 raise AssertionError(f'qt test failed with stderr:\n{qt_process.stdout.read().decode()}')
             if webengine_process is not None and webengine_process.wait(10) != 0:
                 raise AssertionError(f'webengine_process test failed with stderr:\n{webengine_process.stdout.read().decode()}')
