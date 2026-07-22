@@ -109,7 +109,7 @@ exclude = [
 preview = true
 
 [tool.ruff.format]
-quote-style = 'single'
+quote-style = 'preserve'
 
 [tool.ruff.lint]
 explicit-preview-rules = true
