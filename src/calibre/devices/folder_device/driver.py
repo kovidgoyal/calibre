@@ -3,6 +3,7 @@ Created on 15 May 2010
 
 @author: charles
 """
+
 import os
 from contextlib import suppress
 
@@ -16,16 +17,16 @@ from calibre.utils.localization import _
 
 
 class FOLDER_DEVICE_FOR_CONFIG(USBMS):
-    name           = 'Folder Device Interface'
-    gui_name       = 'Folder Device'
-    description    = _('Use an arbitrary folder as a device.')
-    author         = 'John Schember/Charles Haley'
+    name = 'Folder Device Interface'
+    gui_name = 'Folder Device'
+    description = _('Use an arbitrary folder as a device.')
+    author = 'John Schember/Charles Haley'
     supported_platforms = ['windows', 'osx', 'linux']
-    FORMATS     = list(BOOK_EXTENSIONS) + ['ppt', 'pptx']
+    FORMATS = list(BOOK_EXTENSIONS) + ['ppt', 'pptx']
 
-    VENDOR_ID   = [0xffff]
-    PRODUCT_ID  = [0xffff]
-    BCD         = [0xffff]
+    VENDOR_ID = [0xFFFF]
+    PRODUCT_ID = [0xFFFF]
+    BCD = [0xFFFF]
     DEVICE_PLUGBOARD_NAME = 'FOLDER_DEVICE'
     SUPPORTS_SUB_DIRS = True
 
@@ -33,16 +34,16 @@ class FOLDER_DEVICE_FOR_CONFIG(USBMS):
 class FOLDER_DEVICE(USBMS):
     type = _('Device interface')
 
-    name           = 'Folder Device Interface'
-    gui_name       = 'Folder Device'
-    description    = _('Use an arbitrary folder as a device.')
-    author         = 'John Schember/Charles Haley'
+    name = 'Folder Device Interface'
+    gui_name = 'Folder Device'
+    description = _('Use an arbitrary folder as a device.')
+    author = 'John Schember/Charles Haley'
     supported_platforms = ['windows', 'osx', 'linux']
-    FORMATS     = FOLDER_DEVICE_FOR_CONFIG.FORMATS
+    FORMATS = FOLDER_DEVICE_FOR_CONFIG.FORMATS
 
-    VENDOR_ID   = [0xffff]
-    PRODUCT_ID  = [0xffff]
-    BCD         = [0xffff]
+    VENDOR_ID = [0xFFFF]
+    PRODUCT_ID = [0xFFFF]
+    BCD = [0xFFFF]
     DEVICE_PLUGBOARD_NAME = 'FOLDER_DEVICE'
 
     THUMBNAIL_HEIGHT = 68  # Height for thumbnails on device
@@ -78,16 +79,14 @@ class FOLDER_DEVICE(USBMS):
                 return os.path.isdir(self._main_prefix)
         return False
 
-    def reset(self, key='-1', log_packets=False, report_progress=None,
-              detected_device=None):
+    def reset(self, key='-1', log_packets=False, report_progress=None, detected_device=None):
         pass
 
     def unmount_device(self):
         self._main_prefix = ''
         self.is_connected = False
 
-    def is_usb_connected(self, devices_on_system, debug=False,
-            only_presence=False):
+    def is_usb_connected(self, devices_on_system, debug=False, only_presence=False):
         return self.is_connected, self
 
     def open(self, connected_device, library_uuid):
@@ -109,10 +108,8 @@ class FOLDER_DEVICE(USBMS):
     def settings(self):
         return FOLDER_DEVICE_FOR_CONFIG._config().parse()
 
-    @classmethod
-    def config_widget(cls):
-        return FOLDER_DEVICE_FOR_CONFIG.config_widget()
+    def config_widget(self):
+        return FOLDER_DEVICE_FOR_CONFIG.config_widget(self)
 
-    @classmethod
-    def save_settings(cls, config_widget):
-        return FOLDER_DEVICE_FOR_CONFIG.save_settings(config_widget)
+    def save_settings(self, config_widget):
+        return FOLDER_DEVICE_FOR_CONFIG.save_settings(self, config_widget)

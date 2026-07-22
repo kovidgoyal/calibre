@@ -104,7 +104,7 @@ def selection_for_rows(m: QAbstractItemModel, rows: Iterable[int]) -> QItemSelec
     # as supplying selectors for each individual row causes very poor
     # performance if a large number of rows has to be selected.
     sel = QItemSelection()
-    for k, g in itertools.groupby(enumerate(sorted(rows)), lambda i_x: i_x[0]-i_x[1]):
+    for k, g in itertools.groupby(enumerate(sorted(rows)), lambda i_x: i_x[0] - i_x[1]):
         smallest = largest = next(g)[1]
         for x in g:
             largest = x[1]
@@ -119,7 +119,6 @@ class ClickStartData(NamedTuple):
 
 
 class ItemView(Protocol):
-
     def model(self) -> QAbstractItemModel | None: ...
     def selectionModel(self) -> QItemSelectionModel | None: ...
     def currentIndex(self) -> QModelIndex: ...
@@ -127,6 +126,7 @@ class ItemView(Protocol):
 
 def double_click_action(index: QModelIndex) -> None:
     from calibre.gui2.ui import get_gui
+
     gui = get_gui(fail_if_absent=True)
     tval = tweaks['doubleclick_on_library_view']
     if tval == 'open_viewer':
@@ -137,10 +137,7 @@ def double_click_action(index: QModelIndex) -> None:
         gui.iactions['Show Book Details'].show_book_info(locked=tval == 'show_locked_book_details')
 
 
-def handle_selection_drag(
-    self: ItemView, index: QModelIndex, start_data: ClickStartData | None,
-    row_cmp=cmp, selection_between=QItemSelection
-) -> bool | None:
+def handle_selection_drag(self: ItemView, index: QModelIndex, start_data: ClickStartData | None, row_cmp=cmp, selection_between=QItemSelection) -> bool | None:
     if not index.isValid() or start_data is None:
         return
     m = self.model()
@@ -211,8 +208,10 @@ def handle_enter_press(self, ev, special_action=None, has_edit_cell=True):
     if ev.key() in (Qt.Key.Key_Enter, Qt.Key.Key_Return):
         mods = ev.modifiers()
         if (
-            mods & Qt.KeyboardModifier.ControlModifier or mods & Qt.KeyboardModifier.AltModifier or
-            mods & Qt.KeyboardModifier.ShiftModifier or mods & Qt.KeyboardModifier.MetaModifier
+            mods & Qt.KeyboardModifier.ControlModifier
+            or mods & Qt.KeyboardModifier.AltModifier
+            or mods & Qt.KeyboardModifier.ShiftModifier
+            or mods & Qt.KeyboardModifier.MetaModifier
         ):
             return False
         s = QAbstractItemView.State.NoState
@@ -220,6 +219,7 @@ def handle_enter_press(self, ev, special_action=None, has_edit_cell=True):
             s = self.state()
         if s != QAbstractItemView.State.EditingState and self.hasFocus() and self.currentIndex().isValid():
             from calibre.gui2.ui import get_gui
+
             ev.ignore()
             tweak = tweaks['enter_key_behavior']
             gui = get_gui(fail_if_absent=True)
@@ -293,6 +293,8 @@ def image_to_data(image):  # {{{
     ret = ba.data()
     buf.close()
     return ret
+
+
 # }}}
 
 
@@ -315,16 +317,14 @@ def dragMoveEvent(self, event):
 
 
 def event_has_mods(self, event=None):
-    mods = event.modifiers() if event is not None else \
-            QApplication.keyboardModifiers()
+    mods = event.modifiers() if event is not None else QApplication.keyboardModifiers()
     return mods & Qt.KeyboardModifier.ControlModifier or mods & Qt.KeyboardModifier.ShiftModifier
 
 
 def mousePressEvent(self, event):
     ep = event.pos()
     # for performance, check the selection only once we know we need it
-    if event.button() == Qt.MouseButton.LeftButton and not self.event_has_mods(event) \
-                and self.selectionModel().isSelected(self.indexAt(ep)):
+    if event.button() == Qt.MouseButton.LeftButton and not self.event_has_mods(event) and self.selectionModel().isSelected(self.indexAt(ep)):
         self.drag_start_pos = ep
     if hasattr(self, 'handle_mouse_press_event'):
         return self.handle_mouse_press_event(event)
@@ -342,8 +342,7 @@ def drag_icon(self, cover, multiple):
     if multiple:
         base_width = cover.width()
         base_height = cover.height()
-        base = QImage(base_width+21, base_height+21,
-                QImage.Format.Format_ARGB32_Premultiplied)
+        base = QImage(base_width + 21, base_height + 21, QImage.Format.Format_ARGB32_Premultiplied)
         base.fill(QColor(255, 255, 255, 0).rgba())
         p = QPainter(base)
         rect = QRect(20, 0, base_width, base_height)
@@ -396,6 +395,7 @@ def drag_data(self):
         return ans
 
     from calibre.gui2.dnd import set_urls_from_local_file_paths
+
     set_urls_from_local_file_paths(md, *[path_for_id(i) for i in selected])
     drag = QDrag(self)
     col = self.selectionModel().currentIndex().column()
@@ -404,8 +404,7 @@ def drag_data(self):
     except AttributeError:
         md.column_name = 'title'
     drag.setMimeData(md)
-    cover = self.drag_icon(m.cover(self.currentIndex().row()),
-            len(selected) > 1)
+    cover = self.drag_icon(m.cover(self.currentIndex().row()), len(selected) > 1)
     drag.setHotSpot(QPoint(-15, -15))
     drag.setPixmap(cover)
     return drag
@@ -424,9 +423,7 @@ def mouseMoveEvent(self, event):
         else:
             qt_item_view_base_class(self).mouseMoveEvent(self, event)
         return
-    if not (event.buttons() & Qt.MouseButton.LeftButton) or \
-            (event.pos() - self.drag_start_pos).manhattanLength() \
-                    < QApplication.startDragDistance():
+    if not (event.buttons() & Qt.MouseButton.LeftButton) or (event.pos() - self.drag_start_pos).manhattanLength() < QApplication.startDragDistance():
         return
 
     index = self.indexAt(event.pos())
@@ -485,8 +482,17 @@ def setup_dnd_interface(cls_or_self):
         cls = cls_or_self
         fmap = globals()
         for x in (
-            'dragMoveEvent', 'event_has_mods', 'mousePressEvent', 'mouseMoveEvent', 'mouseReleaseEvent',
-            'drag_data', 'drag_icon', 'dragEnterEvent', 'dropEvent', 'paths_from_event'):
+            'dragMoveEvent',
+            'event_has_mods',
+            'mousePressEvent',
+            'mouseMoveEvent',
+            'mouseReleaseEvent',
+            'drag_data',
+            'drag_icon',
+            'dragEnterEvent',
+            'dropEvent',
+            'paths_from_event',
+        ):
             func = fmap[x]
             setattr(cls, x, func)
         return cls
@@ -500,10 +506,13 @@ def setup_dnd_interface(cls_or_self):
             self.setDragDropMode(QAbstractItemView.DragDropMode.DragDrop)
         else:
             self.setAcceptDrops(True)
+
+
 # }}}
 
 
 # Manage slave views {{{
+
 
 def sync(func):
     @wraps(func)
@@ -512,14 +521,14 @@ def sync(func):
             return
         with self:
             return func(self, *args, **kwargs)
+
     return ans
 
 
 class AlternateViews:
-
     def __init__(self, main_view):
-        self.views = {None:main_view}
-        self.stack_positions = {None:0}
+        self.views = {None: main_view}
+        self.stack_positions = {None: 0}
         self.current_view = self.main_view = main_view
         self.stack = None
         self.break_link = False
@@ -609,13 +618,15 @@ class AlternateViews:
     def marked_changed(self, old_marked, current_marked):
         if self.current_view is not self.main_view:
             self.current_view.marked_changed(old_marked, current_marked)
+
+
 # }}}
 
 
 # Rendering of covers {{{
 
-class CoverDelegate(QStyledItemDelegate):
 
+class CoverDelegate(QStyledItemDelegate):
     MARGIN = 4
     TOP, LEFT, RIGHT, BOTTOM = object(), object(), object(), object()
 
@@ -684,9 +695,7 @@ class CoverDelegate(QStyledItemDelegate):
         if hasattr(self, 'cover_cache'):
             self.cover_cache.set_thumbnail_size(w, h)
         else:
-            self.cover_cache = CoverThumbnailCache(
-                max_size=gprefs['cover_grid_disk_cache_size'], thumbnail_size=(w, h), parent=self, version=1
-            )
+            self.cover_cache = CoverThumbnailCache(max_size=gprefs['cover_grid_disk_cache_size'], thumbnail_size=(w, h), parent=self, version=1)
 
     def calculate_spacing(self):
         _cs_p = self.parent()
@@ -716,6 +725,7 @@ class CoverDelegate(QStyledItemDelegate):
         except Exception:
             if DEBUG:
                 import traceback
+
                 traceback.print_exc()
         return '', is_stars
 
@@ -726,7 +736,7 @@ class CoverDelegate(QStyledItemDelegate):
         db = m.db
         try:
             book_id = db.id(index.row())
-        except (ValueError, IndexError, KeyError):
+        except ValueError, IndexError, KeyError:
             return
         if book_id in m.ids_to_highlight_set:
             painter.save()
@@ -778,7 +788,7 @@ class CoverDelegate(QStyledItemDelegate):
                 title = db.field_for('title', book_id, default_value='')
                 authors = authors_to_string(db.field_for('authors', book_id, default_value=()))
                 painter.setRenderHint(QPainter.RenderHint.TextAntialiasing, True)
-                painter.drawText(rect, Qt.AlignmentFlag.AlignCenter|Qt.TextFlag.TextWordWrap, f'{title}\n\n{authors}')
+                painter.drawText(rect, Qt.AlignmentFlag.AlignCenter | Qt.TextFlag.TextWordWrap, f'{title}\n\n{authors}')
                 if self.title_height != 0:
                     self.paint_title(painter, trect, db, book_id)
             else:
@@ -787,8 +797,8 @@ class CoverDelegate(QStyledItemDelegate):
                 cover = QPixmap(cover)
                 cover.setDevicePixelRatio(painter.device().devicePixelRatioF())
                 sz = cover.deviceIndependentSize()
-                dx = max(0, int((rect.width() - sz.width())/2.0))
-                dy = max(0, int((rect.height() - sz.height())/2.0))
+                dx = max(0, int((rect.width() - sz.width()) / 2.0))
+                dy = max(0, int((rect.height() - sz.height()) / 2.0))
                 right_adjust = dx
                 rect.adjust(dx, dy, -dx, -dy)
                 self.paint_cover(painter, rect, cover)
@@ -924,7 +934,7 @@ class CoverDelegate(QStyledItemDelegate):
                 return False
             try:
                 book_id = db.id(index.row())
-            except (ValueError, IndexError, KeyError):
+            except ValueError, IndexError, KeyError:
                 return False
             db = db.new_api
             _hev_p = self.parent()
@@ -940,10 +950,10 @@ class CoverDelegate(QStyledItemDelegate):
                 tt = f'{title}<br><br>{authors}'
                 series = db.field_for('series', book_id)
                 if series:
-                    use_roman_numbers=config['use_roman_numerals_for_series_number']
-                    val = _('Book %(sidx)s of <span class="series_name">%(series)s</span>')%dict(
-                        sidx=fmt_sidx(db.field_for('series_index', book_id), use_roman=use_roman_numbers),
-                        series=p(series))
+                    use_roman_numbers = config['use_roman_numerals_for_series_number']
+                    val = _('Book %(sidx)s of <span class="series_name">%(series)s</span>') % dict(
+                        sidx=fmt_sidx(db.field_for('series_index', book_id), use_roman=use_roman_numbers), series=p(series)
+                    )
                     tt += '<br><br>' + val
                 if on_device:
                     val = _('This book is on the device in %s') % on_device
@@ -953,26 +963,25 @@ class CoverDelegate(QStyledItemDelegate):
                     try:
                         global_vars = {'column_lookup_name': 'title', 'original_text': tt}
                         mi = db.get_proxy_metadata(book_id)
-                        tt = index.model().formatter.safe_format(
-                                template, {}, _('tooltip template error'), mi, global_vars=global_vars)
+                        tt = index.model().formatter.safe_format(template, {}, _('tooltip template error'), mi, global_vars=global_vars)
                     except Exception as e:
                         tt = str(e)
                 QToolTip.showText(event.globalPos(), tt, view)
                 return True
         return False
 
+
 # }}}
 
 
-CoverTuple = namedtuple('CoverTuple', ['book_id', 'has_cover', 'cache_valid',
-                                     'cdata', 'timestamp'])
+CoverTuple = namedtuple('CoverTuple', ['book_id', 'has_cover', 'cache_valid', 'cdata', 'timestamp'])
 
 
 # The View {{{
 
+
 @setup_dnd_interface
 class GridView(MomentumScrollMixin, QListView):
-
     files_dropped = pyqtSignal(object)
     books_dropped = pyqtSignal(object)
 
@@ -1020,6 +1029,9 @@ class GridView(MomentumScrollMixin, QListView):
         t.setInterval(200), t.setSingleShot(True)
         t.timeout.connect(self.update_memory_cover_cache_size)
 
+    def wheelEvent(self, a0):
+        MomentumScrollMixin.wheelEvent(self, a0)
+
     def viewportEvent(self, e):
         if hasattr(self, 'gesture_manager'):
             ret = self.gesture_manager.handle_event(e)
@@ -1036,8 +1048,8 @@ class GridView(MomentumScrollMixin, QListView):
         vp = self.viewport()
         assert vp is not None
         geom = vp.geometry()
-        for y in range(geom.top(), (self.spacing()*2) + geom.top(), 5):
-            for x in range(geom.left(), (self.spacing()*2) + geom.left(), 5):
+        for y in range(geom.top(), (self.spacing() * 2) + geom.top(), 5):
+            for x in range(geom.left(), (self.spacing() * 2) + geom.left(), 5):
                 ans = self.indexAt(QPoint(x, y)).row()
                 if ans > -1:
                     return ans
@@ -1048,10 +1060,10 @@ class GridView(MomentumScrollMixin, QListView):
         assert vp is not None
         geom = vp.geometry()
         for y in range(geom.bottom(), geom.bottom() - 2 * self.spacing(), -5):
-            for x in range(geom.left(), (self.spacing()*2) + geom.left(), 5):
+            for x in range(geom.left(), (self.spacing() * 2) + geom.left(), 5):
                 ans = self.indexAt(QPoint(x, y)).row()
                 if ans > -1:
-                    item_width = self.delegate.item_size.width() + 2*self.spacing()
+                    item_width = self.delegate.item_size.width() + 2 * self.spacing()
                     return ans + (geom.width() // item_width)
 
     def update_viewport(self):
@@ -1092,6 +1104,7 @@ class GridView(MomentumScrollMixin, QListView):
         self._texture_pixmap = None
         if tex:
             from calibre.gui2.preferences.texture_chooser import texture_path
+
             path = texture_path(tex)
             if path:
                 pm = QPixmap(os.path.abspath(path))
@@ -1128,8 +1141,8 @@ class GridView(MomentumScrollMixin, QListView):
                         sz = sm.deviceIndependentSize()
                         if sz.width() != r.width() and sz.height() != r.height():
                             sm = pm.scaled(
-                                r.size() * pm.devicePixelRatioF(), Qt.AspectRatioMode.KeepAspectRatioByExpanding,
-                                Qt.TransformationMode.SmoothTransformation)
+                                r.size() * pm.devicePixelRatioF(), Qt.AspectRatioMode.KeepAspectRatioByExpanding, Qt.TransformationMode.SmoothTransformation
+                            )
                             setattr(self, '_scaled_texture_pixmap', sm)
                         pm = sm
                     painter.fillRect(r, QBrush(pm))
@@ -1138,15 +1151,15 @@ class GridView(MomentumScrollMixin, QListView):
         return super().eventFilter(object, event)
 
     def refresh_settings(self):
-        size_changed = (
-            gprefs['cover_grid_width'] != self.delegate.original_width or gprefs['cover_grid_height'] != self.delegate.original_height
-        )
-        if (size_changed or gprefs[
-            'cover_grid_show_title'] != self.delegate.original_show_title or gprefs[
-                'emblem_style'] != self.delegate.original_emblem_style or gprefs[
-                    'emblem_size'] != self.delegate.orginal_emblem_size or gprefs[
-                        'emblem_position'] != self.delegate.orginal_emblem_position or gprefs[
-                            'cover_grid_text_flush_bottom'] != self.delegate.original_flush_bottom):
+        size_changed = gprefs['cover_grid_width'] != self.delegate.original_width or gprefs['cover_grid_height'] != self.delegate.original_height
+        if (
+            size_changed
+            or gprefs['cover_grid_show_title'] != self.delegate.original_show_title
+            or gprefs['emblem_style'] != self.delegate.original_emblem_style
+            or gprefs['emblem_size'] != self.delegate.orginal_emblem_size
+            or gprefs['emblem_position'] != self.delegate.orginal_emblem_position
+            or gprefs['cover_grid_text_flush_bottom'] != self.delegate.original_flush_bottom
+        ):
             self.delegate.set_dimensions()
             self.setSpacing(self.delegate.spacing)
         if gprefs['cover_grid_spacing'] != self.delegate.original_spacing:
@@ -1179,7 +1192,7 @@ class GridView(MomentumScrollMixin, QListView):
         assert isinstance(m, BooksModel) and m.db is not None
         try:
             index = m.db.row(book_id)
-        except (IndexError, ValueError, KeyError, AttributeError):
+        except IndexError, ValueError, KeyError, AttributeError:
             return
         self.update(m.index(index, 0))
 
@@ -1208,7 +1221,7 @@ class GridView(MomentumScrollMixin, QListView):
         assert m is not None
         sm = self.selectionModel()
         assert sm is not None
-        sel = QItemSelection(m.index(0, 0), m.index(m.rowCount(QModelIndex())-1, 0))
+        sel = QItemSelection(m.index(0, 0), m.index(m.rowCount(QModelIndex()) - 1, 0))
         sm.select(sel, QItemSelectionModel.SelectionFlag.ClearAndSelect)
 
     def set_current_row(self, row):
@@ -1225,6 +1238,7 @@ class GridView(MomentumScrollMixin, QListView):
         if self.context_menu is None:
             return
         from calibre.gui2.main_window import clone_menu
+
         m = clone_menu(self.context_menu) if islinux else self.context_menu
         m.popup(a0.globalPos())
         a0.accept()
@@ -1349,7 +1363,7 @@ class GridView(MomentumScrollMixin, QListView):
                 m = self.model()
                 assert isinstance(m, BooksModel) and m.db is not None
                 return m.db.data.index_to_id(ci.row())
-            except (IndexError, ValueError, KeyError, TypeError, AttributeError):
+            except IndexError, ValueError, KeyError, TypeError, AttributeError:
                 pass
 
     def current_book_state(self):
@@ -1362,7 +1376,7 @@ class GridView(MomentumScrollMixin, QListView):
             m = self.model()
             assert isinstance(m, BooksModel) and m.db is not None
             row = m.db.data.id_to_index(book_id)
-        except (IndexError, ValueError, KeyError, TypeError, AttributeError):
+        except IndexError, ValueError, KeyError, TypeError, AttributeError:
             return
         self.set_current_row(row)
         self.select_rows((row,))
@@ -1394,8 +1408,12 @@ class GridView(MomentumScrollMixin, QListView):
         return index
 
     def selectionCommand(self, index, event=None):
-        if event and event.type() == QEvent.Type.KeyPress and event.key() in (Qt.Key.Key_Home, Qt.Key.Key_End
-                                    ) and event.modifiers() & Qt.KeyboardModifier.ControlModifier:
+        if (
+            event
+            and event.type() == QEvent.Type.KeyPress
+            and event.key() in (Qt.Key.Key_Home, Qt.Key.Key_End)
+            and event.modifiers() & Qt.KeyboardModifier.ControlModifier
+        ):
             return QItemSelectionModel.SelectionFlag.ClearAndSelect | QItemSelectionModel.SelectionFlag.Rows
         return super().selectionCommand(index, event)
 
@@ -1405,4 +1423,6 @@ class GridView(MomentumScrollMixin, QListView):
         page_height = int(dpr * self.delegate.cover_size.height())
         self.delegate.cover_cache.set_thumbnail_size(page_width, page_height)
         return super().paintEvent(e)
+
+
 # }}}

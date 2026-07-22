@@ -1,4 +1,4 @@
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import enum
@@ -62,22 +62,23 @@ class Plugin:  # {{{
         * :meth:`load_resources`
 
     """
+
     #: List of platforms this plugin works on.
     #: For example: ``['windows', 'osx', 'linux']``
     supported_platforms = []
 
     #: The name of this plugin. You must set it something other
     #: than Trivial Plugin for it to work.
-    name           = 'Trivial Plugin'
+    name = 'Trivial Plugin'
 
     #: The version of this plugin as a 3-tuple (major, minor, revision)
-    version        = (1, 0, 0)
+    version = (1, 0, 0)
 
     #: A short string describing what this plugin does
-    description    = _('Does absolutely nothing')
+    description = _('Does absolutely nothing')
 
     #: The author of this plugin
-    author         = _('Unknown')
+    author = _('Unknown')
 
     #: When more than one plugin exists for a filetype,
     #: the plugins are run in order of decreasing priority.
@@ -90,7 +91,7 @@ class Plugin:  # {{{
     minimum_calibre_version = (0, 4, 118)
 
     #: The way this plugin is installed
-    installation_type  = None
+    installation_type = None
 
     #: If False, the user will not be able to disable this plugin. Use with
     #: care.
@@ -101,7 +102,7 @@ class Plugin:  # {{{
     type = _('Base')
 
     def __init__(self, plugin_path):
-        self.plugin_path        = plugin_path
+        self.plugin_path = plugin_path
         self.site_customization = None
 
     def initialize(self):
@@ -158,14 +159,12 @@ class Plugin:  # {{{
         from calibre.gui2.geometry import restore_geometry, save_geometry
 
         class ConfigDialog(QDialog):
-
             def __init__(self, parent, config_widget):
                 super().__init__(parent)
                 self.config_widget = config_widget
 
             def accept(self):
-                if ((validate := getattr(self.config_widget, 'validate', None)) and
-                        getattr(self.config_widget, 'validate_before_accept', False)):
+                if (validate := getattr(self.config_widget, 'validate', None)) and getattr(self.config_widget, 'validate_before_accept', False):
                     if not validate():
                         return
                 super().accept()
@@ -175,7 +174,7 @@ class Plugin:  # {{{
         except NotImplementedError:
             config_widget = None
 
-        prefname = 'plugin config dialog:'+self.type + ':' + self.name
+        prefname = 'plugin config dialog:' + self.type + ':' + self.name
 
         config_dialog = ConfigDialog(parent, config_widget)
         button_box = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)
@@ -186,17 +185,19 @@ class Plugin:  # {{{
 
         if isinstance(config_widget, tuple):
             from calibre.gui2 import warning_dialog
-            warning_dialog(parent, _('Cannot configure'), config_widget[0],
-                    det_msg=config_widget[1], show=True)
+
+            warning_dialog(parent, _('Cannot configure'), config_widget[0], det_msg=config_widget[1], show=True)
             return False
 
         if config_widget is not None:
+
             class SA(QScrollArea):
                 def sizeHint(self):
                     sz = sw.sizeHint() if (sw := self.widget()) else QSize(0, 0)
                     fw = 2 * self.frameWidth()
                     vsz = vs.sizeHint().width() if (vs := self.verticalScrollBar()) else 0
                     return QSize(sz.width() + vsz + fw, sz.height() + fw)
+
             sa = SA(config_dialog)
             sa.setWidget(config_widget)
             sa.setWidgetResizable(True)
@@ -214,6 +215,7 @@ class Plugin:  # {{{
                     self.save_settings(config_widget)
         else:
             from calibre.customize.ui import customize_plugin, plugin_customization
+
             help_text = self.customization_help(gui=True)
             help_text = QLabel(help_text, config_dialog)
             help_text.setWordWrap(True)
@@ -312,6 +314,7 @@ class Plugin:  # {{{
             from importlib.machinery import EXTENSION_SUFFIXES
 
             from calibre.utils.zipfile import ZipFile
+
             with ZipFile(self.plugin_path) as zf:
                 extensions = {x.lower() for x in EXTENSION_SUFFIXES}
                 zip_safe = True
@@ -327,15 +330,15 @@ class Plugin:  # {{{
                     self.sys_insertion_path = self.plugin_path
                 else:
                     from calibre.ptempfile import TemporaryDirectory
+
                     self._sys_insertion_tdir = TemporaryDirectory('plugin_unzip')
                     self.sys_insertion_path = self._sys_insertion_tdir.__enter__(*args)
                     zf.extractall(self.sys_insertion_path)
                     sys.path.append(self.sys_insertion_path)
 
     def __exit__(self, *args):
-        ip, it = getattr(self, 'sys_insertion_path', None), getattr(self,
-                '_sys_insertion_tdir', None)
-        if ip in sys.path:
+        ip, it = getattr(self, 'sys_insertion_path', None), getattr(self, '_sys_insertion_tdir', None)
+        if ip is not None and ip in sys.path:
             sys.path.remove(ip)
         if hasattr(it, '__exit__'):
             it.__exit__(*args)
@@ -348,6 +351,7 @@ class Plugin:  # {{{
         '''
         raise NotImplementedError(f'The {self.name} plugin has no command line interface')
 
+
 # }}}
 
 
@@ -359,16 +363,16 @@ class FileTypePlugin(Plugin):  # {{{
     #: Set of file types for which this plugin should be run.
     #: Use '*' for all file types.
     #: For example: ``{'lit', 'mobi', 'prc'}``
-    file_types     = set()
+    file_types = set()
 
     #: If True, this plugin is run when books are added
     #: to the database
-    on_import      = False
+    on_import = False
 
     #: If True, this plugin is run after books are added
     #: to the database. In this case the postimport and postadd
     #: methods of the plugin are called.
-    on_postimport  = False
+    on_postimport = False
 
     #: If True, this plugin is run after a book is converted.
     #: In this case the postconvert method of the plugin is called.
@@ -380,7 +384,7 @@ class FileTypePlugin(Plugin):  # {{{
     on_postdelete = False
 
     #: If True, this plugin is run just before a conversion
-    on_preprocess  = False
+    on_preprocess = False
 
     #: If True, this plugin is run after conversion
     #: on the final file produced by the conversion output plugin.
@@ -466,6 +470,7 @@ class FileTypePlugin(Plugin):  # {{{
         """
         pass  # Default implementation does nothing
 
+
 # }}}
 
 
@@ -473,13 +478,14 @@ class MetadataReaderPlugin(Plugin):  # {{{
     """
     A plugin that implements reading metadata from a set of file types.
     """
+
     #: Set of file types for which this plugin should be run.
     #: For example: ``set(['lit', 'mobi', 'prc'])``
-    file_types     = set()
+    file_types = set()
 
     supported_platforms = ['windows', 'osx', 'linux']
     version = numeric_version
-    author  = 'Kovid Goyal'
+    author = 'Kovid Goyal'
 
     type = _('Metadata reader')
 
@@ -499,6 +505,7 @@ class MetadataReaderPlugin(Plugin):  # {{{
         """
         return
 
+
 # }}}
 
 
@@ -506,13 +513,14 @@ class MetadataWriterPlugin(Plugin):  # {{{
     """
     A plugin that implements reading metadata from a set of file types.
     """
+
     #: Set of file types for which this plugin should be run.
     #: For example: ``set(['lit', 'mobi', 'prc'])``
-    file_types     = set()
+    file_types = set()
 
     supported_platforms = ['windows', 'osx', 'linux']
     version = numeric_version
-    author  = 'Kovid Goyal'
+    author = 'Kovid Goyal'
 
     type = _('Metadata writer')
 
@@ -532,6 +540,7 @@ class MetadataWriterPlugin(Plugin):  # {{{
         :param mi: A :class:`calibre.ebooks.metadata.book.Metadata` object
         """
         pass
+
 
 # }}}
 
@@ -579,15 +588,35 @@ class CatalogPlugin(Plugin):  # {{{
 
     def get_output_fields(self, db, opts):
         # Return a list of requested fields
-        all_std_fields = {'author_sort','authors','comments','cover','formats',
-                           'id','isbn','library_name','ondevice','pubdate','publisher',
-                           'rating','series_index','series','size','tags','timestamp',
-                           'title_sort','title','uuid','languages','identifiers'}
+        all_std_fields = {
+            'author_sort',
+            'authors',
+            'comments',
+            'cover',
+            'formats',
+            'id',
+            'isbn',
+            'library_name',
+            'ondevice',
+            'pubdate',
+            'publisher',
+            'rating',
+            'series_index',
+            'series',
+            'size',
+            'tags',
+            'timestamp',
+            'title_sort',
+            'title',
+            'uuid',
+            'languages',
+            'identifiers',
+        }
         all_custom_fields = set(db.custom_field_keys())
         for field in list(all_custom_fields):
             fm = db.field_metadata[field]
             if fm['datatype'] == 'series':
-                all_custom_fields.add(field+'_index')
+                all_custom_fields.add(field + '_index')
         all_fields = all_std_fields.union(all_custom_fields)
 
         if getattr(opts, 'fields', 'all') != 'all':
@@ -598,6 +627,7 @@ class CatalogPlugin(Plugin):  # {{{
             # Validate requested_fields
             if requested_fields - all_fields:
                 from calibre.library import current_library_name
+
                 invalid_fields = sorted(requested_fields - all_fields)
                 print('invalid --fields specified: {}'.format(', '.join(invalid_fields)))
                 print("available fields in '{}': {}".format(current_library_name(), ', '.join(sorted(all_fields))))
@@ -624,8 +654,8 @@ class CatalogPlugin(Plugin):  # {{{
         from calibre.ptempfile import PersistentTemporaryDirectory
 
         if type(self) not in builtin_plugins and self.name not in config['disabled_plugins']:
-            files_to_copy = [f'{self.name.lower()}.{ext}' for ext in ['ui','py']]
-            resources = zipfile.ZipFile(self.plugin_path,'r')
+            files_to_copy = [f'{self.name.lower()}.{ext}' for ext in ['ui', 'py']]
+            resources = zipfile.ZipFile(self.plugin_path, 'r')
 
             if self.resources_path is None:
                 self.resources_path = PersistentTemporaryDirectory('_plugin_resources', prefix='')
@@ -654,16 +684,15 @@ class CatalogPlugin(Plugin):  # {{{
         :param db: A LibraryDatabase2 object
         """
         # Default implementation does nothing
-        raise NotImplementedError('CatalogPlugin.generate_catalog() default '
-                'method, should be overridden in subclass')
+        raise NotImplementedError('CatalogPlugin.generate_catalog() default method, should be overridden in subclass')
+
 
 # }}}
 
 
 class InterfaceActionBase(Plugin):  # {{{
-
     supported_platforms = ['windows', 'osx', 'linux']
-    author         = 'Kovid Goyal'
+    author = 'Kovid Goyal'
     type = _('User interface action')
 
     actual_plugin = None
@@ -680,16 +709,15 @@ class InterfaceActionBase(Plugin):  # {{{
         if ac is None:
             assert self.actual_plugin is not None
             mod, cls = self.actual_plugin.split(':')
-            ac = getattr(importlib.import_module(mod), cls)(gui,
-                    self.site_customization)
+            ac = getattr(importlib.import_module(mod), cls)(gui, self.site_customization)
             self.actual_plugin_ = ac
         return ac
+
 
 # }}}
 
 
 class PreferencesPlugin(Plugin):  # {{{
-
     """
     A plugin representing a widget displayed in the Preferences dialog.
 
@@ -698,7 +726,7 @@ class PreferencesPlugin(Plugin):  # {{{
     """
 
     supported_platforms = ['windows', 'osx', 'linux']
-    author         = 'Kovid Goyal'
+    author = 'Kovid Goyal'
     type = _('Preferences')
 
     #: Import path to module that contains a class named ConfigWidget
@@ -745,20 +773,20 @@ class PreferencesPlugin(Plugin):  # {{{
         widget = getattr(base, wc)
         return widget(parent)
 
+
 # }}}
 
 
 class StoreBase(Plugin):  # {{{
-
     supported_platforms = ['windows', 'osx', 'linux']
-    author         = 'John Schember'
+    author = 'John Schember'
     type = _('Store')
     # Information about the store. Should be in the primary language
     # of the store. This should not be translatable when set by
     # a subclass.
     description = _('An e-book store.')
     minimum_calibre_version = (0, 8, 0)
-    version        = (1, 0, 1)
+    version = (1, 0, 1)
 
     actual_plugin = None
 
@@ -778,7 +806,7 @@ class StoreBase(Plugin):  # {{{
         """
         assert self.actual_plugin is not None
         mod, cls = self.actual_plugin.split(':')
-        self.actual_plugin_object  = getattr(importlib.import_module(mod), cls)(gui, self.name)
+        self.actual_plugin_object = getattr(importlib.import_module(mod), cls)(gui, self.name)
         return self.actual_plugin_object
 
     def customization_help(self, gui=False):
@@ -796,13 +824,14 @@ class StoreBase(Plugin):  # {{{
             return self.actual_plugin_object.save_settings(config_widget)
         raise NotImplementedError()
 
+
 # }}}
 
 
 class EditBookToolPlugin(Plugin):  # {{{
-
     type = _('Edit book tool')
     minimum_calibre_version = (1, 46, 0)
+
 
 # }}}
 
@@ -813,6 +842,7 @@ class LibraryClosedPlugin(Plugin):  # {{{
     when the library is changed, or when a library is used in some other way.
     At the moment these plugins won't be called by the CLI functions.
     """
+
     type = _('Library closed')
 
     # minimum version 2.54 because that is when support was added
@@ -825,8 +855,9 @@ class LibraryClosedPlugin(Plugin):  # {{{
         The plugin must run to completion. It must not use the GUI, threads, or
         any signals.
         """
-        raise NotImplementedError('LibraryClosedPlugin '
-                'run method must be overridden in subclass')
+        raise NotImplementedError('LibraryClosedPlugin run method must be overridden in subclass')
+
+
 # }}}
 
 
@@ -834,6 +865,7 @@ class AIProviderPlugin(Plugin):  # {{{
     """
     AIProvider plugins abstract AI services that can be used by the rest of calibre.
     """
+
     type = _('AI provider')
 
     # minimum version when support for this plugin type was added
@@ -854,6 +886,7 @@ class AIProviderPlugin(Plugin):  # {{{
             return None
         if (ans := self._builtin_live_module) is None:
             from calibre.live import Strategy, load_module
+
             ans = self._builtin_live_module = load_module(self.builtin_live_module_name, strategy=Strategy.fast)
         return ans
 
@@ -895,15 +928,16 @@ class AIProviderPlugin(Plugin):  # {{{
         yield from self.builtin_live_module.text_chat(messages, use_model)
 
     def human_readable_model_name(self, model_id: str) -> str:
-        " Return a human readable model name for the specified model id"
+        "Return a human readable model name for the specified model id"
         if not self.builtin_live_module_name:
             return model_id
         return self.builtin_live_module.human_readable_model_name(model_id)
+
+
 # }}}
 
 
 class ContentServerPlugin(Plugin):  # {{{
-
     type = _('Content server')
     supported_platforms = ['windows', 'osx', 'linux']
     # minimum version when support for this plugin type was added
@@ -919,4 +953,6 @@ class ContentServerPlugin(Plugin):  # {{{
         Endpoints with a route matching an existing route will not be added.
         """
         return ()
+
+
 # }}}

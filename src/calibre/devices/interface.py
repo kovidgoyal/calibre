@@ -1,4 +1,4 @@
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import os
 from collections import namedtuple
@@ -26,11 +26,11 @@ class ModelMetadata(NamedTuple):
 
     def detected_device(self, folder_path):
         from calibre.devices.scanner import USBDevice
+
         return USBDevice(self.vendor_id, self.product_id, self.bcd, self.manufacturer_name, self.model_name, FAKE_DEVICE_SERIAL + folder_path)
 
 
 class OpenPopupMessage:
-
     def __init__(self, title='', message='', level='info', skip_dialog_skip_precheck=True):
         self.title = title
         self.message = message
@@ -43,10 +43,11 @@ class DevicePlugin(Plugin):
     Defines the interface that should be implemented by backends that
     communicate with an e-book reader.
     """
+
     type = _('Device interface')
 
     #: Ordered list of supported formats
-    FORMATS     = ['lrf', 'rtf', 'pdf', 'txt']
+    FORMATS = ['lrf', 'rtf', 'pdf', 'txt']
     # If True, the config dialog will not show the formats box
     HIDE_FORMATS_CONFIG_BOX = False
 
@@ -65,7 +66,7 @@ class DevicePlugin(Plugin):
     PRODUCT_ID: ClassVar[int | list[int]] = 0x0000
     #: BCD can be either None to not distinguish between devices based on BCD, or
     #: it can be a list of the BCD numbers of all devices supported by this driver.
-    BCD         = None
+    BCD = None
 
     #: Height for thumbnails on the device
     THUMBNAIL_HEIGHT = 68
@@ -97,7 +98,7 @@ class DevicePlugin(Plugin):
     icon = 'reader.png'
 
     # Encapsulates an annotation fetched from the device
-    UserAnnotation = namedtuple('UserAnnotation','type, value')
+    UserAnnotation = namedtuple('UserAnnotation', 'type, value')
 
     #: GUI displays this as a message if not None in the status bar. Useful if opening can take a
     #: long time
@@ -158,12 +159,12 @@ class DevicePlugin(Plugin):
 
     @classmethod
     def get_open_popup_message(self):
-        " GUI displays this as a non-modal popup. Should be an instance of OpenPopupMessage "
+        "GUI displays this as a non-modal popup. Should be an instance of OpenPopupMessage"
         return
 
     @classmethod
     def model_metadata(self) -> tuple[ModelMetadata, ...]:
-        " Metadata about all the actual device models this driver supports "
+        "Metadata about all the actual device models this driver supports"
         return ()
 
     # Device detection {{{
@@ -255,8 +256,7 @@ class DevicePlugin(Plugin):
 
     # }}}
 
-    def reset(self, key='-1', log_packets=False, report_progress=None,
-            detected_device=None):
+    def reset(self, key='-1', log_packets=False, report_progress=None, detected_device=None):
         """
         :param key: The key to unlock the device
         :param log_packets: If true the packet stream to/from the device is logged
@@ -428,8 +428,7 @@ class DevicePlugin(Plugin):
         """
         raise NotImplementedError()
 
-    def upload_books(self, files, names, on_card=None, end_session=True,
-                     metadata=None):
+    def upload_books(self, files, names, on_card=None, end_session=True, metadata=None):
         '''
         Upload a list of books to the device. If a file already
         exists on the device, it should be replaced.
@@ -512,16 +511,14 @@ class DevicePlugin(Plugin):
         """
         raise NotImplementedError()
 
-    @classmethod
-    def config_widget(cls):
+    def config_widget(self):
         """
         Should return a QWidget. The QWidget contains the settings for the
         device interface
         """
         raise NotImplementedError()
 
-    @classmethod
-    def save_settings(cls, config_widget):
+    def save_settings(self, config_widget):
         """
         Should save settings to disk. Takes the widget created in
         :meth:`config_widget` and saves all settings to disk.
@@ -777,7 +774,7 @@ class BookList(list):
         pass
 
     def supports_collections(self):
-        """ Return True if the device supports collections for this book list. """
+        """Return True if the device supports collections for this book list."""
         raise NotImplementedError()
 
     def add_book(self, book, replace_metadata):
@@ -810,7 +807,6 @@ class BookList(list):
 
 
 class CurrentlyConnectedDevice:
-
     def __init__(self):
         self._device = None
 
