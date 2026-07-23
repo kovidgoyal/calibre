@@ -45,7 +45,8 @@ def choose_block_style(proceed):
         parent.appendChild(E.div(
             E.div(_('Choose the block style you would like to use')),
             E.div(class_='button-box button-box--wrap-chips', style='flex-wrap: wrap',
-                s(_('Normal'), 'div'), spc, s('H1', 'h1'), spc, s('H2', 'h2'), spc, s('H3', 'h3'), spc, s('H4', 'h4'), spc, s('H5', 'h5'), spc, s('H6', 'h6'), spc, s(_('Quote'), 'blockquote')
+                s(_('Normal'), 'div'), spc, s('H1', 'h1'), spc, s('H2', 'h2'), spc, s('H3', 'h3'), spc,
+                s('H4', 'h4'), spc, s('H5', 'h5'), spc, s('H6', 'h6'), spc, s(_('Quote'), 'blockquote')
             )
         ))
     )
@@ -386,7 +387,11 @@ def all_editor_actions():  # {{{
                     if editor.insert_image_files:
                         insert_image(editor)
                     else:
-                        insert_link(_('Insert an image'), _('Enter the image URL and optionally the image name'), insert_link_or_image.bind(None, editor.id, True))
+                        insert_link(
+                            _('Insert an image'),
+                            _('Enter the image URL and optionally the image name'),
+                            insert_link_or_image.bind(None, editor.id, True)
+                        )
             },
             'fg': {
                 'icon': 'fg',

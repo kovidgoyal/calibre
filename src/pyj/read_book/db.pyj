@@ -96,7 +96,10 @@ class DB:
     def initialize_stage1(self):
         idb = indexed_db_api()
         if not idb:
-            self.initialize_error_msg = _('Your browser does not support IndexedDB. Cannot read books. Consider using a modern browser, such as Chrome or Firefox.')
+            self.initialize_error_msg = _(
+                'Your browser does not support IndexedDB. Cannot read books.'
+                ' Consider using a modern browser, such as Chrome or Firefox.'
+            )
             self.initialized = True
             # Callers assume __init__ has finished before the callback is
             # called, since we are called in __init__, only callback after

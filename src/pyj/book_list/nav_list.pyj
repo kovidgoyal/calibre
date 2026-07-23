@@ -425,8 +425,9 @@ add_extra_css(def ():
         flex_direction='column',
     )
     nav_flex_li_cell = (
-        '.cs-nav-list:not([data-field="series"]) .cs-list-content.generic-items-list > ul > li:not(:has(> div:nth-child(2))) > div:nth-child(1), ' +
-        '.cs-nav-list[data-field="series"][data-series-display="list"] .cs-list-content.generic-items-list > ul > li:not(:has(> div:nth-child(2))) > div:nth-child(1)'
+        '.cs-nav-list:not([data-field="series"]) .cs-list-content.generic-items-list > ul > li:not(:has(> div:nth-child(2))) > div:nth-child(1), '
+        '.cs-nav-list[data-field="series"][data-series-display="list"]'
+        ' .cs-list-content.generic-items-list > ul > li:not(:has(> div:nth-child(2))) > div:nth-child(1)'
     )
     style += build_rule(nav_flex_li_cell,
         flex_grow='1',
@@ -536,7 +537,9 @@ add_extra_css(def ():
     style += build_rule('.cs-nav-list[data-field="series"]:not([data-series-display="list"]) .generic-items-list li.cs-series-stack-item .item-title-body',
         padding_right='0',
     )
-    style += build_rule('.cs-nav-list[data-field="series"]:not([data-series-display="list"]) .generic-items-list li.cs-series-stack-item .item-subtitle.item-subtitle-nav',
+    style += build_rule(
+        '.cs-nav-list[data-field="series"]:not([data-series-display="list"])'
+        ' .generic-items-list li.cs-series-stack-item .item-subtitle.item-subtitle-nav',
        position='relative',
        right='0',
        top='0',

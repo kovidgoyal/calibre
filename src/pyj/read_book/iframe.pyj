@@ -835,7 +835,9 @@ class IframeBoss:
                 )
             if self.full_book_search_in_progress and not self.full_book_search_in_progress.first_result_shown and sr.on_discovery:
                 discovered = False
-                if sr.force_jump_to or progress_frac() >= self.full_book_search_in_progress.progress_frac_at_start or current_spine_item().index is not self.full_book_search_in_progress.start_spine_index:
+                if (sr.force_jump_to
+                        or progress_frac() >= self.full_book_search_in_progress.progress_frac_at_start
+                        or current_spine_item().index is not self.full_book_search_in_progress.start_spine_index):
                     self.full_book_search_in_progress.first_result_shown = True
                     discovered = True
                 else:

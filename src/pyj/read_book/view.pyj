@@ -55,7 +55,10 @@ from viewer.constants import CHARS_PER_PAGE
 
 add_extra_css(def ():
     sel = '.book-side-margin'
-    ans = build_rule(sel, cursor='pointer', text_align='center', height='100dvh', user_select='none', display='flex', align_items='center', justify_content='space-between', flex_direction='column')
+    ans = build_rule(
+        sel, cursor='pointer', text_align='center', height='100dvh', user_select='none',
+        display='flex', align_items='center', justify_content='space-between', flex_direction='column'
+    )
     ans += build_rule(sel + ' > .arrow', display='none')
     ans += build_rule(sel + ' > *', max_width='100%', overflow='hidden')
     ans += build_rule(sel + ':hover > .not-arrow', display='none')
@@ -140,7 +143,20 @@ def show_controls_help():
     if container.firstChild:
         container.removeChild(container.firstChild)
 
-    container.appendChild(E.div(style=f'overflow: hidden; width: 100vw; height: 100dvh; text-align: center; font-size: 1.3rem; font-weight: bold; background: {get_color("window-background")};' + 'display:flex; flex-direction: column; align-items: stretch', E.div(msg(_('Tap (or right click) for controls')), style='height: 25dvh; display:flex; align-items: center; border-bottom: solid 2px currentColor',), E.div(style='display: flex; align-items: stretch; flex-grow: 10', E.div(left_msg, style=f'width: {left_width}; flex-grow: {left_grow}; display:flex; align-items: center; border-right: solid 2px currentColor',), E.div(right_msg, style=f'width: {right_width}; display:flex; flex-grow: {right_grow}; align-items: center',))))
+    container.appendChild(E.div(
+        style=f'overflow: hidden; width: 100vw; height: 100dvh; text-align: center;'
+        + f' font-size: 1.3rem; font-weight: bold; background: {get_color("window-background")};'
+        + 'display:flex; flex-direction: column; align-items: stretch',
+        E.div(
+            msg(_('Tap (or right click) for controls')),
+            style='height: 25dvh; display:flex; align-items: center; border-bottom: solid 2px currentColor',
+        ),
+        E.div(
+            style='display: flex; align-items: stretch; flex-grow: 10',
+            E.div(left_msg, style=f'width: {left_width}; flex-grow: {left_grow}; display:flex; align-items: center; border-right: solid 2px currentColor',),
+            E.div(right_msg, style=f'width: {right_width}; display:flex; flex-grow: {right_grow}; align-items: center',),
+        ),
+    ))
 
 
 # }}}
@@ -169,7 +185,8 @@ def margin_elem(sd, which, id, onclick, oncontextmenu):
     fsz = header_footer_font_size(sz)
     s = '; text-overflow: ellipsis; white-space: nowrap; overflow: hidden'
     ans = E.div(
-        style=f'height:{sz}px; overflow: hidden; font-size:{fsz}px; width:100%; padding: 0; display: flex; justify-content: space-between; align-items: center; user-select: none; cursor: pointer',
+        style=f'height:{sz}px; overflow: hidden; font-size:{fsz}px; width:100%; padding: 0;'
+        + ' display: flex; justify-content: space-between; align-items: center; user-select: none; cursor: pointer',
         class_='book-h-margin',
         id=id,
         E.div(style='margin-right: 1.5em' + s),
@@ -279,29 +296,41 @@ class View:
         }
         iframe, self.iframe_wrapper = create_wrapped_iframe(handlers, _('Bootstrapping book reader...'), entry_point, iframe_kw)
         container.appendChild(
-            E.div(style='max-height: 100dvh; width: 100%; max-width: 100%; height: 100dvh; overflow: hidden; overflow-x: hidden; display: flex; align-items: stretch',  # container for horizontally aligned panels
+            # container for horizontally aligned panels
+            E.div(style='max-height: 100dvh; width: 100%; max-width: 100%; height: 100dvh;'
+                  + ' overflow: hidden; overflow-x: hidden; display: flex; align-items: stretch',
                 oncontextmenu=def (ev):
                     if not default_context_menu_should_be_allowed(ev):
                         ev.preventDefault()
                 ,
-                E.div(style='max-height: 100dvh; min-width: 0; display: flex; flex-direction: column; align-items: stretch; flex-grow:2',  # container for iframe and any other panels in the same column
-                    E.div(style='position: relative; max-height: 100dvh; min-width: 0; flex-grow: 2; display:flex; align-items: stretch; overflow: hidden',  # container for iframe and its overlay
+                # container for iframe and any other panels in the same column
+                E.div(style='max-height: 100dvh; min-width: 0; display: flex; flex-direction: column; align-items: stretch; flex-grow:2',
+                    # container for iframe and its overlay
+                    E.div(style='position: relative; max-height: 100dvh; min-width: 0; flex-grow: 2; display:flex; align-items: stretch; overflow: hidden',
                         left_margin,
-                        E.div(style='min-width: 0; flex-grow:2; display:flex; align-items:stretch; flex-direction: column; overflow-x: hidden',  # container for top and bottom margins
+                        # container for top and bottom margins
+                        E.div(style='min-width: 0; flex-grow:2; display:flex; align-items:stretch; flex-direction: column; overflow-x: hidden',
                             margin_elem(sd, 'margin_top', 'book-top-margin', self.top_margin_clicked, self.margin_context_menu.bind(None, 'top')),
                             iframe,
                             margin_elem(sd, 'margin_bottom', 'book-bottom-margin', self.bottom_margin_clicked, self.margin_context_menu.bind(None, 'bottom')),
                         ),
                         right_margin,
                         self.book_scrollbar.create(),
-                        E.div(style='position: absolute; top:0; left:0; width: 100%; height: 100%; display:none;', id='book-selection-bar-overlay'),  # selection bar overlay
-                        E.div(style='position: absolute; top:0; left:0; width: 100%; height: 100%; display:none;', id='book-read-aloud-overlay'),  # read aloud overlay
+                        # selection bar overlay
+                        E.div(style='position: absolute; top:0; left:0; width: 100%; height: 100%; display:none;', id='book-selection-bar-overlay'),
+                        # read aloud overlay
+                        E.div(style='position: absolute; top:0; left:0; width: 100%; height: 100%; display:none;', id='book-read-aloud-overlay'),
                         E.div(style='position: absolute; top:0; left:0; width: 100%; height: 100%; display:none;', id='book-hints-overlay'),  # hints overlay
-                        E.div(style='position: absolute; top:0; left:0; width: 100%; height:100%; display:none', id=SearchOverlay.CONTAINER_ID),  # search overlay
-                        E.div(style='position: absolute; top:0; left:0; width: 100%; height: 100%; display:none', id='book-content-popup-overlay'),  # content popup overlay
-                        E.div(style='position: absolute; top:0; left:0; width: 100%; height: 100%; overflow: auto; display:none', id='book-overlay'),  # main overlay
-                        E.div(style='position: absolute; top:0; left:0; width: 100%; height: 100%; display:none', id='controls-help-overlay'),  # controls help overlay
-                        E.div(style='position: absolute; bottom:0em; width: 100%; height: 100%; display:none', id='audio-ebooks-overlay'),  # read audio ebook overlay
+                        # search overlay
+                        E.div(style='position: absolute; top:0; left:0; width: 100%; height:100%; display:none', id=SearchOverlay.CONTAINER_ID),
+                        # content popup overlay
+                        E.div(style='position: absolute; top:0; left:0; width: 100%; height: 100%; display:none', id='book-content-popup-overlay'),
+                        # main overlay
+                        E.div(style='position: absolute; top:0; left:0; width: 100%; height: 100%; overflow: auto; display:none', id='book-overlay'),
+                        # controls help overlay
+                        E.div(style='position: absolute; top:0; left:0; width: 100%; height: 100%; display:none', id='controls-help-overlay'),
+                        # read audio ebook overlay
+                        E.div(style='position: absolute; bottom:0em; width: 100%; height: 100%; display:none', id='audio-ebooks-overlay'),
                     )
                 ),
             ),
@@ -1500,7 +1529,9 @@ class View:
         if sr.search_finished:
             if self.search_result_discovery:
                 self.search_result_discovery.finished = True
-                if not self.search_result_discovery.discovered and self.search_result_discovery.first_search_result and self.search_result_discovery.queue.length is 0:
+                if (not self.search_result_discovery.discovered
+                        and self.search_result_discovery.first_search_result
+                        and self.search_result_discovery.queue.length is 0):
                     sr = self.search_result_discovery.first_search_result
                     sr.force_jump_to = True
                     self.search_result_discovery.jump_forced = True

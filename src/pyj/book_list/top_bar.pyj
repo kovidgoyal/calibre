@@ -154,7 +154,10 @@ def get_bars(container):
     return target.getElementsByClassName(CLASS_NAME)
 
 
-def set_left_data(container, title='calibre', icon='heart', action=None, tooltip='', run_animation=False, title_action=None, title_tooltip=None, back_action=None):
+def set_left_data(
+    container, title='calibre', icon='heart', action=None, tooltip='',
+    run_animation=False, title_action=None, title_tooltip=None, back_action=None
+):
     bars = get_bars(container)
 
     def on_back_click(event):

@@ -211,7 +211,10 @@ Regex: Interpret the entered text as a regular expression'''),
                 self.result_handler = None
                 if self.initial_search_result_counter is 0:
                     self.view.hide_loading()
-                    window.alert(_('The full text search query {} was not found in the book, try a manual search.').format(self.initial_search_human_readable_query))
+                    window.alert(
+                        _('The full text search query {} was not found in the book, try a manual search.')
+                        .format(self.initial_search_human_readable_query)
+                    )
                 self.initial_search_result_counter = 0
             elif msg.type is 'search_result':
                 self.initial_search_result_counter += 1

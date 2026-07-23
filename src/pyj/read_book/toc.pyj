@@ -294,7 +294,8 @@ def recalculate_toc_anchor_positions(tam, plam):
 
 def current_toc_anchor_map(tam, plam):
     current_map = toc_anchor_map()
-    if not (current_map and current_map.layout_mode is current_layout_mode() and current_map.width is scroll_viewport.width() and current_map.height is scroll_viewport.height()):
+    if not (current_map and current_map.layout_mode is current_layout_mode()
+            and current_map.width is scroll_viewport.width() and current_map.height is scroll_viewport.height()):
         current_map = recalculate_toc_anchor_positions(tam, plam)
     return current_map
 

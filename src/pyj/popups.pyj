@@ -222,7 +222,10 @@ class CompletionPopup:
 
 add_extra_css(def ():
     sel = 'div.' + CompletionPopup.CLASS
-    style = build_rule(sel, overflow='hidden', text_align='left', background_color=get_color('window-background'), border='solid 1px ' + get_color('window-foreground'))
+    style = build_rule(
+        sel, overflow='hidden', text_align='left',
+        background_color=get_color('window-background'), border='solid 1px ' + get_color('window-foreground')
+    )
     sel += ' > div'
     style += build_rule(sel, cursor='pointer', padding='1ex 1rem', white_space='nowrap', text_overflow='ellipsis', overflow='hidden')
     sel += '.' + CompletionPopup.CURRENT_ITEM_CLASS

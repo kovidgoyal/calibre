@@ -91,14 +91,25 @@ class ImagePopup(TouchHandler):
     def container(self):
         if self._container is None:
             self._container = E.div(
-                style=f'display:none; position:absolute; left:0; top: 0; z-index: {MODAL_Z_INDEX}; width: 100vw; height: 100vh; padding: 0; margin: 0; border-width: 0; box-sizing: border-box',
+                style=(
+                    f'display:none; position:absolute; left:0; top: 0; z-index: {MODAL_Z_INDEX};'
+                    + ' width: 100vw; height: 100vh; padding: 0; margin: 0; border-width: 0; box-sizing: border-box'
+                ),
                 id=self.container_id,
                 tabindex='0',
                 class_='calibre-image-popup',
                 onkeydown=self.onkeydown,
                 onwheel=self.onwheel,
-                E.div(class_='cs-image-toolbar', E.a(svgicon('fit-to-screen'), title=_('Fit image to screen'), class_='fit-to-window', onclick=self.toggle_fit_to_window,), E.a(svgicon('close'), title=_('Close'), onclick=self.hide_container),),
-                E.canvas(width=window.innerWidth + '', height=window.innerHeight + '', style='width: 100%; height: 100%; margin: 0; padding: 0; border-width: 0; box-sizing: border-box; display: block', aria_label='Popup view of image',)
+                E.div(
+                    class_='cs-image-toolbar',
+                    E.a(svgicon('fit-to-screen'), title=_('Fit image to screen'), class_='fit-to-window', onclick=self.toggle_fit_to_window,),
+                    E.a(svgicon('close'), title=_('Close'), onclick=self.hide_container),
+                ),
+                E.canvas(
+                    width=window.innerWidth + '', height=window.innerHeight + '',
+                    style='width: 100%; height: 100%; margin: 0; padding: 0; border-width: 0; box-sizing: border-box; display: block',
+                    aria_label='Popup view of image',
+                )
             )
             document.body.appendChild(self._container)
             install_handlers(self.canvas, self)

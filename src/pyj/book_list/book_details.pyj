@@ -71,8 +71,11 @@ def get_preferred_format(metadata, output_format, input_formats, for_download):
     return fmt.toUpperCase()
 
 IGNORED_FIELDS = {'title', 'sort', 'uuid', 'id', 'urls_from_identifiers', 'lang_names', 'last_modified', 'path'}
-
-default_sort = {f: i + 1 for i, f in enumerate(('title', 'title_sort', 'authors', 'author_sort', 'series', 'rating', 'pubdate', 'tags', 'timestamp', 'pubdate', 'identifiers', 'languages', 'publisher', 'last_modified'))}
+default_sort = {
+    f: i + 1 for i, f in enumerate((
+        'title', 'title_sort', 'authors', 'author_sort', 'series', 'rating', 'pubdate', 'tags', \
+        'timestamp', 'pubdate', 'identifiers', 'languages', 'publisher', 'last_modified')
+)}
 default_sort['formats'] = 999
 
 
@@ -1368,11 +1371,14 @@ def files_added(check_existing, top_container_id, book_id, container_id, files):
     if check_existing:
         existing = [file.name for file in files if exists(file.name)]
         if existing.length:
-            return question_dialog(_('Replace existing data files?'), _('The following data files already exist, are you sure you want to replace them?') + ' ' + existing.join(', '), def (yes):
-                if yes:
-                    files_added(False, top_container_id, book_id, container_id, files)
-                else:
-                    back()
+            return question_dialog(
+                _('Replace existing data files?'),
+                _('The following data files already exist, are you sure you want to replace them?') + ' ' + existing.join(', '),
+                def (yes):
+                    if yes:
+                        files_added(False, top_container_id, book_id, container_id, files)
+                    else:
+                        back()
             )
 
     for file in files:

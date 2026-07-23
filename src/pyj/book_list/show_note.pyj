@@ -171,7 +171,8 @@ def init_display_note(container_id):
     setup_container(container, close_action)
     if q.item_id is '0' or q.item_id is 0 or not q.item_id:
         return reroute_with_item_id(container, q)
-    if current_note_markup and current_note_markup.library_id is q.library_id and current_note_markup.field is q.field and current_note_markup.item_id is q.item_id:
+    if (current_note_markup and current_note_markup.library_id is q.library_id
+            and current_note_markup.field is q.field and current_note_markup.item_id is q.item_id):
         create_note_display(container)
     else:
         container.lastChild.appendChild(E.div(_('Loading') + '…', style='margin: 0.5rem', class_='loading'))
@@ -235,7 +236,8 @@ def init_edit(container_id):
     setup_container(container, close_action)
     if q.item_id is '0' or q.item_id is 0 or not q.item_id:
         return reroute_with_item_id(container, q)
-    if current_note_markup and current_note_markup.library_id is q.library_id and current_note_markup.field is q.field and current_note_markup.item_id is q.item_id:
+    if (current_note_markup and current_note_markup.library_id is q.library_id
+            and current_note_markup.field is q.field and current_note_markup.item_id is q.item_id):
         create_editor(container.lastChild, current_note_markup.html)
     else:
         container.lastChild.appendChild(E.div(_('Loading') + '…', style='margin: 0.5rem', class_='loading'))

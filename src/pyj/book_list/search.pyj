@@ -159,8 +159,15 @@ add_extra_css(def ():
         box_shadow='none',
     )
     # Actions popup
-    style += build_rule('#modal-container ul.tb-action-list > li:hover', color=get_color('list-hover-foreground'), background_color=get_color('list-hover-background'))
-    style += build_rule('#modal-container ul.tb-action-list > li:active', color=get_color('window-hover-foreground'), color=get_color('list-hover-foreground'), background_color=get_color('list-hover-background'))
+    style += build_rule(
+        '#modal-container ul.tb-action-list > li:hover',
+        color=get_color('list-hover-foreground'), background_color=get_color('list-hover-background')
+    )
+    style += build_rule(
+        '#modal-container ul.tb-action-list > li:active',
+        color=get_color('window-hover-foreground'), color=get_color('list-hover-foreground'),
+        background_color=get_color('list-hover-background')
+    )
     return style
 )
 
@@ -215,7 +222,13 @@ def ask_about_smart_quotes(text):
                 text = text.replace(/[“”«»„]/g, '"')
             execute_search(text)
         parent.appendChild(E.div(
-            E.div(_('The search expression {} contains smart quotes. By default, Apple inserts smart quotes instead of normal quotes when tapping the quote button. This will prevent the search from working, if you intended to use normal quotes. You can type normal quotes by long-tapping the quotes button. Do you want to keep the smart quotes or replace them with normal quotes?').format(text)),
+            E.div(_(
+                'The search expression {} contains smart quotes. By default, Apple inserts smart'
+                ' quotes instead of normal quotes when tapping the quote button. This will prevent'
+                ' the search from working, if you intended to use normal quotes. You can type'
+                ' normal quotes by long-tapping the quotes button. Do you want to keep the smart'
+                ' quotes or replace them with normal quotes?'
+            ).format(text)),
             E.div(class_='button-box',
                 create_button(_('Keep'), None, action.bind(None, False)),
                 create_button(_('Replace'), None, action.bind(None, True), highlight=True),
@@ -440,7 +453,12 @@ def render_children(container, children):
         div = E.div(
             title=tooltip.lstrip(),
             class_='cs-search-tag-row',
-            E.div(class_='tag-name', E.img(src=icon, onerror=show_fallback.bind(None, fallback), style='display:inline-block; max-height:2.5ex; margin-right:0.5rem; flex-shrink:0'), E.span(data.name),),
+            E.div(
+                class_='tag-name',
+                E.img(src=icon, onerror=show_fallback.bind(None, fallback),
+                      style='display:inline-block; max-height:2.5ex; margin-right:0.5rem; flex-shrink:0'),
+                E.span(data.name),
+            ),
             E.div(class_='tag-menu', E.div(svgicon('angle-down')))
         )
         div.firstChild.addEventListener('click', node_clicked.bind(None, i))
@@ -582,7 +600,11 @@ def create_search_panel(container):
         execute_search_interactive, 'search-books', tooltip=_('Search for books'),
         placeholder=_('Enter the search query'), button='icon-button')
     search_container.appendChild(search_bar)
-    search_container.appendChild(E.div(E.a(class_='blue-link', svgicon('fts'), '\xa0', _('Search the full text of books instead'), href='javascript: void(0)', onclick=show_panel.bind(None, 'fts')), style='margin-top: 1rem'))
+    search_container.appendChild(E.div(
+        E.a(class_='blue-link', svgicon('fts'), '\xa0', _('Search the full text of books instead'),
+            href='javascript: void(0)', onclick=show_panel.bind(None, 'fts')),
+        style='margin-top: 1rem'
+    ))
     search_container.appendChild(E.ul(class_='search-items', data_component='search_expression'))
 
     # Build loading panel

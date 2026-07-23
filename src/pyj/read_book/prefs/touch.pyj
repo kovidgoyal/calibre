@@ -96,7 +96,10 @@ def create_touch_panel(container, apply_func, cancel_func):
             select.appendChild(E.option(ad.short, value=action))
         select.addEventListener('change', on_select_change)
         c = E.div(select, E.span(svgicon('angle-down')), data_component='select')
-        ans.appendChild(E.div(c, E.span(class_='help-text', style='font-size: smaller; font-style: italic'), style='display: flex; flex-wrap: wrap; gap: 1ex; align-items: center'))
+        ans.appendChild(E.div(
+            c, E.span(class_='help-text', style='font-size: smaller; font-style: italic'),
+            style='display: flex; flex-wrap: wrap; gap: 1ex; align-items: center'
+        ))
         on_select_change({'target': select})
         return ans
 

@@ -69,7 +69,11 @@ def create_pager_widget(on_prev, on_next):
     )
 
     def update_container_visibility():
-        container.style.display = 'none' if buttons_container.classList.contains('hidden') and top_row.classList.contains('hidden') and middle_row.classList.contains('hidden') else ''
+        container.style.display = 'none' if (
+            buttons_container.classList.contains('hidden')
+            and top_row.classList.contains('hidden')
+            and middle_row.classList.contains('hidden')
+        ) else ''
 
     def set_enabled(has_prev, has_next):
         prev_btn.setAttribute('aria-disabled', 'false' if has_prev else 'true')
@@ -436,7 +440,10 @@ def scroll_tree_item_into_view(item):
 
 add_extra_css(def ():
     ans = 'a, button:focus { outline: none }; a, button::-moz-focus-inner { border: 0 }\n'
-    ans += '.simple-link { cursor: pointer } .simple-link:hover { color: HC } .simple-link:active { transform: scale(1.5) }\n'.replace('HC', get_color('window-hover-foreground'))
+    ans += (
+        '.simple-link { cursor: pointer } .simple-link:hover { color: HC }'
+        ' .simple-link:active { transform: scale(1.5) }\n'
+    ).replace('HC', get_color('window-hover-foreground'))
     ans += '''
         a.tree-item-title {
             color: currentColor;
@@ -449,7 +456,12 @@ add_extra_css(def ():
         }
     '''
     # Use theme primary color for all "blue-link" links.
-    ans += '.blue-link { cursor: pointer; color: var(--calibre-color-primary) } .blue-link:visited { color: var(--calibre-color-primary)} .blue-link:hover { color: var(--calibre-color-primary) } .blue-link:active { transform: scale(1.5) }\n'
+    ans += (
+        '.blue-link { cursor: pointer; color: var(--calibre-color-primary) }'
+        ' .blue-link:visited { color: var(--calibre-color-primary)}'
+        ' .blue-link:hover { color: var(--calibre-color-primary) }'
+        ' .blue-link:active { transform: scale(1.5) }\n'
+    )
     ans += create_button.style + '\n'
     ans += create_pager_widget.style + '\n'
     ans += create_spinner.style + '\n'

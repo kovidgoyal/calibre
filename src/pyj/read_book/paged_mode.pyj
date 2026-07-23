@@ -356,7 +356,8 @@ def layout(is_single_page, on_resize):
                 'ncols': nc, 'screen_inline': screen_inline
             }
             print(
-                'WARNING: column layout broken, probably because there is some non-reflowable content in the book whose inline size is greater than the column size',
+                'WARNING: column layout broken, probably because there is some non-reflowable'
+                ' content in the book whose inline size is greater than the column size',
                 data
             )
 
@@ -484,7 +485,9 @@ def next_col_location():
     cc = current_column_location()
     ans = cc + col_and_gap
     limit = scroll_viewport.paged_content_inline_size() - scroll_viewport.inline_size()
-    # print(f'cc={cc} col_and_gap={col_and_gap} ans={ans} limit={limit} content_inline_size={scroll_viewport.paged_content_inline_size()} inline={scroll_viewport.inline_size()} current_scroll_offset={current_scroll_offset()}')
+    # print(f'cc={cc} col_and_gap={col_and_gap} ans={ans} limit={limit}'
+    #       f' content_inline_size={scroll_viewport.paged_content_inline_size()}'
+    #       f' inline={scroll_viewport.inline_size()} current_scroll_offset={current_scroll_offset()}')
     if ans > limit:
         if Math.ceil(current_scroll_offset()) < limit and column_at(limit) > column_at_current_scroll_offset():
             ans = limit

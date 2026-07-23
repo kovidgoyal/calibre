@@ -803,9 +803,14 @@ def restore_defaults():
         set(setting, get_option_default_value(setting))
 
 
-def create_option_group(group_name, ui_data_, profiles_, container, get_option_value_, get_option_default_value_, is_option_disabled_, get_option_help_, on_close):
+def create_option_group(
+    group_name, ui_data_, profiles_, container,
+    get_option_value_, get_option_default_value_, is_option_disabled_, get_option_help_, on_close
+):
     nonlocal get_option_value, get_option_default_value, is_option_disabled, container_id, registry, listeners, get_option_help, profiles, ui_data
-    get_option_value, get_option_default_value, is_option_disabled, get_option_help = get_option_value_, get_option_default_value_, is_option_disabled_, get_option_help_
+    get_option_value, get_option_default_value, is_option_disabled, get_option_help = (
+        get_option_value_, get_option_default_value_, is_option_disabled_, get_option_help_
+    )
     profiles, ui_data = profiles_, ui_data_
     registry = {}
     listeners = {}

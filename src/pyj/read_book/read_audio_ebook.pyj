@@ -54,7 +54,12 @@ class ReadAudioEbook:
         container.style.justifyContent = 'center'
         container.style.alignItems = 'flex-end'
         container.setAttribute('tabindex', '0')
-        container.appendChild(E.div(data_component='bar', style=f'position: absolute; bottom: 0; width: min(600px, 80vw); height: 2em; border-radius: 1em; padding:0.5em; display: flex; justify-content: center; align-items: center; background-color: {get_color("window-background")};'))
+        container.appendChild(E.div(
+            data_component='bar',
+            style=f'position: absolute; bottom: 0; width: min(600px, 80vw); height: 2em;'
+            + f' border-radius: 1em; padding:0.5em; display: flex; justify-content: center;'
+            + f' align-items: center; background-color: {get_color("window-background")};'
+        ))
         bar_container = container.lastChild
         container.appendChild(E.style(
             f'#{container.id} .speaking ' + '{ opacity: 0.5 }\n\n',
@@ -80,8 +85,18 @@ class ReadAudioEbook:
         for x in [
             E.div(style='height: 3ex; display: flex; align-items: center; justify-content: center', create_button('toggle', 'pause', _('Pause audio')),),
             E.div(data_component='time_display', E.text('')),
-            E.div(data_component='progress_bar', style=f'height:1.5em; border-radius: 0.75em; overflow: hidden; flex-grow: 100; display:block; background-color:{get_color("window-background2")}; margin:1em; cursor: pointer', E.div(style=f'display:block; width: 0%; background-color:{get_color("window-foreground")}; height:100%'),),
-            E.div(style='height: 3ex; display: flex; align-items: center; justify-content: center', create_button('slower', 'slower', _('Slow down audio')), create_button('faster', 'faster', _('Speed up audio')), create_button('hide', 'off', _('Close Read aloud'))),
+            E.div(
+                data_component='progress_bar',
+                style=f'height:1.5em; border-radius: 0.75em; overflow: hidden; flex-grow: 100; display:block;'
+                + f' background-color:{get_color("window-background2")}; margin:1em; cursor: pointer',
+                E.div(style=f'display:block; width: 0%; background-color:{get_color("window-foreground")}; height:100%'),
+            ),
+            E.div(
+                style='height: 3ex; display: flex; align-items: center; justify-content: center',
+                create_button('slower', 'slower', _('Slow down audio')),
+                create_button('faster', 'faster', _('Speed up audio')),
+                create_button('hide', 'off', _('Close Read aloud')),
+            ),
         ]:
             bar_container.appendChild(x)
 

@@ -238,7 +238,8 @@ def apply_search_panel_state():
     if not ftsq.query:
         clear_to_help()
         return
-    if current_fts_query.query is not ftsq.query or current_fts_query.use_stemming is not ftsq.use_stemming or current_fts_query.restriction is not ftsq.restriction:
+    if (current_fts_query.query is not ftsq.query or current_fts_query.use_stemming is not ftsq.use_stemming
+            or current_fts_query.restriction is not ftsq.restriction):
         make_new_fts_query(ftsq)
         clear_to_waiting_for_results(_('Searching for {}, please wait…').format(ftsq.query))
         return
@@ -301,15 +302,22 @@ def disable_fts_backend():
                     'You do not have permission to disable FTS. Only logged in users with write permission are allowed to disable FTS.'), xhr.error_html)
             return error_dialog(_('Disabling FTS failed'), _('Disabling FTS failed. Click "Show details" for more information.'), xhr.error_html)
         library_data.fts_enabled = False
-        info_dialog(_('Full text searching disabled'), _('Full text searching for this library has been disabled. In the future the entire library will have to be re-indexed when re-enabling full text searching.'), on_close=def ():
-            window.setTimeout(home)
+        info_dialog(
+            _('Full text searching disabled'),
+            _('Full text searching for this library has been disabled. In the future the entire'
+              ' library will have to be re-indexed when re-enabling full text searching.'),
+            on_close=def ():
+                window.setTimeout(home)
         )
 
     ajax(f'fts/disable', on_response, bypass_cache=True).send()
 
 
 def disable_fts():
-    question_dialog(_('Are you sure?'), _('Disabling full text search means that in the future the entire library will have to be re-indexed to use full text search. Are you sure you want to proceed?'),
+    question_dialog(
+        _('Are you sure?'),
+        _('Disabling full text search means that in the future the entire library will have to be'
+          ' re-indexed to use full text search. Are you sure you want to proceed?'),
         def (yes):
             if yes:
                 disable_fts_backend()
@@ -335,7 +343,8 @@ def book_result_tile_clicked(ev):
             close_modal()
             reindex_book(book_id)
         for fmt in formats:
-            a = E.a(fmt, class_='blue-link', style='cursor: pointer; margin: 1ex; display: block', href='javascript: void(0)', onclick=open_format_and_close.bind(None, bid, fmt))
+            a = E.a(fmt, class_='blue-link', style='cursor: pointer; margin: 1ex; display: block',
+                    href='javascript: void(0)', onclick=open_format_and_close.bind(None, bid, fmt))
             fmc.appendChild(a)
         parent.appendChild(E.div(
             _('Click one of the formats below to open the book at this search result (except PDF which will open at the start):'),

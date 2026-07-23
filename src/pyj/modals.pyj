@@ -30,7 +30,10 @@ add_extra_css(def ():
         overscroll_behavior_x='none',
         overscroll_behavior_y='contain',
         touch_action='pan-x pan-y',
-        padding='max(1rem, env(safe-area-inset-top, 0px)) max(1rem, env(safe-area-inset-right, 0px)) max(1rem, env(safe-area-inset-bottom, 0px)) max(1rem, env(safe-area-inset-left, 0px))',
+        padding=(
+            'max(1rem, env(safe-area-inset-top, 0px)) max(1rem, env(safe-area-inset-right, 0px))'
+            ' max(1rem, env(safe-area-inset-bottom, 0px)) max(1rem, env(safe-area-inset-left, 0px))'
+        ),
         box_sizing='border-box',
     )
     style += build_rule(
@@ -254,7 +257,23 @@ def create_simple_dialog_markup(title, msg, details, icon, prefix, icon_color, p
         prefix = E.span(' ' + prefix + ' ', style='white-space:pre; font-variant: small-caps')
     else:
         prefix = '\xa0'
-    parent.appendChild(E.div(style='max-width:100%; min-width:0; box-sizing:border-box; text-align:left; overflow-wrap:anywhere; word-break:break-word', E.h2(E.span(svgicon(icon), style=f'color:{icon_color}'), prefix, title, style='font-weight: bold; font-size: ' + get_font_size('title') + '; overflow-wrap:anywhere; word-break:break-word'), E.div((html_container if is_html_msg else msg), style='padding-top: 1em; margin-top: 1em; border-top: 1px solid currentColor; min-width:0; overflow-wrap:anywhere; word-break:break-word'), E.div(style='display: ' + ('block' if details else 'none'), show_details, E.div(details_container, style='display:none; white-space:pre-wrap; font-size: smaller; margin-top: 1em; border-top: solid 1px currentColor; padding-top: 1em'))))
+    parent.appendChild(E.div(
+        style='max-width:100%; min-width:0; box-sizing:border-box; text-align:left; overflow-wrap:anywhere; word-break:break-word',
+        E.h2(
+            E.span(svgicon(icon), style=f'color:{icon_color}'), prefix, title,
+            style='font-weight: bold; font-size: ' + get_font_size('title') + '; overflow-wrap:anywhere; word-break:break-word',
+        ),
+        E.div(
+            (html_container if is_html_msg else msg),
+            style='padding-top: 1em; margin-top: 1em; border-top: 1px solid currentColor; min-width:0; overflow-wrap:anywhere; word-break:break-word',
+        ),
+        E.div(
+            style='display: ' + ('block' if details else 'none'),
+            show_details,
+            E.div(details_container,
+                  style='display:none; white-space:pre-wrap; font-size: smaller; margin-top: 1em; border-top: solid 1px currentColor; padding-top: 1em'),
+        ),
+    ))
 
 
 def create_simple_dialog(title, msg, details, icon, prefix, on_close=None, icon_color='red'):
@@ -297,7 +316,8 @@ def get_text_dialog(title, callback, initial_text=None, msg=None, rows=12):
     create_custom_dialog(
         title, def (parent, close_modal):
             parent.appendChild(E.div(
-                E.textarea(initial_text or '', placeholder=msg or '', id=cid, rows=rows + '', style='width:100%; max-width:100%; min-width:0; box-sizing:border-box; resize:vertical'),
+                E.textarea(initial_text or '', placeholder=msg or '', id=cid, rows=rows + '',
+                           style='width:100%; max-width:100%; min-width:0; box-sizing:border-box; resize:vertical'),
                 E.div(class_='button-box',
                     create_button(_('Cancel'), 'close', keyaction.bind(None, False, close_modal)),
                     create_button(_('OK'), 'check', keyaction.bind(None, True, close_modal), highlight=True),
@@ -406,7 +426,8 @@ def create_progress_dialog(msg, on_close):
 # def test_error():
 #     error_dialog(
 #         'Hello, world!',
-#         'Some long text to test rendering/line breaking in error dialogs that contain lots of text like this test error dialog from hell in a handbasket with fruits and muppets making a scene.',
+#         'Some long text to test rendering/line breaking in error dialogs that contain lots of text'
+#         ' like this test error dialog from hell in a handbasket with fruits and muppets making a scene.',
 #         ['a word ' for i in range(10000)].join(' ')
 #     )
 

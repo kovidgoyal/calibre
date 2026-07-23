@@ -84,7 +84,11 @@ add_extra_css(def ():
         border='var(--calibre-border-style)'
     )
     style += build_rule(sel + '.rating-edit-container', display='flex', flex_wrap='wrap', align_items='center', list_style_type='none')
-    style += build_rule(sel + '.rating-edit-container > li', margin='0.5ex 0.5rem', margin_left='0', padding='0.5ex 0.5rem', border='solid 1px currentColor', border_radius='1ex', cursor='pointer')
+    style += build_rule(
+        sel + '.rating-edit-container > li',
+        margin='0.5ex 0.5rem', margin_left='0', padding='0.5ex 0.5rem',
+        border='solid 1px currentColor', border_radius='1ex', cursor='pointer'
+    )
     style += build_rule(sel + '.rating-edit-container > li.current-rating', color=get_color('window-background'), background=get_color('window-foreground'))
     # Floating editor modal (field editing)
     style += build_rule(sel + 'div[data-ctype="edit"]',
@@ -452,7 +456,10 @@ def update_removals(container_id):
     removals = E.div(class_='completions')
     div.appendChild(removals)
     for i, name in enumerate(val):
-        removals.appendChild(E.div(E.span(style='color: ' + get_color('window-error-foreground'), svgicon('eraser'), '\xa0'), name, onclick=remove_item.bind(None, container_id, name)))
+        removals.appendChild(E.div(
+            E.span(style='color: ' + get_color('window-error-foreground'), svgicon('eraser'), '\xa0'),
+            name, onclick=remove_item.bind(None, container_id, name)
+        ))
         if i >= 50:
             break
 
@@ -640,7 +647,18 @@ def add_identifier(container_id, name, val):
     if not c:
         return
     b = create_button(_('Remove'), action=remove_identifier)
-    c.appendChild(E.li(style='padding-bottom: 1ex; margin-bottom: 1ex; border-bottom: solid 1px currentColor', E.table(style='width: 100%', E.tr(E.td(_('Type:') + '\xa0'), E.td(style='padding-bottom: 1ex; width: 99%', E.input(type='text', style='width:100%', autocomplete=True, value=name or '')), E.td(rowspan='2', style='padding: 0.5ex 1rem; vertical-align: middle', b)), E.tr(E.td(_('Value:') + '\xa0'), E.td(E.input(type='text', style='width: 100%', autocomplete=True, value=val or ''))),)))
+    c.appendChild(E.li(
+        style='padding-bottom: 1ex; margin-bottom: 1ex; border-bottom: solid 1px currentColor',
+        E.table(
+            style='width: 100%',
+            E.tr(
+                E.td(_('Type:') + '\xa0'),
+                E.td(style='padding-bottom: 1ex; width: 99%', E.input(type='text', style='width:100%', autocomplete=True, value=name or '')),
+                E.td(rowspan='2', style='padding: 0.5ex 1rem; vertical-align: middle', b),
+            ),
+            E.tr(E.td(_('Value:') + '\xa0'), E.td(E.input(type='text', style='width: 100%', autocomplete=True, value=val or ''))),
+        ),
+    ))
 
 
 def identifiers_get_value(container):
@@ -1275,7 +1293,10 @@ def changes_submitted(container_id, book_id, end_type, xhr, ev):
     cq = get_current_query()
     if cq.from_read_book:
         window.parent.postMessage(
-            {'type': 'update_cached_book_metadata', 'library_id': cq.library_id, 'book_id': cq.book_id, 'metadata': dirtied[book_id], 'from_read_book': cq.from_read_book},
+            {
+                'type': 'update_cached_book_metadata', 'library_id': cq.library_id,
+                'book_id': cq.book_id, 'metadata': dirtied[book_id], 'from_read_book': cq.from_read_book,
+            },
             document.location.protocol + '//' + document.location.host
         )
     else:
@@ -1369,7 +1390,15 @@ def show_book(container_id, book_id):
             E.div(_('Use Save/Cancel below to apply or discard them.')),
         ))
     else:
-        div.appendChild(E.div(style='margin: 1ex 1rem', E.div(_('Tap any field below to edit that field.')), E.div(E.a(svgicon('pencil'), '\xa0', _('Add notes for authors, series, etc.'), href='javascript:void(0)', onclick=show_select_panel, class_='blue-link'), style='display:' + ('none' if cq.from_read_book else 'block')),))
+        div.appendChild(E.div(
+            style='margin: 1ex 1rem',
+            E.div(_('Tap any field below to edit that field.')),
+            E.div(
+                E.a(svgicon('pencil'), '\xa0', _('Add notes for authors, series, etc.'),
+                    href='javascript:void(0)', onclick=show_select_panel, class_='blue-link'),
+                style='display:' + ('none' if cq.from_read_book else 'block'),
+            ),
+        ))
     div.appendChild(E.table(class_='metadata'))
     render_metadata(mi, div.lastChild, container_id, book_id)
 
@@ -1387,7 +1416,12 @@ def show_book(container_id, book_id):
         show_book(container_id, book_id)
 
     if has_changes:
-        div.appendChild(E.div(class_='edit-metadata-footer', style='display:flex;justify-content:center;align-items:center;gap:0.75rem;flex-wrap:wrap;padding:0 1rem 1.5rem 1rem', create_button(_('Save'), None, save_action, highlight=True), create_button(_('Cancel'), None, cancel_action),))
+        div.appendChild(E.div(
+            class_='edit-metadata-footer',
+            style='display:flex;justify-content:center;align-items:center;gap:0.75rem;flex-wrap:wrap;padding:0 1rem 1.5rem 1rem',
+            create_button(_('Save'), None, save_action, highlight=True),
+            create_button(_('Cancel'), None, cancel_action),
+        ))
 
 
 def is_edit_panel_showing(container):
