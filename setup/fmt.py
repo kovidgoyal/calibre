@@ -33,7 +33,7 @@ class AutoFormat(Command):
             m = tomllib.loads(f.read())
             line_length = m['tool']['ruff']['line-length']
         print('Formatting Python files...')
-        cmd = [ruff, 'format', '--extension', 'recipe:python']
+        cmd = [ruff, 'format']
         if opts.check_only:
             cmd.append('--check')
         pp = subprocess.run(cmd + list(py_files), cwd=self.PROJECT_ROOT)
