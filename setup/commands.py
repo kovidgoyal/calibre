@@ -11,6 +11,7 @@ __all__ = [
     'build_dep',
     'cacerts',
     'check',
+    'check_all',
     'develop',
     'export_packages',
     'extdev',
@@ -124,9 +125,10 @@ from setup.gui import GUI
 
 gui = GUI()
 
-from setup.check import Check, UpgradeSourceCode
+from setup.check import Check, CheckAll, UpgradeSourceCode
 
 check = Check()
+check_all = CheckAll()
 upgrade_source_code = UpgradeSourceCode()
 
 from setup.test import Test, TestRS
