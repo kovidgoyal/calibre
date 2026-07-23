@@ -33,7 +33,11 @@ class AutoFormat(Command):
             m = tomllib.loads(f.read())
             line_length = m['tool']['ruff']['line-length']
         print('Formatting Python files...')
-        cmd = [ruff, 'format', '--extension', 'recipe:python']
+        cmd = [ruff, 'check', '--fix-only']
+        if opts.check_only:
+            cmd.append('--diff')
+        fp = subprocess.run(cmd + list(py_files), cwd=self.PROJECT_ROOT)
+        cmd = [ruff, 'format']
         if opts.check_only:
             cmd.append('--check')
         pp = subprocess.run(cmd + list(py_files), cwd=self.PROJECT_ROOT)
@@ -42,8 +46,5 @@ class AutoFormat(Command):
         if opts.check_only:
             cmd.append('--check-only')
         cp = subprocess.run(cmd + (list(pyj_files) or ['src/pyj']), cwd=self.PROJECT_ROOT)
-        if cp.returncode != 0 or pp.returncode != 0:
+        if fp.returncode != 0 or cp.returncode != 0 or pp.returncode != 0:
             raise SystemExit(1)
-        if not opts.check_only:
-            if subprocess.run([ruff, 'check', '--fix']).returncode != 0:
-                raise SystemExit(1)

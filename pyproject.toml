@@ -98,6 +98,7 @@ dev = [
 line-length = 160
 builtins = ['_', 'I', 'P']
 include = ['*.py', '*.pyi', '*.recipe']
+extension = { recipe = "python" }
 extend-exclude = [
     "*_ui.py",
     "bypy/*",
