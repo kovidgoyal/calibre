@@ -93,6 +93,10 @@ class RapydScript(Command):  # {{{
     def run(self, opts):
         from calibre.utils.rapydscript import compile_all, compile_editor, compile_srv, compile_viewer
 
+        bin_dir = self.j(self.PROJECT_ROOT, '.venv', 'bin')
+        if os.path.exists(bin_dir):
+            os.environ['PATH'] = bin_dir + ':' + os.environ['PATH']
+
         if opts.only_module:
             match opts.only_module:
                 case 'editor':

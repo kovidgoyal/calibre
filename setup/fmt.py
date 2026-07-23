@@ -12,6 +12,9 @@ class AutoFormat(Command):
     usage_help = 'To format specific files specify them on the command line'
     require_venv = True
 
+    def add_options(self, parser):
+        parser.add_option('--check-only', default=False, action='store_true', help='Only check for formatting issues dont fix them')
+
     def run(self, opts):
         rapydscript = self.j(self.PROJECT_ROOT, '.venv/bin/rapydscript')
         ruff = self.j(self.PROJECT_ROOT, '.venv/bin/ruff')
@@ -30,10 +33,17 @@ class AutoFormat(Command):
             m = tomllib.loads(f.read())
             line_length = m['tool']['ruff']['line-length']
         print('Formatting Python files...')
-        cp = subprocess.run([ruff, 'format', '--extension', 'recipe:python'] + list(py_files), cwd=self.PROJECT_ROOT)
-        if cp.returncode != 0:
-            raise SystemExit(cp.returncode)
+        cmd = [ruff, 'format', '--extension', 'recipe:python']
+        if opts.check_only:
+            cmd.append('--check')
+        pp = subprocess.run(cmd + list(py_files), cwd=self.PROJECT_ROOT)
         print('Formatting RapydScript files...')
-        cp = subprocess.run([rapydscript, 'fmt', '--line-length', str(line_length)] + (list(pyj_files) or ['src/pyj']), cwd=self.PROJECT_ROOT)
-        if cp.returncode != 0:
-            raise SystemExit(cp.returncode)
+        cmd = [rapydscript, 'fmt', '--line-length', str(line_length)]
+        if opts.check_only:
+            cmd.append('--check-only')
+        cp = subprocess.run(cmd + (list(pyj_files) or ['src/pyj']), cwd=self.PROJECT_ROOT)
+        if cp.returncode != 0 or pp.returncode != 0:
+            raise SystemExit(1)
+        if not opts.check_only:
+            if subprocess.run([ruff, 'check', '--fix']).returncode != 0:
+                raise SystemExit(1)
