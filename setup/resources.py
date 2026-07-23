@@ -44,7 +44,7 @@ class CACerts(Command):  # {{{
             with open(opts.path_to_cacerts, 'rb') as f:
                 raw = f.read()
         else:
-            raw = download_securely('https://curl.haxx.se/ca/cacert.pem')
+            raw = download_securely('https://curl.se/ca/cacert.pem')
             if not raw:
                 raise RuntimeError('Failed to download CA cert bundle')
         if os.path.exists(self.CA_PATH):
