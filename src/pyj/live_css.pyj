@@ -112,12 +112,12 @@ INHERITED_PROPS = {  # {{{
 
 def get_sourceline_address(node):
     sourceline = parseInt(node.dataset.lnum)
-    tags = v'[]'
+    tags = []
     for elem in document.querySelectorAll(f'[data-lnum="{sourceline}"]'):
         tags.push(elem.tagName.toLowerCase())
         if elem is node:
             break
-    return v'[sourceline, tags]'
+    return [sourceline, tags]
 
 
 def get_color(property, val):
@@ -132,7 +132,7 @@ def get_color(property, val):
 
 def get_style_properties(style, all_properties, node_style, is_ancestor):
     i = 0
-    properties = v'[]'
+    properties = []
     while i < style.length:
         property = style.item(i)
         if property:
@@ -141,21 +141,21 @@ def get_style_properties(style, all_properties, node_style, is_ancestor):
         else:
             val = None
         if property and val and (not is_ancestor or INHERITED_PROPS[property]):
-            properties.push(v'[property, val, style.getPropertyPriority(property), get_color(property, val)]')
+            properties.push([property, val, style.getPropertyPriority(property), get_color(property, val)])
             if not all_properties[property]:
                 cval = node_style.getPropertyValue(property)
                 cval
-                all_properties[property] = v'[cval, get_color(property, cval)]'
+                all_properties[property] = [cval, get_color(property, cval)]
         i += 1
     return properties
 
 
 def get_sheet_rules(sheet):
     if sheet.disabled or not sheet.cssRules:
-        return v'[]'
+        return []
     sheet_media = sheet.media and sheet.media.mediaText
     if sheet_media and sheet_media.length and not window.matchMedia(sheet_media).matches:
-        return v'[]'
+        return []
     return sheet.cssRules
 
 
@@ -179,7 +179,7 @@ def process_rules(node, rules, address, sheet, sheet_index, all_properties, node
     offset = 0
     for rule_index in range(rules.length):
         rule = rules[rule_index]
-        rule_address = address.concat(v'[rule_index - offset]')
+        rule_address = address.concat([rule_index - offset])
         if rule.type is CSSRule.MEDIA_RULE:
             process_rules(node, rule.cssRules, rule_address, sheet, sheet_index, all_properties, node_style, is_ancestor, ans)
             continue
@@ -210,13 +210,13 @@ def process_rules(node, rules, address, sheet, sheet_index, all_properties, node
 
 
 def get_matched_css(node, is_ancestor, all_properties):
-    ans = v'[]'
+    ans = []
     node_style = window.getComputedStyle(node)
 
     sheets = document.styleSheets
     for sheet_index in range(sheets.length):
         sheet = sheets[sheet_index]
-        process_rules(node, get_sheet_rules(sheet), v'[]', sheet, sheet_index, all_properties, node_style, is_ancestor, ans)
+        process_rules(node, get_sheet_rules(sheet), [], sheet, sheet_index, all_properties, node_style, is_ancestor, ans)
 
     if node.getAttribute('style'):
         properties = get_style_properties(node.style, all_properties, node_style, is_ancestor)

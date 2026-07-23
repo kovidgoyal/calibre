@@ -92,7 +92,7 @@ def go_to_sourceline_address(sourceline, tags, sync_context):
 
 def line_numbers():
     found_body = False
-    ans = v'[]'
+    ans = []
     for node in document.getElementsByTagName('*'):
         if not found_body and node.tagName.toLowerCase() is 'body':
             found_body = True
@@ -120,8 +120,8 @@ def set_split_mode(enabled):
 
 
 def report_split(node):
-    loc = v'[]'
-    totals = v'[]'
+    loc = []
+    totals = []
     parent = find_containing_block(node)
     while parent and parent.tagName.toLowerCase() is not 'body':
         totals.push(parent.parentNode.children.length)
@@ -172,7 +172,7 @@ def go_to_anchor(anchor):
 @no_prune
 def live_css(editor_name, sourceline, tags):
     all_properties = {}
-    ans = {'nodes': v'[]', 'computed_css': all_properties, 'editor_name': editor_name, 'sourceline': sourceline, 'tags': tags}
+    ans = {'nodes': [], 'computed_css': all_properties, 'editor_name': editor_name, 'sourceline': sourceline, 'tags': tags}
     target = None
     i = 0
     for node in document.querySelectorAll(f'[data-lnum="{sourceline}"]'):
