@@ -91,7 +91,7 @@ dev = [
     "ruff >= 0.15.21",
     "types-lxml >= 2026.2.16",
     "ty >= 0.0.59",
-    "rapydscript-ng >= 0.8.0",
+    "rapydscript-ng >= 0.8.2",
 ]
 
 [tool.ruff]
