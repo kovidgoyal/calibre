@@ -98,7 +98,7 @@ dev = [
 line-length = 160
 builtins = ['_', 'I', 'P']
 include = ['*.py', '*.pyi', '*.recipe']
-exclude = [
+extend-exclude = [
     "*_ui.py",
     "bypy/*",
     "setup/polib.py",
