@@ -17,13 +17,13 @@ class Tracker:
         self.clear()
 
     def clear(self):
-        self.positions = v'[]'
+        self.positions = []
         self.last_pos = 0
-        self.queue = v'[]'
+        self.queue = []
 
     def parse_marked_text(self, marked_text):
         self.clear()
-        text = v'[]'
+        text = []
         text_len = chunk_len = index_in_positions = offset_in_text = 0
         limit = 2048
 
@@ -42,7 +42,7 @@ class Tracker:
                 if chunk_len > limit:
                     commit()
                     chunk_len = 0
-                    text = v'[]'
+                    text = []
                     index_in_positions = max(0, self.positions.length - 1)
                     offset_in_text = text_len
         if text.length:
@@ -80,7 +80,7 @@ class Tracker:
             return
         start += self.queue[0].offset_in_text
         end = start + length
-        matches = v'[]'
+        matches = []
         while self.last_pos < self.positions.length:
             pos = self.positions[self.last_pos]
             if start <= pos.offset_in_text < end:
@@ -100,7 +100,7 @@ class Client:
     def __init__(self):
         self.stop_requested_at = None
         self.status = {'synthesizing': False, 'paused': False}
-        self.tracker = Tracker(v'[]')
+        self.tracker = Tracker([])
         self.last_reached_mark = None
         self.onevent = def ():
             pass
@@ -204,7 +204,7 @@ class Client:
 
     def speak_simple_text(self, text):
         self.stop()
-        text = self.tracker.parse_marked_text(v'[text]')
+        text = self.tracker.parse_marked_text([text])
         if text and text.length:
             self.speak(text)
 

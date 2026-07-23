@@ -81,7 +81,7 @@ safe_nodes = {'img': True, 'br': True, 'hr': True}
 
 
 def get_selection_node_at_boundary(node, start):
-    stack = v'[]'
+    stack = []
     stack.push({'node': node, 'visited': False})
     while stack.length > 0:
         top = stack[-1]

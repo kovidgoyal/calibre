@@ -14,12 +14,12 @@ def flow_to_scroll_fraction(frac, on_initial_load):
     scroll_viewport.scroll_to_in_block_direction(scroll_viewport.document_block_size() * frac)
 
 
-small_scroll_events = v'[]'
+small_scroll_events = []
 
 
 def clear_small_scrolls():
     nonlocal small_scroll_events
-    small_scroll_events = v'[]'
+    small_scroll_events = []
 
 
 def dispatch_small_scrolls():

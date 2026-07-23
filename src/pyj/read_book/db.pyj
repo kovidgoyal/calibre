@@ -217,7 +217,7 @@ class DB:
         transaction = self.idb.transaction(['objects'])
         store = transaction.objectStore('objects')
         key_range = IDBKeyRange.bound('pending-annot-upload:', 'pending-annot-upload:\uffff')  # noqa
-        entries = v'[]'
+        entries = []
         req = store.openCursor(key_range)
         req.onsuccess = def (event):
             cursor = event.target.result
@@ -228,7 +228,7 @@ class DB:
                 proceed(entries)
         req.onerror = def (event):
             self.display_error(_('Failed to read pending annotation uploads'), event)
-            proceed(v'[]')
+            proceed([])
 
     def clear_pending_annot_upload(self, library_id, book_id, fmt, proceed):
         key = f'pending-annot-upload:{library_id}/{book_id}/{fmt}'
@@ -241,7 +241,7 @@ class DB:
         # into indexed db, because the RapydScript list has properties that
         # refer to non-serializable objects like functions.
         book_id = int(book_id)
-        key = v'[library_id, book_id, fmt]'
+        key = [library_id, book_id, fmt]
         self.do_op(['books'], key, _('Failed to read from the books database'), def (result):
             if result and not result.annotations_map:
                 result.annotations_map = {}
@@ -445,7 +445,7 @@ class DB:
 
     def get_books_by_recent_date(self, proceed, limit=None):
         c = self.idb.transaction(['books'], 'readonly').objectStore('books').index('recent_index').openCursor(None, 'prev')
-        books = v'[]'
+        books = []
         c.onerror = def (event):
             err = _('Failed to read recent books from local storage')
             self.display_error(err, event)
@@ -507,7 +507,7 @@ class DB:
         c.onerror = def (event):
             pass
         book_id = int(book_id)
-        matches = v'[]'
+        matches = []
 
         def delete_all():
             if matches.length:

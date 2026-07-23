@@ -215,7 +215,7 @@ def render_head_foot(div, which, region, metadata, current_toc_node, current_toc
     elif field is 'title':
         text = metadata.title or _('Untitled')
     elif field is 'authors':
-        text = ' & '.join(metadata.authors or v'[]')
+        text = ' & '.join(metadata.authors or [])
     elif field is 'series':
         if metadata.series:
             ival = fmt_sidx(metadata.series_index, use_roman=interface_data.use_roman_numerals_for_series_number)

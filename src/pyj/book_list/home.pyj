@@ -211,8 +211,8 @@ def start_sync(to_sync):
     for key, last_read in to_sync:
         library_id = key[0]
         if not libraries[library_id]:
-            libraries[library_id] = v'[]'
-        libraries[library_id].push(v'[key, last_read]')
+            libraries[library_id] = []
+        libraries[library_id].push([key, last_read])
     for lid in libraries:
         sync_library_books(lid, libraries[lid], sync_data_received)
 
@@ -255,12 +255,12 @@ def show_recent_stage2(books):
         return
     images = prepare_recent_container(container)
     db = get_db()
-    to_sync = v'[]'
+    to_sync = []
     username = get_interface_data().username
     for book in books:
         if to_sync.length < 10:
-            lr = book.last_read[username_key(username)] or new Date(0)  # noqa: unused-local
-            to_sync.push(v'[book.key, lr]')
+            lr = book.last_read[username_key(username)] or new Date(0)
+            to_sync.push([book.key, lr])
         authors = book.metadata.authors.join(' & ') if book.metadata.authors else _('Unknown')
         img = E.img(
             alt=_('{} by {}').format(book.metadata.title, authors)

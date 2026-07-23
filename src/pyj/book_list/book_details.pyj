@@ -55,7 +55,7 @@ def sort_formats_key(fmt):
 
 
 def get_preferred_format(metadata, output_format, input_formats, for_download):
-    formats = (metadata and metadata.formats) or v'[]'
+    formats = (metadata and metadata.formats) or []
     formats = [f.toUpperCase() for f in formats]
     fmt = 'EPUB' if output_format is 'PDF' else output_format
     if formats.length and formats.indexOf(fmt) is -1:
@@ -261,7 +261,7 @@ def render_metadata(mi, table, book_id, iframe_css):  # {{{
         return True
 
     fields = library_data.book_display_fields
-    vertical_categories = {x: True for x in (library_data.book_details_vertical_categories or v'[]')}
+    vertical_categories = {x: True for x in (library_data.book_details_vertical_categories or [])}
     if not fields or not fields.length or get_session_data().get('show_all_metadata'):
         if field_metadata:
             fields = sorted(filter(allowed_fields, mi), key=field_sorter(field_metadata))
@@ -269,7 +269,7 @@ def render_metadata(mi, table, book_id, iframe_css):  # {{{
             fields = filter(allowed_fields, fields)
     else:
         fields = filter(allowed_fields, fields)
-    comments = v'[]'
+    comments = []
     link_maps = mi.link_maps or v'{}'
 
     def show_note_action(field, item_id, item_val):
@@ -374,7 +374,7 @@ def render_metadata(mi, table, book_id, iframe_css):  # {{{
                 td.appendChild(E.a(
                     fmt, class_='blue-link', href='javascript:void(0)',
                     title=_('Read or download this book in the {} format').format(fmt),
-                    onclick=on_fmt_click.bind(v'[mi.title, mi.format_sizes[fmt] || 0]'),
+                    onclick=on_fmt_click.bind([mi.title, mi.format_sizes[fmt] or 0]),
                     data_format=fmt, data_book_id='' + book_id))
                 if fmt is not val[-1]:
                     td.appendChild(document.createTextNode(', '))
@@ -392,7 +392,7 @@ def render_metadata(mi, table, book_id, iframe_css):  # {{{
 
         if val and mi.urls_from_identifiers and mi.urls_from_identifiers.length > 0:
             td = E.td()
-            for _, id_name, id_value, url in sorted(mi.urls_from_identifiers or v'[]', key=ids_sorter):
+            for _, id_name, id_value, url in sorted(mi.urls_from_identifiers or [], key=ids_sorter):
                 if td.childNodes.length:
                     td.appendChild(document.createTextNode(', '))
                 label = '{}:{}'.format(id_name or '', id_value or '')
@@ -477,7 +477,7 @@ def render_metadata(mi, table, book_id, iframe_css):  # {{{
             if hp is 'side':
                 add_row(field, name, val, is_html=True)
                 return
-            comments.push(v'[field, val]')
+            comments.push([field, val])
             return
         func = None
         if datatype is 'composite':
@@ -1359,7 +1359,7 @@ def files_added(check_existing, top_container_id, book_id, container_id, files):
     mi = book_metadata(book_id)
     if not container or not mi or not files[0]:
         return
-    added = v'[]'
+    added = []
 
     def exists(fname):
         for relpath in mi.data_files:
@@ -1413,7 +1413,7 @@ def rebuild_data_files_list(container_id, book_id, relpath_being_deleted):
         question_dialog(_('Are you sure?'), _('Do you want to permanently delete the data file {0} from the book {1}?').format(
             fname, mi.title), def (yes):
                 if yes:
-                    data = v'[relpath]'
+                    data = [relpath]
                     ajax_send(f'data-files/remove/{book_id}/{current_library_id()}',
                         data, data_file_deleted.bind(None, container_id, book_id, relpath))
                     rebuild_data_files_list(container_id, book_id, relpath_being_deleted)
@@ -1576,7 +1576,7 @@ def do_copy_to_library(book_id, target_library_id, target_library_name):
         sd.set('copy_to_library_dupes', choice)
         duplicate_action, automerge_action = choice.split(';', 2)
 
-        data = {'book_ids': v'[book_id]', 'move': move, 'duplicate_action': duplicate_action, 'automerge_action': automerge_action}
+        data = {'book_ids': [book_id], 'move': move, 'duplicate_action': duplicate_action, 'automerge_action': automerge_action}
         container = document.getElementById(container_id)
         clear(container)
         container.appendChild(E.div(

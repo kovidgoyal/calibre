@@ -68,7 +68,7 @@ def fd_format_ms(dt, ampm, min, as_utc):
 
 def fd_format_timezone(dt, ampm, t, as_utc):
     short = dt.toLocaleTimeString()
-    full = dt.toLocaleTimeString(v'[]', {'timeZoneName': 'long'})
+    full = dt.toLocaleTimeString([], {'timeZoneName': 'long'})
     idx = full.indexOf(short)
     if idx > -1:
         return full[idx + short.length:].strip()

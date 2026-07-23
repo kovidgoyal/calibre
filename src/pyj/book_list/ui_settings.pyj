@@ -223,7 +223,7 @@ def create_tabs_widget(root):
 
 
 def selected_browse_fields(container):
-    ans = v'[]'
+    ans = []
     for checkbox in container.querySelectorAll('input[data-field-key]'):
         if checkbox.checked:
             ans.push(checkbox.getAttribute('data-field-key'))

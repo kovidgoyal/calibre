@@ -12,14 +12,14 @@ MAX_SAMPLES = 256
 class Timers:
     def __init__(self):
         self.reset_read_timer()
-        self.rates = v'[]'
+        self.rates = []
         self.average = self.stddev = 0
         self.chapter_times = v'{}'
         self.current_chapter = None
 
     def start_book(self, book):
         self.reset_read_timer()
-        self.rates = v'[]'
+        self.rates = []
         self.chapter_times = v'{}'
         self.current_chapter = None
         if book?.saved_reading_rates?.rates:

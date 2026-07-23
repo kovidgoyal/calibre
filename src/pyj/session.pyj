@@ -17,7 +17,7 @@ all_settings = {
     'book_list_color_scheme': {'default': 'auto', 'category': 'book_list', 'is_local': False},
     'ui_highlight_colors': {'default': {'light': '#437000', 'dark': '#6cb4ee'}, 'category': 'book_list', 'is_local': False},
     'series_nav_display_mode': {'default': 'stack', 'category': 'book_list', 'is_local': False},
-    'saved_virtual_libraries': {'default': v'[]', 'category': 'book_list', 'is_local': False},
+    'saved_virtual_libraries': {'default': [], 'category': 'book_list', 'is_local': False},
     'browse_visible_fields': {'default': {}, 'category': 'book_list', 'is_local': False},
     'sort': {'default': 'timestamp.desc', 'category': 'book_list'},  # comma separated list of items of the form: field.order
     'view_mode': {'default': 'cover_grid', 'category': 'book_list'},
@@ -68,17 +68,17 @@ all_settings = {
     'scroll_stop_boundaries': {'default': False, 'category': 'read_book', 'is_local': True},
     'standalone_font_settings': {'default': {}, 'category': 'read_book', 'is_local': True},
     'standalone_misc_settings': {'default': {}, 'category': 'read_book', 'is_local': True},
-    'standalone_recently_opened': {'default': v'[]', 'category': 'read_book', 'is_local': True, 'disallowed_in_profile': True},
+    'standalone_recently_opened': {'default': [], 'category': 'read_book', 'is_local': True, 'disallowed_in_profile': True},
     'user_color_schemes': {'default': {}, 'category': 'read_book'},
     'user_stylesheet': {'default': '', 'category': 'read_book', 'is_local': True},
-    'word_actions': {'default': v'[]', 'category': 'read_book'},
+    'word_actions': {'default': [], 'category': 'read_book'},
     'highlight_style': {'default': None, 'category': 'read_book', 'is_local': True},
     'highlights_export_format': {'default': 'text', 'category': 'read_book', 'is_local': True},
-    'custom_highlight_styles': {'default': v'[]', 'category': 'read_book'},
+    'custom_highlight_styles': {'default': [], 'category': 'read_book'},
     'show_selection_bar': {'default': True, 'category': 'read_book'},
     'net_search_url': {'default': 'https://google.com/search?q={q}', 'category': 'read_book'},
-    'selection_bar_actions': {'default': v"['copy', 'lookup', 'highlight', 'remove_highlight', 'search_net', 'clear']", 'category': 'read_book'},
-    'selection_bar_quick_highlights': {'default': v"[]", 'category': 'read_book'},
+    'selection_bar_actions': {'default': ['copy', 'lookup', 'highlight', 'remove_highlight', 'search_net', 'clear'], 'category': 'read_book'},
+    'selection_bar_quick_highlights': {'default': [], 'category': 'read_book'},
     'skipped_dialogs': {'default': v'{}', 'category': 'read_book', 'is_local': True, 'disallowed_in_profile': True},
     'tts': {'default': v'{}', 'category': 'read_book', 'is_local': True, 'disallowed_in_profile': True},
     'tts_backend': {'default': v'{}', 'category': 'read_book', 'is_local': True, 'disallowed_in_profile': True},
@@ -287,7 +287,7 @@ def settings_for_reader_profile(sd):
     def filter_func(setting_name, metadata, is_set, curval):
         if margin_text_settings[setting_name]:
             curval = window.structuredClone(curval)
-            for x in v"['left', 'right', 'middle']":
+            for x in ['left', 'right', 'middle']:
                 if curval[x] is 'empty':
                     v'delete curval[x]'
         elif setting_name is 'standalone_misc_settings':

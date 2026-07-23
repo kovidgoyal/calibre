@@ -80,7 +80,7 @@ class Hints:
         self.hide()
 
     def apply_prefix(self, accept_full_match):
-        matches = v'[]'
+        matches = []
         if self.current_prefix:
             for k in Object.keys(self.hints_map):
                 if k is '_length':

@@ -80,7 +80,7 @@ def family_for_toc_node(toc_node_id, parent_map, id_map):
     if not id_map or not parent_map:
         toc = current_book().manifest.toc
         parent_map, id_map = get_toc_maps(toc)
-    family = v'[]'
+    family = []
     node = id_map[toc_node_id]
     while node and node.title:
         family.unshift(node)
@@ -151,7 +151,7 @@ def get_current_toc_nodes():
             before = get_border_nodes(toc, id_map)[0]
             if before:
                 ans[before.id] = True
-    r = v'[]'
+    r = []
     for x in Object.keys(ans):
         fam = family_for_toc_node(x, parent_map, id_map)
         if fam?.length:
@@ -258,9 +258,9 @@ def create_toc_panel(book, container, onclick):
 def recalculate_toc_anchor_positions(tam, plam):
     name = current_spine_item().name
     am = {}
-    anchors = v'[]'
+    anchors = []
     pos_map = {}
-    for i, anchor in enumerate(tam[name] or v'[]'):
+    for i, anchor in enumerate(tam[name] or []):
         am[anchor.id] = position_for_anchor(anchor.frag)
         anchors.push(anchor.id)
         pos_map[anchor.id] = i
@@ -276,10 +276,10 @@ def recalculate_toc_anchor_positions(tam, plam):
         'sorted_anchors': anchors,
     }
     am = {}
-    anchors = v'[]'
+    anchors = []
     pos_map = {}
     if plam:
-        for i, anchor in enumerate(plam[name] or v'[]'):
+        for i, anchor in enumerate(plam[name] or []):
             am[anchor.id] = position_for_anchor(anchor.frag, True)
             anchors.push(anchor.id)
             pos_map[anchor.id] = i

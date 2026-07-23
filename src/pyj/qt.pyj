@@ -17,7 +17,7 @@ def signal():
 
 class ToPython:
     def __init__(self):
-        self._messages = v'[]'
+        self._messages = []
         self._last_ping_value = 0
         self._ping_timer_id = -1
         self._queue_message({'type': 'qt-ready'})
@@ -40,7 +40,7 @@ class ToPython:
 
     def _poll(self):
         ans = self._messages
-        self._messages = v'[]'
+        self._messages = []
         return ans
 
     def _from_python(self, name, args):

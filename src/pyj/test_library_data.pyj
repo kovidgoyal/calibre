@@ -13,17 +13,17 @@ from utils import parse_url_params
 def empty_library_data(library_id='lib-a'):
     return {
         'search_result': {'library_id': library_id, 'vl': '', 'query': '', 'sort': '', 'sort_order': ''},
-        'sortable_fields': v'[]',
+        'sortable_fields': [],
         'field_metadata': {},
         'metadata': {},
         'virtual_libraries': {},
-        'book_display_fields': v'[]',
+        'book_display_fields': [],
         'bools_are_tristate': True,
-        'book_details_vertical_categories': v'[]',
+        'book_details_vertical_categories': [],
         'fts_enabled': False,
-        'fields_that_support_notes': v'[]',
-        'categories_using_hierarchy': v'[]',
-        'browse_fields': v'[]',
+        'fields_that_support_notes': [],
+        'categories_using_hierarchy': [],
+        'browse_fields': [],
     }
 
 

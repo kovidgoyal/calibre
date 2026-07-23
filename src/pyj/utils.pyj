@@ -74,7 +74,7 @@ def parse_url_params(url=None, allow_multiple=False):
         key, val = decodeURIComponent(key), decodeURIComponent(val)
         if allow_multiple:
             if ans[key] is undefined:
-                ans[key] = v'[]'
+                ans[key] = []
             ans[key].append(val)
         else:
             ans[key] = val
@@ -155,7 +155,7 @@ def human_readable(size, sep=' '):
     size = (size / Math.pow(1024, i)).toFixed(1)
     if size.endswith('.0'):
         size = size[:-2]
-    suffix = v"['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB']"[i]
+    suffix = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB'][i]
     return size + sep + suffix
 
 
@@ -202,7 +202,7 @@ def html_escape(text):
 
 def uniq(vals):
     # Remove all duplicates from vals, while preserving order
-    ans = v'[]'
+    ans = []
     seen = {}
     for x in vals:
         if not seen[x]:

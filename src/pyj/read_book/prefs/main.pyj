@@ -42,7 +42,7 @@ class Prefs:
         container = container.firstChild
         create_top_bar(container.firstChild, title=self.main_title, icon='close', action=self.onclose)
         self.container_id = ensure_id(container.lastChild)
-        self.stack = v'["top"]'
+        self.stack = ['top']
         self.display_top(container.lastChild)
 
     def set_top_title(self, val):

@@ -304,7 +304,7 @@ def replace_books_page(data):
     # Replace the current page (do not accumulate)
     for key in data.metadata:
         library_data.metadata[key] = data.metadata[key]
-    library_data.previous_book_ids = v'[]'
+    library_data.previous_book_ids = []
     library_data.search_result = data.search_result
     book_list_data.shown_book_ids = set()
     clear_grid()

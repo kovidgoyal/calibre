@@ -10,8 +10,8 @@ from read_book.settings import (
     apply_settings, set_color_scheme_class, update_settings
 )
 
-block_names = dict.fromkeys(v"['p', 'div', 'li', 'td', 'h1', 'h2', 'h2', 'h3', 'h4', 'h5', 'h6', 'body']", True).as_object()
-block_display_styles = dict.fromkeys(v"['block', 'list-item', 'table-cell', 'table']", True).as_object()
+block_names = dict.fromkeys(['p', 'div', 'li', 'td', 'h1', 'h2', 'h2', 'h3', 'h4', 'h5', 'h6', 'body'], True).as_object()
+block_display_styles = dict.fromkeys(['block', 'list-item', 'table-cell', 'table'], True).as_object()
 
 
 def elem_roles(elem):
@@ -62,7 +62,7 @@ def is_footnote_link(a, dest_name, dest_frag, src_name, link_to_map):
     eid = a.getAttribute('id') or a.getAttribute('name')
     files_linking_to_self = link_to_map[src_name]
     if eid and files_linking_to_self:
-        files_linking_to_anchor = files_linking_to_self[eid] or v'[]'
+        files_linking_to_anchor = files_linking_to_self[eid] or []
         if files_linking_to_anchor.length > 1 or (files_linking_to_anchor.length == 1 and files_linking_to_anchor[0] is not src_name):
             # An <a href="..." id="..."> link that is linked back from some other
             # file in the spine, most likely an endnote. We exclude links that are
@@ -107,7 +107,7 @@ def get_note_container(node):
 
 
 def get_parents_and_self(node):
-    ans = v'[]'
+    ans = []
     while node and node is not document.body:
         ans.push(node)
         node = node.parentNode

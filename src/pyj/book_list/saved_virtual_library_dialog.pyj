@@ -227,7 +227,7 @@ def show_import_virtual_libraries_dialog(library_id, on_save):
                 create_button(_('Select'), 'check', confirm_icon, highlight=True),
             ))
             overlay.style.display = 'flex'
-        rows = v'[]'
+        rows = []
         list_div = E.div(class_='vl-import-list')
         for vl_name in vl_names:
             search = vls[vl_name]

@@ -84,7 +84,7 @@ def apply_mathjax(mathjax_files, link_uid, proceed):
     # also do any changes in pdf-mathjax-loader.js for the standalone
     # viewer/editor/pdf output
     window.MathJax.loader = {
-        'load': v"['input/tex-full', 'input/asciimath', 'input/mml', 'output/chtml']",
+        'load': ['input/tex-full', 'input/asciimath', 'input/mml', 'output/chtml'],
         'require': def (url):
             return new Promise(def (resolve, reject):
                 name = url.partition('/')[2]

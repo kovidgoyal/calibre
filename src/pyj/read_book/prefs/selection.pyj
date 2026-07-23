@@ -146,7 +146,7 @@ def update_quick_action_table():
 
 
 def selected_quick_actions():
-    ans = v'[]'
+    ans = []
     c = get_container().querySelector('.quick-actions')
     for inp in c.querySelectorAll('input:checked'):
         if inp.value:

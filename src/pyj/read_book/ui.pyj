@@ -767,7 +767,7 @@ class ReadUI:
         self.db.update_metadata(book, metadata)
 
     def wait_for_messages_from(self, w, callback):
-        self.windows_to_listen_for_messages_from.push(v'[w, callback]')
+        self.windows_to_listen_for_messages_from.push([w, callback])
 
     def stop_waiting_for_messages_from(self, w):
         self.windows_to_listen_for_messages_from = [x for x in self.windows_to_listen_for_messages_from if x[0] is not w]

@@ -49,7 +49,7 @@ def default_color(is_dark):
 
 
 def all_builtin_styles():
-    ans = v'[]'
+    ans = []
     for col in builtin_colors_light:
         ans.push({'type': 'builtin', 'kind': 'color', 'which': col})
     for which in builtin_decorations_light:
@@ -193,7 +193,7 @@ def custom_styles_equal(a, b):
 
 
 def all_styles():
-    ans = v'[]'
+    ans = []
     custom_highlight_styles = get_session_data().get('custom_highlight_styles')
     for raw in custom_highlight_styles:
         ans.push(HighlightStyle(raw))
@@ -428,7 +428,7 @@ class EditNotesAndColors:  # {{{
             item.classList.add('custom-style')
             self.make_swatch_current(item)
             sd = get_session_data()
-            new_styles = v'[new_style]'
+            new_styles = [new_style]
             seen = {hs.key: True}
             for style in sd.get('custom_highlight_styles'):
                 hso = HighlightStyle(style)
@@ -481,7 +481,7 @@ class EditNotesAndColors:  # {{{
         self.make_swatch_current(p.firstChild)
         sd = get_session_data()
         custom_highlight_styles = sd.get('custom_highlight_styles')
-        ans = v'[]'
+        ans = []
         for x in custom_highlight_styles:
             if not custom_styles_equal(x, cct):
                 ans.push(x)
@@ -577,8 +577,8 @@ class ChapterGroup:
         self.level = level or 0
         self.title = title or ''
         self.subgroups = v'{}'
-        self.subgroups_in_order = v'[]'
-        self.annotations = v'[]'
+        self.subgroups_in_order = []
+        self.annotations = []
 
     def add_annot(self, a):
         titles = a['toc_family_titles']
@@ -611,7 +611,7 @@ class ChapterGroup:
 def show_export_dialog(annotations_manager, book_metadata):
     sd = get_session_data()
     fmt = sd.get('highlights_export_format')
-    if v"['text', 'markdown', 'calibre_annotations_collection']".indexOf(fmt) < 0:
+    if ['text', 'markdown', 'calibre_annotations_collection'].indexOf(fmt) < 0:
         fmt = 'text'
     all_highlights = annotations_manager.all_highlights()
     selected_highlight_items = all_selected_entries()
@@ -635,7 +635,7 @@ def show_export_dialog(annotations_manager, book_metadata):
             document.getElementById(ta_id).textContent = JSON.stringify(data, None, 2)
             return
         as_markdown = fmt is 'markdown'
-        lines = v'[]'
+        lines = []
         root = ChapterGroup()
         for a in all_highlights:
             root.add_annot(a)
@@ -785,7 +785,7 @@ def render_notes(notes, container, make_urls_clickable):
 
     def add_line(line):
         url_pat.lastIndex = 0
-        urls = v'[]'
+        urls = []
 
         while make_urls_clickable:
             m = url_pat.exec(line)
@@ -970,9 +970,9 @@ def create_highlights_panel(annotations_manager, hide_panel, book, container, on
         if h.toc_family_titles?.length:
             toc = h.toc_family_titles[-1]
         if not toc_groups[toc]:
-            toc_groups[toc] = v'[]'
+            toc_groups[toc] = []
             if h.toc_family_titles?.length:
-                lines = v'[]'
+                lines = []
                 for i, node in enumerate(h.toc_family_titles):
                     lines.push('\xa0\xa0' * i + '➤ ' + node)
                 tt = ngettext('Table of Contents section:', 'Table of Contents sections:', lines.length)

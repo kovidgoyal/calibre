@@ -60,11 +60,11 @@ def range_has_point(range_, x, y):
 
 
 def offset_in_text_node(node, range_, x, y):
-    limits = v'[0, node.nodeValue.length]'
+    limits = [0, node.nodeValue.length]
     while limits[0] is not limits[1]:
         pivot = Math.floor((limits[0] + limits[1]) / 2)
-        lr = v'[limits[0], pivot]'
-        rr = v'[pivot+1, limits[1]]'
+        lr = [limits[0], pivot]
+        rr = [pivot + 1, limits[1]]
         range_.setStart(node, pivot)
         range_.setEnd(node, pivot + 1)
         if range_has_point(range_, x, y):
@@ -152,7 +152,7 @@ def adjust_node_for_text_offset(node):
 
 
 def unwrapped_nodes(range_wrapper):
-    ans = v'[]'
+    ans = []
     for child in range_wrapper.childNodes:
         if child.nodeType is Node.ELEMENT_NODE and child.dataset?.calibreRangeWrapper:
             ans = ans.concat(unwrapped_nodes(child))
@@ -423,7 +423,7 @@ def cfi_sort_key(cfi):  # {{{
         ^/(\d+)          # The node count
           (\[[^\]]*\])?  # The optional id assertion
     ///
-    steps = v'[]'
+    steps = []
 
     while cfi.length > 0:
         r = cfi.match(simple_node_regex)
@@ -436,7 +436,7 @@ def cfi_sort_key(cfi):  # {{{
         else:
             break
 
-    ans = {'steps': steps, 'text_offset': 0, 'temporal_offset': 0, 'spatial_offset': v'[0, 0]'}
+    ans = {'steps': steps, 'text_offset': 0, 'temporal_offset': 0, 'spatial_offset': [0, 0]}
 
     r = cfi.match(/^:(\d+)/)
     if r:
@@ -454,7 +454,7 @@ def cfi_sort_key(cfi):  # {{{
     r = cfi.match(/^@(-?\d+(\.\d+)?):(-?\d+(\.\d+)?)/)
     if r:
         # Spatial offset
-        ans['spatial_offset'] = v'[r[1] - 0, r[3] - 0]'
+        ans['spatial_offset'] = [r[1] - 0, r[3] - 0]
         cfi = cfi.substr(r[0].length)
     return ans
 
@@ -856,7 +856,7 @@ def at_point(x, y):  # {{{
             cfix, cfiy = decoded_to_document_position(decoded)
         except:
             cfix = cfiy = None
-        if cfix is None or cfiy is None or dist(scroll_viewport.viewport_to_document(x, y), v'[cfix, cfiy]') > 50:
+        if cfix is None or cfiy is None or dist(scroll_viewport.viewport_to_document(x, y), [cfix, cfiy]) > 50:
             cfi = None
 
     return cfi

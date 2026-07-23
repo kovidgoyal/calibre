@@ -117,10 +117,10 @@ def fit_images():
     # Ensure no images are wider than the available size of a column. Note
     # that this method use getBoundingClientRect() which means it will
     # force a relayout if the render tree is dirty.
-    inline_limited_images = v'[]'
-    block_limited_images = v'[]'
+    inline_limited_images = []
+    block_limited_images = []
     img_tags = document.getElementsByTagName('img')
-    bounding_rects = v'[]'
+    bounding_rects = []
     for img_tag in img_tags:
         bounding_rects.push(get_bounding_client_rect(img_tag))
     maxb = screen_block
@@ -144,7 +144,7 @@ def fit_images():
         image_inline_end = column_start_to_image_start + image_inline_size
         # If the end of the image goes past the column, add it to the list of inline_limited_images
         if previously_limited or image_inline_end > col_size:
-            inline_limited_images.push(v'[img, col_size - column_start_to_image_start]')
+            inline_limited_images.push([img, col_size - column_start_to_image_start])
         previously_limited = get_elem_data(img, 'block-limited', False)
         if previously_limited or image_block_size > maxb or (image_block_size is maxb and image_inline_size > col_size):
             block_limited_images.push(img)
@@ -634,7 +634,7 @@ def current_cfi():
                 if yb <= top or ya >= bottom:
                     break
                 yidx += 1
-                ys = v'[ya]' if ya is yb else v'[yb, ya]'
+                ys = [ya] if ya is yb else [yb, ya]
                 for cury in ys:
                     xidx = 0
                     while True:
@@ -642,7 +642,7 @@ def current_cfi():
                         if xb <= left or xa >= right:
                             break
                         xidx += 1
-                        xs = v'[xa]' if xa is xb else v'[xb, xa]'
+                        xs = [xa] if xa is xb else [xb, xa]
                         for curx in xs:
                             cfi = cfi_at_point(curx, cury)
                             if cfi:

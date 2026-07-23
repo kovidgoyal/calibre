@@ -18,7 +18,7 @@ def flatten_seq(seq, par_list):
 
 def flatten_smil_map(smil_map):
     anchor_map = {}
-    par_list = v'[]'
+    par_list = []
     if smil_map:
         flatten_seq(smil_map, par_list)
     par_list.sort(def (a, b): return a.num - b.num;)
@@ -36,7 +36,7 @@ def get_smil_audio_map(smil_map):
                 if par.audio:
                     a = audio_map[par.audio]
                     if not a:
-                        a = audio_map[par.audio] = v'[]'
+                        a = audio_map[par.audio] = []
                     a.push(par)
         if seq.seq:
             for child in seq.seq:

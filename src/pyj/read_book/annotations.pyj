@@ -50,12 +50,12 @@ def merge_annots_with_identical_field(annots_a, annots_b, field, cfi_getter_func
     for a in all_annots:
         q = title_groups[a[field]]
         if not q:
-            q = title_groups[a[field]] = v'[]'
+            q = title_groups[a[field]] = []
         q.push(a)
     for tg in Object.values(title_groups):
         tg.sort(annots_descending_cmp)
     seen = {}
-    ans = v'[]'
+    ans = []
     for a in all_annots:
         title = a[field]
         if not seen[title]:
@@ -86,8 +86,8 @@ def merge_annotation_maps(a, b):
     updated = False
     ans = {}
     for field in field_map:
-        a_items = a[field] or v'[]'
-        b_items = b[field] or v'[]'
+        a_items = a[field] or []
+        b_items = b[field] or []
         if not a_items.length:
             ans[field] = b_items
             updated = True
@@ -118,7 +118,7 @@ class AnnotationsManager:  # {{{
             ui_operations.annots_changed(amap)
 
     def set_bookmarks(self, bookmarks):
-        bookmarks = bookmarks or v'[]'
+        bookmarks = bookmarks or []
         self.bookmarks = list(bookmarks)
 
     def all_bookmarks(self):
@@ -171,7 +171,7 @@ class AnnotationsManager:  # {{{
                 return default_title
 
     def set_highlights(self, highlights):
-        highlights = highlights or v'[]'
+        highlights = highlights or []
         self.highlights = {h.uuid: h for h in highlights}
 
     def all_highlights(self):
@@ -180,7 +180,7 @@ class AnnotationsManager:  # {{{
         return ans
 
     def merge_highlights(self, highlights):
-        highlights = highlights or v'[]'
+        highlights = highlights or []
         updated = False
         if highlights.length:
             base = {'highlight': Object.values(self.highlights)}
@@ -275,7 +275,7 @@ class AnnotationsManager:  # {{{
         if notes:
             annot.notes = notes
         if toc_family?.length:
-            toc_family_titles = v'[]'
+            toc_family_titles = []
             for x in toc_family:
                 if x.title:
                     toc_family_titles.push(x.title)
@@ -284,7 +284,7 @@ class AnnotationsManager:  # {{{
 
     def highlights_for_currently_showing(self):
         name = self.view.currently_showing.name
-        ans = v'[]'
+        ans = []
         for h in Object.values(self.highlights):
             if h.spine_name is name and not h.removed and h.start_cfi:
                 ans.push(h)

@@ -58,7 +58,7 @@ def default_template():
             'thumbnail': True,
             'thumbnail_height': 140,
             'height': 'auto',
-            'comments_fields': v"['comments']",
+            'comments_fields': ['comments'],
             'lines': [
                 _('<b>{title}</b> by {authors}'),
                 _('{series_index} of <i>{series}</i>') + '|||{rating}',
@@ -124,7 +124,7 @@ def render_field(field, mi, book_id):  # {{{
         if val:
             keys = Object.keys(val)
             if keys.length:
-                ans = v'[]'
+                ans = []
                 for key in keys:
                     ans.push(key + ':' + val[key])
                 return add_val(ans, join=', ')
@@ -222,7 +222,7 @@ def render_part(part, template, book_id, metadata):
     ans = E.div()
     ans.innerHTML = part
     iterator = document.createNodeIterator(ans, NodeFilter.SHOW_TEXT)
-    replacements = v'[]'
+    replacements = []
     while True:
         n = iterator.nextNode()
         if not n:
@@ -239,7 +239,7 @@ def render_part(part, template, book_id, metadata):
                     rendered.appendChild(val)
             else:
                 rendered.appendChild(document.createTextNode(field))
-        replacements.push(v'[rendered, n]')
+        replacements.push([rendered, n])
 
     for new_child, old_child in replacements:
         old_child.parentNode.replaceChild(new_child, old_child)
@@ -250,7 +250,7 @@ def render_part(part, template, book_id, metadata):
 
 
 def render_line(line, template, book_id, metadata):
-    parts = v'[]'
+    parts = []
     line = line or '\xa0'
     for p in line.split(/\|\|\|/):
         part = render_part(p, template, book_id, metadata)

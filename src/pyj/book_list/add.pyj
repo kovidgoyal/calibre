@@ -25,7 +25,7 @@ state = {
     'counter': 0,
     'number': 0,
     'fake_send': False,
-    'transfers': v'[]',
+    'transfers': [],
 }
 
 
@@ -165,7 +165,7 @@ add_extra_css(def ():
 def cancel_in_progress():
     for xhr in state.transfers:
         xhr.abort()
-    state.transfers = v'[]'
+    state.transfers = []
     state.in_progress = False
 
 

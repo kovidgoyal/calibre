@@ -26,7 +26,7 @@ block_tags_for_tts = {
 
 
 def build_text_map(for_tts):
-    node_list = v'[]'
+    node_list = []
     flat_text = ''
     text_node_type = Node.TEXT_NODE
     element_node_type = Node.ELEMENT_NODE
@@ -97,7 +97,7 @@ def tts_data(text_node, offset):
     match = None
     first = True
     last = None
-    marked_text = v'[]'
+    marked_text = []
     text = text_map.flat_text[offset_in_flat_text:]
     for v'match of text.matchAll(tts_word_regex())':
         start = match.index

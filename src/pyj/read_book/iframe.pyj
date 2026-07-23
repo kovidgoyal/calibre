@@ -877,14 +877,14 @@ class IframeBoss:
         style = highlight_style_as_css(style_defn, opts.is_dark_theme, opts.color_scheme.foreground)
         cls = 'crw-has-dot' if has_notes else None
         annot_id, intersecting_wrappers = wrap_text_in_range(style, None, cls, self.add_highlight_listeners)
-        removed_highlights = v'[]'
+        removed_highlights = []
         if annot_id is not None:
             intersecting_uuids = {annot_id_uuid_map[x]: True for x in intersecting_wrappers}
             if existing and intersecting_uuids[existing]:
                 uuid = existing
             elif intersecting_wrappers.length is 1 and annot_id_uuid_map[intersecting_wrappers[0]]:
                 uuid = annot_id_uuid_map[intersecting_wrappers[0]]
-                intersecting_wrappers = v'[]'
+                intersecting_wrappers = []
             removed_highlights = {}
             for crw in intersecting_wrappers:
                 unwrap_crw(crw)
@@ -1008,7 +1008,7 @@ class IframeBoss:
     def replace_highlights(self, data):
         highlights = data.highlights
         unwrap_all_crw()
-        self.apply_highlights_on_load(highlights or v'[]')
+        self.apply_highlights_on_load(highlights or [])
 
     def add_highlight_listeners(self, wrapper):
         wrapper.addEventListener('dblclick', self.highlight_wrapper_dblclicked)

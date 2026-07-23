@@ -314,13 +314,13 @@ def create_item(book_id, metadata, create_image, show_book_details, href):
             add_badge('date', format_date(metadata.pubdate, 'yyyy-MM-dd'), _('Published'))
         except Exception:
             pass
-    fmts = metadata.formats or v'[]'
+    fmts = metadata.formats or []
     if fmts and fmts.length:
         add_badge('book', fmts.slice(0, 4).join(' · '), _('Formats'))
-    langs = metadata.lang_names or metadata.languages or v'[]'
+    langs = metadata.lang_names or metadata.languages or []
     if langs and langs.length:
         add_badge('global-search', langs.slice(0, 3).join(' · '), _('Languages'))
-    tgs = metadata.tags or v'[]'
+    tgs = metadata.tags or []
     if tgs and tgs.length:
         for tg in tgs.slice(0, 4):
             add_badge('tags', tg, _('Tag'))

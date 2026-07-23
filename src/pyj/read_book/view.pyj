@@ -225,7 +225,7 @@ class View:
         self.unsynced_message = ''
         self.last_position_data = None
         self.current_toc_node = self.current_toc_toplevel_node = None
-        self.current_toc_families = v'[]'
+        self.current_toc_families = []
         self.report_cfi_callbacks = {}
         self.get_cfi_counter = 0
         self.show_loading_callback_timer = None
@@ -348,10 +348,10 @@ class View:
         self.read_aloud = ReadAloud(self)
         self.read_audio_ebook = ReadAudioEbook(self)
         self.hints = Hints(self)
-        self.modal_overlays = v'[self.selection_bar, self.read_aloud, self.hints, self.read_audio_ebook]'
+        self.modal_overlays = [self.selection_bar, self.read_aloud, self.hints, self.read_audio_ebook]
         self.processing_spine_item_display = False
         self.pending_load = None
-        self.currently_showing = {'selection': {'empty': True}, 'on_load': v'[]'}
+        self.currently_showing = {'selection': {'empty': True}, 'on_load': []}
         self.book_scrollbar.apply_visibility()
         self.annotations_manager = AnnotationsManager(self)
 
@@ -992,8 +992,8 @@ class View:
             else:
                 if unkey and book.annotations_map[unkey]:
                     hl = book.annotations_map[unkey].highlight
-                    self.annotations_manager.set_bookmarks(book.annotations_map[unkey].bookmark or v'[]')
-            self.annotations_manager.set_highlights(hl or v'[]')
+                    self.annotations_manager.set_bookmarks(book.annotations_map[unkey].bookmark or [])
+            self.annotations_manager.set_highlights(hl or [])
             if runtime.is_standalone_viewer:
                 add_book_to_recently_viewed(book)
         if ui_operations.update_last_read_time:
@@ -1095,7 +1095,7 @@ class View:
         idx = spine.indexOf(name)
         self.currently_showing = {
             'name': name, 'settings': self.iframe_settings(name), 'initial_position': initial_position,
-            'loading': True, 'spine_index': idx, 'selection': {'empty': True}, 'on_load': v'[]',
+            'loading': True, 'spine_index': idx, 'selection': {'empty': True}, 'on_load': [],
         }
         self.timers.set_chapter(name)
         self.show_loading()
@@ -1445,7 +1445,7 @@ class View:
         else:
             self.current_toc_node = self.current_toc_toplevel_node = None
         if runtime.is_standalone_viewer:
-            r = v'[]'
+            r = []
             for fam in self.current_toc_families:
                 if fam.length:
                     r.push(fam[-1].id)
@@ -1498,7 +1498,7 @@ class View:
             self.read_aloud.play()
         for x in self.currently_showing.on_load:
             x()
-        self.currently_showing.on_load = v'[]'
+        self.currently_showing.on_load = []
 
     def set_progress_frac(self, progress_frac, file_progress_frac, page_counts):
         self.current_progress_frac = progress_frac or 0
@@ -1539,7 +1539,7 @@ class View:
             return
         if sr.result_num is 1:
             self.search_result_discovery = {
-                'queue': v'[]', 'on_discovery': sr.on_discovery, 'in_flight': None, 'discovered': False,
+                'queue': [], 'on_discovery': sr.on_discovery, 'in_flight': None, 'discovered': False,
                 'first_search_result': sr, 'finished': False, 'jump_forced': False,
             }
         if not self.search_result_discovery or self.search_result_discovery.discovered or self.search_result_discovery.on_discovery is not sr.on_discovery:

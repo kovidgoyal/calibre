@@ -19,7 +19,7 @@ def fix_fullscreen_svg_images():
     # viewport width and simply adjusts the height accordingly
     # So we replace 100% with 100vw and 100vh to get the desired
     # rendering
-    child_names = v'[]'
+    child_names = []
     for node in document.body.childNodes:
         if node.tagName:
             name = node.tagName.toLowerCase()
@@ -28,7 +28,7 @@ def fix_fullscreen_svg_images():
             if child_names.length > 1:
                 break
     if child_names.length is 1 and (child_names[0] is 'div' or child_names[0] is 'svg'):
-        names = v'[]'
+        names = []
         svg = None
         for node in document.body.querySelectorAll('*'):
             if node.tagName:

@@ -32,7 +32,7 @@ def get_matching_tests_for_name(name):
 def get_traceback(e):
     lines = traceback.format_exception()
     last_line = lines[-1]
-    final_lines = v'[]'
+    final_lines = []
     pat = /at assert_[0-9a-zA-Z_]+ \(/
     for line in lines[:-1]:
         if pat.test(line):

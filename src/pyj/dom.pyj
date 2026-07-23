@@ -3,28 +3,28 @@
 from __python__ import hash_literals
 
 simple_vendor_prefixes = {
-    'animation': v"['webkit', 'moz', 'o']",
-    'animation-name': v"['webkit', 'moz', 'o']",
-    'animation-duration': v"['webkit', 'moz', 'o']",
-    'animation-timing-function': v"['webkit', 'moz', 'o']",
-    'animation-delay': v"['webkit', 'moz', 'o']",
-    'animation-iteration-count': v"['webkit', 'moz', 'o']",
-    'animation-direction': v"['webkit', 'moz', 'o']",
-    'animation-fill-mode': v"['webkit', 'moz', 'o']",
-    'animation-play-state': v"['webkit', 'moz', 'o']",
-    'hyphens': v"['webkit', 'moz', 'ms']",
-    'transform': v"['webkit', 'ms', 'moz', 'o']",
-    'transform-origin': v"['webkit', 'ms', 'moz', 'o']",
-    'transition': v"['webkit', 'moz', 'o']",
-    'filter': v"['webkit']",
-    'user-select': v"['webkit', 'moz', 'ms']",
-    'break-before': v"['webkit-column']",
-    'break-after': v"['webkit-column']",
-    'break-inside': v"['webkit-column']",
-    'column-gap': v"['webkit', 'moz']",
-    'column-width': v"['webkit', 'moz']",
-    'column-rule': v"['webkit', 'moz']",
-    'column-fill': v"['moz']",
+    'animation': ['webkit', 'moz', 'o'],
+    'animation-name': ['webkit', 'moz', 'o'],
+    'animation-duration': ['webkit', 'moz', 'o'],
+    'animation-timing-function': ['webkit', 'moz', 'o'],
+    'animation-delay': ['webkit', 'moz', 'o'],
+    'animation-iteration-count': ['webkit', 'moz', 'o'],
+    'animation-direction': ['webkit', 'moz', 'o'],
+    'animation-fill-mode': ['webkit', 'moz', 'o'],
+    'animation-play-state': ['webkit', 'moz', 'o'],
+    'hyphens': ['webkit', 'moz', 'ms'],
+    'transform': ['webkit', 'ms', 'moz', 'o'],
+    'transform-origin': ['webkit', 'ms', 'moz', 'o'],
+    'transition': ['webkit', 'moz', 'o'],
+    'filter': ['webkit'],
+    'user-select': ['webkit', 'moz', 'ms'],
+    'break-before': ['webkit-column'],
+    'break-after': ['webkit-column'],
+    'break-inside': ['webkit-column'],
+    'column-gap': ['webkit', 'moz'],
+    'column-width': ['webkit', 'moz'],
+    'column-rule': ['webkit', 'moz'],
+    'column-fill': ['moz'],
 }
 
 
@@ -71,7 +71,7 @@ def set_important_css(elem, **kw):
 
 
 def build_rule(selector, **kw):
-    ans = v'[selector + " { "]'
+    ans = [selector + ' { ']
     for prop in kw:
         name, val = str.replace(str.rstrip(prop, '_'), '_', '-'), kw[prop]
         ans.push(name + ':' + val + ';')
@@ -98,7 +98,7 @@ def remove_all_attributes():
 
 
 def create_keyframes(animation_name, *frames):
-    ans = v'[]'
+    ans = []
     for prefix in '-webkit-', '-moz-', '-o-', '':
         ans.push('@' + prefix + 'keyframes ' + animation_name + ' {')
         for frame in frames:
@@ -117,7 +117,7 @@ def change_icon_image(icon_element, new_name, tooltip):
         if not x.length:
             tt = document.createElementNS('http://www.w3.org/2000/svg', 'title')
             icon_element.appendChild(tt)
-            x = v'[tt]'
+            x = [tt]
         x[0].textContent = tooltip
 
 
@@ -167,12 +167,12 @@ def ensure_id(w, prefix):
         w.setAttribute('id', ans)
     return ans
 
-extra_css = v'[]'
+extra_css = []
 add_extra_css = extra_css.push.bind(extra_css)
 
 
 def get_widget_css():
-    ans = v'[]'
+    ans = []
     for func in extra_css:
         ans.push(func())
     return ans.join('\n')

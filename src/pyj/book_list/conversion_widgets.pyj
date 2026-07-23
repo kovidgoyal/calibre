@@ -42,7 +42,7 @@ def ep(func):
 
 def add_listener(name, callback):
     if not listeners[name]:
-        listeners[name] = v'[]'
+        listeners[name] = []
     listeners[name].push(callback)
 
 
@@ -68,7 +68,7 @@ def subset_choice(name, choices, tooltip=None):  # {{{
         ans.appendChild(E.label(E.input(type='checkbox', name=cname), '\xa0' + choices[cname]))
     ops = {
         'get': def (container):
-            ans = v'[]'
+            ans = []
             for w in container.querySelectorAll('input'):
                 if w.checked:
                     ans.push(w.name)
@@ -302,7 +302,7 @@ def look_and_feel(container):
 # Heuristics {{{
 @ep
 def heuristics(container):
-    settings = v'[]'
+    settings = []
 
     def add(func, name, text, **kw):
         g.appendChild(func(name, text, **kw))
@@ -421,20 +421,20 @@ def search_and_replace(container):
 
     ops = {
         'get': def get(container):  # noqa: unused-local
-            ans = v'[]'
+            ans = []
             for div in container.querySelectorAll('.sr-instance'):
                 search, replace = div.querySelectorAll('input')
                 if search.value:
                     r = replace.value or ''  # noqa: unused-local
-                    ans.push(v'[search.value, r]')
+                    ans.push([search.value, r])
             return JSON.stringify(ans)
         ,
         'set': def set(container, encval):  # noqa: unused-local
             try:
                 vals = JSON.parse(encval)
             except:
-                vals = v'[]'
-            vals = vals or v'[]'
+                vals = []
+            vals = vals or []
             clear(container)
             for val in vals:
                 add(val)
@@ -455,7 +455,7 @@ def search_and_replace(container):
 # Comic Input {{{
 @ep
 def comic_input(container):
-    settings = v'[]'
+    settings = []
 
     def add(func, name, text, **kw):
         g.appendChild(func(name, text, **kw))
@@ -483,7 +483,7 @@ def comic_input(container):
     add(checkbox, 'right2left', _('&Right to left'))
     add(checkbox, 'no_sort', _('Don\'t so&rt'))
     add(checkbox, 'despeckle', _('De&speckle'))
-    g.appendChild(choices('output_format', _('O&utput format:'), v"['png', 'jpg']"))
+    g.appendChild(choices('output_format', _('O&utput format:'), ['png', 'jpg']))
     settings.push('output_format')
 
 # }}}

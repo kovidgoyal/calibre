@@ -279,7 +279,7 @@ def reindex_book(book_id):
         )
 
     if book_id:
-        ajax_send(f'fts/reindex', {book_id: v'[]'}, on_response)
+        ajax_send(f'fts/reindex', {book_id: []}, on_response)
     else:
         ajax_send(f'fts/reindex', 'all', on_response)
 
@@ -328,7 +328,7 @@ def book_result_tile_clicked(ev):
     result_tile = ev.currentTarget
     bid = int(result_tile.dataset.bookId)
     results = current_fts_query.results
-    formats = v'[]'
+    formats = []
     for x in results.results:
         if x.book_id is bid:
             formats.push(x.format)
@@ -445,7 +445,7 @@ def fetch_snippets():
     container = component('results')
     if not container:
         return
-    ids = v'[]'
+    ids = []
     for x in container.querySelectorAll('[data-snippets-needed="1"]'):
         book_id = int(x.dataset.bookId)
         ids.push(book_id)

@@ -73,7 +73,7 @@ def close_customize_shortcut(apply_changes):
                 item.scrollIntoView()
                 break
     if apply_changes:
-        shortcuts = v'[]'
+        shortcuts = []
         for x in container.lastChild.querySelectorAll('[data-shortcut]'):
             sc = JSON.parse(x.dataset.shortcut)
             shortcuts.push(sc)
@@ -105,7 +105,7 @@ def add_key_widget():
                 onkeydown=def (evt):
                     evt.preventDefault()
                     evt.stopPropagation()
-                    if evt.key not in v"['Control', 'Meta', 'Alt', 'Shift']":
+                    if evt.key not in ['Control', 'Meta', 'Alt', 'Shift']:
                         key_con = get_container().querySelector('.key-container')
                         key_con.appendChild(key_widget(evt))
                         div = document.getElementById(uid)
@@ -121,7 +121,7 @@ def customize_shortcut(sc_name):
     container.firstChild.nextSibling.style.display = 'none'
     container.lastChild.style.display = 'block'
     close_customize_shortcut.shortcut_being_customized = sc_name
-    shortcuts = v'[]'
+    shortcuts = []
     for item in container.querySelectorAll('[data-user-data]'):
         q = JSON.parse(item.dataset.userData)
         if q.name is sc_name:

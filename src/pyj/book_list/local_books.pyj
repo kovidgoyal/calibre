@@ -57,7 +57,7 @@ def add_search_mapping_text(parts, value, include_keys=False):
 
 
 def metadata_search_text(metadata):
-    parts = v'[]'
+    parts = []
     if metadata:
         for key in LOCAL_SEARCH_METADATA_FIELDS:
             if key is 'identifiers':

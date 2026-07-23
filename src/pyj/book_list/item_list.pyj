@@ -155,7 +155,7 @@ def create_side_action(icon, action=None, tooltip=None):
 def create_item(title, action=None, subtitle=None, icon=None, data=None, side_actions=None, nav_list_meta=None, li_class=None, row_class=None):
     return {
         'title': title, 'action': action, 'subtitle': subtitle, 'icon': icon, 'data': data,
-        'side_actions': side_actions or v'[]', 'nav_list_meta': nav_list_meta,
+        'side_actions': side_actions or [], 'nav_list_meta': nav_list_meta,
         'li_class': li_class, 'row_class': row_class,
     }
 

@@ -34,7 +34,7 @@ def apply_settings_to_ui(overrides):
         group_name = group.dataset.group
         in_flow_mode = group_name.indexOf('flow') >= 0
         for select in group.querySelectorAll('select'):
-            allowed_actions = v'[]'
+            allowed_actions = []
             for option in select.querySelectorAll('option'):
                 allowed_actions.push(option.value)
             gesture_type = select.name

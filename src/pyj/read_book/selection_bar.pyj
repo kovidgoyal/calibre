@@ -147,7 +147,7 @@ def position_bar_avoiding_handles(lh, rh, left, top, bar_width, bar_height, avai
         return {'left': q1 if d is d1 else (q2 if d is d2 else q3)}
 
     # look above both vertically, between both and below both
-    th, bh = v'[lh, rh]' if lh.top <= rh.top else v'[rh, lh]'
+    th, bh = [lh, rh] if lh.top <= rh.top else [rh, lh]
     d1 = d2 = d3 = 2 * available_height
     q1 = th.top - bar_height - 1
     if q1 > -buffer and not overlaps_a_handle(left, q1):
@@ -253,7 +253,7 @@ class SelectionBar:
         self.end_handle_id = unique_id('handle')
         self.bar_id = unique_id('bar')
         self.editor_id = unique_id('editor')
-        self.quick_highlight_styles = v'[]'
+        self.quick_highlight_styles = []
         # Sensible defaults until we get information from a selection message.
         self.ltr = True
         self.rtl = False
@@ -344,7 +344,7 @@ class SelectionBar:
             if ac and (not ac.needs_highlight or v'!!annot_id'):
                 bar.appendChild(cb(ac, self[ac.function_name]))
         selection_bar_quick_highlights = sd.get('selection_bar_quick_highlights')
-        self.quick_highlight_styles = v'[]'
+        self.quick_highlight_styles = []
         if selection_bar_quick_highlights?.length:
             self.show_quick_highlight_buttons(bar, selection_bar_quick_highlights)
         self.show_notes(bar_container, notes)
@@ -963,7 +963,7 @@ class SelectionBar:
             start = end
         if not end.onscreen:
             end = start
-        top, bottom = v'[start, end]' if start.y <= end.y else v'[end, start]'
+        top, bottom = [start, end] if start.y <= end.y else [end, start]
         container = self.container
         space_above, space_below = top.y, container.offsetHeight - (bottom.y + bottom.height)
         if height <= min(space_above, space_below):
@@ -1144,7 +1144,7 @@ class SelectionBar:
                     _('Highlighting failed'),
                     _('Failed to apply highlighting, try adjusting extent of highlight')
                 )
-            toc_family = v'[]'
+            toc_family = []
             if msg.anchor_before:
                 toc_family = family_for_toc_node(msg.anchor_before.id)
             else:

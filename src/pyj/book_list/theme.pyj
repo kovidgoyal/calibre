@@ -268,7 +268,7 @@ def color_scheme():
 def css_for_variables():
     s = get_saved_color_settings()
     attr = 'dark' if s.is_dark else 'light'
-    ans = v'[]'
+    ans = []
     variables = theme_variables(s.is_dark, s.primary_color)
     for k in Object.keys(variables):
         ans.push(f'{k}: {variables[k]};')

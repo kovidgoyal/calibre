@@ -18,7 +18,7 @@ from widgets import create_button
 
 def create_goto_list(onclick, current_position_data, page_list, show_sub_panel=None):
     ans = E.div()
-    items = v'[]'
+    items = []
     location_text = format_pos(current_position_data.progress_frac, current_position_data.book_length) + ' :: '
     if current_position_data.cfi:
         location_text += current_position_data.cfi
@@ -110,8 +110,8 @@ def create_page_list_overlay(book, overlay, container):
     )
     container.appendChild(search_input)
     container.appendChild(list_container)
-    page_list = book.manifest.page_list or v'[]'
-    items = v'[]'
+    page_list = book.manifest.page_list or []
+    items = []
 
     for x in page_list:
         items.push(create_item(x.pagenum, action=goto.bind(None, x),

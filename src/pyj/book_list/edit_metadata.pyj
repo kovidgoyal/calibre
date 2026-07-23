@@ -212,7 +212,7 @@ def resolved_metadata(mi, field):
 
 
 def resolved_formats(val):
-    val = list(val or v'[]')
+    val = list(val or [])
     if draft_changes.added_formats:
         for data in draft_changes.added_formats:
             ext = data.ext.toUpperCase()
@@ -508,7 +508,7 @@ def update_completions(container_id, ok, field, names):
 
 
 update_completions.list_to_ui = None
-update_completions.names = v'[]'
+update_completions.names = []
 update_completions.prefix = ''
 
 
@@ -526,7 +526,7 @@ def multiple_line_edit(list_to_ui, ui_to_list, container_id, book_id, field, fm,
         style='width: 100%', autocomplete='off', data_field=field,
         oninput=line_edit_updated.bind(None, container_id, field)
     )
-    val = (resolved_metadata(mi, field) or v'[]')
+    val = (resolved_metadata(mi, field) or [])
     if field is 'languages':
         ln = mi.lang_names or {}
         val = [ln[l] or l for l in val]
@@ -547,7 +547,7 @@ def multiple_line_edit(list_to_ui, ui_to_list, container_id, book_id, field, fm,
     if list_to_ui:
         value_to_json = def (raw):
             seen = {}
-            ans = v'[]'
+            ans = []
             for x in [a.strip() for a in raw.split(ui_to_list) if a.strip()]:
                 if not seen[x]:
                     seen[x] = True
@@ -734,7 +734,7 @@ def enum_edit(container_id, book_id, field, fm, div, mi):
     val = resolved_metadata(mi, field) or ''
     name = fm.name or field
     c = E.ul(class_='rating-edit-container')
-    for n in v'[""]'.concat(fm.display.enum_values):
+    for n in [''].concat(fm.display.enum_values):
         s = E.li(data_rating=n + '', onclick=set_rating)
         c.appendChild(s)
         if n is val:
@@ -762,7 +762,7 @@ def bool_edit(container_id, book_id, field, fm, div, mi):
     name = fm.name or field
     c = E.ul(class_='rating-edit-container')
     names = {'': _('Blank'), 'y': _('Yes'), 'n': _('No')}
-    for n in v"['', 'y', 'n']":
+    for n in ['', 'y', 'n']:
         s = E.li(data_rating=n + '', onclick=set_rating)
         c.appendChild(s)
         if n is val:
@@ -931,7 +931,7 @@ def format_added(top_container_id, book_id, container_id, files):
         return
     if not files[0]:
         return
-    added = draft_changes.added_formats or v'[]'
+    added = draft_changes.added_formats or []
     for file in files:
         ext = file.name.rpartition('.')[-1]
         data = {'name': file.name, 'size': file.size, 'type': file.type, 'data_url': None, 'ext': ext}
@@ -948,7 +948,7 @@ def format_added(top_container_id, book_id, container_id, files):
 def remove_format(top_container_id, book_id, fmt):
     nonlocal has_changes, draft_changes
     has_changes = True
-    removed_formats = draft_changes.removed_formats or v'[]'
+    removed_formats = draft_changes.removed_formats or []
     removed_formats.push(fmt.toUpperCase())
     draft_changes.removed_formats = removed_formats
     on_close(top_container_id)
@@ -1007,7 +1007,7 @@ def edit_field(container_id, book_id, field):
     d = switch_to_edit_panel(c)
     update_completions.ui_to_list = None
     update_completions.list_to_ui = None
-    update_completions.names = v'[]'
+    update_completions.names = []
     update_completions.prefix = ''
     if field is 'authors':
         multiple_line_edit(' & ', '&', container_id, book_id, field, fm, d, mi)
@@ -1092,7 +1092,7 @@ def render_metadata(mi, table, container_id, book_id):  # {{{
 
     def add_row(name, val, is_html=False, join=None):
         if val is undefined or val is None:
-            val = v'[" "]' if join else '\xa0'
+            val = [' '] if join else '\xa0'
 
         def add_val(v):
             if not v.appendChild:
@@ -1342,7 +1342,7 @@ def select_item_for_edit_notes(container, mi):
         if val:
             dl.appendChild(E.dt(fm.name))
             if jstype(val) is 'string':
-                val = v'[val]'
+                val = [val]
             dd = E.dd(style='text-indent: 1em; margin-bottom: 0.5em')
             dl.appendChild(dd)
             for i, x in enumerate(val):

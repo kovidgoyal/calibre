@@ -99,7 +99,7 @@ def create_search_bar(action, name, tooltip=None, placeholder=None, button=None,
         ewc.hide_completion_popup()
         action(text)
         if text and text.strip():
-            items = local_storage().get(history_name) or v'[]'
+            items = local_storage().get(history_name) or []
             idx = items.indexOf(text)
             if idx > -1:
                 items.splice(idx, 1)
@@ -148,7 +148,7 @@ def create_simple_input_with_history_native(name, tooltip=None, placeholder=None
     def save_completion_items():
         text = document.getElementById(dl_id).nextSibling.value
         if text and text.strip():
-            items = local_storage().get(history_name) or v'[]'
+            items = local_storage().get(history_name) or []
             idx = items.indexOf(text)
             if idx > -1:
                 items.splice(idx, 1)
@@ -183,7 +183,7 @@ def create_simple_input_with_history(name, tooltip=None, placeholder=None, histo
     def save_completion_items():
         text = ewc.text_input.value
         if text and text.strip():
-            items = local_storage().get(history_name) or v'[]'
+            items = local_storage().get(history_name) or []
             idx = items.indexOf(text)
             if idx > -1:
                 items.splice(idx, 1)

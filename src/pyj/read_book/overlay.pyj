@@ -161,7 +161,7 @@ class SyncBook:  # {{{
         self.container_id = container.getAttribute('id')
         apply_viewer_chrome_colors(container)
         book = self.overlay.view.book
-        to_sync = v'[[book.key, new Date(0)]]'
+        to_sync = [[book.key, Date(0)]]
         view = self.overlay.view
 
         def start_download():
@@ -705,7 +705,7 @@ class ReadingStatsOverlay:  # {{{
     def do_reset(self):
         view = self.overlay.view
         if view.timers:
-            view.timers.rates = v'[]'
+            view.timers.rates = []
             view.timers.chapter_times = v'{}'
             view.timers.average = view.timers.stddev = 0
         if ui_operations.reset_reading_rates:
@@ -783,7 +783,7 @@ class ReadingStatsOverlay:  # {{{
 
         # Build bar graph of chapter reading times
         chapter_times = view.timers.chapter_times
-        bar_data = v'[]'
+        bar_data = []
         max_time = 0
         for i in range(spine.length):
             name = spine[i]
@@ -1121,7 +1121,7 @@ class Overlay:
                 )
 
         book = self.view.book
-        key = book.key or v'[null, 0]'
+        key = book.key or [None, 0]
         lname, book_id = key
         book_id = int(book_id or 0)
         panel = SimpleOverlay(

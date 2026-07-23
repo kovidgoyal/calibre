@@ -112,7 +112,7 @@ def create_markup(container):
 def _has_visible_right_child(right):
     if not right:
         return False
-    kids = right.children or v'[]'
+    kids = right.children or []
     for kid in kids:
         if not kid or kid.nodeType is not Node.ELEMENT_NODE:
             continue

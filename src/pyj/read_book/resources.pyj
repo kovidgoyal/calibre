@@ -27,7 +27,7 @@ def create_link_pat(book):
 
 def load_resources(book, root_name, previous_resources, proceed):
     ans = Object.create(None)
-    pending_resources = v'[root_name]'
+    pending_resources = [root_name]
     link_pat = create_link_pat(book)
 
     def do_one():
@@ -48,7 +48,7 @@ def load_resources(book, root_name, previous_resources, proceed):
         ui_operations.get_file(book, name, got_one)
 
     def got_one(data, name, mimetype):
-        ans[name] = v'[data, mimetype]'
+        ans[name] = [data, mimetype]
         if jstype(data) is 'string' and book.manifest.files[name]?.is_virtualized:
             find_virtualized_resources(data)
         return setTimeout(do_one, 0)
@@ -108,7 +108,7 @@ def finalize_resources(book, root_name, resource_data):
             blob_url_map[name] = window.URL.createObjectURL(Blob([text], {'type': mimetype}))
 
     def replace_deps(text):
-        replacements = v'[]'
+        replacements = []
         unresolved_deps = set()
         link_pat.lastIndex = 0
         while True:
@@ -120,7 +120,7 @@ def finalize_resources(book, root_name, resource_data):
                 rtext = blob_url_map[dname]
                 if frag:
                     rtext += '#' + frag
-                replacements.push(v'[m.index, m[0].length, rtext]')
+                replacements.push([m.index, m[0].length, rtext])
             else:
                 unresolved_deps.add(dname)
         for index, sz, repl in reversed(replacements):
@@ -139,7 +139,7 @@ def finalize_resources(book, root_name, resource_data):
         return False
 
     while True:
-        resolved = v'[]'
+        resolved = []
         num = 0
         for name in resource_data:
             if not blob_url_map[name]:
@@ -169,7 +169,12 @@ def finalize_resources(book, root_name, resource_data):
     return root_data, mathjax, blob_url_map
 
 js_types = {k: True for k in 'text/javascript text/ecmascript application/javascript application/ecmascript'.split(' ')}
-resource_tag_names = {'script': 'src', 'link': 'href', 'img': 'src', 'image': 'xlink:href'}
+resource_tag_names = {
+    'script': 'src',
+    'link': 'href',
+    'img': 'src',
+    'image': 'xlink:href',
+}
 ns_rmap = {
     'http://www.w3.org/2000/svg': 'svg',
     'http://www.w3.org/1999/xlink': 'xlink',
@@ -259,27 +264,34 @@ def process_stack(stack, tag_map, ns_map, load_required, onload):
             parent.appendChild(document.createTextNode(src.l))
         if tag_map:
             for v'var i = node.length - 1; i >= 1; i--':  # noqa: unused-local
-                stack.push(v'[node[i], elem]')
+                stack.push([node[i], elem])
         elif node.c:
             for v'var i = node.c.length; i-- > 0;':  # noqa: unused-local
-                stack.push(v'[node.c[i], elem]')
+                stack.push([node.c[i], elem])
 
 
 def unserialize_html(serialized_data, proceed, postprocess_dom, root_name):
     nonlocal hide_tooltips
     hide_tooltips = opts.hide_tooltips
     if serialized_data.tag_map:
-        return unserialize_html_legacy(serialized_data, proceed, postprocess_dom, root_name)
+        return unserialize_html_legacy(
+            serialized_data,
+            proceed,
+            postprocess_dom,
+            root_name
+        )
     html = serialized_data.tree
     ns_map = serialized_data.ns_map
-    remove_all_attributes(document.documentElement, document.head, document.body)
+    remove_all_attributes(
+        document.documentElement,
+        document.head,
+        document.body
+    )
     clear(document.head, document.body)
     apply_attributes(html, document.documentElement, ns_map)
     # hide browser scrollbars while loading since they will anyway be hidden
     # after loading and this prevents extra layouts
-    document.head.appendChild(
-        E.style(type='text/css', 'html::-webkit-scrollbar, body::-webkit-scrollbar { display: none !important }')
-    )
+    document.head.appendChild(E.style(type='text/css', 'html::-webkit-scrollbar, body::-webkit-scrollbar { display: none !important }'))
     if runtime.is_standalone_viewer and root_name:
         if root_name.indexOf('/') > -1:
             base = window.location.pathname.rpartition('/')[0]
@@ -313,11 +325,11 @@ def unserialize_html(serialized_data, proceed, postprocess_dom, root_name):
     def process_children(node, parent):
         if not node.c:
             return
-        stack = v'[]'
+        stack = []
         for v'var i = node.c.length; i-- > 0;':  # noqa: unused-local
             child = v'node.c[i]'
             if child.n is not 'meta' and child.n is not 'base':
-                stack.push(v'[child, parent]')
+                stack.push([child, parent])
         process_stack(stack, None, ns_map, load_required, onload)
 
     body_done = False
@@ -354,14 +366,12 @@ def unserialize_html_legacy(serialized_data, proceed, postprocess_dom, root_name
     html = tag_map[0]
     remove_all_attributes(document.documentElement)
     apply_attributes(html, document.documentElement, ns_map)
-    head, body = tree[1], tree[2]  # noqa: unused-local
+    head, body = tree[1], tree[2]
     clear(document.head, document.body)
     remove_all_attributes(document.head, document.body)
     # hide browser scrollbars while loading since they will anyway be hidden
     # after loading and this prevents extra layouts
-    document.head.appendChild(
-        E.style(type='text/css', 'html::-webkit-scrollbar, body::-webkit-scrollbar { display: none !important }')
-    )
+    document.head.appendChild(E.style(type='text/css', 'html::-webkit-scrollbar, body::-webkit-scrollbar { display: none !important }'))
     if runtime.is_standalone_viewer and root_name:
         if root_name.indexOf('/') > -1:
             base = window.location.pathname.rpartition('/')[0]
@@ -391,16 +401,16 @@ def unserialize_html_legacy(serialized_data, proceed, postprocess_dom, root_name
             proceeded = True
             proceed()
 
-    stack = v'[]'
+    stack = []
     for v'var i = head.length - 1; i >= 1; i--':
-        stack.push(v'[head[i], document.head]')
+        stack.push([head[i], document.head])
     process_stack(stack, tag_map, ns_map, load_required, onload)
     bnode = tag_map[body[0]]
     apply_attributes(bnode, document.body, ns_map)
     if bnode.x:
         document.body.appendChild(document.createTextNode(bnode.x))
-    for v'var i = body.length - 1; i >= 1; i--':  # noqa: unused-local
-        stack.push(v'[body[i], document.body]')
+    for v'var i = body.length - 1; i >= 1; i--':
+        stack.push([body[i], document.body])
     process_stack(stack, tag_map, ns_map, load_required, onload)
     if postprocess_dom:
         postprocess_dom()
@@ -417,17 +427,23 @@ def unserialize_html_legacy(serialized_data, proceed, postprocess_dom, root_name
 def text_from_serialized_html(data, get_anchor_offset_map):
     serialized_data = JSON.parse(data)
     tag_map = serialized_data.tag_map
-    ans = v'[]'
+    ans = []
     no_visit = {'script': True, 'style': True, 'title': True, 'head': True}
-    ignore_text = {'img': True, 'math': True, 'rt': True, 'rp': True, 'rtc': True}
+    ignore_text = {
+        'img': True,
+        'math': True,
+        'rt': True,
+        'rp': True,
+        'rtc': True,
+    }
     ignore_text
     if tag_map:
-        stack = v'[[serialized_data.tree[2], false]]'
+        stack = [[serialized_data.tree[2], False]]
     else:
-        stack = v'[]'
+        stack = []
         for child in serialized_data.tree.c:
             if child.n is 'body':
-                stack.push(v'[child, false]')
+                stack.push([child, False])
     anchor_offset_map = {}
     text_pos = 0
     while stack.length:
@@ -451,14 +467,14 @@ def text_from_serialized_html(data, get_anchor_offset_map):
             ans.push(src.x)
             text_pos += src.x.length
         if not text_ignored_in_parent and src.l:
-            stack.push(v'[src.l, ignore_text_in_node_and_children]')
+            stack.push([src.l, ignore_text_in_node_and_children])
         if tag_map:
             for v'var i = node.length - 1; i >= 1; i--':
-                stack.push(v'[node[i], ignore_text_in_node_and_children]')
+                stack.push([node[i], ignore_text_in_node_and_children])
         else:
             if src.c:
                 for v'var i = src.c.length; i-- > 0;':
-                    stack.push(v'[src.c[i], ignore_text_in_node_and_children]')
+                    stack.push([src.c[i], ignore_text_in_node_and_children])
     ans = ans.join('')
     if get_anchor_offset_map:
         return ans, anchor_offset_map

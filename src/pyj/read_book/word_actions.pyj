@@ -40,7 +40,7 @@ def add(container_id):
             'You must specify both a name and a URL.'))
         return
     sd = get_session_data()
-    actions = sd.get('word_actions', v'[]')
+    actions = sd.get('word_actions', [])
     actions.push({'title': name, 'url': url})
     sd.set('word_actions', actions)
     toggle_custom_container(container_id, False)
@@ -76,7 +76,7 @@ def remove(container_id, num):
     if not container:
         return
     sd = get_session_data()
-    actions = sd.get('word_actions', v'[]')
+    actions = sd.get('word_actions', [])
     actions.splice(num, 1)
     sd.set('word_actions', actions)
     toggle_custom_container(container_id, False)
@@ -91,7 +91,7 @@ def remove_custom(container_id):
     container.appendChild(E.div(style='margin: 1rem', _('Choose a custom lookup to remove')))
     items = [create_item(_('Cancel (no removals)'), toggle_custom_container.bind(None, container_id, False))]
     sd = get_session_data()
-    actions = sd.get('word_actions', v'[]')
+    actions = sd.get('word_actions', [])
     for i, item in enumerate(actions):
         items.push(create_item(item.title, remove.bind(None, container_id, i)))
     container.appendChild(E.div())
@@ -105,7 +105,7 @@ def lookup_items(word, close_panel_func, container_id):
     def a(title, url):
         items.push(create_item(title, lookup.bind(word, close_panel_func, url.format(word=eword))))
 
-    custom_actions = get_session_data().get('word_actions', v'[]')
+    custom_actions = get_session_data().get('word_actions', [])
     has_custom = custom_actions and custom_actions.length
     if has_custom:
         for entry in custom_actions:

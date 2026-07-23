@@ -333,7 +333,7 @@ def remove_expression(node_id):
 
 
 def render_search_expression():
-    parts = v'[]'
+    parts = []
     container = document.getElementById(state.container_id)
     sic = component(container, 'search_expression')
     clear(sic)
@@ -425,7 +425,7 @@ def menu_clicked(i):
         f.firstChild.nextSibling.addEventListener('change', def (ev):
             get_session_data().set('and_search_terms', not ev.target.checked)
         )
-        about_items = v'[]'
+        about_items = []
         if data.count is not undefined:
             about_items.push(_('Number of books: {}').format(data.count))
         if data.avg_rating is not undefined:

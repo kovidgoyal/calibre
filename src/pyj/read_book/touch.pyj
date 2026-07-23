@@ -81,8 +81,8 @@ def copy_touch(t):
     now = window.performance.now()
     return {
         'identifier': touch_id(t),
-        'page_x': v'[t.pageX]', 'page_y': v'[t.pageY]', 'viewport_x': v'[t.clientX]', 'viewport_y': v'[t.clientY]',
-        'active': True, 'mtimes': v'[now]', 'ctime': now, 'is_held': False, 'x_velocity': 0, 'y_velocity': 0
+        'page_x': [t.pageX], 'page_y': [t.pageY], 'viewport_x': [t.clientX], 'viewport_y': [t.clientY],
+        'active': True, 'mtimes': [now], 'ctime': now, 'is_held': False, 'x_velocity': 0, 'y_velocity': 0
     }
 
 
@@ -194,7 +194,7 @@ class TouchHandler:
 
     def prune_expired_touches(self):
         now = window.performance.now()
-        expired = v'[]'
+        expired = []
         for tid in self.ongoing_touches:
             t = self.ongoing_touches[tid]
             if t.active:

@@ -10,15 +10,15 @@ DEFAULT_SAVED_VIRTUAL_LIBRARY_ICON = '📁'
 
 
 def all_saved_virtual_libraries():
-    virtual_libraries = get_session_data().get(SAVED_VIRTUAL_LIBRARIES_SETTING, v'[]') or v'[]'
+    virtual_libraries = get_session_data().get(SAVED_VIRTUAL_LIBRARIES_SETTING, []) or []
     if not Array.isArray(virtual_libraries):
-        return v'[]'
+        return []
     return virtual_libraries
 
 
 def get_saved_virtual_libraries(library_id):
     library_id = ((library_id or '') + '')
-    ans = v'[]'
+    ans = []
     for item in all_saved_virtual_libraries():
         if ((item.library_id or '') + '') is library_id:
             ans.push(item)
@@ -26,7 +26,7 @@ def get_saved_virtual_libraries(library_id):
 
 
 def set_saved_virtual_libraries(virtual_libraries):
-    get_session_data().set(SAVED_VIRTUAL_LIBRARIES_SETTING, virtual_libraries or v'[]')
+    get_session_data().set(SAVED_VIRTUAL_LIBRARIES_SETTING, virtual_libraries or [])
 
 
 def normalize_saved_virtual_library_icon(stored):
@@ -80,7 +80,7 @@ def replace_saved_virtual_library(original, item):
     if not item:
         return False
     virtual_libraries = all_saved_virtual_libraries()
-    updated = v'[]'
+    updated = []
     found = False
     for existing in virtual_libraries:
         if not found and saved_virtual_library_matches(existing, original):

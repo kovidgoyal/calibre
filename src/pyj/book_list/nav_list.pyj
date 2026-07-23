@@ -35,7 +35,7 @@ def sync_cs_list_row_heights(list_root):
     if disp.indexOf('flex') == -1:
         return
     ch = ul.children
-    lis = v'[]'
+    lis = []
     for i in range(ch.length):
         node = ch[i]
         if node.tagName.toLowerCase() is 'li':
@@ -149,7 +149,7 @@ def tags_cache_key():
 cached_names = {}
 series_cover_cache = {}
 series_cover_inflight = {}
-SERIES_COVER_CLASSES = v'["covers-0","covers-1","covers-2","covers-3","covers-4","covers-5"]'
+SERIES_COVER_CLASSES = ['covers-0', 'covers-1', 'covers-2', 'covers-3', 'covers-4', 'covers-5']
 
 
 def series_cover_key(library_id, series_name):
@@ -179,7 +179,7 @@ def set_series_stack_cover_count(div, total):
 
 def series_stack_cover_urls(urls):
     actual = []
-    for u in urls or v'[]':
+    for u in urls or []:
         if u:
             actual.push(u)
     return actual.slice(0, series_stack_cover_count(actual.length))
@@ -796,7 +796,7 @@ def create_nav_list_panel(container_id):
             except Exception:
                 proceed(False, 'Invalid JSON from server')
                 return
-            proceed(True, data.items or v'[]')
+            proceed(True, data.items or [])
 
         ajax(f'interface-data/browse-field/{encodeURIComponent(field)}', done, query=query, bypass_cache=False).send()
 
@@ -805,7 +805,7 @@ def create_nav_list_panel(container_id):
             return
         lid = current_library_id()
         key = series_cover_key(lid, series_name)
-        series_cover_targets[key] = (series_cover_targets[key] or v'[]')
+        series_cover_targets[key] = (series_cover_targets[key] or [])
         series_cover_targets[key].push(target_div)
         cached = series_cover_cache[key]
         if cached:
@@ -828,7 +828,7 @@ def create_nav_list_panel(container_id):
                 data = JSON.parse(xhr.responseText)
             except Exception:
                 return
-            ids = data.search_result?.book_ids or v'[]'
+            ids = data.search_result?.book_ids or []
             urls = []
             for bid in ids.slice(0, 5):
                 urls.push(cover_url(bid))
@@ -838,7 +838,7 @@ def create_nav_list_panel(container_id):
         ajax('interface-data/get-books', done, query=query).send()
 
     def apply_series_covers(key, urls):
-        targets = series_cover_targets[key] or v'[]'
+        targets = series_cover_targets[key] or []
         for div in targets:
             render_series_stack_covers(div, urls)
 
@@ -846,7 +846,7 @@ def create_nav_list_panel(container_id):
         nonlocal series_cover_targets
         set_loading(False)
         series_cover_targets = {}
-        raw = data or v'[]'
+        raw = data or []
         items = [to_item(x) for x in raw]
         items = filtered(items)
         total = items.length or 0
@@ -984,7 +984,7 @@ def create_nav_list_panel(container_id):
             list_container.appendChild(E.div(payload or '', style='opacity:0.8; padding: 0 1rem 1rem 1rem; font-size: smaller'))
             return
         # Update without flashing: create_item_list will clear content itself
-        names = payload or v'[]'
+        names = payload or []
         cached_names[browse_cache_key()] = names
         render_page(names)
 

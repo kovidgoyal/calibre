@@ -170,7 +170,7 @@ class ModalContainer:
         set_css(div.firstChild.firstChild, user_select='text', max_height='min(60vh, calc(100vh - 6rem))',
             overflow_x='auto', overflow_y='auto', overscroll_behavior_x='none', padding='1px', min_width='0', max_width='100%')
 
-        self.modals = v'[]'
+        self.modals = []
         self.current_modal = None
         self.hide = self.close_current_modal.bind(self)
 
