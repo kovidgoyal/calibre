@@ -155,7 +155,7 @@ known-first-party = ["calibre_extensions", "calibre_plugins", "polyglot"]
 known-third-party = ["odf", "qt", "tinycss", "css_selectors"]
 relative-imports-order = "closest-to-furthest"
 split-on-trailing-comma = false
-section-order = ['__python__', "future", "standard-library", "third-party", "first-party", "local-folder"]
+section-order = ["future", "standard-library", "third-party", "first-party", "local-folder"]
 
 [tool.ruff.lint.flake8-comprehensions]
 allow-dict-calls-with-keyword-arguments = true
