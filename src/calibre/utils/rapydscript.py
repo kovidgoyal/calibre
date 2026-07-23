@@ -462,7 +462,7 @@ def compile_fast(
         p = subprocess.run([rs, 'compile'] + args, capture_output=True, input=data)
         if p.returncode != 0:
             raise CompileFailure(p.stderr.decode())
-        with open(smap) as sf, open(js) as jf:
+        with open(smap, encoding='utf-8') as sf, open(js, encoding='utf-8') as jf:
             return {'code': jf.read(), 'source_map': sf.read()}
 
 
