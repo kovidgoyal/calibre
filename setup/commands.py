@@ -14,6 +14,7 @@ __all__ = [
     'develop',
     'export_packages',
     'extdev',
+    'fmt',
     'get_translations',
     'git_hooks',
     'git_version',
@@ -136,6 +137,11 @@ test_rs = TestRS()
 from setup.type_check import TypeCheck
 
 type_check = TypeCheck()
+
+
+from setup.fmt import AutoFormat
+
+fmt = AutoFormat()
 
 from setup.resources import CACerts, RapydScript, RecentUAs, Resources
 
