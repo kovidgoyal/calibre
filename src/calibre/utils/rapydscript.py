@@ -8,12 +8,12 @@ import os
 import re
 import subprocess
 import sys
+import tempfile
 import time
 from base64 import standard_b64decode, standard_b64encode
 from functools import lru_cache
 from typing import Any
 
-from calibre import force_unicode
 from calibre.constants import (
     FAKE_HOST,
     FAKE_PROTOCOL,
@@ -25,7 +25,6 @@ from calibre.constants import (
     builtin_decorations,
     dark_link_color,
 )
-from calibre.ptempfile import PersistentTemporaryFile, TemporaryDirectory
 from calibre.utils.filenames import atomic_rename, is_existing_subpath, is_path_inside
 from calibre.utils.resources import get_path as P
 from polyglot.builtins import as_bytes, exec_path
@@ -43,7 +42,7 @@ def abspath(x):
 def update_rapydscript():
     import lzma
 
-    with TemporaryDirectory() as tdir:
+    with tempfile.TemporaryDirectory() as tdir:
         subprocess.check_call(['rapydscript', 'web-repl-export', tdir])
         with open(os.path.join(tdir, 'rapydscript.js'), 'rb') as f:
             raw = f.read()
@@ -455,18 +454,16 @@ def compile_fast(
         args.append('--filename-for-stdin'), args.append(filename)
     if tree_shaking:
         args.append('--tree-shaking')
-    f = PersistentTemporaryFile()
-    f.close()
-    try:
-        args.extend(('--source-map', f.name, '--source-map-line-offset', str(source_map_line_offset)))
-        p = subprocess.Popen([rs, 'compile'] + args, stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
-        js, stderr = p.communicate(data)
-        if p.wait() != 0:
-            raise CompileFailure(force_unicode(stderr, 'utf-8'))
-        with open(f.name) as rf:
-            return {'code': js.decode(), 'source_map': rf.read()}
-    finally:
-        os.remove(f.name)
+    with tempfile.TemporaryDirectory() as tdir:
+        smap = os.path.join(tdir, 'smap')
+        js = os.path.join(tdir, 'js')
+        args.extend(('--source-map', smap, '--source-map-line-offset', str(source_map_line_offset)))
+        args.extend(('--output', js))
+        p = subprocess.run([rs, 'compile'] + args, capture_output=True, input=data)
+        if p.returncode != 0:
+            raise CompileFailure(p.stderr.decode())
+        with open(smap) as sf, open(js) as jf:
+            return {'code': jf.read(), 'source_map': sf.read()}
 
 
 def base_dir():
@@ -594,6 +591,8 @@ def set_data(src, output: str, source_map: str = '', source_url: str = '', **kw)
         src = src.replace(k, v, 1)
     for k, v in kw.items():
         src = src.replace(k, v, 1)
+    src = src.rstrip()
+    src = src.removesuffix('//# sourceMappingURL=smap')
     if source_map:
         from base64 import standard_b64encode
 
