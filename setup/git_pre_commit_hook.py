@@ -40,19 +40,15 @@ if not output:
 else:
     output = output.split('\0')
 
-filenames = tuple(filter(testfile, output))
+filenames = list(filter(testfile, output))
 if not filenames:
     sys.exit(0)
 
 check_args = ['./setup.py', 'check', '--no-editor']
-# let's hope that too many arguments do not hold any surprises
-for f in filenames:
-    check_args.append('-f')
-    check_args.append(f)
 
 before = sys.argv
 try:
-    sys.argv = check_args
+    sys.argv = check_args + filenames
     runpy.run_path('setup.py', run_name='__main__')
 finally:
     sys.argv = before

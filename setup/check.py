@@ -51,7 +51,6 @@ class Check(Command):
             action='store_true',
             help='Try to automatically fix some of the smallest errors instead of opening an editor for bad files.',
         )
-        parser.add_option('-f', '--file', dest='files', type='string', action='append', help='Specific file to be check. Can be repeat to check severals.')
         parser.add_option('--no-editor', default=False, action='store_true', help="Don't open the editor when a bad file is found.")
 
     def get_files(self):
@@ -118,8 +117,12 @@ class Check(Command):
         self.wn_path = os.path.expanduser('~/work/srv/main/static')
         self.has_changelog_check = os.path.exists(self.wn_path)
         self.auto_fix = opts.fix
-        self.files = opts.files
         self.no_editor = opts.no_editor
+        self.files = ()
+        if opts.cli_args:
+            self.files = tuple(x for x in opts.cli_args if x.endswith(('.py', '.recipe', '.pyj')))
+            if not self.files:
+                return
         self.run_check_files()
 
     def run_check_files(self):
