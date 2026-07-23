@@ -78,6 +78,7 @@ def go_to_line(lnum, sync_context):
 
 
 @from_python
+@no_prune
 def go_to_sourceline_address(sourceline, tags, sync_context):
     nodes = document.querySelectorAll(f'[data-lnum="{sourceline}"]')
     for index in range(nodes.length):
@@ -110,6 +111,7 @@ def find_blocks():
 
 
 @from_python
+@no_prune
 def set_split_mode(enabled):
     state.in_split_mode = enabled
     document.body.dataset.inSplitMode = '1' if enabled else '0'
@@ -154,6 +156,7 @@ def onclick(event):
 
 
 @from_python
+@no_prune
 def go_to_anchor(anchor):
     elem = document.getElementById(anchor)
     if not elem:
@@ -166,6 +169,7 @@ def go_to_anchor(anchor):
 
 
 @from_python
+@no_prune
 def live_css(editor_name, sourceline, tags):
     all_properties = {}
     ans = {'nodes': v'[]', 'computed_css': all_properties, 'editor_name': editor_name, 'sourceline': sourceline, 'tags': tags}
