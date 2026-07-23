@@ -105,8 +105,8 @@ class ToMetadataProtocolLineEdit(Protocol):
     allow_undo: bool
 
     def selectAll(self) -> None: ...
-    def insert(self, text: str) -> None: ...
-    def setText(self, text: str) -> None: ...
+    def insert(self, a0: str) -> None: ...
+    def setText(self, a0: str) -> None: ...
 
 
 class ToMetadataMixinBase:
@@ -279,9 +279,6 @@ class TitleEdit(EnLineEdit, ToMetadataMixinLineEdit):
         if not title:
             title = self.get_default()
         return title.strip()
-
-    def set_text(self, text):
-        ToMetadataMixinLineEdit.set_value(self, text)
 
     @current_val.setter
     def current_val(self, val):
@@ -546,9 +543,6 @@ class AuthorSortEdit(EnLineEdit, ToMetadataMixinLineEdit, LineEditIndicators):
     def current_val(self):
 
         return clean_text(str(self.text()))
-
-    def set_text(self, text):
-        ToMetadataMixinLineEdit.set_value(self, text)
 
     @current_val.setter
     def current_val(self, val):
