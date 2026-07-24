@@ -41,6 +41,7 @@ class Check(Command):
 
     def _ruff_executable(self):
         import shutil
+
         ruff = self.j(self.PROJECT_ROOT, '.venv/bin/ruff')
         if iswindows:
             ruff += '.exe'
@@ -51,6 +52,7 @@ class Check(Command):
 
     def _rapydscript_executable(self):
         import shutil
+
         rs = self.j(self.PROJECT_ROOT, '.venv/bin/rapydscript')
         if iswindows:
             rs += '.exe'
@@ -66,7 +68,9 @@ class Check(Command):
             cmd.append('--fix')
         p = subprocess.run(
             cmd + targets,
-            capture_output=True, text=True, cwd=self.PROJECT_ROOT,
+            capture_output=True,
+            text=True,
+            cwd=self.PROJECT_ROOT,
         )
         output_lines = []
         files_with_errors = set()
@@ -83,7 +87,7 @@ class Check(Command):
                     msg = d.get('message', '')
                     output_lines.append(f'{fname}:{row}:{col}: {code} {msg}')
                     files_with_errors.add(fname)
-            except (json.JSONDecodeError, KeyError):
+            except json.JSONDecodeError, KeyError:
                 output_lines.append(p.stdout.strip())
         if p.stderr.strip():
             output_lines.append(p.stderr.strip())
@@ -92,7 +96,8 @@ class Check(Command):
     def _run_rapydscript(self, targets):
         p = subprocess.run(
             [self._rapydscript_executable(), 'lint'] + targets,
-            capture_output=True, text=True,
+            capture_output=True,
+            text=True,
         )
         combined = (p.stdout + p.stderr).strip()
         files_with_errors = set()
@@ -110,7 +115,8 @@ class Check(Command):
         changelog_file = self.j(self.d(self.SRC), 'Changelog.txt')
         p = subprocess.run(
             ['python', self.j(wn_path, 'whats_new.py'), changelog_file],
-            capture_output=True, text=True,
+            capture_output=True,
+            text=True,
         )
         return p.returncode, (p.stdout + p.stderr).strip()
 
