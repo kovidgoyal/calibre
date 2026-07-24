@@ -44,7 +44,7 @@ filenames = list(filter(testfile, output))
 if not filenames:
     sys.exit(0)
 
-check_args = ['./setup.py', 'check', '--no-editor']
+check_args = ['./setup.py', 'check_all', '--no-editor', '--check-only']
 
 before = sys.argv
 try:

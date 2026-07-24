@@ -39,6 +39,7 @@ def checkable_python_files(SRC):
 
 class Check(Command):
     description = 'Check for errors in the calibre source code'
+    usage_help = 'To check specific files, specify them as command line arguments'
     require_venv = True
 
     CACHE = 'check.json'
@@ -228,6 +229,17 @@ class Check(Command):
         except OSError as err:
             if err.errno != errno.ENOENT:
                 raise
+
+
+class CheckAll(Command):
+    description = 'Perform every quality code test suite'
+    usage_help = 'To check specific files, specify them as command line arguments'
+
+    sub_commands = [
+        'type_check',
+        'check',
+        'fmt',
+    ]
 
 
 class UpgradeSourceCode(Command):
