@@ -44,4 +44,5 @@ Before declaring a task complete, you must follow this exact verification lifecy
 1. Run the local **Build Command** to guarantee zero compilation or compilation-stage type errors.
 2. Run the local **Test Command** 
 3. If errors occur, analyze the output logs completely before writing a fix. Do not guess.
-4. Run `ruff check --fix` on yout changed python files to ensure your generated code is pep8 compliant
+4. Run `/setup.py check --fix && ./setup.py type_check && ./setup.py fmt` to
+   ensure all files pass quality checks and are formatted correctly
