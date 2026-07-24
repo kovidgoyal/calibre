@@ -2747,7 +2747,6 @@ program:
         )
 
     def evaluate(self, formatter, kwargs, mi, locals, *args):
-        _, *args = args
         val, fmt, prefix, suffix = args
         if not val:
             return val
@@ -2771,7 +2770,6 @@ and use that column's value in your save/send templates.
         )
 
     def evaluate(self, formatter, kwargs, mi, locals, *args):
-        _, *args = args
         db = self.get_database(mi, formatter=formatter)
         try:
             a = db.data.get_virtual_libraries_for_books((mi.id,))
@@ -2819,7 +2817,6 @@ and use that column's value in your save/send templates
         )
 
     def evaluate(self, formatter, kwargs, mi, locals, *args):
-        _, *args = args
         if hasattr(mi, '_proxy_metadata'):
             cats = {k for k, v in mi._proxy_metadata.user_categories.items() if v}
             cats = sorted(cats, key=sort_key)
