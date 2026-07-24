@@ -57,14 +57,14 @@ class Check(Command):
     def get_files(self):
         yield from checkable_python_files(self.SRC)
 
-        yield from files_walker(self.j(self.d(self.SRC), 'recipes'), '.recipe')
+        yield from files_walker(self.j(self.PROJECT_ROOT, 'recipes'), '.recipe')
 
-        yield from files_walker(self.j(self.d(self.SRC), 'stubs'), '.pyi')
+        yield from files_walker(self.j(self.PROJECT_ROOT, 'stubs'), '.pyi')
 
         yield from files_walker(self.j(self.SRC, 'pyj'), '.pyj')
 
         if self.has_changelog_check:
-            yield self.j(self.d(self.SRC), 'Changelog.txt')
+            yield self.j(self.PROJECT_ROOT, 'Changelog.txt')
 
     def read_file(self, f):
         with open(f, 'rb') as f:
@@ -136,18 +136,26 @@ class Check(Command):
                 raise
         if self.files:
             all_files = tuple(self.files)
+
+            def t(f):
+                return True
+
         else:
-            all_files = tuple(f for f in self.get_files() if not self.is_cache_valid(f, cache))
+            all_files = tuple(self.get_files())
+
+            def t(f):
+                return not self.is_cache_valid(f, cache)
 
         python_exts = {'.py', '.pyi', '.recipe'}
         python_files = [f for f in all_files if os.path.splitext(f)[1] in python_exts]
-        other_files = [f for f in all_files if os.path.splitext(f)[1] not in python_exts]
+        other_files = [f for f in all_files if os.path.splitext(f)[1] not in python_exts and t(f)]
 
         try:
             # Check all Python files with ruff, splitting into safe chunks to
             # avoid hitting the kernel ARG_MAX limit on command-line length.
             bad_python_files = set()
             if python_files:
+                self.info('\tChecking python files')
                 ruff = self._ruff_executable()
                 ruff_cmd = [ruff, 'check', '-q', '--output-format=json']
                 if self.auto_fix:
@@ -181,43 +189,36 @@ class Check(Command):
                             bad_python_files.update(d['filename'] for d in diagnostics)
                         except json.JSONDecodeError, KeyError:
                             bad_python_files.update(batch)
-            for f in python_files:
-                if f not in bad_python_files:
-                    cache[f] = self.file_hash(f)
 
             # For each Python file that has errors, open editor and re-check individually.
             bad_list = list(bad_python_files)
-            for i, f in enumerate(bad_list):
+            for f in bad_list:
                 self.info('\tErrors in', f)
+            for i, f in enumerate(bad_list):
                 self.info(f'{len(bad_list) - i - 1} bad Python files remaining')
-                e = SystemExit(1)
-                if self.no_editor:
-                    raise e
-                try:
-                    edit_file(f)
-                except FileNotFoundError:
-                    raise e
-                if self.file_has_errors(f):
-                    raise e
-                cache[f] = self.file_hash(f)
+                self.open_editor_file(f)
 
             # Check non-Python files one by one as before.
             for i, f in enumerate(other_files):
                 self.info('\tChecking', f)
                 if self.file_has_errors(f):
                     self.info(f'{len(other_files) - i - 1} files left to check')
-                    e = SystemExit(1)
-                    if self.no_editor:
-                        raise e
-                    try:
-                        edit_file(f)
-                    except FileNotFoundError:
-                        raise e
-                    if self.file_has_errors(f):
-                        raise e
+                    self.open_editor_file(f)
                 cache[f] = self.file_hash(f)
         finally:
             self.save_cache(cache)
+
+    def open_editor_file(self, f):
+        e = SystemExit(1)
+        if self.no_editor:
+            raise e
+        try:
+            self.info('\tOpen', f)
+            edit_file(f)
+        except FileNotFoundError:
+            raise e
+        if self.file_has_errors(f):
+            raise e
 
     def report_errors(self, errors):
         for err in errors:
