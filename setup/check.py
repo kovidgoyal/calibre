@@ -57,14 +57,14 @@ class Check(Command):
     def get_files(self):
         yield from checkable_python_files(self.SRC)
 
-        yield from files_walker(self.j(self.d(self.SRC), 'recipes'), '.recipe')
+        yield from files_walker(self.j(self.PROJECT_ROOT, 'recipes'), '.recipe')
 
-        yield from files_walker(self.j(self.d(self.SRC), 'stubs'), '.pyi')
+        yield from files_walker(self.j(self.PROJECT_ROOT, 'stubs'), '.pyi')
 
         yield from files_walker(self.j(self.SRC, 'pyj'), '.pyj')
 
         if self.has_changelog_check:
-            yield self.j(self.d(self.SRC), 'Changelog.txt')
+            yield self.j(self.PROJECT_ROOT, 'Changelog.txt')
 
     def read_file(self, f):
         with open(f, 'rb') as f:
