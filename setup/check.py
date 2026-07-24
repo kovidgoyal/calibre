@@ -190,15 +190,7 @@ class Check(Command):
             for i, f in enumerate(bad_list):
                 self.info('\tErrors in', f)
                 self.info(f'{len(bad_list) - i - 1} bad Python files remaining')
-                e = SystemExit(1)
-                if self.no_editor:
-                    raise e
-                try:
-                    edit_file(f)
-                except FileNotFoundError:
-                    raise e
-                if self.file_has_errors(f):
-                    raise e
+                self.open_editor_file(f)
                 cache[f] = self.file_hash(f)
 
             # Check non-Python files one by one as before.
@@ -206,18 +198,21 @@ class Check(Command):
                 self.info('\tChecking', f)
                 if self.file_has_errors(f):
                     self.info(f'{len(other_files) - i - 1} files left to check')
-                    e = SystemExit(1)
-                    if self.no_editor:
-                        raise e
-                    try:
-                        edit_file(f)
-                    except FileNotFoundError:
-                        raise e
-                    if self.file_has_errors(f):
-                        raise e
+                    self.open_editor_file(f)
                 cache[f] = self.file_hash(f)
         finally:
             self.save_cache(cache)
+
+    def open_editor_file(self, f):
+        e = SystemExit(1)
+        if self.no_editor:
+            raise e
+        try:
+            edit_file(f)
+        except FileNotFoundError:
+            raise e
+        if self.file_has_errors(f):
+            raise e
 
     def report_errors(self, errors):
         for err in errors:
