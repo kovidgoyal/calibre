@@ -73,9 +73,6 @@ jobs:
             - name: Run linter
               run: ./setup.py check
 
-            - name: Run format checker
-              run: ./setup.py fmt --check-only
-
             - name: Test calibre
               env:
                 PYTHONWARNINGS: error
@@ -85,3 +82,6 @@ jobs:
                   runuser -u ci -- python setup.py test --under-sanitize
                   echo "Running test_rs"
                   runuser -u ci -- python setup.py test_rs
+
+            - name: Run format checker
+              run: ./setup.py fmt --check-only
