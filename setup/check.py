@@ -185,8 +185,10 @@ class Check(Command):
 
         had_errors = ruff_rc != 0 or rs_rc != 0 or cl_rc != 0
 
-        if no_editor:
-            raise SystemExit(1 if had_errors else 0)
+        if no_editor and had_errors:
+            raise SystemExit(1)
+        elif no_editor:
+            return
 
         # Errors that can't be resolved by opening a file in the editor
         unresolvable = cl_rc != 0
